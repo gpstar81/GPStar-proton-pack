@@ -166,11 +166,11 @@ String getPackConfig() {
     jsonBody["ledVGCyclotron"] = packConfig.ledVGCyclotron; // true|false
     jsonBody["ledCycLidSimRing"] = packConfig.ledCycLidSimRing; // true|false
     jsonBody["ledCycInnerPanel"] = packConfig.ledCycInnerPanel; // true|false
-    jsonBody["ledCycCakeCount"] = packConfig.ledCycCakeCount; // [12,23,24,35]
+    jsonBody["ledCycCakeCount"] = packConfig.ledCycCakeCount; // [12,23,24,26,35,36]
     jsonBody["ledCycCakeHue"] = packConfig.ledCycCakeHue; // Spectral custom colour/hue 1-254
     jsonBody["ledCycCakeSat"] = packConfig.ledCycCakeSat; // Spectral custom saturation 1-254
     jsonBody["ledCycCakeGRB"] = packConfig.ledCycCakeGRB; // Use GRB for cake LEDs true|false
-    jsonBody["ledCycCavCount"] = packConfig.ledCycCavCount; // Cyclotron cavity LEDs (0-30)
+    jsonBody["ledCycCavCount"] = packConfig.ledCycCavCount; // Cyclotron cavity LEDs (0-20)
     jsonBody["ledPowercellCount"] = packConfig.ledPowercellCount; //[13,15]
     jsonBody["ledPowercellHue"] = packConfig.ledPowercellHue; // Spectral custom colour/hue 1-254
     jsonBody["ledPowercellSat"] = packConfig.ledPowercellSat; // Spectral custom saturation 1-254
@@ -694,6 +694,9 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
       packConfig.ledCycCakeSat = jsonBody["ledCycCakeSat"].as<uint8_t>();
       packConfig.ledCycCakeGRB = jsonBody["ledCycCakeGRB"].as<uint8_t>();
       packConfig.ledCycCavCount = jsonBody["ledCycCavCount"].as<uint8_t>();
+      if(packConfig.ledCycCavCount > 20) {
+        packConfig.ledCycCavCount = 20; // Set maximum allowed.
+      }
 
       // Power Cell
       packConfig.ledPowercellCount = jsonBody["ledPowercellCount"].as<uint8_t>();

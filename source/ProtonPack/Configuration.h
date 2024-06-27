@@ -75,6 +75,7 @@ bool b_powercell_colour_toggle = true;
  *
  * CYCLOTRON_DELAY_2021_12_LED is for the stock Haslab 12 LED setup.
  * CYCLOTRON_DELAY_2021_20_LED is for the Frutto Technology 20 LED setup.
+ * CYCLOTRON_DELAY_2021_20_LED is for the Frutto Technology Max 36 LED setup.
  * CYCLOTRON_DELAY_2021_40_LED is for a 40 LED NeoPixel ring.
  */
 const uint16_t i_1984_delay = 1050;
@@ -84,8 +85,8 @@ const uint16_t i_1984_delay = 1050;
 #define CYCLOTRON_DELAY_2021_40_LED 7 // For 40 LEDs.
 
 /*
- * This is the middle LED aligned in each lens window. (0 is the first LED). Adjust these setting if you use different LED setups and installations.
- * Put the sequence in order from lowest to highest in a clockwise direction. (Top right lens as Cyclotron lens #1 and work your way clockwise)
+ * This is the middle LED aligned in each lens window. (0 is the first LED). Adjust these settings if you use different LED setups and installations.
+ * Put the sequence in order from lowest to highest in both directions. (Top right lens as Cyclotron lens #1)
  *
  * i_1984_cyclotron_12_leds is for the stock Haslab 12 LED setup.
  * i_1984_cyclotron_20_leds is for the Frutto Technology 20 LED setup.
@@ -114,13 +115,15 @@ bool b_cyclotron_simulate_ring = true;
  * Power Cell LED delay in milliseconds.
  * 1000 = 1 second.
  * The lower the number the faster the Power Cell lights cycle.
- * For the stock HasLab Power Cell with 13 leds, 1984 at 75 and 2021 at 40 is a good setting.
- * For a Power Cell with 15 LEDS such as from Frutto Technology, 1984 at 60, then for Afterlife and Frozen Empire at 34 is a good setting.
  * If you add more Power Cell LEDs, it is suggested to lower the values a little bit.
  * Any settings saved in the EEPROM menu will overwrite these settings.
  */
-uint8_t i_powercell_delay_1984 = 75;
-uint8_t i_powercell_delay_2021 = 40;
+#define POWERCELL_DELAY_1984_13_LED 46 // 1984/1989 delay for HasLab 13-LED Power Cell.
+#define POWERCELL_DELAY_2021_13_LED 40 // Afterlife/Frozen Empire delay for HasLab 13-LED Power Cell.
+#define POWERCELL_DELAY_1984_15_LED 40 // 1984/1989 delay for Frutto 15-LED Power Cell.
+#define POWERCELL_DELAY_2021_15_LED 34 // Afterlife/Frozen Empire delay for Frutto 15-LED Power Cell.
+uint8_t i_powercell_delay_1984 = POWERCELL_DELAY_1984_13_LED;
+uint8_t i_powercell_delay_2021 = POWERCELL_DELAY_2021_13_LED;
 
 /*
  * (OPTIONAL) Inner Cyclotron (cake) NeoPixel ring
@@ -135,7 +138,7 @@ uint8_t i_inner_cyclotron_cake_num_leds = 35;
 /*
  * (OPTIONAL) Inner Cyclotron (cavity) effects
  * If you are not using any, then this can be left alone (Default: 0).
- * You can use up to 30 LEDs (eg. addressable fairy lights as recommended device)
+ * You can use up to 20 LEDs (eg. addressable fairy lights as recommended device)
  */
 uint8_t i_inner_cyclotron_cavity_num_leds = 0;
 
@@ -245,11 +248,22 @@ bool b_stream_effects = true;
 /*
  * Inner Cyclotron NeoPixel ring speed.
  * The lower the number, the faster it will spin.
- * Default settings for a 35 NeoPixel ring are 5 for 2021 mode and 9 for 1984/1989 mode.
  * If you are using a ring with less than 35 NeoPixels, you may need to slightly raise these numbers.
  */
-uint8_t i_2021_inner_delay = 5;
-uint8_t i_1984_inner_delay = 9;
+#define INNER_CYCLOTRON_DELAY_1984_12_LED 15 // For 12 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_12_LED 12 // For 12 LEDs.
+#define INNER_CYCLOTRON_DELAY_1984_23_LED 12 // For 23 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_23_LED 8 // For 23 LEDs.
+#define INNER_CYCLOTRON_DELAY_1984_24_LED 12 // For 24 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_24_LED 8 // For 24 LEDs.
+#define INNER_CYCLOTRON_DELAY_1984_26_LED 12 // For 26 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_26_LED 8 // For 26 LEDs.
+#define INNER_CYCLOTRON_DELAY_1984_35_LED 9 // For 35 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_35_LED 5 // For 35 LEDs.
+#define INNER_CYCLOTRON_DELAY_1984_36_LED 9 // For 36 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_36_LED 5 // For 36 LEDs.
+uint8_t i_1984_inner_delay = INNER_CYCLOTRON_DELAY_1984_35_LED;
+uint8_t i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_35_LED;
 
 /*
  * Cyclotron direction

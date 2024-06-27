@@ -252,7 +252,7 @@ void updateEffectsVolume() {
 
 // Play a music track using certain defaults.
 void playMusic() {
-  if(b_music_paused != true && i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+  if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
     b_playing_music = true;
 
     switch(AUDIO_DEVICE) {
@@ -540,7 +540,7 @@ void increaseVolumeEEPROM() {
   i_volume_revert = i_volume_master_eeprom;
 
   if(b_pack_on != true && b_pack_shutting_down != true) {
-    // Provide feedback when the pack is not running.
+    // Provide feedback when the Proton Pack is not running.
     stopEffect(S_BEEPS_ALT);
     playEffect(S_BEEPS_ALT, false, i_volume_master_eeprom);
   }

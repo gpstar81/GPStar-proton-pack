@@ -31,11 +31,11 @@ To access the EEPROM LED Menu System, hold down the `Intensify Button` and toggl
 
 | Option | Purpose | Intensify&nbsp;Button | Barrel&nbsp;Wing&nbsp;Button |
 |:------:|---------|------------------|--------------------|
-| 5 | Save or Clear the EEPROM settings | Clear all the LED settings in the Proton Pack and Neutrona Wand EEPROMs.<br/><br/>**The Proton Pack and Neutrona Wand will instead load the software defined defaults the next time you turn the battery power off.** | Save the current settings to the Proton Pack and Neutrona Wand EEPROMs. |
+| 5 | Save or Clear the EEPROM settings | Clear all the LED settings in the Proton Pack and Neutrona Wand EEPROMs.<br/><br/>**The Proton Pack and Neutrona Wand will instead load the software defined defaults the next time you power-cycle from the battery.** | Save the current settings to the Proton Pack and Neutrona Wand EEPROMs. |
 | 4 | Neutrona Wand Barrel LED Count Toggle / Spectral Custom (Barrel) Colour | Toggle between 5 or 48 LEDs for your Neutrona Wand barrel. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Neutrona Wand barrel** for the Spectral Custom mode. |
 | 3 | Power Cell LED Count Toggle / Spectral Custom (Power Cell) Colour | Toggle between 15 or 13 LEDs for your Power Cell. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Power Cell** for the Spectral Custom mode. |
 | 2 | Cyclotron LED Count Toggle / Spectral Custom (Cyclotron) Colour | Toggle between 40, 36, 20 or 12 LEDs for your Cyclotron. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Cyclotron** for the Spectral Custom mode. |
-| 1 | Inner Cyclotron LED Count Toggle / Spectral Custom (Inner Cyclotron) Colour | Toggle Between 35, 24, 23 or 12 LEDs for your Inner Cyclotron. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Inner Cyclotron** for the Spectral Custom mode. |
+| 1 | Inner Cyclotron LED Count Toggle / Spectral Custom (Inner Cyclotron) Colour | Toggle Between 36, 35, 26, 24, 23 or 12 LEDs for your Inner Cyclotron. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Inner Cyclotron** for the Spectral Custom mode. |
 
 <div class="page-break"></div>
 
@@ -77,10 +77,10 @@ Please note whatever settings you have temporarily changed in the regular menus 
 
 | Option | Purpose | Intensify&nbsp;Button | Barrel&nbsp;Wing&nbsp;Button |
 |:------:|---------|------------------|--------------------|
-| 5 | Save or Clear the EEPROM settings | Clear all the configuration only settings in the Proton Pack and Neutrona Wand EEPROMs.<br/><br/>**The Proton Pack and Neutrona Wand will instead load the software defined defaults the next time you turn the battery power off.** | Save the current settings to the Proton Pack and Neutrona Wand EEPROMs.<br/><br/>**It is advised to power-cycle your equipment after saving settings to ensure the proper defaults/values are loaded, such as the case of changing the System Mode.** |
+| 5 | Save or Clear the EEPROM settings | Clear all the configuration only settings in the Proton Pack and Neutrona Wand EEPROMs.<br/><br/>**The Proton Pack and Neutrona Wand will instead load the software defined defaults the next time you power-cycle from the battery.** | Save the current settings to the Proton Pack and Neutrona Wand EEPROMs.<br/><br/>**It is advised to power-cycle your equipment after saving settings to ensure the proper defaults/values are loaded, such as the case of changing the System Mode.** |
 | 4 | Firing&nbsp;Mode&nbsp;Selection / Spectral Modes | Cycle through VG/CTS operation modes to set as your default.<sup>1</sup> | Enable/Disable the Spectral Modes. |
 | 3 | Overheating / Smoke | Enable/Disable Overheating Ability | Enable/Disable Smoke Effects |
-| 2 | Cyclotron&nbsp;LED&nbsp;Control | Cyclotron rotation direction. Clockwise or counter clockwise. | Enable/Disable the Cyclotron Lid Ring Simulation in Afterlife and Frozen Empire mode.<br/>ONLY applies to use of the 12, 20 or 36 LED hardware options. |
+| 2 | Cyclotron&nbsp;LED&nbsp;Control | Cyclotron rotation direction. Clockwise or counter clockwise. | Enable/Disable the Cyclotron Lid Ring Simulation in Afterlife and Frozen Empire mode.<br/>ONLY applies to use of the 12, 20, or 36 LED hardware options. |
 | 1 | Sound&nbsp;Effects | Enable/Disable extra Neutrona Wand sound effects to be played by the Proton Pack. | Enable/Disable the proton stream impact sound effects. |
 
 <sup>1</sup> Choose between Video Game and Cross the Streams (CTS) operation modes. The Cross The Streams modes are closer to what is seen in the films, while Video Game mode imitates behaviour seen in the 2009 Ghostbusters: The Video Game. Note that Video Game mode is only available in Super Hero mode.

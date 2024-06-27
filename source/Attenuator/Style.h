@@ -216,7 +216,7 @@ p {
   border-radius: 50%;
   left: 77.5px;
   height: 140px;
-  top: 280px;
+  top: 277px;
   width: 140px;
   z-index: 2;
 }
@@ -224,21 +224,20 @@ p {
 .cyc-circle::before {
   background-color: white;
   border-radius: 50%;
-  bottom: -1.7%;
+  bottom: -5.5px;
   content: "";
-  height: 29%;
-  left: 67.3%;
+  height: 40px;
+  left: 74.5px;
   position: absolute;
-  width: 29%;
-  transform: translateX(-50%);
+  width: 40px;
 }
 
 .filter-circle {
   border-radius: 50%;
-  left: 150.7px;
-  height: 42px;
-  top: 381.2px;
-  width: 42px;
+  left: 151.7px;
+  height: 40px;
+  top: 382.3px;
+  width: 40px;
   z-index: 3;
 }
 

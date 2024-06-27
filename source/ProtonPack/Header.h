@@ -53,12 +53,12 @@
 /*
  * Set the number of steps for the Inner Cyclotron (cake).
  */
-#define INNER_CYCLOTRON_CAKE_LED_MAX 35
+#define INNER_CYCLOTRON_CAKE_LED_MAX 36
 
 /*
  * Set the number of steps for the Inner Cyclotron (cavity).
  */
-#define INNER_CYCLOTRON_CAVITY_LED_MAX 30
+#define INNER_CYCLOTRON_CAVITY_LED_MAX 20
 
 /*
  * Set the number of steps for the Outer Cyclotron (lid).
@@ -100,10 +100,10 @@ const uint8_t i_nfilter_jewel_leds = JEWEL_NFILTER_LED_COUNT;
 
 /*
  * Total number of LEDs in the optional inner cyclotron configuration.
- * Up to 8 LEDs for the inner panel by Frutto Technology.
- * Up to 35 LEDs for the ring (due to diameter of the ring).
- * Optionally, up to 30 LEDs for the "sparking" effect in the cavity.
- * Max 73 LEDs is possible before degradation of serial communications.
+ * Max 64 LEDs is possible before degradation of serial communications!
+ * - Up to 8 LEDs for the inner panel by Frutto Technology.
+ * - Up to 36 LEDs for the largest ring provided by GPStar kits.
+ * - Optionally, up to 20 LEDs for the "sparking" effect in the cavity.
  */
 const uint8_t i_max_inner_cyclotron_leds = INNER_CYCLOTRON_LED_PANEL_MAX + INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX;
 
@@ -173,7 +173,7 @@ enum PACK_ACTION_STATES PACK_ACTION_STATE;
  * Cyclotron lid LEDs control and lid detection.
  */
 uint8_t i_1984_counter = 0; // Counter to keep track of which of the four LEDs we are working with in 1984/1989 mode.
-uint8_t i_2021_delay = 15; // The cyclotron delay in 2021 mode. This is reset by the system during bootup based on settings in Configuration.h
+uint8_t i_2021_delay = CYCLOTRON_DELAY_2021_12_LED; // The cyclotron delay in 2021 mode. This is reset by the system during bootup based on settings in Configuration.h
 uint8_t i_cyclotron_led_start = i_powercell_leds; // First LED in the Cyclotron.
 uint8_t i_led_cyclotron = i_cyclotron_led_start; // Current Cyclotron LED that we are lighting up.
 const uint16_t i_2021_ramp_delay = 300;
@@ -209,11 +209,9 @@ const uint8_t i_cyclotron_40led_matrix[OUTER_CYCLOTRON_LED_MAX] PROGMEM = { 1, 2
 
 /*
  * Inner Cyclotron NeoPixel ring ramp control.
- * This is based on the 35 LED NeoPixel ring option.
  */
 millisDelay ms_cyclotron_ring;
 rampInt r_inner_ramp;
-const uint16_t i_inner_delay = i_2021_inner_delay;
 const uint16_t i_inner_ramp_delay = 300;
 int8_t i_led_cyclotron_ring = 0; // Current LED for the inner cyclotron ring.
 int8_t i_led_cyclotron_cavity = 0; // Current LED for the cyclotron cavity.
@@ -400,7 +398,7 @@ millisDelay ms_firing_length_timer;
 const uint16_t i_firing_timer_length = 15000; // 15 seconds. Used by ms_firing_length_timer to determine which tail_end sound effects to play.
 millisDelay ms_firing_sound_mix; // Used to play misc sound effects during firing.
 uint16_t i_last_firing_effect_mix = 0;
-millisDelay ms_idle_fire_fade; // Used for fading the Afterlife idling sound with firing
+millisDelay ms_idle_fire_fade; // Used for fading the Afterlife idling sound with firing, and determining whether to use "full" or "quick" bootup sequences.
 
 /*
  * Rotary encoder for volume control

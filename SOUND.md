@@ -27,9 +27,49 @@ The compatibility matrix below notes whether a device is compatible with major v
 
 All firmware files for the audio controllers can be found in the [/extras/sound/ folder](/extras/sound/). Files are grouped by their device name, and a firmware update tool for the GPStar Audio firmware is available for ease of flashing that device.
 
+## Pack Audio
+
+This is where you can branch out to other options as desired and can really go all-out with your choice of audio. Neither of the audio controllers available for use in the pack will use their onboard amplifier by default, only the 3.5mm / ⅛" stereo phono jack. This means you can use any amplifier which accepts that type of connection. When you choose your amplifier, that should dictate the choice of speakers to match.
+
+The following components were demonstrated in the walkthrough video by JustinDustin and provides ample sound with a benefit of providing enough low-end rumble that a vibration motor may be considered optional:
+
+- [Drok 15W Class D Stereo Amplifier (8-26V)](https://a.co/d/9VnB8e9)
+  - This will operate successfully using the full 12V output offered by most TalentCell batteries
+  - Note the output wattage using a 12V supply will draw around 1-1.25 Amps so plan the capacity of your battery accordingly (read: this is why the larger 6000 mAh TalentCell battery is recommended)
+  - Increasing the output wattage using a different amplifier will increase the power draw as well as heat output, so choose carefully and plan accordingly for how/where to mount your amplifier
+- [Pair of 3" Full Range Bookshelf Speaker (15W @ 8Ω)](https://a.co/d/cMg5Vrt)
+  - Note the power rating of 15W which matches the amplifier to be used
+  - Take note of your amplifier's recommended ohms rating for speakers
+- [8" Auxiliary Stereo Audio Cable w/ 90&deg; Jack](https://a.co/d/3H4zxZw)
+  - Optional: Useful in tight locations, depending on where the amp is mounted
+- [Ground Loop Isolator](https://a.co/d/faBkok9) - Not required for the GPStar Amplifier
+  - Recommended for 3rd-party Amps: Prevents unwanted hum and noise from the amplifier due to the LEDs
+
+**Note:** As of mid-2024 all kits which include an amplifier will ship with the new GPStar Amplifier which is a high-powered Class D stereo amp. This device is very similar to the Drok amplifier noted, though it includes more 12V pass-through options for chaining other devices which need the full power offered by the Talentcell battery. It also includes a built-in 5V regulator which may be used for powering other kit devices via JST-XH connectors.
+
+The placement of your speakers is up to you. Though it is possible to mount a 3" speaker in the location used for the original pack speaker, a mount should be used to help offload some of the added weight from that device. And if the stock vibration motor is not important (as the solution above will provide some physical feedback in that regard), removal of that device opens up a cavity just behind and above the cross-bar of a standard ALICE frame for another speaker. For the latter, it will be necessary to carefully  drill some small holes into the motherboard of the pack for sound output.
+
+Shown below is an example of how a pair of stereo speakers may be mounted inside of the pack. The upper speaker is located where the original speaker was mounted, while the lower speaker occupies the space where the vibration motor casing was secured into the pack. Note the WAV Trigger and amplifier as shown here are mounted in the space normally occupied by the D-cell battery compartment, primarily so the volume control for the amplifier can be accessed from the service door when the pack is reassembled. That portion of the motherboard would need to be partially or fully removed if you wish to use this space as shown.
+
+Optional Part Shown: [3D Model for Pack - Upper Speaker Mount](stl/pack/Speaker_Mount.stl)
+
+![Pack Audio Example](images/Audio-Pack.jpg)
+
+### Note: Amplifier Volume Controls
+
+Most amplifier boards will contain their own dedicated volume control (potentiometer) which will adjust output from that device only. The built-in controls for the pack/wand will control the source audio (sound effects vs. music) and the overall volume output for both of the WAV Trigger boards, which will affect the input level to your choice of amplifier and in turn affect the output relative to that device.
+
+**tl;dr:** You should mount your amplifier in a space where you also have access to its volume control so you can adjust the pack to balance with the wand (or make it the domninant audio source) as necessary.
+
+*Under normal operating conditions setting the recommended Drok 15W amplifier to 1/2 power will be sufficient and capable of outputting over 80dB from the suggested pack speakers. Higher volume may also result in faster battery drain with very little improvement in volume.*
+
+*The GPStar Amplifier does not contain a volume control and is preset to output at its maximum volume. To control the volume level use the available controls on the pack or wand to adjust the overall system volume.*
+
 ## Wand Audio
 
-Let's begin with the most restrictive of spaces, the wand. Due to the additional components and wiring to be added, there is little room for options but replacements can be made. The stock speaker is rated at 0.25W @ 16Ω and uses a cone made from plastic--essentially more of a tweeter than a full-range speaker, so it is advised that if you would like better sound you will want a better speaker. Otherwise, you can still use the original Hasbro wand speaker. Below are the listed specifications of the on-board amplifiers depending on which audio board you are using.
+This is the most restrictive of spaces which means the device which provides audio must also double as an amplifier. Luckily, both options for sound can provide output directly to a speaker. While the GPStar Audio can output stereo sound to 2 speakers, there is only room for 1 speaker in the wand as mounted behind the heatsink.
+
+The stock speaker is rated at 0.25W @ 16Ω and uses a cone made from plastic--essentially more of a tweeter than a full-range speaker, so it is advised that if you would like better quality sound you will need a replacement speaker. Otherwise, you can still use the original Hasbro wand speaker. Below are the listed specifications of the on-board amplifiers depending on which audio board you are using, which will affect which speaker should be purchased.
 
 ---
 
@@ -55,37 +95,3 @@ Optional Part Shown: [3D Model for Wand - 40mm Speaker Mount](stl/wand/speaker_m
 ![Wand Audio Example](images/Audio-Wand.jpg)
 
 ### For more wand mounting solutions, refer to the [Wand Setup](WAND.md) page ###
-
-## Pack Audio
-
-This is where you can branch out to other options as desired and can really go all-out with your choice of audio. The WAV Trigger in the pack does not use its onboard amplifier by default, only the 3.5mm / ⅛" stereo phono jack which means you can use any amplifier which accepts that type of connection. When you choose your amplifier, that should dictate the choice of speakers to match.
-
-The following components were demonstrated in the walkthrough video by JustinDustin and provides ample sound with a benefit of providing enough low-end rumble that a vibration motor may be considered optional:
-
-- [Drok 15W Class D Stereo Amplifier (8-26V)](https://a.co/d/9VnB8e9)
-  - This will operate successfully using the full 12V output offered by most TalentCell batteries
-  - Note the output wattage using a 12V supply will draw around 1-1.25 Amps so plan the capacity of your battery accordingly (read: this is why the larger 6000 mAh TalentCell battery is recommended)
-  - Increasing the output wattage using a different amplifier will increase the power draw as well as heat output, so choose carefully and plan accordingly for how/where to mount your amplifier
-- [Pair of 3" Full Range Bookshelf Speaker (15W @ 8Ω)](https://a.co/d/cMg5Vrt)
-  - Note the power rating of 15W which matches the amplifier to be used
-  - Take note of your amplifier's recommended ohms rating for speakers
-- [8" Auxiliary Stereo Audio Cable w/ 90&deg; Jack](https://a.co/d/3H4zxZw)
-  - Optional: Useful in tight locations, depending on where the amp is mounted
-- [Ground Loop Isolator](https://a.co/d/faBkok9)
-  - Recommended: Prevents unwanted hum and noise from the amplifier due to the LEDs
-
-The placement of your speakers is up to you. Though it is possible to mount a 3" speaker in the location used for the original pack speaker, a mount should be used to help offload some of the added weight from that device. And if the stock vibration motor is not important (as the solution above will provide some physical feedback in that regard), removal of that device opens up a cavity just behind and above the cross-bar of a standard ALICE frame for another speaker. For the latter, it will be necessary to carefully  drill some small holes into the motherboard of the pack for sound output.
-
-Shown below is an example of how a pair of stereo speakers may be mounted inside of the pack. The upper speaker is located where the original speaker was mounted, while the lower speaker occupies the space where the vibration motor casing was secured into the pack. Note the WAV Trigger and amplifier as shown here are mounted in the space normally occupied by the D-cell battery compartment, primarily so the volume control for the amplifier can be accessed from the service door when the pack is reassembled. That portion of the motherboard would need to be partially or fully removed if you wish to use this space as shown.
-
-Optional Part Shown: [3D Model for Pack - Upper Speaker Mount](stl/pack/Speaker_Mount.stl)
-
-![Pack Audio Example](images/Audio-Pack.jpg)
-
-### Note: Amplifier Volume Controls
-
-Most amplifier boards will contain their own dedicated volume control (potentiometer) which will adjust output from that device only. The built-in controls for the pack/wand will control the source audio (sound effects vs. music) and the overall volume output for both of the WAV Trigger boards, which will affect the input level to your choice of amplifier and in turn affect the output relative to that device.
-
-**tl;dr:** You should mount your amplifier in a space where you also have access to its volume control so you can adjust the pack to balance with the wand (or make it the domninant audio source) as necessary.
-
-*Under normal operating conditions setting the recommended Drok 15W amplifier to 1/2 power will be sufficient and capable of outputting over 80dB from the suggested pack speakers. Higher volume may also result in faster battery drain with very little improvement in volume.*

@@ -11,6 +11,11 @@ A fully integrated Proton Pack and Neutrona Wand, packed with features and add-o
    - By implementing both the pack and wand controllers with an upgraded hose connection, both devices work seamlessly together. Interactions with the wand have an immediate effect on the pack, and vice-versa.
    - This functionality includes sound effects, alarm triggers, Cyclotron interaction, venting/overheat sequences, and proton stream effects (eg. video game colours and crossing the streams).
 
+## Feature Reel Demonstration ##
+
+Just see for yourself what this kit can do, and you'll be ready to believe us!
+[![GPStar Proton Pack and Neutrona Wand feature reel demonstration](https://img.youtube.com/vi/ja9vD3nKxQY/maxresdefault.jpg)](https://www.youtube.com/watch?v=ja9vD3nKxQY)
+
 ## Table of Contents
 
 *"Ray, pretend for a moment that I don't know anything about metallurgy, engineering, or physics, and just tell me what the hell is going on." -Dr. Venkman*
@@ -19,59 +24,94 @@ That's alright, this will help you study. Below you will find the various guides
 
 ---
 
-<img src='images/gpstar_logo.png' width=50 align="left"/><h3>GPStar Proton Pack and Neutrona Wand PCB Guide</h3>This guide is intended for completing the connections and installation for the GPStar Proton Pack and Neutrona Wand PCB boards.
+<img src='images/gpstar_logo.png' width=50 align="left"/><h3>GPStar Proton Pack and Neutrona Wand PCB Guide</h3>These are the most important guides which will get you familiar with the major components and how to update them with the latest capabilities offered by software and sound effects. This includes guides to aid you in completing the connections and installation for the GPStar Proton Pack and Neutrona Wand PCB boards.
 
 1. [Pack PCB](PACK_PCB.md)
 
 1. [Wand PCB](WAND_PCB.md)
 
-1. [GPStar Audio PCB](GPSTAR_AUDIO_PCB.md)
+1. [Flashing Firmware Updates](FLASHING.md)
 
-1. [Installation Video & Guide](INSTALL_GUIDE.md)
+1. [GPStar Audio PCB](GPSTAR_AUDIO_PCB.md)
 
 1. [Loading The Audio Files](AUDIO.md)
 
-1. [Flashing Updates](FLASHING.md)
+1. [Installation Video & Guide](INSTALL_GUIDE.md)
 
 1. [Troubleshooting](TROUBLESHOOTING.md)
+
+For more information about optional upgrades please see the "Component Guides" section below.
 
 ---
 
 ### Serial1 Expansion Controller
 
-This is a device which utilize the available expansion port on the GPStar Proton Pack controller. At present the only supported devices are an Attenuator (using an ESP32 or Arduino Nano) or a wireless adapter (using an ESP32). Both devices use the same software which normally drives the Attenuator device, though in the case of the wireless adapter can also be used without switches or other peripherals to only provide a WiFi capability to your Proton Pack. Please read the following guides for more specific details.
-
-1. [Wireless Adapter](WIRELESS.md) - Scaled-Down Attenuator
+This is a device which utilize the available expansion port on the GPStar Proton Pack controller. At present the only supported uses are as an "Pack Attenuator" (using an ESP32 or Arduino Nano) or a "Wireless Adapter" (using an ESP32). Both devices use the same software which normally drives the Attenuator device, though in the case of the wireless adapter can be used without switches or other peripherals to only provide a WiFi capability to your Proton Pack. Please read the following guides for more specific details.
 
 1. [Pack Attenuator](ATTENUATOR.md) - Full Device Implementation
 
+1. [Wireless Adapter](WIRELESS.md) - Scaled-Down Attenuator
+
 ---
 
-### Addendums
+### Component Guides
 
-These apply to the normal operation and usage of the equipment, as well as add-on items which may be integrated with the GPStar controllers.
+This section is presented in a way to offer a more complete view of what components are available (by major equipment areas), whether those components are Required<sup>R</sup> or Optional<sup>O</sup>, if choices are offerred at a specific component level. Where possible, each option will link to a related guide for more details and/or installation instructions.
 
-1. [Operation Manual](OPERATION.md)
+**Proton Pack**
 
-1. [EEPROM Menus](OPERATION_EEPROM.md)
+| **Component**          | **Option w/ Guide** |
+|------------------------|---------------------------------------------|
+| Power Source<sup>R</sup>    | [TalentCell 3000mAh or 6000mAh](POWER.md) |
+| Controller<sup>R</sup>      | [GPStar Pack Controller](PACK_PCB.md) or [Arduino 2560](PACK.md) |
+| Software<sup>R</sup>        | [Flashing the Latest Firmware](FLASHING.md) |
+| Audio Board<sup>R</sup>     | [GPStar Audio](GPSTAR_AUDIO_PCB.md) or [Robertsonics WAV Trigger](WAVTRIGGER.md) |
+| Speakers/Amp<sup>R</sup>    | [Audio Output Guide](SOUND.md) |
+| Sound Effects<sup>R</sup>   | [Loading The Audio Files](AUDIO.md) |
+| Cyclotron Lid<sup>O</sup>   | [20/36-LED options by Frutto Technology](CYCLOTRON_LID.md) |
+| Inner Cyclotron<sup>O</sup> | [Cake and Panel Lights](CYCLOTRON_INNER.md)
+| N-Filter<sup>O</sup>        | [7-LED Vent Light](NFILTER.md) |
+| Powercell<sup>O</sup>       | [15-LED option by Frutto Technology](POWERCELL.md) |
+| Smoke Effects<sup>O</sup>   | [Various Solutions Supported](SMOKE.md) |
 
-1. [Advanced Configuration](ADVCONFIG.md)
+**Connectivity**
 
-1. [Smoke Effects](SMOKE.md) (Optional add-ons)
+| **Component**   | **Option w/ Guide** |
+|-----------------|---------------------------------------------|
+| Wired<sup>R</sup>    | [Pack-Wand Hose Connections](HOSE.md)|
+| Wireless<sup>O</sup> | [Pack Attenuator](ATTENUATOR.md) or [Wireless Adapter](WIRELESS.md) |
 
-1. [Cyclotron Lights Upgrades](CYCLOTRON.md) (Optional add-ons)
+**Neutrona Wand**
 
-1. [N-Filter Vent Light](NFILTER.md) (Optional add-on)
+| **Component**        | **Option w/ Guide** |
+|----------------------|---------------------------------------------|
+| Power Source<sup>R</sup>  | - Normally Provided by Proton Pack - |
+| Controller<sup>R</sup>    | [GPStar Wand Controller](WAND_PCB.md) |
+| Software<sup>R</sup>      | [Flashing the Latest Firmware](FLASHING.md) |
+| Audio Board<sup>R</sup>   | [GPStar Audio](GPSTAR_AUDIO_PCB.md) or [Robertsonics WAV Trigger](WAVTRIGGER.md) |
+| Speakers<sup>R</sup>      | [Audio Output Guide](SOUND.md) |
+| Sound Effects<sup>O</sup> | [Loading The Audio Files](AUDIO.md) |
+| Hat Lights<sup>O</sup>    | [Kit option by Jonogunn](HATS.md) |
+| Bargraph<sup>O</sup>      | [28-Segment option by Frutto Technology](BARGRAPH.md) |
+| Vent Light<sup>O</sup>    | [High Intensity option by Frutto Technology](VENTLIGHT.md) |
+| Wand Barrel<sup>O</sup>   | 49-LED by Frutto Technology (Guide TBD) |
 
-1. [Power Cell Lights Upgrade](POWERCELL.md) (Optional add-ons)
+**Installation, Operation, and Troubleshooting**
 
-1. [Neutrona Wand 28 Segment Bar Graph Upgrade](BARGRAPH.md) (Optional add-on)
+| **Task**         | **Guide** |
+|------------------|---------------------------------------------|
+| Initial Assembly | [Installation - Video & Guide](INSTALL_GUIDE.md) |
+| System Operation | [Equipment Operation Manual](OPERATION.md) |
+| Configuration    | [EEPROM LED/Config Menus](OPERATION_EEPROM.md) |
+| I Need Help!     | [Troubleshooting](TROUBLESHOOTING.md) and [Frequently Asked Questions](FAQ.md) |
 
-1. [Neutrona Wand Hat Lights](HATS.md) (Optional add-on)
+**Software Development (Advanced Topics)**
 
-1. [Neutrona Wand High Intensity Vent Light](VENTLIGHT.md) (Optional add-on)
 
-1. [Frequently Asked Questions](FAQ.md)
+| **Task**         | **Guide** |
+|------------------|---------------------------------------------|
+| Modify Software  | [Advanced Software Configuration](ADVCONFIG.md) |
+| Upload Software  | [Pack/Wand Flashing](COMPILING_FLASHING.md) or [Attenuator/Wireless Flashing](ATTENUATOR_FLASHING.md) |
 
 ---
 
@@ -87,22 +127,20 @@ This is an advanced build-out which requires opening all devices and performing 
 
 1. [Compiling and Uploading the code](DIY_FLASHING.md)
 
-1. [WAV Trigger Configuration](WAVTRIGGER.md)
+1. [GPStar Audio PCB](GPSTAR_AUDIO_PCB.md) or [WAV Trigger Configuration](WAVTRIGGER.md)
 
 1. [Loading The Audio Files](AUDIO.md)
 
-1. [Audio Output](SOUND.md)
+1. [Audio Output Guide](SOUND.md)
 
-1. [Pack Setup](PACK.md)
+1. [Pack Setup - ATMega 2560](PACK.md)
 
 1. [Wand Setup - DEPRECATED](WAND.md)
 
 1. [Hose Connections](HOSE.md)
 
-## Feature Reel Demonstration ##
-[![GPStar Proton Pack and Neutrona Wand feature reel demonstration](https://img.youtube.com/vi/ja9vD3nKxQY/maxresdefault.jpg)](https://www.youtube.com/watch?v=ja9vD3nKxQY)
-
 ## Walkthrough Videos ##
+
 *"You know, it just occurred to me that we really haven't had a successful test of this equipment." -Ray Stantz*
 
 Except that we have! Here is a [Walkthrough Video Contributed by JustinDustin](https://www.youtube.com/watch?v=mnfljGd5-uU) (YouTube, March 2023) showcasing several of the stock features in a converted pack/wand combination. Several optional features were implemented as part of this build using the Arduino platform.
@@ -143,10 +181,12 @@ This project is made possible by Ghostbusters community makers and volunteers sp
 ### Special Thanks
 
 * Emre Sahare (GBFans: One Time) - For the original prop mode "Mode Original" operation deciphering.
+* Alexander Hibbs (@BeaulieuDesigns87) - For his equipment schematic as used in the WiFi web UI.
+* Nomake Wan - For continued Software Support and Feature Development
 
 Thank you to our supporters on [GBFans.com](https://www.gbfans.com/forum) and the [Facebook group](https://www.facebook.com/groups/gpstartechnologies).
 
-For those who are curious you can view a condensed [history of this project](HISTORY.md).
+For those who are curious you can view a condensed [history of how this project began](HISTORY.md).
 
 ## Disclaimer
 

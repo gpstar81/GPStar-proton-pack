@@ -120,15 +120,15 @@ void readEEPROM() {
       switch(i_powercell_leds) {
         case FRUTTO_POWERCELL_LED_COUNT:
           // 15 Power Cell LEDs.
-          i_powercell_delay_1984 = 60;
-          i_powercell_delay_2021 = 34;
+          i_powercell_delay_1984 = POWERCELL_DELAY_1984_15_LED;
+          i_powercell_delay_2021 = POWERCELL_DELAY_2021_15_LED;
         break;
 
         case HASLAB_POWERCELL_LED_COUNT:
         default:
           // 13 Power Cell LEDs.
-          i_powercell_delay_1984 = 75;
-          i_powercell_delay_2021 = 40;
+          i_powercell_delay_1984 = POWERCELL_DELAY_1984_13_LED;
+          i_powercell_delay_2021 = POWERCELL_DELAY_2021_13_LED;
         break;
       }
     }
@@ -148,6 +148,7 @@ void readEEPROM() {
 
         case 23:
         case 24:
+        case 26:
           i_2021_inner_delay = 8;
           i_1984_inner_delay = 12;
         break;
@@ -161,7 +162,12 @@ void readEEPROM() {
     }
 
     if(obj_eeprom.cyclotron_cavity_count > 0 && obj_eeprom.cyclotron_cavity_count != 255) {
-      i_inner_cyclotron_cavity_num_leds = obj_eeprom.cyclotron_cavity_count;
+      if(obj_eeprom.cyclotron_cavity_count > 20) {
+        i_inner_cyclotron_cavity_num_leds = 20;
+      }
+      else {
+        i_inner_cyclotron_cavity_num_leds = obj_eeprom.cyclotron_cavity_count;
+      }
     }
 
     if(obj_eeprom.inner_cyclotron_led_panel > 0 && obj_eeprom.inner_cyclotron_led_panel != 255) {

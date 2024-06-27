@@ -48,6 +48,7 @@ const int8_t i_volume_abs_max = 10; // System (absolute) maximum volume possible
 bool b_playing_music = false;
 bool b_music_paused = false;
 bool b_repeat_track = false;
+uint8_t i_wand_beep_level = 10; // 10 for WAV Trigger. 40 for GPStar Audio. This lowers the volume of certain Neutrona Wand beep sounds that the Proton Pack can play.
 uint8_t i_wand_sound_level = 0; // 1 for WAV Trigger. 0 For GPStar Audio.
 const uint8_t i_volume_master_percentage_max = 100; // Max percentage of master volume.
 
@@ -87,17 +88,19 @@ void stopMusic();
 void adjustGainEffect(uint16_t i_track_id, int8_t i_track_volume = i_volume_effects, bool b_fade = false, uint16_t i_fade_time = 0);
 
 /*
- * Helper Functions
+ * Audio playback functions.
  */
 
 // Play a sound effect using certain defaults.
 void playEffect(uint16_t i_track_id, bool b_track_loop, int8_t i_track_volume, bool b_fade_in, uint16_t i_fade_time, bool b_lock) {
-  if(i_track_volume < i_volume_abs_min) {
-    i_track_volume = i_volume_abs_min;
-  }
+  if(AUDIO_DEVICE == A_WAV_TRIGGER) {
+    if(i_track_volume < i_volume_abs_min) {
+      i_track_volume = i_volume_abs_min;
+    }
 
-  if(i_track_volume > i_volume_abs_max) {
-    i_track_volume = i_volume_abs_max;
+    if(i_track_volume > i_volume_abs_max) {
+      i_track_volume = i_volume_abs_max;
+    }
   }
 
   switch(AUDIO_DEVICE) {
@@ -300,6 +303,7 @@ void pauseMusic() {
 
 void resumeMusic() {
   if(b_playing_music == true) {
+    // Resume music playback on the Neutrona Wand
     switch(AUDIO_DEVICE) {
       case A_WAV_TRIGGER:
       case A_GPSTAR_AUDIO:
@@ -439,7 +443,7 @@ void increaseVolumeMusic() {
 
     // Provide feedback at maximum volume.
     stopEffect(S_BEEPS_ALT);
-    playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
+    playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_beep_level);
   }
   else {
     i_volume_music_percentage = i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER;
@@ -456,7 +460,7 @@ void decreaseVolumeMusic() {
 
     // Provide feedback at minimum volume.
     stopEffect(S_BEEPS_ALT);
-    playEffect(S_BEEPS_ALT, false, i_volume_master - 10);
+    playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_beep_level);
   }
   else {
     i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;

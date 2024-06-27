@@ -365,7 +365,7 @@ void loop() {
           stopEffect(S_PACK_RECOVERY);
           playEffect(S_PACK_RECOVERY);
 
-          packStartup();
+          packStartup(false);
         }
       }
 
@@ -524,7 +524,7 @@ void loop() {
     break;
 
     case ACTION_ACTIVATE:
-      packStartup();
+      packStartup(true);
     break;
   }
 
@@ -715,7 +715,7 @@ void playVentSounds() {
   playEffect(S_SPARKS_LOOP);
 }
 
-void packStartup() {
+void packStartup(bool firstStart) {
   PACK_STATE = MODE_ON;
   PACK_ACTION_STATE = ACTION_IDLE;
 
@@ -732,11 +732,13 @@ void packStartup() {
     serial1Send(A_ALARM_ON);
   }
   else {
-    // Tell the wand the pack alarm is off.
-    packSerialSend(P_ALARM_OFF);
+    if(!firstStart) {
+      // Tell the wand the pack alarm is off.
+      packSerialSend(P_ALARM_OFF);
 
-    // Tell any add-on devices that the alarm is off.
-    serial1Send(A_ALARM_OFF);
+      // Tell any add-on devices that the alarm is off.
+      serial1Send(A_ALARM_OFF);
+    }
 
     stopEffect(S_PACK_RIBBON_ALARM_1);
     stopEffect(S_ALARM_LOOP);
@@ -745,8 +747,8 @@ void packStartup() {
 
     switch(SYSTEM_YEAR) {
       case SYSTEM_1984:
-        playEffect(S_BOOTUP);
-        playEffect(S_IDLE_LOOP, true, i_volume_effects, true, 2000);
+        playEffect(S_GB1_1984_BOOT_UP);
+        playEffect(S_GB1_1984_PACK_LOOP, true, i_volume_effects, true, 3800);
       break;
 
       case SYSTEM_1989:
@@ -756,16 +758,30 @@ void packStartup() {
 
       case SYSTEM_AFTERLIFE:
       default:
-        if(STREAM_MODE == SLIME) {
-          playEffect(S_AFTERLIFE_PACK_STARTUP, false, i_volume_effects - 30);
-          playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects - 40, true, 18000);
+        if(firstStart) {
+          if(STREAM_MODE == SLIME) {
+            playEffect(S_AFTERLIFE_PACK_STARTUP, false, i_volume_effects - 30);
+            playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects - 40, true, 18000);
+          }
+          else {
+            playEffect(S_AFTERLIFE_PACK_STARTUP, false, i_volume_effects);
+            playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects, true, 18000);
+          }
+
+          ms_idle_fire_fade.start(18000);
         }
         else {
-          playEffect(S_AFTERLIFE_PACK_STARTUP, false, i_volume_effects);
-          playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects, true, 18000);
-        }
+          if(STREAM_MODE == SLIME) {
+            playEffect(S_BOOTUP, false, i_volume_effects - 30);
+            playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects - 40, true, 500);
+          }
+          else {
+            playEffect(S_BOOTUP, false, i_volume_effects);
+            playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects, true, 500);
+          }
 
-        ms_idle_fire_fade.start(18000);
+          ms_idle_fire_fade.start(0);
+        }
       break;
 
       case SYSTEM_FROZEN_EMPIRE:
@@ -784,7 +800,7 @@ void packStartup() {
           b_brass_pack_sound_loop = true;
         }
 
-        ms_idle_fire_fade.start(200);
+        ms_idle_fire_fade.start(0);
       break;
     }
 
@@ -880,13 +896,15 @@ void packShutdown() {
 
   if(SYSTEM_YEAR == SYSTEM_1984) {
     stopEffect(S_PACK_SHUTDOWN);
-    stopEffect(S_IDLE_LOOP);
-    stopEffect(S_BOOTUP);
+    stopEffect(S_GB1_1984_PACK_LOOP);
+    stopEffect(S_GB1_1984_BOOT_UP);
   }
 
   if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-    b_powercell_sound_loop = false;
-    stopEffect(S_POWERCELL); // Just in case a shutdown happens and not a ramp down.
+    if(b_powercell_sound_loop) {
+      stopEffect(S_POWERCELL); // Just in case a shutdown happens and not a ramp down.
+      b_powercell_sound_loop = false;
+    }
 
     stopEffect(S_PACK_SHUTDOWN_AFTERLIFE_ALT);
     stopEffect(S_AFTERLIFE_PACK_STARTUP);
@@ -923,12 +941,10 @@ void packShutdown() {
   if(b_alarm != true) {
     switch(SYSTEM_YEAR) {
       case SYSTEM_1984:
-        playEffect(S_SHUTDOWN);
         playEffect(S_PACK_SHUTDOWN);
       break;
 
       case SYSTEM_1989:
-        playEffect(S_SHUTDOWN);
         playEffect(S_GB2_PACK_OFF);
       break;
 
@@ -1359,7 +1375,10 @@ void checkSwitches() {
           case SYSTEM_1984:
           case SYSTEM_1989:
           default:
-            // Do nothing.
+            if(switch_power.getState() == HIGH) {
+              // If shutting down from the ion arm switch in 84/89, play the extra shutdown sound.
+              playEffect(S_SHUTDOWN);
+            }
           break;
         }
       }
@@ -1632,21 +1651,23 @@ void cyclotronSwitchLEDLoop() {
 
     switch(SYSTEM_YEAR) {
       case SYSTEM_AFTERLIFE:
-      default:
-        if(b_2021_ramp_up == true) {
-          i_cyc_led_delay = i_cyclotron_switch_led_delay + (i_2021_ramp_delay - r_2021_ramp.update());
-        }
-        else if(b_2021_ramp_down == true) {
-          i_cyc_led_delay = i_cyclotron_switch_led_delay + r_2021_ramp.update();
-        }
-      break;
-
       case SYSTEM_FROZEN_EMPIRE:
-        if(b_2021_ramp_up == true) {
-          i_cyc_led_delay = i_cyclotron_switch_led_delay + ((i_2021_ramp_delay / 2) - r_2021_ramp.update());
+      default:
+        if(ms_idle_fire_fade.remaining() > 0) {
+          if(b_2021_ramp_up == true) {
+            i_cyc_led_delay = i_cyclotron_switch_led_delay + (i_2021_ramp_delay - r_2021_ramp.update());
+          }
+          else if(b_2021_ramp_down == true) {
+            i_cyc_led_delay = i_cyclotron_switch_led_delay + r_2021_ramp.update();
+          }
         }
-        else if(b_2021_ramp_down == true) {
-          i_cyc_led_delay = i_cyclotron_switch_led_delay + r_2021_ramp.update();
+        else {
+          if(b_2021_ramp_up == true) {
+            i_cyc_led_delay = i_cyclotron_switch_led_delay + ((i_2021_ramp_delay / 2) - r_2021_ramp.update());
+          }
+          else if(b_2021_ramp_down == true) {
+            i_cyc_led_delay = i_cyclotron_switch_led_delay + r_2021_ramp.update();
+          }
         }
       break;
 
@@ -1780,37 +1801,82 @@ void powercellLoop() {
       switch(i_powercell_multiplier) {
         case 2:
           if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-            i_multiplier = 5;
+            if(i_pc_delay + i_extra_delay > 5) {
+              i_multiplier = 5;
+            }
+            else {
+              i_multiplier = i_pc_delay + i_extra_delay;
+            }  
           }
           else {
-            i_multiplier = 10;
+            if(i_pc_delay + i_extra_delay > 10) {
+              i_multiplier = 10;
+            }
+            else {
+              i_multiplier = i_pc_delay + i_extra_delay;
+            }  
           }
         break;
 
         case 3:
           if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-            i_multiplier = 10;
+            if(i_pc_delay + i_extra_delay > 10) {
+              i_multiplier = 10;
+            }
+            else {
+              i_multiplier = i_pc_delay + i_extra_delay;
+            }  
           }
           else {
-            i_multiplier = 20;
+            if(i_pc_delay + i_extra_delay > 20) {
+              i_multiplier = 20;
+            }
+            else {
+              i_multiplier = i_pc_delay + i_extra_delay;
+            }  
           }
         break;
 
         case 4:
           if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-            i_multiplier = 15;
+            if(i_pc_delay + i_extra_delay > 15) {
+              i_multiplier = 15;
+            }
+            else {
+              i_multiplier = i_pc_delay + i_extra_delay;
+            }  
           }
           else {
-            i_multiplier = 30;
+            if(i_pc_delay + i_extra_delay > 30) {
+              i_multiplier = 30;
+            }
+            else {
+              i_multiplier = i_pc_delay + i_extra_delay;
+            }   
           }
         break;
 
         case 5:
           if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-            i_multiplier = 25;
+            if(i_pc_delay + i_extra_delay > 25) {
+              i_multiplier = 25;
+            }
+            else {
+              i_multiplier = i_pc_delay + i_extra_delay;
+            }  
           }
           else {
-            i_multiplier = 40;
+            if(i_pc_delay + i_extra_delay > 40) {
+              if(i_pc_delay + i_extra_delay > 40) {
+                i_multiplier = 40;
+              }
+              else {
+                i_multiplier = i_pc_delay + i_extra_delay;
+              }  
+            }
+            else {
+              i_multiplier = i_pc_delay + i_extra_delay;
+            }
           }
         break;
 
@@ -1819,7 +1885,12 @@ void powercellLoop() {
             i_multiplier = 30;
           }
           else {
-            i_multiplier = 50;
+            if(i_pc_delay + i_extra_delay > 50) {
+              i_multiplier = 50;
+            }
+            else {
+              i_multiplier = i_pc_delay + i_extra_delay;
+            }            
           }
         break;
       }
@@ -2091,24 +2162,25 @@ void cyclotronControl() {
         case SYSTEM_1989:
           r_2021_ramp.go(i_outer_current_ramp_speed); // Reset the ramp.
           r_2021_ramp.go(i_1984_delay, i_1984_ramp_length, CIRCULAR_OUT);
-
           r_inner_ramp.go(i_inner_current_ramp_speed); // Inner Cyclotron ramp reset.
           r_inner_ramp.go(i_1984_inner_delay, i_1984_ramp_length, CIRCULAR_OUT);
         break;
 
         case SYSTEM_AFTERLIFE:
-        default:
-          r_2021_ramp.go(i_outer_current_ramp_speed); // Reset the ramp.
-          r_2021_ramp.go(i_2021_delay, i_2021_ramp_length, QUARTIC_OUT);
-          r_inner_ramp.go(i_inner_current_ramp_speed); // Inner Cyclotron ramp reset.
-          r_inner_ramp.go(i_2021_inner_delay, i_2021_ramp_length, QUARTIC_OUT);
-        break;
-
         case SYSTEM_FROZEN_EMPIRE:
-          r_2021_ramp.go(i_outer_current_ramp_speed); // Reset the ramp.
-          r_2021_ramp.go(i_2021_delay, (uint16_t)(i_2021_ramp_length / 1.5), QUADRATIC_OUT);
-          r_inner_ramp.go(i_inner_current_ramp_speed); // Inner Cyclotron ramp reset.
-          r_inner_ramp.go(i_2021_inner_delay, i_2021_ramp_length, QUADRATIC_OUT);
+        default:
+          if(ms_idle_fire_fade.remaining() > 0) {
+            r_2021_ramp.go(i_outer_current_ramp_speed); // Reset the ramp.
+            r_2021_ramp.go(i_2021_delay, i_2021_ramp_length, QUARTIC_OUT);
+            r_inner_ramp.go(i_inner_current_ramp_speed); // Inner Cyclotron ramp reset.
+            r_inner_ramp.go(i_2021_inner_delay, i_2021_ramp_length, QUARTIC_OUT);
+          }
+          else {
+            r_2021_ramp.go(i_outer_current_ramp_speed); // Reset the ramp.
+            r_2021_ramp.go(i_2021_delay, (uint16_t)(i_2021_ramp_length / 1.5), QUADRATIC_OUT);
+            r_inner_ramp.go(i_inner_current_ramp_speed); // Inner Cyclotron ramp reset.
+            r_inner_ramp.go(i_2021_inner_delay, i_2021_ramp_length, QUADRATIC_OUT);
+          }
         break;
       }
     }
@@ -3519,7 +3591,7 @@ void packOverheatingFinished() {
 
   reset2021RampUp();
 
-  packStartup();
+  packStartup(false);
 
   // Turn off the vent lights
   ventLight(false);
@@ -4065,30 +4137,31 @@ void modeFireStartSounds() {
   switch(STREAM_MODE) {
     case PROTON:
     default:
-      // Some sparks for firing start.
-      if(SYSTEM_YEAR == SYSTEM_1989) {
-        playEffect(S_FIRE_START_SPARK, false, i_volume_effects - 10, false, 0, false);
-      }
-      else if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-        playEffect(S_FROZEN_EMPIRE_FIRE_START, false, i_volume_effects, false, 0, false);
-      }
-      else {
-        playEffect(S_FIRE_START_SPARK, false, i_volume_effects, false, 0, false);
-      }
-
       switch(i_wand_power_level) {
         case 1 ... 4:
+        default:
           if(b_firing_intensify == true) {
-            if(SYSTEM_YEAR == SYSTEM_1989) {
-              playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, true, 6500, false);
-              playEffect(S_GB2_FIRE_START, false, i_volume_effects, false, 0, false);
-            }
-            else if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-              playEffect(S_GB1_FIRE_LOOP, true, i_volume_effects, true, 500, false);
-            }
-            else {
-              playEffect(S_GB1_FIRE_LOOP, true, i_volume_effects, true, 1000, false);
-              playEffect(S_GB1_FIRE_START, false, i_volume_effects, false, 0, false);
+            switch(SYSTEM_YEAR) {
+              case SYSTEM_1984:
+                playEffect(S_GB1_1984_FIRE_START_SHORT, false, i_volume_effects, false, 0, false);
+                playEffect(S_GB1_1984_FIRE_LOOP_PACK, true, i_volume_effects, true, 1350, false);
+              break;
+
+              case SYSTEM_1989:
+                playEffect(S_GB2_FIRE_START, false, i_volume_effects, false, 0, false);
+                playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, true, 6500, false);
+              break;
+
+              case SYSTEM_AFTERLIFE:
+              default:
+                playEffect(S_GB1_FIRE_START, false, i_volume_effects, false, 0, false);
+                playEffect(S_GB1_1984_FIRE_LOOP_PACK, true, i_volume_effects, true, 1000, false);
+              break;
+
+              case SYSTEM_FROZEN_EMPIRE:
+                playEffect(S_FROZEN_EMPIRE_FIRE_START, false, i_volume_effects, false, 0, false);
+                playEffect(S_GB1_1984_FIRE_LOOP_PACK, true, i_volume_effects, true, 200, false);
+              break;
             }
 
             b_sound_firing_intensify_trigger = true;
@@ -4100,10 +4173,11 @@ void modeFireStartSounds() {
           if(b_firing_alt == true) {
             if(SYSTEM_YEAR == SYSTEM_1989) {
               playEffect(S_GB2_FIRE_START, false, i_volume_effects, false, 0, false);
-              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000, false);
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 6500, false);
             }
             else if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 700, false);
+              playEffect(S_FROZEN_EMPIRE_FIRE_START, false, i_volume_effects, false, 0, false);
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 200, false);
             }
             else {
               playEffect(S_FIRE_START, false, i_volume_effects, false, 0, false);
@@ -4119,29 +4193,36 @@ void modeFireStartSounds() {
 
         case 5:
           switch(SYSTEM_YEAR) {
+            case SYSTEM_1984:
+              playEffect(S_GB1_1984_FIRE_START_HIGH_POWER, false, i_volume_effects, false, 0, false);
+            break;
+
             case SYSTEM_1989:
               playEffect(S_GB1_FIRE_START_HIGH_POWER, false, i_volume_effects, false, 0, false);
-            break;
-
-            case SYSTEM_1984:
-              playEffect(S_GB1_FIRE_START_HIGH_POWER, false, i_volume_effects, false, 0, false);
-              playEffect(S_GB1_FIRE_START, false, i_volume_effects, false, 0, false);
-            break;
-
-            case SYSTEM_FROZEN_EMPIRE:
-              // Do nothing.
             break;
 
             case SYSTEM_AFTERLIFE:
             default:
               playEffect(S_AFTERLIFE_FIRE_START, false, i_volume_effects, false, 0, false);
             break;
+
+            case SYSTEM_FROZEN_EMPIRE:
+              playEffect(S_FROZEN_EMPIRE_FIRE_START, false, i_volume_effects, false, 0, false);
+            break;
           }
 
           if(b_firing_intensify == true) {
             // Reset some sound triggers.
             b_sound_firing_intensify_trigger = true;
-            playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 700, false);
+            if(SYSTEM_YEAR == SYSTEM_1984) {
+              playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 1700, false);
+            }
+            else if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 120, false);
+            }
+            else {
+              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 1500, false);
+            }
           }
           else {
             b_sound_firing_intensify_trigger = false;
@@ -4152,6 +4233,9 @@ void modeFireStartSounds() {
             b_sound_firing_alt_trigger = true;
             if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
               playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 120, false);
+            }
+            else if(SYSTEM_YEAR == SYSTEM_1984) {
+              playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 1700, false);
             }
             else {
               playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 700, false);
@@ -4255,18 +4339,77 @@ void modeFireStopSounds() {
       switch(STREAM_MODE) {
         case PROTON:
         default:
-          // Play different firing end stream sound depending on how long we have been firing for.
-          if(ms_firing_length_timer.remaining() < 5000) {
-            // Short tail end.
-            playEffect(S_FIRING_END_GUN, false, i_volume_effects, false, 0, false);
-          }
-          else if(ms_firing_length_timer.remaining() < 10000) {
-            // Mid tail end.
-            playEffect(S_FIRING_END_MID, false, i_volume_effects, false, 0, false);
-          }
-          else {
-            // Long tail end.
-            playEffect(S_FIRING_END, false, i_volume_effects, false, 0, false);
+          switch(SYSTEM_YEAR) {
+            case SYSTEM_1984:
+              if(i_wand_power_level != i_wand_power_level_max) {
+                // Play different firing end stream sound depending on how long we have been firing for.
+                if(ms_firing_length_timer.remaining() < 5000) {
+                  // Long firing tail end.
+                  playEffect(S_FIRING_END_MID, false, i_volume_effects, false, 0, false);
+                }
+                else if(ms_firing_length_timer.remaining() < 10000) {
+                  // Mid firing tail end.
+                  playEffect(S_FIRING_END, false, i_volume_effects, false, 0, false);
+                }
+                else {
+                  // Short firing tail end.
+                  playEffect(S_GB1_1984_FIRE_END_SHORT, false, i_volume_effects, false, 0, false);
+                }
+              }
+              else {
+                // Play different firing end stream sound depending on how long we have been firing for.
+                if(ms_firing_length_timer.remaining() < 5000) {
+                  // Long tail end.
+                  playEffect(S_GB1_1984_FIRE_END_HIGH_POWER, false, i_volume_effects, false, 0, false);
+                }
+                else if(ms_firing_length_timer.remaining() < 10000) {
+                  // Mid tail end.
+                  playEffect(S_GB1_1984_FIRE_END_MID_HIGH_POWER, false, i_volume_effects, false, 0, false);
+                }
+                else {
+                  // Short tail end.
+                  playEffect(S_GB1_1984_FIRE_END_SHORT_HIGH_POWER, false, i_volume_effects, false, 0, false);
+                }                
+              }
+            break;
+
+            case SYSTEM_1989:
+              // Play different firing end stream sound depending on how long we have been firing for.
+              if(ms_firing_length_timer.remaining() < 5000) {
+                // Long tail end.
+                playEffect(S_FIRING_END_GUN, false, i_volume_effects, false, 0, false);
+              }
+              else if(ms_firing_length_timer.remaining() < 10000) {
+                // Mid tail end.
+                playEffect(S_FIRING_END_MID, false, i_volume_effects, false, 0, false);
+              }
+              else {
+                // Short tail end.
+                playEffect(S_FIRING_END, false, i_volume_effects, false, 0, false);
+              }
+            break;
+
+            case SYSTEM_AFTERLIFE:
+            default:
+              // Play different firing end stream sound depending on how long we have been firing for.
+              if(ms_firing_length_timer.remaining() < 5000) {
+                // Long firing tail end.
+                playEffect(S_AFTERLIFE_FIRE_END_LONG, false, i_volume_effects, false, 0, false);
+              }
+              else if(ms_firing_length_timer.remaining() < 10000) {
+                // Mid firing tail end.
+                playEffect(S_AFTERLIFE_FIRE_END_MID, false, i_volume_effects, false, 0, false);
+              }
+              else {
+                // Short firing tail end.
+                playEffect(S_AFTERLIFE_FIRE_END_SHORT, false, i_volume_effects, false, 0, false);
+              }
+            break;
+
+            case SYSTEM_FROZEN_EMPIRE:
+              // Frozen Empire replaces all firing tail sounds with just a "thump".
+              playEffect(S_FROZEN_EMPIRE_FIRE_END, false, i_volume_effects, false, 0, false);
+            break;
           }
         break;
 
@@ -4358,45 +4501,57 @@ void wandStoppedFiring() {
 }
 
 void wandStopFiringSounds() {
-  // Stop the Frozen Empire firing sound if playing.
-  if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-    stopEffect(S_FROZEN_EMPIRE_FIRE_START);
-  }
-
-  // Stop all other firing sounds.
+  // Stop all firing sounds.
   switch(STREAM_MODE) {
     case PROTON:
     default:
       switch(i_wand_power_level) {
         case 1 ... 4:
-          if(SYSTEM_YEAR == SYSTEM_1989) {
-            stopEffect(S_GB2_FIRE_START);
-            stopEffect(S_GB2_FIRE_LOOP);
-          }
-          else {
-            stopEffect(S_GB1_FIRE_START);
-            stopEffect(S_GB1_FIRE_LOOP);
+        default:
+          switch(SYSTEM_YEAR) {
+            case SYSTEM_1984:
+              stopEffect(S_GB1_1984_FIRE_START_SHORT);
+              stopEffect(S_GB1_1984_FIRE_LOOP_PACK);
+            break;
+            case SYSTEM_1989:
+              stopEffect(S_GB2_FIRE_START);
+              stopEffect(S_GB2_FIRE_LOOP);
+            break;
+            case SYSTEM_AFTERLIFE:
+            default:
+              stopEffect(S_GB1_FIRE_START);
+              stopEffect(S_GB1_1984_FIRE_LOOP_PACK);
+            break;
+            case SYSTEM_FROZEN_EMPIRE:
+              stopEffect(S_FROZEN_EMPIRE_FIRE_START);
+              stopEffect(S_GB1_1984_FIRE_LOOP_PACK);
+            break;
           }
         break;
         case 5:
           switch(SYSTEM_YEAR) {
-            case SYSTEM_1989:
-              stopEffect(S_GB2_FIRE_START);
-            break;
             case SYSTEM_1984:
+              stopEffect(S_GB1_1984_FIRE_START_HIGH_POWER);
+              stopEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP);
+            break;
+            case SYSTEM_1989:
               stopEffect(S_GB1_FIRE_START_HIGH_POWER);
-              stopEffect(S_GB1_FIRE_START);
             break;
             case SYSTEM_AFTERLIFE:
-            case SYSTEM_FROZEN_EMPIRE:
             default:
               stopEffect(S_AFTERLIFE_FIRE_START);
+            break;
+            case SYSTEM_FROZEN_EMPIRE:
+              stopEffect(S_FROZEN_EMPIRE_FIRE_START);
             break;
           }
         break;
       }
 
-      stopEffect(S_FIRE_START_SPARK);
+      if(b_stream_effects) {
+        stopEffect(S_FIRE_LOOP_IMPACT);
+      }
+
       stopEffect(S_FIRING_LOOP_GB1);
       stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
     break;
@@ -4465,8 +4620,8 @@ void packAlarm() {
     stopEffect(S_GB2_PACK_LOOP);
   }
   else if(SYSTEM_YEAR == SYSTEM_1984) {
-    stopEffect(S_IDLE_LOOP);
-    stopEffect(S_BOOTUP);
+    stopEffect(S_GB1_1984_PACK_LOOP);
+    stopEffect(S_GB1_1984_BOOT_UP);
   }
   else {
     stopEffect(S_AFTERLIFE_PACK_STARTUP);
