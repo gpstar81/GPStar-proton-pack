@@ -95,21 +95,21 @@ const char INDEX_page[] PROGMEM = R"=====(
       <div class="volume-container">
         <div class="volume-control">
           <h3>System</h3>
-          <button type="button" onclick="volumeMasterUp()">+</button>
+          <button type="button" onclick="volSysUp()">+</button>
           <span id="masterVolume"></span>
-          <button type="button" onclick="volumeMasterDown()">&minus;</button>
+          <button type="button" onclick="volSysDown()">&minus;</button>
         </div>
         <div class="volume-control">
           <h3>Effects</h3>
-          <button type="button" onclick="volumeEffectsUp()">+</button>
+          <button type="button" onclick="volFxUp()">+</button>
           <span id="effectsVolume"></span>
-          <button type="button" onclick="volumeEffectsDown()">&minus;</button>
+          <button type="button" onclick="volFxDown()">&minus;</button>
         </div>
         <div class="volume-control">
           <h3>Music</h3>
-          <button type="button" onclick="volumeMusicUp()">+</button>
+          <button type="button" onclick="volMusicUp()">+</button>
           <span id="musicVolume"></span>
-          <button type="button" onclick="volumeMusicDown()">&minus;</button>
+          <button type="button" onclick="volMusicDown()">&minus;</button>
         </div>
       </div>
       <button type="button" class="orange" onclick="toggleMute()">Mute/Unmute</button>
@@ -135,9 +135,9 @@ const char INDEX_page[] PROGMEM = R"=====(
       <br/>
       <br/>
       <br/>
-      <button type="button" class="orange" onclick="beginVenting()" id="btnVent">Vent</button>
+      <button type="button" class="orange" onclick="packVent()" id="btnVent">Vent</button>
       &nbsp;&nbsp;
-      <button type="button" class="blue" onclick="attenuatePack()" id="btnAttenuate">Attenuate</button>
+      <button type="button" class="blue" onclick="packAttenuate()" id="btnAttenuate">Attenuate</button>
     </div>
   </div>
 
@@ -200,9 +200,9 @@ const char INDEX_page[] PROGMEM = R"=====(
 
     function openTab(evt, tabName) {
       // Hide all tab contents
-      var tabcontent = document.getElementsByClassName("tab");
-      for (var i = 0; i < tabcontent.length; i++) {
-          tabcontent[i].style.display = "none";
+      var tabs = document.getElementsByClassName("tab");
+      for (var i = 0; i < tabs.length; i++) {
+          tabs[i].style.display = "none";
       }
 
       // Remove the active class from all tab links
@@ -212,7 +212,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       }
 
       // Show the current tab and add an "active" class to the button that opened the tab
-      getEl(tabName).style.display = "block";
+      showEl(tabName);
       evt.currentTarget.className += " active";
     }
 
@@ -222,6 +222,26 @@ const char INDEX_page[] PROGMEM = R"=====(
 
     function setEl(id, value){
       getEl(id).innerHTML = value || "";
+    }
+
+    function colorEl(id, red, green, blue, alpha){
+      getEl(id).style.backgroundColor = "rgba(" + red + ", " + green + ", " + blue + ", " + alpha + ")";
+    }
+
+    function hideEl(id){
+      getEl(id).style.display = "none";
+    }
+
+    function showEl(id){
+      getEl(id).style.display = "block";
+    }
+
+    function blinkEl(id, state) {
+      if(state) {
+        getEl(id).classList.add("blinking");
+      } else {
+        getEl(id).classList.remove("blinking");
+      }
     }
 
     function initWebSocket() {
@@ -455,63 +475,63 @@ const char INDEX_page[] PROGMEM = R"=====(
         setEl("equipTitle", header);
 
         if (jObj.switch == "Ready") {
-          getEl("ionOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
+          colorEl("ionOverlay", 0, 150, 0, 0.5);
         } else {
-          getEl("ionOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)";
+          colorEl("ionOverlay", 255, 0, 0, 0.5);
         }
 
         if (jObj.pack == "Powered") {
-          getEl("pcellOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
+          colorEl("pcellOverlay", 0, 150, 0, 0.5);
         } else {
-          getEl("pcellOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
+          colorEl("pcellOverlay", 100, 100, 100, 0.5);
         }
 
         if (jObj.cable == "Disconnected") {
-          getEl("cableOverlay").style.display = "block";
-          getEl("cableOverlay").classList.add("blinking");
+          showEl("cableOverlay");
+          blinkEl("cableOverlay", true);
         } else {
-          getEl("cableOverlay").style.display = "none";
-          getEl("cableOverlay").classList.remove("blinking");
+          hideEl("cableOverlay");
+          blinkEl("cableOverlay", false);
         }
 
         switch(jObj.cyclotron){
           case "Active":
-            getEl("cycOverlay").style.backgroundColor = "rgba(255, 230, 0, 0.5)";
-            getEl("cycOverlay").classList.remove("blinking");
+            colorEl("cycOverlay", 255, 230, 0, 0.5);
+            blinkEl("cycOverlay", false);
             break;
           case "Warning":
-            getEl("cycOverlay").style.backgroundColor = "rgba(255, 100, 0, 0.5)";
-            getEl("cycOverlay").classList.remove("blinking");
+            colorEl("cycOverlay", 255, 100, 0, 0.5);
+            blinkEl("cycOverlay", false);
             break;
           case "Critical":
-            getEl("cycOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)";
-            getEl("cycOverlay").classList.add("blinking");
+            colorEl("cycOverlay", 255, 0, 0, 0.5);
+            blinkEl("cycOverlay", true);
             break;
           case "Recovery":
-            getEl("cycOverlay").style.backgroundColor = "rgba(0, 0, 255, 0.5)";
-            getEl("cycOverlay").classList.remove("blinking");
+            colorEl("cycOverlay", 0, 0, 255, 0.5);
+            blinkEl("cycOverlay", false);
             break;
           default:
             if (jObj.pack == "Powered") {
               // Also covers cyclotron state of "Normal"
-              getEl("cycOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
+              colorEl("cycOverlay", 0, 150, 0, 0.5);
             } else {
-              getEl("cycOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
+              colorEl("cycOverlay", 100, 100, 100, 0.5);
             }
-            getEl("cycOverlay").classList.remove("blinking");
+            blinkEl("cycOverlay", false);
         }
 
         if (jObj.pack == "Powered") {
           if (jObj.temperature == "Venting") {
-            getEl("filterOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)";
-            getEl("filterOverlay").classList.add("blinking");
+            colorEl("filterOverlay", 255, 0, 0, 0.5);
+            blinkEl("filterOverlay", true);
           } else {
-            getEl("filterOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
-            getEl("filterOverlay").classList.remove("blinking");
+            colorEl("filterOverlay", 0, 150, 0, 0.5);
+            blinkEl("filterOverlay", false);
           }
         } else {
-          getEl("filterOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
-          getEl("filterOverlay").classList.remove("blinking");
+          colorEl("filterOverlay", 100, 100, 100, 0.5);
+          blinkEl("filterOverlay", false);
         }
 
         // Current Wand Status
@@ -519,68 +539,67 @@ const char INDEX_page[] PROGMEM = R"=====(
           // Only update if the wand is physically connected to the pack.
           setEl("streamMode", jObj.wandMode || "");
           setEl("powerLevel", "L-" + (jObj.power || "0"));
-
-          getEl("barrelOverlay").style.display = "block";
-          getEl("barrelOverlay").style.backgroundColor = "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", 0." + Math.round(jObj.power * 1.2, 10) + ")";
+          showEl("barrelOverlay");
+          colorEl("barrelOverlay", color[0], color[1], color[2], "0." + Math.round(jObj.power * 1.2, 10));
           if (jObj.firing == "Firing") {
-            getEl("barrelOverlay").classList.add("blinking");
+            blinkEl("barrelOverlay", true);
           } else {
-            getEl("barrelOverlay").classList.remove("blinking");
+            blinkEl("barrelOverlay", false);
           }
 
           if (jObj.wandPower == "Powered") {
             if (jObj.safety == "Safety Off") {
-              getEl("safetyOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
+              colorEl("safetyOverlay", 0, 150, 0, 0.5);
             } else {
-              getEl("safetyOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)";
+              colorEl("safetyOverlay", 255, 0, 0, 0.5);
             }
           } else {
-            getEl("safetyOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
+            colorEl("safetyOverlay", 100, 100, 100, 0.5);
           }
         } else {
           setEl("powerLevel", "&mdash;");
           setEl("streamMode", "- Disconnected -");
-          getEl("barrelOverlay").style.display = "none";
-          getEl("safetyOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
+          hideEl("barrelOverlay");
+          colorEl("safetyOverlay", 100, 100, 100, 0.5);
         }
 
         if (jObj.battVoltage) {
           // Voltage should typically be <5.0 but >4.2 under normal use; anything below that indicates a possible problem.
           setEl("battOutput", "Output:<br/>" + parseFloat((jObj.battVoltage || 0).toFixed(2)) + " GeV");
           if (jObj.battVoltage < 4.2) {
-            getEl("boostOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)"; // Draining Battery
+            colorEl("boostOverlay", 255, 0, 0, 0.5);
           } else {
-            getEl("boostOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)"; // Healthy Battery
+            colorEl("boostOverlay", 0, 150, 0, 0.5);
           }
         } else {
           setEl("battOutput", "");
         }
 
         if(jObj.cyclotron && !jObj.cyclotronLid) {
-          getEl("cyclotronLid").style.display = "block";
+          showEl("cyclotronLid");
         } else {
-          getEl("cyclotronLid").style.display = "none";
+          hideEl("cyclotronLid");
         }
       } else {
         // Reset all screen elements to their defaults to indicate no data available.
         setEl("equipTitle", "- Desynchronized -");
-        getEl("ionOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)";
-        getEl("boostOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
-        getEl("pcellOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
-        getEl("cableOverlay").style.display = "none";
-        getEl("cableOverlay").classList.remove("blinking");
-        getEl("cycOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
-        getEl("cycOverlay").classList.remove("blinking");
-        getEl("cyclotronLid").style.display = "none";
-        getEl("filterOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
-        getEl("filterOverlay").classList.remove("blinking");
-        getEl("barrelOverlay").style.display = "none";
-        getEl("barrelOverlay").classList.remove("blinking");
+        colorEl("ionOverlay", 255, 0, 0, 0.5);
+        colorEl("boostOverlay", 100, 100, 100, 0.5);
+        colorEl("pcellOverlay", 100, 100, 100, 0.5);
+        hideEl("cableOverlay");
+        blinkEl("cableOverlay", false);
+        colorEl("cycOverlay", 100, 100, 100, 0.5);
+        blinkEl("cycOverlay", false);
+        hideEl("cyclotronLid");
+        colorEl("filterOverlay", 100, 100, 100, 0.5);
+        blinkEl("filterOverlay", false);
+        hideEl("barrelOverlay");
+        blinkEl("barrelOverlay", false);
         setEl("powerLevel", "&mdash;");
         setEl("streamMode", "- Disconnected -");
-        getEl("safetyOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
+        colorEl("safetyOverlay", 100, 100, 100, 0.5);
         setEl("battOutput", "");
-        getEl("cyclotronLid").style.display = "none";
+        hideEl("cyclotronLid");
       }
     }
 
@@ -701,18 +720,18 @@ const char INDEX_page[] PROGMEM = R"=====(
             switch(jObj.displayType || 0) {
               case 0:
                 // Text-Only Display
-                getEl("equipCRT").style.display = "none";
-                getEl("equipTXT").style.display = "block";
+                hideEl("equipCRT");
+                showEl("equipTXT");
                 break;
               case 1:
                 // Graphical Display
-                getEl("equipCRT").style.display = "block";
-                getEl("equipTXT").style.display = "none";
+                showEl("equipCRT");
+                hideEl("equipTXT");
                 break;
               case 2:
                 // Both graphical and text
-                getEl("equipCRT").style.display = "block";
-                getEl("equipTXT").style.display = "block";
+                showEl("equipCRT");
+                showEl("equipTXT");
                 break;
             }
           }
@@ -757,11 +776,11 @@ const char INDEX_page[] PROGMEM = R"=====(
       sendCommand("/pack/off");
     }
 
-    function attenuatePack() {
+    function packAttenuate() {
       sendCommand("/pack/attenuate");
     }
 
-    function beginVenting() {
+    function packVent() {
       sendCommand("/pack/vent");
     }
 
@@ -769,27 +788,27 @@ const char INDEX_page[] PROGMEM = R"=====(
       sendCommand("/volume/toggle");
     }
 
-    function volumeMasterUp() {
+    function volSysUp() {
       sendCommand("/volume/master/up");
     }
 
-    function volumeMasterDown() {
+    function volSysDown() {
       sendCommand("/volume/master/down");
     }
 
-    function volumeEffectsUp() {
+    function volFxUp() {
       sendCommand("/volume/effects/up");
     }
 
-    function volumeEffectsDown() {
+    function volFxDown() {
       sendCommand("/volume/effects/down");
     }
 
-    function volumeMusicUp() {
+    function volMusicUp() {
       sendCommand("/volume/music/up");
     }
 
-    function volumeMusicDown() {
+    function volMusicDown() {
       sendCommand("/volume/music/down");
     }
 
