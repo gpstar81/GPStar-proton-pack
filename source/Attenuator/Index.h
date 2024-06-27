@@ -220,6 +220,10 @@ const char INDEX_page[] PROGMEM = R"=====(
       return document.getElementById(id);
     }
 
+    function setEl(id, value){
+      getEl(id).innerHTML = value || "";
+    }
+
     function initWebSocket() {
       console.log("Attempting to open a WebSocket connection...");
       websocket = new WebSocket(gateway);
@@ -448,7 +452,7 @@ const char INDEX_page[] PROGMEM = R"=====(
           default:
             header += " / V0.0.00";
         }
-        getEl("equipTitle").innerHTML = header;
+        setEl("equipTitle", header);
 
         if (jObj.switch == "Ready") {
           getEl("ionOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)";
@@ -513,8 +517,8 @@ const char INDEX_page[] PROGMEM = R"=====(
         // Current Wand Status
         if (jObj.wand == "Connected") {
           // Only update if the wand is physically connected to the pack.
-          getEl("streamMode").innerHTML = (jObj.wandMode || "");
-          getEl("powerLevel").innerHTML = "L-" + (jObj.power || "0");
+          setEl("streamMode", jObj.wandMode || "");
+          setEl("powerLevel", "L-" + (jObj.power || "0"));
 
           getEl("barrelOverlay").style.display = "block";
           getEl("barrelOverlay").style.backgroundColor = "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", 0." + Math.round(jObj.power * 1.2, 10) + ")";
@@ -534,22 +538,22 @@ const char INDEX_page[] PROGMEM = R"=====(
             getEl("safetyOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
           }
         } else {
-          getEl("powerLevel").innerHTML = "&mdash;";
-          getEl("streamMode").innerHTML = "- Disconnected -";
+          setEl("powerLevel", "&mdash;");
+          setEl("streamMode", "- Disconnected -");
           getEl("barrelOverlay").style.display = "none";
           getEl("safetyOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
         }
 
         if (jObj.battVoltage) {
           // Voltage should typically be <5.0 but >4.2 under normal use; anything below that indicates a possible problem.
-          getEl("battOutput").innerHTML = "Output:<br/>" + parseFloat((jObj.battVoltage || 0).toFixed(2)) + " GeV";
+          setEl("battOutput", "Output:<br/>" + parseFloat((jObj.battVoltage || 0).toFixed(2)) + " GeV");
           if (jObj.battVoltage < 4.2) {
             getEl("boostOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)"; // Draining Battery
           } else {
             getEl("boostOverlay").style.backgroundColor = "rgba(0, 150, 0, 0.5)"; // Healthy Battery
           }
         } else {
-          getEl("battOutput").innerHTML = "";
+          setEl("battOutput", "");
         }
 
         if(jObj.cyclotron && !jObj.cyclotronLid) {
@@ -559,7 +563,7 @@ const char INDEX_page[] PROGMEM = R"=====(
         }
       } else {
         // Reset all screen elements to their defaults to indicate no data available.
-        getEl("equipTitle").innerHTML = "- Desynchronized -";
+        setEl("equipTitle", "- Desynchronized -");
         getEl("ionOverlay").style.backgroundColor = "rgba(255, 0, 0, 0.5)";
         getEl("boostOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
         getEl("pcellOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
@@ -572,10 +576,10 @@ const char INDEX_page[] PROGMEM = R"=====(
         getEl("filterOverlay").classList.remove("blinking");
         getEl("barrelOverlay").style.display = "none";
         getEl("barrelOverlay").classList.remove("blinking");
-        getEl("powerLevel").innerHTML = "&mdash;";
-        getEl("streamMode").innerHTML = "- Disconnected -";
+        setEl("powerLevel", "&mdash;");
+        setEl("streamMode", "- Disconnected -");
         getEl("safetyOverlay").style.backgroundColor = "rgba(100, 100, 100, 0.5)";
-        getEl("battOutput").innerHTML = "";
+        setEl("battOutput", "");
         getEl("cyclotronLid").style.display = "none";
       }
     }
@@ -584,55 +588,55 @@ const char INDEX_page[] PROGMEM = R"=====(
       // Update display if we have the expected data (containing mode and theme).
       if (jObj && jObj.mode && jObj.theme) {
         // Current Pack Status
-        getEl("mode").innerHTML = jObj.mode || "...";
-        getEl("theme").innerHTML = jObj.theme || "...";
-        getEl("pack").innerHTML = jObj.pack || "...";
-        getEl("switch").innerHTML = jObj.switch || "...";
-        getEl("cable").innerHTML = jObj.cable || "...";
+        setEl("mode", jObj.mode || "...");
+        setEl("theme", jObj.theme || "...");
+        setEl("pack", jObj.pack || "...");
+        setEl("switch", jObj.switch || "...");
+        setEl("cable", jObj.cable || "...");
         if(jObj.cyclotron && !jObj.cyclotronLid) {
-          getEl("cyclotron").innerHTML = (jObj.cyclotron || "") + " &#9762;";
+          setEl("cyclotron", (jObj.cyclotron || "") + " &#9762;");
         } else {
-          getEl("cyclotron").innerHTML = jObj.cyclotron || "...";
+          setEl("cyclotron", jObj.cyclotron || "...");
         }
-        getEl("temperature").innerHTML = jObj.temperature || "...";
-        getEl("wand").innerHTML = jObj.wand || "...";
+        setEl("temperature", jObj.temperature || "...");
+        setEl("wand", jObj.wand || "...");
 
         // Current Wand Status
         if (jObj.wand == "Connected") {
           // Only update if the wand is physically connected to the pack.
-          getEl("wandPower").innerHTML = jObj.wandPower || "...";
-          getEl("wandMode").innerHTML = jObj.wandMode || "...";
-          getEl("safety").innerHTML = jObj.safety || "...";
-          getEl("power").innerHTML = jObj.power || "...";
-          getEl("firing").innerHTML = jObj.firing || "...";
+          setEl("wandPower", jObj.wandPower || "...");
+          setEl("wandMode", jObj.wandMode || "...");
+          setEl("safety", jObj.safety || "...");
+          setEl("power", jObj.power || "...");
+          setEl("firing", jObj.firing || "...");
           updateBars(jObj.power || 0, jObj.wandMode || "");
         } else {
           // Default to empty values when wand is not present.
-          getEl("wandPower").innerHTML = "...";
-          getEl("wandMode").innerHTML = "...";
-          getEl("safety").innerHTML = "...";
-          getEl("power").innerHTML = "...";
-          getEl("firing").innerHTML = "...";
+          setEl("wandPower", "...");
+          setEl("wandMode", "...");
+          setEl("safety", "...");
+          setEl("power", "...");
+          setEl("firing", "...");
           updateBars(0, "");
         }
 
         if (jObj.battVoltage) {
           // Voltage should typically be <5.0 but >4.2 under normal use; anything below that indicates high drain.
-          getEl("battVoltage").innerHTML = parseFloat((jObj.battVoltage || 0).toFixed(2));
+          setEl("battVoltage", parseFloat((jObj.battVoltage || 0).toFixed(2)));
           if (jObj.battVoltage < 4.2) {
-            getEl("battHealth").innerHTML = "&#129707;"; // Draining Battery
+            setEl("battHealth", "&#129707;"); // Draining Battery
           } else {
-            getEl("battHealth").innerHTML = "&#128267;"; // Healthy Battery
+            setEl("battHealth", "&#128267;"); // Healthy Battery
           }
         } else {
-          getEl("battVoltage").innerHTML = "...";
-          getEl("battHealth").innerHTML = "";
+          setEl("battVoltage", "...");
+          setEl("battHealth", "");
         }
 
         // Volume Information
-        getEl("masterVolume").innerHTML = (jObj.volMaster || 0) + "%";
-        getEl("effectsVolume").innerHTML = (jObj.volEffects || 0) + "%";
-        getEl("musicVolume").innerHTML = (jObj.volMusic || 0) + "%";
+        setEl("masterVolume", (jObj.volMaster || 0) + "%");
+        setEl("effectsVolume", (jObj.volEffects || 0) + "%");
+        setEl("musicVolume", (jObj.volMusic || 0) + "%");
 
         // Update special UI elements based on the latest data values.
         setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron);
@@ -647,7 +651,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       }
 
       // Connected Wifi Clients - Private AP vs. WebSocket
-      getEl("clientInfo").innerHTML = "AP Clients: " + (jObj.apClients || 0) + " / WebSocket Clients: " + (jObj.wsClients || 0);
+      setEl("clientInfo", "AP Clients: " + (jObj.apClients || 0) + " / WebSocket Clients: " + (jObj.wsClients || 0));
 
       updateGraphics(jObj);
     }
@@ -687,10 +691,10 @@ const char INDEX_page[] PROGMEM = R"=====(
             }
 
             // Device Info
-            getEl("buildDate").innerHTML = "Build: " + (jObj.buildDate || "");
-            getEl("wifiName").innerHTML = jObj.wifiName || "";
+            setEl("buildDate", "Build: " + (jObj.buildDate || ""));
+            setEl("wifiName", jObj.wifiName || "");
             if ((jObj.wifiNameExt || "") != "" && (jObj.extAddr || "") != "" || (jObj.extMask || "") != "") {
-              getEl("extWifi").innerHTML = (jObj.wifiNameExt || "") + ": " + jObj.extAddr + " / " + jObj.extMask;
+              setEl("extWifi", (jObj.wifiNameExt || "") + ": " + jObj.extAddr + " / " + jObj.extMask);
             }
 
             // Display Preference

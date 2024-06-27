@@ -112,7 +112,7 @@ void setup() {
 
     // CPU Frequency MHz: 80, 160, 240 [Default]
     // Lower frequency means less power consumption.
-    setCpuFrequencyMhz(160);
+    setCpuFrequencyMhz(240);
     Serial.print(F("CPU Freq (MHz): "));
     Serial.println(getCpuFrequencyMhz());
   #endif

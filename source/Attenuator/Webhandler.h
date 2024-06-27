@@ -34,29 +34,25 @@ String status; // Holder for simple "status: success" response.
 void handleRoot(AsyncWebServerRequest *request) {
   // Used for the root page (/) from the web server.
   //debug("Web Root HTML Requested");
-  String s = INDEX_page; // Read HTML page into String.
-  request->send(200, "text/html", s); // Serve page content.
+  request->send(200, "text/html", String(INDEX_page)); // Serve page content.
 }
 
 void handleNetwork(AsyncWebServerRequest *request) {
   // Used for the network page from the web server.
   //debug("Network HTML Requested");
-  String s = NETWORK_page; // Read HTML page into String.
-  request->send(200, "text/html", s); // Serve page content.
+  request->send(200, "text/html", String(NETWORK_page)); // Serve page content.
 }
 
 void handlePassword(AsyncWebServerRequest *request) {
   // Used for the password page from the web server.
   //debug("Password HTML Requested");
-  String s = PASSWORD_page; // Read HTML page into String.
-  request->send(200, "text/html", s); // Serve page content.
+  request->send(200, "text/html", String(PASSWORD_page)); // Serve page content.
 }
 
 void handleAttenuatorSettings(AsyncWebServerRequest *request) {
   // Used for the device page from the web server.
   //debug("Attenuator Settings HTML Requested");
-  String s = DEVICE_page; // Read HTML page into String.
-  request->send(200, "text/html", s); // Serve page content.
+  request->send(200, "text/html", String(DEVICE_page)); // Serve page content.
 }
 
 void handlePackSettings(AsyncWebServerRequest *request) {
@@ -66,8 +62,7 @@ void handlePackSettings(AsyncWebServerRequest *request) {
 
   // Used for the settings page from the web server.
   //debug("Pack Settings HTML Requested");
-  String s = PACK_SETTINGS_page; // Read HTML page into String.
-  request->send(200, "text/html", s); // Serve page content.
+  request->send(200, "text/html", String(PACK_SETTINGS_page)); // Serve page content.
 }
 
 void handleWandSettings(AsyncWebServerRequest *request) {
@@ -77,8 +72,7 @@ void handleWandSettings(AsyncWebServerRequest *request) {
 
   // Used for the settings page from the web server.
   //debug("Wand Settings HTML Requested");
-  String s = WAND_SETTINGS_page; // Read HTML page into String.
-  request->send(200, "text/html", s); // Serve page content.
+  request->send(200, "text/html", String(WAND_SETTINGS_page)); // Serve page content.
 }
 
 void handleSmokeSettings(AsyncWebServerRequest *request) {
@@ -88,22 +82,19 @@ void handleSmokeSettings(AsyncWebServerRequest *request) {
 
   // Used for the settings page from the web server.
   //debug("Smoke Settings HTML Requested");
-  String s = SMOKE_SETTINGS_page; // Read HTML page into String.
-  request->send(200, "text/html", s); // Serve page content.
+  request->send(200, "text/html", String(SMOKE_SETTINGS_page)); // Serve page content.
 }
 
 void handleStylesheet(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
   //debug("Main StyleSheet Requested");
-  String s = STYLE_page; // Read CSS page into String.
-  request->send(200, "text/css", s); // Serve page content.
+  request->send(200, "text/css", String(STYLE_page)); // Serve page content.
 }
 
 void handleSvgImage(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
   //debug("Equipment SVG Requested");
-  String s = EQUIP_svg; // Read SVG image into String.
-  request->send(200, "image/svg+xml", s); // Serve page content.
+  request->send(200, "image/svg+xml", String(EQUIP_svg)); // Serve page content.
 }
 
 String getAttenuatorConfig() {
