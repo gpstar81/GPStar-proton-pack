@@ -1371,6 +1371,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       serial1Send(A_OVERHEATING_FINISHED);
     break;
 
+    case W_WAND_SYNCING:
+      stopEffect(S_WAND_SYNC);
+      playEffect(S_WAND_SYNC);
+    break;
+
     case W_BARREL_EXTENDED:
       // Remember the last state sent from the wand (for re-sync with the Serial1 device).
       b_neutrona_wand_barrel_extended = true;

@@ -77,6 +77,9 @@ void setup() {
   pinModeFast(encoder_pin_a, INPUT_PULLUP);
   pinModeFast(encoder_pin_b, INPUT_PULLUP);
 
+  // Status indicator LED on the v1.5 GPStar Proton Pack Board.
+  pinModeFast(led_pack_status, OUTPUT);
+
   // Configure the various switches on the pack.
   switch_alarm.setDebounceTime(50);
   switch_mode.setDebounceTime(50);
@@ -209,8 +212,13 @@ void setup() {
   resetMasterVolume();
 
   // Perform power-on sequence if demo light mode is not enabled per user preferences.
-  if(b_demo_light_mode != true) {
-    systemPOST();
+  if(b_demo_light_mode != true && b_pack_post_finish != true) {
+    // System Power On Self Test
+    playEffect(S_POWER_ON);
+    ms_delay_post.start(1);
+  }
+  else {
+    b_pack_post_finish = true;
   }
 }
 
@@ -240,292 +248,303 @@ void loop() {
   checkSwitches();
   checkRotaryEncoder();
 
-  switch (PACK_STATE) {
-    case MODE_OFF:
-      if(b_pack_on == true) {
-        b_2021_ramp_up = false;
-        b_2021_ramp_up_start = false;
-        b_inner_ramp_up = false;
-        b_fade_out = true;
+  if(b_pack_post_finish == true) {
+    switch (PACK_STATE) {
+      case MODE_OFF:
+        // Turn on the status indicator LED.
+        digitalWriteFast(led_pack_status, HIGH);
 
-        reset2021RampDown();
+        if(b_pack_on == true) {
+          b_2021_ramp_up = false;
+          b_2021_ramp_up_start = false;
+          b_inner_ramp_up = false;
+          b_fade_out = true;
 
-        b_pack_shutting_down = true;
+          reset2021RampDown();
 
-        ms_fadeout.start(0);
+          b_pack_shutting_down = true;
 
-        switch(SYSTEM_MODE) {
-          case MODE_ORIGINAL:
-            if(switch_power.getState() == HIGH) {
-              // Tell the Neutrona Wand that power to the Proton Pack is off.
-              if(b_wand_connected) {
-                packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+          ms_fadeout.start(0);
+
+          switch(SYSTEM_MODE) {
+            case MODE_ORIGINAL:
+              if(switch_power.getState() == HIGH) {
+                // Tell the Neutrona Wand that power to the Proton Pack is off.
+                if(b_wand_connected) {
+                  packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
+                }
+
+                // Tell the Attenuator or any other device that the power to the Proton Pack is off.
+                if(b_serial1_connected) {
+                  serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
+                }
               }
+            break;
 
-              // Tell the Attenuator or any other device that the power to the Proton Pack is off.
-              if(b_serial1_connected) {
-                serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
-              }
-            }
-          break;
+            case MODE_SUPER_HERO:
+            default:
+              // Do nothing.
+            break;
+          }
 
-          case MODE_SUPER_HERO:
-          default:
-            // Do nothing.
-          break;
+          // Tell the wand the pack is off, so shut down the wand if it happens to still be on.
+          packSerialSend(P_OFF);
+          serial1Send(A_PACK_OFF);
+
+          b_pack_on = false;
         }
 
-        // Tell the wand the pack is off, so shut down the wand if it happens to still be on.
-        packSerialSend(P_OFF);
-        serial1Send(A_PACK_OFF);
-
-        b_pack_on = false;
-      }
-
-      if(b_2021_ramp_down == true && b_overheating == false && b_alarm == false) {
-        // If we enter the LED EEPROM menu while the pack is ramping off, stop it right away.
-        if(b_spectral_lights_on == true) {
-          packOffReset();
-          spectralLightsOn();
+        if(b_2021_ramp_down == true && b_overheating == false && b_alarm == false) {
+          // If we enter the LED EEPROM menu while the pack is ramping off, stop it right away.
+          if(b_spectral_lights_on == true) {
+            packOffReset();
+            spectralLightsOn();
+          }
+          else {
+            cyclotronControl();
+            cyclotronSwitchLEDLoop();
+            powercellLoop();
+          }
         }
         else {
-          cyclotronControl();
-          cyclotronSwitchLEDLoop();
-          powercellLoop();
-        }
-      }
-      else {
-        if(b_spectral_lights_on != true) {
-          if(ms_fadeout.justFinished()) {
-            if(fadeOutLights() == true) {
-              ms_fadeout.start(50);
+          if(b_spectral_lights_on != true) {
+            if(ms_fadeout.justFinished()) {
+              if(fadeOutLights() == true) {
+                ms_fadeout.start(50);
+              }
+              else {
+                ms_fadeout.stop();
+                b_fade_out = false;
+              }
             }
-            else {
-              ms_fadeout.stop();
-              b_fade_out = false;
-            }
-          }
 
-          if(b_reset_start_led == false && ms_fadeout.isRunning() != true) {
-            packOffReset();
+            if(b_reset_start_led == false && ms_fadeout.isRunning() != true) {
+              packOffReset();
+            }
           }
         }
-      }
-    break;
+      break;
 
-    case MODE_ON:
-      if(b_spectral_lights_on == true) {
-        spectralLightsOff();
-      }
+      case MODE_ON:
+        // Turn off the status indicator LED.
+        digitalWriteFast(led_pack_status, LOW);
 
-      if(b_pack_shutting_down == true) {
-        b_pack_shutting_down = false;
-      }
+        if(b_spectral_lights_on == true) {
+          spectralLightsOff();
+        }
 
-      if(b_pack_on == false) {
-        // Tell the wand the pack is on.
-        packSerialSend(P_ON);
-        serial1Send(A_PACK_ON);
-      }
+        if(b_pack_shutting_down == true) {
+          b_pack_shutting_down = false;
+        }
 
-      b_pack_on = true;
-      b_fade_out = false;
-      ms_fadeout.stop();
+        if(b_pack_on == false) {
+          // Tell the wand the pack is on.
+          packSerialSend(P_ON);
+          serial1Send(A_PACK_ON);
+        }
 
-      if(b_2021_ramp_down == true) {
-        b_2021_ramp_down = false;
-        b_2021_ramp_down_start = false;
-        b_inner_ramp_down = false;
+        b_pack_on = true;
+        b_fade_out = false;
+        ms_fadeout.stop();
 
-        reset2021RampUp();
-      }
-
-      if(ribbonCableAttached() == true && b_overheating == false) {
-        if(b_alarm == true) {
-          if(!usingSlimeCyclotron()) {
-            if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
-              // Reset the LEDs before resetting the alarm flag.
-              resetCyclotronState();
-              ms_cyclotron.start(0);
-            }
-            else {
-              ms_cyclotron.start(i_outer_current_ramp_speed);
-            }
-          }
-
-          ms_cyclotron_ring.start(i_inner_current_ramp_speed);
-
-          ventLight(false);
-          ventLightLEDW(false);
-
-          b_alarm = false;
+        if(b_2021_ramp_down == true) {
+          b_2021_ramp_down = false;
+          b_2021_ramp_down_start = false;
+          b_inner_ramp_down = false;
 
           reset2021RampUp();
-
-          stopEffect(S_PACK_RECOVERY);
-          playEffect(S_PACK_RECOVERY);
-
-          packStartup(false);
-        }
-      }
-
-      checkCyclotronAutoSpeed();
-
-      // Play a little bit of smoke and N-Filter vent lights while firing and other misc sound effects.
-      if(b_wand_firing == true) {
-        // Mix some impact sound effects.
-        if(ms_firing_sound_mix.justFinished() && STREAM_MODE == PROTON && STATUS_CTS == CTS_NOT_FIRING && b_stream_effects == true) {
-          uint8_t i_random = 0;
-
-          switch(i_last_firing_effect_mix) {
-            case S_FIRE_SPARKS:
-              i_random = random(0,2);
-            break;
-
-            case S_FIRE_SPARKS_3:
-            case S_FIRE_SPARKS_4:
-              i_random = 3;
-            break;
-
-            case S_FIRE_SPARKS_5:
-              i_random = 2;
-            break;
-
-            case S_FIRE_SPARKS_2:
-              i_random = 1;
-            break;
-
-            default:
-              // If no firing effect has played yet.
-              i_random = 3;
-            break;
-          }
-
-          uint16_t i_s_random = random(2,4) * 1000; // 2 or 3 seconds
-
-          switch (i_random) {
-            case 3:
-              playEffect(S_FIRE_SPARKS, false, i_volume_effects, false, 0, false);
-              i_last_firing_effect_mix = S_FIRE_SPARKS;
-
-              ms_firing_sound_mix.start(i_s_random * 5);
-            break;
-
-            case 2:
-              playEffect(S_FIRE_SPARKS_4, false, i_volume_effects, false, 0, false);
-              i_last_firing_effect_mix = S_FIRE_SPARKS_4;
-
-              ms_firing_sound_mix.start(i_s_random);
-            break;
-
-            case 1:
-              playEffect(S_FIRE_SPARKS_3, false, i_volume_effects, false, 0, false);
-              i_last_firing_effect_mix = S_FIRE_SPARKS_3;
-
-              ms_firing_sound_mix.start(i_s_random);
-            break;
-
-            case 0:
-              playEffect(S_FIRE_SPARKS_2, false, i_volume_effects, false, 0, false);
-              playEffect(S_FIRE_SPARKS_5, false, i_volume_effects, false, 0, false);
-              i_last_firing_effect_mix = S_FIRE_SPARKS_5;
-
-              ms_firing_sound_mix.start(1800);
-            break;
-
-            default:
-              // This will never trigger because i_random will only ever be 0~3.
-              playEffect(S_FIRE_SPARKS_2, false, i_volume_effects, false, 0, false);
-              i_last_firing_effect_mix = S_FIRE_SPARKS_2;
-
-              ms_firing_sound_mix.start(500);
-            break;
-          }
         }
 
-        if(ms_smoke_on.justFinished()) {
-          ms_smoke_on.stop();
-          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer[i_wand_power_level - 1]));
-          b_vent_sounds = true;
-        }
-
-        if(ms_smoke_timer.justFinished()) {
-          if(ms_smoke_on.isRunning() != true) {
-            ms_smoke_on.start(PROGMEM_READU32(i_smoke_on_time[i_wand_power_level - 1]));
-          }
-        }
-
-        if(ms_smoke_on.isRunning() == true) {
-          // Turn on some smoke and play some vent sounds if smoke is enabled.
-          if(b_smoke_enabled == true) {
-            // Turn on some smoke.
-            smokeNFilter(true);
-
-            // Play some sounds with the smoke and vent lighting.
-            if(b_vent_sounds == true) {
-              playVentSounds();
-
-              b_vent_sounds = false;
+        if(ribbonCableAttached() == true && b_overheating == false) {
+          if(b_alarm == true) {
+            if(!usingSlimeCyclotron()) {
+              if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
+                // Reset the LEDs before resetting the alarm flag.
+                resetCyclotronState();
+                ms_cyclotron.start(0);
+              }
+              else {
+                ms_cyclotron.start(i_outer_current_ramp_speed);
+              }
             }
 
-            fanNFilter(true);
-            fanBooster(true);
-          }
-
-          // We are strobing the N-Filter jewel.
-          if(ms_vent_light_off.justFinished()) {
-            ms_vent_light_off.stop();
-            ms_vent_light_on.start(i_vent_light_delay);
-
-            ventLight(true);
-          }
-          else if(ms_vent_light_on.justFinished()) {
-            ms_vent_light_on.stop();
-            ms_vent_light_off.start(i_vent_light_delay);
+            ms_cyclotron_ring.start(i_inner_current_ramp_speed);
 
             ventLight(false);
+            ventLightLEDW(false);
+
+            b_alarm = false;
+
+            reset2021RampUp();
+
+            stopEffect(S_PACK_RECOVERY);
+            playEffect(S_PACK_RECOVERY);
+
+            packStartup(false);
+          }
+        }
+
+        checkCyclotronAutoSpeed();
+
+        // Play a little bit of smoke and N-Filter vent lights while firing and other misc sound effects.
+        if(b_wand_firing == true) {
+          // Mix some impact sound effects.
+          if(ms_firing_sound_mix.justFinished() && STREAM_MODE == PROTON && STATUS_CTS == CTS_NOT_FIRING && b_stream_effects == true) {
+            uint8_t i_random = 0;
+
+            switch(i_last_firing_effect_mix) {
+              case S_FIRE_SPARKS:
+                i_random = random(0,2);
+              break;
+
+              case S_FIRE_SPARKS_3:
+              case S_FIRE_SPARKS_4:
+                i_random = 3;
+              break;
+
+              case S_FIRE_SPARKS_5:
+                i_random = 2;
+              break;
+
+              case S_FIRE_SPARKS_2:
+                i_random = 1;
+              break;
+
+              default:
+                // If no firing effect has played yet.
+                i_random = 3;
+              break;
+            }
+
+            uint16_t i_s_random = random(2,4) * 1000; // 2 or 3 seconds
+
+            switch (i_random) {
+              case 3:
+                playEffect(S_FIRE_SPARKS, false, i_volume_effects, false, 0, false);
+                i_last_firing_effect_mix = S_FIRE_SPARKS;
+
+                ms_firing_sound_mix.start(i_s_random * 5);
+              break;
+
+              case 2:
+                playEffect(S_FIRE_SPARKS_4, false, i_volume_effects, false, 0, false);
+                i_last_firing_effect_mix = S_FIRE_SPARKS_4;
+
+                ms_firing_sound_mix.start(i_s_random);
+              break;
+
+              case 1:
+                playEffect(S_FIRE_SPARKS_3, false, i_volume_effects, false, 0, false);
+                i_last_firing_effect_mix = S_FIRE_SPARKS_3;
+
+                ms_firing_sound_mix.start(i_s_random);
+              break;
+
+              case 0:
+                playEffect(S_FIRE_SPARKS_2, false, i_volume_effects, false, 0, false);
+                playEffect(S_FIRE_SPARKS_5, false, i_volume_effects, false, 0, false);
+                i_last_firing_effect_mix = S_FIRE_SPARKS_5;
+
+                ms_firing_sound_mix.start(1800);
+              break;
+
+              default:
+                // This will never trigger because i_random will only ever be 0~3.
+                playEffect(S_FIRE_SPARKS_2, false, i_volume_effects, false, 0, false);
+                i_last_firing_effect_mix = S_FIRE_SPARKS_2;
+
+                ms_firing_sound_mix.start(500);
+              break;
+            }
           }
 
-          // The LED-W will not strobe during this venting.
-          ventLightLEDW(true);
+          if(ms_smoke_on.justFinished()) {
+            ms_smoke_on.stop();
+            ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer[i_wand_power_level - 1]));
+            b_vent_sounds = true;
+          }
+
+          if(ms_smoke_timer.justFinished()) {
+            if(ms_smoke_on.isRunning() != true) {
+              ms_smoke_on.start(PROGMEM_READU32(i_smoke_on_time[i_wand_power_level - 1]));
+            }
+          }
+
+          if(ms_smoke_on.isRunning() == true) {
+            // Turn on some smoke and play some vent sounds if smoke is enabled.
+            if(b_smoke_enabled == true) {
+              // Turn on some smoke.
+              smokeNFilter(true);
+
+              // Play some sounds with the smoke and vent lighting.
+              if(b_vent_sounds == true) {
+                playVentSounds();
+
+                b_vent_sounds = false;
+              }
+
+              fanNFilter(true);
+              fanBooster(true);
+            }
+
+            // We are strobing the N-Filter jewel.
+            if(ms_vent_light_off.justFinished()) {
+              ms_vent_light_off.stop();
+              ms_vent_light_on.start(i_vent_light_delay);
+
+              ventLight(true);
+            }
+            else if(ms_vent_light_on.justFinished()) {
+              ms_vent_light_on.stop();
+              ms_vent_light_off.start(i_vent_light_delay);
+
+              ventLight(false);
+            }
+
+            // The LED-W will not strobe during this venting.
+            ventLightLEDW(true);
+          }
+          else {
+            smokeNFilter(false);
+            ventLight(false);
+            ventLightLEDW(false);
+            fanNFilter(false);
+            fanBooster(false);
+          }
+        }
+
+        if(b_venting == true) {
+          packVenting();
+        }
+
+        cyclotronControl();
+        cyclotronSwitchLEDLoop();
+
+        if(b_overheating == true && b_overheat_lights_off == true) {
+          powercellRampDown();
         }
         else {
-          smokeNFilter(false);
-          ventLight(false);
-          ventLightLEDW(false);
-          fanNFilter(false);
-          fanBooster(false);
+          powercellLoop();
         }
-      }
+      break;
+    }
 
-      if(b_venting == true) {
-        packVenting();
-      }
+    switch(PACK_ACTION_STATE) {
+      case ACTION_IDLE:
+        // Do nothing.
+      break;
 
-      cyclotronControl();
-      cyclotronSwitchLEDLoop();
+      case ACTION_OFF:
+        packShutdown();
+      break;
 
-      if(b_overheating == true && b_overheat_lights_off == true) {
-        powercellRampDown();
-      }
-      else {
-        powercellLoop();
-      }
-    break;
+      case ACTION_ACTIVATE:
+        packStartup(true);
+      break;
+    }
   }
-
-  switch(PACK_ACTION_STATE) {
-    case ACTION_IDLE:
-      // Do nothing.
-    break;
-
-    case ACTION_OFF:
-      packShutdown();
-    break;
-
-    case ACTION_ACTIVATE:
-      packStartup(true);
-    break;
+  else {
+    systemPOST();
   }
 
   // Update the LEDs
@@ -541,19 +560,16 @@ void loop() {
 }
 
 void systemPOST() {
-  // System Power On Self Test
-  playEffect(S_POWER_ON);
-
   uint8_t i_tmp_led1 = i_cyclotron_led_start + cyclotron84LookupTable(0);
   uint8_t i_tmp_led2 = i_cyclotron_led_start + cyclotron84LookupTable(1);
   uint8_t i_tmp_led3 = i_cyclotron_led_start + cyclotron84LookupTable(2);
   uint8_t i_tmp_led4 = i_cyclotron_led_start + cyclotron84LookupTable(3);
   uint8_t i_tmp_led5 = i_pack_num_leds - round(i_nfilter_jewel_leds / 2);
 
-  for(uint8_t i = 0; i < i_powercell_leds; i++) {
-    pack_leds[i] = getHueAsRGB(POWERCELL, C_MID_BLUE);
+  if(i_post_powercell_up < i_powercell_leds && ms_delay_post.justFinished()) {
+    pack_leds[i_post_powercell_up] = getHueAsRGB(POWERCELL, C_MID_BLUE);
 
-    if((i % 5) == 0) {
+    if((i_post_powercell_up % 5) == 0) {
       pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
       pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
       pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
@@ -568,15 +584,21 @@ void systemPOST() {
       pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
     }
 
-    FastLED.show();
+    i_post_powercell_up++;
 
-    delay(30);
+    if(i_post_powercell_up == i_powercell_leds) {
+      ms_delay_post.stop();
+      ms_delay_post_2.start(30);
+    }
+    else {
+      ms_delay_post.start(30);
+    }
   }
 
-  for(uint8_t i = 0; i < i_powercell_leds; i++) {
-    pack_leds[i] = getHueAsRGB(POWERCELL, C_BLACK);
+  if(i_post_powercell_down < i_powercell_leds && ms_delay_post_2.justFinished()) {
+    pack_leds[i_post_powercell_down] = getHueAsRGB(POWERCELL, C_BLACK);
 
-    if((i % 5) == 0) {
+    if((i_post_powercell_down % 5) == 0) {
       pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
       pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
       pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
@@ -592,53 +614,56 @@ void systemPOST() {
     }
 
     if(b_inner_cyclotron_led_panel == true) {
-      if(i <= i_ic_panel_end) {
-        cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_PANEL, C_RED);
+      if(i_post_powercell_down <= i_ic_panel_end) {
+        cyclotron_leds[i_post_powercell_down] = getHueAsRGB(CYCLOTRON_PANEL, C_RED);
 
-        if(i > i_ic_panel_start) {
-          cyclotron_leds[i - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
+        if(i_post_powercell_down > i_ic_panel_start) {
+          cyclotron_leds[i_post_powercell_down - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
         }
       }
 
-      if(i > i_ic_panel_end) {
+      if(i_post_powercell_down > i_ic_panel_end) {
         cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
       }
     }
 
-    FastLED.show();
+    i_post_powercell_down++;
 
-    delay(30);
+    if(i_post_powercell_down == i_powercell_leds) {
+      ms_delay_post_2.stop();
+      ms_delay_post_3.start(30);
+    }
+    else {
+      ms_delay_post_2.start(30);
+    }
   }
 
-  pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-  pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-  pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-  pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-  pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_WHITE);
+  if(i_post_fade > 0 && ms_delay_post_3.justFinished()) {
+    pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i_post_fade);
+    pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i_post_fade);
+    pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i_post_fade);
+    pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i_post_fade);
+    pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_WHITE, i_post_fade);
 
-  FastLED.show();
+    i_post_fade--;
 
-  for(uint8_t i = 255; i > 0; i--) {
-    pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i);
-    pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i);
-    pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i);
-    pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i);
-    pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_WHITE, i);
+    if(i_post_fade == 0) {
+      ms_delay_post_3.stop();
 
-    FastLED.show();
+      pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+      pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+      pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+      pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+      pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
 
-    delay(5);
+      cyclotronSwitchLEDOff();  
+
+      b_pack_post_finish = true;
+    }
+    else {
+      ms_delay_post_3.start(5);      
+    }
   }
-
-  pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
-  pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
-  pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
-  pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
-  pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
-
-  cyclotronSwitchLEDOff();
-
-  FastLED.show();
 }
 
 bool fadeOutLights() {

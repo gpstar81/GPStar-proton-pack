@@ -804,6 +804,11 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
     case P_SYNC_START:
       debugln(F("Pack Sync Start"));
 
+      stopEffect(S_WAND_SYNC);
+      playEffect(S_WAND_SYNC);
+      
+      wandSerialSend(W_WAND_SYNCING);
+
       // Stop regular sync attempts while communicating with the pack.
       ms_packsync.stop();
     break;
