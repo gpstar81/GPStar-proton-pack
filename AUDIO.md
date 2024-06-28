@@ -33,15 +33,21 @@ SD Cards with capacities of **32GB OR LESS** can be formatted normally in the Wi
 
 ## Loading Files to the SD Cards
 
-Load [all sound files from the "sounds" folder](sounds) (and music, optionally) onto both SD cards. The file names must be identical and match between the SD cards so that any synchronized effects are both played by both Proton Pack and Neutrona Wand at the same time. Although only some of the same tracks are played on the wand and pack while firing, some tracks play the same like the firing tail end, video game firing sounds, etc. For the proton stream, the wand plays a different sound vs the pack, so they overlap and mix in person for a nice effect.
+**Sound Effects**
+
+Load [all sound files from the "sounds" folder](sounds) onto both SD cards. The file names must be identical and match between the SD cards so that all effects are synchronized and played by both Proton Pack and Neutrona Wand at the same time. Most effects are played on both the pack and wand while firing, with some minor adjustments to volume or fading to provide the most effective impact.
 
 Sound effects are prefixed with numbers 001-499 while music files will be prefixed as 500 and above. `DO NOT LEAVE GAPS IN PREFIXES WHEN NUMBERING FILES!` The only exception is between the last sound effect and first music track.
 
-To add more music, copy stereo WAV tracks (16-bit 44khz stereo WAV files) onto the SD card of the pack and wand. File naming of the music tracks start at 500. So for example, `500_somesong.wav`, `501_somesong.wav`, `502_somesong.wav`, etc. **Do not leave any gaps in the number sequencing!** (For example of what NOT to do, `500_somesong.wav` followed by `502_somesong.wav` leaving off `501_somesong.wav` on the SD card.) The most and only important part in the naming is the XXX_ prefix for all tracks.
+**Music Tracks**
+
+**As of release v5.3 and later it is normal to NOT hear music playback from the Neutrona Wand when connected to a Proton Pack.** This change forces music to only be played back through the Proton Pack, meaning it is only necessary to load music onto the SD card for the pack. It is only when using the Neutrona Wand in "benchtest" (aka. standalone) mode that music files are expected to be loaded onto the SD card for the wand.
+
+To add more music, copy stereo WAV tracks (16-bit 44khz stereo WAV files) onto an SD card. File naming of the music tracks start at 500. So for example, `500_somesong.wav`, `501_somesong.wav`, `502_somesong.wav`, etc. **Do not leave any gaps in the number sequencing!** (For example of what NOT to do, `500_somesong.wav` followed by `502_somesong.wav` leaving off `501_somesong.wav` on the SD card.) The most and only important part in the naming is the XXX_ prefix for all tracks.
 
 📝 You **MUST** remove any metadata that may be present in the music WAV files that you add. This can cause problems with loading and playing back your music tracks
 
-`The below photo is a example of the prefixing and music sequencing`
+`The below photo is an (outdated) example of the prefixing and music sequencing`
 
 ![audio example](images/audioexample.jpg)
 

@@ -4,15 +4,15 @@
 
 Please refer to the table below for a list of devices and their supported software release.
 
-| Controller Device | v1.x | v2.x | v3.x |
-|-------------------|------|------|------|
-| <img src='images/gpstar_logo.png' width=20 align="left"/> GPStar Proton Pack PCB   | Yes | Yes | Yes |
-| <img src='images/gpstar_logo.png' width=20 align="left"/> GPStar Neutrona Wand PCB | Yes | Yes | Yes |
-| <sup>d1</sup> DIY Arduino Mega Proton Pack   | Yes | Yes <sup>2</sup> | Yes <sup>3</sup> |
-| <sup>d1</sup> DIY Arduino Nano Neutrona Wand | Yes | Yes <sup>2</sup> | No |
-| <sup>s1</sup> Attenuator (Arduino Nano) | Yes | Yes | Yes |
-| <sup>s1</sup> Attenuator (ESP32)        | N/A | N/A | Yes |
-| <sup>s1</sup> Wireless Adapter (ESP32)  | N/A | N/A | Yes |
+| Controller Device | v1.x | v2.x | v3.x | v4.x | v5.x |
+|-------------------|------|------|------|------|------|
+| <img src='images/gpstar_logo.png' width=20 align="left"/> GPStar Proton Pack PCB   | Yes | Yes | Yes | Yes | Yes |
+| <img src='images/gpstar_logo.png' width=20 align="left"/> GPStar Neutrona Wand PCB | Yes | Yes | Yes | Yes | Yes |
+| <sup>d1</sup> DIY Arduino Mega Proton Pack   | Yes | Yes <sup>2</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> |
+| <sup>d1</sup> DIY Arduino Nano Neutrona Wand | Yes | Yes <sup>2</sup> | No | No | No |
+| <sup>s1</sup> Attenuator (Arduino Nano) | Yes | Yes | Yes | Yes | Yes |
+| <sup>s1</sup> Attenuator (ESP32)        | N/A | N/A | Yes | Yes | Yes |
+| <sup>s1</sup> Wireless Adapter (ESP32)  | N/A | N/A | Yes | Yes | Yes |
 
 <sup>d1</sup> These are now considered as "legacy" devices and have distinct end-of-life notes in later versions.
 
@@ -33,7 +33,7 @@ Use the included FTDI to USB programming cable that comes with the GPStar kits o
 - The ground pin will typically be a black wire, while VCC will typically be red.
 - The DTR pin on the PCB will connect to a wire labelled either DTR or RTS.
 - Any wire labelled CTS will be connected to the 2nd pin labelled GND on the PCB.
-- Be careful to not reverse the connector!
+- **Be careful to not reverse the connector!**
 
 ![UART Connection](images/uart_pack.jpg)
 
