@@ -226,7 +226,7 @@ p {
 	border-radius:50%;
 	bottom:-5.5px;
 	content:"";
-	height:40px;
+	height:38px;
 	left:74.5px;
 	position:absolute;
 	width:40px
@@ -234,9 +234,9 @@ p {
 
 .filter-circle {
 	border-radius:50%;
-	left:151.7px;
-	height:40px;
-	top:382.3px;
+	left:152.2px;
+	height:41px;
+	top:383.8px;
 	width:40px;
 	z-index:3
 }
@@ -253,8 +253,8 @@ p {
 .power-box {
 	border-radius:2px;
 	left:37px;
-	height:74px;
-	top:133px;
+	height:75px;
+	top:132px;
 	width:35px;
 	z-index:2
 }

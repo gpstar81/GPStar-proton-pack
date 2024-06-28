@@ -21,21 +21,17 @@
 #pragma once
 
 const char INDEXJS_page[] PROGMEM = R"=====(
-var gateway = "ws://" + window.location.hostname + "/ws";
 var websocket;
 var statusInterval;
-var musicTrackStart = 0;
-var musicTrackMax = 0;
-var musicTrackCurrent = 0;
-var musicTrackList = [];
+var musicTrackStart = 0, musicTrackMax = 0, musicTrackCurrent = 0, musicTrackList = [];
 
 window.addEventListener("load", onLoad);
 
 function onLoad(event) {
   document.getElementsByClassName("tablinks")[0].click();
-  getDevicePrefs(); // Get the device preferences on load.
-  initWebSocket(); // Open the WebSocket for server-push data.
-  getStatus(); // Get status immediately while WebSocket opens.
+  getDevicePrefs(); // Get all preferences.
+  initWebSocket(); // Open the WebSocket.
+  getStatus(); // Get status immediately.
 }
 
 function openTab(evt, tabName) {
@@ -64,7 +60,7 @@ function setEl(id, value){
   getEl(id).innerHTML = value || "";
 }
 
-function colorEl(id, red, green, blue, alpha){
+function colorEl(id, red, green, blue, alpha = 0.5){
   getEl(id).style.backgroundColor = "rgba(" + red + ", " + green + ", " + blue + ", " + alpha + ")";
 }
 
@@ -86,6 +82,7 @@ function blinkEl(id, state) {
 
 function initWebSocket() {
   console.log("Attempting to open a WebSocket connection...");
+  let gateway = "ws://" + window.location.hostname + "/ws";
   websocket = new WebSocket(gateway);
   websocket.onopen = onOpen;
   websocket.onclose = onClose;
@@ -315,15 +312,15 @@ function updateGraphics(jObj){
     setEl("equipTitle", header);
 
     if (jObj.switch == "Ready") {
-      colorEl("ionOverlay", 0, 150, 0, 0.5);
+      colorEl("ionOverlay", 0, 150, 0);
     } else {
-      colorEl("ionOverlay", 255, 0, 0, 0.5);
+      colorEl("ionOverlay", 255, 0, 0);
     }
 
     if (jObj.pack == "Powered") {
-      colorEl("pcellOverlay", 0, 150, 0, 0.5);
+      colorEl("pcellOverlay", 0, 150, 0);
     } else {
-      colorEl("pcellOverlay", 100, 100, 100, 0.5);
+      colorEl("pcellOverlay", 100, 100, 100);
     }
 
     if (jObj.cable == "Disconnected") {
@@ -336,41 +333,41 @@ function updateGraphics(jObj){
 
     switch(jObj.cyclotron){
       case "Active":
-        colorEl("cycOverlay", 255, 230, 0, 0.5);
+        colorEl("cycOverlay", 255, 230, 0);
         blinkEl("cycOverlay", false);
         break;
       case "Warning":
-        colorEl("cycOverlay", 255, 100, 0, 0.5);
+        colorEl("cycOverlay", 255, 100, 0);
         blinkEl("cycOverlay", false);
         break;
       case "Critical":
-        colorEl("cycOverlay", 255, 0, 0, 0.5);
+        colorEl("cycOverlay", 255, 0, 0);
         blinkEl("cycOverlay", true);
         break;
       case "Recovery":
-        colorEl("cycOverlay", 0, 0, 255, 0.5);
+        colorEl("cycOverlay", 0, 0, 255);
         blinkEl("cycOverlay", false);
         break;
       default:
         if (jObj.pack == "Powered") {
           // Also covers cyclotron state of "Normal"
-          colorEl("cycOverlay", 0, 150, 0, 0.5);
+          colorEl("cycOverlay", 0, 150, 0);
         } else {
-          colorEl("cycOverlay", 100, 100, 100, 0.5);
+          colorEl("cycOverlay", 100, 100, 100);
         }
         blinkEl("cycOverlay", false);
     }
 
     if (jObj.pack == "Powered") {
       if (jObj.temperature == "Venting") {
-        colorEl("filterOverlay", 255, 0, 0, 0.5);
+        colorEl("filterOverlay", 255, 0, 0);
         blinkEl("filterOverlay", true);
       } else {
-        colorEl("filterOverlay", 0, 150, 0, 0.5);
+        colorEl("filterOverlay", 0, 150, 0);
         blinkEl("filterOverlay", false);
       }
     } else {
-      colorEl("filterOverlay", 100, 100, 100, 0.5);
+      colorEl("filterOverlay", 100, 100, 100);
       blinkEl("filterOverlay", false);
     }
 
@@ -389,27 +386,27 @@ function updateGraphics(jObj){
 
       if (jObj.wandPower == "Powered") {
         if (jObj.safety == "Safety Off") {
-          colorEl("safetyOverlay", 0, 150, 0, 0.5);
+          colorEl("safetyOverlay", 0, 150, 0);
         } else {
-          colorEl("safetyOverlay", 255, 0, 0, 0.5);
+          colorEl("safetyOverlay", 255, 0, 0);
         }
       } else {
-        colorEl("safetyOverlay", 100, 100, 100, 0.5);
+        colorEl("safetyOverlay", 100, 100, 100);
       }
     } else {
       setEl("powerLevel", "&mdash;");
       setEl("streamMode", "- Disconnected -");
       hideEl("barrelOverlay");
-      colorEl("safetyOverlay", 100, 100, 100, 0.5);
+      colorEl("safetyOverlay", 100, 100, 100);
     }
 
     if (jObj.battVoltage) {
       // Voltage should typically be <5.0 but >4.2 under normal use; anything below that indicates a possible problem.
       setEl("battOutput", "Output:<br/>" + parseFloat((jObj.battVoltage || 0).toFixed(2)) + " GeV");
       if (jObj.battVoltage < 4.2) {
-        colorEl("boostOverlay", 255, 0, 0, 0.5);
+        colorEl("boostOverlay", 255, 0, 0);
       } else {
-        colorEl("boostOverlay", 0, 150, 0, 0.5);
+        colorEl("boostOverlay", 0, 150, 0);
       }
     } else {
       setEl("battOutput", "");
@@ -423,21 +420,21 @@ function updateGraphics(jObj){
   } else {
     // Reset all screen elements to their defaults to indicate no data available.
     setEl("equipTitle", "- Desynchronized -");
-    colorEl("ionOverlay", 255, 0, 0, 0.5);
-    colorEl("boostOverlay", 100, 100, 100, 0.5);
-    colorEl("pcellOverlay", 100, 100, 100, 0.5);
+    colorEl("ionOverlay", 255, 0, 0);
+    colorEl("boostOverlay", 100, 100, 100);
+    colorEl("pcellOverlay", 100, 100, 100);
     hideEl("cableOverlay");
     blinkEl("cableOverlay", false);
-    colorEl("cycOverlay", 100, 100, 100, 0.5);
+    colorEl("cycOverlay", 100, 100, 100);
     blinkEl("cycOverlay", false);
     hideEl("cyclotronLid");
-    colorEl("filterOverlay", 100, 100, 100, 0.5);
+    colorEl("filterOverlay", 100, 100, 100);
     blinkEl("filterOverlay", false);
     hideEl("barrelOverlay");
     blinkEl("barrelOverlay", false);
     setEl("powerLevel", "&mdash;");
     setEl("streamMode", "- Disconnected -");
-    colorEl("safetyOverlay", 100, 100, 100, 0.5);
+    colorEl("safetyOverlay", 100, 100, 100);
     setEl("battOutput", "");
     hideEl("cyclotronLid");
   }
