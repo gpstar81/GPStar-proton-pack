@@ -409,6 +409,22 @@ static uint8_t prev_next_code = 0;
 static uint16_t store = 0;
 
 /*
+  * V1.5 GPStar Proton Pack onboard LED
+*/
+const uint8_t led_pack_status = 24;
+
+/*
+ * Proton Pack Bootup Post Animations
+*/
+bool b_pack_post_finish = false;
+uint8_t i_post_powercell_up = 0;
+uint8_t i_post_powercell_down = 0;
+uint8_t i_post_fade = 255;
+millisDelay ms_delay_post;
+millisDelay ms_delay_post_2;
+millisDelay ms_delay_post_3;
+
+/*
  * LED Dimming / Brightness Control.
  */
 enum pack_led_dim_control {

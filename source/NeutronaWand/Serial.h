@@ -418,7 +418,7 @@ void checkPack() {
               // Default: Video Game
               FIRING_MODE = VG_MODE;
               setVGMode();
-            wandSerialSend(W_VIDEO_GAME_MODE);
+              wandSerialSend(W_VIDEO_GAME_MODE);
             break;
 
             case 2:
@@ -804,6 +804,9 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
     case P_SYNC_START:
       debugln(F("Pack Sync Start"));
 
+      stopEffect(S_WAND_SYNC);
+      playEffect(S_WAND_SYNC);
+      
       // Stop regular sync attempts while communicating with the pack.
       ms_packsync.stop();
     break;

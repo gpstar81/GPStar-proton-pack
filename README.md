@@ -48,13 +48,13 @@ For more information about optional upgrades please see the "Component Guides" s
 
 This is a device which utilize the available expansion port on the GPStar Proton Pack controller. At present the only supported uses are as an "Pack Attenuator" (using an ESP32 or Arduino Nano) or a "Wireless Adapter" (using an ESP32). Both devices use the same software which normally drives the Attenuator device, though in the case of the wireless adapter can be used without switches or other peripherals to only provide a WiFi capability to your Proton Pack. Please read the following guides for more specific details.
 
-1. [Pack Attenuator](ATTENUATOR.md) - Full Device Implementation
+1. [Pack Attenuator](ATTENUATOR.md) - Full Device Implementation (w/ Switches and Inputs)
 
-1. [Wireless Adapter](WIRELESS.md) - Scaled-Down Attenuator
+1. [Wireless Adapter](WIRELESS.md) - Scaled-Down Attenuator (No Physical User Inputs)
 
 ---
 
-### Component Guides
+### By-Component Guides
 
 This section is presented in a way to offer a more complete view of what components are available (by major equipment areas), whether those components are Required<sup>R</sup> or Optional<sup>O</sup>, if choices are offerred at a specific component level. Where possible, each option will link to a related guide for more details and/or installation instructions.
 
@@ -85,7 +85,7 @@ This section is presented in a way to offer a more complete view of what compone
 
 | **Component**        | **Option w/ Guide** |
 |----------------------|---------------------------------------------|
-| Power Source<sup>R</sup>  | - Normally Provided by Proton Pack - |
+| Power Source<sup>R</sup>  | Dedicated Wand Power Source (Guide TBD) |
 | Controller<sup>R</sup>    | [GPStar Wand Controller](WAND_PCB.md) |
 | Software<sup>R</sup>      | [Flashing the Latest Firmware](FLASHING.md) |
 | Audio Board<sup>R</sup>   | [GPStar Audio](GPSTAR_AUDIO_PCB.md) or [Robertsonics WAV Trigger](WAVTRIGGER.md) |
@@ -115,17 +115,17 @@ This section is presented in a way to offer a more complete view of what compone
 
 ---
 
-### DIY Arduino Build Guides
+### DIY Arduino Build Guides [DEPRECATED]
 
 Considered the "legacy" guide to building your own solution using the Arduino platform. *Please note that the original wand guide used an Arduino Nano which is no longer capable of providing the storage space required by the full range of features supported and has been deprecated.*
 
 This is an advanced build-out which requires opening all devices and performing a significant amount of soldering. **Proceed with caution, regardless of your skillset or abilities.**
 
-1. [Bill of Materials](BOM.md)
+1. [Bill of Materials](DIY_BOM.md)
 
 1. [Power Requirements](POWER.md)
 
-1. [Compiling and Uploading the code](DIY_FLASHING.md)
+1. [Compiling and Uploading the Code](DIY_FLASHING.md)
 
 1. [GPStar Audio PCB](GPSTAR_AUDIO_PCB.md) or [WAV Trigger Configuration](WAVTRIGGER.md)
 
@@ -133,9 +133,9 @@ This is an advanced build-out which requires opening all devices and performing 
 
 1. [Audio Output Guide](SOUND.md)
 
-1. [Pack Setup - ATMega 2560](PACK.md)
+1. [DIY Pack Setup - ATMega 2560](DIY_PACK.md)
 
-1. [Wand Setup - DEPRECATED](WAND.md)
+1. [DIY Wand Setup - DEPRECATED](DIY_WAND.md)
 
 1. [Hose Connections](HOSE.md)
 
