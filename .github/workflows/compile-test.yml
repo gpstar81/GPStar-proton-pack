@@ -35,7 +35,7 @@ jobs:
       - name: Upload sketches report to workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.SKETCHES_REPORTS_ARTIFACT_NAME }}
+          name: sketches-reports-atmega
           path: ${{ env.SKETCHES_REPORTS_PATH }}
   compile-nano:
     runs-on: ubuntu-latest
@@ -60,7 +60,7 @@ jobs:
       - name: Upload sketches report to workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.SKETCHES_REPORTS_ARTIFACT_NAME }}
+          name: sketches-reports-nano
           path: ${{ env.SKETCHES_REPORTS_PATH }}
   compile-esp32:
     runs-on: ubuntu-latest
@@ -98,5 +98,5 @@ jobs:
       - name: Upload sketches report to workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.SKETCHES_REPORTS_ARTIFACT_NAME }}
+          name: sketches-reports-esp32
           path: ${{ env.SKETCHES_REPORTS_PATH }}
