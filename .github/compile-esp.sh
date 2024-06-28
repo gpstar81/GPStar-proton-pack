@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Compile only the main ESP32 binary. Useful for a quick sanity test during development.
+
 BINDIR="../binaries"
 SRCDIR="../source"
 
@@ -7,6 +9,7 @@ mkdir -p ${BINDIR}/attenuator/extras
 mkdir -p ${BINDIR}/pack
 mkdir -p ${BINDIR}/wand/extras
 
+# Current build timestamp to be reflected in the Attenuator build for ESP32.
 TIMESTAMP=$(date +"%Y%m%d%H%M%S")
 
 echo ""
