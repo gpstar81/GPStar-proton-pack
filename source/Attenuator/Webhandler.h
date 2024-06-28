@@ -37,6 +37,12 @@ void handleRoot(AsyncWebServerRequest *request) {
   request->send(200, "text/html", String(INDEX_page)); // Serve page content.
 }
 
+void handleRootJS(AsyncWebServerRequest *request) {
+  // Used for the root page (/) from the web server.
+  //debug("Web Root JavaScript Requested");
+  request->send(200, "application/javascript", String(INDEXJS_page)); // Serve page content.
+}
+
 void handleNetwork(AsyncWebServerRequest *request) {
   // Used for the network page from the web server.
   //debug("Network HTML Requested");

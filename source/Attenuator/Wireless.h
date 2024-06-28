@@ -49,6 +49,7 @@
 
 // Web page files (defines all text as char[] variable)
 #include "Index.h" // INDEX_page
+#include "IndexJS.h" // INDEXJS_page
 #include "Device.h" // DEVICE_page
 #include "ExtWiFi.h" // NETWORK_page
 #include "Password.h" // PASSWORD_page
@@ -512,6 +513,7 @@ void setupRouting() {
 
   // Static Pages
   httpServer.on("/", HTTP_GET, handleRoot);
+  httpServer.on("/index.js", HTTP_GET, handleRootJS);
   httpServer.on("/network", HTTP_GET, handleNetwork);
   httpServer.on("/password", HTTP_GET, handlePassword);
   httpServer.on("/settings/attenuator", HTTP_GET, handleAttenuatorSettings);
