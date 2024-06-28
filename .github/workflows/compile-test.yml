@@ -5,7 +5,6 @@ on:
 env:
   # It's convenient to set variables for values used multiple times in the workflow
   SKETCHES_REPORTS_PATH: sketches-reports
-  SKETCHES_REPORTS_ARTIFACT_NAME: sketches-reports
 jobs:
   compile-mega:
     runs-on: ubuntu-latest
@@ -33,9 +32,9 @@ jobs:
             verbose: false
       # This step is needed to pass the size data to the report job
       - name: Upload sketches report to workflow artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@main
         with:
-          name: ${{ env.SKETCHES_REPORTS_ARTIFACT_NAME }}
+          name: sketch-report-atmega
           path: ${{ env.SKETCHES_REPORTS_PATH }}
   compile-nano:
     runs-on: ubuntu-latest
@@ -58,9 +57,9 @@ jobs:
             verbose: false
       # This step is needed to pass the size data to the report job
       - name: Upload sketches report to workflow artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@main
         with:
-          name: ${{ env.SKETCHES_REPORTS_ARTIFACT_NAME }}
+          name: sketch-report-nano
           path: ${{ env.SKETCHES_REPORTS_PATH }}
   compile-esp32:
     runs-on: ubuntu-latest
@@ -96,7 +95,7 @@ jobs:
               - error
       # This step is needed to pass the size data to the report job
       - name: Upload sketches report to workflow artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@main
         with:
-          name: ${{ env.SKETCHES_REPORTS_ARTIFACT_NAME }}
+          name: sketch-report-esp32
           path: ${{ env.SKETCHES_REPORTS_PATH }}
