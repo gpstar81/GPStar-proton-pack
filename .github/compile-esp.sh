@@ -30,8 +30,14 @@ rm -f ${BINDIR}/*.elf
 rm -f ${BINDIR}/*.map
 rm -f ${BINDIR}/*.merged.bin
 
-mv ${BINDIR}/Attenuator.ino.bin ${BINDIR}/attenuator/Attenuator-ESP32.bin
-mv ${BINDIR}/Attenuator.ino.bootloader.bin ${BINDIR}/attenuator/extras/Attenuator-ESP32-Bootloader.bin
-mv ${BINDIR}/Attenuator.ino.partitions.bin ${BINDIR}/attenuator/extras/Attenuator-ESP32-Partitions.bin
+if [ -f ${BINDIR}/Attenuator.ino.bin ]; then
+  mv ${BINDIR}/Attenuator.ino.bin ${BINDIR}/attenuator/Attenuator-ESP32.bin
+fi
+if [ -f ${BINDIR}/Attenuator.ino.bootloader.bin ]; then
+  mv ${BINDIR}/Attenuator.ino.bootloader.bin ${BINDIR}/attenuator/extras/Attenuator-ESP32-Bootloader.bin
+fi
+if [ -f ${BINDIR}/Attenuator.ino.partitions.bin ]; then
+  mv ${BINDIR}/Attenuator.ino.partitions.bin ${BINDIR}/attenuator/extras/Attenuator-ESP32-Partitions.bin
+fi
 echo "Done."
 echo ""
