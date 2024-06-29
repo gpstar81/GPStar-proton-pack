@@ -4185,7 +4185,7 @@ void modeFireStartSounds() {
 
               case SYSTEM_FROZEN_EMPIRE:
                 playEffect(S_FROZEN_EMPIRE_FIRE_START, false, i_volume_effects, false, 0, false);
-                playEffect(S_GB1_1984_FIRE_LOOP_PACK, true, i_volume_effects, true, 200, false);
+                playEffect(S_GB1_1984_FIRE_LOOP_PACK, true, i_volume_effects, true, 1000, false);
               break;
             }
 
@@ -4202,7 +4202,7 @@ void modeFireStartSounds() {
             }
             else if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
               playEffect(S_FROZEN_EMPIRE_FIRE_START, false, i_volume_effects, false, 0, false);
-              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 200, false);
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 800, false);
             }
             else {
               playEffect(S_FIRE_START, false, i_volume_effects, false, 0, false);
@@ -4243,7 +4243,7 @@ void modeFireStartSounds() {
               playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 1700, false);
             }
             else if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 120, false);
+              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 800, false);
             }
             else {
               playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 1500, false);
@@ -4257,7 +4257,7 @@ void modeFireStartSounds() {
             // Reset some sound triggers.
             b_sound_firing_alt_trigger = true;
             if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 120, false);
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 800, false);
             }
             else if(SYSTEM_YEAR == SYSTEM_1984) {
               playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 1700, false);
