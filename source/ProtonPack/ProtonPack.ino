@@ -5144,6 +5144,7 @@ void wandDisconnectCheck() {
       b_wand_connected = false; // Cause the next handshake to trigger a sync.
       b_wand_syncing = false; // If there is no wand we cannot be syncing with one.
       b_wand_on = false; // No wand means the device is no longer powered on.
+      b_wand_mash_lockout = false;
 
       // Tell the serial1 device the wand was disconnected.
       serial1Send(A_WAND_DISCONNECTED);
@@ -5153,6 +5154,9 @@ void wandDisconnectCheck() {
         wandStoppedFiring();
         cyclotronSpeedRevert();
       }
+
+      stopEffect(S_SMASH_ERROR_LOOP);
+      stopEffect(S_SMASH_ERROR_RESTART);
 
       wandExtraSoundsStop();
       wandExtraSoundsBeepLoopStop();
