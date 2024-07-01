@@ -154,6 +154,7 @@ void readEEPROM() {
         break;
 
         case 35:
+        case 36:
         default:
           i_2021_inner_delay = 5;
           i_1984_inner_delay = 9;
