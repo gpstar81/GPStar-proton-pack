@@ -2834,7 +2834,7 @@ void modeFireStartSounds() {
               break;
               case SYSTEM_FROZEN_EMPIRE:
                 playEffect(S_FROZEN_EMPIRE_FIRE_START, false, i_volume_effects, false, 0, false);
-                playEffect(S_GB1_1984_FIRE_LOOP_GUN, true, i_volume_effects, true, 200, false);
+                playEffect(S_GB1_1984_FIRE_LOOP_GUN, true, i_volume_effects, true, 1000, false);
               break;
             }
 
@@ -2851,7 +2851,7 @@ void modeFireStartSounds() {
             }
             else if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE) {
               playEffect(S_FROZEN_EMPIRE_FIRE_START, false, i_volume_effects, false, 0, false);
-              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 200, false);
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 1000, false);
             }
             else {
               playEffect(S_FIRE_START, false, i_volume_effects, false, 0, false);
@@ -2892,7 +2892,7 @@ void modeFireStartSounds() {
               playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 1700, false);
             }
             else if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE) {
-              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 120, false);
+              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 800, false);
             }            
             else {
               playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 1500, false);
@@ -2906,7 +2906,7 @@ void modeFireStartSounds() {
             // Reset some sound triggers.
             b_sound_firing_alt_trigger = true;
             if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE) {
-              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 120, false);
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 800, false);
             }
             else if(getSystemYearMode() == SYSTEM_1984) {
               playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 1700, false);
@@ -3381,16 +3381,17 @@ void modeFiring() {
   if(b_firing_intensify == true && b_sound_firing_intensify_trigger != true) {
     b_sound_firing_intensify_trigger = true;
 
-    if(FIRING_MODE == CTS_MIX_MODE && STREAM_MODE == PROTON) {
-      // Tell the Proton Pack that the Neutrona Wand is firing in Intensify mode mix.
-      wandSerialSend(W_FIRING_INTENSIFY_MIX);
-    }
+      if(FIRING_MODE == CTS_MIX_MODE && STREAM_MODE == PROTON) {
+        // Tell the Proton Pack that the Neutrona Wand is firing in Intensify mode mix.
+        wandSerialSend(W_FIRING_INTENSIFY_MIX);
+      
 
-    if(getSystemYearMode() == SYSTEM_1984) {
-      playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
-    }
-    else {
-      playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+      if(getSystemYearMode() == SYSTEM_1984) {
+        playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+      }
+      else {
+        playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+      }
     }
   }
 
@@ -3413,28 +3414,28 @@ void modeFiring() {
   if(b_firing_alt == true && b_sound_firing_alt_trigger != true) {
     b_sound_firing_alt_trigger = true;
 
-    if(FIRING_MODE == CTS_MIX_MODE) {
+    if(FIRING_MODE == CTS_MIX_MODE && STREAM_MODE == PROTON) {
       // Tell the Proton Pack that the Neutrona Wand is firing in Alt mode mix.
-      wandSerialSend(W_FIRING_ALT_MIX);
+        wandSerialSend(W_FIRING_ALT_MIX);
+      
+      if(i_power_level != i_power_level_max) {
+        if(getSystemYearMode() == SYSTEM_1989) {
+          stopEffect(S_GB2_FIRE_LOOP);
+        }
+        else {
+          stopEffect(S_GB1_1984_FIRE_LOOP_GUN);
+        }
+
+        if(getSystemYearMode() == SYSTEM_1984) {
+          playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+        }
+        else {
+          playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+        }
+      }
+
+      playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
     }
-
-    if(i_power_level != i_power_level_max) {
-      if(getSystemYearMode() == SYSTEM_1989) {
-        stopEffect(S_GB2_FIRE_LOOP);
-      }
-      else {
-        stopEffect(S_GB1_1984_FIRE_LOOP_GUN);
-      }
-
-      if(getSystemYearMode() == SYSTEM_1984) {
-        playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
-      }
-      else {
-        playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
-      }
-    }
-
-    playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
   }
 
   if(b_firing_alt != true && b_sound_firing_alt_trigger == true) {
