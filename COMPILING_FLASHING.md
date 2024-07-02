@@ -27,16 +27,21 @@ Download and install the Arduino IDE. This will be used to compile and upload th
 
 The following libraries are required to be installed. All can be found within the Arduino Library Manager with the app. Go to `Sketch -> Include Library -> Manage Libraries...` to access the Library Manager. Search for the libraries by name and install the latest version available.
 
-- **ADS1115_WE** by Wolfgang Ewald
-- **CRC32** by Christopher Baker
-- **digitalWriteFast** by Watterott and Armin Joachimsmeyer
-- **ezButton** by ArduinoGetStarted.com
-- **FastLED** by Daniel Garcia
-- **Ramp** by Sylvain Garnavault
-- **SafeString** by Matthew Ford
-- **SerialTransfer** by PowerBroker2
-- **Simple ht16k33 Library** by Ipaseen
-- **Switch** by Albert van Dalen
+- **ADS1115_WE** by Wolfgang Ewald (1.5.1+)
+- **CRC32** by Christopher Baker (2.0.0+)
+- **digitalWriteFast** by Watterott and Armin Joachimsmeyer (1.2.0+)
+- **ezButton** by ArduinoGetStarted.com (1.0.4+)
+- **FastLED** by Daniel Garcia (3.7.0+)
+- **Ramp** by Sylvain Garnavault (0.6.1+)
+- **SafeString** by Matthew Ford (4.1.33+)
+- **SerialTransfer** by PowerBroker2 (3.1.3+)
+- **Simple ht16k33 Library** by Ipaseen (1.0.2+)
+- **Switch** by Albert van Dalen (1.2.4+)
+
+You will also need some basic Boards libraries:
+
+- **Arduino AVR** Boards by Arduino (1.8.6+)
+- **Arduino megaAVR** Boards by Arduino (1.8.8+)
 
 ## +++ IMPORTANT WHEN FLASHING UPDATES +++
 
