@@ -6,7 +6,11 @@ This guide will cover the web interface available via an ESP32 chip used as eith
 
 Before proceeding, it is worth noting that the ESP32 device is only capable of operating on the 2.4GHz band for WiFi communications. While it does support the 801.11b/g/n networking standards, any computer/phone/tablet which connects to this device via external WiFi network, or will be connected via the private WiFi network on this device as a client, must support the 2.4GHz band. For secured networks, only the WPA2 standard is allowed (joining an open networks is not supported nor advised).
 
-Connectivity options include either a private WiFi network from the device, and the ability to join an external WiFi network. For the latter this may be your home network or a cellular hotspot, though this is subject to some factors which are vendor-specific:
+Connectivity options include either a private WiFi network from the device, and the ability to join an external WiFi network. For the latter this may be your home network or a cellular hotspot, though this is subject to some factors which are environmental or vendor-specific.
+
+## WiFi Limitations
+
+It should be clearly stated that the ESP32 is a low-power consumer device and will not have the same range and features as a true wireless access point. When used at home or a controlled environment it should respond in a satisfactory manner. Though when used in a crowded (read: convention) environment the signal may become lost or overwhelmed by competing RF devices. When possible, configure the device to connect to a stronger, stable wireless network as a client rather than relying on the built-in access point as this may improve the range and performance of the web-based interface.
 
 - For **Android** devices offering a cellular hotspot, these devices may utilize a feature called "Client Isolation Mode" which will prevent hotspot clients from seeing each other. Unless you can disable this option (via a rooted device) you will not be able to reach the web UI via the hotspot network.
 - For **iOS** devices offering a cellular hotspot, please make sure that the "Maximize Compatibility" option is enabled. This will ensure your device offers the 2.4GHz radio and will be seen by the ESP32 device.
@@ -25,7 +29,7 @@ In order to view the state of the pack and control it remotely, the two devices 
 
 ## Web Interface
 
-When using the ESP32 controller for either the Attenuator or Wireless Adapter, it will offer a private WiFi network which begins with the prefix **"ProtonPack_"** and secured with a default password of **"555-2368"**.
+When using the ESP32 controller for either the Attenuator or Wireless Adapter, it will offer a private WiFi network (access point) which begins with the prefix **"ProtonPack_"** and secured with a default password of **"555-2368"**.
 
 Once connected, your computer/phone/table should be assigned an IP address starting from **"192.168.1.100"** with a subnet of **"255.255.255.0"**. Please remember that if you intend to have multiple devices connect via this private WiFi network you will be assigned a unique IP address for each device.
 
@@ -111,7 +115,7 @@ Set options related specifically to the Attenuator, such as when the vibration m
 
 <img style="float:right;padding:10px;width:300px;" src="images/WebUI-SongList.jpg"/>
 
-**NEW in 5.x** - The ability to add a user-friendly track listing has been integrated into the UI. Song titles may be entered as 1 entry per line, in the order by which they are numbered on your microSD card. The text is limited by bytes (max 2,000) not the number of lines, so to fit more entries into this text box you may need to use shorter song titles. This list of songs will be matched to each track number (starting from "500_" per the required numbering scheme).
+**NEW in 5.x** - The ability to add a user-friendly track listing has been integrated into the UI. Song titles may be entered as 1 entry per line, in the order by which they are numbered on your microSD card. The text is limited by bytes (max 2,000) not the number of lines, so to fit more entries into this text box you may need to use shorter song titles. This list of songs will be matched to each track number (starting from "500_" per the required numbering scheme). This data is stored only within the ESP32 device and is only visible/used by the track selection field in the Music Navigation area.
 
 <div style="clear:both"></div>
 

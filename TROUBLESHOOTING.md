@@ -1,6 +1,8 @@
 # Troubleshooting #
 
-If you are experiencing issues during the installation process there are a few ways to get back on track. Use the guides below to help narrow down where you are having an issue and try the suggested remedies. Should you need additional assistance, reach out to the [GPStar Technologies Facebook group](https://www.facebook.com/groups/gpstartechnologies) and either post a question or message one of the group administrators.
+If you are experiencing issues during the installation process there are a few ways to get back on track. Use the guides below to help narrow down where you are having an issue and try the suggested remedies. Should you need additional assistance, reach out to the [GPStar Technologies Facebook group](https://www.facebook.com/groups/gpstartechnologies) and either use the group search (see below) or post a question to the community.
+
+![FB Group Search Option](images/GroupSearch.jpg)
 
 ### General Guidance ###
 
@@ -82,7 +84,7 @@ Depending on which audio board you are using in your system, following the troub
 
 1. Make sure your WAV files are named properly and are located in the root directory of the microSD card. When you first power on GPStar Audio, it will locate and index the files and then the green LED will blink at half second intervals.
 
-2. If there’s no activity on the "Green" status LED whatsoever when you power up GPStar Audio, check the “BOOT/LOAD” switch next to the 6 pin jst-xh connector is in the “BOOT” position.
+2. If there’s no activity on the "Green" status LED whatsoever when you power up GPStar Audio, check the “BOOT/LOAD” switch next to the 6 pin JST-XH connector is in the “BOOT” position.
 
 3. Once you see the "Green" status LED blinking slowly, pressing the on-board "Test" button will play the lowest numbered track on the microSD card. Confirm this by observing the "Gree" status LED turning blinking very rapidly to indicate a track is playing. You should hear the track through the stereo jack or any speaker connected to the board.
 

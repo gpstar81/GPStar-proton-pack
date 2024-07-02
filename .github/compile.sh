@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Perform a full compile of all binaries using the Arduino-CLI and any boards/libraries
+# already installed as part of the ArduinoIDE on a local Mac/PC development environment.
+# For PC/Windows users, a Cygwin environment may be used to execute this build script.
+
 BINDIR="../binaries"
 SRCDIR="../source"
 
@@ -7,6 +11,7 @@ mkdir -p ${BINDIR}/attenuator/extras
 mkdir -p ${BINDIR}/pack
 mkdir -p ${BINDIR}/wand/extras
 
+# Current build timestamp to be reflected in the Attenuator build for ESP32.
 TIMESTAMP=$(date +"%Y%m%d%H%M%S")
 
 echo ""
@@ -22,7 +27,9 @@ rm -f ${BINDIR}/*.eep
 rm -f ${BINDIR}/*.elf
 rm -f ${BINDIR}/*bootloader.hex
 
-mv ${BINDIR}/ProtonPack.ino.hex ${BINDIR}/pack/ProtonPack.hex
+if [ -f ${BINDIR}/ProtonPack.ino.hex ]; then
+  mv ${BINDIR}/ProtonPack.ino.hex ${BINDIR}/pack/ProtonPack.hex
+fi
 echo "Done."
 echo ""
 
@@ -37,7 +44,9 @@ rm -f ${BINDIR}/*.eep
 rm -f ${BINDIR}/*.elf
 rm -f ${BINDIR}/*bootloader.hex
 
-mv ${BINDIR}/NeutronaWand.ino.hex ${BINDIR}/wand/NeutronaWand.hex
+if [ -f ${BINDIR}/NeutronaWand.ino.hex ]; then
+  mv ${BINDIR}/NeutronaWand.ino.hex ${BINDIR}/wand/NeutronaWand.hex
+fi
 echo "Done."
 echo ""
 
@@ -55,7 +64,9 @@ rm -f ${BINDIR}/*.eep
 rm -f ${BINDIR}/*.elf
 rm -f ${BINDIR}/*bootloader.hex
 
-mv ${BINDIR}/NeutronaWand.ino.hex ${BINDIR}/wand/extras/NeutronaWand-BenchTest.hex
+if [ -f ${BINDIR}/NeutronaWand.ino.hex ]; then
+  mv ${BINDIR}/NeutronaWand.ino.hex ${BINDIR}/wand/extras/NeutronaWand-BenchTest.hex
+fi
 
 # Restore flag(s) from compilation
 sed -i -e 's/b_gpstar_benchtest = true/b_gpstar_benchtest = false/' ${SRCDIR}/NeutronaWand/Configuration.h
@@ -76,7 +87,9 @@ rm -f ${BINDIR}/*.eep
 rm -f ${BINDIR}/*.elf
 rm -f ${BINDIR}/*bootloader.hex
 
-mv ${BINDIR}/Attenuator.ino.hex ${BINDIR}/attenuator/Attenuator-Nano.hex
+if [ -f ${BINDIR}/Attenuator.ino.hex ]; then
+  mv ${BINDIR}/Attenuator.ino.hex ${BINDIR}/attenuator/Attenuator-Nano.hex
+fi
 echo "Done."
 echo ""
 
@@ -94,10 +107,17 @@ arduino-cli compile --output-dir ${BINDIR} --fqbn esp32:esp32:esp32 --export-bin
 rm -f ${BINDIR}/*.eep
 rm -f ${BINDIR}/*.elf
 rm -f ${BINDIR}/*.map
+rm -f ${BINDIR}/*.merged.bin
 
-mv ${BINDIR}/Attenuator.ino.bin ${BINDIR}/attenuator/Attenuator-ESP32.bin
-mv ${BINDIR}/Attenuator.ino.bootloader.bin ${BINDIR}/attenuator/extras/Attenuator-ESP32-Bootloader.bin
-mv ${BINDIR}/Attenuator.ino.partitions.bin ${BINDIR}/attenuator/extras/Attenuator-ESP32-Partitions.bin
+if [ -f ${BINDIR}/Attenuator.ino.bin ]; then
+  mv ${BINDIR}/Attenuator.ino.bin ${BINDIR}/attenuator/Attenuator-ESP32.bin
+fi
+if [ -f ${BINDIR}/Attenuator.ino.bootloader.bin ]; then
+  mv ${BINDIR}/Attenuator.ino.bootloader.bin ${BINDIR}/attenuator/extras/Attenuator-ESP32-Bootloader.bin
+fi
+if [ -f ${BINDIR}/Attenuator.ino.partitions.bin ]; then
+  mv ${BINDIR}/Attenuator.ino.partitions.bin ${BINDIR}/attenuator/extras/Attenuator-ESP32-Partitions.bin
+fi
 echo "Done."
 echo ""
 
@@ -116,10 +136,13 @@ arduino-cli compile --output-dir ${BINDIR} --fqbn esp32:esp32:esp32 --export-bin
 rm -f ${BINDIR}/*.eep
 rm -f ${BINDIR}/*.elf
 rm -f ${BINDIR}/*.map
+rm -f ${BINDIR}/*.merged.bin
 rm -f ${BINDIR}/*bootloader.*
 rm -f ${BINDIR}/*partitions.*
 
-mv ${BINDIR}/Attenuator.ino.bin ${BINDIR}/attenuator/extras/Attenuator-ESP32-Reset.bin
+if [ -f ${BINDIR}/Attenuator.ino.bin ]; then
+  mv ${BINDIR}/Attenuator.ino.bin ${BINDIR}/attenuator/extras/Attenuator-ESP32-Reset.bin
+fi
 
 # Restore flag(s) from compilation
 sed -i -e 's/\#define DEBUG_WIRELESS_SETUP/\/\/\#define DEBUG_WIRELESS_SETUP/' ${SRCDIR}/Attenuator/Configuration.h

@@ -22,7 +22,7 @@
 
 /**
  * Colours based on Hue use a colour degree, a Saturation, and Value (brightness).
- * A conversion to RGB values is done to ensure consistent colors across devices.
+ * A conversion to RGB values is done to ensure consistent colours across devices.
  */
 
 enum colours {
@@ -72,7 +72,7 @@ uint8_t i_curr_colour[DEVICE_NUM_LEDS] = { 0, 0, 0 };
 uint8_t i_curr_bright[DEVICE_NUM_LEDS] = { 0, 0, 0 };
 int16_t i_next_bright[DEVICE_NUM_LEDS] = { -1, -1, -1 }; // Uses int to allow negative steps.
 uint8_t i_count[DEVICE_NUM_LEDS] = { 0, 0, 0 }; // Counter-based changes for certain themes.
-millisDelay ms_color_change[DEVICE_NUM_LEDS]; // Timers for changing colors for certain themes.
+millisDelay ms_colour_change[DEVICE_NUM_LEDS]; // Timers for changing colours for certain themes.
 uint16_t i_change_delay[DEVICE_NUM_LEDS] = { 10, 10, 10 }; // Default delay time for changes.
 
 CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation = 255) {
@@ -182,28 +182,28 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
         i_curr_colour[i_device] = 20; // Reset if out of range.
       }
 
-      // Set the time delay for color changes per device.
+      // Set the time delay for colour changes per device.
       i_change_delay[i_device] = 5;
 
-      if(ms_color_change[i_device].remaining() < 1) {
+      if(ms_colour_change[i_device].remaining() < 1) {
         i_count[i_device]++;
         if(i_count[i_device] % 32 == 0) {
           i_curr_colour[i_device] = (i_curr_colour[i_device] + 1) % 32;
           i_count[i_device] = 20; // Reset counter.
         }
-        ms_color_change[i_device].start(i_change_delay[i_device]);
+        ms_colour_change[i_device].start(i_change_delay[i_device]);
       }
 
       return CHSV(i_curr_colour[i_device], 255, i_brightness);
     break;
 
     case C_ORANGE_FADE:
-      // Set the time delay for color changes per device.
+      // Set the time delay for colour changes per device.
       i_change_delay[i_device] = 10;
 
       // Increments brightness by X steps every X milliseconds.
       // Uses the +/- value to increment or decrement by the given value.
-      if(ms_color_change[i_device].remaining() < 1) {
+      if(ms_colour_change[i_device].remaining() < 1) {
         if(i_curr_bright[i_device] <= 1) {
           // Prime for the climb back to full brightness.
           i_curr_bright[i_device] = 1;
@@ -215,19 +215,19 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
           i_next_bright[i_device] = -3;
         }
         i_curr_bright[i_device] = i_curr_bright[i_device] + i_next_bright[i_device];
-        ms_color_change[i_device].start(i_change_delay[i_device]);
+        ms_colour_change[i_device].start(i_change_delay[i_device]);
       }
 
       return CHSV(28, 255, i_curr_bright[i_device]);
     break;
 
     case C_RED_FADE:
-      // Set the time delay for color changes per device.
+      // Set the time delay for colour changes per device.
       i_change_delay[i_device] = 8;
 
       // Increments brightness by X steps every X milliseconds.
       // Uses the +/- value to increment or decrement by the given value.
-      if(ms_color_change[i_device].remaining() < 1) {
+      if(ms_colour_change[i_device].remaining() < 1) {
         if(i_curr_bright[i_device] <= 1) {
           // Prime for the climb back to full brightness.
           i_curr_bright[i_device] = 1;
@@ -239,7 +239,7 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
           i_next_bright[i_device] = -3;
         }
         i_curr_bright[i_device] = i_curr_bright[i_device] + i_next_bright[i_device];
-        ms_color_change[i_device].start(i_change_delay[i_device]);
+        ms_colour_change[i_device].start(i_change_delay[i_device]);
       }
 
       return CHSV(0, 255, i_curr_bright[i_device]);
@@ -251,32 +251,32 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
         i_curr_colour[i_device] = 0; // Reset if out of range.
       }
 
-      // Set the time delay for color changes per device.
+      // Set the time delay for colour changes per device.
       i_change_delay[i_device] = 800;
 
-      if(ms_color_change[i_device].remaining() < 1) {
-        // Swap colors and restart the timer.
+      if(ms_colour_change[i_device].remaining() < 1) {
+        // Swap colours and restart the timer.
         if(i_curr_colour[i_device] == 0) {
           i_curr_colour[i_device] = 96;
         }
         else {
           i_curr_colour[i_device] = 0;
         }
-        ms_color_change[i_device].start(i_change_delay[i_device]);
+        ms_colour_change[i_device].start(i_change_delay[i_device]);
       }
 
       return CHSV(i_curr_colour[i_device], 255, i_brightness);
     break;
 
     case C_RAINBOW:
-      // Set the time delay for color changes per device.
+      // Set the time delay for colour changes per device.
       i_change_delay[i_device] = 10;
 
       // Cycle through all colours (0-255) at full saturation every X milliseconds.
-      if(ms_color_change[i_device].remaining() < 1) {
-        // Increment color and restart the timer.
+      if(ms_colour_change[i_device].remaining() < 1) {
+        // Increment colour and restart the timer.
         i_curr_colour[i_device] = (i_curr_colour[i_device] + 1) % 255;
-        ms_color_change[i_device].start(i_change_delay[i_device]);
+        ms_colour_change[i_device].start(i_change_delay[i_device]);
       }
 
       return CHSV(i_curr_colour[i_device], 255, i_brightness);
@@ -312,6 +312,6 @@ CRGB getHueAsRGB(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255,
 }
 
 CRGB getHueAsGRB(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255) {
-  // Forward to getHueAsRGB() with the flag set for GRB color swap.
+  // Forward to getHueAsRGB() with the flag set for GRB colour swap.
   return getHueAsRGB(i_device, i_colour, i_brightness, true);
 }

@@ -41,9 +41,9 @@ void saveLEDEEPROM();
 void updateCRCEEPROM();
 uint32_t eepromCRC(void);
 void resetCyclotronLEDs();
+void resetInnerCyclotronLEDs();
 void resetContinuousSmoke();
 void updateProtonPackLEDCounts();
-bool vgModeCheck();
 
 /*
  * General EEPROM Variables
@@ -65,6 +65,7 @@ struct objLEDEEPROM {
   uint8_t cyclotron_spectral_saturation_custom;
   uint8_t cyclotron_inner_spectral_saturation_custom;
   uint8_t cyclotron_cavity_count;
+  uint8_t inner_cyclotron_led_panel;
 };
 
 /*
@@ -119,22 +120,21 @@ void readEEPROM() {
       switch(i_powercell_leds) {
         case FRUTTO_POWERCELL_LED_COUNT:
           // 15 Power Cell LEDs.
-          i_powercell_delay_1984 = 60;
-          i_powercell_delay_2021 = 34;
+          i_powercell_delay_1984 = POWERCELL_DELAY_1984_15_LED;
+          i_powercell_delay_2021 = POWERCELL_DELAY_2021_15_LED;
         break;
 
         case HASLAB_POWERCELL_LED_COUNT:
         default:
           // 13 Power Cell LEDs.
-          i_powercell_delay_1984 = 75;
-          i_powercell_delay_2021 = 40;
+          i_powercell_delay_1984 = POWERCELL_DELAY_1984_13_LED;
+          i_powercell_delay_2021 = POWERCELL_DELAY_2021_13_LED;
         break;
       }
     }
 
     if(obj_eeprom.cyclotron_count > 0 && obj_eeprom.cyclotron_count != 255) {
       i_cyclotron_leds = obj_eeprom.cyclotron_count;
-      resetCyclotronLEDs();
     }
 
     if(obj_eeprom.inner_cyclotron_count > 0 && obj_eeprom.inner_cyclotron_count != 255) {
@@ -148,11 +148,13 @@ void readEEPROM() {
 
         case 23:
         case 24:
+        case 26:
           i_2021_inner_delay = 8;
           i_1984_inner_delay = 12;
         break;
 
         case 35:
+        case 36:
         default:
           i_2021_inner_delay = 5;
           i_1984_inner_delay = 9;
@@ -161,7 +163,21 @@ void readEEPROM() {
     }
 
     if(obj_eeprom.cyclotron_cavity_count > 0 && obj_eeprom.cyclotron_cavity_count != 255) {
-      i_inner_cyclotron_cavity_num_leds = obj_eeprom.cyclotron_cavity_count;
+      if(obj_eeprom.cyclotron_cavity_count > 20) {
+        i_inner_cyclotron_cavity_num_leds = 20;
+      }
+      else {
+        i_inner_cyclotron_cavity_num_leds = obj_eeprom.cyclotron_cavity_count;
+      }
+    }
+
+    if(obj_eeprom.inner_cyclotron_led_panel > 0 && obj_eeprom.inner_cyclotron_led_panel != 255) {
+      if(obj_eeprom.inner_cyclotron_led_panel > 1) {
+        b_inner_cyclotron_led_panel = true;
+      }
+      else {
+        b_inner_cyclotron_led_panel = false;
+      }
     }
 
     if(obj_eeprom.grb_inner_cyclotron > 0 && obj_eeprom.grb_inner_cyclotron != 255) {
@@ -198,6 +214,8 @@ void readEEPROM() {
     }
 
     // Update the LED counts for the Proton Pack.
+    resetCyclotronLEDs();
+    resetInnerCyclotronLEDs();
     updateProtonPackLEDCounts();
 
     // Read our configuration object from the EEPROM.
@@ -307,8 +325,6 @@ void readEEPROM() {
       else {
         SYSTEM_MODE = MODE_SUPER_HERO;
       }
-
-      vgModeCheck();
     }
 
     if(obj_config_eeprom.vg_powercell > 0 && obj_config_eeprom.vg_powercell != 255) {
@@ -483,11 +499,18 @@ void saveLEDEEPROM() {
   // Cyclotron LEDs
   // Inner Cyclotron LEDs
   // GRB / RGB Inner Cyclotron toggle flag
+  // Inner Cyclotron LED Panel toggle flag
 
   uint8_t i_grb_cyclotron_cake = 1;
 
   if(b_grb_cyclotron_cake == true) {
     i_grb_cyclotron_cake = 2;
+  }
+
+  uint8_t i_inner_cyclotron_led_panel = 1;
+
+  if(b_inner_cyclotron_led_panel == true) {
+    i_inner_cyclotron_led_panel = 2;
   }
 
   // Write the data to the EEPROM if any of the values have changed.
@@ -502,7 +525,8 @@ void saveLEDEEPROM() {
     i_spectral_powercell_custom_saturation,
     i_spectral_cyclotron_custom_saturation,
     i_spectral_cyclotron_inner_custom_saturation,
-    i_inner_cyclotron_cavity_num_leds
+    i_inner_cyclotron_cavity_num_leds,
+    i_inner_cyclotron_led_panel
   };
 
   // Save and update our object in the EEPROM.

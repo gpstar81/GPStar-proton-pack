@@ -14,7 +14,7 @@ The configuration for this device is extremely simple and can be implemented wit
 
 ## ESP32 - Pin Connections
 
-The following is a diagram of the ESP32 pins from left and right, when oriented with the USB connection facing down (south) like the pinout diagram above.
+The following is a diagram of the **ESP32 pins** from left and right, when oriented with the USB connection facing down (south) like the pinout diagram above. Again, this table is based on the expected pin labels on the ESP32 itself--your terminal shield may differ slightly and should be checked for proper orientation when you insert the ESP32 into the socket.
 
 | Connection    | ESP32 (L) |     | ESP32 (R) | Connection    |
 |---------------|-----------|-----|-----------|---------------|
@@ -35,7 +35,9 @@ The following is a diagram of the ESP32 pins from left and right, when oriented 
 | to 5V-OUT +   | VIN       |     | 3.3V      |               |
 |               |         | **USB** |         |               |
 
-As shown above you will only need 4 connections using the pair of JST-XH connectors connecting the 5V-OUT and RX1/TX1 sockets to the ESP32 device. Since the pre-wired connections may only have a red/black color pattern the diagram below has been intentionally designed with this in mind.
+As shown above you will only need 4 connections using the pair of JST-XH connectors connecting the **5V-OUT** and **RX1/TX1** sockets to the ESP32 device. Since the pre-wired connections may only have a red/black color pattern the diagram below has been intentionally designed with this in mind, though the table above should be consulted for connections if your device does not work as expected.
+
+**IMPORTANT:** Please check all LABELS for proper connections, regardless of wire color. Some early parts/kits may have shipped with JST connectors which swap the order of the red/black wires.
 
 ![](images/PackPCB-Wireless.png)
 

@@ -142,17 +142,17 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>Custom Color (Hue):</b><br/>
+      <b>Custom Colour (Hue):</b><br/>
       <input type="range" id="ledCycLidHue" name="ledCycLidHue" min="0" max="360" value="360" step="2"
-       oninput="updateColor('cycColorPreview', 'cycHueOut', 'cycSatOut', ledCycLidHue.value, ledCycLidSat.value)"/>
+       oninput="updateColour('cycColourPreview', 'cycHueOut', 'cycSatOut', ledCycLidHue.value, ledCycLidSat.value)"/>
       <output class="labelSlider" id="cycHueOut" for="ledCycLidHue"></output>
       <br/>
-      <div id="cycColorPreview" class="swatch"></div>
+      <div id="cycColourPreview" class="swatch"></div>
     </div>
     <div class="setting">
       <b>Custom Saturation %:</b><br/>
       <input type="range" id="ledCycLidSat" name="ledCycLidSat" min="0" max="100" value="100" step="2"
-       oninput="updateColor('cycColorPreview', 'cycHueOut', 'cycSatOut', ledCycLidHue.value, ledCycLidSat.value)"/>
+       oninput="updateColour('cycColourPreview', 'cycHueOut', 'cycSatOut', ledCycLidHue.value, ledCycLidSat.value)"/>
       <output class="labelSlider" id="cycSatOut" for="ledCycLidSat"></output>
     </div>
     <div class="setting">
@@ -170,7 +170,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Enable Video Game Colors:</b>
+      <b class="labelSwitch">Enable Video Game Colours:</b>
       <label class="switch">
         <input id="ledVGCyclotron" name="ledVGCyclotron" type="checkbox">
         <span class="slider round"></span>
@@ -190,11 +190,20 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     <div class="setting">
       <b>LED Count:</b>
       <select id="ledCycCakeCount" name="ledCycCakeCount">
-        <option value="35">35 - GPStar</option>
+        <option value="36">36 - GPStar</option>
+        <option value="35">35</option>
+        <option value="26">26</option>
         <option value="24">24</option>
         <option value="23">23</option>
         <option value="12">12</option>
       </select>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Use Frutto RGB LED Panel:</b>
+      <label class="switch">
+        <input id="ledCycInnerPanel" name="ledCycInnerPanel" type="checkbox">
+        <span class="slider round"></span>
+      </label>
     </div>
     <div class="setting">
       <b class="labelSwitch">Swap Red/Green LEDs (GRB):</b>
@@ -204,22 +213,22 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </label>
     </div>
     <div class="setting">
-      <b>Custom Color (Hue):</b><br/>
+      <b>Custom Colour (Hue):</b><br/>
       <input type="range" id="ledCycCakeHue" name="ledCycCakeHue" min="0" max="360" value="360" step="2"
-       oninput="updateColor('cakeColorPreview', 'cakeHueOut', 'cakeSatOut', ledCycCakeHue.value, ledCycCakeSat.value)"/>
+       oninput="updateColour('cakeColourPreview', 'cakeHueOut', 'cakeSatOut', ledCycCakeHue.value, ledCycCakeSat.value)"/>
       <output class="labelSlider" id="cakeHueOut" for="ledCycCakeHue"></output>
       <br/>
-      <div id="cakeColorPreview" class="swatch"></div>
+      <div id="cakeColourPreview" class="swatch"></div>
     </div>
     <div class="setting">
       <b>Custom Saturation %:</b><br/>
       <input type="range" id="ledCycCakeSat" name="ledCycCakeSat" min="0" max="100" value="100" step="2"
-       oninput="updateColor('cakeColorPreview', 'cakeHueOut', 'cakeSatOut', ledCycCakeHue.value, ledCycCakeSat.value)"/>
+       oninput="updateColour('cakeColourPreview', 'cakeHueOut', 'cakeSatOut', ledCycCakeHue.value, ledCycCakeSat.value)"/>
       <output class="labelSlider" id="cakeSatOut" for="ledCycCakeSat"></output>
     </div>
     <div class="setting">
       <b>Cyclotron Cavity Lights:</b><br/>
-      <input type="range" id="ledCycCavCount" name="ledCycCavCount" min="0" max="30" value="0" step="2"
+      <input type="range" id="ledCycCavCount" name="ledCycCavCount" min="0" max="20" value="0" step="2"
        oninput="ledCycCavCountOut.value=ledCycCavCount.value"/>
       <output class="labelSlider" id="ledCycCavCountOut" for="ledCycCavCount"></output>
     </div>
@@ -235,21 +244,21 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>Custom Color (Hue):</b><br/>
+      <b>Custom Colour (Hue):</b><br/>
       <input type="range" id="ledPowercellHue" name="ledPowercellHue" min="0" max="360" value="360" step="2"
-       oninput="updateColor('pcColorPreview', 'pcHueOut', 'pcSatOut', ledPowercellHue.value, ledPowercellSat.value)"/>
+       oninput="updateColour('pcColourPreview', 'pcHueOut', 'pcSatOut', ledPowercellHue.value, ledPowercellSat.value)"/>
       <output class="labelSlider" id="pcHueOut" for="ledPowercellHue"></output>
       <br/>
-      <div id="pcColorPreview" class="swatch"></div>
+      <div id="pcColourPreview" class="swatch"></div>
     </div>
     <div class="setting">
       <b>Custom Saturation %:</b><br/>
       <input type="range" id="ledPowercellSat" name="ledPowercellSat" min="0" max="100" value="100" step="2"
-       oninput="updateColor('pcColorPreview', 'pcHueOut', 'pcSatOut', ledPowercellHue.value, ledPowercellSat.value)"/>
+       oninput="updateColour('pcColourPreview', 'pcHueOut', 'pcSatOut', ledPowercellHue.value, ledPowercellSat.value)"/>
       <output class="labelSlider" id="pcSatOut" for="ledPowercellSat"></output>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Enable Video Game Colors:</b>
+      <b class="labelSwitch">Enable Video Game Colours:</b>
       <label class="switch">
         <input id="ledVGPowercell" name="ledVGPowercell" type="checkbox">
         <span class="slider round"></span>
@@ -285,12 +294,12 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       return Math.round((value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0]);
     }
 
-    function updateColor(colorPreviewID, hueLabelID, satLabelID, hueValue, satValue) {
-      // Updates the slider values and preview the selected color using HSL.
+    function updateColour(colourPreviewID, hueLabelID, satLabelID, hueValue, satValue) {
+      // Updates the slider values and preview the selected colour using HSL.
       getEl(hueLabelID).innerHTML = hueValue;
       getEl(satLabelID).innerHTML = satValue;
       var lightness = convertRange(100 - parseInt(satValue, 10), [0,100], [50,100]);
-      getEl(colorPreviewID).style.backgroundColor = "hsl(" + parseInt(hueValue, 10) + ", " + parseInt(satValue, 10) + "%, " + lightness + "%)";
+      getEl(colourPreviewID).style.backgroundColor = "hsl(" + parseInt(hueValue, 10) + ", " + parseInt(satValue, 10) + "%, " + lightness + "%)";
     }
 
     function isJsonString(str) {
@@ -329,7 +338,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             }
 
             /**
-             * Note: Color (hue) value range for FastLED uses the following scale, though CSS uses 0-360 for HSL color.
+             * Note: Colour (hue) value range for FastLED uses the following scale, though CSS uses 0-360 for HSL colour.
              *  0 = Red
              *  32 = Orange
              *  64 = Yellow
@@ -363,9 +372,10 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             getEl("ledVGCyclotron").checked = settings.ledVGCyclotron ? true: false;
             getEl("ledCycLidSimRing").checked = settings.ledCycLidSimRing ? true: false;
 
-            getEl("ledCycCakeCount").value = settings.ledCycCakeCount || 35; // Default: 12
+            getEl("ledCycCakeCount").value = settings.ledCycCakeCount || 35; // Default: 35
             getEl("ledCycCakeHue").value = convertRange(settings.ledCycCakeHue || 254, [1,254], [0,360]); // Default: Red
             getEl("ledCycCakeSat").value = convertRange(settings.ledCycCakeSat || 254, [1,254], [0,100]); // Full Saturation
+            getEl("ledCycInnerPanel").checked = settings.ledCycInnerPanel ? true: false;
             getEl("ledCycCakeGRB").checked = settings.ledCycCakeGRB ? true: false;
             getEl("ledCycCavCount").value = settings.ledCycCavCount || 0; // Default: 0
             getEl("ledCycCavCountOut").innerHTML = getEl("ledCycCavCount").value;
@@ -375,10 +385,10 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             getEl("ledPowercellSat").value = convertRange(settings.ledPowercellSat || 254, [1,254], [0,100]); // Full Saturation
             getEl("ledVGPowercell").checked = settings.ledVGPowercell ? true: false;
 
-            // Update color preview and value display for hue/saturation sliders.
-            updateColor("cycColorPreview", "cycHueOut", "cycSatOut", getEl("ledCycLidHue").value, getEl("ledCycLidSat").value);
-            updateColor("cakeColorPreview", "cakeHueOut", "cakeSatOut", getEl("ledCycCakeHue").value, getEl("ledCycCakeSat").value);
-            updateColor("pcColorPreview", "pcHueOut", "pcSatOut", getEl("ledPowercellHue").value, getEl("ledPowercellSat").value);
+            // Update colour preview and value display for hue/saturation sliders.
+            updateColour("cycColourPreview", "cycHueOut", "cycSatOut", getEl("ledCycLidHue").value, getEl("ledCycLidSat").value);
+            updateColour("cakeColourPreview", "cakeHueOut", "cakeSatOut", getEl("ledCycCakeHue").value, getEl("ledCycCakeSat").value);
+            updateColour("pcColourPreview", "pcHueOut", "pcSatOut", getEl("ledPowercellHue").value, getEl("ledPowercellSat").value);
           }
         }
       };
@@ -413,6 +423,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         ledCycCakeCount: parseInt(getEl("ledCycCakeCount").value || 35, 10),
         ledCycCakeHue: convertRange(parseInt(getEl("ledCycCakeHue").value || 360, 10), [0,360], [1,254]),
         ledCycCakeSat: convertRange(parseInt(getEl("ledCycCakeSat").value || 100, 10), [0,100], [1,254]),
+        ledCycInnerPanel: getEl("ledCycInnerPanel").checked ? 1 : 0,
         ledCycCakeGRB: getEl("ledCycCakeGRB").checked ? 1 : 0,
         ledCycCavCount: parseInt(getEl("ledCycCavCount").value || 0, 10),
 

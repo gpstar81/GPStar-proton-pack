@@ -115,26 +115,31 @@ Once flashed, this will allow you to get back into the web UI at `http://192.168
 
 ## Software Development Requirements
 
-To build or edit the code for this device you must have an ArduinoIDE environment set up similar to what is needed for the pack/wand software. Download and install the Arduino IDE 2.x or higher. This will be used to compile and upload the code to your Proton Pack and Neutrona Wand.
+To build or edit the code for this device you must have an ArduinoIDE environment set up similar to what is needed for the pack/wand software. Download and install the Arduino IDE. This will be used to compile and upload the code to your Proton Pack and Neutrona Wand.
 
-[Arduino IDE 2.x](https://www.arduino.cc/en/software)
+[Arduino IDE](https://www.arduino.cc/en/software)
 
 The following libraries are required to be installed. All but the MillisDelay library can be found within the Arduino Library Manager with the app. Go to `Sketch -> Include Library -> Manage Libraries...` to access the Library Manager. Search for the libraries by name and install the latest version available.
 
 ### Common Libraries (Nano+ESP32)
 
-- **ezButton** by ArduinoGetStarted.com
-- **FastLED** by Daniel Garcia
-- **SafeString** by Matthew Ford
-- **SerialTransfer** by PowerBroker2
-- **Simple ht16k33 Library** by Ipaseen
+- **ezButton** by ArduinoGetStarted.com (1.0.4+)
+- **FastLED** by Daniel Garcia (3.7.0+)
+- **SafeString** by Matthew Ford (4.1.33+)
+- **SerialTransfer** by PowerBroker2 (3.1.3+)
+- **Simple ht16k33 Library** by Ipaseen (1.0.2+)
 
 ### Additional ESP32 Libraries
 
-- **ArduinoJSON** by Benoit Blanchon
-- **AsyncTCP** by dvarrel
-- **ESP Async WebServer** by Mathieu Carbou (note spaces in library name)
-- **ElegantOTA** by Ayush Sharma `See Below`
+- **ArduinoJSON** by Benoit Blanchon (7.1.0+)
+- **AsyncTCP** by dvarrel (1.1.4+)
+- **ESP Async WebServer** by Me-No-Dev (3.0.6+)
+- **ElegantOTA** by Ayush Sharma (3.1.2+) `See Below`
+
+
+You will also need this additional Boards library for ESP32 controllers:
+
+- **esp32** by Espressif Systems (3.0.2+)
 
 To build for the ESP32 hardware you will need to use the `Boards Manager` to install the `esp32 by Expressif Systems` package. When selecting a board for compilation and upload, simply use the board `ESP32 Dev Module` for satisfactory results. For reference, the FQBN for builds is "esp32:esp32:esp32".
 

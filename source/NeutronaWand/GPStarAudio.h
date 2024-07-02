@@ -3,7 +3,7 @@
  *   Copyright (C) 2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   Based on the serial protocol library by Jamie Robertson.
- *   Compatible with both the GPStar Audio and Robertonics WAV Trigger audio devices.
+ *   Compatible with both the GPStar Audio and Robertsonics WAV Trigger audio devices.
  *   Copyright (c) 2014
 
  *   This program is free software; you can redistribute it and/or modify

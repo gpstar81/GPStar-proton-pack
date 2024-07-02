@@ -34,29 +34,31 @@ String status; // Holder for simple "status: success" response.
 void handleRoot(AsyncWebServerRequest *request) {
   // Used for the root page (/) from the web server.
   //debug("Web Root HTML Requested");
-  String s = INDEX_page; // Read HTML page into String.
-  request->send(200, "text/html", s); // Serve page content.
+  request->send(200, "text/html", String(INDEX_page)); // Serve page content.
+}
+
+void handleRootJS(AsyncWebServerRequest *request) {
+  // Used for the root page (/) from the web server.
+  //debug("Web Root JavaScript Requested");
+  request->send(200, "application/javascript", String(INDEXJS_page)); // Serve page content.
 }
 
 void handleNetwork(AsyncWebServerRequest *request) {
   // Used for the network page from the web server.
   //debug("Network HTML Requested");
-  String s = NETWORK_page; // Read HTML page into String.
-  request->send(200, "text/html", s); // Serve page content.
+  request->send(200, "text/html", String(NETWORK_page)); // Serve page content.
 }
 
 void handlePassword(AsyncWebServerRequest *request) {
   // Used for the password page from the web server.
   //debug("Password HTML Requested");
-  String s = PASSWORD_page; // Read HTML page into String.
-  request->send(200, "text/html", s); // Serve page content.
+  request->send(200, "text/html", String(PASSWORD_page)); // Serve page content.
 }
 
 void handleAttenuatorSettings(AsyncWebServerRequest *request) {
   // Used for the device page from the web server.
   //debug("Attenuator Settings HTML Requested");
-  String s = DEVICE_page; // Read HTML page into String.
-  request->send(200, "text/html", s); // Serve page content.
+  request->send(200, "text/html", String(DEVICE_page)); // Serve page content.
 }
 
 void handlePackSettings(AsyncWebServerRequest *request) {
@@ -66,8 +68,7 @@ void handlePackSettings(AsyncWebServerRequest *request) {
 
   // Used for the settings page from the web server.
   //debug("Pack Settings HTML Requested");
-  String s = PACK_SETTINGS_page; // Read HTML page into String.
-  request->send(200, "text/html", s); // Serve page content.
+  request->send(200, "text/html", String(PACK_SETTINGS_page)); // Serve page content.
 }
 
 void handleWandSettings(AsyncWebServerRequest *request) {
@@ -77,8 +78,7 @@ void handleWandSettings(AsyncWebServerRequest *request) {
 
   // Used for the settings page from the web server.
   //debug("Wand Settings HTML Requested");
-  String s = WAND_SETTINGS_page; // Read HTML page into String.
-  request->send(200, "text/html", s); // Serve page content.
+  request->send(200, "text/html", String(WAND_SETTINGS_page)); // Serve page content.
 }
 
 void handleSmokeSettings(AsyncWebServerRequest *request) {
@@ -88,22 +88,19 @@ void handleSmokeSettings(AsyncWebServerRequest *request) {
 
   // Used for the settings page from the web server.
   //debug("Smoke Settings HTML Requested");
-  String s = SMOKE_SETTINGS_page; // Read HTML page into String.
-  request->send(200, "text/html", s); // Serve page content.
+  request->send(200, "text/html", String(SMOKE_SETTINGS_page)); // Serve page content.
 }
 
 void handleStylesheet(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
   //debug("Main StyleSheet Requested");
-  String s = STYLE_page; // Read CSS page into String.
-  request->send(200, "text/css", s); // Serve page content.
+  request->send(200, "text/css", String(STYLE_page)); // Serve page content.
 }
 
 void handleSvgImage(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
   //debug("Equipment SVG Requested");
-  String s = EQUIP_svg; // Read SVG image into String.
-  request->send(200, "image/svg+xml", s); // Serve page content.
+  request->send(200, "image/svg+xml", String(EQUIP_svg)); // Serve page content.
 }
 
 String getAttenuatorConfig() {
@@ -159,19 +156,20 @@ String getPackConfig() {
 
     // Proton Pack LED Options
     jsonBody["ledCycLidCount"] = packConfig.ledCycLidCount; // [12,20,36,40]
-    jsonBody["ledCycLidHue"] = packConfig.ledCycLidHue; // Spectral custom color/hue 1-254
+    jsonBody["ledCycLidHue"] = packConfig.ledCycLidHue; // Spectral custom colour/hue 1-254
     jsonBody["ledCycLidSat"] = packConfig.ledCycLidSat; // Spectral custom saturation 1-254
     jsonBody["cyclotronDirection"] = packConfig.cyclotronDirection; // [0=CCW,1=CW]
     jsonBody["ledCycLidCenter"] = packConfig.ledCycLidCenter; // [0=3,1=1]
     jsonBody["ledVGCyclotron"] = packConfig.ledVGCyclotron; // true|false
     jsonBody["ledCycLidSimRing"] = packConfig.ledCycLidSimRing; // true|false
-    jsonBody["ledCycCakeCount"] = packConfig.ledCycCakeCount; // [12,23,24,35]
-    jsonBody["ledCycCakeHue"] = packConfig.ledCycCakeHue; // Spectral custom color/hue 1-254
+    jsonBody["ledCycInnerPanel"] = packConfig.ledCycInnerPanel; // true|false
+    jsonBody["ledCycCakeCount"] = packConfig.ledCycCakeCount; // [12,23,24,26,35,36]
+    jsonBody["ledCycCakeHue"] = packConfig.ledCycCakeHue; // Spectral custom colour/hue 1-254
     jsonBody["ledCycCakeSat"] = packConfig.ledCycCakeSat; // Spectral custom saturation 1-254
     jsonBody["ledCycCakeGRB"] = packConfig.ledCycCakeGRB; // Use GRB for cake LEDs true|false
-    jsonBody["ledCycCavCount"] = packConfig.ledCycCavCount; // Cyclotron cavity LEDs (0-30)
+    jsonBody["ledCycCavCount"] = packConfig.ledCycCavCount; // Cyclotron cavity LEDs (0-20)
     jsonBody["ledPowercellCount"] = packConfig.ledPowercellCount; //[13,15]
-    jsonBody["ledPowercellHue"] = packConfig.ledPowercellHue; // Spectral custom color/hue 1-254
+    jsonBody["ledPowercellHue"] = packConfig.ledPowercellHue; // Spectral custom colour/hue 1-254
     jsonBody["ledPowercellSat"] = packConfig.ledPowercellSat; // Spectral custom saturation 1-254
     jsonBody["ledVGPowercell"] = packConfig.ledVGPowercell; // true|false
   }
@@ -196,7 +194,7 @@ String getWandConfig() {
 
     // Neutrona Wand LED Options
     jsonBody["ledWandCount"] = wandConfig.ledWandCount; // [0=5,1=29,2=48]
-    jsonBody["ledWandHue"] = wandConfig.ledWandHue; // Spectral custom color/hue 1-254
+    jsonBody["ledWandHue"] = wandConfig.ledWandHue; // Spectral custom colour/hue 1-254
     jsonBody["ledWandSat"] = wandConfig.ledWandSat; // Spectral custom saturation 1-254
     jsonBody["spectralModeEnabled"] = wandConfig.spectralModeEnabled; // true|false
     jsonBody["spectralHolidayMode"] = wandConfig.spectralHolidayMode; // true|false
@@ -687,11 +685,15 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
       packConfig.ledCycLidSimRing = jsonBody["ledCycLidSimRing"].as<uint8_t>();
 
       // Inner Cyclotron
+      packConfig.ledCycInnerPanel = jsonBody["ledCycInnerPanel"].as<uint8_t>();
       packConfig.ledCycCakeCount = jsonBody["ledCycCakeCount"].as<uint8_t>();
       packConfig.ledCycCakeHue = jsonBody["ledCycCakeHue"].as<uint8_t>();
       packConfig.ledCycCakeSat = jsonBody["ledCycCakeSat"].as<uint8_t>();
       packConfig.ledCycCakeGRB = jsonBody["ledCycCakeGRB"].as<uint8_t>();
       packConfig.ledCycCavCount = jsonBody["ledCycCavCount"].as<uint8_t>();
+      if(packConfig.ledCycCavCount > 20) {
+        packConfig.ledCycCavCount = 20; // Set maximum allowed.
+      }
 
       // Power Cell
       packConfig.ledPowercellCount = jsonBody["ledPowercellCount"].as<uint8_t>();

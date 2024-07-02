@@ -40,13 +40,35 @@ In both the PCB and DIY approaches each of the smoke and fan pins are designed t
 - All connectors listed above provide 5V of DC power and are intended to power devices such as relays, pumps, and fans.
 - **Do not connect any device which draws more than 500mA of current.** Most fans/blowers and relays can be safely attached to the Fan1 or Fan2 ports without concern as these require 500mA or less to operate. The LED-W port expects a white LED with a forward voltage of 3.0-3.2V and current draw of 20mA.
 - The Proton Pack PCB has been tested using up to 2 Amps of current but is **NOT** recommended as some components may be pushed to their thermal limits and could potentially fail prematurely under extended use.
-- Most vape coil and air pump combinations require dedicated power sources or may require a 12V power source. **ALWAYS** use a relay module to complete the circuit to power these types of devices!
+- Most vape coil and air pump combinations require dedicated power sources or may require a 12V power source.
+- **ALWAYS use a relay module to complete the circuit to power these types of devices!**
 
 ### Powering a Kit
 
-Power should be provided as recommended by your kit manufacturer. Most kits run on either 5V or 12V sources so this will determine the best way to implement a power connection. Though in most cases kits operate on the principle of "apply power, get smoke" so the only concern is how to turn the 5V (HIGH) signal from the PCB or Arduino into something which can safely run a vape coil and air pump combination. As previously noted in the warnings section, this is where a 5V Relay Module becomes necessary.
+Power should be provided as recommended by your kit manufacturer. Most kits run on either 5V or 12V sources so this will determine the best way to implement a power connection. Though in most cases kits operate on the principle of "apply power, get smoke" so the only concern is how to turn the 5V (HIGH) signal from the PCB or Arduino into something which can safely run a vape coil and air pump combination. So we have 2 steps to take: 1) how to get power for the smoke kit(s) and 2) how to switch on power safely.
 
-For a 5V relay, this device will electrically isolate the power provided by the PCB or Arduino from the power source running the smoke generator. This is the recommended solution for safely turning on your smoke generator. Remember that most vape coils will draw 1.5 to 2 Amps so your power supply must be able to provide that safely without triggering a safety shutoff.
+**Step 1: Providing Power**
+
+As of mid-2024 there are now 2 standard options available for obtaining power easily from a Talentcell battery: the GPStar Amplifier and the GPStar Power Hub. Both devices accept 12VDC from the 5525 barrel jack on the common Talentcell batteries, and both use an on-board 5V regulator which is capable of delivering up to 3A of power.
+
+**WARNING** Do not operate more than 1 smoke kit from the amplifier. This device must consume power to run the speakers, and is also meant to provide power easily to the Proton Pack controller. This is typically enough to push the voltage converter to its limit and can result in poor performance from trying to run 2 smoke kits simultaneously.
+
+![GPStar Amplifier](images/GPStarAmplifier.jpg)
+
+This device is meant to provide dedicated power to high-current devices. It has been tested by operating 2 smoke kits (5V each) simultaneously without issue. The primary use-case is when used with a second Talentcell battery reserved exclusively for powering smoke effects.
+
+![GPStar Power Hub](images/GPStarPowerHub.jpg)
+
+Some additional but optional parts which may be required for these devices:
+
+- [2-Pin JST-XH Connectors w/ Wires](https://a.co/d/04P0tpU1) - For connecting relay modules to the 5V ports on the amp or power hub.
+- [Male USB w/ Short Pigtail Cable](https://a.co/d/0haOIelI) - For connecting directly to the USB port of a Talentcell battery.
+- [Male 5.5mm x 2.5mm Pigtail Cable](https://a.co/d/0ii1iarB) - For connecting the amp to a battery using the available terminal screws.
+- [Male-to-Male 5.5mm x 2.5mm Cable](https://a.co/d/02pffX00) - For connecting the amp or power hub to a Talentcell battery.
+
+**Step 2: Switching Power**
+
+As previously noted in the warnings section, this is where a 5V Relay Module becomes necessary. For a 5V relay, this device will electrically isolate the power provided by the PCB or Arduino from the power source running the smoke generator. This is the recommended solution for safely turning on your smoke generator. Remember that most vape coils will draw 1.5 to 2 Amps so your power supply must be able to provide that safely without triggering a safety shutoff.
 
 ![Typical 5V Relay Module](images/RelayModule.jpg)
 
@@ -62,21 +84,34 @@ Typically the vape coil and air pump will have their positive leads connected to
 
 For a more in-depth look at the electrical connections, the following diagrams demonstrate what is required for integrating several smoke kits available from the community. These have been either directly verified or confirmed as "expected" by their respective makers. Other kits or DIY solutions may be used, provided they adhere to the use of a relay for applying power directly to a vape coil device. Refer to any kit makers' instructions and recommendations for power sources and connecting cables.
 
+This solution uses a vape pen with its own built-in battery for power:
 ![Built-in Battery](images/Smoke-NoBatt.png)
 
+<hr/>
+
+The following demonstrate common kits which require 5V for operation:
 ![DIY - Single Battery](images/Smoke-DIY-1.png)
+<sup>* The GPStar Power Hub may be used in place of the DC buck converter shown</sup>
 
 ![DIY - Dual Battery](images/Smoke-DIY-2.png)
 
 ![5V - Single Battery](images/Smoke-5V-WI-1.png)
+<sup>* The GPStar Power Hub may be used in place of the DC buck converter shown</sup>
 
 ![5V - Dual Battery](images/Smoke-5V-WI-2.png)
+
+<hr/>
+
+This device uses its own power supply for smoke, but must connect a 5V RF transmitter directly to the controller:
+![5V - Single Battery](images/Smoke-PDTNG.png)
+
+<hr/>
+
+The following demonstrates how to connect a smoke kit which requires a 12V supply:
 
 ![12V - Single Battery](images/Smoke-12V-CA-1.png)
 
 ![12V - Dual Battery](images/Smoke-12V-CA-2.png)
-
-![12V - Dual Battery](images/Smoke-PDTNG.png)
 
 ## Booster Tube Installation
 
