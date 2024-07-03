@@ -656,12 +656,12 @@ void systemPOST() {
       pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
       pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
 
-      cyclotronSwitchLEDOff();  
+      cyclotronSwitchLEDOff();
 
       b_pack_post_finish = true;
     }
     else {
-      ms_delay_post_3.start(5);      
+      ms_delay_post_3.start(5);
     }
   }
 }
@@ -1831,7 +1831,7 @@ void powercellLoop() {
             }
             else {
               i_multiplier = i_pc_delay + i_extra_delay;
-            }  
+            }
           }
           else {
             if(i_pc_delay + i_extra_delay > 10) {
@@ -1839,7 +1839,7 @@ void powercellLoop() {
             }
             else {
               i_multiplier = i_pc_delay + i_extra_delay;
-            }  
+            }
           }
         break;
 
@@ -1850,7 +1850,7 @@ void powercellLoop() {
             }
             else {
               i_multiplier = i_pc_delay + i_extra_delay;
-            }  
+            }
           }
           else {
             if(i_pc_delay + i_extra_delay > 20) {
@@ -1858,7 +1858,7 @@ void powercellLoop() {
             }
             else {
               i_multiplier = i_pc_delay + i_extra_delay;
-            }  
+            }
           }
         break;
 
@@ -1869,7 +1869,7 @@ void powercellLoop() {
             }
             else {
               i_multiplier = i_pc_delay + i_extra_delay;
-            }  
+            }
           }
           else {
             if(i_pc_delay + i_extra_delay > 30) {
@@ -1877,7 +1877,7 @@ void powercellLoop() {
             }
             else {
               i_multiplier = i_pc_delay + i_extra_delay;
-            }   
+            }
           }
         break;
 
@@ -1888,7 +1888,7 @@ void powercellLoop() {
             }
             else {
               i_multiplier = i_pc_delay + i_extra_delay;
-            }  
+            }
           }
           else {
             if(i_pc_delay + i_extra_delay > 40) {
@@ -1897,7 +1897,7 @@ void powercellLoop() {
               }
               else {
                 i_multiplier = i_pc_delay + i_extra_delay;
-              }  
+              }
             }
             else {
               i_multiplier = i_pc_delay + i_extra_delay;
@@ -1915,7 +1915,7 @@ void powercellLoop() {
             }
             else {
               i_multiplier = i_pc_delay + i_extra_delay;
-            }            
+            }
           }
         break;
       }
@@ -2237,18 +2237,7 @@ void cyclotronControl() {
     innerCyclotronRingUpdate(i_inner_current_ramp_speed);
   }
 
-  // If we are in slime mode, call the slime effect functions instead.
-  if(usingSlimeCyclotron()) {
-    if(PACK_STATE == MODE_ON && !ms_cyclotron_slime_effect.isRunning()) {
-      // Make sure we've started the slime effect timer if it hasn't been started already.
-      ms_cyclotron_slime_effect.start(0);
-    }
-
-    slimeCyclotronEffect();
-    return;
-  }
-
-  if(b_cyclotron_lid_on == true) {
+  if(b_cyclotron_lid_on && !usingSlimeCyclotron()) {
     cyclotronFade();
   }
 }
@@ -2718,12 +2707,23 @@ void cyclotron2021(uint16_t iRampDelay) {
       iRampDelay = 1;
     }
 
-    if(b_clockwise == true) {
-      if((i_cyclotron_led_value[i_led_cyclotron - i_cyclotron_led_start] == 0 && b_cyclotron_simulate_ring != true) || (i_cyclotron_led_value[i_led_cyclotron - i_cyclotron_led_start] == 0 && b_cyclotron_simulate_ring == true && i_cyclotron_matrix_led > 0)) {
-        ms_cyclotron_led_fade_in[i_led_cyclotron - i_cyclotron_led_start].go(0);
-        ms_cyclotron_led_fade_in[i_led_cyclotron - i_cyclotron_led_start].go(i_brightness, iRampDelay, CIRCULAR_IN);
+    if((i_cyclotron_led_value[i_led_cyclotron - i_cyclotron_led_start] == 0 && b_cyclotron_simulate_ring != true) || (i_cyclotron_led_value[i_led_cyclotron - i_cyclotron_led_start] == 0 && b_cyclotron_simulate_ring == true && i_cyclotron_matrix_led > 0)) {
+      ms_cyclotron_led_fade_in[i_led_cyclotron - i_cyclotron_led_start].go(0);
+      ms_cyclotron_led_fade_in[i_led_cyclotron - i_cyclotron_led_start].go(i_brightness, iRampDelay, CIRCULAR_IN);
+    }
+
+    // If we are in slime mode, call the slime effect functions instead.
+    if(usingSlimeCyclotron()) {
+      if(PACK_STATE == MODE_ON && !ms_cyclotron_slime_effect.isRunning()) {
+        // Make sure we've started the slime effect timer if it hasn't been started already.
+        ms_cyclotron_slime_effect.start(0);
       }
 
+      slimeCyclotronEffect();
+      return;
+    }
+
+    if(b_clockwise == true) {
       i_led_cyclotron++;
 
       if(b_cyclotron_simulate_ring == true) {
@@ -2761,11 +2761,6 @@ void cyclotron2021(uint16_t iRampDelay) {
       }
     }
     else {
-      if((i_cyclotron_led_value[i_led_cyclotron - i_cyclotron_led_start] == 0 && b_cyclotron_simulate_ring != true) || (i_cyclotron_led_value[i_led_cyclotron - i_cyclotron_led_start] == 0 && b_cyclotron_simulate_ring == true && i_cyclotron_matrix_led > 0)) {
-        ms_cyclotron_led_fade_in[i_led_cyclotron - i_cyclotron_led_start].go(0);
-        ms_cyclotron_led_fade_in[i_led_cyclotron - i_cyclotron_led_start].go(i_brightness, iRampDelay, CIRCULAR_IN);
-      }
-
       i_led_cyclotron--;
 
       if(b_cyclotron_simulate_ring == true) {
@@ -2811,23 +2806,6 @@ void cyclotron1984(uint16_t iRampDelay) {
   if(ms_cyclotron.justFinished()) {
     iRampDelay = iRampDelay / i_cyclotron_multiplier;
 
-    if(b_1984_led_start != true) {
-      cyclotron84LightOff(i_led_cyclotron);
-    }
-    else {
-      b_1984_led_start = false;
-    }
-
-    i_1984_counter++;
-
-    if(i_1984_counter > 3) {
-      i_1984_counter = 0;
-    }
-
-    i_led_cyclotron = i_cyclotron_led_start + cyclotron84LookupTable(i_1984_counter);
-
-    cyclotron84LightOn(i_led_cyclotron);
-
     if(b_2021_ramp_up == true) {
       if(r_2021_ramp.isFinished()) {
         b_2021_ramp_up = false;
@@ -2867,6 +2845,34 @@ void cyclotron1984(uint16_t iRampDelay) {
     if(b_wand_firing != true && b_overheating != true && b_alarm != true) {
       vibrationPack(i_vibration_level);
     }
+
+    // If we are in slime mode, call the slime effect functions instead.
+    if(usingSlimeCyclotron()) {
+      if(PACK_STATE == MODE_ON && !ms_cyclotron_slime_effect.isRunning()) {
+        // Make sure we've started the slime effect timer if it hasn't been started already.
+        ms_cyclotron_slime_effect.start(0);
+      }
+
+      slimeCyclotronEffect();
+      return;
+    }
+
+    if(b_1984_led_start != true) {
+      cyclotron84LightOff(i_led_cyclotron);
+    }
+    else {
+      b_1984_led_start = false;
+    }
+
+    i_1984_counter++;
+
+    if(i_1984_counter > 3) {
+      i_1984_counter = 0;
+    }
+
+    i_led_cyclotron = i_cyclotron_led_start + cyclotron84LookupTable(i_1984_counter);
+
+    cyclotron84LightOn(i_led_cyclotron);
   }
 }
 
@@ -4394,7 +4400,7 @@ void modeFireStopSounds() {
                 else {
                   // Short tail end.
                   playEffect(S_GB1_1984_FIRE_END_SHORT_HIGH_POWER, false, i_volume_effects, false, 0, false);
-                }                
+                }
               }
             break;
 
@@ -5360,7 +5366,7 @@ void updateProtonPackLEDCounts() {
     i_ic_cake_start = 0;
     i_ic_cake_end = i_ic_cake_start + i_inner_cyclotron_cake_num_leds - 1;
     i_ic_cavity_start = i_ic_cake_end + 1;
-    i_ic_cavity_end = i_ic_cavity_start + i_inner_cyclotron_cavity_num_leds - 1; 
+    i_ic_cavity_end = i_ic_cavity_start + i_inner_cyclotron_cavity_num_leds - 1;
   }
 }
 
