@@ -259,6 +259,7 @@ void mainLoop() {
   switchLoops();
   checkSwitches();
   checkRotaryEncoder();
+  checkMenuVibration();
 
   if(WAND_ACTION_STATUS != ACTION_FIRING) {
     if(ms_bmash.remaining() < 1) {
@@ -1478,7 +1479,7 @@ void wandLightControlCheck() {
     if(switch_vent.on() == true) {
       if(b_vent_light_control == true) {
         // Vent light on, brightness dependent on mode.
-        if(WAND_ACTION_STATUS == ACTION_FIRING) {
+        if((WAND_ACTION_STATUS == ACTION_FIRING && STREAM_MODE != SLIME) || (WAND_STATUS == MODE_ON && ms_menu_vibration.isRunning())) {
           analogWrite(led_vent, 0); // 0 = Full Power
         }
         else {
@@ -2781,6 +2782,10 @@ void modePulseStart() {
       wandSerialSend(W_BOSON_DART_SOUND);
       playEffect(S_BOSON_DART_FIRE, false, i_volume_effects, false, 0, false);
       ms_firing_pulse.start(0);
+
+      if(b_vibration_firing && b_vibration_switch_on) {
+        ms_menu_vibration.start(750); // If vibrate while firing is enabled and vibration switch is on, vibrate the wand.
+      }
     break;
 
     case SLIME:
@@ -2795,6 +2800,10 @@ void modePulseStart() {
       wandSerialSend(W_SHOCK_BLAST_SOUND);
       playEffect(S_SHOCK_BLAST_FIRE, false, i_volume_effects, false, 0, false);
       ms_firing_pulse.start(0);
+
+      if(b_vibration_firing && b_vibration_switch_on) {
+        ms_menu_vibration.start(300); // If vibrate while firing is enabled and vibration switch is on, vibrate the wand.
+      }
     break;
 
     case MESON:
@@ -2802,6 +2811,10 @@ void modePulseStart() {
       wandSerialSend(W_MESON_COLLIDER_SOUND);
       playEffect(S_MESON_COLLIDER_FIRE, false, i_volume_effects, false, 0, false);
       ms_firing_pulse.start(0);
+
+      if(b_vibration_firing && b_vibration_switch_on) {
+        ms_menu_vibration.start(200); // If vibrate while firing is enabled and vibration switch is on, vibrate the wand.
+      }
     break;
 
     default:
@@ -2980,6 +2993,9 @@ void modeFireStart() {
 
   // Tell the pack the wand is firing.
   wandSerialSend(W_FIRING);
+
+  // Just in case a semi-auto was fired before we started firing a stream, stop its vibration timer.
+  ms_menu_vibration.stop();
 
   switch(BARGRAPH_FIRING_ANIMATION) {
     case BARGRAPH_ANIMATION_ORIGINAL:
@@ -9380,11 +9396,17 @@ void vibrationSetting() {
 }
 
 void checkMenuVibration() {
-  if(b_menu_vibration_active == false && ms_menu_vibration.isRunning()) {
-    analogWrite(vibration, 150);
-    b_menu_vibration_active = true;
+  if(ms_menu_vibration.isRunning()) {
+    if(WAND_STATUS == MODE_OFF) {
+      // If we're off we must be in the EEPROM Config Menu; vibrate at 59%.
+      analogWrite(vibration, 150);
+    }
+    else {
+      // If we're on we must be firing a semi-auto blast; vibrate at 100%.
+      analogWrite(vibration, 255);
+    }
   }
-  else if(ms_menu_vibration.justFinished() && b_menu_vibration_active == true) {
+  else if(ms_menu_vibration.justFinished()) {
     vibrationOff();
   }
 }
@@ -9392,7 +9414,6 @@ void checkMenuVibration() {
 void vibrationOff() {
   ms_menu_vibration.stop();
   i_vibration_level_prev = 0;
-  b_menu_vibration_active = false;
   analogWrite(vibration, 0);
 }
 

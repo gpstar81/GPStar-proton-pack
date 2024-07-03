@@ -247,6 +247,7 @@ void loop() {
   checkMusic();
   checkSwitches();
   checkRotaryEncoder();
+  checkMenuVibration();
 
   if(b_pack_post_finish == true) {
     switch (PACK_STATE) {
@@ -4349,6 +4350,9 @@ void wandFiring() {
     ms_smoke_on.stop();
   }
 
+  // Just in case a semi-auto was fired before we started firing a stream, stop its vibration timer.
+  ms_menu_vibration.stop();
+
   vibrationPack(255);
 
   // Reset some vent light timers.
@@ -4907,7 +4911,24 @@ void vibrationPack(uint8_t i_level) {
   }
 }
 
+void checkMenuVibration() {
+  if(ms_menu_vibration.isRunning()) {
+    if(PACK_STATE == MODE_OFF) {
+      // If we're off we must be in the EEPROM Config Menu; vibrate at 59%.
+      analogWrite(vibration, 150);
+    }
+    else {
+      // If we're on we must be firing a semi-auto blast; vibrate at 100%.
+      analogWrite(vibration, 255);
+    }
+  }
+  else if(ms_menu_vibration.justFinished()) {
+    vibrationOff();
+  }
+}
+
 void vibrationOff() {
+  ms_menu_vibration.stop();
   i_vibration_level_prev = 0;
   analogWrite(vibration, 0);
 }

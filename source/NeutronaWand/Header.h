@@ -191,7 +191,6 @@ const uint8_t vibration = 11;
 const uint8_t i_vibration_level_min = 65;
 uint8_t i_vibration_level = i_vibration_level_min;
 uint8_t i_vibration_level_prev = 0;
-bool b_menu_vibration_active = false; // Used to make sure a vibration menu call only occurs once per activation.
 millisDelay ms_menu_vibration; // Timer to do non-blocking confirmation buzzing in the vibration menu.
 
 /*

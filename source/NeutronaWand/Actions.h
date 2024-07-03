@@ -346,7 +346,6 @@ void checkWandAction() {
     break;
 
     case ACTION_CONFIG_EEPROM_MENU:
-      checkMenuVibration();
       settingsBlinkingLights();
 
       switch(i_wand_menu) {

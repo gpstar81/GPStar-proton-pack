@@ -1583,10 +1583,18 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_BOSON_DART_SOUND:
       playEffect(S_BOSON_DART_FIRE, false, i_volume_effects, false, 0, false);
+
+      if(b_vibration_firing && b_vibration_switch_on) {
+        ms_menu_vibration.start(750); // If vibrate while firing is enabled and vibration switch is on, vibrate the pack.
+      }
     break;
 
     case W_SHOCK_BLAST_SOUND:
       playEffect(S_SHOCK_BLAST_FIRE, false, i_volume_effects, false, 0, false);
+
+      if(b_vibration_firing && b_vibration_switch_on) {
+        ms_menu_vibration.start(300); // If vibrate while firing is enabled and vibration switch is on, vibrate the pack.
+      }
     break;
 
     case W_SLIME_TETHER_SOUND:
@@ -1595,6 +1603,10 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_MESON_COLLIDER_SOUND:
       playEffect(S_MESON_COLLIDER_FIRE, false, i_volume_effects, false, 0, false);
+
+      if(b_vibration_firing && b_vibration_switch_on) {
+        ms_menu_vibration.start(200); // If vibrate while firing is enabled and vibration switch is on, vibrate the pack.
+      }
     break;
 
     case W_MESON_FIRE_PULSE:
@@ -2612,7 +2624,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DEFAULT);
 
-      // Tell the Wand what state the vibration switch is in
+      // Tell the Wand what state the vibration switch is in.
       if(switch_vibration.getState() == LOW) {
         packSerialSend(P_VIBRATION_ENABLED);
       }
@@ -2639,9 +2651,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
         packSerialSend(P_PACK_VIBRATION_ENABLED);
 
-        analogWrite(vibration, 150);
-        delay(250);
-        vibrationOff();;
+        ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
       }
       else if(b_vibration_enabled == true && b_vibration_firing != true) {
         b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
@@ -2656,9 +2666,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
         packSerialSend(P_PACK_VIBRATION_FIRING_ENABLED);
 
-        analogWrite(vibration, 150);
-        delay(250);
-        vibrationOff();;
+        ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
       }
       else {
         b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
@@ -2698,9 +2706,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
           packSerialSend(P_PACK_VIBRATION_ENABLED);
 
-          analogWrite(vibration, 150);
-          delay(250);
-          vibrationOff();;
+          ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
         break;
         case VIBRATION_ALWAYS:
           VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
@@ -2718,9 +2724,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
           packSerialSend(P_PACK_VIBRATION_FIRING_ENABLED);
 
-          analogWrite(vibration, 150);
-          delay(250);
-          vibrationOff();;
+          ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
         break;
         case VIBRATION_FIRING_ONLY:
           VIBRATION_MODE_EEPROM = VIBRATION_NONE;
@@ -2760,9 +2764,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
           packSerialSend(P_PACK_VIBRATION_DEFAULT);
 
-          analogWrite(vibration, 150);
-          delay(250);
-          vibrationOff();
+          ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
         break;
       }
     break;

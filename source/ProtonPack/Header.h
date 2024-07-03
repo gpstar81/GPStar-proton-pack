@@ -276,6 +276,7 @@ uint8_t i_vibration_level_prev = 0;
 const uint8_t i_vibration_idle_level_2021 = 60;
 const uint8_t i_vibration_idle_level_1984 = 35;
 const uint8_t i_vibration_lowest_level = 15;
+millisDelay ms_menu_vibration; // Timer to do non-blocking confirmation buzzing in the vibration menu.
 
 /*
  * Enable or disable vibration control for the Proton Pack.
