@@ -1140,7 +1140,7 @@ void doWandSync() {
   // Wand sync sound effect.
   stopEffect(S_WAND_SYNC);
   playEffect(S_WAND_SYNC);
-      
+
 
   // Begin the synchronization process which tells the wand the pack got the handshake.
   debugln(F("Wand Sync Start"));

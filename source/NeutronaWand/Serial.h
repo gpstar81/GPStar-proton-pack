@@ -806,7 +806,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
       stopEffect(S_WAND_SYNC);
       playEffect(S_WAND_SYNC);
-      
+
       // Stop regular sync attempts while communicating with the pack.
       ms_packsync.stop();
     break;
