@@ -5360,7 +5360,7 @@ void updateProtonPackLEDCounts() {
     i_ic_cake_start = 0;
     i_ic_cake_end = i_ic_cake_start + i_inner_cyclotron_cake_num_leds - 1;
     i_ic_cavity_start = i_ic_cake_end + 1;
-    i_ic_cavity_end = i_ic_cavity_start + i_inner_cyclotron_cavity_num_leds - 1;
+    i_ic_cavity_end = i_ic_cavity_start + i_inner_cyclotron_cavity_num_leds - 1; 
   }
 }
 
