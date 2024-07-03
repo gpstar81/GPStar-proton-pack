@@ -44,7 +44,7 @@
 /*
  * Used to reflect the last build date for the binary.
  */
-String build_date = "20240702213542";
+String build_date = "20240703141906";
 
 /*
  * Preferred WiFi Network Defaults

@@ -45,7 +45,7 @@
 #include "Colours.h"
 #include "Serial.h"
 #if defined(__XTENSA__)
-  // ESP - Include WiFi/Bluetooth
+  // ESP - Include WiFi Capabilities (+WebServer and UI Code)
   #include "Wireless.h"
 #endif
 
