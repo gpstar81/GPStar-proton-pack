@@ -113,7 +113,7 @@ You can also reference the PDF document for the [Pack Schematic Minimal](circuit
 | D5 &rarr; D1 & D9 (Red) | D4 &rarr; SW1 (Brown) |     | A5 &rarr; D6 (Green) | A4 &rarr; D5 (Yellow) |
 | D7 &rarr; ROT (Yellow) | D6 &rarr; ROT (Red) |     | A7 &rarr; SW7 (Orange) | A6 &rarr; SW6 (White) |
 | D9 &rarr; WAV Trigger RX | D8 &rarr; WAV Trigger TX |     | A9   | A8   |
-| D11 &rarr; Motor-NPN | D10 &rarr; Q2 (Yellow) or (Red) <br /> <br /> **\*See note above about Barrel LED wire colour differences\*** <br /> Generation 1 Neutrona Wands (silver tip) data line is (Red) while generation 2 Neutrona Wands (orange tip) data line is (Yellow) |     | A11  | A10  |
+| D11 &rarr; Motor-NPN | D10 &rarr; Q2<sup>!</sup> (Yellow) or (Red) |     | A11  | A10  |
 | D13 &rarr; D8 (Red) | D12 &rarr; D7 (Red) |     | A13  | A12  |
 | D15  | D14  |     | A15  | A14  |
 | D17  | D16  |     | D33  | D32  |
@@ -124,6 +124,8 @@ You can also reference the PDF document for the [Pack Schematic Minimal](circuit
 | D27  | D26  |     | D43  | D42  |
 | D29  | D28  |     | D45  | D44  |
 | D31  | D30  |     | D47  | D46  |
+
+<sup>!</sup> **See note above about Barrel LED wire colour differences:** Generation 1 Neutrona Wands (silver tip) data line is (Red) while generation 2 Neutrona Wands (orange tip) data line is (Yellow)
 
 ### Connections by Component
 
