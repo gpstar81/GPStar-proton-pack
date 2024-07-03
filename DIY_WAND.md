@@ -101,6 +101,35 @@ The following is a diagram of the Mega2560 Pro Mini pins from left and right, wh
 
 You can also reference the PDF document for the [Pack Schematic Minimal](circuits/PackSchematic-Minimal.pdf) for additional visual guidance on the Wand wiring configuration.
 
+| Mega (L1) | Mega (L2) | USB | Mega (R1) | Mega (R2) |
+|-----------|-----------|-----|-----------|-----------|
+| VIN &rarr; +5V (Pack) | VIN |     |     |     |
+| GND &rarr; Ground (Pack) | GND |     |     |     |
+| 5V   | 5V   |     |     |     |
+| 3.3V | 3.3V |     |     |     |
+| RST  | AREF |     |     |     |
+| TX1 &rarr; RX (to Pack) | RX0 &rarr; TX (to Pack) |     | A1   | A0 &rarr; SW2 (Red) |
+| D3 &rarr; D3 (Red) | D2 &rarr; D2 (Brown) |     | A3   | A2   |
+| D5   | D4   |     | A5   | A4   |
+| D7   | D6   |     | A7   | A6   |
+| D9   | D8   |     | A9   | A8   |
+| D11  | D10 &rarr; Q2 (Yellow) or (Red) <br /> <br /> **\*See note above about Barrel LED wire colour differences\*** <br /> Generation 1 Neutrona Wands (silver tip) data line is (Red) while generation 2 Neutrona Wands (orange tip) data line is (Yellow) |     | A11  | A10  |
+| D13 &rarr; D8 (Red) | D12 &rarr; D7 (Red) |     | A13  | A12  |
+| D15  | D14  |     | A15  | A14  |
+| D17  | D16  |     | D33  | D32  |
+| D19  | D18  |     | D35  | D34  |
+| D21  | D20  |     | D37  | D36  |
+| D23  | D22  |     | D39  | D38  |
+| D25  | D24  |     | D41  | D40  |
+| D27  | D26  |     | D43  | D42  |
+| D29  | D28  |     | D45  | D44  |
+| D31  | D30  |     | D47  | D46  |
+
+|     |     |     |
+|-----|-----|-----|
+| D53 | D51 | D49 |
+| D52 | D50 | D48 |
+
 | Connection    | Mega (L) | USB | Mega (R) | Connection |
 |---------------|----------|-----|----------|------------|
 | D8 (Red)      | D13   |     | D12   | D7 (Red)      |
