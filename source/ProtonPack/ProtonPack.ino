@@ -4912,7 +4912,10 @@ void vibrationPack(uint8_t i_level) {
 }
 
 void checkMenuVibration() {
-  if(ms_menu_vibration.isRunning()) {
+  if(ms_menu_vibration.justFinished()) {
+    vibrationOff();
+  }
+  else if(ms_menu_vibration.isRunning()) {
     if(PACK_STATE == MODE_OFF) {
       // If we're off we must be in the EEPROM Config Menu; vibrate at 59%.
       analogWrite(vibration, 150);
@@ -4921,9 +4924,6 @@ void checkMenuVibration() {
       // If we're on we must be firing a semi-auto blast; vibrate at 100%.
       analogWrite(vibration, 255);
     }
-  }
-  else if(ms_menu_vibration.justFinished()) {
-    vibrationOff();
   }
 }
 
