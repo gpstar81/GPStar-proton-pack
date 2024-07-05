@@ -44,6 +44,7 @@
 #include <Preferences.h>
 #include <WiFi.h>
 #include <WiFiAP.h>
+#include <ESPmDNS.h>
 
 // Preferences for SSID and AP password, which will use a "credentials" namespace.
 Preferences preferences;
@@ -174,7 +175,7 @@ bool startAccesPoint() {
 
     // Set networking info and report to console.
     WiFi.softAPConfig(localIP, gateway, subnet, dhcpStart);
-    WiFi.softAPsetHostname(ap_ssid_prefix.c_str());
+    WiFi.softAPsetHostname(ap_ssid.c_str());
     #if defined(DEBUG_WIRELESS_SETUP)
       Serial.print(F("AP Name (SSID): "));
       Serial.println(WiFi.softAPSSID());
@@ -338,6 +339,18 @@ bool startWiFi() {
   if(!b_ap_started) {
     b_ap_started = startAccesPoint();
   }
+
+  // Set the mDNS hostname to "ProtonPack_NNNN.local" just like the private AP name.
+  bool b_mdns_started = MDNS.begin(ap_ssid.c_str());
+  #if defined(DEBUG_WIRELESS_SETUP)
+    if (b_mdns_started) {
+      Serial.println(F("mDNS Responder Started"));
+    }
+    else {
+      Serial.println(F("Error Starting mDNS Responder!"));
+    }
+  #endif
+  delay(200);
 
   return b_ap_started; // At least return whether the soft AP started successfully.
 }

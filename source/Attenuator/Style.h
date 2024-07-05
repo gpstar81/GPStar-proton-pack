@@ -205,10 +205,10 @@ p {
 
 .booster-box {
 	border-radius:2px;
-	left:92.5px;
+	left:92px;
 	height:96px;
 	top:79.5px;
-	width:20px;
+	width:20.5px;
 	z-index:2
 }
 
@@ -254,7 +254,7 @@ p {
 	border-radius:2px;
 	left:37px;
 	height:75px;
-	top:132px;
+	top:132.5px;
 	width:35px;
 	z-index:2
 }

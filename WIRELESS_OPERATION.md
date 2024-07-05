@@ -29,11 +29,13 @@ In order to view the state of the pack and control it remotely, the two devices 
 
 ## Web Interface
 
-When using the ESP32 controller for either the Attenuator or Wireless Adapter, it will offer a private WiFi network (access point) which begins with the prefix **"ProtonPack_"** and secured with a default password of **"555-2368"**.
+When using the ESP32 controller for either the Attenuator or Wireless Adapter, it will offer a private WiFi network (access point) which begins with the pattern **"ProtonPack_NNNN"** (where the NNNN is unique to each ESP32's WiFi network) and secured with a default password of **"555-2368"**.
 
-Once connected, your computer/phone/table should be assigned an IP address starting from **"192.168.1.100"** with a subnet of **"255.255.255.0"**. Please remember that if you intend to have multiple devices connect via this private WiFi network you will be assigned a unique IP address for each device.
+Once connected, your computer/phone/table should be assigned an IP address starting from **"192.168.1.100"** with a subnet of **"255.255.255.0"**. Please remember that if you intend to have multiple Attenuator/Wireless devices connect via this private WiFi network you will be assigned a unique IP address for each client device (eg. phone, tablet, or computer).
 
 A web-based user interface is available at [http://192.168.1.2](http://192.168.1.2) to view the state of your Proton Pack and Neutrona Wand, and to manage specific actions. The available sections are described below.
+
+**Note:** As of the 5.3.0 release a new mDNS feature was added to allow the device to respond to a localized name regardless of the WiFi network. In your browser simply navigate to [http://ProtonPack_NNNN](http://ProtonPack_NNNN) where the "NNNN" is the hexadecimal value as provided for the device's private access point.
 
 ### Tab 1: Equipment Status
 
