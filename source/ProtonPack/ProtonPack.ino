@@ -896,7 +896,7 @@ void packShutdown() {
   }
 
   wandExtraSoundsStop();
-  wandExtraSoundsBeepLoopStop();
+  wandExtraSoundsBeepLoopStop(false);
 
   stopEffect(S_SHUTDOWN);
   stopEffect(S_STEAM_LOOP);
@@ -5186,7 +5186,7 @@ void wandDisconnectCheck() {
       stopEffect(S_SMASH_ERROR_RESTART);
 
       wandExtraSoundsStop();
-      wandExtraSoundsBeepLoopStop();
+      wandExtraSoundsBeepLoopStop(false);
 
       // Turn off overheating if the wand gets disconnected.
       if(b_overheating == true) {
@@ -5235,12 +5235,23 @@ void wandExtraSoundsBeepLoop() {
   }
 }
 
-void wandExtraSoundsBeepLoopStop() {
-  stopEffect(S_AFTERLIFE_BEEP_WAND_S1);
-  stopEffect(S_AFTERLIFE_BEEP_WAND_S2);
-  stopEffect(S_AFTERLIFE_BEEP_WAND_S3);
-  stopEffect(S_AFTERLIFE_BEEP_WAND_S4);
-  stopEffect(S_AFTERLIFE_BEEP_WAND_S5);
+void wandExtraSoundsBeepLoopStop(bool stopNaturally) {
+  if(stopNaturally) {
+    // Set all beep looping to false so they stop naturally.
+    audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S1, false);
+    audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S2, false);
+    audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S3, false);
+    audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S4, false);
+    audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S5, false);
+  }
+  else {
+    // Stop all beeps explicitly to prevent rapid switching from taking up all available channels.
+    stopEffect(S_AFTERLIFE_BEEP_WAND_S1);
+    stopEffect(S_AFTERLIFE_BEEP_WAND_S2);
+    stopEffect(S_AFTERLIFE_BEEP_WAND_S3);
+    stopEffect(S_AFTERLIFE_BEEP_WAND_S4);
+    stopEffect(S_AFTERLIFE_BEEP_WAND_S5);
+  }
 }
 
 void wandExtraSoundsStop() {

@@ -235,8 +235,8 @@ bool b_bargraph_status_5[i_bargraph_segments_5_led] = {};
 millisDelay ms_gun_loop_1;
 millisDelay ms_gun_loop_2;
 millisDelay ms_white_light;
-uint16_t i_gun_loop_1 = 1768; // 1660
-uint16_t i_gun_loop_2 = 1653; // 1500
+uint16_t i_gun_loop_1 = 1768; // S_AFTERLIFE_WAND_RAMP_1 is 1768ms long.
+uint16_t i_gun_loop_2 = 1881; // S_AFTERLIFE_WAND_RAMP_2 is 1881ms long.
 
 /*
  * Overheat timers
@@ -317,7 +317,7 @@ const uint16_t i_hat_2_delay = 400;
  * A timer for controlling the wand beep in Afterlife & Frozen Empire mode.
  */
 millisDelay ms_reset_sound_beep;
-const uint8_t i_sound_timer = 150;
+const uint16_t i_sound_timer = 1750;
 
 /*
  * Wand tip heatup timers (when changing firing modes).

@@ -157,7 +157,7 @@ void setup() {
   WAND_STATUS = MODE_OFF;
   WAND_ACTION_STATUS = ACTION_IDLE;
 
-  ms_reset_sound_beep.start(i_sound_timer);
+  ms_reset_sound_beep.start(0);
 
   // We bootup the wand in the classic proton mode.
   STREAM_MODE = PROTON;
@@ -2646,18 +2646,36 @@ void soundBeepLoopStop() {
   if(b_beeping == true) {
     b_beeping = false;
 
-    if(b_extra_pack_sounds == true) {
-      wandSerialSend(W_WAND_BEEP_STOP);
-    }
-
-    stopEffect(S_AFTERLIFE_BEEP_WAND_S1);
-    stopEffect(S_AFTERLIFE_BEEP_WAND_S2);
-    stopEffect(S_AFTERLIFE_BEEP_WAND_S3);
-    stopEffect(S_AFTERLIFE_BEEP_WAND_S4);
-    stopEffect(S_AFTERLIFE_BEEP_WAND_S5);
-
     ms_reset_sound_beep.stop();
-    ms_reset_sound_beep.start(i_sound_timer);
+
+    if(switch_wand.on()) {
+      // Set all beep looping to false so they stop naturally.
+      audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S1, false);
+      audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S2, false);
+      audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S3, false);
+      audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S4, false);
+      audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S5, false);
+
+      if(b_extra_pack_sounds) {
+        wandSerialSend(W_WAND_BEEP_STOP_LOOP);
+      }
+
+      ms_reset_sound_beep.start(i_sound_timer);
+    }
+    else {
+      // Stop all beeps explicitly to prevent rapid switching from taking up all available channels.
+      stopEffect(S_AFTERLIFE_BEEP_WAND_S1);
+      stopEffect(S_AFTERLIFE_BEEP_WAND_S2);
+      stopEffect(S_AFTERLIFE_BEEP_WAND_S3);
+      stopEffect(S_AFTERLIFE_BEEP_WAND_S4);
+      stopEffect(S_AFTERLIFE_BEEP_WAND_S5);
+
+      if(b_extra_pack_sounds) {
+        wandSerialSend(W_WAND_BEEP_STOP);
+      }
+
+      ms_reset_sound_beep.start(0);
+    }
   }
 }
 

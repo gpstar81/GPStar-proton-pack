@@ -1320,7 +1320,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       // Stop any wand sounds which are playing on the pack.
       wandExtraSoundsStop();
-      wandExtraSoundsBeepLoopStop();
+      wandExtraSoundsBeepLoopStop(false);
 
       doWandSync();
     break;
@@ -1462,7 +1462,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_WAND_BEEP_STOP:
-      wandExtraSoundsBeepLoopStop();
+      wandExtraSoundsBeepLoopStop(false);
+    break;
+
+    case W_WAND_BEEP_STOP_LOOP:
+      wandExtraSoundsBeepLoopStop(true);
     break;
 
     case W_BEEPS_ALT:
