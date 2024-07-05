@@ -354,7 +354,8 @@ millisDelay ms_firing_pulse;
 millisDelay ms_impact; // Mix some impact sounds while firing.
 millisDelay ms_firing_length_timer;
 millisDelay ms_firing_sound_mix; // Mix additional impact sounds for standalone Neutrona Wand.
-millisDelay ms_semi_automatic_check; // Timer used for the semi-automatic firing modes.
+millisDelay ms_semi_automatic_check; // Timer used to set the rate of fire for the semi-automatic firing modes.
+millisDelay ms_semi_automatic_firing; // Timer used to handle firing effect duration for the semi-automatic firing modes.
 const uint16_t i_boson_dart_rate = 2000; // Boson Dart firing rate.
 const uint16_t i_shock_blast_rate = 600; // Shock Blast firing rate.
 const uint16_t i_slime_tether_rate = 750; // Slime Tether firing rate.

@@ -1585,7 +1585,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       playEffect(S_BOSON_DART_FIRE, false, i_volume_effects, false, 0, false);
 
       if(b_vibration_firing && b_vibration_switch_on) {
-        ms_menu_vibration.start(750); // If vibrate while firing is enabled and vibration switch is on, vibrate the pack.
+        ms_menu_vibration.start(350); // If vibrate while firing is enabled and vibration switch is on, vibrate the pack.
       }
     break;
 

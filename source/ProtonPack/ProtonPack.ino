@@ -4921,8 +4921,8 @@ void checkMenuVibration() {
       analogWrite(vibration, 150);
     }
     else {
-      // If we're on we must be firing a semi-auto blast; vibrate at 100%.
-      analogWrite(vibration, 255);
+      // If we're on we must be firing a semi-auto blast; vibrate at 71%.
+      analogWrite(vibration, 180);
     }
   }
 }
