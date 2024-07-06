@@ -74,11 +74,11 @@ enum DISPLAY_TYPES : uint16_t {
 enum DISPLAY_TYPES DISPLAY_TYPE;
 
 /*
- * Manage the color and blink pattern for the top LED.
+ * Manage the colour and blink pattern for the top LED.
  */
 millisDelay ms_top_blink; // Allows the top LED to blink for a menu state.
 const uint16_t i_top_blink_delay = 800; // Duration for blink pattern.
-uint8_t i_top_led_color; // Remember the last color for the top LED.
+uint8_t i_top_led_colour; // Remember the last colour for the top LED.
 uint8_t i_top_led_brightness = 128; // Max brightness for this LED.
 bool b_top_led_off = false; // Denotes when top LED is mid-blink.
 

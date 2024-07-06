@@ -191,7 +191,6 @@ const uint8_t vibration = 11;
 const uint8_t i_vibration_level_min = 65;
 uint8_t i_vibration_level = i_vibration_level_min;
 uint8_t i_vibration_level_prev = 0;
-bool b_menu_vibration_active = false; // Used to make sure a vibration menu call only occurs once per activation.
 millisDelay ms_menu_vibration; // Timer to do non-blocking confirmation buzzing in the vibration menu.
 
 /*
@@ -236,8 +235,8 @@ bool b_bargraph_status_5[i_bargraph_segments_5_led] = {};
 millisDelay ms_gun_loop_1;
 millisDelay ms_gun_loop_2;
 millisDelay ms_white_light;
-uint16_t i_gun_loop_1 = 1768; // 1660
-uint16_t i_gun_loop_2 = 1653; // 1500
+uint16_t i_gun_loop_1 = 1768; // S_AFTERLIFE_WAND_RAMP_1 is 1768ms long.
+uint16_t i_gun_loop_2 = 1881; // S_AFTERLIFE_WAND_RAMP_2 is 1881ms long.
 
 /*
  * Overheat timers
@@ -318,7 +317,7 @@ const uint16_t i_hat_2_delay = 400;
  * A timer for controlling the wand beep in Afterlife & Frozen Empire mode.
  */
 millisDelay ms_reset_sound_beep;
-const uint8_t i_sound_timer = 150;
+const uint16_t i_sound_timer = 1750;
 
 /*
  * Wand tip heatup timers (when changing firing modes).
@@ -353,12 +352,15 @@ millisDelay ms_firing_effect_end;
 millisDelay ms_firing_stream_effects;
 millisDelay ms_firing_pulse;
 millisDelay ms_impact; // Mix some impact sounds while firing.
+millisDelay ms_firing_length_timer;
 millisDelay ms_firing_sound_mix; // Mix additional impact sounds for standalone Neutrona Wand.
-millisDelay ms_semi_automatic_check; // Timer used for the semi-automatic firing modes.
+millisDelay ms_semi_automatic_check; // Timer used to set the rate of fire for the semi-automatic firing modes.
+millisDelay ms_semi_automatic_firing; // Timer used to handle firing effect duration for the semi-automatic firing modes.
 const uint16_t i_boson_dart_rate = 2000; // Boson Dart firing rate.
 const uint16_t i_shock_blast_rate = 600; // Shock Blast firing rate.
 const uint16_t i_slime_tether_rate = 750; // Slime Tether firing rate.
 const uint16_t i_meson_collider_rate = 250; // Meson Collider firing rate.
+const uint16_t i_firing_timer_length = 15000; // 15 seconds. Used by ms_firing_length_timer to determine which tail_end sound effects to play.
 const uint8_t d_firing_pulse = 18; // Used to drive semi-automatic firing stream effect timers. Default: 18ms.
 const uint8_t d_firing_stream = 100; // Used to drive all stream effects timers. Default: 100ms.
 uint8_t i_barrel_light = 0; // Used to keep track which LED in the barrel is currently lighting up.
@@ -422,7 +424,6 @@ bool b_firing_semi_automatic = false; // Check for semi-automatic firing modes.
 bool b_sound_firing_intensify_trigger = false;
 bool b_sound_firing_alt_trigger = false;
 bool b_sound_firing_cross_the_streams = false;
-bool b_sound_firing_cross_the_streams_mix = false;
 bool b_sound_idle = false;
 bool b_beeping = false;
 bool b_sound_afterlife_idle_2_fade = true;

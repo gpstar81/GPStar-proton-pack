@@ -308,10 +308,12 @@ void checkWandAction() {
 
         // Level 1 Intensify: Cycle through the different Cyclotron LED counts.
         // Level 1 Barrel Wing Button: Adjust the Cyclotron colour hue. <- Controlled by checkRotaryEncoder()
+        // Level 2 Intensify: Enable or disable the Inner Cyclotron LED Panel.
         case 2:
           if(switch_intensify.pushed()) {
             switch(WAND_MENU_LEVEL) {
               case MENU_LEVEL_2:
+                wandSerialSend(W_TOGGLE_INNER_CYCLOTRON_PANEL);
               break;
 
               case MENU_LEVEL_1:
@@ -344,7 +346,6 @@ void checkWandAction() {
     break;
 
     case ACTION_CONFIG_EEPROM_MENU:
-      checkMenuVibration();
       settingsBlinkingLights();
 
       switch(i_wand_menu) {
@@ -1085,7 +1086,6 @@ void checkWandAction() {
               if(b_gpstar_benchtest == true) {
                 if(SYSTEM_MODE == MODE_SUPER_HERO) {
                   SYSTEM_MODE = MODE_ORIGINAL;
-                  vgModeCheck(); // Assert CTS mode.
 
                   stopEffect(S_VOICE_MODE_ORIGINAL);
                   stopEffect(S_VOICE_MODE_SUPER_HERO);
@@ -1098,6 +1098,8 @@ void checkWandAction() {
                   stopEffect(S_VOICE_MODE_ORIGINAL);
                   playEffect(S_VOICE_MODE_SUPER_HERO);
                 }
+
+                vgModeCheck();
               }
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {

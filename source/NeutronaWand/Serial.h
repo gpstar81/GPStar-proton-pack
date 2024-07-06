@@ -418,7 +418,7 @@ void checkPack() {
               // Default: Video Game
               FIRING_MODE = VG_MODE;
               setVGMode();
-            wandSerialSend(W_VIDEO_GAME_MODE);
+              wandSerialSend(W_VIDEO_GAME_MODE);
             break;
 
             case 2:
@@ -589,13 +589,13 @@ void checkPack() {
             case 1:
             default:
               SYSTEM_MODE = MODE_SUPER_HERO;
-              vgModeCheck(); // Re-check VG/CTS mode.
             break;
             case 2:
               SYSTEM_MODE = MODE_ORIGINAL;
-              vgModeCheck(); // Assert CTS mode.
             break;
           }
+
+          vgModeCheck(); // Re-check VG/CTS mode.
 
           // Set whether the switch under the ion arm is on or off.
           switch(packSync.ionArmSwitch) {
@@ -804,6 +804,9 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
     case P_SYNC_START:
       debugln(F("Pack Sync Start"));
 
+      stopEffect(S_WAND_SYNC);
+      playEffect(S_WAND_SYNC);
+
       // Stop regular sync attempts while communicating with the pack.
       ms_packsync.stop();
     break;
@@ -894,6 +897,18 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       if(WAND_STATUS != MODE_OFF) {
         quickVentFinished();
       }
+    break;
+
+    case P_TOGGLE_INNER_CYCLOTRON_PANEL_ENABLED:
+      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
+      playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+    break;
+
+    case P_TOGGLE_INNER_CYCLOTRON_PANEL_DISABLED:
+      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+      playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
     break;
 
     case P_MODE_ORIGINAL_RED_SWITCH_ON:
@@ -1577,6 +1592,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_POWERCELL_BRIGHTNESS);
       stopEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
       stopEffect(S_VOICE_CYCLOTRON_INNER_BRIGHTNESS);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_PANEL_BRIGHTNESS);
 
       playEffect(S_VOICE_POWERCELL_BRIGHTNESS);
     break;
@@ -1585,6 +1601,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_POWERCELL_BRIGHTNESS);
       stopEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
       stopEffect(S_VOICE_CYCLOTRON_INNER_BRIGHTNESS);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_PANEL_BRIGHTNESS);
 
       playEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
     break;
@@ -1593,8 +1610,18 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_POWERCELL_BRIGHTNESS);
       stopEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
       stopEffect(S_VOICE_CYCLOTRON_INNER_BRIGHTNESS);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_PANEL_BRIGHTNESS);
 
       playEffect(S_VOICE_CYCLOTRON_INNER_BRIGHTNESS);
+    break;
+
+    case P_CYCLOTRON_PANEL_DIMMING:
+      stopEffect(S_VOICE_POWERCELL_BRIGHTNESS);
+      stopEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
+      stopEffect(S_VOICE_CYCLOTRON_INNER_BRIGHTNESS);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_PANEL_BRIGHTNESS);
+
+      playEffect(S_VOICE_INNER_CYCLOTRON_PANEL_BRIGHTNESS);
     break;
 
     case P_PROTON_STREAM_IMPACT_ENABLED:
@@ -1735,7 +1762,9 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case P_INNER_CYCLOTRON_LEDS_23:
+      stopEffect(S_VOICE_INNER_CYCLOTRON_36);
       stopEffect(S_VOICE_INNER_CYCLOTRON_35);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_26);
       stopEffect(S_VOICE_INNER_CYCLOTRON_24);
       stopEffect(S_VOICE_INNER_CYCLOTRON_23);
       stopEffect(S_VOICE_INNER_CYCLOTRON_12);
@@ -1744,7 +1773,9 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case P_INNER_CYCLOTRON_LEDS_24:
+      stopEffect(S_VOICE_INNER_CYCLOTRON_36);
       stopEffect(S_VOICE_INNER_CYCLOTRON_35);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_26);
       stopEffect(S_VOICE_INNER_CYCLOTRON_24);
       stopEffect(S_VOICE_INNER_CYCLOTRON_23);
       stopEffect(S_VOICE_INNER_CYCLOTRON_12);
@@ -1752,8 +1783,21 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       playEffect(S_VOICE_INNER_CYCLOTRON_24);
     break;
 
-    case P_INNER_CYCLOTRON_LEDS_35:
+    case P_INNER_CYCLOTRON_LEDS_26:
+      stopEffect(S_VOICE_INNER_CYCLOTRON_36);
       stopEffect(S_VOICE_INNER_CYCLOTRON_35);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_26);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_24);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_23);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_12);
+
+      playEffect(S_VOICE_INNER_CYCLOTRON_26);
+    break;
+
+    case P_INNER_CYCLOTRON_LEDS_35:
+      stopEffect(S_VOICE_INNER_CYCLOTRON_36);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_35);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_26);
       stopEffect(S_VOICE_INNER_CYCLOTRON_24);
       stopEffect(S_VOICE_INNER_CYCLOTRON_23);
       stopEffect(S_VOICE_INNER_CYCLOTRON_12);
@@ -1761,8 +1805,21 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       playEffect(S_VOICE_INNER_CYCLOTRON_35);
     break;
 
-    case P_INNER_CYCLOTRON_LEDS_12:
+    case P_INNER_CYCLOTRON_LEDS_36:
+      stopEffect(S_VOICE_INNER_CYCLOTRON_36);
       stopEffect(S_VOICE_INNER_CYCLOTRON_35);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_26);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_24);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_23);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_12);
+
+      playEffect(S_VOICE_INNER_CYCLOTRON_36);
+    break;
+
+    case P_INNER_CYCLOTRON_LEDS_12:
+      stopEffect(S_VOICE_INNER_CYCLOTRON_36);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_35);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_26);
       stopEffect(S_VOICE_INNER_CYCLOTRON_24);
       stopEffect(S_VOICE_INNER_CYCLOTRON_23);
       stopEffect(S_VOICE_INNER_CYCLOTRON_12);

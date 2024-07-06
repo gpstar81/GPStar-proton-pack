@@ -74,6 +74,7 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t ledCycLidSat;
   uint8_t ledCycLidCenter;
   uint8_t ledCycLidSimRing;
+  uint8_t ledCycInnerPanel;
   uint8_t ledCycCakeCount;
   uint8_t ledCycCakeHue;
   uint8_t ledCycCakeSat;
@@ -328,6 +329,7 @@ void serial1SendData(uint8_t i_message) {
       packConfig.ledCycLidSimRing = b_cyclotron_simulate_ring;
 
       // Inner Cyclotron
+      packConfig.ledCycInnerPanel = b_inner_cyclotron_led_panel;
       packConfig.ledCycCakeCount = i_inner_cyclotron_cake_num_leds;
       packConfig.ledCycCakeHue = i_spectral_cyclotron_inner_custom_colour;
       packConfig.ledCycCakeSat = i_spectral_cyclotron_inner_custom_saturation;
@@ -491,8 +493,6 @@ void checkSerial1() {
               packSerialSend(P_MODE_SUPER_HERO);
               serial1Send(A_MODE_SUPER_HERO);
 
-              vgModeCheck();
-
               // This is only applicable to the Mode Original, so default to off.
               packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
               serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
@@ -503,7 +503,11 @@ void checkSerial1() {
               packSerialSend(P_MODE_ORIGINAL);
               serial1Send(A_MODE_ORIGINAL);
 
-              vgModeCheck();
+              if(!b_wand_connected && STREAM_MODE != PROTON) {
+                // If no wand is connected we need to make sure we're in Proton Stream.
+                STREAM_MODE = PROTON;
+                serial1Send(A_PROTON_MODE);
+              }
 
               if(switch_power.getState() == LOW) {
                 // Tell the Neutrona Wand that power to the Proton Pack is on.
@@ -616,6 +620,7 @@ void checkSerial1() {
           b_cyclotron_simulate_ring = packConfig.ledCycLidSimRing;
 
           // Inner Cyclotron
+          b_inner_cyclotron_led_panel = packConfig.ledCycInnerPanel;
           i_inner_cyclotron_cake_num_leds = packConfig.ledCycCakeCount;
           i_spectral_cyclotron_inner_custom_colour = packConfig.ledCycCakeHue;
           i_spectral_cyclotron_inner_custom_saturation = packConfig.ledCycCakeSat;
@@ -632,6 +637,7 @@ void checkSerial1() {
           updateProtonPackLEDCounts();
           resetContinuousSmoke();
           resetCyclotronLEDs();
+          resetInnerCyclotronLEDs();
           resetRampSpeeds();
 
           // Offer some feedback to the user
@@ -1131,6 +1137,11 @@ void doWandSync() {
     playEffect(S_BEEPS);
   }
 
+  // Wand sync sound effect.
+  stopEffect(S_WAND_SYNC);
+  playEffect(S_WAND_SYNC);
+
+
   // Begin the synchronization process which tells the wand the pack got the handshake.
   debugln(F("Wand Sync Start"));
   packSerialSend(P_SYNC_START);
@@ -1257,6 +1268,9 @@ void doWandSync() {
     break;
   }
 
+  // Update the Inner Cyclotron LEDs if required.
+  cyclotronSwitchLEDUpdate();
+
   // Make sure the pack is fully reset if it is off while a new wand is connected.
   if(b_pack_on != true) {
     b_reset_start_led = false;
@@ -1306,7 +1320,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       // Stop any wand sounds which are playing on the pack.
       wandExtraSoundsStop();
-      wandExtraSoundsBeepLoopStop();
+      wandExtraSoundsBeepLoopStop(false);
 
       doWandSync();
     break;
@@ -1448,7 +1462,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_WAND_BEEP_STOP:
-      wandExtraSoundsBeepLoopStop();
+      wandExtraSoundsBeepLoopStop(false);
+    break;
+
+    case W_WAND_BEEP_STOP_LOOP:
+      wandExtraSoundsBeepLoopStop(true);
     break;
 
     case W_BEEPS_ALT:
@@ -1494,6 +1512,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_WAND_BOOTUP_SOUND:
+      stopEffect(S_WAND_BOOTUP_SHORT);
       stopEffect(S_WAND_BOOTUP);
       playEffect(S_WAND_BOOTUP);
     break;
@@ -1501,6 +1520,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_WAND_BOOTUP_SHORT_SOUND:
       stopEffect(S_WAND_BOOTUP_SHORT);
       playEffect(S_WAND_BOOTUP_SHORT);
+    break;
+
+    case W_WAND_BOOTUP_1989:
+      stopEffect(S_WAND_BOOTUP_SHORT);
+      stopEffect(S_GB2_WAND_START);
+      playEffect(S_GB2_WAND_START);
     break;
 
     case W_AFTERLIFE_WAND_BARREL_EXTEND:
@@ -1562,10 +1587,18 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_BOSON_DART_SOUND:
       playEffect(S_BOSON_DART_FIRE, false, i_volume_effects, false, 0, false);
+
+      if(b_vibration_firing && b_vibration_switch_on) {
+        ms_menu_vibration.start(350); // If vibrate while firing is enabled and vibration switch is on, vibrate the pack.
+      }
     break;
 
     case W_SHOCK_BLAST_SOUND:
       playEffect(S_SHOCK_BLAST_FIRE, false, i_volume_effects, false, 0, false);
+
+      if(b_vibration_firing && b_vibration_switch_on) {
+        ms_menu_vibration.start(300); // If vibrate while firing is enabled and vibration switch is on, vibrate the pack.
+      }
     break;
 
     case W_SLIME_TETHER_SOUND:
@@ -1574,6 +1607,10 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_MESON_COLLIDER_SOUND:
       playEffect(S_MESON_COLLIDER_FIRE, false, i_volume_effects, false, 0, false);
+
+      if(b_vibration_firing && b_vibration_switch_on) {
+        ms_menu_vibration.start(200); // If vibrate while firing is enabled and vibration switch is on, vibrate the pack.
+      }
     break;
 
     case W_MESON_FIRE_PULSE:
@@ -1599,9 +1636,32 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       switch(STREAM_MODE) {
         case PROTON:
         default:
-          stopEffect(S_FIRING_END_GUN);
-          stopEffect(S_FIRING_END_MID);
-          stopEffect(S_FIRING_END);
+          switch(SYSTEM_YEAR) {
+            case SYSTEM_1984:
+              if(i_wand_power_level != i_wand_power_level_max) {
+                stopEffect(S_FIRING_END);
+                stopEffect(S_FIRING_END_MID);
+                stopEffect(S_GB1_1984_FIRE_END_SHORT);
+              }
+              else {
+                stopEffect(S_GB1_1984_FIRE_END_HIGH_POWER);
+              }
+            break;
+            case SYSTEM_1989:
+              stopEffect(S_FIRING_END_GUN);
+              stopEffect(S_FIRING_END_MID);
+              stopEffect(S_FIRING_END);
+            break;
+            case SYSTEM_AFTERLIFE:
+            default:
+              stopEffect(S_AFTERLIFE_FIRE_END_SHORT);
+              stopEffect(S_AFTERLIFE_FIRE_END_MID);
+              stopEffect(S_AFTERLIFE_FIRE_END_LONG);
+            break;
+            case SYSTEM_FROZEN_EMPIRE:
+              stopEffect(S_FROZEN_EMPIRE_FIRE_END);
+            break;
+          }
         break;
         case SLIME:
           stopEffect(S_SLIME_END);
@@ -1669,6 +1729,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         powercellDraw();
       }
 
+      // Update the Inner Cyclotron LEDs if required.
+      cyclotronSwitchLEDUpdate();
+
       serial1Send(A_PROTON_MODE);
     break;
 
@@ -1711,6 +1774,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         b_powercell_updating = true;
         powercellDraw();
       }
+
+      // Update the Inner Cyclotron LEDs if required.
+      cyclotronSwitchLEDUpdate();
 
       serial1Send(A_SLIME_MODE);
     break;
@@ -1757,6 +1823,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         powercellDraw();
       }
 
+      // Update the Inner Cyclotron LEDs if required.
+      cyclotronSwitchLEDUpdate();
+
       serial1Send(A_STASIS_MODE);
     break;
 
@@ -1802,6 +1871,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         powercellDraw();
       }
 
+      // Update the Inner Cyclotron LEDs if required.
+      cyclotronSwitchLEDUpdate();
+
       serial1Send(A_MESON_MODE);
     break;
 
@@ -1845,6 +1917,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         b_powercell_updating = true;
         powercellDraw();
       }
+
+      // Update the Inner Cyclotron LEDs if required.
+      cyclotronSwitchLEDUpdate();
 
       serial1Send(A_SPECTRAL_MODE);
     break;
@@ -1890,6 +1965,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         powercellDraw();
       }
 
+      // Update the Inner Cyclotron LEDs if required.
+      cyclotronSwitchLEDUpdate();
+
       serial1Send(A_HOLIDAY_MODE);
     break;
 
@@ -1934,6 +2012,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         powercellDraw();
       }
 
+      // Update the Inner Cyclotron LEDs if required.
+      cyclotronSwitchLEDUpdate();
+
       serial1SendData(A_SPECTRAL_CUSTOM_MODE);
     break;
 
@@ -1942,6 +2023,32 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       playEffect(S_CLICK);
 
       serial1Send(A_SETTINGS_MODE);
+    break;
+
+    case W_TOGGLE_INNER_CYCLOTRON_PANEL:
+      // Toggle the optional inner cyclotron LED panel board.
+      if(b_inner_cyclotron_led_panel == true) {
+        b_inner_cyclotron_led_panel = false;
+
+        stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
+        stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+        playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
+
+        packSerialSend(P_TOGGLE_INNER_CYCLOTRON_PANEL_DISABLED);
+      }
+      else {
+        b_inner_cyclotron_led_panel = true;
+
+        stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+        stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
+        playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+
+        packSerialSend(P_TOGGLE_INNER_CYCLOTRON_PANEL_ENABLED);
+      }
+
+      // Reset the LED count for the panel and update the LED counts.
+      resetInnerCyclotronLEDs();
+      updateProtonPackLEDCounts();
     break;
 
     case W_OVERHEATING:
@@ -2175,10 +2282,16 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_FIRING_INTENSIFY_MIX:
-      // Wand firing in intensify mode.
+      // Wand firing in intensify mode mix.
       b_firing_intensify = true;
 
       if(b_wand_firing == true && b_sound_firing_intensify_trigger != true) {
+        if(SYSTEM_YEAR == SYSTEM_1984) {
+          playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+        }
+        else {
+          playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+        }
         b_sound_firing_intensify_trigger = true;
       }
 
@@ -2191,15 +2304,14 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_FIRING_INTENSIFY_STOPPED_MIX:
-      // Wand no longer firing in intensify mode.
+      // Wand no longer firing in intensify mode; drop back to alt fire mix.
       if(b_firing_intensify == true) {
-        if(i_wand_power_level == 5) {
-          // Need to stop and restart this loop to prevent overlaps since the barrel wing button is still held.
-          stopEffect(S_FIRING_LOOP_GB1);
-          playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
+        if(SYSTEM_YEAR == SYSTEM_1984) {
+          stopEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP);
         }
-
-        stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
+        else {
+          stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
+        }
       }
 
       b_firing_intensify = false;
@@ -2216,11 +2328,27 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_FIRING_ALT_MIX:
-      // Wand firing in alt mode.
+      // Wand firing in alt mode mix.
       b_firing_alt = true;
 
       if(b_wand_firing == true && b_sound_firing_alt_trigger != true) {
         b_sound_firing_alt_trigger = true;
+
+        if(i_wand_power_level != i_wand_power_level_max) {
+          if(SYSTEM_YEAR == SYSTEM_1989) {
+            stopEffect(S_GB2_FIRE_LOOP);
+          }
+          else {
+            stopEffect(S_GB1_1984_FIRE_LOOP_GUN);
+          }
+
+          if(SYSTEM_YEAR == SYSTEM_1984) {
+            playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+          }
+          else {
+            playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+          }
+        }
 
         playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
       }
@@ -2233,24 +2361,31 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_FIRING_ALT_STOPPED_MIX:
-      // Wand no longer firing in alt mode mix.
+      // Wand no longer firing in alt mode; drop back to intensify fire mix.
       if(b_firing_alt == true) {
         stopEffect(S_FIRING_LOOP_GB1);
-        stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
 
         // Since Intensify is still held, turn back on its firing loop sounds.
         switch(i_wand_power_level) {
           case 1 ... 4:
+          default:
+            if(SYSTEM_YEAR == SYSTEM_1984) {
+              stopEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP);
+            }
+            else {
+              stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
+            }
+
             if(SYSTEM_YEAR == SYSTEM_1989) {
               playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, false, 0, false);
             }
             else {
-              playEffect(S_GB1_FIRE_LOOP, true, i_volume_effects, false, 0, false);
+              playEffect(S_GB1_1984_FIRE_LOOP_PACK, true, i_volume_effects, false, 0, false);
             }
           break;
 
           case 5:
-            playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+            // Do nothing.
           break;
         }
       }
@@ -2270,14 +2405,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         stopEffect(S_CROSS_STREAMS_START);
       }
       playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
-
-      // Mix in some new proton stream sounds for normal CTS.
-      if(i_wand_power_level != i_wand_power_level_max) {
-        playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
-      }
-      else {
-        playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
-      }
     break;
 
     case W_FIRING_CROSSING_THE_STREAMS_2021:
@@ -2292,15 +2419,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects, false, 0, false);
-
-
-      // Mix in some new proton stream sounds for normal CTS.
-      if(i_wand_power_level != i_wand_power_level_max) {
-        playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
-      }
-      else {
-        playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
-      }
     break;
 
     case W_FIRING_CROSSING_THE_STREAMS_MIX_1984:
@@ -2316,21 +2434,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
-
-      // Mix in some new proton stream sounds for CTS Mix.
-      if(i_wand_power_level != i_wand_power_level_max) {
-        playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
-      }
-      else if(i_wand_power_level == i_wand_power_level_max) {
-        playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
-      }
-
-      if(SYSTEM_YEAR == SYSTEM_1989) {
-        stopEffect(S_GB2_FIRE_LOOP);
-      }
-      else {
-        stopEffect(S_GB1_FIRE_LOOP);
-      }
     break;
 
     case W_FIRING_CROSSING_THE_STREAMS_MIX_2021:
@@ -2346,21 +2449,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects, false, 0, false);
-
-      // Mix in some new proton stream sounds for CTS Mix.
-      if(i_wand_power_level != i_wand_power_level_max) {
-        playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
-      }
-      else if(i_wand_power_level == i_wand_power_level_max) {
-        playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
-      }
-
-      if(SYSTEM_YEAR == SYSTEM_1989) {
-        stopEffect(S_GB2_FIRE_LOOP);
-      }
-      else {
-        stopEffect(S_GB1_FIRE_LOOP);
-      }
     break;
 
     case W_FIRING_CROSSING_THE_STREAMS_STOPPED_1984:
@@ -2369,8 +2457,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
         stopEffect(S_CROSS_STREAMS_START);
+        stopEffect(S_CROSS_STREAMS_END);
       }
-      //stopEffect(S_CROSS_STREAMS_END);
 
       playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
     break;
@@ -2381,8 +2469,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
       }
-      //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
       playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
     break;
@@ -2398,8 +2486,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
         stopEffect(S_CROSS_STREAMS_START);
+        stopEffect(S_CROSS_STREAMS_END);
       }
-      //stopEffect(S_CROSS_STREAMS_END);
 
       playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
     break;
@@ -2415,8 +2503,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
       }
-      //stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
       playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
     break;
@@ -2540,7 +2628,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DEFAULT);
 
-      // Tell the Wand what state the vibration switch is in
+      // Tell the Wand what state the vibration switch is in.
       if(switch_vibration.getState() == LOW) {
         packSerialSend(P_VIBRATION_ENABLED);
       }
@@ -2567,9 +2655,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
         packSerialSend(P_PACK_VIBRATION_ENABLED);
 
-        analogWrite(vibration, 150);
-        delay(250);
-        vibrationOff();;
+        ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
       }
       else if(b_vibration_enabled == true && b_vibration_firing != true) {
         b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
@@ -2584,9 +2670,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
         packSerialSend(P_PACK_VIBRATION_FIRING_ENABLED);
 
-        analogWrite(vibration, 150);
-        delay(250);
-        vibrationOff();;
+        ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
       }
       else {
         b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
@@ -2626,9 +2710,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
           packSerialSend(P_PACK_VIBRATION_ENABLED);
 
-          analogWrite(vibration, 150);
-          delay(250);
-          vibrationOff();;
+          ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
         break;
         case VIBRATION_ALWAYS:
           VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
@@ -2646,9 +2728,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
           packSerialSend(P_PACK_VIBRATION_FIRING_ENABLED);
 
-          analogWrite(vibration, 150);
-          delay(250);
-          vibrationOff();;
+          ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
         break;
         case VIBRATION_FIRING_ONLY:
           VIBRATION_MODE_EEPROM = VIBRATION_NONE;
@@ -2688,9 +2768,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
           packSerialSend(P_PACK_VIBRATION_DEFAULT);
 
-          analogWrite(vibration, 150);
-          delay(250);
-          vibrationOff();
+          ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
         break;
       }
     break;
@@ -3206,8 +3284,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           serial1Send(A_MODE_ORIGINAL);
         break;
       }
-
-      vgModeCheck();
     break;
 
     case W_SPECTRAL_LIGHTS_ON:
@@ -3348,6 +3424,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           stopEffect(S_VOICE_POWERCELL_BRIGHTNESS);
           stopEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
           stopEffect(S_VOICE_CYCLOTRON_INNER_BRIGHTNESS);
+          stopEffect(S_VOICE_INNER_CYCLOTRON_PANEL_BRIGHTNESS);
 
           playEffect(S_VOICE_CYCLOTRON_INNER_BRIGHTNESS);
 
@@ -3355,11 +3432,25 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
 
         case DIM_INNER_CYCLOTRON:
+          pack_dim_toggle = DIM_CYCLOTRON_PANEL;
+
+          stopEffect(S_VOICE_POWERCELL_BRIGHTNESS);
+          stopEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
+          stopEffect(S_VOICE_CYCLOTRON_INNER_BRIGHTNESS);
+          stopEffect(S_VOICE_INNER_CYCLOTRON_PANEL_BRIGHTNESS);
+
+          playEffect(S_VOICE_INNER_CYCLOTRON_PANEL_BRIGHTNESS);
+
+          packSerialSend(P_CYCLOTRON_PANEL_DIMMING);
+        break;
+
+        case DIM_CYCLOTRON_PANEL:
           pack_dim_toggle = DIM_POWERCELL;
 
           stopEffect(S_VOICE_POWERCELL_BRIGHTNESS);
           stopEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
           stopEffect(S_VOICE_CYCLOTRON_INNER_BRIGHTNESS);
+          stopEffect(S_VOICE_INNER_CYCLOTRON_PANEL_BRIGHTNESS);
 
           playEffect(S_VOICE_POWERCELL_BRIGHTNESS);
 
@@ -3373,6 +3464,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           stopEffect(S_VOICE_POWERCELL_BRIGHTNESS);
           stopEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
           stopEffect(S_VOICE_CYCLOTRON_INNER_BRIGHTNESS);
+          stopEffect(S_VOICE_INNER_CYCLOTRON_PANEL_BRIGHTNESS);
 
           playEffect(S_VOICE_CYCLOTRON_BRIGHTNESS);
 
@@ -3415,6 +3507,29 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
               i_cyclotron_inner_brightness = i_cyclotron_inner_brightness + 10;
             }
 
+            packSerialSend(P_DIMMING);
+
+            stopEffect(S_BEEPS);
+            playEffect(S_BEEPS);
+          }
+          else {
+            // Already at 100%, indicate as such.
+            stopEffect(S_BEEPS_ALT);
+            playEffect(S_BEEPS_ALT);
+          }
+        break;
+
+        case DIM_CYCLOTRON_PANEL:
+          if(i_cyclotron_panel_brightness < 100) {
+            if(i_cyclotron_panel_brightness + 10 > 100) {
+              i_cyclotron_panel_brightness = 100;
+            }
+            else {
+              i_cyclotron_panel_brightness = i_cyclotron_panel_brightness + 10;
+            }
+
+            packSerialSend(P_DIMMING);
+
             stopEffect(S_BEEPS);
             playEffect(S_BEEPS);
           }
@@ -3437,6 +3552,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
             // Reset the Power Cell.
             powercellDraw();
+
+            packSerialSend(P_DIMMING);
 
             stopEffect(S_BEEPS);
             playEffect(S_BEEPS);
@@ -3484,6 +3601,29 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
               i_cyclotron_inner_brightness = i_cyclotron_inner_brightness - 10;
             }
 
+            packSerialSend(P_DIMMING);
+
+            stopEffect(S_BEEPS);
+            playEffect(S_BEEPS);
+          }
+          else {
+            // Already at 0%, indicate as such.
+            stopEffect(S_BEEPS_ALT);
+            playEffect(S_BEEPS_ALT);
+          }
+        break;
+
+        case DIM_CYCLOTRON_PANEL:
+          if(i_cyclotron_panel_brightness > 0) {
+            if(i_cyclotron_panel_brightness - 10 < 0) {
+              i_cyclotron_panel_brightness = 0;
+            }
+            else {
+              i_cyclotron_panel_brightness = i_cyclotron_panel_brightness - 10;
+            }
+
+            packSerialSend(P_DIMMING);
+
             stopEffect(S_BEEPS);
             playEffect(S_BEEPS);
           }
@@ -3506,6 +3646,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
             // Reset the Power Cell.
             powercellDraw();
+
+            packSerialSend(P_DIMMING);
 
             stopEffect(S_BEEPS);
             playEffect(S_BEEPS);
@@ -3560,48 +3702,70 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_TOGGLE_INNER_CYCLOTRON_LEDS:
+      stopEffect(S_VOICE_INNER_CYCLOTRON_36);
       stopEffect(S_VOICE_INNER_CYCLOTRON_35);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_26);
       stopEffect(S_VOICE_INNER_CYCLOTRON_24);
       stopEffect(S_VOICE_INNER_CYCLOTRON_23);
       stopEffect(S_VOICE_INNER_CYCLOTRON_12);
 
       switch(i_inner_cyclotron_cake_num_leds) {
         case 12:
-          // Switch to 23 LEDs.
+          // Switching: 12 -> 23 LEDs.
           i_inner_cyclotron_cake_num_leds = 23;
-          i_2021_inner_delay = 8;
-          i_1984_inner_delay = 12;
+          i_1984_inner_delay = INNER_CYCLOTRON_DELAY_1984_23_LED;
+          i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_23_LED;
 
           playEffect(S_VOICE_INNER_CYCLOTRON_23);
           packSerialSend(P_INNER_CYCLOTRON_LEDS_23);
         break;
 
         case 23:
-          // Switch to 24 LEDs.
+          // Switching: 23 -> 24 LEDs.
           i_inner_cyclotron_cake_num_leds = 24;
-          i_2021_inner_delay = 8;
-          i_1984_inner_delay = 12;
+          i_1984_inner_delay = INNER_CYCLOTRON_DELAY_1984_24_LED;
+          i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_24_LED;
 
           playEffect(S_VOICE_INNER_CYCLOTRON_24);
           packSerialSend(P_INNER_CYCLOTRON_LEDS_24);
         break;
 
         case 24:
+          // Switching: 24 -> 26 LEDs.
+          i_inner_cyclotron_cake_num_leds = 26;
+          i_1984_inner_delay = INNER_CYCLOTRON_DELAY_1984_26_LED;
+          i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_26_LED;
+
+          playEffect(S_VOICE_INNER_CYCLOTRON_26);
+          packSerialSend(P_INNER_CYCLOTRON_LEDS_26);
+        break;
+
+        case 26:
         default:
-          // Switch to 35 LEDs.
+          // Switching: 26 -> 35 LEDs.
           i_inner_cyclotron_cake_num_leds = 35;
-          i_2021_inner_delay = 5;
-          i_1984_inner_delay = 9;
+          i_1984_inner_delay = INNER_CYCLOTRON_DELAY_1984_35_LED;
+          i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_35_LED;
 
           playEffect(S_VOICE_INNER_CYCLOTRON_35);
           packSerialSend(P_INNER_CYCLOTRON_LEDS_35);
         break;
 
         case 35:
-          // Switch to 12 LEDs.
+          // Switching: 35 -> 36 LEDs.
+          i_inner_cyclotron_cake_num_leds = 36;
+          i_1984_inner_delay = INNER_CYCLOTRON_DELAY_1984_36_LED;
+          i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_36_LED;
+
+          playEffect(S_VOICE_INNER_CYCLOTRON_36);
+          packSerialSend(P_INNER_CYCLOTRON_LEDS_36);
+        break;
+
+        case 36:
+          // Switching: 36 -> 12 LEDs.
           i_inner_cyclotron_cake_num_leds = 12;
-          i_2021_inner_delay = 12;
-          i_1984_inner_delay = 15;
+          i_1984_inner_delay = INNER_CYCLOTRON_DELAY_1984_12_LED;
+          i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_12_LED;
 
           playEffect(S_VOICE_INNER_CYCLOTRON_12);
           packSerialSend(P_INNER_CYCLOTRON_LEDS_12);
@@ -3623,8 +3787,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         default:
           // Switch to 15 Power Cell LEDs.
           i_powercell_leds = FRUTTO_POWERCELL_LED_COUNT;
-          i_powercell_delay_1984 = 60;
-          i_powercell_delay_2021 = 34;
+          i_powercell_delay_1984 = POWERCELL_DELAY_1984_15_LED;
+          i_powercell_delay_2021 = POWERCELL_DELAY_2021_15_LED;
 
           playEffect(S_VOICE_POWERCELL_15);
           packSerialSend(P_POWERCELL_LEDS_15);
@@ -3633,8 +3797,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         case FRUTTO_POWERCELL_LED_COUNT:
           // Switch to 13 Power Cell LEDs.
           i_powercell_leds = HASLAB_POWERCELL_LED_COUNT;
-          i_powercell_delay_1984 = 75;
-          i_powercell_delay_2021 = 40;
+          i_powercell_delay_1984 = POWERCELL_DELAY_1984_13_LED;
+          i_powercell_delay_2021 = POWERCELL_DELAY_2021_13_LED;
 
           playEffect(S_VOICE_POWERCELL_13);
           packSerialSend(P_POWERCELL_LEDS_13);

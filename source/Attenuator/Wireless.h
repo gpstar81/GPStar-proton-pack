@@ -38,25 +38,13 @@
  *
  * https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/coexist.html
  */
-#include <ArduinoJson.h>
 #include <AsyncJson.h>
-#include <AsyncTCP.h>
 #include <ElegantOTA.h>
 #include <ESPAsyncWebServer.h>
 #include <Preferences.h>
 #include <WiFi.h>
 #include <WiFiAP.h>
-
-// Web page files (defines all text as char[] variable)
-#include "Index.h" // INDEX_page
-#include "Device.h" // DEVICE_page
-#include "Network.h" // NETWORK_page
-#include "Password.h" // PASSWORD_page
-#include "PackSettings.h" // PACK_SETTINGS_page
-#include "WandSettings.h" // WAND_SETTINGS_page
-#include "SmokeSettings.h" // SMOKE_SETTINGS_page
-#include "Style.h" // STYLE_page
-#include "Equip.h" // EQUIP_svg
+#include <ESPmDNS.h>
 
 // Preferences for SSID and AP password, which will use a "credentials" namespace.
 Preferences preferences;
@@ -187,7 +175,7 @@ bool startAccesPoint() {
 
     // Set networking info and report to console.
     WiFi.softAPConfig(localIP, gateway, subnet, dhcpStart);
-    WiFi.softAPsetHostname(ap_ssid_prefix.c_str());
+    WiFi.softAPsetHostname(ap_ssid.c_str());
     #if defined(DEBUG_WIRELESS_SETUP)
       Serial.print(F("AP Name (SSID): "));
       Serial.println(WiFi.softAPSSID());
@@ -319,30 +307,6 @@ bool startExternalWifi() {
   return false; // If we reach this point the connection has failed.
 }
 
-void OnWiFiEvent(WiFiEvent_t event) {
-  // Useful notifications for WiFi events.
-  switch (event) {
-    case SYSTEM_EVENT_STA_CONNECTED:
-      debug(F("Connected to External WiFi Network"));
-    break;
-    case SYSTEM_EVENT_STA_DISCONNECTED:
-      debug(F("External WiFi Network: Disconnected/Unavailable"));
-    break;
-    case SYSTEM_EVENT_AP_START:
-      debug(F("Soft AP started"));
-    break;
-    case SYSTEM_EVENT_AP_STACONNECTED:
-      debug(F("Station connected to softAP"));
-    break;
-    case SYSTEM_EVENT_AP_STADISCONNECTED:
-      debug(F("Station disconnected from softAP"));
-    break;
-    default:
-      // No-op for any other status.
-    break;
-  }
-}
-
 bool startWiFi() {
   bool b_ext_wifi_started = false;
 
@@ -356,9 +320,6 @@ bool startWiFi() {
 
   // Disable WiFi power save mode (via the esp_wifi_set_ps function).
   WiFi.setSleep(false);
-
-  // Assign an event handler to deal with changes in WiFi status.
-  WiFi.onEvent(OnWiFiEvent);
 
   // Attempt connection to an external (preferred) WiFi as a client.
   b_ext_wifi_started = startExternalWifi();
@@ -379,250 +340,19 @@ bool startWiFi() {
     b_ap_started = startAccesPoint();
   }
 
-  return b_ap_started; // At least return whether the soft AP started successfully.
-}
-
-/*
- * Text Helper Functions - Converts ENUM values to user-friendly text
- */
-
-String getMode() {
-  switch(SYSTEM_MODE) {
-    case MODE_SUPER_HERO:
-      return "Super Hero";
-    break;
-    case MODE_ORIGINAL:
-      return "Original";
-    break;
-    default:
-      return "Unknown";
-    break;
-  }
-}
-
-String getTheme() {
-  switch(SYSTEM_YEAR) {
-    case SYSTEM_1984:
-      return "1984";
-    break;
-    case SYSTEM_1989:
-      return "1989";
-    break;
-    case SYSTEM_AFTERLIFE:
-      return "Afterlife";
-    break;
-    case SYSTEM_FROZEN_EMPIRE:
-      return "Frozen Empire";
-    break;
-    default:
-      return "Unknown";
-    break;
-  }
-}
-
-String getRedSwitch() {
-  if(SYSTEM_MODE == MODE_ORIGINAL) {
-    // Switch state only matters for mode "Original".
-    switch(RED_SWITCH_MODE) {
-      case SWITCH_ON:
-        return "Ready";
-      break;
-      case SWITCH_OFF:
-        return "Standby";
-      break;
-      default:
-        return "Unknown";
-      break;
+  // Set the mDNS hostname to "ProtonPack_NNNN.local" just like the private AP name.
+  bool b_mdns_started = MDNS.begin(ap_ssid.c_str());
+  #if defined(DEBUG_WIRELESS_SETUP)
+    if (b_mdns_started) {
+      Serial.println(F("mDNS Responder Started"));
     }
-  }
-  else {
-    // Otherwise, just "Ready".
-    return "Ready";
-  }
-}
+    else {
+      Serial.println(F("Error Starting mDNS Responder!"));
+    }
+  #endif
+  delay(200);
 
-String getSafety() {
-  switch(BARREL_STATE) {
-    case BARREL_RETRACTED:
-      return "Safety On";
-    break;
-    case BARREL_EXTENDED:
-      return "Safety Off";
-    break;
-    default:
-      return "Unknown";
-    break;
-  }
-}
-
-String getWandMode() {
-  switch(STREAM_MODE) {
-    case PROTON:
-      return "Proton Stream";
-    break;
-    case SLIME:
-      // Plasm Distribution System
-      return "Plasm System";
-    break;
-    case STASIS:
-      // Dark Matter Generator
-      return "Dark Matter Gen.";
-    break;
-    case MESON:
-      // Composite Particle System
-      return "Particle System";
-    break;
-    case SPECTRAL:
-      return "Spectral Stream";
-    break;
-    case HOLIDAY:
-      return "Holiday Stream";
-    break;
-    case SPECTRAL_CUSTOM:
-      return "Custom Stream";
-    break;
-    case SETTINGS:
-      return "Settings";
-    break;
-    default:
-      return "Unknown";
-    break;
-  }
-}
-
-String getPower() {
-  switch(POWER_LEVEL) {
-    case LEVEL_1:
-      return "1";
-    break;
-    case LEVEL_2:
-      return "2";
-    break;
-    case LEVEL_3:
-      return "3";
-    break;
-    case LEVEL_4:
-      return "4";
-    break;
-    case LEVEL_5:
-      return "5";
-    break;
-    default:
-      return "-";
-    break;
-  }
-}
-
-String getCyclotronState() {
-  switch(i_speed_multiplier) {
-    case 1:
-       // Indicates an "idle" state, subject to the overheat status.
-      return (b_overheating ? "Recovery" : "Normal");
-    break;
-    case 2:
-      return "Active"; // After throwing a stream for an extended period.
-    break;
-    case 3:
-      return "Warning"; // Considered to be in a "pre-overheat" state.
-    break;
-    default:
-      return "Critical"; // For anything above a 3x speed increase.
-    break;
-  }
-}
-
-// Provide all handler functions for the API layer.
-#include "Webhandler.h"
-
-void setupRouting() {
-  // Define the endpoints for the web server.
-
-  // Static Pages
-  httpServer.on("/", HTTP_GET, handleRoot);
-  httpServer.on("/network", HTTP_GET, handleNetwork);
-  httpServer.on("/password", HTTP_GET, handlePassword);
-  httpServer.on("/settings/attenuator", HTTP_GET, handleAttenuatorSettings);
-  httpServer.on("/settings/pack", HTTP_GET, handlePackSettings);
-  httpServer.on("/settings/wand", HTTP_GET, handleWandSettings);
-  httpServer.on("/settings/smoke", HTTP_GET, handleSmokeSettings);
-  httpServer.on("/style.css", HTTP_GET, handleStylesheet);
-  httpServer.on("/equipment.svg", HTTP_GET, handleSvgImage);
-  httpServer.onNotFound(handleNotFound);
-
-  // Get/Set Handlers
-  httpServer.on("/config/attenuator", HTTP_GET, handleGetAttenuatorConfig);
-  httpServer.on("/config/pack", HTTP_GET, handleGetPackConfig);
-  httpServer.on("/config/wand", HTTP_GET, handleGetWandConfig);
-  httpServer.on("/config/smoke", HTTP_GET, handleGetSmokeConfig);
-  httpServer.on("/eeprom/all", HTTP_PUT, handleSaveAllEEPROM);
-  httpServer.on("/eeprom/pack", HTTP_PUT, handleSavePackEEPROM);
-  httpServer.on("/eeprom/wand", HTTP_PUT, handleSaveWandEEPROM);
-  httpServer.on("/status", HTTP_GET, handleGetStatus);
-  httpServer.on("/restart", HTTP_DELETE, handleRestart);
-  httpServer.on("/pack/on", HTTP_PUT, handlePackOn);
-  httpServer.on("/pack/off", HTTP_PUT, handlePackOff);
-  httpServer.on("/pack/attenuate", HTTP_PUT, handleAttenuatePack);
-  httpServer.on("/pack/vent", HTTP_PUT, handleManualVent);
-  httpServer.on("/volume/toggle", HTTP_PUT, handleToggleMute);
-  httpServer.on("/volume/master/up", HTTP_PUT, handleMasterVolumeUp);
-  httpServer.on("/volume/master/down", HTTP_PUT, handleMasterVolumeDown);
-  httpServer.on("/volume/effects/up", HTTP_PUT, handleEffectsVolumeUp);
-  httpServer.on("/volume/effects/down", HTTP_PUT, handleEffectsVolumeDown);
-  httpServer.on("/volume/music/up", HTTP_PUT, handleMusicVolumeUp);
-  httpServer.on("/volume/music/down", HTTP_PUT, handleMusicVolumeDown);
-  httpServer.on("/music/startstop", HTTP_PUT, handleMusicStartStop);
-  httpServer.on("/music/pauseresume", HTTP_PUT, handleMusicPauseResume);
-  httpServer.on("/music/next", HTTP_PUT, handleNextMusicTrack);
-  httpServer.on("/music/select", HTTP_PUT, handleSelectMusicTrack);
-  httpServer.on("/music/prev", HTTP_PUT, handlePrevMusicTrack);
-  httpServer.on("/wifi/settings", HTTP_GET, handleGetWifi);
-
-  // Body Handlers
-  httpServer.addHandler(handleSaveAttenuatorConfig); // /config/attenuator/save
-  httpServer.addHandler(handleSavePackConfig); // /config/pack/save
-  httpServer.addHandler(handleSaveWandConfig); // /config/wand/save
-  httpServer.addHandler(handleSaveSmokeConfig); // /config/smoke/save
-  httpServer.addHandler(passwordChangeHandler); // /password/update
-  httpServer.addHandler(wifiChangeHandler); // /wifi/update
-}
-
-void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
-  switch(type) {
-    case WS_EVT_CONNECT:
-      #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][%u] Connect\n", server->url(), client->id());
-      #endif
-      i_ws_client_count++;
-    break;
-
-    case WS_EVT_DISCONNECT:
-      #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][%u] Disconnect\n", server->url(), client->id());
-      #endif
-      if(i_ws_client_count > 0) {
-        i_ws_client_count--;
-      }
-    break;
-
-    case WS_EVT_ERROR:
-      #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][%u] error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
-      #endif
-    break;
-
-    case WS_EVT_PONG:
-      #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][%u] Pong[%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
-      #endif
-    break;
-
-    case WS_EVT_DATA:
-      #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.println(F("WebSocket Data Received"));
-      #endif
-      // Do something when data is received via WebSocket.
-    break;
-  }
+  return b_ap_started; // At least return whether the soft AP started successfully.
 }
 
 void onOTAStart() {
@@ -647,34 +377,5 @@ void onOTAEnd(bool success) {
   }
 }
 
-void startWebServer() {
-  // Configures URI routing with function handlers.
-  setupRouting();
-
-  // Prepare a standard "success" message for responses.
-  jsonSuccess.clear();
-  jsonSuccess["status"] = "success";
-  serializeJson(jsonSuccess, status);
-
-  // Configure the WebSocket endpoint.
-  ws.onEvent(onWebSocketEventHandler);
-  httpServer.addHandler(&ws);
-
-  // Configure the OTA firmware endpoint handler.
-  ElegantOTA.begin(&httpServer);
-
-  // ElegantOTA callbacks
-  ElegantOTA.onStart(onOTAStart);
-  ElegantOTA.onProgress(onOTAProgress);
-  ElegantOTA.onEnd(onOTAEnd);
-
-  // Start the web server.
-  httpServer.begin();
-  //Serial.println("Async HTTP Server Started");
-}
-
-// Send notification to all websocket clients.
-void notifyWSClients() {
-  // Send latest status to all connected clients.
-  ws.textAll(getEquipmentStatus());
-}
+// Provide all handler functions for the API layer.
+#include "Webhandler.h"

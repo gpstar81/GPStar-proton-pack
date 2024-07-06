@@ -45,14 +45,20 @@
 #define FRUTTO_MAX_CYCLOTRON_LED_COUNT 36
 
 /*
+ * Set the number of LEDs for the optional Inner Cyclotron panel board.
+ * This is not the single traditional LEDs, but the optional board with 8 pixels instead.
+ */
+#define INNER_CYCLOTRON_LED_PANEL_MAX 8
+
+/*
  * Set the number of steps for the Inner Cyclotron (cake).
  */
-#define INNER_CYCLOTRON_CAKE_LED_MAX 35
+#define INNER_CYCLOTRON_CAKE_LED_MAX 36
 
 /*
  * Set the number of steps for the Inner Cyclotron (cavity).
  */
-#define INNER_CYCLOTRON_CAVITY_LED_MAX 30
+#define INNER_CYCLOTRON_CAVITY_LED_MAX 20
 
 /*
  * Set the number of steps for the Outer Cyclotron (lid).
@@ -93,12 +99,13 @@ const uint8_t i_max_pack_leds = FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED
 const uint8_t i_nfilter_jewel_leds = JEWEL_NFILTER_LED_COUNT;
 
 /*
- * Total number of LEDs in the optional inner cycltron configuration.
- * Up to 35 LEDs for the ring (due to diameter of the ring).
- * Optionally, up to 30 LEDs for the "sparking" effect in the cavity.
- * Max 65 LEDs is possible before degradation of serial communications.
+ * Total number of LEDs in the optional inner cyclotron configuration.
+ * Max 64 LEDs is possible before degradation of serial communications!
+ * - Up to 8 LEDs for the inner panel by Frutto Technology.
+ * - Up to 36 LEDs for the largest ring provided by GPStar kits.
+ * - Optionally, up to 20 LEDs for the "sparking" effect in the cavity.
  */
-uint8_t i_max_inner_cyclotron_leds = INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX;
+const uint8_t i_max_inner_cyclotron_leds = INNER_CYCLOTRON_LED_PANEL_MAX + INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX;
 
 /*
  * Updated count of all the LEDs plus the N-Filter jewel.
@@ -120,13 +127,14 @@ CRGB pack_leds[FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX + JEWEL_NFIL
 
 /*
  * Inner Cyclotron LEDs (optional).
- * Max number of LEDs supported = 65.
+ * Max number of LEDs supported = 73.
+ * Maximum expected LEDs for the Inner Switch Panel is 8.
  * Maximum allowed LEDs for the Inner Cyclotron Cake is 35.
  * Maximum allowed LEDs for the Inner Cyclotron Cavity is 30.
  * Uses pin 13.
  */
 #define CYCLOTRON_LED_PIN 13
-CRGB cyclotron_leds[INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX];
+CRGB cyclotron_leds[INNER_CYCLOTRON_LED_PANEL_MAX + INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX];
 
 /*
  * Delay for fastled to update the addressable LEDs.
@@ -165,7 +173,7 @@ enum PACK_ACTION_STATES PACK_ACTION_STATE;
  * Cyclotron lid LEDs control and lid detection.
  */
 uint8_t i_1984_counter = 0; // Counter to keep track of which of the four LEDs we are working with in 1984/1989 mode.
-uint8_t i_2021_delay = 15; // The cyclotron delay in 2021 mode. This is reset by the system during bootup based on settings in Configuration.h
+uint8_t i_2021_delay = CYCLOTRON_DELAY_2021_12_LED; // The cyclotron delay in 2021 mode. This is reset by the system during bootup based on settings in Configuration.h
 uint8_t i_cyclotron_led_start = i_powercell_leds; // First LED in the Cyclotron.
 uint8_t i_led_cyclotron = i_cyclotron_led_start; // Current Cyclotron LED that we are lighting up.
 const uint16_t i_2021_ramp_delay = 300;
@@ -173,7 +181,7 @@ const uint16_t i_2021_ramp_length = 6000;
 const uint16_t i_1984_ramp_length = 3000;
 const uint16_t i_2021_ramp_down_length = 10500;
 const uint16_t i_1984_ramp_down_length = 2500;
-uint16_t i_current_ramp_speed = i_2021_ramp_delay;
+uint16_t i_outer_current_ramp_speed = i_2021_ramp_delay;
 uint8_t i_cyclotron_multiplier = 1;
 millisDelay ms_cyclotron_auto_speed_timer; // A timer that is active while firing only. Used to speed up the Cyclotron by small increments based on the power levels.
 const uint16_t i_cyclotron_auto_speed_timer_length = 4500;
@@ -187,6 +195,7 @@ rampInt r_2021_ramp;
 millisDelay ms_cyclotron;
 millisDelay ms_cyclotron_slime_effect;
 bool b_cyclotron_lid_on = true;
+bool b_brass_pack_sound_loop = false;
 bool b_cyclotron_led_on_status[OUTER_CYCLOTRON_LED_MAX] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
 rampInt ms_cyclotron_led_fade_out[OUTER_CYCLOTRON_LED_MAX] = {};
 rampInt ms_cyclotron_led_fade_in[OUTER_CYCLOTRON_LED_MAX] = {};
@@ -200,17 +209,22 @@ const uint8_t i_cyclotron_40led_matrix[OUTER_CYCLOTRON_LED_MAX] PROGMEM = { 1, 2
 
 /*
  * Inner Cyclotron NeoPixel ring ramp control.
- * This is for the 35 LED NeoPixel ring option.
  */
 millisDelay ms_cyclotron_ring;
 rampInt r_inner_ramp;
-const uint16_t i_inner_delay = i_2021_inner_delay;
 const uint16_t i_inner_ramp_delay = 300;
-int8_t i_led_cyclotron_ring = 0;
-int8_t i_led_cyclotron_cavity = 0;
-bool b_inner_ramp_up = true;
-bool b_inner_ramp_down = false;
-uint16_t i_inner_current_ramp_speed = i_inner_ramp_delay;
+int8_t i_led_cyclotron_ring = 0; // Current LED for the inner cyclotron ring.
+int8_t i_led_cyclotron_cavity = 0; // Current LED for the cyclotron cavity.
+bool b_inner_ramp_up = true; // Gotta start up before you can wind down.
+bool b_inner_ramp_down = false; // Opposite of the ramp_up value, naturally.
+uint16_t i_inner_current_ramp_speed = i_inner_ramp_delay; // Begin by defaulting to the inner ramp delay (this will be adjusted by the cyclotron multiplier at runtime).
+uint8_t i_inner_cyclotron_panel_num_leds = INNER_CYCLOTRON_LED_PANEL_MAX; // Addressable RGB LEDs on the optional inner cyclotron LED switch plate panel PCB, not the individual LEDs.
+const uint8_t i_ic_panel_start = 0; // Will always be 0 no matter what configuration is in use.
+uint8_t i_ic_panel_end = INNER_CYCLOTRON_LED_PANEL_MAX - 1;
+uint8_t i_ic_cake_start = i_ic_panel_end + 1;
+uint8_t i_ic_cake_end = i_ic_cake_start + INNER_CYCLOTRON_CAKE_LED_MAX - 1;
+uint8_t i_ic_cavity_start = i_ic_cake_end + 1;
+uint8_t i_ic_cavity_end = i_ic_cavity_start + INNER_CYCLOTRON_CAVITY_LED_MAX - 1;
 
 /*
  * Cyclotron Switch Plate LEDs
@@ -230,7 +244,6 @@ const uint16_t i_cyclotron_switch_plate_leds_delay = 1000;
 uint16_t i_cyclotron_switch_led_delay = i_cyclotron_switch_led_delay_base;
 millisDelay ms_cyclotron_switch_led; // Timer to control the 6 decorative LED patterns.
 millisDelay ms_cyclotron_switch_plate_leds; // Timer to control the 2 switch status indicator LEDs.
-
 
 /*
  * Alarm
@@ -263,6 +276,7 @@ uint8_t i_vibration_level_prev = 0;
 const uint8_t i_vibration_idle_level_2021 = 60;
 const uint8_t i_vibration_idle_level_1984 = 35;
 const uint8_t i_vibration_lowest_level = 15;
+millisDelay ms_menu_vibration; // Timer to do non-blocking confirmation buzzing in the vibration menu.
 
 /*
  * Enable or disable vibration control for the Proton Pack.
@@ -385,7 +399,7 @@ millisDelay ms_firing_length_timer;
 const uint16_t i_firing_timer_length = 15000; // 15 seconds. Used by ms_firing_length_timer to determine which tail_end sound effects to play.
 millisDelay ms_firing_sound_mix; // Used to play misc sound effects during firing.
 uint16_t i_last_firing_effect_mix = 0;
-millisDelay ms_idle_fire_fade; // Used for fading the Afterlife idling sound with firing
+millisDelay ms_idle_fire_fade; // Used for fading the Afterlife idling sound with firing, and determining whether to use "full" or "quick" bootup sequences.
 
 /*
  * Rotary encoder for volume control
@@ -396,12 +410,29 @@ static uint8_t prev_next_code = 0;
 static uint16_t store = 0;
 
 /*
+  * V1.5 GPStar Proton Pack onboard LED
+*/
+const uint8_t led_pack_status = 24;
+
+/*
+ * Proton Pack Bootup Post Animations
+*/
+bool b_pack_post_finish = false;
+uint8_t i_post_powercell_up = 0;
+uint8_t i_post_powercell_down = 0;
+uint8_t i_post_fade = 255;
+millisDelay ms_delay_post;
+millisDelay ms_delay_post_2;
+millisDelay ms_delay_post_3;
+
+/*
  * LED Dimming / Brightness Control.
  */
 enum pack_led_dim_control {
   DIM_POWERCELL,
   DIM_CYCLOTRON,
-  DIM_INNER_CYCLOTRON
+  DIM_INNER_CYCLOTRON,
+  DIM_CYCLOTRON_PANEL
 };
 
 uint8_t pack_dim_toggle = DIM_POWERCELL;
@@ -414,6 +445,7 @@ enum device {
   CYCLOTRON_OUTER,
   CYCLOTRON_INNER,
   CYCLOTRON_CAVITY,
+  CYCLOTRON_PANEL,
   VENT_LIGHT
 };
 
@@ -442,6 +474,13 @@ millisDelay ms_fadeout;
 uint16_t i_batt_volts; // Current voltage value (Vcc) using internal bandgap reference.
 const uint16_t i_ms_battcheck_delay = 5000; // Time between battery voltage checks.
 millisDelay ms_battcheck; // Timer for checking battery voltage on a regular interval.
+
+/*
+ * Neutrona Wand Sensor Board (optional)
+ * Used for detecting a stock or unmodified Hasbro Neutrona Wand.
+*/
+bool b_wand_sensor = false;
+float f_wand_sensor_data = 0.0;
 
 /*
  * Function prototypes.
