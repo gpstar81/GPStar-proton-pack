@@ -44,10 +44,7 @@
 #include <Preferences.h>
 #include <WiFi.h>
 #include <WiFiAP.h>
-<<<<<<< Updated upstream
-=======
 #include <ESPmDNS.h>
->>>>>>> Stashed changes
 
 // Preferences for SSID and AP password, which will use a "credentials" namespace.
 Preferences preferences;
@@ -343,8 +340,6 @@ bool startWiFi() {
     b_ap_started = startAccesPoint();
   }
 
-<<<<<<< Updated upstream
-=======
   // Set the mDNS hostname to "ProtonPack_NNNN.local" just like the private AP name.
   bool b_mdns_started = MDNS.begin(ap_ssid.c_str());
   #if defined(DEBUG_WIRELESS_SETUP)
@@ -357,7 +352,6 @@ bool startWiFi() {
   #endif
   delay(200);
 
->>>>>>> Stashed changes
   return b_ap_started; // At least return whether the soft AP started successfully.
 }
 
