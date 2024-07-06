@@ -117,7 +117,7 @@ This section is presented in a way to offer a more complete view of what compone
 
 ### DIY Arduino Build Guides [DEPRECATED]
 
-Considered the "legacy" guide to building your own solution using the Arduino platform. *Please note that the original wand guide used an Arduino Nano which is no longer capable of providing the storage space required by the full range of features supported and has been deprecated.*
+Considered the "legacy" guide to building your own solution using the Arduino platform. *Please note that the original Neutrona Wand guide used an Arduino Nano which is no longer capable of providing the storage space required by the full range of features supported and that hardware has been deprecated. In order to continue with these guides, please note that a replacement board has been identified for the Neutrona Wand and MUST be used with the latest software release.*
 
 This is an advanced build-out which requires opening all devices and performing a significant amount of soldering. **Proceed with caution, regardless of your skillset or abilities.**
 
@@ -133,9 +133,9 @@ This is an advanced build-out which requires opening all devices and performing 
 
 1. [Audio Output Guide](SOUND.md)
 
-1. [DIY Pack Setup - ATMega 2560](DIY_PACK.md)
+1. [DIY Pack Setup - Arduino Mega 2560 R3](DIY_PACK.md)
 
-1. [DIY Wand Setup - DEPRECATED](DIY_WAND.md)
+1. [DIY Wand Setup - Mega 2560 Pro Mini](DIY_WAND.md)
 
 1. [Hose Connections](HOSE.md)
 

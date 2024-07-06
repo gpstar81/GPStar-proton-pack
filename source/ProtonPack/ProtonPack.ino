@@ -247,6 +247,7 @@ void loop() {
   checkMusic();
   checkSwitches();
   checkRotaryEncoder();
+  checkMenuVibration();
 
   if(b_pack_post_finish == true) {
     switch (PACK_STATE) {
@@ -656,12 +657,12 @@ void systemPOST() {
       pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
       pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
 
-      cyclotronSwitchLEDOff();  
+      cyclotronSwitchLEDOff();
 
       b_pack_post_finish = true;
     }
     else {
-      ms_delay_post_3.start(5);      
+      ms_delay_post_3.start(5);
     }
   }
 }
@@ -895,7 +896,7 @@ void packShutdown() {
   }
 
   wandExtraSoundsStop();
-  wandExtraSoundsBeepLoopStop();
+  wandExtraSoundsBeepLoopStop(false);
 
   stopEffect(S_SHUTDOWN);
   stopEffect(S_STEAM_LOOP);
@@ -1831,7 +1832,7 @@ void powercellLoop() {
             }
             else {
               i_multiplier = i_pc_delay + i_extra_delay;
-            }  
+            }
           }
           else {
             if(i_pc_delay + i_extra_delay > 10) {
@@ -1839,7 +1840,7 @@ void powercellLoop() {
             }
             else {
               i_multiplier = i_pc_delay + i_extra_delay;
-            }  
+            }
           }
         break;
 
@@ -1850,7 +1851,7 @@ void powercellLoop() {
             }
             else {
               i_multiplier = i_pc_delay + i_extra_delay;
-            }  
+            }
           }
           else {
             if(i_pc_delay + i_extra_delay > 20) {
@@ -1858,7 +1859,7 @@ void powercellLoop() {
             }
             else {
               i_multiplier = i_pc_delay + i_extra_delay;
-            }  
+            }
           }
         break;
 
@@ -1869,7 +1870,7 @@ void powercellLoop() {
             }
             else {
               i_multiplier = i_pc_delay + i_extra_delay;
-            }  
+            }
           }
           else {
             if(i_pc_delay + i_extra_delay > 30) {
@@ -1877,7 +1878,7 @@ void powercellLoop() {
             }
             else {
               i_multiplier = i_pc_delay + i_extra_delay;
-            }   
+            }
           }
         break;
 
@@ -1888,7 +1889,7 @@ void powercellLoop() {
             }
             else {
               i_multiplier = i_pc_delay + i_extra_delay;
-            }  
+            }
           }
           else {
             if(i_pc_delay + i_extra_delay > 40) {
@@ -1897,7 +1898,7 @@ void powercellLoop() {
               }
               else {
                 i_multiplier = i_pc_delay + i_extra_delay;
-              }  
+              }
             }
             else {
               i_multiplier = i_pc_delay + i_extra_delay;
@@ -1915,7 +1916,7 @@ void powercellLoop() {
             }
             else {
               i_multiplier = i_pc_delay + i_extra_delay;
-            }            
+            }
           }
         break;
       }
@@ -2237,18 +2238,7 @@ void cyclotronControl() {
     innerCyclotronRingUpdate(i_inner_current_ramp_speed);
   }
 
-  // If we are in slime mode, call the slime effect functions instead.
-  if(usingSlimeCyclotron()) {
-    if(PACK_STATE == MODE_ON && !ms_cyclotron_slime_effect.isRunning()) {
-      // Make sure we've started the slime effect timer if it hasn't been started already.
-      ms_cyclotron_slime_effect.start(0);
-    }
-
-    slimeCyclotronEffect();
-    return;
-  }
-
-  if(b_cyclotron_lid_on == true) {
+  if(b_cyclotron_lid_on && !usingSlimeCyclotron()) {
     cyclotronFade();
   }
 }
@@ -2718,12 +2708,23 @@ void cyclotron2021(uint16_t iRampDelay) {
       iRampDelay = 1;
     }
 
-    if(b_clockwise == true) {
-      if((i_cyclotron_led_value[i_led_cyclotron - i_cyclotron_led_start] == 0 && b_cyclotron_simulate_ring != true) || (i_cyclotron_led_value[i_led_cyclotron - i_cyclotron_led_start] == 0 && b_cyclotron_simulate_ring == true && i_cyclotron_matrix_led > 0)) {
-        ms_cyclotron_led_fade_in[i_led_cyclotron - i_cyclotron_led_start].go(0);
-        ms_cyclotron_led_fade_in[i_led_cyclotron - i_cyclotron_led_start].go(i_brightness, iRampDelay, CIRCULAR_IN);
+    if((i_cyclotron_led_value[i_led_cyclotron - i_cyclotron_led_start] == 0 && b_cyclotron_simulate_ring != true) || (i_cyclotron_led_value[i_led_cyclotron - i_cyclotron_led_start] == 0 && b_cyclotron_simulate_ring == true && i_cyclotron_matrix_led > 0)) {
+      ms_cyclotron_led_fade_in[i_led_cyclotron - i_cyclotron_led_start].go(0);
+      ms_cyclotron_led_fade_in[i_led_cyclotron - i_cyclotron_led_start].go(i_brightness, iRampDelay, CIRCULAR_IN);
+    }
+
+    // If we are in slime mode, call the slime effect functions instead.
+    if(usingSlimeCyclotron()) {
+      if(PACK_STATE == MODE_ON && !ms_cyclotron_slime_effect.isRunning()) {
+        // Make sure we've started the slime effect timer if it hasn't been started already.
+        ms_cyclotron_slime_effect.start(0);
       }
 
+      slimeCyclotronEffect();
+      return;
+    }
+
+    if(b_clockwise == true) {
       i_led_cyclotron++;
 
       if(b_cyclotron_simulate_ring == true) {
@@ -2761,11 +2762,6 @@ void cyclotron2021(uint16_t iRampDelay) {
       }
     }
     else {
-      if((i_cyclotron_led_value[i_led_cyclotron - i_cyclotron_led_start] == 0 && b_cyclotron_simulate_ring != true) || (i_cyclotron_led_value[i_led_cyclotron - i_cyclotron_led_start] == 0 && b_cyclotron_simulate_ring == true && i_cyclotron_matrix_led > 0)) {
-        ms_cyclotron_led_fade_in[i_led_cyclotron - i_cyclotron_led_start].go(0);
-        ms_cyclotron_led_fade_in[i_led_cyclotron - i_cyclotron_led_start].go(i_brightness, iRampDelay, CIRCULAR_IN);
-      }
-
       i_led_cyclotron--;
 
       if(b_cyclotron_simulate_ring == true) {
@@ -2811,23 +2807,6 @@ void cyclotron1984(uint16_t iRampDelay) {
   if(ms_cyclotron.justFinished()) {
     iRampDelay = iRampDelay / i_cyclotron_multiplier;
 
-    if(b_1984_led_start != true) {
-      cyclotron84LightOff(i_led_cyclotron);
-    }
-    else {
-      b_1984_led_start = false;
-    }
-
-    i_1984_counter++;
-
-    if(i_1984_counter > 3) {
-      i_1984_counter = 0;
-    }
-
-    i_led_cyclotron = i_cyclotron_led_start + cyclotron84LookupTable(i_1984_counter);
-
-    cyclotron84LightOn(i_led_cyclotron);
-
     if(b_2021_ramp_up == true) {
       if(r_2021_ramp.isFinished()) {
         b_2021_ramp_up = false;
@@ -2867,6 +2846,34 @@ void cyclotron1984(uint16_t iRampDelay) {
     if(b_wand_firing != true && b_overheating != true && b_alarm != true) {
       vibrationPack(i_vibration_level);
     }
+
+    // If we are in slime mode, call the slime effect functions instead.
+    if(usingSlimeCyclotron()) {
+      if(PACK_STATE == MODE_ON && !ms_cyclotron_slime_effect.isRunning()) {
+        // Make sure we've started the slime effect timer if it hasn't been started already.
+        ms_cyclotron_slime_effect.start(0);
+      }
+
+      slimeCyclotronEffect();
+      return;
+    }
+
+    if(b_1984_led_start != true) {
+      cyclotron84LightOff(i_led_cyclotron);
+    }
+    else {
+      b_1984_led_start = false;
+    }
+
+    i_1984_counter++;
+
+    if(i_1984_counter > 3) {
+      i_1984_counter = 0;
+    }
+
+    i_led_cyclotron = i_cyclotron_led_start + cyclotron84LookupTable(i_1984_counter);
+
+    cyclotron84LightOn(i_led_cyclotron);
   }
 }
 
@@ -4246,7 +4253,7 @@ void modeFireStartSounds() {
               playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 800, false);
             }
             else {
-              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 1500, false);
+              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 700, false);
             }
           }
           else {
@@ -4343,6 +4350,9 @@ void wandFiring() {
     ms_smoke_on.stop();
   }
 
+  // Just in case a semi-auto was fired before we started firing a stream, stop its vibration timer.
+  ms_menu_vibration.stop();
+
   vibrationPack(255);
 
   // Reset some vent light timers.
@@ -4394,7 +4404,7 @@ void modeFireStopSounds() {
                 else {
                   // Short tail end.
                   playEffect(S_GB1_1984_FIRE_END_SHORT_HIGH_POWER, false, i_volume_effects, false, 0, false);
-                }                
+                }
               }
             break;
 
@@ -4901,7 +4911,24 @@ void vibrationPack(uint8_t i_level) {
   }
 }
 
+void checkMenuVibration() {
+  if(ms_menu_vibration.justFinished()) {
+    vibrationOff();
+  }
+  else if(ms_menu_vibration.isRunning()) {
+    if(PACK_STATE == MODE_OFF) {
+      // If we're off we must be in the EEPROM Config Menu; vibrate at 59%.
+      analogWrite(vibration, 150);
+    }
+    else {
+      // If we're on we must be firing a semi-auto blast; vibrate at 71%.
+      analogWrite(vibration, 180);
+    }
+  }
+}
+
 void vibrationOff() {
+  ms_menu_vibration.stop();
   i_vibration_level_prev = 0;
   analogWrite(vibration, 0);
 }
@@ -5159,7 +5186,7 @@ void wandDisconnectCheck() {
       stopEffect(S_SMASH_ERROR_RESTART);
 
       wandExtraSoundsStop();
-      wandExtraSoundsBeepLoopStop();
+      wandExtraSoundsBeepLoopStop(false);
 
       // Turn off overheating if the wand gets disconnected.
       if(b_overheating == true) {
@@ -5208,12 +5235,23 @@ void wandExtraSoundsBeepLoop() {
   }
 }
 
-void wandExtraSoundsBeepLoopStop() {
-  stopEffect(S_AFTERLIFE_BEEP_WAND_S1);
-  stopEffect(S_AFTERLIFE_BEEP_WAND_S2);
-  stopEffect(S_AFTERLIFE_BEEP_WAND_S3);
-  stopEffect(S_AFTERLIFE_BEEP_WAND_S4);
-  stopEffect(S_AFTERLIFE_BEEP_WAND_S5);
+void wandExtraSoundsBeepLoopStop(bool stopNaturally) {
+  if(stopNaturally) {
+    // Set all beep looping to false so they stop naturally.
+    audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S1, false);
+    audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S2, false);
+    audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S3, false);
+    audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S4, false);
+    audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S5, false);
+  }
+  else {
+    // Stop all beeps explicitly to prevent rapid switching from taking up all available channels.
+    stopEffect(S_AFTERLIFE_BEEP_WAND_S1);
+    stopEffect(S_AFTERLIFE_BEEP_WAND_S2);
+    stopEffect(S_AFTERLIFE_BEEP_WAND_S3);
+    stopEffect(S_AFTERLIFE_BEEP_WAND_S4);
+    stopEffect(S_AFTERLIFE_BEEP_WAND_S5);
+  }
 }
 
 void wandExtraSoundsStop() {

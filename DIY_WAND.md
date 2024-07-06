@@ -1,10 +1,10 @@
 # Neutrona Wand Setup
 
-**As of November 2023 the last release to support software builds for the Arduino Nano was v2.2.0. Due to memory limitations of this device no further software updates are possible. This guide exists solely for educational/legacy purposes only and is considered deprecated.**
+**As of November 2023 the last release to support software builds for the Arduino Nano was v2.2.0. Due to memory limitations of this device no further software updates are possible. In order to make use of this guide you will need to upgrade to either an official GPStar Neutrona Wand controller PCB or use a Mega2560 Pro Mini as linked in the [DIY_BOM](DIY_BOM.md) document.**
 
 This guide begins with some explanations for common items you will encounter during the upgrade process. Note that it will be necessary to upgrade the hose and conductors between the pack and wand. This exercise is left to individual preferences on connectors and style of replacement, though you will need 4 conductors at a minimum (+5V, Ground, and TX/RX for communications).
 
-The space within the Neutrona Wand is extremely limited, though multiple components must be fit into this space. To maximize what is available, some wires from the original controller (PCB) can be directly soldered onto the Arduino Nano. Where resistors or inline components are required, these may be soldered between the wire and Arduino Nano to reduce need for an additional protoboard. If needed, a [a ¼ protoboard from Adafruit](https://www.adafruit.com/product/1608) or any similar size from another manufacturer will be used.
+The space within the Neutrona Wand is extremely limited, though multiple components must be fit into this space. To maximize what is available, some wires from the original controller (PCB) can be directly soldered onto the microcontroller. Where resistors or inline components are required, these may be soldered between the wire and microcontroller to reduce need for an additional protoboard. If needed, a [a ¼ protoboard from Adafruit](https://www.adafruit.com/product/1608) or any similar size from another manufacturer will be used.
 
 ## Special Cautions and Warnings
 
@@ -15,7 +15,7 @@ You will find that the wand poses some challenges due to confined spaces and fra
 - Use a mechanical wire stripper to ensure you quickly strip back the sheathing for each wire.
 - Use silicone-coated **stranded** wiring (22AWG down to 26AWG) to allow for maximum flexibility.
 - Solder on extensions to every wire in the wand and use heat-shrink tubing to reinforce extended connections to make a better bond with the stock wire to prevent breakage.
-- Continue the extended wire to either a PCB or the Nano for soldering, making sure that ALL of the strands of wire make it through the holes. Twist your bare wires tightly, and you can pre-tin the ends with a bit of solder to keep everything together as you fit the wire through any PCB holes (this also works well for making breadboard connections).
+- Continue the extended wire to either a PCB or the microcontroller for soldering, making sure that ALL of the strands of wire make it through the holes. Twist your bare wires tightly, and you can pre-tin the ends with a bit of solder to keep everything together as you fit the wire through any PCB holes (this also works well for making breadboard connections).
 - Optionally, this is where you may consider a full replacement of some wires if they break off at the component you are connecting.
 - It's too easy to have some strands that get missed which could cause a short--check your connections after soldering. A magnifying glass and good lighting is your friend!
 
@@ -95,45 +95,53 @@ These are the same connections which are used for the FTDI breakout board to pro
 | SPKR+      | Speaker +  |
 | SPKR-      | Speaker -  |
 
-## Arduino Nano - Pin Reference vs. Hasbro Controller
+## Mega2560 Pro Mini - Pin Reference vs. Hasbro Controller
 
-The following is a diagram of the Arduino Nano pins from left and right, when oriented with the USB connection facing up (north).
+The following is a diagram of the Mega2560 Pro Mini pins from left and right, when oriented with the USB connection facing up (north).
 
 You can also reference the PDF document for the [Pack Schematic Minimal](circuits/PackSchematic-Minimal.pdf) for additional visual guidance on the Wand wiring configuration.
 
-| Connection    | Nano (L) | USB | Nano (R) | Connection |
-|---------------|----------|-----|----------|------------|
-| D8 (Red)      | D13   |     | D12   | D7 (Red)      |
-|               | 3V3   |     | D11   | Motor-NPN     |
-|               | REF   |     | D10   | Q2 (Yellow) or (Red) <br /> <br /> **\*See note above about Barrel LED wire colour differences\*** <br /> Generation 1 Neutrona Wands (silver tip) data line is (Red) while generation 2 Neutrona Wands (orange tip) data line is (Yellow) |
-| SW2 (Red)     | A0    |     | D9    | WAV Trigger RX |
-| D2 (Brown)    | A1    |     | D8    | WAV Trigger TX |
-| D3 (Red)      | A2    |     | D7    | ROT (Yellow)  |
-| D4 (Orange)   | A3    |     | D6    | ROT (Red)     |
-| D5 (Yellow)   | A4    |     | D5    | D1 & D9 (Red) |
-| D6 (Green)    | A5    |     | D4    | SW1 (Brown)   |
-| SW6 (White)   | A6    |     | D3    | SW4 (Red)     |
-| SW7 (Orange)  | A7    |     | D2    | SW45 (White)  |
-|               | 5V    |     | GND   |               |
-|               | RST   |     | RST   |               |
-| Ground (Pack) | GND   |     | RX0   | TX (to Pack)  |
-| +5V (Pack)    | VIN   |     | TX1   | RX (to Pack)  |
+| Mega (L1) | Mega (L2) | USB | Mega (R1) | Mega (R2) |
+|-----------|-----------|-----|-----------|-----------|
+| VIN &rarr; +5V (Pack) | VIN |     |     |     |
+| GND &rarr; Ground (Pack) | GND |     |     |     |
+| 5V   | 5V   |     |     |     |
+| 3.3V | 3.3V |     |     |     |
+| RST  | AREF |     |     |     |
+| TX1 &rarr; RX (to Pack) | RX0 &rarr; TX (to Pack) |     | A1 &rarr; D2 (Brown) | A0 &rarr; SW2 (Red) |
+| D3 &rarr; SW4 (Red) | D2 &rarr; SW45 (White) |     | A3 &rarr; D4 (Orange) | A2 &rarr; D3 (Red) |
+| D5 &rarr; D1 & D9 (Red) | D4 &rarr; SW1 (Brown) |     | A5 &rarr; D6 (Green) | A4 &rarr; D5 (Yellow) |
+| D7 &rarr; ROT (Yellow) | D6 &rarr; ROT (Red) |     | A7 &rarr; SW7 (Orange) | A6 &rarr; SW6 (White) |
+| D9 &rarr; WAV Trigger RX | D8 &rarr; WAV Trigger TX |     | A9   | A8   |
+| D11 &rarr; Motor-NPN | D10 &rarr; Q2<sup>!</sup> (Yellow) or (Red) |     | A11  | A10  |
+| D13 &rarr; D8 (Red) | D12 &rarr; D7 (Red) |     | A13  | A12  |
+| D15  | D14  |     | A15  | A14  |
+| D17  | D16  |     | D33  | D32  |
+| D19  | D18  |     | D35  | D34  |
+| D21  | D20  |     | D37  | D36  |
+| D23  | D22  |     | D39  | D38  |
+| D25  | D24  |     | D41  | D40  |
+| D27  | D26  |     | D43  | D42  |
+| D29  | D28  |     | D45  | D44  |
+| D31  | D30  |     | D47  | D46  |
+
+<sup>!</sup> **See note above about Barrel LED wire colour differences:** Generation 1 Neutrona Wands (silver tip) data line is (Red) while generation 2 Neutrona Wands (orange tip) data line is (Yellow)
 
 ### Connections by Component
 
 **Toggles and Buttons**
 
-| LOWER RIGHT TOGGLE → SW1         |   |        |     | Nano Pin | Hasbro Ref | Notes |
+| LOWER RIGHT TOGGLE → SW1         |   |        |     | Mega Pin | Hasbro Ref | Notes |
 |----------------------------------|---|--------|-----|----------|-----|----------------------------------------|
 | <font color="brown">Brown</font> | → | Ground |     |          | SW1 | Shouldn’t matter which wire goes where |
 | <font color="brown">Brown</font> | → | →      | →   | Pin D4   | SW1 | Shouldn’t matter which wire goes where |
 
-| UPPER RIGHT TOGGLE → SW2         |   |        |     | Nano Pin | Hasbro Ref | Notes |
+| UPPER RIGHT TOGGLE → SW2         |   |        |     | Mega Pin | Hasbro Ref | Notes |
 |----------------------------------|---|--------|-----|----------|-----|----------------------------------------|
 | <font color="red">Red</font>     | → | Ground |     |          | SW2 | Shouldn’t matter which wire goes where |
 | <font color="red">Red</font>     | → | →      | →   | Pin A0   | SW2 | Shouldn’t matter which wire goes where |
 
-| SW45/SW4 Connector: SW45 = Intensify / SW4 = Activate |   |        |    | Nano Pin | Hasbro Ref |
+| SW45/SW4 Connector: SW45 = Intensify / SW4 = Activate |   |        |    | Mega Pin | Hasbro Ref |
 |-------------------------------------------------------|---|--------|----|----------|------------|
 | <font color="gray">White</font> | → | Ground |    |        | SW45 |
 | <font color="gray">White</font> | → | →      | →  | Pin D2 | SW45 |
@@ -142,9 +150,9 @@ You can also reference the PDF document for the [Pack Schematic Minimal](circuit
 
 **Special Switches**
 
-These switches utilize a "pull down" resistor to measure the difference in voltage when the button or switch is depressed. Each switch will get +5V power on one wire, while the other wire will connect to both a 10K resistor and an Arduino Nano pin. The other side of the resistor will connect to ground. This allows the pin to go to ground (low) when power is not supplied (read: the switch is not depressed), and the pin gets when +5V is present when the switch is depressed.
+These switches utilize a "pull down" resistor to measure the difference in voltage when the button or switch is depressed. Each switch will get +5V power on one wire, while the other wire will connect to both a 10K resistor and an microcontroller pin. The other side of the resistor will connect to ground. This allows the pin to go to ground (low) when power is not supplied (read: the switch is not depressed), and the pin gets when +5V is present when the switch is depressed.
 
-| MODE SWITCH → SW6 |    |            |    | Nano Pin | Hasbro Ref |                                       |
+| MODE SWITCH → SW6 |    |            |    | Mega Pin | Hasbro Ref |                                       |
 |-------------------|----|------------|----|----------|------------|---------------------------------------|
 | <font color="gray">White</font> | → | +5V    |   |        | SW6 | Shouldn’t matter which wire goes where |
 | <font color="gray">White</font> | → | &bull; | → | Pin A6 | SW6 | Shouldn’t matter which wire goes where |
@@ -153,7 +161,7 @@ These switches utilize a "pull down" resistor to measure the difference in volta
 |                                 |   | ↓      |   |        |     |                                        |
 |                                 |   | Ground |   |        |     | Need to pull to ground (for reference) |
 
-| BARREL EXTENSION SWITCH → SW7 |   |        |    | Nano Pin | Hasbro Ref |                                   |
+| BARREL EXTENSION SWITCH → SW7 |   |        |    | Mega Pin | Hasbro Ref |                                   |
 |-------------------------------|---|--------|----|----------|------------|-----------------------------------|
 | <font color="orange">Orange</font> | → | +5V    |   |        | SW7 | Shouldn’t matter which wire goes where |
 | <font color="orange">Orange</font> | → | &bull; | → | Pin A7 | SW7 | Shouldn’t matter which wire goes where |
@@ -164,7 +172,7 @@ These switches utilize a "pull down" resistor to measure the difference in volta
 
 The rotary encoder is similar to that used on the Proton Pack. It requires a common ground connection and sends data via the A/B signal wires to indicate which direction it was turned.
 
-| ROTARY ENCODER (ROT) → SW3 |   |              |    | Nano Pin | Hasbro Ref |
+| ROTARY ENCODER (ROT) → SW3 |   |              |    | Mega Pin | Hasbro Ref |
 |----------------------------|---|--------------|----|----------|------------|
 | <font color="brown">Brown</font>   | → | Ground |    |        | V+ |
 | <font color="red">Red</font>       | → | →      | →  | Pin D6 | SW3 |
@@ -174,7 +182,7 @@ The rotary encoder is similar to that used on the Proton Pack. It requires a com
 
 Considered optional as this can be left out if desired, and without impact to normal operation.
 
-| VIBRATION&nbsp;MOTOR |   |            | Motor Wire | Nano&nbsp;Pin | Notes                                     |
+| VIBRATION&nbsp;MOTOR |   |            | Motor Wire | Mega&nbsp;Pin | Notes                                     |
 |----------------------|---|------------|------------|---------|-------------------------------------------------|
 |                      |   | 1N4001 (s) | <font color="red">Red</font> | +5V     | 1N4001 diode (s = striped end of the diode) |
 | NPN C                | → | 1N4001     | Black                        |         | NPN* = PN2222                               |
@@ -182,7 +190,7 @@ Considered optional as this can be left out if desired, and without impact to no
 | NPN E                | → | →          | →                            | Ground  |                                             |
 
 ### Hasbro Bargraph
-| BARGRAPH → J3                      |   |       |    | Nano Pin | Hasbro Ref |
+| BARGRAPH → J3                      |   |       |    | Mega Pin | Hasbro Ref |
 |------------------------------------|---|-------|----|----------|------------|
 | <font color="blue">Blue</font>     | → | +5V   |    |          | VDD  |
 | <font color="green">Green</font>   | → | 140 Ω | →  | Pin A5   | D6   |
@@ -196,7 +204,7 @@ Note for Bargraph: If you want to replace LEDs, the bargraph uses 3mm LED diodes
 
 ### Wand LEDs ###
 
-| VENT LIGHT LED BOARD → D7 & D8  |   |      |    | Nano Pin | Hasbro Ref |                                        |
+| VENT LIGHT LED BOARD → D7 & D8  |   |      |    | Mega Pin | Hasbro Ref |                                        |
 |---------------------------------|---|------|----|----------|------------|----------------------------------------|
 | <font color="red">Red</font>    | → | +5V  |    |          | VDD        |                                        |
 | <font color="gray">White</font> | → | 90 Ω | →  | Pin D12  | D7         | Blinking white LED on top of the wand  |
@@ -204,21 +212,21 @@ Note for Bargraph: If you want to replace LEDs, the bargraph uses 3mm LED diodes
 
 *NPN Bipolar Transistor. Reference Pack page for more info.
 
-For the SLO-BLO and Front-Left LED which share on 1 pin from the Nano. The spec sheet for the Nano states a max 40mA draw on a pin. With 2 LEDs it is at that threshold. I have been testing this setup extensively and have not blown out the pin. I prefer this solution as it requires less space than using a transistor method.
+For the SLO-BLO and Front-Left LED which share on 1 pin from the microcontroller. The spec sheet for the ATMega2560 states a max 40mA draw on a pin. With 2 LEDs it is at that threshold. I have been testing this setup extensively and have not blown out the pin. I prefer this solution as it requires less space than using a transistor method.
 
-| SLO-BLO → D1         |    |       |    | Nano Pin     | Hasbro Ref | Notes |
+| SLO-BLO → D1         |    |       |    | Mega Pin     | Hasbro Ref | Notes |
 |----------------------|----|-------|----|--------------|----|-------------------------------------|
-| <font color="red">Red</font> | → | 140 Ω | → | Pin D5 | D1 | Nano pin shared with FRONT LEFT LED |
+| <font color="red">Red</font> | → | 140 Ω | → | Pin D5 | D1 | Pin shared with FRONT LEFT LED |
 | Black                        | → | →     | → | Ground | D1 |                                     |
 
-| FRONT LEFT LED → D9 |    |       |    | Nano Pin     | Hasbro Ref | Notes |
+| FRONT LEFT LED → D9 |    |       |    | Mega Pin     | Hasbro Ref | Notes |
 |---------------------|----|-------|----|--------------|----|-------------------------------------|
-| <font color="red">Red</font>       | → | 140 Ω | → | Pin D5 | D9 | Nano pin shared with SLO-BLO |
+| <font color="red">Red</font>       | → | 140 Ω | → | Pin D5 | D9 | Pin shared with SLO-BLO |
 | <font color="yellow">Yellow</font> | → | →     | → | Ground | D9 |                              |
 
 **OPTIONAL** - See below for transistor method to drive the 2 LEDs from the same pin if you wish to use that method instead. See example breadboard setup photo below that you can replicate onto [a ¼ protoboard](https://www.adafruit.com/product/1608).
 
-| NPN* = PN2222 |   | Slo-Blo (B) | Front Left LED (Y)| Nano Pin |
+| NPN* = PN2222 |   | Slo-Blo (B) | Front Left LED (Y)| Mega Pin |
 |---------------|---|-------------|-------------------|----------|
 |               |   | 140 Ω       | 140 Ω             |          |
 |               |   | ↕           | ↕                 |          |
@@ -235,7 +243,8 @@ For the SLO-BLO and Front-Left LED which share on 1 pin from the Nano. The spec 
 **\*See note near the top of this page about the Neutrona Wand barrel LED wire colours differences between the silver tip and orange tip Neutrona Wands\***
 
 **Generation 1 (Silver Tip Wands)**
-| WAND-TUBE → Q2 |   |              |   | Nano Pin | Hasbro Ref | Notes                                  |
+
+| WAND-TUBE → Q2 |   |              |   | Mega Pin | Hasbro Ref | Notes                                  |
 |----------------|---|--------------|---|----------|------------|----------------------------------------|
 | <font color="yellow">Yellow</font>     | → | +5V    |    |         | Q2 | Power to 5 wand LEDs                |
 |                                    |   | ↕      | CAP 100uf |  |    | Capacitor across the +/- power wires |
@@ -243,7 +252,8 @@ For the SLO-BLO and Front-Left LED which share on 1 pin from the Nano. The spec 
 | <font color="red">Red</font> | → | 470Ω   | →  | Pin D10 | Q2 | Data input for addressing LEDs      |
 
 **Generation 2 (Orange Tip Wands)**
-| WAND-TUBE → Q2 |   |              |   | Nano Pin | Hasbro Ref | Notes                                  |
+
+| WAND-TUBE → Q2 |   |              |   | Mega Pin | Hasbro Ref | Notes                                  |
 |----------------|---|--------------|---|----------|------------|----------------------------------------|
 | <font color="blue">Blue</font>     | → | +5V    |    |         | Q2 | Power to 5 wand LEDs                |
 |                                    |   | ↕      | CAP 100uf |  |    | Capacitor across the +/- power wires |
@@ -261,16 +271,17 @@ For another fitment option, the WAV Trigger can also fit in the opposite half of
 ### (See the Audio Output addendum for more information on the opposite half gun box mounting solution)
 [Audio Output Addendum](SOUND.md)
 
-Below is a view of the wand internals showing the Arduino Nano, a PCB for connections, and many of the wires which extend the stock wiring. This solution is using several of the included STL files: a small spacer is meant to fit under the barrel if you removed some of the plastic from the old controller mount; another 3D printed part is meant to protect the wiring from intruding on the barrel latching mechanism while still allowing the wires to connect to the barrel. And lastly, a mini USB cable has been routed through the casing to allow updating of the Arduino without removing the cover--in this case the vibration motor had already been removed to save space and make this area more accessible.
+Below is a view of the wand internals showing the microcontroller, a PCB for connections, and many of the wires which extend the stock wiring. This solution is using several of the included STL files: a small spacer is meant to fit under the barrel if you removed some of the plastic from the old controller mount; another 3D printed part is meant to protect the wiring from intruding on the barrel latching mechanism while still allowing the wires to connect to the barrel. And lastly, a mini USB cable has been routed through the casing to allow updating of the Arduino without removing the cover--in this case the vibration motor had already been removed to save space and make this area more accessible.
 
 ![](images/WandUSB.jpg)
 
 ## Alternate component fitment
-This solution requires removing plastic within the wand, and printing some of the included STL mount files and stacking the PCB board then Arduino Nano on top of the WAV Trigger. Everything is then screwed into one of the remaining holes in the wand body.
+
+This solution requires removing plastic within the wand, and printing some of the included STL mount files and stacking the PCB board then microcontroller on top of the WAV Trigger. Everything is then screwed into one of the remaining holes in the wand body.
 ![](images/WandMountAlt1.jpg)
 ![](images/WandMountAlt2.jpg)
 ![](images/WandMountAlt3.jpg)
 
-## Arduino Nano Pinout Reference
+## Mega2560 Pro Mini Pinout Reference
 
-![](images/Arduino-nano-pinout.png)
+![](images/Mega-2560-Pro-Pinout.jpg)

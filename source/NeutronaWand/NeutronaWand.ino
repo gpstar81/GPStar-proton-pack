@@ -157,7 +157,7 @@ void setup() {
   WAND_STATUS = MODE_OFF;
   WAND_ACTION_STATUS = ACTION_IDLE;
 
-  ms_reset_sound_beep.start(i_sound_timer);
+  ms_reset_sound_beep.start(0);
 
   // We bootup the wand in the classic proton mode.
   STREAM_MODE = PROTON;
@@ -259,6 +259,7 @@ void mainLoop() {
   switchLoops();
   checkSwitches();
   checkRotaryEncoder();
+  checkMenuVibration();
 
   if(WAND_ACTION_STATUS != ACTION_FIRING) {
     if(ms_bmash.remaining() < 1) {
@@ -1478,7 +1479,7 @@ void wandLightControlCheck() {
     if(switch_vent.on() == true) {
       if(b_vent_light_control == true) {
         // Vent light on, brightness dependent on mode.
-        if(WAND_ACTION_STATUS == ACTION_FIRING) {
+        if((WAND_ACTION_STATUS == ACTION_FIRING && STREAM_MODE != SLIME) || (ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished())) {
           analogWrite(led_vent, 0); // 0 = Full Power
         }
         else {
@@ -1731,6 +1732,7 @@ void wandOff() {
   ms_overheating.stop();
   ms_settings_blinking.stop();
   ms_semi_automatic_check.stop();
+  ms_semi_automatic_firing.stop();
   ms_hat_1.stop();
   ms_hat_2.stop();
 
@@ -2644,18 +2646,36 @@ void soundBeepLoopStop() {
   if(b_beeping == true) {
     b_beeping = false;
 
-    if(b_extra_pack_sounds == true) {
-      wandSerialSend(W_WAND_BEEP_STOP);
-    }
-
-    stopEffect(S_AFTERLIFE_BEEP_WAND_S1);
-    stopEffect(S_AFTERLIFE_BEEP_WAND_S2);
-    stopEffect(S_AFTERLIFE_BEEP_WAND_S3);
-    stopEffect(S_AFTERLIFE_BEEP_WAND_S4);
-    stopEffect(S_AFTERLIFE_BEEP_WAND_S5);
-
     ms_reset_sound_beep.stop();
-    ms_reset_sound_beep.start(i_sound_timer);
+
+    if(switch_wand.on()) {
+      // Set all beep looping to false so they stop naturally.
+      audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S1, false);
+      audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S2, false);
+      audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S3, false);
+      audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S4, false);
+      audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S5, false);
+
+      if(b_extra_pack_sounds) {
+        wandSerialSend(W_WAND_BEEP_STOP_LOOP);
+      }
+
+      ms_reset_sound_beep.start(i_sound_timer);
+    }
+    else {
+      // Stop all beeps explicitly to prevent rapid switching from taking up all available channels.
+      stopEffect(S_AFTERLIFE_BEEP_WAND_S1);
+      stopEffect(S_AFTERLIFE_BEEP_WAND_S2);
+      stopEffect(S_AFTERLIFE_BEEP_WAND_S3);
+      stopEffect(S_AFTERLIFE_BEEP_WAND_S4);
+      stopEffect(S_AFTERLIFE_BEEP_WAND_S5);
+
+      if(b_extra_pack_sounds) {
+        wandSerialSend(W_WAND_BEEP_STOP);
+      }
+
+      ms_reset_sound_beep.start(0);
+    }
   }
 }
 
@@ -2781,6 +2801,7 @@ void modePulseStart() {
       wandSerialSend(W_BOSON_DART_SOUND);
       playEffect(S_BOSON_DART_FIRE, false, i_volume_effects, false, 0, false);
       ms_firing_pulse.start(0);
+      ms_semi_automatic_firing.start(350);
     break;
 
     case SLIME:
@@ -2795,6 +2816,7 @@ void modePulseStart() {
       wandSerialSend(W_SHOCK_BLAST_SOUND);
       playEffect(S_SHOCK_BLAST_FIRE, false, i_volume_effects, false, 0, false);
       ms_firing_pulse.start(0);
+      ms_semi_automatic_firing.start(300);
     break;
 
     case MESON:
@@ -2802,6 +2824,7 @@ void modePulseStart() {
       wandSerialSend(W_MESON_COLLIDER_SOUND);
       playEffect(S_MESON_COLLIDER_FIRE, false, i_volume_effects, false, 0, false);
       ms_firing_pulse.start(0);
+      ms_semi_automatic_firing.start(200);
     break;
 
     default:
@@ -2893,9 +2916,9 @@ void modeFireStartSounds() {
             }
             else if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE) {
               playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 800, false);
-            }            
+            }
             else {
-              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 1500, false);
+              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 700, false);
             }
           }
           else {
@@ -2980,6 +3003,9 @@ void modeFireStart() {
 
   // Tell the pack the wand is firing.
   wandSerialSend(W_FIRING);
+
+  // Just in case a semi-auto was fired before we started firing a stream, stop its timer.
+  ms_semi_automatic_firing.stop();
 
   switch(BARGRAPH_FIRING_ANIMATION) {
     case BARGRAPH_ANIMATION_ORIGINAL:
@@ -3381,10 +3407,9 @@ void modeFiring() {
   if(b_firing_intensify == true && b_sound_firing_intensify_trigger != true) {
     b_sound_firing_intensify_trigger = true;
 
-      if(FIRING_MODE == CTS_MIX_MODE && STREAM_MODE == PROTON) {
-        // Tell the Proton Pack that the Neutrona Wand is firing in Intensify mode mix.
-        wandSerialSend(W_FIRING_INTENSIFY_MIX);
-      
+    if(FIRING_MODE == CTS_MIX_MODE && STREAM_MODE == PROTON) {
+      // Tell the Proton Pack that the Neutrona Wand is firing in Intensify mode mix.
+      wandSerialSend(W_FIRING_INTENSIFY_MIX);
 
       if(getSystemYearMode() == SYSTEM_1984) {
         playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
@@ -3416,8 +3441,8 @@ void modeFiring() {
 
     if(FIRING_MODE == CTS_MIX_MODE && STREAM_MODE == PROTON) {
       // Tell the Proton Pack that the Neutrona Wand is firing in Alt mode mix.
-        wandSerialSend(W_FIRING_ALT_MIX);
-      
+      wandSerialSend(W_FIRING_ALT_MIX);
+
       if(i_power_level != i_power_level_max) {
         if(getSystemYearMode() == SYSTEM_1989) {
           stopEffect(S_GB2_FIRE_LOOP);
@@ -9330,8 +9355,11 @@ void vibrationWand(uint8_t i_level) {
   if(b_vibration_enabled == true && b_vibration_switch_on == true && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true && i_level > 0) {
     // Vibrate the wand during firing only when enabled. (When enabled by the pack)
     if(b_vibration_firing == true) {
-      if(WAND_ACTION_STATUS == ACTION_FIRING) {
-        if(i_level != i_vibration_level_prev) {
+      if(WAND_ACTION_STATUS == ACTION_FIRING || (ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished())) {
+        if(ms_semi_automatic_firing.isRunning()) {
+          analogWrite(vibration, 180);
+        }
+        else if(i_level != i_vibration_level_prev) {
           i_vibration_level_prev = i_level;
           analogWrite(vibration, i_level);
         }
@@ -9381,19 +9409,17 @@ void vibrationSetting() {
 }
 
 void checkMenuVibration() {
-  if(b_menu_vibration_active == false && ms_menu_vibration.isRunning()) {
-    analogWrite(vibration, 150);
-    b_menu_vibration_active = true;
-  }
-  else if(ms_menu_vibration.justFinished() && b_menu_vibration_active == true) {
+  if(ms_menu_vibration.justFinished()) {
     vibrationOff();
+  }
+  else if(ms_menu_vibration.isRunning()) {
+    analogWrite(vibration, 150);
   }
 }
 
 void vibrationOff() {
   ms_menu_vibration.stop();
   i_vibration_level_prev = 0;
-  b_menu_vibration_active = false;
   analogWrite(vibration, 0);
 }
 

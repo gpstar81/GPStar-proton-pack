@@ -35,7 +35,7 @@ These items are considered optional but useful. If you are using the ready-to-us
 
 | Qty | Desc | Use | Link |
 |-----|------|-----|------|
-| 1   | Arduino Mega 2560 Rev 3 | REQUIRED - You can find clones without headers, but this is what I used. | [From Mouser](https://www.mouser.com/ProductDetail/SparkFun/DEV-11061?qs=WyAARYrbSnb6i8Rlb84YYw%3D%3D)<br/>[From DigiKey](https://www.digikey.com/en/products/detail/arduino/A000067/2639006) |
+| 1   | Arduino Mega 2560 Rev 3 | REQUIRED - You can find clones without headers, but this is what has been used successfully. | [From Mouser](https://www.mouser.com/ProductDetail/SparkFun/DEV-11061?qs=WyAARYrbSnb6i8Rlb84YYw%3D%3D)<br/>[From DigiKey](https://www.digikey.com/en/products/detail/arduino/A000067/2639006) |
 | 1   | Mega Protoshield | OPTIONAL - If you get a Mega without headers, this is not required. The protoshield goes on top of the Mega and you can solder onto it directly. | [https://www.adafruit.com/product/192](https://www.adafruit.com/product/192) |
 | 2   | Pump DC Motor | OPTIONAL - I am using 2 of these for generating smoke from a vape pen. Tubing can be found on the same link.                                                                                                                                                                                                  | [https://www.adafruit.com/product/4699](https://www.adafruit.com/product/4699) |
 | 2   | Vape Pens | OPTIONAL - I am using 2 of these for generating smoke with the DC motors mentioned above.                                                                                                                                                                                                  | [https://www.joyetech.com/product/eroll-mac/](https://www.joyetech.com/product/eroll-mac/) |
@@ -52,11 +52,11 @@ These items are considered optional but useful. If you are using the ready-to-us
 
 | Qty | Desc | Use | Link |
 |-----|------|-----|------|
-| 1   | Arduino Nano | REQUIRED - I used a 3 pack of clone ones from Elegoo, cheaper and have no headers. | [https://amzn.eu/d/25FUZeS ](https://amzn.eu/d/25FUZeS)<br/>[https://a.co/d/hLWMKby](https://a.co/d/hLWMKby) |
+| 1   | Mega2560 Pro Mini | REQUIRED - Miniaturized Arduino Mega 2560 which will fit within the wand housing. Available from multiple makers, must be a 5V . | [https://a.co/d/0ct8tX5S](https://a.co/d/0ct8tX5S)<br/>[https://a.co/d/09aLjFg2](https://a.co/d/09aLjFg2)<br/>[https://a.co/d/0bfvLOwK](https://a.co/d/0bfvLOwK)<br/><br/>**Note:** This component was previously an Arduino Nano but that microcontroller does not have the memory or processing power needed for the most recent software. |
 | 1   | ¼ Size Proto PCB board | RECOMMENDED - I use one from Adafruit. Can be any other PCB as you see fit. | [https://www.adafruit.com/product/1608](https://www.adafruit.com/product/1608)<br/>[Gold Plated PCB Solderable Breadboards](https://a.co/d/8E5rik4) |
 | 1   | Barmeter 28 Segment Bargraph | OPTIONAL - It is possible to replace the Hasbro 5 LED bargraph with a Barmeter 28 Segment Bargraph. <br><br>Please note the part number: ***BL28Z-3005SA04Y*** | [https://www.aliexpress.us/item/3256803648954593.html](https://www.aliexpress.us/item/3256803648954593.html) |
 | 1   | Adafruit 16x8 LED Matrix Driver Backpack - HT16K33 Breakout | OPTIONAL - If you intend to replace the stock Hasbro bargraph with a Barmeter 28 Segment Bargraph, you will require this. | [https://www.adafruit.com/product/1427](https://www.adafruit.com/product/1427) |
-| 2   | 2.9 x 9.5mm screw | OPTIONAL - Used to hold the adafruit ¼ pcb onto the 3D printed bracket, and the key lock for the nano bracket. |
+| 2   | 2.9 x 9.5mm screw | OPTIONAL - Used to hold the adafruit ¼ pcb onto the 3D printed bracket. |
 | 1   | M3 x 25 allen screw | OPTIONAL - Used to hold the entire bracket setup and WAV Trigger onto the screw hole in the wand. |
 | 5   | 3mm LED Diodes | OPTIONAL - If you have problems with your Hasbro bargraph LEDs, they are just standard 3mm LED diodes. | [https://www.amazon.com/Chanzon-100pcs-colors-Emitting-Assorted/dp/B01AUI4W5U](https://www.amazon.com/Chanzon-100pcs-colors-Emitting-Assorted/dp/B01AUI4W5U)
 | 1   | 5mm Flat-Top LED | OPTIONAL - For the wand barrel tip, which has a 160 degree viewing angle and is super bright. | [https://a.co/d/9g8nXPj](https://a.co/d/9g8nXPj) |
