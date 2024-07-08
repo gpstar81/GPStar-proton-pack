@@ -8,14 +8,6 @@ body:
     attributes:
       value: |
         Thank you for helping to improve this software with a formal issue report.
-  - type: input
-    id: contact
-    attributes:
-      label: Contact Details (Optional)
-      description: How can we get in touch with you if we need more info?
-      placeholder: ex. email@example.com
-    validations:
-      required: false
   - type: textarea
     id: what-attempted
     attributes:
