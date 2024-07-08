@@ -1,0 +1,77 @@
+name: Bug Report
+description: File a bug report.
+title: "[Bug]: <short description>"
+labels: ["bug", "triage"]
+projects: ["gpstar81/GPStar-proton-pack"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping to improve this software with a formal issue report.
+  - type: input
+    id: contact
+    attributes:
+      label: Contact Details (Optional)
+      description: How can we get in touch with you if we need more info?
+      placeholder: ex. email@example.com
+    validations:
+      required: false
+  - type: textarea
+    id: what-attempted
+    attributes:
+      label: What actions were attempted?
+      description: Please tell us in detail what you did with a complete set of steps as necessary.
+      placeholder: Tell us what you attempted to do, eg. "I switched on the battery for the Proton Pack"
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What actually happened?
+      description: Please tell us the direct result of your action(s) attempted.
+      placeholder: Tell us what you observed as a result, eg. "There was a sound played and the lights briefly flashed"
+    validations:
+      required: true
+  - type: textarea
+    id: what-expected
+    attributes:
+      label: What was expected?
+      description: Please tell us what you expected, or what may have differed from your expectations.
+      placeholder: Tell us what you expected to happen, eg. "I did not expect lights and sounds upon power-up"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Firmware Version
+      description: What version of the software are you currently running?
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Mode in Use
+      description: Does this issue apply to a specific mode of operation?
+      options:
+        - Super Hero / Video Game
+        - Mode Original (Prop)
+        - Any / Both Modes
+      default: 0
+    validations:
+      required: true
+  - type: textarea
+    id: hardware
+    attributes:
+      label: Notable Hardware
+      description: Please provide any notes about the hardware related to this issue, such as upgraded components in use.
+      placeholder: Describe any upgraded components relevant to the issue, or simply note "Stock" for relevant Haslab components
+    validations:
+      required: true
+  - type: checkboxes
+    id: troubleshooting
+    attributes:
+      label: Homework Completed
+      description: By submitting this issue, you did not find a solution via the [Troubleshooting Guide](https://github.com/gpstar81/GPStar-proton-pack/blob/main/TROUBLESHOOTING.md) or an existing bug report.
+      options:
+        - label: I did my part!
+          required: true
