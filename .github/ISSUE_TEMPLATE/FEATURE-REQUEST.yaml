@@ -1,0 +1,40 @@
+name: Feature Request
+description: Request a new feature.
+title: "[Feature]: <short description>"
+labels: ["feature", "triage"]
+projects: ["gpstar81/GPStar-proton-pack"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please use the following form to submit a request for a new feature.
+  - type: input
+    id: contact
+    attributes:
+      label: Contact Details (Optional)
+      description: How can we get in touch with you if we need more info?
+      placeholder: ex. email@example.com
+    validations:
+      required: false
+  - type: textarea
+    id: feature-software
+    attributes:
+      label: What would you like to add in terms of software changes?
+      description: Please describe in detail the behavior you would like to see implemented.
+    validations:
+      required: true
+  - type: textarea
+    id: feature-hardware
+    attributes:
+      label: Would this request involve any specific hardware?
+      description: Please link to any existing hardware or describe what new hardware may be necessary.
+    validations:
+      required: true
+  - type: checkboxes
+    id: existing
+    attributes:
+      label: Homework Completed
+      description: By submitting this suggestion, you did not find a similar feature request elsewhere in the project.
+      options:
+        - label: I did my part!
+          required: true
