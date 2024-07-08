@@ -1,0 +1,32 @@
+name: Support Request
+description: Request general support.
+title: "[Support]: <short description>"
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Support requests are intended to offer aid by clarifying documentation or suggesting updated processes. Please use the Bug Report for defects in behavior or a Feature Request for wishlist items.
+  - type: textarea
+    id: request
+    attributes:
+      label: What do you need assistance with?
+      description: Please tell us in detail what you need assistance with?
+      placeholder: Tell us what needs clarification, eg. "I am confused by the power requirements for my smoke kits"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Firmware Version
+      description: What version of the software are you currently running?
+    validations:
+      required: true
+  - type: checkboxes
+    id: troubleshooting
+    attributes:
+      label: Homework Completed
+      description: By submitting this request, you did not find a solution by [searching the GPStar group on Facebook](https://www.facebook.com/groups/989797162024226/search/?q=help) or looking for an existing Github issue.
+      options:
+        - label: I did my part!
+          required: true

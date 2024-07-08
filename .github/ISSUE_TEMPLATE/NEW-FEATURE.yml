@@ -1,8 +1,7 @@
 name: Feature Request
 description: Request a new feature.
 title: "[Feature]: <short description>"
-labels: ["feature", "triage"]
-projects: ["gpstar81/GPStar-proton-pack"]
+labels: ["enhancement"]
 body:
   - type: markdown
     attributes:
