@@ -75,7 +75,7 @@ bool b_powercell_colour_toggle = true;
  *
  * CYCLOTRON_DELAY_2021_12_LED is for the stock Haslab 12 LED setup.
  * CYCLOTRON_DELAY_2021_20_LED is for the Frutto Technology 20 LED setup.
- * CYCLOTRON_DELAY_2021_20_LED is for the Frutto Technology Max 36 LED setup.
+ * CYCLOTRON_DELAY_2021_36_LED is for the Frutto Technology Max 36 LED setup.
  * CYCLOTRON_DELAY_2021_40_LED is for a 40 LED NeoPixel ring.
  */
 const uint16_t i_1984_delay = 1050;

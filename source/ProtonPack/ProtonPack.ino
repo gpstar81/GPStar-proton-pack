@@ -2226,13 +2226,11 @@ void cyclotronControl() {
       }
     }
 
-    if(!usingSlimeCyclotron()) {
-      if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
-        cyclotron1984(i_outer_current_ramp_speed);
-      }
-      else {
-        cyclotron2021(i_outer_current_ramp_speed);
-      }
+    if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
+      cyclotron1984(i_outer_current_ramp_speed);
+    }
+    else {
+      cyclotron2021(i_outer_current_ramp_speed);
     }
 
     innerCyclotronRingUpdate(i_inner_current_ramp_speed);
