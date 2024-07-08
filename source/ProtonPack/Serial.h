@@ -1439,6 +1439,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
         packSerialSend(P_CYCLOTRON_SIMULATE_RING_ENABLED);
       }
+
+      resetCyclotronLEDs();
     break;
 
     case W_VOICE_NEUTRONA_WAND_SOUNDS_ENABLED:
@@ -1763,7 +1765,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         // Reset the Cyclotron and stop the normal animation timer.
         resetCyclotronState();
         clearCyclotronFades();
-        ms_cyclotron.stop();
 
         // Reset the Cyclotron LED colours.
         cyclotronColourReset();
@@ -2166,10 +2167,14 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Wand power level 1
       i_wand_power_level = 1;
 
-      // Reset the smoke timer if the wand is firing.
+      // Reset the smoke timer and cyclotron speed timer if the wand is firing.
       if(b_wand_firing == true) {
-        if(ms_smoke_timer.isRunning() == true) {
+        if(ms_smoke_timer.isRunning()) {
           ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer[i_wand_power_level - 1]));
+        }
+
+        if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+          ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
         }
       }
 
@@ -2180,10 +2185,14 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Wand power level 2
       i_wand_power_level = 2;
 
-      // Reset the smoke timer if the wand is firing.
+      // Reset the smoke timer and cyclotron speed timer if the wand is firing.
       if(b_wand_firing == true) {
-        if(ms_smoke_timer.isRunning() == true) {
+        if(ms_smoke_timer.isRunning()) {
           ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer[i_wand_power_level - 1]));
+        }
+
+        if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+          ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
         }
       }
 
@@ -2194,10 +2203,14 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Wand power level 3
       i_wand_power_level = 3;
 
-      // Reset the smoke timer if the wand is firing.
+      // Reset the smoke timer and cyclotron speed timer if the wand is firing.
       if(b_wand_firing == true) {
-        if(ms_smoke_timer.isRunning() == true) {
+        if(ms_smoke_timer.isRunning()) {
           ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer[i_wand_power_level - 1]));
+        }
+
+        if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+          ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
         }
       }
 
@@ -2208,10 +2221,14 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Wand power level 4
       i_wand_power_level = 4;
 
-      // Reset the smoke timer if the wand is firing.
+      // Reset the smoke timer and cyclotron speed timer if the wand is firing.
       if(b_wand_firing == true) {
-        if(ms_smoke_timer.isRunning() == true) {
+        if(ms_smoke_timer.isRunning()) {
           ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer[i_wand_power_level - 1]));
+        }
+
+        if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+          ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
         }
       }
 
@@ -2222,10 +2239,15 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Wand power level 5
       i_wand_power_level = 5;
 
-      // Reset the smoke timer if the wand is firing.
+      // Reset the smoke timer and cyclotron speed timer if the wand is firing.
+      // Note that since the wand cannot enter or exit Power Level 5 while firing, this should never be necessary.
       if(b_wand_firing == true) {
-        if(ms_smoke_timer.isRunning() == true) {
+        if(ms_smoke_timer.isRunning()) {
           ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer[i_wand_power_level - 1]));
+        }
+
+        if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+          ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
         }
       }
 
