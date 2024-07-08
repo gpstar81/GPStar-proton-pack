@@ -8,14 +8,6 @@ body:
     attributes:
       value: |
         Please use the following form to submit a request for a new feature.
-  - type: input
-    id: contact
-    attributes:
-      label: Contact Details (Optional)
-      description: How can we get in touch with you if we need more info?
-      placeholder: ex. email@example.com
-    validations:
-      required: false
   - type: textarea
     id: feature-software
     attributes:
