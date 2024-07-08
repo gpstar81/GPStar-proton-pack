@@ -2,7 +2,6 @@ name: Support Request
 description: Request general support.
 title: "[Support]: <short description>"
 labels: ["question"]
-projects: ["gpstar81/GPStar-proton-pack"]
 body:
   - type: markdown
     attributes:

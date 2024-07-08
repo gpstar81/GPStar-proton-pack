@@ -1,1 +1,8 @@
 blank_issues_enabled: false
+contact_links:
+  - name: GPStar Support and Downloads
+    url: https://gpstartechnologies.com/pages/support-downloads
+    about: Obtain the latest software releases.
+  - name: GPStar Facebook Group
+    url: https://www.facebook.com/groups/gpstartechnologies/
+    about: Please join our community of users.
