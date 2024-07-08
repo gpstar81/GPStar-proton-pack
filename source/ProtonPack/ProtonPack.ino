@@ -2236,7 +2236,18 @@ void cyclotronControl() {
     innerCyclotronRingUpdate(i_inner_current_ramp_speed);
   }
 
-  if(b_cyclotron_lid_on && !usingSlimeCyclotron()) {
+  // If we are in slime mode, call the slime effect functions instead.
+  if(usingSlimeCyclotron()) {
+    if(PACK_STATE == MODE_ON && !ms_cyclotron_slime_effect.isRunning()) {
+      // Make sure we've started the slime effect timer if it hasn't been started already.
+      ms_cyclotron_slime_effect.start(0);
+    }
+
+    slimeCyclotronEffect();
+    return;
+  }
+
+  if(b_cyclotron_lid_on) {
     cyclotronFade();
   }
 }
@@ -2711,14 +2722,7 @@ void cyclotron2021(uint16_t iRampDelay) {
       ms_cyclotron_led_fade_in[i_led_cyclotron - i_cyclotron_led_start].go(i_brightness, iRampDelay, CIRCULAR_IN);
     }
 
-    // If we are in slime mode, call the slime effect functions instead.
     if(usingSlimeCyclotron()) {
-      if(PACK_STATE == MODE_ON && !ms_cyclotron_slime_effect.isRunning()) {
-        // Make sure we've started the slime effect timer if it hasn't been started already.
-        ms_cyclotron_slime_effect.start(0);
-      }
-
-      slimeCyclotronEffect();
       return;
     }
 
@@ -2845,14 +2849,7 @@ void cyclotron1984(uint16_t iRampDelay) {
       vibrationPack(i_vibration_level);
     }
 
-    // If we are in slime mode, call the slime effect functions instead.
     if(usingSlimeCyclotron()) {
-      if(PACK_STATE == MODE_ON && !ms_cyclotron_slime_effect.isRunning()) {
-        // Make sure we've started the slime effect timer if it hasn't been started already.
-        ms_cyclotron_slime_effect.start(0);
-      }
-
-      slimeCyclotronEffect();
       return;
     }
 

@@ -1765,7 +1765,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         // Reset the Cyclotron and stop the normal animation timer.
         resetCyclotronState();
         clearCyclotronFades();
-        ms_cyclotron.stop();
 
         // Reset the Cyclotron LED colours.
         cyclotronColourReset();
