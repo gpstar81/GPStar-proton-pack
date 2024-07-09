@@ -110,7 +110,7 @@ void checkWandAction() {
         }
 
         // Overheating check, start vent sequence if expected for power level and timer delay is completed.
-        if(ms_overheat_initiate.justFinished() && b_overheat_level[i_power_level - 1] == true && b_overheat_enabled == true) {
+        if(ms_overheat_initiate.justFinished()) {
           startVentSequence();
         }
         else {
