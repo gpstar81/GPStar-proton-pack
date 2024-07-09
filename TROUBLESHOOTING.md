@@ -8,13 +8,13 @@ If you are experiencing issues during the installation process there are a few w
 
 Before continuing, be certain whether the following items have been reviewed:
 
-- The operation switch on GPStar Audio is set to BOOT. For WavTrigger's, it should be set to RUN.
+- The operation switch on GPStar Audio is set to BOOT. For the WAV Trigger, it should be set to RUN.
 - Check that the microSD card is fully seated (pushed) into its socket.
 - Check the JST connector on the PCB controller is fully seated into its socket.
-- Verify the connections are intact and solid for GND, 5Vin, Rx, and Tx on the device.
+- Verify the connections are intact and solid for GND, 5Vin, Rx, and Tx in all parts of the hose connectors.
 - Sound files should start with a file having a prefix of `001_` and increment by 1.
 - Music files should start with a file having a prefix of `500_` and increment by 1.
-- Switch to SanDisk brand media as these SD cards have proven reliable in every use-case.
+- Switch to SanDisk brand media as these SD cards have proven reliable in every use case.
 
 ## IMPORTANT ##
 When adding extra music to your system, many audio software tend to add Meta Data information into the file. This will prevent the file from playing. As simple as importing the file into Audacity and re-exporting will solve the issue, or you can use any other software to remove the Meta Data information.
@@ -44,7 +44,7 @@ The wand is expects to communicate with the pack and will only power on when tha
 * Re-check the Power/GND connections in the hose to make sure they are not reversed. Also check if the ends of the wires are making contact on the Neutrik connectors when clamping down. You can tin the ends of the wires to make it a bit thicker or simply fold them over to double them up. Just make sure the Neutrik connectors are not clamping down on the rubber part of the wire.
 * If you are using the 28 Segment bargraph from Frutto Technology, make sure the connection cables are plugged into the proper connectors. If the power cable for the bargraph is plugged into the SCL/SDA connector on the wand board and the communication cable is plugged into the 5V power connector on the wand board, then the wand will not start up.
 
-### Wand has a blinking vent light but does not start up ##
+### Wand has a blinking vent light but does not start up ###
 
 When the wand is trying to establish communication to the GPStar Proton Pack controller, the LED beside the vent light blinks. When a successful connection is made, the light will stop blinking.
 
@@ -56,16 +56,25 @@ When the wand is trying to establish communication to the GPStar Proton Pack con
 * Re-check the Tx/Rx connections to the pack. If these are reversed it will prevent proper communication. Attempt to switch the wires at the pack-side connector which use screw terminals, and retry the Activate switch.
 * Re-check the power connection to the wand. If you have a digital multimeter available, set the device to the DC power measurement and check that the 5V-OUT connection is supplying the expected voltage. Be careful to not short out the pins and mind the polarity.
 
-### Wand has audio briefly before it cuts out###
+### Wand has audio briefly before it cuts out ###
 * Re-check the connection to the speaker terminal blocks on the Audio board. Make sure the wires seat well, if needed, add a dab of solder onto the ends.
 
 If there is still no sound from your Neutrona Wand, please refer to the Audio Troubleshooting section at the bottom of this page.
 
-### The music I added is not playing back ##
+### The music I added is not playing back ###
 
 * Make sure to following the naming conventions that are indicated in the [Loading The Audio Files](AUDIO.md) guide.
 * Remove any metadata that may be embedded in your wav files. This can cause problems with loading the music.
 * The Proton Pack at a minimum must contain all the music, however it is advised for the Neutrona Wand to have the same files as well if you want music to also play back from the Neutrona Wand audio system.
+
+### I'm firing but no overheating is happening! ###
+
+If your pack and wand are on default settings (you may test this by entering the EEPROM Configuration Menu then pressing Intensify to clear all settings, then turn off the Talentcell battery so the changes take effect), only Power Level 5 will overheat, and will do so after 30 seconds. If you have made changes to EEPROM settings, here are common reasons why overheating may not occur as expected.
+
+* If you are in Cross The Streams or Cross The Streams Mix instead of Video Game Modes, overheating will only occur when using the alternate fire button (Barrel Wing Button). No overheating will occur if you hold Intensify by itself.
+* Check to make sure you have the global Overheating setting enabled. If this is disabled, no overheating will ever occur.
+* Check to make sure that the overheating toggle for the specific power level you are in is also enabled (enabling overheating generally will not automatically enable it for all power levels).
+* Check to see what you have the Overheat Start Delay for the specific power level you are in set to. For example, merely enabling overheating for Power Level 1 will mean it will take 60 full seconds before overheating triggers by default.
 
 ### Bench Test Mode ###
 
@@ -96,7 +105,7 @@ Depending on which audio board you are using in your system, following the troub
 
 ---
 
-### Wav Trigger Troubleshooting ###
+### WAV Trigger Troubleshooting ###
 
 ![](images/WavTrigger_Debug.jpg)
 
@@ -107,7 +116,7 @@ Depending on which audio board you are using in your system, following the troub
 
 **Post Startup Blinking Patterns**
 
-- 1x - The WavTrigger will blink once every ~4 seconds when the PCB and device are powered on. This indicates a regular serial connection checking the status of the WavTrigger and is to be expected.
+- 1x - The WAV Trigger will blink once every ~4 seconds when the PCB and device are powered on. This indicates a regular serial connection checking the status of the WAV Trigger and is to be expected.
 
 **Troubleshooting**
 
