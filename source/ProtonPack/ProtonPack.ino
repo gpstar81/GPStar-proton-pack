@@ -358,15 +358,16 @@ void loop() {
 
         if(ribbonCableAttached() == true && b_overheating == false) {
           if(b_alarm == true) {
-            if(!usingSlimeCyclotron()) {
-              if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
-                // Reset the LEDs before resetting the alarm flag.
+            if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
+              // Reset the LEDs before resetting the alarm flag.
+              if(!usingSlimeCyclotron()) {
                 resetCyclotronState();
-                ms_cyclotron.start(0);
               }
-              else {
-                ms_cyclotron.start(i_outer_current_ramp_speed);
-              }
+
+              ms_cyclotron.start(0);
+            }
+            else {
+              ms_cyclotron.start(i_outer_current_ramp_speed);
             }
 
             ms_cyclotron_ring.start(i_inner_current_ramp_speed);
@@ -746,7 +747,7 @@ void packStartup(bool firstStart) {
   PACK_ACTION_STATE = ACTION_IDLE;
 
   if(ribbonCableAttached() != true) {
-    if((SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) && !usingSlimeCyclotron()) {
+    if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
       ms_cyclotron.start(0);
       ms_alarm.start(0);
     }
@@ -1026,10 +1027,7 @@ void packOffReset() {
   ms_cyclotron_switch_led.start(i_cyclotron_switch_led_delay);
 
   // Need to reset the Cyclotron timers.
-  if(!usingSlimeCyclotron()) {
-    ms_cyclotron.start(i_2021_delay);
-  }
-
+  ms_cyclotron.start(i_2021_delay);
   ms_cyclotron_ring.start(i_inner_ramp_delay);
 
   // Vibration motor off.
@@ -2131,8 +2129,11 @@ void cyclotronControl() {
       b_inner_ramp_up = false;
       b_alarm = true;
 
-      if((SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) && !usingSlimeCyclotron()) {
-        resetCyclotronState();
+      if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
+        if(!usingSlimeCyclotron()) {
+          resetCyclotronState();
+        }
+
         ms_cyclotron.start(0);
         ms_alarm.start(0);
       }
@@ -2157,10 +2158,12 @@ void cyclotronControl() {
       b_2021_ramp_up = false;
       b_inner_ramp_up = false;
 
-      if((SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) && !usingSlimeCyclotron()) {
-        resetCyclotronState();
-        clearCyclotronFades();
+      if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
+        if(!usingSlimeCyclotron()) {
+          resetCyclotronState();
+        }
 
+        clearCyclotronFades();
         ms_cyclotron.start(0);
         ms_alarm.start(0);
       }
@@ -3488,12 +3491,15 @@ void cyclotronOverheating() {
 
       if(ms_alarm.justFinished()) {
         ms_alarm.start(i_1984_delay / 2);
-        if(b_fade_cyclotron_led != true && STREAM_MODE != SLIME) {
-          resetCyclotronState();
-        }
-        else {
-          for(uint8_t i = 0; i < 4; i++) {
-            cyclotron84LightOff(cyclotron84LookupTable(i) + i_cyclotron_led_start);
+
+        if(!usingSlimeCyclotron()) {
+          if(b_fade_cyclotron_led != true) {
+            resetCyclotronState();
+          }
+          else {
+            for(uint8_t i = 0; i < 4; i++) {
+              cyclotron84LightOff(cyclotron84LookupTable(i) + i_cyclotron_led_start);
+            }
           }
         }
       }
@@ -3501,12 +3507,17 @@ void cyclotronOverheating() {
         if(ms_alarm.remaining() < i_1984_delay / 4) {
           if(b_overheat_lights_off != true) {
             vibrationPack(i_vibration_lowest_level);
-            cyclotron1984Alarm();
+
+            if(!usingSlimeCyclotron()) {
+              cyclotron1984Alarm();
+            }
           }
           else if(b_overheat_lights_off == true && i_powercell_led > 0) {
             vibrationPack(i_vibration_lowest_level);
 
-            cyclotron1984Alarm();
+            if(!usingSlimeCyclotron()) {
+              cyclotron1984Alarm();
+            }
           }
           else {
             vibrationOff();
@@ -3626,9 +3637,7 @@ void packOverheatingFinished() {
   ms_vent_light_off.stop();
   ms_vent_light_on.stop();
 
-  if(!usingSlimeCyclotron()) {
-    ms_cyclotron.start(i_2021_delay);
-  }
+  ms_cyclotron.start(i_2021_delay);
 }
 
 void packVentingFinished() {
@@ -3671,9 +3680,7 @@ void cyclotronNoCable() {
     case SYSTEM_AFTERLIFE:
     case SYSTEM_FROZEN_EMPIRE:
     default:
-      if(!usingSlimeCyclotron()) {
-        cyclotron2021(i_2021_delay * 10);
-      }
+      cyclotron2021(i_2021_delay * 10);
 
       innerCyclotronRingUpdate(i_2021_inner_delay * 16);
 
@@ -3694,9 +3701,7 @@ void cyclotronNoCable() {
 
     case SYSTEM_1984:
     case SYSTEM_1989:
-      if(!usingSlimeCyclotron()) {
-        cyclotron1984(i_1984_delay * 3);
-      }
+      cyclotron1984(i_1984_delay * 3);
 
       innerCyclotronRingUpdate(i_2021_inner_delay * 16);
 
