@@ -1700,7 +1700,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       if(usingSlimeCyclotron()) {
         resetCyclotronState();
         clearCyclotronFades();
-        ms_cyclotron.start(0);
 
         if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
           adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
@@ -1762,7 +1761,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       playEffect(S_CLICK);
 
       if(b_cyclotron_colour_toggle == true) {
-        // Reset the Cyclotron and stop the normal animation timer.
+        // Reset the Cyclotron states.
         resetCyclotronState();
         clearCyclotronFades();
 
@@ -1792,7 +1791,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       if(usingSlimeCyclotron()) {
         resetCyclotronState();
         clearCyclotronFades();
-        ms_cyclotron.start(0);
 
         if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
           adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
@@ -1835,7 +1833,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       if(usingSlimeCyclotron()) {
         resetCyclotronState();
         clearCyclotronFades();
-        ms_cyclotron.start(0);
 
         if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
           adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
@@ -1888,7 +1885,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       if(usingSlimeCyclotron()) {
         resetCyclotronState();
         clearCyclotronFades();
-        ms_cyclotron.start(0);
 
         if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
           adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
@@ -1935,7 +1931,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       if(usingSlimeCyclotron()) {
         resetCyclotronState();
         clearCyclotronFades();
-        ms_cyclotron.start(0);
 
         if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
           adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
@@ -1982,7 +1977,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       if(usingSlimeCyclotron()) {
         resetCyclotronState();
         clearCyclotronFades();
-        ms_cyclotron.start(0);
 
         if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
           adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
