@@ -146,9 +146,7 @@ struct __attribute__((packed)) SyncData {
   uint8_t vibrationEnabled;
   uint8_t masterVolume;
   uint8_t effectsVolume;
-  uint8_t musicVolume;
   uint8_t masterMuted;
-  uint16_t currentMusicTrack;
   uint8_t repeatMusicTrack;
 } packSync;
 
@@ -1198,10 +1196,6 @@ void doWandSync() {
     break;
   }
 
-  // Sync the current music track.
-  // If music is already playing on a pack while a wand is reconnected, the wand will start playing music when the current track ends.
-  packSync.currentMusicTrack = i_current_music_track;
-
   // Denote the current looping preference for the current track.
   b_repeat_track ? (packSync.repeatMusicTrack = 2) : (packSync.repeatMusicTrack = 1); // 1 = No repeat, 2 = Repeat.
 
@@ -1270,7 +1264,6 @@ void doWandSync() {
   // Synchronise the volume settings.
   packSync.masterVolume = i_volume_master_percentage;
   packSync.effectsVolume = i_volume_effects_percentage;
-  packSync.musicVolume = i_volume_music_percentage;
 
   if(i_volume_master == i_volume_abs_min) {
     // Telling the wand to be silent if required.

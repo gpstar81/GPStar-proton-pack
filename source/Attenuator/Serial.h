@@ -154,9 +154,7 @@ struct __attribute__((packed)) SyncData {
   uint8_t vibrationEnabled;
   uint8_t masterVolume;
   uint8_t effectsVolume;
-  uint8_t musicVolume;
   uint8_t masterMuted;
-  uint16_t currentMusicTrack;
   uint8_t repeatMusicTrack;
 } packSync;
 

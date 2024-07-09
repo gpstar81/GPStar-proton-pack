@@ -112,9 +112,7 @@ struct __attribute__((packed)) SyncData {
   uint8_t vibrationEnabled;
   uint8_t masterVolume;
   uint8_t effectsVolume;
-  uint8_t musicVolume;
   uint8_t masterMuted;
-  uint16_t currentMusicTrack;
   uint8_t repeatMusicTrack;
 } packSync;
 
@@ -738,7 +736,6 @@ void checkPack() {
           // Set the percentage volume.
           i_volume_master_percentage = packSync.masterVolume;
           i_volume_effects_percentage = packSync.effectsVolume;
-          i_volume_music_percentage = packSync.musicVolume;
 
           // Set the decibel volume.
           i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
@@ -763,11 +760,6 @@ void checkPack() {
               i_volume_master = i_volume_abs_min;
               resetMasterVolume();
             break;
-          }
-
-          // Reset current music track.
-          if(i_music_count > 0 && packSync.currentMusicTrack >= i_music_track_start) {
-            i_current_music_track = packSync.currentMusicTrack;
           }
 
           switch(packSync.repeatMusicTrack) {
