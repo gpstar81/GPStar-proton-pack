@@ -787,6 +787,7 @@ void checkPack() {
 
 bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
   // This function returns true only when the synchronization process is completed.
+  (void)(i_value); // Suppress unused variable warning.
 
   switch(i_command) {
     case P_HANDSHAKE:
@@ -1214,16 +1215,6 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       decreaseVolumeEffects();
     break;
 
-    case P_VOLUME_MUSIC_INCREASE:
-      // Increase music volume.
-      increaseVolumeMusic();
-    break;
-
-    case P_VOLUME_MUSIC_DECREASE:
-      // Decrease music volume.
-      decreaseVolumeMusic();
-    break;
-
     case P_VOLUME_INCREASE:
       // Increase overall volume.
       increaseVolume();
@@ -1232,16 +1223,6 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
     case P_VOLUME_DECREASE:
       // Decrease overall volume.
       decreaseVolume();
-    break;
-
-    case P_MUSIC_REPEAT:
-      // Repeat music track.
-      b_repeat_track = true;
-    break;
-
-    case P_MUSIC_NO_REPEAT:
-      // Do not repeat the music track.
-      b_repeat_track = false;
     break;
 
     case P_VIBRATION_ENABLED:
@@ -1348,41 +1329,49 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
     case P_MODE_FROZEN_EMPIRE:
       // Play only the Frozen Empire voice
+      stopEffect(S_BEEPS_BARGRAPH);
       stopEffect(S_VOICE_FROZEN_EMPIRE);
       stopEffect(S_VOICE_AFTERLIFE);
       stopEffect(S_VOICE_1989);
       stopEffect(S_VOICE_1984);
 
+      playEffect(S_BEEPS_BARGRAPH);
       playEffect(S_VOICE_FROZEN_EMPIRE);
     break;
 
     case P_MODE_AFTERLIFE:
       // Play only the Afterlife voice
+      stopEffect(S_BEEPS_BARGRAPH);
       stopEffect(S_VOICE_FROZEN_EMPIRE);
       stopEffect(S_VOICE_AFTERLIFE);
       stopEffect(S_VOICE_1989);
       stopEffect(S_VOICE_1984);
 
+      playEffect(S_BEEPS_BARGRAPH);
       playEffect(S_VOICE_AFTERLIFE);
     break;
 
     case P_MODE_1989:
       // Play only the 1989 voice
+      stopEffect(S_BEEPS_BARGRAPH);
       stopEffect(S_VOICE_FROZEN_EMPIRE);
       stopEffect(S_VOICE_AFTERLIFE);
       stopEffect(S_VOICE_1989);
       stopEffect(S_VOICE_1984);
 
+      playEffect(S_BEEPS_BARGRAPH);
       playEffect(S_VOICE_1989);
     break;
 
     case P_MODE_1984:
       // Play only the 1984 voice
+      stopEffect(S_BEEPS_BARGRAPH);
       stopEffect(S_VOICE_FROZEN_EMPIRE);
       stopEffect(S_VOICE_AFTERLIFE);
       stopEffect(S_VOICE_1989);
       stopEffect(S_VOICE_1984);
 
+      playEffect(S_BEEPS_BARGRAPH);
       playEffect(S_VOICE_1984);
     break;
 
@@ -1825,45 +1814,6 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_INNER_CYCLOTRON_12);
 
       playEffect(S_VOICE_INNER_CYCLOTRON_12);
-    break;
-
-    case P_MUSIC_STOP:
-      // Stop music for current track.
-      stopMusic();
-    break;
-
-    case P_MUSIC_START:
-      if(b_playing_music == true) {
-        // Stop playing current track.
-        stopMusic();
-      }
-
-      if(i_music_count > 0 && i_value >= i_music_track_start) {
-        // Update the music track number to be played.
-        i_current_music_track = i_value;
-      }
-
-      // The pack is playing music, so we need to make sure the wand knows this, even if the wand does not have any music or a audio device.
-      if(b_gpstar_benchtest != true) {
-        b_playing_music = true;
-      }
-
-      playMusic();
-    break;
-
-    case P_MUSIC_PAUSE:
-      pauseMusic();
-    break;
-
-    case P_MUSIC_RESUME:
-      resumeMusic();
-    break;
-
-    case P_MUSIC_PLAY_TRACK:
-      if(i_music_count > 0 && i_value >= i_music_track_start) {
-        // Update the music track number to be played.
-        i_current_music_track = i_value;
-      }
     break;
 
     case P_SAVE_EEPROM_WAND:

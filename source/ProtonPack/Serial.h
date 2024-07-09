@@ -947,17 +947,11 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
     case A_VOLUME_MUSIC_DECREASE:
       // Decrease pack music volume.
       decreaseVolumeMusic();
-
-      // Tell wand to decrease music volume.
-      packSerialSend(P_VOLUME_MUSIC_DECREASE);
     break;
 
     case A_VOLUME_MUSIC_INCREASE:
       // Increase pack music volume.
       increaseVolumeMusic();
-
-      // Tell wand to increase music volume.
-      packSerialSend(P_VOLUME_MUSIC_INCREASE);
     break;
 
     case A_MUSIC_START_STOP:
@@ -1025,9 +1019,6 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
         }
         else {
           i_current_music_track = i_value;
-
-          // Just tell the wand which track was requested for play.
-          packSerialSend(P_MUSIC_PLAY_TRACK, i_current_music_track);
         }
       }
     break;
@@ -3069,15 +3060,14 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       increaseVolume();
     break;
 
-    case W_MUSIC_STOP:
-      // Stop music.
-      b_playing_music = false;
-      stopMusic();
-    break;
-
-    case W_MUSIC_START:
-      // Play the appropriate track on pack and wand, and notify the serial1 device.
-      playMusic();
+    case W_MUSIC_TOGGLE:
+      // Start or stop music depending on whether we are already playing music or not.
+      if(b_playing_music) {
+        stopMusic();
+      }
+      else {
+        playMusic();
+      }
     break;
 
     case W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_5:

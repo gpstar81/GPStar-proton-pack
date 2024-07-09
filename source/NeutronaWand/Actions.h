@@ -1325,10 +1325,6 @@ void checkWandAction() {
                 musicNextTrack();
               }
               else {
-                if(b_playing_music == true) {
-                  stopMusic();
-                }
-
                 // Tell the pack to play the next track.
                 wandSerialSend(W_MUSIC_NEXT_TRACK);
               }
@@ -1339,10 +1335,6 @@ void checkWandAction() {
                 musicPrevTrack();
               }
               else {
-                if(b_playing_music == true) {
-                  stopMusic();
-                }
-
                 // Tell the pack to play the previous track.
                 wandSerialSend(W_MUSIC_PREV_TRACK);
               }
@@ -1411,20 +1403,12 @@ void checkWandAction() {
           // Play or stop the current music track.
           if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
             if(switch_intensify.pushed()) {
-              if(b_playing_music == true) {
-                // Tell the pack to stop music.
-                wandSerialSend(W_MUSIC_STOP);
-
-                if(b_gpstar_benchtest == true) {
-                  stopMusic();
-                }
+              if(b_playing_music) {
+                stopMusic();
               }
               else {
-                // Tell the pack to stop music. In case we are hot swapping Neturona Wands and the Pack is already playing music.
-                wandSerialSend(W_MUSIC_STOP);
-
-                // Tell the pack to play music.
-                wandSerialSend(W_MUSIC_START);
+                // Tell the pack to start or stop its music.
+                wandSerialSend(W_MUSIC_TOGGLE);
 
                 if(b_gpstar_benchtest == true) {
                   playMusic();
@@ -1457,11 +1441,11 @@ void checkWandAction() {
               // Tell the Proton Pack to cycle through year modes.
               wandSerialSend(W_YEAR_MODES_CYCLE);
 
-              stopEffect(S_BEEPS_BARGRAPH);
-              playEffect(S_BEEPS_BARGRAPH);
-
               // There is no pack connected; let's change the years.
               if(b_gpstar_benchtest == true) {
+                stopEffect(S_BEEPS_BARGRAPH);
+                playEffect(S_BEEPS_BARGRAPH);
+
                 switch(getNeutronaWandYearMode()) {
                   case SYSTEM_1984:
                     // 1984 -> 1989
