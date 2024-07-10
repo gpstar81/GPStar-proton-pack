@@ -822,7 +822,7 @@ void packStartup(bool firstStart) {
         }
 
         // Cyclotron lid is off, play the Frozen Empire sound effect.
-        if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && STREAM_MODE == PROTON && !b_cyclotron_lid_on) {
+        if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && !b_cyclotron_lid_on && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM)) {
           playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects, true, 2000);
           b_brass_pack_sound_loop = true;
         }
@@ -1645,7 +1645,7 @@ void cyclotronSwitchLEDLoop() {
       }
 
       // Frozen Empire brass pack sound is handled here.
-      if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && STREAM_MODE == PROTON && !b_alarm && !b_overheating && !b_2021_ramp_down) {
+      if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM) && !b_alarm && !b_overheating && !b_2021_ramp_down) {
         if(!b_brass_pack_sound_loop) {
           playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects, true, 2000);
           b_brass_pack_sound_loop = true;
@@ -2199,16 +2199,27 @@ void cyclotronControl() {
         case SYSTEM_FROZEN_EMPIRE:
         default:
           if(ms_idle_fire_fade.remaining() > 0) {
+            // Full Afterlife startup sequence ramps.
             r_2021_ramp.go(i_outer_current_ramp_speed); // Reset the ramp.
             r_2021_ramp.go(i_2021_delay, i_2021_ramp_length, QUARTIC_OUT);
             r_inner_ramp.go(i_inner_current_ramp_speed); // Inner Cyclotron ramp reset.
             r_inner_ramp.go(i_2021_inner_delay, i_2021_ramp_length, QUARTIC_OUT);
           }
           else {
-            r_2021_ramp.go(i_outer_current_ramp_speed); // Reset the ramp.
-            r_2021_ramp.go(i_2021_delay, (uint16_t)(i_2021_ramp_length / 1.5), QUADRATIC_OUT);
-            r_inner_ramp.go(i_inner_current_ramp_speed); // Inner Cyclotron ramp reset.
-            r_inner_ramp.go(i_2021_inner_delay, i_2021_ramp_length, QUADRATIC_OUT);
+            if(b_brass_pack_sound_loop) {
+              // Faster startup for brass pack.
+              r_2021_ramp.go(i_outer_current_ramp_speed); // Reset the ramp.
+              r_2021_ramp.go(i_2021_delay, (uint16_t)(i_2021_ramp_length / 4), QUADRATIC_OUT);
+              r_inner_ramp.go(i_inner_current_ramp_speed); // Inner Cyclotron ramp reset.
+              r_inner_ramp.go(i_2021_inner_delay, (uint16_t)(i_2021_ramp_length / 4, QUADRATIC_OUT);
+            }
+            else {
+              // Abbreviated Afterlife/Frozen Empire startup.
+              r_2021_ramp.go(i_outer_current_ramp_speed); // Reset the ramp.
+              r_2021_ramp.go(i_2021_delay, (uint16_t)(i_2021_ramp_length / 1.5), QUADRATIC_OUT);
+              r_inner_ramp.go(i_inner_current_ramp_speed); // Inner Cyclotron ramp reset.
+              r_inner_ramp.go(i_2021_inner_delay, i_2021_ramp_length, QUADRATIC_OUT);
+            }
           }
         break;
       }
@@ -4008,7 +4019,7 @@ void innerCyclotronRingUpdate(uint16_t iRampDelay) {
     uint8_t i_brightness = getBrightness(i_cyclotron_inner_brightness);
     uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_INNER, STREAM_MODE, b_cyclotron_colour_toggle);
 
-    if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && STREAM_MODE == PROTON) {
+    if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM)) {
       // As a "sparking" effect is predominant in GB:FE during the Proton stream,
       // the inner LED colour/brightness is altered for this mode.
       i_brightness = getBrightness(i_cyclotron_inner_brightness / 2);
