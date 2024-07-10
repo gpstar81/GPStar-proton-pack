@@ -2211,7 +2211,7 @@ void cyclotronControl() {
               r_2021_ramp.go(i_outer_current_ramp_speed); // Reset the ramp.
               r_2021_ramp.go(i_2021_delay, (uint16_t)(i_2021_ramp_length / 4), QUADRATIC_OUT);
               r_inner_ramp.go(i_inner_current_ramp_speed); // Inner Cyclotron ramp reset.
-              r_inner_ramp.go(i_2021_inner_delay, (uint16_t)(i_2021_ramp_length / 4, QUADRATIC_OUT);
+              r_inner_ramp.go(i_2021_inner_delay, (uint16_t)(i_2021_ramp_length / 4), QUADRATIC_OUT);
             }
             else {
               // Abbreviated Afterlife/Frozen Empire startup.
