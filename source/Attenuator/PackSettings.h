@@ -357,33 +357,33 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             getEl("defaultSystemVolume").value = settings.defaultSystemVolume || 100; // Default to full volume.
             getEl("packVibration").value = settings.packVibration || 4;
             getEl("masterVolOut").innerHTML = getEl("defaultSystemVolume").value;
-            getEl("protonStreamEffects").checked = settings.protonStreamEffects ? true: false;
-            getEl("ribbonCableAlarm").checked = settings.ribbonCableAlarm ? true: false;
-            getEl("overheatStrobeNF").checked = settings.overheatStrobeNF ? true: false;
-            getEl("overheatLightsOff").checked = settings.overheatLightsOff ? true: false;
-            getEl("overheatSyncToFan").checked = settings.overheatSyncToFan ? true: false;
-            getEl("demoLightMode").checked = settings.demoLightMode ? true: false;
+            getEl("protonStreamEffects").checked = settings.protonStreamEffects ? true : false;
+            getEl("ribbonCableAlarm").checked = settings.ribbonCableAlarm ? true : false;
+            getEl("overheatStrobeNF").checked = settings.overheatStrobeNF ? true : false;
+            getEl("overheatLightsOff").checked = settings.overheatLightsOff ? true : false;
+            getEl("overheatSyncToFan").checked = settings.overheatSyncToFan ? true : false;
+            getEl("demoLightMode").checked = settings.demoLightMode ? true : false;
 
             getEl("ledCycLidCount").value = settings.ledCycLidCount || 12; // Haslab: 12
             getEl("ledCycLidHue").value = convertRange(settings.ledCycLidHue || 254, [1,254], [0,360]); // Default: Red
             getEl("ledCycLidSat").value = convertRange(settings.ledCycLidSat || 254, [1,254], [0,100]); // Full Saturation
             getEl("cyclotronDirection").value = settings.cyclotronDirection || 0;
             getEl("ledCycLidCenter").value = settings.ledCycLidCenter || 0;
-            getEl("ledVGCyclotron").checked = settings.ledVGCyclotron ? true: false;
-            getEl("ledCycLidSimRing").checked = settings.ledCycLidSimRing ? true: false;
+            getEl("ledVGCyclotron").checked = settings.ledVGCyclotron ? true : false;
+            getEl("ledCycLidSimRing").checked = settings.ledCycLidSimRing ? true : false;
 
             getEl("ledCycCakeCount").value = settings.ledCycCakeCount || 35; // Default: 35
             getEl("ledCycCakeHue").value = convertRange(settings.ledCycCakeHue || 254, [1,254], [0,360]); // Default: Red
             getEl("ledCycCakeSat").value = convertRange(settings.ledCycCakeSat || 254, [1,254], [0,100]); // Full Saturation
-            getEl("ledCycInnerPanel").checked = settings.ledCycInnerPanel ? true: false;
-            getEl("ledCycCakeGRB").checked = settings.ledCycCakeGRB ? true: false;
+            getEl("ledCycInnerPanel").checked = settings.ledCycInnerPanel ? true : false;
+            getEl("ledCycCakeGRB").checked = settings.ledCycCakeGRB ? true : false;
             getEl("ledCycCavCount").value = settings.ledCycCavCount || 0; // Default: 0
             getEl("ledCycCavCountOut").innerHTML = getEl("ledCycCavCount").value;
 
             getEl("ledPowercellCount").value = settings.ledPowercellCount || 13; // Haslab: 13
             getEl("ledPowercellHue").value = convertRange(settings.ledPowercellHue || 160, [1,254], [0,360]); // Default: Blue
             getEl("ledPowercellSat").value = convertRange(settings.ledPowercellSat || 254, [1,254], [0,100]); // Full Saturation
-            getEl("ledVGPowercell").checked = settings.ledVGPowercell ? true: false;
+            getEl("ledVGPowercell").checked = settings.ledVGPowercell ? true : false;
 
             // Update colour preview and value display for hue/saturation sliders.
             updateColour("cycColourPreview", "cycHueOut", "cycSatOut", getEl("ledCycLidHue").value, getEl("ledCycLidSat").value);
