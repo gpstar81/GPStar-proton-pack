@@ -1359,7 +1359,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       // Turn the pack on.
       if(PACK_STATE != MODE_ON) {
-        PACK_ACTION_STATE = ACTION_ACTIVATE;
+        packStartup(false);
         serial1Send(A_PACK_ON);
       }
 

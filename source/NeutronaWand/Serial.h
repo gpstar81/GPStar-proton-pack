@@ -1133,7 +1133,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case P_ALARM_OFF:
-      if(WAND_STATUS != MODE_ERROR) {
+      if(WAND_STATUS != MODE_ERROR && b_pack_alarm) {
         digitalWriteFast(led_hat_2, LOW); // Turn off hat light 2.
 
         ms_hat_2.stop();
@@ -1157,7 +1157,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       // Alarm is off.
       b_pack_alarm = false;
 
-      if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+      if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_on) {
         soundIdleLoop(true);
 
         if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {

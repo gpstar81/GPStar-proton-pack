@@ -452,7 +452,7 @@ const bool b_eeprom = true;
 
 /*
  * Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels such as the ones used in the HasLab Cyclotron Lid.
- * When using 12 LEDs for the Cyclotron Lid, the system will default it to always red.
+ * When using 12 LEDs for the Cyclotron Lid, the system will default it to always white (which the HasLab LEDs display as red at full brightness).
  * Setting this to true will override it and allow CHSV colours to be applied to Cyclotron Lids with 12 LEDs.
  * Note that a NeoPixel Jewel will use the CHSV colour space which can make the default HasLab Cyclotron LEDs flicker when the jewel N-Filter vent-light strobes.
  */

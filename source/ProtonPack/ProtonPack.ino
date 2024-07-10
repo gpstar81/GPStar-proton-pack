@@ -342,11 +342,11 @@ void loop() {
           // Tell the wand the pack is on.
           packSerialSend(P_ON);
           serial1Send(A_PACK_ON);
-        }
 
-        b_pack_on = true;
-        b_fade_out = false;
-        ms_fadeout.stop();
+          ms_fadeout.stop();
+          b_fade_out = false;
+          b_pack_on = true;
+        }
 
         if(b_2021_ramp_down == true) {
           b_2021_ramp_down = false;
