@@ -2046,8 +2046,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       // Reset the LED count for the panel and update the LED counts.
-      resetInnerCyclotronLEDs();
-      updateProtonPackLEDCounts();
+      resetInnerCyclotronLEDs(); // Must call this first, prior to updating counts
+      updateProtonPackLEDCounts(); // Must call this after resetting # of LEDs
     break;
 
     case W_OVERHEATING:
