@@ -127,7 +127,11 @@ Set options related specifically to the Attenuator, such as when the vibration m
 
 Set options related specifically to the Proton Pack. Options such as the color/saturation sliders will only take effect if you have installed the Frutto Technology powercell and cyclotron lid light kits. Similarly, the Video Game mode option will have no effect on the stock Haslab LEDs.
 
-**Note:** The ability to update settings or save to EEPROM will be disabled so long as the pack and wand are running. Turn off all physical toggles to set these devices to an idle state before adjusting settings. Refresh the page to get the latest values for preferences.
+**Reminder:** The ability to update settings or save to EEPROM will be disabled so long as the pack and wand are running. Turn off all physical toggles to set these devices to an idle state before adjusting settings. Refresh the page to get the latest values for preferences.
+
+📝 **Note:** When changing options such as the count of LEDs in use for a device, or some options such as the Operation Mode, a full power-cycle of the equipment is required after saving to EEPROM.
+
+⚠️ **NOTICE:** The EEPROM memory has a specified life of 100,000 write/erase cycles. You will generally not reach this limit in your lifetime, so limit use of the "Save to EEPROM" button to only after settings have been successfully saved.
 
 <div style="clear:both"></div>
 
@@ -137,7 +141,11 @@ Set options related specifically to the Proton Pack. Options such as the color/s
 
 Set options related specifically to the Neutrona Wand.
 
-**Note:** The ability to update settings or save to EEPROM will be disabled so long as the pack and wand are running. Turn off all physical toggles to set these devices to an idle state before adjusting settings. Refresh the page to get the latest values for preferences.
+**Reminder:** The ability to update settings or save to EEPROM will be disabled so long as the pack and wand are running. Turn off all physical toggles to set these devices to an idle state before adjusting settings. Refresh the page to get the latest values for preferences.
+
+📝 **Note:** When changing options such as the count of LEDs in use for a device, a full power-cycle of the equipment is required after saving to EEPROM.
+
+⚠️ **NOTICE:** The EEPROM memory has a specified life of 100,000 write/erase cycles. You will generally not reach this limit in your lifetime, so limit use of the "Save to EEPROM" button to only after settings have been successfully saved.
 
 <div style="clear:both"></div>
 
@@ -147,7 +155,9 @@ Set options related specifically to the Neutrona Wand.
 
 Adjust overall smoke effects (toggle on/off) and adjust per-level effects. Naturally, these options will have no effect on operation without a smoke kit installed.
 
-**Note:** The ability to update settings or save to EEPROM will be disabled so long as the pack and wand are running. Turn off all physical toggles to set these devices to an idle state before adjusting settings. Refresh the page to get the latest values for preferences.
+**Reminder:** The ability to update settings or save to EEPROM will be disabled so long as the pack and wand are running. Turn off all physical toggles to set these devices to an idle state before adjusting settings. Refresh the page to get the latest values for preferences.
+
+⚠️ **NOTICE:** The EEPROM memory has a specified life of 100,000 write/erase cycles. You will generally not reach this limit in your lifetime, so limit use of the "Save to EEPROM" button to only after settings have been successfully saved.
 
 <div style="clear:both"></div>
 

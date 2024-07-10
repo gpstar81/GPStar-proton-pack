@@ -18,8 +18,10 @@
  */
 
 /**
- * Please note, due to limitations of the ATMega328P, Arduino Nano builds are no longer supported for the Neutrona Wand.
- * The last supported version is 2.2.0
+ * Please note, due to limitations of the ATMega328P, Arduino Nano builds are no
+ * longer supported for the Neutrona Wand. Upgrading to the GPStar controller or
+ * a Mega 2560 Pro Mini is the only viable solution for continued support.
+ * The last supported version for the Arduino Nano is 2.2.0
  * https://github.com/gpstar81/haslab-proton-pack/releases/tag/V2.2.0
  */
 

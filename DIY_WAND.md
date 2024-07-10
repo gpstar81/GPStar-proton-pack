@@ -97,9 +97,9 @@ These are the same connections which are used for the FTDI breakout board to pro
 
 ## Mega2560 Pro Mini - Pin Reference vs. Hasbro Controller
 
-The following is a diagram of the Mega2560 Pro Mini pins from left and right, when oriented with the USB connection facing up (north).
+The following is a diagram of the Mega2560 Pro Mini pins from left and right, when oriented with the USB connection facing up (north). As this board has 2 rows of pins on each side it is crucial to re-check labels before connection. Please see the diagram at the bottom of the page if necessary.
 
-You can also reference the PDF document for the [Pack Schematic Minimal](circuits/PackSchematic-Minimal.pdf) for additional visual guidance on the Wand wiring configuration.
+You can also reference the older (but outdated) PDF document for the [Pack Schematic Minimal](circuits/PackSchematic-Minimal.pdf) for minimal visual guidance on the Wand wiring configuration. The pins in use for the Arduino Nano should be the same for the Mega2560 Pro Mini, with the following table being the "source of truth" when in doubt.
 
 | Mega (L1) | Mega (L2) | USB | Mega (R1) | Mega (R2) |
 |-----------|-----------|-----|-----------|-----------|

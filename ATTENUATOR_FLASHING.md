@@ -18,6 +18,8 @@ This device supports Over-The-Air (OTA) updates for firmware, meaning you will n
 
 ### ESP32: First-Time Upload
 
+STOP! If you are looking for instructions for over-the-air (OTA) updates without a USB cable, AND your device has already been flashed with an earlier firmware, then you may skip to the next section.
+
 If you are using your own ESP32 controller or do not see a WiFi network for your Proton Pack when the device is powered up, then the microcontroller has likely not been flashed with the GPStar firmware to enable that feature. You will need to upload the software using a USB cable via **either** of the 2 methods listed here.
 
 **Option 1: Via Web Uploader**

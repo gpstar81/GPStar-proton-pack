@@ -601,46 +601,66 @@ void checkSerial1() {
           }
 
           i_volume_master_percentage = packConfig.defaultSystemVolume;
-          b_stream_effects = packConfig.protonStreamEffects;
-          b_overheat_strobe = packConfig.overheatStrobeNF;
-          b_overheat_lights_off = packConfig.overheatLightsOff;
-          b_overheat_sync_to_fan = packConfig.overheatSyncToFan;
-          b_demo_light_mode = packConfig.demoLightMode;
-          b_use_ribbon_cable = packConfig.ribbonCableAlarm;
+          b_stream_effects = (packConfig.protonStreamEffects == 1);
+          b_overheat_strobe = (packConfig.overheatStrobeNF == 1);
+          b_overheat_lights_off = (packConfig.overheatLightsOff == 1);
+          b_overheat_sync_to_fan = (packConfig.overheatSyncToFan == 1);
+          b_demo_light_mode = (packConfig.demoLightMode == 1);
+          b_use_ribbon_cable = (packConfig.ribbonCableAlarm == 1);
 
           // Cyclotron Lid
-          i_cyclotron_leds = packConfig.ledCycLidCount;
+          switch(packConfig.ledCycLidCount) {
+            // For a 40 LED Neopixel ring.
+            case 40:
+              i_cyclotron_leds = OUTER_CYCLOTRON_LED_MAX;
+            break;
+
+            // For Frutto Technology Max Cyclotron (36) LEDs.
+            case 36:
+              i_cyclotron_leds = FRUTTO_MAX_CYCLOTRON_LED_COUNT;
+            break;
+
+            // For Frutto Technology Cyclotron (20) LEDs.
+            case 20:
+              i_cyclotron_leds = FRUTTO_CYCLOTRON_LED_COUNT;
+            break;
+
+            // Default HasLab (12) LEDs.
+            case 12:
+            default:
+              i_cyclotron_leds = HASLAB_CYCLOTRON_LED_COUNT;
+            break;
+          }
           i_spectral_cyclotron_custom_colour = packConfig.ledCycLidHue;
           i_spectral_cyclotron_custom_saturation = packConfig.ledCycLidSat;
-          b_clockwise = packConfig.cyclotronDirection;
-          b_cyclotron_single_led = packConfig.ledCycLidCenter;
-          b_cyclotron_colour_toggle = packConfig.ledVGCyclotron;
-          b_cyclotron_simulate_ring = packConfig.ledCycLidSimRing;
+          b_clockwise = (packConfig.cyclotronDirection == 1);
+          b_cyclotron_single_led = (packConfig.ledCycLidCenter == 1);
+          b_cyclotron_colour_toggle = (packConfig.ledVGCyclotron == 1);
+          b_cyclotron_simulate_ring = (packConfig.ledCycLidSimRing == 1);
 
           // Inner Cyclotron
-          b_inner_cyclotron_led_panel = packConfig.ledCycInnerPanel;
+          b_inner_cyclotron_led_panel = (packConfig.ledCycInnerPanel == 1);
           i_inner_cyclotron_cake_num_leds = packConfig.ledCycCakeCount;
           i_spectral_cyclotron_inner_custom_colour = packConfig.ledCycCakeHue;
           i_spectral_cyclotron_inner_custom_saturation = packConfig.ledCycCakeSat;
-          b_grb_cyclotron_cake = packConfig.ledCycCakeGRB;
+          b_grb_cyclotron_cake = (packConfig.ledCycCakeGRB == 1);
           i_inner_cyclotron_cavity_num_leds = packConfig.ledCycCavCount;
 
           // Power Cell
           i_powercell_leds = packConfig.ledPowercellCount;
           i_spectral_powercell_custom_colour = packConfig.ledPowercellHue;
           i_spectral_powercell_custom_saturation = packConfig.ledPowercellSat;
-          b_powercell_colour_toggle = packConfig.ledVGPowercell;
-
-          // Update system values and reset as needed.
-          updateProtonPackLEDCounts();
-          resetContinuousSmoke();
-          resetCyclotronLEDs();
-          resetInnerCyclotronLEDs();
-          resetRampSpeeds();
+          b_powercell_colour_toggle = (packConfig.ledVGPowercell == 1);
 
           // Offer some feedback to the user
           stopEffect(S_VENT_DRY);
           playEffect(S_VENT_DRY);
+
+          // Update system values and reset as needed.
+          resetInnerCyclotronLEDs(); // Must call this first, prior to updating counts
+          updateProtonPackLEDCounts(); // Must call this after resetting # of LEDs
+          resetCyclotronLEDs(); // Update delays based on LED count
+          resetRampSpeeds(); // Update delays based on LED count
         break;
 
         case PACKET_WAND:
@@ -666,13 +686,13 @@ void checkSerial1() {
           i_ms_overheating_length_2 = smokeConfig.overheatDuration2 * 1000;
           i_ms_overheating_length_1 = smokeConfig.overheatDuration1 * 1000;
 
-          b_smoke_continuous_level_5 = smokeConfig.overheatContinuous5;
-          b_smoke_continuous_level_4 = smokeConfig.overheatContinuous4;
-          b_smoke_continuous_level_3 = smokeConfig.overheatContinuous3;
-          b_smoke_continuous_level_2 = smokeConfig.overheatContinuous2;
-          b_smoke_continuous_level_1 = smokeConfig.overheatContinuous1;
+          b_smoke_continuous_level_5 = (smokeConfig.overheatContinuous5 == 1);
+          b_smoke_continuous_level_4 = (smokeConfig.overheatContinuous4 == 1);
+          b_smoke_continuous_level_3 = (smokeConfig.overheatContinuous3 == 1);
+          b_smoke_continuous_level_2 = (smokeConfig.overheatContinuous2 == 1);
+          b_smoke_continuous_level_1 = (smokeConfig.overheatContinuous1 == 1);
           b_smoke_enabled = smokeConfig.smokeEnabled;
-          resetContinuousSmoke();
+          resetContinuousSmoke(); // Set other variables as necessary
 
           // This will pass values from the smokeConfig object
           packSerialSendData(P_SAVE_PREFERENCES_SMOKE);
