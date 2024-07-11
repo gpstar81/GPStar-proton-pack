@@ -310,7 +310,7 @@ void loop() {
         else {
           if(b_spectral_lights_on != true) {
             if(ms_fadeout.justFinished()) {
-              if(fadeOutLights() == true) {
+              if(fadeOutCyclotron() == true) {
                 ms_fadeout.start(50);
               }
               else {
@@ -668,18 +668,10 @@ void systemPOST() {
   }
 }
 
-bool fadeOutLights() {
+bool fadeOutCyclotron() {
   bool b_return = false;
 
   if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && !usingSlimeCyclotron()) {
-    uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, STREAM_MODE, b_cyclotron_colour_toggle);
-
-    // We override the colour changes when using stock HasLab Cyclotron LEDs.
-    // Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels.
-    if(i_cyclotron_leds == HASLAB_CYCLOTRON_LED_COUNT && b_cyclotron_haslab_chsv_colour_change != true) {
-      i_colour_scheme = C_HASLAB;
-    }
-
     uint8_t i_cyclotron_leds_total = i_pack_num_leds - i_nfilter_jewel_leds - i_cyclotron_led_start;
 
     if(b_cyclotron_simulate_ring == true) {
@@ -700,18 +692,18 @@ bool fadeOutLights() {
         b_return = true;
 
         if(b_cyclotron_simulate_ring == true) {
-          pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
+          pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1].maximizeBrightness(i_curr_brightness);
         }
         else {
-          pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
+          pack_leds[i + i_cyclotron_led_start].maximizeBrightness(i_curr_brightness);
         }
       }
       else {
         if(b_cyclotron_simulate_ring == true) {
-          pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, C_BLACK);
+          pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
         }
         else {
-          pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, C_BLACK);
+          pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
         }
       }
     }
