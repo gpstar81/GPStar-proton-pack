@@ -2267,14 +2267,6 @@ void cyclotronControl() {
 }
 
 void cyclotronFade() {
-  uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, STREAM_MODE, b_cyclotron_colour_toggle);
-
-  // We override the colour changes when using stock HasLab Cyclotron LEDs.
-  // Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels.
-  if(i_cyclotron_leds == HASLAB_CYCLOTRON_LED_COUNT && b_cyclotron_haslab_chsv_colour_change != true) {
-    i_colour_scheme = C_HASLAB;
-  }
-
   uint8_t i_cyclotron_leds_total = i_pack_num_leds - i_nfilter_jewel_leds - i_cyclotron_led_start;
   bool b_ring_sim_active = b_cyclotron_simulate_ring && (SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE);
 
@@ -2294,10 +2286,10 @@ void cyclotronFade() {
           i_cyclotron_led_value[i] = i_curr_brightness;
 
           if(b_ring_sim_active) {
-            pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
+            pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1].maximizeBrightness(i_curr_brightness);
           }
           else {
-            pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
+            pack_leds[i + i_cyclotron_led_start].maximizeBrightness(i_curr_brightness);
           }
         }
 
@@ -2322,10 +2314,10 @@ void cyclotronFade() {
           }
 
           if(b_ring_sim_active) {
-            pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_new_brightness);
+            pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1].maximizeBrightness(i_new_brightness);
           }
           else {
-            pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_new_brightness);
+            pack_leds[i + i_cyclotron_led_start].maximizeBrightness(i_new_brightness);
           }
         }
 
@@ -2334,10 +2326,10 @@ void cyclotronFade() {
           i_cyclotron_led_value[i] = i_curr_brightness;
 
           if(b_ring_sim_active) {
-            pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
+            pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1].maximizeBrightness(i_curr_brightness);
           }
           else {
-            pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
+            pack_leds[i + i_cyclotron_led_start].maximizeBrightness(i_curr_brightness);
           }
         }
 
@@ -2359,6 +2351,21 @@ void cyclotronFade() {
     case SYSTEM_1989:
       if(b_fade_cyclotron_led == true) {
         for(uint8_t i = 0; i < i_cyclotron_leds_total; i++) {
+          if(ms_cyclotron_led_fade_in[i].isRunning()) {
+            b_cyclotron_led_on_status[i] = true;
+            uint8_t i_curr_brightness = ms_cyclotron_led_fade_in[i].update();
+
+            pack_leds[i + i_cyclotron_led_start].maximizeBrightness(i_curr_brightness);
+            i_cyclotron_led_value[i] = i_curr_brightness;
+          }
+
+          uint8_t i_new_brightness = getBrightness(i_cyclotron_brightness);
+
+          if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (i_new_brightness - 1) && b_cyclotron_led_on_status[i] == true) {
+            pack_leds[i + i_cyclotron_led_start].maximizeBrightness(i_new_brightness);
+            i_cyclotron_led_value[i] = i_new_brightness;
+          }
+
           if(ms_cyclotron_led_fade_out[i].isRunning()) {
             uint8_t i_curr_brightness = ms_cyclotron_led_fade_out[i].update();
 
@@ -2370,7 +2377,7 @@ void cyclotronFade() {
               b_cyclotron_led_on_status[i] = true;
             }
             else {
-              pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
+              pack_leds[i + i_cyclotron_led_start].maximizeBrightness(i_curr_brightness);
               i_cyclotron_led_value[i] = i_curr_brightness;
               b_cyclotron_led_on_status[i] = false;
             }

@@ -274,11 +274,23 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
 
   switch(i_device) {
     case CYCLOTRON_OUTER:
-      i_cycle = 10;
+      if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
+        i_cycle = 1;
+
+        if(i_count[i_device] > 1) {
+          i_count[i_device] = 0; // Reset counter.
+        }
+      }
+      else {
+        i_cycle = 10;
+      }
     break;
     case CYCLOTRON_INNER:
     case CYCLOTRON_PANEL:
       i_cycle = 6;
+    break;
+    default:
+      // Do nothing.
     break;
   }
 
@@ -409,6 +421,7 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
         }
         else {
           i_curr_colour[i_device] = 0;
+          i_count[i_device] = 0; // Reset counter.
         }
       }
 
@@ -430,6 +443,7 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
         }
         else {
           i_curr_colour[i_device] = 32;
+          i_count[i_device] = 0; // Reset counter.
         }
       }
       return CHSV(i_curr_colour[i_device], 255, i_brightness);
