@@ -2276,8 +2276,9 @@ void cyclotronFade() {
   }
 
   uint8_t i_cyclotron_leds_total = i_pack_num_leds - i_nfilter_jewel_leds - i_cyclotron_led_start;
+  bool b_ring_sim_active = b_cyclotron_simulate_ring && (SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE);
 
-  if(b_cyclotron_simulate_ring == true) {
+  if(b_ring_sim_active) {
     i_cyclotron_leds_total = OUTER_CYCLOTRON_LED_MAX;
   }
 
@@ -2292,7 +2293,7 @@ void cyclotronFade() {
           uint8_t i_curr_brightness = ms_cyclotron_led_fade_in[i].update();
           i_cyclotron_led_value[i] = i_curr_brightness;
 
-          if(b_cyclotron_simulate_ring == true) {
+          if(b_ring_sim_active) {
             pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
           }
           else {
@@ -2320,7 +2321,7 @@ void cyclotronFade() {
             break;
           }
 
-          if(b_cyclotron_simulate_ring == true) {
+          if(b_ring_sim_active) {
             pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_new_brightness);
           }
           else {
@@ -2332,7 +2333,7 @@ void cyclotronFade() {
           uint8_t i_curr_brightness = ms_cyclotron_led_fade_out[i].update();
           i_cyclotron_led_value[i] = i_curr_brightness;
 
-          if(b_cyclotron_simulate_ring == true) {
+          if(b_ring_sim_active) {
             pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
           }
           else {
@@ -2344,7 +2345,7 @@ void cyclotronFade() {
           i_cyclotron_led_value[i] = 0;
           b_cyclotron_led_on_status[i] = true;
 
-          if(b_cyclotron_simulate_ring == true) {
+          if(b_ring_sim_active) {
             pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
           }
           else {
@@ -2357,22 +2358,7 @@ void cyclotronFade() {
     case SYSTEM_1984:
     case SYSTEM_1989:
       if(b_fade_cyclotron_led == true) {
-        for(uint8_t i = 0; i < i_pack_num_leds - i_nfilter_jewel_leds - i_cyclotron_led_start; i++) {
-          if(ms_cyclotron_led_fade_in[i].isRunning()) {
-            b_cyclotron_led_on_status[i] = true;
-            uint8_t i_curr_brightness = ms_cyclotron_led_fade_in[i].update();
-
-            pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
-            i_cyclotron_led_value[i] = i_curr_brightness;
-          }
-
-          uint8_t i_new_brightness = getBrightness(i_cyclotron_brightness);
-
-          if(ms_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (i_new_brightness - 1) && b_cyclotron_led_on_status[i] == true) {
-            pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_new_brightness);
-            i_cyclotron_led_value[i] = i_new_brightness;
-          }
-
+        for(uint8_t i = 0; i < i_cyclotron_leds_total; i++) {
           if(ms_cyclotron_led_fade_out[i].isRunning()) {
             uint8_t i_curr_brightness = ms_cyclotron_led_fade_out[i].update();
 
@@ -2893,6 +2879,14 @@ void cyclotron1984Alarm() {
   uint8_t led2 = i_cyclotron_led_start + cyclotron84LookupTable(1);
   uint8_t led3 = i_cyclotron_led_start + cyclotron84LookupTable(2);
   uint8_t led4 = i_cyclotron_led_start + cyclotron84LookupTable(3);
+  uint8_t i_led_array_width = 1; // Variable to store the number of LEDs to either side of the center LED.
+
+  if(i_cyclotron_leds == FRUTTO_CYCLOTRON_LED_COUNT) {
+    i_led_array_width = 2;
+  }
+  else if(i_cyclotron_leds == FRUTTO_MAX_CYCLOTRON_LED_COUNT) {
+    i_led_array_width = 4;
+  }
 
   if(b_fade_cyclotron_led != true) {
     pack_leds[led1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
@@ -2902,46 +2896,48 @@ void cyclotron1984Alarm() {
 
     // Turn on all the other cyclotron LEDs if required.
     if(b_cyclotron_single_led != true) {
-      pack_leds[led1 + 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
+      for(uint8_t i = 1; i <= i_led_array_width; i++) {
+        pack_leds[led1 + i] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
 
-      if(led1 - 1 < i_cyclotron_led_start) {
-        led1 = i_pack_num_leds - i_nfilter_jewel_leds - 1;
-      }
-      else {
-        led1 = led1 - 1;
-      }
+        if(led1 - i < i_cyclotron_led_start) {
+          led1 = i_pack_num_leds - i_nfilter_jewel_leds - 1;
+        }
+        else {
+          led1 = led1 - i;
+        }
 
-      pack_leds[led1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
-      pack_leds[led2 + 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
+        pack_leds[led1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
+        pack_leds[led2 + i] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
 
-      if(led2 - 1 < i_cyclotron_led_start) {
-        led2 = i_pack_num_leds - i_nfilter_jewel_leds - 1;
-      }
-      else {
-        led2 = led2 - 1;
-      }
+        if(led2 - i < i_cyclotron_led_start) {
+          led2 = i_pack_num_leds - i_nfilter_jewel_leds - 1;
+        }
+        else {
+          led2 = led2 - i;
+        }
 
-      pack_leds[led2] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
-      pack_leds[led3 + 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
+        pack_leds[led2] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
+        pack_leds[led3 + i] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
 
-      if(led3 - 1 < i_cyclotron_led_start) {
-        led3 = i_pack_num_leds - i_nfilter_jewel_leds - 1;
-      }
-      else {
-        led3 = led3 - 1;
-      }
+        if(led3 - i < i_cyclotron_led_start) {
+          led3 = i_pack_num_leds - i_nfilter_jewel_leds - 1;
+        }
+        else {
+          led3 = led3 - i;
+        }
 
-      pack_leds[led3] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
-      pack_leds[led4 + 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
+        pack_leds[led3] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
+        pack_leds[led4 + i] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
 
-      if(led4 - 1 < i_cyclotron_led_start) {
-        led4 = i_pack_num_leds - i_nfilter_jewel_leds - 1;
-      }
-      else {
-        led4 = led4 - 1;
-      }
+        if(led4 - i < i_cyclotron_led_start) {
+          led4 = i_pack_num_leds - i_nfilter_jewel_leds - 1;
+        }
+        else {
+          led4 = led4 - i;
+        }
 
-      pack_leds[led4] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
+        pack_leds[led4] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
+      }
     }
   }
   else {
@@ -2949,92 +2945,94 @@ void cyclotron1984Alarm() {
 
     if(i_cyclotron_led_value[led1 - i_cyclotron_led_start] == i_brightness_tmp) {
       ms_cyclotron_led_fade_in[led1 - i_cyclotron_led_start].go(i_brightness_tmp);
-      ms_cyclotron_led_fade_in[led1 - i_cyclotron_led_start].go(i_brightness, i_1984_fade_in_delay, CIRCULAR_IN);
+      ms_cyclotron_led_fade_in[led1 - i_cyclotron_led_start].go(i_brightness, i_1984_delay, CIRCULAR_IN);
     }
 
     if(i_cyclotron_led_value[led2 - i_cyclotron_led_start] == i_brightness_tmp) {
       ms_cyclotron_led_fade_in[led2 - i_cyclotron_led_start].go(i_brightness_tmp);
-      ms_cyclotron_led_fade_in[led2 - i_cyclotron_led_start].go(i_brightness, i_1984_fade_in_delay, CIRCULAR_IN);
+      ms_cyclotron_led_fade_in[led2 - i_cyclotron_led_start].go(i_brightness, i_1984_delay, CIRCULAR_IN);
     }
 
     if(i_cyclotron_led_value[led3 - i_cyclotron_led_start] == i_brightness_tmp) {
       ms_cyclotron_led_fade_in[led3 - i_cyclotron_led_start].go(i_brightness_tmp);
-      ms_cyclotron_led_fade_in[led3 - i_cyclotron_led_start].go(i_brightness, i_1984_fade_in_delay, CIRCULAR_IN);
+      ms_cyclotron_led_fade_in[led3 - i_cyclotron_led_start].go(i_brightness, i_1984_delay, CIRCULAR_IN);
     }
 
     if(i_cyclotron_led_value[led4 - i_cyclotron_led_start] == i_brightness_tmp) {
       ms_cyclotron_led_fade_in[led4 - i_cyclotron_led_start].go(i_brightness_tmp);
-      ms_cyclotron_led_fade_in[led4 - i_cyclotron_led_start].go(i_brightness, i_1984_fade_in_delay, CIRCULAR_IN);
+      ms_cyclotron_led_fade_in[led4 - i_cyclotron_led_start].go(i_brightness, i_1984_delay, CIRCULAR_IN);
     }
 
     // Turn on all the other cyclotron LEDs if required.
     if(b_cyclotron_single_led != true) {
-      if(i_cyclotron_led_value[led1 + 1 - i_cyclotron_led_start] == i_brightness_tmp) {
-        ms_cyclotron_led_fade_in[led1 + 1 - i_cyclotron_led_start].go(i_brightness_tmp);
-        ms_cyclotron_led_fade_in[led1 + 1 - i_cyclotron_led_start].go(i_brightness, i_1984_fade_in_delay, CIRCULAR_IN);
-      }
+      for(uint8_t i = 1; i <= i_led_array_width; i++) {
+        if(i_cyclotron_led_value[led1 + i - i_cyclotron_led_start] == i_brightness_tmp) {
+          ms_cyclotron_led_fade_in[led1 + i - i_cyclotron_led_start].go(i_brightness_tmp);
+          ms_cyclotron_led_fade_in[led1 + i - i_cyclotron_led_start].go(i_brightness, i_1984_delay, CIRCULAR_IN);
+        }
 
-      if(led1 - 1 < i_cyclotron_led_start) {
-        led1 = i_pack_num_leds - i_nfilter_jewel_leds - 1;
-      }
-      else {
-        led1 = led1 - 1;
-      }
+        if(led1 - i < i_cyclotron_led_start) {
+          led1 = i_pack_num_leds - i_nfilter_jewel_leds - 1;
+        }
+        else {
+          led1 = led1 - i;
+        }
 
-      if(i_cyclotron_led_value[led1  - i_cyclotron_led_start] == i_brightness_tmp) {
-        ms_cyclotron_led_fade_in[led1 - i_cyclotron_led_start].go(i_brightness_tmp);
-        ms_cyclotron_led_fade_in[led1 - i_cyclotron_led_start].go(i_brightness, i_1984_fade_in_delay, CIRCULAR_IN);
-      }
+        if(i_cyclotron_led_value[led1  - i_cyclotron_led_start] == i_brightness_tmp) {
+          ms_cyclotron_led_fade_in[led1 - i_cyclotron_led_start].go(i_brightness_tmp);
+          ms_cyclotron_led_fade_in[led1 - i_cyclotron_led_start].go(i_brightness, i_1984_delay, CIRCULAR_IN);
+        }
 
-      if(i_cyclotron_led_value[led2 + 1 - i_cyclotron_led_start] == i_brightness_tmp) {
-        ms_cyclotron_led_fade_in[led2 + 1 - i_cyclotron_led_start].go(i_brightness_tmp);
-        ms_cyclotron_led_fade_in[led2 + 1 - i_cyclotron_led_start].go(i_brightness, i_1984_fade_in_delay, CIRCULAR_IN);
-      }
+        if(i_cyclotron_led_value[led2 + i - i_cyclotron_led_start] == i_brightness_tmp) {
+          ms_cyclotron_led_fade_in[led2 + i - i_cyclotron_led_start].go(i_brightness_tmp);
+          ms_cyclotron_led_fade_in[led2 + i - i_cyclotron_led_start].go(i_brightness, i_1984_delay, CIRCULAR_IN);
+        }
 
-      if(led2 - 1 < i_cyclotron_led_start) {
-        led2 = i_pack_num_leds - i_nfilter_jewel_leds - 1;
-      }
-      else {
-        led2 = led2 - 1;
-      }
+        if(led2 - i < i_cyclotron_led_start) {
+          led2 = i_pack_num_leds - i_nfilter_jewel_leds - 1;
+        }
+        else {
+          led2 = led2 - i;
+        }
 
-      if(i_cyclotron_led_value[led2 - i_cyclotron_led_start] == i_brightness_tmp) {
-        ms_cyclotron_led_fade_in[led2 - i_cyclotron_led_start].go(i_brightness_tmp);
-        ms_cyclotron_led_fade_in[led2 - i_cyclotron_led_start].go(i_brightness, i_1984_fade_in_delay, CIRCULAR_IN);
-      }
+        if(i_cyclotron_led_value[led2 - i_cyclotron_led_start] == i_brightness_tmp) {
+          ms_cyclotron_led_fade_in[led2 - i_cyclotron_led_start].go(i_brightness_tmp);
+          ms_cyclotron_led_fade_in[led2 - i_cyclotron_led_start].go(i_brightness, i_1984_delay, CIRCULAR_IN);
+        }
 
-      if(i_cyclotron_led_value[led3 + 1 - i_cyclotron_led_start] == i_brightness_tmp) {
-        ms_cyclotron_led_fade_in[led3 + 1 - i_cyclotron_led_start].go(i_brightness_tmp);
-        ms_cyclotron_led_fade_in[led3 + 1 - i_cyclotron_led_start].go(i_brightness, i_1984_fade_in_delay, CIRCULAR_IN);
-      }
+        if(i_cyclotron_led_value[led3 + i - i_cyclotron_led_start] == i_brightness_tmp) {
+          ms_cyclotron_led_fade_in[led3 + i - i_cyclotron_led_start].go(i_brightness_tmp);
+          ms_cyclotron_led_fade_in[led3 + i - i_cyclotron_led_start].go(i_brightness, i_1984_delay, CIRCULAR_IN);
+        }
 
-      if(led3 - 1 < i_cyclotron_led_start) {
-        led3 = i_pack_num_leds - i_nfilter_jewel_leds - 1;
-      }
-      else {
-        led3 = led3 - 1;
-      }
+        if(led3 - i < i_cyclotron_led_start) {
+          led3 = i_pack_num_leds - i_nfilter_jewel_leds - 1;
+        }
+        else {
+          led3 = led3 - i;
+        }
 
-      if(i_cyclotron_led_value[led3 - i_cyclotron_led_start] == i_brightness_tmp) {
-        ms_cyclotron_led_fade_in[led3 - i_cyclotron_led_start].go(i_brightness_tmp);
-        ms_cyclotron_led_fade_in[led3 - i_cyclotron_led_start].go(i_brightness, i_1984_fade_in_delay, CIRCULAR_IN);
-      }
+        if(i_cyclotron_led_value[led3 - i_cyclotron_led_start] == i_brightness_tmp) {
+          ms_cyclotron_led_fade_in[led3 - i_cyclotron_led_start].go(i_brightness_tmp);
+          ms_cyclotron_led_fade_in[led3 - i_cyclotron_led_start].go(i_brightness, i_1984_delay, CIRCULAR_IN);
+        }
 
-      if(i_cyclotron_led_value[led4 + 1 - i_cyclotron_led_start] == i_brightness_tmp) {
-        ms_cyclotron_led_fade_in[led4 + 1 - i_cyclotron_led_start].go(i_brightness_tmp);
-        ms_cyclotron_led_fade_in[led4 + 1 - i_cyclotron_led_start].go(i_brightness, i_1984_fade_in_delay, CIRCULAR_IN);
-      }
+        if(i_cyclotron_led_value[led4 + i - i_cyclotron_led_start] == i_brightness_tmp) {
+          ms_cyclotron_led_fade_in[led4 + i - i_cyclotron_led_start].go(i_brightness_tmp);
+          ms_cyclotron_led_fade_in[led4 + i - i_cyclotron_led_start].go(i_brightness, i_1984_delay, CIRCULAR_IN);
+        }
 
-      if(led4 - 1 < i_cyclotron_led_start) {
-        led4 = i_pack_num_leds - i_nfilter_jewel_leds - 1;
-      }
-      else {
-        led4 = led4 - 1;
-      }
+        if(led4 - i < i_cyclotron_led_start) {
+          led4 = i_pack_num_leds - i_nfilter_jewel_leds - 1;
+        }
+        else {
+          led4 = led4 - i;
+        }
 
-      if(i_cyclotron_led_value[led4 - i_cyclotron_led_start] == i_brightness_tmp) {
-        ms_cyclotron_led_fade_in[led4 - i_cyclotron_led_start].go(i_brightness_tmp);
-        ms_cyclotron_led_fade_in[led4 - i_cyclotron_led_start].go(i_brightness, i_1984_fade_in_delay, CIRCULAR_IN);
+        if(i_cyclotron_led_value[led4 - i_cyclotron_led_start] == i_brightness_tmp) {
+          ms_cyclotron_led_fade_in[led4 - i_cyclotron_led_start].go(i_brightness_tmp);
+          ms_cyclotron_led_fade_in[led4 - i_cyclotron_led_start].go(i_brightness, i_1984_delay, CIRCULAR_IN);
+        }
       }
     }
   }
@@ -3043,6 +3041,14 @@ void cyclotron1984Alarm() {
 void cyclotron84LightOn(uint8_t cLed) {
   uint8_t i_brightness = getBrightness(i_cyclotron_brightness);
   uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, STREAM_MODE, b_cyclotron_colour_toggle);
+  uint8_t i_led_array_width = 1; // Variable to store the number of LEDs to either side of the center LED.
+
+  if(i_cyclotron_leds == FRUTTO_CYCLOTRON_LED_COUNT) {
+    i_led_array_width = 2;
+  }
+  else if(i_cyclotron_leds == FRUTTO_MAX_CYCLOTRON_LED_COUNT) {
+    i_led_array_width = 4;
+  }
 
   // We override the colour changes when using stock HasLab Cyclotron LEDs, returning full white.
   // Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels.
@@ -3050,71 +3056,53 @@ void cyclotron84LightOn(uint8_t cLed) {
     i_colour_scheme = C_HASLAB;
   }
 
-  if(b_fade_cyclotron_led != true) {
-    pack_leds[cLed] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
+  pack_leds[cLed] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
 
-    // Turn on the other 2 LEDs if we are allowing 3 to light up.
-    if(b_cyclotron_single_led != true) {
-      pack_leds[cLed+1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
+  // Turn on the other 2 LEDs if we are allowing 3 to light up.
+  if(b_cyclotron_single_led != true) {
+    for(uint8_t i = 1; i <= i_led_array_width; i++) {
+      pack_leds[cLed + i] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
 
-      if(cLed - 1 < i_cyclotron_led_start) {
+      if(cLed - i < i_cyclotron_led_start) {
         cLed = i_pack_num_leds - i_nfilter_jewel_leds - 1;
       }
       else {
-        cLed = cLed - 1;
+        cLed = cLed - i;
       }
 
       pack_leds[cLed] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
-    }
-  }
-  else {
-    uint8_t i_brightness_tmp = 0;
-
-    if(i_cyclotron_led_value[cLed - i_cyclotron_led_start] == i_brightness_tmp) {
-      ms_cyclotron_led_fade_in[cLed - i_cyclotron_led_start].go(i_brightness_tmp);
-      ms_cyclotron_led_fade_in[cLed - i_cyclotron_led_start].go(i_brightness, i_1984_fade_in_delay / i_cyclotron_multiplier, CIRCULAR_IN);
-    }
-
-    // Turn on the other 2 LEDs if we are allowing 3 to light up.
-    if(b_cyclotron_single_led != true) {
-      if(i_cyclotron_led_value[cLed + 1 - i_cyclotron_led_start] == i_brightness_tmp) {
-        ms_cyclotron_led_fade_in[cLed + 1 - i_cyclotron_led_start].go(i_brightness_tmp);
-        ms_cyclotron_led_fade_in[cLed + 1 - i_cyclotron_led_start].go(i_brightness, i_1984_fade_in_delay / i_cyclotron_multiplier, CIRCULAR_IN);
-      }
-
-      if(cLed - 1 < i_cyclotron_led_start) {
-        cLed = i_pack_num_leds - i_nfilter_jewel_leds - 1;
-      }
-      else {
-        cLed = cLed - 1;
-      }
-
-      if(i_cyclotron_led_value[cLed - i_cyclotron_led_start] == i_brightness_tmp) {
-        ms_cyclotron_led_fade_in[cLed - i_cyclotron_led_start].go(i_brightness_tmp);
-        ms_cyclotron_led_fade_in[cLed - i_cyclotron_led_start].go(i_brightness, i_1984_fade_in_delay / i_cyclotron_multiplier, CIRCULAR_IN);
-      }
     }
   }
 }
 
 void cyclotron84LightOff(uint8_t cLed) {
   uint8_t i_brightness = getBrightness(i_cyclotron_brightness); // Calculate desired brightness.
+  uint8_t i_led_array_width = 1; // Variable to store the number of LEDs to either side of the center LED.
+
+  if(i_cyclotron_leds == FRUTTO_CYCLOTRON_LED_COUNT) {
+    i_led_array_width = 2;
+  }
+  else if(i_cyclotron_leds == FRUTTO_MAX_CYCLOTRON_LED_COUNT) {
+    i_led_array_width = 4;
+  }
 
   if(b_fade_cyclotron_led != true) {
     pack_leds[cLed] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
 
     // Turn off the other 2 LEDs if we are allowing 3 to light up.
     if(b_cyclotron_single_led != true) {
-      pack_leds[cLed + 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+      for(uint8_t i = 1; i <= i_led_array_width; i++) {
+        pack_leds[cLed + i] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
 
-      if(cLed - 1 < i_cyclotron_led_start) {
-        cLed = i_pack_num_leds - i_nfilter_jewel_leds - 1;
-      }
-      else {
-        cLed = cLed - 1;
-      }
+        if(cLed - i < i_cyclotron_led_start) {
+          cLed = i_pack_num_leds - i_nfilter_jewel_leds - 1;
+        }
+        else {
+          cLed = cLed - i;
+        }
 
-      pack_leds[cLed] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+        pack_leds[cLed] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+      }
     }
   }
   else {
@@ -3122,26 +3110,28 @@ void cyclotron84LightOff(uint8_t cLed) {
 
     if(i_cyclotron_led_value[cLed - i_cyclotron_led_start] == i_brightness) {
       ms_cyclotron_led_fade_out[cLed - i_cyclotron_led_start].go(i_brightness);
-      ms_cyclotron_led_fade_out[cLed - i_cyclotron_led_start].go(i_brightness_tmp, i_1984_fade_out_delay / i_cyclotron_multiplier, CIRCULAR_OUT);
+      ms_cyclotron_led_fade_out[cLed - i_cyclotron_led_start].go(i_brightness_tmp, i_1984_delay / i_cyclotron_multiplier, CIRCULAR_OUT);
     }
 
     // Turn off the other 2 LEDs if we are allowing 3 to light up.
     if(b_cyclotron_single_led != true) {
-      if(i_cyclotron_led_value[cLed + 1 - i_cyclotron_led_start] == i_brightness) {
-        ms_cyclotron_led_fade_out[cLed + 1 - i_cyclotron_led_start].go(i_brightness);
-        ms_cyclotron_led_fade_out[cLed + 1 - i_cyclotron_led_start].go(i_brightness_tmp, i_1984_fade_out_delay / i_cyclotron_multiplier, CIRCULAR_OUT);
-      }
+      for(uint8_t i = 1; i <= i_led_array_width; i++) {
+        if(i_cyclotron_led_value[cLed + i - i_cyclotron_led_start] == i_brightness) {
+          ms_cyclotron_led_fade_out[cLed + i - i_cyclotron_led_start].go(i_brightness);
+          ms_cyclotron_led_fade_out[cLed + i - i_cyclotron_led_start].go(i_brightness_tmp, i_1984_delay / i_cyclotron_multiplier, CIRCULAR_OUT);
+        }
 
-      if(cLed - 1 < i_cyclotron_led_start) {
-        cLed = i_pack_num_leds - i_nfilter_jewel_leds - 1;
-      }
-      else {
-        cLed = cLed - 1;
-      }
+        if(cLed - i < i_cyclotron_led_start) {
+          cLed = i_pack_num_leds - i_nfilter_jewel_leds - 1;
+        }
+        else {
+          cLed = cLed - i;
+        }
 
-      if(i_cyclotron_led_value[cLed - i_cyclotron_led_start] == i_brightness) {
-        ms_cyclotron_led_fade_out[cLed - i_cyclotron_led_start].go(i_brightness);
-        ms_cyclotron_led_fade_out[cLed - i_cyclotron_led_start].go(i_brightness_tmp, i_1984_fade_out_delay / i_cyclotron_multiplier, CIRCULAR_OUT);
+        if(i_cyclotron_led_value[cLed - i_cyclotron_led_start] == i_brightness) {
+          ms_cyclotron_led_fade_out[cLed - i_cyclotron_led_start].go(i_brightness);
+          ms_cyclotron_led_fade_out[cLed - i_cyclotron_led_start].go(i_brightness_tmp, i_1984_delay / i_cyclotron_multiplier, CIRCULAR_OUT);
+        }
       }
     }
   }

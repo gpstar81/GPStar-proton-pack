@@ -302,12 +302,6 @@ const bool b_fade_cyclotron_led = true;
 bool b_cyclotron_single_led = true;
 
 /*
- * When fading is enabled for 1984 mode Cyclotron Lid lights, control the delay of the fading.
- */
-const uint16_t i_1984_fade_out_delay = 1110;
-const uint16_t i_1984_fade_in_delay = 210;
-
-/*
  * Set to true to enable the onboard amplifier on the WAV Trigger.
  * This is for the WAV Trigger only and does not affect GPStar Audio.
  * If you use the output pins directly on the WAV Trigger board to your speakers, you will need to enable the onboard amp.
