@@ -421,8 +421,7 @@ String getWandConfig() {
     jsonBody["ledWandCount"] = wandConfig.ledWandCount; // [0=5,1=29,2=48]
     jsonBody["ledWandHue"] = wandConfig.ledWandHue; // Spectral custom colour/hue 1-254
     jsonBody["ledWandSat"] = wandConfig.ledWandSat; // Spectral custom saturation 1-254
-    jsonBody["spectralModeEnabled"] = wandConfig.spectralModeEnabled; // true|false
-    jsonBody["spectralHolidayMode"] = wandConfig.spectralHolidayMode; // true|false
+    jsonBody["spectralModesEnabled"] = wandConfig.spectralModesEnabled; // true|false
 
     // Neutrona Wand Runtime Options
     jsonBody["overheatEnabled"] = wandConfig.overheatEnabled; // true|false
@@ -965,8 +964,7 @@ AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHand
       wandConfig.ledWandCount = jsonBody["ledWandCount"].as<uint8_t>();
       wandConfig.ledWandHue = jsonBody["ledWandHue"].as<uint8_t>();
       wandConfig.ledWandSat = jsonBody["ledWandSat"].as<uint8_t>();
-      wandConfig.spectralModeEnabled = jsonBody["spectralModeEnabled"].as<uint8_t>();
-      wandConfig.spectralHolidayMode = jsonBody["spectralHolidayMode"].as<uint8_t>();
+      wandConfig.spectralModesEnabled = jsonBody["spectralModesEnabled"].as<uint8_t>();
       wandConfig.overheatEnabled = jsonBody["overheatEnabled"].as<uint8_t>();
       wandConfig.defaultFiringMode = jsonBody["defaultFiringMode"].as<uint8_t>();
       wandConfig.wandVibration = jsonBody["wandVibration"].as<uint8_t>();

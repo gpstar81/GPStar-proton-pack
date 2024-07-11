@@ -99,14 +99,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     <div class="setting">
       <b class="labelSwitch">Spectral Modes Enabled:</b>
       <label class="switch">
-        <input id="spectralModeEnabled" name="spectralModeEnabled" type="checkbox">
-        <span class="slider round"></span>
-      </label>
-    </div>
-    <div class="setting">
-      <b class="labelSwitch">Spectral Mode - Holiday:</b>
-      <label class="switch">
-        <input id="spectralHolidayMode" name="spectralHolidayMode" type="checkbox">
+        <input id="spectralModesEnabled" name="spectralModesEnabled" type="checkbox">
         <span class="slider round"></span>
       </label>
     </div>
@@ -293,8 +286,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
             getEl("ledWandCount").value = settings.ledWandCount || 0; // Haslab: 0 (5 LED)
             getEl("ledWandHue").value = convertRange(settings.ledWandHue || 254, [1,254], [0,360]); // Default: Red
             getEl("ledWandSat").value = convertRange(settings.ledWandSat || 254, [1,254], [0,100]); // Full Saturation
-            getEl("spectralModeEnabled").checked = settings.spectralModeEnabled ? true: false;
-            getEl("spectralHolidayMode").checked = settings.spectralHolidayMode ? true: false;
+            getEl("spectralModesEnabled").checked = settings.spectralModesEnabled ? true: false;
             getEl("overheatEnabled").checked = settings.overheatEnabled ? true: false;
             getEl("defaultFiringMode").value = settings.defaultFiringMode || 1;
             getEl("wandVibration").value = settings.wandVibration || 4;
@@ -326,8 +318,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         ledWandCount: parseInt(getEl("ledWandCount").value || 0, 10),
         ledWandHue: convertRange(parseInt(getEl("ledWandHue").value || 360, 10), [0,360], [1,254]),
         ledWandSat: convertRange(parseInt(getEl("ledWandSat").value || 100, 10), [0,100], [1,254]),
-        spectralModeEnabled: getEl("spectralModeEnabled").checked ? 1 : 0,
-        spectralHolidayMode: getEl("spectralHolidayMode").checked ? 1 : 0,
+        spectralModesEnabled: getEl("spectralModesEnabled").checked ? 1 : 0,
         overheatEnabled: getEl("overheatEnabled").checked ? 1 : 0,
         defaultFiringMode: parseInt(getEl("defaultFiringMode").value || 1, 10),
         wandVibration: parseInt(getEl("wandVibration").value || 4, 10),

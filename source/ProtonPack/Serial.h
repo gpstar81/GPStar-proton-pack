@@ -91,8 +91,7 @@ struct __attribute__((packed)) WandPrefs {
   uint8_t ledWandCount;
   uint8_t ledWandHue;
   uint8_t ledWandSat;
-  uint8_t spectralModeEnabled;
-  uint8_t spectralHolidayMode;
+  uint8_t spectralModesEnabled;
   uint8_t overheatEnabled;
   uint8_t defaultFiringMode;
   uint8_t wandVibration;
@@ -691,7 +690,7 @@ void checkSerial1() {
           b_smoke_continuous_level_3 = (smokeConfig.overheatContinuous3 == 1);
           b_smoke_continuous_level_2 = (smokeConfig.overheatContinuous2 == 1);
           b_smoke_continuous_level_1 = (smokeConfig.overheatContinuous1 == 1);
-          b_smoke_enabled = smokeConfig.smokeEnabled;
+          b_smoke_enabled = (smokeConfig.smokeEnabled == 1);
           resetContinuousSmoke(); // Set other variables as necessary
 
           // This will pass values from the smokeConfig object

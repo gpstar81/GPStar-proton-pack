@@ -57,8 +57,7 @@ struct __attribute__((packed)) WandPrefs {
   uint8_t ledWandCount;
   uint8_t ledWandHue;
   uint8_t ledWandSat;
-  uint8_t spectralModeEnabled;
-  uint8_t spectralHolidayMode;
+  uint8_t spectralModesEnabled;
   uint8_t overheatEnabled;
   uint8_t defaultFiringMode;
   uint8_t wandVibration;
@@ -184,8 +183,7 @@ void wandSerialSendData(uint8_t i_message) {
 
       wandConfig.ledWandHue = i_spectral_wand_custom_colour;
       wandConfig.ledWandSat = i_spectral_wand_custom_saturation;
-      wandConfig.spectralModeEnabled = b_spectral_mode_enabled;
-      wandConfig.spectralHolidayMode = b_holiday_mode_enabled;
+      wandConfig.spectralModesEnabled = b_spectral_mode_enabled;
       wandConfig.overheatEnabled = b_overheat_enabled;
 
       switch(FIRING_MODE) {
@@ -401,14 +399,12 @@ void checkPack() {
             break;
           }
 
-          b_overheat_enabled = wandConfig.overheatEnabled;
+          b_overheat_enabled = (wandConfig.overheatEnabled == 1);
           i_spectral_wand_custom_colour = wandConfig.ledWandHue;
           i_spectral_wand_custom_saturation = wandConfig.ledWandSat;
-          b_holiday_mode_enabled = wandConfig.spectralHolidayMode;
-          b_spectral_mode_enabled = wandConfig.spectralModeEnabled;
-
-          // Spectral custom, is linked to spectral mode overall, just like in the Neutrona Wand EEPROM menu system.
-          b_spectral_custom_mode_enabled = wandConfig.spectralModeEnabled;
+          b_spectral_mode_enabled = (wandConfig.spectralModesEnabled == 1);
+          b_spectral_custom_mode_enabled = b_spectral_mode_enabled;
+          b_holiday_mode_enabled = b_spectral_mode_enabled;
 
           switch(wandConfig.defaultFiringMode) {
             case 1:
@@ -471,11 +467,11 @@ void checkPack() {
             break;
           }
 
-          b_extra_pack_sounds = wandConfig.wandSoundsToPack;
-          b_quick_vent = wandConfig.quickVenting;
-          b_vent_light_control = wandConfig.autoVentLight;
-          b_beep_loop = wandConfig.wandBeepLoop;
-          b_wand_boot_errors = wandConfig.wandBootError;
+          b_extra_pack_sounds = (wandConfig.wandSoundsToPack == 1);
+          b_quick_vent = (wandConfig.quickVenting == 1);
+          b_vent_light_control = (wandConfig.autoVentLight == 1);
+          b_beep_loop = (wandConfig.wandBeepLoop == 1);
+          b_wand_boot_errors = (wandConfig.wandBootError == 1);
 
           switch(wandConfig.defaultYearModeWand) {
             case 1:
@@ -515,8 +511,8 @@ void checkPack() {
             break;
           }
 
-          b_bargraph_invert = wandConfig.invertWandBargraph;
-          b_overheat_bargraph_blink = wandConfig.bargraphOverheatBlink;
+          b_bargraph_invert = (wandConfig.invertWandBargraph == 1);
+          b_overheat_bargraph_blink = (wandConfig.bargraphOverheatBlink == 1);
 
           switch(wandConfig.bargraphIdleAnimation) {
             case 1:
@@ -560,11 +556,11 @@ void checkPack() {
 
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!
-          b_overheat_level_5 = smokeConfig.overheatLevel5;
-          b_overheat_level_4 = smokeConfig.overheatLevel4;
-          b_overheat_level_3 = smokeConfig.overheatLevel3;
-          b_overheat_level_2 = smokeConfig.overheatLevel2;
-          b_overheat_level_1 = smokeConfig.overheatLevel1;
+          b_overheat_level_5 = (smokeConfig.overheatLevel5 == 1);
+          b_overheat_level_4 = (smokeConfig.overheatLevel4 == 1);
+          b_overheat_level_3 = (smokeConfig.overheatLevel3 == 1);
+          b_overheat_level_2 = (smokeConfig.overheatLevel2 == 1);
+          b_overheat_level_1 = (smokeConfig.overheatLevel1 == 1);
 
           // Values are sent as seconds, must convert to milliseconds.
           i_ms_overheat_initiate_level_5 = smokeConfig.overheatDelay5 * 1000;
