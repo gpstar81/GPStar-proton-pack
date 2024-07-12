@@ -154,6 +154,7 @@ struct __attribute__((packed)) SyncData {
   uint8_t masterVolume;
   uint8_t effectsVolume;
   uint8_t masterMuted;
+  uint8_t repeatMusicTrack;
 } packSync;
 
 /*

@@ -112,6 +112,7 @@ struct __attribute__((packed)) SyncData {
   uint8_t masterVolume;
   uint8_t effectsVolume;
   uint8_t masterMuted;
+  uint8_t repeatMusicTrack;
 } packSync;
 
 /*
@@ -754,6 +755,16 @@ void checkPack() {
               // The pack is telling us to be silent.
               i_volume_master = i_volume_abs_min;
               resetMasterVolume();
+            break;
+          }
+
+          switch(packSync.repeatMusicTrack) {
+            case 1:
+            default:
+              b_repeat_track = false;
+            break;
+            case 2:
+              b_repeat_track = true;
             break;
           }
         break;
