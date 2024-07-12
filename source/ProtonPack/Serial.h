@@ -146,7 +146,6 @@ struct __attribute__((packed)) SyncData {
   uint8_t masterVolume;
   uint8_t effectsVolume;
   uint8_t masterMuted;
-  uint8_t repeatMusicTrack;
 } packSync;
 
 // Adjusts which year mode the Proton Pack and Neutrona Wand are in, as switched by the Neutrona Wand.
@@ -1214,9 +1213,6 @@ void doWandSync() {
       packSync.systemYear = 4; // Frozen Empire.
     break;
   }
-
-  // Denote the current looping preference for the current track.
-  b_repeat_track ? (packSync.repeatMusicTrack = 2) : (packSync.repeatMusicTrack = 1); // 1 = No repeat, 2 = Repeat.
 
   // Vibration enabled or disabled from the Proton Pack toggle switch.
   b_vibration_switch_on ? (packSync.vibrationEnabled = 2) : (packSync.vibrationEnabled = 1); // 1 = Vibration off, 2 = Vibration on.

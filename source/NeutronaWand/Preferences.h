@@ -69,6 +69,7 @@ struct objConfigEEPROM {
   uint8_t extra_proton_sounds;
   uint8_t neutrona_wand_sounds;
   uint8_t spectral_mode;
+  uint8_t holiday_mode; // This will be deprecated in 6.0 as part of a new menu refactoring.
   uint8_t quick_vent;
   uint8_t wand_boot_errors;
   uint8_t vent_light_auto_intensity;
@@ -745,6 +746,7 @@ void saveConfigEEPROM() {
     i_extra_proton_sounds,
     i_neutrona_wand_sounds,
     i_spectral,
+    0,
     i_quick_vent,
     i_wand_boot_errors,
     i_vent_light_auto_intensity,
