@@ -158,3 +158,8 @@ The LED and wires should be installed first, pushing the LED to the very tip of 
 Congratulations, you are now ready to test your smoke solution! While in the Video Game mode, use the Barrel Wing Button to select the Venting menu option (after all firing mode options). Put the Neutrona Wand into firing state and press the Intensify button to activate the N-Filter smoke option directly. Alternatively, regardless of mode set your wand to level 5 and throw a proton stream (or activate Cross the Streams) and wait for the smoke effects to kick in.
 
 Remember to activate all smoke options for the pack via the EEPROM menu if you previously changed these.
+
+## DIY Smoke Installation Video ##
+
+[DIY Smoke Installation Video](https://www.youtube.com/watch?v=-q3xkb5oHYE) (YouTube)
+[![GPStar Proton Pack & Neutrona Wand DIY Smoke Installation Video](https://img.youtube.com/vi/-q3xkb5oHYE/maxresdefault.jpg)](https://www.youtube.com/watch?v=-q3xkb5oHYE)

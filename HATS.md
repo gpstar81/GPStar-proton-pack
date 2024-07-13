@@ -2,6 +2,11 @@
 
 The hat lights are a special add-on which replace the solid orange plastic dome on the top of the wand gun box and the orange selector switch at the end of the wand barrel. Support for both lights exists as part of the Wand PCB kit.
 
+## Hatlight Kit Installation Video ##
+
+[Hatlight Kit Installation Video](https://www.youtube.com/watch?v=G1TXLc8lEsk) (YouTube)
+[![GPStar Proton Pack & Neutrona Hatlight Kit Installation Video](https://img.youtube.com/vi/G1TXLc8lEsk/maxresdefault.jpg)](https://www.youtube.com/watch?v=G1TXLc8lEsk)
+
 ## Gun Box Hat
 
 This is the easiest of the 2 modifications to make. The orange dome (fake light) can be sanded down with a dremel, then drilled out to accommodate an orange lens. This will drill through the black plastic exterior and a portion of the clear plastic which is part of the vent light and bargraph assembly. Secure the lens using any supplied washer/nut combination.

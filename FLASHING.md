@@ -78,8 +78,8 @@ When downloading the binaries via GitHub, click on the file then on the **`Downl
 
 ## Flashing Update Instruction Video ##
 
-[Firmware Update Instruction Video](https://www.youtube.com/watch?v=QiQkyFNfUqA) (YouTube)
-[![GPStar Proton Pack & Neutrona Wand Flashing Demonstration Video](https://img.youtube.com/vi/QiQkyFNfUqA/maxresdefault.jpg)](https://www.youtube.com/watch?v=QiQkyFNfUqA)
+[Firmware Update Instruction Video](https://www.youtube.com/watch?v=Hbk-RCVR1ew) (YouTube)
+[![GPStar Proton Pack & Neutrona Wand Flashing Demonstration Video](https://img.youtube.com/vi/Hbk-RCVR1ew/maxresdefault.jpg)](https://www.youtube.com/watch?v=Hbk-RCVR1ew)
 
 ## (Optional) Compiling Source Code and Manually Flashing ##
 
