@@ -692,7 +692,7 @@ bool fadeOutCyclotron() {
         b_return = true;
 
         if(b_cyclotron_simulate_ring == true) {
-          if(cyclotronLookupTable(i) != 0) {
+          if(cyclotronLookupTable(i) > 0) {
             pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1].maximizeBrightness(i_curr_brightness);
           }
         }
@@ -702,7 +702,7 @@ bool fadeOutCyclotron() {
       }
       else {
         if(b_cyclotron_simulate_ring == true) {
-          if(cyclotronLookupTable(i) != 0) {
+          if(cyclotronLookupTable(i) > 0) {
             pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
           }
         }
@@ -2287,7 +2287,7 @@ void cyclotronFade() {
           i_cyclotron_led_value[i] = i_curr_brightness;
 
           if(b_ring_sim_active) {
-            if(cyclotronLookupTable(i) != 0) {
+            if(cyclotronLookupTable(i) > 0) {
               pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
             }
           }
@@ -2317,7 +2317,7 @@ void cyclotronFade() {
           }
 
           if(b_ring_sim_active) {
-            if(cyclotronLookupTable(i) != 0) {
+            if(cyclotronLookupTable(i) > 0) {
               pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_new_brightness);
             }
           }
@@ -2331,7 +2331,7 @@ void cyclotronFade() {
           i_cyclotron_led_value[i] = i_curr_brightness;
 
           if(b_ring_sim_active) {
-            if(cyclotronLookupTable(i) != 0) {
+            if(cyclotronLookupTable(i) > 0) {
               pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness);
             }
           }
@@ -2345,7 +2345,7 @@ void cyclotronFade() {
           b_cyclotron_led_fading_in[i] = true;
 
           if(b_ring_sim_active) {
-            if(cyclotronLookupTable(i) != 0) {
+            if(cyclotronLookupTable(i) > 0) {
               pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
             }
           }
