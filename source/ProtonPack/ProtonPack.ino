@@ -212,10 +212,10 @@ void setup() {
   resetMasterVolume();
 
   // Perform power-on sequence if demo light mode is not enabled per user preferences.
-  if(b_demo_light_mode != true && b_pack_post_finish != true) {
+  if(b_demo_light_mode != true) {
     // System Power On Self Test
     playEffect(S_POWER_ON);
-    ms_delay_post.start(1);
+    ms_delay_post.start(0);
   }
   else {
     b_pack_post_finish = true;
@@ -566,7 +566,7 @@ void systemPOST() {
   uint8_t i_tmp_led2 = i_cyclotron_led_start + cyclotron84LookupTable(1);
   uint8_t i_tmp_led3 = i_cyclotron_led_start + cyclotron84LookupTable(2);
   uint8_t i_tmp_led4 = i_cyclotron_led_start + cyclotron84LookupTable(3);
-  uint8_t i_tmp_led5 = i_pack_num_leds - round(i_nfilter_jewel_leds / 2);
+  uint8_t i_tmp_led5 = i_pack_num_leds - (i_nfilter_jewel_leds / 2);
 
   if(i_post_powercell_up < i_powercell_leds && ms_delay_post.justFinished()) {
     pack_leds[i_post_powercell_up] = getHueAsRGB(POWERCELL, C_MID_BLUE);
@@ -598,7 +598,7 @@ void systemPOST() {
   }
 
   if(i_post_powercell_down < i_powercell_leds && ms_delay_post_2.justFinished()) {
-    pack_leds[i_post_powercell_down] = getHueAsRGB(POWERCELL, C_BLACK);
+    pack_leds[(i_powercell_leds - 1) - i_post_powercell_down] = getHueAsRGB(POWERCELL, C_BLACK);
 
     if((i_post_powercell_down % 5) == 0) {
       pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
