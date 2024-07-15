@@ -3073,11 +3073,13 @@ void cyclotron84LightOn(uint8_t cLed) {
   }
 
   pack_leds[cLed] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
+  i_cyclotron_led_value[cLed - i_cyclotron_led_start] = i_brightness;
 
   // Turn on the other 2 LEDs if we are allowing 3 to light up.
   if(b_cyclotron_single_led != true) {
     for(uint8_t i = 1; i <= i_led_array_width; i++) {
       pack_leds[cLed + i] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
+      i_cyclotron_led_value[cLed + i - i_cyclotron_led_start] = i_brightness;
 
       if(cLed - i < i_cyclotron_led_start) {
         cLed = i_pack_num_leds - i_nfilter_jewel_leds - 1;
@@ -3087,6 +3089,7 @@ void cyclotron84LightOn(uint8_t cLed) {
       }
 
       pack_leds[cLed] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
+      i_cyclotron_led_value[cLed - i_cyclotron_led_start] = i_brightness;
     }
   }
 }
