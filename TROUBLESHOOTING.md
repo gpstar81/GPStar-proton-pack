@@ -65,7 +65,7 @@ If there is still no sound from your Neutrona Wand, please refer to the Audio Tr
 
 * Make sure to following the naming conventions that are indicated in the [Loading The Audio Files](AUDIO.md) guide.
 * Remove any metadata that may be embedded in your wav files. This can cause problems with loading the music.
-* The Proton Pack at a minimum must contain all the music, however it is advised for the Neutrona Wand to have the same files as well if you want music to also play back from the Neutrona Wand audio system.
+* The Proton Pack at a minimum must contain all the music, however it is advised for the Neutrona Wand to have the same files as well if you want music to also play back from the Neutrona Wand audio system while the Neutrona Wand is operating in Bench Test Mode.
 
 ### I'm firing but no overheating is happening! ###
 
