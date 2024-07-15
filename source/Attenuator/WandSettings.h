@@ -47,7 +47,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
   <div class="block left">
     <div class="setting">
       <b>Stream/Firing Mode:</b>
-      <select id="defaultFiringMode" name="defaultFiringMode">
+      <select id="defaultFiringMode" name="defaultFiringMode" style="width:170px">
         <option value="1">Video Game</option>
         <option value="2">CTS</option>
         <option value="3">CTS Mix</option>
@@ -55,7 +55,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       &nbsp;&nbsp;&nbsp;<b>Wand Year Theme:</b>
-      <select id="defaultYearModeWand" name="defaultYearModeWand">
+      <select id="defaultYearModeWand" name="defaultYearModeWand" style="width:170px">
         <option value="1">Via System</option>
         <option value="2">1984</option>
         <option value="3">1989</option>
@@ -65,7 +65,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       &nbsp;&nbsp;&nbsp;&nbsp;<b>Default CTS Mode:</b>
-      <select id="defaultYearModeCTS" name="defaultYearModeCTS">
+      <select id="defaultYearModeCTS" name="defaultYearModeCTS" style="width:170px">
         <option value="1">Via System</option>
         <option value="2">1984</option>
         <option value="3">1989</option>
@@ -144,7 +144,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
   <div class="block left">
     <div class="setting">
       <b>&nbsp;&nbsp;&nbsp;Idle Animation:</b>
-      <select id="bargraphIdleAnimation" name="bargraphIdleAnimation">
+      <select id="bargraphIdleAnimation" name="bargraphIdleAnimation" style="width:180px">
         <option value="1">Default</option>
         <option value="2">Super Hero</option>
         <option value="3">Mode Original</option>
@@ -152,7 +152,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b>Firing Animation:</b>
-      <select id="bargraphFireAnimation" name="bargraphFireAnimation">
+      <select id="bargraphFireAnimation" name="bargraphFireAnimation" style="width:180px">
         <option value="1">Default</option>
         <option value="2">Super Hero</option>
         <option value="3">Mode Original</option>
@@ -200,14 +200,13 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
   </div>
 
   <div class="block">
+    <a href="#top">Top</a>
     <hr/>
     <a href="/">&laquo; Back</a>
     &nbsp;&nbsp;
     <button type="button" class="green" style="width:120px" onclick="saveSettings()">Update&nbsp;Settings</button>
     &nbsp;
     <button type="button" class="orange" style="width:120px" onclick="saveEEPROM()">Save&nbsp;to&nbsp;EPROM</button>
-    &nbsp;&nbsp;
-    <a href="#top">Top</a>
     <br/>
     <br/>
   </div>

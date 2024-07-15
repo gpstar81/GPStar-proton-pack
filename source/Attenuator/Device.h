@@ -101,12 +101,11 @@ const char DEVICE_page[] PROGMEM = R"=====(
   </div>
 
   <div class="block">
+    <a href="#top">Top</a>
     <hr/>
     <a href="/">&laquo; Back</a>
     &nbsp;&nbsp;
     <button type="button" class="green" style="width:120px" onclick="saveSettings()">Update&nbsp;Settings</button>
-    &nbsp;&nbsp;
-    <a href="#top">Top</a>
     <br/>
     <br/>
   </div>

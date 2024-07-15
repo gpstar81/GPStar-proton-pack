@@ -47,14 +47,14 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
   <div class="block left">
     <div class="setting">
       <b>Operation Mode:</b>
-      <select id="defaultSystemModePack" name="defaultSystemModePack">
+      <select id="defaultSystemModePack" name="defaultSystemModePack" style="width:180px">
         <option value="0">Super Hero</option>
         <option value="1">Mode Original</option>
       </select>
     </div>
     <div class="setting">
       <b>&nbsp;&nbsp;&nbsp;Default Theme:</b>
-      <select id="defaultYearThemePack" name="defaultYearThemePack">
+      <select id="defaultYearThemePack" name="defaultYearThemePack" style="width:180px">
         <option value="1">System Toggle</option>
         <option value="2">1984</option>
         <option value="3">1989</option>
@@ -64,7 +64,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b>&nbsp;&nbsp;&nbsp;Current Theme:</b>
-      <select id="currentYearThemePack" name="currentYearThemePack">
+      <select id="currentYearThemePack" name="currentYearThemePack" style="width:180px">
         <option value="2">1984</option>
         <option value="3">1989</option>
         <option value="4">Afterlife</option>
@@ -134,7 +134,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
   <div class="block left">
     <div class="setting">
       <b>LED Count:</b>
-      <select id="ledCycLidCount" name="ledCycLidCount">
+      <select id="ledCycLidCount" name="ledCycLidCount" style="width:200px">
         <option value="12">12 - Stock</option>
         <option value="20">20 - Frutto (4x5)</option>
         <option value="36">36 - Frutto (4x9)</option>
@@ -157,7 +157,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b>Spin Direction:</b>
-      <select id="cyclotronDirection" name="cyclotronDirection">
+      <select id="cyclotronDirection" name="cyclotronDirection" style="width:200px">
         <option value="0">Counter-Clockwise</option>
         <option value="1">Clockwise</option>
       </select>
@@ -267,14 +267,13 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
   </div>
 
   <div class="block">
+    <a href="#top">Top</a>
     <hr/>
     <a href="/">&laquo; Back</a>
     &nbsp;&nbsp;
     <button type="button" class="green" style="width:120px" onclick="saveSettings()">Update&nbsp;Settings</button>
     &nbsp;
     <button type="button" class="orange" style="width:120px" onclick="saveEEPROM()">Save&nbsp;to&nbsp;EPROM</button>
-    &nbsp;&nbsp;
-    <a href="#top">Top</a>
     <br/>
     <br/>
   </div>
