@@ -32,7 +32,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <h1>Pack Settings</h1>
+  <h1 id="top">Pack Settings</h1>
   <div class="block left">
     <p>
       Change system configuration options using the available toggles and selectors.
@@ -273,6 +273,8 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     <button type="button" class="green" style="width:120px" onclick="saveSettings()">Update&nbsp;Settings</button>
     &nbsp;
     <button type="button" class="orange" style="width:120px" onclick="saveEEPROM()">Save&nbsp;to&nbsp;EPROM</button>
+    &nbsp;&nbsp;
+    <a href="#top">Top</a>
     <br/>
     <br/>
   </div>
