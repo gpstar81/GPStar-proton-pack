@@ -3327,7 +3327,7 @@ void packVenting() {
 
         if(b_overheat_sync_to_fan != true && STREAM_MODE != SLIME) {
           ms_smoke_on.stop();
-          ms_smoke_on.start(i_ms_overheating_length_1 >= 4000 ? i_ms_overheating_length_1 / 2 : 2000);
+          ms_smoke_on.start(i_ms_overheating_length_2 >= 4000 ? i_ms_overheating_length_2 / 2 : 2000);
         }
       break;
 
@@ -3336,7 +3336,7 @@ void packVenting() {
 
         if(b_overheat_sync_to_fan != true && STREAM_MODE != SLIME) {
           ms_smoke_on.stop();
-          ms_smoke_on.start(i_ms_overheating_length_1 >= 4000 ? i_ms_overheating_length_1 / 2 : 2000);
+          ms_smoke_on.start(i_ms_overheating_length_3 >= 4000 ? i_ms_overheating_length_3 / 2 : 2000);
         }
       break;
 
@@ -3345,7 +3345,7 @@ void packVenting() {
 
         if(b_overheat_sync_to_fan != true && STREAM_MODE != SLIME) {
           ms_smoke_on.stop();
-          ms_smoke_on.start(i_ms_overheating_length_1 >= 4000 ? i_ms_overheating_length_1 / 2 : 2000);
+          ms_smoke_on.start(i_ms_overheating_length_4 >= 4000 ? i_ms_overheating_length_4 / 2 : 2000);
         }
       break;
 
@@ -3354,13 +3354,13 @@ void packVenting() {
 
         if(b_overheat_sync_to_fan != true && STREAM_MODE != SLIME) {
           ms_smoke_on.stop();
-          ms_smoke_on.start(i_ms_overheating_length_1 >= 4000 ? i_ms_overheating_length_1 / 2 : 2000);
+          ms_smoke_on.start(i_ms_overheating_length_5 >= 4000 ? i_ms_overheating_length_5 / 2 : 2000);
         }
       break;
     }
   }
 
-  if(ms_smoke_on.remaining() < 1) {
+  if(ms_smoke_on.remaining() < 1 && !b_overheat_sync_to_fan) {
     smokeNFilter(false);
   }
 
