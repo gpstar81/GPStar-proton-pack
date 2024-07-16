@@ -45,6 +45,11 @@
 #define FRUTTO_MAX_CYCLOTRON_LED_COUNT 36
 
 /*
+ * Set the number of steps for the Outer Cyclotron (lid).
+ */
+#define OUTER_CYCLOTRON_LED_MAX 40
+
+/*
  * Set the number of LEDs for the optional Inner Cyclotron panel board.
  * This is not the single traditional LEDs, but the optional board with 8 pixels instead.
  */
@@ -59,11 +64,6 @@
  * Set the number of steps for the Inner Cyclotron (cavity).
  */
 #define INNER_CYCLOTRON_CAVITY_LED_MAX 20
-
-/*
- * Set the number of steps for the Outer Cyclotron (lid).
- */
-#define OUTER_CYCLOTRON_LED_MAX 40
 
 /*
  * The gpstar N-Filter expects 7 LEDs.
