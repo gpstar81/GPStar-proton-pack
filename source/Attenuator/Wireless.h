@@ -116,6 +116,13 @@ IPAddress convertToIP(String ipAddressString) {
  */
 
 bool startAccesPoint() {
+  // Report some diagnostic data which will be necessary for this portion of setup.
+  #if defined(DEBUG_WIRELESS_SETUP)
+    Serial.println();
+    Serial.print(F("Device WiFi MAC Address: "));
+    Serial.println(WiFi.macAddress());
+  #endif
+
   // Create an AP name unique to this device, to avoid stepping on similar hardware.
   String macAddr = String(WiFi.macAddress());
   String ap_ssid_suffix = macAddr.substring(12, 14) + macAddr.substring(15);
@@ -314,12 +321,11 @@ bool startWiFi() {
   #if defined(DEBUG_WIRELESS_SETUP)
     Serial.println();
     Serial.println(F("Begin WiFi Configuration"));
-    Serial.print(F("Device WiFi MAC Address: "));
-    Serial.println(WiFi.macAddress());
   #endif
 
   // Disable WiFi power save mode (via the esp_wifi_set_ps function).
   WiFi.setSleep(false);
+  delay(100);
 
   // Attempt connection to an external (preferred) WiFi as a client.
   b_ext_wifi_started = startExternalWifi();
@@ -329,7 +335,7 @@ bool startWiFi() {
       Serial.println(F("External WiFi not available, switching to SoftAP mode..."));
     #endif
 
-    // When external WiFi is unavailable, switch to only SoftAP mode.
+    // When external WiFi is unavailable, switch to only use the SoftAP mode.
     WiFi.mode(WIFI_MODE_AP);
     delay(300);
   }
