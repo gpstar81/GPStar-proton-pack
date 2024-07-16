@@ -766,20 +766,22 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
     String newSSID = jsonBody["wifiName"];
     bool b_ssid_changed = false;
 
-    // Update the private network name if the value differs from the current SSID.
-    if(newSSID.length() > 8 && newSSID.length() <= 32 && newSSID != ap_ssid) {
-      preferences.begin("credentials", false); // Access namespace in read/write mode.
-      preferences.putString("ssid", newSSID); // Store SSID in case this was altered.
-      preferences.end();
+    // Update the private network name ONLY if the new value differs from the current SSID.
+    if(newSSID != ap_ssid){
+      if(newSSID.length() > 8 && newSSID.length() <= 32) {
+        preferences.begin("credentials", false); // Access namespace in read/write mode.
+        preferences.putString("ssid", newSSID); // Store SSID in case this was altered.
+        preferences.end();
 
-      b_ssid_changed = true; // This will cause a reboot of the device after saving.
-    }
-    else {
-      // Immediately return an error if the network name was invalid.
-      jsonBody.clear();
-      jsonBody["status"] = "Network name must be between 8 and 32 characters in length.";
-      serializeJson(jsonBody, result); // Serialize to string.
-      request->send(200, "application/json", result);
+        b_ssid_changed = true; // This will cause a reboot of the device after saving.
+      }
+      else {
+        // Immediately return an error if the network name was invalid.
+        jsonBody.clear();
+        jsonBody["status"] = "Error: Network name must be between 8 and 32 characters in length.";
+        serializeJson(jsonBody, result); // Serialize to string.
+        request->send(200, "application/json", result);
+      }
     }
 
     // General Options - Returned as unsigned integers
