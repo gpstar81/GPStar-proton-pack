@@ -3159,7 +3159,12 @@ void cyclotron84LightOff(uint8_t cLed) {
 // Returns whether we should be using the slime cyclotron effect or not.
 bool usingSlimeCyclotron() {
   if(STREAM_MODE == SLIME && b_cyclotron_colour_toggle) {
-    return true;
+    if(i_cyclotron_leds == HASLAB_CYCLOTRON_LED_COUNT && b_cyclotron_haslab_chsv_colour_change != true) {
+      return false;
+    }
+    else {
+      return true;
+    }
   }
   else {
     return false;
