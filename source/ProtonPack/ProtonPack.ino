@@ -2897,12 +2897,14 @@ void cyclotron1984Alarm() {
   uint8_t led4 = i_cyclotron_led_start + cyclotron84LookupTable(3);
   uint8_t i_led_array_width = 1; // Variable to store the number of LEDs to either side of the center LED.
 
+  /*
   if(i_cyclotron_leds == FRUTTO_CYCLOTRON_LED_COUNT) {
     i_led_array_width = 2;
   }
   else if(i_cyclotron_leds == FRUTTO_MAX_CYCLOTRON_LED_COUNT) {
     i_led_array_width = 4;
   }
+  */
 
   if(b_fade_cyclotron_led != true) {
     pack_leds[led1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_brightness);
@@ -3059,12 +3061,14 @@ void cyclotron84LightOn(uint8_t cLed) {
   uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, STREAM_MODE, b_cyclotron_colour_toggle);
   uint8_t i_led_array_width = 1; // Variable to store the number of LEDs to either side of the center LED.
 
+  /*
   if(i_cyclotron_leds == FRUTTO_CYCLOTRON_LED_COUNT) {
     i_led_array_width = 2;
   }
   else if(i_cyclotron_leds == FRUTTO_MAX_CYCLOTRON_LED_COUNT) {
     i_led_array_width = 4;
   }
+  */
 
   // We override the colour changes when using stock HasLab Cyclotron LEDs, returning full white.
   // Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels.
@@ -3100,12 +3104,14 @@ void cyclotron84LightOff(uint8_t cLed) {
   uint8_t i_brightness = getBrightness(i_cyclotron_brightness); // Calculate desired brightness.
   uint8_t i_led_array_width = 1; // Variable to store the number of LEDs to either side of the center LED.
 
+  /*
   if(i_cyclotron_leds == FRUTTO_CYCLOTRON_LED_COUNT) {
     i_led_array_width = 2;
   }
   else if(i_cyclotron_leds == FRUTTO_MAX_CYCLOTRON_LED_COUNT) {
     i_led_array_width = 4;
   }
+  */
 
   if(b_fade_cyclotron_led != true) {
     pack_leds[cLed] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
