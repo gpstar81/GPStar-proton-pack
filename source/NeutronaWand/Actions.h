@@ -140,8 +140,8 @@ void checkWandAction() {
 
           ms_blink_sound_timer_1.start(i_blink_sound_timer);
 
-          playEffect(S_BEEPS_LOW);
-          playEffect(S_BEEPS);
+          playEffect(S_BEEPS_LOW, false, i_volume_effects, false, 0, false);
+          playEffect(S_BEEPS, false, i_volume_effects, false, 0, false);
         }
 
         if(ms_blink_sound_timer_2.justFinished()) {
@@ -149,7 +149,7 @@ void checkWandAction() {
             wandSerialSend(W_WAND_BEEP_BARGRAPH);
           }
 
-          playEffect(S_BEEPS_BARGRAPH);
+          playEffect(S_BEEPS_BARGRAPH, false, i_volume_effects, false, 0, false);
 
           ms_blink_sound_timer_2.start(i_blink_sound_timer * 4);
         }

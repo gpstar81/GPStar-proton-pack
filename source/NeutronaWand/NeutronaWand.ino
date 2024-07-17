@@ -501,8 +501,8 @@ void mainLoop() {
             wandSerialSend(W_WAND_BEEP_SOUNDS);
           }
 
-          playEffect(S_BEEPS_LOW);
-          playEffect(S_BEEPS);
+          playEffect(S_BEEPS_LOW, false, i_volume_effects, false, 0, false);
+          playEffect(S_BEEPS, false, i_volume_effects, false, 0, false);
         }
       }
 
@@ -513,7 +513,7 @@ void mainLoop() {
             wandSerialSend(W_WAND_BEEP_BARGRAPH);
           }
 
-          playEffect(S_BEEPS_BARGRAPH);
+          playEffect(S_BEEPS_BARGRAPH, false, i_volume_effects, false, 0, false);
         }
 
         ms_hat_1.start(i_hat_2_delay * 4);
@@ -969,9 +969,9 @@ void startVentSequence() {
 
     ms_settings_blinking.start(i_settings_blinking_delay);
 
-    playEffect(S_BEEPS_LOW);
-    playEffect(S_BEEPS);
-    playEffect(S_BEEPS_BARGRAPH);
+    playEffect(S_BEEPS_LOW, false, i_volume_effects, false, 0, false);
+    playEffect(S_BEEPS, false, i_volume_effects, false, 0, false);
+    playEffect(S_BEEPS_BARGRAPH, false, i_volume_effects, false, 0, false);
 
     ms_blink_sound_timer_1.start(i_blink_sound_timer);
     ms_blink_sound_timer_2.start(i_blink_sound_timer * 4);
@@ -2242,9 +2242,9 @@ void modeError() {
       wandSerialSend(W_WAND_BEEP_SOUNDS);
     }
 
-    playEffect(S_BEEPS_LOW);
-    playEffect(S_BEEPS);
-    playEffect(S_BEEPS_BARGRAPH);
+    playEffect(S_BEEPS_LOW), false, i_volume_effects, false, 0, false;
+    playEffect(S_BEEPS, false, i_volume_effects, false, 0, false);
+    playEffect(S_BEEPS_BARGRAPH, false, i_volume_effects, false, 0, false);
   }
   else if(b_wand_mash_error == true) {
     playEffect(S_SMASH_ERROR_LOOP, true, i_volume_effects, true, 2500);

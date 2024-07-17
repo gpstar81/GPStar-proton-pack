@@ -1498,12 +1498,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_WAND_BEEP_BARGRAPH:
-      playEffect(S_BEEPS_BARGRAPH);
+      playEffect(S_BEEPS_BARGRAPH, false, i_volume_effects, false, 0, false);
     break;
 
     case W_WAND_BEEP_SOUNDS:
-      playEffect(S_BEEPS_LOW);
-      playEffect(S_BEEPS);
+      playEffect(S_BEEPS_LOW, false, i_volume_effects, false, 0, false);
+      playEffect(S_BEEPS, false, i_volume_effects, false, 0, false);
     break;
 
     case W_WAND_SHUTDOWN_SOUND:
