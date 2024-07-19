@@ -243,7 +243,7 @@ void loop() {
 
   // Check if any new serial commands were received.
   checkSerial1();
-
+  
   checkMusic();
   checkSwitches();
   checkRotaryEncoder();
@@ -598,7 +598,8 @@ void systemPOST() {
   }
 
   if(i_post_powercell_down < i_powercell_leds && ms_delay_post_2.justFinished()) {
-    pack_leds[(i_powercell_leds - 1) - i_post_powercell_down] = getHueAsRGB(POWERCELL, C_BLACK);
+    //pack_leds[(i_powercell_leds - 1) - i_post_powercell_down] = getHueAsRGB(POWERCELL, C_BLACK); // Ramp up and ramp down.
+    pack_leds[i_post_powercell_down] = getHueAsRGB(POWERCELL, C_BLACK); // Ramp up and ramp away.
 
     if((i_post_powercell_down % 5) == 0) {
       pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
@@ -1132,7 +1133,7 @@ void checkSwitches() {
   switch_smoke.loop();
   switch_vibration.loop();
 
-  cyclotronSwitchPlateLEDs();
+  //cyclotronSwitchPlateLEDs();
 
   // Cyclotron direction toggle switch.
   if(switch_cyclotron_direction.isPressed() || switch_cyclotron_direction.isReleased()) {
@@ -1371,8 +1372,10 @@ void checkSwitches() {
             break;
           }
 
-          resetRampSpeeds();
-          packOffReset();
+          if(b_pack_post_finish == true) {
+            resetRampSpeeds();
+            packOffReset();
+          }
         }
       }
     break;
