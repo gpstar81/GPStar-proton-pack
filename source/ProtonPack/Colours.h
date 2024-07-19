@@ -536,7 +536,7 @@ CRGB getHueAsRGB(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255,
   // Brightness here is a value from 0-255 as limited by byte (uint8_t) type.
 
   // Get the initial colour using the HSV scheme.
-  CHSV hsv = getHue(i_device, i_colour, i_brightness, b_fade);
+  CHSV hsv = getHue(i_device, i_colour, i_brightness, 255, b_fade);
 
   // Convert from HSV to RGB.
   CRGB rgb; // RGB Array as { r, g, b }
