@@ -616,7 +616,7 @@ void systemPOST() {
       pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
     }
 
-    if(b_inner_cyclotron_led_panel == true) {
+    /*if(b_inner_cyclotron_led_panel == true) {
       if(i_post_powercell_down <= i_ic_panel_end) {
         cyclotron_leds[i_post_powercell_down] = getHueAsRGB(CYCLOTRON_PANEL, C_RED);
 
@@ -628,7 +628,7 @@ void systemPOST() {
       if(i_post_powercell_down > i_ic_panel_end) {
         cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
       }
-    }
+    }*/
 
     i_post_powercell_down++;
 
