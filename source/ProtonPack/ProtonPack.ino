@@ -598,8 +598,8 @@ void systemPOST() {
   }
 
   if(i_post_powercell_down < i_powercell_leds && ms_delay_post_2.justFinished()) {
-    //pack_leds[(i_powercell_leds - 1) - i_post_powercell_down] = getHueAsRGB(POWERCELL, C_BLACK); // Ramp up and ramp down.
-    pack_leds[i_post_powercell_down] = getHueAsRGB(POWERCELL, C_BLACK); // Ramp up and ramp away.
+    pack_leds[(i_powercell_leds - 1) - i_post_powercell_down] = getHueAsRGB(POWERCELL, C_BLACK); // Ramp up and ramp down.
+    //pack_leds[i_post_powercell_down] = getHueAsRGB(POWERCELL, C_BLACK); // Ramp up and ramp away.
 
     if((i_post_powercell_down % 5) == 0) {
       pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
@@ -1133,7 +1133,9 @@ void checkSwitches() {
   switch_smoke.loop();
   switch_vibration.loop();
 
-  //cyclotronSwitchPlateLEDs();
+  if(b_pack_post_finish) {
+    cyclotronSwitchPlateLEDs();
+  }
 
   // Cyclotron direction toggle switch.
   if(switch_cyclotron_direction.isPressed() || switch_cyclotron_direction.isReleased()) {
@@ -1314,7 +1316,7 @@ void checkSwitches() {
       }
 
       // Year mode. Best to adjust it only when the pack is off.
-      if(b_pack_shutting_down != true && b_pack_on == false && b_spectral_lights_on != true) {
+      if(b_pack_shutting_down != true && b_pack_on == false && b_spectral_lights_on != true && b_pack_post_finish) {
         // If switching manually by the pack toggle switch.
         if(b_switch_mode_override != true) {
           setYearModeByToggle();
@@ -1331,6 +1333,8 @@ void checkSwitches() {
                 SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
                 serial1Send(A_YEAR_1984);
+                resetRampSpeeds();
+                packOffReset();
               }
             break;
 
@@ -1343,6 +1347,8 @@ void checkSwitches() {
                 SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
                 serial1Send(A_YEAR_1989);
+                resetRampSpeeds();
+                packOffReset();
               }
             break;
 
@@ -1355,6 +1361,8 @@ void checkSwitches() {
                 SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
                 serial1Send(A_YEAR_FROZEN_EMPIRE);
+                resetRampSpeeds();
+                packOffReset();
               }
             break;
 
@@ -1368,13 +1376,10 @@ void checkSwitches() {
                 SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
                 serial1Send(A_YEAR_AFTERLIFE);
+                resetRampSpeeds();
+                packOffReset();
               }
             break;
-          }
-
-          if(b_pack_post_finish == true) {
-            resetRampSpeeds();
-            packOffReset();
           }
         }
       }
