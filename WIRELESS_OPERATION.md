@@ -17,6 +17,8 @@ It should be clearly stated that the ESP32 is a low-power consumer device and wi
 
 ## WiFi Debug Mode
 
+If you have forgotten the password to your device's private WiFi network, you can load the special `Attenuator-ESP32-Reset.bin` firmware by following the ["Forgot Your WiFi Password" section of the ATTENUATOR_FLASHING guide](https://github.com/gpstar81/GPStar-proton-pack/blob/main/ATTENUATOR_FLASHING.md#forgot-your-wifi-password).
+
 As of the 5.2.2 firmware release a special debug option is available when using the hardware as an Attenuator, or if a momentary switch is installed between pin D4 and GND on the ESP32 controller. While powering on the device, push down on the main dial on the Attenuator (or press the momentary switch), and the device will bypass any stored password for local WiFi. This will bypass setting of a password for the built-in WiFi network, allowing the "ProtonPack_" network to run without WPA2 security. This should **only be done as a last resort** to regain access to the device if the password is forgotten or another technical issue may be preventing access!
 
 ## Firmware Flashing

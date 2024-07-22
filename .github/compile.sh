@@ -146,3 +146,36 @@ if [ -f ${BINDIR}/Attenuator.ino.partitions.bin ]; then
 fi
 echo "Done."
 echo ""
+
+# Attenuator (ESP32 - WiFi Reset)
+echo "Building Attenuator Binary (ESP32 - WiFi Reset)..."
+
+# Change flag(s) for compilation
+sed -i -e 's/\/\/\#define DEBUG_WIRELESS_SETUP/\#define DEBUG_WIRELESS_SETUP/' ${SRCDIR}/Attenuator/Configuration.h
+sed -i -e 's/\/\/\#define DEBUG_SEND_TO_CONSOLE/\#define DEBUG_SEND_TO_CONSOLE/' ${SRCDIR}/Attenuator/Configuration.h
+sed -i -e 's/\/\/\#define RESET_AP_SETTINGS/\#define RESET_AP_SETTINGS/' ${SRCDIR}/Attenuator/Configuration.h
+
+# --warnings none
+arduino-cli compile --output-dir ${BINDIR} --fqbn esp32:esp32:esp32 --export-binaries ${SRCDIR}/Attenuator/Attenuator.ino
+
+# Keep any .bin files
+rm -f ${BINDIR}/*.eep
+rm -f ${BINDIR}/*.elf
+rm -f ${BINDIR}/*.map
+rm -f ${BINDIR}/*.merged.bin
+rm -f ${BINDIR}/*bootloader.*
+rm -f ${BINDIR}/*partitions.*
+
+if [ -f ${BINDIR}/Attenuator.ino.bin ]; then
+  mv ${BINDIR}/Attenuator.ino.bin ${BINDIR}/attenuator/extras/Attenuator-ESP32-Reset.bin
+fi
+
+# Restore flag(s) from compilation
+sed -i -e 's/\#define DEBUG_WIRELESS_SETUP/\/\/\#define DEBUG_WIRELESS_SETUP/' ${SRCDIR}/Attenuator/Configuration.h
+sed -i -e 's/\#define DEBUG_SEND_TO_CONSOLE/\/\/\#define DEBUG_SEND_TO_CONSOLE/' ${SRCDIR}/Attenuator/Configuration.h
+sed -i -e 's/\#define RESET_AP_SETTINGS/\/\/\#define RESET_AP_SETTINGS/' ${SRCDIR}/Attenuator/Configuration.h
+
+rm -f ${SRCDIR}/Attenuator/*.h-e
+
+echo "Done."
+echo ""

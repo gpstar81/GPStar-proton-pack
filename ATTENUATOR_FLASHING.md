@@ -8,6 +8,8 @@ For the Arduino Nano you may use the same flashing utility as the other gpstar P
 
 Just as you used the gpstar flashing utility for Windows or MacOS to upload to your Proton Pack or Neutrona Wand, you will do the same for this device. Plug in your device using a standard USB cable and note the serial COM port used. Select the "Attenuator-Nano.hex" file from the `/binaries/attenuator` directory and upload to the attached device.
 
+If you are using an Arduino Nano as part of a standalone Attenuator (meaning, a device not connected to a GPStar Proton Pack controller) you will want to use the `Attenuator-Nano-Standalone.hex` firmware which disables the serial communications. This will allow the device to operate without waiting for an attached pack and only requires a power source. There will be no control of your Proton pack but the toggles will work to provide lights and default bargraph animations.
+
 ## For ESP32
 
 This device supports Over-The-Air (OTA) updates for firmware, meaning you will need to utilize a desktop web browser from a computer (not a mobile device) and the built-in WiFi access point provided by the controller (prefix: "ProtonPack_"). **However, the software which enables the WiFi access point isn't yet loaded so you'll need to follow a specific process for the initial upload to your device.**
@@ -106,8 +108,6 @@ The password you choose will be stored in an area of the device's flash memory t
 ![](images/WebUI-Password.jpg)
 
 The following is only applicable to users on firmware PRIOR to the v5.2.2 release. As of that release the ability to boot up with the default password was introduced by pressing down on the center dial when power is applied to the device.
-
-**The `Attenuator-ESP32-Reset.bin` has since been deprecated as of v5.3.2 as it is no longer needed--the following instructions remain for those users on older hardware who may still need to access the device to upgrade to the latest release.**
 
 If you have forgotten the password to the private WiFi network, you will need to load a special firmware to allow you to access the device and reset the password. Though if you have opted to connect your device to a preferred WiFi network using the built-in WiFi settings, simply return to your device's IP address on that network and change the password for the private WiFi network as desired.
 
