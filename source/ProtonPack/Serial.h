@@ -444,7 +444,7 @@ void packSerialSendData(uint8_t i_message) {
   }
 }
 
-// Forward function declaration.
+// Forward function declarations.
 void handleSerialCommand(uint8_t i_command, uint16_t i_value);
 void handleWandCommand(uint8_t i_command, uint16_t i_value);
 

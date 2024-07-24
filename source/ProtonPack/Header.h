@@ -469,13 +469,6 @@ bool b_fade_out = false;
 millisDelay ms_fadeout;
 
 /*
- * Voltage reference.
- */
-uint16_t i_batt_volts; // Current voltage value (Vcc) using internal bandgap reference.
-const uint16_t i_ms_battcheck_delay = 5000; // Time between battery voltage checks.
-millisDelay ms_battcheck; // Timer for checking battery voltage on a regular interval.
-
-/*
  * Neutrona Wand Sensor Board (optional)
  * Used for detecting a stock or unmodified Hasbro Neutrona Wand.
 */

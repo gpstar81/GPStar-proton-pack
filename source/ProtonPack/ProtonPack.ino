@@ -191,7 +191,6 @@ void setup() {
   resetRampSpeeds();
 
   // Start some timers
-  ms_battcheck.start(500);
   ms_fast_led.start(i_fast_led_delay);
   ms_check_music.start(i_music_check_delay);
   ms_serial1_handshake.start(i_serial1_handshake_delay);
@@ -224,14 +223,11 @@ void setup() {
 }
 
 void loop() {
+  // Update the available audio device.
   updateAudio();
-  checkPowerMeter();
 
-  // Voltage Check
-  if(ms_battcheck.justFinished()) {
-    doVoltageCheck(); // Obtains the latest value and pushes the data to serial1, if available.
-    ms_battcheck.start(i_ms_battcheck_delay);
-  }
+  // Check current voltage/amperage draw using available methods.
+  checkPowerMeter();
 
   // Check for any new serial commands were received from the Neutrona Wand.
   checkWand();
@@ -5477,30 +5473,6 @@ void resetContinuousSmoke() {
   b_smoke_continuous_level[2] = b_smoke_continuous_level_3;
   b_smoke_continuous_level[3] = b_smoke_continuous_level_4;
   b_smoke_continuous_level[4] = b_smoke_continuous_level_5;
-}
-
-// Sourced from https://community.particle.io/t/battery-voltage-checking/5467
-// Obtains the ATMega chip's actual Vcc voltage value, using internal bandgap reference.
-// This demonstrates ability to read processors Vcc voltage and the ability to maintain A/D calibration with changing Vcc.
-void doVoltageCheck() {
-  // REFS1 REFS0               --> 0 1, AVcc internal ref. -Selects AVcc reference
-  // MUX4 MUX3 MUX2 MUX1 MUX0  --> 11110 1.1V (VBG)        -Selects channel 30, bandgap voltage, to measure
-  ADMUX = (0<<REFS1) | (1<<REFS0) | (0<<ADLAR)| (0<<MUX5) | (1<<MUX4) | (1<<MUX3) | (1<<MUX2) | (1<<MUX1) | (0<<MUX0);
-
-  // This appears to work without the delay, but for more accurate readings it may be necessary.
-  // delay(50); // Let mux settle a little to get a more stable A/D conversion.
-
-  ADCSRA |= _BV( ADSC ); // Start a conversion.
-  while( ( (ADCSRA & (1<<ADSC)) != 0 ) ); // Wait for conversion to complete...
-
-  // Scale the value, which returns the actual value of Vcc x 100
-  const long InternalReferenceVoltage = 1115L; // Adjust this value to your boards specific internal BG voltage x1000.
-  i_batt_volts = (((InternalReferenceVoltage * 1023L) / ADC) + 5L) / 10L; // Calculates for straight line value.
-
-  // Send current voltage value to the serial1 device, if connected.
-  if(b_serial1_connected) {
-    serial1Send(A_BATTERY_VOLTAGE_PACK, i_batt_volts);
-  }
 }
 
 // Included last as the contained logic will control all aspects of the pack using the defined functions above.
