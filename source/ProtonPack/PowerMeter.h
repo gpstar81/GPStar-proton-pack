@@ -25,7 +25,7 @@
 #define BUS_MAX_V   16.0 // Sets max for a 12V battery (5V nominal)
 #define MAX_CURRENT 2.0  // Sets the expected max amperage draw
 
-/**
+/*
  * Power Meter (using the INA219 chip)
  * https://github.com/flav1972/ArduinoINA219
  */
@@ -59,24 +59,26 @@ void powerConfig() {
 }
 
 void powerMeterInit() {
-  uint8_t i_monitor_status = monitor.begin();
+  if (b_use_power_meter){
+    uint8_t i_monitor_status = monitor.begin();
 
-  debugln(" ");
-  debug(F("Power Meter Result: "));
-  debugln(i_monitor_status);
+    debugln(" ");
+    debug(F("Power Meter Result: "));
+    debugln(i_monitor_status);
 
-  if (i_monitor_status == 0){
-    powerConfig();
-    meterReading.i_last_read = millis(); // For use with the Ah readings.
-    ms_power_reading.start(i_power_reading_delay);
-    ms_pack_power.start(i_power_reading_delay * 50);
+    if (i_monitor_status == 0){
+      powerConfig();
+      meterReading.i_last_read = millis(); // For use with the Ah readings.
+      ms_power_reading.start(i_power_reading_delay);
+    }
+    else {
+      // If returning a non-zero value, device could not be reset.
+      debugln(F("Unable to find power monitoring device on i2c."));
+    }
   }
-  else {
-    // If returning a non-zero value, device could not be reset.
-    debugln(F("Unable to find power monitoring device on i2c."));
-    // Begin reading at regular intervals, but 50x the time.
-    ms_pack_power.start(i_power_reading_delay * 50);
-  }
+
+  // Obtain a voltage reading directly from the pack PCB.
+  ms_pack_power.start(i_power_reading_delay * 50);
 }
 
 // Sourced from https://community.particle.io/t/battery-voltage-checking/5467
@@ -106,7 +108,8 @@ void doVoltageCheck() {
 // Perform a reading of current values from the power meter.
 void powerReading() {
   if (b_power_meter){
-    debugln(F("Reading Power Meter"));
+    // Only uncomment this debug if absolutely needed!
+    //debugln(F("Reading Power Meter"));
 
     // Reads the latest values from the monitor.  
     meterReading.f_ShuntVoltage = monitor.shuntVoltage() * 1000;
@@ -121,10 +124,13 @@ void powerReading() {
     meterReading.f_AmpHours += (meterReading.f_ShuntCurrent * meterReading.i_read_tick) / 3600000.0;
     meterReading.i_last_read = i_new_time;
 
-    Serial.print("Volts:");
-    Serial.print(meterReading.f_BusVoltage);
-    Serial.print(",Amps:");
-    Serial.println(meterReading.f_ShuntCurrent);
+    if (b_show_power_data){
+      // Prints values for use with the Serial Plotter to graph the data.
+      Serial.print("Volts:");
+      Serial.print(meterReading.f_BusVoltage);
+      Serial.print(",Amps:");
+      Serial.println(meterReading.f_ShuntCurrent);
+    }
 
     // Prepare for next read -- this is security just in case the ina219 is reset by transient current
     monitor.recalibrate();
