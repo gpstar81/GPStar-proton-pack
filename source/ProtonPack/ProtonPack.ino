@@ -44,6 +44,7 @@
 #include <Ramp.h>
 #include <SerialTransfer.h>
 #include <Wire.h>
+#include <INA219.h>
 
 // Local Files
 #include "Configuration.h"
@@ -53,7 +54,7 @@
 #include "Colours.h"
 #include "Audio.h"
 #include "Preferences.h"
-#include "WandSensor.h"
+#include "PowerMeter.h"
 
 void setup() {
   // Setup i2c.
@@ -63,8 +64,8 @@ void setup() {
   Serial1.begin(9600); // Add-on Serial1 communication.
   Serial2.begin(9600); // Communication to the Neutrona Wand.
 
-  // Search for and setup the optional Neutrona Wand sensor.
-  wandSensorSetup();
+  // Initialize an optional power meter on the i2c bus.
+  powerMeterInit();
 
   // Connect the serial ports.
   serial1Coms.begin(Serial1, false); // Attenuator/Wireless
@@ -224,7 +225,7 @@ void setup() {
 
 void loop() {
   updateAudio();
-  updateWandSensor();
+  checkPowerMeter();
 
   // Voltage Check
   if(ms_battcheck.justFinished()) {
