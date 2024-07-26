@@ -30,9 +30,11 @@
  * https://github.com/flav1972/ArduinoINA219
  */
 INA219 monitor; // Power monitor object on i2c bus using the INA219 chip.
-boolean b_power_meter = false; // Whether a power meter device exists on i2c bus.
+boolean b_power_meter_avail = false; // Whether a power meter device exists on i2c bus.
 const uint8_t i_power_reading_delay = 100; // How often to read the power levels (ms).
+const uint8_t i_power_action_delay = 200; // How often to take action on levels (ms).
 millisDelay ms_power_reading; // Timer for reading latest values from power meter.
+millisDelay ms_power_actions; // Timer for reading latest values from power meter.
 millisDelay ms_pack_power; // Timer for reading latest values from power meter.
 struct PowerMeter {
   float f_ShuntVoltage = 0; // mV
@@ -46,10 +48,17 @@ struct PowerMeter {
   unsigned long i_read_tick; // Current read time - last read
 } meterReading;
 
+// Forward function declarations.
+void packStartup(bool firstStart);
+void wandFiring();
+void wandStoppedFiring();
+void cyclotronSpeedRevert();
+
+// Configure and calibrate the power meter device.
 void powerConfig() {
   debugln(F("Configure Power Meter"));
 
-  b_power_meter = true;
+  b_power_meter_avail = true;
 
   // Custom configuration, defaults are RANGE_32V, GAIN_8_320MV, ADC_12BIT, ADC_12BIT, CONT_SH_BUS
   monitor.configure(INA219::RANGE_16V, INA219::GAIN_2_80MV, INA219::ADC_32SAMP, INA219::ADC_32SAMP, INA219::CONT_SH_BUS);
@@ -58,6 +67,7 @@ void powerConfig() {
   monitor.calibrate(SHUNT_R, SHUNT_MAX_V, BUS_MAX_V, MAX_CURRENT);
 }
 
+// Initialize the power meter device on the i2c bus.
 void powerMeterInit() {
   if (b_use_power_meter){
     uint8_t i_monitor_status = monitor.begin();
@@ -70,6 +80,7 @@ void powerMeterInit() {
       powerConfig();
       meterReading.i_last_read = millis(); // For use with the Ah readings.
       ms_power_reading.start(i_power_reading_delay);
+      ms_power_actions.start(i_power_action_delay);
     }
     else {
       // If returning a non-zero value, device could not be reset.
@@ -107,7 +118,7 @@ void doVoltageCheck() {
 
 // Perform a reading of current values from the power meter.
 void powerReading() {
-  if (b_power_meter){
+  if (b_power_meter_avail){
     // Only uncomment this debug if absolutely needed!
     //debugln(F("Reading Power Meter"));
 
@@ -142,16 +153,67 @@ void powerReading() {
   }
 }
 
+// Take actions based on current power state, specifically if there is no GPStar Neutrona Wand connected.
+void updatePowerState() {
+  // Only take action when wand is NOT connected.
+  if (b_use_power_meter && b_power_meter_avail && !b_wand_connected){
+    /** 
+     * Current Readings
+     * - Lower Toggle: Spike to 0.08-0.11A
+     * - Upper Toggle: Spike to 0.09-0.12A
+     * - Activate: Range 0.14-0.20A
+     * - Firing: Range 0.25-0.40A
+     */
+    if(meterReading.f_ShuntCurrent > 0.12) {
+      b_wand_on = true;
+
+      // Turn the pack on.
+      if(PACK_STATE != MODE_ON) {
+        packStartup(false);
+        serial1Send(A_PACK_ON);
+      }
+
+      if(meterReading.f_ShuntCurrent > 0.16) {
+        // Wand is firing.
+        wandFiring();
+      }
+      else {
+        // Wand just stopped firing.
+        if(b_wand_firing == true) {
+          wandStoppedFiring();
+
+          // Return cyclotron to normal speed.
+          cyclotronSpeedRevert();
+        }
+      }
+    }
+    else {
+      b_wand_on = false;
+
+      // Turn the pack off.
+      if(PACK_STATE != MODE_OFF) {
+        PACK_ACTION_STATE = ACTION_OFF;
+        serial1Send(A_PACK_OFF);
+      }
+    }
+  }
+}
+
 // Check the current timers for reading power meter data.
 void checkPowerMeter(){
-  if (ms_power_reading.justFinished()){
-    if (b_power_meter){
+  if(ms_power_reading.justFinished()) {
+    if(b_power_meter_avail) {
       powerReading();
       ms_power_reading.start(i_power_reading_delay);
     }
   }
 
-  if (ms_pack_power.justFinished()){
+  if(ms_power_actions.justFinished()) {
+      updatePowerState();
+      ms_power_actions.start(i_power_action_delay);
+  }
+
+  if(ms_pack_power.justFinished()) {
       doVoltageCheck();
       ms_pack_power.start(i_power_reading_delay * 50);
   }
