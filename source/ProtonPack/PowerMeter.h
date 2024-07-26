@@ -32,9 +32,7 @@
 INA219 monitor; // Power monitor object on i2c bus using the INA219 chip.
 boolean b_power_meter_avail = false; // Whether a power meter device exists on i2c bus.
 const uint8_t i_power_reading_delay = 100; // How often to read the power levels (ms).
-const uint8_t i_power_action_delay = 200; // How often to take action on levels (ms).
 millisDelay ms_power_reading; // Timer for reading latest values from power meter.
-millisDelay ms_power_actions; // Timer for reading latest values from power meter.
 millisDelay ms_pack_power; // Timer for reading latest values from power meter.
 struct PowerMeter {
   float f_ShuntVoltage = 0; // mV
@@ -80,7 +78,6 @@ void powerMeterInit() {
       powerConfig();
       meterReading.i_last_read = millis(); // For use with the Ah readings.
       ms_power_reading.start(i_power_reading_delay);
-      ms_power_actions.start(i_power_action_delay);
     }
     else {
       // If returning a non-zero value, device could not be reset.
@@ -164,7 +161,7 @@ void updatePowerState() {
      * - Activate: Range 0.14-0.20A
      * - Firing: Range 0.25-0.40A
      */
-    if(meterReading.f_ShuntCurrent > 0.12) {
+    if(meterReading.f_ShuntCurrent > 0.14) {
       b_wand_on = true;
 
       // Turn the pack on.
@@ -173,13 +170,15 @@ void updatePowerState() {
         serial1Send(A_PACK_ON);
       }
 
-      if(meterReading.f_ShuntCurrent > 0.16) {
+      if(meterReading.f_ShuntCurrent > 0.20) {
         // Wand is firing.
-        wandFiring();
+        if(!b_wand_firing) {
+          wandFiring();
+        }
       }
       else {
         // Wand just stopped firing.
-        if(b_wand_firing == true) {
+        if(b_wand_firing) {
           wandStoppedFiring();
 
           // Return cyclotron to normal speed.
@@ -204,13 +203,9 @@ void checkPowerMeter(){
   if(ms_power_reading.justFinished()) {
     if(b_power_meter_avail) {
       powerReading();
+      updatePowerState();
       ms_power_reading.start(i_power_reading_delay);
     }
-  }
-
-  if(ms_power_actions.justFinished()) {
-      updatePowerState();
-      ms_power_actions.start(i_power_action_delay);
   }
 
   if(ms_pack_power.justFinished()) {
