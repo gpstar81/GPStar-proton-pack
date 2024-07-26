@@ -34,6 +34,7 @@ boolean b_power_meter_avail = false; // Whether a power meter device exists on i
 const uint8_t i_power_reading_delay = 100; // How often to read the power levels (ms).
 millisDelay ms_power_reading; // Timer for reading latest values from power meter.
 millisDelay ms_pack_power; // Timer for reading latest values from power meter.
+float f_ema_alpha = 0.1; // Smoothing factor for Exponential Moving Average (EMA) [Lower = Smoother].
 struct PowerMeter {
   float f_ShuntVoltage = 0; // mV
   float f_ShuntCurrent = 0; // A
@@ -42,6 +43,7 @@ struct PowerMeter {
   float f_PackVoltage = 0; // V
   float f_BusPower = 0; // mW
   float f_AmpHours = 0; // Ah
+  float f_EMACurrent = 0; // A
   unsigned long i_last_read = 0; // Used to calculate Ah used
   unsigned long i_read_tick; // Current read time - last read
 } meterReading;
@@ -59,7 +61,7 @@ void powerConfig() {
   b_power_meter_avail = true;
 
   // Custom configuration, defaults are RANGE_32V, GAIN_8_320MV, ADC_12BIT, ADC_12BIT, CONT_SH_BUS
-  monitor.configure(INA219::RANGE_16V, INA219::GAIN_2_80MV, INA219::ADC_32SAMP, INA219::ADC_32SAMP, INA219::CONT_SH_BUS);
+  monitor.configure(INA219::RANGE_16V, INA219::GAIN_1_40MV, INA219::ADC_128SAMP, INA219::ADC_128SAMP, INA219::CONT_SH_BUS);
   
   // Calibrate with our chosen values
   monitor.calibrate(SHUNT_R, SHUNT_MAX_V, BUS_MAX_V, MAX_CURRENT);
@@ -125,6 +127,7 @@ void powerReading() {
     meterReading.f_BusVoltage = monitor.busVoltage();
     meterReading.f_BattVoltage = meterReading.f_BusVoltage + (meterReading.f_ShuntVoltage / 1000);
     meterReading.f_BusPower = monitor.busPower() * 1000;
+    meterReading.f_EMACurrent = f_ema_alpha * meterReading.f_ShuntCurrent + (1 - f_ema_alpha) * meterReading.f_EMACurrent;
 
     // Use time and values to calculate Ah estimate.
     unsigned long i_new_time = millis();
@@ -134,13 +137,14 @@ void powerReading() {
 
     if (b_show_power_data){
       // Prints values for use with the Serial Plotter to graph the data.
-      Serial.print("Volts:");
-      Serial.print(meterReading.f_BusVoltage);
-      Serial.print(",Amps:");
-      Serial.println(meterReading.f_ShuntCurrent);
+      // Serial.print("Volts:");
+      // Serial.print(meterReading.f_BusVoltage);
+      // Serial.print(",");
+      Serial.print("Amps:");
+      Serial.println(meterReading.f_EMACurrent);
     }
 
-    // Prepare for next read -- this is security just in case the ina219 is reset by transient current
+    // Prepare for next read -- this is security just in case the INA219 is reset by transient current.
     monitor.recalibrate();
     monitor.reconfig();
   }
@@ -154,15 +158,24 @@ void powerReading() {
 void updatePowerState() {
   // Only take action when wand is NOT connected.
   if (b_use_power_meter && b_power_meter_avail && !b_wand_connected){
-    /** 
-     * Current Readings
+    /**
+     * Current Readings (Direct)
      * - Lower Toggle: Spike to 0.08-0.11A
      * - Upper Toggle: Spike to 0.09-0.12A
-     * - Activate: Range 0.14-0.20A
-     * - Firing: Range 0.25-0.40A
+     * - Activate: Range 0.13-0.22A (Levels 1-5)
+     * - Firing: Range 0.22-0.30A (Levels 1-5)
+     *
+     * Current Readings (EMA 0.1)
+     * - Lower Toggle: Avg. to 0.04A
+     * - Upper Toggle: Avg. to 0.07A
+     * - Activate: Range 0.14-0.23A (Levels 1-5)
+     * - Firing: Range 0.20-0.30A (Levels 1-5)
      */
-    if(meterReading.f_ShuntCurrent > 0.14) {
+    if(meterReading.f_ShuntCurrent >= 0.12) {
       b_wand_on = true;
+
+      // Fake a full-power setting to the Attenuator
+      serial1Send(A_POWER_LEVEL_5);
 
       // Turn the pack on.
       if(PACK_STATE != MODE_ON) {
@@ -170,7 +183,7 @@ void updatePowerState() {
         serial1Send(A_PACK_ON);
       }
 
-      if(meterReading.f_ShuntCurrent > 0.20) {
+      if(meterReading.f_ShuntCurrent >= 0.23) {
         // Wand is firing.
         if(!b_wand_firing) {
           wandFiring();
