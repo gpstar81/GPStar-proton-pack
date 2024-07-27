@@ -29,15 +29,21 @@
  * Power Meter (using the INA219 chip)
  * https://github.com/flav1972/ArduinoINA219
  */
+// Variables
 INA219 monitor; // Power monitor object on i2c bus using the INA219 chip.
 boolean b_power_meter_avail = false; // Whether a power meter device exists on i2c bus.
 const uint8_t i_power_reading_delay = 50; // How often to read the power levels (ms).
 const uint8_t i_pack_reading_factor = 100; // Multiplier for pack voltage readings.
-const uint8_t i_powerup_delay = 1000; // How long to ignore firing after power-up (ms).
+const uint16_t i_powerup_delay = 1000; // How long to ignore firing after power-up (ms).
+const float f_ema_alpha = 0.1; // Smoothing factor for Exponential Moving Average (EMA) [Lower = Smoother].
+const float f_power_on_threshold = 0.13; // Minimum current (A) to consider whether the wand is powered on.
+const float f_current_change_threshold = 0.10; // Minimum change in current (A) to consider a state change.
+const uint16_t i_state_change_duration = 200; // Duration (ms) for the current change to persist for action.
+// Timers
 millisDelay ms_power_reading; // Timer for reading latest values from power meter.
 millisDelay ms_pack_power; // Timer for reading latest values from power meter.
 millisDelay ms_powerup_debounce; // Timer for locking out firing when the wand powers on.
-float f_ema_alpha = 0.1; // Smoothing factor for Exponential Moving Average (EMA) [Lower = Smoother].
+// Objects
 struct PowerMeter {
   float f_ShuntVoltage = 0; // mV
   float f_ShuntCurrent = 0; // A
@@ -46,7 +52,9 @@ struct PowerMeter {
   float f_PackVoltage = 0; // V
   float f_BusPower = 0; // mW
   float f_AmpHours = 0; // Ah
+  float f_LastAverage = 0; // A
   float f_AvgCurrent = 0; // A
+  unsigned long i_state_change_start_time = 0; // Time when a potential state change was detected
   unsigned long i_last_read = 0; // Used to calculate Ah used
   unsigned long i_read_tick; // Current read time - last read
 } meterReading;
@@ -145,8 +153,11 @@ void powerReading() {
       // Serial.print("Volts:");
       // Serial.print(meterReading.f_BusVoltage);
       // Serial.print(",");
-      Serial.print("Avg.Amps:");
-      Serial.println(meterReading.f_AvgCurrent);
+      Serial.print("AvgAmps:");
+      Serial.print(meterReading.f_AvgCurrent);
+      Serial.print(",");
+      Serial.print("LastAvg:");
+      Serial.println(meterReading.f_LastAverage);
     }
 
     // Prepare for next read -- this is security just in case the INA219 is reset by transient current.
@@ -177,42 +188,75 @@ void updatePowerState() {
      * Level 4 Fire: 0.30-0.35A
      * Level 5 Fire: 0.34-0.45A
      */
-    float f_current = meterReading.f_AvgCurrent;
-    if(f_current > 0.12) {
-      b_wand_on = true;
+    float f_avg_current = meterReading.f_AvgCurrent;
+    unsigned long current_time = millis();
+    boolean b_state_change_lower = f_avg_current < meterReading.f_LastAverage - f_current_change_threshold;
+    boolean b_state_change_higher = f_avg_current > meterReading.f_LastAverage + f_current_change_threshold;
 
-      // Turn the pack on.
-      if(PACK_STATE != MODE_ON) {
-        packStartup(false);
-
-        // Fake a full-power setting to the Attenuator
-        serial1Send(A_POWER_LEVEL_5);
-
-        // Tell the Attenuator the pack is powered on
-        serial1Send(A_PACK_ON);
-
-        // Just powered up, so set a delay for firing.
-        ms_powerup_debounce.start(i_powerup_delay);
+    // Check for a significant and sustained change in current.
+    if(b_state_change_lower || b_state_change_higher) {
+      // Record the time when the significant change was first detected.
+      if(meterReading.i_state_change_start_time == 0) {
+        meterReading.i_state_change_start_time = current_time;
       }
 
-      if(ms_powerup_debounce.remaining() < 1 && f_current > 0.24) {
-        // Wand is firing.
-        if(!b_wand_firing) {
-          wandFiring();
+      // Determine whether the change (+/-) took place over the expected timeframe.
+      if(current_time - meterReading.i_state_change_start_time >= i_state_change_duration) {
+        // Wand is considered "on" when above the base change.
+        if(f_avg_current > f_power_on_threshold) {
+          b_wand_on = true;
+
+          // Turn the pack on.
+          if(PACK_STATE != MODE_ON) {
+            packStartup(false);
+
+            // Fake a full-power setting to the Attenuator
+            serial1Send(A_POWER_LEVEL_5);
+
+            // Tell the Attenuator the pack is powered on
+            serial1Send(A_PACK_ON);
+
+            // Just powered up, so set a delay for firing.
+            ms_powerup_debounce.start(i_powerup_delay);
+          }
         }
-      }
-      else {
-        // Wand just stopped firing.
-        if(b_wand_firing) {
-          // Stop firing sequence if previously firing.
-          wandStoppedFiring();
 
-          // Return cyclotron to normal speed.
-          cyclotronSpeedRevert();
+        // If the pack is considered "on" then determine whether firing or not.
+        if(PACK_STATE != MODE_OFF) {
+          if(b_state_change_higher && ms_powerup_debounce.remaining() < 1) {
+            // State change was sustained higher as means the wand is firing.
+            if(!b_wand_firing) {
+              wandFiring();
+            }
+          }
+          if(b_state_change_lower && b_wand_firing) {
+            // State change was sustained higher as means the wand stopped firing.
+            wandStoppedFiring();
+
+            // Return cyclotron to normal speed.
+            cyclotronSpeedRevert();
+          }
         }
       }
     }
-    else if(f_current < 0.10) {
+    else {
+      // Reset the state change timer if the change was not significant.
+      meterReading.i_state_change_start_time = 0;
+    }
+
+    // Update previous average current reading.
+    meterReading.f_LastAverage = f_avg_current;
+
+    // Stop firing and turn off the pack if current is below the base threshold.
+    if(f_avg_current <= f_power_on_threshold) {
+      if(b_wand_firing) {
+        // Stop firing sequence if previously firing.
+        wandStoppedFiring();
+
+        // Return cyclotron to normal speed.
+        cyclotronSpeedRevert();
+      }
+
       b_wand_on = false;
 
       // Turn the pack off.
@@ -220,6 +264,9 @@ void updatePowerState() {
         PACK_ACTION_STATE = ACTION_OFF;
         serial1Send(A_PACK_OFF);
       }
+
+      // Reset the state change timer due to this significant event.
+      meterReading.i_state_change_start_time = 0;
     }
   }
 }
