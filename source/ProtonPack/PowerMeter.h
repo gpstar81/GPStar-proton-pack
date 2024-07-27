@@ -37,7 +37,7 @@ const uint8_t i_pack_reading_factor = 100; // Multiplier for pack voltage readin
 const uint16_t i_powerup_delay = 1000; // How long to ignore firing after power-up (ms).
 const float f_ema_alpha = 0.1; // Smoothing factor for Exponential Moving Average (EMA) [Lower = Smoother].
 const float f_power_on_threshold = 0.13; // Minimum current (A) to consider whether the wand is powered on.
-const float f_current_change_threshold = 0.10; // Minimum change in current (A) to consider a state change.
+const float f_current_change_threshold = 0.06; // Minimum change in current (A) to consider a state change.
 const uint16_t i_state_change_duration = 200; // Duration (ms) for the current change to persist for action.
 // Timers
 millisDelay ms_power_reading; // Timer for reading latest values from power meter.
@@ -139,7 +139,7 @@ void powerReading() {
     meterReading.f_BattVoltage = meterReading.f_BusVoltage + (meterReading.f_ShuntVoltage / 1000);
     meterReading.f_BusPower = monitor.busPower() * 1000;
 
-    // Create some new smoothed/averaged curent values using the latest reading.
+    // Create some new smoothed/averaged current (A) values using the latest reading.
     meterReading.f_AvgCurrent = f_ema_alpha * meterReading.f_ShuntCurrent + (1 - f_ema_alpha) * meterReading.f_AvgCurrent;
 
     // Use time and values to calculate Ah estimate.
@@ -202,6 +202,9 @@ void updatePowerState() {
 
       // Determine whether the change (+/-) took place over the expected timeframe.
       if(current_time - meterReading.i_state_change_start_time >= i_state_change_duration) {
+        // Update previous average current reading since we've had a sustained change in state.
+        meterReading.f_LastAverage = f_avg_current;
+
         // Wand is considered "on" when above the base change.
         if(f_avg_current > f_power_on_threshold) {
           b_wand_on = true;
@@ -221,16 +224,14 @@ void updatePowerState() {
           }
         }
 
-        // If the pack is considered "on" then determine whether firing or not.
-        if(PACK_STATE != MODE_OFF) {
-          if(b_state_change_higher && ms_powerup_debounce.remaining() < 1) {
-            // State change was sustained higher as means the wand is firing.
-            if(!b_wand_firing) {
-              wandFiring();
-            }
+        // If the wand and pack are considered "on" then determine whether firing or not.
+        if(b_wand_on && PACK_STATE != MODE_OFF) {
+          if(b_state_change_higher && !b_wand_firing && ms_powerup_debounce.remaining() < 1) {
+            // State change was higher as means the wand is firing.
+            wandFiring();
           }
           if(b_state_change_lower && b_wand_firing) {
-            // State change was sustained higher as means the wand stopped firing.
+            // State change was lower as means the wand stopped firing.
             wandStoppedFiring();
 
             // Return cyclotron to normal speed.
@@ -243,9 +244,6 @@ void updatePowerState() {
       // Reset the state change timer if the change was not significant.
       meterReading.i_state_change_start_time = 0;
     }
-
-    // Update previous average current reading.
-    meterReading.f_LastAverage = f_avg_current;
 
     // Stop firing and turn off the pack if current is below the base threshold.
     if(f_avg_current <= f_power_on_threshold) {
@@ -265,8 +263,9 @@ void updatePowerState() {
         serial1Send(A_PACK_OFF);
       }
 
-      // Reset the state change timer due to this significant event.
+      // Reset the state change timer and last average due to this significant event.
       meterReading.i_state_change_start_time = 0;
+      meterReading.f_LastAverage = f_avg_current;
     }
   }
 }
