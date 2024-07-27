@@ -23,7 +23,7 @@
 #define SHUNT_R     0.1  // Shunt resistor in ohms (default: 0.1)
 #define SHUNT_MAX_V 0.2  // Max voltage across shunt (default: 0.2)
 #define BUS_MAX_V   16.0 // Sets max for a 12V battery (5V nominal)
-#define MAX_CURRENT 2.0  // Sets the expected max amperage draw
+#define MAX_CURRENT 1.0  // Sets the expected max amperage (A) draw
 
 /*
  * Power Meter (using the INA219 chip)
