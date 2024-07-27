@@ -23,7 +23,7 @@
 #define SHUNT_R     0.1  // Shunt resistor in ohms (default: 0.1)
 #define SHUNT_MAX_V 0.2  // Max voltage across shunt (default: 0.2)
 #define BUS_MAX_V   16.0 // Sets max for a 12V battery (5V nominal)
-#define MAX_CURRENT 1.0  // Sets the expected max amperage draw
+#define MAX_CURRENT 2.0  // Sets the expected max amperage draw
 
 /*
  * Power Meter (using the INA219 chip)
@@ -38,7 +38,7 @@ const uint16_t i_powerup_delay = 1000; // How long to ignore firing after power-
 const float f_ema_alpha = 0.1; // Smoothing factor for Exponential Moving Average (EMA) [Lower = Smoother].
 const float f_power_on_threshold = 0.13; // Minimum current (A) to consider whether the wand is powered on.
 const float f_current_change_threshold = 0.06; // Minimum change in current (A) to consider a state change.
-const uint16_t i_state_change_duration = 200; // Duration (ms) for the current change to persist for action.
+const uint16_t i_state_change_duration = 100; // Duration (ms) for the current change to persist for action.
 // Timers
 millisDelay ms_power_reading; // Timer for reading latest values from power meter.
 millisDelay ms_pack_power; // Timer for reading latest values from power meter.
@@ -72,7 +72,7 @@ void powerConfig() {
   b_power_meter_avail = true;
 
   // Custom configuration, defaults are RANGE_32V, GAIN_8_320MV, ADC_12BIT, ADC_12BIT, CONT_SH_BUS
-  monitor.configure(INA219::RANGE_16V, INA219::GAIN_4_160MV, INA219::ADC_128SAMP, INA219::ADC_128SAMP, INA219::CONT_SH_BUS);
+  monitor.configure(INA219::RANGE_16V, INA219::GAIN_2_80MV, INA219::ADC_32SAMP, INA219::ADC_32SAMP, INA219::CONT_SH_BUS);
 
   // Calibrate with our chosen values
   monitor.calibrate(SHUNT_R, SHUNT_MAX_V, BUS_MAX_V, MAX_CURRENT);
@@ -228,6 +228,8 @@ void updatePowerState() {
         if(b_wand_on && PACK_STATE != MODE_OFF) {
           if(b_state_change_higher && !b_wand_firing && ms_powerup_debounce.remaining() < 1) {
             // State change was higher as means the wand is firing.
+            i_wand_power_level = 5;
+            b_firing_intensify = true;
             wandFiring();
           }
           if(b_state_change_lower && b_wand_firing) {
