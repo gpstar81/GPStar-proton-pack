@@ -33,13 +33,11 @@
 // General Variables
 INA219 monitor; // Power monitor object on i2c bus using the INA219 chip.
 bool b_power_meter_avail = false; // Whether a power meter device exists on i2c bus.
-const uint16_t i_pack_reading_delay = 5000; // Multiplier for pack voltage readings.
 const float f_power_on_threshold = 0.13; // Minimum current (A) to consider as to whether a stock Neutrona Wand is powered on.
 const float f_ema_alpha = 0.2; // Smoothing factor (<1) for Exponential Moving Average (EMA) [Lower Value = Smoother Averaging].
 
-// Timers
-millisDelay ms_power_reading; // Timer for reading latest values from power meter.
-millisDelay ms_pack_power; // Timer for reading latest voltage from the pack itself.
+// Special Timers and Timeouts
+const uint16_t i_pack_reading_delay = 5000; // Multiplier for pack voltage readings.
 millisDelay ms_powerup_debounce; // Timer to lock out firing when the wand powers on.
 
 // Define an object which can store
@@ -52,7 +50,6 @@ struct PowerMeter {
   float ShuntCurrent = 0; // A
   float BusVoltage = 0; // V
   float BattVoltage = 0; // V
-  float PackVoltage = 0; // V
   float BusPower = 0; // mW
   float AmpHours = 0; // Ah
   float LastAverage = 0; // A
@@ -60,13 +57,15 @@ struct PowerMeter {
   unsigned long StateChanged = 0; // Time when a potential state change was detected
   unsigned long LastRead = 0; // Used to calculate Ah used
   unsigned long ReadTick = 0; // Current read time - last read
+  millisDelay ReadTimer; // Timer for reading latest values from power meter.
 };
 
-// Set the static constant for considering changes to wand readings.
+// Set the static constant for considering changes to current readings.
 const float PowerMeter::StateChangeThreshold = 0.06;
 
-// Create instance of the PowerMeter object.
+// Create instances of the PowerMeter object.
 PowerMeter wandReading;
+PowerMeter packReading;
 
 // Forward function declarations.
 void packStartup(bool firstStart);
@@ -99,7 +98,7 @@ void powerMeterInit() {
     if (i_monitor_status == 0){
       powerMeterConfig();
       wandReading.LastRead = millis(); // For use with the Ah readings.
-      ms_power_reading.start(PowerMeter::PowerReadDelay);
+      wandReading.ReadTimer.start(PowerMeter::PowerReadDelay);
     }
     else {
       // If returning a non-zero value, device could not be reset.
@@ -108,40 +107,16 @@ void powerMeterInit() {
   }
 
   // Obtain a voltage reading directly from the pack PCB.
-  ms_pack_power.start(i_pack_reading_delay);
+  packReading.ReadTimer.start(i_pack_reading_delay);
 }
 
-// Sourced from https://community.particle.io/t/battery-voltage-checking/5467
-// Obtains the ATMega chip's actual Vcc voltage value, using internal bandgap reference.
-// This demonstrates ability to read processors Vcc voltage and the ability to maintain A/D calibration with changing Vcc.
-void doPackVoltageCheck() {
-  // REFS1 REFS0               --> 0 1, AVcc internal ref. -Selects AVcc reference
-  // MUX4 MUX3 MUX2 MUX1 MUX0  --> 11110 1.1V (VBG)        -Selects channel 30, bandgap voltage, to measure
-  ADMUX = (0<<REFS1) | (1<<REFS0) | (0<<ADLAR)| (0<<MUX5) | (1<<MUX4) | (1<<MUX3) | (1<<MUX2) | (1<<MUX1) | (0<<MUX0);
-
-  // This appears to work without the delay, but for more accurate readings it may be necessary.
-  // delay(50); // Let mux settle a little to get a more stable A/D conversion.
-
-  ADCSRA |= _BV( ADSC ); // Start a conversion.
-  while( ( (ADCSRA & (1<<ADSC)) != 0 ) ); // Wait for conversion to complete...
-
-  // Scale the value, which returns the actual value of Vcc x 100
-  const long InternalReferenceVoltage = 1115L; // Adjust this value to your boards specific internal BG voltage x1000.
-  wandReading.PackVoltage = (((InternalReferenceVoltage * 1023L) / ADC) + 5L) / 10L; // Calculates for straight line value.
-
-  // Send current voltage value to the serial1 device, if connected.
-  if(b_serial1_connected) {
-    serial1Send(A_BATTERY_VOLTAGE_PACK, wandReading.PackVoltage);
-  }
-}
-
-// Perform a reading of current values from the power meter.
+// Perform a reading of values from the power meter for the wand.
 void doWandPowerReading() {
   if (b_use_power_meter && b_power_meter_avail){
     // Only uncomment this debug if absolutely needed!
     //debugln(F("Reading Power Meter"));
 
-    // Reads the latest values from the monitor.  
+    // Reads the latest values from the monitor.
     wandReading.ShuntVoltage = monitor.shuntVoltage() * 1000;
     wandReading.ShuntCurrent = monitor.shuntCurrent();
     wandReading.BusVoltage = monitor.busVoltage();
@@ -173,10 +148,31 @@ void doWandPowerReading() {
     monitor.recalibrate();
     monitor.reconfig();
   }
-  else {
-    // Perform a check using the bandgap voltage.
-    doPackVoltageCheck();
-  }
+}
+
+// Sourced from https://community.particle.io/t/battery-voltage-checking/5467
+// Obtains the ATMega chip's actual Vcc voltage value, using internal bandgap reference.
+// This demonstrates ability to read processors Vcc voltage and the ability to maintain A/D calibration with changing Vcc.
+void doPackVoltageReading() {
+  // REFS1 REFS0               --> 0 1, AVcc internal ref. -Selects AVcc reference
+  // MUX4 MUX3 MUX2 MUX1 MUX0  --> 11110 1.1V (VBG)        -Selects channel 30, bandgap voltage, to measure
+  ADMUX = (0<<REFS1) | (1<<REFS0) | (0<<ADLAR)| (0<<MUX5) | (1<<MUX4) | (1<<MUX3) | (1<<MUX2) | (1<<MUX1) | (0<<MUX0);
+
+  // This appears to work without the delay, but for more accurate readings it may be necessary.
+  // delay(50); // Let mux settle a little to get a more stable A/D conversion.
+
+  ADCSRA |= _BV( ADSC ); // Start a conversion.
+  while( ( (ADCSRA & (1<<ADSC)) != 0 ) ); // Wait for conversion to complete...
+
+  // Scale the value, which returns the actual value of Vcc x 100
+  const long InternalReferenceVoltage = 1115L; // Adjust this value to your boards specific internal BG voltage x1000.
+  packReading.BusVoltage = (((InternalReferenceVoltage * 1023L) / ADC) + 5L) / 10L; // Calculates for straight line value.
+}
+
+// Perform a reading of values from the power meter for the pack.
+void doPackPowerReading() {
+  // When not using a device on the i2c bus, obtain bandgap voltage from the processor.
+  doPackVoltageReading();
 }
 
 // Take actions based on current power state, specifically if there is no GPStar Neutrona Wand connected.
@@ -200,8 +196,8 @@ void updateWandPowerState() {
      */
     float f_avg_current = wandReading.AvgCurrent;
     unsigned long current_time = millis();
-    boolean b_state_change_lower = f_avg_current < wandReading.LastAverage - PowerMeter::StateChangeThreshold;
-    boolean b_state_change_higher = f_avg_current > wandReading.LastAverage + PowerMeter::StateChangeThreshold;
+    bool b_state_change_lower = f_avg_current < wandReading.LastAverage - PowerMeter::StateChangeThreshold;
+    bool b_state_change_higher = f_avg_current > wandReading.LastAverage + PowerMeter::StateChangeThreshold;
 
     // Check for a significant and sustained change in current.
     if(b_state_change_lower || b_state_change_higher) {
@@ -287,19 +283,27 @@ void updateWandPowerState() {
   }
 }
 
+void updatePackPowerState(){
+  // Send latest voltage value to the serial1 device, if connected.
+  if(b_serial1_connected) {
+    serial1Send(A_BATTERY_VOLTAGE_PACK, packReading.BusVoltage);
+  }
+}
+
 // Check the current timers for reading power meter data.
 void checkPowerMeter(){
-  if(ms_power_reading.justFinished()) {
+  if(wandReading.ReadTimer.justFinished()) {
     if(b_use_power_meter && b_power_meter_avail) {
       doWandPowerReading(); // Get latest V/A readings.
       updateWandPowerState(); // Take action on values.
-      ms_power_reading.start(PowerMeter::PowerReadDelay);
+      wandReading.ReadTimer.start(PowerMeter::PowerReadDelay);
     }
   }
 
-  if(ms_pack_power.justFinished()) {
-      doPackVoltageCheck(); // Get latest reading.
-      ms_pack_power.start(i_pack_reading_delay);
+  if(packReading.ReadTimer.justFinished()) {
+      doPackPowerReading(); // Get latest readings.
+      updatePackPowerState(); // Take action on values.
+      packReading.ReadTimer.start(i_pack_reading_delay);
   }
 }
 

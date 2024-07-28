@@ -123,7 +123,7 @@ void bargraphOff() {
 
 void setupBargraph() {
   Wire.begin();
-  Wire.setClock(400000UL);
+  Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
 
   byte by_error, by_address;
   uint8_t i_i2c_devices = 0;

@@ -58,7 +58,7 @@
 void setup() {
   // Setup i2c.
   Wire.begin();
-  Wire.setClock(400000UL);
+  Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
 
   Serial.begin(9600); // Standard serial (USB) console.
   Serial1.begin(9600); // Add-on Serial1 communication.
@@ -240,7 +240,7 @@ void loop() {
 
   // Check if any new serial commands were received.
   checkSerial1();
-  
+
   checkMusic();
   checkSwitches();
   checkRotaryEncoder();
