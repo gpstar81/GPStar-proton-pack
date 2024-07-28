@@ -58,6 +58,7 @@
 void setup() {
   // Setup i2c.
   Wire.begin();
+  Wire.setClock(400000UL);
 
   Serial.begin(9600); // Standard serial (USB) console.
   Serial1.begin(9600); // Add-on Serial1 communication.

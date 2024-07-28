@@ -32,7 +32,7 @@
 
 // General Variables
 INA219 monitor; // Power monitor object on i2c bus using the INA219 chip.
-boolean b_power_meter_avail = false; // Whether a power meter device exists on i2c bus.
+bool b_power_meter_avail = false; // Whether a power meter device exists on i2c bus.
 const uint16_t i_pack_reading_delay = 5000; // Multiplier for pack voltage readings.
 const float f_power_on_threshold = 0.13; // Minimum current (A) to consider as to whether a stock Neutrona Wand is powered on.
 const float f_ema_alpha = 0.2; // Smoothing factor (<1) for Exponential Moving Average (EMA) [Lower Value = Smoother Averaging].

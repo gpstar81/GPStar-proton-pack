@@ -42,7 +42,7 @@ CRGB device_leds[DEVICE_NUM_LEDS];
  * Therefore, the order of this list may change depending on user preference.
  * This feature will only be available for the ESP32-based controller.
  */
-boolean b_invert_leds = false; // Denotes whether the order should be reversed.
+bool b_invert_leds = false; // Denotes whether the order should be reversed.
 uint8_t i_device_led[DEVICE_NUM_LEDS] = {0, 1, 2}; // Default Order
 
 /*
