@@ -132,18 +132,6 @@ void doWandPowerReading() {
     wandReading.AmpHours += (wandReading.ShuntCurrent * wandReading.ReadTick) / 3600000.0;
     wandReading.LastRead = i_new_time;
 
-    if (b_show_power_data){
-      // Prints values for use with the Serial Plotter to graph the data.
-      // Serial.print("Volts:");
-      // Serial.print(wandReading.BusVoltage);
-      // Serial.print(",");
-      Serial.print("AvgAmps:");
-      Serial.print(wandReading.AvgCurrent);
-      Serial.print(",");
-      Serial.print("LastAvg:");
-      Serial.println(wandReading.LastAverage);
-    }
-
     // Prepare for next read -- this is security just in case the INA219 is reset by transient current.
     monitor.recalibrate();
     monitor.reconfig();
@@ -292,7 +280,7 @@ void updatePackPowerState(){
 
 // Displays the latest gathered power meter values.
 void wandPowerDisplay() {
-  if(b_use_power_meter && b_power_meter_avail) {
+  if(b_use_power_meter && b_power_meter_avail && b_show_power_data) {
     // Serial.print("W.Shunt(mv):");
     // Serial.print(wandReading.ShuntVoltage);
     // Serial.print(",");
@@ -331,9 +319,7 @@ void checkPowerMeter(){
   if(wandReading.ReadTimer.justFinished()) {
     if(b_use_power_meter && b_power_meter_avail) {
       doWandPowerReading(); // Get latest V/A readings.
-      if(b_show_power_data) {
-        wandPowerDisplay();
-      }
+      wandPowerDisplay(); // Show values for serial plotter.
       updateWandPowerState(); // Take action on values.
       wandReading.ReadTimer.start(PowerMeter::PowerReadDelay);
     }
