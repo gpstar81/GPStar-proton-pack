@@ -290,11 +290,50 @@ void updatePackPowerState(){
   }
 }
 
-// Check the current timers for reading power meter data.
+// Displays the latest gathered power meter values.
+void wandPowerDisplay() {
+  if(b_use_power_meter && b_power_meter_avail) {
+    // Serial.print("W.Shunt(mv):");
+    // Serial.print(wandReading.ShuntVoltage);
+    // Serial.print(",");
+
+    Serial.print("W.Power(A):");
+    Serial.print(wandReading.ShuntCurrent);
+    Serial.print(",");
+
+    // Serial.print("W.Bus(V)):");
+    // Serial.print(wandReading.BusVoltage);
+    // Serial.print(",");
+
+    // Serial.print("W.Bus(mW)):");
+    // Serial.print(wandReading.BusPower);
+    // Serial.print(",");
+
+    // Serial.print("W.Batt(V):");
+    // Serial.print(wandReading.BattVoltage);
+    // Serial.print(",");
+
+    Serial.print("W.AmpHours:");
+    Serial.print(wandReading.AmpHours);
+    Serial.print(",");
+
+    Serial.print("W.AvgPow(A):");
+    Serial.print(wandReading.AvgCurrent);
+    Serial.print(",");
+
+    Serial.print("W.State(A):");
+    Serial.println(wandReading.LastAverage);
+  }
+}
+
+// Check the available timers for reading power meter data.
 void checkPowerMeter(){
   if(wandReading.ReadTimer.justFinished()) {
     if(b_use_power_meter && b_power_meter_avail) {
       doWandPowerReading(); // Get latest V/A readings.
+      if(b_show_power_data) {
+        wandPowerDisplay();
+      }
       updateWandPowerState(); // Take action on values.
       wandReading.ReadTimer.start(PowerMeter::PowerReadDelay);
     }
@@ -304,36 +343,5 @@ void checkPowerMeter(){
       doPackPowerReading(); // Get latest readings.
       updatePackPowerState(); // Take action on values.
       packReading.ReadTimer.start(i_pack_reading_delay);
-  }
-}
-
-// Displays the latest gathered power meter values.
-void wandPowerDisplay() {
-  if(b_use_power_meter && b_power_meter_avail) {
-    Serial.print("Shunt Voltage: ");
-    Serial.print(wandReading.ShuntVoltage, 4);
-    Serial.println(" mV");
-
-    Serial.print("Shunt Current:  ");
-    Serial.print(wandReading.ShuntCurrent, 4);
-    Serial.println(" A");
-
-    Serial.print("Bus Voltage:    ");
-    Serial.print(wandReading.BusVoltage, 4);
-    Serial.println(" V");
-
-    Serial.print("Batt Voltage:   ");
-    Serial.print(wandReading.BattVoltage, 4);
-    Serial.println(" V");
-
-    Serial.print("Bus Power:      ");
-    Serial.print(wandReading.BusPower, 2);
-    Serial.println(" mW");
-
-    Serial.print("Amp Hours:      ");
-    Serial.print(wandReading.AmpHours, 4);
-    Serial.println(" Ah");
-
-    Serial.println(" ");
   }
 }
