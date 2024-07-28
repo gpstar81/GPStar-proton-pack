@@ -154,10 +154,8 @@ void setup() {
   // Feedback devices (piezo buzzer and vibration motor)
   pinMode(BUZZER_PIN, OUTPUT);
   #if defined(__XTENSA__)
-    // ESP32
-    //ledcSetup(PWM_CHANNEL, 5000, 8);
-    //ledcAttachPin(VIBRATION_PIN, PWM_CHANNEL);
-    ledcAttach(VIBRATION_PIN, 5000, 8); // Combined method for arduino-esp32 v3.x board library
+    // ESP32 - Note: "ledcAttach" is a combined method for the arduino-esp32 v3.x board library
+    ledcAttach(VIBRATION_PIN, 5000, 8); // Uses 5 kHz frequency, 8-bit resolution
   #else
     // Nano
     pinMode(VIBRATION_PIN, OUTPUT);
@@ -449,7 +447,7 @@ void useVibration(uint16_t i_duration) {
       // Ensures only vibration is started once per call to this method.
       #if defined(__XTENSA__)
         // ESP32
-        ledcWrite(PWM_CHANNEL, i_max_power);
+        ledcWrite(VIBRATION_PIN, i_max_power);
       #else
         // Nano
         analogWrite(VIBRATION_PIN, i_max_power);
@@ -466,7 +464,7 @@ void vibrateOff() {
   if(b_vibrate_on) {
     #if defined(__XTENSA__)
       // ESP32
-      ledcWrite(PWM_CHANNEL, i_min_power);
+      ledcWrite(VIBRATION_PIN, i_min_power);
     #else
       // Nano
       analogWrite(VIBRATION_PIN, i_min_power);
