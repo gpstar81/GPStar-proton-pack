@@ -143,9 +143,6 @@ int i_bargraph_element = 0; // Indicates current LED element for adjustment.
 bool b_bargraph_present = false; // Denotes that i2c bus found the bargraph device.
 millisDelay ms_bargraph; // Timer to control bargraph updates consistently.
 
-// Define Wire object for the i2c bus.
-#define WIRE Wire
-
 // Denotes the speed of the cyclotron (1=Normal) which increases as firing continues.
 uint8_t i_speed_multiplier = 1;
 

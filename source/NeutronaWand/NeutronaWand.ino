@@ -106,15 +106,16 @@ void setup() {
 
   delay(10);
 
-  WIRE.begin();
+  Wire.begin();
+  Wire.setClock(400000UL);
 
   byte by_error, by_address;
   uint8_t i_i2c_devices = 0;
 
   // Scan i2c for any devices (28 segment bargraph).
   for(by_address = 1; by_address < 127; by_address++ ) {
-    WIRE.beginTransmission(by_address);
-    by_error = WIRE.endTransmission();
+    Wire.beginTransmission(by_address);
+    by_error = Wire.endTransmission();
 
     if(by_error == 0) {
       i_i2c_devices++;
@@ -2242,7 +2243,7 @@ void modeError() {
       wandSerialSend(W_WAND_BEEP_SOUNDS);
     }
 
-    playEffect(S_BEEPS_LOW), false, i_volume_effects, false, 0, false;
+    playEffect(S_BEEPS_LOW, false, i_volume_effects, false, 0, false);
     playEffect(S_BEEPS, false, i_volume_effects, false, 0, false);
     playEffect(S_BEEPS_BARGRAPH, false, i_volume_effects, false, 0, false);
   }

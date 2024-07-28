@@ -263,9 +263,6 @@ uint8_t i_bargraph_status = 0;
  */
 HT16K33 ht_bargraph;
 
-// Used to scan the i2c bus and to locate the 28-segment bargraph.
-#define WIRE Wire
-
 /*
  * Used to change to 28-segment bargraph features.
  * The Frutto 28-segment bargraph is automatically detected on boot and sets this to true.
