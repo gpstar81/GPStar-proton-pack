@@ -44,7 +44,6 @@
 #include <Ramp.h>
 #include <SerialTransfer.h>
 #include <Wire.h>
-#include <INA219.h>
 
 // Local Files
 #include "Configuration.h"

@@ -18,22 +18,22 @@
  */
 
 #pragma once
+/*
+ * Power Meter (using the INA219 chip)
+ * https://github.com/flav1972/ArduinoINA219
+ */
+#include <INA219.h>
 
-// Custom values for calibrating the power meter
+// Custom values for calibrating the current-sensing device.
 #define SHUNT_R     0.1  // Shunt resistor in ohms (default: 0.1)
 #define SHUNT_MAX_V 0.2  // Max voltage across shunt (default: 0.2)
 #define BUS_MAX_V   16.0 // Sets max for a 12V battery (5V nominal)
 #define MAX_CURRENT 1.0  // Sets the expected max amperage (A) draw
 
-/*
- * Power Meter (using the INA219 chip)
- * https://github.com/flav1972/ArduinoINA219
- */
-
-// Variables
+// General Variables
 INA219 monitor; // Power monitor object on i2c bus using the INA219 chip.
 boolean b_power_meter_avail = false; // Whether a power meter device exists on i2c bus.
-const uint8_t i_pack_reading_factor = 100; // Multiplier for pack voltage readings.
+const uint16_t i_pack_reading_delay = 5000; // Multiplier for pack voltage readings.
 const float f_power_on_threshold = 0.13; // Minimum current (A) to consider as to whether a stock Neutrona Wand is powered on.
 const float f_ema_alpha = 0.2; // Smoothing factor (<1) for Exponential Moving Average (EMA) [Lower Value = Smoother Averaging].
 
@@ -42,12 +42,12 @@ millisDelay ms_power_reading; // Timer for reading latest values from power mete
 millisDelay ms_pack_power; // Timer for reading latest voltage from the pack itself.
 millisDelay ms_powerup_debounce; // Timer to lock out firing when the wand powers on.
 
-// Objects
+// Define an object which can store
 struct PowerMeter {
   const static uint8_t PowerReadDelay = 50; // How often to read the power levels (ms).
   const static uint16_t PowerupDelay = 1000; // How long to ignore firing after power-up (ms).
-  const static float StateChangeThreshold = 0.06; // Minimum change in current (A) to consider as a potential state change.
   const static uint16_t StateChangeDuration = 100; // Duration (ms) for a current change to persist for action.
+  const static float StateChangeThreshold; // Minimum change in current (A) to consider as a potential state change.
   float ShuntVoltage = 0; // mV
   float ShuntCurrent = 0; // A
   float BusVoltage = 0; // V
@@ -60,7 +60,13 @@ struct PowerMeter {
   unsigned long StateChanged = 0; // Time when a potential state change was detected
   unsigned long LastRead = 0; // Used to calculate Ah used
   unsigned long ReadTick = 0; // Current read time - last read
-} meterReading;
+};
+
+// Set the static constant for considering changes to wand readings.
+const float PowerMeter::StateChangeThreshold = 0.06;
+
+// Create instance of the PowerMeter object.
+PowerMeter wandReading;
 
 // Forward function declarations.
 void packStartup(bool firstStart);
@@ -69,7 +75,7 @@ void wandStoppedFiring();
 void cyclotronSpeedRevert();
 
 // Configure and calibrate the power meter device.
-void powerConfig() {
+void powerMeterConfig() {
   debugln(F("Configure Power Meter"));
 
   b_power_meter_avail = true;
@@ -91,8 +97,8 @@ void powerMeterInit() {
     debugln(i_monitor_status);
 
     if (i_monitor_status == 0){
-      powerConfig();
-      meterReading.LastRead = millis(); // For use with the Ah readings.
+      powerMeterConfig();
+      wandReading.LastRead = millis(); // For use with the Ah readings.
       ms_power_reading.start(PowerMeter::PowerReadDelay);
     }
     else {
@@ -102,13 +108,13 @@ void powerMeterInit() {
   }
 
   // Obtain a voltage reading directly from the pack PCB.
-  ms_pack_power.start(PowerMeter::PowerReadDelay * i_pack_reading_factor);
+  ms_pack_power.start(i_pack_reading_delay);
 }
 
 // Sourced from https://community.particle.io/t/battery-voltage-checking/5467
 // Obtains the ATMega chip's actual Vcc voltage value, using internal bandgap reference.
 // This demonstrates ability to read processors Vcc voltage and the ability to maintain A/D calibration with changing Vcc.
-void doVoltageCheck() {
+void doPackVoltageCheck() {
   // REFS1 REFS0               --> 0 1, AVcc internal ref. -Selects AVcc reference
   // MUX4 MUX3 MUX2 MUX1 MUX0  --> 11110 1.1V (VBG)        -Selects channel 30, bandgap voltage, to measure
   ADMUX = (0<<REFS1) | (1<<REFS0) | (0<<ADLAR)| (0<<MUX5) | (1<<MUX4) | (1<<MUX3) | (1<<MUX2) | (1<<MUX1) | (0<<MUX0);
@@ -121,46 +127,46 @@ void doVoltageCheck() {
 
   // Scale the value, which returns the actual value of Vcc x 100
   const long InternalReferenceVoltage = 1115L; // Adjust this value to your boards specific internal BG voltage x1000.
-  meterReading.PackVoltage = (((InternalReferenceVoltage * 1023L) / ADC) + 5L) / 10L; // Calculates for straight line value.
+  wandReading.PackVoltage = (((InternalReferenceVoltage * 1023L) / ADC) + 5L) / 10L; // Calculates for straight line value.
 
   // Send current voltage value to the serial1 device, if connected.
   if(b_serial1_connected) {
-    serial1Send(A_BATTERY_VOLTAGE_PACK, meterReading.PackVoltage);
+    serial1Send(A_BATTERY_VOLTAGE_PACK, wandReading.PackVoltage);
   }
 }
 
 // Perform a reading of current values from the power meter.
-void powerReading() {
+void doWandPowerReading() {
   if (b_use_power_meter && b_power_meter_avail){
     // Only uncomment this debug if absolutely needed!
     //debugln(F("Reading Power Meter"));
 
     // Reads the latest values from the monitor.  
-    meterReading.ShuntVoltage = monitor.shuntVoltage() * 1000;
-    meterReading.ShuntCurrent = monitor.shuntCurrent();
-    meterReading.BusVoltage = monitor.busVoltage();
-    meterReading.BattVoltage = meterReading.BusVoltage + (meterReading.ShuntVoltage / 1000);
-    meterReading.BusPower = monitor.busPower() * 1000;
+    wandReading.ShuntVoltage = monitor.shuntVoltage() * 1000;
+    wandReading.ShuntCurrent = monitor.shuntCurrent();
+    wandReading.BusVoltage = monitor.busVoltage();
+    wandReading.BattVoltage = wandReading.BusVoltage + (wandReading.ShuntVoltage / 1000);
+    wandReading.BusPower = monitor.busPower() * 1000;
 
     // Create some new smoothed/averaged current (A) values using the latest reading.
-    meterReading.AvgCurrent = f_ema_alpha * meterReading.ShuntCurrent + (1 - f_ema_alpha) * meterReading.AvgCurrent;
+    wandReading.AvgCurrent = f_ema_alpha * wandReading.ShuntCurrent + (1 - f_ema_alpha) * wandReading.AvgCurrent;
 
-    // Use time and values to calculate Ah estimate.
+    // Use time and current values to calculate amp-hours consumed.
     unsigned long i_new_time = millis();
-    meterReading.ReadTick = i_new_time - meterReading.LastRead;
-    meterReading.AmpHours += (meterReading.ShuntCurrent * meterReading.ReadTick) / 3600000.0;
-    meterReading.LastRead = i_new_time;
+    wandReading.ReadTick = i_new_time - wandReading.LastRead;
+    wandReading.AmpHours += (wandReading.ShuntCurrent * wandReading.ReadTick) / 3600000.0;
+    wandReading.LastRead = i_new_time;
 
     if (b_show_power_data){
       // Prints values for use with the Serial Plotter to graph the data.
       // Serial.print("Volts:");
-      // Serial.print(meterReading.BusVoltage);
+      // Serial.print(wandReading.BusVoltage);
       // Serial.print(",");
       Serial.print("AvgAmps:");
-      Serial.print(meterReading.AvgCurrent);
+      Serial.print(wandReading.AvgCurrent);
       Serial.print(",");
       Serial.print("LastAvg:");
-      Serial.println(meterReading.LastAverage);
+      Serial.println(wandReading.LastAverage);
     }
 
     // Prepare for next read -- this is security just in case the INA219 is reset by transient current.
@@ -169,16 +175,17 @@ void powerReading() {
   }
   else {
     // Perform a check using the bandgap voltage.
-    doVoltageCheck();
+    doPackVoltageCheck();
   }
 }
 
 // Take actions based on current power state, specifically if there is no GPStar Neutrona Wand connected.
-void updatePowerState() {
+void updateWandPowerState() {
   // Only take action when wand is NOT connected.
   if (b_use_power_meter && b_power_meter_avail && !b_wand_connected){
     /**
-     * Current Readings
+     * Amperage Ranges
+     *
      * Level 1 Idle: 0.13-0.15A
      * Level 2 Idle: 0.14-0.18A
      * Level 3 Idle: 0.17-0.20A
@@ -191,22 +198,22 @@ void updatePowerState() {
      * Level 4 Fire: 0.30-0.35A
      * Level 5 Fire: 0.34-0.45A
      */
-    float f_avg_current = meterReading.AvgCurrent;
+    float f_avg_current = wandReading.AvgCurrent;
     unsigned long current_time = millis();
-    boolean b_state_change_lower = f_avg_current < meterReading.LastAverage - PowerMeter::StateChangeThreshold;
-    boolean b_state_change_higher = f_avg_current > meterReading.LastAverage + PowerMeter::StateChangeThreshold;
+    boolean b_state_change_lower = f_avg_current < wandReading.LastAverage - PowerMeter::StateChangeThreshold;
+    boolean b_state_change_higher = f_avg_current > wandReading.LastAverage + PowerMeter::StateChangeThreshold;
 
     // Check for a significant and sustained change in current.
     if(b_state_change_lower || b_state_change_higher) {
       // Record the time when the significant change was first detected.
-      if(meterReading.StateChanged == 0) {
-        meterReading.StateChanged = current_time;
+      if(wandReading.StateChanged == 0) {
+        wandReading.StateChanged = current_time;
       }
 
       // Determine whether the change (+/-) took place over the expected timeframe.
-      if(current_time - meterReading.StateChanged >= PowerMeter::StateChangeDuration) {
+      if(current_time - wandReading.StateChanged >= PowerMeter::StateChangeDuration) {
         // Update previous average current reading since we've had a sustained change in state.
-        meterReading.LastAverage = f_avg_current;
+        wandReading.LastAverage = f_avg_current;
 
         // Wand is considered "on" when above the base change.
         if(f_avg_current > f_power_on_threshold) {
@@ -247,7 +254,7 @@ void updatePowerState() {
     }
     else {
       // Reset the state change timer if the change was not significant.
-      meterReading.StateChanged = 0;
+      wandReading.StateChanged = 0;
     }
 
     // Stop firing and turn off the pack if current is below the base threshold.
@@ -269,14 +276,14 @@ void updatePowerState() {
       }
 
       // Reset the state change timer and last average due to this significant event.
-      meterReading.StateChanged = 0;
-      meterReading.LastAverage = f_avg_current;
+      wandReading.StateChanged = 0;
+      wandReading.LastAverage = f_avg_current;
     }
   }
   else {
     // Reset when not using the power meter or a GPStar wand is connected.
-    meterReading.StateChanged = 0;
-    meterReading.LastAverage = 0;
+    wandReading.StateChanged = 0;
+    wandReading.LastAverage = 0;
   }
 }
 
@@ -284,43 +291,43 @@ void updatePowerState() {
 void checkPowerMeter(){
   if(ms_power_reading.justFinished()) {
     if(b_use_power_meter && b_power_meter_avail) {
-      powerReading();
-      updatePowerState();
+      doWandPowerReading(); // Get latest V/A readings.
+      updateWandPowerState(); // Take action on values.
       ms_power_reading.start(PowerMeter::PowerReadDelay);
     }
   }
 
   if(ms_pack_power.justFinished()) {
-      doVoltageCheck();
-      ms_pack_power.start(PowerMeter::PowerReadDelay * i_pack_reading_factor);
+      doPackVoltageCheck(); // Get latest reading.
+      ms_pack_power.start(i_pack_reading_delay);
   }
 }
 
 // Displays the latest gathered power meter values.
-void powerDisplay() {
+void wandPowerDisplay() {
   if(b_use_power_meter && b_power_meter_avail) {
     Serial.print("Shunt Voltage: ");
-    Serial.print(meterReading.ShuntVoltage, 4);
+    Serial.print(wandReading.ShuntVoltage, 4);
     Serial.println(" mV");
 
     Serial.print("Shunt Current:  ");
-    Serial.print(meterReading.ShuntCurrent, 4);
+    Serial.print(wandReading.ShuntCurrent, 4);
     Serial.println(" A");
 
     Serial.print("Bus Voltage:    ");
-    Serial.print(meterReading.BusVoltage, 4);
+    Serial.print(wandReading.BusVoltage, 4);
     Serial.println(" V");
 
     Serial.print("Batt Voltage:   ");
-    Serial.print(meterReading.BattVoltage, 4);
+    Serial.print(wandReading.BattVoltage, 4);
     Serial.println(" V");
 
     Serial.print("Bus Power:      ");
-    Serial.print(meterReading.BusPower, 2);
+    Serial.print(wandReading.BusPower, 2);
     Serial.println(" mW");
 
     Serial.print("Amp Hours:      ");
-    Serial.print(meterReading.AmpHours, 4);
+    Serial.print(wandReading.AmpHours, 4);
     Serial.println(" Ah");
 
     Serial.println(" ");
