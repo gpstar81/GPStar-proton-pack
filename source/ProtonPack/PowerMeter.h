@@ -18,46 +18,48 @@
  */
 
 #pragma once
-/*
- * Power Meter (using the INA219 chip)
- * https://github.com/flav1972/ArduinoINA219
+
+/**
+ * Power Meter (using the INA219 chip) - https://github.com/flav1972/ArduinoINA219
+ * Provides support for a power-sensing chip which can detect the voltage and current
+ * being provided to the Neutrona Wand. Intended for those users who want to utilize
+ * a stock wand but still trigger the pack power-on and firing animations/effects.
  */
 #include <INA219.h>
 
 // Custom values for calibrating the current-sensing device.
-#define SHUNT_R     0.1  // Shunt resistor in ohms (default: 0.1)
-#define SHUNT_MAX_V 0.2  // Max voltage across shunt (default: 0.2)
-#define BUS_MAX_V   16.0 // Sets max for a 12V battery (5V nominal)
-#define MAX_CURRENT 1.0  // Sets the expected max amperage (A) draw
+#define SHUNT_R     0.1  // Shunt resistor in ohms (default: 0.1ohm)
+#define SHUNT_MAX_V 0.2  // Max voltage across shunt (default: 0.2V)
+#define BUS_MAX_V   16.0 // Sets max based on expected range (< 16V)
+#define MAX_CURRENT 2.0  // Sets the expected max amperage draw (2A)
 
 // General Variables
 INA219 monitor; // Power monitor object on i2c bus using the INA219 chip.
 bool b_power_meter_avail = false; // Whether a power meter device exists on i2c bus.
-const float f_power_on_threshold = 0.13; // Minimum current (A) to consider as to whether a stock Neutrona Wand is powered on.
+const float f_wand_power_on_threshold = 0.13; // Minimum current (A) to consider as to whether a stock Neutrona Wand is powered on.
+const uint16_t f_wand_power_up_delay = 1000; // How long to wait and ignore any wand firing events after initial power-up (ms).
 const float f_ema_alpha = 0.2; // Smoothing factor (<1) for Exponential Moving Average (EMA) [Lower Value = Smoother Averaging].
 
 // Special Timers and Timeouts
-const uint16_t i_pack_reading_delay = 5000; // Multiplier for pack voltage readings.
 millisDelay ms_powerup_debounce; // Timer to lock out firing when the wand powers on.
 
 // Define an object which can store
 struct PowerMeter {
-  const static uint8_t PowerReadDelay = 50; // How often to read the power levels (ms).
-  const static uint16_t PowerupDelay = 1000; // How long to ignore firing after power-up (ms).
   const static uint16_t StateChangeDuration = 100; // Duration (ms) for a current change to persist for action.
   const static float StateChangeThreshold; // Minimum change in current (A) to consider as a potential state change.
-  float ShuntVoltage = 0; // mV
-  float ShuntCurrent = 0; // A
-  float BusVoltage = 0; // V
-  float BattVoltage = 0; // V
-  float BusPower = 0; // mW
-  float AmpHours = 0; // Ah
-  float LastAverage = 0; // A
-  float AvgCurrent = 0; // A
+  float ShuntVoltage = 0; // mV - The value used to calculate the amperage draw across the shunt resistor
+  float ShuntCurrent = 0; // A - The current (amperage) reading
+  float BusVoltage = 0; // V - Voltage reading from the measured device
+  float BattVoltage = 0; // V - Reference voltage from device power source
+  float BusPower = 0; // mW - Calculation of power based on the V*A values
+  float AmpHours = 0; // Ah - An estimation of power consumed over regular intervals
+  float AvgCurrent = 0; // A - Smoothed running average from the ShuntCurrent value
+  float LastAverage = 0; // A - Last average used when determining a state change
+  unsigned int PowerReadDelay = 50; // How often to read the volt/power levels (ms)
   unsigned long StateChanged = 0; // Time when a potential state change was detected
-  unsigned long LastRead = 0; // Used to calculate Ah used
-  unsigned long ReadTick = 0; // Current read time - last read
-  millisDelay ReadTimer; // Timer for reading latest values from power meter.
+  unsigned long LastRead = 0; // Used to calculate Ah consumed since battery power-on
+  unsigned long ReadTick = 0; // Difference of current read time - last read
+  millisDelay ReadTimer; // Timer for reading latest values from power meter
 };
 
 // Set the static constant for considering changes to current readings.
@@ -98,7 +100,7 @@ void powerMeterInit() {
     if (i_monitor_status == 0){
       powerMeterConfig();
       wandReading.LastRead = millis(); // For use with the Ah readings.
-      wandReading.ReadTimer.start(PowerMeter::PowerReadDelay);
+      wandReading.ReadTimer.start(wandReading.PowerReadDelay);
     }
     else {
       // If returning a non-zero value, device could not be reset.
@@ -106,8 +108,11 @@ void powerMeterInit() {
     }
   }
 
+  // Configure the PowerMeter object(s).
+  packReading.PowerReadDelay = 5000;
+
   // Obtain a voltage reading directly from the pack PCB.
-  packReading.ReadTimer.start(i_pack_reading_delay);
+  packReading.ReadTimer.start(packReading.PowerReadDelay);
 }
 
 // Perform a reading of values from the power meter for the wand.
@@ -200,7 +205,7 @@ void updateWandPowerState() {
         wandReading.LastAverage = f_avg_current;
 
         // Wand is considered "on" when above the base change.
-        if(f_avg_current > f_power_on_threshold) {
+        if(f_avg_current > f_wand_power_on_threshold) {
           b_wand_on = true;
 
           // Turn the pack on.
@@ -214,7 +219,7 @@ void updateWandPowerState() {
             serial1Send(A_PACK_ON);
 
             // Just powered up, so set a delay for firing.
-            ms_powerup_debounce.start(PowerMeter::PowerupDelay);
+            ms_powerup_debounce.start(f_wand_power_up_delay);
           }
         }
 
@@ -242,7 +247,7 @@ void updateWandPowerState() {
     }
 
     // Stop firing and turn off the pack if current is below the base threshold.
-    if(f_avg_current <= f_power_on_threshold) {
+    if(f_avg_current <= f_wand_power_on_threshold) {
       if(b_wand_firing) {
         // Stop firing sequence if previously firing.
         wandStoppedFiring();
@@ -271,14 +276,15 @@ void updateWandPowerState() {
   }
 }
 
+// Send latest voltage value to the serial1 device, if connected.
 void updatePackPowerState(){
-  // Send latest voltage value to the serial1 device, if connected.
   if(b_serial1_connected) {
     serial1Send(A_BATTERY_VOLTAGE_PACK, packReading.BusVoltage);
   }
 }
 
-// Displays the latest gathered power meter values.
+// Displays the latest gathered power meter values (for debugging only!).
+// Turn on the Serial Plotter in the ArduinoIDE to view graphed results.
 void wandPowerDisplay() {
   if(b_use_power_meter && b_power_meter_avail && b_show_power_data) {
     // Serial.print("W.Shunt(mv):");
@@ -301,9 +307,9 @@ void wandPowerDisplay() {
     // Serial.print(wandReading.BattVoltage);
     // Serial.print(",");
 
-    Serial.print("W.AmpHours:");
-    Serial.print(wandReading.AmpHours);
-    Serial.print(",");
+    // Serial.print("W.AmpHours:");
+    // Serial.print(wandReading.AmpHours);
+    // Serial.print(",");
 
     Serial.print("W.AvgPow(A):");
     Serial.print(wandReading.AvgCurrent);
@@ -319,15 +325,15 @@ void checkPowerMeter(){
   if(wandReading.ReadTimer.justFinished()) {
     if(b_use_power_meter && b_power_meter_avail) {
       doWandPowerReading(); // Get latest V/A readings.
-      wandPowerDisplay(); // Show values for serial plotter.
-      updateWandPowerState(); // Take action on values.
-      wandReading.ReadTimer.start(PowerMeter::PowerReadDelay);
+      wandPowerDisplay(); // Show values on serial plotter.
+      updateWandPowerState(); // Take action on V/A values.
+      wandReading.ReadTimer.start(wandReading.PowerReadDelay);
     }
   }
 
   if(packReading.ReadTimer.justFinished()) {
-      doPackPowerReading(); // Get latest readings.
-      updatePackPowerState(); // Take action on values.
-      packReading.ReadTimer.start(i_pack_reading_delay);
+      doPackPowerReading(); // Get latest voltage reading.
+      updatePackPowerState(); // Take action on V/A  values.
+      packReading.ReadTimer.start(packReading.PowerReadDelay);
   }
 }

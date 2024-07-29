@@ -440,6 +440,13 @@ const bool b_diagnostic = false;
 bool b_use_ribbon_cable = true;
 
 /*
+ * Set to use an optional power meter device on the i2c bus.
+ * Debug by setting the latter value to true to plot V/A data.
+ */
+bool b_use_power_meter = true;
+bool b_show_power_data = false;
+
+/*
  * Set to false to ignore reading data from the EEPROM.
  */
 const bool b_eeprom = true;
@@ -451,13 +458,6 @@ const bool b_eeprom = true;
  * Note that a NeoPixel Jewel will use the CHSV colour space which can make the default HasLab Cyclotron LEDs flicker when the jewel N-Filter vent-light strobes.
  */
 const bool b_cyclotron_haslab_chsv_colour_change = false;
-
-/*
- * Set to use an optional power meter device on the i2c bus.
- * Debug by setting the latter value to true to plot V/A data.
- */
-const bool b_use_power_meter = false;
-const bool b_show_power_data = false;
 
 /*
  *****
