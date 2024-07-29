@@ -35,9 +35,9 @@
 
 // General Variables
 INA219 monitor; // Power monitor object on i2c bus using the INA219 chip.
-bool b_power_meter_avail = false; // Whether a power meter device exists on i2c bus.
-const float f_wand_power_on_threshold = 0.13; // Minimum current (A) to consider as to whether a stock Neutrona Wand is powered on.
+bool b_power_meter_available = false; // Whether a power meter device exists on i2c bus, per setup() -> powerMeterInit()
 const uint16_t f_wand_power_up_delay = 1000; // How long to wait and ignore any wand firing events after initial power-up (ms).
+const float f_wand_power_on_threshold = 0.13; // Minimum current (A) to consider as to whether a stock Neutrona Wand is powered on.
 const float f_ema_alpha = 0.2; // Smoothing factor (<1) for Exponential Moving Average (EMA) [Lower Value = Smoother Averaging].
 
 // Special Timers and Timeouts
@@ -79,8 +79,6 @@ void cyclotronSpeedRevert();
 void powerMeterConfig() {
   debugln(F("Configure Power Meter"));
 
-  b_power_meter_avail = true;
-
   // Custom configuration, defaults are RANGE_32V, GAIN_8_320MV, ADC_12BIT, ADC_12BIT, CONT_SH_BUS
   monitor.configure(INA219::RANGE_16V, INA219::GAIN_2_80MV, INA219::ADC_32SAMP, INA219::ADC_32SAMP, INA219::CONT_SH_BUS);
 
@@ -90,6 +88,9 @@ void powerMeterConfig() {
 
 // Initialize the power meter device on the i2c bus.
 void powerMeterInit() {
+  // Configure the PowerMeter object(s).
+  packReading.PowerReadDelay = 5000;
+
   if (b_use_power_meter){
     uint8_t i_monitor_status = monitor.begin();
 
@@ -98,6 +99,8 @@ void powerMeterInit() {
     debugln(i_monitor_status);
 
     if (i_monitor_status == 0){
+      // Result of 0 indicates no problems from device detection.
+      b_power_meter_available = true;
       powerMeterConfig();
       wandReading.LastRead = millis(); // For use with the Ah readings.
       wandReading.ReadTimer.start(wandReading.PowerReadDelay);
@@ -108,16 +111,13 @@ void powerMeterInit() {
     }
   }
 
-  // Configure the PowerMeter object(s).
-  packReading.PowerReadDelay = 5000;
-
-  // Obtain a voltage reading directly from the pack PCB.
+  // Always obtain a voltage reading directly from the pack PCB.
   packReading.ReadTimer.start(packReading.PowerReadDelay);
 }
 
 // Perform a reading of values from the power meter for the wand.
 void doWandPowerReading() {
-  if (b_use_power_meter && b_power_meter_avail){
+  if (b_use_power_meter && b_power_meter_available){
     // Only uncomment this debug if absolutely needed!
     //debugln(F("Reading Power Meter"));
 
@@ -171,7 +171,7 @@ void doPackPowerReading() {
 // Take actions based on current power state, specifically if there is no GPStar Neutrona Wand connected.
 void updateWandPowerState() {
   // Only take action when wand is NOT connected.
-  if (b_use_power_meter && b_power_meter_avail && !b_wand_connected){
+  if (b_use_power_meter && b_power_meter_available && !b_wand_connected){
     /**
      * Amperage Ranges
      *
@@ -286,7 +286,7 @@ void updatePackPowerState(){
 // Displays the latest gathered power meter values (for debugging only!).
 // Turn on the Serial Plotter in the ArduinoIDE to view graphed results.
 void wandPowerDisplay() {
-  if(b_use_power_meter && b_power_meter_avail && b_show_power_data) {
+  if(b_use_power_meter && b_power_meter_available && b_show_power_data) {
     // Serial.print("W.Shunt(mv):");
     // Serial.print(wandReading.ShuntVoltage);
     // Serial.print(",");
@@ -323,7 +323,7 @@ void wandPowerDisplay() {
 // Check the available timers for reading power meter data.
 void checkPowerMeter(){
   if(wandReading.ReadTimer.justFinished()) {
-    if(b_use_power_meter && b_power_meter_avail) {
+    if(b_use_power_meter && b_power_meter_available) {
       doWandPowerReading(); // Get latest V/A readings.
       wandPowerDisplay(); // Show values on serial plotter.
       updateWandPowerState(); // Take action on V/A values.
