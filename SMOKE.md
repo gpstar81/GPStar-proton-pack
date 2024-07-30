@@ -47,6 +47,10 @@ In both the PCB and DIY approaches each of the smoke and fan pins are designed t
 
 Power should be provided as recommended by your kit manufacturer. Most kits run on either 5V or 12V sources so this will determine the best way to implement a power connection. Though in most cases kits operate on the principle of "apply power, get smoke" so the only concern is how to turn the 5V (HIGH) signal from the PCB or Arduino into something which can safely run a vape coil and air pump combination. So we have 2 steps to take: 1) how to get power for the smoke kit(s) and 2) how to switch on power safely.
 
+Now before we begin with how to power your kit, take a look at this video which shows the correlation between voltage to the vape coil and how much amperage is consumed during operation. Typically most vape coils used with many kits are 1.8ohms and like their voltage in the range of 3.3-4V, though 5V can and will work fine. Just remember that more voltage means more current, which means more strain on your battery. So if you are short on available power or have a reduced runtime you can potentially look at reducing the voltage by use of a buck converter for just the vape coil itself.
+
+[![Smoke kit voltage tests](https://img.youtube.com/vi/vvhyp0Y2ZMs/maxresdefault.jpg)](https://www.youtube.com/watch?v=vvhyp0Y2ZMs)
+
 **Step 1: Providing Power**
 
 As of mid-2024 there are now 2 standard options available for obtaining power easily from a Talentcell battery: the GPStar Amplifier and the GPStar Power Hub. Both devices accept 12VDC from the 5525 barrel jack on the common Talentcell batteries, and both use an on-board 5V regulator which is capable of delivering up to 3A of power.
