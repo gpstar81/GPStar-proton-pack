@@ -1,6 +1,6 @@
 /**
  *   GPStar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -91,8 +91,7 @@ struct __attribute__((packed)) WandPrefs {
   uint8_t ledWandCount;
   uint8_t ledWandHue;
   uint8_t ledWandSat;
-  uint8_t spectralModeEnabled;
-  uint8_t spectralHolidayMode;
+  uint8_t spectralModesEnabled;
   uint8_t overheatEnabled;
   uint8_t defaultFiringMode;
   uint8_t wandVibration;
@@ -146,9 +145,7 @@ struct __attribute__((packed)) SyncData {
   uint8_t vibrationEnabled;
   uint8_t masterVolume;
   uint8_t effectsVolume;
-  uint8_t musicVolume;
   uint8_t masterMuted;
-  uint16_t currentMusicTrack;
   uint8_t repeatMusicTrack;
 } packSync;
 
@@ -447,7 +444,7 @@ void packSerialSendData(uint8_t i_message) {
   }
 }
 
-// Forward function declaration.
+// Forward function declarations.
 void handleSerialCommand(uint8_t i_command, uint16_t i_value);
 void handleWandCommand(uint8_t i_command, uint16_t i_value);
 
@@ -603,46 +600,66 @@ void checkSerial1() {
           }
 
           i_volume_master_percentage = packConfig.defaultSystemVolume;
-          b_stream_effects = packConfig.protonStreamEffects;
-          b_overheat_strobe = packConfig.overheatStrobeNF;
-          b_overheat_lights_off = packConfig.overheatLightsOff;
-          b_overheat_sync_to_fan = packConfig.overheatSyncToFan;
-          b_demo_light_mode = packConfig.demoLightMode;
-          b_use_ribbon_cable = packConfig.ribbonCableAlarm;
+          b_stream_effects = (packConfig.protonStreamEffects == 1);
+          b_overheat_strobe = (packConfig.overheatStrobeNF == 1);
+          b_overheat_lights_off = (packConfig.overheatLightsOff == 1);
+          b_overheat_sync_to_fan = (packConfig.overheatSyncToFan == 1);
+          b_demo_light_mode = (packConfig.demoLightMode == 1);
+          b_use_ribbon_cable = (packConfig.ribbonCableAlarm == 1);
 
           // Cyclotron Lid
-          i_cyclotron_leds = packConfig.ledCycLidCount;
+          switch(packConfig.ledCycLidCount) {
+            // For a 40 LED Neopixel ring.
+            case 40:
+              i_cyclotron_leds = OUTER_CYCLOTRON_LED_MAX;
+            break;
+
+            // For Frutto Technology Max Cyclotron (36) LEDs.
+            case 36:
+              i_cyclotron_leds = FRUTTO_MAX_CYCLOTRON_LED_COUNT;
+            break;
+
+            // For Frutto Technology Cyclotron (20) LEDs.
+            case 20:
+              i_cyclotron_leds = FRUTTO_CYCLOTRON_LED_COUNT;
+            break;
+
+            // Default HasLab (12) LEDs.
+            case 12:
+            default:
+              i_cyclotron_leds = HASLAB_CYCLOTRON_LED_COUNT;
+            break;
+          }
           i_spectral_cyclotron_custom_colour = packConfig.ledCycLidHue;
           i_spectral_cyclotron_custom_saturation = packConfig.ledCycLidSat;
-          b_clockwise = packConfig.cyclotronDirection;
-          b_cyclotron_single_led = packConfig.ledCycLidCenter;
-          b_cyclotron_colour_toggle = packConfig.ledVGCyclotron;
-          b_cyclotron_simulate_ring = packConfig.ledCycLidSimRing;
+          b_clockwise = (packConfig.cyclotronDirection == 1);
+          b_cyclotron_single_led = (packConfig.ledCycLidCenter == 1);
+          b_cyclotron_colour_toggle = (packConfig.ledVGCyclotron == 1);
+          b_cyclotron_simulate_ring = (packConfig.ledCycLidSimRing == 1);
 
           // Inner Cyclotron
-          b_inner_cyclotron_led_panel = packConfig.ledCycInnerPanel;
+          b_inner_cyclotron_led_panel = (packConfig.ledCycInnerPanel == 1);
           i_inner_cyclotron_cake_num_leds = packConfig.ledCycCakeCount;
           i_spectral_cyclotron_inner_custom_colour = packConfig.ledCycCakeHue;
           i_spectral_cyclotron_inner_custom_saturation = packConfig.ledCycCakeSat;
-          b_grb_cyclotron_cake = packConfig.ledCycCakeGRB;
+          b_grb_cyclotron_cake = (packConfig.ledCycCakeGRB == 1);
           i_inner_cyclotron_cavity_num_leds = packConfig.ledCycCavCount;
 
           // Power Cell
           i_powercell_leds = packConfig.ledPowercellCount;
           i_spectral_powercell_custom_colour = packConfig.ledPowercellHue;
           i_spectral_powercell_custom_saturation = packConfig.ledPowercellSat;
-          b_powercell_colour_toggle = packConfig.ledVGPowercell;
-
-          // Update system values and reset as needed.
-          updateProtonPackLEDCounts();
-          resetContinuousSmoke();
-          resetCyclotronLEDs();
-          resetInnerCyclotronLEDs();
-          resetRampSpeeds();
+          b_powercell_colour_toggle = (packConfig.ledVGPowercell == 1);
 
           // Offer some feedback to the user
           stopEffect(S_VENT_DRY);
           playEffect(S_VENT_DRY);
+
+          // Update system values and reset as needed.
+          resetInnerCyclotronLEDs(); // Must call this first, prior to updating counts
+          updateProtonPackLEDCounts(); // Must call this after resetting # of LEDs
+          resetCyclotronLEDs(); // Update delays based on LED count
+          resetRampSpeeds(); // Update delays based on LED count
         break;
 
         case PACKET_WAND:
@@ -668,13 +685,13 @@ void checkSerial1() {
           i_ms_overheating_length_2 = smokeConfig.overheatDuration2 * 1000;
           i_ms_overheating_length_1 = smokeConfig.overheatDuration1 * 1000;
 
-          b_smoke_continuous_level_5 = smokeConfig.overheatContinuous5;
-          b_smoke_continuous_level_4 = smokeConfig.overheatContinuous4;
-          b_smoke_continuous_level_3 = smokeConfig.overheatContinuous3;
-          b_smoke_continuous_level_2 = smokeConfig.overheatContinuous2;
-          b_smoke_continuous_level_1 = smokeConfig.overheatContinuous1;
-          b_smoke_enabled = smokeConfig.smokeEnabled;
-          resetContinuousSmoke();
+          b_smoke_continuous_level_5 = (smokeConfig.overheatContinuous5 == 1);
+          b_smoke_continuous_level_4 = (smokeConfig.overheatContinuous4 == 1);
+          b_smoke_continuous_level_3 = (smokeConfig.overheatContinuous3 == 1);
+          b_smoke_continuous_level_2 = (smokeConfig.overheatContinuous2 == 1);
+          b_smoke_continuous_level_1 = (smokeConfig.overheatContinuous1 == 1);
+          b_smoke_enabled = (smokeConfig.smokeEnabled == 1);
+          resetContinuousSmoke(); // Set other variables as necessary
 
           // This will pass values from the smokeConfig object
           packSerialSendData(P_SAVE_PREFERENCES_SMOKE);
@@ -947,17 +964,11 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
     case A_VOLUME_MUSIC_DECREASE:
       // Decrease pack music volume.
       decreaseVolumeMusic();
-
-      // Tell wand to decrease music volume.
-      packSerialSend(P_VOLUME_MUSIC_DECREASE);
     break;
 
     case A_VOLUME_MUSIC_INCREASE:
       // Increase pack music volume.
       increaseVolumeMusic();
-
-      // Tell wand to increase music volume.
-      packSerialSend(P_VOLUME_MUSIC_INCREASE);
     break;
 
     case A_MUSIC_START_STOP:
@@ -1025,9 +1036,6 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
         }
         else {
           i_current_music_track = i_value;
-
-          // Just tell the wand which track was requested for play.
-          packSerialSend(P_MUSIC_PLAY_TRACK, i_current_music_track);
         }
       }
     break;
@@ -1207,11 +1215,7 @@ void doWandSync() {
     break;
   }
 
-  // Sync the current music track.
-  // If music is already playing on a pack while a wand is reconnected, the wand will start playing music when the current track ends.
-  packSync.currentMusicTrack = i_current_music_track;
-
-  // Denote the current looping preference for the current track.
+  // Denote the current looping preference for the current track; used by the menu system.
   b_repeat_track ? (packSync.repeatMusicTrack = 2) : (packSync.repeatMusicTrack = 1); // 1 = No repeat, 2 = Repeat.
 
   // Vibration enabled or disabled from the Proton Pack toggle switch.
@@ -1279,7 +1283,6 @@ void doWandSync() {
   // Synchronise the volume settings.
   packSync.masterVolume = i_volume_master_percentage;
   packSync.effectsVolume = i_volume_effects_percentage;
-  packSync.musicVolume = i_volume_music_percentage;
 
   if(i_volume_master == i_volume_abs_min) {
     // Telling the wand to be silent if required.
@@ -1355,7 +1358,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       // Turn the pack on.
       if(PACK_STATE != MODE_ON) {
-        PACK_ACTION_STATE = ACTION_ACTIVATE;
+        packStartup(false);
         serial1Send(A_PACK_ON);
       }
 
@@ -1495,12 +1498,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_WAND_BEEP_BARGRAPH:
-      playEffect(S_BEEPS_BARGRAPH);
+      playEffect(S_BEEPS_BARGRAPH, false, i_volume_effects, false, 0, false);
     break;
 
     case W_WAND_BEEP_SOUNDS:
-      playEffect(S_BEEPS_LOW);
-      playEffect(S_BEEPS);
+      playEffect(S_BEEPS_LOW, false, i_volume_effects, false, 0, false);
+      playEffect(S_BEEPS, false, i_volume_effects, false, 0, false);
     break;
 
     case W_WAND_SHUTDOWN_SOUND:
@@ -1700,7 +1703,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       if(usingSlimeCyclotron()) {
         resetCyclotronState();
         clearCyclotronFades();
-        ms_cyclotron.start(0);
 
         if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
           adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
@@ -1762,7 +1764,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       playEffect(S_CLICK);
 
       if(b_cyclotron_colour_toggle == true) {
-        // Reset the Cyclotron and stop the normal animation timer.
+        // Reset the Cyclotron states.
         resetCyclotronState();
         clearCyclotronFades();
 
@@ -1792,7 +1794,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       if(usingSlimeCyclotron()) {
         resetCyclotronState();
         clearCyclotronFades();
-        ms_cyclotron.start(0);
 
         if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
           adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
@@ -1835,7 +1836,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       if(usingSlimeCyclotron()) {
         resetCyclotronState();
         clearCyclotronFades();
-        ms_cyclotron.start(0);
 
         if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
           adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
@@ -1888,7 +1888,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       if(usingSlimeCyclotron()) {
         resetCyclotronState();
         clearCyclotronFades();
-        ms_cyclotron.start(0);
 
         if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
           adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
@@ -1935,7 +1934,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       if(usingSlimeCyclotron()) {
         resetCyclotronState();
         clearCyclotronFades();
-        ms_cyclotron.start(0);
 
         if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
           adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
@@ -1982,7 +1980,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       if(usingSlimeCyclotron()) {
         resetCyclotronState();
         clearCyclotronFades();
-        ms_cyclotron.start(0);
 
         if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
           adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
@@ -2048,8 +2045,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       // Reset the LED count for the panel and update the LED counts.
-      resetInnerCyclotronLEDs();
-      updateProtonPackLEDCounts();
+      resetInnerCyclotronLEDs(); // Must call this first, prior to updating counts
+      updateProtonPackLEDCounts(); // Must call this after resetting # of LEDs
     break;
 
     case W_OVERHEATING:
@@ -3075,15 +3072,14 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       increaseVolume();
     break;
 
-    case W_MUSIC_STOP:
-      // Stop music.
-      b_playing_music = false;
-      stopMusic();
-    break;
-
-    case W_MUSIC_START:
-      // Play the appropriate track on pack and wand, and notify the serial1 device.
-      playMusic();
+    case W_MUSIC_TOGGLE:
+      // Start or stop music depending on whether we are already playing music or not.
+      if(b_playing_music) {
+        stopMusic();
+      }
+      else {
+        playMusic();
+      }
     break;
 
     case W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_5:

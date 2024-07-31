@@ -1,7 +1,7 @@
 /**
  *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
- *                    & Dustin Grau <dustin.grau@gmail.com>
+ *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <h1>Smoke Settings</h1>
+  <h1 id="top">Smoke Settings</h1>
   <div class="block left">
     <p>
       Change system configuration options using the available toggles and selectors.
@@ -205,6 +205,7 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
   </div>
 
   <div class="block">
+    <a href="#top">Top</a>
     <hr/>
     <a href="/">&laquo; Back</a>
     &nbsp;&nbsp;

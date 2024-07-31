@@ -8,15 +8,18 @@ If you are experiencing issues during the installation process there are a few w
 
 Before continuing, be certain whether the following items have been reviewed:
 
-- The operation switch on GPStar Audio is set to BOOT. For WavTrigger's, it should be set to RUN.
+- Check he operation switch on your audio controller:
+	- GPStar Audio should be set to BOOT.
+	- WAV Trigger should be set to RUN.
 - Check that the microSD card is fully seated (pushed) into its socket.
 - Check the JST connector on the PCB controller is fully seated into its socket.
-- Verify the connections are intact and solid for GND, 5Vin, Rx, and Tx on the device.
+- Verify the connections are intact and solid for GND, 5Vin, Rx, and Tx in all parts of the hose connectors.
 - Sound files should start with a file having a prefix of `001_` and increment by 1.
 - Music files should start with a file having a prefix of `500_` and increment by 1.
-- Switch to SanDisk brand media as these SD cards have proven reliable in every use-case.
+- Switch to SanDisk brand media as these SD cards have proven reliable in every use case.
 
 ## IMPORTANT ##
+
 When adding extra music to your system, many audio software tend to add Meta Data information into the file. This will prevent the file from playing. As simple as importing the file into Audacity and re-exporting will solve the issue, or you can use any other software to remove the Meta Data information.
 
 ## Proton Pack ##
@@ -28,6 +31,7 @@ Since all connections to the Proton Pack utilize standard JST-XH connections to 
 Confirm that the battery pack is sufficiently charged, switched to the on state, and USB-to-JST connection is in place.
 
 ### Pack has lights but does not play audio ###
+
 * Re-check the 3.5mm audio cable is connected to the audio amplifier, and that the audio amplifier has power, is connected to at least 1 speaker, and volume has been turned up to at least 30%.
 * If possible, connect the 3.5mm audio cable to a known-good audio source such as a smartphone, Alexa device, or similar to confirm that the amplifier is capable of receiving a signal.
 
@@ -44,35 +48,61 @@ The wand is expects to communicate with the pack and will only power on when tha
 * Re-check the Power/GND connections in the hose to make sure they are not reversed. Also check if the ends of the wires are making contact on the Neutrik connectors when clamping down. You can tin the ends of the wires to make it a bit thicker or simply fold them over to double them up. Just make sure the Neutrik connectors are not clamping down on the rubber part of the wire.
 * If you are using the 28 Segment bargraph from Frutto Technology, make sure the connection cables are plugged into the proper connectors. If the power cable for the bargraph is plugged into the SCL/SDA connector on the wand board and the communication cable is plugged into the 5V power connector on the wand board, then the wand will not start up.
 
-### Wand has a blinking vent light but does not start up ##
+### Wand has a blinking vent light but does not start up ###
 
 When the wand is trying to establish communication to the GPStar Proton Pack controller, the LED beside the vent light blinks. When a successful connection is made, the light will stop blinking.
 
 * Re-check the TX/RX serial connections in the hose to make sure they are not reversed. Also check if the ends of the wires are making contact on the Neutrik connectors when clamping down. You can tin the ends of the wires to make it a bit thicker or simply fold them over to double them up. Just make sure the Neutrik connectors are not clamping down on the rubber part of the wire.
 
 ### Wand has no audio ###
+
 * Re-check the connection to the speaker. Polarity should be observed for the best audio quality, though a reversed connection should still support some form of audio playback.
 * Re-flash the latest software to both the pack and wand controllers. These devices must be in agreement for the communication layer to operate correctly.
 * Re-check the Tx/Rx connections to the pack. If these are reversed it will prevent proper communication. Attempt to switch the wires at the pack-side connector which use screw terminals, and retry the Activate switch.
 * Re-check the power connection to the wand. If you have a digital multimeter available, set the device to the DC power measurement and check that the 5V-OUT connection is supplying the expected voltage. Be careful to not short out the pins and mind the polarity.
 
-### Wand has audio briefly before it cuts out###
+### Wand has audio briefly before it cuts out ###
+
 * Re-check the connection to the speaker terminal blocks on the Audio board. Make sure the wires seat well, if needed, add a dab of solder onto the ends.
 
 If there is still no sound from your Neutrona Wand, please refer to the Audio Troubleshooting section at the bottom of this page.
 
-### The music I added is not playing back ##
+### The music I added is not playing back ###
 
 * Make sure to following the naming conventions that are indicated in the [Loading The Audio Files](AUDIO.md) guide.
 * Remove any metadata that may be embedded in your wav files. This can cause problems with loading the music.
-* The Proton Pack at a minimum must contain all the music, however it is advised for the Neutrona Wand to have the same files as well if you want music to also play back from the Neutrona Wand audio system.
+* The Proton Pack at a minimum must contain all the music, however it is advised for the Neutrona Wand to have the same files as well if you want music to also play back from the Neutrona Wand audio system while the Neutrona Wand is operating in Bench Test Mode.
+
+### I'm firing but no overheating is happening! ###
+
+If your pack and wand are on default settings (you may test this by entering the EEPROM Configuration Menu then pressing Intensify to clear all settings, then turn off the Talentcell battery so the changes take effect), only Power Level 5 will overheat, and will do so after 30 seconds. If you have made changes to EEPROM settings, here are common reasons why overheating may not occur as expected.
+
+* If you are in Cross The Streams or Cross The Streams Mix instead of Video Game Modes, overheating will only occur when using the alternate fire button (Barrel Wing Button). No overheating will occur if you hold Intensify by itself.
+* Check to make sure you have the global Overheating setting enabled. If this is disabled, no overheating will ever occur.
+* Check to make sure that the overheating toggle for the specific power level you are in is also enabled (enabling overheating generally will not automatically enable it for all power levels).
+* Check to see what you have the Overheat Start Delay for the specific power level you are in set to. For example, merely enabling overheating for Power Level 1 will mean it will take 60 full seconds before overheating triggers by default.
 
 ### Bench Test Mode ###
 
 If you wish to test (or use) the Neutrona Wand without a Proton Pack, flash the `binaries/wand/extras/NeutronaWand-BenchTest.hex` to the device to enable a special mode which will allow the wand to operation without waiting for a response from the pack. This is useful for debugging whether the serial connection is incorrect.
 
 ## Audio Troubleshooting ##
-Depending on which audio board you are using in your system, following the troubleshooting guides below.
+
+Depending on which audio board or amplifier you are using in your system, following the troubleshooting guides below.
+
+---
+
+### <img src='images/gpstar_logo.png' width=35 align="left"/>GPStar Amplifier Troubleshooting ###
+
+![](images/GPStarAmplifier.jpg)
+
+If no audio is heard but the green LED is lit, make sure that 2 jumpers are attached on the 6 pin JST connector near the center of the board. This connector is reserved for use with a 250k stereo potentiometer but must be configured to allow audio to pass when one is not in use. The following table shows the 2 pairs of pins which must be jumpered for operation.
+
+| R-I | R-O | GND | L-I | L-O | GND |
+|-----|-----|-----|-----|-----|-----|
+|  X  |  X  |     |  X  |  X  |     |
+
+Remember that a ground loop isolator is not required for this device as this is built into the hardware. Use of an additional isolator may impact the audio quality.
 
 ---
 
@@ -96,7 +126,7 @@ Depending on which audio board you are using in your system, following the troub
 
 ---
 
-### Wav Trigger Troubleshooting ###
+### WAV Trigger Troubleshooting ###
 
 ![](images/WavTrigger_Debug.jpg)
 
@@ -107,7 +137,7 @@ Depending on which audio board you are using in your system, following the troub
 
 **Post Startup Blinking Patterns**
 
-- 1x - The WavTrigger will blink once every ~4 seconds when the PCB and device are powered on. This indicates a regular serial connection checking the status of the WavTrigger and is to be expected.
+- 1x - The WAV Trigger will blink once every ~4 seconds when the PCB and device are powered on. This indicates a regular serial connection checking the status of the WAV Trigger and is to be expected.
 
 **Troubleshooting**
 

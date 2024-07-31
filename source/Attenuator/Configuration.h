@@ -1,7 +1,7 @@
 /**
  *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
- *                    & Dustin Grau <dustin.grau@gmail.com>
+ *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@
 /*
  * Used to reflect the last build date for the binary.
  */
-String build_date = "20240708165042";
+String build_date = "20240729093307";
 
 /*
  * Preferred WiFi Network Defaults

@@ -34,18 +34,20 @@ Next is the matter of how long you may wish to run your pack. For those who "tro
 
 ### Good
 
-A standard USB battery pack with a modified USB cable to deliver only the +5VDC and - (Ground) for use by all components. YMMV based on the option you choose. See the next 2 options for more recommended solutions.
+A standard USB battery pack with a USB-to-JST cable to deliver only the +5VDC and Ground (-) for use by all components. YMMV based on the option you choose, but it MUST support at least 2A of power for the core electronics, exclusive of any smoke effects. See the next 2 options for more recommended solutions.
 
 ### Better
 
-The TalentCell battery packs which [only offer a 12VDC output](https://a.co/d/j4m2Kff), plus the use of one or more DC buck converters which are set to deliver 5VDC for common components or less than 5VDC for special components, while 12VDC will be used for components such as standalone audio amplifiers. These batteries come in a variety of mAh ratings, though 3000 or 6000 are common capacities. The downsides to using standalone buck converters is that they can become hot over time and may "burn out" with extremely prolonged use. Be sure to mount these where they will be able to radiate heat and do not cover them with tape or other materials.
+A TalentCell<sup>1</sup> battery pack which [only offers a 12VDC output](https://a.co/d/j4m2Kff) or [both USB connections and 12VDC output](https://a.co/d/8q0VcxT). For models which support USB, use of a USB-to-JST cable can provide power to the core electronics while the 12VDC barrel jack will be used for the audio amplifier in the pack.
 
 ### Best
 
-The TalentCell battery packs which offer [both USB connections and 12VDC output](https://a.co/d/8q0VcxT). Similar to the above, this may still require a buck converter to obtain less than 5VDC power, but can easily use a modified USB cable for the core components while supplying a full 12VDC to devices such as an audio amplifier. These batteries come in a variety of mAh ratings, though 3000 or 6000 are common capacities.
+Either of the TalentCell<sup>1</sup> battery packs just mentioned in conjunction with the [GPStar Amplifier](https://gpstartechnologies.com/products/gpstar-amplifier). The latter device connects easily using a barrel jack, such as the splitter provided with the TalentCell battery for simultaneous charging and use. The amplifier contains a built-in power regulator and multiple 5VDC JST-XH ports for connecting your GPStar Pack Controller, sending power to the Neutrona Wand, and power for the Attenuator or wireless adapter.
+
+<sup>1</sup> TalentCell batteries come in a variety of amp-hour ratings, though 3000mAh or 6000mAh are common capacities.
 
 ## Using Multiple Power Sources
 
-For those who wish to use different power sources for components, eg. a 5V USB power pack for electronics with a 12V battery for audio, should be aware that a common ground connection is necessary to avoid unexpected behavior. Each power source will provide its respective voltage, but that voltage is in reference to a 0V ground state--and with 2 power sources means 2 different reference points. Use of a wire which connects the ground of your power supplies together will remedy this particular issue.
+For those who wish to make use of smoke effects, the need for multiple batteries has become more apparent and recommended. Every addition and upgrade to your pack and wand comes at a cost of power, and as of 2024 the number of LEDs in use may require up to 1.2A just for the base system functionality. While most DIY and community smoke kits may require 1.5-2.5A each, which easily pushes the stated limit (3A) of a single TalentCell battery.
 
-As an addendum to this, smoke kits are expected to be triggered using a relay which means they are already suited to being run from a separate power source. Power for the relay will come from the pack controller, while power to the smoke device could come from a separate battery.
+Please follow our diagrams in the [Smoke Guide](SMOKE.md) for more information about how to make use of multiple batteries. With the addition of the [GPStar Power Hub](https://gpstartechnologies.com/products/gpstar-power-hub) this is much easier as you can use a single device with a standalone battery to operate up to 2 smoke kits simultaneously. Per our recommendations, smoke kits can and should be triggered by use of a relay which also makes this scenario possible, as it provides isolation between the power source to the primary electronics from the high-draw heating elements used in most smoke kits.

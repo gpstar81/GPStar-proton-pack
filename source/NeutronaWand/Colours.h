@@ -1,6 +1,6 @@
 /**
  *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -195,6 +195,7 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
         }
         else {
           i_curr_colour = 0;
+          i_count = 0; // Reset counter.
         }
       }
 
@@ -216,6 +217,7 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
         }
         else {
           i_curr_colour = 32;
+          i_count = 0; // Reset counter.
         }
       }
       return CHSV(i_curr_colour, 255, i_brightness);

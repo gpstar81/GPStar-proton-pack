@@ -1,6 +1,6 @@
 /**
  *   GPStar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -285,9 +285,6 @@ void playMusic() {
     // Tell connected serial device music playback has started.
     serial1Send(A_MUSIC_IS_PLAYING, i_current_music_track);
     serial1Send(A_MUSIC_IS_NOT_PAUSED);
-
-    // Tell the Neutrona Wand which music track to change to and play it.
-    packSerialSend(P_MUSIC_START, i_current_music_track);
   }
 }
 
@@ -314,15 +311,11 @@ void stopMusic() {
   // Tell connected serial device music playback has stopped.
   serial1Send(A_MUSIC_IS_NOT_PLAYING, i_current_music_track);
   serial1Send(A_MUSIC_IS_NOT_PAUSED);
-
-  // Tell the Neutrona Wand to stop music playback and confirm track.
-  packSerialSend(P_MUSIC_STOP);
 }
 
 void pauseMusic() {
   if(b_playing_music == true) {
     // Tell connected devices music playback is paused.
-    packSerialSend(P_MUSIC_PAUSE);
     serial1Send(A_MUSIC_IS_PAUSED);
 
     // Pause music playback on the Proton Pack
@@ -373,7 +366,6 @@ void resumeMusic() {
     b_music_paused = false;
 
     // Tell connected devices music playback has resumed.
-    packSerialSend(P_MUSIC_RESUME);
     serial1Send(A_MUSIC_IS_NOT_PAUSED);
   }
 }

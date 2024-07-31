@@ -1,6 +1,6 @@
 /**
  *   GPStar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -45,6 +45,11 @@
 #define FRUTTO_MAX_CYCLOTRON_LED_COUNT 36
 
 /*
+ * Set the number of steps for the Outer Cyclotron (lid).
+ */
+#define OUTER_CYCLOTRON_LED_MAX 40
+
+/*
  * Set the number of LEDs for the optional Inner Cyclotron panel board.
  * This is not the single traditional LEDs, but the optional board with 8 pixels instead.
  */
@@ -59,11 +64,6 @@
  * Set the number of steps for the Inner Cyclotron (cavity).
  */
 #define INNER_CYCLOTRON_CAVITY_LED_MAX 20
-
-/*
- * Set the number of steps for the Outer Cyclotron (lid).
- */
-#define OUTER_CYCLOTRON_LED_MAX 40
 
 /*
  * The gpstar N-Filter expects 7 LEDs.
@@ -81,7 +81,7 @@
  *  1) The "pack" lights which consist of the Powercell, Cyclotron, and N-Filter.
  *  2) The inner cyclotron "cake" plus anything beyond that point.
  *
- * So for every 100 LEDs at 30μs each to update, that's 0.1ms of interrupt disruption. For
+ * So for every 100 LEDs at 30μs each to update, that's 3ms of interrupt disruption. For
  * a microcontroller that's a lot of time so we need to keep those updates to a minimum.
  * The best way to do that while still providing all of the lights desired is to keep those
  * chains of lights to a minimum where possible. Thus, we only support a certain # of LEDs.
@@ -127,10 +127,10 @@ CRGB pack_leds[FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX + JEWEL_NFIL
 
 /*
  * Inner Cyclotron LEDs (optional).
- * Max number of LEDs supported = 73.
+ * Max number of LEDs supported = 64.
  * Maximum expected LEDs for the Inner Switch Panel is 8.
- * Maximum allowed LEDs for the Inner Cyclotron Cake is 35.
- * Maximum allowed LEDs for the Inner Cyclotron Cavity is 30.
+ * Maximum allowed LEDs for the Inner Cyclotron Cake is 36.
+ * Maximum allowed LEDs for the Inner Cyclotron Cavity is 20.
  * Uses pin 13.
  */
 #define CYCLOTRON_LED_PIN 13
@@ -138,9 +138,9 @@ CRGB cyclotron_leds[INNER_CYCLOTRON_LED_PANEL_MAX + INNER_CYCLOTRON_CAKE_LED_MAX
 
 /*
  * Delay for fastled to update the addressable LEDs.
- * We have up to 90 addressable LEDs if using NeoPixel jewel in the N-Filter, a ring
- * for the Inner Cyclotron, and the optionalal "sparking" cyclotron cavity LEDs.
- * 0.03 ms to update 1 LED. So 3 ms should be okay. Let's bump it up to 6 just in case.
+ * We have up to 126 addressable LEDs if using NeoPixel jewel in the N-Filter, a ring
+ * for the Inner Cyclotron, and the optional "sparking" cyclotron cavity LEDs.
+ * 0.03 ms to update 1 LED. So 4 ms should be okay. Let's bump it up to 6 just in case.
  * For cyclotrons with high density LEDs, increase this based on the cyclotron speed multiplier to simulate a faster spinning cyclotron.
  */
 #define FAST_LED_UPDATE_MS 6
@@ -196,9 +196,9 @@ millisDelay ms_cyclotron;
 millisDelay ms_cyclotron_slime_effect;
 bool b_cyclotron_lid_on = true;
 bool b_brass_pack_sound_loop = false;
-bool b_cyclotron_led_on_status[OUTER_CYCLOTRON_LED_MAX] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
-rampInt ms_cyclotron_led_fade_out[OUTER_CYCLOTRON_LED_MAX] = {};
-rampInt ms_cyclotron_led_fade_in[OUTER_CYCLOTRON_LED_MAX] = {};
+bool b_cyclotron_led_fading_in[OUTER_CYCLOTRON_LED_MAX] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
+rampInt r_cyclotron_led_fade_out[OUTER_CYCLOTRON_LED_MAX] = {};
+rampInt r_cyclotron_led_fade_in[OUTER_CYCLOTRON_LED_MAX] = {};
 uint8_t i_cyclotron_led_value[OUTER_CYCLOTRON_LED_MAX] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 // For the Afterlife and Frozen Empire Cyclotron matrix pattern, map a location on a circle of 40 positions to a target LED (where 0 is the top-right lens).
@@ -467,13 +467,6 @@ bool b_pack_shutting_down = false;
 bool b_spectral_lights_on = false;
 bool b_fade_out = false;
 millisDelay ms_fadeout;
-
-/*
- * Voltage reference.
- */
-uint16_t i_batt_volts; // Current voltage value (Vcc) using internal bandgap reference.
-const uint16_t i_ms_battcheck_delay = 5000; // Time between battery voltage checks.
-millisDelay ms_battcheck; // Timer for checking battery voltage on a regular interval.
 
 /*
  * Neutrona Wand Sensor Board (optional)

@@ -1,7 +1,6 @@
-#include "Header.h"
 /**
  *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -69,7 +68,7 @@ struct objConfigEEPROM {
   uint8_t extra_proton_sounds;
   uint8_t neutrona_wand_sounds;
   uint8_t spectral_mode;
-  uint8_t holiday_mode;
+  uint8_t holiday_mode; // This will be deprecated in 6.0 as part of a new menu refactoring.
   uint8_t quick_vent;
   uint8_t wand_boot_errors;
   uint8_t vent_light_auto_intensity;
@@ -158,18 +157,11 @@ void readEEPROM() {
       if(obj_config_eeprom.spectral_mode > 1) {
         b_spectral_mode_enabled = true;
         b_spectral_custom_mode_enabled = true;
+        b_holiday_mode_enabled = true;
       }
       else {
         b_spectral_mode_enabled = false;
         b_spectral_custom_mode_enabled = false;
-      }
-    }
-
-    if(obj_config_eeprom.holiday_mode > 0 && obj_config_eeprom.holiday_mode != 255) {
-      if(obj_config_eeprom.holiday_mode > 1) {
-        b_holiday_mode_enabled = true;
-      }
-      else {
         b_holiday_mode_enabled = false;
       }
     }
@@ -536,7 +528,6 @@ void saveConfigEEPROM() {
   uint8_t i_extra_proton_sounds = 2;
   uint8_t i_neutrona_wand_sounds = 2;
   uint8_t i_spectral = 1;
-  uint8_t i_holiday = 1;
   uint8_t i_quick_vent = 2;
   uint8_t i_wand_boot_errors = 2;
   uint8_t i_vent_light_auto_intensity = 2;
@@ -581,9 +572,8 @@ void saveConfigEEPROM() {
     i_neutrona_wand_sounds = 1;
   }
 
-  if(b_spectral_mode_enabled == true || b_holiday_mode_enabled == true) {
+  if(b_spectral_mode_enabled == true) {
     i_spectral = 2;
-    i_holiday = 2;
   }
 
   if(b_quick_vent != true) {
@@ -755,7 +745,7 @@ void saveConfigEEPROM() {
     i_extra_proton_sounds,
     i_neutrona_wand_sounds,
     i_spectral,
-    i_holiday,
+    0,
     i_quick_vent,
     i_wand_boot_errors,
     i_vent_light_auto_intensity,

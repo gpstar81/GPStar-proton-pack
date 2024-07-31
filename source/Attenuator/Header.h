@@ -1,7 +1,7 @@
 /**
  *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
- *                    & Dustin Grau <dustin.grau@gmail.com>
+ *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ CRGB device_leds[DEVICE_NUM_LEDS];
  * Therefore, the order of this list may change depending on user preference.
  * This feature will only be available for the ESP32-based controller.
  */
-boolean b_invert_leds = false; // Denotes whether the order should be reversed.
+bool b_invert_leds = false; // Denotes whether the order should be reversed.
 uint8_t i_device_led[DEVICE_NUM_LEDS] = {0, 1, 2}; // Default Order
 
 /*
@@ -98,7 +98,6 @@ bool b_top_led_off = false; // Denotes when top LED is mid-blink.
   // ESP32
   #define BUZZER_PIN 18
   #define VIBRATION_PIN 19
-  #define PWM_CHANNEL 0
 #else
   // Nano
   #define BUZZER_PIN 10
@@ -142,9 +141,6 @@ uint8_t i_bargraph_step = 0; // Indicates current step for bilateral/mirrored pa
 int i_bargraph_element = 0; // Indicates current LED element for adjustment.
 bool b_bargraph_present = false; // Denotes that i2c bus found the bargraph device.
 millisDelay ms_bargraph; // Timer to control bargraph updates consistently.
-
-// Define Wire object for the i2c bus.
-#define WIRE Wire
 
 // Denotes the speed of the cyclotron (1=Normal) which increases as firing continues.
 uint8_t i_speed_multiplier = 1;

@@ -14,7 +14,7 @@ A fully integrated Proton Pack and Neutrona Wand, packed with features and add-o
 ## Feature Reel Demonstration ##
 
 Just see for yourself what this kit can do, and you'll be ready to believe us!
-[![GPStar Proton Pack and Neutrona Wand feature reel demonstration](https://img.youtube.com/vi/ja9vD3nKxQY/maxresdefault.jpg)](https://www.youtube.com/watch?v=ja9vD3nKxQY)
+[![GPStar Proton Pack and Neutrona Wand feature reel demonstration](https://img.youtube.com/vi/lDD9TEip7_s/maxresdefault.jpg)](https://www.youtube.com/watch?v=lDD9TEip7_s)
 
 ## Table of Contents
 

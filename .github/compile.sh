@@ -93,6 +93,32 @@ fi
 echo "Done."
 echo ""
 
+# Attenuator (Arduino - Standalone)
+echo "Building Attenuator Binary (Arduino - Standalone)..."
+
+# Change flag(s) for compilation
+sed -i -e 's/b_wait_for_pack = true/b_wait_for_pack = false/' ${SRCDIR}/Attenuator/Configuration.h
+
+# --warnings none
+arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:nano --export-binaries ${SRCDIR}/Attenuator/Attenuator.ino
+
+rm -f ${BINDIR}/*.bin
+rm -f ${BINDIR}/*.eep
+rm -f ${BINDIR}/*.elf
+rm -f ${BINDIR}/*bootloader.hex
+
+if [ -f ${BINDIR}/Attenuator.ino.hex ]; then
+  mv ${BINDIR}/Attenuator.ino.hex ${BINDIR}/attenuator/Attenuator-Nano-Standalone.hex
+fi
+
+# Restore flag(s) from compilation
+sed -i -e 's/b_wait_for_pack = false/b_wait_for_pack = true/' ${SRCDIR}/Attenuator/Configuration.h
+
+rm -f ${SRCDIR}/Attenuator/*.h-e
+
+echo "Done."
+echo ""
+
 # Attenuator (ESP32)
 echo "Building Attenuator Binary (ESP32)..."
 

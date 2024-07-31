@@ -1,7 +1,7 @@
 /**
  *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
- *                    & Dustin Grau <dustin.grau@gmail.com>
+ *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <h1>Pack Settings</h1>
+  <h1 id="top">Pack Settings</h1>
   <div class="block left">
     <p>
       Change system configuration options using the available toggles and selectors.
@@ -47,14 +47,14 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
   <div class="block left">
     <div class="setting">
       <b>Operation Mode:</b>
-      <select id="defaultSystemModePack" name="defaultSystemModePack">
+      <select id="defaultSystemModePack" name="defaultSystemModePack" style="width:180px">
         <option value="0">Super Hero</option>
         <option value="1">Mode Original</option>
       </select>
     </div>
     <div class="setting">
       <b>&nbsp;&nbsp;&nbsp;Default Theme:</b>
-      <select id="defaultYearThemePack" name="defaultYearThemePack">
+      <select id="defaultYearThemePack" name="defaultYearThemePack" style="width:180px">
         <option value="1">System Toggle</option>
         <option value="2">1984</option>
         <option value="3">1989</option>
@@ -64,7 +64,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b>&nbsp;&nbsp;&nbsp;Current Theme:</b>
-      <select id="currentYearThemePack" name="currentYearThemePack">
+      <select id="currentYearThemePack" name="currentYearThemePack" style="width:180px">
         <option value="2">1984</option>
         <option value="3">1989</option>
         <option value="4">Afterlife</option>
@@ -134,7 +134,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
   <div class="block left">
     <div class="setting">
       <b>LED Count:</b>
-      <select id="ledCycLidCount" name="ledCycLidCount">
+      <select id="ledCycLidCount" name="ledCycLidCount" style="width:200px">
         <option value="12">12 - Stock</option>
         <option value="20">20 - Frutto (4x5)</option>
         <option value="36">36 - Frutto (4x9)</option>
@@ -157,7 +157,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b>Spin Direction:</b>
-      <select id="cyclotronDirection" name="cyclotronDirection">
+      <select id="cyclotronDirection" name="cyclotronDirection" style="width:200px">
         <option value="0">Counter-Clockwise</option>
         <option value="1">Clockwise</option>
       </select>
@@ -267,6 +267,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
   </div>
 
   <div class="block">
+    <a href="#top">Top</a>
     <hr/>
     <a href="/">&laquo; Back</a>
     &nbsp;&nbsp;
@@ -357,33 +358,33 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             getEl("defaultSystemVolume").value = settings.defaultSystemVolume || 100; // Default to full volume.
             getEl("packVibration").value = settings.packVibration || 4;
             getEl("masterVolOut").innerHTML = getEl("defaultSystemVolume").value;
-            getEl("protonStreamEffects").checked = settings.protonStreamEffects ? true: false;
-            getEl("ribbonCableAlarm").checked = settings.ribbonCableAlarm ? true: false;
-            getEl("overheatStrobeNF").checked = settings.overheatStrobeNF ? true: false;
-            getEl("overheatLightsOff").checked = settings.overheatLightsOff ? true: false;
-            getEl("overheatSyncToFan").checked = settings.overheatSyncToFan ? true: false;
-            getEl("demoLightMode").checked = settings.demoLightMode ? true: false;
+            getEl("protonStreamEffects").checked = settings.protonStreamEffects ? true : false;
+            getEl("ribbonCableAlarm").checked = settings.ribbonCableAlarm ? true : false;
+            getEl("overheatStrobeNF").checked = settings.overheatStrobeNF ? true : false;
+            getEl("overheatLightsOff").checked = settings.overheatLightsOff ? true : false;
+            getEl("overheatSyncToFan").checked = settings.overheatSyncToFan ? true : false;
+            getEl("demoLightMode").checked = settings.demoLightMode ? true : false;
 
             getEl("ledCycLidCount").value = settings.ledCycLidCount || 12; // Haslab: 12
             getEl("ledCycLidHue").value = convertRange(settings.ledCycLidHue || 254, [1,254], [0,360]); // Default: Red
             getEl("ledCycLidSat").value = convertRange(settings.ledCycLidSat || 254, [1,254], [0,100]); // Full Saturation
             getEl("cyclotronDirection").value = settings.cyclotronDirection || 0;
             getEl("ledCycLidCenter").value = settings.ledCycLidCenter || 0;
-            getEl("ledVGCyclotron").checked = settings.ledVGCyclotron ? true: false;
-            getEl("ledCycLidSimRing").checked = settings.ledCycLidSimRing ? true: false;
+            getEl("ledVGCyclotron").checked = settings.ledVGCyclotron ? true : false;
+            getEl("ledCycLidSimRing").checked = settings.ledCycLidSimRing ? true : false;
 
             getEl("ledCycCakeCount").value = settings.ledCycCakeCount || 35; // Default: 35
             getEl("ledCycCakeHue").value = convertRange(settings.ledCycCakeHue || 254, [1,254], [0,360]); // Default: Red
             getEl("ledCycCakeSat").value = convertRange(settings.ledCycCakeSat || 254, [1,254], [0,100]); // Full Saturation
-            getEl("ledCycInnerPanel").checked = settings.ledCycInnerPanel ? true: false;
-            getEl("ledCycCakeGRB").checked = settings.ledCycCakeGRB ? true: false;
+            getEl("ledCycInnerPanel").checked = settings.ledCycInnerPanel ? true : false;
+            getEl("ledCycCakeGRB").checked = settings.ledCycCakeGRB ? true : false;
             getEl("ledCycCavCount").value = settings.ledCycCavCount || 0; // Default: 0
             getEl("ledCycCavCountOut").innerHTML = getEl("ledCycCavCount").value;
 
             getEl("ledPowercellCount").value = settings.ledPowercellCount || 13; // Haslab: 13
             getEl("ledPowercellHue").value = convertRange(settings.ledPowercellHue || 160, [1,254], [0,360]); // Default: Blue
             getEl("ledPowercellSat").value = convertRange(settings.ledPowercellSat || 254, [1,254], [0,100]); // Full Saturation
-            getEl("ledVGPowercell").checked = settings.ledVGPowercell ? true: false;
+            getEl("ledVGPowercell").checked = settings.ledVGPowercell ? true : false;
 
             // Update colour preview and value display for hue/saturation sliders.
             updateColour("cycColourPreview", "cycHueOut", "cycSatOut", getEl("ledCycLidHue").value, getEl("ledCycLidSat").value);

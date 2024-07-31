@@ -1,6 +1,6 @@
 /**
  *   GPStar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -264,21 +264,34 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
   }
 }
 
-CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation = 255) {
+CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation = 255, bool b_fade = false) {
   // Brightness here is a value from 0-255 as limited by byte (uint8_t) type.
 
   // For colour cycles, i_cycle indicates how often to change colour.
   // This is device-dependent in order to provide a noticeable change.
   // Value must be >0 as this is used with modulo (cannot mod by 0).
   uint8_t i_cycle = 2;
+  uint8_t i_output_colour = i_curr_colour[i_device];
 
   switch(i_device) {
     case CYCLOTRON_OUTER:
-      i_cycle = 10;
+      if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
+        i_cycle = 1;
+
+        if(i_count[i_device] > 1) {
+          i_count[i_device] = 0; // Reset counter.
+        }
+      }
+      else {
+        i_cycle = 10;
+      }
     break;
     case CYCLOTRON_INNER:
     case CYCLOTRON_PANEL:
       i_cycle = 6;
+    break;
+    default:
+      // Do nothing.
     break;
   }
 
@@ -398,41 +411,72 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
       // Alternate between red (0) and green (96).
       if(i_curr_colour[i_device] != 0 && i_curr_colour[i_device] != 96) {
         i_curr_colour[i_device] = 0; // Reset if out of range.
+        i_output_colour = i_curr_colour[i_device];
       }
 
-      i_count[i_device]++;
+      if(!b_fade) {
+        i_count[i_device]++;
+      }
 
       if(i_count[i_device] % i_cycle == 0) {
         if(i_curr_colour[i_device] == 0) {
           i_curr_colour[i_device] = 96;
+          i_output_colour = i_curr_colour[i_device];
           i_count[i_device] = 0; // Reset counter.
         }
         else {
           i_curr_colour[i_device] = 0;
+          i_output_colour = i_curr_colour[i_device];
+          i_count[i_device] = 0; // Reset counter.
         }
       }
 
-      return CHSV(i_curr_colour[i_device], 255, i_brightness);
+      if(b_fade) {
+        if(i_curr_colour[i_device] == 0) {
+          i_output_colour = 96;
+        }
+        else {
+          i_output_colour = 0;
+        }
+      }
+
+      return CHSV(i_output_colour, 255, i_brightness);
     break;
 
     case C_ORANGEPURPLE:
       // Alternate between orange (32) and purple (192).
       if(i_curr_colour[i_device] != 32 && i_curr_colour[i_device] != 192) {
         i_curr_colour[i_device] = 32; // Reset if out of range.
+        i_output_colour = i_curr_colour[i_device];
       }
 
-      i_count[i_device]++;
+      if(!b_fade) {
+        i_count[i_device]++;
+      }
 
       if(i_count[i_device] % i_cycle == 0) {
         if(i_curr_colour[i_device] == 32) {
           i_curr_colour[i_device] = 192;
+          i_output_colour = i_curr_colour[i_device];
           i_count[i_device] = 0; // Reset counter.
         }
         else {
           i_curr_colour[i_device] = 32;
+          i_output_colour = i_curr_colour[i_device];
+          i_count[i_device] = 0; // Reset counter.
         }
       }
-      return CHSV(i_curr_colour[i_device], 255, i_brightness);
+
+      if(b_fade) {
+        if(i_curr_colour[i_device] == 32) {
+          i_output_colour = 192;
+        }
+        else {
+          i_output_colour = 32;
+        }
+      }
+
+      return CHSV(i_output_colour, 255, i_brightness);
     break;
 
     case C_BLUEFADE:
@@ -450,34 +494,49 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
 
     case C_PASTEL:
       // Cycle through all colours (0-255) at half saturation.
-      i_count[i_device]++;
+      if(!b_fade) {
+        i_count[i_device]++;
+      }
 
       if(i_count[i_device] % i_cycle == 0) {
         i_curr_colour[i_device] = (i_curr_colour[i_device] + 5) % 255;
+        i_output_colour = i_curr_colour[i_device];
         i_count[i_device] = 0; // Reset counter.
       }
 
-      return CHSV(i_curr_colour[i_device], 128, i_brightness);
+      if(b_fade) {
+        i_output_colour = (i_curr_colour[i_device] - 5) % 255;
+      }
+
+      return CHSV(i_output_colour, 128, i_brightness);
     break;
 
     case C_RAINBOW:
       // Cycle through all colours (0-255) at full saturation.
-      i_count[i_device]++;
+      if(!b_fade) {
+        i_count[i_device]++;
+      }
+
       if(i_count[i_device] % i_cycle == 0) {
         i_curr_colour[i_device] = (i_curr_colour[i_device] + 5) % 255;
+        i_output_colour = i_curr_colour[i_device];
         i_count[i_device] = 0; // Reset counter.
       }
 
-      return CHSV(i_curr_colour[i_device], 255, i_brightness);
+      if(b_fade) {
+        i_output_colour = (i_curr_colour[i_device] - 5) % 255;
+      }
+
+      return CHSV(i_output_colour, 255, i_brightness);
     break;
   }
 }
 
-CRGB getHueAsRGB(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, bool b_grb = false) {
+CRGB getHueAsRGB(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, bool b_grb = false, bool b_fade = false) {
   // Brightness here is a value from 0-255 as limited by byte (uint8_t) type.
 
   // Get the initial colour using the HSV scheme.
-  CHSV hsv = getHue(i_device, i_colour, i_brightness);
+  CHSV hsv = getHue(i_device, i_colour, i_brightness, 255, b_fade);
 
   // Convert from HSV to RGB.
   CRGB rgb; // RGB Array as { r, g, b }

@@ -8,6 +8,8 @@ For the Arduino Nano you may use the same flashing utility as the other gpstar P
 
 Just as you used the gpstar flashing utility for Windows or MacOS to upload to your Proton Pack or Neutrona Wand, you will do the same for this device. Plug in your device using a standard USB cable and note the serial COM port used. Select the "Attenuator-Nano.hex" file from the `/binaries/attenuator` directory and upload to the attached device.
 
+If you are using an Arduino Nano as part of a standalone Attenuator (meaning, a device not connected to a GPStar Proton Pack controller) you will want to use the `Attenuator-Nano-Standalone.hex` firmware which disables the serial communications. This will allow the device to operate without waiting for an attached pack and only requires a power source. There will be no control of your Proton pack but the toggles will work to provide lights and default bargraph animations.
+
 ## For ESP32
 
 This device supports Over-The-Air (OTA) updates for firmware, meaning you will need to utilize a desktop web browser from a computer (not a mobile device) and the built-in WiFi access point provided by the controller (prefix: "ProtonPack_"). **However, the software which enables the WiFi access point isn't yet loaded so you'll need to follow a specific process for the initial upload to your device.**
@@ -17,6 +19,8 @@ This device supports Over-The-Air (OTA) updates for firmware, meaning you will n
 📝 **Tip:** Before proceeding, be sure to use a high-quality USB cable which supports data transfer. Some cheap cables may only support charging (not data), or not fully support the power requirements of the device. If you have successfully flashed your ESP32 device and do not see the available WiFi access point, try plugging your USB cable directly into the Talentcell battery or try another USB port on your computer. In rare cases the USB port and/or cable cannot supply enough voltage to run the ESP32's WiFi radio.
 
 ### ESP32: First-Time Upload
+
+STOP! If you are looking for instructions for over-the-air (OTA) updates without a USB cable, AND your device has already been flashed with an earlier firmware, then you may skip to the next section.
 
 If you are using your own ESP32 controller or do not see a WiFi network for your Proton Pack when the device is powered up, then the microcontroller has likely not been flashed with the GPStar firmware to enable that feature. You will need to upload the software using a USB cable via **either** of the 2 methods listed here.
 
@@ -77,7 +81,7 @@ This applies to all updates you will perform AFTER the first-time upload of the 
 1. Navigate directly to the URL: [http://192.168.1.2/update](http://192.168.1.2/update)
 1. Use the "Select File" button and select the [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin) file from the `/binaries/attenuator` directory.
 1. The upload will begin immediately. Once at 100% the device will reboot.
-1. Navigate to [http://192.168.1.2](http://192.168.1.2) to confirm that the device is able to communicate with the Proton Pack PCB.
+1. Navigate to [http://192.168.1.2](http://192.168.1.2) or `http://protonpack_####.local` to confirm that the device is able to communicate with the Proton Pack PCB.
 
 ![](images/WebUI-Update1.jpg)
 
@@ -95,7 +99,7 @@ While every device gets a unique SSID for the wireless network, the password is 
 
 Since this device will make use of a private WiFi network with a default password, it is STRONGLY encouraged that you take a moment to change the password to something you prefer to avoid unauthorized access of your equipment.
 
-Once you are able to reach the web UI at [http://192.168.1.2](http://192.168.1.2) scroll to the bottom of the page to find the "Secure Device WiFi" link. Follow the instructions on the page to set a new password for your device. This will be unique to the ESP32 controller and will persist as the new default even if the device is power-cycled. Passwords must only be at least 8 characters and you will be required to enter a matching password as confirmation to ensure you entered the expected string of characters.
+Once you are able to reach the web UI at [http://192.168.1.2](http://192.168.1.2) or `http://protonpack_####.local` scroll to the bottom of the page to find the "Secure Device WiFi" link. Follow the instructions on the page to set a new password for your device. This will be unique to the ESP32 controller and will persist as the new default even if the device is power-cycled. Passwords must only be at least 8 characters and you will be required to enter a matching password as confirmation to ensure you entered the expected string of characters.
 
 The password you choose will be stored in an area of the device's flash memory that is unaffected by future firmware updates. Therefore, if you forget your password you may need to load a special version of the firmware which can bypass that stored value and allow you to use the default password again. This process is covered in the next section.
 
@@ -103,11 +107,13 @@ The password you choose will be stored in an area of the device's flash memory t
 
 ![](images/WebUI-Password.jpg)
 
+The following is only applicable to users on firmware PRIOR to the v5.2.2 release. As of that release the ability to boot up with the default password was introduced by pressing down on the center dial when power is applied to the device.
+
 If you have forgotten the password to the private WiFi network, you will need to load a special firmware to allow you to access the device and reset the password. Though if you have opted to connect your device to a preferred WiFi network using the built-in WiFi settings, simply return to your device's IP address on that network and change the password for the private WiFi network as desired.
 
-In the case where you do not have access to your device via an external WiFi network, you will need to follow a manual process using a USB cable and a utility for your OS of choice. This will follow the same process as the "First-Time Upload" instructions posted above, though you will instead load the [Attenuator-ESP32-Reset.bin](binaries/attenuator/Attenuator-ESP32-Reset.bin) file from the `/binaries/attenuator` directory.
+In the case where you do not have access to your device via an external WiFi network, you will need to follow a special process using a USB cable and a utility for your OS of choice. This will follow the same process as the "First-Time Upload" instructions posted above, though you will instead load the [Attenuator-ESP32-Reset.bin](binaries/attenuator/Attenuator-ESP32-Reset.bin) file from the `/binaries/attenuator` directory.
 
-Once flashed, this will allow you to get back into the web UI at `http://192.168.1.2` using the default password ("555-2368") and change to your choice of password. **Once changed, you will need to re-flash the device using the standard firmware--otherwise, the device will always use the default WiFi password while this firmware is loaded**! The new password will be used automatically to secure the WiFi access point once the regular firmware is in use.
+Once flashed, this will allow you to get back into the web UI at [http://192.168.1.2](http://192.168.1.2) or `http://protonpack_####.local` using the default password ("555-2368") and change to your choice of password. **Once changed, you will need to re-flash the device using the standard firmware--otherwise, the device will always use the default WiFi password while this firmware is loaded**! The new password will be used automatically to secure the WiFi access point once the regular firmware is in use.
 
 📝 **Note:** When using this firmware there will be additional debug messages enabled for the device. Therefore, this firmware image may also be used to help debug WiFi issues by checking the output via the Arduino IDE's serial console. Be sure to set the baud rate to 112500 to view the output correctly.
 

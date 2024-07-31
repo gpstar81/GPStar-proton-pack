@@ -1,7 +1,7 @@
 /**
  *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
- *                    & Dustin Grau <dustin.grau@gmail.com>
+ *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -122,15 +122,16 @@ void bargraphOff() {
 /***** Core Setup - Declared after helper functions *****/
 
 void setupBargraph() {
-  WIRE.begin();
+  Wire.begin();
+  Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
 
   byte by_error, by_address;
   uint8_t i_i2c_devices = 0;
 
   // Scan i2c for any devices (28 segment bargraph).
   for(by_address = 1; by_address < 127; by_address++ ) {
-    WIRE.beginTransmission(by_address);
-    by_error = WIRE.endTransmission();
+    Wire.beginTransmission(by_address);
+    by_error = Wire.endTransmission();
 
     if(by_error == 0) {
       // Device found at address.

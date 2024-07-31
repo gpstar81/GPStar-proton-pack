@@ -1,7 +1,6 @@
-#include "Header.h"
 /**
  *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -57,8 +56,7 @@ struct __attribute__((packed)) WandPrefs {
   uint8_t ledWandCount;
   uint8_t ledWandHue;
   uint8_t ledWandSat;
-  uint8_t spectralModeEnabled;
-  uint8_t spectralHolidayMode;
+  uint8_t spectralModesEnabled;
   uint8_t overheatEnabled;
   uint8_t defaultFiringMode;
   uint8_t wandVibration;
@@ -112,9 +110,7 @@ struct __attribute__((packed)) SyncData {
   uint8_t vibrationEnabled;
   uint8_t masterVolume;
   uint8_t effectsVolume;
-  uint8_t musicVolume;
   uint8_t masterMuted;
-  uint16_t currentMusicTrack;
   uint8_t repeatMusicTrack;
 } packSync;
 
@@ -186,8 +182,7 @@ void wandSerialSendData(uint8_t i_message) {
 
       wandConfig.ledWandHue = i_spectral_wand_custom_colour;
       wandConfig.ledWandSat = i_spectral_wand_custom_saturation;
-      wandConfig.spectralModeEnabled = b_spectral_mode_enabled;
-      wandConfig.spectralHolidayMode = b_holiday_mode_enabled;
+      wandConfig.spectralModesEnabled = b_spectral_mode_enabled;
       wandConfig.overheatEnabled = b_overheat_enabled;
 
       switch(FIRING_MODE) {
@@ -403,14 +398,12 @@ void checkPack() {
             break;
           }
 
-          b_overheat_enabled = wandConfig.overheatEnabled;
+          b_overheat_enabled = (wandConfig.overheatEnabled == 1);
           i_spectral_wand_custom_colour = wandConfig.ledWandHue;
           i_spectral_wand_custom_saturation = wandConfig.ledWandSat;
-          b_holiday_mode_enabled = wandConfig.spectralHolidayMode;
-          b_spectral_mode_enabled = wandConfig.spectralModeEnabled;
-
-          // Spectral custom, is linked to spectral mode overall, just like in the Neutrona Wand EEPROM menu system.
-          b_spectral_custom_mode_enabled = wandConfig.spectralModeEnabled;
+          b_spectral_mode_enabled = (wandConfig.spectralModesEnabled == 1);
+          b_spectral_custom_mode_enabled = b_spectral_mode_enabled;
+          b_holiday_mode_enabled = b_spectral_mode_enabled;
 
           switch(wandConfig.defaultFiringMode) {
             case 1:
@@ -473,11 +466,11 @@ void checkPack() {
             break;
           }
 
-          b_extra_pack_sounds = wandConfig.wandSoundsToPack;
-          b_quick_vent = wandConfig.quickVenting;
-          b_vent_light_control = wandConfig.autoVentLight;
-          b_beep_loop = wandConfig.wandBeepLoop;
-          b_wand_boot_errors = wandConfig.wandBootError;
+          b_extra_pack_sounds = (wandConfig.wandSoundsToPack == 1);
+          b_quick_vent = (wandConfig.quickVenting == 1);
+          b_vent_light_control = (wandConfig.autoVentLight == 1);
+          b_beep_loop = (wandConfig.wandBeepLoop == 1);
+          b_wand_boot_errors = (wandConfig.wandBootError == 1);
 
           switch(wandConfig.defaultYearModeWand) {
             case 1:
@@ -517,8 +510,8 @@ void checkPack() {
             break;
           }
 
-          b_bargraph_invert = wandConfig.invertWandBargraph;
-          b_overheat_bargraph_blink = wandConfig.bargraphOverheatBlink;
+          b_bargraph_invert = (wandConfig.invertWandBargraph == 1);
+          b_overheat_bargraph_blink = (wandConfig.bargraphOverheatBlink == 1);
 
           switch(wandConfig.bargraphIdleAnimation) {
             case 1:
@@ -562,11 +555,11 @@ void checkPack() {
 
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!
-          b_overheat_level_5 = smokeConfig.overheatLevel5;
-          b_overheat_level_4 = smokeConfig.overheatLevel4;
-          b_overheat_level_3 = smokeConfig.overheatLevel3;
-          b_overheat_level_2 = smokeConfig.overheatLevel2;
-          b_overheat_level_1 = smokeConfig.overheatLevel1;
+          b_overheat_level_5 = (smokeConfig.overheatLevel5 == 1);
+          b_overheat_level_4 = (smokeConfig.overheatLevel4 == 1);
+          b_overheat_level_3 = (smokeConfig.overheatLevel3 == 1);
+          b_overheat_level_2 = (smokeConfig.overheatLevel2 == 1);
+          b_overheat_level_1 = (smokeConfig.overheatLevel1 == 1);
 
           // Values are sent as seconds, must convert to milliseconds.
           i_ms_overheat_initiate_level_5 = smokeConfig.overheatDelay5 * 1000;
@@ -738,7 +731,6 @@ void checkPack() {
           // Set the percentage volume.
           i_volume_master_percentage = packSync.masterVolume;
           i_volume_effects_percentage = packSync.effectsVolume;
-          i_volume_music_percentage = packSync.musicVolume;
 
           // Set the decibel volume.
           i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
@@ -765,11 +757,6 @@ void checkPack() {
             break;
           }
 
-          // Reset current music track.
-          if(i_music_count > 0 && packSync.currentMusicTrack >= i_music_track_start) {
-            i_current_music_track = packSync.currentMusicTrack;
-          }
-
           switch(packSync.repeatMusicTrack) {
             case 1:
             default:
@@ -787,6 +774,7 @@ void checkPack() {
 
 bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
   // This function returns true only when the synchronization process is completed.
+  (void)(i_value); // Suppress unused variable warning.
 
   switch(i_command) {
     case P_HANDSHAKE:
@@ -1140,7 +1128,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case P_ALARM_OFF:
-      if(WAND_STATUS != MODE_ERROR) {
+      if(WAND_STATUS != MODE_ERROR && b_pack_alarm) {
         digitalWriteFast(led_hat_2, LOW); // Turn off hat light 2.
 
         ms_hat_2.stop();
@@ -1164,7 +1152,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       // Alarm is off.
       b_pack_alarm = false;
 
-      if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+      if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_on) {
         soundIdleLoop(true);
 
         if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
@@ -1214,16 +1202,6 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       decreaseVolumeEffects();
     break;
 
-    case P_VOLUME_MUSIC_INCREASE:
-      // Increase music volume.
-      increaseVolumeMusic();
-    break;
-
-    case P_VOLUME_MUSIC_DECREASE:
-      // Decrease music volume.
-      decreaseVolumeMusic();
-    break;
-
     case P_VOLUME_INCREASE:
       // Increase overall volume.
       increaseVolume();
@@ -1232,16 +1210,6 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
     case P_VOLUME_DECREASE:
       // Decrease overall volume.
       decreaseVolume();
-    break;
-
-    case P_MUSIC_REPEAT:
-      // Repeat music track.
-      b_repeat_track = true;
-    break;
-
-    case P_MUSIC_NO_REPEAT:
-      // Do not repeat the music track.
-      b_repeat_track = false;
     break;
 
     case P_VIBRATION_ENABLED:
@@ -1348,41 +1316,49 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
     case P_MODE_FROZEN_EMPIRE:
       // Play only the Frozen Empire voice
+      stopEffect(S_BEEPS_BARGRAPH);
       stopEffect(S_VOICE_FROZEN_EMPIRE);
       stopEffect(S_VOICE_AFTERLIFE);
       stopEffect(S_VOICE_1989);
       stopEffect(S_VOICE_1984);
 
+      playEffect(S_BEEPS_BARGRAPH);
       playEffect(S_VOICE_FROZEN_EMPIRE);
     break;
 
     case P_MODE_AFTERLIFE:
       // Play only the Afterlife voice
+      stopEffect(S_BEEPS_BARGRAPH);
       stopEffect(S_VOICE_FROZEN_EMPIRE);
       stopEffect(S_VOICE_AFTERLIFE);
       stopEffect(S_VOICE_1989);
       stopEffect(S_VOICE_1984);
 
+      playEffect(S_BEEPS_BARGRAPH);
       playEffect(S_VOICE_AFTERLIFE);
     break;
 
     case P_MODE_1989:
       // Play only the 1989 voice
+      stopEffect(S_BEEPS_BARGRAPH);
       stopEffect(S_VOICE_FROZEN_EMPIRE);
       stopEffect(S_VOICE_AFTERLIFE);
       stopEffect(S_VOICE_1989);
       stopEffect(S_VOICE_1984);
 
+      playEffect(S_BEEPS_BARGRAPH);
       playEffect(S_VOICE_1989);
     break;
 
     case P_MODE_1984:
       // Play only the 1984 voice
+      stopEffect(S_BEEPS_BARGRAPH);
       stopEffect(S_VOICE_FROZEN_EMPIRE);
       stopEffect(S_VOICE_AFTERLIFE);
       stopEffect(S_VOICE_1989);
       stopEffect(S_VOICE_1984);
 
+      playEffect(S_BEEPS_BARGRAPH);
       playEffect(S_VOICE_1984);
     break;
 
@@ -1825,45 +1801,6 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_INNER_CYCLOTRON_12);
 
       playEffect(S_VOICE_INNER_CYCLOTRON_12);
-    break;
-
-    case P_MUSIC_STOP:
-      // Stop music for current track.
-      stopMusic();
-    break;
-
-    case P_MUSIC_START:
-      if(b_playing_music == true) {
-        // Stop playing current track.
-        stopMusic();
-      }
-
-      if(i_music_count > 0 && i_value >= i_music_track_start) {
-        // Update the music track number to be played.
-        i_current_music_track = i_value;
-      }
-
-      // The pack is playing music, so we need to make sure the wand knows this, even if the wand does not have any music or a audio device.
-      if(b_gpstar_benchtest != true) {
-        b_playing_music = true;
-      }
-
-      playMusic();
-    break;
-
-    case P_MUSIC_PAUSE:
-      pauseMusic();
-    break;
-
-    case P_MUSIC_RESUME:
-      resumeMusic();
-    break;
-
-    case P_MUSIC_PLAY_TRACK:
-      if(i_music_count > 0 && i_value >= i_music_track_start) {
-        // Update the music track number to be played.
-        i_current_music_track = i_value;
-      }
     break;
 
     case P_SAVE_EEPROM_WAND:

@@ -1,7 +1,7 @@
 /**
  *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
- *                    & Dustin Grau <dustin.grau@gmail.com>
+ *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <h1>Attenuator Settings</h1>
+  <h1 id="top">Attenuator Settings</h1>
   <div class="block left">
     <p>
       Change system configuration options using the available toggles and selectors.
@@ -42,6 +42,9 @@ const char DEVICE_page[] PROGMEM = R"=====(
   </div>
   <h1>General Options</h1>
   <div class="block left">
+    <div class="setting">
+      <b>Private Network:</b> <input type="text" id="wifiName" width="40" maxlength="32"/>
+    </div>
     <div class="setting">
       <b class="labelSwitch">Invert Device LED Order:</b>
       <label class="switch">
@@ -101,6 +104,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
   </div>
 
   <div class="block">
+    <a href="#top">Top</a>
     <hr/>
     <a href="/">&laquo; Back</a>
     &nbsp;&nbsp;
@@ -163,6 +167,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
             getEl("radLensIdle").value = settings.radLensIdle || 0; // Default: 0 [Amber Pulse]
             getEl("displayType").value = settings.displayType || 0; // Default: 0 [Text]
             getEl("songList").value = settings.songList || "";
+            getEl("wifiName").value = settings.wifiName || "";
             updateByteCount();
           }
         }
@@ -174,12 +179,30 @@ const char DEVICE_page[] PROGMEM = R"=====(
     function saveSettings() {
       // Do not allow saving if track list is too large for allowed storage space.
       if (getEl("songList").value.length > 2000) {
-        alert("Unable to save track listing; exceeds allowed bytes.");
+        alert("Error: Unable to save track listing (exceeds allowed bytes).");
+        return;
+      }
+
+      // Do not allow saving if the new SSID is too short/long, or illegal.
+      var wifiName = getEl("wifiName").value || "";
+      if (wifiName.length < 8) {
+        alert("Error: Network name must be more than 8 characters.");
+        return;
+      }
+      if (wifiName.length > 32) {
+        alert("Error: Network name is more than 32 characters.");
+        return;
+      }
+      var ssidRegex = /^[a-zA-Z0-9_]$/;
+      if (ssidRegex.test(wifiName)) {
+        // Let's limit the name to the bare minimum of acceptable characters.
+        alert("Error: Network name may only be alphanumeric with underscores.");
         return;
       }
 
       // Saves current settings to attenuator, updating runtime variables and making changes immediately effective.
       var settings = {
+        wifiName: wifiName,
         invertLEDs: getEl("invertLEDs").checked ? 1 : 0,
         buzzer: getEl("buzzer").checked ? 1 : 0,
         vibration: getEl("vibration").checked ? 1 : 0,

@@ -1,7 +1,7 @@
 /**
  *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
- *                    & Dustin Grau <dustin.grau@gmail.com>
+ *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <h1>Wand Settings</h1>
+  <h1 id="top">Wand Settings</h1>
   <div class="block left">
     <p>
       Change system configuration options using the available toggles and selectors.
@@ -47,7 +47,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
   <div class="block left">
     <div class="setting">
       <b>Stream/Firing Mode:</b>
-      <select id="defaultFiringMode" name="defaultFiringMode">
+      <select id="defaultFiringMode" name="defaultFiringMode" style="width:170px">
         <option value="1">Video Game</option>
         <option value="2">CTS</option>
         <option value="3">CTS Mix</option>
@@ -55,7 +55,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       &nbsp;&nbsp;&nbsp;<b>Wand Year Theme:</b>
-      <select id="defaultYearModeWand" name="defaultYearModeWand">
+      <select id="defaultYearModeWand" name="defaultYearModeWand" style="width:170px">
         <option value="1">Via System</option>
         <option value="2">1984</option>
         <option value="3">1989</option>
@@ -65,7 +65,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       &nbsp;&nbsp;&nbsp;&nbsp;<b>Default CTS Mode:</b>
-      <select id="defaultYearModeCTS" name="defaultYearModeCTS">
+      <select id="defaultYearModeCTS" name="defaultYearModeCTS" style="width:170px">
         <option value="1">Via System</option>
         <option value="2">1984</option>
         <option value="3">1989</option>
@@ -99,14 +99,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     <div class="setting">
       <b class="labelSwitch">Spectral Modes Enabled:</b>
       <label class="switch">
-        <input id="spectralModeEnabled" name="spectralModeEnabled" type="checkbox">
-        <span class="slider round"></span>
-      </label>
-    </div>
-    <div class="setting">
-      <b class="labelSwitch">Spectral Mode - Holiday:</b>
-      <label class="switch">
-        <input id="spectralHolidayMode" name="spectralHolidayMode" type="checkbox">
+        <input id="spectralModesEnabled" name="spectralModesEnabled" type="checkbox">
         <span class="slider round"></span>
       </label>
     </div>
@@ -151,7 +144,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
   <div class="block left">
     <div class="setting">
       <b>&nbsp;&nbsp;&nbsp;Idle Animation:</b>
-      <select id="bargraphIdleAnimation" name="bargraphIdleAnimation">
+      <select id="bargraphIdleAnimation" name="bargraphIdleAnimation" style="width:180px">
         <option value="1">Default</option>
         <option value="2">Super Hero</option>
         <option value="3">Mode Original</option>
@@ -159,7 +152,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b>Firing Animation:</b>
-      <select id="bargraphFireAnimation" name="bargraphFireAnimation">
+      <select id="bargraphFireAnimation" name="bargraphFireAnimation" style="width:180px">
         <option value="1">Default</option>
         <option value="2">Super Hero</option>
         <option value="3">Mode Original</option>
@@ -207,6 +200,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
   </div>
 
   <div class="block">
+    <a href="#top">Top</a>
     <hr/>
     <a href="/">&laquo; Back</a>
     &nbsp;&nbsp;
@@ -293,8 +287,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
             getEl("ledWandCount").value = settings.ledWandCount || 0; // Haslab: 0 (5 LED)
             getEl("ledWandHue").value = convertRange(settings.ledWandHue || 254, [1,254], [0,360]); // Default: Red
             getEl("ledWandSat").value = convertRange(settings.ledWandSat || 254, [1,254], [0,100]); // Full Saturation
-            getEl("spectralModeEnabled").checked = settings.spectralModeEnabled ? true: false;
-            getEl("spectralHolidayMode").checked = settings.spectralHolidayMode ? true: false;
+            getEl("spectralModesEnabled").checked = settings.spectralModesEnabled ? true: false;
             getEl("overheatEnabled").checked = settings.overheatEnabled ? true: false;
             getEl("defaultFiringMode").value = settings.defaultFiringMode || 1;
             getEl("wandVibration").value = settings.wandVibration || 4;
@@ -326,8 +319,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         ledWandCount: parseInt(getEl("ledWandCount").value || 0, 10),
         ledWandHue: convertRange(parseInt(getEl("ledWandHue").value || 360, 10), [0,360], [1,254]),
         ledWandSat: convertRange(parseInt(getEl("ledWandSat").value || 100, 10), [0,100], [1,254]),
-        spectralModeEnabled: getEl("spectralModeEnabled").checked ? 1 : 0,
-        spectralHolidayMode: getEl("spectralHolidayMode").checked ? 1 : 0,
+        spectralModesEnabled: getEl("spectralModesEnabled").checked ? 1 : 0,
         overheatEnabled: getEl("overheatEnabled").checked ? 1 : 0,
         defaultFiringMode: parseInt(getEl("defaultFiringMode").value || 1, 10),
         wandVibration: parseInt(getEl("wandVibration").value || 4, 10),

@@ -1,6 +1,6 @@
 /**
  *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,8 +18,10 @@
  */
 
 /**
- * Please note, due to limitations of the ATMega328P, Arduino Nano builds are no longer supported for the Neutrona Wand.
- * The last supported version is 2.2.0
+ * Please note, due to limitations of the ATMega328P, Arduino Nano builds are no
+ * longer supported for the Neutrona Wand. Upgrading to the GPStar controller or
+ * a Mega 2560 Pro Mini is the only viable solution for continued support.
+ * The last supported version for the Arduino Nano is 2.2.0
  * https://github.com/gpstar81/haslab-proton-pack/releases/tag/V2.2.0
  */
 
@@ -104,15 +106,16 @@ void setup() {
 
   delay(10);
 
-  WIRE.begin();
+  Wire.begin();
+  Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
 
   byte by_error, by_address;
   uint8_t i_i2c_devices = 0;
 
   // Scan i2c for any devices (28 segment bargraph).
   for(by_address = 1; by_address < 127; by_address++ ) {
-    WIRE.beginTransmission(by_address);
-    by_error = WIRE.endTransmission();
+    Wire.beginTransmission(by_address);
+    by_error = Wire.endTransmission();
 
     if(by_error == 0) {
       i_i2c_devices++;
@@ -499,8 +502,8 @@ void mainLoop() {
             wandSerialSend(W_WAND_BEEP_SOUNDS);
           }
 
-          playEffect(S_BEEPS_LOW);
-          playEffect(S_BEEPS);
+          playEffect(S_BEEPS_LOW, false, i_volume_effects, false, 0, false);
+          playEffect(S_BEEPS, false, i_volume_effects, false, 0, false);
         }
       }
 
@@ -511,7 +514,7 @@ void mainLoop() {
             wandSerialSend(W_WAND_BEEP_BARGRAPH);
           }
 
-          playEffect(S_BEEPS_BARGRAPH);
+          playEffect(S_BEEPS_BARGRAPH, false, i_volume_effects, false, 0, false);
         }
 
         ms_hat_1.start(i_hat_2_delay * 4);
@@ -967,9 +970,9 @@ void startVentSequence() {
 
     ms_settings_blinking.start(i_settings_blinking_delay);
 
-    playEffect(S_BEEPS_LOW);
-    playEffect(S_BEEPS);
-    playEffect(S_BEEPS_BARGRAPH);
+    playEffect(S_BEEPS_LOW, false, i_volume_effects, false, 0, false);
+    playEffect(S_BEEPS, false, i_volume_effects, false, 0, false);
+    playEffect(S_BEEPS_BARGRAPH, false, i_volume_effects, false, 0, false);
 
     ms_blink_sound_timer_1.start(i_blink_sound_timer);
     ms_blink_sound_timer_2.start(i_blink_sound_timer * 4);
@@ -2240,9 +2243,9 @@ void modeError() {
       wandSerialSend(W_WAND_BEEP_SOUNDS);
     }
 
-    playEffect(S_BEEPS_LOW);
-    playEffect(S_BEEPS);
-    playEffect(S_BEEPS_BARGRAPH);
+    playEffect(S_BEEPS_LOW, false, i_volume_effects, false, 0, false);
+    playEffect(S_BEEPS, false, i_volume_effects, false, 0, false);
+    playEffect(S_BEEPS_BARGRAPH, false, i_volume_effects, false, 0, false);
   }
   else if(b_wand_mash_error == true) {
     playEffect(S_SMASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
@@ -3032,19 +3035,14 @@ void modeFireStart() {
   // This will only overheat when enabled by using the alt firing when in crossing the streams mode.
   bool b_overheat_flag = true;
 
-  if((FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) && b_firing_alt != true) {
+  if(((FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) && b_firing_alt != true) || !b_overheat_enabled) {
     b_overheat_flag = false;
   }
 
   if(b_overheat_flag == true) {
     // If in high power level on the wand, start an overheat timer.
-    if(b_overheat_level[i_power_level - 1] == true && b_overheat_enabled == true) {
+    if(b_overheat_level[i_power_level - 1] == true) {
       ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_level - 1]);
-    }
-    else if(FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) {
-      if(b_firing_alt == true) {
-        ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_level - 1]);
-      }
     }
   }
 
@@ -3653,7 +3651,7 @@ void modeFiring() {
   // Overheat timers.
   bool b_overheat_flag = true;
 
-  if((FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) && b_firing_alt != true) {
+  if(((FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) && b_firing_alt != true) || !b_overheat_enabled) {
     b_overheat_flag = false;
   }
 
@@ -3670,7 +3668,7 @@ void modeFiring() {
       // Tell the pack to revert back to regular Cyclotron speeds.
       wandSerialSend(W_CYCLOTRON_NORMAL_SPEED);
     }
-    else if(b_overheat_level[i_power_level - 1] == true && ms_overheat_initiate.remaining() == 0 && b_overheat_enabled == true) {
+    else if(b_overheat_level[i_power_level - 1] == true && !ms_overheat_initiate.isRunning()) {
       // If the user changes back to power level that overheats while firing, start up a timer.
       // This currently works only in power levels 1-4. 5 stays locked when firing.
       ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_level - 1]);
@@ -7048,7 +7046,7 @@ void bargraphRampFiring() {
   }
 
   // If in a power level on the wand that can overheat, change the speed of the bargraph ramp during firing based on time remaining before we overheat.
-  if(b_overheat_level[i_power_level - 1] == true && ms_overheat_initiate.isRunning() && b_overheat_enabled == true) {
+  if(ms_overheat_initiate.isRunning()) {
     if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_level - 1] / 6) {
       if(b_28segment_bargraph == true) {
         ms_bargraph_firing.start((i_ramp_interval / 8) + 2); // 7ms per segment

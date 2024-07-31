@@ -5,8 +5,8 @@
 This guide outlines the **optional** upgrade from the 5-LED stock bargraph to a more animated 28-segment bargraph (BL28Z-3005SA04Y) or the 28 Segment Bargraph and Power Cell from [Frutto Technology](https://fruttotechnology.com).
 
 ## Frutto Technology 28 Segment Bargraph Installation Video Guide
-[28 Segment Bargraph Installation Video Guide](https://www.youtube.com/watch?v=2qjIKoDYyFI) (YouTube)
-[![28 Segment Bargraph Installation Video Guide](https://img.youtube.com/vi/2qjIKoDYyFI/maxresdefault.jpg)](https://www.youtube.com/watch?v=2qjIKoDYyFI)
+[28 Segment Bargraph Installation Video Guide](https://www.youtube.com/watch?v=8smqGQ_Wr_c) (YouTube)
+[![28 Segment Bargraph Installation Video Guide](https://img.youtube.com/vi/8smqGQ_Wr_c/maxresdefault.jpg)](https://www.youtube.com/watch?v=8smqGQ_Wr_c)
 
 ## Frutto Technology 28 Segment Bargraph and Power Cell Overview and Demo
 [Frutto Technology Bargraph and Power Cell Overview and Demo Video](https://www.youtube.com/watch?v=CrQuCUjera4) (YouTube)

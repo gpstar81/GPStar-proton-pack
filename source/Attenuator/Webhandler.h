@@ -1,7 +1,7 @@
 /**
  *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
- *                    & Dustin Grau <dustin.grau@gmail.com>
+ *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -421,8 +421,7 @@ String getWandConfig() {
     jsonBody["ledWandCount"] = wandConfig.ledWandCount; // [0=5,1=29,2=48]
     jsonBody["ledWandHue"] = wandConfig.ledWandHue; // Spectral custom colour/hue 1-254
     jsonBody["ledWandSat"] = wandConfig.ledWandSat; // Spectral custom saturation 1-254
-    jsonBody["spectralModeEnabled"] = wandConfig.spectralModeEnabled; // true|false
-    jsonBody["spectralHolidayMode"] = wandConfig.spectralHolidayMode; // true|false
+    jsonBody["spectralModesEnabled"] = wandConfig.spectralModesEnabled; // true|false
 
     // Neutrona Wand Runtime Options
     jsonBody["overheatEnabled"] = wandConfig.overheatEnabled; // true|false
@@ -763,6 +762,28 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
 
   String result;
   try {
+    // First check if a new private WiFi network name has been chosen.
+    String newSSID = jsonBody["wifiName"];
+    bool b_ssid_changed = false;
+
+    // Update the private network name ONLY if the new value differs from the current SSID.
+    if(newSSID != ap_ssid){
+      if(newSSID.length() > 8 && newSSID.length() <= 32) {
+        preferences.begin("credentials", false); // Access namespace in read/write mode.
+        preferences.putString("ssid", newSSID); // Store SSID in case this was altered.
+        preferences.end();
+
+        b_ssid_changed = true; // This will cause a reboot of the device after saving.
+      }
+      else {
+        // Immediately return an error if the network name was invalid.
+        jsonBody.clear();
+        jsonBody["status"] = "Error: Network name must be between 8 and 32 characters in length.";
+        serializeJson(jsonBody, result); // Serialize to string.
+        request->send(200, "application/json", result);
+      }
+    }
+
     // General Options - Returned as unsigned integers
     if(jsonBody["invertLEDs"].is<unsigned short>()) {
       // Inverts the order of the LEDs as seen by the device.
@@ -841,9 +862,19 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
 
     if(b_list_err){
       jsonBody.clear();
-      jsonBody["status"] = "Settings updated on Attenuator, but song list exceeds 2000 bytes maximum and was not saved";
+      jsonBody["status"] = "Settings updated on Attenuator, but song list exceeds 2000 bytes maximum and was not saved.";
       serializeJson(jsonBody, result); // Serialize to string.
       request->send(200, "application/json", result);
+    }
+    else if(b_ssid_changed){
+      jsonBody.clear();
+      jsonBody["status"] = "Settings updated on Attenuator. Please use the new network name to connect to your device.";
+      serializeJson(jsonBody, result); // Serialize to string.
+      request->send(200, "application/json", result);
+
+      // Pause to allow response to flow, then restart the device.
+      delay(1000);
+      ESP.restart();
     }
     else {
       jsonBody.clear();
@@ -965,8 +996,7 @@ AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHand
       wandConfig.ledWandCount = jsonBody["ledWandCount"].as<uint8_t>();
       wandConfig.ledWandHue = jsonBody["ledWandHue"].as<uint8_t>();
       wandConfig.ledWandSat = jsonBody["ledWandSat"].as<uint8_t>();
-      wandConfig.spectralModeEnabled = jsonBody["spectralModeEnabled"].as<uint8_t>();
-      wandConfig.spectralHolidayMode = jsonBody["spectralHolidayMode"].as<uint8_t>();
+      wandConfig.spectralModesEnabled = jsonBody["spectralModesEnabled"].as<uint8_t>();
       wandConfig.overheatEnabled = jsonBody["overheatEnabled"].as<uint8_t>();
       wandConfig.defaultFiringMode = jsonBody["defaultFiringMode"].as<uint8_t>();
       wandConfig.wandVibration = jsonBody["wandVibration"].as<uint8_t>();
@@ -1084,7 +1114,6 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
     // Password is used for the built-in Access Point ability, which will be used when a preferred network is not available.
     if(newPasswd.length() >= 8) {
       preferences.begin("credentials", false); // Access namespace in read/write mode.
-      preferences.putString("ssid", ap_ssid); // Store SSID in case this was altered.
       preferences.putString("password", newPasswd); // Store user-provided password.
       preferences.end();
 

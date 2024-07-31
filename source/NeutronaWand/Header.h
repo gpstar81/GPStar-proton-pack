@@ -1,6 +1,6 @@
 /**
  *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -262,9 +262,6 @@ uint8_t i_bargraph_status = 0;
  * Part #: BL28Z-3005SA04Y
  */
 HT16K33 ht_bargraph;
-
-// Used to scan the i2c bus and to locate the 28-segment bargraph.
-#define WIRE Wire
 
 /*
  * Used to change to 28-segment bargraph features.
