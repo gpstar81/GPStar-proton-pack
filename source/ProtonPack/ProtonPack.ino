@@ -2161,8 +2161,10 @@ void cyclotronControl() {
         if(!usingSlimeCyclotron()) {
           resetCyclotronState();
         }
+        else {
+          clearCyclotronFades();
+        }
 
-        clearCyclotronFades();
         ms_cyclotron.start(0);
         ms_alarm.start(0);
       }
@@ -2907,6 +2909,11 @@ void cyclotron1984Alarm() {
   uint8_t led4 = i_cyclotron_led_start + cyclotron84LookupTable(3);
   uint8_t i_led_array_width = 1; // Variable to store the number of LEDs to either side of the center LED.
 
+  if(STREAM_MODE == HOLIDAY || STREAM_MODE == SPECTRAL) {
+    // When in an alarm state in 84/89 and in Holiday/Spectral mode, revert to red cyclotron.
+    i_colour_scheme = C_RED;
+  }
+
   /*
   if(i_cyclotron_leds == FRUTTO_CYCLOTRON_LED_COUNT) {
     i_led_array_width = 2;
@@ -3550,25 +3557,23 @@ void cyclotronOverheating() {
           }
         }
       }
-      else {
-        if(ms_alarm.remaining() < i_1984_delay / 4) {
-          if(b_overheat_lights_off != true) {
-            vibrationPack(i_vibration_lowest_level);
+      else if(ms_alarm.remaining() < i_1984_delay / 4) {
+        if(b_overheat_lights_off != true) {
+          vibrationPack(i_vibration_lowest_level);
 
-            if(!usingSlimeCyclotron()) {
-              cyclotron1984Alarm();
-            }
+          if(!usingSlimeCyclotron()) {
+            cyclotron1984Alarm();
           }
-          else if(b_overheat_lights_off == true && i_powercell_led > 0) {
-            vibrationPack(i_vibration_lowest_level);
+        }
+        else if(b_overheat_lights_off == true && i_powercell_led > 0) {
+          vibrationPack(i_vibration_lowest_level);
 
-            if(!usingSlimeCyclotron()) {
-              cyclotron1984Alarm();
-            }
+          if(!usingSlimeCyclotron()) {
+            cyclotron1984Alarm();
           }
-          else {
-            vibrationOff();
-          }
+        }
+        else {
+          vibrationOff();
         }
       }
     break;

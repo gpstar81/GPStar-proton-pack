@@ -986,35 +986,38 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
         if(b_pack_on == true && b_pack_alarm != true && b_overheat_enabled == true) {
           switch(getNeutronaWandYearMode()) {
-              case SYSTEM_1984:
-              case SYSTEM_1989:
+            case SYSTEM_1984:
+            case SYSTEM_1989:
+              if(b_extra_pack_sounds == true) {
+                wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+                wandSerialSend(W_WAND_SHUTDOWN_SOUND);
+              }
+            break;
+
+            case SYSTEM_AFTERLIFE:
+            case SYSTEM_FROZEN_EMPIRE:
+            default:
+                stopEffect(S_WAND_SHUTDOWN);
+                playEffect(S_WAND_SHUTDOWN);
+
+              if(switch_vent.on() == false) {
+                stopAfterLifeSounds();
+                playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 1);
+
                 if(b_extra_pack_sounds == true) {
                   wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
                   wandSerialSend(W_WAND_SHUTDOWN_SOUND);
+                  wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
                 }
-              break;
-
-              case SYSTEM_AFTERLIFE:
-              case SYSTEM_FROZEN_EMPIRE:
-              default:
-                  stopEffect(S_WAND_SHUTDOWN);
-                  playEffect(S_WAND_SHUTDOWN);
-
-                if(switch_vent.on() == false) {
-                  stopAfterLifeSounds();
-                  playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 1);
-
-                  if(b_extra_pack_sounds == true) {
-                    wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
-                    wandSerialSend(W_WAND_SHUTDOWN_SOUND);
-                    wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
-                  }
-                }
-              break;
-            }
+              }
+            break;
+          }
 
           startVentSequence();
         }
+      }
+      else if(WAND_STATUS == MODE_OFF) {
+        wandSerialSend(W_OVERHEATING);
       }
     break;
 
