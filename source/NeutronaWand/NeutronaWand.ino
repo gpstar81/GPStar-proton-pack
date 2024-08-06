@@ -9567,29 +9567,35 @@ void wandExitEEPROMMenu() {
 
 // Barrel safety switch is connected to analog pin 7.
 bool switchBarrel() {
-  if(switch_barrel.on() == true) {
-    if(b_switch_barrel_extended == true) {
+  if(switch_barrel.on()) {
+    if(b_switch_barrel_extended) {
       wandSerialSend(W_BARREL_RETRACTED);
+      b_switch_barrel_extended = false;
     }
-
-    b_switch_barrel_extended = false;
   }
-  else if(switch_barrel.on() == false) {
-    // Play the Afterlife Barrel extension sound effect.
-    if((getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) && b_switch_barrel_extended != true) {
-      if(b_extra_pack_sounds == true) {
-        wandSerialSend(W_AFTERLIFE_WAND_BARREL_EXTEND);
+  else {
+    // Play the barrel extension sound effect.
+    if(!b_switch_barrel_extended) {
+      if((getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE)) {
+        if(b_extra_pack_sounds) {
+          wandSerialSend(W_AFTERLIFE_WAND_BARREL_EXTEND);
+        }
+
+        // Plays the "thwoop" barrel extension sound in Afterlife mode.
+        playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND, false, i_volume_effects - 1);
+      }
+      else {
+        if(b_extra_pack_sounds) {
+          wandSerialSend(W_GB1_WAND_BARREL_EXTEND);
+        }
+
+        // Plays the "thwoop" barrel extension sound in Afterlife mode.
+        playEffect(S_GB1_1984_WAND_BARREL_EXTEND, false, i_volume_effects - 1);
       }
 
-      // Plays the "thwoop" barrel extension sound in Afterlife mode.
-      playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND, false, i_volume_effects - 1);
-    }
-
-    if(b_switch_barrel_extended != true) {
       wandSerialSend(W_BARREL_EXTENDED);
+      b_switch_barrel_extended = true;
     }
-
-    b_switch_barrel_extended = true;
   }
 
   return b_switch_barrel_extended; // Immediate return of state.

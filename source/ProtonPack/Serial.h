@@ -1573,6 +1573,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       playEffect(S_GB2_WAND_START);
     break;
 
+    case W_GB1_WAND_BARREL_EXTEND:
+      stopEffect(S_GB1_1984_WAND_BARREL_EXTEND);
+      playEffect(S_GB1_1984_WAND_BARREL_EXTEND);
+    break;
+
     case W_AFTERLIFE_WAND_BARREL_EXTEND:
       stopEffect(S_AFTERLIFE_WAND_BARREL_EXTEND);
       playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND);
