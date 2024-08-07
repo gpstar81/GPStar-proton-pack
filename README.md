@@ -107,7 +107,6 @@ This section is presented in a way to offer a more complete view of what compone
 
 **Software Development (Advanced Topics)**
 
-
 | **Task**         | **Guide** |
 |------------------|---------------------------------------------|
 | Modify Software  | [Advanced Software Configuration](ADVCONFIG.md) |

@@ -37,7 +37,7 @@
 INA219 monitor; // Power monitor object on i2c bus using the INA219 chip.
 bool b_power_meter_available = false; // Whether a power meter device exists on i2c bus, per setup() -> powerMeterInit()
 const uint16_t f_wand_power_up_delay = 1000; // How long to wait and ignore any wand firing events after initial power-up (ms).
-const float f_wand_power_on_threshold = 0.13; // Minimum current (A) to consider as to whether a stock Neutrona Wand is powered on.
+const float f_wand_power_on_threshold = 0.12; // Minimum current (A) to consider as to whether a stock Neutrona Wand is powered on.
 const float f_ema_alpha = 0.2; // Smoothing factor (<1) for Exponential Moving Average (EMA) [Lower Value = Smoother Averaging].
 
 // Special Timers and Timeouts
