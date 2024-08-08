@@ -54,7 +54,8 @@ echo ""
 echo "Building Neutrona Wand (Bench Test) Binary..."
 
 # Change flag(s) for compilation
-sed -i -e 's/b_gpstar_benchtest = false/b_gpstar_benchtest = true/' ${SRCDIR}/NeutronaWand/Configuration.h
+sed -i -e 's/bool b_gpstar_benchtest = false/const bool b_gpstar_benchtest = true/' ${SRCDIR}/NeutronaWand/Configuration.h
+sed -i -e 's/b_gpstar_benchtest = true/\/\/b_gpstar_benchtest = true/' ${SRCDIR}/NeutronaWand/Serial.h
 
 # --warnings none
 arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:mega --export-binaries ${SRCDIR}/NeutronaWand/NeutronaWand.ino
@@ -69,7 +70,8 @@ if [ -f ${BINDIR}/NeutronaWand.ino.hex ]; then
 fi
 
 # Restore flag(s) from compilation
-sed -i -e 's/b_gpstar_benchtest = true/b_gpstar_benchtest = false/' ${SRCDIR}/NeutronaWand/Configuration.h
+sed -i -e 's/const bool b_gpstar_benchtest = true/bool b_gpstar_benchtest = false/' ${SRCDIR}/NeutronaWand/Configuration.h
+sed -i -e 's/\/\/b_gpstar_benchtest = true/b_gpstar_benchtest = true/' ${SRCDIR}/NeutronaWand/Serial.h
 
 rm -f ${SRCDIR}/NeutronaWand/*.h-e
 

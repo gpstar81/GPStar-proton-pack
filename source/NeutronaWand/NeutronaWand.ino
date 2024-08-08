@@ -101,9 +101,6 @@ void setup() {
   pinModeFast(r_encoderA, INPUT_PULLUP);
   pinModeFast(r_encoderB, INPUT_PULLUP);
 
-  // Setup the bargraph.
-  bargraphYearModeUpdate();
-
   delay(10);
 
   Wire.begin();
@@ -184,6 +181,9 @@ void setup() {
 
   // Check if we should be in video game mode or not.
   vgModeCheck();
+
+  // Setup the bargraph.
+  bargraphYearModeUpdate();
 
   // Start up some timers for MODE_ORIGINAL.
   ms_slo_blo_blink.start(i_slo_blo_blink_delay);

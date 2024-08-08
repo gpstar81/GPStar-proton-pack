@@ -350,6 +350,44 @@ void checkPack() {
               WAND_CONN_STATE = PACK_CONNECTED;
             }
           }
+          else if(recvCmd.s == W_COM_START && recvCmd.c == W_SYNC_NOW && recvCmd.d1 == 0 && recvCmd.e == W_COM_END) {
+            // We just received our own heartbeat echoed back, so switch to standalone mode.
+            WAND_CONN_STATE = NC_BENCHTEST;
+            b_gpstar_benchtest = true;
+            b_pack_on = true; // Pretend that the pack (not really attached) has been powered on.
+
+            // Reset the audio device now that we are in standalone mode and need music playback.
+            setupAudioDevice();
+
+            // Start the music check timer for standalone mode.
+            ms_check_music.start(i_music_check_delay);
+
+            // No pack to do a volume sync with, so reset our master volume manually.
+            resetMasterVolume();
+
+            // Re-read the EEPROM now that we are in standalone mode to make sure system mode and volume are correct.
+            if(b_eeprom) {
+              readEEPROM();
+            }
+
+            // Sanity check to make sure that a firing mode was set as default.
+            if(FIRING_MODE != CTS_MODE && FIRING_MODE != CTS_MIX_MODE) {
+              FIRING_MODE = VG_MODE;
+              LAST_FIRING_MODE = FIRING_MODE;
+            }
+
+            // Check if we should be in video game mode or not.
+            vgModeCheck();
+
+            // Reset the bargraph.
+            bargraphYearModeUpdate();
+
+            // Stop the pack sync timer since we are no longer syncing to a pack.
+            ms_packsync.stop();
+
+            // Immediately exit the serial data functions.
+            return;
+          }
         break;
 
         case PACKET_DATA:
