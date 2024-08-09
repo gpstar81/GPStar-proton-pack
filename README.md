@@ -112,6 +112,12 @@ This section is presented in a way to offer a more complete view of what compone
 | Modify Software  | [Advanced Software Configuration](ADVCONFIG.md) |
 | Upload Software  | [Pack/Wand Flashing](COMPILING_FLASHING.md) or [Attenuator/Wireless Flashing](ATTENUATOR_FLASHING.md) |
 
+**Special/Standalone Devices**
+
+| **Devices**         | **Guide** |
+|------------------|---------------------------------------------|
+| Single-Shot Blaster | [Build and Operation Guide](SINGLESHOT.md) |
+
 ---
 
 ### DIY Arduino Build Guides [DEPRECATED]

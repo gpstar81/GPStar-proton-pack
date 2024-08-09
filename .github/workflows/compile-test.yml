@@ -18,6 +18,7 @@ jobs:
             sketch-paths: |
               - source/NeutronaWand
               - source/ProtonPack
+              - source/SingleShot
             libraries: |
               - name: Switch
               - name: ezButton

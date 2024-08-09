@@ -8,6 +8,7 @@ BINDIR="../binaries"
 SRCDIR="../source"
 
 mkdir -p ${BINDIR}/attenuator/extras
+mkdir -p ${BINDIR}/blaster
 mkdir -p ${BINDIR}/pack
 mkdir -p ${BINDIR}/wand/extras
 
@@ -75,6 +76,23 @@ sed -i -e 's/\/\/b_gpstar_benchtest = true/b_gpstar_benchtest = true/' ${SRCDIR}
 
 rm -f ${SRCDIR}/NeutronaWand/*.h-e
 
+echo "Done."
+echo ""
+
+# Single-Shot Blaster
+echo "Building Single-Shot Binary..."
+
+# --warnings none
+arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:mega --export-binaries ${SRCDIR}/SingleShot/SingleShot.ino
+
+rm -f ${BINDIR}/*.bin
+rm -f ${BINDIR}/*.eep
+rm -f ${BINDIR}/*.elf
+rm -f ${BINDIR}/*bootloader.hex
+
+if [ -f ${BINDIR}/SingleShot.ino.hex ]; then
+  mv ${BINDIR}/SingleShot.ino.hex ${BINDIR}/blaster/SingleShot.hex
+fi
 echo "Done."
 echo ""
 
@@ -146,6 +164,35 @@ fi
 if [ -f ${BINDIR}/Attenuator.ino.partitions.bin ]; then
   mv ${BINDIR}/Attenuator.ino.partitions.bin ${BINDIR}/attenuator/extras/Attenuator-ESP32-Partitions.bin
 fi
+echo "Done."
+echo ""
+
+# Attenuator (ESP32 - Standalone)
+echo "Building Attenuator Binary (ESP32 - WiFi Reset)..."
+
+# Change flag(s) for compilation
+sed -i -e 's/b_wait_for_pack = true/b_wait_for_pack = false/' ${SRCDIR}/Attenuator/Configuration.h
+
+# --warnings none
+arduino-cli compile --output-dir ${BINDIR} --fqbn esp32:esp32:esp32 --export-binaries ${SRCDIR}/Attenuator/Attenuator.ino
+
+# Keep any .bin files
+rm -f ${BINDIR}/*.eep
+rm -f ${BINDIR}/*.elf
+rm -f ${BINDIR}/*.map
+rm -f ${BINDIR}/*.merged.bin
+rm -f ${BINDIR}/*bootloader.*
+rm -f ${BINDIR}/*partitions.*
+
+if [ -f ${BINDIR}/Attenuator.ino.bin ]; then
+  mv ${BINDIR}/Attenuator.ino.bin ${BINDIR}/attenuator/Attenuator-ESP32-Standalone.bin
+fi
+
+# Restore flag(s) from compilation
+sed -i -e 's/b_wait_for_pack = false/b_wait_for_pack = true/' ${SRCDIR}/Attenuator/Configuration.h
+
+rm -f ${SRCDIR}/Attenuator/*.h-e
+
 echo "Done."
 echo ""
 
