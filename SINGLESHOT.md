@@ -8,13 +8,13 @@ It may go by many names, though we know it as the arm-mounted Neutrona Wand as s
 
 There is no shortage of resources for the device shell itself, as it has been modeled and remixed by several members of the Ghostbusters community. Below are some of the found sources offering either the 3D files or pre-printed parts. If you know of another resource for either please let us know and we'll update this list.
 
-- [3D Files by EctoLabs](https://github.com/EctoLabs/wrist-thrower) with [Build Guide on GBFans](https://www.gbfans.com/forum/viewtopic.php?t=51824)
+- [3D Files by EctoLabs](https://github.com/EctoLabs/wrist-thrower)
 - [3D Files by Right Coast Creative (Craig Rivest, aka. @scoleri_brothers)](https://rightcoastcreative.com/ghostbusters/p/frozen-empire-arm-gauntlet)
 - [Ghostbusters Frozen Empire Compact Arm Thrower by ShapeforgeProps](https://www.etsy.com/listing/1700904381/ghostbusters-frozen-empire-compact-arm)
 
 ## Bill of Materials
 
-Until formal release of a kit is made possible, the following list of parts will allow you to build your own internals to run the device.
+Until formal release of a kit is made possible, the following list of parts will allow you to assemble the electronics and internal components to run the device.
 
 | Qty | Desc | Use | Link |
 |-----|------|-----|------|
@@ -27,9 +27,11 @@ Until formal release of a kit is made possible, the following list of parts will
 |  1  | 12mm Momentary Push Button | Hand grip button | [https://a.co/d/8QxaSBm](https://a.co/d/8QxaSBm) |
 |  1  | DC Coreless Vibration Motors | Vibration feedback | [https://a.co/d/iMxmbfp](https://a.co/d/iMxmbfp) |
 |  3  | Mini SPST Toggle Switches | Device switches | [https://a.co/d/84qX5Yz](https://a.co/d/84qX5Yz) |
-|  2  | Mini Monentary Switches | Device buttons | [https://a.co/d/6e83Clb](https://a.co/d/6e83Clb) |
+|  2  | Mini Momentary Switches | Device buttons | [https://a.co/d/6e83Clb](https://a.co/d/6e83Clb) |
 |  1  | 15mm x 5mm Convex Lens | Barrel lens | [https://a.co/d/8Mr8ZMc](https://a.co/d/8Mr8ZMc) |
 |  5  | 5MM 3V Prewired LEDs | Various colored lights | [https://a.co/d/hqEyph8](https://a.co/d/hqEyph8) |
+
+For a complete list of additional cosmetic parts and advice on assembly of the external components please see the incredibly detailed [Build Guide on GBFans](https://www.gbfans.com/forum/viewtopic.php?t=51824) by EctoLabs.
 
 ## PCB Connection Details
 
@@ -95,7 +97,7 @@ For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI B
 
 ## Operation Guide
 
-Full guide TBD as features are completed.
+Full guide will be written as features are completed and operation is determined.
 
 ## Firmware Updates
 
