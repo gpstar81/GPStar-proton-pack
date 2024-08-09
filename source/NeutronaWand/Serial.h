@@ -356,6 +356,9 @@ void checkPack() {
             b_gpstar_benchtest = true;
             b_pack_on = true; // Pretend that the pack (not really attached) has been powered on.
 
+            // Turn off the sync indicator LED as it is no longer necessary.
+            digitalWriteFast(led_white, HIGH);
+
             // Reset the audio device now that we are in standalone mode and need music playback.
             setupAudioDevice();
 

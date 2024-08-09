@@ -221,8 +221,7 @@ void loop() {
         // If not already doing so, explicitly tell the pack a wand is here to sync.
         wandSerialSend(W_SYNC_NOW);
         ms_packsync.start(i_sync_initial_delay); // Prepare for the next sync attempt.
-        b_sync_light = !b_sync_light; // Toggle a white LED while attempting to sync.
-        digitalWriteFast(led_white, (b_sync_light ? HIGH : LOW)); // Blink an LED.
+        digitalWriteFast(led_white, (digitalReadFast(led_white) == LOW) ? HIGH : LOW); // Blink an LED.
       }
 
       checkPack(); // Check for any response from the pack while still waiting.
