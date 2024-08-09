@@ -68,11 +68,12 @@ Connections for the device should be made according to the tables below.
 | GND | Clippard LED (Top Left) GND |
 | R+ | Rumble (vibration) motor VCC |
 | R- | Rumble (vibration) motor GND |
+| VCC | Power (+) for rotary encoder |
 | D12 | Blinking top right LED |
 | D13 | White vent light LED |
 | VL+ | VCC for top/vent lights |
-| D7 | Rotary encoder B |
-| D6 | Rotary encoder A |
+| D7 | Rotary encoder B (DT) |
+| D6 | Rotary encoder A (CLK) |
 | ROT- | Ground for rotary encoder |
 
 ### Special Connectors
