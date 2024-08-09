@@ -20,6 +20,36 @@
 #pragma once
 
 /*
+ * All input and output pin definitions go here.
+ */
+#define ROTARY_ENCODER_A 2
+#define ROTARY_ENCODER_B 3
+#define CYCLOTRON_SWITCH_LED_R1_PIN 4 // Decorative red LED 1.
+#define CYCLOTRON_SWITCH_LED_R2_PIN 5 // Decorative red LED 2.
+#define CYCLOTRON_SWITCH_LED_Y1_PIN 6 // Decorative yellow LED 1.
+#define CYCLOTRON_SWITCH_LED_Y2_PIN 7 // Decorative yellow LED 2.
+#define CYCLOTRON_SWITCH_LED_G1_PIN 8 // Decorative green LED 1.
+#define CYCLOTRON_SWITCH_LED_G2_PIN 9 // Decorative green LED 2.
+#define YEAR_TOGGLE_LED_PIN 10 // Year mode switch LED (Green).
+#define VIBRATION_TOGGLE_LED_PIN 11 // Vibration on/off switch LED (Yellow).
+#define CYCLOTRON_LED_PIN 13 // Data pin for the addressable LEDs within the Cyclotron cavity.
+#define RIBBON_CABLE_SWITCH_PIN 23 // Switch to detect if the ribbon cable has been removed.
+#define PACK_STATUS_LED_PIN 24 // V1.5 GPStar Proton Pack onboard LED pin.
+#define YEAR_TOGGLE_PIN 25 // Switch to toggle between system year modes on the fly.
+#define VIBRATION_TOGGLE_PIN 27 // Master switch to turn all vibration features on or off.
+#define CYCLOTRON_DIRECTION_TOGGLE_PIN 29 // Switch to change the Cyclotron rotation direction.
+#define ION_ARM_SWITCH_PIN 31 // Switch underneath the Ion Arm.
+#define NFILTER_FAN_PIN 33 // Fan for the primary smoke machine.
+#define BOOSTER_TUBE_SMOKE_PIN 35 // Secondary smoke machine output, usually in the booster tube.
+#define SMOKE_TOGGLE_PIN 37 // Switch to toggle smoke features on or off.
+#define BOOSTER_TUBE_FAN_PIN 38 // Fan for the secondary smoke machine.
+#define NFILTER_SMOKE_PIN 39 // Primary smoke machine output, usually in the N-Filter.
+#define CYCLOTRON_LID_SWITCH_PIN 43 // Pin used for Cyclotron lid detection capability.
+#define VIBRATION_PIN 45 // Pin for the vibration motor.
+#define NFILTER_LED_PIN 46 // (Optional) Use a white LED with a forward voltage of 3.0-3.2 and up to 20mA forward current.
+#define PACK_LED_PIN 53 // Data pin for the Power Cell and Outer Cyclotron addressable LEDs.
+
+/*
  * The HasLab Power Cell has 13 LEDs.
  */
 #define HASLAB_POWERCELL_LED_COUNT 13
@@ -122,7 +152,6 @@ uint8_t i_vent_light_start = i_powercell_leds + i_cyclotron_leds;
 /*
  * Proton Pack Power Cell and Cyclotron lid LED pin.
  */
-#define PACK_LED_PIN 53
 CRGB pack_leds[FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX + JEWEL_NFILTER_LED_COUNT];
 
 /*
@@ -133,7 +162,6 @@ CRGB pack_leds[FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX + JEWEL_NFIL
  * Maximum allowed LEDs for the Inner Cyclotron Cavity is 20.
  * Uses pin 13.
  */
-#define CYCLOTRON_LED_PIN 13
 CRGB cyclotron_leds[INNER_CYCLOTRON_LED_PANEL_MAX + INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX];
 
 /*
@@ -231,14 +259,6 @@ uint8_t i_ic_cavity_end = i_ic_cavity_start + INNER_CYCLOTRON_CAVITY_LED_MAX - 1
  */
 uint8_t i_cyclotron_sw_led = 0;
 uint8_t i_cyclotron_switch_led_mulitplier = 1;
-const uint8_t cyclotron_sw_plate_led_r1 = 4; // Decorative red LED 1.
-const uint8_t cyclotron_sw_plate_led_r2 = 5; // Decorative red LED 2.
-const uint8_t cyclotron_sw_plate_led_y1 = 6; // Decorative yellow LED 1.
-const uint8_t cyclotron_sw_plate_led_y2 = 7; // Decorative yellow LED 2.
-const uint8_t cyclotron_sw_plate_led_g1 = 8; // Decorative green LED 1.
-const uint8_t cyclotron_sw_plate_led_g2 = 9; // Decorative green LED 2.
-const uint8_t cyclotron_switch_led_green = 10; // 1984/2021 mode switch LED.
-const uint8_t cyclotron_switch_led_yellow = 11; // Vibration on/off switch LED.
 const uint8_t i_cyclotron_switch_led_delay_base = 150;
 const uint16_t i_cyclotron_switch_plate_leds_delay = 1000;
 uint16_t i_cyclotron_switch_led_delay = i_cyclotron_switch_led_delay_base;
@@ -256,12 +276,12 @@ millisDelay ms_alarm;
 /*
  * Switches
  */
-ezButton switch_alarm(23); // Ribbon cable removal switch
-ezButton switch_mode(25); // 1984 / 2021 mode toggle switch
-ezButton switch_vibration(27); // Vibration toggle switch
-ezButton switch_cyclotron_direction(29); // Newly added switch for controlling the direction of the Cyclotron lights. Not required. Defaults to clockwise.
-ezButton switch_power(31); // Red power switch under the Ion Arm.
-ezButton switch_smoke(37); // Switch to enable smoke effects. Not required. Defaults to off/disabled.
+ezButton switch_alarm(RIBBON_CABLE_SWITCH_PIN); // Ribbon cable removal switch
+ezButton switch_mode(YEAR_TOGGLE_PIN); // 1984 / 2021 mode toggle switch
+ezButton switch_vibration(VIBRATION_TOGGLE_PIN); // Vibration toggle switch
+ezButton switch_cyclotron_direction(CYCLOTRON_DIRECTION_TOGGLE_PIN); // Newly added switch for controlling the direction of the Cyclotron lights. Not required. Defaults to clockwise.
+ezButton switch_power(ION_ARM_SWITCH_PIN); // Red power switch under the Ion Arm.
+ezButton switch_smoke(SMOKE_TOGGLE_PIN); // Switch to enable smoke effects. Not required. Defaults to off/disabled.
 
 /*
  * Vibration motor settings
@@ -270,7 +290,6 @@ ezButton switch_smoke(37); // Switch to enable smoke effects. Not required. Defa
  */
 enum VIBRATION_MODES_EEPROM { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE, VIBRATION_DEFAULT };
 enum VIBRATION_MODES_EEPROM VIBRATION_MODE_EEPROM;
-const uint8_t vibration = 45;
 uint8_t i_vibration_level = 0;
 uint8_t i_vibration_level_prev = 0;
 const uint8_t i_vibration_idle_level_2021 = 60;
@@ -285,29 +304,7 @@ millisDelay ms_menu_vibration; // Timer to do non-blocking confirmation buzzing 
 bool b_vibration_switch_on = true;
 
 /*
- * Smoke
- */
-const uint8_t smoke_pin = 39;
-
-/*
- * Smoke for a second smoke machine or motor. I use this in the booster tube.
- */
-const uint8_t smoke_booster_pin = 35;
-
-/*
- * Fan for the smoke booster tube.
- * This will go off at the same time the smoke booster pin.
- * It is not needed but it was requested by some people who may want to use the smoke booster for another purpose.
- */
-const uint8_t fan_booster_pin = 38;
-
-/*
- * Fan for N-Filter smoke
- */
-const uint8_t fan_pin = 33;
-
-/*
- * Overheating and smoke timers for smoke_pin.
+ * Overheating and smoke timers for NFILTER_SMOKE_PIN.
  */
 millisDelay ms_overheating;
 const uint16_t i_overheating_delay = 4000;
@@ -322,12 +319,6 @@ const bool b_smoke_overheat_level[5] = { b_smoke_overheat_level_1, b_smoke_overh
 millisDelay ms_overheating_length; // The total length of the when the fans turn on (or smoke if smoke synced to fan)
 const uint16_t i_overheat_delay_increment = 1000; // Used to increment the overheat delays by 1000 milliseconds.
 const uint16_t i_overheat_delay_max = 60000; // The max length a overheat can be.
-
-/*
- * N-Filter LED (White) (Optional)
- * Use a White LED with a Forward voltage of 3.0-3.2 with up to a 20ma current draw.
- */
-const uint8_t i_nfilter_led_pin = 46;
 
 /*
  * Vent light timers and delay for overheating.
@@ -404,19 +395,12 @@ millisDelay ms_idle_fire_fade; // Used for fading the Afterlife idling sound wit
 /*
  * Rotary encoder for volume control
  */
-#define encoder_pin_a 2
-#define encoder_pin_b 3
 static uint8_t prev_next_code = 0;
 static uint16_t store = 0;
 
 /*
-  * V1.5 GPStar Proton Pack onboard LED
-*/
-const uint8_t led_pack_status = 24;
-
-/*
  * Proton Pack Bootup Post Animations
-*/
+ */
 bool b_pack_post_finish = false;
 uint8_t i_post_powercell_up = 0;
 uint8_t i_post_powercell_down = 0;
@@ -471,7 +455,7 @@ millisDelay ms_fadeout;
 /*
  * Neutrona Wand Sensor Board (optional)
  * Used for detecting a stock or unmodified Hasbro Neutrona Wand.
-*/
+ */
 bool b_wand_sensor = false;
 float f_wand_sensor_data = 0.0;
 
@@ -492,7 +476,7 @@ void powercellDraw(uint8_t i_start = 0);
  * If you are compiling this for an Arduino Mega and the error message brings you here, go to the bottom of the Configuration.h file for more information.
  */
 #ifdef GPSTAR_PROTON_PACK_PCB
-  ezButton switch_cyclotron_lid(43); // Second Cyclotron ground pin (brown) that we detect if the lid is removed or not.
+  ezButton switch_cyclotron_lid(CYCLOTRON_LID_SWITCH_PIN); // Second Cyclotron ground pin (brown) that we detect if the lid is removed or not.
 #else
-  ezButton switch_cyclotron_lid(51); // Second Cyclotron ground pin (brown) that we detect if the lid is removed or not.
+  ezButton switch_cyclotron_lid(51); // Alternate pin for legacy DIY builds.
 #endif

@@ -98,8 +98,8 @@ void setup() {
   switch_wand.setPushedCallback(&wandSwitched);
 
   // Rotary encoder on the top of the wand.
-  pinModeFast(r_encoderA, INPUT_PULLUP);
-  pinModeFast(r_encoderB, INPUT_PULLUP);
+  pinModeFast(ROTARY_ENCODER_A, INPUT_PULLUP);
+  pinModeFast(ROTARY_ENCODER_B, INPUT_PULLUP);
 
   delay(10);
 
@@ -131,24 +131,24 @@ void setup() {
   }
   else {
     // Original 5 LED Hasbro bargraph.
-    pinModeFast(led_bargraph_1, OUTPUT);
-    pinModeFast(led_bargraph_2, OUTPUT);
-    pinModeFast(led_bargraph_3, OUTPUT);
-    pinModeFast(led_bargraph_4, OUTPUT);
-    pinModeFast(led_bargraph_5, OUTPUT);
+    pinModeFast(BARGRAPH_LED_1_PIN, OUTPUT);
+    pinModeFast(BARGRAPH_LED_2_PIN, OUTPUT);
+    pinModeFast(BARGRAPH_LED_3_PIN, OUTPUT);
+    pinModeFast(BARGRAPH_LED_4_PIN, OUTPUT);
+    pinModeFast(BARGRAPH_LED_5_PIN, OUTPUT);
   }
 
-  pinModeFast(led_slo_blo, OUTPUT);
+  pinModeFast(SLO_BLO_LED_PIN, OUTPUT);
 
-  pinModeFast(led_front_left, OUTPUT); // Front left LED underneath the Clippard valve.
-  pinModeFast(led_hat_1, OUTPUT); // Hat light at front of the wand near the barrel tip.
-  pinModeFast(led_hat_2, OUTPUT); // Hat light at top of the wand body (gun box).
-  pinModeFast(led_barrel_tip, OUTPUT); // LED at the tip of the wand barrel.
+  pinModeFast(CLIPPARD_LED_PIN, OUTPUT); // Front left LED underneath the Clippard valve.
+  pinModeFast(BARREL_HAT_LED_PIN, OUTPUT); // Hat light at front of the wand near the barrel tip.
+  pinModeFast(TOP_HAT_LED_PIN, OUTPUT); // Hat light at top of the wand body (gun box).
+  pinModeFast(BARREL_TIP_LED_PIN, OUTPUT); // LED at the tip of the wand barrel.
 
-  pinMode(led_vent, OUTPUT); // Vent light could be either Digital or PWM based on user setting, so use default functions.
-  pinModeFast(led_white, OUTPUT);
+  pinMode(VENT_LED_PIN, OUTPUT); // Vent light could be either Digital or PWM based on user setting, so use default functions.
+  pinModeFast(TOP_LED_PIN, OUTPUT);
 
-  pinMode(vibration, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
+  pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
 
   // Make sure lights are off.
   wandLightsOff();
@@ -221,7 +221,7 @@ void loop() {
         // If not already doing so, explicitly tell the pack a wand is here to sync.
         wandSerialSend(W_SYNC_NOW);
         ms_packsync.start(i_sync_initial_delay); // Prepare for the next sync attempt.
-        digitalWriteFast(led_white, (digitalReadFast(led_white) == LOW) ? HIGH : LOW); // Blink an LED.
+        digitalWriteFast(TOP_LED_PIN, (digitalReadFast(TOP_LED_PIN) == LOW) ? HIGH : LOW); // Blink an LED.
       }
 
       checkPack(); // Check for any response from the pack while still waiting.
@@ -442,16 +442,16 @@ void mainLoop() {
             case MODE_ORIGINAL:
               if(b_pack_ion_arm_switch_on != true) {
                 if(ms_power_indicator_blink.remaining() < i_ms_power_indicator_blink / 2) {
-                  digitalWriteFast(led_front_left, LOW);
+                  digitalWriteFast(CLIPPARD_LED_PIN, LOW);
                 }
                 else {
-                  digitalWriteFast(led_front_left, HIGH);
+                  digitalWriteFast(CLIPPARD_LED_PIN, HIGH);
                 }
               }
               else {
                 // When the top right wand switch is off, then we make sure the led is off as the Slo-Blo LED will be on or blinking at this point.
                 if(switch_wand.on() == false) {
-                  digitalWriteFast(led_front_left, LOW);
+                  digitalWriteFast(CLIPPARD_LED_PIN, LOW);
                 }
               }
               break;
@@ -459,10 +459,10 @@ void mainLoop() {
             case MODE_SUPER_HERO:
             default:
               if(ms_power_indicator_blink.remaining() < i_ms_power_indicator_blink / 2) {
-                digitalWriteFast(led_front_left, LOW);
+                digitalWriteFast(CLIPPARD_LED_PIN, LOW);
               }
               else {
-                digitalWriteFast(led_front_left, HIGH);
+                digitalWriteFast(CLIPPARD_LED_PIN, HIGH);
               }
             break;
           }
@@ -470,7 +470,7 @@ void mainLoop() {
         else {
           if(SYSTEM_MODE == MODE_SUPER_HERO) {
             // MODE_ORIGINAL has unique control over the Clippard LED, so only turn off if in MODE_SUPER_HERO.
-            digitalWriteFast(led_front_left, LOW);
+            digitalWriteFast(CLIPPARD_LED_PIN, LOW);
           }
         }
       }
@@ -478,19 +478,19 @@ void mainLoop() {
 
     case MODE_ERROR:
       if(ms_hat_2.remaining() < i_hat_2_delay / 2) {
-        digitalWriteFast(led_white, HIGH);
+        digitalWriteFast(TOP_LED_PIN, HIGH);
 
-        digitalWriteFast(led_slo_blo, LOW);
+        digitalWriteFast(SLO_BLO_LED_PIN, LOW);
 
-        digitalWriteFast(led_hat_2, LOW);
-        digitalWriteFast(led_front_left, LOW);
+        digitalWriteFast(TOP_HAT_LED_PIN, LOW);
+        digitalWriteFast(CLIPPARD_LED_PIN, LOW);
       }
       else {
-        digitalWriteFast(led_hat_2, HIGH);
-        digitalWriteFast(led_front_left, HIGH);
+        digitalWriteFast(TOP_HAT_LED_PIN, HIGH);
+        digitalWriteFast(CLIPPARD_LED_PIN, HIGH);
 
-        digitalWriteFast(led_white, LOW);
-        digitalWriteFast(led_slo_blo, HIGH);
+        digitalWriteFast(TOP_LED_PIN, LOW);
+        digitalWriteFast(SLO_BLO_LED_PIN, HIGH);
       }
 
       if(ms_hat_2.justFinished()) {
@@ -530,10 +530,10 @@ void mainLoop() {
       // Hat light 2 blinking when the Proton Pack ribbon cable has been removed.
       if(b_pack_alarm == true) {
         if(ms_hat_2.remaining() < i_hat_2_delay / 2) {
-          digitalWriteFast(led_hat_2, LOW);
+          digitalWriteFast(TOP_HAT_LED_PIN, LOW);
         }
         else {
-          digitalWriteFast(led_hat_2, HIGH);
+          digitalWriteFast(TOP_HAT_LED_PIN, HIGH);
         }
 
         if(ms_hat_2.justFinished()) {
@@ -544,10 +544,10 @@ void mainLoop() {
         if(ms_hat_1.isRunning() != true && ms_hat_2.isRunning() != true && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           // Hat 2 stays solid while the Neutrona Wand is on in Afterlife/Frozen Empire. It will blink when about to overheat and turn off while overheating.
           if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
-            digitalWriteFast(led_hat_2, HIGH);
+            digitalWriteFast(TOP_HAT_LED_PIN, HIGH);
           }
           else {
-            digitalWriteFast(led_hat_2, LOW);
+            digitalWriteFast(TOP_HAT_LED_PIN, LOW);
           }
         }
       }
@@ -555,11 +555,11 @@ void mainLoop() {
       // Top white light.
       if(ms_white_light.justFinished()) {
         ms_white_light.repeat();
-        if(digitalReadFast(led_white) == LOW) {
-          digitalWriteFast(led_white, HIGH);
+        if(digitalReadFast(TOP_LED_PIN) == LOW) {
+          digitalWriteFast(TOP_LED_PIN, HIGH);
         }
         else {
-          digitalWriteFast(led_white, LOW);
+          digitalWriteFast(TOP_LED_PIN, LOW);
         }
       }
 
@@ -739,7 +739,7 @@ void wandTipOn() {
 
       // Illuminate the wand barrel tip LED.
       if(STREAM_MODE != SLIME) {
-        digitalWriteFast(led_barrel_tip, HIGH);
+        digitalWriteFast(BARREL_TIP_LED_PIN, HIGH);
       }
     }
     break;
@@ -748,7 +748,7 @@ void wandTipOn() {
     default:
       // Illuminate the wand barrel tip LED.
       if(STREAM_MODE != SLIME) {
-        digitalWriteFast(led_barrel_tip, HIGH);
+        digitalWriteFast(BARREL_TIP_LED_PIN, HIGH);
       }
     break;
   }
@@ -761,13 +761,13 @@ void wandTipOff() {
       barrel_leds[12] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
 
       // Turn off the wand barrel tip LED.
-      digitalWriteFast(led_barrel_tip, LOW);
+      digitalWriteFast(BARREL_TIP_LED_PIN, LOW);
     break;
 
     case LEDS_5:
     default:
       // Turn off the wand barrel tip LED.
-      digitalWriteFast(led_barrel_tip, LOW);
+      digitalWriteFast(BARREL_TIP_LED_PIN, LOW);
     break;
   }
 }
@@ -861,7 +861,7 @@ void overheatingFinished() {
   ms_settings_blinking.stop();
 
   // Turn off hat light 2.
-  digitalWriteFast(led_hat_2, LOW);
+  digitalWriteFast(TOP_HAT_LED_PIN, LOW);
 
   WAND_ACTION_STATUS = ACTION_IDLE;
 
@@ -938,11 +938,11 @@ void startVentSequence() {
 
   // Turn on hat light 2 in 1984/1989 as overheat indicator; turn off in Afterlife/Frozen Empire.
   if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
-    digitalWriteFast(led_hat_2, HIGH);
+    digitalWriteFast(TOP_HAT_LED_PIN, HIGH);
   }
   else {
-    digitalWriteFast(led_hat_1, LOW);
-    digitalWriteFast(led_hat_2, LOW);
+    digitalWriteFast(BARREL_HAT_LED_PIN, LOW);
+    digitalWriteFast(TOP_HAT_LED_PIN, LOW);
   }
 
   WAND_ACTION_STATUS = ACTION_OVERHEATING;
@@ -1270,8 +1270,8 @@ void checkSwitches() {
         case MODE_ORIGINAL:
           if(b_pack_ion_arm_switch_on == true) {
             // Keep the hat lights turned off.
-            digitalWriteFast(led_hat_1, LOW);
-            digitalWriteFast(led_hat_2, LOW);
+            digitalWriteFast(BARREL_HAT_LED_PIN, LOW);
+            digitalWriteFast(TOP_HAT_LED_PIN, LOW);
 
             if(WAND_ACTION_STATUS == ACTION_IDLE) {
               // We are going to handle the toggle switch sequence for the MODE_ORIGINAL here.
@@ -1306,15 +1306,15 @@ void checkSwitches() {
                 if(switch_vent.on() == true) {
                   // When the bottom right toggle is on, we start flashing the slo-blo light.
                   if(ms_slo_blo_blink.remaining() < i_slo_blo_blink_delay / 2) {
-                    digitalWriteFast(led_slo_blo, LOW);
+                    digitalWriteFast(SLO_BLO_LED_PIN, LOW);
                   }
                   else {
-                    digitalWriteFast(led_slo_blo, HIGH);
+                    digitalWriteFast(SLO_BLO_LED_PIN, HIGH);
                   }
                 }
                 else {
                   // When the bottom right toggle is off, the slo-blo stays on.
-                  digitalWriteFast(led_slo_blo, HIGH);
+                  digitalWriteFast(SLO_BLO_LED_PIN, HIGH);
                 }
 
                 if(switch_wand.switched() || switch_vent.switched()) {
@@ -1372,17 +1372,17 @@ void checkSwitches() {
                 }
 
                 if(switch_vent.on() == true && switch_wand.on() == true) {
-                  digitalWriteFast(led_front_left, HIGH); // Turn on the front left LED under the Clippard valve.
+                  digitalWriteFast(CLIPPARD_LED_PIN, HIGH); // Turn on the front left LED under the Clippard valve.
 
                   // Turn on the vent lights.
                   if(b_vent_light_control == true) {
-                    analogWrite(led_vent, 220); // Low power, level 1 intensity.
+                    analogWrite(VENT_LED_PIN, 220); // Low power, level 1 intensity.
                   }
                   else {
-                    digitalWrite(led_vent, LOW);
+                    digitalWrite(VENT_LED_PIN, LOW);
                   }
 
-                  digitalWriteFast(led_white, LOW);
+                  digitalWriteFast(TOP_LED_PIN, LOW);
 
                   if(ms_bargraph.justFinished()) {
                     bargraphRampUp();
@@ -1400,11 +1400,11 @@ void checkSwitches() {
                     wandBargraphControl(0);
                   }
 
-                  digitalWriteFast(led_front_left, LOW); // Turn off the front left LED under the Clippard valve.
+                  digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Turn off the front left LED under the Clippard valve.
 
                   // Turn off the Neutrona Wand vent lights.
-                  digitalWrite(led_vent, HIGH);
-                  digitalWriteFast(led_white, HIGH);
+                  digitalWrite(VENT_LED_PIN, HIGH);
+                  digitalWriteFast(TOP_LED_PIN, HIGH);
 
                   vibrationOff(); // Turn off vibration, if any.
                 }
@@ -1482,32 +1482,32 @@ void wandLightControlCheck() {
       if(b_vent_light_control == true) {
         // Vent light on, brightness dependent on mode.
         if((WAND_ACTION_STATUS == ACTION_FIRING && STREAM_MODE != SLIME) || (ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished())) {
-          analogWrite(led_vent, 0); // 0 = Full Power
+          analogWrite(VENT_LED_PIN, 0); // 0 = Full Power
         }
         else {
           // Adjust brightness based on the power level.
           switch(i_power_level) {
             case 5:
-              analogWrite(led_vent, 100);
+              analogWrite(VENT_LED_PIN, 100);
             break;
             case 4:
-              analogWrite(led_vent, 130);
+              analogWrite(VENT_LED_PIN, 130);
             break;
             case 3:
-              analogWrite(led_vent, 160);
+              analogWrite(VENT_LED_PIN, 160);
             break;
             case 2:
-              analogWrite(led_vent, 190);
+              analogWrite(VENT_LED_PIN, 190);
             break;
             case 1:
             default:
-              analogWrite(led_vent, 220);
+              analogWrite(VENT_LED_PIN, 220);
             break;
           }
         }
       }
       else {
-        digitalWrite(led_vent, LOW);
+        digitalWrite(VENT_LED_PIN, LOW);
       }
 
       soundIdleStart();
@@ -1524,7 +1524,7 @@ void wandLightControlCheck() {
     }
     else if(switch_vent.on() == false) {
       // Vent light and top white light off.
-      digitalWrite(led_vent, HIGH);
+      digitalWrite(VENT_LED_PIN, HIGH);
 
       soundBeepLoopStop();
       soundIdleStop();
@@ -1880,7 +1880,7 @@ void fireControlCheck() {
 
         // Turn off hat light 1 in 1984/1989 mode if it is on.
         if((getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) && WAND_ACTION_STATUS != ACTION_FIRING) {
-          digitalWriteFast(led_hat_1, LOW);
+          digitalWriteFast(BARREL_HAT_LED_PIN, LOW);
         }
       }
 
@@ -2339,14 +2339,14 @@ void postActivation() {
     }
 
     // Turn on slo-blo light.
-    digitalWriteFast(led_slo_blo, HIGH);
+    digitalWriteFast(SLO_BLO_LED_PIN, HIGH);
 
     // Turn on the Clippard LED.
-    digitalWriteFast(led_front_left, HIGH);
+    digitalWriteFast(CLIPPARD_LED_PIN, HIGH);
 
     // Top white light.
     ms_white_light.start(d_white_light_interval);
-    digitalWriteFast(led_white, LOW);
+    digitalWriteFast(TOP_LED_PIN, LOW);
 
     // Reset the hat light timers.
     ms_hat_1.stop();
@@ -3029,7 +3029,7 @@ void modeFireStart() {
   }
 
   // Turn on hat light 1.
-  digitalWriteFast(led_hat_1, HIGH);
+  digitalWriteFast(BARREL_HAT_LED_PIN, HIGH);
 
   // This will only overheat when enabled by using the alt firing when in crossing the streams mode.
   bool b_overheat_flag = true;
@@ -3382,11 +3382,11 @@ void modeFireStop() {
   ms_firing_effect_end.start(0);
 
   if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
-    digitalWriteFast(led_hat_1, LOW); // Turn off hat light 1 when we stop firing in 1984/1989.
-    digitalWriteFast(led_hat_2, LOW); // Make sure we turn off hat light 2 in case it's on as well.
+    digitalWriteFast(BARREL_HAT_LED_PIN, LOW); // Turn off hat light 1 when we stop firing in 1984/1989.
+    digitalWriteFast(TOP_HAT_LED_PIN, LOW); // Make sure we turn off hat light 2 in case it's on as well.
   }
   else {
-    digitalWriteFast(led_hat_2, HIGH); // Make sure we turn on hat light 2 in case it's off as well.
+    digitalWriteFast(TOP_HAT_LED_PIN, HIGH); // Make sure we turn on hat light 2 in case it's off as well.
   }
 
   wandTipOff();
@@ -3660,7 +3660,7 @@ void modeFiring() {
       ms_overheat_initiate.stop();
 
       // Adjust hat light 1 to stay solid.
-      digitalWriteFast(led_hat_1, HIGH);
+      digitalWriteFast(BARREL_HAT_LED_PIN, HIGH);
 
       ms_hat_1.stop();
 
@@ -4284,7 +4284,7 @@ void firePulseEffect() {
     }
 
     // Turn on hat light 1.
-    digitalWriteFast(led_hat_1, HIGH);
+    digitalWriteFast(BARREL_HAT_LED_PIN, HIGH);
   }
 
   if(STREAM_MODE == SLIME) {
@@ -4677,7 +4677,7 @@ void firePulseEffect() {
 
     if((getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) && WAND_ACTION_STATUS != ACTION_FIRING) {
       if(STREAM_MODE != SLIME) {
-        digitalWriteFast(led_hat_1, LOW); // Turn off hat light 1 when we stop firing in 1984/1989.
+        digitalWriteFast(BARREL_HAT_LED_PIN, LOW); // Turn off hat light 1 when we stop firing in 1984/1989.
       }
     }
   }
@@ -8254,15 +8254,15 @@ void wandLightsOff() {
     wandBargraphControl(0);
   }
 
-  digitalWriteFast(led_slo_blo, LOW);
-  digitalWriteFast(led_front_left, LOW); // Turn off the front left LED under the Clippard valve.
+  digitalWriteFast(SLO_BLO_LED_PIN, LOW);
+  digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Turn off the front left LED under the Clippard valve.
 
-  digitalWriteFast(led_hat_1, LOW); // Turn off hat light 1.
-  digitalWriteFast(led_hat_2, LOW); // Turn off hat light 2.
+  digitalWriteFast(BARREL_HAT_LED_PIN, LOW); // Turn off hat light 1.
+  digitalWriteFast(TOP_HAT_LED_PIN, LOW); // Turn off hat light 2.
   wandTipOff();
 
-  digitalWrite(led_vent, HIGH);
-  digitalWriteFast(led_white, HIGH);
+  digitalWrite(VENT_LED_PIN, HIGH);
+  digitalWriteFast(TOP_LED_PIN, HIGH);
 
   i_bargraph_status = 0;
   i_bargraph_status_alt = 0;
@@ -8274,10 +8274,10 @@ void wandLightsOff() {
 
 void wandLightsOffMenuSystem() {
   // Make sure some of the wand lights are off, specifically for the Menu systems.
-  digitalWriteFast(led_slo_blo, LOW);
-  digitalWrite(led_vent, HIGH);
-  digitalWriteFast(led_white, HIGH);
-  digitalWriteFast(led_front_left, LOW);
+  digitalWriteFast(SLO_BLO_LED_PIN, LOW);
+  digitalWrite(VENT_LED_PIN, HIGH);
+  digitalWriteFast(TOP_LED_PIN, HIGH);
+  digitalWriteFast(CLIPPARD_LED_PIN, LOW);
 
   if(b_power_on_indicator == true) {
     ms_power_indicator.stop();
@@ -8290,11 +8290,11 @@ int8_t readRotary() {
 
   prev_next_code <<= 2;
 
-  if(digitalReadFast(r_encoderB)) {
+  if(digitalReadFast(ROTARY_ENCODER_B)) {
     prev_next_code |= 0x02;
   }
 
-  if(digitalReadFast(r_encoderA)) {
+  if(digitalReadFast(ROTARY_ENCODER_A)) {
     prev_next_code |= 0x01;
   }
 
@@ -8494,12 +8494,12 @@ void checkRotaryEncoder() {
                 i_wand_menu = 5;
 
                 // Turn on some lights to visually indicate which menu we are in.
-                digitalWriteFast(led_slo_blo, HIGH); // Level 2
+                digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
 
                 // Turn off the other lights.
-                digitalWrite(led_vent, HIGH); // Level 3
-                digitalWriteFast(led_white, HIGH); // Level 4
-                digitalWriteFast(led_front_left, LOW); // Level 5
+                digitalWrite(VENT_LED_PIN, HIGH); // Level 3
+                digitalWriteFast(TOP_LED_PIN, HIGH); // Level 4
+                digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
                 stopEffect(S_BEEPS);
@@ -8522,12 +8522,12 @@ void checkRotaryEncoder() {
                 i_wand_menu = 5;
 
                 // Turn on some lights to visually indicate which menu we are in.
-                digitalWriteFast(led_slo_blo, HIGH); // Level 2
-                digitalWrite(led_vent, LOW); // Level 3
+                digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
+                digitalWrite(VENT_LED_PIN, LOW); // Level 3
 
                 // Turn off the other lights.
-                digitalWriteFast(led_white, HIGH); // Level 4
-                digitalWriteFast(led_front_left, LOW); // Level 5
+                digitalWriteFast(TOP_LED_PIN, HIGH); // Level 4
+                digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
                 stopEffect(S_BEEPS);
@@ -8550,12 +8550,12 @@ void checkRotaryEncoder() {
                 i_wand_menu = 5;
 
                 // Turn on some lights to visually indicate which menu we are in.
-                digitalWriteFast(led_slo_blo, HIGH); // Level 2
-                digitalWrite(led_vent, LOW); // Level 3
-                digitalWriteFast(led_white, LOW); // Level 4
+                digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
+                digitalWrite(VENT_LED_PIN, LOW); // Level 3
+                digitalWriteFast(TOP_LED_PIN, LOW); // Level 4
 
                 // Turn off the other lights.
-                digitalWriteFast(led_front_left, LOW); // Level 5
+                digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
                 stopEffect(S_BEEPS);
@@ -8578,10 +8578,10 @@ void checkRotaryEncoder() {
                 i_wand_menu = 5;
 
                 // Turn on some lights to visually indicate which menu we are in.
-                digitalWriteFast(led_slo_blo, HIGH); // Level 2
-                digitalWrite(led_vent, LOW); // Level 3
-                digitalWriteFast(led_white, LOW); // Level 4
-                digitalWriteFast(led_front_left, HIGH); // Level 5
+                digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
+                digitalWrite(VENT_LED_PIN, LOW); // Level 3
+                digitalWriteFast(TOP_LED_PIN, LOW); // Level 4
+                digitalWriteFast(CLIPPARD_LED_PIN, HIGH); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
                 stopEffect(S_BEEPS);
@@ -8659,12 +8659,12 @@ void checkRotaryEncoder() {
                 i_wand_menu = 1;
 
                 // Turn on some lights to visually indicate which menu we are in.
-                digitalWriteFast(led_slo_blo, HIGH); // Level 2
-                digitalWrite(led_vent, LOW); // Level 3
-                digitalWriteFast(led_white, LOW); // Level 4
+                digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
+                digitalWrite(VENT_LED_PIN, LOW); // Level 3
+                digitalWriteFast(TOP_LED_PIN, LOW); // Level 4
 
                 // Turn off the other lights.
-                digitalWriteFast(led_front_left, LOW); // Level 5
+                digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
                 stopEffect(S_BEEPS);
@@ -8687,12 +8687,12 @@ void checkRotaryEncoder() {
                 i_wand_menu = 1;
 
                 // Turn on some lights to visually indicate which menu we are in.
-                digitalWriteFast(led_slo_blo, HIGH); // Level 2
-                digitalWrite(led_vent, LOW); // Level 3
+                digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
+                digitalWrite(VENT_LED_PIN, LOW); // Level 3
 
                 // Turn off the other lights.
-                digitalWriteFast(led_white, HIGH); // Level 4
-                digitalWriteFast(led_front_left, LOW); // Level 5
+                digitalWriteFast(TOP_LED_PIN, HIGH); // Level 4
+                digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
                 stopEffect(S_BEEPS);
@@ -8715,12 +8715,12 @@ void checkRotaryEncoder() {
                 i_wand_menu = 1;
 
                 // Turn on some lights to visually indicate which menu we are in.
-                digitalWriteFast(led_slo_blo, HIGH); // Level 2
+                digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
 
                 // Turn off the other lights.
-                digitalWrite(led_vent, HIGH); // Level 3
-                digitalWriteFast(led_white, HIGH); // Level 4
-                digitalWriteFast(led_front_left, LOW); // Level 5
+                digitalWrite(VENT_LED_PIN, HIGH); // Level 3
+                digitalWriteFast(TOP_LED_PIN, HIGH); // Level 4
+                digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
                 stopEffect(S_BEEPS);
@@ -8743,10 +8743,10 @@ void checkRotaryEncoder() {
                 i_wand_menu = 1;
 
                 // Turn off the other lights.
-                digitalWriteFast(led_slo_blo, LOW); // Level 2
-                digitalWrite(led_vent, HIGH); // Level 3
-                digitalWriteFast(led_white, HIGH); // Level 4
-                digitalWriteFast(led_front_left, LOW); // Level 5
+                digitalWriteFast(SLO_BLO_LED_PIN, LOW); // Level 2
+                digitalWrite(VENT_LED_PIN, HIGH); // Level 3
+                digitalWriteFast(TOP_LED_PIN, HIGH); // Level 4
+                digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
                 stopEffect(S_BEEPS);
@@ -8817,12 +8817,12 @@ void checkRotaryEncoder() {
                 i_wand_menu = 5;
 
                 // Turn on some lights to visually indicate which menu we are in.
-                digitalWriteFast(led_slo_blo, HIGH); // Level 2
+                digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
 
                 // Turn off the other lights.
-                digitalWrite(led_vent, HIGH); // Level 3
-                digitalWriteFast(led_white, HIGH); // Level 4
-                digitalWriteFast(led_front_left, LOW); // Level 5
+                digitalWrite(VENT_LED_PIN, HIGH); // Level 3
+                digitalWriteFast(TOP_LED_PIN, HIGH); // Level 4
+                digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
                 stopEffect(S_BEEPS);
@@ -8898,10 +8898,10 @@ void checkRotaryEncoder() {
                 i_wand_menu = 1;
 
                 // Turn off the other lights.
-                digitalWriteFast(led_slo_blo, LOW); // Level 2
-                digitalWrite(led_vent, HIGH); // Level 3
-                digitalWriteFast(led_white, HIGH); // Level 4
-                digitalWriteFast(led_front_left, LOW); // Level 5
+                digitalWriteFast(SLO_BLO_LED_PIN, LOW); // Level 2
+                digitalWrite(VENT_LED_PIN, HIGH); // Level 3
+                digitalWriteFast(TOP_LED_PIN, HIGH); // Level 4
+                digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
                 stopEffect(S_BEEPS);
@@ -8962,7 +8962,7 @@ void checkRotaryEncoder() {
                   i_wand_menu = 5;
 
                   // Turn on the slo blow led to indicate we are in the Neutrona Wand sub menu.
-                  digitalWriteFast(led_slo_blo, HIGH);
+                  digitalWriteFast(SLO_BLO_LED_PIN, HIGH);
 
                   // Play an indication beep to notify we have changed menu levels.
                   stopEffect(S_BEEPS);
@@ -9026,7 +9026,7 @@ void checkRotaryEncoder() {
                   i_wand_menu = 1;
 
                   // Turn off the slo blow led to indicate we are no longer in the Neutrona Wand sub menu.
-                  digitalWriteFast(led_slo_blo, LOW);
+                  digitalWriteFast(SLO_BLO_LED_PIN, LOW);
 
                   // Play an indication beep to notify we have changed menu levels.
                   stopEffect(S_BEEPS);
@@ -9354,11 +9354,11 @@ void vibrationWand(uint8_t i_level) {
     if(b_vibration_firing == true) {
       if(WAND_ACTION_STATUS == ACTION_FIRING || (ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished())) {
         if(ms_semi_automatic_firing.isRunning()) {
-          analogWrite(vibration, 180);
+          analogWrite(VIBRATION_PIN, 180);
         }
         else if(i_level != i_vibration_level_prev) {
           i_vibration_level_prev = i_level;
-          analogWrite(vibration, i_level);
+          analogWrite(VIBRATION_PIN, i_level);
         }
       }
       else {
@@ -9369,7 +9369,7 @@ void vibrationWand(uint8_t i_level) {
       // Wand vibrates even when idling, etc. (When enabled by the pack)
       if(i_level != i_vibration_level_prev) {
         i_vibration_level_prev = i_level;
-        analogWrite(vibration, i_level);
+        analogWrite(VIBRATION_PIN, i_level);
       }
     }
   }
@@ -9410,14 +9410,14 @@ void checkMenuVibration() {
     vibrationOff();
   }
   else if(ms_menu_vibration.isRunning()) {
-    analogWrite(vibration, 150);
+    analogWrite(VIBRATION_PIN, 150);
   }
 }
 
 void vibrationOff() {
   ms_menu_vibration.stop();
   i_vibration_level_prev = 0;
-  analogWrite(vibration, 0);
+  analogWrite(VIBRATION_PIN, 0);
 }
 
 void switchLoops() {

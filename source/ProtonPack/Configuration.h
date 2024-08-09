@@ -461,15 +461,15 @@ const bool b_cyclotron_haslab_chsv_colour_change = false;
 
 /*
  *****
- ***** INFORMATION FOR DIY builds of the gpstar Proton Packs using an Arduino Mega ********
+ ***** INFORMATION FOR DIY builds of the GPStar Proton Packs using an Arduino Mega ********
  *****
 
- * If you are compiling the code to upload to an Arduino Mega with the original gpstar home built instructions, you will want to disable GPSTAR_PROTON_PACK_PCB.
+ * If you are compiling the code to upload to an Arduino Mega with the original GPStar home built instructions, you will want to disable GPSTAR_PROTON_PACK_PCB.
  * example: //#define GPSTAR_PROTON_PACK_PCB
  * This is a legacy flag, for people who originally put the Cyclotron Lid detection on pin 51 and not pin 43. If your Cyclotron Lid detection is on pin 51, then comment/disable this define.
- * If your home built gpstar Proton Pack was built with pin 43 for the Cyclotron Lid detection, then you can leave this enabled.
+ * If your home built GPStar Proton Pack was built with pin 43 for the Cyclotron Lid detection, then you can leave this enabled.
  *
- * If you are compiling the code to upload to the gpstar Proton Pack microcontroller, or latest gpstar home built instructions, then enable and uncomment it (default).
+ * If you are compiling the code to upload to the GPStar Proton Pack microcontroller, or latest GPStar home built instructions, then enable and uncomment it (default).
  * example: #define GPSTAR_PROTON_PACK_PCB
  * In general, leave this enabled by default as very few people did the pin 51 setup.
  */

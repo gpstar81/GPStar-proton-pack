@@ -344,7 +344,7 @@ void checkPack() {
               ms_handshake.start(i_heartbeat_delay);
 
               // Turn off the sync indicator LED as the sync is completed.
-              digitalWriteFast(led_white, HIGH);
+              digitalWriteFast(TOP_LED_PIN, HIGH);
 
               // Indicate that a pack is now connected.
               WAND_CONN_STATE = PACK_CONNECTED;
@@ -357,7 +357,7 @@ void checkPack() {
             b_pack_on = true; // Pretend that the pack (not really attached) has been powered on.
 
             // Turn off the sync indicator LED as it is no longer necessary.
-            digitalWriteFast(led_white, HIGH);
+            digitalWriteFast(TOP_LED_PIN, HIGH);
 
             // Reset the audio device now that we are in standalone mode and need music playback.
             setupAudioDevice();
@@ -1093,7 +1093,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
       if(WAND_STATUS != MODE_ERROR) {
         if(WAND_STATUS == MODE_ON) {
-          digitalWriteFast(led_hat_2, HIGH); // Turn on hat light 2.
+          digitalWriteFast(TOP_HAT_LED_PIN, HIGH); // Turn on hat light 2.
           prepBargraphRampDown();
 
           if(WAND_ACTION_STATUS == ACTION_SETTINGS) {
@@ -1173,7 +1173,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
     case P_ALARM_OFF:
       if(WAND_STATUS != MODE_ERROR && b_pack_alarm) {
-        digitalWriteFast(led_hat_2, LOW); // Turn off hat light 2.
+        digitalWriteFast(TOP_HAT_LED_PIN, LOW); // Turn off hat light 2.
 
         ms_hat_2.stop();
 
@@ -1220,15 +1220,15 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
       if(b_firing == true) {
         // Keep hat light 1 on if still firing.
-        digitalWriteFast(led_hat_1, HIGH);
+        digitalWriteFast(BARREL_HAT_LED_PIN, HIGH);
       }
 
       // Revert hat light 2 to its normal non-overheat status.
       if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
-        digitalWriteFast(led_hat_2, HIGH);
+        digitalWriteFast(TOP_HAT_LED_PIN, HIGH);
       }
       else {
-        digitalWriteFast(led_hat_2, LOW);
+        digitalWriteFast(TOP_HAT_LED_PIN, LOW);
       }
 
       // Next, reset the cyclotron speed on all devices.
