@@ -1628,23 +1628,6 @@ void cyclotronSwitchLEDUpdate() {
 void cyclotronSwitchLEDLoop() {
   if(ms_cyclotron_switch_led.justFinished()) {
     if(b_cyclotron_lid_on != true) {
-      if(b_alarm == true) {
-        if(i_cyclotron_sw_led > 0) {
-          i_cyclotron_sw_led = 0;
-        }
-        else {
-          i_cyclotron_sw_led++;
-        }
-      }
-      else {
-        if(i_cyclotron_sw_led >= 7) {
-          i_cyclotron_sw_led = 0;
-        }
-        else {
-          i_cyclotron_sw_led++;
-        }
-      }
-
       // Frozen Empire brass pack sound is handled here.
       if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM) && !b_alarm && !b_overheating && !b_2021_ramp_down) {
         if(!b_brass_pack_sound_loop) {
@@ -1657,8 +1640,31 @@ void cyclotronSwitchLEDLoop() {
         b_brass_pack_sound_loop = false;
       }
 
-      // Update the LEDs.
-      cyclotronSwitchLEDUpdate();
+      if(b_brass_pack_sound_loop) {
+        // Per user request, turn off the switch panel LEDs if brass pack is running.
+        cyclotronSwitchLEDOff();
+      }
+      else {
+        if(b_alarm == true) {
+          if(i_cyclotron_sw_led > 0) {
+            i_cyclotron_sw_led = 0;
+          }
+          else {
+            i_cyclotron_sw_led++;
+          }
+        }
+        else {
+          if(i_cyclotron_sw_led >= 7) {
+            i_cyclotron_sw_led = 0;
+          }
+          else {
+            i_cyclotron_sw_led++;
+          }
+        }
+
+        // Update the LEDs.
+        cyclotronSwitchLEDUpdate();
+      }
     }
     else {
       // No need to have the Inner Cyclotron switch plate LEDs on when the lid is on.
@@ -4045,7 +4051,7 @@ void innerCyclotronRingUpdate(uint16_t iRampDelay) {
     uint8_t i_brightness = getBrightness(i_cyclotron_inner_brightness);
     uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_INNER, STREAM_MODE, b_cyclotron_colour_toggle);
 
-    if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM)) {
+    if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && STREAM_MODE == PROTON) {
       // As a "sparking" effect is predominant in GB:FE during the Proton stream,
       // the inner LED colour/brightness is altered for this mode.
       i_brightness = getBrightness(i_cyclotron_inner_brightness / 2);
