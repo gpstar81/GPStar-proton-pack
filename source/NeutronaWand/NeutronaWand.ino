@@ -1748,7 +1748,7 @@ void wandOff() {
             bargraphYearModeUpdate();
           }
           else {
-            i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;
+            i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
           }
         break;
 

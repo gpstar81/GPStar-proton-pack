@@ -362,9 +362,6 @@ void checkPack() {
             // Start the music check timer for standalone mode.
             ms_check_music.start(i_music_check_delay);
 
-            // No pack to do a volume sync with, so reset our master volume manually.
-            resetMasterVolume();
-
             // Re-read the EEPROM now that we are in standalone mode to make sure system mode and volume are correct.
             if(b_eeprom) {
               readEEPROM();
@@ -384,6 +381,9 @@ void checkPack() {
 
             // Stop the pack sync timer since we are no longer syncing to a pack.
             ms_packsync.stop();
+
+            // No pack to do a volume sync with, so reset our master volume manually.
+            resetMasterVolume();
 
             // Immediately exit the serial data functions.
             return;
