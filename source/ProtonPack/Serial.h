@@ -1,5 +1,3 @@
-#include "Header.h"
-#include "Configuration.h"
 /**
  *   GPStar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
@@ -295,12 +293,12 @@ void serial1SendData(uint8_t i_message) {
       packConfig.defaultYearThemePack = SYSTEM_EEPROM_YEAR;
       packConfig.currentYearThemePack = SYSTEM_YEAR;
       packConfig.defaultSystemVolume = i_volume_master_percentage;
-      packConfig.protonStreamEffects = b_stream_effects;
-      packConfig.overheatStrobeNF = b_overheat_strobe;
-      packConfig.overheatLightsOff = b_overheat_lights_off;
-      packConfig.overheatSyncToFan = b_overheat_sync_to_fan;
-      packConfig.demoLightMode = b_demo_light_mode;
-      packConfig.ribbonCableAlarm = b_use_ribbon_cable;
+      packConfig.protonStreamEffects = b_stream_effects ? 1 : 0;
+      packConfig.overheatStrobeNF = b_overheat_strobe ? 1 : 0;
+      packConfig.overheatLightsOff = b_overheat_lights_off ? 1 : 0;
+      packConfig.overheatSyncToFan = b_overheat_sync_to_fan ? 1 : 0;
+      packConfig.demoLightMode = b_demo_light_mode ? 1 : 0;
+      packConfig.ribbonCableAlarm = b_use_ribbon_cable ? 1 : 0;
 
       switch(VIBRATION_MODE_EEPROM) {
         case VIBRATION_ALWAYS:
@@ -322,10 +320,10 @@ void serial1SendData(uint8_t i_message) {
       packConfig.ledCycLidCount = i_cyclotron_leds;
       packConfig.ledCycLidHue = i_spectral_cyclotron_custom_colour;
       packConfig.ledCycLidSat = i_spectral_cyclotron_custom_saturation;
-      packConfig.cyclotronDirection = b_clockwise;
-      packConfig.ledCycLidCenter = b_cyclotron_single_led;
-      packConfig.ledVGCyclotron = b_cyclotron_colour_toggle;
-      packConfig.ledCycLidSimRing = b_cyclotron_simulate_ring;
+      packConfig.cyclotronDirection = b_clockwise ? 1 : 0;
+      packConfig.ledCycLidCenter = b_cyclotron_single_led ? 1 : 0;
+      packConfig.ledVGCyclotron = b_cyclotron_colour_toggle ? 1 : 0;
+      packConfig.ledCycLidSimRing = b_cyclotron_simulate_ring ? 1 : 0;
 
       // Inner Cyclotron
       switch(INNER_CYC_PANEL_MODE) {
@@ -343,14 +341,14 @@ void serial1SendData(uint8_t i_message) {
       packConfig.ledCycCakeCount = i_inner_cyclotron_cake_num_leds;
       packConfig.ledCycCakeHue = i_spectral_cyclotron_inner_custom_colour;
       packConfig.ledCycCakeSat = i_spectral_cyclotron_inner_custom_saturation;
-      packConfig.ledCycCakeGRB = b_grb_cyclotron_cake;
+      packConfig.ledCycCakeGRB = b_grb_cyclotron_cake ? 1 : 0;
       packConfig.ledCycCavCount = i_inner_cyclotron_cavity_num_leds;
 
       // Power Cell
       packConfig.ledPowercellCount = i_powercell_leds;
       packConfig.ledPowercellHue = i_spectral_powercell_custom_colour;
       packConfig.ledPowercellSat = i_spectral_powercell_custom_saturation;
-      packConfig.ledVGPowercell = b_powercell_colour_toggle;
+      packConfig.ledVGPowercell = b_powercell_colour_toggle ? 1 : 0;
 
       i_send_size = serial1Coms.txObj(packConfig);
       serial1Coms.sendData(i_send_size, (uint8_t) PACKET_PACK);
@@ -364,11 +362,11 @@ void serial1SendData(uint8_t i_message) {
 
     case A_SEND_PREFERENCES_SMOKE:
       // Determines whether smoke effects while firing is enabled by power level.
-      smokeConfig.overheatContinuous5 = b_smoke_continuous_level_5;
-      smokeConfig.overheatContinuous4 = b_smoke_continuous_level_4;
-      smokeConfig.overheatContinuous3 = b_smoke_continuous_level_3;
-      smokeConfig.overheatContinuous2 = b_smoke_continuous_level_2;
-      smokeConfig.overheatContinuous1 = b_smoke_continuous_level_1;
+      smokeConfig.overheatContinuous5 = b_smoke_continuous_level_5 ? 1 : 0;
+      smokeConfig.overheatContinuous4 = b_smoke_continuous_level_4 ? 1 : 0;
+      smokeConfig.overheatContinuous3 = b_smoke_continuous_level_3 ? 1 : 0;
+      smokeConfig.overheatContinuous2 = b_smoke_continuous_level_2 ? 1 : 0;
+      smokeConfig.overheatContinuous1 = b_smoke_continuous_level_1 ? 1 : 0;
 
       // Duration (in seconds) an overheat event persists once activated.
       smokeConfig.overheatDuration5 = i_ms_overheating_length_5 / 1000;
@@ -378,7 +376,7 @@ void serial1SendData(uint8_t i_message) {
       smokeConfig.overheatDuration1 = i_ms_overheating_length_1 / 1000;
 
       // Enable or disable smoke effects overall.
-      smokeConfig.smokeEnabled = b_smoke_enabled;
+      smokeConfig.smokeEnabled = b_smoke_enabled ? 1 : 0;
 
       i_send_size = serial1Coms.txObj(smokeConfig);
       serial1Coms.sendData(i_send_size, (uint8_t) PACKET_SMOKE);

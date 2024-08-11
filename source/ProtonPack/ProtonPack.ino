@@ -4912,7 +4912,20 @@ void cyclotronSwitchPlateLEDs() {
         digitalWriteFast(YEAR_TOGGLE_LED_PIN, HIGH);
 
         if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
-          cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_RED, i_brightness);
+          if(INNER_CYC_PANEL_MODE == PANEL_RGB_STATIC) {
+            // Static LED will always light green.
+            cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_GREEN, i_brightness);
+          }
+          else {
+            if(SYSTEM_YEAR == SYSTEM_1984) {
+              // If in 1984, LED will light red.
+              cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_RED, i_brightness);
+            }
+            else {
+              // If in 1989, LED will light pink.
+              cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_PINK, i_brightness);
+            }
+          }
         }
       }
       else {
@@ -4927,7 +4940,14 @@ void cyclotronSwitchPlateLEDs() {
       digitalWriteFast(YEAR_TOGGLE_LED_PIN, HIGH);
 
       if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
-        cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_RED, i_brightness);
+        if(INNER_CYC_PANEL_MODE == PANEL_RGB_STATIC || SYSTEM_YEAR == SYSTEM_AFTERLIFE) {
+          // If using static LEDs or in Afterlife, LED will light green.
+          cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_GREEN, i_brightness);
+        }
+        else {
+          // Frozen Empire will light the LED ice blue.
+          cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_LIGHT_BLUE, i_brightness);
+        }
       }
     }
 

@@ -182,8 +182,8 @@ void wandSerialSendData(uint8_t i_message) {
 
       wandConfig.ledWandHue = i_spectral_wand_custom_colour;
       wandConfig.ledWandSat = i_spectral_wand_custom_saturation;
-      wandConfig.spectralModesEnabled = b_spectral_mode_enabled;
-      wandConfig.overheatEnabled = b_overheat_enabled;
+      wandConfig.spectralModesEnabled = b_spectral_mode_enabled ? 1 : 0;
+      wandConfig.overheatEnabled = b_overheat_enabled ? 1 : 0;
 
       switch(FIRING_MODE) {
         case VG_MODE:
@@ -198,11 +198,11 @@ void wandSerialSendData(uint8_t i_message) {
         break;
       }
 
-      wandConfig.wandSoundsToPack = b_extra_pack_sounds;
-      wandConfig.quickVenting = b_quick_vent;
-      wandConfig.autoVentLight = b_vent_light_control;
-      wandConfig.wandBeepLoop = b_beep_loop;
-      wandConfig.wandBootError = b_wand_boot_errors;
+      wandConfig.wandSoundsToPack = b_extra_pack_sounds ? 1 : 0;
+      wandConfig.quickVenting = b_quick_vent ? 1 : 0;
+      wandConfig.autoVentLight = b_vent_light_control ? 1 : 0;
+      wandConfig.wandBeepLoop = b_beep_loop ? 1 : 0;
+      wandConfig.wandBootError = b_wand_boot_errors ? 1 : 0;
 
       switch(WAND_YEAR_MODE) {
         case YEAR_DEFAULT:
@@ -258,8 +258,8 @@ void wandSerialSendData(uint8_t i_message) {
         break;
       }
 
-      wandConfig.invertWandBargraph = b_bargraph_invert;
-      wandConfig.bargraphOverheatBlink = b_overheat_bargraph_blink;
+      wandConfig.invertWandBargraph = b_bargraph_invert ? 1 : 0;
+      wandConfig.bargraphOverheatBlink = b_overheat_bargraph_blink ? 1 : 0;
 
       switch(BARGRAPH_MODE_EEPROM) {
         case BARGRAPH_EEPROM_DEFAULT:
@@ -293,11 +293,11 @@ void wandSerialSendData(uint8_t i_message) {
 
     case W_SEND_PREFERENCES_SMOKE:
       // Determines whether overheating is enabled for a power level.
-      smokeConfig.overheatLevel5 = b_overheat_level_5;
-      smokeConfig.overheatLevel4 = b_overheat_level_4;
-      smokeConfig.overheatLevel3 = b_overheat_level_3;
-      smokeConfig.overheatLevel2 = b_overheat_level_2;
-      smokeConfig.overheatLevel1 = b_overheat_level_1;
+      smokeConfig.overheatLevel5 = b_overheat_level_5 ? 1 : 0;
+      smokeConfig.overheatLevel4 = b_overheat_level_4 ? 1 : 0;
+      smokeConfig.overheatLevel3 = b_overheat_level_3 ? 1 : 0;
+      smokeConfig.overheatLevel2 = b_overheat_level_2 ? 1 : 0;
+      smokeConfig.overheatLevel1 = b_overheat_level_1 ? 1 : 0;
 
       // Time (seconds) before an overheat event takes place by level.
       smokeConfig.overheatDelay5 = (uint8_t)(i_ms_overheat_initiate_level_5 / 1000);
