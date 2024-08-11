@@ -436,13 +436,13 @@ bool b_wand_boot_error_on = false;
  * otherwise an error mode will be engaged to provide a cool-down period. This does not apply to any
  * prolonged firing which would trigger the overheat or venting sequences; only rapid firing bursts.
  */
-millisDelay ms_bmash;                  // Timer for the button mash lock-out period.
+millisDelay ms_bmash;              // Timer for the button mash lock-out period.
 uint16_t i_bmash_delay = 2000;     // Time period in which we consider rapid firing.
 uint16_t i_bmash_cool_down = 3000; // Time period for the lock-out of user input.
-uint8_t i_bmash_count = 0;             // Current count for rapid firing bursts.
-uint8_t i_bmash_max = 7;               // Burst count we consider before the lock-out.
-uint8_t i_bmash_spark_index = 0;       // Current spark number for the spark effect (0~2).
-bool b_wand_mash_error = false;        // Indicates if wand is in a lock-out phase.
+uint8_t i_bmash_count = 0;         // Current count for rapid firing bursts.
+uint8_t i_bmash_max = 7;           // Burst count we consider before the lock-out.
+uint8_t i_bmash_spark_index = 0;   // Current spark number for the spark effect (0~2).
+bool b_wand_mash_error = false;    // Indicates if wand is in a lock-out phase.
 
 /*
  * Used during the overheating sequences.

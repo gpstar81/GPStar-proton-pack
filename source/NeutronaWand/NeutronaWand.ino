@@ -1851,29 +1851,35 @@ void fireControlCheck() {
       modeError();
       wandTipSpark();
 
-      // Adjust the cool down lockout period based on the power level.
+      // Adjust the button mash cool down (aka. lockout) period based on the power level.
+      // The wand controls the API calls to the pack to start/end this action.
+      uint16_t i_timeout = i_bmash_cool_down; // Base timeout.
+      if(getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
+        i_timeout += 2000; // Add 2 seconds for this theme.
+      }
       switch(i_power_level) {
         case 5:
-          ms_bmash.start(i_bmash_cool_down + 2000);
+          i_timeout += 2000;
         break;
 
         case 4:
-          ms_bmash.start(i_bmash_cool_down + 1500);
+          i_timeout += 1500;
         break;
 
         case 3:
-          ms_bmash.start(i_bmash_cool_down + 1000);
+          i_timeout += 1000;
         break;
 
         case 2:
-          ms_bmash.start(i_bmash_cool_down + 500);
+          i_timeout += 500;
         break;
 
         case 1:
         default:
-          ms_bmash.start(i_bmash_cool_down);
+          // No change
         break;
       }
+      ms_bmash.start(i_timeout);
     }
     else {
       if(i_slime_tether_count > 0 && ms_semi_automatic_check.remaining() < 1) {
@@ -2250,9 +2256,11 @@ void modeError() {
   }
   else if(b_wand_mash_error == true) {
     if(getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
+      // Use the crakling ice sound from the statis mode.
       playEffect(S_STASIS_IDLE_LOOP);
     }
     else {
+      // Use the standard error alarm for this effect.
       playEffect(S_SMASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
     }
 

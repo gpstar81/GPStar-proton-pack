@@ -1746,11 +1746,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_SMASH_ERROR_LOOP:
-      // Stop GB:FE button-smash sounds.
-      stopEffect(S_FROZEN_EMPIRE_PACK_FREEZE_STOP);
-      stopEffect(S_STASIS_IDLE_LOOP);
-      // Stop normal button-smash sounds.
-      stopEffect(S_SMASH_ERROR_LOOP);
+      stopSmashErrorSounds();
 
       // Play distinct sounds based on the year/theme.
       switch(SYSTEM_YEAR) {
@@ -1765,20 +1761,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_SMASH_ERROR_LOOP_STOP:
-      // Stop GB:FE button-smash sounds.
-      stopEffect(S_FROZEN_EMPIRE_PACK_FREEZE_STOP);
-      stopEffect(S_STASIS_IDLE_LOOP);
-      // Stop normal button-smash sounds.
-      stopEffect(S_SMASH_ERROR_LOOP);
+      stopSmashErrorSounds();
     break;
 
     case W_SMASH_ERROR_RESTART:
-      // Stop GB:FE button-smash sounds.
-      stopEffect(S_FROZEN_EMPIRE_PACK_FREEZE_STOP);
-      stopEffect(S_STASIS_IDLE_LOOP);
-      // Stop normal button-smash sounds.
-      stopEffect(S_SMASH_ERROR_LOOP);
-      stopEffect(S_SMASH_ERROR_RESTART);
+      stopSmashErrorSounds();
 
       // Play pack restart sound.
       playEffect(S_SMASH_ERROR_RESTART);

@@ -1,21 +1,23 @@
 #!/bin/bash
 
-# Compile only the main ESP32 binary. Useful for a quick sanity test during development.
+# Perform a full compile of all binaries using the Arduino-CLI and any boards/libraries
+# already installed as part of the ArduinoIDE on a local Mac/PC development environment.
+# For PC/Windows users, a Cygwin environment may be used to execute this build script.
+#
+# This script compiles only the main ESP32 binary.
 
 BINDIR="../binaries"
 SRCDIR="../source"
 
 mkdir -p ${BINDIR}/attenuator/extras
-mkdir -p ${BINDIR}/pack
-mkdir -p ${BINDIR}/wand/extras
 
 # Current build timestamp to be reflected in the Attenuator build for ESP32.
 TIMESTAMP=$(date +"%Y%m%d%H%M%S")
 
 echo ""
 
-# Attenuator (ESP32)
-echo "Building Attenuator Binary (ESP32)..."
+# Attenuator (ESP32 - Normal)
+echo "Building Attenuator Binary (ESP32 - Normal)..."
 
 # Update date of compilation
 echo "Updating Build Timestamp:" $TIMESTAMP

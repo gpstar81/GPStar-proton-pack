@@ -4726,6 +4726,15 @@ void wandStopFiringSounds() {
   b_sound_firing_alt_trigger = false;
 }
 
+void stopSmashErrorSounds() {
+  // Stop GB:FE button-smash sounds.
+  stopEffect(S_FROZEN_EMPIRE_PACK_FREEZE_STOP);
+  stopEffect(S_STASIS_IDLE_LOOP);
+  // Stop normal button-smash sounds.
+  stopEffect(S_SMASH_ERROR_LOOP);
+  stopEffect(S_SMASH_ERROR_RESTART);
+}
+
 void packAlarm() {
   if(b_wand_firing == true) {
     // Preemptively stop firing sounds.
@@ -5288,12 +5297,7 @@ void wandDisconnectCheck() {
         cyclotronSpeedRevert();
       }
 
-      // Stop GB:FE button-smash sounds.
-      stopEffect(S_FROZEN_EMPIRE_PACK_FREEZE_STOP);
-      stopEffect(S_STASIS_IDLE_LOOP);
-      // Stop normal button-smash sounds.
-      stopEffect(S_SMASH_ERROR_LOOP);
-      stopEffect(S_SMASH_ERROR_RESTART);
+      stopSmashErrorSounds();
 
       wandExtraSoundsStop();
       wandExtraSoundsBeepLoopStop(false);
@@ -5379,12 +5383,7 @@ void wandExtraSoundsStop() {
   stopEffect(S_WAND_BOOTUP);
 
   if(b_wand_mash_lockout == true || PACK_STATE == MODE_OFF) {
-      // Stop GB:FE button-smash sounds.
-      stopEffect(S_FROZEN_EMPIRE_PACK_FREEZE_STOP);
-      stopEffect(S_STASIS_IDLE_LOOP);
-      // Stop normal button-smash sounds.
-      stopEffect(S_SMASH_ERROR_LOOP);
-      stopEffect(S_SMASH_ERROR_RESTART);
+    stopSmashErrorSounds();
   }
 }
 
