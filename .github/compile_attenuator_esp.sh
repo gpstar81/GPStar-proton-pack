@@ -26,6 +26,10 @@ sed -i -e 's/\(String build_date = "\)[^"]*\(";\)/\1'"$TIMESTAMP"'\2/' ${SRCDIR}
 # --warnings none
 arduino-cli compile --output-dir ${BINDIR} --fqbn esp32:esp32:esp32 --export-binaries ${SRCDIR}/Attenuator/Attenuator.ino
 
+# EXPERIMENTAL: Atttempting to compile with an alternative partition table to allow for larger OTA firmware sizes at the expense of a smaller filesystem area.
+# We should wait for the next major release of the codebase before we require users to change their partition scheme as this will require a re-flash over USB!
+#arduino-cli compile --output-dir ${BINDIR} --fqbn esp32:esp32:esp32 --export-binaries --board-options PartitionScheme=min_spiffs ${SRCDIR}/Attenuator/Attenuator.ino
+
 # Keep any .bin files
 rm -f ${BINDIR}/*.eep
 rm -f ${BINDIR}/*.elf
