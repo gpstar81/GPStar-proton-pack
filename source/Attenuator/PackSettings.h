@@ -188,7 +188,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
   <h1>Inner Cyclotron</h1>
   <div class="block left">
     <div class="setting">
-      <b>LED Count:</b>
+      <b>Ring LED Count:</b>
       <select id="ledCycCakeCount" name="ledCycCakeCount">
         <option value="36">36 - GPStar</option>
         <option value="35">35</option>
@@ -199,7 +199,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>&nbsp;&nbsp;&nbsp;Inner Panel:</b>
+      <b>Inner Panel:</b>
       <select id="ledCycInnerPanel" name="ledCycInnerPanel" style="width:180px">
         <option value="1">Individual</option>
         <option value="2">RGB Static</option>

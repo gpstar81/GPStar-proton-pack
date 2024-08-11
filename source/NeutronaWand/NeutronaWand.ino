@@ -277,6 +277,7 @@ void mainLoop() {
 
         postActivation();
 
+        stopEffect(S_STASIS_IDLE_LOOP);
         stopEffect(S_SMASH_ERROR_LOOP);
         playEffect(S_SMASH_ERROR_RESTART);
 
@@ -1620,6 +1621,7 @@ void wandOff() {
     WAND_ACTION_STATUS = ACTION_IDLE;
 
     if(b_wand_mash_error == true) {
+      stopEffect(S_STASIS_IDLE_LOOP);
       stopEffect(S_SMASH_ERROR_LOOP);
       stopEffect(S_SMASH_ERROR_RESTART);
     }
@@ -2247,7 +2249,12 @@ void modeError() {
     playEffect(S_BEEPS_BARGRAPH, false, i_volume_effects, false, 0, false);
   }
   else if(b_wand_mash_error == true) {
-    playEffect(S_SMASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
+    if(getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
+      playEffect(S_STASIS_IDLE_LOOP);
+    }
+    else {
+      playEffect(S_SMASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
+    }
 
     if(b_extra_pack_sounds == true) {
       wandSerialSend(W_SMASH_ERROR_LOOP);

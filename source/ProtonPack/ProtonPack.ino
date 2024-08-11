@@ -1477,9 +1477,10 @@ void cyclotronSwitchLEDUpdate() {
             cyclotron_leds[5] = getHueAsRGB(CYCLOTRON_PANEL, C_GREEN, i_brightness);
           }
           else {
-          for(uint8_t i = i_ic_panel_start; i <= i_ic_panel_end - 2; i++) {
-            cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_PANEL, C_RED, i_brightness);
-          }
+            // Uses all red for the alarm sequence.
+            for(uint8_t i = i_ic_panel_start; i <= i_ic_panel_end - 2; i++) {
+              cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_PANEL, C_RED, i_brightness);
+            }
           }
         }
       }
