@@ -236,6 +236,16 @@ const uint8_t i_cyclotron_36led_matrix[OUTER_CYCLOTRON_LED_MAX] PROGMEM = { 1, 2
 const uint8_t i_cyclotron_40led_matrix[OUTER_CYCLOTRON_LED_MAX] PROGMEM = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40 };
 
 /*
+ * Inner Cyclotron LED Panel
+ * Individual = Use stock connectors on the pack controller for individual LEDs [Default]
+ * RGB Static = Use the Frutto Technology LED panel, but colors remain consistent for all stream modes
+ * RGB Dynamic = Use the Frutto Technology LED panel, allowing colors to change based on stream modes
+ * When enabled, this becomes the first in the chain from the Inner Cyclotron JST-XH connector from the Proton Pack.
+ */
+enum INNER_CYC_PANEL_MODES { PANEL_INDIVIDUAL, PANEL_RGB_STATIC, PANEL_RGB_DYNAMIC };
+enum INNER_CYC_PANEL_MODES INNER_CYC_PANEL_MODE;
+
+/*
  * Inner Cyclotron NeoPixel ring ramp control.
  */
 millisDelay ms_cyclotron_ring;

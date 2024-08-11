@@ -1,3 +1,5 @@
+#include "Header.h"
+#include "Configuration.h"
 /**
  *   GPStar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
@@ -326,7 +328,18 @@ void serial1SendData(uint8_t i_message) {
       packConfig.ledCycLidSimRing = b_cyclotron_simulate_ring;
 
       // Inner Cyclotron
-      packConfig.ledCycInnerPanel = b_inner_cyclotron_led_panel;
+      switch(INNER_CYC_PANEL_MODE) {
+        case PANEL_INDIVIDUAL:
+        default:
+          packConfig.ledCycInnerPanel = 1;
+        break;
+        case PANEL_RGB_STATIC:
+          packConfig.ledCycInnerPanel = 2;
+        break;
+        case PANEL_RGB_DYNAMIC:
+          packConfig.ledCycInnerPanel = 3;
+        break;
+      }
       packConfig.ledCycCakeCount = i_inner_cyclotron_cake_num_leds;
       packConfig.ledCycCakeHue = i_spectral_cyclotron_inner_custom_colour;
       packConfig.ledCycCakeSat = i_spectral_cyclotron_inner_custom_saturation;
@@ -638,7 +651,18 @@ void checkSerial1() {
           b_cyclotron_simulate_ring = (packConfig.ledCycLidSimRing == 1);
 
           // Inner Cyclotron
-          b_inner_cyclotron_led_panel = (packConfig.ledCycInnerPanel == 1);
+          switch(packConfig.ledCycInnerPanel) {
+            case 1:
+            default:
+              INNER_CYC_PANEL_MODE = PANEL_INDIVIDUAL;
+            break;
+            case 2:
+              INNER_CYC_PANEL_MODE = PANEL_RGB_STATIC;
+            break;
+            case 3:
+              INNER_CYC_PANEL_MODE = PANEL_RGB_DYNAMIC;
+            break;
+          }
           i_inner_cyclotron_cake_num_leds = packConfig.ledCycCakeCount;
           i_spectral_cyclotron_inner_custom_colour = packConfig.ledCycCakeHue;
           i_spectral_cyclotron_inner_custom_saturation = packConfig.ledCycCakeSat;
@@ -2070,23 +2094,34 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_TOGGLE_INNER_CYCLOTRON_PANEL:
       // Toggle the optional inner cyclotron LED panel board.
-      if(b_inner_cyclotron_led_panel == true) {
-        b_inner_cyclotron_led_panel = false;
+      switch(INNER_CYC_PANEL_MODE) {
+        case PANEL_INDIVIDUAL:
+          INNER_CYC_PANEL_MODE = PANEL_RGB_STATIC;
 
-        stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
-        stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
-        playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
+          stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+          stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
+          playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
 
-        packSerialSend(P_TOGGLE_INNER_CYCLOTRON_PANEL_DISABLED);
-      }
-      else {
-        b_inner_cyclotron_led_panel = true;
+          packSerialSend(P_INNER_CYCLOTRON_PANEL_STATIC);
+        break;
+        case PANEL_RGB_STATIC:
+          INNER_CYC_PANEL_MODE = PANEL_RGB_DYNAMIC;
 
-        stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
-        stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
-        playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+          stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+          stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
+          playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
 
-        packSerialSend(P_TOGGLE_INNER_CYCLOTRON_PANEL_ENABLED);
+          packSerialSend(P_INNER_CYCLOTRON_PANEL_DYNAMIC);
+        break;
+        case PANEL_RGB_DYNAMIC:
+          INNER_CYC_PANEL_MODE = PANEL_INDIVIDUAL;
+
+          stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
+          stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+          playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
+
+          packSerialSend(P_INNER_CYCLOTRON_PANEL_DISABLED);
+        break;
       }
 
       // Reset the LED count for the panel and update the LED counts.
