@@ -1688,7 +1688,7 @@ void cyclotronSwitchLEDLoop() {
         b_brass_pack_sound_loop = false;
       }
 
-      if(b_brass_pack_sound_loop || (SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && b_2021_ramp_down && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM))) {
+      if(b_brass_pack_sound_loop || (SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && (b_2021_ramp_down || b_alarm || b_wand_mash_lockout) && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM))) {
         // Per user request, turn off the switch panel LEDs if brass pack is running.
         cyclotronSwitchLEDOff();
       }
