@@ -767,6 +767,7 @@ void packStartup(bool firstStart) {
     stopEffect(S_ALARM_LOOP);
     stopEffect(S_RIBBON_CABLE_START);
     stopEffect(S_PACK_SHUTDOWN_AFTERLIFE_ALT); // This is a long track which may still be playing.
+    stopEffect(S_FROZEN_EMPIRE_SHUTDOWN); // This is a long track which may still be playing.
 
     switch(SYSTEM_YEAR) {
       case SYSTEM_1984:
@@ -930,6 +931,7 @@ void packShutdown() {
     }
 
     stopEffect(S_PACK_SHUTDOWN_AFTERLIFE_ALT);
+    stopEffect(S_FROZEN_EMPIRE_SHUTDOWN);
     stopEffect(S_AFTERLIFE_PACK_STARTUP);
     stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
 
@@ -974,7 +976,12 @@ void packShutdown() {
       case SYSTEM_AFTERLIFE:
       case SYSTEM_FROZEN_EMPIRE:
       default:
-        playEffect(S_PACK_SHUTDOWN_AFTERLIFE_ALT);
+        if(b_brass_pack_sound_loop) {
+          playEffect(S_FROZEN_EMPIRE_SHUTDOWN);
+        }
+        else {
+          playEffect(S_PACK_SHUTDOWN_AFTERLIFE_ALT);
+        }
       break;
     }
   }
@@ -1681,7 +1688,7 @@ void cyclotronSwitchLEDLoop() {
         b_brass_pack_sound_loop = false;
       }
 
-      if(b_brass_pack_sound_loop) {
+      if(b_brass_pack_sound_loop || (SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && b_2021_ramp_down && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM))) {
         // Per user request, turn off the switch panel LEDs if brass pack is running.
         cyclotronSwitchLEDOff();
       }
