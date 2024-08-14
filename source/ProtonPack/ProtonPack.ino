@@ -819,9 +819,18 @@ void packStartup(bool firstStart) {
         }
 
         // Cyclotron lid is off, play the Frozen Empire sound effect.
-        if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && !b_cyclotron_lid_on && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM)) {
-          playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects, true, 2000);
-          b_brass_pack_sound_loop = true;
+        if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+          if(!b_cyclotron_lid_on && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM)) {
+            b_brass_pack_sound_loop = true;
+          }
+
+          if(b_brass_pack_sound_loop) {
+            playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects, true, 2000);
+          }
+
+          if(b_wand_mash_lockout) {
+            playEffect(S_PACK_RECOVERY);
+          }
         }
 
         ms_idle_fire_fade.start(0);
@@ -974,8 +983,11 @@ void packShutdown() {
       break;
 
       case SYSTEM_AFTERLIFE:
-      case SYSTEM_FROZEN_EMPIRE:
       default:
+        playEffect(S_PACK_SHUTDOWN_AFTERLIFE_ALT);
+      break;
+
+      case SYSTEM_FROZEN_EMPIRE:
         if(b_brass_pack_sound_loop) {
           playEffect(S_FROZEN_EMPIRE_SHUTDOWN);
         }
@@ -4749,23 +4761,30 @@ void packAlarm() {
     cyclotronSpeedRevert();
   }
 
-  // Stop Pack sounds.
-  if(SYSTEM_YEAR == SYSTEM_1989) {
-    stopEffect(S_GB2_PACK_START);
-    stopEffect(S_GB2_PACK_LOOP);
-  }
-  else if(SYSTEM_YEAR == SYSTEM_1984) {
-    stopEffect(S_GB1_1984_PACK_LOOP);
-    stopEffect(S_GB1_1984_BOOT_UP);
-  }
-  else {
-    stopEffect(S_AFTERLIFE_PACK_STARTUP);
-    stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
+  // Stop all normal pack sounds.
+  switch(SYSTEM_YEAR) {
+    case SYSTEM_1984:
+      stopEffect(S_GB1_1984_PACK_LOOP);
+      stopEffect(S_GB1_1984_BOOT_UP);
+    break;
+    case SYSTEM_1989:
+      stopEffect(S_GB2_PACK_START);
+      stopEffect(S_GB2_PACK_LOOP);
+    break;
+    case SYSTEM_AFTERLIFE:
+    default:
+      stopEffect(S_AFTERLIFE_PACK_STARTUP);
+      stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
+    break;
+    case SYSTEM_FROZEN_EMPIRE:
+      stopEffect(S_AFTERLIFE_PACK_STARTUP);
+      stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
 
-    if(b_brass_pack_sound_loop) {
-      stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
-      b_brass_pack_sound_loop = false;
-    }
+      if(b_brass_pack_sound_loop) {
+        stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
+        b_brass_pack_sound_loop = false;
+      }
+    break;
   }
 
   playEffect(S_SHUTDOWN);

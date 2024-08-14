@@ -1751,8 +1751,19 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Play distinct sounds based on the year/theme.
       switch(SYSTEM_YEAR) {
         case SYSTEM_FROZEN_EMPIRE:
+          if(b_brass_pack_sound_loop) {
+            stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
+          }
+          stopEffect(S_AFTERLIFE_PACK_STARTUP);
+          stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
+
           playEffect(S_FROZEN_EMPIRE_PACK_FREEZE_STOP);
           playEffect(S_STASIS_IDLE_LOOP, true, i_volume_effects, true, 2500);
+
+          // Stop all light functions.
+          ms_powercell.stop();
+          ms_cyclotron.stop();
+          ms_cyclotron_ring.stop();
         break;
         default:
           playEffect(S_SMASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
@@ -1767,8 +1778,24 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_SMASH_ERROR_RESTART:
       stopSmashErrorSounds();
 
-      // Play pack restart sound.
-      playEffect(S_SMASH_ERROR_RESTART);
+      // Play pack restart sounds.
+      switch(SYSTEM_YEAR) {
+        case SYSTEM_FROZEN_EMPIRE:
+          playEffect(S_PACK_RECOVERY);
+          playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects, true, 2000);
+          if(b_brass_pack_sound_loop) {
+            playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects, true, 2000);
+          }
+
+          // Restore light functions after a brief delay.
+          ms_powercell.start(100);
+          ms_cyclotron.start(100);
+          ms_cyclotron_ring.start(100);
+        break;
+        default:
+          playEffect(S_SMASH_ERROR_RESTART);
+        break;
+      }          
     break;
 
     case W_PROTON_MODE:

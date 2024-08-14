@@ -45,6 +45,7 @@
 #define BOOSTER_TUBE_FAN_PIN 38 // Fan for the secondary smoke machine.
 #define NFILTER_SMOKE_PIN 39 // Primary smoke machine output, usually in the N-Filter.
 #define CYCLOTRON_LID_SWITCH_PIN 43 // Pin used for Cyclotron lid detection capability.
+#define CYCLOTRON_LID_SWITCH_PIN_DIY 51 // Legacy pin used for some DIY pack builds.
 #define VIBRATION_PIN 45 // Pin for the vibration motor.
 #define NFILTER_LED_PIN 46 // (Optional) Use a white LED with a forward voltage of 3.0-3.2 and up to 20mA forward current.
 #define PACK_LED_PIN 53 // Data pin for the Power Cell and Outer Cyclotron addressable LEDs.
@@ -488,5 +489,5 @@ void powercellDraw(uint8_t i_start = 0);
 #ifdef GPSTAR_PROTON_PACK_PCB
   ezButton switch_cyclotron_lid(CYCLOTRON_LID_SWITCH_PIN); // Second Cyclotron ground pin (brown) that we detect if the lid is removed or not.
 #else
-  ezButton switch_cyclotron_lid(51); // Alternate pin for legacy DIY builds.
+  ezButton switch_cyclotron_lid(CYCLOTRON_LID_SWITCH_PIN_DIY); // Alternate pin for legacy DIY builds.
 #endif
