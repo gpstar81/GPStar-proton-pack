@@ -868,12 +868,7 @@ void overheatingFinished() {
 
   // Prepare a few things before ramping the bargraph back up from a full ramp down.
   if(b_overheat_bargraph_blink != true) {
-    if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
-      bargraphYearModeUpdate();
-    }
-    else {
-      i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984 * 2;
-    }
+    resetBargraphSpeed();
   }
 
   switch(getNeutronaWandYearMode()) {
@@ -1446,7 +1441,7 @@ void checkSwitches() {
         case MODE_ORIGINAL:
           // We shut the pack and wand down if any of the right toggle switches are turned off. Activate switch control is handled in fireControlCheck();
           if(switch_vent.on() == false || switch_wand.on() == false) {
-            bargraphYearModeUpdate();
+            resetBargraphSpeed();
             // If any of the right toggle switches are turned off, we must turn the cyclotron off and shut the Neutrona Wand down to a off idle status.
             WAND_ACTION_STATUS = ACTION_OFF;
             return;
@@ -1745,12 +1740,7 @@ void wandOff() {
       switch(SYSTEM_MODE) {
         case MODE_ORIGINAL:
           // Reset the bargraph speeds.
-          if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
-            bargraphYearModeUpdate();
-          }
-          else {
-            i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
-          }
+          resetBargraphSpeed();
         break;
 
         case MODE_SUPER_HERO:
@@ -1762,23 +1752,8 @@ void wandOff() {
           // Turn off remaining lights.
           wandLightsOff();
 
-          switch(getNeutronaWandYearMode()) {
-            case SYSTEM_AFTERLIFE:
-            case SYSTEM_FROZEN_EMPIRE:
-            default:
-              if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
-                i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
-              }
-              else {
-                i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984;
-              }
-            break;
-
-            case SYSTEM_1984:
-            case SYSTEM_1989:
-              i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984;
-            break;
-          }
+          // Reset the bargraph speeds.
+          resetBargraphSpeed();
         break;
       }
 
@@ -7794,7 +7769,7 @@ void bargraphRampUp() {
                 ms_bargraph.stop();
                 b_bargraph_up = true;
                 i_bargraph_status_alt = 0;
-                bargraphYearModeUpdate();
+                resetBargraphSpeed();
 
                 vibrationWand(i_vibration_level);
               }
@@ -7812,7 +7787,7 @@ void bargraphRampUp() {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
                     i_bargraph_status_alt = 27;
-                    bargraphYearModeUpdate();
+                    resetBargraphSpeed();
 
                     vibrationWand(i_vibration_level + 25);
                   }
@@ -7820,7 +7795,7 @@ void bargraphRampUp() {
                     ms_bargraph.stop();
                     b_bargraph_up = true;
                     i_bargraph_status_alt = 55 - i_bargraph_status_alt;
-                    bargraphYearModeUpdate();
+                    resetBargraphSpeed();
 
                     vibrationWand(i_vibration_level + 25);
                   }
@@ -7831,7 +7806,7 @@ void bargraphRampUp() {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
                     i_bargraph_status_alt = 22;
-                    bargraphYearModeUpdate();
+                    resetBargraphSpeed();
 
                     vibrationWand(i_vibration_level + 30);
                   }
@@ -7839,7 +7814,7 @@ void bargraphRampUp() {
                     ms_bargraph.stop();
                     b_bargraph_up = true;
                     i_bargraph_status_alt = 55 - i_bargraph_status_alt;
-                    bargraphYearModeUpdate();
+                    resetBargraphSpeed();
 
                     vibrationWand(i_vibration_level + 30);
                   }
@@ -7856,7 +7831,7 @@ void bargraphRampUp() {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
                     i_bargraph_status_alt = 16;
-                    bargraphYearModeUpdate();
+                    resetBargraphSpeed();
 
                     vibrationWand(i_vibration_level + 10);
                   }
@@ -7864,7 +7839,7 @@ void bargraphRampUp() {
                     ms_bargraph.stop();
                     b_bargraph_up = true;
                     i_bargraph_status_alt = 55 - i_bargraph_status_alt;
-                    bargraphYearModeUpdate();
+                    resetBargraphSpeed();
 
                     vibrationWand(i_vibration_level + 10);
                   }
@@ -7881,7 +7856,7 @@ void bargraphRampUp() {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
                     i_bargraph_status_alt = 11;
-                    bargraphYearModeUpdate();
+                    resetBargraphSpeed();
 
                     vibrationWand(i_vibration_level + 5);
                   }
@@ -7889,7 +7864,7 @@ void bargraphRampUp() {
                     ms_bargraph.stop();
                     b_bargraph_up = true;
                     i_bargraph_status_alt = 55 - i_bargraph_status_alt;
-                    bargraphYearModeUpdate();
+                    resetBargraphSpeed();
 
                     vibrationWand(i_vibration_level + 5);
                   }
@@ -7909,13 +7884,13 @@ void bargraphRampUp() {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
                     i_bargraph_status_alt = 4;
-                    bargraphYearModeUpdate();
+                    resetBargraphSpeed();
                   }
                   else if(i_bargraph_status_alt > 50) {
                     ms_bargraph.stop();
                     b_bargraph_up = true;
                     i_bargraph_status_alt = 55 - i_bargraph_status_alt;
-                    bargraphYearModeUpdate();
+                    resetBargraphSpeed();
                   }
                   else {
                     ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
@@ -8082,12 +8057,7 @@ void prepBargraphRampUp() {
 
     // Prepare a few things before ramping the bargraph back up from a full ramp down.
     if(b_overheat_bargraph_blink != true) {
-      if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
-        bargraphYearModeUpdate();
-      }
-      else {
-        i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984 * 2;
-      }
+      resetBargraphSpeed();
 
       // If using the 28 segment bargraph, in Afterlife, we need to redraw the segments.
       // 1984/1989 years will go in to a auto ramp and do not need a manual refresh.
@@ -8199,7 +8169,12 @@ void bargraphYearModeUpdate() {
     break;
   }
 
-  // Set the bargraph speed based on the bargraph animation type.
+  // Set the bargraph speed.
+  resetBargraphSpeed();
+}
+
+void resetBargraphSpeed() {
+  // Sets the bargraph speed based on the bargraph animation type.
   switch(BARGRAPH_MODE) {
     case BARGRAPH_ORIGINAL:
       i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
@@ -8208,6 +8183,11 @@ void bargraphYearModeUpdate() {
     case BARGRAPH_SUPER_HERO:
     default:
       i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984;
+
+      if(WAND_ACTION_STATUS == ACTION_OVERHEATING || (SYSTEM_MODE == MODE_ORIGINAL && WAND_STATUS == MODE_OFF)) {
+        // Under these special conditions we need a faster ramp.
+        i_bargraph_multiplier_current *= 2;
+      }
     break;
   }
 }
