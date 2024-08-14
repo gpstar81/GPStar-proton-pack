@@ -864,8 +864,6 @@ void overheatingFinished() {
   // Turn off hat light 2.
   digitalWriteFast(TOP_HAT_LED_PIN, LOW);
 
-  WAND_ACTION_STATUS = ACTION_IDLE;
-
   // Prepare a few things before ramping the bargraph back up from a full ramp down.
   if(b_overheat_bargraph_blink != true) {
     resetBargraphSpeed();
@@ -885,6 +883,8 @@ void overheatingFinished() {
       soundIdleLoop(true);
     break;
   }
+
+  WAND_ACTION_STATUS = ACTION_IDLE;
 
   if(switch_vent.on() == false && (getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE)) {
     afterLifeRamp1();
