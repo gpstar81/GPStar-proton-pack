@@ -192,14 +192,14 @@ enum POWER_LEVELS POWER_LEVEL_PREV;
   // ESP32
   #define LEFT_TOGGLE_PIN 34
   #define RIGHT_TOGGLE_PIN 35
-  ezButton switch_left(LEFT_TOGGLE_PIN, INPUT);
-  ezButton switch_right(RIGHT_TOGGLE_PIN, INPUT);
+  ezButton switch_left(LEFT_TOGGLE_PIN, EXTERNAL_PULLUP);
+  ezButton switch_right(RIGHT_TOGGLE_PIN, EXTERNAL_PULLUP);
 #else
   // Nano
   #define LEFT_TOGGLE_PIN 5
   #define RIGHT_TOGGLE_PIN 6
-  ezButton switch_left(LEFT_TOGGLE_PIN, INPUT_PULLUP);
-  ezButton switch_right(RIGHT_TOGGLE_PIN, INPUT_PULLUP);
+  ezButton switch_left(LEFT_TOGGLE_PIN, INTERNAL_PULLUP);
+  ezButton switch_right(RIGHT_TOGGLE_PIN, INTERNAL_PULLUP);
 #endif
 bool b_left_toggle_on = false;
 bool b_right_toggle_on = false;
