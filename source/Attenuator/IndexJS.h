@@ -397,7 +397,7 @@ function updateGraphics(jObj){
       setEl("powerLevel", "&mdash;");
       if (parseFloat(jObj.wandAmps || 0) > 0.01) {
         // If we have a non-zero amperage reading, display that.
-        setEl("streamMode", "- &#9735; " + parseFloat((jObj.wandAmps || 0).toFixed(2)) + "A -");
+        setEl("streamMode", "&#9735; Out: " + parseFloat((jObj.wandAmps || 0).toFixed(2)) + "A");
       } else {
         // Otherwise we consider a wand to be truly disconnected.
         setEl("streamMode", "- Disconnected -");
@@ -408,14 +408,14 @@ function updateGraphics(jObj){
 
     if (parseFloat(jObj.battVoltage || 0) > 1) {
       // Voltage should typically be ~5.0 at idle and >=4.2 under normal use; anything below that indicates a possible problem.
-      setEl("battOutput", "Output:<br/>" + parseFloat((jObj.battVoltage || 0).toFixed(2)) + " GeV");
+      setEl("battVoltage", "Input:<br/>" + parseFloat((jObj.battVoltage || 0).toFixed(2)) + " GeV");
       if (jObj.battVoltage < 4.2) {
         colorEl("boostOverlay", 255, 0, 0);
       } else {
         colorEl("boostOverlay", 0, 150, 0);
       }
     } else {
-      setEl("battOutput", "0.00 GeV");
+      setEl("battVoltage", "0.00 GeV");
     }
 
     if(jObj.cyclotron && !jObj.cyclotronLid) {
@@ -441,7 +441,7 @@ function updateGraphics(jObj){
     setEl("powerLevel", "&mdash;");
     setEl("streamMode", "- Disconnected -");
     colorEl("safetyOverlay", 100, 100, 100);
-    setEl("battOutput", "");
+    setEl("battVoltage", "");
     hideEl("cyclotronLid");
   }
 }
