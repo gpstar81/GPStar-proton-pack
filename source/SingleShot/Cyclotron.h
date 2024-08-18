@@ -56,7 +56,7 @@ uint16_t getCyclotronDelay() {
 // Manage lights in pairs to move in a predefined sequence, fading each light in and out.
 void updateCyclotron(uint8_t i_colour) {
   static bool sb_toggle = true; // Static toggle to remain scoped to this function between calls
-  static uint8_t sb_pairing = 0; // Which pair of LEDs to use for each "cycle" of fade in/out actions
+  static uint8_t si_pairing = 0; // Which pair of LEDs to use for each "cycle" of fade in/out actions
   static uint8_t si_brightness_in = i_cyclotron_min_brightness; // Static brightness variable for fade-in effect
   static uint8_t si_brightness_out = i_cyclotron_max_brightness; // Static brightness variable for fade-out effect
 
@@ -84,12 +84,12 @@ void updateCyclotron(uint8_t i_colour) {
 
     // Toggle between the LEDs in the i_cyclotron_pair using the given color.
     if(sb_toggle) {
-      system_leds[i_cyclotron_pair[sb_pairing][0]] = getHueAsRGB(i_colour).nscale8(si_brightness_in);  // Fade in LED 1 in the pair
-      system_leds[i_cyclotron_pair[sb_pairing][1]] = getHueAsRGB(i_colour).nscale8(si_brightness_out); // Fade out LED 2 in the pair
+      system_leds[i_cyclotron_pair[si_pairing][0]] = getHueAsRGB(i_colour).nscale8(si_brightness_in);  // Fade in LED 1 in the pair
+      system_leds[i_cyclotron_pair[si_pairing][1]] = getHueAsRGB(i_colour).nscale8(si_brightness_out); // Fade out LED 2 in the pair
     }
     else {
-      system_leds[i_cyclotron_pair[sb_pairing][0]] = getHueAsRGB(i_colour).nscale8(si_brightness_out); // Fade out LED 1 in the pair
-      system_leds[i_cyclotron_pair[sb_pairing][1]] = getHueAsRGB(i_colour).nscale8(si_brightness_in);  // Fade in LED 2 in the pair
+      system_leds[i_cyclotron_pair[si_pairing][0]] = getHueAsRGB(i_colour).nscale8(si_brightness_out); // Fade out LED 1 in the pair
+      system_leds[i_cyclotron_pair[si_pairing][1]] = getHueAsRGB(i_colour).nscale8(si_brightness_in);  // Fade in LED 2 in the pair
     }
 
     // Toggle state and reset brightness variables after fade-in is complete.
@@ -97,7 +97,7 @@ void updateCyclotron(uint8_t i_colour) {
       sb_toggle = !sb_toggle;
       si_brightness_in = i_cyclotron_min_brightness;
       si_brightness_out = i_cyclotron_max_brightness;
-      sb_pairing = (sb_pairing + 1) % i_cyclotron_max_steps; // Change to next pair on each toggle.
+      si_pairing = (si_pairing + 1) % i_cyclotron_max_steps; // Change to next pair on each toggle.
     }
   }
 }

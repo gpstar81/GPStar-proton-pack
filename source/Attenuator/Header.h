@@ -277,8 +277,9 @@ bool b_received_prefs_pack = false;
 bool b_received_prefs_wand = false;
 bool b_received_prefs_smoke = false;
 
-// Battery Voltage
-float f_batt_volts;
+// Pack Battery (V) and Wand Power (A) Values
+float f_batt_volts = 0;
+float f_wand_amps = 0;
 
 // Forward declarations.
 void debug(String message);

@@ -62,7 +62,8 @@ struct PowerMeter {
   millisDelay ReadTimer; // Timer for reading latest values from power meter
 };
 
-// Set the static constant for considering changes to current readings.
+// Set the static constant for considering a "change" based on latest current reading average.
+// IOW, if we measure a difference of this much since the last average, the user initiated input.
 const float PowerMeter::StateChangeThreshold = 0.06;
 
 // Create instances of the PowerMeter object.
@@ -170,6 +171,8 @@ void doPackPowerReading() {
 
 // Take actions based on current power state, specifically if there is no GPStar Neutrona Wand connected.
 void updateWandPowerState() {
+  static uint8_t si_update = 0; // Static var to keep up with update requests for responding to the latest readings.
+
   // Only take action when wand is NOT connected.
   if (b_use_power_meter && b_power_meter_available && !b_wand_connected){
     /**
@@ -191,6 +194,8 @@ void updateWandPowerState() {
     unsigned long current_time = millis();
     bool b_state_change_lower = f_avg_current < wandReading.LastAverage - PowerMeter::StateChangeThreshold;
     bool b_state_change_higher = f_avg_current > wandReading.LastAverage + PowerMeter::StateChangeThreshold;
+
+    si_update = (si_update + 1) % 10; // Keep a count of updates, rolling over every 10th time.
 
     // Check for a significant and sustained change in current.
     if(b_state_change_lower || b_state_change_higher) {
@@ -268,6 +273,12 @@ void updateWandPowerState() {
       wandReading.StateChanged = 0;
       wandReading.LastAverage = f_avg_current;
     }
+
+    // Every X updates send the averaged, stable value which would determine a state change.
+    // Data is sent as integer so this is sent multiplied by 100 to get 2 decimal precision.
+    if(si_update == 0) {
+      serial1Send(A_WAND_POWER_AMPS, wandReading.LastAverage * 100);
+    }
   }
   else {
     // Reset when not using the power meter or a GPStar wand is connected.
@@ -279,6 +290,7 @@ void updateWandPowerState() {
 // Send latest voltage value to the serial1 device, if connected.
 void updatePackPowerState(){
   if(b_serial1_connected) {
+    // Data is sent as integer so this is already multiplied by 100 to get 2 decimal precision.
     serial1Send(A_BATTERY_VOLTAGE_PACK, packReading.BusVoltage);
   }
 }
@@ -333,7 +345,7 @@ void checkPowerMeter(){
 
   if(packReading.ReadTimer.justFinished()) {
       doPackPowerReading(); // Get latest voltage reading.
-      updatePackPowerState(); // Take action on V/A  values.
+      updatePackPowerState(); // Take action on V/A values.
       packReading.ReadTimer.start(packReading.PowerReadDelay);
   }
 }

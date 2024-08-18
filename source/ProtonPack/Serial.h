@@ -1,3 +1,4 @@
+#include "Header.h"
 /**
  *   GPStar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
@@ -1075,13 +1076,17 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
     case A_REQUEST_PREFERENCES_WAND:
       // If requested by the serial device, tell the wand we need its EEPROM preferences.
       // This is merely a command to the wand which tells it to send back a data payload.
-      packSerialSend(P_SEND_PREFERENCES_WAND);
+      if(b_wand_connected){
+        packSerialSend(P_SEND_PREFERENCES_WAND);
+      }
     break;
 
     case A_REQUEST_PREFERENCES_SMOKE:
       // If requested by the serial device, tell the wand we need its EEPROM preferences.
       // This is merely a command to the wand which tells it to send back a data payload.
-      packSerialSend(P_SEND_PREFERENCES_SMOKE);
+      if(b_wand_connected){
+        packSerialSend(P_SEND_PREFERENCES_SMOKE);
+      }
     break;
 
     case A_MUSIC_PLAY_TRACK:
@@ -1180,6 +1185,19 @@ void checkWand() {
 
         case PACKET_SMOKE:
           if(!b_wand_connected) {
+            // Provide some default values when a wand is not attached.
+            // TODO: The pack should control these in this situation.
+            smokeConfig.overheatLevel5 = 10;
+            smokeConfig.overheatLevel4 = 10;
+            smokeConfig.overheatLevel3 = 10;
+            smokeConfig.overheatLevel2 = 10;
+            smokeConfig.overheatLevel1 = 10;
+            smokeConfig.overheatDelay5 = 30;
+            smokeConfig.overheatDelay4 = 30;
+            smokeConfig.overheatDelay3 = 30;
+            smokeConfig.overheatDelay2 = 30;
+            smokeConfig.overheatDelay1 = 30;
+
             // Can't proceed if the wand isn't connected; prevents phantom actions from occurring.
             return;
           }

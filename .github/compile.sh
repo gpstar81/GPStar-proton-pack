@@ -19,10 +19,9 @@ source ./compile_pack.sh
 
 source ./compile_wand.sh
 
+source ./compile_blaster.sh
 
-source ./compile_singleshot.sh
-
-# COMPILE ALL ATTENUATOR VARIANTS
+# COMPILE ATTENUATOR AND VARIANTS
 
 source ./compile_attenuator_esp.sh
 

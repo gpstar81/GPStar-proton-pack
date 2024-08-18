@@ -459,40 +459,40 @@ String getSmokeConfig() {
     jsonBody["wandPowered"] = (b_wand_on ? true : false);
 
     // Proton Pack
-    jsonBody["smokeEnabled"] = smokeConfig.smokeEnabled; // true|false
+    jsonBody["smokeEnabled"] = (smokeConfig.smokeEnabled == 1); // true|false
 
     // Power Level 5
     jsonBody["overheatDuration5"] = smokeConfig.overheatDuration5; // 2-60
-    jsonBody["overheatContinuous5"] = smokeConfig.overheatContinuous5; // true|false
+    jsonBody["overheatContinuous5"] = (smokeConfig.overheatContinuous5 == 1); // true|false
     // Power Level 4
     jsonBody["overheatDuration4"] = smokeConfig.overheatDuration4; // 2-60
-    jsonBody["overheatContinuous4"] = smokeConfig.overheatContinuous4; // true|false
+    jsonBody["overheatContinuous4"] = (smokeConfig.overheatContinuous4 == 1); // true|false
     // Power Level 3
     jsonBody["overheatDuration3"] = smokeConfig.overheatDuration3; // 2-60
-    jsonBody["overheatContinuous3"] = smokeConfig.overheatContinuous3; // true|false
+    jsonBody["overheatContinuous3"] = (smokeConfig.overheatContinuous3 == 1); // true|false
     // Power Level 2
     jsonBody["overheatDuration2"] = smokeConfig.overheatDuration2; // 2-60
-    jsonBody["overheatContinuous2"] = smokeConfig.overheatContinuous2; // true|false
+    jsonBody["overheatContinuous2"] = (smokeConfig.overheatContinuous2 == 1); // true|false
     // Power Level 1
     jsonBody["overheatDuration1"] = smokeConfig.overheatDuration1; // 2-60
-    jsonBody["overheatContinuous1"] = smokeConfig.overheatContinuous1; // true|false
+    jsonBody["overheatContinuous1"] = (smokeConfig.overheatContinuous1 == 1); // true|false
 
     // Neutrona Wand
 
     // Power Level 5
-    jsonBody["overheatLevel5"] = smokeConfig.overheatLevel5; // true|false
+    jsonBody["overheatLevel5"] = (smokeConfig.overheatLevel5 == 1); // true|false
     jsonBody["overheatDelay5"] = smokeConfig.overheatDelay5; // 2-60
     // Power Level 4
-    jsonBody["overheatLevel4"] = smokeConfig.overheatLevel4; // true|false
+    jsonBody["overheatLevel4"] = (smokeConfig.overheatLevel4 == 1); // true|false
     jsonBody["overheatDelay4"] = smokeConfig.overheatDelay4; // 2-60
     // Power Level 3
-    jsonBody["overheatLevel3"] = smokeConfig.overheatLevel3; // true|false
+    jsonBody["overheatLevel3"] = (smokeConfig.overheatLevel3 == 1); // true|false
     jsonBody["overheatDelay3"] = smokeConfig.overheatDelay3; // 2-60
     // Power Level 2
-    jsonBody["overheatLevel2"] = smokeConfig.overheatLevel2; // true|false
+    jsonBody["overheatLevel2"] = (smokeConfig.overheatLevel2 == 1); // true|false
     jsonBody["overheatDelay2"] = smokeConfig.overheatDelay2; // 2-60
     // Power Level 1
-    jsonBody["overheatLevel1"] = smokeConfig.overheatLevel1; // true|false
+    jsonBody["overheatLevel1"] = (smokeConfig.overheatLevel1 == 1); // true|false
     jsonBody["overheatDelay1"] = smokeConfig.overheatDelay1; // 2-60
   }
 
@@ -533,6 +533,7 @@ String getEquipmentStatus() {
     jsonBody["volEffects"] = i_volume_effects_percentage;
     jsonBody["volMusic"] = i_volume_music_percentage;
     jsonBody["battVoltage"] = f_batt_volts;
+    jsonBody["wandAmps"] = f_wand_amps;
     jsonBody["apClients"] = i_ap_client_count;
     jsonBody["wsClients"] = i_ws_client_count;
   }
