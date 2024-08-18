@@ -45,7 +45,7 @@ millisDelay ms_powerup_debounce; // Timer to lock out firing when the wand power
 
 // Define an object which can store
 struct PowerMeter {
-  const static uint16_t StateChangeDuration = 100; // Duration (ms) for a current change to persist for action.
+  const static uint16_t StateChangeDuration = 60; // Duration (ms) for a current change to persist for action.
   const static float StateChangeThreshold; // Minimum change in current (A) to consider as a potential state change.
   float ShuntVoltage = 0; // mV - The value used to calculate the amperage draw across the shunt resistor
   float ShuntCurrent = 0; // A - The current (amperage) reading
@@ -55,7 +55,7 @@ struct PowerMeter {
   float AmpHours = 0; // Ah - An estimation of power consumed over regular intervals
   float AvgCurrent = 0; // A - Smoothed running average from the ShuntCurrent value
   float LastAverage = 0; // A - Last average used when determining a state change
-  unsigned int PowerReadDelay = 50; // How often to read the volt/power levels (ms)
+  unsigned int PowerReadDelay = StateChangeDuration / 3; // How often to read the volt/power levels (ms)
   unsigned long StateChanged = 0; // Time when a potential state change was detected
   unsigned long LastRead = 0; // Used to calculate Ah consumed since battery power-on
   unsigned long ReadTick = 0; // Difference of current read time - last read
@@ -90,7 +90,7 @@ void powerMeterConfig() {
 // Initialize the power meter device on the i2c bus.
 void powerMeterInit() {
   // Configure the PowerMeter object(s).
-  packReading.PowerReadDelay = 5000;
+  packReading.PowerReadDelay = 4000;
 
   if (b_use_power_meter){
     uint8_t i_monitor_status = monitor.begin();
@@ -123,11 +123,11 @@ void doWandPowerReading() {
     //debugln(F("Reading Power Meter"));
 
     // Reads the latest values from the monitor.
-    wandReading.ShuntVoltage = monitor.shuntVoltage() * 1000;
-    wandReading.ShuntCurrent = monitor.shuntCurrent();
-    wandReading.BusVoltage = monitor.busVoltage();
+    wandReading.ShuntVoltage = abs(monitor.shuntVoltage()) * 1000;
+    wandReading.ShuntCurrent = abs(monitor.shuntCurrent());
+    wandReading.BusVoltage = abs(monitor.busVoltage());
     wandReading.BattVoltage = wandReading.BusVoltage + (wandReading.ShuntVoltage / 1000);
-    wandReading.BusPower = monitor.busPower() * 1000;
+    wandReading.BusPower = abs(monitor.busPower()) * 1000;
 
     // Create some new smoothed/averaged current (A) values using the latest reading.
     wandReading.AvgCurrent = f_ema_alpha * wandReading.ShuntCurrent + (1 - f_ema_alpha) * wandReading.AvgCurrent;
