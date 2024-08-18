@@ -169,14 +169,18 @@ void doPackPowerReading() {
   doPackVoltageReading();
 }
 
-// Take actions based on current power state, specifically if there is no GPStar Neutrona Wand connected.
+// Take actions based on current power state, specifically when there is no GPStar Neutrona Wand connected.
 void updateWandPowerState() {
-  static uint8_t si_update = 0; // Static var to keep up with update requests for responding to the latest readings.
+  static uint8_t si_update; // Static var to keep up with update requests for responding to the latest readings.
+  si_update = (si_update + 1) % 10; // Keep a count of updates, rolling over every 10th time.
 
-  // Only take action when wand is NOT connected.
-  if (b_use_power_meter && b_power_meter_available && !b_wand_connected){
+  // Only take action to read power consumption when wand is NOT connected.
+  if (!b_wand_connected){
     /**
      * Amperage Ranges
+     * Note there is some slight overlap between the highest power levels at idle and the lowest firing states.
+     * Because of this, we cannot simply assume a value which falls into any given range is a specific event,
+     * and we must use a state-change check based on a significant AND sustained change in amperage drawn.
      *
      * Level 1 Idle: 0.13-0.15A
      * Level 2 Idle: 0.14-0.18A
@@ -194,8 +198,6 @@ void updateWandPowerState() {
     unsigned long current_time = millis();
     bool b_state_change_lower = f_avg_current < wandReading.LastAverage - PowerMeter::StateChangeThreshold;
     bool b_state_change_higher = f_avg_current > wandReading.LastAverage + PowerMeter::StateChangeThreshold;
-
-    si_update = (si_update + 1) % 10; // Keep a count of updates, rolling over every 10th time.
 
     // Check for a significant and sustained change in current.
     if(b_state_change_lower || b_state_change_higher) {
@@ -273,17 +275,18 @@ void updateWandPowerState() {
       wandReading.StateChanged = 0;
       wandReading.LastAverage = f_avg_current;
     }
-
-    // Every X updates send the averaged, stable value which would determine a state change.
-    // Data is sent as integer so this is sent multiplied by 100 to get 2 decimal precision.
-    if(si_update == 0) {
-      serial1Send(A_WAND_POWER_AMPS, wandReading.LastAverage * 100);
-    }
   }
   else {
     // Reset when not using the power meter or a GPStar wand is connected.
     wandReading.StateChanged = 0;
     wandReading.LastAverage = 0;
+  }
+
+  // Every X updates send the averaged, stable value which would determine a state change.
+  // This is called whenever the power meter is available--for wand hot-swapping purposes.
+  // Data is sent as integer so this is sent multiplied by 100 to get 2 decimal precision.
+  if(si_update == 0) {
+    serial1Send(A_WAND_POWER_AMPS, wandReading.LastAverage * 100);
   }
 }
 

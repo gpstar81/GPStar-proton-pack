@@ -395,7 +395,13 @@ function updateGraphics(jObj){
       }
     } else {
       setEl("powerLevel", "&mdash;");
-      setEl("streamMode", "- Disconnected -");
+      if (jObj.wandAmps > 0) {
+        // If we have a non-zero amperage reading, display that.
+        setEl("streamMode", "- &#9735; " + jObj.wandAmps + "A -");
+      } else {
+        // Otherwise we consider a wand to be truly disconnected.
+        setEl("streamMode", "- Disconnected -");
+      }
       hideEl("barrelOverlay");
       colorEl("safetyOverlay", 100, 100, 100);
     }

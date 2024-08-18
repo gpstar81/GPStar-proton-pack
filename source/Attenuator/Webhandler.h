@@ -462,38 +462,38 @@ String getSmokeConfig() {
     jsonBody["smokeEnabled"] = (smokeConfig.smokeEnabled == 1); // true|false
 
     // Power Level 5
-    jsonBody["overheatDuration5"] = smokeConfig.overheatDuration5; // 2-60
+    jsonBody["overheatDuration5"] = smokeConfig.overheatDuration5; // 2-60 Seconds
     jsonBody["overheatContinuous5"] = (smokeConfig.overheatContinuous5 == 1); // true|false
     // Power Level 4
-    jsonBody["overheatDuration4"] = smokeConfig.overheatDuration4; // 2-60
+    jsonBody["overheatDuration4"] = smokeConfig.overheatDuration4; // 2-60 Seconds
     jsonBody["overheatContinuous4"] = (smokeConfig.overheatContinuous4 == 1); // true|false
     // Power Level 3
-    jsonBody["overheatDuration3"] = smokeConfig.overheatDuration3; // 2-60
+    jsonBody["overheatDuration3"] = smokeConfig.overheatDuration3; // 2-60 Seconds
     jsonBody["overheatContinuous3"] = (smokeConfig.overheatContinuous3 == 1); // true|false
     // Power Level 2
-    jsonBody["overheatDuration2"] = smokeConfig.overheatDuration2; // 2-60
+    jsonBody["overheatDuration2"] = smokeConfig.overheatDuration2; // 2-60 Seconds
     jsonBody["overheatContinuous2"] = (smokeConfig.overheatContinuous2 == 1); // true|false
     // Power Level 1
-    jsonBody["overheatDuration1"] = smokeConfig.overheatDuration1; // 2-60
+    jsonBody["overheatDuration1"] = smokeConfig.overheatDuration1; // 2-60 Seconds
     jsonBody["overheatContinuous1"] = (smokeConfig.overheatContinuous1 == 1); // true|false
 
     // Neutrona Wand
 
     // Power Level 5
     jsonBody["overheatLevel5"] = (smokeConfig.overheatLevel5 == 1); // true|false
-    jsonBody["overheatDelay5"] = smokeConfig.overheatDelay5; // 2-60
+    jsonBody["overheatDelay5"] = smokeConfig.overheatDelay5; // 2-60 Seconds
     // Power Level 4
     jsonBody["overheatLevel4"] = (smokeConfig.overheatLevel4 == 1); // true|false
-    jsonBody["overheatDelay4"] = smokeConfig.overheatDelay4; // 2-60
+    jsonBody["overheatDelay4"] = smokeConfig.overheatDelay4; // 2-60 Seconds
     // Power Level 3
     jsonBody["overheatLevel3"] = (smokeConfig.overheatLevel3 == 1); // true|false
-    jsonBody["overheatDelay3"] = smokeConfig.overheatDelay3; // 2-60
+    jsonBody["overheatDelay3"] = smokeConfig.overheatDelay3; // 2-60 Seconds
     // Power Level 2
     jsonBody["overheatLevel2"] = (smokeConfig.overheatLevel2 == 1); // true|false
-    jsonBody["overheatDelay2"] = smokeConfig.overheatDelay2; // 2-60
+    jsonBody["overheatDelay2"] = smokeConfig.overheatDelay2; // 2-60 Seconds
     // Power Level 1
     jsonBody["overheatLevel1"] = (smokeConfig.overheatLevel1 == 1); // true|false
-    jsonBody["overheatDelay1"] = smokeConfig.overheatDelay1; // 2-60
+    jsonBody["overheatDelay1"] = smokeConfig.overheatDelay1; // 2-60 Seconds
   }
 
   // Serialize JSON object to string.

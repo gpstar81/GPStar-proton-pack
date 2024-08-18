@@ -363,21 +363,36 @@ void serial1SendData(uint8_t i_message) {
 
     case A_SEND_PREFERENCES_SMOKE:
       // Determines whether smoke effects while firing is enabled by power level.
-      smokeConfig.overheatContinuous5 = b_smoke_continuous_level_5 ? 1 : 0;
-      smokeConfig.overheatContinuous4 = b_smoke_continuous_level_4 ? 1 : 0;
-      smokeConfig.overheatContinuous3 = b_smoke_continuous_level_3 ? 1 : 0;
-      smokeConfig.overheatContinuous2 = b_smoke_continuous_level_2 ? 1 : 0;
-      smokeConfig.overheatContinuous1 = b_smoke_continuous_level_1 ? 1 : 0;
+      smokeConfig.overheatContinuous5 = b_smoke_continuous_level_5 ? 1 : 0; // true|false
+      smokeConfig.overheatContinuous4 = b_smoke_continuous_level_4 ? 1 : 0; // true|false
+      smokeConfig.overheatContinuous3 = b_smoke_continuous_level_3 ? 1 : 0; // true|false
+      smokeConfig.overheatContinuous2 = b_smoke_continuous_level_2 ? 1 : 0; // true|false
+      smokeConfig.overheatContinuous1 = b_smoke_continuous_level_1 ? 1 : 0; // true|false
 
       // Duration (in seconds) an overheat event persists once activated.
-      smokeConfig.overheatDuration5 = i_ms_overheating_length_5 / 1000;
-      smokeConfig.overheatDuration4 = i_ms_overheating_length_4 / 1000;
-      smokeConfig.overheatDuration3 = i_ms_overheating_length_3 / 1000;
-      smokeConfig.overheatDuration2 = i_ms_overheating_length_2 / 1000;
-      smokeConfig.overheatDuration1 = i_ms_overheating_length_1 / 1000;
+      smokeConfig.overheatDuration5 = i_ms_overheating_length_5 / 1000; // 2-60 Seconds
+      smokeConfig.overheatDuration4 = i_ms_overheating_length_4 / 1000; // 2-60 Seconds
+      smokeConfig.overheatDuration3 = i_ms_overheating_length_3 / 1000; // 2-60 Seconds
+      smokeConfig.overheatDuration2 = i_ms_overheating_length_2 / 1000; // 2-60 Seconds
+      smokeConfig.overheatDuration1 = i_ms_overheating_length_1 / 1000; // 2-60 Seconds
 
       // Enable or disable smoke effects overall.
       smokeConfig.smokeEnabled = b_smoke_enabled ? 1 : 0;
+
+      if(!b_wand_connected) {
+        // Provide some default values when a wand is not attached.
+        // TODO: The pack should control these in this situation.
+        smokeConfig.overheatLevel5 = 1; // true|false
+        smokeConfig.overheatLevel4 = 0; // true|false
+        smokeConfig.overheatLevel3 = 0; // true|false
+        smokeConfig.overheatLevel2 = 0; // true|false
+        smokeConfig.overheatLevel1 = 0; // true|false
+        smokeConfig.overheatDelay5 = 10; // 2-60 Seconds
+        smokeConfig.overheatDelay4 = 10; // 2-60 Seconds
+        smokeConfig.overheatDelay3 = 10; // 2-60 Seconds
+        smokeConfig.overheatDelay2 = 10; // 2-60 Seconds
+        smokeConfig.overheatDelay1 = 10; // 2-60 Seconds
+      }
 
       i_send_size = serial1Coms.txObj(smokeConfig);
       serial1Coms.sendData(i_send_size, (uint8_t) PACKET_SMOKE);
@@ -1082,10 +1097,14 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_REQUEST_PREFERENCES_SMOKE:
-      // If requested by the serial device, tell the wand we need its EEPROM preferences.
-      // This is merely a command to the wand which tells it to send back a data payload.
       if(b_wand_connected){
+        // If requested by the serial device, tell the wand we need its EEPROM preferences.
+        // This is merely a command to the wand which tells it to send back a data payload.
         packSerialSend(P_SEND_PREFERENCES_SMOKE);
+      }
+      else {
+        // If a wand is not connected, simply return the smoke settings from the pack.
+        serial1SendData(A_SEND_PREFERENCES_SMOKE);
       }
     break;
 
@@ -1185,19 +1204,6 @@ void checkWand() {
 
         case PACKET_SMOKE:
           if(!b_wand_connected) {
-            // Provide some default values when a wand is not attached.
-            // TODO: The pack should control these in this situation.
-            smokeConfig.overheatLevel5 = 10;
-            smokeConfig.overheatLevel4 = 10;
-            smokeConfig.overheatLevel3 = 10;
-            smokeConfig.overheatLevel2 = 10;
-            smokeConfig.overheatLevel1 = 10;
-            smokeConfig.overheatDelay5 = 30;
-            smokeConfig.overheatDelay4 = 30;
-            smokeConfig.overheatDelay3 = 30;
-            smokeConfig.overheatDelay2 = 30;
-            smokeConfig.overheatDelay1 = 30;
-
             // Can't proceed if the wand isn't connected; prevents phantom actions from occurring.
             return;
           }
