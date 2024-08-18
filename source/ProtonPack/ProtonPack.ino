@@ -518,8 +518,66 @@ void loop() {
           packVenting();
         }
 
-        cyclotronControl();
-        cyclotronSwitchLEDLoop();
+        cyclotronControl(); // Set timers for the cyclotron.
+
+        if(b_wand_mash_lockout && ms_mash_lockout.isRunning()) {
+          uint16_t i_progress = (ms_mash_lockout.delay() - ms_mash_lockout.remaining()) / 2;
+
+          Serial.print("mash lockout, timer running: ");
+          Serial.print(i_progress);
+          Serial.print(":");
+          Serial.print(ms_mash_lockout.delay() / 5);
+          Serial.print(":");
+          Serial.print(ms_mash_lockout.delay() / 4);
+          Serial.print(":");
+          Serial.print(ms_mash_lockout.delay() / 3);
+          Serial.print("|");
+          Serial.print(ms_powercell.delay());
+          Serial.print(":");
+          Serial.print(ms_cyclotron.delay());
+          Serial.print(":");
+          Serial.print(ms_cyclotron_ring.delay());
+          Serial.println("");
+
+          if(i_progress > (ms_mash_lockout.delay() / 5)) {
+            // Turn off the cyclotron lights at 1/5 of the way through the timer.
+            if(!b_cyclotron_lid_on) {
+              innerCyclotronCavityOff();
+            }
+          }
+          else {
+            // Slow the animation for the cyclotron and powercell.
+            ms_powercell.start(ms_powercell.delay() / 2);
+            ms_cyclotron.start(ms_cyclotron.delay() / 2);
+            ms_cyclotron_ring.start(ms_cyclotron_ring.delay() / 2);
+          }
+
+          if(i_progress > (ms_mash_lockout.delay() / 4)) {
+            i_progress = ms_mash_lockout.delay() / 4;
+
+            // Turn off the cyclotron lights at 1/4 of the way through the timer.
+            if(b_cyclotron_lid_on) {
+              cyclotronLidLedsOff();
+            }
+            else {
+              innerCyclotronCakeOff();
+              innerCyclotronCavityOff();
+            }
+
+            // Turn off the powercell lights at 1/4 of the way through the timer.
+            powercellOff();
+            ms_powercell.start(ms_mash_lockout.delay());
+          }
+
+          if(i_progress > (ms_mash_lockout.delay() / 3)) {
+            // Set timers high to effectively stop animations.
+            ms_powercell.start(ms_mash_lockout.delay());
+            ms_cyclotron.start(ms_mash_lockout.delay());
+            ms_cyclotron_ring.start(ms_mash_lockout.delay());
+          }
+        }
+
+        cyclotronSwitchLEDLoop(); // Update the cyclotron.
 
         if(b_overheating == true && b_overheat_lights_off == true) {
           powercellRampDown();
@@ -860,6 +918,13 @@ void packStartup(bool firstStart) {
 void packShutdown() {
   PACK_STATE = MODE_OFF;
   PACK_ACTION_STATE = ACTION_IDLE;
+
+  if(b_wand_mash_lockout) {
+    b_wand_mash_lockout = false;
+    ms_powercell.start(0);
+    ms_cyclotron.start(0);
+    ms_cyclotron_ring.start(0);
+  }
 
   switch(SYSTEM_YEAR) {
     case SYSTEM_1984:
@@ -5585,6 +5650,94 @@ void resetContinuousSmoke() {
   b_smoke_continuous_level[2] = b_smoke_continuous_level_3;
   b_smoke_continuous_level[3] = b_smoke_continuous_level_4;
   b_smoke_continuous_level[4] = b_smoke_continuous_level_5;
+}
+
+void startWandMashLockout(uint16_t i_timeout) {
+  switch(STREAM_MODE) {
+    case PROTON:
+    default:
+      switch(SYSTEM_YEAR) {
+        case SYSTEM_1984:
+          if(i_wand_power_level != i_wand_power_level_max) {
+            stopEffect(S_FIRING_END);
+            stopEffect(S_FIRING_END_MID);
+            stopEffect(S_GB1_1984_FIRE_END_SHORT);
+          }
+          else {
+            stopEffect(S_GB1_1984_FIRE_END_HIGH_POWER);
+          }
+        break;
+        case SYSTEM_1989:
+          stopEffect(S_FIRING_END_GUN);
+          stopEffect(S_FIRING_END_MID);
+          stopEffect(S_FIRING_END);
+        break;
+        case SYSTEM_AFTERLIFE:
+        default:
+          stopEffect(S_AFTERLIFE_FIRE_END_SHORT);
+          stopEffect(S_AFTERLIFE_FIRE_END_MID);
+          stopEffect(S_AFTERLIFE_FIRE_END_LONG);
+        break;
+        case SYSTEM_FROZEN_EMPIRE:
+          stopEffect(S_FROZEN_EMPIRE_FIRE_END);
+        break;
+      }
+    break;
+    case SLIME:
+      stopEffect(S_SLIME_END);
+    break;
+    case STASIS:
+      stopEffect(S_STASIS_END);
+    break;
+  }
+
+  // Flag that the smash error sequence is in effect.
+  b_wand_mash_lockout = true;
+  stopSmashErrorSounds();
+
+  // Play special sounds for the Frozen Empire theme and begin a freeze-up effect.
+  if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+    if(b_brass_pack_sound_loop) {
+      stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
+    }
+    stopEffect(S_AFTERLIFE_PACK_STARTUP);
+    stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
+
+    playEffect(S_FROZEN_EMPIRE_PACK_FREEZE_STOP);
+    playEffect(S_STASIS_IDLE_LOOP, true, i_volume_effects, true, 2500);
+
+    // Stop all light functions by use of adjusting the timers.
+    ms_mash_lockout.start(i_timeout);
+  }
+}
+
+void restartFromWandMash() {
+  stopSmashErrorSounds();
+
+  if(b_pack_on) {
+    switch(SYSTEM_YEAR) {
+      case SYSTEM_FROZEN_EMPIRE:
+        // Play pack restart sound depending on lid on/off.
+        playEffect(S_PACK_RECOVERY);
+        playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects, true, 2000);
+        if(b_brass_pack_sound_loop) {
+          playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects, true, 2000);
+        }
+
+        // End the timer for the lockout.
+        ms_mash_lockout.stop();
+
+        // Reset the lighting timers.
+        ms_powercell.start(0);
+        ms_cyclotron.start(0);
+        ms_cyclotron_ring.start(0);
+      break;
+      default:
+        // Play pack restart sound.
+        playEffect(S_SMASH_ERROR_RESTART);
+      break;
+    }
+  }
 }
 
 // Included last as the contained logic will control all aspects of the pack using the defined functions above.

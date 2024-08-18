@@ -264,6 +264,13 @@ void mainLoop() {
   checkMenuVibration();
 
   if(WAND_ACTION_STATUS != ACTION_FIRING) {
+    if(b_wand_mash_error && ms_bmash.remaining() < ms_bmash.delay() / 3) {
+      // Turn off top vent (if on) when less than a third of the timer remains.
+      if(digitalReadFast(VENT_LED_PIN == LOW)) {
+        digitalWrite(VENT_LED_PIN, HIGH);
+      }
+    }
+
     if(ms_bmash.remaining() < 1) {
       // Clear counter until user begins firing (post any lock-out period).
       i_bmash_count = 0;
@@ -1821,7 +1828,6 @@ void fireControlCheck() {
         break;
       }
 
-      wandSerialSend(W_BUTTON_MASHING);
       b_wand_mash_error = true;
       modeError();
       wandTipSpark();
@@ -1855,6 +1861,7 @@ void fireControlCheck() {
         break;
       }
       ms_bmash.start(i_timeout);
+      wandSerialSend(W_BUTTON_MASHING, i_timeout);
     }
     else {
       if(i_slime_tether_count > 0 && ms_semi_automatic_check.remaining() < 1) {

@@ -1705,97 +1705,33 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_BUTTON_MASHING:
-      switch(STREAM_MODE) {
-        case PROTON:
-        default:
-          switch(SYSTEM_YEAR) {
-            case SYSTEM_1984:
-              if(i_wand_power_level != i_wand_power_level_max) {
-                stopEffect(S_FIRING_END);
-                stopEffect(S_FIRING_END_MID);
-                stopEffect(S_GB1_1984_FIRE_END_SHORT);
-              }
-              else {
-                stopEffect(S_GB1_1984_FIRE_END_HIGH_POWER);
-              }
-            break;
-            case SYSTEM_1989:
-              stopEffect(S_FIRING_END_GUN);
-              stopEffect(S_FIRING_END_MID);
-              stopEffect(S_FIRING_END);
-            break;
-            case SYSTEM_AFTERLIFE:
-            default:
-              stopEffect(S_AFTERLIFE_FIRE_END_SHORT);
-              stopEffect(S_AFTERLIFE_FIRE_END_MID);
-              stopEffect(S_AFTERLIFE_FIRE_END_LONG);
-            break;
-            case SYSTEM_FROZEN_EMPIRE:
-              stopEffect(S_FROZEN_EMPIRE_FIRE_END);
-            break;
-          }
-        break;
-        case SLIME:
-          stopEffect(S_SLIME_END);
-        break;
-        case STASIS:
-          stopEffect(S_STASIS_END);
-        break;
-      }
-      b_wand_mash_lockout = true;
+      // User has triggered a lockout by repeated button presses on the wand.
+      startWandMashLockout(i_value);
     break;
 
     case W_SMASH_ERROR_LOOP:
-      stopSmashErrorSounds();
-
-      // Play distinct sounds based on the year/theme.
+      // Begins a looping audio track while the wand is locked out.
+      // Note: Command is only sent when extra pack sounds are used.
       switch(SYSTEM_YEAR) {
         case SYSTEM_FROZEN_EMPIRE:
-          if(b_brass_pack_sound_loop) {
-            stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
-          }
-          stopEffect(S_AFTERLIFE_PACK_STARTUP);
-          stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
-
-          playEffect(S_FROZEN_EMPIRE_PACK_FREEZE_STOP);
-          playEffect(S_STASIS_IDLE_LOOP, true, i_volume_effects, true, 2500);
-
-          // Stop all light functions.
-          ms_powercell.stop();
-          ms_cyclotron.stop();
-          ms_cyclotron_ring.stop();
+          // No-op for this theme, as this is handled in startWandMashLockout
         break;
         default:
+          // Plays the alarm loop as heard on the wand.
+          stopSmashErrorSounds();
           playEffect(S_SMASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
         break;
       }
     break;
 
     case W_SMASH_ERROR_LOOP_STOP:
+      // Ends the wand lockout loop sounds.
       stopSmashErrorSounds();
     break;
 
     case W_SMASH_ERROR_RESTART:
-      stopSmashErrorSounds();
-
-      // Play pack restart sounds.
-      switch(SYSTEM_YEAR) {
-        case SYSTEM_FROZEN_EMPIRE:
-          playEffect(S_PACK_RECOVERY);
-          playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects, true, 2000);
-          if(b_brass_pack_sound_loop) {
-            playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects, true, 2000);
-          }
-
-          // Restore light functions after a brief delay.
-          ms_powercell.start(100);
-          ms_cyclotron.start(100);
-          ms_cyclotron_ring.start(100);
-        break;
-        default:
-          playEffect(S_SMASH_ERROR_RESTART);
-        break;
-      }          
+      // Initiates a restart of the pack after a lockout.
+      restartFromWandMash();
     break;
 
     case W_PROTON_MODE:

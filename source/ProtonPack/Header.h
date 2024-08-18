@@ -377,6 +377,7 @@ bool b_neutrona_wand_barrel_extended = true; // Assume barrel extended (safety o
 const uint8_t i_wand_power_level_max = 5; // Max power level of the wand.
 uint8_t i_wand_power_level = 1; // Power level of the wand.
 millisDelay ms_wand_check; // Timer used to determine whether the wand has been disconnected.
+millisDelay ms_mash_lockout; // Timer for tracking the expected button-mash lockout on the wand.
 const uint16_t i_wand_disconnect_delay = 8000; // Time until the pack considers a wand as disconnected.
 
 /*
