@@ -1,3 +1,4 @@
+#include "Communication.h"
 /**
  *   GPStar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
@@ -36,6 +37,7 @@
 // General Variables
 INA219 monitor; // Power monitor object on i2c bus using the INA219 chip.
 bool b_power_meter_available = false; // Whether a power meter device exists on i2c bus, per setup() -> powerMeterInit()
+bool b_pack_started_by_meter = false; // Whether the pack was started via detection of the power meter.
 const uint16_t f_wand_power_up_delay = 1000; // How long to wait and ignore any wand firing events after initial power-up (ms).
 const float f_wand_power_on_threshold = 0.12; // Minimum current (A) to consider as to whether a stock Neutrona Wand is powered on.
 const float f_ema_alpha = 0.2; // Smoothing factor (<1) for Exponential Moving Average (EMA) [Lower Value = Smoother Averaging].
@@ -45,17 +47,17 @@ millisDelay ms_powerup_debounce; // Timer to lock out firing when the wand power
 
 // Define an object which can store
 struct PowerMeter {
-  const static uint16_t StateChangeDuration = 60; // Duration (ms) for a current change to persist for action.
-  const static float StateChangeThreshold; // Minimum change in current (A) to consider as a potential state change.
-  float ShuntVoltage = 0; // mV - The value used to calculate the amperage draw across the shunt resistor
+  const static uint16_t StateChangeDuration = 300; // Duration (ms) for a current change to persist for action
+  const static float StateChangeThreshold; // Minimum change in current (A) to consider as a potential state change
+  float ShuntVoltage = 0; // V - The value used to calculate the amperage draw across the shunt resistor
   float ShuntCurrent = 0; // A - The current (amperage) reading
   float BusVoltage = 0; // V - Voltage reading from the measured device
   float BattVoltage = 0; // V - Reference voltage from device power source
-  float BusPower = 0; // mW - Calculation of power based on the V*A values
+  float BusPower = 0; // W - Calculation of power based on the V*A values
   float AmpHours = 0; // Ah - An estimation of power consumed over regular intervals
   float AvgCurrent = 0; // A - Smoothed running average from the ShuntCurrent value
   float LastAverage = 0; // A - Last average used when determining a state change
-  unsigned int PowerReadDelay = StateChangeDuration / 3; // How often to read the volt/power levels (ms)
+  unsigned int PowerReadDelay = (int) (StateChangeDuration / 4); // How often (ms) to read the volt/power levels
   unsigned long StateChanged = 0; // Time when a potential state change was detected
   unsigned long LastRead = 0; // Used to calculate Ah consumed since battery power-on
   unsigned long ReadTick = 0; // Difference of current read time - last read
@@ -64,7 +66,7 @@ struct PowerMeter {
 
 // Set the static constant for considering a "change" based on latest current reading average.
 // IOW, if we measure a difference of this much since the last average, the user initiated input.
-const float PowerMeter::StateChangeThreshold = 0.06;
+const float PowerMeter::StateChangeThreshold = 0.08;
 
 // Create instances of the PowerMeter object.
 PowerMeter wandReading;
@@ -123,11 +125,11 @@ void doWandPowerReading() {
     //debugln(F("Reading Power Meter"));
 
     // Reads the latest values from the monitor.
-    wandReading.ShuntVoltage = abs(monitor.shuntVoltage()) * 1000;
-    wandReading.ShuntCurrent = abs(monitor.shuntCurrent());
-    wandReading.BusVoltage = abs(monitor.busVoltage());
-    wandReading.BattVoltage = wandReading.BusVoltage + (wandReading.ShuntVoltage / 1000);
-    wandReading.BusPower = abs(monitor.busPower()) * 1000;
+    wandReading.ShuntVoltage = monitor.shuntVoltage();
+    wandReading.ShuntCurrent = monitor.shuntCurrent();
+    wandReading.BusVoltage = monitor.busVoltage();
+    wandReading.BattVoltage = wandReading.BusVoltage + (wandReading.ShuntVoltage);
+    wandReading.BusPower = monitor.busPower();
 
     // Create some new smoothed/averaged current (A) values using the latest reading.
     wandReading.AvgCurrent = f_ema_alpha * wandReading.ShuntCurrent + (1 - f_ema_alpha) * wandReading.AvgCurrent;
@@ -135,7 +137,7 @@ void doWandPowerReading() {
     // Use time and current values to calculate amp-hours consumed.
     unsigned long i_new_time = millis();
     wandReading.ReadTick = i_new_time - wandReading.LastRead;
-    wandReading.AmpHours += (wandReading.ShuntCurrent * wandReading.ReadTick) / 3600000.0;
+    wandReading.AmpHours += (wandReading.ShuntCurrent * wandReading.ReadTick) / 3600000.0; // Div. by 1000 x 60 x 60
     wandReading.LastRead = i_new_time;
 
     // Prepare for next read -- this is security just in case the INA219 is reset by transient current.
@@ -172,7 +174,7 @@ void doPackPowerReading() {
 // Take actions based on current power state, specifically when there is no GPStar Neutrona Wand connected.
 void updateWandPowerState() {
   static uint8_t si_update; // Static var to keep up with update requests for responding to the latest readings.
-  si_update = (si_update + 1) % 10; // Keep a count of updates, rolling over every 10th time.
+  si_update = (si_update + 1) % 20; // Keep a count of updates, rolling over every 20th time.
 
   // Only take action to read power consumption when wand is NOT connected.
   if (!b_wand_connected){
@@ -199,7 +201,7 @@ void updateWandPowerState() {
     bool b_state_change_lower = f_avg_current < wandReading.LastAverage - PowerMeter::StateChangeThreshold;
     bool b_state_change_higher = f_avg_current > wandReading.LastAverage + PowerMeter::StateChangeThreshold;
 
-    // Check for a significant and sustained change in current.
+    // Check for a significant and sustained change in current (either higher or lower than the last state).
     if(b_state_change_lower || b_state_change_higher) {
       // Record the time when the significant change was first detected.
       if(wandReading.StateChanged == 0) {
@@ -211,13 +213,14 @@ void updateWandPowerState() {
         // Update previous average current reading since we've had a sustained change in state.
         wandReading.LastAverage = f_avg_current;
 
-        // Wand is considered "on" when above the base change.
+        // Wand is considered "on" when above the base threshold.
         if(f_avg_current > f_wand_power_on_threshold) {
           b_wand_on = true;
 
           // Turn the pack on.
           if(PACK_STATE != MODE_ON) {
             packStartup(false);
+            b_pack_started_by_meter = true;
 
             // Fake a full-power setting to the Attenuator
             serial1Send(A_POWER_LEVEL_5);
@@ -233,11 +236,12 @@ void updateWandPowerState() {
         // If the wand and pack are considered "on" then determine whether firing or not.
         if(b_wand_on && PACK_STATE != MODE_OFF) {
           if(b_state_change_higher && !b_wand_firing && ms_powerup_debounce.remaining() < 1) {
-            // State change was higher as means the wand is firing.
+            // State change was higher as means the wand is firing (via intensify only).
             i_wand_power_level = 5;
             b_firing_intensify = true;
             wandFiring();
           }
+
           if(b_state_change_lower && b_wand_firing) {
             // State change was lower as means the wand stopped firing.
             wandStoppedFiring();
@@ -267,6 +271,7 @@ void updateWandPowerState() {
 
       // Turn the pack off.
       if(PACK_STATE != MODE_OFF) {
+        b_pack_started_by_meter = false;
         PACK_ACTION_STATE = ACTION_OFF;
         serial1Send(A_PACK_OFF);
       }
@@ -275,18 +280,29 @@ void updateWandPowerState() {
       wandReading.StateChanged = 0;
       wandReading.LastAverage = f_avg_current;
     }
+
+    // Every X updates send the averaged, stable value which would determine a state change.
+    // This is called whenever the power meter is available--for wand hot-swapping purposes.
+    // Data is sent as integer so this is sent multiplied by 100 to get 2 decimal precision.
+    if(si_update == 0) {
+      serial1Send(A_WAND_POWER_AMPS, wandReading.LastAverage * 100);
+    }
   }
   else {
     // Reset when not using the power meter or a GPStar wand is connected.
     wandReading.StateChanged = 0;
     wandReading.LastAverage = 0;
-  }
 
-  // Every X updates send the averaged, stable value which would determine a state change.
-  // This is called whenever the power meter is available--for wand hot-swapping purposes.
-  // Data is sent as integer so this is sent multiplied by 100 to get 2 decimal precision.
-  if(si_update == 0) {
-    serial1Send(A_WAND_POWER_AMPS, wandReading.LastAverage * 100);
+    // If previously started via the power meter but a GPStar wand is connected,
+    // then we need to power down the pack immediately as this was unintended.
+    if(b_pack_started_by_meter && PACK_STATE != MODE_OFF) {
+      b_wand_on = false;
+      b_pack_started_by_meter = false;
+      PACK_ACTION_STATE = ACTION_OFF;
+      serial1Send(A_PACK_OFF);
+      serial1Send(A_POWER_LEVEL_1);
+      serial1Send(A_WAND_POWER_AMPS, 0);
+    }
   }
 }
 
@@ -314,9 +330,9 @@ void wandPowerDisplay() {
     // Serial.print(wandReading.BusVoltage);
     // Serial.print(",");
 
-    // Serial.print("W.Bus(mW)):");
-    // Serial.print(wandReading.BusPower);
-    // Serial.print(",");
+    Serial.print("W.Bus(mW)):");
+    Serial.print(wandReading.BusPower);
+    Serial.print(",");
 
     // Serial.print("W.Batt(V):");
     // Serial.print(wandReading.BattVoltage);
