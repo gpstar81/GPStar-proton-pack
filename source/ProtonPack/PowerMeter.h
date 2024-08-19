@@ -51,9 +51,10 @@ struct PowerMeter {
   const static float StateChangeThreshold; // Minimum change in current (A) to consider as a potential state change
   float ShuntVoltage = 0; // V - The value used to calculate the amperage draw across the shunt resistor
   float ShuntCurrent = 0; // A - The current (amperage) reading
+  float ShuntPower = 0; // W - Calculation of power based on the shunt V*A values
   float BusVoltage = 0; // V - Voltage reading from the measured device
   float BattVoltage = 0; // V - Reference voltage from device power source
-  float BusPower = 0; // W - Calculation of power based on the V*A values
+  float BusPower = 0; // W - Calculation of power based on the bus V*A values
   float AmpHours = 0; // Ah - An estimation of power consumed over regular intervals
   float AvgPower = 0; // A - Smoothed running average from the ShuntCurrent value
   float LastAverage = 0; // A - Last average used when determining a state change
@@ -127,14 +128,15 @@ void doWandPowerReading() {
     // Reads the latest values from the monitor.
     wandReading.ShuntVoltage = monitor.shuntVoltage();
     wandReading.ShuntCurrent = monitor.shuntCurrent();
+    wandReading.ShuntPower = wandReading.ShuntVoltage * wandReading.ShuntCurrent; // P(W) = V*A
     wandReading.BusVoltage = monitor.busVoltage();
-    wandReading.BattVoltage = wandReading.BusVoltage + (wandReading.ShuntVoltage);
     wandReading.BusPower = monitor.busPower();
+    wandReading.BattVoltage = wandReading.BusVoltage + (wandReading.ShuntVoltage); // Total Volts
 
-    // Create some new smoothed/averaged current (A) values using the latest reading.
-    wandReading.AvgPower = f_ema_alpha * wandReading.BusPower + (1 - f_ema_alpha) * wandReading.AvgPower;
+    // Update the smoothed current (A) values using the latest reading using an exponential moving average.
+    wandReading.AvgPower = f_ema_alpha * wandReading.ShuntPower + (1 - f_ema_alpha) * wandReading.AvgPower;
 
-    // Use time and current values to calculate amp-hours consumed.
+    // Use time and current (A) values to calculate amp-hours consumed.
     unsigned long i_new_time = millis();
     wandReading.ReadTick = i_new_time - wandReading.LastRead;
     wandReading.AmpHours += (wandReading.ShuntCurrent * wandReading.ReadTick) / 3600000.0; // Div. by 1000 x 60 x 60
@@ -148,7 +150,7 @@ void doWandPowerReading() {
 
 // Sourced from https://community.particle.io/t/battery-voltage-checking/5467
 // Obtains the ATMega chip's actual Vcc voltage value, using internal bandgap reference.
-// This demonstrates ability to read processors Vcc voltage and the ability to maintain A/D calibration with changing Vcc.
+// This demonstrates ability to read MCU's Vcc voltage and the ability to maintain A/D calibration with changing Vcc.
 void doPackVoltageReading() {
   // REFS1 REFS0               --> 0 1, AVcc internal ref. -Selects AVcc reference
   // MUX4 MUX3 MUX2 MUX1 MUX0  --> 11110 1.1V (VBG)        -Selects channel 30, bandgap voltage, to measure
@@ -167,7 +169,7 @@ void doPackVoltageReading() {
 
 // Perform a reading of values from the power meter for the pack.
 void doPackPowerReading() {
-  // When not using a device on the i2c bus, obtain bandgap voltage from the processor.
+  // Obtain bandgap voltage from the microcontroller.
   doPackVoltageReading();
 }
 
@@ -322,17 +324,21 @@ void wandPowerDisplay() {
     // Serial.print(wandReading.ShuntVoltage);
     // Serial.print(",");
 
-    // Serial.print("W.Power(A):");
+    // Serial.print("W.Shunt(A):");
     // Serial.print(wandReading.ShuntCurrent);
     // Serial.print(",");
+
+    Serial.print("W.Shunt(W):");
+    Serial.print(wandReading.ShuntPower);
+    Serial.print(",");
 
     // Serial.print("W.Bus(V)):");
     // Serial.print(wandReading.BusVoltage);
     // Serial.print(",");
 
-    Serial.print("W.Bus(W)):");
-    Serial.print(wandReading.BusPower);
-    Serial.print(",");
+    // Serial.print("W.Bus(W)):");
+    // Serial.print(wandReading.BusPower);
+    // Serial.print(",");
 
     // Serial.print("W.Batt(V):");
     // Serial.print(wandReading.BattVoltage);
