@@ -394,13 +394,14 @@ function updateGraphics(jObj){
         colorEl("safetyOverlay", 100, 100, 100);
       }
     } else {
+      // Wand is considered "disconnected" as no serial communication exists.
       setEl("powerLevel", "&mdash;");
       if (parseFloat(jObj.wandAmps || 0) > 0.01) {
-        // If we have a non-zero amperage reading, display that.
-        setEl("streamMode", "Output: " + parseFloat((jObj.wandAmps || 0).toFixed(2)) + " W");
+        // If we have a non-zero amperage reading, display that as it means a stock wand is attached.
+        setEl("streamMode", "Stream: " + parseFloat((jObj.wandAmps || 0).toFixed(2)) + " GW");
       } else {
-        // Otherwise we consider a wand to be truly disconnected.
-        setEl("streamMode", "- Disconnected -");
+        // Otherwise we consider a wand to be "disengaged" as it could be inactive or detached.
+        setEl("streamMode", "- Disengaged -");
       }
       hideEl("barrelOverlay");
       colorEl("safetyOverlay", 100, 100, 100);
@@ -408,7 +409,7 @@ function updateGraphics(jObj){
 
     if (parseFloat(jObj.battVoltage || 0) > 1) {
       // Voltage should typically be ~5.0 at idle and >=4.2 under normal use; anything below that indicates a possible problem.
-      setEl("battVoltage", "Input:<br/>" + parseFloat((jObj.battVoltage || 0).toFixed(2)) + " GeV");
+      setEl("battVoltage", "Output:<br/>" + parseFloat((jObj.battVoltage || 0).toFixed(2)) + " GeV");
       if (jObj.battVoltage < 4.2) {
         colorEl("boostOverlay", 255, 0, 0);
       } else {
@@ -439,7 +440,7 @@ function updateGraphics(jObj){
     hideEl("barrelOverlay");
     blinkEl("barrelOverlay", false);
     setEl("powerLevel", "&mdash;");
-    setEl("streamMode", "- Disconnected -");
+    setEl("streamMode", "- Disengaged -");
     colorEl("safetyOverlay", 100, 100, 100);
     setEl("battVoltage", "");
     hideEl("cyclotronLid");
