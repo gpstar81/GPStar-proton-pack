@@ -397,7 +397,7 @@ function updateGraphics(jObj){
       setEl("powerLevel", "&mdash;");
       if (parseFloat(jObj.wandAmps || 0) > 0.01) {
         // If we have a non-zero amperage reading, display that.
-        setEl("streamMode", "&#9735; Out: " + parseFloat((jObj.wandAmps || 0).toFixed(2)) + "A");
+        setEl("streamMode", "Output: " + parseFloat((jObj.wandAmps || 0).toFixed(2)) + " W");
       } else {
         // Otherwise we consider a wand to be truly disconnected.
         setEl("streamMode", "- Disconnected -");

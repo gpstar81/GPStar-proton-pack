@@ -39,7 +39,7 @@ INA219 monitor; // Power monitor object on i2c bus using the INA219 chip.
 bool b_power_meter_available = false; // Whether a power meter device exists on i2c bus, per setup() -> powerMeterInit()
 bool b_pack_started_by_meter = false; // Whether the pack was started via detection of the power meter.
 const uint16_t f_wand_power_up_delay = 1000; // How long to wait and ignore any wand firing events after initial power-up (ms).
-const float f_wand_power_on_threshold = 0.12; // Minimum current (A) to consider as to whether a stock Neutrona Wand is powered on.
+const float f_wand_power_on_threshold = 0.5; // Minimum power (W) to consider as to whether a stock Neutrona Wand is powered on.
 const float f_ema_alpha = 0.2; // Smoothing factor (<1) for Exponential Moving Average (EMA) [Lower Value = Smoother Averaging].
 
 // Special Timers and Timeouts
@@ -55,7 +55,7 @@ struct PowerMeter {
   float BattVoltage = 0; // V - Reference voltage from device power source
   float BusPower = 0; // W - Calculation of power based on the V*A values
   float AmpHours = 0; // Ah - An estimation of power consumed over regular intervals
-  float AvgCurrent = 0; // A - Smoothed running average from the ShuntCurrent value
+  float AvgPower = 0; // A - Smoothed running average from the ShuntCurrent value
   float LastAverage = 0; // A - Last average used when determining a state change
   unsigned int PowerReadDelay = (int) (StateChangeDuration / 4); // How often (ms) to read the volt/power levels
   unsigned long StateChanged = 0; // Time when a potential state change was detected
@@ -66,7 +66,7 @@ struct PowerMeter {
 
 // Set the static constant for considering a "change" based on latest current reading average.
 // IOW, if we measure a difference of this much since the last average, the user initiated input.
-const float PowerMeter::StateChangeThreshold = 0.08;
+const float PowerMeter::StateChangeThreshold = 0.4;
 
 // Create instances of the PowerMeter object.
 PowerMeter wandReading;
@@ -132,7 +132,7 @@ void doWandPowerReading() {
     wandReading.BusPower = monitor.busPower();
 
     // Create some new smoothed/averaged current (A) values using the latest reading.
-    wandReading.AvgCurrent = f_ema_alpha * wandReading.ShuntCurrent + (1 - f_ema_alpha) * wandReading.AvgCurrent;
+    wandReading.AvgPower = f_ema_alpha * wandReading.BusPower + (1 - f_ema_alpha) * wandReading.AvgPower;
 
     // Use time and current values to calculate amp-hours consumed.
     unsigned long i_new_time = millis();
@@ -196,10 +196,10 @@ void updateWandPowerState() {
      * Level 4 Fire: 0.30-0.35A
      * Level 5 Fire: 0.34-0.45A
      */
-    float f_avg_current = wandReading.AvgCurrent;
+    float f_avg_power = wandReading.AvgPower;
     unsigned long current_time = millis();
-    bool b_state_change_lower = f_avg_current < wandReading.LastAverage - PowerMeter::StateChangeThreshold;
-    bool b_state_change_higher = f_avg_current > wandReading.LastAverage + PowerMeter::StateChangeThreshold;
+    bool b_state_change_lower = f_avg_power < wandReading.LastAverage - PowerMeter::StateChangeThreshold;
+    bool b_state_change_higher = f_avg_power > wandReading.LastAverage + PowerMeter::StateChangeThreshold;
 
     // Check for a significant and sustained change in current (either higher or lower than the last state).
     if(b_state_change_lower || b_state_change_higher) {
@@ -211,10 +211,10 @@ void updateWandPowerState() {
       // Determine whether the change (+/-) took place over the expected timeframe.
       if(current_time - wandReading.StateChanged >= PowerMeter::StateChangeDuration) {
         // Update previous average current reading since we've had a sustained change in state.
-        wandReading.LastAverage = f_avg_current;
+        wandReading.LastAverage = f_avg_power;
 
         // Wand is considered "on" when above the base threshold.
-        if(f_avg_current > f_wand_power_on_threshold) {
+        if(f_avg_power > f_wand_power_on_threshold) {
           b_wand_on = true;
 
           // Turn the pack on.
@@ -258,7 +258,7 @@ void updateWandPowerState() {
     }
 
     // Stop firing and turn off the pack if current is below the base threshold.
-    if(f_avg_current <= f_wand_power_on_threshold) {
+    if(f_avg_power <= f_wand_power_on_threshold) {
       if(b_wand_firing) {
         // Stop firing sequence if previously firing.
         wandStoppedFiring();
@@ -278,7 +278,7 @@ void updateWandPowerState() {
 
       // Reset the state change timer and last average due to this significant event.
       wandReading.StateChanged = 0;
-      wandReading.LastAverage = f_avg_current;
+      wandReading.LastAverage = f_avg_power;
     }
 
     // Every X updates send the averaged, stable value which would determine a state change.
@@ -318,19 +318,19 @@ void updatePackPowerState(){
 // Turn on the Serial Plotter in the ArduinoIDE to view graphed results.
 void wandPowerDisplay() {
   if(b_use_power_meter && b_power_meter_available && b_show_power_data) {
-    // Serial.print("W.Shunt(mv):");
+    // Serial.print("W.Shunt(V):");
     // Serial.print(wandReading.ShuntVoltage);
     // Serial.print(",");
 
-    Serial.print("W.Power(A):");
-    Serial.print(wandReading.ShuntCurrent);
-    Serial.print(",");
+    // Serial.print("W.Power(A):");
+    // Serial.print(wandReading.ShuntCurrent);
+    // Serial.print(",");
 
     // Serial.print("W.Bus(V)):");
     // Serial.print(wandReading.BusVoltage);
     // Serial.print(",");
 
-    Serial.print("W.Bus(mW)):");
+    Serial.print("W.Bus(W)):");
     Serial.print(wandReading.BusPower);
     Serial.print(",");
 
@@ -342,11 +342,11 @@ void wandPowerDisplay() {
     // Serial.print(wandReading.AmpHours);
     // Serial.print(",");
 
-    Serial.print("W.AvgPow(A):");
-    Serial.print(wandReading.AvgCurrent);
+    Serial.print("W.AvgPow(W):");
+    Serial.print(wandReading.AvgPower);
     Serial.print(",");
 
-    Serial.print("W.State(A):");
+    Serial.print("W.State(W):");
     Serial.println(wandReading.LastAverage);
   }
 }
