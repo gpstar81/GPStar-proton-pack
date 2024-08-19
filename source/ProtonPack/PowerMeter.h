@@ -37,9 +37,9 @@
 // General Variables
 INA219 monitor; // Power monitor object on i2c bus using the INA219 chip.
 bool b_power_meter_available = false; // Whether a power meter device exists on i2c bus, per setup() -> powerMeterInit()
-bool b_pack_started_by_meter = false; // Whether the pack was started via detection of the power meter.
+bool b_pack_started_by_meter = false; // Whether the pack was started via detection through the power meter.
 const uint16_t f_wand_power_up_delay = 1000; // How long to wait and ignore any wand firing events after initial power-up (ms).
-const float f_wand_power_on_threshold = 0.5; // Minimum power (W) to consider as to whether a stock Neutrona Wand is powered on.
+const float f_wand_power_on_threshold = 0.65; // Minimum power (W) to consider as to whether a stock Neutrona Wand is powered on.
 const float f_ema_alpha = 0.2; // Smoothing factor (<1) for Exponential Moving Average (EMA) [Lower Value = Smoother Averaging].
 
 // Special Timers and Timeouts
@@ -47,27 +47,27 @@ millisDelay ms_powerup_debounce; // Timer to lock out firing when the wand power
 
 // Define an object which can store
 struct PowerMeter {
-  const static uint16_t StateChangeDuration = 300; // Duration (ms) for a current change to persist for action
+  const static uint16_t StateChangeDuration = 100; // Duration (ms) for a current change to persist for action
   const static float StateChangeThreshold; // Minimum change in current (A) to consider as a potential state change
-  float ShuntVoltage = 0; // V - The value used to calculate the amperage draw across the shunt resistor
-  float ShuntCurrent = 0; // A - The current (amperage) reading
-  float ShuntPower = 0; // W - Calculation of power based on the shunt V*A values
-  float BusVoltage = 0; // V - Voltage reading from the measured device
-  float BattVoltage = 0; // V - Reference voltage from device power source
-  float BusPower = 0; // W - Calculation of power based on the bus V*A values
-  float AmpHours = 0; // Ah - An estimation of power consumed over regular intervals
-  float AvgPower = 0; // A - Smoothed running average from the ShuntCurrent value
-  float LastAverage = 0; // A - Last average used when determining a state change
-  unsigned int PowerReadDelay = (int) (StateChangeDuration / 4); // How often (ms) to read the volt/power levels
+  float ShuntVoltage = 0; // mV - Millivolts read to calculate the amperage draw across the shunt resistor
+  float ShuntCurrent = 0; // A - The current (amperage) reading via the shunt resistor
+  float BusVoltage = 0;   // mV - Voltage reading from the measured device
+  float BattVoltage = 0;  // V - Reference voltage from device power source
+  float BusPower = 0;     // W - Calculation of power based on the bus mV*A values
+  float AmpHours = 0;     // Ah - An estimation of power consumed over regular intervals
+  float RawPower = 0;     // W - Calculation of power based on raw V*A values (non-smoothed)
+  float AvgPower = 0;     // A - Running average from the RawPower value (smoothed)
+  float LastAverage = 0;  // A - Last average used when determining a state change
+  unsigned int PowerReadDelay = (int) (StateChangeDuration / 4); // How often (ms) to read levels for changes
   unsigned long StateChanged = 0; // Time when a potential state change was detected
-  unsigned long LastRead = 0; // Used to calculate Ah consumed since battery power-on
-  unsigned long ReadTick = 0; // Difference of current read time - last read
-  millisDelay ReadTimer; // Timer for reading latest values from power meter
+  unsigned long LastRead = 0;     // Used to calculate Ah consumed since battery power-on
+  unsigned long ReadTick = 0;     // Difference of current read time - last read
+  millisDelay ReadTimer;          // Timer for reading latest values from power meter
 };
 
 // Set the static constant for considering a "change" based on latest current reading average.
 // IOW, if we measure a difference of this much since the last average, the user initiated input.
-const float PowerMeter::StateChangeThreshold = 0.4;
+const float PowerMeter::StateChangeThreshold = 0.2;
 
 // Create instances of the PowerMeter object.
 PowerMeter wandReading;
@@ -84,7 +84,7 @@ void powerMeterConfig() {
   debugln(F("Configure Power Meter"));
 
   // Custom configuration, defaults are RANGE_32V, GAIN_8_320MV, ADC_12BIT, ADC_12BIT, CONT_SH_BUS
-  monitor.configure(INA219::RANGE_16V, INA219::GAIN_2_80MV, INA219::ADC_32SAMP, INA219::ADC_32SAMP, INA219::CONT_SH_BUS);
+  monitor.configure(INA219::RANGE_16V, INA219::GAIN_1_40MV, INA219::ADC_64SAMP, INA219::ADC_64SAMP, INA219::CONT_SH_BUS);
 
   // Calibrate with our chosen values
   monitor.calibrate(SHUNT_R, SHUNT_MAX_V, BUS_MAX_V, MAX_CURRENT);
@@ -128,13 +128,13 @@ void doWandPowerReading() {
     // Reads the latest values from the monitor.
     wandReading.ShuntVoltage = monitor.shuntVoltage();
     wandReading.ShuntCurrent = monitor.shuntCurrent();
-    wandReading.ShuntPower = wandReading.ShuntVoltage * wandReading.ShuntCurrent; // P(W) = V*A
     wandReading.BusVoltage = monitor.busVoltage();
     wandReading.BusPower = monitor.busPower();
-    wandReading.BattVoltage = wandReading.BusVoltage + (wandReading.ShuntVoltage); // Total Volts
 
     // Update the smoothed current (A) values using the latest reading using an exponential moving average.
-    wandReading.AvgPower = f_ema_alpha * wandReading.ShuntPower + (1 - f_ema_alpha) * wandReading.AvgPower;
+    wandReading.BattVoltage = wandReading.BusVoltage + wandReading.ShuntVoltage; // Total Volts
+    wandReading.RawPower = wandReading.BattVoltage * wandReading.ShuntCurrent; // P(W) = V*A
+    wandReading.AvgPower = (f_ema_alpha * wandReading.RawPower) + ((1 - f_ema_alpha) * wandReading.AvgPower);
 
     // Use time and current (A) values to calculate amp-hours consumed.
     unsigned long i_new_time = millis();
@@ -200,7 +200,7 @@ void updateWandPowerState() {
      */
     float f_avg_power = wandReading.AvgPower;
     unsigned long current_time = millis();
-    bool b_state_change_lower = f_avg_power < wandReading.LastAverage - PowerMeter::StateChangeThreshold;
+    bool b_state_change_lower = f_avg_power < wandReading.LastAverage - (PowerMeter::StateChangeThreshold * 1.25);
     bool b_state_change_higher = f_avg_power > wandReading.LastAverage + PowerMeter::StateChangeThreshold;
 
     // Check for a significant and sustained change in current (either higher or lower than the last state).
@@ -287,7 +287,7 @@ void updateWandPowerState() {
     // This is called whenever the power meter is available--for wand hot-swapping purposes.
     // Data is sent as integer so this is sent multiplied by 100 to get 2 decimal precision.
     if(si_update == 0) {
-      serial1Send(A_WAND_POWER_AMPS, wandReading.LastAverage * 100);
+      serial1Send(A_WAND_POWER_AMPS, f_avg_power * 100);
     }
   }
   else {
@@ -320,7 +320,7 @@ void updatePackPowerState(){
 // Turn on the Serial Plotter in the ArduinoIDE to view graphed results.
 void wandPowerDisplay() {
   if(b_use_power_meter && b_power_meter_available && b_show_power_data) {
-    // Serial.print("W.Shunt(V):");
+    // Serial.print("W.Shunt(mV):");
     // Serial.print(wandReading.ShuntVoltage);
     // Serial.print(",");
 
@@ -328,8 +328,8 @@ void wandPowerDisplay() {
     // Serial.print(wandReading.ShuntCurrent);
     // Serial.print(",");
 
-    Serial.print("W.Shunt(W):");
-    Serial.print(wandReading.ShuntPower);
+    Serial.print("W.Raw(W):");
+    Serial.print(wandReading.RawPower);
     Serial.print(",");
 
     // Serial.print("W.Bus(V)):");
@@ -352,7 +352,7 @@ void wandPowerDisplay() {
     Serial.print(wandReading.AvgPower);
     Serial.print(",");
 
-    Serial.print("W.State(W):");
+    Serial.print("W.State:");
     Serial.println(wandReading.LastAverage);
   }
 }
