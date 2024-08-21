@@ -178,8 +178,8 @@ void updateWandPowerState() {
   static uint8_t si_update; // Static var to keep up with update requests for responding to the latest readings.
   si_update = (si_update + 1) % 20; // Keep a count of updates, rolling over every 20th time.
 
-  // Only take action to read power consumption when wand is NOT connected.
-  if (!b_wand_connected){
+  // Only take action to read power consumption when wand is NOT connected (or syncing).
+  if (!b_wand_connected && !b_wand_syncing){
     /**
      * Amperage Ranges
      * Note there is some slight overlap between the highest power levels at idle and the lowest firing states.
@@ -224,8 +224,9 @@ void updateWandPowerState() {
             packStartup(false);
             b_pack_started_by_meter = true;
 
-            // Fake a full-power setting to the Attenuator
+            // Fake a full-power proton stream setting to the Attenuator
             serial1Send(A_POWER_LEVEL_5);
+            serial1Send(A_PROTON_MODE);
 
             // Tell the Attenuator the pack is powered on
             serial1Send(A_PACK_ON);
