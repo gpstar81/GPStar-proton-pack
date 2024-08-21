@@ -219,7 +219,6 @@ Switch switch_activate(3); // Considered the primary power toggle on the right o
 Switch switch_device(A0); // Top right switch on the device. Enables device for firing.
 Switch switch_vent(4); // Bottom right switch on the device. Turns on the vent light.
 Switch switch_grip(A6); // Hand-grip button to be the primary fire and used in settings menus.
-bool b_all_switch_activation = false; // Used to check if Activate was flipped to on while the vent switch was already in the on position for sound purposes.
 uint8_t ventSwitchedCount = 0; // Used for detection of LED EEPROM menu access
 uint8_t deviceSwitchedCount = 0; // Used for detection of Config EEPROM menu access
 
@@ -246,12 +245,6 @@ millisDelay ms_slo_blo_blink;
 const uint16_t i_slo_blo_blink_delay = 500;
 
 /*
- * Timer for rotary firing mode select speed limit (delay when switching firing modes).
- */
-millisDelay ms_firing_mode_switch;
-const uint8_t i_firing_mode_switch_delay = 50;
-
-/*
  * Timers for the optional hat lights.
  * Also used for vent lights during error modes.
  */
@@ -261,32 +254,15 @@ const uint8_t i_hat_1_delay = 100;
 const uint16_t i_hat_2_delay = 400;
 
 /*
- * Device tip heatup timers (when changing firing modes).
- */
-millisDelay ms_device_heatup_fade;
-const uint8_t i_delay_heatup = 5;
-uint8_t i_heatup_counter = 0;
-uint8_t i_heatdown_counter = 100;
-
-/*
  * Firing timers.
  */
-millisDelay ms_firing_lights;
-millisDelay ms_firing_lights_end;
-millisDelay ms_firing_effect_end;
-millisDelay ms_firing_stream_effects;
 millisDelay ms_firing_pulse;
-millisDelay ms_impact; // Mix some impact sounds while firing.
-millisDelay ms_firing_length_timer;
 millisDelay ms_semi_automatic_check; // Timer used to set the rate of fire for the semi-automatic firing modes.
 millisDelay ms_semi_automatic_firing; // Timer used to handle firing effect duration for the semi-automatic firing modes.
 const uint16_t i_single_shot_rate = 2000; // Single shot firing rate, locking out actions after each blast.
-const uint16_t i_firing_timer_length = 15000; // 15 seconds. Used by ms_firing_length_timer to determine which tail_end sound effects to play.
 const uint8_t i_firing_pulse = 40; // Used to drive semi-automatic firing stream effect timers.
-const uint8_t i_firing_stream = 100; // Used to drive all stream effects timers. Default: 100ms.
 const uint8_t i_pulse_step_max = 12; // Total number of steps per pulse animation.
 uint8_t i_pulse_step = 0; // Used to keep track of which pulse animation step we are on.
-uint16_t i_last_firing_effect_mix = 0; // Used by standalone Single-Shot Blaster.
 
 /*
  * Device Menu
@@ -319,10 +295,6 @@ bool b_firing_alt = false; // Check for grip button firing activity.
 bool b_firing_semi_automatic = false; // Check for semi-automatic firing modes.
 bool b_sound_firing_intensify_trigger = false;
 bool b_sound_firing_alt_trigger = false;
-bool b_sound_firing_cross_the_streams = false;
-bool b_sound_idle = false;
-bool b_beeping = false;
-bool b_sound_afterlife_idle_2_fade = true;
 bool b_device_boot_error_on = false;
 
 /*
@@ -340,15 +312,8 @@ uint8_t i_bmash_spark_index = 0;   // Current spark number for the spark effect 
 bool b_device_mash_error = false;    // Indicates if device is in a lock-out phase.
 
 /*
- * Used during the overheating sequences.
-*/
-millisDelay ms_blink_sound_timer_1;
-millisDelay ms_blink_sound_timer_2;
-const uint16_t i_blink_sound_timer = 400;
-
-/*
  * A timer to turn on some Single-Shot Blaster lights when the system is shut down after some inactivity, as a reminder you left your power on to the system.
-*/
+ */
 millisDelay ms_power_indicator;
 millisDelay ms_power_indicator_blink;
 const uint32_t i_ms_power_indicator = 60000; // 1 Minute -> 60000

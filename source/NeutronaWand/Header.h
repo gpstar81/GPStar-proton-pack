@@ -222,7 +222,6 @@ Switch switch_wand(WAND_SWITCH_PIN); // Controls the beeping. Top right switch o
 Switch switch_mode(MODE_SWITCH_PIN); // Changes firing modes, crosses streams, or used in settings menus.
 Switch switch_barrel(BARREL_SWITCH_PIN); // Checks whether barrel is retracted or not.
 bool b_switch_barrel_extended = true; // Set to true for bootup to prevent sound from playing erroneously. The Neutrona Wand will adjust as necessary.
-bool b_all_switch_activation = false; // Used to check if Activate was flipped to on while the vent switch was already in the on position for sound purposes.
 uint8_t ventSwitchedCount = 0;
 uint8_t wandSwitchedCount = 0;
 
@@ -428,6 +427,8 @@ bool b_sound_firing_cross_the_streams = false;
 bool b_sound_idle = false;
 bool b_beeping = false;
 bool b_sound_afterlife_idle_2_fade = true;
+bool b_all_switch_activation = false; // Used to check if Activate was flipped to on while the vent switch was already in the on position for sound purposes.
+bool b_overheat_recovery = false; // Used to prevent wand from erroneously sending overlapping bootup sounds to pack when recovering from overheat.
 bool b_wand_boot_error_on = false;
 
 /*
@@ -446,14 +447,14 @@ bool b_wand_mash_error = false;    // Indicates if wand is in a lock-out phase.
 
 /*
  * Used during the overheating sequences.
-*/
+ */
 millisDelay ms_blink_sound_timer_1;
 millisDelay ms_blink_sound_timer_2;
 const uint16_t i_blink_sound_timer = 400;
 
 /*
  * A timer to turn on some Neutrona Wand lights when the system is shut down after some inactivity, as a reminder you left your power on to the system.
-*/
+ */
 millisDelay ms_power_indicator;
 millisDelay ms_power_indicator_blink;
 const uint32_t i_ms_power_indicator = 60000; // 1 Minute -> 60000

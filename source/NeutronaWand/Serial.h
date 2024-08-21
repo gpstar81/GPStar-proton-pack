@@ -1197,30 +1197,29 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
             break;
           }
         }
+
+        if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_on) {
+          soundIdleLoop(true);
+
+          if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
+            stopEffect(S_WAND_BOOTUP);
+            playEffect(S_WAND_BOOTUP);
+
+            if(switch_vent.on() == false) {
+              afterlifeRampSound1();
+            }
+          }
+        }
       }
 
       // Alarm is off.
       b_pack_alarm = false;
-
-      if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_on) {
-        soundIdleLoop(true);
-
-        if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
-          stopEffect(S_WAND_BOOTUP);
-          playEffect(S_WAND_BOOTUP);
-
-          if(switch_vent.on() == false) {
-            afterLifeRamp1();
-          }
-        }
-      }
     break;
 
     case P_WARNING_CANCELLED:
       // Pack is telling wand to cancel any overheat warnings.
       // First, stop the timers which trigger the overheat.
       ms_overheat_initiate.stop();
-      ms_overheating.stop();
       ms_hat_1.stop();
       ms_hat_2.stop();
 

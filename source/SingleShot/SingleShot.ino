@@ -557,13 +557,6 @@ void checkCyclotron() {
   }
 }
 
-// void deviceTipSpark() {
-//   i_heatup_counter = 0;
-//   i_heatdown_counter = 100;
-//   i_bmash_spark_index = 0;
-//   ms_device_heatup_fade.start(i_delay_heatup);
-// }
-
 // Determine the light status on the device and any beeps.
 void deviceLightControlCheck() {
   // Vent light and first stage of the safety system.
@@ -614,8 +607,6 @@ void deviceOff() {
 
   stopEffect(S_BOOTUP);
   //stopEffect(S_SMASH_ERROR_RESTART);
-
-  b_sound_afterlife_idle_2_fade = true;
 
   if(DEVICE_ACTION_STATUS == ACTION_ERROR && !b_device_boot_error_on && !b_device_mash_error) {
     // We are exiting Device Boot Error, so change device state back to off/idle.
@@ -816,15 +807,6 @@ void fireControlCheck() {
       DEVICE_ACTION_STATUS = ACTION_OFF;
       return;
     }
-
-    if(DEVICE_ACTION_STATUS == ACTION_IDLE) {
-      // Play a little spark effect if the user tries to fire while the ribbon cable is removed.
-      if((switch_intensify.pushed() || (switch_grip.pushed())) && !ms_device_heatup_fade.isRunning() && switch_vent.on() && switch_device.on()) {
-        // stopEffect(S_DEVICE_MASH_ERROR);
-        // playEffect(S_DEVICE_MASH_ERROR);
-        //deviceTipSpark();
-      }
-    }
   }
 }
 
@@ -850,8 +832,6 @@ void modeError() {
 }
 
 void modeActivate() {
-  b_sound_afterlife_idle_2_fade = true;
-
   // The device was started while the top switch was already on, so let's put the device into startup error mode.
   if(switch_device.on() && b_device_boot_errors) {
     b_device_boot_error_on = true;
@@ -875,10 +855,6 @@ void modeActivate() {
 
 void postActivation() {
   if(DEVICE_STATUS != MODE_ERROR) {
-    if(switch_vent.on()) {
-      b_all_switch_activation = true; // If vent switch is already on when Activate is flipped, set to true for soundIdleLoop() to use
-    }
-
     // Turn on slo-blo light.
     led_SloBlo.turnOn();
 
@@ -970,17 +946,12 @@ void modeFireStart() {
   led_Hat1.turnOn();
 
   barrelLightsOff();
-
-  ms_firing_lights.start(0);
-
-  ms_firing_length_timer.start(i_firing_timer_length);
 }
 
 void modeFireStopSounds() {
   // Reset some sound triggers.
   b_sound_firing_intensify_trigger = false;
   b_sound_firing_alt_trigger = false;
-  b_sound_firing_cross_the_streams = false;
 
   ms_single_blast.stop();
 }
@@ -991,10 +962,6 @@ void modeFireStop() {
   b_firing = false;
   b_firing_intensify = false;
   b_firing_alt = false;
-
-  ms_firing_lights.stop();
-  ms_impact.stop();
-  ms_firing_effect_end.start(0);
 
   led_Hat2.turnOn(); // Make sure we turn on hat light 2 in case it's off as well.
 
@@ -1099,15 +1066,8 @@ void firePulseEffect() {
 
 void barrelLightsOff() {
   ms_firing_pulse.stop();
-  ms_firing_lights.stop();
-  ms_firing_stream_effects.stop();
-  ms_firing_effect_end.stop();
-  ms_firing_lights_end.stop();
-  ms_device_heatup_fade.stop();
 
   i_pulse_step = 0;
-  i_heatup_counter = 0;
-  i_heatdown_counter = 100;
 
   // Turn off the barrel LED.
   system_leds[i_barrel_led] = getHueAsRGB(C_BLACK);

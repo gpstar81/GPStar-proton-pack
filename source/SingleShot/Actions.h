@@ -189,8 +189,6 @@ void checkDeviceAction() {
         // Reset the barrel before starting a new pulse.
         barrelLightsOff();
 
-        ms_firing_stream_effects.start(0); // Start new barrel animation.
-
         switch(POWER_LEVEL) {
           case LEVEL_1:
           default:

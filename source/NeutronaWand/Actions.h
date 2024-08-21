@@ -128,8 +128,6 @@ void checkWandAction() {
     break;
 
     case ACTION_OVERHEATING:
-      b_sound_afterlife_idle_2_fade = true;
-
       if(b_overheat_bargraph_blink == true) {
         settingsBlinkingLights();
 
@@ -161,21 +159,15 @@ void checkWandAction() {
         }
       }
 
-      if(b_gpstar_benchtest == true) {
-        // Since the Proton Pack tells the Neutrona Wand when venting is finished, standalone wand needs its own timer.
-        if(ms_overheating.justFinished()) {
-          overheatingFinished();
-        }
+      if(ms_overheating.justFinished()) {
+        overheatingFinished();
       }
-
     break;
 
     case ACTION_VENTING:
       // Since the Proton Pack tells the Neutrona Wand when venting is finished, standalone wand needs its own timer.
-      if(b_gpstar_benchtest == true) {
-        if(ms_overheating.justFinished()) {
-          quickVentFinished();
-        }
+      if(ms_overheating.justFinished()) {
+        quickVentFinished();
       }
     break;
 
