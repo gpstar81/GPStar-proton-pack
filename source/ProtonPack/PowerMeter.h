@@ -47,7 +47,7 @@ millisDelay ms_powerup_debounce; // Timer to lock out firing when the wand power
 
 // Define an object which can store
 struct PowerMeter {
-  const static uint16_t StateChangeDuration = 100; // Duration (ms) for a current change to persist for action
+  const static uint16_t StateChangeDuration = 80; // Duration (ms) for a current change to persist for action
   const static float StateChangeThreshold; // Minimum change in current (A) to consider as a potential state change
   float ShuntVoltage = 0; // mV - Millivolts read to calculate the amperage draw across the shunt resistor
   float ShuntCurrent = 0; // A - The current (amperage) reading via the shunt resistor
@@ -200,7 +200,8 @@ void updateWandPowerState() {
      */
     float f_avg_power = wandReading.AvgPower;
     unsigned long current_time = millis();
-    bool b_state_change_lower = f_avg_power < wandReading.LastAverage - (PowerMeter::StateChangeThreshold * 1.25);
+    unsigned long change_time;
+    bool b_state_change_lower = f_avg_power < wandReading.LastAverage - (PowerMeter::StateChangeThreshold * 1.4);
     bool b_state_change_higher = f_avg_power > wandReading.LastAverage + PowerMeter::StateChangeThreshold;
 
     // Check for a significant and sustained change in current (either higher or lower than the last state).
@@ -211,7 +212,8 @@ void updateWandPowerState() {
       }
 
       // Determine whether the change (+/-) took place over the expected timeframe.
-      if(current_time - wandReading.StateChanged >= PowerMeter::StateChangeDuration) {
+      change_time = current_time - wandReading.StateChanged;
+      if(change_time >= PowerMeter::StateChangeDuration) {
         // Update previous average current reading since we've had a sustained change in state.
         wandReading.LastAverage = f_avg_power;
 
