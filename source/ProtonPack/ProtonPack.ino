@@ -1738,7 +1738,7 @@ void cyclotronSwitchLEDLoop() {
   if(ms_cyclotron_switch_led.justFinished()) {
     if(b_cyclotron_lid_on != true) {
       // Frozen Empire brass pack sound is handled here.
-      if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM) && !b_alarm && !b_overheating && !b_2021_ramp_down) {
+      if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM) && !b_alarm && !b_overheating && !b_2021_ramp_down && !b_wand_mash_lockout) {
         if(!b_brass_pack_sound_loop) {
           playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects, true, 2000);
           b_brass_pack_sound_loop = true;
@@ -1886,7 +1886,7 @@ void powercellLoop() {
     }
     else {
       if(b_powercell_updating != true) {
-        if(((SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && b_cyclotron_lid_on) || SYSTEM_YEAR == SYSTEM_AFTERLIFE) && i_powercell_led == 0 && !b_2021_ramp_up && !b_2021_ramp_down && !b_wand_firing && !b_alarm && !b_overheating) {
+        if(((SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && b_cyclotron_lid_on) || SYSTEM_YEAR == SYSTEM_AFTERLIFE) && i_powercell_led == 0 && !b_2021_ramp_up && !b_2021_ramp_down && !b_wand_firing && !b_alarm && !b_overheating && !b_wand_mash_lockout) {
           if(b_powercell_sound_loop != true) {
             b_powercell_sound_loop = true;
             stopEffect(S_POWERCELL);
