@@ -1888,9 +1888,8 @@ void powercellLoop() {
       if(b_powercell_updating != true) {
         if(((SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && b_cyclotron_lid_on) || SYSTEM_YEAR == SYSTEM_AFTERLIFE) && i_powercell_led == 0 && !b_2021_ramp_up && !b_2021_ramp_down && !b_wand_firing && !b_alarm && !b_overheating && !b_wand_mash_lockout) {
           if(b_powercell_sound_loop != true) {
-            b_powercell_sound_loop = true;
-            stopEffect(S_POWERCELL);
             playEffect(S_POWERCELL, true, i_volume_effects, true, 1400);
+            b_powercell_sound_loop = true;
           }
         }
 
@@ -1905,7 +1904,7 @@ void powercellLoop() {
       }
     }
 
-    if((b_overheating || b_2021_ramp_down || b_alarm || (SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && !b_cyclotron_lid_on)) && b_powercell_sound_loop) {
+    if((b_wand_mash_lockout || b_overheating || b_2021_ramp_down || b_2021_ramp_up || b_alarm || (SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && !b_cyclotron_lid_on)) && b_powercell_sound_loop) {
       audio.trackLoop(S_POWERCELL, 0); // Turn off looping which stops the track.
       b_powercell_sound_loop = false;
     }
@@ -4514,8 +4513,8 @@ void modeFireStartSounds() {
 
 void wandFiring() {
   if(b_powercell_sound_loop == true) {
-    b_powercell_sound_loop = false;
     stopEffect(S_POWERCELL); // Turn off the powercell sound effect.
+    b_powercell_sound_loop = false;
   }
 
   modeFireStartSounds();
