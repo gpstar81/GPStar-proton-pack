@@ -103,6 +103,26 @@ For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI B
 
 ![UART Connection](images/uart_wand.jpg)
 
+## Battery Power
+
+Per the BOM above, use of a 2000mAh or higher battery is crucial for supplying enough power for a full day of use. This **MUST be a Lithium battery** (either LiPo or Li-Ion) with a 3.7V output. The charging circuit is intended for use with Lithium batteries only. Again, Lithium!
+
+If using the Adafruit PowerBoost 1000C device for boosting and charging your battery you can find the [Pinouts guide](https://learn.adafruit.com/adafruit-powerboost-1000c-load-share-usb-charge-boost/pinouts) which notes some special connections. There are 2 pairs of pins of importance here:
+
+![](images/PB100C.jpg)
+
+### Power Switch
+
+**EN** - this is the 'enable' pin. By default it is pulled 'high' to VS. To turn off the booster, connect this pin to ground. The switch can be as small as you like, it is just a signal. Contrast this to an inline power switch which would have to be able to handle up to 2A of current! When the chip is disabled the output is completely disconnected from the input.
+
+**GND** - this is the power ground. This boost converter is not 'isolated' - the ground input is the same as the ground output
+
+### Boosted Output
+
+**5V** - this is the boosted output. When the board is running, the voltage will be 5.2V approximately.
+
+**G** - this is the same as the GND pin, just another option for use with the 5V
+
 ## Operation Guide
 
 Full guide will be written as features are completed and operation is determined.
