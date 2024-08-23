@@ -177,54 +177,31 @@ function updateTrackListing() {
 }
 
 function setButtonStates(mode, pack, wand, cyclotron) {
-  // Assume remote on/off is not possible, override as necessary.
-  getEl("btnPackOff").disabled = false;
-  getEl("btnPackOn").disabled = false;
-
-  // Assume remote venting is not possible, override as necessary.
+  // Assume all functions are not possible, override as necessary.
+  getEl("btnPackOff").disabled = true;
+  getEl("btnPackOn").disabled = true;
   getEl("btnVent").disabled = true;
+  getEl("btnAttenuate").disabled = true;
 
-  if (mode == "Original") {
-    // Rules for Mode Original
-
-    if (pack == "Powered" && wand == "Powered") {
-      // Cannot turn on/off pack remotely if in mode Original and pack+wand are Powered.
-      getEl("btnPackOff").disabled = true;
-      getEl("btnPackOn").disabled = true;
-    }
-  } else {
-    // Rules for Super Hero
-
-    if (pack == "Powered" && wand == "Powered") {
-      // Cannot turn on/off pack remotely if in mode Original and pack+wand are Powered.
-      getEl("btnPackOff").disabled = true;
-      getEl("btnPackOn").disabled = true;
-    } else {
-      // Otherwise, buttons can be enabled based on pack/wand status.
-      if (pack == "Powered" && wand != "Powered") {
-        // Can only turn off the pack, so long as the wand is not powered.
-        getEl("btnPackOff").disabled = false;
-      }
-      if (pack != "Powered") {
-        // Can turn on the pack if not already powered (implies wand is not powered).
-        getEl("btnPackOn").disabled = false;
-      }
-    }
-
-    if (wand == "Powered" && (cyclotron == "Normal" || cyclotron == "Active")) {
-      // Can only use manual vent if wand is Powered and pack is not already venting.
-      // eg. Cyclotron is not in the Warning, Critical, or Recovery states.
-      getEl("btnVent").disabled = false;
-    }
+  if (pack == "Powered" && wand != "Powered") {
+    // Can only turn off the pack, so long as the wand is not powered.
+    getEl("btnPackOff").disabled = false;
   }
 
-  // Attenuate action works for either Operation Mode available.
+  if (pack != "Powered") {
+    // Can turn on the pack if not already powered (implies wand is not powered).
+    getEl("btnPackOn").disabled = false;
+  }
+
+  if (pack == "Powered" && (cyclotron == "Normal" || cyclotron == "Active")) {
+    // Can only use manual vent if pack is not already venting.
+    // eg. Cyclotron is not in the Warning, Critical, or Recovery states.
+    getEl("btnVent").disabled = false;
+  }
+
   if (cyclotron == "Warning" || cyclotron == "Critical") {
     // Can only attenuate if cyclotron is in the pre-overheat states.
     getEl("btnAttenuate").disabled = false;
-  } else {
-    // Otherwise, this should NOT be allowed for any other state.
-    getEl("btnAttenuate").disabled = true;
   }
 }
 
