@@ -1886,7 +1886,7 @@ void powercellLoop() {
     }
     else {
       if(b_powercell_updating != true) {
-        if(((SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && b_cyclotron_lid_on) || SYSTEM_YEAR == SYSTEM_AFTERLIFE) && i_powercell_led == 0 && !b_2021_ramp_up && !b_2021_ramp_down && !b_wand_firing && !b_alarm && !b_overheating && !b_wand_mash_lockout) {
+        if(((SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && (b_cyclotron_lid_on && b_wand_mash_lockout != true)) || SYSTEM_YEAR == SYSTEM_AFTERLIFE) && i_powercell_led == 0 && !b_2021_ramp_up && !b_2021_ramp_down && !b_wand_firing && !b_alarm && !b_overheating) {
           if(b_powercell_sound_loop != true) {
             playEffect(S_POWERCELL, true, i_volume_effects, true, 1400);
             b_powercell_sound_loop = true;
@@ -1904,9 +1904,14 @@ void powercellLoop() {
       }
     }
 
-    if((b_wand_mash_lockout || b_overheating || b_2021_ramp_down || b_2021_ramp_up || b_alarm || (SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && !b_cyclotron_lid_on)) && b_powercell_sound_loop) {
-      audio.trackLoop(S_POWERCELL, 0); // Turn off looping which stops the track.
-      b_powercell_sound_loop = false;
+    if((b_overheating || b_2021_ramp_down || b_2021_ramp_up || b_alarm || (SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && !b_cyclotron_lid_on)) && b_powercell_sound_loop) {
+      if((SYSTEM_YEAR == SYSTEM_AFTERLIFE && b_wand_mash_lockout == true)) {
+          // Do nothing for now. We dont want to turn off the powercell sound effect in Afterlife. Maybe do other things?
+      }
+      else {
+        audio.trackLoop(S_POWERCELL, 0); // Turn off looping which stops the track.
+        b_powercell_sound_loop = false;
+      }
     }
 
     // Setup the delays again.
@@ -5750,6 +5755,8 @@ void startWandMashLockout(uint16_t i_timeout) {
 
 void restartFromWandMash() {
   stopSmashErrorSounds();
+  
+  b_wand_mash_lockout = false;
 
   if(b_pack_on) {
     switch(SYSTEM_YEAR) {
