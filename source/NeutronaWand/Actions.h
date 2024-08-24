@@ -1395,7 +1395,7 @@ void checkWandAction() {
           // Play or stop the current music track.
           if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
             if(switch_intensify.pushed()) {
-              if(b_playing_music) {
+              if(b_playing_music == true) {
                 stopMusic();
               }
               else {

@@ -9179,8 +9179,10 @@ void checkRotaryEncoder() {
             }
 
             // Decrease the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
-            if(WAND_STATUS == MODE_OFF && b_playing_music == true && switch_intensify.on() != true) {
-              decreaseVolumeMusic();
+            if(WAND_STATUS == MODE_OFF && switch_intensify.on() != true) {
+              if(b_playing_music == true) {
+                decreaseVolumeMusic();
+              }
 
               // Tell pack to lower music volume.
               wandSerialSend(W_VOLUME_MUSIC_DECREASE);
@@ -9292,8 +9294,10 @@ void checkRotaryEncoder() {
             }
 
             // Increase the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
-            if(WAND_STATUS == MODE_OFF && b_playing_music == true && switch_intensify.on() != true) {
-              increaseVolumeMusic();
+            if(WAND_STATUS == MODE_OFF && switch_intensify.on() != true) {
+              if(b_playing_music == true) {
+                increaseVolumeMusic();
+              }
 
               // Tell pack to increase music volume.
               wandSerialSend(W_VOLUME_MUSIC_INCREASE);
