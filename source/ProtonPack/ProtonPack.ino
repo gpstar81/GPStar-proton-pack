@@ -1841,7 +1841,7 @@ void powercellRampDown() {
       i_powercell_led--;
     }
 
-    if((b_overheating == true || b_2021_ramp_down == true || b_alarm == true) && b_powercell_sound_loop == true) {
+    if(b_powercell_sound_loop) {
       audio.trackLoop(S_POWERCELL, 0); // Turn off looping which stops the track.
       b_powercell_sound_loop = false;
     }
@@ -5678,10 +5678,9 @@ void resetContinuousSmoke() {
 }
 
 void startWandMashLockout(uint16_t i_timeout) {
-  // b_wand_firing = false;
-  // b_firing_alt = false;
-  // b_firing_intensify = false;
-  // STATUS_CTS = CTS_NOT_FIRING;
+  if(b_wand_firing) {
+    wandStoppedFiring();
+  }
 
   switch(STREAM_MODE) {
     case PROTON:
