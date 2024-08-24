@@ -277,20 +277,18 @@ void mainLoop() {
 
       if(b_wand_mash_error == true) {
         // Return the wand to a normal firing state after lock-out from button mashing.
-        b_wand_mash_error = false;
-
         WAND_STATUS = MODE_ON;
         WAND_ACTION_STATUS = ACTION_IDLE;
 
         postActivation();
 
+        b_wand_mash_error = false;
+
         stopEffect(S_STASIS_IDLE_LOOP);
         stopEffect(S_SMASH_ERROR_LOOP);
         playEffect(S_SMASH_ERROR_RESTART);
 
-        if(b_extra_pack_sounds == true) {
-          wandSerialSend(W_SMASH_ERROR_RESTART);
-        }
+        wandSerialSend(W_SMASH_ERROR_RESTART);
 
         bargraphClearAlt();
       }
@@ -2347,7 +2345,7 @@ void postActivation() {
           if(b_pack_on) {
             playEffect(S_WAND_BOOTUP_SHORT);
 
-            if(b_extra_pack_sounds && b_pack_on) {
+            if(b_extra_pack_sounds && b_pack_on && !b_wand_mash_error) {
               wandSerialSend(W_WAND_BOOTUP_SHORT_SOUND);
             }
           }
@@ -2363,14 +2361,14 @@ void postActivation() {
           if(b_pack_on && !switch_vent.on()) {
             playEffect(S_WAND_BOOTUP_SHORT);
 
-            if(b_extra_pack_sounds && b_pack_on) {
+            if(b_extra_pack_sounds && b_pack_on && !b_wand_mash_error) {
               wandSerialSend(W_WAND_BOOTUP_SHORT_SOUND);
             }
           }
           else {
             playEffect(S_GB2_WAND_START);
 
-            if(b_extra_pack_sounds && b_pack_on) {
+            if(b_extra_pack_sounds && b_pack_on && !b_wand_mash_error) {
               wandSerialSend(W_WAND_BOOTUP_1989);
             }
           }
