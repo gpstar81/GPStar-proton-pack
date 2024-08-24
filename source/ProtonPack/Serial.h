@@ -772,7 +772,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
           serial1Send(A_WAND_DISCONNECTED);
         }
 
-        if(b_neutrona_wand_barrel_extended){
+        if(b_neutrona_wand_barrel_extended) {
           // Tell the serial1 device that the Neutrona Wand barrel is extended.
           serial1Send(A_BARREL_EXTENDED);
         }
@@ -1056,13 +1056,13 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
     case A_REQUEST_PREFERENCES_WAND:
       // If requested by the serial device, tell the wand we need its EEPROM preferences.
       // This is merely a command to the wand which tells it to send back a data payload.
-      if(b_wand_connected){
+      if(b_wand_connected) {
         packSerialSend(P_SEND_PREFERENCES_WAND);
       }
     break;
 
     case A_REQUEST_PREFERENCES_SMOKE:
-      if(b_wand_connected){
+      if(b_wand_connected) {
         // If requested by the serial device, tell the wand we need its EEPROM preferences.
         // This is merely a command to the wand which tells it to send back a data payload.
         packSerialSend(P_SEND_PREFERENCES_SMOKE);

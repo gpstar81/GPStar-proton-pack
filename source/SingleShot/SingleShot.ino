@@ -193,7 +193,7 @@ void systemPOST() {
 bool increasePowerLevel() {
   bool b_changed = true;
 
-  switch(POWER_LEVEL){
+  switch(POWER_LEVEL) {
     case LEVEL_1:
       POWER_LEVEL_PREV = POWER_LEVEL;
       POWER_LEVEL = LEVEL_2;
@@ -227,7 +227,7 @@ bool increasePowerLevel() {
 bool decreasePowerLevel() {
   bool b_changed = true;
 
-  switch(POWER_LEVEL){
+  switch(POWER_LEVEL) {
     case LEVEL_1:
       // No change, at lowest level.
       b_changed = false;
@@ -262,7 +262,7 @@ bool decreasePowerLevel() {
 bool lowerMenuLevel() {
   bool b_changed = true;
 
-  switch(DEVICE_MENU_LEVEL){
+  switch(DEVICE_MENU_LEVEL) {
     case MENU_LEVEL_1:
       if(DEVICE_STATUS == MODE_ON && DEVICE_ACTION_STATUS == ACTION_SETTINGS) {
         // Do not advance past level 1 for the settings menu when on.
@@ -351,7 +351,7 @@ bool lowerMenuLevel() {
 bool raiseMenuLevel() {
   bool b_changed = true;
 
-  switch(DEVICE_MENU_LEVEL){
+  switch(DEVICE_MENU_LEVEL) {
     case MENU_LEVEL_1:
       // Menu level 1 is actually the top, so make sure all lights are off;
       b_changed = false;
@@ -429,7 +429,7 @@ bool raiseMenuLevel() {
 bool decreaseOptionLevel() {
   bool b_changed = true;
 
-  switch(MENU_OPTION_LEVEL){
+  switch(MENU_OPTION_LEVEL) {
     case OPTION_1:
       MENU_OPTION_LEVEL = OPTION_2;
     break;
@@ -459,7 +459,7 @@ bool decreaseOptionLevel() {
 bool increaseOptionLevel() {
   bool b_changed = true;
 
-  switch(MENU_OPTION_LEVEL){
+  switch(MENU_OPTION_LEVEL) {
     case OPTION_1:
       if(lowerMenuLevel()) {
         MENU_OPTION_LEVEL = OPTION_5;

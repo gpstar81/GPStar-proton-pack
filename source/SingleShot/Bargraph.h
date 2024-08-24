@@ -139,7 +139,7 @@ struct Bargraph {
       // Display evenly spaced indicators for values 1-5.
       bool b_power = 0;
       for(uint8_t i = 0; i < Bargraph::Elements; i++) {
-        switch(i_count){
+        switch(i_count) {
           case 1:
             b_power = Bar_1[i];
           break;

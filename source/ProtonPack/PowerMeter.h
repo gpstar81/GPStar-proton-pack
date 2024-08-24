@@ -95,14 +95,14 @@ void powerMeterInit() {
   // Configure the PowerMeter object(s).
   packReading.PowerReadDelay = 4000;
 
-  if (b_use_power_meter){
+  if (b_use_power_meter) {
     uint8_t i_monitor_status = monitor.begin();
 
     debugln(" ");
     debug(F("Power Meter Result: "));
     debugln(i_monitor_status);
 
-    if (i_monitor_status == 0){
+    if (i_monitor_status == 0) {
       // Result of 0 indicates no problems from device detection.
       b_power_meter_available = true;
       powerMeterConfig();
@@ -121,7 +121,7 @@ void powerMeterInit() {
 
 // Perform a reading of values from the power meter for the wand.
 void doWandPowerReading() {
-  if (b_use_power_meter && b_power_meter_available){
+  if (b_use_power_meter && b_power_meter_available) {
     // Only uncomment this debug if absolutely needed!
     //debugln(F("Reading Power Meter"));
 
@@ -179,7 +179,7 @@ void updateWandPowerState() {
   si_update = (si_update + 1) % 20; // Keep a count of updates, rolling over every 20th time.
 
   // Only take action to read power consumption when wand is NOT connected (or syncing).
-  if (!b_wand_connected && !b_wand_syncing){
+  if (!b_wand_connected && !b_wand_syncing) {
     /**
      * Amperage Ranges
      * Note there is some slight overlap between the highest power levels at idle and the lowest firing states.
@@ -312,7 +312,7 @@ void updateWandPowerState() {
 }
 
 // Send latest voltage value to the serial1 device, if connected.
-void updatePackPowerState(){
+void updatePackPowerState() {
   if(b_serial1_connected) {
     // Data is sent as integer so this is already multiplied by 100 to get 2 decimal precision.
     serial1Send(A_BATTERY_VOLTAGE_PACK, packReading.BusVoltage);
@@ -361,7 +361,7 @@ void wandPowerDisplay() {
 }
 
 // Check the available timers for reading power meter data.
-void checkPowerMeter(){
+void checkPowerMeter() {
   if(wandReading.ReadTimer.justFinished()) {
     if(b_use_power_meter && b_power_meter_available) {
       doWandPowerReading(); // Get latest V/A readings.

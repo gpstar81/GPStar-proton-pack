@@ -261,7 +261,7 @@ void settingsMenuCheck() {
     return; // Leave if not in the settings menu.
   }
 
-  switch(DEVICE_MENU_LEVEL){
+  switch(DEVICE_MENU_LEVEL) {
     case MENU_LEVEL_1:
       switch(MENU_OPTION_LEVEL) {
         case OPTION_5:

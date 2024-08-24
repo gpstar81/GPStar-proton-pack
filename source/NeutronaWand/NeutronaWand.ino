@@ -1980,7 +1980,7 @@ void fireControlCheck() {
                   // Increment the Slime Tether counter.
                   i_slime_tether_count++;
                 }
-                else if (i_slime_tether_count < 2){
+                else if (i_slime_tether_count < 2) {
                   modePulseStart();
 
                   // Increment the Slime Tether counter.
