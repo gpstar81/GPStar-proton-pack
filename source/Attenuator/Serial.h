@@ -669,6 +669,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
         debug("Spectral Holiday");
       #endif
       STREAM_MODE = HOLIDAY;
+      b_christmas = (i_value == 2);
       b_state_changed = true;
     break;
 

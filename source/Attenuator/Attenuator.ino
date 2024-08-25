@@ -566,7 +566,12 @@ void updateLEDs() {
     break;
 
     case HOLIDAY:
-      i_scheme = C_REDGREEN;
+      if(b_christmas) {
+        i_scheme = C_REDGREEN;
+      }
+      else {
+        i_scheme = C_ORANGEPURPLE;
+      }
     break;
 
     case SPECTRAL_CUSTOM:

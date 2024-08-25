@@ -345,6 +345,8 @@ bool b_vent_light_on = false; // To know if the light is on or off.
  */
 enum STREAM_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM };
 enum STREAM_MODES STREAM_MODE;
+bool b_christmas = false; // Used in HOLIDAY mode to change from orange/purple to red/green.
+bool b_settings = false; // Used to keep track of being in the wand settings menu.
 
 /*
  * System modes.

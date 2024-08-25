@@ -343,6 +343,7 @@ enum FIRING_MODES FIRING_MODE;
 enum FIRING_MODES LAST_FIRING_MODE;
 enum STREAM_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM };
 enum STREAM_MODES STREAM_MODE;
+bool b_christmas = false; // Used in HOLIDAY mode to change from orange/purple to red/green.
 
 /*
  * Firing timers.

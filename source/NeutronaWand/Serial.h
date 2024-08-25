@@ -723,9 +723,15 @@ void checkPack() {
             break;
             case 6:
               STREAM_MODE = HOLIDAY;
+              b_christmas = false; // Halloween mode.
               setVGMode();
             break;
             case 7:
+              STREAM_MODE = HOLIDAY;
+              b_christmas = true; // Christmas mode.
+              setVGMode();
+            break;
+            case 8:
               STREAM_MODE = SPECTRAL_CUSTOM;
               setVGMode();
             break;
@@ -1089,7 +1095,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
               case HOLIDAY:
                 // Tell the pack we are in holiday mode.
-                wandSerialSend(W_HOLIDAY_MODE);
+                wandSerialSend(W_HOLIDAY_MODE, b_christmas ? 2 : 1);
               break;
 
               case SPECTRAL_CUSTOM:

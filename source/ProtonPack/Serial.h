@@ -851,7 +851,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
           break;
 
           case HOLIDAY:
-            serial1Send(A_HOLIDAY_MODE);
+            serial1Send(A_HOLIDAY_MODE, b_christmas ? 2 : 1);
           break;
 
           case SPECTRAL_CUSTOM:
@@ -1287,11 +1287,16 @@ void doWandSync() {
     break;
 
     case HOLIDAY:
-      packSync.streamMode = 6; // 6 = Holiday Mode
+      if(!b_christmas) {
+        packSync.streamMode = 6; // 6 = Holiday (Halloween) Mode
+      }
+      else {
+        packSync.streamMode = 7; // 7 = Holiday (Christmas) Mode
+      }
     break;
 
     case SPECTRAL_CUSTOM:
-      packSync.streamMode = 7; // 7 = Spectral Custom Mode.
+      packSync.streamMode = 8; // 8 = Spectral Custom Mode.
     break;
 
     case PROTON:
@@ -1731,7 +1736,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       // Proton mode.
       STREAM_MODE = PROTON;
-      playEffect(S_CLICK);
+
+      if(b_settings) {
+        playEffect(S_CLICK);
+        b_settings = false;
+      }
 
       if(b_cyclotron_colour_toggle == true) {
         // Reset the Cyclotron LED colours.
@@ -1772,7 +1781,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       // Slime mode.
       STREAM_MODE = SLIME;
-      playEffect(S_CLICK);
+
+      if(b_settings) {
+        playEffect(S_CLICK);
+        b_settings = false;
+      }
 
       if(b_cyclotron_colour_toggle == true) {
         // Reset the Cyclotron states.
@@ -1823,7 +1836,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       // Stasis mode.
       STREAM_MODE = STASIS;
-      playEffect(S_CLICK);
+
+      if(b_settings) {
+        playEffect(S_CLICK);
+        b_settings = false;
+      }
 
       if(b_cyclotron_colour_toggle == true) {
         // Reset the Cyclotron LED colours.
@@ -1865,7 +1882,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       // Meson mode.
       STREAM_MODE = MESON;
-      playEffect(S_CLICK);
+
+      if(b_settings) {
+        playEffect(S_CLICK);
+        b_settings = false;
+      }
 
       if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
         // Tell GPStar Audio we need short audio mode.
@@ -1916,7 +1937,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       // Proton mode.
       STREAM_MODE = SPECTRAL;
-      playEffect(S_CLICK);
+
+      if(b_settings) {
+        playEffect(S_CLICK);
+        b_settings = false;
+      }
 
       if(b_cyclotron_colour_toggle == true) {
         // Reset the Cyclotron LED colours.
@@ -1962,7 +1987,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       // Proton mode.
       STREAM_MODE = HOLIDAY;
-      playEffect(S_CLICK);
+      b_christmas = (i_value == 2);
+
+      if(b_settings) {
+        playEffect(S_CLICK);
+        b_settings = false;
+      }
 
       if(b_cyclotron_colour_toggle == true) {
         // Reset the Cyclotron LED colours.
@@ -1978,7 +2008,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Update the Inner Cyclotron LEDs if required.
       cyclotronSwitchLEDUpdate();
 
-      serial1Send(A_HOLIDAY_MODE);
+      serial1Send(A_HOLIDAY_MODE, i_value);
     break;
 
     case W_SPECTRAL_CUSTOM_MODE:
@@ -2008,7 +2038,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       // Proton mode.
       STREAM_MODE = SPECTRAL_CUSTOM;
-      playEffect(S_CLICK);
+
+      if(b_settings) {
+        playEffect(S_CLICK);
+        b_settings = false;
+      }
 
       if(b_cyclotron_colour_toggle == true) {
         // Reset the Cyclotron LED colours.
@@ -2030,6 +2064,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_SETTINGS_MODE:
       // Settings mode
       playEffect(S_CLICK);
+      b_settings = true;
 
       serial1Send(A_SETTINGS_MODE);
     break;

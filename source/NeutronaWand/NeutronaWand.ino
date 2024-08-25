@@ -1551,7 +1551,7 @@ void wandOff() {
 
       case HOLIDAY:
         // Tell the pack we are in holiday mode.
-        wandSerialSend(W_HOLIDAY_MODE);
+        wandSerialSend(W_HOLIDAY_MODE, b_christmas ? 2 : 1);
       break;
 
       case SPECTRAL_CUSTOM:
@@ -2140,6 +2140,11 @@ void altWingButtonCheck() {
         bargraphPowerCheck2021Alt(true);
       }
     }
+    else if(STREAM_MODE == HOLIDAY && switch_wand.on() == true && switch_vent.on() == true && switch_mode.pushed()) {
+      // Used to switch the Holiday firing mode between Halloween and Christmas colours.
+      b_christmas = !b_christmas;
+      streamModeCheck();
+    }
   }
 }
 
@@ -2148,7 +2153,7 @@ void streamModeCheck() {
     switch(STREAM_MODE) {
       case HOLIDAY:
         // Tell the pack we are in holiday mode.
-        wandSerialSend(W_HOLIDAY_MODE);
+        wandSerialSend(W_HOLIDAY_MODE, b_christmas ? 2 : 1);
       break;
 
       case SPECTRAL:
@@ -3762,8 +3767,14 @@ void modeFiring() {
     break;
 
     case HOLIDAY:
-      c_temp_start = C_REDGREEN;
-      c_temp_effect = c_temp_start;
+      if(b_christmas) {
+        c_temp_start = C_REDGREEN;
+        c_temp_effect = c_temp_start;
+      }
+      else {
+        c_temp_start = C_ORANGEPURPLE;
+        c_temp_effect = c_temp_start;
+      }
     break;
 
     case SPECTRAL_CUSTOM:
@@ -4011,7 +4022,12 @@ void wandBarrelHeatUp() {
       break;
 
       case HOLIDAY:
-        c_temp = C_REDGREEN;
+        if(b_christmas) {
+          c_temp = C_REDGREEN;
+        }
+        else {
+          c_temp = C_ORANGEPURPLE;
+        }
       break;
 
       case SPECTRAL_CUSTOM:
@@ -4135,7 +4151,12 @@ void wandBarrelHeatDown() {
       break;
 
       case HOLIDAY:
-        c_temp = C_REDGREEN;
+        if(b_christmas) {
+          c_temp = C_REDGREEN;
+        }
+        else {
+          c_temp = C_ORANGEPURPLE;
+        }
       break;
 
       case SPECTRAL_CUSTOM:
@@ -5321,7 +5342,12 @@ void fireEffectEnd() {
       break;
 
       case HOLIDAY:
-        c_temp = C_REDGREEN;
+        if(b_christmas) {
+          c_temp = C_REDGREEN;
+        }
+        else {
+          c_temp = C_ORANGEPURPLE;
+        }
       break;
 
       case SPECTRAL_CUSTOM:
@@ -9471,7 +9497,7 @@ void wandExitMenu() {
 
     case HOLIDAY:
       // Tell the pack we are in holiday mode.
-      wandSerialSend(W_HOLIDAY_MODE);
+      wandSerialSend(W_HOLIDAY_MODE, b_christmas ? 2 : 1);
     break;
 
     case SPECTRAL_CUSTOM:

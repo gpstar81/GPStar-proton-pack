@@ -187,7 +187,7 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 
 <sup>1</sup> Spectral Mode (Rainbow) is a Proton Stream which gives a RAINBOW effect. If your Proton Pack has RGB LEDs, they will change to match.
 
-<sup>2</sup> Spectral (Holiday) is a Proton Stream which gives a RED/GREEN effect. If your Proton Pack has RGB LEDs, it will match these colours.
+<sup>2</sup> Spectral (Holiday) is a Proton Stream which gives an ORANGE/PURPLE effect. You can press the Barrel Wing Button while in this mode to switch to a RED/GREEN effect. If your Proton Pack has RGB LEDs, it will match these colours.
 
 <sup>3</sup> Spectral (Custom) is a Proton Stream with a user-defined colour mode. You can independently adjust the Neutrona Wand Barrel, Power Cell, Cyclotron and Inner Cyclotron colours directly from the EEPROM LED Menu system. The default colours are purple.
 

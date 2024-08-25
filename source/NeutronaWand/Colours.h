@@ -203,20 +203,20 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
     break;
 
     case C_ORANGEPURPLE:
-      // Alternate between orange (32) and purple (192).
-      if(i_curr_colour != 32 && i_curr_colour != 192) {
-        i_curr_colour = 32; // Reset if out of range.
+      // Alternate between orange (15) and purple (210).
+      if(i_curr_colour != 15 && i_curr_colour != 210) {
+        i_curr_colour = 15; // Reset if out of range.
       }
 
       i_count++;
 
       if(i_count % i_cycle == 0) {
-        if(i_curr_colour == 32) {
-          i_curr_colour = 192;
+        if(i_curr_colour == 15) {
+          i_curr_colour = 210;
           i_count = 0; // Reset counter.
         }
         else {
-          i_curr_colour = 32;
+          i_curr_colour = 15;
           i_count = 0; // Reset counter.
         }
       }

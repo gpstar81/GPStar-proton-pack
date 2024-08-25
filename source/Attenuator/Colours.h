@@ -51,6 +51,7 @@ enum colours {
   C_BLUE,
   C_PURPLE,
   C_REDGREEN,
+  C_ORANGEPURPLE,
   C_AMBER_PULSE,
   C_ORANGE_FADE,
   C_RED_FADE,
@@ -261,6 +262,29 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
         }
         else {
           i_curr_colour[i_device] = 0;
+        }
+        ms_colour_change[i_device].start(i_change_delay[i_device]);
+      }
+
+      return CHSV(i_curr_colour[i_device], 255, i_brightness);
+    break;
+
+    case C_ORANGEPURPLE:
+      // Alternate between orange (15) and purple (210) every X milliseconds.
+      if(i_curr_colour[i_device] != 15 && i_curr_colour[i_device] != 210) {
+        i_curr_colour[i_device] = 15; // Reset if out of range.
+      }
+
+      // Set the time delay for colour changes per device.
+      i_change_delay[i_device] = 800;
+
+      if(ms_colour_change[i_device].remaining() < 1) {
+        // Swap colours and restart the timer.
+        if(i_curr_colour[i_device] == 15) {
+          i_curr_colour[i_device] = 210;
+        }
+        else {
+          i_curr_colour[i_device] = 15;
         }
         ms_colour_change[i_device].start(i_change_delay[i_device]);
       }
