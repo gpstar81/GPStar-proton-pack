@@ -173,10 +173,21 @@ void readEEPROM() {
 
     if(obj_eeprom.inner_cyclotron_led_panel > 0 && obj_eeprom.inner_cyclotron_led_panel != 255) {
       if(obj_eeprom.inner_cyclotron_led_panel > 1) {
-        b_inner_cyclotron_led_panel = true;
-      }
-      else {
-        b_inner_cyclotron_led_panel = false;
+        // 2 = Individual, 3 = RGB Static, 4 = RGB Dynamic.
+        switch(obj_eeprom.inner_cyclotron_led_panel) {
+          case 2:
+          default:
+            INNER_CYC_PANEL_MODE = PANEL_INDIVIDUAL;
+          break;
+
+          case 3:
+            INNER_CYC_PANEL_MODE = PANEL_RGB_STATIC;
+          break;
+
+          case 4:
+            INNER_CYC_PANEL_MODE = PANEL_RGB_DYNAMIC;
+          break;
+        }
       }
     }
 
@@ -507,10 +518,21 @@ void saveLEDEEPROM() {
     i_grb_cyclotron_cake = 2;
   }
 
-  uint8_t i_inner_cyclotron_led_panel = 1;
+  // 2 = Individual, 3 = RGB Static, 4 = RGB Dynamic.
+  uint8_t i_inner_cyclotron_led_panel = 2;
+  switch(INNER_CYC_PANEL_MODE) {
+    case PANEL_INDIVIDUAL:
+    default:
+      i_inner_cyclotron_led_panel = 2;
+    break;
 
-  if(b_inner_cyclotron_led_panel == true) {
-    i_inner_cyclotron_led_panel = 2;
+    case PANEL_RGB_STATIC:
+      i_inner_cyclotron_led_panel = 3;
+    break;
+
+    case PANEL_RGB_DYNAMIC:
+      i_inner_cyclotron_led_panel = 4;
+    break;
   }
 
   // Write the data to the EEPROM if any of the values have changed.

@@ -214,6 +214,7 @@ void updateEffectsVolume() {
         audio.trackGain(S_AFTERLIFE_PACK_STARTUP, i_volume_effects);
         audio.trackGain(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects);
         audio.trackGain(S_PACK_SHUTDOWN_AFTERLIFE_ALT, i_volume_effects);
+        audio.trackGain(S_FROZEN_EMPIRE_SHUTDOWN, i_volume_effects);
         audio.trackGain(S_AFTERLIFE_WAND_RAMP_1, i_volume_effects - i_wand_idle_level);
         audio.trackGain(S_AFTERLIFE_WAND_RAMP_2, i_volume_effects - i_wand_idle_level);
         audio.trackGain(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, i_volume_effects - i_wand_idle_level);

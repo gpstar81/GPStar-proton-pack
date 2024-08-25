@@ -53,7 +53,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       <div id="powerLevel" class="overlay infoState power-title"></div>
       <div id="streamMode" class="overlay infoState stream-title"></div>
       <div id="safetyOverlay" class="overlay safety-box"></div>
-      <div id="battOutput" class="overlay infoState batt-title"></div>
+      <div id="battVoltage" class="overlay infoState batt-title"></div>
       <div id="cyclotronLid" class="infoState rad-warn">
         <span style="font-size:1.2em">&#9762;</span> Cyclotron Exposure Warning
       </div>

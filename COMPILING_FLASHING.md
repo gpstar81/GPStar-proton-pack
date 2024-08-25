@@ -30,7 +30,7 @@ The following libraries are required to be installed. All can be found within th
 - **ArduinoINA219** by Flavius Bindea (1.1.1+)
 - **CRC32** by Christopher Baker (2.0.0+)
 - **digitalWriteFast** by Watterott and Armin Joachimsmeyer (1.2.0+)
-- **ezButton** by ArduinoGetStarted.com (1.0.4+)
+- **ezButton** by ArduinoGetStarted.com (1.0.6+)
 - **FastLED** by Daniel Garcia (3.7.0+)
 - **Ramp** by Sylvain Garnavault (0.6.1+)
 - **SafeString** by Matthew Ford (4.1.33+)

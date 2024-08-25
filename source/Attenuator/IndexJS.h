@@ -177,54 +177,31 @@ function updateTrackListing() {
 }
 
 function setButtonStates(mode, pack, wand, cyclotron) {
-  // Assume remote on/off is not possible, override as necessary.
-  getEl("btnPackOff").disabled = false;
-  getEl("btnPackOn").disabled = false;
-
-  // Assume remote venting is not possible, override as necessary.
+  // Assume all functions are not possible, override as necessary.
+  getEl("btnPackOff").disabled = true;
+  getEl("btnPackOn").disabled = true;
   getEl("btnVent").disabled = true;
+  getEl("btnAttenuate").disabled = true;
 
-  if (mode == "Original") {
-    // Rules for Mode Original
-
-    if (pack == "Powered" && wand == "Powered") {
-      // Cannot turn on/off pack remotely if in mode Original and pack+wand are Powered.
-      getEl("btnPackOff").disabled = true;
-      getEl("btnPackOn").disabled = true;
-    }
-  } else {
-    // Rules for Super Hero
-
-    if (pack == "Powered" && wand == "Powered") {
-      // Cannot turn on/off pack remotely if in mode Original and pack+wand are Powered.
-      getEl("btnPackOff").disabled = true;
-      getEl("btnPackOn").disabled = true;
-    } else {
-      // Otherwise, buttons can be enabled based on pack/wand status.
-      if (pack == "Powered" && wand != "Powered") {
-        // Can only turn off the pack, so long as the wand is not powered.
-        getEl("btnPackOff").disabled = false;
-      }
-      if (pack != "Powered") {
-        // Can turn on the pack if not already powered (implies wand is not powered).
-        getEl("btnPackOn").disabled = false;
-      }
-    }
-
-    if (wand == "Powered" && (cyclotron == "Normal" || cyclotron == "Active")) {
-      // Can only use manual vent if wand is Powered and pack is not already venting.
-      // eg. Cyclotron is not in the Warning, Critical, or Recovery states.
-      getEl("btnVent").disabled = false;
-    }
+  if (pack == "Powered" && wand != "Powered") {
+    // Can only turn off the pack, so long as the wand is not powered.
+    getEl("btnPackOff").disabled = false;
   }
 
-  // Attenuate action works for either Operation Mode available.
+  if (pack != "Powered") {
+    // Can turn on the pack if not already powered (implies wand is not powered).
+    getEl("btnPackOn").disabled = false;
+  }
+
+  if (pack == "Powered" && (cyclotron == "Normal" || cyclotron == "Active")) {
+    // Can only use manual vent if pack is not already venting.
+    // eg. Cyclotron is not in the Warning, Critical, or Recovery states.
+    getEl("btnVent").disabled = false;
+  }
+
   if (cyclotron == "Warning" || cyclotron == "Critical") {
     // Can only attenuate if cyclotron is in the pre-overheat states.
     getEl("btnAttenuate").disabled = false;
-  } else {
-    // Otherwise, this should NOT be allowed for any other state.
-    getEl("btnAttenuate").disabled = true;
   }
 }
 
@@ -394,22 +371,29 @@ function updateGraphics(jObj){
         colorEl("safetyOverlay", 100, 100, 100);
       }
     } else {
+      // Wand is considered "disconnected" as no serial communication exists.
       setEl("powerLevel", "&mdash;");
-      setEl("streamMode", "- Disconnected -");
+      if (parseFloat(jObj.wandAmps || 0) > 0.01) {
+        // If we have a non-zero amperage reading, display that as it means a stock wand is attached.
+        setEl("streamMode", "Stream: " + parseFloat((jObj.wandAmps || 0).toFixed(2)) + " GW");
+      } else {
+        // Otherwise we consider a wand to be "disengaged" as it could be inactive or detached.
+        setEl("streamMode", "- Disengaged -");
+      }
       hideEl("barrelOverlay");
       colorEl("safetyOverlay", 100, 100, 100);
     }
 
-    if (jObj.battVoltage) {
-      // Voltage should typically be <5.0 but >4.2 under normal use; anything below that indicates a possible problem.
-      setEl("battOutput", "Output:<br/>" + parseFloat((jObj.battVoltage || 0).toFixed(2)) + " GeV");
+    if (parseFloat(jObj.battVoltage || 0) > 1) {
+      // Voltage should typically be ~5.0 at idle and >=4.2 under normal use; anything below that indicates a possible problem.
+      setEl("battVoltage", "Output:<br/>" + parseFloat((jObj.battVoltage || 0).toFixed(2)) + " GeV");
       if (jObj.battVoltage < 4.2) {
         colorEl("boostOverlay", 255, 0, 0);
       } else {
         colorEl("boostOverlay", 0, 150, 0);
       }
     } else {
-      setEl("battOutput", "");
+      setEl("battVoltage", "0.00 GeV");
     }
 
     if(jObj.cyclotron && !jObj.cyclotronLid) {
@@ -433,9 +417,9 @@ function updateGraphics(jObj){
     hideEl("barrelOverlay");
     blinkEl("barrelOverlay", false);
     setEl("powerLevel", "&mdash;");
-    setEl("streamMode", "- Disconnected -");
+    setEl("streamMode", "- Disengaged -");
     colorEl("safetyOverlay", 100, 100, 100);
-    setEl("battOutput", "");
+    setEl("battVoltage", "");
     hideEl("cyclotronLid");
   }
 }

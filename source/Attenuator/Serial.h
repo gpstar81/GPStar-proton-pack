@@ -936,11 +936,21 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
 
     case A_BATTERY_VOLTAGE_PACK:
       #if defined(__XTENSA__) && defined(DEBUG_SERIAL_COMMS)
-        debug("Voltage: " + String(i_value));
+        debug("Pack Voltage (x100): " + String(i_value));
       #endif
 
       // Convert to a value X.NN based on expected 5VDC maximum.
       f_batt_volts = (float) i_value / 100;
+      b_state_changed = true;
+    break;
+
+    case A_WAND_POWER_AMPS:
+      #if defined(__XTENSA__) && defined(DEBUG_SERIAL_COMMS)
+        debug("Wand Current (x100): " + String(i_value));
+      #endif
+
+      // Convert to a value X.NN based on expected 1Amp maximum.
+      f_wand_amps = (float) i_value / 100;
       b_state_changed = true;
     break;
 

@@ -275,14 +275,7 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
 
   switch(i_device) {
     case CYCLOTRON_OUTER:
-      if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
-        i_cycle = 1;
-
-        if(i_count[i_device] > 1) {
-          i_count[i_device] = 0; // Reset counter.
-        }
-      }
-      else {
+      if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
         i_cycle = 10;
       }
     break;
@@ -416,27 +409,18 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
 
       if(!b_fade) {
         i_count[i_device]++;
-      }
 
-      if(i_count[i_device] % i_cycle == 0) {
-        if(i_curr_colour[i_device] == 0) {
-          i_curr_colour[i_device] = 96;
-          i_output_colour = i_curr_colour[i_device];
-          i_count[i_device] = 0; // Reset counter.
-        }
-        else {
-          i_curr_colour[i_device] = 0;
-          i_output_colour = i_curr_colour[i_device];
-          i_count[i_device] = 0; // Reset counter.
-        }
-      }
-
-      if(b_fade) {
-        if(i_curr_colour[i_device] == 0) {
-          i_output_colour = 96;
-        }
-        else {
-          i_output_colour = 0;
+        if(i_count[i_device] % i_cycle == 0) {
+          if(i_curr_colour[i_device] == 0) {
+            i_curr_colour[i_device] = 96;
+            i_output_colour = i_curr_colour[i_device];
+            i_count[i_device] = 1; // Reset counter.
+          }
+          else {
+            i_curr_colour[i_device] = 0;
+            i_output_colour = i_curr_colour[i_device];
+            i_count[i_device] = 1; // Reset counter.
+          }
         }
       }
 
@@ -452,27 +436,18 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
 
       if(!b_fade) {
         i_count[i_device]++;
-      }
 
-      if(i_count[i_device] % i_cycle == 0) {
-        if(i_curr_colour[i_device] == 32) {
-          i_curr_colour[i_device] = 192;
-          i_output_colour = i_curr_colour[i_device];
-          i_count[i_device] = 0; // Reset counter.
-        }
-        else {
-          i_curr_colour[i_device] = 32;
-          i_output_colour = i_curr_colour[i_device];
-          i_count[i_device] = 0; // Reset counter.
-        }
-      }
-
-      if(b_fade) {
-        if(i_curr_colour[i_device] == 32) {
-          i_output_colour = 192;
-        }
-        else {
-          i_output_colour = 32;
+        if(i_count[i_device] % i_cycle == 0) {
+          if(i_curr_colour[i_device] == 32) {
+            i_curr_colour[i_device] = 192;
+            i_output_colour = i_curr_colour[i_device];
+            i_count[i_device] = 1; // Reset counter.
+          }
+          else {
+            i_curr_colour[i_device] = 32;
+            i_output_colour = i_curr_colour[i_device];
+            i_count[i_device] = 1; // Reset counter.
+          }
         }
       }
 
@@ -501,7 +476,7 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
       if(i_count[i_device] % i_cycle == 0) {
         i_curr_colour[i_device] = (i_curr_colour[i_device] + 5) % 255;
         i_output_colour = i_curr_colour[i_device];
-        i_count[i_device] = 0; // Reset counter.
+        i_count[i_device] = 1; // Reset counter.
       }
 
       if(b_fade) {
@@ -520,7 +495,7 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
       if(i_count[i_device] % i_cycle == 0) {
         i_curr_colour[i_device] = (i_curr_colour[i_device] + 5) % 255;
         i_output_colour = i_curr_colour[i_device];
-        i_count[i_device] = 0; // Reset counter.
+        i_count[i_device] = 1; // Reset counter.
       }
 
       if(b_fade) {

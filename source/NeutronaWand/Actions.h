@@ -36,10 +36,10 @@ void checkWandAction() {
             if(WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && b_pack_alarm != true) {
               // When ready to fire the hat light LED at the barrel tip lights up in Afterlife mode.
               if(b_switch_barrel_extended == true && switch_vent.on() == true && switch_wand.on() == true) {
-                digitalWriteFast(led_hat_1, HIGH);
+                digitalWriteFast(BARREL_HAT_LED_PIN, HIGH);
               }
               else {
-                digitalWriteFast(led_hat_1, LOW);
+                digitalWriteFast(BARREL_HAT_LED_PIN, LOW);
               }
             }
           break;
@@ -98,10 +98,10 @@ void checkWandAction() {
 
         if(ms_hat_1.isRunning()) {
           if(ms_hat_1.remaining() < i_hat_1_delay / 2) {
-            digitalWriteFast(led_hat_2, HIGH);
+            digitalWriteFast(TOP_HAT_LED_PIN, HIGH);
           }
           else {
-            digitalWriteFast(led_hat_2, LOW);
+            digitalWriteFast(TOP_HAT_LED_PIN, LOW);
           }
 
           if(ms_hat_1.justFinished()) {
@@ -128,8 +128,6 @@ void checkWandAction() {
     break;
 
     case ACTION_OVERHEATING:
-      b_sound_afterlife_idle_2_fade = true;
-
       if(b_overheat_bargraph_blink == true) {
         settingsBlinkingLights();
 
@@ -161,21 +159,15 @@ void checkWandAction() {
         }
       }
 
-      if(b_gpstar_benchtest == true) {
-        // Since the Proton Pack tells the Neutrona Wand when venting is finished, standalone wand needs its own timer.
-        if(ms_overheating.justFinished()) {
-          overheatingFinished();
-        }
+      if(ms_overheating.justFinished()) {
+        overheatingFinished();
       }
-
     break;
 
     case ACTION_VENTING:
       // Since the Proton Pack tells the Neutrona Wand when venting is finished, standalone wand needs its own timer.
-      if(b_gpstar_benchtest == true) {
-        if(ms_overheating.justFinished()) {
-          quickVentFinished();
-        }
+      if(ms_overheating.justFinished()) {
+        quickVentFinished();
       }
     break;
 
@@ -1403,7 +1395,7 @@ void checkWandAction() {
           // Play or stop the current music track.
           if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
             if(switch_intensify.pushed()) {
-              if(b_playing_music) {
+              if(b_playing_music == true) {
                 stopMusic();
               }
               else {

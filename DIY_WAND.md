@@ -90,8 +90,8 @@ These are the same connections which are used for the FTDI breakout board to pro
 |------------|------------|
 | 5Vin       | +5V        |
 | GND        | Ground     |
-| RX         | PIN D9     |
-| TX         | PIN D8     |
+| RX         | PIN D14    |
+| TX         | PIN D15    |
 | SPKR+      | Speaker +  |
 | SPKR-      | Speaker -  |
 
@@ -99,7 +99,7 @@ These are the same connections which are used for the FTDI breakout board to pro
 
 The following is a diagram of the Mega2560 Pro Mini pins from left and right, when oriented with the USB connection facing up (north). As this board has 2 rows of pins on each side it is crucial to re-check labels before connection. Please see the diagram at the bottom of the page if necessary.
 
-You can also reference the older (but outdated) PDF document for the [Pack Schematic Minimal](circuits/PackSchematic-Minimal.pdf) for minimal visual guidance on the Wand wiring configuration. The pins in use for the Arduino Nano should be the same for the Mega2560 Pro Mini, with the following table being the "source of truth" when in doubt.
+Please note that the Mega2560 Pro Mini uses a completely different pinout from the old Arduino Nano DIY build!
 
 | Mega (L1) | Mega (L2) | USB | Mega (R1) | Mega (R2) |
 |-----------|-----------|-----|-----------|-----------|
@@ -108,14 +108,14 @@ You can also reference the older (but outdated) PDF document for the [Pack Schem
 | 5V   | 5V   |     |     |     |
 | 3.3V | 3.3V |     |     |     |
 | RST  | AREF |     |     |     |
-| TX1 &rarr; RX (to Pack) | RX0 &rarr; TX (to Pack) |     | A1 &rarr; D2 (Brown) | A0 &rarr; SW2 (Red) |
+| TX0 &rarr; RX (to Pack) | RX0 &rarr; TX (to Pack) |     | A1 &rarr; D2 (Brown) | A0 &rarr; SW2 (Red) |
 | D3 &rarr; SW4 (Red) | D2 &rarr; SW45 (White) |     | A3 &rarr; D4 (Orange) | A2 &rarr; D3 (Red) |
-| D5 &rarr; D1 & D9 (Red) | D4 &rarr; SW1 (Brown) |     | A5 &rarr; D6 (Green) | A4 &rarr; D5 (Yellow) |
+| D5 | D4 &rarr; SW1 (Brown) |     | A5 &rarr; D6 (Green) | A4 &rarr; D5 (Yellow) |
 | D7 &rarr; ROT (Yellow) | D6 &rarr; ROT (Red) |     | A7 &rarr; SW7 (Orange) | A6 &rarr; SW6 (White) |
-| D9 &rarr; WAV Trigger RX | D8 &rarr; WAV Trigger TX |     | A9   | A8   |
+| D9 &rarr; D9 (Red) | D8 &rarr; D1 (Red) |     | A9   | A8   |
 | D11 &rarr; Motor-NPN | D10 &rarr; Q2<sup>!</sup> (Yellow) or (Red) |     | A11  | A10  |
 | D13 &rarr; D8 (Red) | D12 &rarr; D7 (Red) |     | A13  | A12  |
-| D15  | D14  |     | A15  | A14  |
+| D15 &rarr; WAV Trigger TX | D14 &rarr; WAV Trigger RX |     | A15  | A14  |
 | D17  | D16  |     | D33  | D32  |
 | D19  | D18  |     | D35  | D34  |
 | D21  | D20  |     | D37  | D36  |
@@ -148,27 +148,15 @@ You can also reference the older (but outdated) PDF document for the [Pack Schem
 | <font color="red">Red</font>    | → | Ground |    |        | SW4  |
 | <font color="Red"> Red </font>  | → | →      | →  | Pin D3 | SW4  |
 
-**Special Switches**
-
-These switches utilize a "pull down" resistor to measure the difference in voltage when the button or switch is depressed. Each switch will get +5V power on one wire, while the other wire will connect to both a 10K resistor and an microcontroller pin. The other side of the resistor will connect to ground. This allows the pin to go to ground (low) when power is not supplied (read: the switch is not depressed), and the pin gets when +5V is present when the switch is depressed.
-
 | MODE SWITCH → SW6 |    |            |    | Mega Pin | Hasbro Ref |                                       |
 |-------------------|----|------------|----|----------|------------|---------------------------------------|
-| <font color="gray">White</font> | → | +5V    |   |        | SW6 | Shouldn’t matter which wire goes where |
-| <font color="gray">White</font> | → | &bull; | → | Pin A6 | SW6 | Shouldn’t matter which wire goes where |
-|                                 |   | ↓      |   |        |     |                                        |
-|                                 |   | 10k Ω  |   |        |     |                                        |
-|                                 |   | ↓      |   |        |     |                                        |
-|                                 |   | Ground |   |        |     | Need to pull to ground (for reference) |
+| <font color="gray">White</font> | → | Ground |   |        | SW6 | Shouldn’t matter which wire goes where |
+| <font color="gray">White</font> | → | →      | → | Pin A6 | SW6 | Shouldn’t matter which wire goes where |
 
 | BARREL EXTENSION SWITCH → SW7 |   |        |    | Mega Pin | Hasbro Ref |                                   |
 |-------------------------------|---|--------|----|----------|------------|-----------------------------------|
-| <font color="orange">Orange</font> | → | +5V    |   |        | SW7 | Shouldn’t matter which wire goes where |
-| <font color="orange">Orange</font> | → | &bull; | → | Pin A7 | SW7 | Shouldn’t matter which wire goes where |
-|                                    |   | ↓      |   |        |     |                                        |
-|                                    |   | 10k Ω  |   |        |     |                                        |
-|                                    |   | ↓      |   |        |     |                                        |
-|                                    |   | Ground |   |        |     | Need to pull to ground (for reference) |
+| <font color="orange">Orange</font> | → | Ground |   |        | SW7 | Shouldn’t matter which wire goes where |
+| <font color="orange">Orange</font> | → | →      | → | Pin A7 | SW7 | Shouldn’t matter which wire goes where |
 
 The rotary encoder is similar to that used on the Proton Pack. It requires a common ground connection and sends data via the A/B signal wires to indicate which direction it was turned.
 
@@ -188,6 +176,8 @@ Considered optional as this can be left out if desired, and without impact to no
 | NPN C                | → | 1N4001     | Black                        |         | NPN* = PN2222                               |
 | NPN B                | → | 330 Ω      | →                            | Pin D11 |                                             |
 | NPN E                | → | →          | →                            | Ground  |                                             |
+
+*NPN Bipolar Transistor. Reference Pack page for more info.
 
 ### Hasbro Bargraph
 | BARGRAPH → J3                      |   |       |    | Mega Pin | Hasbro Ref |
@@ -210,33 +200,15 @@ Note for Bargraph: If you want to replace LEDs, the bargraph uses 3mm LED diodes
 | <font color="gray">White</font> | → | 90 Ω | →  | Pin D12  | D7         | Blinking white LED on top of the wand  |
 | Black                           | → | 90 Ω | →  | Pin D13  | D8         | White LED inside the wand (vent light) |
 
-*NPN Bipolar Transistor. Reference Pack page for more info.
-
-For the SLO-BLO and Front-Left LED which share on 1 pin from the microcontroller. The spec sheet for the ATMega2560 states a max 40mA draw on a pin. With 2 LEDs it is at that threshold. I have been testing this setup extensively and have not blown out the pin. I prefer this solution as it requires less space than using a transistor method.
-
 | SLO-BLO → D1         |    |       |    | Mega Pin     | Hasbro Ref | Notes |
 |----------------------|----|-------|----|--------------|----|-------------------------------------|
-| <font color="red">Red</font> | → | 140 Ω | → | Pin D5 | D1 | Pin shared with FRONT LEFT LED |
+| <font color="red">Red</font> | → | 140 Ω | → | Pin D8 | D1 |                                     |
 | Black                        | → | →     | → | Ground | D1 |                                     |
 
 | FRONT LEFT LED → D9 |    |       |    | Mega Pin     | Hasbro Ref | Notes |
 |---------------------|----|-------|----|--------------|----|-------------------------------------|
-| <font color="red">Red</font>       | → | 140 Ω | → | Pin D5 | D9 | Pin shared with SLO-BLO |
-| <font color="yellow">Yellow</font> | → | →     | → | Ground | D9 |                              |
-
-**OPTIONAL** - See below for transistor method to drive the 2 LEDs from the same pin if you wish to use that method instead. See example breadboard setup photo below that you can replicate onto [a ¼ protoboard](https://www.adafruit.com/product/1608).
-
-| NPN* = PN2222 |   | Slo-Blo (B) | Front Left LED (Y)| Mega Pin |
-|---------------|---|-------------|-------------------|----------|
-|               |   | 140 Ω       | 140 Ω             |          |
-|               |   | ↕           | ↕                 |          |
-| NPN C         | → | Ground      | ← (Ground)        |          |
-| NPN B         | → | 1k Ω        | →                 | Pin D5   |
-| NPN E         | → | Ground      |                   |          |
-
-*NPN Bipolar Transistor. Reference Pack page for more info.
-
-![](images/SloBloAlt.jpg)
+| <font color="red">Red</font>       | → | 140 Ω | → | Pin D9 | D9 | |
+| <font color="yellow">Yellow</font> | → | →     | → | Ground | D9 | |
 
 ## Wand Barrel LEDs
 

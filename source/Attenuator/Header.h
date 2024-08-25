@@ -192,14 +192,14 @@ enum POWER_LEVELS POWER_LEVEL_PREV;
   // ESP32
   #define LEFT_TOGGLE_PIN 34
   #define RIGHT_TOGGLE_PIN 35
-  ezButton switch_left(LEFT_TOGGLE_PIN, INPUT);
-  ezButton switch_right(RIGHT_TOGGLE_PIN, INPUT);
+  ezButton switch_left(LEFT_TOGGLE_PIN, EXTERNAL_PULLUP);
+  ezButton switch_right(RIGHT_TOGGLE_PIN, EXTERNAL_PULLUP);
 #else
   // Nano
   #define LEFT_TOGGLE_PIN 5
   #define RIGHT_TOGGLE_PIN 6
-  ezButton switch_left(LEFT_TOGGLE_PIN, INPUT_PULLUP);
-  ezButton switch_right(RIGHT_TOGGLE_PIN, INPUT_PULLUP);
+  ezButton switch_left(LEFT_TOGGLE_PIN, INTERNAL_PULLUP);
+  ezButton switch_right(RIGHT_TOGGLE_PIN, INTERNAL_PULLUP);
 #endif
 bool b_left_toggle_on = false;
 bool b_right_toggle_on = false;
@@ -277,8 +277,9 @@ bool b_received_prefs_pack = false;
 bool b_received_prefs_wand = false;
 bool b_received_prefs_smoke = false;
 
-// Battery Voltage
-float f_batt_volts;
+// Pack Battery (V) and Wand Power (A) Values
+float f_batt_volts = 0;
+float f_wand_amps = 0;
 
 // Forward declarations.
 void debug(String message);

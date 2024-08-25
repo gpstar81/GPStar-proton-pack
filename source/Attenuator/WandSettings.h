@@ -263,7 +263,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
           var settings = JSON.parse(this.responseText);
           if (settings) {
             if (!settings.prefsAvailable) {
-              alert("An unexpected error occurred and preferences could not be downloaded. Please refresh the page to try again.");
+              alert("Preferences could not be downloaded. Please confirm a GPStar-powered wand is connected, then refresh the page to try again.");
               return;
             }
 

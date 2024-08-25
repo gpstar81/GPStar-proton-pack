@@ -182,8 +182,8 @@ void wandSerialSendData(uint8_t i_message) {
 
       wandConfig.ledWandHue = i_spectral_wand_custom_colour;
       wandConfig.ledWandSat = i_spectral_wand_custom_saturation;
-      wandConfig.spectralModesEnabled = b_spectral_mode_enabled;
-      wandConfig.overheatEnabled = b_overheat_enabled;
+      wandConfig.spectralModesEnabled = b_spectral_mode_enabled ? 1 : 0;
+      wandConfig.overheatEnabled = b_overheat_enabled ? 1 : 0;
 
       switch(FIRING_MODE) {
         case VG_MODE:
@@ -198,11 +198,11 @@ void wandSerialSendData(uint8_t i_message) {
         break;
       }
 
-      wandConfig.wandSoundsToPack = b_extra_pack_sounds;
-      wandConfig.quickVenting = b_quick_vent;
-      wandConfig.autoVentLight = b_vent_light_control;
-      wandConfig.wandBeepLoop = b_beep_loop;
-      wandConfig.wandBootError = b_wand_boot_errors;
+      wandConfig.wandSoundsToPack = b_extra_pack_sounds ? 1 : 0;
+      wandConfig.quickVenting = b_quick_vent ? 1 : 0;
+      wandConfig.autoVentLight = b_vent_light_control ? 1 : 0;
+      wandConfig.wandBeepLoop = b_beep_loop ? 1 : 0;
+      wandConfig.wandBootError = b_wand_boot_errors ? 1 : 0;
 
       switch(WAND_YEAR_MODE) {
         case YEAR_DEFAULT:
@@ -258,8 +258,8 @@ void wandSerialSendData(uint8_t i_message) {
         break;
       }
 
-      wandConfig.invertWandBargraph = b_bargraph_invert;
-      wandConfig.bargraphOverheatBlink = b_overheat_bargraph_blink;
+      wandConfig.invertWandBargraph = b_bargraph_invert ? 1 : 0;
+      wandConfig.bargraphOverheatBlink = b_overheat_bargraph_blink ? 1 : 0;
 
       switch(BARGRAPH_MODE_EEPROM) {
         case BARGRAPH_EEPROM_DEFAULT:
@@ -293,11 +293,11 @@ void wandSerialSendData(uint8_t i_message) {
 
     case W_SEND_PREFERENCES_SMOKE:
       // Determines whether overheating is enabled for a power level.
-      smokeConfig.overheatLevel5 = b_overheat_level_5;
-      smokeConfig.overheatLevel4 = b_overheat_level_4;
-      smokeConfig.overheatLevel3 = b_overheat_level_3;
-      smokeConfig.overheatLevel2 = b_overheat_level_2;
-      smokeConfig.overheatLevel1 = b_overheat_level_1;
+      smokeConfig.overheatLevel5 = b_overheat_level_5 ? 1 : 0;
+      smokeConfig.overheatLevel4 = b_overheat_level_4 ? 1 : 0;
+      smokeConfig.overheatLevel3 = b_overheat_level_3 ? 1 : 0;
+      smokeConfig.overheatLevel2 = b_overheat_level_2 ? 1 : 0;
+      smokeConfig.overheatLevel1 = b_overheat_level_1 ? 1 : 0;
 
       // Time (seconds) before an overheat event takes place by level.
       smokeConfig.overheatDelay5 = (uint8_t)(i_ms_overheat_initiate_level_5 / 1000);
@@ -344,11 +344,52 @@ void checkPack() {
               ms_handshake.start(i_heartbeat_delay);
 
               // Turn off the sync indicator LED as the sync is completed.
-              digitalWriteFast(led_white, HIGH);
+              digitalWriteFast(TOP_LED_PIN, HIGH);
 
               // Indicate that a pack is now connected.
               WAND_CONN_STATE = PACK_CONNECTED;
             }
+          }
+          else if(recvCmd.s == W_COM_START && recvCmd.c == W_SYNC_NOW && recvCmd.d1 == 0 && recvCmd.e == W_COM_END) {
+            // We just received our own heartbeat echoed back, so switch to standalone mode.
+            WAND_CONN_STATE = NC_BENCHTEST;
+            b_gpstar_benchtest = true;
+            b_pack_on = true; // Pretend that the pack (not really attached) has been powered on.
+
+            // Turn off the sync indicator LED as it is no longer necessary.
+            digitalWriteFast(TOP_LED_PIN, HIGH);
+
+            // Reset the audio device now that we are in standalone mode and need music playback.
+            setupAudioDevice();
+
+            // Start the music check timer for standalone mode.
+            ms_check_music.start(i_music_check_delay);
+
+            // Re-read the EEPROM now that we are in standalone mode to make sure system mode and volume are correct.
+            if(b_eeprom) {
+              readEEPROM();
+            }
+
+            // Sanity check to make sure that a firing mode was set as default.
+            if(FIRING_MODE != CTS_MODE && FIRING_MODE != CTS_MIX_MODE) {
+              FIRING_MODE = VG_MODE;
+              LAST_FIRING_MODE = FIRING_MODE;
+            }
+
+            // Check if we should be in video game mode or not.
+            vgModeCheck();
+
+            // Reset the bargraph.
+            bargraphYearModeUpdate();
+
+            // Stop the pack sync timer since we are no longer syncing to a pack.
+            ms_packsync.stop();
+
+            // No pack to do a volume sync with, so reset our master volume manually.
+            resetMasterVolume();
+
+            // Immediately exit the serial data functions.
+            return;
           }
         break;
 
@@ -887,16 +928,22 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       }
     break;
 
-    case P_TOGGLE_INNER_CYCLOTRON_PANEL_ENABLED:
+    case P_INNER_CYCLOTRON_PANEL_DISABLED:
+      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+      playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
+    break;
+
+    case P_INNER_CYCLOTRON_PANEL_STATIC:
       stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
       stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
       playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
     break;
 
-    case P_TOGGLE_INNER_CYCLOTRON_PANEL_DISABLED:
-      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
+    case P_INNER_CYCLOTRON_PANEL_DYNAMIC:
       stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
-      playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
+      playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
     break;
 
     case P_MODE_ORIGINAL_RED_SWITCH_ON:
@@ -986,35 +1033,38 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
         if(b_pack_on == true && b_pack_alarm != true && b_overheat_enabled == true) {
           switch(getNeutronaWandYearMode()) {
-              case SYSTEM_1984:
-              case SYSTEM_1989:
+            case SYSTEM_1984:
+            case SYSTEM_1989:
+              if(b_extra_pack_sounds == true) {
+                wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+                wandSerialSend(W_WAND_SHUTDOWN_SOUND);
+              }
+            break;
+
+            case SYSTEM_AFTERLIFE:
+            case SYSTEM_FROZEN_EMPIRE:
+            default:
+                stopEffect(S_WAND_SHUTDOWN);
+                playEffect(S_WAND_SHUTDOWN);
+
+              if(switch_vent.on() == false) {
+                stopAfterLifeSounds();
+                playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 1);
+
                 if(b_extra_pack_sounds == true) {
                   wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
                   wandSerialSend(W_WAND_SHUTDOWN_SOUND);
+                  wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
                 }
-              break;
-
-              case SYSTEM_AFTERLIFE:
-              case SYSTEM_FROZEN_EMPIRE:
-              default:
-                  stopEffect(S_WAND_SHUTDOWN);
-                  playEffect(S_WAND_SHUTDOWN);
-
-                if(switch_vent.on() == false) {
-                  stopAfterLifeSounds();
-                  playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 1);
-
-                  if(b_extra_pack_sounds == true) {
-                    wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
-                    wandSerialSend(W_WAND_SHUTDOWN_SOUND);
-                    wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
-                  }
-                }
-              break;
-            }
+              }
+            break;
+          }
 
           startVentSequence();
         }
+      }
+      else if(WAND_STATUS == MODE_OFF) {
+        wandSerialSend(W_OVERHEATING);
       }
     break;
 
@@ -1049,7 +1099,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
       if(WAND_STATUS != MODE_ERROR) {
         if(WAND_STATUS == MODE_ON) {
-          digitalWriteFast(led_hat_2, HIGH); // Turn on hat light 2.
+          digitalWriteFast(TOP_HAT_LED_PIN, HIGH); // Turn on hat light 2.
           prepBargraphRampDown();
 
           if(WAND_ACTION_STATUS == ACTION_SETTINGS) {
@@ -1129,7 +1179,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
     case P_ALARM_OFF:
       if(WAND_STATUS != MODE_ERROR && b_pack_alarm) {
-        digitalWriteFast(led_hat_2, LOW); // Turn off hat light 2.
+        digitalWriteFast(TOP_HAT_LED_PIN, LOW); // Turn off hat light 2.
 
         ms_hat_2.stop();
 
@@ -1147,44 +1197,43 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
             break;
           }
         }
+
+        if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_on) {
+          soundIdleLoop(true);
+
+          if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
+            stopEffect(S_WAND_BOOTUP);
+            playEffect(S_WAND_BOOTUP);
+
+            if(switch_vent.on() == false) {
+              afterlifeRampSound1();
+            }
+          }
+        }
       }
 
       // Alarm is off.
       b_pack_alarm = false;
-
-      if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_on) {
-        soundIdleLoop(true);
-
-        if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
-          stopEffect(S_WAND_BOOTUP);
-          playEffect(S_WAND_BOOTUP);
-
-          if(switch_vent.on() == false) {
-            afterLifeRamp1();
-          }
-        }
-      }
     break;
 
     case P_WARNING_CANCELLED:
       // Pack is telling wand to cancel any overheat warnings.
       // First, stop the timers which trigger the overheat.
       ms_overheat_initiate.stop();
-      ms_overheating.stop();
       ms_hat_1.stop();
       ms_hat_2.stop();
 
       if(b_firing == true) {
         // Keep hat light 1 on if still firing.
-        digitalWriteFast(led_hat_1, HIGH);
+        digitalWriteFast(BARREL_HAT_LED_PIN, HIGH);
       }
 
       // Revert hat light 2 to its normal non-overheat status.
       if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
-        digitalWriteFast(led_hat_2, HIGH);
+        digitalWriteFast(TOP_HAT_LED_PIN, HIGH);
       }
       else {
-        digitalWriteFast(led_hat_2, LOW);
+        digitalWriteFast(TOP_HAT_LED_PIN, LOW);
       }
 
       // Next, reset the cyclotron speed on all devices.

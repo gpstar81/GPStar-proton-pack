@@ -20,6 +20,32 @@
 #pragma once
 
 /*
+ * All input and output pin definitions go here.
+ */
+#define INTENSIFY_SWITCH_PIN 2
+#define ACTIVATE_SWITCH_PIN 3
+#define VENT_SWITCH_PIN 4
+#define ROTARY_ENCODER_A 6
+#define ROTARY_ENCODER_B 7
+#define SLO_BLO_LED_PIN 8 // SLO-BLO LED. (Red LED)
+#define CLIPPARD_LED_PIN 9 // LED underneath the Clippard valve. (Orange or White LED)
+#define BARREL_LED_PIN 10 // Data pin for the addressable LEDs in the barrel.
+#define VIBRATION_PIN 11 // Pin for the vibration motor.
+#define TOP_LED_PIN 12 // Blinking white light beside the vent on top of the wand.
+#define VENT_LED_PIN 13 // Vent light.
+#define BARREL_HAT_LED_PIN 22 // Hat light at front of the wand near the barrel tip. (Orange LED)
+#define TOP_HAT_LED_PIN 23 // Hat light at top of the wand body near vent. (Orange or White LED)
+#define BARREL_TIP_LED_PIN 24 // White LED at tip of the wand barrel. (White LED)
+#define WAND_SWITCH_PIN A0
+#define BARGRAPH_LED_1_PIN A1
+#define BARGRAPH_LED_2_PIN A2
+#define BARGRAPH_LED_3_PIN A3
+#define BARGRAPH_LED_4_PIN A4
+#define BARGRAPH_LED_5_PIN A5
+#define MODE_SWITCH_PIN A6
+#define BARREL_SWITCH_PIN A7
+
+/*
  * Wand state.
  */
 enum WAND_STATE { MODE_OFF, MODE_ON, MODE_ERROR };
@@ -117,7 +143,6 @@ const uint16_t i_meson_blast_delay_level_1 = 220;
  * When using the 48 LED option the standard white LED will be swapped for the 49th LED of the Frutto option.
  */
 #define BARREL_LEDS_MAX 49 // The maximum number of barrel LEDs supported (Frutto = 48 + Strobe Tip).
-#define BARREL_LED_PIN 10
 CRGB barrel_leds[BARREL_LEDS_MAX];
 // This is the array of LEDs in the order by which they should be illuminated for effects. LED number 12 is the very tip which will be white (by default).
 const uint8_t frutto_barrel[48] PROGMEM = {0, 25, 24, 48, 1, 26, 23, 47, 2, 27, 22, 46, 3, 28, 21, 45, 4, 29, 20, 44, 5, 30, 19, 43, 6, 31, 18, 42, 7, 32, 17, 41, 8, 33, 16, 40, 9, 34, 15, 39, 10, 35, 14, 38, 11, 36, 13, 37};
@@ -142,17 +167,6 @@ uint8_t i_fast_led_delay = FAST_LED_UPDATE_MS;
 millisDelay ms_fast_led;
 
 /*
- * Non-addressable LEDs
- */
-const uint8_t led_slo_blo = 8; // SLO-BLO LED. (Red LED)
-const uint8_t led_front_left = 9; // LED underneath the Clippard valve. (Orange or White LED)
-const uint8_t led_white = 12; // Blinking white light beside the vent on top of the wand.
-const uint8_t led_vent = 13; // Vent light
-const uint8_t led_hat_1 = 22; // Hat light at front of the wand near the barrel tip. (Orange LED)
-const uint8_t led_hat_2 = 23; // Hat light at top of the wand body near vent. (Orange or White LED)
-const uint8_t led_barrel_tip = 24; // White LED at tip of the wand barrel. (White LED)
-
-/*
  * Time in milliseconds for blinking the top white LED while the wand is on.
  * By default this is set to the blink cycle used on the Afterlife props.
  * On first system start a random value will be selected for GB1/GB2 mode.
@@ -173,8 +187,6 @@ uint16_t d_white_light_interval = i_afterlife_blink_interval;
  * Rotary encoder on the top of the wand. Changes the wand power level and controls the wand settings menu.
  * Also controls independent music volume while the pack/wand is off and if music is playing.
  */
-#define r_encoderA 6
-#define r_encoderB 7
 millisDelay ms_firing_mode_switch; // Timer for rotary firing mode select speed limit.
 const uint8_t i_firing_mode_switch_delay = 50; // Time to delay switching firing modes.
 static uint8_t prev_next_code = 0;
@@ -187,7 +199,6 @@ static uint16_t store = 0;
  */
 enum VIBRATION_MODES_EEPROM { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE, VIBRATION_DEFAULT };
 enum VIBRATION_MODES_EEPROM VIBRATION_MODE_EEPROM;
-const uint8_t vibration = 11;
 const uint8_t i_vibration_level_min = 65;
 uint8_t i_vibration_level = i_vibration_level_min;
 uint8_t i_vibration_level_prev = 0;
@@ -204,29 +215,22 @@ bool b_vibration_switch_on = true;
 /*
  * Various Switches on the wand.
  */
-Switch switch_intensify(2);
-Switch switch_activate(3);
-Switch switch_vent(4); // Turns on the vent light. Bottom right switch on the wand.
-Switch switch_wand(A0); // Controls the beeping. Top right switch on the wand.
-Switch switch_mode(A6); // Changes firing modes, crosses streams, or used in settings menus.
-Switch switch_barrel(A7); // Checks whether barrel is retracted or not.
+Switch switch_intensify(INTENSIFY_SWITCH_PIN); // Intensify switch.
+Switch switch_activate(ACTIVATE_SWITCH_PIN); // Activate switch.
+Switch switch_vent(VENT_SWITCH_PIN); // Turns on the vent light. Bottom right switch on the wand.
+Switch switch_wand(WAND_SWITCH_PIN); // Controls the beeping. Top right switch on the wand.
+Switch switch_mode(MODE_SWITCH_PIN); // Changes firing modes, crosses streams, or used in settings menus.
+Switch switch_barrel(BARREL_SWITCH_PIN); // Checks whether barrel is retracted or not.
 bool b_switch_barrel_extended = true; // Set to true for bootup to prevent sound from playing erroneously. The Neutrona Wand will adjust as necessary.
-bool b_all_switch_activation = false; // Used to check if Activate was flipped to on while the vent switch was already in the on position for sound purposes.
 uint8_t ventSwitchedCount = 0;
 uint8_t wandSwitchedCount = 0;
 
 /*
  * Hasbro bargraph LEDs.
  */
-const uint8_t led_bargraph_1 = A1;
-const uint8_t led_bargraph_2 = A2;
-const uint8_t led_bargraph_3 = A3;
-const uint8_t led_bargraph_4 = A4;
-const uint8_t led_bargraph_5 = A5;
-
 const uint8_t i_bargraph_segments_5_led = 5;
-const uint8_t i_bargraph_5_led_invert[i_bargraph_segments_5_led] PROGMEM = {led_bargraph_5, led_bargraph_4, led_bargraph_3, led_bargraph_2, led_bargraph_1};
-const uint8_t i_bargraph_5_led_normal[i_bargraph_segments_5_led] PROGMEM = {led_bargraph_1, led_bargraph_2, led_bargraph_3, led_bargraph_4, led_bargraph_5};
+const uint8_t i_bargraph_5_led_invert[i_bargraph_segments_5_led] PROGMEM = {BARGRAPH_LED_5_PIN, BARGRAPH_LED_4_PIN, BARGRAPH_LED_3_PIN, BARGRAPH_LED_2_PIN, BARGRAPH_LED_1_PIN};
+const uint8_t i_bargraph_5_led_normal[i_bargraph_segments_5_led] PROGMEM = {BARGRAPH_LED_1_PIN, BARGRAPH_LED_2_PIN, BARGRAPH_LED_3_PIN, BARGRAPH_LED_4_PIN, BARGRAPH_LED_5_PIN};
 bool b_bargraph_status_5[i_bargraph_segments_5_led] = {};
 
 /*
@@ -394,7 +398,6 @@ bool b_pack_on = false; // Denotes the pack has been powered on.
 bool b_pack_alarm = false; // Denotes the pack alarm is sounding (ribbon cable disconnected).
 bool b_pack_ion_arm_switch_on = false; // For MODE_ORIGINAL. Lets us know if the Proton Pack Ion Arm switch is on to give power to the pack & wand.
 bool b_pack_cyclotron_lid_on = false; // For SYSTEM_FROZEN_EMPIRE. Lets us know if the pack's cyclotron lid is on or not. Default to false to favor FE effects unless told otherwise.
-bool b_sync_light = false; // Toggle for the state of the white LED beside the vent light which gets blinked as a sync operation is attempted.
 uint8_t i_cyclotron_speed_up = 1; // For telling the pack to speed up or slow down the Cyclotron lights.
 millisDelay ms_packsync; // Timer for attempting synchronization with a connected pack.
 millisDelay ms_handshake; // Timer for attempting a keepalive handshake with a connected pack.
@@ -424,6 +427,8 @@ bool b_sound_firing_cross_the_streams = false;
 bool b_sound_idle = false;
 bool b_beeping = false;
 bool b_sound_afterlife_idle_2_fade = true;
+bool b_all_switch_activation = false; // Used to check if Activate was flipped to on while the vent switch was already in the on position for sound purposes.
+bool b_overheat_recovery = false; // Used to prevent wand from erroneously sending overlapping bootup sounds to pack when recovering from overheat.
 bool b_wand_boot_error_on = false;
 
 /*
@@ -432,24 +437,24 @@ bool b_wand_boot_error_on = false;
  * otherwise an error mode will be engaged to provide a cool-down period. This does not apply to any
  * prolonged firing which would trigger the overheat or venting sequences; only rapid firing bursts.
  */
-millisDelay ms_bmash;                  // Timer for the button mash lock-out period.
+millisDelay ms_bmash;              // Timer for the button mash lock-out period.
 uint16_t i_bmash_delay = 2000;     // Time period in which we consider rapid firing.
 uint16_t i_bmash_cool_down = 3000; // Time period for the lock-out of user input.
-uint8_t i_bmash_count = 0;             // Current count for rapid firing bursts.
-uint8_t i_bmash_max = 7;               // Burst count we consider before the lock-out.
-uint8_t i_bmash_spark_index = 0;       // Current spark number for the spark effect (0~2).
-bool b_wand_mash_error = false;        // Indicates if wand is in a lock-out phase.
+uint8_t i_bmash_count = 0;         // Current count for rapid firing bursts.
+uint8_t i_bmash_max = 7;           // Burst count we consider before the lock-out.
+uint8_t i_bmash_spark_index = 0;   // Current spark number for the spark effect (0~2).
+bool b_wand_mash_error = false;    // Indicates if wand is in a lock-out phase.
 
 /*
  * Used during the overheating sequences.
-*/
+ */
 millisDelay ms_blink_sound_timer_1;
 millisDelay ms_blink_sound_timer_2;
 const uint16_t i_blink_sound_timer = 400;
 
 /*
  * A timer to turn on some Neutrona Wand lights when the system is shut down after some inactivity, as a reminder you left your power on to the system.
-*/
+ */
 millisDelay ms_power_indicator;
 millisDelay ms_power_indicator_blink;
 const uint32_t i_ms_power_indicator = 60000; // 1 Minute -> 60000

@@ -429,9 +429,6 @@ void readEEPROM() {
       }
     }
 
-    // Update the bargraph settings again after loading EEPROM setting data for it.
-    bargraphYearModeUpdate();
-
     // Rebuild the over heat enabled modes.
     resetOverheatLevels();
 
