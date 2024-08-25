@@ -211,12 +211,6 @@ bool b_stream_effects = true;
 bool b_extra_pack_sounds = true;
 
 /*
- * When set to true, the Neutrona Wand plays sound effects with the right-hand toggle switches in MODE_ORIGINAL.
- * Setting to false will mute the toggle switch sounds in MODE_ORIGINAL.
- */
-bool b_mode_original_toggle_sounds_enabled = true;
-
-/*
  * Set to false to ignore reading data from the EEPROM.
  */
 const bool b_eeprom = true;

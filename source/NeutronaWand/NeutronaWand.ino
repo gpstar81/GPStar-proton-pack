@@ -303,7 +303,7 @@ void mainLoop() {
           if(b_pack_ion_arm_switch_on == true) {
             b_pack_ion_arm_switch_on = false;
 
-            if(switch_vent.on() == true && switch_wand.on() == true && b_mode_original_toggle_sounds_enabled == true) {
+            if(switch_vent.on() == true && switch_wand.on() == true) {
               stopEffect(S_WAND_HEATDOWN);
               stopEffect(S_WAND_HEATUP_ALT);
               playEffect(S_WAND_HEATDOWN);
@@ -317,11 +317,9 @@ void mainLoop() {
             b_pack_ion_arm_switch_on = true;
 
             if(switch_vent.on() == true && switch_wand.on() == true) {
-              if(b_mode_original_toggle_sounds_enabled == true) {
-                stopEffect(S_WAND_HEATDOWN);
-                stopEffect(S_WAND_HEATUP_ALT);
-                playEffect(S_WAND_HEATUP_ALT);
-              }
+              stopEffect(S_WAND_HEATDOWN);
+              stopEffect(S_WAND_HEATUP_ALT);
+              playEffect(S_WAND_HEATUP_ALT);
 
               if(b_28segment_bargraph == true) {
                 bargraphPowerCheck2021Alt(false);
@@ -1319,28 +1317,24 @@ void checkSwitches() {
                 if(switch_wand.switched() || switch_vent.switched()) {
                   if(switch_vent.switched()) {
                     if(switch_vent.on() == true && switch_wand.on() == false && switch_intensify.on() == false) {
-                      if(b_mode_original_toggle_sounds_enabled == true) {
-                        if(b_extra_pack_sounds == true) {
-                          wandSerialSend(W_BEEPS_ALT);
-                        }
-
-                        stopEffect(S_BEEPS_ALT);
-                        playEffect(S_BEEPS_ALT);
+                      if(b_extra_pack_sounds == true) {
+                        wandSerialSend(W_BEEPS_ALT);
                       }
+
+                      stopEffect(S_BEEPS_ALT);
+                      playEffect(S_BEEPS_ALT);
                     }
                   }
 
                   if(switch_vent.on() == true && switch_wand.on() == true) {
-                    if(b_mode_original_toggle_sounds_enabled == true) {
-                      if(b_extra_pack_sounds == true) {
-                        wandSerialSend(W_MODE_ORIGINAL_HEATDOWN_STOP);
-                        wandSerialSend(W_MODE_ORIGINAL_HEATUP);
-                      }
-
-                      stopEffect(S_WAND_HEATDOWN);
-                      stopEffect(S_WAND_HEATUP_ALT);
-                      playEffect(S_WAND_HEATUP_ALT);
+                    if(b_extra_pack_sounds == true) {
+                      wandSerialSend(W_MODE_ORIGINAL_HEATDOWN_STOP);
+                      wandSerialSend(W_MODE_ORIGINAL_HEATUP);
                     }
+
+                    stopEffect(S_WAND_HEATDOWN);
+                    stopEffect(S_WAND_HEATUP_ALT);
+                    playEffect(S_WAND_HEATUP_ALT);
 
                     if(b_28segment_bargraph == true) {
                       bargraphPowerCheck2021Alt(false);
@@ -1348,7 +1342,7 @@ void checkSwitches() {
 
                     prepBargraphRampUp();
                   }
-                  else if(switch_wand.switched() == true && switch_vent.on() == true && switch_wand.on() == false && b_mode_original_toggle_sounds_enabled == true) {
+                  else if(switch_wand.switched() == true && switch_vent.on() == true && switch_wand.on() == false) {
                     if(b_extra_pack_sounds == true) {
                       wandSerialSend(W_MODE_ORIGINAL_HEATUP_STOP);
                       wandSerialSend(W_MODE_ORIGINAL_HEATDOWN);
@@ -1358,7 +1352,7 @@ void checkSwitches() {
                     stopEffect(S_WAND_HEATDOWN);
                     playEffect(S_WAND_HEATDOWN);
                   }
-                  else if(switch_vent.switched() == true && switch_wand.on() == true && b_mode_original_toggle_sounds_enabled == true) {
+                  else if(switch_vent.switched() == true && switch_wand.on() == true) {
                     if(b_extra_pack_sounds == true) {
                       wandSerialSend(W_MODE_ORIGINAL_HEATUP_STOP);
                       wandSerialSend(W_MODE_ORIGINAL_HEATDOWN);
@@ -2257,7 +2251,7 @@ void modeActivate() {
       WAND_ACTION_STATUS = ACTION_IDLE;
 
       // If starting up directly from any of the non-toggle-sequence switches, play the wand heatup sound.
-      if(switch_activate.switched() == false && b_mode_original_toggle_sounds_enabled == true) {
+      if(switch_activate.switched() == false) {
         if(b_extra_pack_sounds == true) {
           wandSerialSend(W_MODE_ORIGINAL_HEATUP);
         }
@@ -3238,7 +3232,6 @@ void modeFireStopSounds() {
   if(b_firing_cross_streams == true) {
     switch(WAND_YEAR_CTS) {
       case CTS_AFTERLIFE:
-      case CTS_FROZEN_EMPIRE:
         if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
           stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
           stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
@@ -3250,7 +3243,6 @@ void modeFireStopSounds() {
       break;
 
       case CTS_1984:
-      case CTS_1989:
         if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
           stopEffect(S_CROSS_STREAMS_START);
           stopEffect(S_CROSS_STREAMS_END);
@@ -3480,7 +3472,6 @@ void modeFiring() {
 
     switch(WAND_YEAR_CTS) {
       case CTS_AFTERLIFE:
-      case CTS_FROZEN_EMPIRE:
         if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
           stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
           stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
@@ -3499,7 +3490,6 @@ void modeFiring() {
       break;
 
       case CTS_1984:
-      case CTS_1989:
         if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
           stopEffect(S_CROSS_STREAMS_START);
           stopEffect(S_CROSS_STREAMS_END);
@@ -3574,7 +3564,6 @@ void modeFiring() {
 
     switch(WAND_YEAR_CTS) {
       case CTS_AFTERLIFE:
-      case CTS_FROZEN_EMPIRE:
         if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
           stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
           stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
@@ -3586,7 +3575,6 @@ void modeFiring() {
       break;
 
       case CTS_1984:
-      case CTS_1989:
         if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
           stopEffect(S_CROSS_STREAMS_START);
           stopEffect(S_CROSS_STREAMS_END);
@@ -9511,7 +9499,7 @@ void wandExitMenu() {
   // In original mode, we need to re-initalise the 28 segment bargraph if some switches are already toggled on.
   if(SYSTEM_MODE == MODE_ORIGINAL) {
     if(switch_vent.on() == true && switch_wand.on() == true) {
-      if(b_pack_ion_arm_switch_on == true && b_28segment_bargraph == true && b_mode_original_toggle_sounds_enabled == true) {
+      if(b_pack_ion_arm_switch_on == true && b_28segment_bargraph == true) {
         if(b_extra_pack_sounds == true) {
           wandSerialSend(W_MODE_ORIGINAL_HEATUP);
         }

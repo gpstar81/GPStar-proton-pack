@@ -255,19 +255,15 @@ void readEEPROM() {
         default:
           WAND_YEAR_MODE = YEAR_DEFAULT;
         break;
-
         case 2:
           WAND_YEAR_MODE = YEAR_1984;
         break;
-
         case 3:
           WAND_YEAR_MODE = YEAR_1989;
         break;
-
         case 4:
           WAND_YEAR_MODE = YEAR_AFTERLIFE;
         break;
-
         case 5:
           WAND_YEAR_MODE = YEAR_FROZEN_EMPIRE;
         break;
@@ -280,21 +276,11 @@ void readEEPROM() {
         default:
           WAND_YEAR_CTS = CTS_DEFAULT;
         break;
-
         case 2:
           WAND_YEAR_CTS = CTS_1984;
         break;
-
-        case 3:
-          WAND_YEAR_CTS = CTS_1989;
-        break;
-
         case 4:
           WAND_YEAR_CTS = CTS_AFTERLIFE;
-        break;
-
-        case 5:
-          WAND_YEAR_CTS = CTS_FROZEN_EMPIRE;
         break;
       }
     }
@@ -655,22 +641,12 @@ void saveConfigEEPROM() {
   }
 
   switch(WAND_YEAR_CTS) {
-    case CTS_FROZEN_EMPIRE:
-      i_CTS_mode = 5;
-    break;
-
     case CTS_AFTERLIFE:
       i_CTS_mode = 4;
     break;
-
-    case CTS_1989:
-      i_CTS_mode = 3;
-    break;
-
     case CTS_1984:
       i_CTS_mode = 2;
     break;
-
     case CTS_DEFAULT:
     default:
       i_CTS_mode = 1;

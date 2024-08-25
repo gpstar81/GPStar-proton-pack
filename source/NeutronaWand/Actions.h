@@ -1159,13 +1159,10 @@ void checkWandAction() {
             else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
               switch(WAND_YEAR_CTS) {
                 case CTS_1984:
-                case CTS_1989:
                   WAND_YEAR_CTS = CTS_AFTERLIFE;
 
                   stopEffect(S_VOICE_CTS_1984);
-                  stopEffect(S_VOICE_CTS_1989);
                   stopEffect(S_VOICE_CTS_AFTERLIFE);
-                  stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
                   stopEffect(S_VOICE_CTS_DEFAULT);
 
                   playEffect(S_VOICE_CTS_AFTERLIFE);
@@ -1174,13 +1171,10 @@ void checkWandAction() {
                 break;
 
                 case CTS_AFTERLIFE:
-                case CTS_FROZEN_EMPIRE:
                   WAND_YEAR_CTS = CTS_DEFAULT;
 
                   stopEffect(S_VOICE_CTS_1984);
-                  stopEffect(S_VOICE_CTS_1989);
                   stopEffect(S_VOICE_CTS_AFTERLIFE);
-                  stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
                   stopEffect(S_VOICE_CTS_DEFAULT);
 
                   playEffect(S_VOICE_CTS_DEFAULT);
@@ -1193,9 +1187,7 @@ void checkWandAction() {
                   WAND_YEAR_CTS = CTS_1984;
 
                   stopEffect(S_VOICE_CTS_1984);
-                  stopEffect(S_VOICE_CTS_1989);
                   stopEffect(S_VOICE_CTS_AFTERLIFE);
-                  stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
                   stopEffect(S_VOICE_CTS_DEFAULT);
 
                   playEffect(S_VOICE_CTS_1984);

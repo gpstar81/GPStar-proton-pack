@@ -128,10 +128,14 @@ uint8_t i_powercell_delay_2021 = POWERCELL_DELAY_2021_13_LED;
 /*
  * (OPTIONAL) Inner Cyclotron (cake) NeoPixel ring
  * If you are not using any, then this can be left alone.
- * Leave at least one in place even if you are not using this optional item.
- * You can use up to 35 LEDs.
- * 24 -> For a 24 LED NeoPixel Ring
- * 35 -> For a 35 LED NeoPixel Ring. (Recommended ring size)
+ * Leave at least one value in place even if you are not using this optional item.
+ * You can use up to 36 LEDs.
+ * 12 -> For a 12 LED NeoPixel Ring.
+ * 23 -> For a 23 LED NeoPixel Ring.
+ * 24 -> For a 24 LED NeoPixel Ring.
+ * 26 -> For a 26 LED NeoPixel Ring.
+ * 35 -> For a 35 LED NeoPixel Ring. (Recommended aftermarket ring size)
+ * 36 -> For a 36 LED NeoPixel Ring. (GPStar ring)
  */
 uint8_t i_inner_cyclotron_cake_num_leds = 35;
 

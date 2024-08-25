@@ -68,9 +68,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       <select id="defaultYearModeCTS" name="defaultYearModeCTS" style="width:170px">
         <option value="1">Via System</option>
         <option value="2">1984</option>
-        <option value="3">1989</option>
         <option value="4">Afterlife</option>
-        <option value="5">Frozen Empire</option>
       </select>
     </div>
     <div class="setting">

@@ -352,14 +352,6 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
   bool b_state_changed = false; // Indicates when a crucial state change occurred.
 
   switch(i_command) {
-    case A_PACK_BOOTUP:
-      #if defined(__XTENSA__)
-        debug("Pack Bootup");
-      #endif
-
-      // No action, yet.
-    break;
-
     case A_SYNC_START:
       #if defined(__XTENSA__)
         debug("Sync Start");

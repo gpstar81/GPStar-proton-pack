@@ -231,14 +231,8 @@ void wandSerialSendData(uint8_t i_message) {
         case CTS_1984:
           wandConfig.defaultYearModeCTS = 2;
         break;
-        case CTS_1989:
-          wandConfig.defaultYearModeCTS = 3;
-        break;
         case CTS_AFTERLIFE:
           wandConfig.defaultYearModeCTS = 4;
-        break;
-        case CTS_FROZEN_EMPIRE:
-          wandConfig.defaultYearModeCTS = 5;
         break;
       }
 
@@ -400,21 +394,8 @@ void checkPack() {
             debugln(recvData.m);
 
             switch(recvData.m) {
-              case P_VOLUME_SYNC:
-                // Set the percentage volume.
-                i_volume_master_percentage = recvData.d[0];
-                i_volume_effects_percentage = recvData.d[1];
-                i_volume_music_percentage = recvData.d[2];
-
-                // Set the decibel volume.
-                i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
-                i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
-                i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
-
-                // Update volume levels.
-                i_volume_revert = i_volume_master;
-                resetMasterVolume();
-                updateEffectsVolume();
+              default:
+                // Nothing here yet.
               break;
             }
           }
@@ -540,14 +521,8 @@ void checkPack() {
             case 2:
               WAND_YEAR_CTS = CTS_1984;
             break;
-            case 3:
-              WAND_YEAR_CTS = CTS_1989;
-            break;
             case 4:
               WAND_YEAR_CTS = CTS_AFTERLIFE;
-            break;
-            case 5:
-              WAND_YEAR_CTS = CTS_FROZEN_EMPIRE;
             break;
           }
 
@@ -855,10 +830,6 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       return true;
     break;
 
-    case P_PACK_BOOTUP:
-      // Does nothing at the moment.
-    break;
-
     case P_ON:
       // Pack is on.
       b_pack_on = true;
@@ -929,21 +900,24 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case P_INNER_CYCLOTRON_PANEL_DISABLED:
+      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_STATIC_COLORS);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DYNAMIC_COLORS);
       stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
-      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
       playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
     break;
 
     case P_INNER_CYCLOTRON_PANEL_STATIC:
-      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_STATIC_COLORS);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DYNAMIC_COLORS);
       stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
-      playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+      playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_STATIC_COLORS);
     break;
 
     case P_INNER_CYCLOTRON_PANEL_DYNAMIC:
-      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_STATIC_COLORS);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DYNAMIC_COLORS);
       stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
-      playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+      playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DYNAMIC_COLORS);
     break;
 
     case P_MODE_ORIGINAL_RED_SWITCH_ON:
@@ -956,16 +930,14 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
             switch(SYSTEM_MODE) {
               case MODE_ORIGINAL:
                 if(switch_vent.on() == true && switch_wand.on() == true) {
-                  if(b_mode_original_toggle_sounds_enabled == true) {
-                    if(b_extra_pack_sounds == true) {
-                      wandSerialSend(W_MODE_ORIGINAL_HEATDOWN_STOP);
-                      wandSerialSend(W_MODE_ORIGINAL_HEATUP);
-                    }
-
-                    stopEffect(S_WAND_HEATDOWN);
-                    stopEffect(S_WAND_HEATUP_ALT);
-                    playEffect(S_WAND_HEATUP_ALT);
+                  if(b_extra_pack_sounds == true) {
+                    wandSerialSend(W_MODE_ORIGINAL_HEATDOWN_STOP);
+                    wandSerialSend(W_MODE_ORIGINAL_HEATUP);
                   }
+
+                  stopEffect(S_WAND_HEATDOWN);
+                  stopEffect(S_WAND_HEATUP_ALT);
+                  playEffect(S_WAND_HEATUP_ALT);
 
                   if(b_28segment_bargraph == true) {
                     bargraphPowerCheck2021Alt(false);
@@ -999,7 +971,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
       switch(SYSTEM_MODE) {
         case MODE_ORIGINAL:
-          if(switch_vent.on() == true && switch_wand.on() == true && b_mode_original_toggle_sounds_enabled == true) {
+          if(switch_vent.on() == true && switch_wand.on() == true) {
             if(b_extra_pack_sounds == true) {
               wandSerialSend(W_MODE_ORIGINAL_HEATUP_STOP);
               wandSerialSend(W_MODE_ORIGINAL_HEATDOWN);
@@ -1081,16 +1053,6 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       // The pack is telling us to revert the volume to normal.
       i_volume_master = i_volume_revert;
       resetMasterVolume();
-    break;
-
-    case P_RIBBON_CABLE_ON:
-      // Currently unused.
-      //b_pack_ribbon_cable_on = true;
-    break;
-
-    case P_RIBBON_CABLE_OFF:
-      // Currently unused.
-      //b_pack_ribbon_cable_on = false;
     break;
 
     case P_ALARM_ON:
@@ -1695,31 +1657,6 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_DEMO_LIGHT_MODE_ENABLED);
 
       playEffect(S_VOICE_DEMO_LIGHT_MODE_DISABLED);
-    break;
-
-    case P_POWER_LEVEL_1:
-      i_power_level = 1;
-      i_power_level_prev = 1;
-    break;
-
-    case P_POWER_LEVEL_2:
-      i_power_level = 2;
-      i_power_level_prev = 2;
-    break;
-
-    case P_POWER_LEVEL_3:
-      i_power_level = 3;
-      i_power_level_prev = 3;
-    break;
-
-    case P_POWER_LEVEL_4:
-      i_power_level = 4;
-      i_power_level_prev = 4;
-    break;
-
-    case P_POWER_LEVEL_5:
-      i_power_level = 5;
-      i_power_level_prev = 5;
     break;
 
     case P_RGB_INNER_CYCLOTRON_LEDS:
