@@ -5026,7 +5026,9 @@ void cyclotronSwitchPlateLEDs() {
     }
   }
 
-  if(b_cyclotron_lid_on != true) {
+  bool b_brass_pack_effect_active = b_brass_pack_sound_loop || (SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && (b_2021_ramp_down || b_alarm || b_wand_mash_lockout) && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM));
+
+  if(b_cyclotron_lid_on != true && !b_brass_pack_effect_active) {
     uint8_t i_brightness = getBrightness(i_cyclotron_panel_brightness);
 
     // Change colors for year theme switch indicator.

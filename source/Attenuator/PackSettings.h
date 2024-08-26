@@ -201,9 +201,9 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     <div class="setting">
       <b>Inner Panel:</b>
       <select id="ledCycInnerPanel" name="ledCycInnerPanel" style="width:180px">
-        <option value="1">Individual</option>
-        <option value="2">RGB Static</option>
-        <option value="3">RGB Dynamic</option>
+        <option value="1">Individual LEDs</option>
+        <option value="2">Frutto (Static Colours)</option>
+        <option value="3">Frutto (Dynamic Colours)</option>
       </select>
     </div>
     <div class="setting">

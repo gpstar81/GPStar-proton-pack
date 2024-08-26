@@ -46,7 +46,7 @@ To access the EEPROM LED Menu System, hold down the `Intensify Button` and toggl
 | 5 | `unused` | `unused` | `unused` |
 | 4 | `unused` | `unused` | `unused` |
 | 3 | `unused` | `unused` | `unused` |
-| 2 | Inner Cyclotron LED Panel Toggle | Toggle the optional Inner Cyclotron LED Panel. | `unused` |
+| 2 | Inner Cyclotron LED Panel Toggle | Toggle the optional Inner Cyclotron LED Panel between disabled (individual LEDs), static colours (for Frutto panel with prop-accurate coloured cliplite covers), and dynamic colours (for Frutto panel with clear cliplite covers). | `unused` |
 | 1 | Inner Cyclotron GRB Toggle | Toggle your Inner Cyclotron from RGB or GRB LEDs. | `unused` |
 
 <div class="page-break"></div>
