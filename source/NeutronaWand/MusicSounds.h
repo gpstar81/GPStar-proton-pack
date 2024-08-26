@@ -427,10 +427,12 @@ enum sound_fx {
   S_FROZEN_EMPIRE_PACK_FREEZE_STOP,
   S_FROZEN_EMPIRE_SHUTDOWN,
   S_VOICE_INNER_CYCLOTRON_LED_PANEL_STATIC_COLORS,
-  S_VOICE_INNER_CYCLOTRON_LED_PANEL_DYNAMIC_COLORS
+  S_VOICE_INNER_CYCLOTRON_LED_PANEL_DYNAMIC_COLORS,
+  S_WAND_SLIME_IDLE_LOOP,
+  S_WAND_STASIS_IDLE_LOOP
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const uint16_t i_last_effects_track = S_VOICE_INNER_CYCLOTRON_LED_PANEL_DYNAMIC_COLORS;
+const uint16_t i_last_effects_track = S_WAND_STASIS_IDLE_LOOP;

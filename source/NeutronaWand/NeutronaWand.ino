@@ -284,7 +284,7 @@ void mainLoop() {
 
         b_wand_mash_error = false;
 
-        stopEffect(S_STASIS_IDLE_LOOP);
+        stopEffect(S_WAND_STASIS_IDLE_LOOP);
         stopEffect(S_SMASH_ERROR_LOOP);
         playEffect(S_SMASH_ERROR_RESTART);
 
@@ -901,7 +901,7 @@ void quickVentFinished() {
     playEffect(S_QUICK_VENT_CLOSE);
 
     if(STREAM_MODE == SLIME && WAND_STATUS == MODE_ON && switch_vent.on() == true) {
-      playEffect(S_PACK_SLIME_TANK_LOOP, true);
+      playEffect(S_WAND_SLIME_IDLE_LOOP, true);
     }
   }
 
@@ -916,7 +916,7 @@ void startQuickVent() {
     ms_overheating.start(i_ms_overheating >= 4000 ? i_ms_overheating / 2 : 2000);
 
     stopEffect(S_SLIME_EMPTY);
-    stopEffect(S_PACK_SLIME_TANK_LOOP);
+    stopEffect(S_WAND_SLIME_IDLE_LOOP);
     stopEffect(S_QUICK_VENT_CLOSE);
     playEffect(S_QUICK_VENT_OPEN);
 
@@ -1611,7 +1611,7 @@ void wandOff() {
     WAND_ACTION_STATUS = ACTION_IDLE;
 
     if(b_wand_mash_error == true) {
-      stopEffect(S_STASIS_IDLE_LOOP);
+      stopEffect(S_WAND_STASIS_IDLE_LOOP);
       stopEffect(S_SMASH_ERROR_LOOP);
       stopEffect(S_SMASH_ERROR_RESTART);
     }
@@ -2232,7 +2232,7 @@ void modeError() {
   else if(b_wand_mash_error == true) {
     if(getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
       // Use the crakling ice sound from the statis mode.
-      playEffect(S_STASIS_IDLE_LOOP);
+      playEffect(S_WAND_STASIS_IDLE_LOOP);
     }
     else {
       // Use the standard error alarm for this effect.
@@ -2419,10 +2419,10 @@ void soundIdleLoop(bool fadeIn) {
   if(b_gpstar_benchtest == true && fadeIn == true) {
     switch(STREAM_MODE) {
       case SLIME:
-        playEffect(S_PACK_SLIME_TANK_LOOP, true, 0, true, 900);
+        playEffect(S_WAND_SLIME_IDLE_LOOP, true, 0, true, 900);
       break;
       case STASIS:
-        playEffect(S_STASIS_IDLE_LOOP, true, 0, true, 900);
+        playEffect(S_WAND_STASIS_IDLE_LOOP, true, 0, true, 900);
       break;
       case MESON:
         playEffect(S_MESON_IDLE_LOOP, true, 0, true, 900);
@@ -2465,10 +2465,10 @@ void soundIdleLoopStop(bool stopAlts) {
   if(stopAlts == true && b_gpstar_benchtest == true) {
     switch(STREAM_MODE) {
       case SLIME:
-        stopEffect(S_PACK_SLIME_TANK_LOOP);
+        stopEffect(S_WAND_SLIME_IDLE_LOOP);
       break;
       case STASIS:
-        stopEffect(S_STASIS_IDLE_LOOP);
+        stopEffect(S_WAND_STASIS_IDLE_LOOP);
       break;
       case MESON:
         stopEffect(S_MESON_IDLE_LOOP);
@@ -3887,8 +3887,8 @@ void wandHeatUp() {
   stopEffect(S_MODE_SWITCH);
 
   if(b_gpstar_benchtest == true) {
-    stopEffect(S_PACK_SLIME_TANK_LOOP);
-    stopEffect(S_STASIS_IDLE_LOOP);
+    stopEffect(S_WAND_SLIME_IDLE_LOOP);
+    stopEffect(S_WAND_STASIS_IDLE_LOOP);
     stopEffect(S_MESON_IDLE_LOOP);
   }
 
@@ -3902,7 +3902,7 @@ void wandHeatUp() {
       playEffect(S_PACK_SLIME_OPEN);
 
       if(b_gpstar_benchtest == true && WAND_STATUS == MODE_ON && switch_vent.on() == true) {
-        playEffect(S_PACK_SLIME_TANK_LOOP, true, 0, true, 900);
+        playEffect(S_WAND_SLIME_IDLE_LOOP, true, 0, true, 900);
       }
     break;
 
@@ -3910,7 +3910,7 @@ void wandHeatUp() {
       playEffect(S_STASIS_OPEN);
 
       if(b_gpstar_benchtest == true && WAND_STATUS == MODE_ON && switch_vent.on() == true) {
-        playEffect(S_STASIS_IDLE_LOOP, true, 0, true, 900);
+        playEffect(S_WAND_STASIS_IDLE_LOOP, true, 0, true, 900);
       }
     break;
 
