@@ -68,7 +68,7 @@ uint8_t getBrightness(uint8_t i_percent = 100) {
 
 // Special values for colour cycles: current hue (colour) and when to change colour.
 uint8_t i_curr_colour = 0;
-uint8_t i_count = 0;
+uint8_t i_count = 1;
 
 CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation = 255) {
   // Brightness here is a value from 0-255 as limited by byte (uint8_t) type.
@@ -186,11 +186,11 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
       if(i_count % i_cycle == 0) {
         if(i_curr_colour == 0) {
           i_curr_colour = 96;
-          i_count = 0; // Reset counter.
+          i_count = 1; // Reset counter.
         }
         else {
           i_curr_colour = 0;
-          i_count = 0; // Reset counter.
+          i_count = 1; // Reset counter.
         }
       }
 
@@ -208,11 +208,11 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
       if(i_count % i_cycle == 0) {
         if(i_curr_colour == 32) {
           i_curr_colour = 192;
-          i_count = 0; // Reset counter.
+          i_count = 1; // Reset counter.
         }
         else {
           i_curr_colour = 32;
-          i_count = 0; // Reset counter.
+          i_count = 1; // Reset counter.
         }
       }
       return CHSV(i_curr_colour, 255, i_brightness);
@@ -224,7 +224,7 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
 
       if(i_count % i_cycle == 0) {
         i_curr_colour = (i_curr_colour + 5) % 255;
-        i_count = 0; // Reset counter.
+        i_count = 1; // Reset counter.
       }
 
       return CHSV(i_curr_colour, 128, i_brightness);
@@ -235,7 +235,7 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
       i_count++;
       if(i_count % i_cycle == 0) {
         i_curr_colour = (i_curr_colour + 5) % 255;
-        i_count = 0; // Reset counter.
+        i_count = 1; // Reset counter.
       }
 
       return CHSV(i_curr_colour, 255, i_brightness);
