@@ -82,7 +82,7 @@ jobs:
               - name: AsyncTCP
               - name: ESP Async WebServer
               - name: ezButton
-              - name: FastLED
+              - name: FastLED@3.7.4
               - name: Ramp
               - name: SafeString
               - name: SerialTransfer

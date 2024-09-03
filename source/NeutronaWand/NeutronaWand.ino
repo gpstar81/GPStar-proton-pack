@@ -9578,6 +9578,12 @@ void wandExitEEPROMMenu() {
 bool switchBarrel() {
   if(switch_barrel.on()) {
     if(b_switch_barrel_extended) {
+      if(b_extra_pack_sounds) {
+        wandSerialSend(W_WAND_BARREL_RETRACT);
+      }
+
+      playEffect(S_WAND_BARREL_RETRACT, false, i_volume_effects - 1);
+
       wandSerialSend(W_BARREL_RETRACTED);
       b_switch_barrel_extended = false;
     }

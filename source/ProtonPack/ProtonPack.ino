@@ -853,11 +853,11 @@ void packStartup(bool firstStart) {
       case SYSTEM_FROZEN_EMPIRE:
         if(STREAM_MODE == SLIME) {
           playEffect(S_BOOTUP, false, i_volume_effects - 30);
-          playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects - 40, true, 500);
+          playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects - 40, true, 500);
         }
         else {
           playEffect(S_BOOTUP, false, i_volume_effects);
-          playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects, true, 500);
+          playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects, true, 500);
         }
 
         // Cyclotron lid is off, play the Frozen Empire sound effect.
@@ -868,10 +868,6 @@ void packStartup(bool firstStart) {
 
           if(b_brass_pack_sound_loop) {
             playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects, true, 2000);
-          }
-
-          if(b_wand_mash_lockout) {
-            playEffect(S_PACK_RECOVERY);
           }
         }
 
@@ -988,13 +984,17 @@ void packShutdown() {
       b_powercell_sound_loop = false;
     }
 
+    stopEffect(S_BOOTUP);
     stopEffect(S_PACK_SHUTDOWN_AFTERLIFE_ALT);
-    stopEffect(S_FROZEN_EMPIRE_SHUTDOWN);
-    stopEffect(S_AFTERLIFE_PACK_STARTUP);
-    stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
 
     if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
       stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
+      stopEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP);
+      stopEffect(S_FROZEN_EMPIRE_SHUTDOWN);
+    }
+    else {
+      stopEffect(S_AFTERLIFE_PACK_STARTUP);
+      stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
     }
   }
 
@@ -4861,12 +4861,13 @@ void packAlarm() {
     break;
     case SYSTEM_AFTERLIFE:
     default:
+      stopEffect(S_BOOTUP);
       stopEffect(S_AFTERLIFE_PACK_STARTUP);
       stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
     break;
     case SYSTEM_FROZEN_EMPIRE:
-      stopEffect(S_AFTERLIFE_PACK_STARTUP);
-      stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
+      stopEffect(S_BOOTUP);
+      stopEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP);
 
       if(b_brass_pack_sound_loop) {
         stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
@@ -5734,8 +5735,8 @@ void startWandMashLockout(uint16_t i_timeout) {
     if(b_brass_pack_sound_loop) {
       stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
     }
-    stopEffect(S_AFTERLIFE_PACK_STARTUP);
-    stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
+    stopEffect(S_BOOTUP);
+    stopEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP);
 
     playEffect(S_FROZEN_EMPIRE_PACK_FREEZE_STOP);
     playEffect(S_STASIS_IDLE_LOOP, true, i_volume_effects, true, 2500);
@@ -5755,7 +5756,12 @@ void restartFromWandMash() {
       case SYSTEM_FROZEN_EMPIRE:
         // Play pack restart sound depending on lid on/off.
         playEffect(S_PACK_RECOVERY);
-        playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects, true, 2000);
+        if(STREAM_MODE == SLIME) {
+          playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects - 40, true, 500);
+        }
+        else {
+          playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects, true, 2000);
+        }
         if(b_brass_pack_sound_loop) {
           playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects, true, 2000);
         }

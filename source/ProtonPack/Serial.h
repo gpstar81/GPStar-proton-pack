@@ -1589,6 +1589,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND);
     break;
 
+    case W_WAND_BARREL_RETRACT:
+      stopEffect(S_WAND_BARREL_RETRACT);
+      playEffect(S_WAND_BARREL_RETRACT);
+    break;
+
     case W_AFTERLIFE_RAMP_LOOP_2_STOP:
       stopEffect(S_AFTERLIFE_WAND_IDLE_2);
     break;
