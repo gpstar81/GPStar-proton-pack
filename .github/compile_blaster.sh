@@ -11,9 +11,6 @@ SRCDIR="../source"
 
 mkdir -p ${BINDIR}/blaster
 
-# Current build timestamp to be reflected in the Attenuator build for ESP32.
-TIMESTAMP=$(date +"%Y%m%d%H%M%S")
-
 echo ""
 
 # Single-Shot Blaster

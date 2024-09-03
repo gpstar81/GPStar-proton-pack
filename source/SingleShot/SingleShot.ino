@@ -99,9 +99,6 @@ void setup() {
 
   pinMode(vibration, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
 
-  // Make sure lights are off, including the bargraph.
-  allLightsOff();
-
   // Device status.
   DEVICE_STATUS = MODE_OFF;
   DEVICE_ACTION_STATUS = ACTION_IDLE;
@@ -128,6 +125,9 @@ void setup() {
 
   // Reset our master volume manually.
   resetMasterVolume();
+
+  // Make sure lights are off, including the bargraph.
+  allLightsOff();
 
   // System Power On Self Test
   systemPOST();

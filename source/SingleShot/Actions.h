@@ -1,5 +1,3 @@
-#include "Audio.h"
-#include "Header.h"
 /**
  *   GPStar Single-Shot Blaster
  *   Copyright (C) 2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
