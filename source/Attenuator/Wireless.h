@@ -355,6 +355,9 @@ bool startWiFi() {
     else {
       Serial.println(F("Error Starting mDNS Responder!"));
     }
+  #else
+    // Suppress unused variable warning.
+    (void)b_mdns_started;
   #endif
   delay(200);
 
