@@ -28,7 +28,8 @@
  * Information on how to update your WAV Trigger devices can be found on the GPStar github repository.
  * https://github.com/gpstar81/haslab-proton-pack/blob/main/WAVTRIGGER.md
  */
-#include "GPStarAudio.h"
+#include <HardwareSerial.h>
+#include <GPStarAudio.h>
 gpstarAudio audio;
 
 /*
@@ -674,7 +675,7 @@ bool musicTrackStatus() {
   switch(AUDIO_DEVICE) {
     case A_WAV_TRIGGER:
     case A_GPSTAR_AUDIO:
-      return audio.currentMusicTrackStatus(i_current_music_track);
+      return audio.currentTrackStatus(i_current_music_track);
     break;
 
     case A_NONE:
@@ -780,7 +781,13 @@ bool setupAudioDevice() {
 
   char gVersion[VERSION_STRING_LEN];
 
-  audio.start();
+  Serial3.begin(57600);
+
+  audio.start(Serial3);
+
+  // Ask for some Wav Trigger information.
+  audio.requestVersionString();
+  audio.requestSystemInfo();
 
   delay(10);
 
