@@ -95,14 +95,14 @@ void powerMeterInit() {
   // Configure the PowerMeter object(s).
   packReading.PowerReadDelay = 4000;
 
-  if (b_use_power_meter) {
+  if(b_use_power_meter) {
     uint8_t i_monitor_status = monitor.begin();
 
-    debugln(" ");
+    debugln(F(" "));
     debug(F("Power Meter Result: "));
     debugln(i_monitor_status);
 
-    if (i_monitor_status == 0) {
+    if(i_monitor_status == 0) {
       // Result of 0 indicates no problems from device detection.
       b_power_meter_available = true;
       powerMeterConfig();
@@ -121,7 +121,7 @@ void powerMeterInit() {
 
 // Perform a reading of values from the power meter for the wand.
 void doWandPowerReading() {
-  if (b_use_power_meter && b_power_meter_available) {
+  if(b_use_power_meter && b_power_meter_available) {
     // Only uncomment this debug if absolutely needed!
     //debugln(F("Reading Power Meter"));
 
@@ -323,39 +323,39 @@ void updatePackPowerState() {
 // Turn on the Serial Plotter in the ArduinoIDE to view graphed results.
 void wandPowerDisplay() {
   if(b_use_power_meter && b_power_meter_available && b_show_power_data) {
-    // Serial.print("W.Shunt(mV):");
+    // Serial.print(F("W.Shunt(mV):"));
     // Serial.print(wandReading.ShuntVoltage);
-    // Serial.print(",");
+    // Serial.print(F(","));
 
-    // Serial.print("W.Shunt(A):");
+    // Serial.print(F("W.Shunt(A):"));
     // Serial.print(wandReading.ShuntCurrent);
-    // Serial.print(",");
+    // Serial.print(F(","));
 
-    Serial.print("W.Raw(W):");
+    Serial.print(F("W.Raw(W):"));
     Serial.print(wandReading.RawPower);
-    Serial.print(",");
+    Serial.print(F(","));
 
-    // Serial.print("W.Bus(V)):");
+    // Serial.print(F("W.Bus(V)):"));
     // Serial.print(wandReading.BusVoltage);
-    // Serial.print(",");
+    // Serial.print(F(","));
 
-    // Serial.print("W.Bus(W)):");
+    // Serial.print(F("W.Bus(W)):"));
     // Serial.print(wandReading.BusPower);
-    // Serial.print(",");
+    // Serial.print(F(","));
 
-    // Serial.print("W.Batt(V):");
+    // Serial.print(F("W.Batt(V):"));
     // Serial.print(wandReading.BattVoltage);
-    // Serial.print(",");
+    // Serial.print(F(","));
 
-    // Serial.print("W.AmpHours:");
+    // Serial.print(F("W.AmpHours:"));
     // Serial.print(wandReading.AmpHours);
-    // Serial.print(",");
+    // Serial.print(F(","));
 
-    Serial.print("W.AvgPow(W):");
+    Serial.print(F("W.AvgPow(W):"));
     Serial.print(wandReading.AvgPower);
-    Serial.print(",");
+    Serial.print(F(","));
 
-    Serial.print("W.State:");
+    Serial.print(F("W.State:"));
     Serial.println(wandReading.LastAverage);
   }
 }

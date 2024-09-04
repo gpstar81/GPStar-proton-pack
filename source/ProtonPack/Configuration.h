@@ -441,8 +441,8 @@ bool b_use_ribbon_cable = true;
  * Set to use an optional power meter device on the i2c bus.
  * Debug by setting the latter value to true to plot V/A data.
  */
-bool b_use_power_meter = true;
-bool b_show_power_data = false;
+const bool b_use_power_meter = true;
+const bool b_show_power_data = false;
 
 /*
  * Set to false to ignore reading data from the EEPROM.

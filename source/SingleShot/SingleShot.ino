@@ -1202,7 +1202,7 @@ void deviceSwitched(void* n) {
 
 // Enter the device menu system.
 void deviceEnterMenu() {
-  debug("deviceEnterMenu|");
+  debug(F("deviceEnterMenu|"));
   debugln(DEVICE_ACTION_STATUS);
 
   // Enter a menu at level 1, at option #5
@@ -1219,7 +1219,7 @@ void deviceEnterMenu() {
 
 // Exit the device menu system while the device is off.
 void deviceExitMenu() {
-  debug("deviceExitMenu|");
+  debug(F("deviceExitMenu|"));
   debugln(DEVICE_ACTION_STATUS);
 
   // Reset the menu level/option to default
@@ -1240,7 +1240,7 @@ void deviceExitMenu() {
 
 // Exit the device menu EEPROM system while the device is off.
 void deviceExitEEPROMMenu() {
-  debug("deviceExitEEPROMMenu|");
+  debug(F("deviceExitEEPROMMenu|"));
   debugln(DEVICE_ACTION_STATUS);
 
   // Reset the menu level/option to default
