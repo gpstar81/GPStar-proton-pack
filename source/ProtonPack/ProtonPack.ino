@@ -65,7 +65,9 @@ void setup() {
   Serial2.begin(9600); // Communication to the Neutrona Wand.
 
   // Initialize an optional power meter on the i2c bus.
-  powerMeterInit();
+  if(b_use_power_meter) {
+    powerMeterInit();
+  }
 
   // Connect the serial ports.
   serial1Coms.begin(Serial1, false); // Attenuator/Wireless
@@ -228,8 +230,10 @@ void loop() {
   // Update the available audio device.
   updateAudio();
 
-  // Check current voltage/amperage draw using available methods.
-  checkPowerMeter();
+  // Check current voltage/amperage draw using available methods if enabled.
+  if(b_use_power_meter) {
+    checkPowerMeter();
+  }
 
   // Check for any new serial commands were received from the Neutrona Wand.
   checkWand();

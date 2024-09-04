@@ -58,7 +58,7 @@ struct PowerMeter {
   float RawPower = 0;     // W - Calculation of power based on raw V*A values (non-smoothed)
   float AvgPower = 0;     // A - Running average from the RawPower value (smoothed)
   float LastAverage = 0;  // A - Last average used when determining a state change
-  unsigned int PowerReadDelay = (int) (StateChangeDuration / 4); // How often (ms) to read levels for changes
+  uint16_t PowerReadDelay = StateChangeDuration / 4; // How often (ms) to read levels for changes
   unsigned long StateChanged = 0; // Time when a potential state change was detected
   unsigned long LastRead = 0;     // Used to calculate Ah consumed since battery power-on
   unsigned long ReadTick = 0;     // Difference of current read time - last read
@@ -95,24 +95,22 @@ void powerMeterInit() {
   // Configure the PowerMeter object(s).
   packReading.PowerReadDelay = 4000;
 
-  if(b_use_power_meter) {
-    uint8_t i_monitor_status = monitor.begin();
+  uint8_t i_monitor_status = monitor.begin();
 
-    debugln(F(" "));
-    debug(F("Power Meter Result: "));
-    debugln(i_monitor_status);
+  debugln(F(" "));
+  debug(F("Power Meter Result: "));
+  debugln(i_monitor_status);
 
-    if(i_monitor_status == 0) {
-      // Result of 0 indicates no problems from device detection.
-      b_power_meter_available = true;
-      powerMeterConfig();
-      wandReading.LastRead = millis(); // For use with the Ah readings.
-      wandReading.ReadTimer.start(wandReading.PowerReadDelay);
-    }
-    else {
-      // If returning a non-zero value, device could not be reset.
-      debugln(F("Unable to find power monitoring device on i2c."));
-    }
+  if(i_monitor_status == 0) {
+    // Result of 0 indicates no problems from device detection.
+    b_power_meter_available = true;
+    powerMeterConfig();
+    wandReading.LastRead = millis(); // For use with the Ah readings.
+    wandReading.ReadTimer.start(wandReading.PowerReadDelay);
+  }
+  else {
+    // If returning a non-zero value, device could not be reset.
+    debugln(F("Unable to find power monitoring device on i2c."));
   }
 
   // Always obtain a voltage reading directly from the pack PCB.
@@ -121,7 +119,7 @@ void powerMeterInit() {
 
 // Perform a reading of values from the power meter for the wand.
 void doWandPowerReading() {
-  if(b_use_power_meter && b_power_meter_available) {
+  if(b_power_meter_available) {
     // Only uncomment this debug if absolutely needed!
     //debugln(F("Reading Power Meter"));
 
@@ -322,7 +320,7 @@ void updatePackPowerState() {
 // Displays the latest gathered power meter values (for debugging only!).
 // Turn on the Serial Plotter in the ArduinoIDE to view graphed results.
 void wandPowerDisplay() {
-  if(b_use_power_meter && b_power_meter_available && b_show_power_data) {
+  if(b_power_meter_available && b_show_power_data) {
     // Serial.print(F("W.Shunt(mV):"));
     // Serial.print(wandReading.ShuntVoltage);
     // Serial.print(F(","));
@@ -363,7 +361,7 @@ void wandPowerDisplay() {
 // Check the available timers for reading power meter data.
 void checkPowerMeter() {
   if(wandReading.ReadTimer.justFinished()) {
-    if(b_use_power_meter && b_power_meter_available) {
+    if(b_power_meter_available) {
       doWandPowerReading(); // Get latest V/A readings.
       wandPowerDisplay(); // Show values on serial plotter.
       updateWandPowerState(); // Take action on V/A values.
