@@ -823,7 +823,7 @@ void packStartup(bool firstStart) {
 
       case SYSTEM_1989:
         playEffect(S_GB2_PACK_START);
-        playEffect(S_GB2_PACK_LOOP, true, i_volume_effects, true, 3000);
+        playEffect(S_GB2_PACK_LOOP, true, i_volume_effects, true, 3800);
       break;
 
       case SYSTEM_AFTERLIFE:
@@ -4480,7 +4480,7 @@ void modeFireStartSounds() {
     case SLIME:
       stopEffect(S_SLIME_END);
       playEffect(S_SLIME_START, false, i_volume_effects, false, 0, false);
-      playEffect(S_SLIME_LOOP, true, i_volume_effects, true, 1500, false);
+      playEffect(S_SLIME_LOOP, true, i_volume_effects, true, 850, false);
     break;
 
     case STASIS:

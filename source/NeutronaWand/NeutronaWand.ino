@@ -901,7 +901,7 @@ void quickVentFinished() {
     playEffect(S_QUICK_VENT_CLOSE);
 
     if(STREAM_MODE == SLIME && WAND_STATUS == MODE_ON && switch_vent.on() == true) {
-      playEffect(S_WAND_SLIME_IDLE_LOOP, true);
+      playEffect(S_WAND_SLIME_IDLE_LOOP, true, 0, true, 900);
     }
   }
 
@@ -2149,44 +2149,42 @@ void altWingButtonCheck() {
 }
 
 void streamModeCheck() {
-  if(WAND_CONN_STATE == PACK_CONNECTED) {
-    switch(STREAM_MODE) {
-      case HOLIDAY:
-        // Tell the pack we are in holiday mode.
-        wandSerialSend(W_HOLIDAY_MODE, b_christmas ? 2 : 1);
-      break;
+  switch(STREAM_MODE) {
+    case HOLIDAY:
+      // Tell the pack we are in holiday mode.
+      wandSerialSend(W_HOLIDAY_MODE, b_christmas ? 2 : 1);
+    break;
 
-      case SPECTRAL:
-        // Tell the pack we are in spectral mode.
-        wandSerialSend(W_SPECTRAL_MODE);
-      break;
+    case SPECTRAL:
+      // Tell the pack we are in spectral mode.
+      wandSerialSend(W_SPECTRAL_MODE);
+    break;
 
-      case SPECTRAL_CUSTOM:
-        // Tell the pack we are in spectral custom mode.
-        wandSerialSend(W_SPECTRAL_CUSTOM_MODE);
-      break;
+    case SPECTRAL_CUSTOM:
+      // Tell the pack we are in spectral custom mode.
+      wandSerialSend(W_SPECTRAL_CUSTOM_MODE);
+    break;
 
-      case MESON:
-        // Tell the pack we are in meson mode.
-        wandSerialSend(W_MESON_MODE);
-      break;
+    case MESON:
+      // Tell the pack we are in meson mode.
+      wandSerialSend(W_MESON_MODE);
+    break;
 
-      case STASIS:
-        // Tell the pack we are in stasis mode.
-        wandSerialSend(W_STASIS_MODE);
-      break;
+    case STASIS:
+      // Tell the pack we are in stasis mode.
+      wandSerialSend(W_STASIS_MODE);
+    break;
 
-      case SLIME:
-        // Tell the pack we are in slime mode.
-        wandSerialSend(W_SLIME_MODE);
-      break;
+    case SLIME:
+      // Tell the pack we are in slime mode.
+      wandSerialSend(W_SLIME_MODE);
+    break;
 
-      case PROTON:
-      default:
-        // Tell the pack we are in proton mode.
-        wandSerialSend(W_PROTON_MODE);
-      break;
-    }
+    case PROTON:
+    default:
+      // Tell the pack we are in proton mode.
+      wandSerialSend(W_PROTON_MODE);
+    break;
   }
 
   if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU) {
@@ -2936,7 +2934,7 @@ void modeFireStartSounds() {
     case SLIME:
       stopEffect(S_SLIME_END);
       playEffect(S_SLIME_START, false, i_volume_effects, false, 0, false);
-      playEffect(S_SLIME_LOOP, true, i_volume_effects, true, 1500, false);
+      playEffect(S_SLIME_LOOP, true, i_volume_effects, true, 850, false);
     break;
 
     case STASIS:
@@ -3902,7 +3900,7 @@ void wandHeatUp() {
       playEffect(S_PACK_SLIME_OPEN);
 
       if(b_gpstar_benchtest == true && WAND_STATUS == MODE_ON && switch_vent.on() == true) {
-        playEffect(S_WAND_SLIME_IDLE_LOOP, true, 0, true, 900);
+        playEffect(S_WAND_SLIME_IDLE_LOOP, true, 0, true, 700);
       }
     break;
 
@@ -3910,7 +3908,7 @@ void wandHeatUp() {
       playEffect(S_STASIS_OPEN);
 
       if(b_gpstar_benchtest == true && WAND_STATUS == MODE_ON && switch_vent.on() == true) {
-        playEffect(S_WAND_STASIS_IDLE_LOOP, true, 0, true, 900);
+        playEffect(S_WAND_STASIS_IDLE_LOOP, true, 0, true, 2000);
       }
     break;
 
@@ -3918,7 +3916,7 @@ void wandHeatUp() {
       playEffect(S_MESON_OPEN);
 
       if(b_gpstar_benchtest == true && WAND_STATUS == MODE_ON && switch_vent.on() == true) {
-        playEffect(S_MESON_IDLE_LOOP, true, 0, true, 900);
+        playEffect(S_MESON_IDLE_LOOP, true, 0, true, 1500);
       }
     break;
   }
