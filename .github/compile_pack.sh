@@ -11,16 +11,16 @@ SRCDIR="../source"
 
 mkdir -p ${BINDIR}/pack
 
-# Current build timestamp to be reflected in the Attenuator build for ESP32.
-TIMESTAMP=$(date +"%Y%m%d%H%M%S")
-
 echo ""
 
 # Proton Pack
 echo "Building Proton Pack Binary..."
 
+# Set the project directory based on the source folder
+PROJECT_DIR="$SRCDIR/ProtonPack"
+
 # --warnings none
-arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:mega --export-binaries ${SRCDIR}/ProtonPack/ProtonPack.ino
+arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:mega --export-binaries ${PROJECT_DIR}/ProtonPack.ino
 
 rm -f ${BINDIR}/*.bin
 rm -f ${BINDIR}/*.eep

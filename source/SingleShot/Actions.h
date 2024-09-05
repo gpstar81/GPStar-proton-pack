@@ -20,9 +20,157 @@
 
 #pragma once
 
-// Forward function declarations
-void gripButtonCheck();
-void settingsMenuCheck();
+// Check the state of the grip button to determine whether we have entered the settings menu.
+void gripButtonCheck() {
+  // Proceed if device is in an idle state or in either the settings or EEPROM menus.
+  if(DEVICE_ACTION_STATUS == ACTION_IDLE || DEVICE_ACTION_STATUS == ACTION_SETTINGS || DEVICE_ACTION_STATUS == ACTION_CONFIG_EEPROM_MENU) {
+    if(switch_grip.pushed() && !(switch_device.on() && switch_vent.on())) {
+      // Switch between firing mode and settings mode, but only when right toggles are both off.
+      if(DEVICE_ACTION_STATUS != ACTION_SETTINGS && DEVICE_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && !switch_vent.on() && !switch_device.on()) {
+        // Not currently in the settings menu so set that as the current action.
+        DEVICE_ACTION_STATUS = ACTION_SETTINGS;
+        ms_settings_blinking.start(i_settings_blinking_delay);
+        deviceEnterMenu();
+        return;
+      }
+      else if(DEVICE_ACTION_STATUS == ACTION_SETTINGS && DEVICE_MENU_LEVEL == MENU_LEVEL_1 && MENU_OPTION_LEVEL == OPTION_5) {
+        // Only exit the settings menu when at option #5 on menu level 1.
+        DEVICE_ACTION_STATUS = ACTION_IDLE;
+        ms_settings_blinking.stop();
+        deviceExitMenu();
+        return;
+      }
+      else if(DEVICE_ACTION_STATUS == ACTION_CONFIG_EEPROM_MENU && DEVICE_MENU_LEVEL == MENU_LEVEL_1 && MENU_OPTION_LEVEL == OPTION_5) {
+        // Only exit the settings menu when at option #5 on menu level 1.
+        DEVICE_ACTION_STATUS = ACTION_IDLE;
+        ms_settings_blinking.stop();
+        bargraph.clear();
+        deviceExitEEPROMMenu();
+        return;
+      }
+    }
+  }
+}
+
+// Perform actions based on button press while in the settings menu.
+void settingsMenuCheck() {
+  if(DEVICE_ACTION_STATUS != ACTION_SETTINGS) {
+    return; // Leave if not in the settings menu.
+  }
+
+  switch(DEVICE_MENU_LEVEL) {
+    case MENU_LEVEL_1:
+      switch(MENU_OPTION_LEVEL) {
+        case OPTION_5:
+          // Intensify: Enable/Disable Music Track Looping
+          if(b_playing_music && switch_intensify.pushed()) {
+            toggleMusicLoop();
+            debugln(F("Toggle Music Loop"));
+          }
+
+          // Grip: Exits the menu system
+          // Allow the method gripButtonCheck() handle this on the next loop
+        break;
+
+        case OPTION_4:
+          // Grip + Dial = System Volume
+          if(switch_grip.on()) {
+            if(encoder.STATE == ENCODER_CW) {
+              // Increase the master system volume.
+              increaseVolume();
+              debug(F("Menu, System Vol+ "));
+              debugln(i_volume_master);
+            }
+            else if(encoder.STATE == ENCODER_CCW) {
+              // Decrease the master system volume.
+              decreaseVolume();
+              debug(F("Menu, System Vol- "));
+              debugln(i_volume_master);
+            }
+          }
+        break;
+
+        case OPTION_3:
+          // Grip + Dial = Effects Volume
+          if(switch_grip.on()) {
+            if(encoder.STATE == ENCODER_CW) {
+              // Increase the effects volume.
+              increaseVolumeEffects();
+              debug(F("Menu, Effects Vol+ "));
+              debugln(i_volume_effects);
+            }
+            else if(encoder.STATE == ENCODER_CCW) {
+              // Decrease the effects volume.
+              decreaseVolumeEffects();
+              debug(F("Menu, Effects Vol- "));
+              debugln(i_volume_effects);
+            }
+          }
+        break;
+
+        case OPTION_2:
+          // Intensify: Previous Track
+          if(b_playing_music && switch_intensify.pushed()) {
+            musicPrevTrack();
+            debugln(F("Prev Track"));
+          }
+
+          // Grip: Next Track
+          if(b_playing_music && switch_grip.pushed()) {
+            musicNextTrack();
+            debugln(F("Next Track"));
+          }
+        break;
+
+        case OPTION_1:
+          // Intensify: Start/Stop Music
+          if(switch_intensify.pushed()) {
+            if(!b_playing_music) {
+              playMusic();
+              debugln(F("Play Music"));
+            }
+            else {
+              stopMusic();
+              debugln(F("Stop Music"));
+            }
+          }
+
+          // Grip + Dial = Music Volume
+          if(switch_grip.on()) {
+            if(encoder.STATE == ENCODER_CW) {
+              // Increase the music volume.
+              increaseVolumeMusic();
+              debug(F("Menu, Music Vol+ "));
+              debugln(i_volume_music);
+            }
+            else if(encoder.STATE == ENCODER_CCW) {
+              // Decrease the music volume.
+              decreaseVolumeMusic();
+              debug(F("Menu, Music Vol- "));
+              debugln(i_volume_music);
+            }
+          }
+        break;
+      }
+    break;
+
+    case MENU_LEVEL_2:
+      // No-Op. Not currently used.
+    break;
+
+    case MENU_LEVEL_3:
+      // No-Op. Not currently used.
+    break;
+
+    case MENU_LEVEL_4:
+      // No-Op. Not currently used.
+    break;
+
+    case MENU_LEVEL_5:
+      // No-Op. Not currently used.
+    break;
+  }
+}
 
 void checkDeviceAction() {
   switch(DEVICE_STATUS) {
@@ -250,158 +398,6 @@ void checkDeviceAction() {
   if(b_firing && DEVICE_ACTION_STATUS != ACTION_FIRING) {
     // User is firing but we've switched into an action that is not firing.
     modeFireStop();
-  }
-}
-
-// Perform actions based on button press while in the settings menu.
-void settingsMenuCheck() {
-  if(DEVICE_ACTION_STATUS != ACTION_SETTINGS) {
-    return; // Leave if not in the settings menu.
-  }
-
-  switch(DEVICE_MENU_LEVEL) {
-    case MENU_LEVEL_1:
-      switch(MENU_OPTION_LEVEL) {
-        case OPTION_5:
-          // Intensify: Enable/Disable Music Track Looping
-          if(b_playing_music && switch_intensify.pushed()) {
-            toggleMusicLoop();
-            debugln(F("Toggle Music Loop"));
-          }
-
-          // Grip: Exits the menu system
-          // Allow the method gripButtonCheck() handle this on the next loop
-        break;
-
-        case OPTION_4:
-          // Grip + Dial = System Volume
-          if(switch_grip.on()) {
-            if(encoder.STATE == ENCODER_CW) {
-              // Increase the master system volume.
-              increaseVolume();
-              debug(F("Menu, System Vol+ "));
-              debugln(i_volume_master);
-            }
-            else if(encoder.STATE == ENCODER_CCW) {
-              // Decrease the master system volume.
-              decreaseVolume();
-              debug(F("Menu, System Vol- "));
-              debugln(i_volume_master);
-            }
-          }
-        break;
-
-        case OPTION_3:
-          // Grip + Dial = Effects Volume
-          if(switch_grip.on()) {
-            if(encoder.STATE == ENCODER_CW) {
-              // Increase the effects volume.
-              increaseVolumeEffects();
-              debug(F("Menu, Effects Vol+ "));
-              debugln(i_volume_effects);
-            }
-            else if(encoder.STATE == ENCODER_CCW) {
-              // Decrease the effects volume.
-              decreaseVolumeEffects();
-              debug(F("Menu, Effects Vol- "));
-              debugln(i_volume_effects);
-            }
-          }
-        break;
-
-        case OPTION_2:
-          // Intensify: Previous Track
-          if(b_playing_music && switch_intensify.pushed()) {
-            musicPrevTrack();
-            debugln(F("Prev Track"));
-          }
-
-          // Grip: Next Track
-          if(b_playing_music && switch_grip.pushed()) {
-            musicNextTrack();
-            debugln(F("Next Track"));
-          }
-        break;
-
-        case OPTION_1:
-          // Intensify: Start/Stop Music
-          if(switch_intensify.pushed()) {
-            if(!b_playing_music) {
-              playMusic();
-              debugln(F("Play Music"));
-            }
-            else {
-              stopMusic();
-              debugln(F("Stop Music"));
-            }
-          }
-
-          // Grip + Dial = Music Volume
-          if(switch_grip.on()) {
-            if(encoder.STATE == ENCODER_CW) {
-              // Increase the music volume.
-              increaseVolumeMusic();
-              debug(F("Menu, Music Vol+ "));
-              debugln(i_volume_music);
-            }
-            else if(encoder.STATE == ENCODER_CCW) {
-              // Decrease the music volume.
-              decreaseVolumeMusic();
-              debug(F("Menu, Music Vol- "));
-              debugln(i_volume_music);
-            }
-          }
-        break;
-      }
-    break;
-
-    case MENU_LEVEL_2:
-      // No-Op. Not currently used.
-    break;
-
-    case MENU_LEVEL_3:
-      // No-Op. Not currently used.
-    break;
-
-    case MENU_LEVEL_4:
-      // No-Op. Not currently used.
-    break;
-
-    case MENU_LEVEL_5:
-      // No-Op. Not currently used.
-    break;
-  }
-}
-
-// Check the state of the grip button to determine whether we have entered the settings menu.
-void gripButtonCheck() {
-  // Proceed if device is in an idle state or in either the settings or EEPROM menus.
-  if(DEVICE_ACTION_STATUS == ACTION_IDLE || DEVICE_ACTION_STATUS == ACTION_SETTINGS || DEVICE_ACTION_STATUS == ACTION_CONFIG_EEPROM_MENU) {
-    if(switch_grip.pushed() && !(switch_device.on() && switch_vent.on())) {
-      // Switch between firing mode and settings mode, but only when right toggles are both off.
-      if(DEVICE_ACTION_STATUS != ACTION_SETTINGS && DEVICE_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && !switch_vent.on() && !switch_device.on()) {
-        // Not currently in the settings menu so set that as the current action.
-        DEVICE_ACTION_STATUS = ACTION_SETTINGS;
-        ms_settings_blinking.start(i_settings_blinking_delay);
-        deviceEnterMenu();
-        return;
-      }
-      else if(DEVICE_ACTION_STATUS == ACTION_SETTINGS && DEVICE_MENU_LEVEL == MENU_LEVEL_1 && MENU_OPTION_LEVEL == OPTION_5) {
-        // Only exit the settings menu when at option #5 on menu level 1.
-        DEVICE_ACTION_STATUS = ACTION_IDLE;
-        ms_settings_blinking.stop();
-        deviceExitMenu();
-        return;
-      }
-      else if(DEVICE_ACTION_STATUS == ACTION_CONFIG_EEPROM_MENU && DEVICE_MENU_LEVEL == MENU_LEVEL_1 && MENU_OPTION_LEVEL == OPTION_5) {
-        // Only exit the settings menu when at option #5 on menu level 1.
-        DEVICE_ACTION_STATUS = ACTION_IDLE;
-        ms_settings_blinking.stop();
-        bargraph.clear();
-        deviceExitEEPROMMenu();
-        return;
-      }
-    }
   }
 }
 

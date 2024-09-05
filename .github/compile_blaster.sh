@@ -16,8 +16,11 @@ echo ""
 # Single-Shot Blaster
 echo "Building Single-Shot Blaster Binary..."
 
+# Set the project directory based on the source folder
+PROJECT_DIR="$SRCDIR/SingleShot"
+
 # --warnings none
-arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:mega --export-binaries ${SRCDIR}/SingleShot/SingleShot.ino
+arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:mega --export-binaries ${PROJECT_DIR}/SingleShot.ino
 
 rm -f ${BINDIR}/*.bin
 rm -f ${BINDIR}/*.eep
