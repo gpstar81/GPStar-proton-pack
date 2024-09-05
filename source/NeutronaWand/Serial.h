@@ -945,7 +945,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
                   stopEffect(S_WAND_HEATUP_ALT);
                   playEffect(S_WAND_HEATUP_ALT);
 
-                  if(b_28segment_bargraph == true) {
+                  if(BARGRAPH_TYPE != SEGMENTS_5) {
                     bargraphPowerCheck2021Alt(false);
                   }
 

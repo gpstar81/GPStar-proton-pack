@@ -254,6 +254,15 @@ const uint16_t i_overheat_delay_increment = 1000; // Used to increment the overh
 const uint16_t i_overheat_delay_max = 60000; // The maximum amount of time before an overheat sequence starts while firing. 60 seconds because of uint16_t and voice limitations.
 
 /*
+ * Wand power level. Controlled by the rotary encoder on the top of the wand.
+ * You can enable or disable overheating for each power level individually in the user adjustable values at the top of this file.
+ */
+const uint8_t i_power_level_max = 5;
+const uint8_t i_power_level_min = 1;
+uint8_t i_power_level = 1;
+uint8_t i_power_level_prev = 1;
+
+/*
  * Stock Hasbro Bargraph timers
  */
 millisDelay ms_bargraph;
@@ -272,7 +281,8 @@ HT16K33 ht_bargraph;
  * The Frutto 28-segment bargraph is automatically detected on boot and sets this to true.
  * Part #: BL28Z-3005SA04Y
  */
-bool b_28segment_bargraph = false;
+enum BARGRAPH_TYPES { SEGMENTS_5, SEGMENTS_28, SEGMENTS_30 };
+enum BARGRAPH_TYPES BARGRAPH_TYPE;
 
 const uint8_t i_bargraph_interval = 4;
 const uint8_t i_bargraph_wait = 180;
@@ -295,17 +305,18 @@ uint16_t i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
  * 2: 1/4: 5 - 11	   (7 segments)
  * 1: none: 0 - 4	   (5 segments)
  */
-const uint8_t i_bargraph_segments = 28;
-const uint8_t i_bargraph_invert[i_bargraph_segments] PROGMEM = {54, 38, 22, 6, 53, 37, 21, 5, 52, 36, 20, 4, 51, 35, 19, 3, 50, 34, 18, 2, 49, 33, 17, 1, 48, 32, 16, 0};
-const uint8_t i_bargraph_normal[i_bargraph_segments] PROGMEM = {0, 16, 32, 48, 1, 17, 33, 49, 2, 18, 34, 50, 3, 19, 35, 51, 4, 20, 36, 52, 5, 21, 37, 53, 6, 22, 38, 54};
+const uint8_t i_bargraph_segments = 30;
+const uint8_t i_bargraph_invert[i_bargraph_segments - 2] PROGMEM = {54, 38, 22, 6, 53, 37, 21, 5, 52, 36, 20, 4, 51, 35, 19, 3, 50, 34, 18, 2, 49, 33, 17, 1, 48, 32, 16, 0};
+const uint8_t i_bargraph_normal[i_bargraph_segments - 2] PROGMEM = {0, 16, 32, 48, 1, 17, 33, 49, 2, 18, 34, 50, 3, 19, 35, 51, 4, 20, 36, 52, 5, 21, 37, 53, 6, 22, 38, 54};
 bool b_bargraph_status[i_bargraph_segments] = {};
+const uint8_t i_bargraph_power_table_28[i_power_level_max + 1] PROGMEM = {0, 4, 11, 16, 22, 27};
 
 /*
   30 Segment bargraph mapping.
 */
-const uint8_t i_bargraph_wamco_segments = 30;
-const uint8_t i_bargraph_wamco_invert[i_bargraph_wamco_segments] PROGMEM = {64, 48, 32, 16, 0, 1, 17, 33, 49, 65, 66, 50, 34, 18, 2, 3, 19, 35, 51, 67, 4, 20, 36, 52, 68, 53, 37, 21, 5, 69};
-const uint8_t i_bargraph_wamco_normal[i_bargraph_wamco_segments] PROGMEM = {69, 5, 21, 37, 53, 68, 52, 36, 20, 4, 67, 51, 35, 19, 3, 2, 18, 34, 50, 66, 65, 49, 33, 17, 1, 0, 16, 32, 48, 64};
+const uint8_t i_bargraph_wamco_invert[i_bargraph_segments] PROGMEM = {64, 48, 32, 16, 0, 1, 17, 33, 49, 65, 66, 50, 34, 18, 2, 3, 19, 35, 51, 67, 4, 20, 36, 52, 68, 53, 37, 21, 5, 69};
+const uint8_t i_bargraph_wamco_normal[i_bargraph_segments] PROGMEM = {69, 5, 21, 37, 53, 68, 52, 36, 20, 4, 67, 51, 35, 19, 3, 2, 18, 34, 50, 66, 65, 49, 33, 17, 1, 0, 16, 32, 48, 64};
+const uint8_t i_bargraph_power_table_wamco[i_power_level_max + 1] PROGMEM = {0, 6, 12, 18, 24, 30};
 
 /*
  * (Optional) Support for Video Game Accessories (coming soon)
@@ -376,15 +387,6 @@ uint8_t i_barrel_light = 0; // Used to keep track which LED in the barrel is cur
 uint8_t i_pulse_step = 0; // Used to keep track of which pulse animation step we are on.
 uint8_t i_slime_tether_count = 0; // Used to keep track of how many slime tethers have been fired.
 uint16_t i_last_firing_effect_mix = 0; // Used by standalone Neutrona Wand.
-
-/*
- * Wand power level. Controlled by the rotary encoder on the top of the wand.
- * You can enable or disable overheating for each power level individually in the user adjustable values at the top of this file.
- */
-const uint8_t i_power_level_max = 5;
-const uint8_t i_power_level_min = 1;
-uint8_t i_power_level = 1;
-uint8_t i_power_level_prev = 1;
 
 /*
  * Wand / Pack communication
