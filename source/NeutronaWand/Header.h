@@ -301,6 +301,13 @@ const uint8_t i_bargraph_normal[i_bargraph_segments] PROGMEM = {0, 16, 32, 48, 1
 bool b_bargraph_status[i_bargraph_segments] = {};
 
 /*
+  30 Segment bargraph mapping.
+*/
+const uint8_t i_bargraph_wamco_segments = 30;
+const uint8_t i_bargraph_wamco_invert[i_bargraph_wamco_segments] PROGMEM = {64, 48, 32, 16, 0, 1, 17, 33, 49, 65, 66, 50, 34, 18, 2, 3, 19, 35, 51, 67, 4, 20, 36, 52, 68, 53, 37, 21, 5, 69};
+const uint8_t i_bargraph_wamco_normal[i_bargraph_wamco_segments] PROGMEM = {69, 5, 21, 37, 53, 68, 52, 36, 20, 4, 67, 51, 35, 19, 3, 2, 18, 34, 50, 66, 65, 49, 33, 17, 1, 0, 16, 32, 48, 64};
+
+/*
  * (Optional) Support for Video Game Accessories (coming soon)
  */
 // bool b_overheat_indicators[13] = {false, false, false, false, false, false, false, false, false, false, false, false, false};
