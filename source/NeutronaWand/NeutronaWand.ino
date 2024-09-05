@@ -8271,7 +8271,7 @@ void bargraphRampUp() {
       Power Level 4: 3/4: 17 - 22  (6 segments)
       Power Level 3: 1/2: 12 - 16  (5 segments)
       Power Level 2: 1/4: 5 - 11   (7 segments)
-      Power Leve 1: none: 0 - 4   (5 segments)
+      Power Level 1: none: 0 - 4   (5 segments)
     */
 
     switch(i_bargraph_status_alt) {
