@@ -339,6 +339,7 @@ void checkPack() {
 
               // Turn off the sync indicator LED as the sync is completed.
               digitalWriteFast(TOP_LED_PIN, HIGH);
+              digitalWriteFast(WAND_STATUS_LED_PIN, LOW);
 
               // Indicate that a pack is now connected.
               WAND_CONN_STATE = PACK_CONNECTED;
@@ -352,6 +353,7 @@ void checkPack() {
 
             // Turn off the sync indicator LED as it is no longer necessary.
             digitalWriteFast(TOP_LED_PIN, HIGH);
+            digitalWriteFast(WAND_STATUS_LED_PIN, LOW);
 
             // Reset the audio device now that we are in standalone mode and need music playback.
             setupAudioDevice();

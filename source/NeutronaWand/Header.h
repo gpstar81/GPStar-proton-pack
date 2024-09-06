@@ -36,6 +36,7 @@
 #define BARREL_HAT_LED_PIN 22 // Hat light at front of the wand near the barrel tip. (Orange LED)
 #define TOP_HAT_LED_PIN 23 // Hat light at top of the wand body near vent. (Orange or White LED)
 #define BARREL_TIP_LED_PIN 24 // White LED at tip of the wand barrel. (White LED)
+#define WAND_STATUS_LED_PIN 38 // V1.4 GPStar Neutrona Wand onboard LED pin.
 #define WAND_SWITCH_PIN A0
 #define BARGRAPH_LED_1_PIN A1
 #define BARGRAPH_LED_2_PIN A2
