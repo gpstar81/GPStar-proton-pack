@@ -84,28 +84,28 @@ struct StandaloneLED {
 
   // Function to initialize the LED
   void initialize() {
-      pinModeFast(Pin, OUTPUT);
-      digitalWriteFast(Pin, Off);
+    pinModeFast(Pin, OUTPUT);
+    digitalWriteFast(Pin, Off);
   }
 
   // Function to dim the LED
   void dim(uint8_t brightness) {
-      analogWrite(Pin, brightness);
+    analogWrite(Pin, brightness);
   }
 
   // Function to get LED state/value
   uint8_t getState() {
-      return digitalReadFast(Pin);
+    return digitalReadFast(Pin);
   }
 
   // Function to turn on the LED
   void turnOn() {
-      digitalWriteFast(Pin, On);
+    digitalWriteFast(Pin, On);
   }
 
   // Function to turn off the LED
   void turnOff() {
-      digitalWriteFast(Pin, Off);
+    digitalWriteFast(Pin, Off);
   }
 };
 // Create instances and initialize LEDs with their pin and respective values for on/off.

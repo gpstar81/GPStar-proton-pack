@@ -522,7 +522,10 @@ void firePulseEffect() {
     bargraph.PATTERN = BG_OUTER_INNER;
   }
 
-  // Primary Blast.
+  // Strobe the barrel LED while firing in case someone isn't using an addressable LED.
+  i_pulse_step % 2 == 0 ? led_Tip.turnOn() : led_Tip.turnOff();
+
+  // Primary blast.
   switch(i_pulse_step) {
     case 0:
       system_leds[i_barrel_led] = getHueAsRGB(C_RED);
@@ -556,14 +559,14 @@ void firePulseEffect() {
     break;
     case 10:
       system_leds[i_barrel_led] = getHueAsRGB(C_RED);
-      // Bolt has reached barrel tip, so turn on tip light.
-      led_Tip.turnOn();
     break;
     case 11:
       system_leds[i_barrel_led] = getHueAsRGB(C_BLACK);
     break;
     default:
-      // Do nothing if we somehow end up here.
+      // This is an invalid state, so turn off all the LEDs.
+      system_leds[i_barrel_led] = getHueAsRGB(C_BLACK);
+      led_Tip.turnOff();
     break;
   }
 
@@ -574,7 +577,6 @@ void firePulseEffect() {
   }
   else {
     // Animation has concluded, so reset our timer and variable.
-    led_Tip.turnOff();
     ms_firing_pulse.stop();
     i_pulse_step = 0;
 
