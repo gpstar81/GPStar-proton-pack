@@ -737,29 +737,18 @@ void deviceOff() {
   stopEffect(S_BOOTUP);
   //stopEffect(S_SMASH_ERROR_RESTART);
 
-  if(DEVICE_ACTION_STATUS == ACTION_ERROR && !b_device_boot_error_on && !b_device_mash_error) {
+  if(DEVICE_ACTION_STATUS == ACTION_ERROR && !b_device_boot_error_on) {
     // We are exiting Device Boot Error, so change device state back to off/idle.
     DEVICE_STATUS = MODE_OFF;
     DEVICE_ACTION_STATUS = ACTION_IDLE;
   }
-  else if(DEVICE_ACTION_STATUS != ACTION_ERROR && (b_device_boot_error_on || b_device_mash_error)) {
+  else if(DEVICE_ACTION_STATUS != ACTION_ERROR && b_device_boot_error_on) {
     // We are entering either Device Boot Error mode or Button Mash Timeout mode, so do nothing.
   }
   else {
     // Full device shutdown in all other situations.
     DEVICE_STATUS = MODE_OFF;
     DEVICE_ACTION_STATUS = ACTION_IDLE;
-
-    if(b_device_mash_error) {
-      // stopEffect(S_SMASH_ERROR_LOOP);
-      // stopEffect(S_SMASH_ERROR_RESTART);
-    }
-
-    // Turn off any barrel spark effects and reset the button mash lockout.
-    if(b_device_mash_error) {
-      barrelLightsOff();
-      b_device_mash_error = false;
-    }
 
     stopEffect(S_SHUTDOWN);
     playEffect(S_SHUTDOWN);
@@ -773,13 +762,6 @@ void deviceOff() {
   if(b_firing) {
     modeFireStop();
   }
-
-  if(DEVICE_ACTION_STATUS != ACTION_ERROR && b_device_mash_error) {
-    // playEffect(S_DEVICE_MASH_ERROR);
-  }
-
-  // Clear counter until user begins firing again.
-  i_bmash_count = 0;
 
   // Turn off some timers.
   ms_cyclotron.stop();
@@ -814,19 +796,14 @@ void modeError() {
   DEVICE_STATUS = MODE_ERROR;
   DEVICE_ACTION_STATUS = ACTION_ERROR;
 
-  if(!b_device_mash_error) {
-    // This is used for controlling the bargraph beeping while in boot error mode.
-    ms_hat_1.start(i_hat_2_delay * 4);
-    ms_hat_2.start(i_hat_2_delay);
-    ms_settings_blinking.start(i_settings_blinking_delay);
+  // This is used for controlling the bargraph beeping while in boot error mode.
+  ms_hat_1.start(i_hat_2_delay * 4);
+  ms_hat_2.start(i_hat_2_delay);
+  ms_settings_blinking.start(i_settings_blinking_delay);
 
-    playEffect(S_BEEPS_LOW);
-    playEffect(S_BEEPS);
-    playEffect(S_BEEPS);
-  }
-  else if(b_device_mash_error) {
-    // playEffect(S_SMASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
-  }
+  playEffect(S_BEEPS_LOW);
+  playEffect(S_BEEPS);
+  playEffect(S_BEEPS);
 }
 
 void modePulseStart() {
@@ -850,70 +827,11 @@ void fireControlCheck() {
       return;
     }
 
-    if(i_bmash_count >= i_bmash_max) {
-      // User has exceeded "normal" firing rate.
-      switch(STREAM_MODE) {
-        case PROTON:
-        default:
-          stopEffect(S_FIRE_BLAST);
-        break;
-      }
+    // Otherwise the Activate switch is up, so check if in a firing state.
+    if(switch_device.on() && switch_vent.on()) {
+      if(switch_grip.on()) {
+        b_firing_alt = true;
 
-      b_device_mash_error = true;
-      modeError();
-      //deviceTipSpark();
-
-      // Adjust the cool down lockout period based on the power level.
-      switch(POWER_LEVEL) {
-        case LEVEL_1:
-        default:
-          ms_bmash.start(i_bmash_cool_down);
-        break;
-        case LEVEL_2:
-          ms_bmash.start(i_bmash_cool_down + 500);
-        break;
-        case LEVEL_3:
-          ms_bmash.start(i_bmash_cool_down + 1000);
-        break;
-        case LEVEL_4:
-          ms_bmash.start(i_bmash_cool_down + 1500);
-        break;
-        case LEVEL_5:
-          ms_bmash.start(i_bmash_cool_down + 2000);
-        break;
-      }
-    }
-    else {
-      if(switch_intensify.on() && switch_device.on() && switch_vent.on()) {
-        switch(STREAM_MODE) {
-          case PROTON:
-          default:
-            if(DEVICE_ACTION_STATUS != ACTION_FIRING) {
-              DEVICE_ACTION_STATUS = ACTION_FIRING;
-            }
-
-            if(ms_bmash.remaining() < 1) {
-              // Clear counter/timer until user begins firing.
-              i_bmash_count = 0;
-              ms_bmash.start(i_bmash_delay);
-            }
-
-            if(!b_firing_intensify) {
-              // Increase count each time the user presses a firing button.
-              i_bmash_count++;
-            }
-
-            b_firing_intensify = true;
-          break;
-        }
-      }
-
-      if(STREAM_MODE == PROTON && DEVICE_ACTION_STATUS == ACTION_FIRING) {
-        if(switch_grip.on()) {
-          b_firing_alt = true;
-        }
-      }
-      else if(switch_grip.on() && switch_device.on() && switch_vent.on()) {
         switch(STREAM_MODE) {
           case PROTON:
             // Handle Primary Blast fire start here.
@@ -1011,12 +929,7 @@ void modeActivate() {
 
     // Proper startup. Continue booting up the device.
     DEVICE_ACTION_STATUS = ACTION_IDLE;
-
-    // Clear counter until user begins firing.
-    i_bmash_count = 0;
   }
-
-  b_device_mash_error = false;
 
   postActivation(); // Enable lights and bargraph after device activation.
 }
@@ -1123,6 +1036,7 @@ void deviceExitMenu() {
   if(DEVICE_STATUS == MODE_ON && bargraph.STATE == BG_OFF) {
     bargraph.reset(); // Enable bargraph for use (resets variables and turns it on).
     bargraph.PATTERN = BG_POWER_RAMP; // Bargraph idling loop.
+    led_SloBlo.turnOn(); // Turn on SLO-BLO if device is on.
   }
 }
 

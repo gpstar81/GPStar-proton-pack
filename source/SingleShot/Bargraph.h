@@ -86,7 +86,7 @@ struct Bargraph {
     int element = 0; // Indicates current LED element for adjustment.
     bool inverted = false; // Whether the order of the device elements should be considered inverted.
     bool present = false; // Denotes that i2c bus found the bargraph device.
-    millisDelay ms_timer; // Timer to control bargraph updates consistently.
+    millisDelay ms_bargraph; // Timer to control bargraph updates consistently.
 
     enum BARGRAPH_PATTERNS PATTERN = BG_NONE;
     enum BARGRAPH_STATES STATE = BG_OFF;
@@ -211,7 +211,7 @@ struct Bargraph {
       element = 0;
       step = 0;
       STATE = BG_ON;
-      ms_timer.stop();
+      ms_bargraph.stop();
     }
 
     void full() {
@@ -284,7 +284,7 @@ void bargraphUpdate(uint8_t i_delay_divisor = 1) {
   i_current_delay = i_current_delay + (Bargraph::Elements - bargraph.simulate);
 
   // If bargraph is not in an OFF state and timer is off/finished, perform an update of element(s).
-  if(bargraph.STATE != BG_OFF && bargraph.ms_timer.remaining() == 0) {
+  if(bargraph.STATE != BG_OFF && bargraph.ms_bargraph.remaining() == 0) {
 
     // Animations should be based on a set pattern and logic here must only affect the bargraph device.
     switch(bargraph.PATTERN) {
@@ -316,7 +316,7 @@ void bargraphUpdate(uint8_t i_delay_divisor = 1) {
         }
         else {
           // Reset timer for next iteration, increasing the delay as elements are lit (easing out).
-          bargraph.ms_timer.start(i_current_delay + int(bargraph.element / 2));
+          bargraph.ms_bargraph.start(i_current_delay + int(bargraph.element / 2));
         }
       break;
 
@@ -335,11 +335,11 @@ void bargraphUpdate(uint8_t i_delay_divisor = 1) {
           bargraph.STATE = BG_FULL;
 
           // Set an extra delay at end of sequence, before the ramp-down.
-          bargraph.ms_timer.start(i_current_delay * 3);
+          bargraph.ms_bargraph.start(i_current_delay * 3);
         }
         else {
           // Reset timer for next iteration, increasing the delay as elements are lit (easing out).
-          bargraph.ms_timer.start(i_current_delay + int(bargraph.element / 2));
+          bargraph.ms_bargraph.start(i_current_delay + int(bargraph.element / 2));
         }
       break;
 
@@ -365,7 +365,7 @@ void bargraphUpdate(uint8_t i_delay_divisor = 1) {
         }
         else {
           // Reset timer for next iteration.
-          bargraph.ms_timer.start(i_current_delay);
+          bargraph.ms_bargraph.start(i_current_delay);
         }
       break;
 
@@ -389,11 +389,11 @@ void bargraphUpdate(uint8_t i_delay_divisor = 1) {
           bargraph.clear();
 
           // Set an extra delay at end of sequence, before ramp-up.
-          bargraph.ms_timer.start(i_current_delay * 3);
+          bargraph.ms_bargraph.start(i_current_delay * 3);
         }
         else {
           // Reset timer for next iteration.
-          bargraph.ms_timer.start(i_current_delay);
+          bargraph.ms_bargraph.start(i_current_delay);
         }
       break;
 
@@ -478,7 +478,7 @@ void bargraphUpdate(uint8_t i_delay_divisor = 1) {
         }
 
         // Reset timer for next iteration, with slight delay as the steps increase.
-        bargraph.ms_timer.start(i_current_delay + bargraph.step);
+        bargraph.ms_bargraph.start(i_current_delay + bargraph.step);
       break;
     }
   }

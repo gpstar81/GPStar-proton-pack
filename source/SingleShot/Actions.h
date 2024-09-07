@@ -239,16 +239,12 @@ void checkDeviceAction() {
       if(ms_hat_2.justFinished()) {
         ms_hat_2.start(i_hat_2_delay);
 
-        if(!b_device_mash_error) {
-          playEffect(S_BEEPS_LOW);
-          playEffect(S_BEEPS);
-        }
+        playEffect(S_BEEPS_LOW);
+        playEffect(S_BEEPS);
       }
 
       if(ms_hat_1.justFinished()) {
-        if(!b_device_mash_error) {
-          playEffect(S_BEEPS);
-        }
+        playEffect(S_BEEPS);
 
         ms_hat_1.start(i_hat_2_delay * 4);
       }
@@ -291,28 +287,6 @@ void checkDeviceAction() {
     break;
   }
 
-  if(DEVICE_ACTION_STATUS != ACTION_FIRING) {
-    if(ms_bmash.remaining() < 1) {
-      // Clear counter until user begins firing (post any lock-out period).
-      i_bmash_count = 0;
-
-      if(b_device_mash_error) {
-        // Return the device to a normal firing state after lock-out from button mashing.
-        b_device_mash_error = false;
-
-        DEVICE_STATUS = MODE_ON;
-        DEVICE_ACTION_STATUS = ACTION_IDLE;
-
-        postActivation();
-
-        // stopEffect(S_SMASH_ERROR_LOOP);
-        // playEffect(S_SMASH_ERROR_RESTART);
-
-        bargraph.clear();
-      }
-    }
-  }
-
   // Use the current action status to determine next steps.
   switch(DEVICE_ACTION_STATUS) {
     case ACTION_IDLE:
@@ -321,7 +295,6 @@ void checkDeviceAction() {
     break;
 
     case ACTION_OFF:
-      b_device_mash_error = false;
       deviceOff();
       bargraph.off();
     break;

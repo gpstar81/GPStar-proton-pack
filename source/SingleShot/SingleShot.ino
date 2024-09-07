@@ -114,9 +114,6 @@ void setup() {
     readEEPROM();
   }
 
-  // Start the button mash check timer.
-  ms_bmash.start(0);
-
   // Start up some timers for MODE_ORIGINAL.
   ms_slo_blo_blink.start(i_slo_blo_blink_delay);
 
@@ -132,7 +129,7 @@ void setup() {
   // Make sure lights are off, including the bargraph.
   allLightsOff();
 
-  // System Power On Self Test
+  // Execute the System POST (Power On Self Test)
   systemPOST();
 }
 
