@@ -10314,15 +10314,13 @@ void wandExitMenu() {
 
   // In original mode, we need to re-initalise the 28 and 30 segment bargraph if some switches are already toggled on.
   if(SYSTEM_MODE == MODE_ORIGINAL) {
-    if(switch_vent.on() == true && switch_wand.on() == true) {
-      if(b_pack_ion_arm_switch_on == true && BARGRAPH_TYPE != SEGMENTS_5) {
-        if(b_extra_pack_sounds == true) {
-          wandSerialSend(W_MODE_ORIGINAL_HEATUP);
-        }
-
-        stopEffect(S_WAND_HEATUP_ALT);
-        playEffect(S_WAND_HEATUP_ALT);
+    if(switch_vent.on() && switch_wand.on() && b_pack_ion_arm_switch_on) {
+      if(b_extra_pack_sounds) {
+        wandSerialSend(W_MODE_ORIGINAL_HEATUP);
       }
+
+      stopEffect(S_WAND_HEATUP_ALT);
+      playEffect(S_WAND_HEATUP_ALT);
 
       if(BARGRAPH_TYPE != SEGMENTS_5) {
         bargraphPowerCheck2021Alt(false);
