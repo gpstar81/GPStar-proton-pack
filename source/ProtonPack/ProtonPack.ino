@@ -622,6 +622,27 @@ void systemPOST() {
       pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
       pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
       pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_WHITE);
+
+      if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+        cyclotron_leds[0] = getHueAsRGB(CYCLOTRON_PANEL, C_RED);
+        cyclotron_leds[1] = getHueAsRGB(CYCLOTRON_PANEL, C_RED);
+        cyclotron_leds[2] = getHueAsRGB(CYCLOTRON_PANEL, C_ORANGE);
+        cyclotron_leds[3] = getHueAsRGB(CYCLOTRON_PANEL, C_ORANGE);
+        cyclotron_leds[4] = getHueAsRGB(CYCLOTRON_PANEL, C_GREEN);
+        cyclotron_leds[5] = getHueAsRGB(CYCLOTRON_PANEL, C_GREEN);
+        cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_GREEN);
+        cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_ORANGE);
+      }
+      else {
+        digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, HIGH);
+        digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, HIGH);
+        digitalWriteFast(CYCLOTRON_SWITCH_LED_Y1_PIN, HIGH);
+        digitalWriteFast(CYCLOTRON_SWITCH_LED_Y2_PIN, HIGH);
+        digitalWriteFast(CYCLOTRON_SWITCH_LED_G1_PIN, HIGH);
+        digitalWriteFast(CYCLOTRON_SWITCH_LED_G2_PIN, HIGH);
+        digitalWriteFast(YEAR_TOGGLE_LED_PIN, HIGH);
+        digitalWriteFast(VIBRATION_TOGGLE_LED_PIN, HIGH);
+      }
     }
     else {
       pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
@@ -629,6 +650,27 @@ void systemPOST() {
       pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
       pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
       pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+
+      if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+        cyclotron_leds[0] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
+        cyclotron_leds[1] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
+        cyclotron_leds[2] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
+        cyclotron_leds[3] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
+        cyclotron_leds[4] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
+        cyclotron_leds[5] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
+        cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
+        cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
+      }
+      else {
+        digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, LOW);
+        digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, LOW);
+        digitalWriteFast(CYCLOTRON_SWITCH_LED_Y1_PIN, LOW);
+        digitalWriteFast(CYCLOTRON_SWITCH_LED_Y2_PIN, LOW);
+        digitalWriteFast(CYCLOTRON_SWITCH_LED_G1_PIN, LOW);
+        digitalWriteFast(CYCLOTRON_SWITCH_LED_G2_PIN, LOW);
+        digitalWriteFast(YEAR_TOGGLE_LED_PIN, LOW);
+        digitalWriteFast(VIBRATION_TOGGLE_LED_PIN, LOW);
+      }
     }
 
     i_post_powercell_up++;
@@ -652,6 +694,27 @@ void systemPOST() {
       pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
       pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
       pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_WHITE);
+
+      if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+        cyclotron_leds[0] = getHueAsRGB(CYCLOTRON_PANEL, C_RED);
+        cyclotron_leds[1] = getHueAsRGB(CYCLOTRON_PANEL, C_RED);
+        cyclotron_leds[2] = getHueAsRGB(CYCLOTRON_PANEL, C_ORANGE);
+        cyclotron_leds[3] = getHueAsRGB(CYCLOTRON_PANEL, C_ORANGE);
+        cyclotron_leds[4] = getHueAsRGB(CYCLOTRON_PANEL, C_GREEN);
+        cyclotron_leds[5] = getHueAsRGB(CYCLOTRON_PANEL, C_GREEN);
+        cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_GREEN);
+        cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_ORANGE);
+      }
+      else {
+        digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, HIGH);
+        digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, HIGH);
+        digitalWriteFast(CYCLOTRON_SWITCH_LED_Y1_PIN, HIGH);
+        digitalWriteFast(CYCLOTRON_SWITCH_LED_Y2_PIN, HIGH);
+        digitalWriteFast(CYCLOTRON_SWITCH_LED_G1_PIN, HIGH);
+        digitalWriteFast(CYCLOTRON_SWITCH_LED_G2_PIN, HIGH);
+        digitalWriteFast(YEAR_TOGGLE_LED_PIN, HIGH);
+        digitalWriteFast(VIBRATION_TOGGLE_LED_PIN, HIGH);
+      }
     }
     else {
       pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
@@ -659,21 +722,28 @@ void systemPOST() {
       pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
       pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
       pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
-    }
 
-    /*if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
-      if(i_post_powercell_down <= i_ic_panel_end) {
-        cyclotron_leds[i_post_powercell_down] = getHueAsRGB(CYCLOTRON_PANEL, C_RED);
-
-        if(i_post_powercell_down > i_ic_panel_start) {
-          cyclotron_leds[i_post_powercell_down - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
-        }
-      }
-
-      if(i_post_powercell_down > i_ic_panel_end) {
+      if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+        cyclotron_leds[0] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
+        cyclotron_leds[1] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
+        cyclotron_leds[2] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
+        cyclotron_leds[3] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
+        cyclotron_leds[4] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
+        cyclotron_leds[5] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
+        cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
         cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
       }
-    }*/
+      else {
+        digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, LOW);
+        digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, LOW);
+        digitalWriteFast(CYCLOTRON_SWITCH_LED_Y1_PIN, LOW);
+        digitalWriteFast(CYCLOTRON_SWITCH_LED_Y2_PIN, LOW);
+        digitalWriteFast(CYCLOTRON_SWITCH_LED_G1_PIN, LOW);
+        digitalWriteFast(CYCLOTRON_SWITCH_LED_G2_PIN, LOW);
+        digitalWriteFast(YEAR_TOGGLE_LED_PIN, LOW);
+        digitalWriteFast(VIBRATION_TOGGLE_LED_PIN, LOW);
+      }
+    }
 
     i_post_powercell_down++;
 
@@ -692,6 +762,17 @@ void systemPOST() {
     pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i_post_fade);
     pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i_post_fade);
     pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_WHITE, i_post_fade);
+
+    if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+      cyclotron_leds[0] = getHueAsRGB(CYCLOTRON_PANEL, C_RED, i_post_fade);
+      cyclotron_leds[1] = getHueAsRGB(CYCLOTRON_PANEL, C_RED, i_post_fade);
+      cyclotron_leds[2] = getHueAsRGB(CYCLOTRON_PANEL, C_ORANGE, i_post_fade);
+      cyclotron_leds[3] = getHueAsRGB(CYCLOTRON_PANEL, C_ORANGE, i_post_fade);
+      cyclotron_leds[4] = getHueAsRGB(CYCLOTRON_PANEL, C_GREEN, i_post_fade);
+      cyclotron_leds[5] = getHueAsRGB(CYCLOTRON_PANEL, C_GREEN, i_post_fade);
+      cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_GREEN, i_post_fade);
+      cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_ORANGE, i_post_fade);
+    }
 
     i_post_fade--;
 
@@ -1516,6 +1597,11 @@ void cyclotronSwitchLEDOff() {
   digitalWriteFast(CYCLOTRON_SWITCH_LED_G1_PIN, LOW);
   digitalWriteFast(CYCLOTRON_SWITCH_LED_G2_PIN, LOW);
 
+  if(b_cyclotron_lid_on) {
+    digitalWriteFast(YEAR_TOGGLE_LED_PIN, LOW);
+    digitalWriteFast(VIBRATION_TOGGLE_LED_PIN, LOW);
+  }
+
   i_cyclotron_sw_led = 0;
 
   innerCyclotronLEDPanelOff();
@@ -2065,12 +2151,7 @@ void spectralLightsOff() {
   }
 
   for(uint8_t i = i_ic_cake_start; i <= i_ic_cake_end; i++) {
-    if(b_grb_cyclotron_cake == true) {
-      cyclotron_leds[i] = getHueAsGRB(CYCLOTRON_INNER, C_BLACK);
-    }
-    else {
-      cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_INNER, C_BLACK);
-    }
+    cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_INNER, C_BLACK);
   }
 }
 
