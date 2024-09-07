@@ -79,7 +79,7 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
 
   // For the Frutto barrel we need to reduce the cycle count so the colours are more perceptible.
   if(WAND_BARREL_LED_COUNT == LEDS_48) {
-    i_cycle = 20;
+    i_cycle = 255;
   }
 
   // Returns a CHSV object with a hue (colour), full saturation, and stated brightness.
@@ -191,12 +191,9 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
         i_curr_colour = 0; // Reset if out of range.
       }
 
-      if(WAND_ACTION_STATUS == ACTION_IDLE && i_cycle == 20) {
+      if(WAND_ACTION_STATUS == ACTION_IDLE) {
         // Used to slow down colour transitions during the barrel fade effect.
-        if(WAND_BARREL_LED_COUNT == LEDS_48) {
-          i_cycle = 255;
-        }
-        else {
+        if(WAND_BARREL_LED_COUNT == LEDS_5) {
           i_cycle = 50;
         }
       }
@@ -225,10 +222,7 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
 
       if(WAND_ACTION_STATUS == ACTION_IDLE) {
         // Used to slow down colour transitions during the barrel fade effect.
-        if(WAND_BARREL_LED_COUNT == LEDS_48) {
-          i_cycle = 255;
-        }
-        else {
+        if(WAND_BARREL_LED_COUNT == LEDS_5) {
           i_cycle = 50;
         }
       }
@@ -261,8 +255,16 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
     break;
 
     case C_RAINBOW:
+      if(WAND_ACTION_STATUS == ACTION_IDLE) {
+        // Used to slow down colour transitions during the barrel fade effect.
+        if(WAND_BARREL_LED_COUNT == LEDS_48) {
+          i_cycle = 20;
+        }
+      }
+
       // Cycle through all colours (0-255) at full saturation.
       i_count++;
+
       if(i_count % i_cycle == 0) {
         i_curr_colour = (i_curr_colour + 5) % 255;
         i_count = 1; // Reset counter.

@@ -1998,6 +1998,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         playEffect(S_CLICK);
         b_settings = false;
       }
+      else {
+        b_christmas ? playEffect(S_CHRISTMAS_MODE_VOICE) : playEffect(S_HALLOWEEN_MODE_VOICE);
+      }
 
       if(b_cyclotron_colour_toggle == true) {
         // Reset the Cyclotron LED colours.

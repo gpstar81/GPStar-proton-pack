@@ -978,8 +978,13 @@ void startVentSequence() {
     ms_blink_sound_timer_2.start(i_blink_sound_timer * 4);
   }
   else {
+    uint8_t i_segment_adjust = 2;
+    if(BARGRAPH_TYPE == SEGMENTS_30) {
+      i_segment_adjust = 0;
+    }
+
     // Reset some bargraph levels before we ramp the bargraph down.
-    i_bargraph_status_alt = i_bargraph_segments; // For 28 segment bargraph
+    i_bargraph_status_alt = i_bargraph_segments - i_segment_adjust; // For 28 and 30 segment bargraph
     i_bargraph_status = i_bargraph_segments_5_led; // For Hasbro 5 LED bargraph.
 
     bargraphFull();
@@ -4034,6 +4039,14 @@ void wandHeatUp() {
 
       if(b_gpstar_benchtest == true && WAND_STATUS == MODE_ON && switch_vent.on() == true) {
         playEffect(S_MESON_IDLE_LOOP, true, 0, true, 1500);
+      }
+    break;
+
+    case HOLIDAY:
+      playEffect(S_FIRE_START_SPARK);
+
+      if(b_gpstar_benchtest) {
+        b_christmas ? playEffect(S_CHRISTMAS_MODE_VOICE) : playEffect(S_HALLOWEEN_MODE_VOICE);
       }
     break;
   }
