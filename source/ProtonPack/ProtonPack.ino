@@ -613,8 +613,28 @@ void systemPOST() {
   uint8_t i_tmp_led4 = i_cyclotron_led_start + cyclotron84LookupTable(3);
   uint8_t i_tmp_led5 = i_pack_num_leds - (i_nfilter_jewel_leds / 2);
 
+  uint8_t i_tmp_powercell_led = i_post_powercell_up;
+
   if(i_post_powercell_up < i_powercell_leds && ms_delay_post.justFinished()) {
-    pack_leds[i_post_powercell_up] = getHueAsRGB(POWERCELL, C_MID_BLUE);
+    if(b_powercell_invert == true) {
+      if(i_powercell_leds == HASLAB_POWERCELL_LED_COUNT) {
+        i_tmp_powercell_led = PROGMEM_READU8(powercell_13_invert[i_post_powercell_up]);
+      }
+      else {
+        i_tmp_powercell_led = PROGMEM_READU8(powercell_15_invert[i_post_powercell_up]);
+
+      }
+    }
+    else {
+      if(i_powercell_leds == HASLAB_POWERCELL_LED_COUNT) {
+        i_tmp_powercell_led = PROGMEM_READU8(powercell_13[i_post_powercell_up]);
+      }
+      else {
+        i_tmp_powercell_led = PROGMEM_READU8(powercell_15[i_post_powercell_up]);
+      }
+    }
+
+    pack_leds[i_tmp_powercell_led] = getHueAsRGB(POWERCELL, C_MID_BLUE);
 
     if((i_post_powercell_up % 5) == 0) {
       pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
@@ -685,7 +705,25 @@ void systemPOST() {
   }
 
   if(i_post_powercell_down < i_powercell_leds && ms_delay_post_2.justFinished()) {
-    pack_leds[(i_powercell_leds - 1) - i_post_powercell_down] = getHueAsRGB(POWERCELL, C_BLACK); // Ramp up and ramp down.
+    if(b_powercell_invert == true) {
+      if(i_powercell_leds == HASLAB_POWERCELL_LED_COUNT) {
+        i_tmp_powercell_led = PROGMEM_READU8(powercell_13_invert[i_post_powercell_down]);
+      }
+      else {
+        i_tmp_powercell_led = PROGMEM_READU8(powercell_15_invert[i_post_powercell_down]);
+
+      }
+    }
+    else {
+      if(i_powercell_leds == HASLAB_POWERCELL_LED_COUNT) {
+        i_tmp_powercell_led = PROGMEM_READU8(powercell_13[i_post_powercell_down]);
+      }
+      else {
+        i_tmp_powercell_led = PROGMEM_READU8(powercell_15[i_post_powercell_down]);
+      }
+    }
+
+    pack_leds[(i_powercell_leds - 1) - i_tmp_powercell_led] = getHueAsRGB(POWERCELL, C_BLACK); // Ramp up and ramp down.
     //pack_leds[i_post_powercell_down] = getHueAsRGB(POWERCELL, C_BLACK); // Ramp up and ramp away.
 
     if((i_post_powercell_down % 5) == 0) {
@@ -2189,8 +2227,28 @@ void powercellDraw(uint8_t i_start) {
   // Sets the colour for each Power Cell LED, subject to colour toggle setting.
   for(uint8_t i = i_start; i <= i_powercell_led; i++) {
     if(i_powercell_led < i_powercell_leds) {
-      // Note: Always assumed to be RGB for built-in or Frutto LEDs.
-      pack_leds[i] = getHueAsRGB(POWERCELL, i_colour_scheme, i_brightness);
+      uint8_t i_tmp_powercell_led = 0;
+
+      if(b_powercell_invert == true) {
+        if(i_powercell_leds == HASLAB_POWERCELL_LED_COUNT) {
+          i_tmp_powercell_led = PROGMEM_READU8(powercell_13_invert[i]);
+        }
+        else {
+          i_tmp_powercell_led = PROGMEM_READU8(powercell_15_invert[i]);
+
+        }
+      }
+      else {
+        if(i_powercell_leds == HASLAB_POWERCELL_LED_COUNT) {
+          i_tmp_powercell_led = PROGMEM_READU8(powercell_13[i]);
+        }
+        else {
+          i_tmp_powercell_led = PROGMEM_READU8(powercell_15[i]);
+        }
+      }
+
+      // Note: Always assumed to be RGB for built-in.
+      pack_leds[i_tmp_powercell_led] = getHueAsRGB(POWERCELL, i_colour_scheme, i_brightness);
     }
   }
 }

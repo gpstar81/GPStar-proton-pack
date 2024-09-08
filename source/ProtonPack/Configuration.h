@@ -68,6 +68,12 @@ bool b_cyclotron_colour_toggle = true;
 bool b_powercell_colour_toggle = true;
 
 /*
+  * Invert the power cell animation.
+  * Default is false.
+*/
+bool b_powercell_invert = false;
+
+/*
  * Cyclotron Lid LED delays.
  * Time in milliseconds between when a LED changes.
  * 1000 = 1 second.

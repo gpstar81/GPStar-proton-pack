@@ -185,6 +185,10 @@ millisDelay ms_powercell;
 bool b_powercell_updating = false;
 uint8_t i_powercell_multiplier = 1;
 bool b_powercell_sound_loop = false;
+const uint8_t powercell_15_invert[15] PROGMEM = {14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 };
+const uint8_t powercell_15[15] PROGMEM = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 };
+const uint8_t powercell_13[13] PROGMEM = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+const uint8_t powercell_13_invert[13] PROGMEM = {12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 };
 
 /*
  * State of the pack.
