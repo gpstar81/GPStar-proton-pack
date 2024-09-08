@@ -68,9 +68,9 @@ bool b_cyclotron_colour_toggle = true;
 bool b_powercell_colour_toggle = true;
 
 /*
-  * Invert the power cell animation.
-  * Default is false.
-*/
+ * Invert the Power Cell animation.
+ * Default is false.
+ */
 bool b_powercell_invert = false;
 
 /*

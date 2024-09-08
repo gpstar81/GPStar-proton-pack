@@ -171,6 +171,8 @@ CRGB cyclotron_leds[INNER_CYCLOTRON_LED_PANEL_MAX + INNER_CYCLOTRON_CAKE_LED_MAX
  * for the Inner Cyclotron, and the optional "sparking" cyclotron cavity LEDs.
  * 0.03 ms to update 1 LED. So 4 ms should be okay. Let's bump it up to 6 just in case.
  * For cyclotrons with high density LEDs, increase this based on the cyclotron speed multiplier to simulate a faster spinning cyclotron.
+ * This works by "skipping frames" in the animation, which can be done up until about 15 ms.
+ * After 15ms it will become painfully obvious to most people that the animation is not smooth.
  */
 #define FAST_LED_UPDATE_MS 6
 uint8_t i_fast_led_delay = FAST_LED_UPDATE_MS;
@@ -224,15 +226,15 @@ bool b_2021_ramp_down_start = false;
 bool b_2021_ramp_down = false;
 bool b_reset_start_led = true;
 bool b_1984_led_start = true;
-rampInt r_2021_ramp;
 millisDelay ms_cyclotron;
 millisDelay ms_cyclotron_slime_effect;
+rampUnsignedInt r_outer_cyclotron_ramp;
+bool b_cyclotron_led_fading_in[OUTER_CYCLOTRON_LED_MAX] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
+ramp r_cyclotron_led_fade_out[OUTER_CYCLOTRON_LED_MAX] = {};
+ramp r_cyclotron_led_fade_in[OUTER_CYCLOTRON_LED_MAX] = {};
+uint8_t i_cyclotron_led_value[OUTER_CYCLOTRON_LED_MAX] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 bool b_cyclotron_lid_on = true;
 bool b_brass_pack_sound_loop = false;
-bool b_cyclotron_led_fading_in[OUTER_CYCLOTRON_LED_MAX] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
-rampInt r_cyclotron_led_fade_out[OUTER_CYCLOTRON_LED_MAX] = {};
-rampInt r_cyclotron_led_fade_in[OUTER_CYCLOTRON_LED_MAX] = {};
-uint8_t i_cyclotron_led_value[OUTER_CYCLOTRON_LED_MAX] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 // For the Afterlife and Frozen Empire Cyclotron matrix pattern, map a location on a circle of 40 positions to a target LED (where 0 is the top-right lens).
 const uint8_t i_cyclotron_12led_matrix[OUTER_CYCLOTRON_LED_MAX] PROGMEM = { 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0, 7, 8, 9, 0, 0, 0, 0, 0, 0, 0, 10, 11, 12, 0, 0, 0, 0, 0, 0, 0 };
@@ -254,7 +256,7 @@ enum INNER_CYC_PANEL_MODES INNER_CYC_PANEL_MODE;
  * Inner Cyclotron NeoPixel ring ramp control.
  */
 millisDelay ms_cyclotron_ring;
-rampInt r_inner_ramp;
+rampInt r_inner_cyclotron_ramp;
 const uint16_t i_inner_ramp_delay = 300;
 int8_t i_led_cyclotron_ring = 0; // Current LED for the inner cyclotron ring.
 int8_t i_led_cyclotron_cavity = 0; // Current LED for the cyclotron cavity.
@@ -469,13 +471,6 @@ bool b_pack_shutting_down = false;
 bool b_spectral_lights_on = false;
 bool b_fade_out = false;
 millisDelay ms_fadeout;
-
-/*
- * Neutrona Wand Sensor Board (optional)
- * Used for detecting a stock or unmodified Hasbro Neutrona Wand.
- */
-bool b_wand_sensor = false;
-float f_wand_sensor_data = 0.0;
 
 /*
  * Function prototypes.
