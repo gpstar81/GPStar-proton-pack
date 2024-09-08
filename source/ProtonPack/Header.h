@@ -256,7 +256,7 @@ enum INNER_CYC_PANEL_MODES INNER_CYC_PANEL_MODE;
  * Inner Cyclotron NeoPixel ring ramp control.
  */
 millisDelay ms_cyclotron_ring;
-rampInt r_inner_cyclotron_ramp;
+rampUnsignedInt r_inner_cyclotron_ramp;
 const uint16_t i_inner_ramp_delay = 300;
 int8_t i_led_cyclotron_ring = 0; // Current LED for the inner cyclotron ring.
 int8_t i_led_cyclotron_cavity = 0; // Current LED for the cyclotron cavity.

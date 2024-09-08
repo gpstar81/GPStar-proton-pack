@@ -1193,7 +1193,7 @@ void doWandSync() {
 
   // Begin the synchronization process which tells the wand the pack got the handshake.
   debugln(F("Wand Sync Start"));
-  packSerialSend(P_SYNC_START);
+  packSerialSend(P_SYNC_START, b_pack_post_finish ? 0 : 1);
 
   // Attaching a new wand means we need to stop any prior overheat as the wand initiates this action.
   if(b_overheating == true) {

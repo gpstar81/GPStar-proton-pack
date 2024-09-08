@@ -247,7 +247,9 @@ void loop() {
 
       checkPack(); // Get the latest communications from the connected Proton Pack.
 
-      mainLoop(); // Continue on to the main loop.
+      if(b_pack_post_finish) {
+        mainLoop(); // Continue on to the main loop.
+      }
     break;
 
     case NC_BENCHTEST:

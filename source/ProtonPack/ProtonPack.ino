@@ -247,12 +247,12 @@ void loop() {
   // Check if any new serial commands were received.
   checkSerial1();
 
-  checkMusic();
-  checkSwitches();
-  checkRotaryEncoder();
-  checkMenuVibration();
+  if(b_pack_post_finish) {
+    checkMusic();
+    checkSwitches();
+    checkRotaryEncoder();
+    checkMenuVibration();
 
-  if(b_pack_post_finish == true) {
     switch (PACK_STATE) {
       case MODE_OFF:
         // Turn on the status indicator LED.
@@ -825,6 +825,8 @@ void systemPOST() {
 
       cyclotronSwitchLEDOff();
 
+      packSerialSend(P_POST_FINISH);
+
       b_pack_post_finish = true;
     }
     else {
@@ -1323,9 +1325,7 @@ void checkSwitches() {
   switch_smoke.loop();
   switch_vibration.loop();
 
-  if(b_pack_post_finish) {
-    cyclotronSwitchPlateLEDs();
-  }
+  cyclotronSwitchPlateLEDs();
 
   // Cyclotron direction toggle switch.
   if(switch_cyclotron_direction.isPressed() || switch_cyclotron_direction.isReleased()) {
@@ -1506,7 +1506,7 @@ void checkSwitches() {
       }
 
       // Year mode. Best to adjust it only when the pack is off.
-      if(b_pack_shutting_down != true && b_pack_on == false && b_spectral_lights_on != true && b_pack_post_finish) {
+      if(b_pack_shutting_down != true && b_pack_on == false && b_spectral_lights_on != true) {
         // If switching manually by the pack toggle switch.
         if(b_switch_mode_override != true) {
           setYearModeByToggle();

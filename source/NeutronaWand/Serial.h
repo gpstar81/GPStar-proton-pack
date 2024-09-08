@@ -819,6 +819,11 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_WAND_SYNC);
       playEffect(S_WAND_SYNC);
 
+      if(i_value == 1) {
+        // Pack is currently performing a POST sequence, so set that variable to delay our control loop.
+        b_pack_post_finish = false;
+      }
+
       // Stop regular sync attempts while communicating with the pack.
       ms_packsync.stop();
     break;
@@ -836,6 +841,11 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       return true;
+    break;
+
+    case P_POST_FINISH:
+      // Pack has completed the Power On Self Test sequence.
+      b_pack_post_finish = true;
     break;
 
     case P_ON:
