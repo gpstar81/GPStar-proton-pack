@@ -14,14 +14,14 @@ There is no shortage of resources for the device shell itself, as it has been mo
 
 ## Bill of Materials
 
-Until formal release of a kit is made possible, the following list of parts will allow you to assemble the electronics and internal components to run the device. For a complete list of additional cosmetic parts and advice on assembly of the external components please see the incredibly detailed [Build Guide on GBFans](https://www.gbfans.com/forum/viewtopic.php?t=51824) by EctoLabs.
-
+The following list of parts will allow you to assemble the electronics and internal components to run the device. For a complete list of additional cosmetic parts and advice on assembly of the external components please see the incredibly detailed [Build Guide on GBFans](https://www.gbfans.com/forum/viewtopic.php?t=51824) by EctoLabs.
 
 | Qty | Desc | Use | Link |
 |-----|------|-----|------|
 |  1  | GPStar Neutrona Wand PCB | Main device controller | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-neutrona-wand) |
 |  1  | GPStar Audio Controller | Sound driver with amplifier | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-audio) |
-|  2  | GPStar Jewel | RGB 7-LED for barrel and cyclotron | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-jewel) |
+|  2  | GPStar 7-LED Jewel | RGB lighting for barrel and cyclotron | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-jewel) |
+|  1  | GPStar Power Boost USB-C | For battery<sup>1</sup> power + charging | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-power-boost-usb-c) |
 |  1  | 4Ohm 40mm 3W Speaker | Primary speaker (under heatsink) | [https://a.co/d/bNin47P](https://a.co/d/bNin47P) |
 |  1  | KY-040 Rotary Encoder | Top rotary dial | [https://a.co/d/0wo1bSq](https://a.co/d/0wo1bSq) |
 |  1  | 12mm Momentary Push Button | Hand grip button | [https://a.co/d/8QxaSBm](https://a.co/d/8QxaSBm) |
@@ -31,7 +31,6 @@ Until formal release of a kit is made possible, the following list of parts will
 |  1  | 15mm x 5mm Convex Lens | Barrel lens | [https://a.co/d/8Mr8ZMc](https://a.co/d/8Mr8ZMc) |
 |  5  | 5MM 3V Prewired LEDs | Various colored lights | [https://a.co/d/hqEyph8](https://a.co/d/hqEyph8) |
 |  1  | OPTIONAL: Micro UART Programmer | For built-in programming via USB | [https://a.co/d/ibHTVA5](https://a.co/d/ibHTVA5) |
-|  1  | GPStar Power Boost USB-C | For battery<sup>1</sup> power + charging | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-power-boost-usb-c) |
 |  1  | Micro Slide Switch | Turn battery output on/off | [https://a.co/d/hVaKDSl](https://a.co/d/hVaKDSl) |
 |  1  | 3.7V LiPo or Li-Ion Battery<sup>2</sup> | Rechargeable lithium battery (min 2500mAh) | [https://a.co/d/gQlJsY0](https://a.co/d/gQlJsY0)<br/>[https://a.co/d/gML6MVC](https://a.co/d/gML6MVC) |
 
@@ -54,11 +53,11 @@ Connections for the device should be made according to the tables below.
 | Label | Pins | Notes |
 |-------|------|-------|
 | 5V-IN | +/\- | 2-pin JST-PH for power from internal battery<br/>**This MUST be a regulated 5V source!** |
-| Q2 | VCC/D10/GND | 3-pin JST-PH connection for all addressable LEDs |
+| Q2 | VCC/D10/GND | 3-pin JST-PH connection for all addressable LEDs<sup>3</sup> |
 | SW45/SW4 | GND/D2/GND/D3 | 4-pin JST-PH connection for the Intensify button and Activate toggle |
 | SW6 | GND/A6 | 2-pin JST-PH connection for the hand-grip mode/fire switch |
 
-**Note:** The 3-pin connector for the LEDs will connect to a 7-LED NeoPixel Jewel and a GPStar Barrel Single-LED board.
+<sup>3</sup> The 3-pin connector for the LEDs will connect to a pair of 7-LED "jewel" boards as built by GPStar Technologies. These will be installed and addressed by the controller in the order of the barrel first, followed by the cyclotron.
 
 ### Wire Connectors (Terminal Blocks)
 
@@ -110,11 +109,13 @@ Both the GPStar Power Boost device for boosting and charging your battery offer 
 
 ![](images/PowerBoost.jpg)
 
-### Power Switch (Optional, Recommended)
+### Power Switch (Optional, but Recommended)
 
-**EN** - This is the 'enable' pin. By default it is pulled 'high' to VS. To turn off the booster, connect this pin to ground. The switch can be as small as you like, it is just a signal. Contrast this to an inline power switch which would have to be able to handle up to 2A of current! When the chip is disabled the output is completely disconnected from the input.
+Adding a switch to the GPStar Power Boost device will allow you to fully turn off the device without draining the rechargeable battery. By default the device is always on and converting the 3.7V source to 5V for the electronics.
 
-**GND** - This is the power ground. This boost converter is not 'isolated' - the ground input is the same as the ground output
+**EN** - This is the 'enable' pin. To turn off the booster, connect this pin to ground. The switch can be as small as you like, it is just a signal. When the chip is disabled the output is completely disconnected from the input.
+
+**GND** - This is the shared ground connection which may be used with the 'EN' pin.
 
 ### Boosted Output
 
