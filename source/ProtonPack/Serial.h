@@ -4088,6 +4088,27 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       playEffect(S_VOICE_BARREL_LED_48);
     break;
 
+    case W_TOGGLE_POWERCELL_DIRECTION:
+      if(b_powercell_invert == true) {
+        b_powercell_invert = false;
+
+        stopEffect(S_VOICE_POWERCELL_NOT_INVERTED);
+        stopEffect(S_VOICE_POWERCELL_INVERTED);
+
+        playEffect(S_VOICE_POWERCELL_NOT_INVERTED);
+        packSerialSend(P_POWERCELL_NOT_INVERTED);        
+      }
+      else {
+        b_powercell_invert = true;
+
+        stopEffect(S_VOICE_POWERCELL_INVERTED);
+        stopEffect(S_VOICE_POWERCELL_NOT_INVERTED);
+        
+        playEffect(S_VOICE_POWERCELL_INVERTED);
+        packSerialSend(P_POWERCELL_INVERTED);
+      }
+    break;
+
     case W_BARGRAPH_INVERTED:
       stopEffect(S_VOICE_BARGRAPH_INVERTED);
       stopEffect(S_VOICE_BARGRAPH_NOT_INVERTED);

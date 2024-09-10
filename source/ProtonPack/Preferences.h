@@ -66,6 +66,7 @@ struct objLEDEEPROM {
   uint8_t cyclotron_inner_spectral_saturation_custom;
   uint8_t cyclotron_cavity_count;
   uint8_t inner_cyclotron_led_panel;
+  uint8_t powercell_inverted;
 };
 
 /*
@@ -168,6 +169,15 @@ void readEEPROM() {
       }
       else {
         i_inner_cyclotron_cavity_num_leds = obj_eeprom.cyclotron_cavity_count;
+      }
+    }
+
+    if(obj_eeprom.powercell_inverted > 0 && obj_eeprom.powercell_inverted != 255) {
+      if(obj_eeprom.powercell_inverted > 1) {
+        b_powercell_invert = true;
+      }
+      else {
+        b_powercell_invert = false;
       }
     }
 
@@ -511,6 +521,7 @@ void saveLEDEEPROM() {
   // Inner Cyclotron LEDs
   // GRB / RGB Inner Cyclotron toggle flag
   // Inner Cyclotron LED Panel toggle flag
+  // Power Cell inverted toggle flag.
 
   uint8_t i_grb_cyclotron_cake = 1;
 
@@ -535,6 +546,12 @@ void saveLEDEEPROM() {
     break;
   }
 
+  uint8_t i_powercell_inverted = 1;
+
+  if(b_powercell_invert == true) {
+    i_powercell_inverted = 2;
+  }
+  
   // Write the data to the EEPROM if any of the values have changed.
   objLEDEEPROM obj_eeprom = {
     i_powercell_leds,
@@ -548,7 +565,8 @@ void saveLEDEEPROM() {
     i_spectral_cyclotron_custom_saturation,
     i_spectral_cyclotron_inner_custom_saturation,
     i_inner_cyclotron_cavity_num_leds,
-    i_inner_cyclotron_led_panel
+    i_inner_cyclotron_led_panel,
+    i_powercell_inverted
   };
 
   // Save and update our object in the EEPROM.

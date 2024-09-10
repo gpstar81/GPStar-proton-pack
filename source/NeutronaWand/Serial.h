@@ -1418,6 +1418,20 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       playEffect(S_VOICE_SMOKE_ENABLED);
     break;
 
+    case P_POWERCELL_NOT_INVERTED:
+      stopEffect(S_VOICE_POWERCELL_NOT_INVERTED);
+      stopEffect(S_VOICE_POWERCELL_INVERTED);
+
+      playEffect(S_VOICE_POWERCELL_NOT_INVERTED);
+    break;
+
+    case P_POWERCELL_INVERTED:
+      stopEffect(S_VOICE_POWERCELL_INVERTED);
+      stopEffect(S_VOICE_POWERCELL_NOT_INVERTED);
+      
+      playEffect(S_VOICE_POWERCELL_INVERTED);
+    break;
+
     case P_CYCLOTRON_COUNTER_CLOCKWISE:
       // Play Cyclotron counter clockwise voice.
       stopEffect(S_VOICE_CYCLOTRON_CLOCKWISE);

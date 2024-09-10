@@ -288,6 +288,7 @@ void checkWandAction() {
           if(switch_intensify.pushed()) {
             switch(WAND_MENU_LEVEL) {
               case MENU_LEVEL_2:
+                wandSerialSend(W_TOGGLE_POWERCELL_DIRECTION);
               break;
 
               case MENU_LEVEL_1:
