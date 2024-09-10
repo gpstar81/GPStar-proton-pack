@@ -812,6 +812,51 @@ void systemPOST() {
       cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_ORANGE, i_post_fade);
     }
 
+    uint8_t i_inner_cake_divisor = 7;
+    uint8_t i_inner_cake_counter = 0;
+    switch(i_inner_cyclotron_cake_num_leds) {
+      case 36:
+      case 35:
+      default:
+        // Do nothing; 7 is already the correct divisor.
+      break;
+      case 26:
+      case 24:
+      case 23:
+        i_inner_cake_divisor = 9;
+      break;
+      case 12:
+        i_inner_cake_divisor = 21;
+      break;
+    }
+
+    if(b_clockwise) {
+      i_inner_cake_counter = ((255 - i_post_fade) / i_inner_cake_divisor) + i_ic_cake_start;
+    }
+    else {
+      i_inner_cake_counter = (i_post_fade / i_inner_cake_divisor) + i_ic_cake_start;
+    }
+
+    if(i_inner_cake_counter <= i_ic_cake_end) {
+      if(b_grb_cyclotron_cake == true) {
+        cyclotron_leds[i_inner_cake_counter] = getHueAsGRB(CYCLOTRON_INNER, C_RED);
+      }
+      else {
+        cyclotron_leds[i_inner_cake_counter] = getHueAsRGB(CYCLOTRON_INNER, C_RED);
+      }
+    }
+
+    if(b_clockwise) {
+      if(i_inner_cake_counter - 1 >= i_ic_cake_start && i_inner_cake_counter - 1 <= i_ic_cake_end) {
+        cyclotron_leds[i_inner_cake_counter - 1] = getHueAsRGB(CYCLOTRON_INNER, C_BLACK);
+      }
+    }
+    else {
+      if(i_inner_cake_counter + 1 <= i_ic_cake_end) {
+        cyclotron_leds[i_inner_cake_counter + 1] = getHueAsRGB(CYCLOTRON_INNER, C_BLACK);
+      }
+    }
+
     i_post_fade--;
 
     if(i_post_fade == 0) {
@@ -824,6 +869,7 @@ void systemPOST() {
       pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
 
       cyclotronSwitchLEDOff();
+      innerCyclotronCakeOff();
 
       packSerialSend(P_POST_FINISH);
 
