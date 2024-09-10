@@ -9129,7 +9129,7 @@ int8_t readRotary() {
 }
 
 void wandBarrelSpectralCustomConfigOn() {
-  for(uint8_t i = 0; i < i_num_barrel_leds; i++) {
+  for(uint8_t i = 0; i <= i_num_barrel_leds; i++) {
     barrel_leds[i] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT);
   }
 }
@@ -10255,7 +10255,7 @@ void wandSwitched(void* n) {
 }
 
 void wandBarrelLightsOff() {
-  for(uint8_t i = 0; i < i_num_barrel_leds; i++) {
+  for(uint8_t i = 0; i <= i_num_barrel_leds; i++) {
     switch(WAND_BARREL_LED_COUNT) {
       case LEDS_48:
         // Turn off the entire Frutto LED array.
