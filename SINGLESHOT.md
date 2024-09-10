@@ -21,8 +21,7 @@ Until formal release of a kit is made possible, the following list of parts will
 |-----|------|-----|------|
 |  1  | GPStar Neutrona Wand PCB | Main device controller | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-neutrona-wand) |
 |  1  | GPStar Audio Controller | Sound driver with amplifier | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-audio) |
-|  1  | GPStar Barrel Single LED | RGB LED for barrel end | Product Pending |
-|  1  | 7 LED WS2812B RGB LED Ring | Cyclotron lights | [https://a.co/d/8xqbWI5](https://a.co/d/8xqbWI5) |
+|  2  | GPStar Jewel | RGB 7-LED for barrel and cyclotron | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-jewel) |
 |  1  | 4Ohm 40mm 3W Speaker | Primary speaker (under heatsink) | [https://a.co/d/bNin47P](https://a.co/d/bNin47P) |
 |  1  | KY-040 Rotary Encoder | Top rotary dial | [https://a.co/d/0wo1bSq](https://a.co/d/0wo1bSq) |
 |  1  | 12mm Momentary Push Button | Hand grip button | [https://a.co/d/8QxaSBm](https://a.co/d/8QxaSBm) |
@@ -32,11 +31,11 @@ Until formal release of a kit is made possible, the following list of parts will
 |  1  | 15mm x 5mm Convex Lens | Barrel lens | [https://a.co/d/8Mr8ZMc](https://a.co/d/8Mr8ZMc) |
 |  5  | 5MM 3V Prewired LEDs | Various colored lights | [https://a.co/d/hqEyph8](https://a.co/d/hqEyph8) |
 |  1  | OPTIONAL: Micro UART Programmer | For built-in programming via USB | [https://a.co/d/ibHTVA5](https://a.co/d/ibHTVA5) |
-|  1  | Adafruit PowerBoost 1000<sup>1</sup> | For battery power + charging | [https://a.co/d/cl2kFy8](https://a.co/d/cl2kFy8) |
+|  1  | GPStar USB-C Boost/Charge<br/>or<br/>Adafruit PowerBoost 1000 | For battery<sup>1</sup> power + charging | [Direct from GPStar](https://gpstartechnologies.com/collections/gpstar-electronics)<br/>or<br/>[https://a.co/d/cl2kFy8](https://a.co/d/cl2kFy8) |
 |  1  | Micro Slide Switch | Turn battery output on/off | [https://a.co/d/hVaKDSl](https://a.co/d/hVaKDSl) |
 |  1  | 3.7V LiPo or Li-Ion Battery<sup>2</sup> | Rechargeable lithium battery (min 2500mAh) | [https://a.co/d/gQlJsY0](https://a.co/d/gQlJsY0)<br/>[https://a.co/d/gML6MVC](https://a.co/d/gML6MVC) |
 
-<sup>1</sup> While most Lithium batteries come with a JST-PH connector by default, the polarity may be reversed. Please observe the correct polarity for the charger! With the silver tabs up and the JST socket facing toward you, the positive (red) lead should be on the right. There will be -/+ markings on the power connector to the Adafruit PowerBoost to help you confirm BEFORE plugging in the battery.
+<sup>1</sup> While most Lithium batteries come with a JST-PH connector by default, the polarity may be reversed. Please observe the correct polarity for the booster/charger device! With the silver tabs up and the JST socket facing toward you, the positive (red) lead should be on the right. There will be -/+ markings on the power connector to the GPStar Boost/Charge or Adafruit PowerBoost to help you confirm BEFORE plugging in the battery.
 
 <sup>2</sup> Battery power must be at least 2500mAh (2.5Ah) to provide sufficient power to the booster. This device will draw around 0.8A at full volume.
 
@@ -105,19 +104,25 @@ For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI B
 
 ## Battery Power
 
-Per the BOM above, use of a 2000mAh or higher battery is crucial for supplying enough power for a full day of use. This **MUST be a Lithium battery** (either LiPo or Li-Ion) with a 3.7V output. The charging circuit is intended for use with Lithium batteries only. Again, Lithium!
+Per the BOM above, use of a 2000mAh or higher battery is crucial for supplying enough power for a full day of use. This **MUST be a Lithium battery** (either LiPo or Li-Ion) with a 3.7V output. The charging circuit is intended for use with Lithium batteries only. **Again, Lithium!**
 
-If using the Adafruit PowerBoost 1000C device for boosting and charging your battery you can find the [Pinouts guide](https://learn.adafruit.com/adafruit-powerboost-1000c-load-share-usb-charge-boost/pinouts) which notes some special connections. There are 2 pairs of pins of importance here:
+Both the GPStar Boost/Charge and Adafruit PowerBoost 1000C devices for boosting and charging your battery offer 2 pairs of pins which are of importance here:
 
 ![](images/PB100C.jpg)
 
-### Power Switch
+### Power Switch (Optional, Recommended)
 
 **EN** - this is the 'enable' pin. By default it is pulled 'high' to VS. To turn off the booster, connect this pin to ground. The switch can be as small as you like, it is just a signal. Contrast this to an inline power switch which would have to be able to handle up to 2A of current! When the chip is disabled the output is completely disconnected from the input.
 
 **GND** - this is the power ground. This boost converter is not 'isolated' - the ground input is the same as the ground output
 
 ### Boosted Output
+
+**GPStar:**
+
+**5V OUT** - this is the boosted output. The pin closest to the USB-C port is the (+) while the further pin is (-).
+
+**Adafruit:**
 
 **5V** - this is the boosted output. When the board is running, the voltage will be 5.2V approximately.
 
