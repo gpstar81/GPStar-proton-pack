@@ -165,12 +165,20 @@ void systemPOST() {
   led_TopWhite.turnOn();
   delay(i_delay);
 
+  // Optional barrel tip (could be alternate for the GPStar jewel)
   led_Tip.turnOn();
   delay(i_delay);
 
+  // Sequentially turn on all LEDs in the barrel.
+  for(uint8_t i = 0; i < i_num_barrel_leds; i++) {
+    system_leds[i] = getHueAsRGB(C_BLUE);
+    FastLED.show();
+    delay(i_delay);
+  }
+
   // Sequentially turn on all LEDs in the cyclotron.
   for(uint8_t i = 0; i < i_num_cyclotron_leds; i++) {
-    system_leds[i] = getHueAsRGB(C_RED);
+    system_leds[i_cyclotron_led_start + i] = getHueAsRGB(C_RED);
     FastLED.show();
     delay(i_delay);
   }

@@ -63,15 +63,18 @@ enum POWER_LEVELS POWER_LEVEL_PREV;
 
 /*
  * Addressable LEDs
- * The device contains a mini cyclotron plus a barrel light. A simple NeoPixel Jewel can be used
- * for the cyclotron (typically 7 LEDs) while the barrel is designed to use the GPStar single LED.
+ * The device contains 2 GPStar 7-LED jewel arrays: 1 for the barrel, 1 for the cyclotron.
+ * The barrel will be the first in the addressable LED chain, while the cyclotron is last.
+ * LED #1 is the "top" (near the DIN pin) while #7 is the dead center of the jewel itself.
  */
 #define SYSTEM_LED_PIN 10
-#define CYCLOTRON_LED_COUNT 7 // NeoPixel Jewel
-#define BARREL_LED_COUNT 1 // GPStar Barrel LED
+#define CYCLOTRON_LED_COUNT 7 // GPStar 7-LED Jewel
+#define BARREL_LED_COUNT 7 // GPStar 7-LED LED
 CRGB system_leds[CYCLOTRON_LED_COUNT + BARREL_LED_COUNT];
-const uint8_t i_barrel_led = CYCLOTRON_LED_COUNT; // This will be the index of the light, not the count
-const uint8_t i_num_cyclotron_leds = CYCLOTRON_LED_COUNT; // This will be the number of cyclotron LEDs (jewel)
+const uint8_t i_barrel_led = 6; // This will be the index of the light (#7), not the count
+const uint8_t i_num_barrel_leds = CYCLOTRON_LED_COUNT; // This will be the number of barrel LEDs
+const uint8_t i_num_cyclotron_leds = CYCLOTRON_LED_COUNT; // This will be the number of cyclotron LEDs
+const uint8_t i_cyclotron_led_start = i_num_barrel_leds; // The first element (index) for the cyclotron.
 
 /*
  * Non-addressable LEDs

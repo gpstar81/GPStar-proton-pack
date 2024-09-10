@@ -25,22 +25,22 @@
  * Alternates between a pair of LEDs in the jewel, fading in by some number of steps per update of the timer.
  */
 millisDelay ms_cyclotron;
-const uint8_t i_cyclotron_leds[i_num_cyclotron_leds] = {0, 1, 2, 3, 4, 5, 6}; // Note: 0 is the dead center of the jewel
+const uint8_t i_cyclotron_leds[i_num_cyclotron_leds] = {0, 1, 2, 3, 4, 5, 6}; // Note: 7 is the dead center of the jewel
 const uint8_t i_cyclotron_max_steps = 12; // Set a reusable constant for the maximum number of steps to cycle through
 // Sequence: 1, 4, 2, 5, 3, 6, 4, 1, 5, 2, 6, 3
 const uint8_t i_cyclotron_pair[i_cyclotron_max_steps][2] = {
+  {0, 2}, // 0:in, 2:out,
+  {0, 3}, // 0:out, 3:in,
   {1, 3}, // 1:in, 3:out,
   {1, 4}, // 1:out, 4:in,
   {2, 4}, // 2:in, 4:out,
   {2, 5}, // 2:out, 5:in,
   {3, 5}, // 3:in, 5:out,
-  {3, 6}, // 3:out, 6:in,
-  {4, 6}, // 4:in, 6:out,
+  {3, 0}, // 3:out, 0:in,
+  {4, 0}, // 4:in, 0:out,
   {4, 1}, // 4:out, 1:in,
   {5, 1}, // 5:in, 1:out,
-  {5, 2}, // 5:out, 2:in,
-  {6, 2}, // 6:in, 2:out,
-  {6, 3}  // 6:out, 3:in,
+  {5, 2}  // 5:out, 2:in,
 };
 const uint16_t i_base_cyclotron_delay = 30; // Set delay between LED updates at normal speed, at the lowest power level
 const uint16_t i_min_cyclotron_delay = 10;  // Set the minimum (fastest) transition time desired for a cyclotron update
@@ -84,12 +84,12 @@ void updateCyclotron(uint8_t i_colour) {
 
     // Toggle between the LEDs in the i_cyclotron_pair using the given color.
     if(sb_toggle) {
-      system_leds[i_cyclotron_pair[si_pairing][0]] = getHueAsRGB(i_colour).nscale8(si_brightness_in);  // Fade in LED 1 in the pair
-      system_leds[i_cyclotron_pair[si_pairing][1]] = getHueAsRGB(i_colour).nscale8(si_brightness_out); // Fade out LED 2 in the pair
+      system_leds[i_cyclotron_led_start + i_cyclotron_pair[si_pairing][0]] = getHueAsRGB(i_colour).nscale8(si_brightness_in);  // Fade in LED 1 in the pair
+      system_leds[i_cyclotron_led_start + i_cyclotron_pair[si_pairing][1]] = getHueAsRGB(i_colour).nscale8(si_brightness_out); // Fade out LED 2 in the pair
     }
     else {
-      system_leds[i_cyclotron_pair[si_pairing][0]] = getHueAsRGB(i_colour).nscale8(si_brightness_out); // Fade out LED 1 in the pair
-      system_leds[i_cyclotron_pair[si_pairing][1]] = getHueAsRGB(i_colour).nscale8(si_brightness_in);  // Fade in LED 2 in the pair
+      system_leds[i_cyclotron_led_start + i_cyclotron_pair[si_pairing][0]] = getHueAsRGB(i_colour).nscale8(si_brightness_out); // Fade out LED 1 in the pair
+      system_leds[i_cyclotron_led_start + i_cyclotron_pair[si_pairing][1]] = getHueAsRGB(i_colour).nscale8(si_brightness_in);  // Fade in LED 2 in the pair
     }
 
     // Toggle state and reset brightness variables after fade-in is complete.
