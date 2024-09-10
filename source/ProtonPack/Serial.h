@@ -83,6 +83,7 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t ledCycCavCount;
   uint8_t ledVGCyclotron;
   uint8_t ledPowercellCount;
+  uint8_t ledInvertPowercell;
   uint8_t ledPowercellHue;
   uint8_t ledPowercellSat;
   uint8_t ledVGPowercell;
@@ -347,6 +348,7 @@ void serial1SendData(uint8_t i_message) {
 
       // Power Cell
       packConfig.ledPowercellCount = i_powercell_leds;
+      packConfig.ledInvertPowercell = b_powercell_invert ? 1 : 0;
       packConfig.ledPowercellHue = i_spectral_powercell_custom_colour;
       packConfig.ledPowercellSat = i_spectral_powercell_custom_saturation;
       packConfig.ledVGPowercell = b_powercell_colour_toggle ? 1 : 0;
@@ -675,6 +677,7 @@ void checkSerial1() {
 
           // Power Cell
           i_powercell_leds = packConfig.ledPowercellCount;
+          b_powercell_invert = (packConfig.ledInvertPowercell == 1);
           i_spectral_powercell_custom_colour = packConfig.ledPowercellHue;
           i_spectral_powercell_custom_saturation = packConfig.ledPowercellSat;
           b_powercell_colour_toggle = (packConfig.ledVGPowercell == 1);

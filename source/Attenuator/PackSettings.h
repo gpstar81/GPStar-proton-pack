@@ -241,8 +241,15 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       <b>LED Count:</b>
       <select id="ledPowercellCount" name="ledPowercellCount">
         <option value="13">13 - Stock</option>
-        <option value="15">15 - Frutto</option>
+        <option value="15">15 - Frutto/GPStar</option>
       </select>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Invert Power Cell Animation:</b>
+      <label class="switch">
+        <input id="ledInvertPowercell" name="ledInvertPowercell" type="checkbox">
+        <span class="slider round"></span>
+      </label>
     </div>
     <div class="setting">
       <b>Custom Colour (Hue):</b><br/>
@@ -383,6 +390,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             getEl("ledCycCavCountOut").innerHTML = getEl("ledCycCavCount").value;
 
             getEl("ledPowercellCount").value = settings.ledPowercellCount || 13; // Haslab: 13
+            getEl("ledInvertPowercell").checked = settings.ledInvertPowercell ? true : false; // Default: False
             getEl("ledPowercellHue").value = convertRange(settings.ledPowercellHue || 160, [1,254], [0,360]); // Default: Blue
             getEl("ledPowercellSat").value = convertRange(settings.ledPowercellSat || 254, [1,254], [0,100]); // Full Saturation
             getEl("ledVGPowercell").checked = settings.ledVGPowercell ? true : false;
@@ -430,6 +438,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         ledCycCavCount: parseInt(getEl("ledCycCavCount").value || 0, 10),
 
         ledPowercellCount: parseInt(getEl("ledPowercellCount").value || 13, 10),
+        ledInvertPowercell: getEl("ledInvertPowercell").checked ? 1 : 0,
         ledPowercellHue: convertRange(parseInt(getEl("ledPowercellHue").value || 200, 10), [0,360], [1,254]),
         ledPowercellSat: convertRange(parseInt(getEl("ledPowercellSat").value || 100, 10), [0,100], [1,254]),
         ledVGPowercell: getEl("ledVGPowercell").checked ? 1 : 0

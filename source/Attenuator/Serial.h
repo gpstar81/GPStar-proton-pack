@@ -90,6 +90,7 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t ledCycCavCount;
   uint8_t ledVGCyclotron;
   uint8_t ledPowercellCount;
+  uint8_t ledInvertPowercell;
   uint8_t ledPowercellHue;
   uint8_t ledPowercellSat;
   uint8_t ledVGPowercell;
