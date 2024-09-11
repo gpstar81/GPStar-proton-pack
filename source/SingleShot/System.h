@@ -63,7 +63,9 @@ void barrelLightsOff() {
   i_pulse_step = 0;
 
   // Turn off the barrel LED.
-  system_leds[i_barrel_led] = getHueAsRGB(C_BLACK);
+  for(uint8_t i = 0; i < i_num_barrel_leds; i++) {
+    system_leds[i] = getHueAsRGB(C_BLACK);
+  }
 
   // Turn off the device barrel tip LED.
   led_Tip.turnOff();
@@ -549,15 +551,31 @@ void firePulseEffect() {
     break;
     case 4:
       system_leds[i_barrel_led] = getHueAsRGB(C_BLACK);
+
+      for(uint8_t i = 0; i < i_num_barrel_leds - 1; i++) {
+        system_leds[i] = getHueAsRGB(C_WHITE);
+      }
     break;
     case 5:
       system_leds[i_barrel_led] = getHueAsRGB(C_WHITE);
+
+      for(uint8_t i = 0; i < i_num_barrel_leds - 1; i++) {
+        system_leds[i] = getHueAsRGB(C_BLACK);
+      }
     break;
     case 6:
       system_leds[i_barrel_led] = getHueAsRGB(C_BLACK);
+
+      for(uint8_t i = 0; i < i_num_barrel_leds - 1; i++) {
+        system_leds[i] = getHueAsRGB(C_WHITE);
+      }
     break;
     case 7:
       system_leds[i_barrel_led] = getHueAsRGB(C_WHITE);
+
+      for(uint8_t i = 0; i < i_num_barrel_leds - 1; i++) {
+        system_leds[i] = getHueAsRGB(C_BLACK);
+      }
     break;
     case 8:
       system_leds[i_barrel_led] = getHueAsRGB(C_RED4);
