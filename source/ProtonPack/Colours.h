@@ -126,6 +126,9 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
       case SLIME:
         switch(i_device) {
           case POWERCELL:
+            return C_RED5;
+          break;
+
           case CYCLOTRON_OUTER:
           case CYCLOTRON_INNER:
           case CYCLOTRON_PANEL:
