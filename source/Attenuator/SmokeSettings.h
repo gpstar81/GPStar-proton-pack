@@ -210,8 +210,6 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
     <a href="/">&laquo; Back</a>
     &nbsp;&nbsp;
     <button type="button" class="green" style="width:120px" onclick="saveSettings()">Update&nbsp;Settings</button>
-    &nbsp;
-    <button type="button" class="orange" style="width:120px" onclick="saveEEPROM()">Save&nbsp;to&nbsp;EPROM</button>
     <br/>
     <br/>
   </div>
@@ -339,6 +337,10 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
         if (this.readyState == 4 && this.status == 200) {
           handleStatus(this.responseText);
           getSettings(); // Get latest settings.
+
+          if (confirm("Settings successfully updated. Do you want to store the latest settings to the pack/wand EEPROM?")) {
+            saveEEPROM(); // Perform action only if the user answers OK to the confirmation.
+          }
         }
       };
       xhttp.open("PUT", "/config/smoke/save", true);

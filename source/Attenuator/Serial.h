@@ -21,7 +21,7 @@
 #pragma once
 
 /*
- * Pack Communication
+ * Pack Communication - Hardware Serial2 Pins
  */
 #if defined(__XTENSA__)
   // ESP32 - Hardware Serial2 Pins
