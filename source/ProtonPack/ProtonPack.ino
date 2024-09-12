@@ -2405,6 +2405,7 @@ void cyclotronControl() {
   // Only reset the starting LED when the pack is first started up.
   if(b_reset_start_led == true) {
     b_reset_start_led = false;
+    i_cyclotron_fake_ring_counter = 0;
 
     switch(SYSTEM_YEAR) {
       case SYSTEM_AFTERLIFE:
@@ -2711,96 +2712,26 @@ void cyclotronFade() {
 
 void cyclotron2021(uint16_t iRampDelay) {
   uint8_t i_brightness = getBrightness(i_cyclotron_brightness); // Calculate desired brightness.
+  uint8_t i_curr_cyclotron_position = i_led_cyclotron - i_cyclotron_led_start; // Variable to store current cyclotron LED position.
 
   if(ms_cyclotron.justFinished()) {
-    uint8_t i_cyclotron_matrix_led = cyclotronLookupTable(i_led_cyclotron - i_cyclotron_led_start);
+    uint8_t i_cyclotron_matrix_led = cyclotronLookupTable(i_curr_cyclotron_position);
 
-    if(b_2021_ramp_up == true) {
+    if(b_2021_ramp_up) {
       i_fast_led_delay = FAST_LED_UPDATE_MS;
 
       if(r_outer_cyclotron_ramp.isFinished()) {
         b_2021_ramp_up = false;
         i_outer_current_ramp_speed = iRampDelay;
 
-        if(b_cyclotron_simulate_ring == true) {
-          switch(i_cyclotron_leds) {
-            case OUTER_CYCLOTRON_LED_MAX:
-              ms_cyclotron.start(i_outer_current_ramp_speed);
-            break;
-
-            case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
-              if(i_cyclotron_matrix_led > 0) {
-                ms_cyclotron.start(i_outer_current_ramp_speed);
-              }
-              else {
-                ms_cyclotron.start(i_outer_current_ramp_speed * 9);
-              }
-            break;
-
-            case HASLAB_CYCLOTRON_LED_COUNT:
-            case FRUTTO_CYCLOTRON_LED_COUNT:
-            default:
-              if(i_cyclotron_matrix_led > 0) {
-                ms_cyclotron.start(i_outer_current_ramp_speed);
-              }
-              else {
-                ms_cyclotron.start(i_outer_current_ramp_speed - i_2021_delay);
-              }
-            break;
-          }
-        }
-        else {
-          ms_cyclotron.start(i_outer_current_ramp_speed);
-        }
+        ms_cyclotron.start(i_outer_current_ramp_speed);
 
         i_vibration_level = i_vibration_idle_level_2021;
       }
       else {
         i_outer_current_ramp_speed = r_outer_cyclotron_ramp.update();
 
-        if(b_cyclotron_simulate_ring == true) {
-          switch(i_cyclotron_leds) {
-            case OUTER_CYCLOTRON_LED_MAX:
-              ms_cyclotron.start(i_outer_current_ramp_speed);
-            break;
-
-            case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
-              if(i_cyclotron_matrix_led > 0) {
-                ms_cyclotron.start(i_outer_current_ramp_speed);
-              }
-              else {
-                if(i_outer_current_ramp_speed * 9 > 1200) {
-                  ms_cyclotron.start(i_outer_current_ramp_speed * 6);
-                }
-                else {
-                  ms_cyclotron.start(i_outer_current_ramp_speed * 9);
-                }
-              }
-            break;
-
-            case FRUTTO_CYCLOTRON_LED_COUNT:
-              if(i_cyclotron_matrix_led > 0) {
-                ms_cyclotron.start(i_outer_current_ramp_speed);
-              }
-              else {
-                ms_cyclotron.start(i_outer_current_ramp_speed - i_2021_delay);
-              }
-            break;
-
-            case HASLAB_CYCLOTRON_LED_COUNT:
-            default:
-              if(i_cyclotron_matrix_led > 0) {
-                ms_cyclotron.start(i_outer_current_ramp_speed);
-              }
-              else {
-                ms_cyclotron.start(i_outer_current_ramp_speed - i_2021_delay);
-              }
-            break;
-          }
-        }
-        else {
-          ms_cyclotron.start(i_outer_current_ramp_speed);
-        }
+        ms_cyclotron.start(i_outer_current_ramp_speed);
 
         i_vibration_level = i_vibration_level + 1;
 
@@ -2813,7 +2744,7 @@ void cyclotron2021(uint16_t iRampDelay) {
         }
       }
     }
-    else if(b_2021_ramp_down == true) {
+    else if(b_2021_ramp_down) {
       i_fast_led_delay = FAST_LED_UPDATE_MS;
 
       if(r_outer_cyclotron_ramp.isFinished()) {
@@ -2822,44 +2753,7 @@ void cyclotron2021(uint16_t iRampDelay) {
       else {
         i_outer_current_ramp_speed = r_outer_cyclotron_ramp.update();
 
-        if(b_cyclotron_simulate_ring == true) {
-          switch(i_cyclotron_leds) {
-            case OUTER_CYCLOTRON_LED_MAX:
-              ms_cyclotron.start(i_outer_current_ramp_speed);
-            break;
-
-            case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
-              if(i_cyclotron_matrix_led > 0) {
-                ms_cyclotron.start(i_outer_current_ramp_speed);
-              }
-              else {
-                ms_cyclotron.start(i_outer_current_ramp_speed * 9);
-              }
-            break;
-
-            case FRUTTO_CYCLOTRON_LED_COUNT:
-              if(i_cyclotron_matrix_led > 0) {
-                ms_cyclotron.start(i_outer_current_ramp_speed);
-              }
-              else {
-                ms_cyclotron.start(i_outer_current_ramp_speed - i_2021_delay);
-              }
-            break;
-
-            case HASLAB_CYCLOTRON_LED_COUNT:
-            default:
-              if(i_cyclotron_matrix_led > 0) {
-                ms_cyclotron.start(i_outer_current_ramp_speed);
-              }
-              else {
-                ms_cyclotron.start(i_outer_current_ramp_speed - i_2021_delay);
-              }
-            break;
-          }
-        }
-        else {
-          ms_cyclotron.start(i_outer_current_ramp_speed);
-        }
+        ms_cyclotron.start(i_outer_current_ramp_speed);
 
         if(i_outer_current_ramp_speed > 40 && i_vibration_level > i_vibration_lowest_level + 20) {
           i_vibration_level = i_vibration_level - 1;
@@ -2889,7 +2783,7 @@ void cyclotron2021(uint16_t iRampDelay) {
               t_iRampDelay = 0;
             }
 
-            if(b_cyclotron_lid_on == true) {
+            if(b_cyclotron_lid_on) {
               i_fast_led_delay = FAST_LED_UPDATE_MS + i_cyclotron_multiplier;
             }
             else {
@@ -2925,56 +2819,10 @@ void cyclotron2021(uint16_t iRampDelay) {
         t_iRampDelay = 1;
       }
 
-      if(b_cyclotron_simulate_ring == true) {
-        switch(i_cyclotron_leds) {
-          case OUTER_CYCLOTRON_LED_MAX:
-            ms_cyclotron.start(t_iRampDelay);
-          break;
-
-          case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
-            if(i_cyclotron_matrix_led > 0) {
-              ms_cyclotron.start(t_iRampDelay);
-            }
-            else if(i_outer_current_ramp_speed > i_2021_delay && t_iRampDelay - i_2021_delay < t_iRampDelay) {
-              ms_cyclotron.start((t_iRampDelay - i_2021_delay) * 9); // This will simulate the fake LEDs during overheat and ribbon cable alarms.
-            }
-            else {
-              ms_cyclotron.start(0);
-            }
-          break;
-
-          case FRUTTO_CYCLOTRON_LED_COUNT:
-            if(i_cyclotron_matrix_led > 0) {
-              ms_cyclotron.start(t_iRampDelay);
-            }
-            else if(i_outer_current_ramp_speed > i_2021_delay && t_iRampDelay - i_2021_delay < t_iRampDelay) {
-              ms_cyclotron.start(t_iRampDelay - i_2021_delay); // This will simulate the fake LEDs during overheat and ribbon cable alarms.
-            }
-            else {
-              ms_cyclotron.start(0);
-            }
-          break;
-
-          case HASLAB_CYCLOTRON_LED_COUNT:
-          default:
-            if(i_cyclotron_matrix_led > 0) {
-              ms_cyclotron.start(t_iRampDelay);
-            }
-            else if(i_outer_current_ramp_speed > i_2021_delay && t_iRampDelay - i_2021_delay < t_iRampDelay) {
-              ms_cyclotron.start(t_iRampDelay - i_2021_delay); // This will simulate the fake LEDs during overheat and ribbon cable alarms.
-            }
-            else {
-              ms_cyclotron.start(0);
-            }
-          break;
-        }
-      }
-      else {
-        ms_cyclotron.start(t_iRampDelay);
-      }
+      ms_cyclotron.start(t_iRampDelay);
     }
 
-    if(b_wand_firing != true && b_overheating != true && b_alarm != true) {
+    if(!b_wand_firing && !b_overheating && !b_alarm) {
       vibrationPack(i_vibration_level);
     }
 
@@ -2991,7 +2839,7 @@ void cyclotron2021(uint16_t iRampDelay) {
         else {
           iRampDelay = iRampDelay / i_cyclotron_multiplier;
 
-          if(b_2021_ramp_up == true || b_2021_ramp_down == true) {
+          if(b_2021_ramp_up || b_2021_ramp_down) {
             iRampDelay = iRampDelay * 1;
           }
           else {
@@ -3039,87 +2887,137 @@ void cyclotron2021(uint16_t iRampDelay) {
       iRampDelay = 1;
     }
 
-    if((i_cyclotron_led_value[i_led_cyclotron - i_cyclotron_led_start] == 0 && b_cyclotron_simulate_ring != true) || (i_cyclotron_led_value[i_led_cyclotron - i_cyclotron_led_start] == 0 && b_cyclotron_simulate_ring == true && i_cyclotron_matrix_led > 0)) {
-      r_cyclotron_led_fade_in[i_led_cyclotron - i_cyclotron_led_start].go(0);
-      r_cyclotron_led_fade_in[i_led_cyclotron - i_cyclotron_led_start].go(i_brightness, iRampDelay, CIRCULAR_IN);
-    }
-
     if(usingSlimeCyclotron()) {
       return;
     }
 
-    if(b_clockwise == true) {
-      i_led_cyclotron++;
+    if(i_cyclotron_led_value[i_curr_cyclotron_position] == 0 && i_cyclotron_matrix_led > 0) {
+      r_cyclotron_led_fade_in[i_curr_cyclotron_position].go(0);
+      r_cyclotron_led_fade_in[i_curr_cyclotron_position].go(i_brightness, iRampDelay, CIRCULAR_IN);
+    }
 
-      if(b_cyclotron_simulate_ring == true) {
-        if(i_led_cyclotron > (i_powercell_leds + OUTER_CYCLOTRON_LED_MAX + i_nfilter_jewel_leds) - i_nfilter_jewel_leds - 1) {
-          i_led_cyclotron = i_cyclotron_led_start;
+    uint8_t i_cyclotron_lens_gap = 0;
+    if(b_cyclotron_simulate_ring) {
+      switch(i_cyclotron_leds) {
+        case OUTER_CYCLOTRON_LED_MAX:
+          // Do nothing; already 0.
+        break;
+
+        case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+          if(b_2021_ramp_down || b_2021_ramp_up || b_alarm || b_wand_mash_lockout) {
+            if(i_curr_cyclotron_position == 39) {
+              // Top gap between lenses is about 27 pixels wide.
+              i_cyclotron_lens_gap = 27;
+            }
+            else if(i_curr_cyclotron_position == 19) {
+              // Bottom gap between lenses is about 15 pixels wide.
+              i_cyclotron_lens_gap = 15;
+            }
+            else {
+              // Side gaps between lenses are about 21 pixels wide.
+              i_cyclotron_lens_gap = 21;
+            }
+          }
+          else {
+            // When ramp to full speed is complete, set all gaps to 3 for speed.
+            i_cyclotron_lens_gap = 3;
+          }
+        break;
+
+        case FRUTTO_CYCLOTRON_LED_COUNT:
+          if(b_2021_ramp_down || b_2021_ramp_up || b_alarm || b_wand_mash_lockout) {
+            if(i_curr_cyclotron_position > 34) {
+              // Top gap between lenses is about 15 pixels wide.
+              i_cyclotron_lens_gap = 15;
+            }
+            else if(i_curr_cyclotron_position > 14 && i_curr_cyclotron_position < 20) {
+              // Bottom gap between lenses is about 9 pixels wide.
+              i_cyclotron_lens_gap = 9;
+            }
+            else {
+              // Side gaps between lenses are about 11 pixels wide.
+              i_cyclotron_lens_gap = 11;
+            }
+          }
+          else {
+            // When ramp to full speed is complete, set all gaps to 3 for speed.
+            i_cyclotron_lens_gap = 3;
+          }
+        break;
+
+        case HASLAB_CYCLOTRON_LED_COUNT:
+        default:
+          if(b_2021_ramp_down || b_2021_ramp_up || b_alarm || b_wand_mash_lockout) {
+            if(i_curr_cyclotron_position > 32) {
+              // Top gap between lenses is about 9 pixels wide.
+              i_cyclotron_lens_gap = 9;
+            }
+            else if(i_curr_cyclotron_position > 12 && i_curr_cyclotron_position < 20) {
+              // Bottom gap between lenses is about 5 pixels wide.
+              i_cyclotron_lens_gap = 5;
+            }
+            else {
+              // Side gaps between lenses are about 7 pixels wide.
+              i_cyclotron_lens_gap = 7;
+            }
+          }
+          else {
+            // When ramp to full speed is complete, set all gaps to 3 for speed.
+            i_cyclotron_lens_gap = 3;
+          }
+        break;
+      }
+    }
+
+    if(b_clockwise) {
+      if(i_cyclotron_leds != OUTER_CYCLOTRON_LED_MAX) {
+        if(i_cyclotron_matrix_led == 0 && i_cyclotron_fake_ring_counter < i_cyclotron_lens_gap) {
+          i_cyclotron_fake_ring_counter++;
         }
-        else if(i_outer_current_ramp_speed <= i_2021_delay) {
-          switch(i_cyclotron_leds) {
-            case OUTER_CYCLOTRON_LED_MAX:
-              // Do nothing.
-            break;
+        else {
+          i_cyclotron_fake_ring_counter = 0;
+          i_led_cyclotron++;
 
-            case HASLAB_CYCLOTRON_LED_COUNT:
-            case FRUTTO_CYCLOTRON_LED_COUNT:
-            case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
-            default:
-              i_cyclotron_matrix_led = cyclotronLookupTable(i_led_cyclotron - i_cyclotron_led_start);
-
-              if(i_cyclotron_matrix_led == 0) {
-                for(uint8_t i = i_led_cyclotron; i < OUTER_CYCLOTRON_LED_MAX; i++) {
-                  if(cyclotronLookupTable(i - i_cyclotron_led_start) > 0) {
-                    i_led_cyclotron = i;
-                    break;
-                  }
-                }
+          if(i_cyclotron_matrix_led == 0 && cyclotronLookupTable(i_led_cyclotron - i_cyclotron_led_start) == 0) {
+            // Skip to the next valid LED value in the array.
+            for(uint8_t i = i_led_cyclotron; i < OUTER_CYCLOTRON_LED_MAX; i++) {
+              if(cyclotronLookupTable(i - i_cyclotron_led_start) > 0) {
+                i_led_cyclotron = i;
+                break;
               }
-            break;
+            }
           }
         }
       }
-      else {
-        if(i_led_cyclotron > i_pack_num_leds - i_nfilter_jewel_leds - 1) {
-          i_led_cyclotron = i_cyclotron_led_start;
-        }
+
+      if(i_led_cyclotron > i_powercell_leds + OUTER_CYCLOTRON_LED_MAX - 1) {
+        i_led_cyclotron = i_cyclotron_led_start;
       }
     }
     else {
-      i_led_cyclotron--;
-
-      if(b_cyclotron_simulate_ring == true) {
-        if(i_led_cyclotron < i_cyclotron_led_start) {
-          i_led_cyclotron = (i_powercell_leds + OUTER_CYCLOTRON_LED_MAX + i_nfilter_jewel_leds) - i_nfilter_jewel_leds - 1;
+      if(i_cyclotron_leds != OUTER_CYCLOTRON_LED_MAX) {
+        if(i_cyclotron_matrix_led == 0 && i_cyclotron_fake_ring_counter < i_cyclotron_lens_gap) {
+          i_cyclotron_fake_ring_counter++;
         }
-        else if(i_outer_current_ramp_speed <= i_2021_delay) {
-          switch(i_cyclotron_leds) {
-            case OUTER_CYCLOTRON_LED_MAX:
-              // Do nothing.
-            break;
+        else {
+          i_cyclotron_fake_ring_counter = 0;
+          i_led_cyclotron--;
 
-            case HASLAB_CYCLOTRON_LED_COUNT:
-            case FRUTTO_CYCLOTRON_LED_COUNT:
-            case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
-            default:
-              i_cyclotron_matrix_led = cyclotronLookupTable(i_led_cyclotron - i_cyclotron_led_start);
-
-              if(i_cyclotron_matrix_led == 0) {
-                for(uint8_t i = i_led_cyclotron; i > i_cyclotron_led_start; i--) {
-                  if(cyclotronLookupTable(i - i_cyclotron_led_start) > 0) {
-                    i_led_cyclotron = i;
-                    break;
-                  }
-                }
+          if(i_cyclotron_matrix_led == 0 && cyclotronLookupTable(i_led_cyclotron - i_cyclotron_led_start) == 0) {
+            // Skip to the next valid LED value in the array.
+            for(uint8_t i = i_led_cyclotron; i > i_cyclotron_led_start; i--) {
+              if(cyclotronLookupTable(i - i_cyclotron_led_start) > 0) {
+                i_led_cyclotron = i;
+                break;
               }
             break;
+            }
           }
         }
       }
-      else {
-        if(i_led_cyclotron < i_cyclotron_led_start) {
-          i_led_cyclotron = i_pack_num_leds - i_nfilter_jewel_leds - 1;
-        }
+
+      if(i_led_cyclotron < i_cyclotron_led_start) {
+        i_led_cyclotron = i_powercell_leds + OUTER_CYCLOTRON_LED_MAX - 1;
       }
     }
   }
@@ -4149,6 +4047,7 @@ void resetCyclotronState() {
   // Only reset the start LED if the pack is off or just started.
   if(b_reset_start_led == true) {
     i_led_cyclotron = i_cyclotron_led_start;
+    i_cyclotron_fake_ring_counter = 0;
   }
 
   // Keep the fade control fading out a light that is not on during startup.
@@ -4541,7 +4440,6 @@ void checkCyclotronAutoSpeed() {
       i_cyclotron_switch_led_mulitplier++;
 
       // Restart the timer.
-      ms_cyclotron_auto_speed_timer.stop();
       ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
     }
   }
@@ -4710,9 +4608,6 @@ void wandFiring() {
 
   b_wand_firing = true;
   serial1Send(A_FIRING);
-
-  // Reset the Cyclotron auto speed up timers. Only for Afterlife (2021) mode.
-  ms_cyclotron_auto_speed_timer.stop();
 
   if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
     ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
@@ -5969,6 +5864,11 @@ void restartFromWandMash() {
       break;
     }
   }
+}
+
+uint8_t getRampPercentage(ramp &input) {
+  // Gets the whole percentage completion of a given ramp.
+  return (100 * input.getPosition()) / input.getDuration();
 }
 
 // Included last as the contained logic will control all aspects of the pack using the defined functions above.
