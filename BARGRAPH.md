@@ -1,4 +1,4 @@
-# Wand Bargraph and Power Cell Upgrade
+# Neutrona Wand Bargraph
 
 **NOTE: The 28 Segment Bargraph upgrade is only supported with the GPStar Neutrona Wand microcontroller**
 
