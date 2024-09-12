@@ -54,29 +54,32 @@ Please follow our diagrams in the [Smoke Guide](SMOKE.md) for more information a
 
 ## Charging Switch
 
-Some users have made use of what's called the "DPDT Mod" which uses any standard "Dual-Pole, Dual-Throw" [toggle](https://a.co/d/gVtXMck) or [switch](https://a.co/d/3EYqrDI) to act as a master kill switch to the electronics, allowing a Talentcell battery to be charged without also running the electronics. The basic installation process looks like this, assuming you use both the 5V from the USB port and 12V from the barrel jack on a standard Talentcell battery (regardless of mAh capacity):
+Some users have made use of what's called the "DPDT Mod" which uses any standard "Dual-Pole, Dual-Throw" [toggle](https://a.co/d/gVtXMck) or [switch](https://a.co/d/3EYqrDI) to act as a master kill switch to the electronics, but allowing a Talentcell battery to be charged. Assuming you use both the 5V from the USB port and 12V from the barrel jack on a standard Talentcell battery (regardless of mAh capacity), the basic installation would look like this:
 
 - A [5.5mm x 2.1mm (or 5521) female port](https://a.co/d/hxna1qj) is installed on the Proton Pack as a charging port
 - All ground connections are tied together: from the USB, Barrel Jack, and Charging Port
 - Each positive (+) connection is attached to a post on the toggle or switch as follows:
-	- The 12V+ and 5V+ to the Proton Pack are connected to the upper posts of the toggle/switch	- The Barrel Jack's 12V+ and USB's 5V+ are connected to the center posts of the toggle/switch
+	- The 12V+ and 5V+ to the Proton Pack are connected to the upper posts of the toggle/switch
+	- The Barrel Jack's 12V+ and USB's 5V+ are connected to the center posts of the toggle/switch
 	- ONLY the 12V+ from the charging port is connected to the end OPPOSITE the Proton Pack connections
 
-As a visual, see the ASCII drawing below for reference. The 12V is intended to go to your audio amplifier, while the 5V goes to the Proton Pack PCB. **If using the GPStar Audio Amp** you can simply use the 12V connection only and ignore the 5V connections shown.
+For a visual aid see the ASCII drawing below for reference. The 12V is intended to go to your audio amplifier, while the 5V goes to the Proton Pack PCB. **If using the GPStar Audio Amp** which can supply 5V to your pack/wand PCB's you can simply use the 12V connection only and ignore all 5V connections shown/mentioned.
+
+**Note:** In order to use the Talentcell or charge it, the battery itself must be in the ON position. If you wish to conserve power once charged, turn off the battery via its built-in switch if you intend to store or not use your equipment for a long period.
 
 ```
 Proton Pack
-  ---------- Negative from Common Ground
+  -------------- Negative from Common Ground
   |
- Amp   PCB - Negative from Common Ground
+ Amp   PCB ----- Negative from Common Ground
   |+    |+    
 ===========
 |12V+  5V+|
 | |     | |
-|12V+  5V+| *Common Center to Battery (Jack/USB)    
+|12V+  5V+| == Common Center to Battery (Jack/USB)    
 | |       |
-|12V+  NC | *No Connection for 5V+ side (USB)
+|12V+  NC*|  *No Connection for 5V+ side (USB)
 ===========
   |+
-Charging Port - Negative from Common Ground
+Charging Port -- Negative from Common Ground
 ```
