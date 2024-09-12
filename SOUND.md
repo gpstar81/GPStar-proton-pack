@@ -27,6 +27,8 @@ The compatibility matrix below notes whether a device is compatible with major v
 
 All firmware files for the audio controllers can be found in the [/extras/sound/ folder](/extras/sound/). Files are grouped by their device name, and a firmware update tool for the GPStar Audio firmware is available for ease of flashing that device.
 
+At this time only macOS is supported for use of the supplied "GPStar-Audio-Firmware-Flasher" utility, located in `/extras/sound/GPStar Audio` alongside the firmware ".hex" file.
+
 ## Pack Audio
 
 This is where you can branch out to other options as desired and can really go all-out with your choice of audio. Neither of the audio controllers available for use in the pack will use their onboard amplifier by default, only the 3.5mm / ⅛" stereo phono jack. This means you can use any amplifier which accepts that type of connection. When you choose your amplifier, that should dictate the choice of speakers to match.

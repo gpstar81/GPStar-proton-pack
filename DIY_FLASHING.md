@@ -1,6 +1,8 @@
-# IDE Setup
+# Compiling & Flashing via IDE Setup (DIY)
 
 The custom software needed for operation must be compiled and uploaded to your devices. This guide provides the list of required libraries for compilation and outlines the changes needed to support each board.
+
+**Note:** This is a slightly modified version of the standard [COMPILING_FLASHING](COMPILING_FLASHING.md) guide.
 
 ## Supported Devices
 
@@ -13,7 +15,7 @@ Please refer to the table below for a list of devices and their supported softwa
 | <sup>d1</sup> DIY Arduino Mega Proton Pack   | Yes | Yes <sup>2</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> |
 | <sup>d1</sup> DIY Arduino Mega Neutrona Wand | Yes | Yes <sup>2</sup> | Yes <sup>2</sup> | Yes <sup>2</sup> | Yes <sup>2</sup> |
 
-<sup>d1</sup> These are now considered as "legacy" devices and have distinct end-of-life notes in later versions.
+<sup>d1</sup> These are now considered as "legacy" devices and have distinct end-of-life notes in later versions (see additional superscript notations).
 
 <sup>2</sup> Support for the Arduino Nano as a wand controller ended after the release of v2.2.0. That device must be replaced with a [Mega 2560 Pro Mini](https://www.amazon.com/s?k=Mega+2560+PRO+MINI) to support the later software releases.
 

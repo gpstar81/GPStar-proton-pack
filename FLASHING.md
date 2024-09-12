@@ -1,5 +1,9 @@
 # Software Flashing Guide
 
+Each supported device in the GPStar system (Proton Pack, Neutrona Wand, Attenuator, Single-shot Blaster) are separate devices and must be updated individually when software updates are available. The following guide focuses on the core system: the Proton Pack and Neutrona Wand. For updating the [Attenuator (aka. Wireless Adapter)](ATTENUATOR_FLASHING.md) or the [Single-Shot Blaster](SINGLESHOT.md), please see their respective guides.
+
+Note that the GPStar Audio may also require updates to firmware, though this will be rare. See the [SOUND](SOUND.md) guide for more information.
+
 ## Supported Devices
 
 Please refer to the table below for a list of devices and their supported software release.
@@ -14,7 +18,7 @@ Please refer to the table below for a list of devices and their supported softwa
 | <sup>s1</sup> Attenuator (ESP32)        | N/A | N/A | Yes | Yes | Yes |
 | <sup>s1</sup> Wireless Adapter (ESP32)  | N/A | N/A | Yes | Yes | Yes |
 
-<sup>d1</sup> These are now considered as "legacy" devices and have distinct end-of-life notes in later versions.
+<sup>d1</sup> These are now considered as "legacy" devices and have distinct end-of-life notes in later versions (see additional superscript notations).
 
 <sup>s1</sup> These are referred to as "Serial1" devices as they attach to the GPStar Proton Pack PCB though they are considered separate devices and will be flashed independently. Please see the [ATTENUATOR_FLASHING](ATTENUATOR_FLASHING.md) guide for those instructions.
 
@@ -36,6 +40,8 @@ Use the included FTDI to USB programming cable that comes with the GPStar kits o
 - **Be careful to not reverse the connector!**
 
 ![UART Connection](images/uart_pack.jpg)
+
+**Note:** For the Neutrona Wand, some users have adopted use of the [Hasbro Plasma Series Spengler's Neutrona Wand: Data Port Front Tube](https://www.etsy.com/listing/1756220009/) as offered by RADIsLAB, which includes a parts list for a dedicated programming cable which stay mounted inside of the device.
 
 ## Flashing Updates
 After connecting your GPStar Proton Pack or Neutrona Wand board to your computer with the included FTDI to USB programming cable, download the GPStar firmware flasher from the extra folder and run the program.
