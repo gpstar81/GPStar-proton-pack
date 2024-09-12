@@ -435,10 +435,11 @@ enum sound_fx {
   S_HALLOWEEN_MODE_VOICE,
   S_CHRISTMAS_MODE_VOICE,
   S_VOICE_POWERCELL_NOT_INVERTED,
-  S_VOICE_POWERCELL_INVERTED
+  S_VOICE_POWERCELL_INVERTED,
+  S_BOSON_DART_FIRE_IMPACT
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const uint16_t i_last_effects_track = S_VOICE_POWERCELL_INVERTED;
+const uint16_t i_last_effects_track = S_BOSON_DART_FIRE_IMPACT;

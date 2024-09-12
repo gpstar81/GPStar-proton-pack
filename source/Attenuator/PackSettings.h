@@ -38,7 +38,6 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       Change system configuration options using the available toggles and selectors.
       Options may only be changed when the pack and wand are not powered and running.
       Use the "Update Settings" button to save values to your equipment.
-      Test your changes before using the "Save to EEPROM" to store as permanent defaults.
     </p>
     <br/>
   </div>
@@ -279,7 +278,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     <hr/>
     <a href="/">&laquo; Back</a>
     &nbsp;&nbsp;
-    <button type="button" class="green" style="width:120px" onclick="saveSettings()">Update&nbsp;Settings</button>
+    <button type="button" class="green" style="width:120px" onclick="saveSettings()" id="btnUpdatePackSettings">Update&nbsp;Settings</button>
     <br/>
     <br/>
   </div>
@@ -335,6 +334,8 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         if (this.readyState == 4 && this.status == 200) {
           var settings = JSON.parse(this.responseText);
           if (settings) {
+            getEl("btnUpdatePackSettings").disabled = true;
+
             if (!settings.prefsAvailable) {
               alert("An unexpected error occurred and preferences could not be downloaded. Please refresh the page to try again.");
               return;
@@ -342,7 +343,11 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
 
             if (settings.packPowered || settings.wandPowered) {
               alert("Pack and/or Wand are currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings.");
+              return;
             }
+
+            // Valid settings were received and both the pack and wand are off, so allow updating settings.
+            getEl("btnUpdatePackSettings").disabled = false;
 
             /**
              * Note: Colour (hue) value range for FastLED uses the following scale, though CSS uses 0-360 for HSL colour.

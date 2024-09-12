@@ -2906,7 +2906,12 @@ void modePulseStart() {
     case PROTON:
       // Boson Dart.
       wandSerialSend(W_BOSON_DART_SOUND);
-      playEffect(S_BOSON_DART_FIRE, false, i_volume_effects, false, 0, false);
+      if(b_stream_effects) {
+        playEffect(S_BOSON_DART_FIRE_IMPACT, false, i_volume_effects, false, 0, false);
+      }
+      else {
+        playEffect(S_BOSON_DART_FIRE, false, i_volume_effects, false, 0, false);
+      }
       ms_firing_pulse.start(0);
       ms_semi_automatic_firing.start(350);
     break;
@@ -4040,7 +4045,7 @@ void wandHeatUp() {
       playEffect(S_MESON_OPEN);
 
       if(b_gpstar_benchtest == true && WAND_STATUS == MODE_ON && switch_vent.on() == true) {
-        playEffect(S_MESON_IDLE_LOOP, true, 0, true, 1500);
+        playEffect(S_MESON_IDLE_LOOP, true, 0, true, 1250);
       }
     break;
 

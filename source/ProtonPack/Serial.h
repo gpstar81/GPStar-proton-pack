@@ -930,6 +930,9 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
       if(PACK_STATE != MODE_OFF) {
         PACK_ACTION_STATE = ACTION_OFF;
       }
+
+      //Make sure to tell the wireless that we are not overheating.
+      serial1Send(A_OVERHEATING_FINISHED);
     break;
 
     case A_WARNING_CANCELLED:
@@ -1646,7 +1649,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_BOSON_DART_SOUND:
-      playEffect(S_BOSON_DART_FIRE, false, i_volume_effects, false, 0, false);
+      if(b_stream_effects) {
+        playEffect(S_BOSON_DART_FIRE_IMPACT, false, i_volume_effects, false, 0, false);
+      }
+      else {
+        playEffect(S_BOSON_DART_FIRE, false, i_volume_effects, false, 0, false);
+      }
 
       if(b_vibration_firing && b_vibration_switch_on) {
         ms_menu_vibration.start(350); // If vibrate while firing is enabled and vibration switch is on, vibrate the pack.
@@ -1885,7 +1893,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         stopEffect(S_MESON_IDLE_LOOP);
 
         playEffect(S_MESON_OPEN);
-        playEffect(S_MESON_IDLE_LOOP, true, 0, true, 1500);
+        playEffect(S_MESON_IDLE_LOOP, true, 0, true, 1250);
       }
 
       // Meson mode.
