@@ -80,6 +80,9 @@ There is an alternative mounting solution which when you cut the original clear 
 ![](images/bargraph_mount_5.jpg)
 ![](images/bargraph_mount_6.jpg)
 
+It is important to know, after cutting the clear plastic piece, you will want to cut/grind the top part at the indicated red arrows so the bargraph mount fits over it without having to bend.
+![](images/BargraphFitment.jpg)
+
 Also available to download in this repository, or purchase from the [gpstartechnologies.com](https://gpstartechnologies.com) website are 2 versions (short or long depending on how much plastic you remove) of a barrel wire cover, to protect your wires from getting caught on the retractable wand barrel mechanism. This cover screws onto the existing holes that the previous Hasbro board was screwed into, making it easy to remove and to do service inside your wand.
 ![](images/BarrelCover3.png)
 ![](images/BarrelCover4.png)
