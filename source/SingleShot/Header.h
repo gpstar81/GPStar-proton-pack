@@ -205,8 +205,9 @@ struct Encoder {
  *
  * These are references for the EEPROM menu. Empty is a zero value, not used in the EEPROM.
  */
-enum VIBRATION_MODES_EEPROM { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE };
-enum VIBRATION_MODES_EEPROM VIBRATION_MODE_EEPROM;
+enum VIBRATION_MODES { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE };
+enum VIBRATION_MODES VIBRATION_MODE_EEPROM;
+enum VIBRATION_MODES VIBRATION_MODE;
 const uint8_t vibration = 11;
 const uint8_t i_vibration_level_min = 65;
 uint8_t i_vibration_level = i_vibration_level_min;

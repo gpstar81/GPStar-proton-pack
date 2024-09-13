@@ -88,6 +88,7 @@ void setup() {
   BARGRAPH_FIRING_ANIMATION = BARGRAPH_ANIMATION_SUPER_HERO;
   BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_DEFAULT;
   VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
+  VIBRATION_MODE = VIBRATION_FIRING_ONLY;
   WAND_MENU_LEVEL = MENU_LEVEL_1;
   WAND_YEAR_MODE = YEAR_DEFAULT;
   WAND_YEAR_CTS = CTS_DEFAULT;
@@ -10172,9 +10173,9 @@ void updatePackPowerLevel() {
 }
 
 void vibrationWand(uint8_t i_level) {
-  if(b_vibration_enabled == true && b_vibration_switch_on == true && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true && i_level > 0) {
+  if(VIBRATION_MODE != VIBRATION_NONE && b_vibration_switch_on && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true && i_level > 0) {
     // Vibrate the wand during firing only when enabled. (When enabled by the pack)
-    if(b_vibration_firing == true) {
+    if(VIBRATION_MODE == VIBRATION_FIRING_ONLY) {
       if(WAND_ACTION_STATUS == ACTION_FIRING || (ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished())) {
         if(ms_semi_automatic_firing.isRunning()) {
           analogWrite(VIBRATION_PIN, 180);

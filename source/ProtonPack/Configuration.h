@@ -285,20 +285,6 @@ uint8_t i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_35_LED;
 bool b_clockwise = true;
 
 /*
- * When set to true, when vibration is enabled from the Proton Pack vibration toggle switch, the Proton Pack will always vibrate.
- * Note that turning off the vibration toggle switch will disable all individual vibration settings.
- * This can be enabled or disabled from the Neutrona Wand sub menu system.
- */
-bool b_vibration_enabled = true;
-
-/*
- * When set to true, when b_vibration_enabled is also set to true, the Proton Pack will only vibrate while the Neutrona Wand is firing.
- * Note that turning off the vibration toggle switch will disable all individual vibration settings.
- * This can be enabled or disabled from the Neutrona Wand sub menu system.
- */
-bool b_vibration_firing = true;
-
-/*
  * When set to true, 1984/1989 mode LEDs will fade in and out.
  */
 const bool b_fade_cyclotron_led = true;

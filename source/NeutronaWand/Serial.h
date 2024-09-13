@@ -464,29 +464,25 @@ void checkPack() {
           switch(wandConfig.wandVibration) {
             case 1:
               b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
-              b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
-              b_vibration_enabled = true; // Enable wand vibration.
               VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
+              VIBRATION_MODE = VIBRATION_MODE_EEPROM;
             break;
 
             case 2:
               b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
-              b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
-              b_vibration_enabled = true; // Enable wand vibration.
               VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
+              VIBRATION_MODE = VIBRATION_MODE_EEPROM;
             break;
 
             case 3:
-              b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
-              b_vibration_enabled = false; // Disable wand vibration.
               VIBRATION_MODE_EEPROM = VIBRATION_NONE;
+              VIBRATION_MODE = VIBRATION_MODE_EEPROM;
             break;
 
             case 4:
             default:
-              b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
-              b_vibration_enabled = true; // Enable wand vibration.
               VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
+              VIBRATION_MODE = VIBRATION_FIRING_ONLY;
             break;
           }
 
@@ -1276,6 +1272,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
+      stopEffect(S_VOICE_MOTORIZED_CYCLOTRON_ENABLED);
       playEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
     break;
 
@@ -1288,6 +1285,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
+      stopEffect(S_VOICE_MOTORIZED_CYCLOTRON_ENABLED);
       playEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
     break;
 
@@ -1300,6 +1298,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
+      stopEffect(S_VOICE_MOTORIZED_CYCLOTRON_ENABLED);
       playEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
     break;
 
@@ -1312,7 +1311,21 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
+      stopEffect(S_VOICE_MOTORIZED_CYCLOTRON_ENABLED);
       playEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
+    break;
+
+    case P_PACK_MOTORIZED_CYCLOTRON_ENABLED:
+      // Proton Pack Vibration EEPROM reset to default.
+      stopEffect(S_BEEPS_ALT);
+      playEffect(S_BEEPS_ALT);
+
+      stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
+      stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
+      stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
+      stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
+      stopEffect(S_VOICE_MOTORIZED_CYCLOTRON_ENABLED);
+      playEffect(S_VOICE_MOTORIZED_CYCLOTRON_ENABLED);
     break;
 
     case P_YEAR_1984:
@@ -1428,7 +1441,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
     case P_POWERCELL_INVERTED:
       stopEffect(S_VOICE_POWERCELL_INVERTED);
       stopEffect(S_VOICE_POWERCELL_NOT_INVERTED);
-      
+
       playEffect(S_VOICE_POWERCELL_INVERTED);
     break;
 

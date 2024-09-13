@@ -88,20 +88,6 @@ bool b_vent_light_control = true;
 bool b_power_on_indicator = true;
 
 /*
- * When enabled, the Single-Shot Blaster will vibrate at all times.
- * This can be enabled or disabled from the device sub menu system.
- * Default = true.
- */
-bool b_vibration_enabled = true;
-
-/*
- * When set to true and b_vibration_enabled is also set to true, the Single-Shot Blaster will only vibrate during firing.
- * This can be enabled or disabled from the device sub menu system.
- * Default = true.
- */
-bool b_vibration_firing = true;
-
-/*
  * Set to true to have your Single-Shot Blaster boot up with errors when the top right switch (beep switch) is on while you are turning on your device.
  * When set to false, this will be ignored.
  */

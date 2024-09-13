@@ -77,6 +77,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         <option value="2">When Firing</option>
         <option value="3">Never</option>
         <option value="4">Via Toggle</option>
+        <option value="5">Motorized Cyclotron</option>
       </select>
     </div>
     <div class="setting">

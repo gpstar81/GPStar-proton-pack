@@ -961,9 +961,9 @@ void modeActivate() {
 }
 
 void vibrationDevice(uint8_t i_level) {
-  if(b_vibration_enabled && i_level > 0) {
+  if(VIBRATION_MODE != VIBRATION_NONE && i_level > 0) {
     // Vibrate the device during firing only when enabled.
-    if(b_vibration_firing) {
+    if(VIBRATION_MODE == VIBRATION_FIRING_ONLY) {
       if(DEVICE_ACTION_STATUS == ACTION_FIRING || (ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished())) {
         if(ms_semi_automatic_firing.isRunning()) {
           analogWrite(vibration, 180);

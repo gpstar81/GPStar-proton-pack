@@ -671,8 +671,7 @@ void checkWandAction() {
                 case VIBRATION_DEFAULT:
                 default:
                   VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
-                  b_vibration_enabled = true; // Enable wand vibration.
-                  b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
+                  VIBRATION_MODE = VIBRATION_MODE_EEPROM;
                   b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
 
                   stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
@@ -688,8 +687,7 @@ void checkWandAction() {
                 break;
                 case VIBRATION_ALWAYS:
                   VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
-                  b_vibration_enabled = true; // Enable wand vibration.
-                  b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
+                  VIBRATION_MODE = VIBRATION_MODE_EEPROM;
                   b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
 
                   stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
@@ -705,8 +703,7 @@ void checkWandAction() {
                 break;
                 case VIBRATION_FIRING_ONLY:
                   VIBRATION_MODE_EEPROM = VIBRATION_NONE;
-                  b_vibration_enabled = false; // Disable wand vibration.
-                  b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
+                  VIBRATION_MODE = VIBRATION_MODE_EEPROM;
 
                   stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
                   stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
@@ -719,8 +716,7 @@ void checkWandAction() {
                 break;
                 case VIBRATION_NONE:
                   VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
-                  b_vibration_enabled = true; // Enable wand vibration.
-                  b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
+                  VIBRATION_MODE = VIBRATION_FIRING_ONLY;
 
                   stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
                   stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
@@ -1336,45 +1332,47 @@ void checkWandAction() {
               stopEffect(S_BEEPS_ALT);
               playEffect(S_BEEPS_ALT);
 
-              if(b_vibration_enabled != true) {
-                b_vibration_enabled = true; // Enable wand vibration.
-                b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
+              switch(VIBRATION_MODE) {
+                case VIBRATION_ALWAYS:
+                  VIBRATION_MODE = VIBRATION_FIRING_ONLY;
+                  b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
 
-                stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
-                stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
-                stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
 
-                playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
+                  playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
 
-                wandSerialSend(W_VIBRATION_ENABLED);
+                  wandSerialSend(W_VIBRATION_FIRING_ENABLED);
 
-                ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
-              }
-              else if(b_vibration_enabled == true && b_vibration_firing != true) {
-                b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
-                b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
+                  ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
+                break;
+                case VIBRATION_FIRING_ONLY:
+                default:
+                  VIBRATION_MODE = VIBRATION_NONE;
 
-                stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
-                stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
-                stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
 
-                playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+                  playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
 
-                wandSerialSend(W_VIBRATION_FIRING_ENABLED);
+                  wandSerialSend(W_VIBRATION_DISABLED);
+                break;
+                case VIBRATION_NONE:
+                  VIBRATION_MODE = VIBRATION_ALWAYS;
+                  b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
 
-                ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
-              }
-              else {
-                b_vibration_enabled = false; // Disable wand vibration.
-                b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
 
-                stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
-                stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
-                stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
+                  playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
 
-                playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
+                  wandSerialSend(W_VIBRATION_ENABLED);
 
-                wandSerialSend(W_VIBRATION_DISABLED);
+                  ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
+                break;
               }
             }
           }

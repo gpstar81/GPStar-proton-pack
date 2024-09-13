@@ -467,30 +467,32 @@ void readEEPROM() {
 
     if(obj_config_eeprom.pack_vibration > 0 && obj_config_eeprom.pack_vibration != 255) {
       switch(obj_config_eeprom.pack_vibration) {
+        case 5:
+          VIBRATION_MODE_EEPROM = CYCLOTRON_MOTOR;
+          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+        break;
+
         case 4:
         default:
-          // Do nothing. Readings are taken from the vibration toggle switch.
+          // Vibrate while firing only, on/off determined by switch.
           VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
         break;
 
         case 3:
-          b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
-          b_vibration_enabled = false; // Disable pack vibration.
           VIBRATION_MODE_EEPROM = VIBRATION_NONE;
+          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
         break;
 
         case 2:
           b_vibration_switch_on = true; // Override the vibration toggle switch.
-          b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
-          b_vibration_enabled = true; // Enable pack vibration.
           VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
+          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
         break;
 
         case 1:
           b_vibration_switch_on = true; // Override the vibration toggle switch.
-          b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
-          b_vibration_enabled = true; // Enable pack vibration.
           VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
+          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
         break;
       }
     }
@@ -551,7 +553,7 @@ void saveLEDEEPROM() {
   if(b_powercell_invert == true) {
     i_powercell_inverted = 2;
   }
-  
+
   // Write the data to the EEPROM if any of the values have changed.
   objLEDEEPROM obj_eeprom = {
     i_powercell_leds,
@@ -719,6 +721,10 @@ void saveConfigEEPROM() {
     case VIBRATION_DEFAULT:
     default:
       i_pack_vibration = 4;
+    break;
+
+    case CYCLOTRON_MOTOR:
+      i_pack_vibration = 5;
     break;
   }
 

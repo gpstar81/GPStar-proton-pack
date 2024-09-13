@@ -306,8 +306,9 @@ ezButton switch_smoke(SMOKE_TOGGLE_PIN); // Switch to enable smoke effects. Not 
  *
  * Vibration default is based on the toggle switch position. These are references for the EEPROM menu. Empty is a zero value, not used in the EEPROM.
  */
-enum VIBRATION_MODES_EEPROM { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE, VIBRATION_DEFAULT };
-enum VIBRATION_MODES_EEPROM VIBRATION_MODE_EEPROM;
+enum VIBRATION_MODES { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE, VIBRATION_DEFAULT, CYCLOTRON_MOTOR };
+enum VIBRATION_MODES VIBRATION_MODE_EEPROM;
+enum VIBRATION_MODES VIBRATION_MODE;
 uint8_t i_vibration_level = 0;
 uint8_t i_vibration_level_prev = 0;
 const uint8_t i_vibration_idle_level_2021 = 60;

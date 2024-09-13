@@ -127,22 +127,6 @@ uint8_t i_spectral_wand_custom_colour = 200;
 uint8_t i_spectral_wand_custom_saturation = 254;
 
 /*
- * When enabled, the Neutrona Wand will vibrate at all times.
- * Vibration is controlled by the vibration toggle switch in the Proton Pack and it can disable all vibration settings.
- * This can be enabled or disabled from the Neutrona Wand sub menu system.
- * Default = true.
- */
-bool b_vibration_enabled = true;
-
-/*
- * When set to true and b_vibration_enabled is also set to true, the Neutrona Wand will only vibrate during firing.
- * Note that vibration is controlled by the vibration toggle switch in the Proton Pack and it can disable all vibration settings.
- * This can be enabled or disabled from the Neutrona Wand sub menu system.
- * Default = true.
- */
-bool b_vibration_firing = true;
-
-/*
  * Set to true to enable overheating. Overheat settings are defined below.
  * Set to false to disable overheating. This will override any overheat settings below.
  * This can be controlled from the Neutrona Wand submenu system.

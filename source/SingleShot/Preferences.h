@@ -109,22 +109,19 @@ void readEEPROM() {
     if(obj_config_eeprom.device_vibration > 0 && obj_config_eeprom.device_vibration != 255) {
       switch(obj_config_eeprom.device_vibration) {
         case 3:
-          b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
-          b_vibration_enabled = false; // Disable device vibration.
           VIBRATION_MODE_EEPROM = VIBRATION_NONE;
+          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
         break;
 
         case 2:
-          b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
-          b_vibration_enabled = true; // Enable device vibration.
           VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
+          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
         break;
 
         case 1:
         default:
-          b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
-          b_vibration_enabled = true; // Enable device vibration.
           VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
+          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
         break;
       }
     }

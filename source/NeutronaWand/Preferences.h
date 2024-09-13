@@ -391,26 +391,24 @@ void readEEPROM() {
         default:
           // Do nothing. Readings are taken from the vibration toggle switch from the Proton pack or configuration setting in stand alone mode.
           VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
+          VIBRATION_MODE = VIBRATION_FIRING_ONLY;
         break;
 
         case 3:
-          b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
-          b_vibration_enabled = false; // Disable wand vibration.
           VIBRATION_MODE_EEPROM = VIBRATION_NONE;
+          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
         break;
 
         case 2:
           b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
-          b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
-          b_vibration_enabled = true; // Enable wand vibration.
           VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
+          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
         break;
 
         case 1:
           b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
-          b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
-          b_vibration_enabled = true; // Enable wand vibration.
           VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
+          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
         break;
       }
     }

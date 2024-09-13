@@ -316,6 +316,9 @@ void serial1SendData(uint8_t i_message) {
         default:
           packConfig.packVibration = 4;
         break;
+        case CYCLOTRON_MOTOR:
+          packConfig.packVibration = 5;
+        break;
       }
 
       // Cyclotron Lid
@@ -592,29 +595,46 @@ void checkSerial1() {
           switch(packConfig.packVibration) {
             case 1:
               b_vibration_switch_on = true; // Override the vibration toggle switch.
-              b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
-              b_vibration_enabled = true; // Enable pack vibration.
               VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
+              VIBRATION_MODE = VIBRATION_MODE_EEPROM;
             break;
 
             case 2:
               b_vibration_switch_on = true; // Override the vibration toggle switch.
-              b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
-              b_vibration_enabled = true; // Enable pack vibration.
               VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
+              VIBRATION_MODE = VIBRATION_MODE_EEPROM;
             break;
 
             case 3:
-              b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
-              b_vibration_enabled = false; // Disable pack vibration.
               VIBRATION_MODE_EEPROM = VIBRATION_NONE;
+              VIBRATION_MODE = VIBRATION_MODE_EEPROM;
             break;
 
             case 4:
             default:
-              b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
-              b_vibration_enabled = true; // Enable pack vibration.
               VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
+              VIBRATION_MODE = VIBRATION_FIRING_ONLY;
+
+              // Reset the vibration switch state.
+              if(switch_vibration.getState() == LOW) {
+                b_vibration_switch_on = true;
+              }
+              else {
+                b_vibration_switch_on = false;
+              }
+            break;
+
+            case 5:
+              VIBRATION_MODE_EEPROM = CYCLOTRON_MOTOR;
+              VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+
+              // Reset the vibration switch state.
+              if(switch_vibration.getState() == LOW) {
+                b_vibration_switch_on = true;
+              }
+              else {
+                b_vibration_switch_on = false;
+              }
             break;
           }
 
@@ -1656,7 +1676,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         playEffect(S_BOSON_DART_FIRE, false, i_volume_effects, false, 0, false);
       }
 
-      if(b_vibration_firing && b_vibration_switch_on) {
+      if(VIBRATION_MODE == VIBRATION_FIRING_ONLY && b_vibration_switch_on) {
         ms_menu_vibration.start(350); // If vibrate while firing is enabled and vibration switch is on, vibrate the pack.
       }
     break;
@@ -1664,7 +1684,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_SHOCK_BLAST_SOUND:
       playEffect(S_SHOCK_BLAST_FIRE, false, i_volume_effects, false, 0, false);
 
-      if(b_vibration_firing && b_vibration_switch_on) {
+      if(VIBRATION_MODE == VIBRATION_FIRING_ONLY && b_vibration_switch_on) {
         ms_menu_vibration.start(300); // If vibrate while firing is enabled and vibration switch is on, vibrate the pack.
       }
     break;
@@ -1676,7 +1696,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_MESON_COLLIDER_SOUND:
       playEffect(S_MESON_COLLIDER_FIRE, false, i_volume_effects, false, 0, false);
 
-      if(b_vibration_firing && b_vibration_switch_on) {
+      if(VIBRATION_MODE == VIBRATION_FIRING_ONLY && b_vibration_switch_on) {
         ms_menu_vibration.start(200); // If vibrate while firing is enabled and vibration switch is on, vibrate the pack.
       }
     break;
@@ -2622,48 +2642,77 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       playEffect(S_BEEPS_ALT);
 
-      if(b_vibration_enabled == false) {
-        b_vibration_enabled = true; // Enable pack vibration.
-        b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
+      switch(VIBRATION_MODE) {
+        case VIBRATION_ALWAYS:
+          VIBRATION_MODE = VIBRATION_FIRING_ONLY;
+          b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
 
-        // Proton Pack vibration enabled.
-        stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
-        stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
-        stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
+          // Proton Pack vibration while firing enabled.
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
+          stopEffect(S_VOICE_MOTORIZED_CYCLOTRON_ENABLED);
 
-        playEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
+          playEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
 
-        packSerialSend(P_PACK_VIBRATION_ENABLED);
+          packSerialSend(P_PACK_VIBRATION_FIRING_ENABLED);
 
-        ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
-      }
-      else if(b_vibration_enabled == true && b_vibration_firing != true) {
-        b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
-        b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
+          ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
+        break;
 
-        // Proton Pack vibration while firing enabled.
-        stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
-        stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
-        stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
+        case VIBRATION_FIRING_ONLY:
+        default:
+          VIBRATION_MODE = VIBRATION_NONE;
 
-        playEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
+          // Proton Pack vibration disabled.
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
+          stopEffect(S_VOICE_MOTORIZED_CYCLOTRON_ENABLED);
 
-        packSerialSend(P_PACK_VIBRATION_FIRING_ENABLED);
+          playEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
 
-        ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
-      }
-      else {
-        b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
-        b_vibration_enabled = false; // Disable pack vibration.
+          packSerialSend(P_PACK_VIBRATION_DISABLED);
+        break;
 
-        // Proton Pack vibration disabled.
-        stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
-        stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
-        stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
+        case VIBRATION_NONE:
+          VIBRATION_MODE = CYCLOTRON_MOTOR;
 
-        playEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
+          // Reset the vibration switch state.
+          if(switch_vibration.getState() == LOW) {
+            b_vibration_switch_on = true;
+          }
+          else {
+            b_vibration_switch_on = false;
+          }
 
-        packSerialSend(P_PACK_VIBRATION_DISABLED);
+          // Proton Pack motorized cyclotron support enabled.
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
+          stopEffect(S_VOICE_MOTORIZED_CYCLOTRON_ENABLED);
+
+          playEffect(S_VOICE_MOTORIZED_CYCLOTRON_ENABLED);
+
+          packSerialSend(P_PACK_MOTORIZED_CYCLOTRON_ENABLED);
+        break;
+
+        case CYCLOTRON_MOTOR:
+          VIBRATION_MODE = VIBRATION_ALWAYS;
+          b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
+
+          // Proton Pack vibration enabled.
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
+          stopEffect(S_VOICE_MOTORIZED_CYCLOTRON_ENABLED);
+
+          playEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
+
+          packSerialSend(P_PACK_VIBRATION_ENABLED);
+
+          ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
+        break;
       }
     break;
 
@@ -2676,8 +2725,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         case VIBRATION_DEFAULT:
         default:
           VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
-          b_vibration_enabled = true; // Enable pack vibration.
-          b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
+          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
           b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
 
           // Proton Pack vibration enabled.
@@ -2685,6 +2733,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
           stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
           stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
+          stopEffect(S_VOICE_MOTORIZED_CYCLOTRON_ENABLED);
 
           playEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
 
@@ -2694,8 +2743,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
         case VIBRATION_ALWAYS:
           VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
-          b_vibration_enabled = true; // Enable pack vibration.
-          b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
+          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
           b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
 
           // Proton Pack vibration firing enabled.
@@ -2703,6 +2751,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
           stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
           stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
+          stopEffect(S_VOICE_MOTORIZED_CYCLOTRON_ENABLED);
 
           playEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
 
@@ -2712,25 +2761,47 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
         case VIBRATION_FIRING_ONLY:
           VIBRATION_MODE_EEPROM = VIBRATION_NONE;
-          b_vibration_enabled = false; // Disable pack vibration.
-          b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
+          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
 
           // Proton Pack vibration disabled.
           stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
           stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
           stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
           stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
+          stopEffect(S_VOICE_MOTORIZED_CYCLOTRON_ENABLED);
 
           playEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
 
           packSerialSend(P_PACK_VIBRATION_DISABLED);
         break;
         case VIBRATION_NONE:
-          VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
-          b_vibration_enabled = true; // Enable pack vibration.
-          b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
+          VIBRATION_MODE_EEPROM = CYCLOTRON_MOTOR;
+          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
 
-          // Reset the vibration state.
+          // Reset the vibration switch state.
+          if(switch_vibration.getState() == LOW) {
+            b_vibration_switch_on = true;
+          }
+          else {
+            b_vibration_switch_on = false;
+          }
+
+          // Proton Pack motorized cyclotron support enabled.
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
+          stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
+          stopEffect(S_VOICE_MOTORIZED_CYCLOTRON_ENABLED);
+
+          playEffect(S_VOICE_MOTORIZED_CYCLOTRON_ENABLED);
+
+          packSerialSend(P_PACK_MOTORIZED_CYCLOTRON_ENABLED);
+        break;
+        case CYCLOTRON_MOTOR:
+          VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
+          VIBRATION_MODE = VIBRATION_FIRING_ONLY;
+
+          // Reset the vibration switch state.
           if(switch_vibration.getState() == LOW) {
             b_vibration_switch_on = true;
           }
@@ -2743,6 +2814,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
           stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
           stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
+          stopEffect(S_VOICE_MOTORIZED_CYCLOTRON_ENABLED);
 
           playEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
 
@@ -4107,14 +4179,14 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         stopEffect(S_VOICE_POWERCELL_INVERTED);
 
         playEffect(S_VOICE_POWERCELL_NOT_INVERTED);
-        packSerialSend(P_POWERCELL_NOT_INVERTED);        
+        packSerialSend(P_POWERCELL_NOT_INVERTED);
       }
       else {
         b_powercell_invert = true;
 
         stopEffect(S_VOICE_POWERCELL_INVERTED);
         stopEffect(S_VOICE_POWERCELL_NOT_INVERTED);
-        
+
         playEffect(S_VOICE_POWERCELL_INVERTED);
         packSerialSend(P_POWERCELL_INVERTED);
       }

@@ -371,7 +371,7 @@ String getPackConfig() {
     jsonBody["defaultYearThemePack"] = packConfig.defaultYearThemePack; // [1=TOGGLE,2=1984,3=1989,4=2021,5=2024]
     jsonBody["currentYearThemePack"] = packConfig.currentYearThemePack; // [2=1984,3=1989,4=2021,5=2024]
     jsonBody["defaultSystemVolume"] = packConfig.defaultSystemVolume; // 0-100
-    jsonBody["packVibration"] = packConfig.packVibration; // [1=ALWAYS,2=FIRING,3=NEVER,4=TOGGLE]
+    jsonBody["packVibration"] = packConfig.packVibration; // [1=ALWAYS,2=FIRING,3=NEVER,4=TOGGLE,5=MOTORIZED_CYCLOTRON]
     jsonBody["protonStreamEffects"] = packConfig.protonStreamEffects; // true|false
     jsonBody["ribbonCableAlarm"] = packConfig.ribbonCableAlarm; // true|false
     jsonBody["overheatStrobeNF"] = packConfig.overheatStrobeNF; // true|false

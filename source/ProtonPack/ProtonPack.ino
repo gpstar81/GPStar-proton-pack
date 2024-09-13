@@ -146,6 +146,7 @@ void setup() {
 
   // Set default vibration mode.
   VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
+  VIBRATION_MODE = VIBRATION_FIRING_ONLY;
 
   // Configure the vibration state.
   if(switch_vibration.getState() == LOW) {
@@ -299,8 +300,8 @@ void loop() {
         }
 
         if(b_2021_ramp_down == true && b_overheating == false && b_alarm == false) {
-          // If we enter the LED EEPROM menu while the pack is ramping off, stop it right away.
           if(b_spectral_lights_on == true) {
+            // If we enter the LED EEPROM menu while the pack is ramping off, stop it right away.
             packOffReset();
             spectralLightsOn();
           }
@@ -976,6 +977,11 @@ void packStartup(bool firstStart) {
       serial1Send(A_ALARM_OFF);
     }
 
+    // Start up the Cyclotron motor, if enabled.
+    if(VIBRATION_MODE == CYCLOTRON_MOTOR) {
+      digitalWrite(VIBRATION_PIN, HIGH);
+    }
+
     stopEffect(S_PACK_RIBBON_ALARM_1);
     stopEffect(S_ALARM_LOOP);
     stopEffect(S_RIBBON_CABLE_START);
@@ -1265,7 +1271,7 @@ void packOffReset() {
   ms_cyclotron.start(i_2021_delay);
   ms_cyclotron_ring.start(i_inner_ramp_delay);
 
-  // Vibration motor off.
+  // Vibration/Cyclotron motor off.
   vibrationOff();
   i_vibration_level = 0;
 
@@ -1318,10 +1324,6 @@ void setYearModeByToggle() {
           playEffect(S_VOICE_1984);
         }
       }
-
-      // Reset the pack variables to match the new year mode.
-      resetRampSpeeds();
-      packOffReset();
     }
   }
   else {
@@ -1353,12 +1355,12 @@ void setYearModeByToggle() {
           playEffect(S_VOICE_FROZEN_EMPIRE);
         }
       }
-
-      // Reset the pack variables to match the new year mode.
-      resetRampSpeeds();
-      packOffReset();
     }
   }
+
+  // Reset the pack variables to match the new year mode.
+  resetRampSpeeds();
+  packOffReset();
 }
 
 void checkSwitches() {
@@ -1435,7 +1437,7 @@ void checkSwitches() {
     stopEffect(S_VOICE_VIBRATION_DISABLED);
 
     if(switch_vibration.getState() == LOW) {
-      if(b_vibration_switch_on == false) {
+      if(!b_vibration_switch_on) {
         // Tell the wand to enable vibration.
         packSerialSend(P_VIBRATION_ENABLED);
 
@@ -1445,7 +1447,7 @@ void checkSwitches() {
       }
     }
     else {
-      if(b_vibration_switch_on == true) {
+      if(b_vibration_switch_on) {
         // Tell the wand to disable vibration.
         packSerialSend(P_VIBRATION_DISABLED);
 
@@ -3705,7 +3707,7 @@ void cyclotronOverheating() {
           vibrationPack(i_vibration_lowest_level);
         }
         else {
-          vibrationOff();
+          vibrationPack(0);
         }
       }
 
@@ -3746,7 +3748,7 @@ void cyclotronOverheating() {
           }
         }
         else {
-          vibrationOff();
+          vibrationPack(0);
         }
       }
     break;
@@ -4646,8 +4648,8 @@ void wandFiring() {
 void modeFireStopSounds() {
   wandStopFiringSounds();
 
-  if(b_wand_firing == true) {
-    if(b_wand_mash_lockout != true) {
+  if(b_wand_firing) {
+    if(!b_wand_mash_lockout) {
       switch(STREAM_MODE) {
         case PROTON:
         default:
@@ -4890,7 +4892,7 @@ void wandStopFiringSounds() {
         stopEffect(S_CROSS_STREAMS_END);
       }
 
-      if(b_wand_mash_lockout != true) {
+      if(!b_wand_mash_lockout) {
         playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
       }
     break;
@@ -4903,7 +4905,7 @@ void wandStopFiringSounds() {
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
       }
 
-      if(b_wand_mash_lockout != true) {
+      if(!b_wand_mash_lockout) {
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
       }
     break;
@@ -5004,6 +5006,11 @@ void packAlarm() {
   // Turn off LEDs within the Cyclotron cavity if lid is not attached.
   if(b_cyclotron_lid_on != true) {
     innerCyclotronCavityOff();
+  }
+
+  // Turn off the Cyclotron motor, if enabled.
+  if(VIBRATION_MODE == CYCLOTRON_MOTOR) {
+    vibrationOff();
   }
 }
 
@@ -5162,7 +5169,7 @@ void cyclotronSwitchPlateLEDs() {
     }
 
     // Change colors for vibration switch indicator.
-    if(b_vibration_switch_on == true) {
+    if(b_vibration_switch_on) {
       if(ms_cyclotron_switch_plate_leds.remaining() < i_cyclotron_switch_plate_leds_delay / 2) {
         digitalWriteFast(VIBRATION_TOGGLE_LED_PIN, HIGH);
 
@@ -5203,8 +5210,8 @@ void cyclotronSwitchPlateLEDs() {
 }
 
 void vibrationPack(uint8_t i_level) {
-  if(b_vibration_enabled == true && b_vibration_switch_on == true && i_level > 0) {
-    if(b_vibration_firing == true) {
+  if(VIBRATION_MODE != VIBRATION_NONE && VIBRATION_MODE != CYCLOTRON_MOTOR && b_vibration_switch_on && i_level > 0) {
+    if(VIBRATION_MODE == VIBRATION_FIRING_ONLY) {
       if(b_wand_firing == true) {
         if(i_level != i_vibration_level_prev) {
           i_vibration_level_prev = i_level;
@@ -5222,23 +5229,25 @@ void vibrationPack(uint8_t i_level) {
       }
     }
   }
-  else {
+  else if(VIBRATION_MODE != CYCLOTRON_MOTOR) {
     vibrationOff();
   }
 }
 
 void checkMenuVibration() {
-  if(ms_menu_vibration.justFinished()) {
-    vibrationOff();
-  }
-  else if(ms_menu_vibration.isRunning()) {
-    if(PACK_STATE == MODE_OFF) {
-      // If we're off we must be in the EEPROM Config Menu; vibrate at 59%.
-      analogWrite(VIBRATION_PIN, 150);
+  if(VIBRATION_MODE != CYCLOTRON_MOTOR) {
+    if(ms_menu_vibration.justFinished()) {
+      vibrationOff();
     }
-    else {
-      // If we're on we must be firing a semi-auto blast; vibrate at 71%.
-      analogWrite(VIBRATION_PIN, 180);
+    else if(ms_menu_vibration.isRunning()) {
+      if(PACK_STATE == MODE_OFF) {
+        // If we're off we must be in the EEPROM Config Menu; vibrate at 59%.
+        analogWrite(VIBRATION_PIN, 150);
+      }
+      else {
+        // If we're on we must be firing a semi-auto blast; vibrate at 71%.
+        analogWrite(VIBRATION_PIN, 180);
+      }
     }
   }
 }
@@ -5246,7 +5255,7 @@ void checkMenuVibration() {
 void vibrationOff() {
   ms_menu_vibration.stop();
   i_vibration_level_prev = 0;
-  analogWrite(VIBRATION_PIN, 0);
+  digitalWrite(VIBRATION_PIN, LOW);
 }
 
 void cyclotronSpeedRevert() {
@@ -5584,7 +5593,7 @@ void wandExtraSoundsStop() {
 
   stopEffect(S_WAND_BOOTUP);
 
-  if(b_wand_mash_lockout == true || PACK_STATE == MODE_OFF) {
+  if(b_wand_mash_lockout || PACK_STATE == MODE_OFF) {
     stopSmashErrorSounds();
   }
 }
@@ -5810,7 +5819,7 @@ void startWandMashLockout(uint16_t i_timeout) {
     break;
   }
 
-  // Flag that the smash error sequence is in effect.
+  // Flag that the button mash error sequence is in effect.
   b_wand_mash_lockout = true;
   stopSmashErrorSounds();
 
@@ -5824,6 +5833,11 @@ void startWandMashLockout(uint16_t i_timeout) {
 
     playEffect(S_FROZEN_EMPIRE_PACK_FREEZE_STOP);
     playEffect(S_STASIS_IDLE_LOOP, true, i_volume_effects, true, 2500);
+
+    // Stop the cyclotron motor, if enabled.
+    if(VIBRATION_MODE == CYCLOTRON_MOTOR) {
+      vibrationOff();
+    }
 
     // Stop all light functions by use of adjusting the timers.
     ms_mash_lockout.start(i_timeout);
@@ -5857,6 +5871,11 @@ void restartFromWandMash() {
         ms_powercell.start(0);
         ms_cyclotron.start(0);
         ms_cyclotron_ring.start(0);
+
+        // Restart the Cyclotron motor, if enabled.
+        if(VIBRATION_MODE == CYCLOTRON_MOTOR) {
+          digitalWrite(VIBRATION_PIN, HIGH);
+        }
       break;
       default:
         // Play pack restart sound.
