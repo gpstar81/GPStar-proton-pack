@@ -69,7 +69,7 @@ enum POWER_LEVELS POWER_LEVEL_PREV;
  */
 #define SYSTEM_LED_PIN 10
 #define CYCLOTRON_LED_COUNT 7 // GPStar 7-LED Jewel
-#define BARREL_LED_COUNT 7 // GPStar 7-LED LED
+#define BARREL_LED_COUNT 7 // GPStar 7-LED Jewel
 CRGB system_leds[CYCLOTRON_LED_COUNT + BARREL_LED_COUNT];
 const uint8_t i_barrel_led = 6; // This will be the index of the light (#7), not the count
 const uint8_t i_num_barrel_leds = CYCLOTRON_LED_COUNT; // This will be the number of barrel LEDs

@@ -978,7 +978,7 @@ void packStartup(bool firstStart) {
     }
 
     // Start up the Cyclotron motor, if enabled.
-    if(VIBRATION_MODE == CYCLOTRON_MOTOR) {
+    if(VIBRATION_MODE == CYCLOTRON_MOTOR && b_vibration_switch_on) {
       digitalWrite(VIBRATION_PIN, HIGH);
     }
 
@@ -5873,7 +5873,7 @@ void restartFromWandMash() {
         ms_cyclotron_ring.start(0);
 
         // Restart the Cyclotron motor, if enabled.
-        if(VIBRATION_MODE == CYCLOTRON_MOTOR) {
+        if(VIBRATION_MODE == CYCLOTRON_MOTOR && b_vibration_switch_on) {
           digitalWrite(VIBRATION_PIN, HIGH);
         }
       break;
