@@ -209,7 +209,7 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
     <hr/>
     <a href="/">&laquo; Back</a>
     &nbsp;&nbsp;
-    <button type="button" class="green" style="width:120px" onclick="saveSettings()">Update&nbsp;Settings</button>
+    <button type="button" class="green" style="width:120px" onclick="saveSettings()" id="btnSave">Update&nbsp;Settings</button>
     <br/>
     <br/>
   </div>
@@ -220,6 +220,9 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
     function onLoad(event) {
       // Wait 0.5s for serial communications between devices.
       setTimeout(getSettings, 500);
+
+      // Disable the save button until we obtain settings.
+      getEl("btnSave").disabled = true;
     }
 
     function getEl(id){
@@ -260,6 +263,9 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
             if (settings.packPowered || settings.wandPowered) {
               alert("Pack and/or Wand are currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings.");
             }
+
+            // Valid settings were received and both the pack and wand are off, so allow updating settings.
+            getEl("btnSave").disabled = false;
 
             getEl("smokeEnabled").checked = settings.smokeEnabled ? true: false;
 

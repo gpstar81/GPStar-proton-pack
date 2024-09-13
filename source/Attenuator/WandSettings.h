@@ -201,7 +201,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     <hr/>
     <a href="/">&laquo; Back</a>
     &nbsp;&nbsp;
-    <button type="button" class="green" style="width:120px" onclick="saveSettings()" id="btnUpdateWandSettings">Update&nbsp;Settings</button>
+    <button type="button" class="green" style="width:120px" onclick="saveSettings()" id="btnSave">Update&nbsp;Settings</button>
     <br/>
     <br/>
   </div>
@@ -212,6 +212,9 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     function onLoad(event) {
       // Wait 0.4s for serial communications between devices.
       setTimeout(getSettings, 400);
+
+      // Disable the save button until we obtain settings.
+      getEl("btnSave").disabled = true;
     }
 
     function getEl(id){
@@ -257,8 +260,6 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         if (this.readyState == 4 && this.status == 200) {
           var settings = JSON.parse(this.responseText);
           if (settings) {
-            getEl("btnUpdateWandSettings").disabled = true;
-
             if (!settings.prefsAvailable) {
               alert("Preferences could not be downloaded. Please confirm a GPStar-powered wand is connected, then refresh the page to try again.");
               return;
@@ -270,7 +271,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
             }
 
             // Valid settings were received and both the pack and wand are off, so allow updating settings.
-            getEl("btnUpdateWandSettings").disabled = false;
+            getEl("btnSave").disabled = false;
 
             /**
              * Note: Colour (hue) value range for FastLED uses the following scale, though CSS uses 0-360 for HSL colour.
