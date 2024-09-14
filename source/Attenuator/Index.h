@@ -84,7 +84,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       <p>
         <span class="infoLabel">Powercell:</span>
         <span id="battHealth"></span>
-        <span class="infoState" id="battVoltage">&mdash;</span>
+        <span class="infoState" id="battVoltageTXT">&mdash;</span>
         <span style="font-size: 0.8em">GeV</span>
       </p>
     </div>

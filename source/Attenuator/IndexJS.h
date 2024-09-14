@@ -372,7 +372,7 @@ function updateGraphics(jObj){
       }
     } else {
       // Wand is considered "disconnected" as no serial communication exists.
-      setEl("powerLevel", "&mdash;");
+      setEl("powerLevel", "");
       if (parseFloat(jObj.wandAmps || 0) > 0.01) {
         // If we have a non-zero amperage reading, display that as it means a stock wand is attached.
         setEl("streamMode", "Stream: " + parseFloat((jObj.wandAmps || 0).toFixed(2)) + " GW");
@@ -416,7 +416,7 @@ function updateGraphics(jObj){
     blinkEl("filterOverlay", false);
     hideEl("barrelOverlay");
     blinkEl("barrelOverlay", false);
-    setEl("powerLevel", "&mdash;");
+    setEl("powerLevel", "");
     setEl("streamMode", "- Disengaged -");
     colorEl("safetyOverlay", 100, 100, 100);
     setEl("battVoltage", "");
@@ -462,14 +462,13 @@ function updateEquipment(jObj) {
 
     if (jObj.battVoltage) {
       // Voltage should typically be <5.0 but >4.2 under normal use; anything below that indicates high drain.
-      setEl("battVoltage", parseFloat((jObj.battVoltage || 0).toFixed(2)));
+      setEl("battVoltageTXT", parseFloat((jObj.battVoltage || 0).toFixed(2)));
       if (jObj.battVoltage < 4.2) {
         setEl("battHealth", "&#129707;"); // Draining Battery
       } else {
         setEl("battHealth", "&#128267;"); // Healthy Battery
       }
     } else {
-      setEl("battVoltage", "...");
       setEl("battHealth", "");
     }
 
