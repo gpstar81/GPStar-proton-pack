@@ -1035,7 +1035,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
               if(switch_vent.on() == false) {
                 stopAfterLifeSounds();
-                playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 1);
+                playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - i_wand_sound_level);
 
                 if(b_extra_pack_sounds == true) {
                   wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
@@ -1139,7 +1139,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
               stopAfterLifeSounds();
             }
 
-            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 1);
+            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - i_wand_sound_level);
           break;
         }
 

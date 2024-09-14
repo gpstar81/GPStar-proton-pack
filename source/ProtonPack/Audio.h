@@ -178,67 +178,118 @@ void updateEffectsVolume() {
   switch(AUDIO_DEVICE) {
     case A_WAV_TRIGGER:
     case A_GPSTAR_AUDIO:
-      // Since adjusting only from the wand, only certain effects need to be adjusted on the fly.
-      audio.trackGain(S_BEEPS, i_volume_effects);
-      audio.trackGain(S_BEEPS_ALT, i_volume_effects);
-      audio.trackGain(S_BEEPS_LOW, i_volume_effects);
-      audio.trackGain(S_BEEPS_BARGRAPH, i_volume_effects);
+      // Only effects that are long or looped require adjustment.
+      audio.trackGain(S_BEEP_8, i_volume_effects);
       audio.trackGain(S_WAND_BOOTUP, i_volume_effects);
       audio.trackGain(S_PACK_RIBBON_ALARM_1, i_volume_effects);
       audio.trackGain(S_ALARM_LOOP, i_volume_effects);
+      audio.trackGain(S_SMASH_ERROR_LOOP, i_volume_effects);
       audio.trackGain(S_RIBBON_CABLE_START, i_volume_effects);
+      audio.trackGain(S_STEAM_LOOP, i_volume_effects);
       audio.trackGain(S_SHUTDOWN, i_volume_effects);
 
-      if(SYSTEM_YEAR == SYSTEM_1989) {
-        audio.trackGain(S_GB2_PACK_START, i_volume_effects);
-        audio.trackGain(S_GB2_PACK_LOOP, i_volume_effects);
-        audio.trackGain(S_GB2_PACK_OFF, i_volume_effects);
+      switch(SYSTEM_YEAR) {
+        case SYSTEM_1984:
+          audio.trackGain(S_GB1_1984_BOOT_UP, i_volume_effects);
+          audio.trackGain(S_GB1_1984_PACK_LOOP, i_volume_effects);
+        break;
+
+        case SYSTEM_1989:
+          audio.trackGain(S_GB2_PACK_START, i_volume_effects);
+          audio.trackGain(S_GB2_PACK_LOOP, i_volume_effects);
+        break;
+
+        case SYSTEM_AFTERLIFE:
+        case SYSTEM_FROZEN_EMPIRE:
+        default:
+          if(STREAM_MODE == SLIME) {
+            // In slime blower mode these sounds have lower volume than normal.
+            audio.trackGain(S_BOOTUP, i_volume_effects - 30);
+            audio.trackGain(S_AFTERLIFE_PACK_STARTUP, i_volume_effects - 30);
+            audio.trackGain(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 40);
+            audio.trackGain(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, i_volume_effects - 40);
+          }
+          else {
+            audio.trackGain(S_BOOTUP, i_volume_effects);
+            audio.trackGain(S_AFTERLIFE_PACK_STARTUP, i_volume_effects);
+            audio.trackGain(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects);
+            audio.trackGain(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, i_volume_effects);
+          }
+
+          audio.trackGain(S_PACK_SHUTDOWN_AFTERLIFE_ALT, i_volume_effects);
+          audio.trackGain(S_FROZEN_EMPIRE_SHUTDOWN, i_volume_effects);
+          audio.trackGain(S_POWERCELL, i_volume_effects - i_wand_beep_level);
+          audio.trackGain(S_AFTERLIFE_BEEP_WAND_S1, i_volume_effects - i_wand_beep_level);
+          audio.trackGain(S_AFTERLIFE_BEEP_WAND_S2, i_volume_effects - i_wand_beep_level);
+          audio.trackGain(S_AFTERLIFE_BEEP_WAND_S3, i_volume_effects - i_wand_beep_level);
+          audio.trackGain(S_AFTERLIFE_BEEP_WAND_S4, i_volume_effects - i_wand_beep_level);
+          audio.trackGain(S_AFTERLIFE_BEEP_WAND_S5, i_volume_effects - i_wand_beep_level);
+          audio.trackGain(S_AFTERLIFE_WAND_RAMP_1, i_volume_effects - i_wand_idle_level);
+          audio.trackGain(S_AFTERLIFE_WAND_RAMP_2, i_volume_effects - i_wand_idle_level);
+          audio.trackGain(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, i_volume_effects - i_wand_idle_level);
+          audio.trackGain(S_AFTERLIFE_WAND_IDLE_1, i_volume_effects - i_wand_idle_level);
+          audio.trackGain(S_AFTERLIFE_WAND_IDLE_2, i_volume_effects - i_wand_idle_level);
+          audio.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2, i_volume_effects - i_wand_idle_level);
+          audio.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, i_volume_effects - i_wand_idle_level);
+          audio.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_1, i_volume_effects - i_wand_idle_level);
+          audio.trackGain(S_PACK_BEEPS_OVERHEAT, i_volume_effects);
+          audio.trackGain(S_PACK_OVERHEAT_HOT, i_volume_effects);
+
+          if(b_brass_pack_sound_loop) {
+            audio.trackGain(S_FROZEN_EMPIRE_BOOT_EFFECT, i_volume_effects);
+          }
+        break;
       }
 
-      if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
-        audio.trackGain(S_PACK_SHUTDOWN, i_volume_effects);
-      }
+      switch(STREAM_MODE) {
+        case PROTON:
+        default:
+          if(b_wand_firing) {
+            audio.trackGain(S_GB1_FIRE_HIGH_POWER_LOOP, i_volume_effects);
+            audio.trackGain(S_GB1_1984_FIRE_LOOP_PACK, i_volume_effects);
+            audio.trackGain(S_FIRING_LOOP_GB1, i_volume_effects);
 
-      if(SYSTEM_YEAR == SYSTEM_1984) {
-        audio.trackGain(S_IDLE_LOOP, i_volume_effects);
-        audio.trackGain(S_BOOTUP, i_volume_effects);
-      }
+            switch(SYSTEM_YEAR) {
+              case SYSTEM_1984:
+                audio.trackGain(S_GB1_1984_FIRE_HIGH_POWER_LOOP, i_volume_effects);
+              break;
 
-      if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE || SYSTEM_YEAR == SYSTEM_AFTERLIFE) {
-        audio.trackGain(S_POWERCELL, i_volume_effects);
-        audio.trackGain(S_AFTERLIFE_BEEP_WAND_S1, i_volume_effects - i_wand_beep_level);
-        audio.trackGain(S_AFTERLIFE_BEEP_WAND_S2, i_volume_effects - i_wand_beep_level);
-        audio.trackGain(S_AFTERLIFE_BEEP_WAND_S3, i_volume_effects - i_wand_beep_level);
-        audio.trackGain(S_AFTERLIFE_BEEP_WAND_S4, i_volume_effects - i_wand_beep_level);
-        audio.trackGain(S_AFTERLIFE_BEEP_WAND_S5, i_volume_effects - i_wand_beep_level);
-        audio.trackGain(S_AFTERLIFE_PACK_STARTUP, i_volume_effects);
-        audio.trackGain(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects);
-        audio.trackGain(S_PACK_SHUTDOWN_AFTERLIFE_ALT, i_volume_effects);
-        audio.trackGain(S_FROZEN_EMPIRE_SHUTDOWN, i_volume_effects);
-        audio.trackGain(S_AFTERLIFE_WAND_RAMP_1, i_volume_effects - i_wand_idle_level);
-        audio.trackGain(S_AFTERLIFE_WAND_RAMP_2, i_volume_effects - i_wand_idle_level);
-        audio.trackGain(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, i_volume_effects - i_wand_idle_level);
-        audio.trackGain(S_AFTERLIFE_WAND_IDLE_1, i_volume_effects - i_wand_idle_level);
-        audio.trackGain(S_AFTERLIFE_WAND_IDLE_2, i_volume_effects - i_wand_idle_level);
-        audio.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2, i_volume_effects - i_wand_idle_level);
-        audio.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, i_volume_effects - i_wand_idle_level);
-        audio.trackGain(S_AFTERLIFE_WAND_RAMP_DOWN_1, i_volume_effects - i_wand_idle_level);
-      }
+              case SYSTEM_1989:
+                audio.trackGain(S_GB2_FIRE_LOOP, i_volume_effects);
+              break;
 
-      if(b_brass_pack_sound_loop) {
-        audio.trackGain(S_FROZEN_EMPIRE_BOOT_EFFECT, i_volume_effects);
-      }
+              case SYSTEM_AFTERLIFE:
+              default:
+                
+              break;
 
-      if(STREAM_MODE == SLIME) {
-        audio.trackGain(S_PACK_SLIME_TANK_LOOP, i_volume_effects);
-      }
+              case SYSTEM_FROZEN_EMPIRE:
+                
+              break;
+            }
+          }
+        break;
 
-      if(STREAM_MODE == STASIS) {
-        audio.trackGain(S_STASIS_IDLE_LOOP, i_volume_effects);
-      }
+        case SLIME:
+          audio.trackGain(S_PACK_SLIME_TANK_LOOP, i_volume_effects);
+          audio.trackGain(S_SLIME_REFILL, i_volume_effects);
 
-      if(STREAM_MODE == MESON) {
-        audio.trackGain(S_MESON_IDLE_LOOP, i_volume_effects);
+          if(b_wand_firing) {
+            audio.trackGain(S_SLIME_LOOP, i_volume_effects);
+          }
+        break;
+
+        case STASIS:
+          audio.trackGain(S_STASIS_IDLE_LOOP, i_volume_effects);
+
+          if(b_wand_firing) {
+            audio.trackGain(S_STASIS_LOOP, i_volume_effects);
+          }
+        break;
+
+        case MESON:
+          audio.trackGain(S_MESON_IDLE_LOOP, i_volume_effects);
+        break;
       }
     break;
 
@@ -315,18 +366,15 @@ void stopMusic() {
 }
 
 void pauseMusic() {
-  if(b_playing_music == true) {
-    // Tell connected devices music playback is paused.
-    serial1Send(A_MUSIC_IS_PAUSED);
+  if(b_playing_music && !b_music_paused) {
+    // Stop the music check timer.
+    ms_music_status_check.stop();
 
     // Pause music playback on the Proton Pack
     switch(AUDIO_DEVICE) {
       case A_WAV_TRIGGER:
       case A_GPSTAR_AUDIO:
-        if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
-          audio.trackPause(i_current_music_track);
-        }
-
+        audio.trackPause(i_current_music_track);
         audio.update();
       break;
 
@@ -337,11 +385,14 @@ void pauseMusic() {
     }
 
     b_music_paused = true;
+
+    // Tell connected devices music playback is paused.
+    serial1Send(A_MUSIC_IS_PAUSED);
   }
 }
 
 void resumeMusic() {
-  if(b_playing_music == true) {
+  if(b_music_paused) {
     // Reset the music check timer.
     ms_music_status_check.start(i_music_check_delay * 4);
 
@@ -350,11 +401,7 @@ void resumeMusic() {
       case A_WAV_TRIGGER:
       case A_GPSTAR_AUDIO:
         audio.resetTrackCounter(true);
-
-        if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
-          audio.trackResume(i_current_music_track);
-        }
-
+        audio.trackResume(i_current_music_track);
         audio.update();
       break;
 

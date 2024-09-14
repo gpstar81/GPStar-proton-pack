@@ -244,15 +244,15 @@ void stopMusic() {
 }
 
 void pauseMusic() {
-  if(b_playing_music) {
+  if(b_playing_music && !b_music_paused) {
     // Pause music playback on the Single-Shot Blaster
     switch(AUDIO_DEVICE) {
       case A_WAV_TRIGGER:
       case A_GPSTAR_AUDIO:
-        if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
-          audio.trackPause(i_current_music_track);
-        }
+        // Stop the music check timer.
+        ms_music_status_check.stop();
 
+        audio.trackPause(i_current_music_track);
         audio.update();
       break;
 
@@ -267,17 +267,15 @@ void pauseMusic() {
 }
 
 void resumeMusic() {
-  if(b_playing_music) {
+  if(b_music_paused) {
     // Resume music playback on the Single-Shot Blaster
+    ms_music_status_check.start(i_music_check_delay * 4);
+
     switch(AUDIO_DEVICE) {
       case A_WAV_TRIGGER:
       case A_GPSTAR_AUDIO:
         audio.resetTrackCounter(true);
-
-        if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
-          audio.trackResume(i_current_music_track);
-        }
-
+        audio.trackResume(i_current_music_track);
         audio.update();
       break;
 
@@ -288,9 +286,6 @@ void resumeMusic() {
     }
 
     b_music_paused = false;
-
-    // Keep track of music playback on the device directly.
-    ms_music_status_check.start(i_music_check_delay * 4);
   }
 }
 

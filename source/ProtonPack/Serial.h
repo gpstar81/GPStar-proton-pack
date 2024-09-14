@@ -979,7 +979,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
       else {
         i_volume_revert = i_volume_master;
 
-        // Set the master volume to silent.
+        // Set the master volume to minimum.
         i_volume_master = i_volume_abs_min;
 
         packSerialSend(P_MASTER_AUDIO_SILENT_MODE);
@@ -1048,9 +1048,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
           pauseMusic();
         }
         else {
-          if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
-            resumeMusic();
-          }
+          resumeMusic();
         }
       }
     break;

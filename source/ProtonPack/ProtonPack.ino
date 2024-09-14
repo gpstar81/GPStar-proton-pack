@@ -2064,7 +2064,7 @@ void powercellLoop() {
       if(b_powercell_updating != true) {
         if(((SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && b_cyclotron_lid_on && !b_wand_mash_lockout) || SYSTEM_YEAR == SYSTEM_AFTERLIFE) && i_powercell_led == 0 && !b_2021_ramp_up && !b_2021_ramp_down && !b_wand_firing && !b_alarm && !b_overheating) {
           if(b_powercell_sound_loop != true) {
-            playEffect(S_POWERCELL, true, i_volume_effects, true, 1400);
+            playEffect(S_POWERCELL, true, i_volume_effects - i_wand_beep_level, true, 1400);
             b_powercell_sound_loop = true;
           }
         }

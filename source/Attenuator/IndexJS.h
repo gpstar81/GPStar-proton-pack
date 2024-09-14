@@ -475,8 +475,17 @@ function updateEquipment(jObj) {
 
     // Volume Information
     setEl("masterVolume", (jObj.volMaster || 0) + "%");
+    if ((jObj.volMaster || 0) == 0) {
+      setEl("masterVolume", "Min");
+    }
     setEl("effectsVolume", (jObj.volEffects || 0) + "%");
+    if ((jObj.volEffects || 0) == 0) {
+      setEl("effectsVolume", "Min");
+    }
     setEl("musicVolume", (jObj.volMusic || 0) + "%");
+    if ((jObj.volMusic || 0) == 0) {
+      setEl("musicVolume", "Min");
+    }
 
     // Update special UI elements based on the latest data values.
     setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron);
