@@ -1054,15 +1054,15 @@ void packStartup(bool firstStart) {
 
     switch(STREAM_MODE) {
       case SLIME:
-        playEffect(S_PACK_SLIME_TANK_LOOP, true, 0, true, 900);
+        playEffect(S_PACK_SLIME_TANK_LOOP, true, i_volume_effects, true, 900);
       break;
 
       case STASIS:
-        playEffect(S_STASIS_IDLE_LOOP, true, 0, true, 900);
+        playEffect(S_STASIS_IDLE_LOOP, true, i_volume_effects, true, 900);
       break;
 
       case MESON:
-        playEffect(S_MESON_IDLE_LOOP, true, 0, true, 900);
+        playEffect(S_MESON_IDLE_LOOP, true, i_volume_effects, true, 900);
       break;
 
       default:
