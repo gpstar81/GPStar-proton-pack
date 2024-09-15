@@ -1028,27 +1028,39 @@ void packStartup(bool firstStart) {
       break;
 
       case SYSTEM_FROZEN_EMPIRE:
-        if(STREAM_MODE == SLIME) {
-          playEffect(S_BOOTUP, false, i_volume_effects - 30);
-          playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects - 40, true, 500);
-        }
-        else {
+        b_brass_pack_sound_loop = !b_cyclotron_lid_on && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM);
+
+        if(b_brass_pack_sound_loop) {
           playEffect(S_BOOTUP, false, i_volume_effects);
           playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects, true, 500);
+          playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects, true, 2000);
         }
+        else {
+          if(firstStart) {
+            if(STREAM_MODE == SLIME) {
+              playEffect(S_FROZEN_EMPIRE_PACK_STARTUP, false, i_volume_effects - 30);
+              playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects - 40, true, 10000);
+            }
+            else {
+              playEffect(S_FROZEN_EMPIRE_PACK_STARTUP, false, i_volume_effects);
+              playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects, true, 10000);
+            }
 
-        // Cyclotron lid is off, play the Frozen Empire sound effect.
-        if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-          if(!b_cyclotron_lid_on && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM)) {
-            b_brass_pack_sound_loop = true;
+            ms_idle_fire_fade.start(10000);
           }
+          else {
+            if(STREAM_MODE == SLIME) {
+              playEffect(S_BOOTUP, false, i_volume_effects - 30);
+              playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects - 40, true, 500);
+            }
+            else {
+              playEffect(S_BOOTUP, false, i_volume_effects);
+              playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects, true, 500);
+            }
 
-          if(b_brass_pack_sound_loop) {
-            playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects, true, 2000);
+            ms_idle_fire_fade.start(0);
           }
         }
-
-        ms_idle_fire_fade.start(0);
       break;
     }
 
