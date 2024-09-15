@@ -45,6 +45,26 @@ A web-based user interface is available at [http://192.168.1.2](http://192.168.1
 
 The equipment status will reflect the current state of your Proton Pack and Neutrona Wand and will update in real-time as you interact with those devices. This information is available as either a text-based or graphical display, or both if you prefer (set via Attenuator Preferences).
 
+When using the graphical display, most components of the Proton pack and Neutrona Wand are represented by color-coded overlays on the component will may be affected by runtime actions:
+
+- The top of the display will indicate the mode (Standard = Mode Original, Upgraded = Super Hero) along with the year theme (V1.9.8x or V2.0.2x).
+- When the Ion Arm switch is engaged for Mode Original, the overlay for the Ion Arm will be green to indicate a ready state. When in Super Hero mode this overlay will be green when the Proton Pack is powered on.
+- When the Proton Pack is powered on:
+	- The Powercell, Booster Tube, and Cyclotron overlays will be green as their default state.
+	- When the Cyclotron is in a normal state the overlay will be green. It will change to yellow then red as it goes through the pre-warning and overheat states. During venting the overlay will be blue to indicate the recovery period.
+	- The color state of the Booster Tube is linked to the "Output" text value which is the voltage measured at the Proton Pack PCB (in volts, but displayed as Gev). During high power draw events such as smoke generation the voltage can drop briefly, and will be reflected as a red overlay when that value is below 4.2V
+- When the Neutrona Wand is powered on, the overlay above the Activate/Intensify portion of the gun box will indicate if the barrel is retracted (red) or extended (green).
+- The current power level for the Neutrona Wand will be indicated by the "L-#" beside the barrel.
+- The type of firing mode will be displayed below the Neutrona Wand and will be color coded via the barrel. Color intensity increases with the power level.
+	- Proton Stream: Red (includes Spectral modes)
+	- Plasm System: Green (incl. for 1989 theme)
+	- Dark Matter Gen.: Blue
+	- Particle System: Orange
+	- Settings: Gray
+- When using the power-detection feature with a stock Haslab Neutrona Wand the default stream will be Proton with a power level of 5. Instead of the stream type being displayed, there will be a wattage value displayed as Gigawatts (GW).
+- If the Ribbon Cable is removed, a warning icon will appear over that component to indicate an alarm state.
+- When the Cyclotron lid is removed a radiation exposure warning will be displayed at the bottom of the CRT display.
+
 **Note:** When using the text-based display, if you see a "&mdash;" (dash) beside the labels it can indicate a potential communication issue. Simply refresh the page and/or check your WiFi connection to the device. In rare cases you may need to do a reboot of the ESP32 device via the admin tab.
 
 Special thanks and credit to fellow cosplayer [Alexander Hibbs (@BeaulieuDesigns87)](https://www.etsy.com/shop/BeaulieuDesigns87) from the [South Carolina Ghostbusters](https://www.facebook.com/SCGhostbusters/), who created the amazingly detailed Proton Pack and Neutrona Wand technical illustration, available as a [printed poster](https://www.etsy.com/listing/1406461576/proton-pack-blueprint-matte-poster) or [digital image](https://www.etsy.com/listing/1411559802/proton-pack-blueprint-digital-download). He has graciously provided a version of his design to make the new graphical interface.
