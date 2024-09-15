@@ -81,10 +81,10 @@ void setup() {
     preferences.begin("device", true); // Access namespace in read-only mode.
     // Return stored values if available, otherwise use a default value.
     b_invert_leds = preferences.getBool("invert_led", false);
-    b_enable_buzzer = preferences.getBool("buzzer_enabled", false);
-    b_enable_vibration = preferences.getBool("vibration_enabled", false);
-    b_overheat_feedback = preferences.getBool("overheat_feedback", false);
-    b_firing_feedback = preferences.getBool("firing_feedback", false);
+    b_enable_buzzer = preferences.getBool("use_buzzer", true);
+    b_enable_vibration = preferences.getBool("use_vibration", true);
+    b_overheat_feedback = preferences.getBool("use_overheat", true);
+    b_firing_feedback = preferences.getBool("fire_feedback", false);
     switch(preferences.getShort("radiation_idle", 0)) {
       case 0:
         RAD_LENS_IDLE = AMBER_PULSE;

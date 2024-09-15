@@ -72,7 +72,7 @@ Lockout mode is a special option for only the main dial to prevent accidental ch
 
 As part of the user experience, some actions initiated on the device or as a result of using your Proton Pack will trigger haptic feedback via a piezo buzzer and a vibration motor.
 
-These features may be disabled by default and will need to be enabled based on user preference. For more information on how to enable or disable these features via the device preferences, please see the [Wireless Operations](WIRELESS_OPERATION.md) guide.
+These features can be enabled or disabled based on user preference. For more information on how to enable or disable these features via the device preferences, please see the [Wireless Operations](WIRELESS_OPERATION.md) guide.
 
 ## Web Operation
 

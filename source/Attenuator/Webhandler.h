@@ -840,10 +840,10 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
 
     preferences.begin("device", false); // Access namespace in read/write mode.
     preferences.putBool("invert_led", b_invert_leds);
-    preferences.putBool("buzzer_enabled", b_enable_buzzer);
-    preferences.putBool("vibration_enabled", b_enable_vibration);
-    preferences.putBool("overheat_feedback", b_overheat_feedback);
-    preferences.putBool("firing_feedback", b_firing_feedback);
+    preferences.putBool("use_buzzer", b_enable_buzzer);
+    preferences.putBool("use_vibration", b_enable_vibration);
+    preferences.putBool("use_overheat", b_overheat_feedback);
+    preferences.putBool("fire_feedback", b_firing_feedback);
     preferences.putShort("radiation_idle", RAD_LENS_IDLE);
     preferences.putShort("display_type", DISPLAY_TYPE);
     if(songList.length() <= 2000) {
@@ -880,7 +880,7 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
     }
     else {
       jsonBody.clear();
-      jsonBody["status"] = "Settings updated on Attenuator";
+      jsonBody["status"] = "Settings updated on Attenuator.";
       serializeJson(jsonBody, result); // Serialize to string.
       request->send(200, "application/json", result);
     }
