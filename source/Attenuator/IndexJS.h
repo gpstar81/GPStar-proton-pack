@@ -182,8 +182,8 @@ function setButtonStates(mode, pack, wand, cyclotron) {
   getEl("btnPackOn").disabled = true;
   getEl("btnVent").disabled = true;
   getEl("btnAttenuate").disabled = true;
-  getEl("btnLOStart").disabled = true;
-  getEl("btnLOCancel").disabled = true;
+  //getEl("btnLOStart").disabled = true;
+  //getEl("btnLOCancel").disabled = true;
 
   if (pack == "Powered" && wand != "Powered") {
     // Can only turn off the pack, so long as the wand is not powered.
@@ -203,8 +203,8 @@ function setButtonStates(mode, pack, wand, cyclotron) {
 
   if (pack == "Powered" && (cyclotron == "Normal" || cyclotron == "Active") && wand != "Powered") {
     // Can only use manual lockout if pack is on, not already venting, and wand is off.
-    getEl("btnLOStart").disabled = false;
-    getEl("btnLOCancel").disabled = false;
+    //getEl("btnLOStart").disabled = false;
+    //getEl("btnLOCancel").disabled = false;
   }
 
   if (cyclotron == "Warning" || cyclotron == "Critical") {
