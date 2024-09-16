@@ -645,7 +645,7 @@ void handleManualVent(AsyncWebServerRequest *request) {
 
 void handleManualLockout(AsyncWebServerRequest *request) {
   debug("Manual Lockout Triggered");
-  attenuatorSerialSend(A_SYSTEM_LOCKOUT, 6000);
+  attenuatorSerialSend(A_SYSTEM_LOCKOUT);
   request->send(200, "application/json", status);
 }
 
@@ -722,7 +722,7 @@ void handlePrevMusicTrack(AsyncWebServerRequest *request) {
 }
 
 void handleLoopMusicTrack(AsyncWebServerRequest *request) {
-  debug("Loop Music Track");
+  debug("Toggle Music Track Loop");
   attenuatorSerialSend(A_MUSIC_TRACK_LOOP_TOGGLE);
   request->send(200, "application/json", status);
 }

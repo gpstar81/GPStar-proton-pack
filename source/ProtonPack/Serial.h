@@ -972,7 +972,18 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
 
     case A_SYSTEM_LOCKOUT:
       // Simulate a lockout as if by repeated button presses on the wand.
-      startWandMashLockout(i_value);
+      startWandMashLockout(6000);
+
+      switch(SYSTEM_YEAR) {
+        case SYSTEM_FROZEN_EMPIRE:
+          // No-op for this theme, as this is handled in startWandMashLockout
+        break;
+        default:
+          // Plays the alarm loop as heard on the wand.
+          stopSmashErrorSounds();
+          playEffect(S_SMASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
+        break;
+      }
     break;
 
     case A_CANCEL_LOCKOUT:
@@ -1072,6 +1083,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_MUSIC_TRACK_LOOP_TOGGLE:
+      debugln("Music Loop");
       toggleMusicLoop();
     break;
 
