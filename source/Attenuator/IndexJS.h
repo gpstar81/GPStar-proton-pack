@@ -195,8 +195,8 @@ function setButtonStates(mode, pack, wand, cyclotron) {
     getEl("btnPackOn").disabled = false;
   }
 
-  if (pack == "Powered" && (cyclotron == "Normal" || cyclotron == "Active")) {
-    // Can only use manual vent if pack is not already venting.
+  if (pack == "Powered" && (cyclotron == "Normal" || cyclotron == "Active") && firing != "Firing") {
+    // Can only use manual vent if pack is not already venting, and not currently firing.
     // eg. Cyclotron is not in the Warning, Critical, or Recovery states.
     getEl("btnVent").disabled = false;
   }
