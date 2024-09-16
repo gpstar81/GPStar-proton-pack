@@ -970,6 +970,16 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
       }
     break;
 
+    case A_SYSTEM_LOCKOUT:
+      // Simulate a lockout as if by repeated button presses on the wand.
+      startWandMashLockout(i_value);
+    break;
+
+    case A_CANCEL_LOCKOUT:
+      // Initiate a restart of the pack after a lockout event has occurred.
+      restartFromWandMash();
+    break;
+
     case A_TOGGLE_MUTE:
       if(i_volume_master == i_volume_abs_min) {
         i_volume_master = i_volume_revert;
@@ -1059,6 +1069,10 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
 
     case A_MUSIC_PREV_TRACK:
       musicPrevTrack();
+    break;
+
+    case A_MUSIC_TRACK_LOOP_TOGGLE:
+      toggleMusicLoop();
     break;
 
     case A_REQUEST_PREFERENCES_PACK:

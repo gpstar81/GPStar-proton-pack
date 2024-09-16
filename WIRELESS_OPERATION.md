@@ -226,6 +226,8 @@ The following URI's are API endpoints available for managing actions within your
 	PUT /pack/off - Turn the pack onf (subject to system state)
 	PUT /pack/attenuate - Cancel pack overheat via "attenuation"
 	PUT /pack/vent - Perform manual vent (subject to system state)
+	PUT /pack/lockout/start - Perform manual lockout (subject to system state)
+	PUT /pack/lockout/cancel - Cancel manual lockout (subject to system state)
 
 	PUT /volume/toggle - Toggle mute for all devices
 	PUT /volume/master/up - Increase system (master) volume
@@ -239,6 +241,7 @@ The following URI's are API endpoints available for managing actions within your
 	PUT /music/pauseresume - Toggle music playback via resume/pause
 	PUT /music/next - Move to next track
 	PUT /music/prev - Move to previous track
+	PUT /music/loop - Toggle looping of current track
 	PUT /music/select?track=[INTEGER] - Select a specific music track (Min Value: 500)
 
 	GET /wifi/settings - Returns the current external WiFi settings

@@ -182,6 +182,8 @@ function setButtonStates(mode, pack, wand, cyclotron) {
   getEl("btnPackOn").disabled = true;
   getEl("btnVent").disabled = true;
   getEl("btnAttenuate").disabled = true;
+  getEl("btnLOStart").disabled = true;
+  getEl("btnLOCancel").disabled = true;
 
   if (pack == "Powered" && wand != "Powered") {
     // Can only turn off the pack, so long as the wand is not powered.
@@ -197,6 +199,12 @@ function setButtonStates(mode, pack, wand, cyclotron) {
     // Can only use manual vent if pack is not already venting.
     // eg. Cyclotron is not in the Warning, Critical, or Recovery states.
     getEl("btnVent").disabled = false;
+  }
+
+  if (pack == "Powered" && (cyclotron == "Normal" || cyclotron == "Active") && wand != "Powered") {
+    // Can only use manual lockout if pack is on, not already venting, and wand is off.
+    getEl("btnLOStart").disabled = false;
+    getEl("btnLOCancel").disabled = false;
   }
 
   if (cyclotron == "Warning" || cyclotron == "Critical") {
@@ -613,6 +621,14 @@ function packVent() {
   sendCommand("/pack/vent");
 }
 
+function packLOStart() {
+  sendCommand("/pack/lockout/start");
+}
+
+function packLOCancel() {
+  sendCommand("/pack/lockout/cancel");
+}
+
 function toggleMute() {
   sendCommand("/volume/toggle");
 }
@@ -659,5 +675,9 @@ function musicSelect(caller) {
 
 function musicPrev() {
   sendCommand("/music/prev");
+}
+
+function musicLoop() {
+  sendCommand("/music/loop");
 }
 )=====";

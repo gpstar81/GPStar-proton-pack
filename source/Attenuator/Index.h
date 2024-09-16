@@ -113,6 +113,7 @@ const char INDEX_page[] PROGMEM = R"=====(
         </div>
       </div>
       <button type="button" class="orange" onclick="toggleMute()">Mute/Unmute</button>
+      <button type="button" class="orange" onclick="musicLoop()">Loop Track</button>
     </div>
     <div class="card">
       <h3 class="centered">Music Navigation</h3>
@@ -138,6 +139,12 @@ const char INDEX_page[] PROGMEM = R"=====(
       <button type="button" class="orange" onclick="packVent()" id="btnVent">Vent</button>
       &nbsp;&nbsp;
       <button type="button" class="blue" onclick="packAttenuate()" id="btnAttenuate">Attenuate</button>
+      <br/>
+      <br/>
+      <br/>
+      <button type="button" class="orange" onclick="packLOStart()" id="btnLOStart">Lockout</button>
+      &nbsp;&nbsp;
+      <button type="button" class="blue" onclick="packLOCancel()" id="btnLOCancel">Cancel</button>
     </div>
   </div>
 

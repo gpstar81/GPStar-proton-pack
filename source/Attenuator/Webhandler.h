@@ -643,6 +643,18 @@ void handleManualVent(AsyncWebServerRequest *request) {
   request->send(200, "application/json", status);
 }
 
+void handleManualLockout(AsyncWebServerRequest *request) {
+  debug("Manual Lockout Triggered");
+  attenuatorSerialSend(A_SYSTEM_LOCKOUT, 6000);
+  request->send(200, "application/json", status);
+}
+
+void handleCancelLockout(AsyncWebServerRequest *request) {
+  debug("Cancel Lockout Triggered");
+  attenuatorSerialSend(A_CANCEL_LOCKOUT);
+  request->send(200, "application/json", status);
+}
+
 void handleToggleMute(AsyncWebServerRequest *request) {
   debug("Toggle Mute");
   attenuatorSerialSend(A_TOGGLE_MUTE);
@@ -706,6 +718,12 @@ void handleNextMusicTrack(AsyncWebServerRequest *request) {
 void handlePrevMusicTrack(AsyncWebServerRequest *request) {
   debug("Prev Music Track");
   attenuatorSerialSend(A_MUSIC_PREV_TRACK);
+  request->send(200, "application/json", status);
+}
+
+void handleLoopMusicTrack(AsyncWebServerRequest *request) {
+  debug("Loop Music Track");
+  attenuatorSerialSend(A_MUSIC_TRACK_LOOP_TOGGLE);
   request->send(200, "application/json", status);
 }
 
@@ -1269,6 +1287,8 @@ void setupRouting() {
   httpServer.on("/pack/off", HTTP_PUT, handlePackOff);
   httpServer.on("/pack/attenuate", HTTP_PUT, handleAttenuatePack);
   httpServer.on("/pack/vent", HTTP_PUT, handleManualVent);
+  httpServer.on("/pack/lockout/start", HTTP_PUT, handleManualLockout);
+  httpServer.on("/pack/lockout/cancel", HTTP_PUT, handleCancelLockout);
   httpServer.on("/volume/toggle", HTTP_PUT, handleToggleMute);
   httpServer.on("/volume/master/up", HTTP_PUT, handleMasterVolumeUp);
   httpServer.on("/volume/master/down", HTTP_PUT, handleMasterVolumeDown);
@@ -1281,6 +1301,7 @@ void setupRouting() {
   httpServer.on("/music/next", HTTP_PUT, handleNextMusicTrack);
   httpServer.on("/music/select", HTTP_PUT, handleSelectMusicTrack);
   httpServer.on("/music/prev", HTTP_PUT, handlePrevMusicTrack);
+  httpServer.on("/music/loop", HTTP_PUT, handleLoopMusicTrack);
   httpServer.on("/wifi/settings", HTTP_GET, handleGetWifi);
 
   // Body Handlers
