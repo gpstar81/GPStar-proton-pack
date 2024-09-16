@@ -263,7 +263,7 @@ function updateBars(iPower, cMode) {
 }
 
 function updateGraphics(jObj){
-  // Update display if we have the expected data (containing mode and theme).
+  // Update display if we have the expected data (containing mode and theme at a minimum).
   if (jObj && jObj.mode && jObj.theme) {
     var color = getStreamColor(jObj.wandMode || "");
 
@@ -433,7 +433,7 @@ function updateGraphics(jObj){
 }
 
 function updateEquipment(jObj) {
-  // Update display if we have the expected data (containing mode and theme).
+  // Update display if we have the expected data (containing mode and theme at a minimum).
   if (jObj && jObj.mode && jObj.theme) {
     // Current Pack Status
     setEl("mode", jObj.mode || "...");
@@ -504,12 +504,12 @@ function updateEquipment(jObj) {
       musicTrackCurrent = jObj.musicCurrent || 0;
       updateTrackListing();
     }
+
+    // Connected Wifi Clients - Private AP vs. WebSocket
+    setEl("clientInfo", "AP Clients: " + (jObj.apClients || 0) + " / WebSocket Clients: " + (jObj.wsClients || 0));
+
+    updateGraphics(jObj);
   }
-
-  // Connected Wifi Clients - Private AP vs. WebSocket
-  setEl("clientInfo", "AP Clients: " + (jObj.apClients || 0) + " / WebSocket Clients: " + (jObj.wsClients || 0));
-
-  updateGraphics(jObj);
 }
 
 function handleStatus(response) {
@@ -527,6 +527,7 @@ function getStatus() {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
+      // Update the equipment (text) display, which will also update graphical elements.
       updateEquipment(JSON.parse(this.responseText));
     }
   };
