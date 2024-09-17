@@ -889,7 +889,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
         attenuatorSyncData.masterVolume = i_volume_master_percentage;
         attenuatorSyncData.effectsVolume = i_volume_effects_percentage;
         attenuatorSyncData.musicVolume = i_volume_music_percentage;
-        
+
         serial1SendData(A_SYNC_DATA);
 
         // Send the ribbon cable alarm status if the ribbon cable is detached.

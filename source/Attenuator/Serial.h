@@ -143,21 +143,6 @@ struct __attribute__((packed)) SmokePrefs {
   uint8_t overheatDelay1;
 } smokeConfig;
 
-struct __attribute__((packed)) WandSyncData {
-  uint8_t systemMode;
-  uint8_t ionArmSwitch;
-  uint8_t cyclotronLidState;
-  uint8_t systemYear;
-  uint8_t packOn;
-  uint8_t powerLevel;
-  uint8_t streamMode;
-  uint8_t vibrationEnabled;
-  uint8_t masterVolume;
-  uint8_t effectsVolume;
-  uint8_t masterMuted;
-  uint8_t repeatMusicTrack;
-} wandSyncData;
-
 struct __attribute__((packed)) AttenuatorSyncData {
   uint8_t systemMode;
   uint8_t ionArmSwitch;

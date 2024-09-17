@@ -114,27 +114,6 @@ struct __attribute__((packed)) WandSyncData {
   uint8_t repeatMusicTrack;
 } wandSyncData;
 
-struct __attribute__((packed)) AttenuatorSyncData {
-  uint8_t systemMode;
-  uint8_t ionArmSwitch;
-  uint8_t cyclotronLidState;
-  uint8_t systemYear;
-  uint8_t packOn;
-  uint8_t powerLevel;
-  uint8_t streamMode;
-  uint8_t wandPresent;
-  uint8_t barrelExtended;
-  uint8_t spectralColour;
-  uint8_t spectralSaturation;
-  uint8_t masterVolume;
-  uint8_t effectsVolume;
-  uint8_t musicVolume;
-  uint8_t musicPlaying;
-  uint8_t musicPaused;
-  uint16_t currentTrack;
-  uint16_t musicCount;
-} attenuatorSyncData;
-
 /*
  * Serial API Communication Handlers
  */
