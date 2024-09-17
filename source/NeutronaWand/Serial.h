@@ -99,7 +99,7 @@ struct __attribute__((packed)) SmokePrefs {
   uint8_t overheatDelay1;
 } smokeConfig;
 
-struct __attribute__((packed)) SyncData {
+struct __attribute__((packed)) WandSyncData {
   uint8_t systemMode;
   uint8_t ionArmSwitch;
   uint8_t cyclotronLidState;
@@ -112,7 +112,28 @@ struct __attribute__((packed)) SyncData {
   uint8_t effectsVolume;
   uint8_t masterMuted;
   uint8_t repeatMusicTrack;
-} packSync;
+} wandSyncData;
+
+struct __attribute__((packed)) AttenuatorSyncData {
+  uint8_t systemMode;
+  uint8_t ionArmSwitch;
+  uint8_t cyclotronLidState;
+  uint8_t systemYear;
+  uint8_t packOn;
+  uint8_t powerLevel;
+  uint8_t streamMode;
+  uint8_t wandPresent;
+  uint8_t barrelExtended;
+  uint8_t spectralColour;
+  uint8_t spectralSaturation;
+  uint8_t masterVolume;
+  uint8_t effectsVolume;
+  uint8_t musicVolume;
+  uint8_t musicPlaying;
+  uint8_t musicPaused;
+  uint16_t currentTrack;
+  uint16_t musicCount;
+} attenuatorSyncData;
 
 /*
  * Serial API Communication Handlers
@@ -587,12 +608,12 @@ void checkPack() {
         break;
 
         case PACKET_SYNC:
-          wandComs.rxObj(packSync);
+          wandComs.rxObj(wandSyncData);
           debugln(F("Recv. Sync Payload"));
 
           // Write the received data to runtime variables.
           // This will not save to the EEPROM!
-          switch(packSync.systemMode) {
+          switch(wandSyncData.systemMode) {
             case 1:
             default:
               SYSTEM_MODE = MODE_SUPER_HERO;
@@ -605,7 +626,7 @@ void checkPack() {
           vgModeCheck(); // Re-check VG/CTS mode.
 
           // Set whether the switch under the ion arm is on or off.
-          switch(packSync.ionArmSwitch) {
+          switch(wandSyncData.ionArmSwitch) {
             case 1:
             default:
               b_pack_ion_arm_switch_on = false;
@@ -626,7 +647,7 @@ void checkPack() {
             break;
           }
 
-          switch(packSync.cyclotronLidState) {
+          switch(wandSyncData.cyclotronLidState) {
             case 1:
               b_pack_cyclotron_lid_on = false;
             break;
@@ -638,7 +659,7 @@ void checkPack() {
           }
 
           // Update the System Year setting.
-          switch(packSync.systemYear) {
+          switch(wandSyncData.systemYear) {
             case 1:
               SYSTEM_YEAR = SYSTEM_1984;
             break;
@@ -661,7 +682,7 @@ void checkPack() {
           resetWhiteLEDBlinkRate();
 
           // Set whether the Proton Pack is currently on or off.
-          switch(packSync.packOn) {
+          switch(wandSyncData.packOn) {
             case 1:
             default:
               // Pack is off.
@@ -688,11 +709,11 @@ void checkPack() {
           }
 
           // Set our starting power level.
-          i_power_level = packSync.powerLevel;
+          i_power_level = wandSyncData.powerLevel;
           i_power_level_prev = i_power_level;
 
           // Set our firing mode.
-          switch(packSync.streamMode) {
+          switch(wandSyncData.streamMode) {
             case 1:
             default:
               STREAM_MODE = PROTON;
@@ -737,7 +758,7 @@ void checkPack() {
 
           // Set up master vibration switch if not configured to override it.
           if(VIBRATION_MODE_EEPROM == VIBRATION_DEFAULT) {
-            switch(packSync.vibrationEnabled) {
+            switch(wandSyncData.vibrationEnabled) {
               case 1:
                 b_vibration_switch_on = false;
               break;
@@ -749,8 +770,8 @@ void checkPack() {
           }
 
           // Set the percentage volume.
-          i_volume_master_percentage = packSync.masterVolume;
-          i_volume_effects_percentage = packSync.effectsVolume;
+          i_volume_master_percentage = wandSyncData.masterVolume;
+          i_volume_effects_percentage = wandSyncData.effectsVolume;
 
           // Set the decibel volume.
           i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
@@ -762,7 +783,7 @@ void checkPack() {
           resetMasterVolume();
           updateEffectsVolume();
 
-          switch(packSync.masterMuted) {
+          switch(wandSyncData.masterMuted) {
             case 1:
             default:
               // Do nothing; we already have our volumes set correctly.
@@ -777,7 +798,7 @@ void checkPack() {
             break;
           }
 
-          switch(packSync.repeatMusicTrack) {
+          switch(wandSyncData.repeatMusicTrack) {
             case 1:
             default:
               b_repeat_track = false;

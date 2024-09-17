@@ -136,7 +136,7 @@ struct __attribute__((packed)) SmokePrefs {
   uint8_t overheatDelay1;
 } smokeConfig;
 
-struct __attribute__((packed)) SyncData {
+struct __attribute__((packed)) WandSyncData {
   uint8_t systemMode;
   uint8_t ionArmSwitch;
   uint8_t cyclotronLidState;
@@ -149,7 +149,28 @@ struct __attribute__((packed)) SyncData {
   uint8_t effectsVolume;
   uint8_t masterMuted;
   uint8_t repeatMusicTrack;
-} packSync;
+} wandSyncData;
+
+struct __attribute__((packed)) AttenuatorSyncData {
+  uint8_t systemMode;
+  uint8_t ionArmSwitch;
+  uint8_t cyclotronLidState;
+  uint8_t systemYear;
+  uint8_t packOn;
+  uint8_t powerLevel;
+  uint8_t streamMode;
+  uint8_t wandPresent;
+  uint8_t barrelExtended;
+  uint8_t spectralColour;
+  uint8_t spectralSaturation;
+  uint8_t masterVolume;
+  uint8_t effectsVolume;
+  uint8_t musicVolume;
+  uint8_t musicPlaying;
+  uint8_t musicPaused;
+  uint16_t currentTrack;
+  uint16_t musicCount;
+} attenuatorSyncData;
 
 // Adjusts which year mode the Proton Pack and Neutrona Wand are in, as switched by the Neutrona Wand.
 void toggleYearModes() {
@@ -277,6 +298,11 @@ void serial1SendData(uint8_t i_message) {
 
       i_send_size = serial1Coms.txObj(sendDataS);
       serial1Coms.sendData(i_send_size, (uint8_t) PACKET_DATA);
+    break;
+
+    case A_SYNC_DATA:
+      i_send_size = serial1Coms.txObj(attenuatorSyncData);
+      serial1Coms.sendData(i_send_size, (uint8_t) PACKET_SYNC);
     break;
 
     case A_VOLUME_SYNC:
@@ -456,7 +482,7 @@ void packSerialSendData(uint8_t i_message) {
     break;
 
     case P_SYNC_DATA:
-      i_send_size = packComs.txObj(packSync);
+      i_send_size = packComs.txObj(wandSyncData);
       packComs.sendData(i_send_size, (uint8_t) PACKET_SYNC);
     break;
 
@@ -774,155 +800,102 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
         debugln(F("Serial1 Sync Start"));
         serial1Send(A_SYNC_START);
 
-        // Tell the serial1 device that the pack is here (obviously).
-        serial1Send(A_PACK_CONNECTED);
-
         // Tell the serial1 device whether a wand is connected.
-        if(b_wand_connected) {
-          serial1Send(A_WAND_CONNECTED);
-        }
-        else {
-          serial1Send(A_WAND_DISCONNECTED);
-        }
+        attenuatorSyncData.wandPresent = b_wand_connected ? 1 : 0;
+        attenuatorSyncData.barrelExtended = b_neutrona_wand_barrel_extended ? 1 : 0;
 
-        if(b_neutrona_wand_barrel_extended) {
-          // Tell the serial1 device that the Neutrona Wand barrel is extended.
-          serial1Send(A_BARREL_EXTENDED);
-        }
-
-        // Make sure this is called before the A_YEAR is sent over to the Attenuator/Wireless.
         switch(SYSTEM_MODE) {
           case MODE_ORIGINAL:
-            serial1Send(A_MODE_ORIGINAL);
+            attenuatorSyncData.systemMode = 2;
+
+            if(switch_power.getState() == LOW) {
+              attenuatorSyncData.ionArmSwitch = 2;
+            }
+            else {
+              attenuatorSyncData.ionArmSwitch = 1;
+            }
           break;
 
           case MODE_SUPER_HERO:
           default:
-            serial1Send(A_MODE_SUPER_HERO);
+            attenuatorSyncData.systemMode = 1;
+            attenuatorSyncData.ionArmSwitch = 1;
           break;
         }
 
         switch(SYSTEM_YEAR) {
           case SYSTEM_1984:
-            serial1Send(A_YEAR_1984);
+            attenuatorSyncData.systemYear = 1;
           break;
           case SYSTEM_1989:
-            serial1Send(A_YEAR_1989);
+            attenuatorSyncData.systemYear = 2;
           break;
           case SYSTEM_AFTERLIFE:
           default:
-            serial1Send(A_YEAR_AFTERLIFE);
+            attenuatorSyncData.systemYear = 3;
           break;
           case SYSTEM_FROZEN_EMPIRE:
-            serial1Send(A_YEAR_FROZEN_EMPIRE);
+            attenuatorSyncData.systemYear = 4;
           break;
-        }
-
-        // Send the ribbon cable alarm status if the ribbon cable is detached.
-        if(b_alarm == true && ribbonCableAttached() != true) {
-          serial1Send(A_ALARM_ON);
         }
 
         // Pack status.
-        if(PACK_STATE != MODE_OFF) {
-          serial1Send(A_PACK_ON);
-        }
-        else {
-          serial1Send(A_PACK_OFF);
-        }
-
-        // Send the current power level.
-        switch(i_wand_power_level) {
-          case 5:
-            serial1Send(A_POWER_LEVEL_5);
-          break;
-
-          case 4:
-            serial1Send(A_POWER_LEVEL_4);
-          break;
-
-          case 3:
-            serial1Send(A_POWER_LEVEL_3);
-          break;
-
-          case 2:
-            serial1Send(A_POWER_LEVEL_2);
-          break;
-
-          case 1:
-          default:
-            serial1Send(A_POWER_LEVEL_1);
-          break;
-        }
+        attenuatorSyncData.packOn = PACK_STATE != MODE_OFF ? 1 : 0;
+        attenuatorSyncData.powerLevel = i_wand_power_level;
 
         // Synchronise the firing modes.
         switch(STREAM_MODE) {
           case SLIME:
-            serial1Send(A_SLIME_MODE);
+            attenuatorSyncData.streamMode = 2;
           break;
 
           case STASIS:
-            serial1Send(A_STASIS_MODE);
+            attenuatorSyncData.streamMode = 3;
           break;
 
           case MESON:
-            serial1Send(A_MESON_MODE);
+            attenuatorSyncData.streamMode = 4;
           break;
 
           case SPECTRAL:
-            serial1Send(A_SPECTRAL_MODE);
+            attenuatorSyncData.streamMode = 5;
           break;
 
           case HOLIDAY:
-            serial1Send(A_HOLIDAY_MODE, b_christmas ? 2 : 1);
+            attenuatorSyncData.streamMode = b_christmas ? 7 : 6;
           break;
 
           case SPECTRAL_CUSTOM:
-            serial1SendData(A_SPECTRAL_CUSTOM_MODE);
+            attenuatorSyncData.streamMode = 8;
           break;
 
           case PROTON:
           default:
-            serial1Send(A_PROTON_MODE);
+            attenuatorSyncData.streamMode = 1;
           break;
         }
 
-        serial1SendData(A_SPECTRAL_COLOUR_DATA);
-
-        if(switch_power.getState() == LOW) {
-          // Tell the Attenuator or any other device that the power to the Proton Pack is on.
-          serial1Send(A_MODE_ORIGINAL_RED_SWITCH_ON);
-        }
-        else {
-          // Tell the Attenuator or any other device that the power to the Proton Pack is off.
-          serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
-        }
+        attenuatorSyncData.spectralColour = i_spectral_cyclotron_custom_colour;
+        attenuatorSyncData.spectralSaturation = i_spectral_cyclotron_custom_saturation;
 
         // Cyclotron lid status.
-        if(b_cyclotron_lid_on) {
-          serial1Send(A_CYCLOTRON_LID_ON);
-        }
-        else {
-          serial1Send(A_CYCLOTRON_LID_OFF);
-        }
+        attenuatorSyncData.cyclotronLidState = b_cyclotron_lid_on ? 1 : 0;
 
         // This sends over the music status and the current music track.
-        if(b_playing_music == true) {
-          serial1Send(A_MUSIC_IS_PLAYING, i_current_music_track);
-        }
-        else {
-          serial1Send(A_MUSIC_IS_NOT_PLAYING, i_current_music_track);
-        }
+        attenuatorSyncData.musicPlaying = b_playing_music ? 1 : 0;
+        attenuatorSyncData.musicPaused = b_music_paused ? 1 : 0;
+        attenuatorSyncData.currentTrack = i_current_music_track;
+        attenuatorSyncData.musicCount = i_music_count;
+        attenuatorSyncData.masterVolume = i_volume_master_percentage;
+        attenuatorSyncData.effectsVolume = i_volume_effects_percentage;
+        attenuatorSyncData.musicVolume = i_volume_music_percentage;
+        
+        serial1SendData(A_SYNC_DATA);
 
-        if(b_music_paused == true) {
-          serial1Send(A_MUSIC_IS_PAUSED);
+        // Send the ribbon cable alarm status if the ribbon cable is detached.
+        if(b_alarm && ribbonCableAttached() != true) {
+          serial1Send(A_ALARM_ON);
         }
-        else {
-          serial1Send(A_MUSIC_IS_NOT_PAUSED);
-        }
-
-        serial1Send(A_MUSIC_TRACK_COUNT_SYNC, i_music_count);
-        serial1SendData(A_VOLUME_SYNC);
 
         b_serial1_connected = true; // Device is officially connected.
         b_serial1_syncing = false; // Sync process has been completed.
@@ -1262,96 +1235,96 @@ void doWandSync() {
   // Make sure this is called before the P_YEAR is sent over to the Neutrona Wand.
   switch(SYSTEM_MODE) {
     case MODE_ORIGINAL:
-      packSync.systemMode = 2; // MODE_ORIGINAL.
+      wandSyncData.systemMode = 2; // MODE_ORIGINAL.
 
       if(switch_power.getState() == LOW) {
-        packSync.ionArmSwitch = 2; // ion arm switch on.
+        wandSyncData.ionArmSwitch = 2; // ion arm switch on.
       }
       else {
-        packSync.ionArmSwitch = 1; // Ion arm switch off.
+        wandSyncData.ionArmSwitch = 1; // Ion arm switch off.
       }
     break;
 
     case MODE_SUPER_HERO:
     default:
-      packSync.systemMode = 1; // MODE_SUPER_HERO.
+      wandSyncData.systemMode = 1; // MODE_SUPER_HERO.
 
       // This is only applicable to the Mode Original, so default to off.
-      packSync.ionArmSwitch = 1; // Ion arm switch off.
+      wandSyncData.ionArmSwitch = 1; // Ion arm switch off.
     break;
   }
 
   // Send the state of the cyclotron lid.
   if(b_cyclotron_lid_on) {
-    packSync.cyclotronLidState = 2; // Lid is on.
+    wandSyncData.cyclotronLidState = 2; // Lid is on.
   }
   else {
-    packSync.cyclotronLidState = 1; // Lid is off.
+    wandSyncData.cyclotronLidState = 1; // Lid is off.
   }
 
   // Make sure to send this after the system (operation) mode is sent.
   switch(SYSTEM_YEAR) {
     case SYSTEM_1984:
-      packSync.systemYear = 1; // 1984.
+      wandSyncData.systemYear = 1; // 1984.
     break;
     case SYSTEM_1989:
-      packSync.systemYear = 2; // 1989.
+      wandSyncData.systemYear = 2; // 1989.
     break;
     case SYSTEM_AFTERLIFE:
     default:
-      packSync.systemYear = 3; // Afterlife.
+      wandSyncData.systemYear = 3; // Afterlife.
     break;
     case SYSTEM_FROZEN_EMPIRE:
-      packSync.systemYear = 4; // Frozen Empire.
+      wandSyncData.systemYear = 4; // Frozen Empire.
     break;
   }
 
   // Denote the current looping preference for the current track; used by the menu system.
-  b_repeat_track ? (packSync.repeatMusicTrack = 2) : (packSync.repeatMusicTrack = 1); // 1 = No repeat, 2 = Repeat.
+  b_repeat_track ? (wandSyncData.repeatMusicTrack = 2) : (wandSyncData.repeatMusicTrack = 1); // 1 = No repeat, 2 = Repeat.
 
   // Vibration enabled or disabled from the Proton Pack toggle switch.
-  b_vibration_switch_on ? (packSync.vibrationEnabled = 2) : (packSync.vibrationEnabled = 1); // 1 = Vibration off, 2 = Vibration on.
+  b_vibration_switch_on ? (wandSyncData.vibrationEnabled = 2) : (wandSyncData.vibrationEnabled = 1); // 1 = Vibration off, 2 = Vibration on.
 
   // Pack power status.
-  (PACK_STATE != MODE_OFF) ? (packSync.packOn = 2) : (packSync.packOn = 1); // 1 = Pack off, 2 = Pack on.
+  (PACK_STATE != MODE_OFF) ? (wandSyncData.packOn = 2) : (wandSyncData.packOn = 1); // 1 = Pack off, 2 = Pack on.
 
   // Reset the wand power levels.
-  packSync.powerLevel = i_wand_power_level;
+  wandSyncData.powerLevel = i_wand_power_level;
 
   // Synchronise the firing mode.
   switch(STREAM_MODE) {
     case SLIME:
-      packSync.streamMode = 2; // 2 = Slime Mode.
+      wandSyncData.streamMode = 2; // 2 = Slime Mode.
     break;
 
     case STASIS:
-      packSync.streamMode = 3; // 3 = Stasis Mode.
+      wandSyncData.streamMode = 3; // 3 = Stasis Mode.
     break;
 
     case MESON:
-      packSync.streamMode = 4; // 4 = Meson Mode.
+      wandSyncData.streamMode = 4; // 4 = Meson Mode.
     break;
 
     case SPECTRAL:
-      packSync.streamMode = 5; // 5 = Spectral Mode
+      wandSyncData.streamMode = 5; // 5 = Spectral Mode
     break;
 
     case HOLIDAY:
       if(!b_christmas) {
-        packSync.streamMode = 6; // 6 = Holiday (Halloween) Mode
+        wandSyncData.streamMode = 6; // 6 = Holiday (Halloween) Mode
       }
       else {
-        packSync.streamMode = 7; // 7 = Holiday (Christmas) Mode
+        wandSyncData.streamMode = 7; // 7 = Holiday (Christmas) Mode
       }
     break;
 
     case SPECTRAL_CUSTOM:
-      packSync.streamMode = 8; // 8 = Spectral Custom Mode.
+      wandSyncData.streamMode = 8; // 8 = Spectral Custom Mode.
     break;
 
     case PROTON:
     default:
-      packSync.streamMode = 1; // 1 = Proton Mode.
+      wandSyncData.streamMode = 1; // 1 = Proton Mode.
 
       STREAM_MODE = PROTON;
 
@@ -1377,15 +1350,15 @@ void doWandSync() {
   }
 
   // Synchronise the volume settings.
-  packSync.masterVolume = i_volume_master_percentage;
-  packSync.effectsVolume = i_volume_effects_percentage;
+  wandSyncData.masterVolume = i_volume_master_percentage;
+  wandSyncData.effectsVolume = i_volume_effects_percentage;
 
   if(i_volume_master == i_volume_abs_min) {
     // Telling the wand to be silent if required.
-    packSync.masterMuted = 2; // 2 = Muted.
+    wandSyncData.masterMuted = 2; // 2 = Muted.
   }
   else {
-    packSync.masterMuted = 1; // 1 = Not muted.
+    wandSyncData.masterMuted = 1; // 1 = Not muted.
   }
 
   // Send the completed synchronization packet.

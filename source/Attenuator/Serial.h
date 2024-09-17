@@ -143,7 +143,7 @@ struct __attribute__((packed)) SmokePrefs {
   uint8_t overheatDelay1;
 } smokeConfig;
 
-struct __attribute__((packed)) SyncData {
+struct __attribute__((packed)) WandSyncData {
   uint8_t systemMode;
   uint8_t ionArmSwitch;
   uint8_t cyclotronLidState;
@@ -156,7 +156,28 @@ struct __attribute__((packed)) SyncData {
   uint8_t effectsVolume;
   uint8_t masterMuted;
   uint8_t repeatMusicTrack;
-} packSync;
+} wandSyncData;
+
+struct __attribute__((packed)) AttenuatorSyncData {
+  uint8_t systemMode;
+  uint8_t ionArmSwitch;
+  uint8_t cyclotronLidState;
+  uint8_t systemYear;
+  uint8_t packOn;
+  uint8_t powerLevel;
+  uint8_t streamMode;
+  uint8_t wandPresent;
+  uint8_t barrelExtended;
+  uint8_t spectralColour;
+  uint8_t spectralSaturation;
+  uint8_t masterVolume;
+  uint8_t effectsVolume;
+  uint8_t musicVolume;
+  uint8_t musicPlaying;
+  uint8_t musicPaused;
+  uint16_t currentTrack;
+  uint16_t musicCount;
+} attenuatorSyncData;
 
 /*
  * Serial API Communication Handlers
@@ -341,6 +362,104 @@ bool checkPack() {
             b_received_prefs_smoke = true;
             packComs.rxObj(smokeConfig);
           #endif
+        break;
+
+        case PACKET_SYNC:
+          // Used to sync the pack to the Attenuator.
+          #if defined(__XTENSA__)
+            debug("Pack Sync Packet Received");
+          #endif
+          packComs.rxObj(attenuatorSyncData);
+
+          // Sync all required variables.
+          switch(attenuatorSyncData.systemYear) {
+            case 1:
+              SYSTEM_YEAR = SYSTEM_1984;
+            break;
+            case 2:
+              SYSTEM_YEAR = SYSTEM_1989;
+            break;
+            case 3:
+              SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+            default:
+            break;
+            case 4:
+              SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+            break;
+          }
+
+          switch(attenuatorSyncData.streamMode) {
+            case 1:
+            default:
+              STREAM_MODE = PROTON;
+            break;
+            case 2:
+              STREAM_MODE = SLIME;
+            break;
+            case 3:
+              STREAM_MODE = STASIS;
+            break;
+            case 4:
+              STREAM_MODE = MESON;
+            break;
+            case 5:
+              STREAM_MODE = SPECTRAL;
+            break;
+            case 6:
+              STREAM_MODE = HOLIDAY;
+              b_christmas = false;
+            break;
+            case 7:
+              STREAM_MODE = HOLIDAY;
+              b_christmas = true;
+            break;
+            case 8:
+              STREAM_MODE = SPECTRAL_CUSTOM;
+            break;
+          }
+
+          POWER_LEVEL_PREV = POWER_LEVEL;
+          switch(attenuatorSyncData.powerLevel) {
+            case 1:
+            default:
+              POWER_LEVEL = LEVEL_1;
+            break;
+            case 2:
+              POWER_LEVEL = LEVEL_2;
+            break;
+            case 3:
+              POWER_LEVEL = LEVEL_3;
+            break;
+            case 4:
+              POWER_LEVEL = LEVEL_4;
+            break;
+            case 5:
+              POWER_LEVEL = LEVEL_5;
+            break;
+          }
+
+          SYSTEM_MODE = attenuatorSyncData.systemMode == 1 ? MODE_SUPER_HERO : MODE_ORIGINAL;
+          RED_SWITCH_MODE = attenuatorSyncData.ionArmSwitch == 2 ? SWITCH_ON : SWITCH_OFF;
+          BARREL_STATE = attenuatorSyncData.barrelExtended == 1 ? BARREL_EXTENDED : BARREL_RETRACTED;
+          b_pack_on = attenuatorSyncData.packOn == 1;
+          b_wand_present = attenuatorSyncData.wandPresent == 1;
+          b_cyclotron_lid_on = attenuatorSyncData.cyclotronLidState == 1;
+          i_spectral_custom_colour = attenuatorSyncData.spectralColour;
+          i_spectral_custom_saturation = attenuatorSyncData.spectralSaturation;
+          i_volume_master_percentage = attenuatorSyncData.masterVolume;
+          i_volume_effects_percentage = attenuatorSyncData.effectsVolume;
+          i_volume_music_percentage = attenuatorSyncData.musicVolume;
+          i_music_track_current = attenuatorSyncData.currentTrack;
+          i_music_track_count = attenuatorSyncData.musicCount;
+          b_playing_music = attenuatorSyncData.musicPlaying == 1;
+          b_music_paused = attenuatorSyncData.musicPaused == 1;
+
+          if(i_music_track_count > 0) {
+            i_music_track_min = i_music_track_offset; // First music track possible (eg. 500)
+            i_music_track_max = i_music_track_offset + i_music_track_count - 1; // 500 + N - 1 to be inclusive of the offset value.
+          }
+
+          return true; // Indicates a status change.
         break;
       }
     }

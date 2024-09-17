@@ -357,6 +357,7 @@ enum api_messages : uint8_t {
   A_COM_START,
   A_HANDSHAKE,
   A_SYNC_START,
+  A_SYNC_DATA,
   A_SYNC_END,
   A_WAND_ON,
   A_WAND_OFF,
