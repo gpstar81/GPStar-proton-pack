@@ -352,7 +352,7 @@ void loop() {
           b_pack_on = true;
         }
 
-        if(b_2021_ramp_down == true) {
+        if(b_2021_ramp_down == true && !ms_mash_lockout.isRunning()) {
           b_2021_ramp_down = false;
           b_2021_ramp_down_start = false;
           b_inner_ramp_down = false;
@@ -526,43 +526,9 @@ void loop() {
         cyclotronControl(); // Set timers for the cyclotron.
 
         if(b_wand_mash_lockout && ms_mash_lockout.isRunning()) {
-          uint16_t i_progress = (ms_mash_lockout.delay() - ms_mash_lockout.remaining()) / 2;
-
-          if(i_progress > (ms_mash_lockout.delay() / 5)) {
-            // Turn off the cyclotron lights at 1/5 of the way through the timer.
-            if(!b_cyclotron_lid_on) {
-              innerCyclotronCavityOff();
-            }
-          }
-          else {
-            // Slow the animation for the cyclotron and powercell.
-            ms_powercell.start(ms_powercell.delay() * 2);
-            ms_cyclotron.start(ms_cyclotron.delay() * 2);
-            ms_cyclotron_ring.start(ms_cyclotron_ring.delay() * 2);
-          }
-
-          if(i_progress > (ms_mash_lockout.delay() / 4)) {
-            i_progress = ms_mash_lockout.delay() / 4;
-
-            // Turn off the cyclotron lights at 1/4 of the way through the timer.
-            if(b_cyclotron_lid_on) {
-              cyclotronLidLedsOff();
-            }
-            else {
-              innerCyclotronCakeOff();
-              innerCyclotronCavityOff();
-            }
-
-            // Turn off the powercell lights at 1/4 of the way through the timer.
-            powercellOff();
-            ms_powercell.start(ms_mash_lockout.delay());
-          }
-
-          if(i_progress > (ms_mash_lockout.delay() / 3)) {
-            // Set timers high to effectively stop animations.
-            ms_powercell.start(ms_mash_lockout.delay());
-            ms_cyclotron.start(ms_mash_lockout.delay());
-            ms_cyclotron_ring.start(ms_mash_lockout.delay());
+          if((ms_mash_lockout.delay() / 1.5) > ms_mash_lockout.remaining()) {
+            // Force incorrect Powercell LED to switch it off temporarily.
+            i_powercell_led = i_powercell_leds + 1;
           }
         }
 
@@ -1090,6 +1056,7 @@ void packShutdown() {
 
   if(b_wand_mash_lockout) {
     b_wand_mash_lockout = false;
+    ms_mash_lockout.stop();
     ms_powercell.start(0);
     ms_cyclotron.start(0);
     ms_cyclotron_ring.start(0);
@@ -2505,12 +2472,13 @@ void cyclotronControl() {
     if(b_2021_ramp_up_start == true) {
       b_2021_ramp_up_start = false;
 
+      r_outer_cyclotron_ramp.go(i_outer_current_ramp_speed); // Reset the ramp.
+      r_inner_cyclotron_ramp.go(i_inner_current_ramp_speed); // Reset the Inner Cyclotron ramp.
+
       switch(SYSTEM_YEAR) {
         case SYSTEM_1984:
         case SYSTEM_1989:
-          r_outer_cyclotron_ramp.go(i_outer_current_ramp_speed); // Reset the ramp.
           r_outer_cyclotron_ramp.go(i_1984_delay, i_1984_ramp_length, CIRCULAR_OUT);
-          r_inner_cyclotron_ramp.go(i_inner_current_ramp_speed); // Inner Cyclotron ramp reset.
           r_inner_cyclotron_ramp.go(i_1984_inner_delay, i_1984_ramp_length, CIRCULAR_OUT);
         break;
 
@@ -2519,24 +2487,23 @@ void cyclotronControl() {
         default:
           if(ms_idle_fire_fade.remaining() > 0) {
             // Full Afterlife startup sequence ramps.
-            r_outer_cyclotron_ramp.go(i_outer_current_ramp_speed); // Reset the ramp.
             r_outer_cyclotron_ramp.go(i_2021_delay, i_2021_ramp_length, QUARTIC_OUT);
-            r_inner_cyclotron_ramp.go(i_inner_current_ramp_speed); // Inner Cyclotron ramp reset.
             r_inner_cyclotron_ramp.go(i_2021_inner_delay, i_2021_ramp_length, QUARTIC_OUT);
           }
           else {
             if(b_brass_pack_sound_loop) {
               // Faster startup for brass pack.
-              r_outer_cyclotron_ramp.go(i_outer_current_ramp_speed); // Reset the ramp.
               r_outer_cyclotron_ramp.go(i_2021_delay, (uint16_t)(i_2021_ramp_length / 4), QUADRATIC_OUT);
-              r_inner_cyclotron_ramp.go(i_inner_current_ramp_speed); // Inner Cyclotron ramp reset.
               r_inner_cyclotron_ramp.go(i_2021_inner_delay, (uint16_t)(i_2021_ramp_length / 4), QUADRATIC_OUT);
+            }
+            else if(ms_mash_lockout.justFinished()) {
+              // Instant recovery for unfreezing Frozen Empire pack.
+              r_outer_cyclotron_ramp.go(i_2021_delay, (uint16_t)(i_2021_ramp_length / 6), QUADRATIC_OUT);
+              r_inner_cyclotron_ramp.go(i_2021_inner_delay, (uint16_t)(i_2021_ramp_length / 6), QUADRATIC_OUT);
             }
             else {
               // Abbreviated Afterlife/Frozen Empire startup.
-              r_outer_cyclotron_ramp.go(i_outer_current_ramp_speed); // Reset the ramp.
               r_outer_cyclotron_ramp.go(i_2021_delay, (uint16_t)(i_2021_ramp_length / 1.5), QUADRATIC_OUT);
-              r_inner_cyclotron_ramp.go(i_inner_current_ramp_speed); // Inner Cyclotron ramp reset.
               r_inner_cyclotron_ramp.go(i_2021_inner_delay, i_2021_ramp_length, QUADRATIC_OUT);
             }
           }
@@ -2554,8 +2521,14 @@ void cyclotronControl() {
         r_inner_cyclotron_ramp.go(i_inner_ramp_delay, i_1984_ramp_down_length, CIRCULAR_IN);
       }
       else {
-        r_outer_cyclotron_ramp.go(i_2021_ramp_delay, i_2021_ramp_down_length, QUARTIC_IN);
-        r_inner_cyclotron_ramp.go(i_inner_ramp_delay, i_2021_ramp_down_length, QUARTIC_IN);
+        if(ms_mash_lockout.isRunning()) {
+          r_outer_cyclotron_ramp.go(i_2021_ramp_delay, ms_mash_lockout.delay() / 3, QUARTIC_IN);
+          r_inner_cyclotron_ramp.go(i_inner_ramp_delay, ms_mash_lockout.delay() / 3, QUARTIC_IN);
+        }
+        else {
+          r_outer_cyclotron_ramp.go(i_2021_ramp_delay, i_2021_ramp_down_length, QUARTIC_IN);
+          r_inner_cyclotron_ramp.go(i_inner_ramp_delay, i_2021_ramp_down_length, QUARTIC_IN);
+        }
       }
     }
 
@@ -5777,6 +5750,8 @@ void startWandMashLockout(uint16_t i_timeout) {
           }
           else {
             stopEffect(S_GB1_1984_FIRE_END_HIGH_POWER);
+            stopEffect(S_GB1_1984_FIRE_END_MID_HIGH_POWER);
+            stopEffect(S_GB1_1984_FIRE_END_SHORT_HIGH_POWER);
           }
           stopEffect(S_CROSS_STREAMS_END);
           stopEffect(S_CROSS_STREAMS_START);
@@ -5833,6 +5808,7 @@ void startWandMashLockout(uint16_t i_timeout) {
 
     // Stop all light functions by use of adjusting the timers.
     ms_mash_lockout.start(i_timeout);
+    reset2021RampDown();
   }
 }
 
@@ -5856,11 +5832,13 @@ void restartFromWandMash() {
           playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects, true, 2000);
         }
 
-        // End the timer for the lockout.
-        ms_mash_lockout.stop();
+        // Trigger timer for restart sequence.
+        ms_mash_lockout.start(0);
 
         // Reset the lighting timers.
-        ms_powercell.start(0);
+        b_2021_ramp_down = false;
+        b_inner_ramp_down = false;
+        reset2021RampUp();
         ms_cyclotron.start(0);
         ms_cyclotron_ring.start(0);
 
