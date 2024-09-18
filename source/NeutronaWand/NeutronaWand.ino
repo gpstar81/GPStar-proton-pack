@@ -75,8 +75,8 @@ void setup() {
   // Setup the audio device for this controller.
   setupAudioDevice();
 
-  // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.
-  TCCR2B = (TCCR2B & B11111000) | (B00000110); // for PWM frequency of 122.55 Hz
+  // Change PWM frequency of pin 11 for the vibration motor, we do not want it high pitched.
+  TCCR1B = (TCCR1B & B11111000) | B00000110; // for PWM frequency of 122.55 Hz
 
   // Barrel LEDs - NOTE: These are GRB not RGB so note that all CRGB objects will have R/G swapped.
   FastLED.addLeds<NEOPIXEL, BARREL_LED_PIN>(barrel_leds, BARREL_LEDS_MAX);
@@ -101,8 +101,6 @@ void setup() {
   // Rotary encoder on the top of the wand.
   pinModeFast(ROTARY_ENCODER_A, INPUT_PULLUP);
   pinModeFast(ROTARY_ENCODER_B, INPUT_PULLUP);
-
-  delay(10);
 
   Wire.begin();
   Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
@@ -230,11 +228,6 @@ void loop() {
       }
 
       checkPack(); // Check for any response from the pack while still waiting.
-    break;
-
-    case SYNCHRONIZING:
-      // Currently unused.
-      checkPack(); // Keep checking for responses from the pack while synchronizing.
     break;
 
     case PACK_CONNECTED:

@@ -91,8 +91,8 @@ void setup() {
   switch_cyclotron_lid.setDebounceTime(50);
   switch_smoke.setDebounceTime(50);
 
-  // Adjust the PWM frequency of the vibration motor.
-  TCCR5B = (TCCR5B & B11111000) | (B00000100);  // for PWM frequency of 122.55 Hz
+  // Change PWM frequency of pin 45 for the vibration motor, we do not want it high pitched.
+  TCCR5B = (TCCR5B & B11111000) | B00000100;  // for PWM frequency of 122.55 Hz
 
   // Vibration motor
   pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
@@ -198,7 +198,7 @@ void setup() {
   // Start some timers
   ms_fast_led.start(i_fast_led_delay);
   ms_check_music.start(i_music_check_delay);
-  ms_serial1_handshake.start(i_serial1_handshake_delay);
+  ms_serial1_check.start(i_serial1_disconnect_delay);
   ms_cyclotron_switch_plate_leds.start(i_cyclotron_switch_plate_leds_delay);
 
   // Perform initial pack reset.
@@ -5422,27 +5422,15 @@ void fanBooster(bool b_fan_on) {
 // Check if the Attenuator is still connected.
 void serial1HandShake() {
   if(b_serial1_connected == true) {
-    if(ms_serial1_handshake.justFinished()) {
-      ms_serial1_handshake.start(i_serial1_handshake_delay);
-
+    if(ms_serial1_check.justFinished()) {
+      // Attenuator has abandoned us.
+      b_serial1_syncing = false;
       b_serial1_connected = false;
-
-      // Where are you Attenuator?
-      serial1Send(A_HANDSHAKE);
     }
-    else if(ms_serial1_handshake_checking.justFinished()) {
-      ms_serial1_handshake_checking.stop();
-
-      // Ask the Attenuator if it is still connected.
+    else if(ms_serial1_check.remaining() < (ms_serial1_check.delay() / 2) && !b_serial1_syncing) {
+      // Haven't heard from the Attenuator recently; let's check in.
+      b_serial1_syncing = true;
       serial1Send(A_HANDSHAKE);
-    }
-  }
-  else {
-    if(ms_serial1_handshake.justFinished()) {
-      // Ask the Attenuator if it is connected.
-      serial1Send(A_HANDSHAKE);
-
-      ms_serial1_handshake.start(i_serial1_handshake_delay / 5);
     }
   }
 }
@@ -5488,7 +5476,7 @@ void wandDisconnectCheck() {
       }
     }
     else {
-      if(ms_wand_check.remaining() < 1500 && !b_wand_syncing) {
+      if(ms_wand_check.remaining() < (ms_wand_check.delay() / 5) && !b_wand_syncing) {
         // If we haven't received a handshake from the wand in over 6.5 seconds, force a handshake with the wand.
         // This is because the wand is supposed to handshake every 3.25 seconds and we haven't heard back in two pings.
         // This should be a last-resort check to make sure it's available and responding.

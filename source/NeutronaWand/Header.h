@@ -400,7 +400,7 @@ SerialTransfer wandComs;
  * Used to identify the state of the wand as it connects to a Proton Pack.
  * These should be mutually exclusive and non-overlapping states for the wand communications.
  */
-enum WAND_CONN_STATES { NC_BENCHTEST, PACK_DISCONNECTED, SYNCHRONIZING, PACK_CONNECTED };
+enum WAND_CONN_STATES { NC_BENCHTEST, PACK_DISCONNECTED, PACK_CONNECTED };
 enum WAND_CONN_STATES WAND_CONN_STATE;
 
 /*

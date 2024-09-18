@@ -25,9 +25,17 @@
  * It is therefore important that the total number of elements per enum must remain below 254 to not overflow that (byte) type.
  */
 
+enum device_ids : uint8_t {
+  A_COM_START,
+  P_COM_START,
+  W_COM_START,
+  A_COM_END,
+  P_COM_END,
+  W_COM_END
+};
+
 enum pack_messages : uint8_t {
   P_NULL,
-  P_COM_START,
   P_HANDSHAKE,
   P_SYNC_START,
   P_SYNC_DATA,
@@ -131,13 +139,11 @@ enum pack_messages : uint8_t {
   P_INNER_CYCLOTRON_PANEL_DYNAMIC,
   P_POWERCELL_NOT_INVERTED,
   P_POWERCELL_INVERTED,
-  P_POST_FINISH,
-  P_COM_END
+  P_POST_FINISH
 };
 
 enum wand_messages : uint8_t {
   W_NULL,
-  W_COM_START,
   W_HANDSHAKE,
   W_SYNC_NOW,
   W_SYNCHRONIZED,
@@ -348,13 +354,11 @@ enum wand_messages : uint8_t {
   W_TOGGLE_INNER_CYCLOTRON_PANEL,
   W_WAND_BOOTUP_1989,
   W_TOGGLE_POWERCELL_DIRECTION,
-  W_COM_SOUND_NUMBER,
-  W_COM_END
+  W_COM_SOUND_NUMBER
 };
 
 enum api_messages : uint8_t {
   A_NULL,
-  A_COM_START,
   A_HANDSHAKE,
   A_SYNC_START,
   A_SYNC_DATA,
@@ -409,7 +413,6 @@ enum api_messages : uint8_t {
   A_PACK_OFF,
   A_TURN_PACK_ON,
   A_TURN_PACK_OFF,
-  A_PACK_CONNECTED,
   A_SPECTRAL_COLOUR_DATA,
   A_MUSIC_START_STOP,
   A_TOGGLE_MUTE,
@@ -439,6 +442,5 @@ enum api_messages : uint8_t {
   A_SEND_PREFERENCES_SMOKE,
   A_SAVE_PREFERENCES_PACK,
   A_SAVE_PREFERENCES_WAND,
-  A_SAVE_PREFERENCES_SMOKE,
-  A_COM_END
+  A_SAVE_PREFERENCES_SMOKE
 };

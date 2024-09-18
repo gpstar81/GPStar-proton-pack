@@ -626,17 +626,6 @@ void checkPack() {
             break;
           }
 
-          switch(wandSyncData.cyclotronLidState) {
-            case 1:
-              b_pack_cyclotron_lid_on = false;
-            break;
-
-            case 2:
-            default:
-              b_pack_cyclotron_lid_on = true;
-            break;
-          }
-
           // Update the System Year setting.
           switch(wandSyncData.systemYear) {
             case 1:
@@ -737,16 +726,12 @@ void checkPack() {
 
           // Set up master vibration switch if not configured to override it.
           if(VIBRATION_MODE_EEPROM == VIBRATION_DEFAULT) {
-            switch(wandSyncData.vibrationEnabled) {
-              case 1:
-                b_vibration_switch_on = false;
-              break;
-              case 2:
-              default:
-                b_vibration_switch_on = true;
-              break;
-            }
+            b_vibration_switch_on = wandSyncData.vibrationEnabled == 2;
           }
+
+          // Update cyclotron lid status and music loop status.
+          b_pack_cyclotron_lid_on = wandSyncData.cyclotronLidState == 2;
+          b_repeat_track = wandSyncData.repeatMusicTrack == 2;
 
           // Set the percentage volume.
           i_volume_master_percentage = wandSyncData.masterVolume;
@@ -774,16 +759,6 @@ void checkPack() {
               // The pack is telling us to be silent.
               i_volume_master = i_volume_abs_min;
               resetMasterVolume();
-            break;
-          }
-
-          switch(wandSyncData.repeatMusicTrack) {
-            case 1:
-            default:
-              b_repeat_track = false;
-            break;
-            case 2:
-              b_repeat_track = true;
             break;
           }
         break;

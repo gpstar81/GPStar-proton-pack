@@ -25,9 +25,17 @@
  * It is therefore important that the total number of elements per enum must remain below 254 to not overflow that (byte) type.
  */
 
+enum device_ids : uint8_t {
+  A_COM_START,
+  P_COM_START,
+  W_COM_START,
+  A_COM_END,
+  P_COM_END,
+  W_COM_END
+};
+
 enum pack_messages : uint8_t {
   P_NULL,
-  P_COM_START,
   P_HANDSHAKE,
   P_SYNC_START,
   P_SYNC_DATA,
@@ -131,13 +139,11 @@ enum pack_messages : uint8_t {
   P_INNER_CYCLOTRON_PANEL_DYNAMIC,
   P_POWERCELL_NOT_INVERTED,
   P_POWERCELL_INVERTED,
-  P_POST_FINISH,
-  P_COM_END
+  P_POST_FINISH
 };
 
 enum wand_messages : uint8_t {
   W_NULL,
-  W_COM_START,
   W_HANDSHAKE,
   W_SYNC_NOW,
   W_SYNCHRONIZED,
@@ -348,6 +354,5 @@ enum wand_messages : uint8_t {
   W_TOGGLE_INNER_CYCLOTRON_PANEL,
   W_WAND_BOOTUP_1989,
   W_TOGGLE_POWERCELL_DIRECTION,
-  W_COM_SOUND_NUMBER,
-  W_COM_END
+  W_COM_SOUND_NUMBER
 };

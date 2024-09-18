@@ -26,9 +26,17 @@
  * It is therefore important that the total number of elements per enum must remain below 254 to not overflow that (byte) type.
  */
 
+enum device_ids : uint8_t {
+  A_COM_START,
+  P_COM_START,
+  W_COM_START,
+  A_COM_END,
+  P_COM_END,
+  W_COM_END
+};
+
 enum api_messages : uint8_t {
   A_NULL,
-  A_COM_START,
   A_HANDSHAKE,
   A_SYNC_START,
   A_SYNC_DATA,
@@ -83,7 +91,6 @@ enum api_messages : uint8_t {
   A_PACK_OFF,
   A_TURN_PACK_ON,
   A_TURN_PACK_OFF,
-  A_PACK_CONNECTED,
   A_SPECTRAL_COLOUR_DATA,
   A_MUSIC_START_STOP,
   A_TOGGLE_MUTE,
@@ -113,6 +120,5 @@ enum api_messages : uint8_t {
   A_SEND_PREFERENCES_SMOKE,
   A_SAVE_PREFERENCES_PACK,
   A_SAVE_PREFERENCES_WAND,
-  A_SAVE_PREFERENCES_SMOKE,
-  A_COM_END
+  A_SAVE_PREFERENCES_SMOKE
 };

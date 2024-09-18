@@ -65,8 +65,10 @@ void setup() {
   #endif
 
   // Assume the Super Hero arming mode with Afterlife (default for Haslab).
-  SYSTEM_MODE = MODE_SUPER_HERO;
-  RED_SWITCH_MODE = SWITCH_OFF;
+  #if defined(__XTENSA__)
+    SYSTEM_MODE = MODE_SUPER_HERO;
+    RED_SWITCH_MODE = SWITCH_OFF;
+  #endif
   SYSTEM_YEAR = SYSTEM_AFTERLIFE;
 
   // Boot into proton mode (default for pack and wand).
@@ -153,13 +155,16 @@ void setup() {
   setupBargraph();
 
   // Feedback devices (piezo buzzer and vibration motor)
-  pinMode(BUZZER_PIN, OUTPUT);
   #if defined(__XTENSA__)
-    // ESP32 - Note: "ledcAttach" is a combined method for the arduino-esp32 v3.x board library
-    ledcAttach(VIBRATION_PIN, 5000, 8); // Uses 5 kHz frequency, 8-bit resolution
+    // ESP32 - Note: "ledcAttachChannel" is a combined method for the arduino-esp32 v3.x board library
+    ledcAttachChannel(VIBRATION_PIN, 5000, 8, 5); // Uses 5 kHz frequency, 8-bit resolution, Channel 5
+    //setToneChannel(0); // Forces Tone to use Channel 0, implemented in ESP32 3.1.0
+    ledcAttachChannel(BUZZER_PIN, 440, 10, 0); // Uses 440 Hz frequency, 10-bit resolution, Channel 0
   #else
     // Nano
+    TCCR2B = (TCCR2B & B11111000) | B00000010; // Set pin 11 PWM frequency to 3921.16 Hz
     pinMode(VIBRATION_PIN, OUTPUT);
+    pinMode(BUZZER_PIN, OUTPUT);
   #endif
 
   // Turn off any user feedback.
@@ -181,13 +186,16 @@ void setup() {
       // Begin timer for remote client events.
       ms_cleanup.start(i_websocketCleanup);
     }
+  #else
+    // Delay to allow any other devices to start up first.
+    delay(100);
   #endif
-
-  // Delay to allow any other devices to start up first.
-  delay(100);
 
   // Initialize critical timers.
   ms_fast_led.start(0);
+  if(b_wait_for_pack) {
+    ms_packsync.start(0);
+  }
 }
 
 void loop() {
@@ -224,7 +232,19 @@ void loop() {
   #endif
 
   if(b_wait_for_pack) {
-    // Wait and synchronise some settings with the pack.
+    if(ms_packsync.justFinished()) {
+      // Tell the pack we are trying to sync.
+      attenuatorSerialSend(A_SYNC_START);
+
+      #if defined(__XTENSA__)
+        // ESP - Turn off built-in LED.
+        digitalWrite(BUILT_IN_LED, LOW);
+      #endif
+
+      // Pause and try again in a moment.
+      ms_packsync.start(i_sync_initial_delay);
+    }
+
     checkPack();
 
     if(!b_wait_for_pack) {
@@ -233,10 +253,6 @@ void loop() {
         // ESP - Illuminate built-in LED.
         digitalWrite(BUILT_IN_LED, HIGH);
       #endif
-    }
-    else {
-      // Pause and try again in a moment.
-      delay(10);
     }
   }
   else {

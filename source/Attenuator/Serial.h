@@ -29,7 +29,6 @@
   #define TXD2 17
 #endif
 SerialTransfer packComs;
-bool b_sync_start = false; // Denotes whether pack communications have begun (initial: false).
 
 // Types of packets to be sent.
 enum PACKET_TYPE : uint8_t {
@@ -153,13 +152,18 @@ struct __attribute__((packed)) AttenuatorSyncData {
   uint8_t streamMode;
   uint8_t wandPresent;
   uint8_t barrelExtended;
+  uint8_t wandFiring;
+  uint8_t overheatingNow;
+  uint8_t speedMultiplier;
   uint8_t spectralColour;
   uint8_t spectralSaturation;
+  uint8_t masterMuted;
   uint8_t masterVolume;
   uint8_t effectsVolume;
   uint8_t musicVolume;
   uint8_t musicPlaying;
   uint8_t musicPaused;
+  uint8_t trackLooped;
   uint16_t currentTrack;
   uint16_t musicCount;
 } attenuatorSyncData;
@@ -256,11 +260,16 @@ bool checkPack() {
     #endif
 
     if(i_packet_id > 0) {
+      if(ms_packsync.isRunning() && !b_wait_for_pack) {
+        // If the timer is still running and Pack is connected, consider any request as proof of life.
+        ms_packsync.restart();
+      }
+
       // Determine the type of packet which was sent by the serial1 device.
       switch(i_packet_id) {
         case PACKET_COMMAND:
           packComs.rxObj(recvCmd);
-          if(recvCmd.c > 0 && recvCmd.s == A_COM_START && recvCmd.e == A_COM_END) {
+          if(recvCmd.c > 0 && recvCmd.s == P_COM_START && recvCmd.e == P_COM_END) {
             #if defined(__XTENSA__) && defined(DEBUG_SERIAL_COMMS)
               debug("Recv. Command: " + String(recvCmd.c));
             #endif
@@ -272,8 +281,13 @@ bool checkPack() {
         break;
 
         case PACKET_DATA:
+          if(b_wait_for_pack) {
+            // Can't proceed if the Pack isn't connected; prevents phantom actions from occurring.
+            return false;
+          }
+
           packComs.rxObj(recvData);
-          if(recvData.m > 0 && recvData.s == A_COM_START && recvData.e == A_COM_END) {
+          if(recvData.m > 0 && recvData.s == P_COM_START && recvData.e == P_COM_END) {
             #if defined(__XTENSA__) && defined(DEBUG_SERIAL_COMMS)
               debug("Recv. Message: " + String(recvData.m));
             #endif
@@ -323,6 +337,11 @@ bool checkPack() {
         break;
 
         case PACKET_PACK:
+          if(b_wait_for_pack) {
+            // Can't proceed if the Pack isn't connected; prevents phantom actions from occurring.
+            return false;
+          }
+
           // Only applies to ESP32 for the web UI.
           #if defined(__XTENSA__)
             debug("Pack Preferences Received");
@@ -332,6 +351,11 @@ bool checkPack() {
         break;
 
         case PACKET_WAND:
+          if(b_wait_for_pack) {
+            // Can't proceed if the Pack isn't connected; prevents phantom actions from occurring.
+            return false;
+          }
+
           // Only applies to ESP32 for the web UI.
           #if defined(__XTENSA__)
             debug("Wand Preferences Received");
@@ -341,6 +365,11 @@ bool checkPack() {
         break;
 
         case PACKET_SMOKE:
+          if(b_wait_for_pack) {
+            // Can't proceed if the Pack isn't connected; prevents phantom actions from occurring.
+            return false;
+          }
+
           // Only applies to ESP32 for the web UI.
           #if defined(__XTENSA__)
             debug("Smoke Preferences Received");
@@ -423,28 +452,34 @@ bool checkPack() {
             break;
           }
 
-          SYSTEM_MODE = attenuatorSyncData.systemMode == 1 ? MODE_SUPER_HERO : MODE_ORIGINAL;
-          RED_SWITCH_MODE = attenuatorSyncData.ionArmSwitch == 2 ? SWITCH_ON : SWITCH_OFF;
-          BARREL_STATE = attenuatorSyncData.barrelExtended == 1 ? BARREL_EXTENDED : BARREL_RETRACTED;
           b_pack_on = attenuatorSyncData.packOn == 1;
-          b_wand_present = attenuatorSyncData.wandPresent == 1;
-          b_cyclotron_lid_on = attenuatorSyncData.cyclotronLidState == 1;
+          b_firing = attenuatorSyncData.wandFiring == 1;
+          b_overheating = attenuatorSyncData.overheatingNow == 1;
+          i_speed_multiplier = attenuatorSyncData.speedMultiplier;
           i_spectral_custom_colour = attenuatorSyncData.spectralColour;
           i_spectral_custom_saturation = attenuatorSyncData.spectralSaturation;
-          i_volume_master_percentage = attenuatorSyncData.masterVolume;
-          i_volume_effects_percentage = attenuatorSyncData.effectsVolume;
-          i_volume_music_percentage = attenuatorSyncData.musicVolume;
-          i_music_track_current = attenuatorSyncData.currentTrack;
-          i_music_track_count = attenuatorSyncData.musicCount;
-          b_playing_music = attenuatorSyncData.musicPlaying == 1;
-          b_music_paused = attenuatorSyncData.musicPaused == 1;
 
-          if(i_music_track_count > 0) {
-            i_music_track_min = i_music_track_offset; // First music track possible (eg. 500)
-            i_music_track_max = i_music_track_offset + i_music_track_count - 1; // 500 + N - 1 to be inclusive of the offset value.
-          }
+          #if defined(__XTENSA__)
+            SYSTEM_MODE = attenuatorSyncData.systemMode == 1 ? MODE_SUPER_HERO : MODE_ORIGINAL;
+            RED_SWITCH_MODE = attenuatorSyncData.ionArmSwitch == 2 ? SWITCH_ON : SWITCH_OFF;
+            BARREL_STATE = attenuatorSyncData.barrelExtended == 1 ? BARREL_EXTENDED : BARREL_RETRACTED;
+            b_wand_present = attenuatorSyncData.wandPresent == 1;
+            b_cyclotron_lid_on = attenuatorSyncData.cyclotronLidState == 1;
+            i_volume_master_percentage = attenuatorSyncData.masterVolume;
+            i_volume_effects_percentage = attenuatorSyncData.effectsVolume;
+            i_volume_music_percentage = attenuatorSyncData.musicVolume;
+            i_music_track_current = attenuatorSyncData.currentTrack;
+            i_music_track_count = attenuatorSyncData.musicCount;
+            b_repeat_track = attenuatorSyncData.trackLooped == 2;
+            b_playing_music = attenuatorSyncData.musicPlaying == 1;
+            b_music_paused = attenuatorSyncData.musicPaused == 1;
+            b_master_muted = attenuatorSyncData.masterMuted == 2;
 
-          return true; // Indicates a status change.
+            if(i_music_track_count > 0) {
+              i_music_track_min = i_music_track_offset; // First music track possible (eg. 500)
+              i_music_track_max = i_music_track_offset + i_music_track_count - 1; // 500 + N - 1 to be inclusive of the offset value.
+            }
+          #endif
         break;
       }
     }
@@ -457,13 +492,25 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
   bool b_state_changed = false; // Indicates when a crucial state change occurred.
 
   switch(i_command) {
+    case A_HANDSHAKE:
+      #if defined(__XTENSA__)
+        debug("Handshake");
+      #endif
+
+      if(!b_wait_for_pack) {
+        // The pack is asking us if we are still here. Respond back.
+        attenuatorSerialSend(A_HANDSHAKE);
+      }
+      else {
+        // Who the heck is this pack!? Demand a sync!
+        attenuatorSerialSend(A_SYNC_START);
+      }
+    break;
+
     case A_SYNC_START:
       #if defined(__XTENSA__)
         debug("Sync Start");
       #endif
-
-      i_speed_multiplier = 1;
-      b_sync_start = true;
     break;
 
     case A_SYNC_END:
@@ -472,8 +519,8 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       #endif
 
       b_wait_for_pack = false;
-      b_sync_start = false;
       b_state_changed = true;
+      ms_packsync.start(i_sync_disconnect_delay);
 
       attenuatorSerialSend(A_SYNC_END); // Signal end of sync.
     break;
@@ -554,139 +601,127 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       BARGRAPH_PATTERN = BG_RAMP_DOWN;
     break;
 
+    case A_TOGGLE_MUTE:
+      #if defined(__XTENSA__)
+        debug("Received mute value: " + String(i_value));
+        b_master_muted = i_value == 2;
+      #endif
+    break;
+
+    case A_MUSIC_TRACK_LOOP_TOGGLE:
+      #if defined(__XTENSA__)
+        debug("Received loop value: " + String(i_value));
+        b_repeat_track = i_value == 2;
+      #endif
+    break;
+
     case A_MUSIC_IS_PLAYING:
       #if defined(__XTENSA__)
         debug("Music Playing: " + String(i_value));
+
+        b_playing_music = true;
+
+        if(i_value > 0 && i_music_track_current != i_value) {
+          // Music track changed.
+          i_music_track_current = i_value;
+          b_state_changed = true;
+        }
       #endif
-
-      b_playing_music = true;
-
-      if(i_value > 0 && i_music_track_current != i_value) {
-        // Music track changed.
-        i_music_track_current = i_value;
-        b_state_changed = true;
-      }
     break;
 
     case A_MUSIC_IS_NOT_PLAYING:
       #if defined(__XTENSA__)
         debug("Music Stopped: " + String(i_value));
+
+        b_playing_music = false;
+
+        if(i_value > 0 && i_music_track_current != i_value) {
+          // Music track changed.
+          i_music_track_current = i_value;
+          b_state_changed = true;
+        }
       #endif
-
-      b_playing_music = false;
-
-      if(i_value > 0 && i_music_track_current != i_value) {
-        // Music track changed.
-        i_music_track_current = i_value;
-        b_state_changed = true;
-      }
     break;
 
     case A_MUSIC_IS_PAUSED:
-      if(!b_music_paused) {
         #if defined(__XTENSA__)
-          debug("Music Paused");
-        #endif
+          if(!b_music_paused) {
+            debug("Music Paused");
 
-        b_music_paused = true;
-        b_state_changed = true;
-      }
+            b_music_paused = true;
+            b_state_changed = true;
+          }
+        #endif
     break;
 
     case A_MUSIC_IS_NOT_PAUSED:
-      if(b_music_paused) {
         #if defined(__XTENSA__)
-          debug("Music Resumed");
-        #endif
+          if(b_music_paused) {
+            debug("Music Resumed");
 
-        b_music_paused = false;
-        b_state_changed = true;
-      }
+            b_music_paused = false;
+            b_state_changed = true;
+          }
+        #endif
     break;
 
     case A_MUSIC_TRACK_COUNT_SYNC:
       #if defined(__XTENSA__)
         debug("Music Track Sync: " + String(i_value));
-      #endif
 
-      if(i_value > 0) {
-        i_music_track_count = i_value;
-      }
+        if(i_value > 0) {
+          i_music_track_count = i_value;
+        }
 
-      #if defined(__XTENSA__)
         debug("Track Count: " + String(i_music_track_count));
+
+        if(i_music_track_count > 0) {
+          i_music_track_min = i_music_track_offset; // First music track possible (eg. 500)
+          i_music_track_max = i_music_track_offset + i_music_track_count - 1; // 500 + N - 1 to be inclusive of the offset value.
+        }
       #endif
-
-      if(i_music_track_count > 0) {
-        i_music_track_min = i_music_track_offset; // First music track possible (eg. 500)
-        i_music_track_max = i_music_track_offset + i_music_track_count - 1; // 500 + N - 1 to be inclusive of the offset value.
-      }
-    break;
-
-    case A_PACK_CONNECTED:
-      // The Proton Pack is connected.
-      #if defined(__XTENSA__)
-        debug("Pack Connected");
-      #endif
-
-      b_state_changed = true;
-    break;
-
-    case A_HANDSHAKE:
-      #if defined(__XTENSA__)
-        // debug("Handshake");
-      #endif
-
-      if(b_wait_for_pack && !b_sync_start) {
-        b_sync_start = true;
-        attenuatorSerialSend(A_SYNC_START);
-      }
-      else if(!b_sync_start) {
-        // The pack is asking us if we are still here. Respond back.
-        attenuatorSerialSend(A_HANDSHAKE);
-      }
     break;
 
     case A_MODE_SUPER_HERO:
-      if(SYSTEM_MODE != MODE_SUPER_HERO) {
         #if defined(__XTENSA__)
-          debug("Super Hero Sequence");
+          if(SYSTEM_MODE != MODE_SUPER_HERO) {
+            debug("Super Hero Sequence");
+            SYSTEM_MODE = MODE_SUPER_HERO;
+            b_state_changed = true;
+          }
         #endif
-        SYSTEM_MODE = MODE_SUPER_HERO;
-        b_state_changed = true;
-      }
     break;
 
     case A_MODE_ORIGINAL:
-      if(SYSTEM_MODE != MODE_ORIGINAL) {
         #if defined(__XTENSA__)
-          debug("Original Sequence");
+          if(SYSTEM_MODE != MODE_ORIGINAL) {
+            debug("Original Sequence");
+            SYSTEM_MODE = MODE_ORIGINAL;
+            b_state_changed = true;
+          }
         #endif
-        SYSTEM_MODE = MODE_ORIGINAL;
-        b_state_changed = true;
-      }
     break;
 
     case A_MODE_ORIGINAL_RED_SWITCH_ON:
       // The proton pack red switch is on and has power (cyclotron not powered up yet).
-      if(RED_SWITCH_MODE != SWITCH_ON) {
         #if defined(__XTENSA__)
-          debug("Red Switch On");
+          if(RED_SWITCH_MODE != SWITCH_ON) {
+            debug("Red Switch On");
+            RED_SWITCH_MODE = SWITCH_ON;
+            b_state_changed = true;
+          }
         #endif
-        RED_SWITCH_MODE = SWITCH_ON;
-        b_state_changed = true;
-      }
     break;
 
     case A_MODE_ORIGINAL_RED_SWITCH_OFF:
       // The proton pack red switch is off. This will cause a total system shutdown.
-      if(RED_SWITCH_MODE != SWITCH_OFF) {
         #if defined(__XTENSA__)
-          debug("Red Switch Off");
+          if(RED_SWITCH_MODE != SWITCH_OFF) {
+            debug("Red Switch Off");
+            RED_SWITCH_MODE = SWITCH_OFF;
+            b_state_changed = true;
+          }
         #endif
-        RED_SWITCH_MODE = SWITCH_OFF;
-        b_state_changed = true;
-      }
     break;
 
     case A_YEAR_1984:
@@ -790,6 +825,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       #if defined(__XTENSA__)
         debug("Power Level 1");
       #endif
+
       POWER_LEVEL_PREV = POWER_LEVEL;
       POWER_LEVEL = LEVEL_1;
       b_state_changed = true;
@@ -799,6 +835,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       #if defined(__XTENSA__)
         debug("Power Level 2");
       #endif
+
       POWER_LEVEL_PREV = POWER_LEVEL;
       POWER_LEVEL = LEVEL_2;
       b_state_changed = true;
@@ -808,6 +845,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       #if defined(__XTENSA__)
         debug("Power Level 3");
       #endif
+
       POWER_LEVEL_PREV = POWER_LEVEL;
       POWER_LEVEL = LEVEL_3;
       b_state_changed = true;
@@ -817,6 +855,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       #if defined(__XTENSA__)
         debug("Power Level 4");
       #endif
+
       POWER_LEVEL_PREV = POWER_LEVEL;
       POWER_LEVEL = LEVEL_4;
       b_state_changed = true;
@@ -826,6 +865,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       #if defined(__XTENSA__)
         debug("Power Level 5");
       #endif
+
       POWER_LEVEL_PREV = POWER_LEVEL;
       POWER_LEVEL = LEVEL_5;
       b_state_changed = true;
@@ -964,17 +1004,15 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     case A_CYCLOTRON_LID_ON:
       #if defined(__XTENSA__)
         debug("Cyclotron Lid On...");
+        b_cyclotron_lid_on = true;
       #endif
-
-      b_cyclotron_lid_on = true;
     break;
 
     case A_CYCLOTRON_LID_OFF:
       #if defined(__XTENSA__)
         debug("Cyclotron Lid Off...");
+        b_cyclotron_lid_on = false;
       #endif
-
-      b_cyclotron_lid_on = false;
     break;
 
     case A_CYCLOTRON_INCREASE_SPEED:
@@ -1011,45 +1049,47 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_BARREL_EXTENDED:
-      if(BARREL_STATE != BARREL_EXTENDED) {
         #if defined(__XTENSA__)
-          debug("Wand Barrel Extended");
+          if(BARREL_STATE != BARREL_EXTENDED) {
+            debug("Wand Barrel Extended");
+            BARREL_STATE = BARREL_EXTENDED;
+            b_state_changed = true;
+          }
         #endif
-
-        BARREL_STATE = BARREL_EXTENDED;
-        b_state_changed = true;
-      }
     break;
 
     case A_BARREL_RETRACTED:
-      if(BARREL_STATE != BARREL_RETRACTED) {
         #if defined(__XTENSA__)
-          debug("Wand Barrel Retracted");
+          if(BARREL_STATE != BARREL_RETRACTED) {
+            debug("Wand Barrel Retracted");
+            BARREL_STATE = BARREL_RETRACTED;
+            b_state_changed = true;
+          }
         #endif
-
-        BARREL_STATE = BARREL_RETRACTED;
-        b_state_changed = true;
-      }
     break;
 
     case A_BATTERY_VOLTAGE_PACK:
-      #if defined(__XTENSA__) && defined(DEBUG_SERIAL_COMMS)
-        debug("Pack Voltage (x100): " + String(i_value));
-      #endif
+      #if defined(__XTENSA__)
+        #if defined(DEBUG_SERIAL_COMMS)
+          debug("Pack Voltage (x100): " + String(i_value));
+        #endif
 
-      // Convert to a value X.NN based on expected 5VDC maximum.
-      f_batt_volts = (float) i_value / 100;
-      b_state_changed = true;
+        // Convert to a value X.NN based on expected 5VDC maximum.
+        f_batt_volts = (float) i_value / 100;
+        b_state_changed = true;
+      #endif
     break;
 
     case A_WAND_POWER_AMPS:
-      #if defined(__XTENSA__) && defined(DEBUG_SERIAL_COMMS)
-        debug("Wand Current (x100): " + String(i_value));
-      #endif
+      #if defined(__XTENSA__)
+        #if defined(DEBUG_SERIAL_COMMS)
+          debug("Wand Current (x100): " + String(i_value));
+        #endif
 
-      // Convert to a value X.NN based on expected 1Amp maximum.
-      f_wand_amps = (float) i_value / 100;
-      b_state_changed = true;
+        // Convert to a value X.NN based on expected 1Amp maximum.
+        f_wand_amps = (float) i_value / 100;
+        b_state_changed = true;
+      #endif
     break;
 
     default:

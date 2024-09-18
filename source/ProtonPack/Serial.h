@@ -161,13 +161,18 @@ struct __attribute__((packed)) AttenuatorSyncData {
   uint8_t streamMode;
   uint8_t wandPresent;
   uint8_t barrelExtended;
+  uint8_t wandFiring;
+  uint8_t overheatingNow;
+  uint8_t speedMultiplier;
   uint8_t spectralColour;
   uint8_t spectralSaturation;
+  uint8_t masterMuted;
   uint8_t masterVolume;
   uint8_t effectsVolume;
   uint8_t musicVolume;
   uint8_t musicPlaying;
   uint8_t musicPaused;
+  uint8_t trackLooped;
   uint16_t currentTrack;
   uint16_t musicCount;
 } attenuatorSyncData;
@@ -262,10 +267,10 @@ void serial1Send(uint8_t i_command, uint16_t i_value) {
   // debug(F("Command to Serial1: "));
   // debugln(i_command);
 
-  sendCmdS.s = A_COM_START;
+  sendCmdS.s = P_COM_START;
   sendCmdS.c = i_command;
   sendCmdS.d1 = i_value;
-  sendCmdS.e = A_COM_END;
+  sendCmdS.e = P_COM_END;
 
   i_send_size = serial1Coms.txObj(sendCmdS);
   serial1Coms.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
@@ -282,9 +287,9 @@ void serial1SendData(uint8_t i_message) {
   // debug(F("Data to Serial1: "))
   // debugln(i_message);
 
-  sendDataS.s = A_COM_START;
+  sendDataS.s = P_COM_START;
   sendDataS.m = i_message;
-  sendDataS.e = A_COM_END;
+  sendDataS.e = P_COM_END;
 
   // Set all elements of the data array to 0
   memset(sendDataW.d, 0, sizeof(sendDataW.d));
@@ -504,6 +509,11 @@ void checkSerial1() {
     // debugln(i_packet_id);
 
     if(i_packet_id > 0) {
+      if(ms_serial1_check.isRunning() && b_serial1_connected) {
+        // If the timer is still running and Attenuator is connected, consider any request as proof of life.
+        ms_serial1_check.restart();
+      }
+
       // Determine the type of packet which was sent by the serial1 device.
       switch(i_packet_id) {
         case PACKET_COMMAND:
@@ -516,6 +526,11 @@ void checkSerial1() {
         break;
 
         case PACKET_DATA:
+          if(!b_serial1_connected) {
+            // Can't proceed if the Attenuator isn't connected; prevents phantom actions from occurring.
+            return;
+          }
+
           serial1Coms.rxObj(recvDataS);
           if(recvDataS.m > 0 && recvDataS.s == A_COM_START && recvDataS.e == A_COM_END) {
             debug(F("Recv. Serial1 Message: "));
@@ -525,6 +540,11 @@ void checkSerial1() {
         break;
 
         case PACKET_PACK:
+          if(!b_serial1_connected) {
+            // Can't proceed if the Attenuator isn't connected; prevents phantom actions from occurring.
+            return;
+          }
+
           serial1Coms.rxObj(packConfig);
           debugln(F("Recv. Pack Config"));
 
@@ -740,6 +760,11 @@ void checkSerial1() {
         break;
 
         case PACKET_WAND:
+          if(!b_serial1_connected) {
+            // Can't proceed if the Attenuator isn't connected; prevents phantom actions from occurring.
+            return;
+          }
+
           serial1Coms.rxObj(wandConfig);
           debugln(F("Recv. Wand Config"));
 
@@ -752,6 +777,11 @@ void checkSerial1() {
         break;
 
         case PACKET_SMOKE:
+          if(!b_serial1_connected) {
+            // Can't proceed if the Attenuator isn't connected; prevents phantom actions from occurring.
+            return;
+          }
+
           serial1Coms.rxObj(smokeConfig);
           debugln(F("Recv. Smoke Config"));
 
@@ -782,133 +812,157 @@ void checkSerial1() {
   }
 }
 
-void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
-  switch(i_command) {
-    case A_HANDSHAKE:
-      // The Attenuator is still here.
-      ms_serial1_handshake.start(i_serial1_handshake_delay);
-      ms_serial1_handshake_checking.start(i_serial1_handshake_delay / 2);
+void doSerial1Sync() {
+  // Denote sync in progress, don't run this code again if we get another handshake.
+  // This will be cleared once the Attenuator responds back that it has been synchronized.
+  b_serial1_syncing = true;
+  b_serial1_connected = false;
+  ms_serial1_check.stop();
+
+  if(b_diagnostic) {
+    playEffect(S_BEEPS_ALT);
+  }
+
+  debugln(F("Serial1 Sync Start"));
+  serial1Send(A_SYNC_START);
+
+  // Tell the serial1 device about the wand status.
+  attenuatorSyncData.wandPresent = b_wand_connected ? 1 : 0;
+  attenuatorSyncData.barrelExtended = b_neutrona_wand_barrel_extended ? 1 : 0;
+  attenuatorSyncData.wandFiring = b_wand_firing ? 1 : 0;
+
+  switch(SYSTEM_MODE) {
+    case MODE_ORIGINAL:
+      attenuatorSyncData.systemMode = 2;
+
+      if(switch_power.getState() == LOW) {
+        attenuatorSyncData.ionArmSwitch = 2;
+      }
+      else {
+        attenuatorSyncData.ionArmSwitch = 1;
+      }
     break;
 
+    case MODE_SUPER_HERO:
+    default:
+      attenuatorSyncData.systemMode = 1;
+      attenuatorSyncData.ionArmSwitch = 1;
+    break;
+  }
+
+  switch(SYSTEM_YEAR) {
+    case SYSTEM_1984:
+      attenuatorSyncData.systemYear = 1;
+    break;
+    case SYSTEM_1989:
+      attenuatorSyncData.systemYear = 2;
+    break;
+    case SYSTEM_AFTERLIFE:
+    default:
+      attenuatorSyncData.systemYear = 3;
+    break;
+    case SYSTEM_FROZEN_EMPIRE:
+      attenuatorSyncData.systemYear = 4;
+    break;
+  }
+
+  // Pack status.
+  attenuatorSyncData.packOn = PACK_STATE != MODE_OFF ? 1 : 0;
+  attenuatorSyncData.powerLevel = i_wand_power_level;
+
+  // Synchronise the firing modes.
+  switch(STREAM_MODE) {
+    case SLIME:
+      attenuatorSyncData.streamMode = 2;
+    break;
+
+    case STASIS:
+      attenuatorSyncData.streamMode = 3;
+    break;
+
+    case MESON:
+      attenuatorSyncData.streamMode = 4;
+    break;
+
+    case SPECTRAL:
+      attenuatorSyncData.streamMode = 5;
+    break;
+
+    case HOLIDAY:
+      attenuatorSyncData.streamMode = b_christmas ? 7 : 6;
+    break;
+
+    case SPECTRAL_CUSTOM:
+      attenuatorSyncData.streamMode = 8;
+    break;
+
+    case PROTON:
+    default:
+      attenuatorSyncData.streamMode = 1;
+    break;
+  }
+
+  // Current spectral custom colour for outer cyclotron.
+  attenuatorSyncData.spectralColour = i_spectral_cyclotron_custom_colour;
+  attenuatorSyncData.spectralSaturation = i_spectral_cyclotron_custom_saturation;
+
+  // Cyclotron status.
+  attenuatorSyncData.cyclotronLidState = b_cyclotron_lid_on ? 1 : 0;
+  attenuatorSyncData.speedMultiplier = i_cyclotron_multiplier;
+  attenuatorSyncData.overheatingNow = b_overheating ? 1 : 0;
+
+  // This sends over the music status and the current music track.
+  attenuatorSyncData.musicPlaying = b_playing_music ? 1 : 0;
+  attenuatorSyncData.musicPaused = b_music_paused ? 1 : 0;
+  attenuatorSyncData.trackLooped = b_repeat_track ? 2 : 1;
+  attenuatorSyncData.currentTrack = i_current_music_track;
+  attenuatorSyncData.musicCount = i_music_count;
+  attenuatorSyncData.masterMuted = i_volume_master == i_volume_abs_min ? 2 : 1;
+  attenuatorSyncData.masterVolume = i_volume_master_percentage;
+  attenuatorSyncData.effectsVolume = i_volume_effects_percentage;
+  attenuatorSyncData.musicVolume = i_volume_music_percentage;
+
+  serial1SendData(A_SYNC_DATA);
+
+  // Send the ribbon cable alarm status if the ribbon cable is detached.
+  if(b_alarm && ribbonCableAttached() != true) {
+    serial1Send(A_ALARM_ON);
+  }
+
+  serial1Send(A_SYNC_END);
+  debugln(F("Serial1 Sync End"));
+}
+
+void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
+  if(!b_serial1_connected) {
+    // Can't proceed if the wand isn't connected; prevents phantom actions from occurring.
+    if(i_command != A_SYNC_START && i_command != A_HANDSHAKE && i_command != A_SYNC_END) {
+      // This applies for any action other than those responsible for sync operations.
+      return;
+    }
+  }
+
+  switch(i_command) {
     case A_SYNC_START:
-      // Check if the serial1 device is telling us it is here after connecting it to the pack.
-      // Then synchronise some settings between the pack and the serial1 device.
-      if(!b_serial1_connected && !b_serial1_syncing) {
-        b_serial1_syncing = true; // Sync has begun; do not try to start this command again.
+      // Attenuator has explicitly asked to be synchronized.
+      doSerial1Sync();
+    break;
 
-        // Begin the synchronization process.
-        debugln(F("Serial1 Sync Start"));
-        serial1Send(A_SYNC_START);
+    case A_HANDSHAKE:
+      b_serial1_syncing = false; // No longer attempting to force a sync w/ Attenuator.
+      b_serial1_connected = true; // If we're receiving handshake instead of SYNC_NOW we must be connected.
 
-        // Tell the serial1 device whether a wand is connected.
-        attenuatorSyncData.wandPresent = b_wand_connected ? 1 : 0;
-        attenuatorSyncData.barrelExtended = b_neutrona_wand_barrel_extended ? 1 : 0;
-
-        switch(SYSTEM_MODE) {
-          case MODE_ORIGINAL:
-            attenuatorSyncData.systemMode = 2;
-
-            if(switch_power.getState() == LOW) {
-              attenuatorSyncData.ionArmSwitch = 2;
-            }
-            else {
-              attenuatorSyncData.ionArmSwitch = 1;
-            }
-          break;
-
-          case MODE_SUPER_HERO:
-          default:
-            attenuatorSyncData.systemMode = 1;
-            attenuatorSyncData.ionArmSwitch = 1;
-          break;
-        }
-
-        switch(SYSTEM_YEAR) {
-          case SYSTEM_1984:
-            attenuatorSyncData.systemYear = 1;
-          break;
-          case SYSTEM_1989:
-            attenuatorSyncData.systemYear = 2;
-          break;
-          case SYSTEM_AFTERLIFE:
-          default:
-            attenuatorSyncData.systemYear = 3;
-          break;
-          case SYSTEM_FROZEN_EMPIRE:
-            attenuatorSyncData.systemYear = 4;
-          break;
-        }
-
-        // Pack status.
-        attenuatorSyncData.packOn = PACK_STATE != MODE_OFF ? 1 : 0;
-        attenuatorSyncData.powerLevel = i_wand_power_level;
-
-        // Synchronise the firing modes.
-        switch(STREAM_MODE) {
-          case SLIME:
-            attenuatorSyncData.streamMode = 2;
-          break;
-
-          case STASIS:
-            attenuatorSyncData.streamMode = 3;
-          break;
-
-          case MESON:
-            attenuatorSyncData.streamMode = 4;
-          break;
-
-          case SPECTRAL:
-            attenuatorSyncData.streamMode = 5;
-          break;
-
-          case HOLIDAY:
-            attenuatorSyncData.streamMode = b_christmas ? 7 : 6;
-          break;
-
-          case SPECTRAL_CUSTOM:
-            attenuatorSyncData.streamMode = 8;
-          break;
-
-          case PROTON:
-          default:
-            attenuatorSyncData.streamMode = 1;
-          break;
-        }
-
-        attenuatorSyncData.spectralColour = i_spectral_cyclotron_custom_colour;
-        attenuatorSyncData.spectralSaturation = i_spectral_cyclotron_custom_saturation;
-
-        // Cyclotron lid status.
-        attenuatorSyncData.cyclotronLidState = b_cyclotron_lid_on ? 1 : 0;
-
-        // This sends over the music status and the current music track.
-        attenuatorSyncData.musicPlaying = b_playing_music ? 1 : 0;
-        attenuatorSyncData.musicPaused = b_music_paused ? 1 : 0;
-        attenuatorSyncData.currentTrack = i_current_music_track;
-        attenuatorSyncData.musicCount = i_music_count;
-        attenuatorSyncData.masterVolume = i_volume_master_percentage;
-        attenuatorSyncData.effectsVolume = i_volume_effects_percentage;
-        attenuatorSyncData.musicVolume = i_volume_music_percentage;
-
-        serial1SendData(A_SYNC_DATA);
-
-        // Send the ribbon cable alarm status if the ribbon cable is detached.
-        if(b_alarm && ribbonCableAttached() != true) {
-          serial1Send(A_ALARM_ON);
-        }
-
-        b_serial1_connected = true; // Device is officially connected.
-        b_serial1_syncing = false; // Sync process has been completed.
-
-        ms_serial1_handshake.start(i_serial1_handshake_delay);
-        ms_serial1_handshake_checking.start(i_serial1_handshake_delay / 2);
-
-        serial1Send(A_SYNC_END);
+      if(b_diagnostic == true) {
+        // While in diagnostic mode, play a sound to indicate the wand is connected.
+        playEffect(S_BEEPS_ALT);
       }
     break;
 
     case A_SYNC_END:
-      debugln(F("Serial1 Sync End"));
+      debugln(F("Serial1 Synchronized"));
+      b_serial1_syncing = false;
+      b_serial1_connected = true;
+      ms_serial1_check.start(i_serial1_disconnect_delay);
     break;
 
     case A_TURN_PACK_ON:
@@ -969,6 +1023,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
         i_volume_master = i_volume_revert;
 
         packSerialSend(P_MASTER_AUDIO_NORMAL);
+        serial1Send(A_TOGGLE_MUTE, 1);
       }
       else {
         i_volume_revert = i_volume_master;
@@ -977,6 +1032,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
         i_volume_master = i_volume_abs_min;
 
         packSerialSend(P_MASTER_AUDIO_SILENT_MODE);
+        serial1Send(A_TOGGLE_MUTE, 2);
       }
 
       resetMasterVolume();
@@ -1056,8 +1112,8 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_MUSIC_TRACK_LOOP_TOGGLE:
-      debugln("Music Loop");
       toggleMusicLoop();
+      serial1Send(A_MUSIC_TRACK_LOOP_TOGGLE, b_repeat_track ? 2 : 1);
     break;
 
     case A_REQUEST_PREFERENCES_PACK:
@@ -1203,8 +1259,10 @@ void doWandSync() {
   // Denote sync in progress, don't run this code again if we get another handshake.
   // This will be cleared once the wand responds back that it has been synchronized.
   b_wand_syncing = true;
+  b_wand_connected = false;
+  ms_wand_check.stop();
 
-  if(b_diagnostic == true) {
+  if(b_diagnostic) {
     // While in diagnostic mode, play a sound to indicate the wand is being synchronized.
     playEffect(S_BEEPS);
   }
@@ -1212,7 +1270,6 @@ void doWandSync() {
   // Wand sync sound effect.
   stopEffect(S_WAND_SYNC);
   playEffect(S_WAND_SYNC);
-
 
   // Begin the synchronization process which tells the wand the pack got the handshake.
   debugln(F("Wand Sync Start"));
@@ -1254,14 +1311,6 @@ void doWandSync() {
     break;
   }
 
-  // Send the state of the cyclotron lid.
-  if(b_cyclotron_lid_on) {
-    wandSyncData.cyclotronLidState = 2; // Lid is on.
-  }
-  else {
-    wandSyncData.cyclotronLidState = 1; // Lid is off.
-  }
-
   // Make sure to send this after the system (operation) mode is sent.
   switch(SYSTEM_YEAR) {
     case SYSTEM_1984:
@@ -1279,14 +1328,17 @@ void doWandSync() {
     break;
   }
 
+  // Send the state of the cyclotron lid.
+  wandSyncData.cyclotronLidState = b_cyclotron_lid_on ? 2 : 1;
+
   // Denote the current looping preference for the current track; used by the menu system.
-  b_repeat_track ? (wandSyncData.repeatMusicTrack = 2) : (wandSyncData.repeatMusicTrack = 1); // 1 = No repeat, 2 = Repeat.
+  wandSyncData.repeatMusicTrack = b_repeat_track ? 2 : 1; // 1 = No repeat, 2 = Repeat.
 
   // Vibration enabled or disabled from the Proton Pack toggle switch.
-  b_vibration_switch_on ? (wandSyncData.vibrationEnabled = 2) : (wandSyncData.vibrationEnabled = 1); // 1 = Vibration off, 2 = Vibration on.
+  wandSyncData.vibrationEnabled = b_vibration_switch_on ? 2 : 1; // 1 = Vibration off, 2 = Vibration on.
 
   // Pack power status.
-  (PACK_STATE != MODE_OFF) ? (wandSyncData.packOn = 2) : (wandSyncData.packOn = 1); // 1 = Pack off, 2 = Pack on.
+  wandSyncData.packOn = PACK_STATE != MODE_OFF ? 2 : 1; // 1 = Pack off, 2 = Pack on.
 
   // Reset the wand power levels.
   wandSyncData.powerLevel = i_wand_power_level;
@@ -1310,12 +1362,7 @@ void doWandSync() {
     break;
 
     case HOLIDAY:
-      if(!b_christmas) {
-        wandSyncData.streamMode = 6; // 6 = Holiday (Halloween) Mode
-      }
-      else {
-        wandSyncData.streamMode = 7; // 7 = Holiday (Christmas) Mode
-      }
+      wandSyncData.streamMode = b_christmas ? 7 : 6; // 6 = Halloween, 7 = Christmas
     break;
 
     case SPECTRAL_CUSTOM:
@@ -1325,27 +1372,11 @@ void doWandSync() {
     case PROTON:
     default:
       wandSyncData.streamMode = 1; // 1 = Proton Mode.
-
-      STREAM_MODE = PROTON;
-
-      if(b_cyclotron_colour_toggle == true) {
-        // Reset the Cyclotron LED colours.
-        cyclotronColourReset();
-      }
-
-      if(b_powercell_colour_toggle == true && b_pack_on == true) {
-        // Reset the Power Cell colours if the Power Cell is running.
-        b_powercell_updating = true;
-        powercellDraw();
-      }
     break;
   }
 
-  // Update the Inner Cyclotron LEDs if required.
-  cyclotronSwitchLEDUpdate();
-
-  // Make sure the pack is fully reset if it is off while a new wand is connected.
   if(b_pack_on != true) {
+    // Set this flag to false to force a full reset of the pack if a new wand is connected.
     b_reset_start_led = false;
   }
 
@@ -1353,13 +1384,8 @@ void doWandSync() {
   wandSyncData.masterVolume = i_volume_master_percentage;
   wandSyncData.effectsVolume = i_volume_effects_percentage;
 
-  if(i_volume_master == i_volume_abs_min) {
     // Telling the wand to be silent if required.
-    wandSyncData.masterMuted = 2; // 2 = Muted.
-  }
-  else {
-    wandSyncData.masterMuted = 1; // 1 = Not muted.
-  }
+  wandSyncData.masterMuted = i_volume_master == i_volume_abs_min ? 2 : 1;
 
   // Send the completed synchronization packet.
   packSerialSendData(P_SYNC_DATA);
@@ -1386,11 +1412,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
   switch(i_command) {
     case W_SYNC_NOW:
       // Wand has explicitly asked to be synchronized, so treat as not yet connected.
-      b_wand_connected = false;
-      b_wand_syncing = false;
-      ms_wand_check.stop();
-
-      // Stop any wand sounds which are playing on the pack.
+      // First we stop any wand sounds which are playing on the pack.
       wandExtraSoundsStop();
       wandExtraSoundsBeepLoopStop(false);
 
@@ -1401,15 +1423,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       b_wand_syncing = false; // No longer attempting to force a sync w/ wand.
       b_wand_connected = true; // If we're receiving handshake instead of SYNC_NOW we must be connected
 
-      // Wand was connected and still present, so restart the disconnection check.
-      ms_wand_check.restart();
-
       // Tell the serial1 device the wand is still connected.
       serial1Send(A_WAND_CONNECTED);
 
       if(b_diagnostic == true) {
         // While in diagnostic mode, play a sound to indicate the wand is connected.
-        playEffect(S_BEEPS_ALT);
+        playEffect(S_BEEPS);
       }
     break;
 
@@ -3073,6 +3092,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_MUSIC_TRACK_LOOP_TOGGLE:
       toggleMusicLoop();
+      serial1Send(A_MUSIC_TRACK_LOOP_TOGGLE, b_repeat_track ? 2 : 1);
     break;
 
     case W_SILENT_MODE:

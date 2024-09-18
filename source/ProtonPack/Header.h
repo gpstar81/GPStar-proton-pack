@@ -395,9 +395,8 @@ const uint16_t i_wand_disconnect_delay = 8000; // Time until the pack considers 
  */
 bool b_serial1_connected = false;
 bool b_serial1_syncing = false;
-millisDelay ms_serial1_handshake;
-const uint16_t i_serial1_handshake_delay = 4000;
-millisDelay ms_serial1_handshake_checking;
+millisDelay ms_serial1_check;
+const uint16_t i_serial1_disconnect_delay = 8000; // Time until the pack considers the Serial1 device disconnected.
 
 /*
  * Define Serial Communication Buffers

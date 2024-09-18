@@ -1219,7 +1219,6 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
 
       // Disconnect from the WiFi network and re-apply any changes.
       WiFi.disconnect();
-      delay(100);
       if(b_enabled) {
         if(startExternalWifi()) {
           jsonBody["status"] = "Settings updated, WiFi connection restarted successfully.";
