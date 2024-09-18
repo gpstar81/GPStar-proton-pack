@@ -3098,20 +3098,10 @@ void modeFireStartSounds() {
 void modeFireStart() {
   i_fast_led_delay = FAST_LED_UPDATE_MS;
 
-  // Tell the Proton Pack that the Neutrona Wand is firing in Intensify mode.
-  if(b_firing_intensify == true) {
-    wandSerialSend(W_FIRING_INTENSIFY);
-  }
-
-  // Tell the Proton Pack that the Neutrona Wand is firing in Alt mode.
-  if(b_firing_alt == true) {
-    wandSerialSend(W_FIRING_ALT);
-  }
-
   modeFireStartSounds();
 
-  // Tell the pack the wand is firing.
-  wandSerialSend(W_FIRING);
+  // Tell the pack the wand is firing, and if in Intensify (1) or Alt (2) mode.
+  wandSerialSend(W_FIRING, b_firing_intensify ? 1 : 2);
 
   // Just in case a semi-auto was fired before we started firing a stream, stop its timer.
   ms_semi_automatic_firing.stop();

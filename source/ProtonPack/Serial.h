@@ -1723,6 +1723,21 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_FIRING:
       // Wand is firing.
+      if(i_value == 1) {
+        b_firing_intensify = true;
+
+        if(b_wand_firing && !b_sound_firing_intensify_trigger) {
+          b_sound_firing_intensify_trigger = true;
+        }
+      }
+      else {
+        b_firing_alt = true;
+
+        if(b_wand_firing && !b_sound_firing_alt_trigger) {
+          b_sound_firing_alt_trigger = true;
+        }
+      }
+
       wandFiring();
     break;
 
@@ -2337,15 +2352,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       overheatDecrement(5);
     break;
 
-    case W_FIRING_INTENSIFY:
-      // Wand firing in intensify mode.
-      b_firing_intensify = true;
-
-      if(b_wand_firing == true && b_sound_firing_intensify_trigger != true) {
-        b_sound_firing_intensify_trigger = true;
-      }
-    break;
-
     case W_FIRING_INTENSIFY_MIX:
       // Wand firing in intensify mode mix.
       b_firing_intensify = true;
@@ -2374,15 +2380,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       b_firing_intensify = false;
       b_sound_firing_intensify_trigger = false;
-    break;
-
-    case W_FIRING_ALT:
-      // Wand firing in alt mode.
-      b_firing_alt = true;
-
-      if(b_wand_firing == true && b_sound_firing_alt_trigger != true) {
-        b_sound_firing_alt_trigger = true;
-      }
     break;
 
     case W_FIRING_ALT_MIX:
