@@ -166,6 +166,7 @@ struct __attribute__((packed)) AttenuatorSyncData {
   uint8_t trackLooped;
   uint16_t currentTrack;
   uint16_t musicCount;
+  uint16_t packVoltage;
 } attenuatorSyncData;
 
 /*
@@ -467,6 +468,7 @@ bool checkPack() {
             BARREL_STATE = attenuatorSyncData.barrelExtended == 1 ? BARREL_EXTENDED : BARREL_RETRACTED;
             b_wand_present = attenuatorSyncData.wandPresent == 1;
             b_cyclotron_lid_on = attenuatorSyncData.cyclotronLidState == 1;
+            f_batt_volts = (float)attenuatorSyncData.packVoltage / 100;
             i_volume_master_percentage = attenuatorSyncData.masterVolume;
             i_volume_effects_percentage = attenuatorSyncData.effectsVolume;
             i_volume_music_percentage = attenuatorSyncData.musicVolume;

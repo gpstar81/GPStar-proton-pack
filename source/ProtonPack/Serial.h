@@ -175,6 +175,7 @@ struct __attribute__((packed)) AttenuatorSyncData {
   uint8_t trackLooped;
   uint16_t currentTrack;
   uint16_t musicCount;
+  uint16_t packVoltage;
 } attenuatorSyncData;
 
 // Adjusts which year mode the Proton Pack and Neutrona Wand are in, as switched by the Neutrona Wand.
@@ -869,6 +870,7 @@ void doSerial1Sync() {
   // Pack status.
   attenuatorSyncData.packOn = PACK_STATE != MODE_OFF ? 1 : 0;
   attenuatorSyncData.powerLevel = i_wand_power_level;
+  attenuatorSyncData.packVoltage = packReading.BusVoltage;
 
   // Synchronise the firing modes.
   switch(STREAM_MODE) {
