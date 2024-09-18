@@ -254,7 +254,7 @@ bool checkPack() {
   // Pack communication to the Attenuator device.
   if(packComs.available() > 0) {
     uint8_t i_packet_id = packComs.currentPacketID();
-    #if defined(__XTENSA__)
+    #if defined(__XTENSA__) && defined(DEBUG_SERIAL_COMMS)
       // Advanced debugging message, only enable if absolutely needed!
       // debug("PacketID: " + String(i_packet_id));
     #endif
@@ -452,6 +452,7 @@ bool checkPack() {
             break;
           }
 
+          // Common actions to all hardware.
           b_pack_on = attenuatorSyncData.packOn == 1;
           b_firing = attenuatorSyncData.wandFiring == 1;
           b_overheating = attenuatorSyncData.overheatingNow == 1;
@@ -460,6 +461,7 @@ bool checkPack() {
           i_spectral_custom_saturation = attenuatorSyncData.spectralSaturation;
 
           #if defined(__XTENSA__)
+            // Specific to the ESP32 and Web UI
             SYSTEM_MODE = attenuatorSyncData.systemMode == 1 ? MODE_SUPER_HERO : MODE_ORIGINAL;
             RED_SWITCH_MODE = attenuatorSyncData.ionArmSwitch == 2 ? SWITCH_ON : SWITCH_OFF;
             BARREL_STATE = attenuatorSyncData.barrelExtended == 1 ? BARREL_EXTENDED : BARREL_RETRACTED;
@@ -646,25 +648,25 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_MUSIC_IS_PAUSED:
-        #if defined(__XTENSA__)
-          if(!b_music_paused) {
-            debug("Music Paused");
+      #if defined(__XTENSA__)
+        if(!b_music_paused) {
+          debug("Music Paused");
 
-            b_music_paused = true;
-            b_state_changed = true;
-          }
-        #endif
+          b_music_paused = true;
+          b_state_changed = true;
+        }
+      #endif
     break;
 
     case A_MUSIC_IS_NOT_PAUSED:
-        #if defined(__XTENSA__)
-          if(b_music_paused) {
-            debug("Music Resumed");
+      #if defined(__XTENSA__)
+        if(b_music_paused) {
+          debug("Music Resumed");
 
-            b_music_paused = false;
-            b_state_changed = true;
-          }
-        #endif
+          b_music_paused = false;
+          b_state_changed = true;
+        }
+      #endif
     break;
 
     case A_MUSIC_TRACK_COUNT_SYNC:
@@ -685,45 +687,45 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_MODE_SUPER_HERO:
-        #if defined(__XTENSA__)
-          if(SYSTEM_MODE != MODE_SUPER_HERO) {
-            debug("Super Hero Sequence");
-            SYSTEM_MODE = MODE_SUPER_HERO;
-            b_state_changed = true;
-          }
-        #endif
+      #if defined(__XTENSA__)
+        if(SYSTEM_MODE != MODE_SUPER_HERO) {
+          debug("Super Hero Sequence");
+          SYSTEM_MODE = MODE_SUPER_HERO;
+          b_state_changed = true;
+        }
+      #endif
     break;
 
     case A_MODE_ORIGINAL:
-        #if defined(__XTENSA__)
-          if(SYSTEM_MODE != MODE_ORIGINAL) {
-            debug("Original Sequence");
-            SYSTEM_MODE = MODE_ORIGINAL;
-            b_state_changed = true;
-          }
-        #endif
+      #if defined(__XTENSA__)
+        if(SYSTEM_MODE != MODE_ORIGINAL) {
+          debug("Original Sequence");
+          SYSTEM_MODE = MODE_ORIGINAL;
+          b_state_changed = true;
+        }
+      #endif
     break;
 
     case A_MODE_ORIGINAL_RED_SWITCH_ON:
       // The proton pack red switch is on and has power (cyclotron not powered up yet).
-        #if defined(__XTENSA__)
-          if(RED_SWITCH_MODE != SWITCH_ON) {
-            debug("Red Switch On");
-            RED_SWITCH_MODE = SWITCH_ON;
-            b_state_changed = true;
-          }
-        #endif
+      #if defined(__XTENSA__)
+        if(RED_SWITCH_MODE != SWITCH_ON) {
+          debug("Red Switch On");
+          RED_SWITCH_MODE = SWITCH_ON;
+          b_state_changed = true;
+        }
+      #endif
     break;
 
     case A_MODE_ORIGINAL_RED_SWITCH_OFF:
       // The proton pack red switch is off. This will cause a total system shutdown.
-        #if defined(__XTENSA__)
-          if(RED_SWITCH_MODE != SWITCH_OFF) {
-            debug("Red Switch Off");
-            RED_SWITCH_MODE = SWITCH_OFF;
-            b_state_changed = true;
-          }
-        #endif
+      #if defined(__XTENSA__)
+        if(RED_SWITCH_MODE != SWITCH_OFF) {
+          debug("Red Switch Off");
+          RED_SWITCH_MODE = SWITCH_OFF;
+          b_state_changed = true;
+        }
+      #endif
     break;
 
     case A_YEAR_1984:
@@ -731,6 +733,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
         #if defined(__XTENSA__)
           debug("Mode 1984");
         #endif
+
         SYSTEM_YEAR = SYSTEM_1984;
         b_state_changed = true;
       }
@@ -741,6 +744,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
         #if defined(__XTENSA__)
           debug("Mode 1989");
         #endif
+
         SYSTEM_YEAR = SYSTEM_1989;
         b_state_changed = true;
       }
@@ -751,6 +755,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
         #if defined(__XTENSA__)
           debug("Mode 2021");
         #endif
+
         SYSTEM_YEAR = SYSTEM_AFTERLIFE;
         b_state_changed = true;
       }
@@ -761,6 +766,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
         #if defined(__XTENSA__)
           debug("Mode 2024");
         #endif
+
         SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
         b_state_changed = true;
       }
@@ -770,6 +776,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       #if defined(__XTENSA__)
         debug("Proton");
       #endif
+
       STREAM_MODE = PROTON;
       b_state_changed = true;
     break;
@@ -778,6 +785,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       #if defined(__XTENSA__)
         debug("Slime");
       #endif
+
       STREAM_MODE = SLIME;
       b_state_changed = true;
     break;
@@ -786,6 +794,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       #if defined(__XTENSA__)
         debug("Stasis");
       #endif
+
       STREAM_MODE = STASIS;
       b_state_changed = true;
     break;
@@ -794,6 +803,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       #if defined(__XTENSA__)
         debug("Meson");
       #endif
+
       STREAM_MODE = MESON;
       b_state_changed = true;
     break;
@@ -802,6 +812,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       #if defined(__XTENSA__)
         debug("Spectral");
       #endif
+
       STREAM_MODE = SPECTRAL;
       b_state_changed = true;
     break;
@@ -810,6 +821,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       #if defined(__XTENSA__)
         debug("Spectral Holiday");
       #endif
+
       STREAM_MODE = HOLIDAY;
       b_christmas = (i_value == 2);
       b_state_changed = true;
@@ -819,6 +831,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       #if defined(__XTENSA__)
         debug("Settings");
       #endif
+
       STREAM_MODE = SETTINGS;
       b_state_changed = true;
     break;
@@ -1006,6 +1019,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     case A_CYCLOTRON_LID_ON:
       #if defined(__XTENSA__)
         debug("Cyclotron Lid On...");
+
         b_cyclotron_lid_on = true;
       #endif
     break;
@@ -1013,6 +1027,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     case A_CYCLOTRON_LID_OFF:
       #if defined(__XTENSA__)
         debug("Cyclotron Lid Off...");
+
         b_cyclotron_lid_on = false;
       #endif
     break;
@@ -1054,6 +1069,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
         #if defined(__XTENSA__)
           if(BARREL_STATE != BARREL_EXTENDED) {
             debug("Wand Barrel Extended");
+
             BARREL_STATE = BARREL_EXTENDED;
             b_state_changed = true;
           }
@@ -1064,6 +1080,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
         #if defined(__XTENSA__)
           if(BARREL_STATE != BARREL_RETRACTED) {
             debug("Wand Barrel Retracted");
+
             BARREL_STATE = BARREL_RETRACTED;
             b_state_changed = true;
           }
@@ -1073,6 +1090,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     case A_BATTERY_VOLTAGE_PACK:
       #if defined(__XTENSA__)
         #if defined(DEBUG_SERIAL_COMMS)
+          // This will be called a lot, so we put it behind the debug option.
           debug("Pack Voltage (x100): " + String(i_value));
         #endif
 
@@ -1085,6 +1103,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     case A_WAND_POWER_AMPS:
       #if defined(__XTENSA__)
         #if defined(DEBUG_SERIAL_COMMS)
+          // This will be called a lot, so we put it behind the debug option.
           debug("Wand Current (x100): " + String(i_value));
         #endif
 

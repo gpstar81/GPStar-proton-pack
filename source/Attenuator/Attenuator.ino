@@ -81,12 +81,14 @@ void setup() {
     // ESP - Get Special Device Preferences
 
     preferences.begin("device", true); // Access namespace in read-only mode.
+
     // Return stored values if available, otherwise use a default value.
     b_invert_leds = preferences.getBool("invert_led", false);
     b_enable_buzzer = preferences.getBool("use_buzzer", true);
     b_enable_vibration = preferences.getBool("use_vibration", true);
     b_overheat_feedback = preferences.getBool("use_overheat", true);
     b_firing_feedback = preferences.getBool("fire_feedback", false);
+
     switch(preferences.getShort("radiation_idle", 0)) {
       case 0:
         RAD_LENS_IDLE = AMBER_PULSE;
@@ -98,6 +100,7 @@ void setup() {
         RAD_LENS_IDLE = RED_FADE;
       break;
     }
+
     switch(preferences.getShort("display_type", 0)) {
       case 0:
         DISPLAY_TYPE = STATUS_TEXT;
@@ -110,6 +113,7 @@ void setup() {
         DISPLAY_TYPE = STATUS_BOTH;
       break;
     }
+
     s_track_listing = preferences.getString("track_list", "");
     preferences.end();
 
