@@ -435,6 +435,7 @@ String getWandConfig() {
     jsonBody["wandBootError"] = wandConfig.wandBootError; // true|false (Super-Hero Mode Only)
     jsonBody["defaultYearModeWand"] = wandConfig.defaultYearModeWand; // [1=TOGGLE,2=1984,3=1989,4=2021,5=2024]
     jsonBody["defaultYearModeCTS"] = wandConfig.defaultYearModeCTS; // [1=TOGGLE,2=1984,4=2021]
+    jsonBody["numBargraphSegments"] = wandConfig.numBargraphSegments; // [28=28-segment,30=30-segment]
     jsonBody["invertWandBargraph"] = wandConfig.invertWandBargraph; // true|false
     jsonBody["bargraphOverheatBlink"] = wandConfig.bargraphOverheatBlink; // true|false
     jsonBody["bargraphIdleAnimation"] = wandConfig.bargraphIdleAnimation; // [1=SYSTEM,2=SH,3=MO]
@@ -1028,6 +1029,7 @@ AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHand
       wandConfig.wandBootError = jsonBody["wandBootError"].as<uint8_t>();
       wandConfig.defaultYearModeWand = jsonBody["defaultYearModeWand"].as<uint8_t>();
       wandConfig.defaultYearModeCTS = jsonBody["defaultYearModeCTS"].as<uint8_t>();
+      wandConfig.numBargraphSegments = jsonBody["numBargraphSegments"].as<uint8_t>();
       wandConfig.invertWandBargraph = jsonBody["invertWandBargraph"].as<uint8_t>();
       wandConfig.bargraphOverheatBlink = jsonBody["bargraphOverheatBlink"].as<uint8_t>();
       wandConfig.bargraphIdleAnimation = jsonBody["bargraphIdleAnimation"].as<uint8_t>();

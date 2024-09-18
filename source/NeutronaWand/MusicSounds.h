@@ -438,10 +438,12 @@ enum sound_fx {
   S_VOICE_POWERCELL_INVERTED,
   S_BOSON_DART_FIRE_IMPACT,
   S_VOICE_MOTORIZED_CYCLOTRON_ENABLED,
-  S_FROZEN_EMPIRE_PACK_STARTUP
+  S_FROZEN_EMPIRE_PACK_STARTUP,
+  S_BARGRAPH_28_SEGMENTS,
+  S_BARGRAPH_30_SEGMENTS
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const uint16_t i_last_effects_track = S_FROZEN_EMPIRE_PACK_STARTUP;
+const uint16_t i_last_effects_track = S_BARGRAPH_30_SEGMENTS;

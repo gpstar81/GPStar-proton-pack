@@ -104,6 +104,7 @@ struct __attribute__((packed)) WandPrefs {
   uint8_t wandBootError;
   uint8_t defaultYearModeWand;
   uint8_t defaultYearModeCTS;
+  uint8_t numBargraphSegments;
   uint8_t invertWandBargraph;
   uint8_t bargraphOverheatBlink;
   uint8_t bargraphIdleAnimation;
@@ -4206,6 +4207,20 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         playEffect(S_VOICE_POWERCELL_INVERTED);
         packSerialSend(P_POWERCELL_INVERTED);
       }
+    break;
+
+    case W_BARGRAPH_28_SEGMENTS:
+      stopEffect(S_BARGRAPH_28_SEGMENTS);
+      stopEffect(S_BARGRAPH_30_SEGMENTS);
+
+      playEffect(S_BARGRAPH_28_SEGMENTS);
+    break;
+
+    case W_BARGRAPH_30_SEGMENTS:
+      stopEffect(S_BARGRAPH_28_SEGMENTS);
+      stopEffect(S_BARGRAPH_30_SEGMENTS);
+
+      playEffect(S_BARGRAPH_30_SEGMENTS);
     break;
 
     case W_BARGRAPH_INVERTED:

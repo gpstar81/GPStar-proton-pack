@@ -67,6 +67,7 @@ struct __attribute__((packed)) WandPrefs {
   uint8_t wandBootError;
   uint8_t defaultYearModeWand;
   uint8_t defaultYearModeCTS;
+  uint8_t numBargraphSegments;
   uint8_t invertWandBargraph;
   uint8_t bargraphOverheatBlink;
   uint8_t bargraphIdleAnimation;
@@ -254,6 +255,16 @@ void wandSerialSendData(uint8_t i_message) {
 
       wandConfig.invertWandBargraph = b_bargraph_invert ? 1 : 0;
       wandConfig.bargraphOverheatBlink = b_overheat_bargraph_blink ? 1 : 0;
+
+      switch(BARGRAPH_TYPE_EEPROM) {
+        case SEGMENTS_28:
+        default:
+          wandConfig.numBargraphSegments = 28;
+        break;
+        case SEGMENTS_30:
+          wandConfig.numBargraphSegments = 30;
+        break;
+      }
 
       switch(BARGRAPH_MODE_EEPROM) {
         case BARGRAPH_EEPROM_DEFAULT:
@@ -526,6 +537,21 @@ void checkPack() {
 
           b_bargraph_invert = (wandConfig.invertWandBargraph == 1);
           b_overheat_bargraph_blink = (wandConfig.bargraphOverheatBlink == 1);
+
+          switch(wandConfig.numBargraphSegments) {
+            case 28:
+            default:
+              BARGRAPH_TYPE_EEPROM = SEGMENTS_28;
+            break;
+            case 30:
+              BARGRAPH_TYPE_EEPROM = SEGMENTS_30;
+            break;
+          }
+
+          if(BARGRAPH_TYPE != SEGMENTS_5) {
+            // Only change bargraph types if we are not using the stock Hasbro bargraph.
+            BARGRAPH_TYPE = BARGRAPH_TYPE_EEPROM;
+          }
 
           switch(wandConfig.bargraphIdleAnimation) {
             case 1:

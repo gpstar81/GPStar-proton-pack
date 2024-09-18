@@ -247,26 +247,9 @@ void updateEffectsVolume() {
           if(b_wand_firing) {
             audio.trackGain(S_GB1_FIRE_HIGH_POWER_LOOP, i_volume_effects);
             audio.trackGain(S_GB1_1984_FIRE_LOOP_PACK, i_volume_effects);
+            audio.trackGain(S_GB1_1984_FIRE_HIGH_POWER_LOOP, i_volume_effects);
+            audio.trackGain(S_GB2_FIRE_LOOP, i_volume_effects);
             audio.trackGain(S_FIRING_LOOP_GB1, i_volume_effects);
-
-            switch(SYSTEM_YEAR) {
-              case SYSTEM_1984:
-                audio.trackGain(S_GB1_1984_FIRE_HIGH_POWER_LOOP, i_volume_effects);
-              break;
-
-              case SYSTEM_1989:
-                audio.trackGain(S_GB2_FIRE_LOOP, i_volume_effects);
-              break;
-
-              case SYSTEM_AFTERLIFE:
-              default:
-                
-              break;
-
-              case SYSTEM_FROZEN_EMPIRE:
-                
-              break;
-            }
           }
         break;
 

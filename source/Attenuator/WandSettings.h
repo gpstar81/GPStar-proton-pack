@@ -140,6 +140,13 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
   <h1>Bargraph Options</h1>
   <div class="block left">
     <div class="setting">
+      <b>&nbsp;&nbsp;&nbsp;Num Segments:</b>
+      <select id="numBargraphSegments" name="numBargraphSegments" style="width:180px">
+        <option value="28">28 Segments</option>
+        <option value="30">30 Segments</option>
+      </select>
+    </div>
+    <div class="setting">
       <b>&nbsp;&nbsp;&nbsp;Idle Animation:</b>
       <select id="bargraphIdleAnimation" name="bargraphIdleAnimation" style="width:180px">
         <option value="1">Default</option>
@@ -300,6 +307,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
             getEl("wandBootError").checked = settings.wandBootError ? true: false;
             getEl("defaultYearModeWand").value = settings.defaultYearModeWand || 1;
             getEl("defaultYearModeCTS").value = settings.defaultYearModeCTS || 1;
+            getEl("numBargraphSegments").value = settings.numBargraphSegments || 28;
             getEl("invertWandBargraph").checked = settings.invertWandBargraph ? true: false;
             getEl("bargraphOverheatBlink").checked = settings.bargraphOverheatBlink ? true: false;
             getEl("bargraphIdleAnimation").value = settings.bargraphIdleAnimation || 1;
@@ -332,6 +340,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         wandBootError: getEl("wandBootError").checked ? 1 : 0,
         defaultYearModeWand: parseInt(getEl("defaultYearModeWand").value || 1, 10),
         defaultYearModeCTS: parseInt(getEl("defaultYearModeCTS").value || 1, 10),
+        numBargraphSegments: parseInt(getEl("numBargraphSegments").value || 28, 10),
         invertWandBargraph: getEl("invertWandBargraph").checked ? 1 : 0,
         bargraphOverheatBlink: getEl("bargraphOverheatBlink").checked ? 1 : 0,
         bargraphIdleAnimation: parseInt(getEl("bargraphIdleAnimation").value || 1, 10),

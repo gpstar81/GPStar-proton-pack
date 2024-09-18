@@ -119,17 +119,14 @@ void setup() {
   }
 
   if(i_i2c_devices > 0) {
+    // Set to 28-segment, though this will be overridden by EEPROM.
     BARGRAPH_TYPE = SEGMENTS_28;
-  }
-  else {
-    BARGRAPH_TYPE = SEGMENTS_5;
-  }
-
-  if(BARGRAPH_TYPE != SEGMENTS_5) {
     ht_bargraph.begin(0x00);
   }
   else {
     // Original 5 LED Hasbro bargraph.
+    BARGRAPH_TYPE = SEGMENTS_5;
+
     pinModeFast(BARGRAPH_LED_1_PIN, OUTPUT);
     pinModeFast(BARGRAPH_LED_2_PIN, OUTPUT);
     pinModeFast(BARGRAPH_LED_3_PIN, OUTPUT);
@@ -137,23 +134,18 @@ void setup() {
     pinModeFast(BARGRAPH_LED_5_PIN, OUTPUT);
   }
 
-  pinModeFast(SLO_BLO_LED_PIN, OUTPUT);
-
+  pinModeFast(SLO_BLO_LED_PIN, OUTPUT); // SLO-BLO LED under the toggle switches.
   pinModeFast(CLIPPARD_LED_PIN, OUTPUT); // Front left LED underneath the Clippard valve.
   pinModeFast(BARREL_HAT_LED_PIN, OUTPUT); // Hat light at front of the wand near the barrel tip.
   pinModeFast(TOP_HAT_LED_PIN, OUTPUT); // Hat light at top of the wand body (gun box).
   pinModeFast(BARREL_TIP_LED_PIN, OUTPUT); // LED at the tip of the wand barrel.
 
   pinMode(VENT_LED_PIN, OUTPUT); // Vent light could be either Digital or PWM based on user setting, so use default functions.
-  pinModeFast(TOP_LED_PIN, OUTPUT);
-
+  pinMode(TOP_LED_PIN, OUTPUT); // Blinking top light could be either addressable or non-addressable based on user setting, so use default functions.
   pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
 
   // Status indicator LED on the v1.4 GPStar Neutrona Wand Board.
   pinModeFast(WAND_STATUS_LED_PIN, OUTPUT);
-
-  // Make sure lights are off.
-  wandLightsOff();
 
   // Wand status.
   WAND_STATUS = MODE_OFF;
@@ -168,9 +160,12 @@ void setup() {
   i_classic_blink_index = random(0,5);
 
   // Load any saved settings stored in the EEPROM memory of the GPStar Neutrona Wand.
-  if(b_eeprom == true) {
+  if(b_eeprom) {
     readEEPROM();
   }
+
+  // Make sure lights are off.
+  wandLightsOff();
 
   // Start the button mash check timer.
   ms_bmash.start(0);
@@ -196,7 +191,7 @@ void setup() {
   // Initialize the timer for initial handshake.
   ms_packsync.start(0);
 
-  if(b_gpstar_benchtest == true) {
+  if(b_gpstar_benchtest) {
     WAND_CONN_STATE = NC_BENCHTEST;
 
     b_pack_on = true; // Pretend that the pack (not really attached) has been powered on.

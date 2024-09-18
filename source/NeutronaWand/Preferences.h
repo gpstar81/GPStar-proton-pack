@@ -56,6 +56,7 @@ struct objLEDEEPROM {
   uint8_t barrel_spectral_custom;
   uint8_t barrel_spectral_saturation_custom;
   uint8_t num_barrel_leds;
+  uint8_t num_bargraph_leds;
 };
 
 /*
@@ -413,7 +414,7 @@ void readEEPROM() {
       }
     }
 
-    // Rebuild the over heat enabled modes.
+    // Rebuild the overheat enabled power levels.
     resetOverheatLevels();
 
     // Reset the blinking white LED interval.
@@ -447,6 +448,20 @@ void readEEPROM() {
         break;
       }
     }
+
+    if(obj_led_eeprom.num_bargraph_leds > 0 && obj_led_eeprom.num_bargraph_leds != 255) {
+      if(obj_led_eeprom.num_bargraph_leds < 30) {
+        BARGRAPH_TYPE_EEPROM = SEGMENTS_28;
+      }
+      else {
+        BARGRAPH_TYPE_EEPROM = SEGMENTS_30;
+      }
+
+      if(BARGRAPH_TYPE != SEGMENTS_5) {
+        // Only override the bargraph LED count if we are not using a stock bargraph.
+        BARGRAPH_TYPE = BARGRAPH_TYPE_EEPROM;
+      }
+    }
   }
   else {
     // CRC doesn't match; let's clear the EEPROMs to be safe.
@@ -474,16 +489,22 @@ void saveLEDEEPROM() {
   uint16_t i_eepromLEDAddress = i_eepromAddress + sizeof(objConfigEEPROM);
 
   uint8_t i_barrel_led_count = 5; // 5 = Hasbro, 48 = Frutto.
+  uint8_t i_bargraph_led_count = 28; // 28 segment, 30 segment.
 
   if(WAND_BARREL_LED_COUNT == LEDS_48) {
     i_barrel_led_count = 48;
   }
 
-  // For now we are just saving the Spectral Custom colour.
+  if(BARGRAPH_TYPE_EEPROM == SEGMENTS_30) {
+    i_bargraph_led_count = 30;
+  }
+
+  // Build the LED EEPROM object with the new data.
   objLEDEEPROM obj_led_eeprom = {
     i_spectral_wand_custom_colour,
     i_spectral_wand_custom_saturation,
-    i_barrel_led_count
+    i_barrel_led_count,
+    i_bargraph_led_count
   };
 
   // Save to the EEPROM.

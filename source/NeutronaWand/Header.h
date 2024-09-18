@@ -285,6 +285,7 @@ HT16K33 ht_bargraph;
  */
 enum BARGRAPH_TYPES { SEGMENTS_5, SEGMENTS_28, SEGMENTS_30 };
 enum BARGRAPH_TYPES BARGRAPH_TYPE;
+enum BARGRAPH_TYPES BARGRAPH_TYPE_EEPROM;
 
 const uint8_t i_bargraph_interval = 4;
 const uint8_t i_bargraph_wait = 180;
@@ -302,10 +303,10 @@ uint16_t i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
 
  * Segment Layout:
  * 5: full: 23 - 27  (5 segments)
- * 4: 3/4: 17 - 22	 (6 segments)
- * 3: 1/2: 12 - 16	 (5 segments)
- * 2: 1/4: 5 - 11	   (7 segments)
- * 1: none: 0 - 4	   (5 segments)
+ * 4: 3/4: 17 - 22   (6 segments)
+ * 3: 1/2: 12 - 16   (5 segments)
+ * 2: 1/4: 5 - 11    (7 segments)
+ * 1: none: 0 - 4    (5 segments)
  */
 const uint8_t i_bargraph_segments = 30;
 const uint8_t i_bargraph_invert[i_bargraph_segments - 2] PROGMEM = {54, 38, 22, 6, 53, 37, 21, 5, 52, 36, 20, 4, 51, 35, 19, 3, 50, 34, 18, 2, 49, 33, 17, 1, 48, 32, 16, 0};
