@@ -620,6 +620,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
         debug("Music Playing: " + String(i_value));
 
         b_playing_music = true;
+        b_music_paused = false;
 
         if(i_value > 0 && i_music_track_current != i_value) {
           // Music track changed.
@@ -634,6 +635,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
         debug("Music Stopped: " + String(i_value));
 
         b_playing_music = false;
+        b_music_paused = false;
 
         if(i_value > 0 && i_music_track_current != i_value) {
           // Music track changed.

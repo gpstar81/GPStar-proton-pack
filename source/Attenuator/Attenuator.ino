@@ -155,16 +155,15 @@ void setup() {
   setupBargraph();
 
   // Feedback devices (piezo buzzer and vibration motor)
+  pinMode(BUZZER_PIN, OUTPUT);
   #if defined(__XTENSA__)
     // ESP32 - Note: "ledcAttachChannel" is a combined method for the arduino-esp32 v3.x board library
     ledcAttachChannel(VIBRATION_PIN, 5000, 8, 5); // Uses 5 kHz frequency, 8-bit resolution, Channel 5
     //setToneChannel(0); // Forces Tone to use Channel 0, implemented in ESP32 3.1.0
-    ledcAttachChannel(BUZZER_PIN, 440, 10, 0); // Uses 440 Hz frequency, 10-bit resolution, Channel 0
   #else
     // Nano
     TCCR2B = (TCCR2B & B11111000) | B00000010; // Set pin 11 PWM frequency to 3921.16 Hz
     pinMode(VIBRATION_PIN, OUTPUT);
-    pinMode(BUZZER_PIN, OUTPUT);
   #endif
 
   // Turn off any user feedback.

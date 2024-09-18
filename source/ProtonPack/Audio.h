@@ -336,7 +336,6 @@ void playMusic() {
 
     // Tell connected serial device music playback has started.
     serial1Send(A_MUSIC_IS_PLAYING, i_current_music_track);
-    serial1Send(A_MUSIC_IS_NOT_PAUSED);
   }
 }
 
@@ -362,7 +361,6 @@ void stopMusic() {
 
   // Tell connected serial device music playback has stopped.
   serial1Send(A_MUSIC_IS_NOT_PLAYING, i_current_music_track);
-  serial1Send(A_MUSIC_IS_NOT_PAUSED);
 }
 
 void pauseMusic() {
@@ -444,7 +442,7 @@ void musicNextTrack() {
     // Set the new track.
     i_current_music_track = i_temp_track;
 
-    serial1Send(A_MUSIC_IS_NOT_PLAYING); // Updates the music track on the attenuator.
+    serial1Send(A_MUSIC_IS_NOT_PLAYING, i_current_music_track); // Updates the music track on the attenuator.
   }
 }
 
@@ -474,7 +472,7 @@ void musicPrevTrack() {
     // Set the new track.
     i_current_music_track = i_temp_track;
 
-    serial1Send(A_MUSIC_IS_NOT_PLAYING); // Updates the music track on the attenuator.
+    serial1Send(A_MUSIC_IS_NOT_PLAYING, i_current_music_track); // Updates the music track on the attenuator.
   }
 }
 
