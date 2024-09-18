@@ -44,10 +44,10 @@ To access the EEPROM LED Menu System, hold down the `Intensify Button` and toggl
 | Option | Purpose | Intensify&nbsp;Button | Barrel&nbsp;Wing&nbsp;Button |
 |:------:|---------|------------------|--------------------|
 | 5 | `unused` | `unused` | `unused` |
-| 4 | Bargraph Segment Count Toggle | Toggle between 28 segments or 30 segments for the optional bargraph.<sup>1</sup> | `unused` |
-| 3 | Power Cell Invert | Change the direction of the Power Cell animation. | `unused` |
-| 2 | Inner Cyclotron LED Panel Toggle | Toggle the optional Inner Cyclotron LED Panel between disabled (individual LEDs), static colours (for Frutto panel with prop-accurate coloured cliplite covers), and dynamic colours (for Frutto panel with clear cliplite covers). | `unused` |
-| 1 | Inner Cyclotron GRB Toggle | Toggle your Inner Cyclotron from RGB or GRB LEDs. | `unused` |
+| 4 | Bargraph&nbsp;Segment&nbsp;Count&nbsp;Toggle | Toggle between 28 segments or 30 segments for the optional bargraph.<sup>1</sup> | `unused` |
+| 3 | Power&nbsp;Cell&nbsp;Invert | Change the direction of the Power Cell animation. | `unused` |
+| 2 | Inner&nbsp;Cyclotron&nbsp;LED&nbsp;Panel&nbsp;Toggle | Toggle the optional Inner Cyclotron LED Panel between disabled (individual LEDs), static colours (for Frutto panel with prop-accurate coloured cliplite covers), and dynamic colours (for Frutto panel with clear cliplite covers). | `unused` |
+| 1 | Inner&nbsp;Cyclotron&nbsp;GRB&nbsp;Toggle | Toggle your Inner Cyclotron from RGB or GRB LEDs. | `unused` |
 
 <sup>1</sup> This setting will only take effect if you have an optional bargraph plugged into the i2c data port when the wand is first started.
 <div class="page-break"></div>
