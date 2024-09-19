@@ -425,11 +425,11 @@ void serial1SendData(uint8_t i_message) {
         smokeConfig.overheatLevel3 = 0; // true|false
         smokeConfig.overheatLevel2 = 0; // true|false
         smokeConfig.overheatLevel1 = 0; // true|false
-        smokeConfig.overheatDelay5 = 10; // 2-60 Seconds
-        smokeConfig.overheatDelay4 = 10; // 2-60 Seconds
-        smokeConfig.overheatDelay3 = 10; // 2-60 Seconds
-        smokeConfig.overheatDelay2 = 10; // 2-60 Seconds
-        smokeConfig.overheatDelay1 = 10; // 2-60 Seconds
+        smokeConfig.overheatDelay5 = 30; // 2-60 Seconds
+        smokeConfig.overheatDelay4 = 35; // 2-60 Seconds
+        smokeConfig.overheatDelay3 = 40; // 2-60 Seconds
+        smokeConfig.overheatDelay2 = 50; // 2-60 Seconds
+        smokeConfig.overheatDelay1 = 60; // 2-60 Seconds
       }
 
       i_send_size = serial1Coms.txObj(smokeConfig);

@@ -1000,6 +1000,8 @@ void packStartup(bool firstStart) {
           playEffect(S_BOOTUP, false, i_volume_effects);
           playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects, true, 500);
           playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects, true, 2000);
+
+          ms_idle_fire_fade.start(0);
         }
         else {
           if(firstStart) {
