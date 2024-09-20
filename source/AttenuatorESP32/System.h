@@ -22,22 +22,11 @@
 
 void debug(String message) {
   // Writes a debug message to the serial console.
-  #if defined(__XTENSA__)
-    // ESP32
-    #if defined(DEBUG_SEND_TO_CONSOLE)
-      Serial.println(message); // Print to serial console.
-    #endif
-    #if defined(DEBUG_SEND_TO_WEBSOCKET)
-      ws.textAll(message); // Send a copy to the WebSocket.
-    #endif
-  #else
-    // Nano
-    if(!b_wait_for_pack) {
-      // Can only use Serial output if pack is NOT connected.
-      #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.println(message);
-      #endif
-    }
+  #if defined(DEBUG_SEND_TO_CONSOLE)
+    Serial.println(message); // Print to serial console.
+  #endif
+  #if defined(DEBUG_SEND_TO_WEBSOCKET)
+    ws.textAll(message); // Send a copy to the WebSocket.
   #endif
 }
 
@@ -64,13 +53,7 @@ void useVibration(uint16_t i_duration) {
   if(b_enable_vibration) {
     if(!b_vibrate_on) {
       // Ensures only vibration is started once per call to this method.
-      #if defined(__XTENSA__)
-        // ESP32
-        ledcWrite(VIBRATION_PIN, i_max_power);
-      #else
-        // Nano
-        analogWrite(VIBRATION_PIN, i_max_power);
-      #endif
+      ledcWrite(VIBRATION_PIN, i_max_power);
 
       // Set timer for shorter of given duration or max runtime.
       ms_vibrate.start(min(i_duration, i_vibrate_max_time));
@@ -81,13 +64,7 @@ void useVibration(uint16_t i_duration) {
 
 void vibrateOff() {
   if(b_vibrate_on) {
-    #if defined(__XTENSA__)
-      // ESP32
-      ledcWrite(VIBRATION_PIN, i_min_power);
-    #else
-      // Nano
-      analogWrite(VIBRATION_PIN, i_min_power);
-    #endif
+    ledcWrite(VIBRATION_PIN, i_min_power);
     ms_vibrate.stop();
     b_vibrate_on = false;
   }
@@ -97,17 +74,15 @@ void vibrateOff() {
  * Determine the current state of any LEDs before next FastLED refresh.
  */
 void updateLEDs() {
-  #if defined(__XTENSA__)
-    // ESP - Change top LED colour based on wireless connections.
-    if(i_ap_client_count > 0 || i_ws_client_count > 0) {
-      // Change to green when clients are connected remotely.
-      i_top_led_colour = C_GREEN;
-    }
-    else {
-      // Return to red if no wireless clients are connected.
-      i_top_led_colour = C_RED;
-    }
-  #endif
+  // ESP - Change top LED colour based on wireless connections.
+  if(i_ap_client_count > 0 || i_ws_client_count > 0) {
+    // Change to green when clients are connected remotely.
+    i_top_led_colour = C_GREEN;
+  }
+  else {
+    // Return to red if no wireless clients are connected.
+    i_top_led_colour = C_RED;
+  }
 
   // Update the top LED based on certain system statuses.
   switch(MENU_LEVEL) {
@@ -284,18 +259,14 @@ void checkRotaryPress() {
           // A short, single press should start or stop the music.
           attenuatorSerialSend(A_MUSIC_START_STOP);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
-          #if defined(__XTENSA__)
-            debug("Music Start/Stop");
-          #endif
+          debug("Music Start/Stop");
         break;
 
         case MENU_2:
           // A short, single press should advance to the next track.
           attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
-          #if defined(__XTENSA__)
-            debug("Next Track");
-          #endif
+          debug("Next Track");
         break;
       }
     break;
@@ -307,18 +278,14 @@ void checkRotaryPress() {
           // A double press should mute the pack and wand.
           attenuatorSerialSend(A_TOGGLE_MUTE);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
-          #if defined(__XTENSA__)
-            debug("Toggle Mute");
-          #endif
+          debug("Toggle Mute");
         break;
 
         case MENU_2:
           // A double press should move back to the previous track.
           attenuatorSerialSend(A_MUSIC_PREV_TRACK);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
-          #if defined(__XTENSA__)
-            debug("Previous Track");
-          #endif
+          debug("Previous Track");
         break;
       }
     break;
@@ -329,17 +296,13 @@ void checkRotaryPress() {
       switch(MENU_LEVEL) {
         case MENU_1:
           MENU_LEVEL = MENU_2; // Change menu level.
-          #if defined(__XTENSA__)
-            debug("Menu 2");
-          #endif
+          debug("Menu 2");
           useVibration(i_vibrate_min_time); // Give a quick nudge.
           buzzOn(784); // Tone as note G4
         break;
         case MENU_2:
           MENU_LEVEL = MENU_1; // Change menu level.
-          #if defined(__XTENSA__)
-            debug("Menu 1");
-          #endif
+          debug("Menu 1");
           useVibration(i_vibrate_min_time); // Give a quick nudge.
           buzzOn(440); // Tone as note A4
         break;
@@ -390,17 +353,13 @@ void checkRotaryEncoder() {
           case MENU_1:
             // Tell pack to increase overall volume.
             attenuatorSerialSend(A_VOLUME_INCREASE);
-            #if defined(__XTENSA__)
-              debug("Master Volume+");
-            #endif
+            debug("Master Volume+");
           break;
 
           case MENU_2:
             // Tell pack to increase effects volume.
             attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_INCREASE);
-            #if defined(__XTENSA__)
-              debug("Effects Volume+");
-            #endif
+            debug("Effects Volume+");
           break;
         }
       }
@@ -418,9 +377,7 @@ void checkRotaryEncoder() {
         i_rotary_count++;
         if(i_rotary_count % 5 == 0) {
           attenuatorSerialSend(A_WARNING_CANCELLED);
-          #if defined(__XTENSA__)
-            debug("Overheat Cancelled");
-          #endif
+          debug("Overheat Cancelled");
           i_rotary_count = 0;
         }
       }
@@ -430,17 +387,13 @@ void checkRotaryEncoder() {
           case MENU_1:
             // Tell pack to decrease overall volume.
             attenuatorSerialSend(A_VOLUME_DECREASE);
-            #if defined(__XTENSA__)
-              debug("Master Volume-");
-            #endif
+            debug("Master Volume-");
           break;
 
           case MENU_2:
             // Tell pack to decrease effects volume.
             attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_DECREASE);
-            #if defined(__XTENSA__)
-              debug("Effects Volume-");
-            #endif
+            debug("Effects Volume-");
           break;
         }
       }
@@ -472,14 +425,8 @@ void switchLoops() {
  * Monitor for interactions by user or serial comms.
  */
 void mainLoop() {
-  #if defined(__XTENSA__)
-    // ESP - Check for comms and prepare to get a boolean response
-    bool b_notify = checkPack();
-  #else
-    // Nano - Only needs to check for comms
-    checkPack();
-  #endif
-
+  // Monitor for interactions by user.
+  bool b_notify = checkPack();
   switchLoops();
   checkRotaryPress();
   if(!b_center_lockout) {
@@ -626,16 +573,14 @@ void mainLoop() {
     ms_packsync.start(i_sync_initial_delay);
   }
 
-  #if defined(__XTENSA__)
-    /**
-     * ESP - Alert any WebSocket clients after an API call was received.
-     *
-     * Note: We only perform this action if we have data from the pack
-     * which resulted in a significant state change--this prevents the
-     * device from spamming any downstream clients with unchanged data.
-     */
-    if(b_notify) {
-      notifyWSClients(); // Send latest status to the WebSocket.
-    }
-  #endif
+  /**
+   * ESP - Alert any WebSocket clients after an API call was received.
+   *
+   * Note: We only perform this action if we have data from the pack
+   * which resulted in a significant state change--this prevents the
+   * device from spamming any downstream clients with unchanged data.
+   */
+  if(b_notify) {
+    notifyWSClients(); // Send latest status to the WebSocket.
+  }
 }

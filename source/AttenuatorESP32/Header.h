@@ -23,14 +23,8 @@
 /*
  * Pin for Addressable LEDs.
  */
-#if defined(__XTENSA__)
-  // ESP32
-  #define DEVICE_LED_PIN 23
-  #define BUILT_IN_LED 2
-#else
-  // Nano
-  #define DEVICE_LED_PIN 9
-#endif
+#define DEVICE_LED_PIN 23
+#define BUILT_IN_LED 2
 // States there are 3 LEDs: Top, Upper, and Lower
 #define DEVICE_NUM_LEDS 3
 CRGB device_leds[DEVICE_NUM_LEDS];
@@ -66,14 +60,12 @@ enum LED_ANIMATION RAD_LENS_IDLE;
 /*
  * UI Status Display Type
  */
- #if defined(__XTENSA__)
-  enum DISPLAY_TYPES : uint8_t {
-    STATUS_TEXT = 0,
-    STATUS_GRAPHIC = 1,
-    STATUS_BOTH = 2
-  };
-  enum DISPLAY_TYPES DISPLAY_TYPE;
-#endif
+enum DISPLAY_TYPES : uint8_t {
+  STATUS_TEXT = 0,
+  STATUS_GRAPHIC = 1,
+  STATUS_BOTH = 2
+};
+enum DISPLAY_TYPES DISPLAY_TYPE;
 
 /*
  * Manage the colour and blink pattern for the top LED.
@@ -96,15 +88,8 @@ bool b_top_led_off = false; // Denotes when top LED is mid-blink.
  * buzzOn(698); // F4
  * buzzOn(784); // G4
  */
-#if defined(__XTENSA__)
-  // ESP32
-  #define BUZZER_PIN 18
-  #define VIBRATION_PIN 19
-#else
-  // Nano
-  #define BUZZER_PIN 10
-  #define VIBRATION_PIN 11
-#endif
+#define BUZZER_PIN 18
+#define VIBRATION_PIN 19
 millisDelay ms_buzzer;
 millisDelay ms_vibrate;
 bool b_buzzer_on = false; // Denotes when pieze buzzer is active.
@@ -148,9 +133,7 @@ millisDelay ms_bargraph; // Timer to control bargraph updates consistently.
 uint8_t i_speed_multiplier = 1;
 
 // Denotes whether the cyclotron lid is currently on (covered) or off (exposed).
-#if defined(__XTENSA__)
-  bool b_cyclotron_lid_on = true;
-#endif
+bool b_cyclotron_lid_on = true;
 
 /*
  * Barmeter 28 segment bargraph mapping: allows accessing elements sequentially (0-27)
@@ -166,12 +149,10 @@ uint8_t i_speed_multiplier = 1;
 /*
  * System Mode
  */
-#if defined(__XTENSA__)
-  enum SYSTEM_MODES { MODE_SUPER_HERO, MODE_ORIGINAL };
-  enum SYSTEM_MODES SYSTEM_MODE;
-  enum RED_SWITCH_MODES { SWITCH_ON, SWITCH_OFF };
-  enum RED_SWITCH_MODES RED_SWITCH_MODE;
-#endif
+enum SYSTEM_MODES { MODE_SUPER_HERO, MODE_ORIGINAL };
+enum SYSTEM_MODES SYSTEM_MODE;
+enum RED_SWITCH_MODES { SWITCH_ON, SWITCH_OFF };
+enum RED_SWITCH_MODES RED_SWITCH_MODE;
 
 /*
  * Year Theme
@@ -182,10 +163,8 @@ enum SYSTEM_YEARS SYSTEM_YEAR;
 /*
  * Wand Firing Modes + Settings
  */
-#if defined(__XTENSA__)
-  enum BARREL_STATES { BARREL_RETRACTED, BARREL_EXTENDED };
-  enum BARREL_STATES BARREL_STATE;
-#endif
+enum BARREL_STATES { BARREL_RETRACTED, BARREL_EXTENDED };
+enum BARREL_STATES BARREL_STATE;
 enum POWER_LEVELS { LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5 };
 enum POWER_LEVELS POWER_LEVEL;
 enum POWER_LEVELS POWER_LEVEL_PREV;
@@ -197,19 +176,10 @@ bool b_christmas = false; // Used in HOLIDAY mode to change from orange/purple t
  * Toggle Switches
  * Will be pulled LOW (down position) when considered "on".
  */
-#if defined(__XTENSA__)
-  // ESP32
-  #define LEFT_TOGGLE_PIN 34
-  #define RIGHT_TOGGLE_PIN 35
-  ezButton switch_left(LEFT_TOGGLE_PIN, EXTERNAL_PULLUP);
-  ezButton switch_right(RIGHT_TOGGLE_PIN, EXTERNAL_PULLUP);
-#else
-  // Nano
-  #define LEFT_TOGGLE_PIN 5
-  #define RIGHT_TOGGLE_PIN 6
-  ezButton switch_left(LEFT_TOGGLE_PIN, INTERNAL_PULLUP);
-  ezButton switch_right(RIGHT_TOGGLE_PIN, INTERNAL_PULLUP);
-#endif
+#define LEFT_TOGGLE_PIN 34
+#define RIGHT_TOGGLE_PIN 35
+ezButton switch_left(LEFT_TOGGLE_PIN, EXTERNAL_PULLUP);
+ezButton switch_right(RIGHT_TOGGLE_PIN, EXTERNAL_PULLUP);
 bool b_left_toggle_on = false;
 bool b_right_toggle_on = false;
 bool b_right_toggle_center_start = false;
@@ -223,17 +193,9 @@ const uint8_t rotary_debounce_time = 100;
 /*
  * Rotary encoder for various uses.
  */
-#if defined(__XTENSA__)
-  // ESP32
-  #define r_encoderA 32
-  #define r_encoderB 33
-  #define r_button 4
-#else
-  // Nano
-  #define r_encoderA 2
-  #define r_encoderB 3
-  #define r_button 4
-#endif
+#define r_encoderA 32
+#define r_encoderB 33
+#define r_button 4
 ezButton encoder_center(r_button); // For center-press on encoder dial.
 millisDelay ms_rotary_debounce; // Put some timing on the rotary so we do not overload the serial communication buffer.
 millisDelay ms_center_double_tap; // Timer for determinine when a double-tap was detected.
@@ -258,21 +220,19 @@ enum MENU_LEVELS MENU_LEVEL;
 /*
  * Music Track Info and Playback States
  */
-#if defined(__XTENSA__)
-  const uint16_t i_music_track_offset = 500; // Music tracks always start at index 500.
-  uint16_t i_music_track_count = 0; // Count of tracks as returned by the pack.
-  uint16_t i_music_track_current = 0;
-  uint16_t i_music_track_min = 0; // Min value for music track index (0 = unset).
-  uint16_t i_music_track_max = 0; // Max value for music track index (0 = unset).
-  uint8_t i_volume_master_percentage = 100; // Master overall volume
-  uint8_t i_volume_effects_percentage = 100; // Sound effects
-  uint8_t i_volume_music_percentage = 100; // Music volume
-  bool b_master_muted = false;
-  bool b_playing_music = false;
-  bool b_music_paused = false;
-  bool b_repeat_track = false;
-  String s_track_listing = "";
-#endif
+const uint16_t i_music_track_offset = 500; // Music tracks always start at index 500.
+uint16_t i_music_track_count = 0; // Count of tracks as returned by the pack.
+uint16_t i_music_track_current = 0;
+uint16_t i_music_track_min = 0; // Min value for music track index (0 = unset).
+uint16_t i_music_track_max = 0; // Max value for music track index (0 = unset).
+uint8_t i_volume_master_percentage = 100; // Master overall volume
+uint8_t i_volume_effects_percentage = 100; // Sound effects
+uint8_t i_volume_music_percentage = 100; // Music volume
+bool b_master_muted = false;
+bool b_playing_music = false;
+bool b_music_paused = false;
+bool b_repeat_track = false;
+String s_track_listing = "";
 
 /*
  * Some pack flags which get transmitted to the attenuator depending on the pack status.
@@ -295,12 +255,8 @@ bool b_received_prefs_wand = false;
 bool b_received_prefs_smoke = false;
 
 // Pack Battery (V) and Wand Power (A) Values
-#if defined(__XTENSA__)
-  float f_batt_volts = 0;
-  float f_wand_amps = 0;
-#endif
+float f_batt_volts = 0;
+float f_wand_amps = 0;
 
 // Forward declarations.
-#if defined(__XTENSA__)
-  void debug(String message);
-#endif
+void debug(String message);

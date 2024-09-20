@@ -1131,7 +1131,7 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
   }
 
   String result;
-  if(jsonBody.containsKey("password")) {
+  if(jsonBody["password"].is<const char*>()) {
     String newPasswd = jsonBody["password"];
 
     // Password is used for the built-in Access Point ability, which will be used when a preferred network is not available.
@@ -1177,7 +1177,7 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
   }
 
   String result;
-  if(jsonBody.containsKey("network") && jsonBody.containsKey("password")) {
+  if(jsonBody["network"].is<const char*>() && jsonBody["password"].is<const char*>()) {
     bool b_errors = false; // Assume false until otherwise indicated.
     bool b_enabled = jsonBody["enabled"].as<bool>();
     String wifiNetwork = jsonBody["network"];

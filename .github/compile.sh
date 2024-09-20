@@ -23,6 +23,6 @@ source ./compile_blaster.sh
 
 # COMPILE ATTENUATOR AND VARIANTS
 
-source ./compile_attenuator_esp.sh
+source ./compile_attenuator_nano.sh
 
-source ./compile_attenuator_extras.sh
+source ./compile_attenuator_esp.sh
