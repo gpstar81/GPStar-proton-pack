@@ -33,7 +33,7 @@ void debug(String message) {
   #else
     // Nano
     if(!b_wait_for_pack) {
-      // Can only use Serial output if pack is not connected.
+      // Can only use Serial output if pack is NOT connected.
       #if defined(DEBUG_SEND_TO_CONSOLE)
         Serial.println(message);
       #endif
@@ -468,9 +468,18 @@ void switchLoops() {
   encoder_center.loop();
 }
 
+/*
+ * Monitor for interactions by user or serial comms.
+ */
 void mainLoop() {
-  // Monitor for interactions by user.
-  bool b_notify = checkPack();
+  #if defined(__XTENSA__)
+    // ESP - Check for comms and prepare to get a boolean response
+    bool b_notify = checkPack();
+  #else
+    // Nano - Only needs to check for comms
+    checkPack();
+  #endif
+
   switchLoops();
   checkRotaryPress();
   if(!b_center_lockout) {

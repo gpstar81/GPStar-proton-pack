@@ -194,11 +194,13 @@ void attenuatorSerialSend(uint8_t i_command, uint16_t i_value = 0) {
 
 // Sends an API to the Proton Pack
 void attenuatorSerialSendData(uint8_t i_message) {
-  uint16_t i_send_size = 0;
+  #if defined(__XTENSA__) 
+    uint16_t i_send_size = 0;
 
-  #if defined(__XTENSA__) && defined(DEBUG_SERIAL_COMMS)
-    // Can only debug communications when using the ESP32.
-    debug("Send Data: " + String(i_message));
+    #if defined(DEBUG_SERIAL_COMMS)
+      // Can only debug communications when using the ESP32.
+      debug("Send Data: " + String(i_message));
+    #endif
   #endif
 
   sendData.s = A_COM_START;
