@@ -49,7 +49,7 @@ jobs:
             enable-deltas-report: true
             fqbn: arduino:avr:nano
             sketch-paths: |
-              - source/Attenuator
+              - source/AttenuatorNano
             libraries: |
               - name: ezButton
               - name: FastLED
@@ -77,7 +77,7 @@ jobs:
             #    version: "3.0.4"
             fqbn: esp32:esp32:esp32
             sketch-paths: |
-              - source/Attenuator
+              - source/AttenuatorESP32
             libraries: |
               - name: ArduinoJson
               - name: AsyncTCP
