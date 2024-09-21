@@ -20,16 +20,6 @@
 
 #pragma once
 
-void debug(String message) {
-  // Writes a debug message to the serial console.
-  if(!b_wait_for_pack) {
-    // Can only use Serial output if pack is not connected.
-    #if defined(DEBUG_SEND_TO_CONSOLE)
-      Serial.println(message);
-    #endif
-  }
-}
-
 void buzzOn(uint16_t i_freq) {
   if(b_enable_buzzer) {
     if(!b_buzzer_on) {

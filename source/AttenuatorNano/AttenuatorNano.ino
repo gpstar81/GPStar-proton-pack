@@ -84,6 +84,9 @@ void setup() {
   pinMode(r_encoderB, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(r_encoderA), readEncoder, CHANGE);
 
+  // Setup the built-in LED.
+  pinMode(LED_BUILTIN, OUTPUT);
+
   // Setup the bargraph after a brief delay.
   delay(10);
   setupBargraph();
@@ -131,6 +134,7 @@ void loop() {
       // Tell the pack we are trying to sync.
       attenuatorSerialSend(A_SYNC_START);
 
+      // Turn off the built-in LED.
       digitalWrite(LED_BUILTIN, LOW);
 
       // Pause and try again in a moment.
