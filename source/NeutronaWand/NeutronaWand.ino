@@ -76,7 +76,7 @@ void setup() {
   setupAudioDevice();
 
   // Change PWM frequency of pin 11 for the vibration motor, we do not want it high pitched.
-  TCCR1B = (TCCR1B & B11111000) | B00000110; // for PWM frequency of 122.55 Hz
+  TCCR1B = (TCCR1B & B11111000) | B00000100; // for PWM frequency of 122.55 Hz
 
   // Barrel LEDs - NOTE: These are GRB not RGB so note that all CRGB objects will have R/G swapped.
   FastLED.addLeds<NEOPIXEL, BARREL_LED_PIN>(barrel_leds, BARREL_LEDS_MAX);
@@ -999,22 +999,22 @@ void settingsBlinkingLights() {
      ms_settings_blinking.start(i_settings_blinking_delay);
   }
 
-    uint8_t i_segment_adjust = 2;
-    if(BARGRAPH_TYPE == SEGMENTS_30) {
-      i_segment_adjust = 0;
-    }
+  uint8_t i_segment_adjust = 2;
+  if(BARGRAPH_TYPE == SEGMENTS_30) {
+    i_segment_adjust = 0;
+  }
 
   if(ms_settings_blinking.remaining() < i_settings_blinking_delay / 2) {
     bool b_solid_five = false;
     bool b_solid_one = false;
 
     // Indicator for looping track setting.
-    if(b_repeat_track == true && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_ERROR && WAND_MENU_LEVEL == MENU_LEVEL_1 && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
+    if(b_repeat_track && WAND_ACTION_STATUS == ACTION_SETTINGS && i_wand_menu == 5 && WAND_MENU_LEVEL == MENU_LEVEL_1) {
       b_solid_five = true;
     }
 
     // Indicator for crossing the streams setting.
-    if((FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) && i_wand_menu == 5 && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_ERROR && WAND_MENU_LEVEL == MENU_LEVEL_2 && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
+    if((FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) && WAND_ACTION_STATUS == ACTION_SETTINGS && i_wand_menu == 5 && WAND_MENU_LEVEL == MENU_LEVEL_2) {
       b_solid_five = true;
     }
 
@@ -1023,17 +1023,16 @@ void settingsBlinkingLights() {
     }
 
     if(BARGRAPH_TYPE != SEGMENTS_5) {
-      uint8_t i_top_segment_rows = 24;
-      uint8_t i_bottom_segment_rows = 3;
+      uint8_t i_top_segment_rows = 25;
+      uint8_t i_bottom_segment_rows = 4;
 
       if(BARGRAPH_TYPE == SEGMENTS_30) {
-        i_top_segment_rows = 23;
         i_bottom_segment_rows = 5;
       }
 
       if(b_solid_five == true) {
-        for(uint8_t i = 0; i < i_top_segment_rows; i++) {
-          if(b_solid_one == true && i < i_bottom_segment_rows) {
+        for(uint8_t i = 0; i < i_bargraph_segments - i_segment_adjust; i++) {
+          if(i > 0 && ((b_solid_one == true && i < i_bottom_segment_rows) || i >= i_top_segment_rows)) {
             ht_bargraph.setLed(bargraphLookupTable(i));
             b_bargraph_status[i] = true;
           }
@@ -1043,21 +1042,17 @@ void settingsBlinkingLights() {
           }
         }
 
-        for(uint8_t i = 24; i < (i_bargraph_segments - i_segment_adjust) - 1; i++) {
-          ht_bargraph.setLed(bargraphLookupTable(i));
-          b_bargraph_status[i] = true;
-        }
-
-        if(BARGRAPH_TYPE == SEGMENTS_28) {
-          ht_bargraph.clearLed(bargraphLookupTable(27));
-          b_bargraph_status[27] = false;
+        if(BARGRAPH_TYPE == SEGMENTS_30) {
+          // On the 30-segment bargraph the last segment is always off.
+          ht_bargraph.clearLed(bargraphLookupTable(i_bargraph_segments - 1));
+          b_bargraph_status[i_bargraph_segments - 1] = false;
         }
 
         ht_bargraph.sendLed(); // Commit the changes.
       }
       else if(b_solid_one == true) {
-        for(uint8_t i = 0; i < i_bargraph_segments - i_segment_adjust; i++) {
-          if(i < i_bottom_segment_rows) {
+        for(uint8_t i = 1; i < i_bargraph_segments - i_segment_adjust; i++) {
+          if(i > 0 && i < i_bottom_segment_rows) {
             ht_bargraph.setLed(bargraphLookupTable(i));
             b_bargraph_status[i] = true;
           }
@@ -1098,12 +1093,17 @@ void settingsBlinkingLights() {
       case 5:
         if(BARGRAPH_TYPE != SEGMENTS_5) {
           if(BARGRAPH_TYPE == SEGMENTS_30) {
-            for(uint8_t i = 0; i < i_bargraph_segments - i_segment_adjust; i++) {
+            for(uint8_t i = 1; i < i_bargraph_segments - i_segment_adjust; i++) {
               switch(i) {
                 case 5:
+                case 6:
                 case 11:
+                case 12:
                 case 17:
+                case 18:
                 case 23:
+                case 24:
+                case 29:
                   // Nothing
                 break;
 
@@ -1115,21 +1115,20 @@ void settingsBlinkingLights() {
             }
           }
           else {
-            for(uint8_t i = 0; i < i_bargraph_segments - i_segment_adjust; i++) {
+            for(uint8_t i = 1; i < i_bargraph_segments - i_segment_adjust; i++) {
               switch(i) {
-                case 3:
                 case 4:
                 case 5:
-                case 9:
+                case 6:
                 case 10:
                 case 11:
-                case 15:
+                case 12:
                 case 16:
                 case 17:
-                case 21:
+                case 18:
                 case 22:
                 case 23:
-                case 27:
+                case 24:
                   // Nothing
                 break;
 
@@ -1151,12 +1150,14 @@ void settingsBlinkingLights() {
       case 4:
         if(BARGRAPH_TYPE != SEGMENTS_5) {
           if(BARGRAPH_TYPE == SEGMENTS_30) {
-            for(uint8_t i = 0; i < 23; i++) {
+            for(uint8_t i = 1; i < 23; i++) {
               switch(i) {
                 case 5:
+                case 6:
                 case 11:
+                case 12:
                 case 17:
-                case 23:
+                case 18:
                   // Nothing
                 break;
 
@@ -1168,21 +1169,17 @@ void settingsBlinkingLights() {
             }
           }
           else {
-            for(uint8_t i = 0; i < 21; i++) {
+            for(uint8_t i = 1; i < 22; i++) {
               switch(i) {
-                case 3:
                 case 4:
                 case 5:
-                case 9:
+                case 6:
                 case 10:
                 case 11:
-                case 15:
+                case 12:
                 case 16:
                 case 17:
-                case 21:
-                case 22:
-                case 23:
-                case 27:
+                case 18:
                   // Nothing
                 break;
 
@@ -1204,12 +1201,12 @@ void settingsBlinkingLights() {
       case 3:
         if(BARGRAPH_TYPE != SEGMENTS_5) {
           if(BARGRAPH_TYPE == SEGMENTS_30) {
-            for(uint8_t i = 0; i < 17; i++) {
+            for(uint8_t i = 1; i < 17; i++) {
               switch(i) {
                 case 5:
+                case 6:
                 case 11:
-                case 17:
-                case 23:
+                case 12:
                   // Nothing
                 break;
 
@@ -1221,21 +1218,14 @@ void settingsBlinkingLights() {
             }
           }
           else {
-            for(uint8_t i = 0; i < 16; i++) {
+            for(uint8_t i = 1; i < 16; i++) {
               switch(i) {
-                case 3:
                 case 4:
                 case 5:
-                case 9:
+                case 6:
                 case 10:
                 case 11:
-                case 15:
-                case 16:
-                case 17:
-                case 21:
-                case 22:
-                case 23:
-                case 27:
+                case 12:
                   // Nothing
                 break;
 
@@ -1257,12 +1247,10 @@ void settingsBlinkingLights() {
       case 2:
         if(BARGRAPH_TYPE != SEGMENTS_5) {
           if(BARGRAPH_TYPE == SEGMENTS_30) {
-            for(uint8_t i = 0; i < 11; i++) {
+            for(uint8_t i = 1; i < 11; i++) {
               switch(i) {
                 case 5:
-                case 11:
-                case 17:
-                case 23:
+                case 6:
                   // Nothing
                 break;
 
@@ -1274,21 +1262,11 @@ void settingsBlinkingLights() {
             }
           }
           else {
-            for(uint8_t i = 0; i < 12; i++) {
+            for(uint8_t i = 1; i < 10; i++) {
               switch(i) {
-                case 3:
                 case 4:
                 case 5:
-                case 9:
-                case 10:
-                case 11:
-                case 15:
-                case 16:
-                case 17:
-                case 21:
-                case 22:
-                case 23:
-                case 27:
+                case 6:
                   // Nothing
                 break;
 
@@ -1310,46 +1288,15 @@ void settingsBlinkingLights() {
       case 1:
         if(BARGRAPH_TYPE != SEGMENTS_5) {
           if(BARGRAPH_TYPE == SEGMENTS_30) {
-            for(uint8_t i = 0; i < 6; i++) {
-              switch(i) {
-                case 5:
-                case 11:
-                case 17:
-                case 23:
-                  // Nothing
-                break;
-
-                default:
-                  ht_bargraph.setLed(bargraphLookupTable(i));
-                  b_bargraph_status[i] = true;
-                break;
-              }
+            for(uint8_t i = 1; i < 5; i++) {
+              ht_bargraph.setLed(bargraphLookupTable(i));
+              b_bargraph_status[i] = true;
             }
           }
           else {
-            for(uint8_t i = 0; i < 6; i++) {
-              switch(i) {
-                case 3:
-                case 4:
-                case 5:
-                case 9:
-                case 10:
-                case 11:
-                case 15:
-                case 16:
-                case 17:
-                case 21:
-                case 22:
-                case 23:
-                case 27:
-                  // Nothing
-                break;
-
-                default:
-                  ht_bargraph.setLed(bargraphLookupTable(i));
-                  b_bargraph_status[i] = true;
-                break;
-              }
+            for(uint8_t i = 1; i < 4; i++) {
+              ht_bargraph.setLed(bargraphLookupTable(i));
+              b_bargraph_status[i] = true;
             }
           }
 
@@ -5731,17 +5678,19 @@ void bargraphSuperHeroRampFiringAnimation() {
         case 0:
           vibrationWand(i_vibration_level + 110);
 
+          ht_bargraph.setLed(bargraphLookupTable(14));
           ht_bargraph.setLed(bargraphLookupTable(15));
 
+          b_bargraph_status[14] = true;
           b_bargraph_status[15] = true;
 
           i_bargraph_status_alt++;
 
           if(b_bargraph_up == false) {
-            ht_bargraph.clearLed(bargraphLookupTable(14));
+            ht_bargraph.clearLed(bargraphLookupTable(13));
             ht_bargraph.clearLed(bargraphLookupTable(16));
 
-            b_bargraph_status[14] = false;
+            b_bargraph_status[13] = false;
             b_bargraph_status[16] = false;
           }
 
@@ -5754,24 +5703,26 @@ void bargraphSuperHeroRampFiringAnimation() {
         case 1:
           vibrationWand(i_vibration_level + 110);
 
-          ht_bargraph.setLed(bargraphLookupTable(14));
+          ht_bargraph.setLed(bargraphLookupTable(13));
           ht_bargraph.setLed(bargraphLookupTable(16));
 
-          b_bargraph_status[14] = true;
+          b_bargraph_status[13] = true;
           b_bargraph_status[16] = true;
 
           if(b_bargraph_up == true) {
+            ht_bargraph.clearLed(bargraphLookupTable(14));
             ht_bargraph.clearLed(bargraphLookupTable(15));
 
+            b_bargraph_status[14] = false;
             b_bargraph_status[15] = false;
 
             i_bargraph_status_alt++;
           }
           else {
-            ht_bargraph.clearLed(bargraphLookupTable(13));
+            ht_bargraph.clearLed(bargraphLookupTable(12));
             ht_bargraph.clearLed(bargraphLookupTable(17));
 
-            b_bargraph_status[13] = false;
+            b_bargraph_status[12] = false;
             b_bargraph_status[17] = false;
 
             i_bargraph_status_alt--;
@@ -5784,58 +5735,58 @@ void bargraphSuperHeroRampFiringAnimation() {
         case 2:
           vibrationWand(i_vibration_level + 110);
 
-          ht_bargraph.setLed(bargraphLookupTable(13));
+          ht_bargraph.setLed(bargraphLookupTable(12));
           ht_bargraph.setLed(bargraphLookupTable(17));
 
-          b_bargraph_status[13] = true;
+          b_bargraph_status[12] = true;
           b_bargraph_status[17] = true;
 
           if(b_bargraph_up == true) {
-            ht_bargraph.clearLed(bargraphLookupTable(14));
+            ht_bargraph.clearLed(bargraphLookupTable(13));
             ht_bargraph.clearLed(bargraphLookupTable(16));
 
-            b_bargraph_status[14] = false;
+            b_bargraph_status[13] = false;
             b_bargraph_status[16] = false;
 
             i_bargraph_status_alt++;
           }
           else {
-            ht_bargraph.clearLed(bargraphLookupTable(12));
+            ht_bargraph.clearLed(bargraphLookupTable(11));
             ht_bargraph.clearLed(bargraphLookupTable(18));
 
-            b_bargraph_status[12] = false;
+            b_bargraph_status[11] = false;
             b_bargraph_status[18] = false;
 
             i_bargraph_status_alt--;
           }
 
           ht_bargraph.sendLed(); // Commit the changes.
-          wandTipOff();
+          wandTipOn();
         break;
 
         case 3:
           vibrationWand(i_vibration_level + 110);
 
-          ht_bargraph.setLed(bargraphLookupTable(12));
+          ht_bargraph.setLed(bargraphLookupTable(11));
           ht_bargraph.setLed(bargraphLookupTable(18));
 
-          b_bargraph_status[12] = true;
+          b_bargraph_status[11] = true;
           b_bargraph_status[18] = true;
 
           if(b_bargraph_up == true) {
-            ht_bargraph.clearLed(bargraphLookupTable(13));
+            ht_bargraph.clearLed(bargraphLookupTable(12));
             ht_bargraph.clearLed(bargraphLookupTable(17));
 
-            b_bargraph_status[13] = false;
+            b_bargraph_status[12] = false;
             b_bargraph_status[17] = false;
 
             i_bargraph_status_alt++;
           }
           else {
-            ht_bargraph.clearLed(bargraphLookupTable(11));
+            ht_bargraph.clearLed(bargraphLookupTable(10));
             ht_bargraph.clearLed(bargraphLookupTable(19));
 
-            b_bargraph_status[11] = false;
+            b_bargraph_status[10] = false;
             b_bargraph_status[19] = false;
 
             i_bargraph_status_alt--;
@@ -5848,58 +5799,58 @@ void bargraphSuperHeroRampFiringAnimation() {
         case 4:
           vibrationWand(i_vibration_level + 110);
 
-          ht_bargraph.setLed(bargraphLookupTable(11));
+          ht_bargraph.setLed(bargraphLookupTable(10));
           ht_bargraph.setLed(bargraphLookupTable(19));
 
-          b_bargraph_status[11] = true;
+          b_bargraph_status[10] = true;
           b_bargraph_status[19] = true;
 
           if(b_bargraph_up == true) {
-            ht_bargraph.clearLed(bargraphLookupTable(12));
+            ht_bargraph.clearLed(bargraphLookupTable(11));
             ht_bargraph.clearLed(bargraphLookupTable(18));
 
-            b_bargraph_status[12] = false;
+            b_bargraph_status[11] = false;
             b_bargraph_status[18] = false;
 
             i_bargraph_status_alt++;
           }
           else {
-            ht_bargraph.clearLed(bargraphLookupTable(10));
+            ht_bargraph.clearLed(bargraphLookupTable(9));
             ht_bargraph.clearLed(bargraphLookupTable(20));
 
-            b_bargraph_status[10] = false;
+            b_bargraph_status[9] = false;
             b_bargraph_status[20] = false;
 
             i_bargraph_status_alt--;
           }
 
           ht_bargraph.sendLed(); // Commit the changes.
-          wandTipOn();
+          wandTipOff();
         break;
 
         case 5:
           vibrationWand(i_vibration_level + 110);
 
-          ht_bargraph.setLed(bargraphLookupTable(10));
+          ht_bargraph.setLed(bargraphLookupTable(9));
           ht_bargraph.setLed(bargraphLookupTable(20));
 
-          b_bargraph_status[10] = true;
+          b_bargraph_status[9] = true;
           b_bargraph_status[20] = true;
 
           if(b_bargraph_up == true) {
-            ht_bargraph.clearLed(bargraphLookupTable(11));
+            ht_bargraph.clearLed(bargraphLookupTable(10));
             ht_bargraph.clearLed(bargraphLookupTable(19));
 
-            b_bargraph_status[11] = false;
+            b_bargraph_status[10] = false;
             b_bargraph_status[19] = false;
 
             i_bargraph_status_alt++;
           }
           else {
-            ht_bargraph.clearLed(bargraphLookupTable(9));
+            ht_bargraph.clearLed(bargraphLookupTable(8));
             ht_bargraph.clearLed(bargraphLookupTable(21));
 
-            b_bargraph_status[9] = false;
+            b_bargraph_status[8] = false;
             b_bargraph_status[21] = false;
 
             i_bargraph_status_alt--;
@@ -5910,60 +5861,60 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 6:
-          vibrationWand(i_vibration_level + 112);
+          vibrationWand(i_vibration_level + 110);
 
-          ht_bargraph.setLed(bargraphLookupTable(9));
+          ht_bargraph.setLed(bargraphLookupTable(8));
           ht_bargraph.setLed(bargraphLookupTable(21));
 
-          b_bargraph_status[9] = true;
+          b_bargraph_status[8] = true;
           b_bargraph_status[21] = true;
 
           if(b_bargraph_up == true) {
-            ht_bargraph.clearLed(bargraphLookupTable(10));
+            ht_bargraph.clearLed(bargraphLookupTable(9));
             ht_bargraph.clearLed(bargraphLookupTable(20));
 
-            b_bargraph_status[11] = false;
-            b_bargraph_status[19] = false;
+            b_bargraph_status[9] = false;
+            b_bargraph_status[20] = false;
 
             i_bargraph_status_alt++;
           }
           else {
-            ht_bargraph.clearLed(bargraphLookupTable(8));
+            ht_bargraph.clearLed(bargraphLookupTable(7));
             ht_bargraph.clearLed(bargraphLookupTable(22));
 
-            b_bargraph_status[8] = false;
+            b_bargraph_status[7] = false;
             b_bargraph_status[22] = false;
 
             i_bargraph_status_alt--;
           }
 
           ht_bargraph.sendLed(); // Commit the changes.
-          wandTipOff();
+          wandTipOn();
         break;
 
         case 7:
           vibrationWand(i_vibration_level + 112);
 
-          ht_bargraph.setLed(bargraphLookupTable(8));
+          ht_bargraph.setLed(bargraphLookupTable(7));
           ht_bargraph.setLed(bargraphLookupTable(22));
 
-          b_bargraph_status[8] = true;
+          b_bargraph_status[7] = true;
           b_bargraph_status[22] = true;
 
           if(b_bargraph_up == true) {
-            ht_bargraph.clearLed(bargraphLookupTable(9));
+            ht_bargraph.clearLed(bargraphLookupTable(8));
             ht_bargraph.clearLed(bargraphLookupTable(21));
 
-            b_bargraph_status[9] = false;
+            b_bargraph_status[8] = false;
             b_bargraph_status[21] = false;
 
             i_bargraph_status_alt++;
           }
           else {
-            ht_bargraph.clearLed(bargraphLookupTable(7));
+            ht_bargraph.clearLed(bargraphLookupTable(6));
             ht_bargraph.clearLed(bargraphLookupTable(23));
 
-            b_bargraph_status[7] = false;
+            b_bargraph_status[6] = false;
             b_bargraph_status[23] = false;
 
             i_bargraph_status_alt--;
@@ -5976,58 +5927,58 @@ void bargraphSuperHeroRampFiringAnimation() {
         case 8:
           vibrationWand(i_vibration_level + 112);
 
-          ht_bargraph.setLed(bargraphLookupTable(7));
+          ht_bargraph.setLed(bargraphLookupTable(6));
           ht_bargraph.setLed(bargraphLookupTable(23));
 
-          b_bargraph_status[7] = true;
+          b_bargraph_status[6] = true;
           b_bargraph_status[23] = true;
 
           if(b_bargraph_up == true) {
-            ht_bargraph.clearLed(bargraphLookupTable(8));
+            ht_bargraph.clearLed(bargraphLookupTable(7));
             ht_bargraph.clearLed(bargraphLookupTable(22));
 
-            b_bargraph_status[8] = false;
+            b_bargraph_status[7] = false;
             b_bargraph_status[22] = false;
 
             i_bargraph_status_alt++;
           }
           else {
-            ht_bargraph.clearLed(bargraphLookupTable(6));
+            ht_bargraph.clearLed(bargraphLookupTable(5));
             ht_bargraph.clearLed(bargraphLookupTable(24));
 
-            b_bargraph_status[6] = false;
+            b_bargraph_status[5] = false;
             b_bargraph_status[24] = false;
 
             i_bargraph_status_alt--;
           }
 
           ht_bargraph.sendLed(); // Commit the changes.
-          wandTipOn();
+          wandTipOff();
         break;
 
         case 9:
           vibrationWand(i_vibration_level + 112);
 
-          ht_bargraph.setLed(bargraphLookupTable(6));
+          ht_bargraph.setLed(bargraphLookupTable(5));
           ht_bargraph.setLed(bargraphLookupTable(24));
 
-          b_bargraph_status[6] = true;
+          b_bargraph_status[5] = true;
           b_bargraph_status[24] = true;
 
           if(b_bargraph_up == true) {
-            ht_bargraph.clearLed(bargraphLookupTable(7));
+            ht_bargraph.clearLed(bargraphLookupTable(6));
             ht_bargraph.clearLed(bargraphLookupTable(23));
 
-            b_bargraph_status[7] = false;
+            b_bargraph_status[6] = false;
             b_bargraph_status[23] = false;
 
             i_bargraph_status_alt++;
           }
           else {
-            ht_bargraph.clearLed(bargraphLookupTable(5));
+            ht_bargraph.clearLed(bargraphLookupTable(4));
             ht_bargraph.clearLed(bargraphLookupTable(25));
 
-            b_bargraph_status[5] = false;
+            b_bargraph_status[4] = false;
             b_bargraph_status[25] = false;
 
             i_bargraph_status_alt--;
@@ -6040,58 +5991,58 @@ void bargraphSuperHeroRampFiringAnimation() {
         case 10:
           vibrationWand(i_vibration_level + 112);
 
-          ht_bargraph.setLed(bargraphLookupTable(5));
+          ht_bargraph.setLed(bargraphLookupTable(4));
           ht_bargraph.setLed(bargraphLookupTable(25));
 
-          b_bargraph_status[5] = true;
+          b_bargraph_status[4] = true;
           b_bargraph_status[25] = true;
 
           if(b_bargraph_up == true) {
-            ht_bargraph.clearLed(bargraphLookupTable(6));
+            ht_bargraph.clearLed(bargraphLookupTable(5));
             ht_bargraph.clearLed(bargraphLookupTable(24));
 
-            b_bargraph_status[6] = false;
+            b_bargraph_status[5] = false;
             b_bargraph_status[24] = false;
 
             i_bargraph_status_alt++;
           }
           else {
-            ht_bargraph.clearLed(bargraphLookupTable(4));
+            ht_bargraph.clearLed(bargraphLookupTable(3));
             ht_bargraph.clearLed(bargraphLookupTable(26));
 
-            b_bargraph_status[4] = false;
+            b_bargraph_status[3] = false;
             b_bargraph_status[26] = false;
 
             i_bargraph_status_alt--;
           }
 
           ht_bargraph.sendLed(); // Commit the changes.
-          wandTipOff();
+          wandTipOn();
         break;
 
         case 11:
-          vibrationWand(i_vibration_level + 115);
+          vibrationWand(i_vibration_level + 112);
 
-          ht_bargraph.setLed(bargraphLookupTable(4));
+          ht_bargraph.setLed(bargraphLookupTable(3));
           ht_bargraph.setLed(bargraphLookupTable(26));
 
-          b_bargraph_status[4] = true;
+          b_bargraph_status[3] = true;
           b_bargraph_status[26] = true;
 
           if(b_bargraph_up == true) {
-            ht_bargraph.clearLed(bargraphLookupTable(5));
+            ht_bargraph.clearLed(bargraphLookupTable(4));
             ht_bargraph.clearLed(bargraphLookupTable(25));
 
-            b_bargraph_status[5] = false;
+            b_bargraph_status[4] = false;
             b_bargraph_status[25] = false;
 
             i_bargraph_status_alt++;
           }
           else {
-            ht_bargraph.clearLed(bargraphLookupTable(3));
+            ht_bargraph.clearLed(bargraphLookupTable(2));
             ht_bargraph.clearLed(bargraphLookupTable(27));
 
-            b_bargraph_status[3] = false;
+            b_bargraph_status[2] = false;
             b_bargraph_status[27] = false;
 
             i_bargraph_status_alt--;
@@ -6104,58 +6055,58 @@ void bargraphSuperHeroRampFiringAnimation() {
         case 12:
           vibrationWand(i_vibration_level + 115);
 
-          ht_bargraph.setLed(bargraphLookupTable(3));
+          ht_bargraph.setLed(bargraphLookupTable(2));
           ht_bargraph.setLed(bargraphLookupTable(27));
 
-          b_bargraph_status[3] = true;
-          b_bargraph_status[27] = true;
+          b_bargraph_status[2] = false;
+          b_bargraph_status[27] = false;
 
           if(b_bargraph_up == true) {
-            ht_bargraph.clearLed(bargraphLookupTable(4));
+            ht_bargraph.clearLed(bargraphLookupTable(3));
             ht_bargraph.clearLed(bargraphLookupTable(26));
 
-            b_bargraph_status[4] = false;
+            b_bargraph_status[3] = false;
             b_bargraph_status[26] = false;
 
             i_bargraph_status_alt++;
           }
           else {
-            ht_bargraph.clearLed(bargraphLookupTable(2));
+            ht_bargraph.clearLed(bargraphLookupTable(1));
             ht_bargraph.clearLed(bargraphLookupTable(28));
 
-            b_bargraph_status[2] = false;
+            b_bargraph_status[1] = false;
             b_bargraph_status[28] = false;
 
             i_bargraph_status_alt--;
           }
 
           ht_bargraph.sendLed(); // Commit the changes.
-          wandTipOn();
+          wandTipOff();
         break;
 
         case 13:
           vibrationWand(i_vibration_level + 115);
 
-          ht_bargraph.setLed(bargraphLookupTable(2));
+          ht_bargraph.setLed(bargraphLookupTable(1));
           ht_bargraph.setLed(bargraphLookupTable(28));
 
-          b_bargraph_status[2] = true;
+          b_bargraph_status[1] = true;
           b_bargraph_status[28] = true;
 
           if(b_bargraph_up == true) {
-            ht_bargraph.clearLed(bargraphLookupTable(3));
+            ht_bargraph.clearLed(bargraphLookupTable(2));
             ht_bargraph.clearLed(bargraphLookupTable(27));
 
-            b_bargraph_status[3] = false;
+            b_bargraph_status[2] = false;
             b_bargraph_status[27] = false;
 
             i_bargraph_status_alt++;
           }
           else {
-            ht_bargraph.clearLed(bargraphLookupTable(1));
+            ht_bargraph.clearLed(bargraphLookupTable(0));
             ht_bargraph.clearLed(bargraphLookupTable(29));
 
-            b_bargraph_status[1] = false;
+            b_bargraph_status[0] = false;
             b_bargraph_status[29] = false;
 
             i_bargraph_status_alt--;
@@ -6168,49 +6119,17 @@ void bargraphSuperHeroRampFiringAnimation() {
         case 14:
           vibrationWand(i_vibration_level + 115);
 
-          ht_bargraph.setLed(bargraphLookupTable(1));
+          ht_bargraph.setLed(bargraphLookupTable(0));
           ht_bargraph.setLed(bargraphLookupTable(29));
 
-          b_bargraph_status[1] = true;
+          b_bargraph_status[0] = true;
           b_bargraph_status[29] = true;
 
-          if(b_bargraph_up == true) {
-            ht_bargraph.clearLed(bargraphLookupTable(2));
-            ht_bargraph.clearLed(bargraphLookupTable(28));
-
-            b_bargraph_status[2] = false;
-            b_bargraph_status[28] = false;
-
-            i_bargraph_status_alt++;
-          }
-          else {
-            ht_bargraph.clearLed(bargraphLookupTable(0));
-            ht_bargraph.clearLed(bargraphLookupTable(30));
-
-            b_bargraph_status[0] = false;
-            b_bargraph_status[30] = false;
-
-            i_bargraph_status_alt--;
-          }
-
-          ht_bargraph.sendLed(); // Commit the changes.
-          wandTipOn();
-        break;
-
-        case 15:
-          vibrationWand(i_vibration_level + 115);
-
-          ht_bargraph.setLed(bargraphLookupTable(0));
-          ht_bargraph.setLed(bargraphLookupTable(30));
-
-          b_bargraph_status[0] = true;
-          b_bargraph_status[30] = true;
-
           ht_bargraph.clearLed(bargraphLookupTable(1));
-          ht_bargraph.clearLed(bargraphLookupTable(29));
+          ht_bargraph.clearLed(bargraphLookupTable(28));
 
           b_bargraph_status[1] = false;
-          b_bargraph_status[29] = false;
+          b_bargraph_status[28] = false;
 
           i_bargraph_status_alt--;
 
@@ -6218,6 +6137,10 @@ void bargraphSuperHeroRampFiringAnimation() {
 
           ht_bargraph.sendLed(); // Commit the changes.
           wandTipOn();
+        break;
+
+        default:
+          // We should not be here. Do nothing.
         break;
       }
     }
@@ -6654,6 +6577,10 @@ void bargraphSuperHeroRampFiringAnimation() {
           ht_bargraph.sendLed(); // Commit the changes.
           wandTipOn();
         break;
+
+        default:
+          // We should not be here. Do nothing.
+        break;
       }
     }
   }
@@ -6742,11 +6669,11 @@ void bargraphModeOriginalRampFiringAnimation() {
 
     /*
       // 30 Segment bargraph.
-      Power Level 5: full: 25 - 30  (6 segments)
-      Power Level 4: 3/4: 19 - 24   (6 segments)
-      Power Level 3: 1/2: 13 - 18   (6 segments)
-      Power Level 2: 1/4: 7 - 12    (6 segments)
-      Power Level 1: none: 0 - 6    (6 segments)
+      Power Level 5: full: 24 - 29  (6 segments)
+      Power Level 4: 3/4: 18 - 23   (6 segments)
+      Power Level 3: 1/2: 12 - 17   (6 segments)
+      Power Level 2: 1/4: 6 - 11    (6 segments)
+      Power Level 1: none: 0 - 5    (6 segments)
     */
 
     uint8_t i_segment_adjust = 2;
@@ -6760,7 +6687,7 @@ void bargraphModeOriginalRampFiringAnimation() {
       // Set our target.
       switch(i_power_level) {
         case 5:
-          i_bargraph_status_alt = random(18, i_bargraph_segments - (i_segment_adjust + 1));
+          i_bargraph_status_alt = random(18, i_bargraph_segments - i_segment_adjust);
         break;
 
         case 4:
@@ -6800,24 +6727,24 @@ void bargraphModeOriginalRampFiringAnimation() {
             if(i_bargraph_status_alt == i) {
               switch(i_cyclotron_speed_up) {
                 case 5:
-                  i_bargraph_status_alt = random(6, i_bargraph_segments - (i_segment_adjust + 1));
+                  i_bargraph_status_alt = random(6, i_bargraph_segments - i_segment_adjust);
                 break;
 
                 case 4:
-                  i_bargraph_status_alt = random(9, i_bargraph_segments - (i_segment_adjust + 1));
+                  i_bargraph_status_alt = random(9, i_bargraph_segments - i_segment_adjust);
                 break;
 
                 case 3:
-                  i_bargraph_status_alt = random(12, i_bargraph_segments - (i_segment_adjust + 1));
+                  i_bargraph_status_alt = random(12, i_bargraph_segments - i_segment_adjust);
                 break;
 
                 case 2:
-                  i_bargraph_status_alt = random(15, i_bargraph_segments - (i_segment_adjust + 1));
+                  i_bargraph_status_alt = random(15, i_bargraph_segments - i_segment_adjust);
                 break;
 
                 case 1:
                 default:
-                  i_bargraph_status_alt = random(18, i_bargraph_segments - (i_segment_adjust + 1));
+                  i_bargraph_status_alt = random(18, i_bargraph_segments - i_segment_adjust);
                 break;
               }
             }
@@ -6838,27 +6765,27 @@ void bargraphModeOriginalRampFiringAnimation() {
             if(i_bargraph_status_alt == i) {
               switch(i_cyclotron_speed_up) {
                 case 5:
-                  i_bargraph_status_alt = random(8, i_bargraph_segments - (i_segment_adjust + 1));
+                  i_bargraph_status_alt = random(8, i_bargraph_segments - i_segment_adjust);
                 break;
 
                 case 4:
-                  i_bargraph_status_alt = random(12, i_bargraph_segments - (i_segment_adjust + 1));
+                  i_bargraph_status_alt = random(12, i_bargraph_segments - i_segment_adjust);
                 break;
 
                 case 3:
-                  i_bargraph_status_alt = random(14, i_bargraph_segments - (i_segment_adjust + 1));
+                  i_bargraph_status_alt = random(14, i_bargraph_segments - i_segment_adjust);
                 break;
 
                 case 2:
-                  i_bargraph_status_alt = random(16, i_bargraph_segments - (i_segment_adjust + 1));
+                  i_bargraph_status_alt = random(16, i_bargraph_segments - i_segment_adjust);
                 break;
 
                 case 1:
-                  i_bargraph_status_alt = random(18, i_bargraph_segments - (i_segment_adjust + 1));
+                  i_bargraph_status_alt = random(18, i_bargraph_segments - i_segment_adjust);
                 break;
 
                 default:
-                  i_bargraph_status_alt = random(0, i_bargraph_segments - (i_segment_adjust + 1));
+                  i_bargraph_status_alt = random(0, i_bargraph_segments - i_segment_adjust);
                 break;
               }
             }
@@ -7217,16 +7144,16 @@ void bargraphModeOriginalRampFiringAnimation() {
         break;
 
         case 3:
-          i_bargraph_status = random(1, 4);
+          i_bargraph_status = random(1, i_bargraph_segments_5_led - 1);
         break;
 
         case 2:
-          i_bargraph_status = random(0, 3);
+          i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
         break;
 
         case 1:
         default:
-          i_bargraph_status = random(0, 2);
+          i_bargraph_status = random(0, i_bargraph_segments_5_led - 3);
         break;
       }
     }
@@ -7264,9 +7191,6 @@ void bargraphModeOriginalRampFiringAnimation() {
                 break;
 
                 case 1:
-                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
-                break;
-
                 default:
                   i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
                 break;
@@ -7302,9 +7226,6 @@ void bargraphModeOriginalRampFiringAnimation() {
                 break;
 
                 case 1:
-                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
-                break;
-
                 default:
                   i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
                 break;
@@ -7342,9 +7263,6 @@ void bargraphModeOriginalRampFiringAnimation() {
                 break;
 
                 case 1:
-                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
-                break;
-
                 default:
                   i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
                 break;
@@ -7380,9 +7298,6 @@ void bargraphModeOriginalRampFiringAnimation() {
                 break;
 
                 case 1:
-                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
-                break;
-
                 default:
                   i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
                 break;
@@ -7420,9 +7335,6 @@ void bargraphModeOriginalRampFiringAnimation() {
                 break;
 
                 case 1:
-                  i_bargraph_status = random(1, i_bargraph_segments_5_led - 1);
-                break;
-
                 default:
                   i_bargraph_status = random(1, i_bargraph_segments_5_led - 1);
                 break;
@@ -7458,9 +7370,6 @@ void bargraphModeOriginalRampFiringAnimation() {
                 break;
 
                 case 1:
-                  i_bargraph_status = random(1, i_bargraph_segments_5_led - 1);
-                break;
-
                 default:
                   i_bargraph_status = random(1, i_bargraph_segments_5_led - 1);
                 break;
@@ -7498,9 +7407,6 @@ void bargraphModeOriginalRampFiringAnimation() {
                 break;
 
                 case 1:
-                  i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
-                break;
-
                 default:
                   i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
                 break;
@@ -7536,9 +7442,6 @@ void bargraphModeOriginalRampFiringAnimation() {
                 break;
 
                 case 1:
-                  i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
-                break;
-
                 default:
                   i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
                 break;
@@ -7577,9 +7480,6 @@ void bargraphModeOriginalRampFiringAnimation() {
                 break;
 
                 case 1:
-                  i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
-                break;
-
                 default:
                   i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
                 break;
@@ -7614,9 +7514,6 @@ void bargraphModeOriginalRampFiringAnimation() {
                 break;
 
                 case 1:
-                  i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
-                break;
-
                 default:
                   i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
                 break;
@@ -8002,11 +7899,11 @@ void bargraphRedraw() {
 
     /*
       // 30 Segment bargraph.
-      Power Level 5: full: 25 - 30  (6 segments)
-      Power Level 4: 3/4: 19 - 24   (6 segments)
-      Power Level 3: 1/2: 13 - 18   (6 segments)
-      Power Level 2: 1/4: 7 - 12    (6 segments)
-      Power Level 1: none: 0 - 6    (6 segments)
+      Power Level 5: full: 24 - 29  (6 segments)
+      Power Level 4: 3/4: 18 - 23   (6 segments)
+      Power Level 3: 1/2: 12 - 17   (6 segments)
+      Power Level 2: 1/4: 6 - 11    (6 segments)
+      Power Level 1: none: 0 - 5    (6 segments)
     */
 
     uint8_t i_segment_adjust = 2;
@@ -8087,11 +7984,11 @@ void bargraphPowerCheck() {
 
   /*
     // 30 Segment bargraph.
-    Power Level 5: full: 25 - 30  (6 segments)
-    Power Level 4: 3/4: 19 - 24   (6 segments)
-    Power Level 3: 1/2: 13 - 18   (6 segments)
-    Power Level 2: 1/4: 7 - 12    (6 segments)
-    Power Level 1: none: 0 - 6    (6 segments)
+    Power Level 5: full: 24 - 29  (6 segments)
+    Power Level 4: 3/4: 18 - 23   (6 segments)
+    Power Level 3: 1/2: 12 - 17   (6 segments)
+    Power Level 2: 1/4: 6 - 11    (6 segments)
+    Power Level 1: none: 0 - 5    (6 segments)
   */
 
   if(BARGRAPH_TYPE != SEGMENTS_5) {
@@ -8316,7 +8213,7 @@ void bargraphRampUp() {
 
       case 28 ... 55:
         uint8_t i_tmp = i_bargraph_status_alt - (i_bargraph_segments - 2);
-        i_tmp = (i_bargraph_segments - 3) - i_tmp;
+        i_tmp = (i_bargraph_segments - 2) - i_tmp;
 
         if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
           vibrationOff();
@@ -8486,28 +8383,28 @@ void bargraphRampUp() {
   else if(BARGRAPH_TYPE == SEGMENTS_30) {
     /*
       // 30 Segment bargraph.
-      Power Level 5: full: 25 - 30  (6 segments)
-      Power Level 4: 3/4: 19 - 24   (6 segments)
-      Power Level 3: 1/2: 13 - 18   (6 segments)
-      Power Level 2: 1/4: 7 - 12    (6 segments)
-      Power Level 1: none: 0 - 6    (6 segments)
+      Power Level 5: full: 24 - 29  (6 segments)
+      Power Level 4: 3/4: 18 - 23   (6 segments)
+      Power Level 3: 1/2: 12 - 17   (6 segments)
+      Power Level 2: 1/4: 6 - 11    (6 segments)
+      Power Level 1: none: 0 - 5    (6 segments)
     */
 
     switch(i_bargraph_status_alt) {
-      case 0 ... 30:
+      case 0 ... 29:
         ht_bargraph.setLedNow(bargraphLookupTable(i_bargraph_status_alt));
         b_bargraph_status[i_bargraph_status_alt] = true;
 
-        if(i_bargraph_status_alt > 25) {
+        if(i_bargraph_status_alt > 23) {
           vibrationWand(i_vibration_level + 80);
         }
-        else if(i_bargraph_status_alt > 19) {
+        else if(i_bargraph_status_alt > 17) {
           vibrationWand(i_vibration_level + 40);
         }
-        else if(i_bargraph_status_alt > 14) {
+        else if(i_bargraph_status_alt > 11) {
           vibrationWand(i_vibration_level + 30);
         }
-        else if(i_bargraph_status_alt > 7) {
+        else if(i_bargraph_status_alt > 5) {
           vibrationWand(i_vibration_level + 20);
         }
         else if(i_bargraph_status_alt > 0) {
@@ -8516,7 +8413,7 @@ void bargraphRampUp() {
 
         i_bargraph_status_alt++;
 
-        if(i_bargraph_status_alt == 31) {
+        if(i_bargraph_status_alt == 30) {
           // A little pause when we reach the top.
           ms_bargraph.start(i_bargraph_wait / 2);
 
@@ -8530,8 +8427,8 @@ void bargraphRampUp() {
         }
       break;
 
-      case 31 ... 61:
-        uint8_t i_tmp = i_bargraph_status_alt - (i_bargraph_segments + 1);
+      case 30 ... 59:
+        uint8_t i_tmp = i_bargraph_status_alt - (i_bargraph_segments - 1);
         i_tmp = i_bargraph_segments - i_tmp;
 
         if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
@@ -8540,7 +8437,7 @@ void bargraphRampUp() {
             ht_bargraph.clearLedNow(bargraphLookupTable(i_tmp));
             b_bargraph_status[i_tmp] = false;
 
-            if(i_bargraph_status_alt == 61) {
+            if(i_bargraph_status_alt == 59) {
               ms_bargraph.stop();
               b_bargraph_up = false;
               i_bargraph_status_alt = 0;
@@ -8559,7 +8456,7 @@ void bargraphRampUp() {
           switch(BARGRAPH_MODE) {
             case BARGRAPH_SUPER_HERO:
               // Bargraph has ramped up and down. In 1984/1989 mode we want to start the ramping.
-              if(i_bargraph_status_alt == 61) {
+              if(i_bargraph_status_alt == 59) {
                 ms_bargraph_alt.start(i_bargraph_interval); // Start the alternate bargraph to ramp up and down continuously.
                 ms_bargraph.stop();
                 b_bargraph_up = true;
@@ -8577,11 +8474,11 @@ void bargraphRampUp() {
             case BARGRAPH_ORIGINAL:
               switch(i_power_level) {
                 case 5:
-                  if(i_bargraph_status_alt == 61) {
+                  if(i_bargraph_status_alt == 59) {
                     ms_bargraph_alt.stop();
                     ms_bargraph.stop();
                     b_bargraph_up = false;
-                    i_bargraph_status_alt = 30;
+                    i_bargraph_status_alt = 29;
                     resetBargraphSpeed();
 
                     vibrationWand(i_vibration_level + 25);
@@ -8589,7 +8486,7 @@ void bargraphRampUp() {
                   else {
                     ms_bargraph.stop();
                     b_bargraph_up = true;
-                    i_bargraph_status_alt = 61 - i_bargraph_status_alt;
+                    i_bargraph_status_alt = 59 - i_bargraph_status_alt;
                     resetBargraphSpeed();
 
                     vibrationWand(i_vibration_level + 25);
@@ -8597,18 +8494,18 @@ void bargraphRampUp() {
                 break;
 
                 case 4:
-                  if(i_bargraph_status_alt == 37) {
+                  if(i_bargraph_status_alt == 35) {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
-                    i_bargraph_status_alt = 24;
+                    i_bargraph_status_alt = 23;
                     resetBargraphSpeed();
 
                     vibrationWand(i_vibration_level + 30);
                   }
-                  else if(i_bargraph_status_alt > 37) {
+                  else if(i_bargraph_status_alt > 35) {
                     ms_bargraph.stop();
                     b_bargraph_up = true;
-                    i_bargraph_status_alt = 61 - i_bargraph_status_alt;
+                    i_bargraph_status_alt = 59 - i_bargraph_status_alt;
                     resetBargraphSpeed();
 
                     vibrationWand(i_vibration_level + 30);
@@ -8622,18 +8519,18 @@ void bargraphRampUp() {
                 break;
 
                 case 3:
-                  if(i_bargraph_status_alt == 43) {
+                  if(i_bargraph_status_alt == 41) {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
-                    i_bargraph_status_alt = 18;
+                    i_bargraph_status_alt = 17;
                     resetBargraphSpeed();
 
                     vibrationWand(i_vibration_level + 10);
                   }
-                  else if(i_bargraph_status_alt > 43) {
+                  else if(i_bargraph_status_alt > 41) {
                     ms_bargraph.stop();
                     b_bargraph_up = true;
-                    i_bargraph_status_alt = 61 - i_bargraph_status_alt;
+                    i_bargraph_status_alt = 59 - i_bargraph_status_alt;
                     resetBargraphSpeed();
 
                     vibrationWand(i_vibration_level + 10);
@@ -8647,18 +8544,18 @@ void bargraphRampUp() {
                 break;
 
                 case 2:
-                  if(i_bargraph_status_alt == 49) {
+                  if(i_bargraph_status_alt == 47) {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
-                    i_bargraph_status_alt = 12;
+                    i_bargraph_status_alt = 11;
                     resetBargraphSpeed();
 
                     vibrationWand(i_vibration_level + 5);
                   }
-                  else if(i_bargraph_status_alt > 49) {
+                  else if(i_bargraph_status_alt > 47) {
                     ms_bargraph.stop();
                     b_bargraph_up = true;
-                    i_bargraph_status_alt = 61 - i_bargraph_status_alt;
+                    i_bargraph_status_alt = 59 - i_bargraph_status_alt;
                     resetBargraphSpeed();
 
                     vibrationWand(i_vibration_level + 5);
@@ -8675,16 +8572,16 @@ void bargraphRampUp() {
                 default:
                   vibrationWand(i_vibration_level);
 
-                  if(i_bargraph_status_alt == 55) {
+                  if(i_bargraph_status_alt == 53) {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
-                    i_bargraph_status_alt = 6;
+                    i_bargraph_status_alt = 5;
                     resetBargraphSpeed();
                   }
-                  else if(i_bargraph_status_alt > 55) {
+                  else if(i_bargraph_status_alt > 53) {
                     ms_bargraph.stop();
                     b_bargraph_up = true;
-                    i_bargraph_status_alt = 61 - i_bargraph_status_alt;
+                    i_bargraph_status_alt = 59 - i_bargraph_status_alt;
                     resetBargraphSpeed();
                   }
                   else {
