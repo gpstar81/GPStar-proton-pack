@@ -90,7 +90,7 @@ void setup() {
 
   // Feedback devices (piezo buzzer and vibration motor)
   pinMode(BUZZER_PIN, OUTPUT);
-//  TCCR2B = (TCCR2B & B11111000) | B00000010; // Set pin 11 PWM frequency to 3921.16 Hz
+  TCCR2B = (TCCR2B & B11111000) | B00000010; // Set pin 11 PWM frequency to 3921.16 Hz
   pinMode(VIBRATION_PIN, OUTPUT);
 
   // Turn off any user feedback.
