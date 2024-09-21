@@ -84,6 +84,9 @@ void setup() {
   pinMode(r_encoderB, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(r_encoderA), readEncoder, CHANGE);
 
+  // Setup the built-in LED.
+  pinMode(LED_BUILTIN, OUTPUT);
+
   // Setup the bargraph after a brief delay.
   delay(10);
   setupBargraph();
@@ -131,10 +134,8 @@ void loop() {
       // Tell the pack we are trying to sync.
       attenuatorSerialSend(A_SYNC_START);
 
-      #if defined(__XTENSA__)
-        // ESP - Turn off built-in LED.
-        digitalWrite(BUILT_IN_LED, LOW);
-      #endif
+      // Turn off the built-in LED.
+      digitalWrite(LED_BUILTIN, LOW);
 
       // Pause and try again in a moment.
       ms_packsync.start(i_sync_initial_delay);
@@ -144,6 +145,7 @@ void loop() {
 
     if(!b_wait_for_pack) {
       // Indicate that we are no longer waiting on the pack.
+      digitalWrite(LED_BUILTIN, HIGH);
     }
   }
   else {
