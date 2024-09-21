@@ -138,10 +138,6 @@ bool checkPack() {
           packComs.rxObj(recvData);
           if(recvData.m > 0 && recvData.s == P_COM_START && recvData.e == P_COM_END) {
             switch(recvData.m) {
-              case A_VOLUME_SYNC:
-                // Only applies to ESP32 for the web UI.
-              break;
-
               case A_SPECTRAL_CUSTOM_MODE:
                 STREAM_MODE = SPECTRAL_CUSTOM;
 

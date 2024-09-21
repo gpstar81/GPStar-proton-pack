@@ -71,10 +71,10 @@ void bargraphSetElement(int8_t i_element, bool b_power) {
     // This simplifies the process of turning individual elements on or off.
     // Uses mapping information which accounts for installation orientation.
     if(b_power) {
-      ht_bargraph.setLed(i_bargraph[i_element]);
+      ht_bargraph.setLed(PROGMEM_READU8(i_bargraph[i_element]));
     }
     else {
-      ht_bargraph.clearLed(i_bargraph[i_element]);
+      ht_bargraph.clearLed(PROGMEM_READU8(i_bargraph[i_element]));
     }
   }
 }

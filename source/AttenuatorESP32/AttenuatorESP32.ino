@@ -210,10 +210,7 @@ void loop() {
       // Tell the pack we are trying to sync.
       attenuatorSerialSend(A_SYNC_START);
 
-      #if defined(__XTENSA__)
-        // ESP - Turn off built-in LED.
-        digitalWrite(BUILT_IN_LED, LOW);
-      #endif
+      digitalWrite(BUILT_IN_LED, LOW);
 
       // Pause and try again in a moment.
       ms_packsync.start(i_sync_initial_delay);
@@ -223,7 +220,6 @@ void loop() {
 
     if(!b_wait_for_pack) {
       // Indicate that we are no longer waiting on the pack.
-      // ESP - Illuminate built-in LED.
       digitalWrite(BUILT_IN_LED, HIGH);
     }
   }
