@@ -58,86 +58,6 @@ struct __attribute__((packed)) MessagePacket {
 struct MessagePacket sendData;
 struct MessagePacket recvData;
 
-struct __attribute__((packed)) PackPrefs {
-  uint8_t defaultSystemModePack;
-  uint8_t defaultYearThemePack;
-  uint8_t currentYearThemePack;
-  uint8_t defaultSystemVolume;
-  uint8_t packVibration;
-  uint8_t ribbonCableAlarm;
-  uint8_t cyclotronDirection;
-  uint8_t demoLightMode;
-  uint8_t protonStreamEffects;
-  uint8_t overheatStrobeNF;
-  uint8_t overheatSyncToFan;
-  uint8_t overheatLightsOff;
-  uint8_t ledCycLidCount;
-  uint8_t ledCycLidHue;
-  uint8_t ledCycLidSat;
-  uint8_t ledCycLidCenter;
-  uint8_t ledCycLidSimRing;
-  uint8_t ledCycInnerPanel;
-  uint8_t ledCycCakeCount;
-  uint8_t ledCycCakeHue;
-  uint8_t ledCycCakeSat;
-  uint8_t ledCycCakeGRB;
-  uint8_t ledCycCavCount;
-  uint8_t ledVGCyclotron;
-  uint8_t ledPowercellCount;
-  uint8_t ledInvertPowercell;
-  uint8_t ledPowercellHue;
-  uint8_t ledPowercellSat;
-  uint8_t ledVGPowercell;
-} packConfig;
-
-struct __attribute__((packed)) WandPrefs {
-  uint8_t ledWandCount;
-  uint8_t ledWandHue;
-  uint8_t ledWandSat;
-  uint8_t spectralModesEnabled;
-  uint8_t overheatEnabled;
-  uint8_t defaultFiringMode;
-  uint8_t wandVibration;
-  uint8_t wandSoundsToPack;
-  uint8_t quickVenting;
-  uint8_t autoVentLight;
-  uint8_t wandBeepLoop;
-  uint8_t wandBootError;
-  uint8_t defaultYearModeWand;
-  uint8_t defaultYearModeCTS;
-  uint8_t numBargraphSegments;
-  uint8_t invertWandBargraph;
-  uint8_t bargraphOverheatBlink;
-  uint8_t bargraphIdleAnimation;
-  uint8_t bargraphFireAnimation;
-} wandConfig;
-
-struct __attribute__((packed)) SmokePrefs {
-  // Pack
-  uint8_t smokeEnabled;
-  uint8_t overheatContinuous5;
-  uint8_t overheatContinuous4;
-  uint8_t overheatContinuous3;
-  uint8_t overheatContinuous2;
-  uint8_t overheatContinuous1;
-  uint8_t overheatDuration5;
-  uint8_t overheatDuration4;
-  uint8_t overheatDuration3;
-  uint8_t overheatDuration2;
-  uint8_t overheatDuration1;
-  // Wand
-  uint8_t overheatLevel5;
-  uint8_t overheatLevel4;
-  uint8_t overheatLevel3;
-  uint8_t overheatLevel2;
-  uint8_t overheatLevel1;
-  uint8_t overheatDelay5;
-  uint8_t overheatDelay4;
-  uint8_t overheatDelay3;
-  uint8_t overheatDelay2;
-  uint8_t overheatDelay1;
-} smokeConfig;
-
 struct __attribute__((packed)) AttenuatorSyncData {
   uint8_t systemMode;
   uint8_t ionArmSwitch;
@@ -180,22 +100,6 @@ void attenuatorSerialSend(uint8_t i_command, uint16_t i_value = 0) {
 
   i_send_size = packComs.txObj(sendCmd);
   packComs.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
-}
-
-// Sends an API to the Proton Pack
-void attenuatorSerialSendData(uint8_t i_message) {
-  sendData.s = A_COM_START;
-  sendData.m = i_message;
-  sendData.s = A_COM_END;
-
-  // Set all elements of the data array to 0
-  memset(sendData.d, 0, sizeof(sendData.d));
-
-  switch(i_message) {
-    default:
-      // No-op for all other communications.
-    break;
-  }
 }
 
 // Forward function declaration.
@@ -263,21 +167,6 @@ bool checkPack() {
               break;
             }
           }
-        break;
-
-        case PACKET_PACK:
-          // Only applies to ESP32 for the web UI.
-          return false;
-        break;
-
-        case PACKET_WAND:
-          // Only applies to ESP32 for the web UI.
-          return false;
-        break;
-
-        case PACKET_SMOKE:
-          // Only applies to ESP32 for the web UI.
-          return false;
         break;
 
         case PACKET_SYNC:
@@ -379,9 +268,6 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
         // Who the heck is this pack!? Demand a sync!
         attenuatorSerialSend(A_SYNC_START);
       }
-    break;
-
-    case A_SYNC_START:
     break;
 
     case A_SYNC_END:
