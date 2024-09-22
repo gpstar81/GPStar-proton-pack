@@ -217,18 +217,22 @@ void checkRotaryPress() {
   }
 
   if(b_center_pressed) {
-    if(encoder_center.isReleased() && encoder_center.getCount() >= 1) {
+    if(encoder_center.isReleased() && i_press_count >= 1) {
       // If released and we already counted 1 press, this is a "double tap".
       CENTER_STATE = DOUBLE_PRESS;
       b_center_pressed = false;
-      encoder_center.resetCount();
+      i_press_count = 0;
       ms_center_double_tap.stop();
     }
-    else if(ms_center_double_tap.remaining() < 1 && encoder_center.getCount() == 1) {
+    else if(encoder_center.isReleased() && ms_center_double_tap.remaining() > 0) {
+      // If released and the double-tap timer is still running, then ONLY increment count.
+      i_press_count++;
+    }
+    else if(ms_center_double_tap.remaining() < 1 && i_press_count == 1) {
       // If the double-tap counter ran out with only a single press, this was a "short" press.
       CENTER_STATE = SHORT_PRESS;
       b_center_pressed = false;
-      encoder_center.resetCount();
+      i_press_count = 0;
       ms_center_double_tap.stop();
       ms_center_long_press.stop();
     }
@@ -238,7 +242,7 @@ void checkRotaryPress() {
         b_center_lockout = !b_center_lockout;
         CENTER_STATE = NO_ACTION; // Don't count this as a long press.
         b_center_pressed = false;
-        encoder_center.resetCount();
+        i_press_count = 0;
         useVibration(i_vibrate_max_time); // Give a long nudge.
         return; // We're done here as we've performed the state change.
       }
@@ -246,7 +250,7 @@ void checkRotaryPress() {
         // Consider a long-press event if the timer is run out before released.
         CENTER_STATE = LONG_PRESS;
         b_center_pressed = false;
-        encoder_center.resetCount();
+        i_press_count = 0;
       }
     }
   }
