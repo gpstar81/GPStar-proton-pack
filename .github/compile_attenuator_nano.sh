@@ -21,16 +21,14 @@ echo "Building Attenuator Binary (Arduino - Normal)..."
 # Set the project directory based on the source folder
 PROJECT_DIR="$SRCDIR/AttenuatorNano"
 
-# --warnings none
-arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:nano --export-binaries ${PROJECT_DIR}/AttenuatorNano.ino
+# Clean the project before building
+pio run --project-dir "$PROJECT_DIR" --target clean
 
-rm -f ${BINDIR}/*.bin
-rm -f ${BINDIR}/*.eep
-rm -f ${BINDIR}/*.elf
-rm -f ${BINDIR}/*bootloader.hex
+# Compile the PlatformIO project
+pio run --project-dir "$PROJECT_DIR"
 
-if [ -f ${BINDIR}/AttenuatorNano.ino.hex ]; then
-  mv ${BINDIR}/AttenuatorNano.ino.hex ${BINDIR}/attenuator/Attenuator-Nano.hex
+if [ -f ${PROJECT_DIR}/.pio/build/nanoatmega328/firmware.hex ]; then
+  mv ${PROJECT_DIR}/.pio/build/nanoatmega328/firmware.hex ${BINDIR}/attenuator/Attenuator-Nano.hex
 fi
 echo "Done."
 echo ""
@@ -39,24 +37,22 @@ echo ""
 echo "Building Attenuator Binary (Arduino - Standalone)..."
 
 # Change flag(s) for compilation
-sed -i -e 's/b_wait_for_pack = true/b_wait_for_pack = false/' ${PROJECT_DIR}/Configuration.h
+sed -i -e 's/b_wait_for_pack = true/b_wait_for_pack = false/' ${PROJECT_DIR}/include/Configuration.h
 
-# --warnings none
-arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:nano --export-binaries ${PROJECT_DIR}/AttenuatorNano.ino
+# Clean the project before building
+pio run --project-dir "$PROJECT_DIR" --target clean
 
-rm -f ${BINDIR}/*.bin
-rm -f ${BINDIR}/*.eep
-rm -f ${BINDIR}/*.elf
-rm -f ${BINDIR}/*bootloader.hex
+# Compile the PlatformIO project
+pio run --project-dir "$PROJECT_DIR"
 
-if [ -f ${BINDIR}/AttenuatorNano.ino.hex ]; then
-  mv ${BINDIR}/AttenuatorNano.ino.hex ${BINDIR}/attenuator/Attenuator-Nano-Standalone.hex
+if [ -f ${PROJECT_DIR}/.pio/build/nanoatmega328/firmware.hex ]; then
+  mv ${PROJECT_DIR}/.pio/build/nanoatmega328/firmware.hex ${BINDIR}/attenuator/Attenuator-Nano-Standalone.hex
 fi
 
 # Restore flag(s) from compilation
-sed -i -e 's/b_wait_for_pack = false/b_wait_for_pack = true/' ${PROJECT_DIR}/Configuration.h
+sed -i -e 's/b_wait_for_pack = false/b_wait_for_pack = true/' ${PROJECT_DIR}/include/Configuration.h
 
-rm -f ${PROJECT_DIR}/*.h-e
+rm -f ${PROJECT_DIR}/include/*.h-e
 
 echo "Done."
 echo ""

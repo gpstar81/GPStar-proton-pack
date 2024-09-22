@@ -30,5 +30,15 @@ rm -f ${BINDIR}/*bootloader.hex
 if [ -f ${BINDIR}/ProtonPack.ino.hex ]; then
   mv ${BINDIR}/ProtonPack.ino.hex ${BINDIR}/pack/ProtonPack.hex
 fi
+
+# Clean the project before building
+#pio run --project-dir "$PROJECT_DIR" --target clean
+
+# Compile the PlatformIO project
+#pio run --project-dir "$PROJECT_DIR"
+
+#if [ -f ${BINDIR}/.pio/build/megaatmega2560/firmware.hex ]; then
+#  mv ${BINDIR}/.pio/build/megaatmega2560/firmware.hex ${BINDIR}/pack/ProtonPack.hex
+#fi
 echo "Done."
 echo ""

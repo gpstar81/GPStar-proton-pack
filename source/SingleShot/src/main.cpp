@@ -18,6 +18,9 @@
  *
  */
 
+// Required for PlatformIO
+#include <Arduino.h>
+
 // Defines the microcontroller as part of a GPStar PCB
 #if defined(__AVR_ATmega2560__)
   #define GPSTAR_NEUTRONA_DEVICE_PCB

@@ -18,9 +18,8 @@
  *
  */
 
-// ESP - Suppress warning about SPI hardware pins
-// Define this before including <FastLED.h>
-#define FASTLED_INTERNAL
+// Required for PlatformIO
+#include <Arduino.h>
 
 // PROGMEM macro
 #define PROGMEM_READU32(x) pgm_read_dword_near(&(x))
@@ -42,20 +41,14 @@
 #include "Bargraph.h"
 #include "Colours.h"
 #include "Serial.h"
-#include "Wireless.h"
 #include "System.h"
 
 void setup() {
   // Enable Serial connection(s) and communication with GPStar Proton Pack PCB.
-  // ESP - Serial Console for messages and Device Comms via Serial2
-  Serial.begin(115200);
-  Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
-  packComs.begin(Serial2, false);
-  pinMode(BUILT_IN_LED, OUTPUT);
+  Serial.begin(9600);
+  packComs.begin(Serial);
 
   // Assume the Super Hero arming mode with Afterlife (default for Haslab).
-  SYSTEM_MODE = MODE_SUPER_HERO;
-  RED_SWITCH_MODE = SWITCH_OFF;
   SYSTEM_YEAR = SYSTEM_AFTERLIFE;
 
   // Boot into proton mode (default for pack and wand).
@@ -63,50 +56,6 @@ void setup() {
 
   // Set a default animation for the radiation indicator.
   RAD_LENS_IDLE = AMBER_PULSE;
-
-  // ESP - Get Special Device Preferences
-  preferences.begin("device", true); // Access namespace in read-only mode.
-
-  // Return stored values if available, otherwise use a default value.
-  b_invert_leds = preferences.getBool("invert_led", false);
-  b_enable_buzzer = preferences.getBool("use_buzzer", true);
-  b_enable_vibration = preferences.getBool("use_vibration", true);
-  b_overheat_feedback = preferences.getBool("use_overheat", true);
-  b_firing_feedback = preferences.getBool("fire_feedback", false);
-
-  switch(preferences.getShort("radiation_idle", 0)) {
-    case 0:
-      RAD_LENS_IDLE = AMBER_PULSE;
-    break;
-    case 1:
-      RAD_LENS_IDLE = ORANGE_FADE;
-    break;
-    case 2:
-      RAD_LENS_IDLE = RED_FADE;
-    break;
-  }
-
-  switch(preferences.getShort("display_type", 0)) {
-    case 0:
-      DISPLAY_TYPE = STATUS_TEXT;
-    break;
-    case 1:
-      DISPLAY_TYPE = STATUS_GRAPHIC;
-    break;
-    case 2:
-    default:
-      DISPLAY_TYPE = STATUS_BOTH;
-    break;
-  }
-
-  s_track_listing = preferences.getString("track_list", "");
-  preferences.end();
-
-  // CPU Frequency MHz: 80, 160, 240 [Default]
-  // Lower frequency means less power consumption.
-  setCpuFrequencyMhz(240);
-  Serial.print(F("CPU Freq (MHz): "));
-  Serial.println(getCpuFrequencyMhz());
 
   if(!b_wait_for_pack) {
     // If not waiting for the pack set power level to 5.
@@ -138,15 +87,17 @@ void setup() {
   pinMode(r_encoderB, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(r_encoderA), readEncoder, CHANGE);
 
+  // Setup the built-in LED.
+  pinMode(LED_BUILTIN, OUTPUT);
+
   // Setup the bargraph after a brief delay.
   delay(10);
   setupBargraph();
 
   // Feedback devices (piezo buzzer and vibration motor)
   pinMode(BUZZER_PIN, OUTPUT);
-  // ESP32 - Note: "ledcAttachChannel" is a combined method for the arduino-esp32 v3.x board library
-  ledcAttachChannel(VIBRATION_PIN, 5000, 8, 5); // Uses 5 kHz frequency, 8-bit resolution, Channel 5
-  //setToneChannel(0); // Forces Tone to use Channel 0, implemented in ESP32 3.1.0
+  TCCR2B = (TCCR2B & B11111000) | B00000010; // Set pin 11 PWM frequency to 3921.16 Hz
+  pinMode(VIBRATION_PIN, OUTPUT);
 
   // Turn off any user feedback.
   noTone(BUZZER_PIN);
@@ -155,17 +106,8 @@ void setup() {
   // Get initial switch/button states.
   switchLoops();
 
-  // Delay before configuring WiFi and web access.
+  // Delay to allow any other devices to start up first.
   delay(100);
-
-  // ESP - Setup WiFi and WebServer
-  if(startWiFi()) {
-    // Start the local web server.
-    startWebServer();
-
-    // Begin timer for remote client events.
-    ms_cleanup.start(i_websocketCleanup);
-  }
 
   // Initialize critical timers.
   ms_fast_led.start(0);
@@ -190,27 +132,13 @@ void loop() {
     i_device_led[2] = 2; // Lower
   }
 
-  // ESP - Manage cleanup for old WebSocket clients.
-  if(ms_cleanup.remaining() < 1) {
-    // Clean up oldest WebSocket connections.
-    ws.cleanupClients();
-
-    // Restart timer for next cleanup action.
-    ms_cleanup.start(i_websocketCleanup);
-  }
-
-  // Handle device reboot after an OTA update.
-  ElegantOTA.loop();
-
-  // Update the current count of AP clients.
-  i_ap_client_count = WiFi.softAPgetStationNum();
-
   if(b_wait_for_pack) {
     if(ms_packsync.justFinished()) {
       // Tell the pack we are trying to sync.
       attenuatorSerialSend(A_SYNC_START);
 
-      digitalWrite(BUILT_IN_LED, LOW);
+      // Turn off the built-in LED.
+      digitalWrite(LED_BUILTIN, LOW);
 
       // Pause and try again in a moment.
       ms_packsync.start(i_sync_initial_delay);
@@ -220,7 +148,7 @@ void loop() {
 
     if(!b_wait_for_pack) {
       // Indicate that we are no longer waiting on the pack.
-      digitalWrite(BUILT_IN_LED, HIGH);
+      digitalWrite(LED_BUILTIN, HIGH);
     }
   }
   else {

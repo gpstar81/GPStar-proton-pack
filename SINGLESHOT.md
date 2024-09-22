@@ -128,3 +128,7 @@ Full guide will be written as features are completed and operation is determined
 ## Firmware Updates
 
 Please follow the standard [FLASHING guide](FLASHING.md) using the `binaries/blaster/SingleShot.hex` firmware file.
+
+## Software Development Requirements
+
+As of the v5.4.0 release the development platform of choice for this device has been migrated from Arduino IDE to the [VSCode with PlatformIO](VSCODE.md). Please follow the linked guide for installing the core software and plugins required. All libraries required by the project will be downloaded automatically.

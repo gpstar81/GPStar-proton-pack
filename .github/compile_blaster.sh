@@ -19,16 +19,23 @@ echo "Building Single-Shot Blaster Binary..."
 # Set the project directory based on the source folder
 PROJECT_DIR="$SRCDIR/SingleShot"
 
-# --warnings none
-arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:mega --export-binaries ${PROJECT_DIR}/SingleShot.ino
+# Clean the project before building
+pio run --project-dir "$PROJECT_DIR" --target clean
 
-rm -f ${BINDIR}/*.bin
-rm -f ${BINDIR}/*.eep
-rm -f ${BINDIR}/*.elf
-rm -f ${BINDIR}/*bootloader.hex
+# Compile the PlatformIO project
+pio run --project-dir "$PROJECT_DIR"
 
-if [ -f ${BINDIR}/SingleShot.ino.hex ]; then
-  mv ${BINDIR}/SingleShot.ino.hex ${BINDIR}/blaster/SingleShot.hex
+# Check if the build was successful
+if [ $? -eq 0 ]; then
+  echo "Build succeeded!"
+else
+  echo "Build failed!"
+  exit 1
+fi
+
+# Copy the new firmware to the expected binaries directory
+if [ -f ${PROJECT_DIR}/.pio/build/megaatmega2560/firmware.hex ]; then
+  mv ${PROJECT_DIR}/.pio/build/megaatmega2560/firmware.hex ${BINDIR}/blaster/SingleShot.hex
 fi
 echo "Done."
 echo ""

@@ -2,7 +2,7 @@
 
 Separate firmware files exist for the Arduino Nano vs. the ESP32 version of the Attenuator, though the "Wireless Adapter" is simply an ESP32 controller without the inputs/outputs of an Attenuator. Therefore, the processes in this document will be the same for either use of an ESP32 controller.
 
-For the Arduino Nano you may use the same flashing utility as the other gpstar PCB devices as outlined in the [FLASHING](FLASHING.md) guide. For the ESP32 that will require a different process as outlined below. Since both the Arduino Nano and ESP development board have their own USB connection it will **not** be necessary to use a separate UART programming cable.
+For the Arduino Nano you may use the same flashing utility as the other gpstar PCB devices as outlined in the [FLASHING](FLASHING.md) guide. For the ESP32 that will require a different process as outlined below. Since both the Arduino Nano and ESP development board have their own USB-Micro connection it will **not** be necessary to use a Serial to UART programming cable as you do for the Proton Pack and Neutrona Wand.
 
 ## For Arduino Nano
 
@@ -28,14 +28,14 @@ If you are using your own ESP32 controller or do not see a WiFi network for your
 
 This uses a 3rd-party website to upload using the Web Serial protocol which is only available on the Google Chrome, Microsoft Edge, and Opera desktop web browsers. Mobile browsers are NOT supported, and you will be prompted with a message if your web browser is not valid for use.
 
-1. Plug your device into a USB port on your computer and go to [https://esp.huhn.me](https://esp.huhn.me)
-1. Click on the **CONNECT** button and select your USB serial device from the list of options and click on "Connect".
+1. Plug your device into a USB port on your computer and go to [http://espwebtool.ghostbusters.engineering](http://espwebtool.ghostbusters.engineering) (which [redirects to https://esp.huhn.me](https://esp.huhn.me)).
 1. Locate the following files from the `/binaries/attenuator` directory.
-	* [extras/Attenuator-ESP32-bootloader.bin](binaries/attenuator/extras/Attenuator-ESP32-Bootloader.bin)
-	* [extras/Attenuator-ESP32-partitions.bin](binaries/attenuator/extras/Attenuator-ESP32-Partitions.bin)
-	* [extras/boot_app0.bin](binaries/attenuator/extras/boot_app0.bin)
-	* [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin)
-1. Once connected, select the above files for the following address spaces:
+	* [extras/Attenuator-ESP32-bootloader.bin](binaries/attenuator/extras/Attenuator-ESP32-Bootloader.bin) = This is the standard bootloader for the ESP itself.
+	* [extras/Attenuator-ESP32-partitions.bin](binaries/attenuator/extras/Attenuator-ESP32-Partitions.bin) = This specifies the partition scheme for the flash memory.
+	* [extras/boot_app0.bin](binaries/attenuator/extras/boot_app0.bin) = This is the software for selecting the OTA partition.
+	* [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin) = This is the custom software for the GPStar kit.
+1. Click on the **CONNECT** button and select your USB serial device from the list of options and click on "Connect".
+1. Once connected, select the files (noted above) for the following address spaces:
 	* 0x1000 &rarr; [Attenuator-ESP32-bootloader.bin](binaries/attenuator/extras/Attenuator-ESP32-Bootloader.bin)
 	* 0x8000 &rarr; [Attenuator-ESP32-partitions.bin](binaries/attenuator/extras/Attenuator-ESP32-Partitions.bin)
 	* 0xE000 &rarr; [boot_app0.bin](binaries/attenuator/extras/boot_app0.bin)
@@ -60,10 +60,12 @@ You will need to utilize a command-line tool to upload the firmware to your devi
 	* [extras/boot_app0.bin](binaries/attenuator/extras/boot_app0.bin)
 	* [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin)
 1. Run the following command, where `<PORT>` is your ESP32 controller as a serial (USB) device. For Linux/macOS this may be `/dev/cu.usbserial-0001` or similar, while on Windows it would simply be something like `COM3`:
-	`
+
+```
 	python3 -m esptool --chip esp32 --port <PORT> -b 921600 write_flash --flash_mode dio --flash_size detect --flash_freq 80m
 	0x1000 Attenuator-ESP32-bootloader.bin 0x8000 Attenuator-ESP32-partitions.bin 0xe000 boot_app0.bin 0x10000 Attenuator-ESP32.bin
-	`
+```
+
 📝 **Tip:** To find your device on Linux it may be necessary to use the `lsusb` utility to list attached USB devices. For MacOS run `ls /dev/{tty,cu}.*` to list available USB devices. For Windows, use the "Device Manager" and look at the "Ports (COM & LPT)" section.
 
 These guides may be of some help as a reference:
