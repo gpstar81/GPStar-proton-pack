@@ -183,7 +183,6 @@ bool b_center_pressed = false;
 bool b_center_lockout = false;
 const uint16_t i_center_double_tap_delay = 300; // When to consider the center dial has a "double tap".
 const uint16_t i_center_long_press_delay = 600; // When to consider the center dial has a "long" press.
-uint8_t i_press_count = 0;
 uint8_t i_rotary_count = 0;
 int i_encoder_pos = 0;
 int i_val_rotary;

@@ -654,7 +654,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       }
     break;
 
-    case A_MODE_ORIGINAL_RED_SWITCH_ON:
+    case A_ION_ARM_SWITCH_ON:
       // The proton pack red switch is on and has power (cyclotron not powered up yet).
       if(RED_SWITCH_MODE != SWITCH_ON) {
         debug("Red Switch On");
@@ -664,7 +664,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       }
     break;
 
-    case A_MODE_ORIGINAL_RED_SWITCH_OFF:
+    case A_ION_ARM_SWITCH_OFF:
       // The proton pack red switch is off. This will cause a total system shutdown.
       if(RED_SWITCH_MODE != SWITCH_OFF) {
         debug("Red Switch Off");

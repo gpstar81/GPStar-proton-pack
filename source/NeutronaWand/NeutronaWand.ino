@@ -295,40 +295,7 @@ void mainLoop() {
       if(WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
         if(WAND_ACTION_STATUS != ACTION_SETTINGS && b_gpstar_benchtest == true && SYSTEM_MODE == MODE_ORIGINAL && switch_intensify.doubleClick()) {
           // This allows a standalone wand to "flip the ion arm switch" when in MODE_ORIGINAL by double-clicking the Intensify switch while the wand is turned off
-          if(b_pack_ion_arm_switch_on == true) {
-            b_pack_ion_arm_switch_on = false;
-
-            if(switch_vent.on() == true && switch_wand.on() == true) {
-              stopEffect(S_WAND_HEATDOWN);
-              stopEffect(S_WAND_HEATUP_ALT);
-              playEffect(S_WAND_HEATDOWN);
-            }
-
-            // Turn off any vibration and all lights.
-            vibrationOff();
-            wandLightsOff();
-          }
-          else {
-            b_pack_ion_arm_switch_on = true;
-
-            if(switch_vent.on() == true && switch_wand.on() == true) {
-              stopEffect(S_WAND_HEATDOWN);
-              stopEffect(S_WAND_HEATUP_ALT);
-              playEffect(S_WAND_HEATUP_ALT);
-
-              if(BARGRAPH_TYPE != SEGMENTS_5) {
-                bargraphPowerCheck2021Alt(false);
-              }
-
-              prepBargraphRampUp();
-            }
-
-            // If the ion arm switch is on, we do not need a power indicator.
-            if(b_power_on_indicator) {
-              ms_power_indicator.stop();
-              ms_power_indicator_blink.stop();
-            }
-          }
+          changeIonArmSwitchState(!b_pack_ion_arm_switch_on);
         }
 
         if(switch_mode.pushed() || b_pack_alarm == true) {
@@ -10044,6 +10011,81 @@ void updatePackPowerLevel() {
       // Level 1
       wandSerialSend(W_POWER_LEVEL_1);
     break;
+  }
+}
+
+// Function to control all actions relating to the pack's ion arm switch.
+void changeIonArmSwitchState(bool state) {
+  if(state && !b_pack_ion_arm_switch_on) {
+    b_pack_ion_arm_switch_on = true;
+
+    // Prep the bargraph for MODE_ORIGINAL. This only preps it when the pack switch is turned on and the wand is still off but all the toggle switches are on for the bargraph to settle at the off position. (0 circle).
+    if(WAND_ACTION_STATUS == ACTION_IDLE) {
+      switch(WAND_STATUS) {
+        case MODE_OFF:
+          switch(SYSTEM_MODE) {
+            case MODE_ORIGINAL:
+              if(switch_vent.on() && switch_wand.on()) {
+                if(b_extra_pack_sounds) {
+                  wandSerialSend(W_MODE_ORIGINAL_HEATDOWN_STOP);
+                  wandSerialSend(W_MODE_ORIGINAL_HEATUP);
+                }
+
+                stopEffect(S_WAND_HEATDOWN);
+                stopEffect(S_WAND_HEATUP_ALT);
+                playEffect(S_WAND_HEATUP_ALT);
+
+                if(BARGRAPH_TYPE != SEGMENTS_5) {
+                  bargraphPowerCheck2021Alt(false);
+                }
+
+                prepBargraphRampUp();
+              }
+
+              // Stop the power on indicator timer if enabled.
+              if(b_power_on_indicator) {
+                ms_power_indicator.stop();
+                ms_power_indicator_blink.stop();
+              }
+            break;
+
+            default:
+              // Do nothing.
+            break;
+          }
+        break;
+
+        default:
+          // Do nothing if we aren't MODE_OFF
+        break;
+      }
+    }
+  }
+  else if(!state && b_pack_ion_arm_switch_on) {
+    b_pack_ion_arm_switch_on = false;
+
+    switch(SYSTEM_MODE) {
+      case MODE_ORIGINAL:
+        if(switch_vent.on() && switch_wand.on()) {
+          if(b_extra_pack_sounds) {
+            wandSerialSend(W_MODE_ORIGINAL_HEATUP_STOP);
+            wandSerialSend(W_MODE_ORIGINAL_HEATDOWN);
+          }
+
+          stopEffect(S_WAND_HEATDOWN);
+          stopEffect(S_WAND_HEATUP_ALT);
+          playEffect(S_WAND_HEATDOWN);
+        }
+
+        // Turn off any vibration and all lights.
+        vibrationOff();
+        wandLightsOff();
+      break;
+
+      default:
+        // Do nothing.
+      break;
+    }
   }
 }
 

@@ -271,27 +271,6 @@ void loop() {
 
           ms_fadeout.start(0);
 
-          switch(SYSTEM_MODE) {
-            case MODE_ORIGINAL:
-              if(switch_power.getState() == HIGH) {
-                // Tell the Neutrona Wand that power to the Proton Pack is off.
-                if(b_wand_connected) {
-                  packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
-                }
-
-                // Tell the Attenuator or any other device that the power to the Proton Pack is off.
-                if(b_serial1_connected) {
-                  serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
-                }
-              }
-            break;
-
-            case MODE_SUPER_HERO:
-            default:
-              // Do nothing.
-            break;
-          }
-
           // Tell the wand the pack is off, so shut down the wand if it happens to still be on.
           packSerialSend(P_OFF);
           serial1Send(A_PACK_OFF);
@@ -1463,173 +1442,125 @@ void checkSwitches() {
     }
   }
 
-  switch(PACK_STATE) {
-    case MODE_OFF:
-      switch(SYSTEM_MODE) {
-        case MODE_ORIGINAL:
-          if(switch_power.isPressed() || switch_power.isReleased()) {
-            // When the ion arm switch is used to turn the Proton Pack on, play a extra sound effect in Afterlife or Frozen Empire.
-            switch(SYSTEM_YEAR) {
-              case SYSTEM_AFTERLIFE:
-              case SYSTEM_FROZEN_EMPIRE:
-                stopEffect(S_ION_ARM_SWITCH_ALT);
-                playEffect(S_ION_ARM_SWITCH_ALT);
-              break;
+  if(switch_power.isPressed() || switch_power.isReleased()) {
+    // When the ion arm switch is used to turn the Proton Pack on, play a extra sound effect in Afterlife or Frozen Empire.
+    switch(SYSTEM_YEAR) {
+      case SYSTEM_AFTERLIFE:
+      case SYSTEM_FROZEN_EMPIRE:
+        stopEffect(S_ION_ARM_SWITCH_ALT);
+        playEffect(S_ION_ARM_SWITCH_ALT);
+      break;
 
-              case SYSTEM_1984:
-              case SYSTEM_1989:
-              default:
-                // Do nothing.
-              break;
-            }
+      case SYSTEM_1984:
+      case SYSTEM_1989:
+      default:
+        if(switch_power.getState() == HIGH && PACK_STATE == MODE_ON) {
+          // If shutting down from the ion arm switch in 84/89, play the extra shutdown sound.
+          playEffect(S_SHUTDOWN);
+        }
+      break;
+    }
 
-            if(switch_power.getState() == LOW) {
-              // Tell the Neutrona Wand that power to the Proton Pack is on.
-              if(b_wand_connected) {
-                packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_ON);
-              }
-
-              // Tell the Attenuator or any other device that the power to the Proton Pack is on.
-              if(b_serial1_connected) {
-                serial1Send(A_MODE_ORIGINAL_RED_SWITCH_ON);
-              }
-            }
-            else {
-              // Tell the Neutrona Wand that power to the Proton Pack is off.
-              if(b_wand_connected) {
-                packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
-              }
-
-              // Tell the Attenuator or any other device that the power to the Proton Pack is off.
-              if(b_serial1_connected) {
-                serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
-              }
-            }
-          }
-        break;
-
-        case MODE_SUPER_HERO:
-        default:
-          if(switch_power.isPressed() || switch_power.isReleased()) {
-            // When the ion arm switch is used, play an extra sound effect in Afterlife or Frozen Empire.
-            switch(SYSTEM_YEAR) {
-              case SYSTEM_AFTERLIFE:
-              case SYSTEM_FROZEN_EMPIRE:
-                stopEffect(S_ION_ARM_SWITCH_ALT);
-                playEffect(S_ION_ARM_SWITCH_ALT);
-              break;
-
-              case SYSTEM_1984:
-              case SYSTEM_1989:
-              default:
-                // Do nothing.
-              break;
-            }
-
-            // Turn the pack on if switch is moved to on position.
-            if(switch_power.getState() == LOW) {
-              PACK_ACTION_STATE = ACTION_ACTIVATE;
-            }
-          }
-        break;
+    if(switch_power.getState() == LOW) {
+      // Turn the pack on if switch is moved to on position in Mode Super Hero.
+      if(SYSTEM_MODE == MODE_SUPER_HERO) {
+        PACK_ACTION_STATE = ACTION_ACTIVATE;
       }
 
-      // Year mode. Best to adjust it only when the pack is off.
-      if(b_pack_shutting_down != true && b_pack_on == false && b_spectral_lights_on != true) {
-        // If switching manually by the pack toggle switch.
-        if(b_switch_mode_override != true) {
-          setYearModeByToggle();
-        }
-        else {
-          // If the Neutrona Wand sub menu setting told the Proton Pack to change years.
-          switch(SYSTEM_YEAR_TEMP) {
-            case SYSTEM_1984:
-              if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
-                // Tell the wand to switch to 1984 mode.
-                packSerialSend(P_YEAR_1984);
-
-                SYSTEM_YEAR = SYSTEM_1984;
-                SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-
-                serial1Send(A_YEAR_1984);
-                resetRampSpeeds();
-                packOffReset();
-              }
-            break;
-
-            case SYSTEM_1989:
-              if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
-                // Tell the wand to switch to 1989 mode.
-                packSerialSend(P_YEAR_1989);
-
-                SYSTEM_YEAR = SYSTEM_1989;
-                SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-
-                serial1Send(A_YEAR_1989);
-                resetRampSpeeds();
-                packOffReset();
-              }
-            break;
-
-            case SYSTEM_FROZEN_EMPIRE:
-              if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
-                // Tell the wand to switch to Frozen Empire mode.
-                packSerialSend(P_YEAR_FROZEN_EMPIRE);
-
-                SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
-                SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-
-                serial1Send(A_YEAR_FROZEN_EMPIRE);
-                resetRampSpeeds();
-                packOffReset();
-              }
-            break;
-
-            case SYSTEM_AFTERLIFE:
-            default:
-              if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
-                // Tell the wand to switch to Afterlife mode.
-                packSerialSend(P_YEAR_AFTERLIFE);
-
-                SYSTEM_YEAR = SYSTEM_AFTERLIFE;
-                SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-
-                serial1Send(A_YEAR_AFTERLIFE);
-                resetRampSpeeds();
-                packOffReset();
-              }
-            break;
-          }
-        }
+      // Tell the Neutrona Wand that power to the Proton Pack is on.
+      if(b_wand_connected) {
+        packSerialSend(P_ION_ARM_SWITCH_ON);
       }
-    break;
 
-    case MODE_ON:
-      if(switch_power.isReleased() || switch_power.isPressed()) {
-        // Turn the pack off if switch is moved to off position.
-        if(switch_power.getState() == HIGH) {
-          PACK_ACTION_STATE = ACTION_OFF;
-        }
+      // Tell the Attenuator or any other device that the power to the Proton Pack is on.
+      if(b_serial1_connected) {
+        serial1Send(A_ION_ARM_SWITCH_ON);
+      }
+    }
+    else {
+      PACK_ACTION_STATE = ACTION_OFF;
 
-        // When the ion arm switch is used, play an extra sound effect in Afterlife or Frozen Empire.
-        switch(SYSTEM_YEAR) {
-          case SYSTEM_AFTERLIFE:
-          case SYSTEM_FROZEN_EMPIRE:
-            stopEffect(S_ION_ARM_SWITCH_ALT);
-            playEffect(S_ION_ARM_SWITCH_ALT);
-          break;
+      // Tell the Neutrona Wand that power to the Proton Pack is off.
+      if(b_wand_connected) {
+        packSerialSend(P_ION_ARM_SWITCH_OFF);
+      }
 
+      // Tell the Attenuator or any other device that the power to the Proton Pack is off.
+      if(b_serial1_connected) {
+        serial1Send(A_ION_ARM_SWITCH_OFF);
+      }
+    }
+  }
+
+  if(PACK_STATE == MODE_OFF) {
+    // Year mode. Best to adjust it only when the pack is off.
+    if(b_pack_shutting_down != true && b_pack_on == false && b_spectral_lights_on != true) {
+      // If switching manually by the pack toggle switch.
+      if(b_switch_mode_override != true) {
+        setYearModeByToggle();
+      }
+      else {
+        // If the Neutrona Wand sub menu setting told the Proton Pack to change years.
+        switch(SYSTEM_YEAR_TEMP) {
           case SYSTEM_1984:
+            if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
+              // Tell the wand to switch to 1984 mode.
+              packSerialSend(P_YEAR_1984);
+
+              SYSTEM_YEAR = SYSTEM_1984;
+              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+
+              serial1Send(A_YEAR_1984);
+              resetRampSpeeds();
+              packOffReset();
+            }
+          break;
+
           case SYSTEM_1989:
+            if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
+              // Tell the wand to switch to 1989 mode.
+              packSerialSend(P_YEAR_1989);
+
+              SYSTEM_YEAR = SYSTEM_1989;
+              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+
+              serial1Send(A_YEAR_1989);
+              resetRampSpeeds();
+              packOffReset();
+            }
+          break;
+
+          case SYSTEM_FROZEN_EMPIRE:
+            if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
+              // Tell the wand to switch to Frozen Empire mode.
+              packSerialSend(P_YEAR_FROZEN_EMPIRE);
+
+              SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+
+              serial1Send(A_YEAR_FROZEN_EMPIRE);
+              resetRampSpeeds();
+              packOffReset();
+            }
+          break;
+
+          case SYSTEM_AFTERLIFE:
           default:
-            if(switch_power.getState() == HIGH) {
-              // If shutting down from the ion arm switch in 84/89, play the extra shutdown sound.
-              playEffect(S_SHUTDOWN);
+            if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
+              // Tell the wand to switch to Afterlife mode.
+              packSerialSend(P_YEAR_AFTERLIFE);
+
+              SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+
+              serial1Send(A_YEAR_AFTERLIFE);
+              resetRampSpeeds();
+              packOffReset();
             }
           break;
         }
       }
-    break;
+    }
   }
 }
 

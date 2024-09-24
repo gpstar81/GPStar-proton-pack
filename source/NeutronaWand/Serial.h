@@ -935,77 +935,12 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DYNAMIC_COLORS);
     break;
 
-    case P_MODE_ORIGINAL_RED_SWITCH_ON:
-      b_pack_ion_arm_switch_on = true;
-
-      // Prep the bargraph for MODE_ORIGINAL. This only preps it when the pack switch is turned on and the wand is still off but all the toggle switches are on for the bargraph to settle at the off position. (0 circle).
-      if(WAND_ACTION_STATUS == ACTION_IDLE) {
-        switch(WAND_STATUS) {
-          case MODE_OFF:
-            switch(SYSTEM_MODE) {
-              case MODE_ORIGINAL:
-                if(switch_vent.on() == true && switch_wand.on() == true) {
-                  if(b_extra_pack_sounds == true) {
-                    wandSerialSend(W_MODE_ORIGINAL_HEATDOWN_STOP);
-                    wandSerialSend(W_MODE_ORIGINAL_HEATUP);
-                  }
-
-                  stopEffect(S_WAND_HEATDOWN);
-                  stopEffect(S_WAND_HEATUP_ALT);
-                  playEffect(S_WAND_HEATUP_ALT);
-
-                  if(BARGRAPH_TYPE != SEGMENTS_5) {
-                    bargraphPowerCheck2021Alt(false);
-                  }
-
-                  prepBargraphRampUp();
-                }
-
-                // Stop the power on indicator timer if enabled.
-                if(b_power_on_indicator) {
-                  ms_power_indicator.stop();
-                  ms_power_indicator_blink.stop();
-                }
-              break;
-
-              default:
-                // Do nothing.
-              break;
-            }
-          break;
-
-          default:
-            // Do nothing if we aren't MODE_OFF
-          break;
-        }
-      }
+    case P_ION_ARM_SWITCH_ON:
+      changeIonArmSwitchState(true);
     break;
 
-    case P_MODE_ORIGINAL_RED_SWITCH_OFF:
-      b_pack_ion_arm_switch_on = false;
-
-      switch(SYSTEM_MODE) {
-        case MODE_ORIGINAL:
-          if(switch_vent.on() == true && switch_wand.on() == true) {
-            if(b_extra_pack_sounds == true) {
-              wandSerialSend(W_MODE_ORIGINAL_HEATUP_STOP);
-              wandSerialSend(W_MODE_ORIGINAL_HEATDOWN);
-            }
-
-            stopEffect(S_WAND_HEATDOWN);
-            stopEffect(S_WAND_HEATUP_ALT);
-            playEffect(S_WAND_HEATDOWN);
-          }
-
-          // Turn off any vibration and all lights.
-          vibrationOff();
-          wandLightsOff();
-        break;
-
-        default:
-          // Do nothing.
-        break;
-      }
+    case P_ION_ARM_SWITCH_OFF:
+      changeIonArmSwitchState(false);
     break;
 
     case P_CYCLOTRON_LID_ON:

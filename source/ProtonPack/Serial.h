@@ -559,10 +559,6 @@ void checkSerial1() {
               SYSTEM_MODE = MODE_SUPER_HERO;
               packSerialSend(P_MODE_SUPER_HERO);
               serial1Send(A_MODE_SUPER_HERO);
-
-              // This is only applicable to the Mode Original, so default to off.
-              packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
-              serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
             break;
 
             case 1:
@@ -574,17 +570,6 @@ void checkSerial1() {
                 // If no wand is connected we need to make sure we're in Proton Stream.
                 STREAM_MODE = PROTON;
                 serial1Send(A_PROTON_MODE);
-              }
-
-              if(switch_power.getState() == LOW) {
-                // Tell the Neutrona Wand that power to the Proton Pack is on.
-                packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_ON);
-                serial1Send(A_MODE_ORIGINAL_RED_SWITCH_ON);
-              }
-              else {
-                // Tell the Neutrona Wand that power to the Proton Pack is off.
-                packSerialSend(P_MODE_ORIGINAL_RED_SWITCH_OFF);
-                serial1Send(A_MODE_ORIGINAL_RED_SWITCH_OFF);
               }
             break;
           }
