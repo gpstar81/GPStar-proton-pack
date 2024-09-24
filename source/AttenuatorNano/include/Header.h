@@ -24,8 +24,8 @@
  * Pin for Addressable LEDs.
  */
 #define DEVICE_LED_PIN 9
-// States there are 3 LEDs: Top, Upper, and Lower
-#define DEVICE_NUM_LEDS 3
+// States there are 2 LEDs: Upper and Lower
+#define DEVICE_NUM_LEDS 2
 CRGB device_leds[DEVICE_NUM_LEDS];
 
 /*
@@ -36,7 +36,7 @@ CRGB device_leds[DEVICE_NUM_LEDS];
  * This feature will only be available for the ESP32-based controller.
  */
 bool b_invert_leds = false; // Denotes whether the order should be reversed.
-uint8_t i_device_led[DEVICE_NUM_LEDS] = {0, 1, 2}; // Default Order
+uint8_t i_device_led[DEVICE_NUM_LEDS] = {0, 1}; // Default Order
 
 /*
  * Delay for fastled to update the addressable LEDs.
@@ -55,15 +55,6 @@ enum LED_ANIMATION : uint8_t {
   RED_FADE = 2
 };
 enum LED_ANIMATION RAD_LENS_IDLE;
-
-/*
- * Manage the colour and blink pattern for the top LED.
- */
-millisDelay ms_top_blink; // Allows the top LED to blink for a menu state.
-const uint16_t i_top_blink_delay = 800; // Duration for blink pattern.
-uint8_t i_top_led_colour; // Remember the last colour for the top LED.
-uint8_t i_top_led_brightness = 128; // Max brightness for this LED.
-bool b_top_led_off = false; // Denotes when top LED is mid-blink.
 
 /*
  * Pins for user feedback (audio/physical)

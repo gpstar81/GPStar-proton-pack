@@ -206,7 +206,7 @@ void checkRotaryPress() {
   CENTER_STATE = NO_ACTION;
 
   // Determine whether the rotary dial (center button) got a short or long press.
-  if(encoder_center.isPressed() && !b_center_pressed) {
+  if(encoder_center.isPressed()) {
     // Start all timers when the rotary dial is pressed.
     ms_center_double_tap.start(i_center_double_tap_delay);
     ms_center_long_press.start(i_center_long_press_delay);
@@ -223,7 +223,6 @@ void checkRotaryPress() {
       b_center_pressed = false;
       encoder_center.resetCount();
       ms_center_double_tap.stop();
-      ms_center_long_press.stop();
     }
     else if(ms_center_double_tap.remaining() < 1 && encoder_center.getCount() == 1) {
       // If the double-tap counter ran out with only a single press, this was a "short" press.
@@ -237,6 +236,7 @@ void checkRotaryPress() {
       if(b_right_toggle_center_start != b_right_toggle_on) {
         // A state change occurred for the right toggle, which we interpret as a lock-out toggle.
         b_center_lockout = !b_center_lockout;
+        CENTER_STATE = NO_ACTION; // Don't count this as a long press.
         b_center_pressed = false;
         encoder_center.resetCount();
         useVibration(i_vibrate_max_time); // Give a long nudge.
