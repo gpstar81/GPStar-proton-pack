@@ -10090,7 +10090,7 @@ void changeIonArmSwitchState(bool state) {
 }
 
 void vibrationWand(uint8_t i_level) {
-  if(VIBRATION_MODE != VIBRATION_NONE && b_vibration_switch_on && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true && i_level > 0) {
+  if(VIBRATION_MODE != VIBRATION_NONE && b_vibration_switch_on && WAND_ACTION_STATUS != ACTION_OVERHEATING && !b_pack_alarm && b_pack_on && i_level > 0) {
     // Vibrate the wand during firing only when enabled. (When enabled by the pack)
     if(VIBRATION_MODE == VIBRATION_FIRING_ONLY) {
       if(WAND_ACTION_STATUS == ACTION_FIRING || (ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished())) {
