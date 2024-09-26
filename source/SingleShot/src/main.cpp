@@ -128,7 +128,7 @@ void setup() {
   ms_check_music.start(i_music_check_delay);
 
   // Reset our master volume manually.
-  resetMasterVolume();
+  updateMasterVolume(true);
 
   // Make sure lights are off, including the bargraph.
   allLightsOff();

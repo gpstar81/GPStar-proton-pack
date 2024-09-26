@@ -75,7 +75,8 @@ struct objLEDEEPROM {
 struct objConfigEEPROM {
   uint8_t stream_effects;
   uint8_t cyclotron_direction;
-  uint8_t simulate_ring; // Primarily for the Afterlife/Frozen Empire themes.
+  uint8_t center_led_fade; // Used for the 1984/1989 themes.
+  uint8_t simulate_ring; // Used for the Afterlife/Frozen Empire themes.
   uint8_t smoke_setting;
   uint8_t overheat_strobe;
   uint8_t overheat_lights_off;
@@ -254,21 +255,30 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.simulate_ring > 0 && obj_config_eeprom.simulate_ring != 255) {
-      if(obj_config_eeprom.simulate_ring > 1) {
-        b_cyclotron_simulate_ring = true;
-      }
-      else {
-        b_cyclotron_simulate_ring = false;
-      }
-    }
-
     if(obj_config_eeprom.cyclotron_direction > 0 && obj_config_eeprom.cyclotron_direction != 255) {
       if(obj_config_eeprom.cyclotron_direction > 1) {
         b_clockwise = true;
       }
       else {
         b_clockwise = false;
+      }
+    }
+
+    if(obj_config_eeprom.center_led_fade > 0 && obj_config_eeprom.center_led_fade != 255) {
+      if(obj_config_eeprom.center_led_fade > 1) {
+        b_fade_cyclotron_led = true;
+      }
+      else {
+        b_fade_cyclotron_led = false;
+      }
+    }
+
+    if(obj_config_eeprom.simulate_ring > 0 && obj_config_eeprom.simulate_ring != 255) {
+      if(obj_config_eeprom.simulate_ring > 1) {
+        b_cyclotron_simulate_ring = true;
+      }
+      else {
+        b_cyclotron_simulate_ring = false;
       }
     }
 
@@ -393,8 +403,9 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.default_system_volume > 0 && obj_config_eeprom.default_system_volume <= 100) {
-      i_volume_master_percentage = obj_config_eeprom.default_system_volume;
+    if(obj_config_eeprom.default_system_volume > 0 && obj_config_eeprom.default_system_volume <= 101) {
+      // EEPROM value is from 1 to 101; subtract 1 to get the correct percentage.
+      i_volume_master_percentage = obj_config_eeprom.default_system_volume - 1;
       i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
       i_volume_revert = i_volume_master_eeprom;
       i_volume_master = i_volume_master_eeprom;
@@ -591,10 +602,14 @@ void clearConfigEEPROM() {
 }
 
 void saveConfigEEPROM() {
+  // Convert the current EEPROM volume value into a percentage.
+  uint8_t i_eeprom_volume_master_percentage = (MINIMUM_VOLUME - i_volume_master_eeprom) / MINIMUM_VOLUME * 100;
+
   // 1 = false, 2 = true.
   uint8_t i_proton_stream_effects = 2;
+  uint8_t i_cyclotron_direction = 2; // 1 = counter-clockwise, 2 = clockwise.
+  uint8_t i_center_led_fade = 2;
   uint8_t i_simulate_ring = 2;
-  uint8_t i_cyclotron_direction = 2;
   uint8_t i_smoke_settings = 2;
 
   uint8_t i_overheat_strobe = 2;
@@ -608,7 +623,7 @@ void saveConfigEEPROM() {
   uint8_t i_demo_light_mode = 1;
   uint8_t i_use_ribbon_cable = 1;
   uint8_t i_cyclotron_three_led_toggle = 1; // 1 = single led, 2 = three leds.
-  uint8_t i_default_system_volume = 100; // <- i_volume_master_percentage
+  uint8_t i_default_system_volume = 101; // <- i_eeprom_volume_master_percentage + 1
   uint8_t i_overheat_smoke_duration_level_5 = i_ms_overheating_length_5 / 1000;
   uint8_t i_overheat_smoke_duration_level_4 = i_ms_overheating_length_4 / 1000;
   uint8_t i_overheat_smoke_duration_level_3 = i_ms_overheating_length_3 / 1000;
@@ -627,12 +642,16 @@ void saveConfigEEPROM() {
     i_proton_stream_effects = 1;
   }
 
-  if(b_cyclotron_simulate_ring != true) {
-    i_simulate_ring = 1;
-  }
-
   if(b_clockwise != true) {
     i_cyclotron_direction = 1;
+  }
+
+  if(b_fade_cyclotron_led != true) {
+    i_center_led_fade = 1;
+  }
+
+  if(b_cyclotron_simulate_ring != true) {
+    i_simulate_ring = 1;
   }
 
   if(b_smoke_enabled != true) {
@@ -675,14 +694,9 @@ void saveConfigEEPROM() {
     i_cyclotron_three_led_toggle = 2;
   }
 
-  if(i_volume_master_percentage <= 100) {
-    // Minimum volume in EEPROM is 1; maybe change later?
-    if(i_volume_master_percentage == 0) {
-      i_default_system_volume = 1;
-    }
-    else {
-      i_default_system_volume = i_volume_master_percentage;
-    }
+  if(i_eeprom_volume_master_percentage <= 100) {
+    // Need to add 1 to this because the EEPROM cannot contain a 0 value.
+    i_default_system_volume = i_eeprom_volume_master_percentage + 1;
   }
 
   if(b_smoke_continuous_level_5 == true) {
@@ -733,6 +747,7 @@ void saveConfigEEPROM() {
   objConfigEEPROM obj_eeprom = {
     i_proton_stream_effects,
     i_cyclotron_direction,
+    i_center_led_fade,
     i_simulate_ring,
     i_smoke_settings,
     i_overheat_strobe,

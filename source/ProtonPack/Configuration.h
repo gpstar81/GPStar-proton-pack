@@ -287,7 +287,7 @@ bool b_clockwise = true;
 /*
  * When set to true, 1984/1989 mode LEDs will fade in and out.
  */
-const bool b_fade_cyclotron_led = true;
+bool b_fade_cyclotron_led = true;
 
 /*
  * When set to true, 1984/1989 will utilise the middle single LED only in each cyclotron lens.

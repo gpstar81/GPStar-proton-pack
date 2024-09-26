@@ -1444,7 +1444,7 @@ void checkWandAction() {
                 wandSerialSend(W_SILENT_MODE);
               }
 
-              resetMasterVolume();
+              updateMasterVolume();
             }
           }
           else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {

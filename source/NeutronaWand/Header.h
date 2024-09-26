@@ -188,8 +188,8 @@ uint16_t d_white_light_interval = i_afterlife_blink_interval;
  * Rotary encoder on the top of the wand. Changes the wand power level and controls the wand settings menu.
  * Also controls independent music volume while the pack/wand is off and if music is playing.
  */
-millisDelay ms_firing_mode_switch; // Timer for rotary firing mode select speed limit.
-const uint8_t i_firing_mode_switch_delay = 50; // Time to delay switching firing modes.
+millisDelay ms_rotary_encoder; // Timer for slowing the rotary encoder spin.
+const uint8_t i_rotary_encoder_delay = 50; // Time to delay switching firing modes.
 static uint8_t prev_next_code = 0;
 static uint16_t store = 0;
 

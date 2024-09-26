@@ -51,7 +51,6 @@ bool b_music_paused = false;
 bool b_repeat_track = false;
 uint8_t i_device_beep_level = 10; // 10 for WAV Trigger. 40 for GPStar Audio.
 uint8_t i_device_sound_level = 0; // 1 for WAV Trigger. 0 For GPStar Audio.
-const uint8_t i_volume_master_percentage_max = 100; // Max percentage of master volume.
 
 /*
  * Music Control/Checking
@@ -63,14 +62,14 @@ millisDelay ms_music_next_track;
 millisDelay ms_music_status_check;
 
 /*
- * Volume (-70 = quietest, 0 = loudest)
+ * Volume percentage values (0 to 100)
  */
 uint8_t i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
 uint8_t i_volume_effects_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
 uint8_t i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
 
 /*
- * General Volume
+ * General Volume (-70 = quietest, 0 = loudest)
  */
 int8_t i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100); // Master overall volume
 int8_t i_volume_master_eeprom = i_volume_master; // Master overall volume that is saved into the eeprom menu and loaded during bootup in standalone mode
@@ -83,9 +82,8 @@ int8_t i_volume_revert = i_volume_master;
  */
 void playEffect(uint16_t i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, uint16_t i_fade_time = 0, bool b_lock = true);
 void stopEffect(uint16_t i_track_id);
-void playMusic();
-void stopMusic();
 void adjustGainEffect(uint16_t i_track_id, int8_t i_track_volume = i_volume_effects, bool b_fade = false, uint16_t i_fade_time = 0);
+void updateMasterVolume(bool startup = false);
 
 /*
  * Audio playback functions.
@@ -136,49 +134,6 @@ void stopEffect(uint16_t i_track_id) {
     case A_WAV_TRIGGER:
     case A_GPSTAR_AUDIO:
       audio.trackStop(i_track_id);
-    break;
-
-    case A_NONE:
-    default:
-      // No audio device connected.
-    break;
-  }
-}
-
-// Adjust the gain of a single track.
-void adjustGainEffect(uint16_t i_track_id, int8_t i_track_volume, bool b_fade, uint16_t i_fade_time) {
-  if(i_track_volume < i_volume_abs_min) {
-    i_track_volume = i_volume_abs_min;
-  }
-
-  if(i_track_volume > i_volume_abs_max) {
-    i_track_volume = i_volume_abs_max;
-  }
-
-  switch(AUDIO_DEVICE) {
-    case A_WAV_TRIGGER:
-    case A_GPSTAR_AUDIO:
-      if(b_fade) {
-        audio.trackFade(i_track_id, i_track_volume, i_fade_time, 0);
-      }
-      else {
-        audio.trackGain(i_track_id, i_track_volume);
-      }
-    break;
-
-    case A_NONE:
-    default:
-      // No audio device connected.
-    break;
-  }
-}
-
-void updateEffectsVolume() {
-  switch(AUDIO_DEVICE) {
-    case A_WAV_TRIGGER:
-    case A_GPSTAR_AUDIO:
-      // Since adjusting only happens while in the menu mode, only certain effects need to be adjusted on the fly.
-      audio.trackGain(S_IDLE_LOOP, i_volume_effects);
     break;
 
     case A_NONE:
@@ -245,13 +200,13 @@ void stopMusic() {
 
 void pauseMusic() {
   if(b_playing_music && !b_music_paused) {
+    // Stop the music check timer.
+    ms_music_status_check.stop();
+
     // Pause music playback on the Single-Shot Blaster
     switch(AUDIO_DEVICE) {
       case A_WAV_TRIGGER:
       case A_GPSTAR_AUDIO:
-        // Stop the music check timer.
-        ms_music_status_check.stop();
-
         audio.trackPause(i_current_music_track);
         audio.update();
       break;
@@ -268,9 +223,10 @@ void pauseMusic() {
 
 void resumeMusic() {
   if(b_music_paused) {
-    // Resume music playback on the Single-Shot Blaster
+    // Reset the music check timer.
     ms_music_status_check.start(i_music_check_delay * 4);
 
+    // Resume music playback on the Single-Shot Blaster
     switch(AUDIO_DEVICE) {
       case A_WAV_TRIGGER:
       case A_GPSTAR_AUDIO:
@@ -342,6 +298,150 @@ void musicPrevTrack() {
   else {
     // Set the new track.
     i_current_music_track = i_temp_track;
+  }
+}
+
+// Adjust the gain of a single track.
+void adjustGainEffect(uint16_t i_track_id, int8_t i_track_volume, bool b_fade, uint16_t i_fade_time) {
+  if(i_track_volume < i_volume_abs_min) {
+    i_track_volume = i_volume_abs_min;
+  }
+
+  if(i_track_volume > i_volume_abs_max) {
+    i_track_volume = i_volume_abs_max;
+  }
+
+  switch(AUDIO_DEVICE) {
+    case A_WAV_TRIGGER:
+    case A_GPSTAR_AUDIO:
+      if(b_fade) {
+        audio.trackFade(i_track_id, i_track_volume, i_fade_time, 0);
+      }
+      else {
+        audio.trackGain(i_track_id, i_track_volume);
+      }
+    break;
+
+    case A_NONE:
+    default:
+      // No audio device connected.
+    break;
+  }
+}
+
+void updateMasterVolume(bool startup) {
+  switch(AUDIO_DEVICE) {
+    case A_WAV_TRIGGER:
+    case A_GPSTAR_AUDIO:
+      audio.masterGain(i_volume_master);
+    break;
+
+    case A_NONE:
+    default:
+      // Nothing.
+    break;
+  }
+
+  if(!startup) {
+    // If this isn't being called at boot, provide audio feedback and report the change.
+    if(DEVICE_STATUS == MODE_OFF) {
+      // Provide feedback when the Proton Pack is not running.
+      stopEffect(S_BEEPS_ALT);
+      playEffect(S_BEEPS_ALT);
+    }
+  }
+}
+
+void increaseVolumeEEPROM() {
+  if(i_volume_master_eeprom == i_volume_abs_max) {
+    // Cannot go any higher.
+  }
+  else {
+    if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
+      i_volume_master_percentage = 100;
+    }
+    else {
+      i_volume_master_percentage += VOLUME_MULTIPLIER;
+    }
+
+    i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+    i_volume_master = i_volume_master_eeprom;
+    i_volume_revert = i_volume_master_eeprom;
+
+    updateMasterVolume();
+  }
+}
+
+void decreaseVolumeEEPROM() {
+  if(i_volume_master_eeprom == i_volume_abs_min) {
+    // Cannot go any lower.
+  }
+  else {
+    if(i_volume_master_percentage - VOLUME_MULTIPLIER < 0) {
+      i_volume_master_percentage = 0;
+    }
+    else {
+      i_volume_master_percentage -= VOLUME_MULTIPLIER;
+    }
+
+    i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+    i_volume_master = i_volume_master_eeprom;
+    i_volume_revert = i_volume_master_eeprom;
+
+    updateMasterVolume();
+  }
+}
+
+void increaseVolume() {
+  if(i_volume_master == i_volume_abs_max) {
+    // Cannot go any higher.
+  }
+  else {
+    if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
+      i_volume_master_percentage = 100;
+    }
+    else {
+      i_volume_master_percentage += VOLUME_MULTIPLIER;
+    }
+
+    i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+    i_volume_revert = i_volume_master;
+
+    updateMasterVolume();
+  }
+}
+
+void decreaseVolume() {
+  if(i_volume_master == i_volume_abs_min) {
+    // Cannot go any lower.
+  }
+  else {
+    if(i_volume_master_percentage - VOLUME_MULTIPLIER < 0) {
+      i_volume_master_percentage = 0;
+    }
+    else {
+      i_volume_master_percentage -= VOLUME_MULTIPLIER;
+    }
+
+    i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+    i_volume_revert = i_volume_master;
+
+    updateMasterVolume();
+  }
+}
+
+void updateEffectsVolume() {
+  switch(AUDIO_DEVICE) {
+    case A_WAV_TRIGGER:
+    case A_GPSTAR_AUDIO:
+      // Since adjusting only happens while in the menu mode, only certain effects need to be adjusted on the fly.
+      audio.trackGain(S_IDLE_LOOP, i_volume_effects);
+    break;
+
+    case A_NONE:
+    default:
+      // No audio device connected.
+    break;
   }
 }
 
@@ -427,148 +527,6 @@ void decreaseVolumeMusic() {
   i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
   updateMusicVolume();
-}
-
-void increaseVolumeEEPROM() {
-  if(i_volume_master_eeprom == i_volume_abs_min && MINIMUM_VOLUME > i_volume_master_eeprom) {
-    i_volume_master_eeprom = MINIMUM_VOLUME;
-  }
-
-  if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
-    i_volume_master_percentage = i_volume_master_percentage_max;
-  }
-  else {
-    i_volume_master_percentage = i_volume_master_percentage + VOLUME_MULTIPLIER;
-  }
-
-  i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
-  i_volume_revert = i_volume_master_eeprom;
-
-  if(DEVICE_STATUS == MODE_OFF) {
-    // Provide feedback when the Single-Shot Blaster is not running.
-    stopEffect(S_BEEPS_ALT);
-    playEffect(S_BEEPS_ALT, false, i_volume_master_eeprom);
-  }
-
-  i_volume_master = i_volume_master_eeprom;
-
-  switch(AUDIO_DEVICE) {
-    case A_WAV_TRIGGER:
-    case A_GPSTAR_AUDIO:
-      audio.masterGain(i_volume_master_eeprom);
-    break;
-
-    case A_NONE:
-    default:
-      // No audio device connected.
-    break;
-  }
-}
-
-void decreaseVolumeEEPROM() {
-  if(i_volume_master_eeprom == i_volume_abs_min) {
-    // Cannot go any lower.
-  }
-  else {
-    if(i_volume_master_percentage - VOLUME_MULTIPLIER < 0) {
-      i_volume_master_percentage = 0;
-    }
-    else {
-      i_volume_master_percentage = i_volume_master_percentage - VOLUME_MULTIPLIER;
-    }
-
-    i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
-    i_volume_revert = i_volume_master_eeprom;
-
-    i_volume_master = i_volume_master_eeprom;
-
-    switch(AUDIO_DEVICE) {
-      case A_WAV_TRIGGER:
-      case A_GPSTAR_AUDIO:
-        audio.masterGain(i_volume_master_eeprom);
-      break;
-
-      case A_NONE:
-      default:
-        // No audio device connected.
-      break;
-    }
-  }
-
-  if(DEVICE_STATUS == MODE_OFF) {
-    // Provide feedback when the Single-Shot Blaster is not running.
-    stopEffect(S_BEEPS_ALT);
-    playEffect(S_BEEPS_ALT, false, i_volume_master_eeprom);
-  }
-}
-
-void increaseVolume() {
-  if(i_volume_master == i_volume_abs_min && MINIMUM_VOLUME > i_volume_master) {
-    i_volume_master = MINIMUM_VOLUME;
-  }
-
-  if(i_volume_master_percentage + VOLUME_MULTIPLIER > i_volume_master_percentage_max) {
-    i_volume_master_percentage = i_volume_master_percentage_max;
-  }
-  else {
-    i_volume_master_percentage = i_volume_master_percentage + VOLUME_MULTIPLIER;
-  }
-
-  i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
-  i_volume_revert = i_volume_master;
-
-  if(DEVICE_STATUS == MODE_OFF) {
-    // Provide feedback when the Single-Shot Blaster is not running.
-    stopEffect(S_BEEPS_ALT);
-    playEffect(S_BEEPS_ALT, false, i_volume_master);
-  }
-
-  switch(AUDIO_DEVICE) {
-    case A_WAV_TRIGGER:
-    case A_GPSTAR_AUDIO:
-      audio.masterGain(i_volume_master);
-    break;
-
-    case A_NONE:
-    default:
-      // No audio device connected.
-    break;
-  }
-}
-
-void decreaseVolume() {
-  if(i_volume_master == i_volume_abs_min) {
-    // Cannot go any lower.
-  }
-  else {
-    if(i_volume_master_percentage - VOLUME_MULTIPLIER < 0) {
-      i_volume_master_percentage = 0;
-    }
-    else {
-      i_volume_master_percentage = i_volume_master_percentage - VOLUME_MULTIPLIER;
-    }
-
-    i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
-    i_volume_revert = i_volume_master;
-
-    switch(AUDIO_DEVICE) {
-      case A_WAV_TRIGGER:
-      case A_GPSTAR_AUDIO:
-        audio.masterGain(i_volume_master);
-      break;
-
-      case A_NONE:
-      default:
-        // No audio device connected.
-      break;
-    }
-  }
-
-  if(DEVICE_STATUS == MODE_OFF) {
-    // Provide feedback when the Single-Shot Blaster is not running.
-    stopEffect(S_BEEPS_ALT);
-    playEffect(S_BEEPS_ALT, false, i_volume_master);
-  }
 }
 
 void buildMusicCount(uint16_t i_num_tracks) {
@@ -787,20 +745,6 @@ bool setupAudioDevice() {
     debugln(F("No Audio Device"));
 
     return false;
-  }
-}
-
-void resetMasterVolume() {
-  switch(AUDIO_DEVICE) {
-    case A_WAV_TRIGGER:
-    case A_GPSTAR_AUDIO:
-      audio.masterGain(i_volume_master);
-    break;
-
-    case A_NONE:
-    default:
-      // Nothing.
-    break;
   }
 }
 

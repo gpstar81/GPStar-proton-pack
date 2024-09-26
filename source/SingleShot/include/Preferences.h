@@ -99,8 +99,9 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.default_system_volume > 0 && obj_config_eeprom.default_system_volume <= 100) {
-      i_volume_master_percentage = obj_config_eeprom.default_system_volume;
+    if(obj_config_eeprom.default_system_volume > 0 && obj_config_eeprom.default_system_volume <= 101) {
+      // EEPROM value is from 1 to 101; subtract 1 to get the correct percentage.
+      i_volume_master_percentage = obj_config_eeprom.default_system_volume - 1;
       i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
       i_volume_revert = i_volume_master_eeprom;
       i_volume_master = i_volume_master_eeprom;
@@ -144,11 +145,14 @@ void clearConfigEEPROM() {
 }
 
 void saveConfigEEPROM() {
+  // Convert the current EEPROM volume value into a percentage.
+  uint8_t i_eeprom_volume_master_percentage = (MINIMUM_VOLUME - i_volume_master_eeprom) / MINIMUM_VOLUME * 100;
+
   // 1 = false, 2 = true.
   uint8_t i_device_boot_errors = 2; // Assumed true by default.
   uint8_t i_vent_light_auto_intensity = 2; // Assumed true by default.
   uint8_t i_invert_bargraph = 1; // Assumed false by default.
-  uint8_t i_default_system_volume = 100; // <- i_volume_master_percentage
+  uint8_t i_default_system_volume = 101; // <- i_eeprom_volume_master_percentage + 1
   uint8_t i_device_vibration = 4; // 1 = always, 2 = when firing, 3 = off, 4 = default.
 
   if(!b_device_boot_errors) {
@@ -163,14 +167,9 @@ void saveConfigEEPROM() {
     i_invert_bargraph = 2;
   }
 
-  if(i_volume_master_percentage <= 100) {
-    // Minimum volume in EEPROM is 1; maybe change later?
-    if(i_volume_master_percentage == 0) {
-      i_default_system_volume = 1;
-    }
-    else {
-      i_default_system_volume = i_volume_master_percentage;
-    }
+  if(i_eeprom_volume_master_percentage <= 100) {
+    // Need to add 1 to this because the EEPROM cannot contain a 0 value.
+    i_default_system_volume = i_eeprom_volume_master_percentage + 1;
   }
 
   switch(VIBRATION_MODE_EEPROM) {

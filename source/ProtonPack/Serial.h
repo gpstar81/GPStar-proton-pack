@@ -74,6 +74,7 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t ledCycLidHue;
   uint8_t ledCycLidSat;
   uint8_t ledCycLidCenter;
+  uint8_t ledCycLidFade;
   uint8_t ledCycLidSimRing;
   uint8_t ledCycInnerPanel;
   uint8_t ledCycCakeCount;
@@ -360,6 +361,7 @@ void serial1SendData(uint8_t i_message) {
       packConfig.ledCycLidSat = i_spectral_cyclotron_custom_saturation;
       packConfig.cyclotronDirection = b_clockwise ? 1 : 0;
       packConfig.ledCycLidCenter = b_cyclotron_single_led ? 1 : 0;
+      packConfig.ledCycLidFade = b_fade_cyclotron_led ? 1 : 0;
       packConfig.ledVGCyclotron = b_cyclotron_colour_toggle ? 1 : 0;
       packConfig.ledCycLidSimRing = b_cyclotron_simulate_ring ? 1 : 0;
 
@@ -671,7 +673,7 @@ void checkSerial1() {
             break;
           }
 
-          i_volume_master_percentage = packConfig.defaultSystemVolume;
+          i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * packConfig.defaultSystemVolume / 100);
           b_stream_effects = (packConfig.protonStreamEffects == 1);
           b_overheat_strobe = (packConfig.overheatStrobeNF == 1);
           b_overheat_lights_off = (packConfig.overheatLightsOff == 1);
@@ -706,6 +708,7 @@ void checkSerial1() {
           i_spectral_cyclotron_custom_saturation = packConfig.ledCycLidSat;
           b_clockwise = (packConfig.cyclotronDirection == 1);
           b_cyclotron_single_led = (packConfig.ledCycLidCenter == 1);
+          b_fade_cyclotron_led = (packConfig.ledCycLidFade == 1);
           b_cyclotron_colour_toggle = (packConfig.ledVGCyclotron == 1);
           b_cyclotron_simulate_ring = (packConfig.ledCycLidSimRing == 1);
 
@@ -1023,7 +1026,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
         serial1Send(A_TOGGLE_MUTE, 2);
       }
 
-      resetMasterVolume();
+      updateMasterVolume();
     break;
 
     case A_VOLUME_DECREASE:
@@ -3087,14 +3090,14 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Set the master volume to silent.
       i_volume_master = i_volume_abs_min;
 
-      resetMasterVolume();
+      updateMasterVolume();
     break;
 
     case W_VOLUME_REVERT:
       // Restore the master volume to previous level.
       i_volume_master = i_volume_revert;
 
-      resetMasterVolume();
+      updateMasterVolume();
     break;
 
     case W_VOLUME_DECREASE:

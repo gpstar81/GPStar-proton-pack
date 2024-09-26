@@ -385,6 +385,7 @@ String getPackConfig() {
     jsonBody["ledCycLidSat"] = packConfig.ledCycLidSat; // Spectral custom saturation 1-254
     jsonBody["cyclotronDirection"] = packConfig.cyclotronDirection; // [0=CCW,1=CW]
     jsonBody["ledCycLidCenter"] = packConfig.ledCycLidCenter; // [0=3,1=1]
+    jsonBody["ledCycLidFade"] = packConfig.ledCycLidFade; // true|false
     jsonBody["ledVGCyclotron"] = packConfig.ledVGCyclotron; // true|false
     jsonBody["ledCycLidSimRing"] = packConfig.ledCycLidSimRing; // true|false
     jsonBody["ledCycInnerPanel"] = packConfig.ledCycInnerPanel; // [1=Individual,2=RGB-Static,3=RGB-Dynamic]
@@ -958,6 +959,7 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
       packConfig.ledCycLidSat = jsonBody["ledCycLidSat"].as<uint8_t>();
       packConfig.cyclotronDirection = jsonBody["cyclotronDirection"].as<uint8_t>();
       packConfig.ledCycLidCenter = jsonBody["ledCycLidCenter"].as<uint8_t>();
+      packConfig.ledCycLidFade = jsonBody["ledCycLidFade"].as<uint8_t>();
       packConfig.ledVGCyclotron = jsonBody["ledVGCyclotron"].as<uint8_t>();
       packConfig.ledCycLidSimRing = jsonBody["ledCycLidSimRing"].as<uint8_t>();
 

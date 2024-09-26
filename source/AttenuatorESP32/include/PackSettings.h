@@ -170,9 +170,9 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Enable Video Game Colours:</b>
+      <b class="labelSwitch">Center LED Fade Effect:</b>
       <label class="switch">
-        <input id="ledVGCyclotron" name="ledVGCyclotron" type="checkbox">
+        <input id="ledCycLidFade" name="ledCycLidFade" type="checkbox">
         <span class="slider round"></span>
       </label>
     </div>
@@ -180,6 +180,13 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       <b class="labelSwitch">Simulate Ring Spin Effect:</b>
       <label class="switch">
         <input id="ledCycLidSimRing" name="ledCycLidSimRing" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Enable Video Game Colours:</b>
+      <label class="switch">
+        <input id="ledVGCyclotron" name="ledVGCyclotron" type="checkbox">
         <span class="slider round"></span>
       </label>
     </div>
@@ -245,13 +252,6 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Invert Power Cell Animation:</b>
-      <label class="switch">
-        <input id="ledInvertPowercell" name="ledInvertPowercell" type="checkbox">
-        <span class="slider round"></span>
-      </label>
-    </div>
-    <div class="setting">
       <b>Custom Colour (Hue):</b><br/>
       <input type="range" id="ledPowercellHue" name="ledPowercellHue" min="0" max="360" value="360" step="2"
        oninput="updateColour('pcColourPreview', 'pcHueOut', 'pcSatOut', ledPowercellHue.value, ledPowercellSat.value)"/>
@@ -264,6 +264,13 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       <input type="range" id="ledPowercellSat" name="ledPowercellSat" min="0" max="100" value="100" step="2"
        oninput="updateColour('pcColourPreview', 'pcHueOut', 'pcSatOut', ledPowercellHue.value, ledPowercellSat.value)"/>
       <output class="labelSlider" id="pcSatOut" for="ledPowercellSat"></output>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Invert Power Cell Animation:</b>
+      <label class="switch">
+        <input id="ledInvertPowercell" name="ledInvertPowercell" type="checkbox">
+        <span class="slider round"></span>
+      </label>
     </div>
     <div class="setting">
       <b class="labelSwitch">Enable Video Game Colours:</b>
@@ -383,6 +390,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             getEl("ledCycLidSat").value = convertRange(settings.ledCycLidSat || 254, [1,254], [0,100]); // Full Saturation
             getEl("cyclotronDirection").value = settings.cyclotronDirection || 0;
             getEl("ledCycLidCenter").value = settings.ledCycLidCenter || 0;
+            getEl("ledCycLidFade").checked = settings.ledCycLidFade ? true : false;
             getEl("ledVGCyclotron").checked = settings.ledVGCyclotron ? true : false;
             getEl("ledCycLidSimRing").checked = settings.ledCycLidSimRing ? true : false;
 
@@ -395,7 +403,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             getEl("ledCycCavCountOut").innerHTML = getEl("ledCycCavCount").value;
 
             getEl("ledPowercellCount").value = settings.ledPowercellCount || 13; // Haslab: 13
-            getEl("ledInvertPowercell").checked = settings.ledInvertPowercell ? true : false; // Default: False
+            getEl("ledInvertPowercell").checked = settings.ledInvertPowercell ? true : false;
             getEl("ledPowercellHue").value = convertRange(settings.ledPowercellHue || 160, [1,254], [0,360]); // Default: Blue
             getEl("ledPowercellSat").value = convertRange(settings.ledPowercellSat || 254, [1,254], [0,100]); // Full Saturation
             getEl("ledVGPowercell").checked = settings.ledVGPowercell ? true : false;
@@ -432,6 +440,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         ledCycLidSat: convertRange(parseInt(getEl("ledCycLidSat").value || 100, 10), [0,100], [1,254]),
         cyclotronDirection: parseInt(getEl("cyclotronDirection").value || 0, 10),
         ledCycLidCenter: parseInt(getEl("ledCycLidCenter").value || 0, 10),
+        ledCycLidFade: getEl("ledCycLidFade").checked ? 1 : 0,
         ledVGCyclotron: getEl("ledVGCyclotron").checked ? 1 : 0,
         ledCycLidSimRing: getEl("ledCycLidSimRing").checked ? 1 : 0,
 

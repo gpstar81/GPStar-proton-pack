@@ -393,7 +393,7 @@ void checkPack() {
             ms_packsync.stop();
 
             // No pack to do a volume sync with, so reset our master volume manually.
-            resetMasterVolume();
+            updateMasterVolume();
 
             // Immediately exit the serial data functions.
             return;
@@ -770,8 +770,7 @@ void checkPack() {
 
           // Update volume levels.
           i_volume_revert = i_volume_master;
-          resetMasterVolume();
-          updateEffectsVolume();
+          updateMasterVolume();
 
           switch(wandSyncData.masterMuted) {
             case 1:
@@ -784,7 +783,7 @@ void checkPack() {
 
               // The pack is telling us to be silent.
               i_volume_master = i_volume_abs_min;
-              resetMasterVolume();
+              updateMasterVolume();
             break;
           }
         break;
@@ -996,13 +995,13 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
       // The pack is telling us to be silent.
       i_volume_master = i_volume_abs_min;
-      resetMasterVolume();
+      updateMasterVolume();
     break;
 
     case P_MASTER_AUDIO_NORMAL:
       // The pack is telling us to revert the volume to normal.
       i_volume_master = i_volume_revert;
-      resetMasterVolume();
+      updateMasterVolume();
     break;
 
     case P_ALARM_ON:

@@ -416,6 +416,8 @@ millisDelay ms_idle_fire_fade; // Used for fading the Afterlife idling sound wit
 /*
  * Rotary encoder for volume control
  */
+millisDelay ms_rotary_encoder; // Timer for slowing the rotary encoder spin.
+const uint8_t i_rotary_encoder_delay = 50; // Time to delay switching firing modes.
 static uint8_t prev_next_code = 0;
 static uint16_t store = 0;
 

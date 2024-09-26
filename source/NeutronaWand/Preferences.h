@@ -304,8 +304,9 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.default_system_volume > 0 && obj_config_eeprom.default_system_volume <= 100 && b_gpstar_benchtest == true) {
-      i_volume_master_percentage = obj_config_eeprom.default_system_volume;
+    if(obj_config_eeprom.default_system_volume > 0 && obj_config_eeprom.default_system_volume <= 101 && b_gpstar_benchtest == true) {
+      // EEPROM value is from 1 to 101; subtract 1 to get the correct percentage.
+      i_volume_master_percentage = obj_config_eeprom.default_system_volume - 1;
       i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
       i_volume_revert = i_volume_master_eeprom;
       i_volume_master = i_volume_master_eeprom;
@@ -523,6 +524,9 @@ void clearConfigEEPROM() {
 }
 
 void saveConfigEEPROM() {
+  // Convert the current EEPROM volume value into a percentage.
+  uint8_t i_eeprom_volume_master_percentage = (MINIMUM_VOLUME - i_volume_master_eeprom) / MINIMUM_VOLUME * 100;
+
   // 1 = false, 2 = true.
   uint8_t i_cross_the_streams = 1;
   uint8_t i_cross_the_streams_mix = 1;
@@ -541,7 +545,7 @@ void saveConfigEEPROM() {
   uint8_t i_CTS_mode = 1; // 1 = default, 2 = 1984, 3 = 1989, 4 = Afterlife, 5 = Frozen Empire.
   uint8_t i_system_mode = 1; // 1 = super hero, 2 = original.
   uint8_t i_beep_loop = 2;
-  uint8_t i_default_system_volume = 100; // <- i_volume_master_percentage
+  uint8_t i_default_system_volume = 101; // <- i_eeprom_volume_master_percentage + 1
   uint8_t i_overheat_start_timer_level_5 = i_ms_overheat_initiate_level_5 / 1000;
   uint8_t i_overheat_start_timer_level_4 = i_ms_overheat_initiate_level_4 / 1000;
   uint8_t i_overheat_start_timer_level_3 = i_ms_overheat_initiate_level_3 / 1000;
@@ -676,14 +680,9 @@ void saveConfigEEPROM() {
     i_system_mode = 2;
   }
 
-  if(i_volume_master_percentage <= 100) {
-    // Minimum volume in EEPROM is 1; maybe change later?
-    if(i_volume_master_percentage == 0) {
-      i_default_system_volume = 1;
-    }
-    else {
-      i_default_system_volume = i_volume_master_percentage;
-    }
+  if(i_eeprom_volume_master_percentage <= 100) {
+    // Need to add 1 to this because the EEPROM cannot contain a 0 value.
+    i_default_system_volume = i_eeprom_volume_master_percentage + 1;
   }
 
   if(b_beep_loop != true) {

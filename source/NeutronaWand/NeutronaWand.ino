@@ -203,7 +203,7 @@ void setup() {
     ms_check_music.start(i_music_check_delay);
 
     // No pack to do a volume sync with, so reset our master volume manually.
-    resetMasterVolume();
+    updateMasterVolume(true);
   }
   else {
     WAND_CONN_STATE = PACK_DISCONNECTED;
@@ -9102,10 +9102,15 @@ void overheatTimerDecrement(uint8_t i_tmp_power_level) {
 
 // Top rotary dial on the wand.
 void checkRotaryEncoder() {
-  static int8_t c, val;
+  if(readRotary() != 0) {
+    // Only continue if the limiter has expired.
+    if(ms_rotary_encoder.remaining() > 0) {
+      return;
+    }
+    else {
+      ms_rotary_encoder.start(i_rotary_encoder_delay);
+    }
 
-  if((val = readRotary())) {
-    c += val;
     switch(WAND_ACTION_STATUS) {
       case ACTION_CONFIG_EEPROM_MENU:
         // Counter clockwise.
@@ -9793,7 +9798,7 @@ void checkRotaryEncoder() {
                 updatePackPowerLevel();
               }
             }
-            else if(vgModeCheck() && switch_wand.on() != true && switch_vent.on() == true && ms_firing_mode_switch.remaining() < 1 && WAND_STATUS == MODE_ON) {
+            else if(vgModeCheck() && switch_wand.on() != true && switch_vent.on() == true && WAND_STATUS == MODE_ON) {
               // Counter clockwise firing mode selection.
               if(STREAM_MODE == PROTON) {
                 STREAM_MODE = STASIS;
@@ -9845,7 +9850,6 @@ void checkRotaryEncoder() {
               }
 
               streamModeCheck();
-              ms_firing_mode_switch.start(i_firing_mode_switch_delay);
             }
 
             // Decrease the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
@@ -9909,7 +9913,7 @@ void checkRotaryEncoder() {
                 }
               }
             }
-            else if(vgModeCheck() && switch_wand.on() != true && switch_vent.on() == true && ms_firing_mode_switch.remaining() < 1 && WAND_STATUS == MODE_ON) {
+            else if(vgModeCheck() && switch_wand.on() != true && switch_vent.on() == true && WAND_STATUS == MODE_ON) {
               if(STREAM_MODE == PROTON) {
                 // Conditional mode advancement.
                 if(b_spectral_custom_mode_enabled == true) {
@@ -9960,7 +9964,6 @@ void checkRotaryEncoder() {
               }
 
               streamModeCheck();
-              ms_firing_mode_switch.start(i_firing_mode_switch_delay);
             }
 
             // Increase the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.

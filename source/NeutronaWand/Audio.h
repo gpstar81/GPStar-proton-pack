@@ -44,13 +44,12 @@ uint16_t i_music_count = 0;
 uint16_t i_current_music_track = 0;
 const uint16_t i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
 const int8_t i_volume_abs_min = -70; // System (absolute) minimum volume possible.
-const int8_t i_volume_abs_max = 10; // System (absolute) maximum volume possible.
+const int8_t i_volume_abs_max = 0; // System (absolute) maximum volume possible.
 bool b_playing_music = false;
 bool b_music_paused = false;
 bool b_repeat_track = false;
 uint8_t i_wand_beep_level = 10; // 10 for WAV Trigger. 40 for GPStar Audio. This lowers the volume of certain Neutrona Wand beep sounds that the Proton Pack can play.
 uint8_t i_wand_sound_level = 0; // 1 for WAV Trigger. 0 For GPStar Audio.
-const uint8_t i_volume_master_percentage_max = 100; // Max percentage of master volume.
 
 /*
  * Music Control/Checking
@@ -83,9 +82,8 @@ int8_t i_volume_revert = i_volume_master;
  */
 void playEffect(uint16_t i_track_id, bool b_track_loop = false, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, uint16_t i_fade_time = 0, bool b_lock = true);
 void stopEffect(uint16_t i_track_id);
-void playMusic();
-void stopMusic();
 void adjustGainEffect(uint16_t i_track_id, int8_t i_track_volume = i_volume_effects, bool b_fade = false, uint16_t i_fade_time = 0);
+void updateMasterVolume(bool startup = false);
 
 /*
  * Audio playback functions.
@@ -106,7 +104,7 @@ void playEffect(uint16_t i_track_id, bool b_track_loop, int8_t i_track_volume, b
   switch(AUDIO_DEVICE) {
     case A_WAV_TRIGGER:
     case A_GPSTAR_AUDIO:
-      if(b_fade_in == true) {
+      if(b_fade_in) {
         audio.trackGain(i_track_id, i_volume_abs_min);
         audio.trackPlayPoly(i_track_id, b_lock);
         audio.trackFade(i_track_id, i_track_volume, i_fade_time, 0);
@@ -116,7 +114,7 @@ void playEffect(uint16_t i_track_id, bool b_track_loop, int8_t i_track_volume, b
         audio.trackPlayPoly(i_track_id, b_lock);
       }
 
-      if(b_track_loop == true) {
+      if(b_track_loop) {
         audio.trackLoop(i_track_id, 1);
       }
       else {
@@ -145,6 +143,175 @@ void stopEffect(uint16_t i_track_id) {
   }
 }
 
+// Play a music track using certain defaults.
+void playMusic() {
+  if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+    b_playing_music = true;
+
+    switch(AUDIO_DEVICE) {
+      case A_WAV_TRIGGER:
+      case A_GPSTAR_AUDIO:
+        // Play music only on bench test wand setups. Let the pack play the music on full kit setups.
+        if(b_gpstar_benchtest) {
+          // Loop the music track.
+          if(b_repeat_track) {
+            audio.trackLoop(i_current_music_track, 1);
+          }
+          else {
+            audio.trackLoop(i_current_music_track, 0);
+          }
+
+          audio.trackGain(i_current_music_track, i_volume_music);
+          audio.trackPlayPoly(i_current_music_track, true);
+          audio.update();
+
+          audio.resetTrackCounter(true);
+        }
+      break;
+
+      case A_NONE:
+      default:
+        // Nothing.
+      break;
+    }
+
+    if(b_gpstar_benchtest) {
+      // Keep track of music playback on the wand directly.
+      ms_music_status_check.start(i_music_check_delay * 10);
+    }
+  }
+}
+
+void stopMusic() {
+  switch(AUDIO_DEVICE) {
+    case A_WAV_TRIGGER:
+    case A_GPSTAR_AUDIO:
+      if(b_gpstar_benchtest) {
+        if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+          audio.trackStop(i_current_music_track);
+        }
+
+        audio.update();
+      }
+    break;
+
+    case A_NONE:
+    default:
+      // Nothing.
+    break;
+  }
+
+  b_music_paused = false;
+  b_playing_music = false;
+}
+
+void pauseMusic() {
+  if(b_playing_music && !b_music_paused) {
+    // Stop the music check timer.
+    ms_music_status_check.stop();
+
+    // Pause music playback on the Neutrona Wand
+    switch(AUDIO_DEVICE) {
+      case A_WAV_TRIGGER:
+      case A_GPSTAR_AUDIO:
+        if(b_gpstar_benchtest) {
+          audio.trackPause(i_current_music_track);
+          audio.update();
+        }
+      break;
+
+      case A_NONE:
+      default:
+        // Nothing.
+      break;
+    }
+
+    b_music_paused = true;
+  }
+}
+
+void resumeMusic() {
+  if(b_music_paused) {
+    // Reset the music check timer.
+    ms_music_status_check.start(i_music_check_delay * 4);
+
+    // Resume music playback on the Neutrona Wand
+    switch(AUDIO_DEVICE) {
+      case A_WAV_TRIGGER:
+      case A_GPSTAR_AUDIO:
+        if(b_gpstar_benchtest) {
+          audio.resetTrackCounter(true);
+          audio.trackResume(i_current_music_track);
+          audio.update();
+        }
+      break;
+
+      case A_NONE:
+      default:
+        // Nothing.
+      break;
+    }
+
+    b_music_paused = false;
+  }
+}
+
+void musicNextTrack() {
+  uint16_t i_temp_track = i_current_music_track; // Used for music navigation.
+
+  // Determine the next track.
+  if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
+    // Start at the first track if already on the last.
+    i_temp_track = i_music_track_start;
+  }
+  else {
+    i_temp_track++;
+  }
+
+  // Switch to the next track.
+  if(b_playing_music) {
+    // Stops music using the current track number as the identifier.
+    stopMusic();
+
+    i_current_music_track = i_temp_track; // Change only AFTER stopping music playback.
+
+    // Begin playing the new track.
+    playMusic();
+  }
+  else {
+    // Set the new track.
+    i_current_music_track = i_temp_track;
+  }
+}
+
+void musicPrevTrack() {
+  uint16_t i_temp_track = i_current_music_track; // Used for music navigation.
+
+  // Determine the previous track.
+  if(i_current_music_track - 1 < i_music_track_start) {
+    // Start at the last track if already on the first.
+    i_temp_track = i_music_track_start + (i_music_count - 1);
+  }
+  else {
+    i_temp_track--;
+  }
+
+  // Switch to the previous track.
+  if(b_playing_music) {
+    // Stops music using the current track number as the identifier.
+    stopMusic();
+
+    i_current_music_track = i_temp_track; // Change only AFTER stopping music playback.
+
+    // Begin playing the new track.
+    playMusic();
+  }
+  else {
+    // Set the new track.
+    i_current_music_track = i_temp_track;
+  }
+}
+
 // Adjust the gain of a single track.
 void adjustGainEffect(uint16_t i_track_id, int8_t i_track_volume, bool b_fade, uint16_t i_fade_time) {
   if(i_track_volume < i_volume_abs_min) {
@@ -158,7 +325,7 @@ void adjustGainEffect(uint16_t i_track_id, int8_t i_track_volume, bool b_fade, u
   switch(AUDIO_DEVICE) {
     case A_WAV_TRIGGER:
     case A_GPSTAR_AUDIO:
-      if(b_fade == true) {
+      if(b_fade) {
         audio.trackFade(i_track_id, i_track_volume, i_fade_time, 0);
       }
       else {
@@ -170,6 +337,107 @@ void adjustGainEffect(uint16_t i_track_id, int8_t i_track_volume, bool b_fade, u
     default:
       // No audio device connected.
     break;
+  }
+}
+
+void updateMasterVolume(bool startup) {
+  switch(AUDIO_DEVICE) {
+    case A_WAV_TRIGGER:
+    case A_GPSTAR_AUDIO:
+      audio.masterGain(i_volume_master);
+    break;
+
+    case A_NONE:
+    default:
+      // Nothing.
+    break;
+  }
+
+  if(!startup) {
+    // If this isn't being called at boot, provide audio feedback and report the change.
+    if(WAND_STATUS == MODE_OFF) {
+      // Provide feedback when the Proton Pack is not running.
+      stopEffect(S_BEEPS_ALT);
+      playEffect(S_BEEPS_ALT);
+    }
+  }
+}
+
+void increaseVolumeEEPROM() {
+  if(i_volume_master_eeprom == i_volume_abs_max) {
+    // Cannot go any higher.
+  }
+  else {
+    if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
+      i_volume_master_percentage = 100;
+    }
+    else {
+      i_volume_master_percentage += VOLUME_MULTIPLIER;
+    }
+
+    i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+    i_volume_master = i_volume_master_eeprom;
+    i_volume_revert = i_volume_master_eeprom;
+
+    updateMasterVolume();
+  }
+}
+
+void decreaseVolumeEEPROM() {
+  if(i_volume_master_eeprom == i_volume_abs_min) {
+    // Cannot go any lower.
+  }
+  else {
+    if(i_volume_master_percentage - VOLUME_MULTIPLIER < 0) {
+      i_volume_master_percentage = 0;
+    }
+    else {
+      i_volume_master_percentage -= VOLUME_MULTIPLIER;
+    }
+
+    i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+    i_volume_master = i_volume_master_eeprom;
+    i_volume_revert = i_volume_master_eeprom;
+
+    updateMasterVolume();
+  }
+}
+
+void increaseVolume() {
+  if(i_volume_master == i_volume_abs_max) {
+    // Cannot go any higher.
+  }
+  else {
+    if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
+      i_volume_master_percentage = 100;
+    }
+    else {
+      i_volume_master_percentage += VOLUME_MULTIPLIER;
+    }
+
+    i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+    i_volume_revert = i_volume_master;
+
+    updateMasterVolume();
+  }
+}
+
+void decreaseVolume() {
+  if(i_volume_master == i_volume_abs_min) {
+    // Cannot go any lower.
+  }
+  else {
+    if(i_volume_master_percentage - VOLUME_MULTIPLIER < 0) {
+      i_volume_master_percentage = 0;
+    }
+    else {
+      i_volume_master_percentage -= VOLUME_MULTIPLIER;
+    }
+
+    i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+    i_volume_revert = i_volume_master;
+
+    updateMasterVolume();
   }
 }
 
@@ -243,175 +511,6 @@ void updateEffectsVolume() {
   }
 }
 
-// Play a music track using certain defaults.
-void playMusic() {
-  if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
-    b_playing_music = true;
-
-    switch(AUDIO_DEVICE) {
-      case A_WAV_TRIGGER:
-      case A_GPSTAR_AUDIO:
-        // Play music only on bench test wand setups. Let the pack play the music on full kit setups.
-        if(b_gpstar_benchtest == true) {
-          // Loop the music track.
-          if(b_repeat_track == true) {
-            audio.trackLoop(i_current_music_track, 1);
-          }
-          else {
-            audio.trackLoop(i_current_music_track, 0);
-          }
-
-          audio.trackGain(i_current_music_track, i_volume_music);
-          audio.trackPlayPoly(i_current_music_track, true);
-          audio.update();
-
-          audio.resetTrackCounter(true);
-        }
-      break;
-
-      case A_NONE:
-      default:
-        // Nothing.
-      break;
-    }
-
-    if(b_gpstar_benchtest == true) {
-      // Keep track of music playback on the wand directly.
-      ms_music_status_check.start(i_music_check_delay * 10);
-    }
-  }
-}
-
-void stopMusic() {
-  switch(AUDIO_DEVICE) {
-    case A_WAV_TRIGGER:
-    case A_GPSTAR_AUDIO:
-      if(b_gpstar_benchtest == true) {
-        if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
-          audio.trackStop(i_current_music_track);
-        }
-
-        audio.update();
-      }
-    break;
-
-    case A_NONE:
-    default:
-      // Nothing.
-    break;
-  }
-
-  b_music_paused = false;
-  b_playing_music = false;
-}
-
-void pauseMusic() {
-  if(b_playing_music && !b_music_paused) {
-    // Pause music playback on the Neutrona Wand
-    switch(AUDIO_DEVICE) {
-      case A_WAV_TRIGGER:
-      case A_GPSTAR_AUDIO:
-        if(b_gpstar_benchtest == true) {
-          // Stop the music check timer.
-          ms_music_status_check.stop();
-
-          audio.trackPause(i_current_music_track);
-          audio.update();
-        }
-      break;
-
-      case A_NONE:
-      default:
-        // Nothing.
-      break;
-    }
-
-    b_music_paused = true;
-  }
-}
-
-void resumeMusic() {
-  if(b_music_paused) {
-    // Resume music playback on the Neutrona Wand
-    switch(AUDIO_DEVICE) {
-      case A_WAV_TRIGGER:
-      case A_GPSTAR_AUDIO:
-        if(b_gpstar_benchtest == true) {
-          // Keep track of music playback on the wand directly.
-          ms_music_status_check.start(i_music_check_delay * 4);
-
-          audio.resetTrackCounter(true);
-          audio.trackResume(i_current_music_track);
-          audio.update();
-        }
-      break;
-
-      case A_NONE:
-      default:
-        // Nothing.
-      break;
-    }
-
-    b_music_paused = false;
-  }
-}
-
-void musicNextTrack() {
-  uint16_t i_temp_track = i_current_music_track; // Used for music navigation.
-
-  // Determine the next track.
-  if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
-    // Start at the first track if already on the last.
-    i_temp_track = i_music_track_start;
-  }
-  else {
-    i_temp_track++;
-  }
-
-  // Switch to the next track.
-  if(b_playing_music == true) {
-    // Stops music using the current track number as the identifier.
-    stopMusic();
-
-    i_current_music_track = i_temp_track; // Change only AFTER stopping music playback.
-
-    // Begin playing the new track.
-    playMusic();
-  }
-  else {
-    // Set the new track.
-    i_current_music_track = i_temp_track;
-  }
-}
-
-void musicPrevTrack() {
-  uint16_t i_temp_track = i_current_music_track; // Used for music navigation.
-
-  // Determine the previous track.
-  if(i_current_music_track - 1 < i_music_track_start) {
-    // Start at the last track if already on the first.
-    i_temp_track = i_music_track_start + (i_music_count - 1);
-  }
-  else {
-    i_temp_track--;
-  }
-
-  // Switch to the previous track.
-  if(b_playing_music == true) {
-    // Stops music using the current track number as the identifier.
-    stopMusic();
-
-    i_current_music_track = i_temp_track; // Change only AFTER stopping music playback.
-
-    // Begin playing the new track.
-    playMusic();
-  }
-  else {
-    // Set the new track.
-    i_current_music_track = i_temp_track;
-  }
-}
-
 void increaseVolumeEffects() {
   if(i_volume_effects_percentage + VOLUME_EFFECTS_MULTIPLIER > 100) {
     i_volume_effects_percentage = 100;
@@ -451,7 +550,7 @@ void updateMusicVolume() {
     switch(AUDIO_DEVICE) {
       case A_WAV_TRIGGER:
       case A_GPSTAR_AUDIO:
-        if(b_gpstar_benchtest == true) {
+        if(b_gpstar_benchtest) {
           audio.trackGain(i_current_music_track, i_volume_music);
         }
       break;
@@ -496,148 +595,6 @@ void decreaseVolumeMusic() {
   i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
 
   updateMusicVolume();
-}
-
-void increaseVolumeEEPROM() {
-  if(i_volume_master_eeprom == i_volume_abs_min && MINIMUM_VOLUME > i_volume_master_eeprom) {
-    i_volume_master_eeprom = MINIMUM_VOLUME;
-  }
-
-  if(i_volume_master_percentage + VOLUME_MULTIPLIER > 100) {
-    i_volume_master_percentage = i_volume_master_percentage_max;
-  }
-  else {
-    i_volume_master_percentage = i_volume_master_percentage + VOLUME_MULTIPLIER;
-  }
-
-  i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
-  i_volume_revert = i_volume_master_eeprom;
-
-  if(WAND_STATUS == MODE_OFF) {
-    // Provide feedback when the Neutrona Wand is not running.
-    stopEffect(S_BEEPS_ALT);
-    playEffect(S_BEEPS_ALT, false, i_volume_master_eeprom);
-  }
-
-  i_volume_master = i_volume_master_eeprom;
-
-  switch(AUDIO_DEVICE) {
-    case A_WAV_TRIGGER:
-    case A_GPSTAR_AUDIO:
-      audio.masterGain(i_volume_master_eeprom);
-    break;
-
-    case A_NONE:
-    default:
-      // No audio device connected.
-    break;
-  }
-}
-
-void decreaseVolumeEEPROM() {
-  if(i_volume_master_eeprom == i_volume_abs_min) {
-    // Cannot go any lower.
-  }
-  else {
-    if(i_volume_master_percentage - VOLUME_MULTIPLIER < 0) {
-      i_volume_master_percentage = 0;
-    }
-    else {
-      i_volume_master_percentage = i_volume_master_percentage - VOLUME_MULTIPLIER;
-    }
-
-    i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
-    i_volume_revert = i_volume_master_eeprom;
-
-    i_volume_master = i_volume_master_eeprom;
-
-    switch(AUDIO_DEVICE) {
-      case A_WAV_TRIGGER:
-      case A_GPSTAR_AUDIO:
-        audio.masterGain(i_volume_master_eeprom);
-      break;
-
-      case A_NONE:
-      default:
-        // No audio device connected.
-      break;
-    }
-  }
-
-  if(WAND_STATUS == MODE_OFF) {
-    // Provide feedback when the Neutrona Wand is not running.
-    stopEffect(S_BEEPS_ALT);
-    playEffect(S_BEEPS_ALT, false, i_volume_master_eeprom);
-  }
-}
-
-void increaseVolume() {
-  if(i_volume_master == i_volume_abs_min && MINIMUM_VOLUME > i_volume_master) {
-    i_volume_master = MINIMUM_VOLUME;
-  }
-
-  if(i_volume_master_percentage + VOLUME_MULTIPLIER > i_volume_master_percentage_max) {
-    i_volume_master_percentage = i_volume_master_percentage_max;
-  }
-  else {
-    i_volume_master_percentage = i_volume_master_percentage + VOLUME_MULTIPLIER;
-  }
-
-  i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
-  i_volume_revert = i_volume_master;
-
-  if(WAND_STATUS == MODE_OFF) {
-    // Provide feedback when the Neutrona Wand is not running.
-    stopEffect(S_BEEPS_ALT);
-    playEffect(S_BEEPS_ALT, false, i_volume_master);
-  }
-
-  switch(AUDIO_DEVICE) {
-    case A_WAV_TRIGGER:
-    case A_GPSTAR_AUDIO:
-      audio.masterGain(i_volume_master);
-    break;
-
-    case A_NONE:
-    default:
-      // No audio device connected.
-    break;
-  }
-}
-
-void decreaseVolume() {
-  if(i_volume_master == i_volume_abs_min) {
-    // Cannot go any lower.
-  }
-  else {
-    if(i_volume_master_percentage - VOLUME_MULTIPLIER < 0) {
-      i_volume_master_percentage = 0;
-    }
-    else {
-      i_volume_master_percentage = i_volume_master_percentage - VOLUME_MULTIPLIER;
-    }
-
-    i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
-    i_volume_revert = i_volume_master;
-
-    switch(AUDIO_DEVICE) {
-      case A_WAV_TRIGGER:
-      case A_GPSTAR_AUDIO:
-        audio.masterGain(i_volume_master);
-      break;
-
-      case A_NONE:
-      default:
-        // No audio device connected.
-      break;
-    }
-  }
-
-  if(WAND_STATUS == MODE_OFF) {
-    // Provide feedback when the Neutrona Wand is not running.
-    stopEffect(S_BEEPS_ALT);
-    playEffect(S_BEEPS_ALT, false, i_volume_master);
-  }
 }
 
 void buildMusicCount(uint16_t i_num_tracks) {
@@ -701,7 +658,7 @@ bool musicTrackStatus() {
 }
 
 void checkMusic() {
-  if(ms_check_music.justFinished() && ms_music_next_track.isRunning() != true) {
+  if(ms_check_music.justFinished() && !ms_music_next_track.isRunning()) {
     switch(AUDIO_DEVICE) {
       case A_WAV_TRIGGER:
       case A_GPSTAR_AUDIO:
@@ -710,8 +667,8 @@ void checkMusic() {
         musicTrackPlayingStatus();
 
         // Loop through all the tracks if the music is not set to repeat a track.
-        if(b_playing_music == true && b_repeat_track == false && b_music_paused != true) {
-          if(musicTrackStatus() != true && ms_music_status_check.justFinished() && musicGetTrackCounter() != true) {
+        if(b_playing_music && !b_repeat_track && !b_music_paused) {
+          if(!musicTrackStatus() && ms_music_status_check.justFinished() && !musicGetTrackCounter()) {
             ms_check_music.stop();
             ms_music_status_check.stop();
 
@@ -758,7 +715,7 @@ void toggleMusicLoop() {
     case A_WAV_TRIGGER:
     case A_GPSTAR_AUDIO:
       // Loop the music track.
-      if(b_repeat_track == false) {
+      if(!b_repeat_track) {
         b_repeat_track = true;
 
         if(i_music_count > 0) {
@@ -776,7 +733,7 @@ void toggleMusicLoop() {
 
     case A_NONE:
     default:
-      if(b_repeat_track == false) {
+      if(!b_repeat_track) {
         b_repeat_track = true;
       }
       else {
@@ -862,20 +819,6 @@ bool setupAudioDevice() {
     debugln(F("No Audio Device"));
 
     return false;
-  }
-}
-
-void resetMasterVolume() {
-  switch(AUDIO_DEVICE) {
-    case A_WAV_TRIGGER:
-    case A_GPSTAR_AUDIO:
-      audio.masterGain(i_volume_master);
-    break;
-
-    case A_NONE:
-    default:
-      // Nothing.
-    break;
   }
 }
 

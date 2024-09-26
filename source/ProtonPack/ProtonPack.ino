@@ -214,7 +214,7 @@ void setup() {
 
   // Reset the master volume. Important to keep this as we startup the system at the lowest volume.
   // Then the EEPROM reads any settings if required, then we reset the volume.
-  resetMasterVolume();
+  updateMasterVolume(true);
 
   // Perform power-on sequence if demo light mode is not enabled per user preferences.
   if(b_demo_light_mode != true) {
@@ -5222,38 +5222,30 @@ int8_t readRotary() {
 }
 
 void checkRotaryEncoder() {
- static int8_t c, val;
-
-  if((val = readRotary())) {
-    c += val;
+  if(readRotary() != 0) {
+    // Only continue if the limiter has expired.
+    if(ms_rotary_encoder.remaining() > 0) {
+      return;
+    }
+    else {
+      ms_rotary_encoder.start(i_rotary_encoder_delay);
+    }
 
     // Clockwise
     if(prev_next_code == 0x0b) {
-      if(ms_volume_check.isRunning() != true) {
-        increaseVolume();
+      increaseVolume();
 
-        // Tell wand to increase volume.
-        packSerialSend(P_VOLUME_INCREASE);
-
-        ms_volume_check.start(50);
-      }
+      // Tell wand to increase volume.
+      packSerialSend(P_VOLUME_INCREASE);
     }
 
     // Counter Clockwise
     if(prev_next_code == 0x07) {
-      if(ms_volume_check.isRunning() != true) {
-        decreaseVolume();
+      decreaseVolume();
 
-        // Tell wand to decrease volume.
-        packSerialSend(P_VOLUME_DECREASE);
-
-        ms_volume_check.start(50);
-      }
+      // Tell wand to decrease volume.
+      packSerialSend(P_VOLUME_DECREASE);
     }
-  }
-
-  if(ms_volume_check.justFinished()) {
-    ms_volume_check.stop();
   }
 }
 
