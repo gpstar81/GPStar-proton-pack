@@ -134,9 +134,19 @@ void readEEPROM() {
         break;
       }
     }
+    else if(!b_power_meter_available) {
+      // If no EEPROM default set and not using a stock wand, assume Frutto upgrades instead.
+      i_powercell_leds = FRUTTO_POWERCELL_LED_COUNT;
+      i_powercell_delay_1984 = POWERCELL_DELAY_1984_15_LED;
+      i_powercell_delay_2021 = POWERCELL_DELAY_2021_15_LED;
+    }
 
     if(obj_eeprom.cyclotron_count > 0 && obj_eeprom.cyclotron_count != 255) {
       i_cyclotron_leds = obj_eeprom.cyclotron_count;
+    }
+    else if(!b_power_meter_available) {
+      // If no EEPROM default set and not using a stock wand, assume Frutto upgrades instead.
+      i_cyclotron_leds = FRUTTO_MAX_CYCLOTRON_LED_COUNT;
     }
 
     if(obj_eeprom.inner_cyclotron_count > 0 && obj_eeprom.inner_cyclotron_count != 255) {

@@ -52,8 +52,8 @@
 #include "Header.h"
 #include "Colours.h"
 #include "Audio.h"
-#include "Preferences.h"
 #include "PowerMeter.h"
+#include "Preferences.h"
 
 void setup() {
   // Setup i2c.
