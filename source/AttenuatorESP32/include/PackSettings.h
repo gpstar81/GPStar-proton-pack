@@ -426,7 +426,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         defaultSystemModePack: parseInt(getEl("defaultSystemModePack").value || 0, 10),
         defaultYearThemePack: parseInt(getEl("defaultYearThemePack").value || 1, 10),
         currentYearThemePack: parseInt(getEl("currentYearThemePack").value || 4, 10),
-        defaultSystemVolume: parseInt(getEl("defaultSystemVolume").value || 0, 10),
+        defaultSystemVolume: parseInt(getEl("defaultSystemVolume").value || 100, 10),
         packVibration: parseInt(getEl("packVibration").value || 4, 10),
         protonStreamEffects: getEl("protonStreamEffects").checked ? 1 : 0,
         ribbonCableAlarm: getEl("ribbonCableAlarm").checked ? 1 : 0,

@@ -324,11 +324,12 @@ void serial1SendData(uint8_t i_message) {
     break;
 
     case A_SEND_PREFERENCES_PACK:
-      // Any ENUM or boolean types will simply translate as numeric values.
+      uint8_t i_eeprom_volume_master_percentage = 100 * (MINIMUM_VOLUME - i_volume_master_eeprom) / MINIMUM_VOLUME;
+
       packConfig.defaultSystemModePack = SYSTEM_MODE;
       packConfig.defaultYearThemePack = SYSTEM_EEPROM_YEAR;
       packConfig.currentYearThemePack = SYSTEM_YEAR;
-      packConfig.defaultSystemVolume = i_volume_master_percentage;
+      packConfig.defaultSystemVolume = i_eeprom_volume_master_percentage;
       packConfig.protonStreamEffects = b_stream_effects ? 1 : 0;
       packConfig.overheatStrobeNF = b_overheat_strobe ? 1 : 0;
       packConfig.overheatLightsOff = b_overheat_lights_off ? 1 : 0;

@@ -146,7 +146,7 @@ void clearConfigEEPROM() {
 
 void saveConfigEEPROM() {
   // Convert the current EEPROM volume value into a percentage.
-  uint8_t i_eeprom_volume_master_percentage = (MINIMUM_VOLUME - i_volume_master_eeprom) / MINIMUM_VOLUME * 100;
+  uint8_t i_eeprom_volume_master_percentage = 100 * (MINIMUM_VOLUME - i_volume_master_eeprom) / MINIMUM_VOLUME;
 
   // 1 = false, 2 = true.
   uint8_t i_device_boot_errors = 2; // Assumed true by default.
