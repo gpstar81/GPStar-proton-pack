@@ -180,8 +180,6 @@ bool b_christmas = false; // Used in HOLIDAY mode to change from orange/purple t
 #define RIGHT_TOGGLE_PIN 35
 ezButton switch_left(LEFT_TOGGLE_PIN, EXTERNAL_PULLUP);
 ezButton switch_right(RIGHT_TOGGLE_PIN, EXTERNAL_PULLUP);
-bool b_left_toggle_on = false;
-bool b_right_toggle_on = false;
 bool b_right_toggle_center_start = false;
 
 /*
@@ -256,8 +254,8 @@ bool b_received_prefs_wand = false;
 bool b_received_prefs_smoke = false;
 
 // Pack Battery (V) and Wand Power (A) Values
-float f_batt_volts = 0;
-float f_wand_amps = 0;
+float f_batt_volts = 0.0;
+float f_wand_amps = 0.0;
 
 // Forward declarations.
 void debug(String message);

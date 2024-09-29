@@ -78,6 +78,7 @@ void packStartup(bool firstStart);
 void wandFiring();
 void wandStoppedFiring();
 void cyclotronSpeedRevert();
+void doPackPowerReading();
 
 // Configure and calibrate the power meter device.
 void powerMeterConfig() {
@@ -114,6 +115,7 @@ void powerMeterInit() {
   }
 
   // Always obtain a voltage reading directly from the pack PCB.
+  doPackPowerReading();
   packReading.ReadTimer.start(packReading.PowerReadDelay);
 }
 
@@ -155,7 +157,7 @@ void doPackVoltageReading() {
   ADMUX = (0<<REFS1) | (1<<REFS0) | (0<<ADLAR)| (0<<MUX5) | (1<<MUX4) | (1<<MUX3) | (1<<MUX2) | (1<<MUX1) | (0<<MUX0);
 
   // This appears to work without the delay, but for more accurate readings it may be necessary.
-  // delay(50); // Let mux settle a little to get a more stable A/D conversion.
+  //delayMicroseconds(1000); // Let mux settle a little to get a more stable A/D conversion.
 
   ADCSRA |= _BV( ADSC ); // Start a conversion.
   while( ( (ADCSRA & (1<<ADSC)) != 0 ) ); // Wait for conversion to complete...
@@ -312,7 +314,7 @@ void updateWandPowerState() {
 // Send latest voltage value to the serial1 device, if connected.
 void updatePackPowerState() {
   if(b_serial1_connected) {
-    // Data is sent as integer so this is already multiplied by 100 to get 2 decimal precision.
+    // Data is sent as uint16_t so this is already multiplied by 100 to get 2 decimal precision.
     serial1Send(A_BATTERY_VOLTAGE_PACK, packReading.BusVoltage);
   }
 }

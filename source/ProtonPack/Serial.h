@@ -286,6 +286,7 @@ void serial1Send(uint8_t i_command) {
 // Outgoing payloads to the Serial1 device
 void serial1SendData(uint8_t i_message) {
   uint16_t i_send_size = 0;
+  uint8_t i_eeprom_volume_master_percentage = 100 * (MINIMUM_VOLUME - i_volume_master_eeprom) / MINIMUM_VOLUME;
 
   // debug(F("Data to Serial1: "))
   // debugln(i_message);
@@ -324,8 +325,6 @@ void serial1SendData(uint8_t i_message) {
     break;
 
     case A_SEND_PREFERENCES_PACK:
-      uint8_t i_eeprom_volume_master_percentage = 100 * (MINIMUM_VOLUME - i_volume_master_eeprom) / MINIMUM_VOLUME;
-
       packConfig.defaultSystemModePack = SYSTEM_MODE;
       packConfig.defaultYearThemePack = SYSTEM_EEPROM_YEAR;
       packConfig.currentYearThemePack = SYSTEM_YEAR;
@@ -822,25 +821,6 @@ void doSerial1Sync() {
   attenuatorSyncData.barrelExtended = b_neutrona_wand_barrel_extended ? 1 : 0;
   attenuatorSyncData.wandFiring = b_wand_firing ? 1 : 0;
 
-  switch(SYSTEM_MODE) {
-    case MODE_ORIGINAL:
-      attenuatorSyncData.systemMode = 2;
-
-      if(switch_power.getState() == LOW) {
-        attenuatorSyncData.ionArmSwitch = 2;
-      }
-      else {
-        attenuatorSyncData.ionArmSwitch = 1;
-      }
-    break;
-
-    case MODE_SUPER_HERO:
-    default:
-      attenuatorSyncData.systemMode = 1;
-      attenuatorSyncData.ionArmSwitch = 1;
-    break;
-  }
-
   switch(SYSTEM_YEAR) {
     case SYSTEM_1984:
       attenuatorSyncData.systemYear = 1;
@@ -859,6 +839,8 @@ void doSerial1Sync() {
 
   // Pack status.
   attenuatorSyncData.packOn = PACK_STATE != MODE_OFF ? 1 : 0;
+  attenuatorSyncData.systemMode = SYSTEM_MODE == MODE_ORIGINAL ? 2 : 1;
+  attenuatorSyncData.ionArmSwitch = switch_power.getState() == LOW ? 2 : 1;
   attenuatorSyncData.powerLevel = i_wand_power_level;
   attenuatorSyncData.packVoltage = packReading.BusVoltage;
 
@@ -958,20 +940,36 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_TURN_PACK_ON:
-      // Turn the pack on.
-      if(PACK_STATE != MODE_ON) {
+      // Pretend the ion arm switch was just turned on.
+      if(SYSTEM_MODE == MODE_SUPER_HERO) {
         PACK_ACTION_STATE = ACTION_ACTIVATE;
       }
+
+      // Tell the Neutrona Wand that power to the Proton Pack is on.
+      if(b_wand_connected) {
+        packSerialSend(P_ION_ARM_SWITCH_ON);
+      }
+
+      // Tell the Attenuator or any other device that the power to the Proton Pack is on.
+      serial1Send(A_ION_ARM_SWITCH_ON);
     break;
 
     case A_TURN_PACK_OFF:
-      // Turn the pack off.
-      if(PACK_STATE != MODE_OFF) {
+      // Pretend the ion arm switch was just turned on.
+      if(PACK_STATE == MODE_ON) {
         PACK_ACTION_STATE = ACTION_OFF;
+
+        //Make sure to tell the wireless that we are not overheating.
+        serial1Send(A_OVERHEATING_FINISHED);
       }
 
-      //Make sure to tell the wireless that we are not overheating.
-      serial1Send(A_OVERHEATING_FINISHED);
+      // Tell the Neutrona Wand that power to the Proton Pack is off.
+      if(b_wand_connected) {
+        packSerialSend(P_ION_ARM_SWITCH_OFF);
+      }
+
+      // Tell the Attenuator or any other device that the power to the Proton Pack is off.
+      serial1Send(A_ION_ARM_SWITCH_OFF);
     break;
 
     case A_WARNING_CANCELLED:

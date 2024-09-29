@@ -1478,7 +1478,9 @@ void checkSwitches() {
       }
     }
     else {
-      PACK_ACTION_STATE = ACTION_OFF;
+      if(PACK_STATE == MODE_ON) {
+        PACK_ACTION_STATE = ACTION_OFF;
+      }
 
       // Tell the Neutrona Wand that power to the Proton Pack is off.
       if(b_wand_connected) {

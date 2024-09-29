@@ -176,7 +176,7 @@ function updateTrackListing() {
   }
 }
 
-function setButtonStates(mode, pack, wand, cyclotron) {
+function setButtonStates(mode, pack, wand, cyclotron, ionswitch) {
   // Assume all functions are not possible, override as necessary.
   getEl("btnPackOff").disabled = true;
   getEl("btnPackOn").disabled = true;
@@ -185,12 +185,12 @@ function setButtonStates(mode, pack, wand, cyclotron) {
   //getEl("btnLOStart").disabled = true;
   //getEl("btnLOCancel").disabled = true;
 
-  if (pack == "Powered" && wand != "Powered") {
+  if ((pack == "Powered" || (mode == "Original" && ionswitch == "Ready")) && wand != "Powered") {
     // Can only turn off the pack, so long as the wand is not powered.
     getEl("btnPackOff").disabled = false;
   }
 
-  if (pack != "Powered") {
+  if ((mode == "Super Hero" && pack != "Powered") || (mode == "Original" && ionswitch != "Ready")) {
     // Can turn on the pack if not already powered (implies wand is not powered).
     getEl("btnPackOn").disabled = false;
   }
@@ -383,7 +383,7 @@ function updateGraphics(jObj){
       setEl("powerLevel", "");
       if (parseFloat(jObj.wandAmps || 0) > 0.01) {
         // If we have a non-zero amperage reading, display that as it means a stock wand is attached.
-        setEl("streamMode", "Stream: " + parseFloat((jObj.wandAmps || 0).toFixed(2)) + " GW");
+        setEl("streamMode", "Stream: " + parseFloat((jObj.wandAmps || 0)).toFixed(2) + " GW");
       } else {
         // Otherwise we consider a wand to be "disengaged" as it could be inactive or detached.
         setEl("streamMode", "- Disengaged -");
@@ -394,7 +394,7 @@ function updateGraphics(jObj){
 
     if (parseFloat(jObj.battVoltage || 0) > 1) {
       // Voltage should typically be ~5.0 at idle and >=4.2 under normal use; anything below that indicates a possible problem.
-      setEl("battVoltage", "Output:<br/>" + parseFloat((jObj.battVoltage || 0).toFixed(2)) + " GeV");
+      setEl("battVoltage", "Output:<br/>" + parseFloat((jObj.battVoltage || 0)).toFixed(2) + " GeV");
       if (jObj.battVoltage < 4.2) {
         colorEl("boostOverlay", 255, 0, 0);
       } else {
@@ -470,7 +470,7 @@ function updateEquipment(jObj) {
 
     if (jObj.battVoltage) {
       // Voltage should typically be <5.0 but >4.2 under normal use; anything below that indicates high drain.
-      setEl("battVoltageTXT", parseFloat((jObj.battVoltage || 0).toFixed(2)));
+      setEl("battVoltageTXT", parseFloat((jObj.battVoltage || 0)).toFixed(2));
       if (jObj.battVoltage < 4.2) {
         setEl("battHealth", "&#129707;"); // Draining Battery
       } else {
@@ -495,7 +495,7 @@ function updateEquipment(jObj) {
     }
 
     // Update special UI elements based on the latest data values.
-    setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron);
+    setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron, jObj.switch);
 
     // Update the current track info.
     musicTrackStart = jObj.musicStart || 0;
