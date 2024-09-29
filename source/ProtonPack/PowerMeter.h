@@ -263,7 +263,7 @@ void updateWandPowerState() {
     }
 
     // Stop firing and turn off the pack if current is below the base threshold.
-    if(f_avg_power <= f_wand_power_on_threshold) {
+    if(f_avg_power <= f_wand_power_on_threshold && b_pack_started_by_meter) {
       if(b_wand_firing) {
         // Stop firing sequence if previously firing.
         wandStoppedFiring();
