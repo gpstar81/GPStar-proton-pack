@@ -99,7 +99,7 @@ const char PASSWORD_page[] PROGMEM = R"=====(
             handleStatus(this.responseText);
           }
 
-          if (this.status == 205) {
+          if (this.status == 201) {
             handleStatus(this.responseText);
 
             if (confirm("Restart device now?")) {

@@ -78,7 +78,7 @@ The stock speaker is rated at 0.25W @ 16Ω and uses a cone made from plastic--es
 ---
 
 ### <img src='images/gpstar_logo.png' width=30 align="left"/>GPStar Audio on-board amplifier (stereo output) ###
-Rated for 2.5W @ 4Ω or 1.5W @ 8Ω per channel. 
+Rated for 2.5W @ 4Ω or 1.5W @ 8Ω per channel.
 
 ### WAV Trigger on-board amplifier (mono output only) ###
 Rated for 2W @ 4Ω or 1W @ 8Ω.

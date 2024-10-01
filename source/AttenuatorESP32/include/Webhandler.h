@@ -915,7 +915,7 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
       jsonBody.clear();
       jsonBody["status"] = "Settings updated, restart required. Please use the new network name to connect to your device.";
       serializeJson(jsonBody, result); // Serialize to string.
-      request->send(205, "application/json", result);
+      request->send(201, "application/json", result);
     }
     else {
       jsonBody.clear();
@@ -1168,7 +1168,7 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
       jsonBody.clear();
       jsonBody["status"] = "Password updated, restart required. Please enter your new WiFi password when prompted by your device.";
       serializeJson(jsonBody, result); // Serialize to string.
-      request->send(205, "application/json", result);
+      request->send(201, "application/json", result);
     }
     else {
       // Password must be at least 8 characters in length.
