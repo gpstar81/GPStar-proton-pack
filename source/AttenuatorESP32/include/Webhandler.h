@@ -907,23 +907,19 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
 
     if(b_list_err){
       jsonBody.clear();
-      jsonBody["status"] = "Settings updated on Attenuator, but song list exceeds 2000 bytes maximum and was not saved.";
+      jsonBody["status"] = "Settings updated, but song list exceeds the 2,000 bytes maximum and was not saved.";
       serializeJson(jsonBody, result); // Serialize to string.
       request->send(200, "application/json", result);
     }
     else if(b_ssid_changed){
       jsonBody.clear();
-      jsonBody["status"] = "Settings updated on Attenuator. Please use the new network name to connect to your device.";
+      jsonBody["status"] = "Settings updated, restart required. Please use the new network name to connect to your device.";
       serializeJson(jsonBody, result); // Serialize to string.
-      request->send(200, "application/json", result);
-
-      // Pause to allow response to flow, then restart the device.
-      delay(1000);
-      ESP.restart();
+      request->send(205, "application/json", result);
     }
     else {
       jsonBody.clear();
-      jsonBody["status"] = "Settings updated on Attenuator.";
+      jsonBody["status"] = "Settings updated.";
       serializeJson(jsonBody, result); // Serialize to string.
       request->send(200, "application/json", result);
     }
@@ -1162,17 +1158,17 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
     // Password is used for the built-in Access Point ability, which will be used when a preferred network is not available.
     if(newPasswd.length() >= 8) {
       preferences.begin("credentials", false, "nvs"); // Access namespace in read/write mode.
+      #if defined(DEBUG_SEND_TO_CONSOLE)
+        Serial.print(F("New Private WiFi Password: "));
+        Serial.println(newPasswd);
+      #endif
       preferences.putString("password", newPasswd); // Store user-provided password.
       preferences.end();
 
       jsonBody.clear();
-      jsonBody["status"] = "Password updated, restarting controller. Please enter your new WiFi password when prompted by your device.";
+      jsonBody["status"] = "Password updated, restart required. Please enter your new WiFi password when prompted by your device.";
       serializeJson(jsonBody, result); // Serialize to string.
-      request->send(200, "application/json", result);
-
-      // Pause to allow response to flow, then restart the device.
-      delay(1000);
-      ESP.restart();
+      request->send(205, "application/json", result);
     }
     else {
       // Password must be at least 8 characters in length.
