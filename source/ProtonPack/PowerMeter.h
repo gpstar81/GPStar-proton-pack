@@ -269,12 +269,12 @@ void updateWandPowerState() {
 
     // If the pack is currently off, or the wand has not been directly powered on, just leave immediately.
     if(PACK_STATE == MODE_OFF || !b_wand_on) {
-        b_pack_started_by_meter = false; // Make sure this is kept as false since the wand is not powered.
-        return;
+      b_pack_started_by_meter = false; // Make sure this is kept as false since the wand is not powered.
+      return;
     }
 
     // If the wand was powered on via the power meter, then stop firing and turn off the pack if below the power threshold.
-    if(b_pack_started_by_meter && f_avg_power <= f_wand_power_on_threshold) {
+    if(b_wand_on && f_avg_power <= f_wand_power_on_threshold) {
       if(b_wand_firing) {
         // Stop firing sequence if previously firing.
         wandStoppedFiring();
