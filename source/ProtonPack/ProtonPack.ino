@@ -952,7 +952,7 @@ void packStartup(bool firstStart) {
             playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects - 40, true, 18000);
           }
           else {
-            playEffect(S_AFTERLIFE_PACK_STARTUP, false, i_volume_effects);
+            playEffect(S_AFTERLIFE_PACK_STARTUP);
             playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects, true, 18000);
           }
 
@@ -964,7 +964,7 @@ void packStartup(bool firstStart) {
             playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects - 40, true, 500);
           }
           else {
-            playEffect(S_BOOTUP, false, i_volume_effects);
+            playEffect(S_BOOTUP);
             playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects, true, 500);
           }
 
@@ -976,7 +976,7 @@ void packStartup(bool firstStart) {
         b_brass_pack_sound_loop = !b_cyclotron_lid_on && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM);
 
         if(b_brass_pack_sound_loop) {
-          playEffect(S_BOOTUP, false, i_volume_effects);
+          playEffect(S_BOOTUP);
           playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects, true, 500);
           playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects, true, 2000);
 
@@ -989,7 +989,7 @@ void packStartup(bool firstStart) {
               playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects - 40, true, 10000);
             }
             else {
-              playEffect(S_FROZEN_EMPIRE_PACK_STARTUP, false, i_volume_effects);
+              playEffect(S_FROZEN_EMPIRE_PACK_STARTUP);
               playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects, true, 10000);
             }
 
@@ -1001,7 +1001,7 @@ void packStartup(bool firstStart) {
               playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects - 40, true, 500);
             }
             else {
-              playEffect(S_BOOTUP, false, i_volume_effects);
+              playEffect(S_BOOTUP);
               playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects, true, 500);
             }
 

@@ -44,7 +44,7 @@ uint16_t i_music_count = 0;
 uint16_t i_current_music_track = 0;
 const uint16_t i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
 const int8_t i_volume_abs_min = -70; // System (absolute) minimum volume possible.
-int8_t i_volume_abs_max = 10; // System (absolute) maximum volume possible. 10 for WAV Trigger, 18 for GPStar Audio.
+int8_t i_volume_abs_max = 0; // System (absolute) maximum volume possible. 0 dB for WAV Trigger, +12 dB for GPStar Audio.
 const int8_t i_track_volume_abs_max = 0; // Maximum gain for effects/music is 0 dB (unity gain).
 const uint8_t i_wand_beep_level = 10; // Volume reduction for beep effect.
 bool b_playing_music = false;
@@ -803,7 +803,7 @@ bool setupAudioDevice() {
 
   if(audio.gpstarAudioHello()) {
     AUDIO_DEVICE = A_GPSTAR_AUDIO;
-    i_volume_abs_max = 18; // GPStar Audio can achieve higher amplification than the WAV Trigger.
+    i_volume_abs_max = 12; // GPStar Audio can achieve higher amplification than the WAV Trigger.
 
     debugln(F("Using GPStar Audio"));
 
