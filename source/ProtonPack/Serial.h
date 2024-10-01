@@ -3095,7 +3095,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         // Set the master volume to minimum.
         i_volume_master = i_volume_abs_min;
 
-        // Notify te Attenuator we are muted.
+        // Notify the Attenuator we are muted.
         serial1Send(A_TOGGLE_MUTE, 2);
       }
 
