@@ -505,6 +505,11 @@ void mainLoop() {
         if(ms_hat_2.justFinished()) {
           ms_hat_2.start(i_hat_2_delay);
         }
+
+        // This is going to cause the bargraph to ramp down.
+        if(ms_bargraph.justFinished()) {
+          bargraphRampUp();
+        }
       }
       else {
         if(ms_hat_1.isRunning() != true && ms_hat_2.isRunning() != true && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
@@ -516,20 +521,7 @@ void mainLoop() {
             digitalWriteFast(TOP_HAT_LED_PIN, LOW);
           }
         }
-      }
 
-      // Top white light.
-      if(ms_white_light.justFinished()) {
-        ms_white_light.repeat();
-        if(digitalReadFast(TOP_LED_PIN) == LOW) {
-          digitalWriteFast(TOP_LED_PIN, HIGH);
-        }
-        else {
-          digitalWriteFast(TOP_LED_PIN, LOW);
-        }
-      }
-
-      if(b_pack_alarm != true) {
         // Ramp the bargraph up then ramp down back to the default power level setting on a fresh start.
         if(ms_bargraph.justFinished()) {
           bargraphRampUp();
@@ -551,10 +543,15 @@ void mainLoop() {
           }
         }
       }
-      else {
-        // This is going to cause the bargraph to ramp down.
-        if(ms_bargraph.justFinished()) {
-          bargraphRampUp();
+
+      // Top white light.
+      if(ms_white_light.justFinished()) {
+        ms_white_light.repeat();
+        if(digitalReadFast(TOP_LED_PIN) == LOW) {
+          digitalWriteFast(TOP_LED_PIN, HIGH);
+        }
+        else {
+          digitalWriteFast(TOP_LED_PIN, LOW);
         }
       }
 
@@ -1495,7 +1492,7 @@ void checkSwitches() {
 void wandVentStateCheck() {
   if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
     // Vent light and first stage of the safety system.
-    if(switch_vent.on() == true) {
+    if(switch_vent.on()) {
       if(b_vent_light_control == true) {
         // Vent light on, brightness dependent on mode.
         if((WAND_ACTION_STATUS == ACTION_FIRING && STREAM_MODE != SLIME) || (ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished())) {
@@ -1539,7 +1536,7 @@ void wandVentStateCheck() {
         soundBeepLoopStop();
       }
     }
-    else if(switch_vent.on() == false) {
+    else {
       // Vent light and top white light off.
       digitalWrite(VENT_LED_PIN, HIGH);
 
@@ -1745,6 +1742,7 @@ void wandOff() {
 
   // Clear counter until user begins firing again.
   i_bmash_count = 0;
+  b_sound_afterlife_idle_2_fade = true;
 
   // Turn off some timers.
   ms_overheating.stop();
@@ -2271,6 +2269,7 @@ void modeActivate() {
   // Clear counter until user begins firing.
   i_bmash_count = 0;
   b_wand_mash_error = false;
+  b_sound_afterlife_idle_2_fade = true;
 
   switch(SYSTEM_MODE) {
     case MODE_ORIGINAL:
@@ -2438,7 +2437,7 @@ void soundIdleLoop(bool fadeIn) {
     break;
   }
 
-  if(b_gpstar_benchtest == true && fadeIn == true) {
+  if(b_gpstar_benchtest && fadeIn) {
     switch(STREAM_MODE) {
       case SLIME:
         playEffect(S_WAND_SLIME_IDLE_LOOP, true, i_volume_effects, true, 900);
@@ -2649,7 +2648,6 @@ void soundIdleStop() {
   }
 
   b_sound_idle = false;
-  b_sound_afterlife_idle_2_fade = true;
 }
 
 void soundBeepLoopStop() {
