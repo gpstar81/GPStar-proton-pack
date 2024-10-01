@@ -341,7 +341,12 @@ String getAttenuatorConfig() {
   jsonBody["firing"] = b_firing_feedback;
   jsonBody["radLensIdle"] = RAD_LENS_IDLE;
   jsonBody["displayType"] = DISPLAY_TYPE;
-  jsonBody["songList"] = s_track_listing;
+  if(s_track_listing != "" && s_track_listing != "null") {
+    jsonBody["songList"] = s_track_listing;
+  }
+  else {
+    jsonBody["songList"] = "";
+  }
   jsonBody["buildDate"] = build_date;
   jsonBody["wifiName"] = ap_ssid;
   jsonBody["wifiNameExt"] = wifi_ssid;
@@ -551,22 +556,27 @@ String getWifiSettings() {
   String wifiNetwork;
   jsonBody.clear();
 
-  preferences.begin("network", true); // Access namespace in read-only mode.
+  preferences.begin("network", true, "nvs"); // Access namespace in read-only mode.
+
   jsonBody["enabled"] = preferences.getBool("enabled", false);
   jsonBody["network"] = preferences.getString("ssid");
   jsonBody["password"] = preferences.getString("password");
+
   jsonBody["address"] = preferences.getString("address");
-  if(jsonBody["address"] == "") {
+  if(jsonBody["address"].as<String>() == "") {
     jsonBody["address"] = wifi_address;
   }
+
   jsonBody["subnet"] = preferences.getString("subnet");
-  if(jsonBody["subnet"] == "") {
+  if(jsonBody["subnet"].as<String>() == "") {
     jsonBody["subnet"] = wifi_subnet;
   }
+
   jsonBody["gateway"] = preferences.getString("gateway");
-  if(jsonBody["gateway"] == "") {
+  if(jsonBody["gateway"].as<String>() == "") {
     jsonBody["gateway"] = wifi_gateway;
   }
+
   preferences.end();
 
   // Serialize JSON object to string.
@@ -785,13 +795,17 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
   String result;
   try {
     // First check if a new private WiFi network name has been chosen.
-    String newSSID = jsonBody["wifiName"];
+    String newSSID = jsonBody["wifiName"].as<String>();
     bool b_ssid_changed = false;
 
     // Update the private network name ONLY if the new value differs from the current SSID.
     if(newSSID != ap_ssid){
-      if(newSSID.length() > 8 && newSSID.length() <= 32) {
-        preferences.begin("credentials", false); // Access namespace in read/write mode.
+      if(newSSID.length() >= 8 && newSSID.length() <= 32) {
+        preferences.begin("credentials", false, "nvs"); // Access namespace in read/write mode.
+        #if defined(DEBUG_SEND_TO_CONSOLE)
+          Serial.print(F("New Private SSID: "));
+          Serial.println(newSSID);
+        #endif
         preferences.putString("ssid", newSSID); // Store SSID in case this was altered.
         preferences.end();
 
@@ -809,24 +823,29 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
     // General Options - Returned as unsigned integers
     if(jsonBody["invertLEDs"].is<unsigned short>()) {
       // Inverts the order of the LEDs as seen by the device.
-      b_invert_leds = jsonBody["invertLEDs"].as<boolean>();
+      b_invert_leds = jsonBody["invertLEDs"].as<bool>();
     }
+
     if(jsonBody["buzzer"].is<unsigned short>()) {
       // Enable/disable the buzzer completely.
-      b_enable_buzzer = jsonBody["buzzer"].as<boolean>();
+      b_enable_buzzer = jsonBody["buzzer"].as<bool>();
     }
+
     if(jsonBody["vibration"].is<unsigned short>()) {
       // Enable/disable vibration completely.
-      b_enable_vibration = jsonBody["vibration"].as<boolean>();
+      b_enable_vibration = jsonBody["vibration"].as<bool>();
     }
+
     if(jsonBody["overheat"].is<unsigned short>()) {
       // Enable/disable all buzzer/vibration feedback during overheat/alarm.
-      b_overheat_feedback = jsonBody["overheat"].as<boolean>();
+      b_overheat_feedback = jsonBody["overheat"].as<bool>();
     }
+
     if(jsonBody["firing"].is<unsigned short>()) {
       // Enable/disable vibration when throwing a stream.
-      b_firing_feedback = jsonBody["firing"].as<boolean>();
+      b_firing_feedback = jsonBody["firing"].as<bool>();
     }
+
     if(jsonBody["radLensIdle"].is<unsigned short>()) {
       switch(jsonBody["radLensIdle"].as<unsigned short>()) {
         case 0:
@@ -855,10 +874,10 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
     }
 
     // Get the track listing from the text field.
-    String songList = jsonBody["songList"];
+    String songList = jsonBody["songList"].as<String>();
     bool b_list_err = false;
 
-    preferences.begin("device", false); // Access namespace in read/write mode.
+    preferences.begin("device", false, "nvs"); // Access namespace in read/write mode.
     preferences.putBool("invert_led", b_invert_leds);
     preferences.putBool("use_buzzer", b_enable_buzzer);
     preferences.putBool("use_vibration", b_enable_vibration);
@@ -867,6 +886,10 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
     preferences.putShort("radiation_idle", RAD_LENS_IDLE);
     preferences.putShort("display_type", DISPLAY_TYPE);
     if(songList.length() <= 2000) {
+      if(songList == "null") {
+        songList = "";
+      }
+
       // Update song lists if contents are under 2000 bytes.
       #if defined(DEBUG_SEND_TO_CONSOLE)
         Serial.print(F("Song List Bytes: "));
@@ -1134,11 +1157,11 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
 
   String result;
   if(jsonBody["password"].is<const char*>()) {
-    String newPasswd = jsonBody["password"];
+    String newPasswd = jsonBody["password"].as<String>();
 
     // Password is used for the built-in Access Point ability, which will be used when a preferred network is not available.
     if(newPasswd.length() >= 8) {
-      preferences.begin("credentials", false); // Access namespace in read/write mode.
+      preferences.begin("credentials", false, "nvs"); // Access namespace in read/write mode.
       preferences.putString("password", newPasswd); // Store user-provided password.
       preferences.end();
 
@@ -1182,15 +1205,15 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
   if(jsonBody["network"].is<const char*>() && jsonBody["password"].is<const char*>()) {
     bool b_errors = false; // Assume false until otherwise indicated.
     bool b_enabled = jsonBody["enabled"].as<bool>();
-    String wifiNetwork = jsonBody["network"];
-    String wifiPasswd = jsonBody["password"];
-    String localAddr = jsonBody["address"];
-    String subnetMask = jsonBody["subnet"];
-    String gatewayIP = jsonBody["gateway"];
+    String wifiNetwork = jsonBody["network"].as<String>();
+    String wifiPasswd = jsonBody["password"].as<String>();
+    String localAddr = jsonBody["address"].as<String>();
+    String subnetMask = jsonBody["subnet"].as<String>();
+    String gatewayIP = jsonBody["gateway"].as<String>();
 
     // If no errors encountered, continue with storing a preferred network (with credentials and IP information).
     if(wifiNetwork.length() >= 2 && wifiPasswd.length() >= 8) {
-      preferences.begin("network", false); // Access namespace in read/write mode.
+      preferences.begin("network", false, "nvs"); // Access namespace in read/write mode.
 
       // Clear old network IP info if SSID or password have been changed.
       if(preferences.getString("ssid") != wifiNetwork || preferences.getString("password") != wifiPasswd) {

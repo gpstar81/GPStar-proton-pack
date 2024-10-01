@@ -68,7 +68,7 @@ void setup() {
   RAD_LENS_IDLE = AMBER_PULSE;
 
   // ESP - Get Special Device Preferences
-  preferences.begin("device", true); // Access namespace in read-only mode.
+  preferences.begin("device", true, "nvs"); // Access namespace in read-only mode.
 
   // Return stored values if available, otherwise use a default value.
   b_invert_leds = preferences.getBool("invert_led", false);

@@ -64,7 +64,7 @@ void vibrateOff() {
  * Determine the current state of any LEDs before next FastLED refresh.
  */
 void updateLEDs() {
-  if(switch_right.getState() == LOW) {
+  if(b_right_toggle_on) {
     // Set upper LED based on alarm or overheating state, when connected.
     // Otherwise, use the standard pattern/colour for illumination.
     if(b_pack_alarm || b_overheating) {
@@ -136,7 +136,7 @@ void updateLEDs() {
   }
 
   // Update the lower LED based on the scheme determined above.
-  if(switch_right.getState() != LOW || b_blink_blank) {
+  if(!b_right_toggle_on || b_blink_blank) {
     // Turn off when right toggle is off or when mid-blink.
     if(device_leds[i_device_led[1]] != CRGB::Black) {
       device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_BLACK);
@@ -166,7 +166,7 @@ void checkRotaryPress() {
     b_center_pressed = true; // Denote the dial center button was pressed.
 
     // Track what state the right toggle was in at the start of the center press.
-    b_right_toggle_center_start = switch_right.getState() == LOW;
+    b_right_toggle_center_start = b_right_toggle_on;
   }
 
   if(b_center_pressed) {
@@ -190,7 +190,7 @@ void checkRotaryPress() {
       ms_center_long_press.stop();
     }
     else if(ms_center_long_press.remaining() < 1) {
-      if(b_right_toggle_center_start != (switch_right.getState() == LOW)) {
+      if(b_right_toggle_center_start != b_right_toggle_on) {
         // A state change occurred for the right toggle, which we interpret as a lock-out toggle.
         b_center_lockout = !b_center_lockout;
         CENTER_STATE = NO_ACTION; // Don't count this as a long press.
@@ -395,6 +395,8 @@ void mainLoop() {
   // Turns the pack on or off (when paired) via left toggle.
   if(switch_left.isPressed() || switch_left.isReleased()) {
     if(switch_left.getState() == LOW) {
+      b_left_toggle_on = true;
+
       if(!b_pack_on) {
         attenuatorSerialSend(A_TURN_PACK_ON);
 
@@ -405,6 +407,8 @@ void mainLoop() {
       }
     }
     else {
+      b_left_toggle_on = false;
+
       if(b_pack_on) {
         attenuatorSerialSend(A_TURN_PACK_OFF);
 
@@ -442,6 +446,8 @@ void mainLoop() {
    * when this switch is in the off position.
    */
   if(switch_right.getState() == LOW) {
+    b_right_toggle_on = true;
+
     if(b_firing && i_speed_multiplier <= 2 && b_firing_feedback && !b_overheating && !b_pack_alarm) {
       // Give physical feedback through vibration while wand is firing, but not in an overheat/alarm state.
       useVibration(i_vibrate_min_time); // Use short bursts as this may be called multiple times in a row.
@@ -486,6 +492,7 @@ void mainLoop() {
   }
   else {
     // Toggle is in the OFF position.
+    b_right_toggle_on = false;
     b_blink_blank = false;
     // Turn off the LEDs by setting to black.
     if(device_leds[i_device_led[0]] != CRGB::Black) {

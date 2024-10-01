@@ -350,7 +350,8 @@ bool startWiFi() {
   bool b_mdns_started = MDNS.begin(ap_ssid.c_str());
   #if defined(DEBUG_WIRELESS_SETUP)
     if (b_mdns_started) {
-      Serial.println(F("mDNS Responder Started"));
+      Serial.print(F("mDNS Responder Started: "));
+      Serial.println(ap_ssid);
     }
     else {
       Serial.println(F("Error Starting mDNS Responder!"));

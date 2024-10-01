@@ -180,6 +180,8 @@ bool b_christmas = false; // Used in HOLIDAY mode to change from orange/purple t
 #define RIGHT_TOGGLE_PIN 35
 ezButton switch_left(LEFT_TOGGLE_PIN, EXTERNAL_PULLUP);
 ezButton switch_right(RIGHT_TOGGLE_PIN, EXTERNAL_PULLUP);
+bool b_left_toggle_on = false;
+bool b_right_toggle_on = false;
 bool b_right_toggle_center_start = false;
 
 /*

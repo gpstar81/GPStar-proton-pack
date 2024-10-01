@@ -839,8 +839,8 @@ void doSerial1Sync() {
 
   // Pack status.
   attenuatorSyncData.packOn = PACK_STATE != MODE_OFF ? 1 : 0;
-  attenuatorSyncData.systemMode = SYSTEM_MODE == MODE_ORIGINAL ? 2 : 1;
-  attenuatorSyncData.ionArmSwitch = switch_power.getState() == LOW ? 2 : 1;
+  attenuatorSyncData.systemMode = (SYSTEM_MODE == MODE_ORIGINAL) ? 2 : 1;
+  attenuatorSyncData.ionArmSwitch = (switch_power.getState() == LOW) ? 2 : 1;
   attenuatorSyncData.powerLevel = i_wand_power_level;
   attenuatorSyncData.packVoltage = packReading.BusVoltage;
 
