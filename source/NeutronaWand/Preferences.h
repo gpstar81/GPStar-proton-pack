@@ -307,7 +307,7 @@ void readEEPROM() {
     if(obj_config_eeprom.default_system_volume > 0 && obj_config_eeprom.default_system_volume <= 101 && b_gpstar_benchtest == true) {
       // EEPROM value is from 1 to 101; subtract 1 to get the correct percentage.
       i_volume_master_percentage = obj_config_eeprom.default_system_volume - 1;
-      i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+      i_volume_master_eeprom = MINIMUM_VOLUME - ((MINIMUM_VOLUME - i_volume_abs_max) * i_volume_master_percentage / 100);
       i_volume_revert = i_volume_master_eeprom;
       i_volume_master = i_volume_master_eeprom;
     }

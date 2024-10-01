@@ -286,7 +286,7 @@ void serial1Send(uint8_t i_command) {
 // Outgoing payloads to the Serial1 device
 void serial1SendData(uint8_t i_message) {
   uint16_t i_send_size = 0;
-  uint8_t i_eeprom_volume_master_percentage = 100 * (MINIMUM_VOLUME - i_volume_master_eeprom) / MINIMUM_VOLUME;
+  uint8_t i_eeprom_volume_master_percentage = 100 * ((MINIMUM_VOLUME + i_volume_min_adj) - i_volume_master_eeprom) / (MINIMUM_VOLUME + i_volume_min_adj);
 
   // debug(F("Data to Serial1: "))
   // debugln(i_message);
@@ -673,7 +673,7 @@ void checkSerial1() {
             break;
           }
 
-          i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * packConfig.defaultSystemVolume / 100);
+          i_volume_master_eeprom = (MINIMUM_VOLUME + i_volume_min_adj) - ((MINIMUM_VOLUME + i_volume_min_adj) * packConfig.defaultSystemVolume / 100);
           b_stream_effects = (packConfig.protonStreamEffects == 1);
           b_overheat_strobe = (packConfig.overheatStrobeNF == 1);
           b_overheat_lights_off = (packConfig.overheatLightsOff == 1);
@@ -838,7 +838,7 @@ void doSerial1Sync() {
   }
 
   // Pack status.
-  attenuatorSyncData.packOn = PACK_STATE != MODE_OFF ? 1 : 0;
+  attenuatorSyncData.packOn = (PACK_STATE != MODE_OFF) ? 1 : 0;
   attenuatorSyncData.systemMode = (SYSTEM_MODE == MODE_ORIGINAL) ? 2 : 1;
   attenuatorSyncData.ionArmSwitch = (switch_power.getState() == LOW) ? 2 : 1;
   attenuatorSyncData.powerLevel = i_wand_power_level;
@@ -891,7 +891,7 @@ void doSerial1Sync() {
   attenuatorSyncData.trackLooped = b_repeat_track ? 2 : 1;
   attenuatorSyncData.currentTrack = i_current_music_track;
   attenuatorSyncData.musicCount = i_music_count;
-  attenuatorSyncData.masterMuted = i_volume_master == i_volume_abs_min ? 2 : 1;
+  attenuatorSyncData.masterMuted = (i_volume_master == i_volume_abs_min) ? 2 : 1;
   attenuatorSyncData.masterVolume = i_volume_master_percentage;
   attenuatorSyncData.effectsVolume = i_volume_effects_percentage;
   attenuatorSyncData.musicVolume = i_volume_music_percentage;
@@ -1375,7 +1375,7 @@ void doWandSync() {
   wandSyncData.effectsVolume = i_volume_effects_percentage;
 
     // Telling the wand to be silent if required.
-  wandSyncData.masterMuted = i_volume_master == i_volume_abs_min ? 2 : 1;
+  wandSyncData.masterMuted = (i_volume_master == i_volume_abs_min) ? 2 : 1;
 
   // Send the completed synchronization packet.
   packSerialSendData(P_SYNC_DATA);
@@ -3082,19 +3082,22 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       serial1Send(A_MUSIC_TRACK_LOOP_TOGGLE, b_repeat_track ? 2 : 1);
     break;
 
-    case W_SILENT_MODE:
-      // Remember the current master volume level.
-      i_volume_revert = i_volume_master;
+    case W_TOGGLE_MUTE:
+      if(i_volume_master == i_volume_abs_min) {
+        i_volume_master = i_volume_revert;
 
-      // Set the master volume to silent.
-      i_volume_master = i_volume_abs_min;
+        // Notify the Attenuator we are unmuted.
+        serial1Send(A_TOGGLE_MUTE, 1);
+      }
+      else {
+        i_volume_revert = i_volume_master;
 
-      updateMasterVolume();
-    break;
+        // Set the master volume to minimum.
+        i_volume_master = i_volume_abs_min;
 
-    case W_VOLUME_REVERT:
-      // Restore the master volume to previous level.
-      i_volume_master = i_volume_revert;
+        // Notify te Attenuator we are muted.
+        serial1Send(A_TOGGLE_MUTE, 2);
+      }
 
       updateMasterVolume();
     break;

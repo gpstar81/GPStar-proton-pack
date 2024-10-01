@@ -45,11 +45,12 @@ uint16_t i_current_music_track = 0;
 const uint16_t i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
 const int8_t i_volume_abs_min = -70; // System (absolute) minimum volume possible.
 const int8_t i_volume_abs_max = 0; // System (absolute) maximum volume possible.
+uint8_t i_volume_min_adj = 0; // Adjustment factor for minimum volume. 0 for WAV Trigger, 10 for GPStar Audio.
+const uint8_t i_wand_beep_level = 10; // This lowers the volume of certain Neutrona Wand beep sounds that the Proton Pack can play.
+const uint8_t i_wand_idle_level = 20; // This adjusts the volume of certain Afterlife / Frozen Empire Neutrona Wand idle sounds that the Proton pack can play.
 bool b_playing_music = false;
 bool b_music_paused = false;
 bool b_repeat_track = false;
-uint8_t i_wand_beep_level = 10; // 10 for WAV Trigger. 40 for GPStar Audio. This lowers the volume of certain Neutrona Wand beep sounds that the Proton Pack can play.
-uint8_t i_wand_idle_level = 20; // This adjusts the volume of certain Afterlife / Frozen Empire Neutrona Wand idle sounds that the Proton pack can play.
 
 /*
  * Music Control/Checking
@@ -68,13 +69,15 @@ uint8_t i_volume_effects_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
 uint8_t i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
 
 /*
- * General Volume (-70 = quietest, 0 = loudest)
+ * General Volume
+ * Master Volume: (MINIMUM_VOLUME + i_volume_min_adj) = Quietest, i_volume_abs_max = Loudest
+ * Effects/Music: i_volume_abs_min = Quietest, i_volume_abs_max = Loudest
  */
-int8_t i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100); // Master overall volume
+int8_t i_volume_master = (MINIMUM_VOLUME + i_volume_min_adj) - ((MINIMUM_VOLUME + i_volume_min_adj) * i_volume_master_percentage / 100); // Master overall volume
 int8_t i_volume_master_eeprom = i_volume_master; // Master overall volume that is saved into the eeprom menu and loaded during bootup
-int8_t i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100); // Sound effects
-int8_t i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100); // Music volume
-int8_t i_volume_revert = i_volume_master;
+int8_t i_volume_revert = i_volume_master; // Used to restore volume level from a muted state.
+int8_t i_volume_effects = i_volume_abs_min - (i_volume_abs_min * i_volume_effects_percentage / 100); // Sound effects
+int8_t i_volume_music = i_volume_abs_min - (i_volume_abs_min * i_volume_music_percentage / 100); // Music volume
 
 /*
  * Function Prototypes
@@ -381,7 +384,7 @@ void increaseVolumeEEPROM() {
       i_volume_master_percentage += VOLUME_MULTIPLIER;
     }
 
-    i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+    i_volume_master_eeprom = (MINIMUM_VOLUME + i_volume_min_adj) - ((MINIMUM_VOLUME + i_volume_min_adj) * i_volume_master_percentage / 100);
     i_volume_master = i_volume_master_eeprom;
     i_volume_revert = i_volume_master_eeprom;
 
@@ -390,7 +393,7 @@ void increaseVolumeEEPROM() {
 }
 
 void decreaseVolumeEEPROM() {
-  if(i_volume_master_eeprom == i_volume_abs_min) {
+  if(i_volume_master_eeprom == (MINIMUM_VOLUME + i_volume_min_adj)) {
     // Cannot go any lower.
   }
   else {
@@ -401,7 +404,7 @@ void decreaseVolumeEEPROM() {
       i_volume_master_percentage -= VOLUME_MULTIPLIER;
     }
 
-    i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+    i_volume_master_eeprom = (MINIMUM_VOLUME + i_volume_min_adj) - ((MINIMUM_VOLUME + i_volume_min_adj) * i_volume_master_percentage / 100);
     i_volume_master = i_volume_master_eeprom;
     i_volume_revert = i_volume_master_eeprom;
 
@@ -421,7 +424,7 @@ void increaseVolume() {
       i_volume_master_percentage += VOLUME_MULTIPLIER;
     }
 
-    i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+    i_volume_master = (MINIMUM_VOLUME + i_volume_min_adj) - ((MINIMUM_VOLUME + i_volume_min_adj) * i_volume_master_percentage / 100);
     i_volume_revert = i_volume_master;
 
     updateMasterVolume();
@@ -429,7 +432,7 @@ void increaseVolume() {
 }
 
 void decreaseVolume() {
-  if(i_volume_master == i_volume_abs_min) {
+  if(i_volume_master == (MINIMUM_VOLUME + i_volume_min_adj)) {
     // Cannot go any lower.
   }
   else {
@@ -440,7 +443,7 @@ void decreaseVolume() {
       i_volume_master_percentage -= VOLUME_MULTIPLIER;
     }
 
-    i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+    i_volume_master = (MINIMUM_VOLUME + i_volume_min_adj) - ((MINIMUM_VOLUME + i_volume_min_adj) * i_volume_master_percentage / 100);
     i_volume_revert = i_volume_master;
 
     updateMasterVolume();
@@ -567,10 +570,10 @@ void increaseVolumeEffects() {
     playEffect(S_BEEPS_ALT);
   }
   else {
-    i_volume_effects_percentage = i_volume_effects_percentage + VOLUME_EFFECTS_MULTIPLIER;
+    i_volume_effects_percentage += VOLUME_EFFECTS_MULTIPLIER;
   }
 
-  i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
+  i_volume_effects = i_volume_abs_min - (i_volume_abs_min * i_volume_effects_percentage / 100);
 
   updateEffectsVolume();
 }
@@ -584,10 +587,10 @@ void decreaseVolumeEffects() {
     playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_beep_level);
   }
   else {
-    i_volume_effects_percentage = i_volume_effects_percentage - VOLUME_EFFECTS_MULTIPLIER;
+    i_volume_effects_percentage -= VOLUME_EFFECTS_MULTIPLIER;
   }
 
-  i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
+  i_volume_effects = i_volume_abs_min - (i_volume_abs_min * i_volume_effects_percentage / 100);
 
   updateEffectsVolume();
 }
@@ -619,10 +622,10 @@ void increaseVolumeMusic() {
     playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_beep_level);
   }
   else {
-    i_volume_music_percentage = i_volume_music_percentage + VOLUME_MUSIC_MULTIPLIER;
+    i_volume_music_percentage += VOLUME_MUSIC_MULTIPLIER;
   }
 
-  i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
+  i_volume_music = i_volume_abs_min - (i_volume_abs_min * i_volume_music_percentage / 100);
 
   updateMusicVolume();
 }
@@ -636,10 +639,10 @@ void decreaseVolumeMusic() {
     playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_beep_level);
   }
   else {
-    i_volume_music_percentage = i_volume_music_percentage - VOLUME_MUSIC_MULTIPLIER;
+    i_volume_music_percentage -= VOLUME_MUSIC_MULTIPLIER;
   }
 
-  i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
+  i_volume_music = i_volume_abs_min - (i_volume_abs_min * i_volume_music_percentage / 100);
 
   updateMusicVolume();
 }
@@ -811,7 +814,7 @@ bool setupAudioDevice() {
   // Reset the sample rate offset. Only for the WAV Trigger.
   audio.samplerateOffset(0);
 
-  audio.masterGain(-70); // Reset the master gain db. Range is -70 to 0. Bootup the system at the lowest volume, then we reset it after the system is loaded.
+  audio.masterGain(i_volume_abs_min); // Reset the master gain db. Range is -70 to 0. Bootup the system muted, then we reset it after the system is loaded.
 
   // Onboard amplifier on or off. Only for the WAV Trigger.
   audio.setAmpPwr(b_onboard_amp_enabled);
@@ -846,7 +849,7 @@ bool setupAudioDevice() {
   if(audio.gpstarAudioHello()) {
     AUDIO_DEVICE = A_GPSTAR_AUDIO;
 
-    i_wand_beep_level = 40; // Special setting to adjust certain wand sounds on the pack side as they can be too loud.
+    i_volume_min_adj = 10; // Moves minimum volume up for GPStar Audio since its minimum is higher.
 
     debugln(F("Using GPStar Audio"));
 

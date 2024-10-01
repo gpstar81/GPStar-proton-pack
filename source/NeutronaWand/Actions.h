@@ -1431,8 +1431,6 @@ void checkWandAction() {
             // Silence the Proton Pack and Neutrona Wand or revert back to previously-selected volume.
             if(switch_mode.pushed()) {
               if(i_volume_master == i_volume_abs_min) {
-                wandSerialSend(W_VOLUME_REVERT);
-
                 i_volume_master = i_volume_revert;
               }
               else {
@@ -1440,10 +1438,9 @@ void checkWandAction() {
 
                 // Set the master volume to silent.
                 i_volume_master = i_volume_abs_min;
-
-                wandSerialSend(W_SILENT_MODE);
               }
 
+              wandSerialSend(W_TOGGLE_MUTE);
               updateMasterVolume();
             }
           }

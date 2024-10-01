@@ -541,7 +541,7 @@ void mainLoop() {
 
         if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
           if(ms_gun_loop_1.justFinished() && switch_vent.on() == false) {
-            playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects - i_wand_sound_level);
+            playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects);
             b_sound_afterlife_idle_2_fade = false;
             ms_gun_loop_1.stop();
 
@@ -1679,7 +1679,7 @@ void wandOff() {
         case SYSTEM_FROZEN_EMPIRE:
         default:
           if(WAND_ACTION_STATUS != ACTION_ERROR && b_pack_alarm != true) {
-            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - i_wand_sound_level);
+            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects);
 
             if(b_extra_pack_sounds == true) {
               wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
@@ -2547,7 +2547,7 @@ void soundIdleStart() {
         stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
 
         if(b_sound_afterlife_idle_2_fade == true) {
-          playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, false, i_volume_effects - i_wand_sound_level);
+          playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, false, i_volume_effects);
 
           if(b_extra_pack_sounds == true) {
             wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
@@ -2558,7 +2558,7 @@ void soundIdleStart() {
           b_sound_afterlife_idle_2_fade = false;
         }
         else {
-          playEffect(S_AFTERLIFE_WAND_RAMP_2, false, i_volume_effects - i_wand_sound_level);
+          playEffect(S_AFTERLIFE_WAND_RAMP_2, false, i_volume_effects);
 
           if(b_extra_pack_sounds == true) {
             wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
@@ -2578,7 +2578,7 @@ void soundIdleStart() {
 
   if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
     if(ms_gun_loop_2.justFinished()) {
-      playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects - i_wand_sound_level);
+      playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects);
 
       ms_gun_loop_2.stop();
 
@@ -2625,14 +2625,14 @@ void soundIdleStop() {
 
         if(b_pack_alarm != true) {
           if(WAND_ACTION_STATUS == ACTION_OVERHEATING) {
-            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects - i_wand_sound_level);
+            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects);
 
             if(b_extra_pack_sounds == true) {
               wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT);
             }
           }
           else if(WAND_ACTION_STATUS != ACTION_OFF) {
-            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, false, i_volume_effects - i_wand_sound_level);
+            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, false, i_volume_effects);
 
             if(b_extra_pack_sounds == true) {
               wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_2);
@@ -10315,7 +10315,7 @@ bool switchBarrel() {
         wandSerialSend(W_WAND_BARREL_RETRACT);
       }
 
-      playEffect(S_WAND_BARREL_RETRACT, false, i_volume_effects - i_wand_sound_level);
+      playEffect(S_WAND_BARREL_RETRACT, false, i_volume_effects);
 
       wandSerialSend(W_BARREL_RETRACTED);
       b_switch_barrel_extended = false;
@@ -10330,7 +10330,7 @@ bool switchBarrel() {
         }
 
         // Plays the "thwoop" barrel extension sound in Afterlife mode.
-        playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND, false, i_volume_effects - i_wand_sound_level);
+        playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND, false, i_volume_effects);
       }
       else {
         if(b_extra_pack_sounds) {
@@ -10338,7 +10338,7 @@ bool switchBarrel() {
         }
 
         // Plays the "thwoop" barrel extension sound in Afterlife mode.
-        playEffect(S_GB1_1984_WAND_BARREL_EXTEND, false, i_volume_effects - i_wand_sound_level);
+        playEffect(S_GB1_1984_WAND_BARREL_EXTEND, false, i_volume_effects);
       }
 
       wandSerialSend(W_BARREL_EXTENDED);
@@ -10365,7 +10365,7 @@ void stopAfterLifeSounds() {
 void afterlifeRampSound1() {
   stopAfterLifeSounds();
 
-  playEffect(S_AFTERLIFE_WAND_RAMP_1, false, i_volume_effects - i_wand_sound_level);
+  playEffect(S_AFTERLIFE_WAND_RAMP_1, false, i_volume_effects);
   b_sound_afterlife_idle_2_fade = false;
 
   ms_gun_loop_1.start(i_gun_loop_1);

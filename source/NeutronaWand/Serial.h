@@ -764,9 +764,9 @@ void checkPack() {
           i_volume_effects_percentage = wandSyncData.effectsVolume;
 
           // Set the decibel volume.
-          i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
-          i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
-          i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
+          i_volume_master = MINIMUM_VOLUME - ((MINIMUM_VOLUME - i_volume_abs_max) * i_volume_master_percentage / 100);
+          i_volume_effects = i_volume_abs_min - (i_volume_abs_min * i_volume_effects_percentage / 100);
+          i_volume_music = i_volume_abs_min - (i_volume_abs_min * i_volume_music_percentage / 100);
 
           // Update volume levels.
           i_volume_revert = i_volume_master;
@@ -970,7 +970,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
               if(switch_vent.on() == false) {
                 stopAfterLifeSounds();
-                playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - i_wand_sound_level);
+                playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects);
 
                 if(b_extra_pack_sounds == true) {
                   wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
@@ -1074,7 +1074,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
               stopAfterLifeSounds();
             }
 
-            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - i_wand_sound_level);
+            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects);
           break;
         }
 
