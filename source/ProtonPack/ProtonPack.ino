@@ -2431,15 +2431,10 @@ void cyclotronControl() {
               r_outer_cyclotron_ramp.go(i_2021_delay, (uint16_t)(i_2021_ramp_length / 4), QUADRATIC_OUT);
               r_inner_cyclotron_ramp.go(i_2021_inner_delay, (uint16_t)(i_2021_ramp_length / 4), QUADRATIC_OUT);
             }
-            else if(ms_mash_lockout.justFinished()) {
-              // Instant recovery for unfreezing Frozen Empire pack.
-              r_outer_cyclotron_ramp.go(i_2021_delay, (uint16_t)(i_2021_ramp_length / 6), QUADRATIC_OUT);
-              r_inner_cyclotron_ramp.go(i_2021_inner_delay, (uint16_t)(i_2021_ramp_length / 6), QUADRATIC_OUT);
-            }
             else {
               // Abbreviated Afterlife/Frozen Empire startup.
-              r_outer_cyclotron_ramp.go(i_2021_delay, (uint16_t)(i_2021_ramp_length / 1.5), QUADRATIC_OUT);
-              r_inner_cyclotron_ramp.go(i_2021_inner_delay, i_2021_ramp_length, QUADRATIC_OUT);
+              r_outer_cyclotron_ramp.go(i_2021_delay, (uint16_t)(i_2021_ramp_length / 6), QUADRATIC_OUT);
+              r_inner_cyclotron_ramp.go(i_2021_inner_delay, (uint16_t)(i_2021_ramp_length / 6), QUADRATIC_OUT);
             }
           }
         break;
