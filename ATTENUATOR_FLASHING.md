@@ -12,17 +12,19 @@ If you are using an Arduino Nano as part of a standalone Attenuator (meaning, a 
 
 ## For ESP32
 
-This device supports Over-The-Air (OTA) updates for firmware, meaning you will need to utilize a desktop web browser from a computer (not a mobile device) and the built-in WiFi access point provided by the controller (prefix: "ProtonPack_"). **However, the software which enables the WiFi access point isn't yet loaded so you'll need to follow a specific process for the initial upload to your device.**
+This device is capable of supporting Over-The-Air (OTA) updates for firmware, meaning you will need to utilize a desktop web browser from a computer (not a mobile device or tablet) and the built-in WiFi access point provided by the controller (prefix: "ProtonPack_"). **However, please note the following special condition!**
 
-**Troubleshooting:** If your ESP32 controller does not appear as a serial device it may be required to install a driver for the "CP210x USB to UART Bridge" onto your computer. A driver for Windows and macOS is available [via Silicon Labs](https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers?tab=downloads) and has proved useful.
+- If you used an off-the-shelf ESP32 device, then the software which enables the WiFi access point is **not yet loaded** so you will need to follow the "First-Time Upload" for the initial upload of firmware to your device.
+
+### ESP32: First-Time Upload (via USB)
+
+The following steps MUST be taken if this situation applies to you:
+
+- If you are using your own ESP32 controller direct from Amazon or another supplier, then the microcontroller has not been flashed with the GPStar firmware to enable the OTA upload feature and the manual flashing process is required.
+
+**Troubleshooting:** When using a USB cable, if your ESP32 controller does not appear as a serial device it may be required to install a driver for the "CP210x USB to UART Bridge" onto your computer. A driver for Windows and macOS is available [via Silicon Labs](https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers?tab=downloads) and has proved useful.
 
 📝 **Tip:** Before proceeding, be sure to use a high-quality USB cable which supports data transfer. Some cheap cables may only support charging (not data), or not fully support the power requirements of the device. If you have successfully flashed your ESP32 device and do not see the available WiFi access point, try plugging your USB cable directly into the Talentcell battery or try another USB port on your computer. In rare cases the USB port and/or cable cannot supply enough voltage to run the ESP32's WiFi radio.
-
-### ESP32: First-Time Upload
-
-STOP! If you are looking for instructions for over-the-air (OTA) updates without a USB cable, AND your device has already been flashed with an earlier firmware, then you may skip to the next section.
-
-If you are using your own ESP32 controller or do not see a WiFi network for your Proton Pack when the device is powered up, then the microcontroller has likely not been flashed with the GPStar firmware to enable that feature. You will need to upload the software using a USB cable via **either** of the 2 methods listed here.
 
 **Option 1: Via Web Uploader**
 
@@ -32,7 +34,7 @@ This uses a 3rd-party website to upload using the Web Serial protocol which is o
 1. Locate the following files from the `/binaries/attenuator` directory.
 	* [extras/Attenuator-ESP32-bootloader.bin](binaries/attenuator/extras/Attenuator-ESP32-Bootloader.bin) = This is the standard bootloader for the ESP itself.
 	* [extras/Attenuator-ESP32-partitions.bin](binaries/attenuator/extras/Attenuator-ESP32-Partitions.bin) = This specifies the partition scheme for the flash memory.
-	* [extras/boot_app0.bin](binaries/attenuator/extras/boot_app0.bin) = This is the software for selecting the OTA partition.
+	* [extras/boot_app0.bin](binaries/attenuator/extras/boot_app0.bin) = This is the software for selecting the available/next OTA partition.
 	* [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin) = This is the custom software for the GPStar kit.
 1. Click on the **CONNECT** button and select your USB serial device from the list of options and click on "Connect".
 1. Once connected, select the files (noted above) for the following address spaces:
@@ -73,7 +75,7 @@ These guides may be of some help as a reference:
 * [Expressif - esptool Installation](https://docs.espressif.com/projects/esptool/en/latest/esp32/installation.html#installation)
 * [Expressif - Flashing Firmware](https://docs.espressif.com/projects/esptool/en/latest/esp32/esptool/flashing-firmware.html)
 
-### ESP32: Standard Updates (After the First-Time Upload)
+### ESP32: Standard Updates (via WiFi)
 
 This applies to all updates you will perform AFTER the first-time upload of the firmware for the device, when the private WiFi network for the Proton Pack is available via the custom firmware.
 
@@ -123,47 +125,6 @@ Once flashed, this will allow you to get back into the web UI at [http://192.168
 
 ## Software Development Requirements
 
-To build or edit the code for this device you must have an ArduinoIDE environment set up similar to what is needed for the pack/wand software. Download and install the Arduino IDE. This will be used to compile and upload the code to your Proton Pack and Neutrona Wand.
+As of the v5.4.0 release the development platform of choice for this device has been migrated from Arduino IDE to the [VSCode with PlatformIO](VSCODE.md). Please follow the linked guide for installing the core software and plugins required. The source code for the Attenuator has also been divided into separate projects for the Arduino Nano vs. the ESP32 which allows for the respective libraries to be downloaded automatically as necessary.
 
-[Arduino IDE](https://www.arduino.cc/en/software)
-
-The following libraries are required to be installed. All but the MillisDelay library can be found within the Arduino Library Manager with the app. Go to `Sketch -> Include Library -> Manage Libraries...` to access the Library Manager. Search for the libraries by name and install the latest version available.
-
-### Common Libraries (Nano+ESP32)
-
-- **ezButton** by ArduinoGetStarted.com (1.0.6+)
-- **FastLED** by Daniel Garcia (3.7.0+)
-- **SafeString** by Matthew Ford (4.1.33+)
-- **SerialTransfer** by PowerBroker2 (3.1.3+)
-- **Simple ht16k33 Library** by Ipaseen (1.0.2+)
-
-### Additional ESP32 Libraries
-
-- **ArduinoJSON** by Benoit Blanchon (7.1.0+)
-- **AsyncTCP** by dvarrel (1.1.4+)
-- **ESP Async WebServer** by Me-No-Dev (3.0.6+)
-- **ElegantOTA** by Ayush Sharma (3.1.2+) `See Below`
-
-
-You will also need this additional Boards library for ESP32 controllers:
-
-- **esp32** by Espressif Systems (3.0.2+)
-
-To build for the ESP32 hardware you will need to use the `Boards Manager` to install the `esp32 by Expressif Systems` package. When selecting a board for compilation and upload, simply use the board `ESP32 Dev Module` for satisfactory results. For reference, the FQBN for builds is "esp32:esp32:esp32".
-
-### ElegantOTA
-
-The ElegantOTA library must be enabled to utilize the Asynchronous Web Server.
-
-1. Go to your Arduino libraries directory, typically found at `~/Documents/Arduino/library`.
-1. Open the `ElegantOTA` folder and then open the `src` folder
-1. Locate the `ELEGANTOTA_USE_ASYNC_WEBSERVER` macro in the `ElegantOTA.h` file, and set it to 1:
-	`#define ELEGANTOTA_USE_ASYNC_WEBSERVER 1`
-1. Save the changes to the `ElegantOTA.h` file.
-
-**Alternative:**
-
-A fork of the `ElegantOTA` library can be downloaded from GitHub which contains the above modifications for use with the ESPAsyncWebServer package. Download the code as a zip use the `Sketch -> Add .ZIP Library` option to import the downloaded file.
-[https://github.com/DustinGrau/ElegantOTA.git](https://github.com/DustinGrau/ElegantOTA.git)
-
-No further configuration is needed for this library.
+Note: A fork of the `ElegantOTA` library will be downloaded from [GitHub](https://github.com/DustinGrau/ElegantOTA.git) which contains specific modifications for use with the ESPAsyncWebServer package.
