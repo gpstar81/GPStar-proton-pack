@@ -39,6 +39,7 @@ The following libraries are required to be installed. All can be found within th
 - **SerialTransfer** by PowerBroker2
 - **Simple ht16k33 Library** by Ipaseen
 - **Switch** by Albert van Dalen
+- **GPStar Audio Serial Library** by Michael Rajotte (1.1.0+)
 
 ## +++ IMPORTANT WHEN FLASHING UPDATES +++
 
