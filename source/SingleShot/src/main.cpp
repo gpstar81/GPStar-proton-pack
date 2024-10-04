@@ -72,13 +72,13 @@ void setup() {
   setupAudioDevice();
 
   // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.
-  TCCR2B = (TCCR2B & B11111000) | (B00000110); // for PWM frequency of 122.55 Hz
+  TCCR1B = (TCCR1B & B11111000) | B00000100; // for PWM frequency of 122.55 Hz
 
   // System LEDs
   FastLED.addLeds<NEOPIXEL, SYSTEM_LED_PIN>(system_leds, CYCLOTRON_LED_COUNT + BARREL_LED_COUNT);
 
   // Setup default system settings.
-  VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
+  VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
   VIBRATION_MODE = VIBRATION_MODE_EEPROM;
   DEVICE_MENU_LEVEL = MENU_LEVEL_1;
   MENU_OPTION_LEVEL = OPTION_5;
