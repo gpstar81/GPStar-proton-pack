@@ -163,7 +163,7 @@ void playMusic() {
         audio.trackPlayPoly(i_current_music_track, true);
         audio.update();
 
-        audio.resetTrackCounter(true);
+        audio.resetTrackCounter();
       break;
 
       case A_NONE:
@@ -230,7 +230,7 @@ void resumeMusic() {
     switch(AUDIO_DEVICE) {
       case A_WAV_TRIGGER:
       case A_GPSTAR_AUDIO:
-        audio.resetTrackCounter(true);
+        audio.resetTrackCounter();
         audio.trackResume(i_current_music_track);
         audio.update();
       break;
@@ -532,20 +532,20 @@ void decreaseVolumeMusic() {
 void buildMusicCount(uint16_t i_num_tracks) {
   // Build the music track count.
   i_music_count = i_num_tracks - i_last_effects_track;
-  if(i_music_count > 0 && i_music_count < 5000) {
+  if(i_music_count > 0 && i_music_count < 4097) {
     i_current_music_track = i_music_track_start; // Set the first track of music as file 500_
   }
   else {
     i_music_count = 0; // If the music count is corrupt, make it 0
-    debugln(F("Warning: Calculated music count exceeds 5000; SD card corruption likely!"));
+    debugln(F("Warning: Calculated music count exceeds 4096; SD card corruption likely!"));
   }
 }
 
-bool musicGetTrackCounter() {
+bool musicIsTrackCounterReset() {
   switch(AUDIO_DEVICE) {
     case A_WAV_TRIGGER:
     case A_GPSTAR_AUDIO:
-      return audio.trackCounterReset();
+      return audio.isTrackCounterReset();
     break;
 
     case A_NONE:
@@ -594,7 +594,7 @@ void checkMusic() {
 
         // Loop through all the tracks if the music is not set to repeat a track.
         if(b_playing_music && !b_repeat_track && !b_music_paused) {
-          if(!musicTrackStatus() && ms_music_status_check.justFinished() && !musicGetTrackCounter()) {
+          if(!musicTrackStatus() && ms_music_status_check.justFinished() && !musicIsTrackCounterReset()) {
             ms_check_music.stop();
             ms_music_status_check.stop();
 
