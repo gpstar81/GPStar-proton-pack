@@ -2133,6 +2133,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Toggle the optional inner cyclotron LED panel board.
       switch(INNER_CYC_PANEL_MODE) {
         case PANEL_INDIVIDUAL:
+        default:
           INNER_CYC_PANEL_MODE = PANEL_RGB_STATIC;
 
           stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_STATIC_COLORS);
