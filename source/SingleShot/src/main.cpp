@@ -121,9 +121,6 @@ void setup() {
   // Start up some timers for MODE_ORIGINAL.
   ms_slo_blo_blink.start(i_slo_blo_blink_delay);
 
-  // Initialize the fastLED state update timer.
-  ms_fast_led.start(i_fast_led_delay);
-
   // Check music timer for bench test mode only.
   ms_check_music.start(i_music_check_delay);
 
@@ -135,14 +132,54 @@ void setup() {
 
   // Execute the System POST (Power On Self Test)
   systemPOST();
+
+  // Initialize the fastLED state update timer.
+  ms_fast_led.start(i_fast_led_delay);
+}
+
+void animate() {
+  // Update bargraph with latest state and pattern changes.
+  if(ms_firing_pulse.isRunning()) {
+    // Increase the speed for updates while this timer is still running.
+    bargraphUpdate(POWER_LEVEL - 1);
+  }
+  else {
+    // Otherwise run with the standard timing.
+    bargraphUpdate();
+  }
+
+  // Keep the cyclotron spinning as necessary.
+  checkCyclotron();
+
+  // Update all addressable LEDs to reflect any changes.
+  if(ms_fast_led.justFinished()) {
+    FastLED.show();
+    ms_fast_led.start(i_fast_led_delay);
+  }
+}
+
+void inputCheck() {
+  updateAudio(); // Update the state of the available sound board.
+
+  checkMusic(); // Perform music control here as this is a standalone device.
+
+  switchLoops(); // Standard polling for switch/button changes via user inputs.
+
+  // Get the current state of any input devices (toggles, buttons, and switches).
+  checkRotaryEncoder();
+  checkMenuVibration();
+
+  // Handle button press events based on current device state and menu level (for config/EEPROM purposes).
+  checkDeviceAction();
+
+  // Perform updates/actions based on timer events.
+  checkGeneralTimers();
 }
 
 void loop() {
-  updateAudio(); // Update the state of the selected sound board.
+  // Check for user input
+  inputCheck();
 
-  checkMusic(); // Music control is here since in standalone mode.
-
-  switchLoops(); // Poll for switch/button changes via user inputs.
-
-  mainLoop(); // Continue on to the main loop for taking actions.
+  // Animate all LEDs
+  animate();
 }

@@ -622,42 +622,9 @@ void checkGeneralTimers() {
   if(ms_slo_blo_blink.justFinished()) {
     ms_slo_blo_blink.start(i_slo_blo_blink_delay);
   }
-
-  // Update all addressable LEDs and restart the timer.
-  if(ms_fast_led.justFinished()) {
-    FastLED.show();
-    ms_fast_led.start(i_fast_led_delay);
-  }
-}
-
-void mainLoop() {
-  // Get the current state of any input devices (toggles, buttons, and switches).
-  checkRotaryEncoder();
-  checkMenuVibration();
-
-  // Handle button press events based on current device state and menu level (for config/EEPROM purposes).
-  checkDeviceAction();
-
-  // Update bargraph with latest state and pattern changes.
-  if(ms_firing_pulse.isRunning()) {
-    // Increase the speed for updates while this timer is still running.
-    bargraphUpdate(POWER_LEVEL - 1);
-  }
-  else {
-    // Otherwise run with the standard timing.
-    bargraphUpdate();
-  }
-
-  // Keep the cyclotron spinning as necessary.
-  checkCyclotron();
-
-  // Perform updates/actions based on timer events.
-  checkGeneralTimers();
 }
 
 void modeFireStart() {
-  i_fast_led_delay = FAST_LED_UPDATE_MS;
-
   //modeFireStartSounds();
 
   // Just in case a semi-auto was fired before we started firing a stream, stop its timer.
@@ -834,7 +801,6 @@ void modeError() {
 
 void modePulseStart() {
   // Handles all "pulsed" fire modes.
-  i_fast_led_delay = FAST_LED_UPDATE_MS;
   barrelLightsOff();
 
   playEffect(S_FIRE_BLAST, false, i_volume_effects, false, 0, false);
