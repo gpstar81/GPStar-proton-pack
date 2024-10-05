@@ -191,7 +191,8 @@ void checkWandAction() {
           if(switch_intensify.pushed()) {
             switch(WAND_MENU_LEVEL) {
               case MENU_LEVEL_2:
-                // Save this space for the video game Neutrona Wand lights.
+                // Toggle 84/89 outer cyclotron fade effect.
+                wandSerialSend(W_TOGGLE_CYCLOTRON_FADING);
               break;
 
               case MENU_LEVEL_1:
@@ -242,10 +243,10 @@ void checkWandAction() {
                   // Switch to 30-segment bargraph.
                   BARGRAPH_TYPE_EEPROM = SEGMENTS_30;
 
-                  stopEffect(S_BARGRAPH_28_SEGMENTS);
-                  stopEffect(S_BARGRAPH_30_SEGMENTS);
+                  stopEffect(S_VOICE_BARGRAPH_28_SEGMENTS);
+                  stopEffect(S_VOICE_BARGRAPH_30_SEGMENTS);
 
-                  playEffect(S_BARGRAPH_30_SEGMENTS);
+                  playEffect(S_VOICE_BARGRAPH_30_SEGMENTS);
 
                   wandSerialSend(W_BARGRAPH_30_SEGMENTS);
                 }
@@ -253,10 +254,10 @@ void checkWandAction() {
                   // Switch to 28-segment bargraph.
                   BARGRAPH_TYPE_EEPROM = SEGMENTS_28;
 
-                  stopEffect(S_BARGRAPH_28_SEGMENTS);
-                  stopEffect(S_BARGRAPH_30_SEGMENTS);
+                  stopEffect(S_VOICE_BARGRAPH_28_SEGMENTS);
+                  stopEffect(S_VOICE_BARGRAPH_30_SEGMENTS);
 
-                  playEffect(S_BARGRAPH_28_SEGMENTS);
+                  playEffect(S_VOICE_BARGRAPH_28_SEGMENTS);
 
                   wandSerialSend(W_BARGRAPH_28_SEGMENTS);
                 }

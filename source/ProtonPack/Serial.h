@@ -2170,6 +2170,25 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       updateProtonPackLEDCounts(); // Must call this after resetting # of LEDs
     break;
 
+    case W_TOGGLE_CYCLOTRON_FADING:
+      b_fade_cyclotron_led = !b_fade_cyclotron_led;
+
+      if(b_fade_cyclotron_led) {
+        stopEffect(S_VOICE_CYCLOTRON_FADING_DISABLED);
+        stopEffect(S_VOICE_CYCLOTRON_FADING_ENABLED);
+        playEffect(S_VOICE_CYCLOTRON_FADING_ENABLED);
+
+        packSerialSend(P_CYCLOTRON_FADING_ENABLED);
+      }
+      else {
+        stopEffect(S_VOICE_CYCLOTRON_FADING_DISABLED);
+        stopEffect(S_VOICE_CYCLOTRON_FADING_ENABLED);
+        playEffect(S_VOICE_CYCLOTRON_FADING_DISABLED);
+
+        packSerialSend(P_CYCLOTRON_FADING_DISABLED);
+      }
+    break;
+
     case W_OVERHEATING:
       // Overheating.
       packOverheatingStart();
@@ -4201,17 +4220,17 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_BARGRAPH_28_SEGMENTS:
-      stopEffect(S_BARGRAPH_28_SEGMENTS);
-      stopEffect(S_BARGRAPH_30_SEGMENTS);
+      stopEffect(S_VOICE_BARGRAPH_28_SEGMENTS);
+      stopEffect(S_VOICE_BARGRAPH_30_SEGMENTS);
 
-      playEffect(S_BARGRAPH_28_SEGMENTS);
+      playEffect(S_VOICE_BARGRAPH_28_SEGMENTS);
     break;
 
     case W_BARGRAPH_30_SEGMENTS:
-      stopEffect(S_BARGRAPH_28_SEGMENTS);
-      stopEffect(S_BARGRAPH_30_SEGMENTS);
+      stopEffect(S_VOICE_BARGRAPH_28_SEGMENTS);
+      stopEffect(S_VOICE_BARGRAPH_30_SEGMENTS);
 
-      playEffect(S_BARGRAPH_30_SEGMENTS);
+      playEffect(S_VOICE_BARGRAPH_30_SEGMENTS);
     break;
 
     case W_BARGRAPH_INVERTED:

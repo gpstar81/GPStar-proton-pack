@@ -1611,6 +1611,20 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       playEffect(S_VOICE_PROTON_MIX_EFFECTS_DISABLED);
     break;
 
+    case P_CYCLOTRON_FADING_DISABLED:
+      stopEffect(S_VOICE_CYCLOTRON_FADING_DISABLED);
+      stopEffect(S_VOICE_CYCLOTRON_FADING_ENABLED);
+
+      playEffect(S_VOICE_CYCLOTRON_FADING_DISABLED);
+    break;
+
+    case P_CYCLOTRON_FADING_ENABLED:
+      stopEffect(S_VOICE_CYCLOTRON_FADING_DISABLED);
+      stopEffect(S_VOICE_CYCLOTRON_FADING_ENABLED);
+
+      playEffect(S_VOICE_CYCLOTRON_FADING_ENABLED);
+    break;
+
     case P_CYCLOTRON_SIMULATE_RING_DISABLED:
       stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_DISABLED);
       stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_ENABLED);
