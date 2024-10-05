@@ -87,14 +87,14 @@ function initWebSocket() {
   websocket.onopen = onOpen;
   websocket.onclose = onClose;
   websocket.onmessage = onMessage;
-  heartbeat();
+  doHeartbeat();
 }
 
-function heartbeat() {
+function doHeartbeat() {
   if (websocket.readyState == websocket.OPEN) {
-    websocket.send("heartbeat");
+    websocket.send("heartbeat"); // Send a specific message.
   }
-  setTimeout(heartbeat, 6000);
+  setTimeout(doHeartbeat, 8000);
 }
 
 function onOpen(event) {

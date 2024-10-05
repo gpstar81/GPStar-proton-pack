@@ -223,7 +223,7 @@ void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *clien
 
     case WS_EVT_DATA:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.println(F("WebSocket Data Received"));
+        Serial.printf("WebSocket[%s][%u] Data[%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
       #endif
       // Do something when data is received via WebSocket.
     break;
@@ -253,36 +253,42 @@ void startWebServer() {
 
   // Start the web server.
   httpServer.begin();
-  //Serial.println("Async HTTP Server Started");
+
+  // Denote that the web server should be started.
+  b_ws_started = true;
+
+  #if defined(DEBUG_SEND_TO_CONSOLE)
+    Serial.println(F("Async HTTP Server Started"));
+  #endif
 }
 
 void handleRoot(AsyncWebServerRequest *request) {
   // Used for the root page (/) from the web server.
-  //debug("Web Root HTML Requested");
+  debug("Sending -> Index HTML");
   request->send(200, "text/html", String(INDEX_page)); // Serve page content.
 }
 
 void handleRootJS(AsyncWebServerRequest *request) {
   // Used for the root page (/) from the web server.
-  //debug("Web Root JavaScript Requested");
+  debug("Sending -> Index JavaScript");
   request->send(200, "application/javascript", String(INDEXJS_page)); // Serve page content.
 }
 
 void handleNetwork(AsyncWebServerRequest *request) {
   // Used for the network page from the web server.
-  //debug("Network HTML Requested");
+  debug("Sending -> Network HTML");
   request->send(200, "text/html", String(NETWORK_page)); // Serve page content.
 }
 
 void handlePassword(AsyncWebServerRequest *request) {
   // Used for the password page from the web server.
-  //debug("Password HTML Requested");
+  debug("Sending -> Password HTML");
   request->send(200, "text/html", String(PASSWORD_page)); // Serve page content.
 }
 
 void handleAttenuatorSettings(AsyncWebServerRequest *request) {
   // Used for the device page from the web server.
-  //debug("Attenuator Settings HTML Requested");
+  debug("Sending -> Attenuator Settings HTML");
   request->send(200, "text/html", String(DEVICE_page)); // Serve page content.
 }
 
@@ -292,7 +298,7 @@ void handlePackSettings(AsyncWebServerRequest *request) {
   attenuatorSerialSend(A_REQUEST_PREFERENCES_PACK);
 
   // Used for the settings page from the web server.
-  //debug("Pack Settings HTML Requested");
+  debug("Sending -> Pack Settings HTML");
   request->send(200, "text/html", String(PACK_SETTINGS_page)); // Serve page content.
 }
 
@@ -302,7 +308,7 @@ void handleWandSettings(AsyncWebServerRequest *request) {
   attenuatorSerialSend(A_REQUEST_PREFERENCES_WAND);
 
   // Used for the settings page from the web server.
-  //debug("Wand Settings HTML Requested");
+  debug("Sending -> Wand Settings HTML");
   request->send(200, "text/html", String(WAND_SETTINGS_page)); // Serve page content.
 }
 
@@ -312,19 +318,19 @@ void handleSmokeSettings(AsyncWebServerRequest *request) {
   attenuatorSerialSend(A_REQUEST_PREFERENCES_SMOKE);
 
   // Used for the settings page from the web server.
-  //debug("Smoke Settings HTML Requested");
+  debug("Sending -> Smoke Settings HTML");
   request->send(200, "text/html", String(SMOKE_SETTINGS_page)); // Serve page content.
 }
 
 void handleStylesheet(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
-  //debug("Main StyleSheet Requested");
+  debug("Sending -> Main StyleSheet");
   request->send(200, "text/css", String(STYLE_page)); // Serve page content.
 }
 
 void handleSvgImage(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
-  //debug("Equipment SVG Requested");
+  debug("Sending -> Equipment SVG");
   request->send(200, "image/svg+xml", String(EQUIP_svg)); // Serve page content.
 }
 
@@ -622,13 +628,13 @@ void handleRestart(AsyncWebServerRequest *request) {
 }
 
 void handlePackOn(AsyncWebServerRequest *request) {
-  debug("Turn Pack On");
+  debug("Web: Turn Pack On");
   attenuatorSerialSend(A_TURN_PACK_ON);
   request->send(200, "application/json", status);
 }
 
 void handlePackOff(AsyncWebServerRequest *request) {
-  debug("Turn Pack Off");
+  debug("Web: Turn Pack Off");
   attenuatorSerialSend(A_TURN_PACK_OFF);
   request->send(200, "application/json", status);
 }
@@ -636,7 +642,7 @@ void handlePackOff(AsyncWebServerRequest *request) {
 void handleAttenuatePack(AsyncWebServerRequest *request) {
   if(i_speed_multiplier > 2) {
     // Only send command to pack if cyclotron is not "normal".
-    debug("Cancel Overheat Warning");
+    debug("Web: Cancel Overheat Warning");
     attenuatorSerialSend(A_WARNING_CANCELLED);
     request->send(200, "application/json", status);
   } else {
@@ -650,91 +656,91 @@ void handleAttenuatePack(AsyncWebServerRequest *request) {
 }
 
 void handleManualVent(AsyncWebServerRequest *request) {
-  debug("Manual Vent Triggered");
+  debug("Web: Manual Vent Triggered");
   attenuatorSerialSend(A_MANUAL_OVERHEAT);
   request->send(200, "application/json", status);
 }
 
 void handleManualLockout(AsyncWebServerRequest *request) {
-  debug("Manual Lockout Triggered");
+  debug("Web: Manual Lockout Triggered");
   attenuatorSerialSend(A_SYSTEM_LOCKOUT);
   request->send(200, "application/json", status);
 }
 
 void handleCancelLockout(AsyncWebServerRequest *request) {
-  debug("Cancel Lockout Triggered");
+  debug("Web: Cancel Lockout Triggered");
   attenuatorSerialSend(A_CANCEL_LOCKOUT);
   request->send(200, "application/json", status);
 }
 
 void handleToggleMute(AsyncWebServerRequest *request) {
-  debug("Toggle Mute");
+  debug("Web: Toggle Mute");
   attenuatorSerialSend(A_TOGGLE_MUTE);
   request->send(200, "application/json", status);
 }
 
 void handleMasterVolumeUp(AsyncWebServerRequest *request) {
-  debug("Master Volume Up");
+  debug("Web: Master Volume Up");
   attenuatorSerialSend(A_VOLUME_INCREASE);
   request->send(200, "application/json", status);
 }
 
 void handleMasterVolumeDown(AsyncWebServerRequest *request) {
-  debug("Master Volume Down");
+  debug("Web: Master Volume Down");
   attenuatorSerialSend(A_VOLUME_DECREASE);
   request->send(200, "application/json", status);
 }
 
 void handleEffectsVolumeUp(AsyncWebServerRequest *request) {
-  debug("Effects Volume Up");
+  debug("Web: Effects Volume Up");
   attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_INCREASE);
   request->send(200, "application/json", status);
 }
 
 void handleEffectsVolumeDown(AsyncWebServerRequest *request) {
-  debug("Effects Volume Down");
+  debug("Web: Effects Volume Down");
   attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_DECREASE);
   request->send(200, "application/json", status);
 }
 
 void handleMusicVolumeUp(AsyncWebServerRequest *request) {
-  debug("Music Volume Up");
+  debug("Web: Music Volume Up");
   attenuatorSerialSend(A_VOLUME_MUSIC_INCREASE);
   request->send(200, "application/json", status);
 }
 
 void handleMusicVolumeDown(AsyncWebServerRequest *request) {
-  debug("Music Volume Down");
+  debug("Web: Music Volume Down");
   attenuatorSerialSend(A_VOLUME_MUSIC_DECREASE);
   request->send(200, "application/json", status);
 }
 
 void handleMusicStartStop(AsyncWebServerRequest *request) {
-  debug("Music Start/Stop");
+  debug("Web: Music Start/Stop");
   attenuatorSerialSend(A_MUSIC_START_STOP);
   request->send(200, "application/json", status);
 }
 
 void handleMusicPauseResume(AsyncWebServerRequest *request) {
-  debug("Music Pause/Resume");
+  debug("Web: Music Pause/Resume");
   attenuatorSerialSend(A_MUSIC_PAUSE_RESUME);
   request->send(200, "application/json", status);
 }
 
 void handleNextMusicTrack(AsyncWebServerRequest *request) {
-  debug("Next Music Track");
+  debug("Web: Next Music Track");
   attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
   request->send(200, "application/json", status);
 }
 
 void handlePrevMusicTrack(AsyncWebServerRequest *request) {
-  debug("Prev Music Track");
+  debug("Web: Prev Music Track");
   attenuatorSerialSend(A_MUSIC_PREV_TRACK);
   request->send(200, "application/json", status);
 }
 
 void handleLoopMusicTrack(AsyncWebServerRequest *request) {
-  debug("Toggle Music Track Loop");
+  debug("Web: Toggle Music Track Loop");
   attenuatorSerialSend(A_MUSIC_TRACK_LOOP_TOGGLE);
   request->send(200, "application/json", status);
 }
@@ -749,7 +755,7 @@ void handleSelectMusicTrack(AsyncWebServerRequest *request) {
 
   if(c_music_track.toInt() != 0 && c_music_track.toInt() >= i_music_track_min) {
     uint16_t i_music_track = c_music_track.toInt();
-    debug("Selected Music Track: " + String(i_music_track));
+    debug("Web: Selected Music Track: " + String(i_music_track));
     attenuatorSerialSend(A_MUSIC_PLAY_TRACK, i_music_track); // Inform the pack of the new track.
     request->send(200, "application/json", status);
   }
@@ -764,20 +770,20 @@ void handleSelectMusicTrack(AsyncWebServerRequest *request) {
 }
 
 void handleSaveAllEEPROM(AsyncWebServerRequest *request) {
-  debug("Save All EEPROM");
+  debug("Web: Save All EEPROM");
   attenuatorSerialSend(A_SAVE_EEPROM_SETTINGS_PACK);
   attenuatorSerialSend(A_SAVE_EEPROM_SETTINGS_WAND);
   request->send(200, "application/json", status);
 }
 
 void handleSavePackEEPROM(AsyncWebServerRequest *request) {
-  debug("Save Pack EEPROM");
+  debug("Web: Save Pack EEPROM");
   attenuatorSerialSend(A_SAVE_EEPROM_SETTINGS_PACK);
   request->send(200, "application/json", status);
 }
 
 void handleSaveWandEEPROM(AsyncWebServerRequest *request) {
-  debug("Save Wand EEPROM");
+  debug("Web: Save Wand EEPROM");
   attenuatorSerialSend(A_SAVE_EEPROM_SETTINGS_WAND);
   request->send(200, "application/json", status);
 }

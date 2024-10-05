@@ -55,6 +55,7 @@ const String ap_ssid_prefix = "ProtonPack"; // This will be the base of the SSID
 String ap_default_passwd = "555-2368"; // This will be the default password for the AP.
 String ap_ssid; // Reserved for holding the full, private AP name for this device.
 bool b_ap_started = false; // Denotes the softAP network has been started.
+bool b_ws_started = false; // Denotes the web server has been started.
 
 // Local variables for connecting to a preferred WiFi network (when available).
 bool b_wifi_enabled = false; // Denotes user wishes to join/use external WiFi.
@@ -83,6 +84,14 @@ unsigned long i_progress_millis = 0;
 // Create timer for WebSocket cleanup.
 millisDelay ms_cleanup;
 const uint16_t i_websocketCleanup = 5000;
+
+// Create timer for checking connections.
+millisDelay ms_apclient;
+const uint16_t i_apClientCount = 200;
+
+// Create timer for OTA updates.
+millisDelay ms_otacheck;
+const uint16_t i_otaCheck = 100;
 
 IPAddress convertToIP(String ipAddressString) {
   uint16_t quads[4]; // Array to store 4 quads for the IP.

@@ -65,6 +65,14 @@
 #include "System.h"
 #include "Actions.h"
 
+/*
+ * Delay for fastled to update the addressable LEDs.
+ * 0.03 ms to update 1 LED. So 1.47 ms should be okay? Let's bump it up to 3 just in case.
+ */
+#define FAST_LED_UPDATE_MS 3
+uint8_t i_fast_led_delay = FAST_LED_UPDATE_MS; // Default delay via standard definition
+millisDelay ms_fast_led; // Timer for all updates to addressable LEDs across the device
+
 void setup() {
   Serial.begin(9600); // Standard serial (USB) console.
 

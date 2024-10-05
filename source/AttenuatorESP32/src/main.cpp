@@ -21,7 +21,7 @@
 // Required for PlatformIO
 #include <Arduino.h>
 
-// ESP - Suppress warning about SPI hardware pins
+// Suppress warning about SPI hardware pins
 // Define this before including <FastLED.h>
 #define FASTLED_INTERNAL
 
@@ -50,7 +50,6 @@
 
 void setup() {
   // Enable Serial connection(s) and communication with GPStar Proton Pack PCB.
-  // ESP - Serial Console for messages and Device Comms via Serial2
   Serial.begin(115200);
   Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
   packComs.begin(Serial2, false);
@@ -67,7 +66,7 @@ void setup() {
   // Set a default animation for the radiation indicator.
   RAD_LENS_IDLE = AMBER_PULSE;
 
-  // ESP - Get Special Device Preferences
+  // Get Special Device Preferences
   preferences.begin("device", true, "nvs"); // Access namespace in read-only mode.
 
   // Return stored values if available, otherwise use a default value.
@@ -167,13 +166,15 @@ void setup() {
   // Delay before configuring WiFi and web access.
   delay(100);
 
-  // ESP - Setup WiFi and WebServer
+  // Setup WiFi and WebServer
   if(startWiFi()) {
     // Start the local web server.
     startWebServer();
 
     // Begin timer for remote client events.
     ms_cleanup.start(i_websocketCleanup);
+    ms_apclient.start(i_apClientCount);
+    ms_otacheck.start(i_otaCheck);
   }
 
   // Initialize critical timers.
@@ -199,20 +200,31 @@ void loop() {
     i_device_led[2] = 2; // Lower
   }
 
-  // ESP - Manage cleanup for old WebSocket clients.
-  if(ms_cleanup.remaining() < 1) {
-    // Clean up oldest WebSocket connections.
-    ws.cleanupClients();
+  if(b_ap_started && b_ws_started) {
+    if(ms_cleanup.remaining() < 1) {
+      // Clean up oldest WebSocket connections.
+      ws.cleanupClients();
 
-    // Restart timer for next cleanup action.
-    ms_cleanup.start(i_websocketCleanup);
+      // Restart timer for next cleanup action.
+      ms_cleanup.start(i_websocketCleanup);
+    }
+
+    if(ms_cleanup.remaining() < 1) {
+      // Update the current count of AP clients.
+      i_ap_client_count = WiFi.softAPgetStationNum();
+
+      // Restart timer for next count.
+      ms_apclient.start(i_apClientCount);
+    }
+
+    if(ms_cleanup.remaining() < 1) {
+      // Handles device reboot after an OTA update.
+      ElegantOTA.loop();
+
+      // Restart timer for next check.
+      ms_otacheck.start(i_otaCheck);
+    }
   }
-
-  // Handle device reboot after an OTA update.
-  ElegantOTA.loop();
-
-  // Update the current count of AP clients.
-  i_ap_client_count = WiFi.softAPgetStationNum();
 
   if(b_wait_for_pack) {
     if(ms_packsync.justFinished()) {
