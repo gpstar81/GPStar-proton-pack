@@ -92,7 +92,7 @@ This section is presented in a way to offer a more complete view of what compone
 | Speakers<sup>R</sup>      | [Audio Output Guide](SOUND.md) |
 | Sound Effects<sup>O</sup> | [Loading The Audio Files](AUDIO.md) |
 | Hat Lights<sup>O</sup>    | [Kit option by Jonogunn](HATS.md) |
-| Bargraph<sup>O</sup>      | [28-Segment option by Frutto Technology](BARGRAPH.md) |
+| Bargraph<sup>O</sup>      | [28-Segment or 30-Segment option by Frutto Technology](BARGRAPH.md) |
 | Vent Light<sup>O</sup>    | [High Intensity option by Frutto Technology](VENTLIGHT.md) |
 | Wand Barrel<sup>O</sup>   | 49-LED by Frutto Technology (Guide TBD) |
 
@@ -120,7 +120,7 @@ This section is presented in a way to offer a more complete view of what compone
 
 ---
 
-### DIY Arduino Build Guides [DEPRECATED]
+### DIY Arduino Build Guides
 
 Considered the "legacy" guide to building your own solution using the Arduino platform. *Please note that the original Neutrona Wand guide used an Arduino Nano which is no longer capable of providing the storage space required by the full range of features supported and that hardware has been deprecated. In order to continue with these guides, please note that a replacement board has been identified for the Neutrona Wand and MUST be used with the latest software release.*
 
