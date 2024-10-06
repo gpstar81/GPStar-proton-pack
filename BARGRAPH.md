@@ -1,7 +1,5 @@
 # Neutrona Wand Bargraph
 
-**NOTE: The 28 Segment Bargraph upgrade is only supported with the GPStar Neutrona Wand microcontroller**
-
 This guide outlines the **optional** upgrade from the 5-LED stock bargraph to a more animated 28-segment bargraph (BL28Z-3005SA04Y) or the 28 Segment Bargraph and Power Cell from [Frutto Technology](https://fruttotechnology.com).
 
 ## Frutto Technology 28 Segment Bargraph Installation Video Guide
@@ -82,7 +80,10 @@ The following is Barmeter's internal reference for the numbered pins along the e
 |         | C2 |   |   |   |   |   | C5 |   |   | C6 | C7 |    |    |    |    |    |    | C4 | C3 |    |    | C1 |
 |         |    |   |   |   |   |   |    |   |   |    |    |    | L3 |    | L2 | L4 |    |    |    |    | L1 |    |
 
-
 ### Inverted Bargraph Sequences
 
 If your bargraph is inverted or upside down, you can either flip it physically in the wand, or you can invert / de-invert it from within the EEPROM Configuration Menu System. Please see the [EEPROM Menu System](OPERATION_EEPROM.md) guide for more information.
+
+### 30-Segment Bargraph
+
+As of firmware 5.4.0, the GPStar Neutrona Wand board will also support a 30-segment bargraph controlled by the same HT16K33 LED multiplexer chip as the 28-segment. This bargraph is in development and is intended to be a drop-in replacement for any wand type that offers a more prop-accurate appearance. This document will be updated as soon as more information is available.

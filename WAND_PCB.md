@@ -1,6 +1,6 @@
 # Wand PCB Hookup
 
-This guide is part of the kit approach to providing a minimally-invasive upgrade to the stock HasLab controllers. For the Neutrona Wand all available connections for JST-PH wiring is present, though a significant amount of wire-cutting will be required to separate the stock controller and re-attach using terminal blocks on the new PCB. The diagrams below detail the standard HasLab connections, or when using the 28-segment bargraph from Frutto Technology.
+This guide is part of the kit approach to providing a minimally-invasive upgrade to the stock HasLab controllers. For the Neutrona Wand all available connections for JST-PH wiring is present, though a significant amount of wire-cutting will be required to separate the stock controller and re-attach using terminal blocks on the new PCB. The diagrams below detail the standard HasLab connections as well as using the 28-segment or 30-segment bargraphs from Frutto Technology.
 
 ![Standard PCB Connections](images/WandPCB-Standard.png)
 
@@ -84,4 +84,4 @@ For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI B
 | 5V-OUT | +/\- | Power for additional accessories.<br><br>`Connector type: JST-PH` |
 | SCL/SDA | SCL/SDA | Expansion serial port using I2C.<br><br>`Connector type: JST-PH`|
 
-**Note:** If using the [28-segment bargraph](BARGRAPH.md), power may be delivered via the 5V-OUT while the SCL/SDA serial connection will provide data/control.
+**Note:** If using the [28-segment or 30-segment bargraph](BARGRAPH.md), power may be delivered via the 5V-OUT while the SCL/SDA serial connection will provide data/control.

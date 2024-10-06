@@ -16,15 +16,15 @@
 
 **Q: What are the power requirements?**
 
-**A:** For most every component 5V is required. It is recommended not to run higher voltage into the VIN or barrel connector jacks on the Arduino Mega or WAV Trigger devices as they can generate quite some heat with their onboard regulators for prolonged use. A pre-regulated 5V is recommended. Total draw (amperage) depends on how many optional devices you add, but 5V at 2amps is more than enough to run various pumps, lights, etc. Please view the [POWER.md](POWER.md) guide for additional info and recommendations.
+**A:** For most every component 5V is required. We do not recommend running higher voltage into the VIN or barrel connector jacks on the Arduino Mega or WAV Trigger devices as they can generate quite some heat with their onboard regulators for prolonged use. A pre-regulated 5V is recommended. Total draw (amperage) depends on how many optional devices you add, but 5V at 2amps is more than enough to run various pumps, lights, etc. Please view the [POWER.md](POWER.md) guide for additional info and recommendations.
 
 **Q: Is a Proton Pack required?**
 
 **A:** No, a pack is not required for a wand-only conversion. However, please note that to run a GPStar wand board off of the Hasbro battery sled, you will need to provide your own 5V DC converter to supply regulated 5VDC to the GPStar components (see above FAQ answer). Also note that the Neutrona Wand board you receive will have the standard "full kit" firmware loaded. For a standalone wand build, please flash the "NeutronaWand-BenchTest" firmware found in the "Extras" folder for the wand binaries. Please see the [FLASHING.md](FLASHING.md) guide for information on how to flash your board.
 
-**Q: Is a Neutrona Wand required?**
+**Q: Is a GPStar Neutrona Wand required?**
 
-**A:** No, a wand is not required for a pack-only conversion. However, a modified wand is required if you want full control of the pack from the wand. You can still connect a stock unmodified Hasbro Spengler Neutrona Wand, however you will not be able to control the pack with it. `** ATTENTION: Please keep in mind that this system is supplying 5V, while the stock Neutrona Wand from Hasbro is designed around 4.5V, so while a stock Hasbro Neutrona Wand can be connected, you do so at your own risk. **`
+**A:** No, a wand with a GPStar Neutrona Wand board is not required for a pack-only conversion. However, a modified wand is required if you want full control of the pack from the wand. We now offer a "Lite" kit through Frutto Technologies which will allow an unmodified Hasbro wand to turn the Pack on and off and have the Pack respond to firing.
 
 **Q: How many wires / pins are required for the connection between the Proton Pack and Neutrona Wand?**
 

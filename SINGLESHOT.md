@@ -86,7 +86,7 @@ Connections for the device should be made according to the tables below.
 | Label | Pins | Notes |
 |-------|------|-------|
 | HAT2 | GND/D23 | Connection for the wand box hat LED.<br><br>The left (top in the photo) pin is GND, the right (bottom in the photo) pin is D23 provides 5V and has a 150Ω resistor connected to it.<br><br>`Connector type: JST-PH`<br><br>`Do not draw more than 40mA from this connector.`|
-| SCL/SDA | SCL/SDA | Reserved for the [28-segment bargraph](BARGRAPH.md) using I2C.<br><br>`Connector type: JST-PH`|
+| SCL/SDA | SCL/SDA | Reserved for the [28-segment or 30-segment bargraph](BARGRAPH.md) using I2C.<br><br>`Connector type: JST-PH`|
 | 5V-OUT | +/\- | Power for the bargraph.<br><br>`Connector type: JST-PH` |
 | AUDIO BOARD | GND/NC/VCC/TX/RX/NC | Communication and Power for the wands's GPStar Audio or WAV Trigger.<br><br>`Connector type: JST-PH` |
 | ICSP | DO NOT USE! | Programming header for bootloader updates (reserved).<br><br>`Connector type: Header pins` |

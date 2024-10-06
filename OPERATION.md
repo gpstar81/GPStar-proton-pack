@@ -71,7 +71,7 @@
 - Support for the Attenuator add-on device. See the [Attenuator](ATTENUATOR.md) addendum for more information.
 - Support for additional lights such as the wand hat lights and wand barrel end LED strobe.
 	- When adding the Hat1 light a New Barrel Wing Button can also be added.
-- Serial connection and power for a 28-segment bargraph support (to replace the stock 5-LED bargraph).
+- Serial connection and power for a 28-segment or 30-segment bargraph support (to replace the stock 5-LED bargraph).
 
 ![](images/OperationNeutrona7.jpg)
 <sup>Location of optional hardware for Neutrona Wand, requires advanced modifications.</sup>
@@ -290,7 +290,7 @@ Use the Top Dial on the top of the wand to navigate up and down through the menu
 
 ![](images/OperationNeutrona8.jpg)
 
-When you are in the settings menu system the bargraph's 5 LEDs begin flashing (or 5 distinct segments when using the 28-segment bargraph). All other functions of the wand (such as firing) are temporarily disabled while in the menu system. There are 5 different menu settings, which are indicated by bargraph LED segments 1 through 5 (from bottom to top) with menu level 5 being the default upon entering this mode. For example in navigation, when 1 LED (or bargraph segment) is flashing/displayed that means you are on `Option 1`.
+When you are in the settings menu system the bargraph's 5 LEDs begin flashing (or 5 distinct segments when using the 28-segment or 30-segment bargraph). All other functions of the wand (such as firing) are temporarily disabled while in the menu system. There are 5 different menu settings, which are indicated by bargraph LED segments 1 through 5 (from bottom to top) with menu level 5 being the default upon entering this mode. For example in navigation, when 1 LED (or bargraph segment) is flashing/displayed that means you are on `Option 1`.
 
 ## Actions
 
