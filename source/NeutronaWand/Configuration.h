@@ -76,6 +76,15 @@ const uint8_t VOLUME_MUSIC_MULTIPLIER = 5;
 const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 
 /*
+ * Set to false to disable the onboard amplifier on the WAV Trigger.
+ * Turning off the onboard amp draws less power.
+ * If using the AUX cable jack, the amp can be disabled to save power.
+ * If you use the output pins directly on the WAV Trigger board to your speakers, you will need to enable the onboard amp.
+ * NOTE: The onboard mono audio amplifier and speaker connector specifications: 2W into 4 Ohms, 1.25W into 8 Ohms
+ */
+const bool b_onboard_amp_enabled = true;
+
+/*
  * When set to true, the bargraph will invert the sequence.
  */
 bool b_bargraph_invert = false;
@@ -172,15 +181,6 @@ uint16_t i_ms_overheat_initiate_level_2 = 50000;
 uint16_t i_ms_overheat_initiate_level_3 = 40000;
 uint16_t i_ms_overheat_initiate_level_4 = 35000;
 uint16_t i_ms_overheat_initiate_level_5 = 30000;
-
-/*
- * Set to false to disable the onboard amplifier on the WAV Trigger.
- * Turning off the onboard amp draws less power.
- * If using the AUX cable jack, the amp can be disabled to save power.
- * If you use the output pins directly on the WAV Trigger board to your speakers, you will need to enable the onboard amp.
- * NOTE: The onboard mono audio amplifier and speaker connector specifications: 2W into 4 Ohms, 1.25W into 8 Ohms
- */
-const bool b_onboard_amp_enabled = true;
 
 /*
  * When set to true, various impact and other stream effects will overlap and mix randomly into the Proton Stream for an added experience.

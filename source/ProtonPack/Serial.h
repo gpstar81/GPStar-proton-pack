@@ -2238,7 +2238,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Reset the smoke timer and cyclotron speed timer if the wand is firing.
       if(b_wand_firing == true) {
         if(ms_smoke_timer.isRunning()) {
-          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer[i_wand_power_level - 1]));
+          ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[i_wand_power_level - 1]));
         }
 
         if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
@@ -2256,7 +2256,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Reset the smoke timer and cyclotron speed timer if the wand is firing.
       if(b_wand_firing == true) {
         if(ms_smoke_timer.isRunning()) {
-          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer[i_wand_power_level - 1]));
+          ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[i_wand_power_level - 1]));
         }
 
         if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
@@ -2274,7 +2274,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Reset the smoke timer and cyclotron speed timer if the wand is firing.
       if(b_wand_firing == true) {
         if(ms_smoke_timer.isRunning()) {
-          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer[i_wand_power_level - 1]));
+          ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[i_wand_power_level - 1]));
         }
 
         if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
@@ -2292,7 +2292,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Reset the smoke timer and cyclotron speed timer if the wand is firing.
       if(b_wand_firing == true) {
         if(ms_smoke_timer.isRunning()) {
-          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer[i_wand_power_level - 1]));
+          ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[i_wand_power_level - 1]));
         }
 
         if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
@@ -2311,7 +2311,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Note that since the wand cannot enter or exit Power Level 5 while firing, this should never be necessary.
       if(b_wand_firing == true) {
         if(ms_smoke_timer.isRunning()) {
-          ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer[i_wand_power_level - 1]));
+          ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[i_wand_power_level - 1]));
         }
 
         if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {

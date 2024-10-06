@@ -445,13 +445,13 @@ void loop() {
 
           if(ms_smoke_on.justFinished()) {
             ms_smoke_on.stop();
-            ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer[i_wand_power_level - 1]));
+            ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[i_wand_power_level - 1]));
             b_vent_sounds = true;
           }
 
           if(ms_smoke_timer.justFinished()) {
             if(ms_smoke_on.isRunning() != true) {
-              ms_smoke_on.start(PROGMEM_READU32(i_smoke_on_time[i_wand_power_level - 1]));
+              ms_smoke_on.start(PROGMEM_READU16(i_smoke_on_time[i_wand_power_level - 1]));
             }
           }
 
@@ -4520,7 +4520,7 @@ void wandFiring() {
 
   // Start a smoke timer to play a little bit of smoke while firing.
   if(STREAM_MODE != SLIME) {
-    ms_smoke_timer.start(PROGMEM_READU32(i_smoke_timer[i_wand_power_level - 1]));
+    ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[i_wand_power_level - 1]));
     ms_smoke_on.stop();
   }
 

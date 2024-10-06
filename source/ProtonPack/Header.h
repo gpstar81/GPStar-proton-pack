@@ -331,8 +331,8 @@ bool b_overheating = false;
 bool b_venting = false;
 millisDelay ms_smoke_timer;
 millisDelay ms_smoke_on;
-const uint32_t i_smoke_timer[5] PROGMEM = { i_smoke_timer_level_1, i_smoke_timer_level_2, i_smoke_timer_level_3, i_smoke_timer_level_4, i_smoke_timer_level_5 };
-const uint32_t i_smoke_on_time[5] PROGMEM = { i_smoke_on_time_level_1, i_smoke_on_time_level_2, i_smoke_on_time_level_3, i_smoke_on_time_level_4, i_smoke_on_time_level_5 };
+const uint16_t i_smoke_timer[5] PROGMEM = { i_smoke_timer_level_1, i_smoke_timer_level_2, i_smoke_timer_level_3, i_smoke_timer_level_4, i_smoke_timer_level_5 };
+const uint16_t i_smoke_on_time[5] PROGMEM = { i_smoke_on_time_level_1, i_smoke_on_time_level_2, i_smoke_on_time_level_3, i_smoke_on_time_level_4, i_smoke_on_time_level_5 };
 bool b_smoke_continuous_level[5] = { b_smoke_continuous_level_1, b_smoke_continuous_level_2, b_smoke_continuous_level_3, b_smoke_continuous_level_4, b_smoke_continuous_level_5 };
 const bool b_smoke_overheat_level[5] = { b_smoke_overheat_level_1, b_smoke_overheat_level_2, b_smoke_overheat_level_3, b_smoke_overheat_level_4, b_smoke_overheat_level_5 };
 millisDelay ms_overheating_length; // The total length of the when the fans turn on (or smoke if smoke synced to fan)
