@@ -12,7 +12,7 @@ For reference, if using all of the optional parts which use addressable LEDs thi
 
 `Pack Controller -> Inner LED Panel PCB -> Inner Cake Ring -> Cavity Lights`
 
-Connections should be made to the side opposite the LEDs using JST-PH connectors. Plug J1 will be connected to the pack controller's "NEO-C" (aka. "Inner Cyclotron") port. This will be a straight-through cable for Data/VCC/GND. The inner cake lights should be attached to Plug J2 also using the pattern of Data/VCC/GND. Note that the order of wiring on the connection may need to be adjusted to match the LED ring light in use.
+Connections should be made to the side opposite the LEDs using JST-XH connectors. Plug J1 will be connected to the pack controller's "NEO-C" (aka. "Inner Cyclotron") port. This will be a straight-through cable for Data/VCC/GND. The inner cake lights should be attached to Plug J2 also using the pattern of Data/VCC/GND. Note that the order of wiring on the connection may need to be adjusted to match the LED ring light in use.
 
 ![Panel with Cliplites](images/SwitchPanel.jpg)
 
@@ -29,6 +29,12 @@ Included is also a set of STL files if you wish to print a new Inner Cyclotron. 
 
 For the effect seen in the Frozen Empire movie, it is possible to extend the LEDs beyond the end of the NeoPixel ring used within the inner cyclotron and run them inside the cavity between the "cake" and the copper blocks. These [addressable "fairy lights"](https://a.co/d/eFa8CNg) have been used successfully for the effect. They use an enamel-coated copper wire which makes them unobtrusive and they don't stand out like LED strips.
 
-**Note:** This feature is currently only enabled via the web UI of the Attenuator/wireless device as part of the Pack Settings.
+**Note:** This feature is currently only enabled via the web UI of the Attenuator/wireless device as part of the Proton Pack Settings.
 
 ![](images/CyclotronSparks.gif)
+
+## Motorised Cyclotron Support (Optional)
+
+As of firmware 5.4.0, we now support connecting a motor control relay to the GPStar Proton Pack in case a user wishes to either replicate a prop-accurate Afterlife/Frozen Empire outer cyclotron effect or fit a spinning Inner Cyclotron cake. Connect a 5V tolerant relay trigger to Plug M1 (Vibration) on the Proton Pack PCB, then either use the Neutrona Wand menu or web UI Proton Pack Settings to change the Proton Pack Vibration Mode to "Motorised Cyclotron".
+
+**WARNING:** Do not attempt to connect a motor directly to Pin M1! This pin was only ever designed to run the small toy vibration motor that came stock in the HasLab Proton Pack. Make sure that you only connect a motor control relay's trigger to Pin M1, and we highly recommend powering the motor with a power source independent of the GPStar kit itself so as not to steal current needed by the Pack and Wand.
