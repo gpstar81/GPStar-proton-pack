@@ -263,14 +263,14 @@ void checkRotaryPress() {
           // A short, single press should start or stop the music.
           attenuatorSerialSend(A_MUSIC_START_STOP);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
-          debug("Music Start/Stop");
+          debug("Rotary: Music Start/Stop");
         break;
 
         case MENU_2:
           // A short, single press should advance to the next track.
           attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
-          debug("Next Track");
+          debug("Rotary: Next Track");
         break;
       }
     break;
@@ -282,14 +282,14 @@ void checkRotaryPress() {
           // A double press should mute the pack and wand.
           attenuatorSerialSend(A_TOGGLE_MUTE);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
-          debug("Toggle Mute");
+          debug("Rotary: Toggle Mute");
         break;
 
         case MENU_2:
           // A double press should move back to the previous track.
           attenuatorSerialSend(A_MUSIC_PREV_TRACK);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
-          debug("Previous Track");
+          debug("Rotary: Previous Track");
         break;
       }
     break;
@@ -300,13 +300,13 @@ void checkRotaryPress() {
       switch(MENU_LEVEL) {
         case MENU_1:
           MENU_LEVEL = MENU_2; // Change menu level.
-          debug("Menu 2");
+          debug("Rotary: Menu 2");
           useVibration(i_vibrate_min_time); // Give a quick nudge.
           buzzOn(784); // Tone as note G4
         break;
         case MENU_2:
           MENU_LEVEL = MENU_1; // Change menu level.
-          debug("Menu 1");
+          debug("Rotary: Menu 1");
           useVibration(i_vibrate_min_time); // Give a quick nudge.
           buzzOn(440); // Tone as note A4
         break;
@@ -348,6 +348,7 @@ void checkRotaryEncoder() {
         i_rotary_count++;
         if(i_rotary_count % 5 == 0) {
           attenuatorSerialSend(A_WARNING_CANCELLED);
+          debug("Rotary: Overheat Cancelled");
           i_rotary_count = 0;
         }
       }
@@ -357,13 +358,13 @@ void checkRotaryEncoder() {
           case MENU_1:
             // Tell pack to increase overall volume.
             attenuatorSerialSend(A_VOLUME_INCREASE);
-            debug("Master Volume+");
+            debug("Rotary: Master Volume+");
           break;
 
           case MENU_2:
             // Tell pack to increase effects volume.
             attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_INCREASE);
-            debug("Effects Volume+");
+            debug("Rotary: Effects Volume+");
           break;
         }
       }
@@ -381,7 +382,7 @@ void checkRotaryEncoder() {
         i_rotary_count++;
         if(i_rotary_count % 5 == 0) {
           attenuatorSerialSend(A_WARNING_CANCELLED);
-          debug("Overheat Cancelled");
+          debug("Rotary: Overheat Cancelled");
           i_rotary_count = 0;
         }
       }
@@ -391,13 +392,13 @@ void checkRotaryEncoder() {
           case MENU_1:
             // Tell pack to decrease overall volume.
             attenuatorSerialSend(A_VOLUME_DECREASE);
-            debug("Master Volume-");
+            debug("Rotary: Master Volume-");
           break;
 
           case MENU_2:
             // Tell pack to decrease effects volume.
             attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_DECREASE);
-            debug("Effects Volume-");
+            debug("Rotary: Effects Volume-");
           break;
         }
       }
@@ -591,7 +592,7 @@ void mainLoop() {
   }
 
   /**
-   * ESP - Alert any WebSocket clients after an API call was received.
+   * Alert any WebSocket clients after an API call was received.
    *
    * Note: We only perform this action if we have data from the pack
    * which resulted in a significant state change--this prevents the
