@@ -214,6 +214,8 @@ The following URI's will serve the informational/maintenance pages as shown prev
 	GET /settings/wand - Wand Settings Page
 	GET /settings/smoke - Smoke Settings Page
 	GET /style.css - Common Stylesheet
+	GET /common.js - Common JavaScript
+	GET /index.js - Index Page JavaScript
 
 For real-time updates, the built-in web server offers a special URI `/ws` to support [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API). When connected to that endpoint, the ESP32 device will "push" any relevant information direct to clients in real-time. Note that this data may be in the form of a JSON object or just a plain string, so check the contents of the text data carefully before usage.
 

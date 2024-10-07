@@ -21,6 +21,7 @@
 #pragma once
 
 // Web page files (defines all text as char[] variable)
+#include "CommonJS.h" // COMMONJS_page
 #include "Index.h" // INDEX_page
 #include "IndexJS.h" // INDEXJS_page
 #include "Device.h" // DEVICE_page
@@ -195,14 +196,14 @@ void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *clien
   switch(type) {
     case WS_EVT_CONNECT:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][%u] Connect\n", server->url(), client->id());
+        Serial.printf("WebSocket[%s][%lu] Connect\n", server->url(), client->id());
       #endif
       i_ws_client_count++;
     break;
 
     case WS_EVT_DISCONNECT:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][%u] Disconnect\n", server->url(), client->id());
+        Serial.printf("WebSocket[%s][%lu] Disconnect\n", server->url(), client->id());
       #endif
       if(i_ws_client_count > 0) {
         i_ws_client_count--;
@@ -211,21 +212,20 @@ void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *clien
 
     case WS_EVT_ERROR:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][%u] error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
+        Serial.printf("WebSocket[%s][%lu] error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
       #endif
     break;
 
     case WS_EVT_PONG:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][%u] Pong[%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
+        Serial.printf("WebSocket[%s][%lu] Pong[%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
       #endif
     break;
 
     case WS_EVT_DATA:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][%u] Data[%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
+        Serial.printf("WebSocket[%s][%lu] Data[%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
       #endif
-      // Do something when data is received via WebSocket.
     break;
   }
 }
@@ -260,6 +260,12 @@ void startWebServer() {
   #if defined(DEBUG_SEND_TO_CONSOLE)
     Serial.println(F("Async HTTP Server Started"));
   #endif
+}
+
+void handleCommonJS(AsyncWebServerRequest *request) {
+  // Used for the root page (/) from the web server.
+  debug("Sending -> Index JavaScript");
+  request->send(200, "application/javascript", String(COMMONJS_page)); // Serve page content.
 }
 
 void handleRoot(AsyncWebServerRequest *request) {
@@ -1303,6 +1309,7 @@ void setupRouting() {
 
   // Static Pages
   httpServer.on("/", HTTP_GET, handleRoot);
+  httpServer.on("/common.js", HTTP_GET, handleCommonJS);
   httpServer.on("/index.js", HTTP_GET, handleRootJS);
   httpServer.on("/network", HTTP_GET, handleNetwork);
   httpServer.on("/password", HTTP_GET, handlePassword);
