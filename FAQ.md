@@ -16,7 +16,7 @@
 
 **Q: What are the power requirements?**
 
-**A:** For most every component 5V is required. We do not recommend running higher voltage into the VIN or barrel connector jacks on the Arduino Mega or WAV Trigger devices as they can generate quite some heat with their onboard regulators for prolonged use. A pre-regulated 5V is recommended. Total draw (amperage) depends on how many optional devices you add, but 5V at 2amps is more than enough to run various pumps, lights, etc. Please view the [POWER.md](POWER.md) guide for additional info and recommendations.
+**A:** For most every component 5V is required. We DO NOT recommend voltage higher than 5V into the VIN or barrel connector jacks on the Arduino Mega or WAV Trigger devices as they can generate quite some heat with their onboard regulators for prolonged use. A pre-regulated 5V is recommended. Total draw (amperage) depends on how many optional devices you add, but 5V at 2amps is more than enough to run various pumps, lights, etc. Please view the [POWER.md](POWER.md) guide for additional info and recommendations.
 
 **Q: Is a Proton Pack required?**
 
@@ -24,7 +24,7 @@
 
 **Q: Is a GPStar Neutrona Wand required?**
 
-**A:** No, a wand with a GPStar Neutrona Wand board is not required for a pack-only conversion. However, a modified wand is required if you want full control of the pack from the wand. We now offer a "Lite" kit through Frutto Technologies which will allow an unmodified Hasbro wand to turn the Pack on and off and have the Pack respond to firing.
+**A:** For a pack-only conversion a wand with a GPStar Neutrona Wand board is not required. However, a modified wand is required if you want full control of the pack from the wand. We now offer a "Lite" kit through Frutto Technologies which will allow an unmodified Hasbro wand to turn the Pack on and off and have the Pack respond to firing, similar to the original behavior of the stock Haslab equipment.
 
 **Q: How many wires / pins are required for the connection between the Proton Pack and Neutrona Wand?**
 

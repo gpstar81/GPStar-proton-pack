@@ -49,11 +49,20 @@
 #include "System.h"
 
 void setup() {
-  // Enable Serial connection(s) and communication with GPStar Proton Pack PCB.
-  Serial.begin(115200);
+  Serial.begin(115200); // Serial monitor via USB connection.
+
+  // Expect a Serial2 connection with communication to a GPStar Proton Pack PCB.
   Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
   packComs.begin(Serial2, false);
+
+  // Prepare the on-board (non-power) LED to be used as an output pin for indication.
   pinMode(BUILT_IN_LED, OUTPUT);
+
+  // Provide an opportunity to set the CPU Frequency MHz: 80, 160, 240 [Default = 240]
+  // Lower frequency means less power consumption, but slower performance (obviously).
+  setCpuFrequencyMhz(240);
+  Serial.print(F("CPU Freq (MHz): "));
+  Serial.println(getCpuFrequencyMhz());
 
   // Assume the Super Hero arming mode with Afterlife (default for Haslab).
   SYSTEM_MODE = MODE_SUPER_HERO;
@@ -66,49 +75,47 @@ void setup() {
   // Set a default animation for the radiation indicator.
   RAD_LENS_IDLE = AMBER_PULSE;
 
-  // Get Special Device Preferences
-  preferences.begin("device", true, "nvs"); // Access namespace in read-only mode.
+  /*
+   * Get Local Device Preferences
+   * Accesses the "device" namespace in read-only mode under the "nvs" partition.
+   */
+  bool b_namespace_opened = preferences.begin("device", true, "nvs");
+  if(b_namespace_opened) {
+    // Return stored values if available, otherwise use a default value.
+    b_invert_leds = preferences.getBool("invert_led", false);
+    b_enable_buzzer = preferences.getBool("use_buzzer", true);
+    b_enable_vibration = preferences.getBool("use_vibration", true);
+    b_overheat_feedback = preferences.getBool("use_overheat", true);
+    b_firing_feedback = preferences.getBool("fire_feedback", false);
 
-  // Return stored values if available, otherwise use a default value.
-  b_invert_leds = preferences.getBool("invert_led", false);
-  b_enable_buzzer = preferences.getBool("use_buzzer", true);
-  b_enable_vibration = preferences.getBool("use_vibration", true);
-  b_overheat_feedback = preferences.getBool("use_overheat", true);
-  b_firing_feedback = preferences.getBool("fire_feedback", false);
+    switch(preferences.getShort("radiation_idle", 0)) {
+      case 0:
+        RAD_LENS_IDLE = AMBER_PULSE;
+      break;
+      case 1:
+        RAD_LENS_IDLE = ORANGE_FADE;
+      break;
+      case 2:
+        RAD_LENS_IDLE = RED_FADE;
+      break;
+    }
 
-  switch(preferences.getShort("radiation_idle", 0)) {
-    case 0:
-      RAD_LENS_IDLE = AMBER_PULSE;
-    break;
-    case 1:
-      RAD_LENS_IDLE = ORANGE_FADE;
-    break;
-    case 2:
-      RAD_LENS_IDLE = RED_FADE;
-    break;
+    switch(preferences.getShort("display_type", 0)) {
+      case 0:
+        DISPLAY_TYPE = STATUS_TEXT;
+      break;
+      case 1:
+        DISPLAY_TYPE = STATUS_GRAPHIC;
+      break;
+      case 2:
+      default:
+        DISPLAY_TYPE = STATUS_BOTH;
+      break;
+    }
+
+    s_track_listing = preferences.getString("track_list", "");
+    preferences.end();
   }
-
-  switch(preferences.getShort("display_type", 0)) {
-    case 0:
-      DISPLAY_TYPE = STATUS_TEXT;
-    break;
-    case 1:
-      DISPLAY_TYPE = STATUS_GRAPHIC;
-    break;
-    case 2:
-    default:
-      DISPLAY_TYPE = STATUS_BOTH;
-    break;
-  }
-
-  s_track_listing = preferences.getString("track_list", "");
-  preferences.end();
-
-  // CPU Frequency MHz: 80, 160, 240 [Default]
-  // Lower frequency means less power consumption.
-  setCpuFrequencyMhz(240);
-  Serial.print(F("CPU Freq (MHz): "));
-  Serial.println(getCpuFrequencyMhz());
 
   if(!b_wait_for_pack) {
     // If not waiting for the pack set power level to 5.

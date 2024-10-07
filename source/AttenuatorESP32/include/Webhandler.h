@@ -562,28 +562,29 @@ String getWifiSettings() {
   String wifiNetwork;
   jsonBody.clear();
 
-  preferences.begin("network", true, "nvs"); // Access namespace in read-only mode.
+  // Accesses namespace in read-only mode.
+  if(preferences.begin("network", true, "nvs")) {
+    jsonBody["enabled"] = preferences.getBool("enabled", false);
+    jsonBody["network"] = preferences.getString("ssid");
+    jsonBody["password"] = preferences.getString("password");
 
-  jsonBody["enabled"] = preferences.getBool("enabled", false);
-  jsonBody["network"] = preferences.getString("ssid");
-  jsonBody["password"] = preferences.getString("password");
+    jsonBody["address"] = preferences.getString("address");
+    if(jsonBody["address"].as<String>() == "") {
+      jsonBody["address"] = wifi_address;
+    }
 
-  jsonBody["address"] = preferences.getString("address");
-  if(jsonBody["address"].as<String>() == "") {
-    jsonBody["address"] = wifi_address;
+    jsonBody["subnet"] = preferences.getString("subnet");
+    if(jsonBody["subnet"].as<String>() == "") {
+      jsonBody["subnet"] = wifi_subnet;
+    }
+
+    jsonBody["gateway"] = preferences.getString("gateway");
+    if(jsonBody["gateway"].as<String>() == "") {
+      jsonBody["gateway"] = wifi_gateway;
+    }
+
+    preferences.end();
   }
-
-  jsonBody["subnet"] = preferences.getString("subnet");
-  if(jsonBody["subnet"].as<String>() == "") {
-    jsonBody["subnet"] = wifi_subnet;
-  }
-
-  jsonBody["gateway"] = preferences.getString("gateway");
-  if(jsonBody["gateway"].as<String>() == "") {
-    jsonBody["gateway"] = wifi_gateway;
-  }
-
-  preferences.end();
 
   // Serialize JSON object to string.
   serializeJson(jsonBody, wifiNetwork);
@@ -807,13 +808,15 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
     // Update the private network name ONLY if the new value differs from the current SSID.
     if(newSSID != ap_ssid){
       if(newSSID.length() >= 8 && newSSID.length() <= 32) {
-        preferences.begin("credentials", false, "nvs"); // Access namespace in read/write mode.
-        #if defined(DEBUG_SEND_TO_CONSOLE)
-          Serial.print(F("New Private SSID: "));
-          Serial.println(newSSID);
-        #endif
-        preferences.putString("ssid", newSSID); // Store SSID in case this was altered.
-        preferences.end();
+        // Accesses namespace in read/write mode.
+        if(preferences.begin("credentials", false, "nvs")) {
+          #if defined(DEBUG_SEND_TO_CONSOLE)
+            Serial.print(F("New Private SSID: "));
+            Serial.println(newSSID);
+          #endif
+          preferences.putString("ssid", newSSID); // Store SSID in case this was altered.
+          preferences.end();
+        }
 
         b_ssid_changed = true; // This will cause a reboot of the device after saving.
       }
@@ -883,33 +886,37 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
     String songList = jsonBody["songList"].as<String>();
     bool b_list_err = false;
 
-    preferences.begin("device", false, "nvs"); // Access namespace in read/write mode.
-    preferences.putBool("invert_led", b_invert_leds);
-    preferences.putBool("use_buzzer", b_enable_buzzer);
-    preferences.putBool("use_vibration", b_enable_vibration);
-    preferences.putBool("use_overheat", b_overheat_feedback);
-    preferences.putBool("fire_feedback", b_firing_feedback);
-    preferences.putShort("radiation_idle", RAD_LENS_IDLE);
-    preferences.putShort("display_type", DISPLAY_TYPE);
-    if(songList.length() <= 2000) {
-      if(songList == "null") {
-        songList = "";
+    // Accesses namespace in read/write mode.
+    if(preferences.begin("device", false, "nvs")) {
+      preferences.putBool("invert_led", b_invert_leds);
+      preferences.putBool("use_buzzer", b_enable_buzzer);
+      preferences.putBool("use_vibration", b_enable_vibration);
+      preferences.putBool("use_overheat", b_overheat_feedback);
+      preferences.putBool("fire_feedback", b_firing_feedback);
+      preferences.putShort("radiation_idle", RAD_LENS_IDLE);
+      preferences.putShort("display_type", DISPLAY_TYPE);
+
+      if(songList.length() <= 2000) {
+        if(songList == "null") {
+          songList = "";
+        }
+
+        // Update song lists if contents are under 2000 bytes.
+        #if defined(DEBUG_SEND_TO_CONSOLE)
+          Serial.print(F("Song List Bytes: "));
+          Serial.println(songList.length());
+        #endif
+        preferences.putString("track_list", songList);
+        s_track_listing = songList;
+      }
+      else {
+        // Max size for preferences is 4KB so we need to make reserve space for other items.
+        // Also, there is a 2KB limit for a single item which is what we're storing here.
+        b_list_err = true;
       }
 
-      // Update song lists if contents are under 2000 bytes.
-      #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.print(F("Song List Bytes: "));
-        Serial.println(songList.length());
-      #endif
-      preferences.putString("track_list", songList);
-      s_track_listing = songList;
+      preferences.end();
     }
-    else {
-      // Max size for preferences is 4KB so we need to make reserve space for other items.
-      // Also, there is a 2KB limit for a single item which is what we're storing here.
-      b_list_err = true;
-    }
-    preferences.end();
 
     if(b_list_err){
       jsonBody.clear();
@@ -1163,13 +1170,15 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
 
     // Password is used for the built-in Access Point ability, which will be used when a preferred network is not available.
     if(newPasswd.length() >= 8) {
-      preferences.begin("credentials", false, "nvs"); // Access namespace in read/write mode.
-      #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.print(F("New Private WiFi Password: "));
-        Serial.println(newPasswd);
-      #endif
-      preferences.putString("password", newPasswd); // Store user-provided password.
-      preferences.end();
+      // Accesses namespace in read/write mode.
+      if(preferences.begin("credentials", false, "nvs")) {
+        #if defined(DEBUG_SEND_TO_CONSOLE)
+          Serial.print(F("New Private WiFi Password: "));
+          Serial.println(newPasswd);
+        #endif
+        preferences.putString("password", newPasswd); // Store user-provided password.
+        preferences.end();
+      }
 
       jsonBody.clear();
       jsonBody["status"] = "Password updated, restart required. Please enter your new WiFi password when prompted by your device.";
@@ -1215,32 +1224,33 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
 
     // If no errors encountered, continue with storing a preferred network (with credentials and IP information).
     if(wifiNetwork.length() >= 2 && wifiPasswd.length() >= 8) {
-      preferences.begin("network", false, "nvs"); // Access namespace in read/write mode.
+      // Accesses namespace in read/write mode.
+      if(preferences.begin("network", false, "nvs")) {
+        // Clear old network IP info if SSID or password have been changed.
+        if(preferences.getString("ssid") != wifiNetwork || preferences.getString("password") != wifiPasswd) {
+          preferences.putString("address", "");
+          preferences.putString("subnet", "");
+          preferences.putString("gateway", "");
+        }
 
-      // Clear old network IP info if SSID or password have been changed.
-      if(preferences.getString("ssid") != wifiNetwork || preferences.getString("password") != wifiPasswd) {
-        preferences.putString("address", "");
-        preferences.putString("subnet", "");
-        preferences.putString("gateway", "");
-      }
+        // Store the critical values to enable/disable the external WiFi.
+        preferences.putBool("enabled", b_enabled);
+        preferences.putString("ssid", wifiNetwork);
+        preferences.putString("password", wifiPasswd);
 
-      // Store the critical values to enable/disable the external WiFi.
-      preferences.putBool("enabled", b_enabled);
-      preferences.putString("ssid", wifiNetwork);
-      preferences.putString("password", wifiPasswd);
+        // Continue saving only if network values are 7 characters or more (eg. N.N.N.N)
+        if(localAddr.length() >= 7 && localAddr != wifi_address) {
+          preferences.putString("address", localAddr);
+        }
+        if(subnetMask.length() >= 7 && subnetMask != wifi_subnet) {
+          preferences.putString("subnet", subnetMask);
+        }
+        if(gatewayIP.length() >= 7 && gatewayIP != wifi_gateway) {
+          preferences.putString("gateway", gatewayIP);
+        }
 
-      // Continue saving only if network values are 7 characters or more (eg. N.N.N.N)
-      if(localAddr.length() >= 7 && localAddr != wifi_address) {
-        preferences.putString("address", localAddr);
+        preferences.end();
       }
-      if(subnetMask.length() >= 7 && subnetMask != wifi_subnet) {
-        preferences.putString("subnet", subnetMask);
-      }
-      if(gatewayIP.length() >= 7 && gatewayIP != wifi_gateway) {
-        preferences.putString("gateway", gatewayIP);
-      }
-
-      preferences.end();
     }
 
     if(!b_errors) {

@@ -138,19 +138,21 @@ bool startAccesPoint() {
   String ap_pass; // Local variable for stored AP password.
 
   // Prepare to return either stored preferences or a default value for SSID/password.
-  preferences.begin("credentials", true); // Access namespace in read-only mode.
-  #if defined(RESET_AP_SETTINGS)
-    // Doesn't actually "reset" but forces default values for SSID and password.
-    // Meant to allow the user to reset their credentials then re-flash after
-    // commenting out the RESET_AP_SETTINGS definition in Configuration.h
-    ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix; // Update global variable.
-    ap_pass = ap_default_passwd; // Force use of the default WiFi password.
-  #else
-    // Use either the stored preferences or an expected default value.
-    ap_ssid = preferences.getString("ssid", ap_ssid_prefix + "_" + ap_ssid_suffix);
-    ap_pass = preferences.getString("password", ap_default_passwd);
-  #endif
-  preferences.end();
+  // Accesses namespace in read-only mode.
+  if(preferences.begin("credentials", true, "nvs")) {
+    #if defined(RESET_AP_SETTINGS)
+      // Doesn't actually "reset" but forces default values for SSID and password.
+      // Meant to allow the user to reset their credentials then re-flash after
+      // commenting out the RESET_AP_SETTINGS definition in Configuration.h
+      ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix; // Update global variable.
+      ap_pass = ap_default_passwd; // Force use of the default WiFi password.
+    #else
+      // Use either the stored preferences or an expected default value.
+      ap_ssid = preferences.getString("ssid", ap_ssid_prefix + "_" + ap_ssid_suffix);
+      ap_pass = preferences.getString("password", ap_default_passwd);
+    #endif
+    preferences.end();
+  }
 
   #if defined(DEBUG_WIRELESS_SETUP)
     Serial.println();
@@ -219,14 +221,16 @@ bool startExternalWifi() {
     // commenting out the RESET_AP_SETTINGS definition in Configuration.h
   #else
     // Use either the stored preferences or an expected default value.
-    preferences.begin("network", true); // Access namespace in read-only mode.
-    b_wifi_enabled = preferences.getBool("enabled", false);
-    wifi_ssid = preferences.getString("ssid", user_wifi_ssid);
-    wifi_pass = preferences.getString("password", user_wifi_pass);
-    wifi_address = preferences.getString("address", "");
-    wifi_subnet = preferences.getString("subnet", "");
-    wifi_gateway = preferences.getString("gateway", "");
-    preferences.end();
+    // Accesses namespace in read-only mode.
+    if(preferences.begin("network", true, "nvs")) {
+      b_wifi_enabled = preferences.getBool("enabled", false);
+      wifi_ssid = preferences.getString("ssid", user_wifi_ssid);
+      wifi_pass = preferences.getString("password", user_wifi_pass);
+      wifi_address = preferences.getString("address", "");
+      wifi_subnet = preferences.getString("subnet", "");
+      wifi_gateway = preferences.getString("gateway", "");
+      preferences.end();
+    }
   #endif
 
   // User wants to utilize the external WiFi network and has valid SSID and password.
