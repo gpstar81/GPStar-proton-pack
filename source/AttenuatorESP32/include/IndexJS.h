@@ -52,24 +52,8 @@ function openTab(evt, tabName) {
   evt.currentTarget.className += " active";
 }
 
-function getEl(id){
-  return document.getElementById(id);
-}
-
-function setEl(id, value){
-  getEl(id).innerHTML = value || "";
-}
-
 function colorEl(id, red, green, blue, alpha = 0.5){
   getEl(id).style.backgroundColor = "rgba(" + red + ", " + green + ", " + blue + ", " + alpha + ")";
-}
-
-function hideEl(id){
-  getEl(id).style.display = "none";
-}
-
-function showEl(id){
-  getEl(id).style.display = "block";
 }
 
 function blinkEl(id, state) {
@@ -114,15 +98,6 @@ function onClose(event) {
       getStatus(); // Check for status every X seconds
     }, 1000);
   }
-}
-
-function isJsonString(str) {
-  try {
-    JSON.parse(str);
-  } catch (e) {
-    return false;
-  }
-  return true;
 }
 
 function onMessage(event) {
@@ -294,7 +269,7 @@ function updateGraphics(jObj){
       default:
         header += " / V0.0.00";
     }
-    setEl("equipTitle", header);
+    setHtml("equipTitle", header);
 
     if (jObj.switch == "Ready") {
       colorEl("ionOverlay", 0, 150, 0);
@@ -359,8 +334,8 @@ function updateGraphics(jObj){
     // Current Wand Status
     if (jObj.wand == "Connected") {
       // Only update if the wand is physically connected to the pack.
-      setEl("streamMode", jObj.wandMode || "");
-      setEl("powerLevel", "L-" + (jObj.power || "0"));
+      setHtml("streamMode", jObj.wandMode || "");
+      setHtml("powerLevel", "L-" + (jObj.power || "0"));
       showEl("barrelOverlay");
       colorEl("barrelOverlay", color[0], color[1], color[2], "0." + Math.round(jObj.power * 1.2, 10));
       if (jObj.firing == "Firing") {
@@ -380,13 +355,13 @@ function updateGraphics(jObj){
       }
     } else {
       // Wand is considered "disconnected" as no serial communication exists.
-      setEl("powerLevel", "");
+      setHtml("powerLevel", "");
       if (parseFloat(jObj.wandAmps || 0) > 0.01) {
         // If we have a non-zero amperage reading, display that as it means a stock wand is attached.
-        setEl("streamMode", "Stream: " + parseFloat((jObj.wandAmps || 0)).toFixed(2) + " GW");
+        setHtml("streamMode", "Stream: " + parseFloat((jObj.wandAmps || 0)).toFixed(2) + " GW");
       } else {
         // Otherwise we consider a wand to be "disengaged" as it could be inactive or detached.
-        setEl("streamMode", "- Disengaged -");
+        setHtml("streamMode", "- Disengaged -");
       }
       hideEl("barrelOverlay");
       colorEl("safetyOverlay", 100, 100, 100);
@@ -394,14 +369,14 @@ function updateGraphics(jObj){
 
     if (parseFloat(jObj.battVoltage || 0) > 1) {
       // Voltage should typically be ~5.0 at idle and >=4.2 under normal use; anything below that indicates a possible problem.
-      setEl("battVoltage", "Output:<br/>" + parseFloat((jObj.battVoltage || 0)).toFixed(2) + " GeV");
+      setHtml("battVoltage", "Output:<br/>" + parseFloat((jObj.battVoltage || 0)).toFixed(2) + " GeV");
       if (jObj.battVoltage < 4.2) {
         colorEl("boostOverlay", 255, 0, 0);
       } else {
         colorEl("boostOverlay", 0, 150, 0);
       }
     } else {
-      setEl("battVoltage", "0.00 GeV");
+      setHtml("battVoltage", "0.00 GeV");
     }
 
     if(jObj.cyclotron && !jObj.cyclotronLid) {
@@ -411,7 +386,7 @@ function updateGraphics(jObj){
     }
   } else {
     // Reset all screen elements to their defaults to indicate no data available.
-    setEl("equipTitle", "- Desynchronized -");
+    setHtml("equipTitle", "- Desynchronized -");
     colorEl("ionOverlay", 255, 0, 0);
     colorEl("boostOverlay", 100, 100, 100);
     colorEl("pcellOverlay", 100, 100, 100);
@@ -424,10 +399,10 @@ function updateGraphics(jObj){
     blinkEl("filterOverlay", false);
     hideEl("barrelOverlay");
     blinkEl("barrelOverlay", false);
-    setEl("powerLevel", "");
-    setEl("streamMode", "- Disengaged -");
+    setHtml("powerLevel", "");
+    setHtml("streamMode", "- Disengaged -");
     colorEl("safetyOverlay", 100, 100, 100);
-    setEl("battVoltage", "");
+    setHtml("battVoltage", "");
     hideEl("cyclotronLid");
   }
 }
@@ -436,62 +411,62 @@ function updateEquipment(jObj) {
   // Update display if we have the expected data (containing mode and theme at a minimum).
   if (jObj && jObj.mode && jObj.theme) {
     // Current Pack Status
-    setEl("mode", jObj.mode || "...");
-    setEl("theme", jObj.theme || "...");
-    setEl("pack", jObj.pack || "...");
-    setEl("switch", jObj.switch || "...");
-    setEl("cable", jObj.cable || "...");
+    setHtml("mode", jObj.mode || "...");
+    setHtml("theme", jObj.theme || "...");
+    setHtml("pack", jObj.pack || "...");
+    setHtml("switch", jObj.switch || "...");
+    setHtml("cable", jObj.cable || "...");
     if(jObj.cyclotron && !jObj.cyclotronLid) {
-      setEl("cyclotron", (jObj.cyclotron || "") + " &#9762;");
+      setHtml("cyclotron", (jObj.cyclotron || "") + " &#9762;");
     } else {
-      setEl("cyclotron", jObj.cyclotron || "...");
+      setHtml("cyclotron", jObj.cyclotron || "...");
     }
-    setEl("temperature", jObj.temperature || "...");
-    setEl("wand", jObj.wand || "...");
+    setHtml("temperature", jObj.temperature || "...");
+    setHtml("wand", jObj.wand || "...");
 
     // Current Wand Status
     if (jObj.wand == "Connected") {
       // Only update if the wand is physically connected to the pack.
-      setEl("wandPower", jObj.wandPower || "...");
-      setEl("wandMode", jObj.wandMode || "...");
-      setEl("safety", jObj.safety || "...");
-      setEl("power", jObj.power || "...");
-      setEl("firing", jObj.firing || "...");
+      setHtml("wandPower", jObj.wandPower || "...");
+      setHtml("wandMode", jObj.wandMode || "...");
+      setHtml("safety", jObj.safety || "...");
+      setHtml("power", jObj.power || "...");
+      setHtml("firing", jObj.firing || "...");
       updateBars(jObj.power || 0, jObj.wandMode || "");
     } else {
       // Default to empty values when wand is not present.
-      setEl("wandPower", "...");
-      setEl("wandMode", "...");
-      setEl("safety", "...");
-      setEl("power", "...");
-      setEl("firing", "...");
+      setHtml("wandPower", "...");
+      setHtml("wandMode", "...");
+      setHtml("safety", "...");
+      setHtml("power", "...");
+      setHtml("firing", "...");
       updateBars(0, "");
     }
 
     if (jObj.battVoltage) {
       // Voltage should typically be <5.0 but >4.2 under normal use; anything below that indicates high drain.
-      setEl("battVoltageTXT", parseFloat((jObj.battVoltage || 0)).toFixed(2));
+      setHtml("battVoltageTXT", parseFloat((jObj.battVoltage || 0)).toFixed(2));
       if (jObj.battVoltage < 4.2) {
-        setEl("battHealth", "&#129707;"); // Draining Battery
+        setHtml("battHealth", "&#129707;"); // Draining Battery
       } else {
-        setEl("battHealth", "&#128267;"); // Healthy Battery
+        setHtml("battHealth", "&#128267;"); // Healthy Battery
       }
     } else {
-      setEl("battHealth", "");
+      setHtml("battHealth", "");
     }
 
     // Volume Information
-    setEl("masterVolume", (jObj.volMaster || 0) + "%");
+    setHtml("masterVolume", (jObj.volMaster || 0) + "%");
     if ((jObj.volMaster || 0) == 0) {
-      setEl("masterVolume", "Min");
+      setHtml("masterVolume", "Min");
     }
-    setEl("effectsVolume", (jObj.volEffects || 0) + "%");
+    setHtml("effectsVolume", (jObj.volEffects || 0) + "%");
     if ((jObj.volEffects || 0) == 0) {
-      setEl("effectsVolume", "Min");
+      setHtml("effectsVolume", "Min");
     }
-    setEl("musicVolume", (jObj.volMusic || 0) + "%");
+    setHtml("musicVolume", (jObj.volMusic || 0) + "%");
     if ((jObj.volMusic || 0) == 0) {
-      setEl("musicVolume", "Min");
+      setHtml("musicVolume", "Min");
     }
 
     // Update special UI elements based on the latest data values.
@@ -506,20 +481,9 @@ function updateEquipment(jObj) {
     }
 
     // Connected Wifi Clients - Private AP vs. WebSocket
-    setEl("clientInfo", "AP Clients: " + (jObj.apClients || 0) + " / WebSocket Clients: " + (jObj.wsClients || 0));
+    setHtml("clientInfo", "AP Clients: " + (jObj.apClients || 0) + " / WebSocket Clients: " + (jObj.wsClients || 0));
 
     updateGraphics(jObj);
-  }
-}
-
-function handleStatus(response) {
-  if (isJsonString(response || "")) {
-    var jObj = JSON.parse(response || "");
-    if (jObj.status && jObj.status != "success") {
-      alert(jObj.status); // Report non-success status.
-    }
-  } else {
-    alert(response); // Display plain text message.
   }
 }
 
@@ -548,10 +512,10 @@ function getDevicePrefs() {
         }
 
         // Device Info
-        setEl("buildDate", "Build: " + (jObj.buildDate || ""));
-        setEl("wifiName", jObj.wifiName || "");
+        setHtml("buildDate", "Build: " + (jObj.buildDate || ""));
+        setHtml("wifiName", jObj.wifiName || "");
         if ((jObj.wifiNameExt || "") != "" && (jObj.extAddr || "") != "" || (jObj.extMask || "") != "") {
-          setEl("extWifi", (jObj.wifiNameExt || "") + ": " + jObj.extAddr + " / " + jObj.extMask);
+          setHtml("extWifi", (jObj.wifiNameExt || "") + ": " + jObj.extAddr + " / " + jObj.extMask);
         }
 
         // Display Preference

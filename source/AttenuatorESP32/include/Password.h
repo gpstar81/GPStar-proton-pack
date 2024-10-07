@@ -57,30 +57,11 @@ const char PASSWORD_page[] PROGMEM = R"=====(
     <br/>
   </div>
 
+  <script type="application/javascript" src="/common.js"></script>
   <script type="application/javascript">
-    function isJsonString(str) {
-      try {
-        JSON.parse(str);
-      } catch (e) {
-        return false;
-      }
-      return true;
-    }
-
-    function handleStatus(response) {
-      if (isJsonString(response || "")) {
-        var jObj = JSON.parse(response || "");
-        if (jObj.status && jObj.status != "success") {
-          alert(jObj.status); // Report non-success status.
-        }
-      } else {
-        alert(response); // Display plain text message.
-      }
-    }
-
     function updatePassword() {
-      var newPass = (document.getElementById("password").value || "").trim();
-      var confPW = (document.getElementById("password2").value || "").trim();
+      var newPass = getText("password");
+      var confPW = getText("password2");
       if (newPass.length < 8) {
         alert("Your new password must be a minimum of 8 characters to meet WPA2 requirements.");
         return;

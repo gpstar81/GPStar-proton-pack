@@ -291,6 +291,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     <br/>
   </div>
 
+  <script type="application/javascript" src="/common.js"></script>
   <script type="application/javascript">
     window.addEventListener("load", onLoad);
 
@@ -302,10 +303,6 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       getEl("btnSave").disabled = true;
     }
 
-    function getEl(id){
-      return document.getElementById(id);
-    }
-
     // Converts a value from one range to another: eg. convertRange(160, [2,254], [0,360])
     function convertRange(value, r1, r2) {
       return Math.round((value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0]);
@@ -313,30 +310,10 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
 
     function updateColour(colourPreviewID, hueLabelID, satLabelID, hueValue, satValue) {
       // Updates the slider values and preview the selected colour using HSL.
-      getEl(hueLabelID).innerHTML = hueValue;
-      getEl(satLabelID).innerHTML = satValue;
+      setHtml(hueLabelID, hueValue);
+      setHtml(satLabelID, satValue);
       var lightness = convertRange(100 - parseInt(satValue, 10), [0,100], [50,100]);
       getEl(colourPreviewID).style.backgroundColor = "hsl(" + parseInt(hueValue, 10) + ", " + parseInt(satValue, 10) + "%, " + lightness + "%)";
-    }
-
-    function isJsonString(str) {
-      try {
-        JSON.parse(str);
-      } catch (e) {
-        return false;
-      }
-      return true;
-    }
-
-    function handleStatus(response) {
-      if (isJsonString(response || "")) {
-        var jObj = JSON.parse(response || "");
-        if (jObj.status && jObj.status != "success") {
-          alert(jObj.status); // Report non-success status.
-        }
-      } else {
-        alert(response); // Display plain text message.
-      }
     }
 
     function getSettings() {
@@ -372,46 +349,46 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
              */
 
             // Update fields with the current values, or supply an expected default as necessary.
-            getEl("defaultSystemModePack").value = settings.defaultSystemModePack || 0;
-            getEl("defaultYearThemePack").value = settings.defaultYearThemePack || 1; // Value cannot be 0.
-            getEl("currentYearThemePack").value = settings.currentYearThemePack || 4; // Value cannot be 0.
-            getEl("defaultSystemVolume").value = settings.defaultSystemVolume || 100; // Default to full volume.
-            getEl("packVibration").value = settings.packVibration || 4;
-            getEl("masterVolOut").innerHTML = getEl("defaultSystemVolume").value;
-            getEl("protonStreamEffects").checked = settings.protonStreamEffects ? true : false;
-            getEl("ribbonCableAlarm").checked = settings.ribbonCableAlarm ? true : false;
-            getEl("overheatStrobeNF").checked = settings.overheatStrobeNF ? true : false;
-            getEl("overheatLightsOff").checked = settings.overheatLightsOff ? true : false;
-            getEl("overheatSyncToFan").checked = settings.overheatSyncToFan ? true : false;
-            getEl("demoLightMode").checked = settings.demoLightMode ? true : false;
+            setValue("defaultSystemModePack", settings.defaultSystemModePack || 0);
+            setValue("defaultYearThemePack", settings.defaultYearThemePack || 1); // Value cannot be 0.
+            setValue("currentYearThemePack", settings.currentYearThemePack || 4); // Value cannot be 0.
+            setValue("defaultSystemVolume", settings.defaultSystemVolume || 100); // Default to full volume.
+            setValue("packVibration", settings.packVibration || 4);
+            setHtml("masterVolOut", getValue("defaultSystemVolume"));
+            setToggle("protonStreamEffects", settings.protonStreamEffects);
+            setToggle("ribbonCableAlarm", settings.ribbonCableAlarm);
+            setToggle("overheatStrobeNF", settings.overheatStrobeNF);
+            setToggle("overheatLightsOff", settings.overheatLightsOff);
+            setToggle("overheatSyncToFan", settings.overheatSyncToFan);
+            setToggle("demoLightMode", settings.demoLightMode);
 
-            getEl("ledCycLidCount").value = settings.ledCycLidCount || 12; // Haslab: 12
-            getEl("ledCycLidHue").value = convertRange(settings.ledCycLidHue || 254, [1,254], [0,360]); // Default: Red
-            getEl("ledCycLidSat").value = convertRange(settings.ledCycLidSat || 254, [1,254], [0,100]); // Full Saturation
-            getEl("cyclotronDirection").value = settings.cyclotronDirection || 0;
-            getEl("ledCycLidCenter").value = settings.ledCycLidCenter || 0;
-            getEl("ledCycLidFade").checked = settings.ledCycLidFade ? true : false;
-            getEl("ledVGCyclotron").checked = settings.ledVGCyclotron ? true : false;
-            getEl("ledCycLidSimRing").checked = settings.ledCycLidSimRing ? true : false;
+            setValue("ledCycLidCount", settings.ledCycLidCount || 12); // Haslab: 12
+            setValue("ledCycLidHue", convertRange(settings.ledCycLidHue || 254, [1,254], [0,360])); // Default: Red
+            setValue("ledCycLidSat", convertRange(settings.ledCycLidSat || 254, [1,254], [0,100])); // Full Saturation
+            setValue("cyclotronDirection", settings.cyclotronDirection || 0);
+            setValue("ledCycLidCenter", settings.ledCycLidCenter || 0);
+            setToggle("ledCycLidFade", settings.ledCycLidFade);
+            setToggle("ledVGCyclotron", settings.ledVGCyclotron);
+            setToggle("ledCycLidSimRing", settings.ledCycLidSimRing);
 
-            getEl("ledCycCakeCount").value = settings.ledCycCakeCount || 35; // Default: 35
-            getEl("ledCycCakeHue").value = convertRange(settings.ledCycCakeHue || 254, [1,254], [0,360]); // Default: Red
-            getEl("ledCycCakeSat").value = convertRange(settings.ledCycCakeSat || 254, [1,254], [0,100]); // Full Saturation
-            getEl("ledCycInnerPanel").value = settings.ledCycInnerPanel || 1; // Default: Individual
-            getEl("ledCycCakeGRB").checked = settings.ledCycCakeGRB ? true : false;
-            getEl("ledCycCavCount").value = settings.ledCycCavCount || 0; // Default: 0
-            getEl("ledCycCavCountOut").innerHTML = getEl("ledCycCavCount").value;
+            setValue("ledCycCakeCount", settings.ledCycCakeCount || 35); // Default: 35
+            setValue("ledCycCakeHue", convertRange(settings.ledCycCakeHue || 254, [1,254], [0,360])); // Default: Red
+            setValue("ledCycCakeSat", convertRange(settings.ledCycCakeSat || 254, [1,254], [0,100])); // Full Saturation
+            setValue("ledCycInnerPanel", settings.ledCycInnerPanel || 1); // Default: Individual
+            setToggle("ledCycCakeGRB", settings.ledCycCakeGRB);
+            setValue("ledCycCavCount", settings.ledCycCavCount || 0); // Default: 0
+            setHtml("ledCycCavCountOut", getValue("ledCycCavCount"));
 
-            getEl("ledPowercellCount").value = settings.ledPowercellCount || 13; // Haslab: 13
-            getEl("ledInvertPowercell").checked = settings.ledInvertPowercell ? true : false;
-            getEl("ledPowercellHue").value = convertRange(settings.ledPowercellHue || 160, [1,254], [0,360]); // Default: Blue
-            getEl("ledPowercellSat").value = convertRange(settings.ledPowercellSat || 254, [1,254], [0,100]); // Full Saturation
-            getEl("ledVGPowercell").checked = settings.ledVGPowercell ? true : false;
+            setValue("ledPowercellCount", settings.ledPowercellCount || 13); // Haslab: 13
+            setToggle("ledInvertPowercell", settings.ledInvertPowercell);
+            setValue("ledPowercellHue", convertRange(settings.ledPowercellHue || 160, [1,254], [0,360])); // Default: Blue
+            setValue("ledPowercellSat", convertRange(settings.ledPowercellSat || 254, [1,254], [0,100])); // Full Saturation
+            setToggle("ledVGPowercell", settings.ledVGPowercell);
 
             // Update colour preview and value display for hue/saturation sliders.
-            updateColour("cycColourPreview", "cycHueOut", "cycSatOut", getEl("ledCycLidHue").value, getEl("ledCycLidSat").value);
-            updateColour("cakeColourPreview", "cakeHueOut", "cakeSatOut", getEl("ledCycCakeHue").value, getEl("ledCycCakeSat").value);
-            updateColour("pcColourPreview", "pcHueOut", "pcSatOut", getEl("ledPowercellHue").value, getEl("ledPowercellSat").value);
+            updateColour("cycColourPreview", "cycHueOut", "cycSatOut", getValue("ledCycLidHue"), getValue("ledCycLidSat"));
+            updateColour("cakeColourPreview", "cakeHueOut", "cakeSatOut", getValue("ledCycCakeHue"), getValue("ledCycCakeSat"));
+            updateColour("pcColourPreview", "pcHueOut", "pcSatOut", getValue("ledPowercellHue"), getValue("ledPowercellSat"));
           }
         }
       };
@@ -423,39 +400,39 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       // Saves current settings to pack, updating runtime variables and making changes immediately effective.
       // This does NOT save to the EEPROM automatically as the user is encouraged to test prior to that action.
       var settings = {
-        defaultSystemModePack: parseInt(getEl("defaultSystemModePack").value || 0, 10),
-        defaultYearThemePack: parseInt(getEl("defaultYearThemePack").value || 1, 10),
-        currentYearThemePack: parseInt(getEl("currentYearThemePack").value || 4, 10),
-        defaultSystemVolume: parseInt(getEl("defaultSystemVolume").value || 100, 10),
-        packVibration: parseInt(getEl("packVibration").value || 4, 10),
-        protonStreamEffects: getEl("protonStreamEffects").checked ? 1 : 0,
-        ribbonCableAlarm: getEl("ribbonCableAlarm").checked ? 1 : 0,
-        overheatStrobeNF: getEl("overheatStrobeNF").checked ? 1 : 0,
-        overheatLightsOff: getEl("overheatLightsOff").checked ? 1 : 0,
-        overheatSyncToFan: getEl("overheatSyncToFan").checked ? 1 : 0,
-        demoLightMode: getEl("demoLightMode").checked ? 1 : 0,
+        defaultSystemModePack: getInt("defaultSystemModePack"),
+        defaultYearThemePack: getInt("defaultYearThemePack") || 1,
+        currentYearThemePack: getInt("currentYearThemePack") || 4,
+        defaultSystemVolume: getInt("defaultSystemVolume") || 100,
+        packVibration: getInt("packVibration") || 4,
+        protonStreamEffects: getToggle("protonStreamEffects"),
+        ribbonCableAlarm: getToggle("ribbonCableAlarm"),
+        overheatStrobeNF: getToggle("overheatStrobeNF"),
+        overheatLightsOff: getToggle("overheatLightsOff"),
+        overheatSyncToFan: getToggle("overheatSyncToFan"),
+        demoLightMode: getToggle("demoLightMode"),
 
-        ledCycLidCount: parseInt(getEl("ledCycLidCount").value || 12, 10),
-        ledCycLidHue: convertRange(parseInt(getEl("ledCycLidHue").value || 360, 10), [0,360], [1,254]),
-        ledCycLidSat: convertRange(parseInt(getEl("ledCycLidSat").value || 100, 10), [0,100], [1,254]),
-        cyclotronDirection: parseInt(getEl("cyclotronDirection").value || 0, 10),
-        ledCycLidCenter: parseInt(getEl("ledCycLidCenter").value || 0, 10),
-        ledCycLidFade: getEl("ledCycLidFade").checked ? 1 : 0,
-        ledVGCyclotron: getEl("ledVGCyclotron").checked ? 1 : 0,
-        ledCycLidSimRing: getEl("ledCycLidSimRing").checked ? 1 : 0,
+        ledCycLidCount: getInt("ledCycLidCount") || 12,
+        ledCycLidHue: convertRange(getInt("ledCycLidHue") || 360, [0,360], [1,254]),
+        ledCycLidSat: convertRange(getInt("ledCycLidSat") || 100, [0,100], [1,254]),
+        cyclotronDirection: getInt("cyclotronDirection"),
+        ledCycLidCenter: getInt("ledCycLidCenter"),
+        ledCycLidFade: getToggle("ledCycLidFade"),
+        ledVGCyclotron: getToggle("ledVGCyclotron"),
+        ledCycLidSimRing: getToggle("ledCycLidSimRing"),
 
-        ledCycCakeCount: parseInt(getEl("ledCycCakeCount").value || 35, 10),
-        ledCycCakeHue: convertRange(parseInt(getEl("ledCycCakeHue").value || 360, 10), [0,360], [1,254]),
-        ledCycCakeSat: convertRange(parseInt(getEl("ledCycCakeSat").value || 100, 10), [0,100], [1,254]),
-        ledCycInnerPanel: parseInt(getEl("ledCycInnerPanel").value || 1, 10),
-        ledCycCakeGRB: getEl("ledCycCakeGRB").checked ? 1 : 0,
-        ledCycCavCount: parseInt(getEl("ledCycCavCount").value || 0, 10),
+        ledCycCakeCount: getInt("ledCycCakeCount") || 35,
+        ledCycCakeHue: convertRange(getInt("ledCycCakeHue") || 360, [0,360], [1,254]),
+        ledCycCakeSat: convertRange(getInt("ledCycCakeSat") || 100, [0,100], [1,254]),
+        ledCycInnerPanel: getInt("ledCycInnerPanel") || 1,
+        ledCycCakeGRB: getToggle("ledCycCakeGRB"),
+        ledCycCavCount: getInt("ledCycCavCount"),
 
-        ledPowercellCount: parseInt(getEl("ledPowercellCount").value || 13, 10),
-        ledInvertPowercell: getEl("ledInvertPowercell").checked ? 1 : 0,
-        ledPowercellHue: convertRange(parseInt(getEl("ledPowercellHue").value || 200, 10), [0,360], [1,254]),
-        ledPowercellSat: convertRange(parseInt(getEl("ledPowercellSat").value || 100, 10), [0,100], [1,254]),
-        ledVGPowercell: getEl("ledVGPowercell").checked ? 1 : 0
+        ledPowercellCount: getInt("ledPowercellCount") || 13,
+        ledInvertPowercell: getToggle("ledInvertPowercell"),
+        ledPowercellHue: convertRange(getInt("ledPowercellHue") || 200, [0,360], [1,254]),
+        ledPowercellSat: convertRange(getInt("ledPowercellSat") || 100, [0,100], [1,254]),
+        ledVGPowercell: getToggle("ledVGPowercell")
       };
       var body = JSON.stringify(settings);
 

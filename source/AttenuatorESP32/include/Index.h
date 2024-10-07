@@ -193,6 +193,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     </div>
   </div>
 
+  <script type="application/javascript" src="/common.js"></script>
   <script type="application/javascript" src="/index.js"></script>
 </body>
 </html>

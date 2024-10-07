@@ -113,16 +113,13 @@ const char DEVICE_page[] PROGMEM = R"=====(
     <br/>
   </div>
 
+  <script type="application/javascript" src="/common.js"></script>
   <script type="application/javascript">
     window.addEventListener("load", onLoad);
 
     function onLoad(event) {
       // Wait 0.1s for page to fully load.
       setTimeout(getSettings, 100);
-    }
-
-    function getEl(id){
-      return document.getElementById(id);
     }
 
     function updateByteCount() {
@@ -132,26 +129,6 @@ const char DEVICE_page[] PROGMEM = R"=====(
         byteCount.innerHTML = byteLength + "/2000 Bytes";
     }
 
-    function isJsonString(str) {
-      try {
-        JSON.parse(str);
-      } catch (e) {
-        return false;
-      }
-      return true;
-    }
-
-    function handleStatus(response) {
-      if (isJsonString(response || "")) {
-        var jObj = JSON.parse(response || "");
-        if (jObj.status && jObj.status != "success") {
-          alert(jObj.status); // Report non-success status.
-        }
-      } else {
-        alert(response); // Display plain text message.
-      }
-    }
-
     function getSettings() {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
@@ -159,15 +136,15 @@ const char DEVICE_page[] PROGMEM = R"=====(
           var settings = JSON.parse(this.responseText);
           if (settings) {
             // Update fields with the current values, or supply an expected default as necessary.
-            getEl("invertLEDs").checked = settings.invertLEDs ? true : false;
-            getEl("buzzer").checked = settings.buzzer ? true : false;
-            getEl("vibration").checked = settings.vibration ? true : false;
-            getEl("overheat").checked = settings.overheat ? true : false;
-            getEl("firing").checked = settings.firing ? true : false;
-            getEl("radLensIdle").value = settings.radLensIdle || 0; // Default: 0 [Amber Pulse]
-            getEl("displayType").value = settings.displayType || 0; // Default: 0 [Text]
-            getEl("songList").value = settings.songList || "";
-            getEl("wifiName").value = settings.wifiName || "";
+            setToggle("invertLEDs", settings.invertLEDs);
+            setToggle("buzzer", settings.buzzer);
+            setToggle("vibration", settings.vibration);
+            setToggle("overheat", settings.overheat);
+            setToggle("firing", settings.firing);
+            setValue("radLensIdle", settings.radLensIdle || 0); // Default: 0 [Amber Pulse]
+            setValue("displayType", settings.displayType || 0); // Default: 0 [Text]
+            setValue("songList", settings.songList || "");
+            setValue("wifiName", settings.wifiName || "");
             updateByteCount();
           }
         }
@@ -178,13 +155,13 @@ const char DEVICE_page[] PROGMEM = R"=====(
 
     function saveSettings() {
       // Do not allow saving if track list is too large for allowed storage space.
-      if (getEl("songList").value.length > 2000) {
+      if (getValue("songList").length > 2000) {
         alert("Error: Unable to save track listing (exceeds allowed bytes).");
         return;
       }
 
       // Do not allow saving if the new SSID is too short/long, or illegal.
-      var wifiName = getEl("wifiName").value || "";
+      var wifiName = getText("wifiName");
       if (wifiName.length < 8) {
         alert("Error: Network name must be more than 8 characters.");
         return;
@@ -203,14 +180,14 @@ const char DEVICE_page[] PROGMEM = R"=====(
       // Saves current settings to attenuator, updating runtime variables and making changes immediately effective.
       var settings = {
         wifiName: wifiName,
-        invertLEDs: getEl("invertLEDs").checked ? 1 : 0,
-        buzzer: getEl("buzzer").checked ? 1 : 0,
-        vibration: getEl("vibration").checked ? 1 : 0,
-        overheat: getEl("overheat").checked ? 1 : 0,
-        firing: getEl("firing").checked ? 1 : 0,
-        radLensIdle: parseInt(getEl("radLensIdle").value || 0, 10),
-        displayType: parseInt(getEl("displayType").value || 0, 10),
-        songList: getEl("songList").value || ""
+        invertLEDs: getToggle("invertLEDs"),
+        buzzer: getToggle("buzzer"),
+        vibration: getToggle("vibration"),
+        overheat: getToggle("overheat"),
+        firing: getToggle("firing"),
+        radLensIdle: getInt("radLensIdle"),
+        displayType: getInt("displayType"),
+        songList: getText("songList")
       };
       var body = JSON.stringify(settings);
 

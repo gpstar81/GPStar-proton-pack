@@ -214,6 +214,7 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
     <br/>
   </div>
 
+  <script type="application/javascript" src="/common.js"></script>
   <script type="application/javascript">
     window.addEventListener("load", onLoad);
 
@@ -223,30 +224,6 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
 
       // Disable the save button until we obtain settings.
       getEl("btnSave").disabled = true;
-    }
-
-    function getEl(id){
-      return document.getElementById(id);
-    }
-
-    function isJsonString(str) {
-      try {
-        JSON.parse(str);
-      } catch (e) {
-        return false;
-      }
-      return true;
-    }
-
-    function handleStatus(response) {
-      if (isJsonString(response || "")) {
-        var jObj = JSON.parse(response || "");
-        if (jObj.status && jObj.status != "success") {
-          alert(jObj.status); // Report non-success status.
-        }
-      } else {
-        alert(response); // Display plain text message.
-      }
     }
 
     function getSettings() {
@@ -267,42 +244,42 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
             // Valid settings were received and both the pack and wand are off, so allow updating settings.
             getEl("btnSave").disabled = false;
 
-            getEl("smokeEnabled").checked = settings.smokeEnabled ? true: false;
+            setToggle("smokeEnabled", settings.smokeEnabled);
 
             getEl("overheatContinuous5").checked = settings.overheatContinuous5 || 0;
             getEl("overheatLevel5").checked = settings.overheatLevel5 || 0;
-            getEl("overheatDelay5").value = settings.overheatDelay5 || 30;
-            getEl("delay5Out").innerHTML = getEl("overheatDelay5").value;
-            getEl("overheatDuration5").value = settings.overheatDuration5 || 6;
-            getEl("duration5Out").innerHTML = getEl("overheatDuration5").value;
+            setValue("overheatDelay5", settings.overheatDelay5 || 30);
+            setHtml("delay5Out", getText("overheatDelay5"));
+            setValue("overheatDuration5", settings.overheatDuration5 || 6);
+            setHtml("duration5Out", getText("overheatDuration5"));
 
             getEl("overheatContinuous4").checked = settings.overheatContinuous4 || 0;
             getEl("overheatLevel4").checked = settings.overheatLevel4 || 0;
-            getEl("overheatDelay4").value = settings.overheatDelay4 || 35;
-            getEl("delay4Out").innerHTML = getEl("overheatDelay4").value;
-            getEl("overheatDuration4").value = settings.overheatDuration4 || 5;
-            getEl("duration4Out").innerHTML = getEl("overheatDuration4").value;
+            setValue("overheatDelay4", settings.overheatDelay4 || 35);
+            setHtml("delay4Out", getText("overheatDelay4"));
+            setValue("overheatDuration4", settings.overheatDuration4 || 5);
+            setHtml("duration4Out", getText("overheatDuration4"));
 
             getEl("overheatContinuous3").checked = settings.overheatContinuous3 || 0;
             getEl("overheatLevel3").checked = settings.overheatLevel3 || 0;
-            getEl("overheatDelay3").value = settings.overheatDelay3 || 40;
-            getEl("delay3Out").innerHTML = getEl("overheatDelay3").value;
-            getEl("overheatDuration3").value = settings.overheatDuration3 || 4;
-            getEl("duration3Out").innerHTML = getEl("overheatDuration3").value;
+            setValue("overheatDelay3", settings.overheatDelay3 || 40);
+            setHtml("delay3Out", getText("overheatDelay3"));
+            setValue("overheatDuration3", settings.overheatDuration3 || 4);
+            setHtml("duration3Out", getText("overheatDuration3"));
 
             getEl("overheatContinuous2").checked = settings.overheatContinuous2 || 0;
             getEl("overheatLevel2").checked = settings.overheatLevel2 || 0;
-            getEl("overheatDelay2").value = settings.overheatDelay2 || 50;
-            getEl("delay2Out").innerHTML = getEl("overheatDelay2").value;
-            getEl("overheatDuration2").value = settings.overheatDuration2 || 3;
-            getEl("duration2Out").innerHTML = getEl("overheatDuration2").value;
+            setValue("overheatDelay2", settings.overheatDelay2 || 50);
+            setHtml("delay2Out", getText("overheatDelay2"));
+            setValue("overheatDuration2", settings.overheatDuration2 || 3);
+            setHtml("duration2Out", getText("overheatDuration2"));
 
             getEl("overheatContinuous1").checked = settings.overheatContinuous1 || 0;
             getEl("overheatLevel1").checked = settings.overheatLevel1 || 0;
-            getEl("overheatDelay1").value = settings.overheatDelay1 || 60;
-            getEl("delay1Out").innerHTML = getEl("overheatDelay1").value;
-            getEl("overheatDuration1").value = settings.overheatDuration1 || 2;
-            getEl("duration1Out").innerHTML = getEl("overheatDuration1").value;
+            setValue("overheatDelay1", settings.overheatDelay1 || 60);
+            setHtml("delay1Out", getText("overheatDelay1"));
+            setValue("overheatDuration1", settings.overheatDuration1 || 2);
+            setHtml("duration1Out", getText("overheatDuration1"));
           }
         }
       };
@@ -314,27 +291,27 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
       // Saves current settings to pack/wand, updating runtime variables and making changes immediately effective.
       // This does NOT save to the EEPROM automatically as the user is encouraged to test prior to that action.
       var settings = {
-        smokeEnabled: getEl("smokeEnabled").checked ? 1 : 0,
-        overheatDuration5: parseInt(getEl("overheatDuration5").value || 6, 10),
-        overheatDuration4: parseInt(getEl("overheatDuration4").value || 5, 10),
-        overheatDuration3: parseInt(getEl("overheatDuration3").value || 4, 10),
-        overheatDuration2: parseInt(getEl("overheatDuration2").value || 3, 10),
-        overheatDuration1: parseInt(getEl("overheatDuration1").value || 2, 10),
-        overheatContinuous5: getEl("overheatContinuous5").checked ? 1 : 0,
-        overheatContinuous4: getEl("overheatContinuous4").checked ? 1 : 0,
-        overheatContinuous3: getEl("overheatContinuous3").checked ? 1 : 0,
-        overheatContinuous2: getEl("overheatContinuous2").checked ? 1 : 0,
-        overheatContinuous1: getEl("overheatContinuous1").checked ? 1 : 0,
-        overheatLevel5: getEl("overheatLevel5").checked ? 1 : 0,
-        overheatLevel4: getEl("overheatLevel4").checked ? 1 : 0,
-        overheatLevel3: getEl("overheatLevel3").checked ? 1 : 0,
-        overheatLevel2: getEl("overheatLevel2").checked ? 1 : 0,
-        overheatLevel1: getEl("overheatLevel1").checked ? 1 : 0,
-        overheatDelay5: parseInt(getEl("overheatDelay5").value || 30, 10),
-        overheatDelay4: parseInt(getEl("overheatDelay4").value || 35, 10),
-        overheatDelay3: parseInt(getEl("overheatDelay3").value || 40, 10),
-        overheatDelay2: parseInt(getEl("overheatDelay2").value || 50, 10),
-        overheatDelay1: parseInt(getEl("overheatDelay1").value || 60, 10)
+        smokeEnabled: getToggle("smokeEnabled"),
+        overheatDuration5: getInt("overheatDuration5") || 6,
+        overheatDuration4: getInt("overheatDuration4") || 5,
+        overheatDuration3: getInt("overheatDuration3") || 4,
+        overheatDuration2: getInt("overheatDuration2") || 3,
+        overheatDuration1: getInt("overheatDuration1") || 2,
+        overheatContinuous5: getToggle("overheatContinuous5"),
+        overheatContinuous4: getToggle("overheatContinuous4"),
+        overheatContinuous3: getToggle("overheatContinuous3"),
+        overheatContinuous2: getToggle("overheatContinuous2"),
+        overheatContinuous1: getToggle("overheatContinuous1"),
+        overheatLevel5: getToggle("overheatLevel5"),
+        overheatLevel4: getToggle("overheatLevel4"),
+        overheatLevel3: getToggle("overheatLevel3"),
+        overheatLevel2: getToggle("overheatLevel2"),
+        overheatLevel1: getToggle("overheatLevel1"),
+        overheatDelay5: getInt("overheatDelay5") || 30,
+        overheatDelay4: getInt("overheatDelay4") || 35,
+        overheatDelay3: getInt("overheatDelay3") || 40,
+        overheatDelay2: getInt("overheatDelay2") || 50,
+        overheatDelay1: getInt("overheatDelay1") || 60
       };
       var body = JSON.stringify(settings);
 
