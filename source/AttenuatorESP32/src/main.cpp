@@ -37,6 +37,7 @@
 #include <ht16k33.h>
 #include <Wire.h>
 #include <SerialTransfer.h>
+#include "esp_system.h"
 
 // Local Files
 #include "Configuration.h"
@@ -54,6 +55,31 @@ TaskHandle_t UserInputTaskHandle = NULL;
 TaskHandle_t AnimationTaskHandle = NULL;
 TaskHandle_t WiFiManagementTaskHandle = NULL;
 TaskHandle_t WiFiSetupTaskHandle = NULL;
+
+// Variables for approximating CPU load
+// https://www.arduino.cc/reference/en/language/variables/variable-scope-qualifiers/volatile/
+volatile uint32_t idleTimeCore0 = 0;
+volatile uint32_t idleTimeCore1 = 0;
+
+// Idle task for Core 0
+#if defined(DEBUG_PERFORMANCE)
+void idleTaskCore0(void * parameter) {
+  while(true) {
+    idleTimeCore0 = idleTimeCore0 + 1;
+    vTaskDelay(1);
+  }
+}
+#endif
+
+// Idle task for Core 1
+#if defined(DEBUG_PERFORMANCE)
+void idleTaskCore1(void * parameter) {
+  while(true) {
+    idleTimeCore1 = idleTimeCore1 + 1;
+    vTaskDelay(1);
+  }
+}
+#endif
 
 // Serial Comms Task (Loop)
 void SerialCommsTask(void *parameter) {
@@ -410,8 +436,99 @@ void setup() {
   xTaskCreatePinnedToCore(UserInputTask, "UserInputTask", 4096, NULL, 3, &UserInputTaskHandle, 1);
   xTaskCreatePinnedToCore(AnimationTask, "AnimationTask", 2048, NULL, 2, &AnimationTaskHandle, 1);
   xTaskCreatePinnedToCore(WiFiManagementTask, "WiFiManagementTask", 2048, NULL, 1, &WiFiManagementTaskHandle, 1);
+
+  // Create idle tasks for each core
+  #if defined(DEBUG_PERFORMANCE)
+  xTaskCreatePinnedToCore(idleTaskCore0, "Idle Task Core 0", 1000, NULL, 1, NULL, 0);
+  xTaskCreatePinnedToCore(idleTaskCore1, "Idle Task Core 1", 1000, NULL, 1, NULL, 1);
+  #endif
+}
+
+// Helper function to format bytes with a comma separator
+String formatBytesWithCommas(uint32_t bytes) {
+    String result = String(bytes);
+    int insertPosition = result.length() - 3;
+    while(insertPosition > 0) {
+        result = result.substring(0, insertPosition) + "," + result.substring(insertPosition);
+        insertPosition -= 3;
+    }
+    return result;
+}
+
+// Function to calculate and print CPU load
+void printCPULoad() {
+  uint32_t idle0 = idleTimeCore0;
+  uint32_t idle1 = idleTimeCore1;
+
+  // Calculate CPU load as (total time - idle time) / total time
+  float cpuLoadCore0 = 100.0 - ((float)idle0 / (float)(idle0 + idle1)) * 100.0;
+  float cpuLoadCore1 = 100.0 - ((float)idle1 / (float)(idle0 + idle1)) * 100.0;
+
+  Serial.print("CPU Load Core0: ");
+  Serial.print(cpuLoadCore0);
+  Serial.println("%");
+
+  Serial.print("CPU Load Core1: ");
+  Serial.print(cpuLoadCore1);
+  Serial.println("%");
+
+  // Reset idle times after calculation
+  idleTimeCore0 = 0;
+  idleTimeCore1 = 0;
+}
+
+void printMemoryStats() {
+  Serial.println("Memory Usage Stats:");
+
+  // Heap memory
+  Serial.print("|-Total Free Heap: ");
+  Serial.print(formatBytesWithCommas(esp_get_free_heap_size()));
+  Serial.println(" bytes");
+
+  Serial.print("|-Minimum Free Heap Ever: ");
+  Serial.print(formatBytesWithCommas(esp_get_minimum_free_heap_size()));
+  Serial.println(" bytes");
+
+  Serial.print("|-Maximum Allocatable Block: ");
+  Serial.print(formatBytesWithCommas(heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT)));
+  Serial.println(" bytes");
+
+  // Stack memory (for the main task)
+  Serial.println("|-Tasks Stack High Water Mark:");
+  Serial.print("|--Main Task: ");
+  Serial.print(formatBytesWithCommas(uxTaskGetStackHighWaterMark(NULL)));
+  Serial.println(" bytes");
+
+  // Stack memory (for other tasks)
+  if (AnimationTaskHandle != NULL) {
+    Serial.print("|--Animation: ");
+    Serial.print(formatBytesWithCommas(uxTaskGetStackHighWaterMark(AnimationTaskHandle)));
+    Serial.println(" / 2,048 bytes");
+  }
+  if (SerialCommsTaskHandle != NULL) {
+    Serial.print("|--Serial Comms: ");
+    Serial.print(formatBytesWithCommas(uxTaskGetStackHighWaterMark(SerialCommsTaskHandle)));
+    Serial.println(" / 4,096 bytes");
+  }
+  if (UserInputTaskHandle != NULL) {
+    Serial.print("|--User Input: ");
+    Serial.print(formatBytesWithCommas(uxTaskGetStackHighWaterMark(UserInputTaskHandle)));
+    Serial.println(" / 4,096 bytes");
+  }
+  if (WiFiManagementTaskHandle != NULL) {
+    Serial.print("|--WiFi Mgmt.: ");
+    Serial.print(formatBytesWithCommas(uxTaskGetStackHighWaterMark(WiFiManagementTaskHandle)));
+    Serial.println(" / 2,048 bytes");
+  }
 }
 
 void loop() {
   // No work done here, only in the tasks!
+
+  #if defined(DEBUG_PERFORMANCE)
+  Serial.println("==================================================");
+  printCPULoad();      // Print CPU load
+  printMemoryStats();  // Print memory usage
+  delay(3000);         // Wait 5 seconds before printing again
+  #endif
 }

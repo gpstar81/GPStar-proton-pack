@@ -226,7 +226,7 @@ p {
 	border-radius:50%;
 	bottom:-5.5px;
 	content:"";
-	height:38px;
+	height:39px;
 	left:74.5px;
 	position:absolute;
 	width:40px
@@ -234,9 +234,9 @@ p {
 
 .filter-circle {
 	border-radius:50%;
-	left:152.2px;
+	left:152px;
 	height:41px;
-	top:383.8px;
+	top:382.8px;
 	width:40px;
 	z-index:3
 }
