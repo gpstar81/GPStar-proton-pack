@@ -427,10 +427,9 @@ void switchLoops() {
 }
 
 /*
- * Monitor for interactions by user or serial comms.
+ * Monitor for interactions by user input.
  */
-void mainLoop() {
-  bool b_notify = checkPack();
+void checkUserInputs() {
   switchLoops();
   checkRotaryPress();
   if(!b_center_lockout) {
@@ -459,7 +458,7 @@ void mainLoop() {
       if(!b_pack_on) {
         attenuatorSerialSend(A_TURN_PACK_ON);
 
-        if(!b_notify && !b_wait_for_pack && !ms_packsync.isRunning()) {
+        if(!b_comms_open && !b_wait_for_pack && !ms_packsync.isRunning()) {
           // Only force the pack bool to true if in standalone mode.
           b_pack_on = true;
         }
@@ -471,7 +470,7 @@ void mainLoop() {
       if(b_pack_on) {
         attenuatorSerialSend(A_TURN_PACK_OFF);
 
-        if(!b_notify && !b_wait_for_pack && !ms_packsync.isRunning()) {
+        if(!b_comms_open && !b_wait_for_pack && !ms_packsync.isRunning()) {
           // Only force the pack bool to false if in standalone mode.
           b_pack_on = false;
         }
@@ -562,9 +561,6 @@ void mainLoop() {
     }
   }
 
-  // Update LEDs using appropriate colour scheme and environment vars.
-  updateLEDs();
-
   // Turn off buzzer if timer finished.
   if(ms_buzzer.justFinished() || ms_buzzer.remaining() < 1) {
     buzzOff();
@@ -573,32 +569,5 @@ void mainLoop() {
   // Turn off vibration if timer finished.
   if(ms_vibrate.justFinished() || ms_vibrate.remaining() < 1) {
     vibrateOff();
-  }
-
-  // Update bargraph elements, leveraging cyclotron speed modifier.
-  // In reality this multiplier is a divisor to the standard delay.
-  bargraphUpdate(i_speed_multiplier);
-
-  // Update the device LEDs and restart the timer.
-  if(ms_fast_led.justFinished()) {
-    FastLED.show();
-    ms_fast_led.start(i_fast_led_delay);
-  }
-
-  if(ms_packsync.justFinished()) {
-    // The pack just went missing, so treat as disconnected.
-    b_wait_for_pack = true;
-    ms_packsync.start(i_sync_initial_delay);
-  }
-
-  /**
-   * Alert any WebSocket clients after an API call was received.
-   *
-   * Note: We only perform this action if we have data from the pack
-   * which resulted in a significant state change--this prevents the
-   * device from spamming any downstream clients with unchanged data.
-   */
-  if(b_notify) {
-    notifyWSClients(); // Send latest status to the WebSocket.
   }
 }

@@ -21,6 +21,11 @@
 #pragma once
 
 /*
+ * Flag to indicate serial comms have been established after bootup.
+ */
+bool b_comms_open = false;
+
+/*
  * Pin for Addressable LEDs.
  */
 #define DEVICE_LED_PIN 23
@@ -38,14 +43,6 @@ CRGB device_leds[DEVICE_NUM_LEDS];
  */
 bool b_invert_leds = false; // Denotes whether the order should be reversed.
 uint8_t i_device_led[DEVICE_NUM_LEDS] = {0, 1, 2}; // Default Order
-
-/*
- * Delay for fastled to update the addressable LEDs.
- * 0.03 ms to update 1 LED, and this device contains 2.
- * Just setting to 8 which should be equate to 120fps.
- */
-millisDelay ms_fast_led;
-const uint8_t i_fast_led_delay = 8;
 
 /*
  * LED Animation Options
