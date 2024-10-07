@@ -64,6 +64,8 @@
 - Support for changing Cyclotron direction and to enable/disable smoke effects.
 - Support for smoke effects with dedicated fans for the Booster Tube and N-Filter.
 	- See the [Smoke Effects](SMOKE.md) addendum for more information.
+- Support for motorised inner cyclotron cake or outer cyclotron lighting.
+	- See the [Inner Cyclotron](CYCLOTRON_INNER.md) for more information.
 - Additional Lights available for the Cyclotron panel, internal "cake" Cyclotron, and Power Cell.
 	- Automatically switches to internal "cake" Cyclotron, if implemented (optional).
 	- This supports a 35-LED RGB ring light (by default) to be installed in the "cake". Other size LED rings or LED setups are supported in the configuration settings.
@@ -86,6 +88,7 @@
    - Rotate clockwise to raise power, and counter-clockwise to lower power.
 - There are 5 wand power levels in Super Hero mode and 4 in Mode Original.
 - For lower power levels, the proton stream is more red. On higher power levels, the stream will appear more yellow.
+	- Note that it is the other way around for 1989 mode to be more faithful to how proton streams appeared in that film.
 - When Video Game Mode is active and the Neutrona Wand is **ON** and the top toggle switch is **DOWN**, rotating the top dial will switch between weapon modes. For a description of these modes please see the Video Game Mode section. 📝 `Super Hero mode only`
 - This dial will also be used to navigate the menu systems (see "Neutrona Wand Menu System" section).
 
@@ -116,7 +119,7 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 
 ## Super Hero Mode Operation Guide
 
-**Super Hero**: This is the default operation mode based primarily on the 2021 film.
+**Super Hero**: This is the default operation mode based primarily on how the wand appeared to work in Ghostbusters: Afterlife.
 
 ### Activate Toggle
 
@@ -134,10 +137,10 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 	- The Neutrona Wand will not fire unless these switches are both turned on.
 	- **Boot-Up Errors**: If you attempt to boot up your Neutrona Wand while the top toggle switch is on, the Neutrona Wand will boot into a error mode. Turn the top toggle switch off and restart your Neutrona Wand to boot normally. **This is the default behaviour**, though this feature can be disabled in the Neutrona Wand EEPROM Configuration Menu.
 	- **Quick Vent**: If the Neutrona Wand is **ON** and the Top toggle switch is **DOWN**, pressing `Intensify` will perform a quick vent. Holding down `Intensify` will perform a full overheat sequence. **This is the default behaviour**, though this feature can be disabled in the Neutrona Wand EEPROM Configuration Menu.
-- While in 1984/1989 theme modes:
+- While in 1984 or 1989 theme mode:
 	- Bottom toggle switch turns on the vent light and plays the wand power up sound.
 	- Top toggle switch plays a single beep sound.
-- While in Afterlife and Frozen Empire theme mode:
+- While in Afterlife or Frozen Empire theme mode:
 	- Bottom toggle switch turns on the vent light and the wand plays a ramp up sound.
  	- Top toggle switch turns on the looping beeping sounds.
 
@@ -187,7 +190,7 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 
 <sup>1</sup> Spectral Mode (Rainbow) is a Proton Stream which gives a RAINBOW effect. If your Proton Pack has RGB LEDs, they will change to match.
 
-<sup>2</sup> Spectral (Holiday) is a Proton Stream which gives an ORANGE/PURPLE effect. You can press the Barrel Wing Button while in this mode to switch to a RED/GREEN effect. If your Proton Pack has RGB LEDs, it will match these colours.
+<sup>2</sup> Spectral (Holiday) is a Proton Stream which gives an ORANGE/PURPLE effect. You can press the Barrel Wing Button while ready to fire in this mode to switch to a RED/GREEN effect. If your Proton Pack has RGB LEDs, it will match these colours.
 
 <sup>3</sup> Spectral (Custom) is a Proton Stream with a user-defined colour mode. You can independently adjust the Neutrona Wand Barrel, Power Cell, Cyclotron and Inner Cyclotron colours directly from the EEPROM LED Menu system. The default colours are purple.
 
@@ -278,7 +281,7 @@ Cross The Streams (CTS) is the default firing mode for Mode Original. Cross The 
 
 There are 2 ways to enter the Menu System.
 
-- With the Activate switch **UP** and any right-hand switch **DOWN**, press the `Barrel Wing Button` to enter the Neutrona Wand Menu System. <br>📝 `Super Hero mode only`
+- With any right-hand switch **DOWN**, press the `Barrel Wing Button` to enter the Neutrona Wand Menu System. <br>📝 `Super Hero mode only`
 
 - While the Neutrona Wand and Proton Pack are powered down, press the `Barrel Wing Button`.
 
@@ -306,7 +309,7 @@ Changes are made by pressing either the `Intensify` button on the gun box or the
 | 4 | Proton&nbsp;Pack&nbsp;Light&nbsp;Dimming | `(Intensify + Top Dial)` Increases/Decreases the Proton Pack device LED brightness | Toggles between Power Cell, Cyclotron, Inner Cyclotron, or Inner Cyclotron Switch Panel devices |
 | 3 | Music & SFX Volume | `(Intensify + Top Dial)` Increases/Decreases SFX Volume | `(Barrel Wing Button + Top Dial)` Increases/Decreases Music Volume |
 | 2 | Switch&nbsp;Music&nbsp;Track | Cycle forward in music queue | Cycle backwards in music queue |
-| 1 | Play&nbsp;or&nbsp;Stop&nbsp;Music / System&nbsp;Mute | Start/stop music playback | Mute the Proton Pack and Neutrona Wand  or revert back to the previous volume<sup>3 |
+| 1 | Play&nbsp;or&nbsp;Stop&nbsp;Music / System&nbsp;Mute | Start/stop music playback | Mute the Proton Pack and Neutrona Wand  or revert back to the previous volume<sup>3</sup> |
 
 <sup>1</sup> Note that LED/segment #5 will stay solid when the single-track loop is enabled while in the top menu system; it will blink on/off when looping is disabled.
 
@@ -326,10 +329,10 @@ To access Menu Level 2, use the `Top Dial` on the top of the wand to move down a
 
 | Option | Purpose | Intensify Button | Barrel Wing Button |
 |:------:|---------|------------------|--------------------|
-| 5 | Firing&nbsp;Mode&nbsp;Selection | Cycle through VG/CTS operation modes<sup>4</sup> | Cycle through VG colour modes <sup>5</sup> |
+| 5 | Firing&nbsp;Mode&nbsp;Selection | Cycle through VG/CTS operation modes<sup>4</sup> | Cycle through VG colour modes<sup>5</sup> |
 | 4 | Overheating / Smoke | Enable/Disable Overheating Ability | Enable/Disable Smoke Effects |
-| 3 | Cyclotron&nbsp;LED&nbsp;Control | Change Cyclotron Rotation | Toggle between 1 (centered) or 3 LEDs in the Cyclotron Lid for 1984/1989 modes |
-| 2 | Vibration&nbsp;Settings | Enable/Disable Proton Pack vibration or vibration during firing | Enable/Disable Neutrona Wand vibration or vibration during firing |
+| 3 | Cyclotron&nbsp;LED&nbsp;Control | Change Cyclotron rotation direction | Toggle between 1 or 3 centered LEDs in the Cyclotron Lid for 1984/1989 modes |
+| 2 | Vibration&nbsp;Settings | Cycle through Proton Pack vibration options<sup>6</sup> | Cycle through Neutrona Wand vibration options |
 | 1 | Year&nbsp;Mode&nbsp;Selection | Cycle through 1984, 1989, Afterlife, and Frozen Empire modes | Enable/Disable the Proton Stream impact sound effects |
 
 <sup>4</sup> Switch between Video Game and Cross the Streams (CTS) operation modes. Note that LED/segment #5 will stay solid when CTS or CTS Mix are enabled while in Menu Level 2. Note also that Video Game mode is only available in Super Hero mode.
@@ -340,6 +343,8 @@ To access Menu Level 2, use the `Top Dial` on the top of the wand to move down a
 - Enable only the Power Cell LEDs to change colours (requires RGB Power Cell such as that offered by Frutto Technology).
 - Enable only the Cyclotron LEDs to change colours (requires RGB replacement such as that offered by Frutto Technology).
 - Enable both the Power Cell and Cyclotron to use video game colours.
+
+<sup>6</sup> See [Inner Cyclotron](CYCLOTRON_INNER.md) for more information on the motorised cyclotron modification for the Proton Pack.
 
 To exit the menu system, navigate to `Menu Level 1, Option 5` (Slo-blo LED is no longer illuminated) and press the `Barrel Wing Button`. A voice callout will be heard when transitioning between the top and sub menu levels.
 

@@ -19,13 +19,15 @@ Connections for the pack should be made according to the tables below.
 | Label | Pins | Notes |
 |-------|------|-------|
 | BATTERY 5V-IN | +/\- | Power from battery. **This MUST be a regulated 5V source!** |
-| Volume | D3/GND/D2 | Rotary encoder connection for pack volume adjusted via crank generator knob |
-| SW1 | D31/GND | Stock connection for main switch under the Ion Arm |
+| Volume | D3/GND/D2 | Rotary encoder connection for pack volume adjusted via crank generator knob. |
+| SW1 | D31/GND | Stock connection for main switch under the Ion Arm. |
 | SW3/SW4 | GND/D27/D25/GND | Stock connection for Cyclotron panel toggles:<br><br>SW3 (2 pins on left side) = Year Mode Toggle.<br>SW4 (2 pins on right side) = Vibration toggle. |
-| SW6 | GND/D23 | Stock connection for ribbon cable disconnection alarm (wire order does not matter) |
-| M1 | VCC/GND | Stock connection for pack vibration motor (D45) |
-| Power Cell | VCC/D53/GND/PCCYC | Stock connection for Power Cell LEDs (continues to Cyclotron Lid) |
-| Cyclotron | D43/GND/PCCYC/VCC | Stock connection Cyclotron lens LEDs (continues from Power Cell), includes lid sensor |
+| SW6 | GND/D23 | Stock connection for ribbon cable disconnection alarm (wire order does not matter). |
+| M1 | VCC/GND | Stock connection for pack vibration motor (D45) or cyclotron motor<sup>1</sup>. |
+| Power Cell | VCC/D53/GND/PCCYC | Stock connection for Power Cell LEDs (continues to Cyclotron Lid). |
+| Cyclotron | D43/GND/PCCYC/VCC | Stock connection Cyclotron lens LEDs (continues from Power Cell), includes lid sensor. |
+
+<sup>1</sup> For more information on the motorised cyclotron modification see [Inner Cyclotron](CYCLOTRON_INNER.md).
 
 ### Special Connectors
 
