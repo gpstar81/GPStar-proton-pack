@@ -232,7 +232,8 @@ void loop() {
   updateAudio();
 
   // Check current voltage/amperage draw using available methods if enabled.
-  if(b_use_power_meter) {
+  if(b_use_power_meter && b_pack_post_finish) {
+    // Only check if power meter if present and self-test has completed.
     checkPowerMeter();
   }
 

@@ -126,7 +126,12 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
       case SLIME:
         switch(i_device) {
           case POWERCELL:
-            return C_RED5;
+            if(SYSTEM_YEAR == SYSTEM_1989) {
+              return C_PINK;
+            }
+            else {
+              return C_GREEN;
+            }
           break;
 
           case CYCLOTRON_OUTER:
