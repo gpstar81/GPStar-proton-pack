@@ -51,3 +51,35 @@ Either of the TalentCell<sup>1</sup> battery packs just mentioned in conjunction
 For those who wish to make use of smoke effects, the need for multiple batteries has become more apparent and recommended. Every addition and upgrade to your pack and wand comes at a cost of power, and as of 2024 the number of LEDs in use may require up to 1.2A just for the base system functionality. While most DIY and community smoke kits may require 1.5-2.5A each, which easily pushes the stated limit (3A) of a single TalentCell battery.
 
 Please follow our diagrams in the [Smoke Guide](SMOKE.md) for more information about how to make use of multiple batteries. With the addition of the [GPStar Power Hub](https://gpstartechnologies.com/products/gpstar-power-hub) this is much easier as you can use a single device with a standalone battery to operate up to 2 smoke kits simultaneously. Per our recommendations, smoke kits can and should be triggered by use of a relay which also makes this scenario possible, as it provides isolation between the power source to the primary electronics from the high-draw heating elements used in most smoke kits.
+
+## Charging Switch
+
+Some users have made use of what's called the "DPDT Mod" which uses any standard "Dual-Pole, Dual-Throw" [toggle](https://a.co/d/gVtXMck) or [switch](https://a.co/d/3EYqrDI) to act as a master kill switch to the electronics, but allowing a Talentcell battery to be charged. Assuming you use both the 5V from the USB port and 12V from the barrel jack on a standard Talentcell battery (regardless of mAh capacity), the basic installation would look like this:
+
+- A [5.5mm x 2.1mm (or 5521) female port](https://a.co/d/hxna1qj) is installed on the Proton Pack as a charging port
+- All ground connections are tied together: from the USB, Barrel Jack, and Charging Port
+- Each positive (+) connection is attached to a post on the toggle or switch as follows:
+	- The 12V+ and 5V+ to the Proton Pack are connected to the upper posts of the toggle/switch
+	- The Barrel Jack's 12V+ and USB's 5V+ are connected to the center posts of the toggle/switch
+	- ONLY the 12V+ from the charging port is connected to the end OPPOSITE the Proton Pack connections
+
+For a visual aid see the ASCII drawing below for reference. The 12V is intended to go to your audio amplifier, while the 5V goes to the Proton Pack PCB. **If using the GPStar Audio Amp** which can supply 5V to your pack/wand PCB's you can simply use the 12V connection only and ignore all 5V connections shown/mentioned.
+
+**Note:** In order to use the Talentcell or charge it, the battery itself must be in the ON position. If you wish to conserve power once charged, turn off the battery via its built-in switch if you intend to store or not use your equipment for a long period.
+
+```
+Proton Pack
+  -------------- Negative from Common Ground
+  |
+ Amp   PCB ----- Negative from Common Ground
+  |+    |+    
+===========
+|12V+  5V+|
+| |     | |
+|12V+  5V+| == Common Center to Battery (Jack/USB)    
+| |       |
+|12V+  NC*|  *No Connection for 5V+ side (USB)
+===========
+  |+
+Charging Port -- Negative from Common Ground
+```

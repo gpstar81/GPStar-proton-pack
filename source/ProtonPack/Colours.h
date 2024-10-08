@@ -126,6 +126,14 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
       case SLIME:
         switch(i_device) {
           case POWERCELL:
+            if(SYSTEM_YEAR == SYSTEM_1989) {
+              return C_PINK;
+            }
+            else {
+              return C_GREEN;
+            }
+          break;
+
           case CYCLOTRON_OUTER:
           case CYCLOTRON_INNER:
           case CYCLOTRON_PANEL:
@@ -188,7 +196,12 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
           case CYCLOTRON_PANEL:
           case VENT_LIGHT:
           default:
-            return C_REDGREEN;
+            if(b_christmas) {
+              return C_REDGREEN;
+            }
+            else {
+              return C_ORANGEPURPLE;
+            }
           break;
         }
       break;
@@ -428,9 +441,9 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
     break;
 
     case C_ORANGEPURPLE:
-      // Alternate between orange (32) and purple (192).
-      if(i_curr_colour[i_device] != 32 && i_curr_colour[i_device] != 192) {
-        i_curr_colour[i_device] = 32; // Reset if out of range.
+      // Alternate between orange (15) and purple (210).
+      if(i_curr_colour[i_device] != 15 && i_curr_colour[i_device] != 210) {
+        i_curr_colour[i_device] = 15; // Reset if out of range.
         i_output_colour = i_curr_colour[i_device];
       }
 
@@ -438,13 +451,13 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
         i_count[i_device]++;
 
         if(i_count[i_device] % i_cycle == 0) {
-          if(i_curr_colour[i_device] == 32) {
-            i_curr_colour[i_device] = 192;
+          if(i_curr_colour[i_device] == 15) {
+            i_curr_colour[i_device] = 210;
             i_output_colour = i_curr_colour[i_device];
             i_count[i_device] = 1; // Reset counter.
           }
           else {
-            i_curr_colour[i_device] = 32;
+            i_curr_colour[i_device] = 15;
             i_output_colour = i_curr_colour[i_device];
             i_count[i_device] = 1; // Reset counter.
           }

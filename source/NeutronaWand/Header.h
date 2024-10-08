@@ -36,6 +36,7 @@
 #define BARREL_HAT_LED_PIN 22 // Hat light at front of the wand near the barrel tip. (Orange LED)
 #define TOP_HAT_LED_PIN 23 // Hat light at top of the wand body near vent. (Orange or White LED)
 #define BARREL_TIP_LED_PIN 24 // White LED at tip of the wand barrel. (White LED)
+#define WAND_STATUS_LED_PIN 38 // V1.4 GPStar Neutrona Wand onboard LED pin.
 #define WAND_SWITCH_PIN A0
 #define BARGRAPH_LED_1_PIN A1
 #define BARGRAPH_LED_2_PIN A2
@@ -117,7 +118,7 @@ enum BARGRAPH_EEPROM_FIRING_ANIMATIONS BARGRAPH_EEPROM_FIRING_ANIMATION;
  * This affects which CTS "Cross The Streams" sounds are used as the sound effects are different depending on the year.
  * CTS_DEFAULT lets the system choose based on the year setting of the Proton Pack.
  */
-enum WAND_YEAR_CTS_SETTING { CTS_DEFAULT, CTS_1984, CTS_1989, CTS_AFTERLIFE, CTS_FROZEN_EMPIRE };
+enum WAND_YEAR_CTS_SETTING { CTS_DEFAULT, CTS_1984, CTS_AFTERLIFE };
 enum WAND_YEAR_CTS_SETTING WAND_YEAR_CTS;
 
 /*
@@ -187,8 +188,8 @@ uint16_t d_white_light_interval = i_afterlife_blink_interval;
  * Rotary encoder on the top of the wand. Changes the wand power level and controls the wand settings menu.
  * Also controls independent music volume while the pack/wand is off and if music is playing.
  */
-millisDelay ms_firing_mode_switch; // Timer for rotary firing mode select speed limit.
-const uint8_t i_firing_mode_switch_delay = 50; // Time to delay switching firing modes.
+millisDelay ms_rotary_encoder; // Timer for slowing the rotary encoder spin.
+const uint8_t i_rotary_encoder_delay = 50; // Time to delay switching firing modes.
 static uint8_t prev_next_code = 0;
 static uint16_t store = 0;
 
@@ -197,8 +198,9 @@ static uint16_t store = 0;
  *
  * Vibration default is based on the toggle switch position from the Proton Pack. These are references for the EEPROM menu. Empty is a zero value, not used in the EEPROM.
  */
-enum VIBRATION_MODES_EEPROM { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE, VIBRATION_DEFAULT };
-enum VIBRATION_MODES_EEPROM VIBRATION_MODE_EEPROM;
+enum VIBRATION_MODES { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE, VIBRATION_DEFAULT };
+enum VIBRATION_MODES VIBRATION_MODE_EEPROM;
+enum VIBRATION_MODES VIBRATION_MODE;
 const uint8_t i_vibration_level_min = 65;
 uint8_t i_vibration_level = i_vibration_level_min;
 uint8_t i_vibration_level_prev = 0;
@@ -254,6 +256,15 @@ const uint16_t i_overheat_delay_increment = 1000; // Used to increment the overh
 const uint16_t i_overheat_delay_max = 60000; // The maximum amount of time before an overheat sequence starts while firing. 60 seconds because of uint16_t and voice limitations.
 
 /*
+ * Wand power level. Controlled by the rotary encoder on the top of the wand.
+ * You can enable or disable overheating for each power level individually in the user adjustable values at the top of this file.
+ */
+const uint8_t i_power_level_max = 5;
+const uint8_t i_power_level_min = 1;
+uint8_t i_power_level = 1;
+uint8_t i_power_level_prev = 1;
+
+/*
  * Stock Hasbro Bargraph timers
  */
 millisDelay ms_bargraph;
@@ -272,7 +283,9 @@ HT16K33 ht_bargraph;
  * The Frutto 28-segment bargraph is automatically detected on boot and sets this to true.
  * Part #: BL28Z-3005SA04Y
  */
-bool b_28segment_bargraph = false;
+enum BARGRAPH_TYPES { SEGMENTS_5, SEGMENTS_28, SEGMENTS_30 };
+enum BARGRAPH_TYPES BARGRAPH_TYPE;
+enum BARGRAPH_TYPES BARGRAPH_TYPE_EEPROM;
 
 const uint8_t i_bargraph_interval = 4;
 const uint8_t i_bargraph_wait = 180;
@@ -290,15 +303,23 @@ uint16_t i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
 
  * Segment Layout:
  * 5: full: 23 - 27  (5 segments)
- * 4: 3/4: 17 - 22	 (6 segments)
- * 3: 1/2: 12 - 16	 (5 segments)
- * 2: 1/4: 5 - 11	   (7 segments)
- * 1: none: 0 - 4	   (5 segments)
+ * 4: 3/4: 17 - 22   (6 segments)
+ * 3: 1/2: 12 - 16   (5 segments)
+ * 2: 1/4: 5 - 11    (7 segments)
+ * 1: none: 0 - 4    (5 segments)
  */
-const uint8_t i_bargraph_segments = 28;
-const uint8_t i_bargraph_invert[i_bargraph_segments] PROGMEM = {54, 38, 22, 6, 53, 37, 21, 5, 52, 36, 20, 4, 51, 35, 19, 3, 50, 34, 18, 2, 49, 33, 17, 1, 48, 32, 16, 0};
-const uint8_t i_bargraph_normal[i_bargraph_segments] PROGMEM = {0, 16, 32, 48, 1, 17, 33, 49, 2, 18, 34, 50, 3, 19, 35, 51, 4, 20, 36, 52, 5, 21, 37, 53, 6, 22, 38, 54};
+const uint8_t i_bargraph_segments = 30;
+const uint8_t i_bargraph_invert[i_bargraph_segments - 2] PROGMEM = {54, 38, 22, 6, 53, 37, 21, 5, 52, 36, 20, 4, 51, 35, 19, 3, 50, 34, 18, 2, 49, 33, 17, 1, 48, 32, 16, 0};
+const uint8_t i_bargraph_normal[i_bargraph_segments - 2] PROGMEM = {0, 16, 32, 48, 1, 17, 33, 49, 2, 18, 34, 50, 3, 19, 35, 51, 4, 20, 36, 52, 5, 21, 37, 53, 6, 22, 38, 54};
+const uint8_t i_bargraph_power_table_28[i_power_level_max + 1] PROGMEM = {0, 4, 11, 16, 22, 27};
 bool b_bargraph_status[i_bargraph_segments] = {};
+
+/*
+  30 Segment bargraph mapping.
+*/
+const uint8_t i_bargraph_wamco_invert[i_bargraph_segments] PROGMEM = {64, 48, 32, 16, 0, 1, 17, 33, 49, 65, 66, 50, 34, 18, 2, 3, 19, 35, 51, 67, 4, 20, 36, 52, 68, 53, 37, 21, 5, 69};
+const uint8_t i_bargraph_wamco_normal[i_bargraph_segments] PROGMEM = {69, 5, 21, 37, 53, 68, 52, 36, 20, 4, 67, 51, 35, 19, 3, 2, 18, 34, 50, 66, 65, 49, 33, 17, 1, 0, 16, 32, 48, 64};
+const uint8_t i_bargraph_power_table_wamco[i_power_level_max + 1] PROGMEM = {0, 6, 12, 18, 24, 29};
 
 /*
  * (Optional) Support for Video Game Accessories (coming soon)
@@ -343,6 +364,7 @@ enum FIRING_MODES FIRING_MODE;
 enum FIRING_MODES LAST_FIRING_MODE;
 enum STREAM_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM };
 enum STREAM_MODES STREAM_MODE;
+bool b_christmas = false; // Used in HOLIDAY mode to change from orange/purple to red/green.
 
 /*
  * Firing timers.
@@ -370,15 +392,6 @@ uint8_t i_slime_tether_count = 0; // Used to keep track of how many slime tether
 uint16_t i_last_firing_effect_mix = 0; // Used by standalone Neutrona Wand.
 
 /*
- * Wand power level. Controlled by the rotary encoder on the top of the wand.
- * You can enable or disable overheating for each power level individually in the user adjustable values at the top of this file.
- */
-const uint8_t i_power_level_max = 5;
-const uint8_t i_power_level_min = 1;
-uint8_t i_power_level = 1;
-uint8_t i_power_level_prev = 1;
-
-/*
  * Wand / Pack communication
  */
 SerialTransfer wandComs;
@@ -388,7 +401,7 @@ SerialTransfer wandComs;
  * Used to identify the state of the wand as it connects to a Proton Pack.
  * These should be mutually exclusive and non-overlapping states for the wand communications.
  */
-enum WAND_CONN_STATES { NC_BENCHTEST, PACK_DISCONNECTED, SYNCHRONIZING, PACK_CONNECTED };
+enum WAND_CONN_STATES { NC_BENCHTEST, PACK_DISCONNECTED, PACK_CONNECTED };
 enum WAND_CONN_STATES WAND_CONN_STATE;
 
 /*
@@ -396,6 +409,7 @@ enum WAND_CONN_STATES WAND_CONN_STATE;
  */
 bool b_pack_on = false; // Denotes the pack has been powered on.
 bool b_pack_alarm = false; // Denotes the pack alarm is sounding (ribbon cable disconnected).
+bool b_pack_post_finish = true; // Checks whether the attached pack is currently in its POST sequence. Assume finished unless pack tells us otherwise.
 bool b_pack_ion_arm_switch_on = false; // For MODE_ORIGINAL. Lets us know if the Proton Pack Ion Arm switch is on to give power to the pack & wand.
 bool b_pack_cyclotron_lid_on = false; // For SYSTEM_FROZEN_EMPIRE. Lets us know if the pack's cyclotron lid is on or not. Default to false to favor FE effects unless told otherwise.
 uint8_t i_cyclotron_speed_up = 1; // For telling the pack to speed up or slow down the Cyclotron lights.

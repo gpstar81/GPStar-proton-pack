@@ -42,7 +42,7 @@ This chart lists only the components in the stock pack which will be reused, whi
 |  |  | Black | GND |  |
 | SW3 | <font color="blue">Blue</font> | <font color="green">Green</font> | SPDT Toggle | Left toggle switch inside the Cyclotron: Turns rumble motor on (up) or off (down)  |
 |  |  | <font color="blue">Blue</font> |  |  |
-| SW4 |  | <font color="green">Green</font> | SPDT Toggle | Right toggle switch inside the Cyclotron: Change Cyclotron spin and sound theme between Afterlife/Frozen Empire (up) or 1984/1989 (down) |
+| SW4 |  | <font color="green">Green</font> | SPDT Toggle | Right toggle switch inside the Cyclotron: Change sound theme between Afterlife (up) or 1984 (down) |
 |  |  | <font color="red">Red</font> |  |  |
 | SW6 | <font color="red">Red</font> | <font color="red">Red</font> | VCC | Sensor on the Cyclotron cable, triggers alarm beeps when disconnected |
 |  |  | Black | GND |  |

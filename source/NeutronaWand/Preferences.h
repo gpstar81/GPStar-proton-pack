@@ -56,6 +56,7 @@ struct objLEDEEPROM {
   uint8_t barrel_spectral_custom;
   uint8_t barrel_spectral_saturation_custom;
   uint8_t num_barrel_leds;
+  uint8_t num_bargraph_leds;
 };
 
 /*
@@ -255,19 +256,15 @@ void readEEPROM() {
         default:
           WAND_YEAR_MODE = YEAR_DEFAULT;
         break;
-
         case 2:
           WAND_YEAR_MODE = YEAR_1984;
         break;
-
         case 3:
           WAND_YEAR_MODE = YEAR_1989;
         break;
-
         case 4:
           WAND_YEAR_MODE = YEAR_AFTERLIFE;
         break;
-
         case 5:
           WAND_YEAR_MODE = YEAR_FROZEN_EMPIRE;
         break;
@@ -280,21 +277,11 @@ void readEEPROM() {
         default:
           WAND_YEAR_CTS = CTS_DEFAULT;
         break;
-
         case 2:
           WAND_YEAR_CTS = CTS_1984;
         break;
-
-        case 3:
-          WAND_YEAR_CTS = CTS_1989;
-        break;
-
         case 4:
           WAND_YEAR_CTS = CTS_AFTERLIFE;
-        break;
-
-        case 5:
-          WAND_YEAR_CTS = CTS_FROZEN_EMPIRE;
         break;
       }
     }
@@ -317,9 +304,10 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.default_system_volume > 0 && obj_config_eeprom.default_system_volume <= 100 && b_gpstar_benchtest == true) {
-      i_volume_master_percentage = obj_config_eeprom.default_system_volume;
-      i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+    if(obj_config_eeprom.default_system_volume > 0 && obj_config_eeprom.default_system_volume <= 101 && b_gpstar_benchtest == true) {
+      // EEPROM value is from 1 to 101; subtract 1 to get the correct percentage.
+      i_volume_master_percentage = obj_config_eeprom.default_system_volume - 1;
+      i_volume_master_eeprom = MINIMUM_VOLUME - ((MINIMUM_VOLUME - i_volume_abs_max) * i_volume_master_percentage / 100);
       i_volume_revert = i_volume_master_eeprom;
       i_volume_master = i_volume_master_eeprom;
     }
@@ -405,31 +393,29 @@ void readEEPROM() {
         default:
           // Do nothing. Readings are taken from the vibration toggle switch from the Proton pack or configuration setting in stand alone mode.
           VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
+          VIBRATION_MODE = VIBRATION_FIRING_ONLY;
         break;
 
         case 3:
-          b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
-          b_vibration_enabled = false; // Disable wand vibration.
           VIBRATION_MODE_EEPROM = VIBRATION_NONE;
+          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
         break;
 
         case 2:
           b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
-          b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
-          b_vibration_enabled = true; // Enable wand vibration.
           VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
+          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
         break;
 
         case 1:
           b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
-          b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
-          b_vibration_enabled = true; // Enable wand vibration.
           VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
+          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
         break;
       }
     }
 
-    // Rebuild the over heat enabled modes.
+    // Rebuild the overheat enabled power levels.
     resetOverheatLevels();
 
     // Reset the blinking white LED interval.
@@ -463,6 +449,20 @@ void readEEPROM() {
         break;
       }
     }
+
+    if(obj_led_eeprom.num_bargraph_leds > 0 && obj_led_eeprom.num_bargraph_leds != 255) {
+      if(obj_led_eeprom.num_bargraph_leds < 30) {
+        BARGRAPH_TYPE_EEPROM = SEGMENTS_28;
+      }
+      else {
+        BARGRAPH_TYPE_EEPROM = SEGMENTS_30;
+      }
+
+      if(BARGRAPH_TYPE != SEGMENTS_5) {
+        // Only override the bargraph LED count if we are not using a stock bargraph.
+        BARGRAPH_TYPE = BARGRAPH_TYPE_EEPROM;
+      }
+    }
   }
   else {
     // CRC doesn't match; let's clear the EEPROMs to be safe.
@@ -490,16 +490,22 @@ void saveLEDEEPROM() {
   uint16_t i_eepromLEDAddress = i_eepromAddress + sizeof(objConfigEEPROM);
 
   uint8_t i_barrel_led_count = 5; // 5 = Hasbro, 48 = Frutto.
+  uint8_t i_bargraph_led_count = 28; // 28 segment, 30 segment.
 
   if(WAND_BARREL_LED_COUNT == LEDS_48) {
     i_barrel_led_count = 48;
   }
 
-  // For now we are just saving the Spectral Custom colour.
+  if(BARGRAPH_TYPE_EEPROM == SEGMENTS_30) {
+    i_bargraph_led_count = 30;
+  }
+
+  // Build the LED EEPROM object with the new data.
   objLEDEEPROM obj_led_eeprom = {
     i_spectral_wand_custom_colour,
     i_spectral_wand_custom_saturation,
-    i_barrel_led_count
+    i_barrel_led_count,
+    i_bargraph_led_count
   };
 
   // Save to the EEPROM.
@@ -518,6 +524,9 @@ void clearConfigEEPROM() {
 }
 
 void saveConfigEEPROM() {
+  // Convert the current EEPROM volume value into a percentage.
+  uint8_t i_eeprom_volume_master_percentage = 100 * (MINIMUM_VOLUME - i_volume_master_eeprom) / MINIMUM_VOLUME;
+
   // 1 = false, 2 = true.
   uint8_t i_cross_the_streams = 1;
   uint8_t i_cross_the_streams_mix = 1;
@@ -536,7 +545,7 @@ void saveConfigEEPROM() {
   uint8_t i_CTS_mode = 1; // 1 = default, 2 = 1984, 3 = 1989, 4 = Afterlife, 5 = Frozen Empire.
   uint8_t i_system_mode = 1; // 1 = super hero, 2 = original.
   uint8_t i_beep_loop = 2;
-  uint8_t i_default_system_volume = 100; // <- i_volume_master_percentage
+  uint8_t i_default_system_volume = 101; // <- i_eeprom_volume_master_percentage + 1
   uint8_t i_overheat_start_timer_level_5 = i_ms_overheat_initiate_level_5 / 1000;
   uint8_t i_overheat_start_timer_level_4 = i_ms_overheat_initiate_level_4 / 1000;
   uint8_t i_overheat_start_timer_level_3 = i_ms_overheat_initiate_level_3 / 1000;
@@ -655,22 +664,12 @@ void saveConfigEEPROM() {
   }
 
   switch(WAND_YEAR_CTS) {
-    case CTS_FROZEN_EMPIRE:
-      i_CTS_mode = 5;
-    break;
-
     case CTS_AFTERLIFE:
       i_CTS_mode = 4;
     break;
-
-    case CTS_1989:
-      i_CTS_mode = 3;
-    break;
-
     case CTS_1984:
       i_CTS_mode = 2;
     break;
-
     case CTS_DEFAULT:
     default:
       i_CTS_mode = 1;
@@ -681,14 +680,9 @@ void saveConfigEEPROM() {
     i_system_mode = 2;
   }
 
-  if(i_volume_master_percentage <= 100) {
-    // Minimum volume in EEPROM is 1; maybe change later?
-    if(i_volume_master_percentage == 0) {
-      i_default_system_volume = 1;
-    }
-    else {
-      i_default_system_volume = i_volume_master_percentage;
-    }
+  if(i_eeprom_volume_master_percentage <= 100) {
+    // Need to add 1 to this because the EEPROM cannot contain a 0 value.
+    i_default_system_volume = i_eeprom_volume_master_percentage + 1;
   }
 
   if(b_beep_loop != true) {

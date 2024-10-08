@@ -39,35 +39,6 @@
 uint8_t i_cyclotron_leds = 12;
 
 /*
- * Power Cell LEDs
- * The number of Power Cell LEDs. Stock HasLab has 13.
- * If you are installing a Frutto Technology Power Cell which has 15 LEDs, then change this to 15.
- * Note that you may need to adjust the i_powercell_delay_1984 and i_powercell_delay_2021 to a lower number to increase the Power Cell update speed.
- * Any settings saved in the EEPROM menu will overwrite these settings.
- */
-uint8_t i_powercell_leds = 13;
-
-/*
- * Cyclotron Video Game Colour Toggle
- * If you are using Cyclotron Lid LEDs and Inner Cyclotron LEDs with RGB support, such as the Frutto Technology Cyclotron LEDs or NeoPixel Rings etc.
- * You can toggle if you want it to change colours to match the Video Game Modes or stay the default red at all times.
- * Note that this has no effect on the stock HasLab Cyclotron Lid LEDs, which are red only.
- * The default setting is true, which makes the Cyclotron Lid and Inner Cyclotron change colours to match the Video Game Modes.
- * This can be toggled in the Neutrona Wand sub menu system.
- */
-bool b_cyclotron_colour_toggle = true;
-
-/*
- * Power Cell Video Game Colour Toggle
- * If you are using Power Cell LEDs with RGB support, such as the Frutto Technology Power Cells,
- * You can toggle if you want it to change colours to match the Video Game Modes or stay the default blue at all times.
- * Note that this has no effect on the stock HasLab Power Cell LEDs, which are blue only.
- * The default setting is true, which makes the Power Cell change colours to match the Video Game Modes.
- * This can be toggled in the Neutrona Wand sub menu system.
- */
-bool b_powercell_colour_toggle = true;
-
-/*
  * Cyclotron Lid LED delays.
  * Time in milliseconds between when a LED changes.
  * 1000 = 1 second.
@@ -103,6 +74,28 @@ const uint8_t i_1984_cyclotron_40_leds_cw[4] PROGMEM = { 0, 10, 18, 28 };
 const uint8_t i_1984_cyclotron_40_leds_ccw[4] PROGMEM = { 0, 28, 18, 10 };
 
 /*
+ * Cyclotron direction
+ * Set to true to have your Cyclotron spin clockwise. (default)
+ * This can be controlled by an optional switch on pin 29 and also from the Neutrona Wand sub menu system.
+ * Set to false to be counter clockwise.
+ * This can be overridden by whatever value is stored in the EEPROM.
+ */
+bool b_clockwise = true;
+
+/*
+ * When set to true, 1984/1989 mode LEDs will fade in and out.
+ */
+bool b_fade_cyclotron_led = true;
+
+/*
+ * When set to true, 1984/1989 will utilise the middle single LED only in each cyclotron lens.
+ * When set to false, 3 LEDs from each cyclotron lens will light up instead for 1984/1989 mode.
+ * Useful feature for Proton Packs that utiltise 3 LEDs per Cyclotron lens, such as the HasLab Proton Pack.
+ * This can also be toggled from the Neutrona Wand sub menu system.
+ */
+bool b_cyclotron_single_led = true;
+
+/*
  * Afterlife and Frozen Empire only.
  * When set to true, using LEDs that are not a ring will simulate a ring rotation for the Cyclotron LEDs in the lid.
  * For example, for the 12, 20 or 36 LED options, extra LEDs will be simulated to provide a delay/spinning effect.
@@ -110,6 +103,33 @@ const uint8_t i_1984_cyclotron_40_leds_ccw[4] PROGMEM = { 0, 28, 18, 10 };
  * This setting will be overridden by the EEPROM settings.
  */
 bool b_cyclotron_simulate_ring = true;
+
+/*
+ * Cyclotron Video Game Colour Toggle
+ * If you are using Cyclotron Lid LEDs and Inner Cyclotron LEDs with RGB support, such as the Frutto Technology Cyclotron LEDs or NeoPixel Rings etc.
+ * You can toggle if you want it to change colours to match the Video Game Modes or stay the default red at all times.
+ * Note that this has no effect on the stock HasLab Cyclotron Lid LEDs, which are red only.
+ * The default setting is true, which makes the Cyclotron Lid and Inner Cyclotron change colours to match the Video Game Modes.
+ * This can be toggled in the Neutrona Wand sub menu system.
+ */
+bool b_cyclotron_colour_toggle = true;
+
+/*
+ * Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels such as the ones used in the HasLab Cyclotron Lid.
+ * When using 12 LEDs for the Cyclotron Lid, the system will default it to always white (which the HasLab LEDs display as red at full brightness).
+ * Setting this to true will override it and allow CHSV colours to be applied to Cyclotron Lids with 12 LEDs.
+ * Note that a NeoPixel Jewel will use the CHSV colour space which can make the default HasLab Cyclotron LEDs flicker when the jewel N-Filter vent-light strobes.
+ */
+const bool b_cyclotron_haslab_chsv_colour_change = false;
+
+/*
+ * Power Cell LEDs
+ * The number of Power Cell LEDs. Stock HasLab has 13.
+ * If you are installing a Frutto Technology Power Cell which has 15 LEDs, then change this to 15.
+ * Note that you may need to adjust the i_powercell_delay_1984 and i_powercell_delay_2021 to a lower number to increase the Power Cell update speed.
+ * Any settings saved in the EEPROM menu will overwrite these settings.
+ */
+uint8_t i_powercell_leds = 13;
 
 /*
  * Power Cell LED delay in milliseconds.
@@ -126,12 +146,32 @@ uint8_t i_powercell_delay_1984 = POWERCELL_DELAY_1984_13_LED;
 uint8_t i_powercell_delay_2021 = POWERCELL_DELAY_2021_13_LED;
 
 /*
+ * Invert the Power Cell animation.
+ * Default is false.
+ */
+bool b_powercell_invert = false;
+
+/*
+ * Power Cell Video Game Colour Toggle
+ * If you are using Power Cell LEDs with RGB support, such as the Frutto Technology Power Cells,
+ * You can toggle if you want it to change colours to match the Video Game Modes or stay the default blue at all times.
+ * Note that this has no effect on the stock HasLab Power Cell LEDs, which are blue only.
+ * The default setting is true, which makes the Power Cell change colours to match the Video Game Modes.
+ * This can be toggled in the Neutrona Wand sub menu system.
+ */
+bool b_powercell_colour_toggle = true;
+
+/*
  * (OPTIONAL) Inner Cyclotron (cake) NeoPixel ring
  * If you are not using any, then this can be left alone.
- * Leave at least one in place even if you are not using this optional item.
- * You can use up to 35 LEDs.
- * 24 -> For a 24 LED NeoPixel Ring
- * 35 -> For a 35 LED NeoPixel Ring. (Recommended ring size)
+ * Leave at least one value in place even if you are not using this optional item.
+ * You can use up to 36 LEDs.
+ * 12 -> For a 12 LED NeoPixel Ring.
+ * 23 -> For a 23 LED NeoPixel Ring.
+ * 24 -> For a 24 LED NeoPixel Ring.
+ * 26 -> For a 26 LED NeoPixel Ring.
+ * 35 -> For a 35 LED NeoPixel Ring. (Recommended aftermarket ring size)
+ * 36 -> For a 36 LED NeoPixel Ring. (GPStar ring)
  */
 uint8_t i_inner_cyclotron_cake_num_leds = 35;
 
@@ -141,6 +181,26 @@ uint8_t i_inner_cyclotron_cake_num_leds = 35;
  * You can use up to 20 LEDs (eg. addressable fairy lights as recommended device)
  */
 uint8_t i_inner_cyclotron_cavity_num_leds = 0;
+
+/*
+ * Inner Cyclotron NeoPixel ring speed.
+ * The lower the number, the faster it will spin.
+ * If you are using a ring with less than 35 NeoPixels, you may need to slightly raise these numbers.
+ */
+#define INNER_CYCLOTRON_DELAY_1984_12_LED 15 // For 12 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_12_LED 12 // For 12 LEDs.
+#define INNER_CYCLOTRON_DELAY_1984_23_LED 12 // For 23 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_23_LED 8 // For 23 LEDs.
+#define INNER_CYCLOTRON_DELAY_1984_24_LED 12 // For 24 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_24_LED 8 // For 24 LEDs.
+#define INNER_CYCLOTRON_DELAY_1984_26_LED 12 // For 26 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_26_LED 8 // For 26 LEDs.
+#define INNER_CYCLOTRON_DELAY_1984_35_LED 9 // For 35 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_35_LED 5 // For 35 LEDs.
+#define INNER_CYCLOTRON_DELAY_1984_36_LED 9 // For 36 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_36_LED 5 // For 36 LEDs.
+uint8_t i_1984_inner_delay = INNER_CYCLOTRON_DELAY_1984_35_LED;
+uint8_t i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_35_LED;
 
 /*
  * If you use GRB (green/red/blue) instead of RGB (red/green/blue) addressable LEDs for your Inner Cyclotron LEDs, then set to true.
@@ -182,12 +242,6 @@ uint8_t i_powercell_brightness = 100;
 uint8_t i_cyclotron_brightness = 100;
 uint8_t i_cyclotron_inner_brightness = 100;
 uint8_t i_cyclotron_panel_brightness = 100;
-
-/*
- * When set to true, the Proton Pack will turn on automatically when it receives power.
- * If you want your Proton Pack to be silent, change your STARTUP_VOLUME to be 0 and or unplug the power to your amplifier.
- */
-bool b_demo_light_mode = false;
 
 /*
  * You can set the default master startup volume for your pack here.
@@ -241,73 +295,23 @@ const uint8_t VOLUME_MUSIC_MULTIPLIER = 5;
 const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 
 /*
- * When set to true, various impact and other stream effects will overlap and mix randomly into the Proton Stream for an added experience.
- */
-bool b_stream_effects = true;
-
-/*
- * Inner Cyclotron NeoPixel ring speed.
- * The lower the number, the faster it will spin.
- * If you are using a ring with less than 35 NeoPixels, you may need to slightly raise these numbers.
- */
-#define INNER_CYCLOTRON_DELAY_1984_12_LED 15 // For 12 LEDs.
-#define INNER_CYCLOTRON_DELAY_2021_12_LED 12 // For 12 LEDs.
-#define INNER_CYCLOTRON_DELAY_1984_23_LED 12 // For 23 LEDs.
-#define INNER_CYCLOTRON_DELAY_2021_23_LED 8 // For 23 LEDs.
-#define INNER_CYCLOTRON_DELAY_1984_24_LED 12 // For 24 LEDs.
-#define INNER_CYCLOTRON_DELAY_2021_24_LED 8 // For 24 LEDs.
-#define INNER_CYCLOTRON_DELAY_1984_26_LED 12 // For 26 LEDs.
-#define INNER_CYCLOTRON_DELAY_2021_26_LED 8 // For 26 LEDs.
-#define INNER_CYCLOTRON_DELAY_1984_35_LED 9 // For 35 LEDs.
-#define INNER_CYCLOTRON_DELAY_2021_35_LED 5 // For 35 LEDs.
-#define INNER_CYCLOTRON_DELAY_1984_36_LED 9 // For 36 LEDs.
-#define INNER_CYCLOTRON_DELAY_2021_36_LED 5 // For 36 LEDs.
-uint8_t i_1984_inner_delay = INNER_CYCLOTRON_DELAY_1984_35_LED;
-uint8_t i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_35_LED;
-
-/*
- * Cyclotron direction
- * Set to true to have your Cyclotron spin clockwise. (default)
- * This can be controlled by an optional switch on pin 29 and also from the Neutrona Wand sub menu system.
- * Set to false to be counter clockwise.
- * This can be overridden by whatever value is stored in the EEPROM.
- */
-bool b_clockwise = true;
-
-/*
- * When set to true, when vibration is enabled from the Proton Pack vibration toggle switch, the Proton Pack will always vibrate.
- * Note that turning off the vibration toggle switch will disable all individual vibration settings.
- * This can be enabled or disabled from the Neutrona Wand sub menu system.
- */
-bool b_vibration_enabled = true;
-
-/*
- * When set to true, when b_vibration_enabled is also set to true, the Proton Pack will only vibrate while the Neutrona Wand is firing.
- * Note that turning off the vibration toggle switch will disable all individual vibration settings.
- * This can be enabled or disabled from the Neutrona Wand sub menu system.
- */
-bool b_vibration_firing = true;
-
-/*
- * When set to true, 1984/1989 mode LEDs will fade in and out.
- */
-const bool b_fade_cyclotron_led = true;
-
-/*
- * When set to true, 1984/1989 will utilise the middle single LED only in each cyclotron lens.
- * When set to false, 3 LEDs from each cyclotron lens will light up instead for 1984/1989 mode.
- * Useful feature for Proton Packs that utiltise 3 LEDs per Cyclotron lens, such as the HasLab Proton Pack.
- * This can also be toggled from the Neutrona Wand sub menu system.
- */
-bool b_cyclotron_single_led = true;
-
-/*
  * Set to true to enable the onboard amplifier on the WAV Trigger.
  * This is for the WAV Trigger only and does not affect GPStar Audio.
  * If you use the output pins directly on the WAV Trigger board to your speakers, you will need to enable the onboard amp.
  * NOTE: The onboard mono audio amplifier and speaker connector specifications: 2W into 4 Ohms, 1.25W into 8 Ohms
  */
 const bool b_onboard_amp_enabled = false;
+
+/*
+ * When set to true, the Proton Pack will turn on automatically when it receives power.
+ * If you want your Proton Pack to be silent, change your STARTUP_VOLUME to be 0 and or unplug the power to your amplifier.
+ */
+bool b_demo_light_mode = false;
+
+/*
+ * When set to true, various impact and other stream effects will overlap and mix randomly into the Proton Stream for an added experience.
+ */
+bool b_stream_effects = true;
 
 /*
  * If you want the optional N-Filter NeoPixel jewel to strobe during overheat venting.
@@ -369,11 +373,11 @@ bool b_smoke_continuous_level_5 = true;
  * How long (in milliseconds) until the smoke pins (+ fan) are activated during continuous firing in each firing power level (not overheating venting).
  * Example: 30,000 milliseconds (30 seconds)
  */
-const uint32_t i_smoke_timer_level_1 = 30000;
-const uint32_t i_smoke_timer_level_2 = 15000;
-const uint32_t i_smoke_timer_level_3 = 10000;
-const uint32_t i_smoke_timer_level_4 = 7500;
-const uint32_t i_smoke_timer_level_5 = 6000;
+const uint16_t i_smoke_timer_level_1 = 30000;
+const uint16_t i_smoke_timer_level_2 = 15000;
+const uint16_t i_smoke_timer_level_3 = 10000;
+const uint16_t i_smoke_timer_level_4 = 7500;
+const uint16_t i_smoke_timer_level_5 = 6000;
 
 /*
  * How long you want your smoke pins (+ fan) to stay on while firing for each firing power level. (not overheating venting)
@@ -382,11 +386,11 @@ const uint32_t i_smoke_timer_level_5 = 6000;
  * This does not affect smoke during overheat.
  * This only affects how long your smoke stays on after it has been triggered in continuous firing.
  */
-const uint32_t i_smoke_on_time_level_1 = 3000;
-const uint32_t i_smoke_on_time_level_2 = 3000;
-const uint32_t i_smoke_on_time_level_3 = 3500;
-const uint32_t i_smoke_on_time_level_4 = 3500;
-const uint32_t i_smoke_on_time_level_5 = 4000;
+const uint16_t i_smoke_on_time_level_1 = 3000;
+const uint16_t i_smoke_on_time_level_2 = 3000;
+const uint16_t i_smoke_on_time_level_3 = 3500;
+const uint16_t i_smoke_on_time_level_4 = 3500;
+const uint16_t i_smoke_on_time_level_5 = 4000;
 
 /*
  * Enable or disable smoke during overheat sequences.
@@ -422,13 +426,6 @@ uint16_t i_ms_overheating_length_4 = 5000; // Time in milliseconds (5 seconds) f
 uint16_t i_ms_overheating_length_5 = 6000; // Time in milliseconds (6 seconds) for the overheating to last when the fans (and smoke when synced to fan) turns on. Power Level 5.
 
 /*
- * Set this to true if you want to know if your wand and pack are communicating.
- * If the wand and pack have a serial connection, you will hear a beeping sound.
- * Set to false to turn off the sound.
- */
-const bool b_diagnostic = false;
-
-/*
  * Set to false to disable the Proton Pack Ribbon Alarm switch.
  */
 bool b_use_ribbon_cable = true;
@@ -437,21 +434,20 @@ bool b_use_ribbon_cable = true;
  * Set to use an optional power meter device on the i2c bus.
  * Debug by setting the latter value to true to plot V/A data.
  */
-bool b_use_power_meter = true;
-bool b_show_power_data = false;
+const bool b_use_power_meter = true;
+const bool b_show_power_data = false;
+
+/*
+ * Set this to true if you want to know if your wand and pack are communicating.
+ * If the wand and pack have a serial connection, you will hear a beeping sound.
+ * Set to false to turn off the sound.
+ */
+const bool b_diagnostic = false;
 
 /*
  * Set to false to ignore reading data from the EEPROM.
  */
 const bool b_eeprom = true;
-
-/*
- * Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels such as the ones used in the HasLab Cyclotron Lid.
- * When using 12 LEDs for the Cyclotron Lid, the system will default it to always white (which the HasLab LEDs display as red at full brightness).
- * Setting this to true will override it and allow CHSV colours to be applied to Cyclotron Lids with 12 LEDs.
- * Note that a NeoPixel Jewel will use the CHSV colour space which can make the default HasLab Cyclotron LEDs flicker when the jewel N-Filter vent-light strobes.
- */
-const bool b_cyclotron_haslab_chsv_colour_change = false;
 
 /*
  *****

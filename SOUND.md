@@ -8,20 +8,22 @@ For instructions on loading audio files to a microSD card, please see the [AUDIO
 
 ## Audio Controllers
 
-Sounds are output via one of the supported polyphonic WAV audio controllers: Robertsonics WavTrigger or GPStar Audio. The former is a 3rd-party component originally included with all GPStar kits up until early 2024, while the latter is a fully custom solution which is part of the GPStar family of controllers for your cosplay needs.
+Sounds are output via one of the supported polyphonic WAV audio controllers: Robertsonics WAV Trigger or GPStar Audio. The former is a 3rd-party component originally included with all GPStar kits up until early 2024, while the latter is a fully custom solution which is part of the GPStar family of controllers for your cosplay needs.
 
 **Firmware Compatibility**
 
 The compatibility matrix below notes whether a device is compatible with major versions of the GPStar software for the Proton Pack and Neutrona Wand controllers. The version number inside each cell is the minimum firmware version required or strongly recommended for the respective device.
 
-| Controller Device | v1.x | v2.x | v3.x | v4.x | v5.0.x | v5.1.x |
-|-------------------|------|------|------|------|------|------|
-| Robertsonics WavTrigger  | v134 | v134 | v140 | v140 | v140 | v140 |
-| <img src='images/gpstar_logo.png' width=20 align="left"/>GPStar Audio | &mdash; | &mdash; | &mdash; | &mdash; | v100<sup>1</sup> | v102<sup>2</sup> |
+| Audio Device | v1.x | v2.x | v3.x | v4.x | v5.0.x | v5.1.x | v5.4.x |
+|-------------------|------|------|------|------|------|------|------|
+| Robertsonics WAV Trigger  | v134 | v134 | v140 | v140 | v140 | v140 | v140 |
+| <img src='images/gpstar_logo.png' width=20 align="left"/>GPStar Audio | &mdash; | &mdash; | &mdash; | &mdash; | v100<sup>1</sup> | v102<sup>2</sup> | v103<sup>3</sup> |
 
 <sup>1</sup> All initial orders for GPStar Audio controllers shipped with v100 firmware which delivers all of the basic functionality needed for a Pack+Wand operation.
 
-<sup>2</sup> The GPStar Audio v101 firmware added the Pause/Resume ability which is only accessible via the WiFi Web UI, while v102 focused on stability improvements.
+<sup>2</sup> The GPStar Audio v102 firmware added the Pause/Resume ability which is only accessible via the WiFi Web UI, while also providing stability improvements.
+
+<sup>3</sup> The GPStar Audio v103 firmware adjusts the internal gain for the line-out levels to improve audio quality prior to amplification (primarily with Proton Pack usage which relies on an external amp to drive larger speakers).
 
 **Firmware Updates**
 
@@ -74,7 +76,7 @@ The stock speaker is rated at 0.25W @ 16Ω and uses a cone made from plastic--es
 ---
 
 ### <img src='images/gpstar_logo.png' width=30 align="left"/>GPStar Audio on-board amplifier (stereo output) ###
-Rated for 2.5W @ 4Ω or 1.5W @ 8Ω per channel. 
+Rated for 2.5W @ 4Ω or 1.5W @ 8Ω per channel.
 
 ### WAV Trigger on-board amplifier (mono output only) ###
 Rated for 2W @ 4Ω or 1W @ 8Ω.

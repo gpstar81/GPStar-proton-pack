@@ -1,6 +1,6 @@
-# IDE Setup
+# Compiling & Flashing via IDE Setup
 
-The custom software needed for operation must be compiled and uploaded to your devices. This guide provides the list of required libraries for compilation and outlines the changes needed to support each board.
+The custom software needed for operation must be compiled and uploaded to your devices which can be accomplished using an interactive development environment (IDE). This guide provides the list of required libraries for compilation and outlines the changes needed to support each board.
 
 ## Supported Devices
 
@@ -13,7 +13,7 @@ Please refer to the table below for a list of devices and their supported softwa
 | <sup>d1</sup> DIY Arduino Mega Proton Pack   | Yes | Yes <sup>2</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> |
 | <sup>d1</sup> DIY Arduino Mega Neutrona Wand | Yes | Yes <sup>2</sup> | Yes <sup>2</sup> | Yes <sup>2</sup> | Yes <sup>2</sup> |
 
-<sup>d1</sup> These are now considered as "legacy" devices and have distinct end-of-life notes in later versions.
+<sup>d1</sup> These are now considered as "legacy" devices and have distinct end-of-life notes in later versions (see additional superscript notations).
 
 <sup>2</sup> Support for the Arduino Nano as a wand controller ended after the release of v2.2.0. That device must be replaced with a [Mega 2560 Pro Mini](https://www.amazon.com/s?k=Mega+2560+PRO+MINI) to support the later software releases.
 
@@ -37,6 +37,7 @@ The following libraries are required to be installed. All can be found within th
 - **SerialTransfer** by PowerBroker2 (3.1.3+)
 - **Simple ht16k33 Library** by Ipaseen (1.0.2+)
 - **Switch** by Albert van Dalen (1.2.4+)
+- **GPStar Audio Serial Library** by Michael Rajotte (1.1.0+)
 
 You will also need some basic Boards libraries:
 
@@ -49,7 +50,7 @@ If you are flashing updates to your existing setup, make sure that both your Pro
 
 ## Connection to your GPStar Proton Pack and Neutrona Wand PCB
 
-Use the included FTDI to USB programming cable that comes with the GPStar kits or use any other suitable FTDI 5V basic serial connector. The UART Pins on the PCB should align with with the standard wire order for FTDI-to-USB cables which use a single Dupont 6-pin connector. Observe these common colours and notes to ensure proper orientation:
+Use the included FTDI to USB programming cable that comes with your GPStar kit or use any other suitable FTDI 5V basic serial connector. The UART Pins on the PCB should align with with the standard wire order for FTDI-to-USB cables which use a single Dupont 6-pin connector. Observe these common colours and notes to ensure proper orientation:
 
 - The ground pin will typically be a black wire, while VCC will typically be red.
 - The DTR pin on the PCB will connect to a wire labelled either DTR or RTS.
@@ -58,9 +59,9 @@ Use the included FTDI to USB programming cable that comes with the GPStar kits o
 
 ![UART Connection](images/uart_pack.jpg)
 
-## Compiling and flashing the software
+## Compiling and Flashing the Software
 
-Once your have connected your GPStar board to your computer via the FTDI to USB cable, you will need to select it from your devices in the Arduino IDE and search for Mega.
+Once your have connected your GPStar board to your computer via the FTDI to USB cable, you will need to select it from your devices in the Arduino IDE and search for "2560" as these use the "Mega 2560" microcontroller.
 
 ![Board Selection](images/flash-gpstar-1.png)
 ![Board Selection Mega](images/flash-gpstar-2.png)

@@ -33,9 +33,9 @@ To access the EEPROM LED Menu System, hold down the `Intensify Button` and toggl
 |:------:|---------|------------------|--------------------|
 | 5 | Save or Clear the EEPROM settings | Clear all the LED settings in the Proton Pack and Neutrona Wand EEPROMs.<br/><br/>**The Proton Pack and Neutrona Wand will instead load the software defined defaults the next time you power-cycle from the battery.** | Save the current settings to the Proton Pack and Neutrona Wand EEPROMs. |
 | 4 | Neutrona Wand Barrel LED Count Toggle / Spectral Custom (Barrel) Colour | Toggle between 5 or 48 LEDs for your Neutrona Wand barrel. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Neutrona Wand barrel** for the Spectral Custom mode. |
-| 3 | Power Cell LED Count Toggle / Spectral Custom (Power Cell) Colour | Toggle between 15 or 13 LEDs for your Power Cell. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Power Cell** for the Spectral Custom mode. |
-| 2 | Cyclotron LED Count Toggle / Spectral Custom (Cyclotron) Colour | Toggle between 40, 36, 20 or 12 LEDs for your Cyclotron. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Cyclotron** for the Spectral Custom mode. |
-| 1 | Inner Cyclotron LED Count Toggle / Spectral Custom (Inner Cyclotron) Colour | Toggle Between 36, 35, 26, 24, 23 or 12 LEDs for your Inner Cyclotron. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Inner Cyclotron** for the Spectral Custom mode. |
+| 3 | Power Cell LED Count Toggle / Spectral Custom (Power Cell) Colour | Toggle between 13 or 15 LEDs for your Power Cell. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Power Cell** for the Spectral Custom mode. |
+| 2 | Cyclotron LED Count Toggle / Spectral Custom (Cyclotron) Colour | Toggle between 12, 20, 36 or 40 LEDs for your Cyclotron Lid. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Cyclotron** for the Spectral Custom mode. |
+| 1 | Inner Cyclotron LED Count Toggle / Spectral Custom (Inner Cyclotron) Colour | Toggle Between 12, 23, 24, 26, 35, or 36 LEDs for your Inner Cyclotron. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Inner Cyclotron** for the Spectral Custom mode. |
 
 <div class="page-break"></div>
 
@@ -43,12 +43,13 @@ To access the EEPROM LED Menu System, hold down the `Intensify Button` and toggl
 
 | Option | Purpose | Intensify&nbsp;Button | Barrel&nbsp;Wing&nbsp;Button |
 |:------:|---------|------------------|--------------------|
-| 5 | `unused` | `unused` | `unused` |
-| 4 | `unused` | `unused` | `unused` |
-| 3 | `unused` | `unused` | `unused` |
-| 2 | Inner Cyclotron LED Panel Toggle | Toggle the optional Inner Cyclotron LED Panel. | `unused` |
-| 1 | Inner Cyclotron GRB Toggle | Toggle your Inner Cyclotron from RGB or GRB LEDs. | `unused` |
+| 5 | 1984/1989&nbsp;Cyclotron&nbsp;Fade&nbsp;Toggle | Toggle whether the outer cyclotron LEDs have a fade effect or not in 1984 and 1989 year modes. | `unused` |
+| 4 | Bargraph&nbsp;Segment&nbsp;Count&nbsp;Toggle | Toggle between 28 segments or 30 segments for the optional bargraph.<sup>1</sup> | `unused` |
+| 3 | Power&nbsp;Cell&nbsp;Invert | Change the direction of the Power Cell animation. | `unused` |
+| 2 | Inner&nbsp;Cyclotron&nbsp;LED&nbsp;Panel&nbsp;Toggle | Toggle the optional Inner Cyclotron LED Panel between disabled (individual LEDs), static colours (for Frutto panel with prop-accurate coloured cliplite covers), and dynamic colours (for Frutto panel with clear cliplite covers). | `unused` |
+| 1 | Inner&nbsp;Cyclotron&nbsp;GRB&nbsp;Toggle | Toggle your Inner Cyclotron from RGB or GRB LEDs. | `unused` |
 
+<sup>1</sup> This setting will only take effect if you have an optional bargraph plugged into the i2c data port when the wand is first started.
 <div class="page-break"></div>
 
 ## EEPROM Configuration Menu
@@ -92,19 +93,21 @@ Please note whatever settings you have temporarily changed in the regular menus 
 | Option | Purpose | Intensify Button | Barrel Wing Button |
 |:------:|---------|------------------|--------------------|
 | 5 | Quick&nbsp;Vent / Wand&nbsp;Boot&nbsp;Errors | Enable/Disable the Quick Venting feature. When enabled, you can manually vent your Proton Pack by pressing the Intensify button while the top right toggle switch is switched down. <br><br>📝 `Super Hero mode only` | Enable to disable the Wand boot error mode. When enabled, if you turn on the Neutrona Wand while the top right toggle is up and activated, the Neutrona Wand enters an error mode and remains locked out until the switches are all turned off. <br><br>📝 `Super Hero mode only` |
-| 4 | Vibration&nbsp;Settings | Enable/Disable Proton Pack vibration or vibration during firing | Enable/Disable Neutrona Wand vibration or vibration during firing |
-| 3 | Beep&nbsp;Loop / VGA&nbsp;Colour&nbsp;Mode&nbsp;Toggles | Enable/Disable the looping beep sound effect in Afterlife and Frozen Empire Mode. | Cycle through VG colour modes.<sup>2</sup> |
+| 4 | Vibration&nbsp;Settings | Cycle through Proton Pack vibration options<sup>2</sup> | Cycle through Neutrona Wand vibration options |
+| 3 | Beep&nbsp;Loop / VGA&nbsp;Colour&nbsp;Mode&nbsp;Toggles | Enable/Disable the looping beep sound effect in Afterlife and Frozen Empire Mode. | Cycle through VG colour modes.<sup>3</sup> |
 | 2 | Overheat&nbsp;Lights | Enable/Disable the N-Filter LEDs from strobing during overheating. | Enable/Disable the Proton Pack lights to turn off during overheating. When disabled, after ramping down to a slower pace, the lights stay on.
-| 1 | Default Year&nbsp;Mode / Overheat&nbsp;Sync&nbsp;to&nbsp;Fan | Set your default year mode between 1984/1989/Afterlife/Frozen Empire/Default. When set, the system will ignore the year mode toggle switch during bootup. However the toggle switch can still be used while the Proton Pack is on. If set to Default, the system picks the year mode based on the position of the year mode toggle switch in the Proton Pack.<sup>3</sup> | Enable/Disable the overheat sync to fan. When enabled, the fan connections in the Proton Pack will only activate at the same time as the smoke connections. When disabled, the fan connections activate slightly after the smoke connections which allows some build of smoke before the fans activate. |
+| 1 | Default Year&nbsp;Mode / Overheat&nbsp;Sync&nbsp;to&nbsp;Fan | Set your default year mode between 1984/1989/Afterlife/Frozen Empire/Default. When set, the system will ignore the year mode toggle switch during bootup. However the toggle switch can still be used while the Proton Pack is on. If set to Default, the system picks the year mode based on the position of the year mode toggle switch in the Proton Pack.<sup>4</sup> | Enable/Disable the overheat sync to fan. When enabled, the fan connections in the Proton Pack will only activate at the same time as the smoke connections. When disabled, the fan connections activate slightly after the smoke connections which allows some build of smoke before the fans activate. |
 
-<sup>2</sup> Enables/disables the video game colour modes for the Proton Pack's Power Cell and Cyclotron lights. This only affects the pack when in Video Game mode, not for CTS modes, and offers the following states:
+<sup>2</sup> See [Inner Cyclotron](CYCLOTRON_INNER.md) for more information on the motorised cyclotron modification for the Proton Pack.
+
+<sup>3</sup> Enables/disables the video game colour modes for the Proton Pack's Power Cell and Cyclotron lights. This only affects the pack when in Video Game mode, not for CTS modes, and offers the following states:
 
 - Disable all the video game colours (Power Cell remains blue, Cyclotron remains red).
 - Enable only the Power Cell LEDs to change colours (requires RGB Power Cell such as that offered by Frutto Technology).
 - Enable only the Cyclotron LEDs to change colours (requires RGB replacement such as a Neopixel ring).
 - Enable both the Power Cell and Cyclotron to use video game colours.
 
-<sup>3</sup> If the Neutrona Wand is in standalone mode, this does nothing. To change the default year for a standalone Neutrona Wand, please see Menu Level 3 below.
+<sup>4</sup> If the Neutrona Wand is in standalone mode, this does nothing. To change the default year for a standalone Neutrona Wand, please see Menu Level 3 below.
 
 <div class="page-break"></div>
 

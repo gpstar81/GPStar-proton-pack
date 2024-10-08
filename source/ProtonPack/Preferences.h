@@ -66,6 +66,7 @@ struct objLEDEEPROM {
   uint8_t cyclotron_inner_spectral_saturation_custom;
   uint8_t cyclotron_cavity_count;
   uint8_t inner_cyclotron_led_panel;
+  uint8_t powercell_inverted;
 };
 
 /*
@@ -74,7 +75,8 @@ struct objLEDEEPROM {
 struct objConfigEEPROM {
   uint8_t stream_effects;
   uint8_t cyclotron_direction;
-  uint8_t simulate_ring; // Primarily for the Afterlife/Frozen Empire themes.
+  uint8_t center_led_fade; // Used for the 1984/1989 themes.
+  uint8_t simulate_ring; // Used for the Afterlife/Frozen Empire themes.
   uint8_t smoke_setting;
   uint8_t overheat_strobe;
   uint8_t overheat_lights_off;
@@ -132,9 +134,19 @@ void readEEPROM() {
         break;
       }
     }
+    else if(!b_power_meter_available) {
+      // If no EEPROM default set and not using a stock wand, assume Frutto upgrades instead.
+      i_powercell_leds = FRUTTO_POWERCELL_LED_COUNT;
+      i_powercell_delay_1984 = POWERCELL_DELAY_1984_15_LED;
+      i_powercell_delay_2021 = POWERCELL_DELAY_2021_15_LED;
+    }
 
     if(obj_eeprom.cyclotron_count > 0 && obj_eeprom.cyclotron_count != 255) {
       i_cyclotron_leds = obj_eeprom.cyclotron_count;
+    }
+    else if(!b_power_meter_available) {
+      // If no EEPROM default set and not using a stock wand, assume Frutto upgrades instead.
+      i_cyclotron_leds = FRUTTO_MAX_CYCLOTRON_LED_COUNT;
     }
 
     if(obj_eeprom.inner_cyclotron_count > 0 && obj_eeprom.inner_cyclotron_count != 255) {
@@ -168,6 +180,15 @@ void readEEPROM() {
       }
       else {
         i_inner_cyclotron_cavity_num_leds = obj_eeprom.cyclotron_cavity_count;
+      }
+    }
+
+    if(obj_eeprom.powercell_inverted > 0 && obj_eeprom.powercell_inverted != 255) {
+      if(obj_eeprom.powercell_inverted > 1) {
+        b_powercell_invert = true;
+      }
+      else {
+        b_powercell_invert = false;
       }
     }
 
@@ -244,21 +265,30 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.simulate_ring > 0 && obj_config_eeprom.simulate_ring != 255) {
-      if(obj_config_eeprom.simulate_ring > 1) {
-        b_cyclotron_simulate_ring = true;
-      }
-      else {
-        b_cyclotron_simulate_ring = false;
-      }
-    }
-
     if(obj_config_eeprom.cyclotron_direction > 0 && obj_config_eeprom.cyclotron_direction != 255) {
       if(obj_config_eeprom.cyclotron_direction > 1) {
         b_clockwise = true;
       }
       else {
         b_clockwise = false;
+      }
+    }
+
+    if(obj_config_eeprom.center_led_fade > 0 && obj_config_eeprom.center_led_fade != 255) {
+      if(obj_config_eeprom.center_led_fade > 1) {
+        b_fade_cyclotron_led = true;
+      }
+      else {
+        b_fade_cyclotron_led = false;
+      }
+    }
+
+    if(obj_config_eeprom.simulate_ring > 0 && obj_config_eeprom.simulate_ring != 255) {
+      if(obj_config_eeprom.simulate_ring > 1) {
+        b_cyclotron_simulate_ring = true;
+      }
+      else {
+        b_cyclotron_simulate_ring = false;
       }
     }
 
@@ -383,9 +413,10 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.default_system_volume > 0 && obj_config_eeprom.default_system_volume <= 100) {
-      i_volume_master_percentage = obj_config_eeprom.default_system_volume;
-      i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
+    if(obj_config_eeprom.default_system_volume > 0 && obj_config_eeprom.default_system_volume <= 101) {
+      // EEPROM value is from 1 to 101; subtract 1 to get the correct percentage.
+      i_volume_master_percentage = obj_config_eeprom.default_system_volume - 1;
+      i_volume_master_eeprom = (MINIMUM_VOLUME + i_volume_min_adj) - ((MINIMUM_VOLUME + i_volume_min_adj) * i_volume_master_percentage / 100);
       i_volume_revert = i_volume_master_eeprom;
       i_volume_master = i_volume_master_eeprom;
     }
@@ -457,30 +488,32 @@ void readEEPROM() {
 
     if(obj_config_eeprom.pack_vibration > 0 && obj_config_eeprom.pack_vibration != 255) {
       switch(obj_config_eeprom.pack_vibration) {
+        case 5:
+          VIBRATION_MODE_EEPROM = CYCLOTRON_MOTOR;
+          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+        break;
+
         case 4:
         default:
-          // Do nothing. Readings are taken from the vibration toggle switch.
+          // Vibrate while firing only, on/off determined by switch.
           VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
         break;
 
         case 3:
-          b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
-          b_vibration_enabled = false; // Disable pack vibration.
           VIBRATION_MODE_EEPROM = VIBRATION_NONE;
+          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
         break;
 
         case 2:
           b_vibration_switch_on = true; // Override the vibration toggle switch.
-          b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
-          b_vibration_enabled = true; // Enable pack vibration.
           VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
+          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
         break;
 
         case 1:
           b_vibration_switch_on = true; // Override the vibration toggle switch.
-          b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
-          b_vibration_enabled = true; // Enable pack vibration.
           VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
+          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
         break;
       }
     }
@@ -511,6 +544,7 @@ void saveLEDEEPROM() {
   // Inner Cyclotron LEDs
   // GRB / RGB Inner Cyclotron toggle flag
   // Inner Cyclotron LED Panel toggle flag
+  // Power Cell inverted toggle flag.
 
   uint8_t i_grb_cyclotron_cake = 1;
 
@@ -535,6 +569,12 @@ void saveLEDEEPROM() {
     break;
   }
 
+  uint8_t i_powercell_inverted = 1;
+
+  if(b_powercell_invert == true) {
+    i_powercell_inverted = 2;
+  }
+
   // Write the data to the EEPROM if any of the values have changed.
   objLEDEEPROM obj_eeprom = {
     i_powercell_leds,
@@ -548,7 +588,8 @@ void saveLEDEEPROM() {
     i_spectral_cyclotron_custom_saturation,
     i_spectral_cyclotron_inner_custom_saturation,
     i_inner_cyclotron_cavity_num_leds,
-    i_inner_cyclotron_led_panel
+    i_inner_cyclotron_led_panel,
+    i_powercell_inverted
   };
 
   // Save and update our object in the EEPROM.
@@ -571,10 +612,14 @@ void clearConfigEEPROM() {
 }
 
 void saveConfigEEPROM() {
+  // Convert the current EEPROM volume value into a percentage.
+  uint8_t i_eeprom_volume_master_percentage = 100 * ((MINIMUM_VOLUME + i_volume_min_adj) - i_volume_master_eeprom) / (MINIMUM_VOLUME + i_volume_min_adj);
+
   // 1 = false, 2 = true.
   uint8_t i_proton_stream_effects = 2;
+  uint8_t i_cyclotron_direction = 2; // 1 = counter-clockwise, 2 = clockwise.
+  uint8_t i_center_led_fade = 2;
   uint8_t i_simulate_ring = 2;
-  uint8_t i_cyclotron_direction = 2;
   uint8_t i_smoke_settings = 2;
 
   uint8_t i_overheat_strobe = 2;
@@ -588,7 +633,7 @@ void saveConfigEEPROM() {
   uint8_t i_demo_light_mode = 1;
   uint8_t i_use_ribbon_cable = 1;
   uint8_t i_cyclotron_three_led_toggle = 1; // 1 = single led, 2 = three leds.
-  uint8_t i_default_system_volume = 100; // <- i_volume_master_percentage
+  uint8_t i_default_system_volume = 101; // <- i_eeprom_volume_master_percentage + 1
   uint8_t i_overheat_smoke_duration_level_5 = i_ms_overheating_length_5 / 1000;
   uint8_t i_overheat_smoke_duration_level_4 = i_ms_overheating_length_4 / 1000;
   uint8_t i_overheat_smoke_duration_level_3 = i_ms_overheating_length_3 / 1000;
@@ -607,12 +652,16 @@ void saveConfigEEPROM() {
     i_proton_stream_effects = 1;
   }
 
-  if(b_cyclotron_simulate_ring != true) {
-    i_simulate_ring = 1;
-  }
-
   if(b_clockwise != true) {
     i_cyclotron_direction = 1;
+  }
+
+  if(b_fade_cyclotron_led != true) {
+    i_center_led_fade = 1;
+  }
+
+  if(b_cyclotron_simulate_ring != true) {
+    i_simulate_ring = 1;
   }
 
   if(b_smoke_enabled != true) {
@@ -655,14 +704,9 @@ void saveConfigEEPROM() {
     i_cyclotron_three_led_toggle = 2;
   }
 
-  if(i_volume_master_percentage <= 100) {
-    // Minimum volume in EEPROM is 1; maybe change later?
-    if(i_volume_master_percentage == 0) {
-      i_default_system_volume = 1;
-    }
-    else {
-      i_default_system_volume = i_volume_master_percentage;
-    }
+  if(i_eeprom_volume_master_percentage <= 100) {
+    // Need to add 1 to this because the EEPROM cannot contain a 0 value.
+    i_default_system_volume = i_eeprom_volume_master_percentage + 1;
   }
 
   if(b_smoke_continuous_level_5 == true) {
@@ -702,6 +746,10 @@ void saveConfigEEPROM() {
     default:
       i_pack_vibration = 4;
     break;
+
+    case CYCLOTRON_MOTOR:
+      i_pack_vibration = 5;
+    break;
   }
 
   uint16_t i_eepromConfigAddress = i_eepromAddress + sizeof(objLEDEEPROM);
@@ -709,6 +757,7 @@ void saveConfigEEPROM() {
   objConfigEEPROM obj_eeprom = {
     i_proton_stream_effects,
     i_cyclotron_direction,
+    i_center_led_fade,
     i_simulate_ring,
     i_smoke_settings,
     i_overheat_strobe,

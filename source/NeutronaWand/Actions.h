@@ -191,7 +191,8 @@ void checkWandAction() {
           if(switch_intensify.pushed()) {
             switch(WAND_MENU_LEVEL) {
               case MENU_LEVEL_2:
-                // Save this space for the video game Neutrona Wand lights.
+                // Toggle 84/89 outer cyclotron fade effect.
+                wandSerialSend(W_TOGGLE_CYCLOTRON_FADING);
               break;
 
               case MENU_LEVEL_1:
@@ -233,10 +234,38 @@ void checkWandAction() {
 
         // Level 1 Intensify: Cycle through the different Neutrona Wand barrel LED counts.
         // Level 1 Barrel Wing Button: Adjust the Neutrona Wand barrel colour hue. <- Controlled by checkRotaryEncoder()
+        // Level 2 Intensify: Toggle between 28-segment and 30-segment bargraph LEDs.
         case 4:
           if(switch_intensify.pushed()) {
             switch(WAND_MENU_LEVEL) {
               case MENU_LEVEL_2:
+                if(BARGRAPH_TYPE_EEPROM != SEGMENTS_30) {
+                  // Switch to 30-segment bargraph.
+                  BARGRAPH_TYPE_EEPROM = SEGMENTS_30;
+
+                  stopEffect(S_VOICE_BARGRAPH_28_SEGMENTS);
+                  stopEffect(S_VOICE_BARGRAPH_30_SEGMENTS);
+
+                  playEffect(S_VOICE_BARGRAPH_30_SEGMENTS);
+
+                  wandSerialSend(W_BARGRAPH_30_SEGMENTS);
+                }
+                else {
+                  // Switch to 28-segment bargraph.
+                  BARGRAPH_TYPE_EEPROM = SEGMENTS_28;
+
+                  stopEffect(S_VOICE_BARGRAPH_28_SEGMENTS);
+                  stopEffect(S_VOICE_BARGRAPH_30_SEGMENTS);
+
+                  playEffect(S_VOICE_BARGRAPH_28_SEGMENTS);
+
+                  wandSerialSend(W_BARGRAPH_28_SEGMENTS);
+                }
+
+                if(BARGRAPH_TYPE != SEGMENTS_5) {
+                  // Only toggle between segment types if not on a stock Hasbro bargraph.
+                  BARGRAPH_TYPE = BARGRAPH_TYPE_EEPROM;
+                }
               break;
 
               case MENU_LEVEL_1:
@@ -284,10 +313,12 @@ void checkWandAction() {
 
         // Level 1 Intensify: Cycle through the different Power Cell LED counts.
         // Level 1 Barrel Wing Button: Adjust the Power Cell colour hue. <- Controlled by checkRotaryEncoder()
+        // Level 2 Intensify: Toggle inverting of Power Cell LED direction (required for 1984 Power Cell).
         case 3:
           if(switch_intensify.pushed()) {
             switch(WAND_MENU_LEVEL) {
               case MENU_LEVEL_2:
+                wandSerialSend(W_TOGGLE_POWERCELL_DIRECTION);
               break;
 
               case MENU_LEVEL_1:
@@ -670,8 +701,7 @@ void checkWandAction() {
                 case VIBRATION_DEFAULT:
                 default:
                   VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
-                  b_vibration_enabled = true; // Enable wand vibration.
-                  b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
+                  VIBRATION_MODE = VIBRATION_MODE_EEPROM;
                   b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
 
                   stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
@@ -687,8 +717,7 @@ void checkWandAction() {
                 break;
                 case VIBRATION_ALWAYS:
                   VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
-                  b_vibration_enabled = true; // Enable wand vibration.
-                  b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
+                  VIBRATION_MODE = VIBRATION_MODE_EEPROM;
                   b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
 
                   stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
@@ -704,8 +733,7 @@ void checkWandAction() {
                 break;
                 case VIBRATION_FIRING_ONLY:
                   VIBRATION_MODE_EEPROM = VIBRATION_NONE;
-                  b_vibration_enabled = false; // Disable wand vibration.
-                  b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
+                  VIBRATION_MODE = VIBRATION_MODE_EEPROM;
 
                   stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
                   stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
@@ -718,8 +746,7 @@ void checkWandAction() {
                 break;
                 case VIBRATION_NONE:
                   VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
-                  b_vibration_enabled = true; // Enable wand vibration.
-                  b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
+                  VIBRATION_MODE = VIBRATION_FIRING_ONLY;
 
                   stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
                   stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
@@ -1159,13 +1186,10 @@ void checkWandAction() {
             else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
               switch(WAND_YEAR_CTS) {
                 case CTS_1984:
-                case CTS_1989:
                   WAND_YEAR_CTS = CTS_AFTERLIFE;
 
                   stopEffect(S_VOICE_CTS_1984);
-                  stopEffect(S_VOICE_CTS_1989);
                   stopEffect(S_VOICE_CTS_AFTERLIFE);
-                  stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
                   stopEffect(S_VOICE_CTS_DEFAULT);
 
                   playEffect(S_VOICE_CTS_AFTERLIFE);
@@ -1174,13 +1198,10 @@ void checkWandAction() {
                 break;
 
                 case CTS_AFTERLIFE:
-                case CTS_FROZEN_EMPIRE:
                   WAND_YEAR_CTS = CTS_DEFAULT;
 
                   stopEffect(S_VOICE_CTS_1984);
-                  stopEffect(S_VOICE_CTS_1989);
                   stopEffect(S_VOICE_CTS_AFTERLIFE);
-                  stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
                   stopEffect(S_VOICE_CTS_DEFAULT);
 
                   playEffect(S_VOICE_CTS_DEFAULT);
@@ -1193,9 +1214,7 @@ void checkWandAction() {
                   WAND_YEAR_CTS = CTS_1984;
 
                   stopEffect(S_VOICE_CTS_1984);
-                  stopEffect(S_VOICE_CTS_1989);
                   stopEffect(S_VOICE_CTS_AFTERLIFE);
-                  stopEffect(S_VOICE_CTS_FROZEN_EMPIRE);
                   stopEffect(S_VOICE_CTS_DEFAULT);
 
                   playEffect(S_VOICE_CTS_1984);
@@ -1343,45 +1362,47 @@ void checkWandAction() {
               stopEffect(S_BEEPS_ALT);
               playEffect(S_BEEPS_ALT);
 
-              if(b_vibration_enabled != true) {
-                b_vibration_enabled = true; // Enable wand vibration.
-                b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
+              switch(VIBRATION_MODE) {
+                case VIBRATION_ALWAYS:
+                  VIBRATION_MODE = VIBRATION_FIRING_ONLY;
+                  b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
 
-                stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
-                stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
-                stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
 
-                playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
+                  playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
 
-                wandSerialSend(W_VIBRATION_ENABLED);
+                  wandSerialSend(W_VIBRATION_FIRING_ENABLED);
 
-                ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
-              }
-              else if(b_vibration_enabled == true && b_vibration_firing != true) {
-                b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
-                b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
+                  ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
+                break;
+                case VIBRATION_FIRING_ONLY:
+                default:
+                  VIBRATION_MODE = VIBRATION_NONE;
 
-                stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
-                stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
-                stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
 
-                playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+                  playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
 
-                wandSerialSend(W_VIBRATION_FIRING_ENABLED);
+                  wandSerialSend(W_VIBRATION_DISABLED);
+                break;
+                case VIBRATION_NONE:
+                  VIBRATION_MODE = VIBRATION_ALWAYS;
+                  b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
 
-                ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
-              }
-              else {
-                b_vibration_enabled = false; // Disable wand vibration.
-                b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
 
-                stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
-                stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
-                stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
+                  playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
 
-                playEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_DISABLED);
+                  wandSerialSend(W_VIBRATION_ENABLED);
 
-                wandSerialSend(W_VIBRATION_DISABLED);
+                  ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
+                break;
               }
             }
           }
@@ -1411,8 +1432,6 @@ void checkWandAction() {
             // Silence the Proton Pack and Neutrona Wand or revert back to previously-selected volume.
             if(switch_mode.pushed()) {
               if(i_volume_master == i_volume_abs_min) {
-                wandSerialSend(W_VOLUME_REVERT);
-
                 i_volume_master = i_volume_revert;
               }
               else {
@@ -1420,11 +1439,10 @@ void checkWandAction() {
 
                 // Set the master volume to silent.
                 i_volume_master = i_volume_abs_min;
-
-                wandSerialSend(W_SILENT_MODE);
               }
 
-              resetMasterVolume();
+              wandSerialSend(W_TOGGLE_MUTE);
+              updateMasterVolume();
             }
           }
           else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {

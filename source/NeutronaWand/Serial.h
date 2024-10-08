@@ -67,6 +67,7 @@ struct __attribute__((packed)) WandPrefs {
   uint8_t wandBootError;
   uint8_t defaultYearModeWand;
   uint8_t defaultYearModeCTS;
+  uint8_t numBargraphSegments;
   uint8_t invertWandBargraph;
   uint8_t bargraphOverheatBlink;
   uint8_t bargraphIdleAnimation;
@@ -99,7 +100,7 @@ struct __attribute__((packed)) SmokePrefs {
   uint8_t overheatDelay1;
 } smokeConfig;
 
-struct __attribute__((packed)) SyncData {
+struct __attribute__((packed)) WandSyncData {
   uint8_t systemMode;
   uint8_t ionArmSwitch;
   uint8_t cyclotronLidState;
@@ -112,7 +113,7 @@ struct __attribute__((packed)) SyncData {
   uint8_t effectsVolume;
   uint8_t masterMuted;
   uint8_t repeatMusicTrack;
-} packSync;
+} wandSyncData;
 
 /*
  * Serial API Communication Handlers
@@ -231,14 +232,8 @@ void wandSerialSendData(uint8_t i_message) {
         case CTS_1984:
           wandConfig.defaultYearModeCTS = 2;
         break;
-        case CTS_1989:
-          wandConfig.defaultYearModeCTS = 3;
-        break;
         case CTS_AFTERLIFE:
           wandConfig.defaultYearModeCTS = 4;
-        break;
-        case CTS_FROZEN_EMPIRE:
-          wandConfig.defaultYearModeCTS = 5;
         break;
       }
 
@@ -260,6 +255,16 @@ void wandSerialSendData(uint8_t i_message) {
 
       wandConfig.invertWandBargraph = b_bargraph_invert ? 1 : 0;
       wandConfig.bargraphOverheatBlink = b_overheat_bargraph_blink ? 1 : 0;
+
+      switch(BARGRAPH_TYPE_EEPROM) {
+        case SEGMENTS_28:
+        default:
+          wandConfig.numBargraphSegments = 28;
+        break;
+        case SEGMENTS_30:
+          wandConfig.numBargraphSegments = 30;
+        break;
+      }
 
       switch(BARGRAPH_MODE_EEPROM) {
         case BARGRAPH_EEPROM_DEFAULT:
@@ -345,6 +350,7 @@ void checkPack() {
 
               // Turn off the sync indicator LED as the sync is completed.
               digitalWriteFast(TOP_LED_PIN, HIGH);
+              digitalWriteFast(WAND_STATUS_LED_PIN, LOW);
 
               // Indicate that a pack is now connected.
               WAND_CONN_STATE = PACK_CONNECTED;
@@ -358,6 +364,7 @@ void checkPack() {
 
             // Turn off the sync indicator LED as it is no longer necessary.
             digitalWriteFast(TOP_LED_PIN, HIGH);
+            digitalWriteFast(WAND_STATUS_LED_PIN, LOW);
 
             // Reset the audio device now that we are in standalone mode and need music playback.
             setupAudioDevice();
@@ -386,7 +393,7 @@ void checkPack() {
             ms_packsync.stop();
 
             // No pack to do a volume sync with, so reset our master volume manually.
-            resetMasterVolume();
+            updateMasterVolume();
 
             // Immediately exit the serial data functions.
             return;
@@ -400,21 +407,8 @@ void checkPack() {
             debugln(recvData.m);
 
             switch(recvData.m) {
-              case P_VOLUME_SYNC:
-                // Set the percentage volume.
-                i_volume_master_percentage = recvData.d[0];
-                i_volume_effects_percentage = recvData.d[1];
-                i_volume_music_percentage = recvData.d[2];
-
-                // Set the decibel volume.
-                i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
-                i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
-                i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
-
-                // Update volume levels.
-                i_volume_revert = i_volume_master;
-                resetMasterVolume();
-                updateEffectsVolume();
+              default:
+                // Nothing here yet.
               break;
             }
           }
@@ -481,29 +475,25 @@ void checkPack() {
           switch(wandConfig.wandVibration) {
             case 1:
               b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
-              b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
-              b_vibration_enabled = true; // Enable wand vibration.
               VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
+              VIBRATION_MODE = VIBRATION_MODE_EEPROM;
             break;
 
             case 2:
               b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
-              b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
-              b_vibration_enabled = true; // Enable wand vibration.
               VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
+              VIBRATION_MODE = VIBRATION_MODE_EEPROM;
             break;
 
             case 3:
-              b_vibration_firing = false; // Disable the "only vibrate while firing" feature.
-              b_vibration_enabled = false; // Disable wand vibration.
               VIBRATION_MODE_EEPROM = VIBRATION_NONE;
+              VIBRATION_MODE = VIBRATION_MODE_EEPROM;
             break;
 
             case 4:
             default:
-              b_vibration_firing = true; // Enable the "only vibrate while firing" feature.
-              b_vibration_enabled = true; // Enable wand vibration.
               VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
+              VIBRATION_MODE = VIBRATION_FIRING_ONLY;
             break;
           }
 
@@ -540,19 +530,28 @@ void checkPack() {
             case 2:
               WAND_YEAR_CTS = CTS_1984;
             break;
-            case 3:
-              WAND_YEAR_CTS = CTS_1989;
-            break;
             case 4:
               WAND_YEAR_CTS = CTS_AFTERLIFE;
-            break;
-            case 5:
-              WAND_YEAR_CTS = CTS_FROZEN_EMPIRE;
             break;
           }
 
           b_bargraph_invert = (wandConfig.invertWandBargraph == 1);
           b_overheat_bargraph_blink = (wandConfig.bargraphOverheatBlink == 1);
+
+          switch(wandConfig.numBargraphSegments) {
+            case 28:
+            default:
+              BARGRAPH_TYPE_EEPROM = SEGMENTS_28;
+            break;
+            case 30:
+              BARGRAPH_TYPE_EEPROM = SEGMENTS_30;
+            break;
+          }
+
+          if(BARGRAPH_TYPE != SEGMENTS_5) {
+            // Only change bargraph types if we are not using the stock Hasbro bargraph.
+            BARGRAPH_TYPE = BARGRAPH_TYPE_EEPROM;
+          }
 
           switch(wandConfig.bargraphIdleAnimation) {
             case 1:
@@ -614,12 +613,12 @@ void checkPack() {
         break;
 
         case PACKET_SYNC:
-          wandComs.rxObj(packSync);
+          wandComs.rxObj(wandSyncData);
           debugln(F("Recv. Sync Payload"));
 
           // Write the received data to runtime variables.
           // This will not save to the EEPROM!
-          switch(packSync.systemMode) {
+          switch(wandSyncData.systemMode) {
             case 1:
             default:
               SYSTEM_MODE = MODE_SUPER_HERO;
@@ -632,7 +631,7 @@ void checkPack() {
           vgModeCheck(); // Re-check VG/CTS mode.
 
           // Set whether the switch under the ion arm is on or off.
-          switch(packSync.ionArmSwitch) {
+          switch(wandSyncData.ionArmSwitch) {
             case 1:
             default:
               b_pack_ion_arm_switch_on = false;
@@ -653,19 +652,8 @@ void checkPack() {
             break;
           }
 
-          switch(packSync.cyclotronLidState) {
-            case 1:
-              b_pack_cyclotron_lid_on = false;
-            break;
-
-            case 2:
-            default:
-              b_pack_cyclotron_lid_on = true;
-            break;
-          }
-
           // Update the System Year setting.
-          switch(packSync.systemYear) {
+          switch(wandSyncData.systemYear) {
             case 1:
               SYSTEM_YEAR = SYSTEM_1984;
             break;
@@ -688,7 +676,7 @@ void checkPack() {
           resetWhiteLEDBlinkRate();
 
           // Set whether the Proton Pack is currently on or off.
-          switch(packSync.packOn) {
+          switch(wandSyncData.packOn) {
             case 1:
             default:
               // Pack is off.
@@ -715,11 +703,11 @@ void checkPack() {
           }
 
           // Set our starting power level.
-          i_power_level = packSync.powerLevel;
+          i_power_level = wandSyncData.powerLevel;
           i_power_level_prev = i_power_level;
 
           // Set our firing mode.
-          switch(packSync.streamMode) {
+          switch(wandSyncData.streamMode) {
             case 1:
             default:
               STREAM_MODE = PROTON;
@@ -748,9 +736,15 @@ void checkPack() {
             break;
             case 6:
               STREAM_MODE = HOLIDAY;
+              b_christmas = false; // Halloween mode.
               setVGMode();
             break;
             case 7:
+              STREAM_MODE = HOLIDAY;
+              b_christmas = true; // Christmas mode.
+              setVGMode();
+            break;
+            case 8:
               STREAM_MODE = SPECTRAL_CUSTOM;
               setVGMode();
             break;
@@ -758,32 +752,27 @@ void checkPack() {
 
           // Set up master vibration switch if not configured to override it.
           if(VIBRATION_MODE_EEPROM == VIBRATION_DEFAULT) {
-            switch(packSync.vibrationEnabled) {
-              case 1:
-                b_vibration_switch_on = false;
-              break;
-              case 2:
-              default:
-                b_vibration_switch_on = true;
-              break;
-            }
+            b_vibration_switch_on = wandSyncData.vibrationEnabled == 2;
           }
 
+          // Update cyclotron lid status and music loop status.
+          b_pack_cyclotron_lid_on = wandSyncData.cyclotronLidState == 2;
+          b_repeat_track = wandSyncData.repeatMusicTrack == 2;
+
           // Set the percentage volume.
-          i_volume_master_percentage = packSync.masterVolume;
-          i_volume_effects_percentage = packSync.effectsVolume;
+          i_volume_master_percentage = wandSyncData.masterVolume;
+          i_volume_effects_percentage = wandSyncData.effectsVolume;
 
           // Set the decibel volume.
-          i_volume_master = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_master_percentage / 100);
-          i_volume_effects = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_effects_percentage / 100);
-          i_volume_music = MINIMUM_VOLUME - (MINIMUM_VOLUME * i_volume_music_percentage / 100);
+          i_volume_master = MINIMUM_VOLUME - ((MINIMUM_VOLUME - i_volume_abs_max) * i_volume_master_percentage / 100);
+          i_volume_effects = i_volume_abs_min - (i_volume_abs_min * i_volume_effects_percentage / 100);
+          i_volume_music = i_volume_abs_min - (i_volume_abs_min * i_volume_music_percentage / 100);
 
           // Update volume levels.
           i_volume_revert = i_volume_master;
-          resetMasterVolume();
-          updateEffectsVolume();
+          updateMasterVolume();
 
-          switch(packSync.masterMuted) {
+          switch(wandSyncData.masterMuted) {
             case 1:
             default:
               // Do nothing; we already have our volumes set correctly.
@@ -794,17 +783,7 @@ void checkPack() {
 
               // The pack is telling us to be silent.
               i_volume_master = i_volume_abs_min;
-              resetMasterVolume();
-            break;
-          }
-
-          switch(packSync.repeatMusicTrack) {
-            case 1:
-            default:
-              b_repeat_track = false;
-            break;
-            case 2:
-              b_repeat_track = true;
+              updateMasterVolume();
             break;
           }
         break;
@@ -836,6 +815,11 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_WAND_SYNC);
       playEffect(S_WAND_SYNC);
 
+      if(i_value == 1) {
+        // Pack is currently performing a POST sequence, so set that variable to delay our control loop.
+        b_pack_post_finish = false;
+      }
+
       // Stop regular sync attempts while communicating with the pack.
       ms_packsync.stop();
     break;
@@ -855,8 +839,9 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       return true;
     break;
 
-    case P_PACK_BOOTUP:
-      // Does nothing at the moment.
+    case P_POST_FINISH:
+      // Pack has completed the Power On Self Test sequence.
+      b_pack_post_finish = true;
     break;
 
     case P_ON:
@@ -929,96 +914,32 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case P_INNER_CYCLOTRON_PANEL_DISABLED:
+      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_STATIC_COLORS);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DYNAMIC_COLORS);
       stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
-      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
       playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
     break;
 
     case P_INNER_CYCLOTRON_PANEL_STATIC:
-      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_STATIC_COLORS);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DYNAMIC_COLORS);
       stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
-      playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+      playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_STATIC_COLORS);
     break;
 
     case P_INNER_CYCLOTRON_PANEL_DYNAMIC:
-      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_STATIC_COLORS);
+      stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DYNAMIC_COLORS);
       stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
-      playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_ENABLED);
+      playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DYNAMIC_COLORS);
     break;
 
-    case P_MODE_ORIGINAL_RED_SWITCH_ON:
-      b_pack_ion_arm_switch_on = true;
-
-      // Prep the bargraph for MODE_ORIGINAL. This only preps it when the pack switch is turned on and the wand is still off but all the toggle switches are on for the bargraph to settle at the off position. (0 circle).
-      if(WAND_ACTION_STATUS == ACTION_IDLE) {
-        switch(WAND_STATUS) {
-          case MODE_OFF:
-            switch(SYSTEM_MODE) {
-              case MODE_ORIGINAL:
-                if(switch_vent.on() == true && switch_wand.on() == true) {
-                  if(b_mode_original_toggle_sounds_enabled == true) {
-                    if(b_extra_pack_sounds == true) {
-                      wandSerialSend(W_MODE_ORIGINAL_HEATDOWN_STOP);
-                      wandSerialSend(W_MODE_ORIGINAL_HEATUP);
-                    }
-
-                    stopEffect(S_WAND_HEATDOWN);
-                    stopEffect(S_WAND_HEATUP_ALT);
-                    playEffect(S_WAND_HEATUP_ALT);
-                  }
-
-                  if(b_28segment_bargraph == true) {
-                    bargraphPowerCheck2021Alt(false);
-                  }
-
-                  prepBargraphRampUp();
-                }
-
-                // Stop the power on indicator timer if enabled.
-                if(b_power_on_indicator) {
-                  ms_power_indicator.stop();
-                  ms_power_indicator_blink.stop();
-                }
-              break;
-
-              default:
-                // Do nothing.
-              break;
-            }
-          break;
-
-          default:
-            // Do nothing if we aren't MODE_OFF
-          break;
-        }
-      }
+    case P_ION_ARM_SWITCH_ON:
+      changeIonArmSwitchState(true);
     break;
 
-    case P_MODE_ORIGINAL_RED_SWITCH_OFF:
-      b_pack_ion_arm_switch_on = false;
-
-      switch(SYSTEM_MODE) {
-        case MODE_ORIGINAL:
-          if(switch_vent.on() == true && switch_wand.on() == true && b_mode_original_toggle_sounds_enabled == true) {
-            if(b_extra_pack_sounds == true) {
-              wandSerialSend(W_MODE_ORIGINAL_HEATUP_STOP);
-              wandSerialSend(W_MODE_ORIGINAL_HEATDOWN);
-            }
-
-            stopEffect(S_WAND_HEATDOWN);
-            stopEffect(S_WAND_HEATUP_ALT);
-            playEffect(S_WAND_HEATDOWN);
-          }
-
-          // Turn off any vibration and all lights.
-          vibrationOff();
-          wandLightsOff();
-        break;
-
-        default:
-          // Do nothing.
-        break;
-      }
+    case P_ION_ARM_SWITCH_OFF:
+      changeIonArmSwitchState(false);
     break;
 
     case P_CYCLOTRON_LID_ON:
@@ -1049,7 +970,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
               if(switch_vent.on() == false) {
                 stopAfterLifeSounds();
-                playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 1);
+                playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
 
                 if(b_extra_pack_sounds == true) {
                   wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
@@ -1074,23 +995,13 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
       // The pack is telling us to be silent.
       i_volume_master = i_volume_abs_min;
-      resetMasterVolume();
+      updateMasterVolume();
     break;
 
     case P_MASTER_AUDIO_NORMAL:
       // The pack is telling us to revert the volume to normal.
       i_volume_master = i_volume_revert;
-      resetMasterVolume();
-    break;
-
-    case P_RIBBON_CABLE_ON:
-      // Currently unused.
-      //b_pack_ribbon_cable_on = true;
-    break;
-
-    case P_RIBBON_CABLE_OFF:
-      // Currently unused.
-      //b_pack_ribbon_cable_on = false;
+      updateMasterVolume();
     break;
 
     case P_ALARM_ON:
@@ -1127,7 +1038,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
               case HOLIDAY:
                 // Tell the pack we are in holiday mode.
-                wandSerialSend(W_HOLIDAY_MODE);
+                wandSerialSend(W_HOLIDAY_MODE, b_christmas ? 2 : 1);
               break;
 
               case SPECTRAL_CUSTOM:
@@ -1163,7 +1074,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
               stopAfterLifeSounds();
             }
 
-            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - 1);
+            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
           break;
         }
 
@@ -1296,6 +1207,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
+      stopEffect(S_VOICE_MOTORIZED_CYCLOTRON_ENABLED);
       playEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
     break;
 
@@ -1308,6 +1220,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
+      stopEffect(S_VOICE_MOTORIZED_CYCLOTRON_ENABLED);
       playEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
     break;
 
@@ -1320,6 +1233,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
+      stopEffect(S_VOICE_MOTORIZED_CYCLOTRON_ENABLED);
       playEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
     break;
 
@@ -1332,7 +1246,21 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
       stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
+      stopEffect(S_VOICE_MOTORIZED_CYCLOTRON_ENABLED);
       playEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
+    break;
+
+    case P_PACK_MOTORIZED_CYCLOTRON_ENABLED:
+      // Proton Pack Vibration EEPROM reset to default.
+      stopEffect(S_BEEPS_ALT);
+      playEffect(S_BEEPS_ALT);
+
+      stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
+      stopEffect(S_VOICE_PROTON_PACK_VIBRATION_ENABLED);
+      stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DISABLED);
+      stopEffect(S_VOICE_PROTON_PACK_VIBRATION_DEFAULT);
+      stopEffect(S_VOICE_MOTORIZED_CYCLOTRON_ENABLED);
+      playEffect(S_VOICE_MOTORIZED_CYCLOTRON_ENABLED);
     break;
 
     case P_YEAR_1984:
@@ -1436,6 +1364,20 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_SMOKE_DISABLED);
 
       playEffect(S_VOICE_SMOKE_ENABLED);
+    break;
+
+    case P_POWERCELL_NOT_INVERTED:
+      stopEffect(S_VOICE_POWERCELL_NOT_INVERTED);
+      stopEffect(S_VOICE_POWERCELL_INVERTED);
+
+      playEffect(S_VOICE_POWERCELL_NOT_INVERTED);
+    break;
+
+    case P_POWERCELL_INVERTED:
+      stopEffect(S_VOICE_POWERCELL_INVERTED);
+      stopEffect(S_VOICE_POWERCELL_NOT_INVERTED);
+
+      playEffect(S_VOICE_POWERCELL_INVERTED);
     break;
 
     case P_CYCLOTRON_COUNTER_CLOCKWISE:
@@ -1669,6 +1611,20 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       playEffect(S_VOICE_PROTON_MIX_EFFECTS_DISABLED);
     break;
 
+    case P_CYCLOTRON_FADING_DISABLED:
+      stopEffect(S_VOICE_CYCLOTRON_FADING_DISABLED);
+      stopEffect(S_VOICE_CYCLOTRON_FADING_ENABLED);
+
+      playEffect(S_VOICE_CYCLOTRON_FADING_DISABLED);
+    break;
+
+    case P_CYCLOTRON_FADING_ENABLED:
+      stopEffect(S_VOICE_CYCLOTRON_FADING_DISABLED);
+      stopEffect(S_VOICE_CYCLOTRON_FADING_ENABLED);
+
+      playEffect(S_VOICE_CYCLOTRON_FADING_ENABLED);
+    break;
+
     case P_CYCLOTRON_SIMULATE_RING_DISABLED:
       stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_DISABLED);
       stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_ENABLED);
@@ -1695,31 +1651,6 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_DEMO_LIGHT_MODE_ENABLED);
 
       playEffect(S_VOICE_DEMO_LIGHT_MODE_DISABLED);
-    break;
-
-    case P_POWER_LEVEL_1:
-      i_power_level = 1;
-      i_power_level_prev = 1;
-    break;
-
-    case P_POWER_LEVEL_2:
-      i_power_level = 2;
-      i_power_level_prev = 2;
-    break;
-
-    case P_POWER_LEVEL_3:
-      i_power_level = 3;
-      i_power_level_prev = 3;
-    break;
-
-    case P_POWER_LEVEL_4:
-      i_power_level = 4;
-      i_power_level_prev = 4;
-    break;
-
-    case P_POWER_LEVEL_5:
-      i_power_level = 5;
-      i_power_level_prev = 5;
     break;
 
     case P_RGB_INNER_CYCLOTRON_LEDS:

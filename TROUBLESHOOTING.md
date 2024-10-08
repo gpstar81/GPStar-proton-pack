@@ -53,6 +53,7 @@ The wand is expects to communicate with the pack and will only power on when tha
 When the wand is trying to establish communication to the GPStar Proton Pack controller, the LED beside the vent light blinks. When a successful connection is made, the light will stop blinking.
 
 * Re-check the TX/RX serial connections in the hose to make sure they are not reversed. Also check if the ends of the wires are making contact on the Neutrik connectors when clamping down. You can tin the ends of the wires to make it a bit thicker or simply fold them over to double them up. Just make sure the Neutrik connectors are not clamping down on the rubber part of the wire.
+* (Firmware 5.3.3 or later) You can test to see if your issue is related to the serial data lines for the hose connectors by shorting the wand board's pack data connector TX and RX pins. This will cause the wand to start in standalone mode and ignore the Proton Pack.
 
 ### Wand has no audio ###
 

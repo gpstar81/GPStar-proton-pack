@@ -58,7 +58,7 @@ struct PowerMeter {
   float RawPower = 0;     // W - Calculation of power based on raw V*A values (non-smoothed)
   float AvgPower = 0;     // A - Running average from the RawPower value (smoothed)
   float LastAverage = 0;  // A - Last average used when determining a state change
-  unsigned int PowerReadDelay = (int) (StateChangeDuration / 4); // How often (ms) to read levels for changes
+  uint16_t PowerReadDelay = StateChangeDuration / 4; // How often (ms) to read levels for changes
   unsigned long StateChanged = 0; // Time when a potential state change was detected
   unsigned long LastRead = 0;     // Used to calculate Ah consumed since battery power-on
   unsigned long ReadTick = 0;     // Difference of current read time - last read
@@ -95,24 +95,22 @@ void powerMeterInit() {
   // Configure the PowerMeter object(s).
   packReading.PowerReadDelay = 4000;
 
-  if (b_use_power_meter) {
-    uint8_t i_monitor_status = monitor.begin();
+  uint8_t i_monitor_status = monitor.begin();
 
-    debugln(" ");
-    debug(F("Power Meter Result: "));
-    debugln(i_monitor_status);
+  debugln(F(" "));
+  debug(F("Power Meter Result: "));
+  debugln(i_monitor_status);
 
-    if (i_monitor_status == 0) {
-      // Result of 0 indicates no problems from device detection.
-      b_power_meter_available = true;
-      powerMeterConfig();
-      wandReading.LastRead = millis(); // For use with the Ah readings.
-      wandReading.ReadTimer.start(wandReading.PowerReadDelay);
-    }
-    else {
-      // If returning a non-zero value, device could not be reset.
-      debugln(F("Unable to find power monitoring device on i2c."));
-    }
+  if(i_monitor_status == 0) {
+    // Result of 0 indicates no problems from device detection.
+    b_power_meter_available = true;
+    powerMeterConfig();
+    wandReading.LastRead = millis(); // For use with the Ah readings.
+    wandReading.ReadTimer.start(wandReading.PowerReadDelay);
+  }
+  else {
+    // If returning a non-zero value, device could not be reset.
+    debugln(F("Unable to find power monitoring device on i2c."));
   }
 
   // Always obtain a voltage reading directly from the pack PCB.
@@ -121,7 +119,7 @@ void powerMeterInit() {
 
 // Perform a reading of values from the power meter for the wand.
 void doWandPowerReading() {
-  if (b_use_power_meter && b_power_meter_available) {
+  if(b_power_meter_available) {
     // Only uncomment this debug if absolutely needed!
     //debugln(F("Reading Power Meter"));
 
@@ -262,8 +260,21 @@ void updateWandPowerState() {
       wandReading.StateChanged = 0;
     }
 
-    // Stop firing and turn off the pack if current is below the base threshold.
-    if(f_avg_power <= f_wand_power_on_threshold) {
+    // Every X updates send the averaged, stable value which would determine a state change.
+    // This is called whenever the power meter is available--for wand hot-swapping purposes.
+    // Data is sent as integer so this is sent multiplied by 100 to get 2 decimal precision.
+    if(si_update == 0) {
+      serial1Send(A_WAND_POWER_AMPS, f_avg_power * 100);
+    }
+
+    // If the pack is currently off, or the wand has not been directly powered on, just leave immediately.
+    if(PACK_STATE == MODE_OFF || !b_wand_on) {
+      b_pack_started_by_meter = false; // Make sure this is kept as false since the wand is not powered.
+      return;
+    }
+
+    // If the wand was powered on via the power meter, then stop firing and turn off the pack if below the power threshold.
+    if(b_wand_on && f_avg_power <= f_wand_power_on_threshold) {
       if(b_wand_firing) {
         // Stop firing sequence if previously firing.
         wandStoppedFiring();
@@ -284,13 +295,6 @@ void updateWandPowerState() {
       // Reset the state change timer and last average due to this significant event.
       wandReading.StateChanged = 0;
       wandReading.LastAverage = f_avg_power;
-    }
-
-    // Every X updates send the averaged, stable value which would determine a state change.
-    // This is called whenever the power meter is available--for wand hot-swapping purposes.
-    // Data is sent as integer so this is sent multiplied by 100 to get 2 decimal precision.
-    if(si_update == 0) {
-      serial1Send(A_WAND_POWER_AMPS, f_avg_power * 100);
     }
   }
   else {
@@ -314,7 +318,7 @@ void updateWandPowerState() {
 // Send latest voltage value to the serial1 device, if connected.
 void updatePackPowerState() {
   if(b_serial1_connected) {
-    // Data is sent as integer so this is already multiplied by 100 to get 2 decimal precision.
+    // Data is sent as uint16_t so this is already multiplied by 100 to get 2 decimal precision.
     serial1Send(A_BATTERY_VOLTAGE_PACK, packReading.BusVoltage);
   }
 }
@@ -322,40 +326,40 @@ void updatePackPowerState() {
 // Displays the latest gathered power meter values (for debugging only!).
 // Turn on the Serial Plotter in the ArduinoIDE to view graphed results.
 void wandPowerDisplay() {
-  if(b_use_power_meter && b_power_meter_available && b_show_power_data) {
-    // Serial.print("W.Shunt(mV):");
+  if(b_power_meter_available && b_show_power_data) {
+    // Serial.print(F("W.Shunt(mV):"));
     // Serial.print(wandReading.ShuntVoltage);
-    // Serial.print(",");
+    // Serial.print(F(","));
 
-    // Serial.print("W.Shunt(A):");
+    // Serial.print(F("W.Shunt(A):"));
     // Serial.print(wandReading.ShuntCurrent);
-    // Serial.print(",");
+    // Serial.print(F(","));
 
-    Serial.print("W.Raw(W):");
+    Serial.print(F("W.Raw(W):"));
     Serial.print(wandReading.RawPower);
-    Serial.print(",");
+    Serial.print(F(","));
 
-    // Serial.print("W.Bus(V)):");
+    // Serial.print(F("W.Bus(V)):"));
     // Serial.print(wandReading.BusVoltage);
-    // Serial.print(",");
+    // Serial.print(F(","));
 
-    // Serial.print("W.Bus(W)):");
+    // Serial.print(F("W.Bus(W)):"));
     // Serial.print(wandReading.BusPower);
-    // Serial.print(",");
+    // Serial.print(F(","));
 
-    // Serial.print("W.Batt(V):");
+    // Serial.print(F("W.Batt(V):"));
     // Serial.print(wandReading.BattVoltage);
-    // Serial.print(",");
+    // Serial.print(F(","));
 
-    // Serial.print("W.AmpHours:");
+    // Serial.print(F("W.AmpHours:"));
     // Serial.print(wandReading.AmpHours);
-    // Serial.print(",");
+    // Serial.print(F(","));
 
-    Serial.print("W.AvgPow(W):");
+    Serial.print(F("W.AvgPow(W):"));
     Serial.print(wandReading.AvgPower);
-    Serial.print(",");
+    Serial.print(F(","));
 
-    Serial.print("W.State:");
+    Serial.print(F("W.State:"));
     Serial.println(wandReading.LastAverage);
   }
 }
@@ -363,7 +367,7 @@ void wandPowerDisplay() {
 // Check the available timers for reading power meter data.
 void checkPowerMeter() {
   if(wandReading.ReadTimer.justFinished()) {
-    if(b_use_power_meter && b_power_meter_available) {
+    if(b_power_meter_available) {
       doWandPowerReading(); // Get latest V/A readings.
       wandPowerDisplay(); // Show values on serial plotter.
       updateWandPowerState(); // Take action on V/A values.

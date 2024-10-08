@@ -76,6 +76,15 @@ const uint8_t VOLUME_MUSIC_MULTIPLIER = 5;
 const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 
 /*
+ * Set to false to disable the onboard amplifier on the WAV Trigger.
+ * Turning off the onboard amp draws less power.
+ * If using the AUX cable jack, the amp can be disabled to save power.
+ * If you use the output pins directly on the WAV Trigger board to your speakers, you will need to enable the onboard amp.
+ * NOTE: The onboard mono audio amplifier and speaker connector specifications: 2W into 4 Ohms, 1.25W into 8 Ohms
+ */
+const bool b_onboard_amp_enabled = true;
+
+/*
  * When set to true, the bargraph will invert the sequence.
  */
 bool b_bargraph_invert = false;
@@ -127,22 +136,6 @@ uint8_t i_spectral_wand_custom_colour = 200;
 uint8_t i_spectral_wand_custom_saturation = 254;
 
 /*
- * When enabled, the Neutrona Wand will vibrate at all times.
- * Vibration is controlled by the vibration toggle switch in the Proton Pack and it can disable all vibration settings.
- * This can be enabled or disabled from the Neutrona Wand sub menu system.
- * Default = true.
- */
-bool b_vibration_enabled = true;
-
-/*
- * When set to true and b_vibration_enabled is also set to true, the Neutrona Wand will only vibrate during firing.
- * Note that vibration is controlled by the vibration toggle switch in the Proton Pack and it can disable all vibration settings.
- * This can be enabled or disabled from the Neutrona Wand sub menu system.
- * Default = true.
- */
-bool b_vibration_firing = true;
-
-/*
  * Set to true to enable overheating. Overheat settings are defined below.
  * Set to false to disable overheating. This will override any overheat settings below.
  * This can be controlled from the Neutrona Wand submenu system.
@@ -190,15 +183,6 @@ uint16_t i_ms_overheat_initiate_level_4 = 35000;
 uint16_t i_ms_overheat_initiate_level_5 = 30000;
 
 /*
- * Set to false to disable the onboard amplifier on the WAV Trigger.
- * Turning off the onboard amp draws less power.
- * If using the AUX cable jack, the amp can be disabled to save power.
- * If you use the output pins directly on the WAV Trigger board to your speakers, you will need to enable the onboard amp.
- * NOTE: The onboard mono audio amplifier and speaker connector specifications: 2W into 4 Ohms, 1.25W into 8 Ohms
- */
-const bool b_onboard_amp_enabled = true;
-
-/*
  * When set to true, various impact and other stream effects will overlap and mix randomly into the Proton Stream for an added experience.
  */
 bool b_stream_effects = true;
@@ -209,12 +193,6 @@ bool b_stream_effects = true;
  * The default setting is true.
  */
 bool b_extra_pack_sounds = true;
-
-/*
- * When set to true, the Neutrona Wand plays sound effects with the right-hand toggle switches in MODE_ORIGINAL.
- * Setting to false will mute the toggle switch sounds in MODE_ORIGINAL.
- */
-bool b_mode_original_toggle_sounds_enabled = true;
 
 /*
  * Set to false to ignore reading data from the EEPROM.
