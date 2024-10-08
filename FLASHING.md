@@ -31,6 +31,34 @@ Please refer to the table below for a list of devices and their supported softwa
 1. The same software version should be updated to **ALL** available devices, even if the changelog does not advertise modifications for a certain component. This ensures proper serial communication between devices.
 1. If you are flashing updates to your existing setup, make sure that **BOTH** your Proton Pack and Neutrona Wand Micro SD Cards have all the latest sound effects from this repository as found in the `/sounds` directory.
 
+## Flashing Updates
+After connecting your GPStar Proton Pack or Neutrona Wand board to your computer with the included FTDI to USB programming cable, download the GPStar firmware flasher from the extra folder and run the program.
+
+**Windows:** [gpstarFirmwareFlasher.exe](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/gpstarFirmwareFlasher.exe)
+
+**MacOS Intel/M1:** [GPStar-Firmware-Flasher-Mac.dmg](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/GPStar-Firmware-Flasher-Mac.dmg)
+
+**GPStar Audio Windows Flasher:** [gpstarFirmwareFlasher.exe](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/sound/GPStar%20Audio/gpstarAudioFirmwareFlasher.exe)
+
+**GPStar Audio MacOS Intel/M1:** [GPStar-Firmware-Flasher-Mac.dmg](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/sound/GPStar%20Audio/GPStar-Audio-Firmware-Flasher-Mac.dmg)
+
+The latest pre-compiled firmware binaries can be found in the binaries folder of this repository.
+
+[https://github.com/gpstar81/haslab-proton-pack/tree/main/binaries](https://github.com/gpstar81/haslab-proton-pack/tree/main/binaries)
+
+The GPStar Audio firmware binary can be found in the extras/sound/GPStar Audio folder.
+[https://github.com/gpstar81/haslab-proton-pack/tree/main/extras/sound/GPStar%20Audio/](https://github.com/gpstar81/haslab-proton-pack/tree/main/extras/sound/GPStar%20Audio/)
+
+When downloading the binaries via GitHub, click on the file then on the **`Download raw file`** button.
+
+**It is recommended to have both the Proton Pack and Neutrona Wand on the same, latest version of their respective firmware.**
+
+![GPStar firmware flasher](images/flashDownload.png)
+
+**You can also find the latest stable versions of the Firmware and Flashing software at:**
+
+[https://gpstartechnologies.com/pages/support-downloads](https://gpstartechnologies.com/pages/support-downloads)
+
 ## Connection to your GPStar Proton Pack and Neutrona Wand PCBs
 Use the included FTDI to USB programming cable that comes with the GPStar kits or use any other suitable FTDI 5V basic serial connector. The UART Pins on the PCB should align with with the standard wire order for FTDI-to-USB cables which use a single Dupont 6-pin connector. Observe these common colours and notes to ensure proper orientation:
 
@@ -43,22 +71,14 @@ Use the included FTDI to USB programming cable that comes with the GPStar kits o
 
 **Note:** For the Neutrona Wand, some users have adopted use of the [Hasbro Plasma Series Spengler's Neutrona Wand: Data Port Front Tube](https://www.etsy.com/listing/1756220009/) as offered by RADIsLAB, which includes a parts list for a dedicated programming cable which stay mounted inside of the device.
 
-## Flashing Updates
-After connecting your GPStar Proton Pack or Neutrona Wand board to your computer with the included FTDI to USB programming cable, download the GPStar firmware flasher from the extra folder and run the program.
+## Connection to your GPStar Audio
+Use the included FTDI to USB programming cable that comes with the GPStar kits or use any other suitable FTDI 5V basic serial connector. The UART Pins on the PCB should align with with the standard wire order for FTDI-to-USB cables which use a single Dupont 6-pin connector. Observe these common colours and notes to ensure proper orientation:
 
-**Windows:** [gpstarFirmwareFlasher.exe](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/gpstarFirmwareFlasher.exe)
+**IMPORTANT: Beside the connection on the GPStar Audio board, there is a small black switch, move it to the LOAD position before connecting the cable.**
 
-**MacOS Intel/M1:** [GPStar-Firmware-Flasher-Mac.dmg](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/GPStar-Firmware-Flasher-Mac.dmg)
-
-The latest pre-compiled firmware binaries can be found in the binaries folder of this repository.
-
-[https://github.com/gpstar81/haslab-proton-pack/tree/main/binaries](https://github.com/gpstar81/haslab-proton-pack/tree/main/binaries)
-
-When downloading the binaries via GitHub, click on the file then on the **`Download raw file`** button.
-
-![GPStar firmware flasher](images/flashDownload.png)
-
-**It is recommended to have both the Proton Pack and Neutrona Wand on the same, latest version of their respective firmware.**
+**After flashing, please move the switch back to the BOOT position.**
+ 
+![UART GPStar Audio Connection](images/uart_gpstar_audio.jpg)
 
 ## Using the Flashing Software
 
