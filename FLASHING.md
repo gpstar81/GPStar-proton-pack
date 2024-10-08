@@ -74,7 +74,7 @@ Use the included FTDI to USB programming cable that comes with the GPStar kits o
 ## Connection to your GPStar Audio
 Use the included FTDI to USB programming cable that comes with the GPStar kits or use any other suitable FTDI 5V basic serial connector. The UART Pins on the PCB should align with with the standard wire order for FTDI-to-USB cables which use a single Dupont 6-pin connector. Observe these common colours and notes to ensure proper orientation:
 
-**IMPORTANT: Beside the connection on the GPSTar Audio board, there is a small black switch, move it to the LOAD position before connecting the cable.**
+**IMPORTANT: Beside the connection on the GPStar Audio board, there is a small black switch, move it to the LOAD position before connecting the cable.**
 
 **After flashing, please move the switch back to the BOOT position.**
  
