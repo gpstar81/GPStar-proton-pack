@@ -72,6 +72,8 @@ This uses a 3rd-party website to upload using the Web Serial protocol which is o
 	* 0x10000 &rarr; [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin)
 1. Click on the **PROGRAM** button to begin flashing. View the "Output" window to view progress of the flashing operation.
 
+View [a quick video](images/ESP_Firmware_Update.mp4) of what this process should look like. Your list of USB devices may differ, and it may require selecting a different device if you cannot immediately determine which connected device is your ESP32.
+
 **Option 2: Via Command-Line**
 
 You will need to utilize a command-line tool to upload the firmware to your device from your local computer.
