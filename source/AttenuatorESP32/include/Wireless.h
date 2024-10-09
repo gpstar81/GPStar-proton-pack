@@ -139,12 +139,12 @@ bool startAccesPoint() {
 
   // Prepare to return either stored preferences or a default value for SSID/password.
   // Accesses namespace in read-only mode.
-  if(preferences.begin("credentials", true, "nvs")) {
+  if(preferences.begin("credentials", true)) {
     #if defined(RESET_AP_SETTINGS)
       // Doesn't actually "reset" but forces default values for SSID and password.
       // Meant to allow the user to reset their credentials then re-flash after
       // commenting out the RESET_AP_SETTINGS definition in Configuration.h
-      ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix; // Update global variable.
+      ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix; // Use default SSID.
       ap_pass = ap_default_passwd; // Force use of the default WiFi password.
     #else
       // Use either the stored preferences or an expected default value.
@@ -152,6 +152,17 @@ bool startAccesPoint() {
       ap_pass = preferences.getString("password", ap_default_passwd);
     #endif
     preferences.end();
+  }
+  else {
+    ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix; // Use default SSID.
+    ap_pass = ap_default_passwd; // Force use of the default WiFi password.
+
+    // If namespace is not initialized, open in read/write mode and set defaults.
+    if(preferences.begin("credentials", false)) {
+      preferences.putString("ssid", ap_ssid);
+      preferences.putString("password", ap_pass);
+      preferences.end();
+    }
   }
 
   #if defined(DEBUG_WIRELESS_SETUP)
@@ -222,7 +233,7 @@ bool startExternalWifi() {
   #else
     // Use either the stored preferences or an expected default value.
     // Accesses namespace in read-only mode.
-    if(preferences.begin("network", true, "nvs")) {
+    if(preferences.begin("network", true)) {
       b_wifi_enabled = preferences.getBool("enabled", false);
       wifi_ssid = preferences.getString("ssid", user_wifi_ssid);
       wifi_pass = preferences.getString("password", user_wifi_pass);
@@ -230,6 +241,18 @@ bool startExternalWifi() {
       wifi_subnet = preferences.getString("subnet", "");
       wifi_gateway = preferences.getString("gateway", "");
       preferences.end();
+    }
+    else {
+      // If namespace is not initialized, open in read/write mode and set defaults.
+      if(preferences.begin("network", false)) {
+        preferences.putBool("enabled", false);
+        preferences.putString("ssid", "");
+        preferences.putString("password", "");
+        preferences.putString("address", "");
+        preferences.putString("subnet", "");
+        preferences.putString("gateway", "");
+        preferences.end();
+      }
     }
   #endif
 
@@ -380,7 +403,7 @@ bool startWiFi() {
 
 void onOTAStart() {
   // Log when OTA has started
-  debug("OTA update started");
+  debug(F("OTA update started"));
 }
 
 void onOTAProgress(size_t current, size_t final) {
