@@ -591,6 +591,9 @@ String getWifiSettings() {
 
     preferences.end();
   }
+  else {
+    debug(F("Unable to access NVS area for network preferences"));
+  }
 
   // Serialize JSON object to string.
   serializeJson(jsonBody, wifiNetwork);
@@ -823,6 +826,9 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
           preferences.putString("ssid", newSSID); // Store SSID in case this was altered.
           preferences.end();
         }
+        else {
+          debug(F("Unable to access NVS area for WiFi preferences"));
+        }
 
         b_ssid_changed = true; // This will cause a reboot of the device after saving.
       }
@@ -922,6 +928,9 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
       }
 
       preferences.end();
+    }
+    else {
+      debug(F("Unable to access NVS area for device preferences"));
     }
 
     if(b_list_err){
@@ -1185,6 +1194,9 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
         preferences.putString("password", newPasswd); // Store user-provided password.
         preferences.end();
       }
+      else {
+        debug(F("Unable to access NVS area for WiFi preferences"));
+      }
 
       jsonBody.clear();
       jsonBody["status"] = "Password updated, restart required. Please enter your new WiFi password when prompted by your device.";
@@ -1256,6 +1268,9 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
         }
 
         preferences.end();
+      }
+      else {
+        debug(F("Unable to access NVS area for network values"));
       }
     }
 

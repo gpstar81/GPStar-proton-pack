@@ -144,7 +144,7 @@ bool startAccesPoint() {
       // Doesn't actually "reset" but forces default values for SSID and password.
       // Meant to allow the user to reset their credentials then re-flash after
       // commenting out the RESET_AP_SETTINGS definition in Configuration.h
-      ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix; // Update global variable.
+      ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix; // Use default SSID.
       ap_pass = ap_default_passwd; // Force use of the default WiFi password.
     #else
       // Use either the stored preferences or an expected default value.
@@ -152,6 +152,11 @@ bool startAccesPoint() {
       ap_pass = preferences.getString("password", ap_default_passwd);
     #endif
     preferences.end();
+  }
+  else {
+    debug(F("Unable to access NVS area for WiFi preferences"));
+    ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix; // Use default SSID.
+    ap_pass = ap_default_passwd; // Force use of the default WiFi password.
   }
 
   #if defined(DEBUG_WIRELESS_SETUP)
@@ -230,6 +235,9 @@ bool startExternalWifi() {
       wifi_subnet = preferences.getString("subnet", "");
       wifi_gateway = preferences.getString("gateway", "");
       preferences.end();
+    }
+    else {
+      debug(F("Unable to access NVS area for network preferences"));
     }
   #endif
 
@@ -380,7 +388,7 @@ bool startWiFi() {
 
 void onOTAStart() {
   // Log when OTA has started
-  debug("OTA update started");
+  debug(F("OTA update started"));
 }
 
 void onOTAProgress(size_t current, size_t final) {

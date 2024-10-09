@@ -304,6 +304,7 @@ void setup() {
 
   // Set a default animation for the radiation indicator.
   RAD_LENS_IDLE = AMBER_PULSE;
+  DISPLAY_TYPE = STATUS_TEXT;
 
   /*
    * Get Local Device Preferences
@@ -345,6 +346,9 @@ void setup() {
 
     s_track_listing = preferences.getString("track_list", "");
     preferences.end();
+  }
+  else {
+    debug(F("Unable to access NVS area for device preferences"));
   }
 
   if(!b_wait_for_pack) {
@@ -396,7 +400,7 @@ void setup() {
   switchLoops();
 
   // Delay before configuring and running tasks.
-  delay(100);
+  delay(200);
 
   // Initialize a critical timer for serial comms.
   if(b_wait_for_pack) {
