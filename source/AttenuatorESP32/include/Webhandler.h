@@ -569,7 +569,7 @@ String getWifiSettings() {
   jsonBody.clear();
 
   // Accesses namespace in read-only mode.
-  if(preferences.begin("network", true, "nvs")) {
+  if(preferences.begin("network", true)) {
     jsonBody["enabled"] = preferences.getBool("enabled", false);
     jsonBody["network"] = preferences.getString("ssid");
     jsonBody["password"] = preferences.getString("password");
@@ -592,7 +592,15 @@ String getWifiSettings() {
     preferences.end();
   }
   else {
-    debug(F("Unable to access NVS area for network preferences"));
+    if(preferences.begin("network", false)) {
+      preferences.putBool("enabled", false);
+      preferences.putString("ssid", "");
+      preferences.putString("password", "");
+      preferences.putString("address", "");
+      preferences.putString("subnet", "");
+      preferences.putString("gateway", "");
+      preferences.end();
+    }
   }
 
   // Serialize JSON object to string.
@@ -818,16 +826,13 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
     if(newSSID != ap_ssid){
       if(newSSID.length() >= 8 && newSSID.length() <= 32) {
         // Accesses namespace in read/write mode.
-        if(preferences.begin("credentials", false, "nvs")) {
+        if(preferences.begin("credentials", false)) {
           #if defined(DEBUG_SEND_TO_CONSOLE)
             Serial.print(F("New Private SSID: "));
             Serial.println(newSSID);
           #endif
           preferences.putString("ssid", newSSID); // Store SSID in case this was altered.
           preferences.end();
-        }
-        else {
-          debug(F("Unable to access NVS area for WiFi preferences"));
         }
 
         b_ssid_changed = true; // This will cause a reboot of the device after saving.
@@ -899,7 +904,7 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
     bool b_list_err = false;
 
     // Accesses namespace in read/write mode.
-    if(preferences.begin("device", false, "nvs")) {
+    if(preferences.begin("device", false)) {
       preferences.putBool("invert_led", b_invert_leds);
       preferences.putBool("use_buzzer", b_enable_buzzer);
       preferences.putBool("use_vibration", b_enable_vibration);
@@ -928,9 +933,6 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
       }
 
       preferences.end();
-    }
-    else {
-      debug(F("Unable to access NVS area for device preferences"));
     }
 
     if(b_list_err){
@@ -1186,16 +1188,13 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
     // Password is used for the built-in Access Point ability, which will be used when a preferred network is not available.
     if(newPasswd.length() >= 8) {
       // Accesses namespace in read/write mode.
-      if(preferences.begin("credentials", false, "nvs")) {
+      if(preferences.begin("credentials", false)) {
         #if defined(DEBUG_SEND_TO_CONSOLE)
           Serial.print(F("New Private WiFi Password: "));
           Serial.println(newPasswd);
         #endif
         preferences.putString("password", newPasswd); // Store user-provided password.
         preferences.end();
-      }
-      else {
-        debug(F("Unable to access NVS area for WiFi preferences"));
       }
 
       jsonBody.clear();
@@ -1243,9 +1242,11 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
     // If no errors encountered, continue with storing a preferred network (with credentials and IP information).
     if(wifiNetwork.length() >= 2 && wifiPasswd.length() >= 8) {
       // Accesses namespace in read/write mode.
-      if(preferences.begin("network", false, "nvs")) {
+      if(preferences.begin("network", false)) {
         // Clear old network IP info if SSID or password have been changed.
-        if(preferences.getString("ssid") != wifiNetwork || preferences.getString("password") != wifiPasswd) {
+        String old_ssid = preferences.getString("ssid", "");
+        String old_passwd = preferences.getString("password", "");
+        if(old_ssid == "" || old_ssid != wifiNetwork || old_passwd == "" || old_passwd != wifiPasswd) {
           preferences.putString("address", "");
           preferences.putString("subnet", "");
           preferences.putString("gateway", "");
@@ -1268,9 +1269,6 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
         }
 
         preferences.end();
-      }
-      else {
-        debug(F("Unable to access NVS area for network values"));
       }
     }
 

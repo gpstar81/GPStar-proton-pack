@@ -37,7 +37,8 @@
 #include <ht16k33.h>
 #include <Wire.h>
 #include <SerialTransfer.h>
-#include "esp_system.h"
+#include <esp_system.h>
+#include <nvs_flash.h>
 
 // Local Files
 #include "Configuration.h"
@@ -278,6 +279,22 @@ void WiFiSetupTask(void *parameter) {
   vTaskDelete(NULL);
 }
 
+void printPartitions() {
+  // Find the first NVS partition (should be named "nvs" by default).
+  const esp_partition_t* nvs_partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS, NULL);
+
+  if(nvs_partition != NULL) {
+    #if defined(DEBUG_SEND_TO_CONSOLE)
+    Serial.printf("NVS Partition Found\n");
+    Serial.printf("Partition label: %s\n", nvs_partition->label);
+    Serial.printf("Partition size: %d bytes\n", nvs_partition->size);
+    Serial.printf("Partition address: 0x%x\n", nvs_partition->address);
+    #endif
+  } else {
+    debug(F("No NVS partition found"));
+  }
+}
+
 void setup() {
   Serial.begin(115200); // Serial monitor via USB connection.
 
@@ -306,11 +323,39 @@ void setup() {
   RAD_LENS_IDLE = AMBER_PULSE;
   DISPLAY_TYPE = STATUS_TEXT;
 
+  // Initialize the NVS flash partition and throw any errors as necessary.
+  esp_err_t err = nvs_flash_init();
+  if(err != ESP_OK) {
+    #if defined(DEBUG_SEND_TO_CONSOLE)
+    Serial.printf("NVS initialization failed with error: %s\n", esp_err_to_name(err));
+    #endif
+    
+    // If initialization fails, erase and reinitialize NVS.
+    debug(F("Erasing and reinitializing NVS..."));
+    nvs_flash_erase();
+
+    err = nvs_flash_init();
+    if(err != ESP_OK) {
+      #if defined(DEBUG_SEND_TO_CONSOLE)
+      Serial.printf("Failed to reinitialize NVS: %s\n", esp_err_to_name(err));
+      #endif
+    }
+    else {
+      debug(F("NVS reinitialized successfully"));
+    }
+  }
+  else {
+    debug(F("NVS initialized successfully"));
+  }
+
+  // Print partition information to verify NVS availability
+  printPartitions();
+
   /*
    * Get Local Device Preferences
    * Accesses the "device" namespace in read-only mode under the "nvs" partition.
    */
-  bool b_namespace_opened = preferences.begin("device", true, "nvs");
+  bool b_namespace_opened = preferences.begin("device", true);
   if(b_namespace_opened) {
     // Return stored values if available, otherwise use a default value.
     b_invert_leds = preferences.getBool("invert_led", false);
@@ -348,7 +393,18 @@ void setup() {
     preferences.end();
   }
   else {
-    debug(F("Unable to access NVS area for device preferences"));
+    // If namespace is not initialized, open in read/write mode and set defaults.
+    if(preferences.begin("device", false)) {
+      preferences.putBool("invert_led", b_invert_leds);
+      preferences.putBool("use_buzzer", b_enable_buzzer);
+      preferences.putBool("use_vibration", b_enable_vibration);
+      preferences.putBool("use_overheat", b_overheat_feedback);
+      preferences.putBool("fire_feedback", b_firing_feedback);
+      preferences.putShort("radiation_idle", RAD_LENS_IDLE);
+      preferences.putShort("display_type", DISPLAY_TYPE);
+      preferences.putString("track_list", "");
+      preferences.end();
+    }
   }
 
   if(!b_wait_for_pack) {
@@ -393,7 +449,7 @@ void setup() {
   ledcAttach(VIBRATION_PIN, 5000, 8); // Uses 5 kHz frequency, 8-bit resolution
 
   // Turn off any user feedback.
-  noTone(BUZZER_PIN);
+  buzzOff();
   vibrateOff();
 
   // Get initial switch/button states.

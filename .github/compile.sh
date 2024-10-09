@@ -26,3 +26,4 @@ source ./compile_blaster.sh
 source ./compile_attenuator_nano.sh
 
 source ./compile_attenuator_esp.sh
+source ./compile_attenuator_esp_extras.sh
