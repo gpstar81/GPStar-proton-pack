@@ -27,10 +27,10 @@
  * debugging, while the websocket will help with confirming operations
  * while using the device (post-setup for wireless).
  */
-#define DEBUG_WIRELESS_SETUP   // Output debugs related to the WiFi/network setup.
+//#define DEBUG_WIRELESS_SETUP   // Output debugs related to the WiFi/network setup.
 //#define DEBUG_PERFORMANCE      // Send debug messages for CPU/memory to the (USB) console.
 //#define DEBUG_SERIAL_COMMS     // Output debugs related to the serial communications.
-#define DEBUG_SEND_TO_CONSOLE  // Send any general messages to the serial (USB) console.
+//#define DEBUG_SEND_TO_CONSOLE  // Send any general messages to the serial (USB) console.
 //#define DEBUG_TASK_TO_CONSOLE  // Send any task messages to the serial (USB) console.
 //#define DEBUG_SEND_TO_WEBSOCKET  // Send any messages to connected WebSocket clients.
 
@@ -45,7 +45,7 @@
 /*
  * Used to reflect the last build date for the binary.
  */
-String build_date = "20241008215805";
+String build_date = "20241008221539";
 
 /*
  * Preferred WiFi Network Defaults
