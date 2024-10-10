@@ -1979,7 +1979,7 @@ void powercellLoop() {
       if(b_powercell_updating != true) {
         if(((SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && b_cyclotron_lid_on && !b_wand_mash_lockout) || SYSTEM_YEAR == SYSTEM_AFTERLIFE) && i_powercell_led == 0 && !b_2021_ramp_up && !b_2021_ramp_down && !b_wand_firing && !b_alarm && !b_overheating) {
           if(b_powercell_sound_loop != true) {
-            playEffect(S_POWERCELL, true, i_volume_effects - i_wand_beep_level, true, 1400);
+            playEffect(S_POWERCELL, true, i_volume_effects - i_wand_idle_level, true, 1400);
             b_powercell_sound_loop = true;
           }
         }
@@ -5414,23 +5414,23 @@ void wandExtraSoundsBeepLoop() {
   if(b_overheating != true) {
     switch(i_wand_power_level) {
       case 1:
-        playEffect(S_AFTERLIFE_BEEP_WAND_S1, true, i_volume_effects - i_wand_beep_level);
+        playEffect(S_AFTERLIFE_BEEP_WAND_S1, true, i_volume_effects - i_wand_idle_level);
       break;
 
       case 2:
-        playEffect(S_AFTERLIFE_BEEP_WAND_S2, true, i_volume_effects - i_wand_beep_level);
+        playEffect(S_AFTERLIFE_BEEP_WAND_S2, true, i_volume_effects - i_wand_idle_level);
       break;
 
       case 3:
-        playEffect(S_AFTERLIFE_BEEP_WAND_S3, true, i_volume_effects - i_wand_beep_level);
+        playEffect(S_AFTERLIFE_BEEP_WAND_S3, true, i_volume_effects - i_wand_idle_level);
       break;
 
       case 4:
-        playEffect(S_AFTERLIFE_BEEP_WAND_S4, true, i_volume_effects - i_wand_beep_level);
+        playEffect(S_AFTERLIFE_BEEP_WAND_S4, true, i_volume_effects - i_wand_idle_level);
       break;
 
       case 5:
-        playEffect(S_AFTERLIFE_BEEP_WAND_S5, true, i_volume_effects - i_wand_beep_level);
+        playEffect(S_AFTERLIFE_BEEP_WAND_S5, true, i_volume_effects - i_wand_idle_level);
       break;
     }
   }

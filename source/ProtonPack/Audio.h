@@ -46,7 +46,6 @@ const uint16_t i_music_track_start = 500; // Music tracks start on file named 50
 const int8_t i_volume_abs_min = -70; // System (absolute) minimum volume possible.
 const int8_t i_volume_abs_max = 0; // System (absolute) maximum volume possible.
 uint8_t i_volume_min_adj = 0; // Adjustment factor for minimum volume. 0 for WAV Trigger, 10 for GPStar Audio.
-const uint8_t i_wand_beep_level = 10; // This lowers the volume of certain Neutrona Wand beep sounds that the Proton Pack can play.
 const uint8_t i_wand_idle_level = 20; // This adjusts the volume of certain Afterlife / Frozen Empire Neutrona Wand idle sounds that the Proton pack can play.
 bool b_playing_music = false;
 bool b_music_paused = false;
@@ -494,12 +493,12 @@ void updateEffectsVolume() {
 
           audio.trackGain(S_PACK_SHUTDOWN_AFTERLIFE_ALT, i_volume_effects);
           audio.trackGain(S_FROZEN_EMPIRE_SHUTDOWN, i_volume_effects);
-          audio.trackGain(S_POWERCELL, i_volume_effects - i_wand_beep_level);
-          audio.trackGain(S_AFTERLIFE_BEEP_WAND_S1, i_volume_effects - i_wand_beep_level);
-          audio.trackGain(S_AFTERLIFE_BEEP_WAND_S2, i_volume_effects - i_wand_beep_level);
-          audio.trackGain(S_AFTERLIFE_BEEP_WAND_S3, i_volume_effects - i_wand_beep_level);
-          audio.trackGain(S_AFTERLIFE_BEEP_WAND_S4, i_volume_effects - i_wand_beep_level);
-          audio.trackGain(S_AFTERLIFE_BEEP_WAND_S5, i_volume_effects - i_wand_beep_level);
+          audio.trackGain(S_POWERCELL, i_volume_effects - i_wand_idle_level);
+          audio.trackGain(S_AFTERLIFE_BEEP_WAND_S1, i_volume_effects - i_wand_idle_level);
+          audio.trackGain(S_AFTERLIFE_BEEP_WAND_S2, i_volume_effects - i_wand_idle_level);
+          audio.trackGain(S_AFTERLIFE_BEEP_WAND_S3, i_volume_effects - i_wand_idle_level);
+          audio.trackGain(S_AFTERLIFE_BEEP_WAND_S4, i_volume_effects - i_wand_idle_level);
+          audio.trackGain(S_AFTERLIFE_BEEP_WAND_S5, i_volume_effects - i_wand_idle_level);
           audio.trackGain(S_AFTERLIFE_WAND_RAMP_1, i_volume_effects - i_wand_idle_level);
           audio.trackGain(S_AFTERLIFE_WAND_RAMP_2, i_volume_effects - i_wand_idle_level);
           audio.trackGain(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, i_volume_effects - i_wand_idle_level);
@@ -584,7 +583,7 @@ void decreaseVolumeEffects() {
 
     // Provide feedback at minimum volume.
     stopEffect(S_BEEPS_ALT);
-    playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_beep_level);
+    playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_idle_level);
   }
   else {
     i_volume_effects_percentage -= VOLUME_EFFECTS_MULTIPLIER;
@@ -619,7 +618,7 @@ void increaseVolumeMusic() {
 
     // Provide feedback at maximum volume.
     stopEffect(S_BEEPS_ALT);
-    playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_beep_level);
+    playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_idle_level);
   }
   else {
     i_volume_music_percentage += VOLUME_MUSIC_MULTIPLIER;
@@ -636,7 +635,7 @@ void decreaseVolumeMusic() {
 
     // Provide feedback at minimum volume.
     stopEffect(S_BEEPS_ALT);
-    playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_beep_level);
+    playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_idle_level);
   }
   else {
     i_volume_music_percentage -= VOLUME_MUSIC_MULTIPLIER;

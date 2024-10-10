@@ -1536,7 +1536,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_WAND_BEEP:
       if(b_overheating != true) {
-        playEffect(S_AFTERLIFE_BEEP_WAND_S5, false, i_volume_effects - i_wand_beep_level);
+        playEffect(S_AFTERLIFE_BEEP_WAND_S5, false, i_volume_effects - i_wand_idle_level);
       }
     break;
 

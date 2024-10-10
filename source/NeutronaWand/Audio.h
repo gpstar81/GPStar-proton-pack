@@ -46,7 +46,6 @@ const uint16_t i_music_track_start = 500; // Music tracks start on file named 50
 const int8_t i_volume_abs_min = -70; // System (absolute) minimum volume possible.
 int8_t i_volume_abs_max = 0; // System (absolute) maximum volume possible. 0 dB for WAV Trigger, +12 dB for GPStar Audio.
 const int8_t i_track_volume_abs_max = 0; // Maximum gain for effects/music is 0 dB (unity gain).
-const uint8_t i_wand_beep_level = 10; // Volume reduction for beep effect.
 bool b_playing_music = false;
 bool b_music_paused = false;
 bool b_repeat_track = false;
@@ -569,7 +568,7 @@ void increaseVolumeMusic() {
 
     // Provide feedback at maximum volume.
     stopEffect(S_BEEPS_ALT);
-    playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_beep_level);
+    playEffect(S_BEEPS_ALT, false, i_volume_master);
   }
   else {
     i_volume_music_percentage += VOLUME_MUSIC_MULTIPLIER;
@@ -586,7 +585,7 @@ void decreaseVolumeMusic() {
 
     // Provide feedback at minimum volume.
     stopEffect(S_BEEPS_ALT);
-    playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_beep_level);
+    playEffect(S_BEEPS_ALT, false, i_volume_master);
   }
   else {
     i_volume_music_percentage -= VOLUME_MUSIC_MULTIPLIER;
