@@ -27,7 +27,12 @@ Please see the [ATTENUATOR_FLASHING](ATTENUATOR_FLASHING.md) guide for details o
 
 ## Hardware Synchronization
 
-In order to view the state of the pack and control it remotely, the two devices must be physically connected and have been sychnronized via the built-in software. On the ESP32 are 2 on-board LEDs which will show the current status. A red LED indicates the device is powered and should be accessible via WiFi. A blue LED indicates the device has successfully synchronized with the Proton Pack.
+In order to view the state of the pack and control it remotely, the Proton Pack and ESP32 devices must be physically connected and have been sychnronized via the built-in software. On the ESP32 are 2 on-board LEDs which will show the current status:
+
+- The onboard red LED indicates the device is powered and should be accessible via the private WiFi network.
+- A second onboard LED will be lit blue to indicate when the device has successfully synchronized with the Proton Pack.
+
+Additionally, when using the device as an Attenuator, the topmost LED on that device will be lit as purple until pack synchronization has completed. If using the "standalone" firmware the top LED will remain lit as red.
 
 ## Web Interface
 

@@ -16,6 +16,13 @@ TIMESTAMP=$(date +"%Y%m%d%H%M%S")
 
 echo ""
 
+# Set the project directory based on the source folder
+PROJECT_DIR="$SRCDIR/AttenuatorESP32"
+
+# Update date of compilation
+echo "Updating Build Timestamp:" $TIMESTAMP
+sed -i -e 's/\(String build_date = "\)[^"]*\(";\)/\1'"$TIMESTAMP"'\2/' ${PROJECT_DIR}/include/Configuration.h
+
 # Attenuator (ESP32 - Standalone)
 echo "Building Attenuator Binary (ESP32 - Standalone)..."
 
