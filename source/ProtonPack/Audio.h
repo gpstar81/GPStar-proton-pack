@@ -482,12 +482,14 @@ void updateEffectsVolume() {
             audio.trackGain(S_BOOTUP, i_volume_effects - 30);
             audio.trackGain(S_AFTERLIFE_PACK_STARTUP, i_volume_effects - 30);
             audio.trackGain(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 40);
+            audio.trackGain(S_FROZEN_EMPIRE_PACK_STARTUP, i_volume_effects - 30);
             audio.trackGain(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, i_volume_effects - 40);
           }
           else {
             audio.trackGain(S_BOOTUP, i_volume_effects);
             audio.trackGain(S_AFTERLIFE_PACK_STARTUP, i_volume_effects);
             audio.trackGain(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects);
+            audio.trackGain(S_FROZEN_EMPIRE_PACK_STARTUP, i_volume_effects);
             audio.trackGain(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, i_volume_effects);
           }
 
@@ -583,7 +585,7 @@ void decreaseVolumeEffects() {
 
     // Provide feedback at minimum volume.
     stopEffect(S_BEEPS_ALT);
-    playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_idle_level);
+    playEffect(S_BEEPS_ALT, false, i_volume_master);
   }
   else {
     i_volume_effects_percentage -= VOLUME_EFFECTS_MULTIPLIER;
@@ -618,7 +620,7 @@ void increaseVolumeMusic() {
 
     // Provide feedback at maximum volume.
     stopEffect(S_BEEPS_ALT);
-    playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_idle_level);
+    playEffect(S_BEEPS_ALT, false, i_volume_master);
   }
   else {
     i_volume_music_percentage += VOLUME_MUSIC_MULTIPLIER;
@@ -635,7 +637,7 @@ void decreaseVolumeMusic() {
 
     // Provide feedback at minimum volume.
     stopEffect(S_BEEPS_ALT);
-    playEffect(S_BEEPS_ALT, false, i_volume_master - i_wand_idle_level);
+    playEffect(S_BEEPS_ALT, false, i_volume_master);
   }
   else {
     i_volume_music_percentage -= VOLUME_MUSIC_MULTIPLIER;
