@@ -1464,7 +1464,7 @@ void checkSwitches() {
 
     if(switch_power.getState() == LOW) {
       // Turn the pack on if switch is moved to on position in Mode Super Hero.
-      if(SYSTEM_MODE == MODE_SUPER_HERO) {
+      if(SYSTEM_MODE == MODE_SUPER_HERO && PACK_STATE == MODE_OFF) {
         PACK_ACTION_STATE = ACTION_ACTIVATE;
       }
 
