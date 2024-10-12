@@ -1179,7 +1179,7 @@ void packShutdown() {
           playEffect(S_FROZEN_EMPIRE_SHUTDOWN);
         }
         else {
-          playEffect(S_PACK_SHUTDOWN_AFTERLIFE_ALT);
+          playEffect(S_FROZEN_EMPIRE_PACK_SHUTDOWN);
         }
       break;
     }
@@ -2455,6 +2455,10 @@ void cyclotronControl() {
         if(ms_mash_lockout.isRunning()) {
           r_outer_cyclotron_ramp.go(i_2021_ramp_delay, ms_mash_lockout.delay() / 3, QUARTIC_IN);
           r_inner_cyclotron_ramp.go(i_inner_ramp_delay, ms_mash_lockout.delay() / 3, QUARTIC_IN);
+        }
+        else if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+          r_outer_cyclotron_ramp.go(i_2021_ramp_delay, i_2021_ramp_down_length / 4, QUARTIC_IN);
+          r_inner_cyclotron_ramp.go(i_inner_ramp_delay, i_2021_ramp_down_length / 4, QUARTIC_IN);
         }
         else {
           r_outer_cyclotron_ramp.go(i_2021_ramp_delay, i_2021_ramp_down_length, QUARTIC_IN);
@@ -4326,10 +4330,9 @@ void ventLight(bool b_on) {
   }
 }
 
-// Only for Afterlife and Frozen Empire mode.
 void checkCyclotronAutoSpeed() {
   // No need to start any timers until after any ramping has finished; only in Afterlife and Frozen Empire do we do the auto speed increases.
-  if(b_wand_firing == true && b_2021_ramp_up != true && b_2021_ramp_down != true && (SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
+  if(b_wand_firing && !b_2021_ramp_up && !b_2021_ramp_down) {
     if(ms_cyclotron_auto_speed_timer.justFinished() && i_cyclotron_multiplier < 6) {
       // Increase the Cyclotron speed.
       i_cyclotron_multiplier++;
