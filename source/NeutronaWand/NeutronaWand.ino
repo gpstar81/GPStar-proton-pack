@@ -535,7 +535,6 @@ void mainLoop() {
           if(ms_gun_loop_1.justFinished() && switch_vent.on() == false) {
             playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects);
             b_sound_afterlife_idle_2_fade = false;
-            ms_gun_loop_1.stop();
 
             if(b_extra_pack_sounds == true) {
               wandSerialSend(W_AFTERLIFE_GUN_LOOP_1);
@@ -2349,7 +2348,7 @@ void postActivation() {
     digitalWriteFast(CLIPPARD_LED_PIN, HIGH);
 
     // Top white light.
-    ms_white_light.start(d_white_light_interval);
+    ms_white_light.start(i_white_light_interval);
     digitalWriteFast(TOP_LED_PIN, LOW);
 
     // Reset the hat light timers.
@@ -2566,11 +2565,10 @@ void soundIdleStart() {
           }
         }
 
+        ms_gun_loop_1.stop();
         ms_gun_loop_2.start(i_gun_loop_2);
 
         b_sound_idle = true;
-
-        ms_gun_loop_1.stop();
       break;
     }
   }
@@ -2578,8 +2576,6 @@ void soundIdleStart() {
   if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
     if(ms_gun_loop_2.justFinished()) {
       playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects);
-
-      ms_gun_loop_2.stop();
 
       if(b_extra_pack_sounds == true) {
         wandSerialSend(W_AFTERLIFE_GUN_LOOP_2);
@@ -2633,14 +2629,12 @@ void soundIdleStop() {
           else if(WAND_ACTION_STATUS != ACTION_OFF) {
             playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
 
+            ms_gun_loop_1.start(i_gun_loop_2);
+            ms_gun_loop_2.stop();
+
             if(b_extra_pack_sounds == true) {
               wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_2);
             }
-          }
-
-          if(WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-            ms_gun_loop_1.start(i_gun_loop_1);
-            ms_gun_loop_2.stop();
           }
         }
       break;
@@ -2653,8 +2647,6 @@ void soundIdleStop() {
 void soundBeepLoopStop() {
   if(b_beeping == true) {
     b_beeping = false;
-
-    ms_reset_sound_beep.stop();
 
     if(switch_wand.on()) {
       // Set all beep looping to false so they stop naturally.
@@ -10377,12 +10369,12 @@ void resetWhiteLEDBlinkRate() {
   switch(getNeutronaWandYearMode()) {
     case SYSTEM_1984:
     case SYSTEM_1989:
-      d_white_light_interval = i_classic_blink_intervals[i_classic_blink_index];
+      i_white_light_interval = i_classic_blink_intervals[i_classic_blink_index];
     break;
     case SYSTEM_AFTERLIFE:
     case SYSTEM_FROZEN_EMPIRE:
     default:
-      d_white_light_interval = i_afterlife_blink_interval;
+      i_white_light_interval = i_afterlife_blink_interval;
     break;
   }
 }

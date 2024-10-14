@@ -179,10 +179,11 @@ millisDelay ms_fast_led;
  * GB2 Venkman (Vigo), GB2 Zeddemore: 375
  * Afterlife (all props): 146
  */
+millisDelay ms_white_light;
 const uint16_t i_afterlife_blink_interval = 146;
 const uint16_t i_classic_blink_intervals[5] = {333, 375, 417, 500, 666};
 uint8_t i_classic_blink_index = 0;
-uint16_t d_white_light_interval = i_afterlife_blink_interval;
+uint16_t i_white_light_interval = i_afterlife_blink_interval;
 
 /*
  * Rotary encoder on the top of the wand. Changes the wand power level and controls the wand settings menu.
@@ -236,11 +237,10 @@ const uint8_t i_bargraph_5_led_normal[i_bargraph_segments_5_led] PROGMEM = {BARG
 bool b_bargraph_status_5[i_bargraph_segments_5_led] = {};
 
 /*
- * Idling timers
+ * Afterlife/Frozen Empire wand idle ramp transition timers.
  */
-millisDelay ms_gun_loop_1;
-millisDelay ms_gun_loop_2;
-millisDelay ms_white_light;
+millisDelay ms_gun_loop_1; // Used when transitioning to S_AFTERLIFE_WAND_IDLE_1.
+millisDelay ms_gun_loop_2; // Used when transitioning to S_AFTERLIFE_WAND_IDLE_2.
 uint16_t i_gun_loop_1 = 1768; // S_AFTERLIFE_WAND_RAMP_1 is 1768ms long.
 uint16_t i_gun_loop_2 = 1881; // S_AFTERLIFE_WAND_RAMP_2 is 1881ms long.
 
@@ -336,7 +336,7 @@ const uint8_t i_hat_1_delay = 100;
 const uint16_t i_hat_2_delay = 400;
 
 /*
- * A timer for controlling the wand beep in Afterlife & Frozen Empire mode.
+ * A timer to prevent the wand beep from restarting too rapidly in Afterlife & Frozen Empire modes.
  */
 millisDelay ms_reset_sound_beep;
 const uint16_t i_sound_timer = 1750;
