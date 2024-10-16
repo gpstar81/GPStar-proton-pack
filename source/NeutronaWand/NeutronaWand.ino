@@ -2501,7 +2501,7 @@ void soundIdleLoopStop(bool stopAlts) {
 }
 
 void soundIdleStart() {
-  if(b_sound_idle == false) {
+  if(!b_sound_idle) {
     switch(getNeutronaWandYearMode()) {
       case SYSTEM_1984:
       case SYSTEM_1989:
@@ -2544,10 +2544,13 @@ void soundIdleStart() {
         stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
         stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
 
-        if(b_sound_afterlife_idle_2_fade == true) {
+        ms_gun_loop_1.stop();
+        ms_gun_loop_2.start(i_gun_loop_2);
+
+        if(b_sound_afterlife_idle_2_fade) {
           playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
 
-          if(b_extra_pack_sounds == true) {
+          if(b_extra_pack_sounds) {
             wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
 
             wandSerialSend(W_AFTERLIFE_GUN_RAMP_2_FADE_IN);
@@ -2558,15 +2561,12 @@ void soundIdleStart() {
         else {
           playEffect(S_AFTERLIFE_WAND_RAMP_2);
 
-          if(b_extra_pack_sounds == true) {
+          if(b_extra_pack_sounds) {
             wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
 
             wandSerialSend(W_AFTERLIFE_GUN_RAMP_2);
           }
         }
-
-        ms_gun_loop_1.stop();
-        ms_gun_loop_2.start(i_gun_loop_2);
 
         b_sound_idle = true;
       break;
@@ -2577,7 +2577,7 @@ void soundIdleStart() {
     if(ms_gun_loop_2.justFinished()) {
       playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects);
 
-      if(b_extra_pack_sounds == true) {
+      if(b_extra_pack_sounds) {
         wandSerialSend(W_AFTERLIFE_GUN_LOOP_2);
       }
     }
@@ -2627,10 +2627,10 @@ void soundIdleStop() {
             }
           }
           else if(WAND_ACTION_STATUS != ACTION_OFF) {
-            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
-
             ms_gun_loop_1.start(i_gun_loop_2);
             ms_gun_loop_2.stop();
+
+            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
 
             if(b_extra_pack_sounds == true) {
               wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_2);
@@ -10355,10 +10355,10 @@ void stopAfterLifeSounds() {
 void afterlifeRampSound1() {
   stopAfterLifeSounds();
 
+  ms_gun_loop_1.start(i_gun_loop_1);
+
   playEffect(S_AFTERLIFE_WAND_RAMP_1);
   b_sound_afterlife_idle_2_fade = false;
-
-  ms_gun_loop_1.start(i_gun_loop_1);
 
   if(b_extra_pack_sounds == true) {
     wandSerialSend(W_AFTERLIFE_GUN_RAMP_1);
