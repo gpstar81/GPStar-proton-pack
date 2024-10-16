@@ -219,6 +219,7 @@ void toggleYearModes() {
     break;
 
     case SYSTEM_AFTERLIFE:
+    default:
       // Afterlife -> Frozen Empire
       SYSTEM_YEAR_TEMP = SYSTEM_FROZEN_EMPIRE;
 
@@ -246,10 +247,6 @@ void toggleYearModes() {
 
       // Tell the wand to play the 1984 sound effects.
       packSerialSend(P_MODE_1984);
-    break;
-
-    default:
-      // Nothing.
     break;
   }
 
@@ -4409,9 +4406,13 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_YEAR_MODES_CYCLE_EEPROM:
-      if(b_switch_mode_override == true) {
+      if(b_switch_mode_override) {
         if(SYSTEM_YEAR_TEMP == SYSTEM_FROZEN_EMPIRE) {
+          // Disable the year mode override flag so the toggle switch takes effect.
           b_switch_mode_override = false;
+
+          stopEffect(S_BEEPS_BARGRAPH);
+          playEffect(S_BEEPS_BARGRAPH);
 
           stopEffect(S_VOICE_YEAR_MODE_DEFAULT);
           stopEffect(S_VOICE_FROZEN_EMPIRE);
@@ -4422,7 +4423,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
           packSerialSend(P_YEAR_MODE_DEFAULT);
 
-          // 1 = toggle switch, 2 = 1984, 3 = 1989, 4 = Afterlife, 5 = Frozen Empire.
           SYSTEM_EEPROM_YEAR = SYSTEM_TOGGLE_SWITCH;
         }
         else {
@@ -4430,13 +4430,16 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         }
       }
       else {
-        toggleYearModes();
-
         // Turn on the year mode override flag. This resets when you flip the year mode toggle switch on the pack.
         b_switch_mode_override = true;
+
+        // Have to set this to Frozen Empire so 1984 will be triggered.
+        SYSTEM_YEAR_TEMP = SYSTEM_FROZEN_EMPIRE;
+
+        toggleYearModes();
       }
 
-      if(b_switch_mode_override == true) {
+      if(b_switch_mode_override) {
         switch(SYSTEM_YEAR_TEMP) {
           case SYSTEM_1984:
             SYSTEM_EEPROM_YEAR = SYSTEM_1984;

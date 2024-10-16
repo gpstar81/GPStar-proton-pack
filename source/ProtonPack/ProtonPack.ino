@@ -1497,59 +1497,44 @@ void checkSwitches() {
 
   if(PACK_STATE == MODE_OFF) {
     // Year mode. Best to adjust it only when the pack is off.
-    if(b_pack_shutting_down != true && b_pack_on == false && b_spectral_lights_on != true) {
+    if(!b_pack_shutting_down && !b_pack_on && !b_spectral_lights_on) {
       // If switching manually by the pack toggle switch.
-      if(b_switch_mode_override != true) {
+      if(!b_switch_mode_override) {
         setYearModeByToggle();
       }
       else {
         // If the Neutrona Wand sub menu setting told the Proton Pack to change years.
-        switch(SYSTEM_YEAR_TEMP) {
-          case SYSTEM_1984:
-            if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
+        if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
+          switch(SYSTEM_YEAR_TEMP) {
+            case SYSTEM_1984:
               // Tell the wand to switch to 1984 mode.
               packSerialSend(P_YEAR_1984);
 
               SYSTEM_YEAR = SYSTEM_1984;
-              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
               serial1Send(A_YEAR_1984);
-              resetRampSpeeds();
-              packOffReset();
-            }
-          break;
+            break;
 
-          case SYSTEM_1989:
-            if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
+            case SYSTEM_1989:
               // Tell the wand to switch to 1989 mode.
               packSerialSend(P_YEAR_1989);
 
               SYSTEM_YEAR = SYSTEM_1989;
-              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
               serial1Send(A_YEAR_1989);
-              resetRampSpeeds();
-              packOffReset();
-            }
-          break;
+            break;
 
-          case SYSTEM_FROZEN_EMPIRE:
-            if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
+            case SYSTEM_FROZEN_EMPIRE:
               // Tell the wand to switch to Frozen Empire mode.
               packSerialSend(P_YEAR_FROZEN_EMPIRE);
 
               SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
-              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
               serial1Send(A_YEAR_FROZEN_EMPIRE);
-              resetRampSpeeds();
-              packOffReset();
-            }
-          break;
+            break;
 
-          case SYSTEM_AFTERLIFE:
-          default:
-            if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
+            case SYSTEM_AFTERLIFE:
+            default:
               // Tell the wand to switch to Afterlife mode.
               packSerialSend(P_YEAR_AFTERLIFE);
 
@@ -1557,10 +1542,11 @@ void checkSwitches() {
               SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
               serial1Send(A_YEAR_AFTERLIFE);
-              resetRampSpeeds();
-              packOffReset();
-            }
-          break;
+            break;
+          }
+
+          resetRampSpeeds();
+          packOffReset();
         }
       }
     }

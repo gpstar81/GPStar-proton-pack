@@ -328,35 +328,33 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.year_mode > 0 && obj_config_eeprom.year_mode != 255) {
-      if(obj_config_eeprom.year_mode > 1) {
-        // 1 = toggle switch, 2 = 1984, 3 = 1989, 4 = Afterlife, 5 = Frozen Empire.
-        switch(obj_config_eeprom.year_mode) {
-          case 2:
-            SYSTEM_YEAR = SYSTEM_1984;
-          break;
+    if(obj_config_eeprom.year_mode > 1 && obj_config_eeprom.year_mode != 255) {
+      // 1 = toggle switch, 2 = 1984, 3 = 1989, 4 = Afterlife, 5 = Frozen Empire.
+      switch(obj_config_eeprom.year_mode) {
+        case 2:
+          SYSTEM_YEAR = SYSTEM_1984;
+        break;
 
-          case 3:
-            SYSTEM_YEAR = SYSTEM_1989;
-          break;
+        case 3:
+          SYSTEM_YEAR = SYSTEM_1989;
+        break;
 
-          case 4:
-          default:
-            SYSTEM_YEAR = SYSTEM_AFTERLIFE;
-          break;
+        case 4:
+        default:
+          SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+        break;
 
-          case 5:
-            SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
-          break;
-        }
-
-        // Update additional variables once the system year is set from the stored EEPROM preferences.
-        SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-        SYSTEM_EEPROM_YEAR = SYSTEM_YEAR;
-
-        // Set the switch override to true, so the toggle switch in the Proton Pack does not override the year settings during the bootup process.
-        b_switch_mode_override = true;
+        case 5:
+          SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+        break;
       }
+
+      // Update additional variables once the system year is set from the stored EEPROM preferences.
+      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+      SYSTEM_EEPROM_YEAR = SYSTEM_YEAR;
+
+      // Set the switch override to true, so the toggle switch in the Proton Pack does not override the year settings during the bootup process.
+      b_switch_mode_override = true;
     }
 
     if(obj_config_eeprom.system_mode > 0 && obj_config_eeprom.system_mode != 255) {

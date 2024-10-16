@@ -241,8 +241,8 @@ bool b_bargraph_status_5[i_bargraph_segments_5_led] = {};
  */
 millisDelay ms_gun_loop_1; // Used when transitioning to S_AFTERLIFE_WAND_IDLE_1.
 millisDelay ms_gun_loop_2; // Used when transitioning to S_AFTERLIFE_WAND_IDLE_2.
-uint16_t i_gun_loop_1 = 1768; // S_AFTERLIFE_WAND_RAMP_1 is 1768ms long.
-uint16_t i_gun_loop_2 = 1881; // S_AFTERLIFE_WAND_RAMP_2 is 1881ms long.
+const uint16_t i_gun_loop_1 = 1767; // S_AFTERLIFE_WAND_RAMP_1 is 1768ms long.
+const uint16_t i_gun_loop_2 = 1880; // S_AFTERLIFE_WAND_RAMP_2 is 1881ms long.
 
 /*
  * Overheat timers
