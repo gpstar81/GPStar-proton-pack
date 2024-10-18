@@ -50,7 +50,7 @@ The following steps MUST be taken if either of these situations applies to you:
 - If you are using your own ESP32 controller direct from Amazon or another supplier, then the microcontroller has not been flashed with the GPStar firmware to enable the OTA upload feature and the manual flashing process is required.
 - Or, if you are performing the first firmware update since the introduction of v6.x you will need to perform the manual flashing process. We need to make room for larger firmware files and this can only be done by repartitioning the device's internal 4MB storage area.
 
-**Troubleshooting:** If you encounter any issues while attempting to access your ESP32 device via a USB cable, pleas see the **"USB Troubleshooting"** section at the bottom of this guide.
+If you encounter any issues while attempting to access your ESP32 device via a USB cable, please see the **"[USB Troubleshooting](#usb-troubleshooting)"** section at the bottom of this guide.
 
 **Option 1: Via Web Uploader**
 
