@@ -85,21 +85,25 @@ You will need to utilize a command-line tool to upload the firmware to your devi
 		* `curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py`
 		* `python3 get-pip.py`
 	* If the above utilities do not work using `python3` try using just `python`
-1. Locate the following files from the `/binaries/attenuator` directory.
+1. Locate the following files from the `/binaries/attenuator` directory of this project and download/copy them to a new location such as `C:\Temp` or `/tmp` so they can be found using just their name without adding a subdirectory:
 	* [extras/Attenuator-ESP32-bootloader.bin](binaries/attenuator/extras/Attenuator-ESP32-Bootloader.bin)
 	* [extras/Attenuator-ESP32-partitions.bin](binaries/attenuator/extras/Attenuator-ESP32-Partitions.bin)
 	* [extras/boot_app0.bin](binaries/attenuator/extras/boot_app0.bin)
 	* [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin)
-1. Run the following command, where `<PORT>` is your ESP32 controller as a serial (USB) device. For Linux/macOS this may be `/dev/cu.usbserial-####` or similar, while on Windows it would simply be something like `COM#`:
+1. From your terminal (command line) session, change into the temporary directory where all 4 of the above files were copied.
+1. Run the following command, where `<PORT>` is your ESP32 controller as a serial (USB) device. For Linux/macOS the port may appear as `/dev/cu.usbserial-####` or similar, while on Windows it would be `COM#`:
 
 ```
-	python3 -m esptool --chip esp32 --port <PORT> -b 921600 write_flash --flash_mode dio --flash_size detect --flash_freq 80m
-	0x1000 Attenuator-ESP32-bootloader.bin 0x8000 Attenuator-ESP32-partitions.bin 0xe000 boot_app0.bin 0x10000 Attenuator-ESP32.bin
+python3 -m esptool --chip esp32 --port <PORT> -b 921600 write_flash --flash_mode dio --flash_size detect --flash_freq 80m 0x1000 Attenuator-ESP32-bootloader.bin 0x8000 Attenuator-ESP32-partitions.bin 0xe000 boot_app0.bin 0x10000 Attenuator-ESP32.bin
 ```
 
-📝 **Tip:** To find your device on Linux it may be necessary to use the `lsusb` utility to list attached USB devices. For MacOS run `ls /dev/{tty,cu}.*` to list available USB devices. For Windows, use the "Device Manager" and look at the "Ports (COM & LPT)" section.
+📝 **Tip:** To find your USB device on various operating systems requires different methods:
 
-These guides may be of some help as a reference:
+- For Linux use the `lsusb` utility (or `lsusb -v`) to list attached USB devices.
+- For MacOS run `ls /dev/{tty,cu}.*` to list available USB devices.
+- For Windows, use the "Device Manager" and look at the "Ports (COM & LPT)" section.
+
+These guides from Espressif may be of some help as a reference:
 
 * [Espressif - esptool Installation](https://docs.espressif.com/projects/esptool/en/latest/esp32/installation.html#installation)
 * [Espressif - Flashing Firmware](https://docs.espressif.com/projects/esptool/en/latest/esp32/esptool/flashing-firmware.html)
