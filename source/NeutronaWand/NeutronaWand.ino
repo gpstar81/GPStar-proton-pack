@@ -2537,13 +2537,6 @@ void soundIdleStart() {
       case SYSTEM_AFTERLIFE:
       case SYSTEM_FROZEN_EMPIRE:
       default:
-        stopEffect(S_AFTERLIFE_WAND_RAMP_1);
-        stopEffect(S_AFTERLIFE_WAND_IDLE_2);
-        stopEffect(S_AFTERLIFE_WAND_IDLE_1);
-        stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
-        stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
-        stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
-
         ms_gun_loop_1.stop();
         ms_gun_loop_2.start(i_gun_loop_2);
 
@@ -2567,6 +2560,13 @@ void soundIdleStart() {
             wandSerialSend(W_AFTERLIFE_GUN_RAMP_2);
           }
         }
+
+        stopEffect(S_AFTERLIFE_WAND_RAMP_1);
+        stopEffect(S_AFTERLIFE_WAND_IDLE_2);
+        stopEffect(S_AFTERLIFE_WAND_IDLE_1);
+        stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
+        stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
+        stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
 
         b_sound_idle = true;
       break;
@@ -2611,9 +2611,6 @@ void soundIdleStop() {
       case SYSTEM_AFTERLIFE:
       case SYSTEM_FROZEN_EMPIRE:
       default:
-        stopEffect(S_AFTERLIFE_WAND_RAMP_2);
-        stopEffect(S_AFTERLIFE_WAND_IDLE_2);
-
         if(b_extra_pack_sounds == true) {
           wandSerialSend(W_AFTERLIFE_RAMP_LOOP_2_STOP);
         }
@@ -2626,7 +2623,7 @@ void soundIdleStop() {
               wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT);
             }
           }
-          else if(WAND_ACTION_STATUS != ACTION_OFF) {
+          else if(WAND_STATUS != MODE_OFF) {
             ms_gun_loop_1.start(i_gun_loop_2);
             ms_gun_loop_2.stop();
 
@@ -2637,6 +2634,9 @@ void soundIdleStop() {
             }
           }
         }
+
+        stopEffect(S_AFTERLIFE_WAND_RAMP_2);
+        stopEffect(S_AFTERLIFE_WAND_IDLE_2);
       break;
     }
   }
