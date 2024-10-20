@@ -393,7 +393,7 @@ void checkPack() {
             ms_packsync.stop();
 
             // No pack to do a volume sync with, so reset our master volume manually.
-            updateMasterVolume();
+            updateMasterVolume(true);
 
             // Immediately exit the serial data functions.
             return;
