@@ -27,7 +27,7 @@ This also uses a vape coil approach with a 6V mini air pump, and can be run from
 - [Kanger T2 Clearomizer Tank (Pack of 5)](https://www.ecigmafia.com/products/kanger-t2-clearomizer-tank-pack-of-5.html) - Note that for many US states the online ordering of vaping supplies may be restricted. This supplier has successfully shipped to Georgia, which is one such restricted state. Be sure to make sure the supplier can ship to your state before ordering!
 - [6V Mini Air Pump](https://a.co/d/0gUOvwu) - Sits below the N-filter to push smoke out
 - [2W 1 Ohm Axial Lead Metal Film Resistor](https://a.co/d/6BQW8AU) - Reduces voltage/power to vape coil
-- [50mm 5V Blower Fan](https://a.co/d/iaizRpN) - Ideal for the small space and limits cutting of the pack
+- [50mm 5V Blower Fan](https://a.co/d/27U0kEJ) - Ideal for the small space and limits cutting of the pack
 - [3mm ID Silicone Tubing](https://a.co/d/5PaWppP) - For connecting the vape coil to the air pump
 - [Push Connect Fitting 6mm ID](https://a.co/d/dLrPN3C) - For connecting silicone tubing to the vape coil
 - [Vegetable Glycerine & Propylene Glycol 70/30](https://a.co/d/5PaWppP) - Safe, non-toxic, and mostly odorless

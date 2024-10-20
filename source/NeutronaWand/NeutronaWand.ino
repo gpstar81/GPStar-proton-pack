@@ -535,7 +535,6 @@ void mainLoop() {
           if(ms_gun_loop_1.justFinished() && switch_vent.on() == false) {
             playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects);
             b_sound_afterlife_idle_2_fade = false;
-            ms_gun_loop_1.stop();
 
             if(b_extra_pack_sounds == true) {
               wandSerialSend(W_AFTERLIFE_GUN_LOOP_1);
@@ -2349,7 +2348,7 @@ void postActivation() {
     digitalWriteFast(CLIPPARD_LED_PIN, HIGH);
 
     // Top white light.
-    ms_white_light.start(d_white_light_interval);
+    ms_white_light.start(i_white_light_interval);
     digitalWriteFast(TOP_LED_PIN, LOW);
 
     // Reset the hat light timers.
@@ -2502,7 +2501,7 @@ void soundIdleLoopStop(bool stopAlts) {
 }
 
 void soundIdleStart() {
-  if(b_sound_idle == false) {
+  if(!b_sound_idle) {
     switch(getNeutronaWandYearMode()) {
       case SYSTEM_1984:
       case SYSTEM_1989:
@@ -2538,17 +2537,13 @@ void soundIdleStart() {
       case SYSTEM_AFTERLIFE:
       case SYSTEM_FROZEN_EMPIRE:
       default:
-        stopEffect(S_AFTERLIFE_WAND_RAMP_1);
-        stopEffect(S_AFTERLIFE_WAND_IDLE_2);
-        stopEffect(S_AFTERLIFE_WAND_IDLE_1);
-        stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
-        stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
-        stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
+        ms_gun_loop_1.stop();
+        ms_gun_loop_2.start(i_gun_loop_2);
 
-        if(b_sound_afterlife_idle_2_fade == true) {
+        if(b_sound_afterlife_idle_2_fade) {
           playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
 
-          if(b_extra_pack_sounds == true) {
+          if(b_extra_pack_sounds) {
             wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
 
             wandSerialSend(W_AFTERLIFE_GUN_RAMP_2_FADE_IN);
@@ -2559,18 +2554,21 @@ void soundIdleStart() {
         else {
           playEffect(S_AFTERLIFE_WAND_RAMP_2);
 
-          if(b_extra_pack_sounds == true) {
+          if(b_extra_pack_sounds) {
             wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
 
             wandSerialSend(W_AFTERLIFE_GUN_RAMP_2);
           }
         }
 
-        ms_gun_loop_2.start(i_gun_loop_2);
+        stopEffect(S_AFTERLIFE_WAND_RAMP_1);
+        stopEffect(S_AFTERLIFE_WAND_IDLE_2);
+        stopEffect(S_AFTERLIFE_WAND_IDLE_1);
+        stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
+        stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
+        stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
 
         b_sound_idle = true;
-
-        ms_gun_loop_1.stop();
       break;
     }
   }
@@ -2579,9 +2577,7 @@ void soundIdleStart() {
     if(ms_gun_loop_2.justFinished()) {
       playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects);
 
-      ms_gun_loop_2.stop();
-
-      if(b_extra_pack_sounds == true) {
+      if(b_extra_pack_sounds) {
         wandSerialSend(W_AFTERLIFE_GUN_LOOP_2);
       }
     }
@@ -2615,9 +2611,6 @@ void soundIdleStop() {
       case SYSTEM_AFTERLIFE:
       case SYSTEM_FROZEN_EMPIRE:
       default:
-        stopEffect(S_AFTERLIFE_WAND_RAMP_2);
-        stopEffect(S_AFTERLIFE_WAND_IDLE_2);
-
         if(b_extra_pack_sounds == true) {
           wandSerialSend(W_AFTERLIFE_RAMP_LOOP_2_STOP);
         }
@@ -2630,19 +2623,20 @@ void soundIdleStop() {
               wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT);
             }
           }
-          else if(WAND_ACTION_STATUS != ACTION_OFF) {
+          else if(WAND_STATUS != MODE_OFF) {
+            ms_gun_loop_1.start(i_gun_loop_2);
+            ms_gun_loop_2.stop();
+
             playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
 
             if(b_extra_pack_sounds == true) {
               wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_2);
             }
           }
-
-          if(WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-            ms_gun_loop_1.start(i_gun_loop_1);
-            ms_gun_loop_2.stop();
-          }
         }
+
+        stopEffect(S_AFTERLIFE_WAND_RAMP_2);
+        stopEffect(S_AFTERLIFE_WAND_IDLE_2);
       break;
     }
   }
@@ -2653,8 +2647,6 @@ void soundIdleStop() {
 void soundBeepLoopStop() {
   if(b_beeping == true) {
     b_beeping = false;
-
-    ms_reset_sound_beep.stop();
 
     if(switch_wand.on()) {
       // Set all beep looping to false so they stop naturally.
@@ -10363,10 +10355,10 @@ void stopAfterLifeSounds() {
 void afterlifeRampSound1() {
   stopAfterLifeSounds();
 
+  ms_gun_loop_1.start(i_gun_loop_1);
+
   playEffect(S_AFTERLIFE_WAND_RAMP_1);
   b_sound_afterlife_idle_2_fade = false;
-
-  ms_gun_loop_1.start(i_gun_loop_1);
 
   if(b_extra_pack_sounds == true) {
     wandSerialSend(W_AFTERLIFE_GUN_RAMP_1);
@@ -10377,12 +10369,12 @@ void resetWhiteLEDBlinkRate() {
   switch(getNeutronaWandYearMode()) {
     case SYSTEM_1984:
     case SYSTEM_1989:
-      d_white_light_interval = i_classic_blink_intervals[i_classic_blink_index];
+      i_white_light_interval = i_classic_blink_intervals[i_classic_blink_index];
     break;
     case SYSTEM_AFTERLIFE:
     case SYSTEM_FROZEN_EMPIRE:
     default:
-      d_white_light_interval = i_afterlife_blink_interval;
+      i_white_light_interval = i_afterlife_blink_interval;
     break;
   }
 }

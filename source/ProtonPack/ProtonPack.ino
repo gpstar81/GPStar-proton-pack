@@ -1179,7 +1179,7 @@ void packShutdown() {
           playEffect(S_FROZEN_EMPIRE_SHUTDOWN);
         }
         else {
-          playEffect(S_PACK_SHUTDOWN_AFTERLIFE_ALT);
+          playEffect(S_FROZEN_EMPIRE_PACK_SHUTDOWN);
         }
       break;
     }
@@ -1464,7 +1464,7 @@ void checkSwitches() {
 
     if(switch_power.getState() == LOW) {
       // Turn the pack on if switch is moved to on position in Mode Super Hero.
-      if(SYSTEM_MODE == MODE_SUPER_HERO) {
+      if(SYSTEM_MODE == MODE_SUPER_HERO && PACK_STATE == MODE_OFF) {
         PACK_ACTION_STATE = ACTION_ACTIVATE;
       }
 
@@ -1497,59 +1497,44 @@ void checkSwitches() {
 
   if(PACK_STATE == MODE_OFF) {
     // Year mode. Best to adjust it only when the pack is off.
-    if(b_pack_shutting_down != true && b_pack_on == false && b_spectral_lights_on != true) {
+    if(!b_pack_shutting_down && !b_pack_on && !b_spectral_lights_on) {
       // If switching manually by the pack toggle switch.
-      if(b_switch_mode_override != true) {
+      if(!b_switch_mode_override) {
         setYearModeByToggle();
       }
       else {
         // If the Neutrona Wand sub menu setting told the Proton Pack to change years.
-        switch(SYSTEM_YEAR_TEMP) {
-          case SYSTEM_1984:
-            if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
+        if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
+          switch(SYSTEM_YEAR_TEMP) {
+            case SYSTEM_1984:
               // Tell the wand to switch to 1984 mode.
               packSerialSend(P_YEAR_1984);
 
               SYSTEM_YEAR = SYSTEM_1984;
-              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
               serial1Send(A_YEAR_1984);
-              resetRampSpeeds();
-              packOffReset();
-            }
-          break;
+            break;
 
-          case SYSTEM_1989:
-            if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
+            case SYSTEM_1989:
               // Tell the wand to switch to 1989 mode.
               packSerialSend(P_YEAR_1989);
 
               SYSTEM_YEAR = SYSTEM_1989;
-              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
               serial1Send(A_YEAR_1989);
-              resetRampSpeeds();
-              packOffReset();
-            }
-          break;
+            break;
 
-          case SYSTEM_FROZEN_EMPIRE:
-            if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
+            case SYSTEM_FROZEN_EMPIRE:
               // Tell the wand to switch to Frozen Empire mode.
               packSerialSend(P_YEAR_FROZEN_EMPIRE);
 
               SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
-              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
               serial1Send(A_YEAR_FROZEN_EMPIRE);
-              resetRampSpeeds();
-              packOffReset();
-            }
-          break;
+            break;
 
-          case SYSTEM_AFTERLIFE:
-          default:
-            if(SYSTEM_YEAR != SYSTEM_YEAR_TEMP) {
+            case SYSTEM_AFTERLIFE:
+            default:
               // Tell the wand to switch to Afterlife mode.
               packSerialSend(P_YEAR_AFTERLIFE);
 
@@ -1557,10 +1542,11 @@ void checkSwitches() {
               SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
               serial1Send(A_YEAR_AFTERLIFE);
-              resetRampSpeeds();
-              packOffReset();
-            }
-          break;
+            break;
+          }
+
+          resetRampSpeeds();
+          packOffReset();
         }
       }
     }
@@ -1979,7 +1965,7 @@ void powercellLoop() {
       if(b_powercell_updating != true) {
         if(((SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && b_cyclotron_lid_on && !b_wand_mash_lockout) || SYSTEM_YEAR == SYSTEM_AFTERLIFE) && i_powercell_led == 0 && !b_2021_ramp_up && !b_2021_ramp_down && !b_wand_firing && !b_alarm && !b_overheating) {
           if(b_powercell_sound_loop != true) {
-            playEffect(S_POWERCELL, true, i_volume_effects - i_wand_beep_level, true, 1400);
+            playEffect(S_POWERCELL, true, i_volume_effects - i_wand_idle_level, true, 1400);
             b_powercell_sound_loop = true;
           }
         }
@@ -2455,6 +2441,10 @@ void cyclotronControl() {
         if(ms_mash_lockout.isRunning()) {
           r_outer_cyclotron_ramp.go(i_2021_ramp_delay, ms_mash_lockout.delay() / 3, QUARTIC_IN);
           r_inner_cyclotron_ramp.go(i_inner_ramp_delay, ms_mash_lockout.delay() / 3, QUARTIC_IN);
+        }
+        else if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+          r_outer_cyclotron_ramp.go(i_2021_ramp_delay, i_2021_ramp_down_length / 4, QUARTIC_IN);
+          r_inner_cyclotron_ramp.go(i_inner_ramp_delay, i_2021_ramp_down_length / 4, QUARTIC_IN);
         }
         else {
           r_outer_cyclotron_ramp.go(i_2021_ramp_delay, i_2021_ramp_down_length, QUARTIC_IN);
@@ -4326,10 +4316,9 @@ void ventLight(bool b_on) {
   }
 }
 
-// Only for Afterlife and Frozen Empire mode.
 void checkCyclotronAutoSpeed() {
   // No need to start any timers until after any ramping has finished; only in Afterlife and Frozen Empire do we do the auto speed increases.
-  if(b_wand_firing == true && b_2021_ramp_up != true && b_2021_ramp_down != true && (SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
+  if(b_wand_firing && !b_2021_ramp_up && !b_2021_ramp_down) {
     if(ms_cyclotron_auto_speed_timer.justFinished() && i_cyclotron_multiplier < 6) {
       // Increase the Cyclotron speed.
       i_cyclotron_multiplier++;
@@ -5414,23 +5403,23 @@ void wandExtraSoundsBeepLoop() {
   if(b_overheating != true) {
     switch(i_wand_power_level) {
       case 1:
-        playEffect(S_AFTERLIFE_BEEP_WAND_S1, true, i_volume_effects - i_wand_beep_level);
+        playEffect(S_AFTERLIFE_BEEP_WAND_S1, true, i_volume_effects - i_wand_idle_level);
       break;
 
       case 2:
-        playEffect(S_AFTERLIFE_BEEP_WAND_S2, true, i_volume_effects - i_wand_beep_level);
+        playEffect(S_AFTERLIFE_BEEP_WAND_S2, true, i_volume_effects - i_wand_idle_level);
       break;
 
       case 3:
-        playEffect(S_AFTERLIFE_BEEP_WAND_S3, true, i_volume_effects - i_wand_beep_level);
+        playEffect(S_AFTERLIFE_BEEP_WAND_S3, true, i_volume_effects - i_wand_idle_level);
       break;
 
       case 4:
-        playEffect(S_AFTERLIFE_BEEP_WAND_S4, true, i_volume_effects - i_wand_beep_level);
+        playEffect(S_AFTERLIFE_BEEP_WAND_S4, true, i_volume_effects - i_wand_idle_level);
       break;
 
       case 5:
-        playEffect(S_AFTERLIFE_BEEP_WAND_S5, true, i_volume_effects - i_wand_beep_level);
+        playEffect(S_AFTERLIFE_BEEP_WAND_S5, true, i_volume_effects - i_wand_idle_level);
       break;
     }
   }
