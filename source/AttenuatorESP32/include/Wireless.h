@@ -198,29 +198,34 @@ bool startAccesPoint() {
 
     // Simple networking IP info exclusively for the AP.
     IPAddress localIP(192, 168, 1, 2);
-    //IPAddress gateway(192, 168, 1, 1);
-    // Theoretically a gateway is not needed, and may confuse connected devices such as phones to think this device is internet-enabled.
-    // Setting to 0.0.0.0 will supposedly allow devices to use their cellular network as a valid route to the internet. NEEDS TESTING!
-    IPAddress gateway(0, 0, 0, 0);
+    IPAddress gateway(0, 0, 0, 0); // Not needed for AP.
     IPAddress subnet(255, 255, 255, 0);
     IPAddress dhcpStart(192, 168, 1, 100);
 
     // Set networking info and report to console.
     WiFi.softAPConfig(localIP, gateway, subnet, dhcpStart);
-    WiFi.softAPsetHostname(ap_ssid.c_str());
+    WiFi.softAPsetHostname(ap_ssid.c_str()); // Hostname is the same as SSID.
+    WiFi.softAPbandwidth(WIFI_BW_HT20); // Use 20MHz for range/compatibility.
+    WiFi.softAPenableIPv6(false); // Just here to ensure IPv6 is not enabled.
     #if defined(DEBUG_WIRELESS_SETUP)
       Serial.print(F("AP Name (SSID): "));
       Serial.println(WiFi.softAPSSID());
       Serial.print(F("AP     Channel: "));
       Serial.println(WiFi.channel());
-      Serial.print(F("AP  IP Address: "));
-      Serial.println(WiFi.softAPIP());
+      Serial.print(F("AP IP Addr/Sub: "));
+      Serial.print(WiFi.softAPIP());
+      Serial.print(F(" / "));
+      Serial.println(WiFi.softAPSubnetCIDR());
+      Serial.print(F("AP     Network: "));
+      Serial.println(WiFi.softAPNetworkID());
+      Serial.print(F("AP   Broadcast: "));
+      Serial.println(WiFi.softAPBroadcastIP());
       Serial.print(F("AP    Hostname: "));
       Serial.println(WiFi.softAPgetHostname());
       Serial.print(F("AP Mac Address: "));
       Serial.println(WiFi.softAPmacAddress());
-      Serial.print(F("AP Subnet Mask: "));
-      Serial.println(WiFi.softAPSubnetCIDR());
+      Serial.print(F("AP  Gateway IP: "));
+      Serial.println(WiFi.gatewayIP());
     #endif
   }
 

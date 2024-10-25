@@ -284,11 +284,11 @@ void printPartitions() {
   esp_partition_iterator_t iterator = esp_partition_find(ESP_PARTITION_TYPE_ANY, ESP_PARTITION_SUBTYPE_ANY, NULL);
 
   if (iterator == nullptr) {
-    Serial.println("No partitions found.");
+    Serial.println(F("No partitions found."));
     return;
   }
 
-  Serial.println("Partitions:");
+  Serial.println(F("Partitions:"));
   while (iterator != nullptr) {
     partition = esp_partition_get(iterator);
     Serial.printf("Label: %s, Size: %u bytes, Address: 0x%08X\n",
@@ -329,6 +329,67 @@ void setup() {
   RAD_LENS_IDLE = AMBER_PULSE;
   DISPLAY_TYPE = STATUS_TEXT;
 
+  // Begin at menu level one. This affects the behavior of the rotary dial.
+  MENU_LEVEL = MENU_1;
+
+  if(!b_wait_for_pack) {
+    // If not waiting for the pack set power level to 5.
+    POWER_LEVEL = LEVEL_5;
+  }
+  else {
+    // When waiting for the pack set power level to 1.
+    POWER_LEVEL = LEVEL_1;
+  }
+
+  // RGB LEDs for effects (upper/lower) and user status (top).
+  FastLED.addLeds<NEOPIXEL, DEVICE_LED_PIN>(device_leds, DEVICE_NUM_LEDS);
+
+  // Set all LEDs as off (black) until the device is ready.
+  device_leds[0] = getHueAsRGB(0, C_BLACK);
+  device_leds[1] = getHueAsRGB(1, C_BLACK);
+  device_leds[2] = getHueAsRGB(2, C_BLACK);
+
+  // Debounce the toggle switches and encoder pushbutton.
+  switch_left.setDebounceTime(switch_debounce_time);
+  switch_right.setDebounceTime(switch_debounce_time);
+  encoder_center.setDebounceTime(switch_debounce_time);
+
+  // Rotary encoder on the top of the Attenuator.
+  pinMode(r_encoderA, INPUT_PULLUP);
+  pinMode(r_encoderB, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(r_encoderA), readEncoder, CHANGE);
+
+  // Setup the bargraph after a brief delay.
+  delay(10);
+  setupBargraph();
+
+  // Feedback devices (piezo buzzer and vibration motor)
+  pinMode(BUZZER_PIN, OUTPUT);
+  setToneChannel(0); // Forces Tone to use Channel 0.
+
+  // Use the combined method for the arduino-esp32 platform, using the esp-idf v5.3+
+  ledcAttach(VIBRATION_PIN, 5000, 8); // Uses 5 kHz frequency, 8-bit resolution
+
+  // Turn off any user feedback.
+  buzzOff();
+  vibrateOff();
+
+  // Get initial switch/button states.
+  switchLoops();
+
+  // Delay before configuring and running tasks.
+  delay(200);
+
+  // Initialize a critical timer for serial comms.
+  if(b_wait_for_pack) {
+    ms_packsync.start(0);
+  }
+
+  // Print partition information to verify NVS availability
+  #if defined(DEBUG_SEND_TO_CONSOLE)
+  printPartitions();
+  #endif
+
   // Initialize the NVS flash partition and throw any errors as necessary.
   esp_err_t err = nvs_flash_init();
   if(err != ESP_OK) {
@@ -353,11 +414,6 @@ void setup() {
   else {
     debug(F("NVS initialized successfully"));
   }
-
-  // Print partition information to verify NVS availability
-  #if defined(DEBUG_SEND_TO_CONSOLE)
-    printPartitions();
-  #endif
 
   /*
    * Get Local Device Preferences
@@ -415,77 +471,22 @@ void setup() {
     }
   }
 
-  if(!b_wait_for_pack) {
-    // If not waiting for the pack set power level to 5.
-    POWER_LEVEL = LEVEL_5;
-  }
-  else {
-    // When waiting for the pack set power level to 1.
-    POWER_LEVEL = LEVEL_1;
-  }
-
-  // Begin at menu level one. This affects the behavior of the rotary dial.
-  MENU_LEVEL = MENU_1;
-
-  // RGB LEDs for effects (upper/lower) and user status (top).
-  FastLED.addLeds<NEOPIXEL, DEVICE_LED_PIN>(device_leds, DEVICE_NUM_LEDS);
-
-  // Set all LEDs as off (black) until the device is ready.
-  device_leds[0] = getHueAsRGB(0, C_BLACK);
-  device_leds[1] = getHueAsRGB(1, C_BLACK);
-  device_leds[2] = getHueAsRGB(2, C_BLACK);
-
-  // Debounce the toggle switches and encoder pushbutton.
-  switch_left.setDebounceTime(switch_debounce_time);
-  switch_right.setDebounceTime(switch_debounce_time);
-  encoder_center.setDebounceTime(switch_debounce_time);
-
-  // Rotary encoder on the top of the Attenuator.
-  pinMode(r_encoderA, INPUT_PULLUP);
-  pinMode(r_encoderB, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(r_encoderA), readEncoder, CHANGE);
-
-  // Setup the bargraph after a brief delay.
-  delay(10);
-  setupBargraph();
-
-  // Feedback devices (piezo buzzer and vibration motor)
-  pinMode(BUZZER_PIN, OUTPUT);
-  setToneChannel(0); // Forces Tone to use Channel 0.
-
-  // Use the combined method for the arduino-esp32 platform, using the esp-idf v5.3+
-  ledcAttach(VIBRATION_PIN, 5000, 8); // Uses 5 kHz frequency, 8-bit resolution
-
-  // Turn off any user feedback.
-  buzzOff();
-  vibrateOff();
-
-  // Get initial switch/button states.
-  switchLoops();
-
-  // Delay before configuring and running tasks.
-  delay(200);
-
-  // Initialize a critical timer for serial comms.
-  if(b_wait_for_pack) {
-    ms_packsync.start(0);
-  }
-
   /**
    * By default the WiFi will run on core0, while the standard loop() runs on core1.
    * We can make efficient use of the available cores by "pinning" a task to a core.
    * The ESP32 platform comes with FreeRTOS implemented internally and exposed even
    * to the Arduino platform (meaning: no need for using the ESP-IDF exclusively).
-   * In theory this allows for improved parallel processing with prioritization.
+   * In theory this allows for improved parallel processing with prioritization and
+   * granting of dedicated memory stacks to each task (which can be monitored).
    *
    * Parameters:
-   *  Task Function,
-   *  Task Name,
-   *  Stack Size,
+   *  Task Function Name,
+   *  User-Friendly Task Name,
+   *  Stack Size (in bytes),
    *  Input Parameter,
-   *  Priority,
-   *  Task Handle,
-   *  Pinned Core
+   *  Priority (use higher #),
+   *  Task Handle Reference,
+   *  Pinned Core (0 or 1)
    */
 
   // Create a single-run setup task with the highest priority for WiFi/WebServer startup.
@@ -500,7 +501,7 @@ void setup() {
   xTaskCreatePinnedToCore(AnimationTask, "AnimationTask", 2048, NULL, 2, &AnimationTaskHandle, 1);
   xTaskCreatePinnedToCore(WiFiManagementTask, "WiFiManagementTask", 2048, NULL, 1, &WiFiManagementTaskHandle, 1);
 
-  // Create idle tasks for each core
+  // Create idle tasks for each core, used to estimate % busy for core.
   #if defined(DEBUG_PERFORMANCE)
   xTaskCreatePinnedToCore(idleTaskCore0, "Idle Task Core 0", 1000, NULL, 1, NULL, 0);
   xTaskCreatePinnedToCore(idleTaskCore1, "Idle Task Core 1", 1000, NULL, 1, NULL, 1);
@@ -527,13 +528,13 @@ void printCPULoad() {
   float cpuLoadCore0 = 100.0 - ((float)idle0 / (float)(idle0 + idle1)) * 100.0;
   float cpuLoadCore1 = 100.0 - ((float)idle1 / (float)(idle0 + idle1)) * 100.0;
 
-  Serial.print("CPU Load Core0: ");
+  Serial.print(F("CPU Load Core0: "));
   Serial.print(cpuLoadCore0);
-  Serial.println("%");
+  Serial.println(F("%"));
 
-  Serial.print("CPU Load Core1: ");
+  Serial.print(F("CPU Load Core1: "));
   Serial.print(cpuLoadCore1);
-  Serial.println("%");
+  Serial.println(F("%"));
 
   // Reset idle times after calculation
   idleTimeCore0 = 0;
@@ -541,47 +542,47 @@ void printCPULoad() {
 }
 
 void printMemoryStats() {
-  Serial.println("Memory Usage Stats:");
+  Serial.println(F("Memory Usage Stats:"));
 
   // Heap memory
-  Serial.print("|-Total Free Heap: ");
+  Serial.print(F("|-Total Free Heap: "));
   Serial.print(formatBytesWithCommas(esp_get_free_heap_size()));
-  Serial.println(" bytes");
+  Serial.println(F(" bytes"));
 
-  Serial.print("|-Minimum Free Heap Ever: ");
+  Serial.print(F("|-Minimum Free Heap Ever: "));
   Serial.print(formatBytesWithCommas(esp_get_minimum_free_heap_size()));
-  Serial.println(" bytes");
+  Serial.println(F(" bytes"));
 
-  Serial.print("|-Maximum Allocatable Block: ");
+  Serial.print(F("|-Maximum Allocatable Block: "));
   Serial.print(formatBytesWithCommas(heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT)));
-  Serial.println(" bytes");
+  Serial.println(F(" bytes"));
 
   // Stack memory (for the main task)
-  Serial.println("|-Tasks Stack High Water Mark:");
-  Serial.print("|--Main Task: ");
+  Serial.println(F("|-Tasks Stack High Water Mark:"));
+  Serial.print(F("|--Main Task: "));
   Serial.print(formatBytesWithCommas(uxTaskGetStackHighWaterMark(NULL)));
-  Serial.println(" bytes");
+  Serial.println(F(" bytes"));
 
   // Stack memory (for other tasks)
   if (AnimationTaskHandle != NULL) {
-    Serial.print("|--Animation: ");
+    Serial.print(F("|--Animation: "));
     Serial.print(formatBytesWithCommas(uxTaskGetStackHighWaterMark(AnimationTaskHandle)));
-    Serial.println(" / 2,048 bytes");
+    Serial.println(F(" / 2,048 bytes"));
   }
   if (SerialCommsTaskHandle != NULL) {
-    Serial.print("|--Serial Comms: ");
+    Serial.print(F("|--Serial Comms: "));
     Serial.print(formatBytesWithCommas(uxTaskGetStackHighWaterMark(SerialCommsTaskHandle)));
-    Serial.println(" / 4,096 bytes");
+    Serial.println(F(" / 4,096 bytes"));
   }
   if (UserInputTaskHandle != NULL) {
-    Serial.print("|--User Input: ");
+    Serial.print(F("|--User Input: "));
     Serial.print(formatBytesWithCommas(uxTaskGetStackHighWaterMark(UserInputTaskHandle)));
-    Serial.println(" / 4,096 bytes");
+    Serial.println(F(" / 4,096 bytes"));
   }
   if (WiFiManagementTaskHandle != NULL) {
-    Serial.print("|--WiFi Mgmt.: ");
+    Serial.print(F("|--WiFi Mgmt.: "));
     Serial.print(formatBytesWithCommas(uxTaskGetStackHighWaterMark(WiFiManagementTaskHandle)));
-    Serial.println(" / 2,048 bytes");
+    Serial.println(F(" / 2,048 bytes"));
   }
 }
 
@@ -589,7 +590,7 @@ void loop() {
   // No work done here, only in the tasks!
 
   #if defined(DEBUG_PERFORMANCE)
-  Serial.println("==================================================");
+  Serial.println(F("=================================================="));
   printCPULoad();      // Print CPU load
   printMemoryStats();  // Print memory usage
   delay(3000);         // Wait 5 seconds before printing again
