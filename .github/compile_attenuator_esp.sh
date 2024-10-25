@@ -16,18 +16,18 @@ TIMESTAMP=$(date +"%Y%m%d%H%M%S")
 
 echo ""
 
-# Attenuator (ESP32 - Normal)
-echo "Building Attenuator Binary (ESP32 - Normal)..."
-
 # Set the project directory based on the source folder
 PROJECT_DIR="$SRCDIR/AttenuatorESP32"
-
-# Clean the project before building
-pio run --project-dir "$PROJECT_DIR" --target clean
 
 # Update date of compilation
 echo "Updating Build Timestamp:" $TIMESTAMP
 sed -i -e 's/\(String build_date = "\)[^"]*\(";\)/\1'"$TIMESTAMP"'\2/' ${PROJECT_DIR}/include/Configuration.h
+
+# Attenuator (ESP32 - Normal)
+echo "Building Attenuator Binary (ESP32 - Normal)..."
+
+# Clean the project before building
+pio run --project-dir "$PROJECT_DIR" --target clean
 
 # Compile the PlatformIO project
 pio run --project-dir "$PROJECT_DIR"

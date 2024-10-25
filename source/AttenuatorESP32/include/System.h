@@ -84,6 +84,11 @@ void updateLEDs() {
     i_top_led_colour = C_RED;
   }
 
+  if(b_wait_for_pack) {
+    // Keep LED as purple while still awaiting pack synchronization.
+    i_top_led_colour = C_PURPLE;
+  }
+
   // Update the top LED based on certain system statuses.
   switch(MENU_LEVEL) {
     case MENU_1:
