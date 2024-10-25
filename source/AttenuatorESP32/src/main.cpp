@@ -368,7 +368,7 @@ void setup() {
   setToneChannel(0); // Forces Tone to use Channel 0.
 
   // Use the combined method for the arduino-esp32 platform, using the esp-idf v5.3+
-  ledcAttach(VIBRATION_PIN, 5000, 8); // Uses 5 kHz frequency, 8-bit resolution
+  ledcAttachChannel(VIBRATION_PIN, 5000, 8, 5); // Uses 5 kHz frequency, 8-bit resolution, channel 5
 
   // Turn off any user feedback.
   buzzOff();
