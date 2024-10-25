@@ -306,7 +306,7 @@ void mainLoop() {
             WAND_MENU_LEVEL = MENU_LEVEL_1;
 
             i_wand_menu = 5;
-            ms_settings_blinking.start(i_settings_blinking_delay);
+            ms_settings_blink.start(i_settings_blink_delay);
 
             ms_bargraph.stop();
             bargraphClearAlt();
@@ -352,7 +352,7 @@ void mainLoop() {
         WAND_ACTION_STATUS = ACTION_LED_EEPROM_MENU;
         WAND_MENU_LEVEL = MENU_LEVEL_1;
 
-        ms_settings_blinking.start(i_settings_blinking_delay);
+        ms_settings_blink.start(i_settings_blink_delay);
 
         wandBarrelSpectralCustomConfigOn();
 
@@ -380,7 +380,7 @@ void mainLoop() {
         WAND_ACTION_STATUS = ACTION_CONFIG_EEPROM_MENU;
         WAND_MENU_LEVEL = MENU_LEVEL_1;
 
-        ms_settings_blinking.start(i_settings_blinking_delay);
+        ms_settings_blink.start(i_settings_blink_delay);
 
         // Make sure some of the wand lights are off.
         wandLightsOffMenuSystem();
@@ -388,12 +388,6 @@ void mainLoop() {
       else if(WAND_ACTION_STATUS == ACTION_CONFIG_EEPROM_MENU && b_pack_on == true) {
         if(b_gpstar_benchtest != true) {
           wandExitEEPROMMenu();
-        }
-      }
-
-      if(b_pack_alarm == true) {
-        if(ms_hat_2.justFinished()) {
-          ms_hat_2.start(i_hat_2_delay);
         }
       }
 
@@ -443,24 +437,8 @@ void mainLoop() {
     break;
 
     case MODE_ERROR:
-      if(ms_hat_2.remaining() < i_hat_2_delay / 2) {
-        digitalWriteFast(TOP_LED_PIN, HIGH);
-
-        digitalWriteFast(SLO_BLO_LED_PIN, LOW);
-
-        digitalWriteFast(TOP_HAT_LED_PIN, LOW);
-        digitalWriteFast(CLIPPARD_LED_PIN, LOW);
-      }
-      else {
-        digitalWriteFast(TOP_HAT_LED_PIN, HIGH);
-        digitalWriteFast(CLIPPARD_LED_PIN, HIGH);
-
-        digitalWriteFast(TOP_LED_PIN, LOW);
-        digitalWriteFast(SLO_BLO_LED_PIN, HIGH);
-      }
-
-      if(ms_hat_2.justFinished()) {
-        ms_hat_2.start(i_hat_2_delay);
+      if(ms_error_blink.justFinished()) {
+        ms_error_blink.start(i_error_blink_delay);
 
         if(b_wand_mash_error != true) {
           if(b_extra_pack_sounds == true) {
@@ -472,7 +450,7 @@ void mainLoop() {
         }
       }
 
-      if(ms_hat_1.justFinished()) {
+      if(ms_warning_blink.justFinished()) {
         if(b_wand_mash_error != true) {
 
           if(b_extra_pack_sounds == true) {
@@ -482,7 +460,7 @@ void mainLoop() {
           playEffect(S_BEEPS_BARGRAPH, false, i_volume_effects, false, 0, false);
         }
 
-        ms_hat_1.start(i_hat_2_delay * 4);
+        ms_warning_blink.repeat();
       }
 
       settingsBlinkingLights();
@@ -495,15 +473,8 @@ void mainLoop() {
     case MODE_ON:
       // Hat light 2 blinking when the Proton Pack ribbon cable has been removed.
       if(b_pack_alarm == true) {
-        if(ms_hat_2.remaining() < i_hat_2_delay / 2) {
-          digitalWriteFast(TOP_HAT_LED_PIN, LOW);
-        }
-        else {
-          digitalWriteFast(TOP_HAT_LED_PIN, HIGH);
-        }
-
-        if(ms_hat_2.justFinished()) {
-          ms_hat_2.start(i_hat_2_delay);
+        if(ms_error_blink.justFinished()) {
+          ms_error_blink.start(i_error_blink_delay);
         }
 
         // This is going to cause the bargraph to ramp down.
@@ -512,16 +483,6 @@ void mainLoop() {
         }
       }
       else {
-        if(ms_hat_1.isRunning() != true && ms_hat_2.isRunning() != true && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-          // Hat 2 stays solid while the Neutrona Wand is on in Afterlife/Frozen Empire. It will blink when about to overheat and turn off while overheating.
-          if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
-            digitalWriteFast(TOP_HAT_LED_PIN, HIGH);
-          }
-          else {
-            digitalWriteFast(TOP_HAT_LED_PIN, LOW);
-          }
-        }
-
         // Ramp the bargraph up then ramp down back to the default power level setting on a fresh start.
         if(ms_bargraph.justFinished()) {
           bargraphRampUp();
@@ -558,6 +519,9 @@ void mainLoop() {
       vibrationSetting();
     break;
   }
+
+  // Handle hat light status changes.
+  hatLightControl();
 
   // Handle button press events based on current wand state and menu level (for config/EEPROM purposes).
   checkWandAction();
@@ -741,6 +705,113 @@ void wandTipSpark() {
   ms_wand_heatup_fade.start(i_delay_heatup);
 }
 
+// Main control of hat light functions.
+void hatLightControl() {
+  switch(WAND_STATUS) {
+    case MODE_OFF:
+    default:
+      if(SYSTEM_MODE == MODE_ORIGINAL) {
+        if(!b_pack_ion_arm_switch_on) {
+          // Keep the hat lights turned off.
+          digitalWriteFast(BARREL_HAT_LED_PIN, LOW);
+          digitalWriteFast(TOP_HAT_LED_PIN, LOW);
+        }
+      }
+    break;
+
+    case MODE_ERROR:
+      if(ms_error_blink.remaining() < i_error_blink_delay / 2) {
+        digitalWriteFast(TOP_LED_PIN, HIGH);
+        digitalWriteFast(SLO_BLO_LED_PIN, LOW);
+        digitalWriteFast(TOP_HAT_LED_PIN, LOW);
+        digitalWriteFast(CLIPPARD_LED_PIN, LOW);
+      }
+      else {
+        digitalWriteFast(TOP_LED_PIN, LOW);
+        digitalWriteFast(SLO_BLO_LED_PIN, HIGH);
+        digitalWriteFast(TOP_HAT_LED_PIN, HIGH);
+        digitalWriteFast(CLIPPARD_LED_PIN, HIGH);
+      }
+    break;
+
+    case MODE_ON:
+      if(b_pack_alarm) {
+        if(ms_error_blink.remaining() < i_error_blink_delay / 2) {
+          digitalWriteFast(TOP_HAT_LED_PIN, LOW);
+        }
+        else {
+          digitalWriteFast(TOP_HAT_LED_PIN, HIGH);
+        }
+      }
+      else {
+        if(!ms_warning_blink.isRunning() && !ms_error_blink.isRunning() && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+          if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
+            // In Afterlife and Frozen Empire, both hat lights are on once the wand is activated.
+            digitalWriteFast(TOP_HAT_LED_PIN, HIGH);
+            digitalWriteFast(BARREL_HAT_LED_PIN, HIGH);
+          }
+          else {
+            // In 1984 and 1989 the top hat light never comes on, and the barrel hat light comes on when firing.
+            digitalWriteFast(TOP_HAT_LED_PIN, LOW);
+
+            if(b_firing) {
+              digitalWriteFast(BARREL_HAT_LED_PIN, HIGH);
+            }
+            else {
+              digitalWriteFast(BARREL_HAT_LED_PIN, LOW);
+            }
+          }
+        }
+        else if(ms_warning_blink.isRunning() && WAND_ACTION_STATUS == ACTION_FIRING) {
+          if(ms_warning_blink.remaining() < i_warning_blink_delay / 2) {
+            digitalWriteFast(TOP_HAT_LED_PIN, HIGH);
+            digitalWriteFast(BARREL_HAT_LED_PIN, HIGH);
+          }
+          else {
+            digitalWriteFast(TOP_HAT_LED_PIN, LOW);
+            digitalWriteFast(BARREL_HAT_LED_PIN, LOW);
+          }
+        }
+        else if(WAND_ACTION_STATUS == ACTION_OVERHEATING) {
+          // Turn off the barrel hat light.
+          digitalWriteFast(BARREL_HAT_LED_PIN, LOW);
+
+          // Turn on hat light 2 in 1984/1989 as overheat indicator; turn off in Afterlife/Frozen Empire.
+          if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
+            digitalWriteFast(TOP_HAT_LED_PIN, HIGH);
+          }
+          else {
+            digitalWriteFast(TOP_HAT_LED_PIN, LOW);
+          }
+        }
+      }
+    break;
+  }
+}
+
+// Resets both hat light LEDs to a default state.
+void resetHatLights() {
+  // Stop both warning timers.
+  ms_warning_blink.stop();
+  ms_error_blink.stop();
+
+  // Reset barrel wing hat light.
+  if(b_firing || ((getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) && WAND_STATUS == MODE_ON)) {
+    digitalWriteFast(BARREL_HAT_LED_PIN, HIGH);
+  }
+  else {
+    digitalWriteFast(BARREL_HAT_LED_PIN, LOW);
+  }
+
+  // Reset wand body top hat light.
+  if(((getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) && WAND_STATUS == MODE_ON)) {
+    digitalWriteFast(TOP_HAT_LED_PIN, HIGH);
+  }
+  else {
+    digitalWriteFast(TOP_HAT_LED_PIN, LOW);
+  }
+}
+
 // Controlled from the Neutrona Wand Menu systems.
 void toggleWandModes() {
   stopEffect(S_CLICK);
@@ -816,7 +887,7 @@ void overheatingFinished() {
   bargraphClearAlt();
 
   ms_overheating.stop();
-  ms_settings_blinking.stop();
+  ms_settings_blink.stop();
 
   // Turn off hat light 2.
   digitalWriteFast(TOP_HAT_LED_PIN, LOW);
@@ -891,15 +962,6 @@ void startVentSequence() {
     modeFireStop();
   }
 
-  // Turn on hat light 2 in 1984/1989 as overheat indicator; turn off in Afterlife/Frozen Empire.
-  if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
-    digitalWriteFast(TOP_HAT_LED_PIN, HIGH);
-  }
-  else {
-    digitalWriteFast(BARREL_HAT_LED_PIN, LOW);
-    digitalWriteFast(TOP_HAT_LED_PIN, LOW);
-  }
-
   WAND_ACTION_STATUS = ACTION_OVERHEATING;
 
   // Since the Proton Pack tells the Neutrona Wand when overheating is finished, standalone wand needs its own timer.
@@ -922,14 +984,14 @@ void startVentSequence() {
       wandSerialSend(W_WAND_BEEP_BARGRAPH);
     }
 
-    ms_settings_blinking.start(i_settings_blinking_delay);
+    ms_settings_blink.start(i_settings_blink_delay);
 
     playEffect(S_BEEPS_LOW, false, i_volume_effects, false, 0, false);
     playEffect(S_BEEPS, false, i_volume_effects, false, 0, false);
     playEffect(S_BEEPS_BARGRAPH, false, i_volume_effects, false, 0, false);
 
-    ms_blink_sound_timer_1.start(i_blink_sound_timer);
-    ms_blink_sound_timer_2.start(i_blink_sound_timer * 4);
+    ms_blink_sound_timer_1.start(i_blink_sound_timer_1);
+    ms_blink_sound_timer_2.start(i_blink_sound_timer_2);
   }
   else {
     uint8_t i_segment_adjust = 2;
@@ -958,8 +1020,8 @@ void startVentSequence() {
 }
 
 void settingsBlinkingLights() {
-  if(ms_settings_blinking.justFinished()) {
-     ms_settings_blinking.start(i_settings_blinking_delay);
+  if(ms_settings_blink.justFinished()) {
+     ms_settings_blink.start(i_settings_blink_delay);
   }
 
   uint8_t i_segment_adjust = 2;
@@ -967,7 +1029,7 @@ void settingsBlinkingLights() {
     i_segment_adjust = 0;
   }
 
-  if(ms_settings_blinking.remaining() < i_settings_blinking_delay / 2) {
+  if(ms_settings_blink.remaining() < i_settings_blink_delay / 2) {
     bool b_solid_five = false;
     bool b_solid_one = false;
 
@@ -1286,10 +1348,6 @@ void checkSwitches() {
       switch(SYSTEM_MODE) {
         case MODE_ORIGINAL:
           if(b_pack_ion_arm_switch_on == true) {
-            // Keep the hat lights turned off.
-            digitalWriteFast(BARREL_HAT_LED_PIN, LOW);
-            digitalWriteFast(TOP_HAT_LED_PIN, LOW);
-
             if(WAND_ACTION_STATUS == ACTION_IDLE) {
               // We are going to handle the toggle switch sequence for the MODE_ORIGINAL here.
               if(switch_activate.on() == true && switch_vent.on() == true && switch_wand.on() == true) {
@@ -1745,11 +1803,11 @@ void wandOff() {
 
   // Turn off some timers.
   ms_overheating.stop();
-  ms_settings_blinking.stop();
+  ms_settings_blink.stop();
   ms_semi_automatic_check.stop();
   ms_semi_automatic_firing.stop();
-  ms_hat_1.stop();
-  ms_hat_2.stop();
+  ms_warning_blink.stop();
+  ms_error_blink.stop();
 
   switch(WAND_STATUS) {
     case MODE_OFF:
@@ -2124,7 +2182,7 @@ void altWingButtonCheck() {
         if(WAND_ACTION_STATUS != ACTION_SETTINGS) {
           WAND_ACTION_STATUS = ACTION_SETTINGS;
 
-          ms_settings_blinking.start(i_settings_blinking_delay);
+          ms_settings_blink.start(i_settings_blink_delay);
 
           // Clear the 28 segment bargraph.
           bargraphClearAlt();
@@ -2135,7 +2193,7 @@ void altWingButtonCheck() {
         else {
           streamModeCheck();
           WAND_ACTION_STATUS = ACTION_IDLE;
-          ms_settings_blinking.stop();
+          ms_settings_blink.stop();
           bargraphClearAlt();
 
           // If using the 28 or 30 segment bargraph with BARGRAPH_ORIGINAL, we need to redraw the segments.
@@ -2152,7 +2210,7 @@ void altWingButtonCheck() {
       // Exit the settings menu if the user turns the wand switch back on.
       streamModeCheck();
       WAND_ACTION_STATUS = ACTION_IDLE;
-      ms_settings_blinking.stop();
+      ms_settings_blink.stop();
       bargraphClearAlt();
 
       // If using the 28 or 30 segment bargraph with BARGRAPH_ORIGINAL, we need to redraw the segments.
@@ -2235,9 +2293,9 @@ void modeError() {
 
   if(b_wand_mash_error != true) {
     // This is used for controlling the bargraph beeping while in boot error mode.
-    ms_hat_1.start(i_hat_2_delay * 4);
-    ms_hat_2.start(i_hat_2_delay);
-    ms_settings_blinking.start(i_settings_blinking_delay);
+    ms_warning_blink.start(i_bargraph_beep_delay);
+    ms_error_blink.start(i_error_blink_delay);
+    ms_settings_blink.start(i_settings_blink_delay);
 
     if(b_extra_pack_sounds == true) {
       wandSerialSend(W_WAND_BEEP_BARGRAPH);
@@ -2352,8 +2410,8 @@ void postActivation() {
     digitalWriteFast(TOP_LED_PIN, LOW);
 
     // Reset the hat light timers.
-    ms_hat_1.stop();
-    ms_hat_2.stop();
+    ms_warning_blink.stop();
+    ms_error_blink.stop();
 
     if(b_pack_alarm != true) {
       switch(getNeutronaWandYearMode()) {
@@ -3375,17 +3433,9 @@ void modeFireStop() {
   ms_firing_sound_mix.stop();
   ms_firing_effect_end.start(0);
 
-  if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
-    digitalWriteFast(BARREL_HAT_LED_PIN, LOW); // Turn off hat light 1 when we stop firing in 1984/1989.
-    digitalWriteFast(TOP_HAT_LED_PIN, LOW); // Make sure we turn off hat light 2 in case it's on as well.
-  }
-  else {
-    digitalWriteFast(TOP_HAT_LED_PIN, HIGH); // Make sure we turn on hat light 2 in case it's off as well.
-  }
-
   wandTipOff();
 
-  ms_hat_1.stop();
+  resetHatLights();
 
   // Stop overheat beeps.
   stopOverheatBeepWarnings();
@@ -3649,10 +3699,8 @@ void modeFiring() {
     if(b_overheat_level[i_power_level - 1] != true && ms_overheat_initiate.isRunning()) {
       ms_overheat_initiate.stop();
 
-      // Adjust hat light 1 to stay solid.
-      digitalWriteFast(BARREL_HAT_LED_PIN, HIGH);
-
-      ms_hat_1.stop();
+      // Reset the hat lights and timers.
+      resetHatLights();
 
       // Tell the pack to revert back to regular Cyclotron speeds.
       wandSerialSend(W_CYCLOTRON_NORMAL_SPEED);
@@ -7713,7 +7761,7 @@ void cyclotronSpeedUp(uint8_t i_switch) {
         break;
       }
 
-      ms_hat_1.start(i_hat_1_delay);
+      ms_warning_blink.start(i_warning_blink_delay);
     }
 
     i_cyclotron_speed_up++;
@@ -8707,7 +8755,7 @@ void prepBargraphRampUp() {
   if((WAND_STATUS == MODE_ON && WAND_ACTION_STATUS == ACTION_IDLE) || (WAND_STATUS == MODE_OFF && WAND_ACTION_STATUS == ACTION_IDLE && SYSTEM_MODE == MODE_ORIGINAL)) {
     bargraphClearAlt();
 
-    ms_settings_blinking.stop();
+    ms_settings_blink.stop();
 
     // Prepare a few things before ramping the bargraph back up from a full ramp down.
     if(b_overheat_bargraph_blink != true) {
@@ -8903,7 +8951,7 @@ void wandLightsOff() {
     wandBargraphControl(0);
   }
 
-  digitalWriteFast(SLO_BLO_LED_PIN, LOW);
+  digitalWriteFast(SLO_BLO_LED_PIN, LOW); // Turn off the SLO-BLO LED.
   digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Turn off the front left LED under the Clippard valve.
 
   digitalWriteFast(BARREL_HAT_LED_PIN, LOW); // Turn off hat light 1.

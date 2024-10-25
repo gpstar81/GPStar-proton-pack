@@ -23,28 +23,7 @@ void checkWandAction() {
   switch(WAND_ACTION_STATUS) {
     case ACTION_IDLE:
     default:
-      if(WAND_STATUS == MODE_ON) {
-        switch(getNeutronaWandYearMode()) {
-          case SYSTEM_1984:
-          case SYSTEM_1989:
-            // Do nothing.
-          break;
-
-          case SYSTEM_AFTERLIFE:
-          case SYSTEM_FROZEN_EMPIRE:
-          default:
-            if(WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && b_pack_alarm != true) {
-              // When ready to fire the hat light LED at the barrel tip lights up in Afterlife mode.
-              if(b_switch_barrel_extended == true && switch_vent.on() == true && switch_wand.on() == true) {
-                digitalWriteFast(BARREL_HAT_LED_PIN, HIGH);
-              }
-              else {
-                digitalWriteFast(BARREL_HAT_LED_PIN, LOW);
-              }
-            }
-          break;
-        }
-      }
+      // Do nothing.
     break;
 
     case ACTION_OFF:
@@ -96,17 +75,8 @@ void checkWandAction() {
           modeFireStart();
         }
 
-        if(ms_hat_1.isRunning()) {
-          if(ms_hat_1.remaining() < i_hat_1_delay / 2) {
-            digitalWriteFast(TOP_HAT_LED_PIN, HIGH);
-          }
-          else {
-            digitalWriteFast(TOP_HAT_LED_PIN, LOW);
-          }
-
-          if(ms_hat_1.justFinished()) {
-            ms_hat_1.start(i_hat_1_delay);
-          }
+        if(ms_warning_blink.justFinished()) {
+          ms_warning_blink.repeat();
         }
 
         // Overheating check, start vent sequence if expected for power level and timer delay is completed.
@@ -136,7 +106,7 @@ void checkWandAction() {
             wandSerialSend(W_WAND_BEEP_SOUNDS);
           }
 
-          ms_blink_sound_timer_1.start(i_blink_sound_timer);
+          ms_blink_sound_timer_1.start(i_blink_sound_timer_1);
 
           playEffect(S_BEEPS_LOW, false, i_volume_effects, false, 0, false);
           playEffect(S_BEEPS, false, i_volume_effects, false, 0, false);
@@ -149,7 +119,7 @@ void checkWandAction() {
 
           playEffect(S_BEEPS_BARGRAPH, false, i_volume_effects, false, 0, false);
 
-          ms_blink_sound_timer_2.start(i_blink_sound_timer * 4);
+          ms_blink_sound_timer_2.start(i_blink_sound_timer_2);
         }
       }
       else {

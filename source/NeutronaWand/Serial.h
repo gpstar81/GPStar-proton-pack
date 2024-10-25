@@ -1010,7 +1010,6 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
       if(WAND_STATUS != MODE_ERROR) {
         if(WAND_STATUS == MODE_ON) {
-          digitalWriteFast(TOP_HAT_LED_PIN, HIGH); // Turn on hat light 2.
           prepBargraphRampDown();
 
           if(WAND_ACTION_STATUS == ACTION_SETTINGS) {
@@ -1057,7 +1056,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
           }
         }
 
-        ms_hat_2.start(i_hat_2_delay); // Start the hat light 2 blinking timer.
+        ms_error_blink.start(i_error_blink_delay); // Start the error blink timer.
       }
 
       if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
@@ -1090,9 +1089,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
     case P_ALARM_OFF:
       if(WAND_STATUS != MODE_ERROR && b_pack_alarm) {
-        digitalWriteFast(TOP_HAT_LED_PIN, LOW); // Turn off hat light 2.
-
-        ms_hat_2.stop();
+        resetHatLights(); // Reset the hat light states.
 
         if(WAND_STATUS == MODE_ON) {
           switch(SYSTEM_MODE) {
@@ -1129,23 +1126,11 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
     case P_WARNING_CANCELLED:
       // Pack is telling wand to cancel any overheat warnings.
-      // First, stop the timers which trigger the overheat.
+      // First, stop the timer which triggers the overheat.
       ms_overheat_initiate.stop();
-      ms_hat_1.stop();
-      ms_hat_2.stop();
 
-      if(b_firing == true) {
-        // Keep hat light 1 on if still firing.
-        digitalWriteFast(BARREL_HAT_LED_PIN, HIGH);
-      }
-
-      // Revert hat light 2 to its normal non-overheat status.
-      if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
-        digitalWriteFast(TOP_HAT_LED_PIN, HIGH);
-      }
-      else {
-        digitalWriteFast(TOP_HAT_LED_PIN, LOW);
-      }
+      // Then reset the hat light states.
+      resetHatLights();
 
       // Next, reset the cyclotron speed on all devices.
       wandSerialSend(W_CYCLOTRON_NORMAL_SPEED);

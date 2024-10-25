@@ -655,7 +655,7 @@ void modeFireStop() {
 
   led_Tip.turnOff();
 
-  ms_hat_1.stop();
+  ms_warning_blink.stop();
 
   modeFireStopSounds();
 }
@@ -758,11 +758,11 @@ void deviceOff() {
 
   // Turn off some timers.
   ms_cyclotron.stop();
-  ms_settings_blinking.stop();
+  ms_settings_blink.stop();
   ms_semi_automatic_check.stop();
   ms_semi_automatic_firing.stop();
-  ms_hat_1.stop();
-  ms_hat_2.stop();
+  ms_warning_blink.stop();
+  ms_error_blink.stop();
 
   switch(DEVICE_STATUS) {
     case MODE_OFF:
@@ -790,9 +790,9 @@ void modeError() {
   DEVICE_ACTION_STATUS = ACTION_ERROR;
 
   // This is used for controlling the bargraph beeping while in boot error mode.
-  ms_hat_1.start(i_hat_2_delay * 4);
-  ms_hat_2.start(i_hat_2_delay);
-  ms_settings_blinking.start(i_settings_blinking_delay);
+  ms_warning_blink.start(i_bargraph_beep_delay);
+  ms_error_blink.start(i_error_blink_delay);
+  ms_settings_blink.start(i_settings_blink_delay);
 
   playEffect(S_BEEPS_LOW);
   playEffect(S_BEEPS);
@@ -894,8 +894,8 @@ void postActivation() {
     led_TopWhite.turnOn();
 
     // Reset the hat light timers.
-    ms_hat_1.stop();
-    ms_hat_2.stop();
+    ms_warning_blink.stop();
+    ms_error_blink.stop();
 
     stopEffect(S_BOOTUP);
     playEffect(S_BOOTUP);
