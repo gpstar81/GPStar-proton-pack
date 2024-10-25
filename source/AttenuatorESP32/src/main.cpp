@@ -280,19 +280,25 @@ void WiFiSetupTask(void *parameter) {
 }
 
 void printPartitions() {
-  // Find the first NVS partition (should be named "nvs" by default).
-  const esp_partition_t* nvs_partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS, NULL);
+  const esp_partition_t *partition;
+  esp_partition_iterator_t iterator = esp_partition_find(ESP_PARTITION_TYPE_ANY, ESP_PARTITION_SUBTYPE_ANY, NULL);
 
-  if(nvs_partition != NULL) {
-    #if defined(DEBUG_SEND_TO_CONSOLE)
-    Serial.printf("NVS Partition Found\n");
-    Serial.printf("Partition label: %s\n", nvs_partition->label);
-    Serial.printf("Partition size: %d bytes\n", nvs_partition->size);
-    Serial.printf("Partition address: 0x%x\n", nvs_partition->address);
-    #endif
-  } else {
-    debug(F("No NVS partition found"));
+  if (iterator == nullptr) {
+    Serial.println("No partitions found.");
+    return;
   }
+
+  Serial.println("Partitions:");
+  while (iterator != nullptr) {
+    partition = esp_partition_get(iterator);
+    Serial.printf("Label: %s, Size: %u bytes, Address: 0x%08X\n",
+                  partition->label,
+                  partition->size,
+                  partition->address);
+    iterator = esp_partition_next(iterator);
+  }
+
+  esp_partition_iterator_release(iterator);  // Release the iterator once done
 }
 
 void setup() {
@@ -349,7 +355,9 @@ void setup() {
   }
 
   // Print partition information to verify NVS availability
-  printPartitions();
+  #if defined(DEBUG_SEND_TO_CONSOLE)
+    printPartitions();
+  #endif
 
   /*
    * Get Local Device Preferences

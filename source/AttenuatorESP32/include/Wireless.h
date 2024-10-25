@@ -198,7 +198,10 @@ bool startAccesPoint() {
 
     // Simple networking IP info exclusively for the AP.
     IPAddress localIP(192, 168, 1, 2);
-    IPAddress gateway(192, 168, 1, 1);
+    //IPAddress gateway(192, 168, 1, 1);
+    // Theoretically a gateway is not needed, and may confuse connected devices such as phones to think this device is internet-enabled.
+    // Setting to 0.0.0.0 will supposedly allow devices to use their cellular network as a valid route to the internet. NEEDS TESTING!
+    IPAddress gateway(0, 0, 0, 0);
     IPAddress subnet(255, 255, 255, 0);
     IPAddress dhcpStart(192, 168, 1, 100);
 
