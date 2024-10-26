@@ -35,10 +35,10 @@ const char NETWORK_page[] PROGMEM = R"=====(
   <h1>WiFi Settings</h1>
   <div class="block">
     <p>
-      Configure and enable a preferred external WiFi network for this device to join when in range.
+      Configure and enable a preferred external WiFi network for this device to join when in range (eg. your home network).
       Enabling this feature allows you to make use of a preferred WiFi network such as those used by your mobile device(s).
-      You may optionally configure a static IP address (with a subnet and gateway), if desired.
-      Otherwise, you may return to this screen to view the IP address assigned by your WiFi network.
+      You may optionally configure a static IP address along with a subnet and gateway for that network, if desired.
+      Once joined, you may return to this screen to view the IP address assigned by the external WiFi network.
     </p>
   </div>
 
@@ -50,9 +50,10 @@ const char NETWORK_page[] PROGMEM = R"=====(
         <span class="slider round"></span>
       </label>
     </div>
-    &nbsp;&nbsp;&nbsp;<b>WiFi Network:</b> <input type="text" id="network" width="100" maxlength="30"/>
+    <b>External WiFi Network:</b>
+    <input type="text" id="network" width="100" maxlength="32" placeholder="Enter external WiFi SSID"/>
     <br/>
-    &nbsp;<b>WiFi Password:</b> <input type="text" id="password" width="100" maxlength="30"/>
+    &nbsp;<b>WiFi Password:</b> <input type="text" id="password" width="100" maxlength="63" placeholder="Enter external WiFi password"/>
     <br/>
     <br/>
     <br/>
