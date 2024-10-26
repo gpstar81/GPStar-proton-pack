@@ -36,7 +36,10 @@ const char DEVICE_page[] PROGMEM = R"=====(
   <div class="block left">
     <p>
       Change system configuration options using the available toggles and selectors.
-      Use the "Update Settings" button to save values to the Attenuator controller.
+      Use this screen to customize the private network used by the built-in WiFi network.
+      <br/>
+      You may also use <b>http://[PRIVATE_NETWORK].local</b> to access this device via your browser.
+      Use the "Update Settings" button to save values to the Attenuator/Wireless controller.
     </p>
     <br/>
   </div>
@@ -44,11 +47,8 @@ const char DEVICE_page[] PROGMEM = R"=====(
   <div class="block left">
     <div class="setting">
       <b>Private Network:</b>
-      <input type="text" id="wifiName" width="40" maxlength="32"
-       pattern="[a-zA-Z0-9-_]*" placeholder="Provide a custom SSID for this device"
+      <input type="text" id="wifiName" width="42" maxlength="32" placeholder="Custom SSID"
        title="Only letters, numbers, hyphens, and underscores are allowed, up to 32 characters."/>
-      <br/>
-      You may also use http://{private_network}.local to access this device via your browser.
     </div>
     <div class="setting">
       <b class="labelSwitch">Invert Device LED Order:</b>
@@ -179,7 +179,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
       var ssidRegex = /^[a-zA-Z0-9-_]*$/;
       if (!ssidRegex.test(wifiName)) {
         // The name for the SSID must conform to RFC standards which limits the allowed characters.
-        alert("Error: Network name may only contain alphanumeric characters, hyphens, and underscores.");
+        alert("Error: Network name may only contain letters, numbers, hyphens, and underscores.");
         return;
       }
 
