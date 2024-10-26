@@ -93,6 +93,7 @@ const uint16_t i_apClientCount = 200;
 millisDelay ms_otacheck;
 const uint16_t i_otaCheck = 100;
 
+// Convert an IP address string to an IPAddress object.
 IPAddress convertToIP(String ipAddressString) {
   uint16_t quads[4]; // Array to store 4 quads for the IP.
   uint8_t quadStartIndex = 0;
@@ -118,6 +119,22 @@ IPAddress convertToIP(String ipAddressString) {
   IPAddress ipAddress(quads[0], quads[1], quads[2], quads[3]);
 
   return ipAddress;
+}
+
+// Remove spaces and illegal characters meant for an SSID.
+String sanitizeSSID(String input) {
+    String result = "";
+
+    for (size_t i = 0; i < input.length(); i++) {
+        char c = input[i];
+
+        // Only allow alphanumeric, hyphens, and underscores
+        if (isalnum(c) || c == '-' || c == '_') {
+            result += c;
+        }
+    }
+
+    return result;
 }
 
 /*
@@ -149,6 +166,7 @@ bool startAccesPoint() {
     #else
       // Use either the stored preferences or an expected default value.
       ap_ssid = preferences.getString("ssid", ap_ssid_prefix + "_" + ap_ssid_suffix);
+      ap_ssid = sanitizeSSID(ap_ssid); // Jacques, clean him!
       ap_pass = preferences.getString("password", ap_default_passwd);
     #endif
     preferences.end();
