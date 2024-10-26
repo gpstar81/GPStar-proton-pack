@@ -820,6 +820,7 @@ AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonW
   try {
     // First check if a new private WiFi network name has been chosen.
     String newSSID = jsonBody["wifiName"].as<String>();
+    newSSID = sanitizeSSID(newSSID); // Jacques, clean him!
     bool b_ssid_changed = false;
 
     // Update the private network name ONLY if the new value differs from the current SSID.

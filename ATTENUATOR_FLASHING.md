@@ -22,9 +22,7 @@ The following steps MUST be taken if this situation applies to you:
 
 - If you are using your own ESP32 controller direct from Amazon or another supplier, then the microcontroller has not been flashed with the GPStar firmware to enable the OTA upload feature and the manual flashing process is required.
 
-**Troubleshooting:** When using a USB cable, if your ESP32 controller does not appear as a serial device it may be required to install a driver for the "CP210x USB to UART Bridge" onto your computer. A driver for Windows and macOS is available [via Silicon Labs](https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers?tab=downloads) and has proved useful.
-
-📝 **Tip:** Before proceeding, be sure to use a high-quality USB cable which supports data transfer. Some cheap cables may only support charging (not data), or not fully support the power requirements of the device. If you have successfully flashed your ESP32 device and do not see the available WiFi access point, try plugging your USB cable directly into the Talentcell battery or try another USB port on your computer. In rare cases the USB port and/or cable cannot supply enough voltage to run the ESP32's WiFi radio.
+If you encounter any issues while attempting to access your ESP32 device via a USB cable, please see the **"[USB Troubleshooting](#usb-troubleshooting)"** section at the bottom of this guide.
 
 **Option 1: Via Web Uploader**
 
@@ -43,6 +41,9 @@ This uses a 3rd-party website to upload using the Web Serial protocol which is o
 	* 0xE000 &rarr; [boot_app0.bin](binaries/attenuator/extras/boot_app0.bin)
 	* 0x10000 &rarr; [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin)
 1. Click on the **PROGRAM** button to begin flashing. View the "Output" window to view progress of the flashing operation.
+1. Once the device has completely flashed (100%) unplug the USB cable and remove any remaining power source from the device. Restore power to reboot the device and confirm operation.
+
+View [a quick video](images/ESP_Firmware_Update.mp4) of what this process should look like. Your list of USB devices may differ, and it may require selecting a different device if you cannot immediately determine which connected device is your ESP32.
 
 **Option 2: Via Command-Line**
 
@@ -56,24 +57,29 @@ You will need to utilize a command-line tool to upload the firmware to your devi
 		* `curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py`
 		* `python3 get-pip.py`
 	* If the above utilities do not work using `python3` try using just `python`
-1. Locate the following files from the `/binaries/attenuator` directory.
+1. Locate the following files from the `/binaries/attenuator` directory of this project and download/copy them to a new location such as `C:\Temp` or `/tmp` so they can be found using just their name without adding a subdirectory:
 	* [extras/Attenuator-ESP32-bootloader.bin](binaries/attenuator/extras/Attenuator-ESP32-Bootloader.bin)
 	* [extras/Attenuator-ESP32-partitions.bin](binaries/attenuator/extras/Attenuator-ESP32-Partitions.bin)
 	* [extras/boot_app0.bin](binaries/attenuator/extras/boot_app0.bin)
 	* [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin)
-1. Run the following command, where `<PORT>` is your ESP32 controller as a serial (USB) device. For Linux/macOS this may be `/dev/cu.usbserial-0001` or similar, while on Windows it would simply be something like `COM3`:
+1. From your terminal (command line) session, change into the temporary directory where all 4 of the above files were copied.
+1. Run the following command, where `<PORT>` is your ESP32 controller as a serial (USB) device. For Linux/macOS the port may appear as `/dev/cu.usbserial-####` or similar, while on Windows it would be `COM#`:
 
 ```
-	python3 -m esptool --chip esp32 --port <PORT> -b 921600 write_flash --flash_mode dio --flash_size detect --flash_freq 80m
-	0x1000 Attenuator-ESP32-bootloader.bin 0x8000 Attenuator-ESP32-partitions.bin 0xe000 boot_app0.bin 0x10000 Attenuator-ESP32.bin
+python3 -m esptool --chip esp32 --port <PORT> -b 921600 write_flash --flash_mode dio --flash_size detect --flash_freq 80m 0x1000 Attenuator-ESP32-bootloader.bin 0x8000 Attenuator-ESP32-partitions.bin 0xe000 boot_app0.bin 0x10000 Attenuator-ESP32.bin
 ```
 
-📝 **Tip:** To find your device on Linux it may be necessary to use the `lsusb` utility to list attached USB devices. For MacOS run `ls /dev/{tty,cu}.*` to list available USB devices. For Windows, use the "Device Manager" and look at the "Ports (COM & LPT)" section.
+📝 **Tip:** To find your USB device on various operating systems requires different methods:
 
-These guides may be of some help as a reference:
+- For Linux use the `lsusb` utility (or `lsusb -v`) to list attached USB devices.
+- For MacOS run `ls /dev/{tty,cu}.*` to list available USB devices.
+- For Windows, use the "Device Manager" and look at the "Ports (COM & LPT)" section.
 
-* [Expressif - esptool Installation](https://docs.espressif.com/projects/esptool/en/latest/esp32/installation.html#installation)
-* [Expressif - Flashing Firmware](https://docs.espressif.com/projects/esptool/en/latest/esp32/esptool/flashing-firmware.html)
+These guides from Espressif may be of some help as a reference:
+
+* [Espressif - esptool Installation](https://docs.espressif.com/projects/esptool/en/latest/esp32/installation.html#installation)
+* [Espressif - Flashing Firmware](https://docs.espressif.com/projects/esptool/en/latest/esp32/esptool/flashing-firmware.html)
+* [Espressif - Boot Mode Selection](https://docs.espressif.com/projects/esptool/en/latest/esp32/advanced-topics/boot-mode-selection.html)
 
 ### ESP32: Standard Updates (via WiFi)
 
@@ -120,6 +126,35 @@ In the case where you do not have access to your device via an external WiFi net
 Once flashed, this will allow you to get back into the web UI at [http://192.168.1.2](http://192.168.1.2) or `http://protonpack_####.local` using the default password ("555-2368") and change to your choice of password. **Once changed, you will need to re-flash the device using the standard firmware--otherwise, the device will always use the default WiFi password while this firmware is loaded**! The new password will be used automatically to secure the WiFi access point once the regular firmware is in use.
 
 📝 **Note:** When using this firmware there will be additional debug messages enabled for the device. Therefore, this firmware image may also be used to help debug WiFi issues by checking the output via the Arduino IDE's serial console. Be sure to set the baud rate to 112500 to view the output correctly.
+
+---
+
+## USB Troubleshooting
+
+Before beginning any actions when using a USB cable, be sure to use a high-quality USB cable which supports data transfer. Some cheap cables may only support charging (not data), or not fully support the power requirements of the device.
+
+**Problem 1:** Your ESP32 controller does not appear as a serial device in your operating system (COM# for Windows, /dev/cu.usb* for macOS/Linux).
+
+**Solution 1:** It is necessary to install a driver for the **"CP210x USB to UART Bridge"** onto your computer for some devices. A driver for Windows and macOS is available [via Silicon Labs](https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers?tab=downloads) and has proved useful.
+
+**Problem 2:** The ESP32 device can be detected when using the [ESPWebTool website](https://esp.huhn.me/) but can't connect. Alternatively, you get a notice that the device must be reset.
+
+**Solution 2:** You must put the device into bootloader mode. To help with this, use the [SerialTerminal website](https://serial.huhn.me/) to connect to your device first. Once connected, press the BOOT and EN buttons simultaneously, then release the EN button followed by the BOOT button. You should see a message similar to the following which indicates the device is ready to flash:
+
+```
+rst:0x1 (POWERON_RESET),boot:0x3 (DOWNLOAD_BOOT(UART0/UART1/SDIO_REI_REO_V2))
+waiting for download
+```
+
+Without disconnecting the device, and using the same browser tab, return to the ESPWebTool website](https://esp.huhn.me/) and complete the flashing process as described earlier in this guide.
+
+**Note:** If you get garbage on the screen when using the serial terminal, use the gear icon at the top right to make sure the baud rate is set to 115200.
+
+**Problem 3:** The process described in Solution 2 did not work, help!
+
+**Solution 3:** You will need to follow the command line process using the `esptool.py` utility as described in this guide to flash your device. This offers some abilities to reset the device which cannot be replicated via the web-serial interface.
+
+📝 **Tip:** If you have successfully flashed your ESP32 device and do not see the available WiFi access point, try plugging your USB cable directly into the Talentcell battery or try another USB port on your computer. In rare cases the USB port and/or cable cannot supply enough voltage to run the ESP32's WiFi radio.
 
 ---
 

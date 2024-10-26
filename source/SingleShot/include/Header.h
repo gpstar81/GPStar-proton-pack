@@ -244,10 +244,11 @@ const uint16_t i_slo_blo_blink_delay = 500;
  * Timers for the optional hat lights.
  * Also used for vent lights during error modes.
  */
-millisDelay ms_hat_1;
-millisDelay ms_hat_2;
-const uint8_t i_hat_1_delay = 100;
-const uint16_t i_hat_2_delay = 400;
+millisDelay ms_warning_blink;
+millisDelay ms_error_blink;
+const uint16_t i_warning_blink_delay = 100;
+const uint16_t i_error_blink_delay = 400;
+const uint16_t i_bargraph_beep_delay = 1600;
 
 /*
  * Firing timers.
@@ -279,8 +280,8 @@ enum MENU_OPTION_LEVELS {
 };
 enum MENU_OPTION_LEVELS MENU_OPTION_LEVEL;
 uint8_t i_device_menu = 5;
-const uint16_t i_settings_blinking_delay = 350;
-millisDelay ms_settings_blinking;
+const uint16_t i_settings_blink_delay = 400;
+millisDelay ms_settings_blink;
 
 /*
  * Misc device settings and flags.

@@ -93,6 +93,7 @@ const uint16_t i_apClientCount = 200;
 millisDelay ms_otacheck;
 const uint16_t i_otaCheck = 100;
 
+// Convert an IP address string to an IPAddress object.
 IPAddress convertToIP(String ipAddressString) {
   uint16_t quads[4]; // Array to store 4 quads for the IP.
   uint8_t quadStartIndex = 0;
@@ -118,6 +119,22 @@ IPAddress convertToIP(String ipAddressString) {
   IPAddress ipAddress(quads[0], quads[1], quads[2], quads[3]);
 
   return ipAddress;
+}
+
+// Remove spaces and illegal characters meant for an SSID.
+String sanitizeSSID(String input) {
+    String result = "";
+
+    for (size_t i = 0; i < input.length(); i++) {
+        char c = input[i];
+
+        // Only allow alphanumeric, hyphens, and underscores
+        if (isalnum(c) || c == '-' || c == '_') {
+            result += c;
+        }
+    }
+
+    return result;
 }
 
 /*
@@ -149,6 +166,7 @@ bool startAccesPoint() {
     #else
       // Use either the stored preferences or an expected default value.
       ap_ssid = preferences.getString("ssid", ap_ssid_prefix + "_" + ap_ssid_suffix);
+      ap_ssid = sanitizeSSID(ap_ssid); // Jacques, clean him!
       ap_pass = preferences.getString("password", ap_default_passwd);
     #endif
     preferences.end();
@@ -198,26 +216,32 @@ bool startAccesPoint() {
 
     // Simple networking IP info exclusively for the AP.
     IPAddress localIP(192, 168, 1, 2);
-    IPAddress gateway(192, 168, 1, 1);
+    IPAddress gateway(0, 0, 0, 0); // Not needed for AP.
     IPAddress subnet(255, 255, 255, 0);
     IPAddress dhcpStart(192, 168, 1, 100);
 
     // Set networking info and report to console.
     WiFi.softAPConfig(localIP, gateway, subnet, dhcpStart);
-    WiFi.softAPsetHostname(ap_ssid.c_str());
+    WiFi.softAPsetHostname(ap_ssid.c_str()); // Hostname is the same as SSID.
     #if defined(DEBUG_WIRELESS_SETUP)
       Serial.print(F("AP Name (SSID): "));
       Serial.println(WiFi.softAPSSID());
       Serial.print(F("AP     Channel: "));
       Serial.println(WiFi.channel());
-      Serial.print(F("AP  IP Address: "));
-      Serial.println(WiFi.softAPIP());
+      Serial.print(F("AP IP Addr/Sub: "));
+      Serial.print(WiFi.softAPIP());
+      Serial.print(F(" / "));
+      Serial.println(WiFi.softAPSubnetCIDR());
+      Serial.print(F("AP     Network: "));
+      Serial.println(WiFi.softAPNetworkID());
+      Serial.print(F("AP   Broadcast: "));
+      Serial.println(WiFi.softAPBroadcastIP());
       Serial.print(F("AP    Hostname: "));
       Serial.println(WiFi.softAPgetHostname());
       Serial.print(F("AP Mac Address: "));
       Serial.println(WiFi.softAPmacAddress());
-      Serial.print(F("AP Subnet Mask: "));
-      Serial.println(WiFi.softAPSubnetCIDR());
+      Serial.print(F("AP  Gateway IP: "));
+      Serial.println(WiFi.gatewayIP());
     #endif
   }
 

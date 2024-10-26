@@ -51,9 +51,10 @@
 #include "System.h"
 
 // Task Handles
+TaskHandle_t AnimationTaskHandle = NULL;
+TaskHandle_t PreferencesTaskHandle = NULL;
 TaskHandle_t SerialCommsTaskHandle = NULL;
 TaskHandle_t UserInputTaskHandle = NULL;
-TaskHandle_t AnimationTaskHandle = NULL;
 TaskHandle_t WiFiManagementTaskHandle = NULL;
 TaskHandle_t WiFiSetupTaskHandle = NULL;
 
@@ -81,6 +82,175 @@ void idleTaskCore1(void * parameter) {
   }
 }
 #endif
+
+// Obtain a list of partitions for this device.
+void printPartitions() {
+  const esp_partition_t *partition;
+  esp_partition_iterator_t iterator = esp_partition_find(ESP_PARTITION_TYPE_ANY, ESP_PARTITION_SUBTYPE_ANY, NULL);
+
+  if (iterator == nullptr) {
+    Serial.println(F("No partitions found."));
+    return;
+  }
+
+  Serial.println(F("Partitions:"));
+  while (iterator != nullptr) {
+    partition = esp_partition_get(iterator);
+    Serial.printf("Label: %s, Size: %u bytes, Address: 0x%08X\n",
+                  partition->label,
+                  partition->size,
+                  partition->address);
+    iterator = esp_partition_next(iterator);
+  }
+
+  esp_partition_iterator_release(iterator);  // Release the iterator once done
+}
+
+// Animation Task (Loop)
+void AnimationTask(void *parameter) {
+  while(true) {
+    #if defined(DEBUG_TASK_TO_CONSOLE)
+      // Confirm the core in use for this task, and when it runs.
+      Serial.print(F("Executing AnimationTask in core"));
+      Serial.print(xPortGetCoreID());
+      // Get the stack high water mark for optimizing bytes allocated.
+      Serial.print(F(" | Stack HWM: "));
+      Serial.println(uxTaskGetStackHighWaterMark(NULL));
+    #endif
+
+    // Call this on each loop in case the user changed their preference.
+    if(b_invert_leds) {
+      // Flip the identification of the LEDs.
+      i_device_led[0] = 2; // Top
+      i_device_led[1] = 1; // Upper
+      i_device_led[2] = 0; // Lower
+    }
+    else {
+      // Use the expected order for the LEDs.
+      // aka. Defaults for the Arduino Nano and ESP32.
+      i_device_led[0] = 0; // Top
+      i_device_led[1] = 1; // Upper
+      i_device_led[2] = 2; // Lower
+    }
+
+    // Update LEDs using appropriate colour scheme and environment vars.
+    updateLEDs();
+
+    // Update bargraph elements, leveraging cyclotron speed modifier.
+    // In reality this multiplier is a divisor to the standard delay.
+    bargraphUpdate(i_speed_multiplier);
+
+    // Update the device LEDs and restart the timer.
+    FastLED.show();
+
+    vTaskDelay(8 / portTICK_PERIOD_MS); // 8ms delay
+  }
+}
+
+// Preferences Task (Single-Run)
+void PreferencesTask(void *parameter) {
+  #if defined(DEBUG_TASK_TO_CONSOLE)
+    // Confirm the core in use for this task, and when it runs.
+    Serial.print(F("Executing PreferencesTask in core"));
+    Serial.println(xPortGetCoreID());
+  #endif
+
+  // Print partition information to verify NVS availability
+  #if defined(DEBUG_SEND_TO_CONSOLE)
+  printPartitions();
+  #endif
+
+  // Initialize the NVS flash partition and throw any errors as necessary.
+  esp_err_t err = nvs_flash_init();
+  if(err != ESP_OK) {
+    #if defined(DEBUG_SEND_TO_CONSOLE)
+    Serial.printf("NVS initialization failed with error: %s\n", esp_err_to_name(err));
+    #endif
+
+    // If initialization fails, erase and reinitialize NVS.
+    debug(F("Erasing and reinitializing NVS..."));
+    nvs_flash_erase();
+
+    err = nvs_flash_init();
+    if(err != ESP_OK) {
+      #if defined(DEBUG_SEND_TO_CONSOLE)
+      Serial.printf("Failed to reinitialize NVS: %s\n", esp_err_to_name(err));
+      #endif
+    }
+    else {
+      debug(F("NVS reinitialized successfully"));
+    }
+  }
+  else {
+    debug(F("NVS initialized successfully"));
+  }
+
+  /*
+   * Get Local Device Preferences
+   * Accesses the "device" namespace in read-only mode under the "nvs" partition.
+   */
+  bool b_namespace_opened = preferences.begin("device", true);
+  if(b_namespace_opened) {
+    // Return stored values if available, otherwise use a default value.
+    b_invert_leds = preferences.getBool("invert_led", false);
+    b_enable_buzzer = preferences.getBool("use_buzzer", true);
+    b_enable_vibration = preferences.getBool("use_vibration", true);
+    b_overheat_feedback = preferences.getBool("use_overheat", true);
+    b_firing_feedback = preferences.getBool("fire_feedback", false);
+
+    switch(preferences.getShort("radiation_idle", 0)) {
+      case 0:
+        RAD_LENS_IDLE = AMBER_PULSE;
+      break;
+      case 1:
+        RAD_LENS_IDLE = ORANGE_FADE;
+      break;
+      case 2:
+        RAD_LENS_IDLE = RED_FADE;
+      break;
+    }
+
+    switch(preferences.getShort("display_type", 0)) {
+      case 0:
+        DISPLAY_TYPE = STATUS_TEXT;
+      break;
+      case 1:
+        DISPLAY_TYPE = STATUS_GRAPHIC;
+      break;
+      case 2:
+      default:
+        DISPLAY_TYPE = STATUS_BOTH;
+      break;
+    }
+
+    s_track_listing = preferences.getString("track_list", "");
+    preferences.end();
+  }
+  else {
+    // If namespace is not initialized, open in read/write mode and set defaults.
+    if(preferences.begin("device", false)) {
+      preferences.putBool("invert_led", b_invert_leds);
+      preferences.putBool("use_buzzer", b_enable_buzzer);
+      preferences.putBool("use_vibration", b_enable_vibration);
+      preferences.putBool("use_overheat", b_overheat_feedback);
+      preferences.putBool("fire_feedback", b_firing_feedback);
+      preferences.putShort("radiation_idle", RAD_LENS_IDLE);
+      preferences.putShort("display_type", DISPLAY_TYPE);
+      preferences.putString("track_list", "");
+      preferences.end();
+    }
+  }
+
+  #if defined(DEBUG_TASK_TO_CONSOLE)
+    // Get the stack high water mark for optimizing bytes allocated.
+    Serial.print(F("PreferencesTask Stack HWM: "));
+    Serial.println(uxTaskGetStackHighWaterMark(NULL));
+  #endif
+
+  // Task ends after setup is complete and MUST be removed from scheduling.
+  // Failure to do this can cause an error within the watchdog timer!
+  vTaskDelete(NULL);
+}
 
 // Serial Comms Task (Loop)
 void SerialCommsTask(void *parameter) {
@@ -165,47 +335,6 @@ void UserInputTask(void *parameter) {
   }
 }
 
-// Animation Task (Loop)
-void AnimationTask(void *parameter) {
-  while(true) {
-    #if defined(DEBUG_TASK_TO_CONSOLE)
-      // Confirm the core in use for this task, and when it runs.
-      Serial.print(F("Executing AnimationTask in core"));
-      Serial.print(xPortGetCoreID());
-      // Get the stack high water mark for optimizing bytes allocated.
-      Serial.print(F(" | Stack HWM: "));
-      Serial.println(uxTaskGetStackHighWaterMark(NULL));
-    #endif
-
-    // Call this on each loop in case the user changed their preference.
-    if(b_invert_leds) {
-      // Flip the identification of the LEDs.
-      i_device_led[0] = 2; // Top
-      i_device_led[1] = 1; // Upper
-      i_device_led[2] = 0; // Lower
-    }
-    else {
-      // Use the expected order for the LEDs.
-      // aka. Defaults for the Arduino Nano and ESP32.
-      i_device_led[0] = 0; // Top
-      i_device_led[1] = 1; // Upper
-      i_device_led[2] = 2; // Lower
-    }
-
-    // Update LEDs using appropriate colour scheme and environment vars.
-    updateLEDs();
-
-    // Update bargraph elements, leveraging cyclotron speed modifier.
-    // In reality this multiplier is a divisor to the standard delay.
-    bargraphUpdate(i_speed_multiplier);
-
-    // Update the device LEDs and restart the timer.
-    FastLED.show();
-
-    vTaskDelay(8 / portTICK_PERIOD_MS); // 8ms delay
-  }
-}
-
 // WiFi Management Task (Loop)
 void WiFiManagementTask(void *parameter) {
   while(true) {
@@ -279,24 +408,9 @@ void WiFiSetupTask(void *parameter) {
   vTaskDelete(NULL);
 }
 
-void printPartitions() {
-  // Find the first NVS partition (should be named "nvs" by default).
-  const esp_partition_t* nvs_partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS, NULL);
-
-  if(nvs_partition != NULL) {
-    #if defined(DEBUG_SEND_TO_CONSOLE)
-    Serial.printf("NVS Partition Found\n");
-    Serial.printf("Partition label: %s\n", nvs_partition->label);
-    Serial.printf("Partition size: %d bytes\n", nvs_partition->size);
-    Serial.printf("Partition address: 0x%x\n", nvs_partition->address);
-    #endif
-  } else {
-    debug(F("No NVS partition found"));
-  }
-}
-
 void setup() {
   Serial.begin(115200); // Serial monitor via USB connection.
+  delay(1000); // Provide a delay to allow serial output.
 
   // Expect a Serial2 connection with communication to a GPStar Proton Pack PCB.
   Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
@@ -308,8 +422,10 @@ void setup() {
   // Provide an opportunity to set the CPU Frequency MHz: 80, 160, 240 [Default = 240]
   // Lower frequency means less power consumption, but slower performance (obviously).
   setCpuFrequencyMhz(240);
-  Serial.print(F("CPU Freq (MHz): "));
-  Serial.println(getCpuFrequencyMhz());
+  #if defined(DEBUG_SEND_TO_CONSOLE)
+    Serial.print(F("CPU Freq (MHz): "));
+    Serial.println(getCpuFrequencyMhz());
+  #endif
 
   // Assume the Super Hero arming mode with Afterlife (default for Haslab).
   SYSTEM_MODE = MODE_SUPER_HERO;
@@ -323,89 +439,8 @@ void setup() {
   RAD_LENS_IDLE = AMBER_PULSE;
   DISPLAY_TYPE = STATUS_TEXT;
 
-  // Initialize the NVS flash partition and throw any errors as necessary.
-  esp_err_t err = nvs_flash_init();
-  if(err != ESP_OK) {
-    #if defined(DEBUG_SEND_TO_CONSOLE)
-    Serial.printf("NVS initialization failed with error: %s\n", esp_err_to_name(err));
-    #endif
-    
-    // If initialization fails, erase and reinitialize NVS.
-    debug(F("Erasing and reinitializing NVS..."));
-    nvs_flash_erase();
-
-    err = nvs_flash_init();
-    if(err != ESP_OK) {
-      #if defined(DEBUG_SEND_TO_CONSOLE)
-      Serial.printf("Failed to reinitialize NVS: %s\n", esp_err_to_name(err));
-      #endif
-    }
-    else {
-      debug(F("NVS reinitialized successfully"));
-    }
-  }
-  else {
-    debug(F("NVS initialized successfully"));
-  }
-
-  // Print partition information to verify NVS availability
-  printPartitions();
-
-  /*
-   * Get Local Device Preferences
-   * Accesses the "device" namespace in read-only mode under the "nvs" partition.
-   */
-  bool b_namespace_opened = preferences.begin("device", true);
-  if(b_namespace_opened) {
-    // Return stored values if available, otherwise use a default value.
-    b_invert_leds = preferences.getBool("invert_led", false);
-    b_enable_buzzer = preferences.getBool("use_buzzer", true);
-    b_enable_vibration = preferences.getBool("use_vibration", true);
-    b_overheat_feedback = preferences.getBool("use_overheat", true);
-    b_firing_feedback = preferences.getBool("fire_feedback", false);
-
-    switch(preferences.getShort("radiation_idle", 0)) {
-      case 0:
-        RAD_LENS_IDLE = AMBER_PULSE;
-      break;
-      case 1:
-        RAD_LENS_IDLE = ORANGE_FADE;
-      break;
-      case 2:
-        RAD_LENS_IDLE = RED_FADE;
-      break;
-    }
-
-    switch(preferences.getShort("display_type", 0)) {
-      case 0:
-        DISPLAY_TYPE = STATUS_TEXT;
-      break;
-      case 1:
-        DISPLAY_TYPE = STATUS_GRAPHIC;
-      break;
-      case 2:
-      default:
-        DISPLAY_TYPE = STATUS_BOTH;
-      break;
-    }
-
-    s_track_listing = preferences.getString("track_list", "");
-    preferences.end();
-  }
-  else {
-    // If namespace is not initialized, open in read/write mode and set defaults.
-    if(preferences.begin("device", false)) {
-      preferences.putBool("invert_led", b_invert_leds);
-      preferences.putBool("use_buzzer", b_enable_buzzer);
-      preferences.putBool("use_vibration", b_enable_vibration);
-      preferences.putBool("use_overheat", b_overheat_feedback);
-      preferences.putBool("fire_feedback", b_firing_feedback);
-      preferences.putShort("radiation_idle", RAD_LENS_IDLE);
-      preferences.putShort("display_type", DISPLAY_TYPE);
-      preferences.putString("track_list", "");
-      preferences.end();
-    }
-  }
+  // Begin at menu level one. This affects the behavior of the rotary dial.
+  MENU_LEVEL = MENU_1;
 
   if(!b_wait_for_pack) {
     // If not waiting for the pack set power level to 5.
@@ -415,9 +450,6 @@ void setup() {
     // When waiting for the pack set power level to 1.
     POWER_LEVEL = LEVEL_1;
   }
-
-  // Begin at menu level one. This affects the behavior of the rotary dial.
-  MENU_LEVEL = MENU_1;
 
   // RGB LEDs for effects (upper/lower) and user status (top).
   FastLED.addLeds<NEOPIXEL, DEVICE_LED_PIN>(device_leds, DEVICE_NUM_LEDS);
@@ -445,9 +477,6 @@ void setup() {
   pinMode(BUZZER_PIN, OUTPUT);
   setToneChannel(0); // Forces Tone to use Channel 0.
 
-  // Note: "ledcAttachChannel" is a combined method for the arduino-esp32 v3.x board library
-  //ledcAttachChannel(VIBRATION_PIN, 5000, 8, 5); // Uses 5 kHz frequency, 8-bit resolution, channel 5
-
   // Attach pin to channel 5.
   ledcAttachPin(VIBRATION_PIN, 5);
   // Configure LEDC PWM channel 5 for 5 kHz frequency & 8-bit resolution.
@@ -473,17 +502,24 @@ void setup() {
    * We can make efficient use of the available cores by "pinning" a task to a core.
    * The ESP32 platform comes with FreeRTOS implemented internally and exposed even
    * to the Arduino platform (meaning: no need for using the ESP-IDF exclusively).
-   * In theory this allows for improved parallel processing with prioritization.
+   * In theory this allows for improved parallel processing with prioritization and
+   * granting of dedicated memory stacks to each task (which can be monitored).
    *
    * Parameters:
-   *  Task Function,
-   *  Task Name,
-   *  Stack Size,
+   *  Task Function Name,
+   *  User-Friendly Task Name,
+   *  Stack Size (in bytes),
    *  Input Parameter,
-   *  Priority,
-   *  Task Handle,
-   *  Pinned Core
+   *  Priority (use higher #),
+   *  Task Handle Reference,
+   *  Pinned Core (0 or 1)
    */
+
+  // Create a single-run setup task with the highest priority for WiFi/WebServer startup.
+  xTaskCreatePinnedToCore(PreferencesTask, "PreferencesTask", 4096, NULL, 6, &PreferencesTaskHandle, 1);
+
+  // Delay all lower priority tasks until Preferences are loaded.
+  vTaskDelay(100 / portTICK_PERIOD_MS); // Delay for 100ms to avoid competition.
 
   // Create a single-run setup task with the highest priority for WiFi/WebServer startup.
   xTaskCreatePinnedToCore(WiFiSetupTask, "WiFiSetupTask", 4096, NULL, 5, &WiFiSetupTaskHandle, 1);
@@ -497,7 +533,7 @@ void setup() {
   xTaskCreatePinnedToCore(AnimationTask, "AnimationTask", 2048, NULL, 2, &AnimationTaskHandle, 1);
   xTaskCreatePinnedToCore(WiFiManagementTask, "WiFiManagementTask", 2048, NULL, 1, &WiFiManagementTaskHandle, 1);
 
-  // Create idle tasks for each core
+  // Create idle tasks for each core, used to estimate % busy for core.
   #if defined(DEBUG_PERFORMANCE)
   xTaskCreatePinnedToCore(idleTaskCore0, "Idle Task Core 0", 1000, NULL, 1, NULL, 0);
   xTaskCreatePinnedToCore(idleTaskCore1, "Idle Task Core 1", 1000, NULL, 1, NULL, 1);
@@ -524,13 +560,13 @@ void printCPULoad() {
   float cpuLoadCore0 = 100.0 - ((float)idle0 / (float)(idle0 + idle1)) * 100.0;
   float cpuLoadCore1 = 100.0 - ((float)idle1 / (float)(idle0 + idle1)) * 100.0;
 
-  Serial.print("CPU Load Core0: ");
+  Serial.print(F("CPU Load Core0: "));
   Serial.print(cpuLoadCore0);
-  Serial.println("%");
+  Serial.println(F("%"));
 
-  Serial.print("CPU Load Core1: ");
+  Serial.print(F("CPU Load Core1: "));
   Serial.print(cpuLoadCore1);
-  Serial.println("%");
+  Serial.println(F("%"));
 
   // Reset idle times after calculation
   idleTimeCore0 = 0;
@@ -538,47 +574,47 @@ void printCPULoad() {
 }
 
 void printMemoryStats() {
-  Serial.println("Memory Usage Stats:");
+  Serial.println(F("Memory Usage Stats:"));
 
   // Heap memory
-  Serial.print("|-Total Free Heap: ");
+  Serial.print(F("|-Total Free Heap: "));
   Serial.print(formatBytesWithCommas(esp_get_free_heap_size()));
-  Serial.println(" bytes");
+  Serial.println(F(" bytes"));
 
-  Serial.print("|-Minimum Free Heap Ever: ");
+  Serial.print(F("|-Minimum Free Heap Ever: "));
   Serial.print(formatBytesWithCommas(esp_get_minimum_free_heap_size()));
-  Serial.println(" bytes");
+  Serial.println(F(" bytes"));
 
-  Serial.print("|-Maximum Allocatable Block: ");
+  Serial.print(F("|-Maximum Allocatable Block: "));
   Serial.print(formatBytesWithCommas(heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT)));
-  Serial.println(" bytes");
+  Serial.println(F(" bytes"));
 
   // Stack memory (for the main task)
-  Serial.println("|-Tasks Stack High Water Mark:");
-  Serial.print("|--Main Task: ");
+  Serial.println(F("|-Tasks Stack High Water Mark:"));
+  Serial.print(F("|--Main Task: "));
   Serial.print(formatBytesWithCommas(uxTaskGetStackHighWaterMark(NULL)));
-  Serial.println(" bytes");
+  Serial.println(F(" bytes"));
 
   // Stack memory (for other tasks)
   if (AnimationTaskHandle != NULL) {
-    Serial.print("|--Animation: ");
+    Serial.print(F("|--Animation: "));
     Serial.print(formatBytesWithCommas(uxTaskGetStackHighWaterMark(AnimationTaskHandle)));
-    Serial.println(" / 2,048 bytes");
+    Serial.println(F(" / 2,048 bytes"));
   }
   if (SerialCommsTaskHandle != NULL) {
-    Serial.print("|--Serial Comms: ");
+    Serial.print(F("|--Serial Comms: "));
     Serial.print(formatBytesWithCommas(uxTaskGetStackHighWaterMark(SerialCommsTaskHandle)));
-    Serial.println(" / 4,096 bytes");
+    Serial.println(F(" / 4,096 bytes"));
   }
   if (UserInputTaskHandle != NULL) {
-    Serial.print("|--User Input: ");
+    Serial.print(F("|--User Input: "));
     Serial.print(formatBytesWithCommas(uxTaskGetStackHighWaterMark(UserInputTaskHandle)));
-    Serial.println(" / 4,096 bytes");
+    Serial.println(F(" / 4,096 bytes"));
   }
   if (WiFiManagementTaskHandle != NULL) {
-    Serial.print("|--WiFi Mgmt.: ");
+    Serial.print(F("|--WiFi Mgmt.: "));
     Serial.print(formatBytesWithCommas(uxTaskGetStackHighWaterMark(WiFiManagementTaskHandle)));
-    Serial.println(" / 2,048 bytes");
+    Serial.println(F(" / 2,048 bytes"));
   }
 }
 
@@ -586,7 +622,7 @@ void loop() {
   // No work done here, only in the tasks!
 
   #if defined(DEBUG_PERFORMANCE)
-  Serial.println("==================================================");
+  Serial.println(F("=================================================="));
   printCPULoad();      // Print CPU load
   printMemoryStats();  // Print memory usage
   delay(3000);         // Wait 5 seconds before printing again

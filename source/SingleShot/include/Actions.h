@@ -29,21 +29,21 @@ void gripButtonCheck() {
       if(DEVICE_ACTION_STATUS != ACTION_SETTINGS && DEVICE_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && !switch_vent.on() && !switch_device.on()) {
         // Not currently in the settings menu so set that as the current action.
         DEVICE_ACTION_STATUS = ACTION_SETTINGS;
-        ms_settings_blinking.start(i_settings_blinking_delay);
+        ms_settings_blink.start(i_settings_blink_delay);
         deviceEnterMenu();
         return;
       }
       else if(DEVICE_ACTION_STATUS == ACTION_SETTINGS && DEVICE_MENU_LEVEL == MENU_LEVEL_1 && MENU_OPTION_LEVEL == OPTION_5) {
         // Only exit the settings menu when at option #5 on menu level 1.
         DEVICE_ACTION_STATUS = ACTION_IDLE;
-        ms_settings_blinking.stop();
+        ms_settings_blink.stop();
         deviceExitMenu();
         return;
       }
       else if(DEVICE_ACTION_STATUS == ACTION_CONFIG_EEPROM_MENU && DEVICE_MENU_LEVEL == MENU_LEVEL_1 && MENU_OPTION_LEVEL == OPTION_5) {
         // Only exit the settings menu when at option #5 on menu level 1.
         DEVICE_ACTION_STATUS = ACTION_IDLE;
-        ms_settings_blinking.stop();
+        ms_settings_blink.stop();
         bargraph.clear();
         deviceExitEEPROMMenu();
         return;
@@ -191,7 +191,7 @@ void checkDeviceAction() {
 
         DEVICE_ACTION_STATUS = ACTION_CONFIG_EEPROM_MENU;
         ventSwitchedCount = 0; // We did it, now clear the count.
-        ms_settings_blinking.start(i_settings_blinking_delay);
+        ms_settings_blink.start(i_settings_blink_delay);
         deviceEnterMenu();
         return;
       }
@@ -223,7 +223,7 @@ void checkDeviceAction() {
     break;
 
     case MODE_ERROR:
-      if(ms_hat_2.remaining() < i_hat_2_delay / 2) {
+      if(ms_error_blink.remaining() < i_error_blink_delay / 2) {
         led_Clippard.turnOff();
         led_SloBlo.turnOff();
         led_TopWhite.turnOff();
@@ -236,17 +236,17 @@ void checkDeviceAction() {
         led_Hat2.turnOn();
       }
 
-      if(ms_hat_2.justFinished()) {
-        ms_hat_2.start(i_hat_2_delay);
+      if(ms_error_blink.justFinished()) {
+        ms_error_blink.start(i_error_blink_delay);
 
         playEffect(S_BEEPS_LOW);
         playEffect(S_BEEPS);
       }
 
-      if(ms_hat_1.justFinished()) {
+      if(ms_warning_blink.justFinished()) {
         playEffect(S_BEEPS);
 
-        ms_hat_1.start(i_hat_2_delay * 4);
+        ms_warning_blink.repeat();
       }
 
       // If the activate is switched off during error mode, reset the device.
@@ -257,7 +257,7 @@ void checkDeviceAction() {
     break;
 
     case MODE_ON:
-      if(!ms_hat_1.isRunning() && !ms_hat_2.isRunning()) {
+      if(!ms_warning_blink.isRunning() && !ms_error_blink.isRunning()) {
         // Hat 2 stays solid while the Single-Shot Blaster is on.
         led_Hat2.turnOn();
       }
@@ -331,19 +331,6 @@ void checkDeviceAction() {
       if(!b_firing) {
         b_firing = true;
         modeFireStart();
-      }
-
-      if(ms_hat_1.isRunning()) {
-        if(ms_hat_1.remaining() < i_hat_1_delay / 2) {
-          led_Hat2.turnOn();
-        }
-        else {
-          led_Hat2.turnOff();
-        }
-
-        if(ms_hat_1.justFinished()) {
-          ms_hat_1.start(i_hat_1_delay);
-        }
       }
 
       modeFiring();

@@ -330,10 +330,11 @@ const uint8_t i_bargraph_power_table_wamco[i_power_level_max + 1] PROGMEM = {0, 
  * Timers for the optional hat lights.
  * Also used for vent lights during error modes.
  */
-millisDelay ms_hat_1;
-millisDelay ms_hat_2;
-const uint8_t i_hat_1_delay = 100;
-const uint16_t i_hat_2_delay = 400;
+millisDelay ms_warning_blink;
+millisDelay ms_error_blink;
+const uint16_t i_warning_blink_delay = 100;
+const uint16_t i_error_blink_delay = 400;
+const uint16_t i_bargraph_beep_delay = 1600;
 
 /*
  * A timer to prevent the wand beep from restarting too rapidly in Afterlife & Frozen Empire modes.
@@ -424,8 +425,8 @@ const uint16_t i_heartbeat_delay = 3250; // Delay to send a heartbeat (handshake
 enum WAND_MENU_LEVELS { MENU_LEVEL_1, MENU_LEVEL_2, MENU_LEVEL_3, MENU_LEVEL_4, MENU_LEVEL_5 };
 enum WAND_MENU_LEVELS WAND_MENU_LEVEL;
 uint8_t i_wand_menu = 5;
-const uint16_t i_settings_blinking_delay = 350;
-millisDelay ms_settings_blinking;
+const uint16_t i_settings_blink_delay = 400;
+millisDelay ms_settings_blink;
 
 /*
  * Misc wand settings and flags.
@@ -452,10 +453,10 @@ bool b_wand_boot_error_on = false;
  * prolonged firing which would trigger the overheat or venting sequences; only rapid firing bursts.
  */
 millisDelay ms_bmash;              // Timer for the button mash lock-out period.
-uint16_t i_bmash_delay = 2000;     // Time period in which we consider rapid firing.
+uint16_t i_bmash_delay = 1000;     // Time period in which we consider rapid firing.
 uint16_t i_bmash_cool_down = 3000; // Time period for the lock-out of user input.
 uint8_t i_bmash_count = 0;         // Current count for rapid firing bursts.
-uint8_t i_bmash_max = 7;           // Burst count we consider before the lock-out.
+uint8_t i_bmash_max = 3;           // Burst count we consider before the lock-out.
 uint8_t i_bmash_spark_index = 0;   // Current spark number for the spark effect (0~2).
 bool b_wand_mash_error = false;    // Indicates if wand is in a lock-out phase.
 
@@ -464,7 +465,8 @@ bool b_wand_mash_error = false;    // Indicates if wand is in a lock-out phase.
  */
 millisDelay ms_blink_sound_timer_1;
 millisDelay ms_blink_sound_timer_2;
-const uint16_t i_blink_sound_timer = 400;
+const uint16_t i_blink_sound_timer_1 = 400;
+const uint16_t i_blink_sound_timer_2 = 1600;
 
 /*
  * A timer to turn on some Neutrona Wand lights when the system is shut down after some inactivity, as a reminder you left your power on to the system.
