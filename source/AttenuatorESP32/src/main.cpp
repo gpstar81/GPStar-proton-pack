@@ -166,7 +166,7 @@ void PreferencesTask(void *parameter) {
     #if defined(DEBUG_SEND_TO_CONSOLE)
     Serial.printf("NVS initialization failed with error: %s\n", esp_err_to_name(err));
     #endif
-    
+
     // If initialization fails, erase and reinitialize NVS.
     debug(F("Erasing and reinitializing NVS..."));
     nvs_flash_erase();
