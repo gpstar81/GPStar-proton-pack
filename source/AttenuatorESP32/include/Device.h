@@ -172,8 +172,8 @@ const char DEVICE_page[] PROGMEM = R"=====(
         alert("Error: Network name is more than 32 characters.");
         return;
       }
-      var ssidRegex = /^[a-zA-Z0-9_]$/;
-      if (ssidRegex.test(wifiName)) {
+      var ssidRegex = /^[a-zA-Z0-9_]*$/;
+      if (!ssidRegex.test(wifiName)) {
         // Let's limit the name to the bare minimum of acceptable characters.
         alert("Error: Network name may only be alphanumeric with underscores.");
         return;
