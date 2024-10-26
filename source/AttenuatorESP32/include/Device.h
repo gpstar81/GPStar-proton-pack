@@ -161,7 +161,9 @@ const char DEVICE_page[] PROGMEM = R"=====(
       }
 
       // Do not allow saving if the new SSID is too short/long, or illegal.
-      var wifiName = getText("wifiName");
+      // This will also remove any spaces from the SSID (for mDNS usage).
+      var wifiName = getText("wifiName").replace(/ /g, '');
+      setValue("wifiName", wifiName); // Write back space-less name.
       if (wifiName.length < 8) {
         alert("Error: Network name must be more than 8 characters.");
         return;
