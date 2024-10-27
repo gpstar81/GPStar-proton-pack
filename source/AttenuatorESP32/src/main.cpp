@@ -289,6 +289,10 @@ void SerialCommsTask(void *parameter) {
       // If at any point this flag is true, we have comms open to the pack.
       // This gets reset upon every bootup (read: re-connection to a pack).
       if(b_notify) {
+        if(!ms_packsync.isRunning()) {
+          // Switch from Standalone to full operation.
+          ms_packsync.start(0);
+        }
         b_comms_open = true;
       }
 
