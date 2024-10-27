@@ -472,7 +472,7 @@ void mainLoop() {
 
     case MODE_ON:
       // Hat light 2 blinking when the Proton Pack ribbon cable has been removed.
-      if(b_pack_alarm == true) {
+      if(b_pack_alarm) {
         if(ms_error_blink.justFinished()) {
           ms_error_blink.start(i_error_blink_delay);
         }
@@ -487,18 +487,19 @@ void mainLoop() {
         if(ms_bargraph.justFinished()) {
           bargraphRampUp();
         }
-        else if(ms_bargraph.isRunning() == false && WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+        else if(!ms_bargraph.isRunning() && WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           // Bargraph idling loop.
           bargraphPowerCheck();
         }
 
         if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
-          if(ms_gun_loop_1.justFinished() && switch_vent.on() == false) {
-            playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects);
-            b_sound_afterlife_idle_2_fade = false;
-
-            if(b_extra_pack_sounds == true) {
+          if(ms_gun_loop_1.justFinished() && !switch_vent.on()) {
+            if(b_extra_pack_sounds) {
               wandSerialSend(W_AFTERLIFE_GUN_LOOP_1);
+            }
+
+            if(AUDIO_DEVICE != A_GPSTAR_AUDIO_ADV) {
+              playEffect(S_AFTERLIFE_WAND_IDLE_1, true);
             }
           }
         }
@@ -2596,10 +2597,19 @@ void soundIdleStart() {
       case SYSTEM_FROZEN_EMPIRE:
       default:
         // Ramp 2 -> Idle 2
-        if(AUDIO_DEVICE != A_GPSTAR_AUDIO_ADV) {
-          ms_gun_loop_1.stop();
-          ms_gun_loop_2.start(i_gun_loop_2);
+        if(b_extra_pack_sounds) {
+          if(b_sound_afterlife_idle_2_fade) {
+            wandSerialSend(W_AFTERLIFE_GUN_RAMP_2_FADE_IN);
+            wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+          }
+          else {
+            wandSerialSend(W_AFTERLIFE_GUN_RAMP_2);
+            wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+          }
         }
+
+        ms_gun_loop_1.stop();
+        ms_gun_loop_2.start(i_gun_loop_2);
 
         if(b_sound_afterlife_idle_2_fade) {
           if(AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
@@ -2607,12 +2617,6 @@ void soundIdleStart() {
           }
           else {
             playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
-          }
-
-          if(b_extra_pack_sounds) {
-            wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
-
-            wandSerialSend(W_AFTERLIFE_GUN_RAMP_2_FADE_IN);
           }
 
           b_sound_afterlife_idle_2_fade = false;
@@ -2623,12 +2627,6 @@ void soundIdleStart() {
           }
           else {
             playEffect(S_AFTERLIFE_WAND_RAMP_2);
-          }
-
-          if(b_extra_pack_sounds) {
-            wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
-
-            wandSerialSend(W_AFTERLIFE_GUN_RAMP_2);
           }
         }
 
@@ -2645,10 +2643,12 @@ void soundIdleStart() {
 
   if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
     if(ms_gun_loop_2.justFinished()) {
-      playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects);
-
       if(b_extra_pack_sounds) {
         wandSerialSend(W_AFTERLIFE_GUN_LOOP_2);
+      }
+
+      if(AUDIO_DEVICE != A_GPSTAR_AUDIO_ADV) {
+        playEffect(S_AFTERLIFE_WAND_IDLE_2, true);
       }
     }
   }
@@ -2681,34 +2681,34 @@ void soundIdleStop() {
       case SYSTEM_AFTERLIFE:
       case SYSTEM_FROZEN_EMPIRE:
       default:
-        if(b_extra_pack_sounds == true) {
-          wandSerialSend(W_AFTERLIFE_RAMP_LOOP_2_STOP);
-        }
-
         if(b_pack_alarm != true) {
           if(WAND_ACTION_STATUS == ACTION_OVERHEATING) {
-            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
-
             if(b_extra_pack_sounds == true) {
               wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT);
             }
+
+            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
           }
           else if(WAND_STATUS != MODE_OFF) {
             // Ramp 2 -> Idle 1
+            if(b_extra_pack_sounds == true) {
+              wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_2);
+            }
+
+            ms_gun_loop_1.start(i_gun_loop_2);
+            ms_gun_loop_2.stop();
+
             if(AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
               playTransitionEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, S_AFTERLIFE_WAND_IDLE_1, true, 5);
             }
             else {
-              ms_gun_loop_1.start(i_gun_loop_2);
-              ms_gun_loop_2.stop();
-
               playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
             }
-
-            if(b_extra_pack_sounds == true) {
-              wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_2);
-            }
           }
+        }
+
+        if(b_extra_pack_sounds == true) {
+          wandSerialSend(W_AFTERLIFE_RAMP_LOOP_2_STOP);
         }
 
         stopEffect(S_AFTERLIFE_WAND_RAMP_2);
@@ -10421,20 +10421,20 @@ void stopAfterLifeSounds() {
 void afterlifeRampSound1() {
   stopAfterLifeSounds();
 
+  if(b_extra_pack_sounds) {
+    wandSerialSend(W_AFTERLIFE_GUN_RAMP_1);
+  }
+
+  ms_gun_loop_1.start(i_gun_loop_1);
+
   if(AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
     playTransitionEffect(S_AFTERLIFE_WAND_RAMP_1, S_AFTERLIFE_WAND_IDLE_1, true, 5);
   }
   else {
-    ms_gun_loop_1.start(i_gun_loop_1);
-
     playEffect(S_AFTERLIFE_WAND_RAMP_1);
   }
 
   b_sound_afterlife_idle_2_fade = false;
-
-  if(b_extra_pack_sounds == true) {
-    wandSerialSend(W_AFTERLIFE_GUN_RAMP_1);
-  }
 }
 
 void resetWhiteLEDBlinkRate() {

@@ -1658,13 +1658,17 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_AFTERLIFE_GUN_LOOP_1:
-      stopEffect(S_AFTERLIFE_WAND_IDLE_1);
-      playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects - i_wand_idle_level);
+      if(AUDIO_DEVICE != A_GPSTAR_AUDIO_ADV) {
+        stopEffect(S_AFTERLIFE_WAND_IDLE_1);
+        playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects - i_wand_idle_level);
+      }
     break;
 
     case W_AFTERLIFE_GUN_LOOP_2:
-      stopEffect(S_AFTERLIFE_WAND_IDLE_2);
-      playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects - i_wand_idle_level);
+      if(AUDIO_DEVICE != A_GPSTAR_AUDIO_ADV) {
+        stopEffect(S_AFTERLIFE_WAND_IDLE_2);
+        playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects - i_wand_idle_level);
+      }
     break;
 
     case W_AFTERLIFE_GUN_RAMP_DOWN_2:
