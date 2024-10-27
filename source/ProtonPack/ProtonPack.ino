@@ -590,10 +590,10 @@ void systemPOST() {
     pack_leds[i_tmp_powercell_led] = getHueAsRGB(POWERCELL, C_MID_BLUE);
 
     if((i_post_powercell_up % 5) == 0) {
-      pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-      pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-      pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-      pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
+      pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, b_cyclotron_haslab_chsv_colour_change ? C_RED : C_WHITE);
+      pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, b_cyclotron_haslab_chsv_colour_change ? C_RED : C_WHITE);
+      pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, b_cyclotron_haslab_chsv_colour_change ? C_RED : C_WHITE);
+      pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, b_cyclotron_haslab_chsv_colour_change ? C_RED : C_WHITE);
       pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_WHITE);
 
       if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
@@ -680,10 +680,10 @@ void systemPOST() {
     //pack_leds[i_post_powercell_down] = getHueAsRGB(POWERCELL, C_BLACK); // Ramp up and ramp away.
 
     if((i_post_powercell_down % 5) == 0) {
-      pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-      pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-      pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-      pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
+      pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, b_cyclotron_haslab_chsv_colour_change ? C_RED : C_WHITE);
+      pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, b_cyclotron_haslab_chsv_colour_change ? C_RED : C_WHITE);
+      pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, b_cyclotron_haslab_chsv_colour_change ? C_RED : C_WHITE);
+      pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, b_cyclotron_haslab_chsv_colour_change ? C_RED : C_WHITE);
       pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_WHITE);
 
       if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
@@ -748,10 +748,10 @@ void systemPOST() {
   }
 
   if(i_post_fade > 0 && ms_delay_post_3.justFinished()) {
-    pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i_post_fade);
-    pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i_post_fade);
-    pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i_post_fade);
-    pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i_post_fade);
+    pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, b_cyclotron_haslab_chsv_colour_change ? C_RED : C_WHITE, i_post_fade);
+    pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, b_cyclotron_haslab_chsv_colour_change ? C_RED : C_WHITE, i_post_fade);
+    pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, b_cyclotron_haslab_chsv_colour_change ? C_RED : C_WHITE, i_post_fade);
+    pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, b_cyclotron_haslab_chsv_colour_change ? C_RED : C_WHITE, i_post_fade);
     pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_WHITE, i_post_fade);
 
     if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
@@ -940,8 +940,10 @@ void packStartup(bool firstStart) {
     stopEffect(S_PACK_RIBBON_ALARM_1);
     stopEffect(S_ALARM_LOOP);
     stopEffect(S_RIBBON_CABLE_START);
+    stopEffect(S_PACK_SHUTDOWN); // This is a long track which may still be playing.
     stopEffect(S_PACK_SHUTDOWN_AFTERLIFE_ALT); // This is a long track which may still be playing.
     stopEffect(S_FROZEN_EMPIRE_BRASS_SHUTDOWN); // This is a long track which may still be playing.
+    stopEffect(S_FROZEN_EMPIRE_PACK_SHUTDOWN); // This is a long track which may still be playing.
 
     switch(SYSTEM_YEAR) {
       case SYSTEM_1984:
@@ -1053,20 +1055,12 @@ void packShutdown() {
     ms_cyclotron_ring.start(0);
   }
 
-  switch(SYSTEM_YEAR) {
-    case SYSTEM_1984:
-    case SYSTEM_1989:
-    case SYSTEM_AFTERLIFE:
-    case SYSTEM_FROZEN_EMPIRE:
-    default:
-      stopEffect(S_PACK_RECOVERY);
-      stopEffect(S_PACK_RIBBON_ALARM_1);
-      stopEffect(S_ALARM_LOOP);
-      stopEffect(S_RIBBON_CABLE_START);
-    break;
-  }
+  stopEffect(S_PACK_RECOVERY);
+  stopEffect(S_PACK_RIBBON_ALARM_1);
+  stopEffect(S_ALARM_LOOP);
+  stopEffect(S_RIBBON_CABLE_START);
 
-  if(b_wand_firing == true) {
+  if(b_wand_firing) {
     // Preemptively stop firing.
     wandStoppedFiring();
     cyclotronSpeedRevert();
@@ -1099,9 +1093,9 @@ void packShutdown() {
 
   stopEffect(S_SHUTDOWN);
   stopEffect(S_STEAM_LOOP);
-  stopEffect(S_SLIME_REFILL);
 
   if(STREAM_MODE == SLIME) {
+    stopEffect(S_SLIME_REFILL);
     stopEffect(S_PACK_SLIME_TANK_LOOP);
   }
 
@@ -1113,42 +1107,14 @@ void packShutdown() {
     stopEffect(S_MESON_IDLE_LOOP);
   }
 
-  if(SYSTEM_YEAR == SYSTEM_1989) {
-    stopEffect(S_GB2_PACK_START);
-    stopEffect(S_GB2_PACK_LOOP);
-    stopEffect(S_GB2_PACK_OFF);
-  }
-
-  if(SYSTEM_YEAR == SYSTEM_1984) {
-    stopEffect(S_PACK_SHUTDOWN);
-    stopEffect(S_GB1_1984_PACK_LOOP);
-    stopEffect(S_GB1_1984_BOOT_UP);
-  }
-
-  if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-    if(b_powercell_sound_loop) {
-      stopEffect(S_POWERCELL); // Just in case a shutdown happens and not a ramp down.
-      b_powercell_sound_loop = false;
-    }
-
-    stopEffect(S_BOOTUP);
-    stopEffect(S_PACK_SHUTDOWN_AFTERLIFE_ALT);
-
-    if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-      stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
-      stopEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP);
-      stopEffect(S_FROZEN_EMPIRE_BRASS_SHUTDOWN);
-    }
-    else {
-      stopEffect(S_AFTERLIFE_PACK_STARTUP);
-      stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
-    }
+  if(b_powercell_sound_loop) {
+    stopEffect(S_POWERCELL); // Just in case a shutdown happens and not a ramp down.
+    b_powercell_sound_loop = false;
   }
 
   // Need to play the 'close' SFX if we already played the open one.
-  if(b_overheating == true) {
+  if(b_overheating) {
     stopEffect(S_SLIME_EMPTY);
-
     stopEffect(S_VENT_OPEN);
 
     if(STREAM_MODE != SLIME) {
@@ -1162,13 +1128,13 @@ void packShutdown() {
       playEffect(S_STEAM_LOOP_FADE_OUT);
     }
   }
-  else if(b_venting == true) {
+  else if(b_venting) {
     stopEffect(S_SLIME_EMPTY);
     stopEffect(S_QUICK_VENT_OPEN);
     playEffect(S_QUICK_VENT_CLOSE);
   }
 
-  if(b_alarm != true) {
+  if(!b_alarm) {
     switch(SYSTEM_YEAR) {
       case SYSTEM_1984:
         playEffect(S_PACK_SHUTDOWN);
@@ -1203,6 +1169,31 @@ void packShutdown() {
   }
   else {
     playEffect(S_SHUTDOWN);
+  }
+
+  switch(SYSTEM_YEAR) {
+    case SYSTEM_1984:
+      stopEffect(S_GB1_1984_BOOT_UP);
+      stopEffect(S_GB1_1984_PACK_LOOP);
+    break;
+
+    case SYSTEM_1989:
+      stopEffect(S_GB2_PACK_START);
+      stopEffect(S_GB2_PACK_LOOP);
+    break;
+
+    case SYSTEM_AFTERLIFE:
+    default:
+      stopEffect(S_BOOTUP);
+      stopEffect(S_AFTERLIFE_PACK_STARTUP);
+      stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
+    break;
+
+    case SYSTEM_FROZEN_EMPIRE:
+      stopEffect(S_BOOTUP);
+      stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
+      stopEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP);
+    break;
   }
 }
 
