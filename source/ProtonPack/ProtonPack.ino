@@ -260,6 +260,11 @@ void loop() {
         // Turn on the status indicator LED.
         digitalWriteFast(PACK_STATUS_LED_PIN, HIGH);
 
+        if(PACK_ACTION_STATE == ACTION_IDLE && ms_delay_post.justFinished()) {
+          // Brass Pack shutdown steam effect.
+          playEffect(PROGMEM_READU16(sfx_smoke[random(5)]));
+        }
+
         if(b_pack_on == true) {
           b_2021_ramp_up = false;
           b_2021_ramp_up_start = false;
@@ -295,7 +300,7 @@ void loop() {
           if(b_spectral_lights_on != true) {
             if(ms_fadeout.justFinished()) {
               if(fadeOutCyclotron() == true) {
-                ms_fadeout.start(50);
+                ms_fadeout.start(i_fadeout_duration);
               }
               else {
                 ms_fadeout.stop();
@@ -525,6 +530,7 @@ void loop() {
 
     switch(PACK_ACTION_STATE) {
       case ACTION_IDLE:
+      default:
         // Do nothing.
       break;
 
@@ -902,6 +908,9 @@ void packStartup(bool firstStart) {
   PACK_STATE = MODE_ON;
   PACK_ACTION_STATE = ACTION_IDLE;
 
+  // Stop the Brass Pack shutdown timer in case it's running.
+  ms_delay_post.stop();
+
   if(ribbonCableAttached() != true) {
     if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
       ms_cyclotron.start(0);
@@ -932,7 +941,7 @@ void packStartup(bool firstStart) {
     stopEffect(S_ALARM_LOOP);
     stopEffect(S_RIBBON_CABLE_START);
     stopEffect(S_PACK_SHUTDOWN_AFTERLIFE_ALT); // This is a long track which may still be playing.
-    stopEffect(S_FROZEN_EMPIRE_SHUTDOWN); // This is a long track which may still be playing.
+    stopEffect(S_FROZEN_EMPIRE_BRASS_SHUTDOWN); // This is a long track which may still be playing.
 
     switch(SYSTEM_YEAR) {
       case SYSTEM_1984:
@@ -1128,7 +1137,7 @@ void packShutdown() {
     if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
       stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
       stopEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP);
-      stopEffect(S_FROZEN_EMPIRE_SHUTDOWN);
+      stopEffect(S_FROZEN_EMPIRE_BRASS_SHUTDOWN);
     }
     else {
       stopEffect(S_AFTERLIFE_PACK_STARTUP);
@@ -1176,7 +1185,15 @@ void packShutdown() {
 
       case SYSTEM_FROZEN_EMPIRE:
         if(b_brass_pack_sound_loop) {
-          playEffect(S_FROZEN_EMPIRE_SHUTDOWN);
+          if(AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
+            playTransitionEffect(S_FROZEN_EMPIRE_BRASS_SHUTDOWN, PROGMEM_READU16(sfx_smoke[random(5)]));
+          }
+          else {
+            // Start a timer to play the steam effect.
+            ms_delay_post.start(i_gbfe_brass_shutdown_delay);
+
+            playEffect(S_FROZEN_EMPIRE_BRASS_SHUTDOWN);
+          }
         }
         else {
           playEffect(S_FROZEN_EMPIRE_PACK_SHUTDOWN);
@@ -3380,30 +3397,8 @@ void packVenting() {
       playEffect(S_SLIME_REFILL, true);
     }
     else {
-      uint8_t i_smoke_random = random(5);
-
-      switch(i_smoke_random) {
-        case 4:
-          playEffect(S_VENT_SMOKE_4, false, i_volume_effects, true, 120);
-        break;
-
-        case 3:
-          playEffect(S_VENT_SMOKE_3, false, i_volume_effects, true, 120);
-        break;
-
-        case 2:
-          playEffect(S_VENT_SMOKE_2, false, i_volume_effects, true, 120);
-        break;
-
-        case 1:
-          playEffect(S_VENT_SMOKE_1, false, i_volume_effects, true, 120);
-        break;
-
-        case 0:
-        default:
-          playEffect(S_VENT_SMOKE, false, i_volume_effects, true, 120);
-        break;
-      }
+      // Play one of the random steam burst effects.
+      playEffect(PROGMEM_READU16(sfx_smoke[random(5)]), false, i_volume_effects, true, 120);
 
       // Fade in the steam release loop.
       playEffect(S_STEAM_LOOP, true, i_volume_effects, true, 1000);
@@ -3519,30 +3514,8 @@ void cyclotronOverheating() {
     else {
       playEffect(S_AIR_RELEASE);
 
-      uint8_t i_smoke_random = random(5);
-
-      switch(i_smoke_random) {
-        case 4:
-          playEffect(S_VENT_SMOKE_4, false, i_volume_effects, true, 120);
-        break;
-
-        case 3:
-          playEffect(S_VENT_SMOKE_3, false, i_volume_effects, true, 120);
-        break;
-
-        case 2:
-          playEffect(S_VENT_SMOKE_2, false, i_volume_effects, true, 120);
-        break;
-
-        case 1:
-          playEffect(S_VENT_SMOKE_1, false, i_volume_effects, true, 120);
-        break;
-
-        case 0:
-        default:
-          playEffect(S_VENT_SMOKE, false, i_volume_effects, true, 120);
-        break;
-      }
+      // Play one of the random steam burst effects.
+      playEffect(PROGMEM_READU16(sfx_smoke[random(5)]), false, i_volume_effects, true, 120);
 
       // Fade in the steam release loop.
       playEffect(S_STEAM_LOOP, true, i_volume_effects, true, 1000);
@@ -4772,7 +4745,7 @@ void wandStopFiringSounds() {
     case CTS_FIRING_1984:
       STATUS_CTS = CTS_NOT_FIRING;
 
-      if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+      if(AUDIO_DEVICE == A_WAV_TRIGGER) {
         stopEffect(S_CROSS_STREAMS_START);
         stopEffect(S_CROSS_STREAMS_END);
       }
@@ -4785,7 +4758,7 @@ void wandStopFiringSounds() {
     case CTS_FIRING_2021:
       STATUS_CTS = CTS_NOT_FIRING;
 
-      if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+      if(AUDIO_DEVICE == A_WAV_TRIGGER) {
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
       }
@@ -4915,30 +4888,8 @@ void cyclotronSwitchPlateLEDs() {
 
     playEffect(S_MODE_SWITCH);
 
-    uint8_t i_smoke_random = random(5);
-
-    switch(i_smoke_random) {
-      case 4:
-        playEffect(S_VENT_SMOKE_4, false, i_volume_effects, true, 120);
-      break;
-
-      case 3:
-        playEffect(S_VENT_SMOKE_3, false, i_volume_effects, true, 120);
-      break;
-
-      case 2:
-        playEffect(S_VENT_SMOKE_2, false, i_volume_effects, true, 120);
-      break;
-
-      case 1:
-        playEffect(S_VENT_SMOKE_1, false, i_volume_effects, true, 120);
-      break;
-
-      case 0:
-      default:
-        playEffect(S_VENT_SMOKE, false, i_volume_effects, true, 120);
-      break;
-    }
+    // Play one of the random steam burst effects.
+    playEffect(PROGMEM_READU16(sfx_smoke[random(5)]), false, i_volume_effects, true, 120);
 
     // Play some spark sounds if the pack is running and the lid is removed.
     if(PACK_STATE == MODE_ON) {

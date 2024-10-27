@@ -331,6 +331,7 @@ bool b_overheating = false;
 bool b_venting = false;
 millisDelay ms_smoke_timer;
 millisDelay ms_smoke_on;
+const uint16_t sfx_smoke[5] PROGMEM = { S_VENT_SMOKE, S_VENT_SMOKE_1, S_VENT_SMOKE_2, S_VENT_SMOKE_3, S_VENT_SMOKE_4 };
 const uint16_t i_smoke_timer[5] PROGMEM = { i_smoke_timer_level_1, i_smoke_timer_level_2, i_smoke_timer_level_3, i_smoke_timer_level_4, i_smoke_timer_level_5 };
 const uint16_t i_smoke_on_time[5] PROGMEM = { i_smoke_on_time_level_1, i_smoke_on_time_level_2, i_smoke_on_time_level_3, i_smoke_on_time_level_4, i_smoke_on_time_level_5 };
 bool b_smoke_continuous_level[5] = { b_smoke_continuous_level_1, b_smoke_continuous_level_2, b_smoke_continuous_level_3, b_smoke_continuous_level_4, b_smoke_continuous_level_5 };
@@ -417,7 +418,7 @@ millisDelay ms_idle_fire_fade; // Used for fading the Afterlife idling sound wit
  * Rotary encoder for volume control
  */
 millisDelay ms_rotary_encoder; // Timer for slowing the rotary encoder spin.
-const uint8_t i_rotary_encoder_delay = 50; // Time to delay switching firing modes.
+const uint8_t i_rotary_encoder_delay = 50; // Time to delay adjusting volume.
 static uint8_t prev_next_code = 0;
 static uint16_t store = 0;
 
@@ -428,7 +429,7 @@ bool b_pack_post_finish = false;
 uint8_t i_post_powercell_up = 0;
 uint8_t i_post_powercell_down = 0;
 uint8_t i_post_fade = 255;
-millisDelay ms_delay_post;
+millisDelay ms_delay_post; // Also used for Brass Pack shutdown steam effect.
 millisDelay ms_delay_post_2;
 millisDelay ms_delay_post_3;
 
@@ -473,6 +474,8 @@ bool b_pack_on = false;
 bool b_pack_shutting_down = false;
 bool b_spectral_lights_on = false;
 bool b_fade_out = false;
+const uint16_t i_gbfe_brass_shutdown_delay = 8796;
+const uint8_t i_fadeout_duration = 50;
 millisDelay ms_fadeout;
 
 /*

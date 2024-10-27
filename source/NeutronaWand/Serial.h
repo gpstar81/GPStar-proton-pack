@@ -723,7 +723,7 @@ void checkPack() {
             case 4:
               STREAM_MODE = MESON;
 
-              if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
+              if(AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
                 // Tell GPStar Audio we need short audio mode.
                 audio.gpstarShortTrackOverload(false);
               }
