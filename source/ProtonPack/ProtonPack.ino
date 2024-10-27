@@ -568,6 +568,8 @@ void systemPOST() {
 
   uint8_t i_tmp_powercell_led = i_post_powercell_up;
 
+  colours c_outer_cyclotron_colour = ((i_cyclotron_leds == HASLAB_CYCLOTRON_LED_COUNT && !b_cyclotron_haslab_chsv_colour_change) ? C_WHITE : C_RED);
+
   if(i_post_powercell_up < i_powercell_leds && ms_delay_post.justFinished()) {
     if(b_powercell_invert == true) {
       if(i_powercell_leds == HASLAB_POWERCELL_LED_COUNT) {
@@ -590,10 +592,10 @@ void systemPOST() {
     pack_leds[i_tmp_powercell_led] = getHueAsRGB(POWERCELL, C_MID_BLUE);
 
     if((i_post_powercell_up % 5) == 0) {
-      pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, b_cyclotron_haslab_chsv_colour_change ? C_RED : C_WHITE);
-      pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, b_cyclotron_haslab_chsv_colour_change ? C_RED : C_WHITE);
-      pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, b_cyclotron_haslab_chsv_colour_change ? C_RED : C_WHITE);
-      pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, b_cyclotron_haslab_chsv_colour_change ? C_RED : C_WHITE);
+      pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, c_outer_cyclotron_colour);
+      pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, c_outer_cyclotron_colour);
+      pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, c_outer_cyclotron_colour);
+      pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, c_outer_cyclotron_colour);
       pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_WHITE);
 
       if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
@@ -680,10 +682,10 @@ void systemPOST() {
     //pack_leds[i_post_powercell_down] = getHueAsRGB(POWERCELL, C_BLACK); // Ramp up and ramp away.
 
     if((i_post_powercell_down % 5) == 0) {
-      pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, b_cyclotron_haslab_chsv_colour_change ? C_RED : C_WHITE);
-      pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, b_cyclotron_haslab_chsv_colour_change ? C_RED : C_WHITE);
-      pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, b_cyclotron_haslab_chsv_colour_change ? C_RED : C_WHITE);
-      pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, b_cyclotron_haslab_chsv_colour_change ? C_RED : C_WHITE);
+      pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, c_outer_cyclotron_colour);
+      pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, c_outer_cyclotron_colour);
+      pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, c_outer_cyclotron_colour);
+      pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, c_outer_cyclotron_colour);
       pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_WHITE);
 
       if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
@@ -748,10 +750,10 @@ void systemPOST() {
   }
 
   if(i_post_fade > 0 && ms_delay_post_3.justFinished()) {
-    pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, b_cyclotron_haslab_chsv_colour_change ? C_RED : C_WHITE, i_post_fade);
-    pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, b_cyclotron_haslab_chsv_colour_change ? C_RED : C_WHITE, i_post_fade);
-    pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, b_cyclotron_haslab_chsv_colour_change ? C_RED : C_WHITE, i_post_fade);
-    pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, b_cyclotron_haslab_chsv_colour_change ? C_RED : C_WHITE, i_post_fade);
+    pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, c_outer_cyclotron_colour, i_post_fade);
+    pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, c_outer_cyclotron_colour, i_post_fade);
+    pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, c_outer_cyclotron_colour, i_post_fade);
+    pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, c_outer_cyclotron_colour, i_post_fade);
     pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_WHITE, i_post_fade);
 
     if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
@@ -1344,6 +1346,89 @@ void checkSwitches() {
 
   cyclotronSwitchPlateLEDs();
 
+  if(switch_cyclotron_lid.isReleased()) {
+    // Play sounds when lid is removed.
+    stopEffect(S_VENT_SMOKE);
+    stopEffect(S_VENT_SMOKE_1);
+    stopEffect(S_VENT_SMOKE_2);
+    stopEffect(S_VENT_SMOKE_3);
+    stopEffect(S_VENT_SMOKE_4);
+    stopEffect(S_MODE_SWITCH);
+    stopEffect(S_CLICK);
+    stopEffect(S_SPARKS_LOOP);
+    stopEffect(S_BEEPS_BARGRAPH);
+
+    playEffect(S_MODE_SWITCH);
+
+    // Play one of the random steam burst effects.
+    playEffect(PROGMEM_READU16(sfx_smoke[random(5)]), false, i_volume_effects, true, 120);
+
+    // Play some spark sounds if the pack is running and the lid is removed.
+    if(PACK_STATE == MODE_ON) {
+      playEffect(S_SPARKS_LOOP);
+    }
+    else {
+      // Make sure we reset the cyclotron LED status if not in the EEPROM LED menu.
+      if(!b_spectral_lights_on) {
+        b_reset_start_led = false;
+      }
+    }
+  }
+
+  if(switch_cyclotron_lid.isPressed()) {
+    // Play sounds when lid is mounted.
+    stopEffect(S_CLICK);
+    stopEffect(S_VENT_DRY);
+
+    playEffect(S_CLICK);
+
+    playEffect(S_VENT_DRY);
+
+    // Play some spark sounds if the pack is running and the lid is put back on.
+    if(PACK_STATE == MODE_ON) {
+      playEffect(S_SPARKS_LOOP);
+    }
+    else {
+      // Make sure we reset the cyclotron LED status if not in the EEPROM LED menu.
+      if(!b_spectral_lights_on) {
+        b_reset_start_led = false;
+      }
+    }
+  }
+
+  if(switch_cyclotron_lid.getState() == LOW) {
+    if(!b_cyclotron_lid_on) {
+      // The Cyclotron Lid is now on.
+      b_cyclotron_lid_on = true;
+
+      // Tell the connected devices.
+      packSerialSend(P_CYCLOTRON_LID_ON);
+      serial1Send(A_CYCLOTRON_LID_ON);
+
+      // Turn off Inner Cyclotron LEDs.
+      innerCyclotronCakeOff();
+      innerCyclotronCavityOff();
+    }
+  }
+  else {
+    if(b_cyclotron_lid_on) {
+      // The Cyclotron Lid is now off.
+      b_cyclotron_lid_on = false;
+
+      // Make sure we clear the Outer Cyclotron LED states.
+      cyclotronLidLedsOff();
+
+      // Tell the connected devices.
+      packSerialSend(P_CYCLOTRON_LID_OFF);
+      serial1Send(A_CYCLOTRON_LID_OFF);
+
+      // Make sure the Inner Cyclotron turns on if we are in the EEPROM LED menu.
+      if(b_spectral_lights_on) {
+        spectralLightsOn();
+      }
+    }
+  }
+
   // Cyclotron direction toggle switch.
   if(switch_cyclotron_direction.isPressed() || switch_cyclotron_direction.isReleased()) {
     stopEffect(S_BEEPS);
@@ -1351,7 +1436,7 @@ void checkSwitches() {
     stopEffect(S_VOICE_CYCLOTRON_CLOCKWISE);
     stopEffect(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
 
-    if(b_clockwise == true) {
+    if(b_clockwise) {
       b_clockwise = false;
 
       playEffect(S_BEEPS_ALT);
@@ -1376,7 +1461,7 @@ void checkSwitches() {
     stopEffect(S_VOICE_SMOKE_DISABLED);
     stopEffect(S_VOICE_SMOKE_ENABLED);
 
-    if(b_smoke_enabled == true) {
+    if(b_smoke_enabled) {
       b_smoke_enabled = false;
 
       stopEffect(S_VENT_DRY);
@@ -2784,7 +2869,7 @@ void cyclotron2021(uint16_t iRampDelay) {
       return;
     }
 
-    if(i_cyclotron_led_value[i_curr_cyclotron_position] == 0 && i_cyclotron_matrix_led > 0) {
+    if(i_cyclotron_led_value[i_curr_cyclotron_position] == 0 && i_cyclotron_matrix_led > 0 && b_cyclotron_lid_on) {
       r_cyclotron_led_fade_in[i_curr_cyclotron_position].go(0);
       r_cyclotron_led_fade_in[i_curr_cyclotron_position].go(i_brightness, iRampDelay, CIRCULAR_IN);
     }
@@ -2925,7 +3010,7 @@ void cyclotron1984(uint16_t iRampDelay) {
   if(ms_cyclotron.justFinished()) {
     iRampDelay = iRampDelay / i_cyclotron_multiplier;
 
-    if(b_2021_ramp_up == true) {
+    if(b_2021_ramp_up) {
       if(r_outer_cyclotron_ramp.isFinished()) {
         b_2021_ramp_up = false;
 
@@ -2942,7 +3027,7 @@ void cyclotron1984(uint16_t iRampDelay) {
         i_vibration_level = i_vibration_idle_level_1984;
       }
     }
-    else if(b_2021_ramp_down == true) {
+    else if(b_2021_ramp_down) {
       if(r_outer_cyclotron_ramp.isFinished()) {
         b_2021_ramp_down = false;
       }
@@ -2961,7 +3046,7 @@ void cyclotron1984(uint16_t iRampDelay) {
       ms_cyclotron.start(iRampDelay);
     }
 
-    if(b_wand_firing != true && b_overheating != true && b_alarm != true) {
+    if(!b_wand_firing && !b_overheating && !b_alarm) {
       vibrationPack(i_vibration_level);
     }
 
@@ -2969,8 +3054,10 @@ void cyclotron1984(uint16_t iRampDelay) {
       return;
     }
 
-    if(b_1984_led_start != true) {
-      cyclotron84LightOff(i_led_cyclotron);
+    if(!b_1984_led_start) {
+      if(b_cyclotron_lid_on) {
+        cyclotron84LightOff(i_led_cyclotron);
+      }
     }
     else {
       b_1984_led_start = false;
@@ -2984,7 +3071,9 @@ void cyclotron1984(uint16_t iRampDelay) {
 
     i_led_cyclotron = i_cyclotron_led_start + cyclotron84LookupTable(i_1984_counter);
 
-    cyclotron84LightOn(i_led_cyclotron);
+    if(b_cyclotron_lid_on) {
+      cyclotron84LightOn(i_led_cyclotron);
+    }
   }
 }
 
@@ -3876,7 +3965,7 @@ void cyclotronNoCable() {
 
 // Turns off the LEDs in the Cyclotron Lid only.
 void cyclotronLidLedsOff() {
-  if(b_fade_out != true) {
+  if(!b_fade_out) {
     uint8_t i_cyclotron_leds_total = i_pack_num_leds - i_nfilter_jewel_leds - i_cyclotron_led_start;
 
     for(uint8_t i = 0; i < i_cyclotron_leds_total; i++) {
@@ -3910,11 +3999,7 @@ void resetCyclotronState() {
   }
 
   // Tell the Inner Cyclotron to turn off the LEDs.
-  if(b_cyclotron_lid_on == true) {
-    innerCyclotronCakeOff();
-    innerCyclotronCavityOff();
-  }
-  else if(b_alarm != true || PACK_STATE == MODE_OFF) {
+  if(b_cyclotron_lid_on || (!b_alarm || PACK_STATE == MODE_OFF)) {
     innerCyclotronCakeOff();
     innerCyclotronCavityOff();
   }
@@ -4865,86 +4950,6 @@ void packAlarm() {
 
 // LEDs for the 1984/2021 and vibration switches.
 void cyclotronSwitchPlateLEDs() {
-  if(switch_cyclotron_lid.isReleased()) {
-    // Play sounds when lid is removed.
-    stopEffect(S_VENT_SMOKE);
-    stopEffect(S_VENT_SMOKE_1);
-    stopEffect(S_VENT_SMOKE_2);
-    stopEffect(S_VENT_SMOKE_3);
-    stopEffect(S_VENT_SMOKE_4);
-    stopEffect(S_MODE_SWITCH);
-    stopEffect(S_CLICK);
-    stopEffect(S_SPARKS_LOOP);
-    stopEffect(S_BEEPS_BARGRAPH);
-
-    playEffect(S_MODE_SWITCH);
-
-    // Play one of the random steam burst effects.
-    playEffect(PROGMEM_READU16(sfx_smoke[random(5)]), false, i_volume_effects, true, 120);
-
-    // Play some spark sounds if the pack is running and the lid is removed.
-    if(PACK_STATE == MODE_ON) {
-      playEffect(S_SPARKS_LOOP);
-    }
-    else {
-      // Make sure we reset the cyclotron LED status if not in the EEPROM LED menu.
-      if(b_spectral_lights_on != true) {
-        b_reset_start_led = false;
-      }
-    }
-  }
-
-  if(switch_cyclotron_lid.isPressed()) {
-    // Play sounds when lid is mounted.
-    stopEffect(S_CLICK);
-    stopEffect(S_VENT_DRY);
-
-    playEffect(S_CLICK);
-
-    playEffect(S_VENT_DRY);
-
-    // Play some spark sounds if the pack is running and the lid is put back on.
-    if(PACK_STATE == MODE_ON) {
-      playEffect(S_SPARKS_LOOP);
-    }
-    else {
-      // Make sure we reset the cyclotron LED status if not in the EEPROM LED menu.
-      if(b_spectral_lights_on != true) {
-        b_reset_start_led = false;
-      }
-    }
-  }
-
-  if(switch_cyclotron_lid.getState() == LOW) {
-    if(b_cyclotron_lid_on != true) {
-      // The Cyclotron Lid is now on.
-      b_cyclotron_lid_on = true;
-
-      // Tell the connected devices.
-      packSerialSend(P_CYCLOTRON_LID_ON);
-      serial1Send(A_CYCLOTRON_LID_ON);
-
-      // Turn off Inner Cyclotron LEDs.
-      innerCyclotronCakeOff();
-      innerCyclotronCavityOff();
-    }
-  }
-  else {
-    if(b_cyclotron_lid_on == true) {
-      // The Cyclotron Lid is now off.
-      b_cyclotron_lid_on = false;
-
-      // Tell the connected devices.
-      packSerialSend(P_CYCLOTRON_LID_OFF);
-      serial1Send(A_CYCLOTRON_LID_OFF);
-
-      // Make sure the Inner Cyclotron turns on if we are in the EEPROM LED menu.
-      if(b_spectral_lights_on == true) {
-        spectralLightsOn();
-      }
-    }
-  }
-
   bool b_brass_pack_effect_active = b_brass_pack_sound_loop || (SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && (b_2021_ramp_down || b_alarm || b_wand_mash_lockout) && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM));
 
   if(b_cyclotron_lid_on != true && !b_brass_pack_effect_active) {
