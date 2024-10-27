@@ -116,6 +116,10 @@ bool checkPack() {
         // If the timer is still running and Pack is connected, consider any request as proof of life.
         ms_packsync.restart();
       }
+      else if(!ms_packsync.isRunning()) {
+        // If the timer isn't running but we have serial data, switch to full operation.
+        ms_packsync.start(0);
+      }
 
       // Determine the type of packet which was sent by the serial1 device.
       switch(i_packet_id) {
