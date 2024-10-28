@@ -38,13 +38,13 @@
  *
  * https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/coexist.html
  */
-#include <AsyncJson.h>
-#include <ElegantOTA.h>
-#include <ESPAsyncWebServer.h>
 #include <Preferences.h>
 #include <WiFi.h>
 #include <WiFiAP.h>
 #include <ESPmDNS.h>
+#include <AsyncJson.h>
+#include <ESPAsyncWebServer.h>
+#include <ElegantOTA.h>
 
 // Preferences for SSID and AP password, which will use a "credentials" namespace.
 Preferences preferences;
