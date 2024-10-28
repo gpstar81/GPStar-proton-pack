@@ -10,6 +10,14 @@
 		{
 			"name": "AttenuatorESP32",
 			"path": "AttenuatorESP32"
+		},
+		{
+			"name": "ProtonPack",
+			"path": "ProtonPack"
+		},
+		{
+			"name": "NeutronaWand",
+			"path": "NeutronaWand"
 		}
 	],
 	"settings": {}

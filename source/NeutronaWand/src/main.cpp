@@ -25,6 +25,9 @@
  * https://github.com/gpstar81/haslab-proton-pack/releases/tag/V2.2.0
  */
 
+// Required for PlatformIO
+#include <Arduino.h>
+
 #if defined(__AVR_ATmega2560__)
   #define GPSTAR_NEUTRONA_WAND_PCB
 #endif
@@ -65,6 +68,77 @@
 #include "Colours.h"
 #include "Audio.h"
 #include "Preferences.h"
+
+// Forward declarations, needed until code can be refactored.
+void afterlifeRampSound1();
+void altWingButtonCheck();
+void bargraphClearAll();
+void bargraphClearAlt();
+void bargraphFull();
+uint8_t bargraphLookupTable(uint8_t index);
+void bargraphPowerCheck();
+void bargraphPowerCheck2021Alt(bool b_override);
+void bargraphRampFiring();
+void bargraphRampUp();
+void bargraphRedraw();
+void bargraphSuperHeroRampFiringAnimation();
+void bargraphYearModeUpdate();
+void barrelLightsOff();
+void changeIonArmSwitchState(bool state);
+void checkMenuVibration();
+void checkRotaryEncoder();
+void checkSwitches();
+void cyclotronSpeedUp(uint8_t speed);
+void fireControlCheck();
+void fireEffectEnd();
+void firePulseEffect();
+void fireStreamEffect(CRGB c_colour);
+void fireStreamEnd(CRGB c_colour);
+void fireStreamStart(CRGB c_colour);
+SYSTEM_YEARS getNeutronaWandYearMode();
+SYSTEM_YEARS getSystemYearMode();
+void hatLightControl();
+void mainLoop();
+void modeActivate();
+void modeError();
+void modeFireStart();
+void modeFireStop();
+void modeFireStopSounds();
+void modeFiring();
+void modePulseStart();
+void postActivation();
+void prepBargraphRampDown();
+void prepBargraphRampUp();
+void resetBargraphSpeed();
+void settingsBlinkingLights();
+void soundIdleStart();
+void soundBeepLoop();
+void soundBeepLoopStop();
+void soundIdleLoop(bool fadeIn);
+void soundIdleLoopStop(bool stopAlts);
+void soundIdleStop();
+void stopOverheatBeepWarnings();
+void streamModeCheck();
+bool switchBarrel();
+void switchLoops();
+void updatePackPowerLevel();
+void vibrationOff();
+void vibrationSetting();
+void vibrationWand(uint8_t level);
+bool vgModeCheck();
+void wandBargraphControl(uint8_t i_t_level);
+void wandBarrelHeatDown();
+void wandBarrelHeatUp();
+void wandBarrelLightsOff();
+void wandBarrelPreHeatUp();
+void wandBarrelSpectralCustomConfigOn();
+void wandExitEEPROMMenu();
+void wandExitMenu();
+void wandHeatUp();
+void wandLightsOff();
+void wandLightsOffMenuSystem();
+void wandOff();
+void wandVentStateCheck();
 
 void setup() {
   Serial.begin(9600); // Standard serial (USB) console.
