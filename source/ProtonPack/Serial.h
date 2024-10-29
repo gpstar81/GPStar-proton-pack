@@ -994,7 +994,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
         break;
         default:
           // Plays the alarm loop as heard on the wand.
-          stopSmashErrorSounds();
+          stopMashErrorSounds();
           playEffect(S_SMASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
         break;
       }
@@ -1628,6 +1628,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_AFTERLIFE_GUN_RAMP_1:
+      wandExtraSoundsStop();
+
       if(AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
         playTransitionEffect(S_AFTERLIFE_WAND_RAMP_1, S_AFTERLIFE_WAND_IDLE_1, true, 5, i_volume_effects - i_wand_idle_level);
       }
@@ -1645,6 +1647,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         stopEffect(S_AFTERLIFE_WAND_RAMP_2);
         playEffect(S_AFTERLIFE_WAND_RAMP_2, false, i_volume_effects - i_wand_idle_level);
       }
+
+      stopEffect(S_AFTERLIFE_WAND_RAMP_1);
+      stopEffect(S_AFTERLIFE_WAND_IDLE_1);
+      stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
+      stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
+      stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
     break;
 
     case W_AFTERLIFE_GUN_RAMP_2_FADE_IN:
@@ -1655,6 +1663,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
         playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, false, i_volume_effects - i_wand_idle_level);
       }
+
+      stopEffect(S_AFTERLIFE_WAND_RAMP_1);
+      stopEffect(S_AFTERLIFE_WAND_IDLE_1);
+      stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
+      stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
+      stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
     break;
 
     case W_AFTERLIFE_GUN_LOOP_1:
@@ -1776,7 +1790,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
         default:
           // Plays the alarm loop as heard on the wand.
-          stopSmashErrorSounds();
+          stopMashErrorSounds();
           playEffect(S_SMASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
         break;
       }

@@ -1049,7 +1049,7 @@ void packShutdown() {
   PACK_STATE = MODE_OFF;
   PACK_ACTION_STATE = ACTION_IDLE;
 
-  if(b_wand_mash_lockout) {
+  if(b_wand_mash_lockout || ms_mash_lockout.isRunning()) {
     b_wand_mash_lockout = false;
     ms_mash_lockout.stop();
     ms_powercell.start(0);
@@ -1231,11 +1231,9 @@ void packOffReset() {
   }
 
   // Reset the Power Cell timer.
-  ms_powercell.stop();
   ms_powercell.start(i_powercell_delay);
 
   // Reset the Cyclotron LED switch timer.
-  ms_cyclotron_switch_led.stop();
   ms_cyclotron_switch_led.start(i_cyclotron_switch_led_delay);
 
   // Need to reset the Cyclotron timers.
@@ -4853,7 +4851,7 @@ void wandStopFiringSounds() {
   b_sound_firing_alt_trigger = false;
 }
 
-void stopSmashErrorSounds() {
+void stopMashErrorSounds() {
   // Stop GB:FE button-smash sounds.
   stopEffect(S_FROZEN_EMPIRE_PACK_FREEZE_STOP);
   stopEffect(S_STASIS_IDLE_LOOP);
@@ -5394,19 +5392,18 @@ void wandExtraSoundsBeepLoopStop(bool stopNaturally) {
 void wandExtraSoundsStop() {
   stopEffect(S_AFTERLIFE_WAND_RAMP_1);
   stopEffect(S_AFTERLIFE_WAND_IDLE_1);
-
   stopEffect(S_AFTERLIFE_WAND_RAMP_2);
   stopEffect(S_AFTERLIFE_WAND_IDLE_2);
   stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
   stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
-
   stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
   stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
 
   stopEffect(S_WAND_BOOTUP);
+  stopEffect(S_WAND_BOOTUP_SHORT);
 
   if(b_wand_mash_lockout || PACK_STATE == MODE_OFF) {
-    stopSmashErrorSounds();
+    stopMashErrorSounds();
   }
 }
 
@@ -5635,7 +5632,7 @@ void startWandMashLockout(uint16_t i_timeout) {
 
   // Flag that the button mash error sequence is in effect.
   b_wand_mash_lockout = true;
-  stopSmashErrorSounds();
+  stopMashErrorSounds();
 
   // Play special sounds for the Frozen Empire theme and begin a freeze-up effect.
   if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
@@ -5660,7 +5657,7 @@ void startWandMashLockout(uint16_t i_timeout) {
 }
 
 void restartFromWandMash() {
-  stopSmashErrorSounds();
+  stopMashErrorSounds();
 
   b_wand_mash_lockout = false;
 
@@ -5679,13 +5676,12 @@ void restartFromWandMash() {
           playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects, true, 2000);
         }
 
-        // Trigger timer for restart sequence.
-        ms_mash_lockout.start(0);
-
         // Reset the lighting timers.
         b_2021_ramp_down = false;
         b_inner_ramp_down = false;
         reset2021RampUp();
+        ms_mash_lockout.stop();
+        ms_powercell.start(0);
         ms_cyclotron.start(0);
         ms_cyclotron_ring.start(0);
 
