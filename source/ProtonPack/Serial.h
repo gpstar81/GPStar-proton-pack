@@ -1781,7 +1781,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       startWandMashLockout(i_value);
     break;
 
-    case W_SMASH_ERROR_LOOP:
+    case W_MASH_ERROR_LOOP:
       // Begins a looping audio track while the wand is locked out.
       // Note: Command is only sent when extra pack sounds are used.
       switch(SYSTEM_YEAR) {
@@ -1796,7 +1796,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
     break;
 
-    case W_SMASH_ERROR_RESTART:
+    case W_MASH_ERROR_RESTART:
       // Initiates a restart of the pack after a lockout.
       restartFromWandMash();
     break;

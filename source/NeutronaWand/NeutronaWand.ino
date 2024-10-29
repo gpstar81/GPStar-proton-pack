@@ -283,7 +283,7 @@ void mainLoop() {
         stopEffect(S_SMASH_ERROR_LOOP);
         playEffect(S_SMASH_ERROR_RESTART);
 
-        wandSerialSend(W_SMASH_ERROR_RESTART);
+        wandSerialSend(W_MASH_ERROR_RESTART);
 
         bargraphClearAlt();
       }
@@ -1713,10 +1713,7 @@ void wandOff() {
         default:
           if(!b_sound_idle && !b_wand_mash_error && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
             playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
-
-            if(b_extra_pack_sounds) {
-              b_play_afterlife_ramp_down = true;
-            }
+            b_play_afterlife_ramp_down = true;
           }
 
           if(!b_wand_mash_error) {
@@ -2306,7 +2303,7 @@ void modeError() {
     }
 
     if(b_extra_pack_sounds) {
-      wandSerialSend(W_SMASH_ERROR_LOOP);
+      wandSerialSend(W_MASH_ERROR_LOOP);
     }
   }
 }
