@@ -96,7 +96,7 @@ void printPartitions() {
   Serial.println(F("Partitions:"));
   while (iterator != nullptr) {
     partition = esp_partition_get(iterator);
-    Serial.printf("Label: %s, Size: %u bytes, Address: 0x%08X\n",
+    Serial.printf("Label: %s, Size: %lu bytes, Address: 0x%08lx\n",
                   partition->label,
                   partition->size,
                   partition->address);
