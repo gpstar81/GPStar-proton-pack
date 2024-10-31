@@ -32,6 +32,7 @@
 #include "SmokeSettings.h" // SMOKE_SETTINGS_page
 #include "Style.h" // STYLE_page
 #include "Equip.h" // EQUIP_svg
+#include "Icon.h" // FAVICON_ico, FAVICON_svg
 
 // Forward function declarations.
 void setupRouting();
@@ -337,7 +338,25 @@ void handleStylesheet(AsyncWebServerRequest *request) {
 void handleSvgImage(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
   debug("Sending -> Equipment SVG");
-  request->send(200, "image/svg+xml", String(EQUIP_svg)); // Serve page content.
+  AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", EQUIP_svg, sizeof(EQUIP_svg));
+  response->addHeader("Content-Encoding", "gzip");
+  request->send(response);
+}
+
+void handleFavIcon(AsyncWebServerRequest *request) {
+  // Used for the root page (/) of the web server.
+  debug("Sending -> Favicon");
+  AsyncWebServerResponse *response = request->beginResponse(200, "image/x-icon", FAVICON_ico, sizeof(FAVICON_ico));
+  response->addHeader("Content-Encoding", "gzip");
+  request->send(response);
+}
+
+void handleSvgFavIcon(AsyncWebServerRequest *request) {
+  // Used for the root page (/) of the web server.
+  debug("Sending -> Favicon");
+  AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", FAVICON_svg, sizeof(FAVICON_svg));
+  response->addHeader("Content-Encoding", "gzip");
+  request->send(response);
 }
 
 String getAttenuatorConfig() {
@@ -1323,6 +1342,8 @@ void setupRouting() {
 
   // Static Pages
   httpServer.on("/", HTTP_GET, handleRoot);
+  httpServer.on("/favicon.ico", HTTP_GET, handleFavIcon);
+  httpServer.on("/favicon.svg", HTTP_GET, handleSvgFavIcon);
   httpServer.on("/common.js", HTTP_GET, handleCommonJS);
   httpServer.on("/index.js", HTTP_GET, handleRootJS);
   httpServer.on("/network", HTTP_GET, handleNetwork);
