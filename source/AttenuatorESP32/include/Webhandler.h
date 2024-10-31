@@ -337,9 +337,7 @@ void handleStylesheet(AsyncWebServerRequest *request) {
 void handleSvgImage(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
   debug("Sending -> Equipment SVG");
-  AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", String(EQUIP_svg));
-  response->addHeader("Content-Encoding", "gzip");
-  request->send(response); // Serve page content.
+  request->send(200, "image/svg+xml", String(EQUIP_svg)); // Serve page content.
 }
 
 String getAttenuatorConfig() {
