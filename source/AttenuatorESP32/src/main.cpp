@@ -361,7 +361,7 @@ void WiFiManagementTask(void *parameter) {
         ms_cleanup.start(i_websocketCleanup);
       }
 
-      if(ms_cleanup.remaining() < 1) {
+      if(ms_apclient.remaining() < 1) {
         // Update the current count of AP clients.
         i_ap_client_count = WiFi.softAPgetStationNum();
 
@@ -369,7 +369,7 @@ void WiFiManagementTask(void *parameter) {
         ms_apclient.start(i_apClientCount);
       }
 
-      if(ms_cleanup.remaining() < 1) {
+      if(ms_otacheck.remaining() < 1) {
         // Handles device reboot after an OTA update.
         ElegantOTA.loop();
 
