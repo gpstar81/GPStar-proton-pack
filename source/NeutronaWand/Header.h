@@ -159,9 +159,9 @@ enum WAND_BARREL_LED_COUNTS WAND_BARREL_LED_COUNT;
 
 /*
  * Delay for fastled to update the addressable LEDs.
- * We have up to 5 addressable LEDs in the wand barrel.
  * The Frutto barrel has up to 49 addressable LEDs.
- * 0.03 ms to update 1 LED. So 1.47 ms should be okay? Let's bump it up to 3 just in case.
+ * 0.0312 ms to update each LED, then a 0.05 ms resting period once all are updated.
+ * So 1.58 ms should be okay? Let's bump it up to 3 just in case.
  */
 #define FAST_LED_UPDATE_MS 3
 uint8_t i_fast_led_delay = FAST_LED_UPDATE_MS;
@@ -385,8 +385,8 @@ const uint16_t i_shock_blast_rate = 600; // Shock Blast firing rate.
 const uint16_t i_slime_tether_rate = 750; // Slime Tether firing rate.
 const uint16_t i_meson_collider_rate = 250; // Meson Collider firing rate.
 const uint16_t i_firing_timer_length = 15000; // 15 seconds. Used by ms_firing_length_timer to determine which tail_end sound effects to play.
-const uint8_t d_firing_pulse = 18; // Used to drive semi-automatic firing stream effect timers. Default: 18ms.
-const uint8_t d_firing_stream = 100; // Used to drive all stream effects timers. Default: 100ms.
+const uint8_t i_firing_pulse = 18; // Used to drive semi-automatic firing stream effect timers. Default: 18ms.
+const uint8_t i_firing_stream = 100; // Used to drive all stream effects timers. Default: 100ms.
 uint8_t i_barrel_light = 0; // Used to keep track which LED in the barrel is currently lighting up.
 uint8_t i_pulse_step = 0; // Used to keep track of which pulse animation step we are on.
 uint8_t i_slime_tether_count = 0; // Used to keep track of how many slime tethers have been fired.

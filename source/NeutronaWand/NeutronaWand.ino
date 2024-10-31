@@ -1595,7 +1595,7 @@ void wandVentStateCheck() {
       }
     }
     else {
-      // Vent light and top white light off.
+      // Vent light off.
       digitalWrite(VENT_LED_PIN, HIGH);
 
       soundBeepLoopStop();
@@ -4363,7 +4363,7 @@ void firePulseEffect() {
     i_pulse_step = 14; // Immediately go to end of sequence.
   }
 
-  uint8_t i_firing_pulse = d_firing_pulse; // Stores a calculated value based on firing mode.
+  uint8_t i_firing_pulse_tmp = i_firing_pulse; // Stores a calculated value based on firing mode.
 
   switch(i_pulse_step) {
     case 0:
@@ -4726,9 +4726,9 @@ void firePulseEffect() {
   if(i_pulse_step < 14) {
     if(STREAM_MODE == PROTON) {
       // Boson Dart is much slower than the others.
-      i_firing_pulse *= 2;
+      i_firing_pulse_tmp *= 2;
     }
-    ms_firing_pulse.start(i_firing_pulse);
+    ms_firing_pulse.start(i_firing_pulse_tmp);
   }
   else {
     // Animation has concluded, so reset our timer and variable.
@@ -4745,14 +4745,14 @@ void firePulseEffect() {
 }
 
 void fireStreamEffect(CRGB c_colour) {
-  uint8_t i_firing_stream; // Stores a calculated value based on LED count.
+  uint8_t i_firing_stream_tmp; // Stores a calculated value based on LED count.
 
   switch(WAND_BARREL_LED_COUNT) {
     case LEDS_48:
       // Frutto Technology - 48 LED + Strobe Tip
       // This effect will "wrap" around the device to appear to push the stream forward.
 
-      i_firing_stream = d_firing_stream / 10;
+      i_firing_stream_tmp = i_firing_stream / 10; // 10ms
 
       if(ms_firing_stream_effects.justFinished()) {
         if(i_barrel_light - 1 >= 0 && i_barrel_light - 1 < i_num_barrel_leds) {
@@ -4883,7 +4883,7 @@ void fireStreamEffect(CRGB c_colour) {
           }
 
           if(STREAM_MODE != MESON) {
-            ms_firing_stream_effects.start(i_firing_stream - i_s_speed);
+            ms_firing_stream_effects.start(i_firing_stream_tmp - i_s_speed);
           }
         }
         else if(i_barrel_light < i_num_barrel_leds) {
@@ -4959,27 +4959,27 @@ void fireStreamEffect(CRGB c_colour) {
                 case 1:
                 default:
                   i_fast_led_delay = FAST_LED_UPDATE_MS; // 3ms
-                  ms_firing_stream_effects.start((d_firing_stream / 25)); // 4ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25)); // 4ms
                 break;
 
                 case 2:
                   i_fast_led_delay = FAST_LED_UPDATE_MS; // 3ms
-                  ms_firing_stream_effects.start((d_firing_stream / 25) - 1); // 3ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) - 1); // 3ms
                 break;
 
                 case 3:
                   i_fast_led_delay = FAST_LED_UPDATE_MS + 1; // 4ms
-                  ms_firing_stream_effects.start((d_firing_stream / 25) - 1); // 3ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) - 1); // 3ms
                 break;
 
                 case 4:
                   i_fast_led_delay = FAST_LED_UPDATE_MS + 3; // 6ms
-                  ms_firing_stream_effects.start((d_firing_stream / 25) - 1); // 3ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) - 1); // 3ms
                 break;
 
                 case 5:
                   i_fast_led_delay = FAST_LED_UPDATE_MS + 4; // 7ms
-                  ms_firing_stream_effects.start((d_firing_stream / 25) - 2); // 2ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) - 2); // 2ms
                 break;
               }
             break;
@@ -4988,23 +4988,23 @@ void fireStreamEffect(CRGB c_colour) {
               switch(i_power_level) {
                 case 1:
                 default:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 4); // 8ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) + 4); // 8ms
                 break;
 
                 case 2:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 3); // 7ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) + 3); // 7ms
                 break;
 
                 case 3:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 2); // 6ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) + 2); // 6ms
                 break;
 
                 case 4:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 1); // 5ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) + 1); // 5ms
                 break;
 
                 case 5:
-                  ms_firing_stream_effects.start((d_firing_stream / 25)); // 4ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25)); // 4ms
                 break;
               }
             break;
@@ -5014,29 +5014,29 @@ void fireStreamEffect(CRGB c_colour) {
                 switch(i_power_level) {
                   case 1:
                   default:
-                    ms_firing_stream_effects.start((d_firing_stream / 25) + 2); // 6ms
+                    ms_firing_stream_effects.start((i_firing_stream / 25) + 2); // 6ms
                   break;
 
                   case 2:
-                    ms_firing_stream_effects.start((d_firing_stream / 25) + 1); // 5ms
+                    ms_firing_stream_effects.start((i_firing_stream / 25) + 1); // 5ms
                   break;
 
                   case 3:
-                    ms_firing_stream_effects.start((d_firing_stream / 25)); // 4ms
+                    ms_firing_stream_effects.start((i_firing_stream / 25)); // 4ms
                   break;
 
                   case 4:
-                    ms_firing_stream_effects.start((d_firing_stream / 25) - 1); // 3ms
+                    ms_firing_stream_effects.start((i_firing_stream / 25) - 1); // 3ms
                   break;
 
                   case 5:
-                    ms_firing_stream_effects.start((d_firing_stream / 25) - 2); // 2ms
+                    ms_firing_stream_effects.start((i_firing_stream / 25) - 2); // 2ms
                   break;
                 }
               }
               else {
                 // Slime Tether response time is a fixed value.
-                ms_firing_stream_effects.start((d_firing_stream / 25) - 3); // 1ms
+                ms_firing_stream_effects.start((i_firing_stream / 25) - 3); // 1ms
 
                 // Let Slime Tether turn on the barrel tip.
                 if(i_barrel_light + 4 == i_num_barrel_leds) {
@@ -5049,23 +5049,23 @@ void fireStreamEffect(CRGB c_colour) {
               switch(i_power_level) {
                 case 1:
                 default:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 2); // 6ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) + 2); // 6ms
                 break;
 
                 case 2:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 1); // 5ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) + 1); // 5ms
                 break;
 
                 case 3:
-                  ms_firing_stream_effects.start((d_firing_stream / 25)); // 4ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25)); // 4ms
                 break;
 
                 case 4:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) - 1); // 3ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) - 1); // 3ms
                 break;
 
                 case 5:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) - 2); // 2ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) - 2); // 2ms
                 break;
               }
             break;
@@ -5078,7 +5078,7 @@ void fireStreamEffect(CRGB c_colour) {
 
     case LEDS_5:
     default:
-      i_firing_stream = d_firing_stream;
+      i_firing_stream_tmp = i_firing_stream;
 
       if(ms_firing_stream_effects.justFinished()) {
         if(i_barrel_light - 1 >= 0 && i_barrel_light - 1 < i_num_barrel_leds) {
@@ -5182,23 +5182,23 @@ void fireStreamEffect(CRGB c_colour) {
               switch(i_power_level) {
                 case 1:
                 default:
-                  ms_firing_stream_effects.start(i_firing_stream); // 100ms
+                  ms_firing_stream_effects.start(i_firing_stream_tmp); // 100ms
                 break;
 
                 case 2:
-                  ms_firing_stream_effects.start(i_firing_stream - 15); // 85ms
+                  ms_firing_stream_effects.start(i_firing_stream_tmp - 15); // 85ms
                 break;
 
                 case 3:
-                  ms_firing_stream_effects.start(i_firing_stream - 30); // 70ms
+                  ms_firing_stream_effects.start(i_firing_stream_tmp - 30); // 70ms
                 break;
 
                 case 4:
-                  ms_firing_stream_effects.start(i_firing_stream - 45); // 55ms
+                  ms_firing_stream_effects.start(i_firing_stream_tmp - 45); // 55ms
                 break;
 
                 case 5:
-                  ms_firing_stream_effects.start(i_firing_stream - 60); // 40ms
+                  ms_firing_stream_effects.start(i_firing_stream_tmp - 60); // 40ms
                 break;
               }
             break;
@@ -5212,23 +5212,23 @@ void fireStreamEffect(CRGB c_colour) {
               switch(i_power_level) {
                 case 1:
                 default:
-                  ms_firing_stream_effects.start((d_firing_stream / 5) + 10); // 30ms
+                  ms_firing_stream_effects.start((i_firing_stream / 5) + 10); // 30ms
                 break;
 
                 case 2:
-                  ms_firing_stream_effects.start((d_firing_stream / 5) + 8); // 28ms
+                  ms_firing_stream_effects.start((i_firing_stream / 5) + 8); // 28ms
                 break;
 
                 case 3:
-                  ms_firing_stream_effects.start((d_firing_stream / 5) + 6); // 26ms
+                  ms_firing_stream_effects.start((i_firing_stream / 5) + 6); // 26ms
                 break;
 
                 case 4:
-                  ms_firing_stream_effects.start((d_firing_stream / 5) + 5); // 25ms
+                  ms_firing_stream_effects.start((i_firing_stream / 5) + 5); // 25ms
                 break;
 
                 case 5:
-                  ms_firing_stream_effects.start((d_firing_stream / 5) + 4); // 24ms
+                  ms_firing_stream_effects.start((i_firing_stream / 5) + 4); // 24ms
                 break;
               }
             break;
@@ -5284,13 +5284,13 @@ void fireStreamStart(CRGB c_colour) {
     switch(WAND_BARREL_LED_COUNT) {
       case LEDS_48:
         // More LEDs means a faster firing rate.
-        ms_firing_lights.start(d_firing_stream / 30);
+        ms_firing_lights.start(i_firing_stream / 30); // 3ms
       break;
 
       case LEDS_5:
       default:
         // Firing at "normal" speed.
-        ms_firing_lights.start(d_firing_stream / 5);
+        ms_firing_lights.start(i_firing_stream / 5); // 20ms
       break;
     }
 
@@ -5304,13 +5304,13 @@ void fireStreamStart(CRGB c_colour) {
       switch(WAND_BARREL_LED_COUNT) {
         case LEDS_48:
           // More LEDs means a faster firing rate.
-          ms_firing_stream_effects.start(d_firing_stream / 25);
+          ms_firing_stream_effects.start(i_firing_stream / 25); // 4ms
         break;
 
         case LEDS_5:
         default:
           // Firing at "normal" speed.
-          ms_firing_stream_effects.start(d_firing_stream);
+          ms_firing_stream_effects.start(i_firing_stream);
         break;
       }
     }
@@ -5432,7 +5432,7 @@ void fireEffectEnd() {
     }
     else {
       // Give a slight delay for the final pixel before clearing it.
-      uint8_t i_firing_stream; // Stores a calculated value based on LED count.
+      uint8_t i_firing_stream_tmp; // Stores a calculated value based on LED count.
 
       uint8_t i_s_speed = 0; // Stores an additional value used for the 48-LED barrel.
 
@@ -5491,14 +5491,14 @@ void fireEffectEnd() {
       switch(WAND_BARREL_LED_COUNT) {
         case LEDS_48:
           // More LEDs means a faster firing rate.
-          i_firing_stream = d_firing_stream / 10;
-          i_firing_stream = i_firing_stream - i_s_speed;
+          i_firing_stream_tmp = i_firing_stream / 10; // 10ms
+          i_firing_stream_tmp = i_firing_stream_tmp - i_s_speed;
         break;
 
         case LEDS_5:
         default:
           // Firing at "normal" speed.
-          i_firing_stream = d_firing_stream;
+          i_firing_stream_tmp = i_firing_stream;
 
           switch(i_power_level) {
             case 1:
@@ -5507,25 +5507,25 @@ void fireEffectEnd() {
             break;
 
             case 2:
-              i_firing_stream = i_firing_stream - 15;
+              i_firing_stream_tmp = i_firing_stream_tmp - 15;
             break;
 
             case 3:
-              i_firing_stream = i_firing_stream - 30;
+              i_firing_stream_tmp = i_firing_stream_tmp - 30;
             break;
 
             case 4:
-              i_firing_stream = i_firing_stream - 45;
+              i_firing_stream_tmp = i_firing_stream_tmp - 45;
             break;
 
             case 5:
-              i_firing_stream = i_firing_stream - 60;
+              i_firing_stream_tmp = i_firing_stream_tmp - 60;
             break;
           }
         break;
       }
 
-      ms_firing_effect_end.start(i_firing_stream);
+      ms_firing_effect_end.start(i_firing_stream_tmp);
       ms_firing_stream_effects.stop();
     }
   }
@@ -5644,7 +5644,7 @@ void fireStreamEnd(CRGB c_colour) {
         barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light])] = c_colour;
 
         // More LEDs means a faster firing rate.
-        ms_firing_lights_end.start(d_firing_stream / 25);
+        ms_firing_lights_end.start(i_firing_stream / 25); // 4ms
       break;
 
       case LEDS_5:
@@ -5653,7 +5653,7 @@ void fireStreamEnd(CRGB c_colour) {
         barrel_leds[i_barrel_light] = c_colour;
 
         // Firing at a "normal" rate
-        ms_firing_lights_end.start(d_firing_stream / 5);
+        ms_firing_lights_end.start(i_firing_stream / 5); // 20ms
       break;
     }
 
@@ -8950,15 +8950,8 @@ void wandLightsOff() {
     wandBargraphControl(0);
   }
 
-  digitalWriteFast(SLO_BLO_LED_PIN, LOW); // Turn off the SLO-BLO LED.
-  digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Turn off the front left LED under the Clippard valve.
-
-  digitalWriteFast(BARREL_HAT_LED_PIN, LOW); // Turn off hat light 1.
-  digitalWriteFast(TOP_HAT_LED_PIN, LOW); // Turn off hat light 2.
+  wandLightsOffMenuSystem();
   wandTipOff();
-
-  digitalWrite(VENT_LED_PIN, HIGH);
-  digitalWriteFast(TOP_LED_PIN, HIGH);
 
   i_bargraph_status = 0;
   i_bargraph_status_alt = 0;
@@ -8970,12 +8963,14 @@ void wandLightsOff() {
 
 void wandLightsOffMenuSystem() {
   // Make sure some of the wand lights are off, specifically for the Menu systems.
-  digitalWriteFast(SLO_BLO_LED_PIN, LOW);
-  digitalWrite(VENT_LED_PIN, HIGH);
-  digitalWriteFast(TOP_LED_PIN, HIGH);
-  digitalWriteFast(CLIPPARD_LED_PIN, LOW);
+  digitalWriteFast(SLO_BLO_LED_PIN, LOW); // Turn off the SLO-BLO LED.
+  digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Turn off the front left LED under the Clippard valve.
+  digitalWriteFast(BARREL_HAT_LED_PIN, LOW); // Turn off hat light 1.
+  digitalWriteFast(TOP_HAT_LED_PIN, LOW); // Turn off hat light 2.
+  digitalWriteFast(TOP_LED_PIN, HIGH); // Turn off the blinking white top LED.
+  digitalWrite(VENT_LED_PIN, HIGH); // Turn off the vent light.
 
-  if(b_power_on_indicator == true) {
+  if(b_power_on_indicator) {
     ms_power_indicator.stop();
     ms_power_indicator_blink.stop();
   }
