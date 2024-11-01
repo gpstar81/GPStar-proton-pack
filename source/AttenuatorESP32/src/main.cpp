@@ -96,7 +96,7 @@ void printPartitions() {
   Serial.println(F("Partitions:"));
   while (iterator != nullptr) {
     partition = esp_partition_get(iterator);
-    Serial.printf("Label: %s, Size: %u bytes, Address: 0x%08X\n",
+    Serial.printf("Label: %s, Size: %lu bytes, Address: 0x%08lx\n",
                   partition->label,
                   partition->size,
                   partition->address);
@@ -289,6 +289,10 @@ void SerialCommsTask(void *parameter) {
       // If at any point this flag is true, we have comms open to the pack.
       // This gets reset upon every bootup (read: re-connection to a pack).
       if(b_notify) {
+        if(!ms_packsync.isRunning()) {
+          // Switch from Standalone to full operation.
+          ms_packsync.start(0);
+        }
         b_comms_open = true;
       }
 
@@ -357,7 +361,7 @@ void WiFiManagementTask(void *parameter) {
         ms_cleanup.start(i_websocketCleanup);
       }
 
-      if(ms_cleanup.remaining() < 1) {
+      if(ms_apclient.remaining() < 1) {
         // Update the current count of AP clients.
         i_ap_client_count = WiFi.softAPgetStationNum();
 
@@ -365,7 +369,7 @@ void WiFiManagementTask(void *parameter) {
         ms_apclient.start(i_apClientCount);
       }
 
-      if(ms_cleanup.remaining() < 1) {
+      if(ms_otacheck.remaining() < 1) {
         // Handles device reboot after an OTA update.
         ElegantOTA.loop();
 
