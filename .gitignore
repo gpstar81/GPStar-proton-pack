@@ -2,3 +2,5 @@
 *.partitions.*
 .DS_Store
 *.h-e
+/source/*/.pio
+/source/*/.vscode
