@@ -226,7 +226,7 @@ void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *clien
     case WS_EVT_DATA:
       #if defined(DEBUG_SEND_TO_CONSOLE)
         Serial.printf("WebSocket[%s][C:%lu] Data[L:%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
-      #endif  
+      #endif
     break;
   }
 }
