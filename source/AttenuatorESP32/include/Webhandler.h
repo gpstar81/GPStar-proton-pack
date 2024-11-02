@@ -32,6 +32,7 @@
 #include "SmokeSettings.h" // SMOKE_SETTINGS_page
 #include "Style.h" // STYLE_page
 #include "Equip.h" // EQUIP_svg
+#include "Icon.h" // FAVICON_ico, FAVICON_svg
 
 // Forward function declarations.
 void setupRouting();
@@ -203,7 +204,7 @@ void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *clien
 
     case WS_EVT_DISCONNECT:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][%lu] Disconnect\n", server->url(), client->id());
+        Serial.printf("WebSocket[%s][C:%lu] Disconnect\n", server->url(), client->id());
       #endif
       if(i_ws_client_count > 0) {
         i_ws_client_count--;
@@ -212,19 +213,19 @@ void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *clien
 
     case WS_EVT_ERROR:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][%lu] error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
+        Serial.printf("WebSocket[%s][C:%lu] Error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
       #endif
     break;
 
     case WS_EVT_PONG:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][%lu] Pong[%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
+        Serial.printf("WebSocket[%s][C:%lu] Pong[L:%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
       #endif
     break;
 
     case WS_EVT_DATA:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][%lu] Data[%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
+        Serial.printf("WebSocket[%s][C:%lu] Data[L:%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
       #endif
     break;
   }
@@ -337,7 +338,25 @@ void handleStylesheet(AsyncWebServerRequest *request) {
 void handleSvgImage(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
   debug("Sending -> Equipment SVG");
-  request->send(200, "image/svg+xml", String(EQUIP_svg)); // Serve page content.
+  AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", EQUIP_svg, sizeof(EQUIP_svg));
+  response->addHeader("Content-Encoding", "gzip");
+  request->send(response);
+}
+
+void handleFavIcon(AsyncWebServerRequest *request) {
+  // Used for the root page (/) of the web server.
+  debug("Sending -> Favicon");
+  AsyncWebServerResponse *response = request->beginResponse(200, "image/x-icon", FAVICON_ico, sizeof(FAVICON_ico));
+  response->addHeader("Content-Encoding", "gzip");
+  request->send(response);
+}
+
+void handleSvgFavIcon(AsyncWebServerRequest *request) {
+  // Used for the root page (/) of the web server.
+  debug("Sending -> Favicon");
+  AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", FAVICON_svg, sizeof(FAVICON_svg));
+  response->addHeader("Content-Encoding", "gzip");
+  request->send(response);
 }
 
 String getAttenuatorConfig() {
@@ -1323,6 +1342,8 @@ void setupRouting() {
 
   // Static Pages
   httpServer.on("/", HTTP_GET, handleRoot);
+  httpServer.on("/favicon.ico", HTTP_GET, handleFavIcon);
+  httpServer.on("/favicon.svg", HTTP_GET, handleSvgFavIcon);
   httpServer.on("/common.js", HTTP_GET, handleCommonJS);
   httpServer.on("/index.js", HTTP_GET, handleRootJS);
   httpServer.on("/network", HTTP_GET, handleNetwork);

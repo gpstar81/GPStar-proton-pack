@@ -96,7 +96,7 @@ void printPartitions() {
   Serial.println(F("Partitions:"));
   while (iterator != nullptr) {
     partition = esp_partition_get(iterator);
-    Serial.printf("Label: %s, Size: %u bytes, Address: 0x%08X\n",
+    Serial.printf("Label: %s, Size: %lu bytes, Address: 0x%08lx\n",
                   partition->label,
                   partition->size,
                   partition->address);
@@ -357,7 +357,7 @@ void WiFiManagementTask(void *parameter) {
         ms_cleanup.start(i_websocketCleanup);
       }
 
-      if(ms_cleanup.remaining() < 1) {
+      if(ms_apclient.remaining() < 1) {
         // Update the current count of AP clients.
         i_ap_client_count = WiFi.softAPgetStationNum();
 
@@ -365,7 +365,7 @@ void WiFiManagementTask(void *parameter) {
         ms_apclient.start(i_apClientCount);
       }
 
-      if(ms_cleanup.remaining() < 1) {
+      if(ms_otacheck.remaining() < 1) {
         // Handles device reboot after an OTA update.
         ElegantOTA.loop();
 
