@@ -258,9 +258,15 @@ const uint16_t i_overheat_delay_max = 60000; // The maximum amount of time befor
 /*
  * Wand power level. Controlled by the rotary encoder on the top of the wand.
  * You can enable or disable overheating for each power level individually in the user adjustable values at the top of this file.
+ * This also contains the PWM duty cycle values for each power level in case vent light PWM control is enabled.
  */
 const uint8_t i_power_level_max = 5;
 const uint8_t i_power_level_min = 1;
+const uint8_t i_vent_led_power_1 = 220;
+const uint8_t i_vent_led_power_2 = 190;
+const uint8_t i_vent_led_power_3 = 160;
+const uint8_t i_vent_led_power_4 = 130;
+const uint8_t i_vent_led_power_5 = 100;
 uint8_t i_power_level = 1;
 uint8_t i_power_level_prev = 1;
 

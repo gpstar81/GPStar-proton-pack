@@ -2400,6 +2400,7 @@ void cyclotronControl() {
   if(b_reset_start_led == true) {
     b_reset_start_led = false;
     i_cyclotron_fake_ring_counter = 0;
+    i_led_cyclotron_ring = i_ic_cake_start;
 
     switch(SYSTEM_YEAR) {
       case SYSTEM_AFTERLIFE:
@@ -3986,6 +3987,7 @@ void resetCyclotronState() {
   // Only reset the start LED if the pack is off or just started.
   if(b_reset_start_led == true) {
     i_led_cyclotron = i_cyclotron_led_start;
+    i_led_cyclotron_ring = i_ic_cake_start;
     i_cyclotron_fake_ring_counter = 0;
   }
 
@@ -4578,99 +4580,95 @@ void wandFiring() {
 }
 
 void modeFireStopSounds() {
-  wandStopFiringSounds();
-
   if(b_wand_firing) {
-    if(!b_wand_mash_lockout) {
-      switch(STREAM_MODE) {
-        case PROTON:
-        default:
-          switch(SYSTEM_YEAR) {
-            case SYSTEM_1984:
-              if(i_wand_power_level != i_wand_power_level_max) {
-                // Play different firing end stream sound depending on how long we have been firing for.
-                if(ms_firing_length_timer.remaining() < 5000) {
-                  // Long firing tail end.
-                  playEffect(S_FIRING_END_MID, false, i_volume_effects, false, 0, false);
-                }
-                else if(ms_firing_length_timer.remaining() < 10000) {
-                  // Mid firing tail end.
-                  playEffect(S_FIRING_END, false, i_volume_effects, false, 0, false);
-                }
-                else {
-                  // Short firing tail end.
-                  playEffect(S_GB1_1984_FIRE_END_SHORT, false, i_volume_effects, false, 0, false);
-                }
-              }
-              else {
-                // Play different firing end stream sound depending on how long we have been firing for.
-                if(ms_firing_length_timer.remaining() < 5000) {
-                  // Long tail end.
-                  playEffect(S_GB1_1984_FIRE_END_HIGH_POWER, false, i_volume_effects, false, 0, false);
-                }
-                else if(ms_firing_length_timer.remaining() < 10000) {
-                  // Mid tail end.
-                  playEffect(S_GB1_1984_FIRE_END_MID_HIGH_POWER, false, i_volume_effects, false, 0, false);
-                }
-                else {
-                  // Short tail end.
-                  playEffect(S_GB1_1984_FIRE_END_SHORT_HIGH_POWER, false, i_volume_effects, false, 0, false);
-                }
-              }
-            break;
-
-            case SYSTEM_1989:
-              // Play different firing end stream sound depending on how long we have been firing for.
-              if(ms_firing_length_timer.remaining() < 5000) {
-                // Long tail end.
-                playEffect(S_FIRING_END_GUN, false, i_volume_effects, false, 0, false);
-              }
-              else if(ms_firing_length_timer.remaining() < 10000) {
-                // Mid tail end.
-                playEffect(S_FIRING_END_MID, false, i_volume_effects, false, 0, false);
-              }
-              else {
-                // Short tail end.
-                playEffect(S_FIRING_END, false, i_volume_effects, false, 0, false);
-              }
-            break;
-
-            case SYSTEM_AFTERLIFE:
-            default:
+    switch(STREAM_MODE) {
+      case PROTON:
+      default:
+        switch(SYSTEM_YEAR) {
+          case SYSTEM_1984:
+            if(i_wand_power_level != i_wand_power_level_max) {
               // Play different firing end stream sound depending on how long we have been firing for.
               if(ms_firing_length_timer.remaining() < 5000) {
                 // Long firing tail end.
-                playEffect(S_AFTERLIFE_FIRE_END_LONG, false, i_volume_effects, false, 0, false);
+                playEffect(S_FIRING_END_MID, false, i_volume_effects, false, 0, false);
               }
               else if(ms_firing_length_timer.remaining() < 10000) {
                 // Mid firing tail end.
-                playEffect(S_AFTERLIFE_FIRE_END_MID, false, i_volume_effects, false, 0, false);
+                playEffect(S_FIRING_END, false, i_volume_effects, false, 0, false);
               }
               else {
                 // Short firing tail end.
-                playEffect(S_AFTERLIFE_FIRE_END_SHORT, false, i_volume_effects, false, 0, false);
+                playEffect(S_GB1_1984_FIRE_END_SHORT, false, i_volume_effects, false, 0, false);
               }
-            break;
+            }
+            else {
+              // Play different firing end stream sound depending on how long we have been firing for.
+              if(ms_firing_length_timer.remaining() < 5000) {
+                // Long tail end.
+                playEffect(S_GB1_1984_FIRE_END_HIGH_POWER, false, i_volume_effects, false, 0, false);
+              }
+              else if(ms_firing_length_timer.remaining() < 10000) {
+                // Mid tail end.
+                playEffect(S_GB1_1984_FIRE_END_MID_HIGH_POWER, false, i_volume_effects, false, 0, false);
+              }
+              else {
+                // Short tail end.
+                playEffect(S_GB1_1984_FIRE_END_SHORT_HIGH_POWER, false, i_volume_effects, false, 0, false);
+              }
+            }
+          break;
 
-            case SYSTEM_FROZEN_EMPIRE:
-              // Frozen Empire replaces all firing tail sounds with just a "thump".
+          case SYSTEM_1989:
+            // Play different firing end stream sound depending on how long we have been firing for.
+            if(ms_firing_length_timer.remaining() < 5000) {
+              // Long tail end.
+              playEffect(S_FIRING_END_GUN, false, i_volume_effects, false, 0, false);
+            }
+            else if(ms_firing_length_timer.remaining() < 10000) {
+              // Mid tail end.
+              playEffect(S_FIRING_END_MID, false, i_volume_effects, false, 0, false);
+            }
+            else {
+              // Short tail end.
+              playEffect(S_FIRING_END, false, i_volume_effects, false, 0, false);
+            }
+          break;
+
+          case SYSTEM_AFTERLIFE:
+          default:
+            // Play different firing end stream sound depending on how long we have been firing for.
+            if(ms_firing_length_timer.remaining() < 5000) {
+              // Long firing tail end.
+              playEffect(S_AFTERLIFE_FIRE_END_LONG, false, i_volume_effects, false, 0, false);
+            }
+            else if(ms_firing_length_timer.remaining() < 10000) {
+              // Mid firing tail end.
               playEffect(S_AFTERLIFE_FIRE_END_MID, false, i_volume_effects, false, 0, false);
-            break;
-          }
-        break;
+            }
+            else {
+              // Short firing tail end.
+              playEffect(S_AFTERLIFE_FIRE_END_SHORT, false, i_volume_effects, false, 0, false);
+            }
+          break;
 
-        case SLIME:
-          playEffect(S_SLIME_END, false, i_volume_effects, false, 0, false);
-        break;
+          case SYSTEM_FROZEN_EMPIRE:
+            // Frozen Empire replaces all firing tail sounds with just a "thump".
+            playEffect(S_AFTERLIFE_FIRE_END_MID, false, i_volume_effects, false, 0, false);
+          break;
+        }
+      break;
 
-        case STASIS:
-          playEffect(S_STASIS_END, false, i_volume_effects, false, 0, false);
-        break;
+      case SLIME:
+        playEffect(S_SLIME_END, false, i_volume_effects, false, 0, false);
+      break;
 
-        case MESON:
-          // Nothing.
-        break;
-      }
+      case STASIS:
+        playEffect(S_STASIS_END, false, i_volume_effects, false, 0, false);
+      break;
+
+      case MESON:
+        // Nothing.
+      break;
     }
 
     // Adjust the gain with the Afterlife idling track.
@@ -4693,6 +4691,8 @@ void modeFireStopSounds() {
       }
     }
   }
+
+  wandStopFiringSounds();
 }
 
 void wandStoppedFiring() {
@@ -4824,9 +4824,7 @@ void wandStopFiringSounds() {
         stopEffect(S_CROSS_STREAMS_END);
       }
 
-      if(!b_wand_mash_lockout) {
-        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
-      }
+      playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
     break;
 
     case CTS_FIRING_2021:
@@ -4837,9 +4835,7 @@ void wandStopFiringSounds() {
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
       }
 
-      if(!b_wand_mash_lockout) {
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
-      }
+      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
     break;
 
     case CTS_NOT_FIRING:

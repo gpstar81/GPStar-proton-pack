@@ -259,13 +259,6 @@ void mainLoop() {
   checkMenuVibration();
 
   if(WAND_ACTION_STATUS != ACTION_FIRING) {
-    if(b_wand_mash_error && ms_bmash.remaining() < ms_bmash.delay() / 3) {
-      // Turn off top vent (if on) when less than a third of the timer remains.
-      if(digitalReadFast(VENT_LED_PIN == LOW)) {
-        digitalWrite(VENT_LED_PIN, HIGH);
-      }
-    }
-
     if(ms_bmash.remaining() < 1) {
       // Clear counter until user begins firing (post any lock-out period).
       i_bmash_count = 0;
@@ -1448,7 +1441,7 @@ void checkSwitches() {
 
                   // Turn on the vent lights.
                   if(b_vent_light_control == true) {
-                    analogWrite(VENT_LED_PIN, 220); // Low power, level 1 intensity.
+                    analogWrite(VENT_LED_PIN, i_vent_led_power_1); // Low power, level 1 intensity.
                   }
                   else {
                     digitalWrite(VENT_LED_PIN, LOW);
@@ -1497,6 +1490,19 @@ void checkSwitches() {
     break;
 
     case MODE_ERROR:
+      if(b_wand_mash_error && ms_bmash.isRunning()) {
+        if(b_vent_light_control) {
+          // We're going to fade out the vent light while the wand mash error is running.
+          uint8_t i_mash_delay_percentage = (ms_bmash.remaining() * 100) / ms_bmash.delay();
+          uint8_t i_vent_power_output = 255 - ((255 * i_mash_delay_percentage) / 100);
+          analogWrite(VENT_LED_PIN, i_vent_power_output);
+        }
+        else {
+          // Turn off the vent light.
+          digitalWrite(VENT_LED_PIN, HIGH);
+        }
+      }
+
       switch(SYSTEM_MODE) {
         case MODE_ORIGINAL:
           // Nothing.
@@ -1553,27 +1559,27 @@ void wandVentStateCheck() {
     if(switch_vent.on()) {
       if(b_vent_light_control) {
         // Vent light on, brightness dependent on mode.
-        if((WAND_ACTION_STATUS == ACTION_FIRING && STREAM_MODE != SLIME) || (ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished())) {
-          analogWrite(VENT_LED_PIN, 0); // 0 = Full Power
+        if(STREAM_MODE != SLIME && (WAND_ACTION_STATUS == ACTION_FIRING || (ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished()))) {
+          digitalWrite(VENT_LED_PIN, LOW); // LOW = Full Power
         }
         else {
           // Adjust brightness based on the power level.
           switch(i_power_level) {
             case 5:
-              analogWrite(VENT_LED_PIN, 100);
+              analogWrite(VENT_LED_PIN, i_vent_led_power_5);
             break;
             case 4:
-              analogWrite(VENT_LED_PIN, 130);
+              analogWrite(VENT_LED_PIN, i_vent_led_power_4);
             break;
             case 3:
-              analogWrite(VENT_LED_PIN, 160);
+              analogWrite(VENT_LED_PIN, i_vent_led_power_3);
             break;
             case 2:
-              analogWrite(VENT_LED_PIN, 190);
+              analogWrite(VENT_LED_PIN, i_vent_led_power_2);
             break;
             case 1:
             default:
-              analogWrite(VENT_LED_PIN, 220);
+              analogWrite(VENT_LED_PIN, i_vent_led_power_1);
             break;
           }
         }
@@ -1833,53 +1839,15 @@ void wandOff() {
 // Called from checkSwitches(); Check if we should fire, or if the wand and pack turn off.
 void fireControlCheck() {
   // Firing action stuff and shutting cyclotron and the Neutrona Wand off.
-  if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && b_pack_alarm != true) {
+  if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && !b_pack_alarm) {
     // If Activate switch is down, turn wand off.
-    if(switch_activate.on() == false) {
+    if(!switch_activate.on()) {
       WAND_ACTION_STATUS = ACTION_OFF;
       return;
     }
 
     if(i_bmash_count >= i_bmash_max) {
       // User has exceeded "normal" firing rate.
-      switch(STREAM_MODE) {
-        case PROTON:
-        default:
-          switch(getSystemYearMode()) {
-            case SYSTEM_1984:
-              if(i_power_level != i_power_level_max) {
-                stopEffect(S_FIRING_END);
-                stopEffect(S_FIRING_END_MID);
-                stopEffect(S_GB1_1984_FIRE_END_SHORT);
-              }
-              else {
-                stopEffect(S_GB1_1984_FIRE_END_HIGH_POWER);
-              }
-            break;
-            case SYSTEM_1989:
-              stopEffect(S_FIRING_END_GUN);
-              stopEffect(S_FIRING_END_MID);
-              stopEffect(S_FIRING_END);
-            break;
-            case SYSTEM_AFTERLIFE:
-            default:
-              stopEffect(S_AFTERLIFE_FIRE_END_SHORT);
-              stopEffect(S_AFTERLIFE_FIRE_END_MID);
-              stopEffect(S_AFTERLIFE_FIRE_END_LONG);
-            break;
-            case SYSTEM_FROZEN_EMPIRE:
-              stopEffect(S_AFTERLIFE_FIRE_END_MID);
-            break;
-          }
-        break;
-        case SLIME:
-          stopEffect(S_SLIME_END);
-        break;
-        case STASIS:
-          stopEffect(S_STASIS_END);
-        break;
-      }
-
       b_wand_mash_error = true;
       modeError();
       wandTipSpark();
@@ -1926,7 +1894,7 @@ void fireControlCheck() {
         }
       }
 
-      if(switch_intensify.on() == true && switch_wand.on() == true && switch_vent.on() == true && b_switch_barrel_extended == true) {
+      if(switch_intensify.on() && switch_wand.on() && switch_vent.on() && b_switch_barrel_extended) {
         switch(STREAM_MODE) {
           case PROTON:
           case SLIME:
@@ -1934,27 +1902,29 @@ void fireControlCheck() {
           case SPECTRAL_CUSTOM:
           case HOLIDAY:
           default:
-            if(WAND_ACTION_STATUS != ACTION_FIRING) {
-              WAND_ACTION_STATUS = ACTION_FIRING;
-            }
-
             if(ms_bmash.remaining() < 1) {
               // Clear counter/timer until user begins firing.
               i_bmash_count = 0;
               ms_bmash.start(i_bmash_delay);
             }
 
-            if(b_firing_intensify != true) {
+            if(!b_firing_intensify) {
               // Increase count each time the user presses a firing button.
               i_bmash_count++;
             }
 
-            b_firing_intensify = true;
+            if(i_bmash_count < i_bmash_max) {
+              if(WAND_ACTION_STATUS != ACTION_FIRING) {
+                WAND_ACTION_STATUS = ACTION_FIRING;
+              }
+
+              b_firing_intensify = true;
+            }
           break;
 
           case STASIS:
             // Handle Shock Blast fire start here.
-            if(b_firing_semi_automatic != true && ms_semi_automatic_check.remaining() < 1 && WAND_ACTION_STATUS != ACTION_FIRING) {
+            if(!b_firing_semi_automatic && ms_semi_automatic_check.remaining() < 1 && WAND_ACTION_STATUS != ACTION_FIRING) {
               // Start rate-of-fire timer.
               ms_semi_automatic_check.start(i_shock_blast_rate);
 
@@ -1966,7 +1936,7 @@ void fireControlCheck() {
 
           case MESON:
             // Handle Meson Collider fire start here.
-            if(b_firing_semi_automatic != true && ms_semi_automatic_check.remaining() < 1 && WAND_ACTION_STATUS != ACTION_FIRING) {
+            if(!b_firing_semi_automatic && ms_semi_automatic_check.remaining() < 1 && WAND_ACTION_STATUS != ACTION_FIRING) {
               // Start rate-of-fire timer.
               ms_semi_automatic_check.start(i_meson_collider_rate);
 
@@ -1980,26 +1950,28 @@ void fireControlCheck() {
 
       // When Cross The Streams mode is enabled, video game modes are disabled and the wand menu settings can only be accessed when the Neutrona Wand is powered down.
       if(FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) {
-        if(switch_mode.on() == true && switch_wand.on() == true && switch_vent.on() == true && b_switch_barrel_extended == true) {
-          if(WAND_ACTION_STATUS != ACTION_FIRING) {
-            WAND_ACTION_STATUS = ACTION_FIRING;
-          }
-
+        if(switch_mode.on() && switch_wand.on() && switch_vent.on() && b_switch_barrel_extended) {
           if(ms_bmash.remaining() < 1) {
             // Clear counter/timer until user begins firing.
             i_bmash_count = 0;
             ms_bmash.start(i_bmash_delay);
           }
 
-          if(b_firing_alt != true) {
+          if(!b_firing_alt) {
             // Increase count each time the user presses a firing button.
             i_bmash_count++;
           }
 
-          b_firing_alt = true;
+          if(i_bmash_count < i_bmash_max) {
+            if(WAND_ACTION_STATUS != ACTION_FIRING) {
+              WAND_ACTION_STATUS = ACTION_FIRING;
+            }
+
+            b_firing_alt = true;
+          }
         }
-        else if(switch_mode.on() == false) {
-          if(b_firing_intensify != true && WAND_ACTION_STATUS == ACTION_FIRING) {
+        else if(!switch_mode.on()) {
+          if(!b_firing_intensify && WAND_ACTION_STATUS == ACTION_FIRING) {
             WAND_ACTION_STATUS = ACTION_IDLE;
           }
 
@@ -2008,15 +1980,15 @@ void fireControlCheck() {
       }
       else {
         if(STREAM_MODE == PROTON && WAND_ACTION_STATUS == ACTION_FIRING) {
-          if(switch_mode.on() == true) {
+          if(switch_mode.on()) {
             b_firing_alt = true;
           }
         }
-        else if(switch_mode.on() == true && switch_wand.on() == true && switch_vent.on() == true && b_switch_barrel_extended == true) {
+        else if(switch_mode.on() && switch_wand.on() && switch_vent.on() && b_switch_barrel_extended) {
           switch(STREAM_MODE) {
             case PROTON:
               // Handle Boson Dart fire start here.
-              if(b_firing_semi_automatic != true && ms_semi_automatic_check.remaining() < 1) {
+              if(!b_firing_semi_automatic && ms_semi_automatic_check.remaining() < 1) {
                 // Start rate-of-fire timer.
                 ms_semi_automatic_check.start(i_boson_dart_rate);
 
@@ -2028,7 +2000,7 @@ void fireControlCheck() {
 
             case SLIME:
               // Handle Slime Tether fire start here.
-              if(b_firing_semi_automatic != true && WAND_ACTION_STATUS != ACTION_FIRING) {
+              if(!b_firing_semi_automatic && WAND_ACTION_STATUS != ACTION_FIRING) {
                 if(i_slime_tether_count < 1) {
                   // Start the rate-of-fire timer.
                   ms_semi_automatic_check.start(i_slime_tether_rate);
@@ -2051,22 +2023,24 @@ void fireControlCheck() {
 
             case STASIS:
             case MESON:
-              if(WAND_ACTION_STATUS != ACTION_FIRING) {
-                WAND_ACTION_STATUS = ACTION_FIRING;
-              }
-
               if(ms_bmash.remaining() < 1) {
                 // Clear counter/timer until user begins firing.
                 i_bmash_count = 0;
                 ms_bmash.start(i_bmash_delay);
               }
 
-              if(b_firing_intensify != true) {
+              if(!b_firing_intensify) {
                 // Increase count each time the user presses a firing button.
                 i_bmash_count++;
               }
 
-              b_firing_intensify = true;
+              if(i_bmash_count < i_bmash_max) {
+                if(WAND_ACTION_STATUS != ACTION_FIRING) {
+                  WAND_ACTION_STATUS = ACTION_FIRING;
+                }
+
+                b_firing_intensify = true;
+              }
             break;
 
             default:
@@ -2076,7 +2050,7 @@ void fireControlCheck() {
         }
       }
 
-      if(switch_intensify.on() != true) {
+      if(!switch_intensify.on()) {
         switch(STREAM_MODE) {
           case PROTON:
           case SLIME:
@@ -2084,8 +2058,8 @@ void fireControlCheck() {
           case SPECTRAL_CUSTOM:
           case HOLIDAY:
           default:
-            if(b_firing == true && b_firing_intensify == true) {
-              if(b_firing_alt != true || vgModeCheck() == true) {
+            if(b_firing && b_firing_intensify) {
+              if(!b_firing_alt || vgModeCheck()) {
                 WAND_ACTION_STATUS = ACTION_IDLE;
               }
 
@@ -2101,7 +2075,7 @@ void fireControlCheck() {
         }
       }
 
-      if(switch_mode.on() != true && FIRING_MODE == VG_MODE) {
+      if(!switch_mode.on() && FIRING_MODE == VG_MODE) {
         switch(STREAM_MODE) {
           case PROTON:
           case SLIME:
@@ -2111,7 +2085,7 @@ void fireControlCheck() {
 
           case STASIS:
           case MESON:
-            if(b_firing == true && b_firing_intensify == true) {
+            if(b_firing && b_firing_intensify) {
               WAND_ACTION_STATUS = ACTION_IDLE;
               b_firing_intensify = false;
             }
@@ -2126,7 +2100,7 @@ void fireControlCheck() {
 
     // Quick vent feature. When enabled, clicking Intensify will perform a quick vent, while holding will force the full overheat sequence.
     // Super Hero Mode only, because Mode Original uses different toggle switch combinations which makes this not possible.
-    if(b_quick_vent == true && SYSTEM_MODE == MODE_SUPER_HERO && switch_wand.on() == false && switch_vent.on() == true && b_overheat_enabled == true) {
+    if(b_quick_vent && SYSTEM_MODE == MODE_SUPER_HERO && !switch_wand.on() && switch_vent.on() && b_overheat_enabled) {
       if(switch_intensify.singleClick()) {
         startQuickVent();
       }
@@ -2135,17 +2109,17 @@ void fireControlCheck() {
       }
     }
   }
-  else if(WAND_ACTION_STATUS == ACTION_OVERHEATING || WAND_ACTION_STATUS == ACTION_VENTING || WAND_ACTION_STATUS == ACTION_SETTINGS || b_pack_alarm == true) {
+  else if(WAND_ACTION_STATUS == ACTION_OVERHEATING || WAND_ACTION_STATUS == ACTION_VENTING || WAND_ACTION_STATUS == ACTION_SETTINGS || b_pack_alarm) {
     // If Activate switch is down, turn wand off.
-    if(switch_activate.on() == false) {
+    if(!switch_activate.on()) {
       WAND_ACTION_STATUS = ACTION_OFF;
       return;
     }
 
     if(WAND_ACTION_STATUS == ACTION_IDLE) {
       // Play a little spark effect if the user tries to fire while the ribbon cable is removed.
-      if((switch_intensify.pushed() || ((FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) && switch_mode.pushed())) && !ms_wand_heatup_fade.isRunning() && switch_vent.on() == true && switch_wand.on() == true) {
-        if(b_extra_pack_sounds == true) {
+      if((switch_intensify.pushed() || ((FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) && switch_mode.pushed())) && !ms_wand_heatup_fade.isRunning() && switch_vent.on() && switch_wand.on()) {
+        if(b_extra_pack_sounds) {
           wandSerialSend(W_WAND_MASH_ERROR_SOUND);
         }
 
@@ -2159,8 +2133,8 @@ void fireControlCheck() {
 
 // Called from checkSwitches(); Used to enter the settings menu in MODE_SUPER_HERO.
 void altWingButtonCheck() {
-  if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && b_pack_alarm != true) {
-    if((switch_wand.on() != true || switch_vent.on() != true) && switch_mode.pushed()) {
+  if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && !b_pack_alarm) {
+    if((!switch_wand.on() || !switch_vent.on()) && switch_mode.pushed()) {
       // Only exit the settings menu when on menu #5.
       if(i_wand_menu == 5) {
         // Switch between firing mode and settings mode.
@@ -2191,7 +2165,7 @@ void altWingButtonCheck() {
         playEffect(S_CLICK);
       }
     }
-    else if(WAND_ACTION_STATUS == ACTION_SETTINGS && switch_vent.on() == true && switch_wand.on() == true) {
+    else if(WAND_ACTION_STATUS == ACTION_SETTINGS && switch_vent.on() && switch_wand.on()) {
       // Exit the settings menu if the user turns the wand switch back on.
       streamModeCheck();
       WAND_ACTION_STATUS = ACTION_IDLE;
@@ -2204,7 +2178,7 @@ void altWingButtonCheck() {
         bargraphPowerCheck2021Alt(true);
       }
     }
-    else if(STREAM_MODE == HOLIDAY && switch_wand.on() == true && switch_vent.on() == true && switch_mode.pushed()) {
+    else if(STREAM_MODE == HOLIDAY && switch_wand.on() && switch_vent.on() && switch_mode.pushed()) {
       // Used to switch the Holiday firing mode between Halloween and Christmas colours.
       b_christmas = !b_christmas;
       streamModeCheck();
@@ -3139,6 +3113,96 @@ void modeFireStopSounds() {
 
   ms_meson_blast.stop();
 
+  switch(STREAM_MODE) {
+    case PROTON:
+    default:
+      switch(getSystemYearMode()) {
+        case SYSTEM_1984:
+          if(i_power_level != i_power_level_max) {
+            // Play different firing end stream sound depending on how long we have been firing for.
+            if(ms_firing_length_timer.remaining() < 5000) {
+              // Long firing tail end.
+              playEffect(S_FIRING_END_MID, false, i_volume_effects, false, 0, false);
+            }
+            else if(ms_firing_length_timer.remaining() < 10000) {
+              // Mid firing tail end.
+              playEffect(S_FIRING_END, false, i_volume_effects, false, 0, false);
+            }
+            else {
+              // Short firing tail end.
+              playEffect(S_GB1_1984_FIRE_END_SHORT, false, i_volume_effects, false, 0, false);
+            }
+          }
+          else {
+              // Play different firing end stream sound depending on how long we have been firing for.
+              if(ms_firing_length_timer.remaining() < 5000) {
+                // Long tail end.
+                playEffect(S_GB1_1984_FIRE_END_HIGH_POWER, false, i_volume_effects, false, 0, false);
+              }
+              else if(ms_firing_length_timer.remaining() < 10000) {
+                // Mid tail end.
+                playEffect(S_GB1_1984_FIRE_END_MID_HIGH_POWER, false, i_volume_effects, false, 0, false);
+              }
+              else {
+                // Short tail end.
+                playEffect(S_GB1_1984_FIRE_END_SHORT_HIGH_POWER, false, i_volume_effects, false, 0, false);
+              }
+          }
+        break;
+
+        case SYSTEM_1989:
+          // Play different firing end stream sound depending on how long we have been firing for.
+          if(ms_firing_length_timer.remaining() < 5000) {
+            // Long tail end.
+            playEffect(S_FIRING_END_GUN, false, i_volume_effects, false, 0, false);
+          }
+          else if(ms_firing_length_timer.remaining() < 10000) {
+            // Mid tail end.
+            playEffect(S_FIRING_END_MID, false, i_volume_effects, false, 0, false);
+          }
+          else {
+            // Short tail end.
+            playEffect(S_FIRING_END, false, i_volume_effects, false, 0, false);
+          }
+        break;
+
+        case SYSTEM_AFTERLIFE:
+        default:
+          // Play different firing end stream sound depending on how long we have been firing for.
+          if(ms_firing_length_timer.remaining() < 5000) {
+            // Long firing tail end.
+            playEffect(S_AFTERLIFE_FIRE_END_LONG, false, i_volume_effects, false, 0, false);
+          }
+          else if(ms_firing_length_timer.remaining() < 10000) {
+            // Mid firing tail end.
+            playEffect(S_AFTERLIFE_FIRE_END_MID, false, i_volume_effects, false, 0, false);
+          }
+          else {
+            // Short firing tail end.
+            playEffect(S_AFTERLIFE_FIRE_END_SHORT, false, i_volume_effects, false, 0, false);
+          }
+        break;
+
+        case SYSTEM_FROZEN_EMPIRE:
+          // Frozen Empire replaces all firing tail sounds with just a "thump".
+          playEffect(S_AFTERLIFE_FIRE_END_MID, false, i_volume_effects, false, 0, false);
+        break;
+      }
+    break;
+
+    case SLIME:
+      playEffect(S_SLIME_END, false, i_volume_effects, false, 0, false);
+    break;
+
+    case STASIS:
+      playEffect(S_STASIS_END, false, i_volume_effects, false, 0, false);
+    break;
+
+    case MESON:
+      // Nothing.
+    break;
+  }
+
   // Stop all other firing sounds.
   switch(STREAM_MODE) {
     case PROTON:
@@ -3209,98 +3273,6 @@ void modeFireStopSounds() {
     break;
   }
 
-  if(b_wand_mash_error != true) {
-    switch(STREAM_MODE) {
-      case PROTON:
-      default:
-        switch(getSystemYearMode()) {
-          case SYSTEM_1984:
-            if(i_power_level != i_power_level_max) {
-              // Play different firing end stream sound depending on how long we have been firing for.
-              if(ms_firing_length_timer.remaining() < 5000) {
-                // Long firing tail end.
-                playEffect(S_FIRING_END_MID, false, i_volume_effects, false, 0, false);
-              }
-              else if(ms_firing_length_timer.remaining() < 10000) {
-                // Mid firing tail end.
-                playEffect(S_FIRING_END, false, i_volume_effects, false, 0, false);
-              }
-              else {
-                // Short firing tail end.
-                playEffect(S_GB1_1984_FIRE_END_SHORT, false, i_volume_effects, false, 0, false);
-              }
-            }
-            else {
-                // Play different firing end stream sound depending on how long we have been firing for.
-                if(ms_firing_length_timer.remaining() < 5000) {
-                  // Long tail end.
-                  playEffect(S_GB1_1984_FIRE_END_HIGH_POWER, false, i_volume_effects, false, 0, false);
-                }
-                else if(ms_firing_length_timer.remaining() < 10000) {
-                  // Mid tail end.
-                  playEffect(S_GB1_1984_FIRE_END_MID_HIGH_POWER, false, i_volume_effects, false, 0, false);
-                }
-                else {
-                  // Short tail end.
-                  playEffect(S_GB1_1984_FIRE_END_SHORT_HIGH_POWER, false, i_volume_effects, false, 0, false);
-                }
-            }
-          break;
-
-          case SYSTEM_1989:
-            // Play different firing end stream sound depending on how long we have been firing for.
-            if(ms_firing_length_timer.remaining() < 5000) {
-              // Long tail end.
-              playEffect(S_FIRING_END_GUN, false, i_volume_effects, false, 0, false);
-            }
-            else if(ms_firing_length_timer.remaining() < 10000) {
-              // Mid tail end.
-              playEffect(S_FIRING_END_MID, false, i_volume_effects, false, 0, false);
-            }
-            else {
-              // Short tail end.
-              playEffect(S_FIRING_END, false, i_volume_effects, false, 0, false);
-            }
-          break;
-
-          case SYSTEM_AFTERLIFE:
-          default:
-            // Play different firing end stream sound depending on how long we have been firing for.
-            if(ms_firing_length_timer.remaining() < 5000) {
-              // Long firing tail end.
-              playEffect(S_AFTERLIFE_FIRE_END_LONG, false, i_volume_effects, false, 0, false);
-            }
-            else if(ms_firing_length_timer.remaining() < 10000) {
-              // Mid firing tail end.
-              playEffect(S_AFTERLIFE_FIRE_END_MID, false, i_volume_effects, false, 0, false);
-            }
-            else {
-              // Short firing tail end.
-              playEffect(S_AFTERLIFE_FIRE_END_SHORT, false, i_volume_effects, false, 0, false);
-            }
-          break;
-
-          case SYSTEM_FROZEN_EMPIRE:
-            // Frozen Empire replaces all firing tail sounds with just a "thump".
-            playEffect(S_AFTERLIFE_FIRE_END_MID, false, i_volume_effects, false, 0, false);
-          break;
-        }
-      break;
-
-      case SLIME:
-        playEffect(S_SLIME_END, false, i_volume_effects, false, 0, false);
-      break;
-
-      case STASIS:
-        playEffect(S_STASIS_END, false, i_volume_effects, false, 0, false);
-      break;
-
-      case MESON:
-        // Nothing.
-      break;
-    }
-  }
-
   if(b_firing_cross_streams == true) {
     switch(WAND_YEAR_CTS) {
       case CTS_AFTERLIFE:
@@ -3309,9 +3281,7 @@ void modeFireStopSounds() {
           stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
         }
 
-        if(b_wand_mash_error != true) {
-          playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
-        }
+        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
       break;
 
       case CTS_1984:
@@ -3320,9 +3290,7 @@ void modeFireStopSounds() {
           stopEffect(S_CROSS_STREAMS_END);
         }
 
-        if(b_wand_mash_error != true) {
-          playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
-        }
+        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
       break;
 
       case CTS_DEFAULT:
@@ -3336,9 +3304,7 @@ void modeFireStopSounds() {
               stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
             }
 
-            if(b_wand_mash_error != true) {
-              playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
-            }
+            playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
           break;
 
           case SYSTEM_1984:
@@ -3348,9 +3314,7 @@ void modeFireStopSounds() {
               stopEffect(S_CROSS_STREAMS_END);
             }
 
-            if(b_wand_mash_error != true) {
-              playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
-            }
+            playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
           break;
         }
       break;
@@ -9774,7 +9738,7 @@ void checkRotaryEncoder() {
               wandSerialSend(W_VOLUME_INCREASE);
             }
         }
-        else if(WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && !b_pack_alarm) {
+        else if(WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && !b_pack_alarm && !b_wand_mash_error) {
           if(WAND_ACTION_STATUS == ACTION_FIRING && i_power_level == i_power_level_max) {
             // Do nothing, we are locked in full power level while firing.
           }
