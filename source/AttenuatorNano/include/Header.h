@@ -140,7 +140,8 @@ enum POWER_LEVELS POWER_LEVEL;
 enum POWER_LEVELS POWER_LEVEL_PREV;
 enum STREAM_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM, SETTINGS };
 enum STREAM_MODES STREAM_MODE;
-bool b_christmas = false; // Used in HOLIDAY mode to change from orange/purple to red/green.
+enum HOLIDAY_MODES { CHRISTMAS, HALLOWEEN };
+enum HOLIDAY_MODES HOLIDAY_MODE; // Used in HOLIDAY mode to change from orange/purple to red/green.
 
 /*
  * Toggle Switches

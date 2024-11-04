@@ -21,17 +21,11 @@
 #pragma once
 
 /*
- * Flag to indicate serial comms have been established after bootup.
- */
-bool b_comms_open = false;
-
-/*
- * Pin for Addressable LEDs.
+ * Pin for Addressable LEDs
  */
 #define DEVICE_LED_PIN 23
 #define BUILT_IN_LED 2
-// States there are 3 LEDs: Top, Upper, and Lower
-#define DEVICE_NUM_LEDS 3
+#define DEVICE_NUM_LEDS 3 // States there are 3 LEDs: Top, Upper, and Lower
 CRGB device_leds[DEVICE_NUM_LEDS];
 
 /*
@@ -53,6 +47,11 @@ enum LED_ANIMATION : uint8_t {
   RED_FADE = 2
 };
 enum LED_ANIMATION RAD_LENS_IDLE;
+
+/*
+ * Flag to indicate serial comms have been established after bootup.
+ */
+bool b_comms_open = false;
 
 /*
  * UI Status Display Type
@@ -167,7 +166,8 @@ enum POWER_LEVELS POWER_LEVEL;
 enum POWER_LEVELS POWER_LEVEL_PREV;
 enum STREAM_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM, SETTINGS };
 enum STREAM_MODES STREAM_MODE;
-bool b_christmas = false; // Used in HOLIDAY mode to change from orange/purple to red/green.
+enum HOLIDAY_MODES { CHRISTMAS, HALLOWEEN };
+enum HOLIDAY_MODES HOLIDAY_MODE; // Used in HOLIDAY mode to change from orange/purple to red/green.
 
 /*
  * Toggle Switches

@@ -407,11 +407,11 @@ bool checkPack() {
             break;
             case 6:
               STREAM_MODE = HOLIDAY;
-              b_christmas = false;
+              HOLIDAY_MODE = HALLOWEEN;
             break;
             case 7:
               STREAM_MODE = HOLIDAY;
-              b_christmas = true;
+              HOLIDAY_MODE = CHRISTMAS;
             break;
             case 8:
               STREAM_MODE = SPECTRAL_CUSTOM;
@@ -752,7 +752,12 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       debug("Spectral Holiday");
 
       STREAM_MODE = HOLIDAY;
-      b_christmas = (i_value == 2);
+      if (i_value == 2) {
+        HOLIDAY_MODE = CHRISTMAS;
+      }
+      else {
+        HOLIDAY_MODE = HALLOWEEN;
+      }
       b_state_changed = true;
     break;
 

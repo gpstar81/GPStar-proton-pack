@@ -113,11 +113,14 @@ void updateLEDs() {
     break;
 
     case HOLIDAY:
-      if(b_christmas) {
-        i_scheme = C_REDGREEN;
-      }
-      else {
-        i_scheme = C_ORANGEPURPLE;
+      switch(HOLIDAY_MODE) {
+        case CHRISTMAS:
+        default:
+          i_scheme = C_REDGREEN;
+        break;
+        case HALLOWEEN:
+          i_scheme = C_ORANGEPURPLE;
+        break;
       }
     break;
 
@@ -388,8 +391,8 @@ void mainLoop() {
    * bargraph (whether stock 5-LED version or 28-segment by Frutto).
    *
    * Standalone:
-   * When not paired with the gpstar Proton Pack controller, will turn
-   * on the bargraph which will display some pre-set pattern.
+   * When not paired with the GPStar Proton Pack controller, will turn
+   * on the bargraph which will display a static, pre-set pattern.
    */
 
   // Turns the pack on or off (when paired) via left toggle.

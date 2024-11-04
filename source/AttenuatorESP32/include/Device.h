@@ -142,6 +142,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
           var settings = JSON.parse(this.responseText);
           if (settings) {
             // Update fields with the current values, or supply an expected default as necessary.
+            setValue("wifiName", settings.wifiName || "");
             setToggle("invertLEDs", settings.invertLEDs);
             setToggle("buzzer", settings.buzzer);
             setToggle("vibration", settings.vibration);
@@ -150,7 +151,6 @@ const char DEVICE_page[] PROGMEM = R"=====(
             setValue("radLensIdle", settings.radLensIdle || 0); // Default: 0 [Amber Pulse]
             setValue("displayType", settings.displayType || 0); // Default: 0 [Text]
             setValue("songList", settings.songList || "");
-            setValue("wifiName", settings.wifiName || "");
             updateByteCount();
           }
         }
