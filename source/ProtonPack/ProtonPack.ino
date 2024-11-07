@@ -3762,9 +3762,7 @@ void packOverheatingStart() {
     // Reset some vent light timers.
     ms_vent_light_off.stop();
     ms_vent_light_on.stop();
-    //ms_fan_stop_timer.stop();
     ms_vent_light_off.start(i_vent_light_delay);
-    //ms_fan_stop_timer.start(i_fan_stop_timer);
   }
 
   // Reset the Inner Cyclotron speed.
@@ -3790,9 +3788,7 @@ void packVentingStart() {
     // Reset some vent light timers.
     ms_vent_light_off.stop();
     ms_vent_light_on.stop();
-    //ms_fan_stop_timer.stop();
     ms_vent_light_off.start(i_vent_light_delay);
-    //ms_fan_stop_timer.start(i_fan_stop_timer);
   }
 
   b_venting = true;
@@ -4306,7 +4302,7 @@ void reset2021RampDown() {
 }
 
 void ventLightLEDW(bool b_on) {
-  if(b_on == true) {
+  if(b_on && ((b_wand_firing && b_smoke_continuous_level[i_wand_power_level - 1]) || b_overheating || b_alarm)) {
     digitalWriteFast(NFILTER_LED_PIN, HIGH);
   }
   else {
@@ -4318,9 +4314,9 @@ void ventLight(bool b_on) {
   uint8_t i_colour_scheme = getDeviceColour(VENT_LIGHT, STREAM_MODE, true);
   b_vent_light_on = b_on;
 
-  if(b_on == true) {
+  if(b_on) {
     // If doing firing smoke effects, let's change the light colours.
-    if(b_wand_firing == true || b_overheating == true) {
+    if((b_wand_firing && b_smoke_continuous_level[i_wand_power_level - 1]) || b_overheating) {
       if(STREAM_MODE == PROTON) {
         // Override the N-Filter light colours for a proton stream.
         switch(i_wand_power_level) {
@@ -4350,7 +4346,11 @@ void ventLight(bool b_on) {
         }
       }
     }
-    else if(b_alarm == true) {
+    else if(b_wand_firing && !b_smoke_continuous_level[i_wand_power_level - 1]) {
+      // If continuous fire smoke is disabled in the current power level, do not turn on the N-Filter LEDs.
+      i_colour_scheme = C_BLACK;
+    }
+    else if(b_alarm) {
       i_colour_scheme = C_RED;
     }
 
@@ -4569,7 +4569,6 @@ void wandFiring() {
   vibrationPack(255);
 
   // Reset some vent light timers.
-  ms_vent_light_off.stop();
   ms_vent_light_on.stop();
   ms_vent_light_off.start(i_vent_light_delay);
 
