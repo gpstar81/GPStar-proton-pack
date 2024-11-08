@@ -353,9 +353,9 @@ bool b_smoke_enabled = true;
  * Control which of the 4 pins go high during continuous firing smoke effects.
  * This can be overridden if b_smoke_enabled is set to false.
  */
-bool b_smoke_1_continuous_firing = true;
-bool b_smoke_2_continuous_firing = true;
-bool b_fan_continuous_firing = true;
+bool b_smoke_nfilter_continuous_firing = true;
+bool b_smoke_booster_continuous_firing = true;
+bool b_fan_nfilter_continuous_firing = true;
 bool b_fan_booster_continuous_firing = true;
 
 /*
@@ -397,9 +397,9 @@ const uint16_t i_smoke_on_time_level_5 = 4000;
  * Control which of the 3 pins that go 5V high during overheat.
  * This can be overridden if b_smoke_enabled is set to false.
  */
-bool b_smoke_1_overheat = true;
-bool b_smoke_2_overheat = true;
-bool b_fan_overheat = true;
+bool b_smoke_nfilter_overheat = true;
+bool b_smoke_booster_overheat = true;
+bool b_fan_nfilter_overheat = true;
 bool b_fan_booster_overheat = true;
 
 /*

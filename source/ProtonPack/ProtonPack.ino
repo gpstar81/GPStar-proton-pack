@@ -475,7 +475,6 @@ void loop() {
               }
 
               fanNFilter(true);
-              fanBooster(true);
             }
 
             // We are strobing the N-Filter jewel.
@@ -500,7 +499,6 @@ void loop() {
             ventLight(false);
             ventLightLEDW(false);
             fanNFilter(false);
-            fanBooster(false);
           }
         }
 
@@ -1081,7 +1079,6 @@ void packShutdown() {
 
     // Turn off the fans.
     fanNFilter(false);
-    fanBooster(false);
 
     // Turn off the Cyclotron auto speed timer.
     ms_cyclotron_auto_speed_timer.stop();
@@ -3543,7 +3540,6 @@ void packVenting() {
 
     // Turn the fans on.
     fanNFilter(true);
-    fanBooster(true);
 
     // For strobing the vent light.
     if(ms_vent_light_off.justFinished()) {
@@ -3699,7 +3695,6 @@ void cyclotronOverheating() {
 
     // Turn the fans on.
     fanNFilter(true);
-    fanBooster(true);
 
     // For strobing the vent light.
     if(ms_vent_light_off.justFinished()) {
@@ -3786,7 +3781,6 @@ void packVentingStart() {
   }
   else {
     // Reset some vent light timers.
-    ms_vent_light_off.stop();
     ms_vent_light_on.stop();
     ms_vent_light_off.start(i_vent_light_delay);
   }
@@ -3842,7 +3836,6 @@ void packOverheatingFinished() {
 
   // Stop the fans.
   fanNFilter(false);
-  fanBooster(false);
 
   // Reset the LEDs before resetting the alarm flag.
   if((SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) && !usingSlimeCyclotron()) {
@@ -3897,7 +3890,6 @@ void packVentingFinished() {
 
   // Stop the fans.
   fanNFilter(false);
-  fanBooster(false);
 
   // Turn off the vent lights
   ventLight(false);
@@ -4722,7 +4714,6 @@ void wandStoppedFiring() {
 
   // Turn off the fans.
   fanNFilter(false);
-  fanBooster(false);
 
   ms_firing_length_timer.stop();
   ms_smoke_timer.stop();
@@ -5176,51 +5167,56 @@ void checkRotaryEncoder() {
   }
 }
 
-// Smoke # 1. N-Filter cone outlet.
+// Smoke #1. N-Filter cone outlet.
 void smokeNFilter(bool b_smoke_on) {
-  if(b_smoke_enabled == true) {
-    if(b_smoke_on == true) {
-      if(b_wand_firing == true && b_overheating != true && b_smoke_1_continuous_firing == true && b_smoke_continuous_level[i_wand_power_level - 1] == true) {
+  // Pass the value passed to us on to the Booster Tube smoke machine.
+  smokeBooster(b_smoke_on);
+
+  if(b_smoke_on) {
+    if(b_smoke_enabled) {
+      if(b_wand_firing && !b_overheating && b_smoke_nfilter_continuous_firing && b_smoke_continuous_level[i_wand_power_level - 1]) {
         digitalWriteFast(NFILTER_SMOKE_PIN, HIGH);
       }
-      else if(b_overheating == true && b_wand_firing != true && b_smoke_1_overheat == true && b_smoke_overheat_level[i_wand_power_level - 1] == true) {
+      else if(b_overheating && b_smoke_nfilter_overheat && b_smoke_overheat_level[i_wand_power_level - 1]) {
         digitalWriteFast(NFILTER_SMOKE_PIN, HIGH);
       }
-      else if(b_venting == true) {
+      else if(b_venting && b_smoke_nfilter_overheat) {
         digitalWriteFast(NFILTER_SMOKE_PIN, HIGH);
-      }
-      else {
-        digitalWriteFast(NFILTER_SMOKE_PIN, LOW);
       }
     }
     else {
+      // If smoke is disabled globally, turn off.
       digitalWriteFast(NFILTER_SMOKE_PIN, LOW);
     }
-
-    smokeBooster(b_smoke_on);
+  }
+  else {
+    // If we were told to turn off, turn off.
+    digitalWriteFast(NFILTER_SMOKE_PIN, LOW);
   }
 }
 
 // Smoke #2. Good for putting smoke in the Booster Tube.
 void smokeBooster(bool b_smoke_on) {
-  if(b_smoke_enabled == true) {
-    if(b_smoke_on == true) {
-      if(b_wand_firing == true && b_overheating != true && b_smoke_2_continuous_firing == true && b_smoke_continuous_level[i_wand_power_level - 1] == true) {
+  if(b_smoke_on) {
+    if(b_smoke_enabled) {
+      if(b_wand_firing && !b_overheating && b_smoke_booster_continuous_firing && b_smoke_continuous_level[i_wand_power_level - 1]) {
         digitalWriteFast(BOOSTER_TUBE_SMOKE_PIN, HIGH);
       }
-      else if(b_overheating == true && b_smoke_2_overheat == true && b_wand_firing != true && b_smoke_overheat_level[i_wand_power_level - 1] == true) {
+      else if(b_overheating && b_smoke_booster_overheat && b_smoke_overheat_level[i_wand_power_level - 1]) {
         digitalWriteFast(BOOSTER_TUBE_SMOKE_PIN, HIGH);
       }
-      else if(b_venting == true) {
+      else if(b_venting && b_smoke_booster_overheat) {
         digitalWriteFast(BOOSTER_TUBE_SMOKE_PIN, HIGH);
-      }
-      else {
-        digitalWriteFast(BOOSTER_TUBE_SMOKE_PIN, LOW);
       }
     }
     else {
+      // If smoke is disabled globally, turn off.
       digitalWriteFast(BOOSTER_TUBE_SMOKE_PIN, LOW);
     }
+  }
+  else {
+    // If we were told to turn off, turn off.
+    digitalWriteFast(BOOSTER_TUBE_SMOKE_PIN, LOW);
   }
 }
 
@@ -5228,46 +5224,53 @@ void smokeBooster(bool b_smoke_on) {
 // Fan control. You can use this to switch on any device when properly hooked up with a transistor etc.
 // A fan is a good idea for the N-Filter for example.
 void fanNFilter(bool b_fan_on) {
-  if(b_smoke_enabled == true) {
-    if(b_fan_on == true) {
-      if(b_wand_firing == true && b_overheating != true && b_fan_continuous_firing == true && b_smoke_continuous_level[i_wand_power_level - 1] == true) {
+  // Pass the value passed to us on to the Booster Tube fan.
+  fanBooster(b_fan_on);
+
+  if(b_fan_on) {
+    if(b_smoke_enabled) {
+      if(b_wand_firing && !b_overheating && b_fan_nfilter_continuous_firing && b_smoke_continuous_level[i_wand_power_level - 1]) {
         digitalWriteFast(NFILTER_FAN_PIN, HIGH);
       }
-      else if(b_overheating == true && b_wand_firing != true && b_fan_overheat == true && b_smoke_overheat_level[i_wand_power_level - 1] == true) {
+      else if(b_overheating && b_fan_nfilter_overheat && b_smoke_overheat_level[i_wand_power_level - 1]) {
         digitalWriteFast(NFILTER_FAN_PIN, HIGH);
       }
-      else if(b_venting == true) {
+      else if(b_venting && b_fan_nfilter_overheat) {
         digitalWriteFast(NFILTER_FAN_PIN, HIGH);
-      }
-      else {
-        digitalWriteFast(NFILTER_FAN_PIN, LOW);
       }
     }
     else {
+      // If smoke is disabled globally, turn off.
       digitalWriteFast(NFILTER_FAN_PIN, LOW);
     }
+  }
+  else {
+    // If we were told to turn off, turn off.
+    digitalWriteFast(NFILTER_FAN_PIN, LOW);
   }
 }
 
 void fanBooster(bool b_fan_on) {
-  if(b_smoke_enabled == true) {
-    if(b_fan_on == true) {
-      if(b_wand_firing == true && b_overheating != true && b_fan_booster_continuous_firing == true && b_smoke_continuous_level[i_wand_power_level - 1] == true) {
+  if(b_fan_on) {
+    if(b_smoke_enabled) {
+      if(b_wand_firing && !b_overheating && b_fan_booster_continuous_firing && b_smoke_continuous_level[i_wand_power_level - 1]) {
         digitalWriteFast(BOOSTER_TUBE_FAN_PIN, HIGH);
       }
-      else if(b_overheating == true && b_wand_firing != true && b_fan_booster_overheat == true && b_smoke_overheat_level[i_wand_power_level - 1] == true) {
+      else if(b_overheating && b_fan_booster_overheat && b_smoke_overheat_level[i_wand_power_level - 1]) {
         digitalWriteFast(BOOSTER_TUBE_FAN_PIN, HIGH);
       }
-      else if(b_venting == true) {
+      else if(b_venting && b_fan_booster_overheat) {
         digitalWriteFast(BOOSTER_TUBE_FAN_PIN, HIGH);
-      }
-      else {
-        digitalWriteFast(BOOSTER_TUBE_FAN_PIN, LOW);
       }
     }
     else {
+      // If smoke is disabled globally, turn off.
       digitalWriteFast(BOOSTER_TUBE_FAN_PIN, LOW);
     }
+  }
+  else {
+    // If we were told to turn off, turn off.
+    digitalWriteFast(BOOSTER_TUBE_FAN_PIN, LOW);
   }
 }
 
