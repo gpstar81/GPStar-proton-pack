@@ -1458,6 +1458,7 @@ void checkSwitches() {
 
     if(b_smoke_enabled) {
       b_smoke_enabled = false;
+      smokeNFilter(false);
 
       stopEffect(S_VENT_DRY);
 
