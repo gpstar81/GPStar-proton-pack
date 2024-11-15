@@ -23,8 +23,8 @@
 /*
  * Pin for Addressable LEDs
  */
-#define DEVICE_LED_PIN 23
 #define BUILT_IN_LED 2
+#define DEVICE_LED_PIN 23
 #define DEVICE_NUM_LEDS 3 // States there are 3 LEDs: Top, Upper, and Lower
 CRGB device_leds[DEVICE_NUM_LEDS];
 

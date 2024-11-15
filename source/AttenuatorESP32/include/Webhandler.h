@@ -1297,11 +1297,14 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
 
       // Disconnect from the WiFi network and re-apply any changes.
       WiFi.disconnect();
+      b_ext_wifi_started = false;
 
       delay(100); // Delay needed.
 
       if(b_enabled) {
-        if(startExternalWifi()) {
+        b_ext_wifi_started = startExternalWifi(); // Restart and set global flag.
+
+        if(b_ext_wifi_started) {
           jsonBody["status"] = "Settings updated, WiFi connection restarted successfully.";
         }
         else {
@@ -1342,25 +1345,25 @@ void setupRouting() {
 
   // Static Pages
   httpServer.on("/", HTTP_GET, handleRoot);
+  httpServer.on("/common.js", HTTP_GET, handleCommonJS);
+  httpServer.on("/equipment.svg", HTTP_GET, handleEquipSvg);
   httpServer.on("/favicon.ico", HTTP_GET, handleFavIco);
   httpServer.on("/favicon.svg", HTTP_GET, handleFavSvg);
-  httpServer.on("/equipment.svg", HTTP_GET, handleEquipSvg);
-  httpServer.on("/common.js", HTTP_GET, handleCommonJS);
   httpServer.on("/index.js", HTTP_GET, handleRootJS);
   httpServer.on("/network", HTTP_GET, handleNetwork);
   httpServer.on("/password", HTTP_GET, handlePassword);
   httpServer.on("/settings/device", HTTP_GET, handleDeviceSettings);
   httpServer.on("/settings/pack", HTTP_GET, handlePackSettings);
-  httpServer.on("/settings/wand", HTTP_GET, handleWandSettings);
   httpServer.on("/settings/smoke", HTTP_GET, handleSmokeSettings);
+  httpServer.on("/settings/wand", HTTP_GET, handleWandSettings);
   httpServer.on("/style.css", HTTP_GET, handleStylesheet);
   httpServer.onNotFound(handleNotFound);
 
   // Get/Set Handlers
   httpServer.on("/config/device", HTTP_GET, handleGetDeviceConfig);
   httpServer.on("/config/pack", HTTP_GET, handleGetPackConfig);
-  httpServer.on("/config/wand", HTTP_GET, handleGetWandConfig);
   httpServer.on("/config/smoke", HTTP_GET, handleGetSmokeConfig);
+  httpServer.on("/config/wand", HTTP_GET, handleGetWandConfig);
   httpServer.on("/eeprom/all", HTTP_PUT, handleSaveAllEEPROM);
   httpServer.on("/eeprom/pack", HTTP_PUT, handleSavePackEEPROM);
   httpServer.on("/eeprom/wand", HTTP_PUT, handleSaveWandEEPROM);
@@ -1390,8 +1393,8 @@ void setupRouting() {
   // Body Handlers
   httpServer.addHandler(handleSaveDeviceConfig); // /config/device/save
   httpServer.addHandler(handleSavePackConfig); // /config/pack/save
-  httpServer.addHandler(handleSaveWandConfig); // /config/wand/save
   httpServer.addHandler(handleSaveSmokeConfig); // /config/smoke/save
+  httpServer.addHandler(handleSaveWandConfig); // /config/wand/save
   httpServer.addHandler(passwordChangeHandler); // /password/update
   httpServer.addHandler(wifiChangeHandler); // /wifi/update
 }

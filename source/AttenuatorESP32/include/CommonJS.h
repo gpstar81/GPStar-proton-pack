@@ -61,6 +61,18 @@ function showEl(id){
   getEl(id).style.display = "block";
 }
 
+function colorEl(id, red, green, blue, alpha = 0.5){
+  getEl(id).style.backgroundColor = "rgba(" + red + ", " + green + ", " + blue + ", " + alpha + ")";
+}
+
+function blinkEl(id, state) {
+  if(state) {
+    getEl(id).classList.add("blinking");
+  } else {
+    getEl(id).classList.remove("blinking");
+  }
+}
+
 function isJsonString(str) {
   try {
     JSON.parse(str);

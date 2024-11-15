@@ -1,8 +1,6 @@
 #!/bin/bash
 
-# Perform a full compile of all binaries using the Arduino-CLI and any boards/libraries
-# already installed as part of the ArduinoIDE on a local Mac/PC development environment.
-# For PC/Windows users, a Cygwin environment may be used to execute this build script.
+# Perform a full compile of all binaries using PlatformIO (pio).
 #
 # This script compiles only the Single-Shot Blaster.
 

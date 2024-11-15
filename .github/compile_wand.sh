@@ -1,8 +1,6 @@
 #!/bin/bash
 
-# Perform a full compile of all binaries using the Arduino-CLI and any boards/libraries
-# already installed as part of the ArduinoIDE on a local Mac/PC development environment.
-# For PC/Windows users, a Cygwin environment may be used to execute this build script.
+# Perform a full compile of all binaries using PlatformIO (pio).
 #
 # This script compiles only the Proton Pack.
 
@@ -39,8 +37,8 @@ echo ""
 echo "Building Neutrona Wand (Bench Test) Binary..."
 
 # Change flag(s) for compilation
-sed -i -e 's/bool b_gpstar_benchtest = false/const bool b_gpstar_benchtest = true/' ${PROJECT_DIR}/Configuration.h
-sed -i -e 's/b_gpstar_benchtest = true/\/\/b_gpstar_benchtest = true/' ${PROJECT_DIR}/Serial.h
+sed -i -e 's/bool b_gpstar_benchtest = false/const bool b_gpstar_benchtest = true/' ${PROJECT_DIR}/include/Configuration.h
+sed -i -e 's/b_gpstar_benchtest = true/\/\/b_gpstar_benchtest = true/' ${PROJECT_DIR}/include/Serial.h
 
 # Clean the project before building
 pio run --project-dir "$PROJECT_DIR" --target clean
@@ -49,8 +47,8 @@ pio run --project-dir "$PROJECT_DIR" --target clean
 pio run --project-dir "$PROJECT_DIR"
 
 # Restore flag(s) from compilation
-sed -i -e 's/const bool b_gpstar_benchtest = true/bool b_gpstar_benchtest = false/' ${PROJECT_DIR}/Configuration.h
-sed -i -e 's/\/\/b_gpstar_benchtest = true/b_gpstar_benchtest = true/' ${PROJECT_DIR}/Serial.h
+sed -i -e 's/const bool b_gpstar_benchtest = true/bool b_gpstar_benchtest = false/' ${PROJECT_DIR}/include/Configuration.h
+sed -i -e 's/\/\/b_gpstar_benchtest = true/b_gpstar_benchtest = true/' ${PROJECT_DIR}/include/Serial.h
 
 rm -f ${PROJECT_DIR}/include/*.h-e
 
