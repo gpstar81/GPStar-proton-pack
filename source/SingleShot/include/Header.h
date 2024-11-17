@@ -79,8 +79,8 @@ struct StandaloneLED {
 
   // Function to initialize the LED
   void initialize() {
-    pinModeFast(Pin, OUTPUT);
-    digitalWriteFast(Pin, Off);
+    pinMode(Pin, OUTPUT);
+    digitalWrite(Pin, Off);
   }
 
   // Function to dim the LED
@@ -90,17 +90,17 @@ struct StandaloneLED {
 
   // Function to get LED state/value
   uint8_t getState() {
-    return digitalReadFast(Pin);
+    return digitalRead(Pin);
   }
 
   // Function to turn on the LED
   void turnOn() {
-    digitalWriteFast(Pin, On);
+    digitalWrite(Pin, On);
   }
 
   // Function to turn off the LED
   void turnOff() {
-    digitalWriteFast(Pin, Off);
+    digitalWrite(Pin, Off);
   }
 };
 
@@ -134,11 +134,11 @@ struct Encoder {
 
       PrevNextCode <<= 2;
 
-      if(digitalReadFast(r_encoderB)) {
+      if(digitalRead(r_encoderB)) {
         PrevNextCode |= 0x02;
       }
 
-      if(digitalReadFast(r_encoderA)) {
+      if(digitalRead(r_encoderA)) {
         PrevNextCode |= 0x01;
       }
 
@@ -146,16 +146,16 @@ struct Encoder {
 
       // If valid then CodeStore as 16 bit data.
       if(RotEncTable[PrevNextCode]) {
-          CodeStore <<= 4;
-          CodeStore |= PrevNextCode;
+        CodeStore <<= 4;
+        CodeStore |= PrevNextCode;
 
-          if((CodeStore & 0xff) == 0x2b) {
-            return -1;
-          }
+        if((CodeStore & 0xff) == 0x2b) {
+          return -1;
+        }
 
-          if((CodeStore & 0xff) == 0x17) {
-            return 1;
-          }
+        if((CodeStore & 0xff) == 0x17) {
+          return 1;
+        }
       }
 
       return 0;
@@ -166,8 +166,8 @@ struct Encoder {
 
     void initialize() {
       // Rotary encoder on the top of the device.
-      pinModeFast(PinA, INPUT_PULLUP);
-      pinModeFast(PinB, INPUT_PULLUP);
+      pinMode(PinA, INPUT_PULLUP);
+      pinMode(PinB, INPUT_PULLUP);
       STATE = ENCODER_IDLE;
     }
 
