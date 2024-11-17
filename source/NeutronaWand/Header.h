@@ -190,7 +190,7 @@ uint16_t i_white_light_interval = i_afterlife_blink_interval;
  * Also controls independent music volume while the pack/wand is off and if music is playing.
  */
 millisDelay ms_rotary_encoder; // Timer for slowing the rotary encoder spin.
-const uint8_t i_rotary_encoder_delay = 50; // Time to delay switching firing modes.
+const uint8_t i_rotary_encoder_delay = 50; // Time in milliseconds to delay rotary encoder actions.
 static uint8_t prev_next_code = 0;
 static uint16_t store = 0;
 
@@ -475,12 +475,11 @@ const uint16_t i_blink_sound_timer_1 = 400;
 const uint16_t i_blink_sound_timer_2 = 1600;
 
 /*
- * A timer to turn on some Neutrona Wand lights when the system is shut down after some inactivity, as a reminder you left your power on to the system.
+ * A timer to turn on the Clippard LED when the system is shut down after some inactivity as a reminder you left your power on to the system.
  */
 millisDelay ms_power_indicator;
-millisDelay ms_power_indicator_blink;
-const uint32_t i_ms_power_indicator = 60000; // 1 Minute -> 60000
-const uint16_t i_ms_power_indicator_blink = 1000;
+const uint32_t i_ms_power_indicator = 60000; // 1 minute -> 60000 milliseconds
+const uint16_t i_ms_power_indicator_blink = 500;
 
 /*
  * Function prototypes.

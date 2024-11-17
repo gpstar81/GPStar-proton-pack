@@ -384,49 +384,8 @@ void mainLoop() {
         }
       }
 
-      // If the power indicator is enabled. Blink the LED on the Neutrona Wand body next to the clippard valve to indicator the system has battery power.
-      if(b_power_on_indicator == true && WAND_ACTION_STATUS == ACTION_IDLE && (b_pack_on != true || b_gpstar_benchtest == true)) {
-        if(ms_power_indicator.isRunning() == true && ms_power_indicator.remaining() < 1) {
-          if(ms_power_indicator_blink.isRunning() != true || ms_power_indicator_blink.justFinished()) {
-            ms_power_indicator_blink.start(i_ms_power_indicator_blink);
-          }
-
-          switch(SYSTEM_MODE) {
-            case MODE_ORIGINAL:
-              if(b_pack_ion_arm_switch_on != true) {
-                if(ms_power_indicator_blink.remaining() < i_ms_power_indicator_blink / 2) {
-                  digitalWriteFast(CLIPPARD_LED_PIN, LOW);
-                }
-                else {
-                  digitalWriteFast(CLIPPARD_LED_PIN, HIGH);
-                }
-              }
-              else {
-                // When the top right wand switch is off, then we make sure the led is off as the Slo-Blo LED will be on or blinking at this point.
-                if(switch_wand.on() == false) {
-                  digitalWriteFast(CLIPPARD_LED_PIN, LOW);
-                }
-              }
-              break;
-
-            case MODE_SUPER_HERO:
-            default:
-              if(ms_power_indicator_blink.remaining() < i_ms_power_indicator_blink / 2) {
-                digitalWriteFast(CLIPPARD_LED_PIN, LOW);
-              }
-              else {
-                digitalWriteFast(CLIPPARD_LED_PIN, HIGH);
-              }
-            break;
-          }
-        }
-        else {
-          if(SYSTEM_MODE == MODE_SUPER_HERO) {
-            // MODE_ORIGINAL has unique control over the Clippard LED, so only turn off if in MODE_SUPER_HERO.
-            digitalWriteFast(CLIPPARD_LED_PIN, LOW);
-          }
-        }
-      }
+      // Check to see if we should be blinking the power-on reminder LED.
+      checkPowerOnReminder();
     break;
 
     case MODE_ERROR:
@@ -1822,11 +1781,6 @@ void wandOff() {
         break;
       }
 
-      // Start the timer for the power on indicator option.
-      if(b_power_on_indicator && SYSTEM_MODE == MODE_SUPER_HERO) {
-        ms_power_indicator.start(i_ms_power_indicator);
-      }
-
       wandSwitchedCount = 0;
       ventSwitchedCount = 0;
     break;
@@ -2287,6 +2241,7 @@ void modeActivate() {
   i_bmash_count = 0;
   b_wand_mash_error = false;
   b_sound_afterlife_idle_2_fade = true;
+  setPowerOnReminder(false);
 
   switch(SYSTEM_MODE) {
     case MODE_ORIGINAL:
@@ -8920,8 +8875,9 @@ void wandLightsOff() {
   i_bargraph_status = 0;
   i_bargraph_status_alt = 0;
 
-  if(b_power_on_indicator && !ms_power_indicator.isRunning()) {
-    ms_power_indicator.start(i_ms_power_indicator);
+  if(!b_playing_music) {
+    // If music is not playing, arm the power-on reminder LED system.
+    setPowerOnReminder(true);
   }
 }
 
@@ -8934,10 +8890,7 @@ void wandLightsOffMenuSystem() {
   digitalWriteFast(TOP_LED_PIN, HIGH); // Turn off the blinking white top LED.
   digitalWrite(VENT_LED_PIN, HIGH); // Turn off the vent light.
 
-  if(b_power_on_indicator) {
-    ms_power_indicator.stop();
-    ms_power_indicator_blink.stop();
-  }
+  setPowerOnReminder(false);
 }
 
 int8_t readRotary() {
@@ -8955,21 +8908,21 @@ int8_t readRotary() {
 
   prev_next_code &= 0x0f;
 
-   // If valid then store as 16 bit data.
-   if(rot_enc_table[prev_next_code]) {
-      store <<= 4;
-      store |= prev_next_code;
+  // If valid then store as 16 bit data.
+  if(rot_enc_table[prev_next_code]) {
+    store <<= 4;
+    store |= prev_next_code;
 
-      if((store&0xff) == 0x2b) {
-        return -1;
-      }
+    if((store&0xff) == 0x2b) {
+      return -1;
+    }
 
-      if((store&0xff) == 0x17) {
-        return 1;
-      }
-   }
+    if((store&0xff) == 0x17) {
+      return 1;
+    }
+  }
 
-   return 0;
+  return 0;
 }
 
 void wandBarrelSpectralCustomConfigOn() {
@@ -10004,6 +9957,9 @@ void changeIonArmSwitchState(bool state) {
   if(state && !b_pack_ion_arm_switch_on) {
     b_pack_ion_arm_switch_on = true;
 
+    // Disable the power on reminder.
+    setPowerOnReminder(false);
+
     // Prep the bargraph for MODE_ORIGINAL. This only preps it when the pack switch is turned on and the wand is still off but all the toggle switches are on for the bargraph to settle at the off position. (0 circle).
     if(WAND_ACTION_STATUS == ACTION_IDLE) {
       switch(WAND_STATUS) {
@@ -10025,12 +9981,6 @@ void changeIonArmSwitchState(bool state) {
                 }
 
                 prepBargraphRampUp();
-              }
-
-              // Stop the power on indicator timer if enabled.
-              if(b_power_on_indicator) {
-                ms_power_indicator.stop();
-                ms_power_indicator_blink.stop();
               }
             break;
 
@@ -10359,6 +10309,33 @@ void afterlifeRampSound1() {
   }
 
   b_sound_afterlife_idle_2_fade = false;
+}
+
+// Arms/Disarms the power-on reminder (if enabled).
+void setPowerOnReminder(bool enable) {
+  if(enable && b_power_on_indicator) {
+    // Arm the power indicator timer.
+    ms_power_indicator.start(i_ms_power_indicator);
+  }
+  else {
+    // Disarm the power indicator timer.
+    ms_power_indicator.stop();
+  }
+}
+
+// Function to handle blinking for the power-on reminder (if enabled).
+void checkPowerOnReminder() {
+  if(WAND_ACTION_STATUS == ACTION_IDLE && (!b_pack_on || b_gpstar_benchtest)) {
+    if(ms_power_indicator.justFinished()) {
+      if((SYSTEM_MODE == MODE_ORIGINAL && !b_pack_ion_arm_switch_on) || SYSTEM_MODE == MODE_SUPER_HERO) {
+        // Blink the Clippard LED to indicate to the user that the system battery is still powered on.
+        digitalWriteFast(CLIPPARD_LED_PIN, (digitalReadFast(CLIPPARD_LED_PIN) == LOW) ? HIGH : LOW);
+      }
+
+      // Restart the blink timer.
+      ms_power_indicator.start(i_ms_power_indicator_blink);
+    }
+  }
 }
 
 void resetWhiteLEDBlinkRate() {

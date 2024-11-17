@@ -631,26 +631,7 @@ void checkPack() {
           vgModeCheck(); // Re-check VG/CTS mode.
 
           // Set whether the switch under the ion arm is on or off.
-          switch(wandSyncData.ionArmSwitch) {
-            case 1:
-            default:
-              b_pack_ion_arm_switch_on = false;
-
-              // If the ion arm switch is turned off in MODE_ORIGINAL, start the power indicator timer.
-              if(SYSTEM_MODE == MODE_ORIGINAL && b_power_on_indicator) {
-                ms_power_indicator.start(i_ms_power_indicator);
-              }
-            break;
-            case 2:
-              b_pack_ion_arm_switch_on = true;
-
-              // If the ion arm switch is on in MODE_ORIGINAL, we do not need a power indicator.
-              if(SYSTEM_MODE == MODE_ORIGINAL && b_power_on_indicator) {
-                ms_power_indicator.stop();
-                ms_power_indicator_blink.stop();
-              }
-            break;
-          }
+          changeIonArmSwitchState(wandSyncData.ionArmSwitch == 2);
 
           // Update the System Year setting.
           switch(wandSyncData.systemYear) {

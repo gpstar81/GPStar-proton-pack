@@ -103,6 +103,7 @@ struct StandaloneLED {
     digitalWriteFast(Pin, Off);
   }
 };
+
 // Create instances and initialize LEDs with their pin and respective values for on/off.
 StandaloneLED led_SloBlo = {8, HIGH, LOW};
 StandaloneLED led_Clippard = {9, HIGH, LOW};
@@ -298,9 +299,8 @@ bool b_device_boot_error_on = false;
  * A timer to turn on some Single-Shot Blaster lights when the system is shut down after some inactivity, as a reminder you left your power on to the system.
  */
 millisDelay ms_power_indicator;
-millisDelay ms_power_indicator_blink;
-const uint32_t i_ms_power_indicator = 60000; // 1 Minute -> 60000
-const uint16_t i_ms_power_indicator_blink = 1000;
+const uint32_t i_ms_power_indicator = 60000; // 1 minute -> 60000 milliseconds
+const uint16_t i_ms_power_indicator_blink = 500;
 
 /*
  * Function prototypes.
