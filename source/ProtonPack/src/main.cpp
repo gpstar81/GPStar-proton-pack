@@ -72,6 +72,7 @@ uint8_t cyclotron84LookupTable(uint8_t index);
 void cyclotronControl();
 void cyclotronFade();
 uint8_t cyclotronLookupTable(uint8_t index);
+void cyclotronLidLedsOff();
 void cyclotronNoCable();
 void cyclotronOverheating();
 void cyclotronSwitchLEDLoop();

@@ -1345,8 +1345,6 @@ void setupRouting() {
 
   // Static Pages
   httpServer.on("/", HTTP_GET, handleRoot);
-  httpServer.on("/favicon.ico", HTTP_GET, handleFavIcon);
-  httpServer.on("/favicon.svg", HTTP_GET, handleSvgFavIcon);
   httpServer.on("/common.js", HTTP_GET, handleCommonJS);
   httpServer.on("/equipment.svg", HTTP_GET, handleEquipSvg);
   httpServer.on("/favicon.ico", HTTP_GET, handleFavIco);
