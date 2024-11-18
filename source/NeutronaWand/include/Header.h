@@ -159,9 +159,9 @@ enum WAND_BARREL_LED_COUNTS WAND_BARREL_LED_COUNT;
 
 /*
  * Delay for fastled to update the addressable LEDs.
- * We have up to 5 addressable LEDs in the wand barrel.
  * The Frutto barrel has up to 49 addressable LEDs.
- * 0.03 ms to update 1 LED. So 1.47 ms should be okay? Let's bump it up to 3 just in case.
+ * 0.0312 ms to update each LED, then a 0.05 ms resting period once all are updated.
+ * So 1.58 ms should be okay? Let's bump it up to 3 just in case.
  */
 #define FAST_LED_UPDATE_MS 3
 uint8_t i_fast_led_delay = FAST_LED_UPDATE_MS;
@@ -190,7 +190,7 @@ uint16_t i_white_light_interval = i_afterlife_blink_interval;
  * Also controls independent music volume while the pack/wand is off and if music is playing.
  */
 millisDelay ms_rotary_encoder; // Timer for slowing the rotary encoder spin.
-const uint8_t i_rotary_encoder_delay = 50; // Time to delay switching firing modes.
+const uint8_t i_rotary_encoder_delay = 50; // Time in milliseconds to delay rotary encoder actions.
 static uint8_t prev_next_code = 0;
 static uint16_t store = 0;
 
@@ -249,7 +249,7 @@ const uint16_t i_gun_loop_2 = 1881; // S_AFTERLIFE_WAND_RAMP_2 is 1881ms long.
  */
 millisDelay ms_overheat_initiate;
 millisDelay ms_overheating; // This timer is only used when using the Neutrona Wand without a Proton Pack.
-const uint16_t i_ms_overheating = 3000; // Overheating for 3 seconds. This is only used when using the Neutrona Wand without a Proton Pack.
+const uint16_t i_ms_overheating = 3500; // Overheating for 3 seconds. This is only used when using the Neutrona Wand without a Proton Pack.
 bool b_overheat_level[5] = { b_overheat_level_1, b_overheat_level_2, b_overheat_level_3, b_overheat_level_4, b_overheat_level_5 };
 uint16_t i_ms_overheat_initiate[5] = { i_ms_overheat_initiate_level_1, i_ms_overheat_initiate_level_2, i_ms_overheat_initiate_level_3, i_ms_overheat_initiate_level_4, i_ms_overheat_initiate_level_5 };
 const uint16_t i_overheat_delay_increment = 1000; // Used to increment the overheat delays by 1000 milliseconds.
@@ -258,9 +258,15 @@ const uint16_t i_overheat_delay_max = 60000; // The maximum amount of time befor
 /*
  * Wand power level. Controlled by the rotary encoder on the top of the wand.
  * You can enable or disable overheating for each power level individually in the user adjustable values at the top of this file.
+ * This also contains the PWM duty cycle values for each power level in case vent light PWM control is enabled.
  */
 const uint8_t i_power_level_max = 5;
 const uint8_t i_power_level_min = 1;
+const uint8_t i_vent_led_power_1 = 220;
+const uint8_t i_vent_led_power_2 = 190;
+const uint8_t i_vent_led_power_3 = 160;
+const uint8_t i_vent_led_power_4 = 130;
+const uint8_t i_vent_led_power_5 = 100;
 uint8_t i_power_level = 1;
 uint8_t i_power_level_prev = 1;
 
@@ -385,8 +391,8 @@ const uint16_t i_shock_blast_rate = 600; // Shock Blast firing rate.
 const uint16_t i_slime_tether_rate = 750; // Slime Tether firing rate.
 const uint16_t i_meson_collider_rate = 250; // Meson Collider firing rate.
 const uint16_t i_firing_timer_length = 15000; // 15 seconds. Used by ms_firing_length_timer to determine which tail_end sound effects to play.
-const uint8_t d_firing_pulse = 18; // Used to drive semi-automatic firing stream effect timers. Default: 18ms.
-const uint8_t d_firing_stream = 100; // Used to drive all stream effects timers. Default: 100ms.
+const uint8_t i_firing_pulse = 18; // Used to drive semi-automatic firing stream effect timers. Default: 18ms.
+const uint8_t i_firing_stream = 100; // Used to drive all stream effects timers. Default: 100ms.
 uint8_t i_barrel_light = 0; // Used to keep track which LED in the barrel is currently lighting up.
 uint8_t i_pulse_step = 0; // Used to keep track of which pulse animation step we are on.
 uint8_t i_slime_tether_count = 0; // Used to keep track of how many slime tethers have been fired.
@@ -469,12 +475,11 @@ const uint16_t i_blink_sound_timer_1 = 400;
 const uint16_t i_blink_sound_timer_2 = 1600;
 
 /*
- * A timer to turn on some Neutrona Wand lights when the system is shut down after some inactivity, as a reminder you left your power on to the system.
+ * A timer to turn on the Clippard LED when the system is shut down after some inactivity as a reminder you left your power on to the system.
  */
 millisDelay ms_power_indicator;
-millisDelay ms_power_indicator_blink;
-const uint32_t i_ms_power_indicator = 60000; // 1 Minute -> 60000
-const uint16_t i_ms_power_indicator_blink = 1000;
+const uint32_t i_ms_power_indicator = 60000; // 1 minute -> 60000 milliseconds
+const uint16_t i_ms_power_indicator_blink = 500;
 
 /*
  * Function prototypes.

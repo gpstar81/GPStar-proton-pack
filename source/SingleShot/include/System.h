@@ -22,6 +22,7 @@
 
 // Forward function declarations
 void checkEncoderAction();
+void setPowerOnReminder(bool);
 
 void allLightsOff() {
   bargraph.off();
@@ -38,8 +39,9 @@ void allLightsOff() {
   // Clear all addressable LEDs by filling the array with black.
   fill_solid(system_leds, CYCLOTRON_LED_COUNT + BARREL_LED_COUNT, CRGB::Black);
 
-  if(b_power_on_indicator && !ms_power_indicator.isRunning()) {
-    ms_power_indicator.start(i_ms_power_indicator);
+  if(!b_playing_music) {
+    // If music is not playing, arm the power-on reminder LED system.
+    setPowerOnReminder(true);
   }
 }
 
@@ -51,10 +53,7 @@ void allMenuLightsOff() {
   led_TopWhite.turnOff(); // Level 4
   led_Clippard.turnOff(); // Level 5
 
-  if(b_power_on_indicator) {
-    ms_power_indicator.stop();
-    ms_power_indicator_blink.stop();
-  }
+  setPowerOnReminder(false);
 }
 
 void barrelLightsOff() {
@@ -769,11 +768,6 @@ void deviceOff() {
       // Turn off all device lights.
       allLightsOff();
 
-      // Start the timer for the power on indicator option.
-      if(b_power_on_indicator) {
-        ms_power_indicator.start(i_ms_power_indicator);
-      }
-
       deviceSwitchedCount = 0;
       ventSwitchedCount = 0;
     break;
@@ -910,6 +904,8 @@ void postActivation() {
 }
 
 void modeActivate() {
+  setPowerOnReminder(false);
+
   // The device was started while the top switch was already on, so let's put the device into startup error mode.
   if(switch_device.on() && b_device_boot_errors) {
     b_device_boot_error_on = true;

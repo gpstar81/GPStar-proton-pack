@@ -631,26 +631,7 @@ void checkPack() {
           vgModeCheck(); // Re-check VG/CTS mode.
 
           // Set whether the switch under the ion arm is on or off.
-          switch(wandSyncData.ionArmSwitch) {
-            case 1:
-            default:
-              b_pack_ion_arm_switch_on = false;
-
-              // If the ion arm switch is turned off in MODE_ORIGINAL, start the power indicator timer.
-              if(SYSTEM_MODE == MODE_ORIGINAL && b_power_on_indicator) {
-                ms_power_indicator.start(i_ms_power_indicator);
-              }
-            break;
-            case 2:
-              b_pack_ion_arm_switch_on = true;
-
-              // If the ion arm switch is on in MODE_ORIGINAL, we do not need a power indicator.
-              if(SYSTEM_MODE == MODE_ORIGINAL && b_power_on_indicator) {
-                ms_power_indicator.stop();
-                ms_power_indicator_blink.stop();
-              }
-            break;
-          }
+          changeIonArmSwitchState(wandSyncData.ionArmSwitch == 2);
 
           // Update the System Year setting.
           switch(wandSyncData.systemYear) {
@@ -723,7 +704,7 @@ void checkPack() {
             case 4:
               STREAM_MODE = MESON;
 
-              if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
+              if(AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
                 // Tell GPStar Audio we need short audio mode.
                 audio.gpstarShortTrackOverload(false);
               }
@@ -952,29 +933,24 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
     case P_MANUAL_OVERHEAT:
       if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-        if(b_pack_on == true && b_pack_alarm != true && b_overheat_enabled == true) {
+        if(b_pack_on && !b_pack_alarm && b_overheat_enabled) {
           switch(getNeutronaWandYearMode()) {
             case SYSTEM_1984:
             case SYSTEM_1989:
-              if(b_extra_pack_sounds == true) {
+              if(b_extra_pack_sounds) {
                 wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
-                wandSerialSend(W_WAND_SHUTDOWN_SOUND);
               }
             break;
 
             case SYSTEM_AFTERLIFE:
             case SYSTEM_FROZEN_EMPIRE:
             default:
-                stopEffect(S_WAND_SHUTDOWN);
-                playEffect(S_WAND_SHUTDOWN);
-
-              if(switch_vent.on() == false) {
-                stopAfterLifeSounds();
+              if(!b_sound_idle) {
+                stopAfterlifeSounds();
                 playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
 
-                if(b_extra_pack_sounds == true) {
+                if(b_extra_pack_sounds) {
                   wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
-                  wandSerialSend(W_WAND_SHUTDOWN_SOUND);
                   wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
                 }
               }
@@ -1008,9 +984,40 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       // Alarm is on.
       b_pack_alarm = true;
 
-      if(WAND_STATUS != MODE_ERROR) {
+      if(WAND_STATUS != MODE_ERROR && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
         if(WAND_STATUS == MODE_ON) {
-          prepBargraphRampDown();
+          if(b_extra_pack_sounds) {
+            wandSerialSend(W_WAND_SHUTDOWN_SOUND);
+            wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+          }
+
+          stopEffect(S_WAND_SHUTDOWN);
+          playEffect(S_WAND_SHUTDOWN);
+
+          switch(getNeutronaWandYearMode()) {
+            case SYSTEM_1984:
+            case SYSTEM_1989:
+              // Do nothing.
+            break;
+
+            case SYSTEM_AFTERLIFE:
+            case SYSTEM_FROZEN_EMPIRE:
+            default:
+              if(!b_sound_idle) {
+                stopAfterlifeSounds();
+                playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
+
+                if(b_extra_pack_sounds) {
+                  wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
+                }
+              }
+            break;
+          }
+
+          if(!b_firing) {
+            // This is handled by modeFireStop() if firing when ribbon cable is removed.
+            prepBargraphRampDown();
+          }
 
           if(WAND_ACTION_STATUS == ACTION_SETTINGS) {
             // If the wand is in settings mode while the alarm is activated, exit the settings mode.
@@ -1057,33 +1064,6 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
         }
 
         ms_error_blink.start(i_error_blink_delay); // Start the error blink timer.
-      }
-
-      if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-        switch(getNeutronaWandYearMode()) {
-          case SYSTEM_1984:
-          case SYSTEM_1989:
-            // Do nothing.
-          break;
-
-          case SYSTEM_AFTERLIFE:
-          case SYSTEM_FROZEN_EMPIRE:
-          default:
-            if(switch_vent.on() == false) {
-              stopAfterLifeSounds();
-            }
-
-            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
-          break;
-        }
-
-        if(b_extra_pack_sounds == true) {
-          wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
-          wandSerialSend(W_WAND_SHUTDOWN_SOUND);
-        }
-
-        stopEffect(S_WAND_SHUTDOWN);
-        playEffect(S_WAND_SHUTDOWN);
       }
     break;
 
