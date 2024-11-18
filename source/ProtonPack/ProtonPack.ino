@@ -260,6 +260,11 @@ void loop() {
         // Turn on the status indicator LED.
         digitalWriteFast(PACK_STATUS_LED_PIN, HIGH);
 
+        if(PACK_ACTION_STATE == ACTION_IDLE && ms_delay_post.justFinished()) {
+          // Brass Pack shutdown steam effect.
+          playEffect(PROGMEM_READU16(sfx_smoke[random(5)]));
+        }
+
         if(b_pack_on == true) {
           b_2021_ramp_up = false;
           b_2021_ramp_up_start = false;
@@ -295,7 +300,7 @@ void loop() {
           if(b_spectral_lights_on != true) {
             if(ms_fadeout.justFinished()) {
               if(fadeOutCyclotron() == true) {
-                ms_fadeout.start(50);
+                ms_fadeout.start(i_fadeout_duration);
               }
               else {
                 ms_fadeout.stop();
@@ -470,7 +475,6 @@ void loop() {
               }
 
               fanNFilter(true);
-              fanBooster(true);
             }
 
             // We are strobing the N-Filter jewel.
@@ -495,7 +499,6 @@ void loop() {
             ventLight(false);
             ventLightLEDW(false);
             fanNFilter(false);
-            fanBooster(false);
           }
         }
 
@@ -525,6 +528,7 @@ void loop() {
 
     switch(PACK_ACTION_STATE) {
       case ACTION_IDLE:
+      default:
         // Do nothing.
       break;
 
@@ -562,6 +566,8 @@ void systemPOST() {
 
   uint8_t i_tmp_powercell_led = i_post_powercell_up;
 
+  colours c_outer_cyclotron_colour = ((i_cyclotron_leds == HASLAB_CYCLOTRON_LED_COUNT && !b_cyclotron_haslab_chsv_colour_change) ? C_WHITE : C_RED);
+
   if(i_post_powercell_up < i_powercell_leds && ms_delay_post.justFinished()) {
     if(b_powercell_invert == true) {
       if(i_powercell_leds == HASLAB_POWERCELL_LED_COUNT) {
@@ -584,10 +590,10 @@ void systemPOST() {
     pack_leds[i_tmp_powercell_led] = getHueAsRGB(POWERCELL, C_MID_BLUE);
 
     if((i_post_powercell_up % 5) == 0) {
-      pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-      pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-      pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-      pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
+      pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, c_outer_cyclotron_colour);
+      pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, c_outer_cyclotron_colour);
+      pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, c_outer_cyclotron_colour);
+      pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, c_outer_cyclotron_colour);
       pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_WHITE);
 
       if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
@@ -674,10 +680,10 @@ void systemPOST() {
     //pack_leds[i_post_powercell_down] = getHueAsRGB(POWERCELL, C_BLACK); // Ramp up and ramp away.
 
     if((i_post_powercell_down % 5) == 0) {
-      pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-      pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-      pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
-      pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_RED);
+      pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, c_outer_cyclotron_colour);
+      pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, c_outer_cyclotron_colour);
+      pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, c_outer_cyclotron_colour);
+      pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, c_outer_cyclotron_colour);
       pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_WHITE);
 
       if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
@@ -742,10 +748,10 @@ void systemPOST() {
   }
 
   if(i_post_fade > 0 && ms_delay_post_3.justFinished()) {
-    pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i_post_fade);
-    pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i_post_fade);
-    pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i_post_fade);
-    pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_RED, i_post_fade);
+    pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, c_outer_cyclotron_colour, i_post_fade);
+    pack_leds[i_tmp_led2] = getHueAsRGB(CYCLOTRON_OUTER, c_outer_cyclotron_colour, i_post_fade);
+    pack_leds[i_tmp_led3] = getHueAsRGB(CYCLOTRON_OUTER, c_outer_cyclotron_colour, i_post_fade);
+    pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, c_outer_cyclotron_colour, i_post_fade);
     pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_WHITE, i_post_fade);
 
     if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
@@ -902,6 +908,9 @@ void packStartup(bool firstStart) {
   PACK_STATE = MODE_ON;
   PACK_ACTION_STATE = ACTION_IDLE;
 
+  // Stop the Brass Pack shutdown timer in case it's running.
+  ms_delay_post.stop();
+
   if(ribbonCableAttached() != true) {
     if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
       ms_cyclotron.start(0);
@@ -931,8 +940,10 @@ void packStartup(bool firstStart) {
     stopEffect(S_PACK_RIBBON_ALARM_1);
     stopEffect(S_ALARM_LOOP);
     stopEffect(S_RIBBON_CABLE_START);
+    stopEffect(S_PACK_SHUTDOWN); // This is a long track which may still be playing.
     stopEffect(S_PACK_SHUTDOWN_AFTERLIFE_ALT); // This is a long track which may still be playing.
-    stopEffect(S_FROZEN_EMPIRE_SHUTDOWN); // This is a long track which may still be playing.
+    stopEffect(S_FROZEN_EMPIRE_BRASS_SHUTDOWN); // This is a long track which may still be playing.
+    stopEffect(S_FROZEN_EMPIRE_PACK_SHUTDOWN); // This is a long track which may still be playing.
 
     switch(SYSTEM_YEAR) {
       case SYSTEM_1984:
@@ -1036,7 +1047,7 @@ void packShutdown() {
   PACK_STATE = MODE_OFF;
   PACK_ACTION_STATE = ACTION_IDLE;
 
-  if(b_wand_mash_lockout) {
+  if(b_wand_mash_lockout || ms_mash_lockout.isRunning()) {
     b_wand_mash_lockout = false;
     ms_mash_lockout.stop();
     ms_powercell.start(0);
@@ -1044,20 +1055,12 @@ void packShutdown() {
     ms_cyclotron_ring.start(0);
   }
 
-  switch(SYSTEM_YEAR) {
-    case SYSTEM_1984:
-    case SYSTEM_1989:
-    case SYSTEM_AFTERLIFE:
-    case SYSTEM_FROZEN_EMPIRE:
-    default:
-      stopEffect(S_PACK_RECOVERY);
-      stopEffect(S_PACK_RIBBON_ALARM_1);
-      stopEffect(S_ALARM_LOOP);
-      stopEffect(S_RIBBON_CABLE_START);
-    break;
-  }
+  stopEffect(S_PACK_RECOVERY);
+  stopEffect(S_PACK_RIBBON_ALARM_1);
+  stopEffect(S_ALARM_LOOP);
+  stopEffect(S_RIBBON_CABLE_START);
 
-  if(b_wand_firing == true) {
+  if(b_wand_firing) {
     // Preemptively stop firing.
     wandStoppedFiring();
     cyclotronSpeedRevert();
@@ -1076,7 +1079,6 @@ void packShutdown() {
 
     // Turn off the fans.
     fanNFilter(false);
-    fanBooster(false);
 
     // Turn off the Cyclotron auto speed timer.
     ms_cyclotron_auto_speed_timer.stop();
@@ -1090,9 +1092,9 @@ void packShutdown() {
 
   stopEffect(S_SHUTDOWN);
   stopEffect(S_STEAM_LOOP);
-  stopEffect(S_SLIME_REFILL);
 
   if(STREAM_MODE == SLIME) {
+    stopEffect(S_SLIME_REFILL);
     stopEffect(S_PACK_SLIME_TANK_LOOP);
   }
 
@@ -1104,42 +1106,14 @@ void packShutdown() {
     stopEffect(S_MESON_IDLE_LOOP);
   }
 
-  if(SYSTEM_YEAR == SYSTEM_1989) {
-    stopEffect(S_GB2_PACK_START);
-    stopEffect(S_GB2_PACK_LOOP);
-    stopEffect(S_GB2_PACK_OFF);
-  }
-
-  if(SYSTEM_YEAR == SYSTEM_1984) {
-    stopEffect(S_PACK_SHUTDOWN);
-    stopEffect(S_GB1_1984_PACK_LOOP);
-    stopEffect(S_GB1_1984_BOOT_UP);
-  }
-
-  if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-    if(b_powercell_sound_loop) {
-      stopEffect(S_POWERCELL); // Just in case a shutdown happens and not a ramp down.
-      b_powercell_sound_loop = false;
-    }
-
-    stopEffect(S_BOOTUP);
-    stopEffect(S_PACK_SHUTDOWN_AFTERLIFE_ALT);
-
-    if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-      stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
-      stopEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP);
-      stopEffect(S_FROZEN_EMPIRE_SHUTDOWN);
-    }
-    else {
-      stopEffect(S_AFTERLIFE_PACK_STARTUP);
-      stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
-    }
+  if(b_powercell_sound_loop) {
+    stopEffect(S_POWERCELL); // Just in case a shutdown happens and not a ramp down.
+    b_powercell_sound_loop = false;
   }
 
   // Need to play the 'close' SFX if we already played the open one.
-  if(b_overheating == true) {
+  if(b_overheating) {
     stopEffect(S_SLIME_EMPTY);
-
     stopEffect(S_VENT_OPEN);
 
     if(STREAM_MODE != SLIME) {
@@ -1153,13 +1127,13 @@ void packShutdown() {
       playEffect(S_STEAM_LOOP_FADE_OUT);
     }
   }
-  else if(b_venting == true) {
+  else if(b_venting) {
     stopEffect(S_SLIME_EMPTY);
     stopEffect(S_QUICK_VENT_OPEN);
     playEffect(S_QUICK_VENT_CLOSE);
   }
 
-  if(b_alarm != true) {
+  if(!b_alarm) {
     switch(SYSTEM_YEAR) {
       case SYSTEM_1984:
         playEffect(S_PACK_SHUTDOWN);
@@ -1176,7 +1150,15 @@ void packShutdown() {
 
       case SYSTEM_FROZEN_EMPIRE:
         if(b_brass_pack_sound_loop) {
-          playEffect(S_FROZEN_EMPIRE_SHUTDOWN);
+          if(AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
+            playTransitionEffect(S_FROZEN_EMPIRE_BRASS_SHUTDOWN, PROGMEM_READU16(sfx_smoke[random(5)]));
+          }
+          else {
+            // Start a timer to play the steam effect.
+            ms_delay_post.start(i_gbfe_brass_shutdown_delay);
+
+            playEffect(S_FROZEN_EMPIRE_BRASS_SHUTDOWN);
+          }
         }
         else {
           playEffect(S_FROZEN_EMPIRE_PACK_SHUTDOWN);
@@ -1186,6 +1168,31 @@ void packShutdown() {
   }
   else {
     playEffect(S_SHUTDOWN);
+  }
+
+  switch(SYSTEM_YEAR) {
+    case SYSTEM_1984:
+      stopEffect(S_GB1_1984_BOOT_UP);
+      stopEffect(S_GB1_1984_PACK_LOOP);
+    break;
+
+    case SYSTEM_1989:
+      stopEffect(S_GB2_PACK_START);
+      stopEffect(S_GB2_PACK_LOOP);
+    break;
+
+    case SYSTEM_AFTERLIFE:
+    default:
+      stopEffect(S_BOOTUP);
+      stopEffect(S_AFTERLIFE_PACK_STARTUP);
+      stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
+    break;
+
+    case SYSTEM_FROZEN_EMPIRE:
+      stopEffect(S_BOOTUP);
+      stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
+      stopEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP);
+    break;
   }
 }
 
@@ -1221,11 +1228,9 @@ void packOffReset() {
   }
 
   // Reset the Power Cell timer.
-  ms_powercell.stop();
   ms_powercell.start(i_powercell_delay);
 
   // Reset the Cyclotron LED switch timer.
-  ms_cyclotron_switch_led.stop();
   ms_cyclotron_switch_led.start(i_cyclotron_switch_led_delay);
 
   // Need to reset the Cyclotron timers.
@@ -1336,6 +1341,89 @@ void checkSwitches() {
 
   cyclotronSwitchPlateLEDs();
 
+  if(switch_cyclotron_lid.isReleased()) {
+    // Play sounds when lid is removed.
+    stopEffect(S_VENT_SMOKE);
+    stopEffect(S_VENT_SMOKE_1);
+    stopEffect(S_VENT_SMOKE_2);
+    stopEffect(S_VENT_SMOKE_3);
+    stopEffect(S_VENT_SMOKE_4);
+    stopEffect(S_MODE_SWITCH);
+    stopEffect(S_CLICK);
+    stopEffect(S_SPARKS_LOOP);
+    stopEffect(S_BEEPS_BARGRAPH);
+
+    playEffect(S_MODE_SWITCH);
+
+    // Play one of the random steam burst effects.
+    playEffect(PROGMEM_READU16(sfx_smoke[random(5)]), false, i_volume_effects, true, 120);
+
+    // Play some spark sounds if the pack is running and the lid is removed.
+    if(PACK_STATE == MODE_ON) {
+      playEffect(S_SPARKS_LOOP);
+    }
+    else {
+      // Make sure we reset the cyclotron LED status if not in the EEPROM LED menu.
+      if(!b_spectral_lights_on) {
+        b_reset_start_led = false;
+      }
+    }
+  }
+
+  if(switch_cyclotron_lid.isPressed()) {
+    // Play sounds when lid is mounted.
+    stopEffect(S_CLICK);
+    stopEffect(S_VENT_DRY);
+
+    playEffect(S_CLICK);
+
+    playEffect(S_VENT_DRY);
+
+    // Play some spark sounds if the pack is running and the lid is put back on.
+    if(PACK_STATE == MODE_ON) {
+      playEffect(S_SPARKS_LOOP);
+    }
+    else {
+      // Make sure we reset the cyclotron LED status if not in the EEPROM LED menu.
+      if(!b_spectral_lights_on) {
+        b_reset_start_led = false;
+      }
+    }
+  }
+
+  if(switch_cyclotron_lid.getState() == LOW) {
+    if(!b_cyclotron_lid_on) {
+      // The Cyclotron Lid is now on.
+      b_cyclotron_lid_on = true;
+
+      // Tell the connected devices.
+      packSerialSend(P_CYCLOTRON_LID_ON);
+      serial1Send(A_CYCLOTRON_LID_ON);
+
+      // Turn off Inner Cyclotron LEDs.
+      innerCyclotronCakeOff();
+      innerCyclotronCavityOff();
+    }
+  }
+  else {
+    if(b_cyclotron_lid_on) {
+      // The Cyclotron Lid is now off.
+      b_cyclotron_lid_on = false;
+
+      // Make sure we clear the Outer Cyclotron LED states.
+      cyclotronLidLedsOff();
+
+      // Tell the connected devices.
+      packSerialSend(P_CYCLOTRON_LID_OFF);
+      serial1Send(A_CYCLOTRON_LID_OFF);
+
+      // Make sure the Inner Cyclotron turns on if we are in the EEPROM LED menu.
+      if(b_spectral_lights_on) {
+        spectralLightsOn();
+      }
+    }
+  }
+
   // Cyclotron direction toggle switch.
   if(switch_cyclotron_direction.isPressed() || switch_cyclotron_direction.isReleased()) {
     stopEffect(S_BEEPS);
@@ -1343,7 +1431,7 @@ void checkSwitches() {
     stopEffect(S_VOICE_CYCLOTRON_CLOCKWISE);
     stopEffect(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
 
-    if(b_clockwise == true) {
+    if(b_clockwise) {
       b_clockwise = false;
 
       playEffect(S_BEEPS_ALT);
@@ -1368,8 +1456,9 @@ void checkSwitches() {
     stopEffect(S_VOICE_SMOKE_DISABLED);
     stopEffect(S_VOICE_SMOKE_ENABLED);
 
-    if(b_smoke_enabled == true) {
+    if(b_smoke_enabled) {
       b_smoke_enabled = false;
+      smokeNFilter(false);
 
       stopEffect(S_VENT_DRY);
 
@@ -2309,6 +2398,7 @@ void cyclotronControl() {
   if(b_reset_start_led == true) {
     b_reset_start_led = false;
     i_cyclotron_fake_ring_counter = 0;
+    i_led_cyclotron_ring = i_ic_cake_start;
 
     switch(SYSTEM_YEAR) {
       case SYSTEM_AFTERLIFE:
@@ -2776,7 +2866,7 @@ void cyclotron2021(uint16_t iRampDelay) {
       return;
     }
 
-    if(i_cyclotron_led_value[i_curr_cyclotron_position] == 0 && i_cyclotron_matrix_led > 0) {
+    if(i_cyclotron_led_value[i_curr_cyclotron_position] == 0 && i_cyclotron_matrix_led > 0 && b_cyclotron_lid_on) {
       r_cyclotron_led_fade_in[i_curr_cyclotron_position].go(0);
       r_cyclotron_led_fade_in[i_curr_cyclotron_position].go(i_brightness, iRampDelay, CIRCULAR_IN);
     }
@@ -2917,7 +3007,7 @@ void cyclotron1984(uint16_t iRampDelay) {
   if(ms_cyclotron.justFinished()) {
     iRampDelay = iRampDelay / i_cyclotron_multiplier;
 
-    if(b_2021_ramp_up == true) {
+    if(b_2021_ramp_up) {
       if(r_outer_cyclotron_ramp.isFinished()) {
         b_2021_ramp_up = false;
 
@@ -2934,7 +3024,7 @@ void cyclotron1984(uint16_t iRampDelay) {
         i_vibration_level = i_vibration_idle_level_1984;
       }
     }
-    else if(b_2021_ramp_down == true) {
+    else if(b_2021_ramp_down) {
       if(r_outer_cyclotron_ramp.isFinished()) {
         b_2021_ramp_down = false;
       }
@@ -2953,7 +3043,7 @@ void cyclotron1984(uint16_t iRampDelay) {
       ms_cyclotron.start(iRampDelay);
     }
 
-    if(b_wand_firing != true && b_overheating != true && b_alarm != true) {
+    if(!b_wand_firing && !b_overheating && !b_alarm) {
       vibrationPack(i_vibration_level);
     }
 
@@ -2961,8 +3051,10 @@ void cyclotron1984(uint16_t iRampDelay) {
       return;
     }
 
-    if(b_1984_led_start != true) {
-      cyclotron84LightOff(i_led_cyclotron);
+    if(!b_1984_led_start) {
+      if(b_cyclotron_lid_on) {
+        cyclotron84LightOff(i_led_cyclotron);
+      }
     }
     else {
       b_1984_led_start = false;
@@ -2976,7 +3068,9 @@ void cyclotron1984(uint16_t iRampDelay) {
 
     i_led_cyclotron = i_cyclotron_led_start + cyclotron84LookupTable(i_1984_counter);
 
-    cyclotron84LightOn(i_led_cyclotron);
+    if(b_cyclotron_lid_on) {
+      cyclotron84LightOn(i_led_cyclotron);
+    }
   }
 }
 
@@ -3380,30 +3474,8 @@ void packVenting() {
       playEffect(S_SLIME_REFILL, true);
     }
     else {
-      uint8_t i_smoke_random = random(5);
-
-      switch(i_smoke_random) {
-        case 4:
-          playEffect(S_VENT_SMOKE_4, false, i_volume_effects, true, 120);
-        break;
-
-        case 3:
-          playEffect(S_VENT_SMOKE_3, false, i_volume_effects, true, 120);
-        break;
-
-        case 2:
-          playEffect(S_VENT_SMOKE_2, false, i_volume_effects, true, 120);
-        break;
-
-        case 1:
-          playEffect(S_VENT_SMOKE_1, false, i_volume_effects, true, 120);
-        break;
-
-        case 0:
-        default:
-          playEffect(S_VENT_SMOKE, false, i_volume_effects, true, 120);
-        break;
-      }
+      // Play one of the random steam burst effects.
+      playEffect(PROGMEM_READU16(sfx_smoke[random(5)]), false, i_volume_effects, true, 120);
 
       // Fade in the steam release loop.
       playEffect(S_STEAM_LOOP, true, i_volume_effects, true, 1000);
@@ -3469,7 +3541,6 @@ void packVenting() {
 
     // Turn the fans on.
     fanNFilter(true);
-    fanBooster(true);
 
     // For strobing the vent light.
     if(ms_vent_light_off.justFinished()) {
@@ -3519,30 +3590,8 @@ void cyclotronOverheating() {
     else {
       playEffect(S_AIR_RELEASE);
 
-      uint8_t i_smoke_random = random(5);
-
-      switch(i_smoke_random) {
-        case 4:
-          playEffect(S_VENT_SMOKE_4, false, i_volume_effects, true, 120);
-        break;
-
-        case 3:
-          playEffect(S_VENT_SMOKE_3, false, i_volume_effects, true, 120);
-        break;
-
-        case 2:
-          playEffect(S_VENT_SMOKE_2, false, i_volume_effects, true, 120);
-        break;
-
-        case 1:
-          playEffect(S_VENT_SMOKE_1, false, i_volume_effects, true, 120);
-        break;
-
-        case 0:
-        default:
-          playEffect(S_VENT_SMOKE, false, i_volume_effects, true, 120);
-        break;
-      }
+      // Play one of the random steam burst effects.
+      playEffect(PROGMEM_READU16(sfx_smoke[random(5)]), false, i_volume_effects, true, 120);
 
       // Fade in the steam release loop.
       playEffect(S_STEAM_LOOP, true, i_volume_effects, true, 1000);
@@ -3647,7 +3696,6 @@ void cyclotronOverheating() {
 
     // Turn the fans on.
     fanNFilter(true);
-    fanBooster(true);
 
     // For strobing the vent light.
     if(ms_vent_light_off.justFinished()) {
@@ -3710,9 +3758,7 @@ void packOverheatingStart() {
     // Reset some vent light timers.
     ms_vent_light_off.stop();
     ms_vent_light_on.stop();
-    //ms_fan_stop_timer.stop();
     ms_vent_light_off.start(i_vent_light_delay);
-    //ms_fan_stop_timer.start(i_fan_stop_timer);
   }
 
   // Reset the Inner Cyclotron speed.
@@ -3736,11 +3782,8 @@ void packVentingStart() {
   }
   else {
     // Reset some vent light timers.
-    ms_vent_light_off.stop();
     ms_vent_light_on.stop();
-    //ms_fan_stop_timer.stop();
     ms_vent_light_off.start(i_vent_light_delay);
-    //ms_fan_stop_timer.start(i_fan_stop_timer);
   }
 
   b_venting = true;
@@ -3794,7 +3837,6 @@ void packOverheatingFinished() {
 
   // Stop the fans.
   fanNFilter(false);
-  fanBooster(false);
 
   // Reset the LEDs before resetting the alarm flag.
   if((SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) && !usingSlimeCyclotron()) {
@@ -3849,7 +3891,6 @@ void packVentingFinished() {
 
   // Stop the fans.
   fanNFilter(false);
-  fanBooster(false);
 
   // Turn off the vent lights
   ventLight(false);
@@ -3912,7 +3953,7 @@ void cyclotronNoCable() {
 
 // Turns off the LEDs in the Cyclotron Lid only.
 void cyclotronLidLedsOff() {
-  if(b_fade_out != true) {
+  if(!b_fade_out) {
     uint8_t i_cyclotron_leds_total = i_pack_num_leds - i_nfilter_jewel_leds - i_cyclotron_led_start;
 
     for(uint8_t i = 0; i < i_cyclotron_leds_total; i++) {
@@ -3935,6 +3976,7 @@ void resetCyclotronState() {
   // Only reset the start LED if the pack is off or just started.
   if(b_reset_start_led == true) {
     i_led_cyclotron = i_cyclotron_led_start;
+    i_led_cyclotron_ring = i_ic_cake_start;
     i_cyclotron_fake_ring_counter = 0;
   }
 
@@ -3946,11 +3988,7 @@ void resetCyclotronState() {
   }
 
   // Tell the Inner Cyclotron to turn off the LEDs.
-  if(b_cyclotron_lid_on == true) {
-    innerCyclotronCakeOff();
-    innerCyclotronCavityOff();
-  }
-  else if(b_alarm != true || PACK_STATE == MODE_OFF) {
+  if(b_cyclotron_lid_on || (!b_alarm || PACK_STATE == MODE_OFF)) {
     innerCyclotronCakeOff();
     innerCyclotronCavityOff();
   }
@@ -4257,7 +4295,7 @@ void reset2021RampDown() {
 }
 
 void ventLightLEDW(bool b_on) {
-  if(b_on == true) {
+  if(b_on && ((b_wand_firing && b_smoke_continuous_level[i_wand_power_level - 1]) || b_overheating || b_alarm)) {
     digitalWriteFast(NFILTER_LED_PIN, HIGH);
   }
   else {
@@ -4269,9 +4307,9 @@ void ventLight(bool b_on) {
   uint8_t i_colour_scheme = getDeviceColour(VENT_LIGHT, STREAM_MODE, true);
   b_vent_light_on = b_on;
 
-  if(b_on == true) {
+  if(b_on) {
     // If doing firing smoke effects, let's change the light colours.
-    if(b_wand_firing == true || b_overheating == true) {
+    if((b_wand_firing && b_smoke_continuous_level[i_wand_power_level - 1]) || b_overheating) {
       if(STREAM_MODE == PROTON) {
         // Override the N-Filter light colours for a proton stream.
         switch(i_wand_power_level) {
@@ -4301,7 +4339,11 @@ void ventLight(bool b_on) {
         }
       }
     }
-    else if(b_alarm == true) {
+    else if(b_wand_firing && !b_smoke_continuous_level[i_wand_power_level - 1]) {
+      // If continuous fire smoke is disabled in the current power level, do not turn on the N-Filter LEDs.
+      i_colour_scheme = C_BLACK;
+    }
+    else if(b_alarm) {
       i_colour_scheme = C_RED;
     }
 
@@ -4520,7 +4562,6 @@ void wandFiring() {
   vibrationPack(255);
 
   // Reset some vent light timers.
-  ms_vent_light_off.stop();
   ms_vent_light_on.stop();
   ms_vent_light_off.start(i_vent_light_delay);
 
@@ -4531,99 +4572,95 @@ void wandFiring() {
 }
 
 void modeFireStopSounds() {
-  wandStopFiringSounds();
-
   if(b_wand_firing) {
-    if(!b_wand_mash_lockout) {
-      switch(STREAM_MODE) {
-        case PROTON:
-        default:
-          switch(SYSTEM_YEAR) {
-            case SYSTEM_1984:
-              if(i_wand_power_level != i_wand_power_level_max) {
-                // Play different firing end stream sound depending on how long we have been firing for.
-                if(ms_firing_length_timer.remaining() < 5000) {
-                  // Long firing tail end.
-                  playEffect(S_FIRING_END_MID, false, i_volume_effects, false, 0, false);
-                }
-                else if(ms_firing_length_timer.remaining() < 10000) {
-                  // Mid firing tail end.
-                  playEffect(S_FIRING_END, false, i_volume_effects, false, 0, false);
-                }
-                else {
-                  // Short firing tail end.
-                  playEffect(S_GB1_1984_FIRE_END_SHORT, false, i_volume_effects, false, 0, false);
-                }
-              }
-              else {
-                // Play different firing end stream sound depending on how long we have been firing for.
-                if(ms_firing_length_timer.remaining() < 5000) {
-                  // Long tail end.
-                  playEffect(S_GB1_1984_FIRE_END_HIGH_POWER, false, i_volume_effects, false, 0, false);
-                }
-                else if(ms_firing_length_timer.remaining() < 10000) {
-                  // Mid tail end.
-                  playEffect(S_GB1_1984_FIRE_END_MID_HIGH_POWER, false, i_volume_effects, false, 0, false);
-                }
-                else {
-                  // Short tail end.
-                  playEffect(S_GB1_1984_FIRE_END_SHORT_HIGH_POWER, false, i_volume_effects, false, 0, false);
-                }
-              }
-            break;
-
-            case SYSTEM_1989:
-              // Play different firing end stream sound depending on how long we have been firing for.
-              if(ms_firing_length_timer.remaining() < 5000) {
-                // Long tail end.
-                playEffect(S_FIRING_END_GUN, false, i_volume_effects, false, 0, false);
-              }
-              else if(ms_firing_length_timer.remaining() < 10000) {
-                // Mid tail end.
-                playEffect(S_FIRING_END_MID, false, i_volume_effects, false, 0, false);
-              }
-              else {
-                // Short tail end.
-                playEffect(S_FIRING_END, false, i_volume_effects, false, 0, false);
-              }
-            break;
-
-            case SYSTEM_AFTERLIFE:
-            default:
+    switch(STREAM_MODE) {
+      case PROTON:
+      default:
+        switch(SYSTEM_YEAR) {
+          case SYSTEM_1984:
+            if(i_wand_power_level != i_wand_power_level_max) {
               // Play different firing end stream sound depending on how long we have been firing for.
               if(ms_firing_length_timer.remaining() < 5000) {
                 // Long firing tail end.
-                playEffect(S_AFTERLIFE_FIRE_END_LONG, false, i_volume_effects, false, 0, false);
+                playEffect(S_FIRING_END_MID, false, i_volume_effects, false, 0, false);
               }
               else if(ms_firing_length_timer.remaining() < 10000) {
                 // Mid firing tail end.
-                playEffect(S_AFTERLIFE_FIRE_END_MID, false, i_volume_effects, false, 0, false);
+                playEffect(S_FIRING_END, false, i_volume_effects, false, 0, false);
               }
               else {
                 // Short firing tail end.
-                playEffect(S_AFTERLIFE_FIRE_END_SHORT, false, i_volume_effects, false, 0, false);
+                playEffect(S_GB1_1984_FIRE_END_SHORT, false, i_volume_effects, false, 0, false);
               }
-            break;
+            }
+            else {
+              // Play different firing end stream sound depending on how long we have been firing for.
+              if(ms_firing_length_timer.remaining() < 5000) {
+                // Long tail end.
+                playEffect(S_GB1_1984_FIRE_END_HIGH_POWER, false, i_volume_effects, false, 0, false);
+              }
+              else if(ms_firing_length_timer.remaining() < 10000) {
+                // Mid tail end.
+                playEffect(S_GB1_1984_FIRE_END_MID_HIGH_POWER, false, i_volume_effects, false, 0, false);
+              }
+              else {
+                // Short tail end.
+                playEffect(S_GB1_1984_FIRE_END_SHORT_HIGH_POWER, false, i_volume_effects, false, 0, false);
+              }
+            }
+          break;
 
-            case SYSTEM_FROZEN_EMPIRE:
-              // Frozen Empire replaces all firing tail sounds with just a "thump".
+          case SYSTEM_1989:
+            // Play different firing end stream sound depending on how long we have been firing for.
+            if(ms_firing_length_timer.remaining() < 5000) {
+              // Long tail end.
+              playEffect(S_FIRING_END_GUN, false, i_volume_effects, false, 0, false);
+            }
+            else if(ms_firing_length_timer.remaining() < 10000) {
+              // Mid tail end.
+              playEffect(S_FIRING_END_MID, false, i_volume_effects, false, 0, false);
+            }
+            else {
+              // Short tail end.
+              playEffect(S_FIRING_END, false, i_volume_effects, false, 0, false);
+            }
+          break;
+
+          case SYSTEM_AFTERLIFE:
+          default:
+            // Play different firing end stream sound depending on how long we have been firing for.
+            if(ms_firing_length_timer.remaining() < 5000) {
+              // Long firing tail end.
+              playEffect(S_AFTERLIFE_FIRE_END_LONG, false, i_volume_effects, false, 0, false);
+            }
+            else if(ms_firing_length_timer.remaining() < 10000) {
+              // Mid firing tail end.
               playEffect(S_AFTERLIFE_FIRE_END_MID, false, i_volume_effects, false, 0, false);
-            break;
-          }
-        break;
+            }
+            else {
+              // Short firing tail end.
+              playEffect(S_AFTERLIFE_FIRE_END_SHORT, false, i_volume_effects, false, 0, false);
+            }
+          break;
 
-        case SLIME:
-          playEffect(S_SLIME_END, false, i_volume_effects, false, 0, false);
-        break;
+          case SYSTEM_FROZEN_EMPIRE:
+            // Frozen Empire replaces all firing tail sounds with just a "thump".
+            playEffect(S_AFTERLIFE_FIRE_END_MID, false, i_volume_effects, false, 0, false);
+          break;
+        }
+      break;
 
-        case STASIS:
-          playEffect(S_STASIS_END, false, i_volume_effects, false, 0, false);
-        break;
+      case SLIME:
+        playEffect(S_SLIME_END, false, i_volume_effects, false, 0, false);
+      break;
 
-        case MESON:
-          // Nothing.
-        break;
-      }
+      case STASIS:
+        playEffect(S_STASIS_END, false, i_volume_effects, false, 0, false);
+      break;
+
+      case MESON:
+        // Nothing.
+      break;
     }
 
     // Adjust the gain with the Afterlife idling track.
@@ -4646,6 +4683,8 @@ void modeFireStopSounds() {
       }
     }
   }
+
+  wandStopFiringSounds();
 }
 
 void wandStoppedFiring() {
@@ -4676,7 +4715,6 @@ void wandStoppedFiring() {
 
   // Turn off the fans.
   fanNFilter(false);
-  fanBooster(false);
 
   ms_firing_length_timer.stop();
   ms_smoke_timer.stop();
@@ -4772,27 +4810,23 @@ void wandStopFiringSounds() {
     case CTS_FIRING_1984:
       STATUS_CTS = CTS_NOT_FIRING;
 
-      if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+      if(AUDIO_DEVICE == A_WAV_TRIGGER) {
         stopEffect(S_CROSS_STREAMS_START);
         stopEffect(S_CROSS_STREAMS_END);
       }
 
-      if(!b_wand_mash_lockout) {
-        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
-      }
+      playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
     break;
 
     case CTS_FIRING_2021:
       STATUS_CTS = CTS_NOT_FIRING;
 
-      if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+      if(AUDIO_DEVICE == A_WAV_TRIGGER) {
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
       }
 
-      if(!b_wand_mash_lockout) {
-        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
-      }
+      playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
     break;
 
     case CTS_NOT_FIRING:
@@ -4804,7 +4838,7 @@ void wandStopFiringSounds() {
   b_sound_firing_alt_trigger = false;
 }
 
-void stopSmashErrorSounds() {
+void stopMashErrorSounds() {
   // Stop GB:FE button-smash sounds.
   stopEffect(S_FROZEN_EMPIRE_PACK_FREEZE_STOP);
   stopEffect(S_STASIS_IDLE_LOOP);
@@ -4901,108 +4935,6 @@ void packAlarm() {
 
 // LEDs for the 1984/2021 and vibration switches.
 void cyclotronSwitchPlateLEDs() {
-  if(switch_cyclotron_lid.isReleased()) {
-    // Play sounds when lid is removed.
-    stopEffect(S_VENT_SMOKE);
-    stopEffect(S_VENT_SMOKE_1);
-    stopEffect(S_VENT_SMOKE_2);
-    stopEffect(S_VENT_SMOKE_3);
-    stopEffect(S_VENT_SMOKE_4);
-    stopEffect(S_MODE_SWITCH);
-    stopEffect(S_CLICK);
-    stopEffect(S_SPARKS_LOOP);
-    stopEffect(S_BEEPS_BARGRAPH);
-
-    playEffect(S_MODE_SWITCH);
-
-    uint8_t i_smoke_random = random(5);
-
-    switch(i_smoke_random) {
-      case 4:
-        playEffect(S_VENT_SMOKE_4, false, i_volume_effects, true, 120);
-      break;
-
-      case 3:
-        playEffect(S_VENT_SMOKE_3, false, i_volume_effects, true, 120);
-      break;
-
-      case 2:
-        playEffect(S_VENT_SMOKE_2, false, i_volume_effects, true, 120);
-      break;
-
-      case 1:
-        playEffect(S_VENT_SMOKE_1, false, i_volume_effects, true, 120);
-      break;
-
-      case 0:
-      default:
-        playEffect(S_VENT_SMOKE, false, i_volume_effects, true, 120);
-      break;
-    }
-
-    // Play some spark sounds if the pack is running and the lid is removed.
-    if(PACK_STATE == MODE_ON) {
-      playEffect(S_SPARKS_LOOP);
-    }
-    else {
-      // Make sure we reset the cyclotron LED status if not in the EEPROM LED menu.
-      if(b_spectral_lights_on != true) {
-        b_reset_start_led = false;
-      }
-    }
-  }
-
-  if(switch_cyclotron_lid.isPressed()) {
-    // Play sounds when lid is mounted.
-    stopEffect(S_CLICK);
-    stopEffect(S_VENT_DRY);
-
-    playEffect(S_CLICK);
-
-    playEffect(S_VENT_DRY);
-
-    // Play some spark sounds if the pack is running and the lid is put back on.
-    if(PACK_STATE == MODE_ON) {
-      playEffect(S_SPARKS_LOOP);
-    }
-    else {
-      // Make sure we reset the cyclotron LED status if not in the EEPROM LED menu.
-      if(b_spectral_lights_on != true) {
-        b_reset_start_led = false;
-      }
-    }
-  }
-
-  if(switch_cyclotron_lid.getState() == LOW) {
-    if(b_cyclotron_lid_on != true) {
-      // The Cyclotron Lid is now on.
-      b_cyclotron_lid_on = true;
-
-      // Tell the connected devices.
-      packSerialSend(P_CYCLOTRON_LID_ON);
-      serial1Send(A_CYCLOTRON_LID_ON);
-
-      // Turn off Inner Cyclotron LEDs.
-      innerCyclotronCakeOff();
-      innerCyclotronCavityOff();
-    }
-  }
-  else {
-    if(b_cyclotron_lid_on == true) {
-      // The Cyclotron Lid is now off.
-      b_cyclotron_lid_on = false;
-
-      // Tell the connected devices.
-      packSerialSend(P_CYCLOTRON_LID_OFF);
-      serial1Send(A_CYCLOTRON_LID_OFF);
-
-      // Make sure the Inner Cyclotron turns on if we are in the EEPROM LED menu.
-      if(b_spectral_lights_on == true) {
-        spectralLightsOn();
-      }
-    }
-  }
-
   bool b_brass_pack_effect_active = b_brass_pack_sound_loop || (SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && (b_2021_ramp_down || b_alarm || b_wand_mash_lockout) && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM));
 
   if(b_cyclotron_lid_on != true && !b_brass_pack_effect_active) {
@@ -5236,51 +5168,56 @@ void checkRotaryEncoder() {
   }
 }
 
-// Smoke # 1. N-Filter cone outlet.
+// Smoke #1. N-Filter cone outlet.
 void smokeNFilter(bool b_smoke_on) {
-  if(b_smoke_enabled == true) {
-    if(b_smoke_on == true) {
-      if(b_wand_firing == true && b_overheating != true && b_smoke_1_continuous_firing == true && b_smoke_continuous_level[i_wand_power_level - 1] == true) {
+  // Pass the value passed to us on to the Booster Tube smoke machine.
+  smokeBooster(b_smoke_on);
+
+  if(b_smoke_on) {
+    if(b_smoke_enabled) {
+      if(b_wand_firing && !b_overheating && b_smoke_nfilter_continuous_firing && b_smoke_continuous_level[i_wand_power_level - 1]) {
         digitalWriteFast(NFILTER_SMOKE_PIN, HIGH);
       }
-      else if(b_overheating == true && b_wand_firing != true && b_smoke_1_overheat == true && b_smoke_overheat_level[i_wand_power_level - 1] == true) {
+      else if(b_overheating && b_smoke_nfilter_overheat && b_smoke_overheat_level[i_wand_power_level - 1]) {
         digitalWriteFast(NFILTER_SMOKE_PIN, HIGH);
       }
-      else if(b_venting == true) {
+      else if(b_venting && b_smoke_nfilter_overheat) {
         digitalWriteFast(NFILTER_SMOKE_PIN, HIGH);
-      }
-      else {
-        digitalWriteFast(NFILTER_SMOKE_PIN, LOW);
       }
     }
     else {
+      // If smoke is disabled globally, turn off.
       digitalWriteFast(NFILTER_SMOKE_PIN, LOW);
     }
-
-    smokeBooster(b_smoke_on);
+  }
+  else {
+    // If we were told to turn off, turn off.
+    digitalWriteFast(NFILTER_SMOKE_PIN, LOW);
   }
 }
 
 // Smoke #2. Good for putting smoke in the Booster Tube.
 void smokeBooster(bool b_smoke_on) {
-  if(b_smoke_enabled == true) {
-    if(b_smoke_on == true) {
-      if(b_wand_firing == true && b_overheating != true && b_smoke_2_continuous_firing == true && b_smoke_continuous_level[i_wand_power_level - 1] == true) {
+  if(b_smoke_on) {
+    if(b_smoke_enabled) {
+      if(b_wand_firing && !b_overheating && b_smoke_booster_continuous_firing && b_smoke_continuous_level[i_wand_power_level - 1]) {
         digitalWriteFast(BOOSTER_TUBE_SMOKE_PIN, HIGH);
       }
-      else if(b_overheating == true && b_smoke_2_overheat == true && b_wand_firing != true && b_smoke_overheat_level[i_wand_power_level - 1] == true) {
+      else if(b_overheating && b_smoke_booster_overheat && b_smoke_overheat_level[i_wand_power_level - 1]) {
         digitalWriteFast(BOOSTER_TUBE_SMOKE_PIN, HIGH);
       }
-      else if(b_venting == true) {
+      else if(b_venting && b_smoke_booster_overheat) {
         digitalWriteFast(BOOSTER_TUBE_SMOKE_PIN, HIGH);
-      }
-      else {
-        digitalWriteFast(BOOSTER_TUBE_SMOKE_PIN, LOW);
       }
     }
     else {
+      // If smoke is disabled globally, turn off.
       digitalWriteFast(BOOSTER_TUBE_SMOKE_PIN, LOW);
     }
+  }
+  else {
+    // If we were told to turn off, turn off.
+    digitalWriteFast(BOOSTER_TUBE_SMOKE_PIN, LOW);
   }
 }
 
@@ -5288,46 +5225,53 @@ void smokeBooster(bool b_smoke_on) {
 // Fan control. You can use this to switch on any device when properly hooked up with a transistor etc.
 // A fan is a good idea for the N-Filter for example.
 void fanNFilter(bool b_fan_on) {
-  if(b_smoke_enabled == true) {
-    if(b_fan_on == true) {
-      if(b_wand_firing == true && b_overheating != true && b_fan_continuous_firing == true && b_smoke_continuous_level[i_wand_power_level - 1] == true) {
+  // Pass the value passed to us on to the Booster Tube fan.
+  fanBooster(b_fan_on);
+
+  if(b_fan_on) {
+    if(b_smoke_enabled) {
+      if(b_wand_firing && !b_overheating && b_fan_nfilter_continuous_firing && b_smoke_continuous_level[i_wand_power_level - 1]) {
         digitalWriteFast(NFILTER_FAN_PIN, HIGH);
       }
-      else if(b_overheating == true && b_wand_firing != true && b_fan_overheat == true && b_smoke_overheat_level[i_wand_power_level - 1] == true) {
+      else if(b_overheating && b_fan_nfilter_overheat && b_smoke_overheat_level[i_wand_power_level - 1]) {
         digitalWriteFast(NFILTER_FAN_PIN, HIGH);
       }
-      else if(b_venting == true) {
+      else if(b_venting && b_fan_nfilter_overheat) {
         digitalWriteFast(NFILTER_FAN_PIN, HIGH);
-      }
-      else {
-        digitalWriteFast(NFILTER_FAN_PIN, LOW);
       }
     }
     else {
+      // If smoke is disabled globally, turn off.
       digitalWriteFast(NFILTER_FAN_PIN, LOW);
     }
+  }
+  else {
+    // If we were told to turn off, turn off.
+    digitalWriteFast(NFILTER_FAN_PIN, LOW);
   }
 }
 
 void fanBooster(bool b_fan_on) {
-  if(b_smoke_enabled == true) {
-    if(b_fan_on == true) {
-      if(b_wand_firing == true && b_overheating != true && b_fan_booster_continuous_firing == true && b_smoke_continuous_level[i_wand_power_level - 1] == true) {
+  if(b_fan_on) {
+    if(b_smoke_enabled) {
+      if(b_wand_firing && !b_overheating && b_fan_booster_continuous_firing && b_smoke_continuous_level[i_wand_power_level - 1]) {
         digitalWriteFast(BOOSTER_TUBE_FAN_PIN, HIGH);
       }
-      else if(b_overheating == true && b_wand_firing != true && b_fan_booster_overheat == true && b_smoke_overheat_level[i_wand_power_level - 1] == true) {
+      else if(b_overheating && b_fan_booster_overheat && b_smoke_overheat_level[i_wand_power_level - 1]) {
         digitalWriteFast(BOOSTER_TUBE_FAN_PIN, HIGH);
       }
-      else if(b_venting == true) {
+      else if(b_venting && b_fan_booster_overheat) {
         digitalWriteFast(BOOSTER_TUBE_FAN_PIN, HIGH);
-      }
-      else {
-        digitalWriteFast(BOOSTER_TUBE_FAN_PIN, LOW);
       }
     }
     else {
+      // If smoke is disabled globally, turn off.
       digitalWriteFast(BOOSTER_TUBE_FAN_PIN, LOW);
     }
+  }
+  else {
+    // If we were told to turn off, turn off.
+    digitalWriteFast(BOOSTER_TUBE_FAN_PIN, LOW);
   }
 }
 
@@ -5447,19 +5391,18 @@ void wandExtraSoundsBeepLoopStop(bool stopNaturally) {
 void wandExtraSoundsStop() {
   stopEffect(S_AFTERLIFE_WAND_RAMP_1);
   stopEffect(S_AFTERLIFE_WAND_IDLE_1);
-
   stopEffect(S_AFTERLIFE_WAND_RAMP_2);
   stopEffect(S_AFTERLIFE_WAND_IDLE_2);
   stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
   stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
-
   stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
   stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
 
   stopEffect(S_WAND_BOOTUP);
+  stopEffect(S_WAND_BOOTUP_SHORT);
 
   if(b_wand_mash_lockout || PACK_STATE == MODE_OFF) {
-    stopSmashErrorSounds();
+    stopMashErrorSounds();
   }
 }
 
@@ -5688,7 +5631,7 @@ void startWandMashLockout(uint16_t i_timeout) {
 
   // Flag that the button mash error sequence is in effect.
   b_wand_mash_lockout = true;
-  stopSmashErrorSounds();
+  stopMashErrorSounds();
 
   // Play special sounds for the Frozen Empire theme and begin a freeze-up effect.
   if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
@@ -5713,7 +5656,7 @@ void startWandMashLockout(uint16_t i_timeout) {
 }
 
 void restartFromWandMash() {
-  stopSmashErrorSounds();
+  stopMashErrorSounds();
 
   b_wand_mash_lockout = false;
 
@@ -5732,13 +5675,12 @@ void restartFromWandMash() {
           playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects, true, 2000);
         }
 
-        // Trigger timer for restart sequence.
-        ms_mash_lockout.start(0);
-
         // Reset the lighting timers.
         b_2021_ramp_down = false;
         b_inner_ramp_down = false;
         reset2021RampUp();
+        ms_mash_lockout.stop();
+        ms_powercell.start(0);
         ms_cyclotron.start(0);
         ms_cyclotron_ring.start(0);
 

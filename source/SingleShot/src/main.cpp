@@ -45,7 +45,6 @@
 
 // 3rd-Party Libraries
 #include <CRC32.h>
-#include <digitalWriteFast.h>
 #include <EEPROM.h>
 #include <millisDelay.h>
 #include <FastLED.h>

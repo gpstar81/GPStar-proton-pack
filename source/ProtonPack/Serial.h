@@ -994,7 +994,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
         break;
         default:
           // Plays the alarm loop as heard on the wand.
-          stopSmashErrorSounds();
+          stopMashErrorSounds();
           playEffect(S_SMASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
         break;
       }
@@ -1628,33 +1628,71 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_AFTERLIFE_GUN_RAMP_1:
-      stopEffect(S_AFTERLIFE_WAND_RAMP_1);
-      playEffect(S_AFTERLIFE_WAND_RAMP_1, false, i_volume_effects - i_wand_idle_level);
+      wandExtraSoundsStop();
+
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
+        playTransitionEffect(S_AFTERLIFE_WAND_RAMP_1, S_AFTERLIFE_WAND_IDLE_1, true, 5, i_volume_effects - i_wand_idle_level);
+      }
+      else {
+        stopEffect(S_AFTERLIFE_WAND_RAMP_1);
+        playEffect(S_AFTERLIFE_WAND_RAMP_1, false, i_volume_effects - i_wand_idle_level);
+      }
     break;
 
     case W_AFTERLIFE_GUN_RAMP_2:
-      stopEffect(S_AFTERLIFE_WAND_RAMP_2);
-      playEffect(S_AFTERLIFE_WAND_RAMP_2, false, i_volume_effects - i_wand_idle_level);
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
+        playTransitionEffect(S_AFTERLIFE_WAND_RAMP_2, S_AFTERLIFE_WAND_IDLE_2, true, 5, i_volume_effects - i_wand_idle_level);
+      }
+      else {
+        stopEffect(S_AFTERLIFE_WAND_RAMP_2);
+        playEffect(S_AFTERLIFE_WAND_RAMP_2, false, i_volume_effects - i_wand_idle_level);
+      }
+
+      stopEffect(S_AFTERLIFE_WAND_RAMP_1);
+      stopEffect(S_AFTERLIFE_WAND_IDLE_1);
+      stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
+      stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
+      stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
     break;
 
     case W_AFTERLIFE_GUN_RAMP_2_FADE_IN:
-      stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
-      playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, false, i_volume_effects - i_wand_idle_level);
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
+        playTransitionEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, S_AFTERLIFE_WAND_IDLE_2, true, 5, i_volume_effects - i_wand_idle_level);
+      }
+      else {
+        stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
+        playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, false, i_volume_effects - i_wand_idle_level);
+      }
+
+      stopEffect(S_AFTERLIFE_WAND_RAMP_1);
+      stopEffect(S_AFTERLIFE_WAND_IDLE_1);
+      stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
+      stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
+      stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
     break;
 
     case W_AFTERLIFE_GUN_LOOP_1:
-      stopEffect(S_AFTERLIFE_WAND_IDLE_1);
-      playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects - i_wand_idle_level);
+      if(AUDIO_DEVICE != A_GPSTAR_AUDIO_ADV) {
+        stopEffect(S_AFTERLIFE_WAND_IDLE_1);
+        playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects - i_wand_idle_level);
+      }
     break;
 
     case W_AFTERLIFE_GUN_LOOP_2:
-      stopEffect(S_AFTERLIFE_WAND_IDLE_2);
-      playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects - i_wand_idle_level);
+      if(AUDIO_DEVICE != A_GPSTAR_AUDIO_ADV) {
+        stopEffect(S_AFTERLIFE_WAND_IDLE_2);
+        playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects - i_wand_idle_level);
+      }
     break;
 
     case W_AFTERLIFE_GUN_RAMP_DOWN_2:
-      stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
-      playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, false, i_volume_effects - i_wand_idle_level);
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
+        playTransitionEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, S_AFTERLIFE_WAND_IDLE_1, true, 5, i_volume_effects - i_wand_idle_level);
+      }
+      else {
+        stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
+        playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, false, i_volume_effects - i_wand_idle_level);
+      }
     break;
 
     case W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT:
@@ -1743,7 +1781,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       startWandMashLockout(i_value);
     break;
 
-    case W_SMASH_ERROR_LOOP:
+    case W_MASH_ERROR_LOOP:
       // Begins a looping audio track while the wand is locked out.
       // Note: Command is only sent when extra pack sounds are used.
       switch(SYSTEM_YEAR) {
@@ -1752,19 +1790,19 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
         default:
           // Plays the alarm loop as heard on the wand.
-          stopSmashErrorSounds();
+          stopMashErrorSounds();
           playEffect(S_SMASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
         break;
       }
     break;
 
-    case W_SMASH_ERROR_RESTART:
+    case W_MASH_ERROR_RESTART:
       // Initiates a restart of the pack after a lockout.
       restartFromWandMash();
     break;
 
     case W_PROTON_MODE:
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && STREAM_MODE == MESON) {
+      if((AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) && STREAM_MODE == MESON) {
         // Tell GPStar Audio we no longer need short audio.
         audio.gpstarShortTrackOverload(true);
       }
@@ -1814,7 +1852,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_SLIME_MODE:
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && STREAM_MODE == MESON) {
+      if((AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) && STREAM_MODE == MESON) {
         // Tell GPStar Audio we no longer need short audio.
         audio.gpstarShortTrackOverload(true);
       }
@@ -1863,7 +1901,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_STASIS_MODE:
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && STREAM_MODE == MESON) {
+      if((AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) && STREAM_MODE == MESON) {
         // Tell GPStar Audio we no longer need short audio.
         audio.gpstarShortTrackOverload(true);
       }
@@ -1942,7 +1980,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         b_settings = false;
       }
 
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
         // Tell GPStar Audio we need short audio mode.
         audio.gpstarShortTrackOverload(false);
       }
@@ -1965,7 +2003,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_SPECTRAL_MODE:
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && STREAM_MODE == MESON) {
+      if((AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) && STREAM_MODE == MESON) {
         // Tell GPStar Audio we no longer need short audio.
         audio.gpstarShortTrackOverload(true);
       }
@@ -2015,7 +2053,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_HOLIDAY_MODE:
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && STREAM_MODE == MESON) {
+      if((AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) && STREAM_MODE == MESON) {
         // Tell GPStar Audio we no longer need short audio.
         audio.gpstarShortTrackOverload(true);
       }
@@ -2069,7 +2107,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_SPECTRAL_CUSTOM_MODE:
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && STREAM_MODE == MESON) {
+      if((AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) && STREAM_MODE == MESON) {
         // Tell GPStar Audio we no longer need short audio.
         audio.gpstarShortTrackOverload(true);
       }
@@ -2457,7 +2495,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Stop the impact sound timer.
       ms_firing_sound_mix.stop();
 
-      if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+      if(AUDIO_DEVICE == A_WAV_TRIGGER) {
         stopEffect(S_CROSS_STREAMS_START);
       }
       playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
@@ -2470,7 +2508,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Stop the impact sound timer.
       ms_firing_sound_mix.stop();
 
-      if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+      if(AUDIO_DEVICE == A_WAV_TRIGGER) {
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
       }
 
@@ -2484,7 +2522,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Stop the impact sound timer.
       ms_firing_sound_mix.stop();
 
-      if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+      if(AUDIO_DEVICE == A_WAV_TRIGGER) {
         stopEffect(S_CROSS_STREAMS_END);
         stopEffect(S_CROSS_STREAMS_START);
       }
@@ -2499,7 +2537,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Stop the impact sound timer.
       ms_firing_sound_mix.stop();
 
-      if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+      if(AUDIO_DEVICE == A_WAV_TRIGGER) {
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
       }
@@ -2516,7 +2554,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         ms_firing_sound_mix.start(random(7,15) * 1000);
       }
 
-      if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+      if(AUDIO_DEVICE == A_WAV_TRIGGER) {
         stopEffect(S_CROSS_STREAMS_START);
         stopEffect(S_CROSS_STREAMS_END);
       }
@@ -2533,7 +2571,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         ms_firing_sound_mix.start(random(7,15) * 1000);
       }
 
-      if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+      if(AUDIO_DEVICE == A_WAV_TRIGGER) {
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
       }

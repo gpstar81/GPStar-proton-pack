@@ -169,12 +169,13 @@ CRGB cyclotron_leds[INNER_CYCLOTRON_LED_PANEL_MAX + INNER_CYCLOTRON_CAKE_LED_MAX
  * Delay for fastled to update the addressable LEDs.
  * We have up to 126 addressable LEDs if using NeoPixel jewel in the N-Filter, a ring
  * for the Inner Cyclotron, and the optional "sparking" cyclotron cavity LEDs.
- * 0.03 ms to update 1 LED. So 4 ms should be okay. Let's bump it up to 6 just in case.
+ * 0.0312 ms to update each LED, then a 0.05 ms resting period once all are updated.
+ * So 4 ms should be okay. Let's bump it up to 5 just in case.
  * For cyclotrons with high density LEDs, increase this based on the cyclotron speed multiplier to simulate a faster spinning cyclotron.
  * This works by "skipping frames" in the animation, which can be done up until about 15 ms.
  * After 15ms it will become painfully obvious to most people that the animation is not smooth.
  */
-#define FAST_LED_UPDATE_MS 6
+#define FAST_LED_UPDATE_MS 5
 uint8_t i_fast_led_delay = FAST_LED_UPDATE_MS;
 millisDelay ms_fast_led;
 
@@ -187,10 +188,10 @@ millisDelay ms_powercell;
 bool b_powercell_updating = false;
 uint8_t i_powercell_multiplier = 1;
 bool b_powercell_sound_loop = false;
-const uint8_t powercell_15_invert[15] PROGMEM = {14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 };
-const uint8_t powercell_15[15] PROGMEM = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 };
-const uint8_t powercell_13[13] PROGMEM = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
-const uint8_t powercell_13_invert[13] PROGMEM = {12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 };
+const uint8_t powercell_15_invert[15] PROGMEM = { 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 };
+const uint8_t powercell_15[15] PROGMEM = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 };
+const uint8_t powercell_13[13] PROGMEM = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+const uint8_t powercell_13_invert[13] PROGMEM = { 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 };
 
 /*
  * State of the pack.
@@ -331,6 +332,7 @@ bool b_overheating = false;
 bool b_venting = false;
 millisDelay ms_smoke_timer;
 millisDelay ms_smoke_on;
+const uint16_t sfx_smoke[5] PROGMEM = { S_VENT_SMOKE, S_VENT_SMOKE_1, S_VENT_SMOKE_2, S_VENT_SMOKE_3, S_VENT_SMOKE_4 };
 const uint16_t i_smoke_timer[5] PROGMEM = { i_smoke_timer_level_1, i_smoke_timer_level_2, i_smoke_timer_level_3, i_smoke_timer_level_4, i_smoke_timer_level_5 };
 const uint16_t i_smoke_on_time[5] PROGMEM = { i_smoke_on_time_level_1, i_smoke_on_time_level_2, i_smoke_on_time_level_3, i_smoke_on_time_level_4, i_smoke_on_time_level_5 };
 bool b_smoke_continuous_level[5] = { b_smoke_continuous_level_1, b_smoke_continuous_level_2, b_smoke_continuous_level_3, b_smoke_continuous_level_4, b_smoke_continuous_level_5 };
@@ -417,7 +419,7 @@ millisDelay ms_idle_fire_fade; // Used for fading the Afterlife idling sound wit
  * Rotary encoder for volume control
  */
 millisDelay ms_rotary_encoder; // Timer for slowing the rotary encoder spin.
-const uint8_t i_rotary_encoder_delay = 50; // Time to delay switching firing modes.
+const uint8_t i_rotary_encoder_delay = 50; // Time to delay adjusting volume.
 static uint8_t prev_next_code = 0;
 static uint16_t store = 0;
 
@@ -428,7 +430,7 @@ bool b_pack_post_finish = false;
 uint8_t i_post_powercell_up = 0;
 uint8_t i_post_powercell_down = 0;
 uint8_t i_post_fade = 255;
-millisDelay ms_delay_post;
+millisDelay ms_delay_post; // Also used for Brass Pack shutdown steam effect.
 millisDelay ms_delay_post_2;
 millisDelay ms_delay_post_3;
 
@@ -473,6 +475,8 @@ bool b_pack_on = false;
 bool b_pack_shutting_down = false;
 bool b_spectral_lights_on = false;
 bool b_fade_out = false;
+const uint16_t i_gbfe_brass_shutdown_delay = 8796;
+const uint8_t i_fadeout_duration = 50;
 millisDelay ms_fadeout;
 
 /*

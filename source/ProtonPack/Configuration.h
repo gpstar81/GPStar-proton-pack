@@ -190,15 +190,15 @@ uint8_t i_inner_cyclotron_cavity_num_leds = 0;
 #define INNER_CYCLOTRON_DELAY_1984_12_LED 15 // For 12 LEDs.
 #define INNER_CYCLOTRON_DELAY_2021_12_LED 12 // For 12 LEDs.
 #define INNER_CYCLOTRON_DELAY_1984_23_LED 12 // For 23 LEDs.
-#define INNER_CYCLOTRON_DELAY_2021_23_LED 8 // For 23 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_23_LED 9 // For 23 LEDs.
 #define INNER_CYCLOTRON_DELAY_1984_24_LED 12 // For 24 LEDs.
-#define INNER_CYCLOTRON_DELAY_2021_24_LED 8 // For 24 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_24_LED 9 // For 24 LEDs.
 #define INNER_CYCLOTRON_DELAY_1984_26_LED 12 // For 26 LEDs.
-#define INNER_CYCLOTRON_DELAY_2021_26_LED 8 // For 26 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_26_LED 9 // For 26 LEDs.
 #define INNER_CYCLOTRON_DELAY_1984_35_LED 9 // For 35 LEDs.
-#define INNER_CYCLOTRON_DELAY_2021_35_LED 5 // For 35 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_35_LED 6 // For 35 LEDs.
 #define INNER_CYCLOTRON_DELAY_1984_36_LED 9 // For 36 LEDs.
-#define INNER_CYCLOTRON_DELAY_2021_36_LED 5 // For 36 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_36_LED 6 // For 36 LEDs.
 uint8_t i_1984_inner_delay = INNER_CYCLOTRON_DELAY_1984_35_LED;
 uint8_t i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_35_LED;
 
@@ -353,9 +353,9 @@ bool b_smoke_enabled = true;
  * Control which of the 4 pins go high during continuous firing smoke effects.
  * This can be overridden if b_smoke_enabled is set to false.
  */
-bool b_smoke_1_continuous_firing = true;
-bool b_smoke_2_continuous_firing = true;
-bool b_fan_continuous_firing = true;
+bool b_smoke_nfilter_continuous_firing = true;
+bool b_smoke_booster_continuous_firing = true;
+bool b_fan_nfilter_continuous_firing = true;
 bool b_fan_booster_continuous_firing = true;
 
 /*
@@ -397,9 +397,9 @@ const uint16_t i_smoke_on_time_level_5 = 4000;
  * Control which of the 3 pins that go 5V high during overheat.
  * This can be overridden if b_smoke_enabled is set to false.
  */
-bool b_smoke_1_overheat = true;
-bool b_smoke_2_overheat = true;
-bool b_fan_overheat = true;
+bool b_smoke_nfilter_overheat = true;
+bool b_smoke_booster_overheat = true;
+bool b_fan_nfilter_overheat = true;
 bool b_fan_booster_overheat = true;
 
 /*
