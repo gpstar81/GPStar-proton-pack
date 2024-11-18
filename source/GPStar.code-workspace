@@ -1,16 +1,19 @@
 {
-	"folders": [
-		{
-			"path": "SingleShot"
-		},
-		{
-			"name": "AttenuatorNano",
-			"path": "AttenuatorNano"
-		},
-		{
-			"name": "AttenuatorESP32",
-			"path": "AttenuatorESP32"
-		}
-	],
-	"settings": {}
+  "folders": [
+    {
+      "path": "AttenuatorESP32"
+    },
+    {
+      "path": "AttenuatorNano"
+    },
+    {
+      "path": "SingleShot"
+    }
+  ],
+  "settings": {
+    "editor.detectIndentation": false,
+    "editor.indentSize": "2",
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2
+  }
 }
