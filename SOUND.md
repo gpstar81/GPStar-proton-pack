@@ -25,7 +25,7 @@ The compatibility matrix below notes whether a device is compatible with major v
 
 <sup>3</sup> The GPStar Audio v103 firmware adjusts the internal gain for the line-out levels to improve audio quality prior to amplification (primarily with Proton Pack usage which relies on an external amp to drive larger speakers).
 
-<sup>4</sup> The GPStar Audio v104 firmware provides a new version info reply which gives the ability to provide unique features to users based on their flashed version. Notably, one of the new features for the v104 is a "WAV queing" or preloading of audio files for use in chained events, reducing latency for certain effects.
+<sup>4</sup> The GPStar Audio v104 firmware provides a new version info reply which gives the ability to provide unique features to users based on their flashed version. Notably, one of the new features for the v104 is a "WAV queueing" or preloading of audio files for use in chained events, reducing latency for certain effects.
 
 **Firmware Updates**
 
