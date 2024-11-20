@@ -68,10 +68,10 @@ This section is presented in a way to offer a more complete view of what compone
 | Audio Board<sup>R</sup>     | [GPStar Audio](GPSTAR_AUDIO_PCB.md) or [Robertsonics WAV Trigger](WAVTRIGGER.md) |
 | Speakers/Amp<sup>R</sup>    | [Audio Output Guide](SOUND.md) |
 | Sound Effects<sup>R</sup>   | [Loading The Audio Files](AUDIO.md) |
-| Cyclotron Lid<sup>O</sup>   | [20/36-LED options by Frutto Technology](CYCLOTRON_LID.md) |
+| Cyclotron Lid<sup>O</sup>   | [Options from GPStar and Frutto Technology](CYCLOTRON_LID.md) |
 | Inner Cyclotron<sup>O</sup> | [Cake and Panel Lights](CYCLOTRON_INNER.md)
 | N-Filter<sup>O</sup>        | [7-LED Vent Light](NFILTER.md) |
-| Powercell<sup>O</sup>       | [15-LED option by Frutto Technology](POWERCELL.md) |
+| Powercell<sup>O</sup>       | [Options from GPStar and Frutto Technology](POWERCELL.md) |
 | Smoke Effects<sup>O</sup>   | [Various Solutions Supported](SMOKE.md) |
 
 **Connectivity**
