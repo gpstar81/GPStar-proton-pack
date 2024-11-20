@@ -4,10 +4,10 @@ The stock lights in the HasLab pack only supplies 12 addressable LEDs which are 
 
 Regardless of solution you will need to split apart the Cyclotron Lid which is secured at 6 locations around the lid. Gently prying under the plastic near the N-Filter on the inside of the lid will be the first screw posts cold-welded to the lid. A firm but slow twist should break the bond and begin to separate the halves. To re-secure, the best option is to drill through the center of each obvious cold weld on the inner lid and use small screws to attach the halves back together.
 
-##Haslab Proton Pack Hookup Guide
+## Haslab Proton Pack Hookup Guide
 ![](images/GPStar-Cyclotron-Hookup.jpg)
 
-##DIY and Spirit Packs Hookup Guide
+## DIY and Spirit Packs Hookup Guide
 ![](images/GPStar-Cyclotron-Bypass-Hookup.jpg)
 
 ## Installation Guide Video
