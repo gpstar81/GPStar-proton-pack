@@ -385,7 +385,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             setValue("ledCycInnerPanel", settings.ledCycInnerPanel || 1); // Default: Individual
             setToggle("ledCycCakeGRB", settings.ledCycCakeGRB);
             setValue("ledCycCavCount", settings.ledCycCavCount || 0); // Default: 0
-			setToggle("ledCycCavGRB", settings.ledCycCavGRB);
+            setToggle("ledCycCavGRB", settings.ledCycCavGRB);
             setHtml("ledCycCavCountOut", getValue("ledCycCavCount"));
 
             setValue("ledPowercellCount", settings.ledPowercellCount || 13); // Haslab: 13
