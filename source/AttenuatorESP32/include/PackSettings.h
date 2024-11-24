@@ -215,7 +215,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Swap Red/Green LEDs (GRB):</b>
+      <b class="labelSwitch">Swap Cake Red/Green LEDs (GRB):</b>
       <label class="switch">
         <input id="ledCycCakeGRB" name="ledCycCakeGRB" type="checkbox">
         <span class="slider round"></span>
@@ -240,6 +240,13 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       <input type="range" id="ledCycCavCount" name="ledCycCavCount" min="0" max="20" value="0" step="2"
        oninput="ledCycCavCountOut.value=ledCycCavCount.value"/>
       <output class="labelSlider" id="ledCycCavCountOut" for="ledCycCavCount"></output>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">Swap Cavity Red/Green LEDs (GRB):</b>
+      <label class="switch">
+        <input id="ledCycCavGRB" name="ledCycCavGRB" type="checkbox">
+        <span class="slider round"></span>
+      </label>
     </div>
   </div>
 
@@ -378,6 +385,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             setValue("ledCycInnerPanel", settings.ledCycInnerPanel || 1); // Default: Individual
             setToggle("ledCycCakeGRB", settings.ledCycCakeGRB);
             setValue("ledCycCavCount", settings.ledCycCavCount || 0); // Default: 0
+			setToggle("ledCycCavGRB", settings.ledCycCavGRB);
             setHtml("ledCycCavCountOut", getValue("ledCycCavCount"));
 
             setValue("ledPowercellCount", settings.ledPowercellCount || 13); // Haslab: 13
@@ -428,6 +436,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         ledCycInnerPanel: getInt("ledCycInnerPanel") || 1,
         ledCycCakeGRB: getToggle("ledCycCakeGRB"),
         ledCycCavCount: getInt("ledCycCavCount"),
+        ledCycCavGRB: getToggle("ledCycCavGRB"),
 
         ledPowercellCount: getInt("ledPowercellCount") || 13,
         ledInvertPowercell: getToggle("ledInvertPowercell"),
