@@ -293,7 +293,7 @@ bool startExternalWifi() {
 
     #if defined(DEBUG_WIRELESS_SETUP)
       Serial.println();
-      Serial.println(F("Starting External WiFi Configuration"));
+      Serial.println(F("Attempting External WiFi Configuration"));
       Serial.print(F("Stored External SSID: "));
       Serial.println(wifi_ssid);
       Serial.print(F("Stored External PASS: "));
