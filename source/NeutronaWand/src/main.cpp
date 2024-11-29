@@ -9835,7 +9835,7 @@ void checkRotaryEncoder() {
               }
             }
             else if(vgModeCheck() && !switch_wand.on() && switch_vent.on() && WAND_STATUS == MODE_ON) {
-              // Counter clockwise firing mode selection.
+              // Counter-Clockwise Rotation from Proton: STASIS -> SLIME -> MESON -> [SPECTRAL -> HOLIDAY_* -> SPECTRAL_CUSTOM] -> PROTON
               if(STREAM_MODE == PROTON) {
                 STREAM_MODE = STASIS;
               }
@@ -9863,6 +9863,7 @@ void checkRotaryEncoder() {
               else if(STREAM_MODE == SPECTRAL) {
                 // Conditional mode advancement.
                 if(b_holiday_mode_enabled) {
+                  // Note: Once in a holiday mode, user can switch between additional modes using the BWB switch.
                   STREAM_MODE = HOLIDAY_HALLOWEEN;
                 }
                 else if(b_spectral_custom_mode_enabled) {
@@ -9872,19 +9873,7 @@ void checkRotaryEncoder() {
                   STREAM_MODE = PROTON;
                 }
               }
-              else if(STREAM_MODE == HOLIDAY_HALLOWEEN) {
-                // Conditional mode advancement.
-                if(b_holiday_mode_enabled) {
-                  STREAM_MODE = HOLIDAY_CHRISTMAS;
-                }
-                else if(b_spectral_custom_mode_enabled) {
-                  STREAM_MODE = SPECTRAL_CUSTOM;
-                }
-                else {
-                  STREAM_MODE = PROTON;
-                }
-              }
-              else if(STREAM_MODE == HOLIDAY_CHRISTMAS) {
+              else if(STREAM_MODE == HOLIDAY_HALLOWEEN || STREAM_MODE == HOLIDAY_CHRISTMAS) {
                 // Conditional mode advancement.
                 if(b_spectral_custom_mode_enabled) {
                   STREAM_MODE = SPECTRAL_CUSTOM;
@@ -9962,13 +9951,15 @@ void checkRotaryEncoder() {
               }
             }
             else if(vgModeCheck() && !switch_wand.on() && switch_vent.on() && WAND_STATUS == MODE_ON) {
+              // Clockwise Rotation from Proton: [SPECTRAL_CUSTOM -> HOLIDAY_* -> SPECTRAL] -> MESON -> SLIME -> STASIS -> PROTON
               if(STREAM_MODE == PROTON) {
                 // Conditional mode advancement.
                 if(b_spectral_custom_mode_enabled) {
                   STREAM_MODE = SPECTRAL_CUSTOM;
                 }
                 else if(b_holiday_mode_enabled) {
-                  STREAM_MODE = HOLIDAY_CHRISTMAS;
+                  // Note: Once in a holiday mode, user can switch between additional modes using the BWB switch.
+                  STREAM_MODE = HOLIDAY_HALLOWEEN;
                 }
                 else if(b_spectral_mode_enabled) {
                   STREAM_MODE = SPECTRAL;
@@ -9980,18 +9971,6 @@ void checkRotaryEncoder() {
               else if(STREAM_MODE == SPECTRAL_CUSTOM) {
                 // Conditional mode advancement.
                 if(b_holiday_mode_enabled) {
-                  STREAM_MODE = HOLIDAY_CHRISTMAS;
-                }
-                else if(b_spectral_mode_enabled) {
-                  STREAM_MODE = SPECTRAL;
-                }
-                else {
-                  STREAM_MODE = MESON;
-                }
-              }
-              else if(STREAM_MODE == HOLIDAY_CHRISTMAS) {
-                // Conditional mode advancement.
-                if(b_holiday_mode_enabled) {
                   STREAM_MODE = HOLIDAY_HALLOWEEN;
                 }
                 else if(b_spectral_mode_enabled) {
@@ -10001,7 +9980,7 @@ void checkRotaryEncoder() {
                   STREAM_MODE = MESON;
                 }
               }
-              else if(STREAM_MODE == HOLIDAY_HALLOWEEN) {
+              else if(STREAM_MODE == HOLIDAY_HALLOWEEN || STREAM_MODE == HOLIDAY_CHRISTMAS) {
                 // Conditional mode advancement.
                 if(b_spectral_mode_enabled) {
                   STREAM_MODE = SPECTRAL;
