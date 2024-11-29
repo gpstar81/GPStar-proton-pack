@@ -2073,7 +2073,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         playEffect(S_FIRE_START_SPARK);
       }
 
-      // Proton mode.
+      // Spectral mode.
       STREAM_MODE = SPECTRAL;
 
       if(b_settings) {
@@ -2120,17 +2120,15 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         stopEffect(S_STASIS_IDLE_LOOP);
         stopEffect(S_MESON_IDLE_LOOP);
 
-        playEffect(S_FIRE_START_SPARK);
+        playEffect(S_HALLOWEEN_MODE_VOICE);
       }
 
-      // Set appropriate theme/mode.
+      // Set appropriate holiday mode.
+      STREAM_MODE = HOLIDAY_HALLOWEEN;
+
       if(b_settings) {
         playEffect(S_CLICK);
         b_settings = false;
-      }
-      else {
-        STREAM_MODE = HOLIDAY_HALLOWEEN;
-        playEffect(S_HALLOWEEN_MODE_VOICE);
       }
 
       if(b_cyclotron_colour_toggle == true) {
@@ -2172,17 +2170,15 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         stopEffect(S_STASIS_IDLE_LOOP);
         stopEffect(S_MESON_IDLE_LOOP);
 
-        playEffect(S_FIRE_START_SPARK);
+        playEffect(S_CHRISTMAS_MODE_VOICE);
       }
 
-      // Set appropriate theme/mode.
+      // Set appropriate holiday mode.
+      STREAM_MODE = HOLIDAY_CHRISTMAS;
+      
       if(b_settings) {
         playEffect(S_CLICK);
         b_settings = false;
-      }
-      else {
-        STREAM_MODE = HOLIDAY_HALLOWEEN;
-        playEffect(S_HALLOWEEN_MODE_VOICE);
       }
 
       if(b_cyclotron_colour_toggle == true) {
@@ -2227,7 +2223,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         playEffect(S_FIRE_START_SPARK);
       }
 
-      // Proton mode.
+      // Custom spectral mode.
       STREAM_MODE = SPECTRAL_CUSTOM;
 
       if(b_settings) {
