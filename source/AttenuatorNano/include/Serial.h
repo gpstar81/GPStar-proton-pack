@@ -196,10 +196,10 @@ bool checkPack() {
               STREAM_MODE = PROTON;
             break;
             case 2:
-              STREAM_MODE = SLIME;
+              STREAM_MODE = STASIS;
             break;
             case 3:
-              STREAM_MODE = STASIS;
+              STREAM_MODE = SLIME;
             break;
             case 4:
               STREAM_MODE = MESON;
@@ -208,12 +208,10 @@ bool checkPack() {
               STREAM_MODE = SPECTRAL;
             break;
             case 6:
-              STREAM_MODE = HOLIDAY;
-              HOLIDAY_MODE = HALLOWEEN;
+              STREAM_MODE = HOLIDAY_HALLOWEEN;
             break;
             case 7:
-              STREAM_MODE = HOLIDAY;
-              HOLIDAY_MODE = CHRISTMAS;
+              STREAM_MODE = HOLIDAY_CHRISTMAS;
             break;
             case 8:
               STREAM_MODE = SPECTRAL_CUSTOM;
@@ -371,13 +369,13 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       b_state_changed = true;
     break;
 
-    case A_SLIME_MODE:
-      STREAM_MODE = SLIME;
+    case A_STASIS_MODE:
+      STREAM_MODE = STASIS;
       b_state_changed = true;
     break;
 
-    case A_STASIS_MODE:
-      STREAM_MODE = STASIS;
+    case A_SLIME_MODE:
+      STREAM_MODE = SLIME;
       b_state_changed = true;
     break;
 
@@ -391,14 +389,13 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       b_state_changed = true;
     break;
 
-    case A_HOLIDAY_MODE:
-      STREAM_MODE = HOLIDAY;
-      if (i_value == 2) {
-        HOLIDAY_MODE = CHRISTMAS;
-      }
-      else {
-        HOLIDAY_MODE = HALLOWEEN;
-      }
+    case A_HALLOWEEN_MODE:
+      STREAM_MODE = HOLIDAY_HALLOWEEN;
+      b_state_changed = true;
+    break;
+
+    case A_CHRISTMAS_MODE:
+      STREAM_MODE = HOLIDAY_CHRISTMAS;
       b_state_changed = true;
     break;
 

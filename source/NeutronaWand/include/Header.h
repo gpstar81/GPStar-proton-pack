@@ -199,7 +199,7 @@ static uint16_t store = 0;
  *
  * Vibration default is based on the toggle switch position from the Proton Pack. These are references for the EEPROM menu. Empty is a zero value, not used in the EEPROM.
  */
-enum VIBRATION_MODES { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE, VIBRATION_DEFAULT };
+enum VIBRATION_MODES { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE, VIBRATION_DEFAULT, CYCLOTRON_MOTOR };
 enum VIBRATION_MODES VIBRATION_MODE_EEPROM;
 enum VIBRATION_MODES VIBRATION_MODE;
 const uint8_t i_vibration_level_min = 65;
@@ -369,9 +369,8 @@ uint8_t i_heatdown_counter = 100;
 enum FIRING_MODES { VG_MODE, CTS_MODE, CTS_MIX_MODE };
 enum FIRING_MODES FIRING_MODE;
 enum FIRING_MODES LAST_FIRING_MODE;
-enum STREAM_MODES { PROTON, SLIME, STASIS, MESON, SPECTRAL, HOLIDAY, SPECTRAL_CUSTOM };
+enum STREAM_MODES { PROTON, STASIS, SLIME, MESON, SPECTRAL, HOLIDAY_HALLOWEEN, HOLIDAY_CHRISTMAS, SPECTRAL_CUSTOM };
 enum STREAM_MODES STREAM_MODE;
-bool b_christmas = false; // Used in HOLIDAY mode to change from orange/purple to red/green.
 
 /*
  * Firing timers.

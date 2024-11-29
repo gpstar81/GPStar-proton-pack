@@ -82,6 +82,7 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t ledCycCakeSat;
   uint8_t ledCycCakeGRB;
   uint8_t ledCycCavCount;
+  uint8_t ledCycCavType;
   uint8_t ledVGCyclotron;
   uint8_t ledPowercellCount;
   uint8_t ledInvertPowercell;
@@ -378,8 +379,28 @@ void serial1SendData(uint8_t i_message) {
       packConfig.ledCycCakeCount = i_inner_cyclotron_cake_num_leds;
       packConfig.ledCycCakeHue = i_spectral_cyclotron_inner_custom_colour;
       packConfig.ledCycCakeSat = i_spectral_cyclotron_inner_custom_saturation;
-      packConfig.ledCycCakeGRB = b_grb_cyclotron_cake ? 1 : 0;
+      switch(CAKE_LED_TYPE) {
+        case RGB_LED:
+        default:
+          packConfig.ledCycCakeGRB = 0;
+        break;
+        case GRB_LED:
+          packConfig.ledCycCakeGRB = 1;
+        break;
+      }
       packConfig.ledCycCavCount = i_inner_cyclotron_cavity_num_leds;
+      switch(CAVITY_LED_TYPE) {
+        case RGB_LED:
+        default:
+          packConfig.ledCycCavType = 1;
+        break;
+        case GRB_LED:
+          packConfig.ledCycCavType = 2;
+        break;
+        case GBR_LED:
+          packConfig.ledCycCavType = 3;
+        break;
+      }
 
       // Power Cell
       packConfig.ledPowercellCount = i_powercell_leds;
@@ -725,8 +746,25 @@ void checkSerial1() {
           i_inner_cyclotron_cake_num_leds = packConfig.ledCycCakeCount;
           i_spectral_cyclotron_inner_custom_colour = packConfig.ledCycCakeHue;
           i_spectral_cyclotron_inner_custom_saturation = packConfig.ledCycCakeSat;
-          b_grb_cyclotron_cake = (packConfig.ledCycCakeGRB == 1);
+          if(packConfig.ledCycCakeGRB == 1) {
+            CAKE_LED_TYPE = GRB_LED;
+          }
+          else {
+            CAKE_LED_TYPE = RGB_LED;
+          }
           i_inner_cyclotron_cavity_num_leds = packConfig.ledCycCavCount;
+          switch(packConfig.ledCycCavType) {
+            case 1:
+            default:
+              CAVITY_LED_TYPE = RGB_LED;
+            break;
+            case 2:
+              CAVITY_LED_TYPE = GRB_LED;
+            break;
+            case 3:
+              CAVITY_LED_TYPE = GBR_LED;
+            break;
+          }
 
           // Power Cell
           i_powercell_leds = packConfig.ledPowercellCount;
@@ -843,11 +881,16 @@ void doSerial1Sync() {
 
   // Synchronise the firing modes.
   switch(STREAM_MODE) {
-    case SLIME:
-      attenuatorSyncData.streamMode = 2;
+    case PROTON:
+    default:
+      attenuatorSyncData.streamMode = 1;
     break;
 
     case STASIS:
+      attenuatorSyncData.streamMode = 2;
+    break;
+
+    case SLIME:
       attenuatorSyncData.streamMode = 3;
     break;
 
@@ -859,17 +902,16 @@ void doSerial1Sync() {
       attenuatorSyncData.streamMode = 5;
     break;
 
-    case HOLIDAY:
-      attenuatorSyncData.streamMode = b_christmas ? 7 : 6;
+    case HOLIDAY_HALLOWEEN:
+      attenuatorSyncData.streamMode = 6;
+    break;
+
+    case HOLIDAY_CHRISTMAS:
+      attenuatorSyncData.streamMode = 7;
     break;
 
     case SPECTRAL_CUSTOM:
       attenuatorSyncData.streamMode = 8;
-    break;
-
-    case PROTON:
-    default:
-      attenuatorSyncData.streamMode = 1;
     break;
   }
 
@@ -1332,12 +1374,17 @@ void doWandSync() {
 
   // Synchronise the firing mode.
   switch(STREAM_MODE) {
-    case SLIME:
-      wandSyncData.streamMode = 2; // 2 = Slime Mode.
+    case PROTON:
+    default:
+      wandSyncData.streamMode = 1; // 1 = Proton Mode.
     break;
 
     case STASIS:
-      wandSyncData.streamMode = 3; // 3 = Stasis Mode.
+      wandSyncData.streamMode = 2; // 2 = Stasis Mode.
+    break;
+
+    case SLIME:
+      wandSyncData.streamMode = 3; // 3 = Slime Mode.
     break;
 
     case MESON:
@@ -1348,17 +1395,16 @@ void doWandSync() {
       wandSyncData.streamMode = 5; // 5 = Spectral Mode
     break;
 
-    case HOLIDAY:
-      wandSyncData.streamMode = b_christmas ? 7 : 6; // 6 = Halloween, 7 = Christmas
+    case HOLIDAY_HALLOWEEN:
+      wandSyncData.streamMode = 6; // 6 = Halloween
+    break;
+
+    case HOLIDAY_CHRISTMAS:
+      wandSyncData.streamMode = 7; // 7 = Christmas
     break;
 
     case SPECTRAL_CUSTOM:
       wandSyncData.streamMode = 8; // 8 = Spectral Custom Mode.
-    break;
-
-    case PROTON:
-    default:
-      wandSyncData.streamMode = 1; // 1 = Proton Mode.
     break;
   }
 
@@ -2052,7 +2098,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       serial1Send(A_SPECTRAL_MODE);
     break;
 
-    case W_HOLIDAY_MODE:
+    case W_HALLOWEEN_MODE:
       if((AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) && STREAM_MODE == MESON) {
         // Tell GPStar Audio we no longer need short audio.
         audio.gpstarShortTrackOverload(true);
@@ -2069,7 +2115,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         }
       }
 
-      if(PACK_STATE == MODE_ON && STREAM_MODE != HOLIDAY) {
+      if(PACK_STATE == MODE_ON && (STREAM_MODE != HOLIDAY_HALLOWEEN || STREAM_MODE != HOLIDAY_CHRISTMAS)) {
         stopEffect(S_PACK_SLIME_TANK_LOOP);
         stopEffect(S_STASIS_IDLE_LOOP);
         stopEffect(S_MESON_IDLE_LOOP);
@@ -2077,16 +2123,14 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         playEffect(S_FIRE_START_SPARK);
       }
 
-      // Proton mode.
-      STREAM_MODE = HOLIDAY;
-      b_christmas = (i_value == 2);
-
+      // Set appropriate theme/mode.
       if(b_settings) {
         playEffect(S_CLICK);
         b_settings = false;
       }
       else {
-        b_christmas ? playEffect(S_CHRISTMAS_MODE_VOICE) : playEffect(S_HALLOWEEN_MODE_VOICE);
+        STREAM_MODE = HOLIDAY_HALLOWEEN;
+        playEffect(S_HALLOWEEN_MODE_VOICE);
       }
 
       if(b_cyclotron_colour_toggle == true) {
@@ -2103,7 +2147,59 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Update the Inner Cyclotron LEDs if required.
       cyclotronSwitchLEDUpdate();
 
-      serial1Send(A_HOLIDAY_MODE, i_value);
+      serial1Send(A_HALLOWEEN_MODE, i_value);
+    break;
+
+    case W_CHRISTMAS_MODE:
+      if((AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) && STREAM_MODE == MESON) {
+        // Tell GPStar Audio we no longer need short audio.
+        audio.gpstarShortTrackOverload(true);
+      }
+
+      // Returning from Slime mode, so we need to reset the Cyclotron again.
+      if(usingSlimeCyclotron()) {
+        resetCyclotronState();
+        clearCyclotronFades();
+
+        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
+          adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
+          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 100);
+        }
+      }
+
+      if(PACK_STATE == MODE_ON && (STREAM_MODE != HOLIDAY_HALLOWEEN || STREAM_MODE != HOLIDAY_CHRISTMAS)) {
+        stopEffect(S_PACK_SLIME_TANK_LOOP);
+        stopEffect(S_STASIS_IDLE_LOOP);
+        stopEffect(S_MESON_IDLE_LOOP);
+
+        playEffect(S_FIRE_START_SPARK);
+      }
+
+      // Set appropriate theme/mode.
+      if(b_settings) {
+        playEffect(S_CLICK);
+        b_settings = false;
+      }
+      else {
+        STREAM_MODE = HOLIDAY_HALLOWEEN;
+        playEffect(S_HALLOWEEN_MODE_VOICE);
+      }
+
+      if(b_cyclotron_colour_toggle == true) {
+        // Reset the Cyclotron LED colours.
+        cyclotronColourReset();
+      }
+
+      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+        // Reset the Power Cell colours if the Power Cell is running.
+        b_powercell_updating = true;
+        powercellDraw();
+      }
+
+      // Update the Inner Cyclotron LEDs if required.
+      cyclotronSwitchLEDUpdate();
+
+      serial1Send(A_CHRISTMAS_MODE, i_value);
     break;
 
     case W_SPECTRAL_CUSTOM_MODE:
@@ -3959,14 +4055,14 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_RGB_INNER_CYCLOTRON);
       stopEffect(S_VOICE_GRB_INNER_CYCLOTRON);
 
-      if(b_grb_cyclotron_cake == true) {
-        b_grb_cyclotron_cake = false;
+      if(CAKE_LED_TYPE == GRB_LED) {
+        CAKE_LED_TYPE = RGB_LED;
         playEffect(S_VOICE_RGB_INNER_CYCLOTRON);
 
         packSerialSend(P_RGB_INNER_CYCLOTRON_LEDS);
       }
       else {
-        b_grb_cyclotron_cake = true;
+        CAKE_LED_TYPE = GRB_LED;
         playEffect(S_VOICE_GRB_INNER_CYCLOTRON);
 
         packSerialSend(P_GRB_INNER_CYCLOTRON_LEDS);

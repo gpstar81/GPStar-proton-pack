@@ -91,6 +91,11 @@ void updateLEDs() {
   // Set lower LED based on the current firing mode.
   uint8_t i_scheme;
   switch(STREAM_MODE) {
+    case PROTON:
+    default:
+      i_scheme = C_RED;
+    break;
+
     case SLIME:
       if(SYSTEM_YEAR == SYSTEM_1989) {
         i_scheme = C_PINK;
@@ -112,16 +117,12 @@ void updateLEDs() {
       i_scheme = C_RAINBOW;
     break;
 
-    case HOLIDAY:
-      switch(HOLIDAY_MODE) {
-        case CHRISTMAS:
-        default:
-          i_scheme = C_REDGREEN;
-        break;
-        case HALLOWEEN:
-          i_scheme = C_ORANGEPURPLE;
-        break;
-      }
+    case HOLIDAY_HALLOWEEN:
+      i_scheme = C_ORANGEPURPLE;
+    break;
+
+    case HOLIDAY_CHRISTMAS:
+      i_scheme = C_REDGREEN;
     break;
 
     case SPECTRAL_CUSTOM:
@@ -130,11 +131,6 @@ void updateLEDs() {
 
     case SETTINGS:
       i_scheme = C_WHITE;
-    break;
-
-    case PROTON:
-    default:
-      i_scheme = C_RED;
     break;
   }
 

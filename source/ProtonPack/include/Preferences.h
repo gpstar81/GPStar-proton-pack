@@ -65,6 +65,7 @@ struct objLEDEEPROM {
   uint8_t cyclotron_spectral_saturation_custom;
   uint8_t cyclotron_inner_spectral_saturation_custom;
   uint8_t cyclotron_cavity_count;
+  uint8_t cyclotron_cavity_type;
   uint8_t inner_cyclotron_led_panel;
   uint8_t powercell_inverted;
 };
@@ -195,6 +196,26 @@ void readEEPROM() {
       }
     }
 
+    if(obj_eeprom.cyclotron_cavity_type > 0 && obj_eeprom.cyclotron_cavity_type != 255) {
+      if(obj_eeprom.cyclotron_cavity_type > 1) {
+        // 2 = RGB, 3 = GRB, 4 = GBR.
+        switch(obj_eeprom.cyclotron_cavity_type) {
+          case 2:
+          default:
+            CAVITY_LED_TYPE = RGB_LED;
+          break;
+
+          case 3:
+            CAVITY_LED_TYPE = GRB_LED;
+          break;
+
+          case 4:
+            CAVITY_LED_TYPE = GBR_LED;
+          break;
+        }
+      }
+    }
+
     if(obj_eeprom.powercell_inverted > 0 && obj_eeprom.powercell_inverted != 255) {
       if(obj_eeprom.powercell_inverted > 1) {
         b_powercell_invert = true;
@@ -226,10 +247,10 @@ void readEEPROM() {
 
     if(obj_eeprom.grb_inner_cyclotron > 0 && obj_eeprom.grb_inner_cyclotron != 255) {
       if(obj_eeprom.grb_inner_cyclotron > 1) {
-        b_grb_cyclotron_cake = true;
+        CAKE_LED_TYPE = GRB_LED;
       }
       else {
-        b_grb_cyclotron_cake = false;
+        CAKE_LED_TYPE = RGB_LED;
       }
     }
 
@@ -552,14 +573,29 @@ void saveLEDEEPROM() {
   // Power Cell LEDs
   // Cyclotron LEDs
   // Inner Cyclotron LEDs
-  // GRB / RGB Inner Cyclotron toggle flag
   // Inner Cyclotron LED Panel toggle flag
-  // Power Cell inverted toggle flag.
 
+  // GRB / RGB Inner Cyclotron toggle flag
   uint8_t i_grb_cyclotron_cake = 1;
-
-  if(b_grb_cyclotron_cake) {
+  if(CAKE_LED_TYPE == GRB_LED) {
     i_grb_cyclotron_cake = 2;
+  }
+
+  // 2 = RGB, 3 = GRB, 4 = GBR.
+  uint8_t i_inner_cyclotron_cavity_led_type = 2;
+  switch(CAVITY_LED_TYPE) {
+    case RGB_LED:
+    default:
+      i_inner_cyclotron_cavity_led_type = 2;
+    break;
+
+    case GRB_LED:
+      i_inner_cyclotron_cavity_led_type = 3;
+    break;
+
+    case GBR_LED:
+      i_inner_cyclotron_cavity_led_type = 4;
+    break;
   }
 
   // 2 = Individual, 3 = RGB Static, 4 = RGB Dynamic.
@@ -579,8 +615,8 @@ void saveLEDEEPROM() {
     break;
   }
 
+  // Power Cell inverted toggle flag.
   uint8_t i_powercell_inverted = 1;
-
   if(b_powercell_invert) {
     i_powercell_inverted = 2;
   }
@@ -598,6 +634,7 @@ void saveLEDEEPROM() {
     i_spectral_cyclotron_custom_saturation,
     i_spectral_cyclotron_inner_custom_saturation,
     i_inner_cyclotron_cavity_num_leds,
+    i_inner_cyclotron_cavity_led_type,
     i_inner_cyclotron_led_panel,
     i_powercell_inverted
   };

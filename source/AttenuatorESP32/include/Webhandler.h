@@ -130,8 +130,11 @@ String getWandMode() {
     case SPECTRAL:
       return "Spectral Stream";
     break;
-    case HOLIDAY:
-      return "Holiday Stream";
+    case HOLIDAY_HALLOWEEN:
+      return "Halloween";
+    break;
+    case HOLIDAY_CHRISTMAS:
+      return "Christmas";
     break;
     case SPECTRAL_CUSTOM:
       return "Custom Stream";
@@ -430,6 +433,7 @@ String getPackConfig() {
     jsonBody["ledCycCakeSat"] = packConfig.ledCycCakeSat; // Spectral custom saturation 1-254
     jsonBody["ledCycCakeGRB"] = packConfig.ledCycCakeGRB; // Use GRB for cake LEDs true|false
     jsonBody["ledCycCavCount"] = packConfig.ledCycCavCount; // Cyclotron cavity LEDs (0-20)
+    jsonBody["ledCycCavType"] = packConfig.ledCycCavType; // Cyclotron cavity LED Type
     jsonBody["ledPowercellCount"] = packConfig.ledPowercellCount; //[13,15]
     jsonBody["ledInvertPowercell"] = packConfig.ledInvertPowercell; // true|false
     jsonBody["ledPowercellHue"] = packConfig.ledPowercellHue; // Spectral custom colour/hue 1-254
@@ -1042,6 +1046,7 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
       if(packConfig.ledCycCavCount > 20) {
         packConfig.ledCycCavCount = 20; // Set maximum allowed.
       }
+      packConfig.ledCycCavType = jsonBody["ledCycCavType"].as<uint8_t>();
 
       // Power Cell
       packConfig.ledPowercellCount = jsonBody["ledPowercellCount"].as<uint8_t>();

@@ -241,6 +241,14 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
        oninput="ledCycCavCountOut.value=ledCycCavCount.value"/>
       <output class="labelSlider" id="ledCycCavCountOut" for="ledCycCavCount"></output>
     </div>
+    <div class="setting">
+      <b>LED Type:</b>
+      <select id="ledCycCavType" name="ledCycCavType">
+        <option value="1">RGB</option>
+        <option value="2">GRB</option>
+        <option value="3">GBR</option>
+      </select>
+    </div>
   </div>
 
   <h1>Power Cell</h1>
@@ -379,6 +387,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             setToggle("ledCycCakeGRB", settings.ledCycCakeGRB);
             setValue("ledCycCavCount", settings.ledCycCavCount || 0); // Default: 0
             setHtml("ledCycCavCountOut", getValue("ledCycCavCount"));
+            setValue("ledCycCavType", settings.ledCycCavType || 1); // Default: RGB
 
             setValue("ledPowercellCount", settings.ledPowercellCount || 13); // Haslab: 13
             setToggle("ledInvertPowercell", settings.ledInvertPowercell);
@@ -428,6 +437,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         ledCycInnerPanel: getInt("ledCycInnerPanel") || 1,
         ledCycCakeGRB: getToggle("ledCycCakeGRB"),
         ledCycCavCount: getInt("ledCycCavCount"),
+        ledCycCavType: getInt("ledCycCavType") || 1,
 
         ledPowercellCount: getInt("ledPowercellCount") || 13,
         ledInvertPowercell: getToggle("ledInvertPowercell"),

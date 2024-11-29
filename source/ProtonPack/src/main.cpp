@@ -858,7 +858,7 @@ void systemPOST() {
     }
 
     if(i_inner_cake_counter <= i_ic_cake_end) {
-      if(b_grb_cyclotron_cake == true) {
+      if(CAKE_LED_TYPE == GRB_LED) {
         cyclotron_leds[i_inner_cake_counter] = getHueAsGRB(CYCLOTRON_INNER, C_RED);
       }
       else {
@@ -2314,7 +2314,7 @@ void spectralLightsOn() {
 
   i_colour_scheme = getDeviceColour(CYCLOTRON_INNER, SPECTRAL_CUSTOM, true);
   for(uint8_t i = i_ic_cake_start; i <= i_ic_cake_end; i++) {
-    if(b_grb_cyclotron_cake == true) {
+    if(CAKE_LED_TYPE == GRB_LED) {
       cyclotron_leds[i] = getHueAsGRB(CYCLOTRON_INNER, i_colour_scheme);
     }
     else {
@@ -2712,7 +2712,7 @@ void cyclotronFade() {
     case SYSTEM_1984:
     case SYSTEM_1989:
       if(b_fade_cyclotron_led == true) {
-        if(b_overheating && (STREAM_MODE == HOLIDAY || STREAM_MODE == SPECTRAL)) {
+        if(b_overheating && (STREAM_MODE == HOLIDAY_HALLOWEEN || STREAM_MODE == HOLIDAY_CHRISTMAS || STREAM_MODE == SPECTRAL)) {
           // When overheating in 84/89 and in Holiday/Spectral mode, revert to red cyclotron.
           i_colour_scheme = C_RED;
         }
@@ -3150,7 +3150,7 @@ void cyclotron1984Alarm() {
   uint8_t led4 = i_cyclotron_led_start + cyclotron84LookupTable(3);
   uint8_t i_led_array_width = 1; // Variable to store the number of LEDs to either side of the center LED.
 
-  if(STREAM_MODE == HOLIDAY || STREAM_MODE == SPECTRAL) {
+  if(STREAM_MODE == HOLIDAY_HALLOWEEN || STREAM_MODE == HOLIDAY_CHRISTMAS || STREAM_MODE == SPECTRAL) {
     // When in an alarm state in 84/89 and in Holiday/Spectral mode, revert to red cyclotron.
     i_colour_scheme = C_RED;
   }
@@ -4130,14 +4130,21 @@ void innerCyclotronCavityUpdate(uint16_t iRampDelay) {
   }
 
   if(b_clockwise == true) {
-    if(iRampDelay < 40 && b_cyclotron_lid_on != true) {
-      if(b_gbr_cyclotron_cavity == true) {
-        cyclotron_leds[i_led_cyclotron_cavity] = getHueAsGBR(CYCLOTRON_CAVITY, i_colour_scheme, i_brightness);
-      }
-      else {
-        cyclotron_leds[i_led_cyclotron_cavity] = getHueAsRGB(CYCLOTRON_CAVITY, i_colour_scheme, i_brightness);
+    if(iRampDelay < 40 && !b_cyclotron_lid_on) {
+      switch(CAVITY_LED_TYPE) {
+        case RGB_LED:
+        default:
+          cyclotron_leds[i_led_cyclotron_cavity] = getHueAsRGB(CYCLOTRON_CAVITY, i_colour_scheme, i_brightness);
+        break;
+        case GRB_LED:
+          cyclotron_leds[i_led_cyclotron_cavity] = getHueAsGRB(CYCLOTRON_CAVITY, i_colour_scheme, i_brightness);
+        break;
+        case GBR_LED:
+          cyclotron_leds[i_led_cyclotron_cavity] = getHueAsGBR(CYCLOTRON_CAVITY, i_colour_scheme, i_brightness);
+        break;
       }
 
+      // Set to black, which is universal for any type of LED.
       if(i_led_cyclotron_cavity == i_ic_cavity_start) {
         cyclotron_leds[i_ic_cavity_end] = getHueAsRGB(CYCLOTRON_CAVITY, C_BLACK);
       }
@@ -4153,12 +4160,18 @@ void innerCyclotronCavityUpdate(uint16_t iRampDelay) {
     }
   }
   else {
-    if(iRampDelay < 40 && b_cyclotron_lid_on != true) {
-      if(b_gbr_cyclotron_cavity == true) {
-        cyclotron_leds[i_led_cyclotron_cavity] = getHueAsGBR(CYCLOTRON_CAVITY, i_colour_scheme, i_brightness);
-      }
-      else {
-        cyclotron_leds[i_led_cyclotron_cavity] = getHueAsRGB(CYCLOTRON_CAVITY, i_colour_scheme, i_brightness);
+    if(iRampDelay < 40 && !b_cyclotron_lid_on) {
+      switch(CAVITY_LED_TYPE) {
+        case RGB_LED:
+        default:
+          cyclotron_leds[i_led_cyclotron_cavity] = getHueAsRGB(CYCLOTRON_CAVITY, i_colour_scheme, i_brightness);
+        break;
+        case GRB_LED:
+          cyclotron_leds[i_led_cyclotron_cavity] = getHueAsGRB(CYCLOTRON_CAVITY, i_colour_scheme, i_brightness);
+        break;
+        case GBR_LED:
+          cyclotron_leds[i_led_cyclotron_cavity] = getHueAsGBR(CYCLOTRON_CAVITY, i_colour_scheme, i_brightness);
+        break;
       }
 
       if(i_led_cyclotron_cavity + 1 > i_ic_cavity_end) {
@@ -4291,7 +4304,7 @@ void innerCyclotronRingUpdate(uint16_t iRampDelay) {
 
     if(b_clockwise == true) {
       if(b_cyclotron_lid_on != true) {
-        if(b_grb_cyclotron_cake == true) {
+        if(CAKE_LED_TYPE == GRB_LED) {
           cyclotron_leds[i_led_cyclotron_ring] = getHueAsGRB(CYCLOTRON_INNER, i_colour_scheme, i_brightness);
         }
         else {
@@ -4314,7 +4327,7 @@ void innerCyclotronRingUpdate(uint16_t iRampDelay) {
     }
     else {
       if(b_cyclotron_lid_on != true) {
-        if(b_grb_cyclotron_cake == true) {
+        if(CAKE_LED_TYPE == GRB_LED) {
           cyclotron_leds[i_led_cyclotron_ring] = getHueAsGRB(CYCLOTRON_INNER, i_colour_scheme, i_brightness);
         }
         else {
