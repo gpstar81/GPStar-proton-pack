@@ -52,18 +52,6 @@ function openTab(evt, tabName) {
   evt.currentTarget.className += " active";
 }
 
-function colorEl(id, red, green, blue, alpha = 0.5){
-  getEl(id).style.backgroundColor = "rgba(" + red + ", " + green + ", " + blue + ", " + alpha + ")";
-}
-
-function blinkEl(id, state) {
-  if(state) {
-    getEl(id).classList.add("blinking");
-  } else {
-    getEl(id).classList.remove("blinking");
-  }
-}
-
 function initWebSocket() {
   console.log("Attempting to open a WebSocket connection...");
   let gateway = "ws://" + window.location.hostname + "/ws";
@@ -539,7 +527,7 @@ function getDevicePrefs() {
       }
     }
   };
-  xhttp.open("GET", "/config/attenuator", true);
+  xhttp.open("GET", "/config/device", true);
   xhttp.send();
 }
 

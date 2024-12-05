@@ -162,6 +162,15 @@ bool b_powercell_invert = false;
 bool b_powercell_colour_toggle = true;
 
 /*
+ * Define the types of LEDs which are supported for devices.
+ */
+enum LED_TYPES : uint8_t {
+  RGB_LED = 0,
+  GRB_LED = 1,
+  GBR_LED = 2
+};
+
+/*
  * (OPTIONAL) Inner Cyclotron (cake) NeoPixel ring
  * If you are not using any, then this can be left alone.
  * Leave at least one value in place even if you are not using this optional item.
@@ -174,6 +183,7 @@ bool b_powercell_colour_toggle = true;
  * 36 -> For a 36 LED NeoPixel Ring. (GPStar ring)
  */
 uint8_t i_inner_cyclotron_cake_num_leds = 35;
+enum LED_TYPES CAKE_LED_TYPE = RGB_LED; // Defaults to RGB
 
 /*
  * (OPTIONAL) Inner Cyclotron (cavity) effects
@@ -181,6 +191,7 @@ uint8_t i_inner_cyclotron_cake_num_leds = 35;
  * You can use up to 20 LEDs (eg. addressable fairy lights as recommended device)
  */
 uint8_t i_inner_cyclotron_cavity_num_leds = 0;
+enum LED_TYPES CAVITY_LED_TYPE = GBR_LED; // Defaults to GBR
 
 /*
  * Inner Cyclotron NeoPixel ring speed.
@@ -201,14 +212,6 @@ uint8_t i_inner_cyclotron_cavity_num_leds = 0;
 #define INNER_CYCLOTRON_DELAY_2021_36_LED 6 // For 36 LEDs.
 uint8_t i_1984_inner_delay = INNER_CYCLOTRON_DELAY_1984_35_LED;
 uint8_t i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_35_LED;
-
-/*
- * If you use GRB (green/red/blue) instead of RGB (red/green/blue) addressable LEDs for your Inner Cyclotron LEDs, then set to true.
- * Likewise for the cyclotron cavity LEDs if those are GBR instead of RGB set the flag true to adjust the colour order.
- * Any settings, if saved in the EEPROM, will overwrite these settings.
- */
-bool b_grb_cyclotron_cake = false; // Default is false (assumed to be RGB)
-bool b_gbr_cyclotron_cavity = true; // Default is true (set false for RGB)
 
 /*
  * The CHSV colour value for the Spectral Custom mode.

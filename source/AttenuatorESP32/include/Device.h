@@ -142,6 +142,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
           var settings = JSON.parse(this.responseText);
           if (settings) {
             // Update fields with the current values, or supply an expected default as necessary.
+            setValue("wifiName", settings.wifiName || "");
             setToggle("invertLEDs", settings.invertLEDs);
             setToggle("buzzer", settings.buzzer);
             setToggle("vibration", settings.vibration);
@@ -150,12 +151,11 @@ const char DEVICE_page[] PROGMEM = R"=====(
             setValue("radLensIdle", settings.radLensIdle || 0); // Default: 0 [Amber Pulse]
             setValue("displayType", settings.displayType || 0); // Default: 0 [Text]
             setValue("songList", settings.songList || "");
-            setValue("wifiName", settings.wifiName || "");
             updateByteCount();
           }
         }
       };
-      xhttp.open("GET", "/config/attenuator", true);
+      xhttp.open("GET", "/config/device", true);
       xhttp.send();
     }
 
@@ -214,7 +214,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
           }
         }
       };
-      xhttp.open("PUT", "/config/attenuator/save", true);
+      xhttp.open("PUT", "/config/device/save", true);
       xhttp.setRequestHeader("Content-Type", "application/json");
       xhttp.send(body);
     }

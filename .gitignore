@@ -1,6 +1,7 @@
+.DS_Store
+Thumbs.db
 *.bootloader.*
 *.partitions.*
-.DS_Store
 *.h-e
 /source/*/.pio
 /source/*/.vscode

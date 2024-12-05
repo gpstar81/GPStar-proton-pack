@@ -215,7 +215,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Swap Cake Red/Green LEDs (GRB):</b>
+      <b class="labelSwitch">Swap Red/Green LEDs (GRB):</b>
       <label class="switch">
         <input id="ledCycCakeGRB" name="ledCycCakeGRB" type="checkbox">
         <span class="slider round"></span>
@@ -242,11 +242,12 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       <output class="labelSlider" id="ledCycCavCountOut" for="ledCycCavCount"></output>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Swap Cavity Red/Green LEDs (GRB):</b>
-      <label class="switch">
-        <input id="ledCycCavGRB" name="ledCycCavGRB" type="checkbox">
-        <span class="slider round"></span>
-      </label>
+      <b>LED Type:</b>
+      <select id="ledCycCavType" name="ledCycCavType">
+        <option value="1">RGB</option>
+        <option value="2">GRB</option>
+        <option value="3">GBR</option>
+      </select>
     </div>
   </div>
 
@@ -385,8 +386,8 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             setValue("ledCycInnerPanel", settings.ledCycInnerPanel || 1); // Default: Individual
             setToggle("ledCycCakeGRB", settings.ledCycCakeGRB);
             setValue("ledCycCavCount", settings.ledCycCavCount || 0); // Default: 0
-            setToggle("ledCycCavGRB", settings.ledCycCavGRB);
             setHtml("ledCycCavCountOut", getValue("ledCycCavCount"));
+            setValue("ledCycCavType", settings.ledCycCavType || 1); // Default: RGB
 
             setValue("ledPowercellCount", settings.ledPowercellCount || 13); // Haslab: 13
             setToggle("ledInvertPowercell", settings.ledInvertPowercell);
@@ -436,7 +437,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         ledCycInnerPanel: getInt("ledCycInnerPanel") || 1,
         ledCycCakeGRB: getToggle("ledCycCakeGRB"),
         ledCycCavCount: getInt("ledCycCavCount"),
-        ledCycCavGRB: getToggle("ledCycCavGRB"),
+        ledCycCavType: getInt("ledCycCavType") || 1,
 
         ledPowercellCount: getInt("ledPowercellCount") || 13,
         ledInvertPowercell: getToggle("ledInvertPowercell"),

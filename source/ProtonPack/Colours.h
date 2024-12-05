@@ -188,7 +188,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
         }
       break;
 
-      case HOLIDAY:
+      case HOLIDAY_HALLOWEEN:
         switch(i_device) {
           case POWERCELL:
           case CYCLOTRON_OUTER:
@@ -196,12 +196,20 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
           case CYCLOTRON_PANEL:
           case VENT_LIGHT:
           default:
-            if(b_christmas) {
-              return C_REDGREEN;
-            }
-            else {
-              return C_ORANGEPURPLE;
-            }
+            return C_ORANGEPURPLE;
+          break;
+        }
+      break;
+
+      case HOLIDAY_CHRISTMAS:
+        switch(i_device) {
+          case POWERCELL:
+          case CYCLOTRON_OUTER:
+          case CYCLOTRON_INNER:
+          case CYCLOTRON_PANEL:
+          case VENT_LIGHT:
+          default:
+            return C_REDGREEN;
           break;
         }
       break;
