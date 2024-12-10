@@ -1,6 +1,9 @@
 {
   "folders": [
     {
+      "path": "BeltGizmo"
+    },
+    {
       "path": "AttenuatorESP32"
     },
     {
@@ -14,6 +17,9 @@
     },
     {
       "path": "SingleShot"
+    },
+    {
+      "path": "StreamEffects"
     }
   ],
   "settings": {

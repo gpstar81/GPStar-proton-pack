@@ -21,3 +21,5 @@ source ./compile_attenuator_esp_extras.sh
 # COMPILE STANDALONE/ADDON DEVICES
 
 source ./compile_blaster.sh
+source ./compile_gizmo.sh
+source ./compile_stream.sh
