@@ -2954,6 +2954,15 @@ void modeFireStartSounds() {
           }
         break;
       }
+
+      // Handle these as part of the "default" case, which is technically an extension of the proton stream.
+      // Layers in an extra effect as a bit of an Easter Egg when using the holiday themes.
+      if(STREAM_MODE == HOLIDAY_HALLOWEEN) {
+        playEffect(S_HALLOWEEN_FIRING_EXTRA, false, i_volume_effects, true, 100, false);
+      }
+      if(STREAM_MODE == HOLIDAY_CHRISTMAS) {
+        playEffect(S_CHRISTMAS_FIRING_EXTRA, false, i_volume_effects, true, 100, false);
+      }
     break;
 
     case SLIME:
@@ -3228,6 +3237,14 @@ void modeFireStopSounds() {
 
       stopEffect(S_FIRING_LOOP_GB1);
       stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
+
+      // Handle these as part of the "default" case, which is technically an extension of the proton stream.
+      if(STREAM_MODE == HOLIDAY_HALLOWEEN) {
+        stopEffect(S_HALLOWEEN_FIRING_EXTRA);
+      }
+      if(STREAM_MODE == HOLIDAY_CHRISTMAS) {
+        stopEffect(S_CHRISTMAS_FIRING_EXTRA);
+      }
     break;
 
     case SLIME:
@@ -3915,7 +3932,7 @@ void wandHeatUp() {
     break;
 
     case HOLIDAY_HALLOWEEN:
-      playEffect(S_FIRE_START_SPARK);
+      //playEffect(S_FIRE_START_SPARK);
 
       if(b_gpstar_benchtest) {
         playEffect(S_HALLOWEEN_MODE_VOICE);
@@ -3923,7 +3940,7 @@ void wandHeatUp() {
     break;
 
     case HOLIDAY_CHRISTMAS:
-      playEffect(S_FIRE_START_SPARK);
+      //playEffect(S_FIRE_START_SPARK);
 
       if(b_gpstar_benchtest) {
         playEffect(S_CHRISTMAS_MODE_VOICE);
