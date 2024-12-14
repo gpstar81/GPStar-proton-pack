@@ -168,6 +168,15 @@ uint8_t i_fast_led_delay = FAST_LED_UPDATE_MS;
 millisDelay ms_fast_led;
 
 /*
+ * RGB vent lights.
+*/
+#define VENT_LEDS_MAX 2 // The maximum number of LEDs for the vent lights. Main vent + top Clip Lite.
+CRGB vent_leds[VENT_LEDS_MAX];
+bool b_vent_top_light_on = false;
+millisDelay ms_vent_light;
+const uint16_t i_vent_light_update_interval = 150;
+
+/*
  * Time in milliseconds for blinking the top white LED while the wand is on.
  * By default this is set to the blink cycle used on the Afterlife props.
  * On first system start a random value will be selected for GB1/GB2 mode.
@@ -490,3 +499,5 @@ void checkPack();
 void checkWandAction();
 void ventSwitched(void* n = nullptr);
 void wandSwitched(void* n = nullptr);
+void ventLedControl(uint8_t i_intensity = 255, bool b_override_intensity = false);
+void ventLedTopControl(uint8_t i_intensity = 255);

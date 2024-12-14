@@ -81,6 +81,10 @@ void setup() {
   // Barrel LEDs - NOTE: These are GRB not RGB so note that all CRGB objects will have R/G swapped.
   FastLED.addLeds<NEOPIXEL, BARREL_LED_PIN>(barrel_leds, BARREL_LEDS_MAX);
 
+  // RGB Vent Light.
+  FastLED.addLeds<NEOPIXEL, TOP_LED_PIN>(vent_leds, VENT_LEDS_MAX);
+  ms_vent_light.start(i_vent_light_update_interval); // Setup a timer for updating the vent light.
+
   // Setup default system settings.
   SYSTEM_MODE = MODE_SUPER_HERO;
   BARGRAPH_MODE = BARGRAPH_ORIGINAL;
@@ -218,8 +222,8 @@ void loop() {
         // If not already doing so, explicitly tell the pack a wand is here to sync.
         wandSerialSend(W_SYNC_NOW);
         ms_packsync.start(i_sync_initial_delay); // Prepare for the next sync attempt.
-        digitalWriteFast(TOP_LED_PIN, (digitalReadFast(TOP_LED_PIN) == LOW) ? HIGH : LOW); // Blink an LED.
-        digitalWriteFast(WAND_STATUS_LED_PIN, (digitalReadFast(WAND_STATUS_LED_PIN) == LOW) ? HIGH : LOW); // Blink the onboard LED on the Neutrona Wand board.
+        //digitalWriteFast(TOP_LED_PIN, (digitalReadFast(TOP_LED_PIN) == LOW) ? HIGH : LOW); // Blink an LED.
+        //digitalWriteFast(WAND_STATUS_LED_PIN, (digitalReadFast(WAND_STATUS_LED_PIN) == LOW) ? HIGH : LOW); // Blink the onboard LED on the Neutrona Wand board.
       }
 
       checkPack(); // Check for any response from the pack while still waiting.
@@ -460,11 +464,12 @@ void mainLoop() {
       // Top white light.
       if(ms_white_light.justFinished()) {
         ms_white_light.repeat();
-        if(digitalReadFast(TOP_LED_PIN) == LOW) {
-          digitalWriteFast(TOP_LED_PIN, HIGH);
+
+        if(b_vent_top_light_on == true) {
+          ventLedTopControl(0);
         }
         else {
-          digitalWriteFast(TOP_LED_PIN, LOW);
+          ventLedTopControl();
         }
       }
 
@@ -674,13 +679,13 @@ void hatLightControl() {
 
     case MODE_ERROR:
       if(ms_error_blink.remaining() < i_error_blink_delay / 2) {
-        digitalWriteFast(TOP_LED_PIN, HIGH);
+        ventLedTopControl(0);
         digitalWriteFast(SLO_BLO_LED_PIN, LOW);
         digitalWriteFast(TOP_HAT_LED_PIN, LOW);
         digitalWriteFast(CLIPPARD_LED_PIN, LOW);
       }
       else {
-        digitalWriteFast(TOP_LED_PIN, LOW);
+        ventLedTopControl();
         digitalWriteFast(SLO_BLO_LED_PIN, HIGH);
         digitalWriteFast(TOP_HAT_LED_PIN, HIGH);
         digitalWriteFast(CLIPPARD_LED_PIN, HIGH);
@@ -1400,13 +1405,13 @@ void checkSwitches() {
 
                   // Turn on the vent lights.
                   if(b_vent_light_control == true) {
-                    analogWrite(VENT_LED_PIN, i_vent_led_power_1); // Low power, level 1 intensity.
+                    ventLedControl(i_vent_led_power_1);
                   }
                   else {
-                    digitalWrite(VENT_LED_PIN, LOW);
+                    ventLedControl();
                   }
 
-                  digitalWriteFast(TOP_LED_PIN, LOW);
+                  ventLedTopControl();
 
                   if(ms_bargraph.justFinished()) {
                     bargraphRampUp();
@@ -1427,9 +1432,9 @@ void checkSwitches() {
                   digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Turn off the front left LED under the Clippard valve.
 
                   // Turn off the Neutrona Wand vent lights.
-                  digitalWrite(VENT_LED_PIN, HIGH);
-                  digitalWriteFast(TOP_LED_PIN, HIGH);
-
+                  ventLedControl(0);
+                  ventLedTopControl(0);
+                  
                   vibrationOff(); // Turn off vibration, if any.
                 }
               }
@@ -1454,11 +1459,12 @@ void checkSwitches() {
           // We're going to fade out the vent light while the wand mash error is running.
           uint8_t i_mash_delay_percentage = (ms_bmash.remaining() * 100) / ms_bmash.delay();
           uint8_t i_vent_power_output = 255 - ((255 * i_mash_delay_percentage) / 100);
-          analogWrite(VENT_LED_PIN, i_vent_power_output);
+
+          ventLedControl(i_vent_power_output, true);
         }
         else {
           // Turn off the vent light.
-          digitalWrite(VENT_LED_PIN, HIGH);
+          ventLedControl(0);
         }
       }
 
@@ -1519,32 +1525,36 @@ void wandVentStateCheck() {
       if(b_vent_light_control) {
         // Vent light on, brightness dependent on mode.
         if(STREAM_MODE != SLIME && (WAND_ACTION_STATUS == ACTION_FIRING || (ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished()))) {
-          digitalWrite(VENT_LED_PIN, LOW); // LOW = Full Power
+          ventLedControl(255, true); // Full brightness
         }
         else {
           // Adjust brightness based on the power level.
           switch(i_power_level) {
             case 5:
-              analogWrite(VENT_LED_PIN, i_vent_led_power_5);
+              ventLedControl(i_vent_led_power_5);
             break;
+
             case 4:
-              analogWrite(VENT_LED_PIN, i_vent_led_power_4);
+              ventLedControl(i_vent_led_power_4);
             break;
+
             case 3:
-              analogWrite(VENT_LED_PIN, i_vent_led_power_3);
+              ventLedControl(i_vent_led_power_3);
             break;
+
             case 2:
-              analogWrite(VENT_LED_PIN, i_vent_led_power_2);
+              ventLedControl(i_vent_led_power_2);
             break;
+
             case 1:
             default:
-              analogWrite(VENT_LED_PIN, i_vent_led_power_1);
+              ventLedControl(i_vent_led_power_1);
             break;
           }
         }
       }
       else {
-        digitalWrite(VENT_LED_PIN, LOW);
+        ventLedControl();
       }
 
       soundIdleStart();
@@ -1561,7 +1571,7 @@ void wandVentStateCheck() {
     }
     else {
       // Vent light off.
-      digitalWrite(VENT_LED_PIN, HIGH);
+      ventLedControl(0);
 
       soundBeepLoopStop();
       soundIdleStop();
@@ -2339,7 +2349,7 @@ void postActivation() {
 
     // Top white light.
     ms_white_light.start(i_white_light_interval);
-    digitalWriteFast(TOP_LED_PIN, LOW);
+    ventLedTopControl();
 
     // Reset the hat light timers.
     ms_warning_blink.stop();
@@ -8928,9 +8938,9 @@ void wandLightsOffMenuSystem() {
   digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Turn off the front left LED under the Clippard valve.
   digitalWriteFast(BARREL_HAT_LED_PIN, LOW); // Turn off hat light 1.
   digitalWriteFast(TOP_HAT_LED_PIN, LOW); // Turn off hat light 2.
-  digitalWriteFast(TOP_LED_PIN, HIGH); // Turn off the blinking white top LED.
-  digitalWrite(VENT_LED_PIN, HIGH); // Turn off the vent light.
-
+  ventLedTopControl(0); // Turn off the blinking white top LED.
+  ventLedControl(0); // Turn off the vent light.
+  
   setPowerOnReminder(false);
 }
 
@@ -9154,8 +9164,8 @@ void checkRotaryEncoder() {
                 digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
 
                 // Turn off the other lights.
-                digitalWrite(VENT_LED_PIN, HIGH); // Level 3
-                digitalWriteFast(TOP_LED_PIN, HIGH); // Level 4
+                ventLedControl(0); // Level 3
+                ventLedTopControl(0); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9180,10 +9190,10 @@ void checkRotaryEncoder() {
 
                 // Turn on some lights to visually indicate which menu we are in.
                 digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
-                digitalWrite(VENT_LED_PIN, LOW); // Level 3
+                ventLedControl(); // Level 3
 
                 // Turn off the other lights.
-                digitalWriteFast(TOP_LED_PIN, HIGH); // Level 4
+                ventLedTopControl(0); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9208,8 +9218,8 @@ void checkRotaryEncoder() {
 
                 // Turn on some lights to visually indicate which menu we are in.
                 digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
-                digitalWrite(VENT_LED_PIN, LOW); // Level 3
-                digitalWriteFast(TOP_LED_PIN, LOW); // Level 4
+                ventLedControl(); // Level 3
+                ventLedTopControl(); // Level 4
 
                 // Turn off the other lights.
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
@@ -9236,8 +9246,8 @@ void checkRotaryEncoder() {
 
                 // Turn on some lights to visually indicate which menu we are in.
                 digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
-                digitalWrite(VENT_LED_PIN, LOW); // Level 3
-                digitalWriteFast(TOP_LED_PIN, LOW); // Level 4
+                ventLedControl(); // Level 3
+                ventLedTopControl(); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, HIGH); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9317,8 +9327,8 @@ void checkRotaryEncoder() {
 
                 // Turn on some lights to visually indicate which menu we are in.
                 digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
-                digitalWrite(VENT_LED_PIN, LOW); // Level 3
-                digitalWriteFast(TOP_LED_PIN, LOW); // Level 4
+                ventLedControl(); // Level 3
+                ventLedTopControl(); // Level 4
 
                 // Turn off the other lights.
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
@@ -9345,10 +9355,10 @@ void checkRotaryEncoder() {
 
                 // Turn on some lights to visually indicate which menu we are in.
                 digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
-                digitalWrite(VENT_LED_PIN, LOW); // Level 3
+                ventLedControl(); // Level 3
 
                 // Turn off the other lights.
-                digitalWriteFast(TOP_LED_PIN, HIGH); // Level 4
+                ventLedTopControl(0); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9375,8 +9385,8 @@ void checkRotaryEncoder() {
                 digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
 
                 // Turn off the other lights.
-                digitalWrite(VENT_LED_PIN, HIGH); // Level 3
-                digitalWriteFast(TOP_LED_PIN, HIGH); // Level 4
+                ventLedControl(0); // Level 3
+                ventLedTopControl(0); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9401,8 +9411,8 @@ void checkRotaryEncoder() {
 
                 // Turn off the other lights.
                 digitalWriteFast(SLO_BLO_LED_PIN, LOW); // Level 2
-                digitalWrite(VENT_LED_PIN, HIGH); // Level 3
-                digitalWriteFast(TOP_LED_PIN, HIGH); // Level 4
+                ventLedControl(0); // Level 3
+                ventLedTopControl(0); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9477,8 +9487,8 @@ void checkRotaryEncoder() {
                 digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
 
                 // Turn off the other lights.
-                digitalWrite(VENT_LED_PIN, HIGH); // Level 3
-                digitalWriteFast(TOP_LED_PIN, HIGH); // Level 4
+                ventLedControl(0); // Level 3
+                ventLedTopControl(0); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9556,8 +9566,8 @@ void checkRotaryEncoder() {
 
                 // Turn off the other lights.
                 digitalWriteFast(SLO_BLO_LED_PIN, LOW); // Level 2
-                digitalWrite(VENT_LED_PIN, HIGH); // Level 3
-                digitalWriteFast(TOP_LED_PIN, HIGH); // Level 4
+                ventLedControl(0); // Level 3
+                ventLedTopControl(0); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -10383,6 +10393,162 @@ void checkPowerOnReminder() {
 
       // Restart the blink timer.
       ms_power_indicator.start(i_ms_power_indicator_blink);
+    }
+  }
+}
+
+void ventLedTopControl(uint8_t i_intensity = 255) {
+  if(i_intensity <= 1) {
+    if(b_vent_top_light_on == true) {
+      digitalWriteFast(TOP_LED_PIN, HIGH);
+
+      b_vent_top_light_on = false;
+
+      // Turn off.
+      vent_leds[1] = getHueAsRGB(C_BLACK, 0);
+    }
+  }
+  else {
+   if(b_vent_top_light_on != true) {
+      if(i_intensity == 255) {
+        digitalWriteFast(TOP_LED_PIN, LOW);
+      }
+      else {
+        analogWrite(TOP_LED_PIN, i_intensity);
+      }
+
+      switch(STREAM_MODE) {
+        case STASIS:
+          vent_leds[1] = getHueAsRGB(C_BLUE, i_intensity);
+        break;
+
+        case SLIME:
+          if(getSystemYearMode() == SYSTEM_1989) {      
+            vent_leds[1] = getHueAsRGB(C_PASTEL_PINK, i_intensity);
+          }
+          else {
+            vent_leds[1] = getHueAsRGB(C_DARK_GREEN, i_intensity);
+          }
+        break;
+
+        case MESON:
+          vent_leds[1] = getHueAsRGB(C_YELLOW, i_intensity);
+        break;
+
+        case SPECTRAL:
+          vent_leds[1] = getHueAsRGB(C_RAINBOW, i_intensity);
+        break;
+
+        case HOLIDAY_HALLOWEEN:
+          vent_leds[1] = getHueAsRGB(C_ORANGEPURPLE, i_intensity);
+        break;
+
+        case HOLIDAY_CHRISTMAS:
+          vent_leds[1] = getHueAsRGB(C_REDGREEN, i_intensity);
+        break;
+
+        case SPECTRAL_CUSTOM:
+          vent_leds[1] = getHueAsRGB(C_CUSTOM, i_intensity);
+        break;
+
+        case PROTON:
+        default: 
+          vent_leds[1] = getHueAsRGB(C_WHITE, i_intensity);
+        break;
+      }
+
+      b_vent_top_light_on = true;
+    }
+  }
+}
+
+void ventLedControl(uint8_t i_intensity = 255, bool b_override_intensity = false) {
+  if(i_intensity <= 1) {
+    digitalWriteFast(VENT_LED_PIN, HIGH);
+
+    if(ms_vent_light.justFinished()) {
+      ms_vent_light.repeat();
+
+      // turn off.
+      vent_leds[0] = getHueAsRGB(C_BLACK, 0);      
+    }
+  }
+  else {
+    if(i_intensity == 255) {
+      digitalWriteFast(VENT_LED_PIN, LOW);
+    }
+    else {
+      analogWrite(VENT_LED_PIN, i_intensity);
+    }
+
+    if(ms_vent_light.justFinished()) {
+      ms_vent_light.repeat();
+
+      if(b_override_intensity != true) {
+        // Invert the intensity settings for the power level.
+        switch(i_power_level) {
+          case 5:
+            i_intensity = i_vent_led_power_1;
+          break;
+
+          case 4:
+            i_intensity = i_vent_led_power_2;
+          break;
+
+          case 3:
+            i_intensity = i_vent_led_power_3;
+          break;
+
+          case 2:
+            i_intensity = i_vent_led_power_4;
+          break;
+
+          case 1:
+          default:
+            i_intensity = i_vent_led_power_5;
+          break;
+        }        
+      }
+
+      switch(STREAM_MODE) {
+        case STASIS:
+          vent_leds[0] = getHueAsRGB(C_BLUE, i_intensity);
+        break;
+
+        case SLIME:
+          if(getSystemYearMode() == SYSTEM_1989) {      
+            vent_leds[0] = getHueAsRGB(C_PASTEL_PINK, i_intensity);
+          }
+          else {
+            vent_leds[0] = getHueAsRGB(C_DARK_GREEN, i_intensity);
+          }
+        break;
+
+        case MESON:
+          vent_leds[0] = getHueAsRGB(C_YELLOW, i_intensity);
+        break;
+
+        case SPECTRAL:
+          vent_leds[0] = getHueAsRGB(C_RAINBOW, i_intensity);
+        break;
+
+        case HOLIDAY_HALLOWEEN:
+          vent_leds[0] = getHueAsRGB(C_ORANGEPURPLE, i_intensity);
+        break;
+
+        case HOLIDAY_CHRISTMAS:
+          vent_leds[0] = getHueAsRGB(C_REDGREEN, i_intensity);
+        break;
+
+        case SPECTRAL_CUSTOM:
+          vent_leds[0] = getHueAsRGB(C_CUSTOM, i_intensity);
+        break;
+
+        case PROTON:
+        default: 
+          vent_leds[0] = getHueAsRGB(C_WHITE, i_intensity);
+        break;
+      }
     }
   }
 }
