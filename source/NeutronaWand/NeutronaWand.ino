@@ -10475,13 +10475,13 @@ void ventLedControl(uint8_t i_intensity) {
   if(i_intensity <= 1) {
     digitalWrite(VENT_LED_PIN, HIGH);
 
+    // Turn off if not off already.
+    if(vent_leds[0]) {
+      vent_leds[0] = getHueAsRGB(C_BLACK, 0);
+    }
+
     if(ms_vent_light.justFinished()) {
       ms_vent_light.repeat();
-
-      // Turn off if not off already.
-      if(vent_leds[0]) {
-        vent_leds[0] = getHueAsRGB(C_BLACK, 0);
-      }
     }
   }
   else {
