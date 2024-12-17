@@ -169,10 +169,9 @@ millisDelay ms_fast_led;
 
 /*
  * RGB vent lights.
-*/
+ */
 #define VENT_LEDS_MAX 2 // The maximum number of LEDs for the vent lights. Main vent + top Clip Lite.
 CRGB vent_leds[VENT_LEDS_MAX];
-bool b_vent_top_light_on = false;
 millisDelay ms_vent_light;
 const uint16_t i_vent_light_update_interval = 150;
 
@@ -271,11 +270,11 @@ const uint16_t i_overheat_delay_max = 60000; // The maximum amount of time befor
  */
 const uint8_t i_power_level_max = 5;
 const uint8_t i_power_level_min = 1;
-const uint8_t i_vent_led_power_1 = 220;
-const uint8_t i_vent_led_power_2 = 190;
-const uint8_t i_vent_led_power_3 = 160;
-const uint8_t i_vent_led_power_4 = 130;
-const uint8_t i_vent_led_power_5 = 100;
+const uint8_t i_vent_led_power_1 = 35; // 220 for non-addressable LED.
+const uint8_t i_vent_led_power_2 = 65; // 190 for non-addressable LED.
+const uint8_t i_vent_led_power_3 = 95; // 160 for non-addressable LED.
+const uint8_t i_vent_led_power_4 = 125; // 130 for non-addressable LED.
+const uint8_t i_vent_led_power_5 = 155; // 100 for non-addressable LED.
 uint8_t i_power_level = 1;
 uint8_t i_power_level_prev = 1;
 
@@ -499,5 +498,5 @@ void checkPack();
 void checkWandAction();
 void ventSwitched(void* n = nullptr);
 void wandSwitched(void* n = nullptr);
-void ventLedControl(uint8_t i_intensity = 255, bool b_override_intensity = false);
+void ventLedControl(uint8_t i_intensity = 255);
 void ventLedTopControl(uint8_t i_intensity = 255);

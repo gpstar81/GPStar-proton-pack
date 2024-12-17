@@ -465,7 +465,7 @@ void mainLoop() {
       if(ms_white_light.justFinished()) {
         ms_white_light.repeat();
 
-        if(b_vent_top_light_on == true) {
+        if(vent_leds[1]) {
           ventLedTopControl(0);
         }
         else {
@@ -1404,7 +1404,7 @@ void checkSwitches() {
                   digitalWriteFast(CLIPPARD_LED_PIN, HIGH); // Turn on the front left LED under the Clippard valve.
 
                   // Turn on the vent lights.
-                  if(b_vent_light_control == true) {
+                  if(b_vent_light_control) {
                     ventLedControl(i_vent_led_power_1);
                   }
                   else {
@@ -1434,7 +1434,7 @@ void checkSwitches() {
                   // Turn off the Neutrona Wand vent lights.
                   ventLedControl(0);
                   ventLedTopControl(0);
-                  
+
                   vibrationOff(); // Turn off vibration, if any.
                 }
               }
@@ -1458,9 +1458,9 @@ void checkSwitches() {
         if(b_vent_light_control) {
           // We're going to fade out the vent light while the wand mash error is running.
           uint8_t i_mash_delay_percentage = (ms_bmash.remaining() * 100) / ms_bmash.delay();
-          uint8_t i_vent_power_output = 255 - ((255 * i_mash_delay_percentage) / 100);
+          uint8_t i_vent_power_output = (255 * i_mash_delay_percentage) / 100;
 
-          ventLedControl(i_vent_power_output, true);
+          ventLedControl(i_vent_power_output);
         }
         else {
           // Turn off the vent light.
@@ -1525,7 +1525,7 @@ void wandVentStateCheck() {
       if(b_vent_light_control) {
         // Vent light on, brightness dependent on mode.
         if(STREAM_MODE != SLIME && (WAND_ACTION_STATUS == ACTION_FIRING || (ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished()))) {
-          ventLedControl(255, true); // Full brightness
+          ventLedControl(); // Full brightness
         }
         else {
           // Adjust brightness based on the power level.
@@ -8940,7 +8940,7 @@ void wandLightsOffMenuSystem() {
   digitalWriteFast(TOP_HAT_LED_PIN, LOW); // Turn off hat light 2.
   ventLedTopControl(0); // Turn off the blinking white top LED.
   ventLedControl(0); // Turn off the vent light.
-  
+
   setPowerOnReminder(false);
 }
 
@@ -10397,33 +10397,38 @@ void checkPowerOnReminder() {
   }
 }
 
-void ventLedTopControl(uint8_t i_intensity = 255) {
+void ventLedTopControl(uint8_t i_intensity) {
   if(i_intensity <= 1) {
-    if(b_vent_top_light_on == true) {
-      digitalWriteFast(TOP_LED_PIN, HIGH);
-
-      b_vent_top_light_on = false;
-
+    if(vent_leds[1]) {
       // Turn off.
+      digitalWrite(TOP_LED_PIN, HIGH);
       vent_leds[1] = getHueAsRGB(C_BLACK, 0);
     }
   }
   else {
-   if(b_vent_top_light_on != true) {
+    if(!vent_leds[1]) {
       if(i_intensity == 255) {
-        digitalWriteFast(TOP_LED_PIN, LOW);
+        digitalWrite(TOP_LED_PIN, LOW);
       }
       else {
-        analogWrite(TOP_LED_PIN, i_intensity);
+        analogWrite(TOP_LED_PIN, 255 - i_intensity);
       }
 
+      if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
+        vent_leds[1] = getHueAsRGB(C_WARM_WHITE, i_intensity);
+      }
+      else {
+        vent_leds[1] = getHueAsRGB(C_WHITE, i_intensity);
+      }
+
+      /*
       switch(STREAM_MODE) {
         case STASIS:
           vent_leds[1] = getHueAsRGB(C_BLUE, i_intensity);
         break;
 
         case SLIME:
-          if(getSystemYearMode() == SYSTEM_1989) {      
+          if(getSystemYearMode() == SYSTEM_1989) {
             vent_leds[1] = getHueAsRGB(C_PASTEL_PINK, i_intensity);
           }
           else {
@@ -10452,63 +10457,43 @@ void ventLedTopControl(uint8_t i_intensity = 255) {
         break;
 
         case PROTON:
-        default: 
-          vent_leds[1] = getHueAsRGB(C_WHITE, i_intensity);
+        default:
+          if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
+            vent_leds[1] = getHueAsRGB(C_WARM_WHITE, i_intensity);
+          }
+          else {
+            vent_leds[1] = getHueAsRGB(C_WHITE, i_intensity);
+          }
         break;
       }
-
-      b_vent_top_light_on = true;
+      */
     }
   }
 }
 
-void ventLedControl(uint8_t i_intensity = 255, bool b_override_intensity = false) {
+void ventLedControl(uint8_t i_intensity) {
   if(i_intensity <= 1) {
-    digitalWriteFast(VENT_LED_PIN, HIGH);
+    digitalWrite(VENT_LED_PIN, HIGH);
 
     if(ms_vent_light.justFinished()) {
       ms_vent_light.repeat();
 
-      // turn off.
-      vent_leds[0] = getHueAsRGB(C_BLACK, 0);      
+      // Turn off if not off already.
+      if(vent_leds[0]) {
+        vent_leds[0] = getHueAsRGB(C_BLACK, 0);
+      }
     }
   }
   else {
     if(i_intensity == 255) {
-      digitalWriteFast(VENT_LED_PIN, LOW);
+      digitalWrite(VENT_LED_PIN, LOW);
     }
     else {
-      analogWrite(VENT_LED_PIN, i_intensity);
+      analogWrite(VENT_LED_PIN, 255 - i_intensity);
     }
 
     if(ms_vent_light.justFinished()) {
       ms_vent_light.repeat();
-
-      if(b_override_intensity != true) {
-        // Invert the intensity settings for the power level.
-        switch(i_power_level) {
-          case 5:
-            i_intensity = i_vent_led_power_1;
-          break;
-
-          case 4:
-            i_intensity = i_vent_led_power_2;
-          break;
-
-          case 3:
-            i_intensity = i_vent_led_power_3;
-          break;
-
-          case 2:
-            i_intensity = i_vent_led_power_4;
-          break;
-
-          case 1:
-          default:
-            i_intensity = i_vent_led_power_5;
-          break;
-        }        
-      }
 
       switch(STREAM_MODE) {
         case STASIS:
@@ -10516,7 +10501,7 @@ void ventLedControl(uint8_t i_intensity = 255, bool b_override_intensity = false
         break;
 
         case SLIME:
-          if(getSystemYearMode() == SYSTEM_1989) {      
+          if(getSystemYearMode() == SYSTEM_1989) {
             vent_leds[0] = getHueAsRGB(C_PASTEL_PINK, i_intensity);
           }
           else {
@@ -10545,8 +10530,13 @@ void ventLedControl(uint8_t i_intensity = 255, bool b_override_intensity = false
         break;
 
         case PROTON:
-        default: 
-          vent_leds[0] = getHueAsRGB(C_WHITE, i_intensity);
+        default:
+          if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
+            vent_leds[1] = getHueAsRGB(C_WHITE, i_intensity);
+          }
+          else {
+            vent_leds[1] = getHueAsRGB(C_WARM_WHITE, i_intensity);
+          }
         break;
       }
     }
