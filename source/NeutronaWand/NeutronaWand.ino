@@ -10532,10 +10532,10 @@ void ventLedControl(uint8_t i_intensity) {
         case PROTON:
         default:
           if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
-            vent_leds[1] = getHueAsRGB(C_WHITE, i_intensity);
+            vent_leds[0] = getHueAsRGB(C_WHITE, i_intensity);
           }
           else {
-            vent_leds[1] = getHueAsRGB(C_WARM_WHITE, i_intensity);
+            vent_leds[0] = getHueAsRGB(C_WARM_WHITE, i_intensity);
           }
         break;
       }
