@@ -171,9 +171,10 @@ millisDelay ms_fast_led;
  * RGB vent lights.
  */
 #define VENT_LEDS_MAX 2 // The maximum number of LEDs for the vent lights. Main vent + top Clip Lite.
-CRGB vent_leds[VENT_LEDS_MAX];
-millisDelay ms_vent_light;
-const uint16_t i_vent_light_update_interval = 150;
+CRGB vent_leds[VENT_LEDS_MAX]; // FastLED object array for the RGB top/vent LEDs.
+millisDelay ms_vent_light; // Timer to control update rate for RGB top/vent LEDs.
+const uint16_t i_vent_light_update_interval = 150; // FastLED update interval specifically for the top/vent LEDs.
+bool b_vent_lights_changed = false; // Check for whether there was actually a change to prevent superfluous calls to showLeds().
 
 /*
  * Time in milliseconds for blinking the top white LED while the wand is on.
@@ -499,4 +500,4 @@ void checkWandAction();
 void ventSwitched(void* n = nullptr);
 void wandSwitched(void* n = nullptr);
 void ventLedControl(uint8_t i_intensity = 255);
-void ventLedTopControl(uint8_t i_intensity = 255);
+void ventLedTopControl(bool b_on);

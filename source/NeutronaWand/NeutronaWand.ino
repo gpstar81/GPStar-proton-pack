@@ -466,10 +466,10 @@ void mainLoop() {
         ms_white_light.repeat();
 
         if(vent_leds[1]) {
-          ventLedTopControl(0);
+          ventLedTopControl(false);
         }
         else {
-          ventLedTopControl();
+          ventLedTopControl(true);
         }
       }
 
@@ -505,8 +505,23 @@ void mainLoop() {
 
   // Update the barrel LEDs and restart the timer.
   if(ms_fast_led.justFinished()) {
-    FastLED.show();
+    //FastLED.show();
+    FastLED[0].showLeds(255);
     ms_fast_led.start(i_fast_led_delay);
+  }
+
+  // Update the vent/top LEDs and restart the timer.
+  if(ms_vent_light.justFinished()) {
+    // Only send an update if we actually made a change.
+    if(b_vent_lights_changed) {
+      FastLED[1].showLeds(255);
+      b_vent_lights_changed = false;
+
+      // Then restore the original state of the LED.
+      digitalWriteFast(TOP_LED_PIN, vent_leds[1] ? LOW : HIGH);
+    }
+
+    ms_vent_light.repeat();
   }
 }
 
@@ -679,13 +694,13 @@ void hatLightControl() {
 
     case MODE_ERROR:
       if(ms_error_blink.remaining() < i_error_blink_delay / 2) {
-        ventLedTopControl(0);
+        ventLedTopControl(false);
         digitalWriteFast(SLO_BLO_LED_PIN, LOW);
         digitalWriteFast(TOP_HAT_LED_PIN, LOW);
         digitalWriteFast(CLIPPARD_LED_PIN, LOW);
       }
       else {
-        ventLedTopControl();
+        ventLedTopControl(true);
         digitalWriteFast(SLO_BLO_LED_PIN, HIGH);
         digitalWriteFast(TOP_HAT_LED_PIN, HIGH);
         digitalWriteFast(CLIPPARD_LED_PIN, HIGH);
@@ -1411,7 +1426,7 @@ void checkSwitches() {
                     ventLedControl();
                   }
 
-                  ventLedTopControl();
+                  ventLedTopControl(true);
 
                   if(ms_bargraph.justFinished()) {
                     bargraphRampUp();
@@ -1433,7 +1448,7 @@ void checkSwitches() {
 
                   // Turn off the Neutrona Wand vent lights.
                   ventLedControl(0);
-                  ventLedTopControl(0);
+                  ventLedTopControl(false);
 
                   vibrationOff(); // Turn off vibration, if any.
                 }
@@ -1456,9 +1471,30 @@ void checkSwitches() {
     case MODE_ERROR:
       if(b_wand_mash_error && ms_bmash.isRunning()) {
         if(b_vent_light_control) {
-          // We're going to fade out the vent light while the wand mash error is running.
+          // First determine the maximum brightness value for our power level.
+          uint8_t i_vent_brightness = i_vent_led_power_1;
+
+          switch(i_power_level) {
+            case 2:
+              i_vent_brightness = i_vent_led_power_2;
+            break;
+            case 3:
+              i_vent_brightness = i_vent_led_power_3;
+            break;
+            case 4:
+              i_vent_brightness = i_vent_led_power_4;
+            break;
+            case 5:
+              i_vent_brightness = i_vent_led_power_5;
+            break;
+            default:
+              // Do nothing as we are already configured correctly.
+            break;
+          }
+
+          // We're going to fade in the vent light while the wand mash error is running.
           uint8_t i_mash_delay_percentage = (ms_bmash.remaining() * 100) / ms_bmash.delay();
-          uint8_t i_vent_power_output = (255 * i_mash_delay_percentage) / 100;
+          uint8_t i_vent_power_output = (i_vent_brightness * i_mash_delay_percentage) / 100;
 
           ventLedControl(i_vent_power_output);
         }
@@ -2349,7 +2385,7 @@ void postActivation() {
 
     // Top white light.
     ms_white_light.start(i_white_light_interval);
-    ventLedTopControl();
+    ventLedTopControl(true);
 
     // Reset the hat light timers.
     ms_warning_blink.stop();
@@ -8938,7 +8974,7 @@ void wandLightsOffMenuSystem() {
   digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Turn off the front left LED under the Clippard valve.
   digitalWriteFast(BARREL_HAT_LED_PIN, LOW); // Turn off hat light 1.
   digitalWriteFast(TOP_HAT_LED_PIN, LOW); // Turn off hat light 2.
-  ventLedTopControl(0); // Turn off the blinking white top LED.
+  ventLedTopControl(false); // Turn off the blinking white top LED.
   ventLedControl(0); // Turn off the vent light.
 
   setPowerOnReminder(false);
@@ -9165,7 +9201,7 @@ void checkRotaryEncoder() {
 
                 // Turn off the other lights.
                 ventLedControl(0); // Level 3
-                ventLedTopControl(0); // Level 4
+                ventLedTopControl(false); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9193,7 +9229,7 @@ void checkRotaryEncoder() {
                 ventLedControl(); // Level 3
 
                 // Turn off the other lights.
-                ventLedTopControl(0); // Level 4
+                ventLedTopControl(false); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9219,7 +9255,7 @@ void checkRotaryEncoder() {
                 // Turn on some lights to visually indicate which menu we are in.
                 digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
                 ventLedControl(); // Level 3
-                ventLedTopControl(); // Level 4
+                ventLedTopControl(true); // Level 4
 
                 // Turn off the other lights.
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
@@ -9247,7 +9283,7 @@ void checkRotaryEncoder() {
                 // Turn on some lights to visually indicate which menu we are in.
                 digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
                 ventLedControl(); // Level 3
-                ventLedTopControl(); // Level 4
+                ventLedTopControl(true); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, HIGH); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9328,7 +9364,7 @@ void checkRotaryEncoder() {
                 // Turn on some lights to visually indicate which menu we are in.
                 digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
                 ventLedControl(); // Level 3
-                ventLedTopControl(); // Level 4
+                ventLedTopControl(true); // Level 4
 
                 // Turn off the other lights.
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
@@ -9358,7 +9394,7 @@ void checkRotaryEncoder() {
                 ventLedControl(); // Level 3
 
                 // Turn off the other lights.
-                ventLedTopControl(0); // Level 4
+                ventLedTopControl(false); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9386,7 +9422,7 @@ void checkRotaryEncoder() {
 
                 // Turn off the other lights.
                 ventLedControl(0); // Level 3
-                ventLedTopControl(0); // Level 4
+                ventLedTopControl(false); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9412,7 +9448,7 @@ void checkRotaryEncoder() {
                 // Turn off the other lights.
                 digitalWriteFast(SLO_BLO_LED_PIN, LOW); // Level 2
                 ventLedControl(0); // Level 3
-                ventLedTopControl(0); // Level 4
+                ventLedTopControl(false); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9488,7 +9524,7 @@ void checkRotaryEncoder() {
 
                 // Turn off the other lights.
                 ventLedControl(0); // Level 3
-                ventLedTopControl(0); // Level 4
+                ventLedTopControl(false); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9567,7 +9603,7 @@ void checkRotaryEncoder() {
                 // Turn off the other lights.
                 digitalWriteFast(SLO_BLO_LED_PIN, LOW); // Level 2
                 ventLedControl(0); // Level 3
-                ventLedTopControl(0); // Level 4
+                ventLedTopControl(false); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -10397,76 +10433,47 @@ void checkPowerOnReminder() {
   }
 }
 
-void ventLedTopControl(uint8_t i_intensity) {
-  if(i_intensity <= 1) {
+void ventLedTopControl(bool b_on) {
+  if(!b_on) {
+    // Turn off.
+    digitalWriteFast(TOP_LED_PIN, HIGH);
+
     if(vent_leds[1]) {
-      // Turn off.
-      digitalWrite(TOP_LED_PIN, HIGH);
-      vent_leds[1] = getHueAsRGB(C_BLACK, 0);
+      vent_leds[1] = getHueAsRGB(C_BLACK);
+      b_vent_lights_changed = true;
     }
   }
   else {
+    // Turn on.
+    digitalWriteFast(TOP_LED_PIN, LOW);
+
     if(!vent_leds[1]) {
-      if(i_intensity == 255) {
-        digitalWrite(TOP_LED_PIN, LOW);
-      }
-      else {
-        analogWrite(TOP_LED_PIN, 255 - i_intensity);
-      }
-
-      if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
-        vent_leds[1] = getHueAsRGB(C_WARM_WHITE, i_intensity);
-      }
-      else {
-        vent_leds[1] = getHueAsRGB(C_WHITE, i_intensity);
-      }
-
-      /*
       switch(STREAM_MODE) {
-        case STASIS:
-          vent_leds[1] = getHueAsRGB(C_BLUE, i_intensity);
-        break;
-
-        case SLIME:
-          if(getSystemYearMode() == SYSTEM_1989) {
-            vent_leds[1] = getHueAsRGB(C_PASTEL_PINK, i_intensity);
-          }
-          else {
-            vent_leds[1] = getHueAsRGB(C_DARK_GREEN, i_intensity);
-          }
-        break;
-
-        case MESON:
-          vent_leds[1] = getHueAsRGB(C_YELLOW, i_intensity);
-        break;
-
         case SPECTRAL:
-          vent_leds[1] = getHueAsRGB(C_RAINBOW, i_intensity);
+          vent_leds[1] = getHueAsRGB(C_RAINBOW);
         break;
 
         case HOLIDAY_HALLOWEEN:
-          vent_leds[1] = getHueAsRGB(C_ORANGEPURPLE, i_intensity);
+          vent_leds[1] = getHueAsRGB(C_ORANGEPURPLE);
         break;
 
         case HOLIDAY_CHRISTMAS:
-          vent_leds[1] = getHueAsRGB(C_REDGREEN, i_intensity);
+          vent_leds[1] = getHueAsRGB(C_REDGREEN);
         break;
 
         case SPECTRAL_CUSTOM:
-          vent_leds[1] = getHueAsRGB(C_CUSTOM, i_intensity);
+          vent_leds[1] = getHueAsRGB(C_CUSTOM);
         break;
 
-        case PROTON:
         default:
           if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
-            vent_leds[1] = getHueAsRGB(C_WARM_WHITE, i_intensity);
+            vent_leds[1] = getHueAsRGB(C_WARM_WHITE);
           }
           else {
-            vent_leds[1] = getHueAsRGB(C_WHITE, i_intensity);
+            vent_leds[1] = getHueAsRGB(C_WHITE);
           }
         break;
       }
-      */
     }
   }
 }
@@ -10478,10 +10485,7 @@ void ventLedControl(uint8_t i_intensity) {
     // Turn off if not off already.
     if(vent_leds[0]) {
       vent_leds[0] = getHueAsRGB(C_BLACK, 0);
-    }
-
-    if(ms_vent_light.justFinished()) {
-      ms_vent_light.repeat();
+      b_vent_lights_changed = true;
     }
   }
   else {
@@ -10492,54 +10496,52 @@ void ventLedControl(uint8_t i_intensity) {
       analogWrite(VENT_LED_PIN, 255 - i_intensity);
     }
 
-    if(ms_vent_light.justFinished()) {
-      ms_vent_light.repeat();
+    switch(STREAM_MODE) {
+      case STASIS:
+        vent_leds[0] = getHueAsRGB(C_BLUE, i_intensity);
+      break;
 
-      switch(STREAM_MODE) {
-        case STASIS:
-          vent_leds[0] = getHueAsRGB(C_BLUE, i_intensity);
-        break;
+      case SLIME:
+        if(getSystemYearMode() == SYSTEM_1989) {
+          vent_leds[0] = getHueAsRGB(C_PASTEL_PINK, i_intensity);
+        }
+        else {
+          vent_leds[0] = getHueAsRGB(C_DARK_GREEN, i_intensity);
+        }
+      break;
 
-        case SLIME:
-          if(getSystemYearMode() == SYSTEM_1989) {
-            vent_leds[0] = getHueAsRGB(C_PASTEL_PINK, i_intensity);
-          }
-          else {
-            vent_leds[0] = getHueAsRGB(C_DARK_GREEN, i_intensity);
-          }
-        break;
+      case MESON:
+        vent_leds[0] = getHueAsRGB(C_YELLOW, i_intensity);
+      break;
 
-        case MESON:
-          vent_leds[0] = getHueAsRGB(C_YELLOW, i_intensity);
-        break;
+      case SPECTRAL:
+        vent_leds[0] = getHueAsRGB(C_RAINBOW, i_intensity);
+      break;
 
-        case SPECTRAL:
-          vent_leds[0] = getHueAsRGB(C_RAINBOW, i_intensity);
-        break;
+      case HOLIDAY_HALLOWEEN:
+        vent_leds[0] = getHueAsRGB(C_ORANGEPURPLE, i_intensity);
+      break;
 
-        case HOLIDAY_HALLOWEEN:
-          vent_leds[0] = getHueAsRGB(C_ORANGEPURPLE, i_intensity);
-        break;
+      case HOLIDAY_CHRISTMAS:
+        vent_leds[0] = getHueAsRGB(C_REDGREEN, i_intensity);
+      break;
 
-        case HOLIDAY_CHRISTMAS:
-          vent_leds[0] = getHueAsRGB(C_REDGREEN, i_intensity);
-        break;
+      case SPECTRAL_CUSTOM:
+        vent_leds[0] = getHueAsRGB(C_CUSTOM, i_intensity);
+      break;
 
-        case SPECTRAL_CUSTOM:
-          vent_leds[0] = getHueAsRGB(C_CUSTOM, i_intensity);
-        break;
-
-        case PROTON:
-        default:
-          if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
-            vent_leds[0] = getHueAsRGB(C_WHITE, i_intensity);
-          }
-          else {
-            vent_leds[0] = getHueAsRGB(C_WARM_WHITE, i_intensity);
-          }
-        break;
-      }
+      case PROTON:
+      default:
+        if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
+          vent_leds[0] = getHueAsRGB(C_WHITE, i_intensity);
+        }
+        else {
+          vent_leds[0] = getHueAsRGB(C_WARM_WHITE, i_intensity);
+        }
+      break;
     }
+
+    b_vent_lights_changed = true;
   }
 }
 
