@@ -1,6 +1,6 @@
 /**
  *   GPStar Stream Effects - Ghostbusters Props, Mods, and Kits.
- *   Copyright (C) 2024 Dustin Grau <dustin.grau@gmail.com>
+ *   Copyright (C) 2024-2025 Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@
 /*
  * Used to reflect the last build date for the binary.
  */
-String build_date = "20241210075807";
+String build_date = "20250105174029";
 
 /*
  * Parent WiFi Network Defaults
