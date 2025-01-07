@@ -176,9 +176,18 @@ void wandSerialSendData(uint8_t i_message) {
         default:
           wandConfig.ledWandCount = 0;
         break;
+
         case LEDS_48:
           wandConfig.ledWandCount = 1;
         break;
+
+        case LEDS_50:
+          wandConfig.ledWandCount = 2;
+        break;
+
+        case LEDS_2:
+          wandConfig.ledWandCount = 3;
+        break;        
       }
 
       wandConfig.ledWandHue = i_spectral_wand_custom_colour;
@@ -427,10 +436,21 @@ void checkPack() {
               WAND_BARREL_LED_COUNT = LEDS_5;
               i_num_barrel_leds = 5;
             break;
+
             case 1:
               WAND_BARREL_LED_COUNT = LEDS_48;
               i_num_barrel_leds = 48;
             break;
+
+            case 2:
+              WAND_BARREL_LED_COUNT = LEDS_50;
+              i_num_barrel_leds = 48; // Keep at 48. 2 are for the tip.
+            break;
+
+            case 3:
+              WAND_BARREL_LED_COUNT = LEDS_2;
+              i_num_barrel_leds = 2;
+            break;            
           }
 
           b_overheat_enabled = (wandConfig.overheatEnabled == 1);

@@ -443,10 +443,19 @@ void readEEPROM() {
         default:
           WAND_BARREL_LED_COUNT = LEDS_5;
         break;
+        
+        case 2:
+          WAND_BARREL_LED_COUNT = LEDS_2;
+        break;
 
         case 48:
           WAND_BARREL_LED_COUNT = LEDS_48;
         break;
+
+        case 50:
+          WAND_BARREL_LED_COUNT = LEDS_50;
+          i_num_barrel_leds = 48; // Need to reset it to 48. 2 are for the tip.
+        break;        
       }
     }
 
@@ -489,11 +498,17 @@ void clearLEDEEPROM() {
 void saveLEDEEPROM() {
   uint16_t i_eepromLEDAddress = i_eepromAddress + sizeof(objConfigEEPROM);
 
-  uint8_t i_barrel_led_count = 5; // 5 = Hasbro, 48 = Frutto.
+  uint8_t i_barrel_led_count = 5; // 5 = Hasbro, 50 = GPStar Neutrona Barrel, 2 = GPStar Barrel LED Mini, 48 = Frutto.
   uint8_t i_bargraph_led_count = 28; // 28 segment, 30 segment.
 
   if(WAND_BARREL_LED_COUNT == LEDS_48) {
     i_barrel_led_count = 48;
+  }
+  else if(WAND_BARREL_LED_COUNT == LEDS_50) {
+    i_barrel_led_count = 50; // Needs to be a 50. However we change it back to 48 after it is saved to the EEPROM.
+  }
+  else if(WAND_BARREL_LED_COUNT == LEDS_2) {
+    i_barrel_led_count = 2;
   }
 
   if(BARGRAPH_TYPE_EEPROM == SEGMENTS_30) {
@@ -512,6 +527,10 @@ void saveLEDEEPROM() {
   EEPROM.put(i_eepromLEDAddress, obj_led_eeprom);
 
   updateCRCEEPROM();
+
+  if(WAND_BARREL_LED_COUNT == LEDS_50) {
+    i_barrel_led_count = 48; // Needs to be reset back to 48 while 50 is stored in the EEPROM. 2 are for the tip.
+  }
 }
 
 void clearConfigEEPROM() {

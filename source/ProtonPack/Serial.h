@@ -4311,18 +4311,40 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       resetContinuousSmoke();
     break;
 
-    case W_BARREL_LEDS_5:
+    case W_BARREL_LEDS_2:
+      stopEffect(S_VOICE_BARREL_LED_2);
       stopEffect(S_VOICE_BARREL_LED_5);
       stopEffect(S_VOICE_BARREL_LED_48);
+      stopEffect(S_VOICE_BARREL_LED_50);
+
+      playEffect(S_VOICE_BARREL_LED_2);
+    break;
+
+    case W_BARREL_LEDS_5:
+      stopEffect(S_VOICE_BARREL_LED_2);
+      stopEffect(S_VOICE_BARREL_LED_5);
+      stopEffect(S_VOICE_BARREL_LED_48);
+      stopEffect(S_VOICE_BARREL_LED_50);
 
       playEffect(S_VOICE_BARREL_LED_5);
     break;
 
     case W_BARREL_LEDS_48:
+      stopEffect(S_VOICE_BARREL_LED_2);
       stopEffect(S_VOICE_BARREL_LED_5);
       stopEffect(S_VOICE_BARREL_LED_48);
+      stopEffect(S_VOICE_BARREL_LED_50);
 
       playEffect(S_VOICE_BARREL_LED_48);
+    break;
+
+    case W_BARREL_LEDS_50:
+      stopEffect(S_VOICE_BARREL_LED_2);
+      stopEffect(S_VOICE_BARREL_LED_5);
+      stopEffect(S_VOICE_BARREL_LED_48);
+      stopEffect(S_VOICE_BARREL_LED_50);
+
+      playEffect(S_VOICE_BARREL_LED_50);
     break;
 
     case W_TOGGLE_POWERCELL_DIRECTION:
