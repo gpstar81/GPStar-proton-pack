@@ -56,7 +56,7 @@ fi
 sed -i -e 's/const bool b_gpstar_benchtest = true/bool b_gpstar_benchtest = false/' ${PROJECT_DIR}/Configuration.h
 sed -i -e 's/\/\/b_gpstar_benchtest = true/b_gpstar_benchtest = true/' ${PROJECT_DIR}/Serial.h
 
-rm -f ${PROJECT_DIR}/include/*.h-e
+rm -f ${PROJECT_DIR}/*.h-e
 
 echo "Done."
 echo ""
