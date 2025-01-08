@@ -68,10 +68,10 @@ This section is presented in a way to offer a more complete view of what compone
 | Audio Board<sup>R</sup>     | [GPStar Audio](GPSTAR_AUDIO_PCB.md) or [Robertsonics WAV Trigger](WAVTRIGGER.md) |
 | Speakers/Amp<sup>R</sup>    | [Audio Output Guide](SOUND.md) |
 | Sound Effects<sup>R</sup>   | [Loading The Audio Files](AUDIO.md) |
-| Cyclotron Lid<sup>O</sup>   | [20/36-LED options by Frutto Technology](CYCLOTRON_LID.md) |
+| Cyclotron Lid<sup>O</sup>   | [12/20/36-LED options](CYCLOTRON_LID.md) |
 | Inner Cyclotron<sup>O</sup> | [Cake and Panel Lights](CYCLOTRON_INNER.md)
 | N-Filter<sup>O</sup>        | [7-LED Vent Light](NFILTER.md) |
-| Powercell<sup>O</sup>       | [15-LED option by Frutto Technology](POWERCELL.md) |
+| Powercell<sup>O</sup>       | [13 and 15-LED options](POWERCELL.md) |
 | Smoke Effects<sup>O</sup>   | [Various Solutions Supported](SMOKE.md) |
 
 **Connectivity**
@@ -92,9 +92,9 @@ This section is presented in a way to offer a more complete view of what compone
 | Speakers<sup>R</sup>      | [Audio Output Guide](SOUND.md) |
 | Sound Effects<sup>O</sup> | [Loading The Audio Files](AUDIO.md) |
 | Hat Lights<sup>O</sup>    | [Kit option by Jonogunn](HATS.md) |
-| Bargraph<sup>O</sup>      | [28-Segment or 30-Segment option by Frutto Technology](BARGRAPH.md) |
+| Bargraph<sup>O</sup>      | [28-Segment or 30-Segment](BARGRAPH.md) |
 | Vent Light<sup>O</sup>    | [High Intensity option by Frutto Technology](VENTLIGHT.md) |
-| Wand Barrel<sup>O</sup>   | 49-LED by Frutto Technology (Guide TBD) |
+| Wand Barrel<sup>O</sup>   | 2, 5, 49 and 50 LED options (Guide TBD) |
 
 **Installation, Operation, and Troubleshooting**
 
@@ -178,8 +178,8 @@ You should have received a copy of the GNU General Public License along with thi
 
 This project is made possible by Ghostbusters community makers and volunteers spanning 4 countries over 2 continents.
 
-* Michael Rajotte (aka. "GPStar Technologies") - Director of Operations, Software Architect, Product Designer, 3D Modelling, EU & Worldwide Distribution
-* Jonathan Gunn (aka. "Jonogunn") - Video Instruction Guides, PCB Design, Install Testing, North America Distribution
+* Michael Rajotte (aka. "GPStar Technologies") - Director of Operations, Software Architect, Product Designer, PCB Design, 3D Modelling, EU & Worldwide Distribution
+* Jonathan Gunn (aka. "Jonogunn") - Video Instruction Guides, Install Testing.
 * Dustin Grau (aka. "JustinDustin") - Prototyping and Testing, Documentation, 3D Modelling, Software Support
 * Angie Rutto (aka. "Frutto Technology") - Maker and purveyor of fine add-on products, UK Distribution
 

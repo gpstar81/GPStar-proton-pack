@@ -176,8 +176,17 @@ void wandSerialSendData(uint8_t i_message) {
         default:
           wandConfig.ledWandCount = 0;
         break;
+
         case LEDS_48:
           wandConfig.ledWandCount = 1;
+        break;
+
+        case LEDS_50:
+          wandConfig.ledWandCount = 2;
+        break;
+
+        case LEDS_2:
+          wandConfig.ledWandCount = 3;
         break;
       }
 
@@ -349,7 +358,7 @@ void checkPack() {
               ms_handshake.start(i_heartbeat_delay);
 
               // Turn off the sync indicator LED as the sync is completed.
-              digitalWriteFast(TOP_LED_PIN, HIGH);
+              ventLedTopControl(false);
               digitalWriteFast(WAND_STATUS_LED_PIN, LOW);
 
               // Indicate that a pack is now connected.
@@ -363,7 +372,7 @@ void checkPack() {
             b_pack_on = true; // Pretend that the pack (not really attached) has been powered on.
 
             // Turn off the sync indicator LED as it is no longer necessary.
-            digitalWriteFast(TOP_LED_PIN, HIGH);
+            ventLedTopControl(false);
             digitalWriteFast(WAND_STATUS_LED_PIN, LOW);
 
             // Reset the audio device now that we are in standalone mode and need music playback.
@@ -425,11 +434,22 @@ void checkPack() {
             case 0:
             default:
               WAND_BARREL_LED_COUNT = LEDS_5;
-              i_num_barrel_leds = 5;
+              i_num_barrel_leds = 5; // Stock count for Haslab equipment.
             break;
+
             case 1:
               WAND_BARREL_LED_COUNT = LEDS_48;
-              i_num_barrel_leds = 48;
+              i_num_barrel_leds = 48; // Total count is 49, with 1 for the tip.
+            break;
+
+            case 2:
+              WAND_BARREL_LED_COUNT = LEDS_50;
+              i_num_barrel_leds = 48; // Total count is 50, with 2 for the tip.
+            break;
+
+            case 3:
+              WAND_BARREL_LED_COUNT = LEDS_2;
+              i_num_barrel_leds = 2; // Device is tip-only.
             break;
           }
 

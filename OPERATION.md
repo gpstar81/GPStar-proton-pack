@@ -340,8 +340,8 @@ To access Menu Level 2, use the `Top Dial` on the top of the wand to move down a
 <sup>5</sup> Enables/disables the video game colour modes for the Proton Pack's Power Cell and Cyclotron lights. This only affects the pack when in Video Game mode, not for CTS modes, and offers the following states:
 
 - Disable all the video game colours (Power Cell remains blue, Cyclotron remains red).
-- Enable only the Power Cell LEDs to change colours (requires RGB Power Cell such as that offered by Frutto Technology).
-- Enable only the Cyclotron LEDs to change colours (requires RGB replacement such as that offered by Frutto Technology).
+- Enable only the Power Cell LEDs to change colours (requires a RGB Power Cell).
+- Enable only the Cyclotron LEDs to change colours (requires RGB replacements).
 - Enable both the Power Cell and Cyclotron to use video game colours.
 
 <sup>6</sup> See [Inner Cyclotron](CYCLOTRON_INNER.md) for more information on the motorised cyclotron modification for the Proton Pack.

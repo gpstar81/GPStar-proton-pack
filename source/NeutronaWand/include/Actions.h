@@ -38,7 +38,7 @@ void checkWandAction() {
             playEffect(S_MESON_FIRE_PULSE, false, i_volume_effects, false, 0, false);
             wandSerialSend(W_MESON_FIRE_PULSE);
 
-            if(WAND_BARREL_LED_COUNT == LEDS_48) {
+            if(WAND_BARREL_LED_COUNT == LEDS_48 || WAND_BARREL_LED_COUNT == LEDS_50) {
               // Reset the barrel before starting a new pulse.
               barrelLightsOff();
             }
@@ -240,8 +240,8 @@ void checkWandAction() {
 
               case MENU_LEVEL_1:
               default:
-                switch(i_num_barrel_leds) {
-                  case 5:
+                switch(WAND_BARREL_LED_COUNT) {
+                  case LEDS_5:
                   default:
                     wandBarrelLightsOff();
                     wandTipOff();
@@ -253,13 +253,52 @@ void checkWandAction() {
 
                     stopEffect(S_VOICE_BARREL_LED_48);
                     stopEffect(S_VOICE_BARREL_LED_5);
+                    stopEffect(S_VOICE_BARREL_LED_2);
+                    stopEffect(S_VOICE_BARREL_LED_50);
 
                     playEffect(S_VOICE_BARREL_LED_48);
 
                     wandSerialSend(W_BARREL_LEDS_48);
                   break;
 
-                  case 48:
+                  case LEDS_48:
+                    wandBarrelLightsOff();
+                    wandTipOff();
+
+                    WAND_BARREL_LED_COUNT = LEDS_50;
+                    i_num_barrel_leds = 48; // Needs to be 48, as 2 are for the tip.
+
+                    wandBarrelSpectralCustomConfigOn();
+
+                    stopEffect(S_VOICE_BARREL_LED_2);
+                    stopEffect(S_VOICE_BARREL_LED_5);
+                    stopEffect(S_VOICE_BARREL_LED_48);
+                    stopEffect(S_VOICE_BARREL_LED_50);
+
+                    playEffect(S_VOICE_BARREL_LED_50);
+
+                    wandSerialSend(W_BARREL_LEDS_50);
+                  break;
+
+                  case LEDS_50:
+                    wandBarrelLightsOff();
+                    wandTipOff();
+
+                    WAND_BARREL_LED_COUNT = LEDS_2;
+                    i_num_barrel_leds = 2;
+
+                    wandBarrelSpectralCustomConfigOn();
+
+                    stopEffect(S_VOICE_BARREL_LED_2);
+                    stopEffect(S_VOICE_BARREL_LED_48);
+                    stopEffect(S_VOICE_BARREL_LED_50);
+
+                    playEffect(S_VOICE_BARREL_LED_2);
+
+                    wandSerialSend(W_BARREL_LEDS_2);
+                  break;
+
+                  case LEDS_2:
                     wandBarrelLightsOff();
                     wandTipOff();
 
@@ -268,8 +307,10 @@ void checkWandAction() {
 
                     wandBarrelSpectralCustomConfigOn();
 
+                    stopEffect(S_VOICE_BARREL_LED_2);
                     stopEffect(S_VOICE_BARREL_LED_5);
                     stopEffect(S_VOICE_BARREL_LED_48);
+                    stopEffect(S_VOICE_BARREL_LED_50);
 
                     playEffect(S_VOICE_BARREL_LED_5);
 

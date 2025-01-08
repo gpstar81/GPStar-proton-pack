@@ -140,21 +140,24 @@ const uint16_t i_meson_blast_delay_level_1 = 220;
 /*
  * Barrel LEDs
  * The Hasbro Neutrona Wand has 5 LEDs. 0 = Base, 4 = tip. These are addressable with a single pin and are RGB.
- * Support for up to 49 LEDs from Frutto Technology (body of 48 with a "strobe tip" which is also RGB).
- * When using the 48 LED option the standard white LED will be swapped for the 49th LED of the Frutto option.
+ * Support for up to 50 LEDs from the GPStar Neutrona Barrel. (body of 48 + 2 strobe tips which are also RGB).
  */
-#define BARREL_LEDS_MAX 49 // The maximum number of barrel LEDs supported (Frutto = 48 + Strobe Tip).
+#define BARREL_LEDS_MAX 50 // The maximum number of barrel LEDs supported (Frutto = 48 + Strobe Tip).
 CRGB barrel_leds[BARREL_LEDS_MAX];
+// Array of LEDs on the GPStar Neutrona Barrel. LEDs 36 and 37 are the very tips and will not be in this array.
+const uint8_t gpstar_neutrona_barrel[48] PROGMEM = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 49, 48, 47, 46, 45, 44, 43, 42, 41, 40, 39, 38};
+// This is the GPStar Barrel LED min. It has only 2 LEDs.
+//const uint8_t gpstar_barrel_led_mini[2] PROGMEM = {0, 1};
 // This is the array of LEDs in the order by which they should be illuminated for effects. LED number 12 is the very tip which will be white (by default).
 const uint8_t frutto_barrel[48] PROGMEM = {0, 25, 24, 48, 1, 26, 23, 47, 2, 27, 22, 46, 3, 28, 21, 45, 4, 29, 20, 44, 5, 30, 19, 43, 6, 31, 18, 42, 7, 32, 17, 41, 8, 33, 16, 40, 9, 34, 15, 39, 10, 35, 14, 38, 11, 36, 13, 37};
 
 /*
  * How many LEDs are in your Neutrona Wand Barrel.
  * Default setting is 5: for the Hasbro Neturona Wand.
- * Supported options: Stock (5) and Frutto Technology (48 + Strobe Tip)
+ * Supported options: Stock (5), GPStar Neturona Barrel (48 + 2 Strobe Tips), GPStar Barrel LED Mini (2) and Frutto Technology (48 + Strobe Tip)
  */
 uint8_t i_num_barrel_leds = 5;
-enum WAND_BARREL_LED_COUNTS { LEDS_5, LEDS_48 };
+enum WAND_BARREL_LED_COUNTS { LEDS_5, LEDS_48, LEDS_50, LEDS_2 };
 enum WAND_BARREL_LED_COUNTS WAND_BARREL_LED_COUNT;
 
 /*
@@ -166,6 +169,15 @@ enum WAND_BARREL_LED_COUNTS WAND_BARREL_LED_COUNT;
 #define FAST_LED_UPDATE_MS 3
 uint8_t i_fast_led_delay = FAST_LED_UPDATE_MS;
 millisDelay ms_fast_led;
+
+/*
+ * RGB vent lights.
+ */
+#define VENT_LEDS_MAX 2 // The maximum number of LEDs for the vent lights. Main vent + top Clip Lite.
+CRGB vent_leds[VENT_LEDS_MAX]; // FastLED object array for the RGB top/vent LEDs.
+millisDelay ms_vent_light; // Timer to control update rate for RGB top/vent LEDs.
+const uint16_t i_vent_light_update_interval = 150; // FastLED update interval specifically for the top/vent LEDs.
+bool b_vent_lights_changed = false; // Check for whether there was actually a change to prevent superfluous calls to showLeds().
 
 /*
  * Time in milliseconds for blinking the top white LED while the wand is on.
@@ -262,11 +274,11 @@ const uint16_t i_overheat_delay_max = 60000; // The maximum amount of time befor
  */
 const uint8_t i_power_level_max = 5;
 const uint8_t i_power_level_min = 1;
-const uint8_t i_vent_led_power_1 = 220;
-const uint8_t i_vent_led_power_2 = 190;
-const uint8_t i_vent_led_power_3 = 160;
-const uint8_t i_vent_led_power_4 = 130;
-const uint8_t i_vent_led_power_5 = 100;
+const uint8_t i_vent_led_power_1 = 35; // 220 for non-addressable LED.
+const uint8_t i_vent_led_power_2 = 65; // 190 for non-addressable LED.
+const uint8_t i_vent_led_power_3 = 95; // 160 for non-addressable LED.
+const uint8_t i_vent_led_power_4 = 125; // 130 for non-addressable LED.
+const uint8_t i_vent_led_power_5 = 155; // 100 for non-addressable LED.
 uint8_t i_power_level = 1;
 uint8_t i_power_level_prev = 1;
 
@@ -490,3 +502,5 @@ void checkPack();
 void checkWandAction();
 void ventSwitched(void* n = nullptr);
 void wandSwitched(void* n = nullptr);
+void ventLedControl(uint8_t i_intensity = 255);
+void ventLedTopControl(bool b_on);

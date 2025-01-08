@@ -2175,7 +2175,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       // Set appropriate holiday mode.
       STREAM_MODE = HOLIDAY_CHRISTMAS;
-      
+
       if(b_settings) {
         playEffect(S_CLICK);
         b_settings = false;
