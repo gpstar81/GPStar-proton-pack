@@ -22,7 +22,7 @@ To access the EEPROM LED Menu System, hold down the `Intensify Button` and toggl
 
 	Menu Level 1 -> No additional wand lights will be illuminated
 	Menu Level 2 -> Slo-Blo illuminated
-	
+
 📝 **Note:** EEPROM menus can only be reached while both the Neutrona Wand and Proton Pack are powered down.
 
 ![](images/OperationNeutrona11.jpg)

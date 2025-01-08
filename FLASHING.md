@@ -77,7 +77,7 @@ Use the included FTDI to USB programming cable that comes with the GPStar kits o
 **IMPORTANT: Beside the connection on the GPStar Audio board, there is a small black switch, move it to the LOAD position before connecting the cable.**
 
 **After flashing, please move the switch back to the BOOT position.**
- 
+
 ![UART GPStar Audio Connection](images/uart_gpstar_audio.jpg)
 
 ## Using the Flashing Software

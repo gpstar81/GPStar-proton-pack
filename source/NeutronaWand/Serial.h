@@ -187,7 +187,7 @@ void wandSerialSendData(uint8_t i_message) {
 
         case LEDS_2:
           wandConfig.ledWandCount = 3;
-        break;        
+        break;
       }
 
       wandConfig.ledWandHue = i_spectral_wand_custom_colour;
@@ -450,7 +450,7 @@ void checkPack() {
             case 3:
               WAND_BARREL_LED_COUNT = LEDS_2;
               i_num_barrel_leds = 2; // Device is tip-only.
-            break;            
+            break;
           }
 
           b_overheat_enabled = (wandConfig.overheatEnabled == 1);

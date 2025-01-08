@@ -443,7 +443,7 @@ void readEEPROM() {
         default:
           WAND_BARREL_LED_COUNT = LEDS_5;
         break;
-        
+
         case 2:
           WAND_BARREL_LED_COUNT = LEDS_2;
         break;
@@ -455,7 +455,7 @@ void readEEPROM() {
         case 50:
           WAND_BARREL_LED_COUNT = LEDS_50;
           i_num_barrel_leds = 48; // Need to reset it to 48. 2 are for the tip.
-        break;        
+        break;
       }
     }
 

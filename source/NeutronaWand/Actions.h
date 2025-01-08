@@ -315,7 +315,7 @@ void checkWandAction() {
                     playEffect(S_VOICE_BARREL_LED_5);
 
                     wandSerialSend(W_BARREL_LEDS_5);
-                  break;                                 
+                  break;
                 }
               break;
             }
