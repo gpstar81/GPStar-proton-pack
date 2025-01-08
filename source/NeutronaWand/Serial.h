@@ -434,22 +434,22 @@ void checkPack() {
             case 0:
             default:
               WAND_BARREL_LED_COUNT = LEDS_5;
-              i_num_barrel_leds = 5;
+              i_num_barrel_leds = 5; // Stock count for Haslab equipment.
             break;
 
             case 1:
               WAND_BARREL_LED_COUNT = LEDS_48;
-              i_num_barrel_leds = 48;
+              i_num_barrel_leds = 48; // Total count is 49, with 1 for the tip.
             break;
 
             case 2:
               WAND_BARREL_LED_COUNT = LEDS_50;
-              i_num_barrel_leds = 48; // Keep at 48. 2 are for the tip.
+              i_num_barrel_leds = 48; // Total count is 50, with 2 for the tip.
             break;
 
             case 3:
               WAND_BARREL_LED_COUNT = LEDS_2;
-              i_num_barrel_leds = 2;
+              i_num_barrel_leds = 2; // Device is tip-only.
             break;            
           }
 
