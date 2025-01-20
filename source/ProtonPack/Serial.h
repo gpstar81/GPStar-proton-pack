@@ -95,6 +95,7 @@ struct __attribute__((packed)) WandPrefs {
   uint8_t ledWandCount;
   uint8_t ledWandHue;
   uint8_t ledWandSat;
+  uint8_t rgbVentEnabled;
   uint8_t spectralModesEnabled;
   uint8_t overheatEnabled;
   uint8_t defaultFiringMode;
@@ -4366,6 +4367,20 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         playEffect(S_VOICE_POWERCELL_INVERTED);
         packSerialSend(P_POWERCELL_INVERTED);
       }
+    break;
+
+    case W_RGB_VENT_DISABLED:
+      stopEffect(S_VOICE_RGB_VENT_LIGHTS_ENABLED);
+      stopEffect(S_VOICE_RGB_VENT_LIGHTS_DISABLED);
+
+      playEffect(S_VOICE_RGB_VENT_LIGHTS_DISABLED);
+    break;
+
+    case W_RGB_VENT_ENABLED:
+      stopEffect(S_VOICE_RGB_VENT_LIGHTS_ENABLED);
+      stopEffect(S_VOICE_RGB_VENT_LIGHTS_DISABLED);
+
+      playEffect(S_VOICE_RGB_VENT_LIGHTS_ENABLED);
     break;
 
     case W_BARGRAPH_28_SEGMENTS:
