@@ -205,6 +205,7 @@ void checkWandAction() {
         // Level 1 Intensify: Cycle through the different Neutrona Wand barrel LED counts.
         // Level 1 Barrel Wing Button: Adjust the Neutrona Wand barrel colour hue. <- Controlled by checkRotaryEncoder()
         // Level 2 Intensify: Toggle between 28-segment and 30-segment bargraph LEDs.
+        // Level 2 Barrel Wing Button: Enable/Disable the addressable RGB vent/top light board.
         case 4:
           if(switch_intensify.pushed()) {
             switch(WAND_MENU_LEVEL) {
@@ -317,6 +318,39 @@ void checkWandAction() {
                     wandSerialSend(W_BARREL_LEDS_5);
                   break;
                 }
+              break;
+            }
+          }
+          else if(switch_mode.pushed()) {
+            switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_2:
+                if(b_rgb_vent_light) {
+                  // Disable the RGB vent light functionality.
+                  b_rgb_vent_light = false;
+
+                  stopEffect(S_VOICE_RGB_VENT_LIGHTS_ENABLED);
+                  stopEffect(S_VOICE_RGB_VENT_LIGHTS_DISABLED);
+
+                  playEffect(S_VOICE_RGB_VENT_LIGHTS_DISABLED);
+
+                  wandSerialSend(W_RGB_VENT_DISABLED);
+                }
+                else {
+                  // Enable the RGB vent light functionality.
+                  b_rgb_vent_light = true;
+
+                  stopEffect(S_VOICE_RGB_VENT_LIGHTS_ENABLED);
+                  stopEffect(S_VOICE_RGB_VENT_LIGHTS_DISABLED);
+
+                  playEffect(S_VOICE_RGB_VENT_LIGHTS_ENABLED);
+
+                  wandSerialSend(W_RGB_VENT_ENABLED);
+                }
+              break;
+
+              case MENU_LEVEL_1:
+              default:
+                // Do nothing as this is controlled by checkRotaryEncoder().
               break;
             }
           }

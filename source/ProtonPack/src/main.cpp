@@ -4131,10 +4131,6 @@ void innerCyclotronCavityUpdate(uint16_t iRampDelay) {
       }
     }
   }
-  else {
-    // The effect is essentially disabled for all other themes and firing modes.
-    i_colour_scheme = C_BLACK;
-  }
 
   if(b_clockwise == true) {
     if(iRampDelay < 40 && !b_cyclotron_lid_on) {

@@ -81,6 +81,13 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
+      <b class="labelSwitch">RGB Vent Light Enabled:</b>
+      <label class="switch">
+        <input id="rgbVentEnabled" name="rgbVentEnabled" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <div class="setting">
       <b class="labelSwitch">Auto Vent Light Brightness:</b>
       <label class="switch">
         <input id="autoVentLight" name="autoVentLight" type="checkbox">
@@ -276,6 +283,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
             setValue("ledWandCount", settings.ledWandCount || 0); // Haslab: 0 (5 LED)
             setValue("ledWandHue", convertRange(settings.ledWandHue || 254, [1,254], [0,360])); // Default: Red
             setValue("ledWandSat", convertRange(settings.ledWandSat || 254, [1,254], [0,100])); // Full Saturation
+            setToggle("rgbVentEnabled", settings.rgbVentEnabled);
             setToggle("spectralModesEnabled", settings.spectralModesEnabled);
             setToggle("overheatEnabled", settings.overheatEnabled);
             setValue("defaultFiringMode", settings.defaultFiringMode || 1);
@@ -309,6 +317,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         ledWandCount: parseInt(getEl("ledWandCount").value || 0, 10),
         ledWandHue: convertRange(parseInt(getEl("ledWandHue").value || 360, 10), [0,360], [1,254]),
         ledWandSat: convertRange(parseInt(getEl("ledWandSat").value || 100, 10), [0,100], [1,254]),
+        rgbVentEnabled: getToggle("rgbVentEnabled"),
         spectralModesEnabled: getToggle("spectralModesEnabled"),
         overheatEnabled: getToggle("overheatEnabled"),
         defaultFiringMode: parseInt(getEl("defaultFiringMode").value || 1, 10),

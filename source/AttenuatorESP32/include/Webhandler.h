@@ -1094,6 +1094,7 @@ AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHand
       wandConfig.ledWandCount = jsonBody["ledWandCount"].as<uint8_t>();
       wandConfig.ledWandHue = jsonBody["ledWandHue"].as<uint8_t>();
       wandConfig.ledWandSat = jsonBody["ledWandSat"].as<uint8_t>();
+      wandConfig.rgbVentEnabled = jsonBody["rgbVentEnabled"].as<uint8_t>();
       wandConfig.spectralModesEnabled = jsonBody["spectralModesEnabled"].as<uint8_t>();
       wandConfig.overheatEnabled = jsonBody["overheatEnabled"].as<uint8_t>();
       wandConfig.defaultFiringMode = jsonBody["defaultFiringMode"].as<uint8_t>();

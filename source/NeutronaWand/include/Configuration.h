@@ -90,6 +90,11 @@ const bool b_onboard_amp_enabled = true;
 bool b_bargraph_invert = false;
 
 /*
+ * Enables the optional addressable RGB vent/top light board.
+ */
+bool b_rgb_vent_light = false;
+
+/*
  * Enables special brightness controls during idle and firing modes if set to true.
  */
 bool b_vent_light_control = true;

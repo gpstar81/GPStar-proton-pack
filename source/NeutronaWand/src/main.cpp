@@ -160,6 +160,8 @@ void setup() {
 
   // RGB Vent Light.
   FastLED.addLeds<NEOPIXEL, TOP_LED_PIN>(vent_leds, VENT_LEDS_MAX);
+  vent_leds[0] = getHueAsRGB(C_WHITE); // Set vent light array to white for initial reset.
+  vent_leds[1] = getHueAsRGB(C_WHITE); // Set top light array to white for initial reset.
   ms_vent_light.start(i_vent_light_update_interval); // Setup a timer for updating the vent light.
 
   // Setup default system settings.
@@ -540,14 +542,9 @@ void mainLoop() {
 
       // Top white light.
       if(ms_white_light.justFinished()) {
-        ms_white_light.repeat();
+        vent_leds[1] ? ventLedTopControl(false) : ventLedTopControl(true);
 
-        if(vent_leds[1]) {
-          ventLedTopControl(false);
-        }
-        else {
-          ventLedTopControl(true);
-        }
+        ms_white_light.repeat();
       }
 
       wandBarrelHeatUp();
@@ -591,11 +588,12 @@ void mainLoop() {
   if(ms_vent_light.justFinished()) {
     // Only send an update if we actually made a change.
     if(b_vent_lights_changed) {
-      FastLED[1].showLeds(255);
-      b_vent_lights_changed = false;
+      if(b_rgb_vent_light) {
+        // Only commit an update if the addressable LED panel is installed.
+        FastLED[1].showLeds(255);
+      }
 
-      // Then restore the original state of the LED.
-      digitalWriteFast(TOP_LED_PIN, vent_leds[1] ? LOW : HIGH);
+      b_vent_lights_changed = false;
     }
 
     ms_vent_light.repeat();
@@ -1516,7 +1514,7 @@ void checkSwitches() {
                     ventLedControl(i_vent_led_power_1);
                   }
                   else {
-                    ventLedControl();
+                    ventLedControl(); // Turn on vent light at full brightness.
                   }
 
                   ventLedTopControl(true);
@@ -1654,7 +1652,7 @@ void wandVentStateCheck() {
       if(b_vent_light_control) {
         // Vent light on, brightness dependent on mode.
         if(STREAM_MODE != SLIME && (WAND_ACTION_STATUS == ACTION_FIRING || (ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished()))) {
-          ventLedControl(); // Full brightness
+          ventLedControl(); // Turn on vent light at full brightness.
         }
         else {
           // Adjust brightness based on the power level.
@@ -1683,7 +1681,7 @@ void wandVentStateCheck() {
         }
       }
       else {
-        ventLedControl();
+        ventLedControl(); // Turn on vent light at full brightness.
       }
 
       soundIdleStart();
@@ -2476,7 +2474,7 @@ void postActivation() {
     // Turn on the Clippard LED.
     digitalWriteFast(CLIPPARD_LED_PIN, HIGH);
 
-    // Top white light.
+    // Turn on top white light and its blink timer.
     ms_white_light.start(i_white_light_interval);
     ventLedTopControl(true);
 
@@ -11011,18 +11009,24 @@ void checkPowerOnReminder() {
 
 void ventLedTopControl(bool b_on) {
   if(!b_on) {
-    // Turn off.
-    digitalWriteFast(TOP_LED_PIN, HIGH);
+    if(!b_rgb_vent_light) {
+      // Turn off top light.
+      digitalWriteFast(TOP_LED_PIN, HIGH);
+    }
 
+    // Turn off if not off already.
     if(vent_leds[1]) {
       vent_leds[1] = getHueAsRGB(C_BLACK);
       b_vent_lights_changed = true;
     }
   }
   else {
-    // Turn on.
-    digitalWriteFast(TOP_LED_PIN, LOW);
+    if(!b_rgb_vent_light) {
+      // Turn on top light.
+      digitalWriteFast(TOP_LED_PIN, LOW);
+    }
 
+    // Turn on if not on already.
     if(!vent_leds[1]) {
       switch(STREAM_MODE) {
         case SPECTRAL:
@@ -11050,26 +11054,29 @@ void ventLedTopControl(bool b_on) {
           }
         break;
       }
+
+      b_vent_lights_changed = true;
     }
   }
 }
 
 void ventLedControl(uint8_t i_intensity) {
   if(i_intensity <= 1) {
-    digitalWrite(VENT_LED_PIN, HIGH);
-
     // Turn off if not off already.
     if(vent_leds[0]) {
+      digitalWrite(VENT_LED_PIN, HIGH);
       vent_leds[0] = getHueAsRGB(C_BLACK, 0);
       b_vent_lights_changed = true;
     }
   }
   else {
-    if(i_intensity == 255) {
-      digitalWrite(VENT_LED_PIN, LOW);
-    }
-    else {
-      analogWrite(VENT_LED_PIN, 255 - i_intensity);
+    if(!b_rgb_vent_light) {
+      if(i_intensity == 255) {
+        digitalWrite(VENT_LED_PIN, LOW);
+      }
+      else {
+        analogWrite(VENT_LED_PIN, 255 - i_intensity);
+      }
     }
 
     switch(STREAM_MODE) {
