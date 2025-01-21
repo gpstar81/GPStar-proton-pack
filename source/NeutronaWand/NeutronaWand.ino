@@ -4021,7 +4021,7 @@ void wandBarrelHeatUp() {
   uint8_t i_barrel_led;
 
   switch(WAND_BARREL_LED_COUNT) {
-    case LEDS_50: 
+    case LEDS_50:
       i_barrel_led = 36;
     break;
 
@@ -4179,10 +4179,10 @@ void wandBarrelHeatDown() {
   uint8_t i_barrel_led;
 
   switch(WAND_BARREL_LED_COUNT) {
-    case LEDS_50: 
+    case LEDS_50:
       i_barrel_led = 36;
     break;
-    
+
     case LEDS_48:
       i_barrel_led = 36;
     break;
