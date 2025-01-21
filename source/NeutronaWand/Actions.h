@@ -1115,7 +1115,7 @@ void checkWandAction() {
         // Menu Level 2: Intensify: 1984 / 1989 / Afterlife / Frozen Empire / Default (Proton Pack toggle switch) year mode selection.
         // Menu Level 2: Barrel Wing Button: Overheat sync to fan.
         // Menu Level 3: Intensify: Toggle between Super Hero and Original Mode.
-        // Menu Level 3: Barrel Wing Button: Toggle CTS between: 1984 / 1989 / Afterlife / Frozen Empire CTS | Default CTS (Based on the year you are in)
+        // Menu Level 3: Barrel Wing Button: Toggle CTS between: 1984 / Afterlife / Default (Based on the year you are in)
         // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Level 1
         // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Level 1
         // Menu Level 5: Intensify: Enable/Disable overheat in power level #1
