@@ -466,12 +466,12 @@ String getWandConfig() {
     jsonBody["spectralModesEnabled"] = wandConfig.spectralModesEnabled; // true|false
 
     // Neutrona Wand Runtime Options
-    jsonBody["rgbVentEnabled"] = wandConfig.rgbVentEnabled; // true|false
     jsonBody["overheatEnabled"] = wandConfig.overheatEnabled; // true|false
     jsonBody["defaultFiringMode"] = wandConfig.defaultFiringMode; // [1=VG,2=CTS,3=CTS_MIX]
     jsonBody["wandVibration"] = wandConfig.wandVibration; // [1=ALWAYS,2=FIRING,3=NEVER,4=TOGGLE]
     jsonBody["wandSoundsToPack"] = wandConfig.wandSoundsToPack; // true|false
     jsonBody["quickVenting"] = wandConfig.quickVenting; // true|false (Super-Hero Mode Only)
+    jsonBody["rgbVentEnabled"] = wandConfig.rgbVentEnabled; // true|false
     jsonBody["autoVentLight"] = wandConfig.autoVentLight; // true|false
     jsonBody["wandBeepLoop"] = wandConfig.wandBeepLoop; // true|false (Afterlife/Frozen Empire Only)
     jsonBody["wandBootError"] = wandConfig.wandBootError; // true|false (Super-Hero Mode Only)
