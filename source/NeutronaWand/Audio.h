@@ -64,9 +64,9 @@ millisDelay ms_music_status_check;
 /*
  * Volume percentage values (0 to 100)
  */
-uint8_t i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume
-uint8_t i_volume_effects_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects
-uint8_t i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
+uint8_t i_volume_master_percentage = STARTUP_VOLUME; // Master overall volume.
+uint8_t i_volume_effects_percentage = STARTUP_VOLUME_EFFECTS; // Sound effects.
+uint8_t i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume.
 
 /*
  * General Volume
@@ -76,8 +76,8 @@ uint8_t i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume
 int8_t i_volume_master = MINIMUM_VOLUME - ((MINIMUM_VOLUME - i_volume_abs_max) * i_volume_master_percentage / 100); // Master overall volume.
 int8_t i_volume_master_eeprom = i_volume_master; // Master overall volume that is saved into the eeprom menu and loaded during bootup in standalone mode.
 int8_t i_volume_revert = i_volume_master; // Used to restore volume level from a muted state.
-int8_t i_volume_effects = i_volume_abs_min - (i_volume_abs_min * i_volume_effects_percentage / 100); // Sound effects
-int8_t i_volume_music = i_volume_abs_min - (i_volume_abs_min * i_volume_music_percentage / 100); // Music volume
+int8_t i_volume_effects = i_volume_abs_min - (i_volume_abs_min * i_volume_effects_percentage / 100); // Sound effects.
+int8_t i_volume_music = i_volume_abs_min - (i_volume_abs_min * i_volume_music_percentage / 100); // Music volume.
 
 /*
  * Function Prototypes
