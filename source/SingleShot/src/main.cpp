@@ -1,6 +1,6 @@
 /**
  *   GPStar Single-Shot Blaster
- *   Copyright (C) 2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2024-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                    & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -45,7 +45,6 @@
 
 // 3rd-Party Libraries
 #include <CRC32.h>
-#include <digitalWriteFast.h>
 #include <EEPROM.h>
 #include <millisDelay.h>
 #include <FastLED.h>

@@ -24,7 +24,7 @@ jobs:
               - name: ADS1115_WE
               - name: CRC32
               - name: digitalWriteFast
-              - name: FastLED
+              - name: FastLED@3.7.8
               - name: Ramp
               - name: SafeString
               - name: SerialTransfer

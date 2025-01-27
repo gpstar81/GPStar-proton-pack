@@ -1,7 +1,7 @@
 #include "Header.h"
 /**
  *   GPStar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -82,6 +82,7 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t ledCycCakeSat;
   uint8_t ledCycCakeGRB;
   uint8_t ledCycCavCount;
+  uint8_t ledCycCavType;
   uint8_t ledVGCyclotron;
   uint8_t ledPowercellCount;
   uint8_t ledInvertPowercell;
@@ -94,6 +95,7 @@ struct __attribute__((packed)) WandPrefs {
   uint8_t ledWandCount;
   uint8_t ledWandHue;
   uint8_t ledWandSat;
+  uint8_t rgbVentEnabled;
   uint8_t spectralModesEnabled;
   uint8_t overheatEnabled;
   uint8_t defaultFiringMode;
@@ -378,8 +380,28 @@ void serial1SendData(uint8_t i_message) {
       packConfig.ledCycCakeCount = i_inner_cyclotron_cake_num_leds;
       packConfig.ledCycCakeHue = i_spectral_cyclotron_inner_custom_colour;
       packConfig.ledCycCakeSat = i_spectral_cyclotron_inner_custom_saturation;
-      packConfig.ledCycCakeGRB = b_grb_cyclotron_cake ? 1 : 0;
+      switch(CAKE_LED_TYPE) {
+        case RGB_LED:
+        default:
+          packConfig.ledCycCakeGRB = 0;
+        break;
+        case GRB_LED:
+          packConfig.ledCycCakeGRB = 1;
+        break;
+      }
       packConfig.ledCycCavCount = i_inner_cyclotron_cavity_num_leds;
+      switch(CAVITY_LED_TYPE) {
+        case RGB_LED:
+        default:
+          packConfig.ledCycCavType = 1;
+        break;
+        case GRB_LED:
+          packConfig.ledCycCavType = 2;
+        break;
+        case GBR_LED:
+          packConfig.ledCycCavType = 3;
+        break;
+      }
 
       // Power Cell
       packConfig.ledPowercellCount = i_powercell_leds;
@@ -725,8 +747,25 @@ void checkSerial1() {
           i_inner_cyclotron_cake_num_leds = packConfig.ledCycCakeCount;
           i_spectral_cyclotron_inner_custom_colour = packConfig.ledCycCakeHue;
           i_spectral_cyclotron_inner_custom_saturation = packConfig.ledCycCakeSat;
-          b_grb_cyclotron_cake = (packConfig.ledCycCakeGRB == 1);
+          if(packConfig.ledCycCakeGRB == 1) {
+            CAKE_LED_TYPE = GRB_LED;
+          }
+          else {
+            CAKE_LED_TYPE = RGB_LED;
+          }
           i_inner_cyclotron_cavity_num_leds = packConfig.ledCycCavCount;
+          switch(packConfig.ledCycCavType) {
+            case 1:
+            default:
+              CAVITY_LED_TYPE = RGB_LED;
+            break;
+            case 2:
+              CAVITY_LED_TYPE = GRB_LED;
+            break;
+            case 3:
+              CAVITY_LED_TYPE = GBR_LED;
+            break;
+          }
 
           // Power Cell
           i_powercell_leds = packConfig.ledPowercellCount;
@@ -843,11 +882,16 @@ void doSerial1Sync() {
 
   // Synchronise the firing modes.
   switch(STREAM_MODE) {
-    case SLIME:
-      attenuatorSyncData.streamMode = 2;
+    case PROTON:
+    default:
+      attenuatorSyncData.streamMode = 1;
     break;
 
     case STASIS:
+      attenuatorSyncData.streamMode = 2;
+    break;
+
+    case SLIME:
       attenuatorSyncData.streamMode = 3;
     break;
 
@@ -859,17 +903,16 @@ void doSerial1Sync() {
       attenuatorSyncData.streamMode = 5;
     break;
 
-    case HOLIDAY:
-      attenuatorSyncData.streamMode = b_christmas ? 7 : 6;
+    case HOLIDAY_HALLOWEEN:
+      attenuatorSyncData.streamMode = 6;
+    break;
+
+    case HOLIDAY_CHRISTMAS:
+      attenuatorSyncData.streamMode = 7;
     break;
 
     case SPECTRAL_CUSTOM:
       attenuatorSyncData.streamMode = 8;
-    break;
-
-    case PROTON:
-    default:
-      attenuatorSyncData.streamMode = 1;
     break;
   }
 
@@ -994,7 +1037,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
         break;
         default:
           // Plays the alarm loop as heard on the wand.
-          stopSmashErrorSounds();
+          stopMashErrorSounds();
           playEffect(S_SMASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
         break;
       }
@@ -1332,12 +1375,17 @@ void doWandSync() {
 
   // Synchronise the firing mode.
   switch(STREAM_MODE) {
-    case SLIME:
-      wandSyncData.streamMode = 2; // 2 = Slime Mode.
+    case PROTON:
+    default:
+      wandSyncData.streamMode = 1; // 1 = Proton Mode.
     break;
 
     case STASIS:
-      wandSyncData.streamMode = 3; // 3 = Stasis Mode.
+      wandSyncData.streamMode = 2; // 2 = Stasis Mode.
+    break;
+
+    case SLIME:
+      wandSyncData.streamMode = 3; // 3 = Slime Mode.
     break;
 
     case MESON:
@@ -1348,17 +1396,16 @@ void doWandSync() {
       wandSyncData.streamMode = 5; // 5 = Spectral Mode
     break;
 
-    case HOLIDAY:
-      wandSyncData.streamMode = b_christmas ? 7 : 6; // 6 = Halloween, 7 = Christmas
+    case HOLIDAY_HALLOWEEN:
+      wandSyncData.streamMode = 6; // 6 = Halloween
+    break;
+
+    case HOLIDAY_CHRISTMAS:
+      wandSyncData.streamMode = 7; // 7 = Christmas
     break;
 
     case SPECTRAL_CUSTOM:
       wandSyncData.streamMode = 8; // 8 = Spectral Custom Mode.
-    break;
-
-    case PROTON:
-    default:
-      wandSyncData.streamMode = 1; // 1 = Proton Mode.
     break;
   }
 
@@ -1628,33 +1675,71 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_AFTERLIFE_GUN_RAMP_1:
-      stopEffect(S_AFTERLIFE_WAND_RAMP_1);
-      playEffect(S_AFTERLIFE_WAND_RAMP_1, false, i_volume_effects - i_wand_idle_level);
+      wandExtraSoundsStop();
+
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
+        playTransitionEffect(S_AFTERLIFE_WAND_RAMP_1, S_AFTERLIFE_WAND_IDLE_1, true, 5, i_volume_effects - i_wand_idle_level);
+      }
+      else {
+        stopEffect(S_AFTERLIFE_WAND_RAMP_1);
+        playEffect(S_AFTERLIFE_WAND_RAMP_1, false, i_volume_effects - i_wand_idle_level);
+      }
     break;
 
     case W_AFTERLIFE_GUN_RAMP_2:
-      stopEffect(S_AFTERLIFE_WAND_RAMP_2);
-      playEffect(S_AFTERLIFE_WAND_RAMP_2, false, i_volume_effects - i_wand_idle_level);
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
+        playTransitionEffect(S_AFTERLIFE_WAND_RAMP_2, S_AFTERLIFE_WAND_IDLE_2, true, 5, i_volume_effects - i_wand_idle_level);
+      }
+      else {
+        stopEffect(S_AFTERLIFE_WAND_RAMP_2);
+        playEffect(S_AFTERLIFE_WAND_RAMP_2, false, i_volume_effects - i_wand_idle_level);
+      }
+
+      stopEffect(S_AFTERLIFE_WAND_RAMP_1);
+      stopEffect(S_AFTERLIFE_WAND_IDLE_1);
+      stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
+      stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
+      stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
     break;
 
     case W_AFTERLIFE_GUN_RAMP_2_FADE_IN:
-      stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
-      playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, false, i_volume_effects - i_wand_idle_level);
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
+        playTransitionEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, S_AFTERLIFE_WAND_IDLE_2, true, 5, i_volume_effects - i_wand_idle_level);
+      }
+      else {
+        stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
+        playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, false, i_volume_effects - i_wand_idle_level);
+      }
+
+      stopEffect(S_AFTERLIFE_WAND_RAMP_1);
+      stopEffect(S_AFTERLIFE_WAND_IDLE_1);
+      stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
+      stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
+      stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
     break;
 
     case W_AFTERLIFE_GUN_LOOP_1:
-      stopEffect(S_AFTERLIFE_WAND_IDLE_1);
-      playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects - i_wand_idle_level);
+      if(AUDIO_DEVICE != A_GPSTAR_AUDIO_ADV) {
+        stopEffect(S_AFTERLIFE_WAND_IDLE_1);
+        playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects - i_wand_idle_level);
+      }
     break;
 
     case W_AFTERLIFE_GUN_LOOP_2:
-      stopEffect(S_AFTERLIFE_WAND_IDLE_2);
-      playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects - i_wand_idle_level);
+      if(AUDIO_DEVICE != A_GPSTAR_AUDIO_ADV) {
+        stopEffect(S_AFTERLIFE_WAND_IDLE_2);
+        playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects - i_wand_idle_level);
+      }
     break;
 
     case W_AFTERLIFE_GUN_RAMP_DOWN_2:
-      stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
-      playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, false, i_volume_effects - i_wand_idle_level);
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
+        playTransitionEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, S_AFTERLIFE_WAND_IDLE_1, true, 5, i_volume_effects - i_wand_idle_level);
+      }
+      else {
+        stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
+        playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, false, i_volume_effects - i_wand_idle_level);
+      }
     break;
 
     case W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT:
@@ -1743,7 +1828,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       startWandMashLockout(i_value);
     break;
 
-    case W_SMASH_ERROR_LOOP:
+    case W_MASH_ERROR_LOOP:
       // Begins a looping audio track while the wand is locked out.
       // Note: Command is only sent when extra pack sounds are used.
       switch(SYSTEM_YEAR) {
@@ -1752,19 +1837,19 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
         default:
           // Plays the alarm loop as heard on the wand.
-          stopSmashErrorSounds();
+          stopMashErrorSounds();
           playEffect(S_SMASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
         break;
       }
     break;
 
-    case W_SMASH_ERROR_RESTART:
+    case W_MASH_ERROR_RESTART:
       // Initiates a restart of the pack after a lockout.
       restartFromWandMash();
     break;
 
     case W_PROTON_MODE:
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && STREAM_MODE == MESON) {
+      if((AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) && STREAM_MODE == MESON) {
         // Tell GPStar Audio we no longer need short audio.
         audio.gpstarShortTrackOverload(true);
       }
@@ -1814,7 +1899,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_SLIME_MODE:
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && STREAM_MODE == MESON) {
+      if((AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) && STREAM_MODE == MESON) {
         // Tell GPStar Audio we no longer need short audio.
         audio.gpstarShortTrackOverload(true);
       }
@@ -1863,7 +1948,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_STASIS_MODE:
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && STREAM_MODE == MESON) {
+      if((AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) && STREAM_MODE == MESON) {
         // Tell GPStar Audio we no longer need short audio.
         audio.gpstarShortTrackOverload(true);
       }
@@ -1942,7 +2027,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         b_settings = false;
       }
 
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
+      if(AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
         // Tell GPStar Audio we need short audio mode.
         audio.gpstarShortTrackOverload(false);
       }
@@ -1965,7 +2050,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_SPECTRAL_MODE:
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && STREAM_MODE == MESON) {
+      if((AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) && STREAM_MODE == MESON) {
         // Tell GPStar Audio we no longer need short audio.
         audio.gpstarShortTrackOverload(true);
       }
@@ -1989,7 +2074,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         playEffect(S_FIRE_START_SPARK);
       }
 
-      // Proton mode.
+      // Spectral mode.
       STREAM_MODE = SPECTRAL;
 
       if(b_settings) {
@@ -2014,8 +2099,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       serial1Send(A_SPECTRAL_MODE);
     break;
 
-    case W_HOLIDAY_MODE:
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && STREAM_MODE == MESON) {
+    case W_HALLOWEEN_MODE:
+      if((AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) && STREAM_MODE == MESON) {
         // Tell GPStar Audio we no longer need short audio.
         audio.gpstarShortTrackOverload(true);
       }
@@ -2031,24 +2116,20 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         }
       }
 
-      if(PACK_STATE == MODE_ON && STREAM_MODE != HOLIDAY) {
+      if(PACK_STATE == MODE_ON && (STREAM_MODE != HOLIDAY_HALLOWEEN || STREAM_MODE != HOLIDAY_CHRISTMAS)) {
         stopEffect(S_PACK_SLIME_TANK_LOOP);
         stopEffect(S_STASIS_IDLE_LOOP);
         stopEffect(S_MESON_IDLE_LOOP);
 
-        playEffect(S_FIRE_START_SPARK);
+        playEffect(S_HALLOWEEN_MODE_VOICE);
       }
 
-      // Proton mode.
-      STREAM_MODE = HOLIDAY;
-      b_christmas = (i_value == 2);
+      // Set appropriate holiday mode.
+      STREAM_MODE = HOLIDAY_HALLOWEEN;
 
       if(b_settings) {
         playEffect(S_CLICK);
         b_settings = false;
-      }
-      else {
-        b_christmas ? playEffect(S_CHRISTMAS_MODE_VOICE) : playEffect(S_HALLOWEEN_MODE_VOICE);
       }
 
       if(b_cyclotron_colour_toggle == true) {
@@ -2065,11 +2146,61 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Update the Inner Cyclotron LEDs if required.
       cyclotronSwitchLEDUpdate();
 
-      serial1Send(A_HOLIDAY_MODE, i_value);
+      serial1Send(A_HALLOWEEN_MODE, i_value);
+    break;
+
+    case W_CHRISTMAS_MODE:
+      if((AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) && STREAM_MODE == MESON) {
+        // Tell GPStar Audio we no longer need short audio.
+        audio.gpstarShortTrackOverload(true);
+      }
+
+      // Returning from Slime mode, so we need to reset the Cyclotron again.
+      if(usingSlimeCyclotron()) {
+        resetCyclotronState();
+        clearCyclotronFades();
+
+        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
+          adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
+          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 100);
+        }
+      }
+
+      if(PACK_STATE == MODE_ON && (STREAM_MODE != HOLIDAY_HALLOWEEN || STREAM_MODE != HOLIDAY_CHRISTMAS)) {
+        stopEffect(S_PACK_SLIME_TANK_LOOP);
+        stopEffect(S_STASIS_IDLE_LOOP);
+        stopEffect(S_MESON_IDLE_LOOP);
+
+        playEffect(S_CHRISTMAS_MODE_VOICE);
+      }
+
+      // Set appropriate holiday mode.
+      STREAM_MODE = HOLIDAY_CHRISTMAS;
+
+      if(b_settings) {
+        playEffect(S_CLICK);
+        b_settings = false;
+      }
+
+      if(b_cyclotron_colour_toggle == true) {
+        // Reset the Cyclotron LED colours.
+        cyclotronColourReset();
+      }
+
+      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+        // Reset the Power Cell colours if the Power Cell is running.
+        b_powercell_updating = true;
+        powercellDraw();
+      }
+
+      // Update the Inner Cyclotron LEDs if required.
+      cyclotronSwitchLEDUpdate();
+
+      serial1Send(A_CHRISTMAS_MODE, i_value);
     break;
 
     case W_SPECTRAL_CUSTOM_MODE:
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO && STREAM_MODE == MESON) {
+      if((AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) && STREAM_MODE == MESON) {
         // Tell GPStar Audio we no longer need short audio.
         audio.gpstarShortTrackOverload(true);
       }
@@ -2093,7 +2224,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         playEffect(S_FIRE_START_SPARK);
       }
 
-      // Proton mode.
+      // Custom spectral mode.
       STREAM_MODE = SPECTRAL_CUSTOM;
 
       if(b_settings) {
@@ -2457,7 +2588,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Stop the impact sound timer.
       ms_firing_sound_mix.stop();
 
-      if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+      if(AUDIO_DEVICE == A_WAV_TRIGGER) {
         stopEffect(S_CROSS_STREAMS_START);
       }
       playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
@@ -2470,7 +2601,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Stop the impact sound timer.
       ms_firing_sound_mix.stop();
 
-      if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+      if(AUDIO_DEVICE == A_WAV_TRIGGER) {
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
       }
 
@@ -2484,7 +2615,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Stop the impact sound timer.
       ms_firing_sound_mix.stop();
 
-      if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+      if(AUDIO_DEVICE == A_WAV_TRIGGER) {
         stopEffect(S_CROSS_STREAMS_END);
         stopEffect(S_CROSS_STREAMS_START);
       }
@@ -2499,7 +2630,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Stop the impact sound timer.
       ms_firing_sound_mix.stop();
 
-      if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+      if(AUDIO_DEVICE == A_WAV_TRIGGER) {
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
       }
@@ -2516,7 +2647,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         ms_firing_sound_mix.start(random(7,15) * 1000);
       }
 
-      if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+      if(AUDIO_DEVICE == A_WAV_TRIGGER) {
         stopEffect(S_CROSS_STREAMS_START);
         stopEffect(S_CROSS_STREAMS_END);
       }
@@ -2533,7 +2664,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         ms_firing_sound_mix.start(random(7,15) * 1000);
       }
 
-      if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+      if(AUDIO_DEVICE == A_WAV_TRIGGER) {
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
         stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
       }
@@ -3921,14 +4052,14 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_RGB_INNER_CYCLOTRON);
       stopEffect(S_VOICE_GRB_INNER_CYCLOTRON);
 
-      if(b_grb_cyclotron_cake == true) {
-        b_grb_cyclotron_cake = false;
+      if(CAKE_LED_TYPE == GRB_LED) {
+        CAKE_LED_TYPE = RGB_LED;
         playEffect(S_VOICE_RGB_INNER_CYCLOTRON);
 
         packSerialSend(P_RGB_INNER_CYCLOTRON_LEDS);
       }
       else {
-        b_grb_cyclotron_cake = true;
+        CAKE_LED_TYPE = GRB_LED;
         playEffect(S_VOICE_GRB_INNER_CYCLOTRON);
 
         packSerialSend(P_GRB_INNER_CYCLOTRON_LEDS);
@@ -4181,18 +4312,40 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       resetContinuousSmoke();
     break;
 
-    case W_BARREL_LEDS_5:
+    case W_BARREL_LEDS_2:
+      stopEffect(S_VOICE_BARREL_LED_2);
       stopEffect(S_VOICE_BARREL_LED_5);
       stopEffect(S_VOICE_BARREL_LED_48);
+      stopEffect(S_VOICE_BARREL_LED_50);
+
+      playEffect(S_VOICE_BARREL_LED_2);
+    break;
+
+    case W_BARREL_LEDS_5:
+      stopEffect(S_VOICE_BARREL_LED_2);
+      stopEffect(S_VOICE_BARREL_LED_5);
+      stopEffect(S_VOICE_BARREL_LED_48);
+      stopEffect(S_VOICE_BARREL_LED_50);
 
       playEffect(S_VOICE_BARREL_LED_5);
     break;
 
     case W_BARREL_LEDS_48:
+      stopEffect(S_VOICE_BARREL_LED_2);
       stopEffect(S_VOICE_BARREL_LED_5);
       stopEffect(S_VOICE_BARREL_LED_48);
+      stopEffect(S_VOICE_BARREL_LED_50);
 
       playEffect(S_VOICE_BARREL_LED_48);
+    break;
+
+    case W_BARREL_LEDS_50:
+      stopEffect(S_VOICE_BARREL_LED_2);
+      stopEffect(S_VOICE_BARREL_LED_5);
+      stopEffect(S_VOICE_BARREL_LED_48);
+      stopEffect(S_VOICE_BARREL_LED_50);
+
+      playEffect(S_VOICE_BARREL_LED_50);
     break;
 
     case W_TOGGLE_POWERCELL_DIRECTION:
@@ -4214,6 +4367,20 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         playEffect(S_VOICE_POWERCELL_INVERTED);
         packSerialSend(P_POWERCELL_INVERTED);
       }
+    break;
+
+    case W_RGB_VENT_DISABLED:
+      stopEffect(S_VOICE_RGB_VENT_LIGHTS_ENABLED);
+      stopEffect(S_VOICE_RGB_VENT_LIGHTS_DISABLED);
+
+      playEffect(S_VOICE_RGB_VENT_LIGHTS_DISABLED);
+    break;
+
+    case W_RGB_VENT_ENABLED:
+      stopEffect(S_VOICE_RGB_VENT_LIGHTS_ENABLED);
+      stopEffect(S_VOICE_RGB_VENT_LIGHTS_DISABLED);
+
+      playEffect(S_VOICE_RGB_VENT_LIGHTS_ENABLED);
     break;
 
     case W_BARGRAPH_28_SEGMENTS:

@@ -1,6 +1,6 @@
 /**
  *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -85,6 +85,7 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t ledCycCakeSat;
   uint8_t ledCycCakeGRB;
   uint8_t ledCycCavCount;
+  uint8_t ledCycCavType;
   uint8_t ledVGCyclotron;
   uint8_t ledPowercellCount;
   uint8_t ledInvertPowercell;
@@ -97,6 +98,7 @@ struct __attribute__((packed)) WandPrefs {
   uint8_t ledWandCount;
   uint8_t ledWandHue;
   uint8_t ledWandSat;
+  uint8_t rgbVentEnabled;
   uint8_t spectralModesEnabled;
   uint8_t overheatEnabled;
   uint8_t defaultFiringMode;
@@ -394,10 +396,10 @@ bool checkPack() {
               STREAM_MODE = PROTON;
             break;
             case 2:
-              STREAM_MODE = SLIME;
+              STREAM_MODE = STASIS;
             break;
             case 3:
-              STREAM_MODE = STASIS;
+              STREAM_MODE = SLIME;
             break;
             case 4:
               STREAM_MODE = MESON;
@@ -406,12 +408,10 @@ bool checkPack() {
               STREAM_MODE = SPECTRAL;
             break;
             case 6:
-              STREAM_MODE = HOLIDAY;
-              b_christmas = false;
+              STREAM_MODE = HOLIDAY_HALLOWEEN;
             break;
             case 7:
-              STREAM_MODE = HOLIDAY;
-              b_christmas = true;
+              STREAM_MODE = HOLIDAY_CHRISTMAS;
             break;
             case 8:
               STREAM_MODE = SPECTRAL_CUSTOM;
@@ -720,17 +720,17 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       b_state_changed = true;
     break;
 
-    case A_SLIME_MODE:
-      debug("Slime");
-
-      STREAM_MODE = SLIME;
-      b_state_changed = true;
-    break;
-
     case A_STASIS_MODE:
       debug("Stasis");
 
       STREAM_MODE = STASIS;
+      b_state_changed = true;
+    break;
+
+    case A_SLIME_MODE:
+      debug("Slime");
+
+      STREAM_MODE = SLIME;
       b_state_changed = true;
     break;
 
@@ -748,11 +748,17 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       b_state_changed = true;
     break;
 
-    case A_HOLIDAY_MODE:
-      debug("Spectral Holiday");
+    case A_HALLOWEEN_MODE:
+      debug("Holiday: Halloween");
 
-      STREAM_MODE = HOLIDAY;
-      b_christmas = (i_value == 2);
+      STREAM_MODE = HOLIDAY_HALLOWEEN;
+      b_state_changed = true;
+    break;
+
+    case A_CHRISTMAS_MODE:
+      debug("Holiday: Christmas");
+
+      STREAM_MODE = HOLIDAY_CHRISTMAS;
       b_state_changed = true;
     break;
 

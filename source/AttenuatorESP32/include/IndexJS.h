@@ -1,6 +1,6 @@
 /**
  *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -50,18 +50,6 @@ function openTab(evt, tabName) {
   // Show the current tab and add an "active" class to the button that opened the tab
   showEl(tabName);
   evt.currentTarget.className += " active";
-}
-
-function colorEl(id, red, green, blue, alpha = 0.5){
-  getEl(id).style.backgroundColor = "rgba(" + red + ", " + green + ", " + blue + ", " + alpha + ")";
-}
-
-function blinkEl(id, state) {
-  if(state) {
-    getEl(id).classList.add("blinking");
-  } else {
-    getEl(id).classList.remove("blinking");
-  }
 }
 
 function initWebSocket() {
@@ -539,7 +527,7 @@ function getDevicePrefs() {
       }
     }
   };
-  xhttp.open("GET", "/config/attenuator", true);
+  xhttp.open("GET", "/config/device", true);
   xhttp.send();
 }
 

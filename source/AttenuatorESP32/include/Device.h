@@ -1,6 +1,6 @@
 /**
  *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -28,7 +28,8 @@ const char DEVICE_page[] PROGMEM = R"=====(
   <meta http-equiv="Cache-control" content="public">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Device Preferences</title>
-  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+  <link rel="shortcut icon" href="/favicon.ico"/>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -141,6 +142,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
           var settings = JSON.parse(this.responseText);
           if (settings) {
             // Update fields with the current values, or supply an expected default as necessary.
+            setValue("wifiName", settings.wifiName || "");
             setToggle("invertLEDs", settings.invertLEDs);
             setToggle("buzzer", settings.buzzer);
             setToggle("vibration", settings.vibration);
@@ -149,12 +151,11 @@ const char DEVICE_page[] PROGMEM = R"=====(
             setValue("radLensIdle", settings.radLensIdle || 0); // Default: 0 [Amber Pulse]
             setValue("displayType", settings.displayType || 0); // Default: 0 [Text]
             setValue("songList", settings.songList || "");
-            setValue("wifiName", settings.wifiName || "");
             updateByteCount();
           }
         }
       };
-      xhttp.open("GET", "/config/attenuator", true);
+      xhttp.open("GET", "/config/device", true);
       xhttp.send();
     }
 
@@ -213,7 +214,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
           }
         }
       };
-      xhttp.open("PUT", "/config/attenuator/save", true);
+      xhttp.open("PUT", "/config/device/save", true);
       xhttp.setRequestHeader("Content-Type", "application/json");
       xhttp.send(body);
     }

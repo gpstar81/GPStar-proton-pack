@@ -4,13 +4,17 @@ These are *OPTIONAL* add-on additions for use within the Proton Pack.
 
 ## Cyclotron Lid Lights (Optional)
 
-The stock lights in the HasLab pack only supplies 12 addressable LEDs which are red-only. If you wish to be able to change the colors of these lights you will need to replace them with an addressable LED ring or custom LEDs such as those made by Frutto Technology as a [20-LED (4x 5-LED)](https://fruttotechnology.com/ols/products/cyclotron-5-leds-kit) or [36-LED (4x 9-LED)](https://fruttotechnology.com/ols/products/cyclotron-5-leds-kit-cyc-5-lds-kit1) option.
+The stock lights in the HasLab pack only supplies 12 addressable LEDs which are red-only. If you wish to be able to change the colours of these lights you will need to replace them with an addressable LED ring, [GPStar Cyclotron LEDs](https://gpstartechnologies.com/products/gpstar-cyclotron) or those made by Frutto Technology such as the [20-LED (4x 5-LED)](https://fruttotechnology.com/ols/products/cyclotron-5-leds-kit) or [36-LED (4x 9-LED)](https://fruttotechnology.com/ols/products/cyclotron-5-leds-kit-cyc-5-lds-kit1) option.
 
 Regardless of solution you will need to split apart the Cyclotron Lid which is secured at 6 locations around the lid. Gently prying under the plastic near the N-Filter on the inside of the lid will be the first screw posts cold-welded to the lid. A firm but slow twist should break the bond and begin to separate the halves. To re-secure, the best option is to drill through the center of each obvious cold weld on the inner lid and use small screws to attach the halves back together.
 
-## Frutto Technology Cyclotron Lid Lights
+## Haslab Proton Pack Hookup Guide
+![](images/GPStar-Cyclotron-Hookup.jpg)
 
-### Installation Guide Video
+## DIY and Spirit Packs Hookup Guide
+![](images/GPStar-Cyclotron-Bypass-Hookup.jpg)
+
+## Installation Guide Video
 
 [GPStar Proton Pack & Neutrona Wand Cyclotron Lights Installation Video](https://www.youtube.com/watch?v=A5eP50iO5qc) (YouTube)
 [![GPStar Proton Pack & Neutrona Wand Cyclotron Lights Installation Video](https://img.youtube.com/vi/A5eP50iO5qc/maxresdefault.jpg)](https://www.youtube.com/watch?v=A5eP50iO5qc)

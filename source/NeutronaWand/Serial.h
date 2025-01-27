@@ -1,6 +1,6 @@
 /**
  *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -56,6 +56,7 @@ struct __attribute__((packed)) WandPrefs {
   uint8_t ledWandCount;
   uint8_t ledWandHue;
   uint8_t ledWandSat;
+  uint8_t rgbVentEnabled;
   uint8_t spectralModesEnabled;
   uint8_t overheatEnabled;
   uint8_t defaultFiringMode;
@@ -176,8 +177,17 @@ void wandSerialSendData(uint8_t i_message) {
         default:
           wandConfig.ledWandCount = 0;
         break;
+
         case LEDS_48:
           wandConfig.ledWandCount = 1;
+        break;
+
+        case LEDS_50:
+          wandConfig.ledWandCount = 2;
+        break;
+
+        case LEDS_2:
+          wandConfig.ledWandCount = 3;
         break;
       }
 
@@ -349,7 +359,7 @@ void checkPack() {
               ms_handshake.start(i_heartbeat_delay);
 
               // Turn off the sync indicator LED as the sync is completed.
-              digitalWriteFast(TOP_LED_PIN, HIGH);
+              ventLedTopControl(false);
               digitalWriteFast(WAND_STATUS_LED_PIN, LOW);
 
               // Indicate that a pack is now connected.
@@ -363,7 +373,7 @@ void checkPack() {
             b_pack_on = true; // Pretend that the pack (not really attached) has been powered on.
 
             // Turn off the sync indicator LED as it is no longer necessary.
-            digitalWriteFast(TOP_LED_PIN, HIGH);
+            ventLedTopControl(false);
             digitalWriteFast(WAND_STATUS_LED_PIN, LOW);
 
             // Reset the audio device now that we are in standalone mode and need music playback.
@@ -425,11 +435,22 @@ void checkPack() {
             case 0:
             default:
               WAND_BARREL_LED_COUNT = LEDS_5;
-              i_num_barrel_leds = 5;
+              i_num_barrel_leds = 5; // Stock count for Haslab equipment.
             break;
+
             case 1:
               WAND_BARREL_LED_COUNT = LEDS_48;
-              i_num_barrel_leds = 48;
+              i_num_barrel_leds = 48; // Total count is 49, with 1 for the tip.
+            break;
+
+            case 2:
+              WAND_BARREL_LED_COUNT = LEDS_50;
+              i_num_barrel_leds = 48; // Total count is 50, with 2 for the tip.
+            break;
+
+            case 3:
+              WAND_BARREL_LED_COUNT = LEDS_2;
+              i_num_barrel_leds = 2; // Device is tip-only.
             break;
           }
 
@@ -631,26 +652,7 @@ void checkPack() {
           vgModeCheck(); // Re-check VG/CTS mode.
 
           // Set whether the switch under the ion arm is on or off.
-          switch(wandSyncData.ionArmSwitch) {
-            case 1:
-            default:
-              b_pack_ion_arm_switch_on = false;
-
-              // If the ion arm switch is turned off in MODE_ORIGINAL, start the power indicator timer.
-              if(SYSTEM_MODE == MODE_ORIGINAL && b_power_on_indicator) {
-                ms_power_indicator.start(i_ms_power_indicator);
-              }
-            break;
-            case 2:
-              b_pack_ion_arm_switch_on = true;
-
-              // If the ion arm switch is on in MODE_ORIGINAL, we do not need a power indicator.
-              if(SYSTEM_MODE == MODE_ORIGINAL && b_power_on_indicator) {
-                ms_power_indicator.stop();
-                ms_power_indicator_blink.stop();
-              }
-            break;
-          }
+          changeIonArmSwitchState(wandSyncData.ionArmSwitch == 2);
 
           // Update the System Year setting.
           switch(wandSyncData.systemYear) {
@@ -723,7 +725,7 @@ void checkPack() {
             case 4:
               STREAM_MODE = MESON;
 
-              if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
+              if(AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
                 // Tell GPStar Audio we need short audio mode.
                 audio.gpstarShortTrackOverload(false);
               }
@@ -735,13 +737,11 @@ void checkPack() {
               setVGMode();
             break;
             case 6:
-              STREAM_MODE = HOLIDAY;
-              b_christmas = false; // Halloween mode.
+              STREAM_MODE = HOLIDAY_HALLOWEEN;
               setVGMode();
             break;
             case 7:
-              STREAM_MODE = HOLIDAY;
-              b_christmas = true; // Christmas mode.
+              STREAM_MODE = HOLIDAY_CHRISTMAS;
               setVGMode();
             break;
             case 8:
@@ -952,29 +952,24 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
     case P_MANUAL_OVERHEAT:
       if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-        if(b_pack_on == true && b_pack_alarm != true && b_overheat_enabled == true) {
+        if(b_pack_on && !b_pack_alarm && b_overheat_enabled) {
           switch(getNeutronaWandYearMode()) {
             case SYSTEM_1984:
             case SYSTEM_1989:
-              if(b_extra_pack_sounds == true) {
+              if(b_extra_pack_sounds) {
                 wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
-                wandSerialSend(W_WAND_SHUTDOWN_SOUND);
               }
             break;
 
             case SYSTEM_AFTERLIFE:
             case SYSTEM_FROZEN_EMPIRE:
             default:
-                stopEffect(S_WAND_SHUTDOWN);
-                playEffect(S_WAND_SHUTDOWN);
-
-              if(switch_vent.on() == false) {
-                stopAfterLifeSounds();
+              if(!b_sound_idle) {
+                stopAfterlifeSounds();
                 playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
 
-                if(b_extra_pack_sounds == true) {
+                if(b_extra_pack_sounds) {
                   wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
-                  wandSerialSend(W_WAND_SHUTDOWN_SOUND);
                   wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
                 }
               }
@@ -1008,9 +1003,40 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       // Alarm is on.
       b_pack_alarm = true;
 
-      if(WAND_STATUS != MODE_ERROR) {
+      if(WAND_STATUS != MODE_ERROR && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
         if(WAND_STATUS == MODE_ON) {
-          prepBargraphRampDown();
+          if(b_extra_pack_sounds) {
+            wandSerialSend(W_WAND_SHUTDOWN_SOUND);
+            wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+          }
+
+          stopEffect(S_WAND_SHUTDOWN);
+          playEffect(S_WAND_SHUTDOWN);
+
+          switch(getNeutronaWandYearMode()) {
+            case SYSTEM_1984:
+            case SYSTEM_1989:
+              // Do nothing.
+            break;
+
+            case SYSTEM_AFTERLIFE:
+            case SYSTEM_FROZEN_EMPIRE:
+            default:
+              if(!b_sound_idle) {
+                stopAfterlifeSounds();
+                playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
+
+                if(b_extra_pack_sounds) {
+                  wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
+                }
+              }
+            break;
+          }
+
+          if(!b_firing) {
+            // This is handled by modeFireStop() if firing when ribbon cable is removed.
+            prepBargraphRampDown();
+          }
 
           if(WAND_ACTION_STATUS == ACTION_SETTINGS) {
             // If the wand is in settings mode while the alarm is activated, exit the settings mode.
@@ -1035,9 +1061,14 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
                 wandSerialSend(W_SPECTRAL_MODE);
               break;
 
-              case HOLIDAY:
-                // Tell the pack we are in holiday mode.
-                wandSerialSend(W_HOLIDAY_MODE, b_christmas ? 2 : 1);
+              case HOLIDAY_HALLOWEEN:
+                // Tell the pack we are in Halloween mode.
+                wandSerialSend(W_HALLOWEEN_MODE);
+              break;
+
+              case HOLIDAY_CHRISTMAS:
+                // Tell the pack we are in Christmas mode.
+                wandSerialSend(W_CHRISTMAS_MODE);
               break;
 
               case SPECTRAL_CUSTOM:
@@ -1057,33 +1088,6 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
         }
 
         ms_error_blink.start(i_error_blink_delay); // Start the error blink timer.
-      }
-
-      if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-        switch(getNeutronaWandYearMode()) {
-          case SYSTEM_1984:
-          case SYSTEM_1989:
-            // Do nothing.
-          break;
-
-          case SYSTEM_AFTERLIFE:
-          case SYSTEM_FROZEN_EMPIRE:
-          default:
-            if(switch_vent.on() == false) {
-              stopAfterLifeSounds();
-            }
-
-            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
-          break;
-        }
-
-        if(b_extra_pack_sounds == true) {
-          wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
-          wandSerialSend(W_WAND_SHUTDOWN_SOUND);
-        }
-
-        stopEffect(S_WAND_SHUTDOWN);
-        playEffect(S_WAND_SHUTDOWN);
       }
     break;
 

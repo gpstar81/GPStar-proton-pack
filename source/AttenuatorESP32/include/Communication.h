@@ -1,6 +1,6 @@
 /**
  *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -48,11 +48,12 @@ enum api_messages : uint8_t {
   A_SYSTEM_LOCKOUT,
   A_CANCEL_LOCKOUT,
   A_PROTON_MODE,
-  A_SLIME_MODE,
   A_STASIS_MODE,
+  A_SLIME_MODE,
   A_MESON_MODE,
   A_SPECTRAL_MODE,
-  A_HOLIDAY_MODE,
+  A_HALLOWEEN_MODE,
+  A_CHRISTMAS_MODE,
   A_SPECTRAL_CUSTOM_MODE,
   A_SETTINGS_MODE,
   A_VENTING,

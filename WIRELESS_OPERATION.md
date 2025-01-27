@@ -255,8 +255,8 @@ The following URI's are API endpoints available for managing actions within your
 	PUT /wifi/update - Save new/modified external WiFi settings
 		Body: Send same JSON body as returned by /wifi/settings
 
-	GET /config/attenuator - Obtain the current attenuator device settings
-	PUT /config/attenuator/save - Saves attenuator settings
+	GET /config/device - Obtain the current (local) device settings
+	PUT /config/device/save - Saves attenuator settings
 		Body: Send same JSON body as returned by /config/pack
 
 	GET /config/pack - Obtain the current pack equipment settings

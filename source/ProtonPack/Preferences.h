@@ -1,6 +1,6 @@
 /**
  *   GPStar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -65,6 +65,7 @@ struct objLEDEEPROM {
   uint8_t cyclotron_spectral_saturation_custom;
   uint8_t cyclotron_inner_spectral_saturation_custom;
   uint8_t cyclotron_cavity_count;
+  uint8_t cyclotron_cavity_type;
   uint8_t inner_cyclotron_led_panel;
   uint8_t powercell_inverted;
 };
@@ -154,22 +155,34 @@ void readEEPROM() {
 
       switch(i_inner_cyclotron_cake_num_leds) {
         case 12:
-          i_2021_inner_delay = 12;
-          i_1984_inner_delay = 15;
+          i_1984_inner_delay = INNER_CYCLOTRON_DELAY_1984_12_LED;
+          i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_12_LED;
         break;
 
         case 23:
+          i_1984_inner_delay = INNER_CYCLOTRON_DELAY_1984_23_LED;
+          i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_23_LED;
+        break;
+
         case 24:
+          i_1984_inner_delay = INNER_CYCLOTRON_DELAY_1984_24_LED;
+          i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_24_LED;
+        break;
+
         case 26:
-          i_2021_inner_delay = 8;
-          i_1984_inner_delay = 12;
+          i_1984_inner_delay = INNER_CYCLOTRON_DELAY_1984_26_LED;
+          i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_26_LED;
         break;
 
         case 35:
+          i_1984_inner_delay = INNER_CYCLOTRON_DELAY_1984_35_LED;
+          i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_35_LED;
+        break;
+
         case 36:
         default:
-          i_2021_inner_delay = 5;
-          i_1984_inner_delay = 9;
+          i_1984_inner_delay = INNER_CYCLOTRON_DELAY_1984_36_LED;
+          i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_36_LED;
         break;
       }
     }
@@ -180,6 +193,26 @@ void readEEPROM() {
       }
       else {
         i_inner_cyclotron_cavity_num_leds = obj_eeprom.cyclotron_cavity_count;
+      }
+    }
+
+    if(obj_eeprom.cyclotron_cavity_type > 0 && obj_eeprom.cyclotron_cavity_type != 255) {
+      if(obj_eeprom.cyclotron_cavity_type > 1) {
+        // 2 = RGB, 3 = GRB, 4 = GBR.
+        switch(obj_eeprom.cyclotron_cavity_type) {
+          case 2:
+          default:
+            CAVITY_LED_TYPE = RGB_LED;
+          break;
+
+          case 3:
+            CAVITY_LED_TYPE = GRB_LED;
+          break;
+
+          case 4:
+            CAVITY_LED_TYPE = GBR_LED;
+          break;
+        }
       }
     }
 
@@ -214,10 +247,10 @@ void readEEPROM() {
 
     if(obj_eeprom.grb_inner_cyclotron > 0 && obj_eeprom.grb_inner_cyclotron != 255) {
       if(obj_eeprom.grb_inner_cyclotron > 1) {
-        b_grb_cyclotron_cake = true;
+        CAKE_LED_TYPE = GRB_LED;
       }
       else {
-        b_grb_cyclotron_cake = false;
+        CAKE_LED_TYPE = RGB_LED;
       }
     }
 
@@ -540,14 +573,29 @@ void saveLEDEEPROM() {
   // Power Cell LEDs
   // Cyclotron LEDs
   // Inner Cyclotron LEDs
-  // GRB / RGB Inner Cyclotron toggle flag
   // Inner Cyclotron LED Panel toggle flag
-  // Power Cell inverted toggle flag.
 
+  // GRB / RGB Inner Cyclotron toggle flag
   uint8_t i_grb_cyclotron_cake = 1;
-
-  if(b_grb_cyclotron_cake == true) {
+  if(CAKE_LED_TYPE == GRB_LED) {
     i_grb_cyclotron_cake = 2;
+  }
+
+  // 2 = RGB, 3 = GRB, 4 = GBR.
+  uint8_t i_inner_cyclotron_cavity_led_type = 2;
+  switch(CAVITY_LED_TYPE) {
+    case RGB_LED:
+    default:
+      i_inner_cyclotron_cavity_led_type = 2;
+    break;
+
+    case GRB_LED:
+      i_inner_cyclotron_cavity_led_type = 3;
+    break;
+
+    case GBR_LED:
+      i_inner_cyclotron_cavity_led_type = 4;
+    break;
   }
 
   // 2 = Individual, 3 = RGB Static, 4 = RGB Dynamic.
@@ -567,9 +615,9 @@ void saveLEDEEPROM() {
     break;
   }
 
+  // Power Cell inverted toggle flag.
   uint8_t i_powercell_inverted = 1;
-
-  if(b_powercell_invert == true) {
+  if(b_powercell_invert) {
     i_powercell_inverted = 2;
   }
 
@@ -586,6 +634,7 @@ void saveLEDEEPROM() {
     i_spectral_cyclotron_custom_saturation,
     i_spectral_cyclotron_inner_custom_saturation,
     i_inner_cyclotron_cavity_num_leds,
+    i_inner_cyclotron_cavity_led_type,
     i_inner_cyclotron_led_panel,
     i_powercell_inverted
   };
@@ -646,35 +695,35 @@ void saveConfigEEPROM() {
 
   uint8_t i_pack_vibration = 4; // 1 = always, 2 = when firing, 3 = off, 4 = default.
 
-  if(b_stream_effects != true) {
+  if(!b_stream_effects) {
     i_proton_stream_effects = 1;
   }
 
-  if(b_clockwise != true) {
+  if(!b_clockwise) {
     i_cyclotron_direction = 1;
   }
 
-  if(b_fade_cyclotron_led != true) {
+  if(!b_fade_cyclotron_led) {
     i_center_led_fade = 1;
   }
 
-  if(b_cyclotron_simulate_ring != true) {
+  if(!b_cyclotron_simulate_ring) {
     i_simulate_ring = 1;
   }
 
-  if(b_smoke_enabled != true) {
+  if(!b_smoke_enabled) {
     i_smoke_settings = 1;
   }
 
-  if(b_overheat_strobe != true) {
+  if(!b_overheat_strobe) {
     i_overheat_strobe = 1;
   }
 
-  if(b_overheat_lights_off != true) {
+  if(!b_overheat_lights_off) {
     i_overheat_lights_off = 1;
   }
 
-  if(b_overheat_sync_to_fan != true) {
+  if(!b_overheat_sync_to_fan) {
     i_overheat_sync_to_fan = 1;
   }
 
@@ -682,23 +731,23 @@ void saveConfigEEPROM() {
     i_system_mode = 2;
   }
 
-  if(b_powercell_colour_toggle == true) {
+  if(b_powercell_colour_toggle) {
     i_vg_powercell = 2;
   }
 
-  if(b_cyclotron_colour_toggle == true) {
+  if(b_cyclotron_colour_toggle) {
     i_vg_cyclotron = 2;
   }
 
-  if(b_demo_light_mode == true) {
+  if(b_demo_light_mode) {
     i_demo_light_mode = 2;
   }
 
-  if(b_use_ribbon_cable == true) {
+  if(b_use_ribbon_cable) {
     i_use_ribbon_cable = 2;
   }
 
-  if(b_cyclotron_single_led != true) {
+  if(!b_cyclotron_single_led) {
     i_cyclotron_three_led_toggle = 2;
   }
 
@@ -707,23 +756,23 @@ void saveConfigEEPROM() {
     i_default_system_volume = i_eeprom_volume_master_percentage + 1;
   }
 
-  if(b_smoke_continuous_level_5 == true) {
+  if(b_smoke_continuous_level_5) {
     i_smoke_continuous_level_5 = 2;
   }
 
-  if(b_smoke_continuous_level_4 == true) {
+  if(b_smoke_continuous_level_4) {
     i_smoke_continuous_level_4 = 2;
   }
 
-  if(b_smoke_continuous_level_3 == true) {
+  if(b_smoke_continuous_level_3) {
     i_smoke_continuous_level_3 = 2;
   }
 
-  if(b_smoke_continuous_level_2 == true) {
+  if(b_smoke_continuous_level_2) {
     i_smoke_continuous_level_2 = 2;
   }
 
-  if(b_smoke_continuous_level_1 == true) {
+  if(b_smoke_continuous_level_1) {
     i_smoke_continuous_level_1 = 2;
   }
 

@@ -1,6 +1,6 @@
 /**
  *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -88,6 +88,11 @@ const bool b_onboard_amp_enabled = true;
  * When set to true, the bargraph will invert the sequence.
  */
 bool b_bargraph_invert = false;
+
+/*
+ * Enables the optional addressable RGB vent/top light board.
+ */
+bool b_rgb_vent_light = false;
 
 /*
  * Enables special brightness controls during idle and firing modes if set to true.

@@ -1,6 +1,6 @@
 /**
  *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -80,6 +80,12 @@ void setup() {
 
   // Barrel LEDs - NOTE: These are GRB not RGB so note that all CRGB objects will have R/G swapped.
   FastLED.addLeds<NEOPIXEL, BARREL_LED_PIN>(barrel_leds, BARREL_LEDS_MAX);
+
+  // RGB Vent Light.
+  FastLED.addLeds<NEOPIXEL, TOP_LED_PIN>(vent_leds, VENT_LEDS_MAX);
+  vent_leds[0] = getHueAsRGB(C_WHITE); // Set vent light array to white for initial reset.
+  vent_leds[1] = getHueAsRGB(C_WHITE); // Set top light array to white for initial reset.
+  ms_vent_light.start(i_vent_light_update_interval); // Setup a timer for updating the vent light.
 
   // Setup default system settings.
   SYSTEM_MODE = MODE_SUPER_HERO;
@@ -218,8 +224,8 @@ void loop() {
         // If not already doing so, explicitly tell the pack a wand is here to sync.
         wandSerialSend(W_SYNC_NOW);
         ms_packsync.start(i_sync_initial_delay); // Prepare for the next sync attempt.
-        digitalWriteFast(TOP_LED_PIN, (digitalReadFast(TOP_LED_PIN) == LOW) ? HIGH : LOW); // Blink an LED.
-        digitalWriteFast(WAND_STATUS_LED_PIN, (digitalReadFast(WAND_STATUS_LED_PIN) == LOW) ? HIGH : LOW); // Blink the onboard LED on the Neutrona Wand board.
+        //digitalWriteFast(TOP_LED_PIN, (digitalReadFast(TOP_LED_PIN) == LOW) ? HIGH : LOW); // Blink an LED.
+        //digitalWriteFast(WAND_STATUS_LED_PIN, (digitalReadFast(WAND_STATUS_LED_PIN) == LOW) ? HIGH : LOW); // Blink the onboard LED on the Neutrona Wand board.
       }
 
       checkPack(); // Check for any response from the pack while still waiting.
@@ -259,18 +265,11 @@ void mainLoop() {
   checkMenuVibration();
 
   if(WAND_ACTION_STATUS != ACTION_FIRING) {
-    if(b_wand_mash_error && ms_bmash.remaining() < ms_bmash.delay() / 3) {
-      // Turn off top vent (if on) when less than a third of the timer remains.
-      if(digitalReadFast(VENT_LED_PIN == LOW)) {
-        digitalWrite(VENT_LED_PIN, HIGH);
-      }
-    }
-
     if(ms_bmash.remaining() < 1) {
       // Clear counter until user begins firing (post any lock-out period).
       i_bmash_count = 0;
 
-      if(b_wand_mash_error == true) {
+      if(b_wand_mash_error) {
         // Return the wand to a normal firing state after lock-out from button mashing.
         WAND_STATUS = MODE_ON;
         WAND_ACTION_STATUS = ACTION_IDLE;
@@ -283,7 +282,7 @@ void mainLoop() {
         stopEffect(S_SMASH_ERROR_LOOP);
         playEffect(S_SMASH_ERROR_RESTART);
 
-        wandSerialSend(W_SMASH_ERROR_RESTART);
+        wandSerialSend(W_MASH_ERROR_RESTART);
 
         bargraphClearAlt();
       }
@@ -391,49 +390,8 @@ void mainLoop() {
         }
       }
 
-      // If the power indicator is enabled. Blink the LED on the Neutrona Wand body next to the clippard valve to indicator the system has battery power.
-      if(b_power_on_indicator == true && WAND_ACTION_STATUS == ACTION_IDLE && (b_pack_on != true || b_gpstar_benchtest == true)) {
-        if(ms_power_indicator.isRunning() == true && ms_power_indicator.remaining() < 1) {
-          if(ms_power_indicator_blink.isRunning() != true || ms_power_indicator_blink.justFinished()) {
-            ms_power_indicator_blink.start(i_ms_power_indicator_blink);
-          }
-
-          switch(SYSTEM_MODE) {
-            case MODE_ORIGINAL:
-              if(b_pack_ion_arm_switch_on != true) {
-                if(ms_power_indicator_blink.remaining() < i_ms_power_indicator_blink / 2) {
-                  digitalWriteFast(CLIPPARD_LED_PIN, LOW);
-                }
-                else {
-                  digitalWriteFast(CLIPPARD_LED_PIN, HIGH);
-                }
-              }
-              else {
-                // When the top right wand switch is off, then we make sure the led is off as the Slo-Blo LED will be on or blinking at this point.
-                if(switch_wand.on() == false) {
-                  digitalWriteFast(CLIPPARD_LED_PIN, LOW);
-                }
-              }
-              break;
-
-            case MODE_SUPER_HERO:
-            default:
-              if(ms_power_indicator_blink.remaining() < i_ms_power_indicator_blink / 2) {
-                digitalWriteFast(CLIPPARD_LED_PIN, LOW);
-              }
-              else {
-                digitalWriteFast(CLIPPARD_LED_PIN, HIGH);
-              }
-            break;
-          }
-        }
-        else {
-          if(SYSTEM_MODE == MODE_SUPER_HERO) {
-            // MODE_ORIGINAL has unique control over the Clippard LED, so only turn off if in MODE_SUPER_HERO.
-            digitalWriteFast(CLIPPARD_LED_PIN, LOW);
-          }
-        }
-      }
+      // Check to see if we should be blinking the power-on reminder LED.
+      checkPowerOnReminder();
     break;
 
     case MODE_ERROR:
@@ -472,7 +430,7 @@ void mainLoop() {
 
     case MODE_ON:
       // Hat light 2 blinking when the Proton Pack ribbon cable has been removed.
-      if(b_pack_alarm == true) {
+      if(b_pack_alarm) {
         if(ms_error_blink.justFinished()) {
           ms_error_blink.start(i_error_blink_delay);
         }
@@ -487,18 +445,19 @@ void mainLoop() {
         if(ms_bargraph.justFinished()) {
           bargraphRampUp();
         }
-        else if(ms_bargraph.isRunning() == false && WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+        else if(!ms_bargraph.isRunning() && WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           // Bargraph idling loop.
           bargraphPowerCheck();
         }
 
         if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
-          if(ms_gun_loop_1.justFinished() && switch_vent.on() == false) {
-            playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects);
-            b_sound_afterlife_idle_2_fade = false;
-
-            if(b_extra_pack_sounds == true) {
+          if(ms_gun_loop_1.justFinished() && !switch_vent.on()) {
+            if(b_extra_pack_sounds) {
               wandSerialSend(W_AFTERLIFE_GUN_LOOP_1);
+            }
+
+            if(AUDIO_DEVICE != A_GPSTAR_AUDIO_ADV) {
+              playEffect(S_AFTERLIFE_WAND_IDLE_1, true);
             }
           }
         }
@@ -506,13 +465,9 @@ void mainLoop() {
 
       // Top white light.
       if(ms_white_light.justFinished()) {
+        vent_leds[1] ? ventLedTopControl(false) : ventLedTopControl(true);
+
         ms_white_light.repeat();
-        if(digitalReadFast(TOP_LED_PIN) == LOW) {
-          digitalWriteFast(TOP_LED_PIN, HIGH);
-        }
-        else {
-          digitalWriteFast(TOP_LED_PIN, LOW);
-        }
       }
 
       wandBarrelHeatUp();
@@ -547,8 +502,24 @@ void mainLoop() {
 
   // Update the barrel LEDs and restart the timer.
   if(ms_fast_led.justFinished()) {
-    FastLED.show();
+    //FastLED.show();
+    FastLED[0].showLeds(255);
     ms_fast_led.start(i_fast_led_delay);
+  }
+
+  // Update the vent/top LEDs and restart the timer.
+  if(ms_vent_light.justFinished()) {
+    // Only send an update if we actually made a change.
+    if(b_vent_lights_changed) {
+      if(b_rgb_vent_light) {
+        // Only commit an update if the addressable LED panel is installed.
+        FastLED[1].showLeds(255);
+      }
+
+      b_vent_lights_changed = false;
+    }
+
+    ms_vent_light.repeat();
   }
 }
 
@@ -618,6 +589,7 @@ bool vgModeCheck() {
 void wandTipOn() {
   switch(WAND_BARREL_LED_COUNT) {
     case LEDS_48:
+    case LEDS_50:
     {
       // Initialize temporary colour variable to reduce code complexity.
       colours c_temp = C_WHITE;
@@ -661,7 +633,13 @@ void wandTipOn() {
         }
       }
 
-      barrel_leds[12] = getHueColour(c_temp, WAND_BARREL_LED_COUNT);
+      if(WAND_BARREL_LED_COUNT == LEDS_48) {
+        barrel_leds[12] = getHueColour(c_temp, WAND_BARREL_LED_COUNT);
+      }
+      else if(WAND_BARREL_LED_COUNT == LEDS_50) {
+        barrel_leds[36] = getHueColour(c_temp, WAND_BARREL_LED_COUNT);
+        barrel_leds[37] = getHueColour(c_temp, WAND_BARREL_LED_COUNT);
+      }
 
       // Illuminate the wand barrel tip LED.
       if(STREAM_MODE != SLIME) {
@@ -671,6 +649,7 @@ void wandTipOn() {
     break;
 
     case LEDS_5:
+    case LEDS_2:
     default:
       // Illuminate the wand barrel tip LED.
       if(STREAM_MODE != SLIME) {
@@ -682,15 +661,23 @@ void wandTipOn() {
 
 void wandTipOff() {
   switch(WAND_BARREL_LED_COUNT) {
+    case LEDS_50:
     case LEDS_48:
-      // Set the tip of the Frutto LED array to black.
-      barrel_leds[12] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+      if(WAND_BARREL_LED_COUNT == LEDS_48) {
+        // Set the tip of the Frutto LED array to black.
+        barrel_leds[12] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+      }
+      else if(WAND_BARREL_LED_COUNT == LEDS_50) {
+        barrel_leds[36] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+        barrel_leds[37] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+      }
 
       // Turn off the wand barrel tip LED.
       digitalWriteFast(BARREL_TIP_LED_PIN, LOW);
     break;
 
     case LEDS_5:
+    case LEDS_2:
     default:
       // Turn off the wand barrel tip LED.
       digitalWriteFast(BARREL_TIP_LED_PIN, LOW);
@@ -721,13 +708,13 @@ void hatLightControl() {
 
     case MODE_ERROR:
       if(ms_error_blink.remaining() < i_error_blink_delay / 2) {
-        digitalWriteFast(TOP_LED_PIN, HIGH);
+        ventLedTopControl(false);
         digitalWriteFast(SLO_BLO_LED_PIN, LOW);
         digitalWriteFast(TOP_HAT_LED_PIN, LOW);
         digitalWriteFast(CLIPPARD_LED_PIN, LOW);
       }
       else {
-        digitalWriteFast(TOP_LED_PIN, LOW);
+        ventLedTopControl(true);
         digitalWriteFast(SLO_BLO_LED_PIN, HIGH);
         digitalWriteFast(TOP_HAT_LED_PIN, HIGH);
         digitalWriteFast(CLIPPARD_LED_PIN, HIGH);
@@ -958,14 +945,14 @@ void startQuickVent() {
 }
 
 void startVentSequence() {
-  if(WAND_ACTION_STATUS == ACTION_FIRING && b_firing == true) {
+  if(WAND_ACTION_STATUS == ACTION_FIRING && b_firing) {
     modeFireStop();
   }
 
   WAND_ACTION_STATUS = ACTION_OVERHEATING;
 
   // Since the Proton Pack tells the Neutrona Wand when overheating is finished, standalone wand needs its own timer.
-  if(b_gpstar_benchtest == true) {
+  if(b_gpstar_benchtest) {
     ms_overheating.start(i_ms_overheating);
   }
 
@@ -974,12 +961,12 @@ void startVentSequence() {
   soundIdleLoopStop(true);
 
   // Blinking bargraph option for overheat.
-  if(b_overheat_bargraph_blink == true) {
+  if(b_overheat_bargraph_blink) {
     ms_bargraph.stop();
 
     bargraphClearAlt();
 
-    if(b_extra_pack_sounds == true) {
+    if(b_extra_pack_sounds) {
       wandSerialSend(W_WAND_BEEP_SOUNDS);
       wandSerialSend(W_WAND_BEEP_BARGRAPH);
     }
@@ -1008,7 +995,7 @@ void startVentSequence() {
     ms_bargraph.start(d_bargraph_ramp_interval);
   }
 
-  if(b_extra_pack_sounds == true) {
+  if(b_extra_pack_sounds) {
     wandSerialSend(W_WAND_SHUTDOWN_SOUND);
   }
 
@@ -1446,14 +1433,14 @@ void checkSwitches() {
                   digitalWriteFast(CLIPPARD_LED_PIN, HIGH); // Turn on the front left LED under the Clippard valve.
 
                   // Turn on the vent lights.
-                  if(b_vent_light_control == true) {
-                    analogWrite(VENT_LED_PIN, 220); // Low power, level 1 intensity.
+                  if(b_vent_light_control) {
+                    ventLedControl(i_vent_led_power_1);
                   }
                   else {
-                    digitalWrite(VENT_LED_PIN, LOW);
+                    ventLedControl(); // Turn on vent light at full brightness.
                   }
 
-                  digitalWriteFast(TOP_LED_PIN, LOW);
+                  ventLedTopControl(true);
 
                   if(ms_bargraph.justFinished()) {
                     bargraphRampUp();
@@ -1474,8 +1461,8 @@ void checkSwitches() {
                   digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Turn off the front left LED under the Clippard valve.
 
                   // Turn off the Neutrona Wand vent lights.
-                  digitalWrite(VENT_LED_PIN, HIGH);
-                  digitalWriteFast(TOP_LED_PIN, HIGH);
+                  ventLedControl(0);
+                  ventLedTopControl(false);
 
                   vibrationOff(); // Turn off vibration, if any.
                 }
@@ -1496,6 +1483,41 @@ void checkSwitches() {
     break;
 
     case MODE_ERROR:
+      if(b_wand_mash_error && ms_bmash.isRunning()) {
+        if(b_vent_light_control) {
+          // First determine the maximum brightness value for our power level.
+          uint8_t i_vent_brightness = i_vent_led_power_1;
+
+          switch(i_power_level) {
+            case 2:
+              i_vent_brightness = i_vent_led_power_2;
+            break;
+            case 3:
+              i_vent_brightness = i_vent_led_power_3;
+            break;
+            case 4:
+              i_vent_brightness = i_vent_led_power_4;
+            break;
+            case 5:
+              i_vent_brightness = i_vent_led_power_5;
+            break;
+            default:
+              // Do nothing as we are already configured correctly.
+            break;
+          }
+
+          // We're going to fade in the vent light while the wand mash error is running.
+          uint8_t i_mash_delay_percentage = (ms_bmash.remaining() * 100) / ms_bmash.delay();
+          uint8_t i_vent_power_output = (i_vent_brightness * i_mash_delay_percentage) / 100;
+
+          ventLedControl(i_vent_power_output);
+        }
+        else {
+          // Turn off the vent light.
+          ventLedControl(0);
+        }
+      }
+
       switch(SYSTEM_MODE) {
         case MODE_ORIGINAL:
           // Nothing.
@@ -1547,44 +1569,48 @@ void checkSwitches() {
 
 // Vent light, idle sound, and beep sound checks are here.
 void wandVentStateCheck() {
-  if(WAND_ACTION_STATUS != ACTION_OVERHEATING && b_pack_alarm != true) {
+  if(WAND_ACTION_STATUS != ACTION_OVERHEATING && !b_pack_alarm) {
     // Vent light and first stage of the safety system.
     if(switch_vent.on()) {
-      if(b_vent_light_control == true) {
+      if(b_vent_light_control) {
         // Vent light on, brightness dependent on mode.
-        if((WAND_ACTION_STATUS == ACTION_FIRING && STREAM_MODE != SLIME) || (ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished())) {
-          analogWrite(VENT_LED_PIN, 0); // 0 = Full Power
+        if(STREAM_MODE != SLIME && (WAND_ACTION_STATUS == ACTION_FIRING || (ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished()))) {
+          ventLedControl(); // Turn on vent light at full brightness.
         }
         else {
           // Adjust brightness based on the power level.
           switch(i_power_level) {
             case 5:
-              analogWrite(VENT_LED_PIN, 100);
+              ventLedControl(i_vent_led_power_5);
             break;
+
             case 4:
-              analogWrite(VENT_LED_PIN, 130);
+              ventLedControl(i_vent_led_power_4);
             break;
+
             case 3:
-              analogWrite(VENT_LED_PIN, 160);
+              ventLedControl(i_vent_led_power_3);
             break;
+
             case 2:
-              analogWrite(VENT_LED_PIN, 190);
+              ventLedControl(i_vent_led_power_2);
             break;
+
             case 1:
             default:
-              analogWrite(VENT_LED_PIN, 220);
+              ventLedControl(i_vent_led_power_1);
             break;
           }
         }
       }
       else {
-        digitalWrite(VENT_LED_PIN, LOW);
+        ventLedControl(); // Turn on vent light at full brightness.
       }
 
       soundIdleStart();
 
-      if(switch_wand.on() == true) {
-        if(b_beeping != true) {
+      if(switch_wand.on()) {
+        if(!b_beeping) {
           // Beep loop.
           soundBeepLoop();
         }
@@ -1594,8 +1620,8 @@ void wandVentStateCheck() {
       }
     }
     else {
-      // Vent light and top white light off.
-      digitalWrite(VENT_LED_PIN, HIGH);
+      // Vent light off.
+      ventLedControl(0);
 
       soundBeepLoopStop();
       soundIdleStop();
@@ -1604,6 +1630,9 @@ void wandVentStateCheck() {
 }
 
 void wandOff() {
+  // Need this to know if we have to tell the Proton Pack to play the Afterlife ramp down sound.
+  bool b_play_afterlife_ramp_down = false;
+
   if(WAND_ACTION_STATUS == ACTION_SETTINGS) {
     // If the wand is shut down while we are in settings mode (can happen if the pack is manually turned off), switch the wand and pack to proton mode.
     switch(STREAM_MODE) {
@@ -1627,9 +1656,14 @@ void wandOff() {
         wandSerialSend(W_SPECTRAL_MODE);
       break;
 
-      case HOLIDAY:
-        // Tell the pack we are in holiday mode.
-        wandSerialSend(W_HOLIDAY_MODE, b_christmas ? 2 : 1);
+      case HOLIDAY_HALLOWEEN:
+        // Tell the pack we are in Halloween mode.
+        wandSerialSend(W_HALLOWEEN_MODE);
+      break;
+
+      case HOLIDAY_CHRISTMAS:
+        // Tell the pack we are in Christmas mode.
+        wandSerialSend(W_CHRISTMAS_MODE);
       break;
 
       case SPECTRAL_CUSTOM:
@@ -1649,23 +1683,18 @@ void wandOff() {
     case SYSTEM_AFTERLIFE:
     case SYSTEM_FROZEN_EMPIRE:
     default:
-      stopEffect(S_AFTERLIFE_WAND_IDLE_1);
-      stopEffect(S_AFTERLIFE_WAND_RAMP_1);
-      stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
-      stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
-      stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
-      stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
+      stopAfterlifeSounds();
     break;
 
     case SYSTEM_1984:
     case SYSTEM_1989:
-      if(b_sound_idle != true) {
+      if(!b_sound_idle) {
         stopEffect(S_WAND_BOOTUP_SHORT);
       }
     break;
   }
 
-  if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_wand_boot_error_on == true) {
+  if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_wand_boot_error_on) {
     stopEffect(S_BEEPS_LOW);
     stopEffect(S_BEEPS);
     stopEffect(S_BEEPS_BARGRAPH);
@@ -1674,12 +1703,12 @@ void wandOff() {
   stopEffect(S_WAND_BOOTUP);
   stopEffect(S_SMASH_ERROR_RESTART);
 
-  if(WAND_ACTION_STATUS == ACTION_ERROR && b_wand_boot_error_on != true && b_wand_mash_error != true) {
+  if(WAND_ACTION_STATUS == ACTION_ERROR && !b_wand_boot_error_on && !b_wand_mash_error) {
     // We are exiting Wand Boot Error, so change wand state back to off/idle without informing Proton Pack.
     WAND_STATUS = MODE_OFF;
     WAND_ACTION_STATUS = ACTION_IDLE;
   }
-  else if(WAND_ACTION_STATUS != ACTION_ERROR && (b_wand_boot_error_on == true || b_wand_mash_error == true)) {
+  else if(WAND_ACTION_STATUS != ACTION_ERROR && (b_wand_boot_error_on || b_wand_mash_error)) {
     // We are entering either Wand Boot Error mode or Button Mash Timeout mode, so do nothing.
   }
   else {
@@ -1688,39 +1717,37 @@ void wandOff() {
     WAND_STATUS = MODE_OFF;
     WAND_ACTION_STATUS = ACTION_IDLE;
 
-    if(b_wand_mash_error == true) {
+    if(b_wand_mash_error) {
       stopEffect(S_WAND_STASIS_IDLE_LOOP);
       stopEffect(S_SMASH_ERROR_LOOP);
-      stopEffect(S_SMASH_ERROR_RESTART);
     }
 
-    // Turn off any barrel spark effects and reset the button mash lockout.
-    if(b_wand_mash_error == true || b_pack_alarm == true) {
+    // Turn off any barrel spark effects.
+    if(b_wand_mash_error || b_pack_alarm) {
       barrelLightsOff();
-      b_wand_mash_error = false;
     }
 
-    if(b_pack_alarm != true) {
+    if(!b_pack_alarm) {
       switch(getNeutronaWandYearMode()) {
         case SYSTEM_1984:
         case SYSTEM_1989:
-          if(SYSTEM_MODE == MODE_SUPER_HERO) {
-            if(switch_vent.on() == true) {
-              if(b_extra_pack_sounds == true) {
-                wandSerialSend(W_WAND_SHUTDOWN_SOUND);
-              }
-
-              stopEffect(S_WAND_SHUTDOWN);
-              playEffect(S_WAND_SHUTDOWN);
-            }
-            else if(b_gpstar_benchtest) {
-              // Proton Pack plays shutdown sound, but standalone Wand needs to play its own.
-              stopEffect(S_WAND_HEATDOWN);
-              playEffect(S_WAND_HEATDOWN);
-            }
+          if(SYSTEM_MODE == MODE_SUPER_HERO && !b_sound_idle && !b_wand_mash_error && b_gpstar_benchtest) {
+            // Proton Pack plays shutdown sound, but standalone Wand needs to play its own.
+            stopEffect(S_WAND_HEATDOWN);
+            playEffect(S_WAND_HEATDOWN);
           }
-          else {
-            if(b_extra_pack_sounds == true) {
+        break;
+
+        case SYSTEM_AFTERLIFE:
+        case SYSTEM_FROZEN_EMPIRE:
+        default:
+          if(!b_sound_idle && !b_wand_mash_error && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
+            b_play_afterlife_ramp_down = true;
+          }
+
+          if(!b_wand_mash_error) {
+            if(b_extra_pack_sounds) {
               wandSerialSend(W_WAND_SHUTDOWN_SOUND);
             }
 
@@ -1728,27 +1755,25 @@ void wandOff() {
             playEffect(S_WAND_SHUTDOWN);
           }
         break;
-
-        case SYSTEM_AFTERLIFE:
-        case SYSTEM_FROZEN_EMPIRE:
-        default:
-          if(WAND_ACTION_STATUS != ACTION_ERROR && b_pack_alarm != true) {
-            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
-
-            if(b_extra_pack_sounds == true) {
-              wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
-            }
-          }
-
-          if(b_extra_pack_sounds == true) {
-            wandSerialSend(W_WAND_SHUTDOWN_SOUND);
-          }
-
-          stopEffect(S_WAND_SHUTDOWN);
-          playEffect(S_WAND_SHUTDOWN);
-        break;
       }
     }
+
+    b_wand_mash_error = false;
+  }
+
+  // Stop firing if the wand is turned off.
+  if(b_firing) {
+    modeFireStop();
+  }
+
+  if(b_extra_pack_sounds) {
+    wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+
+    if(b_play_afterlife_ramp_down) {
+      wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
+    }
+
+    wandSerialSend(W_WAND_BEEP_STOP);
   }
 
   soundBeepLoopStop();
@@ -1756,16 +1781,6 @@ void wandOff() {
   soundIdleLoopStop(true);
 
   vibrationOff();
-
-  // Stop firing if the wand is turned off.
-  if(b_firing == true) {
-    modeFireStop();
-  }
-
-  if(b_extra_pack_sounds == true) {
-    wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
-    wandSerialSend(W_WAND_BEEP_STOP);
-  }
 
   // Turn off any lingering mode switch sounds.
   stopEffect(S_MODE_SWITCH);
@@ -1789,8 +1804,8 @@ void wandOff() {
     break;
   }
 
-  if(WAND_ACTION_STATUS != ACTION_ERROR && b_wand_mash_error == true) {
-    if(b_extra_pack_sounds == true) {
+  if(WAND_ACTION_STATUS != ACTION_ERROR && b_wand_mash_error) {
+    if(b_extra_pack_sounds) {
       wandSerialSend(W_WAND_MASH_ERROR_SOUND);
     }
 
@@ -1831,11 +1846,6 @@ void wandOff() {
         break;
       }
 
-      // Start the timer for the power on indicator option.
-      if(b_power_on_indicator == true && SYSTEM_MODE == MODE_SUPER_HERO) {
-        ms_power_indicator.start(i_ms_power_indicator);
-      }
-
       wandSwitchedCount = 0;
       ventSwitchedCount = 0;
     break;
@@ -1848,53 +1858,15 @@ void wandOff() {
 // Called from checkSwitches(); Check if we should fire, or if the wand and pack turn off.
 void fireControlCheck() {
   // Firing action stuff and shutting cyclotron and the Neutrona Wand off.
-  if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && b_pack_alarm != true) {
+  if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && !b_pack_alarm) {
     // If Activate switch is down, turn wand off.
-    if(switch_activate.on() == false) {
+    if(!switch_activate.on()) {
       WAND_ACTION_STATUS = ACTION_OFF;
       return;
     }
 
     if(i_bmash_count >= i_bmash_max) {
       // User has exceeded "normal" firing rate.
-      switch(STREAM_MODE) {
-        case PROTON:
-        default:
-          switch(getSystemYearMode()) {
-            case SYSTEM_1984:
-              if(i_power_level != i_power_level_max) {
-                stopEffect(S_FIRING_END);
-                stopEffect(S_FIRING_END_MID);
-                stopEffect(S_GB1_1984_FIRE_END_SHORT);
-              }
-              else {
-                stopEffect(S_GB1_1984_FIRE_END_HIGH_POWER);
-              }
-            break;
-            case SYSTEM_1989:
-              stopEffect(S_FIRING_END_GUN);
-              stopEffect(S_FIRING_END_MID);
-              stopEffect(S_FIRING_END);
-            break;
-            case SYSTEM_AFTERLIFE:
-            default:
-              stopEffect(S_AFTERLIFE_FIRE_END_SHORT);
-              stopEffect(S_AFTERLIFE_FIRE_END_MID);
-              stopEffect(S_AFTERLIFE_FIRE_END_LONG);
-            break;
-            case SYSTEM_FROZEN_EMPIRE:
-              stopEffect(S_AFTERLIFE_FIRE_END_MID);
-            break;
-          }
-        break;
-        case SLIME:
-          stopEffect(S_SLIME_END);
-        break;
-        case STASIS:
-          stopEffect(S_STASIS_END);
-        break;
-      }
-
       b_wand_mash_error = true;
       modeError();
       wandTipSpark();
@@ -1941,35 +1913,38 @@ void fireControlCheck() {
         }
       }
 
-      if(switch_intensify.on() == true && switch_wand.on() == true && switch_vent.on() == true && b_switch_barrel_extended == true) {
+      if(switch_intensify.on() && switch_wand.on() && switch_vent.on() && b_switch_barrel_extended) {
         switch(STREAM_MODE) {
           case PROTON:
           case SLIME:
           case SPECTRAL:
           case SPECTRAL_CUSTOM:
-          case HOLIDAY:
+          case HOLIDAY_HALLOWEEN:
+          case HOLIDAY_CHRISTMAS:
           default:
-            if(WAND_ACTION_STATUS != ACTION_FIRING) {
-              WAND_ACTION_STATUS = ACTION_FIRING;
-            }
-
             if(ms_bmash.remaining() < 1) {
               // Clear counter/timer until user begins firing.
               i_bmash_count = 0;
               ms_bmash.start(i_bmash_delay);
             }
 
-            if(b_firing_intensify != true) {
+            if(!b_firing_intensify) {
               // Increase count each time the user presses a firing button.
               i_bmash_count++;
             }
 
-            b_firing_intensify = true;
+            if(i_bmash_count < i_bmash_max) {
+              if(WAND_ACTION_STATUS != ACTION_FIRING) {
+                WAND_ACTION_STATUS = ACTION_FIRING;
+              }
+
+              b_firing_intensify = true;
+            }
           break;
 
           case STASIS:
             // Handle Shock Blast fire start here.
-            if(b_firing_semi_automatic != true && ms_semi_automatic_check.remaining() < 1 && WAND_ACTION_STATUS != ACTION_FIRING) {
+            if(!b_firing_semi_automatic && ms_semi_automatic_check.remaining() < 1 && WAND_ACTION_STATUS != ACTION_FIRING) {
               // Start rate-of-fire timer.
               ms_semi_automatic_check.start(i_shock_blast_rate);
 
@@ -1981,7 +1956,7 @@ void fireControlCheck() {
 
           case MESON:
             // Handle Meson Collider fire start here.
-            if(b_firing_semi_automatic != true && ms_semi_automatic_check.remaining() < 1 && WAND_ACTION_STATUS != ACTION_FIRING) {
+            if(!b_firing_semi_automatic && ms_semi_automatic_check.remaining() < 1 && WAND_ACTION_STATUS != ACTION_FIRING) {
               // Start rate-of-fire timer.
               ms_semi_automatic_check.start(i_meson_collider_rate);
 
@@ -1995,26 +1970,28 @@ void fireControlCheck() {
 
       // When Cross The Streams mode is enabled, video game modes are disabled and the wand menu settings can only be accessed when the Neutrona Wand is powered down.
       if(FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) {
-        if(switch_mode.on() == true && switch_wand.on() == true && switch_vent.on() == true && b_switch_barrel_extended == true) {
-          if(WAND_ACTION_STATUS != ACTION_FIRING) {
-            WAND_ACTION_STATUS = ACTION_FIRING;
-          }
-
+        if(switch_mode.on() && switch_wand.on() && switch_vent.on() && b_switch_barrel_extended) {
           if(ms_bmash.remaining() < 1) {
             // Clear counter/timer until user begins firing.
             i_bmash_count = 0;
             ms_bmash.start(i_bmash_delay);
           }
 
-          if(b_firing_alt != true) {
+          if(!b_firing_alt) {
             // Increase count each time the user presses a firing button.
             i_bmash_count++;
           }
 
-          b_firing_alt = true;
+          if(i_bmash_count < i_bmash_max) {
+            if(WAND_ACTION_STATUS != ACTION_FIRING) {
+              WAND_ACTION_STATUS = ACTION_FIRING;
+            }
+
+            b_firing_alt = true;
+          }
         }
-        else if(switch_mode.on() == false) {
-          if(b_firing_intensify != true && WAND_ACTION_STATUS == ACTION_FIRING) {
+        else if(!switch_mode.on()) {
+          if(!b_firing_intensify && WAND_ACTION_STATUS == ACTION_FIRING) {
             WAND_ACTION_STATUS = ACTION_IDLE;
           }
 
@@ -2023,15 +2000,15 @@ void fireControlCheck() {
       }
       else {
         if(STREAM_MODE == PROTON && WAND_ACTION_STATUS == ACTION_FIRING) {
-          if(switch_mode.on() == true) {
+          if(switch_mode.on()) {
             b_firing_alt = true;
           }
         }
-        else if(switch_mode.on() == true && switch_wand.on() == true && switch_vent.on() == true && b_switch_barrel_extended == true) {
+        else if(switch_mode.on() && switch_wand.on() && switch_vent.on() && b_switch_barrel_extended) {
           switch(STREAM_MODE) {
             case PROTON:
               // Handle Boson Dart fire start here.
-              if(b_firing_semi_automatic != true && ms_semi_automatic_check.remaining() < 1) {
+              if(!b_firing_semi_automatic && ms_semi_automatic_check.remaining() < 1) {
                 // Start rate-of-fire timer.
                 ms_semi_automatic_check.start(i_boson_dart_rate);
 
@@ -2043,7 +2020,7 @@ void fireControlCheck() {
 
             case SLIME:
               // Handle Slime Tether fire start here.
-              if(b_firing_semi_automatic != true && WAND_ACTION_STATUS != ACTION_FIRING) {
+              if(!b_firing_semi_automatic && WAND_ACTION_STATUS != ACTION_FIRING) {
                 if(i_slime_tether_count < 1) {
                   // Start the rate-of-fire timer.
                   ms_semi_automatic_check.start(i_slime_tether_rate);
@@ -2066,22 +2043,24 @@ void fireControlCheck() {
 
             case STASIS:
             case MESON:
-              if(WAND_ACTION_STATUS != ACTION_FIRING) {
-                WAND_ACTION_STATUS = ACTION_FIRING;
-              }
-
               if(ms_bmash.remaining() < 1) {
                 // Clear counter/timer until user begins firing.
                 i_bmash_count = 0;
                 ms_bmash.start(i_bmash_delay);
               }
 
-              if(b_firing_intensify != true) {
+              if(!b_firing_intensify) {
                 // Increase count each time the user presses a firing button.
                 i_bmash_count++;
               }
 
-              b_firing_intensify = true;
+              if(i_bmash_count < i_bmash_max) {
+                if(WAND_ACTION_STATUS != ACTION_FIRING) {
+                  WAND_ACTION_STATUS = ACTION_FIRING;
+                }
+
+                b_firing_intensify = true;
+              }
             break;
 
             default:
@@ -2091,16 +2070,17 @@ void fireControlCheck() {
         }
       }
 
-      if(switch_intensify.on() != true) {
+      if(!switch_intensify.on()) {
         switch(STREAM_MODE) {
           case PROTON:
           case SLIME:
           case SPECTRAL:
           case SPECTRAL_CUSTOM:
-          case HOLIDAY:
+          case HOLIDAY_HALLOWEEN:
+          case HOLIDAY_CHRISTMAS:
           default:
-            if(b_firing == true && b_firing_intensify == true) {
-              if(b_firing_alt != true || vgModeCheck() == true) {
+            if(b_firing && b_firing_intensify) {
+              if(!b_firing_alt || vgModeCheck()) {
                 WAND_ACTION_STATUS = ACTION_IDLE;
               }
 
@@ -2116,7 +2096,7 @@ void fireControlCheck() {
         }
       }
 
-      if(switch_mode.on() != true && FIRING_MODE == VG_MODE) {
+      if(!switch_mode.on() && FIRING_MODE == VG_MODE) {
         switch(STREAM_MODE) {
           case PROTON:
           case SLIME:
@@ -2126,7 +2106,7 @@ void fireControlCheck() {
 
           case STASIS:
           case MESON:
-            if(b_firing == true && b_firing_intensify == true) {
+            if(b_firing && b_firing_intensify) {
               WAND_ACTION_STATUS = ACTION_IDLE;
               b_firing_intensify = false;
             }
@@ -2141,7 +2121,7 @@ void fireControlCheck() {
 
     // Quick vent feature. When enabled, clicking Intensify will perform a quick vent, while holding will force the full overheat sequence.
     // Super Hero Mode only, because Mode Original uses different toggle switch combinations which makes this not possible.
-    if(b_quick_vent == true && SYSTEM_MODE == MODE_SUPER_HERO && switch_wand.on() == false && switch_vent.on() == true && b_overheat_enabled == true) {
+    if(b_quick_vent && SYSTEM_MODE == MODE_SUPER_HERO && !switch_wand.on() && switch_vent.on() && b_overheat_enabled) {
       if(switch_intensify.singleClick()) {
         startQuickVent();
       }
@@ -2150,17 +2130,17 @@ void fireControlCheck() {
       }
     }
   }
-  else if(WAND_ACTION_STATUS == ACTION_OVERHEATING || WAND_ACTION_STATUS == ACTION_VENTING || WAND_ACTION_STATUS == ACTION_SETTINGS || b_pack_alarm == true) {
+  else if(WAND_ACTION_STATUS == ACTION_OVERHEATING || WAND_ACTION_STATUS == ACTION_VENTING || WAND_ACTION_STATUS == ACTION_SETTINGS || b_pack_alarm) {
     // If Activate switch is down, turn wand off.
-    if(switch_activate.on() == false) {
+    if(!switch_activate.on()) {
       WAND_ACTION_STATUS = ACTION_OFF;
       return;
     }
 
     if(WAND_ACTION_STATUS == ACTION_IDLE) {
       // Play a little spark effect if the user tries to fire while the ribbon cable is removed.
-      if((switch_intensify.pushed() || ((FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) && switch_mode.pushed())) && !ms_wand_heatup_fade.isRunning() && switch_vent.on() == true && switch_wand.on() == true) {
-        if(b_extra_pack_sounds == true) {
+      if((switch_intensify.pushed() || ((FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) && switch_mode.pushed())) && !ms_wand_heatup_fade.isRunning() && switch_vent.on() && switch_wand.on()) {
+        if(b_extra_pack_sounds) {
           wandSerialSend(W_WAND_MASH_ERROR_SOUND);
         }
 
@@ -2174,8 +2154,8 @@ void fireControlCheck() {
 
 // Called from checkSwitches(); Used to enter the settings menu in MODE_SUPER_HERO.
 void altWingButtonCheck() {
-  if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && b_pack_alarm != true) {
-    if((switch_wand.on() != true || switch_vent.on() != true) && switch_mode.pushed()) {
+  if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && !b_pack_alarm) {
+    if((!switch_wand.on() || !switch_vent.on()) && switch_mode.pushed()) {
       // Only exit the settings menu when on menu #5.
       if(i_wand_menu == 5) {
         // Switch between firing mode and settings mode.
@@ -2206,7 +2186,7 @@ void altWingButtonCheck() {
         playEffect(S_CLICK);
       }
     }
-    else if(WAND_ACTION_STATUS == ACTION_SETTINGS && switch_vent.on() == true && switch_wand.on() == true) {
+    else if(WAND_ACTION_STATUS == ACTION_SETTINGS && switch_vent.on() && switch_wand.on()) {
       // Exit the settings menu if the user turns the wand switch back on.
       streamModeCheck();
       WAND_ACTION_STATUS = ACTION_IDLE;
@@ -2219,9 +2199,14 @@ void altWingButtonCheck() {
         bargraphPowerCheck2021Alt(true);
       }
     }
-    else if(STREAM_MODE == HOLIDAY && switch_wand.on() == true && switch_vent.on() == true && switch_mode.pushed()) {
+    else if((STREAM_MODE == HOLIDAY_HALLOWEEN || STREAM_MODE == HOLIDAY_CHRISTMAS) && switch_wand.on() && switch_vent.on() && switch_mode.pushed()) {
       // Used to switch the Holiday firing mode between Halloween and Christmas colours.
-      b_christmas = !b_christmas;
+      if(STREAM_MODE == HOLIDAY_HALLOWEEN) {
+        STREAM_MODE = HOLIDAY_CHRISTMAS;
+      }
+      else {
+        STREAM_MODE = HOLIDAY_HALLOWEEN;
+      }
       streamModeCheck();
     }
   }
@@ -2229,9 +2214,14 @@ void altWingButtonCheck() {
 
 void streamModeCheck() {
   switch(STREAM_MODE) {
-    case HOLIDAY:
-      // Tell the pack we are in holiday mode.
-      wandSerialSend(W_HOLIDAY_MODE, b_christmas ? 2 : 1);
+    case HOLIDAY_HALLOWEEN:
+      // Tell the pack we are in Halloween mode.
+      wandSerialSend(W_HALLOWEEN_MODE);
+    break;
+
+    case HOLIDAY_CHRISTMAS:
+      // Tell the pack we are in Christmas mode.
+      wandSerialSend(W_CHRISTMAS_MODE);
     break;
 
     case SPECTRAL:
@@ -2270,7 +2260,7 @@ void streamModeCheck() {
     wandHeatUp();
   }
 
-  if(AUDIO_DEVICE == A_GPSTAR_AUDIO) {
+  if(AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
     if(STREAM_MODE == MESON) {
       // Tell GPStar Audio we need short audio mode.
       audio.gpstarShortTrackOverload(false);
@@ -2291,13 +2281,13 @@ void modeError() {
   WAND_STATUS = MODE_ERROR;
   WAND_ACTION_STATUS = ACTION_ERROR;
 
-  if(b_wand_mash_error != true) {
+  if(!b_wand_mash_error) {
     // This is used for controlling the bargraph beeping while in boot error mode.
     ms_warning_blink.start(i_bargraph_beep_delay);
     ms_error_blink.start(i_error_blink_delay);
     ms_settings_blink.start(i_settings_blink_delay);
 
-    if(b_extra_pack_sounds == true) {
+    if(b_extra_pack_sounds) {
       wandSerialSend(W_WAND_BEEP_BARGRAPH);
       wandSerialSend(W_WAND_BEEP_SOUNDS);
     }
@@ -2306,7 +2296,8 @@ void modeError() {
     playEffect(S_BEEPS, false, i_volume_effects, false, 0, false);
     playEffect(S_BEEPS_BARGRAPH, false, i_volume_effects, false, 0, false);
   }
-  else if(b_wand_mash_error == true) {
+  else {
+    // This is used for the wand mash error sounds.
     if(getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
       // Use the crakling ice sound from the statis mode.
       playEffect(S_WAND_STASIS_IDLE_LOOP);
@@ -2316,8 +2307,8 @@ void modeError() {
       playEffect(S_SMASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
     }
 
-    if(b_extra_pack_sounds == true) {
-      wandSerialSend(W_SMASH_ERROR_LOOP);
+    if(b_extra_pack_sounds) {
+      wandSerialSend(W_MASH_ERROR_LOOP);
     }
   }
 }
@@ -2327,6 +2318,7 @@ void modeActivate() {
   i_bmash_count = 0;
   b_wand_mash_error = false;
   b_sound_afterlife_idle_2_fade = true;
+  setPowerOnReminder(false);
 
   switch(SYSTEM_MODE) {
     case MODE_ORIGINAL:
@@ -2334,8 +2326,8 @@ void modeActivate() {
       WAND_ACTION_STATUS = ACTION_IDLE;
 
       // If starting up directly from any of the non-toggle-sequence switches, play the wand heatup sound.
-      if(switch_activate.switched() == false) {
-        if(b_extra_pack_sounds == true) {
+      if(!switch_activate.switched()) {
+        if(b_extra_pack_sounds) {
           wandSerialSend(W_MODE_ORIGINAL_HEATUP);
         }
 
@@ -2351,7 +2343,7 @@ void modeActivate() {
     case MODE_SUPER_HERO:
     default:
       // The wand was started while the top switch was already on, so let's put the wand into startup error mode.
-      if(switch_wand.on() == true && b_wand_boot_errors == true) {
+      if(switch_wand.on() && b_wand_boot_errors) {
         b_wand_boot_error_on = true;
         modeError();
       }
@@ -2405,9 +2397,9 @@ void postActivation() {
     // Turn on the Clippard LED.
     digitalWriteFast(CLIPPARD_LED_PIN, HIGH);
 
-    // Top white light.
+    // Turn on top white light and its blink timer.
     ms_white_light.start(i_white_light_interval);
-    digitalWriteFast(TOP_LED_PIN, LOW);
+    ventLedTopControl(true);
 
     // Reset the hat light timers.
     ms_warning_blink.stop();
@@ -2595,32 +2587,39 @@ void soundIdleStart() {
       case SYSTEM_AFTERLIFE:
       case SYSTEM_FROZEN_EMPIRE:
       default:
+        // Ramp 2 -> Idle 2
+        if(b_extra_pack_sounds) {
+          if(b_sound_afterlife_idle_2_fade) {
+            wandSerialSend(W_AFTERLIFE_GUN_RAMP_2_FADE_IN);
+          }
+          else {
+            wandSerialSend(W_AFTERLIFE_GUN_RAMP_2);
+          }
+        }
+
         ms_gun_loop_1.stop();
         ms_gun_loop_2.start(i_gun_loop_2);
 
         if(b_sound_afterlife_idle_2_fade) {
-          playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
-
-          if(b_extra_pack_sounds) {
-            wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
-
-            wandSerialSend(W_AFTERLIFE_GUN_RAMP_2_FADE_IN);
+          if(AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
+            playTransitionEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, S_AFTERLIFE_WAND_IDLE_2, true, 5);
+          }
+          else {
+            playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
           }
 
           b_sound_afterlife_idle_2_fade = false;
         }
         else {
-          playEffect(S_AFTERLIFE_WAND_RAMP_2);
-
-          if(b_extra_pack_sounds) {
-            wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
-
-            wandSerialSend(W_AFTERLIFE_GUN_RAMP_2);
+          if(AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
+            playTransitionEffect(S_AFTERLIFE_WAND_RAMP_2, S_AFTERLIFE_WAND_IDLE_2, true, 5);
+          }
+          else {
+            playEffect(S_AFTERLIFE_WAND_RAMP_2);
           }
         }
 
         stopEffect(S_AFTERLIFE_WAND_RAMP_1);
-        stopEffect(S_AFTERLIFE_WAND_IDLE_2);
         stopEffect(S_AFTERLIFE_WAND_IDLE_1);
         stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
         stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
@@ -2633,10 +2632,12 @@ void soundIdleStart() {
 
   if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
     if(ms_gun_loop_2.justFinished()) {
-      playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects);
-
       if(b_extra_pack_sounds) {
         wandSerialSend(W_AFTERLIFE_GUN_LOOP_2);
+      }
+
+      if(AUDIO_DEVICE != A_GPSTAR_AUDIO_ADV) {
+        playEffect(S_AFTERLIFE_WAND_IDLE_2, true);
       }
     }
   }
@@ -2647,7 +2648,7 @@ void soundIdleStart() {
 }
 
 void soundIdleStop() {
-  if(b_sound_idle == true) {
+  if(b_sound_idle) {
     switch(getNeutronaWandYearMode()) {
       case SYSTEM_1984:
       case SYSTEM_1989:
@@ -2656,8 +2657,8 @@ void soundIdleStop() {
         stopEffect(S_GB2_WAND_START);
         soundIdleLoopStop(true);
 
-        if(WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING && b_wand_mash_error != true) {
-          if(b_extra_pack_sounds == true) {
+        if(WAND_ACTION_STATUS != ACTION_OVERHEATING && !b_wand_mash_error) {
+          if(b_extra_pack_sounds) {
             wandSerialSend(W_WAND_SHUTDOWN_SOUND);
           }
 
@@ -2669,28 +2670,32 @@ void soundIdleStop() {
       case SYSTEM_AFTERLIFE:
       case SYSTEM_FROZEN_EMPIRE:
       default:
-        if(b_extra_pack_sounds == true) {
-          wandSerialSend(W_AFTERLIFE_RAMP_LOOP_2_STOP);
+        if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm || WAND_STATUS == MODE_OFF) {
+          if(b_extra_pack_sounds) {
+            wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT);
+          }
+
+          playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
+        }
+        else if(!b_wand_mash_error){
+          // Ramp 2 -> Idle 1
+          if(b_extra_pack_sounds) {
+            wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_2);
+          }
+
+          ms_gun_loop_1.start(i_gun_loop_2);
+          ms_gun_loop_2.stop();
+
+          if(AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
+            playTransitionEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, S_AFTERLIFE_WAND_IDLE_1, true, 5);
+          }
+          else {
+            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
+          }
         }
 
-        if(b_pack_alarm != true) {
-          if(WAND_ACTION_STATUS == ACTION_OVERHEATING) {
-            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
-
-            if(b_extra_pack_sounds == true) {
-              wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT);
-            }
-          }
-          else if(WAND_STATUS != MODE_OFF) {
-            ms_gun_loop_1.start(i_gun_loop_2);
-            ms_gun_loop_2.stop();
-
-            playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
-
-            if(b_extra_pack_sounds == true) {
-              wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_2);
-            }
-          }
+        if(b_extra_pack_sounds) {
+          wandSerialSend(W_AFTERLIFE_RAMP_LOOP_2_STOP);
         }
 
         stopEffect(S_AFTERLIFE_WAND_RAMP_2);
@@ -2703,7 +2708,7 @@ void soundIdleStop() {
 }
 
 void soundBeepLoopStop() {
-  if(b_beeping == true) {
+  if(b_beeping) {
     b_beeping = false;
 
     if(switch_wand.on()) {
@@ -2739,23 +2744,23 @@ void soundBeepLoopStop() {
 
 void soundBeepLoop() {
   if(ms_reset_sound_beep.justFinished() && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
-    if(b_beeping == false) {
+    if(!b_beeping) {
       // Quick check to know if effects belong to the next-gen movies (as opposed to the OG 80's themes).
       bool b_next_gen = (getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE);
 
       switch(i_power_level) {
         case 1:
         default:
-          if(b_next_gen && b_beep_loop == true) {
-            if(b_extra_pack_sounds == true) {
+          if(b_next_gen && b_beep_loop) {
+            if(b_extra_pack_sounds) {
               wandSerialSend(W_WAND_BEEP_START);
             }
 
             playEffect(S_AFTERLIFE_BEEP_WAND_S1, true);
           }
           else {
-            if(switch_wand.switched() == true) {
-              if(b_extra_pack_sounds == true) {
+            if(switch_wand.switched()) {
+              if(b_extra_pack_sounds) {
                 wandSerialSend(W_WAND_BEEP);
               }
 
@@ -2765,16 +2770,16 @@ void soundBeepLoop() {
         break;
 
         case 2:
-         if(b_next_gen && b_beep_loop == true) {
-            if(b_extra_pack_sounds == true) {
+         if(b_next_gen && b_beep_loop) {
+            if(b_extra_pack_sounds) {
               wandSerialSend(W_WAND_BEEP_START);
             }
 
             playEffect(S_AFTERLIFE_BEEP_WAND_S2, true);
           }
           else {
-            if(switch_wand.switched() == true) {
-              if(b_extra_pack_sounds == true) {
+            if(switch_wand.switched()) {
+              if(b_extra_pack_sounds) {
                 wandSerialSend(W_WAND_BEEP);
               }
 
@@ -2784,16 +2789,16 @@ void soundBeepLoop() {
         break;
 
         case 3:
-         if(b_next_gen && b_beep_loop == true) {
-            if(b_extra_pack_sounds == true) {
+         if(b_next_gen && b_beep_loop) {
+            if(b_extra_pack_sounds) {
               wandSerialSend(W_WAND_BEEP_START);
             }
 
             playEffect(S_AFTERLIFE_BEEP_WAND_S3, true);
           }
           else {
-            if(switch_wand.switched() == true) {
-              if(b_extra_pack_sounds == true) {
+            if(switch_wand.switched()) {
+              if(b_extra_pack_sounds) {
                 wandSerialSend(W_WAND_BEEP);
               }
 
@@ -2803,16 +2808,16 @@ void soundBeepLoop() {
         break;
 
         case 4:
-         if(b_next_gen && b_beep_loop == true) {
-            if(b_extra_pack_sounds == true) {
+         if(b_next_gen && b_beep_loop) {
+            if(b_extra_pack_sounds) {
               wandSerialSend(W_WAND_BEEP_START);
             }
 
             playEffect(S_AFTERLIFE_BEEP_WAND_S4, true);
           }
           else {
-            if(switch_wand.switched() == true) {
-              if(b_extra_pack_sounds == true) {
+            if(switch_wand.switched()) {
+              if(b_extra_pack_sounds) {
                 wandSerialSend(W_WAND_BEEP);
               }
 
@@ -2822,16 +2827,16 @@ void soundBeepLoop() {
         break;
 
         case 5:
-         if(b_next_gen && b_beep_loop == true) {
-            if(b_extra_pack_sounds == true) {
+         if(b_next_gen && b_beep_loop) {
+            if(b_extra_pack_sounds) {
               wandSerialSend(W_WAND_BEEP_START);
             }
 
             playEffect(S_AFTERLIFE_BEEP_WAND_S5, true);
           }
           else {
-            if(switch_wand.switched() == true) {
-              if(b_extra_pack_sounds == true) {
+            if(switch_wand.switched()) {
+              if(b_extra_pack_sounds) {
                 wandSerialSend(W_WAND_BEEP);
               }
 
@@ -3009,6 +3014,15 @@ void modeFireStartSounds() {
           }
         break;
       }
+
+      // Handle these as part of the "default" case, which is technically an extension of the proton stream.
+      // Layers in an extra effect as a bit of an Easter Egg when using the holiday themes.
+      if(STREAM_MODE == HOLIDAY_HALLOWEEN) {
+        playEffect(S_HALLOWEEN_FIRING_EXTRA, false, i_volume_effects, true, 100, false);
+      }
+      if(STREAM_MODE == HOLIDAY_CHRISTMAS) {
+        playEffect(S_CHRISTMAS_FIRING_EXTRA, false, i_volume_effects, true, 100, false);
+      }
     break;
 
     case SLIME:
@@ -3140,6 +3154,96 @@ void modeFireStopSounds() {
 
   ms_meson_blast.stop();
 
+  switch(STREAM_MODE) {
+    case PROTON:
+    default:
+      switch(getSystemYearMode()) {
+        case SYSTEM_1984:
+          if(i_power_level != i_power_level_max) {
+            // Play different firing end stream sound depending on how long we have been firing for.
+            if(ms_firing_length_timer.remaining() < 5000) {
+              // Long firing tail end.
+              playEffect(S_FIRING_END_MID, false, i_volume_effects, false, 0, false);
+            }
+            else if(ms_firing_length_timer.remaining() < 10000) {
+              // Mid firing tail end.
+              playEffect(S_FIRING_END, false, i_volume_effects, false, 0, false);
+            }
+            else {
+              // Short firing tail end.
+              playEffect(S_GB1_1984_FIRE_END_SHORT, false, i_volume_effects, false, 0, false);
+            }
+          }
+          else {
+              // Play different firing end stream sound depending on how long we have been firing for.
+              if(ms_firing_length_timer.remaining() < 5000) {
+                // Long tail end.
+                playEffect(S_GB1_1984_FIRE_END_HIGH_POWER, false, i_volume_effects, false, 0, false);
+              }
+              else if(ms_firing_length_timer.remaining() < 10000) {
+                // Mid tail end.
+                playEffect(S_GB1_1984_FIRE_END_MID_HIGH_POWER, false, i_volume_effects, false, 0, false);
+              }
+              else {
+                // Short tail end.
+                playEffect(S_GB1_1984_FIRE_END_SHORT_HIGH_POWER, false, i_volume_effects, false, 0, false);
+              }
+          }
+        break;
+
+        case SYSTEM_1989:
+          // Play different firing end stream sound depending on how long we have been firing for.
+          if(ms_firing_length_timer.remaining() < 5000) {
+            // Long tail end.
+            playEffect(S_FIRING_END_GUN, false, i_volume_effects, false, 0, false);
+          }
+          else if(ms_firing_length_timer.remaining() < 10000) {
+            // Mid tail end.
+            playEffect(S_FIRING_END_MID, false, i_volume_effects, false, 0, false);
+          }
+          else {
+            // Short tail end.
+            playEffect(S_FIRING_END, false, i_volume_effects, false, 0, false);
+          }
+        break;
+
+        case SYSTEM_AFTERLIFE:
+        default:
+          // Play different firing end stream sound depending on how long we have been firing for.
+          if(ms_firing_length_timer.remaining() < 5000) {
+            // Long firing tail end.
+            playEffect(S_AFTERLIFE_FIRE_END_LONG, false, i_volume_effects, false, 0, false);
+          }
+          else if(ms_firing_length_timer.remaining() < 10000) {
+            // Mid firing tail end.
+            playEffect(S_AFTERLIFE_FIRE_END_MID, false, i_volume_effects, false, 0, false);
+          }
+          else {
+            // Short firing tail end.
+            playEffect(S_AFTERLIFE_FIRE_END_SHORT, false, i_volume_effects, false, 0, false);
+          }
+        break;
+
+        case SYSTEM_FROZEN_EMPIRE:
+          // Frozen Empire replaces all firing tail sounds with just a "thump".
+          playEffect(S_AFTERLIFE_FIRE_END_MID, false, i_volume_effects, false, 0, false);
+        break;
+      }
+    break;
+
+    case SLIME:
+      playEffect(S_SLIME_END, false, i_volume_effects, false, 0, false);
+    break;
+
+    case STASIS:
+      playEffect(S_STASIS_END, false, i_volume_effects, false, 0, false);
+    break;
+
+    case MESON:
+      // Nothing.
+    break;
+  }
+
   // Stop all other firing sounds.
   switch(STREAM_MODE) {
     case PROTON:
@@ -3193,6 +3297,14 @@ void modeFireStopSounds() {
 
       stopEffect(S_FIRING_LOOP_GB1);
       stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
+
+      // Handle these as part of the "default" case, which is technically an extension of the proton stream.
+      if(STREAM_MODE == HOLIDAY_HALLOWEEN) {
+        stopEffect(S_HALLOWEEN_FIRING_EXTRA);
+      }
+      if(STREAM_MODE == HOLIDAY_CHRISTMAS) {
+        stopEffect(S_CHRISTMAS_FIRING_EXTRA);
+      }
     break;
 
     case SLIME:
@@ -3210,120 +3322,24 @@ void modeFireStopSounds() {
     break;
   }
 
-  if(b_wand_mash_error != true) {
-    switch(STREAM_MODE) {
-      case PROTON:
-      default:
-        switch(getSystemYearMode()) {
-          case SYSTEM_1984:
-            if(i_power_level != i_power_level_max) {
-              // Play different firing end stream sound depending on how long we have been firing for.
-              if(ms_firing_length_timer.remaining() < 5000) {
-                // Long firing tail end.
-                playEffect(S_FIRING_END_MID, false, i_volume_effects, false, 0, false);
-              }
-              else if(ms_firing_length_timer.remaining() < 10000) {
-                // Mid firing tail end.
-                playEffect(S_FIRING_END, false, i_volume_effects, false, 0, false);
-              }
-              else {
-                // Short firing tail end.
-                playEffect(S_GB1_1984_FIRE_END_SHORT, false, i_volume_effects, false, 0, false);
-              }
-            }
-            else {
-                // Play different firing end stream sound depending on how long we have been firing for.
-                if(ms_firing_length_timer.remaining() < 5000) {
-                  // Long tail end.
-                  playEffect(S_GB1_1984_FIRE_END_HIGH_POWER, false, i_volume_effects, false, 0, false);
-                }
-                else if(ms_firing_length_timer.remaining() < 10000) {
-                  // Mid tail end.
-                  playEffect(S_GB1_1984_FIRE_END_MID_HIGH_POWER, false, i_volume_effects, false, 0, false);
-                }
-                else {
-                  // Short tail end.
-                  playEffect(S_GB1_1984_FIRE_END_SHORT_HIGH_POWER, false, i_volume_effects, false, 0, false);
-                }
-            }
-          break;
-
-          case SYSTEM_1989:
-            // Play different firing end stream sound depending on how long we have been firing for.
-            if(ms_firing_length_timer.remaining() < 5000) {
-              // Long tail end.
-              playEffect(S_FIRING_END_GUN, false, i_volume_effects, false, 0, false);
-            }
-            else if(ms_firing_length_timer.remaining() < 10000) {
-              // Mid tail end.
-              playEffect(S_FIRING_END_MID, false, i_volume_effects, false, 0, false);
-            }
-            else {
-              // Short tail end.
-              playEffect(S_FIRING_END, false, i_volume_effects, false, 0, false);
-            }
-          break;
-
-          case SYSTEM_AFTERLIFE:
-          default:
-            // Play different firing end stream sound depending on how long we have been firing for.
-            if(ms_firing_length_timer.remaining() < 5000) {
-              // Long firing tail end.
-              playEffect(S_AFTERLIFE_FIRE_END_LONG, false, i_volume_effects, false, 0, false);
-            }
-            else if(ms_firing_length_timer.remaining() < 10000) {
-              // Mid firing tail end.
-              playEffect(S_AFTERLIFE_FIRE_END_MID, false, i_volume_effects, false, 0, false);
-            }
-            else {
-              // Short firing tail end.
-              playEffect(S_AFTERLIFE_FIRE_END_SHORT, false, i_volume_effects, false, 0, false);
-            }
-          break;
-
-          case SYSTEM_FROZEN_EMPIRE:
-            // Frozen Empire replaces all firing tail sounds with just a "thump".
-            playEffect(S_AFTERLIFE_FIRE_END_MID, false, i_volume_effects, false, 0, false);
-          break;
-        }
-      break;
-
-      case SLIME:
-        playEffect(S_SLIME_END, false, i_volume_effects, false, 0, false);
-      break;
-
-      case STASIS:
-        playEffect(S_STASIS_END, false, i_volume_effects, false, 0, false);
-      break;
-
-      case MESON:
-        // Nothing.
-      break;
-    }
-  }
-
   if(b_firing_cross_streams == true) {
     switch(WAND_YEAR_CTS) {
       case CTS_AFTERLIFE:
-        if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+        if(AUDIO_DEVICE == A_WAV_TRIGGER) {
           stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
           stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
         }
 
-        if(b_wand_mash_error != true) {
-          playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
-        }
+        playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
       break;
 
       case CTS_1984:
-        if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+        if(AUDIO_DEVICE == A_WAV_TRIGGER) {
           stopEffect(S_CROSS_STREAMS_START);
           stopEffect(S_CROSS_STREAMS_END);
         }
 
-        if(b_wand_mash_error != true) {
-          playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
-        }
+        playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
       break;
 
       case CTS_DEFAULT:
@@ -3332,26 +3348,22 @@ void modeFireStopSounds() {
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
           default:
-            if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+            if(AUDIO_DEVICE == A_WAV_TRIGGER) {
               stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
               stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
             }
 
-            if(b_wand_mash_error != true) {
-              playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
-            }
+            playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
           break;
 
           case SYSTEM_1984:
           case SYSTEM_1989:
-            if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+            if(AUDIO_DEVICE == A_WAV_TRIGGER) {
               stopEffect(S_CROSS_STREAMS_START);
               stopEffect(S_CROSS_STREAMS_END);
             }
 
-            if(b_wand_mash_error != true) {
-              playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
-            }
+            playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
           break;
         }
       break;
@@ -3403,7 +3415,7 @@ void modeFireStop() {
         break;
       }
 
-      if(b_pack_alarm == true) {
+      if(b_pack_alarm) {
         // We are going to ramp the bargraph down if the pack alarm happens while we were firing.
         prepBargraphRampDown();
       }
@@ -3417,7 +3429,7 @@ void modeFireStop() {
 
       i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
 
-      if(b_pack_alarm == true) {
+      if(b_pack_alarm) {
         // We are going to ramp the bargraph down if the pack alarm happens while we were firing.
         prepBargraphRampDown();
       }
@@ -3537,7 +3549,7 @@ void modeFiring() {
 
     switch(WAND_YEAR_CTS) {
       case CTS_AFTERLIFE:
-        if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+        if(AUDIO_DEVICE == A_WAV_TRIGGER) {
           stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
           stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
         }
@@ -3555,7 +3567,7 @@ void modeFiring() {
       break;
 
       case CTS_1984:
-        if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+        if(AUDIO_DEVICE == A_WAV_TRIGGER) {
           stopEffect(S_CROSS_STREAMS_START);
           stopEffect(S_CROSS_STREAMS_END);
         }
@@ -3578,7 +3590,7 @@ void modeFiring() {
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
           default:
-            if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+            if(AUDIO_DEVICE == A_WAV_TRIGGER) {
               stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
               stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
             }
@@ -3597,7 +3609,7 @@ void modeFiring() {
 
           case SYSTEM_1984:
           case SYSTEM_1989:
-            if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+            if(AUDIO_DEVICE == A_WAV_TRIGGER) {
               stopEffect(S_CROSS_STREAMS_START);
               stopEffect(S_CROSS_STREAMS_END);
             }
@@ -3629,7 +3641,7 @@ void modeFiring() {
 
     switch(WAND_YEAR_CTS) {
       case CTS_AFTERLIFE:
-        if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+        if(AUDIO_DEVICE == A_WAV_TRIGGER) {
           stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
           stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
         }
@@ -3640,7 +3652,7 @@ void modeFiring() {
       break;
 
       case CTS_1984:
-        if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+        if(AUDIO_DEVICE == A_WAV_TRIGGER) {
           stopEffect(S_CROSS_STREAMS_START);
           stopEffect(S_CROSS_STREAMS_END);
         }
@@ -3656,7 +3668,7 @@ void modeFiring() {
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
           default:
-            if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+            if(AUDIO_DEVICE == A_WAV_TRIGGER) {
               stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
               stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
             }
@@ -3668,7 +3680,7 @@ void modeFiring() {
 
           case SYSTEM_1984:
           case SYSTEM_1989:
-            if(AUDIO_DEVICE != A_GPSTAR_AUDIO) {
+            if(AUDIO_DEVICE == A_WAV_TRIGGER) {
               stopEffect(S_CROSS_STREAMS_START);
               stopEffect(S_CROSS_STREAMS_END);
             }
@@ -3824,15 +3836,14 @@ void modeFiring() {
       c_temp_effect = c_temp_start;
     break;
 
-    case HOLIDAY:
-      if(b_christmas) {
-        c_temp_start = C_REDGREEN;
-        c_temp_effect = c_temp_start;
-      }
-      else {
-        c_temp_start = C_ORANGEPURPLE;
-        c_temp_effect = c_temp_start;
-      }
+    case HOLIDAY_HALLOWEEN:
+      c_temp_start = C_ORANGEPURPLE;
+      c_temp_effect = c_temp_start;
+    break;
+
+    case HOLIDAY_CHRISTMAS:
+      c_temp_start = C_REDGREEN;
+      c_temp_effect = c_temp_start;
     break;
 
     case SPECTRAL_CUSTOM:
@@ -3956,19 +3967,19 @@ void wandHeatUp() {
       playEffect(S_FIRE_START_SPARK);
     break;
 
-    case SLIME:
-      playEffect(S_PACK_SLIME_OPEN);
-
-      if(b_gpstar_benchtest == true && WAND_STATUS == MODE_ON && switch_vent.on() == true) {
-        playEffect(S_WAND_SLIME_IDLE_LOOP, true, i_volume_effects, true, 700);
-      }
-    break;
-
     case STASIS:
       playEffect(S_STASIS_OPEN);
 
       if(b_gpstar_benchtest == true && WAND_STATUS == MODE_ON && switch_vent.on() == true) {
         playEffect(S_WAND_STASIS_IDLE_LOOP, true, i_volume_effects, true, 2000);
+      }
+    break;
+
+    case SLIME:
+      playEffect(S_PACK_SLIME_OPEN);
+
+      if(b_gpstar_benchtest == true && WAND_STATUS == MODE_ON && switch_vent.on() == true) {
+        playEffect(S_WAND_SLIME_IDLE_LOOP, true, i_volume_effects, true, 700);
       }
     break;
 
@@ -3980,11 +3991,19 @@ void wandHeatUp() {
       }
     break;
 
-    case HOLIDAY:
-      playEffect(S_FIRE_START_SPARK);
+    case HOLIDAY_HALLOWEEN:
+      //playEffect(S_FIRE_START_SPARK);
 
       if(b_gpstar_benchtest) {
-        b_christmas ? playEffect(S_CHRISTMAS_MODE_VOICE) : playEffect(S_HALLOWEEN_MODE_VOICE);
+        playEffect(S_HALLOWEEN_MODE_VOICE);
+      }
+    break;
+
+    case HOLIDAY_CHRISTMAS:
+      //playEffect(S_FIRE_START_SPARK);
+
+      if(b_gpstar_benchtest) {
+        playEffect(S_CHRISTMAS_MODE_VOICE);
       }
     break;
   }
@@ -4002,8 +4021,16 @@ void wandBarrelHeatUp() {
   uint8_t i_barrel_led;
 
   switch(WAND_BARREL_LED_COUNT) {
+    case LEDS_50:
+      i_barrel_led = 36;
+    break;
+
     case LEDS_48:
       i_barrel_led = 36;
+    break;
+
+    case LEDS_2:
+      i_barrel_led = 0;
     break;
 
     case LEDS_5:
@@ -4031,11 +4058,25 @@ void wandBarrelHeatUp() {
       }
 
       switch(WAND_BARREL_LED_COUNT) {
+        case LEDS_50:
+          barrel_leds[i_barrel_led] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatup_counter);
+          barrel_leds[i_barrel_led - 1] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatup_counter);
+          barrel_leds[i_barrel_led - 2] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatup_counter);
+          barrel_leds[i_barrel_led - 3] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatup_counter);
+          barrel_leds[i_barrel_led + 1] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatup_counter);
+          barrel_leds[i_barrel_led + 2] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatup_counter);
+        break;
+
         case LEDS_48:
           barrel_leds[i_barrel_led] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatup_counter);
           barrel_leds[i_barrel_led - 23] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatup_counter);
           barrel_leds[i_barrel_led - 24] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatup_counter);
           barrel_leds[i_barrel_led - 25] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatup_counter);
+          barrel_leds[i_barrel_led + 1] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatup_counter);
+        break;
+
+        case LEDS_2:
+          barrel_leds[i_barrel_led] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatup_counter);
           barrel_leds[i_barrel_led + 1] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatup_counter);
         break;
 
@@ -4087,13 +4128,12 @@ void wandBarrelHeatUp() {
         c_temp = C_RAINBOW;
       break;
 
-      case HOLIDAY:
-        if(b_christmas) {
-          c_temp = C_REDGREEN;
-        }
-        else {
-          c_temp = C_ORANGEPURPLE;
-        }
+      case HOLIDAY_HALLOWEEN:
+        c_temp = C_ORANGEPURPLE;
+      break;
+
+      case HOLIDAY_CHRISTMAS:
+        c_temp = C_REDGREEN;
       break;
 
       case SPECTRAL_CUSTOM:
@@ -4102,11 +4142,25 @@ void wandBarrelHeatUp() {
     }
 
     switch(WAND_BARREL_LED_COUNT) {
+      case LEDS_50:
+        barrel_leds[i_barrel_led] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatup_counter);
+        barrel_leds[i_barrel_led - 1] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatup_counter);
+        barrel_leds[i_barrel_led - 2] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatup_counter);
+        barrel_leds[i_barrel_led - 3] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatup_counter);
+        barrel_leds[i_barrel_led + 1] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatup_counter);
+        barrel_leds[i_barrel_led + 2] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatup_counter);
+      break;
+
       case LEDS_48:
         barrel_leds[i_barrel_led] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatup_counter);
         barrel_leds[i_barrel_led - 23] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatup_counter);
         barrel_leds[i_barrel_led - 24] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatup_counter);
         barrel_leds[i_barrel_led - 25] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatup_counter);
+        barrel_leds[i_barrel_led + 1] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatup_counter);
+      break;
+
+      case LEDS_2:
+        barrel_leds[i_barrel_led] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatup_counter);
         barrel_leds[i_barrel_led + 1] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatup_counter);
       break;
 
@@ -4125,8 +4179,16 @@ void wandBarrelHeatDown() {
   uint8_t i_barrel_led;
 
   switch(WAND_BARREL_LED_COUNT) {
+    case LEDS_50:
+      i_barrel_led = 36;
+    break;
+
     case LEDS_48:
       i_barrel_led = 36;
+    break;
+
+    case LEDS_2:
+      i_barrel_led = 0;
     break;
 
     case LEDS_5:
@@ -4151,11 +4213,25 @@ void wandBarrelHeatDown() {
       }
 
       switch(WAND_BARREL_LED_COUNT) {
+        case LEDS_50:
+          barrel_leds[i_barrel_led] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+          barrel_leds[i_barrel_led - 1] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+          barrel_leds[i_barrel_led - 2] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+          barrel_leds[i_barrel_led - 3] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+          barrel_leds[i_barrel_led + 1] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+          barrel_leds[i_barrel_led + 2] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+        break;
+
         case LEDS_48:
           barrel_leds[i_barrel_led] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatdown_counter);
           barrel_leds[i_barrel_led - 23] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatdown_counter);
           barrel_leds[i_barrel_led - 24] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatdown_counter);
           barrel_leds[i_barrel_led - 25] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+          barrel_leds[i_barrel_led + 1] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+        break;
+
+        case LEDS_2:
+          barrel_leds[i_barrel_led] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatdown_counter);
           barrel_leds[i_barrel_led + 1] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatdown_counter);
         break;
 
@@ -4216,13 +4292,12 @@ void wandBarrelHeatDown() {
         c_temp = C_RAINBOW;
       break;
 
-      case HOLIDAY:
-        if(b_christmas) {
-          c_temp = C_REDGREEN;
-        }
-        else {
-          c_temp = C_ORANGEPURPLE;
-        }
+      case HOLIDAY_HALLOWEEN:
+        c_temp = C_ORANGEPURPLE;
+      break;
+
+      case HOLIDAY_CHRISTMAS:
+        c_temp = C_REDGREEN;
       break;
 
       case SPECTRAL_CUSTOM:
@@ -4231,11 +4306,25 @@ void wandBarrelHeatDown() {
     }
 
     switch(WAND_BARREL_LED_COUNT) {
+      case LEDS_50:
+        barrel_leds[i_barrel_led] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+        barrel_leds[i_barrel_led - 1] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+        barrel_leds[i_barrel_led - 2] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+        barrel_leds[i_barrel_led - 3] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+        barrel_leds[i_barrel_led + 1] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+        barrel_leds[i_barrel_led + 2] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+      break;
+
       case LEDS_48:
         barrel_leds[i_barrel_led] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatdown_counter);
         barrel_leds[i_barrel_led - 23] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatdown_counter);
         barrel_leds[i_barrel_led - 24] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatdown_counter);
         barrel_leds[i_barrel_led - 25] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+        barrel_leds[i_barrel_led + 1] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatdown_counter);
+      break;
+
+      case LEDS_2:
+        barrel_leds[i_barrel_led] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatdown_counter);
         barrel_leds[i_barrel_led + 1] = getHueColour(c_temp, WAND_BARREL_LED_COUNT, i_heatdown_counter);
       break;
 
@@ -4255,11 +4344,11 @@ void wandBarrelHeatDown() {
 }
 
 void barrelLEDTranslation(uint8_t id, colours colour) {
-  if(WAND_BARREL_LED_COUNT != LEDS_48) {
+  if(WAND_BARREL_LED_COUNT == LEDS_5 || WAND_BARREL_LED_COUNT == LEDS_2) {
     barrel_leds[id] = getHueColour(colour, WAND_BARREL_LED_COUNT);
     return;
   }
-  else {
+  else if(WAND_BARREL_LED_COUNT == LEDS_48) {
     switch(id) {
       case 0:
         // Translate to first three rows of LEDs.
@@ -4293,6 +4382,48 @@ void barrelLEDTranslation(uint8_t id, colours colour) {
         // Translate to the last three rows of LEDs.
         for(uint8_t i = 36; i < 48; i++) {
           barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = getHueColour(colour, WAND_BARREL_LED_COUNT);
+        }
+      break;
+
+      default:
+        // Do nothing.
+      break;
+    }
+  }
+  else if(WAND_BARREL_LED_COUNT == LEDS_50) {
+    switch(id) {
+      case 0:
+        // Translate to first three rows of LEDs.
+        for(uint8_t i = 0; i < 12; i++) {
+          barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i])] = getHueColour(colour, WAND_BARREL_LED_COUNT);
+        }
+      break;
+
+      case 1:
+        // Translate to rows 4 and 5 of the LED array.
+        for(uint8_t i = 12; i < 20; i++) {
+          barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i])] = getHueColour(colour, WAND_BARREL_LED_COUNT);
+        }
+      break;
+
+      case 2:
+        // Translate to rows 6 and 7 of the LED array.
+        for(uint8_t i = 20; i < 28; i++) {
+          barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i])] = getHueColour(colour, WAND_BARREL_LED_COUNT);
+        }
+      break;
+
+      case 3:
+        // Translate to rows 8 and 9 of the LED array.
+        for(uint8_t i = 28; i < 36; i++) {
+          barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i])] = getHueColour(colour, WAND_BARREL_LED_COUNT);
+        }
+      break;
+
+      case 4:
+        // Translate to the last three rows of LEDs.
+        for(uint8_t i = 36; i < 48; i++) {
+          barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i])] = getHueColour(colour, WAND_BARREL_LED_COUNT);
         }
       break;
 
@@ -4364,7 +4495,7 @@ void firePulseEffect() {
     i_pulse_step = 14; // Immediately go to end of sequence.
   }
 
-  uint8_t i_firing_pulse = d_firing_pulse; // Stores a calculated value based on firing mode.
+  uint8_t i_firing_pulse_tmp = i_firing_pulse; // Stores a calculated value based on firing mode.
 
   switch(i_pulse_step) {
     case 0:
@@ -4727,9 +4858,9 @@ void firePulseEffect() {
   if(i_pulse_step < 14) {
     if(STREAM_MODE == PROTON) {
       // Boson Dart is much slower than the others.
-      i_firing_pulse *= 2;
+      i_firing_pulse_tmp *= 2;
     }
-    ms_firing_pulse.start(i_firing_pulse);
+    ms_firing_pulse.start(i_firing_pulse_tmp);
   }
   else {
     // Animation has concluded, so reset our timer and variable.
@@ -4746,14 +4877,344 @@ void firePulseEffect() {
 }
 
 void fireStreamEffect(CRGB c_colour) {
-  uint8_t i_firing_stream; // Stores a calculated value based on LED count.
+  uint8_t i_firing_stream_tmp; // Stores a calculated value based on LED count.
 
   switch(WAND_BARREL_LED_COUNT) {
-    case LEDS_48:
-      // Frutto Technology - 48 LED + Strobe Tip
+    case LEDS_50:
+      // GPStar Neutrona Barrel -> 48 LED + 2 Strobe Tips.
       // This effect will "wrap" around the device to appear to push the stream forward.
 
-      i_firing_stream = d_firing_stream / 10;
+      i_firing_stream_tmp = i_firing_stream / 10; // 10ms
+
+      if(ms_firing_stream_effects.justFinished()) {
+        if(i_barrel_light - 1 >= 0 && i_barrel_light - 1 < i_num_barrel_leds) {
+          switch(STREAM_MODE) {
+            case PROTON:
+            default:
+              if(b_firing_cross_streams == true) {
+                if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE && !b_pack_cyclotron_lid_on) {
+                  barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_CHARTREUSE, WAND_BARREL_LED_COUNT);
+                  //barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 2])] = c_colour;
+                }
+                else {
+                  barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_WHITE, WAND_BARREL_LED_COUNT);
+                  //barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 2])] = c_colour;
+                }
+              }
+              else if(getSystemYearMode() == SYSTEM_1989) {
+                // Shift the stream from orange to red on higher power levels.
+                switch(i_power_level) {
+                  case 1:
+                  default:
+                    barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_RED5, WAND_BARREL_LED_COUNT);
+                  break;
+
+                  case 2:
+                    barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
+                  break;
+
+                  case 3:
+                    barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_RED3, WAND_BARREL_LED_COUNT);
+                  break;
+
+                  case 4:
+                    barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
+                  break;
+
+                  case 5:
+                    barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
+                  break;
+                }
+              }
+              else {
+                // Shift the stream from red to orange on higher power levels.
+                switch(i_power_level) {
+                  case 1:
+                  default:
+                    barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
+                  break;
+
+                  case 2:
+                    barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
+                  break;
+
+                  case 3:
+                    barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_RED3, WAND_BARREL_LED_COUNT);
+                  break;
+
+                  case 4:
+                    barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
+                  break;
+
+                  case 5:
+                    barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_RED5, WAND_BARREL_LED_COUNT);
+                  break;
+                }
+              }
+            break;
+
+            case SLIME:
+              if(getSystemYearMode() == SYSTEM_1989) {
+                barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_PASTEL_PINK, WAND_BARREL_LED_COUNT);
+              }
+              else {
+                barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_DARK_GREEN, WAND_BARREL_LED_COUNT);
+              }
+            break;
+
+            case STASIS:
+              barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_BLUE, WAND_BARREL_LED_COUNT);
+            break;
+
+            case MESON:
+            case SPECTRAL:
+            case HOLIDAY_HALLOWEEN:
+            case HOLIDAY_CHRISTMAS:
+              barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+            break;
+
+            case SPECTRAL_CUSTOM:
+              barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT);
+            break;
+          }
+        }
+
+        if(i_barrel_light == i_num_barrel_leds) {
+          i_barrel_light = 0;
+
+          uint8_t i_s_speed = 0;
+
+          switch(STREAM_MODE) {
+            case MESON:
+              // Do nothing; animation is restarted by checkWandAction();
+            break;
+
+            default:
+              switch(i_power_level) {
+                case 1:
+                default:
+                  i_s_speed = 5; // 5ms
+                break;
+
+                case 2:
+                  i_s_speed = 6; // 4ms
+                break;
+
+                case 3:
+                  i_s_speed = 7; // 3ms
+                break;
+
+                case 4:
+                  i_s_speed = 8; // 2ms
+                break;
+
+                case 5:
+                  i_s_speed = 9; // 1ms
+                break;
+              }
+            break;
+          }
+
+          if(STREAM_MODE != MESON) {
+            ms_firing_stream_effects.start(i_firing_stream_tmp - i_s_speed);
+          }
+        }
+        else if(i_barrel_light < i_num_barrel_leds) {
+          barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light])] = c_colour;
+
+          switch(STREAM_MODE) {
+            case MESON:
+              if(i_barrel_light + 1 < i_num_barrel_leds) {
+                barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light + 1])] = c_colour;
+              }
+
+              if(i_barrel_light + 2 < i_num_barrel_leds) {
+                barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light + 2])] = c_colour;
+              }
+
+              if(i_barrel_light + 3 < i_num_barrel_leds) {
+                barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light + 3])] = c_colour;
+              }
+            break;
+
+            case PROTON:
+            {
+              uint8_t i_t_rand = random(0, i_num_barrel_leds / 3); // from 0 to 15
+
+              switch(i_power_level) {
+                case 5:
+                  i_t_rand = i_t_rand + 10;
+                break;
+
+                case 4:
+                  i_t_rand = i_t_rand + 8;
+                break;
+
+                case 3:
+                  i_t_rand = i_t_rand + 6;
+                break;
+
+                case 2:
+                  i_t_rand = i_t_rand + 3;
+                break;
+
+                case 1:
+                default:
+                i_t_rand = i_t_rand + 2;
+                  // Nothing.
+                break;
+              }
+
+              for(uint8_t i = i_barrel_light + 1; i < i_barrel_light + i_t_rand; i++) {
+                if(i < i_num_barrel_leds) {
+                  barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i])] = c_colour;
+                }
+              }
+            }
+            break;
+
+            default:
+            {
+              uint8_t i_t_rand_def = random(0, i_num_barrel_leds / 4); // from 0 to 11
+
+              for(uint8_t i = i_barrel_light + 1; i < i_barrel_light + i_t_rand_def; i++) {
+                if(i < i_num_barrel_leds) {
+                  barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i])] = c_colour;
+                }
+              }
+            }
+            break;
+          }
+
+          switch(STREAM_MODE) {
+            case MESON:
+              switch(i_power_level) {
+                case 1:
+                default:
+                  i_fast_led_delay = FAST_LED_UPDATE_MS; // 3ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25)); // 4ms
+                break;
+
+                case 2:
+                  i_fast_led_delay = FAST_LED_UPDATE_MS; // 3ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) - 1); // 3ms
+                break;
+
+                case 3:
+                  i_fast_led_delay = FAST_LED_UPDATE_MS + 1; // 4ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) - 1); // 3ms
+                break;
+
+                case 4:
+                  i_fast_led_delay = FAST_LED_UPDATE_MS + 3; // 6ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) - 1); // 3ms
+                break;
+
+                case 5:
+                  i_fast_led_delay = FAST_LED_UPDATE_MS + 4; // 7ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) - 2); // 2ms
+                break;
+              }
+            break;
+
+            case PROTON:
+              switch(i_power_level) {
+                case 1:
+                default:
+                  ms_firing_stream_effects.start((i_firing_stream / 25) + 4); // 8ms
+                break;
+
+                case 2:
+                  ms_firing_stream_effects.start((i_firing_stream / 25) + 3); // 7ms
+                break;
+
+                case 3:
+                  ms_firing_stream_effects.start((i_firing_stream / 25) + 2); // 6ms
+                break;
+
+                case 4:
+                  ms_firing_stream_effects.start((i_firing_stream / 25) + 1); // 5ms
+                break;
+
+                case 5:
+                  ms_firing_stream_effects.start((i_firing_stream / 25)); // 4ms
+                break;
+              }
+            break;
+
+            case SLIME:
+              if(WAND_ACTION_STATUS == ACTION_FIRING) {
+                switch(i_power_level) {
+                  case 1:
+                  default:
+                    ms_firing_stream_effects.start((i_firing_stream / 25) + 2); // 6ms
+                  break;
+
+                  case 2:
+                    ms_firing_stream_effects.start((i_firing_stream / 25) + 1); // 5ms
+                  break;
+
+                  case 3:
+                    ms_firing_stream_effects.start((i_firing_stream / 25)); // 4ms
+                  break;
+
+                  case 4:
+                    ms_firing_stream_effects.start((i_firing_stream / 25) - 1); // 3ms
+                  break;
+
+                  case 5:
+                    ms_firing_stream_effects.start((i_firing_stream / 25) - 2); // 2ms
+                  break;
+                }
+              }
+              else {
+                // Slime Tether response time is a fixed value.
+                ms_firing_stream_effects.start((i_firing_stream / 25) - 3); // 1ms
+
+                // Let Slime Tether turn on the barrel tip.
+                if(i_barrel_light + 4 == i_num_barrel_leds) {
+                  wandTipOn();
+                }
+              }
+            break;
+
+            default:
+              switch(i_power_level) {
+                case 1:
+                default:
+                  ms_firing_stream_effects.start((i_firing_stream / 25) + 2); // 6ms
+                break;
+
+                case 2:
+                  ms_firing_stream_effects.start((i_firing_stream / 25) + 1); // 5ms
+                break;
+
+                case 3:
+                  ms_firing_stream_effects.start((i_firing_stream / 25)); // 4ms
+                break;
+
+                case 4:
+                  ms_firing_stream_effects.start((i_firing_stream / 25) - 1); // 3ms
+                break;
+
+                case 5:
+                  ms_firing_stream_effects.start((i_firing_stream / 25) - 2); // 2ms
+                break;
+              }
+            break;
+          }
+
+          i_barrel_light++;
+        }
+      }
+    break;
+
+    case LEDS_48:
+      // GPStar Neutrona Barrel -> 48 LED + 2 Strobe Tips.
+      // Frutto Technology -> 48 LED + Strobe Tip
+      // This effect will "wrap" around the device to appear to push the stream forward.
+
+      i_firing_stream_tmp = i_firing_stream / 10; // 10ms
 
       if(ms_firing_stream_effects.justFinished()) {
         if(i_barrel_light - 1 >= 0 && i_barrel_light - 1 < i_num_barrel_leds) {
@@ -4837,7 +5298,8 @@ void fireStreamEffect(CRGB c_colour) {
 
             case MESON:
             case SPECTRAL:
-            case HOLIDAY:
+            case HOLIDAY_HALLOWEEN:
+            case HOLIDAY_CHRISTMAS:
               barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
             break;
 
@@ -4884,7 +5346,7 @@ void fireStreamEffect(CRGB c_colour) {
           }
 
           if(STREAM_MODE != MESON) {
-            ms_firing_stream_effects.start(i_firing_stream - i_s_speed);
+            ms_firing_stream_effects.start(i_firing_stream_tmp - i_s_speed);
           }
         }
         else if(i_barrel_light < i_num_barrel_leds) {
@@ -4960,27 +5422,27 @@ void fireStreamEffect(CRGB c_colour) {
                 case 1:
                 default:
                   i_fast_led_delay = FAST_LED_UPDATE_MS; // 3ms
-                  ms_firing_stream_effects.start((d_firing_stream / 25)); // 4ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25)); // 4ms
                 break;
 
                 case 2:
                   i_fast_led_delay = FAST_LED_UPDATE_MS; // 3ms
-                  ms_firing_stream_effects.start((d_firing_stream / 25) - 1); // 3ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) - 1); // 3ms
                 break;
 
                 case 3:
                   i_fast_led_delay = FAST_LED_UPDATE_MS + 1; // 4ms
-                  ms_firing_stream_effects.start((d_firing_stream / 25) - 1); // 3ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) - 1); // 3ms
                 break;
 
                 case 4:
                   i_fast_led_delay = FAST_LED_UPDATE_MS + 3; // 6ms
-                  ms_firing_stream_effects.start((d_firing_stream / 25) - 1); // 3ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) - 1); // 3ms
                 break;
 
                 case 5:
                   i_fast_led_delay = FAST_LED_UPDATE_MS + 4; // 7ms
-                  ms_firing_stream_effects.start((d_firing_stream / 25) - 2); // 2ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) - 2); // 2ms
                 break;
               }
             break;
@@ -4989,23 +5451,23 @@ void fireStreamEffect(CRGB c_colour) {
               switch(i_power_level) {
                 case 1:
                 default:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 4); // 8ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) + 4); // 8ms
                 break;
 
                 case 2:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 3); // 7ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) + 3); // 7ms
                 break;
 
                 case 3:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 2); // 6ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) + 2); // 6ms
                 break;
 
                 case 4:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 1); // 5ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) + 1); // 5ms
                 break;
 
                 case 5:
-                  ms_firing_stream_effects.start((d_firing_stream / 25)); // 4ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25)); // 4ms
                 break;
               }
             break;
@@ -5015,29 +5477,29 @@ void fireStreamEffect(CRGB c_colour) {
                 switch(i_power_level) {
                   case 1:
                   default:
-                    ms_firing_stream_effects.start((d_firing_stream / 25) + 2); // 6ms
+                    ms_firing_stream_effects.start((i_firing_stream / 25) + 2); // 6ms
                   break;
 
                   case 2:
-                    ms_firing_stream_effects.start((d_firing_stream / 25) + 1); // 5ms
+                    ms_firing_stream_effects.start((i_firing_stream / 25) + 1); // 5ms
                   break;
 
                   case 3:
-                    ms_firing_stream_effects.start((d_firing_stream / 25)); // 4ms
+                    ms_firing_stream_effects.start((i_firing_stream / 25)); // 4ms
                   break;
 
                   case 4:
-                    ms_firing_stream_effects.start((d_firing_stream / 25) - 1); // 3ms
+                    ms_firing_stream_effects.start((i_firing_stream / 25) - 1); // 3ms
                   break;
 
                   case 5:
-                    ms_firing_stream_effects.start((d_firing_stream / 25) - 2); // 2ms
+                    ms_firing_stream_effects.start((i_firing_stream / 25) - 2); // 2ms
                   break;
                 }
               }
               else {
                 // Slime Tether response time is a fixed value.
-                ms_firing_stream_effects.start((d_firing_stream / 25) - 3); // 1ms
+                ms_firing_stream_effects.start((i_firing_stream / 25) - 3); // 1ms
 
                 // Let Slime Tether turn on the barrel tip.
                 if(i_barrel_light + 4 == i_num_barrel_leds) {
@@ -5050,23 +5512,23 @@ void fireStreamEffect(CRGB c_colour) {
               switch(i_power_level) {
                 case 1:
                 default:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 2); // 6ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) + 2); // 6ms
                 break;
 
                 case 2:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) + 1); // 5ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) + 1); // 5ms
                 break;
 
                 case 3:
-                  ms_firing_stream_effects.start((d_firing_stream / 25)); // 4ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25)); // 4ms
                 break;
 
                 case 4:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) - 1); // 3ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) - 1); // 3ms
                 break;
 
                 case 5:
-                  ms_firing_stream_effects.start((d_firing_stream / 25) - 2); // 2ms
+                  ms_firing_stream_effects.start((i_firing_stream / 25) - 2); // 2ms
                 break;
               }
             break;
@@ -5078,8 +5540,9 @@ void fireStreamEffect(CRGB c_colour) {
     break;
 
     case LEDS_5:
+    case LEDS_2:
     default:
-      i_firing_stream = d_firing_stream;
+      i_firing_stream_tmp = i_firing_stream;
 
       if(ms_firing_stream_effects.justFinished()) {
         if(i_barrel_light - 1 >= 0 && i_barrel_light - 1 < i_num_barrel_leds) {
@@ -5161,7 +5624,8 @@ void fireStreamEffect(CRGB c_colour) {
 
             case MESON:
             case SPECTRAL:
-            case HOLIDAY:
+            case HOLIDAY_HALLOWEEN:
+            case HOLIDAY_CHRISTMAS:
               barrel_leds[i_barrel_light - 1] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
             break;
 
@@ -5183,23 +5647,23 @@ void fireStreamEffect(CRGB c_colour) {
               switch(i_power_level) {
                 case 1:
                 default:
-                  ms_firing_stream_effects.start(i_firing_stream); // 100ms
+                  ms_firing_stream_effects.start(i_firing_stream_tmp); // 100ms
                 break;
 
                 case 2:
-                  ms_firing_stream_effects.start(i_firing_stream - 15); // 85ms
+                  ms_firing_stream_effects.start(i_firing_stream_tmp - 15); // 85ms
                 break;
 
                 case 3:
-                  ms_firing_stream_effects.start(i_firing_stream - 30); // 70ms
+                  ms_firing_stream_effects.start(i_firing_stream_tmp - 30); // 70ms
                 break;
 
                 case 4:
-                  ms_firing_stream_effects.start(i_firing_stream - 45); // 55ms
+                  ms_firing_stream_effects.start(i_firing_stream_tmp - 45); // 55ms
                 break;
 
                 case 5:
-                  ms_firing_stream_effects.start(i_firing_stream - 60); // 40ms
+                  ms_firing_stream_effects.start(i_firing_stream_tmp - 60); // 40ms
                 break;
               }
             break;
@@ -5213,23 +5677,23 @@ void fireStreamEffect(CRGB c_colour) {
               switch(i_power_level) {
                 case 1:
                 default:
-                  ms_firing_stream_effects.start((d_firing_stream / 5) + 10); // 30ms
+                  ms_firing_stream_effects.start((i_firing_stream / 5) + 10); // 30ms
                 break;
 
                 case 2:
-                  ms_firing_stream_effects.start((d_firing_stream / 5) + 8); // 28ms
+                  ms_firing_stream_effects.start((i_firing_stream / 5) + 8); // 28ms
                 break;
 
                 case 3:
-                  ms_firing_stream_effects.start((d_firing_stream / 5) + 6); // 26ms
+                  ms_firing_stream_effects.start((i_firing_stream / 5) + 6); // 26ms
                 break;
 
                 case 4:
-                  ms_firing_stream_effects.start((d_firing_stream / 5) + 5); // 25ms
+                  ms_firing_stream_effects.start((i_firing_stream / 5) + 5); // 25ms
                 break;
 
                 case 5:
-                  ms_firing_stream_effects.start((d_firing_stream / 5) + 4); // 24ms
+                  ms_firing_stream_effects.start((i_firing_stream / 5) + 4); // 24ms
                 break;
               }
             break;
@@ -5264,6 +5728,14 @@ void barrelLightsOff() {
 void fireStreamStart(CRGB c_colour) {
   if(ms_firing_lights.justFinished() && i_barrel_light < i_num_barrel_leds) {
     switch(WAND_BARREL_LED_COUNT) {
+      case LEDS_50:
+        barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light])] = c_colour;
+
+        if(i_barrel_light + 2 < i_num_barrel_leds) {
+          barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light + 2])] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+        }
+      break;
+
       case LEDS_48:
         // Since this arrangement has many more LEDs available, we can make use of extra colour changes
         // to enhance the stream effects. In this case we can darken the lead LED then follow with the
@@ -5276,6 +5748,7 @@ void fireStreamStart(CRGB c_colour) {
       break;
 
       case LEDS_5:
+      case LEDS_2:
       default:
         // Just set the current LED to the expected colour.
         barrel_leds[i_barrel_light] = c_colour;
@@ -5284,14 +5757,16 @@ void fireStreamStart(CRGB c_colour) {
 
     switch(WAND_BARREL_LED_COUNT) {
       case LEDS_48:
+      case LEDS_50:
         // More LEDs means a faster firing rate.
-        ms_firing_lights.start(d_firing_stream / 30);
+        ms_firing_lights.start(i_firing_stream / 30); // 3ms
       break;
 
       case LEDS_5:
+      case LEDS_2:
       default:
         // Firing at "normal" speed.
-        ms_firing_lights.start(d_firing_stream / 5);
+        ms_firing_lights.start(i_firing_stream / 5); // 20ms
       break;
     }
 
@@ -5304,14 +5779,15 @@ void fireStreamStart(CRGB c_colour) {
 
       switch(WAND_BARREL_LED_COUNT) {
         case LEDS_48:
+        case LEDS_50:
           // More LEDs means a faster firing rate.
-          ms_firing_stream_effects.start(d_firing_stream / 25);
+          ms_firing_stream_effects.start(i_firing_stream / 25); // 4ms
         break;
 
         case LEDS_5:
         default:
           // Firing at "normal" speed.
-          ms_firing_stream_effects.start(d_firing_stream);
+          ms_firing_stream_effects.start(i_firing_stream);
         break;
       }
     }
@@ -5407,13 +5883,12 @@ void fireEffectEnd() {
         c_temp = C_RAINBOW;
       break;
 
-      case HOLIDAY:
-        if(b_christmas) {
-          c_temp = C_REDGREEN;
-        }
-        else {
-          c_temp = C_ORANGEPURPLE;
-        }
+      case HOLIDAY_HALLOWEEN:
+        c_temp = C_ORANGEPURPLE;
+      break;
+
+      case HOLIDAY_CHRISTMAS:
+        c_temp = C_REDGREEN;
       break;
 
       case SPECTRAL_CUSTOM:
@@ -5433,7 +5908,7 @@ void fireEffectEnd() {
     }
     else {
       // Give a slight delay for the final pixel before clearing it.
-      uint8_t i_firing_stream; // Stores a calculated value based on LED count.
+      uint8_t i_firing_stream_tmp; // Stores a calculated value based on LED count.
 
       uint8_t i_s_speed = 0; // Stores an additional value used for the 48-LED barrel.
 
@@ -5491,15 +5966,16 @@ void fireEffectEnd() {
 
       switch(WAND_BARREL_LED_COUNT) {
         case LEDS_48:
+        case LEDS_50:
           // More LEDs means a faster firing rate.
-          i_firing_stream = d_firing_stream / 10;
-          i_firing_stream = i_firing_stream - i_s_speed;
+          i_firing_stream_tmp = i_firing_stream / 10; // 10ms
+          i_firing_stream_tmp = i_firing_stream_tmp - i_s_speed;
         break;
 
         case LEDS_5:
         default:
           // Firing at "normal" speed.
-          i_firing_stream = d_firing_stream;
+          i_firing_stream_tmp = i_firing_stream;
 
           switch(i_power_level) {
             case 1:
@@ -5508,25 +5984,25 @@ void fireEffectEnd() {
             break;
 
             case 2:
-              i_firing_stream = i_firing_stream - 15;
+              i_firing_stream_tmp = i_firing_stream_tmp - 15;
             break;
 
             case 3:
-              i_firing_stream = i_firing_stream - 30;
+              i_firing_stream_tmp = i_firing_stream_tmp - 30;
             break;
 
             case 4:
-              i_firing_stream = i_firing_stream - 45;
+              i_firing_stream_tmp = i_firing_stream_tmp - 45;
             break;
 
             case 5:
-              i_firing_stream = i_firing_stream - 60;
+              i_firing_stream_tmp = i_firing_stream_tmp - 60;
             break;
           }
         break;
       }
 
-      ms_firing_effect_end.start(i_firing_stream);
+      ms_firing_effect_end.start(i_firing_stream_tmp);
       ms_firing_stream_effects.stop();
     }
   }
@@ -5609,7 +6085,8 @@ void fireEffectEnd() {
 
       case MESON:
       case SPECTRAL:
-      case HOLIDAY:
+      case HOLIDAY_HALLOWEEN:
+      case HOLIDAY_CHRISTMAS:
         c_temp = C_BLACK;
       break;
 
@@ -5619,12 +6096,18 @@ void fireEffectEnd() {
     }
 
     switch(WAND_BARREL_LED_COUNT) {
+      case LEDS_50:
+        // Set the final LED back to whatever colour it is without the effect.
+        barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(c_temp, WAND_BARREL_LED_COUNT);
+      break;
+
       case LEDS_48:
         // Set the final LED back to whatever colour it is without the effect.
         barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(c_temp, WAND_BARREL_LED_COUNT);
       break;
 
       case LEDS_5:
+      case LEDS_2:
       default:
         // Set the final LED back to whatever colour it is without the effect.
         barrel_leds[i_barrel_light - 1] = getHueColour(c_temp, WAND_BARREL_LED_COUNT);
@@ -5640,21 +6123,30 @@ void fireEffectEnd() {
 void fireStreamEnd(CRGB c_colour) {
   if(i_barrel_light < i_num_barrel_leds) {
     switch(WAND_BARREL_LED_COUNT) {
+      case LEDS_50:
+        // Set the colour for the mapped LED.
+        barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light])] = c_colour;
+
+        // More LEDs means a faster firing rate.
+        ms_firing_lights_end.start(i_firing_stream / 25); // 4ms
+      break;
+
       case LEDS_48:
         // Set the colour for the mapped LED.
         barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light])] = c_colour;
 
         // More LEDs means a faster firing rate.
-        ms_firing_lights_end.start(d_firing_stream / 25);
+        ms_firing_lights_end.start(i_firing_stream / 25); // 4ms
       break;
 
       case LEDS_5:
+      case LEDS_2:
       default:
         // Set the colour for the specific LED.
         barrel_leds[i_barrel_light] = c_colour;
 
         // Firing at a "normal" rate
-        ms_firing_lights_end.start(d_firing_stream / 5);
+        ms_firing_lights_end.start(i_firing_stream / 5); // 20ms
       break;
     }
 
@@ -8951,35 +9443,28 @@ void wandLightsOff() {
     wandBargraphControl(0);
   }
 
-  digitalWriteFast(SLO_BLO_LED_PIN, LOW); // Turn off the SLO-BLO LED.
-  digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Turn off the front left LED under the Clippard valve.
-
-  digitalWriteFast(BARREL_HAT_LED_PIN, LOW); // Turn off hat light 1.
-  digitalWriteFast(TOP_HAT_LED_PIN, LOW); // Turn off hat light 2.
+  wandLightsOffMenuSystem();
   wandTipOff();
-
-  digitalWrite(VENT_LED_PIN, HIGH);
-  digitalWriteFast(TOP_LED_PIN, HIGH);
 
   i_bargraph_status = 0;
   i_bargraph_status_alt = 0;
 
-  if(b_power_on_indicator && !ms_power_indicator.isRunning()) {
-    ms_power_indicator.start(i_ms_power_indicator);
+  if(!b_playing_music) {
+    // If music is not playing, arm the power-on reminder LED system.
+    setPowerOnReminder(true);
   }
 }
 
 void wandLightsOffMenuSystem() {
   // Make sure some of the wand lights are off, specifically for the Menu systems.
-  digitalWriteFast(SLO_BLO_LED_PIN, LOW);
-  digitalWrite(VENT_LED_PIN, HIGH);
-  digitalWriteFast(TOP_LED_PIN, HIGH);
-  digitalWriteFast(CLIPPARD_LED_PIN, LOW);
+  digitalWriteFast(SLO_BLO_LED_PIN, LOW); // Turn off the SLO-BLO LED.
+  digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Turn off the front left LED under the Clippard valve.
+  digitalWriteFast(BARREL_HAT_LED_PIN, LOW); // Turn off hat light 1.
+  digitalWriteFast(TOP_HAT_LED_PIN, LOW); // Turn off hat light 2.
+  ventLedTopControl(false); // Turn off the blinking white top LED.
+  ventLedControl(0); // Turn off the vent light.
 
-  if(b_power_on_indicator == true) {
-    ms_power_indicator.stop();
-    ms_power_indicator_blink.stop();
-  }
+  setPowerOnReminder(false);
 }
 
 int8_t readRotary() {
@@ -8997,29 +9482,33 @@ int8_t readRotary() {
 
   prev_next_code &= 0x0f;
 
-   // If valid then store as 16 bit data.
-   if(rot_enc_table[prev_next_code]) {
-      store <<= 4;
-      store |= prev_next_code;
+  // If valid then store as 16 bit data.
+  if(rot_enc_table[prev_next_code]) {
+    store <<= 4;
+    store |= prev_next_code;
 
-      if((store&0xff) == 0x2b) {
-        return -1;
-      }
+    if((store&0xff) == 0x2b) {
+      return -1;
+    }
 
-      if((store&0xff) == 0x17) {
-        return 1;
-      }
-   }
+    if((store&0xff) == 0x17) {
+      return 1;
+    }
+  }
 
-   return 0;
+  return 0;
 }
 
 void wandBarrelSpectralCustomConfigOn() {
   for(uint8_t i = 0; i < i_num_barrel_leds; i++) {
     barrel_leds[i] = getHueColour(C_CUSTOM, WAND_BARREL_LED_COUNT);
   }
+
   if(WAND_BARREL_LED_COUNT == LEDS_48) {
     barrel_leds[i_num_barrel_leds] = getHueColour(C_CUSTOM, LEDS_48);
+  }
+  else if(WAND_BARREL_LED_COUNT == LEDS_50) {
+    barrel_leds[i_num_barrel_leds] = getHueColour(C_CUSTOM, LEDS_50);
   }
 }
 
@@ -9153,43 +9642,43 @@ void checkRotaryEncoder() {
       case ACTION_CONFIG_EEPROM_MENU:
         // Counter clockwise.
         if(prev_next_code == 0x0b) {
-          if(WAND_MENU_LEVEL == MENU_LEVEL_3 && i_wand_menu == 5 && switch_intensify.on() == true && switch_mode.on() == false) {
+          if(WAND_MENU_LEVEL == MENU_LEVEL_3 && i_wand_menu == 5 && switch_intensify.on() && !switch_mode.on()) {
             // Adjust the default bootup system volume.
             wandSerialSend(W_VOLUME_DECREASE_EEPROM);
 
             // If there is no Pack, we need to adjust the volume manually
-            if(b_gpstar_benchtest == true) {
+            if(b_gpstar_benchtest) {
               decreaseVolumeEEPROM();
             }
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 5 && switch_intensify.on() == true && switch_mode.on() == false) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 5 && switch_intensify.on() && !switch_mode.on()) {
             wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_5);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 4 && switch_intensify.on() == true && switch_mode.on() == false) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 4 && switch_intensify.on() && !switch_mode.on()) {
             wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_4);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 3 && switch_intensify.on() == true && switch_mode.on() == false) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 3 && switch_intensify.on() && !switch_mode.on()) {
             wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_3);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 2 && switch_intensify.on() == true && switch_mode.on() == false) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 2 && switch_intensify.on() && !switch_mode.on()) {
             wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_2);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 1 && switch_intensify.on() == true && switch_mode.on() == false) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 1 && switch_intensify.on() && !switch_mode.on()) {
             wandSerialSend(W_OVERHEAT_DECREASE_LEVEL_1);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 5 && switch_intensify.on() == false && switch_mode.on() == true) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 5 && !switch_intensify.on() && switch_mode.on()) {
             overheatTimerDecrement(5);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 4 && switch_intensify.on() == false && switch_mode.on() == true) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 4 && !switch_intensify.on() && switch_mode.on()) {
             overheatTimerDecrement(4);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 3 && switch_intensify.on() == false && switch_mode.on() == true) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 3 && !switch_intensify.on() && switch_mode.on()) {
             overheatTimerDecrement(3);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 2 && switch_intensify.on() == false && switch_mode.on() == true) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 2 && !switch_intensify.on() && switch_mode.on()) {
             overheatTimerDecrement(2);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 1 && switch_intensify.on() == false && switch_mode.on() == true) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 1 && !switch_intensify.on() && switch_mode.on()) {
             overheatTimerDecrement(1);
           }
           else if(i_wand_menu - 1 < 1) {
@@ -9202,8 +9691,8 @@ void checkRotaryEncoder() {
                 digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
 
                 // Turn off the other lights.
-                digitalWrite(VENT_LED_PIN, HIGH); // Level 3
-                digitalWriteFast(TOP_LED_PIN, HIGH); // Level 4
+                ventLedControl(0); // Level 3
+                ventLedTopControl(false); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9228,10 +9717,10 @@ void checkRotaryEncoder() {
 
                 // Turn on some lights to visually indicate which menu we are in.
                 digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
-                digitalWrite(VENT_LED_PIN, LOW); // Level 3
+                ventLedControl(); // Level 3
 
                 // Turn off the other lights.
-                digitalWriteFast(TOP_LED_PIN, HIGH); // Level 4
+                ventLedTopControl(false); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9256,8 +9745,8 @@ void checkRotaryEncoder() {
 
                 // Turn on some lights to visually indicate which menu we are in.
                 digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
-                digitalWrite(VENT_LED_PIN, LOW); // Level 3
-                digitalWriteFast(TOP_LED_PIN, LOW); // Level 4
+                ventLedControl(); // Level 3
+                ventLedTopControl(true); // Level 4
 
                 // Turn off the other lights.
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
@@ -9284,8 +9773,8 @@ void checkRotaryEncoder() {
 
                 // Turn on some lights to visually indicate which menu we are in.
                 digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
-                digitalWrite(VENT_LED_PIN, LOW); // Level 3
-                digitalWriteFast(TOP_LED_PIN, LOW); // Level 4
+                ventLedControl(); // Level 3
+                ventLedTopControl(true); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, HIGH); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9318,43 +9807,43 @@ void checkRotaryEncoder() {
 
         // Clockwise.
         if(prev_next_code == 0x07) {
-          if(WAND_MENU_LEVEL == MENU_LEVEL_3 && i_wand_menu == 5 && switch_intensify.on() == true && switch_mode.on() == false) {
+          if(WAND_MENU_LEVEL == MENU_LEVEL_3 && i_wand_menu == 5 && switch_intensify.on() && !switch_mode.on()) {
             // Adjust the default bootup system volume.
             wandSerialSend(W_VOLUME_INCREASE_EEPROM);
 
             // If there is no Pack, we need to adjust the volume manually
-            if(b_gpstar_benchtest == true) {
+            if(b_gpstar_benchtest) {
               increaseVolumeEEPROM();
             }
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 5 && switch_intensify.on() == true && switch_mode.on() == false) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 5 && switch_intensify.on() && !switch_mode.on()) {
             wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_5);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 4 && switch_intensify.on() == true && switch_mode.on() == false) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 4 && switch_intensify.on() && !switch_mode.on()) {
             wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_4);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 3 && switch_intensify.on() == true && switch_mode.on() == false) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 3 && switch_intensify.on() && !switch_mode.on()) {
             wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_3);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 2 && switch_intensify.on() == true && switch_mode.on() == false) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 2 && switch_intensify.on() && !switch_mode.on()) {
             wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_2);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 1 && switch_intensify.on() == true && switch_mode.on() == false) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 1 && switch_intensify.on() && !switch_mode.on()) {
             wandSerialSend(W_OVERHEAT_INCREASE_LEVEL_1);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 5 && switch_intensify.on() == false && switch_mode.on() == true) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 5 && !switch_intensify.on() && switch_mode.on()) {
             overheatTimerIncrement(5);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 4 && switch_intensify.on() == false && switch_mode.on() == true) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 4 && !switch_intensify.on() && switch_mode.on()) {
             overheatTimerIncrement(4);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 3 && switch_intensify.on() == false && switch_mode.on() == true) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 3 && !switch_intensify.on() && switch_mode.on()) {
             overheatTimerIncrement(3);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 2 && switch_intensify.on() == false && switch_mode.on() == true) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 2 && !switch_intensify.on() && switch_mode.on()) {
             overheatTimerIncrement(2);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 1 && switch_intensify.on() == false && switch_mode.on() == true) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 1 && !switch_intensify.on() && switch_mode.on()) {
             overheatTimerIncrement(1);
           }
           else if(i_wand_menu + 1 > 5) {
@@ -9365,8 +9854,8 @@ void checkRotaryEncoder() {
 
                 // Turn on some lights to visually indicate which menu we are in.
                 digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
-                digitalWrite(VENT_LED_PIN, LOW); // Level 3
-                digitalWriteFast(TOP_LED_PIN, LOW); // Level 4
+                ventLedControl(); // Level 3
+                ventLedTopControl(true); // Level 4
 
                 // Turn off the other lights.
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
@@ -9393,10 +9882,10 @@ void checkRotaryEncoder() {
 
                 // Turn on some lights to visually indicate which menu we are in.
                 digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
-                digitalWrite(VENT_LED_PIN, LOW); // Level 3
+                ventLedControl(); // Level 3
 
                 // Turn off the other lights.
-                digitalWriteFast(TOP_LED_PIN, HIGH); // Level 4
+                ventLedTopControl(false); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9423,8 +9912,8 @@ void checkRotaryEncoder() {
                 digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
 
                 // Turn off the other lights.
-                digitalWrite(VENT_LED_PIN, HIGH); // Level 3
-                digitalWriteFast(TOP_LED_PIN, HIGH); // Level 4
+                ventLedControl(0); // Level 3
+                ventLedTopControl(false); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9449,8 +9938,8 @@ void checkRotaryEncoder() {
 
                 // Turn off the other lights.
                 digitalWriteFast(SLO_BLO_LED_PIN, LOW); // Level 2
-                digitalWrite(VENT_LED_PIN, HIGH); // Level 3
-                digitalWriteFast(TOP_LED_PIN, HIGH); // Level 4
+                ventLedControl(0); // Level 3
+                ventLedTopControl(false); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9485,7 +9974,7 @@ void checkRotaryEncoder() {
       case ACTION_LED_EEPROM_MENU:
         // Counter clockwise.
         if(prev_next_code == 0x0b) {
-          if(WAND_MENU_LEVEL == MENU_LEVEL_1 && i_wand_menu == 4 && switch_intensify.on() == false && switch_mode.on() == true) {
+          if(WAND_MENU_LEVEL == MENU_LEVEL_1 && i_wand_menu == 4 && !switch_intensify.on() && switch_mode.on()) {
             // Change colour of the wand barrel spectral custom colour.
             if(i_spectral_wand_custom_colour > 1 && i_spectral_wand_custom_saturation > 253) {
               i_spectral_wand_custom_colour--;
@@ -9503,15 +9992,15 @@ void checkRotaryEncoder() {
 
             wandBarrelSpectralCustomConfigOn();
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_1 && i_wand_menu == 3 && switch_intensify.on() == false && switch_mode.on() == true) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_1 && i_wand_menu == 3 && !switch_intensify.on() && switch_mode.on()) {
             // Change colour of the Power Cell Spectral custom colour.
             wandSerialSend(W_SPECTRAL_POWERCELL_CUSTOM_DECREASE);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_1 && i_wand_menu == 2 && switch_intensify.on() == false && switch_mode.on() == true) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_1 && i_wand_menu == 2 && !switch_intensify.on() && switch_mode.on()) {
             // Change colour of the Cyclotron Spectral custom colour.
             wandSerialSend(W_SPECTRAL_CYCLOTRON_CUSTOM_DECREASE);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_1 && i_wand_menu == 1 && switch_intensify.on() == false && switch_mode.on() == true) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_1 && i_wand_menu == 1 && !switch_intensify.on() && switch_mode.on()) {
             // Change colour of the Inner Cyclotron Spectral custom colour.
             wandSerialSend(W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_DECREASE);
           }
@@ -9525,8 +10014,8 @@ void checkRotaryEncoder() {
                 digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
 
                 // Turn off the other lights.
-                digitalWrite(VENT_LED_PIN, HIGH); // Level 3
-                digitalWriteFast(TOP_LED_PIN, HIGH); // Level 4
+                ventLedControl(0); // Level 3
+                ventLedTopControl(false); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9559,7 +10048,7 @@ void checkRotaryEncoder() {
 
         // Clockwise.
         if(prev_next_code == 0x07) {
-          if(WAND_MENU_LEVEL == MENU_LEVEL_1 && i_wand_menu == 4 && switch_intensify.on() == false && switch_mode.on() == true) {
+          if(WAND_MENU_LEVEL == MENU_LEVEL_1 && i_wand_menu == 4 && !switch_intensify.on() && switch_mode.on()) {
             // Change colour of the Wand Barrel Spectral custom colour.
             if(i_spectral_wand_custom_saturation < 254) {
               i_spectral_wand_custom_saturation++;
@@ -9584,15 +10073,15 @@ void checkRotaryEncoder() {
 
             wandBarrelSpectralCustomConfigOn();
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_1 && i_wand_menu == 3 && switch_intensify.on() == false && switch_mode.on() == true) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_1 && i_wand_menu == 3 && !switch_intensify.on() && switch_mode.on()) {
             // Change colour of the Power Cell Spectral custom colour.
             wandSerialSend(W_SPECTRAL_POWERCELL_CUSTOM_INCREASE);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_1 && i_wand_menu == 2 && switch_intensify.on() == false && switch_mode.on() == true) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_1 && i_wand_menu == 2 && !switch_intensify.on() && switch_mode.on()) {
             // Change colour of the Cyclotron Spectral custom colour.
             wandSerialSend(W_SPECTRAL_CYCLOTRON_CUSTOM_INCREASE);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_1 && i_wand_menu == 1 && switch_intensify.on() == false && switch_mode.on() == true) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_1 && i_wand_menu == 1 && !switch_intensify.on() && switch_mode.on()) {
             // Change colour of the Inner Cyclotron Spectral custom colour.
             wandSerialSend(W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_INCREASE);
           }
@@ -9604,8 +10093,8 @@ void checkRotaryEncoder() {
 
                 // Turn off the other lights.
                 digitalWriteFast(SLO_BLO_LED_PIN, LOW); // Level 2
-                digitalWrite(VENT_LED_PIN, HIGH); // Level 3
-                digitalWriteFast(TOP_LED_PIN, HIGH); // Level 4
+                ventLedControl(0); // Level 3
+                ventLedTopControl(false); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9640,18 +10129,18 @@ void checkRotaryEncoder() {
       case ACTION_SETTINGS:
         // Counter clockwise.
         if(prev_next_code == 0x0b) {
-          if(i_wand_menu == 4 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.on() == true && switch_mode.on() == false) {
+          if(i_wand_menu == 4 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.on() && !switch_mode.on()) {
             // Tell pack to dim the selected lighting. (Power Cell, Cyclotron or Inner Cyclotron)
             wandSerialSend(W_DIMMING_DECREASE);
           }
-          else if(i_wand_menu == 3 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.on() == true && switch_mode.on() == false) {
+          else if(i_wand_menu == 3 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.on() && !switch_mode.on()) {
             // Lower the sound effects volume.
             decreaseVolumeEffects();
 
             // Tell pack to lower the sound effects volume.
             wandSerialSend(W_VOLUME_SOUND_EFFECTS_DECREASE);
           }
-          else if(i_wand_menu == 3 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.on() == false && switch_mode.on() == true && b_playing_music == true) {
+          else if(i_wand_menu == 3 && WAND_MENU_LEVEL == MENU_LEVEL_1 && !switch_intensify.on() && switch_mode.on() && b_playing_music) {
             // Decrease the music volume.
             decreaseVolumeMusic();
 
@@ -9703,18 +10192,18 @@ void checkRotaryEncoder() {
 
         // Clockwise.
         if(prev_next_code == 0x07) {
-          if(i_wand_menu == 4 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.on() == true && switch_mode.on() == false) {
+          if(i_wand_menu == 4 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.on() && !switch_mode.on()) {
             // Tell pack to dim the selected lighting. (Power Cell, Cyclotron or Inner Cyclotron)
             wandSerialSend(W_DIMMING_INCREASE);
           }
-          else if(i_wand_menu == 3 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.on() == true && switch_mode.on() == false) {
+          else if(i_wand_menu == 3 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.on() && !switch_mode.on()) {
             // Increase sound effects volume.
             increaseVolumeEffects();
 
             // Tell pack to increase the sound effects volume.
             wandSerialSend(W_VOLUME_SOUND_EFFECTS_INCREASE);
           }
-          else if(i_wand_menu == 3 && WAND_MENU_LEVEL == MENU_LEVEL_1 && switch_intensify.on() == false && switch_mode.on() == true && b_playing_music == true) {
+          else if(i_wand_menu == 3 && WAND_MENU_LEVEL == MENU_LEVEL_1 && !switch_intensify.on() && switch_mode.on() && b_playing_music) {
             // Increase music volume.
             increaseVolumeMusic();
 
@@ -9767,7 +10256,7 @@ void checkRotaryEncoder() {
       break;
 
       default:
-        if(((WAND_STATUS == MODE_ON && SYSTEM_MODE != MODE_ORIGINAL) || (WAND_STATUS == MODE_OFF && SYSTEM_MODE == MODE_ORIGINAL))  && switch_intensify.on() == true && switch_vent.on() != true && switch_wand.on() != true) {
+        if(((WAND_STATUS == MODE_ON && SYSTEM_MODE != MODE_ORIGINAL) || WAND_STATUS == MODE_OFF) && switch_intensify.on() && !switch_vent.on() && !switch_wand.on()) {
             // Counter clockwise.
             if(prev_next_code == 0x0b) {
               // Decrease the master system volume of both the Proton Pack and Neutrona Wand.
@@ -9780,28 +10269,14 @@ void checkRotaryEncoder() {
               wandSerialSend(W_VOLUME_INCREASE);
             }
         }
-        else if(WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && b_pack_alarm != true) {
+        else if(WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && !b_pack_alarm && !b_wand_mash_error) {
           if(WAND_ACTION_STATUS == ACTION_FIRING && i_power_level == i_power_level_max) {
             // Do nothing, we are locked in full power level while firing.
           }
           // Counter clockwise.
           else if(prev_next_code == 0x0b) {
-            if((switch_wand.on() == true && switch_vent.on() == true && switch_activate.on() == true) || SYSTEM_MODE == MODE_ORIGINAL) {
-              // Check to see the minimal power level depending on which system mode.
-              uint8_t i_tmp_power_level_min = i_power_level_min;
-
-              switch(SYSTEM_MODE) {
-                case MODE_ORIGINAL:
-                  i_tmp_power_level_min = i_power_level_min + 1;
-                break;
-
-                case MODE_SUPER_HERO:
-                default:
-                  i_tmp_power_level_min = i_power_level_min;
-                break;
-              }
-
-              if(i_power_level - 1 >= i_tmp_power_level_min && WAND_STATUS == MODE_ON) {
+            if(switch_wand.on() && switch_vent.on() && switch_activate.on() && WAND_STATUS == MODE_ON) {
+              if(i_power_level - 1 >= (SYSTEM_MODE == MODE_ORIGINAL ? (i_power_level_min + 1) : i_power_level_min)) {
                 i_power_level_prev = i_power_level;
                 i_power_level--;
 
@@ -9810,7 +10285,7 @@ void checkRotaryEncoder() {
                 }
 
                 // Forces a redraw of the bargraph if firing while changing the power level in the BARGRAPH_ANIMATION_ORIGINAL.
-                if(b_firing == true && BARGRAPH_TYPE != SEGMENTS_5 && BARGRAPH_FIRING_ANIMATION == BARGRAPH_ANIMATION_ORIGINAL) {
+                if(b_firing && BARGRAPH_TYPE != SEGMENTS_5 && BARGRAPH_FIRING_ANIMATION == BARGRAPH_ANIMATION_ORIGINAL) {
                   bargraphRedraw();
                 }
 
@@ -9819,7 +10294,7 @@ void checkRotaryEncoder() {
                 switch(getNeutronaWandYearMode()) {
                   case SYSTEM_1984:
                   case SYSTEM_1989:
-                    if(switch_vent.on() == true) {
+                    if(switch_vent.on()) {
                       soundIdleLoopStop(false);
                       soundIdleLoop(false);
                     }
@@ -9836,8 +10311,8 @@ void checkRotaryEncoder() {
                 updatePackPowerLevel();
               }
             }
-            else if(vgModeCheck() && switch_wand.on() != true && switch_vent.on() == true && WAND_STATUS == MODE_ON) {
-              // Counter clockwise firing mode selection.
+            else if(vgModeCheck() && !switch_wand.on() && switch_vent.on() && WAND_STATUS == MODE_ON) {
+              // Counter-Clockwise Rotation from Proton: STASIS -> SLIME -> MESON -> [SPECTRAL -> HOLIDAY_* -> SPECTRAL_CUSTOM] -> PROTON
               if(STREAM_MODE == PROTON) {
                 STREAM_MODE = STASIS;
               }
@@ -9849,13 +10324,13 @@ void checkRotaryEncoder() {
               }
               else if(STREAM_MODE == MESON) {
                 // Conditional mode advancement.
-                if(b_spectral_mode_enabled == true) {
+                if(b_spectral_mode_enabled) {
                   STREAM_MODE = SPECTRAL;
                 }
-                else if(b_holiday_mode_enabled == true) {
-                  STREAM_MODE = HOLIDAY;
+                else if(b_holiday_mode_enabled) {
+                  STREAM_MODE = HOLIDAY_HALLOWEEN;
                 }
-                else if(b_spectral_custom_mode_enabled == true) {
+                else if(b_spectral_custom_mode_enabled) {
                   STREAM_MODE = SPECTRAL_CUSTOM;
                 }
                 else {
@@ -9864,19 +10339,20 @@ void checkRotaryEncoder() {
               }
               else if(STREAM_MODE == SPECTRAL) {
                 // Conditional mode advancement.
-                if(b_holiday_mode_enabled == true) {
-                  STREAM_MODE = HOLIDAY;
+                if(b_holiday_mode_enabled) {
+                  // Note: Once in a holiday mode, user can switch between additional modes using the BWB switch.
+                  STREAM_MODE = HOLIDAY_HALLOWEEN;
                 }
-                else if(b_spectral_custom_mode_enabled == true) {
+                else if(b_spectral_custom_mode_enabled) {
                   STREAM_MODE = SPECTRAL_CUSTOM;
                 }
                 else {
                   STREAM_MODE = PROTON;
                 }
               }
-              else if(STREAM_MODE == HOLIDAY) {
+              else if(STREAM_MODE == HOLIDAY_HALLOWEEN || STREAM_MODE == HOLIDAY_CHRISTMAS) {
                 // Conditional mode advancement.
-                if(b_spectral_custom_mode_enabled == true) {
+                if(b_spectral_custom_mode_enabled) {
                   STREAM_MODE = SPECTRAL_CUSTOM;
                 }
                 else {
@@ -9891,15 +10367,15 @@ void checkRotaryEncoder() {
             }
 
             // Decrease the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
-            if(WAND_STATUS == MODE_OFF && switch_intensify.on() != true) {
-              if(b_playing_music == true) {
+            if(WAND_STATUS == MODE_OFF && !switch_intensify.on()) {
+              if(b_playing_music) {
                 decreaseVolumeMusic();
               }
 
               // Tell pack to lower music volume.
               wandSerialSend(W_VOLUME_MUSIC_DECREASE);
             }
-            else if(WAND_STATUS == MODE_OFF && switch_intensify.on() == true) {
+            else if(WAND_STATUS == MODE_OFF && switch_intensify.on()) {
               // Decrease the master volume of the Neutrona Wand only.
               decreaseVolume();
             }
@@ -9910,8 +10386,8 @@ void checkRotaryEncoder() {
           }
           // Clockwise.
           else if(prev_next_code == 0x07) {
-            if((switch_wand.on() == true && switch_vent.on() == true && switch_activate.on() == true) || SYSTEM_MODE == MODE_ORIGINAL) {
-              if(i_power_level + 1 <= i_power_level_max && WAND_STATUS == MODE_ON) {
+            if(switch_wand.on() && switch_vent.on() && switch_activate.on() && WAND_STATUS == MODE_ON) {
+              if(i_power_level + 1 <= i_power_level_max) {
                 if(i_power_level + 1 == i_power_level_max && WAND_ACTION_STATUS == ACTION_FIRING) {
                   // Do nothing, we do not want to go into max power level if firing in a lower power level already.
                 }
@@ -9924,7 +10400,7 @@ void checkRotaryEncoder() {
                   }
 
                   // Forces a redraw of the bargraph if firing while changing the power level if using BARGRAPH_ANIMATION_ORIGINAL.
-                  if(b_firing == true && BARGRAPH_TYPE != SEGMENTS_5 && BARGRAPH_FIRING_ANIMATION == BARGRAPH_ANIMATION_ORIGINAL) {
+                  if(b_firing && BARGRAPH_TYPE != SEGMENTS_5 && BARGRAPH_FIRING_ANIMATION == BARGRAPH_ANIMATION_ORIGINAL) {
                     bargraphRedraw();
                   }
 
@@ -9933,7 +10409,7 @@ void checkRotaryEncoder() {
                   switch(getNeutronaWandYearMode()) {
                     case SYSTEM_1984:
                     case SYSTEM_1989:
-                      if(switch_vent.on() == true) {
+                      if(switch_vent.on()) {
                         soundIdleLoopStop(false);
                         soundIdleLoop(false);
                       }
@@ -9951,16 +10427,18 @@ void checkRotaryEncoder() {
                 }
               }
             }
-            else if(vgModeCheck() && switch_wand.on() != true && switch_vent.on() == true && WAND_STATUS == MODE_ON) {
+            else if(vgModeCheck() && !switch_wand.on() && switch_vent.on() && WAND_STATUS == MODE_ON) {
+              // Clockwise Rotation from Proton: [SPECTRAL_CUSTOM -> HOLIDAY_* -> SPECTRAL] -> MESON -> SLIME -> STASIS -> PROTON
               if(STREAM_MODE == PROTON) {
                 // Conditional mode advancement.
-                if(b_spectral_custom_mode_enabled == true) {
+                if(b_spectral_custom_mode_enabled) {
                   STREAM_MODE = SPECTRAL_CUSTOM;
                 }
-                else if(b_holiday_mode_enabled == true) {
-                  STREAM_MODE = HOLIDAY;
+                else if(b_holiday_mode_enabled) {
+                  // Note: Once in a holiday mode, user can switch between additional modes using the BWB switch.
+                  STREAM_MODE = HOLIDAY_HALLOWEEN;
                 }
-                else if(b_spectral_mode_enabled == true) {
+                else if(b_spectral_mode_enabled) {
                   STREAM_MODE = SPECTRAL;
                 }
                 else {
@@ -9969,19 +10447,19 @@ void checkRotaryEncoder() {
               }
               else if(STREAM_MODE == SPECTRAL_CUSTOM) {
                 // Conditional mode advancement.
-                if(b_holiday_mode_enabled == true) {
-                  STREAM_MODE = HOLIDAY;
+                if(b_holiday_mode_enabled) {
+                  STREAM_MODE = HOLIDAY_HALLOWEEN;
                 }
-                else if(b_spectral_mode_enabled == true) {
+                else if(b_spectral_mode_enabled) {
                   STREAM_MODE = SPECTRAL;
                 }
                 else {
                   STREAM_MODE = MESON;
                 }
               }
-              else if(STREAM_MODE == HOLIDAY) {
+              else if(STREAM_MODE == HOLIDAY_HALLOWEEN || STREAM_MODE == HOLIDAY_CHRISTMAS) {
                 // Conditional mode advancement.
-                if(b_spectral_mode_enabled == true) {
+                if(b_spectral_mode_enabled) {
                   STREAM_MODE = SPECTRAL;
                 }
                 else {
@@ -10005,15 +10483,15 @@ void checkRotaryEncoder() {
             }
 
             // Increase the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
-            if(WAND_STATUS == MODE_OFF && switch_intensify.on() != true) {
-              if(b_playing_music == true) {
+            if(WAND_STATUS == MODE_OFF && !switch_intensify.on()) {
+              if(b_playing_music) {
                 increaseVolumeMusic();
               }
 
               // Tell pack to increase music volume.
               wandSerialSend(W_VOLUME_MUSIC_INCREASE);
             }
-            else if(WAND_STATUS == MODE_OFF && switch_intensify.on() == true) {
+            else if(WAND_STATUS == MODE_OFF && switch_intensify.on()) {
               // Increase the master volume of the Neutrona Wand only.
               increaseVolume();
             }
@@ -10060,6 +10538,9 @@ void changeIonArmSwitchState(bool state) {
   if(state && !b_pack_ion_arm_switch_on) {
     b_pack_ion_arm_switch_on = true;
 
+    // Disable the power on reminder.
+    setPowerOnReminder(false);
+
     // Prep the bargraph for MODE_ORIGINAL. This only preps it when the pack switch is turned on and the wand is still off but all the toggle switches are on for the bargraph to settle at the off position. (0 circle).
     if(WAND_ACTION_STATUS == ACTION_IDLE) {
       switch(WAND_STATUS) {
@@ -10081,12 +10562,6 @@ void changeIonArmSwitchState(bool state) {
                 }
 
                 prepBargraphRampUp();
-              }
-
-              // Stop the power on indicator timer if enabled.
-              if(b_power_on_indicator) {
-                ms_power_indicator.stop();
-                ms_power_indicator_blink.stop();
               }
             break;
 
@@ -10224,14 +10699,20 @@ void wandSwitched(void* n) {
 void wandBarrelLightsOff() {
   for(uint8_t i = 0; i < i_num_barrel_leds; i++) {
     switch(WAND_BARREL_LED_COUNT) {
+      case LEDS_50:
+        // Turn off the entire GPStar Neutrona Barrel array.
+        barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i])] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
+      break;
+
       case LEDS_48:
         // Turn off the entire Frutto LED array.
         barrel_leds[PROGMEM_READU8(frutto_barrel[i])] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
       break;
 
       case LEDS_5:
+      case LEDS_2:
       default:
-        // Turn off the entire Hasbro LED array.
+        // Turn off the entire Hasbro LED and GPStar Barrel LED Mini array.
         barrel_leds[i] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
       break;
     }
@@ -10267,9 +10748,14 @@ void wandExitMenu() {
       wandSerialSend(W_SPECTRAL_MODE);
     break;
 
-    case HOLIDAY:
-      // Tell the pack we are in holiday mode.
-      wandSerialSend(W_HOLIDAY_MODE, b_christmas ? 2 : 1);
+    case HOLIDAY_HALLOWEEN:
+      // Tell the pack we are in Halloween mode.
+      wandSerialSend(W_HALLOWEEN_MODE);
+    break;
+
+    case HOLIDAY_CHRISTMAS:
+      // Tell the pack we are in Christmas mode.
+      wandSerialSend(W_CHRISTMAS_MODE);
     break;
 
     case SPECTRAL_CUSTOM:
@@ -10387,29 +10873,181 @@ bool switchBarrel() {
   return b_switch_barrel_extended; // Immediate return of state.
 }
 
-void stopAfterLifeSounds() {
+void stopAfterlifeSounds() {
   stopEffect(S_AFTERLIFE_WAND_RAMP_1);
   stopEffect(S_AFTERLIFE_WAND_IDLE_1);
-
   stopEffect(S_AFTERLIFE_WAND_RAMP_2);
   stopEffect(S_AFTERLIFE_WAND_IDLE_2);
   stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
   stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
-
   stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
   stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
 }
 
 void afterlifeRampSound1() {
-  stopAfterLifeSounds();
+  stopAfterlifeSounds();
+
+  if(b_extra_pack_sounds) {
+    wandSerialSend(W_AFTERLIFE_GUN_RAMP_1);
+  }
 
   ms_gun_loop_1.start(i_gun_loop_1);
 
-  playEffect(S_AFTERLIFE_WAND_RAMP_1);
-  b_sound_afterlife_idle_2_fade = false;
+  if(AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
+    playTransitionEffect(S_AFTERLIFE_WAND_RAMP_1, S_AFTERLIFE_WAND_IDLE_1, true, 5);
+  }
+  else {
+    playEffect(S_AFTERLIFE_WAND_RAMP_1);
+  }
 
-  if(b_extra_pack_sounds == true) {
-    wandSerialSend(W_AFTERLIFE_GUN_RAMP_1);
+  b_sound_afterlife_idle_2_fade = false;
+}
+
+// Arms/Disarms the power-on reminder (if enabled).
+void setPowerOnReminder(bool enable) {
+  if(enable && b_power_on_indicator) {
+    // Arm the power indicator timer.
+    ms_power_indicator.start(i_ms_power_indicator);
+  }
+  else {
+    // Disarm the power indicator timer.
+    ms_power_indicator.stop();
+  }
+}
+
+// Function to handle blinking for the power-on reminder (if enabled).
+void checkPowerOnReminder() {
+  if(WAND_ACTION_STATUS == ACTION_IDLE && (!b_pack_on || b_gpstar_benchtest)) {
+    if(ms_power_indicator.justFinished()) {
+      if((SYSTEM_MODE == MODE_ORIGINAL && !b_pack_ion_arm_switch_on) || SYSTEM_MODE == MODE_SUPER_HERO) {
+        // Blink the Clippard LED to indicate to the user that the system battery is still powered on.
+        digitalWriteFast(CLIPPARD_LED_PIN, (digitalReadFast(CLIPPARD_LED_PIN) == LOW) ? HIGH : LOW);
+      }
+
+      // Restart the blink timer.
+      ms_power_indicator.start(i_ms_power_indicator_blink);
+    }
+  }
+}
+
+void ventLedTopControl(bool b_on) {
+  if(!b_on) {
+    if(!b_rgb_vent_light) {
+      // Turn off top light.
+      digitalWriteFast(TOP_LED_PIN, HIGH);
+    }
+
+    // Turn off if not off already.
+    if(vent_leds[1]) {
+      vent_leds[1] = getHueAsRGB(C_BLACK);
+      b_vent_lights_changed = true;
+    }
+  }
+  else {
+    if(!b_rgb_vent_light) {
+      // Turn on top light.
+      digitalWriteFast(TOP_LED_PIN, LOW);
+    }
+
+    // Turn on if not on already.
+    if(!vent_leds[1]) {
+      switch(STREAM_MODE) {
+        case SPECTRAL:
+          vent_leds[1] = getHueAsRGB(C_RAINBOW);
+        break;
+
+        case HOLIDAY_HALLOWEEN:
+          vent_leds[1] = getHueAsRGB(C_ORANGEPURPLE);
+        break;
+
+        case HOLIDAY_CHRISTMAS:
+          vent_leds[1] = getHueAsRGB(C_REDGREEN);
+        break;
+
+        case SPECTRAL_CUSTOM:
+          vent_leds[1] = getHueAsRGB(C_CUSTOM);
+        break;
+
+        default:
+          if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
+            vent_leds[1] = getHueAsRGB(C_WARM_WHITE);
+          }
+          else {
+            vent_leds[1] = getHueAsRGB(C_WHITE);
+          }
+        break;
+      }
+
+      b_vent_lights_changed = true;
+    }
+  }
+}
+
+void ventLedControl(uint8_t i_intensity) {
+  if(i_intensity <= 1) {
+    // Turn off if not off already.
+    if(vent_leds[0]) {
+      digitalWrite(VENT_LED_PIN, HIGH);
+      vent_leds[0] = getHueAsRGB(C_BLACK, 0);
+      b_vent_lights_changed = true;
+    }
+  }
+  else {
+    if(!b_rgb_vent_light) {
+      if(i_intensity == 255) {
+        digitalWrite(VENT_LED_PIN, LOW);
+      }
+      else {
+        analogWrite(VENT_LED_PIN, 255 - i_intensity);
+      }
+    }
+
+    switch(STREAM_MODE) {
+      case STASIS:
+        vent_leds[0] = getHueAsRGB(C_BLUE, i_intensity);
+      break;
+
+      case SLIME:
+        if(getSystemYearMode() == SYSTEM_1989) {
+          vent_leds[0] = getHueAsRGB(C_PASTEL_PINK, i_intensity);
+        }
+        else {
+          vent_leds[0] = getHueAsRGB(C_DARK_GREEN, i_intensity);
+        }
+      break;
+
+      case MESON:
+        vent_leds[0] = getHueAsRGB(C_YELLOW, i_intensity);
+      break;
+
+      case SPECTRAL:
+        vent_leds[0] = getHueAsRGB(C_RAINBOW, i_intensity);
+      break;
+
+      case HOLIDAY_HALLOWEEN:
+        vent_leds[0] = getHueAsRGB(C_ORANGEPURPLE, i_intensity);
+      break;
+
+      case HOLIDAY_CHRISTMAS:
+        vent_leds[0] = getHueAsRGB(C_REDGREEN, i_intensity);
+      break;
+
+      case SPECTRAL_CUSTOM:
+        vent_leds[0] = getHueAsRGB(C_CUSTOM, i_intensity);
+      break;
+
+      case PROTON:
+      default:
+        if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
+          vent_leds[0] = getHueAsRGB(C_WHITE, i_intensity);
+        }
+        else {
+          vent_leds[0] = getHueAsRGB(C_WARM_WHITE, i_intensity);
+        }
+      break;
+    }
+
+    b_vent_lights_changed = true;
   }
 }
 

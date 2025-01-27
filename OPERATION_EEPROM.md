@@ -22,7 +22,7 @@ To access the EEPROM LED Menu System, hold down the `Intensify Button` and toggl
 
 	Menu Level 1 -> No additional wand lights will be illuminated
 	Menu Level 2 -> Slo-Blo illuminated
-	
+
 📝 **Note:** EEPROM menus can only be reached while both the Neutrona Wand and Proton Pack are powered down.
 
 ![](images/OperationNeutrona11.jpg)
@@ -32,10 +32,10 @@ To access the EEPROM LED Menu System, hold down the `Intensify Button` and toggl
 | Option | Purpose | Intensify&nbsp;Button | Barrel&nbsp;Wing&nbsp;Button |
 |:------:|---------|------------------|--------------------|
 | 5 | Save or Clear the EEPROM settings | Clear all the LED settings in the Proton Pack and Neutrona Wand EEPROMs.<br/><br/>**The Proton Pack and Neutrona Wand will instead load the software defined defaults the next time you power-cycle from the battery.** | Save the current settings to the Proton Pack and Neutrona Wand EEPROMs. |
-| 4 | Neutrona Wand Barrel LED Count Toggle / Spectral Custom (Barrel) Colour | Toggle between 5 or 48 LEDs for your Neutrona Wand barrel. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Neutrona Wand barrel** for the Spectral Custom mode. |
-| 3 | Power Cell LED Count Toggle / Spectral Custom (Power Cell) Colour | Toggle between 13 or 15 LEDs for your Power Cell. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Power Cell** for the Spectral Custom mode. |
-| 2 | Cyclotron LED Count Toggle / Spectral Custom (Cyclotron) Colour | Toggle between 12, 20, 36 or 40 LEDs for your Cyclotron Lid. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Cyclotron** for the Spectral Custom mode. |
-| 1 | Inner Cyclotron LED Count Toggle / Spectral Custom (Inner Cyclotron) Colour | Toggle Between 12, 23, 24, 26, 35, or 36 LEDs for your Inner Cyclotron. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Inner Cyclotron** for the Spectral Custom mode. |
+| 4 | Neutrona Wand Barrel LED Count Toggle&nbsp;/ Spectral Custom (Barrel) Colour | Toggle between 2, 5, 48 or 50 LEDs for your Neutrona Wand barrel. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Neutrona Wand barrel** for the Spectral Custom mode. |
+| 3 | Power Cell LED Count Toggle&nbsp;/ Spectral Custom (Power Cell) Colour | Toggle between 13 or 15 LEDs for your Power Cell. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Power Cell** for the Spectral Custom mode. |
+| 2 | Cyclotron LED Count Toggle&nbsp;/ Spectral Custom (Cyclotron) Colour | Toggle between 12, 20, 36 or 40 LEDs for your Cyclotron Lid. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Cyclotron** for the Spectral Custom mode. |
+| 1 | Inner Cyclotron LED Count Toggle&nbsp;/ Spectral Custom (Inner Cyclotron) Colour | Toggle Between 12, 23, 24, 26, 35, or 36 LEDs for your Inner Cyclotron. | `(Barrel Wing Button + Top Dial)` Changes the colour hue of the **Inner Cyclotron** for the Spectral Custom mode. |
 
 <div class="page-break"></div>
 
@@ -44,9 +44,9 @@ To access the EEPROM LED Menu System, hold down the `Intensify Button` and toggl
 | Option | Purpose | Intensify&nbsp;Button | Barrel&nbsp;Wing&nbsp;Button |
 |:------:|---------|------------------|--------------------|
 | 5 | 1984/1989&nbsp;Cyclotron&nbsp;Fade&nbsp;Toggle | Toggle whether the outer cyclotron LEDs have a fade effect or not in 1984 and 1989 year modes. | `unused` |
-| 4 | Bargraph&nbsp;Segment&nbsp;Count&nbsp;Toggle | Toggle between 28 segments or 30 segments for the optional bargraph.<sup>1</sup> | `unused` |
+| 4 | Bargraph&nbsp;Segment&nbsp;Count&nbsp;Toggle&nbsp;/ RGB&nbsp;Vent&nbsp;Light&nbsp;Toggle | Toggle between 28 segments or 30 segments for the optional bargraph.<sup>1</sup> | Enable/Disable the optional addressable RGB LED vent/top light board. |
 | 3 | Power&nbsp;Cell&nbsp;Invert | Change the direction of the Power Cell animation. | `unused` |
-| 2 | Inner&nbsp;Cyclotron&nbsp;LED&nbsp;Panel&nbsp;Toggle | Toggle the optional Inner Cyclotron LED Panel between disabled (individual LEDs), static colours (for Frutto panel with prop-accurate coloured cliplite covers), and dynamic colours (for Frutto panel with clear cliplite covers). | `unused` |
+| 2 | Inner&nbsp;Cyclotron&nbsp;LED&nbsp;Panel&nbsp;Toggle | Toggle the optional Inner Cyclotron LED Panel between disabled (individual LEDs), static colours (for prop-accurate coloured cliplite covers), and dynamic colours (for the LED panel with clear cliplite covers). | `unused` |
 | 1 | Inner&nbsp;Cyclotron&nbsp;GRB&nbsp;Toggle | Toggle your Inner Cyclotron from RGB or GRB LEDs. | `unused` |
 
 <sup>1</sup> This setting will only take effect if you have an optional bargraph plugged into the i2c data port when the wand is first started.
@@ -79,8 +79,8 @@ Please note whatever settings you have temporarily changed in the regular menus 
 | Option | Purpose | Intensify&nbsp;Button | Barrel&nbsp;Wing&nbsp;Button |
 |:------:|---------|------------------|--------------------|
 | 5 | Save or Clear the EEPROM settings | Clear all the configuration only settings in the Proton Pack and Neutrona Wand EEPROMs.<br/><br/>**The Proton Pack and Neutrona Wand will instead load the software defined defaults the next time you power-cycle from the battery.** | Save the current settings to the Proton Pack and Neutrona Wand EEPROMs.<br/><br/>**It is advised to power-cycle your equipment after saving settings to ensure the proper defaults/values are loaded, such as the case of changing the System Mode.** |
-| 4 | Firing&nbsp;Mode&nbsp;Selection / Spectral Modes | Cycle through VG/CTS operation modes to set as your default.<sup>1</sup> | Enable/Disable the Spectral Modes. |
-| 3 | Overheating / Smoke | Enable/Disable Overheating Ability | Enable/Disable Smoke Effects |
+| 4 | Firing&nbsp;Mode&nbsp;Selection&nbsp;/ Spectral&nbsp;Modes | Cycle through VG/CTS operation modes to set as your default.<sup>1</sup> | Enable/Disable the Spectral Modes. |
+| 3 | Overheating&nbsp;/ Smoke | Enable/Disable Overheating Ability | Enable/Disable Smoke Effects |
 | 2 | Cyclotron&nbsp;LED&nbsp;Control | Cyclotron rotation direction. Clockwise or counter clockwise. | Enable/Disable the Cyclotron Lid Ring Simulation in Afterlife and Frozen Empire mode.<br/>ONLY applies to use of the 12, 20, or 36 LED hardware options. |
 | 1 | Sound&nbsp;Effects | Enable/Disable extra Neutrona Wand sound effects to be played by the Proton Pack. | Enable/Disable the proton stream impact sound effects. |
 
@@ -92,18 +92,18 @@ Please note whatever settings you have temporarily changed in the regular menus 
 
 | Option | Purpose | Intensify Button | Barrel Wing Button |
 |:------:|---------|------------------|--------------------|
-| 5 | Quick&nbsp;Vent / Wand&nbsp;Boot&nbsp;Errors | Enable/Disable the Quick Venting feature. When enabled, you can manually vent your Proton Pack by pressing the Intensify button while the top right toggle switch is switched down. <br><br>📝 `Super Hero mode only` | Enable to disable the Wand boot error mode. When enabled, if you turn on the Neutrona Wand while the top right toggle is up and activated, the Neutrona Wand enters an error mode and remains locked out until the switches are all turned off. <br><br>📝 `Super Hero mode only` |
+| 5 | Quick&nbsp;Vent&nbsp;/ Wand&nbsp;Boot&nbsp;Errors | Enable/Disable the Quick Venting feature. When enabled, you can manually vent your Proton Pack by pressing the Intensify button while the top right toggle switch is switched down. <br><br>📝 `Super Hero mode only` | Enable to disable the Wand boot error mode. When enabled, if you turn on the Neutrona Wand while the top right toggle is up and activated, the Neutrona Wand enters an error mode and remains locked out until the switches are all turned off. <br><br>📝 `Super Hero mode only` |
 | 4 | Vibration&nbsp;Settings | Cycle through Proton Pack vibration options<sup>2</sup> | Cycle through Neutrona Wand vibration options |
-| 3 | Beep&nbsp;Loop / VGA&nbsp;Colour&nbsp;Mode&nbsp;Toggles | Enable/Disable the looping beep sound effect in Afterlife and Frozen Empire Mode. | Cycle through VG colour modes.<sup>3</sup> |
+| 3 | Wand&nbsp;Beep&nbsp;Loop&nbsp;/ VGA&nbsp;Colour&nbsp;Mode&nbsp;Toggles | Enable/Disable the looping beep sound effect in Afterlife and Frozen Empire Mode. | Cycle through VG colour modes.<sup>3</sup> |
 | 2 | Overheat&nbsp;Lights | Enable/Disable the N-Filter LEDs from strobing during overheating. | Enable/Disable the Proton Pack lights to turn off during overheating. When disabled, after ramping down to a slower pace, the lights stay on.
-| 1 | Default Year&nbsp;Mode / Overheat&nbsp;Sync&nbsp;to&nbsp;Fan | Set your default year mode between 1984/1989/Afterlife/Frozen Empire/Default. When set, the system will ignore the year mode toggle switch during bootup. However the toggle switch can still be used while the Proton Pack is on. If set to Default, the system picks the year mode based on the position of the year mode toggle switch in the Proton Pack.<sup>4</sup> | Enable/Disable the overheat sync to fan. When enabled, the fan connections in the Proton Pack will only activate at the same time as the smoke connections. When disabled, the fan connections activate slightly after the smoke connections which allows some build of smoke before the fans activate. |
+| 1 | Default Year&nbsp;Mode&nbsp;/ Overheat&nbsp;Sync&nbsp;to&nbsp;Fan | Set your default year mode between 1984/1989/Afterlife/Frozen Empire/Default. When set, the system will ignore the year mode toggle switch during bootup. However the toggle switch can still be used while the Proton Pack is on. If set to Default, the system picks the year mode based on the position of the year mode toggle switch in the Proton Pack.<sup>4</sup> | Enable/Disable the overheat sync to fan. When enabled, the fan connections in the Proton Pack will only activate at the same time as the smoke connections. When disabled, the fan connections activate slightly after the smoke connections which allows some build of smoke before the fans activate. |
 
 <sup>2</sup> See [Inner Cyclotron](CYCLOTRON_INNER.md) for more information on the motorised cyclotron modification for the Proton Pack.
 
 <sup>3</sup> Enables/disables the video game colour modes for the Proton Pack's Power Cell and Cyclotron lights. This only affects the pack when in Video Game mode, not for CTS modes, and offers the following states:
 
 - Disable all the video game colours (Power Cell remains blue, Cyclotron remains red).
-- Enable only the Power Cell LEDs to change colours (requires RGB Power Cell such as that offered by Frutto Technology).
+- Enable only the Power Cell LEDs to change colours (requires RGB Power Cell).
 - Enable only the Cyclotron LEDs to change colours (requires RGB replacement such as a Neopixel ring).
 - Enable both the Power Cell and Cyclotron to use video game colours.
 
@@ -115,11 +115,11 @@ Please note whatever settings you have temporarily changed in the regular menus 
 
 | Option | Purpose | Intensify Button | Barrel Wing Button |
 |:------:|---------|------------------|--------------------|
-| 5 | System&nbsp;Default&nbsp;Volume / Neutrona&nbsp;Wand&nbsp;Year&nbsp;Mode | Hold the `Intensify Button` down while turning the `top dial` to adjust and set the default volume for the system. (Uses audio beeps for indication of volume.) | Set the year mode your Neutrona Wand operates in. Options are: 1984/1989/Afterlife/Frozen Empire and System Default. When set to System Default, the Neutrona Wand matches the same year mode as that the Proton Pack is in. |
-| 4 | Invert&nbsp;Bargraph / Bargraph&nbsp;Overheat&nbsp;Blinking | Toggles inverting of the bargraph in the Neutrona Wand (depending on installation orientation). | Enable/Disable the bagraph to blink on and off during overheat. When disabled, the bargraph will ramp down and turn off during the overheat sequence before ramping back up when overheating has finished. |
-| 3 | Bargraph&nbsp;Animations / Bargraph&nbsp;Firing&nbsp;Animations | Toggle between animation modes as default for the idle bargraph: **Super Hero**, **Bargraph Original**, or **System Default**<br/>**System Default** chooses the default animation based on the year mode and system mode. | Toggle between animation modes as default for the bargraph when firing: **Super Hero**, **Bargraph Original**, or **System Default**<br/>**System Default** chooses the default animation based on the year mode and system mode. |
-| 2 | Demo&nbsp;Light&nbsp;Mode / Cyclotron&nbsp;3&nbsp;LED&nbsp;Toggle | Enable/Disable the Demo Light mode. When enabled, the Proton Pack and Neutrona Wand will automatically boot up as soon as the system has power. | Toggle between 1 LED or 3 LEDs in each cyclotron lens in 1984/1989 year mode. |
-| 1 | System&nbsp;Mode / CTS&nbsp;Override | Toggle between the available system operation modes:<br/>**Super Hero** or **Mode Original** | Toggle between options for default CTS mode: **1984**, **1989**, **Afterlife**, **Frozen Empire**, or **System Default**<br/>System Default automatically chooses the CTS mode based on the current year mode of your system. |
+| 5 | System&nbsp;Default&nbsp;Volume&nbsp;/ Neutrona&nbsp;Wand&nbsp;Year&nbsp;Mode | `(Intensify + Top Dial)` Adjusts the default volume for the system. (Uses audio beeps for indication of volume.) | Set the year mode your Neutrona Wand operates in. Options are: 1984/1989/Afterlife/Frozen Empire and System Default. When set to System Default, the Neutrona Wand matches the same year mode as that the Proton Pack is in. |
+| 4 | Invert&nbsp;Bargraph&nbsp;/ Bargraph&nbsp;Overheat&nbsp;Blinking | Toggles inverting of the bargraph in the Neutrona Wand (depending on installation orientation). | Enable/Disable the bargraph blink sequence during overheat. When enabled, the bargraph will blink and an error sound will play while overheating. When disabled, the bargraph will ramp down to off without error sounds while overheating. |
+| 3 | Bargraph&nbsp;Animations&nbsp;/ Bargraph&nbsp;Firing&nbsp;Animations | Toggle between animation modes as default for the idle bargraph: **Super Hero**, **Bargraph Original**, or **System Default**<br/>**System Default** chooses the default animation based on the year mode and system mode. | Toggle between animation modes as default for the bargraph when firing: **Super Hero**, **Bargraph Original**, or **System Default**<br/>**System Default** chooses the default animation based on the year mode and system mode. |
+| 2 | Demo&nbsp;Light&nbsp;Mode&nbsp;/ Cyclotron&nbsp;3&nbsp;LED&nbsp;Toggle | Enable/Disable the Demo Light mode. When enabled, the Proton Pack will automatically boot up as soon as the system has power. | Toggle between 1 LED or 3 LEDs in each cyclotron lens in 1984/1989 year mode. |
+| 1 | System&nbsp;Mode&nbsp;/ CTS&nbsp;Override | Toggle between the available system operation modes:<br/>**Super Hero** or **Mode Original** | Toggle between options for default CTS mode: **1984**, **Afterlife**, or **System Default**<br/>System Default automatically chooses the CTS mode based on the current year mode of your system. |
 
 **EEPROM Configuration Menu Level 4**
 

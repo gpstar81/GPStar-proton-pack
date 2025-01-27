@@ -1,6 +1,6 @@
 /**
  *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -116,6 +116,10 @@ bool checkPack() {
         // If the timer is still running and Pack is connected, consider any request as proof of life.
         ms_packsync.restart();
       }
+      else if(!ms_packsync.isRunning()) {
+        // If the timer isn't running but we have serial data, switch to full operation.
+        ms_packsync.start(0);
+      }
 
       // Determine the type of packet which was sent by the serial1 device.
       switch(i_packet_id) {
@@ -192,10 +196,10 @@ bool checkPack() {
               STREAM_MODE = PROTON;
             break;
             case 2:
-              STREAM_MODE = SLIME;
+              STREAM_MODE = STASIS;
             break;
             case 3:
-              STREAM_MODE = STASIS;
+              STREAM_MODE = SLIME;
             break;
             case 4:
               STREAM_MODE = MESON;
@@ -204,12 +208,10 @@ bool checkPack() {
               STREAM_MODE = SPECTRAL;
             break;
             case 6:
-              STREAM_MODE = HOLIDAY;
-              b_christmas = false;
+              STREAM_MODE = HOLIDAY_HALLOWEEN;
             break;
             case 7:
-              STREAM_MODE = HOLIDAY;
-              b_christmas = true;
+              STREAM_MODE = HOLIDAY_CHRISTMAS;
             break;
             case 8:
               STREAM_MODE = SPECTRAL_CUSTOM;
@@ -367,13 +369,13 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       b_state_changed = true;
     break;
 
-    case A_SLIME_MODE:
-      STREAM_MODE = SLIME;
+    case A_STASIS_MODE:
+      STREAM_MODE = STASIS;
       b_state_changed = true;
     break;
 
-    case A_STASIS_MODE:
-      STREAM_MODE = STASIS;
+    case A_SLIME_MODE:
+      STREAM_MODE = SLIME;
       b_state_changed = true;
     break;
 
@@ -387,9 +389,13 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       b_state_changed = true;
     break;
 
-    case A_HOLIDAY_MODE:
-      STREAM_MODE = HOLIDAY;
-      b_christmas = (i_value == 2);
+    case A_HALLOWEEN_MODE:
+      STREAM_MODE = HOLIDAY_HALLOWEEN;
+      b_state_changed = true;
+    break;
+
+    case A_CHRISTMAS_MODE:
+      STREAM_MODE = HOLIDAY_CHRISTMAS;
       b_state_changed = true;
     break;
 

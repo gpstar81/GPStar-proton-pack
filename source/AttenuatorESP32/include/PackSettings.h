@@ -1,6 +1,6 @@
 /**
  *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -28,7 +28,8 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
   <meta http-equiv="Cache-control" content="public">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Proton Pack Settings</title>
-  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+  <link rel="shortcut icon" href="/favicon.ico"/>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -240,6 +241,14 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
        oninput="ledCycCavCountOut.value=ledCycCavCount.value"/>
       <output class="labelSlider" id="ledCycCavCountOut" for="ledCycCavCount"></output>
     </div>
+    <div class="setting">
+      <b>LED Type:</b>
+      <select id="ledCycCavType" name="ledCycCavType">
+        <option value="1">RGB</option>
+        <option value="2">GRB</option>
+        <option value="3">GBR</option>
+      </select>
+    </div>
   </div>
 
   <h1>Power Cell</h1>
@@ -378,6 +387,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             setToggle("ledCycCakeGRB", settings.ledCycCakeGRB);
             setValue("ledCycCavCount", settings.ledCycCavCount || 0); // Default: 0
             setHtml("ledCycCavCountOut", getValue("ledCycCavCount"));
+            setValue("ledCycCavType", settings.ledCycCavType || 1); // Default: RGB
 
             setValue("ledPowercellCount", settings.ledPowercellCount || 13); // Haslab: 13
             setToggle("ledInvertPowercell", settings.ledInvertPowercell);
@@ -427,6 +437,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         ledCycInnerPanel: getInt("ledCycInnerPanel") || 1,
         ledCycCakeGRB: getToggle("ledCycCakeGRB"),
         ledCycCavCount: getInt("ledCycCavCount"),
+        ledCycCavType: getInt("ledCycCavType") || 1,
 
         ledPowercellCount: getInt("ledPowercellCount") || 13,
         ledInvertPowercell: getToggle("ledInvertPowercell"),

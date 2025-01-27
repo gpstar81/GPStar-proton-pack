@@ -4,21 +4,23 @@ These are *OPTIONAL* add-on additions for use within the Proton Pack.
 
 ## Light Switch Panel (Optional)
 
+### Option 1: Standard LEDs
 There is a included STL file that you can 3D Print to replace the Cyclotron switch plate. You can add 5mm LEDs into the holes. See reference in the [Pack Setup](PACK.md) for wiring to the Arduino Mega. You can use cliplites to hold the LEDs in place. Refer to the [parts list](BOM.md) on where to source them.
-
-If using the Frutto 8-LED PCB for RGB lighting, you will want to substitute [8 clear CLF-280-CTP cliplites](https://www.digikey.com/en/products/detail/visual-communications-company-vcc/CLF-280-CTP/4515438). This panel will sit between the pack controller and the inner cyclotron "cake" lights.
-
-For reference, if using all of the optional parts which use addressable LEDs this is the correct order for installation:
-
-`Pack Controller -> Inner LED Panel PCB -> Inner Cake Ring -> Cavity Lights`
-
-Connections should be made to the side opposite the LEDs using JST-XH connectors. Plug J1 will be connected to the pack controller's "NEO-C" (aka. "Inner Cyclotron") port. This will be a straight-through cable for Data/VCC/GND. The inner cake lights should be attached to Plug J2 also using the pattern of Data/VCC/GND. Note that the order of wiring on the connection may need to be adjusted to match the LED ring light in use.
 
 ![Panel with Cliplites](images/SwitchPanel.jpg)
 
+### Option 2: LED Panel
+![LED Panel](images/LEDPanel.jpg)
+
+Supported as an alternative to regular LEDs is the [GPStar Cyclotron LED Panel](https://gpstartechnologies.com/products/gpstar-inner-cyclotron-led-panel) and or Frutto Technology Cyclotron LED panel. These panels will change colours depending on the state of your Proton Pack system. You will want to substitute [8 clear CLF-280-CTP cliplites](https://www.digikey.com/en/products/detail/visual-communications-company-vcc/CLF-280-CTP/4515438). This panel will sit between the pack controller and the inner cyclotron "cake" lights. See below for the hookup guide:
+
+`Pack Controller -> Inner LED Panel PCB -> Inner Cake Ring -> Cavity Lights (Optional)`
+![LED Panel Hookup Guide](images/LEDPanelHookup.jpg)
+
+
 ## Inner Cyclotron Lights (Optional)
 
-You can run a NeoPixel ring (24, 25, or 35-Pixel ring recommended) inside a modified Inner Cyclotron or any 3D printable one. See reference in the [Pack Setup](PACK.md) for wiring to the Arduino Mega. NeoPixel ring size can be toggled in the user editable variables at the top of the Proton Pack code. A 35-Pixel NeoPixel ring is the default setting and maximum supported for this device.
+You can run a addressable LED ring (24, 25, 35 or 36-Pixel ring recommended) inside a modified Inner Cyclotron or any 3D printable one. See reference in the [Pack Setup](PACK.md) for wiring to the Arduino Mega. NeoPixel ring sizes can be toggled in the user editable variables at the top of the Proton Pack code. A 35-Pixel NeoPixel ring is the default setting and maximum supported for this device.
 ![35 Pixel NeoPixel Ring](images/35NeoPixelRing.jpg)
 
 Included is also a set of STL files if you wish to print a new Inner Cyclotron. The lid is held down onto the bottom part of this printable Cyclotron with M3x10 hex screws on the outer ring. The inner ring you can use smaller m3x8 hex screws for decoration. Enlarge or drill any holes for wire decoration or feeding wires into the Cyclotron as necessary.

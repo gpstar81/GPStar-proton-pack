@@ -1,6 +1,6 @@
 /**
  *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -32,6 +32,7 @@
 #include "SmokeSettings.h" // SMOKE_SETTINGS_page
 #include "Style.h" // STYLE_page
 #include "Equip.h" // EQUIP_svg
+#include "Icon.h" // FAVICON_ico, FAVICON_svg
 
 // Forward function declarations.
 void setupRouting();
@@ -129,8 +130,11 @@ String getWandMode() {
     case SPECTRAL:
       return "Spectral Stream";
     break;
-    case HOLIDAY:
-      return "Holiday Stream";
+    case HOLIDAY_HALLOWEEN:
+      return "Halloween";
+    break;
+    case HOLIDAY_CHRISTMAS:
+      return "Christmas";
     break;
     case SPECTRAL_CUSTOM:
       return "Custom Stream";
@@ -203,7 +207,7 @@ void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *clien
 
     case WS_EVT_DISCONNECT:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][%lu] Disconnect\n", server->url(), client->id());
+        Serial.printf("WebSocket[%s][C:%lu] Disconnect\n", server->url(), client->id());
       #endif
       if(i_ws_client_count > 0) {
         i_ws_client_count--;
@@ -212,19 +216,19 @@ void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *clien
 
     case WS_EVT_ERROR:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][%lu] error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
+        Serial.printf("WebSocket[%s][C:%lu] Error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
       #endif
     break;
 
     case WS_EVT_PONG:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][%lu] Pong[%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
+        Serial.printf("WebSocket[%s][C:%lu] Pong[L:%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
       #endif
     break;
 
     case WS_EVT_DATA:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][%lu] Data[%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
+        Serial.printf("WebSocket[%s][C:%lu] Data[L:%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
       #endif
     break;
   }
@@ -292,9 +296,9 @@ void handlePassword(AsyncWebServerRequest *request) {
   request->send(200, "text/html", String(PASSWORD_page)); // Serve page content.
 }
 
-void handleAttenuatorSettings(AsyncWebServerRequest *request) {
+void handleDeviceSettings(AsyncWebServerRequest *request) {
   // Used for the device page from the web server.
-  debug("Sending -> Attenuator Settings HTML");
+  debug("Sending -> Device Settings HTML");
   request->send(200, "text/html", String(DEVICE_page)); // Serve page content.
 }
 
@@ -334,18 +338,36 @@ void handleStylesheet(AsyncWebServerRequest *request) {
   request->send(200, "text/css", String(STYLE_page)); // Serve page content.
 }
 
-void handleSvgImage(AsyncWebServerRequest *request) {
+void handleEquipSvg(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
   debug("Sending -> Equipment SVG");
-  request->send(200, "image/svg+xml", String(EQUIP_svg)); // Serve page content.
+  AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", EQUIP_svg, sizeof(EQUIP_svg));
+  response->addHeader("Content-Encoding", "gzip");
+  request->send(response);
 }
 
-String getAttenuatorConfig() {
+void handleFavIco(AsyncWebServerRequest *request) {
+  // Used for the root page (/) of the web server.
+  debug("Sending -> Favicon");
+  AsyncWebServerResponse *response = request->beginResponse(200, "image/x-icon", FAVICON_ico, sizeof(FAVICON_ico));
+  response->addHeader("Content-Encoding", "gzip");
+  request->send(response);
+}
+
+void handleFavSvg(AsyncWebServerRequest *request) {
+  // Used for the root page (/) of the web server.
+  debug("Sending -> Favicon");
+  AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", FAVICON_svg, sizeof(FAVICON_svg));
+  response->addHeader("Content-Encoding", "gzip");
+  request->send(response);
+}
+
+String getDeviceConfig() {
   // Prepare a JSON object with information we have gleamed from the system.
   String equipSettings;
   jsonBody.clear();
 
-  // Provide current values for the Attenuator device.
+  // Provide current values for the device.
   jsonBody["invertLEDs"] = b_invert_leds;
   jsonBody["buzzer"] = b_enable_buzzer;
   jsonBody["vibration"] = b_enable_vibration;
@@ -411,6 +433,7 @@ String getPackConfig() {
     jsonBody["ledCycCakeSat"] = packConfig.ledCycCakeSat; // Spectral custom saturation 1-254
     jsonBody["ledCycCakeGRB"] = packConfig.ledCycCakeGRB; // Use GRB for cake LEDs true|false
     jsonBody["ledCycCavCount"] = packConfig.ledCycCavCount; // Cyclotron cavity LEDs (0-20)
+    jsonBody["ledCycCavType"] = packConfig.ledCycCavType; // Cyclotron cavity LED Type
     jsonBody["ledPowercellCount"] = packConfig.ledPowercellCount; //[13,15]
     jsonBody["ledInvertPowercell"] = packConfig.ledInvertPowercell; // true|false
     jsonBody["ledPowercellHue"] = packConfig.ledPowercellHue; // Spectral custom colour/hue 1-254
@@ -437,7 +460,7 @@ String getWandConfig() {
     jsonBody["wandPowered"] = (b_wand_on ? true : false);
 
     // Neutrona Wand LED Options
-    jsonBody["ledWandCount"] = wandConfig.ledWandCount; // [0=5,1=29,2=48]
+    jsonBody["ledWandCount"] = wandConfig.ledWandCount; // [0=5 (Stock), 1=48 (Frutto), 2=50 (GPStar), 3=2 (Tip)]
     jsonBody["ledWandHue"] = wandConfig.ledWandHue; // Spectral custom colour/hue 1-254
     jsonBody["ledWandSat"] = wandConfig.ledWandSat; // Spectral custom saturation 1-254
     jsonBody["spectralModesEnabled"] = wandConfig.spectralModesEnabled; // true|false
@@ -448,6 +471,7 @@ String getWandConfig() {
     jsonBody["wandVibration"] = wandConfig.wandVibration; // [1=ALWAYS,2=FIRING,3=NEVER,4=TOGGLE]
     jsonBody["wandSoundsToPack"] = wandConfig.wandSoundsToPack; // true|false
     jsonBody["quickVenting"] = wandConfig.quickVenting; // true|false (Super-Hero Mode Only)
+    jsonBody["rgbVentEnabled"] = wandConfig.rgbVentEnabled; // true|false
     jsonBody["autoVentLight"] = wandConfig.autoVentLight; // true|false
     jsonBody["wandBeepLoop"] = wandConfig.wandBeepLoop; // true|false (Afterlife/Frozen Empire Only)
     jsonBody["wandBootError"] = wandConfig.wandBootError; // true|false (Super-Hero Mode Only)
@@ -608,9 +632,9 @@ String getWifiSettings() {
   return wifiNetwork;
 }
 
-void handleGetAttenuatorConfig(AsyncWebServerRequest *request) {
-  // Return current attenuator settings as a stringified JSON object.
-  request->send(200, "application/json", getAttenuatorConfig());
+void handleGetDeviceConfig(AsyncWebServerRequest *request) {
+  // Return current device settings as a stringified JSON object.
+  request->send(200, "application/json", getDeviceConfig());
 }
 
 void handleGetPackConfig(AsyncWebServerRequest *request) {
@@ -807,7 +831,7 @@ void handleSaveWandEEPROM(AsyncWebServerRequest *request) {
 }
 
 // Handles the JSON body for the pack settings save request.
-AsyncCallbackJsonWebHandler *handleSaveAttenuatorConfig = new AsyncCallbackJsonWebHandler("/config/attenuator/save", [](AsyncWebServerRequest *request, JsonVariant &json) {
+AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHandler("/config/device/save", [](AsyncWebServerRequest *request, JsonVariant &json) {
   jsonBody.clear();
   if(json.is<JsonObject>()) {
     jsonBody = json.as<JsonObject>();
@@ -1023,6 +1047,7 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
       if(packConfig.ledCycCavCount > 20) {
         packConfig.ledCycCavCount = 20; // Set maximum allowed.
       }
+      packConfig.ledCycCavType = jsonBody["ledCycCavType"].as<uint8_t>();
 
       // Power Cell
       packConfig.ledPowercellCount = jsonBody["ledPowercellCount"].as<uint8_t>();
@@ -1070,6 +1095,7 @@ AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHand
       wandConfig.ledWandCount = jsonBody["ledWandCount"].as<uint8_t>();
       wandConfig.ledWandHue = jsonBody["ledWandHue"].as<uint8_t>();
       wandConfig.ledWandSat = jsonBody["ledWandSat"].as<uint8_t>();
+      wandConfig.rgbVentEnabled = jsonBody["rgbVentEnabled"].as<uint8_t>();
       wandConfig.spectralModesEnabled = jsonBody["spectralModesEnabled"].as<uint8_t>();
       wandConfig.overheatEnabled = jsonBody["overheatEnabled"].as<uint8_t>();
       wandConfig.defaultFiringMode = jsonBody["defaultFiringMode"].as<uint8_t>();
@@ -1278,11 +1304,14 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
 
       // Disconnect from the WiFi network and re-apply any changes.
       WiFi.disconnect();
+      b_ext_wifi_started = false;
 
       delay(100); // Delay needed.
 
       if(b_enabled) {
-        if(startExternalWifi()) {
+        b_ext_wifi_started = startExternalWifi(); // Restart and set global flag.
+
+        if(b_ext_wifi_started) {
           jsonBody["status"] = "Settings updated, WiFi connection restarted successfully.";
         }
         else {
@@ -1324,22 +1353,24 @@ void setupRouting() {
   // Static Pages
   httpServer.on("/", HTTP_GET, handleRoot);
   httpServer.on("/common.js", HTTP_GET, handleCommonJS);
+  httpServer.on("/equipment.svg", HTTP_GET, handleEquipSvg);
+  httpServer.on("/favicon.ico", HTTP_GET, handleFavIco);
+  httpServer.on("/favicon.svg", HTTP_GET, handleFavSvg);
   httpServer.on("/index.js", HTTP_GET, handleRootJS);
   httpServer.on("/network", HTTP_GET, handleNetwork);
   httpServer.on("/password", HTTP_GET, handlePassword);
-  httpServer.on("/settings/attenuator", HTTP_GET, handleAttenuatorSettings);
+  httpServer.on("/settings/device", HTTP_GET, handleDeviceSettings);
   httpServer.on("/settings/pack", HTTP_GET, handlePackSettings);
-  httpServer.on("/settings/wand", HTTP_GET, handleWandSettings);
   httpServer.on("/settings/smoke", HTTP_GET, handleSmokeSettings);
+  httpServer.on("/settings/wand", HTTP_GET, handleWandSettings);
   httpServer.on("/style.css", HTTP_GET, handleStylesheet);
-  httpServer.on("/equipment.svg", HTTP_GET, handleSvgImage);
   httpServer.onNotFound(handleNotFound);
 
   // Get/Set Handlers
-  httpServer.on("/config/attenuator", HTTP_GET, handleGetAttenuatorConfig);
+  httpServer.on("/config/device", HTTP_GET, handleGetDeviceConfig);
   httpServer.on("/config/pack", HTTP_GET, handleGetPackConfig);
-  httpServer.on("/config/wand", HTTP_GET, handleGetWandConfig);
   httpServer.on("/config/smoke", HTTP_GET, handleGetSmokeConfig);
+  httpServer.on("/config/wand", HTTP_GET, handleGetWandConfig);
   httpServer.on("/eeprom/all", HTTP_PUT, handleSaveAllEEPROM);
   httpServer.on("/eeprom/pack", HTTP_PUT, handleSavePackEEPROM);
   httpServer.on("/eeprom/wand", HTTP_PUT, handleSaveWandEEPROM);
@@ -1367,10 +1398,10 @@ void setupRouting() {
   httpServer.on("/wifi/settings", HTTP_GET, handleGetWifi);
 
   // Body Handlers
-  httpServer.addHandler(handleSaveAttenuatorConfig); // /config/attenuator/save
+  httpServer.addHandler(handleSaveDeviceConfig); // /config/device/save
   httpServer.addHandler(handleSavePackConfig); // /config/pack/save
-  httpServer.addHandler(handleSaveWandConfig); // /config/wand/save
   httpServer.addHandler(handleSaveSmokeConfig); // /config/smoke/save
+  httpServer.addHandler(handleSaveWandConfig); // /config/wand/save
   httpServer.addHandler(passwordChangeHandler); // /password/update
   httpServer.addHandler(wifiChangeHandler); // /wifi/update
 }

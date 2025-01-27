@@ -1,6 +1,6 @@
 /**
  *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -28,7 +28,8 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
   <meta http-equiv="Cache-control" content="public">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Neutrona Wand Settings</title>
-  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+  <link rel="shortcut icon" href="/favicon.ico"/>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -78,6 +79,13 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         <option value="2">When Firing</option>
         <option value="1">Always</option>
       </select>
+    </div>
+    <div class="setting">
+      <b class="labelSwitch">RGB Vent Light Enabled:</b>
+      <label class="switch">
+        <input id="rgbVentEnabled" name="rgbVentEnabled" type="checkbox">
+        <span class="slider round"></span>
+      </label>
     </div>
     <div class="setting">
       <b class="labelSwitch">Auto Vent Light Brightness:</b>
@@ -185,6 +193,8 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       <select id="ledWandCount" name="ledWandCount">
         <option value="0">5 - Stock</option>
         <option value="1">48 - Frutto</option>
+        <option value="2">50 - GPStar</option>
+        <option value="3">2 - Tip</option>
       </select>
     </div>
     <div class="setting">
@@ -273,6 +283,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
             setValue("ledWandCount", settings.ledWandCount || 0); // Haslab: 0 (5 LED)
             setValue("ledWandHue", convertRange(settings.ledWandHue || 254, [1,254], [0,360])); // Default: Red
             setValue("ledWandSat", convertRange(settings.ledWandSat || 254, [1,254], [0,100])); // Full Saturation
+            setToggle("rgbVentEnabled", settings.rgbVentEnabled);
             setToggle("spectralModesEnabled", settings.spectralModesEnabled);
             setToggle("overheatEnabled", settings.overheatEnabled);
             setValue("defaultFiringMode", settings.defaultFiringMode || 1);
@@ -306,6 +317,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         ledWandCount: parseInt(getEl("ledWandCount").value || 0, 10),
         ledWandHue: convertRange(parseInt(getEl("ledWandHue").value || 360, 10), [0,360], [1,254]),
         ledWandSat: convertRange(parseInt(getEl("ledWandSat").value || 100, 10), [0,100], [1,254]),
+        rgbVentEnabled: getToggle("rgbVentEnabled"),
         spectralModesEnabled: getToggle("spectralModesEnabled"),
         overheatEnabled: getToggle("overheatEnabled"),
         defaultFiringMode: parseInt(getEl("defaultFiringMode").value || 1, 10),

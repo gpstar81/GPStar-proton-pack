@@ -1,6 +1,6 @@
 /**
  *   GPStar Single-Shot Blaster
- *   Copyright (C) 2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2024-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                    & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -19,6 +19,36 @@
  */
 
 #pragma once
+
+// Arms/Disarms the power-on reminder (if enabled).
+void setPowerOnReminder(bool enable) {
+  if(enable && b_power_on_indicator) {
+    // Arm the power indicator timer.
+    ms_power_indicator.start(i_ms_power_indicator);
+  }
+  else {
+    // Disarm the power indicator timer.
+    ms_power_indicator.stop();
+  }
+}
+
+// Function to handle blinking for the power-on reminder (if enabled).
+void checkPowerOnReminder() {
+  if(DEVICE_ACTION_STATUS == ACTION_IDLE) {
+    if(ms_power_indicator.justFinished()) {
+      // Blink the Clippard LED.
+      if(led_Clippard.getState() == led_Clippard.Off) {
+        led_Clippard.turnOn();
+      }
+      else {
+        led_Clippard.turnOff();
+      }
+
+      // Restart the blink timer.
+      ms_power_indicator.start(i_ms_power_indicator_blink);
+    }
+  }
+}
 
 // Check the state of the grip button to determine whether we have entered the settings menu.
 void gripButtonCheck() {
@@ -205,21 +235,7 @@ void checkDeviceAction() {
         DEVICE_ACTION_STATUS = ACTION_ACTIVATE;
       }
 
-      // If the power indicator is enabled. Blink the LED near to the clippard valve to indicator the system has battery power.
-      if(b_power_on_indicator && DEVICE_ACTION_STATUS == ACTION_IDLE) {
-        if(ms_power_indicator.isRunning() && ms_power_indicator.remaining() < 1) {
-          if(!ms_power_indicator_blink.isRunning() || ms_power_indicator_blink.justFinished()) {
-            ms_power_indicator_blink.start(i_ms_power_indicator_blink);
-          }
-
-          if(ms_power_indicator_blink.remaining() < i_ms_power_indicator_blink / 2) {
-            led_Clippard.turnOff();
-          }
-          else {
-            led_Clippard.turnOn();
-          }
-        }
-      }
+      checkPowerOnReminder();
     break;
 
     case MODE_ERROR:

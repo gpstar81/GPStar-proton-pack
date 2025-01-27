@@ -1,6 +1,6 @@
 /**
  *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -82,29 +82,6 @@ void idleTaskCore1(void * parameter) {
   }
 }
 #endif
-
-// Obtain a list of partitions for this device.
-void printPartitions() {
-  const esp_partition_t *partition;
-  esp_partition_iterator_t iterator = esp_partition_find(ESP_PARTITION_TYPE_ANY, ESP_PARTITION_SUBTYPE_ANY, NULL);
-
-  if (iterator == nullptr) {
-    Serial.println(F("No partitions found."));
-    return;
-  }
-
-  Serial.println(F("Partitions:"));
-  while (iterator != nullptr) {
-    partition = esp_partition_get(iterator);
-    Serial.printf("Label: %s, Size: %u bytes, Address: 0x%08X\n",
-                  partition->label,
-                  partition->size,
-                  partition->address);
-    iterator = esp_partition_next(iterator);
-  }
-
-  esp_partition_iterator_release(iterator);  // Release the iterator once done
-}
 
 // Animation Task (Loop)
 void AnimationTask(void *parameter) {
@@ -289,6 +266,10 @@ void SerialCommsTask(void *parameter) {
       // If at any point this flag is true, we have comms open to the pack.
       // This gets reset upon every bootup (read: re-connection to a pack).
       if(b_notify) {
+        if(!ms_packsync.isRunning()) {
+          // Switch from Standalone to full operation.
+          ms_packsync.start(0);
+        }
         b_comms_open = true;
       }
 
@@ -357,7 +338,7 @@ void WiFiManagementTask(void *parameter) {
         ms_cleanup.start(i_websocketCleanup);
       }
 
-      if(ms_cleanup.remaining() < 1) {
+      if(ms_apclient.remaining() < 1) {
         // Update the current count of AP clients.
         i_ap_client_count = WiFi.softAPgetStationNum();
 
@@ -365,7 +346,7 @@ void WiFiManagementTask(void *parameter) {
         ms_apclient.start(i_apClientCount);
       }
 
-      if(ms_cleanup.remaining() < 1) {
+      if(ms_otacheck.remaining() < 1) {
         // Handles device reboot after an OTA update.
         ElegantOTA.loop();
 

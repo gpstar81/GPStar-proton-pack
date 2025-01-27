@@ -1,6 +1,6 @@
 /**
  *   GPStar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -162,6 +162,15 @@ bool b_powercell_invert = false;
 bool b_powercell_colour_toggle = true;
 
 /*
+ * Define the types of LEDs which are supported for devices.
+ */
+enum LED_TYPES : uint8_t {
+  RGB_LED = 0,
+  GRB_LED = 1,
+  GBR_LED = 2
+};
+
+/*
  * (OPTIONAL) Inner Cyclotron (cake) NeoPixel ring
  * If you are not using any, then this can be left alone.
  * Leave at least one value in place even if you are not using this optional item.
@@ -174,6 +183,7 @@ bool b_powercell_colour_toggle = true;
  * 36 -> For a 36 LED NeoPixel Ring. (GPStar ring)
  */
 uint8_t i_inner_cyclotron_cake_num_leds = 35;
+enum LED_TYPES CAKE_LED_TYPE = RGB_LED; // Defaults to RGB
 
 /*
  * (OPTIONAL) Inner Cyclotron (cavity) effects
@@ -181,6 +191,7 @@ uint8_t i_inner_cyclotron_cake_num_leds = 35;
  * You can use up to 20 LEDs (eg. addressable fairy lights as recommended device)
  */
 uint8_t i_inner_cyclotron_cavity_num_leds = 0;
+enum LED_TYPES CAVITY_LED_TYPE = GBR_LED; // Defaults to GBR
 
 /*
  * Inner Cyclotron NeoPixel ring speed.
@@ -190,25 +201,17 @@ uint8_t i_inner_cyclotron_cavity_num_leds = 0;
 #define INNER_CYCLOTRON_DELAY_1984_12_LED 15 // For 12 LEDs.
 #define INNER_CYCLOTRON_DELAY_2021_12_LED 12 // For 12 LEDs.
 #define INNER_CYCLOTRON_DELAY_1984_23_LED 12 // For 23 LEDs.
-#define INNER_CYCLOTRON_DELAY_2021_23_LED 8 // For 23 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_23_LED 9 // For 23 LEDs.
 #define INNER_CYCLOTRON_DELAY_1984_24_LED 12 // For 24 LEDs.
-#define INNER_CYCLOTRON_DELAY_2021_24_LED 8 // For 24 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_24_LED 9 // For 24 LEDs.
 #define INNER_CYCLOTRON_DELAY_1984_26_LED 12 // For 26 LEDs.
-#define INNER_CYCLOTRON_DELAY_2021_26_LED 8 // For 26 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_26_LED 9 // For 26 LEDs.
 #define INNER_CYCLOTRON_DELAY_1984_35_LED 9 // For 35 LEDs.
-#define INNER_CYCLOTRON_DELAY_2021_35_LED 5 // For 35 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_35_LED 6 // For 35 LEDs.
 #define INNER_CYCLOTRON_DELAY_1984_36_LED 9 // For 36 LEDs.
-#define INNER_CYCLOTRON_DELAY_2021_36_LED 5 // For 36 LEDs.
+#define INNER_CYCLOTRON_DELAY_2021_36_LED 6 // For 36 LEDs.
 uint8_t i_1984_inner_delay = INNER_CYCLOTRON_DELAY_1984_35_LED;
 uint8_t i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_35_LED;
-
-/*
- * If you use GRB (green/red/blue) instead of RGB (red/green/blue) addressable LEDs for your Inner Cyclotron LEDs, then set to true.
- * Likewise for the cyclotron cavity LEDs if those are GBR instead of RGB set the flag true to adjust the colour order.
- * Any settings, if saved in the EEPROM, will overwrite these settings.
- */
-bool b_grb_cyclotron_cake = false; // Default is false (assumed to be RGB)
-bool b_gbr_cyclotron_cavity = true; // Default is true (set false for RGB)
 
 /*
  * The CHSV colour value for the Spectral Custom mode.
@@ -353,9 +356,9 @@ bool b_smoke_enabled = true;
  * Control which of the 4 pins go high during continuous firing smoke effects.
  * This can be overridden if b_smoke_enabled is set to false.
  */
-bool b_smoke_1_continuous_firing = true;
-bool b_smoke_2_continuous_firing = true;
-bool b_fan_continuous_firing = true;
+bool b_smoke_nfilter_continuous_firing = true;
+bool b_smoke_booster_continuous_firing = true;
+bool b_fan_nfilter_continuous_firing = true;
 bool b_fan_booster_continuous_firing = true;
 
 /*
@@ -397,9 +400,9 @@ const uint16_t i_smoke_on_time_level_5 = 4000;
  * Control which of the 3 pins that go 5V high during overheat.
  * This can be overridden if b_smoke_enabled is set to false.
  */
-bool b_smoke_1_overheat = true;
-bool b_smoke_2_overheat = true;
-bool b_fan_overheat = true;
+bool b_smoke_nfilter_overheat = true;
+bool b_smoke_booster_overheat = true;
+bool b_fan_nfilter_overheat = true;
 bool b_fan_booster_overheat = true;
 
 /*

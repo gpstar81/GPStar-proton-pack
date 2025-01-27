@@ -1,6 +1,6 @@
 /**
  *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -72,6 +72,7 @@ struct objConfigEEPROM {
   uint8_t holiday_mode; // This will be deprecated in 6.0 as part of a new menu refactoring.
   uint8_t quick_vent;
   uint8_t wand_boot_errors;
+  uint8_t rgb_vent_light;
   uint8_t vent_light_auto_intensity;
   uint8_t invert_bargraph;
   uint8_t bargraph_mode;
@@ -185,6 +186,15 @@ void readEEPROM() {
       }
     }
 
+    if(obj_config_eeprom.rgb_vent_light > 0 && obj_config_eeprom.rgb_vent_light != 255) {
+      if(obj_config_eeprom.rgb_vent_light > 1) {
+        b_rgb_vent_light = true;
+      }
+      else {
+        b_rgb_vent_light = false;
+      }
+    }
+
     if(obj_config_eeprom.vent_light_auto_intensity > 0 && obj_config_eeprom.vent_light_auto_intensity != 255) {
       if(obj_config_eeprom.vent_light_auto_intensity > 1) {
         b_vent_light_control = true;
@@ -286,7 +296,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.system_mode > 0 && obj_config_eeprom.system_mode != 255 && b_gpstar_benchtest == true) {
+    if(obj_config_eeprom.system_mode > 0 && obj_config_eeprom.system_mode != 255 && b_gpstar_benchtest) {
       if(obj_config_eeprom.system_mode > 1) {
         SYSTEM_MODE = MODE_ORIGINAL;
       }
@@ -304,7 +314,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.default_system_volume > 0 && obj_config_eeprom.default_system_volume <= 101 && b_gpstar_benchtest == true) {
+    if(obj_config_eeprom.default_system_volume > 0 && obj_config_eeprom.default_system_volume <= 101 && b_gpstar_benchtest) {
       // EEPROM value is from 1 to 101; subtract 1 to get the correct percentage.
       i_volume_master_percentage = obj_config_eeprom.default_system_volume - 1;
       i_volume_master_eeprom = MINIMUM_VOLUME - ((MINIMUM_VOLUME - i_volume_abs_max) * i_volume_master_percentage / 100);
@@ -444,8 +454,17 @@ void readEEPROM() {
           WAND_BARREL_LED_COUNT = LEDS_5;
         break;
 
+        case 2:
+          WAND_BARREL_LED_COUNT = LEDS_2;
+        break;
+
         case 48:
           WAND_BARREL_LED_COUNT = LEDS_48;
+        break;
+
+        case 50:
+          WAND_BARREL_LED_COUNT = LEDS_50;
+          i_num_barrel_leds = 48; // Need to reset it to 48. 2 are for the tip.
         break;
       }
     }
@@ -489,11 +508,17 @@ void clearLEDEEPROM() {
 void saveLEDEEPROM() {
   uint16_t i_eepromLEDAddress = i_eepromAddress + sizeof(objConfigEEPROM);
 
-  uint8_t i_barrel_led_count = 5; // 5 = Hasbro, 48 = Frutto.
+  uint8_t i_barrel_led_count = 5; // 5 = Hasbro, 50 = GPStar Neutrona Barrel, 2 = GPStar Barrel LED Mini, 48 = Frutto.
   uint8_t i_bargraph_led_count = 28; // 28 segment, 30 segment.
 
   if(WAND_BARREL_LED_COUNT == LEDS_48) {
     i_barrel_led_count = 48;
+  }
+  else if(WAND_BARREL_LED_COUNT == LEDS_50) {
+    i_barrel_led_count = 50; // Needs to be a 50. However we change it back to 48 after it is saved to the EEPROM.
+  }
+  else if(WAND_BARREL_LED_COUNT == LEDS_2) {
+    i_barrel_led_count = 2;
   }
 
   if(BARGRAPH_TYPE_EEPROM == SEGMENTS_30) {
@@ -512,6 +537,10 @@ void saveLEDEEPROM() {
   EEPROM.put(i_eepromLEDAddress, obj_led_eeprom);
 
   updateCRCEEPROM();
+
+  if(WAND_BARREL_LED_COUNT == LEDS_50) {
+    i_barrel_led_count = 48; // Needs to be reset back to 48 while 50 is stored in the EEPROM. 2 are for the tip.
+  }
 }
 
 void clearConfigEEPROM() {
@@ -536,6 +565,7 @@ void saveConfigEEPROM() {
   uint8_t i_spectral = 1;
   uint8_t i_quick_vent = 2;
   uint8_t i_wand_boot_errors = 2;
+  uint8_t i_rgb_vent_light = 1;
   uint8_t i_vent_light_auto_intensity = 2;
   uint8_t i_invert_bargraph = 1;
   uint8_t i_bargraph_mode = 1; // 1 = default, 2 = super hero, 3 = original.
@@ -566,35 +596,39 @@ void saveConfigEEPROM() {
     i_cross_the_streams_mix = 2;
   }
 
-  if(b_overheat_enabled != true) {
+  if(!b_overheat_enabled) {
     i_overheating = 1;
   }
 
-  if(b_stream_effects != true) {
+  if(!b_stream_effects) {
     i_extra_proton_sounds = 1;
   }
 
-  if(b_extra_pack_sounds != true) {
+  if(!b_extra_pack_sounds) {
     i_neutrona_wand_sounds = 1;
   }
 
-  if(b_spectral_mode_enabled == true) {
+  if(b_spectral_mode_enabled) {
     i_spectral = 2;
   }
 
-  if(b_quick_vent != true) {
+  if(!b_quick_vent) {
     i_quick_vent = 1;
   }
 
-  if(b_wand_boot_errors != true) {
+  if(!b_wand_boot_errors) {
     i_wand_boot_errors = 1;
   }
 
-  if(b_vent_light_control != true) {
+  if(b_rgb_vent_light) {
+    i_rgb_vent_light = 2;
+  }
+
+  if(!b_vent_light_control) {
     i_vent_light_auto_intensity = 1;
   }
 
-  if(b_bargraph_invert == true) {
+  if(b_bargraph_invert) {
     i_invert_bargraph = 2;
   }
 
@@ -636,7 +670,7 @@ void saveConfigEEPROM() {
     break;
   }
 
-  if(b_overheat_bargraph_blink == true) {
+  if(b_overheat_bargraph_blink) {
     i_bargraph_overheat_blinking = 2;
   }
 
@@ -685,27 +719,27 @@ void saveConfigEEPROM() {
     i_default_system_volume = i_eeprom_volume_master_percentage + 1;
   }
 
-  if(b_beep_loop != true) {
+  if(!b_beep_loop) {
     i_beep_loop = 1;
   }
 
-  if(b_overheat_level_5 == true) {
+  if(b_overheat_level_5) {
     i_overheat_level_5 = 2;
   }
 
-  if(b_overheat_level_4 == true) {
+  if(b_overheat_level_4) {
     i_overheat_level_4 = 2;
   }
 
-  if(b_overheat_level_3 == true) {
+  if(b_overheat_level_3) {
     i_overheat_level_3 = 2;
   }
 
-  if(b_overheat_level_2 == true) {
+  if(b_overheat_level_2) {
     i_overheat_level_2 = 2;
   }
 
-  if(b_overheat_level_1 == true) {
+  if(b_overheat_level_1) {
     i_overheat_level_1 = 2;
   }
 
@@ -739,6 +773,7 @@ void saveConfigEEPROM() {
     0,
     i_quick_vent,
     i_wand_boot_errors,
+    i_rgb_vent_light,
     i_vent_light_auto_intensity,
     i_invert_bargraph,
     i_bargraph_mode,

@@ -1,6 +1,6 @@
 /**
  *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -159,7 +159,8 @@ enum wand_messages : uint8_t {
   W_STASIS_MODE,
   W_MESON_MODE,
   W_SPECTRAL_MODE,
-  W_HOLIDAY_MODE,
+  W_HALLOWEEN_MODE,
+  W_CHRISTMAS_MODE,
   W_SPECTRAL_CUSTOM_MODE,
   W_SETTINGS_MODE,
   W_OVERHEATING,
@@ -253,8 +254,10 @@ enum wand_messages : uint8_t {
   W_QUICK_VENT_DISABLED,
   W_BOOTUP_ERRORS_ENABLED,
   W_BOOTUP_ERRORS_DISABLED,
+  W_BARREL_LEDS_2,
   W_BARREL_LEDS_5,
   W_BARREL_LEDS_48,
+  W_BARREL_LEDS_50,
   W_BARGRAPH_INVERTED,
   W_BARGRAPH_NOT_INVERTED,
   W_OVERHEAT_STROBE_TOGGLE,
@@ -343,8 +346,8 @@ enum wand_messages : uint8_t {
   W_WAND_BEEP_STOP_LOOP,
   W_WAND_BEEP_START,
   W_WAND_BEEP,
-  W_SMASH_ERROR_LOOP,
-  W_SMASH_ERROR_RESTART,
+  W_MASH_ERROR_LOOP,
+  W_MASH_ERROR_RESTART,
   W_BOSON_DART_SOUND,
   W_SHOCK_BLAST_SOUND,
   W_SLIME_TETHER_SOUND,
@@ -356,5 +359,7 @@ enum wand_messages : uint8_t {
   W_TOGGLE_CYCLOTRON_FADING,
   W_BARGRAPH_28_SEGMENTS,
   W_BARGRAPH_30_SEGMENTS,
+  W_RGB_VENT_DISABLED,
+  W_RGB_VENT_ENABLED,
   W_COM_SOUND_NUMBER
 };

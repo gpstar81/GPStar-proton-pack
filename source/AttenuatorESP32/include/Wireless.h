@@ -1,6 +1,6 @@
 /**
  *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -38,13 +38,13 @@
  *
  * https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/coexist.html
  */
-#include <AsyncJson.h>
-#include <ElegantOTA.h>
-#include <ESPAsyncWebServer.h>
 #include <Preferences.h>
 #include <WiFi.h>
 #include <WiFiAP.h>
 #include <ESPmDNS.h>
+#include <AsyncJson.h>
+#include <ESPAsyncWebServer.h>
+#include <ElegantOTA.h>
 
 // Preferences for SSID and AP password, which will use a "credentials" namespace.
 Preferences preferences;
@@ -56,6 +56,7 @@ String ap_default_passwd = "555-2368"; // This will be the default password for 
 String ap_ssid; // Reserved for holding the full, private AP name for this device.
 bool b_ap_started = false; // Denotes the softAP network has been started.
 bool b_ws_started = false; // Denotes the web server has been started.
+bool b_ext_wifi_started = false; // Denotes external WiFi was joined.
 
 // Local variables for connecting to a preferred WiFi network (when available).
 bool b_wifi_enabled = false; // Denotes user wishes to join/use external WiFi.
@@ -290,7 +291,7 @@ bool startExternalWifi() {
 
     #if defined(DEBUG_WIRELESS_SETUP)
       Serial.println();
-      Serial.println(F("Starting External WiFi Configuration"));
+      Serial.println(F("Attempting External WiFi Configuration"));
       Serial.print(F("Stored External SSID: "));
       Serial.println(wifi_ssid);
       Serial.print(F("Stored External PASS: "));
@@ -375,8 +376,6 @@ bool startExternalWifi() {
 }
 
 bool startWiFi() {
-  bool b_ext_wifi_started = false;
-
   // Begin some diagnostic information to console.
   #if defined(DEBUG_WIRELESS_SETUP)
     Serial.println();

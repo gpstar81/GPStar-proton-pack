@@ -1,6 +1,6 @@
 /**
  *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2024 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -199,7 +199,7 @@ enum sound_fx {
   S_VOICE_VOLUME_RESET,
   S_VOICE_BARREL_LED_5,
   S_VOICE_BARREL_LED_48,
-  S_VOICE_BARREL_LED_60,
+  S_VOICE_BARREL_LED_50,
   S_VOICE_BOOTUP_ERRORS_ENABLED,
   S_VOICE_BOOTUP_ERRORS_DISABLED,
   S_AFTERLIFE_WAND_BARREL_EXTEND,
@@ -425,7 +425,7 @@ enum sound_fx {
   S_GB1_1984_WAND_BARREL_EXTEND,
   S_GB1_1984_BOOT_UP_ALT,
   S_FROZEN_EMPIRE_PACK_FREEZE_STOP,
-  S_FROZEN_EMPIRE_SHUTDOWN,
+  S_FROZEN_EMPIRE_BRASS_SHUTDOWN,
   S_VOICE_INNER_CYCLOTRON_LED_PANEL_STATIC_COLORS,
   S_VOICE_INNER_CYCLOTRON_LED_PANEL_DYNAMIC_COLORS,
   S_WAND_SLIME_IDLE_LOOP,
@@ -443,10 +443,15 @@ enum sound_fx {
   S_VOICE_BARGRAPH_30_SEGMENTS,
   S_VOICE_CYCLOTRON_FADING_DISABLED,
   S_VOICE_CYCLOTRON_FADING_ENABLED,
-  S_FROZEN_EMPIRE_PACK_SHUTDOWN
+  S_FROZEN_EMPIRE_PACK_SHUTDOWN,
+  S_HALLOWEEN_FIRING_EXTRA,
+  S_CHRISTMAS_FIRING_EXTRA,
+  S_VOICE_RGB_VENT_LIGHTS_ENABLED,
+  S_VOICE_RGB_VENT_LIGHTS_DISABLED,
+  S_VOICE_BARREL_LED_2
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const uint16_t i_last_effects_track = S_FROZEN_EMPIRE_PACK_SHUTDOWN;
+const uint16_t i_last_effects_track = S_VOICE_BARREL_LED_2;
