@@ -211,6 +211,7 @@ void wandSerialSendData(uint8_t i_message) {
 
       wandConfig.wandSoundsToPack = b_extra_pack_sounds ? 1 : 0;
       wandConfig.quickVenting = b_quick_vent ? 1 : 0;
+      wandConfig.rgbVentEnabled = b_rgb_vent_light ? 1 : 0;
       wandConfig.autoVentLight = b_vent_light_control ? 1 : 0;
       wandConfig.wandBeepLoop = b_beep_loop ? 1 : 0;
       wandConfig.wandBootError = b_wand_boot_errors ? 1 : 0;
@@ -520,6 +521,7 @@ void checkPack() {
 
           b_extra_pack_sounds = (wandConfig.wandSoundsToPack == 1);
           b_quick_vent = (wandConfig.quickVenting == 1);
+          b_rgb_vent_light = (wandConfig.rgbVentEnabled == 1);
           b_vent_light_control = (wandConfig.autoVentLight == 1);
           b_beep_loop = (wandConfig.wandBeepLoop == 1);
           b_wand_boot_errors = (wandConfig.wandBootError == 1);
