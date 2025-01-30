@@ -225,7 +225,7 @@ void loop() {
         wandSerialSend(W_SYNC_NOW);
         ms_packsync.start(i_sync_initial_delay); // Prepare for the next sync attempt.
         //digitalWriteFast(TOP_LED_PIN, (digitalReadFast(TOP_LED_PIN) == LOW) ? HIGH : LOW); // Blink an LED.
-        //digitalWriteFast(WAND_STATUS_LED_PIN, (digitalReadFast(WAND_STATUS_LED_PIN) == LOW) ? HIGH : LOW); // Blink the onboard LED on the Neutrona Wand board.
+        digitalWriteFast(WAND_STATUS_LED_PIN, (digitalReadFast(WAND_STATUS_LED_PIN) == LOW) ? HIGH : LOW); // Blink the onboard LED on the Neutrona Wand board.
       }
 
       checkPack(); // Check for any response from the pack while still waiting.
