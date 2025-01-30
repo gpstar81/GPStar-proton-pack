@@ -43,6 +43,9 @@ This device is capable of supporting Over-The-Air (OTA) updates for firmware, me
 
 Once you have updated to a firmware from v6.x or later using the USB process, then then you may proceed to using the instructions for over-the-air (OTA/WiFi) updates **without** a USB cable as described in the **"Standard Updates"** section.
 
+For a more visual representation, please refer to this flowchart:
+![](images/ESP32UpgradePath.jpg)
+
 ### ESP32: First-Time Upload (via USB)
 
 The following steps MUST be taken if either of these situations applies to you:
