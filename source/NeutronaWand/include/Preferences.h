@@ -54,9 +54,10 @@ uint16_t i_eepromAddress = 0; // The address in the EEPROM to start reading from
  */
 struct objLEDEEPROM {
   uint8_t barrel_spectral_custom;
-  uint8_t barrel_spectral_saturation_custom;
+  uint8_t barrel_spectral_saturation_custom; // Unused
   uint8_t num_barrel_leds;
   uint8_t num_bargraph_leds;
+  uint8_t rgb_vent_light;
 };
 
 /*
@@ -72,7 +73,6 @@ struct objConfigEEPROM {
   uint8_t holiday_mode; // This will be deprecated in 6.0 as part of a new menu refactoring.
   uint8_t quick_vent;
   uint8_t wand_boot_errors;
-  uint8_t rgb_vent_light;
   uint8_t vent_light_auto_intensity;
   uint8_t invert_bargraph;
   uint8_t bargraph_mode;
@@ -183,15 +183,6 @@ void readEEPROM() {
       }
       else {
         b_wand_boot_errors = false;
-      }
-    }
-
-    if(obj_config_eeprom.rgb_vent_light > 0 && obj_config_eeprom.rgb_vent_light != 255) {
-      if(obj_config_eeprom.rgb_vent_light > 1) {
-        b_rgb_vent_light = true;
-      }
-      else {
-        b_rgb_vent_light = false;
       }
     }
 
@@ -482,6 +473,15 @@ void readEEPROM() {
         BARGRAPH_TYPE = BARGRAPH_TYPE_EEPROM;
       }
     }
+
+    if(obj_led_eeprom.rgb_vent_light > 0 && obj_led_eeprom.rgb_vent_light != 255) {
+      if(obj_led_eeprom.rgb_vent_light > 1) {
+        b_rgb_vent_light = true;
+      }
+      else {
+        b_rgb_vent_light = false;
+      }
+    }
   }
   else {
     // CRC doesn't match; let's clear the EEPROMs to be safe.
@@ -510,6 +510,7 @@ void saveLEDEEPROM() {
 
   uint8_t i_barrel_led_count = 5; // 5 = Hasbro, 50 = GPStar Neutrona Barrel, 2 = GPStar Barrel LED Mini, 48 = Frutto.
   uint8_t i_bargraph_led_count = 28; // 28 segment, 30 segment.
+  uint8_t i_rgb_vent_light = 1; // 1 = RGB Vent Light disabled, 2 = RGB Vent Light enabled
 
   if(WAND_BARREL_LED_COUNT == LEDS_48) {
     i_barrel_led_count = 48;
@@ -525,12 +526,17 @@ void saveLEDEEPROM() {
     i_bargraph_led_count = 30;
   }
 
+  if(b_rgb_vent_light) {
+    i_rgb_vent_light = 2;
+  }
+
   // Build the LED EEPROM object with the new data.
   objLEDEEPROM obj_led_eeprom = {
     i_spectral_wand_custom_colour,
     i_spectral_wand_custom_saturation,
     i_barrel_led_count,
-    i_bargraph_led_count
+    i_bargraph_led_count,
+    i_rgb_vent_light
   };
 
   // Save to the EEPROM.
@@ -565,7 +571,6 @@ void saveConfigEEPROM() {
   uint8_t i_spectral = 1;
   uint8_t i_quick_vent = 2;
   uint8_t i_wand_boot_errors = 2;
-  uint8_t i_rgb_vent_light = 1;
   uint8_t i_vent_light_auto_intensity = 2;
   uint8_t i_invert_bargraph = 1;
   uint8_t i_bargraph_mode = 1; // 1 = default, 2 = super hero, 3 = original.
@@ -618,10 +623,6 @@ void saveConfigEEPROM() {
 
   if(!b_wand_boot_errors) {
     i_wand_boot_errors = 1;
-  }
-
-  if(b_rgb_vent_light) {
-    i_rgb_vent_light = 2;
   }
 
   if(!b_vent_light_control) {
@@ -773,7 +774,6 @@ void saveConfigEEPROM() {
     0,
     i_quick_vent,
     i_wand_boot_errors,
-    i_rgb_vent_light,
     i_vent_light_auto_intensity,
     i_invert_bargraph,
     i_bargraph_mode,
