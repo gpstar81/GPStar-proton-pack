@@ -1191,6 +1191,7 @@ void packShutdown() {
     case SYSTEM_FROZEN_EMPIRE:
       stopEffect(S_BOOTUP);
       stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
+      stopEffect(S_FROZEN_EMPIRE_PACK_STARTUP);
       stopEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP);
     break;
   }
