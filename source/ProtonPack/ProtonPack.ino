@@ -231,12 +231,6 @@ void loop() {
   // Update the available audio device.
   updateAudio();
 
-  // Check current voltage/amperage draw using available methods if enabled.
-  if(b_use_power_meter && b_pack_post_finish) {
-    // Only check if power meter if present and self-test has completed.
-    checkPowerMeter();
-  }
-
   // Check for any new serial commands were received from the Neutrona Wand.
   checkWand();
 
@@ -254,6 +248,12 @@ void loop() {
     checkSwitches();
     checkRotaryEncoder();
     checkMenuVibration();
+
+    // Check current voltage/amperage draw using available methods if enabled.
+    if(b_use_power_meter) {
+      // Only check if power meter if present and self-test has completed.
+      checkPowerMeter();
+    }
 
     switch (PACK_STATE) {
       case MODE_OFF:
@@ -4740,9 +4740,11 @@ void wandStoppedFiring() {
   // Turn off the fans.
   fanNFilter(false);
 
+  // Stop overheating-related timers.
   ms_firing_length_timer.stop();
   ms_smoke_timer.stop();
   ms_smoke_on.stop();
+  ms_delay_post_2.stop();
 
   // Stop overheat beeps.
   switch(SYSTEM_YEAR) {

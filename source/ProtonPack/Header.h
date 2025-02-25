@@ -430,7 +430,7 @@ uint8_t i_post_powercell_up = 0;
 uint8_t i_post_powercell_down = 0;
 uint8_t i_post_fade = 255;
 millisDelay ms_delay_post; // Also used for Brass Pack shutdown steam effect.
-millisDelay ms_delay_post_2;
+millisDelay ms_delay_post_2; // Also used by GPStar Lite to check for overheating.
 millisDelay ms_delay_post_3;
 
 /*
