@@ -41,6 +41,7 @@ bool b_wand_just_started = false; // Whether the wand was just started via the p
 bool b_wand_overheated = false; // Whether the wand overheated, as if it did we should ignore power off events.
 const uint16_t i_wand_overheat_delay = 14600; // How many milliseconds of continuous firing before we lock into overheating mode.
 const uint16_t i_wand_overheat_duration = 2500; // How long to play the alarm for before going into the full overheat sequence on the pack.
+const uint16_t i_wand_startup_delay = 2750; // How many milliseconds after wand startup before we allow detecting firing events.
 const float f_ema_alpha = 0.2; // Smoothing factor (<1) for Exponential Moving Average (EMA) [Lower Value = Smoother Averaging].
 float f_sliding_window[20] = {0.0}; // Sliding window for detecting state changes, initialized to 0.
 float f_accumulator = 0.0; // Accumulator used for sliding window averaging operations.
@@ -195,8 +196,6 @@ void updateWandPowerState() {
       }
 
       // Enter overheat sequence.
-      b_wand_on = false;
-      b_pack_started_by_meter = false;
       b_wand_overheated = false;
       wandStoppedFiring();
       cyclotronSpeedRevert();
@@ -232,11 +231,19 @@ void updateWandPowerState() {
 
   // Average the change between both pairs of values.
   f_diff_average = f_accumulator / 2.0;
+  f_accumulator = 0.0; // Reset the accumulator.
 
   if(!b_wand_on) {
-    if(f_diff_average > 0.09) {
+    // Also we'll do a 20-parameter average just in case we missed the initial spike.
+    for(uint8_t i = 0; i < 20; i++) {
+      f_accumulator += f_sliding_window[i];
+    }
+
+    float f_on_average = f_accumulator / 20.0;
+    f_accumulator = 0.0; // Reset the accumulator.
+
+    if(f_diff_average > 0.09 || (f_diff_average > 0.0 && f_on_average > 0.6)) {
       // We need to poison the window after detecting a startup to prevent false firing triggers.
-      f_accumulator = 0.0;
       f_diff_average = 0.0;
       for (uint8_t i = 0; i < 20; i++) {
         f_sliding_window[i] = 0.0;
@@ -246,10 +253,14 @@ void updateWandPowerState() {
       b_wand_on = true;
       b_wand_just_started = true;
 
+      // The Hasbro wand cannot fire for 2.75 seconds after activation, so add a null period.
+      ms_delay_post_3.start(i_wand_startup_delay);
+
       // Turn the pack on.
       if(PACK_STATE != MODE_ON) {
         packStartup(false);
         b_pack_started_by_meter = true;
+        b_wand_overheated = false;
 
         // Fake a full-power proton stream setting to the Attenuator
         serial1Send(A_POWER_LEVEL_5);
@@ -265,12 +276,12 @@ void updateWandPowerState() {
     }
   }
   else {
-    if(f_diff_average < 0.0 && b_wand_just_started) {
+    if(ms_delay_post_3.justFinished()) {
       // We finally got a negative diff in the window, so mark us as fully started up.
       b_wand_just_started = false;
     }
 
-    if((f_diff_average < -0.07 && f_sliding_window[19] < 0.7) || (f_diff_average < 0.0 && f_sliding_window[19] < 0.55) || f_sliding_window[19] < 0.1) {
+    if((f_diff_average < -0.02 && f_sliding_window[19] < 0.55) || f_sliding_window[19] < 0.1) {
       if(!b_wand_overheated && !b_overheating) {
         // Wand must have been shut off.
         if(b_wand_firing) {
@@ -297,8 +308,6 @@ void updateWandPowerState() {
     else if(!b_wand_just_started) {
       if(!b_wand_firing && !b_wand_overheated && !b_overheating) {
         // Start firing checks use a 5-parameter-wide window.
-        f_accumulator = 0.0;
-
         for (uint8_t i = 15; i < 19; i++) {
           if (((f_sliding_window[i + 1] - f_sliding_window[i]) <= 0.0) || (f_sliding_window[i + 1] - f_sliding_window[i]) > 0.07) {
             // If we went negative or jumped too quickly, reset the accumulator and exit.
@@ -310,6 +319,7 @@ void updateWandPowerState() {
         }
 
         f_diff_average = (f_accumulator / 4.0) * 1000.0;
+        f_accumulator = 0.0; // Reset the accumulator.
 
         if (f_diff_average > 25.1 && f_diff_average < 45.0) {
           // With this big a jump, we must have started firing.
@@ -321,13 +331,12 @@ void updateWandPowerState() {
       }
       else if(!b_wand_overheated && !b_overheating) {
         // Stop firing checks use a 20-parameter-wide window.
-        f_accumulator = 0.0;
-
         for (uint8_t i = 0; i < 19; i++) {
           f_accumulator += (f_sliding_window[i + 1] - f_sliding_window[i]);
         }
 
         f_diff_average = (f_accumulator / 19.0) * 1000.0;
+        f_accumulator = 0.0; // Reset the accumulator.
 
         if (f_diff_average <= -8.0) {
           // We must have stopped firing.
