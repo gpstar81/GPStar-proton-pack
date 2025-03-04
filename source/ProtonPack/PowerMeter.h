@@ -242,7 +242,7 @@ void updateWandPowerState() {
     float f_on_average = f_accumulator / 20.0;
     f_accumulator = 0.0; // Reset the accumulator.
 
-    if(f_diff_average > 0.09 || (f_diff_average > 0.0 && f_on_average > 0.6)) {
+    if(f_diff_average > 0.09 || (f_diff_average > 0.002 && f_on_average > 0.6)) {
       // We need to poison the window after detecting a startup to prevent false firing triggers.
       f_diff_average = 0.0;
       for (uint8_t i = 0; i < 20; i++) {
@@ -277,7 +277,7 @@ void updateWandPowerState() {
   }
   else {
     if(ms_delay_post_3.justFinished()) {
-      // We finally got a negative diff in the window, so mark us as fully started up.
+      // Startup delay timer expired, so reset the "just started" flag.
       b_wand_just_started = false;
     }
 
@@ -309,7 +309,7 @@ void updateWandPowerState() {
       if(!b_wand_firing && !b_wand_overheated && !b_overheating) {
         // Start firing checks use a 5-parameter-wide window.
         for (uint8_t i = 15; i < 19; i++) {
-          if (((f_sliding_window[i + 1] - f_sliding_window[i]) <= 0.0) || (f_sliding_window[i + 1] - f_sliding_window[i]) > 0.07) {
+          if (((f_sliding_window[i + 1] - f_sliding_window[i]) <= 0.002) || (f_sliding_window[i + 1] - f_sliding_window[i]) > 0.07) {
             // If we went negative or jumped too quickly, reset the accumulator and exit.
             f_accumulator = 0.0;
             break;
@@ -363,35 +363,35 @@ void updatePackPowerState() {
 void wandPowerDisplay() {
   if(b_show_power_data) {
     // Serial.print(F("W.Shunt(mV):"));
-    // Serial.print(wandReading.ShuntVoltage);
+    // Serial.print(wandReading.ShuntVoltage, 4);
     // Serial.print(F(","));
 
     // Serial.print(F("W.Shunt(A):"));
-    // Serial.print(wandReading.ShuntCurrent);
+    // Serial.print(wandReading.ShuntCurrent, 4);
     // Serial.print(F(","));
 
     Serial.print(F("W.Raw(W):"));
-    Serial.print(wandReading.RawPower);
+    Serial.print(wandReading.RawPower, 4);
     Serial.print(F(","));
 
     // Serial.print(F("W.Bus(V)):"));
-    // Serial.print(wandReading.BusVoltage);
+    // Serial.print(wandReading.BusVoltage, 4);
     // Serial.print(F(","));
 
     // Serial.print(F("W.Bus(W)):"));
-    // Serial.print(wandReading.BusPower);
+    // Serial.print(wandReading.BusPower, 4);
     // Serial.print(F(","));
 
     // Serial.print(F("W.Batt(V):"));
-    // Serial.print(wandReading.BattVoltage);
+    // Serial.print(wandReading.BattVoltage, 4);
     // Serial.print(F(","));
 
     // Serial.print(F("W.AmpHours:"));
-    // Serial.print(wandReading.AmpHours);
+    // Serial.print(wandReading.AmpHours, 4);
     // Serial.print(F(","));
 
     Serial.print(F("W.AvgPow(W):"));
-    Serial.print(wandReading.AvgPower);
+    Serial.print(wandReading.AvgPower, 4);
     Serial.print(F(","));
   }
 }
