@@ -94,17 +94,22 @@ You will need to utilize a command-line tool to upload the firmware to your devi
 	* [extras/boot_app0.bin](binaries/attenuator/extras/boot_app0.bin)
 	* [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin)
 1. From your terminal (command line) session, change into the temporary directory where all 4 of the above files were copied.
-1. Run the following command, where `<PORT>` is your ESP32 controller as a serial (USB) device. For Linux/macOS the port may appear as `/dev/cu.usbserial-####` or similar, while on Windows it would be `COM#`:
+1. Run the following command to flash the bootloader and device firmware:
 
 ```
-python3 -m esptool --chip esp32 --port <PORT> -b 921600 write_flash --flash_mode dio --flash_size detect --flash_freq 80m 0x1000 Attenuator-ESP32-Bootloader.bin 0x8000 Attenuator-ESP32-Partitions.bin 0xe000 boot_app0.bin 0x10000 Attenuator-ESP32.bin
+python3 -m esptool --chip esp32 -b 921600 write_flash --flash_mode dio --flash_size detect --flash_freq 80m 0x1000 Attenuator-ESP32-Bootloader.bin 0x8000 Attenuator-ESP32-Partitions.bin 0xe000 boot_app0.bin 0x10000 Attenuator-ESP32.bin
 ```
 
-📝 **Tip:** To find your USB device on various operating systems requires different methods:
+1. If your device cannot be found automatically you may need to add a `--port <PORT>` option to the command above. You can simply add this at the end of the command if needed.
+	- In this case `<PORT>` is your ESP32 controller found by name as a serial (USB) device on your computer.
+	- For Linux/macOS the port name may begin with `/dev/cu.usbserial` or `/dev/cu.wchusbserial`.
+	- For Windows it would be `COM[0-9]` (eg. `COM4` or `COM12`).
 
-- For Linux use the `lsusb` utility (or `lsusb -v`) to list attached USB devices.
-- For MacOS run `ls /dev/{tty,cu}.*` to list available USB devices.
-- For Windows, use the "Device Manager" and look at the "Ports (COM & LPT)" section.
+📝 **Tip:** To identify the USB device requires different methods based on the operating system used:
+
+- For **Linux** use the `lsusb` utility (or `lsusb -v`) to list attached USB devices.
+- For **MacOS** run `ls /dev/{tty,cu}.*` to list available USB devices.
+- For **Windows**, use the "Device Manager" and look at the **"Ports (COM & LPT)"** section.
 
 These guides from Espressif may be of some help as a reference:
 
