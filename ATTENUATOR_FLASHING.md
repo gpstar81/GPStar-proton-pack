@@ -181,14 +181,21 @@ Before beginning any actions when using a USB cable, be sure to use a high-quali
 
 **Problem 2:** The ESP32 device can be detected when using the [ESPWebTool website](https://esp.huhn.me/) but can't connect. Alternatively, you get a notice that the device must be reset.
 
-**Solution 2:** You must put the device into bootloader mode. To help with this, use the [SerialTerminal website](https://serial.huhn.me/) to connect to your device first. Once connected, press the BOOT and EN buttons simultaneously, then release the EN button followed by the BOOT button. You should see a message similar to the following which indicates the device is ready to flash:
+**Solution 2:** You must put the device into bootloader mode. To help with this, use the [SerialTerminal website](https://serial.huhn.me/) to connect to your device first:
+
+1. Plug ESP32 into computer
+2. Hold down BOOT button
+3. While holding BOOT, click EN once
+4. Continue holding BOOT until the firmware update tool says "Connecting..." then release
+
+You should see a message similar to the following which indicates the device is ready to flash:
 
 ```
 rst:0x1 (POWERON_RESET),boot:0x3 (DOWNLOAD_BOOT(UART0/UART1/SDIO_REI_REO_V2))
 waiting for download
 ```
 
-Without disconnecting the device, and using the same browser tab, return to the ESPWebTool website](https://esp.huhn.me/) and complete the flashing process as described earlier in this guide.
+Without disconnecting the device from your computer, and using the **same** browser tab, return to the ESPWebTool website](https://esp.huhn.me/) and complete the flashing process as described earlier in this guide as "Option 1". Alternatively, you may need to utilize the `esptool` command line approach using Python as described as "Option 2".
 
 **Note:** If you get garbage on the screen when using the serial terminal, use the gear icon at the top right to make sure the baud rate is set to 115200.
 
