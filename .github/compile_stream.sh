@@ -9,7 +9,7 @@ SRCDIR="../source"
 
 mkdir -p ${BINDIR}/stream/extras
 
-# Current build timestamp to be reflected in the Attenuator build for ESP32.
+# Current build timestamp to be reflected in the build for ESP32.
 TIMESTAMP=$(date +"%Y%m%d%H%M%S")
 
 echo ""

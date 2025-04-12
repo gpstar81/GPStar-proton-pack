@@ -50,7 +50,7 @@ pio run --project-dir "$PROJECT_DIR"
 sed -i -e 's/const bool b_gpstar_benchtest = true/bool b_gpstar_benchtest = false/' ${PROJECT_DIR}/include/Configuration.h
 sed -i -e 's/\/\/b_gpstar_benchtest = true/b_gpstar_benchtest = true/' ${PROJECT_DIR}/include/Serial.h
 
-rm -f ${PROJECT_DIR}/*.h-e
+rm -f ${PROJECT_DIR}/include/*.h-e
 
 if [ -f ${PROJECT_DIR}/.pio/build/megaatmega2560/firmware.hex ]; then
   mv ${PROJECT_DIR}/.pio/build/megaatmega2560/firmware.hex ${BINDIR}/wand/extras/NeutronaWand-BenchTest.hex
