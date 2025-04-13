@@ -30,6 +30,12 @@ Since all connections to the Proton Pack utilize standard JST-XH connections to 
 
 Confirm that the battery pack is sufficiently charged, switched to the on state, and USB-to-JST connection is in place.
 
+### Pack Cyclotron (lid) will not light up ###
+
+Always be sure that your Power Cell device is plugged in and working, first. Both the Power Cell and Cyclotron are considered to be a single, continuious chain of LEDs and the latter will not function without the former. Note that when you first apply power to your pack you should hear and see a startup sequence which is a form of sanity check on the hardware to confirm the lights are working as expected.
+
+If using the Cyclotron Bypass (for Spirit or DIY packs) you must ensure the jumper is in place on the board to simulate the lid closure state. Removing or replacing the jumper while power is applied should result in an audio cue to indicate the bypass device is working (simulating lid removal and replacement).
+
 ### Pack has lights but does not play audio ###
 
 * Re-check the 3.5mm audio cable is connected to the audio amplifier, and that the audio amplifier has power, is connected to at least 1 speaker, and volume has been turned up to at least 30%.
