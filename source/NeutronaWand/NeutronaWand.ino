@@ -511,8 +511,8 @@ void mainLoop() {
   if(ms_vent_light.justFinished()) {
     // Only send an update if we actually made a change.
     if(b_vent_lights_changed) {
-      if(b_rgb_vent_light) {
-        // Only commit an update if the addressable LED panel is installed.
+      if(b_rgb_vent_light || WAND_CONN_STATE == PACK_DISCONNECTED) {
+        // Only commit an update if the addressable LED panel is installed or if the Neutrona Wand can not make a connection to the Proton Pack.
         FastLED[1].showLeds(255);
       }
 
