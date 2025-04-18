@@ -195,13 +195,13 @@ rst:0x1 (POWERON_RESET),boot:0x3 (DOWNLOAD_BOOT(UART0/UART1/SDIO_REI_REO_V2))
 waiting for download
 ```
 
-Without disconnecting the device from your computer, and using the **same** browser tab, return to the ESPWebTool website](https://esp.huhn.me/) and complete the flashing process as described earlier in this guide as "Option 1". Alternatively, you may need to utilize the `esptool` command line approach using Python as described as "Option 2".
+Without disconnecting the device from your computer, and using the **same** browser tab, return to the ESPWebTool website](https://esp.huhn.me/) and complete the flashing process as described earlier in this guide as "Option 1". Alternatively, you may need to utilize the `esptool.py` command line approach using Python as described as "Option 2".
 
 **Note:** If you get garbage on the screen when using the serial terminal, use the gear icon at the top right to make sure the baud rate is set to 115200.
 
 **Problem 3:** The process described in Solution 2 did not work, help!
 
-**Solution 3:** You will need to follow the command line process using the `esptool` utility as described in this guide to flash your device. This offers some abilities to reset the device which cannot be replicated via the web-serial interface.
+**Solution 3:** You will need to follow the command line process using the `esptool.py` utility as described in this guide to flash your device. This offers some abilities to reset the device which cannot be replicated via the web-serial interface.
 
 **Problem 4:** For Linux users, if you get a "Permission denied" error when running `esptool` you may need to add your user to the dialout group.
 
