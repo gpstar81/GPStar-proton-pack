@@ -30,16 +30,16 @@ This uses a 3rd-party website to upload using the Web Serial protocol which is o
 
 1. Plug your device into a USB port on your computer and go to [http://espwebtool.ghostbusters.engineering](http://espwebtool.ghostbusters.engineering) (which [redirects to https://esp.huhn.me](https://esp.huhn.me)).
 1. Locate the following files from the `/binaries/attenuator` directory.
-	* [extras/Attenuator-ESP32-Bootloader.bin](binaries/attenuator/extras/Attenuator-ESP32-Bootloader.bin) = This is the standard bootloader for the ESP itself.
-	* [extras/Attenuator-ESP32-Partitions.bin](binaries/attenuator/extras/Attenuator-ESP32-Partitions.bin) = This specifies the partition scheme for the flash memory.
-	* [extras/boot_app0.bin](binaries/attenuator/extras/boot_app0.bin) = This is the software for selecting the available/next OTA partition.
-	* [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin) = This is the custom software for the GPStar kit.
+	* [extras/Attenuator-ESP32-Bootloader.bin](binaries/attenuator/extras/Attenuator-ESP32-Bootloader.bin?raw=1) = This is the standard bootloader for the ESP itself.
+	* [extras/Attenuator-ESP32-Partitions.bin](binaries/attenuator/extras/Attenuator-ESP32-Partitions.bin?raw=1) = This specifies the partition scheme for the flash memory.
+	* [extras/boot_app0.bin](binaries/attenuator/extras/boot_app0.bin?raw=1) = This is the software for selecting the available/next OTA partition.
+	* [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin?raw=1) = This is the custom software for the GPStar kit.
 1. Click on the **CONNECT** button and select your USB serial device from the list of options and click on "Connect".
 1. Once connected, select the files (noted above) for the following address spaces:
-	* 0x1000 &rarr; [Attenuator-ESP32-Bootloader.bin](binaries/attenuator/extras/Attenuator-ESP32-Bootloader.bin)
-	* 0x8000 &rarr; [Attenuator-ESP32-Partitions.bin](binaries/attenuator/extras/Attenuator-ESP32-Partitions.bin)
-	* 0xE000 &rarr; [boot_app0.bin](binaries/attenuator/extras/boot_app0.bin)
-	* 0x10000 &rarr; [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin)
+	* 0x1000 &rarr; [Attenuator-ESP32-Bootloader.bin](binaries/attenuator/extras/Attenuator-ESP32-Bootloader.bin?raw=1)
+	* 0x8000 &rarr; [Attenuator-ESP32-Partitions.bin](binaries/attenuator/extras/Attenuator-ESP32-Partitions.bin?raw=1)
+	* 0xE000 &rarr; [boot_app0.bin](binaries/attenuator/extras/boot_app0.bin?raw=1)
+	* 0x10000 &rarr; [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin?raw=1)
 1. Click on the **PROGRAM** button to begin flashing. View the "Output" window to view progress of the flashing operation.
 1. Once the device has completely flashed (100%) unplug the USB cable and remove any remaining power source from the device. Restore power to reboot the device and confirm operation.
 
@@ -58,10 +58,10 @@ You will need to utilize a command-line tool to upload the firmware to your devi
 		* `python3 get-pip.py`
 	* If the above utilities do not work using `python3` try using just `python`
 1. Locate the following files from the `/binaries/attenuator` directory of this project and download/copy them to a new location such as `C:\Temp` or `/tmp` so they can be found using just their name without adding a subdirectory:
-	* [extras/Attenuator-ESP32-Bootloader.bin](binaries/attenuator/extras/Attenuator-ESP32-Bootloader.bin)
-	* [extras/Attenuator-ESP32-Partitions.bin](binaries/attenuator/extras/Attenuator-ESP32-Partitions.bin)
-	* [extras/boot_app0.bin](binaries/attenuator/extras/boot_app0.bin)
-	* [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin)
+	* [extras/Attenuator-ESP32-Bootloader.bin](binaries/attenuator/extras/Attenuator-ESP32-Bootloader.bin?raw=1)
+	* [extras/Attenuator-ESP32-Partitions.bin](binaries/attenuator/extras/Attenuator-ESP32-Partitions.bin?raw=1)
+	* [extras/boot_app0.bin](binaries/attenuator/extras/boot_app0.bin?raw=1)
+	* [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin?raw=1)
 1. From your terminal (command line) session, change into the temporary directory where all 4 of the above files were copied.
 1. Run the following command, where `<PORT>` is your ESP32 controller as a serial (USB) device. For Linux/macOS the port may appear as `/dev/cu.usbserial-####` or similar, while on Windows it would be `COM#`:
 
@@ -89,7 +89,7 @@ This applies to all updates you will perform AFTER the first-time upload of the 
 1. Open the WiFi preferences on your computer/device and look for the SSID which begins **"ProtonPack_"**.
 	* If this is your first connection to this access point, use the default password **"555-2368"**.
 1. Navigate directly to the URL: [http://192.168.1.2/update](http://192.168.1.2/update)
-1. Use the "Select File" button and select the [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin) file from the `/binaries/attenuator` directory.
+1. Use the "Select File" button and select the [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin?raw=1) file from the `/binaries/attenuator` directory.
 1. The upload will begin immediately. Once at 100% the device will reboot.
 1. Navigate to [http://192.168.1.2](http://192.168.1.2) or `http://protonpack_####.local` to confirm that the device is able to communicate with the Proton Pack PCB.
 
@@ -121,7 +121,7 @@ The following is only applicable to users on firmware PRIOR to the v5.2.2 releas
 
 If you have forgotten the password to the private WiFi network, you will need to load a special firmware to allow you to access the device and reset the password. Though if you have opted to connect your device to a preferred WiFi network using the built-in WiFi settings, simply return to your device's IP address on that network and change the password for the private WiFi network as desired.
 
-In the case where you do not have access to your device via an external WiFi network, you will need to follow a special process using a USB cable and a utility for your OS of choice. This will follow the same process as the "First-Time Upload" instructions posted above, though you will instead load the [Attenuator-ESP32-Reset.bin](binaries/attenuator/Attenuator-ESP32-Reset.bin) file from the `/binaries/attenuator` directory.
+In the case where you do not have access to your device via an external WiFi network, you will need to follow a special process using a USB cable and a utility for your OS of choice. This will follow the same process as the "First-Time Upload" instructions posted above, though you will instead load the [Attenuator-ESP32-Reset.bin](binaries/attenuator/Attenuator-ESP32-Reset.bin?raw=1) file from the `/binaries/attenuator` directory.
 
 Once flashed, this will allow you to get back into the web UI at [http://192.168.1.2](http://192.168.1.2) or `http://protonpack_####.local` using the default password ("555-2368") and change to your choice of password. **Once changed, you will need to re-flash the device using the standard firmware--otherwise, the device will always use the default WiFi password while this firmware is loaded**! The new password will be used automatically to secure the WiFi access point once the regular firmware is in use.
 
@@ -161,5 +161,3 @@ Without disconnecting the device, and using the same browser tab, return to the 
 ## Software Development Requirements
 
 As of the v5.4.0 release the development platform of choice for this device has been migrated from Arduino IDE to the [VSCode with PlatformIO](VSCODE.md). Please follow the linked guide for installing the core software and plugins required. The source code for the Attenuator has also been divided into separate projects for the Arduino Nano vs. the ESP32 which allows for the respective libraries to be downloaded automatically as necessary.
-
-Note: A fork of the `ElegantOTA` library will be downloaded from [GitHub](https://github.com/DustinGrau/ElegantOTA.git) which contains specific modifications for use with the ESPAsyncWebServer package.
