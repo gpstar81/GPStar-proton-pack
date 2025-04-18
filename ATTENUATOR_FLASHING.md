@@ -20,11 +20,37 @@ This device is capable of supporting Over-The-Air (OTA) updates for firmware, me
 
 The following steps MUST be taken if this situation applies to you:
 
-- If you are using your own ESP32 controller direct from Amazon or another supplier, then the microcontroller has not been flashed with the GPStar firmware to enable the OTA upload feature and the manual flashing process is required.
+- If you are using your own ESP32 controller direct from Amazon or another supplier, it will need to be manually flashed with GPStar firmware to enable the OTA upload feature and WiFi network.
 
 If you encounter any issues while attempting to access your ESP32 device via a USB cable, please see the **"[USB Troubleshooting](#usb-troubleshooting)"** section at the bottom of this guide.
 
-**Option 1: Via Web Uploader**
+**Option 1: Using GPStar ESP32 Firmware Uploader**
+
+This uses a purpose-built flash tool just like the tools for the Proton Pack, Neutrona Wand, Single-Shot Blaster and GPStar Audio. Thanks to its ease of use, this is our recommended method for performing the first-time USB upload process. First, download either the Windows or Mac OSX flash tool from the [extras](extras/) folder. If you are on Windows x86 or Linux, try Option 2 below instead.
+
+**Windows (x64 only):** [GPStar ESP32 Firmware Flasher](extras/gpstarESP32FirmwareFlasher.exe?raw=1)
+
+**MacOS Intel/M1:** [GPStar ESP32 Firmware Flasher (Mac OSX)](extras/GPStar-ESP32-Firmware-Flasher-Mac.dmg?raw=1)
+
+1. Plug your device into a USB port on your computer.
+2. Locate the following files from the `/binaries/attenuator` directory.
+
+	* [extras/Attenuator-ESP32-Bootloader.bin](binaries/attenuator/extras/Attenuator-ESP32-Bootloader.bin?raw=1) = This is the standard bootloader for the ESP32 itself.
+	* [extras/Attenuator-ESP32-Partitions.bin](binaries/attenuator/extras/Attenuator-ESP32-Partitions.bin?raw=1) = This specifies the partition scheme for the flash memory.
+	* [extras/boot_app0.bin](binaries/attenuator/extras/boot_app0.bin?raw=1) = This is the software for selecting the available/next OTA partition.
+	* [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin?raw=1) = This is the custom firmware for the GPStar kit.
+
+3. Open the GPStar ESP32 Firmware Flasher and browse to the files specified in step 2 above for each of the four requested file locations (see below screenshot).
+
+![](images/ESP32-gpstar-flash.jpg)
+
+4. The program should automatically detect the correct COM port and baud rate (see above screenshot). If it did not, use the drop-down menus to select the correct one for your PC.
+
+5. Click the Upload button to flash the new firmware to your ESP32. Be patient, this process can take between 15 seconds and several minutes depending on the selected baud rate.
+
+6. Once the flash has completed successfully, your ESP32 should now be broadcasting a WiFi network and you should be ready to install it into your Proton Pack. If the flash failed, please see Solution 2 in the **"[USB Troubleshooting](#usb-troubleshooting)"** section at the bottom of this guide to manually switch the ESP32 into bootloader mode. You may also try lowering the baud rate to 115200 (if available), though note this will increase the time it takes to flash the firmware.
+
+**Option 2: Via Web Uploader**
 
 This uses a 3rd-party website to upload using the Web Serial protocol which is only available on the Google Chrome, Microsoft Edge, and Opera desktop web browsers. Mobile browsers are NOT supported, and you will be prompted with a message if your web browser is not valid for use.
 
@@ -32,10 +58,10 @@ This uses a 3rd-party website to upload using the Web Serial protocol which is o
 
 1. Locate the following files from the `/binaries/attenuator` directory.
 
-	* [extras/Attenuator-ESP32-Bootloader.bin](binaries/attenuator/extras/Attenuator-ESP32-Bootloader.bin?raw=1) = This is the standard bootloader for the ESP itself.
+	* [extras/Attenuator-ESP32-Bootloader.bin](binaries/attenuator/extras/Attenuator-ESP32-Bootloader.bin?raw=1) = This is the standard bootloader for the ESP32 itself.
 	* [extras/Attenuator-ESP32-Partitions.bin](binaries/attenuator/extras/Attenuator-ESP32-Partitions.bin?raw=1) = This specifies the partition scheme for the flash memory.
 	* [extras/boot_app0.bin](binaries/attenuator/extras/boot_app0.bin?raw=1) = This is the software for selecting the available/next OTA partition.
-	* [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin?raw=1) = This is the custom software for the GPStar kit.
+	* [Attenuator-ESP32.bin](binaries/attenuator/Attenuator-ESP32.bin?raw=1) = This is the custom firmware for the GPStar kit.
 
 1. Click on the **CONNECT** button and select your USB serial device from the list of options and click on "Connect".
 
@@ -52,9 +78,11 @@ This uses a 3rd-party website to upload using the Web Serial protocol which is o
 
 View [a quick video](images/ESP_Firmware_Update.mp4) of what this process should look like. Your list of USB devices may differ, and it may require selecting a different device if you cannot immediately determine which connected device is your ESP32.
 
-**Option 2: Via Command-Line**
+📝 **NOTE:** If your device still cannot be found automatically you may need to view the **"[USB Troubleshooting](#usb-troubleshooting)"** section at the bottom of this guide.
 
-You will need to utilize a command-line tool to upload the firmware to your device from your local computer.
+**Option 3: Via Command-Line**
+
+You will need to utilize a command-line tool to upload the firmware to your device from your local computer. Note this is *not recommended* unless you are using a platform other than Windows x64 or Mac OSX, such as Linux.
 
 1. Install the latest Python 3.x utility based on your operating system:
 
@@ -87,7 +115,7 @@ You will need to utilize a command-line tool to upload the firmware to your devi
 1. Run the following command to flash the bootloader and firmware, providing the correct `<PORT>` value discovered from the previous step:
 
 ```
-python3 -m esptool --port <PORT> --chip esp32 --baud 921600 write_flash --flash_mode dio --flash_size detect --flash_freq 80m 0x1000 extras/Attenuator-ESP32-Bootloader.bin 0x8000 extras/Attenuator-ESP32-Partitions.bin 0xe000 extras/boot_app0.bin 0x10000 Attenuator-ESP32.bin
+python3 -m esptool --port <PORT> --chip esp32 --baud 921600 write_flash --flash_mode dio --flash_size detect --flash_freq 40m 0x1000 extras/Attenuator-ESP32-Bootloader.bin 0x8000 extras/Attenuator-ESP32-Partitions.bin 0xe000 extras/boot_app0.bin 0x10000 Attenuator-ESP32.bin
 ```
 
 📝 **NOTE:** If your device still cannot be found automatically you may need to view the **"[USB Troubleshooting](#usb-troubleshooting)"** section at the bottom of this guide.
@@ -139,7 +167,6 @@ Once flashed, this will allow you to get back into the web UI at [http://192.168
 📝 **Note:** When using this firmware there will be additional debug messages enabled for the device. Therefore, this firmware image may also be used to help debug WiFi issues by checking the output via the Arduino IDE's serial console. Be sure to set the baud rate to 112500 to view the output correctly.
 
 ---
-
 ## USB Troubleshooting
 
 Before beginning any actions when using a USB cable, be sure to use a high-quality USB cable which supports data transfer. Some cheap cables may only support charging (not data), or not fully support the power requirements of the device.
@@ -164,20 +191,19 @@ rst:0x1 (POWERON_RESET),boot:0x3 (DOWNLOAD_BOOT(UART0/UART1/SDIO_REI_REO_V2))
 waiting for download
 ```
 
-Without disconnecting the device from your computer, and using the **same** browser tab, return to the ESPWebTool website](https://esp.huhn.me/) and complete the flashing process as described earlier in this guide as "Option 1". Alternatively, you may need to utilize the `esptool.py` command line approach using Python as described as "Option 2".
+Without disconnecting the device from your computer, and using the **same** browser tab, return to the ESPWebTool website](https://esp.huhn.me/) and complete the flashing process as described earlier in this guide as "Option 2".
 
 **Note:** If you get garbage on the screen when using the serial terminal, use the gear icon at the top right to make sure the baud rate is set to 115200.
 
 **Problem 3:** The process described in Solution 2 did not work, help!
 
-**Solution 3:** You will need to follow the command line process using the `esptool.py` utility as described in this guide to flash your device. This offers some abilities to reset the device which cannot be replicated via the web-serial interface.
+**Solution 3:** Try using Option 1 instead. For users not on Windows x64 or Mac OSX, use Option 3 to run `esptool` manually.
 
 **Problem 4:** For Linux users, if you get a "Permission denied" error when running `esptool` you may need to add your user to the dialout group.
 
 **Solution 4:** Run this command, then log out and back in for the changes to take effect:
 
 	`sudo usermod -aG dialout $USER`
-
 
 📝 **Tip:** If you have successfully flashed your ESP32 device and do not see the available WiFi access point, try plugging your USB cable directly into the Talentcell battery or try another USB port on your computer. In rare cases the USB port and/or cable cannot supply enough voltage to run the ESP32's WiFi radio.
 

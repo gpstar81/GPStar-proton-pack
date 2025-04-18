@@ -359,7 +359,7 @@ Please view the [supplemental operation guide for EEPROM menus](OPERATION_EEPROM
 ## PDF Operational Guide
 
 (Direct Download link)
-[GPStar Operational Guide [pdf]](extras/gpstar-Operational-Guide.pdf)
+[GPStar Operational Guide [pdf]](extras/gpstar-Operational-Guide.pdf?raw=1)
 
 <div class="page-break"></div>
 

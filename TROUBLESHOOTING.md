@@ -91,7 +91,7 @@ If your pack and wand are on default settings (you may test this by entering the
 
 ### Bench Test Mode ###
 
-If you wish to test (or use) the Neutrona Wand without a Proton Pack, flash the `binaries/wand/extras/NeutronaWand-BenchTest.hex` to the device to enable a special mode which will allow the wand to operation without waiting for a response from the pack. This is useful for debugging whether the serial connection is incorrect.
+If you wish to test (or use) the Neutrona Wand without a Proton Pack, flash [binaries/wand/extras/NeutronaWand-BenchTest.hex](binaries/wand/extras/NeutronaWand-BenchTest.hex?raw=1) to the device to enable a special mode which will allow the wand to operation without waiting for a response from the pack. This is useful for debugging whether the serial connection is incorrect.
 
 ## Audio Troubleshooting ##
 
@@ -139,7 +139,7 @@ Remember that a ground loop isolator is not required for this device as this is 
 
 **Startup Blinking Patterns:**
 
-- 1x (long) - 1 long blink upon startup indicates that the SD card is no good or the formatting was bad. Re-format fully using your OS or the provided `guiformat.exe` utility in `/extras/` (for Windows only). Name brand microSD cards are highly recommended, with SanDisk having been proven the most reliable so far.
+- 1x (long) - 1 long blink upon startup indicates that the SD card is no good or the formatting was bad. Re-format fully using your OS or the provided [guiformat.exe](extras/sound/guiformat.exe?raw=1) utility in [extras](extras/) (for Windows only). Name brand microSD cards are highly recommended, with SanDisk having been proven the most reliable so far.
 - 3x (quick) - 3 quick blinks in succession is the normal pattern at initial power-up to indicate the device has initialized without issues.
 
 **Post Startup Blinking Patterns**
@@ -160,4 +160,4 @@ Remember that a ground loop isolator is not required for this device as this is 
 
 1. Please remove any metadata contained in the music wav files you add, as it can cause issues loading the file for playback.
 
-[Manual for the WAV Trigger [pdf]](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/sound/WavTrigger/WT_UserGuide_20230602.pdf)
+[Manual for the WAV Trigger [pdf]](extras/sound/WavTrigger/WT_UserGuide_20230602.pdf?raw=1)

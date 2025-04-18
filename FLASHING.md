@@ -29,16 +29,16 @@ Please refer to the table below for a list of devices and their supported softwa
 ## 📝 IMPORTANT NOTES FOR FLASHING UPDATES 📝
 
 1. The same software version should be updated to **ALL** available devices, even if the changelog does not advertise modifications for a certain component. This ensures proper serial communication between devices.
-1. If you are flashing updates to your existing setup, make sure that **BOTH** your Proton Pack and Neutrona Wand Micro SD Cards have all the latest sound effects from this repository as found in the `/sounds` directory.
+1. If you are flashing updates to your existing setup, make sure that **BOTH** your Proton Pack and Neutrona Wand Micro SD Cards have all the latest sound effects from this repository as found in the [sounds](sounds/) directory.
 
 ## Flashing Updates
-After connecting your GPStar Proton Pack or Neutrona Wand board to your computer with the included FTDI to USB programming cable, download the GPStar firmware flasher from the extra folder and run the program.
+After connecting your GPStar Proton Pack or Neutrona Wand board to your computer with the included FTDI to USB programming cable, download the GPStar firmware flasher from the [extras](extras/) folder and run the program.
 
-**Windows:** [GPStar Firmware Flasher](extras/gpstarFirmwareFlasher.exe?raw=1)
+**Windows (x86/x64):** [GPStar Firmware Flasher](extras/gpstarFirmwareFlasher.exe?raw=1)
 
 **MacOS Intel/M1:** [GPStar Firmware Flasher (Mac OSX)](extras/GPStar-Firmware-Flasher-Mac.dmg?raw=1)
 
-**GPStar Audio Windows Flasher:** [GPStar Audio Firmware Flasher](extras/sound/GPStar%20Audio/gpstarAudioFirmwareFlasher.exe?raw=1)
+**GPStar Audio Windows Flasher (x64 only):** [GPStar Audio Firmware Flasher](extras/sound/GPStar%20Audio/gpstarAudioFirmwareFlasher.exe?raw=1)
 
 **GPStar Audio MacOS Intel/M1:** [GPStar Audio Firmware Flasher (Mac OSX)](extras/sound/GPStar%20Audio/GPStar-Audio-Firmware-Flasher-Mac.dmg?raw=1)
 
