@@ -29,7 +29,7 @@ The compatibility matrix below notes whether a device is compatible with major v
 
 **Firmware Updates**
 
-All firmware files for the audio controllers can be found in the [/extras/sound/ folder](/extras/sound/). Files are grouped by their device name, and a firmware update tool for the GPStar Audio firmware is available for ease of flashing that device.
+All firmware files for the audio controllers can be found in the [extras/sound/ folder](extras/sound/). Files are grouped by their device name, and a firmware update tool for the GPStar Audio firmware is available for ease of flashing that device.
 
 ## Pack Audio
 
