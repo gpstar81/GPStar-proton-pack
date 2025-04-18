@@ -34,20 +34,20 @@ Please refer to the table below for a list of devices and their supported softwa
 ## Flashing Updates
 After connecting your GPStar Proton Pack or Neutrona Wand board to your computer with the included FTDI to USB programming cable, download the GPStar firmware flasher from the extra folder and run the program.
 
-**Windows:** [gpstarFirmwareFlasher.exe](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/gpstarFirmwareFlasher.exe)
+**Windows:** [GPStar Firmware Flasher](extras/gpstarFirmwareFlasher.exe?raw=1)
 
-**MacOS Intel/M1:** [GPStar-Firmware-Flasher-Mac.dmg](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/GPStar-Firmware-Flasher-Mac.dmg)
+**MacOS Intel/M1:** [GPStar Firmware Flasher (Mac OSX)](extras/GPStar-Firmware-Flasher-Mac.dmg?raw=1)
 
-**GPStar Audio Windows Flasher:** [gpstarFirmwareFlasher.exe](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/sound/GPStar%20Audio/gpstarAudioFirmwareFlasher.exe)
+**GPStar Audio Windows Flasher:** [GPStar Audio Firmware Flasher](extras/sound/GPStar%20Audio/gpstarAudioFirmwareFlasher.exe?raw=1)
 
-**GPStar Audio MacOS Intel/M1:** [GPStar-Firmware-Flasher-Mac.dmg](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/sound/GPStar%20Audio/GPStar-Audio-Firmware-Flasher-Mac.dmg)
+**GPStar Audio MacOS Intel/M1:** [GPStar Audio Firmware Flasher (Mac OSX)](extras/sound/GPStar%20Audio/GPStar-Audio-Firmware-Flasher-Mac.dmg?raw=1)
 
 The latest pre-compiled firmware binaries can be found in the binaries folder of this repository.
 
-[https://github.com/gpstar81/haslab-proton-pack/tree/main/binaries](https://github.com/gpstar81/haslab-proton-pack/tree/main/binaries)
+[Binaries Folder](binaries/)
 
 The GPStar Audio firmware binary can be found in the extras/sound/GPStar Audio folder.
-[https://github.com/gpstar81/haslab-proton-pack/tree/main/extras/sound/GPStar%20Audio/](https://github.com/gpstar81/haslab-proton-pack/tree/main/extras/sound/GPStar%20Audio/)
+[GPStar Audio Folder](extras/sound/GPStar%20Audio/)
 
 When downloading the binaries via GitHub, click on the file then on the **`Download raw file`** button.
 
