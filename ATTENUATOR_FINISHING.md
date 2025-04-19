@@ -2,7 +2,7 @@
 
 ## Assembly Guide
 
-See the [installation guide](extras/Attenuator-Install-Guide.pdf?raw=1) located in the [extras](extras/) folder for details on how to install the electronics into your Attenuator shell. Alternatively, watch this [Attenuator Kit Finishing video from February 2024](https://www.youtube.com/watch?v=vBww_2N0M-k) which covers the electronics, finishing, and fitment of your components: 
+See the [installation guide](extras/Attenuator-Install-Guide.pdf?raw=1) located in the [extras](extras/) folder for details on how to install the electronics into your Attenuator shell. Alternatively, watch this [Attenuator Kit Finishing video from February 2024](https://www.youtube.com/watch?v=vBww_2N0M-k) which covers the electronics, finishing, and fitment of your components:
 
 [![Attenuator Kit Finishing](https://img.youtube.com/vi/vBww_2N0M-k/maxresdefault.jpg)](https://www.youtube.com/watch?v=vBww_2N0M-k)
 
