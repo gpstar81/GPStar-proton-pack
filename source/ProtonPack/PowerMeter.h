@@ -242,7 +242,7 @@ void updateWandPowerState() {
     float f_on_average = f_accumulator / 20.0;
     f_accumulator = 0.0; // Reset the accumulator.
 
-    if(f_diff_average > 0.09 || (f_diff_average > 0.002 && f_on_average > 0.6)) {
+    if(f_diff_average > 0.09 || (f_diff_average > 0.002 && f_on_average > 0.8)) {
       // We need to poison the window after detecting a startup to prevent false firing triggers.
       f_diff_average = 0.0;
       for (uint8_t i = 0; i < 20; i++) {
@@ -307,8 +307,8 @@ void updateWandPowerState() {
     }
     else if(!b_wand_just_started) {
       if(!b_wand_firing && !b_wand_overheated && !b_overheating) {
-        // Start firing checks use a 5-parameter-wide window.
-        for (uint8_t i = 15; i < 19; i++) {
+        // Start firing checks use an 11-parameter-wide window.
+        for (uint8_t i = 9; i < 19; i++) {
           if (((f_sliding_window[i + 1] - f_sliding_window[i]) <= 0.002) || (f_sliding_window[i + 1] - f_sliding_window[i]) > 0.07) {
             // If we went negative or jumped too quickly, reset the accumulator and exit.
             f_accumulator = 0.0;
@@ -320,8 +320,22 @@ void updateWandPowerState() {
 
         f_diff_average = (f_accumulator / 4.0) * 1000.0;
         f_accumulator = 0.0; // Reset the accumulator.
+        float f_range = f_sliding_window[19] - f_sliding_window[9]; // Store the range of the window.
+        bool b_positive_rate = false; // Temp flag to determine if all detected diffs are positive.
 
-        if (f_diff_average > 25.1 && f_diff_average < 45.0) {
+        for(uint8_t i = 9; i < 19; i++) {
+          if(f_sliding_window[i + 1] - f_sliding_window[i] < 0.0) {
+            // If any diff in the window is negative, stop checking.
+            b_positive_rate = false;
+            break;
+          }
+          else if(i == 18) {
+            // If we got here, we must be entirely positive.
+            b_positive_rate = true;
+          }
+        }
+
+        if (f_diff_average > 28.5 && f_diff_average < 45.0 || (f_range > 0.26f && b_positive_rate)) {
           // With this big a jump, we must have started firing.
           ms_delay_post_2.start(i_wand_overheat_delay);
           i_wand_power_level = 5;
@@ -337,8 +351,21 @@ void updateWandPowerState() {
 
         f_diff_average = (f_accumulator / 19.0) * 1000.0;
         f_accumulator = 0.0; // Reset the accumulator.
+        bool b_negative_rate = false; // Temp flag to determine if all detected diffs are negative.
 
-        if (f_diff_average <= -8.0) {
+        for(uint8_t i = 0; i < 19; i++) {
+          if(f_sliding_window[i + 1] - f_sliding_window[i] > 0.0) {
+            // If any diff in the window is positive, stop checking.
+            b_negative_rate = false;
+            break;
+          }
+          else if(i == 18) {
+            // If we got here, we must be entirely negative.
+            b_negative_rate = true;
+          }
+        }
+
+        if (f_diff_average <= -7.5f && b_negative_rate) {
           // We must have stopped firing.
           wandStoppedFiring();
 
