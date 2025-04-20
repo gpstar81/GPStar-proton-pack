@@ -67,9 +67,9 @@ Speakers may be subjective to your personal tastes and budget, so kits do not sh
 The following items are optional and may not even be necessary depending on the amplifier chosen. For instance, if using either of the GPStar amplifiers it is not necessary to provide a Ground Loop Isolator as this is built into those amplifiers already.
 
 - [8" Auxiliary Stereo Audio Cable w/ 90&deg; Jack](https://a.co/d/3H4zxZw)
-  - Optional: Useful in tight locations, depending on where the amp is mounted
+	- Optional: Useful in tight locations, depending on where the amp is mounted
 - [Ground Loop Isolator](https://a.co/d/faBkok9) - Not required for the GPStar Amplifier
-  - Recommended for 3rd-party Amps: Prevents unwanted hum and noise from the amplifier due to the LEDs
+	- Recommended for 3rd-party Amps: Prevents unwanted hum and noise from the amplifier due to the LEDs
 - [2 Input to 1 Output Passive Mixer](https://a.co/d/6tI6nVJ)
 	- For users who may want to mix a second source into their Proton Pack, such as an Aux-In or Bluetooth device, this is a good option to mix your GPStar Audio (or WAV Trigger) input with an external source.
 

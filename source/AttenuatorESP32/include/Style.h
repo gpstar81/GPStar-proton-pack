@@ -21,8 +21,8 @@
 #pragma once
 
 const char STYLE_page[] PROGMEM = R"=====(
-@font-face { 
-    font-family:'power_symbol'; 
+@font-face {
+    font-family:'power_symbol';
     src:url(data:application/octet-stream;base64,d09GMgABAAAAAALMAA4AAAAABiQAAAJ0AAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP0ZGVE0cGiYGVgCCSggEEQgKghCCFAsKAAE2AiQDEAQgBYJiBzcbJAUgjpQuUybx8P92j7/PHUTQvADoZJRxFVdZafGhooRdCjlkQuTz3hqPGibwAbxLL9wBtFkvDDigjHoBHTcFeHICAXpAlLWLNteDkthZ1+dIebklAj5796UavNH67pfwdb8vPxBoiNY6S0LIhBwJgUDUqeKaQl4MK24RnePjsvdsTs1JinoAoCvA3M0zNprc4+8ef5eb/9vsubqUCECGDB0FmC4T6CjXF6VcSPT4+///ob85H9cVAFESgEhIAIAQ9z69aIb4/38J5KAucszBNkCOwRJIed58SIMTTY6tb1Sv4YkLb1M6+87F9yLqxLl362+sfz0uPN/27bfhTrIuv+cGvfj2i/UvgPxBq3eCI+UX3n0XF0tuPPJ6umJR16zRR9NuvnJz8JjDVdOukqimv56ZHVJtmtr980GbPq8vWLny5/MXd/777LP/7Wr9385nn7PJxfOoIxGv92nTaOtai86vHDj34MTR11878tvrR4+8duLBgXOvdG5RTQUeD0PGP1En98vQx8viY82y5Cia0cKR8zL+YVmkVwsEex47FGuajP+1boO6FsPa6ZSzyt6oK4Ggrv//8lxdVJgpAAB5ncp0qAv2M/wgkJsigYQQmGwwoLGHAkASIBSaCJDkugiQ6Wi1ADlOCVBo4LoApcJDmcjrAYRQX4akrlbIjNYTOU6g0NrpTqX67sFeexyxyX62GsFU0OyxgyeHeWbaY7eDxSH7bbFJV0MNVulqrK4uXTPGIMOdPVQlR/Bqk1Ts37Kp69DBVdexXY2pjRk0fNDBngGLR1YHbBtEdVXrOHS9Kq0NrmZYJG0ANTlCitTw61SCP1wGAAA=)format('woff2');
     unicode-range:U+23FB;
 }

@@ -78,11 +78,11 @@ Proton Pack
   -------------- Negative from Common Ground
   |
  Amp   PCB ----- Negative from Common Ground
-  |+    |+    
+  |+    |+
 ===========
 |12V+  5V+|
 | |     | |
-|12V+  5V+| == Common Center to Battery (Jack/USB)    
+|12V+  5V+| == Common Center to Battery (Jack/USB)
 | |       |
 |12V+  NC*|  *No Connection for 5V+ side (USB)
 ===========
