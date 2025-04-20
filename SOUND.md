@@ -44,7 +44,7 @@ We recommend a handful of small form-factor audio amplifiers which will provide 
 - [GPStar Amplifier - 15W @ 8Ω 12V Class D Stereo Amplifier](https://gpstartechnologies.com/products/gpstar-amplifier)
 	- A more common class of amplifier with a 12V input. This is the same form-factor as the GPStar Amplifier II, but without the built-in heatsink. Output is identical to the Drok 15W listed next.
 - [Drok 15W Class D Stereo Amplifier](https://a.co/d/9VnB8e9)
-	- While rated at 15W that is only whe driven at 24V. Expect closer to 10W @ 8Ω when driven with a standard 12V TalentCell battery.
+	- While rated at 15W that is only when driven at 24V. Expect closer to 10W @ 8Ω when driven with a standard 12V TalentCell battery.
 	- This is an off-the-shelf item which has been tested successfully with the full replacement kits and various speaker recommendations. In terms of capability this is identical to the GPStar Amplifier, though it has a built-in volume control if that is something you desire (otherwise the audio input will be controlled by the Proton Pack controller).
 
 It should go without saying that for any amplifier which can run on 12V, the more wattage it can output and will drain the battery faster at higher volumes. Testing of the 12V amplifiers shows a draw of 1-1.25A at full power, hence a 6000 mAh TalentCell is going to be recommended for a full day of audio playback.
