@@ -33,21 +33,47 @@ All firmware files for the audio controllers can be found in the [extras/sound/ 
 
 ## Pack Audio
 
-This is where you can branch out to other options as desired and can really go all-out with your choice of audio. Neither of the audio controllers available for use in the pack will use their onboard amplifier by default, only the 3.5mm / ⅛" stereo phono jack. This means you can use any amplifier which accepts that type of connection. When you choose your amplifier, that should dictate the choice of speakers to match.
+This is where you can branch out to other options as desired and can really go all-out with your choice of audio. Neither of the GPStar Audio or WAV Trigger controllers recommended for use in the Proton Pack will use their onboard amplifier by default. In both cases the 3.5mm / ⅛" stereo phono jack will be used. This means you can use virtually any amplifier which accepts that type of connection as an input. When you choose your amplifier, that should dictate the choice of speakers to match.
 
-The following components were demonstrated in the walkthrough video by JustinDustin and provides ample sound with a benefit of providing enough low-end rumble that a vibration motor may be considered optional:
+### Amplifiers
 
-- [Drok 15W Class D Stereo Amplifier (8-26V)](https://a.co/d/9VnB8e9)
-  - This will operate successfully using the full 12V output offered by most TalentCell batteries
-  - Note the output wattage using a 12V supply will draw around 1-1.25 Amps so plan the capacity of your battery accordingly (read: this is why the larger 6000 mAh TalentCell battery is recommended)
-  - Increasing the output wattage using a different amplifier will increase the power draw as well as heat output, so choose carefully and plan accordingly for how/where to mount your amplifier
+We recommend a handful of small form-factor audio amplifiers which will provide the loudness demanded by many kit users. The following are listed in order of their peak output, but also compatibility within the GPStar ecosystem.
+
+- [GPStar Amplifier II - 50W @ 4Ω 24V Class D Stereo Amplifier](https://gpstartechnologies.com/products/gpstar-amplifier-ii)
+	- This beast of an amplifier is capable of running some serious wattage through matched speakers. When provided with the recommended 24V supply voltage the output is closer to 60W @ 4Ω, and is therefore reserved for the most serious of users willing to install and carry a suitable battery system on their Proton Pack.
+	- It is possible to run this amplifier at 12V as well for considerable sound output at around 30W @ 4Ω.
+	- If using 8Ω speakers, expect roughly 30W @ 24V and 15W @ 12V.
+- [GPStar Amplifier - 15W @ 8Ω 12V Class D Stereo Amplifier](https://gpstartechnologies.com/products/gpstar-amplifier)
+	- A more common class of amplifier with a 12V input. This is the same form-factor as the GPStar Amplifier II, but without the built-in heatsink. Output is identical to the Drok 15W listed next.
+- [Drok 15W Class D Stereo Amplifier](https://a.co/d/9VnB8e9)
+	- While rated at 15W that is only when driven at 24V. Expect closer to 10W @ 8Ω when driven with a standard 12V TalentCell battery.
+	- This is an off-the-shelf item which has been tested successfully with the full replacement kits and various speaker recommendations. In terms of capability this is identical to the GPStar Amplifier, though it has a built-in volume control if that is something you desire (otherwise the audio input will be controlled by the Proton Pack controller).
+
+It should go without saying that for any amplifier which can run on 12V, the more wattage it can output and will drain the battery faster at higher volumes. Testing of the 12V amplifiers shows a draw of 1-1.25A at full power, hence a 6000 mAh TalentCell is going to be recommended for a full day of audio playback.
+
+### Speakers
+
+Speakers may be subjective to your personal tastes and budget, so kits do not ship with speakers. However, we have tested and do recommend several options which are listed below in order of quality and availability. The most important criteria is to match the speakers to the maximum output of the amplifier chosen. For instance, you would want speakers which can handle at least 60W @ 4Ω for the GPStar Amplifier II.
+
+- [2x LaVoce FSN030.71 3" Neodymium Full-Range Woofer 8Ω](https://www.parts-express.com/LaVoce-FSN030.71-3-Neodymium-Full-Range-Woofer-8-Ohm-293-706)
+	- Considered by our team as the peak of performance, weight, and quality this 30W @ 8Ω speaker is going to provide the lightest option with the most compatibility with all amplifiers recommended.
+- [2x LaVoce FSF030.70 3" Ferrite Full-Range Woofer 8Ω](https://www.parts-express.com/LaVoce-FSF030.70-3-Full-Range-Woofer-8-Ohm-293-705)
+	- Identical to the LaVoce FSN030.71 in specs, this is a standard magnet driver with a reduced cost per speaker. Consider this as a budget alternative.
+- [2x 3" Dayton Audio DMA-80 8Ω Full Range Drivers](https://www.daytonaudio.com/product/1619/dma80-8-3-dual-magnet-aluminum-cone-full-range-driver-8-ohm)
+	- These speakers are a mix of lightest weight due to their neodymium core and aluminum cone, with decent quality at 25W RMS (50W peak).
 - [Pair of 3" Full Range Bookshelf Speaker (15W @ 8Ω)](https://a.co/d/cMg5Vrt)
-  - Note the power rating of 15W which matches the amplifier to be used
-  - Take note of your amplifier's recommended ohms rating for speakers
+	- These are the most economical options and can be perfectly suitable with the GPStar or Drok 15W amplifiers. However, their quality is not as good as the LaVoce or Dayton Audio speakers.
+
+### Accessories
+
+The following items are optional and may not even be necessary depending on the amplifier chosen. For instance, if using either of the GPStar amplifiers it is not necessary to provide a Ground Loop Isolator as this is built into those amplifiers already.
+
 - [8" Auxiliary Stereo Audio Cable w/ 90&deg; Jack](https://a.co/d/3H4zxZw)
-  - Optional: Useful in tight locations, depending on where the amp is mounted
+	- Optional: Useful in tight locations, depending on where the amp is mounted
 - [Ground Loop Isolator](https://a.co/d/faBkok9) - Not required for the GPStar Amplifier
-  - Recommended for 3rd-party Amps: Prevents unwanted hum and noise from the amplifier due to the LEDs
+	- Recommended for 3rd-party Amps: Prevents unwanted hum and noise from the amplifier due to the LEDs
+- [2 Input to 1 Output Passive Mixer](https://a.co/d/6tI6nVJ)
+	- For users who may want to mix a second source into their Proton Pack, such as an Aux-In or Bluetooth device, this is a good option to mix your GPStar Audio (or WAV Trigger) input with an external source.
 
 **Note:** As of mid-2024 all kits which include an amplifier will ship with the new GPStar Amplifier which is a high-powered Class D stereo amp. This device is very similar to the Drok amplifier noted, though it includes more 12V pass-through options for chaining other devices which need the full power offered by the Talentcell battery. It also includes a built-in 5V regulator which may be used for powering other kit devices via JST-XH connectors.
 

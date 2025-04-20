@@ -61,7 +61,7 @@ This uses a purpose-built flash tool just like the tools for the Proton Pack, Ne
 
 **Windows (x64 only):** [GPStar ESP32 Firmware Flasher](extras/gpstarESP32FirmwareFlasher.exe?raw=1)
 
-**MacOS Intel/M1:** [GPStar ESP32 Firmware Flasher (Mac OSX)](extras/GPStar-ESP32-Firmware-Flasher-Mac.dmg?raw=1)
+**MacOS Intel/M1:** [GPStar ESP32 Firmware Flasher (Mac OSX)](extras/GPStar-ESP32-Flasher.dmg?raw=1)
 
 1. Plug your device into a USB port on your computer.
 2. Locate the following files from the `/binaries/attenuator` directory.
