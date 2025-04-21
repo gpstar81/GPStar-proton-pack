@@ -200,8 +200,13 @@ void updateWandPowerState() {
       wandStoppedFiring();
       cyclotronSpeedRevert();
       packOverheatingStart();
-      ms_delay_post_2.stop();
     }
+  }
+
+  if(PACK_STATE == MODE_OFF && b_wand_overheated) {
+    // Make sure this gets reset if the pack gets shut off manually.
+    b_wand_overheated = false;
+    ms_delay_post_2.stop();
   }
 
   // Handle wand overheating sequence. Hasbro wand locks into overheating at 15 seconds of continuous fire.
@@ -251,6 +256,7 @@ void updateWandPowerState() {
 
       // Wand must have been fully activated, so set variables accordingly.
       b_wand_on = true;
+      serial1Send(A_WAND_ON);
       b_wand_just_started = true;
 
       // The Hasbro wand cannot fire for 2.75 seconds after activation, so add a null period.
@@ -301,6 +307,7 @@ void updateWandPowerState() {
 
       b_wand_on = false;
       b_pack_started_by_meter = false;
+      serial1Send(A_WAND_OFF);
     }
     else if(PACK_STATE == MODE_OFF) {
       b_pack_started_by_meter = false; // Make sure this is kept as false since the pack was manually shut down.
@@ -335,7 +342,7 @@ void updateWandPowerState() {
           }
         }
 
-        if (f_diff_average > 28.5 && f_diff_average < 45.0 || (f_range > 0.26f && b_positive_rate)) {
+        if (f_diff_average > 28.5 && f_diff_average < 45.0 || (f_range > 0.26 && b_positive_rate)) {
           // With this big a jump, we must have started firing.
           ms_delay_post_2.start(i_wand_overheat_delay);
           i_wand_power_level = 5;
@@ -365,7 +372,7 @@ void updateWandPowerState() {
           }
         }
 
-        if (f_diff_average <= -7.5f && b_negative_rate) {
+        if (f_diff_average <= -7.5 && b_negative_rate) {
           // We must have stopped firing.
           wandStoppedFiring();
 
@@ -439,6 +446,7 @@ void checkPowerMeter() {
         b_wand_on = false;
         b_pack_started_by_meter = false;
         PACK_ACTION_STATE = ACTION_OFF;
+        serial1Send(A_WAND_OFF);
         serial1Send(A_PACK_OFF);
         serial1Send(A_POWER_LEVEL_1);
         serial1Send(A_WAND_POWER_AMPS, 0);

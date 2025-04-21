@@ -139,7 +139,7 @@ function updateTrackListing() {
   }
 }
 
-function setButtonStates(mode, pack, wand, cyclotron, ionswitch) {
+function setButtonStates(mode, pack, wand, cyclotron, ionswitch, firing) {
   // Assume all functions are not possible, override as necessary.
   getEl("btnPackOff").disabled = true;
   getEl("btnPackOn").disabled = true;
@@ -458,7 +458,7 @@ function updateEquipment(jObj) {
     }
 
     // Update special UI elements based on the latest data values.
-    setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron, jObj.switch);
+    setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron, jObj.switch, jObj.firing);
 
     // Update the current track info.
     musicTrackStart = jObj.musicStart || 0;
