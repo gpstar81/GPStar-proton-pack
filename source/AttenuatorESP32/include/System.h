@@ -379,7 +379,7 @@ void checkRotaryEncoder() {
           i_rotary_count = 0;
         }
       }
-      else {
+      else if(!b_firing) {
         // Perform action based on the current menu level.
         switch(MENU_LEVEL) {
           case MENU_1:
@@ -413,7 +413,7 @@ void checkRotaryEncoder() {
           i_rotary_count = 0;
         }
       }
-      else {
+      else if(!b_firing) {
         // Perform action based on the current menu level.
         switch(MENU_LEVEL) {
           case MENU_1:

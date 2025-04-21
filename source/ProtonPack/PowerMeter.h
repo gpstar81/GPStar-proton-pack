@@ -39,7 +39,7 @@ bool b_power_meter_available = false; // Whether a power meter device exists on 
 bool b_pack_started_by_meter = false; // Whether the pack was started via detection through the power meter.
 bool b_wand_just_started = false; // Whether the wand was just started via the power meter, used to debounce the startup process.
 bool b_wand_overheated = false; // Whether the wand overheated, as if it did we should ignore power off events.
-const uint16_t i_wand_overheat_delay = 14600; // How many milliseconds of continuous firing before we lock into overheating mode.
+const uint16_t i_wand_overheat_delay = 14480; // How many milliseconds of continuous firing before we lock into overheating mode.
 const uint16_t i_wand_overheat_duration = 2500; // How long to play the alarm for before going into the full overheat sequence on the pack.
 const uint16_t i_wand_startup_delay = 2750; // How many milliseconds after wand startup before we allow detecting firing events.
 const float f_ema_alpha = 0.2; // Smoothing factor (<1) for Exponential Moving Average (EMA) [Lower Value = Smoother Averaging].
