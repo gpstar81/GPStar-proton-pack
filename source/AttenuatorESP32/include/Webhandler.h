@@ -422,15 +422,18 @@ String getPackConfig() {
     jsonBody["ledCycLidCount"] = packConfig.ledCycLidCount; // [12,20,36,40]
     jsonBody["ledCycLidHue"] = packConfig.ledCycLidHue; // Spectral custom colour/hue 1-254
     jsonBody["ledCycLidSat"] = packConfig.ledCycLidSat; // Spectral custom saturation 1-254
+    jsonBody["ledCycLidLum"] = packConfig.ledCycLidLum; // Brightness 0-100
     jsonBody["cyclotronDirection"] = packConfig.cyclotronDirection; // [0=CCW,1=CW]
     jsonBody["ledCycLidCenter"] = packConfig.ledCycLidCenter; // [0=3,1=1]
     jsonBody["ledCycLidFade"] = packConfig.ledCycLidFade; // true|false
     jsonBody["ledVGCyclotron"] = packConfig.ledVGCyclotron; // true|false
     jsonBody["ledCycLidSimRing"] = packConfig.ledCycLidSimRing; // true|false
     jsonBody["ledCycInnerPanel"] = packConfig.ledCycInnerPanel; // [1=Individual,2=RGB-Static,3=RGB-Dynamic]
+    jsonBody["ledCycPanLum"] = packConfig.ledCycPanLum; // Brightness 0-100
     jsonBody["ledCycCakeCount"] = packConfig.ledCycCakeCount; // [12,23,24,26,35,36]
     jsonBody["ledCycCakeHue"] = packConfig.ledCycCakeHue; // Spectral custom colour/hue 1-254
     jsonBody["ledCycCakeSat"] = packConfig.ledCycCakeSat; // Spectral custom saturation 1-254
+    jsonBody["ledCycCakeLum"] = packConfig.ledCycCakeLum; // Brightness 0-100
     jsonBody["ledCycCakeGRB"] = packConfig.ledCycCakeGRB; // Use GRB for cake LEDs true|false
     jsonBody["ledCycCavCount"] = packConfig.ledCycCavCount; // Cyclotron cavity LEDs (0-20)
     jsonBody["ledCycCavType"] = packConfig.ledCycCavType; // Cyclotron cavity LED Type
@@ -438,6 +441,7 @@ String getPackConfig() {
     jsonBody["ledInvertPowercell"] = packConfig.ledInvertPowercell; // true|false
     jsonBody["ledPowercellHue"] = packConfig.ledPowercellHue; // Spectral custom colour/hue 1-254
     jsonBody["ledPowercellSat"] = packConfig.ledPowercellSat; // Spectral custom saturation 1-254
+    jsonBody["ledPowercellLum"] = packConfig.ledPowercellLum; // Brightness 0-100
     jsonBody["ledVGPowercell"] = packConfig.ledVGPowercell; // true|false
   }
 
@@ -1031,6 +1035,7 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
       packConfig.ledCycLidCount = jsonBody["ledCycLidCount"].as<uint8_t>();
       packConfig.ledCycLidHue = jsonBody["ledCycLidHue"].as<uint8_t>();
       packConfig.ledCycLidSat = jsonBody["ledCycLidSat"].as<uint8_t>();
+      packConfig.ledCycLidLum = jsonBody["ledCycLidLum"].as<uint8_t>();
       packConfig.cyclotronDirection = jsonBody["cyclotronDirection"].as<uint8_t>();
       packConfig.ledCycLidCenter = jsonBody["ledCycLidCenter"].as<uint8_t>();
       packConfig.ledCycLidFade = jsonBody["ledCycLidFade"].as<uint8_t>();
@@ -1039,9 +1044,11 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
 
       // Inner Cyclotron
       packConfig.ledCycInnerPanel = jsonBody["ledCycInnerPanel"].as<uint8_t>();
+      packConfig.ledCycPanLum = jsonBody["ledCycPanLum"].as<uint8_t>();
       packConfig.ledCycCakeCount = jsonBody["ledCycCakeCount"].as<uint8_t>();
       packConfig.ledCycCakeHue = jsonBody["ledCycCakeHue"].as<uint8_t>();
       packConfig.ledCycCakeSat = jsonBody["ledCycCakeSat"].as<uint8_t>();
+      packConfig.ledCycCakeLum = jsonBody["ledCycCakeLum"].as<uint8_t>();
       packConfig.ledCycCakeGRB = jsonBody["ledCycCakeGRB"].as<uint8_t>();
       packConfig.ledCycCavCount = jsonBody["ledCycCavCount"].as<uint8_t>();
       if(packConfig.ledCycCavCount > 20) {
@@ -1054,6 +1061,7 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
       packConfig.ledInvertPowercell = jsonBody["ledInvertPowercell"].as<uint8_t>();
       packConfig.ledPowercellHue = jsonBody["ledPowercellHue"].as<uint8_t>();
       packConfig.ledPowercellSat = jsonBody["ledPowercellSat"].as<uint8_t>();
+      packConfig.ledPowercellLum = jsonBody["ledPowercellLum"].as<uint8_t>();
       packConfig.ledVGPowercell = jsonBody["ledVGPowercell"].as<uint8_t>();
 
       jsonBody.clear();

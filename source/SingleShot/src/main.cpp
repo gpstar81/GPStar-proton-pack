@@ -101,6 +101,11 @@ void setup() {
   // System LEDs
   FastLED.addLeds<NEOPIXEL, SYSTEM_LED_PIN>(system_leds, CYCLOTRON_LED_COUNT + BARREL_LED_COUNT);
 
+  // RGB Vent Light
+  FastLED.addLeds<NEOPIXEL, TOP_LED_PIN>(vent_leds, VENT_LEDS_MAX);
+  vent_leds[0] = getHueAsRGB(C_WHITE); // Set vent light array to white for initial reset.
+  vent_leds[1] = getHueAsRGB(C_WHITE); // Set top light array to white for initial reset.
+
   // Setup default system settings.
   VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
   VIBRATION_MODE = VIBRATION_MODE_EEPROM;
@@ -185,7 +190,17 @@ void animateTaskCallback() {
   checkCyclotron();
 
   // Update all addressable LEDs to reflect any changes.
-  FastLED.show();
+  FastLED[0].showLeds(255);
+
+  // Update the vent/top LEDs.
+  if(b_vent_lights_changed) {
+    if(b_rgb_vent_light) {
+      // Only commit an update if the addressable LED panel is installed.
+      FastLED[1].showLeds(255);
+    }
+
+    b_vent_lights_changed = false;
+  }
 }
 
 // Task callback for handling user inputs.

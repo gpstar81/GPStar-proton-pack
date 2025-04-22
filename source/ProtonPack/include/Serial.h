@@ -72,13 +72,16 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t ledCycLidCount;
   uint8_t ledCycLidHue;
   uint8_t ledCycLidSat;
+  uint8_t ledCycLidLum;
   uint8_t ledCycLidCenter;
   uint8_t ledCycLidFade;
   uint8_t ledCycLidSimRing;
   uint8_t ledCycInnerPanel;
+  uint8_t ledCycPanLum;
   uint8_t ledCycCakeCount;
   uint8_t ledCycCakeHue;
   uint8_t ledCycCakeSat;
+  uint8_t ledCycCakeLum;
   uint8_t ledCycCakeGRB;
   uint8_t ledCycCavCount;
   uint8_t ledCycCavType;
@@ -87,6 +90,7 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t ledInvertPowercell;
   uint8_t ledPowercellHue;
   uint8_t ledPowercellSat;
+  uint8_t ledPowercellLum;
   uint8_t ledVGPowercell;
 } packConfig;
 
@@ -148,7 +152,6 @@ struct __attribute__((packed)) WandSyncData {
   uint8_t powerLevel;
   uint8_t streamMode;
   uint8_t vibrationEnabled;
-  uint8_t masterVolume;
   uint8_t effectsVolume;
   uint8_t masterMuted;
   uint8_t repeatMusicTrack;
@@ -357,6 +360,7 @@ void serial1SendData(uint8_t i_message) {
       packConfig.ledCycLidCount = i_cyclotron_leds;
       packConfig.ledCycLidHue = i_spectral_cyclotron_custom_colour;
       packConfig.ledCycLidSat = i_spectral_cyclotron_custom_saturation;
+      packConfig.ledCycLidLum = i_cyclotron_brightness;
       packConfig.cyclotronDirection = b_clockwise ? 1 : 0;
       packConfig.ledCycLidCenter = b_cyclotron_single_led ? 1 : 0;
       packConfig.ledCycLidFade = b_fade_cyclotron_led ? 1 : 0;
@@ -364,6 +368,7 @@ void serial1SendData(uint8_t i_message) {
       packConfig.ledCycLidSimRing = b_cyclotron_simulate_ring ? 1 : 0;
 
       // Inner Cyclotron
+      packConfig.ledCycPanLum = i_cyclotron_panel_brightness;
       switch(INNER_CYC_PANEL_MODE) {
         case PANEL_INDIVIDUAL:
         default:
@@ -379,6 +384,7 @@ void serial1SendData(uint8_t i_message) {
       packConfig.ledCycCakeCount = i_inner_cyclotron_cake_num_leds;
       packConfig.ledCycCakeHue = i_spectral_cyclotron_inner_custom_colour;
       packConfig.ledCycCakeSat = i_spectral_cyclotron_inner_custom_saturation;
+      packConfig.ledCycCakeLum = i_cyclotron_inner_brightness;
       switch(CAKE_LED_TYPE) {
         case RGB_LED:
         default:
@@ -407,6 +413,7 @@ void serial1SendData(uint8_t i_message) {
       packConfig.ledInvertPowercell = b_powercell_invert ? 1 : 0;
       packConfig.ledPowercellHue = i_spectral_powercell_custom_colour;
       packConfig.ledPowercellSat = i_spectral_powercell_custom_saturation;
+      packConfig.ledPowercellLum = i_powercell_brightness;
       packConfig.ledVGPowercell = b_powercell_colour_toggle ? 1 : 0;
 
       i_send_size = serial1Coms.txObj(packConfig);
@@ -724,6 +731,7 @@ void checkSerial1() {
           }
           i_spectral_cyclotron_custom_colour = packConfig.ledCycLidHue;
           i_spectral_cyclotron_custom_saturation = packConfig.ledCycLidSat;
+          i_cyclotron_brightness = packConfig.ledCycLidLum;
           b_clockwise = (packConfig.cyclotronDirection == 1);
           b_cyclotron_single_led = (packConfig.ledCycLidCenter == 1);
           b_fade_cyclotron_led = (packConfig.ledCycLidFade == 1);
@@ -731,6 +739,7 @@ void checkSerial1() {
           b_cyclotron_simulate_ring = (packConfig.ledCycLidSimRing == 1);
 
           // Inner Cyclotron
+          i_cyclotron_panel_brightness = packConfig.ledCycPanLum;
           switch(packConfig.ledCycInnerPanel) {
             case 1:
             default:
@@ -746,6 +755,7 @@ void checkSerial1() {
           i_inner_cyclotron_cake_num_leds = packConfig.ledCycCakeCount;
           i_spectral_cyclotron_inner_custom_colour = packConfig.ledCycCakeHue;
           i_spectral_cyclotron_inner_custom_saturation = packConfig.ledCycCakeSat;
+          i_cyclotron_inner_brightness = packConfig.ledCycCakeLum;
           if(packConfig.ledCycCakeGRB == 1) {
             CAKE_LED_TYPE = GRB_LED;
           }
@@ -771,6 +781,7 @@ void checkSerial1() {
           b_powercell_invert = (packConfig.ledInvertPowercell == 1);
           i_spectral_powercell_custom_colour = packConfig.ledPowercellHue;
           i_spectral_powercell_custom_saturation = packConfig.ledPowercellSat;
+          i_powercell_brightness = packConfig.ledPowercellLum;
           b_powercell_colour_toggle = (packConfig.ledVGPowercell == 1);
 
           // Offer some feedback to the user
@@ -1070,17 +1081,11 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
     case A_VOLUME_DECREASE:
       // Decrease overall pack volume.
       decreaseVolume();
-
-      // Tell wand to decrease volume.
-      packSerialSend(P_VOLUME_DECREASE);
     break;
 
     case A_VOLUME_INCREASE:
       // Increase overall pack volume.
       increaseVolume();
-
-      // Tell wand to increase volume.
-      packSerialSend(P_VOLUME_INCREASE);
     break;
 
     case A_VOLUME_SOUND_EFFECTS_DECREASE:
@@ -1414,7 +1419,6 @@ void doWandSync() {
   }
 
   // Synchronise the volume settings.
-  wandSyncData.masterVolume = i_volume_master_percentage;
   wandSyncData.effectsVolume = i_volume_effects_percentage;
 
     // Telling the wand to be silent if required.
@@ -3292,17 +3296,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_VOLUME_DECREASE_EEPROM:
       // Decrease the overall default pack volume which is saved into the EEPROM.
       decreaseVolumeEEPROM();
-
-      // Tell wand to decrease volume.
-      packSerialSend(P_VOLUME_DECREASE);
     break;
 
     case W_VOLUME_INCREASE_EEPROM:
       // Increase the overall default pack volume which is saved into the EEPROM.
       increaseVolumeEEPROM();
-
-      // Tell wand to increase volume.
-      packSerialSend(P_VOLUME_INCREASE);
     break;
 
     case W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_3:
@@ -3749,9 +3747,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_DIMMING_DECREASE:
       switch(pack_dim_toggle) {
         case DIM_CYCLOTRON:
-          if(i_cyclotron_brightness > 0) {
-            if(i_cyclotron_brightness - 10 < 0) {
-              i_cyclotron_brightness = 0;
+          if(i_cyclotron_brightness > 10) {
+            if(i_cyclotron_brightness - 10 < 10) {
+              i_cyclotron_brightness = 10;
             }
             else {
               i_cyclotron_brightness = i_cyclotron_brightness - 10;
@@ -3772,9 +3770,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
 
         case DIM_INNER_CYCLOTRON:
-          if(i_cyclotron_inner_brightness > 0) {
-            if(i_cyclotron_inner_brightness - 10 < 0) {
-              i_cyclotron_inner_brightness = 0;
+          if(i_cyclotron_inner_brightness > 10) {
+            if(i_cyclotron_inner_brightness - 10 < 10) {
+              i_cyclotron_inner_brightness = 10;
             }
             else {
               i_cyclotron_inner_brightness = i_cyclotron_inner_brightness - 10;
@@ -3793,9 +3791,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
 
         case DIM_CYCLOTRON_PANEL:
-          if(i_cyclotron_panel_brightness > 0) {
-            if(i_cyclotron_panel_brightness - 10 < 0) {
-              i_cyclotron_panel_brightness = 0;
+          if(i_cyclotron_panel_brightness > 10) {
+            if(i_cyclotron_panel_brightness - 10 < 10) {
+              i_cyclotron_panel_brightness = 10;
             }
             else {
               i_cyclotron_panel_brightness = i_cyclotron_panel_brightness - 10;
@@ -3815,9 +3813,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
         case DIM_POWERCELL:
         default:
-          if(i_powercell_brightness > 0) {
-            if(i_powercell_brightness - 10 < 0) {
-              i_powercell_brightness = 0;
+          if(i_powercell_brightness > 10) {
+            if(i_powercell_brightness - 10 < 10) {
+              i_powercell_brightness = 10;
             }
             else {
               i_powercell_brightness = i_powercell_brightness - 10;

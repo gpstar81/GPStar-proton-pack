@@ -2866,8 +2866,8 @@ void cyclotron1984(uint16_t iRampDelay) {
 
         i_vibration_level = i_vibration_level - 1;
 
-        if(i_vibration_level < i_vibration_lowest_level) {
-          i_vibration_level = i_vibration_lowest_level;
+        if(i_vibration_level < i_vibration_level_min) {
+          i_vibration_level = i_vibration_level_min;
         }
       }
     }
@@ -2931,8 +2931,8 @@ void cyclotron2021(uint16_t iRampDelay) {
 
         i_vibration_level = i_vibration_level + 1;
 
-        if(i_vibration_level < 30) {
-          i_vibration_level = 30;
+        if(i_vibration_level < i_vibration_level_min) {
+          i_vibration_level = i_vibration_level_min;
         }
 
         if(i_vibration_level > i_vibration_idle_level_2021) {
@@ -2951,15 +2951,15 @@ void cyclotron2021(uint16_t iRampDelay) {
 
         ms_cyclotron.start(i_outer_current_ramp_speed);
 
-        if(i_outer_current_ramp_speed > 40 && i_vibration_level > i_vibration_lowest_level + 20) {
+        if(i_outer_current_ramp_speed > 40 && i_vibration_level > i_vibration_level_min + 20) {
           i_vibration_level = i_vibration_level - 1;
         }
-        else if(i_outer_current_ramp_speed > 100 && i_vibration_level > i_vibration_lowest_level) {
+        else if(i_outer_current_ramp_speed > 100 && i_vibration_level > i_vibration_level_min) {
           i_vibration_level = i_vibration_level - 1;
         }
 
-        if(i_vibration_level < i_vibration_lowest_level) {
-          i_vibration_level = i_vibration_lowest_level;
+        if(i_vibration_level < i_vibration_level_min) {
+          i_vibration_level = i_vibration_level_min;
         }
       }
     }
@@ -3243,7 +3243,7 @@ void cyclotronNoCable() {
         }
       }
 
-      vibrationPack(i_vibration_lowest_level * 3);
+      vibrationPack(i_vibration_level_min * 3);
     break;
 
     case SYSTEM_1984:
@@ -3259,7 +3259,7 @@ void cyclotronNoCable() {
         ventLight(false);
         ventLightLEDW(false);
 
-        vibrationPack(i_vibration_lowest_level);
+        vibrationPack(i_vibration_level_min);
       }
       else {
         if(ms_alarm.remaining() < i_1984_delay / 4) {
@@ -3590,13 +3590,13 @@ void cyclotronOverheating() {
       if(b_overheat_lights_off != true) {
         cyclotron2021(i_2021_delay * 10);
 
-        vibrationPack(i_vibration_lowest_level * 2);
+        vibrationPack(i_vibration_level_min * 2);
       }
       else if(b_overheat_lights_off == true) {
         if(i_powercell_led > 0) {
           cyclotron2021(i_2021_delay * 10);
 
-          vibrationPack(i_vibration_lowest_level);
+          vibrationPack(i_vibration_level_min);
         }
         else {
           vibrationPack(0);
@@ -3626,14 +3626,14 @@ void cyclotronOverheating() {
       }
       else if(ms_alarm.remaining() < i_1984_delay / 4) {
         if(b_overheat_lights_off != true) {
-          vibrationPack(i_vibration_lowest_level);
+          vibrationPack(i_vibration_level_min);
 
           if(!usingSlimeCyclotron()) {
             cyclotron1984Alarm();
           }
         }
         else if(b_overheat_lights_off == true && i_powercell_led > 0) {
-          vibrationPack(i_vibration_lowest_level);
+          vibrationPack(i_vibration_level_min);
 
           if(!usingSlimeCyclotron()) {
             cyclotron1984Alarm();
@@ -4522,17 +4522,11 @@ void checkRotaryEncoder() {
     // Clockwise
     if(prev_next_code == 0x0b) {
       increaseVolume();
-
-      // Tell wand to increase volume.
-      packSerialSend(P_VOLUME_INCREASE);
     }
 
     // Counter Clockwise
     if(prev_next_code == 0x07) {
       decreaseVolume();
-
-      // Tell wand to decrease volume.
-      packSerialSend(P_VOLUME_DECREASE);
     }
   }
 }

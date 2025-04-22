@@ -257,13 +257,13 @@ void mainLoop() {
   switch(WAND_STATUS) {
     case MODE_OFF:
       if(WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
-        if(WAND_ACTION_STATUS != ACTION_SETTINGS && b_gpstar_benchtest == true && SYSTEM_MODE == MODE_ORIGINAL && switch_intensify.doubleClick()) {
+        if(WAND_ACTION_STATUS != ACTION_SETTINGS && b_gpstar_benchtest && SYSTEM_MODE == MODE_ORIGINAL && switch_intensify.doubleClick()) {
           // This allows a standalone wand to "flip the ion arm switch" when in MODE_ORIGINAL by double-clicking the Intensify switch while the wand is turned off
           changeIonArmSwitchState(!b_pack_ion_arm_switch_on);
         }
 
-        if(switch_mode.pushed() || b_pack_alarm == true) {
-          if(WAND_ACTION_STATUS != ACTION_SETTINGS && b_pack_alarm != true && (b_pack_on != true || b_gpstar_benchtest == true)) {
+        if(switch_mode.pushed() || b_pack_alarm) {
+          if(WAND_ACTION_STATUS != ACTION_SETTINGS && !b_pack_alarm && (!b_pack_on || b_gpstar_benchtest)) {
             playEffect(S_CLICK);
 
             WAND_ACTION_STATUS = ACTION_SETTINGS;
@@ -288,20 +288,20 @@ void mainLoop() {
             }
           }
         }
-        else if(WAND_ACTION_STATUS == ACTION_SETTINGS && b_pack_on == true) {
-          if(b_gpstar_benchtest != true) {
+        else if(WAND_ACTION_STATUS == ACTION_SETTINGS && b_pack_on) {
+          if(!b_gpstar_benchtest) {
             wandExitMenu();
           }
         }
       }
 
       // Reset the count of the wand switch
-      if(switch_intensify.on() == false) {
+      if(!switch_intensify.on()) {
         wandSwitchedCount = 0;
         ventSwitchedCount = 0;
       }
 
-      if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && (b_pack_on != true || b_gpstar_benchtest == true) && switch_intensify.on() == true && wandSwitchedCount >= 5) {
+      if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && (!b_pack_on || b_gpstar_benchtest) && switch_intensify.on() && wandSwitchedCount >= 5) {
         stopEffect(S_BEEPS_BARGRAPH);
         playEffect(S_BEEPS_BARGRAPH);
 
@@ -323,14 +323,14 @@ void mainLoop() {
         // Make sure some of the wand lights are off.
         wandLightsOffMenuSystem();
       }
-      else if(WAND_ACTION_STATUS == ACTION_LED_EEPROM_MENU && b_pack_on == true) {
-        if(b_gpstar_benchtest != true) {
+      else if(WAND_ACTION_STATUS == ACTION_LED_EEPROM_MENU && b_pack_on) {
+        if(!b_gpstar_benchtest) {
           wandExitEEPROMMenu();
         }
       }
 
       if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU
-         && (b_pack_on != true || b_gpstar_benchtest == true) && switch_intensify.on() == true && ventSwitchedCount >= 5) {
+        && (!b_pack_on || b_gpstar_benchtest) && switch_intensify.on() && ventSwitchedCount >= 5) {
         stopEffect(S_BEEPS_BARGRAPH);
         playEffect(S_BEEPS_BARGRAPH);
 
@@ -349,8 +349,8 @@ void mainLoop() {
         // Make sure some of the wand lights are off.
         wandLightsOffMenuSystem();
       }
-      else if(WAND_ACTION_STATUS == ACTION_CONFIG_EEPROM_MENU && b_pack_on == true) {
-        if(b_gpstar_benchtest != true) {
+      else if(WAND_ACTION_STATUS == ACTION_CONFIG_EEPROM_MENU && b_pack_on) {
+        if(!b_gpstar_benchtest) {
           wandExitEEPROMMenu();
         }
       }
@@ -363,8 +363,8 @@ void mainLoop() {
       if(ms_error_blink.justFinished()) {
         ms_error_blink.start(i_error_blink_delay);
 
-        if(b_wand_mash_error != true) {
-          if(b_extra_pack_sounds == true) {
+        if(!b_wand_mash_error) {
+          if(b_extra_pack_sounds) {
             wandSerialSend(W_WAND_BEEP_SOUNDS);
           }
 
@@ -374,9 +374,9 @@ void mainLoop() {
       }
 
       if(ms_warning_blink.justFinished()) {
-        if(b_wand_mash_error != true) {
+        if(!b_wand_mash_error) {
 
-          if(b_extra_pack_sounds == true) {
+          if(b_extra_pack_sounds) {
             wandSerialSend(W_WAND_BEEP_BARGRAPH);
           }
 
@@ -388,7 +388,7 @@ void mainLoop() {
 
       settingsBlinkingLights();
 
-      if(b_wand_mash_error == true) {
+      if(b_wand_mash_error) {
         wandBarrelHeatUp();
       }
     break;
@@ -430,7 +430,7 @@ void mainLoop() {
 
       // Top white light.
       if(ms_white_light.justFinished()) {
-        vent_leds[1] ? ventLedTopControl(false) : ventLedTopControl(true);
+        vent_leds[1] ? ventTopLightControl(false) : ventTopLightControl(true);
 
         ms_white_light.repeat();
       }
@@ -446,7 +446,7 @@ void mainLoop() {
   // Handle button press events based on current wand state and menu level (for config/EEPROM purposes).
   checkWandAction();
 
-  if(b_firing == true && WAND_ACTION_STATUS != ACTION_FIRING) {
+  if(b_firing && WAND_ACTION_STATUS != ACTION_FIRING) {
     modeFireStop();
   }
 
@@ -476,8 +476,8 @@ void mainLoop() {
   if(ms_vent_light.justFinished()) {
     // Only send an update if we actually made a change.
     if(b_vent_lights_changed) {
-      if(b_rgb_vent_light) {
-        // Only commit an update if the addressable LED panel is installed.
+      if(b_rgb_vent_light || WAND_CONN_STATE == PACK_DISCONNECTED) {
+        // Only commit an update if the addressable LED panel is installed or if the Neutrona Wand can not make a connection to the Proton Pack.
         FastLED[1].showLeds(255);
       }
 
@@ -496,7 +496,7 @@ void loop() {
         // If not already doing so, explicitly tell the pack a wand is here to sync.
         wandSerialSend(W_SYNC_NOW);
         ms_packsync.start(i_sync_initial_delay); // Prepare for the next sync attempt.
-        vent_leds[1] ? ventLedTopControl(false) : ventLedTopControl(true); // Blink the top LED.
+        vent_leds[1] ? ventTopLightControl(false) : ventTopLightControl(true); // Blink the top LED.
         digitalWriteFast(WAND_STATUS_LED_PIN, (digitalReadFast(WAND_STATUS_LED_PIN) == LOW) ? HIGH : LOW); // Blink the onboard LED on the Neutrona Wand board.
       }
 

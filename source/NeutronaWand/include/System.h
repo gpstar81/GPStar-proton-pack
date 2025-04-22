@@ -47,7 +47,7 @@ SYSTEM_YEARS getNeutronaWandYearMode() {
 
 // Returns SYSTEM_YEAR when operating with a Proton Pack, or WAND_YEAR_MODE when in standalone operation
 SYSTEM_YEARS getSystemYearMode() {
-  if(b_gpstar_benchtest == true) {
+  if(b_gpstar_benchtest) {
     return getNeutronaWandYearMode();
   }
   else {
@@ -57,8 +57,8 @@ SYSTEM_YEARS getSystemYearMode() {
 
 void vibrationOff() {
   ms_menu_vibration.stop();
-  i_vibration_level_prev = 0;
-  analogWrite(VIBRATION_PIN, 0);
+  i_vibration_level_current = 0;
+  analogWrite(VIBRATION_PIN, i_vibration_level_current);
 }
 
 void checkMenuVibration() {
@@ -66,7 +66,10 @@ void checkMenuVibration() {
     vibrationOff();
   }
   else if(ms_menu_vibration.isRunning()) {
-    analogWrite(VIBRATION_PIN, 150);
+    if(i_vibration_level_current != i_vibration_level_min) {
+      i_vibration_level_current = i_vibration_level_min;
+      analogWrite(VIBRATION_PIN, i_vibration_level_current);
+    }
   }
 }
 
@@ -103,7 +106,7 @@ void wandHeatUp() {
   stopEffect(S_VENT_DRY);
   stopEffect(S_MODE_SWITCH);
 
-  if(b_gpstar_benchtest == true) {
+  if(b_gpstar_benchtest) {
     stopEffect(S_WAND_SLIME_IDLE_LOOP);
     stopEffect(S_WAND_STASIS_IDLE_LOOP);
     stopEffect(S_MESON_IDLE_LOOP);
@@ -118,7 +121,7 @@ void wandHeatUp() {
     case STASIS:
       playEffect(S_STASIS_OPEN);
 
-      if(b_gpstar_benchtest == true && WAND_STATUS == MODE_ON && switch_vent.on() == true) {
+      if(b_gpstar_benchtest && WAND_STATUS == MODE_ON && switch_vent.on()) {
         playEffect(S_WAND_STASIS_IDLE_LOOP, true, i_volume_effects, true, 2000);
       }
     break;
@@ -126,7 +129,7 @@ void wandHeatUp() {
     case SLIME:
       playEffect(S_PACK_SLIME_OPEN);
 
-      if(b_gpstar_benchtest == true && WAND_STATUS == MODE_ON && switch_vent.on() == true) {
+      if(b_gpstar_benchtest && WAND_STATUS == MODE_ON && switch_vent.on()) {
         playEffect(S_WAND_SLIME_IDLE_LOOP, true, i_volume_effects, true, 700);
       }
     break;
@@ -134,7 +137,7 @@ void wandHeatUp() {
     case MESON:
       playEffect(S_MESON_OPEN);
 
-      if(b_gpstar_benchtest == true && WAND_STATUS == MODE_ON && switch_vent.on() == true) {
+      if(b_gpstar_benchtest && WAND_STATUS == MODE_ON && switch_vent.on()) {
         playEffect(S_MESON_IDLE_LOOP, true, i_volume_effects, true, 1250);
       }
     break;
@@ -456,7 +459,7 @@ void wandTipOn() {
       colours c_temp = C_WHITE;
 
       if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE) {
-        if(b_wand_mash_error == true || b_pack_alarm == true) {
+        if(b_wand_mash_error || b_pack_alarm) {
           if(STREAM_MODE == PROTON && !b_pack_cyclotron_lid_on) {
             // Green goop effect if in Proton Stream mode and pack's cyclotron lid is off.
             c_temp = C_CHARTREUSE;
@@ -466,7 +469,7 @@ void wandTipOn() {
             c_temp = C_BEIGE;
           }
         }
-        else if(b_firing_cross_streams == true && !b_pack_cyclotron_lid_on) {
+        else if(b_firing_cross_streams && !b_pack_cyclotron_lid_on) {
           // Set the tip of the Frutto LED array to greenish if in Frozen Empire and using CTS mode.
           c_temp = C_CHARTREUSE;
         }
@@ -480,7 +483,7 @@ void wandTipOn() {
         }
       }
       else {
-        if(b_wand_mash_error == true || b_pack_alarm == true) {
+        if(b_wand_mash_error || b_pack_alarm) {
           // Set the tip of the Frutto LED array to beige if playing the lockout/cable spark animation.
           c_temp = C_BEIGE;
         }
@@ -569,13 +572,13 @@ void hatLightControl() {
 
     case MODE_ERROR:
       if(ms_error_blink.remaining() < i_error_blink_delay / 2) {
-        ventLedTopControl(false);
+        ventTopLightControl(false);
         digitalWriteFast(SLO_BLO_LED_PIN, LOW);
         digitalWriteFast(TOP_HAT_LED_PIN, LOW);
         digitalWriteFast(CLIPPARD_LED_PIN, LOW);
       }
       else {
-        ventLedTopControl(true);
+        ventTopLightControl(true);
         digitalWriteFast(SLO_BLO_LED_PIN, HIGH);
         digitalWriteFast(TOP_HAT_LED_PIN, HIGH);
         digitalWriteFast(CLIPPARD_LED_PIN, HIGH);
@@ -704,7 +707,7 @@ void toggleWandModes() {
 
 // Controlled from the the Wand Sub Menu and Wand EEPROM Menu system.
 void toggleOverheating() {
-  if(b_overheat_enabled == true) {
+  if(b_overheat_enabled) {
     b_overheat_enabled = false;
 
     // Play the overheating disabled voice.
@@ -736,10 +739,13 @@ void vibrationWand(uint8_t i_level) {
     if(VIBRATION_MODE == VIBRATION_FIRING_ONLY) {
       if(WAND_ACTION_STATUS == ACTION_FIRING || (ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished())) {
         if(ms_semi_automatic_firing.isRunning()) {
-          analogWrite(VIBRATION_PIN, 180);
+          if(i_vibration_level_current != (i_level * 2 < 256 ? i_level * 2 : 255)) {
+            i_vibration_level_current = (i_level * 2 < 256 ? i_level * 2 : 255);
+            analogWrite(VIBRATION_PIN, i_vibration_level_current);
+          }
         }
-        else if(i_level != i_vibration_level_prev) {
-          i_vibration_level_prev = i_level;
+        else if(i_vibration_level_current != i_level) {
+          i_vibration_level_current = i_level;
           analogWrite(VIBRATION_PIN, i_level);
         }
       }
@@ -749,8 +755,14 @@ void vibrationWand(uint8_t i_level) {
     }
     else {
       // Wand vibrates even when idling, etc. (When enabled by the pack)
-      if(i_level != i_vibration_level_prev) {
-        i_vibration_level_prev = i_level;
+      if(ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished()) {
+        if(i_vibration_level_current != (i_level * 2 < 256 ? i_level * 2 : 255)) {
+          i_vibration_level_current = (i_level * 2 < 256 ? i_level * 2 : 255);
+          analogWrite(VIBRATION_PIN, i_vibration_level_current);
+        }
+      }
+      else if(i_vibration_level_current != i_level) {
+        i_vibration_level_current = i_level;
         analogWrite(VIBRATION_PIN, i_level);
       }
     }
@@ -761,27 +773,27 @@ void vibrationWand(uint8_t i_level) {
 }
 
 void vibrationSetting() {
-  if(ms_bargraph.isRunning() == false && WAND_ACTION_STATUS != ACTION_FIRING) {
+  if(!ms_bargraph.isRunning() && WAND_ACTION_STATUS != ACTION_FIRING) {
     switch(i_power_level) {
       case 1:
       default:
-        vibrationWand(i_vibration_level);
+        vibrationWand(i_vibration_level_min);
       break;
 
       case 2:
-        vibrationWand(i_vibration_level + 5);
+        vibrationWand(i_vibration_level_min + 5);
       break;
 
       case 3:
-        vibrationWand(i_vibration_level + 10);
+        vibrationWand(i_vibration_level_min + 10);
       break;
 
       case 4:
-        vibrationWand(i_vibration_level + 12);
+        vibrationWand(i_vibration_level_min + 12);
       break;
 
       case 5:
-        vibrationWand(i_vibration_level + 25);
+        vibrationWand(i_vibration_level_min + 25);
       break;
     }
   }
@@ -884,10 +896,6 @@ void wandBargraphControl(uint8_t i_t_level) {
 }
 
 void bargraphRampUp() {
-  if(i_vibration_level < i_vibration_level_min) {
-    i_vibration_level = i_vibration_level_min;
-  }
-
   if(BARGRAPH_TYPE == SEGMENTS_28) {
     /*
       // 28 Segment bargraph.
@@ -904,19 +912,19 @@ void bargraphRampUp() {
         b_bargraph_status[i_bargraph_status_alt] = true;
 
         if(i_bargraph_status_alt > 22) {
-          vibrationWand(i_vibration_level + 80);
+          vibrationWand(i_vibration_level_min + 80);
         }
         else if(i_bargraph_status_alt > 16) {
-          vibrationWand(i_vibration_level + 40);
+          vibrationWand(i_vibration_level_min + 40);
         }
         else if(i_bargraph_status_alt > 11) {
-          vibrationWand(i_vibration_level + 30);
+          vibrationWand(i_vibration_level_min + 30);
         }
         else if(i_bargraph_status_alt > 4) {
-          vibrationWand(i_vibration_level + 20);
+          vibrationWand(i_vibration_level_min + 20);
         }
         else if(i_bargraph_status_alt > 0) {
-          vibrationWand(i_vibration_level + 10);
+          vibrationWand(i_vibration_level_min + 10);
         }
 
         i_bargraph_status_alt++;
@@ -939,7 +947,7 @@ void bargraphRampUp() {
         uint8_t i_tmp = i_bargraph_status_alt - (i_bargraph_segments - 2);
         i_tmp = (i_bargraph_segments - 2) - i_tmp;
 
-        if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
+        if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm) {
           vibrationOff();
 
           ht_bargraph.clearLedNow(bargraphLookupTable(i_tmp));
@@ -951,7 +959,7 @@ void bargraphRampUp() {
             i_bargraph_status_alt = 0;
           }
           else {
-            ms_bargraph.start(d_bargraph_ramp_interval_alt * 2);
+            ms_bargraph.start(i_bargraph_ramp_interval_alt * 2);
             i_bargraph_status_alt++;
           }
         }
@@ -971,7 +979,7 @@ void bargraphRampUp() {
                 i_bargraph_status_alt = 0;
                 resetBargraphSpeed();
 
-                vibrationWand(i_vibration_level);
+                vibrationWand(i_vibration_level_min);
               }
               else {
                 ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
@@ -989,7 +997,7 @@ void bargraphRampUp() {
                     i_bargraph_status_alt = 27;
                     resetBargraphSpeed();
 
-                    vibrationWand(i_vibration_level + 25);
+                    vibrationWand(i_vibration_level_min + 25);
                   }
                   else {
                     ms_bargraph.stop();
@@ -997,7 +1005,7 @@ void bargraphRampUp() {
                     i_bargraph_status_alt = 55 - i_bargraph_status_alt;
                     resetBargraphSpeed();
 
-                    vibrationWand(i_vibration_level + 25);
+                    vibrationWand(i_vibration_level_min + 25);
                   }
                 break;
 
@@ -1008,7 +1016,7 @@ void bargraphRampUp() {
                     i_bargraph_status_alt = 22;
                     resetBargraphSpeed();
 
-                    vibrationWand(i_vibration_level + 30);
+                    vibrationWand(i_vibration_level_min + 30);
                   }
                   else if(i_bargraph_status_alt > 32) {
                     ms_bargraph.stop();
@@ -1016,13 +1024,13 @@ void bargraphRampUp() {
                     i_bargraph_status_alt = 55 - i_bargraph_status_alt;
                     resetBargraphSpeed();
 
-                    vibrationWand(i_vibration_level + 30);
+                    vibrationWand(i_vibration_level_min + 30);
                   }
                   else {
                     ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
                     i_bargraph_status_alt++;
 
-                    vibrationWand(i_vibration_level + 12);
+                    vibrationWand(i_vibration_level_min + 12);
                   }
                 break;
 
@@ -1033,7 +1041,7 @@ void bargraphRampUp() {
                     i_bargraph_status_alt = 16;
                     resetBargraphSpeed();
 
-                    vibrationWand(i_vibration_level + 10);
+                    vibrationWand(i_vibration_level_min + 10);
                   }
                   else if(i_bargraph_status_alt > 38) {
                     ms_bargraph.stop();
@@ -1041,13 +1049,13 @@ void bargraphRampUp() {
                     i_bargraph_status_alt = 55 - i_bargraph_status_alt;
                     resetBargraphSpeed();
 
-                    vibrationWand(i_vibration_level + 10);
+                    vibrationWand(i_vibration_level_min + 10);
                   }
                   else {
                     ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
                     i_bargraph_status_alt++;
 
-                    vibrationWand(i_vibration_level + 20);
+                    vibrationWand(i_vibration_level_min + 20);
                   }
                 break;
 
@@ -1058,7 +1066,7 @@ void bargraphRampUp() {
                     i_bargraph_status_alt = 11;
                     resetBargraphSpeed();
 
-                    vibrationWand(i_vibration_level + 5);
+                    vibrationWand(i_vibration_level_min + 5);
                   }
                   else if(i_bargraph_status_alt > 43) {
                     ms_bargraph.stop();
@@ -1066,19 +1074,19 @@ void bargraphRampUp() {
                     i_bargraph_status_alt = 55 - i_bargraph_status_alt;
                     resetBargraphSpeed();
 
-                    vibrationWand(i_vibration_level + 5);
+                    vibrationWand(i_vibration_level_min + 5);
                   }
                   else {
                     ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
                     i_bargraph_status_alt++;
 
-                    vibrationWand(i_vibration_level + 10);
+                    vibrationWand(i_vibration_level_min + 10);
                   }
                 break;
 
                 case 1:
                 default:
-                  vibrationWand(i_vibration_level);
+                  vibrationWand(i_vibration_level_min);
 
                   if(i_bargraph_status_alt == 50) {
                     ms_bargraph.stop();
@@ -1120,19 +1128,19 @@ void bargraphRampUp() {
         b_bargraph_status[i_bargraph_status_alt] = true;
 
         if(i_bargraph_status_alt > 23) {
-          vibrationWand(i_vibration_level + 80);
+          vibrationWand(i_vibration_level_min + 80);
         }
         else if(i_bargraph_status_alt > 17) {
-          vibrationWand(i_vibration_level + 40);
+          vibrationWand(i_vibration_level_min + 40);
         }
         else if(i_bargraph_status_alt > 11) {
-          vibrationWand(i_vibration_level + 30);
+          vibrationWand(i_vibration_level_min + 30);
         }
         else if(i_bargraph_status_alt > 5) {
-          vibrationWand(i_vibration_level + 20);
+          vibrationWand(i_vibration_level_min + 20);
         }
         else if(i_bargraph_status_alt > 0) {
-          vibrationWand(i_vibration_level + 10);
+          vibrationWand(i_vibration_level_min + 10);
         }
 
         i_bargraph_status_alt++;
@@ -1155,7 +1163,7 @@ void bargraphRampUp() {
         uint8_t i_tmp = i_bargraph_status_alt - (i_bargraph_segments - 1);
         i_tmp = i_bargraph_segments - i_tmp;
 
-        if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
+        if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm) {
             vibrationOff();
 
             ht_bargraph.clearLedNow(bargraphLookupTable(i_tmp));
@@ -1167,7 +1175,7 @@ void bargraphRampUp() {
               i_bargraph_status_alt = 0;
             }
             else {
-              ms_bargraph.start(d_bargraph_ramp_interval_alt * 2);
+              ms_bargraph.start(i_bargraph_ramp_interval_alt * 2);
               i_bargraph_status_alt++;
             }
         }
@@ -1187,7 +1195,7 @@ void bargraphRampUp() {
                 i_bargraph_status_alt = 0;
                 resetBargraphSpeed();
 
-                vibrationWand(i_vibration_level);
+                vibrationWand(i_vibration_level_min);
               }
               else {
                 ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
@@ -1205,7 +1213,7 @@ void bargraphRampUp() {
                     i_bargraph_status_alt = 29;
                     resetBargraphSpeed();
 
-                    vibrationWand(i_vibration_level + 25);
+                    vibrationWand(i_vibration_level_min + 25);
                   }
                   else {
                     ms_bargraph.stop();
@@ -1213,7 +1221,7 @@ void bargraphRampUp() {
                     i_bargraph_status_alt = 59 - i_bargraph_status_alt;
                     resetBargraphSpeed();
 
-                    vibrationWand(i_vibration_level + 25);
+                    vibrationWand(i_vibration_level_min + 25);
                   }
                 break;
 
@@ -1224,7 +1232,7 @@ void bargraphRampUp() {
                     i_bargraph_status_alt = 23;
                     resetBargraphSpeed();
 
-                    vibrationWand(i_vibration_level + 30);
+                    vibrationWand(i_vibration_level_min + 30);
                   }
                   else if(i_bargraph_status_alt > 35) {
                     ms_bargraph.stop();
@@ -1232,13 +1240,13 @@ void bargraphRampUp() {
                     i_bargraph_status_alt = 59 - i_bargraph_status_alt;
                     resetBargraphSpeed();
 
-                    vibrationWand(i_vibration_level + 30);
+                    vibrationWand(i_vibration_level_min + 30);
                   }
                   else {
                     ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
                     i_bargraph_status_alt++;
 
-                    vibrationWand(i_vibration_level + 12);
+                    vibrationWand(i_vibration_level_min + 12);
                   }
                 break;
 
@@ -1249,7 +1257,7 @@ void bargraphRampUp() {
                     i_bargraph_status_alt = 17;
                     resetBargraphSpeed();
 
-                    vibrationWand(i_vibration_level + 10);
+                    vibrationWand(i_vibration_level_min + 10);
                   }
                   else if(i_bargraph_status_alt > 41) {
                     ms_bargraph.stop();
@@ -1257,13 +1265,13 @@ void bargraphRampUp() {
                     i_bargraph_status_alt = 59 - i_bargraph_status_alt;
                     resetBargraphSpeed();
 
-                    vibrationWand(i_vibration_level + 10);
+                    vibrationWand(i_vibration_level_min + 10);
                   }
                   else {
                     ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
                     i_bargraph_status_alt++;
 
-                    vibrationWand(i_vibration_level + 20);
+                    vibrationWand(i_vibration_level_min + 20);
                   }
                 break;
 
@@ -1274,7 +1282,7 @@ void bargraphRampUp() {
                     i_bargraph_status_alt = 11;
                     resetBargraphSpeed();
 
-                    vibrationWand(i_vibration_level + 5);
+                    vibrationWand(i_vibration_level_min + 5);
                   }
                   else if(i_bargraph_status_alt > 47) {
                     ms_bargraph.stop();
@@ -1282,19 +1290,19 @@ void bargraphRampUp() {
                     i_bargraph_status_alt = 59 - i_bargraph_status_alt;
                     resetBargraphSpeed();
 
-                    vibrationWand(i_vibration_level + 5);
+                    vibrationWand(i_vibration_level_min + 5);
                   }
                   else {
                     ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
                     i_bargraph_status_alt++;
 
-                    vibrationWand(i_vibration_level + 10);
+                    vibrationWand(i_vibration_level_min + 10);
                   }
                 break;
 
                 case 1:
                 default:
-                  vibrationWand(i_vibration_level);
+                  vibrationWand(i_vibration_level_min);
 
                   if(i_bargraph_status_alt == 53) {
                     ms_bargraph.stop();
@@ -1323,45 +1331,45 @@ void bargraphRampUp() {
   else {
     uint8_t t_bargraph_ramp_multiplier = 1;
 
-    if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm == true) {
+    if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm) {
       t_bargraph_ramp_multiplier = 2;
     }
 
     switch(i_bargraph_status) {
       case 0:
-        vibrationWand(i_vibration_level + 10);
+        vibrationWand(i_vibration_level_min + 10);
 
         wandBargraphControl(1);
-        ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
+        ms_bargraph.start(i_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
         i_bargraph_status++;
       break;
 
       case 1:
-        vibrationWand(i_vibration_level + 20);
+        vibrationWand(i_vibration_level_min + 20);
 
         wandBargraphControl(2);
-        ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
+        ms_bargraph.start(i_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
         i_bargraph_status++;
       break;
 
       case 2:
-        vibrationWand(i_vibration_level + 30);
+        vibrationWand(i_vibration_level_min + 30);
 
         wandBargraphControl(3);
-        ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
+        ms_bargraph.start(i_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
         i_bargraph_status++;
       break;
 
       case 3:
-        vibrationWand(i_vibration_level + 40);
+        vibrationWand(i_vibration_level_min + 40);
 
         wandBargraphControl(4);
-        ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
+        ms_bargraph.start(i_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
         i_bargraph_status++;
       break;
 
       case 4:
-        vibrationWand(i_vibration_level + 80);
+        vibrationWand(i_vibration_level_min + 80);
 
         wandBargraphControl(5);
 
@@ -1371,12 +1379,12 @@ void bargraphRampUp() {
         }
         else {
           i_bargraph_status++;
-          ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
+          ms_bargraph.start(i_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
         }
       break;
 
       case 5:
-        vibrationWand(i_vibration_level + 40);
+        vibrationWand(i_vibration_level_min + 40);
 
         wandBargraphControl(4);
 
@@ -1386,12 +1394,12 @@ void bargraphRampUp() {
         }
         else {
           i_bargraph_status++;
-          ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
+          ms_bargraph.start(i_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
         }
       break;
 
       case 6:
-        vibrationWand(i_vibration_level + 30);
+        vibrationWand(i_vibration_level_min + 30);
 
         wandBargraphControl(3);
 
@@ -1401,12 +1409,12 @@ void bargraphRampUp() {
         }
         else {
           i_bargraph_status++;
-          ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
+          ms_bargraph.start(i_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
         }
       break;
 
       case 7:
-        vibrationWand(i_vibration_level + 20);
+        vibrationWand(i_vibration_level_min + 20);
 
         wandBargraphControl(2);
 
@@ -1416,12 +1424,12 @@ void bargraphRampUp() {
         }
         else {
           i_bargraph_status++;
-          ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
+          ms_bargraph.start(i_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
         }
       break;
 
       case 8:
-        vibrationWand(i_vibration_level + 10);
+        vibrationWand(i_vibration_level_min + 10);
 
         wandBargraphControl(1);
 
@@ -1430,7 +1438,7 @@ void bargraphRampUp() {
           i_bargraph_status = 0;
         }
         else {
-          ms_bargraph.start(d_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
+          ms_bargraph.start(i_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
           i_bargraph_status++;
         }
       break;
@@ -1515,7 +1523,7 @@ void soundIdleLoopStop(bool stopAlts) {
     break;
   }
 
-  if(stopAlts == true && b_gpstar_benchtest == true) {
+  if(stopAlts == true && b_gpstar_benchtest) {
     switch(STREAM_MODE) {
       case SLIME:
         stopEffect(S_WAND_SLIME_IDLE_LOOP);
@@ -1575,10 +1583,10 @@ void postActivation() {
   stopEffect(S_WAND_HEATDOWN);
 
   if(WAND_STATUS != MODE_ERROR) {
-    if(b_pack_alarm != true) {
+    if(!b_pack_alarm) {
       switch(SYSTEM_MODE) {
         case MODE_ORIGINAL:
-          if(ms_bargraph.isRunning() != true) {
+          if(!ms_bargraph.isRunning()) {
             // Ramp up the bargraph if required. Usually if everything is turned on via the top right toggle switch.
             bargraphRampUp();
           }
@@ -1586,7 +1594,7 @@ void postActivation() {
 
         case MODE_SUPER_HERO:
           bargraphRampUp();
-          if(switch_vent.on() == true) {
+          if(switch_vent.on()) {
             b_all_switch_activation = true; // If vent switch is already on when Activate is flipped, set to true for soundIdleStart() to use
           }
         break;
@@ -1601,13 +1609,13 @@ void postActivation() {
 
     // Turn on top white light and its blink timer.
     ms_white_light.start(i_white_light_interval);
-    ventLedTopControl(true);
+    ventTopLightControl(true);
 
     // Reset the hat light timers.
     ms_warning_blink.stop();
     ms_error_blink.stop();
 
-    if(b_pack_alarm != true) {
+    if(!b_pack_alarm) {
       switch(getNeutronaWandYearMode()) {
         case SYSTEM_1984:
           stopEffect(S_WAND_BOOTUP_SHORT);
@@ -1655,7 +1663,7 @@ void postActivation() {
 
           soundIdleLoop(true);
 
-          if(switch_vent.on() == false && b_pack_alarm != true) {
+          if(!switch_vent.on() && !b_pack_alarm) {
             afterlifeRampSound1();
           }
         break;
@@ -1832,7 +1840,7 @@ void overheatingFinished() {
   digitalWriteFast(TOP_HAT_LED_PIN, LOW);
 
   // Prepare a few things before ramping the bargraph back up from a full ramp down.
-  if(b_overheat_bargraph_blink != true) {
+  if(!b_overheat_bargraph_blink) {
     resetBargraphSpeed();
   }
 
@@ -1851,7 +1859,7 @@ void overheatingFinished() {
     break;
   }
 
-  if(switch_vent.on() == false && (getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE)) {
+  if(!switch_vent.on() && (getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE)) {
     afterlifeRampSound1();
   }
 
@@ -1863,12 +1871,12 @@ void overheatingFinished() {
 }
 
 void quickVentFinished() {
-  if(b_gpstar_benchtest == true) {
+  if(b_gpstar_benchtest) {
     ms_overheating.stop();
     stopEffect(S_QUICK_VENT_OPEN);
     playEffect(S_QUICK_VENT_CLOSE);
 
-    if(STREAM_MODE == SLIME && WAND_STATUS == MODE_ON && switch_vent.on() == true) {
+    if(STREAM_MODE == SLIME && WAND_STATUS == MODE_ON && switch_vent.on()) {
       playEffect(S_WAND_SLIME_IDLE_LOOP, true, i_volume_effects, true, 900);
     }
   }
@@ -1880,7 +1888,7 @@ void startQuickVent() {
   WAND_ACTION_STATUS = ACTION_VENTING;
 
   // Since the Proton Pack tells the Neutrona Wand when venting is finished, standalone wand needs its own timer.
-  if(b_gpstar_benchtest == true) {
+  if(b_gpstar_benchtest) {
     ms_overheating.start(i_ms_overheating >= 4000 ? i_ms_overheating / 2 : 2000);
 
     stopEffect(S_SLIME_EMPTY);
@@ -2031,7 +2039,7 @@ void bargraphPowerCheck() {
         }
       }
 
-      if(b_bargraph_up == true) {
+      if(b_bargraph_up) {
         if(i_bargraph_status_alt < i_bargraph_segments - i_segment_adjust) {
           ht_bargraph.setLedNow(bargraphLookupTable(i_bargraph_status_alt));
           b_bargraph_status[i_bargraph_status_alt] = true;
@@ -2081,7 +2089,7 @@ void bargraphPowerCheck() {
           break;
         }
 
-        if(b_bargraph_up == true) {
+        if(b_bargraph_up) {
           i_bargraph_status_alt++;
         }
       }
@@ -2201,7 +2209,7 @@ void prepBargraphRampDown() {
 
     bargraphFull();
 
-    ms_bargraph.start(d_bargraph_ramp_interval);
+    ms_bargraph.start(i_bargraph_ramp_interval);
 
     // Prepare to make the bargraph ramp down now.
     bargraphRampUp();
@@ -2212,8 +2220,8 @@ void prepBargraphRampDown() {
 // Checks if we ramp up or down when changing power levels.
 // Forces the bargraph to redraw itself to the current power level.
 void bargraphPowerCheck2021Alt(bool b_override) {
-  if((WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) || b_override == true) {
-    if(i_power_level != i_power_level_prev || b_override == true) {
+  if((WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) || b_override) {
+    if(i_power_level != i_power_level_prev || b_override) {
       if(i_power_level > i_power_level_prev) {
         b_bargraph_up = true;
       }
@@ -2285,7 +2293,7 @@ void prepBargraphRampUp() {
     ms_settings_blink.stop();
 
     // Prepare a few things before ramping the bargraph back up from a full ramp down.
-    if(b_overheat_bargraph_blink != true) {
+    if(!b_overheat_bargraph_blink) {
       resetBargraphSpeed();
 
       // If using the 28 and 30 segment bargraph, in Afterlife, we need to redraw the segments.
@@ -2492,7 +2500,7 @@ void modeFireStopSounds() {
     break;
   }
 
-  if(b_firing_cross_streams == true) {
+  if(b_firing_cross_streams) {
     switch(WAND_YEAR_CTS) {
       case CTS_AFTERLIFE:
         if(AUDIO_DEVICE == A_WAV_TRIGGER) {
@@ -2673,7 +2681,7 @@ void startVentSequence() {
 
     bargraphFull();
 
-    ms_bargraph.start(d_bargraph_ramp_interval);
+    ms_bargraph.start(i_bargraph_ramp_interval);
   }
 
   if(b_extra_pack_sounds) {
@@ -2723,9 +2731,9 @@ void settingsBlinkingLights() {
         i_bottom_segment_rows = 5;
       }
 
-      if(b_solid_five == true) {
+      if(b_solid_five) {
         for(uint8_t i = 0; i < i_bargraph_segments - i_segment_adjust; i++) {
-          if(i > 0 && ((b_solid_one == true && i < i_bottom_segment_rows) || i >= i_top_segment_rows)) {
+          if(i > 0 && ((b_solid_one && i < i_bottom_segment_rows) || i >= i_top_segment_rows)) {
             ht_bargraph.setLed(bargraphLookupTable(i));
             b_bargraph_status[i] = true;
           }
@@ -2743,7 +2751,7 @@ void settingsBlinkingLights() {
 
         ht_bargraph.sendLed(); // Commit the changes.
       }
-      else if(b_solid_one == true) {
+      else if(b_solid_one) {
         for(uint8_t i = 1; i < i_bargraph_segments - i_segment_adjust; i++) {
           if(i > 0 && i < i_bottom_segment_rows) {
             ht_bargraph.setLed(bargraphLookupTable(i));
@@ -2762,7 +2770,7 @@ void settingsBlinkingLights() {
       }
     }
     else {
-      if(b_solid_one == true) {
+      if(b_solid_one) {
         digitalWriteFast(bargraphLookupTable(1-1), LOW);
       }
       else {
@@ -2773,7 +2781,7 @@ void settingsBlinkingLights() {
       digitalWriteFast(bargraphLookupTable(3-1), HIGH);
       digitalWriteFast(bargraphLookupTable(4-1), HIGH);
 
-      if(b_solid_five == true) {
+      if(b_solid_five) {
         digitalWriteFast(bargraphLookupTable(5-1), LOW);
       }
       else {
@@ -3071,36 +3079,36 @@ void wandVentStateCheck() {
       if(b_vent_light_control) {
         // Vent light on, brightness dependent on mode.
         if(STREAM_MODE != SLIME && (WAND_ACTION_STATUS == ACTION_FIRING || (ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished()))) {
-          ventLedControl(); // Turn on vent light at full brightness.
+          ventLightControl(); // Turn on vent light at full brightness.
         }
         else {
           // Adjust brightness based on the power level.
           switch(i_power_level) {
             case 5:
-              ventLedControl(i_vent_led_power_5);
+              ventLightControl(i_vent_led_power_5);
             break;
 
             case 4:
-              ventLedControl(i_vent_led_power_4);
+              ventLightControl(i_vent_led_power_4);
             break;
 
             case 3:
-              ventLedControl(i_vent_led_power_3);
+              ventLightControl(i_vent_led_power_3);
             break;
 
             case 2:
-              ventLedControl(i_vent_led_power_2);
+              ventLightControl(i_vent_led_power_2);
             break;
 
             case 1:
             default:
-              ventLedControl(i_vent_led_power_1);
+              ventLightControl(i_vent_led_power_1);
             break;
           }
         }
       }
       else {
-        ventLedControl(); // Turn on vent light at full brightness.
+        ventLightControl(); // Turn on vent light at full brightness.
       }
 
       soundIdleStart();
@@ -3117,7 +3125,7 @@ void wandVentStateCheck() {
     }
     else {
       // Vent light off.
-      ventLedControl(0);
+      ventLightControl(0);
 
       soundBeepLoopStop();
       soundIdleStop();
@@ -3227,8 +3235,8 @@ void wandLightsOffMenuSystem() {
   digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Turn off the front left LED under the Clippard valve.
   digitalWriteFast(BARREL_HAT_LED_PIN, LOW); // Turn off hat light 1.
   digitalWriteFast(TOP_HAT_LED_PIN, LOW); // Turn off hat light 2.
-  ventLedTopControl(false); // Turn off the blinking white top LED.
-  ventLedControl(0); // Turn off the vent light.
+  ventTopLightControl(false); // Turn off the blinking white top LED.
+  ventLightControl(0); // Turn off the vent light.
 
   setPowerOnReminder(false);
 }
@@ -3922,10 +3930,10 @@ void checkSwitches() {
     case MODE_OFF:
       switch(SYSTEM_MODE) {
         case MODE_ORIGINAL:
-          if(b_pack_ion_arm_switch_on == true) {
+          if(b_pack_ion_arm_switch_on) {
             if(WAND_ACTION_STATUS == ACTION_IDLE) {
               // We are going to handle the toggle switch sequence for the MODE_ORIGINAL here.
-              if(switch_activate.on() == true && switch_vent.on() == true && switch_wand.on() == true) {
+              if(switch_activate.on() && switch_vent.on() && switch_wand.on()) {
                 // Reset the power level back to what it should be.
                 i_power_level = i_power_level_prev;
 
@@ -3953,7 +3961,7 @@ void checkSwitches() {
                   updatePackPowerLevel();
                 }
 
-                if(switch_vent.on() == true) {
+                if(switch_vent.on()) {
                   // When the bottom right toggle is on, we start flashing the slo-blo light.
                   if(ms_slo_blo_blink.remaining() < i_slo_blo_blink_delay / 2) {
                     digitalWriteFast(SLO_BLO_LED_PIN, LOW);
@@ -3969,8 +3977,8 @@ void checkSwitches() {
 
                 if(switch_wand.switched() || switch_vent.switched()) {
                   if(switch_vent.switched()) {
-                    if(switch_vent.on() == true && switch_wand.on() == false && switch_intensify.on() == false) {
-                      if(b_extra_pack_sounds == true) {
+                    if(switch_vent.on() && !switch_wand.on() && !switch_intensify.on()) {
+                      if(b_extra_pack_sounds) {
                         wandSerialSend(W_BEEPS_ALT);
                       }
 
@@ -3979,8 +3987,8 @@ void checkSwitches() {
                     }
                   }
 
-                  if(switch_vent.on() == true && switch_wand.on() == true) {
-                    if(b_extra_pack_sounds == true) {
+                  if(switch_vent.on() && switch_wand.on()) {
+                    if(b_extra_pack_sounds) {
                       wandSerialSend(W_MODE_ORIGINAL_HEATDOWN_STOP);
                       wandSerialSend(W_MODE_ORIGINAL_HEATUP);
                     }
@@ -3995,8 +4003,8 @@ void checkSwitches() {
 
                     prepBargraphRampUp();
                   }
-                  else if(switch_wand.switched() == true && switch_vent.on() == true && switch_wand.on() == false) {
-                    if(b_extra_pack_sounds == true) {
+                  else if(switch_wand.switched() && switch_vent.on() && !switch_wand.on()) {
+                    if(b_extra_pack_sounds) {
                       wandSerialSend(W_MODE_ORIGINAL_HEATUP_STOP);
                       wandSerialSend(W_MODE_ORIGINAL_HEATDOWN);
                     }
@@ -4005,8 +4013,8 @@ void checkSwitches() {
                     stopEffect(S_WAND_HEATDOWN);
                     playEffect(S_WAND_HEATDOWN);
                   }
-                  else if(switch_vent.switched() == true && switch_wand.on() == true) {
-                    if(b_extra_pack_sounds == true) {
+                  else if(switch_vent.switched() && switch_wand.on()) {
+                    if(b_extra_pack_sounds) {
                       wandSerialSend(W_MODE_ORIGINAL_HEATUP_STOP);
                       wandSerialSend(W_MODE_ORIGINAL_HEATDOWN);
                     }
@@ -4017,23 +4025,23 @@ void checkSwitches() {
                   }
                 }
 
-                if(switch_vent.on() == true && switch_wand.on() == true) {
+                if(switch_vent.on() && switch_wand.on()) {
                   digitalWriteFast(CLIPPARD_LED_PIN, HIGH); // Turn on the front left LED under the Clippard valve.
 
                   // Turn on the vent lights.
                   if(b_vent_light_control) {
-                    ventLedControl(i_vent_led_power_1);
+                    ventLightControl(i_vent_led_power_1);
                   }
                   else {
-                    ventLedControl(); // Turn on vent light at full brightness.
+                    ventLightControl(); // Turn on vent light at full brightness.
                   }
 
-                  ventLedTopControl(true);
+                  ventTopLightControl(true);
 
                   if(ms_bargraph.justFinished()) {
                     bargraphRampUp();
                   }
-                  else if(ms_bargraph.isRunning() == false && WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+                  else if(!ms_bargraph.isRunning() && WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
                     // Bargraph idling loop.
                     bargraphPowerCheck();
                   }
@@ -4049,8 +4057,8 @@ void checkSwitches() {
                   digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Turn off the front left LED under the Clippard valve.
 
                   // Turn off the Neutrona Wand vent lights.
-                  ventLedControl(0);
-                  ventLedTopControl(false);
+                  ventLightControl(0);
+                  ventTopLightControl(false);
 
                   vibrationOff(); // Turn off vibration, if any.
                 }
@@ -4098,11 +4106,11 @@ void checkSwitches() {
           uint8_t i_mash_delay_percentage = (ms_bmash.remaining() * 100) / ms_bmash.delay();
           uint8_t i_vent_power_output = (i_vent_brightness * i_mash_delay_percentage) / 100;
 
-          ventLedControl(i_vent_power_output);
+          ventLightControl(i_vent_power_output);
         }
         else {
           // Turn off the vent light.
-          ventLedControl(0);
+          ventLightControl(0);
         }
       }
 
@@ -4113,7 +4121,7 @@ void checkSwitches() {
 
         case MODE_SUPER_HERO:
         default:
-          if(switch_activate.on() == false) {
+          if(!switch_activate.on()) {
             b_wand_boot_error_on = false;
             wandOff();
           }
@@ -4125,7 +4133,7 @@ void checkSwitches() {
       switch(SYSTEM_MODE) {
         case MODE_ORIGINAL:
           // We shut the pack and wand down if any of the right toggle switches are turned off. Activate switch control is handled in fireControlCheck();
-          if(switch_vent.on() == false || switch_wand.on() == false) {
+          if(!switch_vent.on() || !switch_wand.on()) {
             resetBargraphSpeed();
             // If any of the right toggle switches are turned off, we must turn the cyclotron off and shut the Neutrona Wand down to a off idle status.
             WAND_ACTION_STATUS = ACTION_OFF;
@@ -4326,7 +4334,7 @@ void bargraphSuperHeroRampFiringAnimation() {
     if(BARGRAPH_TYPE == SEGMENTS_30) {
       switch(i_bargraph_status_alt) {
         case 0:
-          vibrationWand(i_vibration_level + 110);
+          vibrationWand(i_vibration_level_min + 110);
 
           ht_bargraph.setLed(bargraphLookupTable(14));
           ht_bargraph.setLed(bargraphLookupTable(15));
@@ -4351,7 +4359,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 1:
-          vibrationWand(i_vibration_level + 110);
+          vibrationWand(i_vibration_level_min + 110);
 
           ht_bargraph.setLed(bargraphLookupTable(13));
           ht_bargraph.setLed(bargraphLookupTable(16));
@@ -4359,7 +4367,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           b_bargraph_status[13] = true;
           b_bargraph_status[16] = true;
 
-          if(b_bargraph_up == true) {
+          if(b_bargraph_up) {
             ht_bargraph.clearLed(bargraphLookupTable(14));
             ht_bargraph.clearLed(bargraphLookupTable(15));
 
@@ -4383,7 +4391,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 2:
-          vibrationWand(i_vibration_level + 110);
+          vibrationWand(i_vibration_level_min + 110);
 
           ht_bargraph.setLed(bargraphLookupTable(12));
           ht_bargraph.setLed(bargraphLookupTable(17));
@@ -4391,7 +4399,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           b_bargraph_status[12] = true;
           b_bargraph_status[17] = true;
 
-          if(b_bargraph_up == true) {
+          if(b_bargraph_up) {
             ht_bargraph.clearLed(bargraphLookupTable(13));
             ht_bargraph.clearLed(bargraphLookupTable(16));
 
@@ -4415,7 +4423,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 3:
-          vibrationWand(i_vibration_level + 110);
+          vibrationWand(i_vibration_level_min + 110);
 
           ht_bargraph.setLed(bargraphLookupTable(11));
           ht_bargraph.setLed(bargraphLookupTable(18));
@@ -4423,7 +4431,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           b_bargraph_status[11] = true;
           b_bargraph_status[18] = true;
 
-          if(b_bargraph_up == true) {
+          if(b_bargraph_up) {
             ht_bargraph.clearLed(bargraphLookupTable(12));
             ht_bargraph.clearLed(bargraphLookupTable(17));
 
@@ -4447,7 +4455,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 4:
-          vibrationWand(i_vibration_level + 110);
+          vibrationWand(i_vibration_level_min + 110);
 
           ht_bargraph.setLed(bargraphLookupTable(10));
           ht_bargraph.setLed(bargraphLookupTable(19));
@@ -4455,7 +4463,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           b_bargraph_status[10] = true;
           b_bargraph_status[19] = true;
 
-          if(b_bargraph_up == true) {
+          if(b_bargraph_up) {
             ht_bargraph.clearLed(bargraphLookupTable(11));
             ht_bargraph.clearLed(bargraphLookupTable(18));
 
@@ -4479,7 +4487,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 5:
-          vibrationWand(i_vibration_level + 110);
+          vibrationWand(i_vibration_level_min + 110);
 
           ht_bargraph.setLed(bargraphLookupTable(9));
           ht_bargraph.setLed(bargraphLookupTable(20));
@@ -4487,7 +4495,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           b_bargraph_status[9] = true;
           b_bargraph_status[20] = true;
 
-          if(b_bargraph_up == true) {
+          if(b_bargraph_up) {
             ht_bargraph.clearLed(bargraphLookupTable(10));
             ht_bargraph.clearLed(bargraphLookupTable(19));
 
@@ -4511,7 +4519,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 6:
-          vibrationWand(i_vibration_level + 110);
+          vibrationWand(i_vibration_level_min + 110);
 
           ht_bargraph.setLed(bargraphLookupTable(8));
           ht_bargraph.setLed(bargraphLookupTable(21));
@@ -4519,7 +4527,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           b_bargraph_status[8] = true;
           b_bargraph_status[21] = true;
 
-          if(b_bargraph_up == true) {
+          if(b_bargraph_up) {
             ht_bargraph.clearLed(bargraphLookupTable(9));
             ht_bargraph.clearLed(bargraphLookupTable(20));
 
@@ -4543,7 +4551,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 7:
-          vibrationWand(i_vibration_level + 112);
+          vibrationWand(i_vibration_level_min + 112);
 
           ht_bargraph.setLed(bargraphLookupTable(7));
           ht_bargraph.setLed(bargraphLookupTable(22));
@@ -4551,7 +4559,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           b_bargraph_status[7] = true;
           b_bargraph_status[22] = true;
 
-          if(b_bargraph_up == true) {
+          if(b_bargraph_up) {
             ht_bargraph.clearLed(bargraphLookupTable(8));
             ht_bargraph.clearLed(bargraphLookupTable(21));
 
@@ -4575,7 +4583,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 8:
-          vibrationWand(i_vibration_level + 112);
+          vibrationWand(i_vibration_level_min + 112);
 
           ht_bargraph.setLed(bargraphLookupTable(6));
           ht_bargraph.setLed(bargraphLookupTable(23));
@@ -4583,7 +4591,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           b_bargraph_status[6] = true;
           b_bargraph_status[23] = true;
 
-          if(b_bargraph_up == true) {
+          if(b_bargraph_up) {
             ht_bargraph.clearLed(bargraphLookupTable(7));
             ht_bargraph.clearLed(bargraphLookupTable(22));
 
@@ -4607,7 +4615,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 9:
-          vibrationWand(i_vibration_level + 112);
+          vibrationWand(i_vibration_level_min + 112);
 
           ht_bargraph.setLed(bargraphLookupTable(5));
           ht_bargraph.setLed(bargraphLookupTable(24));
@@ -4615,7 +4623,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           b_bargraph_status[5] = true;
           b_bargraph_status[24] = true;
 
-          if(b_bargraph_up == true) {
+          if(b_bargraph_up) {
             ht_bargraph.clearLed(bargraphLookupTable(6));
             ht_bargraph.clearLed(bargraphLookupTable(23));
 
@@ -4639,7 +4647,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 10:
-          vibrationWand(i_vibration_level + 112);
+          vibrationWand(i_vibration_level_min + 112);
 
           ht_bargraph.setLed(bargraphLookupTable(4));
           ht_bargraph.setLed(bargraphLookupTable(25));
@@ -4647,7 +4655,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           b_bargraph_status[4] = true;
           b_bargraph_status[25] = true;
 
-          if(b_bargraph_up == true) {
+          if(b_bargraph_up) {
             ht_bargraph.clearLed(bargraphLookupTable(5));
             ht_bargraph.clearLed(bargraphLookupTable(24));
 
@@ -4671,7 +4679,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 11:
-          vibrationWand(i_vibration_level + 112);
+          vibrationWand(i_vibration_level_min + 112);
 
           ht_bargraph.setLed(bargraphLookupTable(3));
           ht_bargraph.setLed(bargraphLookupTable(26));
@@ -4679,7 +4687,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           b_bargraph_status[3] = true;
           b_bargraph_status[26] = true;
 
-          if(b_bargraph_up == true) {
+          if(b_bargraph_up) {
             ht_bargraph.clearLed(bargraphLookupTable(4));
             ht_bargraph.clearLed(bargraphLookupTable(25));
 
@@ -4703,7 +4711,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 12:
-          vibrationWand(i_vibration_level + 115);
+          vibrationWand(i_vibration_level_min + 115);
 
           ht_bargraph.setLed(bargraphLookupTable(2));
           ht_bargraph.setLed(bargraphLookupTable(27));
@@ -4711,7 +4719,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           b_bargraph_status[2] = false;
           b_bargraph_status[27] = false;
 
-          if(b_bargraph_up == true) {
+          if(b_bargraph_up) {
             ht_bargraph.clearLed(bargraphLookupTable(3));
             ht_bargraph.clearLed(bargraphLookupTable(26));
 
@@ -4735,7 +4743,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 13:
-          vibrationWand(i_vibration_level + 115);
+          vibrationWand(i_vibration_level_min + 115);
 
           ht_bargraph.setLed(bargraphLookupTable(1));
           ht_bargraph.setLed(bargraphLookupTable(28));
@@ -4743,7 +4751,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           b_bargraph_status[1] = true;
           b_bargraph_status[28] = true;
 
-          if(b_bargraph_up == true) {
+          if(b_bargraph_up) {
             ht_bargraph.clearLed(bargraphLookupTable(2));
             ht_bargraph.clearLed(bargraphLookupTable(27));
 
@@ -4767,7 +4775,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 14:
-          vibrationWand(i_vibration_level + 115);
+          vibrationWand(i_vibration_level_min + 115);
 
           ht_bargraph.setLed(bargraphLookupTable(0));
           ht_bargraph.setLed(bargraphLookupTable(29));
@@ -4797,7 +4805,7 @@ void bargraphSuperHeroRampFiringAnimation() {
     else {
       switch(i_bargraph_status_alt) {
         case 0:
-          vibrationWand(i_vibration_level + 110);
+          vibrationWand(i_vibration_level_min + 110);
 
           ht_bargraph.setLed(bargraphLookupTable(13));
           ht_bargraph.setLed(bargraphLookupTable(14));
@@ -4822,7 +4830,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 1:
-          vibrationWand(i_vibration_level + 110);
+          vibrationWand(i_vibration_level_min + 110);
 
           ht_bargraph.setLed(bargraphLookupTable(12));
           ht_bargraph.setLed(bargraphLookupTable(15));
@@ -4830,7 +4838,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           b_bargraph_status[12] = true;
           b_bargraph_status[15] = true;
 
-          if(b_bargraph_up == true) {
+          if(b_bargraph_up) {
             ht_bargraph.clearLed(bargraphLookupTable(13));
             ht_bargraph.clearLed(bargraphLookupTable(14));
 
@@ -4854,7 +4862,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 2:
-          vibrationWand(i_vibration_level + 110);
+          vibrationWand(i_vibration_level_min + 110);
 
           ht_bargraph.setLed(bargraphLookupTable(11));
           ht_bargraph.setLed(bargraphLookupTable(16));
@@ -4862,7 +4870,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           b_bargraph_status[11] = true;
           b_bargraph_status[16] = true;
 
-          if(b_bargraph_up == true) {
+          if(b_bargraph_up) {
             ht_bargraph.clearLed(bargraphLookupTable(12));
             ht_bargraph.clearLed(bargraphLookupTable(15));
 
@@ -4886,7 +4894,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 3:
-          vibrationWand(i_vibration_level + 110);
+          vibrationWand(i_vibration_level_min + 110);
 
           ht_bargraph.setLed(bargraphLookupTable(10));
           ht_bargraph.setLed(bargraphLookupTable(17));
@@ -4894,7 +4902,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           b_bargraph_status[10] = true;
           b_bargraph_status[17] = true;
 
-          if(b_bargraph_up == true) {
+          if(b_bargraph_up) {
             ht_bargraph.clearLed(bargraphLookupTable(11));
             ht_bargraph.clearLed(bargraphLookupTable(16));
 
@@ -4918,7 +4926,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 4:
-          vibrationWand(i_vibration_level + 110);
+          vibrationWand(i_vibration_level_min + 110);
 
           ht_bargraph.setLed(bargraphLookupTable(9));
           ht_bargraph.setLed(bargraphLookupTable(18));
@@ -4926,7 +4934,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           b_bargraph_status[9] = true;
           b_bargraph_status[18] = true;
 
-          if(b_bargraph_up == true) {
+          if(b_bargraph_up) {
             ht_bargraph.clearLed(bargraphLookupTable(10));
             ht_bargraph.clearLed(bargraphLookupTable(17));
 
@@ -4950,7 +4958,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 5:
-          vibrationWand(i_vibration_level + 110);
+          vibrationWand(i_vibration_level_min + 110);
 
           ht_bargraph.setLed(bargraphLookupTable(8));
           ht_bargraph.setLed(bargraphLookupTable(19));
@@ -4958,7 +4966,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           b_bargraph_status[8] = true;
           b_bargraph_status[19] = true;
 
-          if(b_bargraph_up == true) {
+          if(b_bargraph_up) {
             ht_bargraph.clearLed(bargraphLookupTable(9));
             ht_bargraph.clearLed(bargraphLookupTable(18));
 
@@ -4982,7 +4990,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 6:
-          vibrationWand(i_vibration_level + 112);
+          vibrationWand(i_vibration_level_min + 112);
 
           ht_bargraph.setLed(bargraphLookupTable(7));
           ht_bargraph.setLed(bargraphLookupTable(20));
@@ -4990,7 +4998,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           b_bargraph_status[7] = true;
           b_bargraph_status[20] = true;
 
-          if(b_bargraph_up == true) {
+          if(b_bargraph_up) {
             ht_bargraph.clearLed(bargraphLookupTable(8));
             ht_bargraph.clearLed(bargraphLookupTable(19));
 
@@ -5014,7 +5022,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 7:
-          vibrationWand(i_vibration_level + 112);
+          vibrationWand(i_vibration_level_min + 112);
 
           ht_bargraph.setLed(bargraphLookupTable(6));
           ht_bargraph.setLed(bargraphLookupTable(21));
@@ -5022,7 +5030,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           b_bargraph_status[6] = true;
           b_bargraph_status[21] = true;
 
-          if(b_bargraph_up == true) {
+          if(b_bargraph_up) {
             ht_bargraph.clearLed(bargraphLookupTable(7));
             ht_bargraph.clearLed(bargraphLookupTable(20));
 
@@ -5046,7 +5054,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 8:
-          vibrationWand(i_vibration_level + 112);
+          vibrationWand(i_vibration_level_min + 112);
 
           ht_bargraph.setLed(bargraphLookupTable(5));
           ht_bargraph.setLed(bargraphLookupTable(22));
@@ -5054,7 +5062,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           b_bargraph_status[5] = true;
           b_bargraph_status[22] = true;
 
-          if(b_bargraph_up == true) {
+          if(b_bargraph_up) {
             ht_bargraph.clearLed(bargraphLookupTable(6));
             ht_bargraph.clearLed(bargraphLookupTable(21));
 
@@ -5078,7 +5086,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 9:
-          vibrationWand(i_vibration_level + 112);
+          vibrationWand(i_vibration_level_min + 112);
 
           ht_bargraph.setLed(bargraphLookupTable(4));
           ht_bargraph.setLed(bargraphLookupTable(23));
@@ -5086,7 +5094,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           b_bargraph_status[4] = true;
           b_bargraph_status[23] = true;
 
-          if(b_bargraph_up == true) {
+          if(b_bargraph_up) {
             ht_bargraph.clearLed(bargraphLookupTable(5));
             ht_bargraph.clearLed(bargraphLookupTable(22));
 
@@ -5110,7 +5118,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 10:
-          vibrationWand(i_vibration_level + 112);
+          vibrationWand(i_vibration_level_min + 112);
 
           ht_bargraph.setLed(bargraphLookupTable(3));
           ht_bargraph.setLed(bargraphLookupTable(24));
@@ -5118,7 +5126,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           b_bargraph_status[3] = true;
           b_bargraph_status[24] = true;
 
-          if(b_bargraph_up == true) {
+          if(b_bargraph_up) {
             ht_bargraph.clearLed(bargraphLookupTable(4));
             ht_bargraph.clearLed(bargraphLookupTable(23));
 
@@ -5142,7 +5150,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 11:
-          vibrationWand(i_vibration_level + 115);
+          vibrationWand(i_vibration_level_min + 115);
 
           ht_bargraph.setLed(bargraphLookupTable(2));
           ht_bargraph.setLed(bargraphLookupTable(25));
@@ -5150,7 +5158,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           b_bargraph_status[2] = false;
           b_bargraph_status[25] = false;
 
-          if(b_bargraph_up == true) {
+          if(b_bargraph_up) {
             ht_bargraph.clearLed(bargraphLookupTable(3));
             ht_bargraph.clearLed(bargraphLookupTable(24));
 
@@ -5174,7 +5182,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 12:
-          vibrationWand(i_vibration_level + 115);
+          vibrationWand(i_vibration_level_min + 115);
 
           ht_bargraph.setLed(bargraphLookupTable(1));
           ht_bargraph.setLed(bargraphLookupTable(26));
@@ -5182,7 +5190,7 @@ void bargraphSuperHeroRampFiringAnimation() {
           b_bargraph_status[1] = true;
           b_bargraph_status[26] = true;
 
-          if(b_bargraph_up == true) {
+          if(b_bargraph_up) {
             ht_bargraph.clearLed(bargraphLookupTable(2));
             ht_bargraph.clearLed(bargraphLookupTable(25));
 
@@ -5206,7 +5214,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 13:
-          vibrationWand(i_vibration_level + 115);
+          vibrationWand(i_vibration_level_min + 115);
 
           ht_bargraph.setLed(bargraphLookupTable(0));
           ht_bargraph.setLed(bargraphLookupTable(27));
@@ -5238,7 +5246,7 @@ void bargraphSuperHeroRampFiringAnimation() {
     // Hasbro 5 LED Bargraph.
     switch(i_bargraph_status) {
       case 1:
-        vibrationWand(i_vibration_level + 110);
+        vibrationWand(i_vibration_level_min + 110);
 
         digitalWriteFast(bargraphLookupTable(1-1), LOW);
         digitalWriteFast(bargraphLookupTable(2-1), HIGH);
@@ -5251,7 +5259,7 @@ void bargraphSuperHeroRampFiringAnimation() {
       break;
 
       case 2:
-        vibrationWand(i_vibration_level + 112);
+        vibrationWand(i_vibration_level_min + 112);
 
         digitalWriteFast(bargraphLookupTable(1-1), HIGH);
         digitalWriteFast(bargraphLookupTable(2-1), LOW);
@@ -5264,7 +5272,7 @@ void bargraphSuperHeroRampFiringAnimation() {
       break;
 
       case 3:
-        vibrationWand(i_vibration_level + 115);
+        vibrationWand(i_vibration_level_min + 115);
 
         digitalWriteFast(bargraphLookupTable(1-1), HIGH);
         digitalWriteFast(bargraphLookupTable(2-1), HIGH);
@@ -5277,7 +5285,7 @@ void bargraphSuperHeroRampFiringAnimation() {
       break;
 
       case 4:
-        vibrationWand(i_vibration_level + 112);
+        vibrationWand(i_vibration_level_min + 112);
 
         digitalWriteFast(bargraphLookupTable(1-1), HIGH);
         digitalWriteFast(bargraphLookupTable(2-1), LOW);
@@ -5290,7 +5298,7 @@ void bargraphSuperHeroRampFiringAnimation() {
       break;
 
       case 5:
-        vibrationWand(i_vibration_level + 110);
+        vibrationWand(i_vibration_level_min + 110);
 
         digitalWriteFast(bargraphLookupTable(1-1), LOW);
         digitalWriteFast(bargraphLookupTable(2-1), HIGH);
@@ -5771,13 +5779,13 @@ void bargraphModeOriginalRampFiringAnimation() {
     }
 
     if(i_bargraph_status_alt > 22) {
-      vibrationWand(i_vibration_level + 115);
+      vibrationWand(i_vibration_level_min + 115);
     }
     else if(i_bargraph_status_alt > 11) {
-      vibrationWand(i_vibration_level + 112);
+      vibrationWand(i_vibration_level_min + 112);
     }
     else {
-      vibrationWand(i_vibration_level + 110);
+      vibrationWand(i_vibration_level_min + 110);
     }
   }
   else {
@@ -6181,13 +6189,13 @@ void bargraphModeOriginalRampFiringAnimation() {
   }
 
   if(i_bargraph_status > 3) {
-    vibrationWand(i_vibration_level + 115);
+    vibrationWand(i_vibration_level_min + 115);
   }
   else if(i_bargraph_status > 1) {
-    vibrationWand(i_vibration_level + 112);
+    vibrationWand(i_vibration_level_min + 112);
   }
   else {
-    vibrationWand(i_vibration_level + 110);
+    vibrationWand(i_vibration_level_min + 110);
   }
 }
 
@@ -6242,11 +6250,11 @@ void bargraphRampFiring() {
     break;
   }
 
-  uint8_t i_ramp_interval = d_bargraph_ramp_interval;
+  uint8_t i_ramp_interval = i_bargraph_ramp_interval;
 
   if(BARGRAPH_TYPE != SEGMENTS_5) {
     // Switch to a different ramp speed if using the 28 or 30 segment bargraph.
-    i_ramp_interval = d_bargraph_ramp_interval_alt;
+    i_ramp_interval = i_bargraph_ramp_interval_alt;
   }
 
   // If in a power level on the wand that can overheat, change the speed of the bargraph ramp during firing based on time remaining before we overheat.
@@ -6474,7 +6482,6 @@ void modeFireStart() {
 
   // Stop any bargraph ramps.
   ms_bargraph.stop();
-
   ms_bargraph_alt.stop();
 
   // Reset the 28 segment bargraph.
@@ -6488,7 +6495,7 @@ void modeFireStart() {
     ms_impact.start(random(10,16) * 1000);
 
     // Standalone wand plays additional SFX from Proton Pack.
-    if(b_gpstar_benchtest == true) {
+    if(b_gpstar_benchtest) {
       ms_firing_sound_mix.start(random(7,15) * 1000);
     }
   }
@@ -6511,7 +6518,7 @@ void fireStreamEffect(CRGB c_colour) {
           switch(STREAM_MODE) {
             case PROTON:
             default:
-              if(b_firing_cross_streams == true) {
+              if(b_firing_cross_streams) {
                 if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE && !b_pack_cyclotron_lid_on) {
                   barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_CHARTREUSE, WAND_BARREL_LED_COUNT);
                   //barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 2])] = c_colour;
@@ -6841,7 +6848,7 @@ void fireStreamEffect(CRGB c_colour) {
           switch(STREAM_MODE) {
             case PROTON:
             default:
-              if(b_firing_cross_streams == true) {
+              if(b_firing_cross_streams) {
                 if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE && !b_pack_cyclotron_lid_on) {
                   barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_CHARTREUSE, WAND_BARREL_LED_COUNT);
                   //barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 2])] = c_colour;
@@ -7169,7 +7176,7 @@ void fireStreamEffect(CRGB c_colour) {
           switch(STREAM_MODE) {
             case PROTON:
             default:
-              if(b_firing_cross_streams == true) {
+              if(b_firing_cross_streams) {
                 if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE && !b_pack_cyclotron_lid_on) {
                   barrel_leds[i_barrel_light - 1] = getHueColour(C_CHARTREUSE, WAND_BARREL_LED_COUNT);
                 }
@@ -7574,7 +7581,7 @@ void modeFiring() {
     }
   }
 
-  if((b_firing_alt != true || b_firing_intensify != true) && b_firing_cross_streams == true && FIRING_MODE == CTS_MIX_MODE) {
+  if((b_firing_alt != true || b_firing_intensify != true) && b_firing_cross_streams && FIRING_MODE == CTS_MIX_MODE) {
     // In CTS Mix mode, you can release either Intensify or the Barrel Wing Button and firing will revert to the mode for the still-held button.
     b_firing_cross_streams = false;
     b_sound_firing_cross_the_streams = false;
@@ -7634,7 +7641,7 @@ void modeFiring() {
     }
 
     // Restart the impact sound timer for the standalone wand.
-    if(b_stream_effects == true && b_gpstar_benchtest == true) {
+    if(b_stream_effects == true && b_gpstar_benchtest) {
       ms_firing_sound_mix.start(random(7,15) * 1000);
     }
   }
@@ -7679,7 +7686,7 @@ void modeFiring() {
   switch(STREAM_MODE) {
     case PROTON:
     default:
-      if(b_firing_cross_streams == true) {
+      if(b_firing_cross_streams) {
         if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE && !b_pack_cyclotron_lid_on) {
           c_temp_start = C_CHARTREUSE;
           c_temp_effect = C_ORANGE;
@@ -7817,7 +7824,7 @@ void modeFiring() {
   }
 
   // Standalone Neutrona Wand gets additional impact sounds which would normally be played by Proton Pack.
-  if(ms_firing_sound_mix.justFinished() && STREAM_MODE == PROTON && b_firing_cross_streams != true && b_stream_effects == true && b_gpstar_benchtest == true) {
+  if(ms_firing_sound_mix.justFinished() && STREAM_MODE == PROTON && b_firing_cross_streams != true && b_stream_effects == true && b_gpstar_benchtest) {
     uint8_t i_random = 0;
 
     switch(i_last_firing_effect_mix) {
@@ -7912,7 +7919,7 @@ void wandBarrelHeatDown() {
   // Initialize temporary colour variable to reduce code complexity.
   colours c_temp = C_WHITE;
 
-  if(b_wand_mash_error == true || b_pack_alarm == true) {
+  if(b_wand_mash_error || b_pack_alarm) {
     // Special spark effect handling for button mash lockout and ribbon cable removal.
 
     if(ms_wand_heatup_fade.justFinished() && i_heatdown_counter > 0) {
@@ -8080,7 +8087,7 @@ void wandBarrelHeatUp() {
   // Initialize temporary colour variable to reduce code complexity.
   colours c_temp = C_WHITE;
 
-  if(b_wand_mash_error == true || b_pack_alarm == true) {
+  if(b_wand_mash_error || b_pack_alarm) {
     // Special spark effect handling for button mash lockout and ribbon cable removal.
 
     if((i_bmash_spark_index < 1 && i_heatup_counter > 100) || (i_bmash_spark_index > 0 && i_heatup_counter > 75)) {
@@ -8754,7 +8761,7 @@ void fireEffectEnd() {
     switch(STREAM_MODE) {
       case PROTON:
       default:
-        if(b_firing_cross_streams == true) {
+        if(b_firing_cross_streams) {
           if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE && !b_pack_cyclotron_lid_on) {
             c_temp = C_ORANGE;
           }
@@ -8962,7 +8969,7 @@ void fireEffectEnd() {
     switch(STREAM_MODE) {
       case PROTON:
       default:
-        if(b_firing_cross_streams == true) {
+        if(b_firing_cross_streams) {
           if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE && !b_pack_cyclotron_lid_on) {
             c_temp = C_CHARTREUSE;
           }
@@ -9371,7 +9378,7 @@ void checkRotaryEncoder() {
             // Adjust the default bootup system volume.
             wandSerialSend(W_VOLUME_DECREASE_EEPROM);
 
-            // If there is no Pack, we need to adjust the volume manually
+            // If there is no Pack, we set our own default system volume.
             if(b_gpstar_benchtest) {
               decreaseVolumeEEPROM();
             }
@@ -9416,8 +9423,8 @@ void checkRotaryEncoder() {
                 digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
 
                 // Turn off the other lights.
-                ventLedControl(0); // Level 3
-                ventLedTopControl(false); // Level 4
+                ventLightControl(0); // Level 3
+                ventTopLightControl(false); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9442,10 +9449,10 @@ void checkRotaryEncoder() {
 
                 // Turn on some lights to visually indicate which menu we are in.
                 digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
-                ventLedControl(); // Level 3
+                ventLightControl(); // Level 3
 
                 // Turn off the other lights.
-                ventLedTopControl(false); // Level 4
+                ventTopLightControl(false); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9470,8 +9477,8 @@ void checkRotaryEncoder() {
 
                 // Turn on some lights to visually indicate which menu we are in.
                 digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
-                ventLedControl(); // Level 3
-                ventLedTopControl(true); // Level 4
+                ventLightControl(); // Level 3
+                ventTopLightControl(true); // Level 4
 
                 // Turn off the other lights.
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
@@ -9498,8 +9505,8 @@ void checkRotaryEncoder() {
 
                 // Turn on some lights to visually indicate which menu we are in.
                 digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
-                ventLedControl(); // Level 3
-                ventLedTopControl(true); // Level 4
+                ventLightControl(); // Level 3
+                ventTopLightControl(true); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, HIGH); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9536,7 +9543,7 @@ void checkRotaryEncoder() {
             // Adjust the default bootup system volume.
             wandSerialSend(W_VOLUME_INCREASE_EEPROM);
 
-            // If there is no Pack, we need to adjust the volume manually
+            // If there is no Pack, we set our own default system volume.
             if(b_gpstar_benchtest) {
               increaseVolumeEEPROM();
             }
@@ -9579,8 +9586,8 @@ void checkRotaryEncoder() {
 
                 // Turn on some lights to visually indicate which menu we are in.
                 digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
-                ventLedControl(); // Level 3
-                ventLedTopControl(true); // Level 4
+                ventLightControl(); // Level 3
+                ventTopLightControl(true); // Level 4
 
                 // Turn off the other lights.
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
@@ -9607,10 +9614,10 @@ void checkRotaryEncoder() {
 
                 // Turn on some lights to visually indicate which menu we are in.
                 digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
-                ventLedControl(); // Level 3
+                ventLightControl(); // Level 3
 
                 // Turn off the other lights.
-                ventLedTopControl(false); // Level 4
+                ventTopLightControl(false); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9637,8 +9644,8 @@ void checkRotaryEncoder() {
                 digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
 
                 // Turn off the other lights.
-                ventLedControl(0); // Level 3
-                ventLedTopControl(false); // Level 4
+                ventLightControl(0); // Level 3
+                ventTopLightControl(false); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9663,8 +9670,8 @@ void checkRotaryEncoder() {
 
                 // Turn off the other lights.
                 digitalWriteFast(SLO_BLO_LED_PIN, LOW); // Level 2
-                ventLedControl(0); // Level 3
-                ventLedTopControl(false); // Level 4
+                ventLightControl(0); // Level 3
+                ventTopLightControl(false); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9729,6 +9736,10 @@ void checkRotaryEncoder() {
             // Change colour of the Inner Cyclotron Spectral custom colour.
             wandSerialSend(W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_DECREASE);
           }
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_2 && i_wand_menu == 5 && !switch_intensify.on() && switch_mode.longPress()) {
+            // Set default LED dimming level for the entire system.
+            wandSerialSend(W_DIMMING_DECREASE);
+          }
           else if(i_wand_menu - 1 < 1) {
             switch(WAND_MENU_LEVEL) {
               case MENU_LEVEL_1:
@@ -9739,8 +9750,8 @@ void checkRotaryEncoder() {
                 digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
 
                 // Turn off the other lights.
-                ventLedControl(0); // Level 3
-                ventLedTopControl(false); // Level 4
+                ventLightControl(0); // Level 3
+                ventTopLightControl(false); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9810,6 +9821,10 @@ void checkRotaryEncoder() {
             // Change colour of the Inner Cyclotron Spectral custom colour.
             wandSerialSend(W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_INCREASE);
           }
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_2 && i_wand_menu == 5 && !switch_intensify.on() && switch_mode.longPress()) {
+            // Set default LED dimming level for the entire system.
+            wandSerialSend(W_DIMMING_INCREASE);
+          }
           else if(i_wand_menu + 1 > 5) {
             switch(WAND_MENU_LEVEL) {
               case MENU_LEVEL_2:
@@ -9818,8 +9833,8 @@ void checkRotaryEncoder() {
 
                 // Turn off the other lights.
                 digitalWriteFast(SLO_BLO_LED_PIN, LOW); // Level 2
-                ventLedControl(0); // Level 3
-                ventLedTopControl(false); // Level 4
+                ventLightControl(0); // Level 3
+                ventTopLightControl(false); // Level 4
                 digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
 
                 // Play an indication beep to notify we have changed menu levels.
@@ -9981,20 +9996,7 @@ void checkRotaryEncoder() {
       break;
 
       default:
-        if(((WAND_STATUS == MODE_ON && SYSTEM_MODE != MODE_ORIGINAL) || WAND_STATUS == MODE_OFF) && switch_intensify.on() && !switch_vent.on() && !switch_wand.on()) {
-            // Counter clockwise.
-            if(prev_next_code == 0x0b) {
-              // Decrease the master system volume of both the Proton Pack and Neutrona Wand.
-              decreaseVolume();
-              wandSerialSend(W_VOLUME_DECREASE);
-            }
-            else if(prev_next_code == 0x07) {
-              // Increase the master system volume of both the Proton Pack and Neutrona Wand.
-              increaseVolume();
-              wandSerialSend(W_VOLUME_INCREASE);
-            }
-        }
-        else if(WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && !b_pack_alarm && !b_wand_mash_error) {
+        if(WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && !b_pack_alarm && !b_wand_mash_error) {
           if(WAND_ACTION_STATUS == ACTION_FIRING && i_power_level == i_power_level_max) {
             // Do nothing, we are locked in full power level while firing.
           }
@@ -10091,14 +10093,18 @@ void checkRotaryEncoder() {
               streamModeCheck();
             }
 
-            // Decrease the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
             if(WAND_STATUS == MODE_OFF && !switch_intensify.on()) {
               if(b_playing_music) {
+                // Decrease the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
                 decreaseVolumeMusic();
-              }
 
-              // Tell pack to lower music volume.
-              wandSerialSend(W_VOLUME_MUSIC_DECREASE);
+                // Tell pack to lower music volume.
+                wandSerialSend(W_VOLUME_MUSIC_DECREASE);
+              }
+              else {
+                // Tell pack to lower master volume.
+                wandSerialSend(W_VOLUME_DECREASE);
+              }
             }
             else if(WAND_STATUS == MODE_OFF && switch_intensify.on()) {
               // Decrease the master volume of the Neutrona Wand only.
@@ -10207,14 +10213,18 @@ void checkRotaryEncoder() {
               streamModeCheck();
             }
 
-            // Increase the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
             if(WAND_STATUS == MODE_OFF && !switch_intensify.on()) {
               if(b_playing_music) {
+                // Increase the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
                 increaseVolumeMusic();
-              }
 
-              // Tell pack to increase music volume.
-              wandSerialSend(W_VOLUME_MUSIC_INCREASE);
+                // Tell pack to increase music volume.
+                wandSerialSend(W_VOLUME_MUSIC_INCREASE);
+              }
+              else {
+                // Tell pack to increase master volume.
+                wandSerialSend(W_VOLUME_INCREASE);
+              }
             }
             else if(WAND_STATUS == MODE_OFF && switch_intensify.on()) {
               // Increase the master volume of the Neutrona Wand only.
@@ -10303,7 +10313,7 @@ void changeIonArmSwitchState(bool state) {
 void wandExitMenu() {
   i_wand_menu = 5;
 
-  if(b_pack_alarm != true) {
+  if(!b_pack_alarm) {
     playEffect(S_CLICK);
   }
 
@@ -10387,7 +10397,7 @@ void wandExitEEPROMMenu() {
 
   vibrationOff(); // Make sure we stop any menu-related vibration, if any.
 
-  if(b_gpstar_benchtest == true) {
+  if(b_gpstar_benchtest) {
     // Also need to make sure to reset the "ion arm switch" to off if standalone.
     b_pack_ion_arm_switch_on = false;
   }
@@ -10426,7 +10436,7 @@ void checkPowerOnReminder() {
   }
 }
 
-void ventLedTopControl(bool b_on) {
+void ventTopLightControl(bool b_on) {
   if(!b_on) {
     if(!b_rgb_vent_light) {
       // Turn off top light.
@@ -10479,12 +10489,12 @@ void ventLedTopControl(bool b_on) {
   }
 }
 
-void ventLedControl(uint8_t i_intensity) {
+void ventLightControl(uint8_t i_intensity) {
   if(i_intensity <= 1) {
     // Turn off if not off already.
     if(vent_leds[0]) {
       digitalWrite(VENT_LED_PIN, HIGH);
-      vent_leds[0] = getHueAsRGB(C_BLACK, 0);
+      vent_leds[0] = getHueAsRGB(C_BLACK);
       b_vent_lights_changed = true;
     }
   }

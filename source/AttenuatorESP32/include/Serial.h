@@ -76,13 +76,16 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t ledCycLidCount;
   uint8_t ledCycLidHue;
   uint8_t ledCycLidSat;
+  uint8_t ledCycLidLum;
   uint8_t ledCycLidCenter;
   uint8_t ledCycLidFade;
   uint8_t ledCycLidSimRing;
   uint8_t ledCycInnerPanel;
+  uint8_t ledCycPanLum;
   uint8_t ledCycCakeCount;
   uint8_t ledCycCakeHue;
   uint8_t ledCycCakeSat;
+  uint8_t ledCycCakeLum;
   uint8_t ledCycCakeGRB;
   uint8_t ledCycCavCount;
   uint8_t ledCycCavType;
@@ -91,6 +94,7 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t ledInvertPowercell;
   uint8_t ledPowercellHue;
   uint8_t ledPowercellSat;
+  uint8_t ledPowercellLum;
   uint8_t ledVGPowercell;
 } packConfig;
 
@@ -534,7 +538,6 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       debug("Wand On");
 
       // Pack is on (via wand).
-      b_pack_on = true;
       b_wand_on = true;
       b_state_changed = true;
 
@@ -559,7 +562,6 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       debug("Wand Off");
 
       // Pack is off (directly or via the wand).
-      b_pack_on = false;
       b_wand_on = false;
       b_state_changed = true;
 
@@ -890,9 +892,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     case A_FIRING:
       debug("Firing");
 
-      b_firing = true; // Implies the wand is powered on.
-      b_pack_on = true; // Implies the pack is powered on.
-      b_wand_on = true; // Implies the wand is powered on.
+      b_firing = true;
       b_state_changed = true;
       ms_blink_leds.start(i_blink_leds / i_speed_multiplier);
 

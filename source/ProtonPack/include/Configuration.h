@@ -22,7 +22,6 @@
 /*
  * -------------****** CUSTOM USER CONFIGURABLE SETTINGS ******-------------
  * Change the variables below to alter the behaviour of your Proton Pack.
- * All the default settings below are setup for a stock HasLab Proton Pack lighting kit.
  */
 
 /*
