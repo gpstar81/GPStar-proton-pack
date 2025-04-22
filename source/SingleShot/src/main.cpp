@@ -21,6 +21,15 @@
 // Required for PlatformIO
 #include <Arduino.h>
 
+// Specify all #define statements for task scheduler first
+// See: https://github.com/arkhipenko/TaskScheduler/tree/master/examples
+#define _TASK_SCHEDULING_OPTIONS
+#define _TASK_SLEEP_ON_IDLE_RUN
+#define _TASK_TIMECRITICAL
+
+// See: https://github.com/arkhipenko/TaskScheduler/wiki/API-Documentation
+#include <TaskScheduler.h>
+
 // Defines the microcontroller as part of a GPStar PCB
 #if defined(__AVR_ATmega2560__)
   #define GPSTAR_NEUTRONA_DEVICE_PCB
@@ -64,13 +73,21 @@
 #include "System.h"
 #include "Actions.h"
 
-/*
- * Delay for fastled to update the addressable LEDs.
- * 0.03 ms to update 1 LED. So 1.47 ms should be okay? Let's bump it up to 3 just in case.
- */
-#define FAST_LED_UPDATE_MS 3
-uint8_t i_fast_led_delay = FAST_LED_UPDATE_MS; // Default delay via standard definition
-millisDelay ms_fast_led; // Timer for all updates to addressable LEDs across the device
+// Forward declaration of scheduler task callback(s).
+void animateTaskCallback();
+void inputTaskCallback();
+
+// Create the primary task scheduler.
+Scheduler schedule;
+
+// Create a task to handle all updates for LED/Bargraph animations.
+// 33ms reflects a refresh rate equivalent to 30fps.
+// 16ms reflects a refresh rate equivalent to 60fps.
+Task animateTask(16, TASK_FOREVER, &animateTaskCallback);
+
+// Create a task to check for user inputs via switches/encoders.
+// Average visual reaction time to changes is 13-20ms.
+Task inputsTask(14, TASK_FOREVER, &inputTaskCallback);
 
 void setup() {
   Serial.begin(9600); // Standard serial (USB) console.
@@ -146,11 +163,20 @@ void setup() {
   // Execute the System POST (Power On Self Test)
   systemPOST();
 
-  // Initialize the fastLED state update timer.
-  ms_fast_led.start(i_fast_led_delay);
+  // Set the options for the tasks so that it "catches up" if there is a delay.
+  animateTask.setSchedulingOption(TASK_SCHEDULE);
+  inputsTask.setSchedulingOption(TASK_SCHEDULE);
+
+  // Initialize the task scheduler and enable the core tasks.
+  schedule.init();
+  schedule.addTask(animateTask);
+  schedule.addTask(inputsTask);
+  animateTask.enable();
+  inputsTask.enable();
 }
 
-void animate() {
+// Task callback for handling animations.
+void animateTaskCallback() {
   // Update bargraph with latest state and pattern changes.
   if(ms_firing_pulse.isRunning()) {
     // Increase the speed for updates while this timer is still running.
@@ -165,27 +191,21 @@ void animate() {
   checkCyclotron();
 
   // Update all addressable LEDs to reflect any changes.
-  if(ms_fast_led.justFinished()) {
-    FastLED[0].showLeds(255);
-    ms_fast_led.start(i_fast_led_delay);
-  }
+  FastLED[0].showLeds(255);
 
-  // Update the vent/top LEDs and restart the timer.
-  if(ms_vent_light.justFinished()) {
-    if(b_vent_lights_changed) {
-      if(b_rgb_vent_light) {
-        // Only commit an update if the addressable LED panel is installed.
-        FastLED[1].showLeds(255);
-      }
-
-      b_vent_lights_changed = false;
+  // Update the vent/top LEDs.
+  if(b_vent_lights_changed) {
+    if(b_rgb_vent_light) {
+      // Only commit an update if the addressable LED panel is installed.
+      FastLED[1].showLeds(255);
     }
 
-    ms_vent_light.repeat();
+    b_vent_lights_changed = false;
   }
 }
 
-void inputCheck() {
+// Task callback for handling user inputs.
+void inputTaskCallback() {
   updateAudio(); // Update the state of the available sound board.
 
   checkMusic(); // Perform music control here as this is a standalone device.
@@ -204,9 +224,6 @@ void inputCheck() {
 }
 
 void loop() {
-  // Check for user input
-  inputCheck();
-
-  // Animate all LEDs
-  animate();
+  // Task execution via the scheduler.
+  schedule.execute();
 }

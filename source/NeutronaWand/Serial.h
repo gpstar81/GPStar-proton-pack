@@ -124,7 +124,7 @@ void wandSerialSend(uint8_t i_command, uint16_t i_value) {
   uint16_t i_send_size = 0;
 
   // Leave when a pack is not intended to be connected.
-  if(b_gpstar_benchtest == true) {
+  if(b_gpstar_benchtest) {
     return;
   }
 
@@ -154,7 +154,7 @@ void wandSerialSendData(uint8_t i_message) {
   uint16_t i_send_size = 0;
 
   // Leave when a pack is not intended to be connected.
-  if(b_gpstar_benchtest == true) {
+  if(b_gpstar_benchtest) {
     return;
   }
 
@@ -337,7 +337,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value);
 // Pack communication to the wand.
 void checkPack() {
   // Leave when a pack is not intended to be connected.
-  if(b_gpstar_benchtest == true) {
+  if(b_gpstar_benchtest) {
     return;
   }
 
@@ -1093,7 +1093,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
         if(WAND_STATUS == MODE_ON) {
           switch(SYSTEM_MODE) {
             case MODE_ORIGINAL:
-              if(switch_vent.on() == true && switch_wand.on() == true && switch_activate.on() == true) {
+              if(switch_vent.on() && switch_wand.on() && switch_activate.on()) {
                 prepBargraphRampUp();
               }
             break;
@@ -1112,7 +1112,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
             stopEffect(S_WAND_BOOTUP);
             playEffect(S_WAND_BOOTUP);
 
-            if(switch_vent.on() == false) {
+            if(!switch_vent.on()) {
               afterlifeRampSound1();
             }
           }
