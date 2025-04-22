@@ -64,6 +64,10 @@ struct objLEDEEPROM {
   uint8_t powercell_spectral_saturation_custom;
   uint8_t cyclotron_spectral_saturation_custom;
   uint8_t cyclotron_inner_spectral_saturation_custom;
+  uint8_t powercell_brightness;
+  uint8_t cyclotron_brightness;
+  uint8_t inner_cyclotron_brightness;
+  uint8_t inner_panel_brightness;
   uint8_t cyclotron_cavity_count;
   uint8_t cyclotron_cavity_type;
   uint8_t inner_cyclotron_led_panel;
@@ -114,11 +118,11 @@ void readEEPROM() {
   // Check if the calculated CRC matches the stored CRC value in the EEPROM.
   if(eepromCRC() == l_crc_check) {
     // Read our LED object from the EEPROM.
-    objLEDEEPROM obj_eeprom;
-    EEPROM.get(i_eepromAddress, obj_eeprom);
+    objLEDEEPROM obj_led_eeprom;
+    EEPROM.get(i_eepromAddress, obj_led_eeprom);
 
-    if(obj_eeprom.powercell_count > 0 && obj_eeprom.powercell_count != 255) {
-      i_powercell_leds = obj_eeprom.powercell_count;
+    if(obj_led_eeprom.powercell_count > 0 && obj_led_eeprom.powercell_count != 255) {
+      i_powercell_leds = obj_led_eeprom.powercell_count;
 
       switch(i_powercell_leds) {
         case FRUTTO_POWERCELL_LED_COUNT:
@@ -142,16 +146,16 @@ void readEEPROM() {
       i_powercell_delay_2021 = POWERCELL_DELAY_2021_15_LED;
     }
 
-    if(obj_eeprom.cyclotron_count > 0 && obj_eeprom.cyclotron_count != 255) {
-      i_cyclotron_leds = obj_eeprom.cyclotron_count;
+    if(obj_led_eeprom.cyclotron_count > 0 && obj_led_eeprom.cyclotron_count != 255) {
+      i_cyclotron_leds = obj_led_eeprom.cyclotron_count;
     }
     else if(!b_power_meter_available) {
       // If no EEPROM default set and not using a stock wand, assume Frutto upgrades instead.
       i_cyclotron_leds = FRUTTO_MAX_CYCLOTRON_LED_COUNT;
     }
 
-    if(obj_eeprom.inner_cyclotron_count > 0 && obj_eeprom.inner_cyclotron_count != 255) {
-      i_inner_cyclotron_cake_num_leds = obj_eeprom.inner_cyclotron_count;
+    if(obj_led_eeprom.inner_cyclotron_count > 0 && obj_led_eeprom.inner_cyclotron_count != 255) {
+      i_inner_cyclotron_cake_num_leds = obj_led_eeprom.inner_cyclotron_count;
 
       switch(i_inner_cyclotron_cake_num_leds) {
         case 12:
@@ -187,19 +191,19 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.cyclotron_cavity_count > 0 && obj_eeprom.cyclotron_cavity_count != 255) {
-      if(obj_eeprom.cyclotron_cavity_count > 20) {
+    if(obj_led_eeprom.cyclotron_cavity_count > 0 && obj_led_eeprom.cyclotron_cavity_count != 255) {
+      if(obj_led_eeprom.cyclotron_cavity_count > 20) {
         i_inner_cyclotron_cavity_num_leds = 20;
       }
       else {
-        i_inner_cyclotron_cavity_num_leds = obj_eeprom.cyclotron_cavity_count;
+        i_inner_cyclotron_cavity_num_leds = obj_led_eeprom.cyclotron_cavity_count;
       }
     }
 
-    if(obj_eeprom.cyclotron_cavity_type > 0 && obj_eeprom.cyclotron_cavity_type != 255) {
-      if(obj_eeprom.cyclotron_cavity_type > 1) {
+    if(obj_led_eeprom.cyclotron_cavity_type > 0 && obj_led_eeprom.cyclotron_cavity_type != 255) {
+      if(obj_led_eeprom.cyclotron_cavity_type > 1) {
         // 2 = RGB, 3 = GRB, 4 = GBR.
-        switch(obj_eeprom.cyclotron_cavity_type) {
+        switch(obj_led_eeprom.cyclotron_cavity_type) {
           case 2:
           default:
             CAVITY_LED_TYPE = RGB_LED;
@@ -216,8 +220,8 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.powercell_inverted > 0 && obj_eeprom.powercell_inverted != 255) {
-      if(obj_eeprom.powercell_inverted > 1) {
+    if(obj_led_eeprom.powercell_inverted > 0 && obj_led_eeprom.powercell_inverted != 255) {
+      if(obj_led_eeprom.powercell_inverted > 1) {
         b_powercell_invert = true;
       }
       else {
@@ -225,10 +229,10 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.inner_cyclotron_led_panel > 0 && obj_eeprom.inner_cyclotron_led_panel != 255) {
-      if(obj_eeprom.inner_cyclotron_led_panel > 1) {
+    if(obj_led_eeprom.inner_cyclotron_led_panel > 0 && obj_led_eeprom.inner_cyclotron_led_panel != 255) {
+      if(obj_led_eeprom.inner_cyclotron_led_panel > 1) {
         // 2 = Individual, 3 = RGB Static, 4 = RGB Dynamic.
-        switch(obj_eeprom.inner_cyclotron_led_panel) {
+        switch(obj_led_eeprom.inner_cyclotron_led_panel) {
           case 2:
           default:
             INNER_CYC_PANEL_MODE = PANEL_INDIVIDUAL;
@@ -245,8 +249,8 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.grb_inner_cyclotron > 0 && obj_eeprom.grb_inner_cyclotron != 255) {
-      if(obj_eeprom.grb_inner_cyclotron > 1) {
+    if(obj_led_eeprom.grb_inner_cyclotron > 0 && obj_led_eeprom.grb_inner_cyclotron != 255) {
+      if(obj_led_eeprom.grb_inner_cyclotron > 1) {
         CAKE_LED_TYPE = GRB_LED;
       }
       else {
@@ -254,28 +258,48 @@ void readEEPROM() {
       }
     }
 
-    if(obj_eeprom.powercell_spectral_custom > 0 && obj_eeprom.powercell_spectral_custom != 255) {
-      i_spectral_powercell_custom_colour = obj_eeprom.powercell_spectral_custom;
+    if(obj_led_eeprom.powercell_spectral_custom > 0 && obj_led_eeprom.powercell_spectral_custom != 255) {
+      i_spectral_powercell_custom_colour = obj_led_eeprom.powercell_spectral_custom;
     }
 
-    if(obj_eeprom.cyclotron_spectral_custom > 0 && obj_eeprom.cyclotron_spectral_custom != 255) {
-      i_spectral_cyclotron_custom_colour = obj_eeprom.cyclotron_spectral_custom;
+    if(obj_led_eeprom.cyclotron_spectral_custom > 0 && obj_led_eeprom.cyclotron_spectral_custom != 255) {
+      i_spectral_cyclotron_custom_colour = obj_led_eeprom.cyclotron_spectral_custom;
     }
 
-    if(obj_eeprom.cyclotron_inner_spectral_custom > 0 && obj_eeprom.cyclotron_inner_spectral_custom != 255) {
-      i_spectral_cyclotron_inner_custom_colour = obj_eeprom.cyclotron_inner_spectral_custom;
+    if(obj_led_eeprom.cyclotron_inner_spectral_custom > 0 && obj_led_eeprom.cyclotron_inner_spectral_custom != 255) {
+      i_spectral_cyclotron_inner_custom_colour = obj_led_eeprom.cyclotron_inner_spectral_custom;
     }
 
-    if(obj_eeprom.powercell_spectral_saturation_custom > 0 && obj_eeprom.powercell_spectral_saturation_custom != 255) {
-      i_spectral_powercell_custom_saturation = obj_eeprom.powercell_spectral_saturation_custom;
+    if(obj_led_eeprom.powercell_spectral_saturation_custom > 0 && obj_led_eeprom.powercell_spectral_saturation_custom != 255) {
+      i_spectral_powercell_custom_saturation = obj_led_eeprom.powercell_spectral_saturation_custom;
     }
 
-    if(obj_eeprom.cyclotron_spectral_saturation_custom > 0 && obj_eeprom.cyclotron_spectral_saturation_custom != 255) {
-      i_spectral_cyclotron_custom_saturation = obj_eeprom.cyclotron_spectral_saturation_custom;
+    if(obj_led_eeprom.cyclotron_spectral_saturation_custom > 0 && obj_led_eeprom.cyclotron_spectral_saturation_custom != 255) {
+      i_spectral_cyclotron_custom_saturation = obj_led_eeprom.cyclotron_spectral_saturation_custom;
     }
 
-    if(obj_eeprom.cyclotron_inner_spectral_saturation_custom > 0 && obj_eeprom.cyclotron_inner_spectral_saturation_custom != 255) {
-      i_spectral_cyclotron_inner_custom_saturation = obj_eeprom.cyclotron_inner_spectral_saturation_custom;
+    if(obj_led_eeprom.cyclotron_inner_spectral_saturation_custom > 0 && obj_led_eeprom.cyclotron_inner_spectral_saturation_custom != 255) {
+      i_spectral_cyclotron_inner_custom_saturation = obj_led_eeprom.cyclotron_inner_spectral_saturation_custom;
+    }
+
+    if(obj_led_eeprom.powercell_brightness > 0 && obj_led_eeprom.powercell_brightness != 255) {
+      // EEPROM value is from 1 to 101; subtract 1 to get the correct percentage.
+      i_powercell_brightness = obj_led_eeprom.powercell_brightness - 1;
+    }
+
+    if(obj_led_eeprom.cyclotron_brightness > 0 && obj_led_eeprom.cyclotron_brightness != 255) {
+      // EEPROM value is from 1 to 101; subtract 1 to get the correct percentage.
+      i_cyclotron_brightness = obj_led_eeprom.cyclotron_brightness - 1;
+    }
+
+    if(obj_led_eeprom.inner_cyclotron_brightness > 0 && obj_led_eeprom.inner_cyclotron_brightness != 255) {
+      // EEPROM value is from 1 to 101; subtract 1 to get the correct percentage.
+      i_cyclotron_inner_brightness = obj_led_eeprom.inner_cyclotron_brightness - 1;
+    }
+
+    if(obj_led_eeprom.inner_panel_brightness > 0 && obj_led_eeprom.inner_panel_brightness != 255) {
+      // EEPROM value is from 1 to 101; subtract 1 to get the correct percentage.
+      i_cyclotron_panel_brightness = obj_led_eeprom.inner_panel_brightness - 1;
     }
 
     // Update the LED counts for the Proton Pack.
@@ -622,7 +646,7 @@ void saveLEDEEPROM() {
   }
 
   // Write the data to the EEPROM if any of the values have changed.
-  objLEDEEPROM obj_eeprom = {
+  objLEDEEPROM obj_led_eeprom = {
     i_powercell_leds,
     i_cyclotron_leds,
     i_inner_cyclotron_cake_num_leds,
@@ -633,6 +657,10 @@ void saveLEDEEPROM() {
     i_spectral_powercell_custom_saturation,
     i_spectral_cyclotron_custom_saturation,
     i_spectral_cyclotron_inner_custom_saturation,
+    i_powercell_brightness + 1,
+    i_cyclotron_brightness + 1,
+    i_cyclotron_inner_brightness + 1,
+    i_cyclotron_panel_brightness + 1,
     i_inner_cyclotron_cavity_num_leds,
     i_inner_cyclotron_cavity_led_type,
     i_inner_cyclotron_led_panel,
@@ -640,7 +668,7 @@ void saveLEDEEPROM() {
   };
 
   // Save and update our object in the EEPROM.
-  EEPROM.put(i_eepromAddress, obj_eeprom);
+  EEPROM.put(i_eepromAddress, obj_led_eeprom);
 
   updateCRCEEPROM();
 }
@@ -801,7 +829,7 @@ void saveConfigEEPROM() {
 
   uint16_t i_eepromConfigAddress = i_eepromAddress + sizeof(objLEDEEPROM);
 
-  objConfigEEPROM obj_eeprom = {
+  objConfigEEPROM obj_led_eeprom = {
     i_proton_stream_effects,
     i_cyclotron_direction,
     i_center_led_fade,
@@ -832,7 +860,7 @@ void saveConfigEEPROM() {
   };
 
   // Save and update our object in the EEPROM.
-  EEPROM.put(i_eepromConfigAddress, obj_eeprom);
+  EEPROM.put(i_eepromConfigAddress, obj_led_eeprom);
 
   updateCRCEEPROM();
 }

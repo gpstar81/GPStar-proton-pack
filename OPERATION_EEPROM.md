@@ -43,7 +43,7 @@ To access the EEPROM LED Menu System, hold down the `Intensify Button` and toggl
 
 | Option | Purpose | Intensify&nbsp;Button | Barrel&nbsp;Wing&nbsp;Button |
 |:------:|---------|------------------|--------------------|
-| 5 | 1984/1989&nbsp;Cyclotron&nbsp;Fade&nbsp;Toggle | Toggle whether the outer cyclotron LEDs have a fade effect or not in 1984 and 1989 year modes. | `unused` |
+| 5 | 1984/1989&nbsp;Cyclotron&nbsp;Fade&nbsp;Toggle/ Pack&nbsp;LED&nbsp;Brightness&nbsp;Adjustment | Toggle whether the outer cyclotron LEDs have a fade effect or not in 1984 and 1989 year modes. | `(Barrel Wing Button)` Toggles between Power Cell, Cyclotron, Inner Cyclotron, or Inner Cyclotron Switch Panel devices<br/><br/>`(Barrel Wing Button + Top Dial)` Increases/Decreases the selected device's LED brightness |
 | 4 | Bargraph&nbsp;Segment&nbsp;Count&nbsp;Toggle&nbsp;/ RGB&nbsp;Vent&nbsp;Light&nbsp;Toggle | Toggle between 28 segments or 30 segments for the optional bargraph.<sup>1</sup> | Enable/Disable the optional addressable RGB LED vent/top light board. |
 | 3 | Power&nbsp;Cell&nbsp;Invert | Change the direction of the Power Cell animation. | `unused` |
 | 2 | Inner&nbsp;Cyclotron&nbsp;LED&nbsp;Panel&nbsp;Toggle | Toggle the optional Inner Cyclotron LED Panel between disabled (individual LEDs), static colours (for prop-accurate coloured cliplite covers), and dynamic colours (for the LED panel with clear cliplite covers). | `unused` |

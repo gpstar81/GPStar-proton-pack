@@ -49,7 +49,7 @@ Connections for the wand should be made according to the tables below.
 | A3 | <font color="orange">Orange</font> | Stock bar graph LED 3 |
 | A2 | <font color="red">Red</font> | Stock bar graph LED 2 |
 | A1 | <font color="brown">Brown</font> | Stock bar graph LED 1 |
-| D12 | <font color="gray">White</font> | Blinking top right LED |
+| D12 | <font color="gray">White</font> | Blinking top right LED / RGB vent light data |
 | D13 | Black | White vent light LED |
 | VL+ | <font color="red">Red</font> | VCC for top/vent lights |
 | D7 | <font color="orange">Orange</font> | Rotary encoder B |

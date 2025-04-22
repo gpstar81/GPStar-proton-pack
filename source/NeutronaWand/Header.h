@@ -214,9 +214,8 @@ static uint16_t store = 0;
 enum VIBRATION_MODES { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE, VIBRATION_DEFAULT, CYCLOTRON_MOTOR };
 enum VIBRATION_MODES VIBRATION_MODE_EEPROM;
 enum VIBRATION_MODES VIBRATION_MODE;
-const uint8_t i_vibration_level_min = 65;
-uint8_t i_vibration_level = i_vibration_level_min;
-uint8_t i_vibration_level_prev = 0;
+const uint8_t i_vibration_level_min = 15; // Minimum vibration level is 6%.
+uint8_t i_vibration_level_current = 0; // Set the current value to 0 (off) on first start.
 millisDelay ms_menu_vibration; // Timer to do non-blocking confirmation buzzing in the vibration menu.
 
 /*
@@ -287,7 +286,7 @@ uint8_t i_power_level_prev = 1;
  */
 millisDelay ms_bargraph;
 millisDelay ms_bargraph_firing;
-const uint8_t d_bargraph_ramp_interval = 120;
+const uint8_t i_bargraph_ramp_interval = 120;
 uint8_t i_bargraph_status = 0;
 
 /*
@@ -310,7 +309,7 @@ const uint8_t i_bargraph_wait = 180;
 bool b_bargraph_up = false;
 millisDelay ms_bargraph_alt;
 uint8_t i_bargraph_status_alt = 0;
-const uint8_t d_bargraph_ramp_interval_alt = 40;
+const uint8_t i_bargraph_ramp_interval_alt = 40;
 const uint8_t i_bargraph_multiplier_ramp_1984 = 3;
 const uint8_t i_bargraph_multiplier_ramp_2021 = 16;
 uint16_t i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
@@ -502,5 +501,5 @@ void checkPack();
 void checkWandAction();
 void ventSwitched(void* n = nullptr);
 void wandSwitched(void* n = nullptr);
-void ventLedControl(uint8_t i_intensity = 255);
-void ventLedTopControl(bool b_on);
+void ventLightControl(uint8_t i_intensity = 255);
+void ventTopLightControl(bool b_on);

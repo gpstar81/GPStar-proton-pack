@@ -110,7 +110,6 @@ struct __attribute__((packed)) WandSyncData {
   uint8_t powerLevel;
   uint8_t streamMode;
   uint8_t vibrationEnabled;
-  uint8_t masterVolume;
   uint8_t effectsVolume;
   uint8_t masterMuted;
   uint8_t repeatMusicTrack;
@@ -360,7 +359,7 @@ void checkPack() {
               ms_handshake.start(i_heartbeat_delay);
 
               // Turn off the sync indicator LED as the sync is completed.
-              ventLedTopControl(false);
+              ventTopLightControl(false);
               digitalWriteFast(WAND_STATUS_LED_PIN, LOW);
 
               // Indicate that a pack is now connected.
@@ -374,7 +373,7 @@ void checkPack() {
             b_pack_on = true; // Pretend that the pack (not really attached) has been powered on.
 
             // Turn off the sync indicator LED as it is no longer necessary.
-            ventLedTopControl(false);
+            ventTopLightControl(false);
             digitalWriteFast(WAND_STATUS_LED_PIN, LOW);
 
             // Reset the audio device now that we are in standalone mode and need music playback.
@@ -762,17 +761,11 @@ void checkPack() {
           b_repeat_track = wandSyncData.repeatMusicTrack == 2;
 
           // Set the percentage volume.
-          i_volume_master_percentage = wandSyncData.masterVolume;
           i_volume_effects_percentage = wandSyncData.effectsVolume;
 
           // Set the decibel volume.
-          i_volume_master = MINIMUM_VOLUME - ((MINIMUM_VOLUME - i_volume_abs_max) * i_volume_master_percentage / 100);
           i_volume_effects = i_volume_abs_min - (i_volume_abs_min * i_volume_effects_percentage / 100);
-          i_volume_music = i_volume_abs_min - (i_volume_abs_min * i_volume_music_percentage / 100);
-
-          // Update volume levels.
-          i_volume_revert = i_volume_master;
-          updateMasterVolume();
+          updateEffectsVolume();
 
           switch(wandSyncData.masterMuted) {
             case 1:
@@ -1151,16 +1144,6 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
     case P_VOLUME_SOUND_EFFECTS_DECREASE:
       // Decrease effects volume.
       decreaseVolumeEffects();
-    break;
-
-    case P_VOLUME_INCREASE:
-      // Increase overall volume.
-      increaseVolume();
-    break;
-
-    case P_VOLUME_DECREASE:
-      // Decrease overall volume.
-      decreaseVolume();
     break;
 
     case P_VIBRATION_ENABLED:

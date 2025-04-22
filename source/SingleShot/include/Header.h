@@ -60,6 +60,7 @@ enum POWER_LEVELS POWER_LEVEL_PREV;
  * LED #1 is the "top" (near the DIN pin) while #7 is the dead center of the jewel itself.
  */
 #define SYSTEM_LED_PIN 10
+#define TOP_LED_PIN 12
 #define CYCLOTRON_LED_COUNT 7 // GPStar 7-LED Jewel
 #define BARREL_LED_COUNT 7 // GPStar 7-LED Jewel
 CRGB system_leds[CYCLOTRON_LED_COUNT + BARREL_LED_COUNT];
@@ -67,6 +68,15 @@ const uint8_t i_barrel_led = 6; // This will be the index of the light (#7), not
 const uint8_t i_num_barrel_leds = CYCLOTRON_LED_COUNT; // This will be the number of barrel LEDs
 const uint8_t i_num_cyclotron_leds = CYCLOTRON_LED_COUNT; // This will be the number of cyclotron LEDs
 const uint8_t i_cyclotron_led_start = i_num_barrel_leds; // The first element (index) for the cyclotron.
+
+/*
+ * RGB vent lights.
+ */
+#define VENT_LEDS_MAX 2 // The maximum number of LEDs for the vent lights. Main vent + top Cliplite.
+CRGB vent_leds[VENT_LEDS_MAX]; // FastLED object array for the RGB top/vent LEDs.
+millisDelay ms_vent_light; // Timer to control update rate for RGB top/vent LEDs.
+const uint16_t i_vent_light_update_interval = 150; // FastLED update interval specifically for the top/vent LEDs.
+bool b_vent_lights_changed = false; // Check for whether there was actually a change to prevent superfluous calls to showLeds().
 
 /*
  * Non-addressable LEDs
@@ -107,7 +117,7 @@ struct StandaloneLED {
 // Create instances and initialize LEDs with their pin and respective values for on/off.
 StandaloneLED led_SloBlo = {8, HIGH, LOW};
 StandaloneLED led_Clippard = {9, HIGH, LOW};
-StandaloneLED led_TopWhite = {12, LOW, HIGH};
+StandaloneLED led_TopWhite = {TOP_LED_PIN, LOW, HIGH};
 StandaloneLED led_Vent = {13, LOW, HIGH};
 StandaloneLED led_Hat1 = {22, HIGH, LOW};
 StandaloneLED led_Hat2 = {23, HIGH, LOW};
@@ -201,10 +211,9 @@ struct Encoder {
 enum VIBRATION_MODES { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE };
 enum VIBRATION_MODES VIBRATION_MODE_EEPROM;
 enum VIBRATION_MODES VIBRATION_MODE;
-const uint8_t vibration = 11;
-const uint8_t i_vibration_level_min = 65;
-uint8_t i_vibration_level = i_vibration_level_min;
-uint8_t i_vibration_level_prev = 0;
+const uint8_t vibration = 11; // Vibration motor is on pin 11.
+const uint8_t i_vibration_level_min = 65; // Minimum vibration level is 25.5%.
+uint8_t i_vibration_level_current = 0; // Set the current value to 0 (off) on first start.
 millisDelay ms_menu_vibration; // Timer to do non-blocking confirmation buzzing in the vibration menu.
 
 /*

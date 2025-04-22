@@ -32,7 +32,7 @@ void checkWandAction() {
     break;
 
     case ACTION_FIRING:
-      if(b_pack_on == true && b_pack_alarm == false) {
+      if(b_pack_on && b_pack_alarm) {
         if(STREAM_MODE == MESON) {
           if(ms_meson_blast.justFinished()) {
             playEffect(S_MESON_FIRE_PULSE, false, i_volume_effects, false, 0, false);
@@ -70,7 +70,7 @@ void checkWandAction() {
           }
         }
 
-        if(b_firing == false) {
+        if(!b_firing) {
           b_firing = true;
           modeFireStart();
         }
@@ -87,22 +87,22 @@ void checkWandAction() {
           modeFiring(); // Tell the pack whether firing has started/stopped.
 
           // Stop firing if any of the main switches are turned off or the barrel is retracted.
-          if(switch_vent.on() == false || switch_wand.on() == false || b_switch_barrel_extended != true) {
+          if(!switch_vent.on() || !switch_wand.on() || !b_switch_barrel_extended) {
             modeFireStop();
           }
         }
       }
-      else if(b_pack_alarm == true && b_firing == true) {
+      else if(b_pack_alarm && b_firing) {
         modeFireStop();
       }
     break;
 
     case ACTION_OVERHEATING:
-      if(b_overheat_bargraph_blink == true) {
+      if(b_overheat_bargraph_blink) {
         settingsBlinkingLights();
 
         if(ms_blink_sound_timer_1.justFinished()) {
-          if(b_extra_pack_sounds == true) {
+          if(b_extra_pack_sounds) {
             wandSerialSend(W_WAND_BEEP_SOUNDS);
           }
 
@@ -113,7 +113,7 @@ void checkWandAction() {
         }
 
         if(ms_blink_sound_timer_2.justFinished()) {
-          if(b_extra_pack_sounds == true) {
+          if(b_extra_pack_sounds) {
             wandSerialSend(W_WAND_BEEP_BARGRAPH);
           }
 
@@ -183,6 +183,7 @@ void checkWandAction() {
           else if(switch_mode.pushed()) {
             switch(WAND_MENU_LEVEL) {
               case MENU_LEVEL_2:
+                // Handled with singleClick below.
               break;
 
               case MENU_LEVEL_1:
@@ -197,6 +198,19 @@ void checkWandAction() {
                 saveLEDEEPROM();
 
                 wandExitEEPROMMenu();
+              break;
+            }
+          }
+          else if(switch_mode.singleClick()) {
+            switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_2:
+                // Change which device we are currently dimming.
+                wandSerialSend(W_DIMMING_TOGGLE);
+              break;
+
+              case MENU_LEVEL_1:
+              default:
+                // Do nothing.
               break;
             }
           }
@@ -443,7 +457,7 @@ void checkWandAction() {
               wandExitEEPROMMenu();
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-              if(b_quick_vent == true) {
+              if(b_quick_vent) {
                 b_quick_vent = false;
 
                 stopEffect(S_VOICE_QUICK_VENT_DISABLED);
@@ -483,7 +497,7 @@ void checkWandAction() {
               wandSerialSend(W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_5);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
-              if(b_overheat_level_5 == true) {
+              if(b_overheat_level_5) {
                 b_overheat_level_5 = false;
 
                 stopEffect(S_VOICE_OVERHEAT_LEVEL_5_DISABLED);
@@ -519,7 +533,7 @@ void checkWandAction() {
               wandExitEEPROMMenu();
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-              if(b_wand_boot_errors == true) {
+              if(b_wand_boot_errors) {
                 b_wand_boot_errors = false;
 
                 stopEffect(S_VOICE_BOOTUP_ERRORS_DISABLED);
@@ -655,7 +669,7 @@ void checkWandAction() {
               wandSerialSend(W_VIBRATION_CYCLE_TOGGLE_EEPROM);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
-              if(b_bargraph_invert == true) {
+              if(b_bargraph_invert) {
                 b_bargraph_invert = false;
 
                 stopEffect(S_VOICE_BARGRAPH_INVERTED);
@@ -687,7 +701,7 @@ void checkWandAction() {
               wandSerialSend(W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_4);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
-              if(b_overheat_level_4 == true) {
+              if(b_overheat_level_4) {
                 b_overheat_level_4 = false;
 
                 stopEffect(S_VOICE_OVERHEAT_LEVEL_4_DISABLED);
@@ -712,7 +726,7 @@ void checkWandAction() {
 
           if(switch_mode.pushed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
-              if(b_spectral_mode_enabled == false || b_holiday_mode_enabled == false || b_spectral_custom_mode_enabled == false) {
+              if(!b_spectral_mode_enabled || !b_holiday_mode_enabled || !b_spectral_custom_mode_enabled) {
                 // Enable the spectral modes.
                 b_spectral_mode_enabled = true;
                 b_holiday_mode_enabled = true;
@@ -808,7 +822,7 @@ void checkWandAction() {
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
               // Toggle Bargraph Overheat Blinking enabled/disabled
-              if(b_overheat_bargraph_blink == true) {
+              if(b_overheat_bargraph_blink) {
                 b_overheat_bargraph_blink = false;
 
                 stopEffect(S_VOICE_BARGRAPH_OVERHEAT_BLINK_DISABLED);
@@ -862,7 +876,7 @@ void checkWandAction() {
               toggleOverheating();
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-              if(b_beep_loop == true) {
+              if(b_beep_loop) {
                 b_beep_loop = false;
 
                 stopEffect(S_VOICE_NEUTRONA_WAND_BEEPING_DISABLED);
@@ -931,7 +945,7 @@ void checkWandAction() {
               wandSerialSend(W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_3);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
-              if(b_overheat_level_3 == true) {
+              if(b_overheat_level_3) {
                 b_overheat_level_3 = false;
 
                 stopEffect(S_VOICE_OVERHEAT_LEVEL_3_DISABLED);
@@ -1055,7 +1069,7 @@ void checkWandAction() {
               wandSerialSend(W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_2);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
-              if(b_overheat_level_2 == true) {
+              if(b_overheat_level_2) {
                 b_overheat_level_2 = false;
 
                 stopEffect(S_VOICE_OVERHEAT_LEVEL_2_DISABLED);
@@ -1123,7 +1137,7 @@ void checkWandAction() {
         case 1:
           if(switch_intensify.pushed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
-              if(b_extra_pack_sounds == true) {
+              if(b_extra_pack_sounds) {
                 b_extra_pack_sounds = false;
 
                 playEffect(S_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED);
@@ -1147,7 +1161,7 @@ void checkWandAction() {
               wandSerialSend(W_MODE_TOGGLE);
 
               // If there is no Pack, we need to cycle modes manually.
-              if(b_gpstar_benchtest == true) {
+              if(b_gpstar_benchtest) {
                 if(SYSTEM_MODE == MODE_SUPER_HERO) {
                   SYSTEM_MODE = MODE_ORIGINAL;
 
@@ -1179,7 +1193,7 @@ void checkWandAction() {
               wandSerialSend(W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_1);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
-              if(b_overheat_level_1 == true) {
+              if(b_overheat_level_1) {
                 b_overheat_level_1 = false;
 
                 stopEffect(S_VOICE_OVERHEAT_LEVEL_1_DISABLED);
@@ -1208,8 +1222,8 @@ void checkWandAction() {
               wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
 
               // Standalone Neutrona Wand has to change this setting on its own.
-              if(b_gpstar_benchtest == true) {
-                if(b_stream_effects == true) {
+              if(b_gpstar_benchtest) {
+                if(b_stream_effects) {
                   b_stream_effects = false;
 
                   stopEffect(S_VOICE_PROTON_MIX_EFFECTS_ENABLED);
@@ -1377,7 +1391,7 @@ void checkWandAction() {
           // Change music tracks.
           if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
             if(switch_intensify.pushed()) {
-              if(b_gpstar_benchtest == true) {
+              if(b_gpstar_benchtest) {
                 musicNextTrack();
               }
               else {
@@ -1387,7 +1401,7 @@ void checkWandAction() {
             }
 
             if(switch_mode.pushed()) {
-              if(b_gpstar_benchtest == true) {
+              if(b_gpstar_benchtest) {
                 musicPrevTrack();
               }
               else {
@@ -1461,14 +1475,14 @@ void checkWandAction() {
           // Play or stop the current music track.
           if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
             if(switch_intensify.pushed()) {
-              if(b_playing_music == true) {
+              if(b_playing_music) {
                 stopMusic();
               }
               else {
                 // Tell the pack to start or stop its music.
                 wandSerialSend(W_MUSIC_TOGGLE);
 
-                if(b_gpstar_benchtest == true) {
+                if(b_gpstar_benchtest) {
                   playMusic();
                 }
               }
@@ -1497,7 +1511,7 @@ void checkWandAction() {
               wandSerialSend(W_YEAR_MODES_CYCLE);
 
               // There is no pack connected; let's change the years.
-              if(b_gpstar_benchtest == true) {
+              if(b_gpstar_benchtest) {
                 stopEffect(S_BEEPS_BARGRAPH);
                 playEffect(S_BEEPS_BARGRAPH);
 
@@ -1559,8 +1573,8 @@ void checkWandAction() {
               wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
 
               // Standalone Neutrona Wand has to change this setting on its own.
-              if(b_gpstar_benchtest == true) {
-                if(b_stream_effects == true) {
+              if(b_gpstar_benchtest) {
+                if(b_stream_effects) {
                   b_stream_effects = false;
 
                   stopEffect(S_VOICE_PROTON_MIX_EFFECTS_ENABLED);

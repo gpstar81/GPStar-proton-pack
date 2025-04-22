@@ -148,7 +148,6 @@ struct __attribute__((packed)) WandSyncData {
   uint8_t powerLevel;
   uint8_t streamMode;
   uint8_t vibrationEnabled;
-  uint8_t masterVolume;
   uint8_t effectsVolume;
   uint8_t masterMuted;
   uint8_t repeatMusicTrack;
@@ -1070,17 +1069,11 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
     case A_VOLUME_DECREASE:
       // Decrease overall pack volume.
       decreaseVolume();
-
-      // Tell wand to decrease volume.
-      packSerialSend(P_VOLUME_DECREASE);
     break;
 
     case A_VOLUME_INCREASE:
       // Increase overall pack volume.
       increaseVolume();
-
-      // Tell wand to increase volume.
-      packSerialSend(P_VOLUME_INCREASE);
     break;
 
     case A_VOLUME_SOUND_EFFECTS_DECREASE:
@@ -1414,7 +1407,6 @@ void doWandSync() {
   }
 
   // Synchronise the volume settings.
-  wandSyncData.masterVolume = i_volume_master_percentage;
   wandSyncData.effectsVolume = i_volume_effects_percentage;
 
     // Telling the wand to be silent if required.
@@ -3292,17 +3284,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_VOLUME_DECREASE_EEPROM:
       // Decrease the overall default pack volume which is saved into the EEPROM.
       decreaseVolumeEEPROM();
-
-      // Tell wand to decrease volume.
-      packSerialSend(P_VOLUME_DECREASE);
     break;
 
     case W_VOLUME_INCREASE_EEPROM:
       // Increase the overall default pack volume which is saved into the EEPROM.
       increaseVolumeEEPROM();
-
-      // Tell wand to increase volume.
-      packSerialSend(P_VOLUME_INCREASE);
     break;
 
     case W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_3:

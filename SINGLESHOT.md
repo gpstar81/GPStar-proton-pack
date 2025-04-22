@@ -74,7 +74,7 @@ Connections for the device should be made according to the tables below.
 | R+ | Rumble (vibration) motor VCC |
 | R- | Rumble (vibration) motor GND |
 | VCC | Power (+) for rotary encoder |
-| D12 | Blinking top right LED |
+| D12 | Blinking top right LED / RGB vent light data |
 | D13 | White vent light LED |
 | VL+ | VCC for top/vent lights |
 | D7 | Rotary encoder B (DT) |

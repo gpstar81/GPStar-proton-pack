@@ -84,26 +84,22 @@
 
 ![](images/OperationNeutrona5.jpg)
 
-- The primary purpose of the top dial on the top of the gun box is to change the power level of the wand, affecting the intensity of the stream effects (indicated by increasing or decreasing the bargraph lights just as the stock wand did).
+- The primary purpose of the `Top Dial` on the top of the gun box is to change the power level of the wand, affecting the intensity of the stream effects (indicated by increasing or decreasing the bargraph lights just as the stock wand did).
    - Rotate clockwise to raise power, and counter-clockwise to lower power.
 - There are 5 wand power levels in Super Hero mode and 4 in Mode Original.
 - For lower power levels, the proton stream is more red. On higher power levels, the stream will appear more yellow.
 	- Note that it is the other way around for 1989 mode to be more faithful to how proton streams appeared in that film.
-- When Video Game Mode is active and the Neutrona Wand is **ON** and the top toggle switch is **DOWN**, rotating the top dial will switch between weapon modes. For a description of these modes please see the Video Game Mode section. 📝 `Super Hero mode only`
-- This dial will also be used to navigate the menu systems (see "Neutrona Wand Menu System" section).
+- When Video Game Mode is active and the Neutrona Wand is **ON** and the top toggle switch is **DOWN**, rotating the `Top Dial` will switch between weapon modes. For a description of these modes please see the Video Game Mode section. 📝 `Super Hero mode only`
+- The `Top Dial` is also used to navigate the menu systems (see "Neutrona Wand Menu System" section).
 
 ### Quick Audio Volume Adjustment
 
-- **System Volume: Super Hero Mode**
- 	- While the Neutrona Wand is **ON** and the top and bottom toggle switches are **DOWN**, hold the `Intensify` button while turning the top dial to quickly adjust the Proton Pack and Neutrona Wand overall system volume.
- 	- While the Neutrona Wand is **OFF** you can independently adjust the overall system volume via the Neutrona Wand by holding the `Intensify` button down and turning the dial.
+- **System Volume**
+ 	- While the Neutrona Wand is **OFF** and no music is playing, turn the `Top Dial` to quickly adjust the Proton Pack volume.
+ 	- While the Neutrona Wand is **OFF**, hold the `Intensify` button while turning the `Top Dial` to quickly adjust the Neutrona Wand volume.
 
-- **System Volume: Mode Original**
-	- While the Proton Pack cyclotron is **OFF** and the Neutrona Wand top and bottom toggle switches are **DOWN**, hold the `Intensify` button while turning the top dial to quickly adjust the Proton Pack and Neutrona Wand overall system volume.
- 	- While the Proton Pack cyclotron is **OFF** and if either the Neutrona Wand top or bottom toggle switch is **UP**, you can independently adjust the overall system volume of the Neutrona Wand by holding the `Intensify` button down and turning the dial.
-
-- **Music: Super Hero and Mode Original**
-	- When music is playing while the Proton Pack and Neutrona Wand are turned off, you can use the Top Dial on the top of the Neutrona Wand to easily adjust the music volume.
+- **Music**
+	- While the Neutrona Wand is **OFF** and music is playing, turn the `Top Dial` to quickly adjust the music volume.
 
 Refer to the [Loading The Audio Files](AUDIO.md) for more information on loading additional music tracks.
 
@@ -179,7 +175,7 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 
 ![](images/OperationNeutrona8.jpg)
 
-- While the Neutrona Wand is **ON** and the top toggle switch is **DOWN**, rotating the top dial will select from the following weapon modes (listed in counter-clockwise order):
+- While the Neutrona Wand is **ON** and the top toggle switch is **DOWN**, rotating the `Top Dial` will select from the following weapon modes (listed in counter-clockwise order):
 	1. [Proton Stream (Default)](https://ghostbusters.fandom.com/wiki/Proton_Pack/Realistic_Version)
 	1. [Dark Matter Generator](https://ghostbusters.fandom.com/wiki/Dark_Matter_Generator_(realistic_version))
 	1. [Plasm Distribution System](https://ghostbusters.fandom.com/wiki/Plasm_Distribution_System_(realistic_version))
@@ -289,7 +285,7 @@ There are 2 ways to enter the Menu System.
 
 ## Navigation
 
-Use the Top Dial on the top of the wand to navigate up and down through the menu system.
+Use the `Top Dial` on the top of the wand to navigate up and down through the menu system.
 
 ![](images/OperationNeutrona8.jpg)
 
@@ -306,7 +302,7 @@ Changes are made by pressing either the `Intensify` button on the gun box or the
 | Option | Purpose | Intensify Button | Barrel Wing Button |
 |:------:|---------|------------------|--------------------|
 | 5 | Music&nbsp;Track&nbsp;Looping | Enable/disable looping of current track<sup>1</sup> | Exit the menu system<sup>2</sup> |
-| 4 | Proton&nbsp;Pack&nbsp;Light&nbsp;Dimming | `(Intensify + Top Dial)` Increases/Decreases the Proton Pack device LED brightness | Toggles between Power Cell, Cyclotron, Inner Cyclotron, or Inner Cyclotron Switch Panel devices |
+| 4 | Proton&nbsp;Pack&nbsp;Light&nbsp;Dimming | `(Intensify + Top Dial)` Increases/Decreases  the selected device's LED brightness | Toggles between Power Cell, Cyclotron, Inner Cyclotron, or Inner Cyclotron Switch Panel devices |
 | 3 | Music & SFX Volume | `(Intensify + Top Dial)` Increases/Decreases SFX Volume | `(Barrel Wing Button + Top Dial)` Increases/Decreases Music Volume |
 | 2 | Switch&nbsp;Music&nbsp;Track | Cycle forward in music queue | Cycle backwards in music queue |
 | 1 | Play&nbsp;or&nbsp;Stop&nbsp;Music / System&nbsp;Mute | Start/stop music playback | Mute the Proton Pack and Neutrona Wand  or revert back to the previous volume<sup>3</sup> |
