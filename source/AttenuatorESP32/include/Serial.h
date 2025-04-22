@@ -76,13 +76,16 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t ledCycLidCount;
   uint8_t ledCycLidHue;
   uint8_t ledCycLidSat;
+  uint8_t ledCycLidLum;
   uint8_t ledCycLidCenter;
   uint8_t ledCycLidFade;
   uint8_t ledCycLidSimRing;
   uint8_t ledCycInnerPanel;
+  uint8_t ledCycPanLum;
   uint8_t ledCycCakeCount;
   uint8_t ledCycCakeHue;
   uint8_t ledCycCakeSat;
+  uint8_t ledCycCakeLum;
   uint8_t ledCycCakeGRB;
   uint8_t ledCycCavCount;
   uint8_t ledCycCavType;
@@ -91,6 +94,7 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t ledInvertPowercell;
   uint8_t ledPowercellHue;
   uint8_t ledPowercellSat;
+  uint8_t ledPowercellLum;
   uint8_t ledVGPowercell;
 } packConfig;
 
