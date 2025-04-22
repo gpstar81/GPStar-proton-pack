@@ -3747,9 +3747,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_DIMMING_DECREASE:
       switch(pack_dim_toggle) {
         case DIM_CYCLOTRON:
-          if(i_cyclotron_brightness > 0) {
-            if(i_cyclotron_brightness - 10 < 0) {
-              i_cyclotron_brightness = 0;
+          if(i_cyclotron_brightness > 10) {
+            if(i_cyclotron_brightness - 10 < 10) {
+              i_cyclotron_brightness = 10;
             }
             else {
               i_cyclotron_brightness = i_cyclotron_brightness - 10;
@@ -3770,9 +3770,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
 
         case DIM_INNER_CYCLOTRON:
-          if(i_cyclotron_inner_brightness > 0) {
-            if(i_cyclotron_inner_brightness - 10 < 0) {
-              i_cyclotron_inner_brightness = 0;
+          if(i_cyclotron_inner_brightness > 10) {
+            if(i_cyclotron_inner_brightness - 10 < 10) {
+              i_cyclotron_inner_brightness = 10;
             }
             else {
               i_cyclotron_inner_brightness = i_cyclotron_inner_brightness - 10;
@@ -3791,9 +3791,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
 
         case DIM_CYCLOTRON_PANEL:
-          if(i_cyclotron_panel_brightness > 0) {
-            if(i_cyclotron_panel_brightness - 10 < 0) {
-              i_cyclotron_panel_brightness = 0;
+          if(i_cyclotron_panel_brightness > 10) {
+            if(i_cyclotron_panel_brightness - 10 < 10) {
+              i_cyclotron_panel_brightness = 10;
             }
             else {
               i_cyclotron_panel_brightness = i_cyclotron_panel_brightness - 10;
@@ -3813,9 +3813,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
         case DIM_POWERCELL:
         default:
-          if(i_powercell_brightness > 0) {
-            if(i_powercell_brightness - 10 < 0) {
-              i_powercell_brightness = 0;
+          if(i_powercell_brightness > 10) {
+            if(i_powercell_brightness - 10 < 10) {
+              i_powercell_brightness = 10;
             }
             else {
               i_powercell_brightness = i_powercell_brightness - 10;

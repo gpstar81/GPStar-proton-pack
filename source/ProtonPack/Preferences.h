@@ -283,23 +283,19 @@ void readEEPROM() {
     }
 
     if(obj_led_eeprom.powercell_brightness > 0 && obj_led_eeprom.powercell_brightness != 255) {
-      // EEPROM value is from 1 to 101; subtract 1 to get the correct percentage.
-      i_powercell_brightness = obj_led_eeprom.powercell_brightness - 1;
+      i_powercell_brightness = obj_led_eeprom.powercell_brightness;
     }
 
     if(obj_led_eeprom.cyclotron_brightness > 0 && obj_led_eeprom.cyclotron_brightness != 255) {
-      // EEPROM value is from 1 to 101; subtract 1 to get the correct percentage.
-      i_cyclotron_brightness = obj_led_eeprom.cyclotron_brightness - 1;
+      i_cyclotron_brightness = obj_led_eeprom.cyclotron_brightness;
     }
 
     if(obj_led_eeprom.inner_cyclotron_brightness > 0 && obj_led_eeprom.inner_cyclotron_brightness != 255) {
-      // EEPROM value is from 1 to 101; subtract 1 to get the correct percentage.
-      i_cyclotron_inner_brightness = obj_led_eeprom.inner_cyclotron_brightness - 1;
+      i_cyclotron_inner_brightness = obj_led_eeprom.inner_cyclotron_brightness;
     }
 
     if(obj_led_eeprom.inner_panel_brightness > 0 && obj_led_eeprom.inner_panel_brightness != 255) {
-      // EEPROM value is from 1 to 101; subtract 1 to get the correct percentage.
-      i_cyclotron_panel_brightness = obj_led_eeprom.inner_panel_brightness - 1;
+      i_cyclotron_panel_brightness = obj_led_eeprom.inner_panel_brightness;
     }
 
     // Update the LED counts for the Proton Pack.
@@ -657,10 +653,10 @@ void saveLEDEEPROM() {
     i_spectral_powercell_custom_saturation,
     i_spectral_cyclotron_custom_saturation,
     i_spectral_cyclotron_inner_custom_saturation,
-    i_powercell_brightness + 1,
-    i_cyclotron_brightness + 1,
-    i_cyclotron_inner_brightness + 1,
-    i_cyclotron_panel_brightness + 1,
+    i_powercell_brightness,
+    i_cyclotron_brightness,
+    i_cyclotron_inner_brightness,
+    i_cyclotron_panel_brightness,
     i_inner_cyclotron_cavity_num_leds,
     i_inner_cyclotron_cavity_led_type,
     i_inner_cyclotron_led_panel,
