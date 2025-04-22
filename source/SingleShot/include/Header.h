@@ -74,7 +74,6 @@ const uint8_t i_cyclotron_led_start = i_num_barrel_leds; // The first element (i
  */
 #define VENT_LEDS_MAX 2 // The maximum number of LEDs for the vent lights. Main vent + top Cliplite.
 CRGB vent_leds[VENT_LEDS_MAX]; // FastLED object array for the RGB top/vent LEDs.
-millisDelay ms_vent_light; // Timer to control update rate for RGB top/vent LEDs.
 const uint16_t i_vent_light_update_interval = 150; // FastLED update interval specifically for the top/vent LEDs.
 bool b_vent_lights_changed = false; // Check for whether there was actually a change to prevent superfluous calls to showLeds().
 

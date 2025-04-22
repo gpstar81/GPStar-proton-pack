@@ -101,11 +101,10 @@ void setup() {
   // System LEDs
   FastLED.addLeds<NEOPIXEL, SYSTEM_LED_PIN>(system_leds, CYCLOTRON_LED_COUNT + BARREL_LED_COUNT);
 
-  // RGB Vent Light.
+  // RGB Vent Light
   FastLED.addLeds<NEOPIXEL, TOP_LED_PIN>(vent_leds, VENT_LEDS_MAX);
   vent_leds[0] = getHueAsRGB(C_WHITE); // Set vent light array to white for initial reset.
   vent_leds[1] = getHueAsRGB(C_WHITE); // Set top light array to white for initial reset.
-  ms_vent_light.start(i_vent_light_update_interval); // Setup a timer for updating the vent light.
 
   // Setup default system settings.
   VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
