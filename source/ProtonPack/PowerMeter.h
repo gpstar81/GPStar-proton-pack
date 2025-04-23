@@ -46,6 +46,7 @@ const float f_ema_alpha = 0.2; // Smoothing factor (<1) for Exponential Moving A
 float f_sliding_window[20] = {0.0}; // Sliding window for detecting state changes, initialized to 0.
 float f_accumulator = 0.0; // Accumulator used for sliding window averaging operations.
 float f_diff_average = 0.0; // Stores the result of the sliding window average operation.
+float f_idle_value = 0.0; // Stores the previous idle value to be used for stop firing checks.
 
 // Define an object which can store
 struct PowerMeter {
@@ -325,7 +326,7 @@ void updateWandPowerState() {
           f_accumulator += (f_sliding_window[i + 1] - f_sliding_window[i]);
         }
 
-        f_diff_average = (f_accumulator / 4.0) * 1000.0;
+        f_diff_average = f_accumulator / 10.0;
         f_accumulator = 0.0; // Reset the accumulator.
         float f_range = f_sliding_window[19] - f_sliding_window[9]; // Store the range of the window.
         bool b_positive_rate = false; // Temp flag to determine if all detected diffs are positive.
@@ -342,37 +343,18 @@ void updateWandPowerState() {
           }
         }
 
-        if (f_diff_average > 28.5 && f_diff_average < 45.0 || (f_range > 0.26 && b_positive_rate)) {
+        if (f_diff_average > 0.0285 && f_diff_average < 0.045 || (f_range > 0.26 && b_positive_rate)) {
           // With this big a jump, we must have started firing.
           ms_delay_post_2.start(i_wand_overheat_delay);
           i_wand_power_level = 5;
+          f_idle_value = f_sliding_window[0];
           b_firing_intensify = true;
           wandFiring();
         }
       }
       else if(!b_wand_overheated && !b_overheating) {
-        // Stop firing checks use a 20-parameter-wide window.
-        for (uint8_t i = 0; i < 19; i++) {
-          f_accumulator += (f_sliding_window[i + 1] - f_sliding_window[i]);
-        }
-
-        f_diff_average = (f_accumulator / 19.0) * 1000.0;
-        f_accumulator = 0.0; // Reset the accumulator.
-        bool b_negative_rate = false; // Temp flag to determine if all detected diffs are negative.
-
-        for(uint8_t i = 0; i < 19; i++) {
-          if(f_sliding_window[i + 1] - f_sliding_window[i] > 0.0) {
-            // If any diff in the window is positive, stop checking.
-            b_negative_rate = false;
-            break;
-          }
-          else if(i == 18) {
-            // If we got here, we must be entirely negative.
-            b_negative_rate = true;
-          }
-        }
-
-        if (f_diff_average <= -7.5 && b_negative_rate) {
+        // Stop firing check checks to see how close we are to the previous idle.
+        if (f_sliding_window[19] - f_idle_value < 0.08) {
           // We must have stopped firing.
           wandStoppedFiring();
 
