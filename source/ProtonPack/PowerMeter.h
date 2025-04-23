@@ -354,7 +354,7 @@ void updateWandPowerState() {
       }
       else if(!b_wand_overheated && !b_overheating) {
         // Stop firing check checks to see how close we are to the previous idle.
-        if (f_sliding_window[19] - f_idle_value < 0.08) {
+        if (f_sliding_window[19] - f_idle_value < 0.11) {
           // We must have stopped firing.
           wandStoppedFiring();
 
