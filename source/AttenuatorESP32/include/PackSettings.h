@@ -159,7 +159,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     <div class="setting">
       <b>Brightness %:</b><br/>
       <input type="range" id="ledCycLidLum" name="ledCycLidLum" min="10" max="100" value="100" step="10"
-     oninput="cycLumOut.value=ledCycLidLum.value"/>
+       oninput="cycLumOut.value=ledCycLidLum.value"/>
       <output class="labelSlider" id="cycLumOut" for="ledCycLidLum"></output>
     </div>
     <div class="setting">

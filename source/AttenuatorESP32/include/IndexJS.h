@@ -29,7 +29,7 @@ window.addEventListener("load", onLoad);
 
 function onLoad(event) {
   document.getElementsByClassName("tablinks")[0].click();
-  setDefaultOverlays(); Set graphics to defaults.
+  setDefaultOverlays(); // Set graphics to defaults.
   getDevicePrefs(); // Get all preferences.
   initWebSocket(); // Open the WebSocket.
   getStatus(); // Get status immediately.
