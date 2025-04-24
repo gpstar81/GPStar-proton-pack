@@ -73,7 +73,7 @@ This section is presented in a way to offer a more complete view of what compone
 | N-Filter<sup>O</sup>        | [7-LED Vent Light](NFILTER.md) |
 | Powercell<sup>O</sup>       | [13 and 15-LED options](POWERCELL.md) |
 | Smoke Effects<sup>O</sup>   | [Various Solutions Supported](SMOKE.md) |
-| Cyclotron Bypass<sup>R* & O</sup>   | [Bypass board for non Haslab Proton Packs](CYCLOTRON_BYPASS) |
+| Cyclotron Bypass<sup>R* & O</sup>   | [Bypass board for non Haslab Proton Packs](CYCLOTRON_BYPASS.md) |
 
 **Connectivity**
 
