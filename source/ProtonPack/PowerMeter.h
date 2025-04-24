@@ -343,7 +343,7 @@ void updateWandPowerState() {
           }
         }
 
-        if (f_diff_average > 0.0285 && f_diff_average < 0.045 || (f_range > 0.26 && b_positive_rate)) {
+        if ((f_diff_average > 0.0285 && f_diff_average < 0.045) || (f_range > 0.26 && b_positive_rate)) {
           // With this big a jump, we must have started firing.
           ms_delay_post_2.start(i_wand_overheat_delay);
           i_wand_power_level = 5;
