@@ -14,7 +14,7 @@ This guide outlines the **optional** upgrade from the 5-LED stock bargraph to a 
 
 The 28-segment bargraph is intended to take the place of the 5-LED + PCB assembly from the stock Hasbro equipment. The only means of accessing this is to remove the barrel release assembly and a portion of the plastic base which sits below the stock controller board. This may require some cutting as the center of that piece is glued directly to the wand handle. Once removed, access to the old bargraph is quite easy and takes removal of 2 screws. The circuit board with the LEDs resides under a small black cover and can be removed from the wand once that cover is removed.
 
-To install the bargraph, you will want to remove and cut the clear plastic piece away and the original barrel wire cover plastic. You can fit the bargraph into the 3 piece system availble on this repository or purchase from the [gpstartechnologies.com](https://gpstartechnologies.com)
+To install the bargraph, you will want to remove and cut the clear plastic piece away and the original barrel wire cover plastic. You can fit the bargraph into the 3 piece system available on this repository or purchase from the [gpstartechnologies.com](https://gpstartechnologies.com)
 ![](images/bargraph-3-mount.jpg)
 ![](images/bargraph-installed.jpg)
 ![](images/bargraph-installed-2.jpg)
