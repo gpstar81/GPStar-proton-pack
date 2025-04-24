@@ -242,7 +242,7 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
               alert("Pack and/or Wand are currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings.");
             }
 
-			if (!settings.wandConnected) {
+            if (!settings.wandConnected) {
               getEl("overheatLevel1").disabled = true;
               getEl("overheatLevel2").disabled = true;
               getEl("overheatLevel3").disabled = true;
@@ -254,8 +254,7 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
               getEl("overheatDelay4").disabled = true;
               getEl("overheatDelay5").disabled = true;
               alert("GPStar Neutrona Wand not detected; only partial smoke settings are available.");
-            }
-			else {
+            } else {
               getEl("overheatLevel1").disabled = false;
               getEl("overheatLevel2").disabled = false;
               getEl("overheatLevel3").disabled = false;
@@ -344,12 +343,16 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
 
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-          getSettings(); // Get latest settings.
+        if (this.readyState == 4) {
+          if (this.status == 200) {
+            handleStatus(this.responseText);
+            getSettings(); // Get latest settings.
 
-          if (confirm("Settings successfully updated. Do you want to store the latest settings to the pack/wand EEPROM?")) {
-            saveEEPROM(); // Perform action only if the user answers OK to the confirmation.
+            if (confirm("Settings successfully updated. Do you want to store the latest settings to the pack/wand EEPROM?")) {
+              saveEEPROM(); // Perform action only if the user answers OK to the confirmation.
+            }
+          } else {
+            handleStatus(this.responseText);
           }
         }
       };

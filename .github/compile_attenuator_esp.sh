@@ -7,6 +7,9 @@
 BINDIR="../binaries"
 SRCDIR="../source"
 
+# Define the major version for this build
+MJVER="V5"
+
 mkdir -p ${BINDIR}/attenuator/extras
 
 # Current build timestamp to be reflected in the build for ESP32.
@@ -18,8 +21,8 @@ echo ""
 PROJECT_DIR="$SRCDIR/AttenuatorESP32"
 
 # Update date of compilation
-echo "Updating Build Timestamp:" $TIMESTAMP
-sed -i -e 's/\(String build_date = "\)[^"]*\(";\)/\1'"$TIMESTAMP"'\2/' ${PROJECT_DIR}/include/Configuration.h
+echo "Updating Build Timestamp: ${MJVER}_${TIMESTAMP}"
+sed -i -e 's/\(String build_date = "\)[^"]*\(";\)/\1'"${MJVER}_${TIMESTAMP}"'\2/' ${PROJECT_DIR}/include/Configuration.h
 
 # Attenuator (ESP32 - Normal)
 echo "Building Attenuator Binary (ESP32 - Normal)..."

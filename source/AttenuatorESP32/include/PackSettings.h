@@ -159,7 +159,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     <div class="setting">
       <b>Brightness %:</b><br/>
       <input type="range" id="ledCycLidLum" name="ledCycLidLum" min="10" max="100" value="100" step="10"
-	   oninput="cycLumOut.value=ledCycLidLum.value"/>
+     oninput="cycLumOut.value=ledCycLidLum.value"/>
       <output class="labelSlider" id="cycLumOut" for="ledCycLidLum"></output>
     </div>
     <div class="setting">
@@ -212,7 +212,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     <div class="setting">
       <b>Panel Brightness %:</b><br/>
       <input type="range" id="ledCycPanLum" name="ledCycPanLum" min="10" max="100" value="100" step="10"
-	   oninput="panLumOut.value=ledCycPanLum.value"/>
+       oninput="panLumOut.value=ledCycPanLum.value"/>
       <output class="labelSlider" id="panLumOut" for="ledCycPanLum"></output>
     </div>
     <div class="setting">
@@ -250,7 +250,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     <div class="setting">
       <b>Brightness %:</b><br/>
       <input type="range" id="ledCycCakeLum" name="ledCycCakeLum" min="10" max="100" value="100" step="10"
-	   oninput="cakeLumOut.value=ledCycCakeLum.value"/>
+       oninput="cakeLumOut.value=ledCycCakeLum.value"/>
       <output class="labelSlider" id="cakeLumOut" for="ledCycCakeLum"></output>
     </div>
     <div class="setting">
@@ -295,7 +295,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     <div class="setting">
       <b>Brightness %:</b><br/>
       <input type="range" id="ledPowercellLum" name="ledPowercellLum" min="10" max="100" value="100" step="10"
-	   oninput="pcLumOut.value=ledPowercellLum.value"/>
+       oninput="pcLumOut.value=ledPowercellLum.value"/>
       <output class="labelSlider" id="pcLumOut" for="ledPowercellLum"></output>
     </div>
     <div class="setting">
@@ -398,8 +398,8 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             setValue("ledCycLidCount", settings.ledCycLidCount || 12); // Haslab: 12
             setValue("ledCycLidHue", convertRange(settings.ledCycLidHue || 254, [1,254], [0,360])); // Default: Red
             setValue("ledCycLidSat", convertRange(settings.ledCycLidSat || 254, [1,254], [0,100])); // Full Saturation
-			setValue("ledCycLidLum", settings.ledCycLidLum || 100); // Full Brightness
-			setHtml("cycLumOut", getValue("ledCycLidLum"));
+            setValue("ledCycLidLum", settings.ledCycLidLum || 100); // Full Brightness
+            setHtml("cycLumOut", getValue("ledCycLidLum"));
             setValue("cyclotronDirection", settings.cyclotronDirection || 0);
             setValue("ledCycLidCenter", settings.ledCycLidCenter || 0);
             setToggle("ledCycLidFade", settings.ledCycLidFade);
@@ -409,11 +409,11 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             setValue("ledCycCakeCount", settings.ledCycCakeCount || 35); // Default: 35
             setValue("ledCycCakeHue", convertRange(settings.ledCycCakeHue || 254, [1,254], [0,360])); // Default: Red
             setValue("ledCycCakeSat", convertRange(settings.ledCycCakeSat || 254, [1,254], [0,100])); // Full Saturation
-			setValue("ledCycCakeLum", settings.ledCycCakeLum || 100); // Full Brightness
-			setHtml("cakeLumOut", getValue("ledCycCakeLum"));
+            setValue("ledCycCakeLum", settings.ledCycCakeLum || 100); // Full Brightness
+            setHtml("cakeLumOut", getValue("ledCycCakeLum"));
             setValue("ledCycInnerPanel", settings.ledCycInnerPanel || 1); // Default: Individual
-			setValue("ledCycPanLum", settings.ledCycPanLum || 100); // Full Brightness
-			setHtml("panLumOut", getValue("ledCycPanLum"));
+            setValue("ledCycPanLum", settings.ledCycPanLum || 100); // Full Brightness
+            setHtml("panLumOut", getValue("ledCycPanLum"));
             setToggle("ledCycCakeGRB", settings.ledCycCakeGRB);
             setValue("ledCycCavCount", settings.ledCycCavCount || 0); // Default: 0
             setHtml("ledCycCavCountOut", getValue("ledCycCavCount"));
@@ -423,8 +423,8 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             setToggle("ledInvertPowercell", settings.ledInvertPowercell);
             setValue("ledPowercellHue", convertRange(settings.ledPowercellHue || 160, [1,254], [0,360])); // Default: Blue
             setValue("ledPowercellSat", convertRange(settings.ledPowercellSat || 254, [1,254], [0,100])); // Full Saturation
-			setValue("ledPowercellLum", settings.ledPowercellLum || 100); // Full Brightness
-			setHtml("pcLumOut", getValue("ledPowercellLum"));
+            setValue("ledPowercellLum", settings.ledPowercellLum || 100); // Full Brightness
+            setHtml("pcLumOut", getValue("ledPowercellLum"));
             setToggle("ledVGPowercell", settings.ledVGPowercell);
 
             // Update colour preview and value display for hue/saturation sliders.
@@ -457,7 +457,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         ledCycLidCount: getInt("ledCycLidCount") || 12,
         ledCycLidHue: convertRange(getInt("ledCycLidHue") || 360, [0,360], [1,254]),
         ledCycLidSat: convertRange(getInt("ledCycLidSat") || 100, [0,100], [1,254]),
-		ledCycLidLum: getInt("ledCycLidLum") || 100,
+        ledCycLidLum: getInt("ledCycLidLum") || 100,
         cyclotronDirection: getInt("cyclotronDirection"),
         ledCycLidCenter: getInt("ledCycLidCenter"),
         ledCycLidFade: getToggle("ledCycLidFade"),
@@ -467,9 +467,9 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         ledCycCakeCount: getInt("ledCycCakeCount") || 35,
         ledCycCakeHue: convertRange(getInt("ledCycCakeHue") || 360, [0,360], [1,254]),
         ledCycCakeSat: convertRange(getInt("ledCycCakeSat") || 100, [0,100], [1,254]),
-		ledCycCakeLum: getInt("ledCycCakeLum") || 100,
+        ledCycCakeLum: getInt("ledCycCakeLum") || 100,
         ledCycInnerPanel: getInt("ledCycInnerPanel") || 1,
-		ledCycPanLum: getInt("ledCycPanLum") || 100,
+        ledCycPanLum: getInt("ledCycPanLum") || 100,
         ledCycCakeGRB: getToggle("ledCycCakeGRB"),
         ledCycCavCount: getInt("ledCycCavCount"),
         ledCycCavType: getInt("ledCycCavType") || 1,
@@ -478,19 +478,23 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         ledInvertPowercell: getToggle("ledInvertPowercell"),
         ledPowercellHue: convertRange(getInt("ledPowercellHue") || 200, [0,360], [1,254]),
         ledPowercellSat: convertRange(getInt("ledPowercellSat") || 100, [0,100], [1,254]),
-		ledPowercellLum: getInt("ledPowercellLum") || 100,
+        ledPowercellLum: getInt("ledPowercellLum") || 100,
         ledVGPowercell: getToggle("ledVGPowercell")
       };
       var body = JSON.stringify(settings);
 
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-          getSettings(); // Get latest settings.
+        if (this.readyState == 4) {
+          if (this.status == 200) {
+            handleStatus(this.responseText);
+            getSettings(); // Get latest settings.
 
-          if (confirm("Settings successfully updated. Do you want to store the latest settings to the pack EEPROM?")) {
-            saveEEPROM(); // Perform action only if the user answers OK to the confirmation.
+            if (confirm("Settings successfully updated. Do you want to store the latest settings to the pack EEPROM?")) {
+              saveEEPROM(); // Perform action only if the user answers OK to the confirmation.
+            }
+          } else {
+            handleStatus(this.responseText);
           }
         }
       };

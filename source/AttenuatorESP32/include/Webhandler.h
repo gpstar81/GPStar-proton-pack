@@ -1070,7 +1070,7 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
         jsonBody.clear();
         jsonBody["status"] = "Pack has lost sync, please try saving settings again.";
         serializeJson(jsonBody, result); // Serialize to string.
-        request->send(200, "application/json", result);
+        request->send(503, "application/json", result);
       }
       else {
         jsonBody.clear();
@@ -1134,7 +1134,7 @@ AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHand
         jsonBody.clear();
         jsonBody["status"] = "Pack has lost sync, please try saving settings again.";
         serializeJson(jsonBody, result); // Serialize to string.
-        request->send(200, "application/json", result);
+        request->send(503, "application/json", result);
       }
       else {
         jsonBody.clear();
@@ -1203,7 +1203,7 @@ AsyncCallbackJsonWebHandler *handleSaveSmokeConfig = new AsyncCallbackJsonWebHan
         jsonBody.clear();
         jsonBody["status"] = "Pack has lost sync, please try saving settings again.";
         serializeJson(jsonBody, result); // Serialize to string.
-        request->send(200, "application/json", result);
+        request->send(503, "application/json", result);
       }
       else {
         jsonBody.clear();
