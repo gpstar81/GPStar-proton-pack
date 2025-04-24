@@ -466,7 +466,11 @@ input[type=text] {
   width:26px
 }
 
-input:checked + .slider {
+input:checked:not([disabled]) + .slider {
+  background-color:#2196F3
+}
+
+input:checked:not([disabled]) + .slider {
   background-color:#2196F3
 }
 
@@ -474,7 +478,7 @@ input:focus + .slider {
   box-shadow:0 0 1px #2196F3
 }
 
-input:checked + .slider:before {
+input:checked:not([disabled]) + .slider:before {
   transform:translateX(26px)
 }
 

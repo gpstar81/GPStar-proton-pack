@@ -242,6 +242,32 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
               alert("Pack and/or Wand are currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings.");
             }
 
+			if (!settings.wandConnected) {
+              getEl("overheatLevel1").disabled = true;
+              getEl("overheatLevel2").disabled = true;
+              getEl("overheatLevel3").disabled = true;
+              getEl("overheatLevel4").disabled = true;
+              getEl("overheatLevel5").disabled = true;
+              getEl("overheatDelay1").disabled = true;
+              getEl("overheatDelay2").disabled = true;
+              getEl("overheatDelay3").disabled = true;
+              getEl("overheatDelay4").disabled = true;
+              getEl("overheatDelay5").disabled = true;
+              alert("GPStar Neutrona Wand not detected; only partial smoke settings are available.");
+            }
+			else {
+              getEl("overheatLevel1").disabled = false;
+              getEl("overheatLevel2").disabled = false;
+              getEl("overheatLevel3").disabled = false;
+              getEl("overheatLevel4").disabled = false;
+              getEl("overheatLevel5").disabled = false;
+              getEl("overheatDelay1").disabled = false;
+              getEl("overheatDelay2").disabled = false;
+              getEl("overheatDelay3").disabled = false;
+              getEl("overheatDelay4").disabled = false;
+              getEl("overheatDelay5").disabled = false;
+            }
+
             // Valid settings were received and both the pack and wand are off, so allow updating settings.
             getEl("btnSave").disabled = false;
 

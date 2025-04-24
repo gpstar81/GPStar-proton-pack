@@ -462,6 +462,7 @@ String getWandConfig() {
     // Return current powered state for pack and wand.
     jsonBody["packPowered"] = (b_pack_on ? true : false);
     jsonBody["wandPowered"] = (b_wand_on ? true : false);
+    jsonBody["wandConnected"] = (b_wand_present ? true : false);
 
     // Neutrona Wand LED Options
     jsonBody["ledWandCount"] = wandConfig.ledWandCount; // [0=5 (Stock), 1=48 (Frutto), 2=50 (GPStar), 3=2 (Tip)]
@@ -505,6 +506,7 @@ String getSmokeConfig() {
     // Return current powered state for pack and wand.
     jsonBody["packPowered"] = (b_pack_on ? true : false);
     jsonBody["wandPowered"] = (b_wand_on ? true : false);
+    jsonBody["wandConnected"] = (b_wand_present ? true : false);
 
     // Proton Pack
     jsonBody["smokeEnabled"] = (smokeConfig.smokeEnabled == 1); // true|false

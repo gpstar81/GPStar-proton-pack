@@ -446,7 +446,6 @@ void serial1SendData(uint8_t i_message) {
 
       if(!b_wand_connected) {
         // Provide some default values when a wand is not attached.
-        // TODO: The pack should control these in this situation.
         smokeConfig.overheatLevel5 = 1; // true|false
         smokeConfig.overheatLevel4 = 0; // true|false
         smokeConfig.overheatLevel3 = 0; // true|false
