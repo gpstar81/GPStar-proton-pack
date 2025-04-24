@@ -176,6 +176,16 @@ function setButtonStates(mode, pack, wand, cyclotron, ionswitch, firing) {
   }
 }
 
+function clearButtonStates() {
+  // Used to just disable all the buttons, for instance if pack desyncs
+  getEl("btnPackOff").disabled = true;
+  getEl("btnPackOn").disabled = true;
+  getEl("btnVent").disabled = true;
+  getEl("btnAttenuate").disabled = true;
+  //getEl("btnLOStart").disabled = true;
+  //getEl("btnLOCancel").disabled = true;
+}
+
 function getStreamColor(cMode) {
   var color = [0, 0, 0];
 
@@ -372,7 +382,7 @@ function updateGraphics(jObj){
     } else {
       hideEl("cyclotronLid");
     }
-  } else {
+  } else if (getText("equipTitle") != "- Desynchronized -") {
     // Reset all screen elements to their defaults to indicate no data available.
     setHtml("equipTitle", "- Desynchronized -");
     colorEl("ionOverlay", 255, 0, 0);
@@ -392,6 +402,7 @@ function updateGraphics(jObj){
     colorEl("safetyOverlay", 100, 100, 100);
     setHtml("battVoltage", "");
     hideEl("cyclotronLid");
+    clearButtonStates();
   }
 }
 
@@ -470,9 +481,8 @@ function updateEquipment(jObj) {
 
     // Connected Wifi Clients - Private AP vs. WebSocket
     setHtml("clientInfo", "AP Clients: " + (jObj.apClients || 0) + " / WebSocket Clients: " + (jObj.wsClients || 0));
-
-    updateGraphics(jObj);
   }
+  updateGraphics(jObj);
 }
 
 function getStatus() {
