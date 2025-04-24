@@ -903,6 +903,7 @@ bool setupAudioDevice() {
     debugln(audio.getVersionNumber());
 
     buildMusicCount((uint16_t) audio.getNumTracks());
+    audio.gpstarLEDStatus(false);
 
     return true;
   }
