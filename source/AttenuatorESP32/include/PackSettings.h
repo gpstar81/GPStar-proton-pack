@@ -202,6 +202,20 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
   <h1>Inner Cyclotron</h1>
   <div class="block left">
     <div class="setting">
+      <b>Inner Panel:</b>
+      <select id="ledCycInnerPanel" name="ledCycInnerPanel" style="width:180px">
+        <option value="1">Individual LEDs</option>
+        <option value="2">Frutto (Static Colours)</option>
+        <option value="3">Frutto (Dynamic Colours)</option>
+      </select>
+    </div>
+    <div class="setting">
+      <b>Panel Brightness %:</b><br/>
+      <input type="range" id="ledCycPanLum" name="ledCycPanLum" min="10" max="100" value="100" step="10"
+	   oninput="panLumOut.value=ledCycPanLum.value"/>
+      <output class="labelSlider" id="panLumOut" for="ledCycPanLum"></output>
+    </div>
+    <div class="setting">
       <b>Ring LED Count:</b>
       <select id="ledCycCakeCount" name="ledCycCakeCount">
         <option value="36">36 - GPStar</option>
@@ -210,14 +224,6 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         <option value="24">24</option>
         <option value="23">23</option>
         <option value="12">12</option>
-      </select>
-    </div>
-    <div class="setting">
-      <b>Inner Panel:</b>
-      <select id="ledCycInnerPanel" name="ledCycInnerPanel" style="width:180px">
-        <option value="1">Individual LEDs</option>
-        <option value="2">Frutto (Static Colours)</option>
-        <option value="3">Frutto (Dynamic Colours)</option>
       </select>
     </div>
     <div class="setting">
@@ -248,19 +254,13 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       <output class="labelSlider" id="cakeLumOut" for="ledCycCakeLum"></output>
     </div>
     <div class="setting">
-      <b>Panel Brightness %:</b><br/>
-      <input type="range" id="ledCycPanLum" name="ledCycPanLum" min="10" max="100" value="100" step="10"
-	   oninput="panLumOut.value=ledCycPanLum.value"/>
-      <output class="labelSlider" id="panLumOut" for="ledCycPanLum"></output>
-    </div>
-    <div class="setting">
       <b>Cyclotron Cavity Lights:</b><br/>
       <input type="range" id="ledCycCavCount" name="ledCycCavCount" min="0" max="20" value="0" step="2"
        oninput="ledCycCavCountOut.value=ledCycCavCount.value"/>
       <output class="labelSlider" id="ledCycCavCountOut" for="ledCycCavCount"></output>
     </div>
     <div class="setting">
-      <b>LED Type:</b>
+      <b>Cavity LED Type:</b>
       <select id="ledCycCavType" name="ledCycCavType">
         <option value="1">RGB</option>
         <option value="2">GRB</option>

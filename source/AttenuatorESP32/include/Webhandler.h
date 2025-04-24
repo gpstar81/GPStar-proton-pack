@@ -836,7 +836,7 @@ void handleSaveWandEEPROM(AsyncWebServerRequest *request) {
   request->send(200, "application/json", status);
 }
 
-// Handles the JSON body for the pack settings save request.
+// Handles the JSON body for the Attenuator settings save request.
 AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHandler("/config/device/save", [](AsyncWebServerRequest *request, JsonVariant &json) {
   jsonBody.clear();
   if(json.is<JsonObject>()) {
@@ -1066,11 +1066,19 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
       packConfig.ledPowercellLum = jsonBody["ledPowercellLum"].as<uint8_t>();
       packConfig.ledVGPowercell = jsonBody["ledVGPowercell"].as<uint8_t>();
 
-      jsonBody.clear();
-      jsonBody["status"] = "Settings updated, please test before saving to EEPROM.";
-      serializeJson(jsonBody, result); // Serialize to string.
-      attenuatorSerialSendData(A_SAVE_PREFERENCES_PACK); // Tell the pack to save the new settings.
-      request->send(200, "application/json", result);
+      if(b_wait_for_pack) {
+        jsonBody.clear();
+        jsonBody["status"] = "Pack has lost sync, please try saving settings again.";
+        serializeJson(jsonBody, result); // Serialize to string.
+        request->send(200, "application/json", result);
+      }
+      else {
+        jsonBody.clear();
+        jsonBody["status"] = "Settings updated, please test before saving to EEPROM.";
+        serializeJson(jsonBody, result); // Serialize to string.
+        attenuatorSerialSendData(A_SAVE_PREFERENCES_PACK); // Tell the pack to save the new settings.
+        request->send(200, "application/json", result);
+      }
     }
     catch (...) {
       jsonBody.clear();
@@ -1081,7 +1089,6 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
   }
   else {
     // Tell the user why the requested action failed.
-    String result;
     jsonBody.clear();
     jsonBody["status"] = "Pack and/or Wand are running, save action cancelled";
     serializeJson(jsonBody, result); // Serialize to string.
@@ -1123,11 +1130,19 @@ AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHand
       wandConfig.bargraphIdleAnimation = jsonBody["bargraphIdleAnimation"].as<uint8_t>();
       wandConfig.bargraphFireAnimation = jsonBody["bargraphFireAnimation"].as<uint8_t>();
 
-      jsonBody.clear();
-      jsonBody["status"] = "Settings updated, please test before saving to EEPROM.";
-      serializeJson(jsonBody, result); // Serialize to string.
-      attenuatorSerialSendData(A_SAVE_PREFERENCES_WAND); // Tell the wand (via pack) to save the new settings.
-      request->send(200, "application/json", result);
+      if(b_wait_for_pack) {
+        jsonBody.clear();
+        jsonBody["status"] = "Pack has lost sync, please try saving settings again.";
+        serializeJson(jsonBody, result); // Serialize to string.
+        request->send(200, "application/json", result);
+      }
+      else {
+        jsonBody.clear();
+        jsonBody["status"] = "Settings updated, please test before saving to EEPROM.";
+        serializeJson(jsonBody, result); // Serialize to string.
+        attenuatorSerialSendData(A_SAVE_PREFERENCES_WAND); // Tell the wand (via pack) to save the new settings.
+        request->send(200, "application/json", result);
+      }
     }
     catch (...) {
       jsonBody.clear();
@@ -1138,7 +1153,6 @@ AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHand
   }
   else {
     // Tell the user why the requested action failed.
-    String result;
     jsonBody.clear();
     jsonBody["status"] = "Pack and/or Wand are running, save action cancelled";
     serializeJson(jsonBody, result); // Serialize to string.
@@ -1185,11 +1199,19 @@ AsyncCallbackJsonWebHandler *handleSaveSmokeConfig = new AsyncCallbackJsonWebHan
       smokeConfig.overheatDelay2 = jsonBody["overheatDelay2"].as<uint8_t>();
       smokeConfig.overheatDelay1 = jsonBody["overheatDelay1"].as<uint8_t>();
 
-      jsonBody.clear();
-      jsonBody["status"] = "Settings updated, please test before saving to EEPROM.";
-      serializeJson(jsonBody, result); // Serialize to string.
-      attenuatorSerialSendData(A_SAVE_PREFERENCES_SMOKE); // Tell the pack and wand to save the new settings.
-      request->send(200, "application/json", result);
+      if(b_wait_for_pack) {
+        jsonBody.clear();
+        jsonBody["status"] = "Pack has lost sync, please try saving settings again.";
+        serializeJson(jsonBody, result); // Serialize to string.
+        request->send(200, "application/json", result);
+      }
+      else {
+        jsonBody.clear();
+        jsonBody["status"] = "Settings updated, please test before saving to EEPROM.";
+        serializeJson(jsonBody, result); // Serialize to string.
+        attenuatorSerialSendData(A_SAVE_PREFERENCES_SMOKE); // Tell the pack and wand to save the new settings.
+        request->send(200, "application/json", result);
+      }
     }
     catch (...) {
       jsonBody.clear();
@@ -1200,7 +1222,6 @@ AsyncCallbackJsonWebHandler *handleSaveSmokeConfig = new AsyncCallbackJsonWebHan
   }
   else {
     // Tell the user why the requested action failed.
-    String result;
     jsonBody.clear();
     jsonBody["status"] = "Pack and/or Wand are running, save action cancelled";
     serializeJson(jsonBody, result); // Serialize to string.
