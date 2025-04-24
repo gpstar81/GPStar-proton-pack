@@ -346,7 +346,7 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
         if (this.readyState == 4) {
           if (this.status == 200) {
             handleStatus(this.responseText);
-            getSettings(); // Get latest settings.
+            setTimeout(getSettings, 400); // Get latest settings.
 
             if (confirm("Settings successfully updated. Do you want to store the latest settings to the pack/wand EEPROM?")) {
               saveEEPROM(); // Perform action only if the user answers OK to the confirmation.

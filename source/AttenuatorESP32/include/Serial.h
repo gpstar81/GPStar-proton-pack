@@ -372,7 +372,7 @@ bool checkPack() {
         break;
 
         case PACKET_SYNC:
-          // Used to sync the pack to the Attenuator.
+          // Used to sync the Attenuator to the pack.
           debug("Pack Sync Packet Received");
 
           packComs.rxObj(attenuatorSyncData);
