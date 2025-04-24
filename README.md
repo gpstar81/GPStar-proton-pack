@@ -73,6 +73,7 @@ This section is presented in a way to offer a more complete view of what compone
 | N-Filter<sup>O</sup>        | [7-LED Vent Light](NFILTER.md) |
 | Powercell<sup>O</sup>       | [13 and 15-LED options](POWERCELL.md) |
 | Smoke Effects<sup>O</sup>   | [Various Solutions Supported](SMOKE.md) |
+| Cyclotron Bypass<sup>R* & O</sup>   | [Bypass board for non Haslab Proton Packs](CYCLOTRON_BYPASS) |
 
 **Connectivity**
 
@@ -93,7 +94,7 @@ This section is presented in a way to offer a more complete view of what compone
 | Sound Effects<sup>O</sup> | [Loading The Audio Files](AUDIO.md) |
 | Hat Lights<sup>O</sup>    | [Kit option by Jonogunn](HATS.md) |
 | Bargraph<sup>O</sup>      | [28-Segment or 30-Segment](BARGRAPH.md) |
-| Vent Light<sup>O</sup>    | [High Intensity option by Frutto Technology](VENTLIGHT.md) |
+| Vent Light<sup>O</sup>    | [GPStar RGB Vent Lights or High Intensity option by Frutto Technology](VENTLIGHT.md) |
 | Wand Barrel<sup>O</sup>   | 2, 5, 49 and 50 LED options (Guide TBD) |
 
 **Installation, Operation, and Troubleshooting**
