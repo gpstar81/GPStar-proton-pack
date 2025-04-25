@@ -6,13 +6,12 @@ A colour changing vent light board that can be installed very easily with the GP
 
 ## Installation
 
-Mount the board and wire the connections as indicated in the photo below. Note that the GND wire for the vent light board shares the same connection in the terminal blocks as the top dial ROT- terminal. 
-
+Mount the board and wire the connections as indicated in the photo below. Note that the GND wire for the vent light board shares the same connection in the terminal blocks as the top dial ROT- terminal.
 
 | Vent Light | Neutrona Wand |
-|-------------------|------|
-| VL+  | VL+ | 
-| D12	| D12 |
+|------------|---------------|
+| VL+ | VL+  |
+| D12	| D12  |
 | GND | ROT- |
 
 
