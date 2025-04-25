@@ -75,7 +75,7 @@ void setup() {
   }
 
   // Connect the serial ports.
-  serial1Coms.begin(Serial1, false); // Attenuator/Wireless
+  serial1Coms.begin(Serial1, false, Serial, 100); // Attenuator/Wireless
   packComs.begin(Serial2, false); // Neutrona Wand
 
   // Setup the audio device for this controller.
