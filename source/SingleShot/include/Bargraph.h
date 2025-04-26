@@ -117,7 +117,7 @@ struct Bargraph {
         device.begin(0x00);
       }
 
-      inverted = (b_invert == true);
+      inverted = b_invert;
     }
 
     uint8_t mapElement() {

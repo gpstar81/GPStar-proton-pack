@@ -683,7 +683,7 @@ void checkPack() {
             case 1:
             default:
               // Pack is off.
-              if(b_pack_on == true) {
+              if(b_pack_on) {
                 // Turn wand off.
                 if(WAND_STATUS != MODE_OFF) {
                   if(WAND_STATUS == MODE_ERROR) {
@@ -827,7 +827,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
       // Tell the pack the status of the Neutrona Wand barrel. We only need to tell if its extended.
       // Otherwise the switchBarrel() will tell it if it's retracted during bootup.
-      if(switchBarrel() == true) {
+      if(switchBarrel()) {
         wandSerialSend(W_BARREL_EXTENDED);
       }
 
@@ -846,7 +846,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
     case P_OFF:
       // Pack is off.
-      if(b_pack_on == true) {
+      if(b_pack_on) {
         // Turn wand off.
         if(WAND_STATUS != MODE_OFF) {
           if(WAND_STATUS == MODE_ERROR) {
