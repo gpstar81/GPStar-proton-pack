@@ -293,7 +293,7 @@ void handleRootJS(AsyncWebServerRequest *request) {
 void handleNetwork(AsyncWebServerRequest *request) {
   // Used for the network page from the web server.
   debug("Sending -> Network HTML");
-  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript", String(NETWORK_page));
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", String(NETWORK_page));
   response->addHeader("Cache-Control", "public, max-age=60");
   request->send(response); // Serve page content.
 }
@@ -301,7 +301,7 @@ void handleNetwork(AsyncWebServerRequest *request) {
 void handlePassword(AsyncWebServerRequest *request) {
   // Used for the password page from the web server.
   debug("Sending -> Password HTML");
-  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript", String(PASSWORD_page));
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", String(PASSWORD_page));
   response->addHeader("Cache-Control", "public, max-age=60");
   request->send(response); // Serve page content.
 }
@@ -309,7 +309,7 @@ void handlePassword(AsyncWebServerRequest *request) {
 void handleDeviceSettings(AsyncWebServerRequest *request) {
   // Used for the device page from the web server.
   debug("Sending -> Device Settings HTML");
-  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript", String(DEVICE_page));
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", String(DEVICE_page));
   response->addHeader("Cache-Control", "public, max-age=60");
   request->send(response); // Serve page content.
 }
@@ -321,7 +321,7 @@ void handlePackSettings(AsyncWebServerRequest *request) {
 
   // Used for the settings page from the web server.
   debug("Sending -> Pack Settings HTML");
-  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript", String(PACK_SETTINGS_page));
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", String(PACK_SETTINGS_page));
   response->addHeader("Cache-Control", "public, max-age=60");
   request->send(response); // Serve page content.
 }
@@ -333,7 +333,7 @@ void handleWandSettings(AsyncWebServerRequest *request) {
 
   // Used for the settings page from the web server.
   debug("Sending -> Wand Settings HTML");
-  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript", String(WAND_SETTINGS_page));
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", String(WAND_SETTINGS_page));
   response->addHeader("Cache-Control", "public, max-age=60");
   request->send(response); // Serve page content.
 }
@@ -345,7 +345,7 @@ void handleSmokeSettings(AsyncWebServerRequest *request) {
 
   // Used for the settings page from the web server.
   debug("Sending -> Smoke Settings HTML");
-  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript", String(SMOKE_SETTINGS_page));
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", String(SMOKE_SETTINGS_page));
   response->addHeader("Cache-Control", "public, max-age=60");
   request->send(response); // Serve page content.
 }
