@@ -1523,7 +1523,7 @@ void soundIdleLoopStop(bool stopAlts) {
     break;
   }
 
-  if(stopAlts == true && b_gpstar_benchtest) {
+  if(stopAlts && b_gpstar_benchtest) {
     switch(STREAM_MODE) {
       case SLIME:
         stopEffect(S_WAND_SLIME_IDLE_LOOP);

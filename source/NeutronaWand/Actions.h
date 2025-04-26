@@ -32,7 +32,7 @@ void checkWandAction() {
     break;
 
     case ACTION_FIRING:
-      if(b_pack_on && b_pack_alarm) {
+      if(b_pack_on && !b_pack_alarm) {
         if(STREAM_MODE == MESON) {
           if(ms_meson_blast.justFinished()) {
             playEffect(S_MESON_FIRE_PULSE, false, i_volume_effects, false, 0, false);
