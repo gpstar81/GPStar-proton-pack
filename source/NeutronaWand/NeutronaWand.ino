@@ -512,6 +512,11 @@ void loop() {
       if(b_rgb_vent_light || WAND_CONN_STATE == PACK_DISCONNECTED) {
         // Only commit an update if the addressable LED panel is installed or if the Neutrona Wand can not make a connection to the Proton Pack.
         FastLED[1].showLeds(255);
+
+        if(WAND_CONN_STATE == PACK_DISCONNECTED && !vent_leds[1]) {
+          // Make sure we turn the actual pin back off so the non-addressable LED still blinks.
+          digitalWriteFast(TOP_LED_PIN, HIGH);
+        }
       }
 
       b_vent_lights_changed = false;

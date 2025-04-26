@@ -737,7 +737,7 @@ void ventLightControl(uint8_t i_intensity) {
       led_Vent.turnOff();
     }
     else {
-      led_Vent.dim(255 - ledLookupTable[i_intensity]);
+      led_Vent.dim(255 - PROGMEM_READU8(ledLookupTable[i_intensity]));
     }
   }
 }
