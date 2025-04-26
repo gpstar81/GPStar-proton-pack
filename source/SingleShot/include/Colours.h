@@ -88,7 +88,7 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
     break;
 
     case C_WARM_WHITE:
-      return CHSV(50, 25, i_brightness);
+      return CHSV(36, 183, i_brightness);
     break;
 
     case C_PINK:
