@@ -10490,63 +10490,65 @@ void ventTopLightControl(bool b_on) {
 }
 
 void ventLightControl(uint8_t i_intensity) {
-  if(i_intensity <= 1) {
-    // Turn off if not off already.
-    if(vent_leds[0]) {
-      analogWrite(VENT_LED_PIN, 255);
-      vent_leds[0] = getHueAsRGB(C_BLACK);
+  if(b_rgb_vent_light) {
+    if(i_intensity < 20) {
+      // Turn off if not off already.
+      if(vent_leds[0]) {
+        vent_leds[0] = getHueAsRGB(C_BLACK);
+        b_vent_lights_changed = true;
+      }
+    }
+    else {
+      switch(STREAM_MODE) {
+        case STASIS:
+          vent_leds[0] = getHueAsRGB(C_MID_BLUE, i_intensity);
+        break;
+
+        case SLIME:
+          if(getSystemYearMode() == SYSTEM_1989) {
+            vent_leds[0] = getHueAsRGB(C_PASTEL_PINK, i_intensity);
+          }
+          else {
+            vent_leds[0] = getHueAsRGB(C_GREEN, i_intensity);
+          }
+        break;
+
+        case MESON:
+          vent_leds[0] = getHueAsRGB(C_YELLOW, i_intensity);
+        break;
+
+        case SPECTRAL:
+          vent_leds[0] = getHueAsRGB(C_RAINBOW, i_intensity);
+        break;
+
+        case HOLIDAY_HALLOWEEN:
+          vent_leds[0] = getHueAsRGB(C_ORANGEPURPLE, i_intensity);
+        break;
+
+        case HOLIDAY_CHRISTMAS:
+          vent_leds[0] = getHueAsRGB(C_REDGREEN, i_intensity);
+        break;
+
+        case SPECTRAL_CUSTOM:
+          vent_leds[0] = getHueAsRGB(C_CUSTOM, i_intensity);
+        break;
+
+        case PROTON:
+        default:
+          if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
+            vent_leds[0] = getHueAsRGB(C_WHITE, i_intensity);
+          }
+          else {
+            vent_leds[0] = getHueAsRGB(C_WARM_WHITE, i_intensity);
+          }
+        break;
+      }
+
       b_vent_lights_changed = true;
     }
   }
   else {
-    analogWrite(VENT_LED_PIN, 255 - PROGMEM_READU8(ledLookupTable[i_intensity]));
-
-    switch(STREAM_MODE) {
-      case STASIS:
-        vent_leds[0] = getHueAsRGB(C_BLUE, i_intensity);
-      break;
-
-      case SLIME:
-        if(getSystemYearMode() == SYSTEM_1989) {
-          vent_leds[0] = getHueAsRGB(C_PASTEL_PINK, i_intensity);
-        }
-        else {
-          vent_leds[0] = getHueAsRGB(C_GREEN, i_intensity);
-        }
-      break;
-
-      case MESON:
-        vent_leds[0] = getHueAsRGB(C_YELLOW, i_intensity);
-      break;
-
-      case SPECTRAL:
-        vent_leds[0] = getHueAsRGB(C_RAINBOW, i_intensity);
-      break;
-
-      case HOLIDAY_HALLOWEEN:
-        vent_leds[0] = getHueAsRGB(C_ORANGEPURPLE, i_intensity);
-      break;
-
-      case HOLIDAY_CHRISTMAS:
-        vent_leds[0] = getHueAsRGB(C_REDGREEN, i_intensity);
-      break;
-
-      case SPECTRAL_CUSTOM:
-        vent_leds[0] = getHueAsRGB(C_CUSTOM, i_intensity);
-      break;
-
-      case PROTON:
-      default:
-        if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
-          vent_leds[0] = getHueAsRGB(C_WHITE, i_intensity);
-        }
-        else {
-          vent_leds[0] = getHueAsRGB(C_WARM_WHITE, i_intensity);
-        }
-      break;
-    }
-
-    b_vent_lights_changed = true;
+    analogWrite(VENT_LED_PIN, 255 - PROGMEM_READU8(ledLookupTable[i_intensity]));    
   }
 }
 

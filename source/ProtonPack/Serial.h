@@ -3653,11 +3653,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       switch(pack_dim_toggle) {
         case DIM_CYCLOTRON:
           if(i_cyclotron_brightness < 100) {
-            if(i_cyclotron_brightness + 10 > 100) {
+            if(i_cyclotron_brightness + 5 > 100) {
               i_cyclotron_brightness = 100;
             }
             else {
-              i_cyclotron_brightness = i_cyclotron_brightness + 10;
+              i_cyclotron_brightness = i_cyclotron_brightness + 5;
             }
 
             resetCyclotronState();
@@ -3676,11 +3676,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
         case DIM_INNER_CYCLOTRON:
           if(i_cyclotron_inner_brightness < 100) {
-            if(i_cyclotron_inner_brightness + 10 > 100) {
+            if(i_cyclotron_inner_brightness + 5 > 100) {
               i_cyclotron_inner_brightness = 100;
             }
             else {
-              i_cyclotron_inner_brightness = i_cyclotron_inner_brightness + 10;
+              i_cyclotron_inner_brightness = i_cyclotron_inner_brightness + 5;
             }
 
             packSerialSend(P_DIMMING);
@@ -3697,11 +3697,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
         case DIM_CYCLOTRON_PANEL:
           if(i_cyclotron_panel_brightness < 100) {
-            if(i_cyclotron_panel_brightness + 10 > 100) {
+            if(i_cyclotron_panel_brightness + 5 > 100) {
               i_cyclotron_panel_brightness = 100;
             }
             else {
-              i_cyclotron_panel_brightness = i_cyclotron_panel_brightness + 10;
+              i_cyclotron_panel_brightness = i_cyclotron_panel_brightness + 5;
             }
 
             packSerialSend(P_DIMMING);
@@ -3719,11 +3719,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         case DIM_POWERCELL:
         default:
           if(i_powercell_brightness < 100) {
-            if(i_powercell_brightness + 10 > 100) {
+            if(i_powercell_brightness + 5 > 100) {
               i_powercell_brightness = 100;
             }
             else {
-              i_powercell_brightness = i_powercell_brightness + 10;
+              i_powercell_brightness = i_powercell_brightness + 5;
             }
 
             // Reset the Power Cell.
@@ -3746,12 +3746,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_DIMMING_DECREASE:
       switch(pack_dim_toggle) {
         case DIM_CYCLOTRON:
-          if(i_cyclotron_brightness > 10) {
-            if(i_cyclotron_brightness - 10 < 10) {
-              i_cyclotron_brightness = 10;
+          if(i_cyclotron_brightness > 20) {
+            if(i_cyclotron_brightness - 5 < 20) {
+              i_cyclotron_brightness = 20;
             }
             else {
-              i_cyclotron_brightness = i_cyclotron_brightness - 10;
+              i_cyclotron_brightness = i_cyclotron_brightness - 5;
             }
 
             resetCyclotronState();
@@ -3769,12 +3769,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
 
         case DIM_INNER_CYCLOTRON:
-          if(i_cyclotron_inner_brightness > 10) {
-            if(i_cyclotron_inner_brightness - 10 < 10) {
-              i_cyclotron_inner_brightness = 10;
+          if(i_cyclotron_inner_brightness > 20) {
+            if(i_cyclotron_inner_brightness - 5 < 20) {
+              i_cyclotron_inner_brightness = 20;
             }
             else {
-              i_cyclotron_inner_brightness = i_cyclotron_inner_brightness - 10;
+              i_cyclotron_inner_brightness = i_cyclotron_inner_brightness - 5;
             }
 
             packSerialSend(P_DIMMING);
@@ -3790,12 +3790,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
 
         case DIM_CYCLOTRON_PANEL:
-          if(i_cyclotron_panel_brightness > 10) {
-            if(i_cyclotron_panel_brightness - 10 < 10) {
-              i_cyclotron_panel_brightness = 10;
+          if(i_cyclotron_panel_brightness > 20) {
+            if(i_cyclotron_panel_brightness - 5 < 20) {
+              i_cyclotron_panel_brightness = 20;
             }
             else {
-              i_cyclotron_panel_brightness = i_cyclotron_panel_brightness - 10;
+              i_cyclotron_panel_brightness = i_cyclotron_panel_brightness - 5;
             }
 
             packSerialSend(P_DIMMING);
@@ -3812,12 +3812,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
         case DIM_POWERCELL:
         default:
-          if(i_powercell_brightness > 10) {
-            if(i_powercell_brightness - 10 < 10) {
-              i_powercell_brightness = 10;
+          if(i_powercell_brightness > 20) {
+            if(i_powercell_brightness - 5 < 20) {
+              i_powercell_brightness = 20;
             }
             else {
-              i_powercell_brightness = i_powercell_brightness - 10;
+              i_powercell_brightness = i_powercell_brightness - 5;
             }
 
             // Reset the Power Cell.

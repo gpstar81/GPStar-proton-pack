@@ -723,7 +723,7 @@ void ventTopLightControl(bool b_on) {
 
 void ventLightControl(uint8_t i_intensity) {
   if(b_rgb_vent_light) {
-    if(i_intensity <= 1) {
+    if(i_intensity < 20) {
       vent_leds[0] = getHueAsRGB(C_BLACK);
     }
     else {
@@ -733,7 +733,7 @@ void ventLightControl(uint8_t i_intensity) {
     b_vent_lights_changed = true;
   }
   else {
-    if(i_intensity <= 1) {
+    if(i_intensity < 1) {
       led_Vent.turnOff();
     }
     else {
