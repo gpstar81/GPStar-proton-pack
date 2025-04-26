@@ -10499,7 +10499,7 @@ void ventLightControl(uint8_t i_intensity) {
     }
   }
   else {
-    analogWrite(VENT_LED_PIN, 255 - i_intensity);
+    analogWrite(VENT_LED_PIN, 255 - ledLookupTable[i_intensity]);
 
     switch(STREAM_MODE) {
       case STASIS:
