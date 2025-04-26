@@ -464,28 +464,6 @@ void mainLoop() {
   if(ms_firing_lights_end.justFinished()) {
     fireStreamEnd(getHueColour(C_BLACK, WAND_BARREL_LED_COUNT));
   }
-
-  // Update the barrel LEDs and restart the timer.
-  if(ms_fast_led.justFinished()) {
-    //FastLED.show();
-    FastLED[0].showLeds(255);
-    ms_fast_led.start(i_fast_led_delay);
-  }
-
-  // Update the vent/top LEDs and restart the timer.
-  if(ms_vent_light.justFinished()) {
-    // Only send an update if we actually made a change.
-    if(b_vent_lights_changed) {
-      if(b_rgb_vent_light || WAND_CONN_STATE == PACK_DISCONNECTED) {
-        // Only commit an update if the addressable LED panel is installed or if the Neutrona Wand can not make a connection to the Proton Pack.
-        FastLED[1].showLeds(255);
-      }
-
-      b_vent_lights_changed = false;
-    }
-
-    ms_vent_light.repeat();
-  }
 }
 
 void loop() {
@@ -526,5 +504,22 @@ void loop() {
 
       mainLoop(); // Continue on to the main loop.
     break;
+  }
+
+  // Update the addressable LEDs and restart the timer.
+  if(ms_fast_led.justFinished()) {
+    //FastLED.show();
+    FastLED[0].showLeds(255);
+
+    if(b_vent_lights_changed) {
+      if(b_rgb_vent_light || WAND_CONN_STATE == PACK_DISCONNECTED) {
+        // Only commit an update if the addressable LED panel is installed or if the Neutrona Wand can not make a connection to the Proton Pack.
+        FastLED[1].showLeds(255);
+      }
+
+      b_vent_lights_changed = false;
+    }
+
+    ms_fast_led.start(i_fast_led_delay);
   }
 }

@@ -269,37 +269,49 @@ void startWebServer() {
 void handleCommonJS(AsyncWebServerRequest *request) {
   // Used for the root page (/) from the web server.
   debug("Sending -> Index JavaScript");
-  request->send(200, "application/javascript", String(COMMONJS_page)); // Serve page content.
+  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript", String(COMMONJS_page));
+  response->addHeader("Cache-Control", "public, max-age=86400");
+  request->send(response); // Serve page content.
 }
 
 void handleRoot(AsyncWebServerRequest *request) {
   // Used for the root page (/) from the web server.
   debug("Sending -> Index HTML");
-  request->send(200, "text/html", String(INDEX_page)); // Serve page content.
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", String(INDEX_page));
+  response->addHeader("Cache-Control", "public, max-age=86400");
+  request->send(response); // Serve page content.
 }
 
 void handleRootJS(AsyncWebServerRequest *request) {
   // Used for the root page (/) from the web server.
   debug("Sending -> Index JavaScript");
-  request->send(200, "application/javascript", String(INDEXJS_page)); // Serve page content.
+  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript", String(INDEXJS_page));
+  response->addHeader("Cache-Control", "public, max-age=86400");
+  request->send(response); // Serve page content.
 }
 
 void handleNetwork(AsyncWebServerRequest *request) {
   // Used for the network page from the web server.
   debug("Sending -> Network HTML");
-  request->send(200, "text/html", String(NETWORK_page)); // Serve page content.
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", String(NETWORK_page));
+  response->addHeader("Cache-Control", "public, max-age=60");
+  request->send(response); // Serve page content.
 }
 
 void handlePassword(AsyncWebServerRequest *request) {
   // Used for the password page from the web server.
   debug("Sending -> Password HTML");
-  request->send(200, "text/html", String(PASSWORD_page)); // Serve page content.
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", String(PASSWORD_page));
+  response->addHeader("Cache-Control", "public, max-age=60");
+  request->send(response); // Serve page content.
 }
 
 void handleDeviceSettings(AsyncWebServerRequest *request) {
   // Used for the device page from the web server.
   debug("Sending -> Device Settings HTML");
-  request->send(200, "text/html", String(DEVICE_page)); // Serve page content.
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", String(DEVICE_page));
+  response->addHeader("Cache-Control", "public, max-age=60");
+  request->send(response); // Serve page content.
 }
 
 void handlePackSettings(AsyncWebServerRequest *request) {
@@ -309,7 +321,9 @@ void handlePackSettings(AsyncWebServerRequest *request) {
 
   // Used for the settings page from the web server.
   debug("Sending -> Pack Settings HTML");
-  request->send(200, "text/html", String(PACK_SETTINGS_page)); // Serve page content.
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", String(PACK_SETTINGS_page));
+  response->addHeader("Cache-Control", "public, max-age=60");
+  request->send(response); // Serve page content.
 }
 
 void handleWandSettings(AsyncWebServerRequest *request) {
@@ -319,7 +333,9 @@ void handleWandSettings(AsyncWebServerRequest *request) {
 
   // Used for the settings page from the web server.
   debug("Sending -> Wand Settings HTML");
-  request->send(200, "text/html", String(WAND_SETTINGS_page)); // Serve page content.
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", String(WAND_SETTINGS_page));
+  response->addHeader("Cache-Control", "public, max-age=60");
+  request->send(response); // Serve page content.
 }
 
 void handleSmokeSettings(AsyncWebServerRequest *request) {
@@ -329,19 +345,24 @@ void handleSmokeSettings(AsyncWebServerRequest *request) {
 
   // Used for the settings page from the web server.
   debug("Sending -> Smoke Settings HTML");
-  request->send(200, "text/html", String(SMOKE_SETTINGS_page)); // Serve page content.
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", String(SMOKE_SETTINGS_page));
+  response->addHeader("Cache-Control", "public, max-age=60");
+  request->send(response); // Serve page content.
 }
 
 void handleStylesheet(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
   debug("Sending -> Main StyleSheet");
-  request->send(200, "text/css", String(STYLE_page)); // Serve page content.
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/css", String(STYLE_page));
+  response->addHeader("Cache-Control", "public, max-age=86400");
+  request->send(response); // Serve page content.
 }
 
 void handleEquipSvg(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
   debug("Sending -> Equipment SVG");
   AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", EQUIP_svg, sizeof(EQUIP_svg));
+  response->addHeader("Cache-Control", "public, max-age=86400");
   response->addHeader("Content-Encoding", "gzip");
   request->send(response);
 }
@@ -350,6 +371,7 @@ void handleFavIco(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
   debug("Sending -> Favicon");
   AsyncWebServerResponse *response = request->beginResponse(200, "image/x-icon", FAVICON_ico, sizeof(FAVICON_ico));
+  response->addHeader("Cache-Control", "public, max-age=86400");
   response->addHeader("Content-Encoding", "gzip");
   request->send(response);
 }
@@ -358,6 +380,7 @@ void handleFavSvg(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
   debug("Sending -> Favicon");
   AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", FAVICON_svg, sizeof(FAVICON_svg));
+  response->addHeader("Cache-Control", "public, max-age=86400");
   response->addHeader("Content-Encoding", "gzip");
   request->send(response);
 }

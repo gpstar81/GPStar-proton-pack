@@ -1523,7 +1523,7 @@ void soundIdleLoopStop(bool stopAlts) {
     break;
   }
 
-  if(stopAlts == true && b_gpstar_benchtest) {
+  if(stopAlts && b_gpstar_benchtest) {
     switch(STREAM_MODE) {
       case SLIME:
         stopEffect(S_WAND_SLIME_IDLE_LOOP);
@@ -7581,7 +7581,7 @@ void modeFiring() {
     }
   }
 
-  if((b_firing_alt != true || b_firing_intensify != true) && b_firing_cross_streams && FIRING_MODE == CTS_MIX_MODE) {
+  if((!b_firing_alt || !b_firing_intensify) && b_firing_cross_streams && FIRING_MODE == CTS_MIX_MODE) {
     // In CTS Mix mode, you can release either Intensify or the Barrel Wing Button and firing will revert to the mode for the still-held button.
     b_firing_cross_streams = false;
     b_sound_firing_cross_the_streams = false;
@@ -7641,7 +7641,7 @@ void modeFiring() {
     }
 
     // Restart the impact sound timer for the standalone wand.
-    if(b_stream_effects == true && b_gpstar_benchtest) {
+    if(b_stream_effects && b_gpstar_benchtest) {
       ms_firing_sound_mix.start(random(7,15) * 1000);
     }
   }
@@ -7824,7 +7824,7 @@ void modeFiring() {
   }
 
   // Standalone Neutrona Wand gets additional impact sounds which would normally be played by Proton Pack.
-  if(ms_firing_sound_mix.justFinished() && STREAM_MODE == PROTON && b_firing_cross_streams != true && b_stream_effects == true && b_gpstar_benchtest) {
+  if(ms_firing_sound_mix.justFinished() && STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects && b_gpstar_benchtest) {
     uint8_t i_random = 0;
 
     switch(i_last_firing_effect_mix) {
@@ -10493,20 +10493,13 @@ void ventLightControl(uint8_t i_intensity) {
   if(i_intensity <= 1) {
     // Turn off if not off already.
     if(vent_leds[0]) {
-      digitalWrite(VENT_LED_PIN, HIGH);
+      analogWrite(VENT_LED_PIN, 255);
       vent_leds[0] = getHueAsRGB(C_BLACK);
       b_vent_lights_changed = true;
     }
   }
   else {
-    if(!b_rgb_vent_light) {
-      if(i_intensity == 255) {
-        digitalWrite(VENT_LED_PIN, LOW);
-      }
-      else {
-        analogWrite(VENT_LED_PIN, 255 - i_intensity);
-      }
-    }
+    analogWrite(VENT_LED_PIN, 255 - ledLookupTable[i_intensity]);
 
     switch(STREAM_MODE) {
       case STASIS:
@@ -10518,7 +10511,7 @@ void ventLightControl(uint8_t i_intensity) {
           vent_leds[0] = getHueAsRGB(C_PASTEL_PINK, i_intensity);
         }
         else {
-          vent_leds[0] = getHueAsRGB(C_DARK_GREEN, i_intensity);
+          vent_leds[0] = getHueAsRGB(C_GREEN, i_intensity);
         }
       break;
 

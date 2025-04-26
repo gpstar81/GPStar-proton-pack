@@ -737,7 +737,7 @@ void ventLightControl(uint8_t i_intensity) {
       led_Vent.turnOff();
     }
     else {
-      led_Vent.dim(255 - i_intensity);
+      led_Vent.dim(255 - ledLookupTable[i_intensity]);
     }
   }
 }
@@ -756,19 +756,19 @@ void deviceLightControlCheck() {
         switch(POWER_LEVEL) {
           case LEVEL_1:
           default:
-            ventLightControl(35);
+            ventLightControl(i_vent_led_power_1);
           break;
           case LEVEL_2:
-            ventLightControl(65);
+            ventLightControl(i_vent_led_power_2);
           break;
           case LEVEL_3:
-            ventLightControl(95);
+            ventLightControl(i_vent_led_power_3);
           break;
           case LEVEL_4:
-            ventLightControl(125);
+            ventLightControl(i_vent_led_power_4);
           break;
           case LEVEL_5:
-            ventLightControl(155);
+            ventLightControl(i_vent_led_power_5);
           break;
         }
       }

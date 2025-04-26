@@ -91,7 +91,9 @@ If your pack and wand are on default settings (you may test this by entering the
 
 ### Bench Test Mode ###
 
-If you wish to test (or use) the Neutrona Wand without a Proton Pack, flash [binaries/wand/extras/NeutronaWand-BenchTest.hex](binaries/wand/extras/NeutronaWand-BenchTest.hex?raw=1) to the device to enable a special mode which will allow the wand to operation without waiting for a response from the pack. This is useful for debugging whether the serial connection is incorrect.
+If you wish to use the Neutrona Wand without a Proton Pack, flash [NeutronaWand-BenchTest.hex](binaries/wand/extras/NeutronaWand-BenchTest.hex?raw=1) from the Neutrona Wand binary extras folder to the device to enable a special mode which will allow the wand to operate without waiting for a response from the pack. As of firmware 5.3.3 you can also bridge/jumper the Proton Pack TX1 and RX1 pins on the Neutrona Wand circuit board to enable Bench Test mode without flashing the above firmware (see below image). This is useful for debugging whether an issue with your Proton Pack serial connection is the cause of your wand issues.
+
+![](images/GPStar-Wand-BenchTest.jpg)
 
 ## Audio Troubleshooting ##
 
@@ -109,7 +111,7 @@ If no audio is heard but the green LED is lit, make sure that 2 jumpers are atta
 |-----|-----|-----|-----|-----|-----|
 |  X  |  X  |     |  X  |  X  |     |
 
-Remember that a ground loop isolator is not required for this device as this is built into the hardware. Use of an additional isolator may impact the audio quality.
+Remember that a ground loop isolator is not required for this device as this is built into the hardware. Use of an additional isolator may negatively impact the audio quality.
 
 ---
 
@@ -119,15 +121,15 @@ Remember that a ground loop isolator is not required for this device as this is 
 
 **Troubleshooting**
 
-1. Make sure your WAV files are named properly and are located in the root directory of the microSD card. When you first power on GPStar Audio, it will locate and index the files and then the green LED will blink at half second intervals.
+1. Make sure your WAV files are named properly and are located in the root directory of the microSD card. When you first power on GPStar Audio, it will locate and index the files and then the green LED will blink at half second intervals. **NOTE:** As of firmware 5.4.4, once the GPStar Audio successfully connects to one of the device boards the green LED will turn off to prevent light bleed.
 
 2. If there’s no activity on the "Green" status LED whatsoever when you power up GPStar Audio, check the “BOOT/LOAD” switch next to the 6 pin JST-XH connector is in the “BOOT” position.
 
-3. Once you see the "Green" status LED blinking slowly, pressing the on-board "Test" button will play the lowest numbered track on the microSD card. Confirm this by observing the "Gree" status LED turning blinking very rapidly to indicate a track is playing. You should hear the track through the stereo jack or any speaker connected to the board.
+3. Once you see the "Green" status LED blinking slowly, pressing the on-board "Test" button will play the lowest numbered track on the microSD card. Confirm this by observing the "Gree" status LED turning blinking very rapidly to indicate a track is playing. You should hear the track through the stereo jack or any speaker connected to the board. **NOTE:** As of firmware 5.4.4, this LED will not blink if the GPStar Audio has successfully connected to GPStar equipment. The GPStar Audio can be tested outside of equipment by plugging your GPStar Programming Cable into the white device connector and connecting the USB cable to your computer.
 
 4. Low quality SD Cards sometimes provide issues such as sounds not playing. Please consider using high quality SD Cards. We recommend the Sandisk Extreme A1/A2 U3 V30 32GB Micro SD Cards.
 
-5. If you’ve gotten this far and tracks won’t play, then it’s most likely that your WAV files are not the correct format. GPStar Audio will only play WAV files formatted as 16-bit, stereo, 44.1kHz, and there can be no meta-data (non-audio data) in the file before the audio data. It seems that many Mac audio applications insert a meta-data chunk prior to the audio, and this will prevent the track from playing. In such cases, simply importing the file and re-exporting with Audacity will likely fix the problem.
+5. If you’ve gotten this far and tracks won’t play, then it’s most likely that your WAV files are not the correct format. GPStar Audio will only play uncompressed WAV files formatted as 16-bit, stereo, 44.1kHz, and there can be no meta-data (non-audio data) in the file before the audio data. It seems that many Mac audio applications insert a meta-data chunk prior to the audio, and this will prevent the track from playing. In such cases, simply importing the file and re-exporting with Audacity will likely fix the problem.
 
 6. Please remove any metadata contained in the music wav files you add, as it can cause issues loading the file for playback.
 
