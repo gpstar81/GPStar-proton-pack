@@ -11,7 +11,7 @@ Mount the board and wire the connections as indicated in the photo below. Note t
 | Vent Light | Neutrona Wand |
 |------------|---------------|
 | VL+ | VL+  |
-| D12	| D12  |
+| D12 | D12  |
 | GND | ROT- |
 
 
