@@ -10491,6 +10491,11 @@ void ventTopLightControl(bool b_on) {
 
 void ventLightControl(uint8_t i_intensity) {
   if(b_rgb_vent_light) {
+    // Put in a check just to be sure the non-addressable pin stays off.
+    if(digitalRead(VENT_LED_PIN) != HIGH) {
+      analogWrite(VENT_LED_PIN, 255);
+    }
+
     if(i_intensity < 20) {
       // Turn off if not off already.
       if(vent_leds[0]) {
