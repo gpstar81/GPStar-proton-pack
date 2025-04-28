@@ -147,14 +147,15 @@ void setup() {
     readEEPROM();
   }
 
+  // Reset the master volume. Important to keep this as we startup the system at the lowest volume.
+  // Then the EEPROM reads any settings if required, then we reset the volume.
+  updateMasterVolume(true);
+
   // Start up some timers for MODE_ORIGINAL.
   ms_slo_blo_blink.start(i_slo_blo_blink_delay);
 
-  // Check music timer for bench test mode only.
+  // Starts music track completion check timer.
   ms_check_music.start(i_music_check_delay);
-
-  // Reset our master volume manually.
-  updateMasterVolume(true);
 
   // Make sure lights are off, including the bargraph.
   allLightsOff();

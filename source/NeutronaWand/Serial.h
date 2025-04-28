@@ -387,6 +387,9 @@ void checkPack() {
               readEEPROM();
             }
 
+            // Reset our master volume according to the new EEPROM values.
+            updateMasterVolume(true);
+
             // Sanity check to make sure that a firing mode was set as default.
             if(FIRING_MODE != CTS_MODE && FIRING_MODE != CTS_MIX_MODE) {
               FIRING_MODE = VG_MODE;
@@ -401,9 +404,6 @@ void checkPack() {
 
             // Stop the pack sync timer since we are no longer syncing to a pack.
             ms_packsync.stop();
-
-            // No pack to do a volume sync with, so reset our master volume manually.
-            updateMasterVolume(true);
 
             // Immediately exit the serial data functions.
             return;
