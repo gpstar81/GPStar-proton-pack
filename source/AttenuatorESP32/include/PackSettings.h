@@ -158,7 +158,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b>Brightness %:</b><br/>
-      <input type="range" id="ledCycLidLum" name="ledCycLidLum" min="10" max="100" value="100" step="10"
+      <input type="range" id="ledCycLidLum" name="ledCycLidLum" min="20" max="100" value="100" step="5"
        oninput="cycLumOut.value=ledCycLidLum.value"/>
       <output class="labelSlider" id="cycLumOut" for="ledCycLidLum"></output>
     </div>
@@ -211,7 +211,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b>Panel Brightness %:</b><br/>
-      <input type="range" id="ledCycPanLum" name="ledCycPanLum" min="10" max="100" value="100" step="10"
+      <input type="range" id="ledCycPanLum" name="ledCycPanLum" min="20" max="100" value="100" step="5"
        oninput="panLumOut.value=ledCycPanLum.value"/>
       <output class="labelSlider" id="panLumOut" for="ledCycPanLum"></output>
     </div>
@@ -249,7 +249,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b>Brightness %:</b><br/>
-      <input type="range" id="ledCycCakeLum" name="ledCycCakeLum" min="10" max="100" value="100" step="10"
+      <input type="range" id="ledCycCakeLum" name="ledCycCakeLum" min="20" max="100" value="100" step="5"
        oninput="cakeLumOut.value=ledCycCakeLum.value"/>
       <output class="labelSlider" id="cakeLumOut" for="ledCycCakeLum"></output>
     </div>
@@ -294,7 +294,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b>Brightness %:</b><br/>
-      <input type="range" id="ledPowercellLum" name="ledPowercellLum" min="10" max="100" value="100" step="10"
+      <input type="range" id="ledPowercellLum" name="ledPowercellLum" min="20" max="100" value="100" step="5"
        oninput="pcLumOut.value=ledPowercellLum.value"/>
       <output class="labelSlider" id="pcLumOut" for="ledPowercellLum"></output>
     </div>

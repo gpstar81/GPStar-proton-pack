@@ -723,7 +723,12 @@ void ventTopLightControl(bool b_on) {
 
 void ventLightControl(uint8_t i_intensity) {
   if(b_rgb_vent_light) {
-    if(i_intensity <= 1) {
+    // Put in a check just to be sure the non-addressable pin stays off.
+    if(led_Vent.getState() != HIGH) {
+      led_Vent.turnOff();
+    }
+
+    if(i_intensity < 20) {
       vent_leds[0] = getHueAsRGB(C_BLACK);
     }
     else {
@@ -733,11 +738,11 @@ void ventLightControl(uint8_t i_intensity) {
     b_vent_lights_changed = true;
   }
   else {
-    if(i_intensity <= 1) {
+    if(i_intensity < 1) {
       led_Vent.turnOff();
     }
     else {
-      led_Vent.dim(255 - ledLookupTable[i_intensity]);
+      led_Vent.dim(255 - PROGMEM_READU8(ledLookupTable[i_intensity]));
     }
   }
 }

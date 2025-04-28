@@ -175,7 +175,7 @@ void setup() {
   INNER_CYC_PANEL_MODE = PANEL_INDIVIDUAL;
 
   // Load any saved settings stored in the EEPROM memory of the Proton Pack.
-  if(b_eeprom == true) {
+  if(b_eeprom) {
     readEEPROM();
   }
 
@@ -211,7 +211,7 @@ void setup() {
 
   if(SYSTEM_MODE == MODE_SUPER_HERO) {
     // Auto start the pack if it is in demo light mode.
-    if(b_demo_light_mode == true) {
+    if(b_demo_light_mode) {
       // Turn the pack on.
       PACK_ACTION_STATE = ACTION_ACTIVATE;
     }
@@ -222,7 +222,7 @@ void setup() {
   updateMasterVolume(true);
 
   // Perform power-on sequence if demo light mode is not enabled per user preferences.
-  if(b_demo_light_mode != true) {
+  if(!b_demo_light_mode) {
     // System Power On Self Test
     playEffect(S_POWER_ON);
     ms_delay_post.start(0);
@@ -270,7 +270,7 @@ void loop() {
           playEffect(PROGMEM_READU16(sfx_smoke[random(5)]));
         }
 
-        if(b_pack_on == true) {
+        if(b_pack_on) {
           b_2021_ramp_up = false;
           b_2021_ramp_up_start = false;
           b_inner_ramp_up = false;
@@ -289,8 +289,8 @@ void loop() {
           b_pack_on = false;
         }
 
-        if(b_2021_ramp_down == true && b_overheating == false && b_alarm == false) {
-          if(b_spectral_lights_on == true) {
+        if(b_2021_ramp_down && !b_overheating && !b_alarm) {
+          if(b_spectral_lights_on) {
             // If we enter the LED EEPROM menu while the pack is ramping off, stop it right away.
             packOffReset();
             spectralLightsOn();
@@ -302,9 +302,9 @@ void loop() {
           }
         }
         else {
-          if(b_spectral_lights_on != true) {
+          if(!b_spectral_lights_on) {
             if(ms_fadeout.justFinished()) {
-              if(fadeOutCyclotron() == true) {
+              if(fadeOutCyclotron()) {
                 ms_fadeout.start(i_fadeout_duration);
               }
               else {
@@ -313,7 +313,7 @@ void loop() {
               }
             }
 
-            if(b_reset_start_led == false && ms_fadeout.isRunning() != true) {
+            if(!b_reset_start_led && !ms_fadeout.isRunning()) {
               packOffReset();
             }
           }
@@ -324,15 +324,15 @@ void loop() {
         // Turn off the status indicator LED.
         digitalWriteFast(PACK_STATUS_LED_PIN, LOW);
 
-        if(b_spectral_lights_on == true) {
+        if(b_spectral_lights_on) {
           spectralLightsOff();
         }
 
-        if(b_pack_shutting_down == true) {
+        if(b_pack_shutting_down) {
           b_pack_shutting_down = false;
         }
 
-        if(b_pack_on == false) {
+        if(!b_pack_on) {
           // Tell the wand the pack is on.
           packSerialSend(P_ON);
           serial1Send(A_PACK_ON);
@@ -342,7 +342,7 @@ void loop() {
           b_pack_on = true;
         }
 
-        if(b_2021_ramp_down == true && !ms_mash_lockout.isRunning()) {
+        if(b_2021_ramp_down && !ms_mash_lockout.isRunning()) {
           b_2021_ramp_down = false;
           b_2021_ramp_down_start = false;
           b_inner_ramp_down = false;
@@ -350,8 +350,8 @@ void loop() {
           reset2021RampUp();
         }
 
-        if(ribbonCableAttached() == true && b_overheating == false) {
-          if(b_alarm == true) {
+        if(ribbonCableAttached() && !b_overheating) {
+          if(b_alarm) {
             if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
               // Reset the LEDs before resetting the alarm flag.
               if(!usingSlimeCyclotron()) {
@@ -383,9 +383,9 @@ void loop() {
         checkCyclotronAutoSpeed();
 
         // Play a little bit of smoke and N-Filter vent lights while firing and other misc sound effects.
-        if(b_wand_firing == true) {
+        if(b_wand_firing) {
           // Mix some impact sound effects.
-          if(ms_firing_sound_mix.justFinished() && STREAM_MODE == PROTON && STATUS_CTS == CTS_NOT_FIRING && b_stream_effects == true) {
+          if(ms_firing_sound_mix.justFinished() && STREAM_MODE == PROTON && STATUS_CTS == CTS_NOT_FIRING && b_stream_effects) {
             uint8_t i_random = 0;
 
             switch(i_last_firing_effect_mix) {
@@ -461,19 +461,19 @@ void loop() {
           }
 
           if(ms_smoke_timer.justFinished()) {
-            if(ms_smoke_on.isRunning() != true) {
+            if(!ms_smoke_on.isRunning()) {
               ms_smoke_on.start(PROGMEM_READU16(i_smoke_on_time[i_wand_power_level - 1]));
             }
           }
 
-          if(ms_smoke_on.isRunning() == true) {
+          if(ms_smoke_on.isRunning()) {
             // Turn on some smoke and play some vent sounds if smoke is enabled.
-            if(b_smoke_enabled == true) {
+            if(b_smoke_enabled) {
               // Turn on some smoke.
               smokeNFilter(true);
 
               // Play some sounds with the smoke and vent lighting.
-              if(b_vent_sounds == true) {
+              if(b_vent_sounds) {
                 playVentSounds();
 
                 b_vent_sounds = false;
@@ -507,7 +507,7 @@ void loop() {
           }
         }
 
-        if(b_venting == true) {
+        if(b_venting) {
           packVenting();
         }
 
@@ -522,7 +522,7 @@ void loop() {
 
         cyclotronSwitchLEDLoop(); // Update the cyclotron.
 
-        if(b_overheating == true && b_overheat_lights_off == true) {
+        if(b_overheating && b_overheat_lights_off) {
           powercellRampDown();
         }
         else {
@@ -556,7 +556,7 @@ void loop() {
 
     ms_fast_led.start(i_fast_led_delay);
 
-    if(b_powercell_updating == true) {
+    if(b_powercell_updating) {
       b_powercell_updating = false;
     }
   }

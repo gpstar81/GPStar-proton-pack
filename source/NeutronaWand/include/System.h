@@ -4170,7 +4170,7 @@ void modeFireStartSounds() {
       switch(i_power_level) {
         case 1 ... 4:
         default:
-          if(b_firing_intensify == true) {
+          if(b_firing_intensify) {
             switch(getSystemYearMode()) {
               case SYSTEM_1984:
                 playEffect(S_GB1_1984_FIRE_START_SHORT, false, i_volume_effects, false, 0, false);
@@ -4200,7 +4200,7 @@ void modeFireStartSounds() {
             b_sound_firing_intensify_trigger = false;
           }
 
-          if(b_firing_alt == true) {
+          if(b_firing_alt) {
             if(getSystemYearMode() == SYSTEM_1989) {
               playEffect(S_GB2_FIRE_START, false, i_volume_effects, false, 0, false);
               playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 6500, false);
@@ -4241,7 +4241,7 @@ void modeFireStartSounds() {
             break;
           }
 
-          if(b_firing_intensify == true) {
+          if(b_firing_intensify) {
             // Reset some sound triggers.
             b_sound_firing_intensify_trigger = true;
             if(getSystemYearMode() == SYSTEM_1984) {
@@ -4258,7 +4258,7 @@ void modeFireStartSounds() {
             b_sound_firing_intensify_trigger = false;
           }
 
-          if(b_firing_alt == true) {
+          if(b_firing_alt) {
             // Reset some sound triggers.
             b_sound_firing_alt_trigger = true;
             if(getSystemYearMode() == SYSTEM_1989) {
@@ -4344,7 +4344,7 @@ void bargraphSuperHeroRampFiringAnimation() {
 
           i_bargraph_status_alt++;
 
-          if(b_bargraph_up == false) {
+          if(!b_bargraph_up) {
             ht_bargraph.clearLed(bargraphLookupTable(13));
             ht_bargraph.clearLed(bargraphLookupTable(16));
 
@@ -4815,7 +4815,7 @@ void bargraphSuperHeroRampFiringAnimation() {
 
           i_bargraph_status_alt++;
 
-          if(b_bargraph_up == false) {
+          if(!b_bargraph_up) {
             ht_bargraph.clearLed(bargraphLookupTable(12));
             ht_bargraph.clearLed(bargraphLookupTable(15));
 
@@ -5371,7 +5371,7 @@ void bargraphModeOriginalRampFiringAnimation() {
     bool b_tmp_down = true;
 
     for(uint8_t i = 0; i < i_bargraph_segments - i_segment_adjust; i++) {
-      if(b_bargraph_status[i] != true && i < i_bargraph_status_alt) {
+      if(!b_bargraph_status[i] && i < i_bargraph_status_alt) {
         b_tmp_down = false;
         break;
       }
@@ -5379,7 +5379,7 @@ void bargraphModeOriginalRampFiringAnimation() {
 
     switch(i_power_level) {
       case 5:
-        if(b_tmp_down == true) {
+        if(b_tmp_down) {
           // Moving down.
           for(uint8_t i = i_bargraph_segments - (i_segment_adjust + 1); i >= i_bargraph_status_alt; i--) {
             if(i_bargraph_status_alt == i) {
@@ -5407,7 +5407,7 @@ void bargraphModeOriginalRampFiringAnimation() {
               }
             }
 
-            if(b_bargraph_status[i] == true) {
+            if(b_bargraph_status[i]) {
               ht_bargraph.clearLed(bargraphLookupTable(i));
               b_bargraph_status[i] = false;
 
@@ -5448,7 +5448,7 @@ void bargraphModeOriginalRampFiringAnimation() {
               }
             }
 
-            if(b_bargraph_status[i] == false) {
+            if(!b_bargraph_status[i]) {
               ht_bargraph.setLed(bargraphLookupTable(i));
               b_bargraph_status[i] = true;
 
@@ -5461,7 +5461,7 @@ void bargraphModeOriginalRampFiringAnimation() {
       break;
 
       case 4:
-        if(b_tmp_down == true) {
+        if(b_tmp_down) {
           // Moving down.
           for(uint8_t i = 25; i >= i_bargraph_status_alt; i--) {
             if(i_bargraph_status_alt == i) {
@@ -5492,7 +5492,7 @@ void bargraphModeOriginalRampFiringAnimation() {
               }
             }
 
-            if(b_bargraph_status[i] == true) {
+            if(b_bargraph_status[i]) {
               ht_bargraph.clearLed(bargraphLookupTable(i));
               b_bargraph_status[i] = false;
 
@@ -5533,7 +5533,7 @@ void bargraphModeOriginalRampFiringAnimation() {
               }
             }
 
-            if(b_bargraph_status[i] == false) {
+            if(!b_bargraph_status[i]) {
               ht_bargraph.setLed(bargraphLookupTable(i));
               b_bargraph_status[i] = true;
 
@@ -5546,7 +5546,7 @@ void bargraphModeOriginalRampFiringAnimation() {
       break;
 
       case 3:
-        if(b_tmp_down == true) {
+        if(b_tmp_down) {
           // Moving down.
           for(uint8_t i = 19; i >= i_bargraph_status_alt; i--) {
             if(i_bargraph_status_alt == i) {
@@ -5577,7 +5577,7 @@ void bargraphModeOriginalRampFiringAnimation() {
               }
             }
 
-            if(b_bargraph_status[i] == true) {
+            if(b_bargraph_status[i]) {
               ht_bargraph.clearLed(bargraphLookupTable(i));
               b_bargraph_status[i] = false;
 
@@ -5618,7 +5618,7 @@ void bargraphModeOriginalRampFiringAnimation() {
               }
             }
 
-            if(b_bargraph_status[i] == false) {
+            if(!b_bargraph_status[i]) {
               ht_bargraph.setLed(bargraphLookupTable(i));
               b_bargraph_status[i] = true;
 
@@ -5631,7 +5631,7 @@ void bargraphModeOriginalRampFiringAnimation() {
       break;
 
       case 2:
-        if(b_tmp_down == true) {
+        if(b_tmp_down) {
           // Moving down.
           for(uint8_t i = 13; i >= i_bargraph_status_alt; i--) {
             if(i_bargraph_status_alt == i) {
@@ -5656,7 +5656,7 @@ void bargraphModeOriginalRampFiringAnimation() {
               }
             }
 
-            if(b_bargraph_status[i] == true) {
+            if(b_bargraph_status[i]) {
               ht_bargraph.clearLed(bargraphLookupTable(i));
               b_bargraph_status[i] = false;
 
@@ -5691,7 +5691,7 @@ void bargraphModeOriginalRampFiringAnimation() {
               }
             }
 
-            if(b_bargraph_status[i] == false) {
+            if(!b_bargraph_status[i]) {
               ht_bargraph.setLed(bargraphLookupTable(i));
               b_bargraph_status[i] = true;
 
@@ -5705,7 +5705,7 @@ void bargraphModeOriginalRampFiringAnimation() {
 
       case 1:
       default:
-        if(b_tmp_down == true) {
+        if(b_tmp_down) {
           // Moving down.
           for(uint8_t i = 7; i >= i_bargraph_status_alt; i--) {
             if(i_bargraph_status_alt == i) {
@@ -5730,7 +5730,7 @@ void bargraphModeOriginalRampFiringAnimation() {
               }
             }
 
-            if(b_bargraph_status[i] == true) {
+            if(b_bargraph_status[i]) {
               ht_bargraph.clearLed(bargraphLookupTable(i));
               b_bargraph_status[i] = false;
 
@@ -5765,7 +5765,7 @@ void bargraphModeOriginalRampFiringAnimation() {
               }
             }
 
-            if(b_bargraph_status[i] == false) {
+            if(!b_bargraph_status[i]) {
               ht_bargraph.setLed(bargraphLookupTable(i));
               b_bargraph_status[i] = true;
 
@@ -5819,7 +5819,7 @@ void bargraphModeOriginalRampFiringAnimation() {
     bool b_tmp_down = true;
 
     for(uint8_t i = 0; i < i_bargraph_segments_5_led; i++) {
-      if(b_bargraph_status_5[i] != true && i <= i_bargraph_status) {
+      if(!b_bargraph_status_5[i] && i <= i_bargraph_status) {
         b_tmp_down = false;
         break;
       }
@@ -5827,7 +5827,7 @@ void bargraphModeOriginalRampFiringAnimation() {
 
     switch(i_power_level) {
       case 5:
-        if(b_tmp_down == true) {
+        if(b_tmp_down) {
           // Moving down.
           for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
             if(i_bargraph_status == i) {
@@ -5856,7 +5856,7 @@ void bargraphModeOriginalRampFiringAnimation() {
             }
 
 
-            if(b_bargraph_status_5[i-1] == true) {
+            if(b_bargraph_status_5[i-1]) {
               wandBargraphControl(i-1);
               break;
             }
@@ -5890,7 +5890,7 @@ void bargraphModeOriginalRampFiringAnimation() {
               }
             }
 
-            if(b_bargraph_status_5[i] == false) {
+            if(!b_bargraph_status_5[i]) {
               wandBargraphControl(i+1);
               break;
             }
@@ -5899,7 +5899,7 @@ void bargraphModeOriginalRampFiringAnimation() {
       break;
 
       case 4:
-        if(b_tmp_down == true) {
+        if(b_tmp_down) {
           // Moving down.
           for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
             if(i_bargraph_status == i) {
@@ -5928,7 +5928,7 @@ void bargraphModeOriginalRampFiringAnimation() {
             }
 
 
-            if(b_bargraph_status_5[i-1] == true) {
+            if(b_bargraph_status_5[i-1]) {
               wandBargraphControl(i-1);
               break;
             }
@@ -5962,7 +5962,7 @@ void bargraphModeOriginalRampFiringAnimation() {
               }
             }
 
-            if(b_bargraph_status_5[i] == false) {
+            if(!b_bargraph_status_5[i]) {
               wandBargraphControl(i+1);
               break;
             }
@@ -5971,7 +5971,7 @@ void bargraphModeOriginalRampFiringAnimation() {
       break;
 
       case 3:
-        if(b_tmp_down == true) {
+        if(b_tmp_down) {
           // Moving down.
           for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
             if(i_bargraph_status == i) {
@@ -6000,7 +6000,7 @@ void bargraphModeOriginalRampFiringAnimation() {
             }
 
 
-            if(b_bargraph_status_5[i-1] == true) {
+            if(b_bargraph_status_5[i-1]) {
               wandBargraphControl(i-1);
               break;
             }
@@ -6034,7 +6034,7 @@ void bargraphModeOriginalRampFiringAnimation() {
               }
             }
 
-            if(b_bargraph_status_5[i] == false) {
+            if(!b_bargraph_status_5[i]) {
               wandBargraphControl(i+1);
               break;
             }
@@ -6043,7 +6043,7 @@ void bargraphModeOriginalRampFiringAnimation() {
       break;
 
       case 2:
-        if(b_tmp_down == true) {
+        if(b_tmp_down) {
           // Moving down.
           for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
             if(i_bargraph_status == i) {
@@ -6072,7 +6072,7 @@ void bargraphModeOriginalRampFiringAnimation() {
             }
 
 
-            if(b_bargraph_status_5[i-1] == true) {
+            if(b_bargraph_status_5[i-1]) {
               wandBargraphControl(i-1);
               break;
             }
@@ -6106,7 +6106,7 @@ void bargraphModeOriginalRampFiringAnimation() {
               }
             }
 
-            if(b_bargraph_status_5[i] == false) {
+            if(!b_bargraph_status_5[i]) {
               wandBargraphControl(i+1);
               break;
             }
@@ -6116,7 +6116,7 @@ void bargraphModeOriginalRampFiringAnimation() {
 
       case 1:
       default:
-        if(b_tmp_down == true) {
+        if(b_tmp_down) {
           // Moving down.
           for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
             if(i_bargraph_status == i) {
@@ -6144,7 +6144,7 @@ void bargraphModeOriginalRampFiringAnimation() {
               }
             }
 
-            if(b_bargraph_status_5[i-1] == true) {
+            if(b_bargraph_status_5[i-1]) {
               wandBargraphControl(i-1);
               break;
             }
@@ -6178,7 +6178,7 @@ void bargraphModeOriginalRampFiringAnimation() {
               }
             }
 
-            if(b_bargraph_status_5[i] == false) {
+            if(!b_bargraph_status_5[i]) {
               wandBargraphControl(i+1);
               break;
             }
@@ -6460,13 +6460,13 @@ void modeFireStart() {
   // This will only overheat when enabled by using the alt firing when in crossing the streams mode.
   bool b_overheat_flag = true;
 
-  if(((FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) && b_firing_alt != true) || !b_overheat_enabled) {
+  if(((FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) && !b_firing_alt) || !b_overheat_enabled) {
     b_overheat_flag = false;
   }
 
-  if(b_overheat_flag == true) {
+  if(b_overheat_flag) {
     // If in high power level on the wand, start an overheat timer.
-    if(b_overheat_level[i_power_level - 1] == true) {
+    if(b_overheat_level[i_power_level - 1]) {
       ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_level - 1]);
     }
   }
@@ -6491,7 +6491,7 @@ void modeFireStart() {
 
   bargraphRampFiring();
 
-  if(STREAM_MODE == PROTON && b_stream_effects == true) {
+  if(STREAM_MODE == PROTON && b_stream_effects) {
     ms_impact.start(random(10,16) * 1000);
 
     // Standalone wand plays additional SFX from Proton Pack.
@@ -7404,7 +7404,7 @@ void fireStreamStart(CRGB c_colour) {
 
 void modeFiring() {
   // Sound trigger flags.
-  if(b_firing_intensify == true && b_sound_firing_intensify_trigger != true) {
+  if(b_firing_intensify && !b_sound_firing_intensify_trigger) {
     b_sound_firing_intensify_trigger = true;
 
     if(FIRING_MODE == CTS_MIX_MODE && STREAM_MODE == PROTON) {
@@ -7420,7 +7420,7 @@ void modeFiring() {
     }
   }
 
-  if(b_firing_intensify != true && b_sound_firing_intensify_trigger == true) {
+  if(!b_firing_intensify && b_sound_firing_intensify_trigger) {
     b_sound_firing_intensify_trigger = false;
 
     if(FIRING_MODE == CTS_MIX_MODE && STREAM_MODE == PROTON) {
@@ -7436,7 +7436,7 @@ void modeFiring() {
     }
   }
 
-  if(b_firing_alt == true && b_sound_firing_alt_trigger != true) {
+  if(b_firing_alt && !b_sound_firing_alt_trigger) {
     b_sound_firing_alt_trigger = true;
 
     if(FIRING_MODE == CTS_MIX_MODE && STREAM_MODE == PROTON) {
@@ -7463,7 +7463,7 @@ void modeFiring() {
     }
   }
 
-  if(b_firing_alt != true && b_sound_firing_alt_trigger == true) {
+  if(!b_firing_alt && b_sound_firing_alt_trigger) {
     b_sound_firing_alt_trigger = false;
 
     if(FIRING_MODE == CTS_MIX_MODE && STREAM_MODE == PROTON) {
@@ -7490,7 +7490,7 @@ void modeFiring() {
     }
   }
 
-  if(b_firing_alt == true && b_firing_intensify == true && b_sound_firing_cross_the_streams != true && b_firing_cross_streams != true) {
+  if(b_firing_alt && b_firing_intensify && !b_sound_firing_cross_the_streams && !b_firing_cross_streams) {
     b_firing_cross_streams = true;
     b_sound_firing_cross_the_streams = true;
 
@@ -7576,7 +7576,7 @@ void modeFiring() {
       break;
     }
 
-    if(b_stream_effects == true) {
+    if(b_stream_effects) {
       ms_impact.start(random(10,16) * 1000);
     }
   }
@@ -7649,13 +7649,13 @@ void modeFiring() {
   // Overheat timers.
   bool b_overheat_flag = true;
 
-  if(((FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) && b_firing_alt != true) || !b_overheat_enabled) {
+  if(((FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) && !b_firing_alt) || !b_overheat_enabled) {
     b_overheat_flag = false;
   }
 
-  if(b_overheat_flag == true) {
+  if(b_overheat_flag) {
     // If the user changes the wand power output while firing, turn off the overheat timer.
-    if(b_overheat_level[i_power_level - 1] != true && ms_overheat_initiate.isRunning()) {
+    if(!b_overheat_level[i_power_level - 1] && ms_overheat_initiate.isRunning()) {
       ms_overheat_initiate.stop();
 
       // Reset the hat lights and timers.
@@ -7664,7 +7664,7 @@ void modeFiring() {
       // Tell the pack to revert back to regular Cyclotron speeds.
       wandSerialSend(W_CYCLOTRON_NORMAL_SPEED);
     }
-    else if(b_overheat_level[i_power_level - 1] == true && !ms_overheat_initiate.isRunning()) {
+    else if(b_overheat_level[i_power_level - 1] && !ms_overheat_initiate.isRunning()) {
       // If the user changes back to power level that overheats while firing, start up a timer.
       // This currently works only in power levels 1-4. 5 stays locked when firing.
       ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_level - 1]);
@@ -7818,7 +7818,7 @@ void modeFiring() {
   }
 
   // Mix some impact sound every 10-15 seconds while firing.
-  if(ms_impact.justFinished() && STREAM_MODE == PROTON && b_firing_cross_streams != true && b_stream_effects == true) {
+  if(ms_impact.justFinished() && STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects) {
     playEffect(S_FIRE_LOOP_IMPACT, false, i_volume_effects, false, 0, false);
     ms_impact.start(random(10,16) * 1000);
   }
@@ -10490,63 +10490,70 @@ void ventTopLightControl(bool b_on) {
 }
 
 void ventLightControl(uint8_t i_intensity) {
-  if(i_intensity <= 1) {
-    // Turn off if not off already.
-    if(vent_leds[0]) {
+  if(b_rgb_vent_light) {
+    // Put in a check just to be sure the non-addressable pin stays off.
+    if(digitalRead(VENT_LED_PIN) != HIGH) {
       analogWrite(VENT_LED_PIN, 255);
-      vent_leds[0] = getHueAsRGB(C_BLACK);
+    }
+
+    if(i_intensity < 20) {
+      // Turn off if not off already.
+      if(vent_leds[0]) {
+        vent_leds[0] = getHueAsRGB(C_BLACK);
+        b_vent_lights_changed = true;
+      }
+    }
+    else {
+      switch(STREAM_MODE) {
+        case STASIS:
+          vent_leds[0] = getHueAsRGB(C_MID_BLUE, i_intensity);
+        break;
+
+        case SLIME:
+          if(getSystemYearMode() == SYSTEM_1989) {
+            vent_leds[0] = getHueAsRGB(C_PASTEL_PINK, i_intensity);
+          }
+          else {
+            vent_leds[0] = getHueAsRGB(C_GREEN, i_intensity);
+          }
+        break;
+
+        case MESON:
+          vent_leds[0] = getHueAsRGB(C_YELLOW, i_intensity);
+        break;
+
+        case SPECTRAL:
+          vent_leds[0] = getHueAsRGB(C_RAINBOW, i_intensity);
+        break;
+
+        case HOLIDAY_HALLOWEEN:
+          vent_leds[0] = getHueAsRGB(C_ORANGEPURPLE, i_intensity);
+        break;
+
+        case HOLIDAY_CHRISTMAS:
+          vent_leds[0] = getHueAsRGB(C_REDGREEN, i_intensity);
+        break;
+
+        case SPECTRAL_CUSTOM:
+          vent_leds[0] = getHueAsRGB(C_CUSTOM, i_intensity);
+        break;
+
+        case PROTON:
+        default:
+          if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
+            vent_leds[0] = getHueAsRGB(C_WHITE, i_intensity);
+          }
+          else {
+            vent_leds[0] = getHueAsRGB(C_WARM_WHITE, i_intensity);
+          }
+        break;
+      }
+
       b_vent_lights_changed = true;
     }
   }
   else {
-    analogWrite(VENT_LED_PIN, 255 - ledLookupTable[i_intensity]);
-
-    switch(STREAM_MODE) {
-      case STASIS:
-        vent_leds[0] = getHueAsRGB(C_BLUE, i_intensity);
-      break;
-
-      case SLIME:
-        if(getSystemYearMode() == SYSTEM_1989) {
-          vent_leds[0] = getHueAsRGB(C_PASTEL_PINK, i_intensity);
-        }
-        else {
-          vent_leds[0] = getHueAsRGB(C_GREEN, i_intensity);
-        }
-      break;
-
-      case MESON:
-        vent_leds[0] = getHueAsRGB(C_YELLOW, i_intensity);
-      break;
-
-      case SPECTRAL:
-        vent_leds[0] = getHueAsRGB(C_RAINBOW, i_intensity);
-      break;
-
-      case HOLIDAY_HALLOWEEN:
-        vent_leds[0] = getHueAsRGB(C_ORANGEPURPLE, i_intensity);
-      break;
-
-      case HOLIDAY_CHRISTMAS:
-        vent_leds[0] = getHueAsRGB(C_REDGREEN, i_intensity);
-      break;
-
-      case SPECTRAL_CUSTOM:
-        vent_leds[0] = getHueAsRGB(C_CUSTOM, i_intensity);
-      break;
-
-      case PROTON:
-      default:
-        if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
-          vent_leds[0] = getHueAsRGB(C_WHITE, i_intensity);
-        }
-        else {
-          vent_leds[0] = getHueAsRGB(C_WARM_WHITE, i_intensity);
-        }
-      break;
-    }
-
-    b_vent_lights_changed = true;
+    analogWrite(VENT_LED_PIN, 255 - PROGMEM_READU8(ledLookupTable[i_intensity]));    
   }
 }
 
