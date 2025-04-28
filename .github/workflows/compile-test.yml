@@ -24,9 +24,6 @@ jobs:
       - name: Compile SingleShot Project
         working-directory: source/SingleShot
         run: pio run
-      - name: Compile Attenuator for Nano
-        working-directory: source/AttenuatorNano
-        run: pio run
       - name: Compile Attenuator for ESP32
         working-directory: source/AttenuatorESP32
         run: pio run
