@@ -60,6 +60,7 @@ enum POWER_LEVELS POWER_LEVEL_PREV;
  * LED #1 is the "top" (near the DIN pin) while #7 is the dead center of the jewel itself.
  */
 #define SYSTEM_LED_PIN 10
+#define TOP_LED_PIN 12
 #define CYCLOTRON_LED_COUNT 7 // GPStar 7-LED Jewel
 #define BARREL_LED_COUNT 7 // GPStar 7-LED Jewel
 CRGB system_leds[CYCLOTRON_LED_COUNT + BARREL_LED_COUNT];
@@ -67,6 +68,14 @@ const uint8_t i_barrel_led = 6; // This will be the index of the light (#7), not
 const uint8_t i_num_barrel_leds = CYCLOTRON_LED_COUNT; // This will be the number of barrel LEDs
 const uint8_t i_num_cyclotron_leds = CYCLOTRON_LED_COUNT; // This will be the number of cyclotron LEDs
 const uint8_t i_cyclotron_led_start = i_num_barrel_leds; // The first element (index) for the cyclotron.
+
+/*
+ * RGB vent lights.
+ */
+#define VENT_LEDS_MAX 2 // The maximum number of LEDs for the vent lights. Main vent + top Cliplite.
+CRGB vent_leds[VENT_LEDS_MAX]; // FastLED object array for the RGB top/vent LEDs.
+const uint16_t i_vent_light_update_interval = 150; // FastLED update interval specifically for the top/vent LEDs.
+bool b_vent_lights_changed = false; // Check for whether there was actually a change to prevent superfluous calls to showLeds().
 
 /*
  * Non-addressable LEDs
@@ -107,7 +116,7 @@ struct StandaloneLED {
 // Create instances and initialize LEDs with their pin and respective values for on/off.
 StandaloneLED led_SloBlo = {8, HIGH, LOW};
 StandaloneLED led_Clippard = {9, HIGH, LOW};
-StandaloneLED led_TopWhite = {12, LOW, HIGH};
+StandaloneLED led_TopWhite = {TOP_LED_PIN, LOW, HIGH};
 StandaloneLED led_Vent = {13, LOW, HIGH};
 StandaloneLED led_Hat1 = {22, HIGH, LOW};
 StandaloneLED led_Hat2 = {23, HIGH, LOW};
@@ -201,10 +210,9 @@ struct Encoder {
 enum VIBRATION_MODES { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE };
 enum VIBRATION_MODES VIBRATION_MODE_EEPROM;
 enum VIBRATION_MODES VIBRATION_MODE;
-const uint8_t vibration = 11;
-const uint8_t i_vibration_level_min = 65;
-uint8_t i_vibration_level = i_vibration_level_min;
-uint8_t i_vibration_level_prev = 0;
+const uint8_t vibration = 11; // Vibration motor is on pin 11.
+const uint8_t i_vibration_level_min = 65; // Minimum vibration level is 25.5%.
+uint8_t i_vibration_level_current = 0; // Set the current value to 0 (off) on first start.
 millisDelay ms_menu_vibration; // Timer to do non-blocking confirmation buzzing in the vibration menu.
 
 /*
@@ -261,6 +269,18 @@ const uint16_t i_single_shot_rate = 2000; // Single shot firing rate, locking ou
 const uint8_t i_firing_pulse = 40; // Used to drive semi-automatic firing stream effect timers.
 const uint8_t i_pulse_step_max = 12; // Total number of steps per pulse animation.
 uint8_t i_pulse_step = 0; // Used to keep track of which pulse animation step we are on.
+
+/*
+ * Vent LED brightness settings.
+ * Non-addressable LEDs have logarithmic brightness, so we use a lookup table to make this roughly linear.
+ * This is because addressable LEDs use a roughly linear brightness curve already.
+ */
+const uint8_t ledLookupTable[256] PROGMEM = { 0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,7,7,7,8,8,8,9,9,9,10,10,11,11,11,12,12,13,13,14,14,15,15,16,16,17,17,18,18,19,19,20,20,21,21,22,23,23,24,24,25,26,26,27,28,28,29,30,30,31,32,32,33,34,35,35,36,37,38,38,39,40,41,42,42,43,44,45,46,47,47,48,49,50,51,52,53,54,55,56,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,73,74,75,76,77,78,79,80,81,82,84,85,86,87,88,89,91,92,93,94,95,97,98,99,100,102,103,104,105,107,108,109,111,112,113,115,116,117,119,120,121,123,124,126,127,128,130,131,133,134,136,137,139,140,142,143,145,146,148,149,151,152,154,155,157,158,160,162,163,165,166,168,170,171,173,175,176,178,180,181,183,185,186,188,190,192,193,195,197,199,200,202,204,206,207,209,211,213,215,217,218,220,222,224,226,228,230,232,233,235,237,239,241,243,245,247,249,251,253,255 };
+const uint8_t i_vent_led_power_1 = 102;
+const uint8_t i_vent_led_power_2 = 128;
+const uint8_t i_vent_led_power_3 = 153;
+const uint8_t i_vent_led_power_4 = 178;
+const uint8_t i_vent_led_power_5 = 204;
 
 /*
  * Device Menu

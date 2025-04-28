@@ -254,8 +254,8 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         if (this.readyState == 4 && this.status == 200) {
           var settings = JSON.parse(this.responseText);
           if (settings) {
-            if (!settings.prefsAvailable) {
-              alert("Preferences could not be downloaded. Please confirm a GPStar-powered wand is connected, then refresh the page to try again.");
+            if (!settings.wandConnected || !settings.prefsAvailable) {
+              alert("Preferences could not be downloaded. Please confirm a GPStar Neutrona Wand is connected, then refresh the page to try again.");
               return;
             }
 
@@ -339,12 +339,16 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
 
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-          getSettings(); // Get latest settings.
+        if (this.readyState == 4) {
+          if (this.status == 200) {
+            handleStatus(this.responseText);
+            setTimeout(getSettings, 400); // Get latest settings.
 
-          if (confirm("Settings successfully updated. Do you want to store the latest settings to the wand EEPROM?")) {
-            saveEEPROM(); // Perform action only if the user answers OK to the confirmation.
+            if (confirm("Settings successfully updated. Do you want to store the latest settings to the wand EEPROM?")) {
+              saveEEPROM(); // Perform action only if the user answers OK to the confirmation.
+            }
+          } else {
+            handleStatus(this.responseText);
           }
         }
       };

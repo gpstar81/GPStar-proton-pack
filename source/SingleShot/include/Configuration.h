@@ -77,6 +77,11 @@ const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 bool b_bargraph_invert = false;
 
 /*
+ * Enables the optional addressable RGB vent/top light board.
+ */
+bool b_rgb_vent_light = false;
+
+/*
  * Enables special brightness controls during idle and firing modes if set to true.
  */
 bool b_vent_light_control = true;

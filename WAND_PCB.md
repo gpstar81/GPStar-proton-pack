@@ -1,6 +1,6 @@
 # Wand PCB Hookup
 
-This guide is part of the kit approach to providing a minimally-invasive upgrade to the stock HasLab controllers. For the Neutrona Wand all available connections for JST-PH wiring is present, though a significant amount of wire-cutting will be required to separate the stock controller and re-attach using terminal blocks on the new PCB. The diagrams below detail the standard HasLab connections as well as using the 28-segment or 30-segment bargraphs from Frutto Technology.
+This guide is part of the kit approach to providing a minimally-invasive upgrade to the stock HasLab controllers. For the Neutrona Wand all available connections for JST-PH wiring is present, though a significant amount of wire-cutting will be required to separate the stock controller and re-attach using terminal blocks on the new PCB. The diagrams below detail the standard HasLab connections as well as using the 28-segment or 30-segment bargraphs.
 
 ![Standard PCB Connections](images/WandPCB-Standard.png)
 
@@ -49,7 +49,7 @@ Connections for the wand should be made according to the tables below.
 | A3 | <font color="orange">Orange</font> | Stock bar graph LED 3 |
 | A2 | <font color="red">Red</font> | Stock bar graph LED 2 |
 | A1 | <font color="brown">Brown</font> | Stock bar graph LED 1 |
-| D12 | <font color="gray">White</font> | Blinking top right LED |
+| D12 | <font color="gray">White</font> | Blinking top right LED / RGB vent light data |
 | D13 | Black | White vent light LED |
 | VL+ | <font color="red">Red</font> | VCC for top/vent lights |
 | D7 | <font color="orange">Orange</font> | Rotary encoder B |

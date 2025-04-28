@@ -214,9 +214,8 @@ static uint16_t store = 0;
 enum VIBRATION_MODES { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE, VIBRATION_DEFAULT, CYCLOTRON_MOTOR };
 enum VIBRATION_MODES VIBRATION_MODE_EEPROM;
 enum VIBRATION_MODES VIBRATION_MODE;
-const uint8_t i_vibration_level_min = 65;
-uint8_t i_vibration_level = i_vibration_level_min;
-uint8_t i_vibration_level_prev = 0;
+const uint8_t i_vibration_level_min = 15; // Minimum vibration level is 6%.
+uint8_t i_vibration_level_current = 0; // Set the current value to 0 (off) on first start.
 millisDelay ms_menu_vibration; // Timer to do non-blocking confirmation buzzing in the vibration menu.
 
 /*
@@ -272,13 +271,14 @@ const uint16_t i_overheat_delay_max = 60000; // The maximum amount of time befor
  * You can enable or disable overheating for each power level individually in the user adjustable values at the top of this file.
  * This also contains the PWM duty cycle values for each power level in case vent light PWM control is enabled.
  */
+const uint8_t ledLookupTable[256] PROGMEM = { 0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,7,7,7,8,8,8,9,9,9,10,10,11,11,11,12,12,13,13,14,14,15,15,16,16,17,17,18,18,19,19,20,20,21,21,22,23,23,24,24,25,26,26,27,28,28,29,30,30,31,32,32,33,34,35,35,36,37,38,38,39,40,41,42,42,43,44,45,46,47,47,48,49,50,51,52,53,54,55,56,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,73,74,75,76,77,78,79,80,81,82,84,85,86,87,88,89,91,92,93,94,95,97,98,99,100,102,103,104,105,107,108,109,111,112,113,115,116,117,119,120,121,123,124,126,127,128,130,131,133,134,136,137,139,140,142,143,145,146,148,149,151,152,154,155,157,158,160,162,163,165,166,168,170,171,173,175,176,178,180,181,183,185,186,188,190,192,193,195,197,199,200,202,204,206,207,209,211,213,215,217,218,220,222,224,226,228,230,232,233,235,237,239,241,243,245,247,249,251,253,255 };
 const uint8_t i_power_level_max = 5;
 const uint8_t i_power_level_min = 1;
-const uint8_t i_vent_led_power_1 = 35; // 220 for non-addressable LED.
-const uint8_t i_vent_led_power_2 = 65; // 190 for non-addressable LED.
-const uint8_t i_vent_led_power_3 = 95; // 160 for non-addressable LED.
-const uint8_t i_vent_led_power_4 = 125; // 130 for non-addressable LED.
-const uint8_t i_vent_led_power_5 = 155; // 100 for non-addressable LED.
+const uint8_t i_vent_led_power_1 = 102;
+const uint8_t i_vent_led_power_2 = 128;
+const uint8_t i_vent_led_power_3 = 153;
+const uint8_t i_vent_led_power_4 = 178;
+const uint8_t i_vent_led_power_5 = 204;
 uint8_t i_power_level = 1;
 uint8_t i_power_level_prev = 1;
 
@@ -287,7 +287,7 @@ uint8_t i_power_level_prev = 1;
  */
 millisDelay ms_bargraph;
 millisDelay ms_bargraph_firing;
-const uint8_t d_bargraph_ramp_interval = 120;
+const uint8_t i_bargraph_ramp_interval = 120;
 uint8_t i_bargraph_status = 0;
 
 /*
@@ -310,7 +310,7 @@ const uint8_t i_bargraph_wait = 180;
 bool b_bargraph_up = false;
 millisDelay ms_bargraph_alt;
 uint8_t i_bargraph_status_alt = 0;
-const uint8_t d_bargraph_ramp_interval_alt = 40;
+const uint8_t i_bargraph_ramp_interval_alt = 40;
 const uint8_t i_bargraph_multiplier_ramp_1984 = 3;
 const uint8_t i_bargraph_multiplier_ramp_2021 = 16;
 uint16_t i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
@@ -502,5 +502,5 @@ void checkPack();
 void checkWandAction();
 void ventSwitched(void* n = nullptr);
 void wandSwitched(void* n = nullptr);
-void ventLedControl(uint8_t i_intensity = 255);
-void ventLedTopControl(bool b_on);
+void ventLightControl(uint8_t i_intensity = 255);
+void ventTopLightControl(bool b_on);

@@ -1,4 +1,3 @@
-#include "Header.h"
 /**
  *   GPStar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
@@ -73,13 +72,16 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t ledCycLidCount;
   uint8_t ledCycLidHue;
   uint8_t ledCycLidSat;
+  uint8_t ledCycLidLum;
   uint8_t ledCycLidCenter;
   uint8_t ledCycLidFade;
   uint8_t ledCycLidSimRing;
   uint8_t ledCycInnerPanel;
+  uint8_t ledCycPanLum;
   uint8_t ledCycCakeCount;
   uint8_t ledCycCakeHue;
   uint8_t ledCycCakeSat;
+  uint8_t ledCycCakeLum;
   uint8_t ledCycCakeGRB;
   uint8_t ledCycCavCount;
   uint8_t ledCycCavType;
@@ -88,6 +90,7 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t ledInvertPowercell;
   uint8_t ledPowercellHue;
   uint8_t ledPowercellSat;
+  uint8_t ledPowercellLum;
   uint8_t ledVGPowercell;
 } packConfig;
 
@@ -149,7 +152,6 @@ struct __attribute__((packed)) WandSyncData {
   uint8_t powerLevel;
   uint8_t streamMode;
   uint8_t vibrationEnabled;
-  uint8_t masterVolume;
   uint8_t effectsVolume;
   uint8_t masterMuted;
   uint8_t repeatMusicTrack;
@@ -252,7 +254,7 @@ void toggleYearModes() {
     break;
   }
 
-  if(b_pack_shutting_down != true && b_pack_on == false && b_spectral_lights_on != true) {
+  if(!b_pack_shutting_down && !b_pack_on && !b_spectral_lights_on) {
     // Reset the pack variables to match the new year mode.
     packOffReset();
   }
@@ -358,6 +360,7 @@ void serial1SendData(uint8_t i_message) {
       packConfig.ledCycLidCount = i_cyclotron_leds;
       packConfig.ledCycLidHue = i_spectral_cyclotron_custom_colour;
       packConfig.ledCycLidSat = i_spectral_cyclotron_custom_saturation;
+      packConfig.ledCycLidLum = i_cyclotron_brightness;
       packConfig.cyclotronDirection = b_clockwise ? 1 : 0;
       packConfig.ledCycLidCenter = b_cyclotron_single_led ? 1 : 0;
       packConfig.ledCycLidFade = b_fade_cyclotron_led ? 1 : 0;
@@ -365,6 +368,7 @@ void serial1SendData(uint8_t i_message) {
       packConfig.ledCycLidSimRing = b_cyclotron_simulate_ring ? 1 : 0;
 
       // Inner Cyclotron
+      packConfig.ledCycPanLum = i_cyclotron_panel_brightness;
       switch(INNER_CYC_PANEL_MODE) {
         case PANEL_INDIVIDUAL:
         default:
@@ -380,6 +384,7 @@ void serial1SendData(uint8_t i_message) {
       packConfig.ledCycCakeCount = i_inner_cyclotron_cake_num_leds;
       packConfig.ledCycCakeHue = i_spectral_cyclotron_inner_custom_colour;
       packConfig.ledCycCakeSat = i_spectral_cyclotron_inner_custom_saturation;
+      packConfig.ledCycCakeLum = i_cyclotron_inner_brightness;
       switch(CAKE_LED_TYPE) {
         case RGB_LED:
         default:
@@ -408,6 +413,7 @@ void serial1SendData(uint8_t i_message) {
       packConfig.ledInvertPowercell = b_powercell_invert ? 1 : 0;
       packConfig.ledPowercellHue = i_spectral_powercell_custom_colour;
       packConfig.ledPowercellSat = i_spectral_powercell_custom_saturation;
+      packConfig.ledPowercellLum = i_powercell_brightness;
       packConfig.ledVGPowercell = b_powercell_colour_toggle ? 1 : 0;
 
       i_send_size = serial1Coms.txObj(packConfig);
@@ -440,7 +446,6 @@ void serial1SendData(uint8_t i_message) {
 
       if(!b_wand_connected) {
         // Provide some default values when a wand is not attached.
-        // TODO: The pack should control these in this situation.
         smokeConfig.overheatLevel5 = 1; // true|false
         smokeConfig.overheatLevel4 = 0; // true|false
         smokeConfig.overheatLevel3 = 0; // true|false
@@ -725,6 +730,7 @@ void checkSerial1() {
           }
           i_spectral_cyclotron_custom_colour = packConfig.ledCycLidHue;
           i_spectral_cyclotron_custom_saturation = packConfig.ledCycLidSat;
+          i_cyclotron_brightness = packConfig.ledCycLidLum;
           b_clockwise = (packConfig.cyclotronDirection == 1);
           b_cyclotron_single_led = (packConfig.ledCycLidCenter == 1);
           b_fade_cyclotron_led = (packConfig.ledCycLidFade == 1);
@@ -732,6 +738,7 @@ void checkSerial1() {
           b_cyclotron_simulate_ring = (packConfig.ledCycLidSimRing == 1);
 
           // Inner Cyclotron
+          i_cyclotron_panel_brightness = packConfig.ledCycPanLum;
           switch(packConfig.ledCycInnerPanel) {
             case 1:
             default:
@@ -747,6 +754,7 @@ void checkSerial1() {
           i_inner_cyclotron_cake_num_leds = packConfig.ledCycCakeCount;
           i_spectral_cyclotron_inner_custom_colour = packConfig.ledCycCakeHue;
           i_spectral_cyclotron_inner_custom_saturation = packConfig.ledCycCakeSat;
+          i_cyclotron_inner_brightness = packConfig.ledCycCakeLum;
           if(packConfig.ledCycCakeGRB == 1) {
             CAKE_LED_TYPE = GRB_LED;
           }
@@ -772,6 +780,7 @@ void checkSerial1() {
           b_powercell_invert = (packConfig.ledInvertPowercell == 1);
           i_spectral_powercell_custom_colour = packConfig.ledPowercellHue;
           i_spectral_powercell_custom_saturation = packConfig.ledPowercellSat;
+          i_powercell_brightness = packConfig.ledPowercellLum;
           b_powercell_colour_toggle = (packConfig.ledVGPowercell == 1);
 
           // Offer some feedback to the user
@@ -939,7 +948,7 @@ void doSerial1Sync() {
   serial1SendData(A_SYNC_DATA);
 
   // Send the ribbon cable alarm status if the ribbon cable is detached.
-  if(b_alarm && ribbonCableAttached() != true) {
+  if(b_alarm && !ribbonCableAttached()) {
     serial1Send(A_ALARM_ON);
   }
 
@@ -966,7 +975,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
       b_serial1_syncing = false; // No longer attempting to force a sync w/ Attenuator.
       b_serial1_connected = true; // If we're receiving handshake instead of SYNC_NOW we must be connected.
 
-      if(b_diagnostic == true) {
+      if(b_diagnostic) {
         // While in diagnostic mode, play a sound to indicate the wand is connected.
         playEffect(S_BEEPS_ALT);
       }
@@ -1071,17 +1080,11 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
     case A_VOLUME_DECREASE:
       // Decrease overall pack volume.
       decreaseVolume();
-
-      // Tell wand to decrease volume.
-      packSerialSend(P_VOLUME_DECREASE);
     break;
 
     case A_VOLUME_INCREASE:
       // Increase overall pack volume.
       increaseVolume();
-
-      // Tell wand to increase volume.
-      packSerialSend(P_VOLUME_INCREASE);
     break;
 
     case A_VOLUME_SOUND_EFFECTS_DECREASE:
@@ -1111,7 +1114,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_MUSIC_START_STOP:
-      if(b_playing_music == true) {
+      if(b_playing_music) {
         stopMusic();
       }
       else {
@@ -1123,8 +1126,8 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_MUSIC_PAUSE_RESUME:
-      if(b_playing_music == true) {
-        if(b_music_paused != true) {
+      if(b_playing_music) {
+        if(!b_music_paused) {
           pauseMusic();
         }
         else {
@@ -1175,7 +1178,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
     case A_MUSIC_PLAY_TRACK:
       // Music track number to be played.
       if(i_music_count > 0 && i_value >= i_music_track_start) {
-        if(b_playing_music == true) {
+        if(b_playing_music) {
           stopMusic(); // Stops current track before change.
 
           // Only update after the music is stopped.
@@ -1306,12 +1309,12 @@ void doWandSync() {
   packSerialSend(P_SYNC_START, b_pack_post_finish ? 0 : 1);
 
   // Attaching a new wand means we need to stop any prior overheat as the wand initiates this action.
-  if(b_overheating == true) {
+  if(b_overheating) {
     packOverheatingFinished();
   }
 
   // Attaching a new wand means we must forcefully exit the EEPROM LED Menu if we are still in it.
-  if(b_spectral_lights_on == true && b_pack_on != true && b_pack_shutting_down != true) {
+  if(b_spectral_lights_on && !b_pack_on && !b_pack_shutting_down) {
     spectralLightsOff();
     //saveLEDEEPROM(); // Save any settings that were in progress before wand was hot-swapped.
   }
@@ -1409,13 +1412,12 @@ void doWandSync() {
     break;
   }
 
-  if(b_pack_on != true) {
+  if(!b_pack_on) {
     // Set this flag to false to force a full reset of the pack if a new wand is connected.
     b_reset_start_led = false;
   }
 
   // Synchronise the volume settings.
-  wandSyncData.masterVolume = i_volume_master_percentage;
   wandSyncData.effectsVolume = i_volume_effects_percentage;
 
     // Telling the wand to be silent if required.
@@ -1425,7 +1427,7 @@ void doWandSync() {
   packSerialSendData(P_SYNC_DATA);
 
   // Send the ribbon cable alarm status if the ribbon cable is detached.
-  if(b_alarm == true && ribbonCableAttached() != true) {
+  if(b_alarm && !ribbonCableAttached()) {
     packSerialSend(P_ALARM_ON);
   }
 
@@ -1460,7 +1462,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Tell the serial1 device the wand is still connected.
       serial1Send(A_WAND_CONNECTED);
 
-      if(b_diagnostic == true) {
+      if(b_diagnostic) {
         // While in diagnostic mode, play a sound to indicate the wand is connected.
         playEffect(S_BEEPS);
       }
@@ -1546,7 +1548,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_CYCLOTRON_SIMULATE_RING_TOGGLE:
-      if(b_cyclotron_simulate_ring == true) {
+      if(b_cyclotron_simulate_ring) {
         stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_DISABLED);
         stopEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_ENABLED);
         playEffect(S_VOICE_CYCLOTRON_SIMULATE_RING_DISABLED);
@@ -1579,7 +1581,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_WAND_BEEP:
-      if(b_overheating != true) {
+      if(!b_overheating) {
         playEffect(S_AFTERLIFE_BEEP_WAND_S5, false, i_volume_effects - i_wand_idle_level);
       }
     break;
@@ -1815,7 +1817,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_FIRING_STOPPED:
       // Wand just stopped firing.
-      if(b_wand_firing == true) {
+      if(b_wand_firing) {
         wandStoppedFiring();
 
         // Return cyclotron to normal speed.
@@ -1881,12 +1883,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         b_settings = false;
       }
 
-      if(b_cyclotron_colour_toggle == true) {
+      if(b_cyclotron_colour_toggle) {
         // Reset the Cyclotron LED colours.
         cyclotronColourReset();
       }
 
-      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+      if(b_powercell_colour_toggle && b_pack_on) {
         // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
         powercellDraw();
@@ -1926,7 +1928,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         b_settings = false;
       }
 
-      if(b_cyclotron_colour_toggle == true) {
+      if(b_cyclotron_colour_toggle) {
         // Reset the Cyclotron states.
         resetCyclotronState();
         clearCyclotronFades();
@@ -1935,7 +1937,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         cyclotronColourReset();
       }
 
-      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+      if(b_powercell_colour_toggle && b_pack_on) {
         // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
         powercellDraw();
@@ -1981,12 +1983,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         b_settings = false;
       }
 
-      if(b_cyclotron_colour_toggle == true) {
+      if(b_cyclotron_colour_toggle) {
         // Reset the Cyclotron LED colours.
         cyclotronColourReset();
       }
 
-      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+      if(b_powercell_colour_toggle && b_pack_on) {
         // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
         powercellDraw();
@@ -2032,12 +2034,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         audio.gpstarShortTrackOverload(false);
       }
 
-      if(b_cyclotron_colour_toggle == true) {
+      if(b_cyclotron_colour_toggle) {
         // Reset the Cyclotron LED colours.
         cyclotronColourReset();
       }
 
-      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+      if(b_powercell_colour_toggle && b_pack_on) {
         // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
         powercellDraw();
@@ -2082,12 +2084,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         b_settings = false;
       }
 
-      if(b_cyclotron_colour_toggle == true) {
+      if(b_cyclotron_colour_toggle) {
         // Reset the Cyclotron LED colours.
         cyclotronColourReset();
       }
 
-      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+      if(b_powercell_colour_toggle && b_pack_on) {
         // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
         powercellDraw();
@@ -2132,12 +2134,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         b_settings = false;
       }
 
-      if(b_cyclotron_colour_toggle == true) {
+      if(b_cyclotron_colour_toggle) {
         // Reset the Cyclotron LED colours.
         cyclotronColourReset();
       }
 
-      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+      if(b_powercell_colour_toggle && b_pack_on) {
         // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
         powercellDraw();
@@ -2182,12 +2184,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         b_settings = false;
       }
 
-      if(b_cyclotron_colour_toggle == true) {
+      if(b_cyclotron_colour_toggle) {
         // Reset the Cyclotron LED colours.
         cyclotronColourReset();
       }
 
-      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+      if(b_powercell_colour_toggle && b_pack_on) {
         // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
         powercellDraw();
@@ -2232,12 +2234,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         b_settings = false;
       }
 
-      if(b_cyclotron_colour_toggle == true) {
+      if(b_cyclotron_colour_toggle) {
         // Reset the Cyclotron LED colours.
         cyclotronColourReset();
       }
 
-      if(b_powercell_colour_toggle == true && b_pack_on == true) {
+      if(b_powercell_colour_toggle && b_pack_on) {
         // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
         powercellDraw();
@@ -2364,7 +2366,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       i_wand_power_level = 1;
 
       // Reset the smoke timer and cyclotron speed timer if the wand is firing.
-      if(b_wand_firing == true) {
+      if(b_wand_firing) {
         if(ms_smoke_timer.isRunning()) {
           ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[i_wand_power_level - 1]));
         }
@@ -2382,7 +2384,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       i_wand_power_level = 2;
 
       // Reset the smoke timer and cyclotron speed timer if the wand is firing.
-      if(b_wand_firing == true) {
+      if(b_wand_firing) {
         if(ms_smoke_timer.isRunning()) {
           ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[i_wand_power_level - 1]));
         }
@@ -2400,7 +2402,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       i_wand_power_level = 3;
 
       // Reset the smoke timer and cyclotron speed timer if the wand is firing.
-      if(b_wand_firing == true) {
+      if(b_wand_firing) {
         if(ms_smoke_timer.isRunning()) {
           ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[i_wand_power_level - 1]));
         }
@@ -2418,7 +2420,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       i_wand_power_level = 4;
 
       // Reset the smoke timer and cyclotron speed timer if the wand is firing.
-      if(b_wand_firing == true) {
+      if(b_wand_firing) {
         if(ms_smoke_timer.isRunning()) {
           ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[i_wand_power_level - 1]));
         }
@@ -2437,7 +2439,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       // Reset the smoke timer and cyclotron speed timer if the wand is firing.
       // Note that since the wand cannot enter or exit Power Level 5 while firing, this should never be necessary.
-      if(b_wand_firing == true) {
+      if(b_wand_firing) {
         if(ms_smoke_timer.isRunning()) {
           ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[i_wand_power_level - 1]));
         }
@@ -2494,7 +2496,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Wand firing in intensify mode mix.
       b_firing_intensify = true;
 
-      if(b_wand_firing == true && b_sound_firing_intensify_trigger != true) {
+      if(b_wand_firing && !b_sound_firing_intensify_trigger) {
         if(SYSTEM_YEAR == SYSTEM_1984) {
           playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
         }
@@ -2507,7 +2509,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_FIRING_INTENSIFY_STOPPED_MIX:
       // Wand no longer firing in intensify mode; drop back to alt fire mix.
-      if(b_firing_intensify == true) {
+      if(b_firing_intensify) {
         if(SYSTEM_YEAR == SYSTEM_1984) {
           stopEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP);
         }
@@ -2524,7 +2526,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Wand firing in alt mode mix.
       b_firing_alt = true;
 
-      if(b_wand_firing == true && b_sound_firing_alt_trigger != true) {
+      if(b_wand_firing && !b_sound_firing_alt_trigger) {
         b_sound_firing_alt_trigger = true;
 
         if(i_wand_power_level != i_wand_power_level_max) {
@@ -2549,7 +2551,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_FIRING_ALT_STOPPED_MIX:
       // Wand no longer firing in alt mode; drop back to intensify fire mix.
-      if(b_firing_alt == true) {
+      if(b_firing_alt) {
         stopEffect(S_FIRING_LOOP_GB1);
 
         // Since Intensify is still held, turn back on its firing loop sounds.
@@ -2643,7 +2645,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       STATUS_CTS = CTS_NOT_FIRING;
 
       // Restart the impact sound timer.
-      if(b_stream_effects == true) {
+      if(b_stream_effects) {
         ms_firing_sound_mix.start(random(7,15) * 1000);
       }
 
@@ -2660,7 +2662,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       STATUS_CTS = CTS_NOT_FIRING;
 
       // Restart the impact sound timer.
-      if(b_stream_effects == true) {
+      if(b_stream_effects) {
         ms_firing_sound_mix.start(random(7,15) * 1000);
       }
 
@@ -2977,7 +2979,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_SMOKE_TOGGLE:
-      if(b_smoke_enabled == true) {
+      if(b_smoke_enabled) {
         b_smoke_enabled = false;
 
         stopEffect(S_VENT_DRY);
@@ -3007,7 +3009,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_CYCLOTRON_DIRECTION_TOGGLE:
       // Toggle the Cyclotron direction.
-      if(b_clockwise == true) {
+      if(b_clockwise) {
         b_clockwise = false;
 
         stopEffect(S_BEEPS_ALT);
@@ -3041,7 +3043,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_CYCLOTRON_LED_TOGGLE:
       // Toggle single LED or 3 LEDs per Cyclotron lens in 1984/1989 modes.
-      if(b_cyclotron_single_led == true) {
+      if(b_cyclotron_single_led) {
         b_cyclotron_single_led = false;
 
         stopEffect(S_VOICE_THREE_LED);
@@ -3073,7 +3075,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_VIDEO_GAME_COLOURS_CYCLOTRON_ENABLED);
 
       // Toggle through the various Video Game Colour Modes for the Proton Pack LEDs (if supported).
-      if(b_cyclotron_colour_toggle == true && b_powercell_colour_toggle == true) {
+      if(b_cyclotron_colour_toggle && b_powercell_colour_toggle) {
         // Disabled, both Cyclotron and Power Cell video game colours.
         b_cyclotron_colour_toggle = false;
         b_powercell_colour_toggle = false;
@@ -3083,7 +3085,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         // Tell the wand to play the same sound.
         packSerialSend(P_VIDEO_GAME_MODE_COLOURS_DISABLED);
       }
-      else if(b_cyclotron_colour_toggle != true && b_powercell_colour_toggle != true) {
+      else if(!b_cyclotron_colour_toggle && !b_powercell_colour_toggle) {
         // Power Cell only.
         b_cyclotron_colour_toggle = false;
         b_powercell_colour_toggle = true;
@@ -3093,7 +3095,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         // Tell the wand to play the same sound.
         packSerialSend(P_VIDEO_GAME_MODE_POWER_CELL_ENABLED);
       }
-      else if(b_cyclotron_colour_toggle != true && b_powercell_colour_toggle == true) {
+      else if(!b_cyclotron_colour_toggle && b_powercell_colour_toggle) {
         // Cyclotron only.
         b_cyclotron_colour_toggle = true;
         b_powercell_colour_toggle = false;
@@ -3203,14 +3205,14 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_VOLUME_MUSIC_DECREASE:
       // Lower music volume.
-      if(b_playing_music == true) {
+      if(b_playing_music) {
         decreaseVolumeMusic();
       }
     break;
 
     case W_VOLUME_MUSIC_INCREASE:
       // Increase music volume.
-      if(b_playing_music == true) {
+      if(b_playing_music) {
         increaseVolumeMusic();
       }
     break;
@@ -3293,17 +3295,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_VOLUME_DECREASE_EEPROM:
       // Decrease the overall default pack volume which is saved into the EEPROM.
       decreaseVolumeEEPROM();
-
-      // Tell wand to decrease volume.
-      packSerialSend(P_VOLUME_DECREASE);
     break;
 
     case W_VOLUME_INCREASE_EEPROM:
       // Increase the overall default pack volume which is saved into the EEPROM.
       increaseVolumeEEPROM();
-
-      // Tell wand to increase volume.
-      packSerialSend(P_VOLUME_INCREASE);
     break;
 
     case W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_3:
@@ -3393,7 +3389,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_PROTON_STREAM_IMPACT_TOGGLE:
-      if(b_stream_effects == true) {
+      if(b_stream_effects) {
         b_stream_effects = false;
 
         stopEffect(S_VOICE_PROTON_MIX_EFFECTS_ENABLED);
@@ -3657,11 +3653,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       switch(pack_dim_toggle) {
         case DIM_CYCLOTRON:
           if(i_cyclotron_brightness < 100) {
-            if(i_cyclotron_brightness + 10 > 100) {
+            if(i_cyclotron_brightness + 5 > 100) {
               i_cyclotron_brightness = 100;
             }
             else {
-              i_cyclotron_brightness = i_cyclotron_brightness + 10;
+              i_cyclotron_brightness = i_cyclotron_brightness + 5;
             }
 
             resetCyclotronState();
@@ -3680,11 +3676,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
         case DIM_INNER_CYCLOTRON:
           if(i_cyclotron_inner_brightness < 100) {
-            if(i_cyclotron_inner_brightness + 10 > 100) {
+            if(i_cyclotron_inner_brightness + 5 > 100) {
               i_cyclotron_inner_brightness = 100;
             }
             else {
-              i_cyclotron_inner_brightness = i_cyclotron_inner_brightness + 10;
+              i_cyclotron_inner_brightness = i_cyclotron_inner_brightness + 5;
             }
 
             packSerialSend(P_DIMMING);
@@ -3701,11 +3697,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
         case DIM_CYCLOTRON_PANEL:
           if(i_cyclotron_panel_brightness < 100) {
-            if(i_cyclotron_panel_brightness + 10 > 100) {
+            if(i_cyclotron_panel_brightness + 5 > 100) {
               i_cyclotron_panel_brightness = 100;
             }
             else {
-              i_cyclotron_panel_brightness = i_cyclotron_panel_brightness + 10;
+              i_cyclotron_panel_brightness = i_cyclotron_panel_brightness + 5;
             }
 
             packSerialSend(P_DIMMING);
@@ -3723,11 +3719,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         case DIM_POWERCELL:
         default:
           if(i_powercell_brightness < 100) {
-            if(i_powercell_brightness + 10 > 100) {
+            if(i_powercell_brightness + 5 > 100) {
               i_powercell_brightness = 100;
             }
             else {
-              i_powercell_brightness = i_powercell_brightness + 10;
+              i_powercell_brightness = i_powercell_brightness + 5;
             }
 
             // Reset the Power Cell.
@@ -3750,12 +3746,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_DIMMING_DECREASE:
       switch(pack_dim_toggle) {
         case DIM_CYCLOTRON:
-          if(i_cyclotron_brightness > 0) {
-            if(i_cyclotron_brightness - 10 < 0) {
-              i_cyclotron_brightness = 0;
+          if(i_cyclotron_brightness > 20) {
+            if(i_cyclotron_brightness - 5 < 20) {
+              i_cyclotron_brightness = 20;
             }
             else {
-              i_cyclotron_brightness = i_cyclotron_brightness - 10;
+              i_cyclotron_brightness = i_cyclotron_brightness - 5;
             }
 
             resetCyclotronState();
@@ -3773,12 +3769,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
 
         case DIM_INNER_CYCLOTRON:
-          if(i_cyclotron_inner_brightness > 0) {
-            if(i_cyclotron_inner_brightness - 10 < 0) {
-              i_cyclotron_inner_brightness = 0;
+          if(i_cyclotron_inner_brightness > 20) {
+            if(i_cyclotron_inner_brightness - 5 < 20) {
+              i_cyclotron_inner_brightness = 20;
             }
             else {
-              i_cyclotron_inner_brightness = i_cyclotron_inner_brightness - 10;
+              i_cyclotron_inner_brightness = i_cyclotron_inner_brightness - 5;
             }
 
             packSerialSend(P_DIMMING);
@@ -3794,12 +3790,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
 
         case DIM_CYCLOTRON_PANEL:
-          if(i_cyclotron_panel_brightness > 0) {
-            if(i_cyclotron_panel_brightness - 10 < 0) {
-              i_cyclotron_panel_brightness = 0;
+          if(i_cyclotron_panel_brightness > 20) {
+            if(i_cyclotron_panel_brightness - 5 < 20) {
+              i_cyclotron_panel_brightness = 20;
             }
             else {
-              i_cyclotron_panel_brightness = i_cyclotron_panel_brightness - 10;
+              i_cyclotron_panel_brightness = i_cyclotron_panel_brightness - 5;
             }
 
             packSerialSend(P_DIMMING);
@@ -3816,12 +3812,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
         case DIM_POWERCELL:
         default:
-          if(i_powercell_brightness > 0) {
-            if(i_powercell_brightness - 10 < 0) {
-              i_powercell_brightness = 0;
+          if(i_powercell_brightness > 20) {
+            if(i_powercell_brightness - 5 < 20) {
+              i_powercell_brightness = 20;
             }
             else {
-              i_powercell_brightness = i_powercell_brightness - 10;
+              i_powercell_brightness = i_powercell_brightness - 5;
             }
 
             // Reset the Power Cell.
@@ -4065,7 +4061,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         packSerialSend(P_GRB_INNER_CYCLOTRON_LEDS);
       }
 
-      if(b_spectral_lights_on == true) {
+      if(b_spectral_lights_on) {
         spectralLightsOn();
       }
     break;
@@ -4115,7 +4111,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_DEMO_LIGHT_MODE_TOGGLE:
-      if(b_demo_light_mode == true) {
+      if(b_demo_light_mode) {
         b_demo_light_mode = false;
 
         stopEffect(S_VOICE_DEMO_LIGHT_MODE_DISABLED);
@@ -4198,7 +4194,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_CONTINUOUS_SMOKE_TOGGLE_5:
-      if(b_smoke_continuous_level_5 == true) {
+      if(b_smoke_continuous_level_5) {
         b_smoke_continuous_level_5 = false;
 
         stopEffect(S_VOICE_CONTINUOUS_SMOKE_5_DISABLED);
@@ -4221,7 +4217,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_CONTINUOUS_SMOKE_TOGGLE_4:
-      if(b_smoke_continuous_level_4 == true) {
+      if(b_smoke_continuous_level_4) {
         b_smoke_continuous_level_4 = false;
 
         stopEffect(S_VOICE_CONTINUOUS_SMOKE_4_DISABLED);
@@ -4244,7 +4240,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_CONTINUOUS_SMOKE_TOGGLE_3:
-      if(b_smoke_continuous_level_3 == true) {
+      if(b_smoke_continuous_level_3) {
         b_smoke_continuous_level_3 = false;
 
         stopEffect(S_VOICE_CONTINUOUS_SMOKE_3_DISABLED);
@@ -4267,7 +4263,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_CONTINUOUS_SMOKE_TOGGLE_2:
-      if(b_smoke_continuous_level_2 == true) {
+      if(b_smoke_continuous_level_2) {
         b_smoke_continuous_level_2 = false;
 
         stopEffect(S_VOICE_CONTINUOUS_SMOKE_2_DISABLED);
@@ -4290,7 +4286,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_CONTINUOUS_SMOKE_TOGGLE_1:
-      if(b_smoke_continuous_level_1 == true) {
+      if(b_smoke_continuous_level_1) {
         b_smoke_continuous_level_1 = false;
 
         stopEffect(S_VOICE_CONTINUOUS_SMOKE_1_DISABLED);
@@ -4349,7 +4345,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_TOGGLE_POWERCELL_DIRECTION:
-      if(b_powercell_invert == true) {
+      if(b_powercell_invert) {
         b_powercell_invert = false;
 
         stopEffect(S_VOICE_POWERCELL_NOT_INVERTED);
@@ -4510,7 +4506,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_OVERHEAT_STROBE_TOGGLE:
-      if(b_overheat_strobe == true) {
+      if(b_overheat_strobe) {
         b_overheat_strobe = false;
 
         stopEffect(S_VOICE_OVERHEAT_STROBE_DISABLED);
@@ -4531,7 +4527,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_OVERHEAT_LIGHTS_OFF_TOGGLE:
-      if(b_overheat_lights_off == true) {
+      if(b_overheat_lights_off) {
         b_overheat_lights_off = false;
 
         stopEffect(S_VOICE_OVERHEAT_LIGHTS_OFF_DISABLED);
@@ -4552,7 +4548,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_OVERHEAT_SYNC_TO_FAN_TOGGLE:
-      if(b_overheat_sync_to_fan == true) {
+      if(b_overheat_sync_to_fan) {
         b_overheat_sync_to_fan = false;
 
         stopEffect(S_VOICE_OVERHEAT_FAN_SYNC_DISABLED);

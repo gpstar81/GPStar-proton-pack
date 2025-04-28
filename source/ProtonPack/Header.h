@@ -312,9 +312,9 @@ enum VIBRATION_MODES VIBRATION_MODE_EEPROM;
 enum VIBRATION_MODES VIBRATION_MODE;
 uint8_t i_vibration_level = 0;
 uint8_t i_vibration_level_prev = 0;
-const uint8_t i_vibration_idle_level_2021 = 60;
-const uint8_t i_vibration_idle_level_1984 = 35;
-const uint8_t i_vibration_lowest_level = 15;
+const uint8_t i_vibration_idle_level_2021 = 60; // Afterlife/Frozen Empire idle level is 23.5%.
+const uint8_t i_vibration_idle_level_1984 = 35; // 1984/1989 idle level is 13.7%.
+const uint8_t i_vibration_level_min = 15; // Minimum vibration level is 6%.
 millisDelay ms_menu_vibration; // Timer to do non-blocking confirmation buzzing in the vibration menu.
 
 /*
@@ -430,8 +430,8 @@ uint8_t i_post_powercell_up = 0;
 uint8_t i_post_powercell_down = 0;
 uint8_t i_post_fade = 255;
 millisDelay ms_delay_post; // Also used for Brass Pack shutdown steam effect.
-millisDelay ms_delay_post_2;
-millisDelay ms_delay_post_3;
+millisDelay ms_delay_post_2; // Also used by GPStar Lite to check for overheating.
+millisDelay ms_delay_post_3; // Also used by GPStar Lite to debounce wand startup.
 
 /*
  * LED Dimming / Brightness Control.

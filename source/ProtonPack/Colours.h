@@ -78,7 +78,7 @@ uint8_t i_count[6] = { 0, 0, 0, 0, 0, 0 };
 uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) {
   // Toggle indicates use of Video Game colours, which is based on the firing mode.
   // Otherwise a default colour will be used based on the device itself.
-  if(b_toggle == true) {
+  if(b_toggle) {
     switch(i_firing_mode) {
       case PROTON:
         switch(i_device) {
@@ -334,7 +334,7 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
     break;
 
     case C_WARM_WHITE:
-      return CHSV(22, 155, i_brightness);
+      return CHSV(36, 183, i_brightness);
     break;
 
     case C_PINK:

@@ -13,11 +13,11 @@ mkdir -p ${BINDIR}/pack
 
 echo ""
 
-# Proton Pack
-echo "Building Proton Pack Binary..."
-
 # Set the project directory based on the source folder
 PROJECT_DIR="$SRCDIR/ProtonPack"
+
+# Proton Pack
+echo "Building Proton Pack Binary..."
 
 # --warnings none
 arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:mega --export-binaries ${PROJECT_DIR}/ProtonPack.ino

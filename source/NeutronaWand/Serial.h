@@ -110,7 +110,6 @@ struct __attribute__((packed)) WandSyncData {
   uint8_t powerLevel;
   uint8_t streamMode;
   uint8_t vibrationEnabled;
-  uint8_t masterVolume;
   uint8_t effectsVolume;
   uint8_t masterMuted;
   uint8_t repeatMusicTrack;
@@ -125,7 +124,7 @@ void wandSerialSend(uint8_t i_command, uint16_t i_value) {
   uint16_t i_send_size = 0;
 
   // Leave when a pack is not intended to be connected.
-  if(b_gpstar_benchtest == true) {
+  if(b_gpstar_benchtest) {
     return;
   }
 
@@ -155,7 +154,7 @@ void wandSerialSendData(uint8_t i_message) {
   uint16_t i_send_size = 0;
 
   // Leave when a pack is not intended to be connected.
-  if(b_gpstar_benchtest == true) {
+  if(b_gpstar_benchtest) {
     return;
   }
 
@@ -211,6 +210,7 @@ void wandSerialSendData(uint8_t i_message) {
 
       wandConfig.wandSoundsToPack = b_extra_pack_sounds ? 1 : 0;
       wandConfig.quickVenting = b_quick_vent ? 1 : 0;
+      wandConfig.rgbVentEnabled = b_rgb_vent_light ? 1 : 0;
       wandConfig.autoVentLight = b_vent_light_control ? 1 : 0;
       wandConfig.wandBeepLoop = b_beep_loop ? 1 : 0;
       wandConfig.wandBootError = b_wand_boot_errors ? 1 : 0;
@@ -337,7 +337,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value);
 // Pack communication to the wand.
 void checkPack() {
   // Leave when a pack is not intended to be connected.
-  if(b_gpstar_benchtest == true) {
+  if(b_gpstar_benchtest) {
     return;
   }
 
@@ -359,7 +359,7 @@ void checkPack() {
               ms_handshake.start(i_heartbeat_delay);
 
               // Turn off the sync indicator LED as the sync is completed.
-              ventLedTopControl(false);
+              ventTopLightControl(false);
               digitalWriteFast(WAND_STATUS_LED_PIN, LOW);
 
               // Indicate that a pack is now connected.
@@ -373,7 +373,7 @@ void checkPack() {
             b_pack_on = true; // Pretend that the pack (not really attached) has been powered on.
 
             // Turn off the sync indicator LED as it is no longer necessary.
-            ventLedTopControl(false);
+            ventTopLightControl(false);
             digitalWriteFast(WAND_STATUS_LED_PIN, LOW);
 
             // Reset the audio device now that we are in standalone mode and need music playback.
@@ -520,6 +520,7 @@ void checkPack() {
 
           b_extra_pack_sounds = (wandConfig.wandSoundsToPack == 1);
           b_quick_vent = (wandConfig.quickVenting == 1);
+          b_rgb_vent_light = (wandConfig.rgbVentEnabled == 1);
           b_vent_light_control = (wandConfig.autoVentLight == 1);
           b_beep_loop = (wandConfig.wandBeepLoop == 1);
           b_wand_boot_errors = (wandConfig.wandBootError == 1);
@@ -682,7 +683,7 @@ void checkPack() {
             case 1:
             default:
               // Pack is off.
-              if(b_pack_on == true) {
+              if(b_pack_on) {
                 // Turn wand off.
                 if(WAND_STATUS != MODE_OFF) {
                   if(WAND_STATUS == MODE_ERROR) {
@@ -760,17 +761,11 @@ void checkPack() {
           b_repeat_track = wandSyncData.repeatMusicTrack == 2;
 
           // Set the percentage volume.
-          i_volume_master_percentage = wandSyncData.masterVolume;
           i_volume_effects_percentage = wandSyncData.effectsVolume;
 
           // Set the decibel volume.
-          i_volume_master = MINIMUM_VOLUME - ((MINIMUM_VOLUME - i_volume_abs_max) * i_volume_master_percentage / 100);
           i_volume_effects = i_volume_abs_min - (i_volume_abs_min * i_volume_effects_percentage / 100);
-          i_volume_music = i_volume_abs_min - (i_volume_abs_min * i_volume_music_percentage / 100);
-
-          // Update volume levels.
-          i_volume_revert = i_volume_master;
-          updateMasterVolume();
+          updateEffectsVolume();
 
           switch(wandSyncData.masterMuted) {
             case 1:
@@ -832,7 +827,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
       // Tell the pack the status of the Neutrona Wand barrel. We only need to tell if its extended.
       // Otherwise the switchBarrel() will tell it if it's retracted during bootup.
-      if(switchBarrel() == true) {
+      if(switchBarrel()) {
         wandSerialSend(W_BARREL_EXTENDED);
       }
 
@@ -851,7 +846,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
     case P_OFF:
       // Pack is off.
-      if(b_pack_on == true) {
+      if(b_pack_on) {
         // Turn wand off.
         if(WAND_STATUS != MODE_OFF) {
           if(WAND_STATUS == MODE_ERROR) {
@@ -1098,7 +1093,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
         if(WAND_STATUS == MODE_ON) {
           switch(SYSTEM_MODE) {
             case MODE_ORIGINAL:
-              if(switch_vent.on() == true && switch_wand.on() == true && switch_activate.on() == true) {
+              if(switch_vent.on() && switch_wand.on() && switch_activate.on()) {
                 prepBargraphRampUp();
               }
             break;
@@ -1117,7 +1112,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
             stopEffect(S_WAND_BOOTUP);
             playEffect(S_WAND_BOOTUP);
 
-            if(switch_vent.on() == false) {
+            if(!switch_vent.on()) {
               afterlifeRampSound1();
             }
           }
@@ -1149,16 +1144,6 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
     case P_VOLUME_SOUND_EFFECTS_DECREASE:
       // Decrease effects volume.
       decreaseVolumeEffects();
-    break;
-
-    case P_VOLUME_INCREASE:
-      // Increase overall volume.
-      increaseVolume();
-    break;
-
-    case P_VOLUME_DECREASE:
-      // Decrease overall volume.
-      decreaseVolume();
     break;
 
     case P_VIBRATION_ENABLED:

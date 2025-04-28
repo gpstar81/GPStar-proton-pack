@@ -29,6 +29,7 @@ window.addEventListener("load", onLoad);
 
 function onLoad(event) {
   document.getElementsByClassName("tablinks")[0].click();
+  setDefaultOverlays(); // Set graphics to defaults.
   getDevicePrefs(); // Get all preferences.
   initWebSocket(); // Open the WebSocket.
   getStatus(); // Get status immediately.
@@ -139,14 +140,43 @@ function updateTrackListing() {
   }
 }
 
-function setButtonStates(mode, pack, wand, cyclotron, ionswitch) {
-  // Assume all functions are not possible, override as necessary.
+function setDefaultOverlays() {
+  // Reset colors on all graphic overlay elements to a default state.
+  colorEl("ionOverlay", 255, 0, 0);
+  colorEl("boostOverlay", 100, 100, 100);
+  colorEl("pcellOverlay", 100, 100, 100);
+  hideEl("cableOverlay");
+  blinkEl("cableOverlay", false);
+  colorEl("cycOverlay", 100, 100, 100);
+  blinkEl("cycOverlay", false);
+  hideEl("cyclotronLid");
+  colorEl("filterOverlay", 100, 100, 100);
+  blinkEl("filterOverlay", false);
+  hideEl("barrelOverlay");
+  blinkEl("barrelOverlay", false);
+  setHtml("powerLevel", "");
+  colorEl("safetyOverlay", 100, 100, 100);
+  setHtml("battVoltage", "");
+  hideEl("cyclotronLid");
+
+  // Clear special text elements until we know the system state.
+  setHtml("equipTitle", "");
+  setHtml("streamMode", "");
+}
+
+function disableActionButtons() {
+  // Used to just disable all the buttons, for instance if pack desyncs
   getEl("btnPackOff").disabled = true;
   getEl("btnPackOn").disabled = true;
   getEl("btnVent").disabled = true;
   getEl("btnAttenuate").disabled = true;
   //getEl("btnLOStart").disabled = true;
   //getEl("btnLOCancel").disabled = true;
+}
+
+function setButtonStates(mode, pack, wand, cyclotron, ionswitch, firing) {
+  // Assume all direct user actions are not possible, then override as necessary.
+  disableActionButtons();
 
   if ((pack == "Powered" || (mode == "Original" && ionswitch == "Ready")) && wand != "Powered") {
     // Can only turn off the pack, so long as the wand is not powered.
@@ -372,26 +402,14 @@ function updateGraphics(jObj){
     } else {
       hideEl("cyclotronLid");
     }
-  } else {
+  } else if (getText("equipTitle") != "- Desynchronized -") {
     // Reset all screen elements to their defaults to indicate no data available.
+    setDefaultOverlays();
+    disableActionButtons();
+
+    // Set special text elements based on the current equipment state.
     setHtml("equipTitle", "- Desynchronized -");
-    colorEl("ionOverlay", 255, 0, 0);
-    colorEl("boostOverlay", 100, 100, 100);
-    colorEl("pcellOverlay", 100, 100, 100);
-    hideEl("cableOverlay");
-    blinkEl("cableOverlay", false);
-    colorEl("cycOverlay", 100, 100, 100);
-    blinkEl("cycOverlay", false);
-    hideEl("cyclotronLid");
-    colorEl("filterOverlay", 100, 100, 100);
-    blinkEl("filterOverlay", false);
-    hideEl("barrelOverlay");
-    blinkEl("barrelOverlay", false);
-    setHtml("powerLevel", "");
     setHtml("streamMode", "- Disengaged -");
-    colorEl("safetyOverlay", 100, 100, 100);
-    setHtml("battVoltage", "");
-    hideEl("cyclotronLid");
   }
 }
 
@@ -458,7 +476,7 @@ function updateEquipment(jObj) {
     }
 
     // Update special UI elements based on the latest data values.
-    setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron, jObj.switch);
+    setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron, jObj.switch, jObj.firing);
 
     // Update the current track info.
     musicTrackStart = jObj.musicStart || 0;
@@ -470,9 +488,10 @@ function updateEquipment(jObj) {
 
     // Connected Wifi Clients - Private AP vs. WebSocket
     setHtml("clientInfo", "AP Clients: " + (jObj.apClients || 0) + " / WebSocket Clients: " + (jObj.wsClients || 0));
-
-    updateGraphics(jObj);
   }
+
+  // Always run logic to update the graphics, even if we don't have the expected data.
+  updateGraphics(jObj);
 }
 
 function getStatus() {

@@ -185,7 +185,56 @@ void settingsMenuCheck() {
     break;
 
     case MENU_LEVEL_2:
-      // No-Op. Not currently used.
+      switch(MENU_OPTION_LEVEL) {
+        case OPTION_5:
+          // Intensify: Enable/Disable auto vent light intensity.
+          if(switch_intensify.pushed()) {
+            if(b_vent_light_control) {
+              // Disable the auto vent light intensity feature.
+              b_vent_light_control = false;
+
+              stopEffect(S_VOICE_VENT_AUTO_INTENSITY_ENABLED);
+              stopEffect(S_VOICE_VENT_AUTO_INTENSITY_DISABLED);
+
+              playEffect(S_VOICE_VENT_AUTO_INTENSITY_DISABLED);
+            }
+            else {
+              // Enable the auto vent light intensity feature.
+              b_vent_light_control = true;
+
+              stopEffect(S_VOICE_VENT_AUTO_INTENSITY_ENABLED);
+              stopEffect(S_VOICE_VENT_AUTO_INTENSITY_DISABLED);
+
+              playEffect(S_VOICE_VENT_AUTO_INTENSITY_ENABLED);
+            }
+          }
+
+          // Grip: Enable/Disable RGB vent light support.
+          if(switch_grip.pushed()) {
+            if(b_rgb_vent_light) {
+              // Disable the RGB vent light functionality.
+              b_rgb_vent_light = false;
+
+              stopEffect(S_VOICE_RGB_VENT_LIGHTS_ENABLED);
+              stopEffect(S_VOICE_RGB_VENT_LIGHTS_DISABLED);
+
+              playEffect(S_VOICE_RGB_VENT_LIGHTS_DISABLED);
+            }
+            else {
+              // Enable the RGB vent light functionality.
+              b_rgb_vent_light = true;
+
+              stopEffect(S_VOICE_RGB_VENT_LIGHTS_ENABLED);
+              stopEffect(S_VOICE_RGB_VENT_LIGHTS_DISABLED);
+
+              playEffect(S_VOICE_RGB_VENT_LIGHTS_ENABLED);
+            }
+          }
+        break;
+        default:
+          // Currently no-op for all other options.
+        break;
+      }
     break;
 
     case MENU_LEVEL_3:
@@ -242,18 +291,18 @@ void checkDeviceAction() {
       if(ms_error_blink.remaining() < i_error_blink_delay / 2) {
         led_Clippard.turnOff();
         led_SloBlo.turnOff();
-        led_TopWhite.turnOff();
+        ventTopLightControl(false);
         led_Hat2.turnOff();
       }
       else {
         led_Clippard.turnOn();
         led_SloBlo.turnOn();
-        led_TopWhite.turnOn();
+        ventTopLightControl(true);
         led_Hat2.turnOn();
       }
 
       if(ms_error_blink.justFinished()) {
-        ms_error_blink.start(i_error_blink_delay);
+        ms_error_blink.repeat();
 
         playEffect(S_BEEPS_LOW);
         playEffect(S_BEEPS);
@@ -281,15 +330,15 @@ void checkDeviceAction() {
       // Top white light.
       if(ms_white_light.justFinished()) {
         ms_white_light.repeat();
-        if(led_TopWhite.getState() == LOW) {
-          led_TopWhite.turnOff();
+        if(vent_leds[1]) {
+          ventTopLightControl(false);
         }
         else {
-          led_TopWhite.turnOn();
+          ventTopLightControl(true);
         }
       }
 
-      // Update vibration level based on power level when not firing.
+      // Update vibration level based on power level.
       vibrationSetting();
 
       // Determine if the special grip button has been pressed (eg. firing, menu operation);

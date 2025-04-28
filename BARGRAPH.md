@@ -2,31 +2,25 @@
 
 This guide outlines the **optional** upgrade from the 5-LED stock bargraph to a more animated 28-segment bargraph (BL28Z-3005SA04Y) or the 28 Segment Bargraph and Power Cell from [Frutto Technology](https://fruttotechnology.com).
 
-## Frutto Technology 28 Segment Bargraph Installation Video Guide
+## 28 Segment Bargraph Installation Video Guide
 [28 Segment Bargraph Installation Video Guide](https://www.youtube.com/watch?v=8smqGQ_Wr_c) (YouTube)
 [![28 Segment Bargraph Installation Video Guide](https://img.youtube.com/vi/8smqGQ_Wr_c/maxresdefault.jpg)](https://www.youtube.com/watch?v=8smqGQ_Wr_c)
 
-## Frutto Technology 28 Segment Bargraph and Power Cell Overview and Demo
-[Frutto Technology Bargraph and Power Cell Overview and Demo Video](https://www.youtube.com/watch?v=CrQuCUjera4) (YouTube)
+## 28 Segment Bargraph and Power Cell Overview and Demo
+[Bargraph and Power Cell Overview and Demo Video](https://www.youtube.com/watch?v=CrQuCUjera4) (YouTube)
 [![Frutto Technology Bargraph and Power Cell Overview and Demo Video](https://img.youtube.com/vi/CrQuCUjera4/maxresdefault.jpg)](https://www.youtube.com/watch?v=CrQuCUjera4)
 
-## Fitment & Installation
+## Hasbro Bargraph Fitment & Installation
 
 The 28-segment bargraph is intended to take the place of the 5-LED + PCB assembly from the stock Hasbro equipment. The only means of accessing this is to remove the barrel release assembly and a portion of the plastic base which sits below the stock controller board. This may require some cutting as the center of that piece is glued directly to the wand handle. Once removed, access to the old bargraph is quite easy and takes removal of 2 screws. The circuit board with the LEDs resides under a small black cover and can be removed from the wand once that cover is removed.
 
-To install the bargraph, you will want to remove and cut the clear plastic piece away and the original barrel wire cover plastic. You can fit the bargraph into the [28_Segment&#95;Bargraph&#95;Mount.stl](stl/wand/28%20Segment%20Bargraph/28_Segment_Bargraph_Mount.stl) and [28&#95;Segment&#95;Bargraph&#95;Block.stl](stl/wand/28%20Segment%20Bargraph/28_Segment_Bargraph_Block.stl) which uses the stock mounting screw positions.
-![](images/bargraph_mount_8.jpg)
-![](images/bargraph_mount_4.jpg)
-![](images/bargraph_mount_7.jpg)
-![](images/bargraph_mount_9.jpg)
-
-It is important to know, after cutting the clear plastic piece, you will want to cut/grind the top part at the indicated red arrows so the bargraph mount fits over it without having to bend.
-![](images/BargraphFitment.jpg)
+To install the bargraph, you will want to remove and cut the clear plastic piece away and the original barrel wire cover plastic. You can fit the bargraph into the 3 piece system available on this repository or purchase from the [gpstartechnologies.com](https://gpstartechnologies.com)
+![](images/bargraph-3-mount.jpg)
+![](images/bargraph-installed.jpg)
+![](images/bargraph-installed-2.jpg)
 
 
-There is an alternative mounting solution using the one piece mount. The file [28_Segment&#95;Bargraph&#95;Insert.stl](stl/wand/28%20Segment%20Bargraph/28_Segment_Bargraph_Insert.stl) should fit the bargraph tightly while also slotting into the clear plastic.
-
-[Frutto_28_Segment&#95;Bargraph&#95;Insert.stl](stl/wand/28%20Segment%20Bargraph/Frutto_28_Segment_Bargraph_Insert.stl)
+There is an alternative mounting solution using the one piece mount. It should fit the bargraph tightly while also slotting into the clear plastic.
 
 ![](images/bargraph_mount_1.jpg)
 ![](images/bargraph_mount_2.jpg)

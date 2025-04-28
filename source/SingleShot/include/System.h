@@ -23,6 +23,8 @@
 // Forward function declarations
 void checkEncoderAction();
 void setPowerOnReminder(bool);
+void ventTopLightControl(bool);
+void ventLightControl(uint8_t);
 
 void allLightsOff() {
   bargraph.off();
@@ -33,8 +35,8 @@ void allLightsOff() {
   led_Hat2.turnOff(); // Turn off hat light 2.
   led_SloBlo.turnOff();
   led_Tip.turnOff(); // Not used normally, but make sure it's off.
-  led_TopWhite.turnOff();
-  led_Vent.turnOff();
+  ventLightControl(0);
+  ventTopLightControl(false);
 
   // Clear all addressable LEDs by filling the array with black.
   fill_solid(system_leds, CYCLOTRON_LED_COUNT + BARREL_LED_COUNT, CRGB::Black);
@@ -49,8 +51,8 @@ void allMenuLightsOff() {
   // Make sure some of the device lights are off, specifically for the Menu systems.
   // LEDs are in the order by which they indicate the menu levels above level 1.
   led_SloBlo.turnOff(); // Level 2
-  led_Vent.turnOff(); // Level 3
-  led_TopWhite.turnOff(); // Level 4
+  ventLightControl(0); // Level 3
+  ventTopLightControl(false); // Level 4
   led_Clippard.turnOff(); // Level 5
 
   setPowerOnReminder(false);
@@ -72,8 +74,8 @@ void barrelLightsOff() {
 
 void vibrationOff() {
   ms_menu_vibration.stop();
-  i_vibration_level_prev = 0;
-  analogWrite(vibration, 0);
+  i_vibration_level_current = 0;
+  analogWrite(vibration, i_vibration_level_current);
 }
 
 void checkMenuVibration() {
@@ -81,7 +83,10 @@ void checkMenuVibration() {
     vibrationOff();
   }
   else if(ms_menu_vibration.isRunning()) {
-    analogWrite(vibration, 150);
+    if(i_vibration_level_current != i_vibration_level_min) {
+      i_vibration_level_current = i_vibration_level_min;
+      analogWrite(vibration, i_vibration_level_current);
+    }
   }
 }
 
@@ -160,11 +165,22 @@ void systemPOST() {
   led_Hat2.turnOn();
   delay(i_delay);
 
-  // These go LOW to turn on.
-  led_Vent.turnOn();
-  delay(i_delay);
-  led_TopWhite.turnOn();
-  delay(i_delay);
+  if(b_rgb_vent_light) {
+    // These are driven from the TopWhite LED pin.
+    vent_leds[0] = getHueAsRGB(C_WARM_WHITE);
+    FastLED[1].showLeds(255);
+    delay(i_delay);
+    vent_leds[1] = getHueAsRGB(C_WHITE);
+    FastLED[1].showLeds(255);
+    delay(i_delay);
+  }
+  else {
+    // These go LOW to turn on.
+    led_Vent.turnOn();
+    delay(i_delay);
+    led_TopWhite.turnOn();
+    delay(i_delay);
+  }
 
   // Optional barrel tip (could be alternate for the GPStar jewel)
   led_Tip.turnOn();
@@ -173,20 +189,20 @@ void systemPOST() {
   // Sequentially turn on all LEDs in the barrel.
   for(uint8_t i = 0; i < i_num_barrel_leds; i++) {
     system_leds[i] = getHueAsRGB(C_BLUE);
-    FastLED.show();
+    FastLED[0].showLeds(255);
     delay(i_delay);
   }
 
   // Sequentially turn on all LEDs in the cyclotron.
   for(uint8_t i = 0; i < i_num_cyclotron_leds; i++) {
     system_leds[i_cyclotron_led_start + i] = getHueAsRGB(C_RED);
-    FastLED.show();
+    FastLED[0].showLeds(255);
     delay(i_delay);
   }
 
   // Turn on the front barrel.
   system_leds[i_barrel_led] = getHueAsRGB(C_WHITE);
-  FastLED.show();
+  FastLED[0].showLeds(255);
 
   delay(i_delay * 8);
 
@@ -277,8 +293,8 @@ bool lowerMenuLevel() {
       else {
         DEVICE_MENU_LEVEL = MENU_LEVEL_2;
         led_SloBlo.turnOn(); // Level 2
-        led_Vent.turnOff(); // Level 3
-        led_TopWhite.turnOff(); // Level 4
+        ventLightControl(0); // Level 3
+        ventTopLightControl(false); // Level 4
         led_Clippard.turnOff(); // Level 5
 
         stopEffect(S_BEEPS);
@@ -289,7 +305,7 @@ bool lowerMenuLevel() {
         stopEffect(S_VOICE_LEVEL_3);
         stopEffect(S_VOICE_LEVEL_4);
         stopEffect(S_VOICE_LEVEL_5);
-        }
+      }
     break;
     case MENU_LEVEL_2:
       if(DEVICE_STATUS == MODE_OFF && DEVICE_ACTION_STATUS == ACTION_SETTINGS) {
@@ -299,8 +315,8 @@ bool lowerMenuLevel() {
       else {
         DEVICE_MENU_LEVEL = MENU_LEVEL_3;
         led_SloBlo.turnOn(); // Level 2
-        led_Vent.turnOn(); // Level 3
-        led_TopWhite.turnOff(); // Level 4
+        ventLightControl(255); // Level 3
+        ventTopLightControl(false); // Level 4
         led_Clippard.turnOff(); // Level 5
 
         stopEffect(S_BEEPS);
@@ -312,12 +328,12 @@ bool lowerMenuLevel() {
         stopEffect(S_VOICE_LEVEL_4);
         stopEffect(S_VOICE_LEVEL_5);
       }
-     break;
+    break;
     case MENU_LEVEL_3:
       DEVICE_MENU_LEVEL = MENU_LEVEL_4;
       led_SloBlo.turnOn(); // Level 2
-      led_Vent.turnOn(); // Level 3
-      led_TopWhite.turnOn(); // Level 4
+      ventLightControl(255); // Level 3
+      ventTopLightControl(true); // Level 4
       led_Clippard.turnOff(); // Level 5
 
       stopEffect(S_BEEPS);
@@ -332,8 +348,8 @@ bool lowerMenuLevel() {
     case MENU_LEVEL_4:
       DEVICE_MENU_LEVEL = MENU_LEVEL_5;
       led_SloBlo.turnOn(); // Level 2
-      led_Vent.turnOn(); // Level 3
-      led_TopWhite.turnOn(); // Level 4
+      ventLightControl(255); // Level 3
+      ventTopLightControl(true); // Level 4
       led_Clippard.turnOn(); // Level 5
 
       stopEffect(S_BEEPS);
@@ -365,8 +381,8 @@ bool raiseMenuLevel() {
     case MENU_LEVEL_2:
       DEVICE_MENU_LEVEL = MENU_LEVEL_1;
       led_SloBlo.turnOff(); // Level 2
-      led_Vent.turnOff(); // Level 3
-      led_TopWhite.turnOff(); // Level 4
+      ventLightControl(0); // Level 3
+      ventTopLightControl(false); // Level 4
       led_Clippard.turnOff(); // Level 5
 
       stopEffect(S_BEEPS);
@@ -381,8 +397,8 @@ bool raiseMenuLevel() {
     case MENU_LEVEL_3:
       DEVICE_MENU_LEVEL = MENU_LEVEL_2;
       led_SloBlo.turnOn(); // Level 2
-      led_Vent.turnOff(); // Level 3
-      led_TopWhite.turnOff(); // Level 4
+      ventLightControl(0); // Level 3
+      ventTopLightControl(false); // Level 4
       led_Clippard.turnOff(); // Level 5
 
       stopEffect(S_BEEPS);
@@ -397,8 +413,8 @@ bool raiseMenuLevel() {
     case MENU_LEVEL_4:
       DEVICE_MENU_LEVEL = MENU_LEVEL_3;
       led_SloBlo.turnOn(); // Level 2
-      led_Vent.turnOn(); // Level 3
-      led_TopWhite.turnOff(); // Level 4
+      ventLightControl(255); // Level 3
+      ventTopLightControl(false); // Level 4
       led_Clippard.turnOff(); // Level 5
 
       stopEffect(S_BEEPS);
@@ -413,8 +429,8 @@ bool raiseMenuLevel() {
     case MENU_LEVEL_5:
       DEVICE_MENU_LEVEL = MENU_LEVEL_4;
       led_SloBlo.turnOn(); // Level 2
-      led_Vent.turnOn(); // Level 3
-      led_TopWhite.turnOn(); // Level 4
+      ventLightControl(255); // Level 3
+      ventTopLightControl(true); // Level 4
       led_Clippard.turnOff(); // Level 5
 
       stopEffect(S_BEEPS);
@@ -678,6 +694,59 @@ void modeFiring() {
   }
 }
 
+void ventTopLightControl(bool b_on) {
+  if(!b_on) {
+    if(!b_rgb_vent_light) {
+      // Turn off top light.
+      led_TopWhite.turnOff();
+    }
+
+    // Turn off if not off already.
+    if(vent_leds[1]) {
+      vent_leds[1] = getHueAsRGB(C_BLACK);
+      b_vent_lights_changed = true;
+    }
+  }
+  else {
+    if(!b_rgb_vent_light) {
+      // Turn on top light.
+      led_TopWhite.turnOn();
+    }
+
+    // Turn on if not on already.
+    if(!vent_leds[1]) {
+      vent_leds[1] = getHueAsRGB(C_WHITE);
+      b_vent_lights_changed = true;
+    }
+  }
+}
+
+void ventLightControl(uint8_t i_intensity) {
+  if(b_rgb_vent_light) {
+    // Put in a check just to be sure the non-addressable pin stays off.
+    if(led_Vent.getState() != HIGH) {
+      led_Vent.turnOff();
+    }
+
+    if(i_intensity < 20) {
+      vent_leds[0] = getHueAsRGB(C_BLACK);
+    }
+    else {
+      vent_leds[0] = getHueAsRGB(C_WARM_WHITE, i_intensity);
+    }
+
+    b_vent_lights_changed = true;
+  }
+  else {
+    if(i_intensity < 1) {
+      led_Vent.turnOff();
+    }
+    else {
+      led_Vent.dim(255 - PROGMEM_READU8(ledLookupTable[i_intensity]));
+    }
+  }
+}
+
 // Determine the light status on the device and any beeps.
 void deviceLightControlCheck() {
   // Vent light and first stage of the safety system.
@@ -685,37 +754,37 @@ void deviceLightControlCheck() {
     if(b_vent_light_control) {
       // Vent light on, brightness dependent on mode.
       if(DEVICE_ACTION_STATUS == ACTION_FIRING || (ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished())) {
-        led_Vent.dim(0); // 0 = Full Power
+        ventLightControl(255);
       }
       else {
         // Adjust brightness based on the power level.
         switch(POWER_LEVEL) {
           case LEVEL_1:
           default:
-            led_Vent.dim(220);
+            ventLightControl(i_vent_led_power_1);
           break;
           case LEVEL_2:
-            led_Vent.dim(190);
+            ventLightControl(i_vent_led_power_2);
           break;
           case LEVEL_3:
-            led_Vent.dim(160);
+            ventLightControl(i_vent_led_power_3);
           break;
           case LEVEL_4:
-            led_Vent.dim(130);
+            ventLightControl(i_vent_led_power_4);
           break;
           case LEVEL_5:
-            led_Vent.dim(100);
+            ventLightControl(i_vent_led_power_5);
           break;
         }
       }
     }
     else {
-      led_Vent.turnOn();
+      ventLightControl(255);
     }
   }
   else if(!switch_vent.on()) {
-    // Vent light and top white light off.
-    led_Vent.turnOff();
+    // Vent light off.
+    ventLightControl(0);
   }
 }
 
@@ -727,7 +796,6 @@ void deviceOff() {
   }
 
   stopEffect(S_BOOTUP);
-  //stopEffect(S_SMASH_ERROR_RESTART);
 
   if(DEVICE_ACTION_STATUS == ACTION_ERROR && !b_device_boot_error_on) {
     // We are exiting Device Boot Error, so change device state back to off/idle.
@@ -885,7 +953,7 @@ void postActivation() {
 
     // Top white light.
     ms_white_light.start(i_top_blink_interval);
-    led_TopWhite.turnOn();
+    ventTopLightControl(true);
 
     // Reset the hat light timers.
     ms_warning_blink.stop();
@@ -926,13 +994,10 @@ void vibrationDevice(uint8_t i_level) {
   if(VIBRATION_MODE != VIBRATION_NONE && i_level > 0) {
     // Vibrate the device during firing only when enabled.
     if(VIBRATION_MODE == VIBRATION_FIRING_ONLY) {
-      if(DEVICE_ACTION_STATUS == ACTION_FIRING || (ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished())) {
-        if(ms_semi_automatic_firing.isRunning()) {
-          analogWrite(vibration, 180);
-        }
-        else if(i_level != i_vibration_level_prev) {
-          i_vibration_level_prev = i_level;
-          analogWrite(vibration, i_level);
+      if(ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished()) {
+        if(i_vibration_level_current != (i_level * 2 < 256 ? i_level * 2 : 255)) {
+          i_vibration_level_current = (i_level * 2 < 256 ? i_level * 2 : 255);
+          analogWrite(vibration, i_vibration_level_current);
         }
       }
       else {
@@ -941,8 +1006,14 @@ void vibrationDevice(uint8_t i_level) {
     }
     else {
       // Device vibrates even when idling, etc.
-      if(i_level != i_vibration_level_prev) {
-        i_vibration_level_prev = i_level;
+      if(ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished()) {
+        if(i_vibration_level_current != (i_level * 2 < 256 ? i_level * 2 : 255)) {
+          i_vibration_level_current = (i_level * 2 < 256 ? i_level * 2 : 255);
+          analogWrite(vibration, i_vibration_level_current);
+        }
+      }
+      else if(i_vibration_level_current != i_level) {
+        i_vibration_level_current = i_level;
         analogWrite(vibration, i_level);
       }
     }
@@ -953,29 +1024,27 @@ void vibrationDevice(uint8_t i_level) {
 }
 
 void vibrationSetting() {
-  if(DEVICE_ACTION_STATUS != ACTION_FIRING) {
-    switch(POWER_LEVEL) {
-      case LEVEL_1:
-      default:
-        vibrationDevice(i_vibration_level);
-      break;
+  switch(POWER_LEVEL) {
+    case LEVEL_1:
+    default:
+      vibrationDevice(i_vibration_level_min);
+    break;
 
-      case LEVEL_2:
-        vibrationDevice(i_vibration_level + 5);
-      break;
+    case LEVEL_2:
+      vibrationDevice(i_vibration_level_min + 5);
+    break;
 
-      case LEVEL_3:
-        vibrationDevice(i_vibration_level + 10);
-      break;
+    case LEVEL_3:
+      vibrationDevice(i_vibration_level_min + 10);
+    break;
 
-      case LEVEL_4:
-        vibrationDevice(i_vibration_level + 12);
-      break;
+    case LEVEL_4:
+      vibrationDevice(i_vibration_level_min + 12);
+    break;
 
-      case LEVEL_5:
-        vibrationDevice(i_vibration_level + 25);
-      break;
-    }
+    case LEVEL_5:
+      vibrationDevice(i_vibration_level_min + 25);
+    break;
   }
 }
 

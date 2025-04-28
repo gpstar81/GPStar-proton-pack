@@ -53,6 +53,7 @@ uint16_t i_eepromAddress = 0; // The address in the EEPROM to start reading from
 struct objConfigEEPROM {
   uint8_t device_boot_errors;
   uint8_t vent_light_auto_intensity;
+  uint8_t rgb_vent_light;
   uint8_t invert_bargraph;
   uint8_t default_system_volume;
   uint8_t device_vibration;
@@ -87,6 +88,15 @@ void readEEPROM() {
       }
       else {
         b_vent_light_control = false;
+      }
+    }
+
+    if(obj_config_eeprom.rgb_vent_light > 0 && obj_config_eeprom.rgb_vent_light != 255) {
+      if(obj_config_eeprom.rgb_vent_light > 1) {
+        b_rgb_vent_light = true;
+      }
+      else {
+        b_rgb_vent_light = false;
       }
     }
 
@@ -151,6 +161,7 @@ void saveConfigEEPROM() {
   // 1 = false, 2 = true.
   uint8_t i_device_boot_errors = 2; // Assumed true by default.
   uint8_t i_vent_light_auto_intensity = 2; // Assumed true by default.
+  uint8_t i_rgb_vent_light = 1; // Assumed false by default.
   uint8_t i_invert_bargraph = 1; // Assumed false by default.
   uint8_t i_default_system_volume = 101; // <- i_eeprom_volume_master_percentage + 1
   uint8_t i_device_vibration = 4; // 1 = always, 2 = when firing, 3 = off, 4 = default.
@@ -161,6 +172,10 @@ void saveConfigEEPROM() {
 
   if(!b_vent_light_control) {
     i_vent_light_auto_intensity = 1;
+  }
+
+  if(b_rgb_vent_light) {
+    i_rgb_vent_light = 2;
   }
 
   if(b_bargraph_invert) {
@@ -191,6 +206,7 @@ void saveConfigEEPROM() {
   objConfigEEPROM obj_config_eeprom = {
     i_device_boot_errors,
     i_vent_light_auto_intensity,
+    i_rgb_vent_light,
     i_invert_bargraph,
     i_default_system_volume,
     i_device_vibration

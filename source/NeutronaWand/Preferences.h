@@ -54,9 +54,10 @@ uint16_t i_eepromAddress = 0; // The address in the EEPROM to start reading from
  */
 struct objLEDEEPROM {
   uint8_t barrel_spectral_custom;
-  uint8_t barrel_spectral_saturation_custom;
+  uint8_t barrel_spectral_saturation_custom; // Unused
   uint8_t num_barrel_leds;
   uint8_t num_bargraph_leds;
+  uint8_t rgb_vent_light;
 };
 
 /*
@@ -72,7 +73,6 @@ struct objConfigEEPROM {
   uint8_t holiday_mode; // This will be deprecated in 6.0 as part of a new menu refactoring.
   uint8_t quick_vent;
   uint8_t wand_boot_errors;
-  uint8_t rgb_vent_light;
   uint8_t vent_light_auto_intensity;
   uint8_t invert_bargraph;
   uint8_t bargraph_mode;
@@ -82,7 +82,7 @@ struct objConfigEEPROM {
   uint8_t CTS_mode;
   uint8_t system_mode;
   uint8_t beep_loop;
-  uint8_t default_system_volume;
+  uint8_t default_wand_volume;
   uint8_t overheat_start_timer_level_5;
   uint8_t overheat_start_timer_level_4;
   uint8_t overheat_start_timer_level_3;
@@ -183,15 +183,6 @@ void readEEPROM() {
       }
       else {
         b_wand_boot_errors = false;
-      }
-    }
-
-    if(obj_config_eeprom.rgb_vent_light > 0 && obj_config_eeprom.rgb_vent_light != 255) {
-      if(obj_config_eeprom.rgb_vent_light > 1) {
-        b_rgb_vent_light = true;
-      }
-      else {
-        b_rgb_vent_light = false;
       }
     }
 
@@ -314,9 +305,9 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.default_system_volume > 0 && obj_config_eeprom.default_system_volume <= 101 && b_gpstar_benchtest) {
+    if(obj_config_eeprom.default_wand_volume > 0 && obj_config_eeprom.default_wand_volume <= 101 && b_gpstar_benchtest) {
       // EEPROM value is from 1 to 101; subtract 1 to get the correct percentage.
-      i_volume_master_percentage = obj_config_eeprom.default_system_volume - 1;
+      i_volume_master_percentage = obj_config_eeprom.default_wand_volume - 1;
       i_volume_master_eeprom = MINIMUM_VOLUME - ((MINIMUM_VOLUME - i_volume_abs_max) * i_volume_master_percentage / 100);
       i_volume_revert = i_volume_master_eeprom;
       i_volume_master = i_volume_master_eeprom;
@@ -482,6 +473,15 @@ void readEEPROM() {
         BARGRAPH_TYPE = BARGRAPH_TYPE_EEPROM;
       }
     }
+
+    if(obj_led_eeprom.rgb_vent_light > 0 && obj_led_eeprom.rgb_vent_light != 255) {
+      if(obj_led_eeprom.rgb_vent_light > 1) {
+        b_rgb_vent_light = true;
+      }
+      else {
+        b_rgb_vent_light = false;
+      }
+    }
   }
   else {
     // CRC doesn't match; let's clear the EEPROMs to be safe.
@@ -510,6 +510,7 @@ void saveLEDEEPROM() {
 
   uint8_t i_barrel_led_count = 5; // 5 = Hasbro, 50 = GPStar Neutrona Barrel, 2 = GPStar Barrel LED Mini, 48 = Frutto.
   uint8_t i_bargraph_led_count = 28; // 28 segment, 30 segment.
+  uint8_t i_rgb_vent_light = 1; // 1 = RGB Vent Light disabled, 2 = RGB Vent Light enabled
 
   if(WAND_BARREL_LED_COUNT == LEDS_48) {
     i_barrel_led_count = 48;
@@ -525,12 +526,17 @@ void saveLEDEEPROM() {
     i_bargraph_led_count = 30;
   }
 
+  if(b_rgb_vent_light) {
+    i_rgb_vent_light = 2;
+  }
+
   // Build the LED EEPROM object with the new data.
   objLEDEEPROM obj_led_eeprom = {
     i_spectral_wand_custom_colour,
     i_spectral_wand_custom_saturation,
     i_barrel_led_count,
-    i_bargraph_led_count
+    i_bargraph_led_count,
+    i_rgb_vent_light
   };
 
   // Save to the EEPROM.
@@ -565,7 +571,6 @@ void saveConfigEEPROM() {
   uint8_t i_spectral = 1;
   uint8_t i_quick_vent = 2;
   uint8_t i_wand_boot_errors = 2;
-  uint8_t i_rgb_vent_light = 1;
   uint8_t i_vent_light_auto_intensity = 2;
   uint8_t i_invert_bargraph = 1;
   uint8_t i_bargraph_mode = 1; // 1 = default, 2 = super hero, 3 = original.
@@ -575,7 +580,7 @@ void saveConfigEEPROM() {
   uint8_t i_CTS_mode = 1; // 1 = default, 2 = 1984, 3 = 1989, 4 = Afterlife, 5 = Frozen Empire.
   uint8_t i_system_mode = 1; // 1 = super hero, 2 = original.
   uint8_t i_beep_loop = 2;
-  uint8_t i_default_system_volume = 101; // <- i_eeprom_volume_master_percentage + 1
+  uint8_t i_default_wand_volume = 101; // <- i_eeprom_volume_master_percentage + 1
   uint8_t i_overheat_start_timer_level_5 = i_ms_overheat_initiate_level_5 / 1000;
   uint8_t i_overheat_start_timer_level_4 = i_ms_overheat_initiate_level_4 / 1000;
   uint8_t i_overheat_start_timer_level_3 = i_ms_overheat_initiate_level_3 / 1000;
@@ -618,10 +623,6 @@ void saveConfigEEPROM() {
 
   if(!b_wand_boot_errors) {
     i_wand_boot_errors = 1;
-  }
-
-  if(b_rgb_vent_light) {
-    i_rgb_vent_light = 2;
   }
 
   if(!b_vent_light_control) {
@@ -716,7 +717,7 @@ void saveConfigEEPROM() {
 
   if(i_eeprom_volume_master_percentage <= 100) {
     // Need to add 1 to this because the EEPROM cannot contain a 0 value.
-    i_default_system_volume = i_eeprom_volume_master_percentage + 1;
+    i_default_wand_volume = i_eeprom_volume_master_percentage + 1;
   }
 
   if(!b_beep_loop) {
@@ -773,7 +774,6 @@ void saveConfigEEPROM() {
     0,
     i_quick_vent,
     i_wand_boot_errors,
-    i_rgb_vent_light,
     i_vent_light_auto_intensity,
     i_invert_bargraph,
     i_bargraph_mode,
@@ -783,7 +783,7 @@ void saveConfigEEPROM() {
     i_CTS_mode,
     i_system_mode,
     i_beep_loop,
-    i_default_system_volume,
+    i_default_wand_volume,
     i_overheat_start_timer_level_5,
     i_overheat_start_timer_level_4,
     i_overheat_start_timer_level_3,

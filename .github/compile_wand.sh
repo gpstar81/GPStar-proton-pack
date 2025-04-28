@@ -13,11 +13,11 @@ mkdir -p ${BINDIR}/wand/extras
 
 echo ""
 
-# Neutrona Wand
-echo "Building Neutrona Wand Binary..."
-
 # Set the project directory based on the source folder
 PROJECT_DIR="$SRCDIR/NeutronaWand"
+
+# Neutrona Wand
+echo "Building Neutrona Wand Binary..."
 
 # --warnings none
 arduino-cli compile --output-dir ${BINDIR} --fqbn arduino:avr:mega --export-binaries ${PROJECT_DIR}/NeutronaWand.ino

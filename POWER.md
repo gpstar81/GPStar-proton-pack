@@ -10,6 +10,8 @@ For most audio amplifier choices used with the pack those devices typically requ
 
 **Note:** You will most likely be using a rechargeable lithium-ion battery or similar to power your equipment. Unlike Alkaline batteries these do not drop in voltage as they discharge, but keep up a continuous voltage until their capacity is nearly depleted--at which time the internal circuitry will simply stop providing output. As such, reading voltage is not a reliable means of estimating battery life remaining.
 
+**2025 Update** - The new [GPStar Amplifier II](https://gpstartechnologies.com/products/gpstar-amplifier-ii) and [Power Hub II](https://gpstartechnologies.com/products/gpstar-power-hub-ii) devices now allow your system to be 24V compatible. These devices can take 12V or 24V source voltage as input while still providing 5V distribution for accessories.
+
 ## Power Draw
 
 In addition to voltage we need to consider the amperage required for running components. You will need a power source which can deliver at least 0.6A to run the most basic kit, while additional upgrades such as the 48-LED barrel will require a minimum of 0.8A to run effectively. The 12V batteries offered by Talentcell are a popular choice as they provide up to 2A from the USB port and 3A from the 12V barrel jack.
@@ -46,6 +48,10 @@ Either of the TalentCell<sup>1</sup> battery packs just mentioned in conjunction
 
 <sup>1</sup> TalentCell batteries come in a variety of amp-hour ratings, though 3000mAh or 6000mAh are common capacities.
 
+### Ultimate
+
+With the introduction of the [GPStar Amplifier II](https://gpstartechnologies.com/products/gpstar-amplifier-ii) and [Power Hub II](https://gpstartechnologies.com/products/gpstar-power-hub-ii) devices your Proton Pack can be adapted to run on a 24V input voltage! This will require a suitable battery such as the [TalentCell 24V 82.88Wh Battery, model PB240A1](https://talentcell.com/lithium-ion-battery/24v/pb240a1.html).
+
 ## Using Multiple Power Sources
 
 For those who wish to make use of smoke effects, the need for multiple batteries has become more apparent and recommended. Every addition and upgrade to your pack and wand comes at a cost of power, and as of 2024 the number of LEDs in use may require up to 1.2A just for the base system functionality. While most DIY and community smoke kits may require 1.5-2.5A each, which easily pushes the stated limit (3A) of a single TalentCell battery.
@@ -72,11 +78,11 @@ Proton Pack
   -------------- Negative from Common Ground
   |
  Amp   PCB ----- Negative from Common Ground
-  |+    |+    
+  |+    |+
 ===========
 |12V+  5V+|
 | |     | |
-|12V+  5V+| == Common Center to Battery (Jack/USB)    
+|12V+  5V+| == Common Center to Battery (Jack/USB)
 | |       |
 |12V+  NC*|  *No Connection for 5V+ side (USB)
 ===========

@@ -30,6 +30,12 @@ Since all connections to the Proton Pack utilize standard JST-XH connections to 
 
 Confirm that the battery pack is sufficiently charged, switched to the on state, and USB-to-JST connection is in place.
 
+### Pack Cyclotron (lid) will not light up ###
+
+Always be sure that your Power Cell device is plugged in and working, first. Both the Power Cell and Cyclotron are considered to be a single, continuious chain of LEDs and the latter will not function without the former. Note that when you first apply power to your pack you should hear and see a startup sequence which is a form of sanity check on the hardware to confirm the lights are working as expected.
+
+If using the Cyclotron Bypass (for Spirit or DIY packs) you must ensure the jumper is in place on the board to simulate the lid closure state. Removing or replacing the jumper while power is applied should result in an audio cue to indicate the bypass device is working (simulating lid removal and replacement).
+
 ### Pack has lights but does not play audio ###
 
 * Re-check the 3.5mm audio cable is connected to the audio amplifier, and that the audio amplifier has power, is connected to at least 1 speaker, and volume has been turned up to at least 30%.
@@ -85,7 +91,9 @@ If your pack and wand are on default settings (you may test this by entering the
 
 ### Bench Test Mode ###
 
-If you wish to test (or use) the Neutrona Wand without a Proton Pack, flash the `binaries/wand/extras/NeutronaWand-BenchTest.hex` to the device to enable a special mode which will allow the wand to operation without waiting for a response from the pack. This is useful for debugging whether the serial connection is incorrect.
+If you wish to use the Neutrona Wand without a Proton Pack, flash [NeutronaWand-BenchTest.hex](binaries/wand/extras/NeutronaWand-BenchTest.hex?raw=1) from the Neutrona Wand binary extras folder to the device to enable a special mode which will allow the wand to operate without waiting for a response from the pack. As of firmware 5.3.3 you can also bridge/jumper the Proton Pack TX1 and RX1 pins on the Neutrona Wand circuit board to enable Bench Test mode without flashing the above firmware (see below image). This is useful for debugging whether an issue with your Proton Pack serial connection is the cause of your wand issues.
+
+![](images/GPStar-Wand-BenchTest.jpg)
 
 ## Audio Troubleshooting ##
 
@@ -103,7 +111,7 @@ If no audio is heard but the green LED is lit, make sure that 2 jumpers are atta
 |-----|-----|-----|-----|-----|-----|
 |  X  |  X  |     |  X  |  X  |     |
 
-Remember that a ground loop isolator is not required for this device as this is built into the hardware. Use of an additional isolator may impact the audio quality.
+Remember that a ground loop isolator is not required for this device as this is built into the hardware. Use of an additional isolator may negatively impact the audio quality.
 
 ---
 
@@ -113,15 +121,15 @@ Remember that a ground loop isolator is not required for this device as this is 
 
 **Troubleshooting**
 
-1. Make sure your WAV files are named properly and are located in the root directory of the microSD card. When you first power on GPStar Audio, it will locate and index the files and then the green LED will blink at half second intervals.
+1. Make sure your WAV files are named properly and are located in the root directory of the microSD card. When you first power on GPStar Audio, it will locate and index the files and then the green LED will blink at half second intervals. **NOTE:** As of firmware 5.4.4, once the GPStar Audio successfully connects to one of the device boards the green LED will turn off to prevent light bleed.
 
 2. If there’s no activity on the "Green" status LED whatsoever when you power up GPStar Audio, check the “BOOT/LOAD” switch next to the 6 pin JST-XH connector is in the “BOOT” position.
 
-3. Once you see the "Green" status LED blinking slowly, pressing the on-board "Test" button will play the lowest numbered track on the microSD card. Confirm this by observing the "Gree" status LED turning blinking very rapidly to indicate a track is playing. You should hear the track through the stereo jack or any speaker connected to the board.
+3. Once you see the "Green" status LED blinking slowly, pressing the on-board "Test" button will play the lowest numbered track on the microSD card. Confirm this by observing the "Gree" status LED turning blinking very rapidly to indicate a track is playing. You should hear the track through the stereo jack or any speaker connected to the board. **NOTE:** As of firmware 5.4.4, this LED will not blink if the GPStar Audio has successfully connected to GPStar equipment. The GPStar Audio can be tested outside of equipment by plugging your GPStar Programming Cable into the white device connector and connecting the USB cable to your computer.
 
 4. Low quality SD Cards sometimes provide issues such as sounds not playing. Please consider using high quality SD Cards. We recommend the Sandisk Extreme A1/A2 U3 V30 32GB Micro SD Cards.
 
-5. If you’ve gotten this far and tracks won’t play, then it’s most likely that your WAV files are not the correct format. GPStar Audio will only play WAV files formatted as 16-bit, stereo, 44.1kHz, and there can be no meta-data (non-audio data) in the file before the audio data. It seems that many Mac audio applications insert a meta-data chunk prior to the audio, and this will prevent the track from playing. In such cases, simply importing the file and re-exporting with Audacity will likely fix the problem.
+5. If you’ve gotten this far and tracks won’t play, then it’s most likely that your WAV files are not the correct format. GPStar Audio will only play uncompressed WAV files formatted as 16-bit, stereo, 44.1kHz, and there can be no meta-data (non-audio data) in the file before the audio data. It seems that many Mac audio applications insert a meta-data chunk prior to the audio, and this will prevent the track from playing. In such cases, simply importing the file and re-exporting with Audacity will likely fix the problem.
 
 6. Please remove any metadata contained in the music wav files you add, as it can cause issues loading the file for playback.
 
@@ -133,7 +141,7 @@ Remember that a ground loop isolator is not required for this device as this is 
 
 **Startup Blinking Patterns:**
 
-- 1x (long) - 1 long blink upon startup indicates that the SD card is no good or the formatting was bad. Re-format fully using your OS or the provided `guiformat.exe` utility in `/extras/` (for Windows only). Name brand microSD cards are highly recommended, with SanDisk having been proven the most reliable so far.
+- 1x (long) - 1 long blink upon startup indicates that the SD card is no good or the formatting was bad. Re-format fully using your OS or the provided [guiformat.exe](extras/sound/guiformat.exe?raw=1) utility in [extras](extras/) (for Windows only). Name brand microSD cards are highly recommended, with SanDisk having been proven the most reliable so far.
 - 3x (quick) - 3 quick blinks in succession is the normal pattern at initial power-up to indicate the device has initialized without issues.
 
 **Post Startup Blinking Patterns**
@@ -154,4 +162,4 @@ Remember that a ground loop isolator is not required for this device as this is 
 
 1. Please remove any metadata contained in the music wav files you add, as it can cause issues loading the file for playback.
 
-[Manual for the WAV Trigger [pdf]](https://github.com/gpstar81/haslab-proton-pack/raw/main/extras/sound/WavTrigger/WT_UserGuide_20230602.pdf)
+[Manual for the WAV Trigger [pdf]](extras/sound/WavTrigger/WT_UserGuide_20230602.pdf?raw=1)

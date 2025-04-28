@@ -88,13 +88,13 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
   <h1>Power Level 4</h1>
   <div class="block left">
     <div class="setting">
-    <div class="setting">
       <b class="labelSwitch">Overheating Enabled:</b>
       <label class="switch">
         <input id="overheatLevel4" name="overheatLevel4" type="checkbox">
         <span class="slider round"></span>
       </label>
     </div>
+    <div class="setting">
       <b class="labelSwitch">Continuous Firing Smoke:</b>
       <label class="switch">
         <input id="overheatContinuous4" name="overheatContinuous4" type="checkbox">
@@ -242,41 +242,66 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
               alert("Pack and/or Wand are currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings.");
             }
 
+            if (!settings.wandConnected) {
+              getEl("overheatLevel1").disabled = true;
+              getEl("overheatLevel2").disabled = true;
+              getEl("overheatLevel3").disabled = true;
+              getEl("overheatLevel4").disabled = true;
+              getEl("overheatLevel5").disabled = true;
+              getEl("overheatDelay1").disabled = true;
+              getEl("overheatDelay2").disabled = true;
+              getEl("overheatDelay3").disabled = true;
+              getEl("overheatDelay4").disabled = true;
+              getEl("overheatDelay5").disabled = true;
+              alert("GPStar Neutrona Wand not detected; only partial smoke settings are available.");
+            } else {
+              getEl("overheatLevel1").disabled = false;
+              getEl("overheatLevel2").disabled = false;
+              getEl("overheatLevel3").disabled = false;
+              getEl("overheatLevel4").disabled = false;
+              getEl("overheatLevel5").disabled = false;
+              getEl("overheatDelay1").disabled = false;
+              getEl("overheatDelay2").disabled = false;
+              getEl("overheatDelay3").disabled = false;
+              getEl("overheatDelay4").disabled = false;
+              getEl("overheatDelay5").disabled = false;
+            }
+
             // Valid settings were received and both the pack and wand are off, so allow updating settings.
             getEl("btnSave").disabled = false;
 
             setToggle("smokeEnabled", settings.smokeEnabled);
 
-            getEl("overheatContinuous5").checked = settings.overheatContinuous5 || 0;
-            getEl("overheatLevel5").checked = settings.overheatLevel5 || 0;
+            setToggle("overheatContinuous5", settings.overheatContinuous5 || 0);
+            setToggle("overheatLevel5", settings.overheatLevel5 || 0);
             setValue("overheatDelay5", settings.overheatDelay5 || 30);
             setHtml("delay5Out", getText("overheatDelay5"));
             setValue("overheatDuration5", settings.overheatDuration5 || 6);
             setHtml("duration5Out", getText("overheatDuration5"));
 
-            getEl("overheatContinuous4").checked = settings.overheatContinuous4 || 0;
-            getEl("overheatLevel4").checked = settings.overheatLevel4 || 0;
+            setToggle("overheatContinuous4", settings.overheatContinuous4 || 0);
+            setToggle("overheatLevel4", settings.overheatLevel4 || 0);
             setValue("overheatDelay4", settings.overheatDelay4 || 35);
             setHtml("delay4Out", getText("overheatDelay4"));
             setValue("overheatDuration4", settings.overheatDuration4 || 5);
             setHtml("duration4Out", getText("overheatDuration4"));
 
-            getEl("overheatContinuous3").checked = settings.overheatContinuous3 || 0;
-            getEl("overheatLevel3").checked = settings.overheatLevel3 || 0;
+            setToggle("overheatContinuous3", settings.overheatContinuous3 || 0);
+            setToggle("overheatLevel3", settings.overheatLevel3 || 0);
             setValue("overheatDelay3", settings.overheatDelay3 || 40);
             setHtml("delay3Out", getText("overheatDelay3"));
             setValue("overheatDuration3", settings.overheatDuration3 || 4);
             setHtml("duration3Out", getText("overheatDuration3"));
 
-            getEl("overheatContinuous2").checked = settings.overheatContinuous2 || 0;
-            getEl("overheatLevel2").checked = settings.overheatLevel2 || 0;
+            setToggle("overheatContinuous2", settings.overheatContinuous2 || 0);
+            setToggle("overheatLevel2", settings.overheatLevel2 || 0);
             setValue("overheatDelay2", settings.overheatDelay2 || 50);
             setHtml("delay2Out", getText("overheatDelay2"));
             setValue("overheatDuration2", settings.overheatDuration2 || 3);
             setHtml("duration2Out", getText("overheatDuration2"));
 
-            getEl("overheatContinuous1").checked = settings.overheatContinuous1 || 0;
-            getEl("overheatLevel1").checked = settings.overheatLevel1 || 0;
+            setToggle("overheatContinuous1", settings.overheatContinuous1 || 0);
+            setToggle("overheatLevel1", settings.overheatLevel1 || 0);
             setValue("overheatDelay1", settings.overheatDelay1 || 60);
             setHtml("delay1Out", getText("overheatDelay1"));
             setValue("overheatDuration1", settings.overheatDuration1 || 2);
@@ -318,12 +343,16 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
 
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          handleStatus(this.responseText);
-          getSettings(); // Get latest settings.
+        if (this.readyState == 4) {
+          if (this.status == 200) {
+            handleStatus(this.responseText);
+            setTimeout(getSettings, 400); // Get latest settings.
 
-          if (confirm("Settings successfully updated. Do you want to store the latest settings to the pack/wand EEPROM?")) {
-            saveEEPROM(); // Perform action only if the user answers OK to the confirmation.
+            if (confirm("Settings successfully updated. Do you want to store the latest settings to the pack/wand EEPROM?")) {
+              saveEEPROM(); // Perform action only if the user answers OK to the confirmation.
+            }
+          } else {
+            handleStatus(this.responseText);
           }
         }
       };

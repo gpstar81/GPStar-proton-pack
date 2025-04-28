@@ -269,37 +269,49 @@ void startWebServer() {
 void handleCommonJS(AsyncWebServerRequest *request) {
   // Used for the root page (/) from the web server.
   debug("Sending -> Index JavaScript");
-  request->send(200, "application/javascript", String(COMMONJS_page)); // Serve page content.
+  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript", String(COMMONJS_page));
+  response->addHeader("Cache-Control", "public, max-age=86400");
+  request->send(response); // Serve page content.
 }
 
 void handleRoot(AsyncWebServerRequest *request) {
   // Used for the root page (/) from the web server.
   debug("Sending -> Index HTML");
-  request->send(200, "text/html", String(INDEX_page)); // Serve page content.
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", String(INDEX_page));
+  response->addHeader("Cache-Control", "public, max-age=86400");
+  request->send(response); // Serve page content.
 }
 
 void handleRootJS(AsyncWebServerRequest *request) {
   // Used for the root page (/) from the web server.
   debug("Sending -> Index JavaScript");
-  request->send(200, "application/javascript", String(INDEXJS_page)); // Serve page content.
+  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript", String(INDEXJS_page));
+  response->addHeader("Cache-Control", "public, max-age=86400");
+  request->send(response); // Serve page content.
 }
 
 void handleNetwork(AsyncWebServerRequest *request) {
   // Used for the network page from the web server.
   debug("Sending -> Network HTML");
-  request->send(200, "text/html", String(NETWORK_page)); // Serve page content.
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", String(NETWORK_page));
+  response->addHeader("Cache-Control", "public, max-age=60");
+  request->send(response); // Serve page content.
 }
 
 void handlePassword(AsyncWebServerRequest *request) {
   // Used for the password page from the web server.
   debug("Sending -> Password HTML");
-  request->send(200, "text/html", String(PASSWORD_page)); // Serve page content.
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", String(PASSWORD_page));
+  response->addHeader("Cache-Control", "public, max-age=60");
+  request->send(response); // Serve page content.
 }
 
 void handleDeviceSettings(AsyncWebServerRequest *request) {
   // Used for the device page from the web server.
   debug("Sending -> Device Settings HTML");
-  request->send(200, "text/html", String(DEVICE_page)); // Serve page content.
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", String(DEVICE_page));
+  response->addHeader("Cache-Control", "public, max-age=60");
+  request->send(response); // Serve page content.
 }
 
 void handlePackSettings(AsyncWebServerRequest *request) {
@@ -309,7 +321,9 @@ void handlePackSettings(AsyncWebServerRequest *request) {
 
   // Used for the settings page from the web server.
   debug("Sending -> Pack Settings HTML");
-  request->send(200, "text/html", String(PACK_SETTINGS_page)); // Serve page content.
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", String(PACK_SETTINGS_page));
+  response->addHeader("Cache-Control", "public, max-age=60");
+  request->send(response); // Serve page content.
 }
 
 void handleWandSettings(AsyncWebServerRequest *request) {
@@ -319,7 +333,9 @@ void handleWandSettings(AsyncWebServerRequest *request) {
 
   // Used for the settings page from the web server.
   debug("Sending -> Wand Settings HTML");
-  request->send(200, "text/html", String(WAND_SETTINGS_page)); // Serve page content.
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", String(WAND_SETTINGS_page));
+  response->addHeader("Cache-Control", "public, max-age=60");
+  request->send(response); // Serve page content.
 }
 
 void handleSmokeSettings(AsyncWebServerRequest *request) {
@@ -329,19 +345,24 @@ void handleSmokeSettings(AsyncWebServerRequest *request) {
 
   // Used for the settings page from the web server.
   debug("Sending -> Smoke Settings HTML");
-  request->send(200, "text/html", String(SMOKE_SETTINGS_page)); // Serve page content.
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", String(SMOKE_SETTINGS_page));
+  response->addHeader("Cache-Control", "public, max-age=60");
+  request->send(response); // Serve page content.
 }
 
 void handleStylesheet(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
   debug("Sending -> Main StyleSheet");
-  request->send(200, "text/css", String(STYLE_page)); // Serve page content.
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/css", String(STYLE_page));
+  response->addHeader("Cache-Control", "public, max-age=86400");
+  request->send(response); // Serve page content.
 }
 
 void handleEquipSvg(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
   debug("Sending -> Equipment SVG");
   AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", EQUIP_svg, sizeof(EQUIP_svg));
+  response->addHeader("Cache-Control", "public, max-age=86400");
   response->addHeader("Content-Encoding", "gzip");
   request->send(response);
 }
@@ -350,6 +371,7 @@ void handleFavIco(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
   debug("Sending -> Favicon");
   AsyncWebServerResponse *response = request->beginResponse(200, "image/x-icon", FAVICON_ico, sizeof(FAVICON_ico));
+  response->addHeader("Cache-Control", "public, max-age=86400");
   response->addHeader("Content-Encoding", "gzip");
   request->send(response);
 }
@@ -358,6 +380,7 @@ void handleFavSvg(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
   debug("Sending -> Favicon");
   AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", FAVICON_svg, sizeof(FAVICON_svg));
+  response->addHeader("Cache-Control", "public, max-age=86400");
   response->addHeader("Content-Encoding", "gzip");
   request->send(response);
 }
@@ -422,15 +445,18 @@ String getPackConfig() {
     jsonBody["ledCycLidCount"] = packConfig.ledCycLidCount; // [12,20,36,40]
     jsonBody["ledCycLidHue"] = packConfig.ledCycLidHue; // Spectral custom colour/hue 1-254
     jsonBody["ledCycLidSat"] = packConfig.ledCycLidSat; // Spectral custom saturation 1-254
+    jsonBody["ledCycLidLum"] = packConfig.ledCycLidLum; // Brightness 0-100
     jsonBody["cyclotronDirection"] = packConfig.cyclotronDirection; // [0=CCW,1=CW]
     jsonBody["ledCycLidCenter"] = packConfig.ledCycLidCenter; // [0=3,1=1]
     jsonBody["ledCycLidFade"] = packConfig.ledCycLidFade; // true|false
     jsonBody["ledVGCyclotron"] = packConfig.ledVGCyclotron; // true|false
     jsonBody["ledCycLidSimRing"] = packConfig.ledCycLidSimRing; // true|false
     jsonBody["ledCycInnerPanel"] = packConfig.ledCycInnerPanel; // [1=Individual,2=RGB-Static,3=RGB-Dynamic]
+    jsonBody["ledCycPanLum"] = packConfig.ledCycPanLum; // Brightness 0-100
     jsonBody["ledCycCakeCount"] = packConfig.ledCycCakeCount; // [12,23,24,26,35,36]
     jsonBody["ledCycCakeHue"] = packConfig.ledCycCakeHue; // Spectral custom colour/hue 1-254
     jsonBody["ledCycCakeSat"] = packConfig.ledCycCakeSat; // Spectral custom saturation 1-254
+    jsonBody["ledCycCakeLum"] = packConfig.ledCycCakeLum; // Brightness 0-100
     jsonBody["ledCycCakeGRB"] = packConfig.ledCycCakeGRB; // Use GRB for cake LEDs true|false
     jsonBody["ledCycCavCount"] = packConfig.ledCycCavCount; // Cyclotron cavity LEDs (0-20)
     jsonBody["ledCycCavType"] = packConfig.ledCycCavType; // Cyclotron cavity LED Type
@@ -438,6 +464,7 @@ String getPackConfig() {
     jsonBody["ledInvertPowercell"] = packConfig.ledInvertPowercell; // true|false
     jsonBody["ledPowercellHue"] = packConfig.ledPowercellHue; // Spectral custom colour/hue 1-254
     jsonBody["ledPowercellSat"] = packConfig.ledPowercellSat; // Spectral custom saturation 1-254
+    jsonBody["ledPowercellLum"] = packConfig.ledPowercellLum; // Brightness 0-100
     jsonBody["ledVGPowercell"] = packConfig.ledVGPowercell; // true|false
   }
 
@@ -458,6 +485,7 @@ String getWandConfig() {
     // Return current powered state for pack and wand.
     jsonBody["packPowered"] = (b_pack_on ? true : false);
     jsonBody["wandPowered"] = (b_wand_on ? true : false);
+    jsonBody["wandConnected"] = (b_wand_present ? true : false);
 
     // Neutrona Wand LED Options
     jsonBody["ledWandCount"] = wandConfig.ledWandCount; // [0=5 (Stock), 1=48 (Frutto), 2=50 (GPStar), 3=2 (Tip)]
@@ -501,6 +529,7 @@ String getSmokeConfig() {
     // Return current powered state for pack and wand.
     jsonBody["packPowered"] = (b_pack_on ? true : false);
     jsonBody["wandPowered"] = (b_wand_on ? true : false);
+    jsonBody["wandConnected"] = (b_wand_present ? true : false);
 
     // Proton Pack
     jsonBody["smokeEnabled"] = (smokeConfig.smokeEnabled == 1); // true|false
@@ -830,7 +859,7 @@ void handleSaveWandEEPROM(AsyncWebServerRequest *request) {
   request->send(200, "application/json", status);
 }
 
-// Handles the JSON body for the pack settings save request.
+// Handles the JSON body for the Attenuator settings save request.
 AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHandler("/config/device/save", [](AsyncWebServerRequest *request, JsonVariant &json) {
   jsonBody.clear();
   if(json.is<JsonObject>()) {
@@ -1031,6 +1060,7 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
       packConfig.ledCycLidCount = jsonBody["ledCycLidCount"].as<uint8_t>();
       packConfig.ledCycLidHue = jsonBody["ledCycLidHue"].as<uint8_t>();
       packConfig.ledCycLidSat = jsonBody["ledCycLidSat"].as<uint8_t>();
+      packConfig.ledCycLidLum = jsonBody["ledCycLidLum"].as<uint8_t>();
       packConfig.cyclotronDirection = jsonBody["cyclotronDirection"].as<uint8_t>();
       packConfig.ledCycLidCenter = jsonBody["ledCycLidCenter"].as<uint8_t>();
       packConfig.ledCycLidFade = jsonBody["ledCycLidFade"].as<uint8_t>();
@@ -1039,9 +1069,11 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
 
       // Inner Cyclotron
       packConfig.ledCycInnerPanel = jsonBody["ledCycInnerPanel"].as<uint8_t>();
+      packConfig.ledCycPanLum = jsonBody["ledCycPanLum"].as<uint8_t>();
       packConfig.ledCycCakeCount = jsonBody["ledCycCakeCount"].as<uint8_t>();
       packConfig.ledCycCakeHue = jsonBody["ledCycCakeHue"].as<uint8_t>();
       packConfig.ledCycCakeSat = jsonBody["ledCycCakeSat"].as<uint8_t>();
+      packConfig.ledCycCakeLum = jsonBody["ledCycCakeLum"].as<uint8_t>();
       packConfig.ledCycCakeGRB = jsonBody["ledCycCakeGRB"].as<uint8_t>();
       packConfig.ledCycCavCount = jsonBody["ledCycCavCount"].as<uint8_t>();
       if(packConfig.ledCycCavCount > 20) {
@@ -1054,13 +1086,22 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
       packConfig.ledInvertPowercell = jsonBody["ledInvertPowercell"].as<uint8_t>();
       packConfig.ledPowercellHue = jsonBody["ledPowercellHue"].as<uint8_t>();
       packConfig.ledPowercellSat = jsonBody["ledPowercellSat"].as<uint8_t>();
+      packConfig.ledPowercellLum = jsonBody["ledPowercellLum"].as<uint8_t>();
       packConfig.ledVGPowercell = jsonBody["ledVGPowercell"].as<uint8_t>();
 
-      jsonBody.clear();
-      jsonBody["status"] = "Settings updated, please test before saving to EEPROM.";
-      serializeJson(jsonBody, result); // Serialize to string.
-      attenuatorSerialSendData(A_SAVE_PREFERENCES_PACK); // Tell the pack to save the new settings.
-      request->send(200, "application/json", result);
+      if(b_wait_for_pack) {
+        jsonBody.clear();
+        jsonBody["status"] = "Pack has lost sync, please try saving settings again.";
+        serializeJson(jsonBody, result); // Serialize to string.
+        request->send(503, "application/json", result);
+      }
+      else {
+        jsonBody.clear();
+        jsonBody["status"] = "Settings updated, please test before saving to EEPROM.";
+        serializeJson(jsonBody, result); // Serialize to string.
+        attenuatorSerialSendData(A_SAVE_PREFERENCES_PACK); // Tell the pack to save the new settings.
+        request->send(200, "application/json", result);
+      }
     }
     catch (...) {
       jsonBody.clear();
@@ -1071,7 +1112,6 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
   }
   else {
     // Tell the user why the requested action failed.
-    String result;
     jsonBody.clear();
     jsonBody["status"] = "Pack and/or Wand are running, save action cancelled";
     serializeJson(jsonBody, result); // Serialize to string.
@@ -1113,11 +1153,19 @@ AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHand
       wandConfig.bargraphIdleAnimation = jsonBody["bargraphIdleAnimation"].as<uint8_t>();
       wandConfig.bargraphFireAnimation = jsonBody["bargraphFireAnimation"].as<uint8_t>();
 
-      jsonBody.clear();
-      jsonBody["status"] = "Settings updated, please test before saving to EEPROM.";
-      serializeJson(jsonBody, result); // Serialize to string.
-      attenuatorSerialSendData(A_SAVE_PREFERENCES_WAND); // Tell the wand (via pack) to save the new settings.
-      request->send(200, "application/json", result);
+      if(b_wait_for_pack) {
+        jsonBody.clear();
+        jsonBody["status"] = "Pack has lost sync, please try saving settings again.";
+        serializeJson(jsonBody, result); // Serialize to string.
+        request->send(503, "application/json", result);
+      }
+      else {
+        jsonBody.clear();
+        jsonBody["status"] = "Settings updated, please test before saving to EEPROM.";
+        serializeJson(jsonBody, result); // Serialize to string.
+        attenuatorSerialSendData(A_SAVE_PREFERENCES_WAND); // Tell the wand (via pack) to save the new settings.
+        request->send(200, "application/json", result);
+      }
     }
     catch (...) {
       jsonBody.clear();
@@ -1128,7 +1176,6 @@ AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHand
   }
   else {
     // Tell the user why the requested action failed.
-    String result;
     jsonBody.clear();
     jsonBody["status"] = "Pack and/or Wand are running, save action cancelled";
     serializeJson(jsonBody, result); // Serialize to string.
@@ -1175,11 +1222,19 @@ AsyncCallbackJsonWebHandler *handleSaveSmokeConfig = new AsyncCallbackJsonWebHan
       smokeConfig.overheatDelay2 = jsonBody["overheatDelay2"].as<uint8_t>();
       smokeConfig.overheatDelay1 = jsonBody["overheatDelay1"].as<uint8_t>();
 
-      jsonBody.clear();
-      jsonBody["status"] = "Settings updated, please test before saving to EEPROM.";
-      serializeJson(jsonBody, result); // Serialize to string.
-      attenuatorSerialSendData(A_SAVE_PREFERENCES_SMOKE); // Tell the pack and wand to save the new settings.
-      request->send(200, "application/json", result);
+      if(b_wait_for_pack) {
+        jsonBody.clear();
+        jsonBody["status"] = "Pack has lost sync, please try saving settings again.";
+        serializeJson(jsonBody, result); // Serialize to string.
+        request->send(503, "application/json", result);
+      }
+      else {
+        jsonBody.clear();
+        jsonBody["status"] = "Settings updated, please test before saving to EEPROM.";
+        serializeJson(jsonBody, result); // Serialize to string.
+        attenuatorSerialSendData(A_SAVE_PREFERENCES_SMOKE); // Tell the pack and wand to save the new settings.
+        request->send(200, "application/json", result);
+      }
     }
     catch (...) {
       jsonBody.clear();
@@ -1190,7 +1245,6 @@ AsyncCallbackJsonWebHandler *handleSaveSmokeConfig = new AsyncCallbackJsonWebHan
   }
   else {
     // Tell the user why the requested action failed.
-    String result;
     jsonBody.clear();
     jsonBody["status"] = "Pack and/or Wand are running, save action cancelled";
     serializeJson(jsonBody, result); // Serialize to string.
