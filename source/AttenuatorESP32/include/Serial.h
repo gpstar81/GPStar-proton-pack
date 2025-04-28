@@ -309,7 +309,6 @@ bool checkPack() {
               case A_SPECTRAL_CUSTOM_MODE:
                 STREAM_MODE = SPECTRAL_CUSTOM;
 
-                // Applies to both Arduino Nano and ESP32.
                 if(recvData.d[0] > 0) {
                   i_spectral_custom_colour = recvData.d[0];
                 }
@@ -321,7 +320,6 @@ bool checkPack() {
               break;
 
               case A_SPECTRAL_COLOUR_DATA:
-                // Applies to both Arduino Nano and ESP32.
                 if(recvData.d[0] > 0) {
                   i_spectral_custom_colour = recvData.d[0];
                 }

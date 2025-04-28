@@ -14,7 +14,6 @@ Once PIO is available you can get to the Platforms and Libraries tabs to begin a
 1. Select the PlatformIO tab on the left-hand panel
 1. Go to **PIO Home > Platforms**
 1. Install the following:
-	- **Atmel AVR** for Arduino Nano
 	- **Atmel megaAVR** for ATMega 2560
 	- **Espressif 32** for ESP32
 
