@@ -176,6 +176,10 @@ void setup() {
     readEEPROM();
   }
 
+  // Reset the master volume. Important to keep this as we startup the system at the lowest volume.
+  // Then the EEPROM reads any settings if required, then we reset the volume.
+  updateMasterVolume(true);
+
   // Make sure lights are off.
   wandLightsOff();
 
@@ -211,11 +215,8 @@ void setup() {
     // Stop the pack sync timer since we are no longer syncing to a pack.
     ms_packsync.stop();
 
-    // Check music timer for bench test mode only.
+    // Starts music track completion check timer (bench test mode only).
     ms_check_music.start(i_music_check_delay);
-
-    // No pack to do a volume sync with, so reset our master volume manually.
-    updateMasterVolume(true);
   }
   else {
     WAND_CONN_STATE = PACK_DISCONNECTED;

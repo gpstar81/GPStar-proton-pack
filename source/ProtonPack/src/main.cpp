@@ -179,6 +179,10 @@ void setup() {
     readEEPROM();
   }
 
+  // Reset the master volume. Important to keep this as we startup the system at the lowest volume.
+  // Then the EEPROM reads any settings if required, then we reset the volume.
+  updateMasterVolume(true);
+
   // Setup and configure the Inner Cyclotron LEDs.
   resetInnerCyclotronLEDs();
   updateProtonPackLEDCounts();
@@ -216,10 +220,6 @@ void setup() {
       PACK_ACTION_STATE = ACTION_ACTIVATE;
     }
   }
-
-  // Reset the master volume. Important to keep this as we startup the system at the lowest volume.
-  // Then the EEPROM reads any settings if required, then we reset the volume.
-  updateMasterVolume(true);
 
   // Perform power-on sequence if demo light mode is not enabled per user preferences.
   if(!b_demo_light_mode) {
