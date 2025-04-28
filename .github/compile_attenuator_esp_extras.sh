@@ -8,7 +8,7 @@ BINDIR="../binaries"
 SRCDIR="../source"
 
 # Define the major version for this build
-MJVER="V5"
+MJVER="V6"
 
 mkdir -p ${BINDIR}/attenuator/extras
 

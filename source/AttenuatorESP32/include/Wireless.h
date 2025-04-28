@@ -224,6 +224,8 @@ bool startAccesPoint() {
     // Set networking info and report to console.
     WiFi.softAPConfig(localIP, gateway, subnet, dhcpStart);
     WiFi.softAPsetHostname(ap_ssid.c_str()); // Hostname is the same as SSID.
+    WiFi.softAPbandwidth(WIFI_BW_HT20); // Use 20MHz for range/compatibility.
+    WiFi.softAPenableIPv6(false); // Just here to ensure IPv6 is not enabled.
     #if defined(DEBUG_WIRELESS_SETUP)
       Serial.print(F("AP Name (SSID): "));
       Serial.println(WiFi.softAPSSID());

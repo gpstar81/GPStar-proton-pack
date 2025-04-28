@@ -458,10 +458,8 @@ void setup() {
   pinMode(BUZZER_PIN, OUTPUT);
   setToneChannel(0); // Forces Tone to use Channel 0.
 
-  // Attach pin to channel 5.
-  ledcAttachPin(VIBRATION_PIN, 5);
-  // Configure LEDC PWM channel 5 for 5 kHz frequency & 8-bit resolution.
-  ledcSetup(5, 5000, 8);
+  // Use the combined method for the arduino-esp32 platform, using the esp-idf v5.3+
+  ledcAttachChannel(VIBRATION_PIN, 5000, 8, 5); // Uses 5 kHz frequency, 8-bit resolution, channel 5
 
   // Turn off any user feedback.
   buzzOff();

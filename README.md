@@ -46,7 +46,7 @@ For more information about optional upgrades please see the "Component Guides" s
 
 ### Serial1 Expansion Controller
 
-This is a device which utilize the available expansion port on the GPStar Proton Pack controller. At present the only supported uses are as an "Pack Attenuator" (using an ESP32 or Arduino Nano) or a "Wireless Adapter" (using an ESP32). Both devices use the same software which normally drives the Attenuator device, though in the case of the wireless adapter can be used without switches or other peripherals to only provide a WiFi capability to your Proton Pack. Please read the following guides for more specific details.
+This is a device which utilize the available expansion port on the GPStar Proton Pack controller. At present the only supported uses are as an "Pack Attenuator" or a "Wireless Adapter". Both use-cases are provided by the same software which normally drives the Attenuator device--in the case of the wireless adapter is simply used without switches or other peripherals to only provide WiFi capability to your Proton Pack. Please read the following guides for more specific details. *Please note that the original Attenuator DIY guide used an Arduino Nano which is no longer capable of providing the storage space required by the full range of features supported and that hardware has been deprecated in favor of the ESP32 platform.*
 
 1. [Pack Attenuator](ATTENUATOR.md) - Full Device Implementation (w/ Switches and Inputs)
 
@@ -118,12 +118,14 @@ This section is presented in a way to offer a more complete view of what compone
 | **Devices**         | **Guide** |
 |------------------|---------------------------------------------|
 | Single-Shot Blaster | [Build and Operation Guide](SINGLESHOT.md) |
+| Belt Gizmo | *Build Guide TBD* |
+| Stream Effects | *Build Guide TBD* |
 
 ---
 
 ### DIY Arduino Build Guides
 
-Considered the "legacy" guide to building your own solution using the Arduino platform. *Please note that the original Neutrona Wand guide used an Arduino Nano which is no longer capable of providing the storage space required by the full range of features supported and that hardware has been deprecated. In order to continue with these guides, please note that a replacement board has been identified for the Neutrona Wand and MUST be used with the latest software release.*
+Considered the "legacy" guide to building your own solution using the Arduino platform. *Please note that the original Neutrona Wand guide used an Arduino Nano which is no longer capable of providing the storage space required by the full range of features supported and that hardware has been deprecated. In order to continue with these guides, please note that a replacement board (Mega 2560 Pro Mini) has been identified for the Neutrona Wand and MUST be used with the latest software release.*
 
 This is an advanced build-out which requires opening all devices and performing a significant amount of soldering. **Proceed with caution, regardless of your skillset or abilities.**
 
@@ -183,12 +185,12 @@ This project is made possible by Ghostbusters community makers and volunteers sp
 * Jonathan Gunn (aka. "Jonogunn") - Video Instruction Guides, Install Testing.
 * Dustin Grau (aka. "JustinDustin") - Prototyping and Testing, Documentation, 3D Modelling, Software Support
 * Angie Rutto (aka. "Frutto Technology") - Maker and purveyor of fine add-on products, UK Distribution
+* Nomake Wan - Software Support and Feature Development
 
 ### Special Thanks
 
 * Emre Sahare (GBFans: One Time) - For the original prop mode "Mode Original" operation deciphering.
 * Alexander Hibbs (@BeaulieuDesigns87) - For his equipment schematic as used in the WiFi web UI.
-* Nomake Wan - For continued Software Support and Feature Development
 
 Thank you to our supporters on [GBFans.com](https://www.gbfans.com/forum) and the [Facebook group](https://www.facebook.com/groups/gpstartechnologies).
 

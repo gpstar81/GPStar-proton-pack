@@ -1,0 +1,41 @@
+{
+	"folders": [
+    {
+      "path": "."
+    },
+    {
+      "name": "AttenuatorESP32",
+      "path": "source/AttenuatorESP32"
+    },
+    {
+      "name": "AttenuatorNano",
+      "path": "source/AttenuatorNano"
+    },
+    {
+      "name": "BeltGizmo",
+      "path": "source/BeltGizmo"
+    },
+    {
+      "name": "NeutronaWand",
+      "path": "source/NeutronaWand"
+    },
+    {
+      "name": "ProtonPack",
+      "path": "source/ProtonPack"
+    },
+    {
+      "name": "SingleShot",
+      "path": "source/SingleShot"
+    },
+    {
+      "name": "StreamEffects",
+      "path": "source/StreamEffects"
+    }
+  ],
+	"settings": {
+	  "editor.detectIndentation": false,
+	  "editor.indentSize": "2",
+	  "editor.insertSpaces": true,
+	  "editor.tabSize": 2
+	}
+}

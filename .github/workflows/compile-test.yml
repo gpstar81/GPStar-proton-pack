@@ -6,38 +6,6 @@ env:
   # It's convenient to set variables for values used multiple times in the workflow
   SKETCHES_REPORTS_PATH: sketches-reports
 jobs:
-  compile-arduinoide:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@main
-      - uses: arduino/compile-sketches@main
-        with:
-            github-token: ${{ secrets.GITHUB_TOKEN }}
-            enable-deltas-report: true
-            fqbn: arduino:avr:mega
-            sketch-paths: |
-              - source/ProtonPack
-              - source/NeutronaWand
-            libraries: |
-              - name: Switch
-              - name: ezButton
-              - name: ADS1115_WE
-              - name: CRC32
-              - name: digitalWriteFast
-              - name: FastLED@3.7.8
-              - name: Ramp
-              - name: SafeString
-              - name: SerialTransfer
-              - name: Simple ht16k33 Library
-              - name: ArduinoINA219
-              - name: GPStar Audio Serial Library
-            verbose: false
-      # This step is needed to pass the size data to the report job
-      - name: Upload sketches report to workflow artifact
-        uses: actions/upload-artifact@main
-        with:
-          name: sketch-report-atmega
-          path: ${{ env.SKETCHES_REPORTS_PATH }}
   compile-platformio:
     runs-on: ubuntu-latest
     steps:
@@ -47,12 +15,21 @@ jobs:
           python-version: '3.12'
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
+      - name: Compile ProtonPack Project
+        working-directory: source/ProtonPack
+        run: pio run
+      - name: Compile NeutronaWand Project
+        working-directory: source/NeutronaWand
+        run: pio run
       - name: Compile SingleShot Project
         working-directory: source/SingleShot
         run: pio run
-      - name: Compile Attenuator for Nano
-        working-directory: source/AttenuatorNano
-        run: pio run
       - name: Compile Attenuator for ESP32
         working-directory: source/AttenuatorESP32
+        run: pio run
+      - name: Compile Belt Gizmo Project
+        working-directory: source/BeltGizmo
+        run: pio run
+      - name: Compile Stream Effects Project
+        working-directory: source/StreamEffects
         run: pio run

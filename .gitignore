@@ -5,3 +5,4 @@ Thumbs.db
 *.h-e
 /source/*/.pio
 /source/*/.vscode
+*.log

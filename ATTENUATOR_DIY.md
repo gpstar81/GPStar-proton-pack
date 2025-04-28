@@ -1,6 +1,6 @@
 # Pack Attenuator - DIY Guide
 
-This guide is intended to document the parts and processes required to build the internals of an Attenuator device for your Proton Pack. Please note that while both the Arduino Nano is supported, there is much more functionality and room for improvements by using an ESP32 controller. This document supports both paths in their own sub-sections.
+This guide is intended to document the parts and processes required to build the internals of an Attenuator device for your Proton Pack. **Please note that as of the V6 release of the GPStar software, the only processor option for this device is via an ESP32.**
 
 [Video Assembly Guide](https://www.youtube.com/watch?v=iuZ5ij_PN44) (YouTube, December 2023).
 [![Video Assembly Guide](https://img.youtube.com/vi/iuZ5ij_PN44/maxresdefault.jpg)](https://www.youtube.com/watch?v=iuZ5ij_PN44)
@@ -31,13 +31,9 @@ This device has it's own BOM which is separate from any other build items relate
 
 **Microprocessor Control Unit (MCU)**
 
-The preferred processor for this device is an ESP32 though you may also use an Arduino Nano although the latter may be phased out in the future. **Note that wireless capabilities are only available with the ESP32.**
+An ESP32 controller provides the full range of features to integrate with the Proton Pack and Neutrona Wand hardware. Use of an Arduino Nano is no longer supported due to the limitations of that hardware.
 
 * [ESP-WROOM-32 30-pin Dev Board w/ Terminal Shield](https://a.co/d/hDxXluE) or [ESP-WROOM-32 Dev Board w/out Headers](https://a.co/d/62ywBNo)
-
-or
-
-* [Arduino Nano Microcontroller](https://a.co/d/ev1LPea) plus [Arduino Nano Terminal Shield](https://a.co/d/7xNKJtO) - Note that this device will not offer WiFi capabilities!
 
 **Exterior Decorations**
 
@@ -72,7 +68,7 @@ It is worth noting that the device is meant to attach to the left shoulder strap
 
 ## WiFi Connectivity
 
-When using the ESP32 controller it is possible to connect to the device via WiFi. The SSID (Network Name) will be broadcast as **"ProtonPack_####"** where "####" is the last 4 hexadecimal values for the MAC address of the WiFi interface. This will differ for each ESP32 device, making each network unique to the attached pack. The default password is **"555-2368"** and can (and should) be changed via the web interface after successfully connecting to the network. The IP address for the device will be hardcoded as "192.168.1.2" with the web interface accessible at `http://192.168.1.2`.
+A primary benefit of using an ESP32 controller it is possible to connect to the device via WiFi. The SSID (Network Name) will be broadcast as **"ProtonPack_####"** where "####" is the last 4 hexadecimal values for the MAC address of the WiFi interface. This will differ for each ESP32 device, making each network unique to the attached pack. The default password is **"555-2368"** and can (and should) be changed via the web interface after successfully connecting to the network. The IP address for the device will be hardcoded as "192.168.1.2" with the web interface accessible at `http://192.168.1.2` or simply `http://ProtonPack_####.local`.
 
 **Security Notice**
 
@@ -120,59 +116,9 @@ It is advised to add a 330uF capacitor to the VIN+GND pins to help regulate powe
 
 **Note:** Bargraph power (+5V) should be split from the VIN terminal which delivers power from the Proton Pack.
 
-## Arduino Nano - Standard Pinout Reference
-
-![](images/Arduino-nano-pinout.png)
-
-## Arduino Nano - Pin Connections
-
-The following is a diagram of the Arduino Nano pins from left and right, when oriented with the USB connection facing down (south) like the pinout diagram above.
-
-| Connection    | Nano (L) |     | Nano (R) | Connection    |
-|---------------|----------|-----|----------|---------------|
-| to Pack RX1   | TX1      |     | VIN      | +5V (Pack)    |
-| to Pack TX1   | RX0      |     | GND      | Ground (Pack) |
-|               | RST      |     | RST      |               |
-| Common Ground | GND      |     | 5V       | To Bargraph   |
-| Encoder A     | D2       |     | A7       |               |
-| Encoder B     | D3       |     | A6       |               |
-| Encoder Post  | D4       |     | A5       | SCL Bargraph  |
-| Left Toggle   | D5       |     | A4       | SDA Bargraph  |
-| Right Toggle  | D6       |     | A3       |               |
-|               | D7       |     | A2       |               |
-|               | D8       |     | A1       |               |
-| Neopixels (2) | D9       |     | A0       |               |
-| Piezo Buzzer  | D10      |     | REF      |               |
-| PN2222        | D11      |     | 3V3      | Vib. Motor +  |
-|               | D12      |     | D13      |               |
-|               |        | **USB** |        |               |
-
-When connecting to the pack, the following wiring scheme was used with the recommended 4-pin connector:
-
-	1 - GND (Black)
-	2 - VIN (Red)
-	3 - TX1 (White) to Pack RX1
-	4 - RX0 (Yellow) to Pack TX1
-
-It is advised to add a 330uF capacitor to the VIN+GND pins to help regulate power which will be shared with the controller, bargraph, and addressable LEDs.
-
 ### Connections by Component
 
-Wire colors are suggestions, and meant to help differentiate the components. You may use your own scheme as desired. Microcontroller (MCU) pins are labelled using their Nano (D#) or ESP (GPIO#) designations. Common pins will retain a singular name.
-
-**Toggles - Arduino Nano**
-
-| LEFT TOGGLE                    |   | MCU Pin | Notes |
-|--------------------------------|---|---------|-------|
-| <font color="blue">Blue</font> | → | GND     | Shouldn’t matter which wire goes where |
-| <font color="blue">Blue</font> | → | D5      | Shouldn’t matter which wire goes where |
-
-| Right TOGGLE                     |   | MCU Pin | Notes |
-|----------------------------------|---|---------|-------|
-| <font color="green">Green</font> | → | GND     | Shouldn’t matter which wire goes where |
-| <font color="green">Green</font> | → | D6      | Shouldn’t matter which wire goes where |
-
-**Toggles - ESP32**
+Wire colors are suggestions, and meant to help differentiate the components. You may use your own scheme as desired. Microcontroller (MCU) pins are labelled using their GPIO# designations. Common pins will retain a singular name.
 
 For the ESP32 controller, GPIO pins 34 and 35 are input-only and do not have internal pull-up resistors. In order to get an accurate reading from the state of the switch it is necessary to add a 3.8k Ω resistor between the 3.3V (3V3) pin and the respective GPIO pin where the toggle switch connects to the controller. This is essentially a wire from the V+ pin to the noted GPIO pin, with the stated resistor on the wire. Both wires for the pull-up resistor and toggle switch will terminate at the same point on the controller.
 
@@ -236,7 +182,7 @@ Addressable LEDs have a distinct data flow with solder pads labelled `DIN` and `
 
 ## Bargraph
 
-This is a separate but critical device and should be a relatively easy connection when using the Frutto Technology packaging which has only 2 ports: 5V/GND and SDA/SCL. Power will be connected to the "5V" on the Arduino and a common ground (GND). F0r the Arduino Nano connect the SDA and SCL to the A4 and A5 pins, respectively. For the ESP32 these are GPIO pins 21 and 22 for SDA and SCL, respectively.
+This is a separate but critical device and should be a relatively easy connection when using the Frutto Technology packaging which has only 2 ports: 5V/GND and SDA/SCL. Power will be connected to the "5V" on the Arduino and a common ground (GND). These are GPIO pins 21 and 22 for SDA and SCL, respectively.
 
 **Note:** For the ESP32 controller, GPIO pins 21 (SDA) and 22 (SCL) do not have internal pull-up resistors. In order to detect attached devices it is necessary to add a 3.8k Ω resistor between the 3.3V (3V3) pin and the respective GPIO pin where the bargraph connects to the controller. This is essentially a wire from the V+ pin to the noted GPIO pin, with the stated resistor on the wire. Both wires for the pull-up resistor and data line will terminate at the same point on the controller.
 
