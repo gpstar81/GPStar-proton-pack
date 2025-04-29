@@ -62,9 +62,8 @@ This project is structured for development with PlatformIO, using the Arduino fr
    - Devices should include a partition definition file in CSV format and must include the standard nvs and coredump partitions.
    - Partitions should include space for Over The Air (OTA) updates, providing the otadata, app0, and app1, partitions.
    - Assume a 4MB flash partition if not specified and maximize the app0 and app1 partitions whenever possible.
-   - Any remaining space can be used for a secondary nvs partition.
+   - Any remaining space can be used for a secondary nvs partition. Example:
 
-   Example:
    ````cpp
    # Name,Type,SubType,Offset,Size,Flags
    nvs,data,nvs,0x9000,0x5000,
@@ -92,9 +91,8 @@ This project is structured for development with PlatformIO, using the Arduino fr
 2. **Commenting Code**:
    - Functions and methods should include comments explaining their purpose, inputs, outputs, and any side effects.
    - Objects and classes should be documented to describe their role in the system and their key attributes or methods.
-   - For code involving complex math or algorithms, provide detailed comments explaining the logic and purpose of the calculations.
+   - For code involving complex math or algorithms, provide detailed comments explaining the logic and purpose of the calculations. Example:
 
-   Example:
    ````cpp
    // Function: calculateTrajectory
    // Purpose: Computes the trajectory of a projectile based on initial velocity and angle.
