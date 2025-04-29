@@ -54,11 +54,9 @@ This chart lists only the components in the stock pack which will be reused, whi
 You may choose one of two routes for implementing the new Proton Pack controller:
 
 1. A minimal approach which only focuses on reusing the stock connections and hardware (switches, LEDs, motor).
-	- For this approach, reference the tables below and see the PDF document for the [Minimal Pack Schematic](extras/PackSchematic-Minimal.pdf?raw=1) for additional visual guidance.
-	- It is possible to forego replacing the microcontroller in the Hasbro wand and instead use a stock wand. This approach will provide power to the wand but no interactivity between the wand and the pack.
+	- It is possible to forego replacing the microcontroller in the Hasbro wand and simply use a stock wand. This approach will provide power to the wand but no interactivity between the wand and the pack.
 1. Using all stock hardware as above, but with room for additional features, each of which is considered optional.
 	- This will provide full interaction with the new controller for the Neutrona Wand.
-	- Reference the tables below but also see the PDF document for the [Minimal Pack Schematic](extras/PackSchematic-Minimal.pdf?raw=1) for additional visual guidance.
 
 **Prototyping and Connections**
 
