@@ -73,3 +73,11 @@ If you are using the NAC3FX-W with the NL4FC internals, you will need to slightl
 ![Hose](images/Hose10.jpg)
 ![Hose](images/Hose7.jpg)
 ![Hose](images/Hose8.jpg)
+
+## Quick Tip
+
+For any case where the bare wires cannot be clamped down into the screw terminals tightly, it will be necessary to use [Wire Ferrules](https://www.youtube.com/watch?v=cqyYBua4pX4) on the ends of the wires to increase the surface area to clamp. Many users of the GPStar kits have reported improved success in keeping their electrical connections stable once they crimped on ferrules to their power and serial data wires. Crimping kits can be found on Amazon for $25-40, though as an alternative you can fold over the wire and apply solder to help bulk up the connection.
+
+As of May 2024 all kits will come pre-crimped for the hose connections.
+
+![Ferrules](images/ferrules.jpg)

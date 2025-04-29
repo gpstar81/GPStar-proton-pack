@@ -41,6 +41,10 @@ If you need to upgrade pip that can be done using the following:
 
 Once the `pio` utility is available, the included scripts in the project's `.github/` folder may be used to compile code.
 
+## Uploading Firmware
+
+Each project's `platformio.ini` file specifies the upload speed and a default upload port for the device based on typical device names used to flash the hardware. This may need to be adjusted for your local machine if using a non-standard FTDI flashing cable. You can use the PIO home tab in VSCode to view a list of connected Devices. If your device cannot be identified from the list, try unplugging the device, refresh the page, plug it in again, and refresh again to see if there are any changes. Remember that if your OS cannot see the device you may need to install a USB driver.
+
 ## Code Assistance
 
 This project is enabled for use with Github CoPilot for development assistance. The file `.github/copilot-instructions.md` serves as a template to the AI assistant to set standards for coding and fulfill assumptions about the project.
