@@ -135,9 +135,9 @@ Note: For this component a fan is not necessary as the smoke will rise through u
 
 The following 3D models are provided for those able to print components for their pack. These are designed to fit perfectly within the Hasbro equipment and provide a familiar look to the end solution for getting smoke out of your pack.
 
-- [N-Filter Blower Mount](stl/pack/N-Filter Smoke/N-Filter Blower.stl) - Holds the 50mm blower in an upright position
-- [N-Filter Filter Cone](stl/pack/N-Filter Smoke/N-Filter Cone.stl) - Replaces the stock cone and allows smoke and air to exit
-- [N-Filter Template](stl/pack/N-Filter Smoke/N-Filter Template.stl) - Used to mark where to cut into the pack for smoke tubing and blower air hole
+- [N-Filter Blower Mount](stl/pack/Haslab/N-Filter Smoke/N-Filter Blower.stl?raw=1) - Holds the 50mm blower in an upright position
+- [N-Filter Filter Cone](stl/pack/Haslab/N-Filter Smoke/N-Filter Cone.stl?raw=1) - Replaces the stock cone and allows smoke and air to exit
+- [N-Filter Template](stl/pack/Haslab/N-Filter Smoke/N-Filter Template.stl?raw=1) - Used to mark where to cut into the pack for smoke tubing and blower air hole
 
 ![](images/NFilterTemplate.jpg)
 

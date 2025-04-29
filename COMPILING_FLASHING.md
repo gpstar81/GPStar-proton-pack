@@ -21,28 +21,9 @@ Please refer to the table below for a list of devices and their supported softwa
 
 ## Prerequisites
 
-Download and install the Arduino IDE. This will be used to compile and upload the code to your Proton Pack and Neutrona Wand.
+Please see our guide on installing VSCode with PlatformIO. This will be used to compile and upload the code to your Proton Pack and Neutrona Wand.
 
-[Arduino IDE](https://www.arduino.cc/en/software)
-
-The following libraries are required to be installed. All can be found within the Arduino Library Manager with the app. Go to `Sketch -> Include Library -> Manage Libraries...` to access the Library Manager. Search for the libraries by name and install the latest version available.
-
-- **ArduinoINA219** by Flavius Bindea (1.1.1+)
-- **CRC32** by Christopher Baker (2.0.0+)
-- **digitalWriteFast** by Watterott and Armin Joachimsmeyer (1.2.1+)
-- **ezButton** by ArduinoGetStarted.com (1.0.6+)
-- **FastLED** by Daniel Garcia (3.9.14+)
-- **Ramp** by Sylvain Garnavault (0.6.3+)
-- **SafeString** by Matthew Ford (4.1.39+)
-- **SerialTransfer** by PowerBroker2 (3.1.4+)
-- **Simple ht16k33 Library** by Ipaseen (1.0.3+)
-- **Switch** by Albert van Dalen (1.2.8+)
-- **GPStar Audio Serial Library** by Michael Rajotte (1.2.2+)
-
-You will also need some basic Boards libraries:
-
-- **Arduino AVR** Boards by Arduino (1.8.6+)
-- **Arduino megaAVR** Boards by Arduino (1.8.8+)
+[VSCode + PlatformIO](VSCODE.md)
 
 ## +++ IMPORTANT WHEN FLASHING UPDATES +++
 
@@ -61,13 +42,7 @@ Use the included FTDI to USB programming cable that comes with your GPStar kit o
 
 ## Compiling and Flashing the Software
 
-Once your have connected your GPStar board to your computer via the FTDI to USB cable, you will need to select it from your devices in the Arduino IDE and search for "2560" as these use the "Mega 2560" microcontroller.
-
-![Board Selection](images/flash-gpstar-1.png)
-![Board Selection Mega](images/flash-gpstar-2.png)
-
-Next click on the UPLOAD button (arrow pointing to the right) and wait for it to complete.
-![Board Selection Mega](images/flash-gpstar-3.png)
+TO BE ADDED
 
 [Firmware Flashing Instructional Video](https://www.youtube.com/watch?v=J-P8rl3Hzck) (YouTube)
 [![Firmware Flashing Instructional Video](https://img.youtube.com/vi/J-P8rl3Hzck/maxresdefault.jpg)](https://www.youtube.com/watch?v=J-P8rl3Hzck)

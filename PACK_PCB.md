@@ -64,7 +64,7 @@ For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI B
 | P.GREEN | D8/GND/D9/GND | Cyclotron Panel LEDs: 2x Green. D8 and D9 provides 5V and has a 100Ω resistor connected to each of them.<br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 40mA from each LED connection.` |
 | P.SWITCH | D10/GND/D11/GND | `JST-XH` Cyclotron Panel LEDs: 1x Green (Mode Indicator, D10) and 1x Yellow (Vibration Enabled, D11). D10 and D11 provides 5V. D10 and has a 100Ω resistor connected to it and D11 has a 150Ω resistor connected to it.<br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 40mA from each LED connection.` |
 | LED-W | D46/GND | Connection for a standalone white LED in the N-Filter. D46 provides 5V and has a 100Ω resistor connected to it.<br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 40mA from this connector.` |
-| 5V-OUT | +/\- | Power for additional accessories.<br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 1.5amps from this connector.` |
-| SCL/SDA | SCL/SDA | Expansion serial port using I2C.<br><br>`Connector type: JST-XH`|
-| RX1/TX1 | RX1/TX1 | Expansion serial port.<br><br>`Connector type: JST-XH`|
+| 5V-OUT | +/\- | Power for additional accessories. Commonly used to power an ESP32 wireless board or Attenuator.<br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 1.5amps from this connector.` |
+| SCL/SDA | SCL/SDA | Expansion serial port using I2C. Used to connect to the **Frutto Technologies** Current Sense board for GPStar Lite.<br><br>`Connector type: JST-XH`|
+| RX1/TX1 | RX1/TX1 | Expansion serial port. Used to connect to an ESP32 wireless board or Attenuator.<br><br>`Connector type: JST-XH`|
 

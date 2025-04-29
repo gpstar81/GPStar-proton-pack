@@ -2,7 +2,7 @@
 
 **Q: Can I send you my Proton Pack and Neutrona Wand so you can modify it for me?**
 
-**A:** Sorry, no.
+**A:** Sorry, no. However, premodified wands are available every so often via the [GPStar web store](https://gpstartechnologies.com/products/hasbro-1984-neutrona-wand-gpstar).
 
 **Q: Can I help others install kit components or add-ons?**
 
@@ -20,7 +20,7 @@
 
 **Q: Is a Proton Pack required?**
 
-**A:** No, a pack is not required for a wand-only conversion. However, please note that to run a GPStar wand board off of the Hasbro battery sled, you will need to provide your own 5V DC converter to supply regulated 5VDC to the GPStar components (see above FAQ answer). Also note that the Neutrona Wand board you receive will have the standard "full kit" firmware loaded. For a standalone wand build, please flash the "NeutronaWand-BenchTest" firmware found in the "Extras" folder for the wand binaries. Please see the [FLASHING.md](FLASHING.md) guide for information on how to flash your board.
+**A:** No, a pack is not required for a wand-only conversion. However, please note that to run a GPStar wand board off of the Hasbro battery sled, you will need to provide your own 5V DC converter to supply regulated 5VDC to the GPStar components (see above FAQ answer). Also note that the Neutrona Wand board you receive will have the standard "full kit" firmware loaded. For a standalone wand build, please flash the [NeutronaWand-BenchTest](binaries/wand/extras/NeutronaWand-BenchTest.hex?raw=1) firmware found in the "Extras" folder for the wand binaries. Please see the [FLASHING.md](FLASHING.md) guide for information on how to flash your board.
 
 **Q: Is a GPStar Neutrona Wand required?**
 
