@@ -14,7 +14,7 @@ Please refer to the table below for a list of devices and their supported softwa
 | <img src='images/gpstar_logo.png' width=20 align="left"/> GPStar Neutrona Wand PCB | Yes | Yes | Yes | Yes | Yes | Yes |
 | <sup>d1</sup> DIY Arduino Mega Proton Pack   | Yes | Yes <sup>2</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> |
 | <sup>d1</sup> DIY Arduino Mega Neutrona Wand | Yes | Yes <sup>2</sup> | Yes <sup>2</sup> | Yes <sup>2</sup> | Yes <sup>2</sup> | Yes <sup>2</sup> |
-| <sup>s1</sup> Attenuator (Arduino Nano) | Yes | Yes | Yes | Yes | Yes | Yes |
+| <sup>s1</sup> Attenuator (Arduino Nano) | Yes | Yes | Yes | Yes | Yes | No |
 | <sup>s1</sup> Attenuator (ESP32)        | N/A | N/A | Yes | Yes | Yes | Yes |
 | <sup>s1</sup> Wireless Adapter (ESP32)  | N/A | N/A | Yes | Yes | Yes | Yes |
 

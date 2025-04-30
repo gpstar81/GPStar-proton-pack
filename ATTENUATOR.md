@@ -42,7 +42,7 @@ While not attached to a compatible Proton Pack (read: standalone mode) the devic
 
 Ideally, the device is intended be connected to the GPStar Proton Pack Controller which will allow it to provide all extended functionality. Under normal use the main dial will allow adjusting the overall volume, starting/stopping music tracks, navigating to the next track, and adjusting the effects volume.
 
-![](images/Attenuator_Render.png	)
+![](images/Attenuator_Render.png)
 
 ### Standard Controls
 
