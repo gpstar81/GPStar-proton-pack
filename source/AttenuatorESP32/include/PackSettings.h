@@ -83,7 +83,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b>Master Volume % at Startup:</b><br/>
-      <input type="range" id="defaultSystemVolume" name="defaultSystemVolume" min="0" max="100" value="100" step="5"
+      <input type="range" id="defaultSystemVolume" name="defaultSystemVolume" min="5" max="100" value="100" step="5"
        oninput="masterVolOut.value=defaultSystemVolume.value"/>
       <output class="labelSlider" id="masterVolOut" for="defaultSystemVolume"></output>
     </div>
@@ -144,7 +144,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b>Custom Colour (Hue):</b><br/>
-      <input type="range" id="ledCycLidHue" name="ledCycLidHue" min="0" max="360" value="360" step="2"
+      <input type="range" id="ledCycLidHue" name="ledCycLidHue" min="2" max="360" value="360" step="2"
        oninput="updateColour('cycColourPreview', 'cycHueOut', 'cycSatOut', ledCycLidHue.value, ledCycLidSat.value)"/>
       <output class="labelSlider" id="cycHueOut" for="ledCycLidHue"></output>
       <br/>
@@ -152,7 +152,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b>Custom Saturation %:</b><br/>
-      <input type="range" id="ledCycLidSat" name="ledCycLidSat" min="0" max="100" value="100" step="2"
+      <input type="range" id="ledCycLidSat" name="ledCycLidSat" min="2" max="100" value="100" step="2"
        oninput="updateColour('cycColourPreview', 'cycHueOut', 'cycSatOut', ledCycLidHue.value, ledCycLidSat.value)"/>
       <output class="labelSlider" id="cycSatOut" for="ledCycLidSat"></output>
     </div>
@@ -235,7 +235,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b>Custom Colour (Hue):</b><br/>
-      <input type="range" id="ledCycCakeHue" name="ledCycCakeHue" min="0" max="360" value="360" step="2"
+      <input type="range" id="ledCycCakeHue" name="ledCycCakeHue" min="2" max="360" value="360" step="2"
        oninput="updateColour('cakeColourPreview', 'cakeHueOut', 'cakeSatOut', ledCycCakeHue.value, ledCycCakeSat.value)"/>
       <output class="labelSlider" id="cakeHueOut" for="ledCycCakeHue"></output>
       <br/>
@@ -243,7 +243,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b>Custom Saturation %:</b><br/>
-      <input type="range" id="ledCycCakeSat" name="ledCycCakeSat" min="0" max="100" value="100" step="2"
+      <input type="range" id="ledCycCakeSat" name="ledCycCakeSat" min="2" max="100" value="100" step="2"
        oninput="updateColour('cakeColourPreview', 'cakeHueOut', 'cakeSatOut', ledCycCakeHue.value, ledCycCakeSat.value)"/>
       <output class="labelSlider" id="cakeSatOut" for="ledCycCakeSat"></output>
     </div>
@@ -280,7 +280,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b>Custom Colour (Hue):</b><br/>
-      <input type="range" id="ledPowercellHue" name="ledPowercellHue" min="0" max="360" value="360" step="2"
+      <input type="range" id="ledPowercellHue" name="ledPowercellHue" min="2" max="360" value="360" step="2"
        oninput="updateColour('pcColourPreview', 'pcHueOut', 'pcSatOut', ledPowercellHue.value, ledPowercellSat.value)"/>
       <output class="labelSlider" id="pcHueOut" for="ledPowercellHue"></output>
       <br/>
@@ -288,7 +288,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b>Custom Saturation %:</b><br/>
-      <input type="range" id="ledPowercellSat" name="ledPowercellSat" min="0" max="100" value="100" step="2"
+      <input type="range" id="ledPowercellSat" name="ledPowercellSat" min="2" max="100" value="100" step="2"
        oninput="updateColour('pcColourPreview', 'pcHueOut', 'pcSatOut', ledPowercellHue.value, ledPowercellSat.value)"/>
       <output class="labelSlider" id="pcSatOut" for="ledPowercellSat"></output>
     </div>

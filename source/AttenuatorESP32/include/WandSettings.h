@@ -199,7 +199,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b>Custom Colour (Hue):</b><br/>
-      <input type="range" id="ledWandHue" name="ledWandHue" min="0" max="360" value="360" step="2"
+      <input type="range" id="ledWandHue" name="ledWandHue" min="2" max="360" value="360" step="2"
        oninput="updateColour('wandColourPreview', 'wandHueOut', 'wandSatOut', ledWandHue.value, ledWandSat.value)"/>
       <output class="labelSlider" id="wandHueOut" for="ledWandHue"></output>
       <br/>
@@ -207,7 +207,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b>Custom Saturation %:</b><br/>
-      <input type="range" id="ledWandSat" name="ledWandSat" min="0" max="100" value="100" step="2"
+      <input type="range" id="ledWandSat" name="ledWandSat" min="2" max="100" value="100" step="2"
        oninput="updateColour('wandColourPreview', 'wandHueOut', 'wandSatOut', ledWandHue.value, ledWandSat.value)"/>
       <output class="labelSlider" id="wandSatOut" for="ledWandSat"></output>
     </div>
