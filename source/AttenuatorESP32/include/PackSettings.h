@@ -455,8 +455,8 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         demoLightMode: getToggle("demoLightMode"),
 
         ledCycLidCount: getInt("ledCycLidCount") || 12,
-        ledCycLidHue: convertRange(getInt("ledCycLidHue") || 360, [0,360], [1,254]),
-        ledCycLidSat: convertRange(getInt("ledCycLidSat") || 100, [0,100], [1,254]),
+        ledCycLidHue: convertRange(getInt("ledCycLidHue"), [0,360], [1,254]) || 254,
+        ledCycLidSat: convertRange(getInt("ledCycLidSat"), [0,100], [1,254]) || 254,
         ledCycLidLum: getInt("ledCycLidLum") || 100,
         cyclotronDirection: getInt("cyclotronDirection"),
         ledCycLidCenter: getInt("ledCycLidCenter"),
@@ -465,8 +465,8 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         ledCycLidSimRing: getToggle("ledCycLidSimRing"),
 
         ledCycCakeCount: getInt("ledCycCakeCount") || 35,
-        ledCycCakeHue: convertRange(getInt("ledCycCakeHue") || 360, [0,360], [1,254]),
-        ledCycCakeSat: convertRange(getInt("ledCycCakeSat") || 100, [0,100], [1,254]),
+        ledCycCakeHue: convertRange(getInt("ledCycCakeHue"), [0,360], [1,254]) || 254,
+        ledCycCakeSat: convertRange(getInt("ledCycCakeSat"), [0,100], [1,254]) || 254,
         ledCycCakeLum: getInt("ledCycCakeLum") || 100,
         ledCycInnerPanel: getInt("ledCycInnerPanel") || 1,
         ledCycPanLum: getInt("ledCycPanLum") || 100,
@@ -476,8 +476,8 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
 
         ledPowercellCount: getInt("ledPowercellCount") || 13,
         ledInvertPowercell: getToggle("ledInvertPowercell"),
-        ledPowercellHue: convertRange(getInt("ledPowercellHue") || 200, [0,360], [1,254]),
-        ledPowercellSat: convertRange(getInt("ledPowercellSat") || 100, [0,100], [1,254]),
+        ledPowercellHue: convertRange(getInt("ledPowercellHue"), [0,360], [1,254]) || 160,
+        ledPowercellSat: convertRange(getInt("ledPowercellSat"), [0,100], [1,254]) || 254,
         ledPowercellLum: getInt("ledPowercellLum") || 100,
         ledVGPowercell: getToggle("ledVGPowercell")
       };

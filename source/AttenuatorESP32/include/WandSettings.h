@@ -314,26 +314,26 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       // Saves current settings to wand, updating runtime variables and making changes immediately effective.
       // This does NOT save to the EEPROM automatically as the user is encouraged to test prior to that action.
       var settings = {
-        ledWandCount: parseInt(getEl("ledWandCount").value || 0, 10),
-        ledWandHue: convertRange(parseInt(getEl("ledWandHue").value || 360, 10), [0,360], [1,254]),
-        ledWandSat: convertRange(parseInt(getEl("ledWandSat").value || 100, 10), [0,100], [1,254]),
+        ledWandCount: getInt("ledWandCount") || 0,
+        ledWandHue: convertRange(getInt("ledWandHue"), [0,360], [1,254]) || 254,
+        ledWandSat: convertRange(getInt("ledWandSat"), [0,100], [1,254]) || 254,
         rgbVentEnabled: getToggle("rgbVentEnabled"),
         spectralModesEnabled: getToggle("spectralModesEnabled"),
         overheatEnabled: getToggle("overheatEnabled"),
-        defaultFiringMode: parseInt(getEl("defaultFiringMode").value || 1, 10),
-        wandVibration: parseInt(getEl("wandVibration").value || 4, 10),
+        defaultFiringMode: getInt("defaultFiringMode") || 1,
+        wandVibration: getInt("wandVibration") || 4,
         wandSoundsToPack: getToggle("wandSoundsToPack"),
         quickVenting: getToggle("quickVenting"),
         autoVentLight: getToggle("autoVentLight"),
         wandBeepLoop: getToggle("wandBeepLoop"),
         wandBootError: getToggle("wandBootError"),
-        defaultYearModeWand: parseInt(getEl("defaultYearModeWand").value || 1, 10),
-        defaultYearModeCTS: parseInt(getEl("defaultYearModeCTS").value || 1, 10),
-        numBargraphSegments: parseInt(getEl("numBargraphSegments").value || 28, 10),
+        defaultYearModeWand: getInt("defaultYearModeWand") || 1,
+        defaultYearModeCTS: getInt("defaultYearModeCTS") || 1,
+        numBargraphSegments: getInt("numBargraphSegments") || 28,
         invertWandBargraph: getToggle("invertWandBargraph"),
         bargraphOverheatBlink: getToggle("bargraphOverheatBlink"),
-        bargraphIdleAnimation: parseInt(getEl("bargraphIdleAnimation").value || 1, 10),
-        bargraphFireAnimation: parseInt(getEl("bargraphFireAnimation").value || 1, 10)
+        bargraphIdleAnimation: getInt("bargraphIdleAnimation") || 1,
+        bargraphFireAnimation: getInt("bargraphFireAnimation") || 1
       };
       var body = JSON.stringify(settings);
 
