@@ -11,7 +11,7 @@ The STL files are available [through this repository](stl/attenuator) if you hav
 
 ## Bill of Materials
 
-This device has it's own BOM which is separate from any other build items related to the pack or wand. This utilizes the same ArduinoIDE for writing software as the other controllers and we'll be using the same type of serial protocol as used between the pack and wand.
+This device has it's own BOM which is separate from any other build items related to the pack or wand. This utilizes the same project template for developing software as the other controllers and we'll be using the same type of serial protocol as used between the pack and wand.
 
 **Core Electronics**
 

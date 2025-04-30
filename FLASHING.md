@@ -34,13 +34,22 @@ Please refer to the table below for a list of devices and their supported softwa
 ## Flashing Updates
 After connecting your GPStar Proton Pack or Neutrona Wand board to your computer with the included FTDI to USB programming cable, download the GPStar firmware flasher from the [extras](extras/) folder and run the program.
 
-**Windows (x86/x64):** [GPStar Firmware Flasher](extras/gpstarFirmwareFlasher.exe?raw=1)
+**As of the v5.4.4 release, new versions of the flasher utilities are available and are encouraged to be used instead of any older copies.** These provide more integity/size checks for selected files, ensuring you have selected a true binary file.
 
-**MacOS Intel/M1:** [GPStar Firmware Flasher (Mac OSX)](extras/GPStar-Firmware-Flasher-Mac.dmg?raw=1)
+**GPStar Pack/Wand Firmware Flasher**
 
-**GPStar Audio Windows Flasher (x64 only):** [GPStar Audio Firmware Flasher](extras/sound/GPStar%20Audio/gpstarAudioFirmwareFlasher.exe?raw=1)
+- [Windows (x86/x64)](extras/gpstarFirmwareFlasher.exe?raw=1)
+- [MacOS Intel/M1](extras/GPStar-Firmware-Flasher-Mac.dmg?raw=1)
 
-**GPStar Audio MacOS Intel/M1:** [GPStar Audio Firmware Flasher (Mac OSX)](extras/sound/GPStar%20Audio/GPStar-Audio-Firmware-Flasher-Mac.dmg?raw=1)
+**GPStar Audio Firmware Flasher**
+
+- [Windows (x64 only)](extras/sound/GPStar%20Audio/gpstarAudioFirmwareFlasher.exe?raw=1)
+- [MacOS Intel](extras/sound/GPStar%20Audio/GPStar-Audio-Firmware-Flasher-Mac.dmg?raw=1) (Must enable Rosetta for Apple Silicon CPUs)
+
+**GPStar ESP32 Firmware Flasher**
+
+- [Windows (x64 only)](extras/gpstarESP32FirmwareFlasher.exe?raw=1)
+- [MacOS Intel/M1](extras/GPStar-ESP32-Flasher?raw=1)
 
 The latest pre-compiled firmware binaries can be found in the binaries folder of this repository.\
 [Binaries Folder](binaries/)

@@ -396,7 +396,7 @@ const uint16_t i_smoke_on_time_level_5 = 4000;
 
 /*
  * Enable or disable smoke during overheat sequences.
- * Control which of the 3 pins that go 5V high during overheat.
+ * Control which of the 4 pins that go 5V high during overheat.
  * This can be overridden if b_smoke_enabled is set to false.
  */
 bool b_smoke_nfilter_overheat = true;

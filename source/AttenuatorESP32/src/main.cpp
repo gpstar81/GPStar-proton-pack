@@ -104,7 +104,6 @@ void AnimationTask(void *parameter) {
     }
     else {
       // Use the expected order for the LEDs.
-      // aka. Defaults for the Arduino Nano and ESP32.
       i_device_led[0] = 0; // Top
       i_device_led[1] = 1; // Upper
       i_device_led[2] = 2; // Lower

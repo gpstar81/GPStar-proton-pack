@@ -2,7 +2,7 @@
 
 ### Summary
 
-A fully integrated Proton Pack and Neutrona Wand, packed with features and add-ons. Compatible with the HasLab Plasma Series Proton Pack and Neutrona Wand
+A fully integrated Proton Pack and Neutrona Wand, packed with features and add-ons. Compatible with the HasLab Plasma Series Proton Pack and Neutrona Wand, Mack's Proton Pack and Wand, and more!
 
 - Polyphonic sound
   - Allows simultaneous playback of multiple audio tracks which can be layered together to create a rich experience with smoothly layered sound effects and buttery smooth transitions.
@@ -110,6 +110,7 @@ This section is presented in a way to offer a more complete view of what compone
 
 | **Task**         | **Guide** |
 |------------------|---------------------------------------------|
+| Compile Software | [VSCode + PlatformIO](VSCODE.md)
 | Modify Software  | [Advanced Software Configuration](ADVCONFIG.md) |
 | Upload Software  | [Pack/Wand Flashing](COMPILING_FLASHING.md) or [Attenuator/Wireless Flashing](ATTENUATOR_FLASHING.md) |
 

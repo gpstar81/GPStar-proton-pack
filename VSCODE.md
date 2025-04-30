@@ -1,6 +1,6 @@
 # VSCode + PlatformIO
 
-This guide will outline how to begin coding and compiling using Visual Studio Code and PlatformIO instead of the ArduinoIDE.
+This guide will outline how to begin coding and compiling using Visual Studio Code and PlatformIO instead of ArduinoIDE.
 
 ## Prerequisites
 
@@ -9,12 +9,11 @@ Start with downloading the VSCode IDE for your operating system and get the Plat
 - [Visual Studio Code for Windows, macOS, and Linux](https://code.visualstudio.com/download)
 - [How to install PlatformIO for VSCode](https://platformio.org/install/ide?install=vscode)
 
-Once PIO is available you can get to the Platforms and Libraries tabs to begin adding support for our typical microcontrollers and to access the same libraries as found in the ArduinoIDE. We need support for the right platforms first, so we'll need to access PlatformIO and begin adding those.
+Once PIO is available you can get to the Platforms and Libraries tabs to begin adding support for our typical microcontrollers and to manage the libraries independently and with specific version requirements. We need support for the correct platforms first, so we'll need to access PlatformIO and begin adding those.
 
 1. Select the PlatformIO tab on the left-hand panel
 1. Go to **PIO Home > Platforms**
-1. Install the following:
-	- **Atmel AVR** for Arduino Nano
+1. Install the following for hardware support:
 	- **Atmel megaAVR** for ATMega 2560
 	- **Espressif 32** for ESP32
 
@@ -41,3 +40,11 @@ If you need to upgrade pip that can be done using the following:
 `pip install --upgrade pip`
 
 Once the `pio` utility is available, the included scripts in the project's `.github/` folder may be used to compile code.
+
+## Uploading Firmware
+
+Each project's `platformio.ini` file specifies the upload speed and a default upload port for the device based on typical device names used to flash the hardware. This may need to be adjusted for your local machine if using a non-standard FTDI flashing cable. You can use the PIO home tab in VSCode to view a list of connected Devices. If your device cannot be identified from the list, try unplugging the device, refresh the page, plug it in again, and refresh again to see if there are any changes. Remember that if your OS cannot see the device you may need to install a USB driver.
+
+## Code Assistance
+
+This project is enabled for use with Github CoPilot for development assistance. The file `.github/copilot-instructions.md` serves as a template to the AI assistant to set standards for coding and fulfill assumptions about the project.
