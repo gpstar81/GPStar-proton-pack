@@ -831,6 +831,7 @@ bool setupAudioDevice() {
   else {
     // No audio devices connected.
     AUDIO_DEVICE = A_NONE;
+    Serial3.end();
 
     debugln(F("No Audio Device"));
 
