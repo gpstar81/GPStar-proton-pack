@@ -831,59 +831,19 @@ void toggleMusicLoop() {
  * Used to detect, update, and reset the available audio devices.
  */
 bool setupAudioDevice() {
-  // Short delay to allow the audio boards to boot up.
-  delay(1000);
-
   char gVersion[VERSION_STRING_LEN];
 
   Serial3.begin(57600);
 
   audio.start(Serial3);
 
-  // Ask for some Wav Trigger information.
-  audio.requestVersionString();
-  audio.requestSystemInfo();
-
-  delay(10);
-
-  // Stop all tracks.
-  audio.stopAllTracks();
-
-  // Reset the sample rate offset. Only for the WAV Trigger.
-  audio.samplerateOffset(0);
-
-  audio.masterGain(i_volume_abs_min); // Reset the master gain db. Range is -70 to 0. Bootup the system muted, then we reset it after the system is loaded.
-
-  // Onboard amplifier on or off. Only for the WAV Trigger.
-  audio.setAmpPwr(b_onboard_amp_enabled);
-
-  // Enable track reporting if in bench test mode. Only for the WAV Trigger.
-  audio.setReporting(b_gpstar_benchtest);
-
-  // Allow time for hello command and other data to return back.
-  delay(350);
-
-  if(audio.getVersion(gVersion)) {
-    // We found a WAV Trigger. Build the music track count.
-    if(audio.wasSysInfoRcvd()) {
-      // Only attempt to build a music track count if the WAV Trigger responded with RSP_SYSTEM_INFO.
-      buildMusicCount((uint16_t) audio.getNumTracks());
-    }
-    else {
-      debugln(F("Warning: RSP_SYSTEM_INFO not received!"));
-    }
-
-    AUDIO_DEVICE = A_WAV_TRIGGER;
-
-    debugln(F("Using WAV Trigger"));
-
-    return true;
+  uint16_t i_timeout = millis() + 500;
+  
+  while(!audio.gpstarAudioHello() && millis() < i_timeout) {
+    audio.hello();
+    delay(10);
   }
-
-  audio.hello();
-
-  delay(350);
-
+  
   if(audio.gpstarAudioHello()) {
     if(audio.getVersionNumber() != 0) {
       AUDIO_DEVICE = A_GPSTAR_AUDIO_ADV;
@@ -892,18 +852,56 @@ bool setupAudioDevice() {
       AUDIO_DEVICE = A_GPSTAR_AUDIO;
     }
 
-    // GPStar Audio has higher maximum amplification, so reset default values accordingly.
-    i_volume_abs_max = 10;
+    i_volume_abs_max = 10; // GPStar Audio has higher maximum amplification, so reset default values accordingly.
     i_volume_master = MINIMUM_VOLUME - ((MINIMUM_VOLUME - i_volume_abs_max) * i_volume_master_percentage / 100); // Master overall volume.
-    i_volume_master_eeprom = i_volume_master; // Master overall volume that is saved into the eeprom menu and loaded during bootup in standalone mode.
+    i_volume_master_eeprom = i_volume_master; // Master overall volume that is saved into the eeprom menu and loaded during bootup.
     i_volume_revert = i_volume_master; // Used to restore volume level from a muted state.
 
     debugln(F("Using GPStar Audio"));
     debug(F("Version: "));
     debugln(audio.getVersionNumber());
 
-    buildMusicCount((uint16_t) audio.getNumTracks());
+    buildMusicCount(audio.getNumTracks());
     audio.gpstarLEDStatus(false);
+
+    return true;
+  }
+
+  // Reset the master gain db. Range is -70 to 0. Bootup the system muted, then we reset it after the system is loaded.
+  audio.masterGain(i_volume_abs_min);
+
+  // Stop all tracks.
+  audio.stopAllTracks();
+
+  // Ask for some WAV Trigger information.
+  audio.requestVersionString();
+  audio.requestSystemInfo();
+  
+  // Delay to allow time for WAV Trigger to respond.
+  delay(10);
+
+  if(audio.getVersion(gVersion)) {
+    // We found a WAV Trigger. Build the music track count.
+    if(audio.wasSysInfoRcvd()) {
+      // Only attempt to build a music track count if the WAV Trigger responded with RSP_SYSTEM_INFO.
+      buildMusicCount(audio.getNumTracks());
+    }
+    else {
+      debugln(F("Warning: RSP_SYSTEM_INFO not received!"));
+    }
+
+    // Reset the sample rate offset. Only for the WAV Trigger.
+    audio.samplerateOffset(0);
+
+    // Onboard amplifier on or off. Only for the WAV Trigger.
+    audio.setAmpPwr(b_onboard_amp_enabled);
+
+    // Enable track reporting if in bench test mode. Only for the WAV Trigger.
+    audio.setReporting(b_gpstar_benchtest);
+
+    AUDIO_DEVICE = A_WAV_TRIGGER;
+
+    debugln(F("Using WAV Trigger"));
 
     return true;
   }
