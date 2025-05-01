@@ -307,7 +307,7 @@ void setup() {
   vTaskDelay(200 / portTICK_PERIOD_MS); // Delay for 200ms to avoid competition.
 
   // Create tasks which utilize a loop for continuous operation (prioritized highest to lowest).
-  xTaskCreatePinnedToCore(AnimationTask, "AnimationTask", 2048, NULL, 2, &AnimationTaskHandle, 1);
+  xTaskCreatePinnedToCore(AnimationTask, "AnimationTask", 4096, NULL, 2, &AnimationTaskHandle, 1);
   xTaskCreatePinnedToCore(WiFiManagementTask, "WiFiManagementTask", 4096, NULL, 1, &WiFiManagementTaskHandle, 0);
 
   // Create idle tasks for each core, used to estimate % busy for core.
