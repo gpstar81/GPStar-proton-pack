@@ -282,19 +282,19 @@ void readEEPROM() {
       i_spectral_cyclotron_inner_custom_saturation = obj_led_eeprom.cyclotron_inner_spectral_saturation_custom;
     }
 
-    if(obj_led_eeprom.powercell_brightness > 0 && obj_led_eeprom.powercell_brightness != 255) {
+    if(obj_led_eeprom.powercell_brightness > 19 && obj_led_eeprom.powercell_brightness != 255) {
       i_powercell_brightness = obj_led_eeprom.powercell_brightness;
     }
 
-    if(obj_led_eeprom.cyclotron_brightness > 0 && obj_led_eeprom.cyclotron_brightness != 255) {
+    if(obj_led_eeprom.cyclotron_brightness > 19 && obj_led_eeprom.cyclotron_brightness != 255) {
       i_cyclotron_brightness = obj_led_eeprom.cyclotron_brightness;
     }
 
-    if(obj_led_eeprom.inner_cyclotron_brightness > 0 && obj_led_eeprom.inner_cyclotron_brightness != 255) {
+    if(obj_led_eeprom.inner_cyclotron_brightness > 19 && obj_led_eeprom.inner_cyclotron_brightness != 255) {
       i_cyclotron_inner_brightness = obj_led_eeprom.inner_cyclotron_brightness;
     }
 
-    if(obj_led_eeprom.inner_panel_brightness > 0 && obj_led_eeprom.inner_panel_brightness != 255) {
+    if(obj_led_eeprom.inner_panel_brightness > 19 && obj_led_eeprom.inner_panel_brightness != 255) {
       i_cyclotron_panel_brightness = obj_led_eeprom.inner_panel_brightness;
     }
 

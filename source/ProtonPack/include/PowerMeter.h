@@ -248,7 +248,7 @@ void updateWandPowerState() {
     float f_on_average = f_accumulator / 20.0;
     f_accumulator = 0.0; // Reset the accumulator.
 
-    if(f_diff_average > 0.09 || (f_diff_average > 0.002 && f_on_average > 0.8)) {
+    if(f_diff_average > 0.09 || (f_diff_average > 0.0025 && f_on_average > 0.8)) {
       // We need to poison the window after detecting a startup to prevent false firing triggers.
       f_diff_average = 0.0;
       for (uint8_t i = 0; i < 20; i++) {
@@ -317,7 +317,7 @@ void updateWandPowerState() {
       if(!b_wand_firing && !b_wand_overheated && !b_overheating) {
         // Start firing checks use an 11-parameter-wide window.
         for (uint8_t i = 9; i < 19; i++) {
-          if (((f_sliding_window[i + 1] - f_sliding_window[i]) <= 0.002) || (f_sliding_window[i + 1] - f_sliding_window[i]) > 0.07) {
+          if (((f_sliding_window[i + 1] - f_sliding_window[i]) <= 0.0025) || (f_sliding_window[i + 1] - f_sliding_window[i]) > 0.07) {
             // If we went negative or jumped too quickly, reset the accumulator and exit.
             f_accumulator = 0.0;
             break;
@@ -354,7 +354,7 @@ void updateWandPowerState() {
       }
       else if(!b_wand_overheated && !b_overheating) {
         // Stop firing check checks to see how close we are to the previous idle.
-        if (f_sliding_window[19] - f_idle_value < 0.11) {
+        if (f_sliding_window[19] - f_idle_value < 0.11 || f_sliding_window[19] < 0.85) {
           // We must have stopped firing.
           wandStoppedFiring();
 
@@ -435,8 +435,8 @@ void checkPowerMeter() {
       }
     }
 
-    wandReading.ReadTimer.start(wandReading.PowerReadDelay);
-    //wandReading.ReadTimer.repeat();
+    //wandReading.ReadTimer.start(wandReading.PowerReadDelay);
+    wandReading.ReadTimer.repeat();
   }
 
   if(packReading.ReadTimer.justFinished()) {
