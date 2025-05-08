@@ -20,7 +20,7 @@
 // Purpose: Clears the entire EEPROM by writing 0xFF to all addresses.
 void clearEEPROM() {
   for (uint16_t i = 0; i < EEPROM.length(); i++) {
-    EEPROM.write(i, 0xFF); // Write 0xFF to each address
+    EEPROM.update(i, 0xFF); // Write 0xFF to each address
   }
   debugln(F("EEPROM cleared."));
 }
@@ -44,7 +44,7 @@ void setup() {
 }
 
 void loop() {
-  // Check if EEPROM is cleared
+  // Check if EEPROM is cleared (read: all bytes are 0xFF)
   if (!isEEPROMCleared()) {
     debugln(F("EEPROM is not cleared. Clearing now..."));
     clearEEPROM(); // Clear the EEPROM
@@ -52,5 +52,5 @@ void loop() {
     debugln(F("EEPROM is already cleared."));
   }
 
-  delay(5000); // Wait for 5 seconds before checking again
+  delay(10000); // Wait for 10 seconds before checking again
 }
