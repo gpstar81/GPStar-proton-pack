@@ -15,6 +15,9 @@ jobs:
           python-version: '3.12'
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
+      - name: Compile EEPROM Reset
+        working-directory: source/ATmegaEEPROM
+        run: pio run
       - name: Compile ProtonPack Project
         working-directory: source/ProtonPack
         run: pio run
