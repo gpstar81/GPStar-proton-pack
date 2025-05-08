@@ -9,6 +9,7 @@ echo ""
 
 # COMPILE CORE DEVICES
 
+source ./compile_reset.sh
 source ./compile_pack.sh
 source ./compile_wand.sh
 
