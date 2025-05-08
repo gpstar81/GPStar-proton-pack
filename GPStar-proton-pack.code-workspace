@@ -8,8 +8,8 @@
       "path": "source/AttenuatorESP32"
     },
     {
-      "name": "AttenuatorNano",
-      "path": "source/AttenuatorNano"
+      "name": "ATmegaEEPROM",
+      "path": "source/ATmegaEEPROM"
     },
     {
       "name": "BeltGizmo",
