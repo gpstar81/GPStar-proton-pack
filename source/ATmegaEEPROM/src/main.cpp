@@ -22,7 +22,7 @@ void clearEEPROM() {
   for (uint16_t i = 0; i < EEPROM.length(); i++) {
     EEPROM.update(i, 0xFF); // Write 0xFF to each address
   }
-  debugln(F("EEPROM cleared."));
+  debugln(F("EEPROM has been cleared."));
 }
 
 // Function: isEEPROMCleared
@@ -50,7 +50,10 @@ void loop() {
     clearEEPROM(); // Clear the EEPROM
   } else {
     debugln(F("EEPROM is already cleared."));
+    while (true) {
+      // Indefinite loop with a longer delay to avoid spamming debug messages
+      debugln(F("Halted execution as EEPROM is cleared."));
+      delay(60000); // Wait for 60 seconds before printing the message again
+    }
   }
-
-  delay(10000); // Wait for 10 seconds before checking again
 }
