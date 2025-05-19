@@ -48,7 +48,7 @@ void updateProtonPackLEDCounts();
 /*
  * General EEPROM Variables
  */
-uint16_t i_eepromAddress = 0; // The address in the EEPROM to start reading from.
+const uint16_t i_eepromAddress = 0; // The address in the EEPROM to start reading from.
 
 /*
  * Data structure object for LED settings which are saved into the EEPROM memory.
@@ -279,19 +279,19 @@ void readEEPROM() {
       i_spectral_cyclotron_inner_custom_saturation = obj_led_eeprom.cyclotron_inner_spectral_saturation_custom;
     }
 
-    if(obj_led_eeprom.powercell_brightness > 19 && obj_led_eeprom.powercell_brightness != 255) {
+    if(obj_led_eeprom.powercell_brightness > 19 && obj_led_eeprom.powercell_brightness < 101) {
       i_powercell_brightness = obj_led_eeprom.powercell_brightness;
     }
 
-    if(obj_led_eeprom.cyclotron_brightness > 19 && obj_led_eeprom.cyclotron_brightness != 255) {
+    if(obj_led_eeprom.cyclotron_brightness > 19 && obj_led_eeprom.cyclotron_brightness < 101) {
       i_cyclotron_brightness = obj_led_eeprom.cyclotron_brightness;
     }
 
-    if(obj_led_eeprom.inner_cyclotron_brightness > 19 && obj_led_eeprom.inner_cyclotron_brightness != 255) {
+    if(obj_led_eeprom.inner_cyclotron_brightness > 19 && obj_led_eeprom.inner_cyclotron_brightness < 101) {
       i_cyclotron_inner_brightness = obj_led_eeprom.inner_cyclotron_brightness;
     }
 
-    if(obj_led_eeprom.inner_panel_brightness > 19 && obj_led_eeprom.inner_panel_brightness != 255) {
+    if(obj_led_eeprom.inner_panel_brightness > 19 && obj_led_eeprom.inner_panel_brightness < 101) {
       i_cyclotron_panel_brightness = obj_led_eeprom.inner_panel_brightness;
     }
 
@@ -579,8 +579,8 @@ void readEEPROM() {
 
 void clearLEDEEPROM() {
   // Clear out the EEPROM only in the memory addresses used for our EEPROM data object.
-  for(uint16_t i = 0; i < sizeof(objLEDEEPROM); i++) {
-    EEPROM.update(i, 0);
+  for(uint16_t i = i_eepromAddress; i < sizeof(objLEDEEPROM); i++) {
+    EEPROM.update(i, 0xFF); // Write 0xFF to each address
   }
 
   updateCRCEEPROM();
@@ -670,10 +670,8 @@ void clearConfigEEPROM() {
   // Clear out the EEPROM data for the configuration settings only.
   uint16_t i_eepromConfigAddress = i_eepromAddress + sizeof(objLEDEEPROM);
 
-  for(uint16_t i = 0; i < sizeof(objConfigEEPROM); i++) {
-    EEPROM.update(i_eepromConfigAddress, 0);
-
-    i_eepromConfigAddress++;
+  for(; i_eepromConfigAddress < sizeof(objConfigEEPROM); i_eepromConfigAddress++) {
+    EEPROM.update(i_eepromConfigAddress, 0xFF); // Write 0xFF to each address
   }
 
   updateCRCEEPROM();
@@ -822,7 +820,7 @@ void saveConfigEEPROM() {
 
   uint16_t i_eepromConfigAddress = i_eepromAddress + sizeof(objLEDEEPROM);
 
-  objConfigEEPROM obj_led_eeprom = {
+  objConfigEEPROM obj_config_eeprom = {
     i_proton_stream_effects,
     i_cyclotron_direction,
     i_center_led_fade,
@@ -853,7 +851,7 @@ void saveConfigEEPROM() {
   };
 
   // Save and update our object in the EEPROM.
-  EEPROM.put(i_eepromConfigAddress, obj_led_eeprom);
+  EEPROM.put(i_eepromConfigAddress, obj_config_eeprom);
 
   updateCRCEEPROM();
 }
@@ -866,7 +864,7 @@ void updateCRCEEPROM() {
 uint32_t eepromCRC(void) {
   CRC32 crc;
 
-  for(uint16_t index = 0; index < (i_eepromAddress + sizeof(objConfigEEPROM) + sizeof(objLEDEEPROM)); index++) {
+  for(uint16_t index = i_eepromAddress; index < (i_eepromAddress + sizeof(objConfigEEPROM) + sizeof(objLEDEEPROM)); index++) {
     crc.update(EEPROM[index]);
   }
 

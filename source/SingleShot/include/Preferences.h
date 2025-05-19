@@ -45,7 +45,7 @@ void resetWhiteLEDBlinkRate();
 /*
  * General EEPROM Variables
  */
-uint16_t i_eepromAddress = 0; // The address in the EEPROM to start reading from.
+const uint16_t i_eepromAddress = 0; // The address in the EEPROM to start reading from.
 
 /*
  * Data structure object for customizations which are saved into the EEPROM memory.
@@ -147,8 +147,8 @@ void readEEPROM() {
 
 void clearConfigEEPROM() {
   // Clear out the EEPROM only in the memory addresses used for our EEPROM data object.
-  for(uint16_t i = 0; i < sizeof(objConfigEEPROM); i++) {
-    EEPROM.update(i, 0);
+  for(uint16_t i = i_eepromAddress; i < sizeof(objConfigEEPROM); i++) {
+    EEPROM.update(i, 0xFF); // Write 0xFF to each address
   }
 
   updateCRCEEPROM();
@@ -226,7 +226,7 @@ void updateCRCEEPROM() {
 uint32_t eepromCRC(void) {
   CRC32 crc;
 
-  for(uint16_t index = 0; index < (i_eepromAddress + sizeof(objConfigEEPROM)); index++) {
+  for(uint16_t index = i_eepromAddress; index < (i_eepromAddress + sizeof(objConfigEEPROM)); index++) {
     crc.update(EEPROM[index]);
   }
 
