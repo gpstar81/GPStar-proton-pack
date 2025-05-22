@@ -3255,7 +3255,7 @@ void wandLightsOff() {
   i_bargraph_status = 0;
   i_bargraph_status_alt = 0;
 
-  if(!b_playing_music) {
+  if(!b_playing_music || b_music_paused) {
     // If music is not playing, arm the power-on reminder LED system.
     setPowerOnReminder(true);
   }
@@ -9880,7 +9880,7 @@ void checkRotaryEncoder() {
             // Tell pack to lower the sound effects volume.
             wandSerialSend(W_VOLUME_SOUND_EFFECTS_DECREASE);
           }
-          else if(i_wand_menu == 3 && WAND_MENU_LEVEL == MENU_LEVEL_1 && !switch_intensify.on() && switch_mode.on() && b_playing_music) {
+          else if(i_wand_menu == 3 && WAND_MENU_LEVEL == MENU_LEVEL_1 && !switch_intensify.on() && switch_mode.on() && b_playing_music && !b_music_paused) {
             // Decrease the music volume.
             decreaseVolumeMusic();
 
@@ -9943,7 +9943,7 @@ void checkRotaryEncoder() {
             // Tell pack to increase the sound effects volume.
             wandSerialSend(W_VOLUME_SOUND_EFFECTS_INCREASE);
           }
-          else if(i_wand_menu == 3 && WAND_MENU_LEVEL == MENU_LEVEL_1 && !switch_intensify.on() && switch_mode.on() && b_playing_music) {
+          else if(i_wand_menu == 3 && WAND_MENU_LEVEL == MENU_LEVEL_1 && !switch_intensify.on() && switch_mode.on() && b_playing_music && !b_music_paused) {
             // Increase music volume.
             increaseVolumeMusic();
 
@@ -10094,7 +10094,7 @@ void checkRotaryEncoder() {
             }
 
             if(WAND_STATUS == MODE_OFF && !switch_intensify.on()) {
-              if(b_playing_music) {
+              if(b_playing_music && !b_music_paused) {
                 // Decrease the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
                 decreaseVolumeMusic();
 
@@ -10214,7 +10214,7 @@ void checkRotaryEncoder() {
             }
 
             if(WAND_STATUS == MODE_OFF && !switch_intensify.on()) {
-              if(b_playing_music) {
+              if(b_playing_music && !b_music_paused) {
                 // Increase the music volume if the wand/pack is off. A quick easy way to adjust the music volume on the go.
                 increaseVolumeMusic();
 
