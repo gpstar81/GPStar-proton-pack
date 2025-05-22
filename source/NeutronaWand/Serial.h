@@ -112,6 +112,7 @@ struct __attribute__((packed)) WandSyncData {
   uint8_t vibrationEnabled;
   uint8_t effectsVolume;
   uint8_t masterMuted;
+  uint8_t musicStatus;
   uint8_t repeatMusicTrack;
 } wandSyncData;
 
@@ -371,6 +372,10 @@ void checkPack() {
             WAND_CONN_STATE = NC_BENCHTEST;
             b_gpstar_benchtest = true;
             b_pack_on = true; // Pretend that the pack (not really attached) has been powered on.
+
+            // Reset music status variables just in case they were previously set by a pack.
+            b_playing_music = false;
+            b_music_paused = false;
 
             // Turn off the sync indicator LED as it is no longer necessary.
             ventTopLightControl(false);
@@ -756,9 +761,34 @@ void checkPack() {
             b_vibration_switch_on = wandSyncData.vibrationEnabled == 2;
           }
 
-          // Update cyclotron lid status and music loop status.
+          // Update cyclotron lid status.
           b_pack_cyclotron_lid_on = wandSyncData.cyclotronLidState == 2;
+
+          // Update music status.
           b_repeat_track = wandSyncData.repeatMusicTrack == 2;
+          switch(wandSyncData.musicStatus) {
+            case 1:
+            default:
+              // Music stopped.
+              b_playing_music = false;
+              b_music_paused = false;
+            break;
+            case 2:
+              // Music started.
+              b_playing_music = true;
+              b_music_paused = false;
+            break;
+            case 3:
+              // Music resumed.
+              b_playing_music = true;
+              b_music_paused = false;
+            break;
+            case 4:
+              // Music paused.
+              b_playing_music = true;
+              b_music_paused = true;
+            break;
+          }
 
           // Set the percentage volume.
           i_volume_effects_percentage = wandSyncData.effectsVolume;
@@ -976,6 +1006,41 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       }
       else if(WAND_STATUS == MODE_OFF) {
         wandSerialSend(W_OVERHEATING);
+      }
+    break;
+
+    case P_MUSIC_STATUS:
+      // Received music status update, so set playing music variables accordingly.
+      switch(i_value) {
+        case 1:
+        default:
+          // Music stopped.
+          b_playing_music = false;
+          b_music_paused = false;
+        break;
+        case 2:
+          // Music started.
+          b_playing_music = true;
+          b_music_paused = false;
+        break;
+        case 3:
+          // Music resumed.
+          b_playing_music = true;
+          b_music_paused = false;
+        break;
+        case 4:
+          // Music paused.
+          b_playing_music = true;
+          b_music_paused = true;
+        break;
+      }
+
+      // If we are fully off we must also make sure to start/stop the power reminder.
+      if(b_playing_music && !b_music_paused) {
+        setPowerOnReminder(false);
+      }
+      else if(WAND_STATUS == MODE_OFF && WAND_ACTION_STATUS == ACTION_IDLE && !b_pack_on) {
+        setPowerOnReminder(true);
       }
     break;
 
