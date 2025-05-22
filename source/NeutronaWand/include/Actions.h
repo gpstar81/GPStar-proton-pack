@@ -1475,14 +1475,15 @@ void checkWandAction() {
           // Play or stop the current music track.
           if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
             if(switch_intensify.pushed()) {
-              if(b_playing_music) {
-                stopMusic();
-              }
-              else {
-                // Tell the pack to start or stop its music.
-                wandSerialSend(W_MUSIC_TOGGLE);
+              // Tell the pack to start or stop its music.
+              wandSerialSend(W_MUSIC_TOGGLE);
 
-                if(b_gpstar_benchtest) {
+              // Handle standalone wand music playback.
+              if(b_gpstar_benchtest) {
+                if(b_playing_music) {
+                  stopMusic();
+                }
+                else {
                   playMusic();
                 }
               }

@@ -154,6 +154,7 @@ struct __attribute__((packed)) WandSyncData {
   uint8_t vibrationEnabled;
   uint8_t effectsVolume;
   uint8_t masterMuted;
+  uint8_t musicStatus;
   uint8_t repeatMusicTrack;
 } wandSyncData;
 
@@ -1306,7 +1307,7 @@ void doWandSync() {
 
   // Begin the synchronization process which tells the wand the pack got the handshake.
   debugln(F("Wand Sync Start"));
-  packSerialSend(P_SYNC_START, b_pack_post_finish ? 0 : 1);
+  packSerialSend(P_SYNC_START, b_pack_post_finish ? 2 : 1);
 
   // Attaching a new wand means we need to stop any prior overheat as the wand initiates this action.
   if(b_overheating) {
@@ -1363,6 +1364,14 @@ void doWandSync() {
 
   // Send the state of the cyclotron lid.
   wandSyncData.cyclotronLidState = b_cyclotron_lid_on ? 2 : 1;
+
+  // Tell the wand if we are currently playing music.
+  wandSyncData.musicStatus = b_playing_music ? 2 : 1; // 1 = Not playing music, 2 = Playing music.
+
+  // Tell the wand if the currently playing music is paused, if playing.
+  if(b_playing_music) {
+    wandSyncData.musicStatus = b_music_paused ? 4 : 3; // 3 = Not paused, 4 = Paused.
+  }
 
   // Denote the current looping preference for the current track; used by the menu system.
   wandSyncData.repeatMusicTrack = b_repeat_track ? 2 : 1; // 1 = No repeat, 2 = Repeat.
