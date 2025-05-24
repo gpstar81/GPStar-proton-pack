@@ -769,13 +769,7 @@ bool fadeOutCyclotron() {
   bool b_return = false;
 
   if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && !usingSlimeCyclotron()) {
-    uint8_t i_cyclotron_leds_total = i_cyclotron_leds;
-
-    if(b_cyclotron_simulate_ring) {
-      i_cyclotron_leds_total = OUTER_CYCLOTRON_LED_MAX;
-    }
-
-    for(uint8_t i = 0; i < i_cyclotron_leds_total; i++) {
+    for(uint8_t i = 0; i < OUTER_CYCLOTRON_LED_MAX; i++) {
       uint8_t i_curr_brightness = i_cyclotron_led_value[i] - 10;
 
       if(i_curr_brightness > i_cyclotron_led_value[i]) {
@@ -788,23 +782,13 @@ bool fadeOutCyclotron() {
 
         b_return = true;
 
-        if(b_cyclotron_simulate_ring) {
-          if(cyclotronLookupTable(i) > 0) {
-            pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1].maximizeBrightness(i_curr_brightness);
-          }
-        }
-        else {
-          pack_leds[i + i_cyclotron_led_start].maximizeBrightness(i_curr_brightness);
+        if(cyclotronLookupTable(i) > 0) {
+          pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1].maximizeBrightness(i_curr_brightness);
         }
       }
       else {
-        if(b_cyclotron_simulate_ring) {
-          if(cyclotronLookupTable(i) > 0) {
-            pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
-          }
-        }
-        else {
-          pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+        if(cyclotronLookupTable(i) > 0) {
+          pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
         }
       }
     }
