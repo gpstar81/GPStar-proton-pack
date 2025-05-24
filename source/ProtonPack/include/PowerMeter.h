@@ -251,7 +251,7 @@ void updateWandPowerState() {
     if(f_diff_average > 0.09 || (f_diff_average > 0.0025 && f_on_average > 0.8)) {
       // We need to poison the window after detecting a startup to prevent false firing triggers.
       f_diff_average = 0.0;
-      for (uint8_t i = 0; i < 20; i++) {
+      for(uint8_t i = 0; i < 20; i++) {
         f_sliding_window[i] = 0.0;
       }
 
@@ -316,8 +316,8 @@ void updateWandPowerState() {
     else if(!b_wand_just_started) {
       if(!b_wand_firing && !b_wand_overheated && !b_overheating) {
         // Start firing checks use an 11-parameter-wide window.
-        for (uint8_t i = 9; i < 19; i++) {
-          if (((f_sliding_window[i + 1] - f_sliding_window[i]) <= 0.0025) || (f_sliding_window[i + 1] - f_sliding_window[i]) > 0.07) {
+        for(uint8_t i = 9; i < 19; i++) {
+          if(((f_sliding_window[i + 1] - f_sliding_window[i]) <= 0.0025) || (f_sliding_window[i + 1] - f_sliding_window[i]) > 0.07) {
             // If we went negative or jumped too quickly, reset the accumulator and exit.
             f_accumulator = 0.0;
             break;
@@ -343,7 +343,7 @@ void updateWandPowerState() {
           }
         }
 
-        if ((f_diff_average > 0.0285 && f_diff_average < 0.045) || (f_range > 0.26 && b_positive_rate)) {
+        if((f_diff_average > 0.0285 && f_diff_average < 0.045) || (f_range > 0.26 && b_positive_rate)) {
           // With this big a jump, we must have started firing.
           ms_delay_post_2.start(i_wand_overheat_delay);
           i_wand_power_level = 5;
@@ -354,7 +354,7 @@ void updateWandPowerState() {
       }
       else if(!b_wand_overheated && !b_overheating) {
         // Stop firing check checks to see how close we are to the previous idle.
-        if (f_sliding_window[19] - f_idle_value < 0.11 || f_sliding_window[19] < 0.85) {
+        if(f_sliding_window[19] - f_idle_value < 0.11 || f_sliding_window[19] < 0.85) {
           // We must have stopped firing.
           wandStoppedFiring();
 
