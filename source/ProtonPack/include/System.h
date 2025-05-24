@@ -700,8 +700,8 @@ void innerCyclotronRingUpdate(uint16_t iRampDelay) {
 // Turns off the LEDs in the Cyclotron Lid only.
 void cyclotronLidLedsOff() {
   if(!b_fade_out) {
-    for(uint8_t i = i_cyclotron_led_start; i < i_cyclotron_leds; i++) {
-      pack_leds[i] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+    for(uint8_t i = 0; i < i_cyclotron_leds; i++) {
+      pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
     }
 
     clearCyclotronFades();
