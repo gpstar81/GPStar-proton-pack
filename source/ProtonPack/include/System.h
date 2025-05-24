@@ -1517,8 +1517,8 @@ void spectralLightsOn() {
   }
 
   i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, SPECTRAL_CUSTOM, true);
-  for(uint8_t i = i_cyclotron_led_start; i < i_cyclotron_leds; i++) {
-    pack_leds[i] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme);
+  for(uint8_t i = 0; i < i_cyclotron_leds; i++) {
+    pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme);
   }
 
   i_colour_scheme = getDeviceColour(CYCLOTRON_INNER, SPECTRAL_CUSTOM, true);
@@ -2494,10 +2494,10 @@ void slimeCyclotronFadeout() {
   //if(ms_cyclotron_slime_effect.justFinished()) {
     bool b_leds_fading = false;
 
-    for(uint8_t i = i_cyclotron_led_start; i < i_cyclotron_leds; i++) {
-      pack_leds[i].fadeToBlackBy(1);
+    for(uint8_t i = 0; i < i_cyclotron_leds; i++) {
+      pack_leds[i + i_cyclotron_led_start].fadeToBlackBy(1);
 
-      if(!b_leds_fading && pack_leds[i]) {
+      if(!b_leds_fading && pack_leds[i + i_cyclotron_led_start]) {
         b_leds_fading = true;
       }
     }
@@ -2557,8 +2557,8 @@ void slimeCyclotronEffect() {
       i_random_upper = 41;
     }
 
-    for(uint8_t i = i_cyclotron_led_start; i < i_cyclotron_leds; i++) {
-      pack_leds[i] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, random(i_random_lower, i_random_upper));
+    for(uint8_t i = 0; i < i_cyclotron_leds; i++) {
+      pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, random(i_random_lower, i_random_upper));
     }
 
     if(i_random_lower == 50 && i_random_upper == 121) {
