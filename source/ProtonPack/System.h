@@ -700,9 +700,7 @@ void innerCyclotronRingUpdate(uint16_t iRampDelay) {
 // Turns off the LEDs in the Cyclotron Lid only.
 void cyclotronLidLedsOff() {
   if(!b_fade_out) {
-    uint8_t i_cyclotron_leds_total = i_pack_num_leds - i_nfilter_jewel_leds - i_cyclotron_led_start;
-
-    for(uint8_t i = 0; i < i_cyclotron_leds_total; i++) {
+    for(uint8_t i = 0; i < i_cyclotron_leds; i++) {
       pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
     }
 
@@ -771,13 +769,7 @@ bool fadeOutCyclotron() {
   bool b_return = false;
 
   if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && !usingSlimeCyclotron()) {
-    uint8_t i_cyclotron_leds_total = i_pack_num_leds - i_nfilter_jewel_leds - i_cyclotron_led_start;
-
-    if(b_cyclotron_simulate_ring) {
-      i_cyclotron_leds_total = OUTER_CYCLOTRON_LED_MAX;
-    }
-
-    for(uint8_t i = 0; i < i_cyclotron_leds_total; i++) {
+    for(uint8_t i = 0; i < OUTER_CYCLOTRON_LED_MAX; i++) {
       uint8_t i_curr_brightness = i_cyclotron_led_value[i] - 10;
 
       if(i_curr_brightness > i_cyclotron_led_value[i]) {
@@ -790,23 +782,13 @@ bool fadeOutCyclotron() {
 
         b_return = true;
 
-        if(b_cyclotron_simulate_ring) {
-          if(cyclotronLookupTable(i) > 0) {
-            pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1].maximizeBrightness(i_curr_brightness);
-          }
-        }
-        else {
-          pack_leds[i + i_cyclotron_led_start].maximizeBrightness(i_curr_brightness);
+        if(cyclotronLookupTable(i) > 0) {
+          pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1].maximizeBrightness(i_curr_brightness);
         }
       }
       else {
-        if(b_cyclotron_simulate_ring) {
-          if(cyclotronLookupTable(i) > 0) {
-            pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
-          }
-        }
-        else {
-          pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
+        if(cyclotronLookupTable(i) > 0) {
+          pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
         }
       }
     }
@@ -1517,7 +1499,7 @@ void cyclotronSwitchPlateLEDs() {
 void spectralLightsOff() {
   b_spectral_lights_on = false;
 
-  for(uint8_t i = 0; i <= i_max_pack_leds - 1; i++) {
+  for(uint8_t i = 0; i < i_max_pack_leds; i++) {
     pack_leds[i] = getHueAsRGB(POWERCELL, C_BLACK);
   }
 
@@ -1534,9 +1516,8 @@ void spectralLightsOn() {
     pack_leds[i] = getHueAsRGB(POWERCELL, i_colour_scheme);
   }
 
-  uint8_t i_cyclotron_leds_total = i_pack_num_leds - i_nfilter_jewel_leds - i_cyclotron_led_start;
   i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, SPECTRAL_CUSTOM, true);
-  for(uint8_t i = 0; i < i_cyclotron_leds_total; i++) {
+  for(uint8_t i = 0; i < i_cyclotron_leds; i++) {
     pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme);
   }
 
@@ -2488,22 +2469,32 @@ void cyclotronColourReset() {
     i_colour_scheme = C_HASLAB;
   }
 
-  // Accounts for a total # of LEDs minus the N-Filter jewel and whatever precedes the Cyclotron.
-  uint8_t i_cyclotron_leds_total = i_pack_num_leds - i_nfilter_jewel_leds - i_cyclotron_led_start;
-  for(uint8_t i = 0; i < i_cyclotron_leds_total; i++) {
-    // Note: Always assumed to be RGB for built-in or Frutto LEDs.
-    // Sets 0-index <i> plus the position of the first Cyclotron LED.
-    pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_cyclotron_led_value[i]);
+  switch(SYSTEM_YEAR) {
+    case SYSTEM_AFTERLIFE:
+    case SYSTEM_FROZEN_EMPIRE:
+    default:
+      for(uint8_t i = 0; i < OUTER_CYCLOTRON_LED_MAX; i++) {
+        if(cyclotronLookupTable(i) > 0) {
+          pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_cyclotron_led_value[i]);
+        }
+      }
+    break;
+
+    case SYSTEM_1984:
+    case SYSTEM_1989:
+      for(uint8_t i = 0; i < i_cyclotron_leds; i++) {
+        pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_cyclotron_led_value[i]);
+      }
+    break;
   }
 }
 
 // Controls the slime cyclotron fadeout effect.
 void slimeCyclotronFadeout() {
   //if(ms_cyclotron_slime_effect.justFinished()) {
-    uint8_t i_cyclotron_leds_total = i_pack_num_leds - i_nfilter_jewel_leds - i_cyclotron_led_start;
     bool b_leds_fading = false;
 
-    for(uint8_t i = 0; i < i_cyclotron_leds_total; i++) {
+    for(uint8_t i = 0; i < i_cyclotron_leds; i++) {
       pack_leds[i + i_cyclotron_led_start].fadeToBlackBy(1);
 
       if(!b_leds_fading && pack_leds[i + i_cyclotron_led_start]) {
@@ -2531,7 +2522,6 @@ void slimeCyclotronEffect() {
       return;
     }
 
-    uint8_t i_cyclotron_leds_total = i_pack_num_leds - i_nfilter_jewel_leds - i_cyclotron_led_start;
     uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, STREAM_MODE, b_cyclotron_colour_toggle);
     uint8_t i_random_lower = 50;
     uint8_t i_random_upper = 121;
@@ -2567,7 +2557,7 @@ void slimeCyclotronEffect() {
       i_random_upper = 41;
     }
 
-    for(uint8_t i = 0; i < i_cyclotron_leds_total; i++) {
+    for(uint8_t i = 0; i < i_cyclotron_leds; i++) {
       pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, random(i_random_lower, i_random_upper));
     }
 
@@ -2607,7 +2597,6 @@ void slimeCyclotronEffect() {
 
 void cyclotronFade() {
   uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_OUTER, STREAM_MODE, b_cyclotron_colour_toggle);
-  uint8_t i_cyclotron_leds_total = i_pack_num_leds - i_nfilter_jewel_leds - i_cyclotron_led_start;
 
   // We override the colour changes when using stock HasLab Cyclotron LEDs.
   // Changing the colour space with a CHSV Object affects the brightness slightly for non RGB pixels.
@@ -2615,13 +2604,11 @@ void cyclotronFade() {
     i_colour_scheme = C_HASLAB;
   }
 
-  switch (SYSTEM_YEAR) {
+  switch(SYSTEM_YEAR) {
     case SYSTEM_AFTERLIFE:
     case SYSTEM_FROZEN_EMPIRE:
     default:
-      i_cyclotron_leds_total = OUTER_CYCLOTRON_LED_MAX;
-
-      for(uint8_t i = 0; i < i_cyclotron_leds_total; i++) {
+      for(uint8_t i = 0; i < OUTER_CYCLOTRON_LED_MAX; i++) {
         if(r_cyclotron_led_fade_in[i].isRunning()) {
           b_cyclotron_led_fading_in[i] = true;
 
@@ -2686,7 +2673,7 @@ void cyclotronFade() {
           i_colour_scheme = C_RED;
         }
 
-        for(uint8_t i = 0; i < i_cyclotron_leds_total; i++) {
+        for(uint8_t i = 0; i < i_cyclotron_leds; i++) {
           if(r_cyclotron_led_fade_in[i].isRunning()) {
             b_cyclotron_led_fading_in[i] = true;
             uint8_t i_curr_brightness = r_cyclotron_led_fade_in[i].update();
@@ -3223,7 +3210,7 @@ void cyclotron2021(uint16_t iRampDelay) {
 }
 
 void cyclotronNoCable() {
-  switch (SYSTEM_YEAR) {
+  switch(SYSTEM_YEAR) {
     case SYSTEM_AFTERLIFE:
     case SYSTEM_FROZEN_EMPIRE:
     default:
@@ -3583,7 +3570,7 @@ void cyclotronOverheating() {
   }
 
   // The cyclotron lights during the entire overheating sequence
-  switch (SYSTEM_YEAR) {
+  switch(SYSTEM_YEAR) {
     case SYSTEM_AFTERLIFE:
     case SYSTEM_FROZEN_EMPIRE:
     default:

@@ -233,7 +233,7 @@ rampUnsignedInt r_outer_cyclotron_ramp;
 bool b_cyclotron_led_fading_in[OUTER_CYCLOTRON_LED_MAX] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
 ramp r_cyclotron_led_fade_out[OUTER_CYCLOTRON_LED_MAX] = {};
 ramp r_cyclotron_led_fade_in[OUTER_CYCLOTRON_LED_MAX] = {};
-uint8_t i_cyclotron_led_value[OUTER_CYCLOTRON_LED_MAX] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+uint8_t i_cyclotron_led_value[OUTER_CYCLOTRON_LED_MAX] = {};
 uint8_t i_cyclotron_fake_ring_counter = 0; // Counter used by the ring simulation code to count how many times we have processed the "0" value in the matrix.
 bool b_cyclotron_lid_on = true;
 bool b_brass_pack_sound_loop = false;
