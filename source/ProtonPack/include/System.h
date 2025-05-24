@@ -2485,11 +2485,23 @@ void cyclotronColourReset() {
     i_colour_scheme = C_HASLAB;
   }
 
-  for(uint8_t i = 0; i < OUTER_CYCLOTRON_LED_MAX; i++) {
-    // Note: Always assumed to be RGB for built-in or Frutto LEDs.
-    if(cyclotronLookupTable(i) > 0) {
-      pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_cyclotron_led_value[i]);
-    }
+  switch(SYSTEM_YEAR) {
+    case SYSTEM_AFTERLIFE:
+    case SYSTEM_FROZEN_EMPIRE:
+    default:
+      for(uint8_t i = 0; i < OUTER_CYCLOTRON_LED_MAX; i++) {
+        if(cyclotronLookupTable(i) > 0) {
+          pack_leds[cyclotronLookupTable(i) + i_cyclotron_led_start - 1] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_cyclotron_led_value[i]);
+        }
+      }
+    break;
+
+    case SYSTEM_1984:
+    case SYSTEM_1989:
+      for(uint8_t i = 0; i < i_cyclotron_leds; i++) {
+        pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_cyclotron_led_value[i]);
+      }
+    break;
   }
 }
 
@@ -2608,7 +2620,7 @@ void cyclotronFade() {
     i_colour_scheme = C_HASLAB;
   }
 
-  switch (SYSTEM_YEAR) {
+  switch(SYSTEM_YEAR) {
     case SYSTEM_AFTERLIFE:
     case SYSTEM_FROZEN_EMPIRE:
     default:
@@ -3214,7 +3226,7 @@ void cyclotron2021(uint16_t iRampDelay) {
 }
 
 void cyclotronNoCable() {
-  switch (SYSTEM_YEAR) {
+  switch(SYSTEM_YEAR) {
     case SYSTEM_AFTERLIFE:
     case SYSTEM_FROZEN_EMPIRE:
     default:
@@ -3574,7 +3586,7 @@ void cyclotronOverheating() {
   }
 
   // The cyclotron lights during the entire overheating sequence
-  switch (SYSTEM_YEAR) {
+  switch(SYSTEM_YEAR) {
     case SYSTEM_AFTERLIFE:
     case SYSTEM_FROZEN_EMPIRE:
     default:

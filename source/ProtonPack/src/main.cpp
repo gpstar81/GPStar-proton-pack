@@ -260,7 +260,7 @@ void loop() {
       checkPowerMeter();
     }
 
-    switch (PACK_STATE) {
+    switch(PACK_STATE) {
       case MODE_OFF:
         // Turn on the status indicator LED.
         digitalWriteFast(PACK_STATUS_LED_PIN, HIGH);
@@ -414,7 +414,7 @@ void loop() {
 
             uint16_t i_s_random = random(2,4) * 1000; // 2 or 3 seconds
 
-            switch (i_random) {
+            switch(i_random) {
               case 3:
                 playEffect(S_FIRE_SPARKS, false, i_volume_effects, false, 0, false);
                 i_last_firing_effect_mix = S_FIRE_SPARKS;

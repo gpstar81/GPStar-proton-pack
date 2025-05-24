@@ -7853,7 +7853,7 @@ void modeFiring() {
 
     uint16_t i_s_random = random(2,4) * 1000;
 
-    switch (i_random) {
+    switch(i_random) {
       case 3:
         playEffect(S_FIRE_SPARKS, false, i_volume_effects, false, 0, false);
         i_last_firing_effect_mix = S_FIRE_SPARKS;

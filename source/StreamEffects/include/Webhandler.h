@@ -508,7 +508,7 @@ void setupRouting() {
 
 // Function to update the current palette based on stream mode.
 void updateStreamPalette() {
-  switch (STREAM_MODE) {
+  switch(STREAM_MODE) {
     case PROTON:
       cp_StreamPalette = paletteProton;
       break;
