@@ -271,12 +271,12 @@ void loop() {
         }
 
         if(b_pack_on) {
-          b_2021_ramp_up = false;
-          b_2021_ramp_up_start = false;
+          b_ramp_up = false;
+          b_ramp_up_start = false;
           b_inner_ramp_up = false;
           b_fade_out = true;
 
-          reset2021RampDown();
+          resetRampDown();
 
           b_pack_shutting_down = true;
 
@@ -289,7 +289,7 @@ void loop() {
           b_pack_on = false;
         }
 
-        if(b_2021_ramp_down && !b_overheating && !b_alarm) {
+        if(b_ramp_down && !b_overheating && !b_alarm) {
           if(b_spectral_lights_on) {
             // If we enter the LED EEPROM menu while the pack is ramping off, stop it right away.
             packOffReset();
@@ -342,12 +342,12 @@ void loop() {
           b_pack_on = true;
         }
 
-        if(b_2021_ramp_down && !ms_mash_lockout.isRunning()) {
-          b_2021_ramp_down = false;
-          b_2021_ramp_down_start = false;
+        if(b_ramp_down && !ms_mash_lockout.isRunning()) {
+          b_ramp_down = false;
+          b_ramp_down_start = false;
           b_inner_ramp_down = false;
 
-          reset2021RampUp();
+          resetRampUp();
         }
 
         if(ribbonCableAttached() && !b_overheating) {
@@ -371,7 +371,7 @@ void loop() {
 
             b_alarm = false;
 
-            reset2021RampUp();
+            resetRampUp();
 
             stopEffect(S_PACK_RECOVERY);
             playEffect(S_PACK_RECOVERY);

@@ -43,7 +43,7 @@ const uint16_t i_wand_overheat_delay = 14480; // How many milliseconds of contin
 const uint16_t i_wand_overheat_duration = 2500; // How long to play the alarm for before going into the full overheat sequence on the pack.
 const uint16_t i_wand_startup_delay = 2750; // How many milliseconds after wand startup before we allow detecting firing events.
 const float f_ema_alpha = 0.2; // Smoothing factor (<1) for Exponential Moving Average (EMA) [Lower Value = Smoother Averaging].
-float f_sliding_window[20] = {0.0}; // Sliding window for detecting state changes, initialized to 0.
+float f_sliding_window[20] = {}; // Sliding window for detecting state changes, initialized to 0.
 float f_accumulator = 0.0; // Accumulator used for sliding window averaging operations.
 float f_diff_average = 0.0; // Stores the result of the sliding window average operation.
 float f_idle_value = 0.0; // Stores the previous idle value to be used for stop firing checks.
