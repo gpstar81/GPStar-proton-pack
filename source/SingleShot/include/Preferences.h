@@ -45,7 +45,7 @@ void resetWhiteLEDBlinkRate();
 /*
  * General EEPROM Variables
  */
-uint16_t i_eepromAddress = 0; // The address in the EEPROM to start reading from.
+const uint16_t i_eepromAddress = 0; // The address in the EEPROM to start reading from.
 
 /*
  * Data structure object for customizations which are saved into the EEPROM memory.
@@ -73,7 +73,7 @@ void readEEPROM() {
     objConfigEEPROM obj_config_eeprom;
     EEPROM.get(i_eepromAddress, obj_config_eeprom);
 
-    if(obj_config_eeprom.device_boot_errors > 0 && obj_config_eeprom.device_boot_errors != 255) {
+    if(obj_config_eeprom.device_boot_errors > 0 && obj_config_eeprom.device_boot_errors < 3) {
       if(obj_config_eeprom.device_boot_errors > 1) {
         b_device_boot_errors = true;
       }
@@ -82,7 +82,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.vent_light_auto_intensity > 0 && obj_config_eeprom.vent_light_auto_intensity != 255) {
+    if(obj_config_eeprom.vent_light_auto_intensity > 0 && obj_config_eeprom.vent_light_auto_intensity < 3) {
       if(obj_config_eeprom.vent_light_auto_intensity > 1) {
         b_vent_light_control = true;
       }
@@ -91,7 +91,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.rgb_vent_light > 0 && obj_config_eeprom.rgb_vent_light != 255) {
+    if(obj_config_eeprom.rgb_vent_light > 0 && obj_config_eeprom.rgb_vent_light < 3) {
       if(obj_config_eeprom.rgb_vent_light > 1) {
         b_rgb_vent_light = true;
       }
@@ -100,7 +100,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.invert_bargraph > 0 && obj_config_eeprom.invert_bargraph != 255) {
+    if(obj_config_eeprom.invert_bargraph > 0 && obj_config_eeprom.invert_bargraph < 3) {
       if(obj_config_eeprom.invert_bargraph > 1) {
         b_bargraph_invert = true;
       }
@@ -109,7 +109,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.default_system_volume > 0 && obj_config_eeprom.default_system_volume <= 101) {
+    if(obj_config_eeprom.default_system_volume > 0 && obj_config_eeprom.default_system_volume < 102) {
       // EEPROM value is from 1 to 101; subtract 1 to get the correct percentage.
       i_volume_master_percentage = obj_config_eeprom.default_system_volume - 1;
       i_volume_master_eeprom = MINIMUM_VOLUME - ((MINIMUM_VOLUME - i_volume_abs_max) * i_volume_master_percentage / 100);
@@ -147,8 +147,8 @@ void readEEPROM() {
 
 void clearConfigEEPROM() {
   // Clear out the EEPROM only in the memory addresses used for our EEPROM data object.
-  for(uint16_t i = 0; i < sizeof(objConfigEEPROM); i++) {
-    EEPROM.update(i, 0);
+  for(uint16_t i = i_eepromAddress; i < sizeof(objConfigEEPROM); i++) {
+    EEPROM.update(i, 0xFF); // Write 0xFF to each address
   }
 
   updateCRCEEPROM();
@@ -226,7 +226,7 @@ void updateCRCEEPROM() {
 uint32_t eepromCRC(void) {
   CRC32 crc;
 
-  for(uint16_t index = 0; index < (i_eepromAddress + sizeof(objConfigEEPROM)); index++) {
+  for(uint16_t index = i_eepromAddress; index < (i_eepromAddress + sizeof(objConfigEEPROM)); index++) {
     crc.update(EEPROM[index]);
   }
 

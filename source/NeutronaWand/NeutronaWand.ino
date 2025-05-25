@@ -91,7 +91,7 @@ void setup() {
   ms_vent_light.start(i_vent_light_update_interval); // Setup a timer for updating the vent light.
 
   // Setup default system settings.
-  SYSTEM_MODE = MODE_SUPER_HERO;
+  setVGMode();
   BARGRAPH_MODE = BARGRAPH_ORIGINAL;
   BARGRAPH_MODE_EEPROM = BARGRAPH_EEPROM_DEFAULT;
   BARGRAPH_FIRING_ANIMATION = BARGRAPH_ANIMATION_SUPER_HERO;
@@ -185,8 +185,7 @@ void setup() {
 
   // Sanity check to make sure that a firing mode was set as default.
   if(FIRING_MODE != CTS_MODE && FIRING_MODE != CTS_MIX_MODE) {
-    FIRING_MODE = VG_MODE;
-    LAST_FIRING_MODE = FIRING_MODE;
+    setVGMode();
   }
 
   // Check if we should be in video game mode or not.

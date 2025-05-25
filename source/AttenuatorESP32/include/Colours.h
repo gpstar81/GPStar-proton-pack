@@ -82,7 +82,8 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
   // Returns a CHSV object with a hue (colour), full saturation, and stated brightness.
   switch(i_colour) {
     case C_WHITE:
-      return CHSV(100, 0, i_brightness);
+    default:
+      return CHSV(100, 0, i_brightness); // Just "on", which is white.
     break;
 
     case C_BLACK:
@@ -90,7 +91,7 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
     break;
 
     case C_WARM_WHITE:
-      return CHSV(22, 155, i_brightness);
+      return CHSV(36, 183, i_brightness);
     break;
 
     case C_PINK:
@@ -308,10 +309,6 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
 
     case C_SPECTRAL_CUSTOM:
       return CHSV(i_spectral_custom_colour, i_spectral_custom_saturation, i_brightness);
-    break;
-
-    default:
-      return CHSV(100, 0, i_brightness); // White on no match.
     break;
   }
 }

@@ -221,10 +221,10 @@ uint16_t i_outer_current_ramp_speed = i_2021_ramp_delay;
 uint8_t i_cyclotron_multiplier = 1;
 millisDelay ms_cyclotron_auto_speed_timer; // A timer that is active while firing only in Afterlife and Frozen Empire. Used to speed up the Cyclotron by small increments based on the wand power level.
 const uint16_t i_cyclotron_auto_speed_timer_length = 15000;
-bool b_2021_ramp_up = true;
-bool b_2021_ramp_up_start = true;
-bool b_2021_ramp_down_start = false;
-bool b_2021_ramp_down = false;
+bool b_ramp_up = true;
+bool b_ramp_up_start = true;
+bool b_ramp_down_start = false;
+bool b_ramp_down = false;
 bool b_reset_start_led = true;
 bool b_1984_led_start = true;
 millisDelay ms_cyclotron;

@@ -511,7 +511,7 @@ void setup() {
   // Create tasks which utilize a loop for continuous operation (prioritized highest to lowest).
   xTaskCreatePinnedToCore(SerialCommsTask, "SerialCommsTask", 4096, NULL, 4, &SerialCommsTaskHandle, 1);
   xTaskCreatePinnedToCore(UserInputTask, "UserInputTask", 4096, NULL, 3, &UserInputTaskHandle, 1);
-  xTaskCreatePinnedToCore(AnimationTask, "AnimationTask", 2048, NULL, 2, &AnimationTaskHandle, 1);
+  xTaskCreatePinnedToCore(AnimationTask, "AnimationTask", 4096, NULL, 2, &AnimationTaskHandle, 1);
   xTaskCreatePinnedToCore(WiFiManagementTask, "WiFiManagementTask", 2048, NULL, 1, &WiFiManagementTaskHandle, 1);
 
   // Create idle tasks for each core, used to estimate % busy for core.
