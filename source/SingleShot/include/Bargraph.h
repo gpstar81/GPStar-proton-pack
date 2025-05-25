@@ -57,10 +57,6 @@ enum BARGRAPH_STATES { BG_OFF, BG_ON, BG_EMPTY, BG_MID, BG_FULL, BG_BARS };
  * Barmeter 28 segment bargraph configuration and timers.
  * Part #: BL28Z-3005SA04Y
  * This will use the following pins for i2c serial communication:
- * Arduino Nano
- *   SDA -> A4
- *   SCL -> A5
- * ESP32
  *   SDA -> GPIO 21
  *   SCL -> GPIO 22
  */

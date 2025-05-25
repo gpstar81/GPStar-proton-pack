@@ -25,6 +25,9 @@
  * https://github.com/gpstar81/haslab-proton-pack/releases/tag/V2.2.0
  */
 
+// Required for PlatformIO
+#include <Arduino.h>
+
 #if defined(__AVR_ATmega2560__)
   #define GPSTAR_NEUTRONA_WAND_PCB
 #endif
