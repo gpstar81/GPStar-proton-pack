@@ -243,6 +243,9 @@ void playMusic() {
     // Manage track navigation.
     ms_music_status_check.start(i_music_check_delay * 10);
 
+    // Tell connected wand that music playback has started.
+    packSerialSend(P_MUSIC_STATUS, b_playing_music ? 2 : 1);
+
     // Tell connected serial device music playback has started.
     serial1Send(A_MUSIC_IS_PLAYING, i_current_music_track);
   }
@@ -269,6 +272,9 @@ void stopMusic() {
   b_music_paused = false;
   b_playing_music = false;
 
+  // Tell connected wand that music playback has started.
+  packSerialSend(P_MUSIC_STATUS, b_playing_music ? 2 : 1);
+
   // Tell connected serial device music playback has stopped.
   serial1Send(A_MUSIC_IS_NOT_PLAYING, i_current_music_track);
 }
@@ -294,6 +300,9 @@ void pauseMusic() {
     }
 
     b_music_paused = true;
+
+    // Tell connected wand that music playback is paused.
+    packSerialSend(P_MUSIC_STATUS, b_music_paused ? 4 : 3);
 
     // Tell connected devices music playback is paused.
     serial1Send(A_MUSIC_IS_PAUSED);
@@ -322,6 +331,9 @@ void resumeMusic() {
     }
 
     b_music_paused = false;
+
+    // Tell connected wand that music playback is paused.
+    packSerialSend(P_MUSIC_STATUS, b_music_paused ? 4 : 3);
 
     // Tell connected devices music playback has resumed.
     serial1Send(A_MUSIC_IS_NOT_PAUSED);
@@ -874,59 +886,19 @@ void toggleMusicLoop() {
  * Used to detect, update, and reset the available audio devices.
  */
 bool setupAudioDevice() {
-  // Short delay to allow the audio boards to boot up.
-  delay(1000);
-
   char gVersion[VERSION_STRING_LEN];
 
   Serial3.begin(57600);
 
   audio.start(Serial3);
 
-  // Ask for some Wav Trigger information.
-  audio.requestVersionString();
-  audio.requestSystemInfo();
-
-  delay(10);
-
-  // Stop all tracks.
-  audio.stopAllTracks();
-
-  // Reset the sample rate offset. Only for the WAV Trigger.
-  audio.samplerateOffset(0);
-
-  audio.masterGain(i_volume_abs_min); // Reset the master gain db. Range is -70 to 0. Bootup the system muted, then we reset it after the system is loaded.
-
-  // Onboard amplifier on or off. Only for the WAV Trigger.
-  audio.setAmpPwr(b_onboard_amp_enabled);
-
-  // Enable track reporting. Only for the WAV Trigger.
-  audio.setReporting(true);
-
-  // Allow time for hello command and other data to return back.
-  delay(350);
-
-  if(audio.getVersion(gVersion)) {
-    // We found a WAV Trigger. Build the music track count.
-    if(audio.wasSysInfoRcvd()) {
-      // Only attempt to build a music track count if the WAV Trigger responded with RSP_SYSTEM_INFO.
-      buildMusicCount((uint16_t) audio.getNumTracks());
-    }
-    else {
-      debugln(F("Warning: RSP_SYSTEM_INFO not received!"));
-    }
-
-    AUDIO_DEVICE = A_WAV_TRIGGER;
-
-    debugln(F("Using WAV Trigger"));
-
-    return true;
+  uint16_t i_timeout = millis() + 1000;
+  
+  while(!audio.gpstarAudioHello() && millis() < i_timeout) {
+    audio.hello();
+    delay(10);
   }
-
-  audio.hello();
-
-  delay(350);
-
+  
   if(audio.gpstarAudioHello()) {
     if(audio.getVersionNumber() != 0) {
       AUDIO_DEVICE = A_GPSTAR_AUDIO_ADV;
@@ -944,14 +916,54 @@ bool setupAudioDevice() {
     debug(F("Version: "));
     debugln(audio.getVersionNumber());
 
-    buildMusicCount((uint16_t) audio.getNumTracks());
+    buildMusicCount(audio.getNumTracks());
     audio.gpstarLEDStatus(false);
+
+    return true;
+  }
+
+  // Reset the master gain db. Range is -70 to 0. Bootup the system muted, then we reset it after the system is loaded.
+  audio.masterGain(i_volume_abs_min);
+
+  // Stop all tracks.
+  audio.stopAllTracks();
+
+  // Ask for some WAV Trigger information.
+  audio.requestVersionString();
+  audio.requestSystemInfo();
+
+  // Delay to allow time for WAV Trigger to respond.
+  delay(10);
+
+  if(audio.getVersion(gVersion)) {
+    // We found a WAV Trigger. Build the music track count.
+    if(audio.wasSysInfoRcvd()) {
+      // Only attempt to build a music track count if the WAV Trigger responded with RSP_SYSTEM_INFO.
+      buildMusicCount(audio.getNumTracks());
+    }
+    else {
+      debugln(F("Warning: RSP_SYSTEM_INFO not received!"));
+    }
+
+    // Reset the sample rate offset. Only for the WAV Trigger.
+    audio.samplerateOffset(0);
+
+    // Onboard amplifier on or off. Only for the WAV Trigger.
+    audio.setAmpPwr(b_onboard_amp_enabled);
+
+    // Enable track reporting. Only for the WAV Trigger.
+    audio.setReporting(true);
+
+    AUDIO_DEVICE = A_WAV_TRIGGER;
+
+    debugln(F("Using WAV Trigger"));
 
     return true;
   }
   else {
     // No audio devices connected.
     AUDIO_DEVICE = A_NONE;
+    Serial3.end();
 
     debugln(F("No Audio Device"));
 

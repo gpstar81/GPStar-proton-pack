@@ -48,7 +48,7 @@ void updateProtonPackLEDCounts();
 /*
  * General EEPROM Variables
  */
-uint16_t i_eepromAddress = 0; // The address in the EEPROM to start reading from.
+const uint16_t i_eepromAddress = 0; // The address in the EEPROM to start reading from.
 
 /*
  * Data structure object for LED settings which are saved into the EEPROM memory.
@@ -121,7 +121,7 @@ void readEEPROM() {
     objLEDEEPROM obj_led_eeprom;
     EEPROM.get(i_eepromAddress, obj_led_eeprom);
 
-    if(obj_led_eeprom.powercell_count > 0 && obj_led_eeprom.powercell_count != 255) {
+    if(obj_led_eeprom.powercell_count == HASLAB_POWERCELL_LED_COUNT || obj_led_eeprom.powercell_count == FRUTTO_POWERCELL_LED_COUNT) {
       i_powercell_leds = obj_led_eeprom.powercell_count;
 
       switch(i_powercell_leds) {
@@ -146,7 +146,8 @@ void readEEPROM() {
       i_powercell_delay_2021 = POWERCELL_DELAY_2021_15_LED;
     }
 
-    if(obj_led_eeprom.cyclotron_count > 0 && obj_led_eeprom.cyclotron_count != 255) {
+    if(obj_led_eeprom.cyclotron_count == HASLAB_CYCLOTRON_LED_COUNT || obj_led_eeprom.cyclotron_count == FRUTTO_CYCLOTRON_LED_COUNT ||
+      obj_led_eeprom.cyclotron_count == FRUTTO_MAX_CYCLOTRON_LED_COUNT || obj_led_eeprom.cyclotron_count == OUTER_CYCLOTRON_LED_MAX) {
       i_cyclotron_leds = obj_led_eeprom.cyclotron_count;
     }
     else if(!b_power_meter_available) {
@@ -154,7 +155,8 @@ void readEEPROM() {
       i_cyclotron_leds = FRUTTO_MAX_CYCLOTRON_LED_COUNT;
     }
 
-    if(obj_led_eeprom.inner_cyclotron_count > 0 && obj_led_eeprom.inner_cyclotron_count != 255) {
+    if(obj_led_eeprom.inner_cyclotron_count == 12 || obj_led_eeprom.inner_cyclotron_count == 23 || obj_led_eeprom.inner_cyclotron_count == 24 ||
+      obj_led_eeprom.inner_cyclotron_count == 26 || obj_led_eeprom.inner_cyclotron_count == 35 || obj_led_eeprom.inner_cyclotron_count == 36) {
       i_inner_cyclotron_cake_num_leds = obj_led_eeprom.inner_cyclotron_count;
 
       switch(i_inner_cyclotron_cake_num_leds) {
@@ -191,16 +193,11 @@ void readEEPROM() {
       }
     }
 
-    if(obj_led_eeprom.cyclotron_cavity_count > 0 && obj_led_eeprom.cyclotron_cavity_count != 255) {
-      if(obj_led_eeprom.cyclotron_cavity_count > 20) {
-        i_inner_cyclotron_cavity_num_leds = 20;
-      }
-      else {
-        i_inner_cyclotron_cavity_num_leds = obj_led_eeprom.cyclotron_cavity_count;
-      }
+    if(obj_led_eeprom.cyclotron_cavity_count > 0 && obj_led_eeprom.cyclotron_cavity_count < 21) {
+      i_inner_cyclotron_cavity_num_leds = obj_led_eeprom.cyclotron_cavity_count;
     }
 
-    if(obj_led_eeprom.cyclotron_cavity_type > 0 && obj_led_eeprom.cyclotron_cavity_type != 255) {
+    if(obj_led_eeprom.cyclotron_cavity_type > 0 && obj_led_eeprom.cyclotron_cavity_type < 5) {
       if(obj_led_eeprom.cyclotron_cavity_type > 1) {
         // 2 = RGB, 3 = GRB, 4 = GBR.
         switch(obj_led_eeprom.cyclotron_cavity_type) {
@@ -220,7 +217,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_led_eeprom.powercell_inverted > 0 && obj_led_eeprom.powercell_inverted != 255) {
+    if(obj_led_eeprom.powercell_inverted > 0 && obj_led_eeprom.powercell_inverted < 3) {
       if(obj_led_eeprom.powercell_inverted > 1) {
         b_powercell_invert = true;
       }
@@ -229,7 +226,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_led_eeprom.inner_cyclotron_led_panel > 0 && obj_led_eeprom.inner_cyclotron_led_panel != 255) {
+    if(obj_led_eeprom.inner_cyclotron_led_panel > 0 && obj_led_eeprom.inner_cyclotron_led_panel < 5) {
       if(obj_led_eeprom.inner_cyclotron_led_panel > 1) {
         // 2 = Individual, 3 = RGB Static, 4 = RGB Dynamic.
         switch(obj_led_eeprom.inner_cyclotron_led_panel) {
@@ -249,7 +246,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_led_eeprom.grb_inner_cyclotron > 0 && obj_led_eeprom.grb_inner_cyclotron != 255) {
+    if(obj_led_eeprom.grb_inner_cyclotron > 0 && obj_led_eeprom.grb_inner_cyclotron < 5) {
       if(obj_led_eeprom.grb_inner_cyclotron > 1) {
         CAKE_LED_TYPE = GRB_LED;
       }
@@ -282,19 +279,19 @@ void readEEPROM() {
       i_spectral_cyclotron_inner_custom_saturation = obj_led_eeprom.cyclotron_inner_spectral_saturation_custom;
     }
 
-    if(obj_led_eeprom.powercell_brightness > 0 && obj_led_eeprom.powercell_brightness != 255) {
+    if(obj_led_eeprom.powercell_brightness > 19 && obj_led_eeprom.powercell_brightness < 101) {
       i_powercell_brightness = obj_led_eeprom.powercell_brightness;
     }
 
-    if(obj_led_eeprom.cyclotron_brightness > 0 && obj_led_eeprom.cyclotron_brightness != 255) {
+    if(obj_led_eeprom.cyclotron_brightness > 19 && obj_led_eeprom.cyclotron_brightness < 101) {
       i_cyclotron_brightness = obj_led_eeprom.cyclotron_brightness;
     }
 
-    if(obj_led_eeprom.inner_cyclotron_brightness > 0 && obj_led_eeprom.inner_cyclotron_brightness != 255) {
+    if(obj_led_eeprom.inner_cyclotron_brightness > 19 && obj_led_eeprom.inner_cyclotron_brightness < 101) {
       i_cyclotron_inner_brightness = obj_led_eeprom.inner_cyclotron_brightness;
     }
 
-    if(obj_led_eeprom.inner_panel_brightness > 0 && obj_led_eeprom.inner_panel_brightness != 255) {
+    if(obj_led_eeprom.inner_panel_brightness > 19 && obj_led_eeprom.inner_panel_brightness < 101) {
       i_cyclotron_panel_brightness = obj_led_eeprom.inner_panel_brightness;
     }
 
@@ -309,7 +306,7 @@ void readEEPROM() {
 
     EEPROM.get(i_eepromConfigAddress, obj_config_eeprom);
 
-    if(obj_config_eeprom.stream_effects > 0 && obj_config_eeprom.stream_effects != 255) {
+    if(obj_config_eeprom.stream_effects > 0 && obj_config_eeprom.stream_effects < 3) {
       if(obj_config_eeprom.stream_effects > 1) {
         b_stream_effects = true;
       }
@@ -318,7 +315,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.cyclotron_direction > 0 && obj_config_eeprom.cyclotron_direction != 255) {
+    if(obj_config_eeprom.cyclotron_direction > 0 && obj_config_eeprom.cyclotron_direction < 3) {
       if(obj_config_eeprom.cyclotron_direction > 1) {
         b_clockwise = true;
       }
@@ -327,7 +324,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.center_led_fade > 0 && obj_config_eeprom.center_led_fade != 255) {
+    if(obj_config_eeprom.center_led_fade > 0 && obj_config_eeprom.center_led_fade < 3) {
       if(obj_config_eeprom.center_led_fade > 1) {
         b_fade_cyclotron_led = true;
       }
@@ -336,7 +333,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.simulate_ring > 0 && obj_config_eeprom.simulate_ring != 255) {
+    if(obj_config_eeprom.simulate_ring > 0 && obj_config_eeprom.simulate_ring < 3) {
       if(obj_config_eeprom.simulate_ring > 1) {
         b_cyclotron_simulate_ring = true;
       }
@@ -345,7 +342,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.smoke_setting > 0 && obj_config_eeprom.smoke_setting != 255) {
+    if(obj_config_eeprom.smoke_setting > 0 && obj_config_eeprom.smoke_setting < 3) {
       if(obj_config_eeprom.smoke_setting > 1) {
         b_smoke_enabled = true;
       }
@@ -354,7 +351,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.overheat_strobe > 0 && obj_config_eeprom.overheat_strobe != 255) {
+    if(obj_config_eeprom.overheat_strobe > 0 && obj_config_eeprom.overheat_strobe < 3) {
       if(obj_config_eeprom.overheat_strobe > 1) {
         b_overheat_strobe = true;
       }
@@ -363,7 +360,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.overheat_lights_off > 0 && obj_config_eeprom.overheat_lights_off != 255) {
+    if(obj_config_eeprom.overheat_lights_off > 0 && obj_config_eeprom.overheat_lights_off < 3) {
       if(obj_config_eeprom.overheat_lights_off > 1) {
         b_overheat_lights_off = true;
       }
@@ -372,7 +369,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.overheat_sync_to_fan > 0 && obj_config_eeprom.overheat_sync_to_fan != 255) {
+    if(obj_config_eeprom.overheat_sync_to_fan > 0 && obj_config_eeprom.overheat_sync_to_fan < 3) {
       if(obj_config_eeprom.overheat_sync_to_fan > 1) {
         b_overheat_sync_to_fan = true;
       }
@@ -381,7 +378,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.year_mode > 1 && obj_config_eeprom.year_mode != 255) {
+    if(obj_config_eeprom.year_mode > 1 && obj_config_eeprom.year_mode < 6) {
       // 1 = toggle switch, 2 = 1984, 3 = 1989, 4 = Afterlife, 5 = Frozen Empire.
       switch(obj_config_eeprom.year_mode) {
         case 2:
@@ -410,7 +407,7 @@ void readEEPROM() {
       b_switch_mode_override = true;
     }
 
-    if(obj_config_eeprom.system_mode > 0 && obj_config_eeprom.system_mode != 255) {
+    if(obj_config_eeprom.system_mode > 0 && obj_config_eeprom.system_mode < 3) {
       if(obj_config_eeprom.system_mode > 1) {
         SYSTEM_MODE = MODE_ORIGINAL;
       }
@@ -419,7 +416,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.vg_powercell > 0 && obj_config_eeprom.vg_powercell != 255) {
+    if(obj_config_eeprom.vg_powercell > 0 && obj_config_eeprom.vg_powercell < 3) {
       if(obj_config_eeprom.vg_powercell > 1) {
         b_powercell_colour_toggle = true;
       }
@@ -428,7 +425,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.vg_cyclotron > 0 && obj_config_eeprom.vg_cyclotron != 255) {
+    if(obj_config_eeprom.vg_cyclotron > 0 && obj_config_eeprom.vg_cyclotron < 3) {
       if(obj_config_eeprom.vg_cyclotron > 1) {
         b_cyclotron_colour_toggle = true;
       }
@@ -437,7 +434,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.demo_light_mode > 0 && obj_config_eeprom.demo_light_mode != 255) {
+    if(obj_config_eeprom.demo_light_mode > 0 && obj_config_eeprom.demo_light_mode < 3) {
       if(obj_config_eeprom.demo_light_mode > 1) {
         b_demo_light_mode = true;
       }
@@ -446,7 +443,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.use_ribbon_cable > 0 && obj_config_eeprom.use_ribbon_cable != 255) {
+    if(obj_config_eeprom.use_ribbon_cable > 0 && obj_config_eeprom.use_ribbon_cable < 3) {
       if(obj_config_eeprom.use_ribbon_cable > 1) {
         b_use_ribbon_cable = true;
       }
@@ -455,7 +452,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.cyclotron_three_led_toggle > 0 && obj_config_eeprom.cyclotron_three_led_toggle != 255) {
+    if(obj_config_eeprom.cyclotron_three_led_toggle > 0 && obj_config_eeprom.cyclotron_three_led_toggle < 3) {
       if(obj_config_eeprom.cyclotron_three_led_toggle > 1) {
         b_cyclotron_single_led = false;
       }
@@ -464,7 +461,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.default_system_volume > 0 && obj_config_eeprom.default_system_volume <= 101) {
+    if(obj_config_eeprom.default_system_volume > 0 && obj_config_eeprom.default_system_volume < 102) {
       // EEPROM value is from 1 to 101; subtract 1 to get the correct percentage.
       i_volume_master_percentage = obj_config_eeprom.default_system_volume - 1;
       i_volume_master_eeprom = (MINIMUM_VOLUME + i_volume_min_adj) - ((MINIMUM_VOLUME + i_volume_min_adj) * i_volume_master_percentage / 100);
@@ -472,27 +469,27 @@ void readEEPROM() {
       i_volume_master = i_volume_master_eeprom;
     }
 
-    if(obj_config_eeprom.overheat_smoke_duration_level_5 > 0 && obj_config_eeprom.overheat_smoke_duration_level_5 != 255) {
+    if(obj_config_eeprom.overheat_smoke_duration_level_5 > 0 && obj_config_eeprom.overheat_smoke_duration_level_5 < 61) {
       i_ms_overheating_length_5 = obj_config_eeprom.overheat_smoke_duration_level_5 * 1000;
     }
 
-    if(obj_config_eeprom.overheat_smoke_duration_level_4 > 0 && obj_config_eeprom.overheat_smoke_duration_level_4 != 255) {
+    if(obj_config_eeprom.overheat_smoke_duration_level_4 > 0 && obj_config_eeprom.overheat_smoke_duration_level_4 < 61) {
       i_ms_overheating_length_4 = obj_config_eeprom.overheat_smoke_duration_level_4 * 1000;
     }
 
-    if(obj_config_eeprom.overheat_smoke_duration_level_3 > 0 && obj_config_eeprom.overheat_smoke_duration_level_3 != 255) {
+    if(obj_config_eeprom.overheat_smoke_duration_level_3 > 0 && obj_config_eeprom.overheat_smoke_duration_level_3 < 61) {
       i_ms_overheating_length_3 = obj_config_eeprom.overheat_smoke_duration_level_3 * 1000;
     }
 
-    if(obj_config_eeprom.overheat_smoke_duration_level_2 > 0 && obj_config_eeprom.overheat_smoke_duration_level_2 != 255) {
+    if(obj_config_eeprom.overheat_smoke_duration_level_2 > 0 && obj_config_eeprom.overheat_smoke_duration_level_2 < 61) {
       i_ms_overheating_length_2 = obj_config_eeprom.overheat_smoke_duration_level_2 * 1000;
     }
 
-    if(obj_config_eeprom.overheat_smoke_duration_level_1 > 0 && obj_config_eeprom.overheat_smoke_duration_level_1 != 255) {
+    if(obj_config_eeprom.overheat_smoke_duration_level_1 > 0 && obj_config_eeprom.overheat_smoke_duration_level_1 < 61) {
       i_ms_overheating_length_1 = obj_config_eeprom.overheat_smoke_duration_level_1 * 1000;
     }
 
-    if(obj_config_eeprom.smoke_continuous_level_5 > 0 && obj_config_eeprom.smoke_continuous_level_5 != 255) {
+    if(obj_config_eeprom.smoke_continuous_level_5 > 0 && obj_config_eeprom.smoke_continuous_level_5 < 3) {
       if(obj_config_eeprom.smoke_continuous_level_5 > 1) {
         b_smoke_continuous_level_5 = true;
       }
@@ -501,7 +498,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.smoke_continuous_level_4 > 0 && obj_config_eeprom.smoke_continuous_level_4 != 255) {
+    if(obj_config_eeprom.smoke_continuous_level_4 > 0 && obj_config_eeprom.smoke_continuous_level_4 < 3) {
       if(obj_config_eeprom.smoke_continuous_level_4 > 1) {
         b_smoke_continuous_level_4 = true;
       }
@@ -510,7 +507,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.smoke_continuous_level_3 > 0 && obj_config_eeprom.smoke_continuous_level_3 != 255) {
+    if(obj_config_eeprom.smoke_continuous_level_3 > 0 && obj_config_eeprom.smoke_continuous_level_3 < 3) {
       if(obj_config_eeprom.smoke_continuous_level_3 > 1) {
         b_smoke_continuous_level_3 = true;
       }
@@ -519,7 +516,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.smoke_continuous_level_2 > 0 && obj_config_eeprom.smoke_continuous_level_2 != 255) {
+    if(obj_config_eeprom.smoke_continuous_level_2 > 0 && obj_config_eeprom.smoke_continuous_level_2 < 3) {
       if(obj_config_eeprom.smoke_continuous_level_2 > 1) {
         b_smoke_continuous_level_2 = true;
       }
@@ -528,7 +525,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.smoke_continuous_level_1 > 0 && obj_config_eeprom.smoke_continuous_level_1 != 255) {
+    if(obj_config_eeprom.smoke_continuous_level_1 > 0 && obj_config_eeprom.smoke_continuous_level_1 < 3) {
       if(obj_config_eeprom.smoke_continuous_level_1 > 1) {
         b_smoke_continuous_level_1 = true;
       }
@@ -537,7 +534,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.pack_vibration > 0 && obj_config_eeprom.pack_vibration != 255) {
+    if(obj_config_eeprom.pack_vibration > 0 && obj_config_eeprom.pack_vibration < 6) {
       switch(obj_config_eeprom.pack_vibration) {
         case 5:
           VIBRATION_MODE_EEPROM = CYCLOTRON_MOTOR;
@@ -582,8 +579,8 @@ void readEEPROM() {
 
 void clearLEDEEPROM() {
   // Clear out the EEPROM only in the memory addresses used for our EEPROM data object.
-  for(uint16_t i = 0; i < sizeof(objLEDEEPROM); i++) {
-    EEPROM.update(i, 0);
+  for(uint16_t i = i_eepromAddress; i < sizeof(objLEDEEPROM); i++) {
+    EEPROM.update(i, 0xFF); // Write 0xFF to each address
   }
 
   updateCRCEEPROM();
@@ -673,10 +670,8 @@ void clearConfigEEPROM() {
   // Clear out the EEPROM data for the configuration settings only.
   uint16_t i_eepromConfigAddress = i_eepromAddress + sizeof(objLEDEEPROM);
 
-  for(uint16_t i = 0; i < sizeof(objConfigEEPROM); i++) {
-    EEPROM.update(i_eepromConfigAddress, 0);
-
-    i_eepromConfigAddress++;
+  for(; i_eepromConfigAddress < sizeof(objConfigEEPROM); i_eepromConfigAddress++) {
+    EEPROM.update(i_eepromConfigAddress, 0xFF); // Write 0xFF to each address
   }
 
   updateCRCEEPROM();
@@ -825,7 +820,7 @@ void saveConfigEEPROM() {
 
   uint16_t i_eepromConfigAddress = i_eepromAddress + sizeof(objLEDEEPROM);
 
-  objConfigEEPROM obj_led_eeprom = {
+  objConfigEEPROM obj_config_eeprom = {
     i_proton_stream_effects,
     i_cyclotron_direction,
     i_center_led_fade,
@@ -856,7 +851,7 @@ void saveConfigEEPROM() {
   };
 
   // Save and update our object in the EEPROM.
-  EEPROM.put(i_eepromConfigAddress, obj_led_eeprom);
+  EEPROM.put(i_eepromConfigAddress, obj_config_eeprom);
 
   updateCRCEEPROM();
 }
@@ -869,7 +864,7 @@ void updateCRCEEPROM() {
 uint32_t eepromCRC(void) {
   CRC32 crc;
 
-  for(uint16_t index = 0; index < (i_eepromAddress + sizeof(objConfigEEPROM) + sizeof(objLEDEEPROM)); index++) {
+  for(uint16_t index = i_eepromAddress; index < (i_eepromAddress + sizeof(objConfigEEPROM) + sizeof(objLEDEEPROM)); index++) {
     crc.update(EEPROM[index]);
   }
 

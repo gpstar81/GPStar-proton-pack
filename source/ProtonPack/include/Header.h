@@ -221,10 +221,10 @@ uint16_t i_outer_current_ramp_speed = i_2021_ramp_delay;
 uint8_t i_cyclotron_multiplier = 1;
 millisDelay ms_cyclotron_auto_speed_timer; // A timer that is active while firing only in Afterlife and Frozen Empire. Used to speed up the Cyclotron by small increments based on the wand power level.
 const uint16_t i_cyclotron_auto_speed_timer_length = 15000;
-bool b_2021_ramp_up = true;
-bool b_2021_ramp_up_start = true;
-bool b_2021_ramp_down_start = false;
-bool b_2021_ramp_down = false;
+bool b_ramp_up = true;
+bool b_ramp_up_start = true;
+bool b_ramp_down_start = false;
+bool b_ramp_down = false;
 bool b_reset_start_led = true;
 bool b_1984_led_start = true;
 millisDelay ms_cyclotron;
@@ -233,7 +233,7 @@ rampUnsignedInt r_outer_cyclotron_ramp;
 bool b_cyclotron_led_fading_in[OUTER_CYCLOTRON_LED_MAX] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
 ramp r_cyclotron_led_fade_out[OUTER_CYCLOTRON_LED_MAX] = {};
 ramp r_cyclotron_led_fade_in[OUTER_CYCLOTRON_LED_MAX] = {};
-uint8_t i_cyclotron_led_value[OUTER_CYCLOTRON_LED_MAX] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+uint8_t i_cyclotron_led_value[OUTER_CYCLOTRON_LED_MAX] = {};
 uint8_t i_cyclotron_fake_ring_counter = 0; // Counter used by the ring simulation code to count how many times we have processed the "0" value in the matrix.
 bool b_cyclotron_lid_on = true;
 bool b_brass_pack_sound_loop = false;

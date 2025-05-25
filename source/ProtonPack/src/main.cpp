@@ -260,7 +260,7 @@ void loop() {
       checkPowerMeter();
     }
 
-    switch (PACK_STATE) {
+    switch(PACK_STATE) {
       case MODE_OFF:
         // Turn on the status indicator LED.
         digitalWriteFast(PACK_STATUS_LED_PIN, HIGH);
@@ -271,12 +271,12 @@ void loop() {
         }
 
         if(b_pack_on) {
-          b_2021_ramp_up = false;
-          b_2021_ramp_up_start = false;
+          b_ramp_up = false;
+          b_ramp_up_start = false;
           b_inner_ramp_up = false;
           b_fade_out = true;
 
-          reset2021RampDown();
+          resetRampDown();
 
           b_pack_shutting_down = true;
 
@@ -289,7 +289,7 @@ void loop() {
           b_pack_on = false;
         }
 
-        if(b_2021_ramp_down && !b_overheating && !b_alarm) {
+        if(b_ramp_down && !b_overheating && !b_alarm) {
           if(b_spectral_lights_on) {
             // If we enter the LED EEPROM menu while the pack is ramping off, stop it right away.
             packOffReset();
@@ -342,12 +342,12 @@ void loop() {
           b_pack_on = true;
         }
 
-        if(b_2021_ramp_down && !ms_mash_lockout.isRunning()) {
-          b_2021_ramp_down = false;
-          b_2021_ramp_down_start = false;
+        if(b_ramp_down && !ms_mash_lockout.isRunning()) {
+          b_ramp_down = false;
+          b_ramp_down_start = false;
           b_inner_ramp_down = false;
 
-          reset2021RampUp();
+          resetRampUp();
         }
 
         if(ribbonCableAttached() && !b_overheating) {
@@ -371,7 +371,7 @@ void loop() {
 
             b_alarm = false;
 
-            reset2021RampUp();
+            resetRampUp();
 
             stopEffect(S_PACK_RECOVERY);
             playEffect(S_PACK_RECOVERY);
@@ -414,7 +414,7 @@ void loop() {
 
             uint16_t i_s_random = random(2,4) * 1000; // 2 or 3 seconds
 
-            switch (i_random) {
+            switch(i_random) {
               case 3:
                 playEffect(S_FIRE_SPARKS, false, i_volume_effects, false, 0, false);
                 i_last_firing_effect_mix = S_FIRE_SPARKS;

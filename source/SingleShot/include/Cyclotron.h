@@ -93,7 +93,7 @@ void updateCyclotron(uint8_t i_colour) {
     }
 
     // Toggle state and reset brightness variables after fade-in is complete.
-    if (si_brightness_in == i_cyclotron_max_brightness && si_brightness_out == i_cyclotron_min_brightness) {
+    if(si_brightness_in == i_cyclotron_max_brightness && si_brightness_out == i_cyclotron_min_brightness) {
       sb_toggle = !sb_toggle;
       si_brightness_in = i_cyclotron_min_brightness;
       si_brightness_out = i_cyclotron_max_brightness;
