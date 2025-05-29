@@ -305,10 +305,15 @@ void bargraphClearAlt() {
 }
 
 void soundBeepLoopStop() {
+  // First we need to reset the idle timer to prevent audio overlaps
+  if(switch_wand.on() && switch_vent.on() && switch_activate.on() && WAND_STATUS == MODE_ON) {
+    ms_reset_sound_beep.start(i_sound_timer);
+  }
+
   if(b_beeping) {
     b_beeping = false;
 
-    if(switch_wand.on()) {
+    if(switch_wand.on() && switch_vent.on() && switch_activate.on() && WAND_STATUS == MODE_ON) {
       // Set all beep looping to false so they stop naturally.
       audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S1, false);
       audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S2, false);
@@ -319,8 +324,6 @@ void soundBeepLoopStop() {
       if(b_extra_pack_sounds) {
         wandSerialSend(W_WAND_BEEP_STOP_LOOP);
       }
-
-      ms_reset_sound_beep.start(i_sound_timer);
     }
     else {
       // Stop all beeps explicitly to prevent rapid switching from taking up all available channels.
@@ -935,7 +938,7 @@ void bargraphRampUp() {
 
           // Adjust the ramp down speed if necessary.
           if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
-            i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 2;
+            i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021 / 2;
           }
         }
         else {
@@ -1151,7 +1154,7 @@ void bargraphRampUp() {
 
           // Adjust the ramp down speed if necessary.
           if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
-            i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 2;
+            i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021 / 2;
           }
         }
         else {
@@ -1573,10 +1576,10 @@ void afterlifeRampSound1() {
 
 void postActivation() {
   if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
-    i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;
+    i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
   }
   else {
-    i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984 * 2;
+    i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984 * 2;
   }
 
   // Stop the heatdown sound if playing.
@@ -2587,7 +2590,7 @@ void modeFireStop() {
         default:
           bargraphClearAlt();
 
-          i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 3;
+          i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021 / 3;
 
           bargraphRampUp();
         break;
@@ -2605,7 +2608,7 @@ void modeFireStop() {
       i_bargraph_status_alt = 0;
       bargraphClearAlt();
 
-      i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
+      i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984;
 
       if(b_pack_alarm) {
         // We are going to ramp the bargraph down if the pack alarm happens while we were firing.
@@ -8333,7 +8336,7 @@ void firePulseEffect() {
           default:
             bargraphClearAlt();
 
-            i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 3;
+            i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021 / 3;
 
             bargraphRampUp();
           break;
@@ -8346,7 +8349,7 @@ void firePulseEffect() {
         i_bargraph_status_alt = 0;
         bargraphClearAlt();
 
-        i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
+        i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984;
 
         // We ramp the bargraph back up after finishing firing.
         bargraphRampUp();
