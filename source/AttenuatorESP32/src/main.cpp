@@ -432,7 +432,7 @@ void setup() {
   }
 
   // RGB LEDs for effects (upper/lower) and user status (top).
-  FastLED.addLeds<NEOPIXEL, DEVICE_LED_PIN>(device_leds, DEVICE_NUM_LEDS);
+  FastLED.addLeds<NEOPIXEL, DEVICE_LED_PIN>(device_leds, DEVICE_NUM_LEDS).setCorrection(TypicalLEDStrip);
 
   // Set all LEDs as off (black) until the device is ready.
   device_leds[0] = getHueAsRGB(0, C_BLACK);

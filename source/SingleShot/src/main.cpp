@@ -99,10 +99,10 @@ void setup() {
   TCCR1B = (TCCR1B & B11111000) | B00000100; // for PWM frequency of 122.55 Hz
 
   // System LEDs
-  FastLED.addLeds<NEOPIXEL, SYSTEM_LED_PIN>(system_leds, CYCLOTRON_LED_COUNT + BARREL_LED_COUNT);
+  FastLED.addLeds<NEOPIXEL, SYSTEM_LED_PIN>(system_leds, CYCLOTRON_LED_COUNT + BARREL_LED_COUNT).setCorrection(TypicalLEDStrip);
 
   // RGB Vent Light
-  FastLED.addLeds<NEOPIXEL, TOP_LED_PIN>(vent_leds, VENT_LEDS_MAX);
+  FastLED.addLeds<NEOPIXEL, TOP_LED_PIN>(vent_leds, VENT_LEDS_MAX).setCorrection(TypicalLEDStrip);
   vent_leds[0] = getHueAsRGB(C_WHITE); // Set vent light array to white for initial reset.
   vent_leds[1] = getHueAsRGB(C_WHITE); // Set top light array to white for initial reset.
 

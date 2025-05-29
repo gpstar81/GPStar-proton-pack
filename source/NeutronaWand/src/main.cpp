@@ -85,10 +85,10 @@ void setup() {
   TCCR1B = (TCCR1B & B11111000) | B00000100; // for PWM frequency of 122.55 Hz
 
   // Barrel LEDs - NOTE: These are GRB not RGB so note that all CRGB objects will have R/G swapped.
-  FastLED.addLeds<NEOPIXEL, BARREL_LED_PIN>(barrel_leds, BARREL_LEDS_MAX);
+  FastLED.addLeds<NEOPIXEL, BARREL_LED_PIN>(barrel_leds, BARREL_LEDS_MAX).setCorrection(TypicalLEDStrip);
 
   // RGB Vent Light.
-  FastLED.addLeds<NEOPIXEL, TOP_LED_PIN>(vent_leds, VENT_LEDS_MAX);
+  FastLED.addLeds<NEOPIXEL, TOP_LED_PIN>(vent_leds, VENT_LEDS_MAX).setCorrection(TypicalLEDStrip);
   vent_leds[0] = getHueAsRGB(C_WHITE); // Set vent light array to white for initial reset.
   vent_leds[1] = getHueAsRGB(C_WHITE); // Set top light array to white for initial reset.
   ms_vent_light.start(i_vent_light_update_interval); // Setup a timer for updating the vent light.
