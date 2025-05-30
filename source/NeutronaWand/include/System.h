@@ -348,102 +348,42 @@ void soundBeepLoop() {
       // Quick check to know if effects belong to the next-gen movies (as opposed to the OG 80's themes).
       bool b_next_gen = (getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE);
 
-      switch(i_power_level) {
-        case 1:
-        default:
-          if(b_next_gen && b_beep_loop) {
-            if(b_extra_pack_sounds) {
-              wandSerialSend(W_WAND_BEEP_START);
-            }
+      if(b_next_gen && b_beep_loop) {
+        if(b_extra_pack_sounds) {
+          wandSerialSend(W_WAND_BEEP_START);
+        }
 
+        switch(i_power_level) {
+          case 1:
+          default:
             playEffect(S_AFTERLIFE_BEEP_WAND_S1, true);
-          }
-          else {
-            if(switch_wand.switched()) {
-              if(b_extra_pack_sounds) {
-                wandSerialSend(W_WAND_BEEP);
-              }
+          break;
 
-              playEffect(S_AFTERLIFE_BEEP_WAND_S5);
-            }
-          }
-        break;
-
-        case 2:
-         if(b_next_gen && b_beep_loop) {
-            if(b_extra_pack_sounds) {
-              wandSerialSend(W_WAND_BEEP_START);
-            }
-
+          case 2:
             playEffect(S_AFTERLIFE_BEEP_WAND_S2, true);
-          }
-          else {
-            if(switch_wand.switched()) {
-              if(b_extra_pack_sounds) {
-                wandSerialSend(W_WAND_BEEP);
-              }
+          break;
 
-              playEffect(S_AFTERLIFE_BEEP_WAND_S5);
-            }
-          }
-        break;
-
-        case 3:
-         if(b_next_gen && b_beep_loop) {
-            if(b_extra_pack_sounds) {
-              wandSerialSend(W_WAND_BEEP_START);
-            }
-
+          case 3:
             playEffect(S_AFTERLIFE_BEEP_WAND_S3, true);
-          }
-          else {
-            if(switch_wand.switched()) {
-              if(b_extra_pack_sounds) {
-                wandSerialSend(W_WAND_BEEP);
-              }
+          break;
 
-              playEffect(S_AFTERLIFE_BEEP_WAND_S5);
-            }
-          }
-        break;
-
-        case 4:
-         if(b_next_gen && b_beep_loop) {
-            if(b_extra_pack_sounds) {
-              wandSerialSend(W_WAND_BEEP_START);
-            }
-
+          case 4:
             playEffect(S_AFTERLIFE_BEEP_WAND_S4, true);
-          }
-          else {
-            if(switch_wand.switched()) {
-              if(b_extra_pack_sounds) {
-                wandSerialSend(W_WAND_BEEP);
-              }
+          break;
 
-              playEffect(S_AFTERLIFE_BEEP_WAND_S5);
-            }
-          }
-        break;
-
-        case 5:
-         if(b_next_gen && b_beep_loop) {
-            if(b_extra_pack_sounds) {
-              wandSerialSend(W_WAND_BEEP_START);
-            }
-
+          case 5:
             playEffect(S_AFTERLIFE_BEEP_WAND_S5, true);
+          break;
+        }
+      }
+      else {
+        if(switch_wand.switched()) {
+          if(b_extra_pack_sounds) {
+            wandSerialSend(W_WAND_BEEP);
           }
-          else {
-            if(switch_wand.switched()) {
-              if(b_extra_pack_sounds) {
-                wandSerialSend(W_WAND_BEEP);
-              }
 
-              playEffect(S_AFTERLIFE_BEEP_WAND_S5);
-            }
-          }
-        break;
+          playEffect(S_AFTERLIFE_BEEP_WAND_S5);
+        }
       }
 
       b_beeping = true;

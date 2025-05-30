@@ -358,7 +358,7 @@ const uint16_t i_bargraph_beep_delay = 1600;
  * A timer to prevent the wand beep from restarting too rapidly in Afterlife & Frozen Empire modes.
  */
 millisDelay ms_reset_sound_beep;
-const uint16_t i_sound_timer = 1750;
+const uint16_t i_sound_timer = 500;
 
 /*
  * Wand tip heatup timers (when changing firing modes).
