@@ -245,7 +245,6 @@ uint8_t wandSwitchedCount = 0;
 const uint8_t i_bargraph_segments_5_led = 5;
 const uint8_t i_bargraph_5_led_invert[i_bargraph_segments_5_led] PROGMEM = {BARGRAPH_LED_5_PIN, BARGRAPH_LED_4_PIN, BARGRAPH_LED_3_PIN, BARGRAPH_LED_2_PIN, BARGRAPH_LED_1_PIN};
 const uint8_t i_bargraph_5_led_normal[i_bargraph_segments_5_led] PROGMEM = {BARGRAPH_LED_1_PIN, BARGRAPH_LED_2_PIN, BARGRAPH_LED_3_PIN, BARGRAPH_LED_4_PIN, BARGRAPH_LED_5_PIN};
-bool b_bargraph_status_5[i_bargraph_segments_5_led] = {};
 
 /*
  * Afterlife/Frozen Empire wand idle ramp transition timers.
@@ -330,7 +329,6 @@ const uint8_t i_bargraph_segments = 30;
 const uint8_t i_bargraph_invert[i_bargraph_segments - 2] PROGMEM = {54, 38, 22, 6, 53, 37, 21, 5, 52, 36, 20, 4, 51, 35, 19, 3, 50, 34, 18, 2, 49, 33, 17, 1, 48, 32, 16, 0};
 const uint8_t i_bargraph_normal[i_bargraph_segments - 2] PROGMEM = {0, 16, 32, 48, 1, 17, 33, 49, 2, 18, 34, 50, 3, 19, 35, 51, 4, 20, 36, 52, 5, 21, 37, 53, 6, 22, 38, 54};
 const uint8_t i_bargraph_power_table_28[i_power_level_max + 1] PROGMEM = {0, 4, 11, 16, 22, 27};
-bool b_bargraph_status[i_bargraph_segments] = {};
 
 /*
   30 Segment bargraph mapping.
