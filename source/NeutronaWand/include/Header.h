@@ -157,8 +157,13 @@ const uint8_t frutto_barrel[48] PROGMEM = {0, 25, 24, 48, 1, 26, 23, 47, 2, 27, 
  * Supported options: Stock (5), GPStar Neturona Barrel (48 + 2 Strobe Tips), GPStar Barrel LED Mini (2) and Frutto Technology (48 + Strobe Tip)
  */
 uint8_t i_num_barrel_leds = 5;
-enum WAND_BARREL_LED_COUNTS { LEDS_5, LEDS_48, LEDS_50, LEDS_2 };
-enum WAND_BARREL_LED_COUNTS WAND_BARREL_LED_COUNT;
+enum WAND_BARREL_LED_COUNTS : uint8_t {
+  LEDS_UNKNOWN = 0,
+  LEDS_2 = 2,
+  LEDS_5 = 5,
+  LEDS_48 = 48,
+  LEDS_50 = 50
+} WAND_BARREL_LED_COUNT;
 
 /*
  * Delay for fastled to update the addressable LEDs.
@@ -301,9 +306,13 @@ HT16K33 ht_bargraph;
  * The Frutto 28-segment bargraph is automatically detected on boot and sets this to true.
  * Part #: BL28Z-3005SA04Y
  */
-enum BARGRAPH_TYPES { SEGMENTS_5, SEGMENTS_28, SEGMENTS_30 };
-enum BARGRAPH_TYPES BARGRAPH_TYPE;
-enum BARGRAPH_TYPES BARGRAPH_TYPE_EEPROM;
+enum BARGRAPH_TYPES : uint8_t {
+  SEGMENTS_UNKNOWN = 0,
+  SEGMENTS_5 = 5,
+  SEGMENTS_28 = 28,
+  SEGMENTS_30 = 30
+} BARGRAPH_TYPE;
+BARGRAPH_TYPES BARGRAPH_TYPE_EEPROM = SEGMENTS_28;
 
 const uint8_t i_bargraph_interval = 4;
 const uint8_t i_bargraph_wait = 180;
