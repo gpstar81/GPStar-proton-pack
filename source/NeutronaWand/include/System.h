@@ -947,7 +947,7 @@ void bargraphRampUp() {
       break;
 
       case 28 ... 55:
-        uint8_t i_tmp = i_bargraph_status_alt - (i_bargraph_segments - 2);
+        uint8_t i_tmp = i_bargraph_status_alt - (i_bargraph_segments - 3);
         i_tmp = (i_bargraph_segments - 2) - i_tmp;
 
         if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm) {
