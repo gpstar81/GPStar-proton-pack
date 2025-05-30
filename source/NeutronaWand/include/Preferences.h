@@ -429,8 +429,8 @@ void readEEPROM() {
       i_spectral_wand_custom_saturation = obj_led_eeprom.barrel_spectral_saturation_custom;
     }
 
-    if(obj_led_eeprom.num_barrel_leds == LEDS_2 || obj_led_eeprom.num_barrel_leds == LEDS_5 ||
-      obj_led_eeprom.num_barrel_leds == LEDS_48 || obj_led_eeprom.num_barrel_leds == LEDS_50) {
+    if(obj_led_eeprom.num_barrel_leds == 2 || obj_led_eeprom.num_barrel_leds == 5 ||
+      obj_led_eeprom.num_barrel_leds == 48 || obj_led_eeprom.num_barrel_leds == 50) {
       i_num_barrel_leds = obj_led_eeprom.num_barrel_leds;
 
       switch(i_num_barrel_leds) {
@@ -454,7 +454,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_led_eeprom.num_bargraph_leds == SEGMENTS_28 || obj_led_eeprom.num_bargraph_leds == SEGMENTS_30) {
+    if(obj_led_eeprom.num_bargraph_leds == 28 || obj_led_eeprom.num_bargraph_leds == 30) {
       if(obj_led_eeprom.num_bargraph_leds < 30) {
         BARGRAPH_TYPE_EEPROM = SEGMENTS_28;
       }
@@ -506,7 +506,7 @@ void saveLEDEEPROM() {
     i_barrel_led_count = 48;
   }
   else if(WAND_BARREL_LED_COUNT == LEDS_50) {
-    i_barrel_led_count = 50; // Needs to be a 50. However we change it back to 48 after it is saved to the EEPROM.
+    i_barrel_led_count = 50;
   }
   else if(WAND_BARREL_LED_COUNT == LEDS_2) {
     i_barrel_led_count = 2;
@@ -533,10 +533,6 @@ void saveLEDEEPROM() {
   EEPROM.put(i_eepromLEDAddress, obj_led_eeprom);
 
   updateCRCEEPROM();
-
-  if(WAND_BARREL_LED_COUNT == LEDS_50) {
-    i_barrel_led_count = 48; // Needs to be reset back to 48 while 50 is stored in the EEPROM. 2 are for the tip.
-  }
 }
 
 void clearConfigEEPROM() {
