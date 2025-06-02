@@ -672,7 +672,7 @@ void vibrationWand(uint8_t i_level) {
   if(VIBRATION_MODE != VIBRATION_NONE && b_vibration_switch_on && WAND_ACTION_STATUS != ACTION_OVERHEATING && !b_pack_alarm && b_pack_on && i_level > 0) {
     // Vibrate the wand during firing only when enabled. (When enabled by the pack)
     if(VIBRATION_MODE == VIBRATION_FIRING_ONLY) {
-      if(WAND_ACTION_STATUS == ACTION_FIRING || (ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished())) {
+      if(WAND_ACTION_STATUS == ACTION_FIRING || ms_semi_automatic_firing.isRunning()) {
         if(ms_semi_automatic_firing.isRunning()) {
           if(i_vibration_level_current != (i_level * 2 < 256 ? i_level * 2 : 255)) {
             i_vibration_level_current = (i_level * 2 < 256 ? i_level * 2 : 255);
@@ -690,7 +690,7 @@ void vibrationWand(uint8_t i_level) {
     }
     else {
       // Wand vibrates even when idling, etc. (When enabled by the pack)
-      if(ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished()) {
+      if(ms_semi_automatic_firing.isRunning()) {
         if(i_vibration_level_current != (i_level * 2 < 256 ? i_level * 2 : 255)) {
           i_vibration_level_current = (i_level * 2 < 256 ? i_level * 2 : 255);
           analogWrite(VIBRATION_PIN, i_vibration_level_current);

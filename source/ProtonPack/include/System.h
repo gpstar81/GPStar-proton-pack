@@ -2491,27 +2491,25 @@ void cyclotronColourReset() {
 
 // Controls the slime cyclotron fadeout effect.
 void slimeCyclotronFadeout() {
-  //if(ms_cyclotron_slime_effect.justFinished()) {
-    bool b_leds_fading = false;
+  bool b_leds_fading = false;
 
-    for(uint8_t i = 0; i < i_cyclotron_leds; i++) {
-      pack_leds[i + i_cyclotron_led_start].fadeToBlackBy(1);
+  for(uint8_t i = 0; i < i_cyclotron_leds; i++) {
+    pack_leds[i + i_cyclotron_led_start].fadeToBlackBy(1);
 
-      if(!b_leds_fading && pack_leds[i + i_cyclotron_led_start]) {
-        b_leds_fading = true;
-      }
+    if(!b_leds_fading && pack_leds[i + i_cyclotron_led_start]) {
+      b_leds_fading = true;
     }
+  }
 
-    if(b_leds_fading) {
-      // At least one LED not off yet.
-      ms_cyclotron_slime_effect.start(30);
-    }
-    else {
-      // All LEDs faded to black.
-      ms_cyclotron_slime_effect.stop();
-      b_ramp_down = false;
-    }
-  //}
+  if(b_leds_fading) {
+    // At least one LED not off yet.
+    ms_cyclotron_slime_effect.start(30);
+  }
+  else {
+    // All LEDs faded to black.
+    ms_cyclotron_slime_effect.stop();
+    b_ramp_down = false;
+  }
 }
 
 // Controls the slime cyclotron effect.

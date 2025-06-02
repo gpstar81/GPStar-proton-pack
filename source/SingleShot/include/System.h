@@ -994,7 +994,7 @@ void vibrationDevice(uint8_t i_level) {
   if(VIBRATION_MODE != VIBRATION_NONE && i_level > 0) {
     // Vibrate the device during firing only when enabled.
     if(VIBRATION_MODE == VIBRATION_FIRING_ONLY) {
-      if(ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished()) {
+      if(ms_semi_automatic_firing.isRunning()) {
         if(i_vibration_level_current != (i_level * 2 < 256 ? i_level * 2 : 255)) {
           i_vibration_level_current = (i_level * 2 < 256 ? i_level * 2 : 255);
           analogWrite(vibration, i_vibration_level_current);
@@ -1006,7 +1006,7 @@ void vibrationDevice(uint8_t i_level) {
     }
     else {
       // Device vibrates even when idling, etc.
-      if(ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished()) {
+      if(ms_semi_automatic_firing.isRunning()) {
         if(i_vibration_level_current != (i_level * 2 < 256 ? i_level * 2 : 255)) {
           i_vibration_level_current = (i_level * 2 < 256 ? i_level * 2 : 255);
           analogWrite(vibration, i_vibration_level_current);
