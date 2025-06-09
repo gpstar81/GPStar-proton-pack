@@ -74,7 +74,7 @@ void animateLights() {
 
     for (int i = 0; i < DEVICE_NUM_LEDS; i++) {
       uint8_t i_brightness = map(sin8((i_led_position + i * 32) % 255), 0, 255, i_min_brightness, i_max_brightness);
-      
+
       switch(STREAM_MODE) {
         case PROTON:
           i_color = C_RED;
@@ -102,8 +102,14 @@ void animateLights() {
         break;
       }
 
-      //device_leds[i] = getHueAsRGB(PRIMARY_LED, i_color, 255 - i_brightness);
-      device_leds[i] = getHueAsGBR(PRIMARY_LED, i_color, 255 - i_brightness);
+      if (b_use_gbr) {
+        // Use GBR format for the device LEDs.
+        device_leds[i] = getHueAsGBR(PRIMARY_LED, i_color, 255 - i_brightness);
+      }
+      else {
+        // Use RGB format for the device LEDs.
+        device_leds[i] = getHueAsRGB(PRIMARY_LED, i_color, 255 - i_brightness);
+      }
     }
 
     i_led_position += i_animation_step; // Move the wave position by shifting position for the next update.

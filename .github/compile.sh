@@ -7,7 +7,7 @@ SRCDIR="../source"
 
 echo ""
 
-# COMPILE CORE DEVICES
+# COMPILE PACK/WAND COMPONENTS
 
 source ./compile_reset.sh
 source ./compile_pack.sh
@@ -18,7 +18,7 @@ source ./compile_wand.sh
 source ./compile_attenuator_esp.sh
 source ./compile_attenuator_esp_extras.sh
 
-# COMPILE STANDALONE/ADDON DEVICES
+# COMPILE STANDALONE/ADD-ON DEVICES
 
 source ./compile_blaster.sh
 source ./compile_gizmo.sh

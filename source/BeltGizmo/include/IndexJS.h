@@ -29,6 +29,7 @@ function onLoad(event) {
   getDevicePrefs(); // Get all preferences.
   initWebSocket(); // Open the WebSocket.
 }
+
 function initWebSocket() {
   console.log("Attempting to open a WebSocket connection...");
   let gateway = "ws://" + window.location.hostname + "/ws";
@@ -87,33 +88,6 @@ function getDevicePrefs() {
     }
   };
   xhttp.open("GET", "/config/device", true);
-  xhttp.send();
-}
-
-function doRestart() {
-  if (confirm("Are you sure you wish to restart the serial device?")) {
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 204) {
-        // Reload the page after 2 seconds.
-        setTimeout(function() {
-          window.location.reload();
-        }, 2000);
-      }
-    };
-    xhttp.open("DELETE", "/restart", true);
-    xhttp.send();
-  }
-}
-
-function sendCommand(apiUri) {
-  var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      handleStatus(this.responseText);
-    }
-  };
-  xhttp.open("PUT", apiUri, true);
   xhttp.send();
 }
 )=====";

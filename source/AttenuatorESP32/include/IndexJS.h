@@ -32,25 +32,7 @@ function onLoad(event) {
   setDefaultOverlays(); // Set graphics to defaults.
   getDevicePrefs(); // Get all preferences.
   initWebSocket(); // Open the WebSocket.
-  getStatus(); // Get status immediately.
-}
-
-function openTab(evt, tabName) {
-  // Hide all tab contents
-  var tabs = document.getElementsByClassName("tab");
-  for (var i = 0; i < tabs.length; i++) {
-      tabs[i].style.display = "none";
-  }
-
-  // Remove the active class from all tab links
-  var tablinks = document.getElementsByClassName("tablinks");
-  for (i = 0; i < tablinks.length; i++) {
-      tablinks[i].className = tablinks[i].className.replace(" active", "");
-  }
-
-  // Show the current tab and add an "active" class to the button that opened the tab
-  showEl(tabName);
-  evt.currentTarget.className += " active";
+  getStatus(updateEquipment); // Get status immediately.
 }
 
 function initWebSocket() {
@@ -84,7 +66,7 @@ function onClose(event) {
   // Fallback for when WebSocket is unavailable.
   if (!statusInterval) {
     statusInterval = setInterval(function() {
-      getStatus(); // Check for status every X seconds
+      getStatus(updateEquipment); // Check for status every X seconds
     }, 1000);
   }
 }
@@ -97,6 +79,50 @@ function onMessage(event) {
     // Anything else gets sent to console.
     console.log(event.data);
   }
+}
+
+function getDevicePrefs() {
+  // This is updated once per page load as it is not subject to frequent changes.
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var jObj = JSON.parse(this.responseText);
+      if (jObj) {
+        if (jObj.songList && jObj.songList != "") {
+          musicTrackList = jObj.songList.split("\n");
+          updateTrackListing();
+        }
+
+        // Device Info
+        setHtml("buildDate", "Build: " + (jObj.buildDate || ""));
+        setHtml("wifiName", jObj.wifiName || "");
+        if ((jObj.wifiNameExt || "") != "" && (jObj.extAddr || "") != "" || (jObj.extMask || "") != "") {
+          setHtml("extWifi", (jObj.wifiNameExt || "") + ": " + jObj.extAddr + " / " + jObj.extMask);
+        }
+
+        // Display Preference
+        switch(jObj.displayType || 0) {
+          case 0:
+            // Text-Only Display
+            hideEl("equipCRT");
+            showEl("equipTXT");
+            break;
+          case 1:
+            // Graphical Display
+            showEl("equipCRT");
+            hideEl("equipTXT");
+            break;
+          case 2:
+            // Both graphical and text
+            showEl("equipCRT");
+            showEl("equipTXT");
+            break;
+        }
+      }
+    }
+  };
+  xhttp.open("GET", "/config/device", true);
+  xhttp.send();
 }
 
 function removeOptions(selectElement) {
@@ -475,6 +501,18 @@ function updateEquipment(jObj) {
       setHtml("musicVolume", "Min");
     }
 
+    // Music Playback Status
+    if (jObj.musicPlaying && !jObj.musicPaused) {
+      // If music is playing (but not paused), show that status.
+      setHtml("playbackStatus", "Music Playing");
+    } else if (jObj.musicPaused) {
+      // If music is playing AND paused, show that status.
+      setHtml("playbackStatus", "Music Paused");
+    } else {
+      // If no music is playing or paused, show a default message.
+      setHtml("playbackStatus", "No Music Playing");
+    }
+
     // Update special UI elements based on the latest data values.
     setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron, jObj.switch, jObj.firing);
 
@@ -492,164 +530,5 @@ function updateEquipment(jObj) {
 
   // Always run logic to update the graphics, even if we don't have the expected data.
   updateGraphics(jObj);
-}
-
-function getStatus() {
-  var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      // Update the equipment (text) display, which will also update graphical elements.
-      updateEquipment(JSON.parse(this.responseText));
-    }
-  };
-  xhttp.open("GET", "/status", true);
-  xhttp.send();
-}
-
-function getDevicePrefs() {
-  // This is updated once per page load as it is not subject to frequent changes.
-  var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      var jObj = JSON.parse(this.responseText);
-      if (jObj) {
-        if (jObj.songList && jObj.songList != "") {
-          musicTrackList = jObj.songList.split("\n");
-          updateTrackListing();
-        }
-
-        // Device Info
-        setHtml("buildDate", "Build: " + (jObj.buildDate || ""));
-        setHtml("wifiName", jObj.wifiName || "");
-        if ((jObj.wifiNameExt || "") != "" && (jObj.extAddr || "") != "" || (jObj.extMask || "") != "") {
-          setHtml("extWifi", (jObj.wifiNameExt || "") + ": " + jObj.extAddr + " / " + jObj.extMask);
-        }
-
-        // Display Preference
-        switch(jObj.displayType || 0) {
-          case 0:
-            // Text-Only Display
-            hideEl("equipCRT");
-            showEl("equipTXT");
-            break;
-          case 1:
-            // Graphical Display
-            showEl("equipCRT");
-            hideEl("equipTXT");
-            break;
-          case 2:
-            // Both graphical and text
-            showEl("equipCRT");
-            showEl("equipTXT");
-            break;
-        }
-      }
-    }
-  };
-  xhttp.open("GET", "/config/device", true);
-  xhttp.send();
-}
-
-function doRestart() {
-  if (confirm("Are you sure you wish to restart the serial device?")) {
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 204) {
-        // Reload the page after 2 seconds.
-        setTimeout(function() {
-          window.location.reload();
-        }, 2000);
-      }
-    };
-    xhttp.open("DELETE", "/restart", true);
-    xhttp.send();
-  }
-}
-
-function sendCommand(apiUri) {
-  var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      handleStatus(this.responseText);
-    }
-  };
-  xhttp.open("PUT", apiUri, true);
-  xhttp.send();
-}
-
-function packOn() {
-  sendCommand("/pack/on");
-}
-
-function packOff() {
-  sendCommand("/pack/off");
-}
-
-function packAttenuate() {
-  sendCommand("/pack/attenuate");
-}
-
-function packVent() {
-  sendCommand("/pack/vent");
-}
-
-function packLOStart() {
-  sendCommand("/pack/lockout/start");
-}
-
-function packLOCancel() {
-  sendCommand("/pack/lockout/cancel");
-}
-
-function toggleMute() {
-  sendCommand("/volume/toggle");
-}
-
-function volSysUp() {
-  sendCommand("/volume/master/up");
-}
-
-function volSysDown() {
-  sendCommand("/volume/master/down");
-}
-
-function volFxUp() {
-  sendCommand("/volume/effects/up");
-}
-
-function volFxDown() {
-  sendCommand("/volume/effects/down");
-}
-
-function volMusicUp() {
-  sendCommand("/volume/music/up");
-}
-
-function volMusicDown() {
-  sendCommand("/volume/music/down");
-}
-
-function musicStartStop() {
-  sendCommand("/music/startstop");
-}
-
-function musicPauseResume() {
-  sendCommand("/music/pauseresume");
-}
-
-function musicNext() {
-  sendCommand("/music/next");
-}
-
-function musicSelect(caller) {
-  sendCommand("/music/select?track=" + caller.value);
-}
-
-function musicPrev() {
-  sendCommand("/music/prev");
-}
-
-function musicLoop() {
-  sendCommand("/music/loop");
 }
 )=====";

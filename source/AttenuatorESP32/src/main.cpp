@@ -407,6 +407,8 @@ void setup() {
     Serial.println(getCpuFrequencyMhz());
   #endif
 
+  btStop(); // Disable Bluetooth which is not needed for this hardware.
+
   // Assume the Super Hero arming mode with Afterlife (default for Haslab).
   SYSTEM_MODE = MODE_SUPER_HERO;
   RED_SWITCH_MODE = SWITCH_OFF;

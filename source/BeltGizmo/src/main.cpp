@@ -91,7 +91,7 @@ void AnimationTask(void *parameter) {
     // Update the device LEDs and restart the timer.
     FastLED.show();
 
-    vTaskDelay(8 / portTICK_PERIOD_MS); // 8ms delay
+    vTaskDelay(16 / portTICK_PERIOD_MS); // 16ms delay
   }
 }
 
@@ -259,12 +259,15 @@ void setup() {
     Serial.println(getCpuFrequencyMhz());
   #endif
 
+  btStop(); // Disable Bluetooth which is not needed for this hardware.
+
   // Boot into proton mode at level 1 by default.
   STREAM_MODE = PROTON;
   POWER_LEVEL = LEVEL_1;
 
   // Device RGB LEDs for use when needed.
   FastLED.addLeds<NEOPIXEL, DEVICE_LED_PIN>(device_leds, DEVICE_NUM_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.setBrightness(128); // Use a lower brightness (50%) to save power.
   ms_anim_change.start(i_animation_duration); // Default animation time.
 
   // Change the addressable LED to black by default.

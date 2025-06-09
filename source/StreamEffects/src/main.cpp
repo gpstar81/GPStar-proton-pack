@@ -269,6 +269,8 @@ void setup() {
     Serial.println(getCpuFrequencyMhz());
   #endif
 
+  btStop(); // Disable Bluetooth which is not needed for this hardware.
+
   // Boot into proton mode at level 1 by default.
   STREAM_MODE = PROTON;
   POWER_LEVEL = LEVEL_1;
