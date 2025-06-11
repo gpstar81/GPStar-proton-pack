@@ -1483,6 +1483,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       b_wand_connected = true; // Wand sent sync confirmation, so it must be connected.
       ms_wand_check.start(i_wand_disconnect_delay); // Wand is synchronized, so start the keep-alive timer.
       serial1Send(A_WAND_CONNECTED); // Tell the serial1 device the wand is (re-)connected.
+
+      if(b_demo_light_mode == true) {
+        // Demo light mode enabled. Send command to turn on the Neutrona Wand.
+        packSerialSend(P_TURN_WAND_ON);
+      }
     break;
 
     case W_ON:

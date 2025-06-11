@@ -1821,6 +1821,15 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
       playEffect(S_VOICE_INNER_CYCLOTRON_12);
     break;
+    
+    case P_TURN_WAND_ON:
+      if(WAND_STATUS == MODE_OFF && SYSTEM_MODE == MODE_SUPER_HERO) {
+        if(switch_activate.on() && WAND_ACTION_STATUS == ACTION_IDLE) {
+          // Turn wand and pack on.
+          WAND_ACTION_STATUS = ACTION_ACTIVATE;
+        }
+      }
+    break;
 
     case P_SAVE_EEPROM_WAND:
       // Commit changes to the EEPROM in the wand controller
