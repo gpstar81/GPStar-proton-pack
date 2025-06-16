@@ -2,10 +2,11 @@
 
 # Perform a compile of all binaries using their respective architectures.
 
-BINDIR="../binaries"
-SRCDIR="../source"
-
 echo ""
+
+# Current build timestamp and major version to be reflected in the builds for ESP32.
+MJVER="V6"
+TIMESTAMP=$(date +"%Y%m%d%H%M%S")
 
 # COMPILE PACK/WAND COMPONENTS
 

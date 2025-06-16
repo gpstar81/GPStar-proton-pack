@@ -9,8 +9,9 @@ SRCDIR="../source"
 
 mkdir -p ${BINDIR}/stream/extras
 
-# Current build timestamp to be reflected in the build for ESP32.
-TIMESTAMP=$(date +"%Y%m%d%H%M%S")
+# Current build timestamp and major version to be reflected in the build for ESP32.
+MJVER="${MJVER:="V6"}"
+TIMESTAMP="${TIMESTAMP:=$(date +"%Y%m%d%H%M%S")}"
 
 echo ""
 
@@ -18,8 +19,8 @@ echo ""
 PROJECT_DIR="$SRCDIR/StreamEffects"
 
 # Update date of compilation
-echo "Updating Build Timestamp:" $TIMESTAMP
-sed -i -e 's/\(String build_date = "\)[^"]*\(";\)/\1'"$TIMESTAMP"'\2/' ${PROJECT_DIR}/include/Configuration.h
+echo "Setting Build Timestamp: ${MJVER}_${TIMESTAMP}"
+sed -i -e 's/\(String build_date = "\)[^"]*\(";\)/\1'"${MJVER}_${TIMESTAMP}"'\2/' ${PROJECT_DIR}/include/Configuration.h
 
 # StreamEffects (ESP32 - Normal)
 echo "Building StreamEffects Binary (ESP32)..."
