@@ -18,7 +18,7 @@ Just see for yourself what this kit can do, and you'll be ready to believe us!
 
 ## Official Documentation
 
-Please find the official documentation in HTML format at [https://gpstar81.github.io/GPStar-proton-pack/](https://gpstar81.github.io/GPStar-proton-pack/)
+Please note that the documentation has moved and now exists in a new website hosted here on Github. You can now find the official documentation in HTML format at [https://gpstar81.github.io/GPStar-proton-pack/](https://gpstar81.github.io/GPStar-proton-pack/)
 
 ### Viewing MD Files
 
@@ -48,8 +48,6 @@ This project is made possible by Ghostbusters community makers and volunteers sp
 * Alexander Hibbs (@BeaulieuDesigns87) - For his equipment schematic as used in the WiFi web UI.
 
 Thank you to our supporters on [GBFans.com](https://www.gbfans.com/forum) and the [Facebook group](https://www.facebook.com/groups/gpstartechnologies).
-
-For those who are curious you can view a condensed [history of how this project began](HISTORY.md).
 
 ## Disclaimer
 
