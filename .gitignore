@@ -3,6 +3,7 @@ Thumbs.db
 *.bootloader.*
 *.partitions.*
 *.h-e
+*.log
 /source/*/.pio
 /source/*/.vscode
-*.log
+site/

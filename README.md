@@ -1,6 +1,6 @@
-<h1><img src='images/gpstar_logo.png' width=50 align="left"/>GPStar Proton Pack and Neutrona Wand</h1>
+<h1><img src='docs/images/gpstar_logo.png' width=50 align="left"/>GPStar Proton Pack and Neutrona Wand</h1>
 
-### Summary
+## Summary
 
 A fully integrated Proton Pack and Neutrona Wand, packed with features and add-ons. Compatible with the HasLab Plasma Series Proton Pack and Neutrona Wand, Mack's Proton Pack and Wand, and more!
 
@@ -11,164 +11,18 @@ A fully integrated Proton Pack and Neutrona Wand, packed with features and add-o
    - By implementing both the pack and wand controllers with an upgraded hose connection, both devices work seamlessly together. Interactions with the wand have an immediate effect on the pack, and vice-versa.
    - This functionality includes sound effects, alarm triggers, Cyclotron interaction, venting/overheat sequences, and proton stream effects (eg. video game colours and crossing the streams).
 
-## Feature Reel Demonstration ##
+## Feature Reel Demonstration
 
 Just see for yourself what this kit can do, and you'll be ready to believe us!
 [![GPStar Proton Pack and Neutrona Wand feature reel demonstration](https://img.youtube.com/vi/lDD9TEip7_s/maxresdefault.jpg)](https://www.youtube.com/watch?v=lDD9TEip7_s)
 
-## Table of Contents
+## Official Documentation
 
-*"Ray, pretend for a moment that I don't know anything about metallurgy, engineering, or physics, and just tell me what the hell is going on." -Dr. Venkman*
+Please find the official documentation in HTML format at [https://gpstar81.github.io/GPStar-proton-pack/](https://gpstar81.github.io/GPStar-proton-pack/)
 
-That's alright, this will help you study. Below you will find the various guides to build out your new electronic brains, and maybe find some cool new features to implement as part of the addendums.
+### Viewing MD Files
 
----
-
-<img src='images/gpstar_logo.png' width=50 align="left"/><h3>GPStar Proton Pack and Neutrona Wand PCB Guide</h3>These are the most important guides which will get you familiar with the major components and how to update them with the latest capabilities offered by software and sound effects. This includes guides to aid you in completing the connections and installation for the GPStar Proton Pack and Neutrona Wand PCB boards.
-
-1. [Pack PCB](PACK_PCB.md)
-
-1. [Wand PCB](WAND_PCB.md)
-
-1. [Flashing Firmware Updates](FLASHING.md)
-
-1. [GPStar Audio PCB](GPSTAR_AUDIO_PCB.md)
-
-1. [Loading The Audio Files](AUDIO.md)
-
-1. [Installation Video & Guide](INSTALL_GUIDE.md)
-
-1. [Troubleshooting](TROUBLESHOOTING.md)
-
-For more information about optional upgrades please see the "Component Guides" section below.
-
----
-
-### Serial1 Expansion Controller
-
-This is a device which utilize the available expansion port on the GPStar Proton Pack controller. At present the only supported uses are as an "Pack Attenuator" or a "Wireless Adapter". Both use-cases are provided by the same software which normally drives the Attenuator device--in the case of the wireless adapter is simply used without switches or other peripherals to only provide WiFi capability to your Proton Pack. Please read the following guides for more specific details. *Please note that the original Attenuator DIY guide used an Arduino Nano which is no longer capable of providing the storage space required by the full range of features supported and that hardware has been deprecated in favor of the ESP32 platform.*
-
-1. [Pack Attenuator](ATTENUATOR.md) - Full Device Implementation (w/ Switches and Inputs)
-
-1. [Wireless Adapter](WIRELESS.md) - Scaled-Down Attenuator (No Physical User Inputs)
-
----
-
-### By-Component Guides
-
-This section is presented in a way to offer a more complete view of what components are available (by major equipment areas), whether those components are Required<sup>R</sup> or Optional<sup>O</sup>, if choices are offerred at a specific component level. Where possible, each option will link to a related guide for more details and/or installation instructions.
-
-**Proton Pack**
-
-| **Component**          | **Option w/ Guide** |
-|------------------------|---------------------------------------------|
-| Power Source<sup>R</sup>    | [TalentCell 3000mAh or 6000mAh](POWER.md) |
-| Controller<sup>R</sup>      | [GPStar Pack Controller](PACK_PCB.md) or [Arduino 2560](PACK.md) |
-| Software<sup>R</sup>        | [Flashing the Latest Firmware](FLASHING.md) |
-| Audio Board<sup>R</sup>     | [GPStar Audio](GPSTAR_AUDIO_PCB.md) or [Robertsonics WAV Trigger](WAVTRIGGER.md) |
-| Speakers/Amp<sup>R</sup>    | [Audio Output Guide](SOUND.md) |
-| Sound Effects<sup>R</sup>   | [Loading The Audio Files](AUDIO.md) |
-| Cyclotron Lid<sup>O</sup>   | [12/20/36-LED options](CYCLOTRON_LID.md) |
-| Inner Cyclotron<sup>O</sup> | [Cake and Panel Lights](CYCLOTRON_INNER.md)
-| N-Filter<sup>O</sup>        | [7-LED Vent Light](NFILTER.md) |
-| Powercell<sup>O</sup>       | [13 and 15-LED options](POWERCELL.md) |
-| Smoke Effects<sup>O</sup>   | [Various Solutions Supported](SMOKE.md) |
-| Cyclotron Bypass<sup>R* & O</sup> | [Bypass board for non Haslab Proton Packs](CYCLOTRON_BYPASS.md) |
-
-**Connectivity**
-
-| **Component**   | **Option w/ Guide** |
-|-----------------|---------------------------------------------|
-| Wired<sup>R</sup>    | [Pack-Wand Hose Connections](HOSE.md)|
-| Wireless<sup>O</sup> | [Pack Attenuator](ATTENUATOR.md) or [Wireless Adapter](WIRELESS.md) |
-
-**Neutrona Wand**
-
-| **Component**        | **Option w/ Guide** |
-|----------------------|---------------------------------------------|
-| Power Source<sup>R</sup>  | Dedicated Wand Power Source (Guide TBD) |
-| Controller<sup>R</sup>    | [GPStar Wand Controller](WAND_PCB.md) |
-| Software<sup>R</sup>      | [Flashing the Latest Firmware](FLASHING.md) |
-| Audio Board<sup>R</sup>   | [GPStar Audio](GPSTAR_AUDIO_PCB.md) or [Robertsonics WAV Trigger](WAVTRIGGER.md) |
-| Speakers<sup>R</sup>      | [Audio Output Guide](SOUND.md) |
-| Sound Effects<sup>O</sup> | [Loading The Audio Files](AUDIO.md) |
-| Hat Lights<sup>O</sup>    | [Kit option by Jonogunn](HATS.md) |
-| Bargraph<sup>O</sup>      | [28-Segment or 30-Segment](BARGRAPH.md) |
-| Vent Light<sup>O</sup>    | [GPStar RGB Vent Lights or High Intensity option by Frutto Technology](VENTLIGHT.md) |
-| Wand Barrel<sup>O</sup>   | 2, 5, 49 and 50 LED options (Guide TBD) |
-
-**Installation, Operation, and Troubleshooting**
-
-| **Task**         | **Guide** |
-|------------------|---------------------------------------------|
-| Initial Assembly | [Installation - Video & Guide](INSTALL_GUIDE.md) |
-| System Operation | [Equipment Operation Manual](OPERATION.md) |
-| Configuration    | [EEPROM LED/Config Menus](OPERATION_EEPROM.md) |
-| I Need Help!     | [Troubleshooting](TROUBLESHOOTING.md) and [Frequently Asked Questions](FAQ.md) |
-
-**Software Development (Advanced Topics)**
-
-| **Task**         | **Guide** |
-|------------------|---------------------------------------------|
-| Compile Software | [VSCode + PlatformIO](VSCODE.md)
-| Modify Software  | [Advanced Software Configuration](ADVCONFIG.md) |
-| Upload Software  | [Pack/Wand Flashing](COMPILING_FLASHING.md) or [Attenuator/Wireless Flashing](ATTENUATOR_FLASHING.md) |
-
-**Special/Standalone Devices**
-
-| **Devices**         | **Guide** |
-|------------------|---------------------------------------------|
-| Single-Shot Blaster | [Build and Operation Guide](SINGLESHOT.md) |
-| Belt Gizmo | *Build Guide TBD* |
-| Stream Effects | *Build Guide TBD* |
-
----
-
-### DIY Arduino Build Guides
-
-Considered the "legacy" guide to building your own solution using the Arduino platform. *Please note that the original Neutrona Wand guide used an Arduino Nano which is no longer capable of providing the storage space required by the full range of features supported and that hardware has been deprecated. In order to continue with these guides, please note that a replacement board (Mega 2560 Pro Mini) has been identified for the Neutrona Wand and MUST be used with the latest software release.*
-
-This is an advanced build-out which requires opening all devices and performing a significant amount of soldering. **Proceed with caution, regardless of your skillset or abilities.**
-
-1. [Bill of Materials](DIY_BOM.md)
-
-1. [Power Requirements](POWER.md)
-
-1. [Compiling and Uploading the Code](DIY_FLASHING.md)
-
-1. [GPStar Audio PCB](GPSTAR_AUDIO_PCB.md) or [WAV Trigger Configuration](WAVTRIGGER.md)
-
-1. [Loading The Audio Files](AUDIO.md)
-
-1. [Audio Output Guide](SOUND.md)
-
-1. [DIY Pack Setup - Arduino Mega 2560 R3](DIY_PACK.md)
-
-1. [DIY Wand Setup - Mega 2560 Pro Mini](DIY_WAND.md)
-
-1. [Hose Connections](HOSE.md)
-
-## Walkthrough Videos ##
-
-*"You know, it just occurred to me that we really haven't had a successful test of this equipment." -Ray Stantz*
-
-Except that we have! Here is a [Walkthrough Video Contributed by JustinDustin](https://www.youtube.com/watch?v=mnfljGd5-uU) (YouTube, March 2023) showcasing several of the stock features in a converted pack/wand combination. Several optional features were implemented as part of this build using the Arduino platform.
-[![Haslab Proton Pack Arduino Powered Walkthrough Video](https://img.youtube.com/vi/mnfljGd5-uU/maxresdefault.jpg)](https://www.youtube.com/watch?v=mnfljGd5-uU)
-
-Additionally, this video covers several new updates in the months since, using the new GPStar controllers, as the [Optional Features and Menu Walkthrough](https://www.youtube.com/watch?v=ePXz99UawLQ) (YouTube, July 2023).
-[![Optional Features and Menu Walkthrough Video](https://img.youtube.com/vi/ePXz99UawLQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=mnfljGd5-uU)
-
-## Viewing MD Files
-
-GitHub should automatically display these files with basic formatting, though to view these MD (MarkDown) files linked above with full formatting including color-coding, you can use a program such as [MarkdownPad](http://markdownpad.com/) (Windows) or [MacDown](https://macdown.uranusjr.com/) (MacOS). Alternatively, you may copy the contents into [an online viewer](https://markdownlivepreview.com/).
-
-### "Yes, have some"...music!
-
-Special thanks to Michael Klodzinksi for graciously allowing us to include his version of [Savin' The Day](https://www.youtube.com/watch?v=shJslMSAxE0) as a bundled music file to demo your awesome Proton Pack mods! Check out his other works at [michaelk.net](https://michaelk.net).
-
-## Sound files
-
-The sound effects files are combination of self made files for this project to ones from within the Ghostbusters community, etc. Apologies if it is forgotten to acknowledge where some of the files originate from.
+Throughout this repository you will find files which end in the `.md` extension. GitHub should automatically display these files with basic formatting, though to view these MarkDown (MD) files with full formatting including color-coding, you can use a program such as [MarkdownPad](http://markdownpad.com/) (Windows) or [MacDown](https://macdown.uranusjr.com/) (MacOS).
 
 ## Licensing
 
