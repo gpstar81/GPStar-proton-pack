@@ -277,6 +277,7 @@ void setup() {
 
   // Device RGB LEDs for use when needed.
   FastLED.addLeds<NEOPIXEL, DEVICE_LED_PIN>(device_leds, DEVICE_NUM_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.setMaxRefreshRate(0); // Disable FastLED's blocking 2.5ms delay.
   ms_anim_change.start(i_animation_time); // Default animation time.
 
   // Set palette by stream mode.

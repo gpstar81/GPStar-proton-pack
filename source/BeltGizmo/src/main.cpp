@@ -267,6 +267,7 @@ void setup() {
 
   // Device RGB LEDs for use when needed.
   FastLED.addLeds<NEOPIXEL, DEVICE_LED_PIN>(device_leds, DEVICE_NUM_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.setMaxRefreshRate(0); // Disable FastLED's blocking 2.5ms delay.
   FastLED.setBrightness(128); // Use a lower brightness (50%) to save power.
   ms_anim_change.start(i_animation_duration); // Default animation time.
 
