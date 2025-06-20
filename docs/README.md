@@ -1,6 +1,6 @@
 <center><h1><img src="images/gpstar_logo.png" width="50"/>GPStar Documentation Home</h1></center>
 
-<center>For the Proton Pack, Neutrona Wand, & Accessories</center>
+<center>For the Proton Pack, Neutrona Wand, and Accessories</center>
 
 ## Summary
 

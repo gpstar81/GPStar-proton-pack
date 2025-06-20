@@ -18,11 +18,11 @@ Just see for yourself what this kit can do, and you'll be ready to believe us!
 
 ## Official Documentation
 
-Please note that the documentation has moved and now exists in a new website hosted here on Github. You can now find the official documentation in HTML format at [https://gpstar81.github.io/GPStar-proton-pack/](https://gpstar81.github.io/GPStar-proton-pack/)
+Please note that the documentation has moved and now exists in a new website hosted directly on Github. You can now find the official documentation in HTML format at [https://gpstar81.github.io/GPStar-proton-pack/](https://gpstar81.github.io/GPStar-proton-pack/)
 
 ### Viewing MD Files
 
-Throughout this repository you will find files which end in the `.md` extension. GitHub should automatically display these files with basic formatting, though to view these MarkDown (MD) files with full formatting including color-coding, you can use a program such as [MarkdownPad](http://markdownpad.com/) (Windows) or [MacDown](https://macdown.uranusjr.com/) (MacOS).
+Throughout this repository you may find files which end in the `.md` extension. Viewing via the GitHub browser should automatically display these files with basic formatting, though to view these MarkDown (MD) files with full formatting including color-coding, you can use a program such as [MarkdownPad](http://markdownpad.com/) (Windows) or [MacDown](https://macdown.uranusjr.com/) (MacOS). The contents of the `/docs/` folder is the source of the official documentation linked above.
 
 ## Licensing
 

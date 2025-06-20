@@ -14,7 +14,7 @@ These are the most important guides which will get you familiar with the major c
 
 1. [GPStar Audio PCB](GPSTAR_AUDIO_PCB.md)
 
-1. [Installation Videos](INSTALL_VIDEOS.md)
+1. [Installation Videos](INSTALL_VIDEOS_JONOGUNN.md)
 
 1. [Troubleshooting](TROUBLESHOOTING.md)
 
@@ -76,7 +76,7 @@ This section is presented in a way to offer a more complete view of what compone
 
 | **Task**         | **Guide** |
 |------------------|---------------------------------------------|
-| Initial Assembly | [Installation - Video & Guide](INSTALL_GUIDE.md) |
+| Initial Assembly | [Installation Videos](INSTALL_VIDEOS_JONOGUNN.md) & [Installation Guide (PDF)](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/gpstar-Haslab-Proton-Pack-Kit-Installation-Manual-V4.pdf?raw=1) |
 | System Operation | [Equipment Operation Manual](OPERATION_USAGE.md) |
 | Configuration    | [EEPROM LED/Config Menus](OPERATION_EEPROM.md) |
 | I Need Help!     | [Troubleshooting](TROUBLESHOOTING.md) and [Frequently Asked Questions](FAQ.md) |

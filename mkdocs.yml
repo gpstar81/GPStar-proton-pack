@@ -1,6 +1,16 @@
 site_name: GPStar Documentation
+site_description: Official documentation for the GPStar Proton Pack & Neutrona Wand kits and accessories
+copyright: GPStar Technologies
+
 docs_dir: docs
 site_dir: site
+
+theme:
+  name: readthedocs
+  logo: images/gpstar_logo_white.png
+
+extra:
+  version: 6.x
 
 nav:
   - Home: README.md
@@ -38,6 +48,3 @@ nav:
   - Troubleshooting: TROUBLESHOOTING.md
   - FAQ: FAQ.md
   - About: ABOUT.md
-
-theme:
-  name: material
