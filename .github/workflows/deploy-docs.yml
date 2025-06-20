@@ -1,0 +1,22 @@
+name: Deploy MkDocs Documentation
+on:
+  push:
+    branches: [main]  # Only rebuild for the latest live code and docs
+permissions:
+  contents: write  # Needed to push to gh-pages
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Install MkDocs and Material theme
+        run: |
+          pip install mkdocs mkdocs-material
+      - name: Deploy to GitHub Pages
+        run: |
+          mkdocs gh-deploy --force

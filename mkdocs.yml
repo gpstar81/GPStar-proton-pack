@@ -1,0 +1,50 @@
+site_name: GPStar Documentation
+site_description: Official documentation for the GPStar Proton Pack & Neutrona Wand kits and accessories
+copyright: GPStar Technologies
+
+docs_dir: docs
+site_dir: site
+
+theme:
+  name: readthedocs
+  logo: images/gpstar_logo_white.png
+
+extra:
+  version: 6.x
+
+nav:
+  - Home: README.md
+  - Core Components:
+    - Introduction: GUIDE_LISTING.md
+    - Proton Pack: PACK_PCB.md
+    - Neutrona Wand: WAND_PCB.md
+    - Pack-Wand Hose: HOSE.md
+    - GPStar Audio: GPSTAR_AUDIO_PCB.md
+    - Legacy DIY: DIY_LEGACY.md
+  - Optional Components:
+    - Proton Pack:
+      - Cyclotron Lid: CYCLOTRON_LID.md
+      - Inner Cyclotron: CYCLOTRON_INNER.md
+      - N-Filter: NFILTER.md
+      - Power Cell: POWERCELL.md
+      - Smoke Guide: SMOKE.md
+    - Neutrona Wand:
+      - Bargraph: BARGRAPH.md
+      - Hatlights: HATS.md
+      - Vent Lights: VENTLIGHT.md
+    - Serial1 Expansion:
+      - Overview: SERIAL1.md
+      - Attenuator: ATTENUATOR.md
+      - WiFi Adapter: WIRELESS.md
+  - Install Videos:
+    - Jonogunn: INSTALL_VIDEOS_JONOGUNN.md
+    - Nor-Cal GB: INSTALL_VIDEOS_NORCALGB.md
+  - Maintenance:
+    - Flashing Firmware: FLASHING.md
+    - Audio Files: AUDIO.md
+  - Operation Manuals:
+    - General Usage: OPERATION_USAGE.md
+    - EEPROM Menus: OPERATION_EEPROM.md
+  - Troubleshooting: TROUBLESHOOTING.md
+  - FAQ: FAQ.md
+  - About: ABOUT.md
