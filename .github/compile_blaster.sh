@@ -21,7 +21,7 @@ PROJECT_DIR="$SRCDIR/SingleShot"
 pio run --project-dir "$PROJECT_DIR" --target clean
 
 # Compile the PlatformIO project
-pio run --project-dir "$PROJECT_DIR"
+pio run --project-dir "$PROJECT_DIR" | grep -iv Retrieved
 
 # Check if the build was successful
 if [ $? -eq 0 ]; then

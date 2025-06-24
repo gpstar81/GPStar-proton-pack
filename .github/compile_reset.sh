@@ -21,7 +21,7 @@ PROJECT_DIR="$SRCDIR/ATmegaEEPROM"
 pio run --project-dir "$PROJECT_DIR" --target clean
 
 # Compile the PlatformIO project
-pio run --project-dir "$PROJECT_DIR"
+pio run --project-dir "$PROJECT_DIR" | grep -iv Retrieved
 
 if [ -f ${PROJECT_DIR}/.pio/build/megaatmega2560/firmware.hex ]; then
   mv ${PROJECT_DIR}/.pio/build/megaatmega2560/firmware.hex ${BINDIR}/pack/extras/ResetEEPROM.hex

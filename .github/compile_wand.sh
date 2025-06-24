@@ -25,7 +25,7 @@ PROJECT_DIR="$SRCDIR/NeutronaWand"
 pio run --project-dir "$PROJECT_DIR" --target clean
 
 # Compile the PlatformIO project
-pio run --project-dir "$PROJECT_DIR"
+pio run --project-dir "$PROJECT_DIR" | grep -iv Retrieved
 
 if [ -f ${PROJECT_DIR}/.pio/build/megaatmega2560/firmware.hex ]; then
   mv ${PROJECT_DIR}/.pio/build/megaatmega2560/firmware.hex ${BINDIR}/wand/NeutronaWand.hex
@@ -44,7 +44,7 @@ sed -i -e 's/b_gpstar_benchtest = true/\/\/b_gpstar_benchtest = true/' ${PROJECT
 pio run --project-dir "$PROJECT_DIR" --target clean
 
 # Compile the PlatformIO project
-pio run --project-dir "$PROJECT_DIR"
+pio run --project-dir "$PROJECT_DIR" | grep -iv Retrieved
 
 # Restore flag(s) from compilation
 sed -i -e 's/const bool b_gpstar_benchtest = true/bool b_gpstar_benchtest = false/' ${PROJECT_DIR}/include/Configuration.h

@@ -29,7 +29,7 @@ echo "Building Attenuator Binary (ESP32 - Normal)..."
 pio run --project-dir "$PROJECT_DIR" --target clean
 
 # Compile the PlatformIO project
-pio run --project-dir "$PROJECT_DIR"
+pio run --project-dir "$PROJECT_DIR" | grep -iv Retrieved
 
 rm -f ${PROJECT_DIR}/include/*.h-e
 
