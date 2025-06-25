@@ -17,7 +17,7 @@ The compatibility matrix below notes whether a device is compatible with major v
 | Audio Device | v1.x | v2.x | v3.x | v4.x | v5.0.x | v5.1.x | v5.4.x | v6.0.x |
 |-------------------|------|------|------|------|------|------|------|------|
 | Robertsonics WAV Trigger  | v134 | v134 | v140 | v140 | v140 | v140 | v140 | v140 |
-| <img src="./images/gpstar_logo.png" width="20"/>GPStar Audio | &mdash; | &mdash; | &mdash; | &mdash; | v100<sup>1</sup> | v102<sup>2</sup> | v103<sup>3</sup> | v104<sup>4</sup> |
+| <img src="../images/gpstar_logo.png" width="20"/>GPStar Audio | &mdash; | &mdash; | &mdash; | &mdash; | v100<sup>1</sup> | v102<sup>2</sup> | v103<sup>3</sup> | v104<sup>4</sup> |
 
 <sup>1</sup> All initial orders for GPStar Audio controllers shipped with v100 firmware which delivers all of the basic functionality needed for a Pack+Wand operation.
 

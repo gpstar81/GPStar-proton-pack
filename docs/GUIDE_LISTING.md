@@ -1,4 +1,4 @@
-<h1><img src="./images/gpstar_logo.png" width="50"/>GPStar System Guides</h1>
+<h1><img src="../images/gpstar_logo.png" width="50"/>GPStar System Guides</h1>
 
 # Introduction
 

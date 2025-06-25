@@ -1,8 +1,8 @@
 <p align="center" style="background-color:#333;">
-  <img src="./images/gpstar_logo_white.png"/>
+  <img src="../images/gpstar_logo_white.png"/>
 </p>
 
-<center><h2><img src="./images/gpstar_logo.png" width="30"/> GPStar Proton Pack &amp; Neutrona Wand EEPROM System</h2></center>
+<center><h2><img src="../images/gpstar_logo.png" width="30"/> GPStar Proton Pack &amp; Neutrona Wand EEPROM System</h2></center>
 
 # EEPROM Menus
 

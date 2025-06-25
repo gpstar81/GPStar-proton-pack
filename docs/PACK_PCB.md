@@ -1,4 +1,4 @@
-<h1><img src="./images/gpstar_logo.png" width="50"/>GPStar Pack PCB Hookup</h1>
+<h1><img src="../images/gpstar_logo.png" width="50"/>GPStar Pack PCB Hookup</h1>
 
 This guide is part of the kit approach to providing a minimally-invasive upgrade to the stock HasLab controllers. For the Proton Pack all stock connections can be made using the available JST-XH connectors on all existing wiring. The diagram below details the standard HasLab connections.
 
