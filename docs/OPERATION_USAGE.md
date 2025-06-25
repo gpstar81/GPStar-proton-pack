@@ -9,7 +9,7 @@
 
 <div class="page-break"></div>
 
-# Operational Guide - General Features
+# Operational Guide - General Usage
 
 <div class="page-break"></div>
 
