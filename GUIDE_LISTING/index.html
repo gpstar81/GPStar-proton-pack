@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Introduction - GPStar Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Introduction";
+        var mkdocs_page_input_path = "GUIDE_LISTING.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="..">
+          <img src="../images/gpstar_logo_white.png" class="logo" alt="Logo"/>
+        </a>
+        <div class="version">
+          6.x
+        </div><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ABOUT/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Core Components</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Introduction</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#maintenance">Maintenance</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#by-component-guides">By-Component Guides</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_PCB/">Proton Pack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_PCB/">Neutrona Wand</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../HOSE/">Pack-Wand Hose</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../GPSTAR_AUDIO_PCB/">GPStar Audio</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DIY_LEGACY/">Legacy DIY</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Optional Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Proton Pack</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_LID/">Cyclotron Lid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_INNER/">Inner Cyclotron</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_BYPASS/">Cyclotron Bypass</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NFILTER/">N-Filter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../POWERCELL/">Power Cell</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Neutrona Wand</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../BARGRAPH/">Bargraph</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../HATS/">Hatlights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../VENTLIGHT/">Vent Lights</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Serial1 Expansion</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../SERIAL1/">Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ATTENUATOR/">Attenuator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../WIRELESS/">WiFi Adapter</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Special Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../POWER/">Power Requirements</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SOUND/">Sound Output</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SMOKE/">Smoke Kits</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Install Videos</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_JONOGUNN/">Jonogunn</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_NORCALGB/">Nor-Cal GB</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Maintenance</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../FLASHING/">Flashing Pack/Wand Firmware</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ATTENUATOR_FLASHING/">Flashing Attenuator/Wifi</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../AUDIO_FILES/">Audio Files</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operation Manuals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_USAGE/">General Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_MENUS/">Runtime Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_EEPROM/">EEPROM Menus</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Help</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TROUBLESHOOTING/">Troubleshooting</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">GPStar Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Core Components</li>
+      <li class="breadcrumb-item active">Introduction</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1><span class="logo-icon"></span> GPStar System Guides</h1>
+
+<h1 id="introduction">Introduction</h1>
+<p>These are the most important guides which will get you familiar with the major components and how to update them with the latest capabilities offered by software and sound effects. This includes guides to aid you in completing the connections and installation for the GPStar Proton Pack and Neutrona Wand PCB boards.</p>
+<h2 id="installation">Installation</h2>
+<ol>
+<li>
+<p><a href="../PACK_PCB/">Pack PCB</a></p>
+</li>
+<li>
+<p><a href="../WAND_PCB/">Wand PCB</a></p>
+</li>
+<li>
+<p><a href="../HOSE/">Pack-Wand Hose</a></p>
+</li>
+<li>
+<p><a href="../GPSTAR_AUDIO_PCB/">GPStar Audio PCB</a></p>
+</li>
+<li>
+<p><a href="../INSTALL_VIDEOS_JONOGUNN/">Installation Videos</a></p>
+</li>
+<li>
+<p><a href="../TROUBLESHOOTING/">Troubleshooting</a></p>
+</li>
+</ol>
+<p>A full installation guide is available as a PDF here:
+<a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/gpstar-Haslab-Proton-Pack-Kit-Installation-Manual-V4.pdf?raw=1">GPStar Proton Pack Kit Installation Manual</a></p>
+<h2 id="maintenance">Maintenance</h2>
+<p>These guides will help you update the software and audio files as new releases become available.</p>
+<ol>
+<li>
+<p><a href="../FLASHING/">Flashing Firmware Updates</a></p>
+</li>
+<li>
+<p><a href="../AUDIO_FILES/">Loading The Audio Files</a></p>
+</li>
+</ol>
+<h2 id="by-component-guides">By-Component Guides</h2>
+<p>This section is presented in a way to offer a more complete view of what components are available (by major equipment areas), whether those components are Required<sup>R</sup> or Optional<sup>O</sup>, if choices are offerred at a specific component level. Where possible, each option will link to a related guide for more details and/or installation instructions.</p>
+<p><strong>Proton Pack</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>Component</strong></th>
+<th><strong>Option w/ Guide</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Power Source<sup>R</sup></td>
+<td><a href="../POWER/">TalentCell 3000mAh or 6000mAh</a></td>
+</tr>
+<tr>
+<td>Controller<sup>R</sup></td>
+<td><a href="../PACK_PCB/">GPStar Pack Controller</a> or <a href="../DIY_PACK/">Arduino 2560</a></td>
+</tr>
+<tr>
+<td>Software<sup>R</sup></td>
+<td><a href="../FLASHING/">Flashing the Latest Firmware</a></td>
+</tr>
+<tr>
+<td>Audio Board<sup>R</sup></td>
+<td><a href="../GPSTAR_AUDIO_PCB/">GPStar Audio</a> or <a href="../WAVTRIGGER/">Robertsonics WAV Trigger</a></td>
+</tr>
+<tr>
+<td>Speakers/Amp<sup>R</sup></td>
+<td><a href="../SOUND/">Audio Output Guide</a></td>
+</tr>
+<tr>
+<td>Sound Effects<sup>R</sup></td>
+<td><a href="../AUDIO_FILES/">Loading The Audio Files</a></td>
+</tr>
+<tr>
+<td>Cyclotron Lid<sup>O</sup></td>
+<td><a href="../CYCLOTRON_LID/">12/20/36-LED options</a></td>
+</tr>
+<tr>
+<td>Inner Cyclotron<sup>O</sup></td>
+<td><a href="../CYCLOTRON_INNER/">Cake and Panel Lights</a></td>
+</tr>
+<tr>
+<td>N-Filter<sup>O</sup></td>
+<td><a href="../NFILTER/">7-LED Vent Light</a></td>
+</tr>
+<tr>
+<td>Power Cell<sup>O</sup></td>
+<td><a href="../POWERCELL/">13 and 15-LED options</a></td>
+</tr>
+<tr>
+<td>Smoke Effects<sup>O</sup></td>
+<td><a href="../SMOKE/">Various Solutions Supported</a></td>
+</tr>
+<tr>
+<td>Cyclotron Bypass<sup>R* &amp; O</sup></td>
+<td><a href="../CYCLOTRON_BYPASS/">Bypass board for non Haslab Proton Packs</a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Connectivity</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>Component</strong></th>
+<th><strong>Option w/ Guide</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Wired<sup>R</sup></td>
+<td><a href="../HOSE/">Pack-Wand Hose Connections</a></td>
+</tr>
+<tr>
+<td>Wireless<sup>O</sup></td>
+<td><a href="../ATTENUATOR/">Pack Attenuator</a> or <a href="../WIRELESS/">Wireless Adapter</a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Neutrona Wand</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>Component</strong></th>
+<th><strong>Option w/ Guide</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Power Source<sup>R</sup></td>
+<td>Dedicated Wand Power Source (Guide TBD)</td>
+</tr>
+<tr>
+<td>Controller<sup>R</sup></td>
+<td><a href="../WAND_PCB/">GPStar Wand Controller</a></td>
+</tr>
+<tr>
+<td>Software<sup>R</sup></td>
+<td><a href="../FLASHING/">Flashing the Latest Firmware</a></td>
+</tr>
+<tr>
+<td>Audio Board<sup>R</sup></td>
+<td><a href="../GPSTAR_AUDIO_PCB/">GPStar Audio</a> or <a href="../WAVTRIGGER/">Robertsonics WAV Trigger</a></td>
+</tr>
+<tr>
+<td>Speakers<sup>R</sup></td>
+<td><a href="../SOUND/">Audio Output Guide</a></td>
+</tr>
+<tr>
+<td>Sound Effects<sup>O</sup></td>
+<td><a href="../AUDIO_FILES/">Loading The Audio Files</a></td>
+</tr>
+<tr>
+<td>Hat Lights<sup>O</sup></td>
+<td><a href="../HATS/">Kit option by Jonogunn</a></td>
+</tr>
+<tr>
+<td>Bargraph<sup>O</sup></td>
+<td><a href="../BARGRAPH/">28-Segment or 30-Segment</a></td>
+</tr>
+<tr>
+<td>Vent Light<sup>O</sup></td>
+<td><a href="../VENTLIGHT/">GPStar RGB Vent Lights or High Intensity option by Frutto Technology</a></td>
+</tr>
+<tr>
+<td>Wand Barrel<sup>O</sup></td>
+<td>2, 5, 49 and 50 LED options (Guide TBD)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Installation, Operation, and Troubleshooting</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>Task</strong></th>
+<th><strong>Guide</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Initial Assembly</td>
+<td><a href="../INSTALL_VIDEOS_JONOGUNN/">Installation Videos</a> &amp; <a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/gpstar-Haslab-Proton-Pack-Kit-Installation-Manual-V4.pdf?raw=1">Installation Guide (PDF)</a></td>
+</tr>
+<tr>
+<td>System Operation</td>
+<td><a href="../OPERATION_USAGE/">Equipment Operation Manual</a></td>
+</tr>
+<tr>
+<td>Configuration</td>
+<td><a href="../OPERATION_EEPROM/">EEPROM LED/Config Menus</a></td>
+</tr>
+<tr>
+<td>I Need Help!</td>
+<td><a href="../TROUBLESHOOTING/">Troubleshooting</a> and <a href="../FAQ/">Frequently Asked Questions</a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Software Development (Advanced Topics)</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>Task</strong></th>
+<th><strong>Guide</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compile Software</td>
+<td><a href="../VSCODE/">VSCode + PlatformIO</a></td>
+</tr>
+<tr>
+<td>Modify Software</td>
+<td><a href="../ADVCONFIG/">Advanced Software Configuration</a></td>
+</tr>
+<tr>
+<td>Upload Software</td>
+<td><a href="../COMPILING_FLASHING/">Pack/Wand Flashing</a> or <a href="../ATTENUATOR_FLASHING/">Attenuator/Wireless Flashing</a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Special/Standalone Devices</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>Devices</strong></th>
+<th><strong>Guide</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Single-Shot Blaster</td>
+<td><a href="../SINGLESHOT/">Build and Operation Guide</a></td>
+</tr>
+<tr>
+<td>Belt Gizmo</td>
+<td><em>Build Guide TBD</em></td>
+</tr>
+<tr>
+<td>Stream Effects</td>
+<td><em>Build Guide TBD</em></td>
+</tr>
+</tbody>
+</table>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../ABOUT/" class="btn btn-neutral float-left" title="About"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../PACK_PCB/" class="btn btn-neutral float-right" title="Proton Pack">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>GPStar Technologies</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../ABOUT/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../PACK_PCB/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

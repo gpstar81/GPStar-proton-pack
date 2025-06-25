@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Flashing Attenuator/Wifi - GPStar Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Flashing Attenuator/Wifi";
+        var mkdocs_page_input_path = "ATTENUATOR_FLASHING.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="..">
+          <img src="../images/gpstar_logo_white.png" class="logo" alt="Logo"/>
+        </a>
+        <div class="version">
+          6.x
+        </div><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ABOUT/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Core Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../GUIDE_LISTING/">Introduction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_PCB/">Proton Pack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_PCB/">Neutrona Wand</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../HOSE/">Pack-Wand Hose</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../GPSTAR_AUDIO_PCB/">GPStar Audio</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DIY_LEGACY/">Legacy DIY</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Optional Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Proton Pack</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_LID/">Cyclotron Lid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_INNER/">Inner Cyclotron</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_BYPASS/">Cyclotron Bypass</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NFILTER/">N-Filter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../POWERCELL/">Power Cell</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Neutrona Wand</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../BARGRAPH/">Bargraph</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../HATS/">Hatlights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../VENTLIGHT/">Vent Lights</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Serial1 Expansion</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../SERIAL1/">Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ATTENUATOR/">Attenuator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../WIRELESS/">WiFi Adapter</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Special Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../POWER/">Power Requirements</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SOUND/">Sound Output</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SMOKE/">Smoke Kits</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Install Videos</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_JONOGUNN/">Jonogunn</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_NORCALGB/">Nor-Cal GB</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Maintenance</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../FLASHING/">Flashing Pack/Wand Firmware</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Flashing Attenuator/Wifi</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#important-upgrades-v5x-v6x">Important Upgrades: V5.x &rarr; V6.x</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#esp32-first-time-upload-via-usb">ESP32: First-Time Upload (via USB)</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#esp32-standard-updates-via-wifi">ESP32: Standard Updates (via WiFi)</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#wifi-security">WiFi Security</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#setting-a-wifi-password">Setting a WiFi Password</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#forgot-your-wifi-password">Forgot Your WiFi Password?</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#usb-troubleshooting">USB Troubleshooting</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#software-development-requirements">Software Development Requirements</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../AUDIO_FILES/">Audio Files</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operation Manuals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_USAGE/">General Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_MENUS/">Runtime Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_EEPROM/">EEPROM Menus</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Help</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TROUBLESHOOTING/">Troubleshooting</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">GPStar Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Maintenance</li>
+      <li class="breadcrumb-item active">Flashing Attenuator/Wifi</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="flashing-the-attenuator">Flashing the Attenuator</h1>
+<p>NOTICE - As of the V6.0 release all support for the Arduino Nano hardware has been deprecated as we can no longer build the necessary binaries for the limited memory space on that device. Going forward, only the ESP32 will be supported for the Attenuator device, whether purchased as a kit from Frutto Technologies or as a DIY solution.</p>
+<p>The ESP32 microcontroller is capable of supporting Over-The-Air (OTA) updates for firmware, meaning you will need to utilize a desktop web browser from a computer (not a mobile device or tablet) and the built-in WiFi access point provided by the controller (prefix: "ProtonPack_"). <strong>However, please note the following special conditions!</strong></p>
+<ol>
+<li>If you used an off-the-shelf ESP32 device, then the software which enables the WiFi access point is <strong>not yet loaded</strong> so you will need to follow the "First-Time Upload" for the initial upload of firmware to your device.</li>
+<li>If you are performing your first upgrade to the version v6.x firmware, you will need to perform the exact same process as the "First-Time Upload" to re-partition your device to accept the larger firmware files.</li>
+</ol>
+<h3 id="important-upgrades-v5x-v6x">Important Upgrades: V5.x &rarr; V6.x</h3>
+<p>&#128721; <strong>STOP, PLEASE READ!</strong></p>
+<p><strong>The partition scheme for the ESP32-based controllers has changed as of v6.0.0 to support a larger firmware file. This requires an update via USB cable for any users who were previously on a firmware release in v5.x or earlier.</strong> You will need to follow the "First-Time Upload" process to use a new, custom partition scheme on the device which provides a larger storage areas for Over-the-Air (OTA) updates. The standard flash memory of the ESP-WROOM-32 modules we use is limited to 4MB and must provide space to upload new firmware. For context, the default partition prioritized a "SPIFFS" area which was intended for file storage but is not used for our purposes. By removing that storage area we can allocate more space for larger firmware images (app0/app1), and adds an additional area for non-volatile storage (NVS).</p>
+<p><strong>Old Scheme:</strong></p>
+<ul>
+<li>nvs: 20kb</li>
+<li>otadata: 8kb</li>
+<li>app0: 1280kb (ota_0)</li>
+<li>app1: 1280kb (ota_1)</li>
+<li>spiffs: 1408kb</li>
+<li>coredump: 64kb</li>
+</ul>
+<p><strong>New Scheme:</strong></p>
+<ul>
+<li>nvs: 20kb</li>
+<li>otadata: 8kb</li>
+<li>app0: 1920kb (ota_0)</li>
+<li>app1: 1920kb (ota_1)</li>
+<li>nvs2: 128kb</li>
+<li>coredump: 64kb</li>
+</ul>
+<p>Once you have updated to a firmware from v6.x or later using the USB process, then then you may proceed to using the instructions for over-the-air (OTA/WiFi) updates <strong>without</strong> a USB cable as described in the <strong>"Standard Updates"</strong> section.</p>
+<p>For a more visual representation, please refer to this flowchart:
+<img alt="" src="../images/ESP32UpgradePath.jpg" /></p>
+<h3 id="esp32-first-time-upload-via-usb">ESP32: First-Time Upload (via USB)</h3>
+<p>The following steps MUST be taken if either of these situations applies to you:</p>
+<ul>
+<li>If you are using your own ESP32 controller direct from Amazon or another supplier, then the microcontroller has not been flashed with the GPStar firmware to enable the OTA upload feature and the manual flashing process is required.</li>
+<li>Or, if you are performing the first firmware update since the introduction of v6.x you will need to perform the manual flashing process. We need to make room for larger firmware files and this can only be done by repartitioning the device's internal 4MB storage area.</li>
+</ul>
+<p>If you encounter any issues while attempting to access your ESP32 device via a USB cable, please see the <strong>"<a href="#usb-troubleshooting">USB Troubleshooting</a>"</strong> section at the bottom of this guide.</p>
+<p><strong>Option 1: Using GPStar ESP32 Firmware Uploader</strong></p>
+<p>This uses a purpose-built flash tool just like the tools for the Proton Pack, Neutrona Wand, Single-Shot Blaster and GPStar Audio. Thanks to its ease of use, this is our recommended method for performing the first-time USB upload process. First, download either the Windows or Mac OSX flash tool from the <a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/">extras</a> folder. If you are on Windows x86 or Linux, try Option 2 below instead.</p>
+<p><strong>Windows (x64 only):</strong> <a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/gpstarESP32FirmwareFlasher.exe?raw=1">GPStar ESP32 Firmware Flasher</a></p>
+<p><strong>MacOS Intel/M1:</strong> <a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/GPStar-ESP32-Flasher.dmg?raw=1">GPStar ESP32 Firmware Flasher (Mac OSX)</a></p>
+<ol>
+<li>Plug your device into a USB port on your computer.</li>
+<li>
+<p>Locate the following files from the <code>/binaries/attenuator</code> directory.</p>
+<ul>
+<li><a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/extras/Attenuator-ESP32-Bootloader.bin?raw=1">extras/Attenuator-ESP32-Bootloader.bin</a> = This is the standard bootloader for the ESP32 itself.</li>
+<li><a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/extras/Attenuator-ESP32-Partitions.bin?raw=1">extras/Attenuator-ESP32-Partitions.bin</a> = This specifies the partition scheme for the flash memory.</li>
+<li><a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/extras/boot_app0.bin?raw=1">extras/boot_app0.bin</a> = This is the software for selecting the available/next OTA partition.</li>
+<li><a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/Attenuator-ESP32.bin?raw=1">Attenuator-ESP32.bin</a> = This is the custom firmware for the GPStar kit.</li>
+</ul>
+</li>
+<li>
+<p>Open the GPStar ESP32 Firmware Flasher and browse to the files specified in step 2 above for each of the four requested file locations (see below screenshot).</p>
+</li>
+</ol>
+<p><img alt="" src="../images/ESP32-gpstar-flash.jpg" /></p>
+<ol>
+<li>
+<p>The program should automatically detect the correct COM port and baud rate (see above screenshot). If it did not, use the drop-down menus to select the correct one for your PC.</p>
+</li>
+<li>
+<p>Click the Upload button to flash the new firmware to your ESP32. Be patient, this process can take between 15 seconds and several minutes depending on the selected baud rate.</p>
+</li>
+<li>
+<p>Once the flash has completed successfully, your ESP32 should now be broadcasting a WiFi network and you should be ready to install it into your Proton Pack. If the flash failed, please see Solution 2 in the <strong>"<a href="#usb-troubleshooting">USB Troubleshooting</a>"</strong> section at the bottom of this guide to manually switch the ESP32 into bootloader mode. You may also try lowering the baud rate to 115200 (if available), though note this will increase the time it takes to flash the firmware.</p>
+</li>
+</ol>
+<p><strong>Option 2: Via Web Uploader</strong></p>
+<p>This uses a 3rd-party website to upload using the Web Serial protocol which is only available on the Google Chrome, Microsoft Edge, and Opera desktop web browsers. Mobile browsers are NOT supported, and you will be prompted with a message if your web browser is not valid for use.</p>
+<ol>
+<li>
+<p>Plug your device into a USB port on your computer and go to <a href="http://espwebtool.ghostbusters.engineering">http://espwebtool.ghostbusters.engineering</a> (which <a href="https://esp.huhn.me">redirects to https://esp.huhn.me</a>).</p>
+</li>
+<li>
+<p>Locate the following files from the <code>/binaries/attenuator</code> directory.</p>
+<ul>
+<li><a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/extras/Attenuator-ESP32-Bootloader.bin?raw=1">extras/Attenuator-ESP32-Bootloader.bin</a> = This is the standard bootloader for the ESP32 itself.</li>
+<li><a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/extras/Attenuator-ESP32-Partitions.bin?raw=1">extras/Attenuator-ESP32-Partitions.bin</a> = This specifies the partition scheme for the flash memory.</li>
+<li><a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/extras/boot_app0.bin?raw=1">extras/boot_app0.bin</a> = This is the software for selecting the available/next OTA partition.</li>
+<li><a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/Attenuator-ESP32.bin?raw=1">Attenuator-ESP32.bin</a> = This is the custom firmware for the GPStar kit.</li>
+</ul>
+</li>
+<li>
+<p>Click on the <strong>CONNECT</strong> button and select your USB serial device from the list of options and click on "Connect".</p>
+</li>
+<li>
+<p>Once connected, select the files (noted above) for the following address spaces:</p>
+<ul>
+<li>0x1000 &rarr; <a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/extras/Attenuator-ESP32-Bootloader.bin?raw=1">Attenuator-ESP32-Bootloader.bin</a></li>
+<li>0x8000 &rarr; <a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/extras/Attenuator-ESP32-Partitions.bin?raw=1">Attenuator-ESP32-Partitions.bin</a></li>
+<li>0xE000 &rarr; <a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/extras/boot_app0.bin?raw=1">boot_app0.bin</a></li>
+<li>0x10000 &rarr; <a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/Attenuator-ESP32.bin?raw=1">Attenuator-ESP32.bin</a></li>
+</ul>
+</li>
+<li>
+<p>Click on the <strong>PROGRAM</strong> button to begin flashing. View the "Output" window to view progress of the flashing operation.</p>
+</li>
+<li>
+<p>Once the device has completely flashed (100%) unplug the USB cable and remove any remaining power source from the device. Restore power to reboot the device and confirm operation.</p>
+</li>
+</ol>
+<p>View <a href="../images/ESP_Firmware_Update.mp4">a quick video</a> of what this process should look like. Your list of USB devices may differ, and it may require selecting a different device if you cannot immediately determine which connected device is your ESP32.</p>
+<p>📝 <strong>NOTE:</strong> If your device still cannot be found automatically you may need to view the <strong>"<a href="#usb-troubleshooting">USB Troubleshooting</a>"</strong> section at the bottom of this guide.</p>
+<p><strong>Option 3: Via Command-Line</strong></p>
+<p>You will need to utilize a command-line tool to upload the firmware to your device from your local computer. Note this is <em>not recommended</em> unless you are using a platform other than Windows x64 or Mac OSX, such as Linux.</p>
+<ol>
+<li>
+<p>Install the latest Python 3.x utility based on your operating system:</p>
+<ul>
+<li>Windows: Download the installer from <a href="https://www.python.org/downloads/windows/">Python</a>. When installing you may be prompted to "Add Python to PATH", and it is recommended to accept that option.</li>
+<li>Linux: Execute <code>sudo apt update &amp;&amp; sudo apt install -y python3 python3-pip</code></li>
+<li>MacOS: Execute <code>brew install python</code> using Homebrew (<a href="https://brew.sh/">instructions here</a>)</li>
+</ul>
+</li>
+<li>
+<p>From a terminal (command line) prompt run the following which will install the <code>pip</code> tool along with the <code>esptool</code> utility:</p>
+<p><code>python3 -m ensurepip
+python3 -m pip install --upgrade pip setuptools esptool</code></p>
+</li>
+<li>
+<p>Confirm that python was installed successfully by running the commands <code>python --version</code> and <code>python3 --version</code>. Use the command that reports a 3.x version (<code>python</code> or <code>python3</code>) for all following steps. We will assume <code>python3</code> is available.</p>
+</li>
+<li>
+<p>Navigate to the <code>binaries/attenuator</code> directory within the extracted GPStar-proton-pack software release:</p>
+<p><code>cd &lt;extracted_location&gt;/binaries/attenuator</code></p>
+</li>
+<li>
+<p>Ensure your ESP32 is plugged into your computer using a data-capable USB cable. Run the following command to detect and display information about your ESP32, including the serial port used for communication:</p>
+<p><code>python3 -m esptool flash_id</code></p>
+<ul>
+<li>If this lists multiple devices, unplug the device and run the command; then replug the device and run the command again.</li>
+<li>Look for differences in the results to identify which USB device belongs to your ESP32.</li>
+<li>For <strong>Linux/MacOS</strong> the port name may begin with <code>/dev/cu.usbserial</code> or <code>/dev/cu.wchusbserial</code> and <strong>is</strong> case-sensitive when used.</li>
+<li>For <strong>Windows</strong> it would be <code>COM[0-9]</code> (eg. <code>COM4</code> or <code>COM12</code>) and <strong>is not</strong> case-sensitive.</li>
+</ul>
+</li>
+<li>
+<p>Run the following command to flash the bootloader and firmware, providing the correct <code>&lt;PORT&gt;</code> value discovered from the previous step:</p>
+<p><code>python3 -m esptool --port &lt;PORT&gt; --chip esp32 --baud 921600 write_flash --flash_mode dio --flash_size detect --flash_freq 40m 0x1000 extras/Attenuator-ESP32-Bootloader.bin 0x8000 extras/Attenuator-ESP32-Partitions.bin 0xe000 extras/boot_app0.bin 0x10000 Attenuator-ESP32.bin</code></p>
+</li>
+</ol>
+<p>📝 <strong>NOTE:</strong> If your device still cannot be found automatically you may need to view the <strong>"<a href="#usb-troubleshooting">USB Troubleshooting</a>"</strong> section at the bottom of this guide.</p>
+<h3 id="esp32-standard-updates-via-wifi">ESP32: Standard Updates (via WiFi)</h3>
+<p>This applies to all updates you will perform AFTER the first-time upload of the firmware for the device, when the private WiFi network for the Proton Pack is available via the custom firmware.</p>
+<ol>
+<li>Power up your Proton Pack and ESP32 device (whether standalone or as part of the Attenuator hardware).</li>
+<li>Open the WiFi preferences on your computer/device and look for the SSID which begins <strong>"ProtonPack_"</strong>.<ul>
+<li>If this is your first connection to this access point, use the default password <strong>"555-2368"</strong>.</li>
+</ul>
+</li>
+<li>Navigate directly to the URL: <a href="http://192.168.1.2/update">http://192.168.1.2/update</a></li>
+<li>Use the "Select File" button and select the <a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/Attenuator-ESP32.bin?raw=1">Attenuator-ESP32.bin</a> file from the <code>/binaries/attenuator</code> directory.</li>
+<li>The upload will begin immediately. Once at 100% the device will reboot.</li>
+<li>Navigate to <a href="http://192.168.1.2">http://192.168.1.2</a> or <code>http://protonpack_####.local</code> to confirm that the device is able to communicate with the Proton Pack PCB.</li>
+</ol>
+<p><img alt="" src="../images/WebUI-Update1.jpg" /></p>
+<p><img alt="" src="../images/WebUI-Update2.jpg" /></p>
+<p><img alt="" src="../images/WebUI-Update3.jpg" /></p>
+<p><strong>Note:</strong> If the upload fails, this is not uncommon. Simply attempt the upload again using the OTA updater.</p>
+<h2 id="wifi-security">WiFi Security</h2>
+<p>While every device gets a unique SSID for the wireless network, the password is always the same default of "555-2368". Therefore, to keep your device private and out of reach of others you are <strong>strongly</strong> encouraged to change this password.</p>
+<h3 id="setting-a-wifi-password">Setting a WiFi Password</h3>
+<p>Since this device will make use of a private WiFi network with a default password, it is STRONGLY encouraged that you take a moment to change the password to something you prefer to avoid unauthorized access of your equipment.</p>
+<p>Once you are able to reach the web UI at <a href="http://192.168.1.2">http://192.168.1.2</a> or <code>http://protonpack_####.local</code> scroll to the bottom of the page to find the "Secure Device WiFi" link. Follow the instructions on the page to set a new password for your device. This will be unique to the ESP32 controller and will persist as the new default even if the device is power-cycled. Passwords must only be at least 8 characters and you will be required to enter a matching password as confirmation to ensure you entered the expected string of characters.</p>
+<p>The password you choose will be stored in an area of the device's flash memory that is unaffected by future firmware updates. Therefore, if you forget your password you may need to load a special version of the firmware which can bypass that stored value and allow you to use the default password again. This process is covered in the next section.</p>
+<h3 id="forgot-your-wifi-password">Forgot Your WiFi Password?</h3>
+<p><img alt="" src="../images/WebUI-Password.jpg" /></p>
+<p>The following is only applicable to users on firmware PRIOR to the v5.2.2 release. As of that release the ability to boot up with the default password was introduced by pressing down on the center dial when power is applied to the device.</p>
+<p>If you have forgotten the password to the private WiFi network, you will need to load a special firmware to allow you to access the device and reset the password. Though if you have opted to connect your device to a preferred WiFi network using the built-in WiFi settings, simply return to your device's IP address on that network and change the password for the private WiFi network as desired.</p>
+<p>In the case where you do not have access to your device via an external WiFi network, you will need to follow a special process using a USB cable and a utility for your OS of choice. This will follow the same process as the "First-Time Upload" instructions posted above, though you will instead load the <a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/Attenuator-ESP32-Reset.bin?raw=1">Attenuator-ESP32-Reset.bin</a> file from the <code>/binaries/attenuator</code> directory.</p>
+<p>Once flashed, this will allow you to get back into the web UI at <a href="http://192.168.1.2">http://192.168.1.2</a> or <code>http://protonpack_####.local</code> using the default password ("555-2368") and change to your choice of password. <strong>Once changed, you will need to re-flash the device using the standard firmware--otherwise, the device will always use the default WiFi password while this firmware is loaded</strong>! The new password will be used automatically to secure the WiFi access point once the regular firmware is in use.</p>
+<p>📝 <strong>Note:</strong> When using this firmware there will be additional debug messages enabled for the device. Therefore, this firmware image may also be used to help debug WiFi issues by checking the output via the Arduino IDE's serial console. Be sure to set the baud rate to 112500 to view the output correctly.</p>
+<hr />
+<h2 id="usb-troubleshooting">USB Troubleshooting</h2>
+<p>Before beginning any actions when using a USB cable, be sure to use a high-quality USB cable which supports data transfer. Some cheap cables may only support charging (not data), or not fully support the power requirements of the device.</p>
+<p><strong>Problem 1:</strong> Your ESP32 controller does not appear as a serial device in your operating system (COM# for Windows, /dev/cu.usb* for macOS/Linux).</p>
+<p><strong>Solution 1:</strong> It is necessary to install a driver for the <strong>"CP210x USB to UART Bridge"</strong> onto your computer for some devices. A driver for Windows and macOS is available <a href="https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers?tab=downloads">via Silicon Labs</a> and has proved useful.</p>
+<p><strong>Problem 2:</strong> The ESP32 device can be detected when using the <a href="https://esp.huhn.me/">ESPWebTool website</a> but can't connect. Alternatively, you get a notice that the device must be reset.</p>
+<p><strong>Solution 2:</strong> You must put the device into bootloader mode. To help with this, use the <a href="https://serial.huhn.me/">SerialTerminal website</a> to connect to your device first:</p>
+<ol>
+<li>Plug ESP32 into computer</li>
+<li>Hold down BOOT button</li>
+<li>While holding BOOT, click EN once</li>
+<li>Continue holding BOOT until the firmware update tool says "Connecting..." then release</li>
+</ol>
+<p>You should see a message similar to the following which indicates the device is ready to flash:</p>
+<pre><code>rst:0x1 (POWERON_RESET),boot:0x3 (DOWNLOAD_BOOT(UART0/UART1/SDIO_REI_REO_V2))
+waiting for download
+</code></pre>
+<p>Without disconnecting the device from your computer, and using the <strong>same</strong> browser tab, return to the ESPWebTool website](https://esp.huhn.me/) and complete the flashing process as described earlier in this guide as "Option 2".</p>
+<p><strong>Note:</strong> If you get garbage on the screen when using the serial terminal, use the gear icon at the top right to make sure the baud rate is set to 115200.</p>
+<p><strong>Problem 3:</strong> The process described in Solution 2 did not work, help!</p>
+<p><strong>Solution 3:</strong> Try using Option 1 instead. For users not on Windows x64 or Mac OSX, use Option 3 to run <code>esptool</code> manually.</p>
+<p><strong>Problem 4:</strong> For Linux users, if you get a "Permission denied" error when running <code>esptool</code> you may need to add your user to the dialout group.</p>
+<p><strong>Solution 4:</strong> Run this command, then log out and back in for the changes to take effect:</p>
+<pre><code>`sudo usermod -aG dialout $USER`
+</code></pre>
+<p>📝 <strong>Tip:</strong> If you have successfully flashed your ESP32 device and do not see the available WiFi access point, try plugging your USB cable directly into the Talentcell battery or try another USB port on your computer. In rare cases the USB port and/or cable cannot supply enough voltage to run the ESP32's WiFi radio.</p>
+<p>📝 <strong>Tip:</strong> To identify the USB device requires different methods based on the operating system used:</p>
+<ul>
+<li>For <strong>Linux</strong> use the <code>lsusb</code> utility (or <code>lsusb -v</code>) to list attached USB devices.</li>
+<li>For <strong>MacOS</strong> run <code>ls /dev/{tty,cu}.*</code> to list available USB devices.</li>
+<li>For <strong>Windows</strong>, use the "Device Manager" and look at the <strong>"Ports (COM &amp; LPT)"</strong> section.</li>
+</ul>
+<p>These guides from Espressif may be of some help as a reference:</p>
+<ul>
+<li><a href="https://docs.espressif.com/projects/esptool/en/latest/esp32/installation.html#installation">Espressif - esptool Installation</a></li>
+<li><a href="https://docs.espressif.com/projects/esptool/en/latest/esp32/esptool/flashing-firmware.html">Espressif - Flashing Firmware</a></li>
+<li><a href="https://docs.espressif.com/projects/esptool/en/latest/esp32/advanced-topics/boot-mode-selection.html">Espressif - Boot Mode Selection</a></li>
+</ul>
+<hr />
+<h2 id="software-development-requirements">Software Development Requirements</h2>
+<p>As of the v5.4.0 release the development platform of choice for this device has been migrated from Arduino IDE to the <a href="../VSCODE/">VSCode with PlatformIO</a>. Please follow the linked guide for installing the core software and plugins required.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../FLASHING/" class="btn btn-neutral float-left" title="Flashing Pack/Wand Firmware"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../AUDIO_FILES/" class="btn btn-neutral float-right" title="Audio Files">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>GPStar Technologies</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../FLASHING/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../AUDIO_FILES/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

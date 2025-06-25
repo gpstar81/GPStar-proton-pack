@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Power Requirements - GPStar Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Power Requirements";
+        var mkdocs_page_input_path = "POWER.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="..">
+          <img src="../images/gpstar_logo_white.png" class="logo" alt="Logo"/>
+        </a>
+        <div class="version">
+          6.x
+        </div><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ABOUT/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Core Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../GUIDE_LISTING/">Introduction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_PCB/">Proton Pack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_PCB/">Neutrona Wand</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../HOSE/">Pack-Wand Hose</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../GPSTAR_AUDIO_PCB/">GPStar Audio</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DIY_LEGACY/">Legacy DIY</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Optional Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Proton Pack</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_LID/">Cyclotron Lid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_INNER/">Inner Cyclotron</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_BYPASS/">Cyclotron Bypass</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NFILTER/">N-Filter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../POWERCELL/">Power Cell</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Neutrona Wand</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../BARGRAPH/">Bargraph</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../HATS/">Hatlights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../VENTLIGHT/">Vent Lights</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Serial1 Expansion</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../SERIAL1/">Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ATTENUATOR/">Attenuator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../WIRELESS/">WiFi Adapter</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Special Guides</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Power Requirements</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#voltage">Voltage</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#power-draw">Power Draw</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#warnings">Warnings</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#options">Options</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#good">Good</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#better">Better</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#best">Best</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#ultimate">Ultimate</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#using-multiple-power-sources">Using Multiple Power Sources</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#charging-switch">Charging Switch</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SOUND/">Sound Output</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SMOKE/">Smoke Kits</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Install Videos</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_JONOGUNN/">Jonogunn</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_NORCALGB/">Nor-Cal GB</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Maintenance</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../FLASHING/">Flashing Pack/Wand Firmware</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ATTENUATOR_FLASHING/">Flashing Attenuator/Wifi</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../AUDIO_FILES/">Audio Files</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operation Manuals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_USAGE/">General Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_MENUS/">Runtime Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_EEPROM/">EEPROM Menus</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Help</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TROUBLESHOOTING/">Troubleshooting</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">GPStar Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Special Guides</li>
+      <li class="breadcrumb-item active">Power Requirements</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="power-requirements">Power Requirements</h1>
+<p>You will need a suitable power supply to run the pack controller, 2 sound boards, the wand controller, and optionally any audio amplifiers and smoke effects. If looking for configuration options for the latter, please view <a href="../SMOKE/">the SMOKE guide</a> for diagrams and references.</p>
+<h2 id="voltage">Voltage</h2>
+<p>The controller, sound boards, and all LEDs will all require 5VDC which is the standard voltage for USB devices. For this reason many simple battery packs used by the community have been using a USB to JST-XH connector for the stock HasLab equipment.</p>
+<p>For most audio amplifier choices used with the pack those devices typically require 9-12V. Meanwhile, the components required for smoke kits may use as little as 3.7V or require up to 12V.</p>
+<p><strong>Note:</strong> You will most likely be using a rechargeable lithium-ion battery or similar to power your equipment. Unlike Alkaline batteries these do not drop in voltage as they discharge, but keep up a continuous voltage until their capacity is nearly depleted--at which time the internal circuitry will simply stop providing output. As such, reading voltage is not a reliable means of estimating battery life remaining.</p>
+<p><strong>2025 Update</strong> - The new <a href="https://gpstartechnologies.com/products/gpstar-amplifier-ii">GPStar Amplifier II</a> and <a href="https://gpstartechnologies.com/products/gpstar-power-hub-ii">Power Hub II</a> devices now allow your system to be 24V compatible. These devices can take 12V or 24V source voltage as input while still providing 5V distribution for accessories.</p>
+<h2 id="power-draw">Power Draw</h2>
+<p>In addition to voltage we need to consider the amperage required for running components. You will need a power source which can deliver at least 0.6A to run the most basic kit, while additional upgrades such as the 48-LED barrel will require a minimum of 0.8A to run effectively. The 12V batteries offered by Talentcell are a popular choice as they provide up to 2A from the USB port and 3A from the 12V barrel jack.</p>
+<p>Next is the matter of how long you may wish to run your pack. For those who "troop" or will use their equipment for events, you need a long runtime which is a factor of the battery's Amp-Hour rating (typically stated in milli-Amp-hour or mAh). To estimate how long your battery will last you would need to know how many Amps are required to run your kit at a maximum, then divide the mAh rating by Amps. For example, a 3000mAh battery is equivalent to 3Ah, which at a constant 0.8A draw would run for approximately 3.75hrs.</p>
+<p><strong>June 2024 Update</strong> - Since the advent of this kit several components have been added as optional equipment, and some as alternatives to original parts. When using the pack and wand controllers with GPStar Audio boards, an ESP32 and Attenuator kit, all possible wand lighting upgrades, and the GPStar Amplifier the total power draw is around 0.35A at idle and around 0.93A while firing all effects. If adding a single smoke kit for the N-Filter during overheat/venting the maximum power draw is closer to 2.92A which is approaching the maximum rating for the Talentcell batteries.</p>
+<h2 id="warnings">Warnings</h2>
+<p><em>"I'm fuzzy on the whole good/bad thing. What do you mean, 'bad'?" -Dr. Venkman</em></p>
+<ul>
+<li>
+<p>For purposes of a DIY approach, in no case should you use the Arduino Mega's barrel jack to convert 12VDC into 5VDC for that board, nor use the 5V pin on the controller for running any other devices. The power converter on the microcontroller can become hot and may burn out over time, or you could easily draw more power than the Arduino can sustain, causing the need to replace the entire controller. Your best option is to utilize the 5V pin (and GND) to power any Arduino controllers which should come from a stable regulated 5V power source. The D-cell batteries supplied with the stock equipment may not be sufficient for the long runtimes expected by the solutions offered by these guides--furthermore, Alkaline batteries will exhibit a voltage drop as they drain which can fall below the minimum necessary to run the Arduino controllers.</p>
+</li>
+<li>
+<p>Any battery pack which uses PD (power delivery) is not recommended, nor is use of USB-C connections as these could potentially supply up to 100W of power and could destroy your equipment. Using standard USB-A connections is recommended as there are dedicated power wires which are easy to access from a modified cable and is typically limited to 2-3 Amps for output.</p>
+</li>
+<li>
+<p>Putting too high a load on a rechargeable battery is not good long-term for the battery or the components. The battery will be limited to a maximum output in terms of both voltage and camperage. In some cases this can present as degraded behavior for the component (eg. smoke air pumps run slower) or it could affect the controllers causing stuttering or other unexpected behavior. You are encouraged to put high-draw devices on their own separate battery or otherwise limit smoke effects to 1 device per battery if sharing with the pack/wand electronics.</p>
+</li>
+<li>
+<p>When using the new GPStar Amplifier in your Proton Pack, do not run more than 1 smoke device (vape coil + air pump) from any of the provided 5V JST-XH connections. The built-in voltage regulator can only provide a maximum of 3A, and when running all of the pack/wand components plus a single 5V smoke device can easily approach that maximum. Similarly, if using the GPStar Power Hub this also uses the same voltage regulator and should not be used to drive more than 2 smoke device.</p>
+</li>
+</ul>
+<h2 id="options">Options</h2>
+<h3 id="good">Good</h3>
+<p>A standard USB battery pack with a USB-to-JST cable to deliver only the +5VDC and Ground (-) for use by all components. YMMV based on the option you choose, but it MUST support at least 2A of power for the core electronics, exclusive of any smoke effects. See the next 2 options for more recommended solutions.</p>
+<h3 id="better">Better</h3>
+<p>A TalentCell<sup>1</sup> battery pack which <a href="https://a.co/d/j4m2Kff">only offers a 12VDC output</a> or <a href="https://a.co/d/8q0VcxT">both USB connections and 12VDC output</a>. For models which support USB, use of a USB-to-JST cable can provide power to the core electronics while the 12VDC barrel jack will be used for the audio amplifier in the pack.</p>
+<h3 id="best">Best</h3>
+<p>Either of the TalentCell<sup>1</sup> battery packs just mentioned in conjunction with the <a href="https://gpstartechnologies.com/products/gpstar-amplifier">GPStar Amplifier</a>. The latter device connects easily using a barrel jack, such as the splitter provided with the TalentCell battery for simultaneous charging and use. The amplifier contains a built-in power regulator and multiple 5VDC JST-XH ports for connecting your GPStar Pack Controller, sending power to the Neutrona Wand, and power for the Attenuator or wireless adapter.</p>
+<p><sup>1</sup> TalentCell batteries come in a variety of amp-hour ratings, though 3000mAh or 6000mAh are common capacities.</p>
+<h3 id="ultimate">Ultimate</h3>
+<p>With the introduction of the <a href="https://gpstartechnologies.com/products/gpstar-amplifier-ii">GPStar Amplifier II</a> and <a href="https://gpstartechnologies.com/products/gpstar-power-hub-ii">Power Hub II</a> devices your Proton Pack can be adapted to run on a 24V input voltage! This will require a suitable battery such as the <a href="https://talentcell.com/lithium-ion-battery/24v/pb240a1.html">TalentCell 24V 82.88Wh Battery, model PB240A1</a>.</p>
+<h2 id="using-multiple-power-sources">Using Multiple Power Sources</h2>
+<p>For those who wish to make use of smoke effects, the need for multiple batteries has become more apparent and recommended. Every addition and upgrade to your pack and wand comes at a cost of power, and as of 2024 the number of LEDs in use may require up to 1.2A just for the base system functionality. While most DIY and community smoke kits may require 1.5-2.5A each, which easily pushes the stated limit (3A) of a single TalentCell battery.</p>
+<p>Please follow our diagrams in the <a href="../SMOKE/">Smoke Guide</a> for more information about how to make use of multiple batteries. With the addition of the <a href="https://gpstartechnologies.com/products/gpstar-power-hub">GPStar Power Hub</a> this is much easier as you can use a single device with a standalone battery to operate up to 2 smoke kits simultaneously. Per our recommendations, smoke kits can and should be triggered by use of a relay which also makes this scenario possible, as it provides isolation between the power source to the primary electronics from the high-draw heating elements used in most smoke kits.</p>
+<h2 id="charging-switch">Charging Switch</h2>
+<p>Some users have made use of what's called the "DPDT Mod" which uses any standard "Dual-Pole, Dual-Throw" <a href="https://a.co/d/gVtXMck">toggle</a> or <a href="https://a.co/d/3EYqrDI">switch</a> to act as a master kill switch to the electronics, but allowing a Talentcell battery to be charged. Assuming you use both the 5V from the USB port and 12V from the barrel jack on a standard Talentcell battery (regardless of mAh capacity), the basic installation would look like this:</p>
+<ul>
+<li>A <a href="https://a.co/d/hxna1qj">5.5mm x 2.1mm (or 5521) female port</a> is installed on the Proton Pack as a charging port</li>
+<li>All ground connections are tied together: from the USB, Barrel Jack, and Charging Port</li>
+<li>Each positive (+) connection is attached to a post on the toggle or switch as follows:<ul>
+<li>The 12V+ and 5V+ to the Proton Pack are connected to the upper posts of the toggle/switch</li>
+<li>The Barrel Jack's 12V+ and USB's 5V+ are connected to the center posts of the toggle/switch</li>
+<li>ONLY the 12V+ from the charging port is connected to the end OPPOSITE the Proton Pack connections</li>
+</ul>
+</li>
+</ul>
+<p>For a visual aid see the ASCII drawing below for reference. The 12V is intended to go to your audio amplifier, while the 5V goes to the Proton Pack PCB. <strong>If using the GPStar Audio Amp</strong> which can supply 5V to your pack/wand PCB's you can simply use the 12V connection only and ignore all 5V connections shown/mentioned.</p>
+<p><strong>Note:</strong> In order to use the Talentcell or charge it, the battery itself must be in the ON position. If you wish to conserve power once charged, turn off the battery via its built-in switch if you intend to store or not use your equipment for a long period.</p>
+<pre><code>Proton Pack
+  -------------- Negative from Common Ground
+  |
+ Amp   PCB ----- Negative from Common Ground
+  |+    |+
+===========
+|12V+  5V+|
+| |     | |
+|12V+  5V+| == Common Center to Battery (Jack/USB)
+| |       |
+|12V+  NC*|  *No Connection for 5V+ side (USB)
+===========
+  |+
+Charging Port -- Negative from Common Ground
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../WIRELESS/" class="btn btn-neutral float-left" title="WiFi Adapter"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../SOUND/" class="btn btn-neutral float-right" title="Sound Output">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>GPStar Technologies</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../WIRELESS/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../SOUND/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

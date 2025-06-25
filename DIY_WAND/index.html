@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Neutrona Wand Setup - GPStar Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Neutrona Wand Setup";
+        var mkdocs_page_input_path = "DIY_WAND.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="..">
+          <img src="../images/gpstar_logo_white.png" class="logo" alt="Logo"/>
+        </a>
+        <div class="version">
+          6.x
+        </div><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ABOUT/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Core Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../GUIDE_LISTING/">Introduction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_PCB/">Proton Pack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_PCB/">Neutrona Wand</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../HOSE/">Pack-Wand Hose</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../GPSTAR_AUDIO_PCB/">GPStar Audio</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DIY_LEGACY/">Legacy DIY</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Optional Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Proton Pack</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_LID/">Cyclotron Lid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_INNER/">Inner Cyclotron</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_BYPASS/">Cyclotron Bypass</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NFILTER/">N-Filter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../POWERCELL/">Power Cell</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Neutrona Wand</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../BARGRAPH/">Bargraph</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../HATS/">Hatlights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../VENTLIGHT/">Vent Lights</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Serial1 Expansion</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../SERIAL1/">Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ATTENUATOR/">Attenuator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../WIRELESS/">WiFi Adapter</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Special Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../POWER/">Power Requirements</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SOUND/">Sound Output</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SMOKE/">Smoke Kits</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Install Videos</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_JONOGUNN/">Jonogunn</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_NORCALGB/">Nor-Cal GB</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Maintenance</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../FLASHING/">Flashing Pack/Wand Firmware</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ATTENUATOR_FLASHING/">Flashing Attenuator/Wifi</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../AUDIO_FILES/">Audio Files</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operation Manuals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_USAGE/">General Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_MENUS/">Runtime Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_EEPROM/">EEPROM Menus</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Help</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TROUBLESHOOTING/">Troubleshooting</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">GPStar Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Neutrona Wand Setup</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="neutrona-wand-setup">Neutrona Wand Setup</h1>
+<p><strong>As of November 2023 the last release to support software builds for the Arduino Nano was v2.2.0. Due to memory limitations of this device no further software updates are possible. In order to make use of this guide you will need to upgrade to either an official GPStar Neutrona Wand controller PCB or use a Mega2560 Pro Mini as linked in the <a href="../DIY_BOM/">DIY_BOM</a> document.</strong></p>
+<p>This guide begins with some explanations for common items you will encounter during the upgrade process. Note that it will be necessary to upgrade the hose and conductors between the pack and wand. This exercise is left to individual preferences on connectors and style of replacement, though you will need 4 conductors at a minimum (+5V, Ground, and TX/RX for communications).</p>
+<p>The space within the Neutrona Wand is extremely limited, though multiple components must be fit into this space. To maximize what is available, some wires from the original controller (PCB) can be directly soldered onto the microcontroller. Where resistors or inline components are required, these may be soldered between the wire and microcontroller to reduce need for an additional protoboard. If needed, a <a href="https://www.adafruit.com/product/1608">a ¼ protoboard from Adafruit</a> or any similar size from another manufacturer will be used.</p>
+<h2 id="special-cautions-and-warnings">Special Cautions and Warnings</h2>
+<p>You will find that the wand poses some challenges due to confined spaces and fragile wires to all the stock components. The following are suggestions to help you minimize damage to existing wiring, unless you plan to remove all the stock components and connect new wires.</p>
+<ul>
+<li>Remove what you can of any plastic covers over the switches internally, and use a hot glue gun to carefully drip glue over the soldered ends of the toggles, rotary encoder, and any other wire connections to reinforce them as they stand.</li>
+<li>Gently separate any wires that are bonded together, allowing about 1" of excess for stripping.</li>
+<li>Use a mechanical wire stripper to ensure you quickly strip back the sheathing for each wire.</li>
+<li>Use silicone-coated <strong>stranded</strong> wiring (22AWG down to 26AWG) to allow for maximum flexibility.</li>
+<li>Solder on extensions to every wire in the wand and use heat-shrink tubing to reinforce extended connections to make a better bond with the stock wire to prevent breakage.</li>
+<li>Continue the extended wire to either a PCB or the microcontroller for soldering, making sure that ALL of the strands of wire make it through the holes. Twist your bare wires tightly, and you can pre-tin the ends with a bit of solder to keep everything together as you fit the wire through any PCB holes (this also works well for making breadboard connections).</li>
+<li>Optionally, this is where you may consider a full replacement of some wires if they break off at the component you are connecting.</li>
+<li>It's too easy to have some strands that get missed which could cause a short--check your connections after soldering. A magnifying glass and good lighting is your friend!</li>
+</ul>
+<h2 id="original-connection-references">Original Connection References</h2>
+<p>You may wish to refer to this PCB drawing and the following table to help identify the original components in the Neutrona Wand.</p>
+<p><img alt="Stock PCB Layout" src="../images/WandPCBs.png" /></p>
+<p><em><a href="https://github.com/Tomdf/Ghostbusters/tree/main/Haslab%20Pack%20Illustrations/Neutrona_Wand_Illustration">Wand Reference Diagrams</a> by Tomdf</em></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Socket</th>
+<th>Color</th>
+<th>Hasbro Pin</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>J3</td>
+<td></td>
+<td><font color="brown">Brown</font></td>
+<td>D2</td>
+<td>Bar Graph LEDs (5)</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><font color="red">Red</font></td>
+<td>D3</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><font color="orange">Orange</font></td>
+<td>D4</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><font color="yellow">Yellow</font></td>
+<td>D5</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><font color="green">Green</font></td>
+<td>D6</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><font color="blue">Blue</font></td>
+<td>VDD</td>
+<td></td>
+</tr>
+<tr>
+<td>P6</td>
+<td></td>
+<td><font color="red">Red</font></td>
+<td>V4.5</td>
+<td>4.5V connection from battery compartment</td>
+</tr>
+<tr>
+<td>GND</td>
+<td></td>
+<td>Black</td>
+<td>GND</td>
+<td>Main power ground</td>
+</tr>
+<tr>
+<td>M1</td>
+<td></td>
+<td><font color="red">Red</font></td>
+<td>VCC</td>
+<td>Wand vibration motor</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>Black</td>
+<td>GND</td>
+<td></td>
+</tr>
+<tr>
+<td>SW1</td>
+<td></td>
+<td><font color="brown">Brown</font></td>
+<td>SPDT Toggle</td>
+<td>Lower Right Toggle (Main Power)</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><font color="brown">Brown</font></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>SW2</td>
+<td></td>
+<td><font color="red">Red</font></td>
+<td>SPDT Toggle</td>
+<td>Upper Right Toggle (Bargraph Power)</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><font color="red">Red</font></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>SW3</td>
+<td></td>
+<td><font color="brown">Brown</font></td>
+<td>V+</td>
+<td>Rotary encoder (intensity) on top of wand</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><font color="red">Red</font></td>
+<td>A</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><font color="orange">Orange</font></td>
+<td>B</td>
+<td></td>
+</tr>
+<tr>
+<td>SW7</td>
+<td></td>
+<td><font color="orange">Orange</font></td>
+<td>SPST Switch</td>
+<td>Wand tip retraction/extension sensor</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><font color="orange">Orange</font></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>SW4</td>
+<td>JST-PH</td>
+<td><font color="red">Red</font></td>
+<td>SPDT Toggle</td>
+<td>Activate toggle on left control box</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><font color="red">Red</font></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>SW5</td>
+<td>JST-PH</td>
+<td><font color="gray">White</font></td>
+<td>SPST Button</td>
+<td>Intensify button on left control box</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><font color="gray">White</font></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>SW6</td>
+<td>JST-PH</td>
+<td><font color="gray">White</font></td>
+<td>SPST Button</td>
+<td>Orange button at end of wand, changes modes</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><font color="gray">White</font></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>D1</td>
+<td></td>
+<td><font color="red">Red</font></td>
+<td>VCC</td>
+<td>SLO-BLO LED</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>Black</td>
+<td>GND</td>
+<td></td>
+</tr>
+<tr>
+<td>NA</td>
+<td></td>
+<td><font color="red">Red</font></td>
+<td>VDD</td>
+<td>Power to D7 &amp; D8</td>
+</tr>
+<tr>
+<td>D7</td>
+<td></td>
+<td><font color="gray">White</font></td>
+<td>GND</td>
+<td>Top Right LED</td>
+</tr>
+<tr>
+<td>D8</td>
+<td></td>
+<td>Black</td>
+<td>GND</td>
+<td>Top Vent LED</td>
+</tr>
+<tr>
+<td>D9</td>
+<td></td>
+<td><font color="red">Red</font></td>
+<td>VCC</td>
+<td>Clippard LED (Top Left)</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><font color="yellow">Yellow</font></td>
+<td>GND</td>
+<td></td>
+</tr>
+<tr>
+<td>LS1</td>
+<td></td>
+<td><font color="yellow">Yellow</font></td>
+<td>Speaker +</td>
+<td>Wire closest to barrel LED connector is Speaker +</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><font color="yellow">Yellow</font></td>
+<td>Speaker -</td>
+<td>Wire furthest from barrel LED connector is Speaker -</td>
+</tr>
+</tbody>
+</table>
+<h1 id="important-neutrona-wand-barrel-leds-wire-colour-differences">(Important) Neutrona Wand Barrel LEDs wire colour differences.</h1>
+<p>It appears some of the silver tip generation 1 Neutrona Wands and orange tip generation 2 Neutrona Wands may have different wire colour combinations for the barrel LED lights:</p>
+<h2 id="generation-1-silver-tip-neutrona-wands">Generation 1 (Silver tip Neutrona Wands)</h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Socket</th>
+<th>Color</th>
+<th>Hasbro Pin</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Q2</td>
+<td>JST-PH</td>
+<td><font color="yellow">Yellow</font></td>
+<td>VCC</td>
+<td>Addressable LEDs for wand tip effects (5 total)</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><font color="red">Red</font></td>
+<td>Data</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><font color="red">Brown</font></td>
+<td>GND</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="generation-2-orange-tip-neutrona-wands">Generation 2 (Orange tip Neutrona Wands)</h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Socket</th>
+<th>Color</th>
+<th>Hasbro Pin</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Q2</td>
+<td>JST-PH</td>
+<td><font color="blue">Blue</font></td>
+<td>VCC</td>
+<td>Addressable LEDs for wand tip effects (5 total)</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><font color="yellow">Yellow</font></td>
+<td>Data</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><font color="red">Red</font></td>
+<td>GND</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="wav-trigger-connections">WAV Trigger Connections</h2>
+<p>These are the same connections which are used for the FTDI breakout board to program the WAV Trigger. Use pins and sockets for an easy connection should a firmware upgrade be required in the future.</p>
+<table>
+<thead>
+<tr>
+<th>WAV Trigger</th>
+<th>Connection</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5Vin</td>
+<td>+5V</td>
+</tr>
+<tr>
+<td>GND</td>
+<td>Ground</td>
+</tr>
+<tr>
+<td>RX</td>
+<td>PIN D14</td>
+</tr>
+<tr>
+<td>TX</td>
+<td>PIN D15</td>
+</tr>
+<tr>
+<td>SPKR+</td>
+<td>Speaker +</td>
+</tr>
+<tr>
+<td>SPKR-</td>
+<td>Speaker -</td>
+</tr>
+</tbody>
+</table>
+<h2 id="mega2560-pro-mini-pin-reference-vs-hasbro-controller">Mega2560 Pro Mini - Pin Reference vs. Hasbro Controller</h2>
+<p>The following is a diagram of the Mega2560 Pro Mini pins from left and right, when oriented with the USB connection facing up (north). As this board has 2 rows of pins on each side it is crucial to re-check labels before connection. Please see the diagram at the bottom of the page if necessary.</p>
+<p>Please note that the Mega2560 Pro Mini uses a completely different pinout from the old Arduino Nano DIY build!</p>
+<table>
+<thead>
+<tr>
+<th>Mega (L1)</th>
+<th>Mega (L2)</th>
+<th>USB</th>
+<th>Mega (R1)</th>
+<th>Mega (R2)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VIN &rarr; +5V (Pack)</td>
+<td>VIN</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>GND &rarr; Ground (Pack)</td>
+<td>GND</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>5V</td>
+<td>5V</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>3.3V</td>
+<td>3.3V</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>RST</td>
+<td>AREF</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>TX0 &rarr; RX (to Pack)</td>
+<td>RX0 &rarr; TX (to Pack)</td>
+<td></td>
+<td>A1 &rarr; D2 (Brown)</td>
+<td>A0 &rarr; SW2 (Red)</td>
+</tr>
+<tr>
+<td>D3 &rarr; SW4 (Red)</td>
+<td>D2 &rarr; SW45 (White)</td>
+<td></td>
+<td>A3 &rarr; D4 (Orange)</td>
+<td>A2 &rarr; D3 (Red)</td>
+</tr>
+<tr>
+<td>D5</td>
+<td>D4 &rarr; SW1 (Brown)</td>
+<td></td>
+<td>A5 &rarr; D6 (Green)</td>
+<td>A4 &rarr; D5 (Yellow)</td>
+</tr>
+<tr>
+<td>D7 &rarr; ROT (Yellow)</td>
+<td>D6 &rarr; ROT (Red)</td>
+<td></td>
+<td>A7 &rarr; SW7 (Orange)</td>
+<td>A6 &rarr; SW6 (White)</td>
+</tr>
+<tr>
+<td>D9 &rarr; D9 (Red)</td>
+<td>D8 &rarr; D1 (Red)</td>
+<td></td>
+<td>A9</td>
+<td>A8</td>
+</tr>
+<tr>
+<td>D11 &rarr; Motor-NPN</td>
+<td>D10 &rarr; Q2<sup>!</sup> (Yellow) or (Red)</td>
+<td></td>
+<td>A11</td>
+<td>A10</td>
+</tr>
+<tr>
+<td>D13 &rarr; D8 (Red)</td>
+<td>D12 &rarr; D7 (Red)</td>
+<td></td>
+<td>A13</td>
+<td>A12</td>
+</tr>
+<tr>
+<td>D15 &rarr; WAV Trigger TX</td>
+<td>D14 &rarr; WAV Trigger RX</td>
+<td></td>
+<td>A15</td>
+<td>A14</td>
+</tr>
+<tr>
+<td>D17</td>
+<td>D16</td>
+<td></td>
+<td>D33</td>
+<td>D32</td>
+</tr>
+<tr>
+<td>D19</td>
+<td>D18</td>
+<td></td>
+<td>D35</td>
+<td>D34</td>
+</tr>
+<tr>
+<td>D21</td>
+<td>D20</td>
+<td></td>
+<td>D37</td>
+<td>D36</td>
+</tr>
+<tr>
+<td>D23</td>
+<td>D22</td>
+<td></td>
+<td>D39</td>
+<td>D38</td>
+</tr>
+<tr>
+<td>D25</td>
+<td>D24</td>
+<td></td>
+<td>D41</td>
+<td>D40</td>
+</tr>
+<tr>
+<td>D27</td>
+<td>D26</td>
+<td></td>
+<td>D43</td>
+<td>D42</td>
+</tr>
+<tr>
+<td>D29</td>
+<td>D28</td>
+<td></td>
+<td>D45</td>
+<td>D44</td>
+</tr>
+<tr>
+<td>D31</td>
+<td>D30</td>
+<td></td>
+<td>D47</td>
+<td>D46</td>
+</tr>
+</tbody>
+</table>
+<p><sup>!</sup> <strong>See note above about Barrel LED wire colour differences:</strong> Generation 1 Neutrona Wands (silver tip) data line is (Red) while generation 2 Neutrona Wands (orange tip) data line is (Yellow)</p>
+<h3 id="connections-by-component">Connections by Component</h3>
+<p><strong>Toggles and Buttons</strong></p>
+<table>
+<thead>
+<tr>
+<th>LOWER RIGHT TOGGLE → SW1</th>
+<th></th>
+<th></th>
+<th></th>
+<th>Mega Pin</th>
+<th>Hasbro Ref</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><font color="brown">Brown</font></td>
+<td>→</td>
+<td>Ground</td>
+<td></td>
+<td></td>
+<td>SW1</td>
+<td>Shouldn’t matter which wire goes where</td>
+</tr>
+<tr>
+<td><font color="brown">Brown</font></td>
+<td>→</td>
+<td>→</td>
+<td>→</td>
+<td>Pin D4</td>
+<td>SW1</td>
+<td>Shouldn’t matter which wire goes where</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>UPPER RIGHT TOGGLE → SW2</th>
+<th></th>
+<th></th>
+<th></th>
+<th>Mega Pin</th>
+<th>Hasbro Ref</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><font color="red">Red</font></td>
+<td>→</td>
+<td>Ground</td>
+<td></td>
+<td></td>
+<td>SW2</td>
+<td>Shouldn’t matter which wire goes where</td>
+</tr>
+<tr>
+<td><font color="red">Red</font></td>
+<td>→</td>
+<td>→</td>
+<td>→</td>
+<td>Pin A0</td>
+<td>SW2</td>
+<td>Shouldn’t matter which wire goes where</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>SW45/SW4 Connector: SW45 = Intensify / SW4 = Activate</th>
+<th></th>
+<th></th>
+<th></th>
+<th>Mega Pin</th>
+<th>Hasbro Ref</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><font color="gray">White</font></td>
+<td>→</td>
+<td>Ground</td>
+<td></td>
+<td></td>
+<td>SW45</td>
+</tr>
+<tr>
+<td><font color="gray">White</font></td>
+<td>→</td>
+<td>→</td>
+<td>→</td>
+<td>Pin D2</td>
+<td>SW45</td>
+</tr>
+<tr>
+<td><font color="red">Red</font></td>
+<td>→</td>
+<td>Ground</td>
+<td></td>
+<td></td>
+<td>SW4</td>
+</tr>
+<tr>
+<td><font color="Red"> Red </font></td>
+<td>→</td>
+<td>→</td>
+<td>→</td>
+<td>Pin D3</td>
+<td>SW4</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>MODE SWITCH → SW6</th>
+<th></th>
+<th></th>
+<th></th>
+<th>Mega Pin</th>
+<th>Hasbro Ref</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><font color="gray">White</font></td>
+<td>→</td>
+<td>Ground</td>
+<td></td>
+<td></td>
+<td>SW6</td>
+<td>Shouldn’t matter which wire goes where</td>
+</tr>
+<tr>
+<td><font color="gray">White</font></td>
+<td>→</td>
+<td>→</td>
+<td>→</td>
+<td>Pin A6</td>
+<td>SW6</td>
+<td>Shouldn’t matter which wire goes where</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>BARREL EXTENSION SWITCH → SW7</th>
+<th></th>
+<th></th>
+<th></th>
+<th>Mega Pin</th>
+<th>Hasbro Ref</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><font color="orange">Orange</font></td>
+<td>→</td>
+<td>Ground</td>
+<td></td>
+<td></td>
+<td>SW7</td>
+<td>Shouldn’t matter which wire goes where</td>
+</tr>
+<tr>
+<td><font color="orange">Orange</font></td>
+<td>→</td>
+<td>→</td>
+<td>→</td>
+<td>Pin A7</td>
+<td>SW7</td>
+<td>Shouldn’t matter which wire goes where</td>
+</tr>
+</tbody>
+</table>
+<p>The rotary encoder is similar to that used on the Proton Pack. It requires a common ground connection and sends data via the A/B signal wires to indicate which direction it was turned.</p>
+<table>
+<thead>
+<tr>
+<th>ROTARY ENCODER (ROT) → SW3</th>
+<th></th>
+<th></th>
+<th></th>
+<th>Mega Pin</th>
+<th>Hasbro Ref</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><font color="brown">Brown</font></td>
+<td>→</td>
+<td>Ground</td>
+<td></td>
+<td></td>
+<td>V+</td>
+</tr>
+<tr>
+<td><font color="red">Red</font></td>
+<td>→</td>
+<td>→</td>
+<td>→</td>
+<td>Pin D6</td>
+<td>SW3</td>
+</tr>
+<tr>
+<td><font color="orange">Orange</font></td>
+<td>→</td>
+<td>→</td>
+<td>→</td>
+<td>Pin D7</td>
+<td>SW3</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Motors</strong></p>
+<p>Considered optional as this can be left out if desired, and without impact to normal operation.</p>
+<table>
+<thead>
+<tr>
+<th>VIBRATION&nbsp;MOTOR</th>
+<th></th>
+<th></th>
+<th>Motor Wire</th>
+<th>Mega&nbsp;Pin</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td>1N4001 (s)</td>
+<td><font color="red">Red</font></td>
+<td>+5V</td>
+<td>1N4001 diode (s = striped end of the diode)</td>
+</tr>
+<tr>
+<td>NPN C</td>
+<td>→</td>
+<td>1N4001</td>
+<td>Black</td>
+<td></td>
+<td>NPN* = PN2222</td>
+</tr>
+<tr>
+<td>NPN B</td>
+<td>→</td>
+<td>330 Ω</td>
+<td>→</td>
+<td>Pin D11</td>
+<td></td>
+</tr>
+<tr>
+<td>NPN E</td>
+<td>→</td>
+<td>→</td>
+<td>→</td>
+<td>Ground</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>*NPN Bipolar Transistor. Reference Pack page for more info.</p>
+<h3 id="hasbro-bargraph">Hasbro Bargraph</h3>
+<table>
+<thead>
+<tr>
+<th>BARGRAPH → J3</th>
+<th></th>
+<th></th>
+<th></th>
+<th>Mega Pin</th>
+<th>Hasbro Ref</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><font color="blue">Blue</font></td>
+<td>→</td>
+<td>+5V</td>
+<td></td>
+<td></td>
+<td>VDD</td>
+</tr>
+<tr>
+<td><font color="green">Green</font></td>
+<td>→</td>
+<td>140 Ω</td>
+<td>→</td>
+<td>Pin A5</td>
+<td>D6</td>
+</tr>
+<tr>
+<td><font color="yellow">Yellow</font></td>
+<td>→</td>
+<td>140 Ω</td>
+<td>→</td>
+<td>Pin A4</td>
+<td>D5</td>
+</tr>
+<tr>
+<td><font color="orange">Orange</font></td>
+<td>→</td>
+<td>140 Ω</td>
+<td>→</td>
+<td>Pin A3</td>
+<td>D4</td>
+</tr>
+<tr>
+<td><font color="red">Red</font></td>
+<td>→</td>
+<td>140 Ω</td>
+<td>→</td>
+<td>Pin A2</td>
+<td>D3</td>
+</tr>
+<tr>
+<td><font color="brown">Brown</font></td>
+<td>→</td>
+<td>140 Ω</td>
+<td>→</td>
+<td>Pin A1</td>
+<td>D2</td>
+</tr>
+</tbody>
+</table>
+<p>Note for Bargraph: If you want to replace LEDs, the bargraph uses 3mm LED diodes.
+<strong>Use the appropriate resistor for your replacement LEDs based on their forward voltage given a 5V source!</strong></p>
+<h3 id="wand-leds">Wand LEDs</h3>
+<table>
+<thead>
+<tr>
+<th>VENT LIGHT LED BOARD → D7 &amp; D8</th>
+<th></th>
+<th></th>
+<th></th>
+<th>Mega Pin</th>
+<th>Hasbro Ref</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><font color="red">Red</font></td>
+<td>→</td>
+<td>+5V</td>
+<td></td>
+<td></td>
+<td>VDD</td>
+<td></td>
+</tr>
+<tr>
+<td><font color="gray">White</font></td>
+<td>→</td>
+<td>90 Ω</td>
+<td>→</td>
+<td>Pin D12</td>
+<td>D7</td>
+<td>Blinking white LED on top of the wand</td>
+</tr>
+<tr>
+<td>Black</td>
+<td>→</td>
+<td>90 Ω</td>
+<td>→</td>
+<td>Pin D13</td>
+<td>D8</td>
+<td>White LED inside the wand (vent light)</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>SLO-BLO → D1</th>
+<th></th>
+<th></th>
+<th></th>
+<th>Mega Pin</th>
+<th>Hasbro Ref</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><font color="red">Red</font></td>
+<td>→</td>
+<td>140 Ω</td>
+<td>→</td>
+<td>Pin D8</td>
+<td>D1</td>
+<td></td>
+</tr>
+<tr>
+<td>Black</td>
+<td>→</td>
+<td>→</td>
+<td>→</td>
+<td>Ground</td>
+<td>D1</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>FRONT LEFT LED → D9</th>
+<th></th>
+<th></th>
+<th></th>
+<th>Mega Pin</th>
+<th>Hasbro Ref</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><font color="red">Red</font></td>
+<td>→</td>
+<td>140 Ω</td>
+<td>→</td>
+<td>Pin D9</td>
+<td>D9</td>
+<td></td>
+</tr>
+<tr>
+<td><font color="yellow">Yellow</font></td>
+<td>→</td>
+<td>→</td>
+<td>→</td>
+<td>Ground</td>
+<td>D9</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="wand-barrel-leds">Wand Barrel LEDs</h2>
+<p><strong>*See note near the top of this page about the Neutrona Wand barrel LED wire colours differences between the silver tip and orange tip Neutrona Wands*</strong></p>
+<p><strong>Generation 1 (Silver Tip Wands)</strong></p>
+<table>
+<thead>
+<tr>
+<th>WAND-TUBE → Q2</th>
+<th></th>
+<th></th>
+<th></th>
+<th>Mega Pin</th>
+<th>Hasbro Ref</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><font color="yellow">Yellow</font></td>
+<td>→</td>
+<td>+5V</td>
+<td></td>
+<td></td>
+<td>Q2</td>
+<td>Power to 5 wand LEDs</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>↕</td>
+<td>CAP 100uf</td>
+<td></td>
+<td></td>
+<td>Capacitor across the +/- power wires</td>
+</tr>
+<tr>
+<td><font color="brown">Brown</font></td>
+<td>→</td>
+<td>Ground</td>
+<td></td>
+<td></td>
+<td>Q2</td>
+<td>Ground to 5 wand LEDs</td>
+</tr>
+<tr>
+<td><font color="red">Red</font></td>
+<td>→</td>
+<td>470Ω</td>
+<td>→</td>
+<td>Pin D10</td>
+<td>Q2</td>
+<td>Data input for addressing LEDs</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generation 2 (Orange Tip Wands)</strong></p>
+<table>
+<thead>
+<tr>
+<th>WAND-TUBE → Q2</th>
+<th></th>
+<th></th>
+<th></th>
+<th>Mega Pin</th>
+<th>Hasbro Ref</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><font color="blue">Blue</font></td>
+<td>→</td>
+<td>+5V</td>
+<td></td>
+<td></td>
+<td>Q2</td>
+<td>Power to 5 wand LEDs</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>↕</td>
+<td>CAP 100uf</td>
+<td></td>
+<td></td>
+<td>Capacitor across the +/- power wires</td>
+</tr>
+<tr>
+<td><font color="red">Red</font></td>
+<td>→</td>
+<td>Ground</td>
+<td></td>
+<td></td>
+<td>Q2</td>
+<td>Ground to 5 wand LEDs</td>
+</tr>
+<tr>
+<td><font color="yellow">Yellow</font></td>
+<td>→</td>
+<td>470Ω</td>
+<td>→</td>
+<td>Pin D10</td>
+<td>Q2</td>
+<td>Data input for addressing LEDs</td>
+</tr>
+</tbody>
+</table>
+<h2 id="component-fitment">Component Fitment</h2>
+<p>As noted at the start of this guide the space inside of the gun box for the wand is extremely limited. Creative placement of any protoboards, the Arduino, WAV Trigger, and speaker (if upgraded) will be left to each individual. As a matter of advice, placing the WAV Trigger under the wand barrel is an advised option with other items "stacked" above and beside the spring-loaded mechanism.</p>
+<h3 id="see-the-alternate-component-fitment-section-below-for-more-information-on-the-stacking-option">(See the alternate component fitment section below for more information on the stacking option)</h3>
+<p>For another fitment option, the WAV Trigger can also fit in the opposite half of the gun box if the barrel jack is removed--this is to avoid the spring which attaches to the wand barrel.</p>
+<h3 id="see-the-audio-output-addendum-for-more-information-on-the-opposite-half-gun-box-mounting-solution">(See the Audio Output addendum for more information on the opposite half gun box mounting solution)</h3>
+<p><a href="../SOUND/">Audio Output Addendum</a></p>
+<p>Below is a view of the wand internals showing the microcontroller, a PCB for connections, and many of the wires which extend the stock wiring. This solution is using several of the included STL files: a small spacer is meant to fit under the barrel if you removed some of the plastic from the old controller mount; another 3D printed part is meant to protect the wiring from intruding on the barrel latching mechanism while still allowing the wires to connect to the barrel. And lastly, a mini USB cable has been routed through the casing to allow updating of the Arduino without removing the cover--in this case the vibration motor had already been removed to save space and make this area more accessible.</p>
+<p><img alt="" src="../images/WandUSB.jpg" /></p>
+<h2 id="alternate-component-fitment">Alternate component fitment</h2>
+<p>This solution requires removing plastic within the wand, and printing some of the included STL mount files and stacking the PCB board then microcontroller on top of the WAV Trigger. Everything is then screwed into one of the remaining holes in the wand body.
+<img alt="" src="../images/WandMountAlt1.jpg" />
+<img alt="" src="../images/WandMountAlt2.jpg" />
+<img alt="" src="../images/WandMountAlt3.jpg" /></p>
+<h2 id="mega2560-pro-mini-pinout-reference">Mega2560 Pro Mini Pinout Reference</h2>
+<p><img alt="" src="../images/Mega-2560-Pro-Pinout.jpg" /></p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>GPStar Technologies</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

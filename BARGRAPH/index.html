@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Bargraph - GPStar Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Bargraph";
+        var mkdocs_page_input_path = "BARGRAPH.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="..">
+          <img src="../images/gpstar_logo_white.png" class="logo" alt="Logo"/>
+        </a>
+        <div class="version">
+          6.x
+        </div><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ABOUT/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Core Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../GUIDE_LISTING/">Introduction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_PCB/">Proton Pack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_PCB/">Neutrona Wand</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../HOSE/">Pack-Wand Hose</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../GPSTAR_AUDIO_PCB/">GPStar Audio</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DIY_LEGACY/">Legacy DIY</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Optional Components</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >Proton Pack</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_LID/">Cyclotron Lid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_INNER/">Inner Cyclotron</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_BYPASS/">Cyclotron Bypass</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NFILTER/">N-Filter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../POWERCELL/">Power Cell</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Neutrona Wand</a>
+    <ul class="current">
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Bargraph</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#28-segment-bargraph-installation-video-guide">28 Segment Bargraph Installation Video Guide</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#28-segment-bargraph-and-power-cell-overview-and-demo">28 Segment Bargraph and Power Cell Overview and Demo</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#hasbro-bargraph-fitment-installation">Hasbro Bargraph Fitment &amp; Installation</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#diy-28-segment-bargraph">DIY 28 Segment Bargraph</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#barmeter-28-segment-bargraph">BARMETER 28 SEGMENT BARGRAPH</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#barmeter-28-segment-bargraph-bl28z-3005sa04y-pin-layout-reference">BARMETER 28 SEGMENT BARGRAPH - BL28Z-3005SA04Y - Pin Layout Reference</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#inverted-bargraph-sequences">Inverted Bargraph Sequences</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#30-segment-bargraph">30-Segment Bargraph</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../HATS/">Hatlights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../VENTLIGHT/">Vent Lights</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Serial1 Expansion</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../SERIAL1/">Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ATTENUATOR/">Attenuator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../WIRELESS/">WiFi Adapter</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Special Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../POWER/">Power Requirements</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SOUND/">Sound Output</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SMOKE/">Smoke Kits</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Install Videos</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_JONOGUNN/">Jonogunn</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_NORCALGB/">Nor-Cal GB</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Maintenance</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../FLASHING/">Flashing Pack/Wand Firmware</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ATTENUATOR_FLASHING/">Flashing Attenuator/Wifi</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../AUDIO_FILES/">Audio Files</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operation Manuals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_USAGE/">General Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_MENUS/">Runtime Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_EEPROM/">EEPROM Menus</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Help</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TROUBLESHOOTING/">Troubleshooting</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">GPStar Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Optional Components</li>
+          <li class="breadcrumb-item">Neutrona Wand</li>
+      <li class="breadcrumb-item active">Bargraph</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="neutrona-wand-bargraph-optional">Neutrona Wand Bargraph (Optional)</h1>
+<p>This guide outlines the <strong>optional</strong> upgrade from the 5-LED stock bargraph to a more animated 28-segment bargraph (BL28Z-3005SA04Y) or the 28 Segment Bargraph and Power Cell from <a href="https://fruttotechnology.com">Frutto Technology</a>.</p>
+<h2 id="28-segment-bargraph-installation-video-guide">28 Segment Bargraph Installation Video Guide</h2>
+<p><a href="https://www.youtube.com/watch?v=8smqGQ_Wr_c">28 Segment Bargraph Installation Video Guide</a> (YouTube)
+<a href="https://www.youtube.com/watch?v=8smqGQ_Wr_c"><img alt="28 Segment Bargraph Installation Video Guide" src="https://img.youtube.com/vi/8smqGQ_Wr_c/maxresdefault.jpg" /></a></p>
+<h2 id="28-segment-bargraph-and-power-cell-overview-and-demo">28 Segment Bargraph and Power Cell Overview and Demo</h2>
+<p><a href="https://www.youtube.com/watch?v=CrQuCUjera4">Bargraph and Power Cell Overview and Demo Video</a> (YouTube)
+<a href="https://www.youtube.com/watch?v=CrQuCUjera4"><img alt="Frutto Technology Bargraph and Power Cell Overview and Demo Video" src="https://img.youtube.com/vi/CrQuCUjera4/maxresdefault.jpg" /></a></p>
+<h2 id="hasbro-bargraph-fitment-installation">Hasbro Bargraph Fitment &amp; Installation</h2>
+<p>The 28-segment bargraph is intended to take the place of the 5-LED + PCB assembly from the stock Hasbro equipment. The only means of accessing this is to remove the barrel release assembly and a portion of the plastic base which sits below the stock controller board. This may require some cutting as the center of that piece is glued directly to the wand handle. Once removed, access to the old bargraph is quite easy and takes removal of 2 screws. The circuit board with the LEDs resides under a small black cover and can be removed from the wand once that cover is removed.</p>
+<p>To install the bargraph, you will want to remove and cut the clear plastic piece away and the original barrel wire cover plastic. You can fit the bargraph into the 3 piece system available on this repository or purchase from the <a href="https://gpstartechnologies.com">gpstartechnologies.com</a>
+<img alt="" src="../images/bargraph-3-mount.jpg" />
+<img alt="" src="../images/bargraph-installed.jpg" />
+<img alt="" src="../images/bargraph-installed-2.jpg" /></p>
+<p>There is an alternative mounting solution using the one piece mount. It should fit the bargraph tightly while also slotting into the clear plastic.</p>
+<p><img alt="" src="../images/bargraph_mount_1.jpg" />
+<img alt="" src="../images/bargraph_mount_2.jpg" /></p>
+<p>Also available to download in this repository, or purchase from the <a href="https://gpstartechnologies.com">gpstartechnologies.com</a> website are 2 versions (short or long depending on how much plastic you remove) of a barrel wire cover, to protect your wires from getting caught on the retractable wand barrel mechanism. This cover screws onto the existing holes that the previous Hasbro board was screwed into, making it easy to remove and to do service inside your wand.
+<img alt="" src="../images/BarrelCover3.png" />
+<img alt="" src="../images/BarrelCover4.png" />
+<img alt="" src="../images/BarrelCover1.png" />
+<img alt="" src="../images/BarrelCover2.png" /></p>
+<h2 id="diy-28-segment-bargraph">DIY 28 Segment Bargraph</h2>
+<p>Additional parts will be required, as well as a more invasive disassembling of the wand.</p>
+<table>
+<thead>
+<tr>
+<th>Qty</th>
+<th>Desc</th>
+<th>Use</th>
+<th>Link</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Barmeter 28 Segment Bargraph</td>
+<td>Please use the part number <strong><em>BL28Z-3005SA04Y</em></strong></td>
+<td><a href="https://www.aliexpress.us/item/3256803648954593.html">https://www.aliexpress.us/item/3256803648954593.html</a></td>
+</tr>
+<tr>
+<td>1</td>
+<td>Adafruit 16x8 LED Matrix Driver Backpack - HT16K33 Breakout</td>
+<td>This will be the display driver for the bargraph elements using I2C serial communication</td>
+<td><a href="https://www.adafruit.com/product/1427">https://www.adafruit.com/product/1427</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="barmeter-28-segment-bargraph">BARMETER 28 SEGMENT BARGRAPH</h3>
+<p>You will find the Barmeter pin reference below which will connect the bargraph to the matrix driver board. See the component fitment guide at the bottom of this page for how to mount this Bargraph into your wand body.</p>
+<table>
+<thead>
+<tr>
+<th>HT16K33 Board</th>
+<th>Wand PCB</th>
+<th>Barmeter Pin</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VDD</td>
+<td>+5V</td>
+<td></td>
+</tr>
+<tr>
+<td>GND</td>
+<td>Ground</td>
+<td></td>
+</tr>
+<tr>
+<td>SDA</td>
+<td>SDA</td>
+<td></td>
+</tr>
+<tr>
+<td>SCL</td>
+<td>SCL</td>
+<td></td>
+</tr>
+<tr>
+<td>A0</td>
+<td>→</td>
+<td>22 (C1)</td>
+</tr>
+<tr>
+<td>A1</td>
+<td>→</td>
+<td>1 (C2)</td>
+</tr>
+<tr>
+<td>A2</td>
+<td>→</td>
+<td>19 (C3)</td>
+</tr>
+<tr>
+<td>A3</td>
+<td>→</td>
+<td>18 (C4)</td>
+</tr>
+<tr>
+<td>A4</td>
+<td>→</td>
+<td>7 (C5)</td>
+</tr>
+<tr>
+<td>A5</td>
+<td>→</td>
+<td>10 (C6)</td>
+</tr>
+<tr>
+<td>A6</td>
+<td>→</td>
+<td>11 (C7)</td>
+</tr>
+<tr>
+<td>C0</td>
+<td>→</td>
+<td>21 (L1)</td>
+</tr>
+<tr>
+<td>C1</td>
+<td>→</td>
+<td>15 (L2)</td>
+</tr>
+<tr>
+<td>C2</td>
+<td>→</td>
+<td>13 (L3)</td>
+</tr>
+<tr>
+<td>C3</td>
+<td>→</td>
+<td>16 (L4)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note</strong> - If using the all-in-one PCB controller, connect the SDA and SCL pins directly to the expansion port available on that board. Additionally, the VDD and GND pins may make use of the 5V-OUT connection on that controller.</p>
+<p><img alt="" src="../images/barmeter.jpg" /></p>
+<h3 id="barmeter-28-segment-bargraph-bl28z-3005sa04y-pin-layout-reference">BARMETER 28 SEGMENT BARGRAPH - BL28Z-3005SA04Y - Pin Layout Reference</h3>
+<p>The following is Barmeter's internal reference for the numbered pins along the edge of the bargraph packaging and their internal names. This is for technical reference only--the only concern for connections should be from the bargraph to the HT16K33 board.</p>
+<table>
+<thead>
+<tr>
+<th>Pin #</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+<th>9</th>
+<th>10</th>
+<th>11</th>
+<th>12</th>
+<th>13</th>
+<th>14</th>
+<th>15</th>
+<th>16</th>
+<th>17</th>
+<th>18</th>
+<th>19</th>
+<th>20</th>
+<th>21</th>
+<th>22</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td>C2</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>C5</td>
+<td></td>
+<td></td>
+<td>C6</td>
+<td>C7</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>C4</td>
+<td>C3</td>
+<td></td>
+<td></td>
+<td>C1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>L3</td>
+<td></td>
+<td>L2</td>
+<td>L4</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>L1</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="inverted-bargraph-sequences">Inverted Bargraph Sequences</h3>
+<p>If your bargraph is inverted or upside down, you can either flip it physically in the wand, or you can invert / de-invert it from within the EEPROM Configuration Menu System. Please see the <a href="../OPERATION_EEPROM/">EEPROM Menu System</a> guide for more information.</p>
+<h3 id="30-segment-bargraph">30-Segment Bargraph</h3>
+<p>As of firmware 5.4.0, the GPStar Neutrona Wand board will also support a 30-segment bargraph controlled by the same HT16K33 LED multiplexer chip as the 28-segment. This bargraph is in development and is intended to be a drop-in replacement for any wand type that offers a more prop-accurate appearance. This document will be updated as soon as more information is available.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../POWERCELL/" class="btn btn-neutral float-left" title="Power Cell"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../HATS/" class="btn btn-neutral float-right" title="Hatlights">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>GPStar Technologies</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../POWERCELL/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../HATS/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

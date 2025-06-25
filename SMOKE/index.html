@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Smoke Kits - GPStar Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Smoke Kits";
+        var mkdocs_page_input_path = "SMOKE.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="..">
+          <img src="../images/gpstar_logo_white.png" class="logo" alt="Logo"/>
+        </a>
+        <div class="version">
+          6.x
+        </div><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ABOUT/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Core Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../GUIDE_LISTING/">Introduction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_PCB/">Proton Pack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_PCB/">Neutrona Wand</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../HOSE/">Pack-Wand Hose</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../GPSTAR_AUDIO_PCB/">GPStar Audio</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DIY_LEGACY/">Legacy DIY</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Optional Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Proton Pack</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_LID/">Cyclotron Lid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_INNER/">Inner Cyclotron</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_BYPASS/">Cyclotron Bypass</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NFILTER/">N-Filter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../POWERCELL/">Power Cell</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Neutrona Wand</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../BARGRAPH/">Bargraph</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../HATS/">Hatlights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../VENTLIGHT/">Vent Lights</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Serial1 Expansion</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../SERIAL1/">Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ATTENUATOR/">Attenuator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../WIRELESS/">WiFi Adapter</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Special Guides</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../POWER/">Power Requirements</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SOUND/">Sound Output</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Smoke Kits</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#what-is-a-smoke-kit">What is a "Smoke Kit"?</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#common-materials">Common Materials</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#disclaimers">Disclaimers</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#warnings">Warnings</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#powering-a-kit">Powering a Kit</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#connection-examples">Connection Examples</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#booster-tube-installation">Booster Tube Installation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#n-filter-installation">N-Filter Installation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#diy-smoke-installation-video">DIY Smoke Installation Video</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Install Videos</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_JONOGUNN/">Jonogunn</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_NORCALGB/">Nor-Cal GB</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Maintenance</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../FLASHING/">Flashing Pack/Wand Firmware</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ATTENUATOR_FLASHING/">Flashing Attenuator/Wifi</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../AUDIO_FILES/">Audio Files</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operation Manuals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_USAGE/">General Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_MENUS/">Runtime Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_EEPROM/">EEPROM Menus</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Help</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TROUBLESHOOTING/">Troubleshooting</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">GPStar Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Special Guides</li>
+      <li class="breadcrumb-item active">Smoke Kits</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="smoke-effects-optional">Smoke Effects (Optional)</h1>
+<p>Both the <a href="../PACK_PCB/">GPStar Proton Pack PCB</a> and <a href="../DIY_PACK/">DIY Arduino</a> approaches can support up to 2 separate smoke options for the N-Filter and Booster Tube to provide atmospheric effects while operating your Ghostbusters equipment. These effects are automatically triggered during certain interactions and typically after pre-set times through use of 5 JST-XH connections configured to provide DC power during smoke effect phases:</p>
+<ul>
+<li>Smoke1 aka. N-Filter Smoke <code>SM-1 - GPStar Proton Pack PCB</code> or <code>Pin 39 - Arudino Mega</code></li>
+<li>Smoke2 aka. Booster Smoke <code>SM-2 - GPStar Proton Pack PCB</code> or <code>Pin 35 - Arduino Mega</code></li>
+<li>Fan1 aka. N-Filter Fan <code>FN-1 - GPStar Proton Pack PCB</code> or <code>Pin 33 - Arduino Mega</code></li>
+<li>Fan2 aka. Booster Fan <code>FN-2 - GPStar Proton Pack PCB</code> or <code>Pin 50 - Arduino Mega</code></li>
+<li>LED-W aka. N-Filter Light <code>LED-W - GPStar Proton Pack PCB</code> or <code>Pin 46 - Arduino Mega</code></li>
+</ul>
+<p><strong>Note: Fan1 is set to run during overheat sequence only. It is useful for pushing smoke through the N-Filter</strong></p>
+<p><strong>Note: Fan2 is set to run at the same time as Smoke2. This was requested if you want to instead use Smoke2 from the booster tube for another purpose. For the purpose of smoke in the booster tube, Fan2 is not required.</strong></p>
+<h2 id="what-is-a-smoke-kit">What is a "Smoke Kit"?</h2>
+<p>Before proceeding it should be made clear what exactly a "smoke kit" consists of. In simplest terms this is a combination of 4 components: a vape coil (atomizer), an air pump, a fan or blower, and a white LED. Traditionally, the vape coil will be paired directly with the air pump as it is dangerous to run a vape coil without proper airflow. The fan and LED may either be separated or combined--there are many community makers of smoke kits with various implementations where components may be bundled differently.</p>
+<p>For modders who are comfortable with building their own smoke solution we recommend <a href="../SMOKE_DIY/">this guide to creating your own smoke generator</a>. For purposes of integrating and connecting a smoke solution please read the remainder of this guide.</p>
+<h3 id="common-materials">Common Materials</h3>
+<p>The following may be necessary to connect your smoke generator to the Proton Pack, if not provided as part of a maker's kit.</p>
+<ul>
+<li><a href="https://a.co/d/h0b5SN5">5V Relay Module with Optocoupler</a> - Must support a HIGH signal to turn the relay on!</li>
+<li><a href="https://a.co/d/7qeekAG">6mm OD / 4mm ID Silicone Tubing</a> - For routing smoke from the vape coil</li>
+</ul>
+<h3 id="disclaimers">Disclaimers</h3>
+<p><strong>This project does not make any direct endorsements of kits available in the Ghostbusters community.</strong> As stated above most kits consist of common components which can be integrated in a few standard ways. All references to kits or makers by name is for illustrative purposes only as this team has directly confirmed operation with the kit makers. If you have a smoke kit and wish to validate integration, please reach out to the team via the <a href="https://www.facebook.com/groups/gpstartechnologies">GPStar Technologies Facebook group</a> for assistance.</p>
+<p>Most smoke kits utilize a combination of vegetable glycerine (VG) and propylene glycol (PG). Please follow any kit maker's instructions for filling or replacing your smoke fluid. Some ratios work better for the type of smoke desired and may be a personal preference. The most common are either 100% VG or a 70/30 mixture, where the latter may create thicker smoke.</p>
+<h3 id="warnings">Warnings</h3>
+<p>Modification of your pack is unavoidable for proper installation as the areas where smoke must be delivered are isolated from the inside of the pack. Please proceed only if you are comfortable with <strong>irreversible modifications</strong>. One such recommended modification is the full removal of the D-Cell battery compartment which will allow access through the battery door to installed vape coils for easy refilling. Other modifications include drilling holes to fit wires and/or silicone tubing.</p>
+<p>In both the PCB and DIY approaches each of the smoke and fan pins are designed to use a transistor to run connected devices, as most devices will require more than the recommended 40mA maximum of current through the ATMega controller. Please note the following guidelines and warnings regarding safe connection of these devices:</p>
+<ul>
+<li>All connectors listed above provide 5V of DC power and are intended to power devices such as relays, pumps, and fans.</li>
+<li><strong>Do not connect any device which draws more than 500mA of current to your controller.</strong> Most fans/blowers and relays can be safely attached to the Fan1 or Fan2 ports without concern as these require 500mA or less to operate. The LED-W port expects a white LED with a forward voltage of 3.0-3.2V and current draw of 20mA.</li>
+<li>The Proton Pack PCB has been tested using up to 2 Amps of current but is <strong>NOT</strong> recommended as some components may be pushed to their thermal limits and could potentially fail prematurely under extended use.</li>
+<li>Most vape coil and air pump combinations require dedicated power sources or may require a 12V power source.</li>
+<li><strong>ALWAYS use a relay module to complete the circuit to power these types of devices!</strong></li>
+</ul>
+<h3 id="powering-a-kit">Powering a Kit</h3>
+<p>Power should be provided as recommended by your kit manufacturer. Most kits run on either 5V or 12V sources so this will determine the best way to implement a power connection. Though in most cases kits operate on the principle of "apply power, get smoke" so the only concern is how to turn the 5V (HIGH) signal from the PCB or Arduino into something which can safely run a vape coil and air pump combination. So we have 2 steps to take: 1) how to get power for the smoke kit(s) and 2) how to switch on power safely.</p>
+<p>Now before we begin with how to power your kit, take a look at this video which shows the correlation between voltage to the vape coil and how much amperage is consumed during operation. Typically most vape coils used with many kits are 1.8ohms and like their voltage in the range of 3.3-4V, though 5V can and will work fine. Just remember that more voltage means more current, which means more strain on your battery. So if you are short on available power or have a reduced runtime you can potentially look at reducing the voltage by use of a buck converter for just the vape coil itself.</p>
+<p><a href="https://www.youtube.com/watch?v=vvhyp0Y2ZMs"><img alt="Smoke kit voltage tests" src="https://img.youtube.com/vi/vvhyp0Y2ZMs/maxresdefault.jpg" /></a></p>
+<p><strong>Step 1: Providing Power</strong></p>
+<p>As of mid-2024 there are now 2 standard options available for obtaining power easily from a Talentcell battery: the GPStar Amplifier and the GPStar Power Hub. Both devices accept 12VDC from the 5525 barrel jack on the common Talentcell batteries, and both use an on-board 5V regulator which is capable of delivering up to 3A of power.</p>
+<p><strong>WARNING</strong> Do not operate more than 1 smoke kit from the amplifier. This device must consume power to run the speakers, and is also meant to provide power easily to the Proton Pack controller. This can result in pushing the voltage converter (and battery) to its stated limit and will result in poor performance from attempting to run 2 smoke kits simultaneously.</p>
+<p><img alt="GPStar Amplifier" src="../images/GPStarAmplifier.jpg" /></p>
+<p>The power hub device is meant to provide dedicated power to high-current devices. It has been tested by operating 2 smoke kits (5V each, at ~1.5A) simultaneously without issue. The primary and expected use-case is when used with a second Talentcell battery reserved exclusively for powering smoke effects.</p>
+<p><img alt="GPStar Power Hub" src="../images/GPStarPowerHub.jpg" /></p>
+<p>Some additional but optional parts which may be required for these devices:</p>
+<ul>
+<li><a href="https://a.co/d/04P0tpU1">2-Pin JST-XH Connectors w/ Wires</a> - For connecting relay modules to the 5V ports on the amp or power hub.</li>
+<li><a href="https://a.co/d/0haOIelI">Male USB w/ Short Pigtail Cable</a> - For connecting directly to the USB port of a Talentcell battery.</li>
+<li><a href="https://a.co/d/0ii1iarB">Male 5.5mm x 2.5mm Pigtail Cable</a> - For connecting the amp to a battery using the available terminal screws.</li>
+<li><a href="https://a.co/d/02pffX00">Male-to-Male 5.5mm x 2.5mm Cable</a> - For connecting the amp or power hub to a Talentcell battery.</li>
+</ul>
+<p><strong>Step 2: Switching Power</strong></p>
+<p>As previously noted in the warnings section, this is where a 5V Relay Module becomes necessary. For a 5V relay, this device will electrically isolate the power provided by the PCB or Arduino from the power source running the smoke generator. This is the recommended solution for safely turning on your smoke generator. Remember that most vape coils will draw 1.5 to 2 Amps so your power supply must be able to provide that safely without triggering a safety shutoff.</p>
+<p><img alt="Typical 5V Relay Module" src="../images/RelayModule.jpg" /></p>
+<p>Most relays work using 3 wires: 2 for power (+/-) to the relay itself, and 1 for the signal to turn the relay on or off. One solution is to use a relay which can accept a HIGH signal to turn on and use the + connection to drive both the relay power and input signal. This arrangement typically uses less than 100mA and can safely connect to the Smoke1 or Smoke2 connectors.</p>
+<p><img alt="Jumper between V+ and IN signal" src="../images/RelayTrigger.jpg" /></p>
+<p>Typically the vape coil and air pump will have their positive leads connected together, and the negative leads connected together. The positive from the power source will be connected to the NO (normally-open) terminal on the relay module while the combined positive leads are connected to the COM (common) terminal. The negative leads should connect directly to the power source for the smoke generator.</p>
+<p><img alt="Power Connection" src="../images/RelayPower.jpg" /></p>
+<h2 id="connection-examples">Connection Examples</h2>
+<p>For a more in-depth look at the electrical connections, the following diagrams demonstrate what is required for integrating several smoke kits available from the community. These have been either directly verified or confirmed as "expected" by their respective makers. Other kits or DIY solutions may be used, provided they adhere to the use of a relay for applying power directly to a vape coil device. Refer to any kit makers' instructions and recommendations for power sources and connecting cables.</p>
+<p>This solution uses a vape pen with its own built-in battery for power:
+<img alt="Built-in Battery" src="../images/Smoke-NoBatt.png" /></p>
+<hr/>
+
+<p>The following demonstrate common kits which require 5V for operation:
+<img alt="DIY - Single Battery" src="../images/Smoke-DIY-1.png" />
+<sup>* The GPStar Power Hub may be used in place of the DC buck converter shown</sup></p>
+<p><img alt="DIY - Dual Battery" src="../images/Smoke-DIY-2.png" /></p>
+<p><img alt="5V - Single Battery" src="../images/Smoke-5V-WI-1.png" />
+<sup>* The GPStar Power Hub may be used in place of the DC buck converter shown</sup></p>
+<p><img alt="5V - Dual Battery" src="../images/Smoke-5V-WI-2.png" /></p>
+<hr/>
+
+<p>This device uses its own power supply for smoke, but must connect a 5V RF transmitter directly to the controller:
+<img alt="5V - Single Battery" src="../images/Smoke-PDTNG.png" /></p>
+<hr/>
+
+<p>The following demonstrates how to connect a smoke kit which requires a 12V supply:</p>
+<p><img alt="12V - Single Battery" src="../images/Smoke-12V-CA-1.png" /></p>
+<p><img alt="12V - Dual Battery" src="../images/Smoke-12V-CA-2.png" /></p>
+<h2 id="booster-tube-installation">Booster Tube Installation</h2>
+<p>The process involves removing the booster tube for easy access and drilling a small hole at the bottom for insertion of silicone tubing. The space below the stock D-Cell battery compartment is convenient for housing smoke generators though as noted it may be easier to access by cutting away the battery compartment itself. If using a 3rd-party motherboard, opt for the version which retains a battery door for easy access once the pack is reassembled and attached to an ALICE frame.</p>
+<p><img alt="Booster Tube" src="../images/SmokeBooster1.jpg" /></p>
+<p><img alt="Booster Tube 2" src="../images/SmokeBooster2.jpg" /></p>
+<p><img alt="Booster Setup" src="../images/SmokeBooster3.jpg" /></p>
+<p>Note: For this component a fan is not necessary as the smoke will rise through use of only the air pump device.</p>
+<p><img alt="" src="../images/BoosterSmoke.gif" /></p>
+<h2 id="n-filter-installation">N-Filter Installation</h2>
+<p>The following 3D models are provided for those able to print components for their pack. These are designed to fit perfectly within the Hasbro equipment and provide a familiar look to the end solution for getting smoke out of your pack.</p>
+<ul>
+<li><a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/stl/pack/Haslab/N-Filter Smoke/N-Filter Blower.stl?raw=1">N-Filter Blower Mount</a> - Holds the 50mm blower in an upright position</li>
+<li><a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/stl/pack/Haslab/N-Filter Smoke/N-Filter Cone.stl?raw=1">N-Filter Filter Cone</a> - Replaces the stock cone and allows smoke and air to exit</li>
+<li><a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/stl/pack/Haslab/N-Filter Smoke/N-Filter Template.stl?raw=1">N-Filter Template</a> - Used to mark where to cut into the pack for smoke tubing and blower air hole</li>
+</ul>
+<p><img alt="" src="../images/NFilterTemplate.jpg" /></p>
+<p>The template print will help identify the correct placement for holes which will allow the silicone tubing and LED power wires to pass through, as well as the port opening for the blower fan. Place this with the word TEMPLATE facing up for the proper orientation.</p>
+<p><img alt="" src="../images/NFilterFan.jpg" /></p>
+<p><img alt="" src="../images/NFilterMount.jpg" /></p>
+<p>Once the holes are drilled you can simply insert the blower mount into the socket from below. There will be space to access the screw which holds the cone in place, as well as routing the silicone tubing and LED power wires. The blower will be held in place by the other half of the inner cyclotron housing once reassembled--this should be done last, after the cone has been fully installed and tested.</p>
+<p><img alt="" src="../images/NFilterCone1.jpg" /></p>
+<p><img alt="" src="../images/NFilterCone2.jpg" /></p>
+<p>The LED and wires should be installed first, pushing the LED to the very tip of the cone. Once in place, the silicone tubing can be inserted 2-3cm (1/2") into the same hole to keep the wires (and LED) in place. Adding some hot glue will keep these in place and prevent smoke from escaping out this hole in the cone. Once those are installed the tubing and wires can be gently pulled through the drilled hole as the cone is pushed into place and secured using the original screw.</p>
+<p><img alt="" src="../images/NFilterSmoke.gif" /></p>
+<h2 id="testing">Testing</h2>
+<p>Congratulations, you are now ready to test your smoke solution! While in the Video Game mode, use the Barrel Wing Button to select the Venting menu option (after all firing mode options). Put the Neutrona Wand into firing state and press the Intensify button to activate the N-Filter smoke option directly. Alternatively, regardless of mode set your wand to level 5 and throw a proton stream (or activate Cross the Streams) and wait for the smoke effects to kick in.</p>
+<p>Remember to activate all smoke options for the pack via the EEPROM menu if you previously changed these.</p>
+<h2 id="diy-smoke-installation-video">DIY Smoke Installation Video</h2>
+<p><a href="https://www.youtube.com/watch?v=-q3xkb5oHYE">DIY Smoke Installation Video</a> (YouTube)
+<a href="https://www.youtube.com/watch?v=-q3xkb5oHYE"><img alt="GPStar Proton Pack &amp; Neutrona Wand DIY Smoke Installation Video" src="https://img.youtube.com/vi/-q3xkb5oHYE/maxresdefault.jpg" /></a></p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../SOUND/" class="btn btn-neutral float-left" title="Sound Output"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../INSTALL_VIDEOS_JONOGUNN/" class="btn btn-neutral float-right" title="Jonogunn">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>GPStar Technologies</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../SOUND/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../INSTALL_VIDEOS_JONOGUNN/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

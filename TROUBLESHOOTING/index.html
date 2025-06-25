@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Troubleshooting - GPStar Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Troubleshooting";
+        var mkdocs_page_input_path = "TROUBLESHOOTING.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="..">
+          <img src="../images/gpstar_logo_white.png" class="logo" alt="Logo"/>
+        </a>
+        <div class="version">
+          6.x
+        </div><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ABOUT/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Core Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../GUIDE_LISTING/">Introduction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_PCB/">Proton Pack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_PCB/">Neutrona Wand</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../HOSE/">Pack-Wand Hose</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../GPSTAR_AUDIO_PCB/">GPStar Audio</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DIY_LEGACY/">Legacy DIY</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Optional Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Proton Pack</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_LID/">Cyclotron Lid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_INNER/">Inner Cyclotron</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_BYPASS/">Cyclotron Bypass</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NFILTER/">N-Filter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../POWERCELL/">Power Cell</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Neutrona Wand</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../BARGRAPH/">Bargraph</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../HATS/">Hatlights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../VENTLIGHT/">Vent Lights</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Serial1 Expansion</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../SERIAL1/">Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ATTENUATOR/">Attenuator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../WIRELESS/">WiFi Adapter</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Special Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../POWER/">Power Requirements</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SOUND/">Sound Output</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SMOKE/">Smoke Kits</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Install Videos</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_JONOGUNN/">Jonogunn</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_NORCALGB/">Nor-Cal GB</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Maintenance</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../FLASHING/">Flashing Pack/Wand Firmware</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ATTENUATOR_FLASHING/">Flashing Attenuator/Wifi</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../AUDIO_FILES/">Audio Files</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operation Manuals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_USAGE/">General Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_MENUS/">Runtime Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_EEPROM/">EEPROM Menus</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Help</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Troubleshooting</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#general-guidance">General Guidance</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#troubleshooting-proton-pack">Troubleshooting: Proton Pack</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#pack-will-not-power-on-no-lights-or-sounds">Pack will not power on (no lights or sounds)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pack-cyclotron-lid-will-not-light-up">Pack Cyclotron (lid) will not light up</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pack-has-lights-but-does-not-play-audio">Pack has lights but does not play audio</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#troubleshooting-neutrona-wand">Troubleshooting: Neutrona Wand</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#wand-will-not-power-on-no-lights-or-sounds">Wand will not power on (no lights or sounds)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#wand-has-a-blinking-vent-light-but-does-not-start-up">Wand has a blinking vent light but does not start up</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#wand-has-no-audio">Wand has no audio</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#wand-has-audio-briefly-before-it-cuts-out">Wand has audio briefly before it cuts out</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#the-music-i-added-is-not-playing-back">The music I added is not playing back</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#im-firing-but-no-overheating-is-happening">I'm firing but no overheating is happening!</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#bench-test-mode">Bench Test Mode</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#troubleshooting-audio">Troubleshooting: Audio</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#important-metadata-problems">IMPORTANT: Metadata Problems</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#gpstar-amplifier-troubleshooting">GPStar Amplifier Troubleshooting</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#gpstar-audio-troubleshooting">GPStar Audio Troubleshooting</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#wav-trigger-troubleshooting">WAV Trigger Troubleshooting</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">GPStar Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Help</li>
+      <li class="breadcrumb-item active">Troubleshooting</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="troubleshooting">Troubleshooting</h1>
+<p>If you are experiencing issues during the installation process there are a few ways to get back on track. Use the guides below to help narrow down where you are having an issue and try the suggested remedies. Should you need additional assistance, reach out to the <a href="https://www.facebook.com/groups/gpstartechnologies">GPStar Technologies Facebook group</a> and either use the group search (see below) or post a question to the community.</p>
+<p><img alt="FB Group Search Option" src="../images/GroupSearch.jpg" /></p>
+<h2 id="general-guidance">General Guidance</h2>
+<p>Before continuing, be certain whether the following items have been reviewed:</p>
+<ul>
+<li>Check he operation switch on your audio controller:<ul>
+<li>GPStar Audio should be set to BOOT.</li>
+<li>WAV Trigger should be set to RUN.</li>
+</ul>
+</li>
+<li>Check that the microSD card is fully seated (pushed) into its socket.</li>
+<li>Check the JST connector on the PCB controller is fully seated into its socket.</li>
+<li>Verify the connections are intact and solid for GND, 5Vin, Rx, and Tx in all parts of the hose connectors.</li>
+<li>Sound files should start with a file having a prefix of <code>001_</code> and increment by 1.</li>
+<li>Music files should start with a file having a prefix of <code>500_</code> and increment by 1.</li>
+<li>Switch to SanDisk brand media as these SD cards have proven reliable in every use case.</li>
+</ul>
+<h2 id="troubleshooting-proton-pack">Troubleshooting: Proton Pack</h2>
+<p>Since all connections to the Proton Pack utilize standard JST-XH connections to the available devices, please re-check any connections for incorrect seating and polarity before continuing. If these are in place then at a minimum you should be able to turn on the pack using the red switch under the ion arm which should cause the Power Cell lights to activate. This will be the primary means of validating that the pack controller is enabled.</p>
+<h3 id="pack-will-not-power-on-no-lights-or-sounds">Pack will not power on (no lights or sounds)</h3>
+<p>Confirm that the battery pack is sufficiently charged, switched to the on state, and USB-to-JST connection is in place.</p>
+<h3 id="pack-cyclotron-lid-will-not-light-up">Pack Cyclotron (lid) will not light up</h3>
+<p>Always be sure that your Power Cell device is plugged in and working, first. Both the Power Cell and Cyclotron are considered to be a single, continuious chain of LEDs and the latter will not function without the former. Note that when you first apply power to your pack you should hear and see a startup sequence which is a form of sanity check on the hardware to confirm the lights are working as expected.</p>
+<p>If using the Cyclotron Bypass (for Spirit or DIY packs) you must ensure the jumper is in place on the board to simulate the lid closure state. Removing or replacing the jumper while power is applied should result in an audio cue to indicate the bypass device is working (simulating lid removal and replacement).</p>
+<h3 id="pack-has-lights-but-does-not-play-audio">Pack has lights but does not play audio</h3>
+<ul>
+<li>Re-check the 3.5mm audio cable is connected to the audio amplifier, and that the audio amplifier has power, is connected to at least 1 speaker, and volume has been turned up to at least 30%.</li>
+<li>If possible, connect the 3.5mm audio cable to a known-good audio source such as a smartphone, Alexa device, or similar to confirm that the amplifier is capable of receiving a signal.</li>
+</ul>
+<p>If there is still no sound from your Proton Pack, please refer to the Audio Troubleshooting section at the bottom of this page.</p>
+<h2 id="troubleshooting-neutrona-wand">Troubleshooting: Neutrona Wand</h2>
+<p>The wand assumes successful operation of the pack, so please only proceed once that has been established.</p>
+<h3 id="wand-will-not-power-on-no-lights-or-sounds">Wand will not power on (no lights or sounds)</h3>
+<p>The wand is expects to communicate with the pack and will only power on when that connection is successfully established. If no lights or audio are observed when using the Activate switch, please consider the following options.</p>
+<ul>
+<li>Re-check the Power/GND connections in the hose to make sure they are not reversed. Also check if the ends of the wires are making contact on the Neutrik connectors when clamping down. You can tin the ends of the wires to make it a bit thicker or simply fold them over to double them up. Just make sure the Neutrik connectors are not clamping down on the rubber part of the wire.</li>
+<li>If you are using the 28 Segment bargraph from Frutto Technology, make sure the connection cables are plugged into the proper connectors. If the power cable for the bargraph is plugged into the SCL/SDA connector on the wand board and the communication cable is plugged into the 5V power connector on the wand board, then the wand will not start up.</li>
+</ul>
+<h3 id="wand-has-a-blinking-vent-light-but-does-not-start-up">Wand has a blinking vent light but does not start up</h3>
+<p>When the wand is trying to establish communication to the GPStar Proton Pack controller, the LED beside the vent light blinks. When a successful connection is made, the light will stop blinking.</p>
+<ul>
+<li>Re-check the TX/RX serial connections in the hose to make sure they are not reversed. Also check if the ends of the wires are making contact on the Neutrik connectors when clamping down. You can tin the ends of the wires to make it a bit thicker or simply fold them over to double them up. Just make sure the Neutrik connectors are not clamping down on the rubber part of the wire.</li>
+<li>(Firmware 5.3.3 or later) You can test to see if your issue is related to the serial data lines for the hose connectors by shorting the wand board's pack data connector TX and RX pins. This will cause the wand to start in standalone mode and ignore the Proton Pack.</li>
+</ul>
+<h3 id="wand-has-no-audio">Wand has no audio</h3>
+<ul>
+<li>Re-check the connection to the speaker. Polarity should be observed for the best audio quality, though a reversed connection should still support some form of audio playback.</li>
+<li>Re-flash the latest software to both the pack and wand controllers. These devices must be in agreement for the communication layer to operate correctly.</li>
+<li>Re-check the Tx/Rx connections to the pack. If these are reversed it will prevent proper communication. Attempt to switch the wires at the pack-side connector which use screw terminals, and retry the Activate switch.</li>
+<li>Re-check the power connection to the wand. If you have a digital multimeter available, set the device to the DC power measurement and check that the 5V-OUT connection is supplying the expected voltage. Be careful to not short out the pins and mind the polarity.</li>
+</ul>
+<h3 id="wand-has-audio-briefly-before-it-cuts-out">Wand has audio briefly before it cuts out</h3>
+<ul>
+<li>Re-check the connection to the speaker terminal blocks on the Audio board. Make sure the wires seat well, if needed, add a dab of solder onto the ends.</li>
+</ul>
+<p>If there is still no sound from your Neutrona Wand, please refer to the Audio Troubleshooting section at the bottom of this page.</p>
+<h3 id="the-music-i-added-is-not-playing-back">The music I added is not playing back</h3>
+<ul>
+<li>Make sure to following the naming conventions that are indicated in the <a href="../AUDIO_FILES/">Loading The Audio Files</a> guide.</li>
+<li>Remove any metadata that may be embedded in your wav files. This can cause problems with loading the music.</li>
+<li>The Proton Pack at a minimum must contain all the music, however it is advised for the Neutrona Wand to have the same files as well if you want music to also play back from the Neutrona Wand audio system while the Neutrona Wand is operating in Bench Test Mode.</li>
+</ul>
+<h3 id="im-firing-but-no-overheating-is-happening">I'm firing but no overheating is happening!</h3>
+<p>If your pack and wand are on default settings (you may test this by entering the EEPROM Configuration Menu then pressing Intensify to clear all settings, then turn off the Talentcell battery so the changes take effect), only Power Level 5 will overheat, and will do so after 30 seconds. If you have made changes to EEPROM settings, here are common reasons why overheating may not occur as expected.</p>
+<ul>
+<li>If you are in Cross The Streams or Cross The Streams Mix instead of Video Game Modes, overheating will only occur when using the alternate fire button (Barrel Wing Button). No overheating will occur if you hold Intensify by itself.</li>
+<li>Check to make sure you have the global Overheating setting enabled. If this is disabled, no overheating will ever occur.</li>
+<li>Check to make sure that the overheating toggle for the specific power level you are in is also enabled (enabling overheating generally will not automatically enable it for all power levels).</li>
+<li>Check to see what you have the Overheat Start Delay for the specific power level you are in set to. For example, merely enabling overheating for Power Level 1 will mean it will take 60 full seconds before overheating triggers by default.</li>
+</ul>
+<h3 id="bench-test-mode">Bench Test Mode</h3>
+<p>If you wish to use the Neutrona Wand without a Proton Pack, flash <a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/wand/extras/NeutronaWand-BenchTest.hex?raw=1">NeutronaWand-BenchTest.hex</a> from the Neutrona Wand binary extras folder to the device to enable a special mode which will allow the wand to operate without waiting for a response from the pack. As of firmware 5.3.3 you can also bridge/jumper the Proton Pack TX1 and RX1 pins on the Neutrona Wand circuit board to enable Bench Test mode without flashing the above firmware (see below image). This is useful for debugging whether an issue with your Proton Pack serial connection is the cause of your wand issues.</p>
+<p><img alt="" src="../images/GPStar-Wand-BenchTest.jpg" /></p>
+<h2 id="troubleshooting-audio">Troubleshooting: Audio</h2>
+<h3 id="important-metadata-problems">IMPORTANT: Metadata Problems</h3>
+<p>When adding extra music to your system, many audio software tend to add metadata information into the file. This will prevent the file from playing. As simple as importing the file into Audacity and re-exporting will solve the issue, or you can use any other software to remove the Meta Data information.
+Depending on which audio board or amplifier you are using in your system, following the troubleshooting guides below.</p>
+<hr />
+<h3 id="gpstar-amplifier-troubleshooting"><span class="logo-icon"></span> GPStar Amplifier Troubleshooting</h3>
+<p><img alt="" src="../images/GPStarAmplifier.jpg" /></p>
+<p>When using the GPStar Amplifier I V1.0, if no audio is heard but the green LED is lit, make sure that 2 jumpers are attached on the 6 pin JST connector near the center of the board. This connector is reserved for use with a 250k stereo potentiometer but must be configured to allow audio to pass when one is not in use. The following table shows the 2 pairs of pins which must be jumpered for operation.</p>
+<table>
+<thead>
+<tr>
+<th>R-I</th>
+<th>R-O</th>
+<th>GND</th>
+<th>L-I</th>
+<th>L-O</th>
+<th>GND</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>X</td>
+<td>X</td>
+<td></td>
+<td>X</td>
+<td>X</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Remember that a ground loop isolator is not required for this device as this is built into the hardware. Use of an additional isolator may negatively impact the audio quality.</p>
+<hr />
+<h3 id="gpstar-audio-troubleshooting"><span class="logo-icon"></span> GPStar Audio Troubleshooting</h3>
+<p><img alt="" src="../images/GPStarAudio-Debug.jpg" /></p>
+<ol>
+<li>
+<p>Make sure your WAV files are named properly and are located in the root directory of the microSD card. When you first power on GPStar Audio, it will locate and index the files and then the green LED will blink at half second intervals. <strong>NOTE:</strong> As of firmware 5.4.4, once the GPStar Audio successfully connects to one of the device boards the green LED will turn off to prevent light bleed.</p>
+</li>
+<li>
+<p>If there’s no activity on the green status LED whatsoever when you first power up the GPStar Audio, check the “BOOT/LOAD” switch next to the 6 pin JST-XH connector is in the “BOOT” position.</p>
+</li>
+<li>
+<p>Once you see the green status LED blinking slowly, pressing the on-board "Test" button will play the lowest numbered track on the microSD card. Confirm this by observing the green status LED turning blinking very rapidly to indicate a track is playing. You should hear the track through the stereo jack or any speaker connected to the board. <strong>NOTE:</strong> As of firmware 5.4.4, this LED will not blink if the GPStar Audio has successfully connected to GPStar equipment. The GPStar Audio can be tested outside of equipment by plugging your GPStar Programming Cable into the white device connector and connecting the USB cable to your computer.</p>
+</li>
+<li>
+<p>Low quality SD Cards sometimes provide issues such as sounds not playing. Please consider using high quality SD Cards. We recommend the Sandisk Extreme A1/A2 U3 V30 32GB Micro SD Cards.</p>
+</li>
+<li>
+<p>If you’ve gotten this far and tracks won’t play, then it’s most likely that your WAV files are not the correct format. GPStar Audio will only play uncompressed WAV files formatted as 16-bit, stereo, 44.1kHz, and there can be no meta-data (non-audio data) in the file before the audio data. It seems that many Mac audio applications insert a meta-data chunk prior to the audio, and this will prevent the track from playing. In such cases, simply importing the file and re-exporting with Audacity will likely fix the problem.</p>
+</li>
+<li>
+<p>Please remove any metadata contained in the music wav files you add, as it can cause issues loading the file for playback.</p>
+</li>
+</ol>
+<hr />
+<h3 id="wav-trigger-troubleshooting">WAV Trigger Troubleshooting</h3>
+<p><img alt="" src="../images/WavTrigger_Debug.jpg" /></p>
+<p><strong>Startup Blinking Patterns:</strong></p>
+<ul>
+<li>1x (long) - 1 long blink upon startup indicates that the SD card is no good or the formatting was bad. Re-format fully using your OS or the provided <a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/sound/guiformat.exe?raw=1">guiformat.exe</a> utility in <a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/">extras</a> (for Windows only). Name brand microSD cards are highly recommended, with SanDisk having been proven the most reliable so far.</li>
+<li>3x (quick) - 3 quick blinks in succession is the normal pattern at initial power-up to indicate the device has initialized without issues.</li>
+</ul>
+<p><strong>Post Startup Blinking Patterns</strong></p>
+<ul>
+<li>1x - The WAV Trigger will blink once every ~4 seconds when the PCB and device are powered on. This indicates a regular serial connection checking the status of the WAV Trigger and is to be expected.</li>
+</ul>
+<p><strong>WAV Trigger Troubleshooting</strong></p>
+<ol>
+<li>
+<p>Make sure your WAV files are named properly and are located in the root directory of the microSD card. When you first power on the WAV Trigger, it will locate and index the files and then blink 3 times to indicate that it found at least one WAV file. One long blink means that it either couldn’t read the card or it didn’t find any WAV files.</p>
+</li>
+<li>
+<p>If there’s no activity on the "Red" status LED whatsoever when you power up the WAV Trigger, check the “Load/Run” switch next to the power connector and make sure it’s in the “Run” position.</p>
+</li>
+<li>
+<p>Once you get the 3 blinks, pressing the on-board button will play the lowest numbered track on the microSD card. Confirm this by observing the status LED turning on to indicate a track is playing. You should hear the track through the stereo jack. If the audio is not working, try plugging in a set of headphones into the 3.5mm audio port and test again. If you’re using the on-board audio amp and speaker connection, you won’t hear anything unless the onboard amp is enabled using the init file or via software.</p>
+</li>
+<li>
+<p>Low quality SD Cards sometimes provide issues such as sounds not playing. Please consider using high quality SD Cards. We recommend the Sandisk Extreme A1/A2 U3 V30 32GB Micro SD Cards.</p>
+</li>
+<li>
+<p>If you’ve gotten this far and tracks won’t play, then it’s most likely that your WAV files are not the correct format. The WAV Trigger will only play WAV files formatted as 16-bit, stereo, 44.1kHz, and there can be no meta-data (non-audio data) in the file before the audio data. It seems that many Mac audio applications insert a meta-data chunk prior to the audio, and this will prevent the track from playing. In such cases, simply importing the file and re-exporting with Audacity will likely fix the problem.</p>
+</li>
+<li>
+<p>Please remove any metadata contained in the music wav files you add, as it can cause issues loading the file for playback.</p>
+</li>
+</ol>
+<p><a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/sound/WavTrigger/WT_UserGuide_20230602.pdf?raw=1">Manual for the WAV Trigger [pdf]</a></p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../OPERATION_EEPROM/" class="btn btn-neutral float-left" title="EEPROM Menus"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../FAQ/" class="btn btn-neutral float-right" title="FAQ">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>GPStar Technologies</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../OPERATION_EEPROM/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../FAQ/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Proton Pack Setup - GPStar Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Proton Pack Setup";
+        var mkdocs_page_input_path = "DIY_PACK.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="..">
+          <img src="../images/gpstar_logo_white.png" class="logo" alt="Logo"/>
+        </a>
+        <div class="version">
+          6.x
+        </div><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ABOUT/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Core Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../GUIDE_LISTING/">Introduction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_PCB/">Proton Pack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_PCB/">Neutrona Wand</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../HOSE/">Pack-Wand Hose</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../GPSTAR_AUDIO_PCB/">GPStar Audio</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DIY_LEGACY/">Legacy DIY</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Optional Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Proton Pack</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_LID/">Cyclotron Lid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_INNER/">Inner Cyclotron</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_BYPASS/">Cyclotron Bypass</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NFILTER/">N-Filter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../POWERCELL/">Power Cell</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Neutrona Wand</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../BARGRAPH/">Bargraph</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../HATS/">Hatlights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../VENTLIGHT/">Vent Lights</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Serial1 Expansion</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../SERIAL1/">Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ATTENUATOR/">Attenuator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../WIRELESS/">WiFi Adapter</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Special Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../POWER/">Power Requirements</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SOUND/">Sound Output</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SMOKE/">Smoke Kits</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Install Videos</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_JONOGUNN/">Jonogunn</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_NORCALGB/">Nor-Cal GB</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Maintenance</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../FLASHING/">Flashing Pack/Wand Firmware</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ATTENUATOR_FLASHING/">Flashing Attenuator/Wifi</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../AUDIO_FILES/">Audio Files</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operation Manuals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_USAGE/">General Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_MENUS/">Runtime Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_EEPROM/">EEPROM Menus</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Help</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TROUBLESHOOTING/">Troubleshooting</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">GPStar Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Proton Pack Setup</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="proton-pack-setup">Proton Pack Setup</h1>
+<p>This guide begins with some explanations for common items you will encounter during the upgrade process. Note that if the wand electronics will be replaced it will be necessary to upgrade the hose and conductors between the pack and wand. This exercise is left to individual preferences on connectors and style of replacement, though you will need 4 conductors at a minimum (+5V, Ground, and TX/RX for communications).</p>
+<h2 id="component-reference">Component Reference</h2>
+<p><strong>A Note on Transistors</strong></p>
+<p>Transistors will be used to allow switching high-current elements on or off. This is because the Arduino hardware recommends less than 20mA draw per pin (40mA maximum), so for items which may require more power the transistor acts as a switch to allow more current to flow through the transistor instead of the Arduino hardware. The most-used component for this build will be the 2N2222/PN2222 or NPN Bipolar Transistor (BJT). The NPN type allows the flow of power from the Collector to Emitter pin, dictated by applying power (VCC) to the Base pin.</p>
+<table>
+<thead>
+<tr>
+<th>Pin</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NPN E</td>
+<td>Emitter</td>
+</tr>
+<tr>
+<td>NPN B</td>
+<td>Base</td>
+</tr>
+<tr>
+<td>NPN C</td>
+<td>Collector</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="" src="../images/NPNTransistor.png" /></p>
+<p><strong>A Note on the Rotary Encoder</strong></p>
+<p>Rotary encoder pin layout reference to be used for volume control. Contains pins 1-2-3 (viewed facing you, see below).</p>
+<p><img alt="" src="../images/RotaryEncoder.jpg" /></p>
+<p><strong>HasLab Legacy Connections</strong></p>
+<p>This chart lists only the components in the stock pack which will be reused, while others will be replaced (such as the speaker output and rotary encoder which are both soldered to the stock controller). There are several new and optional components which can be added as part of this guide. These items are expected to be implemented at a minimum for basic operation.</p>
+<table>
+<thead>
+<tr>
+<th><strong>Connector Label</strong></th>
+<th><strong>Header Color</strong></th>
+<th><strong>Wire Color</strong></th>
+<th><strong>Purpose</strong></th>
+<th><strong>Notes</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M1</td>
+<td><font color="green">Green</font></td>
+<td><font color="red">Red</font></td>
+<td>VCC</td>
+<td>Pack vibration motor; cannot be turned on or off when pack is "active", only when in "powered down" state. (This is the only stock item which may be considered optional.)</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>Black</td>
+<td>GND</td>
+<td></td>
+</tr>
+<tr>
+<td>JP3</td>
+<td><font color="gray">White</font></td>
+<td><font color="green">Green</font></td>
+<td>B0</td>
+<td>Power, ground, and data (DI) for Power Cell LEDs; Contains LEDs D1-D13 and returns data signal back to board via the B0 pin.</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>Black</td>
+<td>GND</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><font color="orange">Yellow</font></td>
+<td>DI</td>
+<td>Data input; Cyclotron LEDs continue from B0 as data on RI (unplugging JP3 will stop cycling of Cyclotron LEDs).</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><font color="red">Red</font></td>
+<td>VCC</td>
+<td></td>
+</tr>
+<tr>
+<td>JP4</td>
+<td><font color="red">Red</font></td>
+<td><font color="red">Red</td>
+<td>VCC</td>
+<td>Power, ground, and data (RI) for Cyclotron; Each "lens" contains 3 LEDs for a total of 12.</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><font color="orange">Yellow</font></td>
+<td>RI</td>
+<td>Data input; starts on JP3-DI pin and continues from JP3-B0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>Black</td>
+<td>GND</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><font color="brown">Brown</font></td>
+<td>GND</td>
+<td>Used for detection of the Cyclotron Lid</td>
+</tr>
+<tr>
+<td>SW1</td>
+<td><font color="gray">White</font></td>
+<td><font color="red">Red</font></td>
+<td>VCC</td>
+<td>Main "power" switch under the Ion Arm, enables all pack operations.</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>Black</td>
+<td>GND</td>
+<td></td>
+</tr>
+<tr>
+<td>SW3</td>
+<td><font color="blue">Blue</font></td>
+<td><font color="green">Green</font></td>
+<td>SPDT Toggle</td>
+<td>Left toggle switch inside the Cyclotron: Turns rumble motor on (up) or off (down)</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><font color="blue">Blue</font></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>SW4</td>
+<td></td>
+<td><font color="green">Green</font></td>
+<td>SPDT Toggle</td>
+<td>Right toggle switch inside the Cyclotron: Change sound theme between Afterlife (up) or 1984 (down)</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><font color="red">Red</font></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>SW6</td>
+<td><font color="red">Red</font></td>
+<td><font color="red">Red</font></td>
+<td>VCC</td>
+<td>Sensor on the Cyclotron cable, triggers alarm beeps when disconnected</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>Black</td>
+<td>GND</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><img alt="" src="../images/PackController.jpg" /></p>
+<h2 id="circuit-schematic">Circuit Schematic</h2>
+<p>You may choose one of two routes for implementing the new Proton Pack controller:</p>
+<ol>
+<li>A minimal approach which only focuses on reusing the stock connections and hardware (switches, LEDs, motor).<ul>
+<li>It is possible to forego replacing the microcontroller in the Hasbro wand and simply use a stock wand. This approach will provide power to the wand but no interactivity between the wand and the pack.</li>
+</ul>
+</li>
+<li>Using all stock hardware as above, but with room for additional features, each of which is considered optional.<ul>
+<li>This will provide full interaction with the new controller for the Neutrona Wand.</li>
+</ul>
+</li>
+</ol>
+<p><strong>Prototyping and Connections</strong></p>
+<p>Use a half size protoboard like (<a href="https://www.adafruit.com/product/1609">1609 Adafruit</a>) or by any other brand. These work similar to a breadboard, where LETTERED columns run horizontal and are connected as a group, and each side contains 2 rails for (+) and (-) connections and run vertically along the board, also connected together.</p>
+<p>Connections from stock JST-XH connectors may be split to maximize use of the smallest protoboard possible. This is a non-reversible change and removes the ability to swap components without de-soldering wires. <em>This is your last caution before proceeding!</em></p>
+<p><strong>Special Component Naming Conventions</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1N4001 (Diode)</td>
+<td>Use of (s) denotes the striped end (cathode)</td>
+</tr>
+<tr>
+<td>NPN [EBC]</td>
+<td>Standard PN2222 Transistor [Denotes Pin]</td>
+</tr>
+<tr>
+<td>CAP ###uf</td>
+<td>Denotes an electrolytic capacitor with given microfarad rating</td>
+</tr>
+<tr>
+<td>R ### Ω</td>
+<td>Denotes a resistor with given Ohms rating</td>
+</tr>
+<tr>
+<td>SW-CYC</td>
+<td>Cyclotron Spin Direction Switch</td>
+</tr>
+<tr>
+<td>SW-SMOKE</td>
+<td>Smoke Switch (enable or disable smoke)</td>
+</tr>
+<tr>
+<td>LED-R#</td>
+<td>2x Red LED for Cyclotron switch plate (OPTIONAL)</td>
+</tr>
+<tr>
+<td>LED-Y#</td>
+<td>2x Yellow LED for Cyclotron switch plate (OPTIONAL)</td>
+</tr>
+<tr>
+<td>LED-G#</td>
+<td>2x Green LED for Cyclotron switch plate (OPTIONAL)</td>
+</tr>
+<tr>
+<td>LED-MSW</td>
+<td>1x Green LED for mode year switch (OPTIONAL)</td>
+</tr>
+<tr>
+<td>LED-VSW</td>
+<td>1x Yellow LED for vibration switch (OPTIONAL)</td>
+</tr>
+<tr>
+<td>NEO-CYC</td>
+<td>8 NeoPixel jewels chained together (OPTIONAL) (56 LEDs total) See <a href="../CYCLOTRON_INNER/">Cyclotron Lights</a></td>
+</tr>
+<tr>
+<td>SMOKE1</td>
+<td>This is a standard 5V Air/Vacuum pump motor I use. (see below for more info)</td>
+</tr>
+<tr>
+<td>SMOKE2</td>
+<td>This is a standard 5V Air/Vacuum pump motor I use. (see below for more info)</td>
+</tr>
+</tbody>
+</table>
+<p>Regarding the smoke effects, I am using <a href="https://www.joytech.fr/accueil/168-eroll-mac-joytech.html">eroll mac joytech vape pen</a>. I hook up with tubing the mini pump which is linked in the <a href="../DIY_BOM/">parts list</a>. One end of the pump creates suction and sucks the smoke in, and the other end of the pump pushes the smoke out. The vape pen itself is activating when suction is applied by the motor. The vape pens are battery powered but come with a USB cable for charging, so I can feed it 5V with a USB cable directly to the pen and not have to rely on the battery it has in it. View the <a href="../SMOKE/">Smoke Kit Guide</a> for more information on optional smoke effects.</p>
+<p>When the pump is controlled with the transistor/diode setup as in the diagrams, it is the only device which draws power from the 5V rail. <strong>CAUTION: If you implement your own smoke solution using a different design, test your setup independent of the described circuit and with adequate measurement tools to ensure you will not draw power through the Arduino!</strong> Most designs which use a vape pen (cartomizer) and mini air pump require ~3.6V to run correctly, and while less than the 5V supplied to the circuit below some solutions can require nearly 1 Amp of current to run these devices together. This can also overwhelm the 2N2222 transistor used in this schematic.</p>
+<p>By comparison, the current required for a small fan or the vibration motor are perfectly fine for the transistors as described, while the diodes prevent any backflow of current when those devices power down (but may still spin briefly).</p>
+<table>
+<thead>
+<tr>
+<th>Power Connections</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BAT (+)</td>
+<td>Positive 5V from your power source.</td>
+</tr>
+<tr>
+<td>BAT (-)</td>
+<td>Ground from your 5V power source.</td>
+</tr>
+<tr>
+<td>WAND (+)</td>
+<td>Runs to your wand (5V) + power rail on the ¼ board (see <a href="../DIY_WAND/">DIY Wand Guide</a>)</td>
+</tr>
+<tr>
+<td>WAND (-)</td>
+<td>Runs to your wand ground rail on the ¼ board (see <a href="../DIY_WAND/">DIY Wand Guide</a>)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="protoboard-layout">Protoboard Layout</h3>
+<p>Some connections to components will be made directly to the Arduino Mega. Please see the section below for these additional items not addressed in the layout here. An explanation of this layout can be found just below the protoboard sample photo.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><strong>+</strong></th>
+<th><strong>-</strong></th>
+<th><strong>A</strong></th>
+<th><strong>B</strong></th>
+<th><strong>C</strong></th>
+<th><strong>D</strong></th>
+<th><strong>E</strong></th>
+<th></th>
+<th><strong>F</strong></th>
+<th><strong>G</strong></th>
+<th><strong>H</strong></th>
+<th><strong>I</strong></th>
+<th><strong>J</strong></th>
+<th><strong>+</strong></th>
+<th><strong>-</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1</strong></td>
+<td><font color="red">Z+</font></td>
+<td>Y-</td>
+<td></td>
+<td><font color="red">Z+</font></td>
+<td>WAND&nbsp;(+)</td>
+<td><font color="red">BAT&nbsp;(+)</font></td>
+<td><font color="red">X+</font></td>
+<td></td>
+<td>Y-</td>
+<td>BAT&nbsp;(-)</td>
+<td>WAND&nbsp;(-)</td>
+<td>W-</td>
+<td></td>
+<td><font color="red">X+</font></td>
+<td>W-</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td><font color="red">WavTrig&nbsp;(+)</font></td>
+<td>WavTrig&nbsp;(&dash;)</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td></td>
+<td>V-</td>
+<td>V-</td>
+<td>SW1&nbsp;(Black)</td>
+<td><font color="green">SW3&nbsp;(Green)</font></td>
+<td><font color="red">SW4&nbsp;(Red)</font></td>
+<td>SW6&nbsp;(Black)</td>
+<td></td>
+<td></td>
+<td><font color="red">SW1&nbsp;(Red)</font></td>
+<td>PIN&nbsp;31</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td></td>
+<td>U-</td>
+<td>U-</td>
+<td>SW-CYC<br/>(Black)</td>
+<td>SW-SMOKE<br/>(Black)</td>
+<td>ROT&nbsp;(2)</td>
+<td></td>
+<td></td>
+<td></td>
+<td><font color="blue">SW3&nbsp;(Blue)</font></td>
+<td>PIN&nbsp;27</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>5</strong></td>
+<td></td>
+<td>T-</td>
+<td>T-</td>
+<td>LED-R1 (-)</td>
+<td>LED-R2 (-)</td>
+<td>LED-Y1 (-)</td>
+<td>LED-Y2 (-)</td>
+<td></td>
+<td></td>
+<td><font color="green">SW4&nbsp;(Green)</font></td>
+<td>PIN&nbsp;25</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>6</strong></td>
+<td></td>
+<td>S-</td>
+<td>S-</td>
+<td>LED-G1 (-)</td>
+<td>LED-G2 (-)</td>
+<td>LED-MSW<br/>(-)</td>
+<td>LED-VSW <br/>(-)</td>
+<td></td>
+<td></td>
+<td><font color="red">SW6&nbsp;(Red)</font></td>
+<td>PIN&nbsp;23</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>7</strong></td>
+<td><font color="red">Mega&nbsp;(+)</font></td>
+<td>Mega&nbsp;(&dash;)</td>
+<td></td>
+<td>ROT (1)</td>
+<td>PIN 3</td>
+<td></td>
+<td></td>
+<td></td>
+<td>ROT (3)</td>
+<td>PIN 2</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>8</strong></td>
+<td><font color="red">JP3&nbsp;(Red)</font></td>
+<td>JP3&nbsp;(Black)</td>
+<td></td>
+<td></td>
+<td></td>
+<td><font color="orange">JP3&nbsp;(Yellow)</font></td>
+<td>R&nbsp;470&nbsp;Ω</td>
+<td>↔</td>
+<td>R&nbsp;470&nbsp;Ω</td>
+<td>PIN 53</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>9</strong></td>
+<td><font color="red">JP4&nbsp;(Red)</font></td>
+<td>JP4 (Black)</td>
+<td></td>
+<td><font color="green">JP3&nbsp;(Green)</font></td>
+<td><font color="orange">JP4&nbsp;(Yellow)</font></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><font color="brown">JP4&nbsp;(Brown)</font></td>
+<td>PIN&nbsp;43</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>10</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>11</strong></td>
+<td><font color="red">NEO-CYC<br/>(+)</font></td>
+<td>NEO-CYC<br/>(-)</td>
+<td></td>
+<td></td>
+<td></td>
+<td><font color="blue">NEO-CYC<br/>(Data)</font></td>
+<td>R&nbsp;470&nbsp;Ω</td>
+<td>↔</td>
+<td>R&nbsp;470&nbsp;Ω</td>
+<td>PIN&nbsp;13</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>12</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><font color="red">R+</font></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>13</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>1N4001&nbsp;(s)</td>
+<td><font color="red">FAN-1&nbsp;(+)</font></td>
+<td><font color="red">R+</font></td>
+<td></td>
+<td></td>
+<td></td>
+<td>1N4001&nbsp;(s)</td>
+<td><font color="red">M1&nbsp;(Red)</font></td>
+<td><font color="red">Q+</font></td>
+<td><font color="red">Q+</font></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>14</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>↕</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>↕</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>15</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>↕</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>↕</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>16</strong></td>
+<td></td>
+<td></td>
+<td>NPN&nbsp;C</td>
+<td></td>
+<td>1N4001</td>
+<td>FAN-1&nbsp;(-)</td>
+<td></td>
+<td></td>
+<td>NPN&nbsp;C</td>
+<td></td>
+<td>1N4001</td>
+<td>M1&nbsp;(Black)</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>17</strong></td>
+<td></td>
+<td></td>
+<td>NPN&nbsp;B</td>
+<td></td>
+<td>R&nbsp;330&nbsp;Ω</td>
+<td></td>
+<td></td>
+<td></td>
+<td>NPN&nbsp;B</td>
+<td></td>
+<td>R&nbsp;330&nbsp;Ω</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>18</strong></td>
+<td></td>
+<td></td>
+<td>NPN&nbsp;E</td>
+<td></td>
+<td>↕</td>
+<td></td>
+<td>P-</td>
+<td></td>
+<td>NPN&nbsp;E</td>
+<td></td>
+<td>↕</td>
+<td></td>
+<td>O-</td>
+<td></td>
+<td>O-</td>
+</tr>
+<tr>
+<td><strong>19</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>↕</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>↕</td>
+<td></td>
+<td></td>
+<td></td>
+<td>P-</td>
+</tr>
+<tr>
+<td><strong>20</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>R&nbsp;330&nbsp;Ω</td>
+<td></td>
+<td>PIN&nbsp;33</td>
+<td></td>
+<td></td>
+<td></td>
+<td>R&nbsp;330&nbsp;Ω</td>
+<td></td>
+<td>PIN&nbsp;45</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>21</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><font color="red">N+</font></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>22</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>1N4001&nbsp;(s)</td>
+<td><font color="red">SMOKE2&nbsp;(+)</font></td>
+<td><font color="red">N+</font></td>
+<td></td>
+<td></td>
+<td></td>
+<td>1N4001&nbsp;(s)</td>
+<td><font color="red">SMOKE1&nbsp;(+)</font></td>
+<td><font color="red">M+</font></td>
+<td><font color="red">M+</font></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>23</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>↕</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>↕</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>24</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>↕</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>↕</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>25</strong></td>
+<td></td>
+<td></td>
+<td>NPN&nbsp;C</td>
+<td></td>
+<td>1N4001</td>
+<td>SMOKE2&nbsp;(-)</td>
+<td></td>
+<td></td>
+<td>NPN&nbsp;C</td>
+<td></td>
+<td>1N4001</td>
+<td>SMOKE1&nbsp;(-)</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>26</strong></td>
+<td></td>
+<td></td>
+<td>NPN&nbsp;B</td>
+<td></td>
+<td>R&nbsp;330&nbsp;Ω</td>
+<td></td>
+<td></td>
+<td></td>
+<td>NPN&nbsp;B</td>
+<td></td>
+<td>R&nbsp;330&nbsp;Ω</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>27</strong></td>
+<td></td>
+<td></td>
+<td>NPN&nbsp;E</td>
+<td></td>
+<td>↕</td>
+<td></td>
+<td>L-</td>
+<td></td>
+<td>NPN&nbsp;E</td>
+<td></td>
+<td>↕</td>
+<td></td>
+<td>K-</td>
+<td></td>
+<td>K-</td>
+</tr>
+<tr>
+<td><strong>28</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>↕</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>↕</td>
+<td></td>
+<td></td>
+<td></td>
+<td>L-</td>
+</tr>
+<tr>
+<td><strong>29</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>R&nbsp;330&nbsp;Ω</td>
+<td></td>
+<td>PIN&nbsp;35</td>
+<td></td>
+<td></td>
+<td></td>
+<td>R&nbsp;330&nbsp;Ω</td>
+<td></td>
+<td>PIN&nbsp;39</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>30</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><img alt="" src="../images/Breadboard.jpg" /></p>
+<p><strong>Recommended: Capacitors for LED "Pixels"</strong></p>
+<p>To provide smooth power to certain components, it is recommended to place a small electrolytic capacitor across the positive and negative terminals for the following addressable LEDs. It is better to place this as close as possible to the component rather than on PCB when possible.</p>
+<table>
+<thead>
+<tr>
+<th>Positive</th>
+<th>Capacitor</th>
+<th>Negative</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>JP3 (<font color="red">Red</font>)</td>
+<td>CAP 100uf</td>
+<td>JP3 (Black)</td>
+</tr>
+<tr>
+<td>JP4 (<font color="red">Red</font>)</td>
+<td>CAP 100uf</td>
+<td>JP4 (Black)</td>
+</tr>
+<tr>
+<td>NEO-CYC (+)</td>
+<td>CAP 100uf</td>
+<td>NEO-CYC (-)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Protoboard Diagram Reference and Interpretations:</strong></p>
+<p>When you see a letter or code in a cells above, it references where component needs to be inserted or what needs to be connected there. Reference the photos below for more information.</p>
+<ul>
+<li>
+<p><strong>Letters should be connected together by a length of wire.</strong></p>
+<ul>
+<li>
+<p>These are jumper wires to provide power or ground connections to a specific row of connections on the board. They do not indicate a specific space to make the connection. Each letter should have a (+) or (-) designation to help identify it as +5V or Ground.</p>
+<ul>
+<li>
+<p>Example #1: You see "Z+" in space "+1" (Column "+", Row 1) on the breadboard and again on "B1" (Column "B", Row 1). You need to connect a wire to these 2 points. In this case, the result is positive power on the "+" rail being delivered into all of row 1 for any connections in columns A through E.</p>
+</li>
+<li>
+<p>Example #2: In space "-1" you have a connection "Y-" and you need to run a wire from "-1" to "F1" on the right side of the breadboard. This will deliver ground from the "-" rail to columns F through J on row 1.</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Components will be connected in multiple adjacent spaces.</strong></p>
+<ul>
+<li>
+<p>Components will span rows or across the mid-gap in the board to allow one or more connections at each end. Note the arrows which will indicate the orientation (vertical or horizontal) for these items and which spaces they will span. Connections to the board will only be noted in designated spots.</p>
+<ul>
+<li>
+<p>Example #1: In E8 is one end of a 470ohm resistor. You need to put the other end of this resistor onto F8 on the board. Resistors do not have polarity and so either end can be placed into either of the marked spaces.</p>
+</li>
+<li>
+<p>Example #2: In H16 is one end of a 1N4001 diode. You need to then put the STRIPED end of the diode to H13 on the board as indicated with the (s). Diodes have a polarity which affects the flow of current, so pay close attention to these markings.</p>
+</li>
+<li>
+<p>Example #3: In C29 is one end of a 330ohm resistor, and the other end runs vertically to C26. This is indicated by the ↕ which shows the direction of the component. The symbol ↔ here is used to show an item is oriented horizontally.</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Spaces leading with "PIN" indicates an Arduino connection.</strong></p>
+<ul>
+<li>
+<p>A length of wire (to be determined by the placement of the final switch, LED, or other component) must be soldered to the board at the designated spot and connected to the Arduino Mega at the noted pin.</p>
+<ul>
+<li>Example #1: G8 says PIN 53. You need to run a wire from this point to PIN 53 to the Arduino Mega. (See chart below protoboard photo.)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="additional-connections-to-the-arduino-mega">Additional Connections to the Arduino MEGA</h2>
+<p>These are connections which are not covered in the diagram above and can connect directly to the Arduino board. For the WAV Trigger these are the same connections which are used for the FTDI breakout board to program the WAV Trigger. Use pins and sockets for an easy connection to that device should a firmware upgrade be required in the future.</p>
+<table>
+<thead>
+<tr>
+<th>Connection → Pin</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MEGA&nbsp;TX3&nbsp;→&nbsp;WAV Trigger&nbsp;RX</td>
+<td>Required for sound</td>
+</tr>
+<tr>
+<td>MEGA&nbsp;RX3&nbsp;→&nbsp;WAV Trigger&nbsp;TX</td>
+<td>Required for sound</td>
+</tr>
+<tr>
+<td>MEGA&nbsp;TX2&nbsp;→&nbsp;Wand&nbsp;Nano&nbsp;RX</td>
+<td>Optional if not replacing wand controller</td>
+</tr>
+<tr>
+<td>MEGA&nbsp;RX2&nbsp;→&nbsp;Wand&nbsp;Nano&nbsp;TX</td>
+<td>Optional if not replacing wand controller</td>
+</tr>
+<tr>
+<td>SW-CYC (Red) → Pin 29</td>
+<td>Optional, switch for Cyclotron direction</td>
+</tr>
+<tr>
+<td>SW-SMOKE (Red) → Pin 37</td>
+<td>Optional, switch to enable smoke effects</td>
+</tr>
+<tr>
+<td>FAN-1 → Pin 33</td>
+<td>Optional Feature<br/>Goes 5V high, is timed to go off during over heat sequence. You can hook up any device to this. I used a fan for testing purposes. What you put in this section depends on what device you hook up to the Mega if anything at all.<br/><strong>WARNING: DO NOT DRAW MORE THAN 40ma FROM A PIN. Use a transistor setup if you need more power.</strong></td>
+</tr>
+<tr>
+<td>SMOKE-2 → Pin 35</td>
+<td>Optional Feature<br/>Goes 5V high, is timed to go off occasionally during the wand firing sequences. You can hook up any device to this. I used DC pump motor for drawing smoke from a e-vape pen and push it out of the booster tube. It is referenced as the smoke&#95;booster in the pack code. See matching colour section in chart above. What you hook up here depends on what device you intend to run.<br/><strong>WARNING: DO NOT DRAW MORE THAN 40ma FROM A PIN. Use a transistor setup if you need more power.</strong></td>
+</tr>
+<tr>
+<td>SMOKE-1 → Pin 39</td>
+<td>Optional Feature<br/>Goes 5V high, is timed to go off during over heat sequence and occasionally during the wand firing sequences. You can hook up any device to this. I used DC pump motor for drawing smoke from a e-vape pen and run it to the N-Filter. This is referenced as smoke&#95;pin in the pack code. See matching colour section in chart above. What you hook up here depends on what device you intend to run.<br/><strong>WARNING: DO NOT DRAW MORE THAN 40ma FROM A PIN. Use a transistor setup if you need more power.</strong></td>
+</tr>
+<tr>
+<td>FAN-2 → Pin 38</td>
+<td>Optional Feature (not shown in schematic)<br/>Goes 5V high, is timed to go off at the same time as SMOKE-2.<br/><strong>WARNING: DO NOT DRAW MORE THAN 40ma FROM A PIN. Use a transistor setup if you need more power.</strong></td>
+</tr>
+<tr>
+<td>N-Filter LED → Pin 46</td>
+<td>Optional Feature (not shown in schematic)<br/>Goes 5V high, is timed to go off at the same time as SMOKE-1 and SMOKE-2. This can be used for another optional LED for the N-Filter during overheat or continuous firing. If you attach a LED to this pin, use the appropriate resistor required for the LED.<br/><strong>WARNING: DO NOT DRAW MORE THAN 40ma FROM A PIN. Use a transistor setup if you need more power.</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="cyclotron-panel-leds">Cyclotron Panel LEDs</h3>
+<p>NOTE: If you change LED colours, use an appropriate resistor based on the forward voltage stated for the LED. The resistors referenced here are the minimum required for these particular 5mm LED diodes. You can always go up to the nearest resistor value if you do not have the specified value. For example you may use 150 if do not have any 140’s in your resistor kit, and 100 instead of 90s. Most resistors are  expected to be within 5% of their stated value.</p>
+<table>
+<thead>
+<tr>
+<th>Connection → Pin</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LED-R1 (+) soldered to R 140 Ω → Pin 4</td>
+<td>Optional Cyclotron panel light</td>
+</tr>
+<tr>
+<td>LED-R2 (+) soldered to R 140 Ω → Pin 5</td>
+<td>Optional Cyclotron panel light</td>
+</tr>
+<tr>
+<td>LED-Y1 (+) soldered to R 140 Ω → Pin 6</td>
+<td>Optional Cyclotron panel light</td>
+</tr>
+<tr>
+<td>LED-Y2 (+) soldered to R 140 Ω → Pin 7</td>
+<td>Optional Cyclotron panel light</td>
+</tr>
+<tr>
+<td>LED-G1 (+) soldered to R 90 Ω → Pin 8</td>
+<td>Optional Cyclotron panel light</td>
+</tr>
+<tr>
+<td>LED-G2 (+) soldered to R 90 Ω → Pin 9</td>
+<td>Optional Cyclotron panel light</td>
+</tr>
+<tr>
+<td>LED-MSW (+) soldered to R 90 Ω → Pin 10 (Resistor set for Green LED)</td>
+<td>Optional mode indicator</td>
+</tr>
+<tr>
+<td>LED-VSW (+) soldered to R 140 Ω → Pin 11 (Resistor set for Yellow LED)</td>
+<td>Optional vibration enabled indicator</td>
+</tr>
+</tbody>
+</table>
+<h2 id="optional-pack-upgrades">Optional Pack Upgrades</h2>
+<p>The following are <em>OPTIONAL</em> builds for use within the Proton Pack.</p>
+<ul>
+<li><a href="../CYCLOTRON_INNER/">Cyclotron Lights</a></li>
+<li><a href="../NFILTER/">N-Filter Vent Light</a></li>
+</ul>
+<h2 id="component-fitment">Component Fitment</h2>
+<p>Given the large spaces and "compartments" within the pack, finding a place for the protoboard, Arduino, WAV Trigger, audio amplifier, and battery should be no problem. Reusing the space from the old controller is ideal for the protoboard and Arduino. Most modders have found that the removal of the case for a Talencell battery allows it to fit under the original battery compartment--just use care that the sides of the batteries are covered with electrical tape and nothing can accidentally damage or short the components which may be exposed. Additionally, it's worth covering the bottom contacts on any circuit boards which are in close proximity to each other just in case shifting occurs while wearing the pack.</p>
+<p><img alt="" src="../images/mega.jpg" />
+<img alt="" src="../images/mega2.jpg" />
+<img alt="" src="../images/SmokeBooster3.jpg" /></p>
+<h2 id="arduino-mega-pinout-reference">Arduino Mega Pinout Reference</h2>
+<p><img alt="" src="../images/Arduino-mega-pinout.png" /></p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>GPStar Technologies</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

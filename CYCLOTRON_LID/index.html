@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Cyclotron Lid - GPStar Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Cyclotron Lid";
+        var mkdocs_page_input_path = "CYCLOTRON_LID.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="..">
+          <img src="../images/gpstar_logo_white.png" class="logo" alt="Logo"/>
+        </a>
+        <div class="version">
+          6.x
+        </div><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ABOUT/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Core Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../GUIDE_LISTING/">Introduction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_PCB/">Proton Pack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_PCB/">Neutrona Wand</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../HOSE/">Pack-Wand Hose</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../GPSTAR_AUDIO_PCB/">GPStar Audio</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DIY_LEGACY/">Legacy DIY</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Optional Components</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" >Proton Pack</a>
+    <ul class="current">
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Cyclotron Lid</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#haslab-proton-pack-hookup-guide">Haslab Proton Pack Hookup Guide</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#diy-and-spirit-packs-hookup-guide">DIY and Spirit Packs Hookup Guide</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#installation-guide-video">Installation Guide Video</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#40-led-neopixel-ring-deprecated">40-LED Neopixel Ring (Deprecated)</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_INNER/">Inner Cyclotron</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_BYPASS/">Cyclotron Bypass</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NFILTER/">N-Filter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../POWERCELL/">Power Cell</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Neutrona Wand</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../BARGRAPH/">Bargraph</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../HATS/">Hatlights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../VENTLIGHT/">Vent Lights</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Serial1 Expansion</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../SERIAL1/">Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ATTENUATOR/">Attenuator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../WIRELESS/">WiFi Adapter</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Special Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../POWER/">Power Requirements</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SOUND/">Sound Output</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SMOKE/">Smoke Kits</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Install Videos</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_JONOGUNN/">Jonogunn</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_NORCALGB/">Nor-Cal GB</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Maintenance</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../FLASHING/">Flashing Pack/Wand Firmware</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ATTENUATOR_FLASHING/">Flashing Attenuator/Wifi</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../AUDIO_FILES/">Audio Files</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operation Manuals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_USAGE/">General Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_MENUS/">Runtime Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_EEPROM/">EEPROM Menus</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Help</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TROUBLESHOOTING/">Troubleshooting</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">GPStar Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Optional Components</li>
+          <li class="breadcrumb-item">Proton Pack</li>
+      <li class="breadcrumb-item active">Cyclotron Lid</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="cyclotron-lid-lights-optional">Cyclotron Lid Lights (Optional)</h1>
+<p>These are <em>OPTIONAL</em> add-on additions for use within the Proton Pack.</p>
+<h2 id="overview">Overview</h2>
+<p>The stock lights in the HasLab pack only supplies 12 addressable LEDs which are red-only. If you wish to be able to change the colours of these lights you will need to replace them with an addressable LED ring, <a href="https://gpstartechnologies.com/products/gpstar-cyclotron">GPStar Cyclotron LEDs</a> or those made by Frutto Technology such as the <a href="https://fruttotechnology.com/ols/products/cyclotron-5-leds-kit">20-LED (4x 5-LED)</a> or <a href="https://fruttotechnology.com/ols/products/cyclotron-5-leds-kit-cyc-5-lds-kit1">36-LED (4x 9-LED)</a> option.</p>
+<p>Regardless of solution you will need to split apart the Cyclotron Lid which is secured at 6 locations around the lid. Gently prying under the plastic near the N-Filter on the inside of the lid will be the first screw posts cold-welded to the lid. A firm but slow twist should break the bond and begin to separate the halves. To re-secure, the best option is to drill through the center of each obvious cold weld on the inner lid and use small screws to attach the halves back together.</p>
+<h2 id="haslab-proton-pack-hookup-guide">Haslab Proton Pack Hookup Guide</h2>
+<p><img alt="" src="../images/GPStar-Cyclotron-Hookup.jpg" /></p>
+<h2 id="diy-and-spirit-packs-hookup-guide">DIY and Spirit Packs Hookup Guide</h2>
+<p><img alt="" src="../images/GPStar-Cyclotron-Bypass-Hookup.jpg" /></p>
+<h2 id="installation-guide-video">Installation Guide Video</h2>
+<p><a href="https://www.youtube.com/watch?v=A5eP50iO5qc">GPStar Proton Pack &amp; Neutrona Wand Cyclotron Lights Installation Video</a> (YouTube)
+<a href="https://www.youtube.com/watch?v=A5eP50iO5qc"><img alt="GPStar Proton Pack &amp; Neutrona Wand Cyclotron Lights Installation Video" src="https://img.youtube.com/vi/A5eP50iO5qc/maxresdefault.jpg" /></a></p>
+<p>The stock LEDs can be removed by prying out the diffuser lenses, then snipping the 3 black plastic welds used to hold the PCBs in place. Whether pre-soldered or not, the new LEDs should be oriented similar to the arcing pattern used by the stock LEDs. Hot glue can be used to keep these in place until the diffusers are put back in place.</p>
+<p><strong>Note: Installation is the same for the 5-LED or 9-LED replacement kits from Frutto Technology.</strong></p>
+<p><img alt="" src="../images/Frutto_Cyc1.jpg" /></p>
+<p>When replacing the diffuser lenses, keep wires tucked into the available slots to avoid pinching.</p>
+<p><img alt="" src="../images/Frutto_Cyc2.jpg" /></p>
+<p>Secure all wires to avoid them from moving after installation.</p>
+<p><img alt="" src="../images/Frutto_Cyc3.jpg" /></p>
+<p>The new LEDs will need to be selected via the EEPROM setup menu #4. Select the 20-LED option for the correct count and speed defaults.</p>
+<p><img alt="" src="../images/Frutto_Cyc4.jpg" /></p>
+<p>Reassemble the Cyclotron Lid using low-profile machine screws. The new LEDs should not need additional diffusion unless that is your preference.</p>
+<p><img alt="" src="../images/Frutto_Cyc5.jpg" /></p>
+<p><a href="https://www.youtube.com/watch?v=S4SVeivRyuc">Installation Video</a> (YouTube)
+<a href="https://www.youtube.com/watch?v=S4SVeivRyuc"><img alt="Installation Video" src="https://img.youtube.com/vi/S4SVeivRyuc/maxresdefault.jpg" /></a></p>
+<h3 id="40-led-neopixel-ring-deprecated">40-LED Neopixel Ring (Deprecated)</h3>
+<p>This approach simply adds the lights atop the old circuit board and LEDs between the outer and inner layers of the Cyclotron Lid. Print the <a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/stl/pack/Cyclotron_Ring_Diffuser.stl?raw=1">Cyclotron Ring Diffuser</a> to help orient the ring and keep it positioned behind each lens. The pixel opposite the soldered connections should be number 1 and should be made the dead center of the top-right lens. See below for an illustration of this orientation and use of the diffuser ring.</p>
+<p><img alt="" src="../images/CyclotronLidRing.jpg" /></p>
+<p>For the electrical connections, this reuses 3/4 the available connections on the lid (the pogo pins) for 5V power (red), data (yellow), and ground (black). You will remove those connections and solder new wires to the circuit board on the lid to connect to the ring. <strong>It is important to leave the brown wire attached as this triggers the lid removal detection.</strong></p>
+<p>To improve the fit of the new ring, it is recommended to use a Dremel with a sanding drum to remove any raised plastic bits which are below the ring. Also note that the added materials will not allow the inner and outer shells to fit as tightly. Applying some black foam weatherstripping to the edge of the outer shell will help hide any gaps but also provide some material to push back against the inner shell when screwing the halves together.</p>
+<p><a href="https://www.youtube.com/watch?v=kXAhU2Zis18">Demonstration Video by JustinDustin</a> (YouTube)
+<a href="https://www.youtube.com/watch?v=kXAhU2Zis18"><img alt="Haslab Proton Pack 40 LED Neopixel Ring" src="https://img.youtube.com/vi/kXAhU2Zis18/maxresdefault.jpg" /></a></p>
+<p>Note: This approach is considered deprecated for the cyclotron lid as the 5-LED lid lights provide the same density, while the new 9-LED lid lights provide a much smoother transition. But for users who have implemented this the solution is still supported in software.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../DIY_LEGACY/" class="btn btn-neutral float-left" title="Legacy DIY"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../CYCLOTRON_INNER/" class="btn btn-neutral float-right" title="Inner Cyclotron">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>GPStar Technologies</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../DIY_LEGACY/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../CYCLOTRON_INNER/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

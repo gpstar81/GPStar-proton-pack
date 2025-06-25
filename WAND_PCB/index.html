@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Neutrona Wand - GPStar Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Neutrona Wand";
+        var mkdocs_page_input_path = "WAND_PCB.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="..">
+          <img src="../images/gpstar_logo_white.png" class="logo" alt="Logo"/>
+        </a>
+        <div class="version">
+          6.x
+        </div><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ABOUT/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Core Components</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../GUIDE_LISTING/">Introduction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_PCB/">Proton Pack</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Neutrona Wand</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#stock-connectors-jst-ph">Stock Connectors (JST-PH)</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#stock-connectors-terminal-blocks">Stock Connectors (Terminal Blocks)</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#special-connectors">Special Connectors</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#optional-connectors">Optional Connectors</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../HOSE/">Pack-Wand Hose</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../GPSTAR_AUDIO_PCB/">GPStar Audio</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DIY_LEGACY/">Legacy DIY</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Optional Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Proton Pack</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_LID/">Cyclotron Lid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_INNER/">Inner Cyclotron</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_BYPASS/">Cyclotron Bypass</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NFILTER/">N-Filter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../POWERCELL/">Power Cell</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Neutrona Wand</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../BARGRAPH/">Bargraph</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../HATS/">Hatlights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../VENTLIGHT/">Vent Lights</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Serial1 Expansion</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../SERIAL1/">Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ATTENUATOR/">Attenuator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../WIRELESS/">WiFi Adapter</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Special Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../POWER/">Power Requirements</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SOUND/">Sound Output</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SMOKE/">Smoke Kits</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Install Videos</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_JONOGUNN/">Jonogunn</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_NORCALGB/">Nor-Cal GB</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Maintenance</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../FLASHING/">Flashing Pack/Wand Firmware</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ATTENUATOR_FLASHING/">Flashing Attenuator/Wifi</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../AUDIO_FILES/">Audio Files</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operation Manuals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_USAGE/">General Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_MENUS/">Runtime Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_EEPROM/">EEPROM Menus</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Help</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TROUBLESHOOTING/">Troubleshooting</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">GPStar Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Core Components</li>
+      <li class="breadcrumb-item active">Neutrona Wand</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1><span class="logo-icon"></span> GPStar Wand PCB Hookup</h1>
+
+<p>This guide is part of the kit approach to providing a minimally-invasive upgrade to the stock HasLab controllers. For the Neutrona Wand all available connections for JST-PH wiring is present, though a significant amount of wire-cutting will be required to separate the stock controller and re-attach using terminal blocks on the new PCB. The diagrams below detail the standard HasLab connections as well as using the 28-segment or 30-segment bargraphs.</p>
+<p><img alt="Standard PCB Connections" src="../images/WandPCB-Standard.png" /></p>
+<p><img alt="Bargraph PCB Connections" src="../images/WandPCB-Bargraph.png" /></p>
+<h2 id="neutrona-wand-connection-details">Neutrona Wand - Connection Details</h2>
+<p>Connections for the wand should be made according to the tables below.</p>
+<ul>
+<li>Ordering aligns with PCB labels or when viewed left-to-right with the connector keyhole at the bottom.</li>
+<li>Pins denoted A#/D# correspond to the internal code and connection to the controller chip.</li>
+<li>Ground may be designated as "GND" or simply "-".</li>
+</ul>
+<p><img alt="" src="../images/WandPCB-Labels.png" /></p>
+<h3 id="stock-connectors-jst-ph">Stock Connectors (JST-PH)</h3>
+<table>
+<thead>
+<tr>
+<th>Label</th>
+<th>Pins</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5V-IN</td>
+<td>+/-</td>
+<td>2-pin JST-PH for power from Proton Pack.<br/><strong>This MUST be a regulated 5V source!</strong></td>
+</tr>
+<tr>
+<td>Q2</td>
+<td>VCC/D10/GND</td>
+<td>3-pin JST-PH connection for addressable barrel LEDs</td>
+</tr>
+<tr>
+<td>SW45/SW4</td>
+<td>GND/D2/GND/D3</td>
+<td>4-pin JST-PH connection for the Intensify button and Activate toggle</td>
+</tr>
+<tr>
+<td>SW6</td>
+<td>GND/A6</td>
+<td>2-pin JST-PH connection for the orange wand-end mode/alt switch</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note:</strong> The 3-pin connector for the Barrel LEDs is compatible with the <a href="https://fruttotechnology.com/ols/products/wand-barrel-replacement-49-leds-pcb">Frutto Technology 49-LED wand barrel replacement</a> as a drop-in replacement.</p>
+<h3 id="stock-connectors-terminal-blocks">Stock Connectors (Terminal Blocks)</h3>
+<table>
+<thead>
+<tr>
+<th>Label/Pin</th>
+<th>Color</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A7</td>
+<td><font color="orange">Orange</font></td>
+<td>Barrel extension switch (wire order does not matter)</td>
+</tr>
+<tr>
+<td>GND</td>
+<td><font color="orange">Orange</font></td>
+<td>Barrel extension switch (wire order does not matter)</td>
+</tr>
+<tr>
+<td>D8</td>
+<td><font color="red">Red</font></td>
+<td>Slo-Blo VCC</td>
+</tr>
+<tr>
+<td>GND</td>
+<td>Black</td>
+<td>Slo-Blo GND</td>
+</tr>
+<tr>
+<td>D4</td>
+<td><font color="brown">Brown</font></td>
+<td>Lower-right Toggle (wire order does not matter)</td>
+</tr>
+<tr>
+<td>GND</td>
+<td><font color="brown">Brown</font></td>
+<td>Lower-right Toggle (wire order does not matter)</td>
+</tr>
+<tr>
+<td>A0</td>
+<td><font color="red">Red</font></td>
+<td>Upper-right Toggle (wire order does not matter)</td>
+</tr>
+<tr>
+<td>GND</td>
+<td><font color="red">Red</font></td>
+<td>Upper-right Toggle (wire order does not matter)</td>
+</tr>
+<tr>
+<td>D9</td>
+<td><font color="red">Red</font></td>
+<td>Clippard LED (Top Left) VCC</td>
+</tr>
+<tr>
+<td>GND</td>
+<td><font color="yellow">Yellow</font></td>
+<td>Clippard LED (Top Left) GND</td>
+</tr>
+<tr>
+<td>R+</td>
+<td><font color="red">Red</font></td>
+<td>Rumble (vibration) motor VCC</td>
+</tr>
+<tr>
+<td>R-</td>
+<td>Black</td>
+<td>Rumble (vibration) motor GND</td>
+</tr>
+<tr>
+<td>VCC</td>
+<td><font color="blue">Blue</font></td>
+<td>Power for stock bar graph</td>
+</tr>
+<tr>
+<td>A5</td>
+<td><font color="green">Green</font></td>
+<td>Stock bar graph LED 5</td>
+</tr>
+<tr>
+<td>A4</td>
+<td><font color="yellow">Yellow</font></td>
+<td>Stock bar graph LED 4</td>
+</tr>
+<tr>
+<td>A3</td>
+<td><font color="orange">Orange</font></td>
+<td>Stock bar graph LED 3</td>
+</tr>
+<tr>
+<td>A2</td>
+<td><font color="red">Red</font></td>
+<td>Stock bar graph LED 2</td>
+</tr>
+<tr>
+<td>A1</td>
+<td><font color="brown">Brown</font></td>
+<td>Stock bar graph LED 1</td>
+</tr>
+<tr>
+<td>D12</td>
+<td><font color="gray">White</font></td>
+<td>Blinking top right LED / RGB vent light data</td>
+</tr>
+<tr>
+<td>D13</td>
+<td>Black</td>
+<td>White vent light LED</td>
+</tr>
+<tr>
+<td>VL+</td>
+<td><font color="red">Red</font></td>
+<td>VCC for top/vent lights</td>
+</tr>
+<tr>
+<td>D7</td>
+<td><font color="orange">Orange</font></td>
+<td>Rotary encoder B</td>
+</tr>
+<tr>
+<td>D6</td>
+<td><font color="red">Red</font></td>
+<td>Rotary encoder A</td>
+</tr>
+<tr>
+<td>ROT-</td>
+<td><font color="brown">Brown</font></td>
+<td>Ground for rotary encoder</td>
+</tr>
+</tbody>
+</table>
+<h3 id="special-connectors">Special Connectors</h3>
+<table>
+<thead>
+<tr>
+<th>Label</th>
+<th>Pins</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PACK (Serial)</td>
+<td>TX1/RX1</td>
+<td>Serial communication to the Proton Pack.<br><br><code>Connector type: JST-PH</code></td>
+</tr>
+<tr>
+<td>AUDIO BOARD</td>
+<td>GND/NC/VCC/TX/RX/NC</td>
+<td>Communication and Power for the wands's GPStar Audio or WAV Trigger.<br><br><code>Connector type: JST-PH</code></td>
+</tr>
+<tr>
+<td>ICSP</td>
+<td>DO NOT USE!</td>
+<td>Programming header for bootloader updates (reserved).<br><br><code>Connector type: Header pins</code></td>
+</tr>
+<tr>
+<td>UART</td>
+<td>See Below</td>
+<td>Programming header for software updates (optional).<br><br><code>Connector type: Header pins</code></td>
+</tr>
+</tbody>
+</table>
+<p>For connecting the UART pins, use a suitable FTDI chip such as the same <strong>FTDI Basic 5V</strong> used for programming the GPStar Audio or WAV Trigger. Pins on the PCB should align with with the standard wire order for FTDI-to-USB cables which use a single Dupont 6-pin connector. Observe these common colors and notes to ensure proper orientation:</p>
+<ul>
+<li>The ground pin will typically be a black wire, while VCC will typically be red.</li>
+<li>The DTR pin on the PCB will connect to a wire labelled either DTR or RTS.</li>
+<li>Any wire labelled CTS will be connected to the 2nd pin labelled GND on the PCB.</li>
+<li>Be careful to not reverse the connector!</li>
+</ul>
+<p><img alt="UART Connection" src="../images/uart_wand.jpg" /></p>
+<h3 id="optional-connectors">Optional Connectors</h3>
+<table>
+<thead>
+<tr>
+<th>Label</th>
+<th>Pins</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HAT1</td>
+<td>GND/D22</td>
+<td>Connection for top of the barrel tip hat LED.<br><br>The left (top in the photo) pin is GND, the right (bottom in the photo) pin is D22 which provides 5V and has a 150Ω resistor connected to it.<br><br><code>Connector type: JST-PH</code><br><br><code>Do not draw more than 40mA from this connector.</code></td>
+</tr>
+<tr>
+<td>HAT2</td>
+<td>GND/D23</td>
+<td>Connection for the wand box hat LED.<br><br>The left (top in the photo) pin is GND, the right (bottom in the photo) pin is D23 provides 5V and has a 150Ω resistor connected to it.<br><br><code>Connector type: JST-PH</code><br><br><code>Do not draw more than 40mA from this connector.</code></td>
+</tr>
+<tr>
+<td>BARREL-LED</td>
+<td>GND/D24</td>
+<td>Connection for white wand tip light.<br><br>The left (top in the photo) pin is GND, the right (bottom in the photo) pin is D24 which provides 5V and has a 100Ω resistor connected to it.<br><br><code>Connector type: JST-PH</code><br><br><code>Do not draw more than 40mA from this connector.</code></td>
+</tr>
+<tr>
+<td>5V-OUT</td>
+<td>+/-</td>
+<td>Power for additional accessories.<br><br><code>Connector type: JST-PH</code></td>
+</tr>
+<tr>
+<td>SCL/SDA</td>
+<td>SCL/SDA</td>
+<td>Expansion serial port using I2C.<br><br><code>Connector type: JST-PH</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note:</strong> If using the <a href="../BARGRAPH/">28-segment or 30-segment bargraph</a>, power may be delivered via the 5V-OUT while the SCL/SDA serial connection will provide data/control.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../PACK_PCB/" class="btn btn-neutral float-left" title="Proton Pack"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../HOSE/" class="btn btn-neutral float-right" title="Pack-Wand Hose">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>GPStar Technologies</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../PACK_PCB/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../HOSE/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

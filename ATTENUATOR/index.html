@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Attenuator - GPStar Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Attenuator";
+        var mkdocs_page_input_path = "ATTENUATOR.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="..">
+          <img src="../images/gpstar_logo_white.png" class="logo" alt="Logo"/>
+        </a>
+        <div class="version">
+          6.x
+        </div><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ABOUT/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Core Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../GUIDE_LISTING/">Introduction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_PCB/">Proton Pack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_PCB/">Neutrona Wand</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../HOSE/">Pack-Wand Hose</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../GPSTAR_AUDIO_PCB/">GPStar Audio</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DIY_LEGACY/">Legacy DIY</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Optional Components</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >Proton Pack</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_LID/">Cyclotron Lid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_INNER/">Inner Cyclotron</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_BYPASS/">Cyclotron Bypass</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NFILTER/">N-Filter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../POWERCELL/">Power Cell</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Neutrona Wand</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../BARGRAPH/">Bargraph</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../HATS/">Hatlights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../VENTLIGHT/">Vent Lights</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Serial1 Expansion</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../SERIAL1/">Overview</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Attenuator</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#potential-backstory">Potential Backstory</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#reference-videos">Reference Videos</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#building-your-own">Building Your Own</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#gpstar-kits">GPStar Kits</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#firmware-flashing">Firmware Flashing</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#operation">Operation</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#physical-operation">Physical Operation</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#standard-controls">Standard Controls</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#lockout-mode-main-dial">Lockout Mode (Main Dial)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#buzzervibration-feedback">Buzzer/Vibration Feedback</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#web-operation">Web Operation</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../WIRELESS/">WiFi Adapter</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Special Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../POWER/">Power Requirements</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SOUND/">Sound Output</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SMOKE/">Smoke Kits</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Install Videos</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_JONOGUNN/">Jonogunn</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_NORCALGB/">Nor-Cal GB</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Maintenance</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../FLASHING/">Flashing Pack/Wand Firmware</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ATTENUATOR_FLASHING/">Flashing Attenuator/Wifi</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../AUDIO_FILES/">Audio Files</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operation Manuals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_USAGE/">General Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_MENUS/">Runtime Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_EEPROM/">EEPROM Menus</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Help</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TROUBLESHOOTING/">Troubleshooting</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">GPStar Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Optional Components</li>
+          <li class="breadcrumb-item">Serial1 Expansion</li>
+      <li class="breadcrumb-item active">Attenuator</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="pack-attenuator-optional">Pack Attenuator (Optional)</h1>
+<p>"If Egon had kept on using and modifying his pack and modifying it, what might it look like?"</p>
+<p>That was the question posed by Jason Reitman to Adam Savage with regards to the 2021 Ghostbusters Afterlife film. So in 2022 <a href="https://www.youtube.com/watch?v=dloSR3a57IA">Adam Savage's Tested YouTube channel released a video</a> for a "1 Day Build" which featured propmaster Ben Eadie to create a unique item which brings more life to the front of the Proton Pack.</p>
+<p><img alt="" src="../images/Attenuator_XRay.png" /></p>
+<p>This guide demonstrates the build process for replicating the "Pack Attenuator" device first created by Adam and Ben which fully integrates into the GPStar electronics kit. The ability to control and receive feedback from the devices makes this more than just an aesthetic improvement but a truly usable piece of the pack-wand combination.</p>
+<h3 id="potential-backstory">Potential Backstory</h3>
+<p>The device was rediscovered by Phoebe Spengler from notes in her grandfather’s underground workshop on the “Dirt Farm”. The device was theorized and prototyped but never put into service until now.</p>
+<p>The attenuator device alters the magnetic field to maintain a correct “rate of feed” of positrons into the cyclotron, thus allowing the user to extend the time to ensnare a ghost by preventing an overheat event within the Proton Pack. Ahead of an overheat (aka. vent sequence) the device will provide physical and audiovisual cues as to the impending event. Interacting with the device will cancel the warning and stave off the venting sequence.</p>
+<h3 id="reference-videos">Reference Videos</h3>
+<p><a href="https://www.youtube.com/watch?v=k-u7S7Ctcbc">Attenuator Preview Demonstration</a> (YouTube, August 2023).
+<a href="https://www.youtube.com/watch?v=k-u7S7Ctcbc"><img alt="Attenuator Preview Demonstration Video" src="https://img.youtube.com/vi/k-u7S7Ctcbc/maxresdefault.jpg" /></a></p>
+<p><a href="https://www.youtube.com/watch?v=BLHyUAcyqoI">Attenuator Backstory and Updates</a> (YouTube, October 2023).
+<a href="https://www.youtube.com/watch?v=BLHyUAcyqoI"><img alt="Attenuator Backstory and Updates" src="https://img.youtube.com/vi/BLHyUAcyqoI/maxresdefault.jpg" /></a></p>
+<h2 id="building-your-own">Building Your Own</h2>
+<p>Please see the dedicated <a href="../ATTENUATOR_DIY/">ATTENUATOR_DIY</a> guide for how to construct the electronics for your own device.</p>
+<h2 id="gpstar-kits">GPStar Kits</h2>
+<p>Please see the <a href="../ATTENUATOR_FINISHING/">ATTENUATOR_FINISHING</a> guide for advice on how to assemble and finish your device.</p>
+<h2 id="firmware-flashing">Firmware Flashing</h2>
+<p>Please see the <a href="../ATTENUATOR_FLASHING/">ATTENUATOR_FLASHING</a> guide for details on compiling and/or uploading software to your Attenuator controller.</p>
+<h2 id="operation">Operation</h2>
+<h3 id="physical-operation">Physical Operation</h3>
+<p>While not attached to a compatible Proton Pack (read: standalone mode) the device will simply provide some lights and effects. The left toggle switch will turn on the bargraph animations while the right toggle switch will turn on the LEDs.</p>
+<p>Ideally, the device is intended be connected to the GPStar Proton Pack Controller which will allow it to provide all extended functionality. Under normal use the main dial will allow adjusting the overall volume, starting/stopping music tracks, navigating to the next track, and adjusting the effects volume.</p>
+<p><img alt="" src="../images/Attenuator_Render.png" /></p>
+<h3 id="standard-controls">Standard Controls</h3>
+<ul>
+<li>Left Toggle: Turns the pack on or off, similar to use of the switch under the Ion Arm</li>
+<li>Right Toggle: Turns the Attenuator device itself on or off.<ul>
+<li>When off, this turns off the device LEDs and silences any feedback from the buzzer and vibration motor.</li>
+</ul>
+</li>
+<li>Main Dial - Long Press: Alternates between two modes of operation<ul>
+<li>Mode 1 (Default) - Indicated by a high buzzer tone<ul>
+<li>Main Dial - Short Press: Starts or stops the current music track</li>
+<li>Main Dial - Double Press: Mutes or unmutes all pack/wand audio</li>
+<li>Main Dial - Turn CW/CCW: Adjusts the overall volume for pack/wand</li>
+</ul>
+</li>
+<li>Mode 2 - Indicated by a low buzzer tone<ul>
+<li>Main Dial - Short Press: Advances to the next music track</li>
+<li>Main Dial - Double Press: Move to the previous music track</li>
+<li>Main Dial - Turn CW/CCW: Adjusts the effects volume for pack/wand</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>Note that during an overheat warning, the device will emit sounds and vibrations in addition to lighting effects as the pack reaches a critical state. At this time the pack operator can turn the primary dial either direction to "attenuate" the pack and cancel the current warning. If the warning time is allowed to expire the the pack will enter the venting sequence.</p>
+<h3 id="lockout-mode-main-dial">Lockout Mode (Main Dial)</h3>
+<p>Lockout mode is a special option for only the main dial to prevent accidental changing of volume:</p>
+<p>1) Press down on the main dial and <strong>immediately</strong> change the Right Toggle to the opposite position. If on, switch off, or vice-versa.
+1) Continue to hold down the main dial for another second. If vibration feedback is enabled you will feel a long buzz to indicate when the lockout mode is either enabled or disabled (there will be no buzzer sound like there is during a menu level change).</p>
+<h2 id="buzzervibration-feedback">Buzzer/Vibration Feedback</h2>
+<p>As part of the user experience, some actions initiated on the device or as a result of using your Proton Pack will trigger haptic feedback via a piezo buzzer and a vibration motor.</p>
+<p>These features can be enabled or disabled based on user preference. For more information on how to enable or disable these features via the device preferences, please see the <a href="../WIRELESS_OPERATION/">Wireless Operations</a> guide.</p>
+<h2 id="web-operation">Web Operation</h2>
+<p>For instructions on using the web interface to view the status of, or to control your equipment, please see the <a href="../WIRELESS_OPERATION/">Wireless Operations</a> guide.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../SERIAL1/" class="btn btn-neutral float-left" title="Overview"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../WIRELESS/" class="btn btn-neutral float-right" title="WiFi Adapter">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>GPStar Technologies</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../SERIAL1/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../WIRELESS/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

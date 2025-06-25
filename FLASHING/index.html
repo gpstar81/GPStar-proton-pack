@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Flashing Pack/Wand Firmware - GPStar Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Flashing Pack/Wand Firmware";
+        var mkdocs_page_input_path = "FLASHING.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="..">
+          <img src="../images/gpstar_logo_white.png" class="logo" alt="Logo"/>
+        </a>
+        <div class="version">
+          6.x
+        </div><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ABOUT/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Core Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../GUIDE_LISTING/">Introduction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_PCB/">Proton Pack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_PCB/">Neutrona Wand</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../HOSE/">Pack-Wand Hose</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../GPSTAR_AUDIO_PCB/">GPStar Audio</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DIY_LEGACY/">Legacy DIY</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Optional Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Proton Pack</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_LID/">Cyclotron Lid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_INNER/">Inner Cyclotron</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_BYPASS/">Cyclotron Bypass</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NFILTER/">N-Filter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../POWERCELL/">Power Cell</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Neutrona Wand</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../BARGRAPH/">Bargraph</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../HATS/">Hatlights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../VENTLIGHT/">Vent Lights</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Serial1 Expansion</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../SERIAL1/">Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ATTENUATOR/">Attenuator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../WIRELESS/">WiFi Adapter</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Special Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../POWER/">Power Requirements</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SOUND/">Sound Output</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SMOKE/">Smoke Kits</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Install Videos</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_JONOGUNN/">Jonogunn</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_NORCALGB/">Nor-Cal GB</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Maintenance</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Flashing Pack/Wand Firmware</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#supported-devices">Supported Devices</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#important-notes-for-flashing-updates">📝 IMPORTANT NOTES FOR FLASHING UPDATES</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#flashing-updates">Flashing Updates</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#gpstar-packwand-firmware-flasher">GPStar Pack/Wand Firmware Flasher</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#gpstar-audio-firmware-flasher">GPStar Audio Firmware Flasher</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#gpstar-esp32-firmware-flasher">GPStar ESP32 Firmware Flasher</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#connection-to-your-gpstar-proton-pack-and-neutrona-wand-pcbs">Connection to your GPStar Proton Pack and Neutrona Wand PCBs</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#connection-to-your-gpstar-audio">Connection to your GPStar Audio</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#using-the-flashing-software">Using the Flashing Software</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#windows">Windows</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#macos">macOS</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#flashing-update-instruction-video">Flashing Update Instruction Video</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#optional-compiling-source-code-and-manually-flashing">(Optional) Compiling Source Code and Manually Flashing</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ATTENUATOR_FLASHING/">Flashing Attenuator/Wifi</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../AUDIO_FILES/">Audio Files</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operation Manuals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_USAGE/">General Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_MENUS/">Runtime Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_EEPROM/">EEPROM Menus</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Help</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TROUBLESHOOTING/">Troubleshooting</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">GPStar Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Maintenance</li>
+      <li class="breadcrumb-item active">Flashing Pack/Wand Firmware</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="software-flashing-guide">Software Flashing Guide</h1>
+<p>Each supported device in the GPStar system (Proton Pack, Neutrona Wand, Attenuator, Single-shot Blaster) are separate devices and must be updated individually when software updates are available. The following guide focuses on the core system: the Proton Pack and Neutrona Wand. For updating the <a href="../ATTENUATOR_FLASHING/">Attenuator (aka. Wireless Adapter)</a> or the <a href="../SINGLESHOT/">Single-Shot Blaster</a>, please see their respective guides.</p>
+<p>Note that the GPStar Audio may also require updates to firmware, though this will be rare. See the <a href="../SOUND/">SOUND</a> guide for more information.</p>
+<h2 id="supported-devices">Supported Devices</h2>
+<p>Please refer to the table below for a list of devices and their supported software release.</p>
+<table>
+<thead>
+<tr>
+<th>Controller Device</th>
+<th>v1.x</th>
+<th>v2.x</th>
+<th>v3.x</th>
+<th>v4.x</th>
+<th>v5.x</th>
+<th>v6.x</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="logo-icon-tiny"></span> GPStar Proton Pack PCB</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><span class="logo-icon-tiny"></span> GPStar Neutrona Wand PCB</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><sup>d1</sup> DIY Arduino Mega Proton Pack</td>
+<td>Yes</td>
+<td>Yes <sup>2</sup></td>
+<td>Yes <sup>3</sup></td>
+<td>Yes <sup>3</sup></td>
+<td>Yes <sup>3</sup></td>
+<td>Yes <sup>3</sup></td>
+</tr>
+<tr>
+<td><sup>d1</sup> DIY Arduino Mega Neutrona Wand</td>
+<td>Yes</td>
+<td>Yes <sup>2</sup></td>
+<td>Yes <sup>2</sup></td>
+<td>Yes <sup>2</sup></td>
+<td>Yes <sup>2</sup></td>
+<td>Yes <sup>2</sup></td>
+</tr>
+<tr>
+<td><sup>s1</sup> Attenuator (Arduino Nano)</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>No <sup>4</sup></td>
+</tr>
+<tr>
+<td><sup>s1</sup> Attenuator (ESP32)</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><sup>s1</sup> Wireless Adapter (ESP32)</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<p><sup>d1</sup> These are now considered as "legacy" devices and have distinct end-of-life notes in later versions (see additional superscript notations).</p>
+<p><sup>s1</sup> These are referred to as "Serial1" devices as they attach to the GPStar Proton Pack PCB though they are considered separate devices and will be flashed independently. Please see the <a href="../ATTENUATOR_FLASHING/">ATTENUATOR_FLASHING</a> guide for those instructions.</p>
+<p><sup>2</sup> Support for the Arduino Nano as a wand controller ended after the release of v2.2.0. That device must be replaced with a <a href="https://www.amazon.com/s?k=Mega+2560+PRO+MINI">Mega 2560 Pro Mini</a> to support the later software releases.</p>
+<p><sup>3</sup> If paired with an Arduino Nano for the Neutrona Wand, this arrangement is deprecated. To continue using the DIY Arduino Mega you will need to upgrade the Neutrona Wand to use the GPStar Neutrona Wand PCB or a <a href="https://www.amazon.com/s?k=Mega+2560+PRO+MINI">Mega 2560 Pro Mini</a>.</p>
+<p><sup>4</sup> Support for the Arduino Nano as an Attenuator controller ended as of the v6.0.0 release. That device must be replaced with an ESP-WROOM-32 module to support the later software releases.</p>
+<h2 id="important-notes-for-flashing-updates">📝 IMPORTANT NOTES FOR FLASHING UPDATES</h2>
+<ol>
+<li>The same software version should be updated to <strong>ALL</strong> available devices, even if the changelog does not advertise modifications for a certain component. This ensures proper serial communication between devices.</li>
+<li>If you are flashing updates to your existing setup, make sure that <strong>BOTH</strong> your Proton Pack and Neutrona Wand Micro SD Cards have all the latest sound effects from this repository as found in the <a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/sounds/">sounds</a> directory.</li>
+</ol>
+<h2 id="flashing-updates">Flashing Updates</h2>
+<p>After connecting your GPStar Proton Pack or Neutrona Wand board to your computer with the included FTDI to USB programming cable, download the GPStar firmware flasher from the <a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/">extras</a> folder and run the program.</p>
+<p><strong>As of the v5.4.4 release, new versions of the flasher utilities are available and are encouraged to be used instead of any older copies.</strong> These provide more integity/size checks for selected files, ensuring you have selected a true binary file.</p>
+<h3 id="gpstar-packwand-firmware-flasher">GPStar Pack/Wand Firmware Flasher</h3>
+<ul>
+<li><a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/gpstarFirmwareFlasher.exe?raw=1">Windows (x86/x64)</a></li>
+<li><a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/GPStar-Firmware-Flasher-Mac.dmg?raw=1">MacOS Intel/M1</a></li>
+</ul>
+<h3 id="gpstar-audio-firmware-flasher">GPStar Audio Firmware Flasher</h3>
+<ul>
+<li><a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/sound/GPStar%20Audio/gpstarAudioFirmwareFlasher.exe?raw=1">Windows (x64 only)</a></li>
+<li><a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/sound/GPStar%20Audio/GPStar-Audio-Firmware-Flasher-Mac.dmg?raw=1">MacOS Intel</a> (Must enable Rosetta for Apple Silicon CPUs)</li>
+</ul>
+<h3 id="gpstar-esp32-firmware-flasher">GPStar ESP32 Firmware Flasher</h3>
+<ul>
+<li><a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/gpstarESP32FirmwareFlasher.exe?raw=1">Windows (x64 only)</a></li>
+<li><a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/GPStar-ESP32-Flasher?raw=1">MacOS Intel/M1</a></li>
+</ul>
+<p>The latest pre-compiled firmware binaries can be found in the binaries folder of this repository.\
+<a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/">Binaries Folder</a></p>
+<p>The GPStar Audio firmware binary can be found in the extras/sound/GPStar Audio folder.\
+<a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/sound/GPStar%20Audio/">GPStar Audio Folder</a></p>
+<p>When downloading the binaries via GitHub, click on the file then on the <strong><code>Download raw file</code></strong> button.</p>
+<p><strong>It is recommended to have both the Proton Pack and Neutrona Wand on the same, latest version of their respective firmware.</strong></p>
+<p><img alt="GPStar firmware flasher" src="../images/flashDownload.png" /></p>
+<p><strong>You can also find the latest stable versions of the Firmware and Flashing software at:</strong></p>
+<p><a href="https://gpstartechnologies.com/pages/support-downloads">https://gpstartechnologies.com/pages/support-downloads</a></p>
+<h2 id="connection-to-your-gpstar-proton-pack-and-neutrona-wand-pcbs">Connection to your GPStar Proton Pack and Neutrona Wand PCBs</h2>
+<p>Use the included FTDI to USB programming cable that comes with the GPStar kits or use any other suitable FTDI 5V basic serial connector. The UART Pins on the PCB should align with with the standard wire order for FTDI-to-USB cables which use a single Dupont 6-pin connector. Observe these common colours and notes to ensure proper orientation:</p>
+<ul>
+<li>The ground pin will typically be a black wire, while VCC will typically be red.</li>
+<li>The DTR pin on the PCB will connect to a wire labelled either DTR or RTS.</li>
+<li>Any wire labelled CTS will be connected to the 2nd pin labelled GND on the PCB.</li>
+<li><strong>Be careful to not reverse the connector!</strong></li>
+</ul>
+<p><img alt="UART Connection" src="../images/uart_pack.jpg" /></p>
+<p>📝 <strong>Note:</strong> For the Neutrona Wand, some users have adopted use of the <a href="https://www.etsy.com/listing/1756220009/">Hasbro Plasma Series Spengler's Neutrona Wand: Data Port Front Tube</a> as offered by RADIsLAB, which includes a parts list for a dedicated programming cable which stay mounted inside of the device.</p>
+<h2 id="connection-to-your-gpstar-audio">Connection to your GPStar Audio</h2>
+<p>Use the included FTDI to USB programming cable that comes with the GPStar kits or use any other suitable FTDI 5V basic serial connector. The UART Pins on the PCB should align with with the standard wire order for FTDI-to-USB cables which use a single Dupont 6-pin connector. Observe these common colours and notes to ensure proper orientation:</p>
+<p><strong>IMPORTANT: Beside the connection on the GPStar Audio board, there is a small black switch, move it to the LOAD position before connecting the cable.</strong></p>
+<p><strong>After flashing, please move the switch back to the BOOT position.</strong></p>
+<p><img alt="UART GPStar Audio Connection" src="../images/uart_gpstar_audio.jpg" /></p>
+<h2 id="using-the-flashing-software">Using the Flashing Software</h2>
+<h3 id="windows">Windows</h3>
+<p><img alt="GPStar firmware flasher Windows" src="../images/flash-gpstar-1-firmware.png" /></p>
+<ol>
+<li>Open the firmware flasher, then select the firmware from the firmware selection box then select the firmware from the firmware selection box for the GPStar board you wish to flash.</li>
+<li>Then select the PORT for the connection to your GPStar Board. <code>Microsoft Windows users: The Default baud rate of 115200 should already be automatically selected.</code> <code>The PORT will be different for every user and may not look like what you see in the screenshot image. If you attempt to flash and your GPStar board can not be found, please select another PORT from the drop down menu and try again.</code></li>
+<li>Click on the UPLOAD button and wait for it to complete.</li>
+</ol>
+<p><code>Note: If connecting the programming cable for the first time to your computer, it may take Windows a few minutes to setup the USB/TTL drivers automatically before it start working.</code></p>
+<h3 id="macos">macOS</h3>
+<p><img alt="gpstar firmware flasher Mac" src="../images/flash-gpstar-firmware-mac.png" /></p>
+<ol>
+<li>Open the firmware flasher by double-clicking the .DMG file. This will mount a new drive for the application.</li>
+<li>Go to the mounted drive "GPSTAR-FIRMWARE-FLASHER" and double-click on the <code>GPStar-Firmware-Flasher.app</code> to start the program.</li>
+<li>Select the firmware from the firmware selection box for the GPStar board you wish to flash.</li>
+<li>Then select the PORT for the connection to your gpstar Board after connecting the gpstar board to your computer with the programming cable. <code>The PORT will be different for every user and may not look like what you see in the screenshot image.</code></li>
+<li>Click on the UPLOAD button and wait for it to complete.</li>
+</ol>
+<h2 id="flashing-update-instruction-video">Flashing Update Instruction Video</h2>
+<p><a href="https://www.youtube.com/watch?v=Hbk-RCVR1ew">Firmware Update Instruction Video</a> (YouTube)
+<a href="https://www.youtube.com/watch?v=Hbk-RCVR1ew"><img alt="GPStar Proton Pack &amp; Neutrona Wand Flashing Demonstration Video" src="https://img.youtube.com/vi/Hbk-RCVR1ew/maxresdefault.jpg" /></a></p>
+<h2 id="optional-compiling-source-code-and-manually-flashing">(Optional) Compiling Source Code and Manually Flashing</h2>
+<p>If you prefer to make adjustments to the source code configuration options instead of flashing pre-compiled binaries, refer to the Compiling and Flashing link below.</p>
+<ul>
+<li><a href="../COMPILING_FLASHING/">Compiling and Flashing</a></li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../INSTALL_VIDEOS_NORCALGB/" class="btn btn-neutral float-left" title="Nor-Cal GB"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../ATTENUATOR_FLASHING/" class="btn btn-neutral float-right" title="Flashing Attenuator/Wifi">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>GPStar Technologies</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../INSTALL_VIDEOS_NORCALGB/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../ATTENUATOR_FLASHING/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

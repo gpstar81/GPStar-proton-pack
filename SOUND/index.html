@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Sound Output - GPStar Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Sound Output";
+        var mkdocs_page_input_path = "SOUND.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="..">
+          <img src="../images/gpstar_logo_white.png" class="logo" alt="Logo"/>
+        </a>
+        <div class="version">
+          6.x
+        </div><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ABOUT/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Core Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../GUIDE_LISTING/">Introduction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_PCB/">Proton Pack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_PCB/">Neutrona Wand</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../HOSE/">Pack-Wand Hose</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../GPSTAR_AUDIO_PCB/">GPStar Audio</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DIY_LEGACY/">Legacy DIY</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Optional Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Proton Pack</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_LID/">Cyclotron Lid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_INNER/">Inner Cyclotron</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_BYPASS/">Cyclotron Bypass</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NFILTER/">N-Filter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../POWERCELL/">Power Cell</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Neutrona Wand</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../BARGRAPH/">Bargraph</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../HATS/">Hatlights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../VENTLIGHT/">Vent Lights</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Serial1 Expansion</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../SERIAL1/">Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ATTENUATOR/">Attenuator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../WIRELESS/">WiFi Adapter</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Special Guides</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../POWER/">Power Requirements</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Sound Output</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#audio-controllers">Audio Controllers</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pack-audio">Pack Audio</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#amplifiers">Amplifiers</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#speakers">Speakers</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#accessories">Accessories</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#note-amplifier-volume-controls">Note: Amplifier Volume Controls</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#wand-audio">Wand Audio</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#gpstar-audio-on-board-amplifier-stereo-output">GPStar Audio on-board amplifier (stereo output)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#wav-trigger-on-board-amplifier-mono-output-only">WAV Trigger on-board amplifier (mono output only)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#for-more-wand-mounting-solutions-refer-to-the-diy-wand-setup-page">For more wand mounting solutions, refer to the DIY Wand Setup page</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SMOKE/">Smoke Kits</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Install Videos</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_JONOGUNN/">Jonogunn</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_NORCALGB/">Nor-Cal GB</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Maintenance</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../FLASHING/">Flashing Pack/Wand Firmware</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ATTENUATOR_FLASHING/">Flashing Attenuator/Wifi</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../AUDIO_FILES/">Audio Files</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operation Manuals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_USAGE/">General Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_MENUS/">Runtime Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_EEPROM/">EEPROM Menus</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Help</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TROUBLESHOOTING/">Troubleshooting</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">GPStar Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Special Guides</li>
+      <li class="breadcrumb-item active">Sound Output</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="sound-output-options">Sound Output Options</h1>
+<p>"Listen! You smell something?" - Ray Stantz</p>
+<p>Sound is a huge component of this build and the options are relatively open for how best you wish to proceed. For the wand you will be limited by space, but for the pack you can go as big and as bold as you wish. The following options should give you an idea of what is possible with hardware given certain space constraints.</p>
+<p>For instructions on loading audio files to a microSD card, please see the <a href="../AUDIO_FILES/">AUDIO Guide</a>.</p>
+<h2 id="audio-controllers">Audio Controllers</h2>
+<p>Sounds are output via one of the supported polyphonic WAV audio controllers: Robertsonics WAV Trigger or GPStar Audio. The former is a 3rd-party component originally included with all GPStar kits up until early 2024, while the latter is a fully custom solution which is part of the GPStar family of controllers for your cosplay needs.</p>
+<p><strong>Firmware Compatibility</strong></p>
+<p>The compatibility matrix below notes whether a device is compatible with major versions of the GPStar software for the Proton Pack and Neutrona Wand controllers. The version number inside each cell is the minimum firmware version required or strongly recommended for the respective device.</p>
+<table>
+<thead>
+<tr>
+<th>Audio Device</th>
+<th>v1.x</th>
+<th>v2.x</th>
+<th>v3.x</th>
+<th>v4.x</th>
+<th>v5.0.x</th>
+<th>v5.1.x</th>
+<th>v5.4.x</th>
+<th>v6.0.x</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Robertsonics WAV Trigger</td>
+<td>v134</td>
+<td>v134</td>
+<td>v140</td>
+<td>v140</td>
+<td>v140</td>
+<td>v140</td>
+<td>v140</td>
+<td>v140</td>
+</tr>
+<tr>
+<td><span class="logo-icon-tiny"></span> GPStar Audio</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>v100<sup>1</sup></td>
+<td>v102<sup>2</sup></td>
+<td>v103<sup>3</sup></td>
+<td>v104<sup>4</sup></td>
+</tr>
+</tbody>
+</table>
+<p><sup>1</sup> All initial orders for GPStar Audio controllers shipped with v100 firmware which delivers all of the basic functionality needed for a Pack+Wand operation.</p>
+<p><sup>2</sup> The GPStar Audio v102 firmware added the Pause/Resume ability which is only accessible via the WiFi Web UI, while also providing stability improvements.</p>
+<p><sup>3</sup> The GPStar Audio v103 firmware adjusts the internal gain for the line-out levels to improve audio quality prior to amplification (primarily with Proton Pack usage which relies on an external amp to drive larger speakers).</p>
+<p><sup>4</sup> The GPStar Audio v104 firmware provides a new version info reply which gives the ability to provide unique features to users based on their flashed version. Notably, one of the new features for the v104 is a "WAV queueing" or preloading of audio files for use in chained events, reducing latency for certain effects.</p>
+<p><strong>Firmware Updates</strong></p>
+<p>All firmware files for the audio controllers can be found in the <a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/sound/">extras/sound/</a> folder. Files are grouped by their device name, and a firmware update tool for the GPStar Audio firmware is available for ease of flashing that device.</p>
+<h2 id="pack-audio">Pack Audio</h2>
+<p>This is where you can branch out to other options as desired and can really go all-out with your choice of audio. Neither of the GPStar Audio or WAV Trigger controllers recommended for use in the Proton Pack will use their onboard amplifier by default. In both cases the 3.5mm / ⅛" stereo phono jack will be used. This means you can use virtually any amplifier which accepts that type of connection as an input. When you choose your amplifier, that should dictate the choice of speakers to match.</p>
+<h3 id="amplifiers">Amplifiers</h3>
+<p>We recommend a handful of small form-factor audio amplifiers which will provide the loudness demanded by many kit users. The following are listed in order of their peak output, but also compatibility within the GPStar ecosystem.</p>
+<ul>
+<li><a href="https://gpstartechnologies.com/products/gpstar-amplifier-ii">GPStar Amplifier II - 50W @ 4Ω 24V Class D Stereo Amplifier</a><ul>
+<li>This beast of an amplifier is capable of running some serious wattage through matched speakers. When provided with the recommended 24V supply voltage the output is closer to 60W @ 4Ω, and is therefore reserved for the most serious of users willing to install and carry a suitable battery system on their Proton Pack.</li>
+<li>It is possible to run this amplifier at 12V as well for considerable sound output at around 30W @ 4Ω.</li>
+<li>If using 8Ω speakers, expect roughly 30W @ 24V and 15W @ 12V.</li>
+</ul>
+</li>
+<li><a href="https://gpstartechnologies.com/products/gpstar-amplifier">GPStar Amplifier - 15W @ 8Ω 12V Class D Stereo Amplifier</a><ul>
+<li>A more common class of amplifier with a 12V input. This is the same form-factor as the GPStar Amplifier II, but without the built-in heatsink. Output is identical to the Drok 15W listed next.</li>
+</ul>
+</li>
+<li><a href="https://a.co/d/9VnB8e9">Drok 15W Class D Stereo Amplifier</a><ul>
+<li>While rated at 15W that is only when driven at 24V. Expect closer to 10W @ 8Ω when driven with a standard 12V TalentCell battery.</li>
+<li>This is an off-the-shelf item which has been tested successfully with the full replacement kits and various speaker recommendations. In terms of capability this is identical to the GPStar Amplifier, though it has a built-in volume control if that is something you desire (otherwise the audio input will be controlled by the Proton Pack controller).</li>
+</ul>
+</li>
+</ul>
+<p>It should go without saying that for any amplifier which can run on 12V, the more wattage it can output and will drain the battery faster at higher volumes. Testing of the 12V amplifiers shows a draw of 1-1.25A at full power, hence a 6000 mAh TalentCell is going to be recommended for a full day of audio playback.</p>
+<h3 id="speakers">Speakers</h3>
+<p>Speakers may be subjective to your personal tastes and budget, so kits do not ship with speakers. However, we have tested and do recommend several options which are listed below in order of quality and availability. The most important criteria is to match the speakers to the maximum output of the amplifier chosen. For instance, you would want speakers which can handle at least 60W @ 4Ω for the GPStar Amplifier II.</p>
+<ul>
+<li><a href="https://www.parts-express.com/LaVoce-FSN030.71-3-Neodymium-Full-Range-Woofer-8-Ohm-293-706">2x LaVoce FSN030.71 3" Neodymium Full-Range Woofer 8Ω</a><ul>
+<li>Considered by our team as the peak of performance, weight, and quality this 30W @ 8Ω speaker is going to provide the lightest option with the most compatibility with all amplifiers recommended.</li>
+</ul>
+</li>
+<li><a href="https://www.parts-express.com/LaVoce-FSF030.70-3-Full-Range-Woofer-8-Ohm-293-705">2x LaVoce FSF030.70 3" Ferrite Full-Range Woofer 8Ω</a><ul>
+<li>Identical to the LaVoce FSN030.71 in specs, this is a standard magnet driver with a reduced cost per speaker. Consider this as a budget alternative.</li>
+</ul>
+</li>
+<li><a href="https://www.daytonaudio.com/product/1619/dma80-8-3-dual-magnet-aluminum-cone-full-range-driver-8-ohm">2x 3" Dayton Audio DMA-80 8Ω Full Range Drivers</a><ul>
+<li>These speakers are a mix of lightest weight due to their neodymium core and aluminum cone, with decent quality at 25W RMS (50W peak).</li>
+</ul>
+</li>
+<li><a href="https://a.co/d/cMg5Vrt">Pair of 3" Full Range Bookshelf Speaker (15W @ 8Ω)</a><ul>
+<li>These are the most economical options and can be perfectly suitable with the GPStar or Drok 15W amplifiers. However, their quality is not as good as the LaVoce or Dayton Audio speakers.</li>
+</ul>
+</li>
+</ul>
+<h3 id="accessories">Accessories</h3>
+<p>The following items are optional and may not even be necessary depending on the amplifier chosen. For instance, if using either of the GPStar amplifiers it is not necessary to provide a Ground Loop Isolator as this is built into those amplifiers already.</p>
+<ul>
+<li><a href="https://a.co/d/3H4zxZw">8" Auxiliary Stereo Audio Cable w/ 90&deg; Jack</a><ul>
+<li>Optional: Useful in tight locations, depending on where the amp is mounted</li>
+</ul>
+</li>
+<li><a href="https://a.co/d/faBkok9">Ground Loop Isolator</a> - Not required for the GPStar Amplifier<ul>
+<li>Recommended for 3rd-party Amps: Prevents unwanted hum and noise from the amplifier due to the LEDs</li>
+</ul>
+</li>
+<li><a href="https://a.co/d/6tI6nVJ">2 Input to 1 Output Passive Mixer</a><ul>
+<li>For users who may want to mix a second source into their Proton Pack, such as an Aux-In or Bluetooth device, this is a good option to mix your GPStar Audio (or WAV Trigger) input with an external source.</li>
+</ul>
+</li>
+</ul>
+<p><strong>Note:</strong> As of mid-2024 all kits which include an amplifier will ship with the new GPStar Amplifier which is a high-powered Class D stereo amp. This device is very similar to the Drok amplifier noted, though it includes more 12V pass-through options for chaining other devices which need the full power offered by the Talentcell battery. It also includes a built-in 5V regulator which may be used for powering other kit devices via JST-XH connectors.</p>
+<p>The placement of your speakers is up to you. Though it is possible to mount a 3" speaker in the location used for the original pack speaker, a mount should be used to help offload some of the added weight from that device. And if the stock vibration motor is not important (as the solution above will provide some physical feedback in that regard), removal of that device opens up a cavity just behind and above the cross-bar of a standard ALICE frame for another speaker. For the latter, it will be necessary to carefully  drill some small holes into the motherboard of the pack for sound output.</p>
+<p>Shown below is an example of how a pair of stereo speakers may be mounted inside of the pack. The upper speaker is located where the original speaker was mounted, while the lower speaker occupies the space where the vibration motor casing was secured into the pack. Note the WAV Trigger and amplifier as shown here are mounted in the space normally occupied by the D-cell battery compartment, primarily so the volume control for the amplifier can be accessed from the service door when the pack is reassembled. That portion of the motherboard would need to be partially or fully removed if you wish to use this space as shown.</p>
+<p>Optional Part Shown: <a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/stl/pack/Haslab/Speaker Mount V1/Speaker_Mount.stl?raw=1">3D Model for Pack - Upper Speaker Mount</a></p>
+<p><img alt="Pack Audio Example" src="../images/Audio-Pack.jpg" /></p>
+<h3 id="note-amplifier-volume-controls">Note: Amplifier Volume Controls</h3>
+<p>Most amplifier boards will contain their own dedicated volume control (potentiometer) which will adjust output from that device only. The built-in controls for the pack/wand will control the source audio (sound effects vs. music) and the overall volume output for both of the WAV Trigger boards, which will affect the input level to your choice of amplifier and in turn affect the output relative to that device.</p>
+<p><strong>tl;dr:</strong> You should mount your amplifier in a space where you also have access to its volume control so you can adjust the pack to balance with the wand (or make it the domninant audio source) as necessary.</p>
+<p><em>Under normal operating conditions setting the recommended Drok 15W amplifier to 1/2 power will be sufficient and capable of outputting over 80dB from the suggested pack speakers. Higher volume may also result in faster battery drain with very little improvement in volume.</em></p>
+<p><em>The GPStar Amplifier does not contain a volume control and is preset to output at its maximum volume. To control the volume level use the available controls on the pack or wand to adjust the overall system volume.</em></p>
+<h2 id="wand-audio">Wand Audio</h2>
+<p>This is the most restrictive of spaces which means the device which provides audio must also double as an amplifier. Luckily, both options for sound can provide output directly to a speaker. While the GPStar Audio can output stereo sound to 2 speakers, there is only room for 1 speaker in the wand as mounted behind the heatsink.</p>
+<p>The stock speaker is rated at 0.25W @ 16Ω and uses a cone made from plastic--essentially more of a tweeter than a full-range speaker, so it is advised that if you would like better quality sound you will need a replacement speaker. Otherwise, you can still use the original Hasbro wand speaker. Below are the listed specifications of the on-board amplifiers depending on which audio board you are using, which will affect which speaker should be purchased.</p>
+<hr />
+<h3 id="gpstar-audio-on-board-amplifier-stereo-output"><span class="logo-icon"></span> GPStar Audio on-board amplifier (stereo output)</h3>
+<p>Rated for 2.5W @ 4Ω or 1.5W @ 8Ω per channel.</p>
+<h3 id="wav-trigger-on-board-amplifier-mono-output-only">WAV Trigger on-board amplifier (mono output only)</h3>
+<p>Rated for 2W @ 4Ω or 1W @ 8Ω.</p>
+<hr />
+<p>There has been success in using <a href="https://a.co/d/93sbe2V">this 40mm speaker</a> rated for 3W @ 4Ω. While this does not fit in the standard speaker location under the heatsink (its size interferes with the retraction of the wand) it can be mounted within the base of the gun box and offers just enough sound to be heard (indoors at least) and can double as a rumble motor due to being able to reproduce the low-end sounds which the stock speaker cannot. This larger speaker can also be fitted into a optional Heatsink located in the STL folder of this repository.</p>
+<p>A potential example of how the upgraded 40mm speaker might be installed into the gun box is shown below in a DIY build. Note that in order to fit these components as shown the barrel connector for power was CAREFULLY removed (as it will not be used), and the screw posts for the wand mount were filed down to ensure they do not interfere with fitment.</p>
+<p>Other users in the community have reported satisfactory results with the Visaton speakers available through DigiKey which are both of identical specs (300 Hz to 20 kHz) and closer in size to the stock speaker. The Visaton speaker fits in the standard heatsink with little modifications or it can fit in a alternative heatsink which is provided in the STL folder of this repository:</p>
+<ul>
+<li><a href="https://www.digikey.com/en/products/detail/visaton-gmbh-co-kg/K-36-WP-8-OHM/9842373">K-36-WP 8ohm</a></li>
+<li><a href="https://www.digikey.com/en/products/detail/visaton-gmbh-co-kg/K-36-MO-8-OHM/9842375">K-36-MO 8ohm</a></li>
+</ul>
+<p>Optional Part Shown: <a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/stl/wand/Hasbro Wand/Legacy Parts/speaker_mount.stl?raw=1">3D Model for Wand - 40mm Speaker Mount</a></p>
+<p><img alt="Wand Audio Example" src="../images/Audio-Wand.jpg" /></p>
+<h3 id="for-more-wand-mounting-solutions-refer-to-the-diy-wand-setup-page">For more wand mounting solutions, refer to the <a href="../DIY_WAND/">DIY Wand Setup</a> page</h3>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../POWER/" class="btn btn-neutral float-left" title="Power Requirements"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../SMOKE/" class="btn btn-neutral float-right" title="Smoke Kits">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>GPStar Technologies</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../POWER/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../SMOKE/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>General Usage - GPStar Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "General Usage";
+        var mkdocs_page_input_path = "OPERATION_USAGE.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="..">
+          <img src="../images/gpstar_logo_white.png" class="logo" alt="Logo"/>
+        </a>
+        <div class="version">
+          6.x
+        </div><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ABOUT/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Core Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../GUIDE_LISTING/">Introduction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_PCB/">Proton Pack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_PCB/">Neutrona Wand</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../HOSE/">Pack-Wand Hose</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../GPSTAR_AUDIO_PCB/">GPStar Audio</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DIY_LEGACY/">Legacy DIY</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Optional Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Proton Pack</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_LID/">Cyclotron Lid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_INNER/">Inner Cyclotron</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_BYPASS/">Cyclotron Bypass</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NFILTER/">N-Filter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../POWERCELL/">Power Cell</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Neutrona Wand</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../BARGRAPH/">Bargraph</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../HATS/">Hatlights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../VENTLIGHT/">Vent Lights</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Serial1 Expansion</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../SERIAL1/">Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ATTENUATOR/">Attenuator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../WIRELESS/">WiFi Adapter</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Special Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../POWER/">Power Requirements</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SOUND/">Sound Output</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SMOKE/">Smoke Kits</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Install Videos</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_JONOGUNN/">Jonogunn</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_NORCALGB/">Nor-Cal GB</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Maintenance</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../FLASHING/">Flashing Pack/Wand Firmware</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ATTENUATOR_FLASHING/">Flashing Attenuator/Wifi</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../AUDIO_FILES/">Audio Files</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operation Manuals</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">General Usage</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#standard-features">Standard Features</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#system-power-readiness-indicator">System Power Readiness Indicator</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#system-power-inactivity-indicator">System Power Inactivity Indicator</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#optional-features">Optional Features</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#top-dial-behaviour">Top Dial Behaviour</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#quick-audio-volume-adjustment">Quick Audio Volume Adjustment</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#toggle-operation-modes">Toggle Operation Modes</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#super-hero-mode-operation-guide">Super Hero Mode Operation Guide</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#activate-toggle">Activate Toggle</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#right-hand-toggle-switch-behaviour">Right-Hand Toggle Switch Behaviour</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#mode-original-prop-operation-guide">Mode Original (Prop) Operation Guide</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#right-hand-toggle-switch-behaviours">Right-Hand Toggle Switch Behaviours</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#activate-toggle_1">Activate Toggle</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#system-modes">System Modes</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#video-game-mode-default">Video Game Mode (Default)</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#proton-stream">Proton Stream</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#dark-matter-generator">Dark Matter Generator</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#plasm-distribution-system">Plasm Distribution System</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#composite-particle-system">Composite Particle System</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#proton-stream-effects">Proton Stream Effects</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#cross-the-streams-cts-cross-the-streams-mix-cts-mix">Cross The Streams (CTS) / Cross The Streams Mix (CTS Mix)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#additional-resources">Additional Resources</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#eeprom-menu-guide">EEPROM Menu Guide</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pdf-operational-guide">PDF Operational Guide</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#video-demos">Video Demos</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_MENUS/">Runtime Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_EEPROM/">EEPROM Menus</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Help</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TROUBLESHOOTING/">Troubleshooting</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">GPStar Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Operation Manuals</li>
+      <li class="breadcrumb-item active">General Usage</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <p><img alt="" src="../images/gpstar_logo_bg.png" /></p>
+<center><h2><img src="../images/gpstar_logo.png" width="30"/> GPStar Proton Pack &amp; Neutrona Wand Operation Manual</h2></center>
+
+<p><img alt="" src="../images/OperationNeutrona1.jpg" />
+<sup>Neutrona Wand renders courtesy of Luis Peña</sup></p>
+<div class="page-break"></div>
+
+<h1 id="operational-guide-general-usage">Operational Guide - General Usage</h1>
+<div class="page-break"></div>
+
+<h2 id="standard-features">Standard Features</h2>
+<ul>
+<li>The switch underneath the Ion Arm can turn the Proton Pack on or off.</li>
+<li>You can run the pack without the Cyclotron Lid attached.</li>
+<li>The volume for the pack and wand can be controlled via the Crank Generator knob.</li>
+<li>Clockwise to raise volume, counter-clockwise to lower it.</li>
+<li>When the ribbon cable is disconnected it will activate the alarm mode and degrade the Cyclotron spin.</li>
+<li>The Proton Pack can run without a wand, though it can only be activated via the switch under the Ion Arm.</li>
+<li>Vibration switch in the Cyclotron switch plate enables or disables the vibration motors for both the Proton Pack and Neutrona Wand.</li>
+<li>Theme toggle in the Cyclotron switch plate changes the Proton Pack and Neutrona Wand modes between 1984, 1989, Afterlife, and Frozen Empire.</li>
+<li>The Proton Pack vibrates only while firing. This can be changed to vibrate at all times or entirely disabled. Vibration can be enabled or disabled by the vibration toggle switch in the Proton Pack. Vibration settings can be toggled via the Neutrona Wand menu system or the advanced user configuration settings.</li>
+<li>The Neutrona Wand vibrates only while firing. This can be changed to vibrate at all times or entirely disabled. Vibration can enabled or disabled by the vibration toggle switch in the Proton Pack. Vibration settings can be toggled via the wand menu system or the advanced user configuration settings.</li>
+<li>Single (centered) LED per Cyclotron lens for 1984/1989 modes by default.<ul>
+<li>This can be toggled back to 3 LEDs per Cyclotron lens via the Neturona Wand menu system.</li>
+</ul>
+</li>
+<li>The Power Cell, Cyclotron and other lighting on the Proton Pack can have the brightness independently adjusted.</li>
+<li>1989 and Frozen Empire sound effect modes are available; they can be accessed from the Neutrona Wand menus or set with the advanced user configuration settings.</li>
+<li>Super Hero and Mode Original system operation modes.</li>
+<li>Menu system with the ability to customise various settings for both your Proton Pack and Neutrona Wand.</li>
+<li>Up to 5 different power levels as indicated on the Neutrona Wand bargraph.<ul>
+<li>The Neutrona Wand can be configured within the menu system to adjust the overheat settings. When not set to overheat, you can fire continuously.</li>
+<li>The Proton Pack can also be configured within the Neutrona Wand menu system to adjust the duration of smoke effects (for each power level), which smoke effects are activated (for each power level), use of overheating smoke effects (for each power level), or whether smoke is enabled or disabled entirely (for each power level).
+Default settings: The Neutrona Wand will fire forever on power levels level 1 through 4 and overheat on power level 5.</li>
+</ul>
+</li>
+<li>The Proton Pack will emit smoke effects during longer firing (Default setting: enabled). This can be configured from the Neutrona Wand menu system.</li>
+</ul>
+<h3 id="system-power-readiness-indicator">System Power Readiness Indicator</h3>
+<ul>
+<li>When battery power is first applied on the Proton Pack, the lights will flicker and a sound will play to indicate that the system now has power and is ready for use.</li>
+</ul>
+<h3 id="system-power-inactivity-indicator">System Power Inactivity Indicator</h3>
+<ul>
+<li>The LED at the front of the Neutrona Wand body next to the Clippard valve will start to blink after 1 minute of inactivity while the Neutrona Wand and Proton Pack are powered down to indicate the system is still receiving power from the battery.</li>
+</ul>
+<div class="page-break"></div>
+
+<h2 id="optional-features">Optional Features</h2>
+<ul>
+<li>Support for changing Cyclotron direction and to enable/disable smoke effects.</li>
+<li>Support for smoke effects with dedicated fans for the Booster Tube and N-Filter.<ul>
+<li>See the <a href="../SMOKE/">Smoke Effects</a> addendum for more information.</li>
+</ul>
+</li>
+<li>Support for motorised inner cyclotron cake or outer cyclotron lighting.<ul>
+<li>See the <a href="../CYCLOTRON_INNER/">Inner Cyclotron</a> for more information.</li>
+</ul>
+</li>
+<li>Additional Lights available for the Cyclotron panel, internal "cake" Cyclotron, and Power Cell.<ul>
+<li>Automatically switches to internal "cake" Cyclotron, if implemented (optional).</li>
+<li>This supports a 35-LED RGB ring light (by default) to be installed in the "cake". Other size LED rings or LED setups are supported in the configuration settings.</li>
+</ul>
+</li>
+<li>Video game colours supported if using RGB-supported LEDs for the Cyclotron Lid, internal "cake" Cyclotron and Power Cell.</li>
+<li>Support for the Attenuator add-on device. See the <a href="../ATTENUATOR/">Attenuator</a> addendum for more information.</li>
+<li>Support for additional lights such as the wand hat lights and wand barrel end LED strobe.<ul>
+<li>When adding the Hat1 light a New Barrel Wing Button can also be added.</li>
+</ul>
+</li>
+<li>Serial connection and power for a 28-segment or 30-segment bargraph support (to replace the stock 5-LED bargraph).</li>
+</ul>
+<p><img alt="" src="../images/OperationNeutrona7.jpg" />
+<sup>Location of optional hardware for Neutrona Wand, requires advanced modifications.</sup></p>
+<div class="page-break"></div>
+
+<h2 id="top-dial-behaviour">Top Dial Behaviour</h2>
+<p><img alt="" src="../images/OperationNeutrona5.jpg" /></p>
+<ul>
+<li>The primary purpose of the <code>Top Dial</code> on the top of the gun box is to change the power level of the wand, affecting the intensity of the stream effects (indicated by increasing or decreasing the bargraph lights just as the stock wand did).</li>
+<li>Rotate clockwise to raise power, and counter-clockwise to lower power.</li>
+<li>There are 5 wand power levels in Super Hero mode and 4 in Mode Original.</li>
+<li>For lower power levels, the proton stream is more red. On higher power levels, the stream will appear more yellow.<ul>
+<li>Note that it is the other way around for 1989 mode to be more faithful to how proton streams appeared in that film.</li>
+</ul>
+</li>
+<li>When Video Game Mode is active and the Neutrona Wand is <strong>ON</strong> and the top toggle switch is <strong>DOWN</strong>, rotating the <code>Top Dial</code> will switch between weapon modes. For a description of these modes please see the Video Game Mode section. 📝 <code>Super Hero mode only</code></li>
+<li>The <code>Top Dial</code> is also used to navigate the menu systems (see "Neutrona Wand Menu System" section).</li>
+</ul>
+<h3 id="quick-audio-volume-adjustment">Quick Audio Volume Adjustment</h3>
+<ul>
+<li>
+<p><strong>System Volume</strong></p>
+<ul>
+<li>While the Neutrona Wand is <strong>OFF</strong> and no music is playing, turn the <code>Top Dial</code> to quickly adjust the Proton Pack volume.</li>
+<li>While the Neutrona Wand is <strong>OFF</strong>, hold the <code>Intensify</code> button while turning the <code>Top Dial</code> to quickly adjust the Neutrona Wand volume.</li>
+</ul>
+</li>
+<li>
+<p><strong>Music</strong></p>
+<ul>
+<li>While the Neutrona Wand is <strong>OFF</strong> and music is playing, turn the <code>Top Dial</code> to quickly adjust the music volume.</li>
+</ul>
+</li>
+</ul>
+<p>Refer to the <a href="../AUDIO_FILES/">Loading The Audio Files</a> for more information on loading additional music tracks.</p>
+<div class="page-break"></div>
+
+<h2 id="toggle-operation-modes">Toggle Operation Modes</h2>
+<p>There are two modes available which replicate movie or prop-accurate behaviors of the available toggle switches. These operational modes can be altered via an <a href="../OPERATION_EEPROM/">EEPROM menu</a> and will affect the startup sequence for your Proton Pack and Neutrona Wand.</p>
+<p><img alt="" src="../images/OperationNeutrona2.jpg" /></p>
+<div class="page-break"></div>
+
+<h3 id="super-hero-mode-operation-guide">Super Hero Mode Operation Guide</h3>
+<p><strong>Super Hero</strong>: This is the default operation mode based primarily on how the wand appeared to work in Ghostbusters: Afterlife.</p>
+<h4 id="activate-toggle">Activate Toggle</h4>
+<ul>
+<li>Activate toggle on the gun box turns on both the Proton Pack and Neutrona Wand.<ul>
+<li>The switch under the Proton Pack's Ion Arm does not need to be engaged for this to work. The switch under the Ion Arm will turn the cyclotron on.</li>
+</ul>
+</li>
+<li>The green lever near the gunbox acts as a safety and must be pulled to extend the barrel before firing.</li>
+<li>While firing, the default bargraph animations slide/split the bargraph in half and scroll up and down simultaneously.<ul>
+<li><strong>Button Mash Lockout:</strong> If you press the firing button(s) too rapidly the system will malfunction and lock you out for a period of time proportional to the current power level.</li>
+</ul>
+</li>
+</ul>
+<h4 id="right-hand-toggle-switch-behaviour">Right-Hand Toggle Switch Behaviour</h4>
+<p><img alt="" src="../images/OperationNeutrona3.jpg" /></p>
+<ul>
+<li>Right-hand toggles (Bottom and Top) affect the vent light and additional sound effects.<ul>
+<li>The Neutrona Wand will not fire unless these switches are both turned on.</li>
+<li><strong>Boot-Up Errors</strong>: If you attempt to boot up your Neutrona Wand while the top toggle switch is on, the Neutrona Wand will boot into a error mode. Turn the top toggle switch off and restart your Neutrona Wand to boot normally. <strong>This is the default behaviour</strong>, though this feature can be disabled in the Neutrona Wand EEPROM Configuration Menu.</li>
+<li><strong>Quick Vent</strong>: If the Neutrona Wand is <strong>ON</strong> and the Top toggle switch is <strong>DOWN</strong>, pressing <code>Intensify</code> will perform a quick vent. Holding down <code>Intensify</code> will perform a full overheat sequence. <strong>This is the default behaviour</strong>, though this feature can be disabled in the Neutrona Wand EEPROM Configuration Menu.</li>
+</ul>
+</li>
+<li>While in 1984 or 1989 theme mode:<ul>
+<li>Bottom toggle switch turns on the vent light and plays the wand power up sound.</li>
+<li>Top toggle switch plays a single beep sound.</li>
+</ul>
+</li>
+<li>While in Afterlife or Frozen Empire theme mode:<ul>
+<li>Bottom toggle switch turns on the vent light and the wand plays a ramp up sound.</li>
+<li>Top toggle switch turns on the looping beeping sounds.</li>
+</ul>
+</li>
+</ul>
+<div class="page-break"></div>
+
+<h3 id="mode-original-prop-operation-guide">Mode Original (Prop) Operation Guide</h3>
+<p><strong>Mode Original</strong>: This mode reflects original production documentation from 1984 on how the Proton Pack and Neutrona Wand operate together. Other variation differences are the bargraph animations, Neturona Wand sound effects and power levels. Note that the firing modes from the 2009 video game are unavailable in this mode as they are not accurate to these production notes.</p>
+<ul>
+<li>There are 4 power levels in Mode Original. When the Neutrona Wand is in standby mode (see toggle switch behaviours below), the bargraph settles on the first level.</li>
+<li>The switch under the Ion Arm on the Proton Pack must be switched on. This gives power to the entire system. The slo-blo light on the Neutrona Wand will turn solid red to indicate power to the system.<ul>
+<li>If you are using a standalone Neutrona Wand without a Proton Pack, double-clicking the <code>Intensify</code> button while the Neutrona Wand is turned off will imitate flipping the switch under the Ion Arm.</li>
+</ul>
+</li>
+<li>While firing, the default bargraph animations slide the bargraph up and down small increments to indicate the instability and power of the proton stream.<ul>
+<li><strong>Button Mash Lockout:</strong> If you press the firing button(s) too rapidly the system will malfunction and lock you out for a period of time proportional to the current power level.</li>
+</ul>
+</li>
+</ul>
+<h4 id="right-hand-toggle-switch-behaviours">Right-Hand Toggle Switch Behaviours</h4>
+<p><img alt="" src="../images/OperationNeutrona13.jpg" /></p>
+<ul>
+<li>The bottom toggle will put the Neutrona Wand into standby mode with an audible beep, and the slo-blo LED will begin to blink.</li>
+<li>If the bottom toggle is on the top toggle turns on the bargraph, the vent light, and Clippard LED and the heatup sound will play. The bargraph will ramp up and back down to the lowest level setting.</li>
+</ul>
+<h4 id="activate-toggle_1">Activate Toggle</h4>
+<ul>
+<li>Activate toggle on the gun box turns on the cyclotron of the Proton Pack. To activate the cyclotron, both right hand toggle switches on the Neutrona Wand must be activated.<ul>
+<li>The Cyclotron will not turn on unless both toggle switches on the Neutrona Wand are activated and the Ion Arm switch on the Pack is in the ON position.</li>
+</ul>
+</li>
+<li>The green lever near the gunbox acts as a safety and must be pulled to extend the barrel before firing.</li>
+</ul>
+<div class="page-break"></div>
+
+<h2 id="system-modes">System Modes</h2>
+<h3 id="video-game-mode-default">Video Game Mode (Default)</h3>
+<p>📝 <code>Super Hero mode only</code></p>
+<p><img alt="" src="../images/OperationNeutrona8.jpg" /></p>
+<ul>
+<li>While the Neutrona Wand is <strong>ON</strong> and the top toggle switch is <strong>DOWN</strong>, rotating the <code>Top Dial</code> will select from the following weapon modes (listed in counter-clockwise order):<ol>
+<li><a href="https://ghostbusters.fandom.com/wiki/Proton_Pack/Realistic_Version">Proton Stream (Default)</a></li>
+<li><a href="https://ghostbusters.fandom.com/wiki/Dark_Matter_Generator_(realistic_version)">Dark Matter Generator</a></li>
+<li><a href="https://ghostbusters.fandom.com/wiki/Plasm_Distribution_System_(realistic_version)">Plasm Distribution System</a></li>
+<li><a href="https://ghostbusters.fandom.com/wiki/Composite_Particle_System_(realistic_version)">Composite Particle System</a></li>
+<li><sup>1</sup> <code>Spectral (Rainbow)</code></li>
+<li><sup>2</sup> <code>Spectral (Holiday)</code></li>
+<li><sup>3</sup> <code>Spectral (Custom)</code></li>
+</ol>
+</li>
+</ul>
+<p><sup>1</sup> Spectral Mode (Rainbow) is a Proton Stream which gives a RAINBOW effect. If your Proton Pack has RGB LEDs, they will change to match.</p>
+<p><sup>2</sup> Spectral (Holiday) is a Proton Stream which gives an ORANGE/PURPLE effect. You can press the Barrel Wing Button while ready to fire in this mode to switch to a RED/GREEN effect. If your Proton Pack has RGB LEDs, it will match these colours.</p>
+<p><sup>3</sup> Spectral (Custom) is a Proton Stream with a user-defined colour mode. You can independently adjust the Neutrona Wand Barrel, Power Cell, Cyclotron and Inner Cyclotron colours directly from the EEPROM LED Menu system. The default colours are purple.</p>
+<p>📝 <strong>Note:</strong> Spectral modes are disabled by default but can be enabled from the EEPROM Menu or flashed directly to the Neutrona Wand board. They take advantage of RGB coloured LED add-ons if installed.</p>
+<h4 id="proton-stream">Proton Stream</h4>
+<ul>
+<li>Holding down <code>Intensify</code> will throw your normal Proton Stream.<ul>
+<li>Pressing the <code>Barrel Wing Button</code> while you are already throwing a Proton Stream will initiate "Cross the Streams".</li>
+</ul>
+</li>
+<li>Pressing the <code>Barrel Wing Button</code> will fire a Boson Dart.</li>
+</ul>
+<h4 id="dark-matter-generator">Dark Matter Generator</h4>
+<ul>
+<li>Pressing <code>Intensify</code> will fire a Shock Blast.</li>
+<li>Holding down the <code>Barrel Wing Button</code> will throw a Stasis Stream.</li>
+</ul>
+<h4 id="plasm-distribution-system">Plasm Distribution System</h4>
+<ul>
+<li>Holding down <code>Intensify</code> will activate the Slime Blower.</li>
+<li>Pressing the <code>Barrel Wing Button</code> will fire a Slime Tether.</li>
+</ul>
+<h4 id="composite-particle-system">Composite Particle System</h4>
+<ul>
+<li>Pressing <code>Intensify</code> will fire the Meson Collider.</li>
+<li>Pressing the <code>Barrel Wing Button</code> will fire an Overload Pulse. Holding down the <code>Barrel Wing Button</code> allows for rapid-fire.<ul>
+<li>The firing rate is dependent on the Neutrona Wand's current power level.</li>
+</ul>
+</li>
+</ul>
+<h3 id="proton-stream-effects">Proton Stream Effects</h3>
+<p>As a nod to accuracy where possible, the proton streams are based on those observed from the movies. Most streams carry the same theme-based effects for power levels 1-4 (2-4 for Mode Original) while the maximum power setting will typically change slightly based on the final battle scenes from the respective movies.</p>
+<p><strong>1984</strong></p>
+<table>
+<thead>
+<tr>
+<th>Power Level</th>
+<th>Notable Effects</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Firing startup based on first encounter with Slimer</td>
+</tr>
+<tr>
+<td>2</td>
+<td>- Same -</td>
+</tr>
+<tr>
+<td>3</td>
+<td>- Same -</td>
+</tr>
+<tr>
+<td>4</td>
+<td>- Same -</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Additional sparking sounds at "full stream"</td>
+</tr>
+</tbody>
+</table>
+<p><strong>1989</strong></p>
+<table>
+<thead>
+<tr>
+<th>Power Level</th>
+<th>Notable Effects</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Metallic "clang" as notable during the courtroom scene</td>
+</tr>
+<tr>
+<td>2</td>
+<td>- Same -</td>
+</tr>
+<tr>
+<td>3</td>
+<td>- Same -</td>
+</tr>
+<tr>
+<td>4</td>
+<td>- Same -</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Uses the 1984 high power sound at "full neutronas"</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Afterlife</strong></p>
+<table>
+<thead>
+<tr>
+<th>Power Level</th>
+<th>Notable Effects</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Uses the same effects as 1984</td>
+</tr>
+<tr>
+<td>2</td>
+<td>- Same -</td>
+</tr>
+<tr>
+<td>3</td>
+<td>- Same -</td>
+</tr>
+<tr>
+<td>4</td>
+<td>- Same -</td>
+</tr>
+<tr>
+<td>5</td>
+<td>New custom sounds specific for Afterlife</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Frozen Empire</strong></p>
+<table>
+<thead>
+<tr>
+<th>Power Level</th>
+<th>Notable Effects</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Uses new startup sound as heard in Frozen Empire</td>
+</tr>
+<tr>
+<td>2</td>
+<td>- Same -</td>
+</tr>
+<tr>
+<td>3</td>
+<td>- Same -</td>
+</tr>
+<tr>
+<td>4</td>
+<td>- Same -</td>
+</tr>
+<tr>
+<td>5</td>
+<td>- Same -</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cross-the-streams-cts-cross-the-streams-mix-cts-mix">Cross The Streams (CTS) / Cross The Streams Mix (CTS Mix)</h3>
+<ul>
+<li>The <code>Barrel Wing Button</code> at the end of the wand acts as a alternate firing button. When Cross The Streams is enabled, Video Game Modes are disabled and you will only have the Proton Stream on both <code>Intensify</code> and the <code>Barrel Wing Button</code>.</li>
+<li>The overheat features can only be triggered when holding the <code>Barrel Wing Button</code> when Cross The Streams mode is enabled.</li>
+<li>Pressing both the <code>Intensify</code> and <code>Barrel Wing Button</code> at the same time enables the "Cross the Streams" (CTS) audio and visual effects. Releasing either of the firing buttons will continue these effects as long as one is still held, and will end once both buttons are released.<ul>
+<li>With Cross The Streams Mix, you need to hold both the <code>Intensify</code> and <code>Barrel Wing Button</code> at the same time to remain in Cross The Streams. Releasing one of the firing buttons will revert to the normal Proton Stream for that button.</li>
+</ul>
+</li>
+</ul>
+<p>Cross The Streams (CTS) is the default firing mode for Mode Original. Cross The Streams (CTS) or Cross The Streams Mix (CTS Mix) modes can be selected from the Neutrona Wand Menu System.</p>
+<div class="page-break"></div>
+
+<h2 id="additional-resources">Additional Resources</h2>
+<h3 id="eeprom-menu-guide">EEPROM Menu Guide</h3>
+<p>Please view the <a href="../OPERATION_EEPROM/">supplemental operation guide for EEPROM menus</a> which can be used to alter hardware configurations and to set user preferences which will persist across battery power-down events.</p>
+<h3 id="pdf-operational-guide">PDF Operational Guide</h3>
+<p>(Direct Download link)
+<a href="https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/gpstar-Operational-Guide.pdf?raw=1">GPStar Operational Guide [pdf]</a></p>
+<div class="page-break"></div>
+
+<h3 id="video-demos">Video Demos</h3>
+<p>Video Demo: <a href="https://www.youtube.com/watch?v=ePXz99UawLQ">Features and Menu Walkthrough</a> (YouTube, July 2023)
+<a href="https://www.youtube.com/watch?v=ePXz99UawLQ"><img alt="Haslab Proton Pack Arduino Powered Demo &amp; Features" src="https://img.youtube.com/vi/ePXz99UawLQ/maxresdefault.jpg" /></a></p>
+<p>Neutrona Wand Menu System Video Demo: <a href="https://www.youtube.com/watch?v=QrevSoQo_3M">Proton Pack Wand Menu Settings Video Demo</a> (YouTube)
+<a href="https://www.youtube.com/watch?v=QrevSoQo_3M"><img alt="Proton Pack Wand Menu Settings Video Demo" src="https://img.youtube.com/vi/QrevSoQo_3M/maxresdefault.jpg" /></a></p>
+<p>Video Game Firing Modes: <a href="https://www.youtube.com/watch?v=5CMfQdIIx04">Ghostbusters: The Video Game (2009) Firing Modes</a> (YouTube)
+<a href="https://www.youtube.com/watch?v=5CMfQdIIx04"><img alt="Ghostbusters: The Video Game (2009) Firing Modes" src="https://img.youtube.com/vi/5CMfQdIIx04/maxresdefault.jpg" /></a></p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../AUDIO_FILES/" class="btn btn-neutral float-left" title="Audio Files"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../OPERATION_MENUS/" class="btn btn-neutral float-right" title="Runtime Menus">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>GPStar Technologies</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../AUDIO_FILES/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../OPERATION_MENUS/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

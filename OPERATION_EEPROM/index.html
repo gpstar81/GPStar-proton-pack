@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>EEPROM Menus - GPStar Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "EEPROM Menus";
+        var mkdocs_page_input_path = "OPERATION_EEPROM.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="..">
+          <img src="../images/gpstar_logo_white.png" class="logo" alt="Logo"/>
+        </a>
+        <div class="version">
+          6.x
+        </div><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ABOUT/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Core Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../GUIDE_LISTING/">Introduction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_PCB/">Proton Pack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_PCB/">Neutrona Wand</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../HOSE/">Pack-Wand Hose</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../GPSTAR_AUDIO_PCB/">GPStar Audio</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DIY_LEGACY/">Legacy DIY</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Optional Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Proton Pack</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_LID/">Cyclotron Lid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_INNER/">Inner Cyclotron</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_BYPASS/">Cyclotron Bypass</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NFILTER/">N-Filter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../POWERCELL/">Power Cell</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Neutrona Wand</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../BARGRAPH/">Bargraph</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../HATS/">Hatlights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../VENTLIGHT/">Vent Lights</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Serial1 Expansion</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../SERIAL1/">Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ATTENUATOR/">Attenuator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../WIRELESS/">WiFi Adapter</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Special Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../POWER/">Power Requirements</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SOUND/">Sound Output</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SMOKE/">Smoke Kits</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Install Videos</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_JONOGUNN/">Jonogunn</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_NORCALGB/">Nor-Cal GB</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Maintenance</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../FLASHING/">Flashing Pack/Wand Firmware</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ATTENUATOR_FLASHING/">Flashing Attenuator/Wifi</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../AUDIO_FILES/">Audio Files</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operation Manuals</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_USAGE/">General Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_MENUS/">Runtime Menus</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">EEPROM Menus</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#leds-top-menu">LEDs - Top Menu</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#led-menu-level-1">LED Menu - Level 1</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#led-menu-level-2">LED Menu - Level 2</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#configuration-bottom-menu">Configuration - Bottom Menu</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#configuration-menu-level-1">Configuration Menu - Level 1</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#configuration-menu-level-2">Configuration Menu - Level 2</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#configuration-menu-level-3">Configuration Menu - Level 3</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#configuration-menu-level-4">Configuration Menu - Level 4</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#configuration-menu-level-5">Configuration Menu - Level 5</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#warning">⚠️ WARNING</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#advanced-user-configurations">Advanced User Configurations</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Help</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TROUBLESHOOTING/">Troubleshooting</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">GPStar Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Operation Manuals</li>
+      <li class="breadcrumb-item active">EEPROM Menus</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <p><img alt="" src="../images/gpstar_logo_bg.png" /></p>
+<center><h2><span class="logo-icon"></span> GPStar Proton Pack &amp; Neutrona Wand EEPROM System</h2></center>
+
+<h1 id="eeprom-menus">EEPROM Menus</h1>
+<p>There are two EEPROM menus available which can be accessed to adjust and save configurations onto either the Proton Pack and Neutrona Wand EEPROM memory. These are the <strong>EEPROM LED Menu</strong> and the <strong>EEPROM Configuration Menu</strong>.</p>
+<p>⚠️ <strong>NOTICE:</strong> The EEPROM memory has a specified life of 100,000 write/erase cycles. You will generally not reach this limit in your lifetime, but if you did, it can be disabled to bypass it. Refer to the Advanced User Configurations below for more information.</p>
+<h2 id="leds-top-menu">LEDs - Top Menu</h2>
+<p>The EEPOM LED Menu can be used to configure different LED setups for your Proton Pack. All changes can be saved directly to the Proton Pack EEPROM and will be loaded automatically even if you turn off the power to your devices.</p>
+<p>To access the EEPROM LED Menu System, hold down the <code>Intensify Button</code> and toggle the right hand <code>Top Toggle</code> button 5 times (up and down). You will then hear a beep noise and your bargraph will light up to indicate you are in the EEPROM LED Menu System. The Neutrona Wand barrel and all the Proton Pack LEDs will light up to the default Spectral Custom colours when you enter the EEPROM LED Menu. Use the <code>Top Dial</code> on the top of the Neutrona Wand to navigate the menu system and options. When you reach a different menu level, the Slo-Blo LED and other lights on the Neutrona Wand will illuminate to indicate these menu levels, along with audio cues from the system.</p>
+<pre><code>Menu Level 1 -&gt; No additional wand lights will be illuminated
+Menu Level 2 -&gt; Slo-Blo illuminated
+</code></pre>
+<p>📝 <strong>Note:</strong> EEPROM menus can only be reached while both the Neutrona Wand and Proton Pack are powered down.</p>
+<p><img alt="" src="../images/OperationNeutrona11.jpg" /></p>
+<h3 id="led-menu-level-1">LED Menu - Level 1</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Option</th>
+<th>Purpose</th>
+<th>Intensify&nbsp;Button</th>
+<th>Barrel&nbsp;Wing&nbsp;Button</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">5️⃣</td>
+<td>Save or Clear the EEPROM settings</td>
+<td>Clear all the LED settings in the Proton Pack and Neutrona Wand EEPROMs.<br/><br/><strong>The Proton Pack and Neutrona Wand will instead load the software defined defaults the next time you power-cycle from the battery.</strong></td>
+<td>Save the current settings to the Proton Pack and Neutrona Wand EEPROMs.</td>
+</tr>
+<tr>
+<td style="text-align: center;">4️⃣</td>
+<td>Neutrona Wand Barrel LED Count Toggle&nbsp;/ Spectral Custom (Barrel) Colour</td>
+<td>Toggle between 2, 5, 48 or 50 LEDs for your Neutrona Wand barrel.</td>
+<td><code>(Barrel Wing Button + Top Dial)</code> Changes the colour hue of the <strong>Neutrona Wand barrel</strong> for the Spectral Custom mode.</td>
+</tr>
+<tr>
+<td style="text-align: center;">3️⃣</td>
+<td>Power Cell LED Count Toggle&nbsp;/ Spectral Custom (Power Cell) Colour</td>
+<td>Toggle between 13 or 15 LEDs for your Power Cell.</td>
+<td><code>(Barrel Wing Button + Top Dial)</code> Changes the colour hue of the <strong>Power Cell</strong> for the Spectral Custom mode.</td>
+</tr>
+<tr>
+<td style="text-align: center;">2️⃣</td>
+<td>Cyclotron LED Count Toggle&nbsp;/ Spectral Custom (Cyclotron) Colour</td>
+<td>Toggle between 12, 20, 36 or 40 LEDs for your Cyclotron Lid.</td>
+<td><code>(Barrel Wing Button + Top Dial)</code> Changes the colour hue of the <strong>Cyclotron</strong> for the Spectral Custom mode.</td>
+</tr>
+<tr>
+<td style="text-align: center;">1️⃣</td>
+<td>Inner Cyclotron LED Count Toggle&nbsp;/ Spectral Custom (Inner Cyclotron) Colour</td>
+<td>Toggle Between 12, 23, 24, 26, 35, or 36 LEDs for your Inner Cyclotron.</td>
+<td><code>(Barrel Wing Button + Top Dial)</code> Changes the colour hue of the <strong>Inner Cyclotron</strong> for the Spectral Custom mode.</td>
+</tr>
+</tbody>
+</table>
+<div class="page-break"></div>
+
+<h3 id="led-menu-level-2">LED Menu - Level 2</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Option</th>
+<th>Purpose</th>
+<th>Intensify&nbsp;Button</th>
+<th>Barrel&nbsp;Wing&nbsp;Button</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">5️⃣</td>
+<td>1984/1989&nbsp;Cyclotron&nbsp;Fade&nbsp;Toggle&nbsp;/ Pack&nbsp;LED&nbsp;Brightness&nbsp;Adjustment</td>
+<td>Toggle whether the outer cyclotron LEDs have a fade effect or not in 1984 and 1989 year modes.</td>
+<td><code>(Barrel Wing Button)</code> Toggles between Power Cell, Cyclotron, Inner Cyclotron, or Inner Cyclotron Switch Panel devices<br/><br/><code>(Barrel Wing Button + Top Dial)</code> Increases/Decreases the selected device's LED brightness</td>
+</tr>
+<tr>
+<td style="text-align: center;">4️⃣</td>
+<td>Bargraph&nbsp;Segment&nbsp;Count&nbsp;Toggle&nbsp;/ RGB&nbsp;Vent&nbsp;Light&nbsp;Toggle</td>
+<td>Toggle between 28 segments or 30 segments for the optional bargraph.<sup>1</sup></td>
+<td>Enable/Disable the optional addressable RGB LED vent/top light board.</td>
+</tr>
+<tr>
+<td style="text-align: center;">3️⃣</td>
+<td>Power&nbsp;Cell&nbsp;Invert</td>
+<td>Change the direction of the Power Cell animation.</td>
+<td><code>unused</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">2️⃣</td>
+<td>Inner&nbsp;Cyclotron&nbsp;LED&nbsp;Panel&nbsp;Toggle</td>
+<td>Toggle the optional Inner Cyclotron LED Panel between disabled (individual LEDs), static colours (for prop-accurate coloured cliplite covers), and dynamic colours (for the LED panel with clear cliplite covers).</td>
+<td><code>unused</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">1️⃣</td>
+<td>Inner&nbsp;Cyclotron&nbsp;GRB&nbsp;Toggle</td>
+<td>Toggle your Inner Cyclotron from RGB or GRB LEDs.</td>
+<td><code>unused</code></td>
+</tr>
+</tbody>
+</table>
+<p><sup>1</sup> This setting will only take effect if you have an optional bargraph plugged into the i2c data port when the wand is first started.</p>
+<div class="page-break"></div>
+
+<h2 id="configuration-bottom-menu">Configuration - Bottom Menu</h2>
+<p>The EEPROM Configuration Menu can be used to save certain behaviours of your Neutrona Wand and Proton Pack as the standard settings.</p>
+<p>To access the EEPROM Configuration Menu, hold down the <code>Intensify Button</code> and toggle the right hand <code>Bottom Toggle</code> button 5 times (up and down). You will then hear a beep noise and your bargraph will light up to indicate you are in the EEPROM Configuration Menu System.</p>
+<p>To access the EEPROM Configuration menus, use the <code>Top Dial</code> on the top of the wand. When you reach a different menu level, the Slo-Blo LED and other lights on the Neutrona Wand will illuminate to indicate these menu levels, along with audio cues from the system.</p>
+<pre><code>Menu Level 1 -&gt; No additional wand lights will be illuminated
+Menu Level 2 -&gt; Slo-Blo illuminated
+Menu Level 3 -&gt; Slo-Blo and vent light illuminated
+Menu Level 4 -&gt; Slo-Blo, vent light, and top gun box light illuminated
+Menu Level 5 -&gt; Slo-Blo; vent light, top gun box light, and front gun box light illuminated
+</code></pre>
+<p>📝 <strong>Note:</strong> EEPROM menus can only be reached while both the Neutrona Wand and Proton Pack are powered down.</p>
+<p>Please note whatever settings you have temporarily changed in the regular menus and sub menus will be applied automatically and saved if you exit the EEPROM menu by saving the settings.</p>
+<p><img alt="" src="../images/OperationNeutrona12.jpg" /></p>
+<div class="page-break"></div>
+
+<h3 id="configuration-menu-level-1">Configuration Menu - Level 1</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Option</th>
+<th>Purpose</th>
+<th>Intensify&nbsp;Button</th>
+<th>Barrel&nbsp;Wing&nbsp;Button</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">5️⃣</td>
+<td>Save or Clear the EEPROM settings</td>
+<td>Clear all the configuration only settings in the Proton Pack and Neutrona Wand EEPROMs.<br/><br/><strong>The Proton Pack and Neutrona Wand will instead load the software defined defaults the next time you power-cycle from the battery.</strong></td>
+<td>Save the current settings to the Proton Pack and Neutrona Wand EEPROMs.<br/><br/><strong>It is advised to power-cycle your equipment after saving settings to ensure the proper defaults/values are loaded, such as the case of changing the System Mode.</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">4️⃣</td>
+<td>Firing&nbsp;Mode&nbsp;Selection&nbsp;/ Spectral&nbsp;Modes</td>
+<td>Cycle through VG/CTS operation modes to set as your default.<sup>1</sup></td>
+<td>Enable/Disable the Spectral Modes.</td>
+</tr>
+<tr>
+<td style="text-align: center;">3️⃣</td>
+<td>Overheating&nbsp;/ Smoke</td>
+<td>Enable/Disable Overheating Ability</td>
+<td>Enable/Disable Smoke Effects</td>
+</tr>
+<tr>
+<td style="text-align: center;">2️⃣</td>
+<td>Cyclotron&nbsp;LED&nbsp;Control</td>
+<td>Cyclotron rotation direction. Clockwise or counter clockwise.</td>
+<td>Enable/Disable the Cyclotron Lid Ring Simulation in Afterlife and Frozen Empire mode.<br/>ONLY applies to use of the 12, 20, or 36 LED hardware options.</td>
+</tr>
+<tr>
+<td style="text-align: center;">1️⃣</td>
+<td>Sound&nbsp;Effects</td>
+<td>Enable/Disable extra Neutrona Wand sound effects to be played by the Proton Pack.</td>
+<td>Enable/Disable the proton stream impact sound effects.</td>
+</tr>
+</tbody>
+</table>
+<p><sup>1</sup> Choose between Video Game and Cross the Streams (CTS) operation modes. The Cross The Streams modes are closer to what is seen in the films, while Video Game mode imitates behaviour seen in the 2009 Ghostbusters: The Video Game. Note that Video Game mode is only available in Super Hero mode.</p>
+<div class="page-break"></div>
+
+<h3 id="configuration-menu-level-2">Configuration Menu - Level 2</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Option</th>
+<th>Purpose</th>
+<th>Intensify Button</th>
+<th>Barrel Wing Button</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">5️⃣</td>
+<td>Quick&nbsp;Vent&nbsp;/ Wand&nbsp;Boot&nbsp;Errors</td>
+<td>Enable/Disable the Quick Venting feature. When enabled, you can manually vent your Proton Pack by pressing the Intensify button while the top right toggle switch is switched down. <br><br>📝 <code>Super Hero mode only</code></td>
+<td>Enable to disable the Wand boot error mode. When enabled, if you turn on the Neutrona Wand while the top right toggle is up and activated, the Neutrona Wand enters an error mode and remains locked out until the switches are all turned off. <br><br>📝 <code>Super Hero mode only</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">4️⃣</td>
+<td>Vibration&nbsp;Settings</td>
+<td>Cycle through Proton Pack vibration options<sup>2</sup></td>
+<td>Cycle through Neutrona Wand vibration options</td>
+</tr>
+<tr>
+<td style="text-align: center;">3️⃣</td>
+<td>Wand&nbsp;Beep&nbsp;Loop&nbsp;/ VGA&nbsp;Colour&nbsp;Mode&nbsp;Toggles</td>
+<td>Enable/Disable the looping beep sound effect in Afterlife and Frozen Empire Mode.</td>
+<td>Cycle through VG colour modes.<sup>3</sup></td>
+</tr>
+<tr>
+<td style="text-align: center;">2️⃣</td>
+<td>Overheat&nbsp;Lights</td>
+<td>Enable/Disable the N-Filter LEDs from strobing during overheating.</td>
+<td>Enable/Disable the Proton Pack lights to turn off during overheating. When disabled, after ramping down to a slower pace, the lights stay on.</td>
+</tr>
+<tr>
+<td style="text-align: center;">1️⃣</td>
+<td>Default Year&nbsp;Mode&nbsp;/ Overheat&nbsp;Sync&nbsp;to&nbsp;Fan</td>
+<td>Set your default year mode between 1984/1989/Afterlife/Frozen Empire/Default. When set, the system will ignore the year mode toggle switch during bootup. However the toggle switch can still be used while the Proton Pack is on. If set to Default, the system picks the year mode based on the position of the year mode toggle switch in the Proton Pack.<sup>4</sup></td>
+<td>Enable/Disable the overheat sync to fan. When enabled, the fan connections in the Proton Pack will only activate at the same time as the smoke connections. When disabled, the fan connections activate slightly after the smoke connections which allows some build of smoke before the fans activate.</td>
+</tr>
+</tbody>
+</table>
+<p><sup>2</sup> See <a href="../CYCLOTRON_INNER/">Inner Cyclotron</a> for more information on the motorised cyclotron modification for the Proton Pack.</p>
+<p><sup>3</sup> Enables/disables the video game colour modes for the Proton Pack's Power Cell and Cyclotron lights. This only affects the pack when in Video Game mode, not for CTS modes, and offers the following states:</p>
+<ul>
+<li>Disable all the video game colours (Power Cell remains blue, Cyclotron remains red).</li>
+<li>Enable only the Power Cell LEDs to change colours (requires RGB Power Cell).</li>
+<li>Enable only the Cyclotron LEDs to change colours (requires RGB replacement such as a Neopixel ring).</li>
+<li>Enable both the Power Cell and Cyclotron to use video game colours.</li>
+</ul>
+<p><sup>4</sup> If the Neutrona Wand is in standalone mode, this does nothing. To change the default year for a standalone Neutrona Wand, please see Menu Level 3 below.</p>
+<div class="page-break"></div>
+
+<h3 id="configuration-menu-level-3">Configuration Menu - Level 3</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Option</th>
+<th>Purpose</th>
+<th>Intensify Button</th>
+<th>Barrel Wing Button</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">5️⃣</td>
+<td>System&nbsp;Default&nbsp;Volume&nbsp;/ Neutrona&nbsp;Wand&nbsp;Year&nbsp;Mode</td>
+<td><code>(Intensify + Top Dial)</code> Adjusts the default volume for the system. (Uses audio beeps for indication of volume.)</td>
+<td>Set the year mode your Neutrona Wand operates in. Options are: 1984/1989/Afterlife/Frozen Empire and System Default. When set to System Default, the Neutrona Wand matches the same year mode as that the Proton Pack is in.</td>
+</tr>
+<tr>
+<td style="text-align: center;">4️⃣</td>
+<td>Invert&nbsp;Bargraph&nbsp;/ Bargraph&nbsp;Overheat&nbsp;Blinking</td>
+<td>Toggles inverting of the bargraph in the Neutrona Wand (depending on installation orientation).</td>
+<td>Enable/Disable the bargraph blink sequence during overheat. When enabled, the bargraph will blink and an error sound will play while overheating. When disabled, the bargraph will ramp down to off without error sounds while overheating.</td>
+</tr>
+<tr>
+<td style="text-align: center;">3️⃣</td>
+<td>Bargraph&nbsp;Animations&nbsp;/ Bargraph&nbsp;Firing&nbsp;Animations</td>
+<td>Toggle between animation modes as default for the idle bargraph: <strong>Super Hero</strong>, <strong>Bargraph Original</strong>, or <strong>System Default</strong><br/><strong>System Default</strong> chooses the default animation based on the year mode and system mode.</td>
+<td>Toggle between animation modes as default for the bargraph when firing: <strong>Super Hero</strong>, <strong>Bargraph Original</strong>, or <strong>System Default</strong><br/><strong>System Default</strong> chooses the default animation based on the year mode and system mode.</td>
+</tr>
+<tr>
+<td style="text-align: center;">2️⃣</td>
+<td>Demo&nbsp;Light&nbsp;Mode&nbsp;/ Cyclotron&nbsp;3&nbsp;LED&nbsp;Toggle</td>
+<td>Enable/Disable the Demo Light mode. When enabled, the Proton Pack will automatically boot up as soon as the system has power.</td>
+<td>Toggle between 1 LED or 3 LEDs in each cyclotron lens in 1984/1989 year mode.</td>
+</tr>
+<tr>
+<td style="text-align: center;">1️⃣</td>
+<td>System&nbsp;Mode&nbsp;/ CTS&nbsp;Override</td>
+<td>Toggle between the available system operation modes:<br/><strong>Super Hero</strong> or <strong>Mode Original</strong></td>
+<td>Toggle between options for default CTS mode: <strong>1984</strong>, <strong>Afterlife</strong>, or <strong>System Default</strong><br/>System Default automatically chooses the CTS mode based on the current year mode of your system.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="configuration-menu-level-4">Configuration Menu - Level 4</h3>
+<p>Adjust the vent smoke duration during overheat events and overheat start delay for each wand power level.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Option</th>
+<th>Purpose</th>
+<th><code>Intensify Button + Top Dial</code></th>
+<th><code>Barrel Wing Button + Top Dial</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">5️⃣</td>
+<td>Power&nbsp;Level&nbsp;5</td>
+<td>Smoke vent duration during overheat<br/><code>Range: 2 to 60 seconds</code> <code>Default: 6 seconds</code></td>
+<td>Overheat start delay<br/><code>Range: 2 to 60 seconds</code> <code>Default: 30 seconds</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">4️⃣</td>
+<td>Power&nbsp;Level&nbsp;4</td>
+<td>Smoke vent duration during overheat<br/><code>Range: 2 to 60 seconds</code> <code>Default: 5 seconds</code></td>
+<td>Overheat start delay<br/><code>Range: 2 to 60 seconds</code> <code>Default: 35 seconds</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">3️⃣</td>
+<td>Power&nbsp;Level&nbsp;3</td>
+<td>Smoke vent duration during overheat<br/><code>Range: 2 to 60 seconds</code> <code>Default: 4 seconds</code></td>
+<td>Overheat start delay<br/><code>Range: 2 to 60 seconds</code> <code>Default: 40 seconds</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">2️⃣</td>
+<td>Power&nbsp;Level&nbsp;2</td>
+<td>Smoke vent duration during overheat<br/><code>Range: 2 to 60 seconds</code> <code>Default: 3 seconds</code></td>
+<td>Overheat start delay<br/><code>Range: 2 to 60 seconds</code> <code>Default: 50 seconds</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">1️⃣</td>
+<td>Power&nbsp;Level&nbsp;1</td>
+<td>Smoke vent duration during overheat<br/><code>Range: 2 to 60 seconds</code> <code>Default: 2 seconds</code></td>
+<td>Overheat start delay<br/><code>Range: 2 to 60 seconds</code> <code>Default: 60 seconds</code></td>
+</tr>
+</tbody>
+</table>
+<div class="page-break"></div>
+
+<h3 id="configuration-menu-level-5">Configuration Menu - Level 5</h3>
+<p>Toggles overheating ability and continuous smoke effects during firing for each wand power level. The continuous smoke effects will randomly activate for very short bursts while continuously firing for long periods.</p>
+<h4 id="warning">⚠️ WARNING</h4>
+<p><strong>Running your smoke devices for long periods can potentially damage them, and/or reduce battery life. Adjust these settings with caution and use at your own risk!</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Option</th>
+<th>Purpose</th>
+<th>Intensify Button</th>
+<th>Barrel Wing Button</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">5️⃣</td>
+<td>Power&nbsp;Level&nbsp;5</td>
+<td>Enable/Disable Overheating<br/><code>Default: enabled</code></td>
+<td>Enable/Disable continuous firing smoke effects<br/><code>Default: enabled</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">4️⃣</td>
+<td>Power&nbsp;Level&nbsp;4</td>
+<td>Enable/Disable Overheating<br/><code>Default: disabled</code></td>
+<td>Enable/Disable continuous firing smoke effects<br/><code>Default: enabled</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">3️⃣</td>
+<td>Power&nbsp;Level&nbsp;3</td>
+<td>Enable/Disable Overheating<br/><code>Default: disabled</code></td>
+<td>Enable/Disable continuous firing smoke effects<br/><code>Default: enabled</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">2️⃣</td>
+<td>Power&nbsp;Level&nbsp;2</td>
+<td>Enable/Disable Overheating<br/><code>Default: disabled</code></td>
+<td>Enable/Disable continuous firing smoke effects<br/><code>Default: enabled</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">1️⃣</td>
+<td>Power&nbsp;Level&nbsp;1</td>
+<td>Enable/Disable Overheating<br/><code>Default: disabled</code></td>
+<td>Enable/Disable continuous firing smoke effects<br/><code>Default: enabled</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="advanced-user-configurations">Advanced User Configurations</h2>
+<p>To modify defaults within the software rather than the EEPROM menus, please see the <a href="../ADVCONFIG/">Advanced Configuration</a> guide.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../OPERATION_MENUS/" class="btn btn-neutral float-left" title="Runtime Menus"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../TROUBLESHOOTING/" class="btn btn-neutral float-right" title="Troubleshooting">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>GPStar Technologies</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../OPERATION_MENUS/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../TROUBLESHOOTING/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

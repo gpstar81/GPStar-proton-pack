@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>WiFi Adapter - GPStar Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "WiFi Adapter";
+        var mkdocs_page_input_path = "WIRELESS.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="..">
+          <img src="../images/gpstar_logo_white.png" class="logo" alt="Logo"/>
+        </a>
+        <div class="version">
+          6.x
+        </div><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ABOUT/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Core Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../GUIDE_LISTING/">Introduction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_PCB/">Proton Pack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_PCB/">Neutrona Wand</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../HOSE/">Pack-Wand Hose</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../GPSTAR_AUDIO_PCB/">GPStar Audio</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DIY_LEGACY/">Legacy DIY</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Optional Components</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >Proton Pack</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_LID/">Cyclotron Lid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_INNER/">Inner Cyclotron</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_BYPASS/">Cyclotron Bypass</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NFILTER/">N-Filter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../POWERCELL/">Power Cell</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Neutrona Wand</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../BARGRAPH/">Bargraph</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../HATS/">Hatlights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../VENTLIGHT/">Vent Lights</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Serial1 Expansion</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../SERIAL1/">Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ATTENUATOR/">Attenuator</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">WiFi Adapter</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#bill-of-materials">Bill of Materials</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#esp32-pin-connections">ESP32 - Pin Connections</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#firmware-flashing">Firmware Flashing</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#operation">Operation</a>
+    </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Special Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../POWER/">Power Requirements</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SOUND/">Sound Output</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SMOKE/">Smoke Kits</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Install Videos</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_JONOGUNN/">Jonogunn</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_NORCALGB/">Nor-Cal GB</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Maintenance</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../FLASHING/">Flashing Pack/Wand Firmware</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ATTENUATOR_FLASHING/">Flashing Attenuator/Wifi</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../AUDIO_FILES/">Audio Files</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operation Manuals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_USAGE/">General Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_MENUS/">Runtime Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_EEPROM/">EEPROM Menus</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Help</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TROUBLESHOOTING/">Troubleshooting</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">FAQ</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">GPStar Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Optional Components</li>
+          <li class="breadcrumb-item">Serial1 Expansion</li>
+      <li class="breadcrumb-item active">WiFi Adapter</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="wireless-adapter-optional">Wireless Adapter (Optional)</h1>
+<p>Use of the serial expansion port on the gpstar Proton Pack can bring WiFi capabilities to your unlicensed nuclear reactor! This is a minimal version of the Attenuator device without input or output devices (no lights, sound, vibration, or switches) and may be installed directly into your pack alongside the gpstar Proton Pack controller.</p>
+<p><a href="https://www.youtube.com/watch?v=9r0VZKfhY5o">Video Installation Guide</a> (YouTube, November 2023).
+<a href="https://www.youtube.com/watch?v=9r0VZKfhY5o"><img alt="Attenuator Preview Demonstration Video" src="https://img.youtube.com/vi/9r0VZKfhY5o/maxresdefault.jpg" /></a></p>
+<h2 id="bill-of-materials">Bill of Materials</h2>
+<p>The configuration for this device is extremely simple and can be implemented with NO SOLDERING using the parts below. You will need a true ESP32 (ESP-WROOM-32 not ESP8266) development board with a terminal shield and a pair of JST-XH pre-wired connectors with bare wire ends.</p>
+<ul>
+<li><a href="https://a.co/d/hDxXluE">ESP-WROOM-32 Dev Board w/ Terminal Shield</a></li>
+<li><a href="https://a.co/d/74ILiUB">JST-XH 2-Pin Connector and Wire Set</a></li>
+</ul>
+<h2 id="esp32-pin-connections">ESP32 - Pin Connections</h2>
+<p>The following is a diagram of the <strong>ESP32 pins</strong> from left and right, when oriented with the USB connection facing down (south) like the pinout diagram above. Again, this table is based on the expected pin labels on the ESP32 itself--your terminal shield may differ slightly and should be checked for proper orientation when you insert the ESP32 into the socket.</p>
+<table>
+<thead>
+<tr>
+<th>Connection</th>
+<th>ESP32 (L)</th>
+<th></th>
+<th>ESP32 (R)</th>
+<th>Connection</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td>EN</td>
+<td></td>
+<td>GPIO23</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>GPIO36</td>
+<td></td>
+<td>GPIO22</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>GPIO39</td>
+<td></td>
+<td>GPIO1</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>GPIO34</td>
+<td></td>
+<td>GPIO3</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>GPIO35</td>
+<td></td>
+<td>GPIO21</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>GPIO32</td>
+<td></td>
+<td>GPIO19</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>GPIO33</td>
+<td></td>
+<td>GPIO18</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>GPIO25</td>
+<td></td>
+<td>GPIO5</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>GPIO26</td>
+<td></td>
+<td>GPIO17</td>
+<td>to Pack RX1</td>
+</tr>
+<tr>
+<td></td>
+<td>GPIO27</td>
+<td></td>
+<td>GPIO16</td>
+<td>to Pack TX1</td>
+</tr>
+<tr>
+<td></td>
+<td>GPIO14</td>
+<td></td>
+<td>GPIO4</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>GPIO12</td>
+<td></td>
+<td>GPIO2</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>GPIO13</td>
+<td></td>
+<td>GPIO15</td>
+<td></td>
+</tr>
+<tr>
+<td>to 5V-OUT -</td>
+<td>GND</td>
+<td></td>
+<td>GND</td>
+<td></td>
+</tr>
+<tr>
+<td>to 5V-OUT +</td>
+<td>VIN</td>
+<td></td>
+<td>3.3V</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td><strong>USB</strong></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>As shown above you will only need 4 connections using the pair of JST-XH connectors connecting the <strong>5V-OUT</strong> and <strong>RX1/TX1</strong> sockets to the ESP32 device. Since the pre-wired connections may only have a red/black color pattern the diagram below has been intentionally designed with this in mind, though the table above should be consulted for connections if your device does not work as expected.</p>
+<p><strong>IMPORTANT:</strong> Please check all LABELS for proper connections, regardless of wire color. Some early parts/kits may have shipped with JST connectors which swap the order of the red/black wires.</p>
+<p><img alt="" src="../images/PackPCB-Wireless.png" /></p>
+<h2 id="firmware-flashing">Firmware Flashing</h2>
+<p>This device currently uses the exact same firmware image as the Attenuator device, so please see the <a href="../ATTENUATOR_FLASHING/">ATTENUATOR_FLASHING</a> guide for details on compiling and/or uploading software to your wireless adapter.</p>
+<h2 id="operation">Operation</h2>
+<p>When using the ESP32 controller it is possible to connect to the device via WiFi. The SSID (Network Name) will be broadcast as <strong>"ProtonPack_####"</strong> where "####" is the last 4 hexadecimal values for the MAC address of the WiFi interface. This will differ for each ESP32 device, making each network unique to the attached pack. The default password is <strong>"555-2368"</strong> and can (and should) be changed via the web interface after successfully connecting to the network. The IP address for the device will be hardcoded as <strong>"192.168.1.2"</strong> with the web interface accessible at <code>http://192.168.1.2</code>.</p>
+<p>For instructions on using the web interface to control your equipment, please see the <a href="../WIRELESS_OPERATION/">Wireless Operations</a> guide.</p>
+<p><strong>Security Notice</strong></p>
+<p>Once you have successfully paired with the WiFi network for the Proton pack, you are HIGHLY encouraged to change the default password. This is accessible via a link at the bottom of the main device page as noted above. Follow the prompts to enter and confirm a new password then re-join your pack's WiFi network with the new credentials.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../ATTENUATOR/" class="btn btn-neutral float-left" title="Attenuator"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../POWER/" class="btn btn-neutral float-right" title="Power Requirements">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>GPStar Technologies</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../ATTENUATOR/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../POWER/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
