@@ -22,7 +22,7 @@ jobs:
 
       - name: Compile EEPROM Reset
         working-directory: source/ATmegaEEPROM
-        run: pio run
+        run: pio run -e atmega2560
 
       - name: Compile ProtonPack Project (ATMega)
         working-directory: source/ProtonPack
