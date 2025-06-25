@@ -1,4 +1,6 @@
-# About
+<p align="center" style="background-color:#333;">
+  <img src="../images/gpstar_logo_white.png"/>
+</p>
 
 ## Team Members
 
@@ -8,7 +10,7 @@ This project is made possible by Ghostbusters community makers and volunteers sp
 * Jonathan Gunn (aka. "Jonogunn") - Video Instruction Guides, Install Testing.
 * Dustin Grau (aka. "JustinDustin") - Prototyping and Testing, Documentation, 3D Modelling, Software Support
 * Angie Rutto (aka. "Frutto Technology") - Maker and purveyor of fine add-on products, UK Distribution
-* Nomake Wan - Software Support and Feature Development
+* Nomake Wan - Software Support, Testing, and Feature Development
 
 ## Special Community Thanks
 

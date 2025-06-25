@@ -52,4 +52,4 @@ NOTE: See below for more information. I used standard breadboard friendly header
 
 ## Loading Audio Files
 
-Please see the [Audio Files](AUDIO.md) guide.
+Please see the [Audio Files](AUDIO_FILES.md) guide.

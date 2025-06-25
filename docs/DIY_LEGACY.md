@@ -12,7 +12,7 @@ This is an advanced build-out which requires opening all devices and performing 
 
 1. [GPStar Audio PCB](GPSTAR_AUDIO_PCB.md) or [WAV Trigger Configuration](WAVTRIGGER.md)
 
-1. [Loading The Audio Files](AUDIO.md)
+1. [Loading The Audio Files](AUDIO_FILES.md)
 
 1. [Audio Output Guide](SOUND.md)
 

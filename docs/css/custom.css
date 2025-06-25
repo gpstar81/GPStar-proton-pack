@@ -1,0 +1,14 @@
+/* Increase main content width */
+.wy-nav-content {
+  max-width: 1100px;
+}
+
+/* Word wrapping and width control for table cells */
+table td {
+  white-space: normal !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: none;
+  max-width: 320px;
+  vertical-align: top !important;
+}

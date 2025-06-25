@@ -4,7 +4,7 @@
 
 Sound is a huge component of this build and the options are relatively open for how best you wish to proceed. For the wand you will be limited by space, but for the pack you can go as big and as bold as you wish. The following options should give you an idea of what is possible with hardware given certain space constraints.
 
-For instructions on loading audio files to a microSD card, please see the [AUDIO Guide](AUDIO.md).
+For instructions on loading audio files to a microSD card, please see the [AUDIO Guide](AUDIO_FILES.md).
 
 ## Audio Controllers
 
