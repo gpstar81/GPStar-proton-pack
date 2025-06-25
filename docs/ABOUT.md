@@ -1,6 +1,4 @@
-<p align="center" style="background-color:#333;">
-  <img src="../images/gpstar_logo_white.png"/>
-</p>
+![](images/gpstar_logo_bg.png)
 
 ## Team Members
 

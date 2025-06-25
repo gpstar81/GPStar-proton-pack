@@ -1,6 +1,4 @@
-<p align="center" style="background-color:#333;">
-  <img src="../images/gpstar_logo_white.png"/>
-</p>
+![](images/gpstar_logo_bg.png)
 
 <center><h2><img src="../images/gpstar_logo.png" width="30"/> GPStar Proton Pack &amp; Neutrona Wand Operation Manual</h2></center>
 

@@ -10,8 +10,8 @@ Please refer to the table below for a list of devices and their supported softwa
 
 | Controller Device | v1.x | v2.x | v3.x | v4.x | v5.x | v6.x |
 |-------------------|------|------|------|------|------|------|
-| <img src="../images/gpstar_logo.png" width="20"/> GPStar Proton Pack PCB   | Yes | Yes | Yes | Yes | Yes | Yes |
-| <img src="../images/gpstar_logo.png" width="20"/> GPStar Neutrona Wand PCB | Yes | Yes | Yes | Yes | Yes | Yes |
+| <span class="logo-icon-tiny"></span> GPStar Proton Pack PCB   | Yes | Yes | Yes | Yes | Yes | Yes |
+| <span class="logo-icon-tiny"></span> GPStar Neutrona Wand PCB | Yes | Yes | Yes | Yes | Yes | Yes |
 | <sup>d1</sup> DIY Arduino Mega Proton Pack   | Yes | Yes <sup>2</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> |
 | <sup>d1</sup> DIY Arduino Mega Neutrona Wand | Yes | Yes <sup>2</sup> | Yes <sup>2</sup> | Yes <sup>2</sup> | Yes <sup>2</sup> | Yes <sup>2</sup> |
 | <sup>s1</sup> Attenuator (Arduino Nano) | Yes | Yes | Yes | Yes | Yes | No <sup>4</sup> |

@@ -12,3 +12,21 @@ table td {
   max-width: 320px;
   vertical-align: top !important;
 }
+
+.logo-icon,
+.logo-icon-tiny {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  background-image: url('../images/gpstar_logo.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  padding-right: 2px;
+  vertical-align: middle;
+}
+
+.logo-icon-tiny {
+  width: 20px;
+  height: 20px;
+}

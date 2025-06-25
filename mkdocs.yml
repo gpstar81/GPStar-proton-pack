@@ -15,6 +15,9 @@ extra:
 extra_css:
   - css/custom.css
 
+markdown_extensions:
+  - attr_list
+
 nav:
   - Home: README.md
   - About: ABOUT.md

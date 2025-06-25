@@ -100,7 +100,7 @@ Depending on which audio board or amplifier you are using in your system, follow
 
 ---
 
-### <img src='images/gpstar_logo.png' width=35 align="left"/>GPStar Amplifier Troubleshooting
+### <span class="logo-icon"></span> GPStar Amplifier Troubleshooting
 
 ![](images/GPStarAmplifier.jpg)
 
@@ -114,7 +114,7 @@ Remember that a ground loop isolator is not required for this device as this is 
 
 ---
 
-### <img src='images/gpstar_logo.png' width=35 align="left"/>GPStar Audio Troubleshooting
+### <span class="logo-icon"></span> GPStar Audio Troubleshooting
 
 ![](images/GPStarAudio-Debug.jpg)
 
