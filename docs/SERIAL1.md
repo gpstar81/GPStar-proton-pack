@@ -1,4 +1,4 @@
-<h1><img src="../images/gpstar_logo.png" width="50"/>GPStar Serial1 Expansion Controller</h1>
+<h1><span class="logo-icon"></span> GPStar Serial1 Expansion Controller</h1>
 
 The "Serial1" expansion port on the GPStar Proton Pack PCB allows you to connect a device which can offer more functionality with your entire Proton Pack and Neutrona Wand system.
 

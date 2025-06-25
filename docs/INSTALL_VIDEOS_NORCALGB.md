@@ -1,4 +1,4 @@
-<h1><img src="../images/gpstar_logo.png" width="50"/>GPStar Install Videos</h1>
+<h1><span class="logo-icon"></span> GPStar Install Videos</h1>
 
 These videos have been created by community members to help you better install your equipment through visual instruction. We love the dedication and effort from our users so we have curated them here for easy access. Please consider a like and subscription if you enjoy their content!
 
@@ -21,5 +21,3 @@ These videos have been created by community members to help you better install y
 
 [How To Install GPStar's Proton Pack Wireless Kit](https://www.youtube.com/watch?v=QqYHQdhIyR4) (Apr 18, 2025)
 [![How To Install GPStar's Proton Pack Wireless Kit](https://img.youtube.com/vi/QqYHQdhIyR4/maxresdefault.jpg)](https://www.youtube.com/watch?v=QqYHQdhIyR4)
-
-

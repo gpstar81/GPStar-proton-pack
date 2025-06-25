@@ -4,7 +4,7 @@
 
 Sound is a huge component of this build and the options are relatively open for how best you wish to proceed. For the wand you will be limited by space, but for the pack you can go as big and as bold as you wish. The following options should give you an idea of what is possible with hardware given certain space constraints.
 
-For instructions on loading audio files to a microSD card, please see the [AUDIO Guide](AUDIO.md).
+For instructions on loading audio files to a microSD card, please see the [AUDIO Guide](AUDIO_FILES.md).
 
 ## Audio Controllers
 
@@ -17,7 +17,7 @@ The compatibility matrix below notes whether a device is compatible with major v
 | Audio Device | v1.x | v2.x | v3.x | v4.x | v5.0.x | v5.1.x | v5.4.x | v6.0.x |
 |-------------------|------|------|------|------|------|------|------|------|
 | Robertsonics WAV Trigger  | v134 | v134 | v140 | v140 | v140 | v140 | v140 | v140 |
-| <img src="../images/gpstar_logo.png" width="20"/>GPStar Audio | &mdash; | &mdash; | &mdash; | &mdash; | v100<sup>1</sup> | v102<sup>2</sup> | v103<sup>3</sup> | v104<sup>4</sup> |
+| <span class="logo-icon-tiny"></span> GPStar Audio | &mdash; | &mdash; | &mdash; | &mdash; | v100<sup>1</sup> | v102<sup>2</sup> | v103<sup>3</sup> | v104<sup>4</sup> |
 
 <sup>1</sup> All initial orders for GPStar Audio controllers shipped with v100 firmware which delivers all of the basic functionality needed for a Pack+Wand operation.
 
@@ -103,7 +103,7 @@ The stock speaker is rated at 0.25W @ 16Ω and uses a cone made from plastic--es
 
 ---
 
-### <img src='images/gpstar_logo.png' width=30 align="left"/>GPStar Audio on-board amplifier (stereo output) ###
+### <span class="logo-icon"></span> GPStar Audio on-board amplifier (stereo output) ###
 Rated for 2.5W @ 4Ω or 1.5W @ 8Ω per channel.
 
 ### WAV Trigger on-board amplifier (mono output only) ###

@@ -7,7 +7,7 @@ The ESP32 microcontroller is capable of supporting Over-The-Air (OTA) updates fo
 1. If you used an off-the-shelf ESP32 device, then the software which enables the WiFi access point is **not yet loaded** so you will need to follow the "First-Time Upload" for the initial upload of firmware to your device.
 1. If you are performing your first upgrade to the version v6.x firmware, you will need to perform the exact same process as the "First-Time Upload" to re-partition your device to accept the larger firmware files.
 
-### Important Partition Upgrades: V5.x &rarr; V6.x
+### Important Upgrades: V5.x &rarr; V6.x
 
 &#128721; **STOP, PLEASE READ!**
 

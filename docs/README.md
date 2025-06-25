@@ -1,4 +1,4 @@
-<center><h1><img src="images/gpstar_logo.png" width="50"/>GPStar Documentation Home</h1></center>
+<center><h1><span class="logo-icon"></span> GPStar Documentation Home</h1></center>
 
 <center>For the Proton Pack, Neutrona Wand, and Accessories</center>
 
