@@ -1,5 +1,5 @@
 <p align="center" style="background-color:#333;">
-  <img src="../images/gpstar_logo_white.png"/>
+  <img src="./images/gpstar_logo_white.png"/>
 </p>
 
 ## Team Members

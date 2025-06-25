@@ -1,4 +1,4 @@
-<h1><img src="../images/gpstar_logo.png" width="50"/>GPStar DIY Arduino Build Guides</h1>
+<h1><img src="./images/gpstar_logo.png" width="50"/>GPStar DIY Arduino Build Guides</h1>
 
 Considered the "legacy" guide to building your own solution using the Arduino platform. *Please note that the original Neutrona Wand guide used an Arduino Nano which is no longer capable of providing the storage space required by the full range of features supported and that hardware has been deprecated. In order to continue with these guides, please note that a replacement board (Mega 2560 Pro Mini) has been identified for the Neutrona Wand and MUST be used with the latest software release.*
 

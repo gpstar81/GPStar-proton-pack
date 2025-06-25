@@ -1,4 +1,4 @@
-<h1><img src="../images/gpstar_logo.png" width="50"/>GPStar Install Videos</h1>
+<h1><img src="./images/gpstar_logo.png" width="50"/>GPStar Install Videos</h1>
 
 These videos have been created by community members to help you better install your equipment through visual instruction. We love the dedication and effort from our users so we have curated them here for easy access. Please consider a like and subscription if you enjoy their content!
 

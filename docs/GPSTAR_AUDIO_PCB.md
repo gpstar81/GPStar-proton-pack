@@ -1,4 +1,4 @@
-<h1><img src="../images/gpstar_logo.png" width="50"/>GPStar Audio Connection Details</h1>
+<h1><img src="./images/gpstar_logo.png" width="50"/>GPStar Audio Connection Details</h1>
 
 GPStar Audio is a polyphonic audio player capable of playing and mixing together multiple audio tracks at the same time to create a smooth, rich and fluid audio experience. Support for GPStar Audio was introduced in GPStar Proton Pack and Neutrona Wand firmware versions V5.0.0 and later. Additional information regarding firmware, speakers, amplifiers, and installation may be found on the [SOUND guide](SOUND.md).
  
