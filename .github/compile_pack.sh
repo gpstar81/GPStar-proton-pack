@@ -9,6 +9,10 @@ SRCDIR="../source"
 
 mkdir -p ${BINDIR}/pack
 
+# Current build timestamp and major version to be reflected in the build for ESP32.
+MJVER="${MJVER:="V6"}"
+TIMESTAMP="${TIMESTAMP:=$(date +"%Y%m%d%H%M%S")}"
+
 echo ""
 
 # Proton Pack
@@ -16,6 +20,10 @@ echo "Building Proton Pack Binary [ATMega]..."
 
 # Set the project directory based on the source folder
 PROJECT_DIR="$SRCDIR/ProtonPack"
+
+# Update date of compilation
+echo "Setting Build Timestamp: ${MJVER}_${TIMESTAMP}"
+sed -i -e 's/\(String build_date = "\)[^"]*\(";\)/\1'"${MJVER}_${TIMESTAMP}"'\2/' ${PROJECT_DIR}/include/Configuration.h
 
 # Clean the project before building
 pio run -e atmega2560 --project-dir "$PROJECT_DIR" --target clean

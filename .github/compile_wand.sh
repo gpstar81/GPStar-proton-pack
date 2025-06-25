@@ -9,6 +9,10 @@ SRCDIR="../source"
 
 mkdir -p ${BINDIR}/wand/extras
 
+# Current build timestamp and major version to be reflected in the build for ESP32.
+MJVER="${MJVER:="V6"}"
+TIMESTAMP="${TIMESTAMP:=$(date +"%Y%m%d%H%M%S")}"
+
 echo ""
 
 # Neutrona Wand
@@ -16,6 +20,10 @@ echo "Building Neutrona Wand Binary [ATMega]..."
 
 # Set the project directory based on the source folder
 PROJECT_DIR="$SRCDIR/NeutronaWand"
+
+# Update date of compilation
+echo "Setting Build Timestamp: ${MJVER}_${TIMESTAMP}"
+sed -i -e 's/\(String build_date = "\)[^"]*\(";\)/\1'"${MJVER}_${TIMESTAMP}"'\2/' ${PROJECT_DIR}/include/Configuration.h
 
 # Clean the project before building
 pio run -e atmega2560 --project-dir "$PROJECT_DIR" --target clean
