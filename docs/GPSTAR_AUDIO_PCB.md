@@ -1,7 +1,7 @@
-<h1><img src="../images/gpstar_logo.png" width="50"/>GPStar Audio Connection Details</h1>
+<h1><span class="logo-icon"></span> GPStar Audio Connection Details</h1>
 
 GPStar Audio is a polyphonic audio player capable of playing and mixing together multiple audio tracks at the same time to create a smooth, rich and fluid audio experience. Support for GPStar Audio was introduced in GPStar Proton Pack and Neutrona Wand firmware versions V5.0.0 and later. Additional information regarding firmware, speakers, amplifiers, and installation may be found on the [SOUND guide](SOUND.md).
- 
+
 ![](images/GPStarAudioPCB.png)
 
 ## Standard Connection UART (JST-XH 6-pin)
@@ -26,9 +26,9 @@ For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI B
 | BOOT/LOAD | A slide switch button located next to the JST-XH 6 pin UART connector. When set to BOOT, the system will operate, however when set to LOAD, then the system enters a programming mode and allows you to flash updated firmware over the UART connection. Make sure it is set to BOOT afterwards for it to operate. |
 | SPKR-R | Right Speaker output from the on-board stereo amplifier. Capable of powering either a 4Ω 2.5W or 8Ω 1.25W speaker at 5V. ****See Below**** <br><br>`Connector type: 2pin Terminal Block` |
 | SPKR-L | Left Speaker output from the on-board stereo amplifier. Capable of powering either a 4Ω 2.5W or 8Ω 1.25W speaker at 5V. ****See Below**** <br><br>`Connector type: 2pin Terminal Block` |
-| AUX | ****Not labelled**** The on-board stereo auxiliary headphone jack outputs stereo sound and can be fed to any type of amplifier or audio device with a 3.5mm auxiliary input port. When a cable is inserted, the system will turn off the on-board stereo amplifier and output sound from this port instead. 
+| AUX | ****Not labelled**** The on-board stereo auxiliary headphone jack outputs stereo sound and can be fed to any type of amplifier or audio device with a 3.5mm auxiliary input port. When a cable is inserted, the system will turn off the on-board stereo amplifier and output sound from this port instead.
 
-### If you are using the on-board stereo amplifier with only one speaker for a mono output setup, then connect the single speaker to either SPKR-R or to SPKR-L only. 
+### If you are using the on-board stereo amplifier with only one speaker for a mono output setup, then connect the single speaker to either SPKR-R or to SPKR-L only.
 
 ### The on-board stereo amplifier is capable of powering either a 4Ω 2.5W or 8Ω 1.25W speaker at 5V from each channel.
 

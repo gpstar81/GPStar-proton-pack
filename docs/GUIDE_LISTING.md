@@ -1,4 +1,4 @@
-<h1><img src="../images/gpstar_logo.png" width="50"/>GPStar System Guides</h1>
+<h1><span class="logo-icon"></span> GPStar System Guides</h1>
 
 # Introduction
 
@@ -27,7 +27,7 @@ These guides will help you update the software and audio files as new releases b
 
 1. [Flashing Firmware Updates](FLASHING.md)
 
-1. [Loading The Audio Files](AUDIO.md)
+1. [Loading The Audio Files](AUDIO_FILES.md)
 
 ## By-Component Guides
 
@@ -42,7 +42,7 @@ This section is presented in a way to offer a more complete view of what compone
 | Software<sup>R</sup>        | [Flashing the Latest Firmware](FLASHING.md) |
 | Audio Board<sup>R</sup>     | [GPStar Audio](GPSTAR_AUDIO_PCB.md) or [Robertsonics WAV Trigger](WAVTRIGGER.md) |
 | Speakers/Amp<sup>R</sup>    | [Audio Output Guide](SOUND.md) |
-| Sound Effects<sup>R</sup>   | [Loading The Audio Files](AUDIO.md) |
+| Sound Effects<sup>R</sup>   | [Loading The Audio Files](AUDIO_FILES.md) |
 | Cyclotron Lid<sup>O</sup>   | [12/20/36-LED options](CYCLOTRON_LID.md) |
 | Inner Cyclotron<sup>O</sup> | [Cake and Panel Lights](CYCLOTRON_INNER.md)
 | N-Filter<sup>O</sup>        | [7-LED Vent Light](NFILTER.md) |
@@ -66,7 +66,7 @@ This section is presented in a way to offer a more complete view of what compone
 | Software<sup>R</sup>      | [Flashing the Latest Firmware](FLASHING.md) |
 | Audio Board<sup>R</sup>   | [GPStar Audio](GPSTAR_AUDIO_PCB.md) or [Robertsonics WAV Trigger](WAVTRIGGER.md) |
 | Speakers<sup>R</sup>      | [Audio Output Guide](SOUND.md) |
-| Sound Effects<sup>O</sup> | [Loading The Audio Files](AUDIO.md) |
+| Sound Effects<sup>O</sup> | [Loading The Audio Files](AUDIO_FILES.md) |
 | Hat Lights<sup>O</sup>    | [Kit option by Jonogunn](HATS.md) |
 | Bargraph<sup>O</sup>      | [28-Segment or 30-Segment](BARGRAPH.md) |
 | Vent Light<sup>O</sup>    | [GPStar RGB Vent Lights or High Intensity option by Frutto Technology](VENTLIGHT.md) |

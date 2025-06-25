@@ -12,8 +12,15 @@ theme:
 extra:
   version: 6.x
 
+extra_css:
+  - css/custom.css
+
+markdown_extensions:
+  - attr_list
+
 nav:
   - Home: README.md
+  - About: ABOUT.md
   - Core Components:
     - Introduction: GUIDE_LISTING.md
     - Proton Pack: PACK_PCB.md
@@ -25,9 +32,9 @@ nav:
     - Proton Pack:
       - Cyclotron Lid: CYCLOTRON_LID.md
       - Inner Cyclotron: CYCLOTRON_INNER.md
+      - Cyclotron Bypass: CYCLOTRON_BYPASS.md
       - N-Filter: NFILTER.md
       - Power Cell: POWERCELL.md
-      - Smoke Guide: SMOKE.md
     - Neutrona Wand:
       - Bargraph: BARGRAPH.md
       - Hatlights: HATS.md
@@ -36,15 +43,21 @@ nav:
       - Overview: SERIAL1.md
       - Attenuator: ATTENUATOR.md
       - WiFi Adapter: WIRELESS.md
+  - Special Guides:
+    - Power Requirements: POWER.md
+    - Sound Output: SOUND.md
+    - Smoke Kits: SMOKE.md
   - Install Videos:
     - Jonogunn: INSTALL_VIDEOS_JONOGUNN.md
     - Nor-Cal GB: INSTALL_VIDEOS_NORCALGB.md
   - Maintenance:
-    - Flashing Firmware: FLASHING.md
-    - Audio Files: AUDIO.md
+    - Flashing Pack/Wand Firmware: FLASHING.md
+    - Flashing Attenuator/Wifi: ATTENUATOR_FLASHING.md
+    - Audio Files: AUDIO_FILES.md
   - Operation Manuals:
     - General Usage: OPERATION_USAGE.md
+    - Runtime Menus: OPERATION_MENUS.md
     - EEPROM Menus: OPERATION_EEPROM.md
-  - Troubleshooting: TROUBLESHOOTING.md
-  - FAQ: FAQ.md
-  - About: ABOUT.md
+  - Help:
+    - Troubleshooting: TROUBLESHOOTING.md
+    - FAQ: FAQ.md

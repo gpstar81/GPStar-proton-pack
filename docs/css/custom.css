@@ -1,0 +1,32 @@
+/* Increase main content width */
+.wy-nav-content {
+  max-width: 1100px;
+}
+
+/* Word wrapping and width control for table cells */
+table td {
+  white-space: normal !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: none;
+  max-width: 320px;
+  vertical-align: top !important;
+}
+
+.logo-icon,
+.logo-icon-tiny {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  background-image: url('../images/gpstar_logo.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  padding-right: 2px;
+  vertical-align: middle;
+}
+
+.logo-icon-tiny {
+  width: 20px;
+  height: 20px;
+}

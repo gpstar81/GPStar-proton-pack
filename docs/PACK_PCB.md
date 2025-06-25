@@ -1,4 +1,4 @@
-<h1><img src="../images/gpstar_logo.png" width="50"/>GPStar Pack PCB Hookup</h1>
+<h1><span class="logo-icon"></span> GPStar Pack PCB Hookup</h1>
 
 This guide is part of the kit approach to providing a minimally-invasive upgrade to the stock HasLab controllers. For the Proton Pack all stock connections can be made using the available JST-XH connectors on all existing wiring. The diagram below details the standard HasLab connections.
 
@@ -67,4 +67,3 @@ For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI B
 | 5V-OUT | +/\- | Power for additional accessories. Commonly used to power an ESP32 wireless board or Attenuator.<br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 1.5amps from this connector.` |
 | SCL/SDA | SCL/SDA | Expansion serial port using I2C. Used to connect to the **Frutto Technologies** Current Sense board for GPStar Lite.<br><br>`Connector type: JST-XH`|
 | RX1/TX1 | RX1/TX1 | Expansion serial port. Used to connect to an ESP32 wireless board or Attenuator.<br><br>`Connector type: JST-XH`|
-
