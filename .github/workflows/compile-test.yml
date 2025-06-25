@@ -13,26 +13,42 @@ jobs:
       - uses: actions/setup-python@main
         with:
           python-version: '3.12'
+
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
+
       - name: Compile EEPROM Reset
         working-directory: source/ATmegaEEPROM
         run: pio run
-      - name: Compile ProtonPack Project
+
+      - name: Compile ProtonPack Project (ATMega)
         working-directory: source/ProtonPack
-        run: pio run
-      - name: Compile NeutronaWand Project
+        run: pio run -e atmega2560
+
+      - name: Compile NeutronaWand Project (ATMega)
         working-directory: source/NeutronaWand
-        run: pio run
+        run: pio run -e atmega2560
+
+#      - name: Compile ProtonPack Project (ESP32)
+#        working-directory: source/ProtonPack
+#        run: pio run -e esp32s3
+
+#      - name: Compile NeutronaWand Project (ESP32)
+#        working-directory: source/NeutronaWand
+#        run: pio run -e esp32s3
+
       - name: Compile SingleShot Project
         working-directory: source/SingleShot
         run: pio run
+
       - name: Compile Attenuator for ESP32
         working-directory: source/AttenuatorESP32
         run: pio run
+
       - name: Compile Belt Gizmo Project
         working-directory: source/BeltGizmo
         run: pio run
+
       - name: Compile Stream Effects Project
         working-directory: source/StreamEffects
         run: pio run
