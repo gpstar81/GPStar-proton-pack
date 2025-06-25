@@ -12,16 +12,16 @@ mkdir -p ${BINDIR}/blaster
 echo ""
 
 # Single-Shot Blaster
-echo "Building Single-Shot Blaster Binary..."
+echo "Building Single-Shot Blaster Binary [ATMega]..."
 
 # Set the project directory based on the source folder
 PROJECT_DIR="$SRCDIR/SingleShot"
 
 # Clean the project before building
-pio run --project-dir "$PROJECT_DIR" --target clean
+pio run -e atmega2560 --project-dir "$PROJECT_DIR" --target clean
 
 # Compile the PlatformIO project
-pio run --project-dir "$PROJECT_DIR" | grep -iv Retrieved
+pio run -e atmega2560 --project-dir "$PROJECT_DIR" | grep -iv Retrieved
 
 # Check if the build was successful
 if [ $? -eq 0 ]; then
@@ -32,8 +32,22 @@ else
 fi
 
 # Copy the new firmware to the expected binaries directory
-if [ -f ${PROJECT_DIR}/.pio/build/megaatmega2560/firmware.hex ]; then
-  mv ${PROJECT_DIR}/.pio/build/megaatmega2560/firmware.hex ${BINDIR}/blaster/SingleShot.hex
+if [ -f ${PROJECT_DIR}/.pio/build/atmega2560/firmware.hex ]; then
+  mv ${PROJECT_DIR}/.pio/build/atmega2560/firmware.hex ${BINDIR}/blaster/SingleShot.hex
+fi
+echo "Done."
+echo ""
+
+echo "Building Single-Shot Blaster Binary [ESP32]..."
+
+# Clean the project before building
+#pio run -e esp32s3 --project-dir "$PROJECT_DIR" --target clean
+
+# Compile the PlatformIO project
+#pio run -e esp32s3 --project-dir "$PROJECT_DIR" | grep -iv Retrieved
+
+if [ -f ${PROJECT_DIR}/.pio/build/esp32s3/firmware.hex ]; then
+  mv ${PROJECT_DIR}/.pio/build/esp32s3/firmware.hex ${BINDIR}/pack/ProtonPack-ESP32.hex
 fi
 echo "Done."
 echo ""

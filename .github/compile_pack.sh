@@ -23,8 +23,16 @@ pio run -e atmega2560 --project-dir "$PROJECT_DIR" --target clean
 # Compile the PlatformIO project
 pio run -e atmega2560 --project-dir "$PROJECT_DIR" | grep -iv Retrieved
 
-if [ -f ${PROJECT_DIR}/.pio/build/megaatmega2560/firmware.hex ]; then
-  mv ${PROJECT_DIR}/.pio/build/megaatmega2560/firmware.hex ${BINDIR}/pack/ProtonPack.hex
+# Check if the build was successful
+if [ $? -eq 0 ]; then
+  echo "Build succeeded!"
+else
+  echo "Build failed!"
+  exit 1
+fi
+
+if [ -f ${PROJECT_DIR}/.pio/build/atmega2560/firmware.hex ]; then
+  mv ${PROJECT_DIR}/.pio/build/atmega2560/firmware.hex ${BINDIR}/pack/ProtonPack.hex
 fi
 echo "Done."
 echo ""
@@ -37,8 +45,8 @@ echo "Building Proton Pack Binary [ESP32]..."
 # Compile the PlatformIO project
 #pio run -e esp32s3 --project-dir "$PROJECT_DIR" | grep -iv Retrieved
 
-if [ -f ${PROJECT_DIR}/.pio/build/esp32s3dev/firmware.hex ]; then
-  mv ${PROJECT_DIR}/.pio/build/esp32s3dev/firmware.hex ${BINDIR}/pack/ProtonPack-ESP32.hex
+if [ -f ${PROJECT_DIR}/.pio/build/esp32s3/firmware.hex ]; then
+  mv ${PROJECT_DIR}/.pio/build/esp32s3/firmware.hex ${BINDIR}/pack/ProtonPack-ESP32.hex
 fi
 echo "Done."
 echo ""
