@@ -261,7 +261,7 @@ void playMusic() {
     }
 
     // Keep track of music playback on the device directly.
-    ms_music_status_check.start(i_music_check_delay * 10);
+    ms_music_status_check.start(i_music_check_delay * 5);
   }
 }
 

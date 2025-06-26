@@ -6,6 +6,7 @@
 
 BINDIR="../binaries"
 SRCDIR="../source"
+PROJECT_DIR="$SRCDIR/ATmegaEEPROM"
 
 mkdir -p ${BINDIR}/pack/extras
 
@@ -13,9 +14,6 @@ echo ""
 
 # Proton Pack
 echo "Building EEPROM Reset Binary..."
-
-# Set the project directory based on the source folder
-PROJECT_DIR="$SRCDIR/ATmegaEEPROM"
 
 # Clean the project before building
 pio run --project-dir "$PROJECT_DIR" --target clean

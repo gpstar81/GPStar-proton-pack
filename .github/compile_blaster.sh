@@ -6,6 +6,7 @@
 
 BINDIR="../binaries"
 SRCDIR="../source"
+PROJECT_DIR="$SRCDIR/SingleShot"
 
 mkdir -p ${BINDIR}/blaster/extras
 
@@ -21,9 +22,6 @@ echo ""
 
 # Single-Shot Blaster
 echo "Building Single-Shot Blaster Binary [ATMega]..."
-
-# Set the project directory based on the source folder
-PROJECT_DIR="$SRCDIR/SingleShot"
 
 # Clean the project before building
 pio run -e atmega2560 --project-dir "$PROJECT_DIR" --target clean

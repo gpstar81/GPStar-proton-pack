@@ -268,7 +268,7 @@ void playMusic() {
 
     if(b_gpstar_benchtest) {
       // Keep track of music playback on the wand directly.
-      ms_music_status_check.start(i_music_check_delay * 10);
+      ms_music_status_check.start(i_music_check_delay * 5);
     }
   }
 }

@@ -6,6 +6,7 @@
 
 BINDIR="../binaries"
 SRCDIR="../source"
+PROJECT_DIR="$SRCDIR/AttenuatorESP32"
 
 mkdir -p ${BINDIR}/attenuator/extras
 
@@ -18,9 +19,6 @@ echo "Setting Build Timestamp: ${MJVER}_${TIMESTAMP}"
 sed -i -e 's/\(String build_date = "\)[^"]*\(";\)/\1'"${MJVER}_${TIMESTAMP}"'\2/' ${PROJECT_DIR}/include/Configuration.h
 
 echo ""
-
-# Set the project directory based on the source folder
-PROJECT_DIR="$SRCDIR/AttenuatorESP32"
 
 # Attenuator (ESP32 - Normal)
 echo "Building Attenuator Binary (ESP32 - Normal)..."

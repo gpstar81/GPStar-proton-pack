@@ -6,6 +6,7 @@
 
 BINDIR="../binaries"
 SRCDIR="../source"
+PROJECT_DIR="$SRCDIR/ProtonPack"
 
 mkdir -p ${BINDIR}/pack/extras
 
@@ -21,9 +22,6 @@ echo ""
 
 # Proton Pack
 echo "Building Proton Pack Binary [ATMega]..."
-
-# Set the project directory based on the source folder
-PROJECT_DIR="$SRCDIR/ProtonPack"
 
 # Clean the project before building
 pio run -e atmega2560 --project-dir "$PROJECT_DIR" --target clean

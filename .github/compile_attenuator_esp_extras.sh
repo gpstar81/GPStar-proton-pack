@@ -6,6 +6,7 @@
 
 BINDIR="../binaries"
 SRCDIR="../source"
+PROJECT_DIR="$SRCDIR/AttenuatorESP32"
 
 mkdir -p ${BINDIR}/attenuator/extras
 
@@ -14,9 +15,6 @@ MJVER="${MJVER:="V6"}"
 TIMESTAMP="${TIMESTAMP:=$(date +"%Y%m%d%H%M%S")}"
 
 echo ""
-
-# Set the project directory based on the source folder
-PROJECT_DIR="$SRCDIR/AttenuatorESP32"
 
 # Update date of compilation
 echo "Setting Build Timestamp: ${MJVER}_${TIMESTAMP}"

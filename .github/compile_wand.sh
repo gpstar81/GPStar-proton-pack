@@ -6,6 +6,7 @@
 
 BINDIR="../binaries"
 SRCDIR="../source"
+PROJECT_DIR="$SRCDIR/NeutronaWand"
 
 mkdir -p ${BINDIR}/wand/extras
 
@@ -21,9 +22,6 @@ echo ""
 
 # Neutrona Wand
 echo "Building Neutrona Wand Binary [ATMega]..."
-
-# Set the project directory based on the source folder
-PROJECT_DIR="$SRCDIR/NeutronaWand"
 
 # Clean the project before building
 pio run -e atmega2560 --project-dir "$PROJECT_DIR" --target clean

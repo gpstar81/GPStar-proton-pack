@@ -261,7 +261,7 @@ void playMusic() {
     }
 
     // Manage track navigation.
-    ms_music_status_check.start(i_music_check_delay * 10);
+    ms_music_status_check.start(i_music_check_delay * 5);
 
     // Tell connected wand that music playback has started.
     packSerialSend(P_MUSIC_STATUS, b_playing_music ? 2 : 1);
