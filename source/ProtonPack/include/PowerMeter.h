@@ -151,9 +151,15 @@ void doWandPowerReading() {
   monitor.reconfig();
 }
 
-// Sourced from https://community.particle.io/t/battery-voltage-checking/5467
-// Obtains the ATMega chip's actual Vcc voltage value, using internal bandgap reference.
-// This demonstrates ability to read MCU's Vcc voltage and the ability to maintain A/D calibration with changing Vcc.
+/**
+ * Function: doPackVoltageReading
+ * Purpose: Reads the pack's supply voltage (Vcc) using internal bandgap reference (ATMega2560 only).
+ * Inputs: None
+ * Outputs: Updates packReading.BusVoltage with the measured voltage (in V).
+ * Notes:
+ *   - On ESP32, this function is a no-op for compatibility.
+ */
+#if defined(ARDUINO_ARCH_AVR)
 void doPackVoltageReading() {
   // REFS1 REFS0               --> 0 1, AVcc internal ref. -Selects AVcc reference
   // MUX4 MUX3 MUX2 MUX1 MUX0  --> 11110 1.1V (VBG)        -Selects channel 30, bandgap voltage, to measure
@@ -166,9 +172,18 @@ void doPackVoltageReading() {
   while( ( (ADCSRA & (1<<ADSC)) != 0 ) ); // Wait for conversion to complete...
 
   // Scale the value, which returns the actual value of Vcc x 100
-  const long InternalReferenceVoltage = 1115L; // Adjust this value to your boards specific internal BG voltage x1000.
-  packReading.BusVoltage = (((InternalReferenceVoltage * 1023L) / ADC) + 5L) / 10L; // Calculates for straight line value.
+  const long INTERNAL_REFERENCE_VOLTAGE = 1115L; // Adjust this value to your board's specific internal BG voltage x1000.
+  packReading.BusVoltage = (((INTERNAL_REFERENCE_VOLTAGE * 1023L) / ADC) + 5L) / 10L; // Calculates for straight line value.
 }
+#elif defined(ARDUINO_ARCH_ESP32)
+/**
+ * On ESP32, doPackVoltageReading is a no-op.
+ * The ESP32 does not support internal Vcc measurement in the same way as AVR.
+ */
+void doPackVoltageReading() {
+  // No operation on ESP32. Function present for compatibility.
+}
+#endif
 
 // Perform a reading of values from the power meter for the pack.
 void doPackPowerReading() {

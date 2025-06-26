@@ -7,11 +7,15 @@
 BINDIR="../binaries"
 SRCDIR="../source"
 
-mkdir -p ${BINDIR}/blaster
+mkdir -p ${BINDIR}/blaster/extras
 
 # Current build timestamp and major version to be reflected in the build for ESP32.
 MJVER="${MJVER:="V6"}"
 TIMESTAMP="${TIMESTAMP:=$(date +"%Y%m%d%H%M%S")}"
+
+# Update date of compilation
+echo "Setting Build Timestamp: ${MJVER}_${TIMESTAMP}"
+sed -i -e 's/\(String build_date = "\)[^"]*\(";\)/\1'"${MJVER}_${TIMESTAMP}"'\2/' ${PROJECT_DIR}/include/Configuration.h
 
 echo ""
 
@@ -20,10 +24,6 @@ echo "Building Single-Shot Blaster Binary [ATMega]..."
 
 # Set the project directory based on the source folder
 PROJECT_DIR="$SRCDIR/SingleShot"
-
-# Update date of compilation
-echo "Setting Build Timestamp: ${MJVER}_${TIMESTAMP}"
-sed -i -e 's/\(String build_date = "\)[^"]*\(";\)/\1'"${MJVER}_${TIMESTAMP}"'\2/' ${PROJECT_DIR}/include/Configuration.h
 
 # Clean the project before building
 pio run -e atmega2560 --project-dir "$PROJECT_DIR" --target clean
@@ -49,13 +49,21 @@ echo ""
 echo "Building Single-Shot Blaster Binary [ESP32]..."
 
 # Clean the project before building
-#pio run -e esp32s3 --project-dir "$PROJECT_DIR" --target clean
+pio run -e esp32s3 --project-dir "$PROJECT_DIR" --target clean
 
 # Compile the PlatformIO project
-#pio run -e esp32s3 --project-dir "$PROJECT_DIR" | grep -iv Retrieved
+pio run -e esp32s3 --project-dir "$PROJECT_DIR" | grep -iv Retrieved
 
-if [ -f ${PROJECT_DIR}/.pio/build/esp32s3/firmware.hex ]; then
-  mv ${PROJECT_DIR}/.pio/build/esp32s3/firmware.hex ${BINDIR}/blaster/SingleShot-ESP32.hex
+if [ -f ${PROJECT_DIR}/.pio/build/esp32s3/firmware.bin ]; then
+  mv ${PROJECT_DIR}/.pio/build/esp32s3/firmware.bin ${BINDIR}/blaster/SingleShot-ESP32.bin
+fi
+if [ -f ${PROJECT_DIR}/.pio/build/esp32s3/bootloader.bin ]; then
+  mv ${PROJECT_DIR}/.pio/build/esp32s3/bootloader.bin ${BINDIR}/blaster/extras/SingleShot-ESP32-Bootloader.bin
+fi
+if [ -f ${PROJECT_DIR}/.pio/build/esp32s3/partitions.bin ]; then
+  mv ${PROJECT_DIR}/.pio/build/esp32s3/partitions.bin ${BINDIR}/blaster/extras/SingleShot-ESP32-Partitions.bin
 fi
 echo "Done."
 echo ""
+
+rm -f ${PROJECT_DIR}/include/*.h-e

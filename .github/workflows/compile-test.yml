@@ -28,25 +28,25 @@ jobs:
         working-directory: source/ProtonPack
         run: pio run -e atmega2560
 
-#      - name: Compile ProtonPack Project (ESP32)
-#        working-directory: source/ProtonPack
-#        run: pio run -e esp32s3
+      - name: Compile ProtonPack Project (ESP32)
+        working-directory: source/ProtonPack
+        run: pio run -e esp32s3
 
       - name: Compile NeutronaWand Project (ATMega)
         working-directory: source/NeutronaWand
         run: pio run -e atmega2560
 
-#      - name: Compile NeutronaWand Project (ESP32)
-#        working-directory: source/NeutronaWand
-#        run: pio run -e esp32s3
+      - name: Compile NeutronaWand Project (ESP32)
+        working-directory: source/NeutronaWand
+        run: pio run -e esp32s3
 
       - name: Compile SingleShot Project (ATMega)
         working-directory: source/SingleShot
         run: pio run -e atmega2560
 
-#      - name: Compile SingleShot Project (ESP32)
-#        working-directory: source/SingleShot
-#        run: pio run -e esp32s3
+      - name: Compile SingleShot Project (ESP32)
+        working-directory: source/SingleShot
+        run: pio run -e esp32s3
 
       - name: Compile Attenuator for ESP32
         working-directory: source/AttenuatorESP32

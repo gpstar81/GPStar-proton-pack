@@ -13,14 +13,14 @@ mkdir -p ${BINDIR}/attenuator/extras
 MJVER="${MJVER:="V6"}"
 TIMESTAMP="${TIMESTAMP:=$(date +"%Y%m%d%H%M%S")}"
 
+# Update date of compilation
+echo "Setting Build Timestamp: ${MJVER}_${TIMESTAMP}"
+sed -i -e 's/\(String build_date = "\)[^"]*\(";\)/\1'"${MJVER}_${TIMESTAMP}"'\2/' ${PROJECT_DIR}/include/Configuration.h
+
 echo ""
 
 # Set the project directory based on the source folder
 PROJECT_DIR="$SRCDIR/AttenuatorESP32"
-
-# Update date of compilation
-echo "Setting Build Timestamp: ${MJVER}_${TIMESTAMP}"
-sed -i -e 's/\(String build_date = "\)[^"]*\(";\)/\1'"${MJVER}_${TIMESTAMP}"'\2/' ${PROJECT_DIR}/include/Configuration.h
 
 # Attenuator (ESP32 - Normal)
 echo "Building Attenuator Binary (ESP32 - Normal)..."

@@ -48,7 +48,13 @@
 #define CYCLOTRON_LID_SWITCH_PIN_DIY 51 // Legacy pin used for some DIY pack builds.
 #define VIBRATION_PIN 45 // Pin for the vibration motor.
 #define NFILTER_LED_PIN 46 // (Optional) Use a white LED with a forward voltage of 3.0-3.2 and up to 20mA forward current.
-#define PACK_LED_PIN 53 // Data pin for the Power Cell and Outer Cyclotron addressable LEDs.
+
+// Data pin for the Power Cell and Outer Cyclotron addressable LEDs.
+#ifdef ESP32
+  #define PACK_LED_PIN 18
+#else
+  #define PACK_LED_PIN 53
+#endif
 
 /*
  * The HasLab Power Cell has 13 LEDs.

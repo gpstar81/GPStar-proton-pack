@@ -38,7 +38,8 @@
 	  "editor.insertSpaces": true,
     "editor.tabSize": 2,
     "files.associations": {
-      "string": "cpp"
+      "string": "cpp",
+      "cstdint": "cpp"
     }
   }
 }

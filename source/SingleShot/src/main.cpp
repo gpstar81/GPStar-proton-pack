@@ -69,7 +69,11 @@
 #include "Bargraph.h"
 #include "Cyclotron.h"
 #include "Audio.h"
-#include "Preferences.h"
+#ifdef ESP32
+  #include "PreferencesESP.h"
+#else
+  #include "PreferencesATMega.h"
+#endif
 #include "System.h"
 #include "Actions.h"
 
@@ -96,7 +100,12 @@ void setup() {
   setupAudioDevice();
 
   // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.
-  TCCR1B = (TCCR1B & B11111000) | B00000100; // for PWM frequency of 122.55 Hz
+  #ifdef ESP32
+    // Use of the register is not needed by ESP32, as it uses a different method for PWM.
+  #else
+    // For ATmega2560, we set the PWM frequency for pin 11 (TCCR5B) to 122.55 Hz.
+    TCCR1B = (TCCR1B & B11111000) | B00000100;
+  #endif
 
   // System LEDs
   FastLED.addLeds<NEOPIXEL, SYSTEM_LED_PIN>(system_leds, CYCLOTRON_LED_COUNT + BARREL_LED_COUNT).setCorrection(TypicalLEDStrip);

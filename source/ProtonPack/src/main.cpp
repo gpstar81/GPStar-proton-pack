@@ -56,7 +56,11 @@
 #include "Colours.h"
 #include "Audio.h"
 #include "PowerMeter.h"
-#include "Preferences.h"
+#ifdef ESP32
+  #include "PreferencesESP.h"
+#else
+  #include "PreferencesATMega.h"
+#endif
 #include "System.h"
 #include "Serial.h"
 
@@ -97,8 +101,13 @@ void setup() {
   switch_smoke.setDebounceTime(50);
 
   // Change PWM frequency of pin 45 for the vibration motor, we do not want it high pitched.
-  TCCR5B = (TCCR5B & B11111000) | B00000100;  // for PWM frequency of 122.55 Hz
-
+  #ifdef ESP32
+    // Use of the register is not needed by ESP32, as it uses a different method for PWM.
+  #else
+    // For ATmega2560, we set the PWM frequency for pin 45 (TCCR5B) to 122.55 Hz.
+    TCCR5B = (TCCR5B & B11111000) | B00000100;
+  #endif
+  
   // Vibration motor
   pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
 
