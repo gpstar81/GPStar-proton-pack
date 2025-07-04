@@ -65,7 +65,7 @@ uint16_t i_music_count = 0; // Contains the total number of detected music track
 uint16_t i_current_music_track = 0; // Sets the ID number for the music track to be played.
 const uint16_t i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
 const int8_t i_volume_abs_min = -70; // System (absolute) minimum volume possible.
-int8_t i_volume_abs_max = 0; // System (absolute) maximum volume possible. 0 dB for WAV Trigger, +10 dB for GPStar Audio.
+int8_t i_volume_abs_max = 0; // System (absolute) maximum volume possible. 0 dB for unity gain.
 const int8_t i_track_volume_abs_max = 0; // Maximum gain for effects/music is 0 dB (unity gain).
 bool b_playing_music = false; // Sets whether a music track is currently playing or not.
 bool b_music_paused = false; // Sets whether a music track is currently paused or not.
@@ -795,7 +795,6 @@ bool setupAudioDevice() {
       AUDIO_DEVICE = A_GPSTAR_AUDIO;
     }
 
-    i_volume_abs_max = 10; // GPStar Audio has higher maximum amplification, so reset default values accordingly.
     i_volume_master = MINIMUM_VOLUME - ((MINIMUM_VOLUME - i_volume_abs_max) * i_volume_master_percentage / 100); // Master overall volume.
     i_volume_master_eeprom = i_volume_master; // Master overall volume that is saved into the eeprom menu and loaded during bootup.
     i_volume_revert = i_volume_master; // Used to restore volume level from a muted state.

@@ -874,7 +874,10 @@ bool setupAudioDevice() {
       AUDIO_DEVICE = A_GPSTAR_AUDIO;
     }
 
-    i_volume_abs_max = 10; // GPStar Audio has higher maximum amplification, so reset default values accordingly.
+    if(!b_gpstar_benchtest) {
+      i_volume_abs_max = 10; // Allow GPStar Audio to use +10dB if on external power.
+    }
+
     i_volume_master = MINIMUM_VOLUME - ((MINIMUM_VOLUME - i_volume_abs_max) * i_volume_master_percentage / 100); // Master overall volume.
     i_volume_master_eeprom = i_volume_master; // Master overall volume that is saved into the eeprom menu and loaded during bootup.
     i_volume_revert = i_volume_master; // Used to restore volume level from a muted state.
