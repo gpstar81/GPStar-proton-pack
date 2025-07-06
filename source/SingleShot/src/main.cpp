@@ -60,6 +60,10 @@
 #include <avdweb_Switch.h>
 #include <ht16k33.h>
 #include <Wire.h>
+#ifdef ESP32
+  #include <Adafruit_LIS3MDL.h>
+  #include <SparkFunLSM6DS3.h>
+#endif
 
 // Local Files
 #include "Configuration.h"

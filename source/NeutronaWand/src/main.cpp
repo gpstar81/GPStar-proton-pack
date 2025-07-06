@@ -59,6 +59,10 @@
 #include <ht16k33.h>
 #include <Wire.h>
 #include <SerialTransfer.h>
+#ifdef ESP32
+  #include <Adafruit_LIS3MDL.h>
+  #include <SparkFunLSM6DS3.h>
+#endif
 
 // Local Files
 #include "Configuration.h"

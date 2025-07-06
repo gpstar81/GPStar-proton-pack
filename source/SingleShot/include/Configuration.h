@@ -23,7 +23,7 @@
 /*
  * Used to reflect the last build date for the binary.
  */
-String build_date = "V6_20250706095251";
+String build_date = "V6_20250706100406";
 
 /*
  * -------------****** CUSTOM USER CONFIGURABLE SETTINGS ******-------------
