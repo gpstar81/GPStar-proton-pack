@@ -60,9 +60,9 @@ This project is structured for development with PlatformIO, using the Arduino fr
 
 1. **ESP32**:
    - Devices should include a partition definition file in CSV format and must include the standard nvs and coredump partitions.
-   - Partitions should include space for Over The Air (OTA) updates, providing the otadata, app0, and app1, partitions.
-   - Assume a 4MB flash partition if not specified and maximize the app0 and app1 partitions whenever possible.
-   - Any remaining space can be used for a secondary nvs partition. Example:
+   - Partitions should include space for Over The Air (OTA) updates, providing the otadata, app0, and app1 partitions necessary.
+   - Assume a 4MB flash partition if not specified and maximize the app0 and app1 as equal-sized partitions whenever possible.
+   - Any remaining free space can be used for a secondary nvs partition. Example:
 
    ````cpp
    # Name,Type,SubType,Offset,Size,Flags
@@ -76,7 +76,12 @@ This project is structured for development with PlatformIO, using the Arduino fr
 2. **ATMega2560**:
    - These devices will not have a partitions directory as they cannot be partitioned.
 
-3. **All Devices**:
+3. **Mixed Processors**:
+   - Some devices will need support multiple board environments and allowing compilation against the ATMega2560 or ESP32 type hardware.
+   - Be mindful to make suggestions based on both processor types when necessary in the event a feature exists exclusive to one architecture or the other.
+   - Use preprocessor conditions where necessary to provide hardware-specific options, suggesting or highlighting the more maintainable option when possible.
+
+4. **All Devices**:
    - Be mindful of memory space for every device.
    - Attempt to keep all variable types as small as necessary, for instance avoid `int` if a simple `uint8_t` would effectively hold the expected value.
    - For integer types use a specific size instead of a common name, for instance use `uint8_t` instead of `byte`.

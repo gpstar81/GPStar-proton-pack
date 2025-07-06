@@ -1,0 +1,41 @@
+name: compile-test-accessories
+on:
+  - push
+  - pull_request
+env:
+  # It's convenient to set variables for values used multiple times in the workflow
+  SKETCHES_REPORTS_PATH: sketches-reports
+jobs:
+  compile-platformio:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+
+      - name: Compile SingleShot (ATMega)
+        working-directory: source/SingleShot
+        run: pio run -e atmega2560
+
+      - name: Compile SingleShot (ESP32)
+        working-directory: source/SingleShot
+        run: pio run -e esp32s3
+
+      - name: Compile Attenuator (ESP32 Only)
+        working-directory: source/AttenuatorESP32
+        run: pio run
+
+      - name: Compile Belt Gizmo (ESP32 Only)
+        working-directory: source/BeltGizmo
+        run: pio run
+
+      - name: Compile Stream Effects (ESP32 Only)
+        working-directory: source/StreamEffects
+        run: pio run
