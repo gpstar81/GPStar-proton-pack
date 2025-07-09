@@ -38,32 +38,24 @@ jobs:
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
 
-      # Step 5: Preinstall all dependencies (toolchains, libraries)
-      # This ensures that the next step can skip checks safely
-      - name: Preinstall Dependencies
-        run: |
-          pio pkg install
-          pio lib install
-
-      # Step 6: Compile projects by environment (ATMega2560 or ESP32)
-      # Skips rechecking packages/libs and compiles in parallel
+      # Step 5: Compile projects by environment (ATMega2560 or ESP32)
 
       - name: Compile SingleShot (ATMega)
         working-directory: source/SingleShot
-        run: pio run -e atmega2560 --skip-packages --skip-default-lib-checks --jobs 4
+        run: pio run -e atmega2560 --jobs 4
 
       - name: Compile SingleShot (ESP32)
         working-directory: source/SingleShot
-        run: pio run -e esp32s3 --skip-packages --skip-default-lib-checks --jobs 4
+        run: pio run -e esp32s3 --jobs 4
 
       - name: Compile Attenuator (ESP32 Only)
         working-directory: source/AttenuatorESP32
-        run: pio run --skip-packages --skip-default-lib-checks --jobs 4
+        run: pio run --jobs 4
 
       - name: Compile Belt Gizmo (ESP32 Only)
         working-directory: source/BeltGizmo
-        run: pio run --skip-packages --skip-default-lib-checks --jobs 4
+        run: pio run --jobs 4
 
       - name: Compile Stream Effects (ESP32 Only)
         working-directory: source/StreamEffects
-        run: pio run --skip-packages --skip-default-lib-checks --jobs 4
+        run: pio run --jobs 4

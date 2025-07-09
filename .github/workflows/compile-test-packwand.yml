@@ -38,32 +38,24 @@ jobs:
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
 
-      # Step 5: Preinstall all dependencies (toolchains, libraries)
-      # This ensures that the next step can skip checks safely
-      - name: Preinstall Dependencies
-        run: |
-          pio pkg install
-          pio lib install
-
-      # Step 6: Compile projects by environment (ATMega2560 or ESP32)
-      # Skips rechecking packages/libs and compiles in parallel
+      # Step 5: Compile projects by environment (ATMega2560 or ESP32)
 
       - name: Compile EEPROM Reset
         working-directory: source/ATmegaEEPROM
-        run: pio run -e atmega2560 --skip-packages --skip-default-lib-checks --jobs 4
+        run: pio run -e atmega2560 --jobs 4
 
       - name: Compile ProtonPack Project (ATMega)
         working-directory: source/ProtonPack
-        run: pio run -e atmega2560 --skip-packages --skip-default-lib-checks --jobs 4
+        run: pio run -e atmega2560 --jobs 4
 
       - name: Compile ProtonPack Project (ESP32)
         working-directory: source/ProtonPack
-        run: pio run -e esp32s3 --skip-packages --skip-default-lib-checks --jobs 4
+        run: pio run -e esp32s3 --jobs 4
 
       - name: Compile NeutronaWand Project (ATMega)
         working-directory: source/NeutronaWand
-        run: pio run -e atmega2560 --skip-packages --skip-default-lib-checks --jobs 4
+        run: pio run -e atmega2560 --jobs 4
 
       - name: Compile NeutronaWand Project (ESP32)
         working-directory: source/NeutronaWand
-        run: pio run -e esp32s3 --skip-packages --skip-default-lib-checks --jobs 4
+        run: pio run -e esp32s3 --jobs 4
