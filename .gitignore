@@ -7,3 +7,4 @@ Thumbs.db
 /source/*/.pio
 /source/*/.vscode
 site/
+.vscode/settings.json
