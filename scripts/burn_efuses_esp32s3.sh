@@ -129,14 +129,9 @@ if [[ "$CONFIRM" != "yes" ]]; then
 fi
 
 # Burn UART_PRINT_CONTROL
-BURN_CMD1=("$ESPEFUSE_BIN" --chip esp32s3 --port "$PORT" burn-efuse UART_PRINT_CONTROL 3)
-echo "Burning UART_PRINT_CONTROL using: ${BURN_CMD1[*]}"
-"${BURN_CMD1[@]}"
-
-# Burn DIS_PAD_JTAG
-BURN_CMD2=("$ESPEFUSE_BIN" --chip esp32s3 --port "$PORT" burn-efuse DIS_PAD_JTAG 1)
-echo "Burning DIS_PAD_JTAG using: ${BURN_CMD2[*]}"
-"${BURN_CMD2[@]}"
+BURN_CMD=("$ESPEFUSE_BIN" --chip esp32s3 --do-not-confirm --port "$PORT" burn-efuse UART_PRINT_CONTROL 3 DIS_PAD_JTAG 1)
+echo "Burning UART_PRINT_CONTROL using: ${BURN_CMD[*]}"
+"${BURN_CMD[@]}"
 
 echo "Done. New eFuse summary:"
 print_efuse_status
