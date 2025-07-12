@@ -23,6 +23,8 @@
  * All input and output pin definitions go here.
  */
 #ifdef ESP32
+#define I2C_SDA 40
+#define I2C_SCL 39
 #define ROTARY_ENCODER_A 14
 #define ROTARY_ENCODER_B 13
 #define PACK_LED_PIN 5 // Data pin for the Power Cell and Outer Cyclotron addressable LEDs.

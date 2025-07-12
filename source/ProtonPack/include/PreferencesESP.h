@@ -157,26 +157,31 @@ void saveLEDEEPROM() {
   gObjLEDEEPROM.inner_cyclotron_led_panel = i_inner_cyclotron_led_panel;
   gObjLEDEEPROM.powercell_inverted = i_powercell_inverted;
 
-  preferences.begin("led", false);
-  preferences.putBytes("led", &gObjLEDEEPROM, sizeof(gObjLEDEEPROM));
-  preferences.end();
+  if (preferences.begin("led", false)) {
+    preferences.putBytes("led", &gObjLEDEEPROM, sizeof(gObjLEDEEPROM));
+    preferences.end();
+  }
 
   updateCRCEEPROM(eepromCRC());
 }
 
 // Load LED settings from Preferences
 void loadLEDEEPROM() {
-  preferences.begin("led", true);
-  preferences.getBytes("led", &gObjLEDEEPROM, sizeof(gObjLEDEEPROM));
-  preferences.clear();
-  preferences.end();
+  if (preferences.begin("led", true)) {
+    // Check if the 'led' blob exists before reading
+    if (preferences.isKey("led")) {
+      preferences.getBytes("led", &gObjLEDEEPROM, sizeof(gObjLEDEEPROM));
+    }
+    preferences.end();
+  }
 }
 
 // Clear LED settings in Preferences
 void clearLEDEEPROM() {
-  preferences.begin("led", false);
-  preferences.clear();
-  preferences.end();
+  if (preferences.begin("led", false)) {
+    preferences.clear();
+    preferences.end();
+  }
 
   updateCRCEEPROM(eepromCRC());
 }
@@ -351,25 +356,31 @@ void saveConfigEEPROM() {
   gObjConfigEEPROM.pack_vibration = i_pack_vibration;
   gObjConfigEEPROM.use_ribbon_cable = i_use_ribbon_cable;
 
-  preferences.begin("config", false);
-  preferences.putBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
-  preferences.end();
+  if (preferences.begin("config", false)) {
+    preferences.putBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
+    preferences.end();
+  }
 
   updateCRCEEPROM(eepromCRC());
 }
 
 // Load config settings from Preferences
 void loadConfigEEPROM() {
-  preferences.begin("config", true);
-  preferences.getBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
-  preferences.end();
+  if (preferences.begin("config", true)) {
+    // Check if the 'config' blob exists before reading
+    if (preferences.isKey("config")) {
+      preferences.getBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
+    }
+    preferences.end();
+  }
 }
 
 // Clear config settings in Preferences
 void clearConfigEEPROM() {
-  preferences.begin("config", false);
-  preferences.clear();
-  preferences.end();
+  if (preferences.begin("config", false)) {
+    preferences.clear();
+    preferences.end();
+  }
 
   updateCRCEEPROM(eepromCRC());
 }
@@ -825,24 +836,32 @@ void readEEPROM() {
 
 // CRC helpers for Preferences
 void updateCRCEEPROM(uint32_t crc) {
-  preferences.begin("crc", false);
-  preferences.putUInt("crc", crc);
-  preferences.end();
+  if (preferences.begin("crc", false)) {
+    preferences.putUInt("crc", crc);
+    preferences.end();
+  }
 }
 
 uint32_t getCRCEEPROM() {
-  preferences.begin("crc", true);
-  uint32_t crc = preferences.getUInt("crc");
-  preferences.end();
+  uint32_t crc = 0;
+
+  if (preferences.begin("crc", true)) {
+    crc = preferences.getUInt("crc");
+    preferences.end();
+  }
+
   return crc;
 }
 
 // Calculate CRC for all stored preferences
 uint32_t eepromCRC() {
   CRC32 crc;
+
   loadLEDEEPROM();
   loadConfigEEPROM();
+
   crc.update((uint8_t*)&gObjLEDEEPROM, sizeof(gObjLEDEEPROM));
   crc.update((uint8_t*)&gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
+
   return crc.finalize();
 }

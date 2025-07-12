@@ -71,7 +71,7 @@ void setup() {
   // Setup i2c.
 #ifdef ESP32
   // ESP32-S3 requires manually specifying SDA and SCL pins first.
-  Wire.setPins(40,39);
+  Wire.setPins(I2C_SDA, I2C_SCL);
 #endif
   Wire.begin();
   Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
@@ -131,28 +131,29 @@ void setup() {
   switch_smoke.setDebounceTime(50);
 #endif
 
-  // Change PWM frequency of pin 45 for the vibration motor, we do not want it high pitched.
-  #ifdef ESP32
-    // Use of the register is not needed by ESP32, as it uses a different method for PWM.
-    ledcAttachChannel(VIBRATION_PIN, 123, 8, 5); // Uses 123 Hz frequency, 8-bit resolution, channel 5.
-  #else
-    // For ATmega2560, we set the PWM frequency for pin 45 (TCCR5B) to 122.55 Hz.
-    TCCR5B = (TCCR5B & B11111000) | B00000100;
-    pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
-  #endif
+// Change PWM frequency of pin 45 for the vibration motor, we do not want it high pitched.
+#ifdef ESP32
+  // Use of the register is not needed by ESP32, as it uses a different method for PWM.
+  pinMode(VIBRATION_PIN, OUTPUT);
+  //ledcAttachChannel(VIBRATION_PIN, 123, 8, 5); // Uses 123 Hz frequency, 8-bit resolution, channel 5.
+#else
+  // For ATmega2560, we set the PWM frequency for pin 45 (TCCR5B) to 122.55 Hz.
+  TCCR5B = (TCCR5B & B11111000) | B00000100;
+  pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
+#endif
 
-  #ifdef ESP32
-    // Begin by setting up WiFi as a prerequisite to all else.
-    if(startWiFi()) {
-      // Start the local web server.
-      startWebServer();
+#ifdef ESP32
+  // Begin by setting up WiFi as a prerequisite to all else.
+  if(startWiFi()) {
+    // Start the local web server.
+    startWebServer();
 
-      // Begin timer for remote client events.
-      ms_cleanup.start(i_websocketCleanup);
-      ms_apclient.start(i_apClientCount);
-      ms_otacheck.start(i_otaCheck);
-    }
-  #endif
+    // Begin timer for remote client events.
+    ms_cleanup.start(i_websocketCleanup);
+    ms_apclient.start(i_apClientCount);
+    ms_otacheck.start(i_otaCheck);
+  }
+#endif
 
   // Smoke motor for the N-Filter.
   pinModeFast(NFILTER_SMOKE_PIN, OUTPUT);
@@ -284,6 +285,35 @@ void setup() {
 }
 
 void loop() {
+  // Proceed with management if the AP and web server are started.
+#ifdef ESP32
+  if(b_ap_started && b_ws_started) {
+    if(ms_cleanup.remaining() < 1) {
+      // Clean up oldest WebSocket connections.
+      ws.cleanupClients();
+
+      // Restart timer for next cleanup action.
+      ms_cleanup.start(i_websocketCleanup);
+    }
+
+    if(ms_apclient.remaining() < 1) {
+      // Update the current count of AP clients.
+      i_ap_client_count = WiFi.softAPgetStationNum();
+
+      // Restart timer for next count.
+      ms_apclient.start(i_apClientCount);
+    }
+
+    if(ms_otacheck.remaining() < 1) {
+      // Handles device reboot after an OTA update.
+      ElegantOTA.loop();
+
+      // Restart timer for next check.
+      ms_otacheck.start(i_otaCheck);
+    }
+  }
+#endif
+
   // Update the available audio device.
   updateAudio();
 

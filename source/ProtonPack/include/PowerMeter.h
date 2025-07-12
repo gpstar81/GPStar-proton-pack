@@ -100,13 +100,14 @@ void powerMeterInit() {
   if(i_monitor_status == 0) {
     // Result of 0 indicates no problems from device detection.
     b_power_meter_available = true;
-    powerMeterConfig();
+    //powerMeterConfig(); // Temporarily disabled as hardware is not available for testing.
     wandReading.LastRead = millis(); // For use with the Ah readings.
     wandReading.ReadTimer.start(wandReading.PowerReadDelay);
   }
   else {
-    // If returning a non-zero value, device could not be reset.
-    debugln(F("Unable to find power monitoring device on i2c."));
+    // If returning a non-zero value, device could not be reset or is not present on the I2C bus.
+    b_power_meter_available = false;
+    debugln(F("Unable to find power monitoring device on i2c. Power meter features will be disabled."));
   }
 
   // Always obtain a voltage reading directly from the pack PCB.
