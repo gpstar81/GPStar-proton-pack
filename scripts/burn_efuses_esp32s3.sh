@@ -57,10 +57,10 @@ ESPEFUSE_BIN="espefuse.py"
 # Check for espefuse.py or espefuse before anything else
 if command -v espefuse >/dev/null 2>&1; then
   ESPEFUSE_BIN="espefuse"
-  echo "Found espefuse at: $(command -v espefuse)"
+  echo "Found 'espefuse' script at: $(command -v espefuse)"
 elif command -v espefuse.py >/dev/null 2>&1; then
   ESPEFUSE_BIN="espefuse.py"
-  echo "Found espefuse.py at: $(command -v espefuse.py)"
+  echo "Found 'espefuse.py' script at: $(command -v espefuse.py)"
 else
   echo "Error: espefuse (or espefuse.py) not found in PATH. Please install with 'python3 -m pip install --user esptool' and ensure ~/.local/bin is in your PATH."
   exit 1
@@ -98,7 +98,7 @@ else
   PORT="$1"
 fi
 
-echo "Using port: $PORT"
+echo "Using Device Port: $PORT"
 
 # Function to print current state of the two efuses
 print_efuse_status() {
@@ -108,10 +108,13 @@ print_efuse_status() {
 
 print_efuse_status
 
-# Just exit if the eFuses are already set, just to avoid confusion
-if $ESPEFUSE_BIN --port "$PORT" summary | grep -q 'UART_PRINT_CONTROL.*3' && \
-   $ESPEFUSE_BIN --port "$PORT" summary | grep -q 'DIS_PAD_JTAG.*(BURNED|1)'; then
-  echo "The eFuse already set. Skipping burn."
+# Improved check: Only skip if both eFuses are set to the correct value
+summary_output="$($ESPEFUSE_BIN --port "$PORT" summary)"
+UART_VAL=$(echo "$summary_output" | grep 'UART_PRINT_CONTROL' | awk '{print $NF}' | tr -d '()')
+JTAG_VAL=$(echo "$summary_output" | grep 'DIS_PAD_JTAG' | awk '{print $NF}' | tr -d '()')
+
+if [[ "$UART_VAL" =~ ^(3|0b11)$ ]] && [[ "$JTAG_VAL" =~ ^(1|0b1|BURNED)$ ]]; then
+  echo "The eFuses are already set (UART_PRINT_CONTROL=$UART_VAL, DIS_PAD_JTAG=$JTAG_VAL). Skipping burn."
   exit 0
 fi
 
@@ -125,8 +128,15 @@ if [[ "$CONFIRM" != "yes" ]]; then
   exit 0
 fi
 
-echo "Burning eFuses in batch..."
-$ESPEFUSE_BIN --port "$PORT" set_batch UART_PRINT_CONTROL=3 DIS_PAD_JTAG=1
+# Burn UART_PRINT_CONTROL
+BURN_CMD1=("$ESPEFUSE_BIN" --chip esp32s3 --port "$PORT" burn-efuse UART_PRINT_CONTROL 3)
+echo "Burning UART_PRINT_CONTROL using: ${BURN_CMD1[*]}"
+"${BURN_CMD1[@]}"
+
+# Burn DIS_PAD_JTAG
+BURN_CMD2=("$ESPEFUSE_BIN" --chip esp32s3 --port "$PORT" burn-efuse DIS_PAD_JTAG 1)
+echo "Burning DIS_PAD_JTAG using: ${BURN_CMD2[*]}"
+"${BURN_CMD2[@]}"
 
 echo "Done. New eFuse summary:"
 print_efuse_status
