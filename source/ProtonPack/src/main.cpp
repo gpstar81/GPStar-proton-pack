@@ -284,51 +284,7 @@ void setup() {
   }
 }
 
-void loop() {
-  // Proceed with management if the AP and web server are started.
-#ifdef ESP32
-  if(b_ap_started && b_ws_started) {
-    if(ms_cleanup.remaining() < 1) {
-      // Clean up oldest WebSocket connections.
-      ws.cleanupClients();
-
-      // Restart timer for next cleanup action.
-      ms_cleanup.start(i_websocketCleanup);
-    }
-
-    if(ms_apclient.remaining() < 1) {
-      // Update the current count of AP clients.
-      i_ap_client_count = WiFi.softAPgetStationNum();
-
-      // Restart timer for next count.
-      ms_apclient.start(i_apClientCount);
-    }
-
-    if(ms_otacheck.remaining() < 1) {
-      // Handles device reboot after an OTA update.
-      ElegantOTA.loop();
-
-      // Restart timer for next check.
-      ms_otacheck.start(i_otaCheck);
-    }
-  }
-#endif
-
-  // Update the available audio device.
-  updateAudio();
-
-  // Check for any new serial commands were received from the Neutrona Wand.
-  checkWand();
-
-  // Check if the wand is considered to have been disconnected.
-  wandDisconnectCheck();
-
-  // Check if serial1 device is present.
-  serial1HandShake();
-
-  // Check if any new serial commands were received.
-  checkSerial1();
-
+void postProcess() {
   if(b_pack_post_finish) {
     checkMusic();
     checkSwitches();
@@ -630,6 +586,30 @@ void loop() {
   else {
     systemPOST();
   }
+}
+
+void loop() {
+#ifdef ESP32
+  webLoops();
+#endif
+
+  // Update the available audio device.
+  updateAudio();
+
+  // Check for any new serial commands were received from the Neutrona Wand.
+  checkWand();
+
+  // Check if the wand is considered to have been disconnected.
+  wandDisconnectCheck();
+
+  // Check if serial1 device is present.
+  serial1HandShake();
+
+  // Check if any new serial commands were received.
+  checkSerial1();
+
+  // Handle any actions after POST event.
+  postProcess();
 
   // Update the LEDs
   if(ms_fast_led.justFinished()) {
