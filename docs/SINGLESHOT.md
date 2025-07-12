@@ -20,6 +20,7 @@ The following list of parts will allow you to assemble the electronics and inter
 |-----|------|-----|------|
 |  1  | GPStar Neutrona Wand PCB | Main device controller | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-neutrona-wand) |
 |  1  | GPStar Audio Controller | Sound driver with amplifier | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-audio) |
+|  1  | GPStar Neutrona Wand Bargraph | 28-segment bargraph | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-neutrona-wand-bargraph) |
 |  2  | GPStar 7-LED Jewel | RGB lighting for barrel and cyclotron | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-jewel) |
 |  1  | GPStar Power Boost USB-C | For battery<sup>1</sup> power + charging | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-power-boost-usb-c) |
 |  1  | 4Ohm 40mm 3W Speaker | Primary speaker (under heatsink) | [https://a.co/d/bNin47P](https://a.co/d/bNin47P) |

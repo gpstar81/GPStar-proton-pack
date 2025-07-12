@@ -22,7 +22,7 @@
 /*
  * Used to reflect the last build date for the binary.
  */
-String build_date = "V6_20250706100318";
+String build_date = "V6_20250712015719";
 
 /*
  * -------------****** CUSTOM USER CONFIGURABLE SETTINGS ******-------------
@@ -97,7 +97,7 @@ bool b_bargraph_invert = false;
 /*
  * Enables the optional addressable RGB vent/top light board.
  */
-bool b_rgb_vent_light = false;
+bool b_rgb_vent_light = true;
 
 /*
  * Enables special brightness controls during idle and firing modes if set to true.
@@ -156,7 +156,7 @@ bool b_overheat_enabled = true;
  * Set to true to have your Neutrona Wand boot up with errors when the top right switch (beep switch) is on while you are turning on your wand.
  * When set to false, this will be ignored.
  */
-bool b_wand_boot_errors = true;
+bool b_wand_boot_errors = false;
 
 /*
  * Set to true to have your bargraph blink on/off when the Neutrona Wand and Proton Pack overheat.

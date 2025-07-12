@@ -30,11 +30,6 @@
 // See: https://github.com/arkhipenko/TaskScheduler/wiki/API-Documentation
 #include <TaskScheduler.h>
 
-// Defines the microcontroller as part of a GPStar PCB
-#if defined(__AVR_ATmega2560__)
-  #define GPSTAR_NEUTRONA_DEVICE_PCB
-#endif
-
 // Set to 1 to enable built-in debug messages
 #define DEBUG 0
 
@@ -47,7 +42,7 @@
 #define debugln(x)
 #endif
 
-// PROGMEM macro
+// PROGMEM macros
 #define PROGMEM_READU32(x) pgm_read_dword_near(&(x))
 #define PROGMEM_READU16(x) pgm_read_word_near(&(x))
 #define PROGMEM_READU8(x) pgm_read_byte_near(&(x))
@@ -61,8 +56,8 @@
 #include <ht16k33.h>
 #include <Wire.h>
 #ifdef ESP32
-  #include <Adafruit_LIS3MDL.h>
-  #include <SparkFunLSM6DS3.h>
+#include <Adafruit_LIS3MDL.h>
+#include <SparkFunLSM6DS3.h>
 #endif
 
 // Local Files
@@ -74,9 +69,9 @@
 #include "Cyclotron.h"
 #include "Audio.h"
 #ifdef ESP32
-  #include "PreferencesESP.h"
+#include "PreferencesESP.h"
 #else
-  #include "PreferencesATMega.h"
+#include "PreferencesATMega.h"
 #endif
 #include "System.h"
 #include "Actions.h"
@@ -104,12 +99,14 @@ void setup() {
   setupAudioDevice();
 
   // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.
-  #ifdef ESP32
+#ifdef ESP32
     // Use of the register is not needed by ESP32, as it uses a different method for PWM.
-  #else
+    ledcAttachChannel(VIBRATION_PIN, 123, 8, 5); // Uses 123 Hz frequency, 8-bit resolution, channel 5.
+#else
     // For ATmega2560, we set the PWM frequency for pin 11 (TCCR5B) to 122.55 Hz.
     TCCR1B = (TCCR1B & B11111000) | B00000100;
-  #endif
+    pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
+#endif
 
   // System LEDs
   FastLED.addLeds<NEOPIXEL, SYSTEM_LED_PIN>(system_leds, CYCLOTRON_LED_COUNT + BARREL_LED_COUNT).setCorrection(TypicalLEDStrip);
@@ -139,15 +136,16 @@ void setup() {
   setupBargraph();
 
   // Initialize all non-addressable LEDs
+  led_Status.initialize();
   led_SloBlo.initialize();
   led_Clippard.initialize();
+#ifndef ESP32
   led_TopWhite.initialize();
   led_Vent.initialize();
+#endif
   led_Hat1.initialize();
   led_Hat2.initialize();
   led_Tip.initialize();
-
-  pinMode(vibration, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
 
   // Device status.
   DEVICE_STATUS = MODE_OFF;

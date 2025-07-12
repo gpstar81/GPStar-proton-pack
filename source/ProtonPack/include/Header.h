@@ -22,8 +22,29 @@
 /*
  * All input and output pin definitions go here.
  */
+#ifdef ESP32
+#define ROTARY_ENCODER_A 14
+#define ROTARY_ENCODER_B 13
+#define PACK_LED_PIN 5 // Data pin for the Power Cell and Outer Cyclotron addressable LEDs.
+#define CYCLOTRON_LED_PIN 4 // Data pin for the addressable LEDs within the Cyclotron cavity.
+#define TVG_LED_PIN 41 // Data pin for addressable LEDs used by TVG accessories.
+#define RIBBON_CABLE_SWITCH_PIN 9 // Switch to detect if the ribbon cable has been removed.
+#define PACK_STATUS_LED_PIN 8 // V1.5 GPStar Proton Pack onboard LED pin.
+#define YEAR_TOGGLE_PIN 18 // Switch to toggle between system year modes on the fly.
+#define VIBRATION_TOGGLE_PIN 17 // Master switch to turn all vibration features on or off.
+#define ION_ARM_SWITCH_PIN 7 // Switch underneath the Ion Arm.
+#define NFILTER_FAN_PIN 6 // Fan for the primary smoke machine.
+#define BOOSTER_TUBE_SMOKE_PIN 48 // Secondary smoke machine output, usually in the booster tube.
+#define BOOSTER_TUBE_FAN_PIN 46 // Fan for the secondary smoke machine.
+#define NFILTER_SMOKE_PIN 3 // Primary smoke machine output, usually in the N-Filter.
+#define CYCLOTRON_LID_SWITCH_PIN 38 // Pin used for Cyclotron lid detection capability.
+#define VIBRATION_PIN 45 // Pin for the vibration motor.
+#define NFILTER_LED_PIN 12 // (Optional) Use a white LED with a forward voltage of 3.0-3.2 and up to 20mA forward current.
+#else
 #define ROTARY_ENCODER_A 2
 #define ROTARY_ENCODER_B 3
+#define PACK_LED_PIN 53 // Data pin for the Power Cell and Outer Cyclotron addressable LEDs.
+#define CYCLOTRON_LED_PIN 13 // Data pin for the addressable LEDs within the Cyclotron cavity.
 #define CYCLOTRON_SWITCH_LED_R1_PIN 4 // Decorative red LED 1.
 #define CYCLOTRON_SWITCH_LED_R2_PIN 5 // Decorative red LED 2.
 #define CYCLOTRON_SWITCH_LED_Y1_PIN 6 // Decorative yellow LED 1.
@@ -32,28 +53,21 @@
 #define CYCLOTRON_SWITCH_LED_G2_PIN 9 // Decorative green LED 2.
 #define YEAR_TOGGLE_LED_PIN 10 // Year mode switch LED (Green).
 #define VIBRATION_TOGGLE_LED_PIN 11 // Vibration on/off switch LED (Yellow).
-#define CYCLOTRON_LED_PIN 13 // Data pin for the addressable LEDs within the Cyclotron cavity.
 #define RIBBON_CABLE_SWITCH_PIN 23 // Switch to detect if the ribbon cable has been removed.
 #define PACK_STATUS_LED_PIN 24 // V1.5 GPStar Proton Pack onboard LED pin.
 #define YEAR_TOGGLE_PIN 25 // Switch to toggle between system year modes on the fly.
 #define VIBRATION_TOGGLE_PIN 27 // Master switch to turn all vibration features on or off.
 #define CYCLOTRON_DIRECTION_TOGGLE_PIN 29 // Switch to change the Cyclotron rotation direction.
+#define SMOKE_TOGGLE_PIN 37 // Switch to toggle smoke features on or off.
 #define ION_ARM_SWITCH_PIN 31 // Switch underneath the Ion Arm.
 #define NFILTER_FAN_PIN 33 // Fan for the primary smoke machine.
 #define BOOSTER_TUBE_SMOKE_PIN 35 // Secondary smoke machine output, usually in the booster tube.
-#define SMOKE_TOGGLE_PIN 37 // Switch to toggle smoke features on or off.
 #define BOOSTER_TUBE_FAN_PIN 38 // Fan for the secondary smoke machine.
 #define NFILTER_SMOKE_PIN 39 // Primary smoke machine output, usually in the N-Filter.
 #define CYCLOTRON_LID_SWITCH_PIN 43 // Pin used for Cyclotron lid detection capability.
 #define CYCLOTRON_LID_SWITCH_PIN_DIY 51 // Legacy pin used for some DIY pack builds.
 #define VIBRATION_PIN 45 // Pin for the vibration motor.
 #define NFILTER_LED_PIN 46 // (Optional) Use a white LED with a forward voltage of 3.0-3.2 and up to 20mA forward current.
-
-// Data pin for the Power Cell and Outer Cyclotron addressable LEDs.
-#ifdef ESP32
-  #define PACK_LED_PIN 18
-#else
-  #define PACK_LED_PIN 53
 #endif
 
 /*
@@ -301,12 +315,14 @@ millisDelay ms_alarm;
 /*
  * Switches
  */
+ezButton switch_power(ION_ARM_SWITCH_PIN); // Red power switch under the Ion Arm.
 ezButton switch_alarm(RIBBON_CABLE_SWITCH_PIN); // Ribbon cable removal switch
 ezButton switch_mode(YEAR_TOGGLE_PIN); // 1984 / 2021 mode toggle switch
 ezButton switch_vibration(VIBRATION_TOGGLE_PIN); // Vibration toggle switch
+#ifndef ESP32
 ezButton switch_cyclotron_direction(CYCLOTRON_DIRECTION_TOGGLE_PIN); // Newly added switch for controlling the direction of the Cyclotron lights. Not required. Defaults to clockwise.
-ezButton switch_power(ION_ARM_SWITCH_PIN); // Red power switch under the Ion Arm.
 ezButton switch_smoke(SMOKE_TOGGLE_PIN); // Switch to enable smoke effects. Not required. Defaults to off/disabled.
+#endif
 
 /*
  * Vibration motor settings

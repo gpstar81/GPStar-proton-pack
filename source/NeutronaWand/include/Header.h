@@ -22,6 +22,30 @@
 /*
  * All input and output pin definitions go here.
  */
+#ifdef ESP32
+#define INTENSIFY_SWITCH_PIN 39
+#define ACTIVATE_SWITCH_PIN 40
+#define VENT_SWITCH_PIN 45
+#define ROTARY_ENCODER_A 4
+#define ROTARY_ENCODER_B 5
+#define SLO_BLO_LED_PIN 12 // SLO-BLO LED. (Red LED)
+#define CLIPPARD_LED_PIN 3 // LED underneath the Clippard valve. (Orange or White LED)
+#define BARREL_LED_PIN 41 // Data pin for the addressable LEDs in the barrel.
+#define VIBRATION_PIN 18 // Pin for the vibration motor.
+#define TOP_LED_PIN 42 // RGB Vent light.
+#define BARREL_HAT_LED_PIN 10 // Hat light at front of the wand near the barrel tip. (Orange LED)
+#define TOP_HAT_LED_PIN 9 // Hat light at top of the wand body near vent. (Orange or White LED)
+#define BARREL_TIP_LED_PIN 46 // White LED at tip of the wand barrel. (White LED)
+#define WAND_STATUS_LED_PIN 38 // V1.4 GPStar Neutrona Wand onboard LED pin.
+#define WAND_SWITCH_PIN 8
+#define MODE_SWITCH_PIN 11
+#define BARREL_SWITCH_PIN 13
+#define IR_LED_PIN 17
+#define GYRO_INT1_PIN 1
+#define GYRO_INT2_PIN 2
+#define MAG_INT_PIN 43
+#define MAG_RDY_PIN 44
+#else
 #define INTENSIFY_SWITCH_PIN 2
 #define ACTIVATE_SWITCH_PIN 3
 #define VENT_SWITCH_PIN 4
@@ -45,6 +69,7 @@
 #define BARGRAPH_LED_5_PIN A5
 #define MODE_SWITCH_PIN A6
 #define BARREL_SWITCH_PIN A7
+#endif
 
 /*
  * Wand state.
@@ -248,8 +273,10 @@ uint8_t wandSwitchedCount = 0;
  * Hasbro bargraph LEDs.
  */
 const uint8_t i_bargraph_segments_5_led = 5;
+#ifndef ESP32
 const uint8_t i_bargraph_5_led_invert[i_bargraph_segments_5_led] PROGMEM = {BARGRAPH_LED_5_PIN, BARGRAPH_LED_4_PIN, BARGRAPH_LED_3_PIN, BARGRAPH_LED_2_PIN, BARGRAPH_LED_1_PIN};
 const uint8_t i_bargraph_5_led_normal[i_bargraph_segments_5_led] PROGMEM = {BARGRAPH_LED_1_PIN, BARGRAPH_LED_2_PIN, BARGRAPH_LED_3_PIN, BARGRAPH_LED_4_PIN, BARGRAPH_LED_5_PIN};
+#endif
 
 /*
  * Afterlife/Frozen Empire wand idle ramp transition timers.
@@ -275,7 +302,9 @@ const uint16_t i_overheat_delay_max = 60000; // The maximum amount of time befor
  * You can enable or disable overheating for each power level individually in the user adjustable values at the top of this file.
  * This also contains the PWM duty cycle values for each power level in case vent light PWM control is enabled.
  */
+#ifndef ESP32
 const uint8_t ledLookupTable[256] PROGMEM = { 0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,7,7,7,8,8,8,9,9,9,10,10,11,11,11,12,12,13,13,14,14,15,15,16,16,17,17,18,18,19,19,20,20,21,21,22,23,23,24,24,25,26,26,27,28,28,29,30,30,31,32,32,33,34,35,35,36,37,38,38,39,40,41,42,42,43,44,45,46,47,47,48,49,50,51,52,53,54,55,56,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,73,74,75,76,77,78,79,80,81,82,84,85,86,87,88,89,91,92,93,94,95,97,98,99,100,102,103,104,105,107,108,109,111,112,113,115,116,117,119,120,121,123,124,126,127,128,130,131,133,134,136,137,139,140,142,143,145,146,148,149,151,152,154,155,157,158,160,162,163,165,166,168,170,171,173,175,176,178,180,181,183,185,186,188,190,192,193,195,197,199,200,202,204,206,207,209,211,213,215,217,218,220,222,224,226,228,230,232,233,235,237,239,241,243,245,247,249,251,253,255 };
+#endif
 const uint8_t i_power_level_max = 5;
 const uint8_t i_power_level_min = 1;
 const uint8_t i_vent_led_power_1 = 102;

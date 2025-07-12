@@ -32,7 +32,7 @@
 #define debugln(x)
 #endif
 
-// PROGMEM macro
+// PROGMEM macros
 #define PROGMEM_READU32(x) pgm_read_dword_near(&(x))
 #define PROGMEM_READU16(x) pgm_read_word_near(&(x))
 #define PROGMEM_READU8(x) pgm_read_byte_near(&(x))
@@ -66,12 +66,37 @@
 
 void setup() {
   // Setup i2c.
+#ifdef ESP32
+  // ESP32-S3 requires manually specifying SDA and SCL pins first.
+  Wire.setPins(40,39);
+#endif
   Wire.begin();
   Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
 
+#ifdef ESP32
+  #ifndef SERIAL1_RX_PIN
+    #define SERIAL1_RX_PIN 21
+  #endif
+  #ifndef SERIAL1_TX_PIN
+    #define SERIAL1_TX_PIN 14
+  #endif
+  #ifndef SERIAL2_RX_PIN
+    #define SERIAL2_RX_PIN 43
+  #endif
+  #ifndef SERIAL2_TX_PIN
+    #define SERIAL2_TX_PIN 44
+  #endif
+
+  HardwareSerial Serial1(1);
+  HardwareSerial Serial2(0);
+  USBSerial.begin(9600); // Standard serial (USB) console.
+  Serial1.begin(9600, SERIAL_8N1, SERIAL1_RX_PIN, SERIAL1_TX_PIN); // Add-on Serial1 communication.
+  Serial2.begin(9600, SERIAL_8N1, SERIAL2_RX_PIN, SERIAL2_TX_PIN); // Communication to the Neutrona Wand.
+#else
   Serial.begin(9600); // Standard serial (USB) console.
   Serial1.begin(9600); // Add-on Serial1 communication.
   Serial2.begin(9600); // Communication to the Neutrona Wand.
+#endif
 
   // Initialize an optional power meter on the i2c bus.
   if(b_use_power_meter) {
@@ -93,24 +118,26 @@ void setup() {
   pinModeFast(PACK_STATUS_LED_PIN, OUTPUT);
 
   // Configure the various switches on the pack.
+  switch_power.setDebounceTime(50);
   switch_alarm.setDebounceTime(50);
   switch_mode.setDebounceTime(50);
   switch_vibration.setDebounceTime(50);
-  switch_cyclotron_direction.setDebounceTime(50);
   switch_cyclotron_lid.setDebounceTime(50);
+#ifndef ESP32
+  switch_cyclotron_direction.setDebounceTime(50);
   switch_smoke.setDebounceTime(50);
+#endif
 
   // Change PWM frequency of pin 45 for the vibration motor, we do not want it high pitched.
   #ifdef ESP32
     // Use of the register is not needed by ESP32, as it uses a different method for PWM.
+    ledcAttachChannel(VIBRATION_PIN, 123, 8, 5); // Uses 123 Hz frequency, 8-bit resolution, channel 5.
   #else
     // For ATmega2560, we set the PWM frequency for pin 45 (TCCR5B) to 122.55 Hz.
     TCCR5B = (TCCR5B & B11111000) | B00000100;
+    pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
   #endif
   
-  // Vibration motor
-  pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
-
   // Smoke motor for the N-Filter.
   pinModeFast(NFILTER_SMOKE_PIN, OUTPUT);
 
@@ -133,6 +160,7 @@ void setup() {
   // Inner Cyclotron LEDs (Inner Panel + Cyclotron + Cavity).
   FastLED.addLeds<NEOPIXEL, CYCLOTRON_LED_PIN>(cyclotron_leds, INNER_CYCLOTRON_LED_PANEL_MAX + INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX).setCorrection(TypicalLEDStrip);
 
+#ifndef ESP32
   // Cyclotron Switch Panel LEDs
   pinModeFast(CYCLOTRON_SWITCH_LED_R1_PIN, OUTPUT);
   pinModeFast(CYCLOTRON_SWITCH_LED_R2_PIN, OUTPUT);
@@ -142,6 +170,7 @@ void setup() {
   pinModeFast(CYCLOTRON_SWITCH_LED_G2_PIN, OUTPUT);
   pinModeFast(YEAR_TOGGLE_LED_PIN, OUTPUT);
   pinModeFast(VIBRATION_TOGGLE_LED_PIN, OUTPUT);
+#endif
 
   // Default mode is Super Hero (for simpler controls).
   SYSTEM_MODE = MODE_SUPER_HERO;
@@ -178,7 +207,7 @@ void setup() {
   SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
   // Set a default for the cyclotron inner panel.
-  INNER_CYC_PANEL_MODE = PANEL_INDIVIDUAL;
+  INNER_CYC_PANEL_MODE = PANEL_RGB_DYNAMIC;
 
   // Load any saved settings stored in the EEPROM memory of the Proton Pack.
   if(b_eeprom) {

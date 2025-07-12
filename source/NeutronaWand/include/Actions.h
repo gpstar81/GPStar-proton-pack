@@ -219,7 +219,7 @@ void checkWandAction() {
         // Level 1 Intensify: Cycle through the different Neutrona Wand barrel LED counts.
         // Level 1 Barrel Wing Button: Adjust the Neutrona Wand barrel colour hue. <- Controlled by checkRotaryEncoder()
         // Level 2 Intensify: Toggle between 28-segment and 30-segment bargraph LEDs.
-        // Level 2 Barrel Wing Button: Enable/Disable the addressable RGB vent/top light board.
+        // Level 2 Barrel Wing Button: Enable/Disable the addressable RGB vent/top light board (non-ESP32 only).
         case 4:
           if(switch_intensify.pushed()) {
             switch(WAND_MENU_LEVEL) {
@@ -247,7 +247,7 @@ void checkWandAction() {
                   wandSerialSend(W_BARGRAPH_28_SEGMENTS);
                 }
 
-                if(BARGRAPH_TYPE != SEGMENTS_5) {
+                if(BARGRAPH_TYPE == SEGMENTS_28 || BARGRAPH_TYPE == SEGMENTS_30) {
                   // Only toggle between segment types if not on a stock Hasbro bargraph.
                   BARGRAPH_TYPE = BARGRAPH_TYPE_EEPROM;
                 }
@@ -338,6 +338,7 @@ void checkWandAction() {
           else if(switch_mode.pushed()) {
             switch(WAND_MENU_LEVEL) {
               case MENU_LEVEL_2:
+#ifndef ESP32
                 if(b_rgb_vent_light) {
                   // Disable the RGB vent light functionality.
                   b_rgb_vent_light = false;
@@ -360,6 +361,7 @@ void checkWandAction() {
 
                   wandSerialSend(W_RGB_VENT_ENABLED);
                 }
+#endif
               break;
 
               case MENU_LEVEL_1:

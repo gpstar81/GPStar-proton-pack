@@ -14,11 +14,11 @@ mkdir -p ${BINDIR}/gizmo/extras
 MJVER="${MJVER:="V6"}"
 TIMESTAMP="${TIMESTAMP:=$(date +"%Y%m%d%H%M%S")}"
 
-echo ""
-
 # Update date of compilation
 echo "Setting Build Timestamp: ${MJVER}_${TIMESTAMP}"
 sed -i -e 's/\(String build_date = "\)[^"]*\(";\)/\1'"${MJVER}_${TIMESTAMP}"'\2/' ${PROJECT_DIR}/include/Configuration.h
+
+echo ""
 
 # BeltGizmo (ESP32 - Normal)
 echo "Building BeltGizmo Binary (ESP32)..."
@@ -27,10 +27,17 @@ echo "Building BeltGizmo Binary (ESP32)..."
 pio run --project-dir "$PROJECT_DIR" --target clean
 
 # Compile the PlatformIO project
-pio run --project-dir "$PROJECT_DIR" | grep -iv Retrieved
+pio run --project-dir "$PROJECT_DIR"
 
-rm -f ${PROJECT_DIR}/include/*.h-e
+# Check if the build was successful
+if [ $? -eq 0 ]; then
+  echo "Build succeeded!"
+else
+  echo "Build failed!"
+  exit 1
+fi
 
+# Copy the new firmware to the expected binaries directory
 if [ -f ${PROJECT_DIR}/.pio/build/esp32s3mini/firmware.bin ]; then
   mv ${PROJECT_DIR}/.pio/build/esp32s3mini/firmware.bin ${BINDIR}/gizmo/BeltGizmo-ESP32.bin
 fi
@@ -42,3 +49,5 @@ if [ -f ${PROJECT_DIR}/.pio/build/esp32s3mini/partitions.bin ]; then
 fi
 echo "Done."
 echo ""
+
+rm -f ${PROJECT_DIR}/include/*.h-e

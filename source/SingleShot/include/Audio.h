@@ -40,10 +40,10 @@ gpstarAudio audio;
 #ifdef ESP32
   #include <HardwareSerial.h> // Provided by the ESP32 Arduino core
   #ifndef SERIAL3_RX_PIN
-    #define SERIAL3_RX_PIN 16  // Example RX pin, change as needed
+    #define SERIAL3_RX_PIN 6  // Example RX pin, change as needed
   #endif
   #ifndef SERIAL3_TX_PIN
-    #define SERIAL3_TX_PIN 17  // Example TX pin, change as needed
+    #define SERIAL3_TX_PIN 7  // Example TX pin, change as needed
   #endif
   // Create a HardwareSerial instance for UART2 (Serial3)
   HardwareSerial Serial3(2);
@@ -776,7 +776,11 @@ void toggleMusicLoop() {
 bool setupAudioDevice() {
   char gVersion[VERSION_STRING_LEN];
 
+#ifdef ESP32
+  Serial3.begin(57600, SERIAL_8N1, SERIAL3_RX_PIN, SERIAL3_TX_PIN);
+#else
   Serial3.begin(57600);
+#endif
 
   audio.start(Serial3);
 

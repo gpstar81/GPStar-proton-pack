@@ -742,13 +742,17 @@ void checkSerial1() {
           i_cyclotron_panel_brightness = packConfig.ledCycPanLum;
           switch(packConfig.ledCycInnerPanel) {
             case 1:
-            default:
+#ifdef ESP32
+              INNER_CYC_PANEL_MODE = PANEL_RGB_DYNAMIC;
+#else
               INNER_CYC_PANEL_MODE = PANEL_INDIVIDUAL;
+#endif
             break;
             case 2:
               INNER_CYC_PANEL_MODE = PANEL_RGB_STATIC;
             break;
             case 3:
+            default:
               INNER_CYC_PANEL_MODE = PANEL_RGB_DYNAMIC;
             break;
           }
@@ -2298,6 +2302,16 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           packSerialSend(P_INNER_CYCLOTRON_PANEL_DYNAMIC);
         break;
         case PANEL_RGB_DYNAMIC:
+#ifdef ESP32
+          INNER_CYC_PANEL_MODE = PANEL_RGB_STATIC;
+
+          stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_STATIC_COLORS);
+          stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DYNAMIC_COLORS);
+          stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
+          playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_STATIC_COLORS);
+
+          packSerialSend(P_INNER_CYCLOTRON_PANEL_STATIC);
+#else
           INNER_CYC_PANEL_MODE = PANEL_INDIVIDUAL;
 
           stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_STATIC_COLORS);
@@ -2306,6 +2320,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
 
           packSerialSend(P_INNER_CYCLOTRON_PANEL_DISABLED);
+#endif
         break;
       }
 

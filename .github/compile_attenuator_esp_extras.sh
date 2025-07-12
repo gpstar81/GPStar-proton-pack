@@ -14,11 +14,11 @@ mkdir -p ${BINDIR}/attenuator/extras
 MJVER="${MJVER:="V6"}"
 TIMESTAMP="${TIMESTAMP:=$(date +"%Y%m%d%H%M%S")}"
 
-echo ""
-
 # Update date of compilation
 echo "Setting Build Timestamp: ${MJVER}_${TIMESTAMP}"
 sed -i -e 's/\(String build_date = "\)[^"]*\(";\)/\1'"${MJVER}_${TIMESTAMP}"'\2/' ${PROJECT_DIR}/include/Configuration.h
+
+echo ""
 
 # Attenuator (ESP32 - Standalone)
 echo "Building Attenuator Binary (ESP32 - Standalone)..."
@@ -30,13 +30,20 @@ sed -i -e 's/b_wait_for_pack = true/b_wait_for_pack = false/' ${PROJECT_DIR}/inc
 pio run --project-dir "$PROJECT_DIR" --target clean
 
 # Compile the PlatformIO project
-pio run --project-dir "$PROJECT_DIR" | grep -iv Retrieved
+pio run --project-dir "$PROJECT_DIR"
 
 # Restore flag(s) from compilation
 sed -i -e 's/b_wait_for_pack = false/b_wait_for_pack = true/' ${PROJECT_DIR}/include/Configuration.h
 
-rm -f ${PROJECT_DIR}/include/*.h-e
+# Check if the build was successful
+if [ $? -eq 0 ]; then
+  echo "Build succeeded!"
+else
+  echo "Build failed!"
+  exit 1
+fi
 
+# Copy the new firmware to the expected binaries directory
 if [ -f ${PROJECT_DIR}/.pio/build/esp32dev/firmware.bin ]; then
   mv ${PROJECT_DIR}/.pio/build/esp32dev/firmware.bin ${BINDIR}/attenuator/Attenuator-ESP32-Standalone.bin
 fi
@@ -55,17 +62,26 @@ sed -i -e 's/\/\/\#define RESET_AP_SETTINGS/\#define RESET_AP_SETTINGS/' ${PROJE
 pio run --project-dir "$PROJECT_DIR" --target clean
 
 # Compile the PlatformIO project
-pio run --project-dir "$PROJECT_DIR" | grep -iv Retrieved
+pio run --project-dir "$PROJECT_DIR"
 
 # Restore flag(s) from compilation
 sed -i -e 's/\#define DEBUG_WIRELESS_SETUP/\/\/\#define DEBUG_WIRELESS_SETUP/' ${PROJECT_DIR}/include/Configuration.h
 sed -i -e 's/\#define DEBUG_SEND_TO_CONSOLE/\/\/\#define DEBUG_SEND_TO_CONSOLE/' ${PROJECT_DIR}/include/Configuration.h
 sed -i -e 's/\#define RESET_AP_SETTINGS/\/\/\#define RESET_AP_SETTINGS/' ${PROJECT_DIR}/include/Configuration.h
 
-rm -f ${PROJECT_DIR}/include/*.h-e
+# Check if the build was successful
+if [ $? -eq 0 ]; then
+  echo "Build succeeded!"
+else
+  echo "Build failed!"
+  exit 1
+fi
 
+# Copy the new firmware to the expected binaries directory
 if [ -f ${PROJECT_DIR}/.pio/build/esp32dev/firmware.bin ]; then
   mv ${PROJECT_DIR}/.pio/build/esp32dev/firmware.bin ${BINDIR}/attenuator/extras/Attenuator-ESP32-Reset.bin
 fi
 echo "Done."
 echo ""
+
+rm -f ${PROJECT_DIR}/include/*.h-e

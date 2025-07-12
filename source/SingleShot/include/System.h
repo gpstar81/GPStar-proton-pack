@@ -30,6 +30,7 @@ void allLightsOff() {
   bargraph.off();
 
   // Turn off all non-addressable LEDs.
+  led_Status.turnOff(); // Turn off the Neutrona Wand board status LED.
   led_Clippard.turnOff(); // Turn off the front left LED under the Clippard valve.
   led_Hat1.turnOff(); // Turn off hat light 1 (not used, but just make sure).
   led_Hat2.turnOff(); // Turn off hat light 2.
@@ -75,7 +76,7 @@ void barrelLightsOff() {
 void vibrationOff() {
   ms_menu_vibration.stop();
   i_vibration_level_current = 0;
-  analogWrite(vibration, i_vibration_level_current);
+  analogWrite(VIBRATION_PIN, i_vibration_level_current);
 }
 
 void checkMenuVibration() {
@@ -85,7 +86,7 @@ void checkMenuVibration() {
   else if(ms_menu_vibration.isRunning()) {
     if(i_vibration_level_current != i_vibration_level_min) {
       i_vibration_level_current = i_vibration_level_min;
-      analogWrite(vibration, i_vibration_level_current);
+      analogWrite(VIBRATION_PIN, i_vibration_level_current);
     }
   }
 }
@@ -158,6 +159,7 @@ void systemPOST() {
   bargraph.commit();
 
   // These go HIGH to turn on.
+  led_Status.turnOn();
   led_SloBlo.turnOn();
   delay(i_delay);
   led_Clippard.turnOn();
@@ -175,11 +177,13 @@ void systemPOST() {
     delay(i_delay);
   }
   else {
+#ifndef ESP32
     // These go LOW to turn on.
     led_Vent.turnOn();
     delay(i_delay);
     led_TopWhite.turnOn();
     delay(i_delay);
+#endif
   }
 
   // Optional barrel tip (could be alternate for the GPStar jewel)
@@ -697,8 +701,10 @@ void modeFiring() {
 void ventTopLightControl(bool b_on) {
   if(!b_on) {
     if(!b_rgb_vent_light) {
+#ifndef ESP32
       // Turn off top light.
       led_TopWhite.turnOff();
+#endif
     }
 
     // Turn off if not off already.
@@ -709,8 +715,10 @@ void ventTopLightControl(bool b_on) {
   }
   else {
     if(!b_rgb_vent_light) {
+#ifndef ESP32
       // Turn on top light.
       led_TopWhite.turnOn();
+#endif
     }
 
     // Turn on if not on already.
@@ -724,9 +732,11 @@ void ventTopLightControl(bool b_on) {
 void ventLightControl(uint8_t i_intensity) {
   if(b_rgb_vent_light) {
     // Put in a check just to be sure the non-addressable pin stays off.
+#ifndef ESP32
     if(led_Vent.getState() != HIGH) {
       led_Vent.turnOff();
     }
+#endif
 
     if(i_intensity < 20) {
       vent_leds[0] = getHueAsRGB(C_BLACK);
@@ -738,12 +748,14 @@ void ventLightControl(uint8_t i_intensity) {
     b_vent_lights_changed = true;
   }
   else {
+#ifndef ESP32
     if(i_intensity < 1) {
       led_Vent.turnOff();
     }
     else {
       led_Vent.dim(255 - PROGMEM_READU8(ledLookupTable[i_intensity]));
     }
+#endif
   }
 }
 
@@ -997,7 +1009,7 @@ void vibrationDevice(uint8_t i_level) {
       if(ms_semi_automatic_firing.isRunning()) {
         if(i_vibration_level_current != (i_level * 2 < 64 ? i_level * 2 : 64)) {
           i_vibration_level_current = (i_level * 2 < 64 ? i_level * 2 : 64);
-          analogWrite(vibration, i_vibration_level_current);
+          analogWrite(VIBRATION_PIN, i_vibration_level_current);
         }
       }
       else {
@@ -1009,12 +1021,12 @@ void vibrationDevice(uint8_t i_level) {
       if(ms_semi_automatic_firing.isRunning()) {
         if(i_vibration_level_current != (i_level * 2 < 64 ? i_level * 2 : 64)) {
           i_vibration_level_current = (i_level * 2 < 64 ? i_level * 2 : 64);
-          analogWrite(vibration, i_vibration_level_current);
+          analogWrite(VIBRATION_PIN, i_vibration_level_current);
         }
       }
       else if(i_vibration_level_current != i_level) {
         i_vibration_level_current = i_level;
-        analogWrite(vibration, i_level);
+        analogWrite(VIBRATION_PIN, i_level);
       }
     }
   }

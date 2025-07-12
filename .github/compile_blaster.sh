@@ -27,7 +27,7 @@ echo "Building Single-Shot Blaster Binary [ATMega]..."
 pio run -e atmega2560 --project-dir "$PROJECT_DIR" --target clean
 
 # Compile the PlatformIO project
-pio run -e atmega2560 --project-dir "$PROJECT_DIR" | grep -iv Retrieved
+pio run -e atmega2560 --project-dir "$PROJECT_DIR"
 
 # Check if the build was successful
 if [ $? -eq 0 ]; then
@@ -50,8 +50,17 @@ echo "Building Single-Shot Blaster Binary [ESP32]..."
 pio run -e esp32s3 --project-dir "$PROJECT_DIR" --target clean
 
 # Compile the PlatformIO project
-pio run -e esp32s3 --project-dir "$PROJECT_DIR" | grep -iv Retrieved
+pio run -e esp32s3 --project-dir "$PROJECT_DIR"
 
+# Check if the build was successful
+if [ $? -eq 0 ]; then
+  echo "Build succeeded!"
+else
+  echo "Build failed!"
+  exit 1
+fi
+
+# Copy the new firmware to the expected binaries directory
 if [ -f ${PROJECT_DIR}/.pio/build/esp32s3/firmware.bin ]; then
   mv ${PROJECT_DIR}/.pio/build/esp32s3/firmware.bin ${BINDIR}/blaster/SingleShot-ESP32.bin
 fi

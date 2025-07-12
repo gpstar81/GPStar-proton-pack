@@ -27,7 +27,7 @@ echo "Building Neutrona Wand Binary [ATMega]..."
 pio run -e atmega2560 --project-dir "$PROJECT_DIR" --target clean
 
 # Compile the PlatformIO project
-pio run -e atmega2560 --project-dir "$PROJECT_DIR" | grep -iv Retrieved
+pio run -e atmega2560 --project-dir "$PROJECT_DIR"
 
 # Check if the build was successful
 if [ $? -eq 0 ]; then
@@ -50,8 +50,17 @@ echo "Building Neutrona Wand Binary [ESP32]..."
 pio run -e esp32s3 --project-dir "$PROJECT_DIR" --target clean
 
 # Compile the PlatformIO project
-pio run -e esp32s3 --project-dir "$PROJECT_DIR" | grep -iv Retrieved
+pio run -e esp32s3 --project-dir "$PROJECT_DIR"
 
+# Check if the build was successful
+if [ $? -eq 0 ]; then
+  echo "Build succeeded!"
+else
+  echo "Build failed!"
+  exit 1
+fi
+
+# Copy the new firmware to the expected binaries directory
 if [ -f ${PROJECT_DIR}/.pio/build/esp32s3/firmware.bin ]; then
   mv ${PROJECT_DIR}/.pio/build/esp32s3/firmware.bin ${BINDIR}/wand/NeutronaWand-ESP32.bin
 fi
@@ -75,10 +84,21 @@ sed -i -e 's/b_gpstar_benchtest = true/\/\/b_gpstar_benchtest = true/' ${PROJECT
 pio run -e atmega2560 --project-dir "$PROJECT_DIR" --target clean
 
 # Compile the PlatformIO project
-pio run -e atmega2560 --project-dir "$PROJECT_DIR" | grep -iv Retrieved
+pio run -e atmega2560 --project-dir "$PROJECT_DIR"
 
-rm -f ${PROJECT_DIR}/include/*.h-e
+# Check if the build was successful
+if [ $? -eq 0 ]; then
+  echo "Build succeeded!"
+else
+  # Restore flag(s) from compilation
+  sed -i -e 's/const bool b_gpstar_benchtest = true/bool b_gpstar_benchtest = false/' ${PROJECT_DIR}/include/Configuration.h
+  sed -i -e 's/\/\/b_gpstar_benchtest = true/b_gpstar_benchtest = true/' ${PROJECT_DIR}/include/Serial.h
 
+  echo "Build failed!"
+  exit 1
+fi
+
+# Copy the new firmware to the expected binaries directory
 if [ -f ${PROJECT_DIR}/.pio/build/atmega2560/firmware.hex ]; then
   mv ${PROJECT_DIR}/.pio/build/atmega2560/firmware.hex ${BINDIR}/wand/extras/NeutronaWand-BenchTest.hex
 fi
@@ -91,18 +111,25 @@ echo "Building Neutrona Wand (Bench Test) Binary [ESP32]..."
 pio run -e esp32s3 --project-dir "$PROJECT_DIR" --target clean
 
 # Compile the PlatformIO project
-pio run -e esp32s3 --project-dir "$PROJECT_DIR" | grep -iv Retrieved
+pio run -e esp32s3 --project-dir "$PROJECT_DIR"
 
-rm -f ${PROJECT_DIR}/include/*.h-e
+# Restore flag(s) from compilation
+sed -i -e 's/const bool b_gpstar_benchtest = true/bool b_gpstar_benchtest = false/' ${PROJECT_DIR}/include/Configuration.h
+sed -i -e 's/\/\/b_gpstar_benchtest = true/b_gpstar_benchtest = true/' ${PROJECT_DIR}/include/Serial.h
 
+# Check if the build was successful
+if [ $? -eq 0 ]; then
+  echo "Build succeeded!"
+else
+  echo "Build failed!"
+  exit 1
+fi
+
+# Copy the new firmware to the expected binaries directory
 if [ -f ${PROJECT_DIR}/.pio/build/esp32s3/firmware.bin ]; then
   mv ${PROJECT_DIR}/.pio/build/esp32s3/firmware.bin ${BINDIR}/wand/extras/NeutronaWand-BenchTest-ESP32.bin
 fi
 echo "Done."
 echo ""
-
-# Restore flag(s) from compilation
-sed -i -e 's/const bool b_gpstar_benchtest = true/bool b_gpstar_benchtest = false/' ${PROJECT_DIR}/include/Configuration.h
-sed -i -e 's/\/\/b_gpstar_benchtest = true/b_gpstar_benchtest = true/' ${PROJECT_DIR}/include/Serial.h
 
 rm -f ${PROJECT_DIR}/include/*.h-e

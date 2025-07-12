@@ -575,7 +575,7 @@ void checkPack() {
             break;
           }
 
-          if(BARGRAPH_TYPE != SEGMENTS_5) {
+          if(BARGRAPH_TYPE == SEGMENTS_28 || BARGRAPH_TYPE == SEGMENTS_30) {
             // Only change bargraph types if we are not using the stock Hasbro bargraph.
             BARGRAPH_TYPE = BARGRAPH_TYPE_EEPROM;
           }

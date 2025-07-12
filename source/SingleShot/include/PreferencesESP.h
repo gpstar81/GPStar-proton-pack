@@ -35,9 +35,11 @@
  * Function prototypes.
  */
 void readEEPROM();
-void clearConfigEEPROM();
 void saveConfigEEPROM();
-void updateCRCEEPROM();
+void loadConfigEEPROM();
+void clearConfigEEPROM();
+void updateCRCEEPROM(uint32_t);
+uint32_t getCRCEEPROM(void);
 uint32_t eepromCRC(void);
 void resetOverheatLevels();
 void resetWhiteLEDBlinkRate();
@@ -49,7 +51,6 @@ void resetWhiteLEDBlinkRate();
 struct objConfigEEPROM {
   uint8_t deviceBootErrors;
   uint8_t ventLightAutoIntensity;
-  uint8_t rgbVentLight;
   uint8_t invertBargraph;
   uint8_t defaultSystemVolume;
   uint8_t deviceVibration;
@@ -57,27 +58,41 @@ struct objConfigEEPROM {
 
 // Save configuration preferences to NVS (ESP32)
 void saveConfigEEPROM() {
+  // Convert the current EEPROM volume value into a percentage.
+  uint8_t eepromVolumeMasterPercentage = 100 * (MINIMUM_VOLUME - i_volume_master_eeprom) / MINIMUM_VOLUME;
+
+  // 1 = false, 2 = true.
+  gObjConfigEEPROM.deviceBootErrors = b_device_boot_errors ? 2 : 1;
+  gObjConfigEEPROM.ventLightAutoIntensity = b_vent_light_control ? 2 : 1;
+  gObjConfigEEPROM.invertBargraph = b_bargraph_invert ? 2 : 1;
+  gObjConfigEEPROM.defaultSystemVolume = (eepromVolumeMasterPercentage <= 100) ? (eepromVolumeMasterPercentage + 1) : 101;
+
+  switch (VIBRATION_MODE_EEPROM) {
+    case VIBRATION_ALWAYS:
+    default:
+      gObjConfigEEPROM.deviceVibration = 1;
+    break;
+    case VIBRATION_FIRING_ONLY:
+      gObjConfigEEPROM.deviceVibration = 2;
+    break;
+    case VIBRATION_NONE:
+      gObjConfigEEPROM.deviceVibration = 3;
+    break;
+  }
+
   Preferences prefs;
   prefs.begin("config", false);
-  prefs.putUChar("deviceBootErrors", gObjConfigEEPROM.deviceBootErrors);
-  prefs.putUChar("ventLightAutoIntensity", gObjConfigEEPROM.ventLightAutoIntensity);
-  prefs.putUChar("rgbVentLight", gObjConfigEEPROM.rgbVentLight);
-  prefs.putUChar("invertBargraph", gObjConfigEEPROM.invertBargraph);
-  prefs.putUChar("defaultSystemVolume", gObjConfigEEPROM.defaultSystemVolume);
-  prefs.putUChar("deviceVibration", gObjConfigEEPROM.deviceVibration);
+  prefs.putBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
   prefs.end();
+
+  updateCRCEEPROM(eepromCRC());
 }
 
 // Load configuration preferences from NVS (ESP32)
 void loadConfigEEPROM() {
   Preferences prefs;
   prefs.begin("config", true);
-  gObjConfigEEPROM.deviceBootErrors = prefs.getUChar("deviceBootErrors", 2);
-  gObjConfigEEPROM.ventLightAutoIntensity = prefs.getUChar("ventLightAutoIntensity", 2);
-  gObjConfigEEPROM.rgbVentLight = prefs.getUChar("rgbVentLight", 1);
-  gObjConfigEEPROM.invertBargraph = prefs.getUChar("invertBargraph", 1);
-  gObjConfigEEPROM.defaultSystemVolume = prefs.getUChar("defaultSystemVolume", 101);
-  gObjConfigEEPROM.deviceVibration = prefs.getUChar("deviceVibration", 4);
+  prefs.getBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
   prefs.end();
 }
 
@@ -87,6 +102,8 @@ void clearConfigEEPROM() {
   prefs.begin("config", false);
   prefs.clear();
   prefs.end();
+
+  updateCRCEEPROM(eepromCRC());
 }
 
 // CRC helpers for Preferences (ESP32)
@@ -100,7 +117,7 @@ void updateCRCEEPROM(uint32_t crc) {
 uint32_t getCRCEEPROM() {
   Preferences prefs;
   prefs.begin("crc", true);
-  uint32_t crc = prefs.getUInt("crc", 0);
+  uint32_t crc = prefs.getUInt("crc");
   prefs.end();
   return crc;
 }
@@ -118,12 +135,9 @@ void readEEPROM() {
   uint32_t storedCrc = getCRCEEPROM();
   uint32_t calcCrc = eepromCRC();
   if (storedCrc == calcCrc) {
-    loadConfigEEPROM();
-
     // Map loaded config to runtime variables
     b_device_boot_errors = (gObjConfigEEPROM.deviceBootErrors > 1);
     b_vent_light_control = (gObjConfigEEPROM.ventLightAutoIntensity > 1);
-    b_rgb_vent_light = (gObjConfigEEPROM.rgbVentLight > 1);
     b_bargraph_invert = (gObjConfigEEPROM.invertBargraph > 1);
 
     if (gObjConfigEEPROM.defaultSystemVolume > 0 && gObjConfigEEPROM.defaultSystemVolume < 102) {
@@ -151,33 +165,4 @@ void readEEPROM() {
     playEffect(S_VOICE_EEPROM_LOADING_FAILED_RESET);
     clearConfigEEPROM();
   }
-}
-
-// Save current runtime variables to Preferences (ESP32)
-void saveCurrentEEPROM() {
-  // Convert the current EEPROM volume value into a percentage.
-  uint8_t eepromVolumeMasterPercentage = 100 * (MINIMUM_VOLUME - i_volume_master_eeprom) / MINIMUM_VOLUME;
-
-  // 1 = false, 2 = true.
-  gObjConfigEEPROM.deviceBootErrors = b_device_boot_errors ? 2 : 1;
-  gObjConfigEEPROM.ventLightAutoIntensity = b_vent_light_control ? 2 : 1;
-  gObjConfigEEPROM.rgbVentLight = b_rgb_vent_light ? 2 : 1;
-  gObjConfigEEPROM.invertBargraph = b_bargraph_invert ? 2 : 1;
-  gObjConfigEEPROM.defaultSystemVolume = (eepromVolumeMasterPercentage <= 100) ? (eepromVolumeMasterPercentage + 1) : 101;
-
-  switch (VIBRATION_MODE_EEPROM) {
-    case VIBRATION_ALWAYS:
-    default:
-      gObjConfigEEPROM.deviceVibration = 1;
-      break;
-    case VIBRATION_FIRING_ONLY:
-      gObjConfigEEPROM.deviceVibration = 2;
-      break;
-    case VIBRATION_NONE:
-      gObjConfigEEPROM.deviceVibration = 3;
-      break;
-  }
-
-  saveConfigEEPROM();
-  updateCRCEEPROM(eepromCRC());
 }

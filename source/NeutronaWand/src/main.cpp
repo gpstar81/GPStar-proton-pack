@@ -28,10 +28,6 @@
 // Required for PlatformIO
 #include <Arduino.h>
 
-#if defined(__AVR_ATmega2560__)
-  #define GPSTAR_NEUTRONA_WAND_PCB
-#endif
-
 // Set to 1 to enable built-in debug messages
 #define DEBUG 0
 
@@ -44,7 +40,7 @@
 #define debugln(x)
 #endif
 
-// PROGMEM macro
+// PROGMEM macros
 #define PROGMEM_READU32(x) pgm_read_dword_near(&(x))
 #define PROGMEM_READU16(x) pgm_read_word_near(&(x))
 #define PROGMEM_READU8(x) pgm_read_byte_near(&(x))
@@ -81,9 +77,21 @@
 #include "Serial.h"
 
 void setup() {
-  Serial.begin(9600); // Standard serial (USB) console.
+#ifdef ESP32
+  #ifndef SERIAL1_RX_PIN
+    #define SERIAL1_RX_PIN 21
+  #endif
+  #ifndef SERIAL1_TX_PIN
+    #define SERIAL1_TX_PIN 14
+  #endif
 
+  USBSerial.begin(9600); // Standard serial (USB) console.
+  HardwareSerial Serial1(1);
+  Serial1.begin(9600, SERIAL_8N1, SERIAL1_RX_PIN, SERIAL1_TX_PIN); // Communication to the Proton Pack.
+#else
+  Serial.begin(9600); // Standard serial (USB) console.
   Serial1.begin(9600); // Communication to the Proton Pack.
+#endif
   wandComs.begin(Serial1, false);
 
   // Setup the audio device for this controller.
@@ -92,9 +100,11 @@ void setup() {
   // Change PWM frequency of pin 11 for the vibration motor, we do not want it high pitched.
   #ifdef ESP32
     // Use of the register is not needed by ESP32, as it uses a different method for PWM.
+    ledcAttachChannel(VIBRATION_PIN, 123, 8, 5); // Uses 123 Hz frequency, 8-bit resolution, channel 5.
   #else
     // For ATmega2560, we set the PWM frequency for pin 11 (TCCR5B) to 122.55 Hz.
     TCCR1B = (TCCR1B & B11111000) | B00000100;
+    pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
   #endif
 
   // Barrel LEDs - NOTE: These are GRB not RGB so note that all CRGB objects will have R/G swapped.
@@ -128,6 +138,10 @@ void setup() {
   pinModeFast(ROTARY_ENCODER_A, INPUT_PULLUP);
   pinModeFast(ROTARY_ENCODER_B, INPUT_PULLUP);
 
+#ifdef ESP32
+  // ESP32-S3 requires manually specifying SDA and SCL pins first.
+  Wire.setPins(15,16);
+#endif
   Wire.begin();
   Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
 
@@ -149,6 +163,7 @@ void setup() {
     BARGRAPH_TYPE = SEGMENTS_28;
     ht_bargraph.begin(0x00);
   }
+#ifndef ESP32
   else {
     // Original 5 LED Hasbro bargraph.
     BARGRAPH_TYPE = SEGMENTS_5;
@@ -159,16 +174,17 @@ void setup() {
     pinModeFast(BARGRAPH_LED_4_PIN, OUTPUT);
     pinModeFast(BARGRAPH_LED_5_PIN, OUTPUT);
   }
+#endif
 
   pinModeFast(SLO_BLO_LED_PIN, OUTPUT); // SLO-BLO LED under the toggle switches.
   pinModeFast(CLIPPARD_LED_PIN, OUTPUT); // Front left LED underneath the Clippard valve.
   pinModeFast(BARREL_HAT_LED_PIN, OUTPUT); // Hat light at front of the wand near the barrel tip.
   pinModeFast(TOP_HAT_LED_PIN, OUTPUT); // Hat light at top of the wand body (gun box).
   pinModeFast(BARREL_TIP_LED_PIN, OUTPUT); // LED at the tip of the wand barrel.
-
+#ifndef ESP32
   pinMode(VENT_LED_PIN, OUTPUT); // Vent light could be either Digital or PWM based on user setting, so use default functions.
   pinMode(TOP_LED_PIN, OUTPUT); // Blinking top light could be either addressable or non-addressable based on user setting, so use default functions.
-  pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
+#endif
 
   // Status indicator LED on the v1.4 GPStar Neutrona Wand Board.
   pinModeFast(WAND_STATUS_LED_PIN, OUTPUT);

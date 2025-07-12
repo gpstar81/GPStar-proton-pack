@@ -76,7 +76,7 @@ void useVibration(uint16_t i_duration) {
   if(b_enable_vibration) {
     if(!b_vibrate_on) {
       // Ensures only vibration is started once per call to this method.
-      ledcWrite(VIBRATION_PIN, i_max_power);
+      analogWrite(VIBRATION_PIN, i_max_power);
 
       // Set timer for shorter of given duration or max runtime.
       ms_vibrate.start(min(i_duration, i_vibrate_max_time));
@@ -87,7 +87,7 @@ void useVibration(uint16_t i_duration) {
 
 void vibrateOff() {
   if(b_vibrate_on) {
-    ledcWrite(VIBRATION_PIN, i_min_power);
+    analogWrite(VIBRATION_PIN, i_min_power);
     ms_vibrate.stop();
     b_vibrate_on = false;
   }

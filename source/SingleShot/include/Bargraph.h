@@ -229,6 +229,10 @@ struct Bargraph {
 /***** Core Setup - Declared after helper functions *****/
 
 void setupBargraph() {
+#ifdef ESP32
+  // ESP32-S3 requires manually specifying SDA and SCL pins first.
+  Wire.setPins(15,16);
+#endif
   Wire.begin();
   Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
 

@@ -1251,6 +1251,7 @@ void innerCyclotronLEDPanelOff() {
 }
 
 void cyclotronSwitchLEDOff() {
+#ifndef ESP32
   digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, LOW);
   digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, LOW);
 
@@ -1264,7 +1265,7 @@ void cyclotronSwitchLEDOff() {
     digitalWriteFast(YEAR_TOGGLE_LED_PIN, LOW);
     digitalWriteFast(VIBRATION_TOGGLE_LED_PIN, LOW);
   }
-
+#endif
   i_cyclotron_sw_led = 0;
 
   innerCyclotronLEDPanelOff();
@@ -1413,8 +1414,9 @@ void cyclotronSwitchPlateLEDs() {
     // Change colors for year theme switch indicator.
     if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
       if(ms_cyclotron_switch_plate_leds.remaining() < i_cyclotron_switch_plate_leds_delay / 2) {
+#ifndef ESP32
         digitalWriteFast(YEAR_TOGGLE_LED_PIN, HIGH);
-
+#endif
         if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
           if(INNER_CYC_PANEL_MODE == PANEL_RGB_STATIC) {
             // Static LED will always light green.
@@ -1433,16 +1435,18 @@ void cyclotronSwitchPlateLEDs() {
         }
       }
       else {
+#ifndef ESP32
         digitalWriteFast(YEAR_TOGGLE_LED_PIN, LOW);
-
+#endif
         if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
           cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
         }
       }
     }
     else {
+#ifndef ESP32
       digitalWriteFast(YEAR_TOGGLE_LED_PIN, HIGH);
-
+#endif
       if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
         if(INNER_CYC_PANEL_MODE == PANEL_RGB_STATIC || SYSTEM_YEAR == SYSTEM_AFTERLIFE) {
           // If using static LEDs or in Afterlife, LED will light green.
@@ -1458,23 +1462,26 @@ void cyclotronSwitchPlateLEDs() {
     // Change colors for vibration switch indicator.
     if(b_vibration_switch_on) {
       if(ms_cyclotron_switch_plate_leds.remaining() < i_cyclotron_switch_plate_leds_delay / 2) {
+#ifndef ESP32
         digitalWriteFast(VIBRATION_TOGGLE_LED_PIN, HIGH);
-
+#endif
         if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
           cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_ORANGE, i_brightness);
         }
       }
       else {
+#ifndef ESP32
         digitalWriteFast(VIBRATION_TOGGLE_LED_PIN, LOW);
-
+#endif
         if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
           cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
         }
       }
     }
     else {
+#ifndef ESP32
       digitalWriteFast(VIBRATION_TOGGLE_LED_PIN, HIGH);
-
+#endif
       if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
         cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_ORANGE, i_brightness);
       }
@@ -1482,9 +1489,10 @@ void cyclotronSwitchPlateLEDs() {
   }
   else {
     // Keep the Cyclotron switch LEDs off when the lid is on.
+#ifndef ESP32
     digitalWriteFast(YEAR_TOGGLE_LED_PIN, LOW);
     digitalWriteFast(VIBRATION_TOGGLE_LED_PIN, LOW);
-
+#endif
     if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
       cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
       cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
@@ -1536,13 +1544,15 @@ void spectralLightsOn() {
 
 void checkSwitches() {
   // Perform loop() needed by ezButton.
-  switch_alarm.loop();
-  switch_cyclotron_lid.loop();
-  switch_cyclotron_direction.loop();
-  switch_mode.loop();
   switch_power.loop();
-  switch_smoke.loop();
+  switch_alarm.loop();
+  switch_mode.loop();
   switch_vibration.loop();
+  switch_cyclotron_lid.loop();
+#ifndef ESP32
+  switch_cyclotron_direction.loop();
+  switch_smoke.loop();
+#endif
 
   cyclotronSwitchPlateLEDs();
 
@@ -1629,6 +1639,7 @@ void checkSwitches() {
     }
   }
 
+#ifndef ESP32
   // Cyclotron direction toggle switch.
   if(switch_cyclotron_direction.isPressed() || switch_cyclotron_direction.isReleased()) {
     stopEffect(S_BEEPS);
@@ -1685,6 +1696,7 @@ void checkSwitches() {
       packSerialSend(P_SMOKE_ENABLED);
     }
   }
+#endif
 
   // Vibration toggle switch.
   if(switch_vibration.isPressed() || switch_vibration.isReleased()) {
@@ -1856,15 +1868,14 @@ void cyclotronSwitchLEDUpdate() {
 
     if(b_alarm) {
       if(i_cyclotron_sw_led > 0) {
+#ifndef ESP32
         digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, HIGH);
         digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, HIGH);
-
         digitalWriteFast(CYCLOTRON_SWITCH_LED_Y1_PIN, HIGH);
         digitalWriteFast(CYCLOTRON_SWITCH_LED_Y2_PIN, HIGH);
-
         digitalWriteFast(CYCLOTRON_SWITCH_LED_G1_PIN, HIGH);
         digitalWriteFast(CYCLOTRON_SWITCH_LED_G2_PIN, HIGH);
-
+#endif
         if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
           if(INNER_CYC_PANEL_MODE == PANEL_RGB_STATIC) {
             cyclotron_leds[0] = getHueAsRGB(CYCLOTRON_PANEL, C_RED, i_brightness);
@@ -1883,15 +1894,14 @@ void cyclotronSwitchLEDUpdate() {
         }
       }
       else {
+#ifndef ESP32
         digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, LOW);
         digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, LOW);
-
         digitalWriteFast(CYCLOTRON_SWITCH_LED_Y1_PIN, LOW);
         digitalWriteFast(CYCLOTRON_SWITCH_LED_Y2_PIN, LOW);
-
         digitalWriteFast(CYCLOTRON_SWITCH_LED_G1_PIN, LOW);
         digitalWriteFast(CYCLOTRON_SWITCH_LED_G2_PIN, LOW);
-
+#endif
         if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
           for(uint8_t i = i_ic_panel_start; i <= i_ic_panel_end - 2; i++) {
             cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
@@ -1902,15 +1912,14 @@ void cyclotronSwitchLEDUpdate() {
     else {
       switch(i_cyclotron_sw_led) {
         case 0: // All Off
+#ifndef ESP32
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, LOW);
-
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y1_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y2_PIN, LOW);
-
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G1_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G2_PIN, LOW);
-
+#endif
           if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
             // All but the switch LEDs are turned off
             for(uint8_t i = i_ic_panel_start; i <= i_ic_panel_end - 2; i++) {
@@ -1920,15 +1929,14 @@ void cyclotronSwitchLEDUpdate() {
         break;
 
         case 1: // Add Green/Bottom
+#ifndef ESP32
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, LOW);
-
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y1_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y2_PIN, LOW);
-
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G1_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G2_PIN, HIGH);
-
+#endif
           if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
             if(INNER_CYC_PANEL_MODE == PANEL_RGB_STATIC) {
               cyclotron_leds[4] = getHueAsRGB(CYCLOTRON_PANEL, C_GREEN, i_brightness);
@@ -1942,15 +1950,14 @@ void cyclotronSwitchLEDUpdate() {
         break;
 
         case 2: // Add Yellow/Middle
+#ifndef ESP32
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, LOW);
-
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y1_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y2_PIN, HIGH);
-
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G1_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G2_PIN, HIGH);
-
+#endif
           if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
             if(INNER_CYC_PANEL_MODE == PANEL_RGB_STATIC) {
               cyclotron_leds[2] = getHueAsRGB(CYCLOTRON_PANEL, C_ORANGE, i_brightness);
@@ -1964,15 +1971,14 @@ void cyclotronSwitchLEDUpdate() {
         break;
 
         case 3: // Add Red/Top
+#ifndef ESP32
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, HIGH);
-
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y1_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y2_PIN, HIGH);
-
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G1_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G2_PIN, HIGH);
-
+#endif
           if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
             if(INNER_CYC_PANEL_MODE == PANEL_RGB_STATIC) {
               cyclotron_leds[0] = getHueAsRGB(CYCLOTRON_PANEL, C_RED, i_brightness);
@@ -1986,15 +1992,14 @@ void cyclotronSwitchLEDUpdate() {
         break;
 
         case 4: // All Illuminated (Pause)
+#ifndef ESP32
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, HIGH);
-
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y1_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y2_PIN, HIGH);
-
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G1_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G2_PIN, HIGH);
-
+#endif
           if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
             if(INNER_CYC_PANEL_MODE == PANEL_RGB_STATIC) {
               cyclotron_leds[0] = getHueAsRGB(CYCLOTRON_PANEL, C_RED, i_brightness);
@@ -2013,15 +2018,14 @@ void cyclotronSwitchLEDUpdate() {
         break;
 
         case 5: // Remove Green/Bottom
+#ifndef ESP32
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, HIGH);
-
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y1_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y2_PIN, HIGH);
-
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G1_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G2_PIN, LOW);
-
+#endif
           if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
             cyclotron_leds[4] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
             cyclotron_leds[5] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
@@ -2029,15 +2033,14 @@ void cyclotronSwitchLEDUpdate() {
         break;
 
         case 6: // Remove Yellow/Middle
+#ifndef ESP32
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, HIGH);
-
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y1_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y2_PIN, LOW);
-
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G1_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G2_PIN, LOW);
-
+#endif
           if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
             cyclotron_leds[2] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
             cyclotron_leds[3] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
@@ -2045,15 +2048,14 @@ void cyclotronSwitchLEDUpdate() {
         break;
 
         case 7:// Remove Red/Top
+#ifndef ESP32
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, LOW);
-
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y1_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y2_PIN, LOW);
-
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G1_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G2_PIN, LOW);
-
+#endif
           if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
             cyclotron_leds[0] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
             cyclotron_leds[1] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
@@ -4955,6 +4957,7 @@ void systemPOST() {
         cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_GREEN);
         cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_ORANGE);
       }
+#ifndef ESP32
       else {
         digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, HIGH);
         digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, HIGH);
@@ -4965,6 +4968,7 @@ void systemPOST() {
         digitalWriteFast(YEAR_TOGGLE_LED_PIN, HIGH);
         digitalWriteFast(VIBRATION_TOGGLE_LED_PIN, HIGH);
       }
+#endif
     }
     else {
       pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
@@ -4983,6 +4987,7 @@ void systemPOST() {
         cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
         cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
       }
+#ifndef ESP32
       else {
         digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, LOW);
         digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, LOW);
@@ -4993,6 +4998,7 @@ void systemPOST() {
         digitalWriteFast(YEAR_TOGGLE_LED_PIN, LOW);
         digitalWriteFast(VIBRATION_TOGGLE_LED_PIN, LOW);
       }
+#endif
     }
 
     i_post_powercell_up++;
@@ -5045,6 +5051,7 @@ void systemPOST() {
         cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_GREEN);
         cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_ORANGE);
       }
+#ifndef ESP32
       else {
         digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, HIGH);
         digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, HIGH);
@@ -5055,6 +5062,7 @@ void systemPOST() {
         digitalWriteFast(YEAR_TOGGLE_LED_PIN, HIGH);
         digitalWriteFast(VIBRATION_TOGGLE_LED_PIN, HIGH);
       }
+#endif
     }
     else {
       pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
@@ -5073,6 +5081,7 @@ void systemPOST() {
         cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
         cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
       }
+#ifndef ESP32
       else {
         digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, LOW);
         digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, LOW);
@@ -5083,6 +5092,7 @@ void systemPOST() {
         digitalWriteFast(YEAR_TOGGLE_LED_PIN, LOW);
         digitalWriteFast(VIBRATION_TOGGLE_LED_PIN, LOW);
       }
+#endif
     }
 
     i_post_powercell_down++;

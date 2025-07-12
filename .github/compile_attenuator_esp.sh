@@ -27,10 +27,17 @@ echo "Building Attenuator Binary (ESP32 - Normal)..."
 pio run --project-dir "$PROJECT_DIR" --target clean
 
 # Compile the PlatformIO project
-pio run --project-dir "$PROJECT_DIR" | grep -iv Retrieved
+pio run --project-dir "$PROJECT_DIR"
 
-rm -f ${PROJECT_DIR}/include/*.h-e
+# Check if the build was successful
+if [ $? -eq 0 ]; then
+  echo "Build succeeded!"
+else
+  echo "Build failed!"
+  exit 1
+fi
 
+# Copy the new firmware to the expected binaries directory
 if [ -f ${PROJECT_DIR}/.pio/build/esp32dev/firmware.bin ]; then
   mv ${PROJECT_DIR}/.pio/build/esp32dev/firmware.bin ${BINDIR}/attenuator/Attenuator-ESP32.bin
 fi
@@ -42,3 +49,5 @@ if [ -f ${PROJECT_DIR}/.pio/build/esp32dev/partitions.bin ]; then
 fi
 echo "Done."
 echo ""
+
+rm -f ${PROJECT_DIR}/include/*.h-e
