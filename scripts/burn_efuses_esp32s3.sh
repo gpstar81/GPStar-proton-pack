@@ -125,8 +125,8 @@ if [[ "$CONFIRM" != "yes" ]]; then
   exit 0
 fi
 
-echo "Burning eFuses in batch..."
-$ESPEFUSE_BIN --port "$PORT" set_batch UART_PRINT_CONTROL=3 DIS_PAD_JTAG=1
+echo "Burning eFuses..."
+$ESPEFUSE_BIN --port "$PORT" --do-not-confirm burn-efuse UART_PRINT_CONTROL 3 DIS_PAD_JTAG 1
 
 echo "Done. New eFuse summary:"
 print_efuse_status
