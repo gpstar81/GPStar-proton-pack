@@ -1,7 +1,7 @@
 {
   "build": {
     "arduino": {
-      "partitions": "../partitions/no_spiffs_16mb.csv",
+      "partitions": "partitions/no_spiffs_16mb.csv",
       "memory_type": "qio_opi"
     },
     "core": "esp32",
