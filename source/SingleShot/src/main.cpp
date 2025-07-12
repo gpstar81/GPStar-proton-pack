@@ -96,7 +96,20 @@ Task animateTask(16, TASK_FOREVER, &animateTaskCallback);
 Task inputsTask(14, TASK_FOREVER, &inputTaskCallback);
 
 void setup() {
+#ifdef ESP32
+  /* This loop changes GPIO39~GPIO44 to Function 1, which is GPIO.
+   * PIN_FUNC_SELECT sets the IOMUX function register appropriately.
+   * IO_MUX_GPIO0_REG is the register for GPIO0, which we then seek from.
+   * PIN_FUNC_GPIO is a define for Function 1, which sets the pins to GPIO mode.
+   */
+  for(uint8_t gpio_pin = 39; gpio_pin < 45; gpio_pin++) {
+    PIN_FUNC_SELECT(IO_MUX_GPIO0_REG + (gpio_pin * 4), PIN_FUNC_GPIO);
+  }
+
+  USBSerial.begin(9600); // Standard serial (USB) console.
+#else
   Serial.begin(9600); // Standard serial (USB) console.
+#endif
 
   // Setup the audio device for this controller.
   setupAudioDevice();

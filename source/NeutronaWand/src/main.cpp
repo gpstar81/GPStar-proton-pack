@@ -88,8 +88,17 @@ void setup() {
     #define SERIAL1_TX_PIN 14
   #endif
 
+  /* This loop changes GPIO39~GPIO44 to Function 1, which is GPIO.
+   * PIN_FUNC_SELECT sets the IOMUX function register appropriately.
+   * IO_MUX_GPIO0_REG is the register for GPIO0, which we then seek from.
+   * PIN_FUNC_GPIO is a define for Function 1, which sets the pins to GPIO mode.
+   */
+  for(uint8_t gpio_pin = 39; gpio_pin < 45; gpio_pin++) {
+    PIN_FUNC_SELECT(IO_MUX_GPIO0_REG + (gpio_pin * 4), PIN_FUNC_GPIO);
+  }
+
   USBSerial.begin(9600); // Standard serial (USB) console.
-  HardwareSerial Serial1(1);
+  HardwareSerial Serial1(1); // Assign Serial1 to UART1.
   Serial1.begin(9600, SERIAL_8N1, SERIAL1_RX_PIN, SERIAL1_TX_PIN); // Communication to the Proton Pack.
 #else
   Serial.begin(9600); // Standard serial (USB) console.

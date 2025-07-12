@@ -90,8 +90,18 @@ void setup() {
     #define SERIAL2_TX_PIN 44
   #endif
 
-  HardwareSerial Serial1(1);
-  HardwareSerial Serial2(0);
+  /* This loop changes GPIO39~GPIO44 to Function 1, which is GPIO.
+   * PIN_FUNC_SELECT sets the IOMUX function register appropriately.
+   * IO_MUX_GPIO0_REG is the register for GPIO0, which we then seek from.
+   * PIN_FUNC_GPIO is a define for Function 1, which sets the pins to GPIO mode.
+   */
+  for(uint8_t gpio_pin = 39; gpio_pin < 45; gpio_pin++) {
+    PIN_FUNC_SELECT(IO_MUX_GPIO0_REG + (gpio_pin * 4), PIN_FUNC_GPIO);
+  }
+
+  Serial0.end(); // Detach UART0 as we will be reassigning it.
+  HardwareSerial Serial1(1); // Assign Serial1 to UART1.
+  HardwareSerial Serial2(0); // Assign Serial2 to UART0.
   USBSerial.begin(9600); // Standard serial (USB) console.
   Serial1.begin(9600, SERIAL_8N1, SERIAL1_RX_PIN, SERIAL1_TX_PIN); // Add-on Serial1 communication.
   Serial2.begin(9600, SERIAL_8N1, SERIAL2_RX_PIN, SERIAL2_TX_PIN); // Communication to the Neutrona Wand.
