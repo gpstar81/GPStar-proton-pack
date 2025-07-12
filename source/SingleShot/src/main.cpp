@@ -75,6 +75,9 @@
 #endif
 #include "System.h"
 #include "Actions.h"
+#ifdef ESP32
+  #include "Wireless.h"
+#endif
 
 // Forward declaration of scheduler task callback(s).
 void animateTaskCallback();
@@ -99,14 +102,27 @@ void setup() {
   setupAudioDevice();
 
   // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.
-#ifdef ESP32
+  #ifdef ESP32
     // Use of the register is not needed by ESP32, as it uses a different method for PWM.
     ledcAttachChannel(VIBRATION_PIN, 123, 8, 5); // Uses 123 Hz frequency, 8-bit resolution, channel 5.
-#else
+  #else
     // For ATmega2560, we set the PWM frequency for pin 11 (TCCR5B) to 122.55 Hz.
     TCCR1B = (TCCR1B & B11111000) | B00000100;
     pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
-#endif
+  #endif
+
+  #ifdef ESP32
+    // Begin by setting up WiFi as a prerequisite to all else.
+    if(startWiFi()) {
+      // Start the local web server.
+      startWebServer();
+
+      // Begin timer for remote client events.
+      ms_cleanup.start(i_websocketCleanup);
+      ms_apclient.start(i_apClientCount);
+      ms_otacheck.start(i_otaCheck);
+    }
+  #endif
 
   // System LEDs
   FastLED.addLeds<NEOPIXEL, SYSTEM_LED_PIN>(system_leds, CYCLOTRON_LED_COUNT + BARREL_LED_COUNT).setCorrection(TypicalLEDStrip);

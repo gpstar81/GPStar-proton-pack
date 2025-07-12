@@ -38,6 +38,10 @@ void resetWhiteLEDBlinkRate();
 // Include ESP32 Preferences library
 #include <Preferences.h>
 
+// Preferences for system configuration, which will use a "led" and "config" namespaces.
+// For Wireless.h will store SSID and AP password within a "credentials" namespace.
+Preferences preferences;
+
 // Data structure for LED settings (stored in Preferences)
 struct objLEDEEPROM {
   uint8_t barrelSpectralCustom;
@@ -87,29 +91,26 @@ void saveLEDEEPROM() {
   gObjLEDEEPROM.numBarrelLeds = WAND_BARREL_LED_COUNT;
   gObjLEDEEPROM.numBargraphLeds = BARGRAPH_TYPE_EEPROM;
 
-  Preferences prefs;
-  prefs.begin("led", false);
-  prefs.putBytes("led", &gObjLEDEEPROM, sizeof(gObjLEDEEPROM));
-  prefs.end();
+  preferences.begin("led", false);
+  preferences.putBytes("led", &gObjLEDEEPROM, sizeof(gObjLEDEEPROM));
+  preferences.end();
 
   updateCRCEEPROM(eepromCRC());
 }
 
 // Load LED settings from Preferences into the global instance
 void loadLEDEEPROM() {
-  Preferences prefs;
-  prefs.begin("led", true);
-  prefs.getBytes("led", &gObjLEDEEPROM, sizeof(gObjLEDEEPROM));
-  prefs.clear();
-  prefs.end();
+  preferences.begin("led", true);
+  preferences.getBytes("led", &gObjLEDEEPROM, sizeof(gObjLEDEEPROM));
+  preferences.clear();
+  preferences.end();
 }
 
 // Clear LED settings in Preferences
 void clearLEDEEPROM() {
-  Preferences prefs;
-  prefs.begin("led", false);
-  prefs.clear();
-  prefs.end();
+  preferences.begin("led", false);
+  preferences.clear();
+  preferences.end();
 
   updateCRCEEPROM(eepromCRC());
 }
@@ -351,45 +352,40 @@ void saveConfigEEPROM() {
   gObjConfigEEPROM.overheatLevel1 = i_overheat_level_1;
   gObjConfigEEPROM.wandVibration = i_wand_vibration;
 
-  Preferences prefs;
-  prefs.begin("config", false);
-  prefs.putBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
-  prefs.end();
+  preferences.begin("config", false);
+  preferences.putBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
+  preferences.end();
 
   updateCRCEEPROM(eepromCRC());
 }
 
 // Load config settings from Preferences
 void loadConfigEEPROM() {
-  Preferences prefs;
-  prefs.begin("config", true);
-  prefs.getBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
-  prefs.end();
+  preferences.begin("config", true);
+  preferences.getBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
+  preferences.end();
 }
 
 // Clear config settings in Preferences
 void clearConfigEEPROM() {
-  Preferences prefs;
-  prefs.begin("config", false);
-  prefs.clear();
-  prefs.end();
+  preferences.begin("config", false);
+  preferences.clear();
+  preferences.end();
 
   updateCRCEEPROM(eepromCRC());
 }
 
 // CRC helpers for Preferences
 void updateCRCEEPROM(uint32_t crc) {
-  Preferences prefs;
-  prefs.begin("crc", false);
-  prefs.putUInt("crc", crc);
-  prefs.end();
+  preferences.begin("crc", false);
+  preferences.putUInt("crc", crc);
+  preferences.end();
 }
 
 uint32_t getCRCEEPROM() {
-  Preferences prefs;
-  prefs.begin("crc", true);
-  uint32_t crc = prefs.getUInt("crc");
-  prefs.end();
+  preferences.begin("crc", true);
+  uint32_t crc = preferences.getUInt("crc");
+  preferences.end();
   return crc;
 }
 

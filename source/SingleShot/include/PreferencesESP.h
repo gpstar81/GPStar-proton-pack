@@ -47,6 +47,10 @@ void resetWhiteLEDBlinkRate();
 // Include ESP32 Preferences library
 #include <Preferences.h>
 
+// Preferences for system configuration, which will use a "led" and "config" namespaces.
+// For Wireless.h will store SSID and AP password within a "credentials" namespace.
+Preferences preferences;
+
 // Data structure for configuration settings (stored in Preferences)
 struct objConfigEEPROM {
   uint8_t deviceBootErrors;
@@ -80,45 +84,40 @@ void saveConfigEEPROM() {
     break;
   }
 
-  Preferences prefs;
-  prefs.begin("config", false);
-  prefs.putBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
-  prefs.end();
+  preferences.begin("config", false);
+  preferences.putBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
+  preferences.end();
 
   updateCRCEEPROM(eepromCRC());
 }
 
 // Load configuration preferences from NVS (ESP32)
 void loadConfigEEPROM() {
-  Preferences prefs;
-  prefs.begin("config", true);
-  prefs.getBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
-  prefs.end();
+  preferences.begin("config", true);
+  preferences.getBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
+  preferences.end();
 }
 
 // Clear configuration preferences in NVS (ESP32)
 void clearConfigEEPROM() {
-  Preferences prefs;
-  prefs.begin("config", false);
-  prefs.clear();
-  prefs.end();
+  preferences.begin("config", false);
+  preferences.clear();
+  preferences.end();
 
   updateCRCEEPROM(eepromCRC());
 }
 
 // CRC helpers for Preferences (ESP32)
 void updateCRCEEPROM(uint32_t crc) {
-  Preferences prefs;
-  prefs.begin("crc", false);
-  prefs.putUInt("crc", crc);
-  prefs.end();
+  preferences.begin("crc", false);
+  preferences.putUInt("crc", crc);
+  preferences.end();
 }
 
 uint32_t getCRCEEPROM() {
-  Preferences prefs;
-  prefs.begin("crc", true);
-  uint32_t crc = prefs.getUInt("crc");
-  prefs.end();
+  preferences.begin("crc", true);
+  uint32_t crc = preferences.getUInt("crc");
+  preferences.end();
   return crc;
 }
 

@@ -75,6 +75,9 @@
 #include "System.h"
 #include "Actions.h"
 #include "Serial.h"
+#ifdef ESP32
+  #include "Wireless.h"
+#endif
 
 void setup() {
 #ifdef ESP32
@@ -105,6 +108,19 @@ void setup() {
     // For ATmega2560, we set the PWM frequency for pin 11 (TCCR5B) to 122.55 Hz.
     TCCR1B = (TCCR1B & B11111000) | B00000100;
     pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
+  #endif
+
+  #ifdef ESP32
+    // Begin by setting up WiFi as a prerequisite to all else.
+    if(startWiFi()) {
+      // Start the local web server.
+      startWebServer();
+
+      // Begin timer for remote client events.
+      ms_cleanup.start(i_websocketCleanup);
+      ms_apclient.start(i_apClientCount);
+      ms_otacheck.start(i_otaCheck);
+    }
   #endif
 
   // Barrel LEDs - NOTE: These are GRB not RGB so note that all CRGB objects will have R/G swapped.

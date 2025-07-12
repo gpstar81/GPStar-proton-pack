@@ -63,6 +63,9 @@
 #endif
 #include "System.h"
 #include "Serial.h"
+#ifdef ESP32
+  #include "Wireless.h"
+#endif
 
 void setup() {
   // Setup i2c.
@@ -137,7 +140,20 @@ void setup() {
     TCCR5B = (TCCR5B & B11111000) | B00000100;
     pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
   #endif
-  
+
+  #ifdef ESP32
+    // Begin by setting up WiFi as a prerequisite to all else.
+    if(startWiFi()) {
+      // Start the local web server.
+      startWebServer();
+
+      // Begin timer for remote client events.
+      ms_cleanup.start(i_websocketCleanup);
+      ms_apclient.start(i_apClientCount);
+      ms_otacheck.start(i_otaCheck);
+    }
+  #endif
+
   // Smoke motor for the N-Filter.
   pinModeFast(NFILTER_SMOKE_PIN, OUTPUT);
 
