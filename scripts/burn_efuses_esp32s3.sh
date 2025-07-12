@@ -108,6 +108,13 @@ print_efuse_status() {
 
 print_efuse_status
 
+# Just exit if the eFuses are already set, just to avoid confusion
+if $ESPEFUSE_BIN --port "$PORT" summary | grep -q 'UART_PRINT_CONTROL.*3' && \
+   $ESPEFUSE_BIN --port "$PORT" summary | grep -q 'DIS_PAD_JTAG.*(BURNED|1)'; then
+  echo "The eFuse already set. Skipping burn."
+  exit 0
+fi
+
 echo "This script will permanently burn the following eFuses on your ESP32-S3-WROOM:"
 echo "  - UART_PRINT_CONTROL = 3 (disables UART0 boot debug, enables GPIO43/44)"
 echo "  - DIS_PAD_JTAG = 1 (disables JTAG on GPIO39-42, enables those pins for GPIO)"
