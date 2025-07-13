@@ -35,7 +35,7 @@ gpstarAudio audio;
  * Audio Devices
  */
 enum AUDIO_DEVICES { A_NONE, A_GPSTAR_AUDIO, A_GPSTAR_AUDIO_ADV, A_WAV_TRIGGER };
-enum AUDIO_DEVICES AUDIO_DEVICE;
+enum AUDIO_DEVICES AUDIO_DEVICE = A_NONE;
 
 /*
  * Audio Variables

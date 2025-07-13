@@ -38,8 +38,8 @@ String user_wifi_pass = ""; // Preferred network password for external WiFi
  * debugging, while the websocket will help with confirming operations
  * while using the device (post-setup for wireless).
  */
-//#define DEBUG_WIRELESS_SETUP   // Output debugs related to the WiFi/network setup.
-//#define DEBUG_SEND_TO_CONSOLE  // Send any general messages to the serial (USB) console.
+#define DEBUG_WIRELESS_SETUP   // Output debugs related to the WiFi/network setup.
+#define DEBUG_SEND_TO_CONSOLE  // Send any general messages to the serial (USB) console.
 //#define DEBUG_SEND_TO_WEBSOCKET  // Send any messages to connected WebSocket clients.
 
 /*
@@ -48,7 +48,7 @@ String user_wifi_pass = ""; // Preferred network password for external WiFi
  * to a new and known value. When completed, flash the latest version of
  * the software which has this line commented out.
  */
-//#define RESET_AP_SETTINGS
+#define RESET_AP_SETTINGS
 
 /*
  * -------------****** CUSTOM USER CONFIGURABLE SETTINGS ******-------------
