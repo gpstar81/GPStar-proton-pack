@@ -207,9 +207,9 @@ void setup() {
   pinModeFast(BARREL_HAT_LED_PIN, OUTPUT); // Hat light at front of the wand near the barrel tip.
   pinModeFast(TOP_HAT_LED_PIN, OUTPUT); // Hat light at top of the wand body (gun box).
   pinModeFast(BARREL_TIP_LED_PIN, OUTPUT); // LED at the tip of the wand barrel.
-  pinMode(TOP_LED_PIN, OUTPUT); // Blinking top light could be either addressable or non-addressable based on user setting, so use default functions.
 #ifndef ESP32
   pinMode(VENT_LED_PIN, OUTPUT); // Vent light could be either Digital or PWM based on user setting, so use default functions.
+  pinMode(TOP_LED_PIN, OUTPUT); // Blinking top light could be either addressable or non-addressable based on user setting, so use default functions.
 #endif
 
   // Status indicator LED on the v1.4 GPStar Neutrona Wand Board.
@@ -577,8 +577,10 @@ void loop() {
         FastLED[1].showLeds(255);
 
         if(WAND_CONN_STATE == PACK_DISCONNECTED && !vent_leds[1]) {
+        #ifndef ESP32
           // Make sure we turn the actual pin back off so the non-addressable LED still blinks.
           digitalWriteFast(TOP_LED_PIN, HIGH);
+        #endif
         }
       }
 

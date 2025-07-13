@@ -10089,12 +10089,12 @@ void checkPowerOnReminder() {
 
 void ventTopLightControl(bool b_on) {
   if(!b_on) {
-#ifndef ESP32
+  #ifndef ESP32
     if(!b_rgb_vent_light) {
       // Turn off top light.
       digitalWriteFast(TOP_LED_PIN, HIGH);
     }
-#endif
+  #endif
 
     // Turn off if not off already.
     if(vent_leds[1]) {
@@ -10103,12 +10103,12 @@ void ventTopLightControl(bool b_on) {
     }
   }
   else {
-#ifndef ESP32
+  #ifndef ESP32
     if(!b_rgb_vent_light) {
       // Turn on top light.
       digitalWriteFast(TOP_LED_PIN, LOW);
     }
-#endif
+  #endif
 
     // Turn on if not on already.
     if(!vent_leds[1]) {
