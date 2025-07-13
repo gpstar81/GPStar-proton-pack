@@ -294,7 +294,7 @@ void setup() {
   }
 }
 
-void postProcess() {
+void mainLoop() {
   if(b_pack_post_finish) {
     checkMusic();
     checkSwitches();
@@ -619,7 +619,7 @@ void loop() {
   checkSerial1();
 
   // Handle any actions after POST event.
-  postProcess();
+  mainLoop();
 
   // Update the LEDs
   if(ms_fast_led.justFinished()) {

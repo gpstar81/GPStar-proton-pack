@@ -112,7 +112,8 @@ void setup() {
   // Change PWM frequency of pin 11 for the vibration motor, we do not want it high pitched.
   #ifdef ESP32
     // Use of the register is not needed by ESP32, as it uses a different method for PWM.
-    ledcAttachChannel(VIBRATION_PIN, 123, 8, 5); // Uses 123 Hz frequency, 8-bit resolution, channel 5.
+    pinMode(VIBRATION_PIN, OUTPUT);
+    //ledcAttachChannel(VIBRATION_PIN, 123, 8, 5); // Uses 123 Hz frequency, 8-bit resolution, channel 5.
   #else
     // For ATmega2560, we set the PWM frequency for pin 11 (TCCR5B) to 122.55 Hz.
     TCCR1B = (TCCR1B & B11111000) | B00000100;
@@ -206,9 +207,9 @@ void setup() {
   pinModeFast(BARREL_HAT_LED_PIN, OUTPUT); // Hat light at front of the wand near the barrel tip.
   pinModeFast(TOP_HAT_LED_PIN, OUTPUT); // Hat light at top of the wand body (gun box).
   pinModeFast(BARREL_TIP_LED_PIN, OUTPUT); // LED at the tip of the wand barrel.
+  pinMode(TOP_LED_PIN, OUTPUT); // Blinking top light could be either addressable or non-addressable based on user setting, so use default functions.
 #ifndef ESP32
   pinMode(VENT_LED_PIN, OUTPUT); // Vent light could be either Digital or PWM based on user setting, so use default functions.
-  pinMode(TOP_LED_PIN, OUTPUT); // Blinking top light could be either addressable or non-addressable based on user setting, so use default functions.
 #endif
 
   // Status indicator LED on the v1.4 GPStar Neutrona Wand Board.

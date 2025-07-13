@@ -69,9 +69,9 @@
 #include "Cyclotron.h"
 #include "Audio.h"
 #ifdef ESP32
-#include "PreferencesESP.h"
+  #include "PreferencesESP.h"
 #else
-#include "PreferencesATMega.h"
+  #include "PreferencesATMega.h"
 #endif
 #include "System.h"
 #include "Actions.h"
@@ -117,7 +117,8 @@ void setup() {
   // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.
   #ifdef ESP32
     // Use of the register is not needed by ESP32, as it uses a different method for PWM.
-    ledcAttachChannel(VIBRATION_PIN, 123, 8, 5); // Uses 123 Hz frequency, 8-bit resolution, channel 5.
+    pinMode(VIBRATION_PIN, OUTPUT);
+    //ledcAttachChannel(VIBRATION_PIN, 123, 8, 5); // Uses 123 Hz frequency, 8-bit resolution, channel 5.
   #else
     // For ATmega2560, we set the PWM frequency for pin 11 (TCCR5B) to 122.55 Hz.
     TCCR1B = (TCCR1B & B11111000) | B00000100;
