@@ -248,6 +248,10 @@ void animateTaskCallback() {
 
 // Task callback for handling user inputs.
 void inputTaskCallback() {
+#ifdef ESP32
+  webLoops(); // Handle web server loops, including WebSocket events and OTA updates.
+#endif
+
   updateAudio(); // Update the state of the available sound board.
 
   checkMusic(); // Perform music control here as this is a standalone device.

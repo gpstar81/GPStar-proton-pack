@@ -43,6 +43,14 @@ String user_wifi_pass = ""; // Preferred network password for external WiFi
 //#define DEBUG_SEND_TO_WEBSOCKET  // Send any messages to connected WebSocket clients.
 
 /*
+ * Force the use of default SSID and password for wireless capabilities.
+ * Uncomment and upload to device, then perform a reset of your password
+ * to a new and known value. When completed, flash the latest version of
+ * the software which has this line commented out.
+ */
+//#define RESET_AP_SETTINGS
+
+/*
  * -------------****** CUSTOM USER CONFIGURABLE SETTINGS ******-------------
  * Change the variables below to alter the behaviour of your Proton Pack.
  */

@@ -523,6 +523,10 @@ void mainLoop() {
 }
 
 void loop() {
+#ifdef ESP32
+  webLoops(); // Handle web server loops, including WebSocket events and OTA updates.
+#endif
+
   switch(WAND_CONN_STATE) {
     case PACK_DISCONNECTED:
       // While waiting for a proton pack, issue a request for synchronization.
