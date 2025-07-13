@@ -25,11 +25,19 @@
 
 // Debug macros
 #if DEBUG == 1
-#define debug(x) Serial.print(x)
-#define debugln(x) Serial.println(x)
+  #ifdef ESP32
+    #define DEBUG_PORT USBSerial
+  #else
+    #define DEBUG_PORT Serial
+  #endif
+
+  #define debug(...) DEBUG_PORT.print(__VA_ARGS__)
+  #define debugf(...) DEBUG_PORT.printf(__VA_ARGS__)
+  #define debugln(...) DEBUG_PORT.println(__VA_ARGS__)
 #else
-#define debug(x)
-#define debugln(x)
+  #define debug(...)
+  #define debugf(...)
+  #define debugln(...)
 #endif
 
 // PROGMEM macros
@@ -77,19 +85,6 @@ void setup() {
   Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
 
 #ifdef ESP32
-  #ifndef SERIAL1_RX_PIN
-    #define SERIAL1_RX_PIN 21
-  #endif
-  #ifndef SERIAL1_TX_PIN
-    #define SERIAL1_TX_PIN 14
-  #endif
-  #ifndef SERIAL2_RX_PIN
-    #define SERIAL2_RX_PIN 43
-  #endif
-  #ifndef SERIAL2_TX_PIN
-    #define SERIAL2_TX_PIN 44
-  #endif
-
   /* This loop changes GPIO39~GPIO44 to Function 1, which is GPIO.
    * PIN_FUNC_SELECT sets the IOMUX function register appropriately.
    * IO_MUX_GPIO0_REG is the register for GPIO0, which we then seek from.
@@ -100,15 +95,15 @@ void setup() {
   }
 
   Serial0.end(); // Detach UART0 as we will be reassigning it.
-  HardwareSerial Serial1(1); // Assign Serial1 to UART1.
-  HardwareSerial Serial2(0); // Assign Serial2 to UART0.
-  USBSerial.begin(9600); // Standard serial (USB) console.
-  Serial1.begin(9600, SERIAL_8N1, SERIAL1_RX_PIN, SERIAL1_TX_PIN); // Add-on Serial1 communication.
-  Serial2.begin(9600, SERIAL_8N1, SERIAL2_RX_PIN, SERIAL2_TX_PIN); // Communication to the Neutrona Wand.
+  HardwareSerial Serial1(1); // Assign Serial1 to UART1 (11/10).
+  HardwareSerial Serial2(0); // Assign Serial2 to UART0 (44/43).
+  USBSerial.begin(9600); // Standard serial (USB-CDC) console.
+  Serial1.begin(9600, SERIAL_8N1, SERIAL1_RX_PIN, SERIAL1_TX_PIN); // Add-on "Serial1" communication (11/10).
+  Serial2.begin(9600, SERIAL_8N1, SERIAL2_RX_PIN, SERIAL2_TX_PIN); // Communication to the Neutrona Wand (44/43).
 #else
-  Serial.begin(9600); // Standard serial (USB) console.
-  Serial1.begin(9600); // Add-on Serial1 communication.
-  Serial2.begin(9600); // Communication to the Neutrona Wand.
+  Serial.begin(9600); // Standard HW serial (USB) console (0/1).
+  Serial1.begin(9600); // Add-on "Serial1" communication (19/18).
+  Serial2.begin(9600); // Communication to the Neutrona Wand (17/16).
 #endif
 
   // Initialize an optional power meter on the i2c bus.

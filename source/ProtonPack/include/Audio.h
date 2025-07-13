@@ -38,17 +38,11 @@ gpstarAudio audio;
 // additional UART serial ports. See: https://docs.espressif.com/projects/arduino-esp32/en/latest/api/serial.html
 #ifdef ESP32
   #include <HardwareSerial.h> // Provided by the ESP32 Arduino core
-  #ifndef SERIAL3_RX_PIN
-    #define SERIAL3_RX_PIN 15  // Example RX pin, change as needed
-  #endif
-  #ifndef SERIAL3_TX_PIN
-    #define SERIAL3_TX_PIN 16  // Example TX pin, change as needed
-  #endif
   // Create a HardwareSerial instance for UART2 (Serial3)
-  HardwareSerial Serial3(2);
+  HardwareSerial Serial3(2); // 2 = UART2
 #else
-  // On non-ESP32, assume Serial3 is defined by the platform
-  // (e.g., on ATmega2560, Serial3 is hardware)
+  // On non-ESP32, Serial3 is normally defined by the platform
+  // (e.g., on ATmega2560, Serial3 is hardware, pins 15/14)
 #endif
 
 /*

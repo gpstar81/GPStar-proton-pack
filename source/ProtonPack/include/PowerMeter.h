@@ -394,37 +394,37 @@ void updatePackPowerState() {
 // Turn on the Serial Plotter in the ArduinoIDE to view graphed results.
 void wandPowerDisplay() {
   if(b_show_power_data) {
-    // Serial.print(F("W.Shunt(mV):"));
-    // Serial.print(wandReading.ShuntVoltage, 4);
-    // Serial.print(F(","));
+    // debug(F("W.Shunt(mV):"));
+    // debug(wandReading.ShuntVoltage, 4);
+    // debug(F(","));
 
-    // Serial.print(F("W.Shunt(A):"));
-    // Serial.print(wandReading.ShuntCurrent, 4);
-    // Serial.print(F(","));
+    // debug(F("W.Shunt(A):"));
+    // debug(wandReading.ShuntCurrent, 4);
+    // debug(F(","));
 
-    Serial.print(F("W.Raw(W):"));
-    Serial.print(wandReading.RawPower, 4);
-    Serial.print(F(","));
+    debug(F("W.Raw(W):"));
+    debug(wandReading.RawPower, 4);
+    debug(F(","));
 
-    // Serial.print(F("W.Bus(V)):"));
-    // Serial.print(wandReading.BusVoltage, 4);
-    // Serial.print(F(","));
+    // debug(F("W.Bus(V)):"));
+    // debug(wandReading.BusVoltage, 4);
+    // debug(F(","));
 
-    // Serial.print(F("W.Bus(W)):"));
-    // Serial.print(wandReading.BusPower, 4);
-    // Serial.print(F(","));
+    // debug(F("W.Bus(W)):"));
+    // debug(wandReading.BusPower, 4);
+    // debug(F(","));
 
-    // Serial.print(F("W.Batt(V):"));
-    // Serial.print(wandReading.BattVoltage, 4);
-    // Serial.print(F(","));
+    // debug(F("W.Batt(V):"));
+    // debug(wandReading.BattVoltage, 4);
+    // debug(F(","));
 
-    // Serial.print(F("W.AmpHours:"));
-    // Serial.print(wandReading.AmpHours, 4);
-    // Serial.print(F(","));
+    // debug(F("W.AmpHours:"));
+    // debug(wandReading.AmpHours, 4);
+    // debug(F(","));
 
-    Serial.print(F("W.AvgPow(W):"));
-    Serial.print(wandReading.AvgPower, 4);
-    Serial.print(F(","));
+    debug(F("W.AvgPow(W):"));
+    debug(wandReading.AvgPower, 4);
+    debug(F(","));
   }
 }
 
