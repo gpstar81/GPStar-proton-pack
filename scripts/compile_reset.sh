@@ -13,16 +13,16 @@ mkdir -p ${BINDIR}/pack/extras
 echo ""
 
 # Proton Pack
-echo "Building EEPROM Reset Binary..."
+echo "EEPROM Reset Binary [ATMega] - Building..."
 
 # Clean the project before building
 pio run --project-dir "$PROJECT_DIR" --target clean
 
 # Compile the PlatformIO project
-pio run --project-dir "$PROJECT_DIR" | grep -iv Retrieved
+pio run --project-dir "$PROJECT_DIR" --jobs 4
 
-if [ -f ${PROJECT_DIR}/.pio/build/megaatmega2560/firmware.hex ]; then
-  mv ${PROJECT_DIR}/.pio/build/megaatmega2560/firmware.hex ${BINDIR}/pack/extras/ResetEEPROM.hex
+if [ -f ${PROJECT_DIR}/.pio/build/atmega2560/firmware.hex ]; then
+  mv ${PROJECT_DIR}/.pio/build/atmega2560/firmware.hex ${BINDIR}/pack/extras/ResetEEPROM.hex
+  echo "Firmware copy completed."
 fi
-echo "Done."
 echo ""

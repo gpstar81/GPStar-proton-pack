@@ -100,17 +100,20 @@ void saveLEDEEPROM() {
 
 // Load LED settings from Preferences into the global instance
 void loadLEDEEPROM() {
-  preferences.begin("led", true);
-  preferences.getBytes("led", &gObjLEDEEPROM, sizeof(gObjLEDEEPROM));
-  preferences.clear();
-  preferences.end();
+  if (preferences.begin("led", true)) {
+    if (preferences.isKey("led")) {
+      preferences.getBytes("led", &gObjLEDEEPROM, sizeof(gObjLEDEEPROM));
+    }
+    preferences.end();
+  }
 }
 
 // Clear LED settings in Preferences
 void clearLEDEEPROM() {
-  preferences.begin("led", false);
-  preferences.clear();
-  preferences.end();
+  if (preferences.begin("led", false)) {
+    preferences.clear();
+    preferences.end();
+  }
 
   updateCRCEEPROM(eepromCRC());
 }
@@ -352,40 +355,50 @@ void saveConfigEEPROM() {
   gObjConfigEEPROM.overheatLevel1 = i_overheat_level_1;
   gObjConfigEEPROM.wandVibration = i_wand_vibration;
 
-  preferences.begin("config", false);
-  preferences.putBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
-  preferences.end();
+  if (preferences.begin("config", false)) {
+    preferences.putBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
+    preferences.end();
+  }
 
   updateCRCEEPROM(eepromCRC());
 }
 
 // Load config settings from Preferences
 void loadConfigEEPROM() {
-  preferences.begin("config", true);
-  preferences.getBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
-  preferences.end();
+  if (preferences.begin("config", true)) {
+    if (preferences.isKey("config")) {
+      preferences.getBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
+    }
+    preferences.end();
+  }
 }
 
 // Clear config settings in Preferences
 void clearConfigEEPROM() {
-  preferences.begin("config", false);
-  preferences.clear();
-  preferences.end();
+  if (preferences.begin("config", false)) {
+    preferences.clear();
+    preferences.end();
+  }
 
   updateCRCEEPROM(eepromCRC());
 }
 
 // CRC helpers for Preferences
 void updateCRCEEPROM(uint32_t crc) {
-  preferences.begin("crc", false);
-  preferences.putUInt("crc", crc);
-  preferences.end();
+  if (preferences.begin("crc", false)) {
+    preferences.putUInt("crc", crc);
+    preferences.end();
+  }
 }
 
 uint32_t getCRCEEPROM() {
-  preferences.begin("crc", true);
-  uint32_t crc = preferences.getUInt("crc");
-  preferences.end();
+  uint32_t crc = 0;
+
+  if (preferences.begin("crc", true)) {
+    crc = preferences.getUInt("crc");
+    preferences.end();
+  }
+
   return crc;
 }
 

@@ -21,56 +21,58 @@ sed -i -e 's/\(String build_date = "\)[^"]*\(";\)/\1'"${MJVER}_${TIMESTAMP}"'\2/
 echo ""
 
 # Proton Pack
-echo "Building Proton Pack Binary [ATMega]..."
+echo "Proton Pack Binary [ATMega] - Building..."
 
 # Clean the project before building
 pio run -e atmega2560 --project-dir "$PROJECT_DIR" --target clean
 
 # Compile the PlatformIO project
-pio run -e atmega2560 --project-dir "$PROJECT_DIR"
+pio run -e atmega2560 --project-dir "$PROJECT_DIR" --jobs 4
 
 # Check if the build was successful
 if [ $? -eq 0 ]; then
-  echo "Build succeeded!"
+  echo "Proton Pack Binary [ATMega] - Build succeeded!"
 else
-  echo "Build failed!"
+  echo "Proton Pack Binary [ATMega] - Build failed!"
   exit 1
 fi
 
 # Copy the new firmware to the expected binaries directory
 if [ -f ${PROJECT_DIR}/.pio/build/atmega2560/firmware.hex ]; then
   mv ${PROJECT_DIR}/.pio/build/atmega2560/firmware.hex ${BINDIR}/pack/ProtonPack.hex
+  echo "Firmware copy completed."
 fi
-echo "Done."
 echo ""
 
-echo "Building Proton Pack Binary [ESP32]..."
+echo "Proton Pack Binary [ESP32] - Building..."
 
 # Clean the project before building
 pio run -e esp32s3 --project-dir "$PROJECT_DIR" --target clean
 
 # Compile the PlatformIO project
-pio run -e esp32s3 --project-dir "$PROJECT_DIR"
+pio run -e esp32s3 --project-dir "$PROJECT_DIR" --jobs 4
 
 # Check if the build was successful
 if [ $? -eq 0 ]; then
-  echo "Build succeeded!"
+  echo "Proton Pack Binary [ESP32] - Build succeeded!"
 else
-  echo "Build failed!"
+  echo "Proton Pack Binary [ESP32] - Build failed!"
   exit 1
 fi
 
 # Copy the new firmware to the expected binaries directory
 if [ -f ${PROJECT_DIR}/.pio/build/esp32s3/firmware.elf ]; then
   mv ${PROJECT_DIR}/.pio/build/esp32s3/firmware.elf ${BINDIR}/pack/ProtonPack-ESP32.bin
+  echo "Firmware copy completed."
 fi
 if [ -f ${PROJECT_DIR}/.pio/build/esp32s3/bootloader.bin ]; then
   mv ${PROJECT_DIR}/.pio/build/esp32s3/bootloader.bin ${BINDIR}/pack/extras/ProtonPack-ESP32-Bootloader.bin
+  echo "Bootloader copy completed."
 fi
 if [ -f ${PROJECT_DIR}/.pio/build/esp32s3/partitions.bin ]; then
   mv ${PROJECT_DIR}/.pio/build/esp32s3/partitions.bin ${BINDIR}/pack/extras/ProtonPack-ESP32-Partitions.bin
+  echo "Partitions copy completed."
 fi
-echo "Done."
 echo ""
 
 rm -f ${PROJECT_DIR}/include/*.h-e

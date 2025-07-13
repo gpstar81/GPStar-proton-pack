@@ -84,40 +84,50 @@ void saveConfigEEPROM() {
     break;
   }
 
-  preferences.begin("config", false);
-  preferences.putBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
-  preferences.end();
+  if (preferences.begin("config", false)) {
+    preferences.putBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
+    preferences.end();
+  }
 
   updateCRCEEPROM(eepromCRC());
 }
 
 // Load configuration preferences from NVS (ESP32)
 void loadConfigEEPROM() {
-  preferences.begin("config", true);
-  preferences.getBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
-  preferences.end();
+  if (preferences.begin("config", true)) {
+    if (preferences.isKey("config")) {
+      preferences.getBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
+    }
+    preferences.end();
+  }
 }
 
 // Clear configuration preferences in NVS (ESP32)
 void clearConfigEEPROM() {
-  preferences.begin("config", false);
-  preferences.clear();
-  preferences.end();
+  if (preferences.begin("config", false)) {
+    preferences.clear();
+    preferences.end();
+  }
 
   updateCRCEEPROM(eepromCRC());
 }
 
 // CRC helpers for Preferences (ESP32)
 void updateCRCEEPROM(uint32_t crc) {
-  preferences.begin("crc", false);
-  preferences.putUInt("crc", crc);
-  preferences.end();
+  if (preferences.begin("crc", false)) {
+    preferences.putUInt("crc", crc);
+    preferences.end();
+  }
 }
 
 uint32_t getCRCEEPROM() {
-  preferences.begin("crc", true);
-  uint32_t crc = preferences.getUInt("crc");
-  preferences.end();
+  uint32_t crc = 0;
+
+  if (preferences.begin("crc", true)) {
+    crc = preferences.getUInt("crc");
+    preferences.end();
+  }
+
   return crc;
 }
 

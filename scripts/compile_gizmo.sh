@@ -21,33 +21,35 @@ sed -i -e 's/\(String build_date = "\)[^"]*\(";\)/\1'"${MJVER}_${TIMESTAMP}"'\2/
 echo ""
 
 # BeltGizmo (ESP32 - Normal)
-echo "Building BeltGizmo Binary (ESP32)..."
+echo "BeltGizmo Binary [ESP32] - Building..."
 
 # Clean the project before building
 pio run --project-dir "$PROJECT_DIR" --target clean
 
 # Compile the PlatformIO project
-pio run --project-dir "$PROJECT_DIR"
+pio run --project-dir "$PROJECT_DIR" --jobs 4
 
 # Check if the build was successful
 if [ $? -eq 0 ]; then
-  echo "Build succeeded!"
+  echo "Building BeltGizmo Binary [ESP32] - Build succeeded!"
 else
-  echo "Build failed!"
+  echo "Building BeltGizmo Binary [ESP32] - Build failed!"
   exit 1
 fi
 
 # Copy the new firmware to the expected binaries directory
 if [ -f ${PROJECT_DIR}/.pio/build/esp32s3mini/firmware.bin ]; then
   mv ${PROJECT_DIR}/.pio/build/esp32s3mini/firmware.bin ${BINDIR}/gizmo/BeltGizmo-ESP32.bin
+  echo "Firmware copy completed."
 fi
 if [ -f ${PROJECT_DIR}/.pio/build/esp32s3mini/bootloader.bin ]; then
   mv ${PROJECT_DIR}/.pio/build/esp32s3mini/bootloader.bin ${BINDIR}/gizmo/extras/BeltGizmo-ESP32-Bootloader.bin
+  echo "Bootloader copy completed."
 fi
 if [ -f ${PROJECT_DIR}/.pio/build/esp32s3mini/partitions.bin ]; then
   mv ${PROJECT_DIR}/.pio/build/esp32s3mini/partitions.bin ${BINDIR}/gizmo/extras/BeltGizmo-ESP32-Partitions.bin
+  echo "Partitions copy completed."
 fi
-echo "Done."
 echo ""
 
 rm -f ${PROJECT_DIR}/include/*.h-e
