@@ -16,6 +16,10 @@
       "path": "source/BeltGizmo"
     },
     {
+      "name": "DebugESP",
+      "path": "source/DebugESP"
+    },
+    {
       "name": "NeutronaWand",
       "path": "source/NeutronaWand"
     },
