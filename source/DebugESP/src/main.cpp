@@ -32,6 +32,7 @@
 #include <SerialTransfer.h>
 #include <Wire.h>
 #include <HardwareSerial.h>
+#include <INA219.h>
 
 // Libraries
 #include "esp_system.h"
@@ -70,6 +71,11 @@
 SerialTransfer serial1Coms;
 SerialTransfer packComs;
 
+/*
+ * Power monitor object on i2c bus using the INA219 chip.
+ */
+INA219 monitor;
+
 const char* resetReasonToString(esp_reset_reason_t reason) {
   switch (reason) {
     case ESP_RST_POWERON:    return "Power-on reset";
@@ -87,6 +93,8 @@ const char* resetReasonToString(esp_reset_reason_t reason) {
 }
 
 void setup() {
+  digitalWrite(LED_BUILTIN, false); // Turn off the built-in LED
+
   // Standard serial (USB-CDC) console (technically 19/20 but not really Tx/Rx).
   USBSerial.begin(9600);
   while (!USBSerial) delay(10);
@@ -120,22 +128,26 @@ void setup() {
   packComs.begin(Serial2, false); // Neutrona Wand
 
   // Setup the audio device for this controller (configures UART2 as Serial3).
-  debugln(F("Setting up audio device..."));
-
   // Create a HardwareSerial instance for UART2 (Serial3, pins 15/16)
+  debugln(F("Setting up audio device..."));
   HardwareSerial Serial3(2); // 2 = UART2
   Serial3.begin(57600, SERIAL_8N1, SERIAL3_RX_PIN, SERIAL3_TX_PIN);
 
   // Setup the i2c bus using the Wire protocol.
   // ESP32-S3 requires manually specifying SDA and SCL pins first.
+  debugln(F("Setting up i2c device..."));
   Wire.setPins(I2C_SDA, I2C_SCL);
   Wire.begin();
   Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
+  uint8_t i_monitor_status = monitor.begin();
+  debug(F("Power Meter Result: "));
+  debugln(i_monitor_status);
 
   debugf("Setup complete, free heap: %u bytes\n", ESP.getFreeHeap());
 }
 
 void loop() {
+  digitalWrite(LED_BUILTIN, true); // Turn on the built-in LED
   debugln(F("Main loop running..."));
   delay(1000); // Just a delay to prevent flooding the debug output
 }
