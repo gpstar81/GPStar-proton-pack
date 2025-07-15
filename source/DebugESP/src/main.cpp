@@ -72,11 +72,9 @@
   // In order to reassign and use UART0 we must burn eFuses:
   // UART_PRINT_CONTROL=3 and DIS_PAD_JTAG=1
   #define WAND_DEVICE Serial2
-  #define WAND_UARTID 0
   #define SERIAL1_DEVICE Serial1
-  #define SERIAL1_UARTID 1
-  #define AUDIO_DEVICE Serial3
-  #define AUDIO_UARTID 2
+  #define AUDIO_UARTID 0
+  HardwareSerial AUDIO_DEVICE(AUDIO_UARTID);
 #else
   // Hardware serial ports are used as-is for ATMega2560
   #define WAND_DEVICE Serial2
@@ -141,40 +139,37 @@ void setup() {
 #endif
 
 #ifdef ESP32
-  // Assign Serial1 to UART1 (pins 11/10) for the "Serial1" communications (aka. serial1Coms).
-  HardwareSerial SERIAL1_DEVICE(SERIAL1_UARTID);
-  Serial1.begin(9600, SERIAL_8N1, SERIAL1_RX_PIN, SERIAL1_TX_PIN);
+  // Assign Serial1 to UART (pins 11/10) for the "Serial1" communications (aka. serial1Coms).
+  SERIAL1_DEVICE.begin(9600, SERIAL_8N1, SERIAL1_RX_PIN, SERIAL1_TX_PIN);
 
-  // Assign Serial2 to UART0 (pins 44/43) for the Neutrona Wand communications (aka. packComs).
-  Serial0.end(); // Detach UART0 from the default Serial0 object first to avoid conflicts.
-  HardwareSerial WAND_DEVICE(WAND_UARTID);
+  // Assign Serial2 to UART (pins 44/43) for the Neutrona Wand communications (aka. packComs).
   WAND_DEVICE.begin(9600, SERIAL_8N1, SERIAL2_RX_PIN, SERIAL2_TX_PIN);
+
+  // Setup the audio device for this controller (configures UART0 as Serial3).
+  // Create a HardwareSerial instance for UART2 (Serial3, pins 15/16)
+  debugln(F("Setting up audio device..."));
+  AUDIO_DEVICE.begin(57600, SERIAL_8N1, SERIAL3_RX_PIN, SERIAL3_TX_PIN);
+
+  // Setup the i2c bus using the Wire protocol.
+  // ESP32-S3 requires manually specifying SDA and SCL pins first.
+  Wire.setPins(I2C_SDA, I2C_SCL);
+#else
+  Serial1.begin(9600);
+  Serial2.begin(9600);
+  Serial3.begin(57600);
+#endif
 
   // Connect the serial ports.
   debugln(F("Connecting serial ports..."));
   serial1Coms.begin(SERIAL1_DEVICE, false, DEBUG_PORT, 100); // Attenuator/Wireless
   packComs.begin(WAND_DEVICE, false); // Neutrona Wand
 
-  // Setup the audio device for this controller (configures UART2 as Serial3).
-  // Create a HardwareSerial instance for UART2 (Serial3, pins 15/16)
-  debugln(F("Setting up audio device..."));
-  HardwareSerial AUDIO_DEVICE(AUDIO_UARTID); // 2 = UART2
-  AUDIO_DEVICE.begin(57600, SERIAL_8N1, SERIAL3_RX_PIN, SERIAL3_TX_PIN);
-
-  // Setup the i2c bus using the Wire protocol.
-  // ESP32-S3 requires manually specifying SDA and SCL pins first.
   debugln(F("Setting up i2c device..."));
-  Wire.setPins(I2C_SDA, I2C_SCL);
   Wire.begin();
   Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
   uint8_t i_monitor_status = monitor.begin();
   debug(F("Power Meter Result: "));
   debugln(i_monitor_status);
-#else
-  Serial1.begin(9600);
-  Serial2.begin(9600);
-  Serial3.begin(57600);
-#endif
 
 #ifdef ESP32
   debugf("Setup complete, free heap: %u bytes\n", ESP.getFreeHeap());
@@ -189,12 +184,12 @@ void loop() {
   delay(1000); // Just a delay to prevent flooding the debug output
 
   // Access the serial1Coms and packComs objects to confirm they are working.
-  // if (serial1Coms.available()) {
-  //   // Process incoming data from serial1Coms
-  //   debugln(F("Data received on serial1Coms"));
-  // }
-  // if (packComs.available()) {
-  //   // Process incoming data from packComs
-  //   debugln(F("Data received on packComs"));
-  // }
+  if (serial1Coms.available()) {
+    // Process incoming data from serial1Coms
+    debugln(F("Data received on serial1Coms"));
+  }
+  if (packComs.available()) {
+    // Process incoming data from packComs
+    debugln(F("Data received on packComs"));
+  }
 }

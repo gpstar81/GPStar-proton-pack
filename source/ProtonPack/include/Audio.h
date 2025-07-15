@@ -31,6 +31,26 @@
 #include <GPStarAudio.h>
 gpstarAudio audio;
 
+// --- Serial3 definition for ESP32 ---
+// The ESP32 macro is automatically defined by the Arduino/PlatformIO toolchain
+// when compiling for ESP32-based boards. No need to define it manually.
+// HardwareSerial is provided by the ESP32 Arduino core and allows creation of
+// additional UART serial ports. See: https://docs.espressif.com/projects/arduino-esp32/en/latest/api/serial.html
+#ifdef ESP32
+  #include <HardwareSerial.h> // Provided by the ESP32 Arduino core
+  #ifndef SERIAL3_RX_PIN
+    #define SERIAL3_RX_PIN 15  // Example RX pin, change as needed
+  #endif
+  #ifndef SERIAL3_TX_PIN
+    #define SERIAL3_TX_PIN 16  // Example TX pin, change as needed
+  #endif
+  // Create a HardwareSerial instance for UART0 (Serial3)
+  HardwareSerial Serial3(0);
+#else
+  // On non-ESP32, assume Serial3 is defined by the platform
+  // (e.g., on ATmega2560, Serial3 is hardware)
+#endif
+
 /*
  * Audio Devices
  */
@@ -889,8 +909,7 @@ bool setupAudioDevice() {
   char gVersion[VERSION_STRING_LEN];
 
 #ifdef ESP32
-  // Create a HardwareSerial instance for UART2 (Serial3, pins 15/16)
-  HardwareSerial Serial3(2); // 2 = UART2
+  Serial0.end(); // To avoid conflicts with UART0, end control of Serial0.
   Serial3.begin(57600, SERIAL_8N1, SERIAL3_RX_PIN, SERIAL3_TX_PIN);
 #else
   // On non-ESP32, Serial3 is normally defined by the platform

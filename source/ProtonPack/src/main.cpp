@@ -21,7 +21,7 @@
 #include <Arduino.h>
 
 // Set to 1 to enable built-in debug messages
-#define DEBUG 1
+#define DEBUG 0
 
 // Debug macros
 #if DEBUG == 1
@@ -113,15 +113,12 @@ void setup() {
     PIN_FUNC_SELECT(IO_MUX_GPIO0_REG + (gpio_pin * 4), PIN_FUNC_GPIO);
   }
 
-  Serial0.end(); // Detach UART0 as we will be reassigning it.
   USBSerial.begin(9600); // Standard serial (USB-CDC) console (technically 19/20 but not really Tx/Rx).
 
   // Assign Serial1 to UART1 (pins 11/10) for the "Serial1" communications (aka. serial1Coms).
-  HardwareSerial Serial1(1);
   Serial1.begin(9600, SERIAL_8N1, SERIAL1_RX_PIN, SERIAL1_TX_PIN);
 
   // Assign Serial2 to UART0 (pins 44/43) for the Neutrona Wand communications (aka. packComs).
-  HardwareSerial Serial2(0);
   Serial2.begin(9600, SERIAL_8N1, SERIAL2_RX_PIN, SERIAL2_TX_PIN);
 #else
   Serial.begin(9600); // Standard HW serial (USB) console (0/1).
@@ -637,26 +634,26 @@ void loop() {
   webLoops();
 
   // Update the available audio device.
-  // debugln(F("updateAudio()"));
-  // updateAudio();
+  debugln(F("updateAudio()"));
+  updateAudio();
 
-  // debug(F("packComs.available(): "));
-  // debugln(packComs.available());
+  debug(F("packComs.available(): "));
+  debugln(packComs.available());
 
   // Check for any new serial commands were received from the Neutrona Wand.
-  // checkWand();
+  checkWand();
 
   // Check if the wand is considered to have been disconnected.
-  // wandDisconnectCheck();
+  wandDisconnectCheck();
 
   // Check if serial1 device is present.
-  // serial1HandShake();
+  serial1HandShake();
 
   // Check if any new serial commands were received.
-  // checkSerial1();
+  checkSerial1();
 
   // Handle any actions after POST event.
-  // mainLoop();
+  mainLoop();
 #else
   // Update the available audio device.
   updateAudio();
