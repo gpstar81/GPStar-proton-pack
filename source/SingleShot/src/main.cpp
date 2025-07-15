@@ -35,11 +35,13 @@
 
 // Debug macros
 #if DEBUG == 1
-#define debug(x) Serial.print(x)
-#define debugln(x) Serial.println(x)
+  #define debug(...) Serial.print(__VA_ARGS__)
+  #define debugf(...) Serial.printf(__VA_ARGS__)
+  #define debugln(...) Serial.println(__VA_ARGS__)
 #else
-#define debug(x)
-#define debugln(x)
+  #define debug(...)
+  #define debugf(...)
+  #define debugln(...)
 #endif
 
 // PROGMEM macros
@@ -106,15 +108,15 @@ void setup() {
     PIN_FUNC_SELECT(IO_MUX_GPIO0_REG + (gpio_pin * 4), PIN_FUNC_GPIO);
   }
 
-  USBSerial.begin(9600); // Standard serial (USB) console.
+  Serial.begin(9600); // Standard serial (USB-CDC) console (technically 19/20 but not really Tx/Rx).
 #else
-  Serial.begin(9600); // Standard serial (USB) console.
+  Serial.begin(9600); // Standard HW serial (USB) console (0/1).
 #endif
 
   // Setup the audio device for this controller.
   setupAudioDevice();
 
-  // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.
+  // Change PWM frequency for the vibration motor, we do not want it high pitched.
   #ifdef ESP32
     // Use of the register is not needed by ESP32, as it uses a different method for PWM.
     pinMode(VIBRATION_PIN, OUTPUT);

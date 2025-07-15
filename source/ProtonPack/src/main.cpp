@@ -25,15 +25,9 @@
 
 // Debug macros
 #if DEBUG == 1
-  #ifdef ESP32
-    #define DEBUG_PORT USBSerial
-  #else
-    #define DEBUG_PORT Serial
-  #endif
-
-  #define debug(...) DEBUG_PORT.print(__VA_ARGS__)
-  #define debugf(...) DEBUG_PORT.printf(__VA_ARGS__)
-  #define debugln(...) DEBUG_PORT.println(__VA_ARGS__)
+  #define debug(...) Serial.print(__VA_ARGS__)
+  #define debugf(...) Serial.printf(__VA_ARGS__)
+  #define debugln(...) Serial.println(__VA_ARGS__)
 #else
   #define debug(...)
   #define debugf(...)
@@ -56,7 +50,7 @@
 #include <SerialTransfer.h>
 #include <Wire.h>
 #ifdef ESP32
-  // Provided by the ESP32 Arduino core  
+  // Provided by the ESP32 Arduino core
   #include <HardwareSerial.h>
 #endif
 
@@ -79,31 +73,8 @@
   #include "Wireless.h"
 #endif
 
-#ifdef ESP32
-  #include "esp_system.h"
-
-  const char* resetReasonToString(esp_reset_reason_t reason) {
-    switch (reason) {
-      case ESP_RST_POWERON:    return "Power-on reset";
-      case ESP_RST_EXT:        return "External reset";
-      case ESP_RST_SW:         return "Software reset";
-      case ESP_RST_PANIC:      return "Panic reset";
-      case ESP_RST_INT_WDT:    return "Interrupt watchdog";
-      case ESP_RST_TASK_WDT:   return "Task watchdog";
-      case ESP_RST_WDT:        return "Other watchdog reset";
-      case ESP_RST_DEEPSLEEP:  return "Deep sleep reset";
-      case ESP_RST_BROWNOUT:   return "Brownout reset";
-      case ESP_RST_SDIO:       return "SDIO reset";
-      default:                 return "Unknown reset reason";
-    }
-  }
-#endif
-
 void setup() {
 #ifdef ESP32
-  esp_reset_reason_t reason = esp_reset_reason();
-  debugf("Reset reason: %s (%d)\n", resetReasonToString(reason), reason);
-
   /* This loop changes GPIO39~GPIO44 to Function 1, which is GPIO.
    * PIN_FUNC_SELECT sets the IOMUX function register appropriately.
    * IO_MUX_GPIO0_REG is the register for GPIO0, which we then seek from.
@@ -113,12 +84,12 @@ void setup() {
     PIN_FUNC_SELECT(IO_MUX_GPIO0_REG + (gpio_pin * 4), PIN_FUNC_GPIO);
   }
 
-  USBSerial.begin(9600); // Standard serial (USB-CDC) console (technically 19/20 but not really Tx/Rx).
+  Serial.begin(9600); // Standard serial (USB-CDC) console (technically 19/20 but not really Tx/Rx).
 
-  // Assign Serial1 to UART1 (pins 11/10) for the "Serial1" communications (aka. serial1Coms).
+  // Assign Serial1 to pins 11/10 for the "Serial1" communications (aka. serial1Coms).
   Serial1.begin(9600, SERIAL_8N1, SERIAL1_RX_PIN, SERIAL1_TX_PIN);
 
-  // Assign Serial2 to UART0 (pins 44/43) for the Neutrona Wand communications (aka. packComs).
+  // Assign Serial2 to pins 44/43 for the Neutrona Wand communications (aka. packComs).
   Serial2.begin(9600, SERIAL_8N1, SERIAL2_RX_PIN, SERIAL2_TX_PIN);
 #else
   Serial.begin(9600); // Standard HW serial (USB) console (0/1).
@@ -127,12 +98,10 @@ void setup() {
 #endif
 
   // Connect the serial ports.
-  debugln(F("Connecting serial ports..."));
   serial1Coms.begin(Serial1, false, Serial, 100); // Attenuator/Wireless
   packComs.begin(Serial2, false); // Neutrona Wand
 
-  // Setup the audio device for this controller (configures UART2 as Serial3).
-  debugln(F("Setting up audio device..."));
+  // Setup the audio device for this controller.
   setupAudioDevice();
 
   // Setup the i2c bus using the Wire protocol.
@@ -632,47 +601,25 @@ void loop() {
 #ifdef ESP32
   // Run checks on web-related tasks.
   webLoops();
-
-  // Update the available audio device.
-  debugln(F("updateAudio()"));
-  updateAudio();
-
-  debug(F("packComs.available(): "));
-  debugln(packComs.available());
-
-  // Check for any new serial commands were received from the Neutrona Wand.
-  checkWand();
-
-  // Check if the wand is considered to have been disconnected.
-  wandDisconnectCheck();
-
-  // Check if serial1 device is present.
-  serial1HandShake();
-
-  // Check if any new serial commands were received.
-  checkSerial1();
-
-  // Handle any actions after POST event.
-  mainLoop();
-#else
-  // Update the available audio device.
-  updateAudio();
-
-  // Check for any new serial commands were received from the Neutrona Wand.
-  checkWand();
-
-  // Check if the wand is considered to have been disconnected.
-  wandDisconnectCheck();
-
-  // Check if serial1 device is present.
-  serial1HandShake();
-
-  // Check if any new serial commands were received.
-  checkSerial1();
-
-  // Handle any actions after POST event.
-  mainLoop();
 #endif
+
+  // Update the available audio device.
+  updateAudio();
+
+  // Check for any new serial commands were received from the Neutrona Wand.
+  checkWand();
+
+  // Check if the wand is considered to have been disconnected.
+  wandDisconnectCheck();
+
+  // Check if serial1 device is present.
+  serial1HandShake();
+
+  // Check if any new serial commands were received.
+  checkSerial1();
+
+  // Handle any actions after POST event.
+  mainLoop();
 
   // Update the LEDs
   if(ms_fast_led.justFinished()) {

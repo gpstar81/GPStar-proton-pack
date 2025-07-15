@@ -33,11 +33,13 @@
 
 // Debug macros
 #if DEBUG == 1
-#define debug(x) Serial.print(x)
-#define debugln(x) Serial.println(x)
+  #define debug(...) Serial.print(__VA_ARGS__)
+  #define debugf(...) Serial.printf(__VA_ARGS__)
+  #define debugln(...) Serial.println(__VA_ARGS__)
 #else
-#define debug(x)
-#define debugln(x)
+  #define debug(...)
+  #define debugf(...)
+  #define debugln(...)
 #endif
 
 // PROGMEM macros
@@ -53,8 +55,8 @@
 #include <FastLED.h>
 #include <avdweb_Switch.h>
 #include <ht16k33.h>
-#include <Wire.h>
 #include <SerialTransfer.h>
+#include <Wire.h>
 #ifdef ESP32
   #include <Adafruit_LIS3MDL.h>
   #include <SparkFunLSM6DS3.h>
@@ -81,13 +83,6 @@
 
 void setup() {
 #ifdef ESP32
-  #ifndef SERIAL1_RX_PIN
-    #define SERIAL1_RX_PIN 21
-  #endif
-  #ifndef SERIAL1_TX_PIN
-    #define SERIAL1_TX_PIN 14
-  #endif
-
   /* This loop changes GPIO39~GPIO44 to Function 1, which is GPIO.
    * PIN_FUNC_SELECT sets the IOMUX function register appropriately.
    * IO_MUX_GPIO0_REG is the register for GPIO0, which we then seek from.
@@ -97,19 +92,22 @@ void setup() {
     PIN_FUNC_SELECT(IO_MUX_GPIO0_REG + (gpio_pin * 4), PIN_FUNC_GPIO);
   }
 
-  USBSerial.begin(9600); // Standard serial (USB) console.
-  HardwareSerial Serial1(1); // Assign Serial1 to UART1.
-  Serial1.begin(9600, SERIAL_8N1, SERIAL1_RX_PIN, SERIAL1_TX_PIN); // Communication to the Proton Pack.
+  Serial.begin(9600); // Standard serial (USB-CDC) console (technically 19/20 but not really Tx/Rx).
+
+  // Assign Serial1 to pins 21/14 for the Proton Pack communications (aka. wandComs).
+  Serial1.begin(9600, SERIAL_8N1, SERIAL1_RX_PIN, SERIAL1_TX_PIN);
 #else
-  Serial.begin(9600); // Standard serial (USB) console.
+  Serial.begin(9600); // Standard HW serial (USB) console (0/1).
   Serial1.begin(9600); // Communication to the Proton Pack.
 #endif
-  wandComs.begin(Serial1, false);
+
+  // Connect the serial ports.
+  wandComs.begin(Serial1, false); // Proton Pack
 
   // Setup the audio device for this controller.
   setupAudioDevice();
 
-  // Change PWM frequency of pin 11 for the vibration motor, we do not want it high pitched.
+  // Change PWM frequency for the vibration motor, we do not want it high pitched.
   #ifdef ESP32
     // Use of the register is not needed by ESP32, as it uses a different method for PWM.
     pinMode(VIBRATION_PIN, OUTPUT);
@@ -166,7 +164,7 @@ void setup() {
 
 #ifdef ESP32
   // ESP32-S3 requires manually specifying SDA and SCL pins first.
-  Wire.setPins(15,16);
+  Wire.setPins(I2C_SDA, I2C_SCL);
 #endif
   Wire.begin();
   Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
@@ -276,6 +274,10 @@ void setup() {
   else {
     WAND_CONN_STATE = PACK_DISCONNECTED;
   }
+
+#ifdef ESP32
+  debugf("Setup complete, free heap: %u bytes\n", ESP.getFreeHeap());
+#endif
 }
 
 void mainLoop() {

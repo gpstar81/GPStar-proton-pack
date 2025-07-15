@@ -62,15 +62,15 @@ fi
 
 # Copy the new firmware to the expected binaries directory
 if [ -f ${PROJECT_DIR}/.pio/build/esp32s3/firmware.bin ]; then
-  mv ${PROJECT_DIR}/.pio/build/esp32s3/firmware.bin ${BINDIR}/wand/NeutronaWand-ESP32.bin
+  mv ${PROJECT_DIR}/.pio/build/esp32s3/firmware.bin ${BINDIR}/wand/NeutronaWandII-ESP32.bin
   echo "Firmware copy completed."
 fi
 if [ -f ${PROJECT_DIR}/.pio/build/esp32s3/bootloader.bin ]; then
-  mv ${PROJECT_DIR}/.pio/build/esp32s3/bootloader.bin ${BINDIR}/wand/extras/NeutronaWand-ESP32-Bootloader.bin
+  mv ${PROJECT_DIR}/.pio/build/esp32s3/bootloader.bin ${BINDIR}/wand/extras/NeutronaWandII-ESP32-Bootloader.bin
   echo "Bootloader copy completed."
 fi
 if [ -f ${PROJECT_DIR}/.pio/build/esp32s3/partitions.bin ]; then
-  mv ${PROJECT_DIR}/.pio/build/esp32s3/partitions.bin ${BINDIR}/wand/extras/NeutronaWand-ESP32-Partitions.bin
+  mv ${PROJECT_DIR}/.pio/build/esp32s3/partitions.bin ${BINDIR}/wand/extras/NeutronaWandII-ESP32-Partitions.bin
   echo "Partitions copy completed."
 fi
 echo ""
@@ -129,7 +129,7 @@ fi
 
 # Copy the new firmware to the expected binaries directory
 if [ -f ${PROJECT_DIR}/.pio/build/esp32s3/firmware.bin ]; then
-  mv ${PROJECT_DIR}/.pio/build/esp32s3/firmware.bin ${BINDIR}/wand/extras/NeutronaWand-BenchTest-ESP32.bin
+  mv ${PROJECT_DIR}/.pio/build/esp32s3/firmware.bin ${BINDIR}/wand/extras/NeutronaWandII-BenchTest-ESP32.bin
   echo "Firmware copy completed."
 fi
 echo ""

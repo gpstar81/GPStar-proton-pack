@@ -23,7 +23,7 @@
 /*
  * Used to reflect the last build date for the binary.
  */
-String build_date = "V6_20250713090939";
+String build_date = "V6_20250715130926";
 
 /*
  * Preferred WiFi Network Defaults (only for ESP32)
@@ -49,7 +49,7 @@ String user_wifi_pass = ""; // Preferred network password for external WiFi
  * to a new and known value. When completed, flash the latest version of
  * the software which has this line commented out.
  */
-//#define RESET_AP_SETTINGS
+#define RESET_AP_SETTINGS
 
 /*
  * -------------****** CUSTOM USER CONFIGURABLE SETTINGS ******-------------

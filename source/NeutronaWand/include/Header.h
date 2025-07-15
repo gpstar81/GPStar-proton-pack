@@ -23,52 +23,64 @@
  * All input and output pin definitions go here.
  */
 #ifdef ESP32
-#define INTENSIFY_SWITCH_PIN 39
-#define ACTIVATE_SWITCH_PIN 40
-#define VENT_SWITCH_PIN 45
-#define ROTARY_ENCODER_A 4
-#define ROTARY_ENCODER_B 5
-#define SLO_BLO_LED_PIN 12 // SLO-BLO LED. (Red LED)
-#define CLIPPARD_LED_PIN 3 // LED underneath the Clippard valve. (Orange or White LED)
-#define BARREL_LED_PIN 41 // Data pin for the addressable LEDs in the barrel.
-#define VIBRATION_PIN 18 // Pin for the vibration motor.
-#define TOP_LED_PIN 42 // RGB Vent light.
-#define BARREL_HAT_LED_PIN 10 // Hat light at front of the wand near the barrel tip. (Orange LED)
-#define TOP_HAT_LED_PIN 9 // Hat light at top of the wand body near vent. (Orange or White LED)
-#define BARREL_TIP_LED_PIN 46 // White LED at tip of the wand barrel. (White LED)
-#define WAND_STATUS_LED_PIN 38 // V1.4 GPStar Neutrona Wand onboard LED pin.
-#define WAND_SWITCH_PIN 8
-#define MODE_SWITCH_PIN 11
-#define BARREL_SWITCH_PIN 13
-#define IR_LED_PIN 17
-#define GYRO_INT1_PIN 1
-#define GYRO_INT2_PIN 2
-#define MAG_INT_PIN 43
-#define MAG_RDY_PIN 44
+  // For the Proton Pack
+  #ifndef SERIAL1_RX_PIN
+    #define SERIAL1_RX_PIN 21
+  #endif
+  #ifndef SERIAL1_TX_PIN
+    #define SERIAL1_TX_PIN 14
+  #endif
+
+  // For the i2c Bus
+  #define I2C_SCL 16
+  #define I2C_SDA 15
+
+  #define INTENSIFY_SWITCH_PIN 39
+  #define ACTIVATE_SWITCH_PIN 40
+  #define VENT_SWITCH_PIN 45
+  #define ROTARY_ENCODER_A 4
+  #define ROTARY_ENCODER_B 5
+  #define SLO_BLO_LED_PIN 12 // SLO-BLO LED. (Red LED)
+  #define CLIPPARD_LED_PIN 3 // LED underneath the Clippard valve. (Orange or White LED)
+  #define BARREL_LED_PIN 41 // Data pin for the addressable LEDs in the barrel.
+  #define VIBRATION_PIN 18 // Pin for the vibration motor.
+  #define TOP_LED_PIN 42 // RGB Vent light.
+  #define BARREL_HAT_LED_PIN 10 // Hat light at front of the wand near the barrel tip. (Orange LED)
+  #define TOP_HAT_LED_PIN 9 // Hat light at top of the wand body near vent. (Orange or White LED)
+  #define BARREL_TIP_LED_PIN 46 // White LED at tip of the wand barrel. (White LED)
+  #define WAND_STATUS_LED_PIN 38 // V1.4 GPStar Neutrona Wand onboard LED pin.
+  #define WAND_SWITCH_PIN 8
+  #define MODE_SWITCH_PIN 11
+  #define BARREL_SWITCH_PIN 13
+  #define IR_LED_PIN 17
+  #define GYRO_INT1_PIN 1
+  #define GYRO_INT2_PIN 2
+  #define MAG_INT_PIN 43
+  #define MAG_RDY_PIN 44
 #else
-#define INTENSIFY_SWITCH_PIN 2
-#define ACTIVATE_SWITCH_PIN 3
-#define VENT_SWITCH_PIN 4
-#define ROTARY_ENCODER_A 6
-#define ROTARY_ENCODER_B 7
-#define SLO_BLO_LED_PIN 8 // SLO-BLO LED. (Red LED)
-#define CLIPPARD_LED_PIN 9 // LED underneath the Clippard valve. (Orange or White LED)
-#define BARREL_LED_PIN 10 // Data pin for the addressable LEDs in the barrel.
-#define VIBRATION_PIN 11 // Pin for the vibration motor.
-#define TOP_LED_PIN 12 // Blinking white light beside the vent on top of the wand.
-#define VENT_LED_PIN 13 // Vent light.
-#define BARREL_HAT_LED_PIN 22 // Hat light at front of the wand near the barrel tip. (Orange LED)
-#define TOP_HAT_LED_PIN 23 // Hat light at top of the wand body near vent. (Orange or White LED)
-#define BARREL_TIP_LED_PIN 24 // White LED at tip of the wand barrel. (White LED)
-#define WAND_STATUS_LED_PIN 38 // V1.4 GPStar Neutrona Wand onboard LED pin.
-#define WAND_SWITCH_PIN A0
-#define BARGRAPH_LED_1_PIN A1
-#define BARGRAPH_LED_2_PIN A2
-#define BARGRAPH_LED_3_PIN A3
-#define BARGRAPH_LED_4_PIN A4
-#define BARGRAPH_LED_5_PIN A5
-#define MODE_SWITCH_PIN A6
-#define BARREL_SWITCH_PIN A7
+  #define INTENSIFY_SWITCH_PIN 2
+  #define ACTIVATE_SWITCH_PIN 3
+  #define VENT_SWITCH_PIN 4
+  #define ROTARY_ENCODER_A 6
+  #define ROTARY_ENCODER_B 7
+  #define SLO_BLO_LED_PIN 8 // SLO-BLO LED. (Red LED)
+  #define CLIPPARD_LED_PIN 9 // LED underneath the Clippard valve. (Orange or White LED)
+  #define BARREL_LED_PIN 10 // Data pin for the addressable LEDs in the barrel.
+  #define VIBRATION_PIN 11 // Pin for the vibration motor.
+  #define TOP_LED_PIN 12 // Blinking white light beside the vent on top of the wand.
+  #define VENT_LED_PIN 13 // Vent light.
+  #define BARREL_HAT_LED_PIN 22 // Hat light at front of the wand near the barrel tip. (Orange LED)
+  #define TOP_HAT_LED_PIN 23 // Hat light at top of the wand body near vent. (Orange or White LED)
+  #define BARREL_TIP_LED_PIN 24 // White LED at tip of the wand barrel. (White LED)
+  #define WAND_STATUS_LED_PIN 38 // V1.4 GPStar Neutrona Wand onboard LED pin.
+  #define WAND_SWITCH_PIN A0
+  #define BARGRAPH_LED_1_PIN A1
+  #define BARGRAPH_LED_2_PIN A2
+  #define BARGRAPH_LED_3_PIN A3
+  #define BARGRAPH_LED_4_PIN A4
+  #define BARGRAPH_LED_5_PIN A5
+  #define MODE_SWITCH_PIN A6
+  #define BARREL_SWITCH_PIN A7
 #endif
 
 /*

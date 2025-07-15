@@ -60,11 +60,15 @@ enum POWER_LEVELS POWER_LEVEL_PREV;
  * LED #1 is the "top" (near the DIN pin) while #7 is the dead center of the jewel itself.
  */
 #ifdef ESP32
-#define SYSTEM_LED_PIN 41
-#define TOP_LED_PIN 42
+  // For the i2c Bus
+  #define I2C_SCL 16
+  #define I2C_SDA 15
+
+  #define SYSTEM_LED_PIN 41
+  #define TOP_LED_PIN 42
 #else
-#define SYSTEM_LED_PIN 10
-#define TOP_LED_PIN 12
+  #define SYSTEM_LED_PIN 10
+  #define TOP_LED_PIN 12
 #endif
 #define CYCLOTRON_LED_COUNT 7 // GPStar 7-LED Jewel
 #define BARREL_LED_COUNT 7 // GPStar 7-LED Jewel
