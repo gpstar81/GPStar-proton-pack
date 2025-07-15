@@ -146,8 +146,8 @@ void setup() {
   Serial1.begin(9600, SERIAL_8N1, SERIAL1_RX_PIN, SERIAL1_TX_PIN);
 
   // Assign Serial2 to UART0 (pins 44/43) for the Neutrona Wand communications (aka. packComs).
+  Serial0.end(); // Detach UART0 from the default Serial0 object first to avoid conflicts.
   HardwareSerial WAND_DEVICE(WAND_UARTID);
-  WAND_DEVICE.end(); // Detach from UART0 first to avoid conflicts.
   WAND_DEVICE.begin(9600, SERIAL_8N1, SERIAL2_RX_PIN, SERIAL2_TX_PIN);
 
   // Connect the serial ports.
