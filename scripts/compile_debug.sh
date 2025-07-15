@@ -30,8 +30,8 @@ else
 fi
 
 # Copy the new firmware to the expected binaries directory
-if [ -f ${PROJECT_DIR}/.pio/build/esp32s3/firmware.elf ]; then
-  mv ${PROJECT_DIR}/.pio/build/esp32s3/firmware.elf ${BINDIR}/DebugESP/DebugESP-ESP32.bin
+if [ -f ${PROJECT_DIR}/.pio/build/esp32s3/firmware.bin ]; then
+  mv ${PROJECT_DIR}/.pio/build/esp32s3/firmware.bin ${BINDIR}/DebugESP/DebugESP-ESP32.bin
   echo "Firmware copy completed."
 fi
 if [ -f ${PROJECT_DIR}/.pio/build/esp32s3/bootloader.bin ]; then
