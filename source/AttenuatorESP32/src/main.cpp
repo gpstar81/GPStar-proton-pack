@@ -392,9 +392,9 @@ void setup() {
   Serial.begin(115200); // Serial monitor via USB connection.
   delay(1000); // Provide a delay to allow serial output.
 
-  // Expect a Serial2 connection with communication to a GPStar Proton Pack PCB.
-  Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
-  packComs.begin(Serial2, false, Serial, 100);
+  // Expect a PackSerial connection with communication to a GPStar Proton Pack PCB.
+  PackSerial.begin(9600, SERIAL_8N1, RXD2, TXD2);
+  packComs.begin(PackSerial, false, Serial, 100);
 
   // Prepare the on-board (non-power) LED to be used as an output pin for indication.
   pinMode(BUILT_IN_LED, OUTPUT);

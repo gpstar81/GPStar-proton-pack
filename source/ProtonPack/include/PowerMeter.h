@@ -201,7 +201,7 @@ void updateWandPowerState() {
   // This is called whenever the power meter is available--for wand hot-swapping purposes.
   // Data is sent as integer so this is sent multiplied by 100 to get 2 decimal precision.
   if(si_update == 0) {
-    serial1Send(A_WAND_POWER_AMPS, f_sliding_window[19] * 100);
+    attenuatorSend(A_WAND_POWER_AMPS, f_sliding_window[19] * 100);
   }
 
   // Handle packside overheat sequence.
@@ -273,7 +273,7 @@ void updateWandPowerState() {
 
       // Wand must have been fully activated, so set variables accordingly.
       b_wand_on = true;
-      serial1Send(A_WAND_ON);
+      attenuatorSend(A_WAND_ON);
       b_wand_just_started = true;
 
       // The Hasbro wand cannot fire for 2.75 seconds after activation, so add a null period.
@@ -286,11 +286,11 @@ void updateWandPowerState() {
         b_wand_overheated = false;
 
         // Fake a full-power proton stream setting to the Attenuator
-        serial1Send(A_POWER_LEVEL_5);
-        serial1Send(A_PROTON_MODE);
+        attenuatorSend(A_POWER_LEVEL_5);
+        attenuatorSend(A_PROTON_MODE);
 
         // Tell the Attenuator the pack is powered on
-        serial1Send(A_PACK_ON);
+        attenuatorSend(A_PACK_ON);
       }
     }
     else if(b_pack_started_by_meter) {
@@ -318,13 +318,13 @@ void updateWandPowerState() {
         // Turn the pack off.
         if(PACK_STATE != MODE_OFF) {
           PACK_ACTION_STATE = ACTION_OFF;
-          serial1Send(A_PACK_OFF);
+          attenuatorSend(A_PACK_OFF);
         }
       }
 
       b_wand_on = false;
       b_pack_started_by_meter = false;
-      serial1Send(A_WAND_OFF);
+      attenuatorSend(A_WAND_OFF);
     }
     else if(PACK_STATE == MODE_OFF) {
       b_pack_started_by_meter = false; // Make sure this is kept as false since the pack was manually shut down.
@@ -382,11 +382,11 @@ void updateWandPowerState() {
   }
 }
 
-// Send latest voltage value to the serial1 device, if connected.
+// Send latest voltage value to the Attenuator, if connected.
 void updatePackPowerState() {
-  if(b_serial1_connected) {
+  if(b_attenuator_connected) {
     // Data is sent as uint16_t so this is already multiplied by 100 to get 2 decimal precision.
-    serial1Send(A_BATTERY_VOLTAGE_PACK, packReading.BusVoltage);
+    attenuatorSend(A_BATTERY_VOLTAGE_PACK, packReading.BusVoltage);
   }
 }
 
@@ -444,10 +444,10 @@ void checkPowerMeter() {
         b_wand_on = false;
         b_pack_started_by_meter = false;
         PACK_ACTION_STATE = ACTION_OFF;
-        serial1Send(A_WAND_OFF);
-        serial1Send(A_PACK_OFF);
-        serial1Send(A_POWER_LEVEL_1);
-        serial1Send(A_WAND_POWER_AMPS, 0);
+        attenuatorSend(A_WAND_OFF);
+        attenuatorSend(A_PACK_OFF);
+        attenuatorSend(A_POWER_LEVEL_1);
+        attenuatorSend(A_WAND_POWER_AMPS, 0);
       }
     }
 

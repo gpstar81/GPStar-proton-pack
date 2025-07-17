@@ -19,6 +19,24 @@
 
 #pragma once
 
+/*
+ * Proton Pack communication.
+ */
+#ifdef ESP32
+// ESP32 allows defining custom objects, so create one using UART1.
+#ifndef PACK_RX_PIN
+  #define PACK_RX_PIN 21
+#endif
+#ifndef PACK_TX_PIN
+  #define PACK_TX_PIN 14
+#endif
+HardwareSerial PackSerial(1);
+#else
+// ATMEGA 2560 has hardcoded serial UART objects, so use aliases instead.
+#define PackSerial Serial1
+#endif
+SerialTransfer packComs;
+
 // Types of packets to be sent.
 enum PACKET_TYPE : uint8_t {
   PACKET_UNKNOWN = 0,
@@ -142,8 +160,8 @@ void wandSerialSend(uint8_t i_command, uint16_t i_value) {
     ms_handshake.restart();
   }
 
-  i_send_size = wandComs.txObj(sendCmd);
-  wandComs.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
+  i_send_size = packComs.txObj(sendCmd);
+  packComs.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
 }
 // Override function to handle calls with a single parameter.
 void wandSerialSend(uint8_t i_command) {
@@ -303,8 +321,8 @@ void wandSerialSendData(uint8_t i_message) {
         break;
       }
 
-      i_send_size = wandComs.txObj(wandConfig);
-      wandComs.sendData(i_send_size, (uint8_t) PACKET_WAND);
+      i_send_size = packComs.txObj(wandConfig);
+      packComs.sendData(i_send_size, (uint8_t) PACKET_WAND);
     break;
 
     case W_SEND_PREFERENCES_SMOKE:
@@ -322,8 +340,8 @@ void wandSerialSendData(uint8_t i_message) {
       smokeConfig.overheatDelay2 = (uint8_t)(i_ms_overheat_initiate_level_2 / 1000);
       smokeConfig.overheatDelay1 = (uint8_t)(i_ms_overheat_initiate_level_1 / 1000);
 
-      i_send_size = wandComs.txObj(smokeConfig);
-      wandComs.sendData(i_send_size, (uint8_t) PACKET_SMOKE);
+      i_send_size = packComs.txObj(smokeConfig);
+      packComs.sendData(i_send_size, (uint8_t) PACKET_SMOKE);
     break;
 
     default:
@@ -342,16 +360,16 @@ void checkPack() {
     return;
   }
 
-  if(wandComs.available() > 0) {
-    uint8_t i_packet_id = wandComs.currentPacketID();
+  if(packComs.available() > 0) {
+    uint8_t i_packet_id = packComs.currentPacketID();
     // debug(F("PacketID: "));
     // debugln(i_packet_id);
 
     if(i_packet_id > 0) {
-      // Determine the type of packet which was sent by the serial1 device.
+      // Determine the type of packet which was sent by the Attenuator.
       switch(i_packet_id) {
         case PACKET_COMMAND:
-          wandComs.rxObj(recvCmd);
+          packComs.rxObj(recvCmd);
           if(recvCmd.c > 0 && recvCmd.s == P_COM_START && recvCmd.e == P_COM_END) {
             debug(F("Recv. Command: "));
             debugln(recvCmd.c);
@@ -416,7 +434,7 @@ void checkPack() {
         break;
 
         case PACKET_DATA:
-          wandComs.rxObj(recvData);
+          packComs.rxObj(recvData);
           if(recvData.m > 0 && recvData.s == P_COM_START && recvData.e == P_COM_END) {
             debug(F("Recv. Message: "));
             debugln(recvData.m);
@@ -430,7 +448,7 @@ void checkPack() {
         break;
 
         case PACKET_WAND:
-          wandComs.rxObj(wandConfig);
+          packComs.rxObj(wandConfig);
           debugln(F("Recv. Wand Config"));
 
           // Writes new preferences back to runtime variables.
@@ -617,7 +635,7 @@ void checkPack() {
         break;
 
         case PACKET_SMOKE:
-          wandComs.rxObj(smokeConfig);
+          packComs.rxObj(smokeConfig);
           debugln(F("Recv. Smoke Config"));
 
           // Writes new preferences back to runtime variables.
@@ -640,7 +658,7 @@ void checkPack() {
         break;
 
         case PACKET_SYNC:
-          wandComs.rxObj(wandSyncData);
+          packComs.rxObj(wandSyncData);
           debugln(F("Recv. Sync Payload"));
 
           // Write the received data to runtime variables.

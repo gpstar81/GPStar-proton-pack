@@ -23,14 +23,6 @@
  * All input and output pin definitions go here.
  */
 #ifdef ESP32
-  // For the Proton Pack
-  #ifndef SERIAL1_RX_PIN
-    #define SERIAL1_RX_PIN 21
-  #endif
-  #ifndef SERIAL1_TX_PIN
-    #define SERIAL1_TX_PIN 14
-  #endif
-
   // For the i2c Bus
   #define I2C_SCL 16
   #define I2C_SDA 15
@@ -456,11 +448,6 @@ uint8_t i_barrel_light = 0; // Used to keep track which LED in the barrel is cur
 uint8_t i_pulse_step = 0; // Used to keep track of which pulse animation step we are on.
 uint8_t i_slime_tether_count = 0; // Used to keep track of how many slime tethers have been fired.
 uint16_t i_last_firing_effect_mix = 0; // Used by standalone Neutrona Wand.
-
-/*
- * Wand / Pack communication
- */
-SerialTransfer wandComs;
 
 /*
  * Wand Connection State

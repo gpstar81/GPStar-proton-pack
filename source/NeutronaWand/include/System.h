@@ -10067,7 +10067,7 @@ void wandExitEEPROMMenu() {
   // Reset the white LED blink rate setting in case we changed years.
   resetWhiteLEDBlinkRate();
 
-  // Send current preferences to the pack for use by the serial1 device.
+  // Send current preferences to the pack for use by the Attenuator.
   wandSerialSend(W_SEND_PREFERENCES_WAND);
   wandSerialSend(W_SEND_PREFERENCES_SMOKE);
 }

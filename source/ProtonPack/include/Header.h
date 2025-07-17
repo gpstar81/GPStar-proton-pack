@@ -23,30 +23,6 @@
  * All input and output pin definitions go here.
  */
 #ifdef ESP32
-  // For the Serial1 add-on device
-  #ifndef SERIAL1_TX_PIN
-    #define SERIAL1_TX_PIN 10
-  #endif
-  #ifndef SERIAL1_RX_PIN
-    #define SERIAL1_RX_PIN 11
-  #endif
-
-  // For the Neutrona Wand
-  #ifndef SERIAL2_TX_PIN
-    #define SERIAL2_TX_PIN 43 // TXD0 = 43
-  #endif
-  #ifndef SERIAL2_RX_PIN
-    #define SERIAL2_RX_PIN 44 // RXD0 = 44
-  #endif
-
-  // For the audio device
-  #ifndef SERIAL3_RX_PIN
-    #define SERIAL3_RX_PIN 15
-  #endif
-  #ifndef SERIAL3_TX_PIN
-    #define SERIAL3_TX_PIN 16
-  #endif
-
   // For the i2c Bus
   #define I2C_SCL 39
   #define I2C_SDA 40
@@ -442,18 +418,12 @@ millisDelay ms_mash_lockout; // Timer for tracking the expected button-mash lock
 const uint16_t i_wand_disconnect_delay = 8000; // Time until the pack considers a wand as disconnected.
 
 /*
- * Serial1 Status
+ * Attenuator Status
  */
-bool b_serial1_connected = false;
-bool b_serial1_syncing = false;
-millisDelay ms_serial1_check;
-const uint16_t i_serial1_disconnect_delay = 8000; // Time until the pack considers the Serial1 device disconnected.
-
-/*
- * Define Serial Communication Buffers
- */
-SerialTransfer serial1Coms;
-SerialTransfer packComs;
+bool b_attenuator_connected = false;
+bool b_attenuator_syncing = false;
+millisDelay ms_attenuator_check;
+const uint16_t i_attenuator_disconnect_delay = 8000; // Time until the pack considers the Attenuator disconnected.
 
 /*
  * Firing timers
@@ -534,10 +504,10 @@ millisDelay ms_fadeout;
 void packSerialSend(uint8_t i_command, uint16_t i_value);
 void packSerialSend(uint8_t i_command);
 void packSerialSendData(uint8_t i_message);
-void serial1Send(uint8_t i_command, uint16_t i_value);
-void serial1Send(uint8_t i_command);
-void serial1SendData(uint8_t i_message);
-void checkSerial1();
+void attenuatorSend(uint8_t i_command, uint16_t i_value);
+void attenuatorSend(uint8_t i_command);
+void attenuatorSendData(uint8_t i_message);
+void checkAttenuator();
 void checkWand();
 void powercellDraw(uint8_t i_start = 0);
 

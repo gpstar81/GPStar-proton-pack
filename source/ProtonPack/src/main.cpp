@@ -50,7 +50,6 @@
 #include <SerialTransfer.h>
 #include <Wire.h>
 #ifdef ESP32
-  // Provided by the ESP32 Arduino core
   #include <HardwareSerial.h>
 #endif
 
@@ -74,6 +73,7 @@
 #endif
 
 void setup() {
+  Serial.begin(9600); // Standard HW serial (USB) console.
 #ifdef ESP32
   /* This loop changes GPIO39~GPIO44 to Function 1, which is GPIO.
    * PIN_FUNC_SELECT sets the IOMUX function register appropriately.
@@ -84,22 +84,19 @@ void setup() {
     PIN_FUNC_SELECT(IO_MUX_GPIO0_REG + (gpio_pin * 4), PIN_FUNC_GPIO);
   }
 
-  Serial.begin(9600); // Standard serial (USB-CDC) console (technically 19/20 but not really Tx/Rx).
+  // Assign AttenuatorSerial to pins 11/10 for the Attenuator/Wireless communications.
+  AttenuatorSerial.begin(9600, SERIAL_8N1, ATTENUATOR_RX_PIN, ATTENUATOR_TX_PIN);
 
-  // Assign Serial1 to pins 11/10 for the "Serial1" communications (aka. serial1Coms).
-  Serial1.begin(9600, SERIAL_8N1, SERIAL1_RX_PIN, SERIAL1_TX_PIN);
-
-  // Assign Serial2 to pins 44/43 for the Neutrona Wand communications (aka. packComs).
-  Serial2.begin(9600, SERIAL_8N1, SERIAL2_RX_PIN, SERIAL2_TX_PIN);
+  // Assign Serial2 to pins 44/43 for the Neutrona Wand communications.
+  WandSerial.begin(9600, SERIAL_8N1, WAND_RX_PIN, WAND_TX_PIN);
 #else
-  Serial.begin(9600); // Standard HW serial (USB) console (0/1).
-  Serial1.begin(9600); // Add-on "Serial1" communication (19/18).
-  Serial2.begin(9600); // Communication to the Neutrona Wand (17/16).
+  AttenuatorSerial.begin(9600); // Add-on Attenuator communication (19/18).
+  WandSerial.begin(9600); // Communication to the Neutrona Wand (17/16).
 #endif
 
-  // Connect the serial ports.
-  serial1Coms.begin(Serial1, false, Serial, 100); // Attenuator/Wireless
-  packComs.begin(Serial2, false); // Neutrona Wand
+  // Initialize the SerialTransfer objects by passing in the appropriate ports.
+  attenuatorComs.begin(AttenuatorSerial, false, Serial, 100); // Attenuator/Wireless
+  wandComs.begin(WandSerial, false); // Neutrona Wand
 
   // Setup the audio device for this controller.
   setupAudioDevice();
@@ -139,8 +136,7 @@ void setup() {
 // Change PWM frequency of pin 45 for the vibration motor, we do not want it high pitched.
 #ifdef ESP32
   // Use of the register is not needed by ESP32, as it uses a different method for PWM.
-  pinMode(VIBRATION_PIN, OUTPUT);
-  //ledcAttachChannel(VIBRATION_PIN, 123, 8, 5); // Uses 123 Hz frequency, 8-bit resolution, channel 5.
+  ledcAttachChannel(VIBRATION_PIN, 123, 8, 5); // Uses 123 Hz frequency, 8-bit resolution, channel 5.
 #else
   // For ATmega2560, we set the PWM frequency for pin 45 (TCCR5B) to 122.55 Hz.
   TCCR5B = (TCCR5B & B11111000) | B00000100;
@@ -264,7 +260,7 @@ void setup() {
   // Start some timers
   ms_fast_led.start(i_fast_led_delay);
   ms_check_music.start(i_music_check_delay);
-  ms_serial1_check.start(i_serial1_disconnect_delay);
+  ms_attenuator_check.start(i_attenuator_disconnect_delay);
   ms_cyclotron_switch_plate_leds.start(i_cyclotron_switch_plate_leds_delay);
 
   // Perform initial pack reset.
@@ -330,7 +326,7 @@ void mainLoop() {
 
           // Tell the wand the pack is off, so shut down the wand if it happens to still be on.
           packSerialSend(P_OFF);
-          serial1Send(A_PACK_OFF);
+          attenuatorSend(A_PACK_OFF);
 
           b_pack_on = false;
         }
@@ -381,7 +377,7 @@ void mainLoop() {
         if(!b_pack_on) {
           // Tell the wand the pack is on.
           packSerialSend(P_ON);
-          serial1Send(A_PACK_ON);
+          attenuatorSend(A_PACK_ON);
 
           ms_fadeout.stop();
           b_fade_out = false;
@@ -612,11 +608,11 @@ void loop() {
   // Check if the wand is considered to have been disconnected.
   wandDisconnectCheck();
 
-  // Check if serial1 device is present.
-  serial1HandShake();
+  // Check if Attenuator is present.
+  attenuatorHandShake();
 
   // Check if any new serial commands were received.
-  checkSerial1();
+  checkAttenuator();
 
   // Handle any actions after POST event.
   mainLoop();

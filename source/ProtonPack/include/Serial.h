@@ -19,6 +19,33 @@
 
 #pragma once
 
+/*
+ * Neutrona Wand & Attenuator communication.
+ */
+#ifdef ESP32
+#ifndef ATTENUATOR_TX_PIN
+  #define ATTENUATOR_TX_PIN 10
+#endif
+#ifndef ATTENUATOR_RX_PIN
+  #define ATTENUATOR_RX_PIN 11
+#endif
+#ifndef WAND_TX_PIN
+  #define WAND_TX_PIN 43
+#endif
+#ifndef WAND_RX_PIN
+  #define WAND_RX_PIN 44
+#endif
+// ESP32 allows defining custom objects, so create ones for UART0 and UART1.
+HardwareSerial WandSerial(0); // Associate WandSerial with UART0
+HardwareSerial AttenuatorSerial(1); // Associate AttenuatorSerial with UART1
+#else
+// ATMEGA 2560 has hardcoded serial UART objects, so use aliases instead.
+#define AttenuatorSerial Serial1
+#define WandSerial Serial2
+#endif
+SerialTransfer attenuatorComs;
+SerialTransfer wandComs;
+
 // Types of packets to be sent.
 enum PACKET_TYPE : uint8_t {
   PACKET_UNKNOWN = 0,
@@ -265,11 +292,11 @@ void toggleYearModes() {
  * Serial API Communication Handlers
  */
 
-// Outgoing commands to the Serial1 device
-void serial1Send(uint8_t i_command, uint16_t i_value) {
+// Outgoing commands to the Attenuator
+void attenuatorSend(uint8_t i_command, uint16_t i_value) {
   uint16_t i_send_size = 0;
 
-  // debug(F("Command to Serial1: "));
+  // debug(F("Command to Attenuator: "));
   // debugln(i_command);
 
   sendCmdS.s = P_COM_START;
@@ -277,20 +304,20 @@ void serial1Send(uint8_t i_command, uint16_t i_value) {
   sendCmdS.d1 = i_value;
   sendCmdS.e = P_COM_END;
 
-  i_send_size = serial1Coms.txObj(sendCmdS);
-  serial1Coms.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
+  i_send_size = attenuatorComs.txObj(sendCmdS);
+  attenuatorComs.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
 }
 // Override function to handle calls with a single parameter.
-void serial1Send(uint8_t i_command) {
-  serial1Send(i_command, 0);
+void attenuatorSend(uint8_t i_command) {
+  attenuatorSend(i_command, 0);
 }
 
-// Outgoing payloads to the Serial1 device
-void serial1SendData(uint8_t i_message) {
+// Outgoing payloads to the Attenuator
+void attenuatorSendData(uint8_t i_message) {
   uint16_t i_send_size = 0;
   uint8_t i_eeprom_volume_master_percentage = 100 * ((MINIMUM_VOLUME + i_volume_min_adj) - i_volume_master_eeprom) / (MINIMUM_VOLUME + i_volume_min_adj);
 
-  // debug(F("Data to Serial1: "))
+  // debug(F("Data to Attenuator: "))
   // debugln(i_message);
 
   sendDataS.s = P_COM_START;
@@ -307,13 +334,13 @@ void serial1SendData(uint8_t i_message) {
       sendDataS.d[0] = i_spectral_cyclotron_custom_colour;
       sendDataS.d[1] = i_spectral_cyclotron_custom_saturation;
 
-      i_send_size = serial1Coms.txObj(sendDataS);
-      serial1Coms.sendData(i_send_size, (uint8_t) PACKET_DATA);
+      i_send_size = attenuatorComs.txObj(sendDataS);
+      attenuatorComs.sendData(i_send_size, (uint8_t) PACKET_DATA);
     break;
 
     case A_SYNC_DATA:
-      i_send_size = serial1Coms.txObj(attenuatorSyncData);
-      serial1Coms.sendData(i_send_size, (uint8_t) PACKET_SYNC);
+      i_send_size = attenuatorComs.txObj(attenuatorSyncData);
+      attenuatorComs.sendData(i_send_size, (uint8_t) PACKET_SYNC);
     break;
 
     case A_VOLUME_SYNC:
@@ -322,8 +349,8 @@ void serial1SendData(uint8_t i_message) {
       sendDataS.d[1] = i_volume_effects_percentage;
       sendDataS.d[2] = i_volume_music_percentage;
 
-      i_send_size = serial1Coms.txObj(sendDataS);
-      serial1Coms.sendData(i_send_size, (uint8_t) PACKET_DATA);
+      i_send_size = attenuatorComs.txObj(sendDataS);
+      attenuatorComs.sendData(i_send_size, (uint8_t) PACKET_DATA);
     break;
 
     case A_SEND_PREFERENCES_PACK:
@@ -417,14 +444,14 @@ void serial1SendData(uint8_t i_message) {
       packConfig.ledPowercellLum = i_powercell_brightness;
       packConfig.ledVGPowercell = b_powercell_colour_toggle ? 1 : 0;
 
-      i_send_size = serial1Coms.txObj(packConfig);
-      serial1Coms.sendData(i_send_size, (uint8_t) PACKET_PACK);
+      i_send_size = attenuatorComs.txObj(packConfig);
+      attenuatorComs.sendData(i_send_size, (uint8_t) PACKET_PACK);
     break;
 
     case A_SEND_PREFERENCES_WAND:
       // Any ENUM or boolean types will simply translate as numeric values.
-      i_send_size = serial1Coms.txObj(wandConfig);
-      serial1Coms.sendData(i_send_size, (uint8_t) PACKET_WAND);
+      i_send_size = attenuatorComs.txObj(wandConfig);
+      attenuatorComs.sendData(i_send_size, (uint8_t) PACKET_WAND);
     break;
 
     case A_SEND_PREFERENCES_SMOKE:
@@ -459,8 +486,8 @@ void serial1SendData(uint8_t i_message) {
         smokeConfig.overheatDelay1 = 60; // 2-60 Seconds
       }
 
-      i_send_size = serial1Coms.txObj(smokeConfig);
-      serial1Coms.sendData(i_send_size, (uint8_t) PACKET_SMOKE);
+      i_send_size = attenuatorComs.txObj(smokeConfig);
+      attenuatorComs.sendData(i_send_size, (uint8_t) PACKET_SMOKE);
     break;
 
     default:
@@ -481,8 +508,8 @@ void packSerialSend(uint8_t i_command, uint16_t i_value) {
   sendCmdW.d1 = i_value;
   sendCmdW.e = P_COM_END;
 
-  i_send_size = packComs.txObj(sendCmdW);
-  packComs.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
+  i_send_size = wandComs.txObj(sendCmdW);
+  wandComs.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
 }
 // Override function to handle calls with a single parameter.
 void packSerialSend(uint8_t i_command) {
@@ -506,18 +533,18 @@ void packSerialSendData(uint8_t i_message) {
   // Provide additional data with certain messages.
   switch(i_message) {
     case P_SAVE_PREFERENCES_WAND:
-      i_send_size = packComs.txObj(wandConfig);
-      packComs.sendData(i_send_size, (uint8_t) PACKET_WAND);
+      i_send_size = wandComs.txObj(wandConfig);
+      wandComs.sendData(i_send_size, (uint8_t) PACKET_WAND);
     break;
 
     case P_SAVE_PREFERENCES_SMOKE:
-      i_send_size = packComs.txObj(smokeConfig);
-      packComs.sendData(i_send_size, (uint8_t) PACKET_SMOKE);
+      i_send_size = wandComs.txObj(smokeConfig);
+      wandComs.sendData(i_send_size, (uint8_t) PACKET_SMOKE);
     break;
 
     case P_SYNC_DATA:
-      i_send_size = packComs.txObj(wandSyncData);
-      packComs.sendData(i_send_size, (uint8_t) PACKET_SYNC);
+      i_send_size = wandComs.txObj(wandSyncData);
+      wandComs.sendData(i_send_size, (uint8_t) PACKET_SYNC);
     break;
 
     default:
@@ -530,51 +557,51 @@ void packSerialSendData(uint8_t i_message) {
 void handleSerialCommand(uint8_t i_command, uint16_t i_value);
 void handleWandCommand(uint8_t i_command, uint16_t i_value);
 
-// Incoming messages from the extra Serial1 port.
-void checkSerial1() {
-  if(serial1Coms.available() > 0) {
-    uint8_t i_packet_id = serial1Coms.currentPacketID();
+// Incoming messages from the extra Attenuator port.
+void checkAttenuator() {
+  if(attenuatorComs.available() > 0) {
+    uint8_t i_packet_id = attenuatorComs.currentPacketID();
     // debug(F("Serial PacketID: "));
     // debugln(i_packet_id);
 
     if(i_packet_id > 0) {
-      if(ms_serial1_check.isRunning() && b_serial1_connected) {
+      if(ms_attenuator_check.isRunning() && b_attenuator_connected) {
         // If the timer is still running and Attenuator is connected, consider any request as proof of life.
-        ms_serial1_check.restart();
+        ms_attenuator_check.restart();
       }
 
-      // Determine the type of packet which was sent by the serial1 device.
+      // Determine the type of packet which was sent by the Attenuator.
       switch(i_packet_id) {
         case PACKET_COMMAND:
-          serial1Coms.rxObj(recvCmdS);
+          attenuatorComs.rxObj(recvCmdS);
           if(recvCmdS.c > 0 && recvCmdS.s == A_COM_START && recvCmdS.e == A_COM_END) {
-            debug(F("Recv. Serial1 Command: "));
+            debug(F("Recv. Attenuator Command: "));
             debugln(recvCmdS.c);
             handleSerialCommand(recvCmdS.c, recvCmdS.d1);
           }
         break;
 
         case PACKET_DATA:
-          if(!b_serial1_connected) {
+          if(!b_attenuator_connected) {
             // Can't proceed if the Attenuator isn't connected; prevents phantom actions from occurring.
             return;
           }
 
-          serial1Coms.rxObj(recvDataS);
+          attenuatorComs.rxObj(recvDataS);
           if(recvDataS.m > 0 && recvDataS.s == A_COM_START && recvDataS.e == A_COM_END) {
-            debug(F("Recv. Serial1 Message: "));
+            debug(F("Recv. Attenuator Message: "));
             debugln(recvDataS.m);
             // No handlers at this time.
           }
         break;
 
         case PACKET_PACK:
-          if(!b_serial1_connected) {
+          if(!b_attenuator_connected) {
             // Can't proceed if the Attenuator isn't connected; prevents phantom actions from occurring.
             return;
           }
 
-          serial1Coms.rxObj(packConfig);
+          attenuatorComs.rxObj(packConfig);
           debugln(F("Recv. Pack Config"));
 
           // Writes new preferences back to runtime variables.
@@ -585,18 +612,18 @@ void checkSerial1() {
             default:
               SYSTEM_MODE = MODE_SUPER_HERO;
               packSerialSend(P_MODE_SUPER_HERO);
-              serial1Send(A_MODE_SUPER_HERO);
+              attenuatorSend(A_MODE_SUPER_HERO);
             break;
 
             case 1:
               SYSTEM_MODE = MODE_ORIGINAL;
               packSerialSend(P_MODE_ORIGINAL);
-              serial1Send(A_MODE_ORIGINAL);
+              attenuatorSend(A_MODE_ORIGINAL);
 
               if(!b_wand_connected && STREAM_MODE != PROTON) {
                 // If no wand is connected we need to make sure we're in Proton Stream.
                 STREAM_MODE = PROTON;
-                serial1Send(A_PROTON_MODE);
+                attenuatorSend(A_PROTON_MODE);
               }
             break;
           }
@@ -627,28 +654,28 @@ void checkSerial1() {
               SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
               b_switch_mode_override = true; // Explicit mode set, override mode toggle.
               packSerialSend(P_YEAR_1984);
-              serial1Send(A_YEAR_1984);
+              attenuatorSend(A_YEAR_1984);
             break;
             case 3:
               SYSTEM_YEAR = SYSTEM_1989;
               SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
               b_switch_mode_override = true; // Explicit mode set, override mode toggle.
               packSerialSend(P_YEAR_1989);
-              serial1Send(A_YEAR_1989);
+              attenuatorSend(A_YEAR_1989);
             break;
             case 4:
               SYSTEM_YEAR = SYSTEM_AFTERLIFE;
               SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
               b_switch_mode_override = true; // Explicit mode set, override mode toggle.
               packSerialSend(P_YEAR_AFTERLIFE);
-              serial1Send(A_YEAR_AFTERLIFE);
+              attenuatorSend(A_YEAR_AFTERLIFE);
             break;
             case 5:
               SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
               SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
               b_switch_mode_override = true; // Explicit mode set, override mode toggle.
               packSerialSend(P_YEAR_FROZEN_EMPIRE);
-              serial1Send(A_YEAR_FROZEN_EMPIRE);
+              attenuatorSend(A_YEAR_FROZEN_EMPIRE);
             break;
           }
 
@@ -800,12 +827,12 @@ void checkSerial1() {
         break;
 
         case PACKET_WAND:
-          if(!b_serial1_connected) {
+          if(!b_attenuator_connected) {
             // Can't proceed if the Attenuator isn't connected; prevents phantom actions from occurring.
             return;
           }
 
-          serial1Coms.rxObj(wandConfig);
+          attenuatorComs.rxObj(wandConfig);
           debugln(F("Recv. Wand Config"));
 
           // This will pass values from the wandConfig object
@@ -817,12 +844,12 @@ void checkSerial1() {
         break;
 
         case PACKET_SMOKE:
-          if(!b_serial1_connected) {
+          if(!b_attenuator_connected) {
             // Can't proceed if the Attenuator isn't connected; prevents phantom actions from occurring.
             return;
           }
 
-          serial1Coms.rxObj(smokeConfig);
+          attenuatorComs.rxObj(smokeConfig);
           debugln(F("Recv. Smoke Config"));
 
           // Save local and remote (wand) smoke timing settings
@@ -852,21 +879,21 @@ void checkSerial1() {
   }
 }
 
-void doSerial1Sync() {
+void doAttenuatorSync() {
   // Denote sync in progress, don't run this code again if we get another handshake.
   // This will be cleared once the Attenuator responds back that it has been synchronized.
-  b_serial1_syncing = true;
-  b_serial1_connected = false;
-  ms_serial1_check.stop();
+  b_attenuator_syncing = true;
+  b_attenuator_connected = false;
+  ms_attenuator_check.stop();
 
   if(b_diagnostic) {
     playEffect(S_BEEPS_ALT);
   }
 
-  debugln(F("Serial1 Sync Start"));
-  serial1Send(A_SYNC_START);
+  debugln(F("Attenuator Sync Start"));
+  attenuatorSend(A_SYNC_START);
 
-  // Tell the serial1 device about the wand status.
+  // Tell the Attenuator about the wand status.
   attenuatorSyncData.wandPresent = b_wand_connected ? 1 : 0;
   attenuatorSyncData.barrelExtended = b_neutrona_wand_barrel_extended ? 1 : 0;
   attenuatorSyncData.wandFiring = b_wand_firing ? 1 : 0;
@@ -950,19 +977,19 @@ void doSerial1Sync() {
   attenuatorSyncData.effectsVolume = i_volume_effects_percentage;
   attenuatorSyncData.musicVolume = i_volume_music_percentage;
 
-  serial1SendData(A_SYNC_DATA);
+  attenuatorSendData(A_SYNC_DATA);
 
   // Send the ribbon cable alarm status if the ribbon cable is detached.
   if(b_alarm && !ribbonCableAttached()) {
-    serial1Send(A_ALARM_ON);
+    attenuatorSend(A_ALARM_ON);
   }
 
-  serial1Send(A_SYNC_END);
-  debugln(F("Serial1 Sync End"));
+  attenuatorSend(A_SYNC_END);
+  debugln(F("Attenuator Sync End"));
 }
 
 void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
-  if(!b_serial1_connected) {
+  if(!b_attenuator_connected) {
     // Can't proceed if the wand isn't connected; prevents phantom actions from occurring.
     if(i_command != A_SYNC_START && i_command != A_HANDSHAKE && i_command != A_SYNC_END) {
       // This applies for any action other than those responsible for sync operations.
@@ -973,12 +1000,12 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
   switch(i_command) {
     case A_SYNC_START:
       // Attenuator has explicitly asked to be synchronized.
-      doSerial1Sync();
+      doAttenuatorSync();
     break;
 
     case A_HANDSHAKE:
-      b_serial1_syncing = false; // No longer attempting to force a sync w/ Attenuator.
-      b_serial1_connected = true; // If we're receiving handshake instead of SYNC_NOW we must be connected.
+      b_attenuator_syncing = false; // No longer attempting to force a sync w/ Attenuator.
+      b_attenuator_connected = true; // If we're receiving handshake instead of SYNC_NOW we must be connected.
 
       if(b_diagnostic) {
         // While in diagnostic mode, play a sound to indicate the wand is connected.
@@ -987,10 +1014,10 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_SYNC_END:
-      debugln(F("Serial1 Synchronized"));
-      b_serial1_syncing = false;
-      b_serial1_connected = true;
-      ms_serial1_check.start(i_serial1_disconnect_delay);
+      debugln(F("Attenuator Synchronized"));
+      b_attenuator_syncing = false;
+      b_attenuator_connected = true;
+      ms_attenuator_check.start(i_attenuator_disconnect_delay);
     break;
 
     case A_TURN_PACK_ON:
@@ -1005,7 +1032,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       // Tell the Attenuator or any other device that the power to the Proton Pack is on.
-      serial1Send(A_ION_ARM_SWITCH_ON);
+      attenuatorSend(A_ION_ARM_SWITCH_ON);
     break;
 
     case A_TURN_PACK_OFF:
@@ -1014,7 +1041,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
         PACK_ACTION_STATE = ACTION_OFF;
 
         //Make sure to tell the wireless that we are not overheating.
-        serial1Send(A_OVERHEATING_FINISHED);
+        attenuatorSend(A_OVERHEATING_FINISHED);
       }
 
       // Tell the Neutrona Wand that power to the Proton Pack is off.
@@ -1023,7 +1050,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       // Tell the Attenuator or any other device that the power to the Proton Pack is off.
-      serial1Send(A_ION_ARM_SWITCH_OFF);
+      attenuatorSend(A_ION_ARM_SWITCH_OFF);
     break;
 
     case A_WARNING_CANCELLED:
@@ -1067,7 +1094,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
         i_volume_master = i_volume_revert;
 
         packSerialSend(P_MASTER_AUDIO_NORMAL);
-        serial1Send(A_TOGGLE_MUTE, 1);
+        attenuatorSend(A_TOGGLE_MUTE, 1);
       }
       else {
         i_volume_revert = i_volume_master;
@@ -1076,7 +1103,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
         i_volume_master = i_volume_abs_min;
 
         packSerialSend(P_MASTER_AUDIO_SILENT_MODE);
-        serial1Send(A_TOGGLE_MUTE, 2);
+        attenuatorSend(A_TOGGLE_MUTE, 2);
       }
 
       updateMasterVolume();
@@ -1124,7 +1151,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
       }
       else {
         if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
-          // Play the appropriate track on pack and wand, and notify the serial1 device.
+          // Play the appropriate track on pack and wand, and notify the Attenuator.
           playMusic();
         }
       }
@@ -1151,13 +1178,13 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
 
     case A_MUSIC_TRACK_LOOP_TOGGLE:
       toggleMusicLoop();
-      serial1Send(A_MUSIC_TRACK_LOOP_TOGGLE, b_repeat_track ? 2 : 1);
+      attenuatorSend(A_MUSIC_TRACK_LOOP_TOGGLE, b_repeat_track ? 2 : 1);
     break;
 
     case A_REQUEST_PREFERENCES_PACK:
       // If requested by the serial device, send back all pack EEPROM preferences.
       // This will send a data payload directly from the pack as all data is local.
-      serial1SendData(A_SEND_PREFERENCES_PACK);
+      attenuatorSendData(A_SEND_PREFERENCES_PACK);
     break;
 
     case A_REQUEST_PREFERENCES_WAND:
@@ -1176,7 +1203,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
       }
       else {
         // If a wand is not connected, simply return the smoke settings from the pack.
-        serial1SendData(A_SEND_PREFERENCES_SMOKE);
+        attenuatorSendData(A_SEND_PREFERENCES_SMOKE);
       }
     break;
 
@@ -1189,7 +1216,7 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
           // Only update after the music is stopped.
           i_current_music_track = i_value;
 
-          // Play the appropriate track on pack and wand, and notify the serial1 device.
+          // Play the appropriate track on pack and wand, and notify the Attenuator.
           playMusic();
         }
         else {
@@ -1225,8 +1252,8 @@ void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
 
 // Incoming messages from the wand.
 void checkWand() {
-  if(packComs.available() > 0) {
-    uint8_t i_packet_id = packComs.currentPacketID();
+  if(wandComs.available() > 0) {
+    uint8_t i_packet_id = wandComs.currentPacketID();
     // debug(F("Wand PacketID: "));
     // debugln(i_packet_id);
 
@@ -1239,7 +1266,7 @@ void checkWand() {
       // Determine the type of packet which was sent by the wand device.
       switch(i_packet_id) {
         case PACKET_COMMAND:
-          packComs.rxObj(recvCmdW);
+          wandComs.rxObj(recvCmdW);
           if(recvCmdW.c > 0 && recvCmdW.s == W_COM_START && recvCmdW.e == W_COM_END) {
             debug(F("Recv. Wand Command: "));
             debugln(recvCmdW.c);
@@ -1253,7 +1280,7 @@ void checkWand() {
             return;
           }
 
-          packComs.rxObj(recvDataW);
+          wandComs.rxObj(recvDataW);
           if(recvDataW.m > 0 && recvDataW.s == W_COM_START && recvDataW.e == W_COM_END) {
             debug(F("Recv. Wand Data: "));
             debugln(recvDataW.m);
@@ -1267,11 +1294,11 @@ void checkWand() {
             return;
           }
 
-          packComs.rxObj(wandConfig);
+          wandComs.rxObj(wandConfig);
           debugln(F("Recv. Wand Config Prefs"));
 
           // Send the EEPROM preferences just returned by the wand.
-          serial1SendData(A_SEND_PREFERENCES_WAND);
+          attenuatorSendData(A_SEND_PREFERENCES_WAND);
         break;
 
         case PACKET_SMOKE:
@@ -1280,12 +1307,12 @@ void checkWand() {
             return;
           }
 
-          packComs.rxObj(smokeConfig);
+          wandComs.rxObj(smokeConfig);
           debugln(F("Recv. Wand Smoke Prefs"));
 
           // Send the EEPROM preferences just returned by the wand.
           // This data will combine with the pack's smoke settings.
-          serial1SendData(A_SEND_PREFERENCES_SMOKE);
+          attenuatorSendData(A_SEND_PREFERENCES_SMOKE);
         break;
       }
     }
@@ -1472,8 +1499,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       b_wand_syncing = false; // No longer attempting to force a sync w/ wand.
       b_wand_connected = true; // If we're receiving handshake instead of SYNC_NOW we must be connected
 
-      // Tell the serial1 device the wand is still connected.
-      serial1Send(A_WAND_CONNECTED);
+      // Tell the Attenuator the wand is still connected.
+      attenuatorSend(A_WAND_CONNECTED);
 
       if(b_diagnostic) {
         // While in diagnostic mode, play a sound to indicate the wand is connected.
@@ -1486,7 +1513,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       b_wand_syncing = false; // Stop trying to sync since we've successfully synchronized.
       b_wand_connected = true; // Wand sent sync confirmation, so it must be connected.
       ms_wand_check.start(i_wand_disconnect_delay); // Wand is synchronized, so start the keep-alive timer.
-      serial1Send(A_WAND_CONNECTED); // Tell the serial1 device the wand is (re-)connected.
+      attenuatorSend(A_WAND_CONNECTED); // Tell the Attenuator the wand is (re-)connected.
 
       if(b_demo_light_mode == true) {
         // Demo light mode enabled. Send command to turn on the Neutrona Wand.
@@ -1501,10 +1528,10 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Turn the pack on.
       if(PACK_STATE != MODE_ON) {
         packStartup(false);
-        serial1Send(A_PACK_ON);
+        attenuatorSend(A_PACK_ON);
       }
 
-      serial1Send(A_WAND_ON);
+      attenuatorSend(A_WAND_ON);
     break;
 
     case W_OFF:
@@ -1514,27 +1541,27 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Turn the pack off.
       if(PACK_STATE != MODE_OFF) {
         PACK_ACTION_STATE = ACTION_OFF;
-        serial1Send(A_PACK_OFF);
+        attenuatorSend(A_PACK_OFF);
       }
 
-      serial1Send(A_WAND_OFF);
-      serial1Send(A_OVERHEATING_FINISHED);
+      attenuatorSend(A_WAND_OFF);
+      attenuatorSend(A_OVERHEATING_FINISHED);
     break;
 
     case W_BARREL_EXTENDED:
-      // Remember the last state sent from the wand (for re-sync with the Serial1 device).
+      // Remember the last state sent from the wand (for re-sync with the Attenuator).
       b_neutrona_wand_barrel_extended = true;
 
-      // Tell the serial1 device that the Neutrona Wand barrel is extended.
-      serial1Send(A_BARREL_EXTENDED);
+      // Tell the Attenuator that the Neutrona Wand barrel is extended.
+      attenuatorSend(A_BARREL_EXTENDED);
     break;
 
     case W_BARREL_RETRACTED:
-      // Remember the last state sent from the wand (for re-sync with the Serial1 device).
+      // Remember the last state sent from the wand (for re-sync with the Attenuator).
       b_neutrona_wand_barrel_extended = false;
 
-      // Tell the serial1 device that the Neutrona Wand barrel is retracted.
-      serial1Send(A_BARREL_RETRACTED);
+      // Tell the Attenuator that the Neutrona Wand barrel is retracted.
+      attenuatorSend(A_BARREL_RETRACTED);
     break;
 
     case W_BARGRAPH_OVERHEAT_BLINK_ENABLED:
@@ -1915,7 +1942,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Update the Inner Cyclotron LEDs if required.
       cyclotronSwitchLEDUpdate();
 
-      serial1Send(A_PROTON_MODE);
+      attenuatorSend(A_PROTON_MODE);
     break;
 
     case W_SLIME_MODE:
@@ -1964,7 +1991,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Update the Inner Cyclotron LEDs if required.
       cyclotronSwitchLEDUpdate();
 
-      serial1Send(A_SLIME_MODE);
+      attenuatorSend(A_SLIME_MODE);
     break;
 
     case W_STASIS_MODE:
@@ -2015,7 +2042,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Update the Inner Cyclotron LEDs if required.
       cyclotronSwitchLEDUpdate();
 
-      serial1Send(A_STASIS_MODE);
+      attenuatorSend(A_STASIS_MODE);
     break;
 
     case W_MESON_MODE:
@@ -2066,7 +2093,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Update the Inner Cyclotron LEDs if required.
       cyclotronSwitchLEDUpdate();
 
-      serial1Send(A_MESON_MODE);
+      attenuatorSend(A_MESON_MODE);
     break;
 
     case W_SPECTRAL_MODE:
@@ -2116,7 +2143,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Update the Inner Cyclotron LEDs if required.
       cyclotronSwitchLEDUpdate();
 
-      serial1Send(A_SPECTRAL_MODE);
+      attenuatorSend(A_SPECTRAL_MODE);
     break;
 
     case W_HALLOWEEN_MODE:
@@ -2166,7 +2193,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Update the Inner Cyclotron LEDs if required.
       cyclotronSwitchLEDUpdate();
 
-      serial1Send(A_HALLOWEEN_MODE, i_value);
+      attenuatorSend(A_HALLOWEEN_MODE, i_value);
     break;
 
     case W_CHRISTMAS_MODE:
@@ -2216,7 +2243,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Update the Inner Cyclotron LEDs if required.
       cyclotronSwitchLEDUpdate();
 
-      serial1Send(A_CHRISTMAS_MODE, i_value);
+      attenuatorSend(A_CHRISTMAS_MODE, i_value);
     break;
 
     case W_SPECTRAL_CUSTOM_MODE:
@@ -2266,7 +2293,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Update the Inner Cyclotron LEDs if required.
       cyclotronSwitchLEDUpdate();
 
-      serial1SendData(A_SPECTRAL_CUSTOM_MODE);
+      attenuatorSendData(A_SPECTRAL_CUSTOM_MODE);
     break;
 
     case W_SETTINGS_MODE:
@@ -2274,7 +2301,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       playEffect(S_CLICK);
       b_settings = true;
 
-      serial1Send(A_SETTINGS_MODE);
+      attenuatorSend(A_SETTINGS_MODE);
     break;
 
     case W_TOGGLE_INNER_CYCLOTRON_PANEL:
@@ -2363,7 +2390,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       cyclotronSpeedRevert();
 
       // Indicate normalcy to serial device.
-      serial1Send(A_CYCLOTRON_NORMAL_SPEED);
+      attenuatorSend(A_CYCLOTRON_NORMAL_SPEED);
     break;
 
     case W_CYCLOTRON_INCREASE_SPEED:
@@ -2371,7 +2398,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       cyclotronSpeedIncrease();
 
       // Indicate speed-up to serial device.
-      serial1Send(A_CYCLOTRON_INCREASE_SPEED);
+      attenuatorSend(A_CYCLOTRON_INCREASE_SPEED);
     break;
 
     case W_BEEP_START:
@@ -2405,7 +2432,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         }
       }
 
-      serial1Send(A_POWER_LEVEL_1);
+      attenuatorSend(A_POWER_LEVEL_1);
     break;
 
     case W_POWER_LEVEL_2:
@@ -2423,7 +2450,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         }
       }
 
-      serial1Send(A_POWER_LEVEL_2);
+      attenuatorSend(A_POWER_LEVEL_2);
     break;
 
     case W_POWER_LEVEL_3:
@@ -2441,7 +2468,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         }
       }
 
-      serial1Send(A_POWER_LEVEL_3);
+      attenuatorSend(A_POWER_LEVEL_3);
     break;
 
     case W_POWER_LEVEL_4:
@@ -2459,7 +2486,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         }
       }
 
-      serial1Send(A_POWER_LEVEL_4);
+      attenuatorSend(A_POWER_LEVEL_4);
     break;
 
     case W_POWER_LEVEL_5:
@@ -2478,7 +2505,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         }
       }
 
-      serial1Send(A_POWER_LEVEL_5);
+      attenuatorSend(A_POWER_LEVEL_5);
     break;
 
     case W_OVERHEAT_INCREASE_LEVEL_1:
@@ -3258,7 +3285,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_MUSIC_TRACK_LOOP_TOGGLE:
       toggleMusicLoop();
-      serial1Send(A_MUSIC_TRACK_LOOP_TOGGLE, b_repeat_track ? 2 : 1);
+      attenuatorSend(A_MUSIC_TRACK_LOOP_TOGGLE, b_repeat_track ? 2 : 1);
     break;
 
     case W_TOGGLE_MUTE:
@@ -3266,7 +3293,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         i_volume_master = i_volume_revert;
 
         // Notify the Attenuator we are unmuted.
-        serial1Send(A_TOGGLE_MUTE, 1);
+        attenuatorSend(A_TOGGLE_MUTE, 1);
       }
       else {
         i_volume_revert = i_volume_master;
@@ -3275,7 +3302,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         i_volume_master = i_volume_abs_min;
 
         // Notify the Attenuator we are muted.
-        serial1Send(A_TOGGLE_MUTE, 2);
+        attenuatorSend(A_TOGGLE_MUTE, 2);
       }
 
       updateMasterVolume();
@@ -3473,7 +3500,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
           packSerialSend(P_SOUND_SUPER_HERO);
           packSerialSend(P_MODE_SUPER_HERO);
-          serial1Send(A_MODE_SUPER_HERO);
+          attenuatorSend(A_MODE_SUPER_HERO);
         break;
 
         case MODE_SUPER_HERO:
@@ -3486,7 +3513,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
           packSerialSend(P_SOUND_MODE_ORIGINAL);
           packSerialSend(P_MODE_ORIGINAL);
-          serial1Send(A_MODE_ORIGINAL);
+          attenuatorSend(A_MODE_ORIGINAL);
         break;
       }
     break;

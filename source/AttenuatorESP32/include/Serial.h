@@ -21,10 +21,11 @@
 #pragma once
 
 /*
- * Pack Communication - Hardware Serial2 Pins
+ * Proton Pack Communication.
  */
 #define RXD2 16
 #define TXD2 17
+HardwareSerial PackSerial(2); // Associate PackSerial with UART2
 SerialTransfer packComs;
 
 // Types of packets to be sent.
@@ -251,7 +252,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value);
 
 // Handles an API (and data) sent from the Proton Pack
 bool checkPack() {
-  // Pack communication to the Attenuator device.
+  // Attenuator communication from the Proton Pack.
   if(packComs.available() > 0) {
     uint8_t i_packet_id = packComs.currentPacketID();
     #if defined(DEBUG_SERIAL_COMMS)
@@ -265,7 +266,7 @@ bool checkPack() {
         ms_packsync.restart();
       }
 
-      // Determine the type of packet which was sent by the serial1 device.
+      // Determine the type of packet which was sent by the Proton Pack.
       switch(i_packet_id) {
         case PACKET_COMMAND:
           packComs.rxObj(recvCmd);

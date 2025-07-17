@@ -836,7 +836,7 @@ void packStartup(bool firstStart) {
 
     // Tell the wand and add-on device the pack ribbon cable alarm is on.
     packSerialSend(P_ALARM_ON);
-    serial1Send(A_ALARM_ON);
+    attenuatorSend(A_ALARM_ON);
   }
   else {
     if(!firstStart) {
@@ -844,7 +844,7 @@ void packStartup(bool firstStart) {
       packSerialSend(P_ALARM_OFF);
 
       // Tell any add-on devices that the alarm is off.
-      serial1Send(A_ALARM_OFF);
+      attenuatorSend(A_ALARM_OFF);
     }
 
     // Start up the Cyclotron motor, if enabled.
@@ -1329,7 +1329,7 @@ void packOffReset() {
     packSerialSend(P_ALARM_OFF);
 
     // Tell any add-on devices that the alarm is off.
-    serial1Send(A_ALARM_OFF);
+    attenuatorSend(A_ALARM_OFF);
   }
 }
 
@@ -1343,9 +1343,9 @@ void setYearModeByToggle() {
         SYSTEM_YEAR = SYSTEM_1989;
         SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
-        // Tell the wand/serial1 to switch to 1989 mode.
+        // Tell the wand/attenuator to switch to 1989 mode.
         packSerialSend(P_YEAR_1989);
-        serial1Send(A_YEAR_1989);
+        attenuatorSend(A_YEAR_1989);
 
         // Play audio cue confirming the change. Only play the audio queue when the user physically flicks the switch.
         if(switch_mode.isPressed() || switch_mode.isReleased()) {
@@ -1356,9 +1356,9 @@ void setYearModeByToggle() {
         SYSTEM_YEAR = SYSTEM_1984;
         SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
-        // Tell the wand/serial1 to switch to 1984 mode.
+        // Tell the wand/attenuator to switch to 1984 mode.
         packSerialSend(P_YEAR_1984);
-        serial1Send(A_YEAR_1984);
+        attenuatorSend(A_YEAR_1984);
 
         // Play audio cue confirming the change. Only play the audio queue when the user physically flicks the switch.
         if(switch_mode.isPressed() || switch_mode.isReleased()) {
@@ -1374,9 +1374,9 @@ void setYearModeByToggle() {
         SYSTEM_YEAR = SYSTEM_AFTERLIFE;
         SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
-        // Tell the wand/serial1 to switch to Afterlife mode.
+        // Tell the wand/attenuator to switch to Afterlife mode.
         packSerialSend(P_YEAR_AFTERLIFE);
-        serial1Send(A_YEAR_AFTERLIFE);
+        attenuatorSend(A_YEAR_AFTERLIFE);
 
         // Play audio cue confirming the change. Only play the audio queue when the user physically flicks the switch.
         if(switch_mode.isPressed() || switch_mode.isReleased()) {
@@ -1387,9 +1387,9 @@ void setYearModeByToggle() {
         SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
         SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
-        // Tell the wand/serial1 to switch to Afterlife mode.
+        // Tell the wand/attenuator to switch to Afterlife mode.
         packSerialSend(P_YEAR_FROZEN_EMPIRE);
-        serial1Send(A_YEAR_FROZEN_EMPIRE);
+        attenuatorSend(A_YEAR_FROZEN_EMPIRE);
 
         // Play audio cue confirming the change. Only play the audio queue when the user physically flicks the switch.
         if(switch_mode.isPressed() || switch_mode.isReleased()) {
@@ -1539,7 +1539,7 @@ void spectralLightsOn() {
     }
   }
 
-  serial1Send(A_SPECTRAL_COLOUR_DATA);
+  attenuatorSend(A_SPECTRAL_COLOUR_DATA);
 }
 
 void checkSwitches() {
@@ -1613,7 +1613,7 @@ void checkSwitches() {
 
       // Tell the connected devices.
       packSerialSend(P_CYCLOTRON_LID_ON);
-      serial1Send(A_CYCLOTRON_LID_ON);
+      attenuatorSend(A_CYCLOTRON_LID_ON);
 
       // Turn off Inner Cyclotron LEDs.
       innerCyclotronCakeOff();
@@ -1630,7 +1630,7 @@ void checkSwitches() {
 
       // Tell the connected devices.
       packSerialSend(P_CYCLOTRON_LID_OFF);
-      serial1Send(A_CYCLOTRON_LID_OFF);
+      attenuatorSend(A_CYCLOTRON_LID_OFF);
 
       // Make sure the Inner Cyclotron turns on if we are in the EEPROM LED menu.
       if(b_spectral_lights_on) {
@@ -1780,8 +1780,8 @@ void checkSwitches() {
       }
 
       // Tell the Attenuator or any other device that the power to the Proton Pack is on.
-      if(b_serial1_connected) {
-        serial1Send(A_ION_ARM_SWITCH_ON);
+      if(b_attenuator_connected) {
+        attenuatorSend(A_ION_ARM_SWITCH_ON);
       }
     }
     else {
@@ -1795,8 +1795,8 @@ void checkSwitches() {
       }
 
       // Tell the Attenuator or any other device that the power to the Proton Pack is off.
-      if(b_serial1_connected) {
-        serial1Send(A_ION_ARM_SWITCH_OFF);
+      if(b_attenuator_connected) {
+        attenuatorSend(A_ION_ARM_SWITCH_OFF);
       }
     }
   }
@@ -1818,7 +1818,7 @@ void checkSwitches() {
 
               SYSTEM_YEAR = SYSTEM_1984;
 
-              serial1Send(A_YEAR_1984);
+              attenuatorSend(A_YEAR_1984);
             break;
 
             case SYSTEM_1989:
@@ -1827,7 +1827,7 @@ void checkSwitches() {
 
               SYSTEM_YEAR = SYSTEM_1989;
 
-              serial1Send(A_YEAR_1989);
+              attenuatorSend(A_YEAR_1989);
             break;
 
             case SYSTEM_FROZEN_EMPIRE:
@@ -1836,7 +1836,7 @@ void checkSwitches() {
 
               SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
 
-              serial1Send(A_YEAR_FROZEN_EMPIRE);
+              attenuatorSend(A_YEAR_FROZEN_EMPIRE);
             break;
 
             case SYSTEM_AFTERLIFE:
@@ -1847,7 +1847,7 @@ void checkSwitches() {
               SYSTEM_YEAR = SYSTEM_AFTERLIFE;
               SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
-              serial1Send(A_YEAR_AFTERLIFE);
+              attenuatorSend(A_YEAR_AFTERLIFE);
             break;
           }
 
@@ -3420,7 +3420,7 @@ void packOverheatingFinished() {
     packSerialSend(P_OVERHEATING_FINISHED);
   }
 
-  serial1Send(A_OVERHEATING_FINISHED);
+  attenuatorSend(A_OVERHEATING_FINISHED);
 
   ms_overheating_length.stop();
 
@@ -3518,7 +3518,7 @@ void packOverheatingStart() {
     clearCyclotronFades();
   }
 
-  serial1Send(A_OVERHEATING);
+  attenuatorSend(A_OVERHEATING);
 }
 
 void cyclotronOverheating() {
@@ -3726,7 +3726,7 @@ void cyclotronControl() {
       packSerialSend(P_ALARM_ON);
 
       // Tell any add-on devices that the alarm is on.
-      serial1Send(A_ALARM_ON);
+      attenuatorSend(A_ALARM_ON);
     }
 
     // Ribbon cable has been removed.
@@ -3854,7 +3854,7 @@ void cyclotronControl() {
 
 void packVentingFinished() {
   packSerialSend(P_VENTING_FINISHED);
-  serial1Send(A_VENTING_FINISHED);
+  attenuatorSend(A_VENTING_FINISHED);
 
   ms_overheating_length.stop();
   ms_smoke_on.stop();
@@ -4024,7 +4024,7 @@ void packVentingStart() {
   // Reset Cyclotron speed.
   cyclotronSpeedRevert();
 
-  serial1Send(A_VENTING);
+  attenuatorSend(A_VENTING);
 }
 
 void checkCyclotronAutoSpeed() {
@@ -4212,7 +4212,7 @@ void wandFiring() {
   modeFireStartSounds();
 
   b_wand_firing = true;
-  serial1Send(A_FIRING);
+  attenuatorSend(A_FIRING);
 
   if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
     ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
@@ -4368,7 +4368,7 @@ void wandStoppedFiring() {
 
   ms_firing_sound_mix.stop();
 
-  serial1Send(A_FIRING_STOPPED);
+  attenuatorSend(A_FIRING_STOPPED);
 
   // Stop the auto speed timer.
   ms_cyclotron_auto_speed_timer.stop();
@@ -4519,17 +4519,17 @@ void checkRotaryEncoder() {
 }
 
 // Check if the Attenuator is still connected.
-void serial1HandShake() {
-  if(b_serial1_connected) {
-    if(ms_serial1_check.justFinished()) {
+void attenuatorHandShake() {
+  if(b_attenuator_connected) {
+    if(ms_attenuator_check.justFinished()) {
       // Attenuator has abandoned us.
-      b_serial1_syncing = false;
-      b_serial1_connected = false;
+      b_attenuator_syncing = false;
+      b_attenuator_connected = false;
     }
-    else if(ms_serial1_check.remaining() < (ms_serial1_check.delay() / 2) && !b_serial1_syncing) {
+    else if(ms_attenuator_check.remaining() < (ms_attenuator_check.delay() / 2) && !b_attenuator_syncing) {
       // Haven't heard from the Attenuator recently; let's check in.
-      b_serial1_syncing = true;
-      serial1Send(A_HANDSHAKE);
+      b_attenuator_syncing = true;
+      attenuatorSend(A_HANDSHAKE);
     }
   }
 }
@@ -4591,8 +4591,8 @@ void wandDisconnectCheck() {
       b_wand_syncing = false; // If there is no wand we cannot be syncing with one.
       b_wand_on = false; // No wand means the device is no longer powered on.
 
-      // Tell the serial1 device the wand was disconnected.
-      serial1Send(A_WAND_DISCONNECTED);
+      // Tell the Attenuator the wand was disconnected.
+      attenuatorSend(A_WAND_DISCONNECTED);
 
       if(b_wand_firing) {
         // Reset the pack to a non-firing state.

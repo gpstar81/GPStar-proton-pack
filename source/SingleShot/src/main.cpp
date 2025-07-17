@@ -58,8 +58,9 @@
 #include <ht16k33.h>
 #include <Wire.h>
 #ifdef ESP32
-#include <Adafruit_LIS3MDL.h>
-#include <SparkFunLSM6DS3.h>
+  #include <HardwareSerial.h>
+  #include <Adafruit_LIS3MDL.h>
+  #include <SparkFunLSM6DS3.h>
 #endif
 
 // Local Files
@@ -98,6 +99,7 @@ Task animateTask(16, TASK_FOREVER, &animateTaskCallback);
 Task inputsTask(14, TASK_FOREVER, &inputTaskCallback);
 
 void setup() {
+  Serial.begin(9600); // Standard HW serial (USB) console.
 #ifdef ESP32
   /* This loop changes GPIO39~GPIO44 to Function 1, which is GPIO.
    * PIN_FUNC_SELECT sets the IOMUX function register appropriately.
@@ -107,10 +109,6 @@ void setup() {
   for(uint8_t gpio_pin = 39; gpio_pin < 45; gpio_pin++) {
     PIN_FUNC_SELECT(IO_MUX_GPIO0_REG + (gpio_pin * 4), PIN_FUNC_GPIO);
   }
-
-  Serial.begin(9600); // Standard serial (USB-CDC) console (technically 19/20 but not really Tx/Rx).
-#else
-  Serial.begin(9600); // Standard HW serial (USB) console (0/1).
 #endif
 
   // Setup the audio device for this controller.
@@ -119,8 +117,7 @@ void setup() {
   // Change PWM frequency for the vibration motor, we do not want it high pitched.
   #ifdef ESP32
     // Use of the register is not needed by ESP32, as it uses a different method for PWM.
-    pinMode(VIBRATION_PIN, OUTPUT);
-    //ledcAttachChannel(VIBRATION_PIN, 123, 8, 5); // Uses 123 Hz frequency, 8-bit resolution, channel 5.
+    ledcAttachChannel(VIBRATION_PIN, 123, 8, 5); // Uses 123 Hz frequency, 8-bit resolution, channel 5.
   #else
     // For ATmega2560, we set the PWM frequency for pin 11 (TCCR5B) to 122.55 Hz.
     TCCR1B = (TCCR1B & B11111000) | B00000100;
