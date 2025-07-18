@@ -84,13 +84,18 @@
 
 void setup() {
 #ifdef ESP32
-  /* This loop changes GPIO39~GPIO44 to Function 1, which is GPIO.
+  // To save power, reduce CPU frequency to 160 MHz.
+  setCpuFrequencyMhz(160);
+
+  // Serial0 (UART0) is enabled by default; end() sets GPIO43 & GPIO44 to GPIO.
+  Serial0.end();
+
+  /* This loop changes GPIO39~GPIO42 to Function 1, which is GPIO.
    * PIN_FUNC_SELECT sets the IOMUX function register appropriately.
    * IO_MUX_GPIO0_REG is the register for GPIO0, which we then seek from.
    * PIN_FUNC_GPIO is a define for Function 1, which sets the pins to GPIO mode.
    */
-  Serial0.end();
-  for(uint8_t gpio_pin = 39; gpio_pin < 45; gpio_pin++) {
+  for(uint8_t gpio_pin = 39; gpio_pin < 43; gpio_pin++) {
     PIN_FUNC_SELECT(IO_MUX_GPIO0_REG + (gpio_pin * 4), PIN_FUNC_GPIO);
   }
 
