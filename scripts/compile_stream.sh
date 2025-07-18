@@ -39,15 +39,15 @@ fi
 
 # Copy the new firmware to the expected binaries directory
 if [ -f ${PROJECT_DIR}/.pio/build/esp32dev/firmware.bin ]; then
-  mv ${PROJECT_DIR}/.pio/build/esp32dev/firmware.bin ${BINDIR}/stream/StreamEffects-ESP32.bin
+  mv ${PROJECT_DIR}/.pio/build/esp32dev/firmware.bin ${BINDIR}/stream/StreamEffects.bin
   echo "Firmware copy completed."
 fi
 if [ -f ${PROJECT_DIR}/.pio/build/esp32dev/bootloader.bin ]; then
-  mv ${PROJECT_DIR}/.pio/build/esp32dev/bootloader.bin ${BINDIR}/stream/extras/StreamEffects-ESP32-Bootloader.bin
+  mv ${PROJECT_DIR}/.pio/build/esp32dev/bootloader.bin ${BINDIR}/stream/extras/StreamEffects-Bootloader.bin
   echo "Bootloader copy completed."
 fi
 if [ -f ${PROJECT_DIR}/.pio/build/esp32dev/partitions.bin ]; then
-  mv ${PROJECT_DIR}/.pio/build/esp32dev/partitions.bin ${BINDIR}/stream/extras/StreamEffects-ESP32-Partitions.bin
+  mv ${PROJECT_DIR}/.pio/build/esp32dev/partitions.bin ${BINDIR}/stream/extras/StreamEffects-Partitions.bin
   echo "Partitions copy completed."
 fi
 echo ""

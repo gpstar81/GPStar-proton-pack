@@ -39,15 +39,15 @@ fi
 
 # Copy the new firmware to the expected binaries directory
 if [ -f ${PROJECT_DIR}/.pio/build/esp32s3mini/firmware.bin ]; then
-  mv ${PROJECT_DIR}/.pio/build/esp32s3mini/firmware.bin ${BINDIR}/gizmo/BeltGizmo-ESP32.bin
+  mv ${PROJECT_DIR}/.pio/build/esp32s3mini/firmware.bin ${BINDIR}/gizmo/BeltGizmo.bin
   echo "Firmware copy completed."
 fi
 if [ -f ${PROJECT_DIR}/.pio/build/esp32s3mini/bootloader.bin ]; then
-  mv ${PROJECT_DIR}/.pio/build/esp32s3mini/bootloader.bin ${BINDIR}/gizmo/extras/BeltGizmo-ESP32-Bootloader.bin
+  mv ${PROJECT_DIR}/.pio/build/esp32s3mini/bootloader.bin ${BINDIR}/gizmo/extras/BeltGizmo-Bootloader.bin
   echo "Bootloader copy completed."
 fi
 if [ -f ${PROJECT_DIR}/.pio/build/esp32s3mini/partitions.bin ]; then
-  mv ${PROJECT_DIR}/.pio/build/esp32s3mini/partitions.bin ${BINDIR}/gizmo/extras/BeltGizmo-ESP32-Partitions.bin
+  mv ${PROJECT_DIR}/.pio/build/esp32s3mini/partitions.bin ${BINDIR}/gizmo/extras/BeltGizmo-Partitions.bin
   echo "Partitions copy completed."
 fi
 echo ""

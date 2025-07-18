@@ -24,7 +24,10 @@
 // Specify all #define statements for task scheduler first
 // See: https://github.com/arkhipenko/TaskScheduler/tree/master/examples
 #define _TASK_SCHEDULING_OPTIONS
+#ifndef ESP32
+// This only works on ATMEGA; it will crash wifi on ESP32
 #define _TASK_SLEEP_ON_IDLE_RUN
+#endif
 #define _TASK_TIMECRITICAL
 
 // See: https://github.com/arkhipenko/TaskScheduler/wiki/API-Documentation
