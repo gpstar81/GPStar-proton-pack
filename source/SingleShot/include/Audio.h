@@ -39,10 +39,10 @@ gpstarAudio audio;
 // additional UART serial ports. See: https://docs.espressif.com/projects/arduino-esp32/en/latest/api/serial.html
 #ifdef ESP32
   #ifndef AUDIO_RX_PIN
-    #define AUDIO_RX_PIN 6  // Example RX pin, change as needed
+    #define AUDIO_RX_PIN 6
   #endif
   #ifndef AUDIO_TX_PIN
-    #define AUDIO_TX_PIN 7  // Example TX pin, change as needed
+    #define AUDIO_TX_PIN 7
   #endif
   // Create a HardwareSerial instance for AudioSerial set to UART2.
   HardwareSerial AudioSerial(2);

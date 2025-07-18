@@ -73,13 +73,13 @@
 #endif
 
 void setup() {
-  Serial.begin(9600); // Standard HW serial (USB) console.
 #ifdef ESP32
   /* This loop changes GPIO39~GPIO44 to Function 1, which is GPIO.
    * PIN_FUNC_SELECT sets the IOMUX function register appropriately.
    * IO_MUX_GPIO0_REG is the register for GPIO0, which we then seek from.
    * PIN_FUNC_GPIO is a define for Function 1, which sets the pins to GPIO mode.
    */
+  Serial0.end(); // Standard HW serial (USB) console.
   for(uint8_t gpio_pin = 39; gpio_pin < 45; gpio_pin++) {
     PIN_FUNC_SELECT(IO_MUX_GPIO0_REG + (gpio_pin * 4), PIN_FUNC_GPIO);
   }
@@ -90,6 +90,7 @@ void setup() {
   // Assign Serial2 to pins 44/43 for the Neutrona Wand communications.
   WandSerial.begin(9600, SERIAL_8N1, WAND_RX_PIN, WAND_TX_PIN);
 #else
+  Serial.begin(9600); // Standard HW serial (USB) console.
   AttenuatorSerial.begin(9600); // Add-on Attenuator communication (19/18).
   WandSerial.begin(9600); // Communication to the Neutrona Wand (17/16).
 #endif
@@ -136,7 +137,6 @@ void setup() {
 // Change PWM frequency of pin 45 for the vibration motor, we do not want it high pitched.
 #ifdef ESP32
   // Use of the register is not needed by ESP32, as it uses a different method for PWM.
-  ledcAttachChannel(VIBRATION_PIN, 123, 8, 5); // Uses 123 Hz frequency, 8-bit resolution, channel 5.
 #else
   // For ATmega2560, we set the PWM frequency for pin 45 (TCCR5B) to 122.55 Hz.
   TCCR5B = (TCCR5B & B11111000) | B00000100;

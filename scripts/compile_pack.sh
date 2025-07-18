@@ -62,15 +62,15 @@ fi
 
 # Copy the new firmware to the expected binaries directory
 if [ -f ${PROJECT_DIR}/.pio/build/esp32s3/firmware.bin ]; then
-  mv ${PROJECT_DIR}/.pio/build/esp32s3/firmware.bin ${BINDIR}/pack/ProtonPackII-ESP32.bin
+  mv ${PROJECT_DIR}/.pio/build/esp32s3/firmware.bin ${BINDIR}/pack/ProtonPackII.bin
   echo "Firmware copy completed."
 fi
 if [ -f ${PROJECT_DIR}/.pio/build/esp32s3/bootloader.bin ]; then
-  mv ${PROJECT_DIR}/.pio/build/esp32s3/bootloader.bin ${BINDIR}/pack/extras/ProtonPackII-ESP32-Bootloader.bin
+  mv ${PROJECT_DIR}/.pio/build/esp32s3/bootloader.bin ${BINDIR}/pack/extras/ProtonPackII-Bootloader.bin
   echo "Bootloader copy completed."
 fi
 if [ -f ${PROJECT_DIR}/.pio/build/esp32s3/partitions.bin ]; then
-  mv ${PROJECT_DIR}/.pio/build/esp32s3/partitions.bin ${BINDIR}/pack/extras/ProtonPackII-ESP32-Partitions.bin
+  mv ${PROJECT_DIR}/.pio/build/esp32s3/partitions.bin ${BINDIR}/pack/extras/ProtonPackII-Partitions.bin
   echo "Partitions copy completed."
 fi
 echo ""

@@ -82,7 +82,12 @@ void resetRampDown() {
 void vibrationOff() {
   ms_menu_vibration.stop();
   i_vibration_level_prev = 0;
-  digitalWrite(VIBRATION_PIN, LOW);
+  if(VIBRATION_MODE == CYCLOTRON_MOTOR) {
+    digitalWrite(VIBRATION_PIN, LOW);
+  }
+  else {
+    analogWrite(VIBRATION_PIN, LOW);
+  }
 }
 
 void ventLightLEDW(bool b_on) {

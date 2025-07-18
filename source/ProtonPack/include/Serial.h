@@ -714,6 +714,7 @@ void checkAttenuator() {
             case 5:
               VIBRATION_MODE_EEPROM = CYCLOTRON_MOTOR;
               VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+              pinMode(VIBRATION_PIN, OUTPUT); // Need to explicitly switch to GPIO from LEDC on ESP32.
 
               // Reset the vibration switch state.
               if(switch_vibration.getState() == LOW) {
@@ -2986,6 +2987,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         case VIBRATION_NONE:
           VIBRATION_MODE_EEPROM = CYCLOTRON_MOTOR;
           VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+          pinMode(VIBRATION_PIN, OUTPUT); // Need to explicitly switch to GPIO from LEDC on ESP32.
 
           // Reset the vibration switch state.
           if(switch_vibration.getState() == LOW) {

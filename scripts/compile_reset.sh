@@ -23,6 +23,8 @@ pio run --project-dir "$PROJECT_DIR" --jobs 4
 
 if [ -f ${PROJECT_DIR}/.pio/build/atmega2560/firmware.hex ]; then
   mv ${PROJECT_DIR}/.pio/build/atmega2560/firmware.hex ${BINDIR}/pack/extras/ResetEEPROM.hex
+  cp ${BINDIR}/pack/extras/ResetEEPROM.hex ${BINDIR}/blaster/extras/ResetEEPROM.hex
+  cp ${BINDIR}/pack/extras/ResetEEPROM.hex ${BINDIR}/wand/extras/ResetEEPROM.hex
   echo "Firmware copy completed."
 fi
 echo ""

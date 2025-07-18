@@ -799,6 +799,7 @@ void readEEPROM() {
         case 5:
           VIBRATION_MODE_EEPROM = CYCLOTRON_MOTOR;
           VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+          pinMode(VIBRATION_PIN, OUTPUT); // Need to explicitly switch to GPIO from LEDC on ESP32.
         break;
 
         case 4:
