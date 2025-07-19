@@ -4,8 +4,8 @@
       "path": "."
     },
     {
-      "name": "AttenuatorESP32",
-      "path": "source/AttenuatorESP32"
+      "name": "Attenuator",
+      "path": "source/Attenuator"
     },
     {
       "name": "ATmegaEEPROM",
@@ -14,6 +14,14 @@
     {
       "name": "BeltGizmo",
       "path": "source/BeltGizmo"
+    },
+    {
+      "name": "GhostTrapBase",
+      "path": "source/GhostTrapBase"
+    },
+    {
+      "name": "GhostTrapCartridge",
+      "path": "source/GhostTrapCartridge"
     },
     {
       "name": "NeutronaWand",

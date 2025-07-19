@@ -69,9 +69,9 @@ jobs:
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
 
-      # Step 5: Compile AttenuatorESP32 project (all environments)
-      - name: Compile AttenuatorESP32 (all environments)
-        working-directory: source/AttenuatorESP32
+      # Step 5: Compile Attenuator project (all environments)
+      - name: Compile Attenuator (all environments)
+        working-directory: source/Attenuator
         run: pio run --jobs 4
 
   compile-beltgizmo:

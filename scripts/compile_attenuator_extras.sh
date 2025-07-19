@@ -6,7 +6,7 @@
 
 BINDIR="../binaries"
 SRCDIR="../source"
-PROJECT_DIR="$SRCDIR/AttenuatorESP32"
+PROJECT_DIR="$SRCDIR/Attenuator"
 
 mkdir -p ${BINDIR}/attenuator/extras
 
