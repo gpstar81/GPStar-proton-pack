@@ -1,10 +1,12 @@
 # Single-Shot Blaster
 
-### aka. Wrist Thrower, Compact Arm Thrower, Frozen Empire Arm Gauntlet
+## What's This?
+
+aka. Wrist Thrower, Compact Arm Thrower, Frozen Empire Arm Gauntlet
 
 It may go by many names, though we know it as the arm-mounted Neutrona Wand as seen in Frozen Empire. For purposes of this guide we'll use the official name straight from the source when [Adam Savage met the propmaster for a look at the device](https://www.youtube.com/watch?v=2YypkmcPjQ8). This guide covers the use of components as typically used for a standard Neutrona Wand, repurposed to bring life to this device.
 
-## External Shell - Completed or Models
+## External Shell
 
 There is no shortage of resources for the device shell itself, as it has been modeled and remixed by several members of the Ghostbusters community. Below are some of the found sources offering either the 3D files or pre-printed parts. If you know of another resource for either please let us know and we'll update this list.
 

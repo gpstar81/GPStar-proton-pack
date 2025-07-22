@@ -39,8 +39,7 @@ nav:
       - Bargraph: BARGRAPH.md
       - Hatlights: HATS.md
       - Vent Lights: VENTLIGHT.md
-    - Serial1 Expansion:
-      - Overview: SERIAL1.md
+    - Pack Attenuator:
       - Attenuator: ATTENUATOR.md
       - WiFi Adapter: WIRELESS.md
   - Special Guides:
@@ -58,6 +57,10 @@ nav:
     - General Usage: OPERATION_USAGE.md
     - Runtime Menus: OPERATION_MENUS.md
     - EEPROM Menus: OPERATION_EEPROM.md
+  - From the Engineer Corps:
+    - Single-Shot Blaster: SINGLESHOT.md
+    - Belt Gizmo: BELT_GIZMO.md
+    - Stream Effects: STREAM_EFFECTS.md
   - Help:
     - Troubleshooting: TROUBLESHOOTING.md
     - FAQ: FAQ.md
