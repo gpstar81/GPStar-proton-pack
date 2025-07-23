@@ -51,7 +51,7 @@ nav:
     - Nor-Cal GB: INSTALL_VIDEOS_NORCALGB.md
   - Maintenance:
     - Flashing Pack/Wand Firmware: FLASHING.md
-    - Flashing Attenuator/Wifi: ATTENUATOR_FLASHING.md
+    - Flashing Attenuator/WiFi: ATTENUATOR_FLASHING.md
     - Audio Files: AUDIO_FILES.md
   - Operation Manuals:
     - General Usage: OPERATION_USAGE.md

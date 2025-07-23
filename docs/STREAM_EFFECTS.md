@@ -19,35 +19,59 @@ Assembly of this device WILL require SOLDERING skills and is considered a DIY ap
 
 ## ESP32 - Pin Connections
 
-The following is a diagram of the **ESP32 pins** from left and right, when oriented with the USB connection facing down (south) like the pinout diagram above. Again, this table is based on the expected pin labels on the ESP32 itself--your terminal shield may differ slightly and should be checked for proper orientation when you insert the ESP32 into the socket.
+![](images/ESP32-Mini.jpg)
 
-| Connection    | ESP32 (L) |     | ESP32 (R) | Connection    |
-|---------------|-----------|-----|-----------|---------------|
-|               | EN        |     | GPIO23    |               |
-|               | GPIO36    |     | GPIO22    |               |
-|               | GPIO39    |     | GPIO1     |               |
-|               | GPIO34    |     | GPIO3     |               |
-|               | GPIO35    |     | GPIO21    |               |
-|               | GPIO32    |     | GPIO19    |               |
-|               | GPIO33    |     | GPIO18    |               |
-|               | GPIO25    |     | GPIO5     |               |
-|               | GPIO26    |     | GPIO17    | to Pack RX1   |
-|               | GPIO27    |     | GPIO16    | to Pack TX1   |
-|               | GPIO14    |     | GPIO4     |               |
-|               | GPIO12    |     | GPIO2     |               |
-|               | GPIO13    |     | GPIO15    |               |
-| to 5V-OUT -   | GND       |     | GND       |               |
-| to 5V-OUT +   | VIN       |     | 3.3V      |               |
-|               |         | **USB** |         |               |
+The following is a diagram of the **ESP32-Mini pins** from left and right, when oriented with the USB connection facing down (south) AND from the underside, like the pinout diagram above-left. Note that this device has 2 rows of pins so it is best to orient to the view which has the silkscreened labels.
+
+| Connection | ESP32 (R) |     | ESP32 (L) | Connection |
+|------------|-----------|-----|-----------|------------|
+| GND LED -  | GND   TXD |     | RST   GND |            |
+|            | IO27  RXD |     | SVP    NC |            |
+|            | IO25 IO22 |     | IO26  SVN |            |
+|            | IO32 IO21 |     | IO18 IO35 |            |
+|            | TOI  IO17 |     | IO19 IO33 |            |
+| IO4 LEDs   | IO4  IO16 |     | IO23 IO34 |            |
+|            | IO0   GND |     | IO5   TMS |            |
+| VCC LED +  | IO2   VCC |     | 3.3V   NC |            |
+|            | SD1   TD0 |     | TCK   SD2 |            |
+|            | CLK   SD0 |     | SD3   CMD |            |
+|            |         | **USB** |         |            |
+
+This is a very simple connection scheme. We simply need to power the LEDs from the VCC and any GND ports on the chip, and connect the signal line to the IO4 pin. This device can be powered by any USB battery bank via a Micro USB cable.
 
 ## Firmware Flashing
 
 
+For the initial flashing of the firmware you can use a 3rd-party website to upload using the Web Serial protocol which is only available on the Google Chrome, Microsoft Edge, and Opera desktop web browsers. Mobile browsers are NOT supported, and you will be prompted with a message if your web browser is not valid for use.
+
+1. Plug your device into a USB port on your computer and go to [http://espwebtool.ghostbusters.engineering](http://espwebtool.ghostbusters.engineering) (which [redirects to https://esp.huhn.me](https://esp.huhn.me)).
+
+1. Locate the following files from the `/binaries/stream` directory.
+
+	* [extras/StreamEffects-Bootloader.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/stream/extras/StreamEffects-Bootloader.bin?raw=1) = This is the standard bootloader for the ESP32 itself.
+	* [extras/StreamEffects-Partitions.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/stream/extras/StreamEffects-Partitions.bin?raw=1) = This specifies the partition scheme for the flash memory.
+	* [extras/boot_app0.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/stream/extras/boot_app0.bin?raw=1) = This is the software for selecting the available/next OTA partition.
+	* [StreamEffects.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/stream/StreamEffects.bin?raw=1) = This is the custom firmware for the GPStar kit.
+
+1. Click on the **CONNECT** button and select your USB serial device from the list of options and click on "Connect".
+
+1. Once connected, select the files (noted above) for the following address spaces:
+
+	* 0x1000 &rarr; [StreamEffects-Bootloader.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/stream/extras/StreamEffects-Bootloader.bin?raw=1)
+	* 0x8000 &rarr; [StreamEffects-Partitions.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/stream/extras/StreamEffects-Partitions.bin?raw=1)
+	* 0xE000 &rarr; [boot_app0.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/stream/extras/boot_app0.bin?raw=1)
+	* 0x10000 &rarr; [StreamEffects.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/stream/StreamEffects.bin?raw=1)
+
+1. Click on the **PROGRAM** button to begin flashing. View the "Output" window to view progress of the flashing operation.
+
+1. Once the device has completely flashed (100%) unplug the USB cable and remove any remaining power source from the device. Restore power to reboot the device and confirm operation.
+
+Once the device is flashed successfully via USB you can use the WiFi and web UI to perform future flashes using over-the-air (OTA) updates.
 
 ## Operation
 
-
+Look for a WiFi network of "StreamEffects_0000" or similar and connect using the password `555-2368`. Open a web browser to the same name as the network name, for instance `http://streameffects_0000.local`.
 
 **Security Notice**
 
-
+This device uses a default password of `555-2368` and should be changed immediately. You also have the option of changing the SSID broadcast if desired.
