@@ -29,7 +29,7 @@ The following is a diagram of the **ESP32-Mini pins** from left and right, when 
 |            | IO27  RXD |     | SVP    NC |            |
 |            | IO25 IO22 |     | IO26  SVN |            |
 |            | IO32 IO21 |     | IO18 IO35 |            |
-|            | TOI  IO17 |     | IO19 IO33 |            |
+|            | TDI  IO17 |     | IO19 IO33 |            |
 | IO4 LEDs   | IO4  IO16 |     | IO23 IO34 |            |
 |            | IO0   GND |     | IO5   TMS |            |
 | VCC LED +  | IO2   VCC |     | 3.3V   NC |            |
