@@ -4,6 +4,11 @@ What good is a Proton Pack that doesn't throw a stream? This device aims to prov
 
 This depends on the presence of an Attenuator or WiFi Adapter in order to provide a wireless integration with your equipment.
 
+Watch this demonstration of the Belt Gizmo and Stream Effects devices:
+<video src="../videos/effects_demo.webm" controls width="480">
+  Your browser does not support the video tag.
+</video>
+
 ## External Shell
 
 To help make your final device look more polished, a simple project enclosure is available to encapsulate your ESP32 Mini as will be used in this build.

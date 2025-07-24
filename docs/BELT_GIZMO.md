@@ -4,6 +4,11 @@ While the original "gizmo" was never given an on-screen purpose it has endured a
 
 This depends on the presence of an Attenuator or WiFi Adapter in order to provide a wireless integration with your equipment.
 
+Watch this demonstration of the Belt Gizmo and Stream Effects devices:
+<video src="../videos/effects_demo.webm" controls width="480">
+  Your browser does not support the video tag.
+</video>
+
 ## External Shell
 
 Many models of this device exist in the wild and you can pick any that you prefer as your base. Or if you have an existing Belt Gizmo you may be able to modify it to incorporate the new electronics.
