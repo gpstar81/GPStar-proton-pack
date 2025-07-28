@@ -36,7 +36,7 @@ Assembly of this device WILL require SOLDERING skills and is considered a DIY ap
 
 ![](images/ESP32-S3-Zero.jpg)
 
-The following is a diagram of the **ESP32-S3-Zero pins** from left and right, when oriented with the USB connection facing up (north) like the pinout diagram above-top. We only need a single 
+The following is a diagram of the **ESP32-S3-Zero pins** from left and right, when oriented with the USB connection facing up (north) like the pinout diagram above-top. We only need a single
 
 | Connection    | ESP32 (L) |     | ESP32 (R) | Connection    |
 |---------------|-----------|-----|-----------|---------------|
