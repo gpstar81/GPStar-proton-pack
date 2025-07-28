@@ -30,6 +30,7 @@ void allLightsOff() {
   bargraph.off();
 
   // Turn off all non-addressable LEDs.
+  led_Status.turnOff(); // Turn off the Neutrona Wand board status LED.
   led_Clippard.turnOff(); // Turn off the front left LED under the Clippard valve.
   led_Hat1.turnOff(); // Turn off hat light 1 (not used, but just make sure).
   led_Hat2.turnOff(); // Turn off hat light 2.
@@ -75,7 +76,7 @@ void barrelLightsOff() {
 void vibrationOff() {
   ms_menu_vibration.stop();
   i_vibration_level_current = 0;
-  analogWrite(vibration, i_vibration_level_current);
+  analogWrite(VIBRATION_PIN, i_vibration_level_current);
 }
 
 void checkMenuVibration() {
@@ -85,7 +86,7 @@ void checkMenuVibration() {
   else if(ms_menu_vibration.isRunning()) {
     if(i_vibration_level_current != i_vibration_level_min) {
       i_vibration_level_current = i_vibration_level_min;
-      analogWrite(vibration, i_vibration_level_current);
+      analogWrite(VIBRATION_PIN, i_vibration_level_current);
     }
   }
 }
@@ -158,6 +159,7 @@ void systemPOST() {
   bargraph.commit();
 
   // These go HIGH to turn on.
+  led_Status.turnOn();
   led_SloBlo.turnOn();
   delay(i_delay);
   led_Clippard.turnOn();
@@ -994,10 +996,10 @@ void vibrationDevice(uint8_t i_level) {
   if(VIBRATION_MODE != VIBRATION_NONE && i_level > 0) {
     // Vibrate the device during firing only when enabled.
     if(VIBRATION_MODE == VIBRATION_FIRING_ONLY) {
-      if(ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished()) {
-        if(i_vibration_level_current != (i_level * 2 < 256 ? i_level * 2 : 255)) {
-          i_vibration_level_current = (i_level * 2 < 256 ? i_level * 2 : 255);
-          analogWrite(vibration, i_vibration_level_current);
+      if(ms_semi_automatic_firing.isRunning()) {
+        if(i_vibration_level_current != (i_level * 2 < 64 ? i_level * 2 : 64)) {
+          i_vibration_level_current = (i_level * 2 < 64 ? i_level * 2 : 64);
+          analogWrite(VIBRATION_PIN, i_vibration_level_current);
         }
       }
       else {
@@ -1006,15 +1008,15 @@ void vibrationDevice(uint8_t i_level) {
     }
     else {
       // Device vibrates even when idling, etc.
-      if(ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished()) {
-        if(i_vibration_level_current != (i_level * 2 < 256 ? i_level * 2 : 255)) {
-          i_vibration_level_current = (i_level * 2 < 256 ? i_level * 2 : 255);
-          analogWrite(vibration, i_vibration_level_current);
+      if(ms_semi_automatic_firing.isRunning()) {
+        if(i_vibration_level_current != (i_level * 2 < 64 ? i_level * 2 : 64)) {
+          i_vibration_level_current = (i_level * 2 < 64 ? i_level * 2 : 64);
+          analogWrite(VIBRATION_PIN, i_vibration_level_current);
         }
       }
       else if(i_vibration_level_current != i_level) {
         i_vibration_level_current = i_level;
-        analogWrite(vibration, i_level);
+        analogWrite(VIBRATION_PIN, i_level);
       }
     }
   }

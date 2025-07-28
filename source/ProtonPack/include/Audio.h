@@ -241,7 +241,7 @@ void playMusic() {
     }
 
     // Manage track navigation.
-    ms_music_status_check.start(i_music_check_delay * 10);
+    ms_music_status_check.start(i_music_check_delay * 5);
 
     // Tell connected wand that music playback has started.
     packSerialSend(P_MUSIC_STATUS, b_playing_music ? 2 : 1);
@@ -805,25 +805,25 @@ void checkMusic() {
 
         // Loop through all the tracks if the music is not set to repeat a track.
         if(b_playing_music && !b_repeat_track && !b_music_paused) {
-          if(!musicTrackStatus() && ms_music_status_check.justFinished() && !musicIsTrackCounterReset()) {
-            ms_check_music.stop();
-            ms_music_status_check.stop();
+          if(ms_music_status_check.justFinished()) {
+            if(!musicTrackStatus() && !musicIsTrackCounterReset()) {
+              ms_check_music.stop();
+              ms_music_status_check.stop();
 
-            stopMusic();
+              stopMusic();
 
-            // Switch to the next track.
-            if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
-              i_current_music_track = i_music_track_start;
+              // Switch to the next track.
+              if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
+                i_current_music_track = i_music_track_start;
+              }
+              else {
+                i_current_music_track++;
+              }
+
+              // Start timer to prepare to play music again.
+              ms_music_next_track.start(i_music_next_track_delay);
             }
             else {
-              i_current_music_track++;
-            }
-
-            // Start timer to prepare to play music again.
-            ms_music_next_track.start(i_music_next_track_delay);
-          }
-          else {
-            if(ms_music_status_check.justFinished()) {
               ms_music_status_check.start(i_music_check_delay * 4);
             }
           }
@@ -893,12 +893,12 @@ bool setupAudioDevice() {
   audio.start(Serial3);
 
   uint16_t i_timeout = millis() + 1000;
-  
+
   while(!audio.gpstarAudioHello() && millis() < i_timeout) {
     audio.hello();
     delay(10);
   }
-  
+
   if(audio.gpstarAudioHello()) {
     if(audio.getVersionNumber() != 0) {
       AUDIO_DEVICE = A_GPSTAR_AUDIO_ADV;

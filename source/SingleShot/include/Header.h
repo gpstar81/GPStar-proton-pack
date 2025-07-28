@@ -81,6 +81,14 @@ bool b_vent_lights_changed = false; // Check for whether there was actually a ch
  * Non-addressable LEDs
  * Uses a common object to define and set expected properties for all LEDs
  */
+#define SLO_BLO_LED_PIN 8 // SLO-BLO LED. (Red LED)
+#define CLIPPARD_LED_PIN 9 // LED underneath the Clippard valve. (Orange or White LED)
+#define TOP_LED_PIN 12 // Blinking white light beside the vent on top of the wand.
+#define VENT_LED_PIN 13 // Vent light.
+#define BARREL_HAT_LED_PIN 22 // Hat light at front of the wand near the barrel tip. (Orange LED)
+#define TOP_HAT_LED_PIN 23 // Hat light at top of the wand body near vent. (Orange or White LED)
+#define BARREL_TIP_LED_PIN 24 // White LED at tip of the wand barrel. (White LED)
+#define WAND_STATUS_LED_PIN 38 // V1.4 GPStar Neutrona Wand onboard LED pin.
 struct StandaloneLED {
   uint8_t Pin; // Pin Assignment
   uint8_t On;  // State for "on"
@@ -114,13 +122,14 @@ struct StandaloneLED {
 };
 
 // Create instances and initialize LEDs with their pin and respective values for on/off.
-StandaloneLED led_SloBlo = {8, HIGH, LOW};
-StandaloneLED led_Clippard = {9, HIGH, LOW};
+StandaloneLED led_Status = {WAND_STATUS_LED_PIN, HIGH, LOW};
+StandaloneLED led_SloBlo = {SLO_BLO_LED_PIN, HIGH, LOW};
+StandaloneLED led_Clippard = {CLIPPARD_LED_PIN, HIGH, LOW};
 StandaloneLED led_TopWhite = {TOP_LED_PIN, LOW, HIGH};
-StandaloneLED led_Vent = {13, LOW, HIGH};
-StandaloneLED led_Hat1 = {22, HIGH, LOW};
-StandaloneLED led_Hat2 = {23, HIGH, LOW};
-StandaloneLED led_Tip = {24, HIGH, LOW};
+StandaloneLED led_Vent = {VENT_LED_PIN, LOW, HIGH};
+StandaloneLED led_Hat1 = {BARREL_HAT_LED_PIN, HIGH, LOW};
+StandaloneLED led_Hat2 = {TOP_HAT_LED_PIN, HIGH, LOW};
+StandaloneLED led_Tip = {BARREL_TIP_LED_PIN, HIGH, LOW};
 
 /*
  * Rotary encoder on the top of the device.
@@ -207,11 +216,11 @@ struct Encoder {
  *
  * These are references for the EEPROM menu. Empty is a zero value, not used in the EEPROM.
  */
+#define VIBRATION_PIN 11 // Pin for the vibration motor.
 enum VIBRATION_MODES { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE };
 enum VIBRATION_MODES VIBRATION_MODE_EEPROM;
 enum VIBRATION_MODES VIBRATION_MODE;
-const uint8_t vibration = 11; // Vibration motor is on pin 11.
-const uint8_t i_vibration_level_min = 65; // Minimum vibration level is 25.5%.
+const uint8_t i_vibration_level_min = 15; // Minimum vibration level is 6%.
 uint8_t i_vibration_level_current = 0; // Set the current value to 0 (off) on first start.
 millisDelay ms_menu_vibration; // Timer to do non-blocking confirmation buzzing in the vibration menu.
 
@@ -219,11 +228,16 @@ millisDelay ms_menu_vibration; // Timer to do non-blocking confirmation buzzing 
  * Various toggles and buttons on the device.
  * Uses the Switch class which provides debounce control and detects state.
  */
-Switch switch_intensify(2); // Considered a primary firing button, though for this device will be an alt-fire.
-Switch switch_activate(3); // Considered the primary power toggle on the right of the gun box.
-Switch switch_device(A0); // Top right switch on the device. Enables device for firing.
-Switch switch_vent(4); // Bottom right switch on the device. Turns on the vent light.
-Switch switch_grip(A6); // Hand-grip button to be the primary fire and used in settings menus.
+#define INTENSIFY_SWITCH_PIN 2
+#define ACTIVATE_SWITCH_PIN 3
+#define VENT_SWITCH_PIN 4
+#define DEVICE_SWITCH_PIN A0
+#define GRIP_SWITCH_PIN A6
+Switch switch_intensify(INTENSIFY_SWITCH_PIN); // Considered a primary firing button, though for this device will be an alt-fire.
+Switch switch_activate(ACTIVATE_SWITCH_PIN); // Considered the primary power toggle on the right of the gun box.
+Switch switch_device(DEVICE_SWITCH_PIN); // Top right switch on the device. Enables device for firing.
+Switch switch_vent(VENT_SWITCH_PIN); // Bottom right switch on the device. Turns on the vent light.
+Switch switch_grip(GRIP_SWITCH_PIN); // Hand-grip button to be the primary fire and used in settings menus.
 uint8_t ventSwitchedCount = 0; // Used for detection of LED EEPROM menu access
 uint8_t deviceSwitchedCount = 0; // Used for detection of Config EEPROM menu access
 

@@ -16,6 +16,8 @@ Connections for the pack should be made according to the tables below.
 
 ### Stock Connectors
 
+These are connections which should match 1:1 on the original Haslab Proton Pack if upgrading from that product.
+
 | Label | Pins | Notes |
 |-------|------|-------|
 | BATTERY 5V-IN | +/\- | Power from battery. **This MUST be a regulated 5V source!** |
@@ -31,10 +33,12 @@ Connections for the pack should be made according to the tables below.
 
 ### Special Connectors
 
+These are connections which are unique to the GPStar equipment or have a special purpose.
+
 | Label | Pins | Notes |
 |-------|------|-------|
 | AUDIO BOARD | GND/NC/VCC/TX/RX/NC | Communication and Power for the pack's GPStar Audio or WAV Trigger.<br><br>`Connector type: JST-PH` |
-| NEUTRONA WAND 5V-OUT | +/\- | Power to the Neutrona Wand.<br><br>`Connector type: JST-XH` |
+| NEUTRONA WAND 5V-OUT | +/\- | Power to the Neutrona Wand. If using the GPStar Amplifier it is encouraged that you use one of the 5V connections on that device to directly power the Neutrona Wand instead of using this connection.<br><br>`Connector type: JST-XH` |
 | NEURTONA WAND (Serial) | RX2/TX2 | Serial communication to the Neutrona Wand.<br><br>`Connector type: JST-XH` |
 | ICSP | DO NOT USE! | Reserved header for bootloader updates (reserved).<br><br>`Connector type: Header pins` |
 | UART | See Below | Programming header for software updates (optional).<br><br>`Connector type: Header pins` |
@@ -49,6 +53,8 @@ For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI B
 ![UART Connection](images/uart_pack.jpg)
 
 ### Optional Connectors
+
+These connections are reserved for special purposes with optional accessories.
 
 | Label | Pins | Notes |
 |-------|------|-------|
@@ -66,4 +72,4 @@ For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI B
 | LED-W | D46/GND | Connection for a standalone white LED in the N-Filter. D46 provides 5V and has a 100Ω resistor connected to it.<br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 40mA from this connector.` |
 | 5V-OUT | +/\- | Power for additional accessories. Commonly used to power an ESP32 wireless board or Attenuator.<br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 1.5amps from this connector.` |
 | SCL/SDA | SCL/SDA | Expansion serial port using I2C. Used to connect to the **Frutto Technologies** Current Sense board for GPStar Lite.<br><br>`Connector type: JST-XH`|
-| RX1/TX1 | RX1/TX1 | Expansion serial port. Used to connect to an ESP32 wireless board or Attenuator.<br><br>`Connector type: JST-XH`|
+| RX1/TX1 | RX1/TX1 | Expansion serial port. Used to connect to an Attenuator device (or an ESP32 for WiFi capability).<br><br>`Connector type: JST-XH`|

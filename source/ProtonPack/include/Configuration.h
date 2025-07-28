@@ -48,7 +48,7 @@ uint8_t i_cyclotron_leds = 12;
  * CYCLOTRON_DELAY_2021_36_LED is for the Frutto Technology Max 36 LED setup.
  * CYCLOTRON_DELAY_2021_40_LED is for a 40 LED NeoPixel ring.
  */
-const uint16_t i_1984_delay = 275;
+const uint16_t i_1984_delay = 300;
 #define CYCLOTRON_DELAY_2021_12_LED 15 // For 12 LEDs.
 #define CYCLOTRON_DELAY_2021_20_LED 10 // For 20 LEDs.
 #define CYCLOTRON_DELAY_2021_36_LED 5 // For 36 LEDs.
@@ -155,10 +155,10 @@ bool b_powercell_invert = false;
  * If you are using Power Cell LEDs with RGB support, such as the Frutto Technology Power Cells,
  * You can toggle if you want it to change colours to match the Video Game Modes or stay the default blue at all times.
  * Note that this has no effect on the stock HasLab Power Cell LEDs, which are blue only.
- * The default setting is true, which makes the Power Cell change colours to match the Video Game Modes.
+ * The default setting is false; true makes the Power Cell change colours to match the Video Game Modes.
  * This can be toggled in the Neutrona Wand sub menu system.
  */
-bool b_powercell_colour_toggle = true;
+bool b_powercell_colour_toggle = false;
 
 /*
  * Define the types of LEDs which are supported for devices.

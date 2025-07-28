@@ -1,5 +1,13 @@
 # Pack Attenuator (Optional)
 
+A special port labelled "RX1/TX1" (or "Attenuator" on later PCBs) exists as an expansion port for supporting the Pack Attenuator, allowing for more interactions with your Proton Pack and Neutrona Wand system.
+
+This is an OPTIONAL component which consists of an ESP32 microcontroller and a collection of LEDs, switches, and rotary dial to allow you to perform actions single-handed from the front of your Proton Pack when worn. *Please note that the original [Attenuator DIY guide](ATTENUATOR_DIY.md) used an Arduino Nano which is no longer capable of providing the storage space required by the full range of features supported and that hardware has been deprecated in favor of the ESP32 platform.*
+
+This guide will explain the purpose of the Pack Attenuator with its physical controls, though if you wish to only add WiFi capability please view the [Wireless Adapter guide](WIRELESS.md).
+
+## Overview
+
 "If Egon had kept on using and modifying his pack and modifying it, what might it look like?"
 
 That was the question posed by Jason Reitman to Adam Savage with regards to the 2021 Ghostbusters Afterlife film. So in 2022 [Adam Savage's Tested YouTube channel released a video](https://www.youtube.com/watch?v=dloSR3a57IA) for a "1 Day Build" which featured propmaster Ben Eadie to create a unique item which brings more life to the front of the Proton Pack.

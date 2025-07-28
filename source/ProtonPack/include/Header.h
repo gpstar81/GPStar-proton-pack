@@ -295,11 +295,11 @@ millisDelay ms_alarm;
 /*
  * Switches
  */
+ezButton switch_power(ION_ARM_SWITCH_PIN); // Red power switch under the Ion Arm.
 ezButton switch_alarm(RIBBON_CABLE_SWITCH_PIN); // Ribbon cable removal switch
 ezButton switch_mode(YEAR_TOGGLE_PIN); // 1984 / 2021 mode toggle switch
 ezButton switch_vibration(VIBRATION_TOGGLE_PIN); // Vibration toggle switch
 ezButton switch_cyclotron_direction(CYCLOTRON_DIRECTION_TOGGLE_PIN); // Newly added switch for controlling the direction of the Cyclotron lights. Not required. Defaults to clockwise.
-ezButton switch_power(ION_ARM_SWITCH_PIN); // Red power switch under the Ion Arm.
 ezButton switch_smoke(SMOKE_TOGGLE_PIN); // Switch to enable smoke effects. Not required. Defaults to off/disabled.
 
 /*

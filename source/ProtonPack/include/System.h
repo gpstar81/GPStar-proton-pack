@@ -82,7 +82,12 @@ void resetRampDown() {
 void vibrationOff() {
   ms_menu_vibration.stop();
   i_vibration_level_prev = 0;
-  digitalWrite(VIBRATION_PIN, LOW);
+  if(VIBRATION_MODE == CYCLOTRON_MOTOR) {
+    digitalWrite(VIBRATION_PIN, LOW);
+  }
+  else {
+    analogWrite(VIBRATION_PIN, LOW);
+  }
 }
 
 void ventLightLEDW(bool b_on) {
@@ -1536,13 +1541,13 @@ void spectralLightsOn() {
 
 void checkSwitches() {
   // Perform loop() needed by ezButton.
+  switch_power.loop();
   switch_alarm.loop();
+  switch_mode.loop();
+  switch_vibration.loop();
   switch_cyclotron_lid.loop();
   switch_cyclotron_direction.loop();
-  switch_mode.loop();
-  switch_power.loop();
   switch_smoke.loop();
-  switch_vibration.loop();
 
   cyclotronSwitchPlateLEDs();
 
@@ -2491,27 +2496,25 @@ void cyclotronColourReset() {
 
 // Controls the slime cyclotron fadeout effect.
 void slimeCyclotronFadeout() {
-  //if(ms_cyclotron_slime_effect.justFinished()) {
-    bool b_leds_fading = false;
+  bool b_leds_fading = false;
 
-    for(uint8_t i = 0; i < i_cyclotron_leds; i++) {
-      pack_leds[i + i_cyclotron_led_start].fadeToBlackBy(1);
+  for(uint8_t i = 0; i < i_cyclotron_leds; i++) {
+    pack_leds[i + i_cyclotron_led_start].fadeToBlackBy(1);
 
-      if(!b_leds_fading && pack_leds[i + i_cyclotron_led_start]) {
-        b_leds_fading = true;
-      }
+    if(!b_leds_fading && pack_leds[i + i_cyclotron_led_start]) {
+      b_leds_fading = true;
     }
+  }
 
-    if(b_leds_fading) {
-      // At least one LED not off yet.
-      ms_cyclotron_slime_effect.start(30);
-    }
-    else {
-      // All LEDs faded to black.
-      ms_cyclotron_slime_effect.stop();
-      b_ramp_down = false;
-    }
-  //}
+  if(b_leds_fading) {
+    // At least one LED not off yet.
+    ms_cyclotron_slime_effect.start(30);
+  }
+  else {
+    // All LEDs faded to black.
+    ms_cyclotron_slime_effect.stop();
+    b_ramp_down = false;
+  }
 }
 
 // Controls the slime cyclotron effect.

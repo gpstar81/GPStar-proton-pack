@@ -1,0 +1,110 @@
+name: compile-test-packwand
+
+# Trigger this workflow on any push or pull request
+on:
+  - push
+  - pull_request
+
+env:
+  # Directory for test reports or sketch outputs, if used
+  SKETCHES_REPORTS_PATH: sketches-reports
+
+jobs:
+  compile-atmega-eeprom:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository code
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up a Python environment (required by PlatformIO)
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      # Step 3: Cache PlatformIO packages and tools
+      # This avoids re-downloading frameworks, toolchains, and libraries
+      - name: Cache PlatformIO Packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-${{ runner.os }}-${{ hashFiles('**/platformio.ini') }}
+          restore-keys: |
+            pio-${{ runner.os }}-
+
+      # Step 4: Install PlatformIO Core
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+
+      # Step 5: Compile projects by environment (ATMega2560 or ESP32)
+      - name: Compile ATmegaEEPROM (all environments)
+        working-directory: source/ATmegaEEPROM
+        run: pio run --jobs 4
+
+  compile-proton-pack:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository code
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up a Python environment (required by PlatformIO)
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      # Step 3: Cache PlatformIO packages and tools
+      # This avoids re-downloading frameworks, toolchains, and libraries
+      - name: Cache PlatformIO Packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-${{ runner.os }}-${{ hashFiles('**/platformio.ini') }}
+          restore-keys: |
+            pio-${{ runner.os }}-
+
+      # Step 4: Install PlatformIO Core
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+
+      # Step 5: Compile projects by environment (ATMega2560 or ESP32)
+      - name: Compile ProtonPack (all environments)
+        working-directory: source/ProtonPack
+        run: pio run --jobs 4
+
+  compile-neutrona-wand:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository code
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up a Python environment (required by PlatformIO)
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      # Step 3: Cache PlatformIO packages and tools
+      # This avoids re-downloading frameworks, toolchains, and libraries
+      - name: Cache PlatformIO Packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-${{ runner.os }}-${{ hashFiles('**/platformio.ini') }}
+          restore-keys: |
+            pio-${{ runner.os }}-
+
+      # Step 4: Install PlatformIO Core
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+
+      # Step 5: Compile projects by environment (ATMega2560 or ESP32)
+      - name: Compile NeutronaWand (all environments)
+        working-directory: source/NeutronaWand
+        run: pio run --jobs 4
