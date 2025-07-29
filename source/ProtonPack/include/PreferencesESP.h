@@ -408,20 +408,10 @@ void readEEPROM() {
         break;
       }
     }
-    else if(!b_power_meter_available) {
-      // If no EEPROM default set and not using a stock wand, assume Frutto upgrades instead.
-      i_powercell_leds = FRUTTO_POWERCELL_LED_COUNT;
-      i_powercell_delay_1984 = POWERCELL_DELAY_1984_15_LED;
-      i_powercell_delay_2021 = POWERCELL_DELAY_2021_15_LED;
-    }
 
     if(gObjLEDEEPROM.cyclotron_count == HASLAB_CYCLOTRON_LED_COUNT || gObjLEDEEPROM.cyclotron_count == FRUTTO_CYCLOTRON_LED_COUNT ||
       gObjLEDEEPROM.cyclotron_count == FRUTTO_MAX_CYCLOTRON_LED_COUNT || gObjLEDEEPROM.cyclotron_count == OUTER_CYCLOTRON_LED_MAX) {
       i_cyclotron_leds = gObjLEDEEPROM.cyclotron_count;
-    }
-    else if(!b_power_meter_available) {
-      // If no EEPROM default set and not using a stock wand, assume Frutto upgrades instead.
-      i_cyclotron_leds = FRUTTO_MAX_CYCLOTRON_LED_COUNT;
     }
 
     if(gObjLEDEEPROM.inner_cyclotron_count == 12 || gObjLEDEEPROM.inner_cyclotron_count == 23 || gObjLEDEEPROM.inner_cyclotron_count == 24 ||
