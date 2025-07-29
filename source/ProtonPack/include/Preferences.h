@@ -139,20 +139,20 @@ void readEEPROM() {
         break;
       }
     }
-    else if(!b_power_meter_available) {
-      // If no EEPROM default set and not using a stock wand, assume Frutto upgrades instead.
-      i_powercell_leds = FRUTTO_POWERCELL_LED_COUNT;
-      i_powercell_delay_1984 = POWERCELL_DELAY_1984_15_LED;
-      i_powercell_delay_2021 = POWERCELL_DELAY_2021_15_LED;
+    else if(b_power_meter_available) {
+      // If no EEPROM default set and using a stock wand, assume stock LEDs instead.
+      i_powercell_leds = HASLAB_POWERCELL_LED_COUNT;
+      i_powercell_delay_1984 = POWERCELL_DELAY_1984_13_LED;
+      i_powercell_delay_2021 = POWERCELL_DELAY_2021_13_LED;
     }
 
     if(obj_led_eeprom.cyclotron_count == HASLAB_CYCLOTRON_LED_COUNT || obj_led_eeprom.cyclotron_count == FRUTTO_CYCLOTRON_LED_COUNT ||
       obj_led_eeprom.cyclotron_count == FRUTTO_MAX_CYCLOTRON_LED_COUNT || obj_led_eeprom.cyclotron_count == OUTER_CYCLOTRON_LED_MAX) {
       i_cyclotron_leds = obj_led_eeprom.cyclotron_count;
     }
-    else if(!b_power_meter_available) {
-      // If no EEPROM default set and not using a stock wand, assume Frutto upgrades instead.
-      i_cyclotron_leds = FRUTTO_MAX_CYCLOTRON_LED_COUNT;
+    else if(b_power_meter_available) {
+      // If no EEPROM default set and using a stock wand, assume stock LEDs instead.
+      i_cyclotron_leds = HASLAB_CYCLOTRON_LED_COUNT;
     }
 
     if(obj_led_eeprom.inner_cyclotron_count == 12 || obj_led_eeprom.inner_cyclotron_count == 23 || obj_led_eeprom.inner_cyclotron_count == 24 ||

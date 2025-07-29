@@ -664,10 +664,10 @@ void vibrationWand(uint8_t i_level) {
   if(VIBRATION_MODE != VIBRATION_NONE && b_vibration_switch_on && WAND_ACTION_STATUS != ACTION_OVERHEATING && !b_pack_alarm && b_pack_on && i_level > 0) {
     // Vibrate the wand during firing only when enabled. (When enabled by the pack)
     if(VIBRATION_MODE == VIBRATION_FIRING_ONLY) {
-      if(WAND_ACTION_STATUS == ACTION_FIRING || (ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished())) {
+      if(WAND_ACTION_STATUS == ACTION_FIRING || ms_semi_automatic_firing.isRunning()) {
         if(ms_semi_automatic_firing.isRunning()) {
-          if(i_vibration_level_current != (i_level * 2 < 256 ? i_level * 2 : 255)) {
-            i_vibration_level_current = (i_level * 2 < 256 ? i_level * 2 : 255);
+          if(i_vibration_level_current != (i_level * 2 < 64 ? i_level * 2 : 64)) {
+            i_vibration_level_current = (i_level * 2 < 64 ? i_level * 2 : 64);
             analogWrite(VIBRATION_PIN, i_vibration_level_current);
           }
         }
@@ -682,9 +682,9 @@ void vibrationWand(uint8_t i_level) {
     }
     else {
       // Wand vibrates even when idling, etc. (When enabled by the pack)
-      if(ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished()) {
-        if(i_vibration_level_current != (i_level * 2 < 256 ? i_level * 2 : 255)) {
-          i_vibration_level_current = (i_level * 2 < 256 ? i_level * 2 : 255);
+      if(ms_semi_automatic_firing.isRunning()) {
+        if(i_vibration_level_current != (i_level * 2 < 64 ? i_level * 2 : 64)) {
+          i_vibration_level_current = (i_level * 2 < 64 ? i_level * 2 : 64);
           analogWrite(VIBRATION_PIN, i_vibration_level_current);
         }
       }
@@ -878,7 +878,7 @@ void bargraphRampUp() {
 
           // Adjust the ramp down speed if necessary.
           if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
-            i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 2;
+            i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021 / 2;
           }
         }
         else {
@@ -887,7 +887,7 @@ void bargraphRampUp() {
       break;
 
       case 28 ... 55:
-        uint8_t i_tmp = i_bargraph_status_alt - (i_bargraph_segments - 2);
+        uint8_t i_tmp = i_bargraph_status_alt - (i_bargraph_segments - 3);
         i_tmp = (i_bargraph_segments - 2) - i_tmp;
 
         if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm) {
@@ -1094,7 +1094,7 @@ void bargraphRampUp() {
 
           // Adjust the ramp down speed if necessary.
           if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
-            i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 2;
+            i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021 / 2;
           }
         }
         else {
