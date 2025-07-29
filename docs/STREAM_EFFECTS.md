@@ -21,6 +21,7 @@ Assembly of this device WILL require SOLDERING skills and is considered a DIY ap
 
 * [ESP32 Mini Dev Board](https://a.co/d/dMZEs5r)
 * [5M Round Reticulate RGB LED Rope Light](https://a.co/d/j8L33dh) [May be found cheaper from AliExpress]
+* [270 ohm Resisitor](https://a.co/d/j5Otzhq)
 
 ## ESP32 - Pin Connections
 
@@ -42,10 +43,13 @@ The following is a diagram of the **ESP32-Mini pins** from left and right, when 
 |            | CLK   SD0 |     | SD3   CMD |            |
 |            |         | **USB** |         |            |
 
-This is a very simple connection scheme. We simply need to power the LEDs from the VCC and any GND ports on the chip, and connect the signal line to the IO4 pin. This device can be powered by any USB battery bank via a Micro USB cable.
+This is a very simple connection scheme. We simply need to power the LEDs from the VCC and any GND ports on the chip, and connect the signal line to the IO4 pin with a 270 ohm resistor inline. This device can be powered by any USB battery bank via a Micro USB cable.
+
+## Assembly
+
+The STL file `stl/stream_effects_enclosure.stl` can be used to enclose the ESP32 while leaving the USB port accessible.
 
 ## Firmware Flashing
-
 
 For the initial flashing of the firmware you can use a 3rd-party website to upload using the Web Serial protocol which is only available on the Google Chrome, Microsoft Edge, and Opera desktop web browsers. Mobile browsers are NOT supported, and you will be prompted with a message if your web browser is not valid for use.
 

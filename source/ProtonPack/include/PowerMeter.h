@@ -100,7 +100,7 @@ void powerMeterInit() {
   if(i_monitor_status == 0) {
     // Result of 0 indicates no problems from device detection.
     b_power_meter_available = true;
-    powerMeterConfig(); // Temporarily disabled as hardware is not available for testing.
+    powerMeterConfig();
     wandReading.LastRead = millis(); // For use with the Ah readings.
     wandReading.ReadTimer.start(wandReading.PowerReadDelay);
   }

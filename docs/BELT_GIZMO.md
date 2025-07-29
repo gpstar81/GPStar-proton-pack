@@ -15,9 +15,6 @@ Many models of this device exist in the wild and you can pick any that you prefe
 
 - [Belt Gizmo by Dave W](https://makerworld.com/en/models/1481024-ghostbusters-belt-gizmo-customisable-readout#profileId-1546412)
 - [Belt Gizmo by MRKIOU](https://cults3d.com/en/3d-model/gadget/ghostbusters-belt-gizmo?srsltid=AfmBOoodHZSokoh6WtUnP8dFB2FAfHBY5bJPWOEOunehdjz8OXQWtP-q)
-
-A special holder for the electronics will be necessary to keep things clean and compact. This _should_ work with most Belt Gizmo designs, though it was created specifically for the MRKIOU (Q) design linked above.
-
 - [Belt Gizmo Back by Dustin Grau](https://www.tinkercad.com/things/hXboxGGXGLa-belt-gizmo-back?sharecode=ha-4RQ-0age-2QNgxU-ZpJ5jofNhaNWqsaZMZCeECbs)
 
 ## Bill of Materials
@@ -31,6 +28,7 @@ Assembly of this device WILL require SOLDERING skills and is considered a DIY ap
 * [SPDT 2-Position Micro Slide Switch](https://a.co/d/08XEYrL)
 * [SPST Momentary Push Button Switch](https://a.co/d/7ySDNmg)
 * [28AWG Stranded Silicone Hookup Wire](https://a.co/d/8uN87y4)
+* [270 ohm Resisitor](https://a.co/d/j5Otzhq)
 
 ## ESP32 - Pin Connections
 
@@ -55,7 +53,7 @@ The following is a diagram of the **ESP32-S3-Zero pins** from left and right, wh
 
 We need to both power the device but also allow for the battery pack to be charged without removing it from the Belt Gizmo every time. This approach uses a slide switch to cut power to the ESP32 and allows for faster charging without simultaneously draining the battery. We also make use of the Key switch to turn the power on or off. A single press will turn on the boost chip while two quick presses will turn it off.
 
-For the battery you have 2 options: use a JST socket to connect your batter or cut off the existing plug. The latter may be quicker if you are comfortable with re-soldering a new battery in the future should the current one no longer hold a charge. Carefully cut off the plug from the LiPo battery pack, cutting each wire **1 AT TIME** to avoid a short-circuit.
+For the battery you have 2 options: use a JST socket to connect your battery or cut off the existing plug. The latter may be quicker if you are comfortable with re-soldering a new battery in the future should the current one no longer hold a charge. Carefully cut off the plug from the LiPo battery pack, cutting each wire **1 AT TIME** to avoid a short-circuit.
 
 You will connect battery leads to the through-hole connections opposite the battery: positive (red) to + and negative (black) to - as expected.
 
@@ -69,6 +67,28 @@ The hole labelled K connects to one side of the SPST Momentary Switch, the other
 Note: You will not need the USB2 connector supplied with this device.
 
 ![](images/USB_Boost_Charge.jpg)
+
+## Assembly
+
+![](images/gizmo_front.jpg)
+
+The LEDs chosen for this project are the same which may be used with the Proton Pack when adding the sparking effect to your inner cyclotron cake. Essentially this used a spare segment of 8 addressable LEDs which fit within the 7 nixie tubes and the E block. Note that the 270 ohm resistor will be used on the data line which connects to pin GP4 of the ESP32.
+
+![](images/gizmo_back.jpg)
+
+The STL file `stl/misc/belt_gizmo_back.stl` is available in this project as a holder for the electronics and is highly recommended to keep things clean and compact. This _should_ work with most Belt Gizmo designs, though it was created specifically for the MRKIOU (Q) design linked above.
+
+![](images/gizmo_tubes.jpg)
+
+The excess wiring for each LED can be carefully folded over and secured behind each light in the nixie tubes. The sequence of lights begins with the E block and moves left from there.
+
+![](images/gizmo_wires.jpg)
+
+Lengths of the silicone wiring can be used to provide more visual interest to the base of each nixie tube and terminate on the backside of the gizmo itself. You can see the ends of the wires secured with hot glue in the next photo.
+
+![](images/gizmo_assembled.jpg)
+
+Not shown here is the mini slide switch which severs power to the ESP32 so that the device can be charged without simultanously discharging.
 
 ## Firmware Flashing
 
@@ -87,7 +107,7 @@ For the initial flashing of the firmware you can use a 3rd-party website to uplo
 
 1. Once connected, select the files (noted above) for the following address spaces:
 
-	* 0x0000 &rarr; [BeltGizmo-Bootloader.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/gizmo/extras/BeltGizmo-Bootloader.bin?raw=1)
+	* 0x1000 &rarr; [BeltGizmo-Bootloader.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/gizmo/extras/BeltGizmo-Bootloader.bin?raw=1)
 	* 0x8000 &rarr; [BeltGizmo-Partitions.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/gizmo/extras/BeltGizmo-Partitions.bin?raw=1)
 	* 0xE000 &rarr; [boot_app0.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/gizmo/extras/boot_app0.bin?raw=1)
 	* 0x10000 &rarr; [BeltGizmo.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/gizmo/BeltGizmo.bin?raw=1)
