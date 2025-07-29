@@ -88,7 +88,7 @@ Lengths of the silicone wiring can be used to provide more visual interest to th
 
 ![](images/gizmo_assembled.jpg)
 
-Not shown here is the mini slide switch which severs power to the ESP32 so that the device can be charged without simultanously discharging.
+Not shown here is the mini slide switch which severs power to the ESP32 so that the device can be charged without simultaneously discharging.
 
 ## Firmware Flashing
 
