@@ -92,8 +92,9 @@ void setup() {
   // Setup the audio device for this controller.
   setupAudioDevice();
 
-  // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.
-  TCCR1B = (TCCR1B & B11111000) | B00000100; // for PWM frequency of 122.55 Hz
+  // Change PWM frequency for the vibration motor, we do not want it high pitched.
+  // For ATmega2560, we set the PWM frequency for pin 11 (TCCR5B) to 122.55 Hz.
+  TCCR1B = (TCCR1B & B11111000) | B00000100;
   pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
 
   // System LEDs

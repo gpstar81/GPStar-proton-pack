@@ -32,6 +32,8 @@
 #include <GPStarAudio.h>
 gpstarAudio audio;
 
+#define AudioSerial Serial3
+
 /*
  * Audio Devices
  */
@@ -45,7 +47,7 @@ uint16_t i_music_count = 0; // Contains the total number of detected music track
 uint16_t i_current_music_track = 0; // Sets the ID number for the music track to be played.
 const uint16_t i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
 const int8_t i_volume_abs_min = -70; // System (absolute) minimum volume possible.
-int8_t i_volume_abs_max = 0; // System (absolute) maximum volume possible. 0 dB for WAV Trigger, +10 dB for GPStar Audio.
+int8_t i_volume_abs_max = 0; // System (absolute) maximum volume possible. 0 dB for unity gain.
 const int8_t i_track_volume_abs_max = 0; // Maximum gain for effects/music is 0 dB (unity gain).
 bool b_playing_music = false; // Sets whether a music track is currently playing or not.
 bool b_music_paused = false; // Sets whether a music track is currently paused or not.
@@ -756,9 +758,9 @@ void toggleMusicLoop() {
 bool setupAudioDevice() {
   char gVersion[VERSION_STRING_LEN];
 
-  Serial3.begin(57600);
+  AudioSerial.begin(57600);
 
-  audio.start(Serial3);
+  audio.start(AudioSerial);
 
   uint16_t i_timeout = millis() + 1000;
 
@@ -830,7 +832,7 @@ bool setupAudioDevice() {
   else {
     // No audio devices connected.
     AUDIO_DEVICE = A_NONE;
-    Serial3.end();
+    AudioSerial.end();
 
     debugln(F("No Audio Device"));
 

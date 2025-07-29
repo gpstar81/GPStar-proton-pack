@@ -288,27 +288,16 @@ bool vgModeCheck() {
   }
 }
 
-void bargraphClearAll() {
-  ht_bargraph.clearAll();
-
-  for(uint8_t i = 0; i < i_bargraph_segments; i++) {
-    b_bargraph_status[i] = false;
-  }
-}
-
-void bargraphClearAlt() {
-  if(BARGRAPH_TYPE != SEGMENTS_5) {
-    bargraphClearAll();
-
-    i_bargraph_status_alt = 0;
-  }
-}
-
 void soundBeepLoopStop() {
+  // First we need to reset the idle timer to prevent audio overlaps
+  if(switch_wand.on() && switch_vent.on() && switch_activate.on() && WAND_STATUS == MODE_ON) {
+    ms_reset_sound_beep.start(i_sound_timer);
+  }
+
   if(b_beeping) {
     b_beeping = false;
 
-    if(switch_wand.on()) {
+    if(switch_wand.on() && switch_vent.on() && switch_activate.on() && WAND_STATUS == MODE_ON) {
       // Set all beep looping to false so they stop naturally.
       audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S1, false);
       audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S2, false);
@@ -319,8 +308,6 @@ void soundBeepLoopStop() {
       if(b_extra_pack_sounds) {
         wandSerialSend(W_WAND_BEEP_STOP_LOOP);
       }
-
-      ms_reset_sound_beep.start(i_sound_timer);
     }
     else {
       // Stop all beeps explicitly to prevent rapid switching from taking up all available channels.
@@ -345,102 +332,42 @@ void soundBeepLoop() {
       // Quick check to know if effects belong to the next-gen movies (as opposed to the OG 80's themes).
       bool b_next_gen = (getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE);
 
-      switch(i_power_level) {
-        case 1:
-        default:
-          if(b_next_gen && b_beep_loop) {
-            if(b_extra_pack_sounds) {
-              wandSerialSend(W_WAND_BEEP_START);
-            }
+      if(b_next_gen && b_beep_loop) {
+        if(b_extra_pack_sounds) {
+          wandSerialSend(W_WAND_BEEP_START);
+        }
 
+        switch(i_power_level) {
+          case 1:
+          default:
             playEffect(S_AFTERLIFE_BEEP_WAND_S1, true);
-          }
-          else {
-            if(switch_wand.switched()) {
-              if(b_extra_pack_sounds) {
-                wandSerialSend(W_WAND_BEEP);
-              }
+          break;
 
-              playEffect(S_AFTERLIFE_BEEP_WAND_S5);
-            }
-          }
-        break;
-
-        case 2:
-         if(b_next_gen && b_beep_loop) {
-            if(b_extra_pack_sounds) {
-              wandSerialSend(W_WAND_BEEP_START);
-            }
-
+          case 2:
             playEffect(S_AFTERLIFE_BEEP_WAND_S2, true);
-          }
-          else {
-            if(switch_wand.switched()) {
-              if(b_extra_pack_sounds) {
-                wandSerialSend(W_WAND_BEEP);
-              }
+          break;
 
-              playEffect(S_AFTERLIFE_BEEP_WAND_S5);
-            }
-          }
-        break;
-
-        case 3:
-         if(b_next_gen && b_beep_loop) {
-            if(b_extra_pack_sounds) {
-              wandSerialSend(W_WAND_BEEP_START);
-            }
-
+          case 3:
             playEffect(S_AFTERLIFE_BEEP_WAND_S3, true);
-          }
-          else {
-            if(switch_wand.switched()) {
-              if(b_extra_pack_sounds) {
-                wandSerialSend(W_WAND_BEEP);
-              }
+          break;
 
-              playEffect(S_AFTERLIFE_BEEP_WAND_S5);
-            }
-          }
-        break;
-
-        case 4:
-         if(b_next_gen && b_beep_loop) {
-            if(b_extra_pack_sounds) {
-              wandSerialSend(W_WAND_BEEP_START);
-            }
-
+          case 4:
             playEffect(S_AFTERLIFE_BEEP_WAND_S4, true);
-          }
-          else {
-            if(switch_wand.switched()) {
-              if(b_extra_pack_sounds) {
-                wandSerialSend(W_WAND_BEEP);
-              }
+          break;
 
-              playEffect(S_AFTERLIFE_BEEP_WAND_S5);
-            }
-          }
-        break;
-
-        case 5:
-         if(b_next_gen && b_beep_loop) {
-            if(b_extra_pack_sounds) {
-              wandSerialSend(W_WAND_BEEP_START);
-            }
-
+          case 5:
             playEffect(S_AFTERLIFE_BEEP_WAND_S5, true);
+          break;
+        }
+      }
+      else {
+        if(switch_wand.switched()) {
+          if(b_extra_pack_sounds) {
+            wandSerialSend(W_WAND_BEEP);
           }
-          else {
-            if(switch_wand.switched()) {
-              if(b_extra_pack_sounds) {
-                wandSerialSend(W_WAND_BEEP);
-              }
 
-              playEffect(S_AFTERLIFE_BEEP_WAND_S5);
-            }
-          }
-        break;
+          playEffect(S_AFTERLIFE_BEEP_WAND_S5);
+        }
       }
 
       b_beeping = true;
@@ -827,6 +754,22 @@ uint8_t bargraphLookupTable(uint8_t index) {
   }
 }
 
+void bargraphClearAll() {
+  ht_bargraph.clearAll();
+
+  for(uint8_t i = 0; i < i_bargraph_segments_5_led; i++) {
+    b_bargraph_status[i] = false;
+  }
+}
+
+void bargraphClearAlt() {
+  if(BARGRAPH_TYPE != SEGMENTS_5) {
+    bargraphClearAll();
+
+    i_bargraph_status_alt = 0;
+  }
+}
+
 void resetBargraphSpeed() {
   // Sets the bargraph speed based on the bargraph animation type.
   switch(BARGRAPH_MODE) {
@@ -850,48 +793,48 @@ void wandBargraphControl(uint8_t i_t_level) {
   if(i_t_level > 4) {
     // On
     digitalWriteFast(bargraphLookupTable(5-1), LOW);
-    b_bargraph_status_5[4] = true;
+    b_bargraph_status[4] = true;
   }
   else {
     // Off
     digitalWriteFast(bargraphLookupTable(5-1), HIGH);
-    b_bargraph_status_5[4] = false;
+    b_bargraph_status[4] = false;
   }
 
   if(i_t_level > 3) {
     digitalWriteFast(bargraphLookupTable(4-1), LOW);
-    b_bargraph_status_5[3] = true;
+    b_bargraph_status[3] = true;
   }
   else {
     digitalWriteFast(bargraphLookupTable(4-1), HIGH);
-    b_bargraph_status_5[3] = false;
+    b_bargraph_status[3] = false;
   }
 
   if(i_t_level > 2) {
     digitalWriteFast(bargraphLookupTable(3-1), LOW);
-    b_bargraph_status_5[2] = true;
+    b_bargraph_status[2] = true;
   }
   else {
     digitalWriteFast(bargraphLookupTable(3-1), HIGH);
-    b_bargraph_status_5[2] = false;
+    b_bargraph_status[2] = false;
   }
 
   if(i_t_level > 1) {
     digitalWriteFast(bargraphLookupTable(2-1), LOW);
-    b_bargraph_status_5[1] = true;
+    b_bargraph_status[1] = true;
   }
   else {
     digitalWriteFast(bargraphLookupTable(2-1), HIGH);
-    b_bargraph_status_5[1] = false;
+    b_bargraph_status[1] = false;
   }
 
   if(i_t_level > 0) {
     digitalWriteFast(bargraphLookupTable(1-1), LOW);
-    b_bargraph_status_5[0] = true;
+    b_bargraph_status[0] = true;
   }
   else {
     digitalWriteFast(bargraphLookupTable(1-1), HIGH);
-    b_bargraph_status_5[0] = false;
+    b_bargraph_status[0] = false;
   }
 }
 
@@ -1573,10 +1516,10 @@ void afterlifeRampSound1() {
 
 void postActivation() {
   if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
-    i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021;
+    i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
   }
   else {
-    i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984 * 2;
+    i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984 * 2;
   }
 
   // Stop the heatdown sound if playing.
@@ -2587,7 +2530,7 @@ void modeFireStop() {
         default:
           bargraphClearAlt();
 
-          i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 3;
+          i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021 / 3;
 
           bargraphRampUp();
         break;
@@ -2605,7 +2548,7 @@ void modeFireStop() {
       i_bargraph_status_alt = 0;
       bargraphClearAlt();
 
-      i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
+      i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984;
 
       if(b_pack_alarm) {
         // We are going to ramp the bargraph down if the pack alarm happens while we were firing.
@@ -5819,7 +5762,7 @@ void bargraphModeOriginalRampFiringAnimation() {
     bool b_tmp_down = true;
 
     for(uint8_t i = 0; i < i_bargraph_segments_5_led; i++) {
-      if(!b_bargraph_status_5[i] && i <= i_bargraph_status) {
+      if(!b_bargraph_status[i] && i <= i_bargraph_status) {
         b_tmp_down = false;
         break;
       }
@@ -5856,7 +5799,7 @@ void bargraphModeOriginalRampFiringAnimation() {
             }
 
 
-            if(b_bargraph_status_5[i-1]) {
+            if(b_bargraph_status[i-1]) {
               wandBargraphControl(i-1);
               break;
             }
@@ -5890,7 +5833,7 @@ void bargraphModeOriginalRampFiringAnimation() {
               }
             }
 
-            if(!b_bargraph_status_5[i]) {
+            if(!b_bargraph_status[i]) {
               wandBargraphControl(i+1);
               break;
             }
@@ -5928,7 +5871,7 @@ void bargraphModeOriginalRampFiringAnimation() {
             }
 
 
-            if(b_bargraph_status_5[i-1]) {
+            if(b_bargraph_status[i-1]) {
               wandBargraphControl(i-1);
               break;
             }
@@ -5962,7 +5905,7 @@ void bargraphModeOriginalRampFiringAnimation() {
               }
             }
 
-            if(!b_bargraph_status_5[i]) {
+            if(!b_bargraph_status[i]) {
               wandBargraphControl(i+1);
               break;
             }
@@ -6000,7 +5943,7 @@ void bargraphModeOriginalRampFiringAnimation() {
             }
 
 
-            if(b_bargraph_status_5[i-1]) {
+            if(b_bargraph_status[i-1]) {
               wandBargraphControl(i-1);
               break;
             }
@@ -6034,7 +5977,7 @@ void bargraphModeOriginalRampFiringAnimation() {
               }
             }
 
-            if(!b_bargraph_status_5[i]) {
+            if(!b_bargraph_status[i]) {
               wandBargraphControl(i+1);
               break;
             }
@@ -6072,7 +6015,7 @@ void bargraphModeOriginalRampFiringAnimation() {
             }
 
 
-            if(b_bargraph_status_5[i-1]) {
+            if(b_bargraph_status[i-1]) {
               wandBargraphControl(i-1);
               break;
             }
@@ -6106,7 +6049,7 @@ void bargraphModeOriginalRampFiringAnimation() {
               }
             }
 
-            if(!b_bargraph_status_5[i]) {
+            if(!b_bargraph_status[i]) {
               wandBargraphControl(i+1);
               break;
             }
@@ -6144,7 +6087,7 @@ void bargraphModeOriginalRampFiringAnimation() {
               }
             }
 
-            if(b_bargraph_status_5[i-1]) {
+            if(b_bargraph_status[i-1]) {
               wandBargraphControl(i-1);
               break;
             }
@@ -6178,7 +6121,7 @@ void bargraphModeOriginalRampFiringAnimation() {
               }
             }
 
-            if(!b_bargraph_status_5[i]) {
+            if(!b_bargraph_status[i]) {
               wandBargraphControl(i+1);
               break;
             }
@@ -8333,7 +8276,7 @@ void firePulseEffect() {
           default:
             bargraphClearAlt();
 
-            i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_2021 / 3;
+            i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021 / 3;
 
             bargraphRampUp();
           break;
@@ -8346,7 +8289,7 @@ void firePulseEffect() {
         i_bargraph_status_alt = 0;
         bargraphClearAlt();
 
-        i_bargraph_multiplier_current  = i_bargraph_multiplier_ramp_1984;
+        i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984;
 
         // We ramp the bargraph back up after finishing firing.
         bargraphRampUp();
@@ -10416,7 +10359,7 @@ void wandExitEEPROMMenu() {
   // Reset the white LED blink rate setting in case we changed years.
   resetWhiteLEDBlinkRate();
 
-  // Send current preferences to the pack for use by the serial1 device.
+  // Send current preferences to the pack for use by the Attenuator.
   wandSerialSend(W_SEND_PREFERENCES_WAND);
   wandSerialSend(W_SEND_PREFERENCES_SMOKE);
 }
@@ -10553,7 +10496,7 @@ void ventLightControl(uint8_t i_intensity) {
     }
   }
   else {
-    analogWrite(VENT_LED_PIN, 255 - PROGMEM_READU8(ledLookupTable[i_intensity]));    
+    analogWrite(VENT_LED_PIN, 255 - PROGMEM_READU8(ledLookupTable[i_intensity]));
   }
 }
 

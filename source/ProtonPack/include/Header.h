@@ -45,9 +45,9 @@
 #define BOOSTER_TUBE_FAN_PIN 38 // Fan for the secondary smoke machine.
 #define NFILTER_SMOKE_PIN 39 // Primary smoke machine output, usually in the N-Filter.
 #define CYCLOTRON_LID_SWITCH_PIN 43 // Pin used for Cyclotron lid detection capability.
-#define CYCLOTRON_LID_SWITCH_PIN_DIY 51 // Legacy pin used for some DIY pack builds.
 #define VIBRATION_PIN 45 // Pin for the vibration motor.
 #define NFILTER_LED_PIN 46 // (Optional) Use a white LED with a forward voltage of 3.0-3.2 and up to 20mA forward current.
+#define CYCLOTRON_LID_SWITCH_PIN_DIY 51 // Legacy pin used for some DIY pack builds.
 #define PACK_LED_PIN 53 // Data pin for the Power Cell and Outer Cyclotron addressable LEDs.
 
 /*
@@ -392,18 +392,12 @@ millisDelay ms_mash_lockout; // Timer for tracking the expected button-mash lock
 const uint16_t i_wand_disconnect_delay = 8000; // Time until the pack considers a wand as disconnected.
 
 /*
- * Serial1 Status
+ * Attenuator Status
  */
-bool b_serial1_connected = false;
-bool b_serial1_syncing = false;
-millisDelay ms_serial1_check;
-const uint16_t i_serial1_disconnect_delay = 8000; // Time until the pack considers the Serial1 device disconnected.
-
-/*
- * Define Serial Communication Buffers
- */
-SerialTransfer serial1Coms;
-SerialTransfer packComs;
+bool b_attenuator_connected = false;
+bool b_attenuator_syncing = false;
+millisDelay ms_attenuator_check;
+const uint16_t i_attenuator_disconnect_delay = 8000; // Time until the pack considers the Attenuator disconnected.
 
 /*
  * Firing timers
@@ -484,10 +478,10 @@ millisDelay ms_fadeout;
 void packSerialSend(uint8_t i_command, uint16_t i_value);
 void packSerialSend(uint8_t i_command);
 void packSerialSendData(uint8_t i_message);
-void serial1Send(uint8_t i_command, uint16_t i_value);
-void serial1Send(uint8_t i_command);
-void serial1SendData(uint8_t i_message);
-void checkSerial1();
+void attenuatorSend(uint8_t i_command, uint16_t i_value);
+void attenuatorSend(uint8_t i_command);
+void attenuatorSendData(uint8_t i_message);
+void checkAttenuator();
 void checkWand();
 void powercellDraw(uint8_t i_start = 0);
 

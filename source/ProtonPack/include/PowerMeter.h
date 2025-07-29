@@ -105,8 +105,9 @@ void powerMeterInit() {
     wandReading.ReadTimer.start(wandReading.PowerReadDelay);
   }
   else {
-    // If returning a non-zero value, device could not be reset.
-    debugln(F("Unable to find power monitoring device on i2c."));
+    // If returning a non-zero value, device could not be reset or is not present on the I2C bus.
+    b_power_meter_available = false;
+    debugln(F("Unable to find power monitoring device on i2c. Power meter features will be disabled."));
   }
 
   // Always obtain a voltage reading directly from the pack PCB.
@@ -151,9 +152,12 @@ void doWandPowerReading() {
   monitor.reconfig();
 }
 
-// Sourced from https://community.particle.io/t/battery-voltage-checking/5467
-// Obtains the ATMega chip's actual Vcc voltage value, using internal bandgap reference.
-// This demonstrates ability to read MCU's Vcc voltage and the ability to maintain A/D calibration with changing Vcc.
+/**
+ * Function: doPackVoltageReading
+ * Purpose: Reads the pack's supply voltage (Vcc) using internal bandgap reference (ATMega2560 only).
+ * Inputs: None
+ * Outputs: Updates packReading.BusVoltage with the measured voltage (in V).
+ */
 void doPackVoltageReading() {
   // REFS1 REFS0               --> 0 1, AVcc internal ref. -Selects AVcc reference
   // MUX4 MUX3 MUX2 MUX1 MUX0  --> 11110 1.1V (VBG)        -Selects channel 30, bandgap voltage, to measure
@@ -166,8 +170,8 @@ void doPackVoltageReading() {
   while( ( (ADCSRA & (1<<ADSC)) != 0 ) ); // Wait for conversion to complete...
 
   // Scale the value, which returns the actual value of Vcc x 100
-  const long InternalReferenceVoltage = 1115L; // Adjust this value to your boards specific internal BG voltage x1000.
-  packReading.BusVoltage = (((InternalReferenceVoltage * 1023L) / ADC) + 5L) / 10L; // Calculates for straight line value.
+  const long INTERNAL_REFERENCE_VOLTAGE = 1115L; // Adjust this value to your board's specific internal BG voltage x1000.
+  packReading.BusVoltage = (((INTERNAL_REFERENCE_VOLTAGE * 1023L) / ADC) + 5L) / 10L; // Calculates for straight line value.
 }
 
 // Perform a reading of values from the power meter for the pack.
@@ -185,7 +189,7 @@ void updateWandPowerState() {
   // This is called whenever the power meter is available--for wand hot-swapping purposes.
   // Data is sent as integer so this is sent multiplied by 100 to get 2 decimal precision.
   if(si_update == 0) {
-    serial1Send(A_WAND_POWER_AMPS, f_sliding_window[19] * 100);
+    attenuatorSend(A_WAND_POWER_AMPS, f_sliding_window[19] * 100);
   }
 
   // Handle packside overheat sequence.
@@ -257,7 +261,7 @@ void updateWandPowerState() {
 
       // Wand must have been fully activated, so set variables accordingly.
       b_wand_on = true;
-      serial1Send(A_WAND_ON);
+      attenuatorSend(A_WAND_ON);
       b_wand_just_started = true;
 
       // The Hasbro wand cannot fire for 2.75 seconds after activation, so add a null period.
@@ -270,11 +274,11 @@ void updateWandPowerState() {
         b_wand_overheated = false;
 
         // Fake a full-power proton stream setting to the Attenuator
-        serial1Send(A_POWER_LEVEL_5);
-        serial1Send(A_PROTON_MODE);
+        attenuatorSend(A_POWER_LEVEL_5);
+        attenuatorSend(A_PROTON_MODE);
 
         // Tell the Attenuator the pack is powered on
-        serial1Send(A_PACK_ON);
+        attenuatorSend(A_PACK_ON);
       }
     }
     else if(b_pack_started_by_meter) {
@@ -302,13 +306,13 @@ void updateWandPowerState() {
         // Turn the pack off.
         if(PACK_STATE != MODE_OFF) {
           PACK_ACTION_STATE = ACTION_OFF;
-          serial1Send(A_PACK_OFF);
+          attenuatorSend(A_PACK_OFF);
         }
       }
 
       b_wand_on = false;
       b_pack_started_by_meter = false;
-      serial1Send(A_WAND_OFF);
+      attenuatorSend(A_WAND_OFF);
     }
     else if(PACK_STATE == MODE_OFF) {
       b_pack_started_by_meter = false; // Make sure this is kept as false since the pack was manually shut down.
@@ -366,11 +370,11 @@ void updateWandPowerState() {
   }
 }
 
-// Send latest voltage value to the serial1 device, if connected.
+// Send latest voltage value to the Attenuator, if connected.
 void updatePackPowerState() {
-  if(b_serial1_connected) {
+  if(b_attenuator_connected) {
     // Data is sent as uint16_t so this is already multiplied by 100 to get 2 decimal precision.
-    serial1Send(A_BATTERY_VOLTAGE_PACK, packReading.BusVoltage);
+    attenuatorSend(A_BATTERY_VOLTAGE_PACK, packReading.BusVoltage);
   }
 }
 
@@ -378,37 +382,37 @@ void updatePackPowerState() {
 // Turn on the Serial Plotter in the ArduinoIDE to view graphed results.
 void wandPowerDisplay() {
   if(b_show_power_data) {
-    // Serial.print(F("W.Shunt(mV):"));
-    // Serial.print(wandReading.ShuntVoltage, 4);
-    // Serial.print(F(","));
+    // debug(F("W.Shunt(mV):"));
+    // debug(wandReading.ShuntVoltage, 4);
+    // debug(F(","));
 
-    // Serial.print(F("W.Shunt(A):"));
-    // Serial.print(wandReading.ShuntCurrent, 4);
-    // Serial.print(F(","));
+    // debug(F("W.Shunt(A):"));
+    // debug(wandReading.ShuntCurrent, 4);
+    // debug(F(","));
 
-    Serial.print(F("W.Raw(W):"));
-    Serial.print(wandReading.RawPower, 4);
-    Serial.print(F(","));
+    debug(F("W.Raw(W):"));
+    debug(wandReading.RawPower, 4);
+    debug(F(","));
 
-    // Serial.print(F("W.Bus(V)):"));
-    // Serial.print(wandReading.BusVoltage, 4);
-    // Serial.print(F(","));
+    // debug(F("W.Bus(V)):"));
+    // debug(wandReading.BusVoltage, 4);
+    // debug(F(","));
 
-    // Serial.print(F("W.Bus(W)):"));
-    // Serial.print(wandReading.BusPower, 4);
-    // Serial.print(F(","));
+    // debug(F("W.Bus(W)):"));
+    // debug(wandReading.BusPower, 4);
+    // debug(F(","));
 
-    // Serial.print(F("W.Batt(V):"));
-    // Serial.print(wandReading.BattVoltage, 4);
-    // Serial.print(F(","));
+    // debug(F("W.Batt(V):"));
+    // debug(wandReading.BattVoltage, 4);
+    // debug(F(","));
 
-    // Serial.print(F("W.AmpHours:"));
-    // Serial.print(wandReading.AmpHours, 4);
-    // Serial.print(F(","));
+    // debug(F("W.AmpHours:"));
+    // debug(wandReading.AmpHours, 4);
+    // debug(F(","));
 
-    Serial.print(F("W.AvgPow(W):"));
-    Serial.print(wandReading.AvgPower, 4);
-    Serial.print(F(","));
+    debug(F("W.AvgPow(W):"));
+    debug(wandReading.AvgPower, 4);
+    debug(F(","));
   }
 }
 
@@ -428,10 +432,10 @@ void checkPowerMeter() {
         b_wand_on = false;
         b_pack_started_by_meter = false;
         PACK_ACTION_STATE = ACTION_OFF;
-        serial1Send(A_WAND_OFF);
-        serial1Send(A_PACK_OFF);
-        serial1Send(A_POWER_LEVEL_1);
-        serial1Send(A_WAND_POWER_AMPS, 0);
+        attenuatorSend(A_WAND_OFF);
+        attenuatorSend(A_PACK_OFF);
+        attenuatorSend(A_POWER_LEVEL_1);
+        attenuatorSend(A_WAND_POWER_AMPS, 0);
       }
     }
 

@@ -31,11 +31,13 @@
 #include <GPStarAudio.h>
 gpstarAudio audio;
 
+#define AudioSerial Serial3
+
 /*
  * Audio Devices
  */
 enum AUDIO_DEVICES { A_NONE, A_GPSTAR_AUDIO, A_GPSTAR_AUDIO_ADV, A_WAV_TRIGGER };
-enum AUDIO_DEVICES AUDIO_DEVICE;
+enum AUDIO_DEVICES AUDIO_DEVICE = A_NONE;
 
 /*
  * Audio Variables
@@ -247,7 +249,7 @@ void playMusic() {
     packSerialSend(P_MUSIC_STATUS, b_playing_music ? 2 : 1);
 
     // Tell connected serial device music playback has started.
-    serial1Send(A_MUSIC_IS_PLAYING, i_current_music_track);
+    attenuatorSend(A_MUSIC_IS_PLAYING, i_current_music_track);
   }
 }
 
@@ -276,7 +278,7 @@ void stopMusic() {
   packSerialSend(P_MUSIC_STATUS, b_playing_music ? 2 : 1);
 
   // Tell connected serial device music playback has stopped.
-  serial1Send(A_MUSIC_IS_NOT_PLAYING, i_current_music_track);
+  attenuatorSend(A_MUSIC_IS_NOT_PLAYING, i_current_music_track);
 }
 
 void pauseMusic() {
@@ -305,7 +307,7 @@ void pauseMusic() {
     packSerialSend(P_MUSIC_STATUS, b_music_paused ? 4 : 3);
 
     // Tell connected devices music playback is paused.
-    serial1Send(A_MUSIC_IS_PAUSED);
+    attenuatorSend(A_MUSIC_IS_PAUSED);
   }
 }
 
@@ -336,7 +338,7 @@ void resumeMusic() {
     packSerialSend(P_MUSIC_STATUS, b_music_paused ? 4 : 3);
 
     // Tell connected devices music playback has resumed.
-    serial1Send(A_MUSIC_IS_NOT_PAUSED);
+    attenuatorSend(A_MUSIC_IS_NOT_PAUSED);
   }
 }
 
@@ -359,14 +361,14 @@ void musicNextTrack() {
 
     i_current_music_track = i_temp_track; // Change only AFTER stopping music playback.
 
-    // Play the appropriate track on pack and wand, and notify the serial1 device.
+    // Play the appropriate track on pack and wand, and notify the Attenuator.
     playMusic();
   }
   else {
     // Set the new track.
     i_current_music_track = i_temp_track;
 
-    serial1Send(A_MUSIC_IS_NOT_PLAYING, i_current_music_track); // Updates the music track on the attenuator.
+    attenuatorSend(A_MUSIC_IS_NOT_PLAYING, i_current_music_track); // Updates the music track on the attenuator.
   }
 }
 
@@ -389,14 +391,14 @@ void musicPrevTrack() {
 
     i_current_music_track = i_temp_track; // Change only AFTER stopping music playback.
 
-    // Play the appropriate track on pack and wand, and notify the serial1 device.
+    // Play the appropriate track on pack and wand, and notify the Attenuator.
     playMusic();
   }
   else {
     // Set the new track.
     i_current_music_track = i_temp_track;
 
-    serial1Send(A_MUSIC_IS_NOT_PLAYING, i_current_music_track); // Updates the music track on the attenuator.
+    attenuatorSend(A_MUSIC_IS_NOT_PLAYING, i_current_music_track); // Updates the music track on the attenuator.
   }
 }
 
@@ -451,7 +453,7 @@ void updateMasterVolume(bool startup) {
       playEffect(S_BEEPS_ALT);
     }
 
-    serial1SendData(A_VOLUME_SYNC); // Tell the connected device about this change.
+    attenuatorSendData(A_VOLUME_SYNC); // Tell the connected device about this change.
   }
 }
 
@@ -645,7 +647,7 @@ void updateEffectsVolume() {
     break;
   }
 
-  serial1SendData(A_VOLUME_SYNC); // Tell the connected device about this change.
+  attenuatorSendData(A_VOLUME_SYNC); // Tell the connected device about this change.
 }
 
 void increaseVolumeEffects() {
@@ -698,7 +700,7 @@ void updateMusicVolume() {
     }
   }
 
-  serial1SendData(A_VOLUME_SYNC); // Tell the connected device about this change.
+  attenuatorSendData(A_VOLUME_SYNC); // Tell the connected device about this change.
 }
 
 void increaseVolumeMusic() {
@@ -842,7 +844,7 @@ void checkMusic() {
     ms_music_next_track.stop();
     ms_check_music.start(i_music_check_delay);
 
-    // Play the appropriate track on the pack and wand, and notify the serial1 device.
+    // Play the appropriate track on the pack and wand, and notify the Attenuator.
     playMusic();
   }
 }
@@ -888,9 +890,9 @@ void toggleMusicLoop() {
 bool setupAudioDevice() {
   char gVersion[VERSION_STRING_LEN];
 
-  Serial3.begin(57600);
+  AudioSerial.begin(57600);
 
-  audio.start(Serial3);
+  audio.start(AudioSerial);
 
   uint16_t i_timeout = millis() + 1000;
 
@@ -963,7 +965,7 @@ bool setupAudioDevice() {
   else {
     // No audio devices connected.
     AUDIO_DEVICE = A_NONE;
-    Serial3.end();
+    AudioSerial.end();
 
     debugln(F("No Audio Device"));
 
