@@ -24,16 +24,16 @@
  */
 #ifdef ESP32
 #ifndef ATTENUATOR_TX_PIN
-  #define ATTENUATOR_TX_PIN 10
+  #define ATTENUATOR_TX_PIN 43
 #endif
 #ifndef ATTENUATOR_RX_PIN
-  #define ATTENUATOR_RX_PIN 11
+  #define ATTENUATOR_RX_PIN 44
 #endif
 #ifndef WAND_TX_PIN
-  #define WAND_TX_PIN 43
+  #define WAND_TX_PIN 10
 #endif
 #ifndef WAND_RX_PIN
-  #define WAND_RX_PIN 44
+  #define WAND_RX_PIN 11
 #endif
 // ESP32 allows defining custom objects, so create ones for UART0 and UART1.
 HardwareSerial WandSerial(0); // Associate WandSerial with UART0
