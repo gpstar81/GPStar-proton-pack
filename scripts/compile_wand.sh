@@ -20,7 +20,8 @@ sed -i -e 's/\(String build_date = "\)[^"]*\(";\)/\1'"${MJVER}_${TIMESTAMP}"'\2/
 
 echo ""
 
-# Neutrona Wand
+# Neutrona Wand (Normal)
+
 echo "Neutrona Wand Binary [ATMega] - Building..."
 
 # Clean the project before building
@@ -45,11 +46,12 @@ fi
 echo ""
 
 # Neutrona Wand (Bench Test)
-echo "Neutrona Wand (Bench Test) Binary [ATMega] - Building..."
 
 # Change flag(s) for compilation
 sed -i -e 's/bool b_gpstar_benchtest = false/const bool b_gpstar_benchtest = true/' ${PROJECT_DIR}/include/Configuration.h
 sed -i -e 's/b_gpstar_benchtest = true/\/\/b_gpstar_benchtest = true/' ${PROJECT_DIR}/include/Serial.h
+
+echo "Neutrona Wand (Bench Test) Binary [ATMega] - Building..."
 
 # Clean the project before building
 pio run -e atmega2560 --project-dir "$PROJECT_DIR" --target clean
@@ -75,5 +77,9 @@ if [ -f ${PROJECT_DIR}/.pio/build/atmega2560/firmware.hex ]; then
   echo "Firmware copy completed."
 fi
 echo ""
+
+# Restore flag(s) from compilation
+sed -i -e 's/const bool b_gpstar_benchtest = true/bool b_gpstar_benchtest = false/' ${PROJECT_DIR}/include/Configuration.h
+sed -i -e 's/\/\/b_gpstar_benchtest = true/b_gpstar_benchtest = true/' ${PROJECT_DIR}/include/Serial.h
 
 rm -f ${PROJECT_DIR}/include/*.h-e
