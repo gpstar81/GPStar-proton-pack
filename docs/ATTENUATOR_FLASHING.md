@@ -88,10 +88,10 @@ This uses a 3rd-party website to upload using the Web Serial protocol which is o
 
 1. Once connected, select the files (noted above) for the following address spaces:
 
-	* 0x1000 &rarr; [Attenuator-Bootloader.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/extras/Attenuator-Bootloader.bin?raw=1)
-	* 0x8000 &rarr; [Attenuator-Partitions.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/extras/Attenuator-Partitions.bin?raw=1)
-	* 0xE000 &rarr; [boot_app0.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/extras/boot_app0.bin?raw=1)
-	* 0x10000 &rarr; [Attenuator.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/Attenuator.bin?raw=1)
+	* `0x1000` &rarr; [Attenuator-Bootloader.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/extras/Attenuator-Bootloader.bin?raw=1)
+	* `0x8000` &rarr; [Attenuator-Partitions.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/extras/Attenuator-Partitions.bin?raw=1)
+	* `0xE000` &rarr; [boot_app0.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/extras/boot_app0.bin?raw=1)
+	* `0x10000` &rarr; [Attenuator.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/Attenuator.bin?raw=1)
 
 1. Click on the **PROGRAM** button to begin flashing. View the "Output" window to view progress of the flashing operation.
 
