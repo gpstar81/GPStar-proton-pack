@@ -51,6 +51,11 @@ echo ""
 sed -i -e 's/bool b_gpstar_benchtest = false/const bool b_gpstar_benchtest = true/' ${PROJECT_DIR}/include/Configuration.h
 sed -i -e 's/b_gpstar_benchtest = true/\/\/b_gpstar_benchtest = true/' ${PROJECT_DIR}/include/Serial.h
 
+# Function to restore flag(s) from compilation
+restore_benchtest_flags() {
+  sed -i -e 's/const bool b_gpstar_benchtest = true/bool b_gpstar_benchtest = false/' "${PROJECT_DIR}/include/Configuration.h"
+  sed -i -e 's/\/\/b_gpstar_benchtest = true/b_gpstar_benchtest = true/' "${PROJECT_DIR}/include/Serial.h"
+}
 echo "Neutrona Wand (Bench Test) Binary [ATMega] - Building..."
 
 # Clean the project before building
@@ -63,10 +68,7 @@ pio run -e atmega2560 --project-dir "$PROJECT_DIR" --jobs 4
 if [ $? -eq 0 ]; then
   echo "Neutrona Wand (Bench Test) Binary [ATMega] - Build succeeded!"
 else
-  # Restore flag(s) from compilation
-  sed -i -e 's/const bool b_gpstar_benchtest = true/bool b_gpstar_benchtest = false/' ${PROJECT_DIR}/include/Configuration.h
-  sed -i -e 's/\/\/b_gpstar_benchtest = true/b_gpstar_benchtest = true/' ${PROJECT_DIR}/include/Serial.h
-
+  restore_benchtest_flags
   echo "Neutrona Wand (Bench Test) Binary [ATMega] - Build failed!"
   exit 1
 fi
@@ -77,9 +79,5 @@ if [ -f ${PROJECT_DIR}/.pio/build/atmega2560/firmware.hex ]; then
   echo "Firmware copy completed."
 fi
 echo ""
-
-# Restore flag(s) from compilation
-sed -i -e 's/const bool b_gpstar_benchtest = true/bool b_gpstar_benchtest = false/' ${PROJECT_DIR}/include/Configuration.h
-sed -i -e 's/\/\/b_gpstar_benchtest = true/b_gpstar_benchtest = true/' ${PROJECT_DIR}/include/Serial.h
 
 rm -f ${PROJECT_DIR}/include/*.h-e
