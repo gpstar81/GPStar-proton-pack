@@ -10211,7 +10211,7 @@ void ventLightControl(uint8_t i_intensity) {
   }
 #ifndef ESP32
   else {
-    analogWrite(VENT_LED_PIN, 255 - PROGMEM_READU8(ledLookupTable[i_intensity]));    
+    analogWrite(VENT_LED_PIN, 255 - PROGMEM_READU8(ledLookupTable[i_intensity]));
   }
 #endif
 }
