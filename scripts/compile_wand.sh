@@ -117,6 +117,10 @@ pio run -e esp32s3 --project-dir "$PROJECT_DIR" --target clean
 # Compile the PlatformIO project
 pio run -e esp32s3 --project-dir "$PROJECT_DIR" --jobs 4
 
+# Restore flag(s) from compilation
+sed -i -e 's/const bool b_gpstar_benchtest = true/bool b_gpstar_benchtest = false/' ${PROJECT_DIR}/include/Configuration.h
+sed -i -e 's/\/\/b_gpstar_benchtest = true/b_gpstar_benchtest = true/' ${PROJECT_DIR}/include/Serial.h
+
 # Check if the build was successful
 if [ $? -eq 0 ]; then
   echo "Neutrona Wand (Bench Test) Binary [ESP32] - Build succeeded!"
@@ -131,9 +135,5 @@ if [ -f ${PROJECT_DIR}/.pio/build/esp32s3/firmware.bin ]; then
   echo "Firmware copy completed."
 fi
 echo ""
-
-# Restore flag(s) from compilation
-sed -i -e 's/const bool b_gpstar_benchtest = true/bool b_gpstar_benchtest = false/' ${PROJECT_DIR}/include/Configuration.h
-sed -i -e 's/\/\/b_gpstar_benchtest = true/b_gpstar_benchtest = true/' ${PROJECT_DIR}/include/Serial.h
 
 rm -f ${PROJECT_DIR}/include/*.h-e
