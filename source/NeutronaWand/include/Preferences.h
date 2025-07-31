@@ -464,7 +464,7 @@ void readEEPROM() {
       }
 
       // Only override the bargraph LED count if we are not using a stock bargraph.
-      if(BARGRAPH_TYPE != SEGMENTS_5) {
+      if(BARGRAPH_TYPE == SEGMENTS_28 || BARGRAPH_TYPE == SEGMENTS_30) {
         BARGRAPH_TYPE = BARGRAPH_TYPE_EEPROM;
       }
     }
