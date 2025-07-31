@@ -26,6 +26,8 @@
   // For the i2c Bus
   #define I2C_SCL 39
   #define I2C_SDA 40
+  #define TEMP_SCL 47
+  #define TEMP_SDA 21
 
   #define NFILTER_SMOKE_PIN 3 // Primary smoke machine output, usually in the N-Filter.
   #define CYCLOTRON_LED_PIN 4 // Data pin for the addressable LEDs within the Cyclotron cavity.

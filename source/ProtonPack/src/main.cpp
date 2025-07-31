@@ -50,6 +50,8 @@
 #include <SerialTransfer.h>
 #include <Wire.h>
 #ifdef ESP32
+  //#include <HDC1080.h>
+  //GuL::HDC1080 tempSensor(Wire1);
   #include <HardwareSerial.h>
 #endif
 
@@ -111,6 +113,9 @@ void setup() {
 #ifdef ESP32
   // ESP32-S3 requires manually specifying SDA and SCL pins first.
   Wire.setPins(I2C_SDA, I2C_SCL);
+  Wire1.setPins(TEMP_SDA, TEMP_SCL);
+  Wire1.begin();
+  Wire1.setClock(400000UL); // Sets the i2c bus to 400kHz
 #endif
   Wire.begin();
   Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
