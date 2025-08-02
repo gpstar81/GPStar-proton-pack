@@ -66,6 +66,7 @@ pio run -e atmega2560 --project-dir "$PROJECT_DIR" --jobs 4
 
 # Check if the build was successful
 if [ $? -eq 0 ]; then
+  restore_benchtest_flags
   echo "Neutrona Wand (Bench Test) Binary [ATMega] - Build succeeded!"
 else
   restore_benchtest_flags
