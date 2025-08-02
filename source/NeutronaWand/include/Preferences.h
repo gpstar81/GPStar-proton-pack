@@ -503,10 +503,10 @@ void saveLEDEEPROM() {
 
   uint8_t i_barrel_led_count = WAND_BARREL_LED_COUNT; // 5 = Hasbro, 50 = GPStar Neutrona Barrel, 2 = GPStar Barrel LED Mini, 48 = Frutto.
   uint8_t i_bargraph_led_count = BARGRAPH_TYPE_EEPROM; // 28 segment, 30 segment.
-  uint8_t i_rgb_vent_light = 2; // 1 = RGB Vent Light disabled, 2 = RGB Vent Light enabled
+  uint8_t i_rgb_vent_light = 1; // 1 = RGB Vent Light disabled, 2 = RGB Vent Light enabled
 
-  if(!b_rgb_vent_light) {
-    i_rgb_vent_light = 1;
+  if(b_rgb_vent_light) {
+    i_rgb_vent_light = 2;
   }
 
   // Build the LED EEPROM object with the new data.
