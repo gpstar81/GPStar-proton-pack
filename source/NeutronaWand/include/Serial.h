@@ -373,7 +373,7 @@ void checkPack() {
           else if(recvCmd.s == W_COM_START && recvCmd.c == W_SYNC_NOW && recvCmd.d1 == 0 && recvCmd.e == W_COM_END) {
             // We just received our own heartbeat echoed back, so switch to standalone mode.
             WAND_CONN_STATE = NC_BENCHTEST;
-            //b_gpstar_benchtest = true;
+            ////b_gpstar_benchtest = true;
             b_pack_on = true; // Pretend that the pack (not really attached) has been powered on.
 
             // Reset music status variables just in case they were previously set by a pack.
