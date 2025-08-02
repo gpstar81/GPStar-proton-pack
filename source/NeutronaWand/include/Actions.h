@@ -338,7 +338,7 @@ void checkWandAction() {
           else if(switch_mode.pushed()) {
             switch(WAND_MENU_LEVEL) {
               case MENU_LEVEL_2:
-#ifndef ESP32
+              #ifndef ESP32
                 if(b_rgb_vent_light) {
                   // Disable the RGB vent light functionality.
                   b_rgb_vent_light = false;
@@ -361,7 +361,7 @@ void checkWandAction() {
 
                   wandSerialSend(W_RGB_VENT_ENABLED);
                 }
-#endif
+              #endif
               break;
 
               case MENU_LEVEL_1:

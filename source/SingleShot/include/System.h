@@ -176,15 +176,15 @@ void systemPOST() {
     FastLED[1].showLeds(255);
     delay(i_delay);
   }
+  #ifndef ESP32
   else {
-#ifndef ESP32
     // These go LOW to turn on.
     led_Vent.turnOn();
     delay(i_delay);
     led_TopWhite.turnOn();
     delay(i_delay);
-#endif
   }
+  #endif
 
   // Optional barrel tip (could be alternate for the GPStar jewel)
   led_Tip.turnOn();
@@ -700,12 +700,12 @@ void modeFiring() {
 
 void ventTopLightControl(bool b_on) {
   if(!b_on) {
+    #ifndef ESP32
     if(!b_rgb_vent_light) {
-#ifndef ESP32
       // Turn off top light.
       led_TopWhite.turnOff();
-#endif
     }
+    #endif
 
     // Turn off if not off already.
     if(vent_leds[1]) {
@@ -714,12 +714,12 @@ void ventTopLightControl(bool b_on) {
     }
   }
   else {
+    #ifndef ESP32
     if(!b_rgb_vent_light) {
-#ifndef ESP32
       // Turn on top light.
       led_TopWhite.turnOn();
-#endif
     }
+    #endif
 
     // Turn on if not on already.
     if(!vent_leds[1]) {
@@ -732,11 +732,11 @@ void ventTopLightControl(bool b_on) {
 void ventLightControl(uint8_t i_intensity) {
   if(b_rgb_vent_light) {
     // Put in a check just to be sure the non-addressable pin stays off.
-#ifndef ESP32
+  #ifndef ESP32
     if(led_Vent.getState() != HIGH) {
       led_Vent.turnOff();
     }
-#endif
+  #endif
 
     if(i_intensity < 20) {
       vent_leds[0] = getHueAsRGB(C_BLACK);
@@ -747,16 +747,16 @@ void ventLightControl(uint8_t i_intensity) {
 
     b_vent_lights_changed = true;
   }
+  #ifndef ESP32
   else {
-#ifndef ESP32
     if(i_intensity < 1) {
       led_Vent.turnOff();
     }
     else {
       led_Vent.dim(255 - PROGMEM_READU8(ledLookupTable[i_intensity]));
     }
-#endif
   }
+  #endif
 }
 
 // Determine the light status on the device and any beeps.

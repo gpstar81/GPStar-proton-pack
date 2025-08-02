@@ -113,26 +113,26 @@ void setup() {
   setupAudioDevice();
 
   // Change PWM frequency for the vibration motor, we do not want it high pitched.
-  #ifdef ESP32
-    // Use of the register is not needed by ESP32, as it uses a different method for PWM.
-  #else
-    // For ATmega2560, we set the PWM frequency for pin 11 (TCCR5B) to 122.55 Hz.
-    TCCR1B = (TCCR1B & B11111000) | B00000100;
-    pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
-  #endif
+#ifdef ESP32
+  // Use of the register is not needed by ESP32, as it uses a different method for PWM.
+#else
+  // For ATmega2560, we set the PWM frequency for pin 11 (TCCR5B) to 122.55 Hz.
+  TCCR1B = (TCCR1B & B11111000) | B00000100;
+  pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
+#endif
 
-  #ifdef ESP32
-    // Begin by setting up WiFi as a prerequisite to all else.
-    if(startWiFi()) {
-      // Start the local web server.
-      startWebServer();
+#ifdef ESP32
+  // Begin by setting up WiFi as a prerequisite to all else.
+  if(startWiFi()) {
+    // Start the local web server.
+    startWebServer();
 
-      // Begin timer for remote client events.
-      ms_cleanup.start(i_websocketCleanup);
-      ms_apclient.start(i_apClientCount);
-      ms_otacheck.start(i_otaCheck);
-    }
-  #endif
+    // Begin timer for remote client events.
+    ms_cleanup.start(i_websocketCleanup);
+    ms_apclient.start(i_apClientCount);
+    ms_otacheck.start(i_otaCheck);
+  }
+#endif
 
   // Barrel LEDs - NOTE: These are GRB not RGB so note that all CRGB objects will have R/G swapped.
   FastLED.addLeds<NEOPIXEL, BARREL_LED_PIN>(barrel_leds, BARREL_LEDS_MAX).setCorrection(TypicalLEDStrip);
@@ -581,12 +581,12 @@ void loop() {
         // Only commit an update if the addressable LED panel is installed or if the Neutrona Wand can not make a connection to the Proton Pack.
         FastLED[1].showLeds(255);
 
+      #ifndef ESP32
         if(WAND_CONN_STATE == PACK_DISCONNECTED && !vent_leds[1]) {
-        #ifndef ESP32
           // Make sure we turn the actual pin back off so the non-addressable LED still blinks.
           digitalWriteFast(TOP_LED_PIN, HIGH);
-        #endif
         }
+      #endif
       }
 
       b_vent_lights_changed = false;

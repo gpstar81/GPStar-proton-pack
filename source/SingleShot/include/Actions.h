@@ -208,7 +208,7 @@ void settingsMenuCheck() {
               playEffect(S_VOICE_VENT_AUTO_INTENSITY_ENABLED);
             }
           }
-#ifndef ESP32
+        #ifndef ESP32
           // Grip: Enable/Disable RGB vent light support.
           if(switch_grip.pushed()) {
             if(b_rgb_vent_light) {
@@ -230,7 +230,7 @@ void settingsMenuCheck() {
               playEffect(S_VOICE_RGB_VENT_LIGHTS_ENABLED);
             }
           }
-#endif
+        #endif
         break;
         default:
           // Currently no-op for all other options.

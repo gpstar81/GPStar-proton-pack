@@ -745,16 +745,16 @@ uint8_t bargraphLookupTable(uint8_t index) {
     }
   }
   else {
-#ifndef ESP32
+  #ifndef ESP32
     if(b_bargraph_invert) {
       return PROGMEM_READU8(i_bargraph_5_led_invert[index]);
     }
     else {
       return PROGMEM_READU8(i_bargraph_5_led_normal[index]);
     }
-#else
+  #else
     return 0; // Return 0 if in error.
-#endif
+  #endif
   }
 }
 
@@ -2685,7 +2685,7 @@ void settingsBlinkingLights() {
         ht_bargraph.clearAll();
       }
     }
-#ifndef ESP32
+  #ifndef ESP32
     else {
       if(b_solid_one) {
         digitalWriteFast(bargraphLookupTable(1-1), LOW);
@@ -2705,7 +2705,7 @@ void settingsBlinkingLights() {
         digitalWriteFast(bargraphLookupTable(5-1), HIGH);
       }
     }
-#endif
+  #endif
   }
   else {
     switch(i_wand_menu) {
@@ -10146,12 +10146,12 @@ void ventTopLightControl(bool b_on) {
 
 void ventLightControl(uint8_t i_intensity) {
   if(b_rgb_vent_light) {
-#ifndef ESP32
+  #ifndef ESP32
     // Put in a check just to be sure the non-addressable pin stays off.
     if(digitalRead(VENT_LED_PIN) != HIGH) {
       analogWrite(VENT_LED_PIN, 255);
     }
-#endif
+  #endif
 
     if(i_intensity < 20) {
       // Turn off if not off already.

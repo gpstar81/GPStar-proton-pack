@@ -23,17 +23,18 @@
  * Proton Pack communication.
  */
 #ifdef ESP32
-// ESP32 allows defining custom objects, so create one using UART1.
-#ifndef PACK_RX_PIN
-  #define PACK_RX_PIN 21
-#endif
-#ifndef PACK_TX_PIN
-  #define PACK_TX_PIN 14
-#endif
-HardwareSerial PackSerial(1);
+  // ESP32 allows defining custom objects, so create one using UART1.
+  #ifndef PACK_RX_PIN
+    #define PACK_RX_PIN 21
+  #endif
+  #ifndef PACK_TX_PIN
+    #define PACK_TX_PIN 14
+  #endif
+
+  HardwareSerial PackSerial(1);
 #else
-// ATMEGA 2560 has hardcoded serial UART objects, so use aliases instead.
-#define PackSerial Serial1
+  // ATMEGA 2560 has hardcoded serial UART objects, so use aliases instead.
+  #define PackSerial Serial1
 #endif
 SerialTransfer packComs;
 
