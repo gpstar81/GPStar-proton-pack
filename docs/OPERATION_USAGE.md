@@ -23,7 +23,7 @@
 - Theme toggle in the Cyclotron switch plate changes the Proton Pack and Neutrona Wand modes between 1984, 1989, Afterlife, and Frozen Empire.
 - The Proton Pack vibrates only while firing. This can be changed to vibrate at all times or entirely disabled. Vibration can be enabled or disabled by the vibration toggle switch in the Proton Pack. Vibration settings can be toggled via the Neutrona Wand menu system or the Neutrona Wand EEPROM Configuration Menu.
 - The Neutrona Wand vibrates only while firing. This can be changed to vibrate at all times or entirely disabled. Vibration can enabled or disabled by the vibration toggle switch in the Proton Pack. Vibration settings can be toggled via the Neutrona Wand menu system or the Neutrona Wand EEPROM Configuration Menu.
-	- A standalone Neutrona Wand will have vibration disabled by default to save power. Vibration can be reenabled via the Neutrona Wand EEPROM Configuration Menu.
+	- A standalone Neutrona Wand will have vibration disabled by default to save power. Vibration can be re-enabled via the Neutrona Wand EEPROM Configuration Menu.
 - Single (centered) LED per Cyclotron lens for 1984/1989 modes by default.
 	- This can be toggled back to 3 LEDs per Cyclotron lens via the Neturona Wand menu system.
 - The Power Cell, Cyclotron and other lighting on the Proton Pack can have the brightness independently adjusted.
