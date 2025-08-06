@@ -388,7 +388,12 @@ void readEEPROM() {
         default:
           // Do nothing. Readings are taken from the vibration toggle switch from the Proton pack or configuration setting in stand alone mode.
           VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
-          VIBRATION_MODE = VIBRATION_FIRING_ONLY;
+          if(b_gpstar_benchtest) {
+            VIBRATION_MODE = VIBRATION_NONE;
+          }
+          else {
+            VIBRATION_MODE = VIBRATION_FIRING_ONLY;
+          }
         break;
 
         case 3:
