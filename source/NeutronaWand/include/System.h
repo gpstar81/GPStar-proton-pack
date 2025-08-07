@@ -1490,7 +1490,7 @@ void afterlifeRampSound1() {
   b_sound_afterlife_idle_2_fade = false;
 }
 
-void postActivation() {
+void postActivation(bool shortBoot = false) {
   if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
     i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
   }
@@ -1579,7 +1579,7 @@ void postActivation() {
             stopEffect(S_WAND_BOOTUP);
             playEffect(S_WAND_BOOTUP);
           }
-          else if(switch_vent.on() && b_pack_on) {
+          else if(switch_vent.on() && shortBoot) {
             stopEffect(S_WAND_BOOTUP);
             playEffect(S_WAND_BOOTUP);
             wandSerialSend(W_WAND_BOOTUP_SOUND);
@@ -3457,6 +3457,7 @@ void modeActivate() {
 
     case MODE_SUPER_HERO:
     default:
+      bool b_short_boot = false;
       // The wand was started while the top switch was already on, so let's put the wand into startup error mode.
       if(switch_wand.on() && b_wand_boot_errors) {
         b_wand_boot_error_on = true;
@@ -3467,11 +3468,15 @@ void modeActivate() {
         WAND_STATUS = MODE_ON;
         WAND_ACTION_STATUS = ACTION_IDLE;
 
+        if(b_pack_on) {
+          b_short_boot = true;
+        }
+
         // Tell the pack the wand is turned on.
         wandSerialSend(W_ON);
       }
 
-      postActivation(); // Enable lights and bargraph after wand activation.
+      postActivation(b_short_boot); // Enable lights and bargraph after wand activation.
     break;
   }
 }
