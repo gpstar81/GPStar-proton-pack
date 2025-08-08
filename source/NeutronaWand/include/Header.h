@@ -284,8 +284,8 @@ const uint8_t i_vent_led_power_2 = 128;
 const uint8_t i_vent_led_power_3 = 153;
 const uint8_t i_vent_led_power_4 = 178;
 const uint8_t i_vent_led_power_5 = 204;
-uint8_t i_power_level = 1;
-uint8_t i_power_level_prev = 1;
+uint8_t i_power_level = 5;
+uint8_t i_power_level_prev = 5;
 
 /*
  * Stock Hasbro Bargraph timers
