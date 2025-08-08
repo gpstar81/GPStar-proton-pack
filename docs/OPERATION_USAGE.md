@@ -21,12 +21,13 @@
 - The Proton Pack can run without a wand, though it can only be activated via the switch under the Ion Arm.
 - Vibration switch in the Cyclotron switch plate enables or disables the vibration motors for both the Proton Pack and Neutrona Wand.
 - Theme toggle in the Cyclotron switch plate changes the Proton Pack and Neutrona Wand modes between 1984, 1989, Afterlife, and Frozen Empire.
-- The Proton Pack vibrates only while firing. This can be changed to vibrate at all times or entirely disabled. Vibration can be enabled or disabled by the vibration toggle switch in the Proton Pack. Vibration settings can be toggled via the Neutrona Wand menu system or the advanced user configuration settings.
-- The Neutrona Wand vibrates only while firing. This can be changed to vibrate at all times or entirely disabled. Vibration can enabled or disabled by the vibration toggle switch in the Proton Pack. Vibration settings can be toggled via the wand menu system or the advanced user configuration settings.
+- The Proton Pack vibrates only while firing. This can be changed to vibrate at all times or entirely disabled. Vibration can be enabled or disabled by the vibration toggle switch in the Proton Pack. Vibration settings can be toggled via the Neutrona Wand menu system or the Neutrona Wand EEPROM Configuration Menu.
+- The Neutrona Wand vibrates only while firing. This can be changed to vibrate at all times or entirely disabled. Vibration can enabled or disabled by the vibration toggle switch in the Proton Pack. Vibration settings can be toggled via the Neutrona Wand menu system or the Neutrona Wand EEPROM Configuration Menu.
+	- A standalone Neutrona Wand will have vibration disabled by default to save power. Vibration can be re-enabled via the Neutrona Wand EEPROM Configuration Menu.
 - Single (centered) LED per Cyclotron lens for 1984/1989 modes by default.
 	- This can be toggled back to 3 LEDs per Cyclotron lens via the Neturona Wand menu system.
 - The Power Cell, Cyclotron and other lighting on the Proton Pack can have the brightness independently adjusted.
-- 1989 and Frozen Empire sound effect modes are available; they can be accessed from the Neutrona Wand menus or set with the advanced user configuration settings.
+- 1989 and Frozen Empire sound effect modes are available; they can be accessed from the Neutrona Wand menus or set with the Neutrona Wand EEPROM Configuration Menu.
 - Super Hero and Mode Original system operation modes.
 - Menu system with the ability to customise various settings for both your Proton Pack and Neutrona Wand.
 - Up to 5 different power levels as indicated on the Neutrona Wand bargraph.
@@ -106,7 +107,7 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 #### Activate Toggle
 
 - Activate toggle on the gun box turns on both the Proton Pack and Neutrona Wand.
-	- The switch under the Proton Pack's Ion Arm does not need to be engaged for this to work. The switch under the Ion Arm will turn the cyclotron on.
+	- The switch under the Proton Pack's Ion Arm does not need to be engaged for this to work.
 - The green lever near the gunbox acts as a safety and must be pulled to extend the barrel before firing.
 - While firing, the default bargraph animations slide/split the bargraph in half and scroll up and down simultaneously.
 	- **Button Mash Lockout:** If you press the firing button(s) too rapidly the system will malfunction and lock you out for a period of time proportional to the current power level.
@@ -117,7 +118,8 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 
 - Right-hand toggles (Bottom and Top) affect the vent light and additional sound effects.
 	- The Neutrona Wand will not fire unless these switches are both turned on.
-	- **Boot-Up Errors**: If you attempt to boot up your Neutrona Wand while the top toggle switch is on, the Neutrona Wand will boot into a error mode. Turn the top toggle switch off and restart your Neutrona Wand to boot normally. **This is the default behaviour**, though this feature can be disabled in the Neutrona Wand EEPROM Configuration Menu.
+	- **Hot Shutdown**: You can turn the Neutrona Wand off without turning off the Proton Pack by leaving the bottom-right switch on when turning off the Activate switch.
+	- **Boot-Up Errors**: If you attempt to boot up your Neutrona Wand while the top toggle switch is on, the Neutrona Wand will boot into a error mode. Turn the top toggle switch off and restart your Neutrona Wand to boot normally. This feature can be enabled in the Neutrona Wand EEPROM Configuration Menu.
 	- **Quick Vent**: If the Neutrona Wand is **ON** and the Top toggle switch is **DOWN**, pressing `Intensify` will perform a quick vent. Holding down `Intensify` will perform a full overheat sequence. **This is the default behaviour**, though this feature can be disabled in the Neutrona Wand EEPROM Configuration Menu.
 - While in 1984 or 1989 theme mode:
 	- Bottom toggle switch turns on the vent light and plays the wand power up sound.

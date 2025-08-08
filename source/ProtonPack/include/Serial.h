@@ -1540,7 +1540,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       b_wand_on = false;
 
       // Turn the pack off.
-      if(PACK_STATE != MODE_OFF) {
+      if(PACK_STATE != MODE_OFF && i_value == 1) {
         PACK_ACTION_STATE = ACTION_OFF;
         attenuatorSend(A_PACK_OFF);
       }

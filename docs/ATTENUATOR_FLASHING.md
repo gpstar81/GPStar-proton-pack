@@ -107,7 +107,7 @@ You will need to utilize a command-line tool to upload the firmware to your devi
 
 1. Install the latest Python 3.x utility based on your operating system:
 
-	- 	Windows: Download the installer from [Python](https://www.python.org/downloads/windows/). When installing you may be prompted to "Add Python to PATH", and it is recommended to accept that option.
+	-  Windows: Download the installer from [Python](https://www.python.org/downloads/windows/). When installing you may be prompted to "Add Python to PATH", and it is recommended to accept that option.
 	-  Linux: Execute `sudo apt update && sudo apt install -y python3 python3-pip`
 	-  MacOS: Execute `brew install python` using Homebrew ([instructions here](https://brew.sh/))
 
@@ -124,19 +124,10 @@ You will need to utilize a command-line tool to upload the firmware to your devi
 
 	`cd <extracted_location>/binaries/attenuator`
 
-1. Ensure your ESP32 is plugged into your computer using a data-capable USB cable. Run the following command to detect and display information about your ESP32, including the serial port used for communication:
-
-	`python3 -m esptool flash_id`
-
-	- If this lists multiple devices, unplug the device and run the command; then replug the device and run the command again.
-	- Look for differences in the results to identify which USB device belongs to your ESP32.
-	- For **Linux/MacOS** the port name may begin with `/dev/cu.usbserial` or `/dev/cu.wchusbserial` and **is** case-sensitive when used.
-	- For **Windows** it would be `COM[0-9]` (eg. `COM4` or `COM12`) and **is not** case-sensitive.
-
-1. Run the following command to flash the bootloader and firmware, providing the correct `<PORT>` value discovered from the previous step:
+1. Run the following command to flash the bootloader and firmware:
 
 	```
-	python3 -m esptool --port <PORT> --chip esp32 --baud 921600 write_flash --flash_mode dio --flash_size detect --flash_freq 40m 0x1000 extras/Attenuator-Bootloader.bin 0x8000 extras/Attenuator-Partitions.bin 0xe000 extras/boot_app0.bin 0x10000 Attenuator.bin
+	python3 -m esptool --port-filter vid=0x303A --chip esp32 --baud 921600 write-flash --flash-mode dio --flash-size detect --flash-freq 40m 0x1000 extras/Attenuator-Bootloader.bin 0x8000 extras/Attenuator-Partitions.bin 0xe000 extras/boot_app0.bin 0x10000 Attenuator.bin
 	```
 
 📝 **NOTE:** If your device still cannot be found automatically you may need to view the **"[USB Troubleshooting](#usb-troubleshooting)"** section at the bottom of this guide.

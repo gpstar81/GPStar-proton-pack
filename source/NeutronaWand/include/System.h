@@ -666,8 +666,8 @@ void vibrationWand(uint8_t i_level) {
     if(VIBRATION_MODE == VIBRATION_FIRING_ONLY) {
       if(WAND_ACTION_STATUS == ACTION_FIRING || ms_semi_automatic_firing.isRunning()) {
         if(ms_semi_automatic_firing.isRunning()) {
-          if(i_vibration_level_current != (i_level * 2 < 64 ? i_level * 2 : 64)) {
-            i_vibration_level_current = (i_level * 2 < 64 ? i_level * 2 : 64);
+          if(i_vibration_level_current != (i_level * 2 < 256 ? i_level * 2 : 255)) {
+            i_vibration_level_current = (i_level * 2 < 256 ? i_level * 2 : 255);
             analogWrite(VIBRATION_PIN, i_vibration_level_current);
           }
         }
@@ -683,8 +683,8 @@ void vibrationWand(uint8_t i_level) {
     else {
       // Wand vibrates even when idling, etc. (When enabled by the pack)
       if(ms_semi_automatic_firing.isRunning()) {
-        if(i_vibration_level_current != (i_level * 2 < 64 ? i_level * 2 : 64)) {
-          i_vibration_level_current = (i_level * 2 < 64 ? i_level * 2 : 64);
+        if(i_vibration_level_current != (i_level * 2 < 256 ? i_level * 2 : 255)) {
+          i_vibration_level_current = (i_level * 2 < 256 ? i_level * 2 : 255);
           analogWrite(VIBRATION_PIN, i_vibration_level_current);
         }
       }
@@ -1498,7 +1498,7 @@ void afterlifeRampSound1() {
   b_sound_afterlife_idle_2_fade = false;
 }
 
-void postActivation() {
+void postActivation(bool shortBoot = false) {
   if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
     i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
   }
@@ -1586,6 +1586,11 @@ void postActivation() {
           if(b_gpstar_benchtest) {
             stopEffect(S_WAND_BOOTUP);
             playEffect(S_WAND_BOOTUP);
+          }
+          else if(switch_vent.on() && shortBoot) {
+            stopEffect(S_WAND_BOOTUP);
+            playEffect(S_WAND_BOOTUP);
+            wandSerialSend(W_WAND_BOOTUP_SOUND);
           }
 
           soundIdleLoop(true);
@@ -3253,7 +3258,7 @@ void wandOff() {
   }
   else {
     // Full wand shutdown in all other situations.
-    wandSerialSend(W_OFF);
+    wandSerialSend(W_OFF, (switch_vent.on() && SYSTEM_MODE == MODE_SUPER_HERO) ? 0 : 1);
     WAND_STATUS = MODE_OFF;
     WAND_ACTION_STATUS = ACTION_IDLE;
 
@@ -3462,6 +3467,7 @@ void modeActivate() {
 
     case MODE_SUPER_HERO:
     default:
+      bool b_short_boot = false;
       // The wand was started while the top switch was already on, so let's put the wand into startup error mode.
       if(switch_wand.on() && b_wand_boot_errors) {
         b_wand_boot_error_on = true;
@@ -3472,11 +3478,15 @@ void modeActivate() {
         WAND_STATUS = MODE_ON;
         WAND_ACTION_STATUS = ACTION_IDLE;
 
+        if(b_pack_on) {
+          b_short_boot = true;
+        }
+
         // Tell the pack the wand is turned on.
         wandSerialSend(W_ON);
       }
 
-      postActivation(); // Enable lights and bargraph after wand activation.
+      postActivation(b_short_boot); // Enable lights and bargraph after wand activation.
     break;
   }
 }
@@ -4242,7 +4252,7 @@ void bargraphSuperHeroRampFiringAnimation() {
     if(BARGRAPH_TYPE == SEGMENTS_30) {
       switch(i_bargraph_status_alt) {
         case 0:
-          vibrationWand(i_vibration_level_min + 45);
+          vibrationWand(i_vibration_level_min + 110);
 
           ht_bargraph.setLed(bargraphLookupTable(14));
           ht_bargraph.setLed(bargraphLookupTable(15));
@@ -4261,7 +4271,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 1:
-          vibrationWand(i_vibration_level_min + 45);
+          vibrationWand(i_vibration_level_min + 110);
 
           ht_bargraph.setLed(bargraphLookupTable(13));
           ht_bargraph.setLed(bargraphLookupTable(16));
@@ -4284,7 +4294,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 2:
-          vibrationWand(i_vibration_level_min + 45);
+          vibrationWand(i_vibration_level_min + 110);
 
           ht_bargraph.setLed(bargraphLookupTable(12));
           ht_bargraph.setLed(bargraphLookupTable(17));
@@ -4307,7 +4317,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 3:
-          vibrationWand(i_vibration_level_min + 45);
+          vibrationWand(i_vibration_level_min + 110);
 
           ht_bargraph.setLed(bargraphLookupTable(11));
           ht_bargraph.setLed(bargraphLookupTable(18));
@@ -4330,7 +4340,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 4:
-          vibrationWand(i_vibration_level_min + 45);
+          vibrationWand(i_vibration_level_min + 110);
 
           ht_bargraph.setLed(bargraphLookupTable(10));
           ht_bargraph.setLed(bargraphLookupTable(19));
@@ -4353,7 +4363,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 5:
-          vibrationWand(i_vibration_level_min + 45);
+          vibrationWand(i_vibration_level_min + 110);
 
           ht_bargraph.setLed(bargraphLookupTable(9));
           ht_bargraph.setLed(bargraphLookupTable(20));
@@ -4376,7 +4386,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 6:
-          vibrationWand(i_vibration_level_min + 45);
+          vibrationWand(i_vibration_level_min + 110);
 
           ht_bargraph.setLed(bargraphLookupTable(8));
           ht_bargraph.setLed(bargraphLookupTable(21));
@@ -4399,7 +4409,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 7:
-          vibrationWand(i_vibration_level_min + 47);
+          vibrationWand(i_vibration_level_min + 112);
 
           ht_bargraph.setLed(bargraphLookupTable(7));
           ht_bargraph.setLed(bargraphLookupTable(22));
@@ -4422,7 +4432,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 8:
-          vibrationWand(i_vibration_level_min + 47);
+          vibrationWand(i_vibration_level_min + 112);
 
           ht_bargraph.setLed(bargraphLookupTable(6));
           ht_bargraph.setLed(bargraphLookupTable(23));
@@ -4445,7 +4455,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 9:
-          vibrationWand(i_vibration_level_min + 47);
+          vibrationWand(i_vibration_level_min + 112);
 
           ht_bargraph.setLed(bargraphLookupTable(5));
           ht_bargraph.setLed(bargraphLookupTable(24));
@@ -4468,7 +4478,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 10:
-          vibrationWand(i_vibration_level_min + 47);
+          vibrationWand(i_vibration_level_min + 112);
 
           ht_bargraph.setLed(bargraphLookupTable(4));
           ht_bargraph.setLed(bargraphLookupTable(25));
@@ -4491,7 +4501,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 11:
-          vibrationWand(i_vibration_level_min + 47);
+          vibrationWand(i_vibration_level_min + 112);
 
           ht_bargraph.setLed(bargraphLookupTable(3));
           ht_bargraph.setLed(bargraphLookupTable(26));
@@ -4514,7 +4524,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 12:
-          vibrationWand(i_vibration_level_min + 50);
+          vibrationWand(i_vibration_level_min + 115);
 
           ht_bargraph.setLed(bargraphLookupTable(2));
           ht_bargraph.setLed(bargraphLookupTable(27));
@@ -4537,7 +4547,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 13:
-          vibrationWand(i_vibration_level_min + 50);
+          vibrationWand(i_vibration_level_min + 115);
 
           ht_bargraph.setLed(bargraphLookupTable(1));
           ht_bargraph.setLed(bargraphLookupTable(28));
@@ -4560,7 +4570,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 14:
-          vibrationWand(i_vibration_level_min + 50);
+          vibrationWand(i_vibration_level_min + 115);
 
           ht_bargraph.setLed(bargraphLookupTable(0));
           ht_bargraph.setLed(bargraphLookupTable(29));
@@ -4584,7 +4594,7 @@ void bargraphSuperHeroRampFiringAnimation() {
     else {
       switch(i_bargraph_status_alt) {
         case 0:
-          vibrationWand(i_vibration_level_min + 45);
+          vibrationWand(i_vibration_level_min + 110);
 
           ht_bargraph.setLed(bargraphLookupTable(13));
           ht_bargraph.setLed(bargraphLookupTable(14));
@@ -4603,7 +4613,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 1:
-          vibrationWand(i_vibration_level_min + 45);
+          vibrationWand(i_vibration_level_min + 110);
 
           ht_bargraph.setLed(bargraphLookupTable(12));
           ht_bargraph.setLed(bargraphLookupTable(15));
@@ -4626,7 +4636,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 2:
-          vibrationWand(i_vibration_level_min + 45);
+          vibrationWand(i_vibration_level_min + 110);
 
           ht_bargraph.setLed(bargraphLookupTable(11));
           ht_bargraph.setLed(bargraphLookupTable(16));
@@ -4649,7 +4659,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 3:
-          vibrationWand(i_vibration_level_min + 45);
+          vibrationWand(i_vibration_level_min + 110);
 
           ht_bargraph.setLed(bargraphLookupTable(10));
           ht_bargraph.setLed(bargraphLookupTable(17));
@@ -4672,7 +4682,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 4:
-          vibrationWand(i_vibration_level_min + 45);
+          vibrationWand(i_vibration_level_min + 110);
 
           ht_bargraph.setLed(bargraphLookupTable(9));
           ht_bargraph.setLed(bargraphLookupTable(18));
@@ -4695,7 +4705,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 5:
-          vibrationWand(i_vibration_level_min + 45);
+          vibrationWand(i_vibration_level_min + 110);
 
           ht_bargraph.setLed(bargraphLookupTable(8));
           ht_bargraph.setLed(bargraphLookupTable(19));
@@ -4718,7 +4728,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 6:
-          vibrationWand(i_vibration_level_min + 47);
+          vibrationWand(i_vibration_level_min + 112);
 
           ht_bargraph.setLed(bargraphLookupTable(7));
           ht_bargraph.setLed(bargraphLookupTable(20));
@@ -4741,7 +4751,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 7:
-          vibrationWand(i_vibration_level_min + 47);
+          vibrationWand(i_vibration_level_min + 112);
 
           ht_bargraph.setLed(bargraphLookupTable(6));
           ht_bargraph.setLed(bargraphLookupTable(21));
@@ -4764,7 +4774,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 8:
-          vibrationWand(i_vibration_level_min + 47);
+          vibrationWand(i_vibration_level_min + 112);
 
           ht_bargraph.setLed(bargraphLookupTable(5));
           ht_bargraph.setLed(bargraphLookupTable(22));
@@ -4787,7 +4797,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 9:
-          vibrationWand(i_vibration_level_min + 47);
+          vibrationWand(i_vibration_level_min + 112);
 
           ht_bargraph.setLed(bargraphLookupTable(4));
           ht_bargraph.setLed(bargraphLookupTable(23));
@@ -4810,7 +4820,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 10:
-          vibrationWand(i_vibration_level_min + 47);
+          vibrationWand(i_vibration_level_min + 112);
 
           ht_bargraph.setLed(bargraphLookupTable(3));
           ht_bargraph.setLed(bargraphLookupTable(24));
@@ -4833,7 +4843,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 11:
-          vibrationWand(i_vibration_level_min + 50);
+          vibrationWand(i_vibration_level_min + 115);
 
           ht_bargraph.setLed(bargraphLookupTable(2));
           ht_bargraph.setLed(bargraphLookupTable(25));
@@ -4856,7 +4866,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 12:
-          vibrationWand(i_vibration_level_min + 50);
+          vibrationWand(i_vibration_level_min + 115);
 
           ht_bargraph.setLed(bargraphLookupTable(1));
           ht_bargraph.setLed(bargraphLookupTable(26));
@@ -4879,7 +4889,7 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 13:
-          vibrationWand(i_vibration_level_min + 50);
+          vibrationWand(i_vibration_level_min + 115);
 
           ht_bargraph.setLed(bargraphLookupTable(0));
           ht_bargraph.setLed(bargraphLookupTable(27));
@@ -4906,7 +4916,7 @@ void bargraphSuperHeroRampFiringAnimation() {
     // Hasbro 5 LED Bargraph.
     switch(i_bargraph_status) {
       case 1:
-        vibrationWand(i_vibration_level_min + 45);
+        vibrationWand(i_vibration_level_min + 110);
 
         digitalWriteFast(bargraphLookupTable(1-1), LOW);
         digitalWriteFast(bargraphLookupTable(2-1), HIGH);
@@ -4919,7 +4929,7 @@ void bargraphSuperHeroRampFiringAnimation() {
       break;
 
       case 2:
-        vibrationWand(i_vibration_level_min + 47);
+        vibrationWand(i_vibration_level_min + 112);
 
         digitalWriteFast(bargraphLookupTable(1-1), HIGH);
         digitalWriteFast(bargraphLookupTable(2-1), LOW);
@@ -4932,7 +4942,7 @@ void bargraphSuperHeroRampFiringAnimation() {
       break;
 
       case 3:
-        vibrationWand(i_vibration_level_min + 50);
+        vibrationWand(i_vibration_level_min + 115);
 
         digitalWriteFast(bargraphLookupTable(1-1), HIGH);
         digitalWriteFast(bargraphLookupTable(2-1), HIGH);
@@ -4945,7 +4955,7 @@ void bargraphSuperHeroRampFiringAnimation() {
       break;
 
       case 4:
-        vibrationWand(i_vibration_level_min + 47);
+        vibrationWand(i_vibration_level_min + 112);
 
         digitalWriteFast(bargraphLookupTable(1-1), HIGH);
         digitalWriteFast(bargraphLookupTable(2-1), LOW);
@@ -4958,7 +4968,7 @@ void bargraphSuperHeroRampFiringAnimation() {
       break;
 
       case 5:
-        vibrationWand(i_vibration_level_min + 45);
+        vibrationWand(i_vibration_level_min + 110);
 
         digitalWriteFast(bargraphLookupTable(1-1), LOW);
         digitalWriteFast(bargraphLookupTable(2-1), HIGH);
@@ -5430,13 +5440,13 @@ void bargraphModeOriginalRampFiringAnimation() {
     }
 
     if(i_bargraph_status_alt > 22) {
-      vibrationWand(i_vibration_level_min + 50);
+      vibrationWand(i_vibration_level_min + 115);
     }
     else if(i_bargraph_status_alt > 11) {
-      vibrationWand(i_vibration_level_min + 47);
+      vibrationWand(i_vibration_level_min + 112);
     }
     else {
-      vibrationWand(i_vibration_level_min + 45);
+      vibrationWand(i_vibration_level_min + 110);
     }
   }
   else {
@@ -5840,13 +5850,13 @@ void bargraphModeOriginalRampFiringAnimation() {
   }
 
   if(i_bargraph_status > 3) {
-    vibrationWand(i_vibration_level_min + 50);
+    vibrationWand(i_vibration_level_min + 115);
   }
   else if(i_bargraph_status > 1) {
-    vibrationWand(i_vibration_level_min + 47);
+    vibrationWand(i_vibration_level_min + 112);
   }
   else {
-    vibrationWand(i_vibration_level_min + 45);
+    vibrationWand(i_vibration_level_min + 110);
   }
 }
 
