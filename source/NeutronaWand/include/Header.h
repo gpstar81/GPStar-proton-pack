@@ -281,7 +281,6 @@ const uint8_t i_bargraph_segments_5_led = 5;
   const uint8_t i_bargraph_5_led_invert[i_bargraph_segments_5_led] PROGMEM = {BARGRAPH_LED_5_PIN, BARGRAPH_LED_4_PIN, BARGRAPH_LED_3_PIN, BARGRAPH_LED_2_PIN, BARGRAPH_LED_1_PIN};
   const uint8_t i_bargraph_5_led_normal[i_bargraph_segments_5_led] PROGMEM = {BARGRAPH_LED_1_PIN, BARGRAPH_LED_2_PIN, BARGRAPH_LED_3_PIN, BARGRAPH_LED_4_PIN, BARGRAPH_LED_5_PIN};
 #endif
-bool b_bargraph_status[i_bargraph_segments_5_led] = {};
 
 /*
  * Afterlife/Frozen Empire wand idle ramp transition timers.
