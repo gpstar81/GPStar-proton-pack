@@ -3017,7 +3017,7 @@ void wandVentStateCheck() {
       soundIdleStart();
 
       if(switch_wand.on()) {
-        if(!b_beeping) {
+        if(!b_beeping && !b_firing) {
           // Beep loop.
           soundBeepLoop();
         }
@@ -4072,6 +4072,11 @@ void checkSwitches() {
 }
 
 void modeFireStartSounds() {
+  if(b_beeping) {
+    // Stop the beep loop while firing.
+    soundBeepLoopStop();
+  }
+
   switch(STREAM_MODE) {
     case PROTON:
     default:
