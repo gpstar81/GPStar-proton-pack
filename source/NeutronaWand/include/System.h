@@ -4072,11 +4072,6 @@ void checkSwitches() {
 }
 
 void modeFireStartSounds() {
-  if(b_beeping) {
-    // Stop the beep loop while firing.
-    soundBeepLoopStop();
-  }
-
   switch(STREAM_MODE) {
     case PROTON:
     default:
@@ -7057,6 +7052,11 @@ void fireStreamStart(CRGB c_colour) {
 }
 
 void modeFiring() {
+  if(b_beeping) {
+    // Stop the beep loop while firing.
+    soundBeepLoopStop();
+  }
+
   // Sound trigger flags.
   if(b_firing_intensify && !b_sound_firing_intensify_trigger) {
     b_sound_firing_intensify_trigger = true;
