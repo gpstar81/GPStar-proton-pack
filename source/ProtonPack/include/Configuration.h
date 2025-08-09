@@ -43,13 +43,14 @@ uint8_t i_cyclotron_leds = 36;
  * 1000 = 1 second.
  * i_1984_delay does not need to be changed at all, unless you want to make the delay shorter or quicker.
  * 300ms is as seen in GB1 and GB2; 500ms is as seen in TVG.
+ * By default this will switch based on the setting of b_fade_cyclotron_led.
  *
  * CYCLOTRON_DELAY_2021_12_LED is for the stock Haslab 12 LED setup.
  * CYCLOTRON_DELAY_2021_20_LED is for the Frutto Technology 20 LED setup.
  * CYCLOTRON_DELAY_2021_36_LED is for the Frutto Technology Max 36 LED setup.
  * CYCLOTRON_DELAY_2021_40_LED is for a 40 LED NeoPixel ring.
  */
-const uint16_t i_1984_delay = 300;
+uint16_t i_1984_delay = 500;
 #define CYCLOTRON_DELAY_2021_12_LED 15 // For 12 LEDs.
 #define CYCLOTRON_DELAY_2021_20_LED 10 // For 20 LEDs.
 #define CYCLOTRON_DELAY_2021_36_LED 5 // For 36 LEDs.

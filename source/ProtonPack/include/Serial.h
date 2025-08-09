@@ -748,6 +748,13 @@ void checkAttenuator() {
           b_cyclotron_colour_toggle = (packConfig.ledVGCyclotron == 1);
           b_cyclotron_simulate_ring = (packConfig.ledCycLidSimRing == 1);
 
+          if(b_fade_cyclotron_led) {
+            i_1984_delay = 500; // 500ms as seen in TVG.
+          }
+          else {
+            i_1984_delay = 300; // 300ms as seen in GB1/GB2.
+          }
+
           // Inner Cyclotron
           i_cyclotron_panel_brightness = packConfig.ledCycPanLum;
           switch(packConfig.ledCycInnerPanel) {
@@ -2328,6 +2335,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       b_fade_cyclotron_led = !b_fade_cyclotron_led;
 
       if(b_fade_cyclotron_led) {
+        i_1984_delay = 500; // 500ms as seen in TVG.
         stopEffect(S_VOICE_CYCLOTRON_FADING_DISABLED);
         stopEffect(S_VOICE_CYCLOTRON_FADING_ENABLED);
         playEffect(S_VOICE_CYCLOTRON_FADING_ENABLED);
@@ -2335,6 +2343,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         packSerialSend(P_CYCLOTRON_FADING_ENABLED);
       }
       else {
+        i_1984_delay = 300; // 300ms as seen in GB1/GB2.
         stopEffect(S_VOICE_CYCLOTRON_FADING_DISABLED);
         stopEffect(S_VOICE_CYCLOTRON_FADING_ENABLED);
         playEffect(S_VOICE_CYCLOTRON_FADING_DISABLED);
