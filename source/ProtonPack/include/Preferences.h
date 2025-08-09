@@ -327,11 +327,11 @@ void readEEPROM() {
     if(obj_config_eeprom.center_led_fade > 0 && obj_config_eeprom.center_led_fade < 3) {
       if(obj_config_eeprom.center_led_fade > 1) {
         b_fade_cyclotron_led = true;
-        i_1984_delay = 500;
+        i_1984_delay = CYCLOTRON_DELAY_TVG;
       }
       else {
         b_fade_cyclotron_led = false;
-        i_1984_delay = 300;
+        i_1984_delay = CYCLOTRON_DELAY_1984;
       }
     }
 
