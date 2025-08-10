@@ -4,6 +4,10 @@ These are *OPTIONAL* add-on additions for use within the Proton Pack.
 
 ## Light Switch Panel (Optional)
 
+This features allows you to bring more life to the interior of your cyclotron by illuminating the inner panel. There are currently 2 options available for upgrade, using standard LEDs or an LED panel. The latter is the more user-friendly and preferred option as it brings RGB functionality that allows displaying a more broad range of effects.
+
+Note that when in the Frozen Empire theme and using the Proton Stream, the inner panel and cyclotron lights will **NOT** be illuminated. This mimics the state of Phoebes' "Brass Pack" when fighting Garrakka. In this state only the sparking lights (covered below) will be visibly illuminated.
+
 ### Option 1: Standard LEDs
 
 There is a included STL file that you can 3D Print to replace the Cyclotron switch plate. You can add 5mm LEDs into the holes. See reference in the [Pack Setup (PCB)](PACK_PCB.md) for connections or [Pack Setup (DIY)](DIY_PACK.md) for wiring to the Arduino Mega. You can use cliplites to hold the LEDs in place. Refer to the [full DIY parts list](DIY_BOM.md) on where to source them.
@@ -18,7 +22,6 @@ Supported as an alternative to regular LEDs is the [GPStar Cyclotron LED Panel](
 
 `Pack Controller -> Inner LED Panel PCB -> Inner Cake Ring -> Cavity Lights (Optional)`
 ![LED Panel Hookup Guide](images/LEDPanelHookup.jpg)
-
 
 ## Inner Cyclotron Lights (Optional)
 
@@ -40,5 +43,7 @@ For the effect seen in the Frozen Empire movie, it is possible to extend the LED
 ## Motorised Cyclotron Support (Optional)
 
 As of firmware 5.4.0, we now support connecting a motor control relay to the GPStar Proton Pack in case a user wishes to either replicate a prop-accurate Afterlife/Frozen Empire outer cyclotron effect or fit a spinning Inner Cyclotron cake. Connect a 5V tolerant relay trigger to Plug M1 (Vibration) on the Proton Pack PCB, then either use the Neutrona Wand menu or web UI Proton Pack Settings to change the Proton Pack Vibration Mode to "Motorised Cyclotron".
+
+![](images/MotorizedCyclotron.gif)
 
 **WARNING:** Do not attempt to connect a motor directly to Pin M1! This pin was only ever designed to run the small toy vibration motor that came stock in the HasLab Proton Pack. Make sure that you only connect a motor control relay's trigger to Pin M1, and we highly recommend powering the motor with a power source independent of the GPStar kit itself so as not to steal current needed by the Pack and Wand.
