@@ -9,6 +9,8 @@ SRCDIR="../source"
 PROJECT_DIR="$SRCDIR/ATmegaEEPROM"
 
 mkdir -p ${BINDIR}/pack/extras
+mkdir -p ${BINDIR}/blaster/extras
+mkdir -p ${BINDIR}/wand/extras
 
 echo ""
 
