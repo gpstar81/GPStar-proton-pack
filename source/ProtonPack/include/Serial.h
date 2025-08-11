@@ -766,15 +766,22 @@ void checkAttenuator() {
           b_cyclotron_colour_toggle = (packConfig.ledVGCyclotron == 1);
           b_cyclotron_simulate_ring = (packConfig.ledCycLidSimRing == 1);
 
+          if(b_fade_cyclotron_led) {
+            i_1984_delay = CYCLOTRON_DELAY_TVG;
+          }
+          else {
+            i_1984_delay = CYCLOTRON_DELAY_1984;
+          }
+
           // Inner Cyclotron
           i_cyclotron_panel_brightness = packConfig.ledCycPanLum;
           switch(packConfig.ledCycInnerPanel) {
             case 1:
-#ifdef ESP32
+            #ifdef ESP32
               INNER_CYC_PANEL_MODE = PANEL_RGB_DYNAMIC;
-#else
+            #else
               INNER_CYC_PANEL_MODE = PANEL_INDIVIDUAL;
-#endif
+            #endif
             break;
             case 2:
               INNER_CYC_PANEL_MODE = PANEL_RGB_STATIC;
@@ -1516,7 +1523,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       ms_wand_check.start(i_wand_disconnect_delay); // Wand is synchronized, so start the keep-alive timer.
       attenuatorSend(A_WAND_CONNECTED); // Tell the Attenuator the wand is (re-)connected.
 
-      if(b_demo_light_mode == true) {
+      if(b_demo_light_mode) {
         // Demo light mode enabled. Send command to turn on the Neutrona Wand.
         packSerialSend(P_TURN_WAND_ON);
       }
@@ -2330,7 +2337,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           packSerialSend(P_INNER_CYCLOTRON_PANEL_DYNAMIC);
         break;
         case PANEL_RGB_DYNAMIC:
-#ifdef ESP32
+        #ifdef ESP32
           INNER_CYC_PANEL_MODE = PANEL_RGB_STATIC;
 
           stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_STATIC_COLORS);
@@ -2339,7 +2346,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_STATIC_COLORS);
 
           packSerialSend(P_INNER_CYCLOTRON_PANEL_STATIC);
-#else
+        #else
           INNER_CYC_PANEL_MODE = PANEL_INDIVIDUAL;
 
           stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_STATIC_COLORS);
@@ -2348,7 +2355,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
 
           packSerialSend(P_INNER_CYCLOTRON_PANEL_DISABLED);
-#endif
+        #endif
         break;
       }
 
@@ -2361,6 +2368,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       b_fade_cyclotron_led = !b_fade_cyclotron_led;
 
       if(b_fade_cyclotron_led) {
+        i_1984_delay = CYCLOTRON_DELAY_TVG;
         stopEffect(S_VOICE_CYCLOTRON_FADING_DISABLED);
         stopEffect(S_VOICE_CYCLOTRON_FADING_ENABLED);
         playEffect(S_VOICE_CYCLOTRON_FADING_ENABLED);
@@ -2368,6 +2376,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         packSerialSend(P_CYCLOTRON_FADING_ENABLED);
       }
       else {
+        i_1984_delay = CYCLOTRON_DELAY_1984;
         stopEffect(S_VOICE_CYCLOTRON_FADING_DISABLED);
         stopEffect(S_VOICE_CYCLOTRON_FADING_ENABLED);
         playEffect(S_VOICE_CYCLOTRON_FADING_DISABLED);
