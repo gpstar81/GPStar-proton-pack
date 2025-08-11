@@ -327,9 +327,11 @@ void readEEPROM() {
     if(obj_config_eeprom.center_led_fade > 0 && obj_config_eeprom.center_led_fade < 3) {
       if(obj_config_eeprom.center_led_fade > 1) {
         b_fade_cyclotron_led = true;
+        i_1984_delay = CYCLOTRON_DELAY_TVG;
       }
       else {
         b_fade_cyclotron_led = false;
+        i_1984_delay = CYCLOTRON_DELAY_1984;
       }
     }
 
@@ -669,8 +671,9 @@ void saveLEDEEPROM() {
 void clearConfigEEPROM() {
   // Clear out the EEPROM data for the configuration settings only.
   uint16_t i_eepromConfigAddress = i_eepromAddress + sizeof(objLEDEEPROM);
+  uint16_t i_range = i_eepromConfigAddress + sizeof(objConfigEEPROM);
 
-  for(; i_eepromConfigAddress < sizeof(objConfigEEPROM); i_eepromConfigAddress++) {
+  for(; i_eepromConfigAddress < i_range; i_eepromConfigAddress++) {
     EEPROM.update(i_eepromConfigAddress, 0xFF); // Write 0xFF to each address
   }
 
