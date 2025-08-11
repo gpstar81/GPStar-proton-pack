@@ -495,8 +495,9 @@ void readEEPROM() {
 void clearLEDEEPROM() {
   // Clear out the EEPROM data for the configuration settings only.
   uint16_t i_eepromLEDAddress = i_eepromAddress + sizeof(objConfigEEPROM);
+  uint16_t i_range = i_eepromLEDAddress + sizeof(objLEDEEPROM);
 
-  for(; i_eepromLEDAddress < sizeof(objLEDEEPROM); i_eepromLEDAddress++) {
+  for(; i_eepromLEDAddress < i_range; i_eepromLEDAddress++) {
     EEPROM.update(i_eepromLEDAddress, 0xFF); // Write 0xFF to each address
   }
 

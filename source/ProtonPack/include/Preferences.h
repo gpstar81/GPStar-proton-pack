@@ -671,8 +671,9 @@ void saveLEDEEPROM() {
 void clearConfigEEPROM() {
   // Clear out the EEPROM data for the configuration settings only.
   uint16_t i_eepromConfigAddress = i_eepromAddress + sizeof(objLEDEEPROM);
+  uint16_t i_range = i_eepromConfigAddress + sizeof(objConfigEEPROM);
 
-  for(; i_eepromConfigAddress < sizeof(objConfigEEPROM); i_eepromConfigAddress++) {
+  for(; i_eepromConfigAddress < i_range; i_eepromConfigAddress++) {
     EEPROM.update(i_eepromConfigAddress, 0xFF); // Write 0xFF to each address
   }
 
