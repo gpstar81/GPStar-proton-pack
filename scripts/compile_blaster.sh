@@ -8,6 +8,16 @@ BINDIR="../binaries"
 SRCDIR="../source"
 PROJECT_DIR="$SRCDIR/SingleShot"
 
+mkdir -p ${BINDIR}/blaster/extras
+
+# Current build timestamp and major version to be reflected in the build for ESP32.
+MJVER="${MJVER:="V6"}"
+TIMESTAMP="${TIMESTAMP:=$(date +"%Y%m%d%H%M%S")}"
+
+# Update date of compilation
+echo "Setting Build Timestamp: ${MJVER}_${TIMESTAMP}"
+sed -i -e 's/\(String build_date = "\)[^"]*\(";\)/\1'"${MJVER}_${TIMESTAMP}"'\2/' ${PROJECT_DIR}/include/Configuration.h
+
 echo ""
 
 # Single-Shot Blaster
