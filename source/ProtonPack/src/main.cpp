@@ -114,6 +114,13 @@ void setup() {
   // ESP32-S3 requires manually specifying SDA and SCL pins first.
   Wire.begin(I2C_SDA, I2C_SCL, 400000UL);
   Wire1.begin(TEMP_SDA, TEMP_SCL, 400000UL);
+
+  // Initialize the HDC1080 temp/humidity sensor.
+  tempSensor.resetConfiguration();
+  tempSensor.disableHeater();
+  tempSensor.setHumidityResolution(GuL::HDC1080::HumidityMeasurementResolution::HUM_RES_14BIT);
+  tempSensor.setTemperaturResolution(GuL::HDC1080::TemperatureMeasurementResolution::TEMP_RES_14BIT);
+  tempSensor.setAcquisitionMode(GuL::HDC1080::AcquisitionModes::SINGLE_CHANNEL);
 #else
   Wire.begin();
   Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
