@@ -112,13 +112,12 @@ void setup() {
   // Setup the i2c bus using the Wire protocol.
 #ifdef ESP32
   // ESP32-S3 requires manually specifying SDA and SCL pins first.
-  Wire.setPins(I2C_SDA, I2C_SCL);
-  Wire1.setPins(TEMP_SDA, TEMP_SCL);
-  Wire1.begin();
-  Wire1.setClock(400000UL); // Sets the i2c bus to 400kHz
-#endif
+  Wire.begin(I2C_SDA, I2C_SCL, 400000UL);
+  Wire1.begin(TEMP_SDA, TEMP_SCL, 400000UL);
+#else
   Wire.begin();
   Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
+#endif
 
   // Initialize an optional power meter on the i2c bus.
   if(b_use_power_meter) {

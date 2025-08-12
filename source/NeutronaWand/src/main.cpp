@@ -172,10 +172,12 @@ void setup() {
 
 #ifdef ESP32
   // ESP32-S3 requires manually specifying SDA and SCL pins first.
-  Wire.setPins(I2C_SDA, I2C_SCL);
-#endif
+  Wire.begin(I2C_SDA, I2C_SCL, 400000UL);
+  Wire1.begin(IMU_SDA, IMU_SCL, 400000UL);
+#else
   Wire.begin();
   Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
+#endif
 
   byte by_error, by_address;
   uint8_t i_i2c_devices = 0;

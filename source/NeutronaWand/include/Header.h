@@ -26,6 +26,8 @@
   // For the i2c Bus
   #define I2C_SCL 16
   #define I2C_SDA 15
+  #define IMU_SCL 47
+  #define IMU_SDA 48
 
   #define INTENSIFY_SWITCH_PIN 39
   #define ACTIVATE_SWITCH_PIN 40

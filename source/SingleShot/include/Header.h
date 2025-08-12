@@ -63,6 +63,8 @@ enum POWER_LEVELS POWER_LEVEL_PREV;
   // For the i2c Bus
   #define I2C_SCL 16
   #define I2C_SDA 15
+  #define IMU_SCL 47
+  #define IMU_SDA 48
 
   #define SYSTEM_LED_PIN 41
   #define TOP_LED_PIN 42
