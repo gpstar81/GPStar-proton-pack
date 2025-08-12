@@ -21,18 +21,18 @@
 #pragma once
 
 // Web page files (defines all text as char[] variable)
-#include "CommonJS.h" // COMMONJS_page
-#include "Index.h" // INDEX_page
-#include "IndexJS.h" // INDEXJS_page
-#include "Device.h" // DEVICE_page
-#include "ExtWiFi.h" // NETWORK_page
-#include "Password.h" // PASSWORD_page
-#include "PackSettings.h" // PACK_SETTINGS_page
-#include "WandSettings.h" // WAND_SETTINGS_page
-#include "SmokeSettings.h" // SMOKE_SETTINGS_page
-#include "Style.h" // STYLE_page
-#include "Equip.h" // EQUIP_svg
-#include "Icon.h" // FAVICON_ico, FAVICON_svg
+#include "web/CommonJS.h" // COMMONJS_page
+#include "web/Index.h" // INDEX_page
+#include "web/IndexJS.h" // INDEXJS_page
+#include "web/Device.h" // DEVICE_page
+#include "web/ExtWiFi.h" // NETWORK_page
+#include "web/Password.h" // PASSWORD_page
+#include "web/PackSettings.h" // PACK_SETTINGS_page
+#include "web/WandSettings.h" // WAND_SETTINGS_page
+#include "web/SmokeSettings.h" // SMOKE_SETTINGS_page
+#include "web/Style.h" // STYLE_page
+#include "web/Equip.h" // EQUIP_svg
+#include "web/Icon.h" // FAVICON_ico, FAVICON_svg
 
 // Forward function declarations.
 void setupRouting();
