@@ -49,7 +49,7 @@ String user_wifi_pass = ""; // Preferred network password for external WiFi
  * to a new and known value. When completed, flash the latest version of
  * the software which has this line commented out.
  */
-#define RESET_AP_SETTINGS
+//#define RESET_AP_SETTINGS
 
 /*
  * -------------****** CUSTOM USER CONFIGURABLE SETTINGS ******-------------
