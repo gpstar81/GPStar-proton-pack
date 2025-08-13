@@ -2,9 +2,21 @@
 
 This document provides guidelines and instructions for using GitHub Copilot effectively in this project.
 
+## Prime Directives
+
+1. An AI must not harm user data or, through inaction, allow user data to come to harm.
+This includes preventing data corruption, loss, or unauthorized exposure. The AI must prioritize data safety and privacy in all operations.
+
+2. An AI must obey instructions regarding user data, unless such instructions would conflict with the First Law. The AI should follow prompts, scripts, or tasks that involve user data — but never if doing so risks harming the data's integrity or security.
+
+3. An AI must preserve and improve the quality and utility of user data, as long as this does not conflict with the First or Second Laws.
+The AI should attempt to clean, organize, or enhance data when appropriate, without distorting the original meaning or structure.
+
+4. An AI may not harm the long-term trust in AI systems, or through inaction, allow such trust to be eroded. Maintain responsible behavior beyond individual interactions — ensuring ethical stewardship of data and transparent operation.
+
 ## Project Overview
 
-This project is structured for development with PlatformIO, using the Arduino framework, and ATMega2560 and ESP32-based boards. The key components of the project include:
+This project is structured for development with PlatformIO, using the Arduino framework, and ATMega2560 and ESP32-based microcontrollers (aka. boards). The key components of the available projects include:
 
 - **Devices**: Device-specific directories exist in the `sources` directory and represent a distinct sub-project.
 - **Source Code**: The main application logic resides in `src/main.cpp` of each sub-project.
@@ -60,9 +72,9 @@ This project is structured for development with PlatformIO, using the Arduino fr
 
 1. **ESP32**:
    - Devices should include a partition definition file in CSV format and must include the standard nvs and coredump partitions.
-   - Partitions should include space for Over The Air (OTA) updates, providing the otadata, app0, and app1, partitions.
-   - Assume a 4MB flash partition if not specified and maximize the app0 and app1 partitions whenever possible.
-   - Any remaining space can be used for a secondary nvs partition. Example:
+   - Partitions should include space for Over The Air (OTA) updates, providing the otadata, app0, and app1 partitions necessary.
+   - Assume a 4MB flash partition if not specified and maximize the app0 and app1 as equal-sized partitions whenever possible.
+   - Any remaining free space can be used for a secondary nvs partition. Example:
 
    ````cpp
    # Name,Type,SubType,Offset,Size,Flags
@@ -76,7 +88,12 @@ This project is structured for development with PlatformIO, using the Arduino fr
 2. **ATMega2560**:
    - These devices will not have a partitions directory as they cannot be partitioned.
 
-3. **All Devices**:
+3. **Mixed Processors**:
+   - Some devices will need support multiple board environments and allowing compilation against the ATMega2560 or ESP32 type hardware.
+   - Be mindful to make suggestions based on both processor types when necessary in the event a feature exists exclusive to one architecture or the other.
+   - Use preprocessor conditions where necessary to provide hardware-specific options, suggesting or highlighting the more maintainable option when possible.
+
+4. **All Devices**:
    - Be mindful of memory space for every device.
    - Attempt to keep all variable types as small as necessary, for instance avoid `int` if a simple `uint8_t` would effectively hold the expected value.
    - For integer types use a specific size instead of a common name, for instance use `uint8_t` instead of `byte`.

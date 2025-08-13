@@ -39,6 +39,7 @@ void clearLEDEEPROM();
 void saveConfigEEPROM();
 void saveLEDEEPROM();
 void updateCRCEEPROM();
+uint32_t getCRCEEPROM(void);
 uint32_t eepromCRC(void);
 void bargraphYearModeUpdate();
 void resetOverheatLevels();
@@ -216,7 +217,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.bargraph_firing_animation > 0 && obj_config_eeprom.bargraph_mode < 4) {
+    if(obj_config_eeprom.bargraph_firing_animation > 0 && obj_config_eeprom.bargraph_firing_animation < 4) {
       switch(obj_config_eeprom.bargraph_firing_animation) {
         case 1:
         default:
@@ -387,7 +388,12 @@ void readEEPROM() {
         default:
           // Do nothing. Readings are taken from the vibration toggle switch from the Proton pack or configuration setting in stand alone mode.
           VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
-          VIBRATION_MODE = VIBRATION_FIRING_ONLY;
+          if(b_gpstar_benchtest) {
+            VIBRATION_MODE = VIBRATION_NONE;
+          }
+          else {
+            VIBRATION_MODE = VIBRATION_FIRING_ONLY;
+          }
         break;
 
         case 3:
@@ -463,7 +469,7 @@ void readEEPROM() {
       }
 
       // Only override the bargraph LED count if we are not using a stock bargraph.
-      if(BARGRAPH_TYPE != SEGMENTS_5) {
+      if(BARGRAPH_TYPE == SEGMENTS_28 || BARGRAPH_TYPE == SEGMENTS_30) {
         BARGRAPH_TYPE = BARGRAPH_TYPE_EEPROM;
       }
     }
@@ -489,8 +495,9 @@ void readEEPROM() {
 void clearLEDEEPROM() {
   // Clear out the EEPROM data for the configuration settings only.
   uint16_t i_eepromLEDAddress = i_eepromAddress + sizeof(objConfigEEPROM);
+  uint16_t i_range = i_eepromLEDAddress + sizeof(objLEDEEPROM);
 
-  for(; i_eepromLEDAddress < sizeof(objLEDEEPROM); i_eepromLEDAddress++) {
+  for(; i_eepromLEDAddress < i_range; i_eepromLEDAddress++) {
     EEPROM.update(i_eepromLEDAddress, 0xFF); // Write 0xFF to each address
   }
 
@@ -544,14 +551,14 @@ void saveConfigEEPROM() {
   uint8_t i_neutrona_wand_sounds = 2;
   uint8_t i_spectral = 1;
   uint8_t i_quick_vent = 2;
-  uint8_t i_wand_boot_errors = 2;
+  uint8_t i_wand_boot_errors = 1;
   uint8_t i_vent_light_auto_intensity = 2;
   uint8_t i_invert_bargraph = 1;
   uint8_t i_bargraph_mode = 1; // 1 = default, 2 = super hero, 3 = original.
   uint8_t i_bargraph_firing_animation = 1; // 1 = default, 2 = super hero, 3 = original.
   uint8_t i_bargraph_overheat_blinking = 1;
   uint8_t i_neutrona_wand_year_mode = 1; // 1 = default, 2 = 1984, 3 = 1989, 4 = Afterlife, 5 = Frozen Empire.
-  uint8_t i_CTS_mode = 1; // 1 = default, 2 = 1984, 3 = 1989, 4 = Afterlife, 5 = Frozen Empire.
+  uint8_t i_cts_mode = 1; // 1 = default, 2 = 1984, 3 = 1989, 4 = Afterlife, 5 = Frozen Empire.
   uint8_t i_system_mode = 1; // 1 = super hero, 2 = original.
   uint8_t i_beep_loop = 2;
   uint8_t i_default_wand_volume = 101; // <- i_eeprom_volume_master_percentage + 1
@@ -595,8 +602,8 @@ void saveConfigEEPROM() {
     i_quick_vent = 1;
   }
 
-  if(!b_wand_boot_errors) {
-    i_wand_boot_errors = 1;
+  if(b_wand_boot_errors) {
+    i_wand_boot_errors = 2;
   }
 
   if(!b_vent_light_control) {
@@ -674,14 +681,14 @@ void saveConfigEEPROM() {
 
   switch(WAND_YEAR_CTS) {
     case CTS_AFTERLIFE:
-      i_CTS_mode = 4;
+      i_cts_mode = 4;
     break;
     case CTS_1984:
-      i_CTS_mode = 2;
+      i_cts_mode = 2;
     break;
     case CTS_DEFAULT:
     default:
-      i_CTS_mode = 1;
+      i_cts_mode = 1;
     break;
   }
 
@@ -754,7 +761,7 @@ void saveConfigEEPROM() {
     i_bargraph_firing_animation,
     i_bargraph_overheat_blinking,
     i_neutrona_wand_year_mode,
-    i_CTS_mode,
+    i_cts_mode,
     i_system_mode,
     i_beep_loop,
     i_default_wand_volume,

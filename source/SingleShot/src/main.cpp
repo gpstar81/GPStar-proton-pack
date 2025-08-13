@@ -30,24 +30,21 @@
 // See: https://github.com/arkhipenko/TaskScheduler/wiki/API-Documentation
 #include <TaskScheduler.h>
 
-// Defines the microcontroller as part of a GPStar PCB
-#if defined(__AVR_ATmega2560__)
-  #define GPSTAR_NEUTRONA_DEVICE_PCB
-#endif
-
 // Set to 1 to enable built-in debug messages
 #define DEBUG 0
 
 // Debug macros
 #if DEBUG == 1
-#define debug(x) Serial.print(x)
-#define debugln(x) Serial.println(x)
+  #define debug(...) Serial.print(__VA_ARGS__)
+  #define debugf(...) Serial.printf(__VA_ARGS__)
+  #define debugln(...) Serial.println(__VA_ARGS__)
 #else
-#define debug(x)
-#define debugln(x)
+  #define debug(...)
+  #define debugf(...)
+  #define debugln(...)
 #endif
 
-// PROGMEM macro
+// PROGMEM macros
 #define PROGMEM_READU32(x) pgm_read_dword_near(&(x))
 #define PROGMEM_READU16(x) pgm_read_word_near(&(x))
 #define PROGMEM_READU8(x) pgm_read_byte_near(&(x))
@@ -90,19 +87,22 @@ Task animateTask(16, TASK_FOREVER, &animateTaskCallback);
 Task inputsTask(14, TASK_FOREVER, &inputTaskCallback);
 
 void setup() {
-  Serial.begin(9600); // Standard serial (USB) console.
+  Serial.begin(9600); // Standard HW serial (USB) console.
 
   // Setup the audio device for this controller.
   setupAudioDevice();
 
-  // Change PWM frequency of pin 3 and 11 for the vibration motor, we do not want it high pitched.
-  TCCR1B = (TCCR1B & B11111000) | B00000100; // for PWM frequency of 122.55 Hz
+  // Change PWM frequency for the vibration motor, we do not want it high pitched.
+  // For ATmega2560, we set the PWM frequency for pin 11 (TCCR5B) to 122.55 Hz.
+  TCCR1B = (TCCR1B & B11111000) | B00000100;
+  pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
 
   // System LEDs
-  FastLED.addLeds<NEOPIXEL, SYSTEM_LED_PIN>(system_leds, CYCLOTRON_LED_COUNT + BARREL_LED_COUNT);
+  FastLED.addLeds<NEOPIXEL, SYSTEM_LED_PIN>(system_leds, CYCLOTRON_LED_COUNT + BARREL_LED_COUNT).setCorrection(TypicalLEDStrip);
+  FastLED.setMaxRefreshRate(0); // Disable FastLED's blocking 2.5ms delay.
 
   // RGB Vent Light
-  FastLED.addLeds<NEOPIXEL, TOP_LED_PIN>(vent_leds, VENT_LEDS_MAX);
+  FastLED.addLeds<NEOPIXEL, TOP_LED_PIN>(vent_leds, VENT_LEDS_MAX).setCorrection(TypicalLEDStrip);
   vent_leds[0] = getHueAsRGB(C_WHITE); // Set vent light array to white for initial reset.
   vent_leds[1] = getHueAsRGB(C_WHITE); // Set top light array to white for initial reset.
 
@@ -125,6 +125,7 @@ void setup() {
   setupBargraph();
 
   // Initialize all non-addressable LEDs
+  led_Status.initialize();
   led_SloBlo.initialize();
   led_Clippard.initialize();
   led_TopWhite.initialize();
@@ -132,8 +133,6 @@ void setup() {
   led_Hat1.initialize();
   led_Hat2.initialize();
   led_Tip.initialize();
-
-  pinMode(vibration, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
 
   // Device status.
   DEVICE_STATUS = MODE_OFF;

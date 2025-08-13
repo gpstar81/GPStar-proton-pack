@@ -35,20 +35,23 @@
  *
  * Any settings saved in the EEPROM menu will overwrite these settings.
  */
-uint8_t i_cyclotron_leds = 12;
+uint8_t i_cyclotron_leds = 36;
 
 /*
  * Cyclotron Lid LED delays.
  * Time in milliseconds between when a LED changes.
  * 1000 = 1 second.
- * i_1984_delay does not need to be changed at all, unless you want to make the delay shorter or quicker.
+ * i_1984_delay will switch based on the setting of b_fade_cyclotron_led.
  *
  * CYCLOTRON_DELAY_2021_12_LED is for the stock Haslab 12 LED setup.
  * CYCLOTRON_DELAY_2021_20_LED is for the Frutto Technology 20 LED setup.
  * CYCLOTRON_DELAY_2021_36_LED is for the Frutto Technology Max 36 LED setup.
  * CYCLOTRON_DELAY_2021_40_LED is for a 40 LED NeoPixel ring.
  */
-const uint16_t i_1984_delay = 275;
+#define CYCLOTRON_DELAY_1984 300 // 300ms as seen on-screen in GB1/GB2.
+#define CYCLOTRON_DELAY_TVG 500 // 500ms as seen in-game in the 2009 video game.
+uint16_t i_1984_delay = CYCLOTRON_DELAY_TVG; // Default to TVG as b_fade_cyclotron_led is true by default.
+
 #define CYCLOTRON_DELAY_2021_12_LED 15 // For 12 LEDs.
 #define CYCLOTRON_DELAY_2021_20_LED 10 // For 20 LEDs.
 #define CYCLOTRON_DELAY_2021_36_LED 5 // For 36 LEDs.
@@ -128,7 +131,7 @@ const bool b_cyclotron_haslab_chsv_colour_change = false;
  * Note that you may need to adjust the i_powercell_delay_1984 and i_powercell_delay_2021 to a lower number to increase the Power Cell update speed.
  * Any settings saved in the EEPROM menu will overwrite these settings.
  */
-uint8_t i_powercell_leds = 13;
+uint8_t i_powercell_leds = 15;
 
 /*
  * Power Cell LED delay in milliseconds.
@@ -141,8 +144,8 @@ uint8_t i_powercell_leds = 13;
 #define POWERCELL_DELAY_2021_13_LED 40 // Afterlife/Frozen Empire delay for HasLab 13-LED Power Cell.
 #define POWERCELL_DELAY_1984_15_LED 40 // 1984/1989 delay for Frutto 15-LED Power Cell.
 #define POWERCELL_DELAY_2021_15_LED 34 // Afterlife/Frozen Empire delay for Frutto 15-LED Power Cell.
-uint8_t i_powercell_delay_1984 = POWERCELL_DELAY_1984_13_LED;
-uint8_t i_powercell_delay_2021 = POWERCELL_DELAY_2021_13_LED;
+uint8_t i_powercell_delay_1984 = POWERCELL_DELAY_1984_15_LED;
+uint8_t i_powercell_delay_2021 = POWERCELL_DELAY_2021_15_LED;
 
 /*
  * Invert the Power Cell animation.
@@ -155,10 +158,10 @@ bool b_powercell_invert = false;
  * If you are using Power Cell LEDs with RGB support, such as the Frutto Technology Power Cells,
  * You can toggle if you want it to change colours to match the Video Game Modes or stay the default blue at all times.
  * Note that this has no effect on the stock HasLab Power Cell LEDs, which are blue only.
- * The default setting is true, which makes the Power Cell change colours to match the Video Game Modes.
+ * The default setting is false; true makes the Power Cell change colours to match the Video Game Modes.
  * This can be toggled in the Neutrona Wand sub menu system.
  */
-bool b_powercell_colour_toggle = true;
+bool b_powercell_colour_toggle = false;
 
 /*
  * Define the types of LEDs which are supported for devices.

@@ -4,8 +4,8 @@
       "path": "."
     },
     {
-      "name": "AttenuatorESP32",
-      "path": "source/AttenuatorESP32"
+      "name": "Attenuator",
+      "path": "source/Attenuator"
     },
     {
       "name": "ATmegaEEPROM",
@@ -36,6 +36,11 @@
 	  "editor.detectIndentation": false,
 	  "editor.indentSize": "2",
 	  "editor.insertSpaces": true,
-	  "editor.tabSize": 2
-	}
+    "editor.tabSize": 2,
+    "files.associations": {
+      "string": "cpp",
+      "cstdint": "cpp"
+    },
+    "workbench.editor.enablePreview": false
+  }
 }

@@ -31,6 +31,8 @@
 #include <GPStarAudio.h>
 gpstarAudio audio;
 
+#define AudioSerial Serial3
+
 /*
  * Audio Devices
  */
@@ -248,7 +250,7 @@ void playMusic() {
 
     if(b_gpstar_benchtest) {
       // Keep track of music playback on the wand directly.
-      ms_music_status_check.start(i_music_check_delay * 10);
+      ms_music_status_check.start(i_music_check_delay * 5);
     }
   }
 }
@@ -750,25 +752,25 @@ void checkMusic() {
 
         // Loop through all the tracks if the music is not set to repeat a track.
         if(b_playing_music && !b_repeat_track && !b_music_paused) {
-          if(!musicTrackStatus() && ms_music_status_check.justFinished() && !musicIsTrackCounterReset()) {
-            ms_check_music.stop();
-            ms_music_status_check.stop();
+          if(ms_music_status_check.justFinished()) {
+            if(!musicTrackStatus() && !musicIsTrackCounterReset()) {
+              ms_check_music.stop();
+              ms_music_status_check.stop();
 
-            stopMusic();
+              stopMusic();
 
-            // Switch to the next track.
-            if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
-              i_current_music_track = i_music_track_start;
+              // Switch to the next track.
+              if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
+                i_current_music_track = i_music_track_start;
+              }
+              else {
+                i_current_music_track++;
+              }
+
+              // Start timer to prepare to play music again.
+              ms_music_next_track.start(i_music_next_track_delay);
             }
             else {
-              i_current_music_track++;
-            }
-
-            // Start timer to prepare to play music again.
-            ms_music_next_track.start(i_music_next_track_delay);
-          }
-          else {
-            if(ms_music_status_check.justFinished()) {
               ms_music_status_check.start(i_music_check_delay * 4);
             }
           }
@@ -833,17 +835,17 @@ void toggleMusicLoop() {
 bool setupAudioDevice() {
   char gVersion[VERSION_STRING_LEN];
 
-  Serial3.begin(57600);
+  AudioSerial.begin(57600);
 
-  audio.start(Serial3);
+  audio.start(AudioSerial);
 
   uint16_t i_timeout = millis() + 1000;
-  
+
   while(!audio.gpstarAudioHello() && millis() < i_timeout) {
     audio.hello();
     delay(10);
   }
-  
+
   if(audio.gpstarAudioHello()) {
     if(audio.getVersionNumber() != 0) {
       AUDIO_DEVICE = A_GPSTAR_AUDIO_ADV;
@@ -852,7 +854,10 @@ bool setupAudioDevice() {
       AUDIO_DEVICE = A_GPSTAR_AUDIO;
     }
 
-    i_volume_abs_max = 10; // GPStar Audio has higher maximum amplification, so reset default values accordingly.
+    if(!b_gpstar_benchtest) {
+      i_volume_abs_max = 10; // Allow GPStar Audio to use +10dB if on external power.
+    }
+
     i_volume_master = MINIMUM_VOLUME - ((MINIMUM_VOLUME - i_volume_abs_max) * i_volume_master_percentage / 100); // Master overall volume.
     i_volume_master_eeprom = i_volume_master; // Master overall volume that is saved into the eeprom menu and loaded during bootup.
     i_volume_revert = i_volume_master; // Used to restore volume level from a muted state.
@@ -876,7 +881,7 @@ bool setupAudioDevice() {
   // Ask for some WAV Trigger information.
   audio.requestVersionString();
   audio.requestSystemInfo();
-  
+
   // Delay to allow time for WAV Trigger to respond.
   delay(10);
 
@@ -908,7 +913,7 @@ bool setupAudioDevice() {
   else {
     // No audio devices connected.
     AUDIO_DEVICE = A_NONE;
-    Serial3.end();
+    AudioSerial.end();
 
     debugln(F("No Audio Device"));
 

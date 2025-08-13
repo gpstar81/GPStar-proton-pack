@@ -247,7 +247,7 @@ void checkWandAction() {
                   wandSerialSend(W_BARGRAPH_28_SEGMENTS);
                 }
 
-                if(BARGRAPH_TYPE != SEGMENTS_5) {
+                if(BARGRAPH_TYPE == SEGMENTS_28 || BARGRAPH_TYPE == SEGMENTS_30) {
                   // Only toggle between segment types if not on a stock Hasbro bargraph.
                   BARGRAPH_TYPE = BARGRAPH_TYPE_EEPROM;
                 }

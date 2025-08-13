@@ -24,7 +24,7 @@
 // Define this before including <FastLED.h>
 #define FASTLED_INTERNAL
 
-// PROGMEM macro
+// PROGMEM macros
 #define PROGMEM_READU32(x) pgm_read_dword_near(&(x))
 #define PROGMEM_READU16(x) pgm_read_word_near(&(x))
 #define PROGMEM_READU8(x) pgm_read_byte_near(&(x))
@@ -269,12 +269,15 @@ void setup() {
     Serial.println(getCpuFrequencyMhz());
   #endif
 
+  btStop(); // Disable Bluetooth which is not needed for this hardware.
+
   // Boot into proton mode at level 1 by default.
   STREAM_MODE = PROTON;
   POWER_LEVEL = LEVEL_1;
 
   // Device RGB LEDs for use when needed.
-  FastLED.addLeds<NEOPIXEL, DEVICE_LED_PIN>(device_leds, DEVICE_NUM_LEDS);
+  FastLED.addLeds<NEOPIXEL, DEVICE_LED_PIN>(device_leds, DEVICE_NUM_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.setMaxRefreshRate(0); // Disable FastLED's blocking 2.5ms delay.
   ms_anim_change.start(i_animation_time); // Default animation time.
 
   // Set palette by stream mode.

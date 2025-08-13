@@ -28,23 +28,21 @@
 // Required for PlatformIO
 #include <Arduino.h>
 
-#if defined(__AVR_ATmega2560__)
-  #define GPSTAR_NEUTRONA_WAND_PCB
-#endif
-
 // Set to 1 to enable built-in debug messages
 #define DEBUG 0
 
 // Debug macros
 #if DEBUG == 1
-#define debug(x) Serial.print(x)
-#define debugln(x) Serial.println(x)
+  #define debug(...) Serial.print(__VA_ARGS__)
+  #define debugf(...) Serial.printf(__VA_ARGS__)
+  #define debugln(...) Serial.println(__VA_ARGS__)
 #else
-#define debug(x)
-#define debugln(x)
+  #define debug(...)
+  #define debugf(...)
+  #define debugln(...)
 #endif
 
-// PROGMEM macro
+// PROGMEM macros
 #define PROGMEM_READU32(x) pgm_read_dword_near(&(x))
 #define PROGMEM_READU16(x) pgm_read_word_near(&(x))
 #define PROGMEM_READU8(x) pgm_read_byte_near(&(x))
@@ -73,22 +71,26 @@
 #include "Serial.h"
 
 void setup() {
-  Serial.begin(9600); // Standard serial (USB) console.
+  Serial.begin(9600); // Standard HW serial (USB) console.
+  PackSerial.begin(9600); // Communication to the Proton Pack.
 
-  Serial1.begin(9600); // Communication to the Proton Pack.
-  wandComs.begin(Serial1, false);
+  // Initialize the SerialTransfer object by passing in the appropriate ports.
+  packComs.begin(PackSerial, false); // Proton Pack
 
   // Setup the audio device for this controller.
   setupAudioDevice();
 
-  // Change PWM frequency of pin 11 for the vibration motor, we do not want it high pitched.
-  TCCR1B = (TCCR1B & B11111000) | B00000100; // for PWM frequency of 122.55 Hz
+  // Change PWM frequency for the vibration motor, we do not want it high pitched.
+  // For ATmega2560, we set the PWM frequency for pin 11 (TCCR5B) to 122.55 Hz.
+  TCCR1B = (TCCR1B & B11111000) | B00000100;
+  pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
 
   // Barrel LEDs - NOTE: These are GRB not RGB so note that all CRGB objects will have R/G swapped.
-  FastLED.addLeds<NEOPIXEL, BARREL_LED_PIN>(barrel_leds, BARREL_LEDS_MAX);
+  FastLED.addLeds<NEOPIXEL, BARREL_LED_PIN>(barrel_leds, BARREL_LEDS_MAX).setCorrection(TypicalLEDStrip);
+  FastLED.setMaxRefreshRate(0); // Disable FastLED's blocking 2.5ms delay.
 
   // RGB Vent Light.
-  FastLED.addLeds<NEOPIXEL, TOP_LED_PIN>(vent_leds, VENT_LEDS_MAX);
+  FastLED.addLeds<NEOPIXEL, TOP_LED_PIN>(vent_leds, VENT_LEDS_MAX).setCorrection(TypicalLEDStrip);
   vent_leds[0] = getHueAsRGB(C_WHITE); // Set vent light array to white for initial reset.
   vent_leds[1] = getHueAsRGB(C_WHITE); // Set top light array to white for initial reset.
   ms_vent_light.start(i_vent_light_update_interval); // Setup a timer for updating the vent light.
@@ -100,7 +102,12 @@ void setup() {
   BARGRAPH_FIRING_ANIMATION = BARGRAPH_ANIMATION_SUPER_HERO;
   BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_DEFAULT;
   VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
-  VIBRATION_MODE = VIBRATION_FIRING_ONLY;
+  if(b_gpstar_benchtest) {
+    VIBRATION_MODE = VIBRATION_NONE;
+  }
+  else {
+    VIBRATION_MODE = VIBRATION_FIRING_ONLY;
+  }
   WAND_MENU_LEVEL = MENU_LEVEL_1;
   WAND_YEAR_MODE = YEAR_DEFAULT;
   WAND_YEAR_CTS = CTS_DEFAULT;
@@ -117,20 +124,9 @@ void setup() {
   Wire.begin();
   Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
 
-  byte by_error, by_address;
-  uint8_t i_i2c_devices = 0;
-
-  // Scan i2c for any devices (28 segment bargraph).
-  for(by_address = 1; by_address < 127; by_address++ ) {
-    Wire.beginTransmission(by_address);
-    by_error = Wire.endTransmission();
-
-    if(by_error == 0) {
-      i_i2c_devices++;
-    }
-  }
-
-  if(i_i2c_devices > 0) {
+  // Scan i2c for 28/30 segment bargraph.
+  Wire.beginTransmission(0x70);
+  if(Wire.endTransmission() == 0) {
     // Set to 28-segment, though this will be overridden by EEPROM.
     BARGRAPH_TYPE = SEGMENTS_28;
     ht_bargraph.begin(0x00);
@@ -154,7 +150,6 @@ void setup() {
 
   pinMode(VENT_LED_PIN, OUTPUT); // Vent light could be either Digital or PWM based on user setting, so use default functions.
   pinMode(TOP_LED_PIN, OUTPUT); // Blinking top light could be either addressable or non-addressable based on user setting, so use default functions.
-  pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
 
   // Status indicator LED on the v1.4 GPStar Neutrona Wand Board.
   pinModeFast(WAND_STATUS_LED_PIN, OUTPUT);

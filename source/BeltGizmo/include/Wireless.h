@@ -96,7 +96,7 @@ const uint16_t i_apClientCount = 200;
  * This should be a standard GPStar Proton Pack wireless device at 192.168.1.2,
  * which means our local network needs to differ and so this device will be
  * available at 192.168.2.2
- */ 
+ */
 WebSocketsClient wsClient;
 const String ws_host = "192.168.1.2";  // WebSocket server IP
 const uint16_t ws_port = 80;           // WebSocket server port
@@ -309,6 +309,9 @@ bool startExternalWifi() {
 
       // Attempt to connect to a specified WiFi network.
       WiFi.begin(wifi_ssid.c_str(), wifi_pass.c_str());
+
+      // Limit Tx power to save battery and reduce interference.
+      WiFi.setTxPower(WIFI_POWER_7dBm); // Set to 7 dBm (default is ~20 dBm).
 
       // Wait for the connection to be established.
       uint8_t attempt = 0;

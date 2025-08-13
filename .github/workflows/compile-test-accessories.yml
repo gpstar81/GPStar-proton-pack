@@ -1,0 +1,139 @@
+name: compile-test-accessories
+
+# Trigger this workflow on any push or pull request
+on:
+  - push
+  - pull_request
+
+env:
+  # Directory for test reports or sketch outputs, if used
+  SKETCHES_REPORTS_PATH: sketches-reports
+
+jobs:
+  compile-singleshot:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Check out the repository code
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up a Python environment (required by PlatformIO)
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      # Step 3: Cache PlatformIO packages and tools
+      # This avoids re-downloading frameworks, toolchains, and libraries
+      - name: Cache PlatformIO Packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-${{ runner.os }}-${{ hashFiles('**/platformio.ini') }}
+          restore-keys: |
+            pio-${{ runner.os }}-
+
+      # Step 4: Install PlatformIO Core
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+
+      # Step 5: Compile SingleShot project (all environments)
+      - name: Compile SingleShot (all environments)
+        working-directory: source/SingleShot
+        run: pio run --jobs 4
+
+  compile-attenuator:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Check out the repository code
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up a Python environment (required by PlatformIO)
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      # Step 3: Cache PlatformIO packages and tools
+      # This avoids re-downloading frameworks, toolchains, and libraries
+      - name: Cache PlatformIO Packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-${{ runner.os }}-${{ hashFiles('**/platformio.ini') }}
+          restore-keys: |
+            pio-${{ runner.os }}-
+
+      # Step 4: Install PlatformIO Core
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+
+      # Step 5: Compile Attenuator project (all environments)
+      - name: Compile Attenuator (all environments)
+        working-directory: source/Attenuator
+        run: pio run --jobs 4
+
+  compile-beltgizmo:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Check out the repository code
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up a Python environment (required by PlatformIO)
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      # Step 3: Cache PlatformIO packages and tools
+      # This avoids re-downloading frameworks, toolchains, and libraries
+      - name: Cache PlatformIO Packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-${{ runner.os }}-${{ hashFiles('**/platformio.ini') }}
+          restore-keys: |
+            pio-${{ runner.os }}-
+
+      # Step 4: Install PlatformIO Core
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+
+      # Step 5: Compile BeltGizmo project (all environments)
+      - name: Compile BeltGizmo (all environments)
+        working-directory: source/BeltGizmo
+        run: pio run --jobs 4
+
+  compile-streameffects:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Check out the repository code
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up a Python environment (required by PlatformIO)
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      # Step 3: Cache PlatformIO packages and tools
+      # This avoids re-downloading frameworks, toolchains, and libraries
+      - name: Cache PlatformIO Packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-${{ runner.os }}-${{ hashFiles('**/platformio.ini') }}
+          restore-keys: |
+            pio-${{ runner.os }}-
+
+      # Step 4: Install PlatformIO Core
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+
+      # Step 5: Compile StreamEffects project (all environments)
+      - name: Compile StreamEffects (all environments)
+        working-directory: source/StreamEffects
+        run: pio run --jobs 4

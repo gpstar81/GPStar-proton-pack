@@ -25,14 +25,16 @@
 
 // Debug macros
 #if DEBUG == 1
-#define debug(x) Serial.print(x)
-#define debugln(x) Serial.println(x)
+  #define debug(...) Serial.print(__VA_ARGS__)
+  #define debugf(...) Serial.printf(__VA_ARGS__)
+  #define debugln(...) Serial.println(__VA_ARGS__)
 #else
-#define debug(x)
-#define debugln(x)
+  #define debug(...)
+  #define debugf(...)
+  #define debugln(...)
 #endif
 
-// PROGMEM macro
+// PROGMEM macros
 #define PROGMEM_READU32(x) pgm_read_dword_near(&(x))
 #define PROGMEM_READU16(x) pgm_read_word_near(&(x))
 #define PROGMEM_READU8(x) pgm_read_byte_near(&(x))
@@ -61,25 +63,25 @@
 #include "Serial.h"
 
 void setup() {
-  // Setup i2c.
+  Serial.begin(9600); // Standard HW serial (USB) console.
+  AttenuatorSerial.begin(9600); // Add-on Attenuator communication.
+  WandSerial.begin(9600); // Communication to the Neutrona Wand.
+
+  // Initialize the SerialTransfer objects by passing in the appropriate ports.
+  attenuatorComs.begin(AttenuatorSerial, false, Serial, 100); // Attenuator/Wireless
+  wandComs.begin(WandSerial, false); // Neutrona Wand
+
+  // Setup the audio device for this controller.
+  setupAudioDevice();
+
+  // Setup the i2c bus using the Wire protocol.
   Wire.begin();
   Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
-
-  Serial.begin(9600); // Standard serial (USB) console.
-  Serial1.begin(9600); // Add-on Serial1 communication.
-  Serial2.begin(9600); // Communication to the Neutrona Wand.
 
   // Initialize an optional power meter on the i2c bus.
   if(b_use_power_meter) {
     powerMeterInit();
   }
-
-  // Connect the serial ports.
-  serial1Coms.begin(Serial1, false, Serial, 100); // Attenuator/Wireless
-  packComs.begin(Serial2, false); // Neutrona Wand
-
-  // Setup the audio device for this controller.
-  setupAudioDevice();
 
   // Rotary encoder for volume control.
   pinModeFast(ROTARY_ENCODER_A, INPUT_PULLUP);
@@ -89,17 +91,17 @@ void setup() {
   pinModeFast(PACK_STATUS_LED_PIN, OUTPUT);
 
   // Configure the various switches on the pack.
+  switch_power.setDebounceTime(50);
   switch_alarm.setDebounceTime(50);
   switch_mode.setDebounceTime(50);
   switch_vibration.setDebounceTime(50);
-  switch_cyclotron_direction.setDebounceTime(50);
   switch_cyclotron_lid.setDebounceTime(50);
+  switch_cyclotron_direction.setDebounceTime(50);
   switch_smoke.setDebounceTime(50);
 
   // Change PWM frequency of pin 45 for the vibration motor, we do not want it high pitched.
-  TCCR5B = (TCCR5B & B11111000) | B00000100;  // for PWM frequency of 122.55 Hz
-
-  // Vibration motor
+  // For ATmega2560, we set the PWM frequency for pin 45 (TCCR5B) to 122.55 Hz.
+  TCCR5B = (TCCR5B & B11111000) | B00000100;
   pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
 
   // Smoke motor for the N-Filter.
@@ -118,14 +120,11 @@ void setup() {
   pinModeFast(NFILTER_LED_PIN, OUTPUT);
 
   // Power Cell, Cyclotron Lid, and N-Filter.
-  FastLED.addLeds<NEOPIXEL, PACK_LED_PIN>(pack_leds, FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX + JEWEL_NFILTER_LED_COUNT);
+  FastLED.addLeds<NEOPIXEL, PACK_LED_PIN>(pack_leds, FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX + JEWEL_NFILTER_LED_COUNT).setCorrection(TypicalLEDStrip);
+  FastLED.setMaxRefreshRate(0); // Disable FastLED's blocking 2.5ms delay.
 
   // Inner Cyclotron LEDs (Inner Panel + Cyclotron + Cavity).
-  FastLED.addLeds<NEOPIXEL, CYCLOTRON_LED_PIN>(cyclotron_leds, INNER_CYCLOTRON_LED_PANEL_MAX + INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX);
-
-  // Other FastLED Options
-  FastLED.setDither(0); // Disables the "temporal dithering" feature as this software will set brightness on a per-pixel level by device.
-  //FastLED.setMaxPowerInVoltsAndMilliamps(5, 800); // Limit draw to 800mA at 5v of power. Enabling this can cause some flickering of the LEDs.
+  FastLED.addLeds<NEOPIXEL, CYCLOTRON_LED_PIN>(cyclotron_leds, INNER_CYCLOTRON_LED_PANEL_MAX + INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX).setCorrection(TypicalLEDStrip);
 
   // Cyclotron Switch Panel LEDs
   pinModeFast(CYCLOTRON_SWITCH_LED_R1_PIN, OUTPUT);
@@ -172,7 +171,7 @@ void setup() {
   SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
   // Set a default for the cyclotron inner panel.
-  INNER_CYC_PANEL_MODE = PANEL_INDIVIDUAL;
+  INNER_CYC_PANEL_MODE = PANEL_RGB_DYNAMIC;
 
   // Load any saved settings stored in the EEPROM memory of the Proton Pack.
   if(b_eeprom) {
@@ -207,19 +206,11 @@ void setup() {
   // Start some timers
   ms_fast_led.start(i_fast_led_delay);
   ms_check_music.start(i_music_check_delay);
-  ms_serial1_check.start(i_serial1_disconnect_delay);
+  ms_attenuator_check.start(i_attenuator_disconnect_delay);
   ms_cyclotron_switch_plate_leds.start(i_cyclotron_switch_plate_leds_delay);
 
   // Perform initial pack reset.
   packOffReset();
-
-  if(SYSTEM_MODE == MODE_SUPER_HERO) {
-    // Auto start the pack if it is in demo light mode.
-    if(b_demo_light_mode) {
-      // Turn the pack on.
-      PACK_ACTION_STATE = ACTION_ACTIVATE;
-    }
-  }
 
   // Perform power-on sequence if demo light mode is not enabled per user preferences.
   if(!b_demo_light_mode) {
@@ -228,26 +219,16 @@ void setup() {
     ms_delay_post.start(0);
   }
   else {
+    if(SYSTEM_MODE == MODE_SUPER_HERO) {
+      // Auto start the pack if it is in demo light mode.
+      PACK_ACTION_STATE = ACTION_ACTIVATE;
+    }
+
     b_pack_post_finish = true;
   }
 }
 
-void loop() {
-  // Update the available audio device.
-  updateAudio();
-
-  // Check for any new serial commands were received from the Neutrona Wand.
-  checkWand();
-
-  // Check if the wand is considered to have been disconnected.
-  wandDisconnectCheck();
-
-  // Check if serial1 device is present.
-  serial1HandShake();
-
-  // Check if any new serial commands were received.
-  checkSerial1();
-
+void mainLoop() {
   if(b_pack_post_finish) {
     checkMusic();
     checkSwitches();
@@ -284,7 +265,7 @@ void loop() {
 
           // Tell the wand the pack is off, so shut down the wand if it happens to still be on.
           packSerialSend(P_OFF);
-          serial1Send(A_PACK_OFF);
+          attenuatorSend(A_PACK_OFF);
 
           b_pack_on = false;
         }
@@ -335,7 +316,7 @@ void loop() {
         if(!b_pack_on) {
           // Tell the wand the pack is on.
           packSerialSend(P_ON);
-          serial1Send(A_PACK_ON);
+          attenuatorSend(A_PACK_ON);
 
           ms_fadeout.stop();
           b_fade_out = false;
@@ -549,6 +530,26 @@ void loop() {
   else {
     systemPOST();
   }
+}
+
+void loop() {
+  // Update the available audio device.
+  updateAudio();
+
+  // Check for any new serial commands were received from the Neutrona Wand.
+  checkWand();
+
+  // Check if the wand is considered to have been disconnected.
+  wandDisconnectCheck();
+
+  // Check if Attenuator is present.
+  attenuatorHandShake();
+
+  // Check if any new serial commands were received.
+  checkAttenuator();
+
+  // Handle any actions after POST event.
+  mainLoop();
 
   // Update the LEDs
   if(ms_fast_led.justFinished()) {

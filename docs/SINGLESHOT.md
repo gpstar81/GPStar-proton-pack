@@ -1,10 +1,12 @@
 # Single-Shot Blaster
 
-### aka. Wrist Thrower, Compact Arm Thrower, Frozen Empire Arm Gauntlet
+## What's This?
+
+aka. Wrist Thrower, Compact Arm Thrower, Frozen Empire Arm Gauntlet
 
 It may go by many names, though we know it as the arm-mounted Neutrona Wand as seen in Frozen Empire. For purposes of this guide we'll use the official name straight from the source when [Adam Savage met the propmaster for a look at the device](https://www.youtube.com/watch?v=2YypkmcPjQ8). This guide covers the use of components as typically used for a standard Neutrona Wand, repurposed to bring life to this device.
 
-## External Shell - Completed or Models
+## External Shell
 
 There is no shortage of resources for the device shell itself, as it has been modeled and remixed by several members of the Ghostbusters community. Below are some of the found sources offering either the 3D files or pre-printed parts. If you know of another resource for either please let us know and we'll update this list.
 
@@ -20,6 +22,7 @@ The following list of parts will allow you to assemble the electronics and inter
 |-----|------|-----|------|
 |  1  | GPStar Neutrona Wand PCB | Main device controller | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-neutrona-wand) |
 |  1  | GPStar Audio Controller | Sound driver with amplifier | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-audio) |
+|  1  | GPStar Neutrona Wand Bargraph | 28-segment bargraph | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-neutrona-wand-bargraph) |
 |  2  | GPStar 7-LED Jewel | RGB lighting for barrel and cyclotron | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-jewel) |
 |  1  | GPStar Power Boost USB-C | For battery<sup>1</sup> power + charging | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-power-boost-usb-c) |
 |  1  | 4Ohm 40mm 3W Speaker | Primary speaker (under heatsink) | [https://a.co/d/bNin47P](https://a.co/d/bNin47P) |

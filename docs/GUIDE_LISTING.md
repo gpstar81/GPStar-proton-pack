@@ -94,5 +94,5 @@ This section is presented in a way to offer a more complete view of what compone
 | **Devices**         | **Guide** |
 |------------------|---------------------------------------------|
 | Single-Shot Blaster | [Build and Operation Guide](SINGLESHOT.md) |
-| Belt Gizmo | *Build Guide TBD* |
-| Stream Effects | *Build Guide TBD* |
+| Belt Gizmo | [Build and Operation Guide](BELT_GIZMO.md) |
+| Stream Effects | [Build and Operation Guide](STREAM_EFFECTS.md) |
