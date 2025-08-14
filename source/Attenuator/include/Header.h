@@ -253,6 +253,3 @@ bool b_received_prefs_smoke = false;
 // Pack Battery (V) and Wand Power (A) Values
 float f_batt_volts = 0.0;
 float f_wand_amps = 0.0;
-
-// Forward declarations.
-void debug(String message);

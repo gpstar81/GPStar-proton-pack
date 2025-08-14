@@ -856,3 +856,38 @@ uint32_t eepromCRC() {
 
   return crc.finalize();
 }
+
+// Used to get UI preferences from the device namespace.
+void getSpecialPreferences() {
+  /*
+   * Get Local Device Preferences
+   * Accesses the "device" namespace in read-only mode under the "nvs" partition.
+   */
+  bool b_namespace_opened = preferences.begin("device", true);
+  if(b_namespace_opened) {
+    // Return stored values if available, otherwise use a default value.
+    switch(preferences.getShort("display_type", 0)) {
+      case 0:
+        DISPLAY_TYPE = STATUS_TEXT;
+      break;
+      case 1:
+        DISPLAY_TYPE = STATUS_GRAPHIC;
+      break;
+      case 2:
+      default:
+        DISPLAY_TYPE = STATUS_BOTH;
+      break;
+    }
+
+    s_track_listing = preferences.getString("track_list", "");
+    preferences.end();
+  }
+  else {
+    // If namespace is not initialized, open in read/write mode and set defaults.
+    if(preferences.begin("device", false)) {
+      preferences.putShort("display_type", DISPLAY_TYPE);
+      preferences.putString("track_list", "");
+      preferences.end();
+    }
+  }
+}

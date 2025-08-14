@@ -200,14 +200,14 @@ void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *clien
   switch(type) {
     case WS_EVT_CONNECT:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][%lu] Connect\n", server->url(), client->id());
+        debugf("WebSocket[%s][%lu] Connect\n", server->url(), client->id());
       #endif
       i_ws_client_count++;
     break;
 
     case WS_EVT_DISCONNECT:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][C:%lu] Disconnect\n", server->url(), client->id());
+        debugf("WebSocket[%s][C:%lu] Disconnect\n", server->url(), client->id());
       #endif
       if(i_ws_client_count > 0) {
         i_ws_client_count--;
@@ -216,21 +216,43 @@ void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *clien
 
     case WS_EVT_ERROR:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][C:%lu] Error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
+        debugf("WebSocket[%s][C:%lu] Error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
       #endif
     break;
 
     case WS_EVT_PONG:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][C:%lu] Pong[L:%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
+        debugf("WebSocket[%s][C:%lu] Pong[L:%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
       #endif
     break;
 
     case WS_EVT_DATA:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][C:%lu] Data[L:%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
+        debugf("WebSocket[%s][C:%lu] Data[L:%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
       #endif
     break;
+  }
+}
+
+void onOTAStart() {
+  // Log when OTA has started
+  debug(F("OTA update started"));
+}
+
+void onOTAProgress(size_t current, size_t final) {
+  // Log every 1 second
+  if (millis() - i_progress_millis > 1000) {
+    i_progress_millis = millis();
+    debugf("OTA Progress Current: %u bytes, Final: %u bytes\n", current, final);
+  }
+}
+
+void onOTAEnd(bool success) {
+  // Log when OTA has finished
+  if (success) {
+    debug(F("OTA update finished successfully!"));
+  } else {
+    debug(F("There was an error during OTA update!"));
   }
 }
 
@@ -262,7 +284,7 @@ void startWebServer() {
   b_ws_started = true;
 
   #if defined(DEBUG_SEND_TO_CONSOLE)
-    Serial.println(F("Async HTTP Server Started"));
+    debugln(F("Async HTTP Server Started"));
   #endif
 }
 
@@ -866,7 +888,7 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
     jsonBody = json.as<JsonObject>();
   }
   else {
-    Serial.print("Body was not a JSON object");
+    debug("Body was not a JSON object");
   }
 
   String result;
@@ -882,8 +904,8 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
         // Accesses namespace in read/write mode.
         if(preferences.begin("credentials", false)) {
           #if defined(DEBUG_SEND_TO_CONSOLE)
-            Serial.print(F("New Private SSID: "));
-            Serial.println(newSSID);
+            debug(F("New Private SSID: "));
+            debugln(newSSID);
           #endif
           preferences.putString("ssid", newSSID); // Store SSID in case this was altered.
           preferences.end();
@@ -974,8 +996,8 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
 
         // Update song lists if contents are under 2000 bytes.
         #if defined(DEBUG_SEND_TO_CONSOLE)
-          Serial.print(F("Song List Bytes: "));
-          Serial.println(songList.length());
+          debug(F("Song List Bytes: "));
+          debugln(songList.length());
         #endif
         preferences.putString("track_list", songList);
         s_track_listing = songList;
@@ -1023,7 +1045,7 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
     jsonBody = json.as<JsonObject>();
   }
   else {
-    Serial.print("Body was not a JSON object");
+    debug("Body was not a JSON object");
   }
 
   String result;
@@ -1126,7 +1148,7 @@ AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHand
     jsonBody = json.as<JsonObject>();
   }
   else {
-    Serial.print("Body was not a JSON object");
+    debug("Body was not a JSON object");
   }
 
   String result;
@@ -1190,7 +1212,7 @@ AsyncCallbackJsonWebHandler *handleSaveSmokeConfig = new AsyncCallbackJsonWebHan
     jsonBody = json.as<JsonObject>();
   }
   else {
-    Serial.print("Body was not a JSON object");
+    debug("Body was not a JSON object");
   }
 
   String result;
@@ -1259,7 +1281,7 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
     jsonBody = json.as<JsonObject>();
   }
   else {
-    Serial.print("Body was not a JSON object");
+    debug("Body was not a JSON object");
   }
 
   String result;
@@ -1271,8 +1293,8 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
       // Accesses namespace in read/write mode.
       if(preferences.begin("credentials", false)) {
         #if defined(DEBUG_SEND_TO_CONSOLE)
-          Serial.print(F("New Private WiFi Password: "));
-          Serial.println(newPasswd);
+          debug(F("New Private WiFi Password: "));
+          debugln(newPasswd);
         #endif
         preferences.putString("password", newPasswd); // Store user-provided password.
         preferences.end();
@@ -1307,7 +1329,7 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
     jsonBody = json.as<JsonObject>();
   }
   else {
-    Serial.print("Body was not a JSON object");
+    debug("Body was not a JSON object");
   }
 
   String result;

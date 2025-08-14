@@ -60,8 +60,16 @@
 #ifdef ESP32
   #include <HardwareSerial.h>
   #include <Adafruit_LIS3MDL.h>
-  #include <SparkFunLSM6DS3.h>
+  #include <Adafruit_LSM6DS3TRC.h>
+  Adafruit_LIS3MDL myMAG;
+  Adafruit_LSM6DS3TRC myIMU;
+  bool b_mag_found = false;
+  bool b_imu_found = false;
+  millisDelay ms_sensor_delay;
 #endif
+
+// Forward declaration for use in all includes.
+void sendDebug(String message);
 
 // Local Files
 #include "Configuration.h"
@@ -82,6 +90,18 @@
   #include "Wireless.h"
 #endif
 
+// Writes a debug message to the serial console or sends to the WebSocket.
+void sendDebug(String message) {
+  #if defined(DEBUG_SEND_TO_CONSOLE)
+    debugln(message); // Print to serial console.
+  #endif
+  #if defined(DEBUG_SEND_TO_WEBSOCKET) and defined(ESP32)
+    if (b_ws_started) {
+      ws.textAll(message); // Send a copy to the WebSocket.
+    }
+  #endif
+}
+
 void setup() {
 #ifdef ESP32
   // To save power, reduce CPU frequency to 160 MHz.
@@ -89,6 +109,9 @@ void setup() {
 
   // Serial0 (UART0) is enabled by default; end() sets GPIO43 & GPIO44 to GPIO.
   Serial0.end();
+
+  // Set the baud rate for the Serial console.
+  Serial.begin(115200);
 
   /* This loop changes GPIO39~GPIO42 to Function 1, which is GPIO.
    * PIN_FUNC_SELECT sets the IOMUX function register appropriately.
@@ -174,6 +197,28 @@ void setup() {
   // ESP32-S3 requires manually specifying SDA and SCL pins first.
   Wire.begin(I2C_SDA, I2C_SCL, 400000UL);
   Wire1.begin(IMU_SDA, IMU_SCL, 400000UL);
+
+  // Initialize the LIS3MDL magnetometer.
+  if(myMAG.begin_I2C(LIS3MDL_I2CADDR_DEFAULT, &Wire1)) {
+    b_mag_found = true;
+    myMAG.setPerformanceMode(LIS3MDL_MEDIUMMODE);
+    myMAG.setOperationMode(LIS3MDL_CONTINUOUSMODE);
+    myMAG.setDataRate(LIS3MDL_DATARATE_1000_HZ);
+    myMAG.setRange(LIS3MDL_RANGE_4_GAUSS);
+    myMAG.setIntThreshold(500);
+    myMAG.configInterrupt(false, false, true, true, false, true);
+  }
+
+  // Initialize the LSM6DS3TR-C IMU.
+  if(myIMU.begin_I2C(LSM6DS_I2CADDR_DEFAULT, &Wire1)) {
+    b_imu_found = true;
+    myIMU.setAccelRange(LSM6DS_ACCEL_RANGE_2_G);
+    myIMU.setGyroRange(LSM6DS_GYRO_RANGE_250_DPS);
+    myIMU.setAccelDataRate(LSM6DS_RATE_6_66K_HZ);
+    myIMU.setGyroDataRate(LSM6DS_RATE_6_66K_HZ);
+    myIMU.configInt1(false, false, true);
+    myIMU.configInt2(false, true, false);
+  }
 #else
   Wire.begin();
   Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
@@ -526,6 +571,43 @@ void mainLoop() {
 void loop() {
 #ifdef ESP32
   webLoops(); // Handle web server loops, including WebSocket events and OTA updates.
+
+  if(b_imu_found && b_mag_found) {
+    if(!ms_sensor_delay.isRunning()) {
+      ms_sensor_delay.start(200); // Have the IMU/MAG report every 200ms.
+    }
+    else if(ms_sensor_delay.justFinished()) {
+      // Poll the sensors.
+      sensors_event_t mag;
+      sensors_event_t accel;
+      sensors_event_t gyro;
+      sensors_event_t temp;
+      myMAG.getEvent(&mag);
+      myIMU.getEvent(&accel, &gyro, &temp);
+      Serial.print("\t\tMag   X: ");
+      Serial.print(mag.magnetic.x);
+      Serial.print(" \tY: ");
+      Serial.print(mag.magnetic.y);
+      Serial.print(" \tZ: ");
+      Serial.print(mag.magnetic.z);
+      Serial.println(" uTesla ");
+      Serial.print("\t\tAccel X: ");
+      Serial.print(accel.acceleration.x);
+      Serial.print(" \tY: ");
+      Serial.print(accel.acceleration.y);
+      Serial.print(" \tZ: ");
+      Serial.print(accel.acceleration.z);
+      Serial.println(" m/s^2 ");
+      Serial.print("\t\tGyro  X: ");
+      Serial.print(gyro.gyro.x);
+      Serial.print(" \tY: ");
+      Serial.print(gyro.gyro.y);
+      Serial.print(" \tZ: ");
+      Serial.print(gyro.gyro.z);
+      Serial.println(" radians/s ");
+      Serial.println();
+    }
+  }
 #endif
 
   switch(WAND_CONN_STATE) {

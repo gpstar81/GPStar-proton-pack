@@ -22,7 +22,7 @@
 /*
  * Used to reflect the last build date for the binary.
  */
-String build_date = "V6_20250812145623";
+String build_date = "V6_20250813213053";
 
 /*
  * Preferred WiFi Network Defaults (only for ESP32)
@@ -37,6 +37,8 @@ String user_wifi_pass = ""; // Preferred network password for external WiFi
  * expect to see them. Using the console should be reserved for active
  * debugging, while the websocket will help with confirming operations
  * while using the device (post-setup for wireless).
+ *
+ * For console output, must first set DEBUG 1 in main.cpp to enable debug macros.
  */
 //#define DEBUG_WIRELESS_SETUP   // Output debugs related to the WiFi/network setup.
 //#define DEBUG_SEND_TO_CONSOLE  // Send any general messages to the serial (USB) console.

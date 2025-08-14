@@ -47,6 +47,8 @@ float f_sliding_window[20] = {}; // Sliding window for detecting state changes, 
 float f_accumulator = 0.0; // Accumulator used for sliding window averaging operations.
 float f_diff_average = 0.0; // Stores the result of the sliding window average operation.
 float f_idle_value = 0.0; // Stores the previous idle value to be used for stop firing checks.
+float f_batt_volts = 0.0; // Stores the current battery voltage reading from the pack.
+float f_wand_amps = 0.0; // Stores the current amperage reading from the wand.
 
 // Define an object which can store
 struct PowerMeter {
@@ -77,7 +79,7 @@ void packOverheatingStart();
 
 // Configure and calibrate the power meter device.
 void powerMeterConfig() {
-  debugln(F("Configure Power Meter"));
+  sendDebug(F("Configure Power Meter"));
 
   // Custom configuration, defaults are RANGE_32V, GAIN_8_320MV, ADC_12BIT, ADC_12BIT, CONT_SH_BUS
   monitor.configure(INA219::RANGE_16V, INA219::GAIN_1_40MV, INA219::ADC_64SAMP, INA219::ADC_64SAMP, INA219::CONT_SH_BUS);
@@ -107,7 +109,7 @@ void powerMeterInit() {
   else {
     // If returning a non-zero value, device could not be reset or is not present on the I2C bus.
     b_power_meter_available = false;
-    debugln(F("Unable to find power monitoring device on i2c. Power meter features will be disabled."));
+    sendDebug(F("Unable to find power monitoring device on i2c. Power meter features will be disabled."));
   }
 
   // Always obtain a voltage reading directly from the pack PCB.
@@ -201,7 +203,8 @@ void updateWandPowerState() {
   // This is called whenever the power meter is available--for wand hot-swapping purposes.
   // Data is sent as integer so this is sent multiplied by 100 to get 2 decimal precision.
   if(si_update == 0) {
-    attenuatorSend(A_WAND_POWER_AMPS, f_sliding_window[19] * 100);
+    f_wand_amps = f_sliding_window[19] * 100;
+    attenuatorSend(A_WAND_POWER_AMPS, f_wand_amps);
   }
 
   // Handle packside overheat sequence.
@@ -386,7 +389,8 @@ void updateWandPowerState() {
 void updatePackPowerState() {
   if(b_attenuator_connected) {
     // Data is sent as uint16_t so this is already multiplied by 100 to get 2 decimal precision.
-    attenuatorSend(A_BATTERY_VOLTAGE_PACK, packReading.BusVoltage);
+    f_batt_volts = packReading.BusVoltage;
+    attenuatorSend(A_BATTERY_VOLTAGE_PACK, f_batt_volts);
   }
 }
 

@@ -91,7 +91,7 @@ void vibrationOff() {
 }
 
 void ventLightLEDW(bool b_on) {
-  if(b_on && ((b_wand_firing && b_smoke_continuous_level[i_wand_power_level - 1]) || b_overheating || b_alarm)) {
+  if(b_on && ((b_wand_firing && b_smoke_continuous_level[i_wand_power_level - 1]) || b_overheating || b_pack_alarm)) {
     digitalWriteFast(NFILTER_LED_PIN, HIGH);
   }
   else {
@@ -139,7 +139,7 @@ void ventLight(bool b_on) {
       // If continuous fire smoke is disabled in the current power level, do not turn on the N-Filter LEDs.
       i_colour_scheme = C_BLACK;
     }
-    else if(b_alarm) {
+    else if(b_pack_alarm) {
       i_colour_scheme = C_RED;
     }
 
@@ -737,7 +737,7 @@ void resetCyclotronState() {
   }
 
   // Tell the Inner Cyclotron to turn off the LEDs.
-  if(b_cyclotron_lid_on || (!b_alarm || PACK_STATE == MODE_OFF)) {
+  if(b_cyclotron_lid_on || (!b_pack_alarm || PACK_STATE == MODE_OFF)) {
     innerCyclotronCakeOff();
     innerCyclotronCavityOff();
   }
@@ -1160,7 +1160,7 @@ void packShutdown() {
     playEffect(S_QUICK_VENT_CLOSE);
   }
 
-  if(!b_alarm) {
+  if(!b_pack_alarm) {
     switch(SYSTEM_YEAR) {
       case SYSTEM_1984:
         playEffect(S_PACK_SHUTDOWN);
@@ -1328,8 +1328,8 @@ void packOffReset() {
   }
 
   // Tell the wand and any add-on devices that the alarm is off.
-  if(b_alarm) {
-    b_alarm = false;
+  if(b_pack_alarm) {
+    b_pack_alarm = false;
     // Tell the wand that the alarm is off.
     packSerialSend(P_ALARM_OFF);
 
@@ -1411,7 +1411,7 @@ void setYearModeByToggle() {
 
 // LEDs for the 1984/2021 and vibration switches.
 void cyclotronSwitchPlateLEDs() {
-  bool b_brass_pack_effect_active = b_brass_pack_sound_loop || (SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && (b_ramp_down || b_alarm || b_wand_mash_lockout) && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM));
+  bool b_brass_pack_effect_active = b_brass_pack_sound_loop || (SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && (b_ramp_down || b_pack_alarm || b_wand_mash_lockout) && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM));
 
   if(!b_cyclotron_lid_on && !b_brass_pack_effect_active) {
     uint8_t i_brightness = getBrightness(i_cyclotron_panel_brightness);
@@ -1774,6 +1774,8 @@ void checkSwitches() {
     }
 
     if(switch_power.getState() == LOW) {
+      RED_SWITCH_MODE = SWITCH_ON;
+
       // Turn the pack on if switch is moved to on position in Mode Super Hero.
       if(SYSTEM_MODE == MODE_SUPER_HERO && PACK_STATE == MODE_OFF) {
         PACK_ACTION_STATE = ACTION_ACTIVATE;
@@ -1782,6 +1784,7 @@ void checkSwitches() {
       // Tell the Neutrona Wand that power to the Proton Pack is on.
       if(b_wand_connected) {
         packSerialSend(P_ION_ARM_SWITCH_ON);
+        RED_SWITCH_MODE = SWITCH_ON;
       }
 
       // Tell the Attenuator or any other device that the power to the Proton Pack is on.
@@ -1790,6 +1793,8 @@ void checkSwitches() {
       }
     }
     else {
+      RED_SWITCH_MODE = SWITCH_OFF;
+
       if(PACK_STATE == MODE_ON) {
         PACK_ACTION_STATE = ACTION_OFF;
       }
@@ -1871,7 +1876,7 @@ void cyclotronSwitchLEDUpdate() {
     uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_PANEL, STREAM_MODE, b_cyclotron_colour_toggle);
     uint8_t i_brightness = getBrightness(i_cyclotron_panel_brightness);
 
-    if(b_alarm) {
+    if(b_pack_alarm) {
       if(i_cyclotron_sw_led > 0) {
 #ifndef ESP32
         digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, HIGH);
@@ -2075,7 +2080,7 @@ void cyclotronSwitchLEDLoop() {
   if(ms_cyclotron_switch_led.justFinished()) {
     if(!b_cyclotron_lid_on) {
       // Frozen Empire brass pack sound is handled here.
-      if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM) && !b_alarm && !b_overheating && !b_ramp_down && !b_wand_mash_lockout) {
+      if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM) && !b_pack_alarm && !b_overheating && !b_ramp_down && !b_wand_mash_lockout) {
         if(!b_brass_pack_sound_loop) {
           playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects, true, 2000);
           b_brass_pack_sound_loop = true;
@@ -2086,12 +2091,12 @@ void cyclotronSwitchLEDLoop() {
         b_brass_pack_sound_loop = false;
       }
 
-      if(b_brass_pack_sound_loop || (SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && (b_ramp_down || b_alarm || b_wand_mash_lockout) && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM))) {
+      if(b_brass_pack_sound_loop || (SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && (b_ramp_down || b_pack_alarm || b_wand_mash_lockout) && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM))) {
         // Per user request, turn off the switch panel LEDs if brass pack is running.
         cyclotronSwitchLEDOff();
       }
       else {
-        if(b_alarm) {
+        if(b_pack_alarm) {
           if(i_cyclotron_sw_led > 0) {
             i_cyclotron_sw_led = 0;
           }
@@ -2159,7 +2164,7 @@ void cyclotronSwitchLEDLoop() {
       break;
     }
 
-    if(b_alarm) {
+    if(b_pack_alarm) {
       i_cyc_led_delay = i_cyclotron_switch_led_delay * 2;
     }
 
@@ -2203,7 +2208,7 @@ void powercellRampDown() {
       break;
     }
 
-    if(b_alarm) {
+    if(b_pack_alarm) {
       i_pc_delay = i_powercell_delay * 3;
     }
 
@@ -2223,7 +2228,7 @@ void powercellLoop() {
     }
     else {
       if(!b_powercell_updating) {
-        if(((SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && b_cyclotron_lid_on && !b_wand_mash_lockout) || SYSTEM_YEAR == SYSTEM_AFTERLIFE) && i_powercell_led == 0 && !b_ramp_up && !b_ramp_down && !b_wand_firing && !b_alarm && !b_overheating) {
+        if(((SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && b_cyclotron_lid_on && !b_wand_mash_lockout) || SYSTEM_YEAR == SYSTEM_AFTERLIFE) && i_powercell_led == 0 && !b_ramp_up && !b_ramp_down && !b_wand_firing && !b_pack_alarm && !b_overheating) {
           if(!b_powercell_sound_loop) {
             playEffect(S_POWERCELL, true, i_volume_effects - i_wand_idle_level, true, 1400);
             b_powercell_sound_loop = true;
@@ -2233,7 +2238,7 @@ void powercellLoop() {
         powercellDraw(i_powercell_led); // Update starting at a specific LED.
 
         // Add a small delay to pause the Power Cell when all Power Cell LEDs are lit up, to match Afterlife and Frozen Empire.
-        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && !b_alarm && i_powercell_led == i_powercell_leds - 1) {
+        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && !b_pack_alarm && i_powercell_led == i_powercell_leds - 1) {
           i_extra_delay = 350;
         }
 
@@ -2241,7 +2246,7 @@ void powercellLoop() {
       }
     }
 
-    if((b_overheating || b_ramp_down || b_ramp_up || b_alarm || (SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && (!b_cyclotron_lid_on || b_wand_mash_lockout))) && b_powercell_sound_loop) {
+    if((b_overheating || b_ramp_down || b_ramp_up || b_pack_alarm || (SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && (!b_cyclotron_lid_on || b_wand_mash_lockout))) && b_powercell_sound_loop) {
       audio.trackLoop(S_POWERCELL, 0); // Turn off looping which stops the track.
       b_powercell_sound_loop = false;
     }
@@ -2266,7 +2271,7 @@ void powercellLoop() {
       break;
     }
 
-    if(b_alarm) {
+    if(b_pack_alarm) {
       i_pc_delay = i_powercell_delay * 5;
     }
 
@@ -2557,7 +2562,7 @@ void slimeCyclotronEffect() {
         break;
       }
     }
-    else if(b_alarm || b_overheating || b_venting) {
+    else if(b_pack_alarm || b_overheating || b_venting) {
       i_random_lower = 20;
       i_random_upper = 41;
     }
@@ -2595,7 +2600,7 @@ void slimeCyclotronEffect() {
     }
   }
 
-  if(!b_wand_firing && !b_overheating && !b_alarm) {
+  if(!b_wand_firing && !b_overheating && !b_pack_alarm) {
     vibrationPack(i_vibration_level);
   }
 }
@@ -2867,7 +2872,7 @@ void cyclotron1984(uint16_t iRampDelay) {
       ms_cyclotron.start(iRampDelay);
     }
 
-    if(!b_wand_firing && !b_overheating && !b_alarm) {
+    if(!b_wand_firing && !b_overheating && !b_pack_alarm) {
       vibrationPack(i_vibration_level);
     }
 
@@ -3010,7 +3015,7 @@ void cyclotron2021(uint16_t iRampDelay) {
       ms_cyclotron.start(t_iRampDelay);
     }
 
-    if(!b_wand_firing && !b_overheating && !b_alarm) {
+    if(!b_wand_firing && !b_overheating && !b_pack_alarm) {
       vibrationPack(i_vibration_level);
     }
 
@@ -3092,7 +3097,7 @@ void cyclotron2021(uint16_t iRampDelay) {
         break;
 
         case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
-          if(b_ramp_down || b_ramp_up || b_alarm || b_wand_mash_lockout) {
+          if(b_ramp_down || b_ramp_up || b_pack_alarm || b_wand_mash_lockout) {
             if(i_curr_cyclotron_position == 39) {
               // Top gap between lenses is about 27 pixels wide.
               i_cyclotron_lens_gap = 27;
@@ -3113,7 +3118,7 @@ void cyclotron2021(uint16_t iRampDelay) {
         break;
 
         case FRUTTO_CYCLOTRON_LED_COUNT:
-          if(b_ramp_down || b_ramp_up || b_alarm || b_wand_mash_lockout) {
+          if(b_ramp_down || b_ramp_up || b_pack_alarm || b_wand_mash_lockout) {
             if(i_curr_cyclotron_position > 34) {
               // Top gap between lenses is about 15 pixels wide.
               i_cyclotron_lens_gap = 15;
@@ -3135,7 +3140,7 @@ void cyclotron2021(uint16_t iRampDelay) {
 
         case HASLAB_CYCLOTRON_LED_COUNT:
         default:
-          if(b_ramp_down || b_ramp_up || b_alarm || b_wand_mash_lockout) {
+          if(b_ramp_down || b_ramp_up || b_pack_alarm || b_wand_mash_lockout) {
             if(i_curr_cyclotron_position > 32) {
               // Top gap between lenses is about 9 pixels wide.
               i_cyclotron_lens_gap = 9;
@@ -3466,7 +3471,7 @@ void packOverheatingFinished() {
     resetCyclotronState();
   }
 
-  b_alarm = false;
+  b_pack_alarm = false;
 
   if(b_overheat_lights_off) {
     cyclotronSpeedRevert();
@@ -3708,10 +3713,10 @@ void cyclotronControl() {
   }
 
   if(!ribbonCableAttached() && PACK_STATE != MODE_OFF && !b_ramp_down_start && !b_overheating) {
-    if(!b_alarm) {
+    if(!b_pack_alarm) {
       b_ramp_up = false;
       b_inner_ramp_up = false;
-      b_alarm = true;
+      b_pack_alarm = true;
 
       if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
         if(!usingSlimeCyclotron()) {
@@ -3738,7 +3743,7 @@ void cyclotronControl() {
     cyclotronNoCable();
   }
   else if(b_overheating) {
-    if(!b_alarm) {
+    if(!b_pack_alarm) {
       b_ramp_up = false;
       b_inner_ramp_up = false;
 
@@ -3761,7 +3766,7 @@ void cyclotronControl() {
         powercellOn();
       }
 
-      b_alarm = true;
+      b_pack_alarm = true;
 
       packAlarm();
     }

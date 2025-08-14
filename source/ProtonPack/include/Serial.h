@@ -292,6 +292,25 @@ void toggleYearModes() {
  * Serial API Communication Handlers
  */
 
+ // Helper function to check if a command is excluded from notification
+bool isExcludedCommand(uint8_t i_command) {
+  return i_command == A_HANDSHAKE ||
+         i_command == A_SYNC_START ||
+         i_command == A_SYNC_DATA ||
+         i_command == A_SYNC_END ||
+         i_command == A_BATTERY_VOLTAGE_PACK ||
+         i_command == A_WAND_POWER_AMPS ||
+         i_command == A_REQUEST_PREFERENCES_PACK ||
+         i_command == A_REQUEST_PREFERENCES_WAND ||
+         i_command == A_REQUEST_PREFERENCES_SMOKE ||
+         i_command == A_SEND_PREFERENCES_PACK ||
+         i_command == A_SEND_PREFERENCES_WAND ||
+         i_command == A_SEND_PREFERENCES_SMOKE ||
+         i_command == A_SAVE_PREFERENCES_PACK ||
+         i_command == A_SAVE_PREFERENCES_WAND ||
+         i_command == A_SAVE_PREFERENCES_SMOKE;
+}
+
 // Outgoing commands to the Attenuator
 void attenuatorSend(uint8_t i_command, uint16_t i_value) {
   uint16_t i_send_size = 0;
@@ -306,6 +325,13 @@ void attenuatorSend(uint8_t i_command, uint16_t i_value) {
 
   i_send_size = attenuatorComs.txObj(sendCmdS);
   attenuatorComs.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
+
+#ifdef ESP32
+  // Send latest status to the WebSocket (ESP32 only), skipping this action on certain commands.
+  if (!isExcludedCommand(i_command)) {
+    notifyWSClients();
+  }
+#endif
 }
 // Override function to handle calls with a single parameter.
 void attenuatorSend(uint8_t i_command) {
@@ -554,8 +580,276 @@ void packSerialSendData(uint8_t i_message) {
 }
 
 // Forward function declarations.
-void handleSerialCommand(uint8_t i_command, uint16_t i_value);
 void handleWandCommand(uint8_t i_command, uint16_t i_value);
+
+// Perform update of the pack preferences based on the current configuration object.
+void handlePackPrefsUpdate() {
+  sendDebug(F("Saving Pack Preferences"));
+
+  switch(packConfig.defaultSystemModePack) {
+    case 0:
+    default:
+      SYSTEM_MODE = MODE_SUPER_HERO;
+      packSerialSend(P_MODE_SUPER_HERO);
+      attenuatorSend(A_MODE_SUPER_HERO);
+    break;
+
+    case 1:
+      SYSTEM_MODE = MODE_ORIGINAL;
+      packSerialSend(P_MODE_ORIGINAL);
+      attenuatorSend(A_MODE_ORIGINAL);
+
+      if(!b_wand_connected && STREAM_MODE != PROTON) {
+        // If no wand is connected we need to make sure we're in Proton Stream.
+        STREAM_MODE = PROTON;
+        attenuatorSend(A_PROTON_MODE);
+      }
+    break;
+  }
+
+  switch(packConfig.defaultYearThemePack) {
+    case 1:
+    default:
+      // Will allow the pack to boot up to whatever state the mode switch is in.
+      SYSTEM_EEPROM_YEAR = SYSTEM_TOGGLE_SWITCH;
+    break;
+    case 2:
+      SYSTEM_EEPROM_YEAR = SYSTEM_1984;
+    break;
+    case 3:
+      SYSTEM_EEPROM_YEAR = SYSTEM_1989;
+    break;
+    case 4:
+      SYSTEM_EEPROM_YEAR = SYSTEM_AFTERLIFE;
+    break;
+    case 5:
+      SYSTEM_EEPROM_YEAR = SYSTEM_FROZEN_EMPIRE;
+    break;
+  }
+
+  switch(packConfig.currentYearThemePack) {
+    case 2:
+      SYSTEM_YEAR = SYSTEM_1984;
+      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+      b_switch_mode_override = true; // Explicit mode set, override mode toggle.
+      packSerialSend(P_YEAR_1984);
+      attenuatorSend(A_YEAR_1984);
+    break;
+    case 3:
+      SYSTEM_YEAR = SYSTEM_1989;
+      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+      b_switch_mode_override = true; // Explicit mode set, override mode toggle.
+      packSerialSend(P_YEAR_1989);
+      attenuatorSend(A_YEAR_1989);
+    break;
+    case 4:
+      SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+      b_switch_mode_override = true; // Explicit mode set, override mode toggle.
+      packSerialSend(P_YEAR_AFTERLIFE);
+      attenuatorSend(A_YEAR_AFTERLIFE);
+    break;
+    case 5:
+      SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+      b_switch_mode_override = true; // Explicit mode set, override mode toggle.
+      packSerialSend(P_YEAR_FROZEN_EMPIRE);
+      attenuatorSend(A_YEAR_FROZEN_EMPIRE);
+    break;
+  }
+
+  switch(packConfig.packVibration) {
+    case 1:
+      b_vibration_switch_on = true; // Override the vibration toggle switch.
+      VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
+      VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+    break;
+
+    case 2:
+      b_vibration_switch_on = true; // Override the vibration toggle switch.
+      VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
+      VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+    break;
+
+    case 3:
+      VIBRATION_MODE_EEPROM = VIBRATION_NONE;
+      VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+    break;
+
+    case 4:
+    default:
+      VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
+      VIBRATION_MODE = VIBRATION_FIRING_ONLY;
+
+      // Reset the vibration switch state.
+      if(switch_vibration.getState() == LOW) {
+        b_vibration_switch_on = true;
+      }
+      else {
+        b_vibration_switch_on = false;
+      }
+    break;
+
+    case 5:
+      VIBRATION_MODE_EEPROM = CYCLOTRON_MOTOR;
+      VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+      pinMode(VIBRATION_PIN, OUTPUT); // Need to explicitly switch to GPIO from LEDC on ESP32.
+
+      // Reset the vibration switch state.
+      if(switch_vibration.getState() == LOW) {
+        b_vibration_switch_on = true;
+      }
+      else {
+        b_vibration_switch_on = false;
+      }
+    break;
+  }
+
+  i_volume_master_eeprom = (MINIMUM_VOLUME + i_volume_min_adj) - ((MINIMUM_VOLUME + i_volume_min_adj) * packConfig.defaultSystemVolume / 100);
+  b_stream_effects = (packConfig.protonStreamEffects == 1);
+  b_overheat_strobe = (packConfig.overheatStrobeNF == 1);
+  b_overheat_lights_off = (packConfig.overheatLightsOff == 1);
+  b_overheat_sync_to_fan = (packConfig.overheatSyncToFan == 1);
+  b_demo_light_mode = (packConfig.demoLightMode == 1);
+  b_use_ribbon_cable = (packConfig.ribbonCableAlarm == 1);
+
+  // Cyclotron Lid
+  switch(packConfig.ledCycLidCount) {
+    // For a 40 LED Neopixel ring.
+    case 40:
+      i_cyclotron_leds = OUTER_CYCLOTRON_LED_MAX;
+    break;
+
+    // For Frutto Technology Max Cyclotron (36) LEDs.
+    case 36:
+      i_cyclotron_leds = FRUTTO_MAX_CYCLOTRON_LED_COUNT;
+    break;
+
+    // For Frutto Technology Cyclotron (20) LEDs.
+    case 20:
+      i_cyclotron_leds = FRUTTO_CYCLOTRON_LED_COUNT;
+    break;
+
+    // Default HasLab (12) LEDs.
+    case 12:
+    default:
+      i_cyclotron_leds = HASLAB_CYCLOTRON_LED_COUNT;
+    break;
+  }
+  i_spectral_cyclotron_custom_colour = packConfig.ledCycLidHue;
+  i_spectral_cyclotron_custom_saturation = packConfig.ledCycLidSat;
+  i_cyclotron_brightness = packConfig.ledCycLidLum;
+  b_clockwise = (packConfig.cyclotronDirection == 1);
+  b_cyclotron_single_led = (packConfig.ledCycLidCenter == 1);
+  b_fade_cyclotron_led = (packConfig.ledCycLidFade == 1);
+  b_cyclotron_colour_toggle = (packConfig.ledVGCyclotron == 1);
+  b_cyclotron_simulate_ring = (packConfig.ledCycLidSimRing == 1);
+
+  if(b_fade_cyclotron_led) {
+    i_1984_delay = CYCLOTRON_DELAY_TVG;
+  }
+  else {
+    i_1984_delay = CYCLOTRON_DELAY_1984;
+  }
+
+  // Inner Cyclotron
+  i_cyclotron_panel_brightness = packConfig.ledCycPanLum;
+  switch(packConfig.ledCycInnerPanel) {
+    case 1:
+    #ifdef ESP32
+      INNER_CYC_PANEL_MODE = PANEL_RGB_DYNAMIC;
+    #else
+      INNER_CYC_PANEL_MODE = PANEL_INDIVIDUAL;
+    #endif
+    break;
+    case 2:
+      INNER_CYC_PANEL_MODE = PANEL_RGB_STATIC;
+    break;
+    case 3:
+    default:
+      INNER_CYC_PANEL_MODE = PANEL_RGB_DYNAMIC;
+    break;
+  }
+  i_inner_cyclotron_cake_num_leds = packConfig.ledCycCakeCount;
+  i_spectral_cyclotron_inner_custom_colour = packConfig.ledCycCakeHue;
+  i_spectral_cyclotron_inner_custom_saturation = packConfig.ledCycCakeSat;
+  i_cyclotron_inner_brightness = packConfig.ledCycCakeLum;
+  if(packConfig.ledCycCakeGRB == 1) {
+    CAKE_LED_TYPE = GRB_LED;
+  }
+  else {
+    CAKE_LED_TYPE = RGB_LED;
+  }
+  i_inner_cyclotron_cavity_num_leds = packConfig.ledCycCavCount;
+  switch(packConfig.ledCycCavType) {
+    case 1:
+    default:
+      CAVITY_LED_TYPE = RGB_LED;
+    break;
+    case 2:
+      CAVITY_LED_TYPE = GRB_LED;
+    break;
+    case 3:
+      CAVITY_LED_TYPE = GBR_LED;
+    break;
+  }
+
+  // Power Cell
+  i_powercell_leds = packConfig.ledPowercellCount;
+  b_powercell_invert = (packConfig.ledInvertPowercell == 1);
+  i_spectral_powercell_custom_colour = packConfig.ledPowercellHue;
+  i_spectral_powercell_custom_saturation = packConfig.ledPowercellSat;
+  i_powercell_brightness = packConfig.ledPowercellLum;
+  b_powercell_colour_toggle = (packConfig.ledVGPowercell == 1);
+
+  // Offer some feedback to the user
+  stopEffect(S_VENT_DRY);
+  playEffect(S_VENT_DRY);
+
+  // Update system values and reset as needed.
+  resetInnerCyclotronLEDs(); // Must call this first, prior to updating counts
+  updateProtonPackLEDCounts(); // Must call this after resetting # of LEDs
+  resetCyclotronLEDs(); // Update delays based on LED count
+  resetRampSpeeds(); // Update delays based on LED count
+}
+
+// Send the current wand preferences based on the current configuration object.
+void handleWandPrefsUpdate() {
+  sendDebug(F("Saving Wand Preferences"));
+
+  packSerialSendData(P_SAVE_PREFERENCES_WAND);
+
+  // Offer some feedback to the user
+  stopEffect(S_VENT_DRY);
+  playEffect(S_VENT_DRY);
+}
+
+// Save and send the smoke preferences based on the current configuration object.
+void handleSmokePrefsUpdate() {
+  sendDebug(F("Saving Smoke Preferences"));
+
+  // Save local and remote (wand) smoke timing settings
+  i_ms_overheating_length_5 = smokeConfig.overheatDuration5 * 1000;
+  i_ms_overheating_length_4 = smokeConfig.overheatDuration4 * 1000;
+  i_ms_overheating_length_3 = smokeConfig.overheatDuration3 * 1000;
+  i_ms_overheating_length_2 = smokeConfig.overheatDuration2 * 1000;
+  i_ms_overheating_length_1 = smokeConfig.overheatDuration1 * 1000;
+
+  b_smoke_continuous_level_5 = (smokeConfig.overheatContinuous5 == 1);
+  b_smoke_continuous_level_4 = (smokeConfig.overheatContinuous4 == 1);
+  b_smoke_continuous_level_3 = (smokeConfig.overheatContinuous3 == 1);
+  b_smoke_continuous_level_2 = (smokeConfig.overheatContinuous2 == 1);
+  b_smoke_continuous_level_1 = (smokeConfig.overheatContinuous1 == 1);
+  b_smoke_enabled = (smokeConfig.smokeEnabled == 1);
+  resetContinuousSmoke(); // Set other variables as necessary
+
+  // This will pass values from the smokeConfig object
+  packSerialSendData(P_SAVE_PREFERENCES_SMOKE);
+
+  // Offer some feedback to the user
+  stopEffect(S_VENT_SMOKE);
+  playEffect(S_VENT_SMOKE);
+}
 
 // Incoming messages from the extra Attenuator port.
 void checkAttenuator() {
@@ -577,7 +871,17 @@ void checkAttenuator() {
           if(recvCmdS.c > 0 && recvCmdS.s == A_COM_START && recvCmdS.e == A_COM_END) {
             debug(F("Recv. Attenuator Command: "));
             debugln(recvCmdS.c);
-            handleSerialCommand(recvCmdS.c, recvCmdS.d1);
+
+            if(!b_attenuator_connected) {
+              // Can't proceed if the wand isn't connected; prevents phantom actions from occurring.
+              if(recvCmdS.c != A_SYNC_START && recvCmdS.c != A_HANDSHAKE && recvCmdS.c != A_SYNC_END) {
+                // This applies for any action other than those responsible for sync operations.
+                return;
+              }
+            }
+
+            // Pass through to the true API command handler.
+            executePackCommand(recvCmdS.c, recvCmdS.d1);
           }
         break;
 
@@ -602,236 +906,11 @@ void checkAttenuator() {
           }
 
           attenuatorComs.rxObj(packConfig);
-          debugln(F("Recv. Pack Config"));
+          sendDebug(F("Recv. Pack Config"));
 
-          // Writes new preferences back to runtime variables.
+          // Writes pack preferences back to runtime variables.
           // This action does not save changes to the EEPROM!
-
-          switch(packConfig.defaultSystemModePack) {
-            case 0:
-            default:
-              SYSTEM_MODE = MODE_SUPER_HERO;
-              packSerialSend(P_MODE_SUPER_HERO);
-              attenuatorSend(A_MODE_SUPER_HERO);
-            break;
-
-            case 1:
-              SYSTEM_MODE = MODE_ORIGINAL;
-              packSerialSend(P_MODE_ORIGINAL);
-              attenuatorSend(A_MODE_ORIGINAL);
-
-              if(!b_wand_connected && STREAM_MODE != PROTON) {
-                // If no wand is connected we need to make sure we're in Proton Stream.
-                STREAM_MODE = PROTON;
-                attenuatorSend(A_PROTON_MODE);
-              }
-            break;
-          }
-
-          switch(packConfig.defaultYearThemePack) {
-            case 1:
-            default:
-              // Will allow the pack to boot up to whatever state the mode switch is in.
-              SYSTEM_EEPROM_YEAR = SYSTEM_TOGGLE_SWITCH;
-            break;
-            case 2:
-              SYSTEM_EEPROM_YEAR = SYSTEM_1984;
-            break;
-            case 3:
-              SYSTEM_EEPROM_YEAR = SYSTEM_1989;
-            break;
-            case 4:
-              SYSTEM_EEPROM_YEAR = SYSTEM_AFTERLIFE;
-            break;
-            case 5:
-              SYSTEM_EEPROM_YEAR = SYSTEM_FROZEN_EMPIRE;
-            break;
-          }
-
-          switch(packConfig.currentYearThemePack) {
-            case 2:
-              SYSTEM_YEAR = SYSTEM_1984;
-              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-              b_switch_mode_override = true; // Explicit mode set, override mode toggle.
-              packSerialSend(P_YEAR_1984);
-              attenuatorSend(A_YEAR_1984);
-            break;
-            case 3:
-              SYSTEM_YEAR = SYSTEM_1989;
-              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-              b_switch_mode_override = true; // Explicit mode set, override mode toggle.
-              packSerialSend(P_YEAR_1989);
-              attenuatorSend(A_YEAR_1989);
-            break;
-            case 4:
-              SYSTEM_YEAR = SYSTEM_AFTERLIFE;
-              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-              b_switch_mode_override = true; // Explicit mode set, override mode toggle.
-              packSerialSend(P_YEAR_AFTERLIFE);
-              attenuatorSend(A_YEAR_AFTERLIFE);
-            break;
-            case 5:
-              SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
-              SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-              b_switch_mode_override = true; // Explicit mode set, override mode toggle.
-              packSerialSend(P_YEAR_FROZEN_EMPIRE);
-              attenuatorSend(A_YEAR_FROZEN_EMPIRE);
-            break;
-          }
-
-          switch(packConfig.packVibration) {
-            case 1:
-              b_vibration_switch_on = true; // Override the vibration toggle switch.
-              VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
-              VIBRATION_MODE = VIBRATION_MODE_EEPROM;
-            break;
-
-            case 2:
-              b_vibration_switch_on = true; // Override the vibration toggle switch.
-              VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
-              VIBRATION_MODE = VIBRATION_MODE_EEPROM;
-            break;
-
-            case 3:
-              VIBRATION_MODE_EEPROM = VIBRATION_NONE;
-              VIBRATION_MODE = VIBRATION_MODE_EEPROM;
-            break;
-
-            case 4:
-            default:
-              VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
-              VIBRATION_MODE = VIBRATION_FIRING_ONLY;
-
-              // Reset the vibration switch state.
-              if(switch_vibration.getState() == LOW) {
-                b_vibration_switch_on = true;
-              }
-              else {
-                b_vibration_switch_on = false;
-              }
-            break;
-
-            case 5:
-              VIBRATION_MODE_EEPROM = CYCLOTRON_MOTOR;
-              VIBRATION_MODE = VIBRATION_MODE_EEPROM;
-              pinMode(VIBRATION_PIN, OUTPUT); // Need to explicitly switch to GPIO from LEDC on ESP32.
-
-              // Reset the vibration switch state.
-              if(switch_vibration.getState() == LOW) {
-                b_vibration_switch_on = true;
-              }
-              else {
-                b_vibration_switch_on = false;
-              }
-            break;
-          }
-
-          i_volume_master_eeprom = (MINIMUM_VOLUME + i_volume_min_adj) - ((MINIMUM_VOLUME + i_volume_min_adj) * packConfig.defaultSystemVolume / 100);
-          b_stream_effects = (packConfig.protonStreamEffects == 1);
-          b_overheat_strobe = (packConfig.overheatStrobeNF == 1);
-          b_overheat_lights_off = (packConfig.overheatLightsOff == 1);
-          b_overheat_sync_to_fan = (packConfig.overheatSyncToFan == 1);
-          b_demo_light_mode = (packConfig.demoLightMode == 1);
-          b_use_ribbon_cable = (packConfig.ribbonCableAlarm == 1);
-
-          // Cyclotron Lid
-          switch(packConfig.ledCycLidCount) {
-            // For a 40 LED Neopixel ring.
-            case 40:
-              i_cyclotron_leds = OUTER_CYCLOTRON_LED_MAX;
-            break;
-
-            // For Frutto Technology Max Cyclotron (36) LEDs.
-            case 36:
-              i_cyclotron_leds = FRUTTO_MAX_CYCLOTRON_LED_COUNT;
-            break;
-
-            // For Frutto Technology Cyclotron (20) LEDs.
-            case 20:
-              i_cyclotron_leds = FRUTTO_CYCLOTRON_LED_COUNT;
-            break;
-
-            // Default HasLab (12) LEDs.
-            case 12:
-            default:
-              i_cyclotron_leds = HASLAB_CYCLOTRON_LED_COUNT;
-            break;
-          }
-          i_spectral_cyclotron_custom_colour = packConfig.ledCycLidHue;
-          i_spectral_cyclotron_custom_saturation = packConfig.ledCycLidSat;
-          i_cyclotron_brightness = packConfig.ledCycLidLum;
-          b_clockwise = (packConfig.cyclotronDirection == 1);
-          b_cyclotron_single_led = (packConfig.ledCycLidCenter == 1);
-          b_fade_cyclotron_led = (packConfig.ledCycLidFade == 1);
-          b_cyclotron_colour_toggle = (packConfig.ledVGCyclotron == 1);
-          b_cyclotron_simulate_ring = (packConfig.ledCycLidSimRing == 1);
-
-          if(b_fade_cyclotron_led) {
-            i_1984_delay = CYCLOTRON_DELAY_TVG;
-          }
-          else {
-            i_1984_delay = CYCLOTRON_DELAY_1984;
-          }
-
-          // Inner Cyclotron
-          i_cyclotron_panel_brightness = packConfig.ledCycPanLum;
-          switch(packConfig.ledCycInnerPanel) {
-            case 1:
-            #ifdef ESP32
-              INNER_CYC_PANEL_MODE = PANEL_RGB_DYNAMIC;
-            #else
-              INNER_CYC_PANEL_MODE = PANEL_INDIVIDUAL;
-            #endif
-            break;
-            case 2:
-              INNER_CYC_PANEL_MODE = PANEL_RGB_STATIC;
-            break;
-            case 3:
-            default:
-              INNER_CYC_PANEL_MODE = PANEL_RGB_DYNAMIC;
-            break;
-          }
-          i_inner_cyclotron_cake_num_leds = packConfig.ledCycCakeCount;
-          i_spectral_cyclotron_inner_custom_colour = packConfig.ledCycCakeHue;
-          i_spectral_cyclotron_inner_custom_saturation = packConfig.ledCycCakeSat;
-          i_cyclotron_inner_brightness = packConfig.ledCycCakeLum;
-          if(packConfig.ledCycCakeGRB == 1) {
-            CAKE_LED_TYPE = GRB_LED;
-          }
-          else {
-            CAKE_LED_TYPE = RGB_LED;
-          }
-          i_inner_cyclotron_cavity_num_leds = packConfig.ledCycCavCount;
-          switch(packConfig.ledCycCavType) {
-            case 1:
-            default:
-              CAVITY_LED_TYPE = RGB_LED;
-            break;
-            case 2:
-              CAVITY_LED_TYPE = GRB_LED;
-            break;
-            case 3:
-              CAVITY_LED_TYPE = GBR_LED;
-            break;
-          }
-
-          // Power Cell
-          i_powercell_leds = packConfig.ledPowercellCount;
-          b_powercell_invert = (packConfig.ledInvertPowercell == 1);
-          i_spectral_powercell_custom_colour = packConfig.ledPowercellHue;
-          i_spectral_powercell_custom_saturation = packConfig.ledPowercellSat;
-          i_powercell_brightness = packConfig.ledPowercellLum;
-          b_powercell_colour_toggle = (packConfig.ledVGPowercell == 1);
-
-          // Offer some feedback to the user
-          stopEffect(S_VENT_DRY);
-          playEffect(S_VENT_DRY);
-
-          // Update system values and reset as needed.
-          resetInnerCyclotronLEDs(); // Must call this first, prior to updating counts
-          updateProtonPackLEDCounts(); // Must call this after resetting # of LEDs
-          resetCyclotronLEDs(); // Update delays based on LED count
-          resetRampSpeeds(); // Update delays based on LED count
+          handlePackPrefsUpdate();
         break;
 
         case PACKET_WAND:
@@ -841,14 +920,10 @@ void checkAttenuator() {
           }
 
           attenuatorComs.rxObj(wandConfig);
-          debugln(F("Recv. Wand Config"));
+          sendDebug(F("Recv. Wand Config"));
 
           // This will pass values from the wandConfig object
-          packSerialSendData(P_SAVE_PREFERENCES_WAND);
-
-          // Offer some feedback to the user
-          stopEffect(S_VENT_DRY);
-          playEffect(S_VENT_DRY);
+          handleWandPrefsUpdate();
         break;
 
         case PACKET_SMOKE:
@@ -858,29 +933,11 @@ void checkAttenuator() {
           }
 
           attenuatorComs.rxObj(smokeConfig);
-          debugln(F("Recv. Smoke Config"));
+          sendDebug(F("Recv. Smoke Config"));
 
-          // Save local and remote (wand) smoke timing settings
-          i_ms_overheating_length_5 = smokeConfig.overheatDuration5 * 1000;
-          i_ms_overheating_length_4 = smokeConfig.overheatDuration4 * 1000;
-          i_ms_overheating_length_3 = smokeConfig.overheatDuration3 * 1000;
-          i_ms_overheating_length_2 = smokeConfig.overheatDuration2 * 1000;
-          i_ms_overheating_length_1 = smokeConfig.overheatDuration1 * 1000;
-
-          b_smoke_continuous_level_5 = (smokeConfig.overheatContinuous5 == 1);
-          b_smoke_continuous_level_4 = (smokeConfig.overheatContinuous4 == 1);
-          b_smoke_continuous_level_3 = (smokeConfig.overheatContinuous3 == 1);
-          b_smoke_continuous_level_2 = (smokeConfig.overheatContinuous2 == 1);
-          b_smoke_continuous_level_1 = (smokeConfig.overheatContinuous1 == 1);
-          b_smoke_enabled = (smokeConfig.smokeEnabled == 1);
-          resetContinuousSmoke(); // Set other variables as necessary
-
-          // This will pass values from the smokeConfig object
-          packSerialSendData(P_SAVE_PREFERENCES_SMOKE);
-
-          // Offer some feedback to the user
-          stopEffect(S_VENT_SMOKE);
-          playEffect(S_VENT_SMOKE);
+          // Writes pack preferences back to runtime variables.
+          // This action does not save changes to the EEPROM!
+          handleSmokePrefsUpdate();
         break;
       }
     }
@@ -898,7 +955,7 @@ void doAttenuatorSync() {
     playEffect(S_BEEPS_ALT);
   }
 
-  debugln(F("Attenuator Sync Start"));
+  sendDebug(F("Attenuator Sync Start"));
   attenuatorSend(A_SYNC_START);
 
   // Tell the Attenuator about the wand status.
@@ -925,7 +982,7 @@ void doAttenuatorSync() {
   // Pack status.
   attenuatorSyncData.packOn = (PACK_STATE != MODE_OFF) ? 1 : 0;
   attenuatorSyncData.systemMode = (SYSTEM_MODE == MODE_ORIGINAL) ? 2 : 1;
-  attenuatorSyncData.ionArmSwitch = (switch_power.getState() == LOW) ? 2 : 1;
+  attenuatorSyncData.ionArmSwitch = (RED_SWITCH_MODE == SWITCH_ON) ? 2 : 1;
   attenuatorSyncData.powerLevel = i_wand_power_level;
   attenuatorSyncData.packVoltage = packReading.BusVoltage;
 
@@ -979,7 +1036,7 @@ void doAttenuatorSync() {
   attenuatorSyncData.musicPaused = b_music_paused ? 1 : 0;
   attenuatorSyncData.trackLooped = b_repeat_track ? 2 : 1;
   attenuatorSyncData.currentTrack = i_current_music_track;
-  attenuatorSyncData.musicCount = i_music_count;
+  attenuatorSyncData.musicCount = i_music_track_count;
   attenuatorSyncData.masterMuted = (i_volume_master == i_volume_abs_min) ? 2 : 1;
   attenuatorSyncData.masterVolume = i_volume_master_percentage;
   attenuatorSyncData.effectsVolume = i_volume_effects_percentage;
@@ -988,274 +1045,12 @@ void doAttenuatorSync() {
   attenuatorSendData(A_SYNC_DATA);
 
   // Send the ribbon cable alarm status if the ribbon cable is detached.
-  if(b_alarm && !ribbonCableAttached()) {
+  if(b_pack_alarm && !ribbonCableAttached()) {
     attenuatorSend(A_ALARM_ON);
   }
 
   attenuatorSend(A_SYNC_END);
-  debugln(F("Attenuator Sync End"));
-}
-
-void handleSerialCommand(uint8_t i_command, uint16_t i_value) {
-  if(!b_attenuator_connected) {
-    // Can't proceed if the wand isn't connected; prevents phantom actions from occurring.
-    if(i_command != A_SYNC_START && i_command != A_HANDSHAKE && i_command != A_SYNC_END) {
-      // This applies for any action other than those responsible for sync operations.
-      return;
-    }
-  }
-
-  switch(i_command) {
-    case A_SYNC_START:
-      // Attenuator has explicitly asked to be synchronized.
-      doAttenuatorSync();
-    break;
-
-    case A_HANDSHAKE:
-      b_attenuator_syncing = false; // No longer attempting to force a sync w/ Attenuator.
-      b_attenuator_connected = true; // If we're receiving handshake instead of SYNC_NOW we must be connected.
-
-      if(b_diagnostic) {
-        // While in diagnostic mode, play a sound to indicate the wand is connected.
-        playEffect(S_BEEPS_ALT);
-      }
-    break;
-
-    case A_SYNC_END:
-      debugln(F("Attenuator Synchronized"));
-      b_attenuator_syncing = false;
-      b_attenuator_connected = true;
-      ms_attenuator_check.start(i_attenuator_disconnect_delay);
-    break;
-
-    case A_TURN_PACK_ON:
-      // Pretend the ion arm switch was just turned on.
-      if(SYSTEM_MODE == MODE_SUPER_HERO) {
-        PACK_ACTION_STATE = ACTION_ACTIVATE;
-      }
-
-      // Tell the Neutrona Wand that power to the Proton Pack is on.
-      if(b_wand_connected) {
-        packSerialSend(P_ION_ARM_SWITCH_ON);
-      }
-
-      // Tell the Attenuator or any other device that the power to the Proton Pack is on.
-      attenuatorSend(A_ION_ARM_SWITCH_ON);
-    break;
-
-    case A_TURN_PACK_OFF:
-      // Pretend the ion arm switch was just turned on.
-      if(PACK_STATE == MODE_ON) {
-        PACK_ACTION_STATE = ACTION_OFF;
-
-        //Make sure to tell the wireless that we are not overheating.
-        attenuatorSend(A_OVERHEATING_FINISHED);
-      }
-
-      // Tell the Neutrona Wand that power to the Proton Pack is off.
-      if(b_wand_connected) {
-        packSerialSend(P_ION_ARM_SWITCH_OFF);
-      }
-
-      // Tell the Attenuator or any other device that the power to the Proton Pack is off.
-      attenuatorSend(A_ION_ARM_SWITCH_OFF);
-    break;
-
-    case A_WARNING_CANCELLED:
-      // Tell wand to reset overheat warning.
-      packSerialSend(P_WARNING_CANCELLED);
-    break;
-
-    case A_MANUAL_OVERHEAT:
-      // Trigger a manual overheat vent.
-      if(b_wand_connected) {
-        packSerialSend(P_MANUAL_OVERHEAT);
-      }
-      else if(b_pack_on) {
-        packOverheatingStart();
-      }
-    break;
-
-    case A_SYSTEM_LOCKOUT:
-      // Simulate a lockout as if by repeated button presses on the wand.
-      startWandMashLockout(6000);
-
-      switch(SYSTEM_YEAR) {
-        case SYSTEM_FROZEN_EMPIRE:
-          // No-op for this theme, as this is handled in startWandMashLockout
-        break;
-        default:
-          // Plays the alarm loop as heard on the wand.
-          stopMashErrorSounds();
-          playEffect(S_SMASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
-        break;
-      }
-    break;
-
-    case A_CANCEL_LOCKOUT:
-      // Initiate a restart of the pack after a lockout event has occurred.
-      restartFromWandMash();
-    break;
-
-    case A_TOGGLE_MUTE:
-      if(i_volume_master == i_volume_abs_min) {
-        i_volume_master = i_volume_revert;
-
-        packSerialSend(P_MASTER_AUDIO_NORMAL);
-        attenuatorSend(A_TOGGLE_MUTE, 1);
-      }
-      else {
-        i_volume_revert = i_volume_master;
-
-        // Set the master volume to minimum.
-        i_volume_master = i_volume_abs_min;
-
-        packSerialSend(P_MASTER_AUDIO_SILENT_MODE);
-        attenuatorSend(A_TOGGLE_MUTE, 2);
-      }
-
-      updateMasterVolume();
-    break;
-
-    case A_VOLUME_DECREASE:
-      // Decrease overall pack volume.
-      decreaseVolume();
-    break;
-
-    case A_VOLUME_INCREASE:
-      // Increase overall pack volume.
-      increaseVolume();
-    break;
-
-    case A_VOLUME_SOUND_EFFECTS_DECREASE:
-      // Decrease pack effects volume.
-      decreaseVolumeEffects();
-
-      // Tell wand to decrease effects volume.
-      packSerialSend(P_VOLUME_SOUND_EFFECTS_DECREASE);
-    break;
-
-    case A_VOLUME_SOUND_EFFECTS_INCREASE:
-      // Increase pack effects volume.
-      increaseVolumeEffects();
-
-      // Tell wand to increase effects volume.
-      packSerialSend(P_VOLUME_SOUND_EFFECTS_INCREASE);
-    break;
-
-    case A_VOLUME_MUSIC_DECREASE:
-      // Decrease pack music volume.
-      decreaseVolumeMusic();
-    break;
-
-    case A_VOLUME_MUSIC_INCREASE:
-      // Increase pack music volume.
-      increaseVolumeMusic();
-    break;
-
-    case A_MUSIC_START_STOP:
-      if(b_playing_music) {
-        stopMusic();
-      }
-      else {
-        if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
-          // Play the appropriate track on pack and wand, and notify the Attenuator.
-          playMusic();
-        }
-      }
-    break;
-
-    case A_MUSIC_PAUSE_RESUME:
-      if(b_playing_music) {
-        if(!b_music_paused) {
-          pauseMusic();
-        }
-        else {
-          resumeMusic();
-        }
-      }
-    break;
-
-    case A_MUSIC_NEXT_TRACK:
-      musicNextTrack();
-    break;
-
-    case A_MUSIC_PREV_TRACK:
-      musicPrevTrack();
-    break;
-
-    case A_MUSIC_TRACK_LOOP_TOGGLE:
-      toggleMusicLoop();
-      attenuatorSend(A_MUSIC_TRACK_LOOP_TOGGLE, b_repeat_track ? 2 : 1);
-    break;
-
-    case A_REQUEST_PREFERENCES_PACK:
-      // If requested by the serial device, send back all pack EEPROM preferences.
-      // This will send a data payload directly from the pack as all data is local.
-      attenuatorSendData(A_SEND_PREFERENCES_PACK);
-    break;
-
-    case A_REQUEST_PREFERENCES_WAND:
-      // If requested by the serial device, tell the wand we need its EEPROM preferences.
-      // This is merely a command to the wand which tells it to send back a data payload.
-      if(b_wand_connected) {
-        packSerialSend(P_SEND_PREFERENCES_WAND);
-      }
-    break;
-
-    case A_REQUEST_PREFERENCES_SMOKE:
-      if(b_wand_connected) {
-        // If requested by the serial device, tell the wand we need its EEPROM preferences.
-        // This is merely a command to the wand which tells it to send back a data payload.
-        packSerialSend(P_SEND_PREFERENCES_SMOKE);
-      }
-      else {
-        // If a wand is not connected, simply return the smoke settings from the pack.
-        attenuatorSendData(A_SEND_PREFERENCES_SMOKE);
-      }
-    break;
-
-    case A_MUSIC_PLAY_TRACK:
-      // Music track number to be played.
-      if(i_music_count > 0 && i_value >= i_music_track_start) {
-        if(b_playing_music) {
-          stopMusic(); // Stops current track before change.
-
-          // Only update after the music is stopped.
-          i_current_music_track = i_value;
-
-          // Play the appropriate track on pack and wand, and notify the Attenuator.
-          playMusic();
-        }
-        else {
-          i_current_music_track = i_value;
-        }
-      }
-    break;
-
-    case A_SAVE_EEPROM_SETTINGS_PACK:
-      // Commit changes to the EEPROM in the pack controller
-      saveLEDEEPROM();
-      saveConfigEEPROM();
-
-      // Offer some feedback to the user
-      stopEffect(S_VOICE_EEPROM_SAVE);
-      playEffect(S_VOICE_EEPROM_SAVE);
-    break;
-
-    case A_SAVE_EEPROM_SETTINGS_WAND:
-      // Commit changes to the EEPROM on the wand controller
-      packSerialSend(P_SAVE_EEPROM_WAND);
-
-      // Offer some feedback to the user
-      stopEffect(S_VOICE_EEPROM_SAVE);
-      playEffect(S_VOICE_EEPROM_SAVE);
-    break;
-
-    default:
-      // No-op for anything else.
-    break;
-  }
+  sendDebug(F("Attenuator Sync End"));
 }
 
 // Incoming messages from the wand.
@@ -1303,7 +1098,7 @@ void checkWand() {
           }
 
           wandComs.rxObj(wandConfig);
-          debugln(F("Recv. Wand Config Prefs"));
+          sendDebug(F("Recv. Wand Config Prefs"));
 
           // Send the EEPROM preferences just returned by the wand.
           attenuatorSendData(A_SEND_PREFERENCES_WAND);
@@ -1316,7 +1111,7 @@ void checkWand() {
           }
 
           wandComs.rxObj(smokeConfig);
-          debugln(F("Recv. Wand Smoke Prefs"));
+          sendDebug(F("Recv. Wand Smoke Prefs"));
 
           // Send the EEPROM preferences just returned by the wand.
           // This data will combine with the pack's smoke settings.
@@ -1345,7 +1140,7 @@ void doWandSync() {
   playEffect(S_WAND_SYNC);
 
   // Begin the synchronization process which tells the wand the pack got the handshake.
-  debugln(F("Wand Sync Start"));
+  sendDebug(F("Wand Sync Start"));
   packSerialSend(P_SYNC_START, b_pack_post_finish ? 2 : 1);
 
   // Attaching a new wand means we need to stop any prior overheat as the wand initiates this action.
@@ -1475,13 +1270,13 @@ void doWandSync() {
   packSerialSendData(P_SYNC_DATA);
 
   // Send the ribbon cable alarm status if the ribbon cable is detached.
-  if(b_alarm && !ribbonCableAttached()) {
+  if(b_pack_alarm && !ribbonCableAttached()) {
     packSerialSend(P_ALARM_ON);
   }
 
   // Tell the wand that we've reached the end of settings to be sync'd.
   packSerialSend(P_SYNC_END);
-  debugln(F("Wand Sync End"));
+  sendDebug(F("Wand Sync End"));
 }
 
 void handleWandCommand(uint8_t i_command, uint16_t i_value) {
@@ -1517,7 +1312,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_SYNCHRONIZED:
-      debugln(F("Wand Synchronized"));
+      sendDebug(F("Wand Synchronized"));
       b_wand_syncing = false; // Stop trying to sync since we've successfully synchronized.
       b_wand_connected = true; // Wand sent sync confirmation, so it must be connected.
       ms_wand_check.start(i_wand_disconnect_delay); // Wand is synchronized, so start the keep-alive timer.

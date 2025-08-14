@@ -59,7 +59,7 @@ enum AUDIO_DEVICES AUDIO_DEVICE;
 /*
  * Audio Variables
  */
-uint16_t i_music_count = 0; // Contains the total number of detected music tracks on the SD card.
+uint16_t i_music_track_count = 0; // Contains the total number of detected music tracks on the SD card.
 uint16_t i_current_music_track = 0; // Sets the ID number for the music track to be played.
 const uint16_t i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
 const int8_t i_volume_abs_min = -70; // System (absolute) minimum volume possible.
@@ -216,7 +216,7 @@ void playTransitionEffect(uint16_t i_track_id, uint16_t i_track_id2, bool b_trac
 
 // Play a music track using certain defaults.
 void playMusic() {
-  if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+  if(i_music_track_count > 0 && i_current_music_track >= i_music_track_start) {
     b_playing_music = true;
 
     switch(AUDIO_DEVICE) {
@@ -278,7 +278,7 @@ void stopMusic() {
     case A_GPSTAR_AUDIO:
     case A_GPSTAR_AUDIO_ADV:
       if(b_gpstar_benchtest) {
-        if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+        if(i_music_track_count > 0 && i_current_music_track >= i_music_track_start) {
           audio.trackStop(i_current_music_track);
         }
 
@@ -353,7 +353,7 @@ void musicNextTrack() {
   uint16_t i_temp_track = i_current_music_track; // Used for music navigation.
 
   // Determine the next track.
-  if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
+  if(i_current_music_track + 1 > i_music_track_start + i_music_track_count - 1) {
     // Start at the first track if already on the last.
     i_temp_track = i_music_track_start;
   }
@@ -383,7 +383,7 @@ void musicPrevTrack() {
   // Determine the previous track.
   if(i_current_music_track - 1 < i_music_track_start) {
     // Start at the last track if already on the first.
-    i_temp_track = i_music_track_start + (i_music_count - 1);
+    i_temp_track = i_music_track_start + (i_music_track_count - 1);
   }
   else {
     i_temp_track--;
@@ -642,7 +642,7 @@ void decreaseVolumeEffects() {
 }
 
 void updateMusicVolume() {
-  if(i_music_count > 0) {
+  if(i_music_track_count > 0) {
     switch(AUDIO_DEVICE) {
       case A_WAV_TRIGGER:
       case A_GPSTAR_AUDIO:
@@ -697,18 +697,18 @@ void decreaseVolumeMusic() {
 void buildMusicCount(uint16_t i_num_tracks) {
   // Build the music track count.
   if(b_gpstar_benchtest) {
-    i_music_count = i_num_tracks - i_last_effects_track;
+    i_music_track_count = i_num_tracks - i_last_effects_track;
 
-    if(i_music_count > 0 && i_music_count < 4097) {
+    if(i_music_track_count > 0 && i_music_track_count < 4097) {
       i_current_music_track = i_music_track_start; // Set the first track of music as file 500_
     }
     else {
-      i_music_count = 0; // If the music count is corrupt, make it 0
+      i_music_track_count = 0; // If the music count is corrupt, make it 0
       debugln(F("Warning: Calculated music count exceeds 4096; SD card corruption likely!"));
     }
   }
   else {
-    i_music_count = 0;
+    i_music_track_count = 0;
   }
 }
 
@@ -777,7 +777,7 @@ void checkMusic() {
               stopMusic();
 
               // Switch to the next track.
-              if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
+              if(i_current_music_track + 1 > i_music_track_start + i_music_track_count - 1) {
                 i_current_music_track = i_music_track_start;
               }
               else {
@@ -820,14 +820,14 @@ void toggleMusicLoop() {
       if(!b_repeat_track) {
         b_repeat_track = true;
 
-        if(i_music_count > 0) {
+        if(i_music_track_count > 0) {
           audio.trackLoop(i_current_music_track, 1);
         }
       }
       else {
         b_repeat_track = false;
 
-        if(i_music_count > 0) {
+        if(i_music_track_count > 0) {
           audio.trackLoop(i_current_music_track, 0);
         }
       }

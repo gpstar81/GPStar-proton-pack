@@ -412,27 +412,36 @@ bool startWiFi() {
   return b_ap_started; // At least return whether the soft AP started successfully.
 }
 
-void onOTAStart() {
-  // Log when OTA has started
-  debug(F("OTA update started"));
-}
-
-void onOTAProgress(size_t current, size_t final) {
-  // Log every 1 second
-  if (millis() - i_progress_millis > 1000) {
-    i_progress_millis = millis();
-    debugf("OTA Progress Current: %u bytes, Final: %u bytes\n", current, final);
-  }
-}
-
-void onOTAEnd(bool success) {
-  // Log when OTA has finished
-  if (success) {
-    debug(F("OTA update finished successfully!"));
-  } else {
-    debug(F("There was an error during OTA update!"));
-  }
-}
-
 // Provide all handler functions for the API layer.
 #include "Webhandler.h"
+
+// Stops the web server and disables WiFi to save power or for security.
+void shutdownWireless() {
+  // Close all websocket connections and stop the web server.
+  ws.closeAll();
+  httpServer.end();
+  b_ws_started = false;
+
+  // Disconnect WiFi and turn off radio.
+  WiFi.disconnect(true);
+  WiFi.mode(WIFI_OFF);
+  b_ap_started = false;
+  b_ext_wifi_started = false;
+
+  #if defined(DEBUG_WIRELESS_SETUP)
+    debugln(F("Wireless and web server shut down."));
+  #endif
+}
+
+// Restarts WiFi and web server when needed.
+void restartWireless() {
+  // Start WiFi (SoftAP or external, as per user settings)
+  startWiFi();
+
+  // Start web server and websocket
+  startWebServer();
+
+  #if defined(DEBUG_WIRELESS_SETUP)
+    debugln(F("Wireless and web server restarted."));
+  #endif
+}

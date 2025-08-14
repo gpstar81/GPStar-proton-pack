@@ -20,6 +20,18 @@
 #pragma once
 
 // Web page files (defines all text as char[] variable)
+#include "web/CommonJS.h" // COMMONJS_page
+#include "web/Index.h" // INDEX_page
+#include "web/IndexJS.h" // INDEXJS_page
+#include "web/Device.h" // DEVICE_page
+#include "web/ExtWiFi.h" // NETWORK_page
+#include "web/Password.h" // PASSWORD_page
+#include "web/PackSettings.h" // PACK_SETTINGS_page
+#include "web/WandSettings.h" // WAND_SETTINGS_page
+#include "web/SmokeSettings.h" // SMOKE_SETTINGS_page
+#include "web/Style.h" // STYLE_page
+#include "web/Equip.h" // EQUIP_svg
+#include "web/Icon.h" // FAVICON_ico, FAVICON_svg
 
 
 // Forward function declarations.

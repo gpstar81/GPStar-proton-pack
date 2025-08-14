@@ -311,11 +311,11 @@ millisDelay ms_cyclotron_switch_led; // Timer to control the 6 decorative LED pa
 millisDelay ms_cyclotron_switch_plate_leds; // Timer to control the 2 switch status indicator LEDs.
 
 /*
- * Alarm
+ * Pack [Ribbon Cable] Alarm
  * Used during overheating and/or ribbon cable removal.
  */
 const uint16_t i_alarm_delay = 500;
-bool b_alarm = false;
+bool b_pack_alarm = false;
 millisDelay ms_alarm;
 
 /*
@@ -379,9 +379,13 @@ bool b_vent_sounds; // A flag for playing smoke and vent sounds.
 bool b_vent_light_on = false; // To know if the light is on or off.
 
 /*
- * Wand Stream Modes + Settings
+ * Wand Firing Modes + Settings
  */
-enum STREAM_MODES { PROTON, STASIS, SLIME, MESON, SPECTRAL, HOLIDAY_HALLOWEEN, HOLIDAY_CHRISTMAS, SPECTRAL_CUSTOM };
+enum BARREL_STATES { BARREL_RETRACTED, BARREL_EXTENDED };
+enum BARREL_STATES BARREL_STATE;
+enum POWER_LEVELS { LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5 };
+enum POWER_LEVELS POWER_LEVEL;
+enum STREAM_MODES { PROTON, STASIS, SLIME, MESON, SPECTRAL, HOLIDAY_HALLOWEEN, HOLIDAY_CHRISTMAS, SPECTRAL_CUSTOM, SETTINGS };
 enum STREAM_MODES STREAM_MODE;
 bool b_settings = false; // Used to keep track of being in the wand settings menu.
 
@@ -393,6 +397,8 @@ bool b_settings = false; // Used to keep track of being in the wand settings men
  */
 enum SYSTEM_MODES { MODE_SUPER_HERO, MODE_ORIGINAL };
 enum SYSTEM_MODES SYSTEM_MODE;
+enum RED_SWITCH_MODES { SWITCH_ON, SWITCH_OFF };
+enum RED_SWITCH_MODES RED_SWITCH_MODE;
 
 /*
  * Cross The Streams Status
@@ -499,6 +505,16 @@ bool b_fade_out = false;
 const uint16_t i_gbfe_brass_shutdown_delay = 8796;
 const uint8_t i_fadeout_duration = 50;
 millisDelay ms_fadeout;
+
+/*
+ * UI Status Display Type
+ */
+enum DISPLAY_TYPES : uint8_t {
+  STATUS_TEXT = 0,
+  STATUS_GRAPHIC = 1,
+  STATUS_BOTH = 2
+};
+enum DISPLAY_TYPES DISPLAY_TYPE;
 
 /*
  * Function prototypes.

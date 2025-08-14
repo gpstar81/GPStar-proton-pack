@@ -20,10 +20,10 @@
 
 #pragma once
 
-void debug(String message) {
-  // Writes a debug message to the serial console.
+// Writes a debug message to the serial console or sends to the WebSocket.
+void sendDebug(String message) {
   #if defined(DEBUG_SEND_TO_CONSOLE)
-    Serial.println(message); // Print to serial console.
+    debugln(message); // Print to serial console.
   #endif
   #if defined(DEBUG_SEND_TO_WEBSOCKET)
     ws.textAll(message); // Send a copy to the WebSocket.
@@ -36,17 +36,17 @@ void printPartitions() {
   esp_partition_iterator_t iterator = esp_partition_find(ESP_PARTITION_TYPE_ANY, ESP_PARTITION_SUBTYPE_ANY, NULL);
 
   if (iterator == nullptr) {
-    Serial.println(F("No partitions found."));
+    debugln(F("No partitions found."));
     return;
   }
 
-  Serial.println(F("Partitions:"));
+  debugln(F("Partitions:"));
   while (iterator != nullptr) {
     partition = esp_partition_get(iterator);
-    Serial.printf("Label: %s, Size: %lu bytes, Address: 0x%08lx\n",
-                  partition->label,
-                  partition->size,
-                  partition->address);
+    debugf("Label: %s, Size: %lu bytes, Address: 0x%08lx\n",
+           partition->label,
+           partition->size,
+           partition->address);
     iterator = esp_partition_next(iterator);
   }
 

@@ -52,8 +52,13 @@
 #ifdef ESP32
   #include <HDC1080.h>
   GuL::HDC1080 tempSensor(Wire1);
+  millisDelay ms_temp_read;
+  bool b_temp_sensor_detected = false;
   #include <HardwareSerial.h>
 #endif
+
+// Forward declaration for use in all includes.
+void sendDebug(String message);
 
 // Local Files
 #include "Configuration.h"
@@ -69,10 +74,23 @@
   #include "PreferencesATMega.h"
 #endif
 #include "System.h"
+#include "Command.h"
 #include "Serial.h"
 #ifdef ESP32
   #include "Wireless.h"
 #endif
+
+// Writes a debug message to the serial console or sends to the WebSocket.
+void sendDebug(String message) {
+  #if defined(DEBUG_SEND_TO_CONSOLE)
+    debugln(message); // Print to serial console.
+  #endif
+  #if defined(DEBUG_SEND_TO_WEBSOCKET) and defined(ESP32)
+    if (b_ws_started) {
+      ws.textAll(message); // Send a copy to the WebSocket.
+    }
+  #endif
+}
 
 void setup() {
 #ifdef ESP32
@@ -81,6 +99,9 @@ void setup() {
 
   // Serial0 (UART0) is enabled by default; end() sets GPIO43 & GPIO44 to GPIO.
   Serial0.end();
+
+  // Set the baud rate for the Serial console.
+  Serial.begin(115200);
 
   /* This loop changes GPIO39~GPIO42 to Function 1, which is GPIO.
    * PIN_FUNC_SELECT sets the IOMUX function register appropriately.
@@ -116,11 +137,15 @@ void setup() {
   Wire1.begin(TEMP_SDA, TEMP_SCL, 400000UL);
 
   // Initialize the HDC1080 temp/humidity sensor.
-  tempSensor.resetConfiguration();
-  tempSensor.disableHeater();
-  tempSensor.setHumidityResolution(GuL::HDC1080::HumidityMeasurementResolution::HUM_RES_14BIT);
-  tempSensor.setTemperaturResolution(GuL::HDC1080::TemperatureMeasurementResolution::TEMP_RES_14BIT);
-  tempSensor.setAcquisitionMode(GuL::HDC1080::AcquisitionModes::SINGLE_CHANNEL);
+  Wire1.beginTransmission(0x40);
+  if(Wire1.endTransmission() == 0) {
+    b_temp_sensor_detected = true;
+    tempSensor.resetConfiguration();
+    tempSensor.disableHeater();
+    tempSensor.setHumidityResolution(GuL::HDC1080::HumidityMeasurementResolution::HUM_RES_14BIT);
+    tempSensor.setTemperaturResolution(GuL::HDC1080::TemperatureMeasurementResolution::TEMP_RES_14BIT);
+    tempSensor.setAcquisitionMode(GuL::HDC1080::AcquisitionModes::SINGLE_CHANNEL);
+  }
 #else
   Wire.begin();
   Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
@@ -128,7 +153,7 @@ void setup() {
 
   // Initialize an optional power meter on the i2c bus.
   if(b_use_power_meter) {
-    debugln(F("Init power meter..."));
+    sendDebug(F("Init power meter..."));
     powerMeterInit();
   }
 
@@ -347,7 +372,7 @@ void mainLoop() {
           b_pack_on = false;
         }
 
-        if(b_ramp_down && !b_overheating && !b_alarm) {
+        if(b_ramp_down && !b_overheating && !b_pack_alarm) {
           if(b_spectral_lights_on) {
             // If we enter the LED EEPROM menu while the pack is ramping off, stop it right away.
             packOffReset();
@@ -409,7 +434,7 @@ void mainLoop() {
         }
 
         if(ribbonCableAttached() && !b_overheating) {
-          if(b_alarm) {
+          if(b_pack_alarm) {
             if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
               // Reset the LEDs before resetting the alarm flag.
               if(!usingSlimeCyclotron()) {
@@ -427,7 +452,7 @@ void mainLoop() {
             ventLight(false);
             ventLightLEDW(false);
 
-            b_alarm = false;
+            b_pack_alarm = false;
 
             resetRampUp();
 
@@ -613,6 +638,19 @@ void loop() {
 #ifdef ESP32
   // Run checks on web-related tasks.
   webLoops();
+
+  // Read the HDC1080 and output the current temperature reading to the debug console.
+  if(b_temp_sensor_detected) {
+    if(!ms_temp_read.isRunning()) {
+      tempSensor.startAcquisition(GuL::HDC1080::Channel::TEMPERATURE);
+      ms_temp_read.start(5000); // Read every 5 seconds
+    }
+    else if(ms_temp_read.justFinished()) {
+      float f_temp_c = tempSensor.getTemperature();
+      float f_temp_f = f_temp_c * 1.8 + 32; // Convert Celsius to Fahrenheit
+      Serial.printf("\t\tTemp: %.1f C (%.1f F)\n", f_temp_c, f_temp_f);
+    }
+  }
 #endif
 
   // Update the available audio device.
