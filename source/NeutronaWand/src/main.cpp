@@ -59,13 +59,6 @@
 #include <Wire.h>
 #ifdef ESP32
   #include <HardwareSerial.h>
-  #include <Adafruit_LIS3MDL.h>
-  #include <Adafruit_LSM6DS3TRC.h>
-  Adafruit_LIS3MDL myMAG;
-  Adafruit_LSM6DS3TRC myIMU;
-  bool b_mag_found = false;
-  bool b_imu_found = false;
-  millisDelay ms_sensor_delay;
 #endif
 
 // Forward declaration for use in all includes.
@@ -79,6 +72,7 @@ void sendDebug(String message);
 #include "Colours.h"
 #include "Audio.h"
 #ifdef ESP32
+  #include "Motion.h"
   #include "PreferencesESP.h"
 #else
   #include "PreferencesATMega.h"
@@ -197,29 +191,9 @@ void setup() {
 #ifdef ESP32
   // ESP32-S3 requires manually specifying SDA and SCL pins first.
   Wire.begin(I2C_SDA, I2C_SCL, 400000UL);
-  Wire1.begin(IMU_SDA, IMU_SCL, 400000UL);
 
-  // Initialize the LIS3MDL magnetometer.
-  if(myMAG.begin_I2C(LIS3MDL_I2CADDR_DEFAULT, &Wire1)) {
-    b_mag_found = true;
-    myMAG.setPerformanceMode(LIS3MDL_MEDIUMMODE);
-    myMAG.setOperationMode(LIS3MDL_CONTINUOUSMODE);
-    myMAG.setDataRate(LIS3MDL_DATARATE_1000_HZ);
-    myMAG.setRange(LIS3MDL_RANGE_4_GAUSS);
-    myMAG.setIntThreshold(500);
-    myMAG.configInterrupt(false, false, true, true, false, true);
-  }
-
-  // Initialize the LSM6DS3TR-C IMU.
-  if(myIMU.begin_I2C(LSM6DS_I2CADDR_DEFAULT, &Wire1)) {
-    b_imu_found = true;
-    myIMU.setAccelRange(LSM6DS_ACCEL_RANGE_2_G);
-    myIMU.setGyroRange(LSM6DS_GYRO_RANGE_250_DPS);
-    myIMU.setAccelDataRate(LSM6DS_RATE_6_66K_HZ);
-    myIMU.setGyroDataRate(LSM6DS_RATE_6_66K_HZ);
-    myIMU.configInt1(false, false, true);
-    myIMU.configInt2(false, true, false);
-  }
+  // Initialize the I2C bus for the Magnetometer and IMU.
+  initializeMotionDevices();
 #else
   Wire.begin();
   Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
@@ -571,44 +545,11 @@ void mainLoop() {
 
 void loop() {
 #ifdef ESP32
-  webLoops(); // Handle web server loops, including WebSocket events and OTA updates.
+  // Run checks on web-related tasks.
+  webLoops();
 
-  if(b_imu_found && b_mag_found) {
-    if(!ms_sensor_delay.isRunning()) {
-      ms_sensor_delay.start(200); // Have the IMU/MAG report every 200ms.
-    }
-    else if(ms_sensor_delay.justFinished()) {
-      // Poll the sensors.
-      sensors_event_t mag;
-      sensors_event_t accel;
-      sensors_event_t gyro;
-      sensors_event_t temp;
-      myMAG.getEvent(&mag);
-      myIMU.getEvent(&accel, &gyro, &temp);
-      Serial.print("\t\tMag   X: ");
-      Serial.print(mag.magnetic.x);
-      Serial.print(" \tY: ");
-      Serial.print(mag.magnetic.y);
-      Serial.print(" \tZ: ");
-      Serial.print(mag.magnetic.z);
-      Serial.println(" uTesla ");
-      Serial.print("\t\tAccel X: ");
-      Serial.print(accel.acceleration.x);
-      Serial.print(" \tY: ");
-      Serial.print(accel.acceleration.y);
-      Serial.print(" \tZ: ");
-      Serial.print(accel.acceleration.z);
-      Serial.println(" m/s^2 ");
-      Serial.print("\t\tGyro  X: ");
-      Serial.print(gyro.gyro.x);
-      Serial.print(" \tY: ");
-      Serial.print(gyro.gyro.y);
-      Serial.print(" \tZ: ");
-      Serial.print(gyro.gyro.z);
-      Serial.println(" radians/s ");
-      Serial.println();
-    }
-  }
+  // Read the Mag/IMU motion sensors if they are available.
+  readMotionSensors();
 #endif
 
   switch(WAND_CONN_STATE) {
