@@ -267,7 +267,7 @@ void playMusic() {
     packSerialSend(P_MUSIC_STATUS, b_playing_music ? 2 : 1);
 
     // Tell connected serial device music playback has started.
-    attenuatorSend(A_MUSIC_IS_PLAYING, i_current_music_track);
+    attenuatorSerialSend(A_MUSIC_IS_PLAYING, i_current_music_track);
   }
 }
 
@@ -296,7 +296,7 @@ void stopMusic() {
   packSerialSend(P_MUSIC_STATUS, b_playing_music ? 2 : 1);
 
   // Tell connected serial device music playback has stopped.
-  attenuatorSend(A_MUSIC_IS_NOT_PLAYING, i_current_music_track);
+  attenuatorSerialSend(A_MUSIC_IS_NOT_PLAYING, i_current_music_track);
 }
 
 void pauseMusic() {
@@ -325,7 +325,7 @@ void pauseMusic() {
     packSerialSend(P_MUSIC_STATUS, b_music_paused ? 4 : 3);
 
     // Tell connected devices music playback is paused.
-    attenuatorSend(A_MUSIC_IS_PAUSED);
+    attenuatorSerialSend(A_MUSIC_IS_PAUSED);
   }
 }
 
@@ -356,7 +356,7 @@ void resumeMusic() {
     packSerialSend(P_MUSIC_STATUS, b_music_paused ? 4 : 3);
 
     // Tell connected devices music playback has resumed.
-    attenuatorSend(A_MUSIC_IS_NOT_PAUSED);
+    attenuatorSerialSend(A_MUSIC_IS_NOT_PAUSED);
   }
 }
 
@@ -386,7 +386,7 @@ void musicNextTrack() {
     // Set the new track.
     i_current_music_track = i_temp_track;
 
-    attenuatorSend(A_MUSIC_IS_NOT_PLAYING, i_current_music_track); // Updates the music track on the attenuator.
+    attenuatorSerialSend(A_MUSIC_IS_NOT_PLAYING, i_current_music_track); // Updates the music track on the attenuator.
   }
 }
 
@@ -416,7 +416,7 @@ void musicPrevTrack() {
     // Set the new track.
     i_current_music_track = i_temp_track;
 
-    attenuatorSend(A_MUSIC_IS_NOT_PLAYING, i_current_music_track); // Updates the music track on the attenuator.
+    attenuatorSerialSend(A_MUSIC_IS_NOT_PLAYING, i_current_music_track); // Updates the music track on the attenuator.
   }
 }
 

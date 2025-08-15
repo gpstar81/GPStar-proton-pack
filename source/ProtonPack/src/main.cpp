@@ -92,7 +92,8 @@ void sendDebug(String message) {
 
 void setup() {
 #ifdef ESP32
-  // To save power, reduce CPU frequency to 160 MHz.
+  // Reduce CPU frequency to 160 MHz to save ~33% power compared to 240 MHz.
+  // Do not set below 80 MHz as it will affect WiFi and other peripherals.
   setCpuFrequencyMhz(160);
 
   // Serial0 (UART0) is enabled by default; end() sets GPIO43 & GPIO44 to GPIO.
@@ -368,7 +369,7 @@ void mainLoop() {
 
           // Tell the wand the pack is off, so shut down the wand if it happens to still be on.
           packSerialSend(P_OFF);
-          attenuatorSend(A_PACK_OFF);
+          attenuatorSerialSend(A_PACK_OFF);
 
           b_pack_on = false;
         }
@@ -419,7 +420,7 @@ void mainLoop() {
         if(!b_pack_on) {
           // Tell the wand the pack is on.
           packSerialSend(P_ON);
-          attenuatorSend(A_PACK_ON);
+          attenuatorSerialSend(A_PACK_ON);
 
           ms_fadeout.stop();
           b_fade_out = false;
@@ -637,6 +638,11 @@ void mainLoop() {
 
 void loop() {
 #ifdef ESP32
+  // The ESP32 uses a dual-core CPU with the loop() executing in Core0 by default.
+  // Using vTaskDelay even without core-pinning will allow other tasks to run on Core1.
+  // Features such as networking, WiFi, and OTA updates can benefit from this brief delay.
+  vTaskDelay(pdMS_TO_TICKS(1)); // Translate 1 ms to ticks for delay.
+
   // Run checks on web-related tasks.
   webLoops();
 

@@ -177,4 +177,7 @@ function getStreamColor(cMode) {
 
   return color;
 }
+function updateEquipment(jObj) {
+  // Logic TBD for wand
+}
 )=====";

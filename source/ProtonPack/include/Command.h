@@ -68,7 +68,7 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
       }
 
       // Tell the Attenuator or any other device that the power to the Proton Pack is on.
-      attenuatorSend(A_ION_ARM_SWITCH_ON);
+      attenuatorSerialSend(A_ION_ARM_SWITCH_ON);
     break;
 
     case A_TURN_PACK_OFF:
@@ -77,7 +77,7 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
         PACK_ACTION_STATE = ACTION_OFF;
 
         //Make sure to tell the wireless that we are not overheating.
-        attenuatorSend(A_OVERHEATING_FINISHED);
+        attenuatorSerialSend(A_OVERHEATING_FINISHED);
       }
 
       // Tell the Neutrona Wand that power to the Proton Pack is off.
@@ -86,7 +86,7 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
       }
 
       // Tell the Attenuator or any other device that the power to the Proton Pack is off.
-      attenuatorSend(A_ION_ARM_SWITCH_OFF);
+      attenuatorSerialSend(A_ION_ARM_SWITCH_OFF);
     break;
 
     case A_WARNING_CANCELLED:
@@ -130,7 +130,7 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
         i_volume_master = i_volume_revert;
 
         packSerialSend(P_MASTER_AUDIO_NORMAL);
-        attenuatorSend(A_TOGGLE_MUTE, 1);
+        attenuatorSerialSend(A_TOGGLE_MUTE, 1);
       }
       else {
         i_volume_revert = i_volume_master;
@@ -139,7 +139,7 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
         i_volume_master = i_volume_abs_min;
 
         packSerialSend(P_MASTER_AUDIO_SILENT_MODE);
-        attenuatorSend(A_TOGGLE_MUTE, 2);
+        attenuatorSerialSend(A_TOGGLE_MUTE, 2);
       }
 
       updateMasterVolume();
@@ -214,7 +214,7 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
 
     case A_MUSIC_TRACK_LOOP_TOGGLE:
       toggleMusicLoop();
-      attenuatorSend(A_MUSIC_TRACK_LOOP_TOGGLE, b_repeat_track ? 2 : 1);
+      attenuatorSerialSend(A_MUSIC_TRACK_LOOP_TOGGLE, b_repeat_track ? 2 : 1);
     break;
 
     case A_REQUEST_PREFERENCES_PACK:

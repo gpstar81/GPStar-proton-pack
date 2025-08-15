@@ -139,6 +139,15 @@ struct __attribute__((packed)) WandSyncData {
  * Serial API Communication Handlers
  */
 
+ // Helper function to check if a command is excluded from WebSocket notifications.
+bool isExcludedCommand(uint8_t i_command) {
+  return i_command == W_HANDSHAKE ||
+         i_command == W_SYNC_NOW ||
+         i_command == W_COM_SOUND_NUMBER ||
+         i_command == W_SEND_PREFERENCES_WAND ||
+         i_command == W_SEND_PREFERENCES_SMOKE;
+}
+
 // Outgoing commands to the pack.
 void wandSerialSend(uint8_t i_command, uint16_t i_value) {
   uint16_t i_send_size = 0;
@@ -163,6 +172,13 @@ void wandSerialSend(uint8_t i_command, uint16_t i_value) {
 
   i_send_size = packComs.txObj(sendCmd);
   packComs.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
+
+#ifdef ESP32
+  // Send latest status to the WebSocket (ESP32 only), skipping this action on certain commands.
+  if (!isExcludedCommand(i_command)) {
+    notifyWSClients();
+  }
+#endif
 }
 // Override function to handle calls with a single parameter.
 void wandSerialSend(uint8_t i_command) {

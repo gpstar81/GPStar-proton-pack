@@ -33,6 +33,10 @@ bool b_imu_found = false;
 millisDelay ms_sensor_delay;
 const uint16_t i_sensor_delay = 200; // Delay between sensor reads in milliseconds.
 
+// Constant: FILTER_ALPHA
+// Purpose: Controls the smoothing factor for exponential moving average filtering (0 < FILTER_ALPHA <= 1).
+const float FILTER_ALPHA = 0.2f;
+
 // Struct: MotionData
 // Purpose: Holds all motion sensor readings for magnetometer, accelerometer, gyroscope, and calculated heading.
 // Attributes:
@@ -53,28 +57,70 @@ struct MotionData {
   float heading;
 };
 
-// Global object to hold the latest sensor readings.
+// Global object to hold the latest raw sensor readings.
 MotionData motionData;
 
+// Global object to hold the latest filtered sensor readings.
+MotionData filteredMotionData;
+
+// Offset to correct magnetometer orientation on the PCB.
+const float HEADING_OFFSET_DEG = 270.0f;
+
+// Indicate if the device is mounted upside down (inverted); set true for installation orientation.
+bool isDeviceInstalled = false; // true: Components DOWN (Installed), false: Components UP (Deveolopment)
+
 // Function: calculateHeading
-// Purpose: Computes the compass heading (in degrees) from magnetometer X and Y values.
+// Purpose: Computes the compass heading (in degrees) from magnetometer X and Y values, applying a device-specific offset and optional inversion for mounting.
 // Inputs:
 //   - float magX: Magnetometer X-axis reading
 //   - float magY: Magnetometer Y-axis reading
 // Outputs:
 //   - float: Compass heading in degrees (0-360°)
 float calculateHeading(float magX, float magY) {
-  // Calculate heading in radians
   float headingRad = atan2(magY, magX);
-
-  // Convert radians to degrees
   float headingDeg = headingRad * (180.0f / PI);
 
+  // Apply offset for physical chip orientation
+  headingDeg -= HEADING_OFFSET_DEG;
+
   // Normalize to 0-360°
-  if (headingDeg < 0) {
+  while (headingDeg < 0.0f) {
     headingDeg += 360.0f;
   }
+  while (headingDeg >= 360.0f) {
+    headingDeg -= 360.0f;
+  }
+
+  // Invert heading if device is mounted upside down
+  if (isDeviceInstalled) {
+    headingDeg = 360.0f - headingDeg;
+    // Normalize again to 0-360°
+    while (headingDeg < 0.0f) {
+      headingDeg += 360.0f;
+    }
+    while (headingDeg >= 360.0f) {
+      headingDeg -= 360.0f;
+    }
+  }
+
   return headingDeg;
+}
+
+// Function: updateFilteredMotionData
+// Purpose: Applies exponential moving average filtering to raw motionData and updates filteredMotionData.
+// Inputs: None (uses global motionData and filteredMotionData)
+// Outputs: None (updates filteredMotionData)
+void updateFilteredMotionData() {
+  filteredMotionData.magX    = FILTER_ALPHA * motionData.magX    + (1.0f - FILTER_ALPHA) * filteredMotionData.magX;
+  filteredMotionData.magY    = FILTER_ALPHA * motionData.magY    + (1.0f - FILTER_ALPHA) * filteredMotionData.magY;
+  filteredMotionData.magZ    = FILTER_ALPHA * motionData.magZ    + (1.0f - FILTER_ALPHA) * filteredMotionData.magZ;
+  filteredMotionData.accelX  = FILTER_ALPHA * motionData.accelX  + (1.0f - FILTER_ALPHA) * filteredMotionData.accelX;
+  filteredMotionData.accelY  = FILTER_ALPHA * motionData.accelY  + (1.0f - FILTER_ALPHA) * filteredMotionData.accelY;
+  filteredMotionData.accelZ  = FILTER_ALPHA * motionData.accelZ  + (1.0f - FILTER_ALPHA) * filteredMotionData.accelZ;
+  filteredMotionData.gyroX   = FILTER_ALPHA * motionData.gyroX   + (1.0f - FILTER_ALPHA) * filteredMotionData.gyroX;
+  filteredMotionData.gyroY   = FILTER_ALPHA * motionData.gyroY   + (1.0f - FILTER_ALPHA) * filteredMotionData.gyroY;
+  filteredMotionData.gyroZ   = FILTER_ALPHA * motionData.gyroZ   + (1.0f - FILTER_ALPHA) * filteredMotionData.gyroZ;
+  filteredMotionData.heading = calculateHeading(motionData.magX, motionData.magY);
 }
 
 // Initialize the I2C bus for the Magnetometer and IMU.
@@ -119,7 +165,7 @@ void readMotionSensors() {
       myMAG.getEvent(&mag);
       myIMU.getEvent(&accel, &gyro, &temp);
 
-      // Update the sensor data as a global object.
+      // Update the raw sensor data as a global object.
       motionData.magX = mag.magnetic.x;
       motionData.magY = mag.magnetic.y;
       motionData.magZ = mag.magnetic.z;
@@ -130,33 +176,36 @@ void readMotionSensors() {
       motionData.gyroY = gyro.gyro.y;
       motionData.gyroZ = gyro.gyro.z;
 
-      // Update heading value based on magnetometer X and Y.
+      // Update heading value based on magnetometer X and Y only.
       motionData.heading = calculateHeading(motionData.magX, motionData.magY);
 
-      // Print the sensor data to the debug console.
-      debug("\t\tMag   X: ");
-      debug(motionData.magX);
+      // Apply smoothing filter to sensor data.
+      updateFilteredMotionData();
+
+      // Print the filtered sensor data to the debug console.
+      debug("\t\tFiltered Mag   X: ");
+      debug(filteredMotionData.magX);
       debug(" \tY: ");
-      debug(motionData.magY);
+      debug(filteredMotionData.magY);
       debug(" \tZ: ");
-      debug(motionData.magZ);
+      debug(filteredMotionData.magZ);
       debugln(" uTesla ");
-      debug("\t\tAccel X: ");
-      debug(motionData.accelX);
+      debug("\t\tFiltered Accel X: ");
+      debug(filteredMotionData.accelX);
       debug(" \tY: ");
-      debug(motionData.accelY);
+      debug(filteredMotionData.accelY);
       debug(" \tZ: ");
-      debug(motionData.accelZ);
+      debug(filteredMotionData.accelZ);
       debugln(" m/s^2 ");
-      debug("\t\tGyro  X: ");
-      debug(motionData.gyroX);
+      debug("\t\tFiltered Gyro  X: ");
+      debug(filteredMotionData.gyroX);
       debug(" \tY: ");
-      debug(motionData.gyroY);
+      debug(filteredMotionData.gyroY);
       debug(" \tZ: ");
-      debug(motionData.gyroZ);
+      debug(filteredMotionData.gyroZ);
       debugln(" rads/s ");
-      debug("\t\tHeading: ");
-      debug(motionData.heading);
+      debug("\t\tFiltered Heading: ");
+      debug(filteredMotionData.heading);
       debugln(" deg ");
       debugln();
     }
