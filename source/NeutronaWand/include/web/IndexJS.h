@@ -26,12 +26,14 @@ var statusInterval;
 var musicTrackStart = 0, musicTrackMax = 0, musicTrackCurrent = 0, musicTrackList = [];
 
 window.addEventListener("load", onLoad);
+window.addEventListener("resize", onWindowResize);
 
 function onLoad(event) {
   document.getElementsByClassName("tablinks")[0].click();
   getDevicePrefs(); // Get all preferences.
   initWebSocket(); // Open the WebSocket.
   getStatus(updateEquipment); // Get status immediately.
+  init3D(); // Initialize 3D representation.
 }
 
 function initWebSocket() {
@@ -177,7 +179,101 @@ function getStreamColor(cMode) {
 
   return color;
 }
+
 function updateEquipment(jObj) {
   // Logic TBD for wand
+}
+
+// https://randomnerdtutorials.com/esp32-mpu-6050-web-server/
+
+let scene, camera, rendered, cube;
+
+function parentWidth(elem) {
+  return elem.parentElement.clientWidth;
+}
+
+function parentHeight(elem) {
+  return elem.parentElement.clientHeight;
+}
+
+function init3D(){
+  scene = new THREE.Scene();
+  //scene.background = new THREE.Color(0xffffff);
+  scene.background = null; // Set background to transparent
+
+  camera = new THREE.PerspectiveCamera(75, parentWidth(document.getElementById("3Dcube")) / parentHeight(document.getElementById("3Dcube")), 0.1, 1000);
+
+  //renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); // For transparent background
+  renderer.setSize(parentWidth(document.getElementById("3Dcube")), parentHeight(document.getElementById("3Dcube")));
+
+  document.getElementById('3Dcube').appendChild(renderer.domElement);
+
+  // Create a geometry (order: width, height, depth)
+  const geometry = new THREE.BoxGeometry(2, 1, 5);
+
+  // Materials for each cube face (order: right, left, top, bottom, front, back)
+  var cubeMaterials = [
+    new THREE.MeshBasicMaterial({color:0x009000}), // Right face  - darker green
+    new THREE.MeshBasicMaterial({color:0x009000}), // Left face   - darker green
+    new THREE.MeshBasicMaterial({color:0x00C000}), // Top face    - lighter green
+    new THREE.MeshBasicMaterial({color:0x007000}), // Bottom face - darkest green
+    new THREE.MeshBasicMaterial({color:0x00A000}), // Front face  - base green
+    new THREE.MeshBasicMaterial({color:0x00A000}), // Back face   - base green
+  ];
+
+  cube = new THREE.Mesh(geometry, cubeMaterials);
+  scene.add(cube);
+  camera.position.z = 5;
+  renderer.render(scene, camera);
+}
+
+// Resize the 3D object when the browser window changes size
+function onWindowResize(){
+  camera.aspect = parentWidth(document.getElementById("3Dcube")) / parentHeight(document.getElementById("3Dcube"));
+  //camera.aspect = window.innerWidth /  window.innerHeight;
+  camera.updateProjectionMatrix();
+  //renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setSize(parentWidth(document.getElementById("3Dcube")), parentHeight(document.getElementById("3Dcube")));
+}
+
+function resetPosition() {
+  sendCommand("/sensors/reset");
+}
+
+// Create events for the sensor readings
+if (!!window.EventSource) {
+  var source = new EventSource("/events");
+
+  source.addEventListener("open", function(e) {
+    console.log("Events Connected");
+  }, false);
+
+  source.addEventListener("error", function(e) {
+    if (e.target.readyState != EventSource.OPEN) {
+      console.log("Events Disconnected");
+    }
+  }, false);
+
+  source.addEventListener("telemetry", function(e) {
+    var obj = JSON.parse(e.data);
+
+    // Update the HTML elements with the telemetry data
+    setHtml("heading", "&nbsp;&nbsp;Heading: " + parseFloat(obj.heading || 0).toFixed(2) + "&deg;");
+    setHtml("gyroX",   "Pitch (X): " + parseFloat(obj.gyroX || 0).toFixed(2) + " radians/s");
+    setHtml("gyroY",   "&nbsp;&nbsp;Yaw (Y): " + parseFloat(obj.gyroY || 0).toFixed(2) + " radians/s");
+    setHtml("gyroZ",   "&nbsp;Roll (Z): " + parseFloat(obj.gyroZ || 0).toFixed(2) + " radians/s");
+    setHtml("accelX",  "&nbsp;&nbsp;X (L-R): " + parseFloat(obj.accelX || 0).toFixed(2) + " m/s<sup>2</sup>");
+    setHtml("accelY",  "&nbsp;&nbsp;Y (U-D): " + parseFloat(obj.accelY || 0).toFixed(2) + " m/s<sup>2</sup>");
+    setHtml("accelZ",  "&nbsp;&nbsp;Z (F-B): " + parseFloat(obj.accelZ || 0).toFixed(2) + " m/s<sup>2</sup>");
+
+    // Change cube rotation after receiving the readings
+    if (cube) {
+      cube.rotation.x = obj.gyroX || 0;
+      cube.rotation.y = obj.gyroY || 0;
+      cube.rotation.z = obj.gyroZ || 0;
+      renderer.render(scene, camera);
+    }
+  }, false);
 }
 )=====";

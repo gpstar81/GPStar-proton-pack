@@ -28,8 +28,8 @@
 #include "web/Password.h" // PASSWORD_page
 #include "web/WandSettings.h" // WAND_SETTINGS_page
 #include "web/Style.h" // STYLE_page
-#include "web/Equip.h" // EQUIP_svg
 #include "web/Icon.h" // FAVICON_ico, FAVICON_svg
+#include "web/ThreeJS.h" // Three.js Library, THREEJS_page
 
 // Forward function declarations.
 void setupRouting();
@@ -174,6 +174,7 @@ String getPower() {
  */
 JsonDocument jsonBody; // Used for processing JSON body/payload data.
 JsonDocument jsonSuccess; // Used for sending JSON status as success.
+JsonDocument jsonTelemetry; // Used for sending JSON telemetry data.
 String status; // Holder for simple "status: success" response.
 
 void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
@@ -251,6 +252,16 @@ void startWebServer() {
   // Configure the WebSocket endpoint.
   ws.onEvent(onWebSocketEventHandler);
   httpServer.addHandler(&ws);
+
+  // Handle web server Events for telemetry data.
+  events.onConnect([](AsyncEventSourceClient *client){
+    if(client->lastId()){
+      debugf("Client reconnected! Last message ID that it got is: %u\n", client->lastId());
+    }
+    // Send event with message "hello!", id current millis and set reconnect delay to 1 second
+    client->send("hello!", NULL, millis(), 10000);
+  });
+  httpServer.addHandler(&events);
 
   // Configure the OTA firmware endpoint handler.
   ElegantOTA.begin(&httpServer);
@@ -338,15 +349,6 @@ void handleStylesheet(AsyncWebServerRequest *request) {
   request->send(response); // Serve page content.
 }
 
-void handleEquipSvg(AsyncWebServerRequest *request) {
-  // Used for the root page (/) of the web server.
-  debug("Sending -> Equipment SVG");
-  AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", EQUIP_svg, sizeof(EQUIP_svg));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip");
-  request->send(response);
-}
-
 void handleFavIco(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
   debug("Sending -> Favicon");
@@ -363,6 +365,14 @@ void handleFavSvg(AsyncWebServerRequest *request) {
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   response->addHeader("Content-Encoding", "gzip");
   request->send(response);
+}
+
+void handleThreeJS(AsyncWebServerRequest *request) {
+  // Used for the root page (/) from the web server.
+  debug("Sending -> Three.js Library");
+  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", (const uint8_t*)THREEJS_page, strlen(THREEJS_page));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  request->send(response); // Serve page content.
 }
 
 String getDeviceConfig() {
@@ -514,6 +524,32 @@ String getWifiSettings() {
   return wifiNetwork;
 }
 
+float roundFloat3(float value) {
+  // Rounds a float to 3 decimal places.
+  return roundf(value * 1000.0f) / 1000.0f;
+}
+
+String getTelemetry() {
+  // Prepare a JSON object with magnetometer and gyroscope/acceleration data.
+  String telemetryData;
+  jsonTelemetry.clear();
+
+  // Magnetometer in microteslas (uT) converted to a heading in degrees.
+  jsonTelemetry["heading"] = roundFloat3(filteredMotionData.heading);
+  // Acceleration in meters/second^2 (m/s^2)
+  jsonTelemetry["accelX"] = roundFloat3(filteredMotionData.accelX);
+  jsonTelemetry["accelY"] = roundFloat3(filteredMotionData.accelY);
+  jsonTelemetry["accelZ"] = roundFloat3(filteredMotionData.accelZ);
+  // Gyroscope in radians/second (rads/s)
+  jsonTelemetry["gyroX"] = roundFloat3(filteredMotionData.gyroX);
+  jsonTelemetry["gyroY"] = roundFloat3(filteredMotionData.gyroY);
+  jsonTelemetry["gyroZ"] = roundFloat3(filteredMotionData.gyroZ);
+
+  // Serialize JSON object to string.
+  serializeJson(jsonTelemetry, telemetryData);
+  return telemetryData;
+}
+
 void handleGetDeviceConfig(AsyncWebServerRequest *request) {
   // Return current device settings as a stringified JSON object.
   request->send(200, "application/json", getDeviceConfig());
@@ -532,6 +568,12 @@ void handleGetStatus(AsyncWebServerRequest *request) {
 void handleGetWifi(AsyncWebServerRequest *request) {
   // Return current system status as a stringified JSON object.
   request->send(200, "application/json", getWifiSettings());
+}
+
+void handleResetSensors(AsyncWebServerRequest *request) {
+  // Reset all telemetry data for motion sensors.
+  resetAllMotionData();
+  request->send(200, "application/json", status);
 }
 
 void handleRestart(AsyncWebServerRequest *request) {
@@ -950,7 +992,6 @@ void setupRouting() {
   // Static Pages
   httpServer.on("/", HTTP_GET, handleRoot);
   httpServer.on("/common.js", HTTP_GET, handleCommonJS);
-  httpServer.on("/equipment.svg", HTTP_GET, handleEquipSvg);
   httpServer.on("/favicon.ico", HTTP_GET, handleFavIco);
   httpServer.on("/favicon.svg", HTTP_GET, handleFavSvg);
   httpServer.on("/index.js", HTTP_GET, handleRootJS);
@@ -959,6 +1000,7 @@ void setupRouting() {
   httpServer.on("/settings/device", HTTP_GET, handleDeviceSettings);
   httpServer.on("/settings/wand", HTTP_GET, handleWandSettings);
   httpServer.on("/style.css", HTTP_GET, handleStylesheet);
+  httpServer.on("/three.js", HTTP_GET, handleThreeJS);
   httpServer.onNotFound(handleNotFound);
 
   // Get/Set Handlers
@@ -980,6 +1022,7 @@ void setupRouting() {
   httpServer.on("/music/prev", HTTP_PUT, handlePrevMusicTrack);
   httpServer.on("/music/loop", HTTP_PUT, handleLoopMusicTrack);
   httpServer.on("/wifi/settings", HTTP_GET, handleGetWifi);
+  httpServer.on("/sensors/reset", HTTP_PUT, handleResetSensors);
 
   // Body Handlers
   httpServer.addHandler(handleSaveDeviceConfig); // /config/device/save
@@ -993,6 +1036,15 @@ void notifyWSClients() {
   if(b_ws_started) {
     // Send latest status to all connected clients.
     ws.textAll(getEquipmentStatus());
+  }
+}
+
+void sendTelemetryData() {
+  if(b_ws_started) {
+    // Gather the latest filtered motion data, serialize it to a JSON string,
+    // and send it to all connected EventSource (SSE) clients as a "telemetry"
+    // event name (using the current time as a unique event identifier).
+    events.send(getTelemetry().c_str(), "telemetry", millis());
   }
 }
 

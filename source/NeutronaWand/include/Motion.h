@@ -22,6 +22,9 @@
 #include <Adafruit_LIS3MDL.h>
 #include <Adafruit_LSM6DS3TRC.h>
 
+// Forward function declarations.
+void sendTelemetryData(); // From Webhandler.h
+
 /*
  * Magnetometer and IMU
  * Defines all device objects and variables.
@@ -35,7 +38,8 @@ const uint16_t i_sensor_delay = 200; // Delay between sensor reads in millisecon
 
 // Constant: FILTER_ALPHA
 // Purpose: Controls the smoothing factor for exponential moving average filtering (0 < FILTER_ALPHA <= 1).
-const float FILTER_ALPHA = 0.2f;
+//          Increasing this value makes it more responsive to changes, decreasing smooths out fluctuations.
+const float FILTER_ALPHA = 0.1f;
 
 // Struct: MotionData
 // Purpose: Holds all motion sensor readings for magnetometer, accelerometer, gyroscope, and calculated heading.
@@ -68,6 +72,33 @@ const float HEADING_OFFSET_DEG = 270.0f;
 
 // Indicate if the device is mounted upside down (inverted); set true for installation orientation.
 bool isDeviceInstalled = false; // true: Components DOWN (Installed), false: Components UP (Deveolopment)
+
+// Function: resetMotionData
+// Purpose: Resets all fields of a MotionData object to zero.
+// Inputs:
+//   - MotionData &data: Reference to the MotionData object to reset.
+// Outputs: None (modifies the object in place)
+void resetMotionData(MotionData &data) {
+  data.magX = 0.0f;
+  data.magY = 0.0f;
+  data.magZ = 0.0f;
+  data.accelX = 0.0f;
+  data.accelY = 0.0f;
+  data.accelZ = 0.0f;
+  data.gyroX = 0.0f;
+  data.gyroY = 0.0f;
+  data.gyroZ = 0.0f;
+  data.heading = 0.0f;
+}
+
+// Function: resetAllMotionData
+// Purpose: Resets both global motionData and filteredMotionData objects to zero.
+// Inputs: None
+// Outputs: None
+void resetAllMotionData() {
+  resetMotionData(motionData);
+  resetMotionData(filteredMotionData);
+}
 
 // Function: calculateHeading
 // Purpose: Computes the compass heading (in degrees) from magnetometer X and Y values, applying a device-specific offset and optional inversion for mounting.
@@ -130,10 +161,10 @@ void initializeMotionDevices() {
   // Initialize the LIS3MDL magnetometer.
   if(myMAG.begin_I2C(LIS3MDL_I2CADDR_DEFAULT, &Wire1)) {
     b_mag_found = true;
-    myMAG.setPerformanceMode(LIS3MDL_MEDIUMMODE); // Set performance mode to medium
-    myMAG.setOperationMode(LIS3MDL_CONTINUOUSMODE); // Set operation mode to continuous
-    myMAG.setDataRate(LIS3MDL_DATARATE_1000_HZ); // Set data rate to 1000Hz
-    myMAG.setRange(LIS3MDL_RANGE_4_GAUSS); // Set range to 4 Gauss
+    myMAG.setPerformanceMode(LIS3MDL_MEDIUMMODE); // Set performance mode to medium (balanced power/accuracy)
+    myMAG.setOperationMode(LIS3MDL_CONTINUOUSMODE); // Set operation mode to continuous measurements
+    myMAG.setDataRate(LIS3MDL_DATARATE_560_HZ); // Set data rate to 560Hz (or LIS3MDL_DATARATE_1000_HZ)
+    myMAG.setRange(LIS3MDL_RANGE_4_GAUSS); // Set range to 4 Gauss (highest sensitivity, lowest max field)
     myMAG.setIntThreshold(500); // Set interrupt threshold to 500
     myMAG.configInterrupt(false, false, true, true, false, true); // Configure interrupts
   }
@@ -141,13 +172,16 @@ void initializeMotionDevices() {
   // Initialize the LSM6DS3TR-C IMU.
   if(myIMU.begin_I2C(LSM6DS_I2CADDR_DEFAULT, &Wire1)) {
     b_imu_found = true;
-    myIMU.setAccelRange(LSM6DS_ACCEL_RANGE_2_G); // Set accelerometer range to 2G
-    myIMU.setGyroRange(LSM6DS_GYRO_RANGE_250_DPS); // Set gyroscope range to 250DPS
-    myIMU.setAccelDataRate(LSM6DS_RATE_6_66K_HZ); // Set accelerometer data rate to 6.66KHz
-    myIMU.setGyroDataRate(LSM6DS_RATE_6_66K_HZ); // Set gyroscope data rate to 6.66KHz
+    myIMU.setAccelRange(LSM6DS_ACCEL_RANGE_2_G); // Set accelerometer range to 2G (highest sensitivity, lowest max acceleration)
+    myIMU.setGyroRange(LSM6DS_GYRO_RANGE_250_DPS); // Set gyroscope range to 250DPS (high sensitivity, low max rotation)
+    myIMU.setAccelDataRate(LSM6DS_RATE_833_HZ); // Set accelerometer data rate to 833Hz (fast, mid power)
+    myIMU.setGyroDataRate(LSM6DS_RATE_833_HZ); // Set gyroscope data rate to 833Hz (fast, mid power)
     myIMU.configInt1(false, false, true); // Enable accelerometer data ready interrupt
     myIMU.configInt2(false, true, false); // Enable gyroscope data ready interrupt
   }
+
+  // Reset all motion data.
+  resetAllMotionData();
 }
 
 // Read the motion sensors and print the data to the debug console (if enabled).
@@ -165,24 +199,74 @@ void readMotionSensors() {
       myMAG.getEvent(&mag);
       myIMU.getEvent(&accel, &gyro, &temp);
 
-      // Update the raw sensor data as a global object.
+      // Update the magnetometer data.
       motionData.magX = mag.magnetic.x;
       motionData.magY = mag.magnetic.y;
       motionData.magZ = mag.magnetic.z;
-      motionData.accelX = accel.acceleration.x;
-      motionData.accelY = accel.acceleration.y;
-      motionData.accelZ = accel.acceleration.z;
-      motionData.gyroX = gyro.gyro.x;
-      motionData.gyroY = gyro.gyro.y;
-      motionData.gyroZ = gyro.gyro.z;
 
       // Update heading value based on magnetometer X and Y only.
       motionData.heading = calculateHeading(motionData.magX, motionData.magY);
+
+      /**
+       * Update the raw IMU data in a global object, accounting for the orientation
+       * of the IMU sensor relative to the mounted position of the PCB in the wand.
+       *
+       * For a user standing at origin would be at (0,0,0).
+       *
+       * X Axis (Left-Right):
+       *  Positive X: To your right.
+       *  Negative X: To your left.
+       *  Movement: Sidestepping right/left.
+       *
+       * X Rotation (Pitch):
+       *  Positive Pitch: Look up.
+       *  Negative Pitch: Look down.
+       *
+       * Y Axis (Up-Down):
+       *  Positive Y: Upwards (toward the sky).
+       *  Negative Y: Downwards (toward the ground).
+       *  Movement: Jumping or crouching.
+       *
+       * Y Rotation (Yaw):
+       *  Positive Yaw: Turn left.
+       *  Negative Yaw: Turn right.
+       *
+       * Z Axis (Forward-Backward):
+       *  Positive Z: In front of you (the direction you are facing).
+       *  Negative Z: Behind you.
+       *  Movement: Walking forward/backward.
+       *
+       * Z Rotation (Roll):
+       *  Positive Roll: Tilt left.
+       *  Negative Roll: Tilt right.
+       *
+       * Due to the direction the sensor is mounted on the PCB we need to swap the Z and Y axes.
+       * Additionally, the Z axis reads backwards from what is expected so we need to invert Y values.
+       * Even further the device is normally mounted upside down, sowe need to use our inversion flag
+       * to swap the values for everything when installed.
+       */
+      motionData.accelX = accel.acceleration.x;
+      motionData.accelY = accel.acceleration.z * -1;
+      motionData.accelZ = accel.acceleration.y;
+      motionData.gyroX = gyro.gyro.x;
+      motionData.gyroY = gyro.gyro.z * -1;
+      motionData.gyroZ = gyro.gyro.y;
+
+      if (!isDeviceInstalled) {
+        // When not installed we need to invert the X/Y values.
+        motionData.accelX = motionData.accelX * -1;
+        motionData.accelY = motionData.accelY * -1;
+        // motionData.accelZ = motionData.accelZ * -1;
+        motionData.gyroX = motionData.gyroX * -1;
+        motionData.gyroY = motionData.gyroY * -1;
+        // motionData.gyroZ = motionData.gyroZ * -1;
+      }
 
       // Apply smoothing filter to sensor data.
       updateFilteredMotionData();
 
       // Print the filtered sensor data to the debug console.
+    #if defined(DEBUG_SEND_TO_CONSOLE)
       debug("\t\tFiltered Mag   X: ");
       debug(filteredMotionData.magX);
       debug(" \tY: ");
@@ -208,6 +292,10 @@ void readMotionSensors() {
       debug(filteredMotionData.heading);
       debugln(" deg ");
       debugln();
+    #endif
+
+      // Send telemetry data to connected clients via server-side events.
+      sendTelemetryData();
     }
   }
 }

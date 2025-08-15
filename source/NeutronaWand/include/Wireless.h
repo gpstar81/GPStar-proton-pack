@@ -68,6 +68,9 @@ AsyncWebServer httpServer(80);
 // Define a websocket endpoint for the async web server.
 AsyncWebSocket ws("/ws");
 
+// Create a server-side event source on /events.
+AsyncEventSource events("/events");
+
 // Track the number of connected WiFi (AP) clients.
 uint8_t i_ap_client_count = 0;
 

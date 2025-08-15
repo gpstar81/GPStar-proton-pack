@@ -152,13 +152,21 @@ bool isExcludedCommand(uint8_t i_command) {
 void wandSerialSend(uint8_t i_command, uint16_t i_value) {
   uint16_t i_send_size = 0;
 
+#ifdef ESP32
+  // Send latest status to the WebSocket (ESP32 only), skipping this action on certain commands.
+  // We make a special case for a disconnected pack, or one in benchtest mode, so that the WebSocket gets updates.
+  if (WAND_CONN_STATE == PACK_DISCONNECTED || WAND_CONN_STATE == NC_BENCHTEST || !isExcludedCommand(i_command)) {
+    notifyWSClients();
+  }
+#endif
+
   // Leave when a pack is not intended to be connected.
   if(b_gpstar_benchtest) {
     return;
   }
 
-  debug(F("Command to Pack: "));
-  debugln(i_command);
+  // debug(F("Command to Pack: "));
+  // debugln(i_command);
 
   sendCmd.s = W_COM_START;
   sendCmd.c = i_command;
@@ -172,13 +180,6 @@ void wandSerialSend(uint8_t i_command, uint16_t i_value) {
 
   i_send_size = packComs.txObj(sendCmd);
   packComs.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
-
-#ifdef ESP32
-  // Send latest status to the WebSocket (ESP32 only), skipping this action on certain commands.
-  if (!isExcludedCommand(i_command)) {
-    notifyWSClients();
-  }
-#endif
 }
 // Override function to handle calls with a single parameter.
 void wandSerialSend(uint8_t i_command) {
