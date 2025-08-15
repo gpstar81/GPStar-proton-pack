@@ -544,6 +544,10 @@ String getTelemetry() {
   jsonTelemetry["gyroX"] = roundFloat3(filteredMotionData.gyroX);
   jsonTelemetry["gyroY"] = roundFloat3(filteredMotionData.gyroY);
   jsonTelemetry["gyroZ"] = roundFloat3(filteredMotionData.gyroZ);
+  // Spatial data in Euler angles (degrees).
+  jsonTelemetry["pitch"] = roundFloat3(spatialData.pitch);
+  jsonTelemetry["yaw"] = roundFloat3(spatialData.yaw);
+  jsonTelemetry["roll"] = roundFloat3(spatialData.roll);
 
   // Serialize JSON object to string.
   serializeJson(jsonTelemetry, telemetryData);

@@ -260,18 +260,21 @@ if (!!window.EventSource) {
 
     // Update the HTML elements with the telemetry data
     setHtml("heading", "&nbsp;&nbsp;Heading: " + parseFloat(obj.heading || 0).toFixed(2) + "&deg;");
-    setHtml("gyroX",   "Pitch (X): " + parseFloat(obj.gyroX || 0).toFixed(2) + " radians/s");
-    setHtml("gyroY",   "&nbsp;&nbsp;Yaw (Y): " + parseFloat(obj.gyroY || 0).toFixed(2) + " radians/s");
-    setHtml("gyroZ",   "&nbsp;Roll (Z): " + parseFloat(obj.gyroZ || 0).toFixed(2) + " radians/s");
+    setHtml("gyroX",   "&nbsp;Roll (X): " + parseFloat(obj.gyroX || 0).toFixed(2) + " rads/s "
+                                          + parseFloat(obj.roll || 0).toFixed(2) + "&deg;");
+    setHtml("gyroY",   "Pitch (Y): " + parseFloat(obj.gyroY || 0).toFixed(2) + " rads/s "
+                                     + parseFloat(obj.pitch || 0).toFixed(2) + "&deg;");
+    setHtml("gyroZ",   "&nbsp;&nbsp;Yaw (Z): " + parseFloat(obj.gyroZ || 0).toFixed(2) + " rads/s "
+                                               + parseFloat(obj.yaw || 0).toFixed(2) + "&deg;");
     setHtml("accelX",  "&nbsp;&nbsp;X (L-R): " + parseFloat(obj.accelX || 0).toFixed(2) + " m/s<sup>2</sup>");
-    setHtml("accelY",  "&nbsp;&nbsp;Y (U-D): " + parseFloat(obj.accelY || 0).toFixed(2) + " m/s<sup>2</sup>");
-    setHtml("accelZ",  "&nbsp;&nbsp;Z (F-B): " + parseFloat(obj.accelZ || 0).toFixed(2) + " m/s<sup>2</sup>");
+    setHtml("accelY",  "&nbsp;&nbsp;Y (F-B): " + parseFloat(obj.accelY || 0).toFixed(2) + " m/s<sup>2</sup>");
+    setHtml("accelZ",  "&nbsp;&nbsp;Z (U-D): " + parseFloat(obj.accelZ || 0).toFixed(2) + " m/s<sup>2</sup>");
 
     // Change cube rotation after receiving the readings
     if (cube) {
-      cube.rotation.x = obj.gyroX || 0;
-      cube.rotation.y = obj.gyroY || 0;
-      cube.rotation.z = obj.gyroZ || 0;
+      cube.rotation.x = obj.roll || 0; // Roll
+      cube.rotation.y = obj.pitch || 0; // Pitch
+      cube.rotation.z = obj.yaw || 0; // Yaw
       renderer.render(scene, camera);
     }
   }, false);
