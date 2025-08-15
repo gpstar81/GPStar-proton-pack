@@ -43,53 +43,7 @@ const char INDEX_page[] PROGMEM = R"=====(
   </div>
 
   <div id="tab1" class="tab">
-    <div id="equipCRT" class="equipment">
-      <div id="equipTitle" class="infoState equip-title centered"></div>
-      <div id="ionOverlay" class="overlay ion-switch"></div>
-      <div id="boostOverlay" class="overlay booster-box"></div>
-      <div id="pcellOverlay" class="overlay power-box"></div>
-      <div id="cableOverlay" class="overlay cable-warn">&#9888;</div>
-      <div id="cycOverlay" class="overlay cyc-circle"></div>
-      <div id="filterOverlay" class="overlay filter-circle"></div>
-      <div id="barrelOverlay" class="overlay barrel-box"></div>
-      <div id="powerLevel" class="overlay infoState power-title"></div>
-      <div id="streamMode" class="overlay infoState stream-title"></div>
-      <div id="safetyOverlay" class="overlay safety-box"></div>
-      <div id="battVoltage" class="overlay infoState batt-title"></div>
-      <div id="cyclotronLid" class="infoState rad-warn">
-        <span style="font-size:1.2em">&#9762;</span> Cyclotron Exposure Warning
-      </div>
-    </div>
 
-    <div id="equipTXT" class="card">
-      <p><span class="infoLabel">Operation Mode:</span> <span class="infoState" id="mode">&mdash;</span></p>
-      <p><span class="infoLabel">Effects Theme:</span> <span class="infoState" id="theme">&mdash;</span></p>
-      <br/>
-      <p><span class="infoLabel">Pack State:</span> <span class="infoState" id="pack">&mdash;</span></p>
-      <p><span class="infoLabel">Pack Armed:</span> <span class="infoState" id="switch">&mdash;</span></p>
-      <p><span class="infoLabel">Ribbon Cable:</span> <span class="infoState" id="cable">&mdash;</span></p>
-      <p><span class="infoLabel">Cyclotron State:</span> <span class="infoState" id="cyclotron">&mdash;</span></p>
-      <p><span class="infoLabel">Overheat State:</span> <span class="infoState" id="temperature">&mdash;</span></p>
-      <br/>
-      <p><span class="infoLabel">Wand Presence:</span> <span class="infoState" id="wand">&mdash;</span></p>
-      <p><span class="infoLabel">Wand State:</span> <span class="infoState" id="wandPower">&mdash;</span></p>
-      <p><span class="infoLabel">Wand Armed:</span> <span class="infoState" id="safety">&mdash;</span></p>
-      <p><span class="infoLabel">System Mode:</span> <span class="infoState" id="wandMode">&mdash;</span></p>
-      <div style="display:inline-flex;margin:0;">
-        <p style="margin:0;">
-          <span class="infoLabel">Power Level:</span>&nbsp;<span class="infoState" id="power">&mdash;</span>
-        </p>
-        <div class="bar-container" id="powerBars"></div>
-      </div>
-      <p><span class="infoLabel">Firing State:</span> <span class="infoState" id="firing">&mdash;</span></p>
-      <br/>
-      <p>
-        <span class="infoLabel">Powercell:</span>
-        <span id="battHealth"></span>
-        <span class="infoState" id="battVoltageTXT">&mdash;</span>
-        <span style="font-size: 0.8em">GeV</span>
-      </p>
-    </div>
   </div>
 
   <div id="tab2" class="tab">
@@ -136,27 +90,7 @@ const char INDEX_page[] PROGMEM = R"=====(
 
   <div id="tab3" class="tab">
     <div class="card" style="text-align:center;">
-      <br/>
-      <button type="button" class="red" onclick="packOff()" id="btnPackOff">Pack Off</button>
-      &nbsp;&nbsp;
-      <button type="button" class="green" onclick="packOn()" id="btnPackOn">Pack On</button>
-      <br/>
-      <br/>
-      <br/>
-      <button type="button" class="orange" onclick="packVent()" id="btnVent">Vent</button>
-      &nbsp;&nbsp;
-      <button type="button" class="blue" onclick="packAttenuate()" id="btnAttenuate">Attenuate</button>
-      <br/>
-      <br/>
-      <br/>
-      <!--
-      <button type="button" class="orange" onclick="packLOStart()" id="btnLOStart">Lockout</button>
-      &nbsp;&nbsp;
-      <button type="button" class="blue" onclick="packLOCancel()" id="btnLOCancel">Resume</button>
-      <br/>
-      <br/>
-      <br/>
-      -->
+
     </div>
   </div>
 
@@ -165,13 +99,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       <a href="/settings/device">Special Settings</a>
       <br/>
       <br/>
-      <a href="/settings/pack">Proton Pack Settings</a>
-      <br/>
-      <br/>
       <a href="/settings/wand">Neutrona Wand Settings</a>
-      <br/>
-      <br/>
-      <a href="/settings/smoke">Overheat/Smoke Settings</a>
       <br/>
       <br/>
       <hr/>

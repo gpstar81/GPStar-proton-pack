@@ -507,7 +507,7 @@ String getWandConfig() {
     // Return current powered state for pack and wand.
     jsonBody["packPowered"] = (b_pack_on ? true : false);
     jsonBody["wandPowered"] = (b_wand_on ? true : false);
-    jsonBody["wandConnected"] = (b_wand_present ? true : false);
+    jsonBody["wandConnected"] = (b_wand_connected ? true : false);
 
     // Neutrona Wand LED Options
     jsonBody["ledWandCount"] = wandConfig.ledWandCount; // [0=5 (Stock), 1=48 (Frutto), 2=50 (GPStar), 3=2 (Tip)]
@@ -551,7 +551,7 @@ String getSmokeConfig() {
     // Return current powered state for pack and wand.
     jsonBody["packPowered"] = (b_pack_on ? true : false);
     jsonBody["wandPowered"] = (b_wand_on ? true : false);
-    jsonBody["wandConnected"] = (b_wand_present ? true : false);
+    jsonBody["wandConnected"] = (b_wand_connected ? true : false);
 
     // Proton Pack
     jsonBody["smokeEnabled"] = (smokeConfig.smokeEnabled == 1); // true|false
@@ -611,23 +611,25 @@ String getEquipmentStatus() {
     jsonBody["pack"] = (b_pack_on ? "Powered" : "Idle");
     jsonBody["power"] = getPower();
     jsonBody["safety"] = getSafety();
-    jsonBody["wand"] = (b_wand_present ? "Connected" : "Not Connected");
+    jsonBody["wand"] = (b_wand_connected ? "Connected" : "Not Connected");
     jsonBody["wandPower"] = (b_wand_on ? "Powered" : "Idle");
     jsonBody["wandMode"] = getWandMode();
-    jsonBody["firing"] = (b_firing ? "Firing" : "Idle");
+    jsonBody["firing"] = (b_wand_firing ? "Firing" : "Idle");
     jsonBody["cable"] = (b_pack_alarm ? "Disconnected" : "Connected");
     jsonBody["cyclotron"] = getCyclotronState();
     jsonBody["cyclotronLid"] = b_cyclotron_lid_on;
     jsonBody["temperature"] = (b_overheating ? "Venting" : "Normal");
     jsonBody["musicPlaying"] = b_playing_music;
     jsonBody["musicPaused"] = b_music_paused;
-    jsonBody["musicCurrent"] = i_music_track_current;
+    jsonBody["musicCurrent"] = i_current_music_track;
     jsonBody["musicStart"] = i_music_track_min;
     jsonBody["musicEnd"] = i_music_track_max;
     jsonBody["volMaster"] = i_volume_master_percentage;
     jsonBody["volEffects"] = i_volume_effects_percentage;
     jsonBody["volMusic"] = i_volume_music_percentage;
     jsonBody["battVoltage"] = f_batt_volts;
+    jsonBody["packTempC"] = f_temperature_c;
+    jsonBody["packTempF"] = f_temperature_f;
     jsonBody["wandAmps"] = f_wand_amps;
     jsonBody["apClients"] = i_ap_client_count;
     jsonBody["wsClients"] = i_ws_client_count;
@@ -1484,6 +1486,37 @@ void setupRouting() {
 
 // Send notification to all websocket clients.
 void notifyWSClients() {
-  // Send latest status to all connected clients.
-  ws.textAll(getEquipmentStatus());
+  if(b_ws_started) {
+    // Send latest status to all connected clients.
+    ws.textAll(getEquipmentStatus());
+  }
+}
+
+// Perform management if the AP and web server are started.
+void webLoops() {
+  if(b_ap_started && b_ws_started) {
+    if(ms_cleanup.remaining() < 1) {
+      // Clean up oldest WebSocket connections.
+      ws.cleanupClients();
+
+      // Restart timer for next cleanup action.
+      ms_cleanup.start(i_websocketCleanup);
+    }
+
+    if(ms_apclient.remaining() < 1) {
+      // Update the current count of AP clients.
+      i_ap_client_count = WiFi.softAPgetStationNum();
+
+      // Restart timer for next count.
+      ms_apclient.start(i_apClientCount);
+    }
+
+    if(ms_otacheck.remaining() < 1) {
+      // Handles device reboot after an OTA update.
+      ElegantOTA.loop();
+
+      // Restart timer for next check.
+      ms_otacheck.start(i_otaCheck);
+    }
+  }
 }

@@ -1,4 +1,3 @@
-
 /**
  *   GPStar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
@@ -27,11 +26,13 @@ void notifyWSClients(); // From Webhandler.h
 /**
  * Centralized handler for commands, allowing the Pack and Attenuator to both perform the same action.
  * This approach is applying the Command Pattern to decouple the sender from the receiver.
+ * In order for this to work, the command value must come from a unique source: API_MESSAGE
+ *
  * Inputs:
  *   - i_command: Command identifier (API_MESSAGE enum)
  *   - i_value: Optional value for the command (default 0)
  */
-void executePackCommand(uint8_t i_command, uint16_t i_value = 0) {
+void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
   switch(i_command) {
     case A_SYNC_START:
       // Attenuator has explicitly asked to be synchronized.

@@ -85,6 +85,7 @@ void sendDebug(String message);
 #endif
 #include "System.h"
 #include "Actions.h"
+#include "Command.h"
 #include "Serial.h"
 #ifdef ESP32
   #include "Wireless.h"

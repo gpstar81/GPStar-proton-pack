@@ -346,7 +346,7 @@ void handleDeviceSettings(AsyncWebServerRequest *request) {
 
 void handlePackSettings(AsyncWebServerRequest *request) {
   // Tell the pack that we'll need the latest pack EEPROM values.
-  executePackCommand(A_REQUEST_PREFERENCES_PACK);
+  executeCommand(A_REQUEST_PREFERENCES_PACK);
 
   // Used for the settings page from the web server.
   debug("Sending -> Pack Settings HTML");
@@ -358,7 +358,7 @@ void handlePackSettings(AsyncWebServerRequest *request) {
 void handleWandSettings(AsyncWebServerRequest *request) {
   // Tell the pack that we'll need the latest wand EEPROM values.
   b_received_prefs_wand = false;
-  executePackCommand(A_REQUEST_PREFERENCES_WAND);
+  executeCommand(A_REQUEST_PREFERENCES_WAND);
 
   // Used for the settings page from the web server.
   debug("Sending -> Wand Settings HTML");
@@ -370,7 +370,7 @@ void handleWandSettings(AsyncWebServerRequest *request) {
 void handleSmokeSettings(AsyncWebServerRequest *request) {
   // Tell the pack that we'll need the latest smoke EEPROM values.
   b_received_prefs_smoke = false;
-  executePackCommand(A_REQUEST_PREFERENCES_SMOKE);
+  executeCommand(A_REQUEST_PREFERENCES_SMOKE);
 
   // Used for the settings page from the web server.
   debug("Sending -> Smoke Settings HTML");
@@ -443,7 +443,7 @@ String getPackConfig() {
   String equipSettings;
   jsonBody.clear();
 
-  // Provide a flag to indicate prefs were received via serial coms.
+  // Provide a flag to indicate prefs are directly available.
   jsonBody["prefsAvailable"] = true;
 
   // Return current powered state for pack and wand.
@@ -629,6 +629,8 @@ String getEquipmentStatus() {
   jsonBody["volEffects"] = i_volume_effects_percentage;
   jsonBody["volMusic"] = i_volume_music_percentage;
   jsonBody["battVoltage"] = f_batt_volts;
+  jsonBody["packTempC"] = f_temperature_c;
+  jsonBody["packTempF"] = f_temperature_f;
   jsonBody["wandAmps"] = f_wand_amps;
   jsonBody["apClients"] = i_ap_client_count;
   jsonBody["wsClients"] = i_ws_client_count;
@@ -722,13 +724,13 @@ void handleRestart(AsyncWebServerRequest *request) {
 
 void handlePackOn(AsyncWebServerRequest *request) {
   debug("Web: Turn Pack On");
-  executePackCommand(A_TURN_PACK_ON);
+  executeCommand(A_TURN_PACK_ON);
   request->send(200, "application/json", status);
 }
 
 void handlePackOff(AsyncWebServerRequest *request) {
   debug("Web: Turn Pack Off");
-  executePackCommand(A_TURN_PACK_OFF);
+  executeCommand(A_TURN_PACK_OFF);
   request->send(200, "application/json", status);
 }
 
@@ -736,7 +738,7 @@ void handleAttenuatePack(AsyncWebServerRequest *request) {
   if(i_cyclotron_multiplier > 2) {
     // Only send command to pack if cyclotron is not "normal".
     debug("Web: Cancel Overheat Warning");
-    executePackCommand(A_WARNING_CANCELLED);
+    executeCommand(A_WARNING_CANCELLED);
     request->send(200, "application/json", status);
   } else {
     // Tell the user why the requested action failed.
@@ -750,91 +752,91 @@ void handleAttenuatePack(AsyncWebServerRequest *request) {
 
 void handleManualVent(AsyncWebServerRequest *request) {
   debug("Web: Manual Vent Triggered");
-  executePackCommand(A_MANUAL_OVERHEAT);
+  executeCommand(A_MANUAL_OVERHEAT);
   request->send(200, "application/json", status);
 }
 
 void handleManualLockout(AsyncWebServerRequest *request) {
   debug("Web: Manual Lockout Triggered");
-  executePackCommand(A_SYSTEM_LOCKOUT);
+  executeCommand(A_SYSTEM_LOCKOUT);
   request->send(200, "application/json", status);
 }
 
 void handleCancelLockout(AsyncWebServerRequest *request) {
   debug("Web: Cancel Lockout Triggered");
-  executePackCommand(A_CANCEL_LOCKOUT);
+  executeCommand(A_CANCEL_LOCKOUT);
   request->send(200, "application/json", status);
 }
 
 void handleToggleMute(AsyncWebServerRequest *request) {
   debug("Web: Toggle Mute");
-  executePackCommand(A_TOGGLE_MUTE);
+  executeCommand(A_TOGGLE_MUTE);
   request->send(200, "application/json", status);
 }
 
 void handleMasterVolumeUp(AsyncWebServerRequest *request) {
   debug("Web: Master Volume Up");
-  executePackCommand(A_VOLUME_INCREASE);
+  executeCommand(A_VOLUME_INCREASE);
   request->send(200, "application/json", status);
 }
 
 void handleMasterVolumeDown(AsyncWebServerRequest *request) {
   debug("Web: Master Volume Down");
-  executePackCommand(A_VOLUME_DECREASE);
+  executeCommand(A_VOLUME_DECREASE);
   request->send(200, "application/json", status);
 }
 
 void handleEffectsVolumeUp(AsyncWebServerRequest *request) {
   debug("Web: Effects Volume Up");
-  executePackCommand(A_VOLUME_SOUND_EFFECTS_INCREASE);
+  executeCommand(A_VOLUME_SOUND_EFFECTS_INCREASE);
   request->send(200, "application/json", status);
 }
 
 void handleEffectsVolumeDown(AsyncWebServerRequest *request) {
   debug("Web: Effects Volume Down");
-  executePackCommand(A_VOLUME_SOUND_EFFECTS_DECREASE);
+  executeCommand(A_VOLUME_SOUND_EFFECTS_DECREASE);
   request->send(200, "application/json", status);
 }
 
 void handleMusicVolumeUp(AsyncWebServerRequest *request) {
   debug("Web: Music Volume Up");
-  executePackCommand(A_VOLUME_MUSIC_INCREASE);
+  executeCommand(A_VOLUME_MUSIC_INCREASE);
   request->send(200, "application/json", status);
 }
 
 void handleMusicVolumeDown(AsyncWebServerRequest *request) {
   debug("Web: Music Volume Down");
-  executePackCommand(A_VOLUME_MUSIC_DECREASE);
+  executeCommand(A_VOLUME_MUSIC_DECREASE);
   request->send(200, "application/json", status);
 }
 
 void handleMusicStartStop(AsyncWebServerRequest *request) {
   debug("Web: Music Start/Stop");
-  executePackCommand(A_MUSIC_START_STOP);
+  executeCommand(A_MUSIC_START_STOP);
   request->send(200, "application/json", status);
 }
 
 void handleMusicPauseResume(AsyncWebServerRequest *request) {
   debug("Web: Music Pause/Resume");
-  executePackCommand(A_MUSIC_PAUSE_RESUME);
+  executeCommand(A_MUSIC_PAUSE_RESUME);
   request->send(200, "application/json", status);
 }
 
 void handleNextMusicTrack(AsyncWebServerRequest *request) {
   debug("Web: Next Music Track");
-  executePackCommand(A_MUSIC_NEXT_TRACK);
+  executeCommand(A_MUSIC_NEXT_TRACK);
   request->send(200, "application/json", status);
 }
 
 void handlePrevMusicTrack(AsyncWebServerRequest *request) {
   debug("Web: Prev Music Track");
-  executePackCommand(A_MUSIC_PREV_TRACK);
+  executeCommand(A_MUSIC_PREV_TRACK);
   request->send(200, "application/json", status);
 }
 
 void handleLoopMusicTrack(AsyncWebServerRequest *request) {
   debug("Web: Toggle Music Track Loop");
-  executePackCommand(A_MUSIC_TRACK_LOOP_TOGGLE);
+  executeCommand(A_MUSIC_TRACK_LOOP_TOGGLE);
   request->send(200, "application/json", status);
 }
 
@@ -849,7 +851,7 @@ void handleSelectMusicTrack(AsyncWebServerRequest *request) {
   if(c_music_track.toInt() != 0 && c_music_track.toInt() >= i_music_track_start) {
     uint16_t i_music_track = c_music_track.toInt();
     debug("Web: Selected Music Track: " + String(i_music_track));
-    executePackCommand(A_MUSIC_PLAY_TRACK, i_music_track); // Inform the pack of the new track.
+    executeCommand(A_MUSIC_PLAY_TRACK, i_music_track); // Inform the pack of the new track.
     request->send(200, "application/json", status);
   }
   else {
@@ -864,20 +866,20 @@ void handleSelectMusicTrack(AsyncWebServerRequest *request) {
 
 void handleSaveAllEEPROM(AsyncWebServerRequest *request) {
   debug("Web: Save All EEPROM");
-  executePackCommand(A_SAVE_EEPROM_SETTINGS_PACK);
-  executePackCommand(A_SAVE_EEPROM_SETTINGS_WAND);
+  executeCommand(A_SAVE_EEPROM_SETTINGS_PACK);
+  executeCommand(A_SAVE_EEPROM_SETTINGS_WAND);
   request->send(200, "application/json", status);
 }
 
 void handleSavePackEEPROM(AsyncWebServerRequest *request) {
   debug("Web: Save Pack EEPROM");
-  executePackCommand(A_SAVE_EEPROM_SETTINGS_PACK);
+  executeCommand(A_SAVE_EEPROM_SETTINGS_PACK);
   request->send(200, "application/json", status);
 }
 
 void handleSaveWandEEPROM(AsyncWebServerRequest *request) {
   debug("Web: Save Wand EEPROM");
-  executePackCommand(A_SAVE_EEPROM_SETTINGS_WAND);
+  executeCommand(A_SAVE_EEPROM_SETTINGS_WAND);
   request->send(200, "application/json", status);
 }
 

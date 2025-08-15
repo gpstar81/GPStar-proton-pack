@@ -423,6 +423,11 @@ function updateGraphics(jObj){
       setHtml("battVoltage", "0.00 GeV");
     }
 
+    if (parseFloat(jObj.packTempC || 0) > 1) {
+      // Report the temperature in both Celsius and Fahrenheit using only the console for the moment (display to be implemented later).
+      console.log("Temperature: " + parseFloat((jObj.packTempC || 0)).toFixed(2) + " C / " + parseFloat((jObj.packTempF || 0)).toFixed(2) + " F");
+    }
+
     if(jObj.cyclotron && !jObj.cyclotronLid) {
       showEl("cyclotronLid");
     } else {

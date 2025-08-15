@@ -20,7 +20,7 @@
 // Required for PlatformIO
 #include <Arduino.h>
 
-// Set to 1 to enable built-in debug messages
+// Set to 1 to enable built-in debug messages via Serial device output.
 #define DEBUG 0
 
 // Debug macros
@@ -52,8 +52,6 @@
 #ifdef ESP32
   #include <HDC1080.h>
   GuL::HDC1080 tempSensor(Wire1);
-  millisDelay ms_temp_read;
-  bool b_temp_sensor_detected = false;
   #include <HardwareSerial.h>
 #endif
 
@@ -233,6 +231,9 @@ void setup() {
 
   // Default mode is Super Hero (for simpler controls).
   SYSTEM_MODE = MODE_SUPER_HERO;
+
+  // Assume the Super Hero arming mode with Afterlife (default for Haslab).
+  RED_SWITCH_MODE = SWITCH_OFF;
 
   // Bootup the pack into Proton mode, the same as the wand.
   STREAM_MODE = PROTON;
@@ -639,18 +640,8 @@ void loop() {
   // Run checks on web-related tasks.
   webLoops();
 
-  // Read the HDC1080 and output the current temperature reading to the debug console.
-  if(b_temp_sensor_detected) {
-    if(!ms_temp_read.isRunning()) {
-      tempSensor.startAcquisition(GuL::HDC1080::Channel::TEMPERATURE);
-      ms_temp_read.start(5000); // Read every 5 seconds
-    }
-    else if(ms_temp_read.justFinished()) {
-      float f_temp_c = tempSensor.getTemperature();
-      float f_temp_f = f_temp_c * 1.8 + 32; // Convert Celsius to Fahrenheit
-      Serial.printf("\t\tTemp: %.1f C (%.1f F)\n", f_temp_c, f_temp_f);
-    }
-  }
+  // Get the current temperature from the HDC1080 sensor.
+  readTemperature();
 #endif
 
   // Update the available audio device.

@@ -881,7 +881,7 @@ void checkAttenuator() {
             }
 
             // Pass through to the true API command handler.
-            executePackCommand(recvCmdS.c, recvCmdS.d1);
+            executeCommand(recvCmdS.c, recvCmdS.d1);
           }
         break;
 

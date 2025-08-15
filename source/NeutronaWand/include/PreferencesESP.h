@@ -774,3 +774,24 @@ void readEEPROM() {
     clearConfigEEPROM();
   }
 }
+
+// Used to get UI preferences from the device namespace.
+void getSpecialPreferences() {
+  /*
+   * Get Local Device Preferences
+   * Accesses the "device" namespace in read-only mode under the "nvs" partition.
+   */
+  bool b_namespace_opened = preferences.begin("device", true);
+  if(b_namespace_opened) {
+    // Return stored values if available, otherwise use a default value.
+    s_track_listing = preferences.getString("track_list", "");
+    preferences.end();
+  }
+  else {
+    // If namespace is not initialized, open in read/write mode and set defaults.
+    if(preferences.begin("device", false)) {
+      preferences.putString("track_list", "");
+      preferences.end();
+    }
+  }
+}

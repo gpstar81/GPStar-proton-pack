@@ -412,27 +412,5 @@ bool startWiFi() {
   return b_ap_started; // At least return whether the soft AP started successfully.
 }
 
-void onOTAStart() {
-  // Log when OTA has started
-  debug(F("OTA update started"));
-}
-
-void onOTAProgress(size_t current, size_t final) {
-  // Log every 1 second
-  if (millis() - i_progress_millis > 1000) {
-    i_progress_millis = millis();
-    Serial.printf("OTA Progress Current: %u bytes, Final: %u bytes\n", current, final);
-  }
-}
-
-void onOTAEnd(bool success) {
-  // Log when OTA has finished
-  if (success) {
-    debug(F("OTA update finished successfully!"));
-  } else {
-    debug(F("There was an error during OTA update!"));
-  }
-}
-
 // Provide all handler functions for the API layer.
 #include "Webhandler.h"

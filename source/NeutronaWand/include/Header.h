@@ -97,6 +97,8 @@ enum WAND_ACTION_STATE WAND_ACTION_STATUS;
  */
 enum SYSTEM_MODES { MODE_SUPER_HERO, MODE_ORIGINAL };
 enum SYSTEM_MODES SYSTEM_MODE;
+enum RED_SWITCH_MODES { SWITCH_ON, SWITCH_OFF };
+enum RED_SWITCH_MODES RED_SWITCH_MODE;
 
 /*
  * Which year mode the Proton Pack is set into which may not be the same the user prefers for the wand.
@@ -420,10 +422,14 @@ uint8_t i_heatdown_counter = 100;
  *            Releasing the Barrel Wing Switch returns to Proton Stream, and releasing Intensify stops firing completely.
  * Stream = Type of particle stream to be thrown by the wand
  */
+enum BARREL_STATES { BARREL_RETRACTED, BARREL_EXTENDED };
+enum BARREL_STATES BARREL_STATE;
 enum FIRING_MODES { VG_MODE, CTS_MODE, CTS_MIX_MODE };
 enum FIRING_MODES FIRING_MODE;
 enum FIRING_MODES LAST_FIRING_MODE;
-enum STREAM_MODES { PROTON, STASIS, SLIME, MESON, SPECTRAL, HOLIDAY_HALLOWEEN, HOLIDAY_CHRISTMAS, SPECTRAL_CUSTOM };
+enum POWER_LEVELS { LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5 };
+enum POWER_LEVELS POWER_LEVEL;
+enum STREAM_MODES { PROTON, STASIS, SLIME, MESON, SPECTRAL, HOLIDAY_HALLOWEEN, HOLIDAY_CHRISTMAS, SPECTRAL_CUSTOM, SETTINGS };
 enum STREAM_MODES STREAM_MODE;
 
 /*

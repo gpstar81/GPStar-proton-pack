@@ -470,7 +470,6 @@ enum pack_led_dim_control {
   DIM_INNER_CYCLOTRON,
   DIM_CYCLOTRON_PANEL
 };
-
 uint8_t pack_dim_toggle = DIM_POWERCELL;
 
 /*
@@ -515,6 +514,15 @@ enum DISPLAY_TYPES : uint8_t {
   STATUS_BOTH = 2
 };
 enum DISPLAY_TYPES DISPLAY_TYPE;
+
+/*
+ * Temperature Sensor
+ */
+millisDelay ms_temp_read;
+const uint16_t i_temp_read_delay = 5000; // Delay between temperature readings.
+bool b_temp_sensor_detected = false;
+float f_temperature_c = 0;
+float f_temperature_f = 0;
 
 /*
  * Function prototypes.

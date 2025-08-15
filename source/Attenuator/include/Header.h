@@ -218,7 +218,7 @@ enum MENU_LEVELS MENU_LEVEL;
  */
 const uint16_t i_music_track_offset = 500; // Music tracks always start at index 500.
 uint16_t i_music_track_count = 0; // Count of tracks as returned by the pack.
-uint16_t i_music_track_current = 0;
+uint16_t i_current_music_track = 0;
 uint16_t i_music_track_min = 0; // Min value for music track index (0 = unset).
 uint16_t i_music_track_max = 0; // Max value for music track index (0 = unset).
 uint8_t i_volume_master_percentage = 100; // Master overall volume
@@ -234,10 +234,10 @@ String s_track_listing = "";
  * Some pack flags which get transmitted to the attenuator depending on the pack status.
  */
 bool b_pack_on = false;
-bool b_wand_present = false;
+bool b_wand_connected = false;
 bool b_wand_on = false;
 bool b_pack_alarm = false;
-bool b_firing = false;
+bool b_wand_firing = false;
 bool b_overheating = false;
 
 // Flags relating to the synchronization process.
@@ -253,3 +253,7 @@ bool b_received_prefs_smoke = false;
 // Pack Battery (V) and Wand Power (A) Values
 float f_batt_volts = 0.0;
 float f_wand_amps = 0.0;
+
+// Pack Temperature Values
+float f_temperature_c = 0;
+float f_temperature_f = 0;

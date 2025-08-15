@@ -5202,3 +5202,23 @@ void systemPOST() {
     }
   }
 }
+
+#ifdef ESP32
+void readTemperature() {
+  // Read the HDC1080 and store the current temperature readings in C and F.
+  if(b_temp_sensor_detected) {
+    if(!ms_temp_read.isRunning()) {
+      tempSensor.startAcquisition(GuL::HDC1080::Channel::TEMPERATURE);
+      ms_temp_read.start(i_temp_read_delay); // Read every N seconds.
+    }
+    else if(ms_temp_read.justFinished()) {
+      f_temperature_c = tempSensor.getTemperature(); // Read value in Celsius
+      f_temperature_f = (f_temperature_c * 1.8) + 32; // Convert Celsius to Fahrenheit
+      debugf("\t\tTemp: %.1f C (%.1f F)\n", f_temperature_c, f_temperature_f);
+
+      // Send value to the Attenuator, multiplied by 100 to avoid float issues.
+      attenuatorSend(A_TEMPERATURE_PACK, f_temperature_c * 100);
+    }
+  }
+}
+#endif

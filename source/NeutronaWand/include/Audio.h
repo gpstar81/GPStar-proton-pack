@@ -69,6 +69,7 @@ bool b_playing_music = false; // Sets whether a music track is currently playing
 bool b_music_paused = false; // Sets whether a music track is currently paused or not.
 bool b_repeat_track = false; // Sets whether to repeat one music track or loop through all music tracks.
 bool b_preload_tracks = false; // Sets whether to add a 50ms delay before playing any file to allow slower SD cards more time to fill the buffer.
+String s_track_listing = ""; // Utilized only for the web UI to display the music track listing.
 
 /*
  * Music Control/Checking

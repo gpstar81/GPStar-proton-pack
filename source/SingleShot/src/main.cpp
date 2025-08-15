@@ -63,7 +63,12 @@
 #ifdef ESP32
   #include <HardwareSerial.h>
   #include <Adafruit_LIS3MDL.h>
-  #include <SparkFunLSM6DS3.h>
+  #include <Adafruit_LSM6DS3TRC.h>
+  Adafruit_LIS3MDL myMAG;
+  Adafruit_LSM6DS3TRC myIMU;
+  bool b_mag_found = false;
+  bool b_imu_found = false;
+  millisDelay ms_sensor_delay;
 #endif
 
 // Local Files
@@ -168,6 +173,34 @@ void setup() {
 
   // Rotary encoder on the top of the device.
   encoder.initialize();
+
+
+#ifdef ESP32
+  // ESP32-S3 requires manually specifying SDA and SCL pins first.
+  Wire1.begin(IMU_SDA, IMU_SCL, 400000UL);
+
+  // Initialize the LIS3MDL magnetometer.
+  if(myMAG.begin_I2C(LIS3MDL_I2CADDR_DEFAULT, &Wire1)) {
+    b_mag_found = true;
+    myMAG.setPerformanceMode(LIS3MDL_MEDIUMMODE);
+    myMAG.setOperationMode(LIS3MDL_CONTINUOUSMODE);
+    myMAG.setDataRate(LIS3MDL_DATARATE_1000_HZ);
+    myMAG.setRange(LIS3MDL_RANGE_4_GAUSS);
+    myMAG.setIntThreshold(500);
+    myMAG.configInterrupt(false, false, true, true, false, true);
+  }
+
+  // Initialize the LSM6DS3TR-C IMU.
+  if(myIMU.begin_I2C(LSM6DS_I2CADDR_DEFAULT, &Wire1)) {
+    b_imu_found = true;
+    myIMU.setAccelRange(LSM6DS_ACCEL_RANGE_2_G);
+    myIMU.setGyroRange(LSM6DS_GYRO_RANGE_250_DPS);
+    myIMU.setAccelDataRate(LSM6DS_RATE_6_66K_HZ);
+    myIMU.setGyroDataRate(LSM6DS_RATE_6_66K_HZ);
+    myIMU.configInt1(false, false, true);
+    myIMU.configInt2(false, true, false);
+  }
+#endif
 
   // Setup the bargraph after a brief delay.
   delay(10);

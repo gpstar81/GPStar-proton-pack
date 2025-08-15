@@ -443,7 +443,7 @@ bool checkPack() {
 
           // Common actions to all hardware.
           b_pack_on = attenuatorSyncData.packOn == 1;
-          b_firing = attenuatorSyncData.wandFiring == 1;
+          b_wand_firing = attenuatorSyncData.wandFiring == 1;
           b_overheating = attenuatorSyncData.overheatingNow == 1;
           i_speed_multiplier = attenuatorSyncData.speedMultiplier;
           i_spectral_custom_colour = attenuatorSyncData.spectralColour;
@@ -453,13 +453,13 @@ bool checkPack() {
           SYSTEM_MODE = attenuatorSyncData.systemMode == 1 ? MODE_SUPER_HERO : MODE_ORIGINAL;
           RED_SWITCH_MODE = attenuatorSyncData.ionArmSwitch == 2 ? SWITCH_ON : SWITCH_OFF;
           BARREL_STATE = attenuatorSyncData.barrelExtended == 1 ? BARREL_EXTENDED : BARREL_RETRACTED;
-          b_wand_present = attenuatorSyncData.wandPresent == 1;
+          b_wand_connected = attenuatorSyncData.wandPresent == 1;
           b_cyclotron_lid_on = attenuatorSyncData.cyclotronLidState == 1;
           f_batt_volts = (float) attenuatorSyncData.packVoltage / 100;
           i_volume_master_percentage = attenuatorSyncData.masterVolume;
           i_volume_effects_percentage = attenuatorSyncData.effectsVolume;
           i_volume_music_percentage = attenuatorSyncData.musicVolume;
-          i_music_track_current = attenuatorSyncData.currentTrack;
+          i_current_music_track = attenuatorSyncData.currentTrack;
           i_music_track_count = attenuatorSyncData.musicCount;
           b_repeat_track = attenuatorSyncData.trackLooped == 2;
           b_playing_music = attenuatorSyncData.musicPlaying == 1;
@@ -512,14 +512,14 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     case A_WAND_CONNECTED:
       // debug("Wand Connected");
 
-      b_wand_present = true;
+      b_wand_connected = true;
       b_state_changed = true;
     break;
 
     case A_WAND_DISCONNECTED:
       // debug("Wand Disconnected");
 
-      b_wand_present = false;
+      b_wand_connected = false;
       b_state_changed = true;
     break;
 
@@ -587,9 +587,9 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       b_playing_music = true;
       b_music_paused = false;
 
-      if(i_value > 0 && i_music_track_current != i_value) {
+      if(i_value > 0 && i_current_music_track != i_value) {
         // Music track changed.
-        i_music_track_current = i_value;
+        i_current_music_track = i_value;
         b_state_changed = true;
       }
     break;
@@ -600,9 +600,9 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       b_playing_music = false;
       b_music_paused = false;
 
-      if(i_value > 0 && i_music_track_current != i_value) {
+      if(i_value > 0 && i_current_music_track != i_value) {
         // Music track changed.
-        i_music_track_current = i_value;
+        i_current_music_track = i_value;
         b_state_changed = true;
       }
     break;
@@ -814,7 +814,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       debug("Alarm On");
 
       // Alarm is on.
-      b_firing = false;
+      b_wand_firing = false;
       b_pack_alarm = true;
       b_state_changed = true;
 
@@ -891,7 +891,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     case A_FIRING:
       debug("Firing");
 
-      b_firing = true;
+      b_wand_firing = true;
       b_state_changed = true;
       ms_blink_leds.start(i_blink_leds / i_speed_multiplier);
 
@@ -902,7 +902,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     case A_FIRING_STOPPED:
       debug("Idle");
 
-      b_firing = false;
+      b_wand_firing = false;
       b_state_changed = true;
       ms_blink_leds.stop();
 
@@ -949,7 +949,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       i_speed_multiplier = 1;
       b_state_changed = true;
 
-      if(b_firing) {
+      if(b_wand_firing) {
         // Use the "normal" pattern if still firing.
         bargraphClear();
         BARGRAPH_PATTERN = BG_OUTER_INNER;
@@ -987,6 +987,18 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
 
       // Convert to a value X.NN based on expected 5VDC maximum.
       f_batt_volts = (float) i_value / 100;
+      b_state_changed = true;
+    break;
+
+    case A_TEMPERATURE_PACK:
+      #if defined(DEBUG_SERIAL_COMMS)
+        // This could be called often, so we put it behind the debug option.
+        debug("Pack Temperature (x100): " + String(i_value));
+      #endif
+
+      // Convert back to float with 2 decimal places
+      f_temperature_c = (float) i_value / 100; // First convert to Celsius
+      f_temperature_f = (f_temperature_c * 1.8) + 32; // Convert Celsius to Fahrenheit
       b_state_changed = true;
     break;
 

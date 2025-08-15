@@ -52,14 +52,6 @@ const char DEVICE_page[] PROGMEM = R"=====(
        title="Only letters, numbers, hyphens, and underscores are allowed, up to 32 characters."/>
     </div>
     <div class="setting">
-      <b>Status Display:</b>
-      <select id="displayType" name="displayType">
-        <option value="0">Text</option>
-        <option value="1">Graphical</option>
-        <option value="2">Both</option>
-      </select>
-    </div>
-    <div class="setting">
       <b>Song List:</b> <span id="byteCount"></span><br/>
       <textarea id="songList" name="songList" rows="40" cols="38"
        style="text-align:left;" oninput="updateByteCount()"
@@ -101,7 +93,6 @@ const char DEVICE_page[] PROGMEM = R"=====(
           if (settings) {
             // Update fields with the current values, or supply an expected default as necessary.
             setValue("wifiName", settings.wifiName || "");
-            setValue("displayType", settings.displayType || 0); // Default: 0 [Text]
             setValue("songList", settings.songList || "");
             updateByteCount();
           }
@@ -139,7 +130,6 @@ const char DEVICE_page[] PROGMEM = R"=====(
       // Saves current settings to attenuator, updating runtime variables and making changes immediately effective.
       var settings = {
         wifiName: wifiName,
-        displayType: getInt("displayType"),
         songList: getText("songList")
       };
       var body = JSON.stringify(settings);
