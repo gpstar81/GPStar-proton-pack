@@ -38,8 +38,7 @@ const char INDEX_page[] PROGMEM = R"=====(
   <div class="tabs dark">
     <button class="tablinks" onclick="openTab(event, 'tab1')">&#9883;</button>
     <button class="tablinks" onclick="openTab(event, 'tab2')">&#9836;</button>
-    <button class="tablinks" onclick="openTab(event, 'tab3')">&#9211;</button>
-    <button class="tablinks" onclick="openTab(event, 'tab4')">&#9881;</button>
+    <button class="tablinks" onclick="openTab(event, 'tab3')">&#9881;</button>
   </div>
 
   <div id="tab1" class="tab">
@@ -105,12 +104,6 @@ const char INDEX_page[] PROGMEM = R"=====(
   </div>
 
   <div id="tab3" class="tab">
-    <div class="card" style="text-align:center;">
-
-    </div>
-  </div>
-
-  <div id="tab4" class="tab">
     <div class="card" style="text-align:center;">
       <a href="/settings/device">Special Settings</a>
       <br/>

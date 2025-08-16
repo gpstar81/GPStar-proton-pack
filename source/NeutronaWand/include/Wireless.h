@@ -46,7 +46,7 @@
 
 // Set up values for the SSID and password for the built-in WiFi access point (AP).
 const uint8_t i_max_attempts = 3; // Max attempts to establish a external WiFi connection.
-const String ap_ssid_prefix = "GPStarWand"; // This will be the base of the SSID name.
+const String ap_default_ssid = "GPStar_Wand2"; // This will be the base of the SSID name.
 String ap_default_passwd = "555-2368"; // This will be the default password for the AP.
 String ap_ssid; // Reserved for holding the full, private AP name for this device.
 bool b_ap_started = false; // Denotes the softAP network has been started.
@@ -62,7 +62,6 @@ String wifi_subnet;  // Subnet for external WiFi network
 String wifi_gateway; // Gateway IP for external WiFi network
 
 // Define an asynchronous web server at TCP port 80.
-// Docs: https://github.com/me-no-dev/ESPAsyncWebServer
 AsyncWebServer httpServer(80);
 
 // Define a websocket endpoint for the async web server.
@@ -150,7 +149,6 @@ bool startAccesPoint() {
 
   // Create an AP name unique to this device, to avoid stepping on similar hardware.
   String macAddr = String(WiFi.macAddress());
-  String ap_ssid_suffix = macAddr.substring(12, 14) + macAddr.substring(15);
   String ap_pass; // Local variable for stored AP password.
 
   // Prepare to return either stored preferences or a default value for SSID/password.
@@ -160,18 +158,18 @@ bool startAccesPoint() {
       // Doesn't actually "reset" but forces default values for SSID and password.
       // Meant to allow the user to reset their credentials then re-flash after
       // commenting out the RESET_AP_SETTINGS definition in Configuration.h
-      ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix; // Use default SSID.
+      ap_ssid = ap_default_ssid; // Use default SSID.
       ap_pass = ap_default_passwd; // Force use of the default WiFi password.
     #else
       // Use either the stored preferences or an expected default value.
-      ap_ssid = preferences.getString("ssid", ap_ssid_prefix + "_" + ap_ssid_suffix);
+      ap_ssid = preferences.getString("ssid", ap_default_ssid);
       ap_ssid = sanitizeSSID(ap_ssid); // Jacques, clean him!
       ap_pass = preferences.getString("password", ap_default_passwd);
     #endif
     preferences.end();
   }
   else {
-    ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix; // Use default SSID.
+    ap_ssid = ap_default_ssid; // Use default SSID.
     ap_pass = ap_default_passwd; // Force use of the default WiFi password.
 
     // If namespace is not initialized, open in read/write mode and set defaults.
@@ -296,6 +294,9 @@ bool startExternalWifi() {
       // Attempt to connect to a specified WiFi network.
       WiFi.begin(wifi_ssid.c_str(), wifi_pass.c_str());
 
+      // Limit Tx power to save battery and reduce interference.
+      WiFi.setTxPower(WIFI_POWER_7dBm); // Set to 7 dBm (default is ~20 dBm).
+
       // Wait for the connection to be established.
       uint8_t attempt = 0;
       while (attempt < i_max_attempts && WiFi.status() != WL_CONNECTED) {
@@ -373,8 +374,8 @@ bool startWiFi() {
     Serial.println(F("Begin WiFi Configuration"));
   #endif
 
-  // Disable WiFi power save mode (via the esp_wifi_set_ps function).
-  WiFi.setSleep(false);
+  // Enable WiFi power save mode (via the esp_wifi_set_ps function).
+  WiFi.setSleep(true);
   delay(100);
 
   // Attempt connection to an external (preferred) WiFi as a client.

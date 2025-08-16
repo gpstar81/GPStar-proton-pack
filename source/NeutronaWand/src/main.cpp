@@ -99,9 +99,9 @@ void sendDebug(String message) {
 
 void setup() {
 #ifdef ESP32
-  // Reduce CPU frequency to 160 MHz to save ~33% power compared to 240 MHz.
+  // Reduce CPU frequency to 80 MHz to save ~50% power compared to 240 MHz.
   // Do not set below 80 MHz as it will affect WiFi and other peripherals.
-  setCpuFrequencyMhz(160);
+  setCpuFrequencyMhz(80);
 
   // Serial0 (UART0) is enabled by default; end() sets GPIO43 & GPIO44 to GPIO.
   Serial0.end();

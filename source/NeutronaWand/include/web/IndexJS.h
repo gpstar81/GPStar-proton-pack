@@ -148,44 +148,50 @@ function updateTrackListing() {
   }
 }
 
-function getStreamColor(cMode) {
-  var color = [0, 0, 0];
-
-  switch(cMode){
-    case "Plasm System":
-      // Dark Green
-      color[1] = 80;
-      break;
-    case "Dark Matter Gen.":
-      // Light Blue
-      color[1] = 60;
-      color[2] = 255;
-      break;
-    case "Particle System":
-      // Orange
-      color[0] = 255;
-      color[1] = 140;
-      break;
-    case "Settings":
-      // Gray
-      color[0] = 40;
-      color[1] = 40;
-      color[2] = 40;
-      break;
-    default:
-      // Proton Stream(s) as Red
-      color[0] = 180;
-  }
-
-  return color;
-}
-
 function updateEquipment(jObj) {
-  // Logic TBD for wand
+  // Update display if we have the expected data (containing mode and theme at a minimum).
+  if (jObj && jObj.mode && jObj.theme) {
+
+    // Volume Information
+    setHtml("masterVolume", (jObj.volMaster || 0) + "%");
+    if ((jObj.volMaster || 0) == 0) {
+      setHtml("masterVolume", "Min");
+    }
+    setHtml("effectsVolume", (jObj.volEffects || 0) + "%");
+    if ((jObj.volEffects || 0) == 0) {
+      setHtml("effectsVolume", "Min");
+    }
+    setHtml("musicVolume", (jObj.volMusic || 0) + "%");
+    if ((jObj.volMusic || 0) == 0) {
+      setHtml("musicVolume", "Min");
+    }
+
+    // Music Playback Status
+    if (jObj.musicPlaying && !jObj.musicPaused) {
+      // If music is playing (but not paused), show that status.
+      setHtml("playbackStatus", "Music Playing");
+    } else if (jObj.musicPaused) {
+      // If music is playing AND paused, show that status.
+      setHtml("playbackStatus", "Music Paused");
+    } else {
+      // If no music is playing or paused, show a default message.
+      setHtml("playbackStatus", "No Music Playing");
+    }
+
+    // Update the current track info.
+    musicTrackStart = jObj.musicStart || 0;
+    musicTrackMax = jObj.musicEnd || 0;
+    if (musicTrackCurrent != (jObj.musicCurrent || 0)) {
+      musicTrackCurrent = jObj.musicCurrent || 0;
+      updateTrackListing();
+    }
+
+    // Connected Wifi Clients - Private AP vs. WebSocket
+    setHtml("clientInfo", "AP Clients: " + (jObj.apClients || 0) + " / WebSocket Clients: " + (jObj.wsClients || 0));
+  }
 }
 
-// https://randomnerdtutorials.com/esp32-mpu-6050-web-server/
-
+// Define variables and functions for 3D rendering
 let scene, camera, rendered, cube;
 
 function parentWidth(elem) {
@@ -231,9 +237,7 @@ function init3D(){
 // Resize the 3D object when the browser window changes size
 function onWindowResize(){
   camera.aspect = parentWidth(document.getElementById("3Dcube")) / parentHeight(document.getElementById("3Dcube"));
-  //camera.aspect = window.innerWidth /  window.innerHeight;
   camera.updateProjectionMatrix();
-  //renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setSize(parentWidth(document.getElementById("3Dcube")), parentHeight(document.getElementById("3Dcube")));
 }
 
@@ -241,8 +245,8 @@ function resetPosition() {
   sendCommand("/sensors/reset");
 }
 
-// Create events for the sensor readings
 if (!!window.EventSource) {
+  // Create events for the sensor readings
   var source = new EventSource("/events");
 
   source.addEventListener("open", function(e) {

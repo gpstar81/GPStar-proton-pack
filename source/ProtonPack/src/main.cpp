@@ -183,19 +183,6 @@ void setup() {
   pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
 #endif
 
-#ifdef ESP32
-  // Begin by setting up WiFi as a prerequisite to all else.
-  if(startWiFi()) {
-    // Start the local web server.
-    startWebServer();
-
-    // Begin timer for remote client events.
-    ms_cleanup.start(i_websocketCleanup);
-    ms_apclient.start(i_apClientCount);
-    ms_otacheck.start(i_otaCheck);
-  }
-#endif
-
   // Smoke motor for the N-Filter.
   pinModeFast(NFILTER_SMOKE_PIN, OUTPUT);
 
@@ -636,20 +623,21 @@ void mainLoop() {
   }
 }
 
+void updateLEDs () {
+  // Update all LED's when the FastLED timer has finished.
+  if(ms_fast_led.justFinished()) {
+    FastLED.show();
+
+    // Restart the FastLED timer.
+    ms_fast_led.start(i_fast_led_delay);
+
+    if(b_powercell_updating) {
+      b_powercell_updating = false;
+    }
+  }
+}
+
 void loop() {
-#ifdef ESP32
-  // The ESP32 uses a dual-core CPU with the loop() executing in Core0 by default.
-  // Using vTaskDelay even without core-pinning will allow other tasks to run on Core1.
-  // Features such as networking, WiFi, and OTA updates can benefit from this brief delay.
-  vTaskDelay(pdMS_TO_TICKS(1)); // Translate 1 ms to ticks for delay.
-
-  // Run checks on web-related tasks.
-  webLoops();
-
-  // Get the current temperature from the HDC1080 sensor.
-  readTemperature();
-#endif
-
   // Update the available audio device.
   updateAudio();
 
@@ -668,14 +656,37 @@ void loop() {
   // Handle any actions after POST event.
   mainLoop();
 
-  // Update the LEDs
-  if(ms_fast_led.justFinished()) {
-    FastLED.show();
+#ifdef ESP32
+  // The ESP32 uses a dual-core CPU with the loop() executing in Core0 by default.
+  // Using vTaskDelay even without core-pinning will allow other tasks to run on Core1.
+  // Features such as networking, WiFi, and OTA updates can benefit from this delay.
+  vTaskDelay(pdMS_TO_TICKS(1)); // Translate 1ms to ticks for a very brief delay.
 
-    ms_fast_led.start(i_fast_led_delay);
+  // Run checks on web-related tasks.
+  webLoops();
 
-    if(b_powercell_updating) {
-      b_powercell_updating = false;
+  // Get the current temperature from the HDC1080 sensor.
+  readTemperature();
+
+  // Take action with Wifi based on presence of the Attenuator.
+  if(b_attenuator_connected) {
+    // Turn off WiFi and the web server if the Attenuator is connected.
+    shutdownWireless();
+  }
+  else if(!b_attenuator_connected && !b_attenuator_syncing && !b_ws_started) {
+    // Begin by setting up WiFi as a prerequisite to all else.
+    if(startWiFi()) {
+      // Start the local web server.
+      startWebServer();
+
+      // Begin timers for remote client events.
+      ms_cleanup.start(i_websocketCleanup);
+      ms_apclient.start(i_apClientCount);
+      ms_otacheck.start(i_otaCheck);
     }
   }
+#endif
+
+  // Update the LEDs
+  updateLEDs();
 }

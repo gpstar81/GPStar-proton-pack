@@ -20,7 +20,16 @@
 
 #pragma once
 
-// array size is 1125
+// Minified version of Three.js from https://github.com/mrdoob/three.js
+// MIT License - Copyright (c) 2010-2025 three.js authors
+// Original file: three.core.min.js (broken into lines of ~500 chars)
+
+/**
+ * @license
+ * Copyright 2010-2025 Three.js Authors
+ * SPDX-License-Identifier: MIT
+ */
+
 const char THREEJS_page[] PROGMEM = R"=====(
 (function(l,na){"object"===typeof exports&&"undefined"!==typeof module?na(exports):"function"===typeof define&&define.amd?define(["exports"],na):(l=l||self,na(l.THREE={}))})(this,function(l){function na(){}function D(a,b){this.x=a||0;this.y=b||0}function da(a,b,c,d){this._x=a||0;this._y=b||0;this._z=c||0;this._w=void 0!==d?d:1}function n(a,b,c){this.x=a||0;this.y=b||0;this.z=c||0}function ja(){this.elements=[1,0,0,0,1,0,0,0,1];0<arguments.length&&console.error("THREE.Matrix3: the constructor no longer reads arguments. use .set() instead.")}
 function Y(a,b,c,d,e,f,g,h,k,m){Object.defineProperty(this,"id",{value:ig++});this.uuid=O.generateUUID();this.name="";this.image=void 0!==a?a:Y.DEFAULT_IMAGE;this.mipmaps=[];this.mapping=void 0!==b?b:Y.DEFAULT_MAPPING;this.wrapS=void 0!==c?c:1001;this.wrapT=void 0!==d?d:1001;this.magFilter=void 0!==e?e:1006;this.minFilter=void 0!==f?f:1008;this.anisotropy=void 0!==k?k:1;this.format=void 0!==g?g:1023;this.type=void 0!==h?h:1009;this.offset=new D(0,0);this.repeat=new D(1,1);this.center=new D(0,0);this.rotation=

@@ -35,6 +35,11 @@
 void setupRouting();
 void getSpecialPreferences();
 
+// Rounds a float to 2 decimal places.
+float roundFloat(float value) {
+  return roundf(value * 100.0f) / 100.0f;
+}
+
 /*
  * Text Helper Functions - Converts ENUM values to user-friendly text
  */
@@ -524,30 +529,25 @@ String getWifiSettings() {
   return wifiNetwork;
 }
 
-float roundFloat3(float value) {
-  // Rounds a float to 3 decimal places.
-  return roundf(value * 1000.0f) / 1000.0f;
-}
-
 String getTelemetry() {
   // Prepare a JSON object with magnetometer and gyroscope/acceleration data.
   String telemetryData;
   jsonTelemetry.clear();
 
   // Magnetometer in microteslas (uT) converted to a heading in degrees.
-  jsonTelemetry["heading"] = roundFloat3(filteredMotionData.heading);
+  jsonTelemetry["heading"] = roundFloat(filteredMotionData.heading);
   // Acceleration in meters/second^2 (m/s^2)
-  jsonTelemetry["accelX"] = roundFloat3(filteredMotionData.accelX);
-  jsonTelemetry["accelY"] = roundFloat3(filteredMotionData.accelY);
-  jsonTelemetry["accelZ"] = roundFloat3(filteredMotionData.accelZ);
+  jsonTelemetry["accelX"] = roundFloat(filteredMotionData.accelX);
+  jsonTelemetry["accelY"] = roundFloat(filteredMotionData.accelY);
+  jsonTelemetry["accelZ"] = roundFloat(filteredMotionData.accelZ);
   // Gyroscope in radians/second (rads/s)
-  jsonTelemetry["gyroX"] = roundFloat3(filteredMotionData.gyroX);
-  jsonTelemetry["gyroY"] = roundFloat3(filteredMotionData.gyroY);
-  jsonTelemetry["gyroZ"] = roundFloat3(filteredMotionData.gyroZ);
+  jsonTelemetry["gyroX"] = roundFloat(filteredMotionData.gyroX);
+  jsonTelemetry["gyroY"] = roundFloat(filteredMotionData.gyroY);
+  jsonTelemetry["gyroZ"] = roundFloat(filteredMotionData.gyroZ);
   // Spatial data in Euler angles (degrees).
-  jsonTelemetry["pitch"] = roundFloat3(spatialData.pitch);
-  jsonTelemetry["yaw"] = roundFloat3(spatialData.yaw);
-  jsonTelemetry["roll"] = roundFloat3(spatialData.roll);
+  jsonTelemetry["pitch"] = roundFloat(spatialData.pitch);
+  jsonTelemetry["yaw"] = roundFloat(spatialData.yaw);
+  jsonTelemetry["roll"] = roundFloat(spatialData.roll);
 
   // Serialize JSON object to string.
   serializeJson(jsonTelemetry, telemetryData);

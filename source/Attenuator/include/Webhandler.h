@@ -37,6 +37,11 @@
 // Forward function declarations.
 void setupRouting();
 
+// Rounds a float to 2 decimal places.
+float roundFloat(float value) {
+  return roundf(value * 100.0f) / 100.0f;
+}
+
 /*
  * Text Helper Functions - Converts ENUM values to user-friendly text
  */
@@ -627,10 +632,10 @@ String getEquipmentStatus() {
     jsonBody["volMaster"] = i_volume_master_percentage;
     jsonBody["volEffects"] = i_volume_effects_percentage;
     jsonBody["volMusic"] = i_volume_music_percentage;
-    jsonBody["battVoltage"] = f_batt_volts;
-    jsonBody["packTempC"] = f_temperature_c;
-    jsonBody["packTempF"] = f_temperature_f;
-    jsonBody["wandAmps"] = f_wand_amps;
+    jsonBody["battVoltage"] = roundFloat(f_batt_volts);
+    jsonBody["packTempC"] = roundFloat(f_temperature_c);
+    jsonBody["packTempF"] = roundFloat(f_temperature_f);
+    jsonBody["wandAmps"] = roundFloat(f_wand_amps);
     jsonBody["apClients"] = i_ap_client_count;
     jsonBody["wsClients"] = i_ws_client_count;
   }

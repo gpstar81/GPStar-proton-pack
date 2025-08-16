@@ -180,6 +180,25 @@ void calibrateIMUOffsets(uint8_t numSamples = 20) {
   motionOffsets.gyroX = gxSum / numSamples;
   motionOffsets.gyroY = gySum / numSamples;
   motionOffsets.gyroZ = gzSum / numSamples;
+
+  // Print the filtered sensor data to the debug console.
+  #if defined(DEBUG_SEND_TO_CONSOLE)
+    debug("\t\tOffset Accel X: ");
+    debug(motionOffsets.accelX);
+    debug(" \tY: ");
+    debug(motionOffsets.accelY);
+    debug(" \tZ: ");
+    debug(motionOffsets.accelZ);
+    debugln(" m/s^2 ");
+    debug("\t\tOffset Gyro  X: ");
+    debug(motionOffsets.gyroX);
+    debug(" \tY: ");
+    debug(motionOffsets.gyroY);
+    debug(" \tZ: ");
+    debug(motionOffsets.gyroZ);
+    debugln(" rads/s ");
+    debugln();
+  #endif
 }
 
 /**

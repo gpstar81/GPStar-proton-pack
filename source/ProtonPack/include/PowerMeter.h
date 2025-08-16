@@ -159,11 +159,12 @@ void doWandPowerReading() {
  * Purpose: Reads the pack's supply voltage (Vcc) using internal bandgap reference (ATMega2560 only).
  * Inputs: None
  * Outputs: Updates packReading.BusVoltage with the measured voltage (in V).
- * Notes:
- *   - On ESP32, this function is a no-op for compatibility.
  */
-#if defined(ARDUINO_ARCH_AVR)
 void doPackVoltageReading() {
+#ifdef ESP32
+  // For the ESP32 we cannot get the bandgap voltage so we'll use the INA219 chip to return a voltage.
+  packReading.BusVoltage = monitor.busVoltage();
+#else
   // REFS1 REFS0               --> 0 1, AVcc internal ref. -Selects AVcc reference
   // MUX4 MUX3 MUX2 MUX1 MUX0  --> 11110 1.1V (VBG)        -Selects channel 30, bandgap voltage, to measure
   ADMUX = (0<<REFS1) | (1<<REFS0) | (0<<ADLAR)| (0<<MUX5) | (1<<MUX4) | (1<<MUX3) | (1<<MUX2) | (1<<MUX1) | (0<<MUX0);
@@ -177,16 +178,8 @@ void doPackVoltageReading() {
   // Scale the value, which returns the actual value of Vcc x 100
   const long INTERNAL_REFERENCE_VOLTAGE = 1115L; // Adjust this value to your board's specific internal BG voltage x1000.
   packReading.BusVoltage = (((INTERNAL_REFERENCE_VOLTAGE * 1023L) / ADC) + 5L) / 10L; // Calculates for straight line value.
-}
-#elif defined(ARDUINO_ARCH_ESP32)
-/**
- * On ESP32, doPackVoltageReading is a no-op.
- * The ESP32 does not support internal Vcc measurement in the same way as AVR.
- */
-void doPackVoltageReading() {
-  // No operation on ESP32. Function present for compatibility.
-}
 #endif
+}
 
 // Perform a reading of values from the power meter for the pack.
 void doPackPowerReading() {
@@ -387,11 +380,9 @@ void updateWandPowerState() {
 
 // Send latest voltage value to the Attenuator, if connected.
 void updatePackPowerState() {
-  if(b_attenuator_connected) {
-    // Data is sent as uint16_t so this is already multiplied by 100 to get 2 decimal precision.
-    f_batt_volts = packReading.BusVoltage;
-    attenuatorSerialSend(A_BATTERY_VOLTAGE_PACK, f_batt_volts);
-  }
+  // Data is sent as uint16_t so this is already multiplied by 100 to get 2 decimal precision.
+  f_batt_volts = packReading.BusVoltage;
+  attenuatorSerialSend(A_BATTERY_VOLTAGE_PACK, f_batt_volts);
 }
 
 // Displays the latest gathered power meter values (for debugging only!).
