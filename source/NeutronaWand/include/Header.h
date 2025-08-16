@@ -38,7 +38,7 @@
   #define CLIPPARD_LED_PIN 3 // LED underneath the Clippard valve. (Orange or White LED)
   #define BARREL_LED_PIN 41 // Data pin for the addressable LEDs in the barrel.
   #define VIBRATION_PIN 18 // Pin for the vibration motor.
-  #define TOP_LED_PIN 42 // RGB Vent light.
+  #define TOP_LED_PIN 42 // RGB Vent light only for ESP32.
   #define BARREL_HAT_LED_PIN 10 // Hat light at front of the wand near the barrel tip. (Orange LED)
   #define TOP_HAT_LED_PIN 9 // Hat light at top of the wand body near vent. (Orange or White LED)
   #define BARREL_TIP_LED_PIN 46 // White LED at tip of the wand barrel. (White LED)
@@ -62,7 +62,7 @@
   #define BARREL_LED_PIN 10 // Data pin for the addressable LEDs in the barrel.
   #define VIBRATION_PIN 11 // Pin for the vibration motor.
   #define TOP_LED_PIN 12 // Blinking white light beside the vent on top of the wand.
-  #define VENT_LED_PIN 13 // Vent light.
+  #define VENT_LED_PIN 13 // Vent light (either stock or RGB LED).
   #define BARREL_HAT_LED_PIN 22 // Hat light at front of the wand near the barrel tip. (Orange LED)
   #define TOP_HAT_LED_PIN 23 // Hat light at top of the wand body near vent. (Orange or White LED)
   #define BARREL_TIP_LED_PIN 24 // White LED at tip of the wand barrel. (White LED)

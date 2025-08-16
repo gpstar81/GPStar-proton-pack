@@ -158,6 +158,7 @@ MotionOffsets motionOffsets = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
  * Note: Samples are collected as fast as possible, no delay.
  */
 void calibrateIMUOffsets(uint8_t numSamples = 20) {
+#ifdef ENABLE_MOTION_SENSORS
   float axSum = 0.0f, aySum = 0.0f, azSum = 0.0f;
   float gxSum = 0.0f, gySum = 0.0f, gzSum = 0.0f;
 
@@ -182,7 +183,7 @@ void calibrateIMUOffsets(uint8_t numSamples = 20) {
   motionOffsets.gyroZ = gzSum / numSamples;
 
   // Print the filtered sensor data to the debug console.
-  #if defined(DEBUG_SEND_TO_CONSOLE)
+  #if defined(DEBUG_TELEMETRY_DATA)
     debug("\t\tOffset Accel X: ");
     debug(motionOffsets.accelX);
     debug(" \tY: ");
@@ -199,6 +200,7 @@ void calibrateIMUOffsets(uint8_t numSamples = 20) {
     debugln(" rads/s ");
     debugln();
   #endif
+#endif
 }
 
 /**
@@ -217,11 +219,14 @@ void resetAllMotionData() {
  * Purpose: Initializes the I2C bus and configures the Magnetometer and IMU devices.
  */
 void initializeMotionDevices() {
+#ifdef ENABLE_MOTION_SENSORS
   Wire1.begin(IMU_SDA, IMU_SCL, 400000UL);
 
   // Initialize the LIS3MDL magnetometer.
   if(myMAG.begin_I2C(LIS3MDL_I2CADDR_DEFAULT, &Wire1)) {
-    b_mag_found = true;
+    b_mag_found = true; // Indicate that the magnetometer was found.
+    debug("LIS3MDL found at address 0x");
+    debugln(String(LIS3MDL_I2CADDR_DEFAULT, HEX));
     myMAG.setPerformanceMode(LIS3MDL_MEDIUMMODE); // Set performance mode to medium (balanced power/accuracy)
     myMAG.setOperationMode(LIS3MDL_CONTINUOUSMODE); // Set operation mode to continuous measurements
     myMAG.setDataRate(LIS3MDL_DATARATE_155_HZ); // Set data rate to 155Hz (or LIS3MDL_DATARATE_300_HZ)
@@ -232,7 +237,9 @@ void initializeMotionDevices() {
 
   // Initialize the LSM6DS3TR-C IMU.
   if(myIMU.begin_I2C(LSM6DS_I2CADDR_DEFAULT, &Wire1)) {
-    b_imu_found = true;
+    b_imu_found = true; // Indicate that the IMU was found.
+    debug("LSM6DS3TR-C found at address 0x");
+    debugln(String(LSM6DS_I2CADDR_DEFAULT, HEX));
     myIMU.setAccelRange(LSM6DS_ACCEL_RANGE_4_G); // Set accelerometer range to 4G (high sensitivity, low max acceleration)
     myIMU.setGyroRange(LSM6DS_GYRO_RANGE_250_DPS); // Set gyroscope range to 250DPS (high sensitivity, low max rotation)
     myIMU.setAccelDataRate(LSM6DS_RATE_208_HZ); // Set accelerometer data rate to 208Hz
@@ -240,6 +247,7 @@ void initializeMotionDevices() {
     myIMU.configInt1(false, false, true); // Enable accelerometer data ready interrupt
     myIMU.configInt2(false, true, false); // Enable gyroscope data ready interrupt
   }
+#endif
 
   // Reset all motion data.
   resetAllMotionData();
@@ -298,6 +306,7 @@ void updateFilteredMotionData() {
  * Outputs: None (updates global orientation variables)
  */
 void updateOrientation() {
+#ifdef ENABLE_MOTION_SENSORS
   // Madgwick expects gyroscope in deg/s, accelerometer in g, magnetometer in uT
   // Convert gyroscope from rad/s to deg/s
   float gx = filteredMotionData.gyroX * (180.0f / PI);
@@ -321,6 +330,7 @@ void updateOrientation() {
   spatialData.roll = filter.getRoll();
   spatialData.pitch = filter.getPitch();
   spatialData.yaw = filter.getYaw();
+#endif
 }
 
 /**
@@ -328,6 +338,7 @@ void updateOrientation() {
  * Purpose: Reads the motion sensors and prints the data to the debug console (if enabled).
  */
 void readMotionSensors() {
+#ifdef ENABLE_MOTION_SENSORS
   if(b_imu_found && b_mag_found) {
     if(!ms_sensor_delay.isRunning()) {
       ms_sensor_delay.start(i_sensor_delay); // Have the IMU/MAG report every N milliseconds.
@@ -395,7 +406,7 @@ void readMotionSensors() {
       filteredMotionData.heading = calculateHeading(filteredMotionData.magX, filteredMotionData.magY);
 
       // Print the filtered sensor data to the debug console.
-    #if defined(DEBUG_SEND_TO_CONSOLE)
+    #if defined(DEBUG_TELEMETRY_DATA)
       debug("\t\tFiltered Mag   X: ");
       debug(filteredMotionData.magX);
       debug(" \tY: ");
@@ -430,4 +441,5 @@ void readMotionSensors() {
       sendTelemetryData();
     }
   }
+#endif
 }

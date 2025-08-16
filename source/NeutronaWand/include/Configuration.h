@@ -41,6 +41,7 @@ String user_wifi_pass = ""; // Preferred network password for external WiFi
 //#define DEBUG_WIRELESS_SETUP   // Output debugs related to the WiFi/network setup.
 //#define DEBUG_SEND_TO_CONSOLE  // Send any general messages to the serial (USB) console.
 //#define DEBUG_SEND_TO_WEBSOCKET  // Send any messages to connected WebSocket clients.
+//#define DEBUG_TELEMETRY_DATA     // Output debugs related to the motion sensors.
 
 /*
  * Force the use of default SSID and password for wireless capabilities.
@@ -49,6 +50,13 @@ String user_wifi_pass = ""; // Preferred network password for external WiFi
  * the software which has this line commented out.
  */
 //#define RESET_AP_SETTINGS
+
+/*
+ * Enable the use of the onboard sensors for telemetry tracking.
+ * Leave this defined to enable the magnetometer and gyroscope.
+ * Only available on the ESP32 builds.
+ */
+#define ENABLE_MOTION_SENSORS
 
 /*
  * -------------****** CUSTOM USER CONFIGURABLE SETTINGS ******-------------
@@ -123,7 +131,11 @@ bool b_bargraph_invert = false;
 /*
  * Enables the optional addressable RGB vent/top light board.
  */
-bool b_rgb_vent_light = false;
+#ifdef ESP32
+  bool b_rgb_vent_light = true; // Only RGB for ESP32 builds, user settings are ignored.
+#else
+  bool b_rgb_vent_light = false; // Assumes stock LED for ATMega, overriden with EEPROM.
+#endif
 
 /*
  * Enables special brightness controls during idle and firing modes if set to true.

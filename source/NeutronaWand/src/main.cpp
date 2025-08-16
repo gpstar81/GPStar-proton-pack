@@ -99,7 +99,8 @@ void sendDebug(String message) {
 
 void setup() {
 #ifdef ESP32
-  // Reduce CPU frequency to 80 MHz to save ~50% power compared to 240 MHz.
+  // Reduce CPU frequency to 160 MHz to save ~33% power compared to 240 MHz.
+  // Alternatively set CPU to 80 MHz to save ~50% power compared to 240 MHz.
   // Do not set below 80 MHz as it will affect WiFi and other peripherals.
   setCpuFrequencyMhz(80);
 
@@ -140,27 +141,16 @@ void setup() {
   pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
 #endif
 
-#ifdef ESP32
-  // Begin by setting up WiFi as a prerequisite to all else.
-  if(startWiFi()) {
-    // Start the local web server.
-    startWebServer();
-
-    // Begin timer for remote client events.
-    ms_cleanup.start(i_websocketCleanup);
-    ms_apclient.start(i_apClientCount);
-    ms_otacheck.start(i_otaCheck);
-  }
-#endif
-
   // Barrel LEDs - NOTE: These are GRB not RGB so note that all CRGB objects will have R/G swapped.
   FastLED.addLeds<NEOPIXEL, BARREL_LED_PIN>(barrel_leds, BARREL_LEDS_MAX).setCorrection(TypicalLEDStrip);
   FastLED.setMaxRefreshRate(0); // Disable FastLED's blocking 2.5ms delay.
 
   // RGB Vent Light.
   FastLED.addLeds<NEOPIXEL, TOP_LED_PIN>(vent_leds, VENT_LEDS_MAX).setCorrection(TypicalLEDStrip);
-  vent_leds[0] = getHueAsRGB(C_WHITE); // Set vent light array to white for initial reset.
-  vent_leds[1] = getHueAsRGB(C_WHITE); // Set top light array to white for initial reset.
+  for (uint8_t i = 0; i < VENT_LEDS_MAX; i++) {
+    // Initialize all vent_leds to white initially.
+    vent_leds[i] = getHueAsRGB(C_WHITE);
+  }
   ms_vent_light.start(i_vent_light_update_interval); // Setup a timer for updating the vent light.
 
   // Setup default system settings.
@@ -296,6 +286,17 @@ void setup() {
   }
 
 #ifdef ESP32
+  // Begin by setting up WiFi as a prerequisite to all else.
+  if(startWiFi()) {
+    // Start the local web server.
+    startWebServer();
+
+    // Begin timer for remote client events.
+    ms_cleanup.start(i_websocketCleanup);
+    ms_apclient.start(i_apClientCount);
+    ms_otacheck.start(i_otaCheck);
+  }
+
   debugf("Setup complete, free heap: %u bytes\n", ESP.getFreeHeap());
 #endif
 }

@@ -263,8 +263,6 @@ void startWebServer() {
     if(client->lastId()){
       debugf("Client reconnected! Last message ID that it got is: %u\n", client->lastId());
     }
-    // Send event with message "hello!", id current millis and set reconnect delay to 1 second
-    client->send("hello!", NULL, millis(), 10000);
   });
   httpServer.addHandler(&events);
 
