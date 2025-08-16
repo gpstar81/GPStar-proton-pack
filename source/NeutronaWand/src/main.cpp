@@ -183,7 +183,7 @@ void setup() {
   // ESP32-S3 requires manually specifying SDA and SCL pins first.
   Wire.begin(I2C_SDA, I2C_SCL, 400000UL);
 
-  // Initialize the I2C bus for the Magnetometer and IMU.
+  // Initialize the secondary I2C bus for the Magnetometer and IMU.
   initializeMotionDevices();
 #else
   Wire.begin();
@@ -194,6 +194,7 @@ void setup() {
   Wire.beginTransmission(0x70);
   if(Wire.endTransmission() == 0) {
     // Set to 28-segment, though this will be overridden by EEPROM.
+    debugln(F("28-segment bargraph found at address 0x70"));
     BARGRAPH_TYPE = SEGMENTS_28;
     ht_bargraph.begin(0x00);
   }

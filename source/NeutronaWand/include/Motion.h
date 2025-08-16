@@ -225,8 +225,7 @@ void initializeMotionDevices() {
   // Initialize the LIS3MDL magnetometer.
   if(myMAG.begin_I2C(LIS3MDL_I2CADDR_DEFAULT, &Wire1)) {
     b_mag_found = true; // Indicate that the magnetometer was found.
-    debug("LIS3MDL found at address 0x");
-    debugln(String(LIS3MDL_I2CADDR_DEFAULT, HEX));
+    debugln(F("LIS3MDL found at default address"));
     myMAG.setPerformanceMode(LIS3MDL_MEDIUMMODE); // Set performance mode to medium (balanced power/accuracy)
     myMAG.setOperationMode(LIS3MDL_CONTINUOUSMODE); // Set operation mode to continuous measurements
     myMAG.setDataRate(LIS3MDL_DATARATE_155_HZ); // Set data rate to 155Hz (or LIS3MDL_DATARATE_300_HZ)
@@ -238,8 +237,7 @@ void initializeMotionDevices() {
   // Initialize the LSM6DS3TR-C IMU.
   if(myIMU.begin_I2C(LSM6DS_I2CADDR_DEFAULT, &Wire1)) {
     b_imu_found = true; // Indicate that the IMU was found.
-    debug("LSM6DS3TR-C found at address 0x");
-    debugln(String(LSM6DS_I2CADDR_DEFAULT, HEX));
+    debugln(F("LSM6DS3TR-C found at default address"));
     myIMU.setAccelRange(LSM6DS_ACCEL_RANGE_4_G); // Set accelerometer range to 4G (high sensitivity, low max acceleration)
     myIMU.setGyroRange(LSM6DS_GYRO_RANGE_250_DPS); // Set gyroscope range to 250DPS (high sensitivity, low max rotation)
     myIMU.setAccelDataRate(LSM6DS_RATE_208_HZ); // Set accelerometer data rate to 208Hz
