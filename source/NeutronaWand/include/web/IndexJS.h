@@ -260,21 +260,24 @@ if (!!window.EventSource) {
 
     // Update the HTML elements with the telemetry data
     setHtml("heading", "&nbsp;&nbsp;Heading: " + parseFloat(obj.heading || 0).toFixed(2) + "&deg;");
-    setHtml("gyroX",   "&nbsp;Roll (X): " + parseFloat(obj.gyroX || 0).toFixed(2) + " rads/s "
-                                          + parseFloat(obj.roll || 0).toFixed(2) + "&deg;");
-    setHtml("gyroY",   "Pitch (Y): " + parseFloat(obj.gyroY || 0).toFixed(2) + " rads/s "
-                                     + parseFloat(obj.pitch || 0).toFixed(2) + "&deg;");
-    setHtml("gyroZ",   "&nbsp;&nbsp;Yaw (Z): " + parseFloat(obj.gyroZ || 0).toFixed(2) + " rads/s "
-                                               + parseFloat(obj.yaw || 0).toFixed(2) + "&deg;");
+    setHtml("gyroX",   "&nbsp;&nbsp;&nbsp;Rot. X: " + parseFloat(obj.gyroX || 0).toFixed(2) + " rads/s");
+    setHtml("gyroY",   "&nbsp;&nbsp;&nbsp;Rot. Y: " + parseFloat(obj.gyroY || 0).toFixed(2) + " rads/s");
+    setHtml("gyroZ",   "&nbsp;&nbsp;&nbsp;Rot. Z: " + parseFloat(obj.gyroZ || 0).toFixed(2) + " rads/s");
     setHtml("accelX",  "&nbsp;&nbsp;X (L-R): " + parseFloat(obj.accelX || 0).toFixed(2) + " m/s<sup>2</sup>");
     setHtml("accelY",  "&nbsp;&nbsp;Y (F-B): " + parseFloat(obj.accelY || 0).toFixed(2) + " m/s<sup>2</sup>");
     setHtml("accelZ",  "&nbsp;&nbsp;Z (U-D): " + parseFloat(obj.accelZ || 0).toFixed(2) + " m/s<sup>2</sup>");
+    setHtml("pitch",   "Pitch (Y): " + parseFloat(obj.pitch || 0).toFixed(2) + "&deg;");
+    setHtml("roll",    "&nbsp;Roll (X): " + parseFloat(obj.roll || 0).toFixed(2) + "&deg;");
+    setHtml("yaw",     "&nbsp;&nbsp;Yaw (Z): " + parseFloat(obj.yaw || 0).toFixed(2) + "&deg;");
 
     // Change cube rotation after receiving the readings
     if (cube) {
-      cube.rotation.x = obj.roll || 0; // Roll
-      cube.rotation.y = obj.pitch || 0; // Pitch
-      cube.rotation.z = obj.yaw || 0; // Yaw
+      // cube.rotation.x = (obj.roll || 0); // Roll
+      // cube.rotation.y = (obj.pitch || 0); // Pitch
+      // cube.rotation.z = (obj.yaw || 0); // Yaw
+      cube.rotation.x = (obj.gyroX || 0);
+      cube.rotation.y = (obj.gyroZ || 0) * -1;
+      cube.rotation.z = (obj.gyroY || 0);
       renderer.render(scene, camera);
     }
   }, false);

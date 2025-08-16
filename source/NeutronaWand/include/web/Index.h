@@ -51,6 +51,9 @@ const char INDEX_page[] PROGMEM = R"=====(
       <div id="accelX" class="infoState"></div>
       <div id="accelY" class="infoState"></div>
       <div id="accelZ" class="infoState"></div>
+      <div id="pitch" class="infoState"></div>
+      <div id="roll" class="infoState"></div>
+      <div id="yaw" class="infoState"></div>
       <div class="cube-content">
         <div id="3Dcube"></div>
       </div>

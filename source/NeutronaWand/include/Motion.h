@@ -19,6 +19,11 @@
 
 #pragma once
 
+/**
+ * NOTICE! Remember that the PCB for the Neutrona Wand is mounted upside down!
+ * For proper orientation hold the device with the components facing downward.
+ */
+
 #include <Adafruit_LIS3MDL.h>
 #include <Adafruit_LSM6DS3TRC.h>
 #include <MadgwickAHRS.h>
@@ -36,8 +41,7 @@ bool b_mag_found = false;
 bool b_imu_found = false;
 millisDelay ms_sensor_delay;
 const uint16_t i_sensor_delay = 200; // Delay between sensor reads in milliseconds (also affects telemetry reporting).
-const float HEADING_OFFSET_DEG = 270.0f; // Correct magnetometer orientation on the controller PCB.
-bool isDeviceInstalled = false; // true: Components DOWN (Installed), false: Components UP (Development)
+const float HEADING_OFFSET_DEG = 90.0f; // Correct magnetometer orientation on the controller PCB.
 
 // Create a global filter object
 Madgwick filter;
@@ -162,17 +166,17 @@ void calibrateIMUOffsets(uint8_t numSamples = 20) {
     myIMU.getEvent(&accel, &gyro, &temp);
 
     axSum += accel.acceleration.x;
-    aySum += accel.acceleration.z * -1; // Use z-axis for Y to match physical orientation, invert value
-    azSum += accel.acceleration.y; // Use y-axis for Z to match physical orientation
+    aySum += accel.acceleration.y;
+    azSum += accel.acceleration.z;
     gxSum += gyro.gyro.x;
-    gySum += gyro.gyro.z * -1; // Use z-axis for Y to match physical orientation, invert value
-    gzSum += gyro.gyro.y; // Use y-axis for Z to match physical orientation
+    gySum += gyro.gyro.y;
+    gzSum += gyro.gyro.z;
   }
 
   // Calculate average offsets
   motionOffsets.accelX = axSum / numSamples;
   motionOffsets.accelY = aySum / numSamples;
-  motionOffsets.accelZ = (azSum / numSamples) - 9.80665f; // Subtract gravity for Z axis
+  motionOffsets.accelZ = (azSum / numSamples) - 9.80665f; // Subtract gravity for Z axis (9.81 m/s^2)
   motionOffsets.gyroX = gxSum / numSamples;
   motionOffsets.gyroY = gySum / numSamples;
   motionOffsets.gyroZ = gzSum / numSamples;
@@ -236,7 +240,7 @@ float calculateHeading(float magX, float magY) {
   float headingDeg = headingRad * (180.0f / PI);
 
   // Apply offset for physical chip orientation
-  headingDeg -= HEADING_OFFSET_DEG;
+  headingDeg += HEADING_OFFSET_DEG;
 
   // Normalize to 0-360°
   while (headingDeg < 0.0f) {
@@ -244,19 +248,6 @@ float calculateHeading(float magX, float magY) {
   }
   while (headingDeg >= 360.0f) {
     headingDeg -= 360.0f;
-  }
-
-  // Invert heading if device is mounted upside down
-  if (isDeviceInstalled) {
-    headingDeg = 360.0f - headingDeg;
-
-    // Normalize again to 0-360°
-    while (headingDeg < 0.0f) {
-      headingDeg += 360.0f;
-    }
-    while (headingDeg >= 360.0f) {
-      headingDeg -= 360.0f;
-    }
   }
 
   return headingDeg;
@@ -332,11 +323,9 @@ void readMotionSensors() {
       myIMU.getEvent(&accel, &gyro, &temp);
 
       // Update the magnetometer data.
-      motionData.magX = mag.magnetic.x;
+      motionData.magX = mag.magnetic.x * -1;
       motionData.magY = mag.magnetic.y;
       motionData.magZ = mag.magnetic.z;
-
-      // Update heading value based on magnetometer X and Y only.
       motionData.heading = calculateHeading(motionData.magX, motionData.magY);
 
       /**
@@ -359,8 +348,8 @@ void readMotionSensors() {
        *  Negative Pitch: Look down.
        *
        * Y Acceleration (Longitudinal, Forward-Backward):
-       *  Positive Z: Move backward.
-       *  Negative Z: Move forward.
+       *  Positive Y: Move backward.
+       *  Negative Y: Move forward.
        *  Movement: Walking forward/backward.
        *
        * Z Rotation (Yaw):
@@ -368,32 +357,23 @@ void readMotionSensors() {
        *  Negative Yaw: Turn right.
        *
        * Z Acceleration (Vertical, Up-Down):
-       *  Positive Y: Upwards.
-       *  Negative Y: Downwards.
+       *  Positive Z: Upwards.
+       *  Negative Z: Downwards.
        *
-       * Due to the direction the sensor is mounted on the PCB we need to swap the Z and Y axes.
-       * Additionally, the Z axis reads backwards from what is expected so we need to invert Y values.
-       * Even further the device is normally mounted upside down, sowe need to use our inversion flag
-       * to swap the values for everything when installed.
        */
       // Apply offsets to IMU readings
       motionData.accelX = accel.acceleration.x - motionOffsets.accelX;
-      motionData.accelY = (accel.acceleration.z * -1) - motionOffsets.accelY;
-      motionData.accelZ = accel.acceleration.y - motionOffsets.accelZ;
+      motionData.accelY = accel.acceleration.y - motionOffsets.accelY;
+      motionData.accelZ = accel.acceleration.z - motionOffsets.accelZ;
       motionData.gyroX = gyro.gyro.x - motionOffsets.gyroX;
-      motionData.gyroY = (gyro.gyro.z * -1) - motionOffsets.gyroY;
-      motionData.gyroZ = gyro.gyro.y - motionOffsets.gyroZ;
-
-      if (!isDeviceInstalled) {
-        // When not installed we need to invert the X/Y values.
-        motionData.accelX = motionData.accelX * -1;
-        motionData.accelY = motionData.accelY * -1;
-        motionData.gyroX = motionData.gyroX * -1;
-        motionData.gyroY = motionData.gyroY * -1;
-      }
+      motionData.gyroY = gyro.gyro.y - motionOffsets.gyroY;
+      motionData.gyroZ = gyro.gyro.z - motionOffsets.gyroZ;
 
       // Apply smoothing filter to sensor data.
       updateFilteredMotionData();
+
+      // Update heading value based on magnetometer X and Y only.
+      filteredMotionData.heading = calculateHeading(filteredMotionData.magX, filteredMotionData.magY);
 
       // Print the filtered sensor data to the debug console.
     #if defined(DEBUG_SEND_TO_CONSOLE)
