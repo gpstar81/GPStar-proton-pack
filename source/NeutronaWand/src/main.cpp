@@ -104,11 +104,11 @@ void setup() {
   // Do not set below 80 MHz as it will affect WiFi and other peripherals.
   setCpuFrequencyMhz(80);
 
+  // This is required in order to make sure the board boots successfully.
+  Serial.begin(115200);
+
   // Serial0 (UART0) is enabled by default; end() sets GPIO43 & GPIO44 to GPIO.
   Serial0.end();
-
-  // Set the baud rate for the Serial console.
-  Serial.begin(115200);
 
   /* This loop changes GPIO39~GPIO42 to Function 1, which is GPIO.
    * PIN_FUNC_SELECT sets the IOMUX function register appropriately.

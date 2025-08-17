@@ -35,8 +35,8 @@ void sendTelemetryData(); // From Webhandler.h
  * Magnetometer and IMU
  * Defines all device objects and variables.
  */
-Adafruit_LIS3MDL myMAG;
-Adafruit_LSM6DS3TRC myIMU;
+Adafruit_LIS3MDL magSensor;
+Adafruit_LSM6DS3TRC imuSensor;
 bool b_mag_found = false;
 bool b_imu_found = false;
 millisDelay ms_sensor_delay;
@@ -164,7 +164,7 @@ void calibrateIMUOffsets(uint8_t numSamples = 20) {
 
   for (uint8_t i = 0; i < numSamples; i++) {
     sensors_event_t accel, gyro, temp;
-    myIMU.getEvent(&accel, &gyro, &temp);
+    imuSensor.getEvent(&accel, &gyro, &temp);
 
     axSum += accel.acceleration.x;
     aySum += accel.acceleration.y;
@@ -223,27 +223,27 @@ void initializeMotionDevices() {
   Wire1.begin(IMU_SDA, IMU_SCL, 400000UL);
 
   // Initialize the LIS3MDL magnetometer.
-  if(myMAG.begin_I2C(LIS3MDL_I2CADDR_DEFAULT, &Wire1)) {
+  if(magSensor.begin_I2C(LIS3MDL_I2CADDR_DEFAULT, &Wire1)) {
     b_mag_found = true; // Indicate that the magnetometer was found.
     debugln(F("LIS3MDL found at default address"));
-    myMAG.setPerformanceMode(LIS3MDL_MEDIUMMODE); // Set performance mode to medium (balanced power/accuracy)
-    myMAG.setOperationMode(LIS3MDL_CONTINUOUSMODE); // Set operation mode to continuous measurements
-    myMAG.setDataRate(LIS3MDL_DATARATE_155_HZ); // Set data rate to 155Hz (or LIS3MDL_DATARATE_300_HZ)
-    myMAG.setRange(LIS3MDL_RANGE_8_GAUSS); // Set range to 8 Gauss (mid sensitivity, mid max field)
-    myMAG.setIntThreshold(500); // Set interrupt threshold to 500
-    myMAG.configInterrupt(false, false, true, true, false, true); // Configure interrupts
+    magSensor.setPerformanceMode(LIS3MDL_MEDIUMMODE); // Set performance mode to medium (balanced power/accuracy)
+    magSensor.setOperationMode(LIS3MDL_CONTINUOUSMODE); // Set operation mode to continuous measurements
+    magSensor.setDataRate(LIS3MDL_DATARATE_155_HZ); // Set data rate to 155Hz (or LIS3MDL_DATARATE_300_HZ)
+    magSensor.setRange(LIS3MDL_RANGE_8_GAUSS); // Set range to 8 Gauss (mid sensitivity, mid max field)
+    magSensor.setIntThreshold(500); // Set interrupt threshold to 500
+    magSensor.configInterrupt(false, false, true, true, false, true); // Configure interrupts
   }
 
   // Initialize the LSM6DS3TR-C IMU.
-  if(myIMU.begin_I2C(LSM6DS_I2CADDR_DEFAULT, &Wire1)) {
+  if(imuSensor.begin_I2C(LSM6DS_I2CADDR_DEFAULT, &Wire1)) {
     b_imu_found = true; // Indicate that the IMU was found.
     debugln(F("LSM6DS3TR-C found at default address"));
-    myIMU.setAccelRange(LSM6DS_ACCEL_RANGE_4_G); // Set accelerometer range to 4G (high sensitivity, low max acceleration)
-    myIMU.setGyroRange(LSM6DS_GYRO_RANGE_250_DPS); // Set gyroscope range to 250DPS (high sensitivity, low max rotation)
-    myIMU.setAccelDataRate(LSM6DS_RATE_208_HZ); // Set accelerometer data rate to 208Hz
-    myIMU.setGyroDataRate(LSM6DS_RATE_208_HZ); // Set gyroscope data rate to 208Hz
-    myIMU.configInt1(false, false, true); // Enable accelerometer data ready interrupt
-    myIMU.configInt2(false, true, false); // Enable gyroscope data ready interrupt
+    imuSensor.setAccelRange(LSM6DS_ACCEL_RANGE_4_G); // Set accelerometer range to 4G (high sensitivity, low max acceleration)
+    imuSensor.setGyroRange(LSM6DS_GYRO_RANGE_250_DPS); // Set gyroscope range to 250DPS (high sensitivity, low max rotation)
+    imuSensor.setAccelDataRate(LSM6DS_RATE_208_HZ); // Set accelerometer data rate to 208Hz
+    imuSensor.setGyroDataRate(LSM6DS_RATE_208_HZ); // Set gyroscope data rate to 208Hz
+    imuSensor.configInt1(false, false, true); // Enable accelerometer data ready interrupt
+    imuSensor.configInt2(false, true, false); // Enable gyroscope data ready interrupt
   }
 #endif
 
@@ -347,8 +347,8 @@ void readMotionSensors() {
       sensors_event_t accel;
       sensors_event_t gyro;
       sensors_event_t temp;
-      myMAG.getEvent(&mag);
-      myIMU.getEvent(&accel, &gyro, &temp);
+      magSensor.getEvent(&mag);
+      imuSensor.getEvent(&accel, &gyro, &temp);
 
       // Update the magnetometer data.
       motionData.magX = mag.magnetic.x * -1;

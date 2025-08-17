@@ -110,7 +110,11 @@ bool b_bargraph_invert = false;
 /*
  * Enables the optional addressable RGB vent/top light board.
  */
-bool b_rgb_vent_light = false;
+#ifdef ESP32
+  bool b_rgb_vent_light = true; // Only RGB for ESP32 builds, user settings are ignored.
+#else
+  bool b_rgb_vent_light = false; // Assumes stock LED for ATMega, overridden with EEPROM.
+#endif
 
 /*
  * Enables special brightness controls during idle and firing modes if set to true.

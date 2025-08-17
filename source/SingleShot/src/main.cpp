@@ -64,8 +64,8 @@
   #include <HardwareSerial.h>
   #include <Adafruit_LIS3MDL.h>
   #include <Adafruit_LSM6DS3TRC.h>
-  Adafruit_LIS3MDL myMAG;
-  Adafruit_LSM6DS3TRC myIMU;
+  Adafruit_LIS3MDL magSensor;
+  Adafruit_LSM6DS3TRC imuSensor;
   bool b_mag_found = false;
   bool b_imu_found = false;
   millisDelay ms_sensor_delay;
@@ -110,6 +110,9 @@ void setup() {
 #ifdef ESP32
   // To save power, reduce CPU frequency to 160 MHz.
   setCpuFrequencyMhz(160);
+
+  // This is required in order to make sure the board boots successfully.
+  Serial.begin(115200);
 
   // Serial0 (UART0) is enabled by default; end() sets GPIO43 & GPIO44 to GPIO.
   Serial0.end();
@@ -180,25 +183,25 @@ void setup() {
   Wire1.begin(IMU_SDA, IMU_SCL, 400000UL);
 
   // Initialize the LIS3MDL magnetometer.
-  if(myMAG.begin_I2C(LIS3MDL_I2CADDR_DEFAULT, &Wire1)) {
+  if(magSensor.begin_I2C(LIS3MDL_I2CADDR_DEFAULT, &Wire1)) {
     b_mag_found = true;
-    myMAG.setPerformanceMode(LIS3MDL_MEDIUMMODE);
-    myMAG.setOperationMode(LIS3MDL_CONTINUOUSMODE);
-    myMAG.setDataRate(LIS3MDL_DATARATE_1000_HZ);
-    myMAG.setRange(LIS3MDL_RANGE_4_GAUSS);
-    myMAG.setIntThreshold(500);
-    myMAG.configInterrupt(false, false, true, true, false, true);
+    magSensor.setPerformanceMode(LIS3MDL_MEDIUMMODE);
+    magSensor.setOperationMode(LIS3MDL_CONTINUOUSMODE);
+    magSensor.setDataRate(LIS3MDL_DATARATE_1000_HZ);
+    magSensor.setRange(LIS3MDL_RANGE_4_GAUSS);
+    magSensor.setIntThreshold(500);
+    magSensor.configInterrupt(false, false, true, true, false, true);
   }
 
   // Initialize the LSM6DS3TR-C IMU.
-  if(myIMU.begin_I2C(LSM6DS_I2CADDR_DEFAULT, &Wire1)) {
+  if(imuSensor.begin_I2C(LSM6DS_I2CADDR_DEFAULT, &Wire1)) {
     b_imu_found = true;
-    myIMU.setAccelRange(LSM6DS_ACCEL_RANGE_2_G);
-    myIMU.setGyroRange(LSM6DS_GYRO_RANGE_250_DPS);
-    myIMU.setAccelDataRate(LSM6DS_RATE_6_66K_HZ);
-    myIMU.setGyroDataRate(LSM6DS_RATE_6_66K_HZ);
-    myIMU.configInt1(false, false, true);
-    myIMU.configInt2(false, true, false);
+    imuSensor.setAccelRange(LSM6DS_ACCEL_RANGE_2_G);
+    imuSensor.setGyroRange(LSM6DS_GYRO_RANGE_250_DPS);
+    imuSensor.setAccelDataRate(LSM6DS_RATE_6_66K_HZ);
+    imuSensor.setGyroDataRate(LSM6DS_RATE_6_66K_HZ);
+    imuSensor.configInt1(false, false, true);
+    imuSensor.configInt2(false, true, false);
   }
 #endif
 
