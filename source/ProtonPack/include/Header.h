@@ -43,6 +43,7 @@
   #define YEAR_TOGGLE_PIN 18 // Switch to toggle between system year modes on the fly.
   #define CYCLOTRON_LID_SWITCH_PIN 38 // Pin used for Cyclotron lid detection capability.
   #define TVG_LED_PIN 41 // Data pin for addressable LEDs used by TVG accessories.
+  #define CYCLOTRON_PANEL_PIN 42 // Data pin for Cyclotron LED panel.
   #define VIBRATION_PIN 45 // Pin for the vibration motor.
   #define BOOSTER_TUBE_FAN_PIN 46 // Fan for the secondary smoke machine.
   #define BOOSTER_TUBE_SMOKE_PIN 48 // Secondary smoke machine output, usually in the booster tube.

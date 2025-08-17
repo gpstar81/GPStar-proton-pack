@@ -353,6 +353,13 @@ void attenuatorSendData(uint8_t i_message) {
   // Set all elements of the data array to 0
   memset(sendDataW.d, 0, sizeof(sendDataW.d));
 
+#ifdef ESP32
+  // Send latest status to the WebSocket (ESP32 only), skipping this action on certain commands.
+  if (!isExcludedCommand(i_message)) {
+    notifyWSClients();
+  }
+#endif
+
   // Provide additional data with certain messages.
   switch(i_message) {
     case A_SPECTRAL_CUSTOM_MODE:

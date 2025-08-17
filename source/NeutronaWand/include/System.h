@@ -332,6 +332,13 @@ void soundBeepLoop() {
       // Quick check to know if effects belong to the next-gen movies (as opposed to the OG 80's themes).
       bool b_next_gen = (getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE);
 
+      // Explicitly stop beeps first just in case it tries to double up.
+      stopEffect(S_AFTERLIFE_BEEP_WAND_S1);
+      stopEffect(S_AFTERLIFE_BEEP_WAND_S2);
+      stopEffect(S_AFTERLIFE_BEEP_WAND_S3);
+      stopEffect(S_AFTERLIFE_BEEP_WAND_S4);
+      stopEffect(S_AFTERLIFE_BEEP_WAND_S5);
+
       if(b_next_gen && b_beep_loop) {
         if(b_extra_pack_sounds) {
           wandSerialSend(W_WAND_BEEP_START);
