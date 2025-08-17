@@ -202,8 +202,14 @@ void setup() {
   FastLED.addLeds<NEOPIXEL, PACK_LED_PIN>(pack_leds, FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX + JEWEL_NFILTER_LED_COUNT).setCorrection(TypicalLEDStrip);
   FastLED.setMaxRefreshRate(0); // Disable FastLED's blocking 2.5ms delay.
 
-  // Inner Cyclotron LEDs (Inner Panel + Cyclotron + Cavity).
+#ifdef ESP32
+  // ESP32 uses separate pins for the Inner Cyclotron LEDs (Inner Panel vs. Cyclotron + Cavity).
+  FastLED.addLeds<NEOPIXEL, CYCLOTRON_LED_PIN>(cyclotron_leds, INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX).setCorrection(TypicalLEDStrip);
+  FastLED.addLeds<NEOPIXEL, CYCLOTRON_PANEL_PIN>(panel_leds, INNER_CYCLOTRON_LED_PANEL_MAX).setCorrection(TypicalLEDStrip);
+#else
+  // ATMega uses a single pin to drive all Inner Cyclotron LEDs (Inner Panel + Cyclotron + Cavity).
   FastLED.addLeds<NEOPIXEL, CYCLOTRON_LED_PIN>(cyclotron_leds, INNER_CYCLOTRON_LED_PANEL_MAX + INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX).setCorrection(TypicalLEDStrip);
+#endif
 
 #ifndef ESP32
   // Cyclotron Switch Panel LEDs

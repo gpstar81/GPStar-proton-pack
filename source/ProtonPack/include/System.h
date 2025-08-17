@@ -4642,6 +4642,7 @@ void wandExtraSoundsBeepLoop() {
   if(!b_overheating) {
     // Explicitly stop beeps first just in case it tries to double up.
     wandExtraSoundsBeepLoopStop(false);
+
     switch(i_wand_power_level) {
       case 1:
         playEffect(S_AFTERLIFE_BEEP_WAND_S1, true, i_volume_effects - i_wand_idle_level);

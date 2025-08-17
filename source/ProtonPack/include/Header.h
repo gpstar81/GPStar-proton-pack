@@ -37,8 +37,8 @@
   #define PACK_STATUS_LED_PIN 8 // V1.5 GPStar Proton Pack onboard LED pin.
   #define RIBBON_CABLE_SWITCH_PIN 9 // Switch to detect if the ribbon cable has been removed.
   #define NFILTER_LED_PIN 12 // (Optional) Use a white LED with a forward voltage of 3.0-3.2 and up to 20mA forward current.
-  #define ROTARY_ENCODER_B 13
-  #define ROTARY_ENCODER_A 14
+  #define ROTARY_ENCODER_A 13
+  #define ROTARY_ENCODER_B 14
   #define VIBRATION_TOGGLE_PIN 17 // Master switch to turn all vibration features on or off.
   #define YEAR_TOGGLE_PIN 18 // Switch to toggle between system year modes on the fly.
   #define CYCLOTRON_LID_SWITCH_PIN 38 // Pin used for Cyclotron lid detection capability.
@@ -119,9 +119,16 @@
 #define INNER_CYCLOTRON_CAKE_LED_MAX 36
 
 /*
- * Set the number of steps for the Inner Cyclotron (cavity).
+ * Set the number of elements for the Inner Cyclotron (cavity).
+ * Regardless of microcontroller we can only handle 64 LEDs at a time per FastLED pin.
  */
-#define INNER_CYCLOTRON_CAVITY_LED_MAX 20
+#ifdef ESP32
+  // ESP32 supports the Cake + Cavity only (36 + 28)
+  #define INNER_CYCLOTRON_CAVITY_LED_MAX 28
+#else
+  // ATmega2560 supports the Panel + Cake + Cavity (8 + 36 + 20)
+  #define INNER_CYCLOTRON_CAVITY_LED_MAX 20
+#endif
 
 /*
  * The gpstar N-Filter expects 7 LEDs.
@@ -161,9 +168,15 @@ const uint8_t i_nfilter_jewel_leds = JEWEL_NFILTER_LED_COUNT;
  * Max 64 LEDs is possible before degradation of serial communications!
  * - Up to 8 LEDs for the inner panel by Frutto Technology.
  * - Up to 36 LEDs for the largest ring provided by GPStar kits.
- * - Optionally, up to 20 LEDs for the "sparking" effect in the cavity.
+ * - Optionally, up to 20/28 LEDs for the "sparking" effect in the cavity.
  */
-const uint8_t i_max_inner_cyclotron_leds = INNER_CYCLOTRON_LED_PANEL_MAX + INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX;
+#ifdef ESP32
+  // ESP32 supports the Cake + Cavity only, with the Panel on a separate pin.
+  const uint8_t i_max_inner_cyclotron_leds = INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX;
+#else
+  // ATmega2560 must support the Panel + Cake + Cavity as a single chain.
+  const uint8_t i_max_inner_cyclotron_leds = INNER_CYCLOTRON_LED_PANEL_MAX + INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX;
+#endif
 
 /*
  * Updated count of all the LEDs plus the N-Filter jewel.
@@ -187,10 +200,15 @@ CRGB pack_leds[FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX + JEWEL_NFIL
  * Max number of LEDs supported = 64.
  * Maximum expected LEDs for the Inner Switch Panel is 8.
  * Maximum allowed LEDs for the Inner Cyclotron Cake is 36.
- * Maximum allowed LEDs for the Inner Cyclotron Cavity is 20.
- * Uses pin 13.
+ * Maximum allowed LEDs for the Inner Cyclotron Cavity is 20/28.
  */
-CRGB cyclotron_leds[INNER_CYCLOTRON_LED_PANEL_MAX + INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX];
+#ifdef ESP32
+  // ESP32 supports the Cake + Cavity only, with the Panel on a separate pin.
+  CRGB cyclotron_leds[INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX];
+  CRGB panel_leds[INNER_CYCLOTRON_LED_PANEL_MAX];
+#else
+  CRGB cyclotron_leds[INNER_CYCLOTRON_LED_PANEL_MAX + INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX];
+#endif
 
 /*
  * Delay for fastled to update the addressable LEDs.
@@ -273,13 +291,13 @@ const uint8_t i_cyclotron_40led_matrix[OUTER_CYCLOTRON_LED_MAX] PROGMEM = { 1, 2
 
 /*
  * Inner Cyclotron LED Panel
- * Individual = Use stock connectors on the pack controller for individual LEDs [Default]
+ * Individual = Use stock connectors on the pack controller for individual LEDs [ATMega ONLY]
  * RGB Static = Use the Frutto Technology LED panel, but colors remain consistent for all stream modes
- * RGB Dynamic = Use the Frutto Technology LED panel, allowing colors to change based on stream modes
+ * RGB Dynamic = Use the Frutto Technology LED panel, allowing colors to change based on stream modes [Default]
  * When enabled, this becomes the first in the chain from the Inner Cyclotron JST-XH connector from the Proton Pack.
  */
 enum INNER_CYC_PANEL_MODES { PANEL_INDIVIDUAL, PANEL_RGB_STATIC, PANEL_RGB_DYNAMIC };
-enum INNER_CYC_PANEL_MODES INNER_CYC_PANEL_MODE;
+enum INNER_CYC_PANEL_MODES INNER_CYC_PANEL_MODE = PANEL_RGB_DYNAMIC;
 
 /*
  * Inner Cyclotron NeoPixel ring ramp control.
@@ -293,12 +311,22 @@ bool b_inner_ramp_up = true; // Gotta start up before you can wind down.
 bool b_inner_ramp_down = false; // Opposite of the ramp_up value, naturally.
 uint16_t i_inner_current_ramp_speed = i_inner_ramp_delay; // Begin by defaulting to the inner ramp delay (this will be adjusted by the cyclotron multiplier at runtime).
 uint8_t i_inner_cyclotron_panel_num_leds = INNER_CYCLOTRON_LED_PANEL_MAX; // Addressable RGB LEDs on the optional inner cyclotron LED switch plate panel PCB, not the individual LEDs.
-const uint8_t i_ic_panel_start = 0; // Will always be 0 no matter what configuration is in use.
-uint8_t i_ic_panel_end = INNER_CYCLOTRON_LED_PANEL_MAX - 1;
-uint8_t i_ic_cake_start = i_ic_panel_end + 1;
-uint8_t i_ic_cake_end = i_ic_cake_start + INNER_CYCLOTRON_CAKE_LED_MAX - 1;
-uint8_t i_ic_cavity_start = i_ic_cake_end + 1;
-uint8_t i_ic_cavity_end = i_ic_cavity_start + INNER_CYCLOTRON_CAVITY_LED_MAX - 1;
+const uint8_t i_ic_panel_start = 0; // Will always be 0 no matter what configuration or architecture is in use.
+#ifdef ESP32
+  // For the ESP32 we use a separate count for the inner cyclotron LEDs, excluding the RGB LED panel.
+  uint8_t i_ic_panel_end = INNER_CYCLOTRON_LED_PANEL_MAX - 1;
+  uint8_t i_ic_cake_start = 0; // Truly starts at 0 for this architecture.
+  uint8_t i_ic_cake_end = i_ic_cake_start + INNER_CYCLOTRON_CAKE_LED_MAX - 1;
+  uint8_t i_ic_cavity_start = i_ic_cake_end + 1; // Always starts after the cake.
+  uint8_t i_ic_cavity_end = i_ic_cavity_start + INNER_CYCLOTRON_CAVITY_LED_MAX - 1;
+#else
+  // For the ATMega we treat the first N LEDs as the panel, the next N as the cake, and the last N as the cavity.
+  uint8_t i_ic_panel_end = INNER_CYCLOTRON_LED_PANEL_MAX - 1;
+  uint8_t i_ic_cake_start = i_ic_panel_end + 1; // Starts after the inner panel.
+  uint8_t i_ic_cake_end = i_ic_cake_start + INNER_CYCLOTRON_CAKE_LED_MAX - 1;
+  uint8_t i_ic_cavity_start = i_ic_cake_end + 1; // Always starts after the cake.
+  uint8_t i_ic_cavity_end = i_ic_cavity_start + INNER_CYCLOTRON_CAVITY_LED_MAX - 1;
+#endif
 
 /*
  * Cyclotron Switch Plate LEDs
