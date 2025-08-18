@@ -19,6 +19,34 @@
 
 #pragma once
 
+/**
+ * Function: sanitizeCyclotronMultipliers
+ * Purpose: Ensures cyclotron-related multipliers stay within safe bounds to prevent divide-by-zero and out-of-bounds errors.
+ * Inputs: None (operates on global variables)
+ * Outputs: None (modifies global variables in place)
+ *          Adjusts i_cyclotron_multiplier, i_cyclotron_switch_led_multiplier, i_powercell_multiplier as needed.
+ *
+ * Min/max values are based on:
+ *   - Minimum of 1: Prevents divide-by-zero errors in code sections where these multipliers are used as divisors (e.g., timer calculations, fade logic).
+ *   - Maximums: These reflect the highest values allowed by the intended limits for each effect, as seen in the main control and increment functions.
+ *      Cyclotron  : 9
+ *      Switch LED : 9
+ *      Powercell  : 6
+ */
+void sanitizeCyclotronMultipliers() {
+  // Cyclotron multiplier: must be between 1 and 9
+  if(i_cyclotron_multiplier < 1) i_cyclotron_multiplier = 1;
+  if(i_cyclotron_multiplier > 9) i_cyclotron_multiplier = 9;
+
+  // Cyclotron switch LED multiplier: must be between 1 and 9
+  if(i_cyclotron_switch_led_multiplier < 1) i_cyclotron_switch_led_multiplier = 1;
+  if(i_cyclotron_switch_led_multiplier > 9) i_cyclotron_switch_led_multiplier = 9;
+
+  // Powercell multiplier: must be between 1 and 6
+  if(i_powercell_multiplier < 1) i_powercell_multiplier = 1;
+  if(i_powercell_multiplier > 6) i_powercell_multiplier = 6;
+}
+
 void innerCyclotronCakeOff() {
   for(uint8_t i = i_ic_cake_start; i <= i_ic_cake_end; i++) {
     cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_INNER, C_BLACK);
@@ -582,7 +610,7 @@ void innerCyclotronRingUpdate(uint16_t iRampDelay) {
       }
 
       if(iRampDelay < 1 || iRampDelay > i_inner_current_ramp_speed) {
-        iRampDelay = 1;
+        iRampDelay = 1; // Ensure a sane minimum is set (must be non-zero).
       }
 
       ms_cyclotron_ring.start(iRampDelay);
@@ -2132,7 +2160,7 @@ void cyclotronSwitchLEDLoop() {
     }
 
     // Setup the delays again.
-    uint16_t i_cyc_led_delay = i_cyclotron_switch_led_delay / i_cyclotron_switch_led_mulitplier;
+    uint16_t i_cyc_led_delay = i_cyclotron_switch_led_delay / i_cyclotron_switch_led_multiplier;
 
     switch(SYSTEM_YEAR) {
       case SYSTEM_AFTERLIFE:
@@ -4049,10 +4077,18 @@ void checkCyclotronAutoSpeed() {
       i_cyclotron_multiplier++;
 
       // Increase the Cyclotron Switch Panel LEDs speed.
-      i_cyclotron_switch_led_mulitplier++;
+      i_cyclotron_switch_led_multiplier++;
+
+      // Ensure values are within expected bounds.
+      sanitizeCyclotronMultipliers();
 
       // Restart the timer.
-      ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
+      if(i_wand_power_level > 0) {
+        ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
+      }
+      else {
+        ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length);
+      }
     }
   }
 }
@@ -4447,7 +4483,7 @@ void checkMenuVibration() {
 
 void cyclotronSpeedRevert() {
   i_cyclotron_multiplier = 1;
-  i_cyclotron_switch_led_mulitplier = 1;
+  i_cyclotron_switch_led_multiplier = 1;
   i_powercell_multiplier = 1;
 }
 
@@ -4460,8 +4496,8 @@ void cyclotronSpeedIncrease() {
         i_cyclotron_multiplier++;
       }
 
-      if(i_cyclotron_switch_led_mulitplier < 9) {
-        i_cyclotron_switch_led_mulitplier++;
+      if(i_cyclotron_switch_led_multiplier < 9) {
+        i_cyclotron_switch_led_multiplier++;
       }
 
       if(i_powercell_multiplier < 6) {
@@ -4472,10 +4508,12 @@ void cyclotronSpeedIncrease() {
     case SYSTEM_1984:
     case SYSTEM_1989:
       i_cyclotron_multiplier++;
-      i_cyclotron_switch_led_mulitplier++;
+      i_cyclotron_switch_led_multiplier++;
       i_powercell_multiplier++;
     break;
   }
+
+  sanitizeCyclotronMultipliers();
 }
 
 int8_t readRotary() {

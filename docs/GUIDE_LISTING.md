@@ -74,6 +74,8 @@ This section is presented in a way to offer a more complete view of what compone
 
 **Installation, Operation, and Troubleshooting**
 
+Are you troubled by installation problems? Do you experience feelings of dread opening your pack or wand? Have you or your equipment ever experienced a malfunction, error, or mysterious smoke? If the answer is yes, then don't wait another minute. Pick up the phone and call the professionals...
+
 | **Task**         | **Guide** |
 |------------------|---------------------------------------------|
 | Initial Assembly | [Installation Videos](INSTALL_VIDEOS_JONOGUNN.md) & [Installation Guide (PDF)](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/gpstar-Haslab-Proton-Pack-Kit-Installation-Manual-V4.pdf?raw=1) |
@@ -83,13 +85,17 @@ This section is presented in a way to offer a more complete view of what compone
 
 **Software Development (Advanced Topics)**
 
+Here be dragons. This section is for VERY ADVANCED users only.
+
 | **Task**         | **Guide** |
 |------------------|---------------------------------------------|
 | Compile Software | [VSCode + PlatformIO](VSCODE.md)
 | Modify Software  | [Advanced Software Configuration](ADVCONFIG.md) |
-| Upload Software  | [Pack/Wand Flashing](COMPILING_FLASHING.md) or [Attenuator/Wireless Flashing](ATTENUATOR_FLASHING.md) |
+| Upload Software  | [Pack/Wand Flashing](COMPILING_FLASHING.md) or [AttenuatorFlashing](ATTENUATOR_FLASHING.md) |
 
 **Special/Standalone Devices**
+
+From the Paranormal Research division, we bring you the latest in integrated accessories for your kit.
 
 | **Devices**         | **Guide** |
 |------------------|---------------------------------------------|

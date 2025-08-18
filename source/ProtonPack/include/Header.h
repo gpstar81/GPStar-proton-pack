@@ -307,7 +307,7 @@ uint8_t i_ic_cavity_end = i_ic_cavity_start + INNER_CYCLOTRON_CAVITY_LED_MAX - 1
  * Cyclotron Switch Plate LEDs
  */
 uint8_t i_cyclotron_sw_led = 0;
-uint8_t i_cyclotron_switch_led_mulitplier = 1;
+uint8_t i_cyclotron_switch_led_multiplier = 1;
 const uint8_t i_cyclotron_switch_led_delay_base = 150;
 const uint16_t i_cyclotron_switch_plate_leds_delay = 1000;
 uint16_t i_cyclotron_switch_led_delay = i_cyclotron_switch_led_delay_base;
