@@ -57,7 +57,7 @@ volatile uint32_t idleTimeCore1 = 0;
 #if defined(DEBUG_PERFORMANCE)
 void idleTaskCore0(void * parameter) {
   while(true) {
-    idleTimeCore0 = idleTimeCore0 + 1;
+    idleTimeCore0++;
     vTaskDelay(1);
   }
 }
@@ -67,7 +67,7 @@ void idleTaskCore0(void * parameter) {
 #if defined(DEBUG_PERFORMANCE)
 void idleTaskCore1(void * parameter) {
   while(true) {
-    idleTimeCore1 = idleTimeCore1 + 1;
+    idleTimeCore1++;
     vTaskDelay(1);
   }
 }

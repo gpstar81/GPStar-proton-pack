@@ -566,10 +566,18 @@ void innerCyclotronRingUpdate(uint16_t iRampDelay) {
 
       if(i_cyclotron_multiplier > 1) {
         if(i_cyclotron_multiplier > 4) {
-          iRampDelay = iRampDelay - 4;
+          if(iRampDelay - 4 > 0) {
+            iRampDelay = iRampDelay - 4;
+          }
+          else {
+            iRampDelay = 0;
+          }
+        }
+        else if(iRampDelay - i_cyclotron_multiplier > 0) {
+          iRampDelay = iRampDelay - i_cyclotron_multiplier;
         }
         else {
-          iRampDelay = iRampDelay - i_cyclotron_multiplier;
+          iRampDelay = 1;
         }
       }
 
@@ -586,7 +594,7 @@ void innerCyclotronRingUpdate(uint16_t iRampDelay) {
       case 7:
       case 6:
         // A value of 6 should be the max, but just in case this value goes higher let's catch those possible cases.
-        if(iRampDelay - 4 < iRampDelay) {
+        if(iRampDelay - 4 > 2) {
           iRampDelay = iRampDelay - 4;
         }
         else {
@@ -596,7 +604,7 @@ void innerCyclotronRingUpdate(uint16_t iRampDelay) {
 
       case 5:
       case 4:
-        if(iRampDelay - 3 < iRampDelay) {
+        if(iRampDelay - 3 > 2) {
           iRampDelay = iRampDelay - 3;
         }
         else {
@@ -606,7 +614,7 @@ void innerCyclotronRingUpdate(uint16_t iRampDelay) {
 
       case 3:
       case 2:
-        if(iRampDelay - 2 < iRampDelay) {
+        if(iRampDelay - 2 > 2) {
           iRampDelay = iRampDelay - 2;
         }
         else {
@@ -617,18 +625,13 @@ void innerCyclotronRingUpdate(uint16_t iRampDelay) {
       case 1:
       default:
         // A value of 1 is considered the "normal" speed so treat it as the default.
-        if(iRampDelay - 1 < iRampDelay) {
+        if(iRampDelay - 1 > 2) {
           iRampDelay = iRampDelay - 1;
         }
         else {
           iRampDelay = 2;
         }
       break;
-
-      case 0:
-        // We should never have this value, but just in case make sure there's a known delay calculated.
-        iRampDelay = iRampDelay / i_cyclotron_multiplier;
-        break;
     }
 
     if(iRampDelay < 2) {
@@ -2766,6 +2769,11 @@ void cyclotron84LightOff(uint8_t cLed) {
   uint8_t i_brightness = getBrightness(i_cyclotron_brightness); // Calculate desired brightness.
   uint8_t i_led_array_width = 1; // Variable to store the number of LEDs to either side of the center LED.
 
+  // Guard against divide-by-zero just in case.
+  if(i_cyclotron_multiplier < 1) {
+    i_cyclotron_multiplier = 1;
+  }
+
   /*
   if(i_cyclotron_leds == FRUTTO_CYCLOTRON_LED_COUNT) {
     i_led_array_width = 2;
@@ -2832,6 +2840,11 @@ void cyclotron84LightOff(uint8_t cLed) {
 
 void cyclotron1984(uint16_t iRampDelay) {
   i_fast_led_delay = FAST_LED_UPDATE_MS;
+
+  // Guard against divide-by-zero just in case.
+  if(i_cyclotron_multiplier < 1) {
+    i_cyclotron_multiplier = 1;
+  }
 
   if(ms_cyclotron.justFinished()) {
     iRampDelay = iRampDelay / i_cyclotron_multiplier;
@@ -2926,7 +2939,7 @@ void cyclotron2021(uint16_t iRampDelay) {
 
         ms_cyclotron.start(i_outer_current_ramp_speed);
 
-        i_vibration_level = i_vibration_level + 1;
+        i_vibration_level++;
 
         if(i_vibration_level < i_vibration_level_min) {
           i_vibration_level = i_vibration_level_min;
@@ -2949,10 +2962,10 @@ void cyclotron2021(uint16_t iRampDelay) {
         ms_cyclotron.start(i_outer_current_ramp_speed);
 
         if(i_outer_current_ramp_speed > 40 && i_vibration_level > i_vibration_level_min + 20) {
-          i_vibration_level = i_vibration_level - 1;
+          i_vibration_level--;
         }
         else if(i_outer_current_ramp_speed > 100 && i_vibration_level > i_vibration_level_min) {
-          i_vibration_level = i_vibration_level - 1;
+          i_vibration_level--;
         }
 
         if(i_vibration_level < i_vibration_level_min) {
@@ -2969,7 +2982,7 @@ void cyclotron2021(uint16_t iRampDelay) {
         case OUTER_CYCLOTRON_LED_MAX:
         case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
           if(i_cyclotron_multiplier > 1) {
-            if(t_iRampDelay - i_cyclotron_multiplier < t_iRampDelay) {
+            if(t_iRampDelay - i_cyclotron_multiplier > 0) {
               t_iRampDelay = t_iRampDelay - i_cyclotron_multiplier;
             }
             else {
@@ -2998,7 +3011,7 @@ void cyclotron2021(uint16_t iRampDelay) {
           i_fast_led_delay = FAST_LED_UPDATE_MS;
 
           if(i_cyclotron_multiplier > 1) {
-            if(t_iRampDelay - i_cyclotron_multiplier < t_iRampDelay) {
+            if(t_iRampDelay - i_cyclotron_multiplier > 0) {
               t_iRampDelay = t_iRampDelay - i_cyclotron_multiplier;
             }
             else {
@@ -3022,7 +3035,7 @@ void cyclotron2021(uint16_t iRampDelay) {
     switch(i_cyclotron_leds) {
       case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
         if(i_cyclotron_multiplier > 1) {
-          if(iRampDelay - i_cyclotron_multiplier < iRampDelay) {
+          if(iRampDelay - i_cyclotron_multiplier > 0) {
             iRampDelay = iRampDelay - i_cyclotron_multiplier;
           }
           else {
@@ -3030,12 +3043,7 @@ void cyclotron2021(uint16_t iRampDelay) {
           }
         }
         else {
-          iRampDelay = iRampDelay / i_cyclotron_multiplier;
-
-          if(b_ramp_up || b_ramp_down) {
-            iRampDelay = iRampDelay * 1;
-          }
-          else {
+          if(!(b_ramp_up || b_ramp_down)) {
             iRampDelay = iRampDelay * 3;
           }
         }
@@ -3044,7 +3052,7 @@ void cyclotron2021(uint16_t iRampDelay) {
       case OUTER_CYCLOTRON_LED_MAX:
       case FRUTTO_CYCLOTRON_LED_COUNT:
         if(i_cyclotron_multiplier > 1) {
-          if(iRampDelay - i_cyclotron_multiplier < iRampDelay) {
+          if(iRampDelay - i_cyclotron_multiplier > 0) {
             iRampDelay = iRampDelay - i_cyclotron_multiplier;
           }
           else {
@@ -3052,8 +3060,6 @@ void cyclotron2021(uint16_t iRampDelay) {
           }
         }
         else {
-          iRampDelay = iRampDelay / i_cyclotron_multiplier;
-
           iRampDelay = iRampDelay * 3;
         }
       break;
@@ -3061,7 +3067,7 @@ void cyclotron2021(uint16_t iRampDelay) {
       case HASLAB_CYCLOTRON_LED_COUNT:
       default:
         if(i_cyclotron_multiplier > 1) {
-          if(iRampDelay - i_cyclotron_multiplier < iRampDelay) {
+          if(iRampDelay - i_cyclotron_multiplier > 0) {
             iRampDelay = iRampDelay - i_cyclotron_multiplier;
           }
           else {
@@ -3069,8 +3075,6 @@ void cyclotron2021(uint16_t iRampDelay) {
           }
         }
         else {
-          iRampDelay = iRampDelay / i_cyclotron_multiplier;
-
           iRampDelay = iRampDelay * 2;
         }
       break;
