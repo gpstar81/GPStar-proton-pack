@@ -241,10 +241,6 @@ function onWindowResize(){
   renderer.setSize(parentWidth(document.getElementById("3Dcube")), parentHeight(document.getElementById("3Dcube")));
 }
 
-function resetPosition() {
-  sendCommand("/sensors/reset");
-}
-
 if (!!window.EventSource) {
   // Create events for the sensor readings
   var source = new EventSource("/events");
@@ -287,5 +283,13 @@ if (!!window.EventSource) {
       renderer.render(scene, camera);
     }
   }, false);
+}
+
+function resetPosition() {
+  sendCommand("/sensors/reset");
+}
+
+function triggerIfrared() {
+  sendCommand("/infrared/signal?type=ghostintrap");
 }
 )=====";

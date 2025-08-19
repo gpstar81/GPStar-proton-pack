@@ -24,33 +24,33 @@
  */
 #ifdef ESP32
   // For the i2c Bus
-  #define I2C_SCL 16
   #define I2C_SDA 15
+  #define I2C_SCL 16
   #define IMU_SCL 47
   #define IMU_SDA 48
 
-  #define INTENSIFY_SWITCH_PIN 39
-  #define ACTIVATE_SWITCH_PIN 40
-  #define VENT_SWITCH_PIN 45
-  #define ROTARY_ENCODER_A 4
-  #define ROTARY_ENCODER_B 5
-  #define SLO_BLO_LED_PIN 12 // SLO-BLO LED. (Red LED)
-  #define CLIPPARD_LED_PIN 3 // LED underneath the Clippard valve. (Orange or White LED)
-  #define BARREL_LED_PIN 41 // Data pin for the addressable LEDs in the barrel.
-  #define VIBRATION_PIN 18 // Pin for the vibration motor.
-  #define TOP_LED_PIN 42 // RGB Vent light only for ESP32.
-  #define BARREL_HAT_LED_PIN 10 // Hat light at front of the wand near the barrel tip. (Orange LED)
-  #define TOP_HAT_LED_PIN 9 // Hat light at top of the wand body near vent. (Orange or White LED)
-  #define BARREL_TIP_LED_PIN 46 // White LED at tip of the wand barrel. (White LED)
-  #define WAND_STATUS_LED_PIN 38 // V1.4 GPStar Neutrona Wand onboard LED pin.
-  #define WAND_SWITCH_PIN 8
-  #define MODE_SWITCH_PIN 11
-  #define BARREL_SWITCH_PIN 13
-  #define IR_LED_PIN 17
   #define GYRO_INT1_PIN 1
   #define GYRO_INT2_PIN 2
+  #define CLIPPARD_LED_PIN 3 // LED underneath the Clippard valve. (Orange or White LED)
+  #define ROTARY_ENCODER_A 4
+  #define ROTARY_ENCODER_B 5
+  #define WAND_SWITCH_PIN 8
+  #define TOP_HAT_LED_PIN 9 // Hat light at top of the wand body near vent. (Orange or White LED)
+  #define BARREL_HAT_LED_PIN 10 // Hat light at front of the wand near the barrel tip. (Orange LED)
+  #define MODE_SWITCH_PIN 11
+  #define SLO_BLO_LED_PIN 12 // SLO-BLO LED. (Red LED)
+  #define BARREL_SWITCH_PIN 13
+  #define IR_LED_PIN 17
+  #define VIBRATION_PIN 18 // Pin for the vibration motor.
+  #define WAND_STATUS_LED_PIN 38 // V1.4 GPStar Neutrona Wand onboard LED pin.
+  #define INTENSIFY_SWITCH_PIN 39
+  #define ACTIVATE_SWITCH_PIN 40
+  #define BARREL_LED_PIN 41 // Data pin for the addressable LEDs in the barrel.
+  #define TOP_LED_PIN 42 // RGB Vent light only for ESP32.
   #define MAG_INT_PIN 43
   #define MAG_RDY_PIN 44
+  #define VENT_SWITCH_PIN 45
+  #define BARREL_TIP_LED_PIN 46 // White LED at tip of the wand barrel. (White LED)
 #else
   #define INTENSIFY_SWITCH_PIN 2
   #define ACTIVATE_SWITCH_PIN 3
@@ -534,6 +534,19 @@ const uint16_t i_blink_sound_timer_2 = 1600;
 millisDelay ms_power_indicator;
 const uint32_t i_ms_power_indicator = 60000; // 1 minute -> 60000 milliseconds
 const uint16_t i_ms_power_indicator_blink = 500;
+
+/**
+ * Infrared (IR) signal for the Ghost Trap or other devices.
+ */
+#ifdef ESP32
+  #define CARRIER_KHZ 38 // Defines the standard IR carrier frequency in kHz.
+  
+  // Defines an IR command as captured from the PKE device at full power.
+  const uint16_t ir_GhostInTrap[] = {
+    1770, 1200, 600, 600, 600, 600, 580, 1200, 600, 600,
+    580, 1200, 600, 1200, 580, 600, 580, 1200, 600
+  };
+#endif
 
 /*
  * Function prototypes.

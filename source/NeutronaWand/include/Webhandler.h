@@ -578,6 +578,18 @@ void handleResetSensors(AsyncWebServerRequest *request) {
   request->send(200, "application/json", status);
 }
 
+void handleInfraredSignal(AsyncWebServerRequest *request) {
+  String c_signal_type = "";
+
+  if(request->hasParam("type")) {
+    // Get the parameter "track" if it exists (will be a String).
+    c_signal_type = request->getParam("type")->value();
+    sendInfraredCommand(c_signal_type);
+  }
+
+  request->send(200, "application/json", status);
+}
+
 void handleRestart(AsyncWebServerRequest *request) {
   // Performs a restart of the device.
   request->send(204, "application/json", status);
@@ -1025,6 +1037,7 @@ void setupRouting() {
   httpServer.on("/music/loop", HTTP_PUT, handleLoopMusicTrack);
   httpServer.on("/wifi/settings", HTTP_GET, handleGetWifi);
   httpServer.on("/sensors/reset", HTTP_PUT, handleResetSensors);
+  httpServer.on("/infrared/signal", HTTP_PUT, handleInfraredSignal);
 
   // Body Handlers
   httpServer.addHandler(handleSaveDeviceConfig); // /config/device/save

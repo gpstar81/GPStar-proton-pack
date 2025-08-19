@@ -61,6 +61,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     </div>
 
     <button type="button" class="orange" onclick="resetPosition()">Recalibrate</button>
+    <button type="button" class="red" onclick="triggerIfrared()">Infrared</button>
   </div>
 
   <div id="tab2" class="tab">

@@ -10260,3 +10260,15 @@ void resetOverheatLevels() {
   b_overheat_level[3] = b_overheat_level_4;
   b_overheat_level[4] = b_overheat_level_5;
 }
+
+// Use an attached infrared LED to send a command. Only available if using the Wand II (ESP32).
+void sendInfraredCommand(String sType) {
+#ifdef ESP32
+  if (sType.equals("ghostintrap")) {
+    // Send the standard Ghost Trap (PKE) IR signal.
+    IrSender.sendRaw(ir_GhostInTrap, sizeof(ir_GhostInTrap) / sizeof(ir_GhostInTrap[0]), CARRIER_KHZ);
+  } else {
+    debugln(F("Unknown IR Command"));
+  }
+#endif
+}
