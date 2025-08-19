@@ -48,7 +48,6 @@
 #define PROGMEM_READU8(x) pgm_read_byte_near(&(x))
 
 #ifdef ESP32
-  // This is due to a bug in RISC-V compiler, which requires unused function sections :-(.
   // Disables static receiver code like receive timer ISR handler and static IRReceiver and irparams data.
   // Saves 450 bytes program memory and 269 bytes RAM if receiving functions are not required.
   #define DISABLE_CODE_FOR_RECEIVER
