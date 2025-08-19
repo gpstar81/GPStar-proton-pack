@@ -43,16 +43,18 @@ const char INDEX_page[] PROGMEM = R"=====(
 
   <div id="tab1" class="tab">
     <div id="equipCRT" class="equipment">
-      <div id="heading" class="infoState"></div>
-      <div id="gyroX" class="infoState"></div>
-      <div id="gyroY" class="infoState"></div>
-      <div id="gyroZ" class="infoState"></div>
-      <div id="accelX" class="infoState"></div>
-      <div id="accelY" class="infoState"></div>
-      <div id="accelZ" class="infoState"></div>
-      <div id="pitch" class="infoState"></div>
-      <div id="roll" class="infoState"></div>
-      <div id="yaw" class="infoState"></div>
+      <div class="telemetry">
+        <p><span class="infoLabel">Heading:</span> <span class="infoState" id="heading">&mdash;</span></p>
+        <p><span class="infoLabel">&nbsp;&nbsp;&nbsp;&nbsp;Rot. X:</span> <span class="infoState" id="gyroX">&mdash;</span></p>
+        <p><span class="infoLabel">&nbsp;&nbsp;&nbsp;&nbsp;Rot. Y:</span> <span class="infoState" id="gyroY">&mdash;</span></p>
+        <p><span class="infoLabel">&nbsp;&nbsp;&nbsp;&nbsp;Rot. Z:</span> <span class="infoState" id="gyroZ">&mdash;</span></p>
+        <p><span class="infoLabel">&nbsp;Accel. X:</span> <span class="infoState" id="accelX">&mdash;</span></p>
+        <p><span class="infoLabel">&nbsp;Accel. Y:</span> <span class="infoState" id="accelY">&mdash;</span></p>
+        <p><span class="infoLabel">&nbsp;Accel. Z:</span> <span class="infoState" id="accelZ">&mdash;</span></p>
+        <p><span class="infoLabel">&nbsp;&nbsp;Roll (X):</span> <span class="infoState" id="roll">&mdash;</span></p>
+        <p><span class="infoLabel">Pitch (Y):</span> <span class="infoState" id="pitch">&mdash;</span></p>
+        <p><span class="infoLabel">&nbsp;&nbsp;Yaw (Z):</span> <span class="infoState" id="yaw">&mdash;</span></p>
+      </div>
       <div class="cube-content">
         <div id="3Dcube"></div>
       </div>

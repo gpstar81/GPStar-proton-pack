@@ -262,26 +262,28 @@ if (!!window.EventSource) {
   source.addEventListener("telemetry", function(e) {
     var obj = JSON.parse(e.data);
 
+    // Convert roll, pitch, and yaw from degrees to radians for Three.js
+    var rollRads = (obj.roll || 0) * Math.PI / 180;
+    var pitchRads = (obj.pitch || 0) * Math.PI / 180;
+    var yawRads = (obj.yaw || 0) * Math.PI / 180;
+
     // Update the HTML elements with the telemetry data
-    setHtml("heading", "&nbsp;&nbsp;Heading: " + parseFloat(obj.heading || 0).toFixed(2) + "&deg;");
-    setHtml("gyroX",   "&nbsp;&nbsp;&nbsp;Rot. X: " + parseFloat(obj.gyroX || 0).toFixed(2) + " rads/s");
-    setHtml("gyroY",   "&nbsp;&nbsp;&nbsp;Rot. Y: " + parseFloat(obj.gyroY || 0).toFixed(2) + " rads/s");
-    setHtml("gyroZ",   "&nbsp;&nbsp;&nbsp;Rot. Z: " + parseFloat(obj.gyroZ || 0).toFixed(2) + " rads/s");
-    setHtml("accelX",  "&nbsp;Accel. X: " + parseFloat(obj.accelX || 0).toFixed(2) + " m/s<sup>2</sup>");
-    setHtml("accelY",  "&nbsp;Accel. Y: " + parseFloat(obj.accelY || 0).toFixed(2) + " m/s<sup>2</sup>");
-    setHtml("accelZ",  "&nbsp;Accel. Z: " + parseFloat(obj.accelZ || 0).toFixed(2) + " m/s<sup>2</sup>");
-    setHtml("roll",    "&nbsp;Roll (X): " + parseFloat(obj.roll || 0).toFixed(2) + "&deg;");
-    setHtml("pitch",   "Pitch (Y): " + parseFloat(obj.pitch || 0).toFixed(2) + "&deg;");
-    setHtml("yaw",     "&nbsp;&nbsp;Yaw (Z): " + parseFloat(obj.yaw || 0).toFixed(2) + "&deg;");
+    setHtml("heading", parseFloat(obj.heading || 0).toFixed(2) + " &deg;");
+    setHtml("gyroX",   parseFloat(obj.gyroX || 0).toFixed(2) + " rads/s");
+    setHtml("gyroY",   parseFloat(obj.gyroY || 0).toFixed(2) + " rads/s");
+    setHtml("gyroZ",   parseFloat(obj.gyroZ || 0).toFixed(2) + " rads/s");
+    setHtml("accelX",  parseFloat(obj.accelX || 0).toFixed(2) + " m/s<sup>2</sup>");
+    setHtml("accelY",  parseFloat(obj.accelY || 0).toFixed(2) + " m/s<sup>2</sup>");
+    setHtml("accelZ",  parseFloat(obj.accelZ || 0).toFixed(2) + " m/s<sup>2</sup>");
+    setHtml("roll",    rollRads.toFixed(2) + " rads / " + parseFloat(obj.roll || 0).toFixed(2) + "&deg;");
+    setHtml("pitch",   pitchRads.toFixed(2) + " rads / " + parseFloat(obj.pitch || 0).toFixed(2) + "&deg;");
+    setHtml("yaw",     yawRads.toFixed(2) + " rads / " + parseFloat(obj.yaw || 0).toFixed(2) + "&deg;");
 
     // Change cube rotation after receiving the readings
     if (cube) {
-      cube.rotation.x = (obj.roll || 0); // Roll (on X axis)
-      cube.rotation.y = (obj.pitch || 0); // Pitch (on Y axis)
-      cube.rotation.z = (obj.yaw || 0); // Yaw (on Z axis)
-      // cube.rotation.x = (obj.gyroX || 0);
-      // cube.rotation.y = (obj.gyroY || 0) * -1;
-      // cube.rotation.z = (obj.gyroZ || 0);
+      cube.rotation.x = rollRads;
+      cube.rotation.y = pitchRads;
+      cube.rotation.z = yawRads;
       renderer.render(scene, camera);
     }
   }, false);

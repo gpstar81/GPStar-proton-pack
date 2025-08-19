@@ -60,8 +60,8 @@ a {
 }
 
 p {
-  font-size:18px;
-  margin:5px 0 8px
+  font-size:16px;
+  margin:4px 0 6px
 }
 
 .dark {
@@ -116,13 +116,13 @@ p {
 
 .infoLabel {
   font-family:Tahoma,Verdana,Arial;
-  font-size:.9em;
+  font-size:.8em;
   font-weight:600
 }
 
 .infoState {
   font-family:Courier New,Courier,sans-serif;
-  font-size:1em
+  font-size:0.9em
 }
 
 .equipment {
@@ -132,7 +132,7 @@ p {
   box-sizing:border-box;
   box-shadow:0 2px 18px -4px rgba(0,0,0,0.75);
   color:rgba(0,160,0,1);
-  height:500px;
+  height:600px;
   margin:20px auto;
   max-width:360px;
   min-height:200px;
@@ -157,138 +157,6 @@ p {
   right:0;
   top:0;
   z-index:1
-}
-
-.equip-title {
-  font-size:1.2em;
-  font-weight:700;
-  padding-top:10px;
-  position:relative;
-  top:15px;
-  z-index:3
-}
-
-.power-title {
-  display:flex;
-  font-weight:700;
-  left:310px;
-  margin-right:8px;
-  top:350px;
-  z-index:3
-}
-
-.stream-title {
-  display:flex;
-  font-weight:700;
-  left:194px;
-  margin-right:8px;
-  top:421px;
-  z-index:3
-}
-
-.batt-title {
-  font-size:.9em;
-  font-weight:700;
-  left:8px;
-  top:406px;
-  z-index:3
-}
-
-.overlay {
-  position:absolute
-}
-
-.barrel-box {
-  border-radius:5px;
-  left:268px;
-  height:60px;
-  top:338px;
-  width:20px;
-  z-index:2
-}
-
-.booster-box {
-  border-radius:2px;
-  left:92px;
-  height:96px;
-  top:79.5px;
-  width:20.5px;
-  z-index:2
-}
-
-.cyc-circle {
-  border-radius:50%;
-  left:77.5px;
-  height:140px;
-  top:277px;
-  width:140px;
-  z-index:2
-}
-
-.cyc-circle::before {
-  background-color:#fff;
-  border-radius:50%;
-  bottom:-5.5px;
-  content:"";
-  height:39px;
-  left:74.5px;
-  position:absolute;
-  width:40px
-}
-
-.filter-circle {
-  border-radius:50%;
-  left:152px;
-  height:41px;
-  top:382.8px;
-  width:40px;
-  z-index:3
-}
-
-.ion-switch {
-  border-radius:2px;
-  left:52px;
-  height:38px;
-  top:80px;
-  width:30px;
-  z-index:2
-}
-
-.power-box {
-  border-radius:2px;
-  left:37px;
-  height:75px;
-  top:132.5px;
-  width:35px;
-  z-index:2
-}
-
-.safety-box {
-  border-radius:5px;
-  left:305px;
-  height:32px;
-  top:156px;
-  width:16px;
-  z-index:2
-}
-
-.cable-warn {
-  color:#ff0;
-  display:none;
-  font-family:monospace;
-  font-size:6em;
-  left:55px;
-  text-shadow:#880 1px 0 5px;
-  top:206px;
-  z-index:2
-}
-
-.rad-warn {
-  font-weight:700;
-  left:40px;
-  position:relative;
-  top:425px;
-  z-index:2
 }
 
 button {
@@ -643,7 +511,11 @@ input:checked:not([disabled]) + .slider:before {
   background:#999
 }
 
-.cube-content{
+.telemetry {
+  padding:5px 10px !important;
+}
+
+.cube-content {
   width:98%;
   height:300px;
   margin:auto;

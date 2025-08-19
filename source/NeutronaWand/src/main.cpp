@@ -547,19 +547,6 @@ void mainLoop() {
 }
 
 void loop() {
-#ifdef ESP32
-  // The ESP32 uses a dual-core CPU with the loop() executing in Core0 by default.
-  // Using vTaskDelay even without core-pinning will allow other tasks to run on Core1.
-  // Features such as networking, WiFi, and OTA updates can benefit from this brief delay.
-  vTaskDelay(pdMS_TO_TICKS(1)); // Translate 1 ms to ticks for delay.
-
-  // Run checks on web-related tasks.
-  webLoops();
-
-  // Read the Mag/IMU motion sensors if they are available.
-  readMotionSensors();
-#endif
-
   switch(WAND_CONN_STATE) {
     case PACK_DISCONNECTED:
       // While waiting for a proton pack, issue a request for synchronization.
@@ -622,4 +609,17 @@ void loop() {
 
     ms_fast_led.start(i_fast_led_delay);
   }
+
+#ifdef ESP32
+  // The ESP32 uses a dual-core CPU with the loop() executing in Core0 by default.
+  // Using vTaskDelay even without core-pinning will allow other tasks to run on Core1.
+  // Features such as networking, WiFi, and OTA updates can benefit from this brief delay.
+  vTaskDelay(pdMS_TO_TICKS(1)); // Translate 1 ms to ticks for delay.
+
+  // Run checks on web-related tasks.
+  webLoops();
+
+  // Check the motion sensors if they are available.
+  checkMotionSensors();
+#endif
 }
