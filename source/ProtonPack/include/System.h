@@ -2798,9 +2798,7 @@ void cyclotron84LightOff(uint8_t cLed) {
   uint8_t i_led_array_width = 1; // Variable to store the number of LEDs to either side of the center LED.
 
   // Guard against divide-by-zero just in case.
-  if(i_cyclotron_multiplier < 1) {
-    i_cyclotron_multiplier = 1;
-  }
+  sanitizeCyclotronMultipliers();
 
   /*
   if(i_cyclotron_leds == FRUTTO_CYCLOTRON_LED_COUNT) {
@@ -2870,9 +2868,7 @@ void cyclotron1984(uint16_t iRampDelay) {
   i_fast_led_delay = FAST_LED_UPDATE_MS;
 
   // Guard against divide-by-zero just in case.
-  if(i_cyclotron_multiplier < 1) {
-    i_cyclotron_multiplier = 1;
-  }
+  sanitizeCyclotronMultipliers();
 
   if(ms_cyclotron.justFinished()) {
     iRampDelay = iRampDelay / i_cyclotron_multiplier;
