@@ -47,6 +47,13 @@
 #define PROGMEM_READU16(x) pgm_read_word_near(&(x))
 #define PROGMEM_READU8(x) pgm_read_byte_near(&(x))
 
+#ifdef ESP32
+  // This is due to a bug in RISC-V compiler, which requires unused function sections :-(.
+  // Disables static receiver code like receive timer ISR handler and static IRReceiver and irparams data.
+  // Saves 450 bytes program memory and 269 bytes RAM if receiving functions are not required.
+  #define DISABLE_CODE_FOR_RECEIVER
+#endif
+
 // 3rd-Party Libraries
 #include <CRC32.h>
 #include <digitalWriteFast.h>
@@ -59,6 +66,7 @@
 #include <Wire.h>
 #ifdef ESP32
   #include <HardwareSerial.h>
+  #include <IRremote.hpp>
 #endif
 
 // Forward declaration for use in all includes.
@@ -216,7 +224,12 @@ void setup() {
   pinModeFast(BARREL_HAT_LED_PIN, OUTPUT); // Hat light at front of the wand near the barrel tip.
   pinModeFast(TOP_HAT_LED_PIN, OUTPUT); // Hat light at top of the wand body (gun box).
   pinModeFast(BARREL_TIP_LED_PIN, OUTPUT); // LED at the tip of the wand barrel.
-#ifndef ESP32
+
+#ifdef ESP32
+  pinModeFast(IR_LED_PIN, OUTPUT); // Set IR LED pin as output.
+  digitalWriteFast(IR_LED_PIN, LOW); // Ensure IR LED is off at startup.
+  IrSender.begin(IR_LED_PIN); // Initialize the IR sender on the specified pin.
+#else
   pinMode(VENT_LED_PIN, OUTPUT); // Vent light could be either Digital or PWM based on user setting, so use default functions.
   pinMode(TOP_LED_PIN, OUTPUT); // Blinking top light could be either addressable or non-addressable based on user setting, so use default functions.
 #endif
