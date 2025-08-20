@@ -606,7 +606,6 @@ void loop() {
 
   // Update the addressable LEDs and restart the timer.
   if(ms_fast_led.justFinished()) {
-    //FastLED.show();
     FastLED[0].showLeds(255);
 
     if(b_vent_lights_changed) {

@@ -56,7 +56,7 @@ String user_wifi_pass = ""; // Preferred network password for external WiFi
  * Leave this defined to enable the magnetometer and gyroscope.
  * Only available on the ESP32 builds.
  */
-#define ENABLE_MOTION_SENSORS
+#define MOTION_SENSORS
 
 /*
  * -------------****** CUSTOM USER CONFIGURABLE SETTINGS ******-------------

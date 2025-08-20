@@ -264,7 +264,7 @@ if (!!window.EventSource) {
     var yawRads = (obj.yaw || 0) * Math.PI / 180;
 
     // Update the HTML elements with the telemetry data
-    setHtml("heading", parseFloat(obj.heading || 0).toFixed(2) + " &deg;");
+    setHtml("heading", parseFloat(obj.heading || 0).toFixed(2) + "&deg;");
     setHtml("gyroX",   parseFloat(obj.gyroX || 0).toFixed(2) + " rads/s");
     setHtml("gyroY",   parseFloat(obj.gyroY || 0).toFixed(2) + " rads/s");
     setHtml("gyroZ",   parseFloat(obj.gyroZ || 0).toFixed(2) + " rads/s");
