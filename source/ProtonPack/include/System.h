@@ -4249,6 +4249,78 @@ void modeFireStartSounds() {
   }
 }
 
+void mixExtraFiringEffects() {
+  // Mix in additional effects for the proton stream to enhance the experience.
+  if(ms_firing_sound_mix.justFinished() && STREAM_MODE == PROTON && STATUS_CTS == CTS_NOT_FIRING && b_stream_effects) {
+    uint8_t i_random = 0;
+
+    switch(i_last_firing_effect_mix) {
+      case S_FIRE_SPARKS:
+        i_random = random(0,2);
+      break;
+
+      case S_FIRE_SPARKS_3:
+      case S_FIRE_SPARKS_4:
+        i_random = 3;
+      break;
+
+      case S_FIRE_SPARKS_5:
+        i_random = 2;
+      break;
+
+      case S_FIRE_SPARKS_2:
+        i_random = 1;
+      break;
+
+      default:
+        // If no firing effect has played yet.
+        i_random = 3;
+      break;
+    }
+
+    uint16_t i_s_random = random(2,4) * 1000; // 2 or 3 seconds
+
+    switch(i_random) {
+      case 3:
+        playEffect(S_FIRE_SPARKS, false, i_volume_effects, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS;
+
+        ms_firing_sound_mix.start(i_s_random * 5);
+      break;
+
+      case 2:
+        playEffect(S_FIRE_SPARKS_4, false, i_volume_effects, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS_4;
+
+        ms_firing_sound_mix.start(i_s_random);
+      break;
+
+      case 1:
+        playEffect(S_FIRE_SPARKS_3, false, i_volume_effects, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS_3;
+
+        ms_firing_sound_mix.start(i_s_random);
+      break;
+
+      case 0:
+        playEffect(S_FIRE_SPARKS_2, false, i_volume_effects, false, 0, false);
+        playEffect(S_FIRE_SPARKS_5, false, i_volume_effects, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS_5;
+
+        ms_firing_sound_mix.start(1800);
+      break;
+
+      default:
+        // This will never trigger because i_random will only ever be 0~3.
+        playEffect(S_FIRE_SPARKS_2, false, i_volume_effects, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS_2;
+
+        ms_firing_sound_mix.start(500);
+      break;
+    }
+  }
+}
+
 void wandFiring() {
   if(b_powercell_sound_loop) {
     stopEffect(S_POWERCELL); // Turn off the powercell sound effect.

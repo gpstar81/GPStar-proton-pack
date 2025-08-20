@@ -348,6 +348,7 @@ bool b_demo_light_mode = false;
 
 /*
  * When set to true, various impact and other stream effects will overlap and mix randomly into the Proton Stream for an added experience.
+ * For the Wand II board this will utilize motion sensors to help enhance when effects are triggered as opposed to using a random timing.
  */
 bool b_stream_effects = true;
 

@@ -1506,6 +1506,13 @@ void afterlifeRampSound1() {
 }
 
 void postActivation(bool shortBoot = false) {
+#ifdef ESP32
+  // When the wand is activated we should consider the user's current orientation by
+  // way of holding of the device as the new reference position for motion tracking.
+  debugln(F("postActivation() - Resetting all motion data."));
+  resetAllMotionData();
+#endif
+
   if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
     i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
   }
@@ -3467,6 +3474,7 @@ void modeActivate() {
         playEffect(S_WAND_HEATUP_ALT);
       }
 
+      // Tell the pack the wand is turned on.
       wandSerialSend(W_ON);
 
       postActivation();
@@ -7070,6 +7078,98 @@ void fireStreamStart(CRGB c_colour) {
   }
 }
 
+void mixExtraFiringEffects() {
+#ifdef ESP32
+  // Calculate the magnitude of the filtered acceleration vector (m/s^2).
+  // For a 3D vector we need A^2 + B^2 + C^2 = D^2 (where D is the magnitude).
+  float accelMagnitude = sqrt(
+    filteredMotionData.accelX * filteredMotionData.accelX +
+    filteredMotionData.accelY * filteredMotionData.accelY +
+    filteredMotionData.accelZ * filteredMotionData.accelZ
+  );
+
+  // Threshold for sudden movement and can be tuned as needed. For instance, 3g = 29.4 m/s^2.
+  const float IMPACT_THRESHOLD = 32.0f;
+
+  // Mix some impact sound based on user motions while firing.  
+  if (STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects && accelMagnitude > IMPACT_THRESHOLD) {
+    // Only play impact sound if firing, in Proton mode, and threshold exceeded.
+    stopEffect(S_FIRE_LOOP_IMPACT); // Stop any existing impact sound to avoid overlap.
+    playEffect(S_FIRE_LOOP_IMPACT, false, i_volume_effects, false, 0, false);
+    debugln(String("Impact sound played. Motion Threshold: ") + IMPACT_THRESHOLD + "; Detected Magnitude: " + accelMagnitude);
+  }
+#else
+  // Mix some impact sound every 10-15 seconds while firing.
+  if(ms_impact.justFinished() && STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects) {
+    playEffect(S_FIRE_LOOP_IMPACT, false, i_volume_effects, false, 0, false);
+    ms_impact.start(random(10,16) * 1000);
+  }
+#endif
+
+  // Standalone Neutrona Wand gets additional effects which would normally be played by Proton Pack.
+  if(ms_firing_sound_mix.justFinished() && STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects && b_gpstar_benchtest) {
+    uint8_t i_random = 0;
+
+    switch(i_last_firing_effect_mix) {
+      case S_FIRE_SPARKS:
+        i_random = random(0,2);
+      break;
+
+      case S_FIRE_SPARKS_3:
+      case S_FIRE_SPARKS_4:
+        i_random = 3;
+      break;
+
+      case S_FIRE_SPARKS_5:
+        i_random = 2;
+      break;
+
+      case S_FIRE_SPARKS_2:
+        i_random = 1;
+      break;
+
+      default:
+        // If no firing effect has played yet.
+        i_random = 3;
+      break;
+    }
+
+    uint16_t i_s_random = random(2,4) * 1000; // Affects mix timer, not effect chosen.
+
+    switch(i_random) {
+      case 3:
+        playEffect(S_FIRE_SPARKS, false, i_volume_effects, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS;
+
+        ms_firing_sound_mix.start(i_s_random * 5);
+      break;
+
+      case 2:
+        playEffect(S_FIRE_SPARKS_4, false, i_volume_effects, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS_4;
+
+        ms_firing_sound_mix.start(i_s_random);
+      break;
+
+      case 1:
+        playEffect(S_FIRE_SPARKS_3, false, i_volume_effects, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS_3;
+
+        ms_firing_sound_mix.start(i_s_random);
+      break;
+
+      case 0:
+      default:
+        playEffect(S_FIRE_SPARKS_2, false, i_volume_effects, false, 0, false);
+        playEffect(S_FIRE_SPARKS_5, false, i_volume_effects, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS_5;
+
+        ms_firing_sound_mix.start(1800);
+      break;
+    }
+  }
+}
+
 void modeFiring() {
   if(b_beeping) {
     // Stop the beep loop while firing.
@@ -7490,81 +7590,8 @@ void modeFiring() {
     bargraphRampFiring();
   }
 
-  // Mix some impact sound every 10-15 seconds while firing.
-  if(ms_impact.justFinished() && STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects) {
-    playEffect(S_FIRE_LOOP_IMPACT, false, i_volume_effects, false, 0, false);
-    ms_impact.start(random(10,16) * 1000);
-  }
-
-  // Standalone Neutrona Wand gets additional impact sounds which would normally be played by Proton Pack.
-  if(ms_firing_sound_mix.justFinished() && STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects && b_gpstar_benchtest) {
-    uint8_t i_random = 0;
-
-    switch(i_last_firing_effect_mix) {
-      case S_FIRE_SPARKS:
-        i_random = random(0,2);
-      break;
-
-      case S_FIRE_SPARKS_3:
-      case S_FIRE_SPARKS_4:
-        i_random = 3;
-      break;
-
-      case S_FIRE_SPARKS_5:
-        i_random = 2;
-      break;
-
-      case S_FIRE_SPARKS_2:
-        i_random = 1;
-      break;
-
-      default:
-        // If no firing effect has played yet.
-        i_random = 3;
-      break;
-    }
-
-    uint16_t i_s_random = random(2,4) * 1000;
-
-    switch(i_random) {
-      case 3:
-        playEffect(S_FIRE_SPARKS, false, i_volume_effects, false, 0, false);
-        i_last_firing_effect_mix = S_FIRE_SPARKS;
-
-        ms_firing_sound_mix.start(i_s_random * 5);
-      break;
-
-      case 2:
-        playEffect(S_FIRE_SPARKS_4, false, i_volume_effects, false, 0, false);
-        i_last_firing_effect_mix = S_FIRE_SPARKS_4;
-
-        ms_firing_sound_mix.start(i_s_random);
-      break;
-
-      case 1:
-        playEffect(S_FIRE_SPARKS_3, false, i_volume_effects, false, 0, false);
-        i_last_firing_effect_mix = S_FIRE_SPARKS_3;
-
-        ms_firing_sound_mix.start(i_s_random);
-      break;
-
-      case 0:
-        playEffect(S_FIRE_SPARKS_2, false, i_volume_effects, false, 0, false);
-        playEffect(S_FIRE_SPARKS_5, false, i_volume_effects, false, 0, false);
-        i_last_firing_effect_mix = S_FIRE_SPARKS_5;
-
-        ms_firing_sound_mix.start(1800);
-      break;
-
-      default:
-        // This will never trigger because i_random will only ever be 0~3.
-        playEffect(S_FIRE_SPARKS_2, false, i_volume_effects, false, 0, false);
-        i_last_firing_effect_mix = S_FIRE_SPARKS_2;
-
-        ms_firing_sound_mix.start(500);
-      break;
-    }
-  }
+  // Mix some impact sound effects, if enabled.
+  mixExtraFiringEffects();
 }
 
 void wandBarrelHeatDown() {

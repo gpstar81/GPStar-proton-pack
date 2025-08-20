@@ -51,6 +51,10 @@
   // Disables static receiver code like receive timer ISR handler and static IRReceiver and irparams data.
   // Saves 450 bytes program memory and 269 bytes RAM if receiving functions are not required.
   #define DISABLE_CODE_FOR_RECEIVER
+
+  // Disable carrier PWM generation in software and use (restricted) hardware PWM.
+  // This is the default for ESP32 and by defining here avoids a compiler warning.
+  #define SEND_PWM_BY_TIMER
 #endif
 
 // 3rd-Party Libraries
@@ -314,6 +318,7 @@ void setup() {
 #endif
 }
 
+// Loop logic dedicated to this device which handles all of the standard operations.
 void mainLoop() {
   // Get the current state of any input devices (toggles, buttons, and switches).
   switchLoops();
@@ -558,6 +563,7 @@ void mainLoop() {
   }
 }
 
+// The main loop of the program which manages all system operations which must occur on every loop.
 void loop() {
   switch(WAND_CONN_STATE) {
     case PACK_DISCONNECTED:
