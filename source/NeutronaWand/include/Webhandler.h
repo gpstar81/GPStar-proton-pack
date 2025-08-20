@@ -456,6 +456,11 @@ String getEquipmentStatus() {
     i_music_track_max = i_music_track_start + i_music_track_count - 1; // 500 + N - 1 to be inclusive of the offset value.
   }
 
+#ifdef ESP32
+  jsonBody["pcb"] = "ESP32";
+#else
+  jsonBody["pcb"] = "ATMega";
+#endif
   jsonBody["mode"] = getMode();
   jsonBody["modeID"] = (SYSTEM_MODE == MODE_SUPER_HERO) ? 1 : 0;
   jsonBody["theme"] = getTheme();
@@ -573,7 +578,8 @@ void handleGetWifi(AsyncWebServerRequest *request) {
 }
 
 void handleResetSensors(AsyncWebServerRequest *request) {
-  // Reset all telemetry data for motion sensors.
+  // Re-center by resetting all current telemetry data for motion sensors.
+  // This allows all motion data to be zeroed out and begin a new average.
   resetAllMotionData();
   request->send(200, "application/json", status);
 }
@@ -1036,7 +1042,7 @@ void setupRouting() {
   httpServer.on("/music/prev", HTTP_PUT, handlePrevMusicTrack);
   httpServer.on("/music/loop", HTTP_PUT, handleLoopMusicTrack);
   httpServer.on("/wifi/settings", HTTP_GET, handleGetWifi);
-  httpServer.on("/sensors/reset", HTTP_PUT, handleResetSensors);
+  httpServer.on("/sensors/recenter", HTTP_PUT, handleResetSensors);
   httpServer.on("/infrared/signal", HTTP_PUT, handleInfraredSignal);
 
   // Body Handlers

@@ -275,18 +275,21 @@ if (!!window.EventSource) {
     setHtml("pitch",   pitchRads.toFixed(2) + " rads / " + parseFloat(obj.pitch || 0).toFixed(2) + "&deg;");
     setHtml("yaw",     yawRads.toFixed(2) + " rads / " + parseFloat(obj.yaw || 0).toFixed(2) + "&deg;");
 
-    // Change cube rotation after receiving the readings
+    // Change cube rotation after receiving the readings (values in radians, not degrees).
     if (cube) {
-      cube.rotation.x = rollRads;
-      cube.rotation.y = pitchRads;
-      cube.rotation.z = yawRads;
+      // cube.rotation.x = rollRads;
+      // cube.rotation.y = pitchRads;
+      // cube.rotation.z = yawRads;
+      cube.rotation.x = (obj.gyroX || 0);
+      cube.rotation.y = (obj.gyroY || 0);
+      cube.rotation.z = (obj.gyroZ || 0);
       renderer.render(scene, camera);
     }
   }, false);
 }
 
 function resetPosition() {
-  sendCommand("/sensors/reset");
+  sendCommand("/sensors/recenter");
 }
 
 function triggerIfrared() {

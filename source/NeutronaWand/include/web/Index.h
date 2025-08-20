@@ -60,7 +60,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       </div>
     </div>
 
-    <button type="button" class="orange" onclick="resetPosition()">Recalibrate</button>
+    <button type="button" class="orange" onclick="resetPosition()">Re-center</button>
     <button type="button" class="red" onclick="triggerIfrared()">Infrared</button>
   </div>
 
