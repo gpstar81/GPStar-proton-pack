@@ -551,6 +551,10 @@ String getTelemetry() {
   jsonTelemetry["pitch"] = roundFloat(spatialData.pitch);
   jsonTelemetry["yaw"] = roundFloat(spatialData.yaw);
   jsonTelemetry["roll"] = roundFloat(spatialData.roll);
+  jsonTelemetry["qw"] = roundFloat(spatialData.quaternion[0]);
+  jsonTelemetry["qx"] = roundFloat(spatialData.quaternion[1]);
+  jsonTelemetry["qy"] = roundFloat(spatialData.quaternion[2]);
+  jsonTelemetry["qz"] = roundFloat(spatialData.quaternion[3]);
 
   // Serialize JSON object to string.
   serializeJson(jsonTelemetry, telemetryData);

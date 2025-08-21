@@ -26,19 +26,7 @@
 
 #include <Adafruit_LIS3MDL.h>
 #include <Adafruit_LSM6DS3TRC.h>
-#include <MadgwickAHRS.h>
-
-// Forward function declarations.
-float calculateHeading(float magX, float magY);
-void calibrateMotionOffsets();
-void processMotionData();
-void readRawSensorData();
-void resetAllMotionData();
-void sendTelemetryData(); // From Webhandler.h
-
-// Current state of the motion sensors and target for telemetry.
-enum SENSOR_READ_TARGETS { NOT_INITIALIZED, CALIBRATION, TELEMETRY };
-enum SENSOR_READ_TARGETS SENSOR_READ_TARGET = NOT_INITIALIZED;
+#include <Adafruit_AHRS.h>
 
 /**
  * Magnetometer and IMU
@@ -50,9 +38,13 @@ bool b_mag_found = false;
 bool b_imu_found = false;
 millisDelay ms_sensor_read_delay, ms_sensor_report_delay;
 const uint8_t i_sensor_samples = 50; // Sets count of samples to take for averaging offsets.
-const uint16_t i_sensor_read_delay = 40; // Delay between sensor reads in milliseconds (20ms = 50Hz, 40ms = 25Hz).
-const uint16_t i_sensor_report_delay = 200; // Delay between telemetry reporting (console/web) in milliseconds.
-Madgwick filter; // Create a global filter object for sensor fusion (AHRS for Roll/Pitch/Yaw).
+const uint16_t i_sensor_read_delay = 20; // Delay between sensor reads in milliseconds (20ms = 50Hz).
+const uint16_t i_sensor_report_delay = 100; // Delay between telemetry reporting (via console/web) in milliseconds.
+Adafruit_Mahony filter; // Create a filter object for sensor fusion (AHRS); Mahony better suited for human motion.
+
+// Current state of the motion sensors and target for telemetry.
+enum SENSOR_READ_TARGETS { NOT_INITIALIZED, CALIBRATION, TELEMETRY };
+enum SENSOR_READ_TARGETS SENSOR_READ_TARGET = NOT_INITIALIZED;
 
 /**
  * Constant: FILTER_ALPHA
@@ -96,6 +88,7 @@ struct MotionData {
   float accelX = 0.0f;
   float accelY = 0.0f;
   float accelZ = 0.0f;
+  float gForce = 0.0f;
   float gyroX = 0.0f;
   float gyroY = 0.0f;
   float gyroZ = 0.0f;
@@ -140,10 +133,20 @@ struct SpatialData {
   float roll = 0.0f;
   float pitch = 0.0f;
   float yaw = 0.0f;
+  float quaternion[4] = {1.0f, 0.0f, 0.0f, 0.0f}; // Quaternion representation for orientation.
 };
 
 // Global object to hold the fused sensor readings.
 SpatialData spatialData;
+
+// Forward function declarations.
+float calculateHeading(float magX, float magY);
+float calculateGForce(const MotionData& data);
+void calibrateMotionOffsets();
+void processMotionData();
+void readRawSensorData();
+void resetAllMotionData();
+void sendTelemetryData(); // From Webhandler.h
 
 /**
  * Function: resetMotionData
@@ -156,13 +159,14 @@ void resetMotionData(MotionData &data) {
   data.magX = 0.0f;
   data.magY = 0.0f;
   data.magZ = 0.0f;
+  data.heading = 0.0f;
   data.accelX = 0.0f;
   data.accelY = 0.0f;
   data.accelZ = 0.0f;
+  data.gForce = 0.0f;
   data.gyroX = 0.0f;
   data.gyroY = 0.0f;
   data.gyroZ = 0.0f;
-  data.heading = 0.0f;
 }
 
 /**
@@ -176,6 +180,10 @@ void resetSpatialData(SpatialData &data) {
   data.pitch = 0.0f;
   data.yaw = 0.0f;
   data.roll = 0.0f;
+  data.quaternion[0] = 1.0f; // w component of quaternion
+  data.quaternion[1] = 0.0f; // x component of quaternion
+  data.quaternion[2] = 0.0f; // y component of quaternion
+  data.quaternion[3] = 0.0f; // z component of quaternion
 }
 
 /**
@@ -440,6 +448,23 @@ void readRawSensorData() {
 }
 
 /**
+ * Function: calculateGForce
+ * Purpose: Calculates the magnitude of the acceleration vector (g-force) from a MotionData struct.
+ * Inputs:
+ *   - const MotionData& data: Reference to the MotionData object.
+ * Outputs:
+ *   - float: Calculated g-force (unit: g)
+ */
+float calculateGForce(const MotionData& data) {
+  // Use the Euclidean norm for the acceleration vector and convert to g.
+  return sqrt(
+    data.accelX * data.accelX +
+    data.accelY * data.accelY +
+    data.accelZ * data.accelZ
+  ) / 9.80665f; // 1g = 9.80665 m/s^2
+}
+
+/**
  * Function: calculateHeading
  * Purpose: Computes the compass heading (in degrees) from magnetometer X and Y values, applying a device-specific offset and optional inversion for mounting.
  * Inputs:
@@ -509,10 +534,18 @@ void updateOrientation() {
   // Magnetometer is already in micro-Teslas so we just use as-is.
   filter.update(gx, gy, gz, ax, ay, az, filteredMotionData.magX, filteredMotionData.magY, filteredMotionData.magZ);
 
-  // Get Euler angles (degrees) for position in NED space.
+  // Get position in Euler angles (degrees) for orientation in NED space.
   spatialData.roll = filter.getRoll();
   spatialData.pitch = filter.getPitch();
   spatialData.yaw = filter.getYaw();
+
+  // Obtain the quaternion representation for visualization.
+  float qw, qx, qy, qz;
+  filter.getQuaternion(&qw, &qx, &qy, &qz);
+  spatialData.quaternion[0] = qw;
+  spatialData.quaternion[1] = qx;
+  spatialData.quaternion[2] = qy;
+  spatialData.quaternion[3] = qz;
 
   // Mirror along Z-axis to match the heading.
   spatialData.yaw = 360.0f - spatialData.yaw;
@@ -554,7 +587,7 @@ bool isValidReading(float value) {
 
 /**
  * Function: checkMotionSensors
- * Purpose: Checks the timer to know when to read the lastest motion sensor data and prints the data to the debug console (if enabled).
+ * Purpose: Checks the timer to know when to read the latest motion sensor data and prints the data to the debug console (if enabled).
  */
 void checkMotionSensors() {
 #ifdef MOTION_SENSORS
@@ -599,6 +632,14 @@ void checkMotionSensors() {
       debug(" \tZ: ");
       debug(formatSignedFloat(filteredMotionData.accelZ));
       debugln(" m/s^2 ");
+      debugln();
+
+      debug("\t\tRaw G-Force: ");
+      debug(motionData.gForce);
+      debugln("g ");
+      debug("\t\tAvg G-Force: ");
+      debug(filteredMotionData.gForce);
+      debugln("g ");
       debugln();
 
       debug("\t\tOff Gyro  X: ");
@@ -674,6 +715,9 @@ void processMotionData() {
     // Read the raw sensor data into the motionData struct, nothing more.
     readRawSensorData();
 
+    // Calculate the magnitude of the filtered acceleration vector (g-force).
+    motionData.gForce = calculateGForce(motionData);
+
     // Apply offsets to IMU readings (values should be 0 if not calculated).
     motionData.accelX -= motionOffsets.accelX;
     motionData.accelY -= motionOffsets.accelY;
@@ -687,6 +731,9 @@ void processMotionData() {
 
     // Update heading value based on the moving average magnetometer X and Y only.
     filteredMotionData.heading = calculateHeading(filteredMotionData.magX, filteredMotionData.magY);
+
+    // Calculate the magnitude of the filtered acceleration vector (g-force).
+    filteredMotionData.gForce = calculateGForce(filteredMotionData);
 
     // Update the orientation via sensor fusion by using the filtered data.
     updateOrientation();

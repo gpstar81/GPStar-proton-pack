@@ -7079,23 +7079,15 @@ void fireStreamStart(CRGB c_colour) {
 
 void mixExtraFiringEffects() {
 #ifdef ESP32
-  // Calculate the magnitude of the filtered acceleration vector (m/s^2).
-  // For a 3D vector we need A^2 + B^2 + C^2 = D^2 (where D is the magnitude).
-  float accelMagnitude = sqrt(
-    filteredMotionData.accelX * filteredMotionData.accelX +
-    filteredMotionData.accelY * filteredMotionData.accelY +
-    filteredMotionData.accelZ * filteredMotionData.accelZ
-  );
-
-  // Threshold for sudden movement and can be tuned as needed. For instance, 3g = 29.4 m/s^2.
-  const float IMPACT_THRESHOLD = 32.0f;
+  // Threshold for sudden movement and can be tuned as needed, measured in G-force (m/s^2 / gravity).
+  const float IMPACT_THRESHOLD = 1.5f;
 
   // Mix some impact sound based on user motions while firing.
-  if (STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects && accelMagnitude > IMPACT_THRESHOLD) {
+  if (STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects && filteredMotionData.gForce > IMPACT_THRESHOLD) {
     // Only play impact sound if firing, in Proton mode, and threshold exceeded.
     stopEffect(S_FIRE_LOOP_IMPACT); // Stop any existing impact sound to avoid overlap.
     playEffect(S_FIRE_LOOP_IMPACT, false, i_volume_effects, false, 0, false);
-    debugln(String("Impact sound played. Motion Threshold: ") + IMPACT_THRESHOLD + "; Detected Magnitude: " + accelMagnitude);
+    debugln(String("Impact sound played. Motion Threshold: ") + IMPACT_THRESHOLD + "g; Detected Magnitude: " + filteredMotionData.gForce + "g");
   }
 #else
   // Mix some impact sound every 10-15 seconds while firing.
@@ -10292,7 +10284,7 @@ void sendInfraredCommand(String sType) {
 #ifdef ESP32
   if (sType.equals("ghostintrap")) {
     // Send the standard Ghost Trap (PKE) IR signal.
-    //IrSender.sendRaw(ir_GhostInTrap, sizeof(ir_GhostInTrap) / sizeof(ir_GhostInTrap[0]), CARRIER_KHZ);
+    IrSender.sendRaw(ir_GhostInTrap, sizeof(ir_GhostInTrap) / sizeof(ir_GhostInTrap[0]), CARRIER_KHZ);
   } else {
     debugln(F("Unknown IR Command"));
   }

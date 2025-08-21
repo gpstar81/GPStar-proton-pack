@@ -62,7 +62,7 @@ String user_wifi_pass = ""; // Preferred network password for external WiFi
  * Enable the use of motion offsets (bias compensation) for sensors.
  * Only available on the ESP32 builds.
  */
-//#define MOTION_OFFSETS
+#define MOTION_OFFSETS
 
 /*
  * -------------****** CUSTOM USER CONFIGURABLE SETTINGS ******-------------
