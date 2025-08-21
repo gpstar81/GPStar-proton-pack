@@ -10292,7 +10292,7 @@ void sendInfraredCommand(String sType) {
 #ifdef ESP32
   if (sType.equals("ghostintrap")) {
     // Send the standard Ghost Trap (PKE) IR signal.
-    IrSender.sendRaw(ir_GhostInTrap, sizeof(ir_GhostInTrap) / sizeof(ir_GhostInTrap[0]), CARRIER_KHZ);
+    //IrSender.sendRaw(ir_GhostInTrap, sizeof(ir_GhostInTrap) / sizeof(ir_GhostInTrap[0]), CARRIER_KHZ);
   } else {
     debugln(F("Unknown IR Command"));
   }

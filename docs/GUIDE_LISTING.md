@@ -10,17 +10,25 @@ These are the most important guides which will get you familiar with the major c
 
 1. [Wand PCB](WAND_PCB.md)
 
-1. [Pack-Wand Hose](HOSE.md)
-
 1. [GPStar Audio PCB](GPSTAR_AUDIO_PCB.md)
 
-1. [Installation Videos](INSTALL_VIDEOS_JONOGUNN.md)
+1. [Pack-Wand Hose](HOSE.md)
 
 1. [Troubleshooting](TROUBLESHOOTING.md)
 
 A full installation guide is available as a PDF here:
 [GPStar Proton Pack Kit Installation Manual](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/gpstar-Haslab-Proton-Pack-Kit-Installation-Manual-V4.pdf?raw=1)
 
+## Video Tutorials
+
+*"We have the tools, we have the talent!" - Winston*
+
+We must acknowledge and celebrate our community members who have created entertaining and informational videos demonstrating the install processes. Please see this collection of videos curated by creator:
+
+1. [Installs by Jonogunn](INSTALL_VIDEOS_JONOGUNN.md)
+
+1. [Installs by Nor-Cal Ghostbusters](INSTALL_VIDEOS_NORCALGB.md)
+ 
 ## Maintenance
 
 These guides will help you update the software and audio files as new releases become available.

@@ -277,12 +277,12 @@ if (!!window.EventSource) {
 
     // Change cube rotation after receiving the readings (values in radians, not degrees).
     if (cube) {
-      // cube.rotation.x = rollRads;
-      // cube.rotation.y = pitchRads;
-      // cube.rotation.z = yawRads;
-      cube.rotation.x = (obj.gyroX || 0);
-      cube.rotation.y = (obj.gyroY || 0);
-      cube.rotation.z = (obj.gyroZ || 0);
+      cube.rotation.x = rollRads;
+      cube.rotation.y = pitchRads;
+      cube.rotation.z = yawRads;
+      // cube.rotation.x = (obj.gyroX || 0);
+      // cube.rotation.y = (obj.gyroY || 0);
+      // cube.rotation.z = (obj.gyroZ || 0);
       renderer.render(scene, camera);
     }
   }, false);

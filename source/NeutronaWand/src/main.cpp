@@ -69,7 +69,7 @@
 #include <Wire.h>
 #ifdef ESP32
   #include <HardwareSerial.h>
-  #include <IRremote.hpp>
+  //#include <IRremote.hpp>
 #endif
 
 // Forward declaration for use in all includes.
@@ -117,6 +117,7 @@ void setup() {
 
   // This is required in order to make sure the board boots successfully.
   Serial.begin(115200);
+  delay(10);
 
   // Serial0 (UART0) is enabled by default; end() sets GPIO43 & GPIO44 to GPIO.
   Serial0.end();
@@ -143,10 +144,10 @@ void setup() {
   // Setup the audio device for this controller.
   setupAudioDevice();
 
-  // Change PWM frequency for the vibration motor, we do not want it high pitched.
 #ifdef ESP32
   // Use of the register is not needed by ESP32, as it uses a different method for PWM.
 #else
+  // Change PWM frequency for the vibration motor, we do not want it high pitched.
   // For ATmega2560, we set the PWM frequency for pin 11 (TCCR5B) to 122.55 Hz.
   TCCR1B = (TCCR1B & B11111000) | B00000100;
   pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
@@ -196,6 +197,8 @@ void setup() {
 
   // Initialize the secondary I2C bus for the Magnetometer and IMU.
   initializeMotionDevices();
+  delay(40); // Wait for the devices to start.
+  resetAllMotionData(); // Reset and calibrate.
 #else
   Wire.begin();
   Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
@@ -231,7 +234,7 @@ void setup() {
 #ifdef ESP32
   pinModeFast(IR_LED_PIN, OUTPUT); // Set IR LED pin as output.
   digitalWriteFast(IR_LED_PIN, LOW); // Ensure IR LED is off at startup.
-  IrSender.begin(IR_LED_PIN); // Initialize the IR sender on the specified pin.
+  //IrSender.begin(IR_LED_PIN); // Initialize the IR sender on the specified pin.
 #else
   pinMode(VENT_LED_PIN, OUTPUT); // Vent light could be either Digital or PWM based on user setting, so use default functions.
   pinMode(TOP_LED_PIN, OUTPUT); // Blinking top light could be either addressable or non-addressable based on user setting, so use default functions.
