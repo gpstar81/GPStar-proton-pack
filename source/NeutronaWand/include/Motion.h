@@ -229,6 +229,8 @@ void initializeMotionDevices() {
      *   - LIS3MDL_MEDIUMMODE: Balanced power and accuracy.
      *   - LIS3MDL_HIGHMODE: Higher accuracy, higher power consumption.
      *   - LIS3MDL_ULTRAHIGHMODE: Maximum accuracy, maximum power consumption.
+     *
+     *   - Note that magSensor.begin_I2C() defaults to LIS3MDL_ULTRAHIGHMODE.
      */
     magSensor.setPerformanceMode(LIS3MDL_LOWPOWERMODE);
 
@@ -238,8 +240,10 @@ void initializeMotionDevices() {
      *   - LIS3MDL_CONTINUOUSMODE: Continuous measurement mode (recommended for real-time applications).
      *   - LIS3MDL_SINGLEMODE: Single-shot measurement mode (lower power, not suitable for streaming).
      *   - LIS3MDL_POWERDOWNMODE: Power-down mode (sensor is off).
+     *
+     *   - Note that magSensor.begin_I2C() defaults to LIS3MDL_CONTINUOUSMODE.
      */
-    magSensor.setOperationMode(LIS3MDL_CONTINUOUSMODE);
+    //magSensor.setOperationMode(LIS3MDL_CONTINUOUSMODE);
 
     /**
      * Purpose: Sets the LIS3MDL magnetometer's output data rate (ODR).
@@ -252,6 +256,13 @@ void initializeMotionDevices() {
      *   - LIS3MDL_DATARATE_20_HZ: 20 Hz.
      *   - LIS3MDL_DATARATE_40_HZ: 40 Hz.
      *   - LIS3MDL_DATARATE_80_HZ: 80 Hz.
+     *   - LIS3MDL_DATARATE_155_HZ: 155 Hz. Overrides to LIS3MDL_ULTRAHIGHMODE.
+     *   - LIS3MDL_DATARATE_300_HZ: 300 Hz. Overrides to LIS3MDL_HIGHMODE.
+     *   - LIS3MDL_DATARATE_560_HZ: 560 Hz. Overrides to LIS3MDL_MEDIUMMODE.
+     *   - LIS3MDL_DATARATE_1000_HZ: 1000 Hz. Overrides to LIS3MDL_LOWPOWERMODE.
+     *
+     *   - Note that magSensor.begin_I2C() defaults to LIS3MDL_DATARATE_155_HZ.
+     *   - Setting data rate to 155/300/560/1000 implicitly calls setPerformanceMode.
      */
     magSensor.setDataRate(LIS3MDL_DATARATE_40_HZ);
 
@@ -262,16 +273,20 @@ void initializeMotionDevices() {
      *   - LIS3MDL_RANGE_8_GAUSS: ±8 Gauss (mid sensitivity, mid max field).
      *   - LIS3MDL_RANGE_12_GAUSS: ±12 Gauss (low-mid sensitivity, high-mid max field).
      *   - LIS3MDL_RANGE_16_GAUSS: ±16 Gauss (lowest sensitivity, highest max field).
+     *
+     *   - Note that magSensor.begin_I2C() defaults to LIS3MDL_RANGE_4_GAUSS.
      */
-    magSensor.setRange(LIS3MDL_RANGE_4_GAUSS);
+    //magSensor.setRange(LIS3MDL_RANGE_4_GAUSS);
 
     /**
      * Purpose: Sets the LIS3MDL magnetometer's interrupt threshold.
      * Options:
      *   - Any integer value representing the threshold in milliGauss (mG).
      *   - Typical values: 100–1000 (adjust based on noise and application).
+     *
+     *   - Note this is only required if you are using the INT pins.
      */
-    magSensor.setIntThreshold(500);
+    //magSensor.setIntThreshold(500);
 
     /**
      * Purpose: Configures the LIS3MDL magnetometer's interrupt pin behavior.
@@ -301,8 +316,10 @@ void initializeMotionDevices() {
      *   - LSM6DS_ACCEL_RANGE_4_G: ±4g.
      *   - LSM6DS_ACCEL_RANGE_8_G: ±8g (mid sensitivity, low max acceleration).
      *   - LSM6DS_ACCEL_RANGE_16_G: ±16g (lowest sensitivity, highest max acceleration).
+     *
+     *   - Note that imuSensor.begin_I2C() defaults to LSM6DS_ACCEL_RANGE_4_G.
      */
-    imuSensor.setAccelRange(LSM6DS_ACCEL_RANGE_4_G);
+    //imuSensor.setAccelRange(LSM6DS_ACCEL_RANGE_4_G);
 
     /**
      * Purpose: Sets the LSM6DS3TR-C IMU's gyroscope measurement range.
@@ -312,13 +329,15 @@ void initializeMotionDevices() {
      *   - LSM6DS_GYRO_RANGE_500_DPS: ±500°/s (mid sensitivity, low max rotation).
      *   - LSM6DS_GYRO_RANGE_1000_DPS: ±1000°/s.
      *   - LSM6DS_GYRO_RANGE_2000_DPS: ±2000°/s (lowest sensitivity, highest max rotation).
+     *
+     *   - Note that imuSensor.begin_I2C() defaults to LSM6DS_GYRO_RANGE_2000_DPS.
      */
     imuSensor.setGyroRange(LSM6DS_GYRO_RANGE_250_DPS);
 
     /**
-     * Purpose: Sets the LSM6DS3TR-C IMU's accelerometer output data rate (ODR).
+     * Purpose: Sets the LSM6DS3TR-C IMU's output data rate (ODR).
      * Options:
-     *   - LSM6DS_RATE_POWER_DOWN: Power down (no output).
+     *   - LSM6DS_RATE_SHUTDOWN: Power down (no output).
      *   - LSM6DS_RATE_12_5_HZ: 12.5 Hz.
      *   - LSM6DS_RATE_26_HZ: 26 Hz.
      *   - LSM6DS_RATE_52_HZ: 52 Hz.
@@ -326,9 +345,11 @@ void initializeMotionDevices() {
      *   - LSM6DS_RATE_208_HZ: 208 Hz.
      *   - LSM6DS_RATE_416_HZ: 416 Hz.
      *   - LSM6DS_RATE_833_HZ: 833 Hz.
-     *   - LSM6DS_RATE_1660_HZ: 1660 Hz.
-     *   - LSM6DS_RATE_3330_HZ: 3330 Hz.
-     *   - LSM6DS_RATE_6660_HZ: 6660 Hz.
+     *   - LSM6DS_RATE_1_66K_HZ: 1660 Hz.
+     *   - LSM6DS_RATE_3_33K_HZ: 3330 Hz.
+     *   - LSM6DS_RATE_6_66K_HZ: 6660 Hz.
+     *
+     *   - Note that imuSensor.begin_I2C() defaults to LSM6DS_RATE_104_HZ for accel and gyro.
      */
     imuSensor.setAccelDataRate(LSM6DS_RATE_52_HZ);
     imuSensor.setGyroDataRate(LSM6DS_RATE_52_HZ);
@@ -338,12 +359,14 @@ void initializeMotionDevices() {
      * Parameters:
      *   - enable: Enable high-pass filter (true/false).
      *   - divisor: Filter divisor, options:
+     *     - LSM6DS_HPF_ODR_DIV_9: ODR/9
      *     - LSM6DS_HPF_ODR_DIV_50: ODR/50
      *     - LSM6DS_HPF_ODR_DIV_100: ODR/100
-     *     - LSM6DS_HPF_ODR_DIV_9: ODR/9
      *     - LSM6DS_HPF_ODR_DIV_400: ODR/400
+     *
+     *   - Note that imuSensor.begin_I2C() defaults to the HPF disabled.
      */
-    imuSensor.highPassFilter(false, LSM6DS_HPF_ODR_DIV_100);
+    //imuSensor.highPassFilter(false, LSM6DS_HPF_ODR_DIV_100);
 
     /**
      * Purpose: Configures the LSM6DS3TR-C IMU's INT1 interrupt pin (GYRO_INT1_PIN).
@@ -351,6 +374,8 @@ void initializeMotionDevices() {
      *   - accelReady: Enable accelerometer data ready interrupt (true/false).
      *   - gyroReady: Enable gyroscope data ready interrupt (true/false).
      *   - tempReady: Enable temperature data ready interrupt (true/false).
+     *
+     *   - Note that imuSensor.begin_I2C() defaults to INT1 disabled.
      */
     imuSensor.configInt1(true, false, false);
 
@@ -360,6 +385,8 @@ void initializeMotionDevices() {
      *   - accelReady: Enable accelerometer data ready interrupt (true/false).
      *   - gyroReady: Enable gyroscope data ready interrupt (true/false).
      *   - tempReady: Enable temperature data ready interrupt (true/false).
+     *
+     *   - Note that imuSensor.begin_I2C() defaults to INT2 disabled.
      */
     imuSensor.configInt2(false, true, false);
   }
