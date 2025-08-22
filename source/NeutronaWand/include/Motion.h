@@ -498,7 +498,7 @@ float calculateGForce(const MotionData& data) {
  *   - float magX: Magnetometer X-axis reading
  *   - float magY: Magnetometer Y-axis reading
  * Outputs:
- *   - float: Compass heading in degrees (0-360°)
+ *   - float: Compass heading in degrees (0-360°) where magnetic North is 0°.
  */
 float calculateHeading(float magX, float magY) {
   float headingRad = atan2(-magY, -magX); // Get heading in radians from atan2 of Y and X (both flipped).

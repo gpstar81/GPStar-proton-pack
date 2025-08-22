@@ -54,14 +54,14 @@ function doHeartbeat() {
 }
 
 function onOpen(event) {
-  console.log("Connection opened");
+  console.log("WebSocket connection opened");
 
   // Clear the automated status interval timer.
   clearInterval(statusInterval);
 }
 
 function onClose(event) {
-  console.log("Connection closed");
+  console.log("WebSocket connection closed");
   setTimeout(initWebSocket, 1000);
 
   // Fallback for when WebSocket is unavailable.
@@ -192,7 +192,7 @@ function updateEquipment(jObj) {
 }
 
 // Define variables and functions for 3D rendering
-let scene, camera, rendered, cube;
+let scene, camera, rendered, mesh;
 
 function parentWidth(elem) {
   return elem.parentElement.clientWidth;
@@ -203,42 +203,100 @@ function parentHeight(elem) {
 }
 
 function init3D(){
+  const container = document.getElementById("3Dobj");
+  const width = parentWidth(container);
+  const height = parentHeight(container);
+  const aspect = width / height;
+  const cameraType = "orthographic"; // Options: "orthographic" or "perspective"
+
+  // Create the scene with a transparent background.
   scene = new THREE.Scene();
-  //scene.background = new THREE.Color(0xffffff);
-  scene.background = null; // Set background to transparent
+  scene.background = null;
 
-  camera = new THREE.PerspectiveCamera(75, parentWidth(document.getElementById("3Dcube")) / parentHeight(document.getElementById("3Dcube")), 0.1, 1000);
+  // Set up renderer with a transparent background
+  renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+  renderer.setSize(width, height);
+  container.appendChild(renderer.domElement);
 
-  //renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); // For transparent background
-  renderer.setSize(parentWidth(document.getElementById("3Dcube")), parentHeight(document.getElementById("3Dcube")));
+  // Add lights to the scene for realistic shading and visibility.
+  // HemisphereLight simulates ambient light from the sky and ground, providing soft global illumination.
+  const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
+  hemiLight.position.set(0,200,0); // Position above the scene (Y axis) for natural lighting effect
+  scene.add(hemiLight);
 
-  document.getElementById('3Dcube').appendChild(renderer.domElement);
+  // DirectionalLight simulates sunlight, casting parallel rays and creating shadows and highlights.
+  const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+  dirLight.position.set(100,100,100); // Position at an angle for dynamic shading (3/4 view)
+  scene.add(dirLight);
 
-  // Create a geometry (order: width, height, depth)
-  const geometry = new THREE.BoxGeometry(2, 1, 5);
+  // Load geometry from JSON (converted from STL)
+  fetch("/geometry.json")
+    .then(res => res.json())
+    .then(json => {
+      const loader = new THREE.BufferGeometryLoader();
+      const geometry = loader.parse(json);
 
-  // Materials for each cube face (order: right, left, top, bottom, front, back)
-  var cubeMaterials = [
-    new THREE.MeshBasicMaterial({color:0x009000}), // Right face  - darker green
-    new THREE.MeshBasicMaterial({color:0x009000}), // Left face   - darker green
-    new THREE.MeshBasicMaterial({color:0x00E000}), // Top face    - lightest green
-    new THREE.MeshBasicMaterial({color:0x007000}), // Bottom face - darkest green
-    new THREE.MeshBasicMaterial({color:0x00C000}), // Front face  - lighter green
-    new THREE.MeshBasicMaterial({color:0x00A000}), // Back face   - base green
-  ];
+      // Center the geometry itself so the mesh rotates around its center
+      geometry.computeBoundingBox();
+      const box = geometry.boundingBox;
+      const size = new THREE.Vector3();
+      box.getSize(size); // Original size of the mesh in original units (assume: mm)
+      const center = new THREE.Vector3();
+      box.getCenter(center); // True center of the mesh itself
+      geometry.translate(-center.x, -center.y, -center.z);
 
-  cube = new THREE.Mesh(geometry, cubeMaterials);
-  scene.add(cube);
-  camera.position.z = 5;
-  renderer.render(scene, camera);
+      // Select a material and color then create the mesh for the scene
+      const material = new THREE.MeshLambertMaterial({color: 0x00A000});
+      mesh = new THREE.Mesh(geometry, material);
+      scene.add(mesh);
+
+      if (cameraType === "perspective") {
+        // Set up a perspective camera; mimic human eye field of view with vanishing point.
+        camera = new THREE.PerspectiveCamera(
+          75,               // Field of view in degrees
+          (width / height), // Aspect ratio
+          0.1,              // Near clipping plane
+          300               // Far clipping plane
+        );
+        camera.position.set(0, 0, size.z * 0.8); // Adjust distance to view the entire mesh
+      }
+      else if (cameraType === "orthographic") {
+        // Set up an orthographic camera; better for technical models without distortion.
+        const frustumSize = Math.max(size.x, size.y, size.z) * 0.8; // Scale to fit mesh comfortably
+        camera = new THREE.OrthographicCamera(
+          (-frustumSize * aspect / 2), // Left
+          (frustumSize * aspect / 2),  // Right
+          (frustumSize / 2),           // Top
+          (-frustumSize / 2),          // Bottom
+          0.1,                         // Near clipping plane
+          300                          // Far clipping plane
+        );
+
+        // Position camera and look at the center of the scene
+        camera.position.set(0, size.y, frustumSize);
+      } else {
+        console.error("Camera type not recognized:", cameraType);
+      }
+
+      if (camera) {
+        // Camera positioning using the center of the mesh as the focal point
+        camera.lookAt(new THREE.Vector3()); // Look at the center (0,0,0) so we rotate at the center
+        scene.add(camera);
+        renderer.render(scene, camera); // Immediately render the scene using defaults
+      } else {
+        console.error("Camera not available for scene, unable to render.");
+      }
+    })
+    .catch(err => console.error(err));
 }
 
 // Resize the 3D object when the browser window changes size
 function onWindowResize(){
-  camera.aspect = parentWidth(document.getElementById("3Dcube")) / parentHeight(document.getElementById("3Dcube"));
+  const w = parentWidth(container);
+  const h = parentHeight(container);
+  camera.aspect = w / h;
   camera.updateProjectionMatrix();
-  renderer.setSize(parentWidth(document.getElementById("3Dcube")), parentHeight(document.getElementById("3Dcube")));
+  renderer.setSize(w, h);
 }
 
 if (!!window.EventSource) {
@@ -246,16 +304,17 @@ if (!!window.EventSource) {
   var source = new EventSource("/events");
 
   source.addEventListener("open", function(e) {
-    console.log("Events Connected");
+    console.log("Server-Side Events connected");
   }, false);
 
   source.addEventListener("error", function(e) {
     if (e.target.readyState != EventSource.OPEN) {
-      console.log("Events Disconnected");
+      console.log("Server-Side Events disconnected");
     }
   }, false);
 
   source.addEventListener("telemetry", function(e) {
+    const coordinates = "quaternion"; // Options: "quaternion" or "euler"
     var obj = JSON.parse(e.data);
 
     // Convert roll, pitch, and yaw from degrees to radians for Three.js
@@ -277,19 +336,20 @@ if (!!window.EventSource) {
 
     // Change cube rotation after checking for the available data (quaternion preferred).
     // This uses a right-handed coordinate system with X (right), Y (up), and Z (towards viewer).
-    // Map accordingly: Pitch (Y) -> X, Yaw (Z) -> Y, Roll (X) -> Z.
+    // Map accordingly from device to view: Pitch (Y) -> X, Yaw (Z) -> Y, Roll (X) -> Z.
 
-    // if (cube && obj.qw !== undefined) {
-    //   // Use quaternion (x,y,z,w) from sensor data if available.
-    //   cube.quaternion.set(obj.qy, obj.qz, obj.qx, obj.qw);
-    //   renderer.render(scene, camera);
-    // } else
-
-    if (cube) {
-      // Fallback to Euler angles if quaternion not available.
-      cube.rotation.x = pitchRads;
-      cube.rotation.y = yawRads;
-      cube.rotation.z = -rollRads;
+    if (mesh) {
+      if (coordinates == "quaternion" && obj.qw !== undefined) {
+        // Use quaternion (x,y,z,w) from sensor data when available.
+        mesh.quaternion.set(obj.qy, obj.qz, -obj.qx, obj.qw);
+        mesh.scale.z = -1; // Mirror mesh on Z axis to match heading.
+      } else if (coordinates == "euler") {
+        // Fallback to Euler angles if quaternion not available.
+        // WARNING: This may be prone to gimbal lock issues.
+        mesh.rotation.x = pitchRads;
+        mesh.rotation.y = yawRads;
+        mesh.rotation.z = -rollRads;
+      }
       renderer.render(scene, camera);
     }
   }, false);

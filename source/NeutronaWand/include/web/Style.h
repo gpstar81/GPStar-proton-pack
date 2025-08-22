@@ -132,7 +132,7 @@ p {
   box-sizing:border-box;
   box-shadow:0 2px 18px -4px rgba(0,0,0,0.75);
   color:rgba(0,160,0,1);
-  height:600px;
+  height:500px;
   margin:20px auto;
   max-width:360px;
   min-height:200px;
@@ -515,10 +515,9 @@ input:checked:not([disabled]) + .slider:before {
   padding:5px 10px !important;
 }
 
-.cube-content {
-  width:98%;
-  height:300px;
+.viz-content {
+  width:100%;
+  height:200px;
   margin:auto;
-  padding-top:2%;
 }
 )=====";

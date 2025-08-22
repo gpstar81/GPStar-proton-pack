@@ -55,8 +55,8 @@ const char INDEX_page[] PROGMEM = R"=====(
         <p><span class="infoLabel">Pitch (Y):</span> <span class="infoState" id="pitch">&mdash;</span></p>
         <p><span class="infoLabel">&nbsp;&nbsp;Yaw (Z):</span> <span class="infoState" id="yaw">&mdash;</span></p>
       </div>
-      <div class="cube-content">
-        <div id="3Dcube"></div>
+      <div class="viz-content">
+        <div id="3Dobj"></div>
       </div>
     </div>
 
