@@ -342,7 +342,6 @@ if (!!window.EventSource) {
       if (coordinates == "quaternion" && obj.qw !== undefined) {
         // Use quaternion (x,y,z,w) from sensor data when available.
         mesh.quaternion.set(obj.qy, obj.qz, -obj.qx, obj.qw);
-        mesh.scale.z = -1; // Mirror mesh on Z axis to match heading.
       } else if (coordinates == "euler") {
         // Fallback to Euler angles if quaternion not available.
         // WARNING: This may be prone to gimbal lock issues.
