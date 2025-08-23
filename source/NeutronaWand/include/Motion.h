@@ -20,8 +20,37 @@
 #pragma once
 
 /**
- * NOTICE! Remember that the PCB for the Neutrona Wand is mounted upside down!
- * For proper orientation hold the device with the components facing downward.
+ * The mockup below represents the installation of the sensors and their registration mark for purposes of orientation.
+ * In both orientations the USB-C port is at the top of the device and the terminal blocks are represented on the side as
+ * appropriate for the orientation. For both views the Y axis runs top to bottom, with the Y+ direction being down/South.
+ * The X axis runs left to right, with the X+ direction being relative to the device direction (component up or down),
+ * and the Z axis is always toward you or away from you in these views. Because this may differ by Neutrona Wand maker we
+ * must read the sensor data on whichever axis gives us the correct spatial orientation.
+ *
+ *     Components Up                   ack of PCB
+ *         |---|                          |---|
+ *    _|-----------|                  |-----------|_
+ *    ||    USB    |                  |    USB    ||
+ *    ||      G/A. | Gyro/Accel (IMU) | .G/A      ||
+ *    -|           |                  |           |-
+ *    _|           |                  |           |_
+ *    || .         |                  |         . ||
+ *    ||  M        |   Magnetometer   |        M  ||
+ *    ||           |                  |           ||
+ *    -|-----------|                  |-----------|-
+ *
+ * We will use the “Aerospace NED Frame” (North–East–Down convention) for positive values on each axis:
+ *  +X = Forward (-X Backward)
+ *  +Y = Right (-Y Left)
+ *  +Z = Down (toward the Earth at +9.81 m/s^2) remaining "gravity positive" for NED orientation.
+ *
+ * Since we use a "gravity positive" convention, we should be able to obtain a consistent acceleration value when
+ * the device is laid FLAT on a single axis. If placed on the component or PCB side any axis with a positive value
+ * closest to +9.8 would be considered the active axis for that orientation. Simply laying the device on 2/3 axes
+ * will help identify the installation orientation and we can easily determine the appropriate axis mappings.
+ *
+ * This convention gives us the readings expected for sensor fusion in an Altitude Heading Reference System (AHRS).
+ * That will take care of producing the roll (X), pitch (Y), and yaw (Z) as necessary for 3D representation later.
  */
 
 #include <Adafruit_LIS3MDL.h>
@@ -45,6 +74,19 @@ Adafruit_Mahony filter; // Create a filter object for sensor fusion (AHRS); Maho
 // Current state of the motion sensors and target for telemetry.
 enum SENSOR_READ_TARGETS { NOT_INITIALIZED, CALIBRATION, TELEMETRY };
 enum SENSOR_READ_TARGETS SENSOR_READ_TARGET = NOT_INITIALIZED;
+
+// Orientation positions expected by mounting positions.
+enum INSTALL_ORIENTATIONS {
+  COMPONENTS_UP_USB_TOP,
+  COMPONENTS_UP_USB_BOTTOM,
+  COMPONENTS_DOWN_USB_TOP,
+  COMPONENTS_DOWN_USB_BOTTOM,
+  COMPONENTS_LEFT_USB_TOP,
+  COMPONENTS_LEFT_USB_BOTTOM,
+  COMPONENTS_RIGHT_USB_TOP,
+  COMPONENTS_RIGHT_USB_BOTTOM
+};
+enum INSTALL_ORIENTATIONS INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_TOP; // Default for Haslab installations.
 
 /**
  * Constant: FILTER_ALPHA
@@ -416,7 +458,9 @@ void resetAllMotionData() {
 
 /**
  * Function: readRawSensorData
- * Purpose: Reads all sensor data directly from the magnetometer and IMU without filtering.
+ * Purpose: Reads all sensor data directly from the magnetometer and IMU, transforming according to the installation orientation.
+ * Inputs: None (uses global sensor objects)
+ * Outputs: None (updates global sensor objects)
  */
 void readRawSensorData() {
 #ifdef MOTION_SENSORS
@@ -426,50 +470,29 @@ void readRawSensorData() {
     magSensor.getEvent(&mag);
     imuSensor.getEvent(&accel, &gyro, &temp);
 
-    /**
-     * Update the raw IMU data in a global object, accounting for the orientation of the magnetometer and IMU sensors relative
-     * to the mounted position of the PCB in the wand. In our case, the PCB is mounted upside down, so we need to consider the
-     * orientation of the components as looking at the BACK of the PCB with the USB port facing forward (up/north) and the two
-     * terminal blocks are on the RIGHT (long edge) of the board. Note that the X/Y orientation of the sensors is based on the
-     * robotic coordinate system and mounted face-up so we'll need to adjust for 3D spatial orientation.
-     *
-     *     |---|
-     * |-----------|_
-     * |    USB    ||
-     * | .G/A      ||  Gyro/Accel Sensor
-     * |           |-
-     * |           |_
-     * |         . ||
-     * |        M  ||  Magnetometer
-     * |           ||
-     * |-----------|-
-     *
-     * In this orientation both sensors are mounted such that their Y+ is away from the USB port (down), X+ is to the right,
-     * and Z+ is toward you (as you look down). However, this does not align with NED (North-East-Down) conventions.
-     *
-     * We will use the “Aerospace NED Frame” (North–East–Down convention) for positive values on each axis:
-     *  +X = Forward (-Backward)
-     *  +Y = Right (-Left)
-     *  +Z = Down (toward the Earth at +9.81 m/s^2) remaining "gravity positive" for NED orientation.
-     */
+    switch(INSTALL_ORIENTATION) {
+      case COMPONENTS_DOWN_USB_TOP:
+      default:
+        // Update the magnetometer data (swapping the X and Y axes due to component's installation).
+        motionData.magX = mag.magnetic.y;
+        motionData.magY = mag.magnetic.x;
+        motionData.magZ = mag.magnetic.z;
 
-    // Update the magnetometer data (swapping the X and Y axes due to component's installation).
-    // Note: We want to ignore any readings which suddenly go to zero, keeping the last value.
-    motionData.magX = mag.magnetic.y;
-    motionData.magY = mag.magnetic.x;
-    motionData.magZ = mag.magnetic.z;
+        // Update compass heading value based on the raw magnetometer X and Y only.
+        motionData.heading = calculateHeading(motionData.magX, motionData.magY);
 
-    // Update heading value based on the raw magnetometer X and Y only.
-    motionData.heading = calculateHeading(motionData.magX, motionData.magY);
+        // Update the acceleration and gyroscope values (swapping the X and Y axes due to component's installation).
+        // Note: We must invert Y (L-R) and Z (U-D) values because the device is effectively installed upside down.
+        motionData.accelX = accel.acceleration.y;
+        motionData.accelY = accel.acceleration.x * -1;
+        motionData.accelZ = accel.acceleration.z * -1;
+        motionData.gyroX = gyro.gyro.y;
+        motionData.gyroY = gyro.gyro.x * -1;
+        motionData.gyroZ = gyro.gyro.z * -1;
+      break;
 
-    // Update the acceleration and gyroscope values (swapping the X and Y axes due to component's installation).
-    // Note: We must invert Y (L-R) and Z (U-D) values because the device is typically installed upside down.
-    motionData.accelX = accel.acceleration.y;
-    motionData.accelY = accel.acceleration.x * -1;
-    motionData.accelZ = accel.acceleration.z * -1;
-    motionData.gyroX = gyro.gyro.y;
-    motionData.gyroY = gyro.gyro.x * -1;
-    motionData.gyroZ = gyro.gyro.z * -1;
+      // @TODO: Draw the rest of the f*cking owl. (https://www.reddit.com/r/funny/comments/eccj2/how_to_draw_an_owl/)
+    }
   }
 #endif
 }
