@@ -191,8 +191,8 @@ function updateEquipment(jObj) {
   }
 }
 
-// Define variables and functions for 3D rendering
-let scene, camera, rendered, mesh;
+// Define variables and functions for 3D rendering and viewing.
+let renderer, scene, camera, mesh, size;
 
 function parentWidth(elem) {
   return elem.parentElement.clientWidth;
@@ -207,7 +207,6 @@ function init3D(){
   const width = parentWidth(container);
   const height = parentHeight(container);
   const aspect = width / height;
-  const cameraType = "orthographic"; // Options: "orthographic" or "perspective"
 
   // Create the scene with a transparent background.
   scene = new THREE.Scene();
@@ -229,6 +228,10 @@ function init3D(){
   dirLight.position.set(100,100,100); // Position at an angle for dynamic shading (3/4 view)
   scene.add(dirLight);
 
+  // Add lines for the XYZ axes as visual aid (X: red, Y: green, Z: blue) with 200 unit length.
+  // const axesHelper = new THREE.AxesHelper(200);
+  // scene.add(axesHelper);
+
   // Load geometry from JSON (converted from STL)
   fetch("/geometry.json")
     .then(res => res.json())
@@ -239,7 +242,7 @@ function init3D(){
       // Center the geometry itself so the mesh rotates around its center
       geometry.computeBoundingBox();
       const box = geometry.boundingBox;
-      const size = new THREE.Vector3();
+      size = new THREE.Vector3()
       box.getSize(size); // Original size of the mesh in original units (assume: mm)
       const center = new THREE.Vector3();
       box.getCenter(center); // True center of the mesh itself
@@ -250,33 +253,19 @@ function init3D(){
       mesh = new THREE.Mesh(geometry, material);
       scene.add(mesh);
 
-      if (cameraType === "perspective") {
-        // Set up a perspective camera; mimic human eye field of view with vanishing point.
-        camera = new THREE.PerspectiveCamera(
-          75,               // Field of view in degrees
-          (width / height), // Aspect ratio
-          0.1,              // Near clipping plane
-          300               // Far clipping plane
-        );
-        camera.position.set(0, 0, size.z * 0.8); // Adjust distance to view the entire mesh
-      }
-      else if (cameraType === "orthographic") {
-        // Set up an orthographic camera; better for technical models without distortion.
-        const frustumSize = Math.max(size.x, size.y, size.z) * 0.8; // Scale to fit mesh comfortably
-        camera = new THREE.OrthographicCamera(
-          (-frustumSize * aspect / 2), // Left
-          (frustumSize * aspect / 2),  // Right
-          (frustumSize / 2),           // Top
-          (-frustumSize / 2),          // Bottom
-          0.1,                         // Near clipping plane
-          300                          // Far clipping plane
-        );
+      // Set up an orthographic camera; better for technical models without distortion.
+      const frustumSize = Math.max(size.x, size.y, size.z) * 0.8; // Scale to fit mesh comfortably
+      camera = new THREE.OrthographicCamera(
+        (-frustumSize * aspect / 2), // Left
+        (frustumSize * aspect / 2),  // Right
+        (frustumSize / 2),           // Top
+        (-frustumSize / 2),          // Bottom
+        0.1,                         // Near clipping plane
+        300                          // Far clipping plane
+      );
 
-        // Position camera and look at the center of the scene
-        camera.position.set(0, size.y, frustumSize);
-      } else {
-        console.error("Camera type not recognized:", cameraType);
-      }
+      // Position camera and look at the center of the scene
+      camera.position.set(0, size.y, frustumSize);
 
       if (camera) {
         // Camera positioning using the center of the mesh as the focal point
@@ -314,7 +303,6 @@ if (!!window.EventSource) {
   }, false);
 
   source.addEventListener("telemetry", function(e) {
-    const coordinates = "quaternion"; // Options: "quaternion" or "euler"
     var obj = JSON.parse(e.data);
 
     // Convert roll, pitch, and yaw from degrees to radians for Three.js
@@ -334,21 +322,26 @@ if (!!window.EventSource) {
     setHtml("pitch",   parseFloat(obj.pitch || 0).toFixed(2) + "&deg;");
     setHtml("yaw",     parseFloat(obj.yaw || 0).toFixed(2) + "&deg;");
 
-    // Change cube rotation after checking for the available data (quaternion preferred).
-    // This uses a right-handed coordinate system with X (right), Y (up), and Z (towards viewer).
-    // Map accordingly from device to view: Pitch (Y) -> X, Yaw (Z) -> Y, Roll (X) -> Z.
+    // Proceed with updating the rendered scene if all objects are present.
+    if (scene && camera && mesh) {
+      // Change cube rotation after checking for the available data (quaternion preferred).
+      // This uses a right-handed coordinate system with X (right), Y (up), and Z (towards viewer).
+      // Map accordingly from device to view: Pitch (Y) -> X, Yaw (Z) -> Y, Roll (X) -> Z.
 
-    if (mesh) {
-      if (coordinates == "quaternion" && obj.qw !== undefined) {
-        // Use quaternion (x,y,z,w) from sensor data when available.
-        mesh.quaternion.set(obj.qy, obj.qz, -obj.qx, obj.qw);
-      } else if (coordinates == "euler") {
-        // Fallback to Euler angles if quaternion not available.
-        // WARNING: This may be prone to gimbal lock issues.
-        mesh.rotation.x = pitchRads;
-        mesh.rotation.y = yawRads;
-        mesh.rotation.z = -rollRads;
+      // Use quaternion (x,y,z,w) calculations for more accurate orientation and avoid gimbal lock.
+      mesh.quaternion.set(obj.qy, -obj.qz, -obj.qx, obj.qw);
+
+      // Move camera behind the object based on yaw
+      const radius = 200; // Distance from object, adjust as needed
+      const camX = radius * Math.sin(yawRads);
+      const camZ = radius * Math.cos(yawRads);
+      if (size) {
+        camera.position.set(camX, size.y * 2, camZ); // Keep Y fixed just above the Z plane for a slight downward angle
+      } else {
+        camera.position.set(camX, 0, camZ); // Keep Y fixed at 0 if size is not available
       }
+      camera.lookAt(0, 0, 0); // Keep looking at the center of the object
+
       renderer.render(scene, camera);
     }
   }, false);
