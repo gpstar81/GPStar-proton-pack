@@ -9,6 +9,9 @@
 
   Written by PJRC, adapted by Limor Fried for Adafruit Industries.
   https://github.com/adafruit/Adafruit_AHRS/tree/master/examples/calibration
+
+  Uses external program to gather the calibration values. Download from:
+  https://www.pjrc.com/store/prop_shield.html
  ***************************************************************************/
 
 #define IMU_SCL 47

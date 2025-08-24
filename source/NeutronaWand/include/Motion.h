@@ -578,7 +578,7 @@ float calculateGForce(const MotionData& data) {
  *   - float: Compass heading in degrees (0-360°) where magnetic North is 0°.
  */
 float calculateHeading(float magX, float magY) {
-  float headingRad = atan2(magY, magX); // Get heading in radians from atan2 of Y and X.
+  float headingRad = atan2(-magY, -magX); // Get heading in radians from atan2 of Y and X.
   float headingDeg = (headingRad / PI*180) + (headingRad > 0 ? 0 : 360); // Convert radians to degrees.
 
   return headingDeg;
