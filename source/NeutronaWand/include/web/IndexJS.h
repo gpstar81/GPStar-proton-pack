@@ -245,8 +245,8 @@ function init3D(){
       size = new THREE.Vector3()
       box.getSize(size); // Original size of the mesh in original units (assume: mm)
       const center = new THREE.Vector3();
-      box.getCenter(center); // True center of the mesh itself
-      geometry.translate(-center.x, -center.y, -center.z);
+      box.getCenter(center); // True center of the mesh itself using the bounding box
+      geometry.translate(-center.x, -center.y, -center.z); // Center the object on the origin
 
       // Select a material and color then create the mesh for the scene
       const material = new THREE.MeshLambertMaterial({color: 0x00A000});
@@ -254,7 +254,7 @@ function init3D(){
       scene.add(mesh);
 
       // Set up an orthographic camera; better for technical models without distortion.
-      const frustumSize = Math.max(size.x, size.y, size.z) * 0.8; // Scale to fit mesh comfortably
+      const frustumSize = Math.max(size.x, size.y, size.z) * 1.1; // Scale to fit mesh comfortably
       camera = new THREE.OrthographicCamera(
         (-frustumSize * aspect / 2), // Left
         (frustumSize * aspect / 2),  // Right
@@ -329,7 +329,7 @@ if (!!window.EventSource) {
       // Map accordingly from device to view: Pitch (Y) -> X, Yaw (Z) -> Y, Roll (X) -> Z.
 
       // Use quaternion (x,y,z,w) calculations for more accurate orientation and avoid gimbal lock.
-      mesh.quaternion.set(obj.qy, -obj.qz, -obj.qx, obj.qw);
+      mesh.quaternion.set(-obj.qy, -obj.qz, obj.qx, obj.qw);
 
       // Move camera behind the object based on yaw
       const radius = 200; // Distance from object, adjust as needed

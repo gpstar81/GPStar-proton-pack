@@ -67,9 +67,9 @@ bool b_mag_found = false;
 bool b_imu_found = false;
 millisDelay ms_sensor_read_delay, ms_sensor_report_delay;
 const uint8_t i_sensor_samples = 50; // Sets count of samples to take for averaging offsets.
-const uint16_t i_sensor_read_delay = 20; // Delay between sensor reads in milliseconds (20ms = 50Hz).
-const uint16_t i_sensor_report_delay = 100; // Delay between telemetry reporting (via console/web) in milliseconds.
-Adafruit_Mahony filter; // Create a filter object for sensor fusion (AHRS); Mahony better suited for human motion.
+const uint16_t i_sensor_read_delay = 20; // Delay between sensor reads in milliseconds (10ms = 100Hz).
+const uint16_t i_sensor_report_delay = 50; // Delay between telemetry reporting (via console/web) in milliseconds.
+Adafruit_Mahony ahrs_filter; // Create a filter object for sensor fusion (AHRS); Mahony better suited for human motion.
 
 // Current state of the motion sensors and target for telemetry.
 enum SENSOR_READ_TARGETS { NOT_INITIALIZED, CALIBRATION, TELEMETRY };
@@ -111,7 +111,7 @@ enum INSTALL_ORIENTATIONS INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_TOP; // Defa
  *   - Increase FILTER_ALPHA if you want the sensor data to react faster to changes.
  *   - Decrease FILTER_ALPHA if you want to suppress noise and jitter more.
  */
-const float FILTER_ALPHA = 0.5f;
+const float FILTER_ALPHA = 0.4f;
 
 /**
  * Struct: MotionData
@@ -123,14 +123,19 @@ const float FILTER_ALPHA = 0.5f;
  *   - heading: Compass heading in degrees (0-360°), derived from magX and magY
  */
 struct MotionData {
+  // Magnetometer readings (uTesla)
   float magX = 0.0f;
   float magY = 0.0f;
   float magZ = 0.0f;
+  // Calculated heading (degrees)
   float heading = 0.0f;
+  // Accelerometer readings (m/s^2)
   float accelX = 0.0f;
   float accelY = 0.0f;
   float accelZ = 0.0f;
+  // Calculated g-force (unit: g)
   float gForce = 0.0f;
+  // Gyroscope readings (rads/s)
   float gyroX = 0.0f;
   float gyroY = 0.0f;
   float gyroZ = 0.0f;
@@ -306,7 +311,7 @@ void initializeMotionDevices() {
      *   - Note that magSensor.begin_I2C() defaults to LIS3MDL_DATARATE_155_HZ.
      *   - Setting data rate to 155/300/560/1000 implicitly calls setPerformanceMode.
      */
-    magSensor.setDataRate(LIS3MDL_DATARATE_40_HZ);
+    magSensor.setDataRate(LIS3MDL_DATARATE_80_HZ);
 
     /**
      * Purpose: Sets the LIS3MDL magnetometer's measurement range (sensitivity).
@@ -393,8 +398,8 @@ void initializeMotionDevices() {
      *
      *   - Note that imuSensor.begin_I2C() defaults to LSM6DS_RATE_104_HZ for accel and gyro.
      */
-    imuSensor.setAccelDataRate(LSM6DS_RATE_52_HZ);
-    imuSensor.setGyroDataRate(LSM6DS_RATE_52_HZ);
+    //imuSensor.setAccelDataRate(LSM6DS_RATE_104_HZ);
+    //imuSensor.setGyroDataRate(LSM6DS_RATE_104_HZ);
 
     /**
      * Purpose: Enables or disables the LSM6DS3TR-C IMU's high-pass filter and sets the divisor.
@@ -435,7 +440,10 @@ void initializeMotionDevices() {
 
   // Set the sample frequency for the Madgwick filter (converting our sensor delay interval from milliseconds to Hz).
   float f_sample_freq = (1000.0f / i_sensor_read_delay);
-  filter.begin(f_sample_freq);
+  ahrs_filter.begin(f_sample_freq);
+
+  // Set Mahony gain values to adjust responsiveness and stability of the filter.
+  ahrs_filter.setKp(3.0f); // Proportional gain: higher = faster response (default: 0.5f)
 
   // Read the first raw sensor data which should be cleared by the first calibration.
   readRawSensorData();
@@ -459,6 +467,7 @@ void resetAllMotionData() {
 /**
  * Function: readRawSensorData
  * Purpose: Reads all sensor data directly from the magnetometer and IMU, transforming according to the installation orientation.
+ *          IMPORTANT: Only read the raw values from the sensors, do not apply any offsets or filtering here!
  * Inputs: None (uses global sensor objects)
  * Outputs: None (updates global sensor objects)
  */
@@ -545,53 +554,45 @@ float calculateHeading(float magX, float magY) {
  * Outputs: None (updates filteredMotionData)
  */
 void updateFilteredMotionData() {
-  filteredMotionData.magX    = FILTER_ALPHA * motionData.magX    + (1.0f - FILTER_ALPHA) * filteredMotionData.magX;
-  filteredMotionData.magY    = FILTER_ALPHA * motionData.magY    + (1.0f - FILTER_ALPHA) * filteredMotionData.magY;
-  filteredMotionData.magZ    = FILTER_ALPHA * motionData.magZ    + (1.0f - FILTER_ALPHA) * filteredMotionData.magZ;
-  filteredMotionData.accelX  = FILTER_ALPHA * motionData.accelX  + (1.0f - FILTER_ALPHA) * filteredMotionData.accelX;
-  filteredMotionData.accelY  = FILTER_ALPHA * motionData.accelY  + (1.0f - FILTER_ALPHA) * filteredMotionData.accelY;
-  filteredMotionData.accelZ  = FILTER_ALPHA * motionData.accelZ  + (1.0f - FILTER_ALPHA) * filteredMotionData.accelZ;
-  filteredMotionData.gyroX   = FILTER_ALPHA * motionData.gyroX   + (1.0f - FILTER_ALPHA) * filteredMotionData.gyroX;
-  filteredMotionData.gyroY   = FILTER_ALPHA * motionData.gyroY   + (1.0f - FILTER_ALPHA) * filteredMotionData.gyroY;
-  filteredMotionData.gyroZ   = FILTER_ALPHA * motionData.gyroZ   + (1.0f - FILTER_ALPHA) * filteredMotionData.gyroZ;
+  filteredMotionData.magX   = FILTER_ALPHA * motionData.magX   + (1.0f - FILTER_ALPHA) * filteredMotionData.magX;
+  filteredMotionData.magY   = FILTER_ALPHA * motionData.magY   + (1.0f - FILTER_ALPHA) * filteredMotionData.magY;
+  filteredMotionData.magZ   = FILTER_ALPHA * motionData.magZ   + (1.0f - FILTER_ALPHA) * filteredMotionData.magZ;
+  filteredMotionData.accelX = FILTER_ALPHA * motionData.accelX + (1.0f - FILTER_ALPHA) * filteredMotionData.accelX;
+  filteredMotionData.accelY = FILTER_ALPHA * motionData.accelY + (1.0f - FILTER_ALPHA) * filteredMotionData.accelY;
+  filteredMotionData.accelZ = FILTER_ALPHA * motionData.accelZ + (1.0f - FILTER_ALPHA) * filteredMotionData.accelZ;
+  filteredMotionData.gyroX  = FILTER_ALPHA * motionData.gyroX  + (1.0f - FILTER_ALPHA) * filteredMotionData.gyroX;
+  filteredMotionData.gyroY  = FILTER_ALPHA * motionData.gyroY  + (1.0f - FILTER_ALPHA) * filteredMotionData.gyroY;
+  filteredMotionData.gyroZ  = FILTER_ALPHA * motionData.gyroZ  + (1.0f - FILTER_ALPHA) * filteredMotionData.gyroZ;
 }
 
 /**
  * Function: updateOrientation
- * Purpose: Updates the orientation using sensor fusion (Madgwick filter).
+ * Purpose: Updates the orientation using sensor fusion (AHRS).
  * Inputs: None (uses filteredMotionData)
  * Outputs: None (updates global orientation variables)
  */
 void updateOrientation() {
 #ifdef MOTION_SENSORS
   /**
-   * Madgwick expects gyroscope in deg/s, accelerometer in g, magnetometer in uT.
-   * It also assumes gravity-positive z-axis and right-handed coordinate system.
-   * It will use all 9 DoF values to calculate roll (X), pitch (Y), and yaw (Z).
+   * Fusion expects gyroscope in rads/s, accelerometer in m/s2, magnetometer in uT.
+   * It assumes a gravity-positive z-axis and NED aerospace framing.
+   * All 9 DoF values will calculate roll (X), pitch (Y), and yaw (Z).
+   * The sample frequency is in Hz and already calculated from the update time in ms.
    */
-
-  // Convert gyroscope from rad/s to deg/s by multiplying with (180.0f / PI).
-  float gx = filteredMotionData.gyroX * (180.0f / PI);
-  float gy = filteredMotionData.gyroY * (180.0f / PI);
-  float gz = filteredMotionData.gyroZ * (180.0f / PI);
-
-  // Convert accelerometer from m/s^2 to g.
-  float ax = filteredMotionData.accelX / 9.80665f;
-  float ay = filteredMotionData.accelY / 9.80665f;
-  float az = filteredMotionData.accelZ / 9.80665f;
-
-  // Update the filter, using the calculated sample frequency in Hz.
-  // Magnetometer is already in micro-Teslas so we just use as-is.
-  filter.update(gx, gy, gz, ax, ay, az, filteredMotionData.magX, filteredMotionData.magY, filteredMotionData.magZ);
+  ahrs_filter.update(
+    motionData.gyroX, motionData.gyroY, motionData.gyroZ,
+    motionData.accelX, motionData.accelY, motionData.accelZ,
+    motionData.magX, motionData.magY, motionData.magZ
+  );
 
   // Get position in Euler angles (degrees) for orientation in NED space.
-  spatialData.roll = filter.getRoll();
-  spatialData.pitch = filter.getPitch();
-  spatialData.yaw = filter.getYaw();
+  spatialData.roll = ahrs_filter.getRoll();
+  spatialData.pitch = ahrs_filter.getPitch();
+  spatialData.yaw = ahrs_filter.getYaw();
 
   // Obtain the quaternion representation for visualization.
   float qw, qx, qy, qz;
-  filter.getQuaternion(&qw, &qx, &qy, &qz);
+  ahrs_filter.getQuaternion(&qw, &qx, &qy, &qz);
   spatialData.quaternion[0] = qw;
   spatialData.quaternion[1] = qx;
   spatialData.quaternion[2] = qy;
@@ -741,6 +742,15 @@ void checkMotionSensors() {
       debug(filteredMotionData.heading);
       debugln(" deg ");
       debugln();
+
+      debug("\t\tRoll (x): ");
+      debug(formatSignedFloat(spatialData.roll));
+      debug("\tPitch (Y): ");
+      debug(formatSignedFloat(spatialData.pitch));
+      debug("\tYaw (Z): ");
+      debug(formatSignedFloat(spatialData.yaw));
+      debugln();
+      debugln();
     #endif
 
       // Send telemetry data to connected clients via server-side events.
@@ -776,6 +786,9 @@ void processMotionData() {
     motionData.gyroY -= motionOffsets.gyroY;
     motionData.gyroZ -= motionOffsets.gyroZ;
 
+    // Update the orientation via sensor fusion.
+    updateOrientation();
+
     // Apply exponential moving average (EMA) smoothing filter to sensor data.
     updateFilteredMotionData();
 
@@ -784,9 +797,6 @@ void processMotionData() {
 
     // Calculate the magnitude of the filtered acceleration vector (g-force).
     filteredMotionData.gForce = calculateGForce(filteredMotionData);
-
-    // Update the orientation via sensor fusion by using the filtered data.
-    updateOrientation();
   }
 #endif
 }
@@ -816,7 +826,7 @@ void calibrateMotionOffsets() {
     // Calculate average offsets after each sample for real-time feedback.
     motionOffsets.accelX = motionOffsets.sumAccelX / motionOffsets.samples;
     motionOffsets.accelY = motionOffsets.sumAccelY / motionOffsets.samples;
-    motionOffsets.accelZ = (motionOffsets.sumAccelZ / motionOffsets.samples) - 9.80665f; // Subtract gravity for Z axis (9.81 m/s^2)
+    motionOffsets.accelZ = (motionOffsets.sumAccelZ / motionOffsets.samples) - 9.80665f; // Get offset from gravity for Z axis (9.81 m/s^2)
     motionOffsets.gyroX = motionOffsets.sumGyroX / motionOffsets.samples;
     motionOffsets.gyroY = motionOffsets.sumGyroY / motionOffsets.samples;
     motionOffsets.gyroZ = motionOffsets.sumGyroZ / motionOffsets.samples;
