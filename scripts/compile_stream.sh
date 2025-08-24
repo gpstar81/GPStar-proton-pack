@@ -2,7 +2,7 @@
 
 # Perform a full compile of all binaries using PlatformIO (pio).
 #
-# This script compiles only the main ESP32 binary.
+# This script compiles only the Stream Effects ESP32 binary.
 
 BINDIR="../binaries"
 SRCDIR="../source"

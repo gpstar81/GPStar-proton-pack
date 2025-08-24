@@ -53,7 +53,7 @@ const char INDEX_page[] PROGMEM = R"=====(
         <p><span class="infoLabel">&nbsp;Accel. Z:</span> <span class="infoState" id="accelZ">&mdash;</span></p>
         <p><span class="infoLabel">&nbsp;&nbsp;Roll (X):</span> <span class="infoState" id="roll">&mdash;</span></p>
         <p><span class="infoLabel">Pitch (Y):</span> <span class="infoState" id="pitch">&mdash;</span></p>
-        <p><span class="infoLabel">&nbsp;&nbsp;Yaw (Z):</span> <span class="infoState" id="yaw">&mdash;</span></p>
+        <p><span class="infoLabel">&nbsp;Yaw (Z):</span> <span class="infoState" id="yaw">&mdash;</span></p>
       </div>
       <div class="viz-content">
         <div id="3Dobj"></div>
@@ -61,7 +61,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     </div>
 
     <button type="button" class="orange" onclick="resetPosition()">Re-center</button>
-    <button type="button" class="red" onclick="triggerIfrared()">Infrared</button>
+    <button type="button" class="red" onclick="triggerInfrared()">Infrared</button>
   </div>
 
   <div id="tab2" class="tab">

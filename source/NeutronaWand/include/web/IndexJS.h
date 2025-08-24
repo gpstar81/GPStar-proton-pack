@@ -242,7 +242,7 @@ function init3D(){
       // Center the geometry itself so the mesh rotates around its center
       geometry.computeBoundingBox();
       const box = geometry.boundingBox;
-      size = new THREE.Vector3()
+      size = new THREE.Vector3();
       box.getSize(size); // Original size of the mesh in original units (assume: mm)
       const center = new THREE.Vector3();
       box.getCenter(center); // True center of the mesh itself using the bounding box
@@ -351,7 +351,7 @@ function resetPosition() {
   sendCommand("/sensors/recenter");
 }
 
-function triggerIfrared() {
+function triggerInfrared() {
   sendCommand("/infrared/signal?type=ghostintrap");
 }
 )=====";

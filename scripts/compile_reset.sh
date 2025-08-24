@@ -2,7 +2,7 @@
 
 # Perform a full compile of all binaries using PlatformIO (pio).
 #
-# This script compiles only the Proton Pack.
+# This script compiles only the ATMEGA2560 EEPROM reset program.
 
 BINDIR="../binaries"
 SRCDIR="../source"

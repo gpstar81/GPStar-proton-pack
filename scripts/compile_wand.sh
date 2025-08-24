@@ -2,7 +2,7 @@
 
 # Perform a full compile of all binaries using PlatformIO (pio).
 #
-# This script compiles only the Proton Pack.
+# This script compiles only the Neutrona Wand.
 
 BINDIR="../binaries"
 SRCDIR="../source"

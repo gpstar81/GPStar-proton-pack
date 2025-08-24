@@ -2,7 +2,7 @@
 
 # Perform a full compile of all binaries using PlatformIO (pio).
 #
-# This script compiles only the main ATtiny binary.
+# This script compiles only the Ghost Trap Cartridge ATtiny binary.
 
 BINDIR="../binaries"
 SRCDIR="../source"

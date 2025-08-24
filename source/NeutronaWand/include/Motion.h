@@ -22,12 +22,12 @@
 /**
  * The mockup below represents the installation of the sensors and their registration mark for purposes of orientation.
  * In both orientations the USB-C port is at the top of the device and the terminal blocks are represented on the side as
- * appropriate for the orientation. For both views the Y axis runs top to bottom, with the Y+ direction being down/South.
- * The X axis runs left to right, with the X+ direction being relative to the device direction (component up or down),
- * and the Z axis is always toward you or away from you in these views. Because this may differ by Neutrona Wand maker we
+ * appropriate for the orientation. For both views the Y axis runs top to bottom, with the Y+ direction being bottom/South.
+ * The X axis runs left to right, with the X+ direction being relative to the device direction (up West, down East),
+ * and the Z axis is always toward you or away from you in these views (Up/Down). Because this may differ by Neutrona Wand maker we
  * must read the sensor data on whichever axis gives us the correct spatial orientation.
  *
- *     Components Up                   ack of PCB
+ *     Components Up                   Back of PCB
  *         |---|                          |---|
  *    _|-----------|                  |-----------|_
  *    ||    USB    |                  |    USB    ||
@@ -43,6 +43,11 @@
  *  +X = Forward (-X Backward)
  *  +Y = Right (-Y Left)
  *  +Z = Down (toward the Earth at +9.81 m/s^2) remaining "gravity positive" for NED orientation.
+ *
+ * In NED orientation, positive and negative gyro values are handled thusly:
+ *  +X = Clockwise Roll (-X Counterclockwise Roll)
+ *  +Y = Pitch Up (-Y Pitch Down)
+ *  +Z = Clockwise Yaw (-Z Counterclockwise Yaw)
  *
  * Since we use a "gravity positive" convention, we should be able to obtain a consistent acceleration value when
  * the device is laid FLAT on a single axis. If placed on the component or PCB side any axis with a positive value
@@ -71,22 +76,27 @@ const uint16_t i_sensor_read_delay = 20; // Delay between sensor reads in millis
 const uint16_t i_sensor_report_delay = 50; // Delay between telemetry reporting (via console/web) in milliseconds.
 Adafruit_Mahony ahrs_filter; // Create a filter object for sensor fusion (AHRS); Mahony better suited for human motion.
 
+// Magnetometer calibration variables.
+float mag_hardiron[3] = {-32.05, 21.13, -3.21};
+float mag_softiron[9] = {1.011, 0.051, -0.012, 0.051, 0.988, -0.005, -0.012, -0.005, 1.004};
+float mag_field = 41.75;
+
 // Current state of the motion sensors and target for telemetry.
 enum SENSOR_READ_TARGETS { NOT_INITIALIZED, CALIBRATION, TELEMETRY };
 enum SENSOR_READ_TARGETS SENSOR_READ_TARGET = NOT_INITIALIZED;
 
 // Orientation positions expected by mounting positions.
 enum INSTALL_ORIENTATIONS {
-  COMPONENTS_UP_USB_TOP,
-  COMPONENTS_UP_USB_BOTTOM,
-  COMPONENTS_DOWN_USB_TOP,
-  COMPONENTS_DOWN_USB_BOTTOM,
-  COMPONENTS_LEFT_USB_TOP,
-  COMPONENTS_LEFT_USB_BOTTOM,
-  COMPONENTS_RIGHT_USB_TOP,
-  COMPONENTS_RIGHT_USB_BOTTOM
+  COMPONENTS_UP_USB_FRONT,
+  COMPONENTS_UP_USB_REAR,
+  COMPONENTS_DOWN_USB_FRONT,
+  COMPONENTS_DOWN_USB_REAR,
+  COMPONENTS_LEFT_USB_FRONT,
+  COMPONENTS_LEFT_USB_REAR,
+  COMPONENTS_RIGHT_USB_FRONT,
+  COMPONENTS_RIGHT_USB_REAR
 };
-enum INSTALL_ORIENTATIONS INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_TOP; // Default for Haslab installations.
+enum INSTALL_ORIENTATIONS INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_FRONT; // Default for Hasbro installations.
 
 /**
  * Constant: FILTER_ALPHA
@@ -119,7 +129,7 @@ const float FILTER_ALPHA = 0.4f;
  * Attributes:
  *   - magX, magY, magZ: Magnetometer readings (uTesla)
  *   - accelX, accelY, accelZ: Accelerometer readings (m/s^2)
- *   - gyroX, gyroY, gyroZ: Gyroscope readings (rads/s)
+ *   - gyroX, gyroY, gyroZ: Gyroscope readings (deg/s)
  *   - heading: Compass heading in degrees (0-360°), derived from magX and magY
  */
 struct MotionData {
@@ -135,7 +145,7 @@ struct MotionData {
   float accelZ = 0.0f;
   // Calculated g-force (unit: g)
   float gForce = 0.0f;
-  // Gyroscope readings (rads/s)
+  // Gyroscope readings (deg/s)
   float gyroX = 0.0f;
   float gyroY = 0.0f;
   float gyroZ = 0.0f;
@@ -149,7 +159,7 @@ MotionData motionData, filteredMotionData;
  * Purpose: Holds baseline offsets for accelerometer and gyroscope to correct sensor drift.
  * Members:
  *   - accelX, accelY, accelZ: Accelerometer offsets (m/s^2)
- *   - gyroX, gyroY, gyroZ: Gyroscope offsets (rads/s)
+ *   - gyroX, gyroY, gyroZ: Gyroscope offsets (deg/s)
  */
 struct MotionOffsets {
   float sumAccelX = 0.0f;
@@ -479,13 +489,32 @@ void readRawSensorData() {
     magSensor.getEvent(&mag);
     imuSensor.getEvent(&accel, &gyro, &temp);
 
+    // Hard iron corrections.
+    float mx = mag.magnetic.x - mag_hardiron[0];
+    float my = mag.magnetic.y - mag_hardiron[1];
+    float mz = mag.magnetic.z - mag_hardiron[2];
+
+    // Soft iron corrections.
+    mag.magnetic.x =
+        mx * mag_softiron[0] + my * mag_softiron[1] + mz * mag_softiron[2];
+    mag.magnetic.y =
+        mx * mag_softiron[3] + my * mag_softiron[4] + mz * mag_softiron[5];
+    mag.magnetic.z =
+        mx * mag_softiron[6] + my * mag_softiron[7] + mz * mag_softiron[8];
+
     switch(INSTALL_ORIENTATION) {
-      case COMPONENTS_DOWN_USB_TOP:
+      case COMPONENTS_UP_USB_FRONT:
+      break;
+      case COMPONENTS_UP_USB_REAR:
+      break;
+      case COMPONENTS_DOWN_USB_FRONT:
       default:
+        // Default Hasbro installation orientation.
         // Update the magnetometer data (swapping the X and Y axes due to component's installation).
+        // Note: We must invert Y (L-R) and Z (U-D) values because the device is effectively installed upside down.
         motionData.magX = mag.magnetic.y;
-        motionData.magY = mag.magnetic.x;
-        motionData.magZ = mag.magnetic.z;
+        motionData.magY = mag.magnetic.x * -1;
+        motionData.magZ = mag.magnetic.z * -1;
 
         // Update compass heading value based on the raw magnetometer X and Y only.
         motionData.heading = calculateHeading(motionData.magX, motionData.magY);
@@ -499,9 +528,25 @@ void readRawSensorData() {
         motionData.gyroY = gyro.gyro.x * -1;
         motionData.gyroZ = gyro.gyro.z * -1;
       break;
+      case COMPONENTS_DOWN_USB_REAR:
+      break;
+      case COMPONENTS_LEFT_USB_FRONT:
+      break;
+      case COMPONENTS_LEFT_USB_REAR:
+      break;
+      case COMPONENTS_RIGHT_USB_FRONT:
+        // Default Mack's Factory installation orientation.
+      break;
+      case COMPONENTS_RIGHT_USB_REAR:
+      break;
 
       // @TODO: Draw the rest of the f*cking owl. (https://www.reddit.com/r/funny/comments/eccj2/how_to_draw_an_owl/)
     }
+
+    // Lastly, the AHRS library update() function expects deg/s gyro values, so convert accordingly.
+    motionData.gyroX *= SENSORS_RADS_TO_DPS;
+    motionData.gyroY *= SENSORS_RADS_TO_DPS;
+    motionData.gyroZ *= SENSORS_RADS_TO_DPS;
   }
 #endif
 }
@@ -525,7 +570,7 @@ float calculateGForce(const MotionData& data) {
 
 /**
  * Function: calculateHeading
- * Purpose: Computes the compass heading (in degrees) from magnetometer X and Y values, applying a device-specific offset and optional inversion for mounting.
+ * Purpose: Computes the compass heading (in degrees) from magnetometer X and Y values.
  * Inputs:
  *   - float magX: Magnetometer X-axis reading
  *   - float magY: Magnetometer Y-axis reading
@@ -533,16 +578,8 @@ float calculateGForce(const MotionData& data) {
  *   - float: Compass heading in degrees (0-360°) where magnetic North is 0°.
  */
 float calculateHeading(float magX, float magY) {
-  float headingRad = atan2(-magY, -magX); // Get heading in radians from atan2 of Y and X (both flipped).
-  float headingDeg = headingRad * (180.0f / PI); // Convert radians to degrees (180/pi).
-
-  // Normalize to 0-360°
-  while (headingDeg < 0.0f) {
-    headingDeg += 360.0f;
-  }
-  while (headingDeg >= 360.0f) {
-    headingDeg -= 360.0f;
-  }
+  float headingRad = atan2(magY, magX); // Get heading in radians from atan2 of Y and X.
+  float headingDeg = (headingRad / PI*180) + (headingRad > 0 ? 0 : 360); // Convert radians to degrees.
 
   return headingDeg;
 }
@@ -574,7 +611,7 @@ void updateFilteredMotionData() {
 void updateOrientation() {
 #ifdef MOTION_SENSORS
   /**
-   * Fusion expects gyroscope in rads/s, accelerometer in m/s2, magnetometer in uT.
+   * Fusion expects gyroscope in deg/s, accelerometer in m/s2, magnetometer in uT.
    * It assumes a gravity-positive z-axis and NED aerospace framing.
    * All 9 DoF values will calculate roll (X), pitch (Y), and yaw (Z).
    * The sample frequency is in Hz and already calculated from the update time in ms.

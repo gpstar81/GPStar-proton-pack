@@ -63,7 +63,6 @@
 // 3rd-Party Libraries
 #include <CRC32.h>
 #include <digitalWriteFast.h>
-#include <EEPROM.h>
 #include <millisDelay.h>
 #include <FastLED.h>
 #include <avdweb_Switch.h>
@@ -73,6 +72,8 @@
 #ifdef ESP32
   #include <HardwareSerial.h>
   #include <IRremote.hpp>
+#else
+  #include <EEPROM.h>
 #endif
 
 // Forward declaration for use in all includes.
@@ -120,7 +121,6 @@ void setup() {
 
   // This is required in order to make sure the board boots successfully.
   Serial.begin(115200);
-  delay(10);
 
   // Serial0 (UART0) is enabled by default; end() sets GPIO43 & GPIO44 to GPIO.
   Serial0.end();
