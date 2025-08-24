@@ -35,8 +35,8 @@
   #define ROTARY_ENCODER_A 4
   #define ROTARY_ENCODER_B 5
   #define WAND_SWITCH_PIN 8
-  #define TOP_HAT_LED_PIN 9 // Hat light at top of the wand body near vent. (Orange or White LED)
-  #define BARREL_HAT_LED_PIN 10 // Hat light at front of the wand near the barrel tip. (Orange LED)
+  #define TOP_HAT_LED_PIN 9 // Hat[2] light at top of the wand body near vent. (Orange or White LED)
+  #define BARREL_HAT_LED_PIN 10 // Hat[1] light at front of the wand near the barrel tip. (Orange LED)
   #define MODE_SWITCH_PIN 11
   #define SLO_BLO_LED_PIN 12 // SLO-BLO LED. (Red LED)
   #define BARREL_SWITCH_PIN 13
@@ -63,8 +63,8 @@
   #define VIBRATION_PIN 11 // Pin for the vibration motor.
   #define TOP_LED_PIN 12 // Blinking white light beside the vent on top of the wand.
   #define VENT_LED_PIN 13 // Vent light (either stock or RGB LED).
-  #define BARREL_HAT_LED_PIN 22 // Hat light at front of the wand near the barrel tip. (Orange LED)
-  #define TOP_HAT_LED_PIN 23 // Hat light at top of the wand body near vent. (Orange or White LED)
+  #define BARREL_HAT_LED_PIN 22 // Hat[1] light at front of the wand near the barrel tip. (Orange LED)
+  #define TOP_HAT_LED_PIN 23 // Hat[2] light at top of the wand body near vent. (Orange or White LED)
   #define BARREL_TIP_LED_PIN 24 // White LED at tip of the wand barrel. (White LED)
   #define WAND_STATUS_LED_PIN 38 // V1.4 GPStar Neutrona Wand onboard LED pin.
   #define WAND_SWITCH_PIN A0

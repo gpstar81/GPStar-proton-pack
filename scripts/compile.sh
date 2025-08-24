@@ -10,11 +10,11 @@ TIMESTAMP=$(date +"%Y%m%d%H%M%S")
 
 # COMPILE PACK/WAND COMPONENTS
 
-source ./compile_reset.sh
-echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 source ./compile_pack.sh
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 source ./compile_wand.sh
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+source ./compile_calibration.sh
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
 # COMPILE ATTENUATOR AND VARIANTS
