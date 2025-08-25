@@ -7085,18 +7085,65 @@ void mixExtraFiringEffects() {
   // Mix some impact sound based on user motions while firing.
   if (STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects && filteredMotionData.gForce > IMPACT_THRESHOLD) {
     // Only play impact sound if firing, in Proton mode, and threshold exceeded.
-    stopEffect(S_FIRE_LOOP_IMPACT); // Stop any existing impact sound to avoid overlap.
-    playEffect(S_FIRE_LOOP_IMPACT, false, i_volume_effects, false, 0, false);
-    wandSerialSend(W_IMPACT_SOUND); // Trigger an impact sound to play on the pack.
+    uint8_t i_random = 0;
+
+    switch(i_last_firing_effect_mix) {
+      case S_FIRE_SPARKS:
+        i_random = random(0,2);
+      break;
+
+      case S_FIRE_SPARKS_3:
+      case S_FIRE_SPARKS_4:
+        i_random = 3;
+      break;
+
+      case S_FIRE_SPARKS_5:
+        i_random = 2;
+      break;
+
+      case S_FIRE_SPARKS_2:
+        i_random = 1;
+      break;
+
+      default:
+        // If no firing effect has played yet.
+        i_random = 3;
+      break;
+    }
+
+    switch(i_random) {
+      case 3:
+        playEffect(S_FIRE_SPARKS, false, i_volume_effects, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS;
+      break;
+
+      case 2:
+        playEffect(S_FIRE_SPARKS_4, false, i_volume_effects, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS_4;
+      break;
+
+      case 1:
+        playEffect(S_FIRE_SPARKS_3, false, i_volume_effects, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS_3;
+      break;
+
+      case 0:
+      default:
+        playEffect(S_FIRE_SPARKS_2, false, i_volume_effects, false, 0, false);
+        playEffect(S_FIRE_SPARKS_5, false, i_volume_effects, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS_5;
+      break;
+    }
+
+    wandSerialSend(W_IMPACT_SOUND, i_random); // Trigger an impact sound to play on the pack.
     debugln(String("Impact sound played. Motion Threshold: ") + IMPACT_THRESHOLD + "g; Detected Magnitude: " + filteredMotionData.gForce + "g");
   }
-#else
+#endif
   // Mix some impact sound every 10-15 seconds while firing.
   if(ms_impact.justFinished() && STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects) {
     playEffect(S_FIRE_LOOP_IMPACT, false, i_volume_effects, false, 0, false);
     ms_impact.start(random(10,16) * 1000);
   }
-#endif
 
   // Standalone Neutrona Wand gets additional effects which would normally be played by Proton Pack.
   if(ms_firing_sound_mix.justFinished() && STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects && b_gpstar_benchtest) {

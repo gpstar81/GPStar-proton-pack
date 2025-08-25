@@ -4501,6 +4501,29 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       musicPrevTrack();
     break;
 
+    case W_IMPACT_SOUND:
+      // Plays the wand-specified impact sound effect.
+      switch(i_value) {
+        case 0:
+        default:
+          playEffect(S_FIRE_SPARKS_2, false, i_volume_effects, false, 0, false);
+          playEffect(S_FIRE_SPARKS_5, false, i_volume_effects, false, 0, false);
+        break;
+
+        case 1:
+          playEffect(S_FIRE_SPARKS_3, false, i_volume_effects, false, 0, false);
+        break;
+
+        case 2:
+          playEffect(S_FIRE_SPARKS_4, false, i_volume_effects, false, 0, false);
+        break;
+
+        case 3:
+          playEffect(S_FIRE_SPARKS, false, i_volume_effects, false, 0, false);
+        break;
+      }
+    break;
+
     case W_COM_SOUND_NUMBER:
       if(i_value > 0 && i_value < i_music_track_start) {
         // The Neutrona Wand is telling us to play a sound effect only (S_1 through S_60).
@@ -4512,32 +4535,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
         stopEffect(i_value);
         playEffect(i_value);
-      }
-    break;
-
-    case W_IMPACT_SOUND:
-      // Play a random impact sound effect.
-      switch(random(0,4)) {
-        case 0:
-        default:
-          playEffect(S_FIRE_SPARKS);
-        break;
-
-        case 1:
-          playEffect(S_FIRE_SPARKS_2);
-        break;
-
-        case 2:
-          playEffect(S_FIRE_SPARKS_3);
-        break;
-
-        case 3:
-          playEffect(S_FIRE_SPARKS_4);
-        break;
-
-        case 4:
-          playEffect(S_FIRE_SPARKS_5);
-        break;
       }
     break;
 
