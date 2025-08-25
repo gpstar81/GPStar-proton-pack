@@ -785,6 +785,12 @@ void getSpecialPreferences() {
   if(b_namespace_opened) {
     // Return stored values if available, otherwise use a default value.
     s_track_listing = preferences.getString("track_list", "");
+
+    // Restore the magnetometer calibration data from preferences.
+    if (preferences.isKey("mag_cal")) {
+      preferences.getBytes("mag_cal", &magCalData, sizeof(magCalData));
+    }
+
     preferences.end();
   }
   else {

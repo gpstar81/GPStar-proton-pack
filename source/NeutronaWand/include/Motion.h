@@ -58,6 +58,10 @@
  * That will take care of producing the roll (X), pitch (Y), and yaw (Z) as necessary for 3D representation later.
  */
 
+/**
+ * 3rd-Party Libraries
+ * Utilizes the unified sensor libraries for Adafruit which work together for reading and sensor fusion.
+ */
 #include <Adafruit_LIS3MDL.h>
 #include <Adafruit_LSM6DS3TRC.h>
 #include <Adafruit_AHRS.h>
@@ -68,21 +72,18 @@
  */
 Adafruit_LIS3MDL magSensor;
 Adafruit_LSM6DS3TRC imuSensor;
+Adafruit_Sensor *accelerometer, *gyroscope, *magnetometer;
+sensors_event_t mag_event, gyro_event, accel_event;
 bool b_mag_found = false;
 bool b_imu_found = false;
 millisDelay ms_sensor_read_delay, ms_sensor_report_delay;
 const uint8_t i_sensor_samples = 50; // Sets count of samples to take for averaging offsets.
-const uint16_t i_sensor_read_delay = 20; // Delay between sensor reads in milliseconds (10ms = 100Hz).
+const uint16_t i_sensor_read_delay = 20; // Delay between sensor reads in milliseconds (20ms = 50Hz).
 const uint16_t i_sensor_report_delay = 50; // Delay between telemetry reporting (via console/web) in milliseconds.
 Adafruit_Mahony ahrs_filter; // Create a filter object for sensor fusion (AHRS); Mahony better suited for human motion.
 
-// Magnetometer calibration variables.
-float mag_hardiron[3] = {-32.05, 21.13, -3.21};
-float mag_softiron[9] = {1.011, 0.051, -0.012, 0.051, 0.988, -0.005, -0.012, -0.005, 1.004};
-float mag_field = 41.75;
-
 // Current state of the motion sensors and target for telemetry.
-enum SENSOR_READ_TARGETS { NOT_INITIALIZED, CALIBRATION, TELEMETRY };
+enum SENSOR_READ_TARGETS { NOT_INITIALIZED, CALIBRATION, OFFSETS, TELEMETRY };
 enum SENSOR_READ_TARGETS SENSOR_READ_TARGET = NOT_INITIALIZED;
 
 // Orientation positions expected by mounting positions.
@@ -124,6 +125,22 @@ enum INSTALL_ORIENTATIONS INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_FRONT; // De
 const float FILTER_ALPHA = 0.4f;
 
 /**
+ * Magnetometer calibration variables obtained through using MotionCal and USB console output.
+ * This should be performed near the end of an installation of the Neutrona Wand when the PCB
+ * is fully assembled and in its final orientation with any speakers and their magnets nearby.
+ * Default values come from a typical calibration session where the PCB is not yet installed.
+ * See: https://www.pjrc.com/store/prop_shield.html for MotionCal usage.
+ */ 
+struct CalibrationData {
+  float mag_hardiron[3] = {-32.05, 21.13, -3.21};
+  float mag_softiron[9] = {1.011, 0.051, -0.012, 0.051, 0.988, -0.005, -0.012, -0.005, 1.004};
+  float mag_field = 41.75;
+};
+
+// Global objects to hold the latest raw or filtered sensor readings.
+CalibrationData magCalData;
+
+/**
  * Struct: MotionData
  * Purpose: Holds all motion sensor readings for magnetometer, accelerometer, gyroscope, and calculated heading.
  * Attributes:
@@ -157,6 +174,8 @@ MotionData motionData, filteredMotionData;
 /**
  * Struct: MotionOffsets
  * Purpose: Holds baseline offsets for accelerometer and gyroscope to correct sensor drift.
+ * This data is calculated on every reset of telemetry data and acts as a point of reference
+ * for future movement. Effectively, this resets the center of the sensor's coordinate system.
  * Members:
  *   - accelX, accelY, accelZ: Accelerometer offsets (m/s^2)
  *   - gyroX, gyroY, gyroZ: Gyroscope offsets (deg/s)
@@ -185,12 +204,13 @@ MotionOffsets motionOffsets;
  * Purpose: Holds fused sensor readings for magnetometer, accelerometer, gyroscope, and calculated heading.
  * Attributes:
  *   - roll, pitch, yaw: Euler angles in degrees representing the orientation of the device.
+ *   - quaternion: Quaternion representation for orientation (w, x, y, z).
  */
 struct SpatialData {
   float roll = 0.0f;
   float pitch = 0.0f;
   float yaw = 0.0f;
-  float quaternion[4] = {1.0f, 0.0f, 0.0f, 0.0f}; // Quaternion representation for orientation.
+  float quaternion[4] = {1.0f, 0.0f, 0.0f, 0.0f};
 };
 
 // Global object to hold the fused sensor readings.
@@ -199,9 +219,10 @@ SpatialData spatialData;
 // Forward function declarations.
 float calculateHeading(float magX, float magY);
 float calculateGForce(const MotionData& data);
-void calibrateMotionOffsets();
+void collectMotionOffsets();
 void processMotionData();
 void readRawSensorData();
+void reportCalibrationData();
 void resetAllMotionData();
 void sendTelemetryData(); // From Webhandler.h
 
@@ -267,18 +288,44 @@ void resetMotionOffsets(MotionOffsets &data) {
 }
 
 /**
- * Function: initializeMotionDevices
- * Purpose: Initializes the I2C bus and configures the Magnetometer and IMU devices.
+ * Function: initializeSensors
+ * Purpose: Initializes the Magnetometer and Gyroscope/Accelerometer sensors.
  */
-void initializeMotionDevices() {
+bool initializeSensors() {
 #ifdef MOTION_SENSORS
-  Wire1.begin(IMU_SDA, IMU_SCL, 400000UL);
-
   // Initialize the LIS3MDL magnetometer.
   if(magSensor.begin_I2C(LIS3MDL_I2CADDR_DEFAULT, &Wire1)) {
     b_mag_found = true; // Indicate that the magnetometer was found.
     debugln(F("LIS3MDL found at default address"));
+  }
 
+  // Initialize the LSM6DS3TR-C IMU.
+  if(imuSensor.begin_I2C(LSM6DS_I2CADDR_DEFAULT, &Wire1)) {
+    b_imu_found = true; // Indicate that the IMU was found.
+    debugln(F("LSM6DS3TR-C found at default address"));
+  }
+
+  // Fail if either sensor was not found.
+  if(!b_mag_found || !b_imu_found) {
+    return false;
+  }
+
+  // Register the sensors for use.
+  accelerometer = imuSensor.getAccelerometerSensor();
+  gyroscope = imuSensor.getGyroSensor();
+  magnetometer = &magSensor;
+
+  return true;
+#endif
+}
+
+/**
+ * Function: configureSensors
+ * Purpose: Configures the motion sensors.
+ */
+void configureSensors() {
+#ifdef MOTION_SENSORS
+  if(b_mag_found && b_imu_found) {
     /**
      * Purpose: Sets the LIS3MDL magnetometer's performance mode, balancing power consumption and measurement accuracy.
      * Options:
@@ -359,12 +406,7 @@ void initializeMotionDevices() {
                               true, // Polarity active high
                               false, // Don't latch (pulse)
                               false); // Disable the interrupt
-  }
 
-  // Initialize the LSM6DS3TR-C IMU.
-  if(imuSensor.begin_I2C(LSM6DS_I2CADDR_DEFAULT, &Wire1)) {
-    b_imu_found = true; // Indicate that the IMU was found.
-    debugln(F("LSM6DS3TR-C found at default address"));
 
     /**
      * Purpose: Sets the LSM6DS3TR-C IMU's accelerometer measurement range.
@@ -376,7 +418,7 @@ void initializeMotionDevices() {
      *
      *   - Note that imuSensor.begin_I2C() defaults to LSM6DS_ACCEL_RANGE_4_G.
      */
-    //imuSensor.setAccelRange(LSM6DS_ACCEL_RANGE_4_G);
+    imuSensor.setAccelRange(LSM6DS_ACCEL_RANGE_2_G);
 
     /**
      * Purpose: Sets the LSM6DS3TR-C IMU's gyroscope measurement range.
@@ -446,17 +488,14 @@ void initializeMotionDevices() {
      *   - Note that imuSensor.begin_I2C() defaults to INT2 disabled.
      */
     imuSensor.configInt2(false, true, false);
+
+    // Set the sample frequency for the Madgwick filter (converting our sensor delay interval from milliseconds to Hz).
+    float f_sample_freq = (1000.0f / i_sensor_read_delay);
+    ahrs_filter.begin(f_sample_freq);
+
+    // Set Mahony gain values to adjust responsiveness and stability of the filter.
+    ahrs_filter.setKp(3.0f); // Proportional gain: higher = faster response (default: 0.5f)
   }
-
-  // Set the sample frequency for the Madgwick filter (converting our sensor delay interval from milliseconds to Hz).
-  float f_sample_freq = (1000.0f / i_sensor_read_delay);
-  ahrs_filter.begin(f_sample_freq);
-
-  // Set Mahony gain values to adjust responsiveness and stability of the filter.
-  ahrs_filter.setKp(3.0f); // Proportional gain: higher = faster response (default: 0.5f)
-
-  // Read the first raw sensor data which should be cleared by the first calibration.
-  readRawSensorData();
 #endif
 }
 
@@ -470,8 +509,8 @@ void resetAllMotionData() {
   resetMotionData(filteredMotionData);
   resetMotionOffsets(motionOffsets);
   resetSpatialData(spatialData);
-  SENSOR_READ_TARGET = CALIBRATION; // Set target to calibration after reset.
-  calibrateMotionOffsets(); // Calibrate IMU offsets with X samples.
+  SENSOR_READ_TARGET = OFFSETS; // Set target to collect offsets after reset.
+  collectMotionOffsets(); // Calibrate IMU offsets with X samples.
 }
 
 /**
@@ -485,22 +524,19 @@ void readRawSensorData() {
 #ifdef MOTION_SENSORS
   if(b_imu_found && b_mag_found) {
     // Poll the sensors.
-    sensors_event_t mag, accel, gyro, temp;
-    magSensor.getEvent(&mag);
-    imuSensor.getEvent(&accel, &gyro, &temp);
+    magnetometer->getEvent(&mag_event);
+    gyroscope->getEvent(&gyro_event);
+    accelerometer->getEvent(&accel_event);
 
     // Hard iron corrections.
-    float mx = mag.magnetic.x - mag_hardiron[0];
-    float my = mag.magnetic.y - mag_hardiron[1];
-    float mz = mag.magnetic.z - mag_hardiron[2];
+    float mx = mag_event.magnetic.x - magCalData.mag_hardiron[0];
+    float my = mag_event.magnetic.y - magCalData.mag_hardiron[1];
+    float mz = mag_event.magnetic.z - magCalData.mag_hardiron[2];
 
     // Soft iron corrections.
-    mag.magnetic.x =
-        mx * mag_softiron[0] + my * mag_softiron[1] + mz * mag_softiron[2];
-    mag.magnetic.y =
-        mx * mag_softiron[3] + my * mag_softiron[4] + mz * mag_softiron[5];
-    mag.magnetic.z =
-        mx * mag_softiron[6] + my * mag_softiron[7] + mz * mag_softiron[8];
+    mag_event.magnetic.x = mx * magCalData.mag_softiron[0] + my * magCalData.mag_softiron[1] + mz * magCalData.mag_softiron[2];
+    mag_event.magnetic.y = mx * magCalData.mag_softiron[3] + my * magCalData.mag_softiron[4] + mz * magCalData.mag_softiron[5];
+    mag_event.magnetic.z = mx * magCalData.mag_softiron[6] + my * magCalData.mag_softiron[7] + mz * magCalData.mag_softiron[8];
 
     switch(INSTALL_ORIENTATION) {
       case COMPONENTS_UP_USB_FRONT:
@@ -512,21 +548,21 @@ void readRawSensorData() {
         // Default Hasbro installation orientation.
         // Update the magnetometer data (swapping the X and Y axes due to component's installation).
         // Note: We must invert Y (L-R) and Z (U-D) values because the device is effectively installed upside down.
-        motionData.magX = mag.magnetic.y;
-        motionData.magY = mag.magnetic.x * -1;
-        motionData.magZ = mag.magnetic.z * -1;
+        motionData.magX = mag_event.magnetic.y;
+        motionData.magY = mag_event.magnetic.x * -1;
+        motionData.magZ = mag_event.magnetic.z * -1;
 
         // Update compass heading value based on the raw magnetometer X and Y only.
         motionData.heading = calculateHeading(motionData.magX, motionData.magY);
 
         // Update the acceleration and gyroscope values (swapping the X and Y axes due to component's installation).
         // Note: We must invert Y (L-R) and Z (U-D) values because the device is effectively installed upside down.
-        motionData.accelX = accel.acceleration.y;
-        motionData.accelY = accel.acceleration.x * -1;
-        motionData.accelZ = accel.acceleration.z * -1;
-        motionData.gyroX = gyro.gyro.y;
-        motionData.gyroY = gyro.gyro.x * -1;
-        motionData.gyroZ = gyro.gyro.z * -1;
+        motionData.accelX = accel_event.acceleration.y;
+        motionData.accelY = accel_event.acceleration.x * -1;
+        motionData.accelZ = accel_event.acceleration.z * -1;
+        motionData.gyroX = gyro_event.gyro.y;
+        motionData.gyroY = gyro_event.gyro.x * -1;
+        motionData.gyroZ = gyro_event.gyro.z * -1;
       break;
       case COMPONENTS_DOWN_USB_REAR:
       break;
@@ -578,7 +614,7 @@ float calculateGForce(const MotionData& data) {
  *   - float: Compass heading in degrees (0-360°) where magnetic North is 0°.
  */
 float calculateHeading(float magX, float magY) {
-  float headingRad = atan2(-magY, -magX); // Get heading in radians from atan2 of Y and X.
+  float headingRad = atan2(magY, magX); // Get heading in radians from atan2 of Y and X.
   float headingDeg = (headingRad / PI*180) + (headingRad > 0 ? 0 : 360); // Convert radians to degrees.
 
   return headingDeg;
@@ -658,19 +694,6 @@ String formatSignedFloat(float value) {
   const char* pad = (whole < 10) ? "  " : (whole < 100) ? " " : "";
   sprintf(buf, "%c%s%.2f", (value >= 0 ? '+' : '-'), pad, abs(value));
   return String(buf);
-}
-
-/**
- * Function: isValidReading
- * Purpose: Checks if a reading is valid (not a spurious zero).
- * Inputs:
- *   - float value: axis value.
- * Outputs:
- *   - bool: True if valid, false if likely a glitch.
- */
-bool isValidReading(float value) {
-  // Accept values not exactly zero or within a small threshold.
-  return fabs(value) > 0.01f;
 }
 
 /**
@@ -805,52 +828,63 @@ void checkMotionSensors() {
  */
 void processMotionData() {
 #ifdef MOTION_SENSORS
-  if(SENSOR_READ_TARGET == CALIBRATION) {
-    calibrateMotionOffsets(); // Calibrate IMU offsets with N samples.
-  }
-  else if(SENSOR_READ_TARGET == TELEMETRY) {
-    // Read the raw sensor data into the motionData struct, nothing more.
-    readRawSensorData();
+  switch(SENSOR_READ_TARGET) {
+    case NOT_INITIALIZED:
+      // Can't do anything until the sensors have been initialized and configured.
+    break;
 
-    // Calculate the magnitude of the filtered acceleration vector (g-force).
-    motionData.gForce = calculateGForce(motionData);
+    case CALIBRATION:
+      reportCalibrationData(); // Send raw data to console (USB) output for external capture.
+    break;
 
-    // Apply offsets to IMU readings (values should be 0 if not calculated).
-    motionData.accelX -= motionOffsets.accelX;
-    motionData.accelY -= motionOffsets.accelY;
-    motionData.accelZ -= motionOffsets.accelZ;
-    motionData.gyroX -= motionOffsets.gyroX;
-    motionData.gyroY -= motionOffsets.gyroY;
-    motionData.gyroZ -= motionOffsets.gyroZ;
+    case OFFSETS:
+      collectMotionOffsets(); // Collect sensor data and calibrate IMU offsets with N samples.
+    break;
 
-    // Update the orientation via sensor fusion.
-    updateOrientation();
+    case TELEMETRY:
+    default:
+      readRawSensorData(); // Read the raw sensor data and place the latest values in the motionData object.
 
-    // Apply exponential moving average (EMA) smoothing filter to sensor data.
-    updateFilteredMotionData();
+      // Calculate the magnitude of the filtered acceleration vector (g-force).
+      motionData.gForce = calculateGForce(motionData);
 
-    // Update heading value based on the moving average magnetometer X and Y only.
-    filteredMotionData.heading = calculateHeading(filteredMotionData.magX, filteredMotionData.magY);
+      // Apply offsets to IMU readings (values should be 0 if not calculated).
+      motionData.accelX -= motionOffsets.accelX;
+      motionData.accelY -= motionOffsets.accelY;
+      motionData.accelZ -= motionOffsets.accelZ;
+      motionData.gyroX -= motionOffsets.gyroX;
+      motionData.gyroY -= motionOffsets.gyroY;
+      motionData.gyroZ -= motionOffsets.gyroZ;
 
-    // Calculate the magnitude of the filtered acceleration vector (g-force).
-    filteredMotionData.gForce = calculateGForce(filteredMotionData);
+      // Update the orientation via sensor fusion.
+      updateOrientation();
+
+      // Apply exponential moving average (EMA) smoothing filter to sensor data.
+      updateFilteredMotionData();
+
+      // Update heading value based on the moving average magnetometer X and Y only.
+      filteredMotionData.heading = calculateHeading(filteredMotionData.magX, filteredMotionData.magY);
+
+      // Calculate the magnitude of the filtered acceleration vector (g-force).
+      filteredMotionData.gForce = calculateGForce(filteredMotionData);
+    break;
   }
 #endif
 }
 
 /**
- * Function: calibrateMotionOffsets
+ * Function: collectMotionOffsets
  * Purpose: Samples the IMU while stationary to determine and set baseline offsets for accelerometer and gyroscope.
  * Inputs: None (uses global motionOffsets and samples count).
  * Outputs: None (updates global motionOffsets struct)
  */
-void calibrateMotionOffsets() {
+void collectMotionOffsets() {
 #if defined(MOTION_SENSORS) && defined(MOTION_OFFSETS)
   if(motionOffsets.samples < i_sensor_samples) {
     motionOffsets.samples++; // Increment the sample count.
     debugln("Calibrating motion offsets... Sample " + String(motionOffsets.samples) + " of " + String(i_sensor_samples));
 
-    readRawSensorData(); // Read the raw sensor data.
+    readRawSensorData(); // Read the raw sensor data and place the latest values in the motionData object.
 
     // Keep a running sum of the accelerometer and gyroscope values per axis.
     motionOffsets.sumAccelX += motionData.accelX; // Accumulate accelerometer X values.
@@ -869,8 +903,46 @@ void calibrateMotionOffsets() {
     motionOffsets.gyroZ = motionOffsets.sumGyroZ / motionOffsets.samples;
   }
   else {
-    debugln(F("Calibration completed, switching to telemetry mode."));
+    debugln(F("Calibration completed, switching to standard telemetry collection mode."));
     SENSOR_READ_TARGET = TELEMETRY; // Set target to telemetry after calibration.
   }
+#endif
+}
+
+/**
+ * Function: reportCalibrationData
+ * Purpose: Reports the current calibration data direct from the motion sensors.
+ * This data contains no offsets or axis modifications, it is only the raw data.
+ * See: https://www.pjrc.com/store/prop_shield.html for MotionCal downloads.
+ */
+void reportCalibrationData() {
+#ifdef MOTION_SENSORS
+  magnetometer->getEvent(&mag_event);
+  gyroscope->getEvent(&gyro_event);
+  accelerometer->getEvent(&accel_event);
+
+  // 'Raw' values to match expectation of MotionCal
+  Serial.print("Raw:");
+  Serial.print(int(accel_event.acceleration.x*8192/9.8)); Serial.print(",");
+  Serial.print(int(accel_event.acceleration.y*8192/9.8)); Serial.print(",");
+  Serial.print(int(accel_event.acceleration.z*8192/9.8)); Serial.print(",");
+  Serial.print(int(gyro_event.gyro.x*SENSORS_RADS_TO_DPS*16)); Serial.print(",");
+  Serial.print(int(gyro_event.gyro.y*SENSORS_RADS_TO_DPS*16)); Serial.print(",");
+  Serial.print(int(gyro_event.gyro.z*SENSORS_RADS_TO_DPS*16)); Serial.print(",");
+  Serial.print(int(mag_event.magnetic.x*10)); Serial.print(",");
+  Serial.print(int(mag_event.magnetic.y*10)); Serial.print(",");
+  Serial.print(int(mag_event.magnetic.z*10)); Serial.println("");
+
+  // 'Uni' values to match expectation of MotionCal
+  Serial.print("Uni:");
+  Serial.print(accel_event.acceleration.x); Serial.print(",");
+  Serial.print(accel_event.acceleration.y); Serial.print(",");
+  Serial.print(accel_event.acceleration.z); Serial.print(",");
+  Serial.print(gyro_event.gyro.x, 4); Serial.print(",");
+  Serial.print(gyro_event.gyro.y, 4); Serial.print(",");
+  Serial.print(gyro_event.gyro.z, 4); Serial.print(",");
+  Serial.print(mag_event.magnetic.x); Serial.print(",");
+  Serial.print(mag_event.magnetic.y); Serial.print(",");
+  Serial.print(mag_event.magnetic.z); Serial.println("");
 #endif
 }

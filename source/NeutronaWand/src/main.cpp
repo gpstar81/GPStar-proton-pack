@@ -196,11 +196,24 @@ void setup() {
 
 #ifdef ESP32
   // ESP32-S3 requires manually specifying SDA and SCL pins first.
+  // This is the i2c bus to be used solely for the bargraph.
   Wire.begin(I2C_SDA, I2C_SCL, 400000UL);
 
-  // Initialize the secondary I2C bus for the Magnetometer and IMU.
-  initializeMotionDevices();
-  delay(40); // Wait for the devices to start.
+  // Attempt to start the sensors or die trying.
+  Wire1.begin(IMU_SDA, IMU_SCL, 400000UL);
+  if (!initializeSensors()) {
+    Serial.println("Failed to find sensors");
+    while (1) delay(10);
+  }
+
+  // Print information about the sensors.
+  accelerometer->printSensorDetails();
+  gyroscope->printSensorDetails();
+  magnetometer->printSensorDetails();
+
+  configureSensors(); // Set sensor ranges and defaults.
+  delay(40); // Pause briefly for the devices to start.
+  readRawSensorData(); // Perform an initial sensor read.
   resetAllMotionData(); // Reset and calibrate.
 #else
   Wire.begin();
@@ -642,7 +655,7 @@ void loop() {
   // Run checks on web-related tasks.
   webLoops();
 
-  // Check the motion sensors if they are available.
+  // Check the motion sensors if they are available and the timer has completed.
   checkMotionSensors();
 #endif
 }
