@@ -7080,33 +7080,33 @@ void fireStreamStart(CRGB c_colour) {
 // Use the last-played firing effect to choose another effect at random.
 // Used by the ESP32 when sensing motion, otherwise played at random times.
 uint8_t getRandomFiringEffect() {
-    uint8_t i_random = 0;
+  uint8_t i_random = 0;
 
-    switch(i_last_firing_effect_mix) {
-      case S_FIRE_SPARKS:
-        i_random = random(0,2);
-      break;
+  switch(i_last_firing_effect_mix) {
+    case S_FIRE_SPARKS:
+      i_random = random(0,2);
+    break;
 
-      case S_FIRE_SPARKS_3:
-      case S_FIRE_SPARKS_4:
-        i_random = 3;
-      break;
+    case S_FIRE_SPARKS_3:
+    case S_FIRE_SPARKS_4:
+      i_random = 3;
+    break;
 
-      case S_FIRE_SPARKS_5:
-        i_random = 2;
-      break;
+    case S_FIRE_SPARKS_5:
+      i_random = 2;
+    break;
 
-      case S_FIRE_SPARKS_2:
-        i_random = 1;
-      break;
+    case S_FIRE_SPARKS_2:
+      i_random = 1;
+    break;
 
-      default:
-        // If no firing effect has played yet.
-        i_random = 3;
-      break;
-    }
+    default:
+      // If no firing effect has played yet.
+      i_random = 3;
+    break;
+  }
 
-    return i_random;
+  return i_random;
 }
 
 void mixExtraFiringEffects() {
