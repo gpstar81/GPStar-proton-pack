@@ -4250,6 +4250,8 @@ void modeFireStartSounds() {
 }
 
 void mixExtraFiringEffects() {
+// Disabled on ESP32 since the GPStar Wand II controls impact sounds with the IMU via serial.
+#ifndef ESP32
   // Mix in additional effects for the proton stream to enhance the experience.
   if(ms_firing_sound_mix.justFinished() && STREAM_MODE == PROTON && STATUS_CTS == CTS_NOT_FIRING && b_stream_effects) {
     uint8_t i_random = 0;
@@ -4319,6 +4321,7 @@ void mixExtraFiringEffects() {
       break;
     }
   }
+#endif
 }
 
 void wandFiring() {
