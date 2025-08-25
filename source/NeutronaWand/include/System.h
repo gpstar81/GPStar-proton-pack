@@ -7077,14 +7077,9 @@ void fireStreamStart(CRGB c_colour) {
   }
 }
 
-void mixExtraFiringEffects() {
-#ifdef ESP32
-  // Threshold for sudden movement and can be tuned as needed, measured in G-force (m/s^2 / gravity).
-  const float IMPACT_THRESHOLD = 1.5f;
-
-  // Mix some impact sound based on user motions while firing.
-  if (STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects && filteredMotionData.gForce > IMPACT_THRESHOLD) {
-    // Only play impact sound if firing, in Proton mode, and threshold exceeded.
+// Use the last-played firing effect to choose another effect at random.
+// Used by the ESP32 when sensing motion, otherwise played at random times.
+uint8_t getRandomFiringEffect() {
     uint8_t i_random = 0;
 
     switch(i_last_firing_effect_mix) {
@@ -7111,7 +7106,19 @@ void mixExtraFiringEffects() {
       break;
     }
 
-    switch(i_random) {
+    return i_random;
+}
+
+void mixExtraFiringEffects() {
+#ifdef ESP32
+  // Threshold for sudden movement and can be tuned as needed, measured in G-force (m/s^2 / gravity).
+  const float IMPACT_THRESHOLD = 1.5f;
+
+  // Mix some impact sound based on user motions while firing.
+  if (STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects && filteredMotionData.gForce > IMPACT_THRESHOLD) {
+    // Only play impact sound if firing, in Proton mode, and threshold exceeded.
+    uint8_t i_random_effect = getRandomFiringEffect(); // Use last-played effect to choose another.
+    switch(i_random_effect) {
       case 3:
         playEffect(S_FIRE_SPARKS, false, i_volume_effects, false, 0, false);
         i_last_firing_effect_mix = S_FIRE_SPARKS;
@@ -7135,7 +7142,7 @@ void mixExtraFiringEffects() {
       break;
     }
 
-    wandSerialSend(W_IMPACT_SOUND, i_random); // Trigger an impact sound to play on the pack.
+    wandSerialSend(W_IMPACT_SOUND, i_random_effect); // Trigger an impact sound to play on the pack (matched to the random value chosen here).
     debugln(String("Impact sound played. Motion Threshold: ") + IMPACT_THRESHOLD + "g; Detected Magnitude: " + filteredMotionData.gForce + "g");
   }
 #endif
@@ -7147,35 +7154,10 @@ void mixExtraFiringEffects() {
 
   // Standalone Neutrona Wand gets additional effects which would normally be played by Proton Pack.
   if(ms_firing_sound_mix.justFinished() && STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects && b_gpstar_benchtest) {
-    uint8_t i_random = 0;
-
-    switch(i_last_firing_effect_mix) {
-      case S_FIRE_SPARKS:
-        i_random = random(0,2);
-      break;
-
-      case S_FIRE_SPARKS_3:
-      case S_FIRE_SPARKS_4:
-        i_random = 3;
-      break;
-
-      case S_FIRE_SPARKS_5:
-        i_random = 2;
-      break;
-
-      case S_FIRE_SPARKS_2:
-        i_random = 1;
-      break;
-
-      default:
-        // If no firing effect has played yet.
-        i_random = 3;
-      break;
-    }
-
+    uint8_t i_random_effect = getRandomFiringEffect(); // Use last-played effect to choose another.
     uint16_t i_s_random = random(2,4) * 1000; // Affects mix timer, not effect chosen.
 
-    switch(i_random) {
+    switch(i_random_effect) {
       case 3:
         playEffect(S_FIRE_SPARKS, false, i_volume_effects, false, 0, false);
         i_last_firing_effect_mix = S_FIRE_SPARKS;
