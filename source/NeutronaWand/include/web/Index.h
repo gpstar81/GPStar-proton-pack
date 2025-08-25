@@ -38,13 +38,13 @@ const char INDEX_page[] PROGMEM = R"=====(
   <div class="tabs dark">
     <button class="tablinks" onclick="openTab(event, 'tab1')">&#9883;</button>
     <button class="tablinks" onclick="openTab(event, 'tab2')">&#9836;</button>
-    <button class="tablinks" onclick="openTab(event, 'tab3')">&#9881;</button>
+    <button class="tablinks" onclick="openTab(event, 'tab3')">&#9737;</button>
+    <button class="tablinks" onclick="openTab(event, 'tab4')">&#9881;</button>
   </div>
 
   <div id="tab1" class="tab">
     <div id="equipCRT" class="equipment">
       <div class="telemetry">
-        <p><span class="infoLabel">Heading:</span> <span class="infoState" id="heading">&mdash;</span></p>
         <p><span class="infoLabel">&nbsp;&nbsp;&nbsp;&nbsp;Rot. X:</span> <span class="infoState" id="gyroX">&mdash;</span></p>
         <p><span class="infoLabel">&nbsp;&nbsp;&nbsp;&nbsp;Rot. Y:</span> <span class="infoState" id="gyroY">&mdash;</span></p>
         <p><span class="infoLabel">&nbsp;&nbsp;&nbsp;&nbsp;Rot. Z:</span> <span class="infoState" id="gyroZ">&mdash;</span></p>
@@ -59,9 +59,10 @@ const char INDEX_page[] PROGMEM = R"=====(
         <div id="3Dobj"></div>
       </div>
     </div>
-
-    <button type="button" class="orange" onclick="resetPosition()">Re-center</button>
-    <button type="button" class="red" onclick="triggerInfrared()">Infrared</button>
+    <button type="button" id="btnRecenter" class="blue" onclick="resetPosition()">Re-center</button>
+    &nbsp;&nbsp;&nbsp;
+    <button type="button" id="btnInfrared" class="orange" onclick="triggerInfrared()">Infrared</button>
+    <br/>
   </div>
 
   <div id="tab2" class="tab">
@@ -108,7 +109,28 @@ const char INDEX_page[] PROGMEM = R"=====(
 
   <div id="tab3" class="tab">
     <div class="card" style="text-align:center;">
-      <a href="/settings/device">Special Settings</a>
+      <div class="block left">
+        <p>
+          Magnetic calibration is critical to obtaining a correct reading from sensors and should be performed in a controlled environment.
+          To begin sending calibration data through the USB connector to your computer, first ensure that the device is properly connected
+          and the MotionCal software is running and able to see the port for the Neutrona Wand controller.
+          Once connected and running, press the "Enable Calibration" button to begin sending data to the MotionCal software.
+          Rotate your Neutrona Wand in all directions to collect calibration data, represented as dots on a sphere.
+          The more dots collected and the more round the sphere, the better the calibration data.
+          Once collected, enter the calibration data via the <a href="/settings/device">Special Device Settings</a> page.
+          Press the "Disable Calibration" button to stop sending data and return to standard telemetry data view.
+        </p>
+      </div>
+      <button type="button" id="btnCalibrateOn" class="green" onclick="enableCalibration()">Enable Calibration</button>
+      &nbsp;&nbsp;&nbsp;
+      <button type="button" id="btnCalibrateOff" class="red" onclick="disableCalibration()">Disable Calibration</button>
+      <br/>
+    </div>
+  </div>
+
+  <div id="tab4" class="tab">
+    <div class="card" style="text-align:center;">
+      <a href="/settings/device">Special Device Settings</a>
       <br/>
       <br/>
       <a href="/settings/wand">Neutrona Wand Settings</a>

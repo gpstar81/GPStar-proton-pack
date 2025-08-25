@@ -130,7 +130,7 @@ const float FILTER_ALPHA = 0.4f;
  * is fully assembled and in its final orientation with any speakers and their magnets nearby.
  * Default values come from a typical calibration session where the PCB is not yet installed.
  * See: https://www.pjrc.com/store/prop_shield.html for MotionCal usage.
- */ 
+ */
 struct CalibrationData {
   float mag_hardiron[3] = {-32.05, 21.13, -3.21};
   float mag_softiron[9] = {1.011, 0.051, -0.012, 0.051, 0.988, -0.005, -0.012, -0.005, 1.004};
@@ -142,20 +142,17 @@ CalibrationData magCalData;
 
 /**
  * Struct: MotionData
- * Purpose: Holds all motion sensor readings for magnetometer, accelerometer, gyroscope, and calculated heading.
+ * Purpose: Holds all motion sensor readings from the magnetometer, accelerometer, and gyroscope.
  * Attributes:
  *   - magX, magY, magZ: Magnetometer readings (uTesla)
  *   - accelX, accelY, accelZ: Accelerometer readings (m/s^2)
  *   - gyroX, gyroY, gyroZ: Gyroscope readings (deg/s)
- *   - heading: Compass heading in degrees (0-360°), derived from magX and magY
  */
 struct MotionData {
   // Magnetometer readings (uTesla)
   float magX = 0.0f;
   float magY = 0.0f;
   float magZ = 0.0f;
-  // Calculated heading (degrees)
-  float heading = 0.0f;
   // Accelerometer readings (m/s^2)
   float accelX = 0.0f;
   float accelY = 0.0f;
@@ -201,7 +198,7 @@ MotionOffsets motionOffsets;
 
 /**
  * Struct: SpatialData
- * Purpose: Holds fused sensor readings for magnetometer, accelerometer, gyroscope, and calculated heading.
+ * Purpose: Holds fused sensor readings from the magnetometer, accelerometer, and gyroscope.
  * Attributes:
  *   - roll, pitch, yaw: Euler angles in degrees representing the orientation of the device.
  *   - quaternion: Quaternion representation for orientation (w, x, y, z).
@@ -217,13 +214,12 @@ struct SpatialData {
 SpatialData spatialData;
 
 // Forward function declarations.
-float calculateHeading(float magX, float magY);
 float calculateGForce(const MotionData& data);
 void collectMotionOffsets();
 void processMotionData();
 void readRawSensorData();
 void reportCalibrationData();
-void resetAllMotionData();
+void resetAllMotionData(bool b_calibrate);
 void sendTelemetryData(); // From Webhandler.h
 
 /**
@@ -237,7 +233,6 @@ void resetMotionData(MotionData &data) {
   data.magX = 0.0f;
   data.magY = 0.0f;
   data.magZ = 0.0f;
-  data.heading = 0.0f;
   data.accelX = 0.0f;
   data.accelY = 0.0f;
   data.accelZ = 0.0f;
@@ -503,14 +498,17 @@ void configureSensors() {
  * Function: resetAllMotionData
  * Purpose: Resets both global motionData and filteredMotionData objects to zero.
  */
-void resetAllMotionData() {
+void resetAllMotionData(bool b_calibrate = false) {
   debugln(F("Resetting all motion data."));
   resetMotionData(motionData);
   resetMotionData(filteredMotionData);
   resetMotionOffsets(motionOffsets);
   resetSpatialData(spatialData);
-  SENSOR_READ_TARGET = OFFSETS; // Set target to collect offsets after reset.
-  collectMotionOffsets(); // Calibrate IMU offsets with X samples.
+
+  if(b_calibrate) {
+    SENSOR_READ_TARGET = OFFSETS; // Set target to collect offsets after reset.
+    collectMotionOffsets(); // Calibrate IMU offsets with X samples.
+  }
 }
 
 /**
@@ -551,9 +549,6 @@ void readRawSensorData() {
         motionData.magX = mag_event.magnetic.y;
         motionData.magY = mag_event.magnetic.x * -1;
         motionData.magZ = mag_event.magnetic.z * -1;
-
-        // Update compass heading value based on the raw magnetometer X and Y only.
-        motionData.heading = calculateHeading(motionData.magX, motionData.magY);
 
         // Update the acceleration and gyroscope values (swapping the X and Y axes due to component's installation).
         // Note: We must invert Y (L-R) and Z (U-D) values because the device is effectively installed upside down.
@@ -602,22 +597,6 @@ float calculateGForce(const MotionData& data) {
     data.accelY * data.accelY +
     data.accelZ * data.accelZ
   ) / 9.80665f; // 1g = 9.80665 m/s^2
-}
-
-/**
- * Function: calculateHeading
- * Purpose: Computes the compass heading (in degrees) from magnetometer X and Y values.
- * Inputs:
- *   - float magX: Magnetometer X-axis reading
- *   - float magY: Magnetometer Y-axis reading
- * Outputs:
- *   - float: Compass heading in degrees (0-360°) where magnetic North is 0°.
- */
-float calculateHeading(float magX, float magY) {
-  float headingRad = atan2(magY, magX); // Get heading in radians from atan2 of Y and X.
-  float headingDeg = (headingRad / PI*180) + (headingRad > 0 ? 0 : 360); // Convert radians to degrees.
-
-  return headingDeg;
 }
 
 /**
@@ -671,7 +650,7 @@ void updateOrientation() {
   spatialData.quaternion[2] = qy;
   spatialData.quaternion[3] = qz;
 
-  // Mirror along Z-axis to match the heading.
+  // Mirror along Z-axis to get the correct direction.
   spatialData.yaw = 360.0f - spatialData.yaw;
   if(spatialData.yaw >= 360.0f) {
     spatialData.yaw -= 360.0f;
@@ -795,14 +774,6 @@ void checkMotionSensors() {
       debugln(" uTesla ");
       debugln();
 
-      debug("\t\tRaw Heading: ");
-      debug(motionData.heading);
-      debugln(" deg ");
-      debug("\t\tAvg Heading: ");
-      debug(filteredMotionData.heading);
-      debugln(" deg ");
-      debugln();
-
       debug("\t\tRoll (x): ");
       debug(formatSignedFloat(spatialData.roll));
       debug("\tPitch (Y): ");
@@ -861,9 +832,6 @@ void processMotionData() {
 
       // Apply exponential moving average (EMA) smoothing filter to sensor data.
       updateFilteredMotionData();
-
-      // Update heading value based on the moving average magnetometer X and Y only.
-      filteredMotionData.heading = calculateHeading(filteredMotionData.magX, filteredMotionData.magY);
 
       // Calculate the magnitude of the filtered acceleration vector (g-force).
       filteredMotionData.gForce = calculateGForce(filteredMotionData);

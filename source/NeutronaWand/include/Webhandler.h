@@ -175,6 +175,23 @@ String getPower() {
   }
 }
 
+String getSensorState() {
+  switch(SENSOR_READ_TARGET) {
+    case CALIBRATION:
+      return "Calibration";
+    break;
+    case OFFSETS:
+      return "Offsets";
+    break;
+    case TELEMETRY:
+      return "Telemetry";
+    break;
+    default:
+      return "Unknown";
+    break;
+  }
+}
+
 /*
  * Web Handler Functions - Performs actions or returns data for web UI
  */
@@ -503,6 +520,7 @@ String getEquipmentStatus() {
   jsonBody["volMaster"] = i_volume_master_percentage;
   jsonBody["volEffects"] = i_volume_effects_percentage;
   jsonBody["volMusic"] = i_volume_music_percentage;
+  jsonBody["sensors"] = getSensorState();
   jsonBody["apClients"] = i_ap_client_count;
   jsonBody["wsClients"] = i_ws_client_count;
 
@@ -561,13 +579,11 @@ String getTelemetry() {
   String telemetryData;
   jsonTelemetry.clear();
 
-  // Magnetometer in microteslas (uT) converted to a heading in degrees.
-  jsonTelemetry["heading"] = roundFloat(filteredMotionData.heading);
-  // Acceleration in meters/second^2 (m/s^2)
+  // Acceleration in meters/second^2 (m/s^2).
   jsonTelemetry["accelX"] = roundFloat(filteredMotionData.accelX);
   jsonTelemetry["accelY"] = roundFloat(filteredMotionData.accelY);
   jsonTelemetry["accelZ"] = roundFloat(filteredMotionData.accelZ);
-  // Gyroscope in radians/second (rads/s)
+  // Gyroscope in degrees/second (deg/s).
   jsonTelemetry["gyroX"] = roundFloat(filteredMotionData.gyroX);
   jsonTelemetry["gyroY"] = roundFloat(filteredMotionData.gyroY);
   jsonTelemetry["gyroZ"] = roundFloat(filteredMotionData.gyroZ);
@@ -575,6 +591,7 @@ String getTelemetry() {
   jsonTelemetry["pitch"] = roundFloat(spatialData.pitch);
   jsonTelemetry["yaw"] = roundFloat(spatialData.yaw);
   jsonTelemetry["roll"] = roundFloat(spatialData.roll);
+  // Spatial data in quaternion (w, x, y, z).
   jsonTelemetry["qw"] = roundFloat(spatialData.quaternion[0]);
   jsonTelemetry["qx"] = roundFloat(spatialData.quaternion[1]);
   jsonTelemetry["qy"] = roundFloat(spatialData.quaternion[2]);
@@ -608,12 +625,13 @@ void handleGetWifi(AsyncWebServerRequest *request) {
 void handleResetSensors(AsyncWebServerRequest *request) {
   // Re-center by resetting all current telemetry data for motion sensors.
   // This allows all motion data to be zeroed out and begin a new average.
-  resetAllMotionData();
+  resetAllMotionData(true);
   request->send(200, "application/json", status);
 }
 
 void handleCalibrateSensorsEnabled(AsyncWebServerRequest *request) {
   // Turn on calibration mode for the motion sensors.
+  resetAllMotionData(false); // Clear but don't re-calibrate.
   SENSOR_READ_TARGET = CALIBRATION;
   request->send(200, "application/json", status);
 }
@@ -621,7 +639,7 @@ void handleCalibrateSensorsEnabled(AsyncWebServerRequest *request) {
 void handleCalibrateSensorsDisabled(AsyncWebServerRequest *request) {
   // Turn off calibration mode for the motion sensors.
   SENSOR_READ_TARGET = OFFSETS;
-  resetAllMotionData();
+  resetAllMotionData(true); // Reset and re-calibrate
   request->send(200, "application/json", status);
 }
 

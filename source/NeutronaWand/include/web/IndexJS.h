@@ -32,6 +32,7 @@ function onLoad(event) {
   document.getElementsByClassName("tablinks")[0].click();
   getDevicePrefs(); // Get all preferences.
   initWebSocket(); // Open the WebSocket.
+  disableSensorButtons();
   getStatus(updateEquipment); // Get status immediately.
   init3D(); // Initialize 3D representation.
 }
@@ -148,9 +149,45 @@ function updateTrackListing() {
   }
 }
 
+function disableSensorButtons() {
+  // Used to just disable all the sensor-related buttons initially
+  getEl("btnRecenter").disabled = true;
+  getEl("btnCalibrateOn").disabled = true;
+  getEl("btnCalibrateOff").disabled = true;
+}
+
+function setButtonStates(sensorState) {
+  // Use the sensor state to determine button states.
+  switch(sensorState) {
+    case "Calibration":
+      // While in calibration mode only the "off" button is enabled.
+      getEl("btnRecenter").disabled = true;
+      getEl("btnCalibrateOn").disabled = true;
+      getEl("btnCalibrateOff").disabled = false;
+      break;
+    case "Offsets":
+      // While in offset calculation mode no buttons are enabled.
+      getEl("btnRecenter").disabled = true;
+      getEl("btnCalibrateOn").disabled = true;
+      getEl("btnCalibrateOff").disabled = true;
+      break;
+    case "Telemetry":
+      // While in telemetry mode only re-center and calibration enable buttons are enabled.
+      getEl("btnRecenter").disabled = false;
+      getEl("btnCalibrateOn").disabled = false;
+      getEl("btnCalibrateOff").disabled = true;
+      break;
+    default:
+      disableSensorButtons();
+      break;
+  }
+}
+
 function updateEquipment(jObj) {
   // Update display if we have the expected data (containing mode and theme at a minimum).
   if (jObj && jObj.mode && jObj.theme) {
+  // Update button states based on sensor information.
+  setButtonStates(jObj.sensors || "");
 
     // Volume Information
     setHtml("masterVolume", (jObj.volMaster || 0) + "%");
@@ -311,13 +348,12 @@ if (!!window.EventSource) {
     var yawRads = (obj.yaw || 0) * Math.PI / 180;
 
     // Update the HTML elements with the telemetry data
-    setHtml("heading", parseFloat(obj.heading || 0).toFixed(2) + "&deg;");
-    setHtml("gyroX",   parseFloat(obj.gyroX || 0).toFixed(2) + " rads/s");
-    setHtml("gyroY",   parseFloat(obj.gyroY || 0).toFixed(2) + " rads/s");
-    setHtml("gyroZ",   parseFloat(obj.gyroZ || 0).toFixed(2) + " rads/s");
-    setHtml("accelX",  parseFloat(obj.accelX || 0).toFixed(2) + " m/s<sup>2</sup>");
-    setHtml("accelY",  parseFloat(obj.accelY || 0).toFixed(2) + " m/s<sup>2</sup>");
-    setHtml("accelZ",  parseFloat(obj.accelZ || 0).toFixed(2) + " m/s<sup>2</sup>");
+    setHtml("gyroX",   parseFloat(obj.gyroX || 0).toFixed(2) + "&deg;/s");
+    setHtml("gyroY",   parseFloat(obj.gyroY || 0).toFixed(2) + "&deg;/s");
+    setHtml("gyroZ",   parseFloat(obj.gyroZ || 0).toFixed(2) + "&deg;/s");
+    setHtml("accelX",  parseFloat(obj.accelX || 0).toFixed(2) + "m/s<sup>2</sup>");
+    setHtml("accelY",  parseFloat(obj.accelY || 0).toFixed(2) + "m/s<sup>2</sup>");
+    setHtml("accelZ",  parseFloat(obj.accelZ || 0).toFixed(2) + "m/s<sup>2</sup>");
     setHtml("roll",    parseFloat(obj.roll || 0).toFixed(2) + "&deg;");
     setHtml("pitch",   parseFloat(obj.pitch || 0).toFixed(2) + "&deg;");
     setHtml("yaw",     parseFloat(obj.yaw || 0).toFixed(2) + "&deg;");
@@ -353,5 +389,17 @@ function resetPosition() {
 
 function triggerInfrared() {
   sendCommand("/infrared/signal?type=ghostintrap");
+}
+
+function enableCalibration() {
+  if(confirm("Are you sure you want to begin sending calibration output?")) {
+    sendCommand("/sensors/calibrate/enable");
+  }
+}
+
+function disableCalibration() {
+  if(confirm("Are you sure you are done collecting calibration data?")) {
+    sendCommand("/sensors/calibrate/disable");
+  }
 }
 )=====";

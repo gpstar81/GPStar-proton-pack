@@ -254,8 +254,8 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         if (this.readyState == 4 && this.status == 200) {
           var settings = JSON.parse(this.responseText);
           if (settings) {
-            if (!settings.wandConnected || !settings.prefsAvailable) {
-              alert("Preferences could not be downloaded. Please confirm a GPStar Neutrona Wand is connected, then refresh the page to try again.");
+            if (!settings.prefsAvailable) {
+              alert("Preferences could not be downloaded. Please refresh the page to try again.");
               return;
             }
 

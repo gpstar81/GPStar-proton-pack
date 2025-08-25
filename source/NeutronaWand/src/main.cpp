@@ -214,7 +214,7 @@ void setup() {
   configureSensors(); // Set sensor ranges and defaults.
   delay(40); // Pause briefly for the devices to start.
   readRawSensorData(); // Perform an initial sensor read.
-  resetAllMotionData(); // Reset and calibrate.
+  resetAllMotionData(true); // Reset and calibrate.
 #else
   Wire.begin();
   Wire.setClock(400000UL); // Sets the i2c bus to 400kHz

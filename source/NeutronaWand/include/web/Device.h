@@ -52,6 +52,30 @@ const char DEVICE_page[] PROGMEM = R"=====(
        title="Only letters, numbers, hyphens, and underscores are allowed, up to 32 characters."/>
     </div>
     <div class="setting">
+      <b>MotionCal - Magnetic Offsets:</b><br/>
+      <input type="text" id="hardIron1" width="8" maxlength="8" placeholder="X Axis"/><br/>
+      <input type="text" id="hardIron2" width="8" maxlength="8" placeholder="Y Axis"/><br/>
+      <input type="text" id="hardIron3" width="8" maxlength="8" placeholder="Z Axis"/><br/>
+    </div>
+    <div class="setting">
+      <b>MotionCal - Magnetic Mapping:</b><br/>
+      <input type="text" id="softIron1" width="8" maxlength="8" placeholder="Value 1"/>
+      <input type="text" id="softIron2" width="8" maxlength="8" placeholder="Value 2"/>
+      <input type="text" id="softIron3" width="8" maxlength="8" placeholder="Value 3"/>
+      <br/>
+      <input type="text" id="softIron4" width="8" maxlength="8" placeholder="Value 4"/>
+      <input type="text" id="softIron5" width="8" maxlength="8" placeholder="Value 5"/>
+      <input type="text" id="softIron6" width="8" maxlength="8" placeholder="Value 6"/>
+      <br/>
+      <input type="text" id="softIron7" width="8" maxlength="8" placeholder="Value 7"/>
+      <input type="text" id="softIron8" width="8" maxlength="8" placeholder="Value 8"/>
+      <input type="text" id="softIron9" width="8" maxlength="8" placeholder="Value 9"/>
+    </div>
+    <div class="setting">
+      <b>MotionCal - Magnetic Field:</b><br/>
+      <input type="text" id="magField" width="8" maxlength="8" placeholder="0"/>
+    </div>
+    <div class="setting">
       <b>Song List:</b> <span id="byteCount"></span><br/>
       <textarea id="songList" name="songList" rows="40" cols="38"
        style="text-align:left;" oninput="updateByteCount()"
@@ -93,6 +117,19 @@ const char DEVICE_page[] PROGMEM = R"=====(
           if (settings) {
             // Update fields with the current values, or supply an expected default as necessary.
             setValue("wifiName", settings.wifiName || "");
+            setValue("hardIron1", settings.hardIron1 ?? 0);
+            setValue("hardIron2", settings.hardIron2 ?? 0);
+            setValue("hardIron3", settings.hardIron3 ?? 0);
+            setValue("softIron1", settings.softIron1 ?? 0);
+            setValue("softIron2", settings.softIron2 ?? 0);
+            setValue("softIron3", settings.softIron3 ?? 0);
+            setValue("softIron4", settings.softIron4 ?? 0);
+            setValue("softIron5", settings.softIron5 ?? 0);
+            setValue("softIron6", settings.softIron6 ?? 0);
+            setValue("softIron7", settings.softIron7 ?? 0);
+            setValue("softIron8", settings.softIron8 ?? 0);
+            setValue("softIron9", settings.softIron9 ?? 0);
+            setValue("magField", settings.magField ?? 0);
             setValue("songList", settings.songList || "");
             updateByteCount();
           }
@@ -130,6 +167,19 @@ const char DEVICE_page[] PROGMEM = R"=====(
       // Saves current settings to attenuator, updating runtime variables and making changes immediately effective.
       var settings = {
         wifiName: wifiName,
+        hardIron1: getFloat("hardIron1"),
+        hardIron2: getFloat("hardIron2"),
+        hardIron3: getFloat("hardIron3"),
+        softIron1: getFloat("softIron1"),
+        softIron2: getFloat("softIron2"),
+        softIron3: getFloat("softIron3"),
+        softIron4: getFloat("softIron4"),
+        softIron5: getFloat("softIron5"),
+        softIron6: getFloat("softIron6"),
+        softIron7: getFloat("softIron7"),
+        softIron8: getFloat("softIron8"),
+        softIron9: getFloat("softIron9"),
+        magField: getFloat("magField"),
         songList: getText("songList")
       };
       var body = JSON.stringify(settings);

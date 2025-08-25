@@ -47,7 +47,8 @@
     "editor.tabSize": 2,
     "files.associations": {
       "string": "cpp",
-      "cstdint": "cpp"
+      "cstdint": "cpp",
+      "cmath": "cpp"
     },
     "workbench.editor.enablePreview": false
   }

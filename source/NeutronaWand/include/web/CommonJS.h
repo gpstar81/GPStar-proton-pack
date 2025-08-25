@@ -29,6 +29,10 @@ function getInt(id){
   return parseInt(getValue(id) || 0, 10);
 }
 
+function getFloat(id){
+  return parseFloat(getValue(id) || 0);
+}
+
 function getText(id){
   return (getValue(id) || "").trim();
 }
