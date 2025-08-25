@@ -4515,6 +4515,32 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
     break;
 
+    case W_IMPACT_SOUND:
+      // Play a random impact sound effect.
+      switch(random(0,4)) {
+        case 0:
+        default:
+          playEffect(S_FIRE_SPARKS);
+        break;
+
+        case 1:
+          playEffect(S_FIRE_SPARKS_2);
+        break;
+
+        case 2:
+          playEffect(S_FIRE_SPARKS_3);
+        break;
+
+        case 3:
+          playEffect(S_FIRE_SPARKS_4);
+        break;
+
+        case 4:
+          playEffect(S_FIRE_SPARKS_5);
+        break;
+      }
+    break;
+
     default:
       // No-op for all other actions.
     break;

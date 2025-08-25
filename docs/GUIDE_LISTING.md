@@ -6,6 +6,10 @@ These are the most important guides which will get you familiar with the major c
 
 ## Installation
 
+1. [Pack II PCB](PACK_2_PCB.md)
+
+1. [Wand II PCB](WAND_2_PCB.md)
+
 1. [Pack PCB](PACK_PCB.md)
 
 1. [Wand PCB](WAND_PCB.md)
@@ -28,7 +32,7 @@ We must acknowledge and celebrate our community members who have created enterta
 1. [Installs by Jonogunn](INSTALL_VIDEOS_JONOGUNN.md)
 
 1. [Installs by Nor-Cal Ghostbusters](INSTALL_VIDEOS_NORCALGB.md)
- 
+
 ## Maintenance
 
 These guides will help you update the software and audio files as new releases become available.

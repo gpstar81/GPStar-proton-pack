@@ -7087,6 +7087,7 @@ void mixExtraFiringEffects() {
     // Only play impact sound if firing, in Proton mode, and threshold exceeded.
     stopEffect(S_FIRE_LOOP_IMPACT); // Stop any existing impact sound to avoid overlap.
     playEffect(S_FIRE_LOOP_IMPACT, false, i_volume_effects, false, 0, false);
+    wandSerialSend(W_IMPACT_SOUND); // Trigger an impact sound to play on the pack.
     debugln(String("Impact sound played. Motion Threshold: ") + IMPACT_THRESHOLD + "g; Detected Magnitude: " + filteredMotionData.gForce + "g");
   }
 #else
