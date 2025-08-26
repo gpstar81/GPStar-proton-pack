@@ -59,7 +59,7 @@ void ledsOff() {
 void animateLights() {
   static uint8_t paletteIndex = 0; // Tracks the current base color index in the palette
   static uint16_t wavePosition = 0; // Tracks the position of the wave
-  
+
   if (ms_anim_change.justFinished()) {
     ms_anim_change.start(i_animation_time);
 

@@ -420,7 +420,7 @@ void handleFavSvg(AsyncWebServerRequest *request) {
 }
 
 String getDeviceConfig() {
-  // Prepare a JSON object with information we have gleamed from the system.
+  // Prepare a JSON object with information we have gleaned from the system.
   String equipSettings;
   jsonBody.clear();
 
@@ -444,7 +444,7 @@ String getDeviceConfig() {
 }
 
 String getPackConfig() {
-  // Prepare a JSON object with information we have gleamed from the system.
+  // Prepare a JSON object with information we have gleaned from the system.
   String equipSettings;
   jsonBody.clear();
 
@@ -500,7 +500,7 @@ String getPackConfig() {
 }
 
 String getWandConfig() {
-  // Prepare a JSON object with information we have gleamed from the system.
+  // Prepare a JSON object with information we have gleaned from the system.
   String equipSettings;
   jsonBody.clear();
 
@@ -542,7 +542,7 @@ String getWandConfig() {
 }
 
 String getSmokeConfig() {
-  // Prepare a JSON object with information we have gleamed from the system.
+  // Prepare a JSON object with information we have gleaned from the system.
   String equipSettings;
   jsonBody.clear();
 
@@ -597,7 +597,7 @@ String getSmokeConfig() {
 }
 
 String getEquipmentStatus() {
-  // Prepare a JSON object with information we have gleamed from the system.
+  // Prepare a JSON object with information we have gleaned from the system.
   String equipStatus;
   jsonBody.clear();
 

@@ -353,7 +353,7 @@ void handleDeviceSettings(AsyncWebServerRequest *request) {
 
 void handleWandSettings(AsyncWebServerRequest *request) {
   // Tell the pack that we'll need the latest wand EEPROM values.
-  //executeCommand(A_REQUEST_PREFERENCES_WAND);
+  executeCommand(W_SEND_PREFERENCES_WAND);
 
   // Used for the settings page from the web server.
   debug("Sending -> Wand Settings HTML");
@@ -407,7 +407,7 @@ void handleThreeJS(AsyncWebServerRequest *request) {
 }
 
 String getDeviceConfig() {
-  // Prepare a JSON object with information we have gleamed from the system.
+  // Prepare a JSON object with information we have gleaned from the system.
   String equipSettings;
   jsonBody.clear();
 
@@ -443,7 +443,7 @@ String getDeviceConfig() {
 }
 
 String getWandConfig() {
-  // Prepare a JSON object with information we have gleamed from the system.
+  // Prepare a JSON object with information we have gleaned from the system.
   String equipSettings;
   jsonBody.clear();
 
@@ -485,7 +485,7 @@ String getWandConfig() {
 }
 
 String getEquipmentStatus() {
-  // Prepare a JSON object with information we have gleamed from the system.
+  // Prepare a JSON object with information we have gleaned from the system.
   String equipStatus;
   jsonBody.clear();
 

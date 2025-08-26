@@ -22,7 +22,6 @@
 
 // Web page files (defines all text as char[] variable)
 
-
 // Forward function declarations.
 void setupRouting();
 
@@ -37,14 +36,14 @@ void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *clien
   switch(type) {
     case WS_EVT_CONNECT:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][%lu] Connect\n", server->url(), client->id());
+        debugf("WebSocket[%s][%lu] Connect\n", server->url(), client->id());
       #endif
       i_ws_client_count++;
     break;
 
     case WS_EVT_DISCONNECT:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][C:%lu] Disconnect\n", server->url(), client->id());
+        debugf("WebSocket[%s][C:%lu] Disconnect\n", server->url(), client->id());
       #endif
       if(i_ws_client_count > 0) {
         i_ws_client_count--;
@@ -53,19 +52,19 @@ void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *clien
 
     case WS_EVT_ERROR:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][C:%lu] Error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
+        debugf("WebSocket[%s][C:%lu] Error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
       #endif
     break;
 
     case WS_EVT_PONG:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][C:%lu] Pong[L:%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
+        debugf("WebSocket[%s][C:%lu] Pong[L:%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
       #endif
     break;
 
     case WS_EVT_DATA:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][C:%lu] Data[L:%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
+        debugf("WebSocket[%s][C:%lu] Data[L:%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
       #endif
     break;
   }
@@ -99,7 +98,7 @@ void startWebServer() {
   b_ws_started = true;
 
   #if defined(DEBUG_SEND_TO_CONSOLE)
-    Serial.println(F("Async HTTP Server Started"));
+    debugln(F("Async HTTP Server Started"));
   #endif
 }
 

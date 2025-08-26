@@ -52,7 +52,7 @@ void loop() {
   magnetometer->getEvent(&mag_event);
   gyroscope->getEvent(&gyro_event);
   accelerometer->getEvent(&accel_event);
-  
+
   // 'Raw' values to match expectation of MotionCal
   Serial.print("Raw:");
   Serial.print(int(accel_event.acceleration.x*8192/9.8)); Serial.print(",");
@@ -78,5 +78,5 @@ void loop() {
   Serial.print(mag_event.magnetic.z); Serial.println("");
   loopcount++;
 
-  delay(10); 
+  delay(10);
 }

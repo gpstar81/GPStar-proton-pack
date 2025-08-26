@@ -183,7 +183,7 @@ void handleFavSvg(AsyncWebServerRequest *request) {
 }
 
 String getDeviceConfig() {
-  // Prepare a JSON object with information we have gleamed from the system.
+  // Prepare a JSON object with information we have gleaned from the system.
   String equipSettings;
   jsonBody.clear();
 

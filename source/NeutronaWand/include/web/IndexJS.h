@@ -318,11 +318,13 @@ function init3D(){
 
 // Resize the 3D object when the browser window changes size
 function onWindowResize(){
-  const w = parentWidth(container);
-  const h = parentHeight(container);
-  camera.aspect = w / h;
-  camera.updateProjectionMatrix();
-  renderer.setSize(w, h);
+  if (typeof container !== 'undefined'){
+    const w = parentWidth(container);
+    const h = parentHeight(container);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+  }
 }
 
 if (!!window.EventSource) {

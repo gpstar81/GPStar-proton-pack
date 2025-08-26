@@ -202,7 +202,7 @@ void setup() {
   // Attempt to start the sensors or die trying.
   Wire1.begin(IMU_SDA, IMU_SCL, 400000UL);
   if (!initializeSensors()) {
-    Serial.println("Failed to find sensors");
+    debugln("Failed to find sensors");
     while (1) delay(10);
   }
 

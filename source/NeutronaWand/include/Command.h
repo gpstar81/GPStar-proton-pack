@@ -27,7 +27,7 @@ void notifyWSClients(); // From Webhandler.h
  * Centralized handler for commands, allowing the Pack and Wand to both perform the same action.
  * This approach is applying the Command Pattern to decouple the sender from the receiver.
  * In order for this to work, the command value must come from a unique source: PACK_MESSAGE
- * 
+ *
  * Inputs:
  *   - i_command: Command identifier (PACK_MESSAGE enum)
  *   - i_value: Optional value for the command (default 0)
@@ -57,6 +57,12 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
 
       // Pack is off.
       b_pack_on = false;
+    break;
+
+    case W_SEND_PREFERENCES_WAND:
+      // If requested by the serial device, send back all pack EEPROM preferences.
+      // This will send a data payload directly from the pack as all data is local.
+      wandSerialSendData(W_SEND_PREFERENCES_WAND);
     break;
 
     case P_SOUND_SUPER_HERO:
