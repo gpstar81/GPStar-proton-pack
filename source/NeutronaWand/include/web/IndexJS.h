@@ -239,7 +239,7 @@ function parentHeight(elem) {
   return elem.parentElement.clientHeight;
 }
 
-function init3D(){
+function init3D() {
   const container = document.getElementById("3Dobj");
   const width = parentWidth(container);
   const height = parentHeight(container);
@@ -291,7 +291,7 @@ function init3D(){
       scene.add(mesh);
 
       // Set up an orthographic camera; better for technical models without distortion.
-      const frustumSize = Math.max(size.x, size.y, size.z) * 1.1; // Scale to fit mesh comfortably
+      const frustumSize = Math.max(size.x, size.y, size.z) * 1.2; // Scale to fit mesh comfortably
       camera = new THREE.OrthographicCamera(
         (-frustumSize * aspect / 2), // Left
         (frustumSize * aspect / 2),  // Right
@@ -317,7 +317,7 @@ function init3D(){
 }
 
 // Resize the 3D object when the browser window changes size
-function onWindowResize(){
+function onWindowResize() {
   if (typeof container !== 'undefined'){
     const w = parentWidth(container);
     const h = parentHeight(container);
@@ -325,6 +325,21 @@ function onWindowResize(){
     camera.updateProjectionMatrix();
     renderer.setSize(w, h);
   }
+}
+
+function formatFloat(value) {
+  value = Number(value);
+  let absValue = Math.abs(value);
+  let whole = Math.floor(absValue).toString();
+  let frac = absValue.toFixed(1).split(".")[1];
+  let sign = value < 0 ? "-" : "&nbsp;";
+  let padCount = 3 - whole.length;
+  let pad = "";
+  for (let i = 0; i < padCount; i++) {
+    pad += "&nbsp;";
+  }
+  // Final format: [sign][pad][whole].[frac]
+  return sign + pad + whole + "." + frac;
 }
 
 if (!!window.EventSource) {
@@ -350,15 +365,15 @@ if (!!window.EventSource) {
     var yawRads = (obj.yaw || 0) * Math.PI / 180;
 
     // Update the HTML elements with the telemetry data
-    setHtml("gyroX",   parseFloat(obj.gyroX || 0).toFixed(2) + "&deg;/s");
-    setHtml("gyroY",   parseFloat(obj.gyroY || 0).toFixed(2) + "&deg;/s");
-    setHtml("gyroZ",   parseFloat(obj.gyroZ || 0).toFixed(2) + "&deg;/s");
-    setHtml("accelX",  parseFloat(obj.accelX || 0).toFixed(2) + "m/s<sup>2</sup>");
-    setHtml("accelY",  parseFloat(obj.accelY || 0).toFixed(2) + "m/s<sup>2</sup>");
-    setHtml("accelZ",  parseFloat(obj.accelZ || 0).toFixed(2) + "m/s<sup>2</sup>");
-    setHtml("roll",    parseFloat(obj.roll || 0).toFixed(2) + "&deg;");
-    setHtml("pitch",   parseFloat(obj.pitch || 0).toFixed(2) + "&deg;");
-    setHtml("yaw",     parseFloat(obj.yaw || 0).toFixed(2) + "&deg;");
+    setHtml("gyroX",  formatFloat(obj.gyroX || 0)  + "&deg;/s");
+    setHtml("gyroY",  formatFloat(obj.gyroY || 0)  + "&deg;/s");
+    setHtml("gyroZ",  formatFloat(obj.gyroZ || 0)  + "&deg;/s");
+    setHtml("accelX", formatFloat(obj.accelX || 0) + "m/s<sup>2</sup>");
+    setHtml("accelY", formatFloat(obj.accelY || 0) + "m/s<sup>2</sup>");
+    setHtml("accelZ", formatFloat(obj.accelZ || 0) + "m/s<sup>2</sup>");
+    setHtml("roll",   formatFloat(obj.roll || 0)   + "&deg;");
+    setHtml("pitch",  formatFloat(obj.pitch || 0)  + "&deg;");
+    setHtml("yaw",    formatFloat(obj.yaw || 0)    + "&deg;");
 
     // Proceed with updating the rendered scene if all objects are present.
     if (scene && camera && mesh) {

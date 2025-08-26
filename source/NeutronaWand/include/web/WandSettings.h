@@ -253,7 +253,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
             }
 
             if (settings.wandPowered) {
-              alert("Pack and/or Wand are currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings.");
+              alert("Wand is currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings.");
               return;
             }
 

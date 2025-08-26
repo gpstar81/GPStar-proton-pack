@@ -59,12 +59,6 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
       b_pack_on = false;
     break;
 
-    case W_SEND_PREFERENCES_WAND:
-      // If requested by the serial device, send back all pack EEPROM preferences.
-      // This will send a data payload directly from the pack as all data is local.
-      wandSerialSendData(W_SEND_PREFERENCES_WAND);
-    break;
-
     case P_SOUND_SUPER_HERO:
       stopEffect(S_VOICE_MODE_SUPER_HERO);
       stopEffect(S_VOICE_MODE_ORIGINAL);

@@ -45,15 +45,21 @@ const char INDEX_page[] PROGMEM = R"=====(
   <div id="tab1" class="tab">
     <div id="equipCRT" class="equipment">
       <div class="telemetry">
-        <p><span class="infoLabel">&nbsp;&nbsp;&nbsp;&nbsp;Rot. X:</span> <span class="infoState" id="gyroX">&mdash;</span></p>
-        <p><span class="infoLabel">&nbsp;&nbsp;&nbsp;&nbsp;Rot. Y:</span> <span class="infoState" id="gyroY">&mdash;</span></p>
-        <p><span class="infoLabel">&nbsp;&nbsp;&nbsp;&nbsp;Rot. Z:</span> <span class="infoState" id="gyroZ">&mdash;</span></p>
-        <p><span class="infoLabel">&nbsp;Accel. X:</span> <span class="infoState" id="accelX">&mdash;</span></p>
-        <p><span class="infoLabel">&nbsp;Accel. Y:</span> <span class="infoState" id="accelY">&mdash;</span></p>
-        <p><span class="infoLabel">&nbsp;Accel. Z:</span> <span class="infoState" id="accelZ">&mdash;</span></p>
-        <p><span class="infoLabel">&nbsp;&nbsp;Roll (X):</span> <span class="infoState" id="roll">&mdash;</span></p>
-        <p><span class="infoLabel">Pitch (Y):</span> <span class="infoState" id="pitch">&mdash;</span></p>
-        <p><span class="infoLabel">&nbsp;Yaw (Z):</span> <span class="infoState" id="yaw">&mdash;</span></p>
+        <p id="gyro">
+          <span class="infoLabel">&nbsp;&nbsp;X: &orarr;</span> <span class="infoState" id="gyroX">&mdash;</span><br/>
+          <span class="infoLabel">&nbsp;&nbsp;Y: &orarr;</span> <span class="infoState" id="gyroY">&mdash;</span><br/>
+          <span class="infoLabel">&nbsp;&nbsp;Z: &orarr;</span> <span class="infoState" id="gyroZ">&mdash;</span>
+        </p>
+        <p id="accel">
+          <span class="infoLabel">&nbsp;&varr;&nbsp;</span> <span class="infoState" id="accelX">&mdash;</span><br/>
+          <span class="infoLabel">&harr;</span> <span class="infoState" id="accelY">&mdash;</span><br/>
+          <span class="infoLabel">&#9737;</span> <span class="infoState" id="accelZ">&mdash;</span>
+        </p>
+        <p id="ahrs">
+          <span class="infoLabel">&nbsp;&nbsp;Roll &Phi;:</span> <span class="infoState" id="roll">&mdash;</span><br/>
+          <span class="infoLabel">Pitch &Theta;:</span> <span class="infoState" id="pitch">&mdash;</span><br/>
+          <span class="infoLabel">&nbsp;Yaw &Psi;:</span> <span class="infoState" id="yaw">&mdash;</span>
+        </p>
       </div>
       <div class="viz-content">
         <div id="3Dobj"></div>

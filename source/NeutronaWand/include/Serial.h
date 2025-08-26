@@ -136,6 +136,147 @@ struct __attribute__((packed)) WandSyncData {
 } wandSyncData;
 
 /*
+ * Serial API Helper Functions
+ */
+
+// Common helper function to populate the wandConfig object with global variables.
+void getWandPrefsObject() {
+  sendDebug(F("Getting Wand Preferences"));
+
+  // Boolean types will simply translate as 1/0, ENUMs should be converted.
+  switch(WAND_BARREL_LED_COUNT) {
+    case LEDS_5:
+    default:
+      wandConfig.ledWandCount = 0;
+    break;
+
+    case LEDS_48:
+      wandConfig.ledWandCount = 1;
+    break;
+
+    case LEDS_50:
+      wandConfig.ledWandCount = 2;
+    break;
+
+    case LEDS_2:
+      wandConfig.ledWandCount = 3;
+    break;
+  }
+
+  wandConfig.ledWandHue = i_spectral_wand_custom_colour;
+  wandConfig.ledWandSat = i_spectral_wand_custom_saturation;
+  wandConfig.spectralModesEnabled = b_spectral_mode_enabled ? 1 : 0;
+  wandConfig.overheatEnabled = b_overheat_enabled ? 1 : 0;
+
+  switch(FIRING_MODE) {
+    case VG_MODE:
+    default:
+      wandConfig.defaultFiringMode = 1;
+    break;
+    case CTS_MODE:
+      wandConfig.defaultFiringMode = 2;
+    break;
+    case CTS_MIX_MODE:
+      wandConfig.defaultFiringMode = 3;
+    break;
+  }
+
+  wandConfig.wandSoundsToPack = b_extra_pack_sounds ? 1 : 0;
+  wandConfig.quickVenting = b_quick_vent ? 1 : 0;
+  wandConfig.rgbVentEnabled = b_rgb_vent_light ? 1 : 0;
+  wandConfig.autoVentLight = b_vent_light_control ? 1 : 0;
+  wandConfig.wandBeepLoop = b_beep_loop ? 1 : 0;
+  wandConfig.wandBootError = b_wand_boot_errors ? 1 : 0;
+
+  switch(WAND_YEAR_MODE) {
+    case YEAR_DEFAULT:
+    default:
+      wandConfig.defaultYearModeWand = 1;
+    break;
+    case YEAR_1984:
+      wandConfig.defaultYearModeWand = 2;
+    break;
+    case YEAR_1989:
+      wandConfig.defaultYearModeWand = 3;
+    break;
+    case YEAR_AFTERLIFE:
+      wandConfig.defaultYearModeWand = 4;
+    break;
+    case YEAR_FROZEN_EMPIRE:
+      wandConfig.defaultYearModeWand = 5;
+    break;
+  }
+
+  switch(WAND_YEAR_CTS) {
+    case CTS_DEFAULT:
+    default:
+      wandConfig.defaultYearModeCTS = 1;
+    break;
+    case CTS_1984:
+      wandConfig.defaultYearModeCTS = 2;
+    break;
+    case CTS_AFTERLIFE:
+      wandConfig.defaultYearModeCTS = 4;
+    break;
+  }
+
+  switch(VIBRATION_MODE_EEPROM) {
+    case VIBRATION_ALWAYS:
+      wandConfig.wandVibration = 1;
+    break;
+    case VIBRATION_FIRING_ONLY:
+      wandConfig.wandVibration = 2;
+    break;
+    case VIBRATION_NONE:
+      wandConfig.wandVibration = 3;
+    break;
+    case VIBRATION_DEFAULT:
+    default:
+      wandConfig.wandVibration = 4;
+    break;
+  }
+
+  wandConfig.invertWandBargraph = b_bargraph_invert ? 1 : 0;
+  wandConfig.bargraphOverheatBlink = b_overheat_bargraph_blink ? 1 : 0;
+
+  switch(BARGRAPH_TYPE_EEPROM) {
+    case SEGMENTS_28:
+    default:
+      wandConfig.numBargraphSegments = 28;
+    break;
+    case SEGMENTS_30:
+      wandConfig.numBargraphSegments = 30;
+    break;
+  }
+
+  switch(BARGRAPH_MODE_EEPROM) {
+    case BARGRAPH_EEPROM_DEFAULT:
+    default:
+      wandConfig.bargraphIdleAnimation = 1;
+    break;
+    case BARGRAPH_EEPROM_SUPER_HERO:
+      wandConfig.bargraphIdleAnimation = 2;
+    break;
+    case BARGRAPH_EEPROM_ORIGINAL:
+      wandConfig.bargraphIdleAnimation = 3;
+    break;
+  }
+
+  switch(BARGRAPH_EEPROM_FIRING_ANIMATION) {
+    case BARGRAPH_EEPROM_ANIMATION_DEFAULT:
+    default:
+      wandConfig.bargraphFireAnimation = 1;
+    break;
+    case BARGRAPH_EEPROM_ANIMATION_SUPER_HERO:
+      wandConfig.bargraphFireAnimation = 2;
+    break;
+    case BARGRAPH_EEPROM_ANIMATION_ORIGINAL:
+      wandConfig.bargraphFireAnimation = 3;
+    break;
+  }
+}
+
+/*
  * Serial API Communication Handlers
  */
 
@@ -203,7 +344,7 @@ void wandSerialSendData(uint8_t i_message) {
 #endif
 
   // Leave when a pack is not intended to be connected.
-  if(b_gpstar_benchtest && i_message != W_SEND_PREFERENCES_WAND) {
+  if(b_gpstar_benchtest) {
     return;
   }
 
@@ -219,142 +360,9 @@ void wandSerialSendData(uint8_t i_message) {
 
   switch(i_message) {
     case W_SEND_PREFERENCES_WAND:
-      // Boolean types will simply translate as 1/0, ENUMs should be converted.
-      switch(WAND_BARREL_LED_COUNT) {
-        case LEDS_5:
-        default:
-          wandConfig.ledWandCount = 0;
-        break;
-
-        case LEDS_48:
-          wandConfig.ledWandCount = 1;
-        break;
-
-        case LEDS_50:
-          wandConfig.ledWandCount = 2;
-        break;
-
-        case LEDS_2:
-          wandConfig.ledWandCount = 3;
-        break;
-      }
-
-      wandConfig.ledWandHue = i_spectral_wand_custom_colour;
-      wandConfig.ledWandSat = i_spectral_wand_custom_saturation;
-      wandConfig.spectralModesEnabled = b_spectral_mode_enabled ? 1 : 0;
-      wandConfig.overheatEnabled = b_overheat_enabled ? 1 : 0;
-
-      switch(FIRING_MODE) {
-        case VG_MODE:
-        default:
-          wandConfig.defaultFiringMode = 1;
-        break;
-        case CTS_MODE:
-          wandConfig.defaultFiringMode = 2;
-        break;
-        case CTS_MIX_MODE:
-          wandConfig.defaultFiringMode = 3;
-        break;
-      }
-
-      wandConfig.wandSoundsToPack = b_extra_pack_sounds ? 1 : 0;
-      wandConfig.quickVenting = b_quick_vent ? 1 : 0;
-      wandConfig.rgbVentEnabled = b_rgb_vent_light ? 1 : 0;
-      wandConfig.autoVentLight = b_vent_light_control ? 1 : 0;
-      wandConfig.wandBeepLoop = b_beep_loop ? 1 : 0;
-      wandConfig.wandBootError = b_wand_boot_errors ? 1 : 0;
-
-      switch(WAND_YEAR_MODE) {
-        case YEAR_DEFAULT:
-        default:
-          wandConfig.defaultYearModeWand = 1;
-        break;
-        case YEAR_1984:
-          wandConfig.defaultYearModeWand = 2;
-        break;
-        case YEAR_1989:
-          wandConfig.defaultYearModeWand = 3;
-        break;
-        case YEAR_AFTERLIFE:
-          wandConfig.defaultYearModeWand = 4;
-        break;
-        case YEAR_FROZEN_EMPIRE:
-          wandConfig.defaultYearModeWand = 5;
-        break;
-      }
-
-      switch(WAND_YEAR_CTS) {
-        case CTS_DEFAULT:
-        default:
-          wandConfig.defaultYearModeCTS = 1;
-        break;
-        case CTS_1984:
-          wandConfig.defaultYearModeCTS = 2;
-        break;
-        case CTS_AFTERLIFE:
-          wandConfig.defaultYearModeCTS = 4;
-        break;
-      }
-
-      switch(VIBRATION_MODE_EEPROM) {
-        case VIBRATION_ALWAYS:
-          wandConfig.wandVibration = 1;
-        break;
-        case VIBRATION_FIRING_ONLY:
-          wandConfig.wandVibration = 2;
-        break;
-        case VIBRATION_NONE:
-          wandConfig.wandVibration = 3;
-        break;
-        case VIBRATION_DEFAULT:
-        default:
-          wandConfig.wandVibration = 4;
-        break;
-      }
-
-      wandConfig.invertWandBargraph = b_bargraph_invert ? 1 : 0;
-      wandConfig.bargraphOverheatBlink = b_overheat_bargraph_blink ? 1 : 0;
-
-      switch(BARGRAPH_TYPE_EEPROM) {
-        case SEGMENTS_28:
-        default:
-          wandConfig.numBargraphSegments = 28;
-        break;
-        case SEGMENTS_30:
-          wandConfig.numBargraphSegments = 30;
-        break;
-      }
-
-      switch(BARGRAPH_MODE_EEPROM) {
-        case BARGRAPH_EEPROM_DEFAULT:
-        default:
-          wandConfig.bargraphIdleAnimation = 1;
-        break;
-        case BARGRAPH_EEPROM_SUPER_HERO:
-          wandConfig.bargraphIdleAnimation = 2;
-        break;
-        case BARGRAPH_EEPROM_ORIGINAL:
-          wandConfig.bargraphIdleAnimation = 3;
-        break;
-      }
-
-      switch(BARGRAPH_EEPROM_FIRING_ANIMATION) {
-        case BARGRAPH_EEPROM_ANIMATION_DEFAULT:
-        default:
-          wandConfig.bargraphFireAnimation = 1;
-        break;
-        case BARGRAPH_EEPROM_ANIMATION_SUPER_HERO:
-          wandConfig.bargraphFireAnimation = 2;
-        break;
-        case BARGRAPH_EEPROM_ANIMATION_ORIGINAL:
-          wandConfig.bargraphFireAnimation = 3;
-        break;
-      }
-
-      if(!b_gpstar_benchtest) {
-        i_send_size = packComs.txObj(wandConfig);
-        packComs.sendData(i_send_size, (uint8_t) PACKET_WAND);
-      }
+      getWandPrefsObject(); // Call common function (also used by local web UI)
+      i_send_size = packComs.txObj(wandConfig);
+      packComs.sendData(i_send_size, (uint8_t) PACKET_WAND);
     break;
 
     case W_SEND_PREFERENCES_SMOKE:
@@ -385,9 +393,9 @@ void wandSerialSendData(uint8_t i_message) {
 // Forward function declarations.
 bool handlePackCommand(uint8_t i_command, uint16_t i_value);
 
-// Perform update of the pack preferences based on the current configuration object.
+// Perform update of the wand preferences based on the current configuration object.
 void handleWandPrefsUpdate() {
-  sendDebug(F("Saving Pack Preferences"));
+  sendDebug(F("Saving Wand Preferences"));
 
   switch(wandConfig.ledWandCount) {
     case 0:
@@ -562,6 +570,10 @@ void handleWandPrefsUpdate() {
       BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_ORIGINAL;
     break;
   }
+
+  // Offer some feedback to the user
+  stopEffect(S_BEEPS);
+  playEffect(S_BEEPS);
 
   // Update and reset wand components.
   bargraphYearModeUpdate();

@@ -212,6 +212,10 @@ struct __attribute__((packed)) AttenuatorSyncData {
   uint16_t packVoltage;
 } attenuatorSyncData;
 
+/*
+ * Serial API Helper Functions
+ */
+
 // Adjusts which year mode the Proton Pack and Neutrona Wand are in, as switched by the Neutrona Wand.
 void toggleYearModes() {
   // Toggle between the year modes.
@@ -289,10 +293,144 @@ void toggleYearModes() {
 }
 
 /*
- * Serial API Communication Handlers
+ * Serial API Helper Functions
  */
 
- // Helper function to check if a command is excluded from WebSocket notifications.
+// Common helper function to populate the packConfig object with global variables.
+void getPackPrefsObject() {
+  sendDebug(F("Getting Pack Preferences"));
+
+  uint8_t i_eeprom_volume_master_percentage = 100 * ((MINIMUM_VOLUME + i_volume_min_adj) - i_volume_master_eeprom) / (MINIMUM_VOLUME + i_volume_min_adj);
+
+  // General Settings
+  packConfig.defaultSystemModePack = SYSTEM_MODE;
+  packConfig.defaultYearThemePack = SYSTEM_EEPROM_YEAR;
+  packConfig.currentYearThemePack = SYSTEM_YEAR;
+  packConfig.defaultSystemVolume = i_eeprom_volume_master_percentage;
+  packConfig.protonStreamEffects = b_stream_effects ? 1 : 0;
+  packConfig.overheatStrobeNF = b_overheat_strobe ? 1 : 0;
+  packConfig.overheatLightsOff = b_overheat_lights_off ? 1 : 0;
+  packConfig.overheatSyncToFan = b_overheat_sync_to_fan ? 1 : 0;
+  packConfig.demoLightMode = b_demo_light_mode ? 1 : 0;
+  packConfig.ribbonCableAlarm = b_use_ribbon_cable ? 1 : 0;
+
+  switch(VIBRATION_MODE_EEPROM) {
+    case VIBRATION_ALWAYS:
+      packConfig.packVibration = 1;
+    break;
+    case VIBRATION_FIRING_ONLY:
+      packConfig.packVibration = 2;
+    break;
+    case VIBRATION_NONE:
+      packConfig.packVibration = 3;
+    break;
+    case VIBRATION_DEFAULT:
+    default:
+      packConfig.packVibration = 4;
+    break;
+    case CYCLOTRON_MOTOR:
+      packConfig.packVibration = 5;
+    break;
+  }
+
+  // Cyclotron Lid
+  packConfig.ledCycLidCount = i_cyclotron_leds;
+  packConfig.ledCycLidHue = i_spectral_cyclotron_custom_colour;
+  packConfig.ledCycLidSat = i_spectral_cyclotron_custom_saturation;
+  packConfig.ledCycLidLum = i_cyclotron_brightness;
+  packConfig.cyclotronDirection = b_clockwise ? 1 : 0;
+  packConfig.ledCycLidCenter = b_cyclotron_single_led ? 1 : 0;
+  packConfig.ledCycLidFade = b_fade_cyclotron_led ? 1 : 0;
+  packConfig.ledVGCyclotron = b_cyclotron_colour_toggle ? 1 : 0;
+  packConfig.ledCycLidSimRing = b_cyclotron_simulate_ring ? 1 : 0;
+
+  // Inner Cyclotron
+  packConfig.ledCycPanLum = i_cyclotron_panel_brightness;
+  switch(INNER_CYC_PANEL_MODE) {
+    case PANEL_INDIVIDUAL:
+    default:
+      packConfig.ledCycInnerPanel = 1;
+    break;
+    case PANEL_RGB_STATIC:
+      packConfig.ledCycInnerPanel = 2;
+    break;
+    case PANEL_RGB_DYNAMIC:
+      packConfig.ledCycInnerPanel = 3;
+    break;
+  }
+  packConfig.ledCycCakeCount = i_inner_cyclotron_cake_num_leds;
+  packConfig.ledCycCakeHue = i_spectral_cyclotron_inner_custom_colour;
+  packConfig.ledCycCakeSat = i_spectral_cyclotron_inner_custom_saturation;
+  packConfig.ledCycCakeLum = i_cyclotron_inner_brightness;
+  switch(CAKE_LED_TYPE) {
+    case RGB_LED:
+    default:
+      packConfig.ledCycCakeGRB = 0;
+    break;
+    case GRB_LED:
+      packConfig.ledCycCakeGRB = 1;
+    break;
+  }
+  packConfig.ledCycCavCount = i_inner_cyclotron_cavity_num_leds;
+  switch(CAVITY_LED_TYPE) {
+    case RGB_LED:
+    default:
+      packConfig.ledCycCavType = 1;
+    break;
+    case GRB_LED:
+      packConfig.ledCycCavType = 2;
+    break;
+    case GBR_LED:
+      packConfig.ledCycCavType = 3;
+    break;
+  }
+
+  // Power Cell
+  packConfig.ledPowercellCount = i_powercell_leds;
+  packConfig.ledInvertPowercell = b_powercell_invert ? 1 : 0;
+  packConfig.ledPowercellHue = i_spectral_powercell_custom_colour;
+  packConfig.ledPowercellSat = i_spectral_powercell_custom_saturation;
+  packConfig.ledPowercellLum = i_powercell_brightness;
+  packConfig.ledVGPowercell = b_powercell_colour_toggle ? 1 : 0;
+}
+
+// Common helper function to populate the smokeConfig object with global variables.
+void getSmokePrefsObject() {
+  sendDebug(F("Getting Smoke Preferences"));
+
+  // Determines whether smoke effects while firing is enabled by power level.
+  smokeConfig.overheatContinuous5 = b_smoke_continuous_level_5 ? 1 : 0; // true|false
+  smokeConfig.overheatContinuous4 = b_smoke_continuous_level_4 ? 1 : 0; // true|false
+  smokeConfig.overheatContinuous3 = b_smoke_continuous_level_3 ? 1 : 0; // true|false
+  smokeConfig.overheatContinuous2 = b_smoke_continuous_level_2 ? 1 : 0; // true|false
+  smokeConfig.overheatContinuous1 = b_smoke_continuous_level_1 ? 1 : 0; // true|false
+
+  // Duration (in seconds) an overheat event persists once activated.
+  smokeConfig.overheatDuration5 = i_ms_overheating_length_5 / 1000; // 2-60 Seconds
+  smokeConfig.overheatDuration4 = i_ms_overheating_length_4 / 1000; // 2-60 Seconds
+  smokeConfig.overheatDuration3 = i_ms_overheating_length_3 / 1000; // 2-60 Seconds
+  smokeConfig.overheatDuration2 = i_ms_overheating_length_2 / 1000; // 2-60 Seconds
+  smokeConfig.overheatDuration1 = i_ms_overheating_length_1 / 1000; // 2-60 Seconds
+
+  // Enable or disable smoke effects overall.
+  smokeConfig.smokeEnabled = b_smoke_enabled ? 1 : 0;
+
+  if(!b_wand_connected) {
+    // Provide some default values when a wand is not attached.
+    smokeConfig.overheatLevel5 = 1; // true|false
+    smokeConfig.overheatLevel4 = 0; // true|false
+    smokeConfig.overheatLevel3 = 0; // true|false
+    smokeConfig.overheatLevel2 = 0; // true|false
+    smokeConfig.overheatLevel1 = 0; // true|false
+    smokeConfig.overheatDelay5 = 30; // 2-60 Seconds
+    smokeConfig.overheatDelay4 = 35; // 2-60 Seconds
+    smokeConfig.overheatDelay3 = 40; // 2-60 Seconds
+    smokeConfig.overheatDelay2 = 50; // 2-60 Seconds
+    smokeConfig.overheatDelay1 = 60; // 2-60 Seconds
+  }
+}
+
+// Helper function to check if a command is excluded from WebSocket notifications.
 bool isExcludedCommand(uint8_t i_command) {
   return i_command == A_HANDSHAKE ||
          i_command == A_SYNC_START ||
@@ -310,6 +448,10 @@ bool isExcludedCommand(uint8_t i_command) {
          i_command == A_SAVE_PREFERENCES_WAND ||
          i_command == A_SAVE_PREFERENCES_SMOKE;
 }
+
+/*
+ * Serial API Communication Handlers
+ */
 
 // Outgoing commands to the Attenuator
 void attenuatorSerialSend(uint8_t i_command, uint16_t i_value) {
@@ -341,7 +483,6 @@ void attenuatorSerialSend(uint8_t i_command) {
 // Outgoing payloads to the Attenuator
 void attenuatorSendData(uint8_t i_message) {
   uint16_t i_send_size = 0;
-  uint8_t i_eeprom_volume_master_percentage = 100 * ((MINIMUM_VOLUME + i_volume_min_adj) - i_volume_master_eeprom) / (MINIMUM_VOLUME + i_volume_min_adj);
 
   // debug(F("Data to Attenuator: "))
   // debugln(i_message);
@@ -387,96 +528,7 @@ void attenuatorSendData(uint8_t i_message) {
     break;
 
     case A_SEND_PREFERENCES_PACK:
-      packConfig.defaultSystemModePack = SYSTEM_MODE;
-      packConfig.defaultYearThemePack = SYSTEM_EEPROM_YEAR;
-      packConfig.currentYearThemePack = SYSTEM_YEAR;
-      packConfig.defaultSystemVolume = i_eeprom_volume_master_percentage;
-      packConfig.protonStreamEffects = b_stream_effects ? 1 : 0;
-      packConfig.overheatStrobeNF = b_overheat_strobe ? 1 : 0;
-      packConfig.overheatLightsOff = b_overheat_lights_off ? 1 : 0;
-      packConfig.overheatSyncToFan = b_overheat_sync_to_fan ? 1 : 0;
-      packConfig.demoLightMode = b_demo_light_mode ? 1 : 0;
-      packConfig.ribbonCableAlarm = b_use_ribbon_cable ? 1 : 0;
-
-      switch(VIBRATION_MODE_EEPROM) {
-        case VIBRATION_ALWAYS:
-          packConfig.packVibration = 1;
-        break;
-        case VIBRATION_FIRING_ONLY:
-          packConfig.packVibration = 2;
-        break;
-        case VIBRATION_NONE:
-          packConfig.packVibration = 3;
-        break;
-        case VIBRATION_DEFAULT:
-        default:
-          packConfig.packVibration = 4;
-        break;
-        case CYCLOTRON_MOTOR:
-          packConfig.packVibration = 5;
-        break;
-      }
-
-      // Cyclotron Lid
-      packConfig.ledCycLidCount = i_cyclotron_leds;
-      packConfig.ledCycLidHue = i_spectral_cyclotron_custom_colour;
-      packConfig.ledCycLidSat = i_spectral_cyclotron_custom_saturation;
-      packConfig.ledCycLidLum = i_cyclotron_brightness;
-      packConfig.cyclotronDirection = b_clockwise ? 1 : 0;
-      packConfig.ledCycLidCenter = b_cyclotron_single_led ? 1 : 0;
-      packConfig.ledCycLidFade = b_fade_cyclotron_led ? 1 : 0;
-      packConfig.ledVGCyclotron = b_cyclotron_colour_toggle ? 1 : 0;
-      packConfig.ledCycLidSimRing = b_cyclotron_simulate_ring ? 1 : 0;
-
-      // Inner Cyclotron
-      packConfig.ledCycPanLum = i_cyclotron_panel_brightness;
-      switch(INNER_CYC_PANEL_MODE) {
-        case PANEL_INDIVIDUAL:
-        default:
-          packConfig.ledCycInnerPanel = 1;
-        break;
-        case PANEL_RGB_STATIC:
-          packConfig.ledCycInnerPanel = 2;
-        break;
-        case PANEL_RGB_DYNAMIC:
-          packConfig.ledCycInnerPanel = 3;
-        break;
-      }
-      packConfig.ledCycCakeCount = i_inner_cyclotron_cake_num_leds;
-      packConfig.ledCycCakeHue = i_spectral_cyclotron_inner_custom_colour;
-      packConfig.ledCycCakeSat = i_spectral_cyclotron_inner_custom_saturation;
-      packConfig.ledCycCakeLum = i_cyclotron_inner_brightness;
-      switch(CAKE_LED_TYPE) {
-        case RGB_LED:
-        default:
-          packConfig.ledCycCakeGRB = 0;
-        break;
-        case GRB_LED:
-          packConfig.ledCycCakeGRB = 1;
-        break;
-      }
-      packConfig.ledCycCavCount = i_inner_cyclotron_cavity_num_leds;
-      switch(CAVITY_LED_TYPE) {
-        case RGB_LED:
-        default:
-          packConfig.ledCycCavType = 1;
-        break;
-        case GRB_LED:
-          packConfig.ledCycCavType = 2;
-        break;
-        case GBR_LED:
-          packConfig.ledCycCavType = 3;
-        break;
-      }
-
-      // Power Cell
-      packConfig.ledPowercellCount = i_powercell_leds;
-      packConfig.ledInvertPowercell = b_powercell_invert ? 1 : 0;
-      packConfig.ledPowercellHue = i_spectral_powercell_custom_colour;
-      packConfig.ledPowercellSat = i_spectral_powercell_custom_saturation;
-      packConfig.ledPowercellLum = i_powercell_brightness;
-      packConfig.ledVGPowercell = b_powercell_colour_toggle ? 1 : 0;
-
+      getPackPrefsObject(); // Call common function (also used by local web UI)
       i_send_size = attenuatorComs.txObj(packConfig);
       attenuatorComs.sendData(i_send_size, (uint8_t) PACKET_PACK);
     break;
@@ -488,37 +540,7 @@ void attenuatorSendData(uint8_t i_message) {
     break;
 
     case A_SEND_PREFERENCES_SMOKE:
-      // Determines whether smoke effects while firing is enabled by power level.
-      smokeConfig.overheatContinuous5 = b_smoke_continuous_level_5 ? 1 : 0; // true|false
-      smokeConfig.overheatContinuous4 = b_smoke_continuous_level_4 ? 1 : 0; // true|false
-      smokeConfig.overheatContinuous3 = b_smoke_continuous_level_3 ? 1 : 0; // true|false
-      smokeConfig.overheatContinuous2 = b_smoke_continuous_level_2 ? 1 : 0; // true|false
-      smokeConfig.overheatContinuous1 = b_smoke_continuous_level_1 ? 1 : 0; // true|false
-
-      // Duration (in seconds) an overheat event persists once activated.
-      smokeConfig.overheatDuration5 = i_ms_overheating_length_5 / 1000; // 2-60 Seconds
-      smokeConfig.overheatDuration4 = i_ms_overheating_length_4 / 1000; // 2-60 Seconds
-      smokeConfig.overheatDuration3 = i_ms_overheating_length_3 / 1000; // 2-60 Seconds
-      smokeConfig.overheatDuration2 = i_ms_overheating_length_2 / 1000; // 2-60 Seconds
-      smokeConfig.overheatDuration1 = i_ms_overheating_length_1 / 1000; // 2-60 Seconds
-
-      // Enable or disable smoke effects overall.
-      smokeConfig.smokeEnabled = b_smoke_enabled ? 1 : 0;
-
-      if(!b_wand_connected) {
-        // Provide some default values when a wand is not attached.
-        smokeConfig.overheatLevel5 = 1; // true|false
-        smokeConfig.overheatLevel4 = 0; // true|false
-        smokeConfig.overheatLevel3 = 0; // true|false
-        smokeConfig.overheatLevel2 = 0; // true|false
-        smokeConfig.overheatLevel1 = 0; // true|false
-        smokeConfig.overheatDelay5 = 30; // 2-60 Seconds
-        smokeConfig.overheatDelay4 = 35; // 2-60 Seconds
-        smokeConfig.overheatDelay3 = 40; // 2-60 Seconds
-        smokeConfig.overheatDelay2 = 50; // 2-60 Seconds
-        smokeConfig.overheatDelay1 = 60; // 2-60 Seconds
-      }
-
+      getSmokePrefsObject(); // Call common function (also used by local web UI)
       i_send_size = attenuatorComs.txObj(smokeConfig);
       attenuatorComs.sendData(i_send_size, (uint8_t) PACKET_SMOKE);
     break;

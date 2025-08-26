@@ -697,16 +697,20 @@ void handleGetDeviceConfig(AsyncWebServerRequest *request) {
 
 void handleGetPackConfig(AsyncWebServerRequest *request) {
   // Return current pack settings as a stringified JSON object.
+  getPackPrefsObject(); // Call common function (also used by Attenuator)
   request->send(200, "application/json", getPackConfig());
 }
 
 void handleGetWandConfig(AsyncWebServerRequest *request) {
   // Return current wand settings as a stringified JSON object.
+  // TODO: Make sure we call the necessary API to get wandConfig remotely.
   request->send(200, "application/json", getWandConfig());
 }
 
 void handleGetSmokeConfig(AsyncWebServerRequest *request) {
   // Return current smoke settings as a stringified JSON object.
+  getSmokePrefsObject(); // Call common function (also used by Attenuator)
+  // TODO: Make sure we've obtained the wand smokeConfig, too.
   request->send(200, "application/json", getSmokeConfig());
 }
 

@@ -116,8 +116,9 @@ p {
 
 .infoLabel {
   font-family:Tahoma,Verdana,Arial;
-  font-size:.8em;
+  font-size:.9em;
   font-weight:600
+  min-width:40px;
 }
 
 .infoState {
@@ -517,7 +518,20 @@ input:checked:not([disabled]) + .slider:before {
 
 .viz-content {
   width:100%;
-  height:300px;
+  height:400px;
   margin:auto;
+}
+
+#gyro, #accel {
+  float:left;
+  width:48%;
+  margin-right:2%;
+  box-sizing:border-box;
+}
+
+.equipment::after {
+  content:"";
+  display:table;
+  clear:both;
 }
 )=====";
