@@ -95,13 +95,6 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Lights Off During Overheat:</b>
-      <label class="switch">
-        <input id="overheatLightsOff" name="overheatLightsOff" type="checkbox">
-        <span class="slider round"></span>
-      </label>
-    </div>
-    <div class="setting">
       <b class="labelSwitch">Spectral Modes Enabled:</b>
       <label class="switch">
         <input id="spectralModesEnabled" name="spectralModesEnabled" type="checkbox">
