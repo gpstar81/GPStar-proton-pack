@@ -452,7 +452,7 @@ void updateMasterVolume(bool startup) {
   if(!startup) {
     // If this isn't being called at boot, provide audio feedback and report the change.
     if(WAND_STATUS == MODE_OFF) {
-      // Provide feedback when the Proton Pack is not running.
+      // Provide feedback when the wand is not running.
       stopEffect(S_BEEPS_ALT);
       playEffect(S_BEEPS_ALT);
     }

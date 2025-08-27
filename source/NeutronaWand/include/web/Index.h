@@ -81,21 +81,21 @@ const char INDEX_page[] PROGMEM = R"=====(
       <div class="volume-container">
         <div class="volume-control">
           <h3>System</h3>
-          <button type="button" onclick="volSysUp()">+</button>
+          <button type="button" id="btnVolSysUp" onclick="volSysUp()">+</button>
           <span id="masterVolume"></span>
-          <button type="button" onclick="volSysDown()">&minus;</button>
+          <button type="button" id="btnVolSysDown" onclick="volSysDown()">&minus;</button>
         </div>
         <div class="volume-control">
           <h3>Effects</h3>
-          <button type="button" onclick="volFxUp()">+</button>
+          <button type="button" id="btnVolFxUp" onclick="volFxUp()">+</button>
           <span id="effectsVolume"></span>
-          <button type="button" onclick="volFxDown()">&minus;</button>
+          <button type="button" id="btnVolFxDown" onclick="volFxDown()">&minus;</button>
         </div>
         <div class="volume-control">
           <h3>Music</h3>
-          <button type="button" onclick="volMusicUp()">+</button>
+          <button type="button" id="btnVolMusicUp" onclick="volMusicUp()">+</button>
           <span id="musicVolume"></span>
-          <button type="button" onclick="volMusicDown()">&minus;</button>
+          <button type="button" id="btnVolMusicDown" onclick="volMusicDown()">&minus;</button>
         </div>
       </div>
       <button type="button" class="orange" onclick="toggleMute()">Mute/Unmute</button>
@@ -106,10 +106,10 @@ const char INDEX_page[] PROGMEM = R"=====(
     <div class="card">
       <h3 class="centered">Music Navigation</h3>
       <div class="music-navigation">
-        <button type="button" onclick="musicPrev()" title="Previous Track">&#9664;&#9664;</button>
-        <button type="button" onclick="musicStartStop()" title="Start/Stop">&#9634;&nbsp;&#9654;</button>
-        <button type="button" onclick="musicPauseResume()" title="Play/Pause">&#9646;&#9646;&nbsp;&#9654;</button>
-        <button type="button" onclick="musicNext()" title="Next Track">&#9654;&#9654;</button>
+        <button type="button" id="btnMusicPrev" onclick="musicPrev()" title="Previous Track">&#9664;&#9664;</button>
+        <button type="button" id="btnMusicStartStop" onclick="musicStartStop()" title="Start/Stop">&#9634;&nbsp;&#9654;</button>
+        <button type="button" id="btnMusicPauseResume" onclick="musicPauseResume()" title="Play/Pause">&#9646;&#9646;&nbsp;&#9654;</button>
+        <button type="button" id="btnMusicNext" onclick="musicNext()" title="Next Track">&#9654;&#9654;</button>
       </div>
       <div class="music-playback">
         <span id="playbackStatus" class="infoLabel">&mdash;</span>

@@ -186,8 +186,29 @@ function setButtonStates(sensorState) {
 function updateEquipment(jObj) {
   // Update display if we have the expected data (containing mode and theme at a minimum).
   if (jObj && jObj.mode && jObj.theme) {
-  // Update button states based on sensor information.
-  setButtonStates(jObj.sensors || "");
+    // Update button states based on sensor information.
+    setButtonStates(jObj.sensors || "");
+
+    // Enable/Disable Music Controls
+    if (jObj.benchtest) {
+      getEl("btnVolMusicUp").disabled = false;
+      getEl("btnVolMusicDown").disabled = false;
+      getEl("playbackStatus").disabled = false;
+      getEl("tracks").disabled = false;
+      getEl("btnMusicPrev").disabled = false;
+      getEl("btnMusicStartStop").disabled = false;
+      getEl("btnMusicPauseResume").disabled = false;
+      getEl("btnMusicNext").disabled = false;
+    } else {
+      getEl("btnVolMusicUp").disabled = true;
+      getEl("btnVolMusicDown").disabled = true;
+      getEl("playbackStatus").disabled = true;
+      getEl("tracks").disabled = true;
+      getEl("btnMusicPrev").disabled = true;
+      getEl("btnMusicStartStop").disabled = true;
+      getEl("btnMusicPauseResume").disabled = true;
+      getEl("btnMusicNext").disabled = true;
+    }
 
     // Volume Information
     setHtml("masterVolume", (jObj.volMaster || 0) + "%");
