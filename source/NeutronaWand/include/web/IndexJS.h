@@ -332,7 +332,7 @@ function formatFloat(value) {
   let absValue = Math.abs(value);
   let whole = Math.floor(absValue).toString();
   let frac = absValue.toFixed(1).split(".")[1];
-  let sign = value < 0 ? "-" : "&nbsp;";
+  let sign = value.toFixed(1) < 0 ? "-" : "&nbsp;";
   let padCount = 3 - whole.length;
   let pad = "";
   for (let i = 0; i < padCount; i++) {
@@ -374,6 +374,9 @@ if (!!window.EventSource) {
     setHtml("roll",   formatFloat(obj.roll || 0)   + "&deg;");
     setHtml("pitch",  formatFloat(obj.pitch || 0)  + "&deg;");
     setHtml("yaw",    formatFloat(obj.yaw || 0)    + "&deg;");
+    setHtml("gForce", formatFloat(obj.gForce || 0) + "");
+    setHtml("angVel", formatFloat(obj.angVel || 0) + "&deg;/s");
+    setHtml("shaken", "&nbsp;&nbsp;&nbsp;" + (obj.shaken ? "&oplus;" : "&mdash;"));
 
     // Proceed with updating the rendered scene if all objects are present.
     if (scene && camera && mesh) {

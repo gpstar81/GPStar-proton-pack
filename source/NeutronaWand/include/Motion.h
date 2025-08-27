@@ -157,12 +157,16 @@ struct MotionData {
   float accelX = 0.0f;
   float accelY = 0.0f;
   float accelZ = 0.0f;
-  // Calculated g-force (unit: g)
-  float gForce = 0.0f;
   // Gyroscope readings (deg/s)
   float gyroX = 0.0f;
   float gyroY = 0.0f;
   float gyroZ = 0.0f;
+  // Calculated g-force (unit: g)
+  float gForce = 0.0f;
+  // Calculated angular velocity (unit: deg/s)
+  float angVel = 0.0f;
+  // Indicator for sudden movement (using calculated values)
+  bool shaken = false;
 };
 
 // Global objects to hold the latest raw or filtered sensor readings.
@@ -214,6 +218,7 @@ struct SpatialData {
 SpatialData spatialData;
 
 // Forward function declarations.
+float calculateAngularVelocity(const MotionData& data);
 float calculateGForce(const MotionData& data);
 void collectMotionOffsets();
 void processMotionData();
@@ -236,10 +241,12 @@ void resetMotionData(MotionData &data) {
   data.accelX = 0.0f;
   data.accelY = 0.0f;
   data.accelZ = 0.0f;
-  data.gForce = 0.0f;
   data.gyroX = 0.0f;
   data.gyroY = 0.0f;
   data.gyroZ = 0.0f;
+  data.gForce = 0.0f;
+  data.angVel = 0.0f;
+  data.shaken = false;
 }
 
 /**
@@ -583,6 +590,52 @@ void readRawSensorData() {
 }
 
 /**
+ * Function: detectShakeEvent
+ * Purpose: Detects a shake event using gForce and angular velocity thresholds.
+ * Inputs: None (uses global filteredMotionData)
+ * Outputs: Returns true if a shake is detected, false otherwise.
+ */
+bool detectShakeEvent() {
+  const float GFORCE_SHAKE_THRESHOLD = 1.2f;    // In g, adjust as needed
+  const float ANGVEL_SHAKE_THRESHOLD = 150.0f;  // In deg/s, adjust as needed
+
+  // Detect shake if either threshold is exceeded
+  if (filteredMotionData.gForce > GFORCE_SHAKE_THRESHOLD &&
+      filteredMotionData.angVel > ANGVEL_SHAKE_THRESHOLD) {
+  #if defined(DEBUG_TELEMETRY_DATA)
+    debug(F("gForce="));
+    debug(filteredMotionData.gForce, 3);
+    debug(F(" (T="));
+    debug(GFORCE_SHAKE_THRESHOLD, 3);
+    debug(F("), angVel="));
+    debug(filteredMotionData.angVel, 3);
+    debug(F(" (T="));
+    debug(ANGVEL_SHAKE_THRESHOLD, 1);
+    debugln(F(") "));
+  #endif
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Function: calculateAngularVelocity
+ * Purpose: Calculates the magnitude of the angular velocity vector (deg/s) from a MotionData struct.
+ * Inputs:
+ *   - const MotionData& data: Reference to the MotionData object.
+ * Outputs:
+ *   - float: Calculated angular velocity (unit: deg/s)
+ */
+float calculateAngularVelocity(const MotionData& data) {
+  return sqrt(
+    data.gyroX * data.gyroX +
+    data.gyroY * data.gyroY +
+    data.gyroZ * data.gyroZ
+  );
+}
+
+/**
  * Function: calculateGForce
  * Purpose: Calculates the magnitude of the acceleration vector (g-force) from a MotionData struct.
  * Inputs:
@@ -816,7 +869,10 @@ void processMotionData() {
     default:
       readRawSensorData(); // Read the raw sensor data and place the latest values in the motionData object.
 
-      // Calculate the magnitude of the filtered acceleration vector (g-force).
+      // Calculate the magnitude of the raw angular velocity vector (deg/s).
+      motionData.angVel = calculateAngularVelocity(motionData);
+
+      // Calculate the magnitude of the raw acceleration vector (g-force).
       motionData.gForce = calculateGForce(motionData);
 
       // Apply offsets to IMU readings (values should be 0 if not calculated).
@@ -833,8 +889,14 @@ void processMotionData() {
       // Apply exponential moving average (EMA) smoothing filter to sensor data.
       updateFilteredMotionData();
 
+      // Calculate the magnitude of the raw angular velocity vector (deg/s).
+      filteredMotionData.angVel = calculateAngularVelocity(filteredMotionData);
+
       // Calculate the magnitude of the filtered acceleration vector (g-force).
       filteredMotionData.gForce = calculateGForce(filteredMotionData);
+
+      // Check for shake events which use our calculated values.
+      filteredMotionData.shaken = detectShakeEvent();
     break;
   }
 #endif

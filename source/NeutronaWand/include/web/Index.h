@@ -60,6 +60,11 @@ const char INDEX_page[] PROGMEM = R"=====(
           <span class="infoLabel">Pitch &Theta;:</span> <span class="infoState" id="pitch">&mdash;</span><br/>
           <span class="infoLabel">&nbsp;Yaw &Psi;:</span> <span class="infoState" id="yaw">&mdash;</span>
         </p>
+        <p id="calc">
+          <span class="infoLabel">&omega;:</span> <span class="infoState" id="angVel">&mdash;</span><br/>
+          <span class="infoLabel"><i>g</i>:</span> <span class="infoState" id="gForce">&mdash;</span><br/>
+          <span class="infoLabel">&Delta;:</span> <span class="infoState" id="shaken">&mdash;</span>
+        </p>
       </div>
       <div class="viz-content">
         <div id="3Dobj"></div>

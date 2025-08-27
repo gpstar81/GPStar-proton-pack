@@ -7111,11 +7111,8 @@ uint8_t getRandomFiringEffect() {
 
 void mixExtraFiringEffects() {
 #ifdef ESP32
-  // Threshold for sudden movement and can be tuned as needed, measured in G-force (m/s^2 / gravity).
-  const float IMPACT_THRESHOLD = 1.5f;
-
-  // Mix some impact sound based on user motions while firing.
-  if (STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects && filteredMotionData.gForce > IMPACT_THRESHOLD) {
+  // Mix some impact sound based on user-initiated motions while firing.
+  if (STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects && filteredMotionData.shaken) {
     // Only play impact sound if firing, in Proton mode, and threshold exceeded.
     uint8_t i_random_effect = getRandomFiringEffect(); // Use last-played effect to choose another.
     switch(i_random_effect) {
@@ -7143,7 +7140,6 @@ void mixExtraFiringEffects() {
     }
 
     wandSerialSend(W_IMPACT_SOUND, i_random_effect); // Trigger an impact sound to play on the pack (matched to the random value chosen here).
-    debugln(String("Impact sound played. Motion Threshold: ") + IMPACT_THRESHOLD + "g; Detected Magnitude: " + filteredMotionData.gForce + "g");
   }
 #endif
   // Mix some impact sound every 10-15 seconds while firing.

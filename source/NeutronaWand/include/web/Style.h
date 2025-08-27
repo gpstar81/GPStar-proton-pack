@@ -522,7 +522,7 @@ input:checked:not([disabled]) + .slider:before {
   margin:auto;
 }
 
-#gyro, #accel {
+#gyro, #accel, #ahrs, #calc {
   float:left;
   width:48%;
   margin-right:2%;

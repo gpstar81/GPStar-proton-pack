@@ -585,6 +585,10 @@ String getTelemetry() {
   jsonTelemetry["gyroX"] = roundFloat(filteredMotionData.gyroX);
   jsonTelemetry["gyroY"] = roundFloat(filteredMotionData.gyroY);
   jsonTelemetry["gyroZ"] = roundFloat(filteredMotionData.gyroZ);
+  // Special calculated values (g-force and angular velocity)
+  jsonTelemetry["gForce"] = roundFloat(filteredMotionData.gForce);
+  jsonTelemetry["angVel"] = roundFloat(filteredMotionData.angVel);
+  jsonTelemetry["shaken"] = filteredMotionData.shaken;
   // Spatial data in Euler angles (degrees).
   jsonTelemetry["roll"] = roundFloat(spatialData.roll);
   jsonTelemetry["pitch"] = roundFloat(spatialData.pitch);
