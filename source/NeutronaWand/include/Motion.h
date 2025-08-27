@@ -225,6 +225,7 @@ void processMotionData();
 void readRawSensorData();
 void reportCalibrationData();
 void resetAllMotionData(bool b_calibrate);
+void notifyWSClients(); // From Webhandler.h
 void sendTelemetryData(); // From Webhandler.h
 
 /**
@@ -935,6 +936,7 @@ void collectMotionOffsets() {
   else {
     debugln(F("Calibration completed, switching to standard telemetry collection mode."));
     SENSOR_READ_TARGET = TELEMETRY; // Set target to telemetry after calibration.
+    notifyWSClients(); // Send a special notification after offsets are loaded.
   }
 #endif
 }

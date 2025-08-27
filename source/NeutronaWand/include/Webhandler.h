@@ -625,6 +625,7 @@ void handleResetSensors(AsyncWebServerRequest *request) {
   // This allows all motion data to be zeroed out and begin a new average.
   resetAllMotionData(true);
   request->send(200, "application/json", status);
+  notifyWSClients();
 }
 
 void handleCalibrateSensorsEnabled(AsyncWebServerRequest *request) {
@@ -632,6 +633,7 @@ void handleCalibrateSensorsEnabled(AsyncWebServerRequest *request) {
   resetAllMotionData(false); // Clear but don't re-calibrate.
   SENSOR_READ_TARGET = CALIBRATION;
   request->send(200, "application/json", status);
+  notifyWSClients();
 }
 
 void handleCalibrateSensorsDisabled(AsyncWebServerRequest *request) {
@@ -639,6 +641,7 @@ void handleCalibrateSensorsDisabled(AsyncWebServerRequest *request) {
   SENSOR_READ_TARGET = OFFSETS;
   resetAllMotionData(true); // Reset and re-calibrate
   request->send(200, "application/json", status);
+  notifyWSClients();
 }
 
 void handleInfraredSignal(AsyncWebServerRequest *request) {
