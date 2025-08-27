@@ -1,5 +1,7 @@
 <h1><span class="logo-icon"></span> GPStar Wand PCB Hookup</h1>
 
+&starf; For a comparison of the original GPStar and GPStar II controllers please see [this comparison guide](https://gpstartechnologies.com/blogs/gpstar-blog/gpstar-ii-vs-gpstar) on the main GPStar website.
+
 This is the guide for all first-generation PCB kits which fully **supports all stock devices** within the Haslab Neutrona Wand.
 
 The goal of this kit is to provide a minimally-invasive upgrade to the stock controllers. For the Neutrona Wand all available connections for JST-PH wiring is present, though a significant amount of wire-cutting will be required to separate the stock controller and re-attach using terminal blocks on the new PCB. The diagrams below detail the standard HasLab connections as well as using the 28-segment or 30-segment bargraphs.

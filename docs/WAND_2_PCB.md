@@ -1,5 +1,7 @@
 <h1><span class="logo-icon"></span> GPStar Wand || PCB Hookup</h1>
 
+&starf; For a comparison of the original GPStar and GPStar II controllers please see [this comparison guide](https://gpstartechnologies.com/blogs/gpstar-blog/gpstar-ii-vs-gpstar) on the main GPStar website.
+
 Welcome to the second generation of GPStar Proton Wand controllers, intended for users who wish to fully replace the stock lighting of their Haslab Neutrona Wand or are building a DIY wand. This device improves on several core feature changes based on real-world use and customer requests.
 
 **Significant Features/Changes:**
@@ -8,6 +10,7 @@ Welcome to the second generation of GPStar Proton Wand controllers, intended for
 - Integrates a WiFi radio for direct web-enabled controls and firmware updates.
 - Features a 6-axis gyroscope and acceleration sensor for motion response.
 - Dedicated sockets for optional components and future expansion.
+	- An infrared LED add-on will be coming in the future to support integration with the Ghost Trap.
 
 **Other Hardware Changes:**
 
@@ -15,7 +18,7 @@ Welcome to the second generation of GPStar Proton Wand controllers, intended for
 - Support for the stock Vent/Top lights has been deprecated for the addressable GPStar RGB LED vent light device instead.
 - Support for the stock 5-LED bargraph has been deprecated in favor of a true multi-segment bargraph.
 	- Only i2c bus modules are supported (either Frutto Technology or GPStar bargraph devices).
-	- Older "2.0" Frutto bargraph units are NOT COMPATIBLE and must be upgraded to 3.0 or higher.
+	- Older "2.0" Frutto bargraph units are NOT COMPATIBLE and must be upgraded to 3.0 or higher. GPStar bargraph units are already fully compatible.
 
 **IMPORTANT: The GPStar Wand II controller is NOT backwards compatible with the original GPStar Pack controller! DO NOT attempt to mix and match wands as you can potentially damage your devices.**
 

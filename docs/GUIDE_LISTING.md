@@ -6,15 +6,17 @@ These are the most important guides which will get you familiar with the major c
 
 ## Installation
 
-1. [Pack II PCB](PACK_2_PCB.md)
+For a comparison of the original GPStar and GPStar II controllers please see [this comparison guide](https://gpstartechnologies.com/blogs/gpstar-blog/gpstar-ii-vs-gpstar) on the main GPStar website.
 
-1. [Wand II PCB](WAND_2_PCB.md)
+1. [Pack II Controller](PACK_2_PCB.md)
 
-1. [Pack PCB](PACK_PCB.md)
+1. [Wand II Controller](WAND_2_PCB.md)
 
-1. [Wand PCB](WAND_PCB.md)
+1. [Pack PCB Controller](PACK_PCB.md)
 
-1. [GPStar Audio PCB](GPSTAR_AUDIO_PCB.md)
+1. [Wand PCB Controller](WAND_PCB.md)
+
+1. [GPStar Audio Controller](GPSTAR_AUDIO_PCB.md)
 
 1. [Pack-Wand Hose](HOSE.md)
 

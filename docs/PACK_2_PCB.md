@@ -1,18 +1,22 @@
 <h1><span class="logo-icon"></span> GPStar Pack II PCB Hookup</h1>
 
+&starf; For a comparison of the original GPStar and GPStar II controllers please see [this comparison guide](https://gpstartechnologies.com/blogs/gpstar-blog/gpstar-ii-vs-gpstar) on the main GPStar website.
+
 Welcome to the second generation of GPStar Proton Pack controllers, intended for users who wish to fully replace the stock lighting of their Haslab Proton Pack or are building a DIY pack. This device improves on several core feature changes based on real-world use and customer requests.
 
 **Significant Features/Changes:**
 
 - Processor change to ESP32-S3 SoC instead of ATMega2560, offering dual CPU cores operating at a faster clock speed.
-- Integrates a WiFi radio for direct web-enabled controls and firmware updates.
 - Temperature sensor for environmental responses or monitoring.
 - Dedicated sockets for optional components and future expansion.
+- Integrates a WiFi radio for direct web-enabled controls and firmware updates.
+	- Compatibility with an Attenuator device is still fully supported. When connected to an Attenuator which offers WiFi capability, the Proton Pack II PCB will automatically disable its internal WiFi radio to conserve power.
 
 **Other Hardware Changes:**
 
 - Programming pins were replaced with a USB-C connector for direct connectivity to your computer for firmware updates.
 - Integrates a power detection unit directly onboard, eliminating a separate sensor for "GPStar Lite" kits.
+- The cyclotron switch panel which used individual LEDs is no longer compatible with this controller, and must be upgraded to the RGB LED panel if you wish to keep that device illuminated.
 - The cyclotron direction switch has been removed in favor of more specialized connectors.
   - This can be controlled via the Neutrona Wand menu or WiFi web interface.
 
@@ -80,7 +84,7 @@ These connections are reserved for special purposes with optional accessories.
 | FN-1 | \-/+ | Fan for N-Filter smoke (D33). FN-1 provides 5V during N-Filter smoke effects. During the overheat sequence, it is timed to go off at the same time as the N-Filter light. You can connect a 5V fan to this pin if desired or to trigger a relay.<br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 1.5amps from this connector.` |
 | SM-2 | \-/+ | Smoke effects for the Booster Tube (D35). SM-2 provides 5V during Booster Tube smoke effects. You can connect a 5V pump to this pin to power it, or use it to trigger a relay for off the shelf smoke solutions.<br><br>`Do not draw more than 1.5amps from this connector.` |
 | FN-2 | \-/+ | Fan for the Booster Tube smoke (D50). FN-2 provides 5V during Booster Tube smoke effects. You can connect a 5V fan to this pin if desired or use it to trigger a relay.<br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 1.5amps from this connector.` |
-| NEO-C | D13/VCC/GND | Neopixel LED ring for Inner Cyclotron "Cake".<br><br>`Connector type: JST-XH`|
+| NEO-C | D13/VCC/GND | Connection for the optional RGB LED cyclotron switch panel and RGB LED ring for the Inner Cyclotron "Cake".<br><br>`Connector type: JST-XH`|
 | EXP-1 | D41/5V/GND | Reserved for possible future expansion<br><br>`Connector type: JST-XH` |
 | EXP-1 | D42/5V/GND | Reserved for possible future expansion<br><br>`Connector type: JST-XH` |
 | LED-W | D46/GND | Connection for a standalone white LED in the N-Filter. D46 provides 5V and has a 100Ω resistor connected to it.<br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 40mA from this connector.` |
