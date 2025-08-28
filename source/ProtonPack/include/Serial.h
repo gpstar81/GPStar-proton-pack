@@ -4528,20 +4528,19 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       switch(i_value) {
         case 0:
         default:
-          playEffect(S_FIRE_SPARKS_2, false, i_volume_effects, false, 0, false);
-          playEffect(S_FIRE_SPARKS_5, false, i_volume_effects, false, 0, false);
+          playEffect(S_FIRE_SPARKS_2, false, i_volume_effects - 10, false, 0, false);
         break;
 
         case 1:
-          playEffect(S_FIRE_SPARKS_3, false, i_volume_effects, false, 0, false);
+          playEffect(S_FIRE_SPARKS_3, false, i_volume_effects - 10, false, 0, false);
         break;
 
         case 2:
-          playEffect(S_FIRE_SPARKS_4, false, i_volume_effects, false, 0, false);
+          playEffect(S_FIRE_SPARKS_4, false, i_volume_effects - 10, false, 0, false);
         break;
 
         case 3:
-          playEffect(S_FIRE_SPARKS, false, i_volume_effects, false, 0, false);
+          playEffect(S_FIRE_SPARKS_5, false, i_volume_effects - 10, false, 0, false);
         break;
       }
     break;

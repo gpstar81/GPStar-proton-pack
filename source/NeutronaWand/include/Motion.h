@@ -598,7 +598,7 @@ void readRawSensorData() {
  */
 bool detectShakeEvent() {
   const float GFORCE_SHAKE_THRESHOLD = 1.2f;    // In g, adjust as needed
-  const float ANGVEL_SHAKE_THRESHOLD = 150.0f;  // In deg/s, adjust as needed
+  const float ANGVEL_SHAKE_THRESHOLD = 180.0f;  // In deg/s, adjust as needed
 
   // Detect shake if either threshold is exceeded
   if (filteredMotionData.gForce > GFORCE_SHAKE_THRESHOLD &&

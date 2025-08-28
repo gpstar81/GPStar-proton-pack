@@ -7083,26 +7083,25 @@ uint8_t getRandomFiringEffect() {
   uint8_t i_random = 0;
 
   switch(i_last_firing_effect_mix) {
-    case S_FIRE_SPARKS:
-      i_random = random(0,2);
+    case S_FIRE_SPARKS_2:
+      i_random = random(0,3);
     break;
 
     case S_FIRE_SPARKS_3:
+      i_random = random(0,2);
+    break;
+
     case S_FIRE_SPARKS_4:
-      i_random = 3;
+      i_random = random(0,1);
     break;
 
     case S_FIRE_SPARKS_5:
-      i_random = 2;
-    break;
-
-    case S_FIRE_SPARKS_2:
-      i_random = 1;
+      i_random = 0;
     break;
 
     default:
       // If no firing effect has played yet.
-      i_random = 3;
+      i_random = 0;
     break;
   }
 
@@ -7117,25 +7116,24 @@ void mixExtraFiringEffects() {
     uint8_t i_random_effect = getRandomFiringEffect(); // Use last-played effect to choose another.
     switch(i_random_effect) {
       case 3:
-        playEffect(S_FIRE_SPARKS, false, i_volume_effects, false, 0, false);
-        i_last_firing_effect_mix = S_FIRE_SPARKS;
+        playEffect(S_FIRE_SPARKS_5, false, i_volume_effects - 10, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS_5;
       break;
 
       case 2:
-        playEffect(S_FIRE_SPARKS_4, false, i_volume_effects, false, 0, false);
+        playEffect(S_FIRE_SPARKS_4, false, i_volume_effects - 10, false, 0, false);
         i_last_firing_effect_mix = S_FIRE_SPARKS_4;
       break;
 
       case 1:
-        playEffect(S_FIRE_SPARKS_3, false, i_volume_effects, false, 0, false);
+        playEffect(S_FIRE_SPARKS_3, false, i_volume_effects - 10, false, 0, false);
         i_last_firing_effect_mix = S_FIRE_SPARKS_3;
       break;
 
       case 0:
       default:
-        playEffect(S_FIRE_SPARKS_2, false, i_volume_effects, false, 0, false);
-        playEffect(S_FIRE_SPARKS_5, false, i_volume_effects, false, 0, false);
-        i_last_firing_effect_mix = S_FIRE_SPARKS_5;
+        playEffect(S_FIRE_SPARKS_2, false, i_volume_effects - 10, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS_2;
       break;
     }
 
