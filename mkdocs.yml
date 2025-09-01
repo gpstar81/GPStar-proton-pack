@@ -66,4 +66,5 @@ nav:
     - Stream Effects: STREAM_EFFECTS.md
   - Help:
     - Troubleshooting: TROUBLESHOOTING.md
-    - FAQ: FAQ.md
+    - General FAQ: FAQ.md
+    - GPStar II FAQ: FAQ_GPStar2.md
