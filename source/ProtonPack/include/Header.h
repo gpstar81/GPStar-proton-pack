@@ -528,6 +528,10 @@ bool b_temp_sensor_detected = false;
 float f_temperature_c = 0;
 float f_temperature_f = 0;
 
+// Flags for denoting when requested data was received.
+bool b_received_prefs_wand = false;
+bool b_received_prefs_smoke = false;
+
 /*
  * Function prototypes.
  */

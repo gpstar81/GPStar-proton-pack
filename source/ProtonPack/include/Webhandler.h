@@ -34,10 +34,6 @@
 #include "web/Equip.h" // EQUIP_svg
 #include "web/Icon.h" // FAVICON_ico, FAVICON_svg
 
-// Flags for denoting when requested data was received.
-bool b_received_prefs_wand = false;
-bool b_received_prefs_smoke = false;
-
 // Forward function declarations.
 void setupRouting();
 void getSpecialPreferences();
@@ -246,7 +242,7 @@ void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *clien
 
 void onOTAStart() {
   // Log when OTA has started
-  debug(F("OTA update started"));
+  debugln(F("OTA update started"));
 }
 
 void onOTAProgress(size_t current, size_t final) {
@@ -260,9 +256,9 @@ void onOTAProgress(size_t current, size_t final) {
 void onOTAEnd(bool success) {
   // Log when OTA has finished
   if (success) {
-    debug(F("OTA update finished successfully!"));
+    debugln(F("OTA update finished successfully!"));
   } else {
-    debug(F("There was an error during OTA update!"));
+    debugln(F("There was an error during OTA update!"));
   }
 }
 
@@ -303,7 +299,7 @@ void startWebServer() {
 
 void handleCommonJS(AsyncWebServerRequest *request) {
   // Used for the root page (/) from the web server.
-  debug("Sending -> Common JavaScript");
+  debugln("Sending -> Common JavaScript");
   AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", (const uint8_t*)COMMONJS_page, strlen(COMMONJS_page));
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   request->send(response); // Serve page content.
@@ -311,7 +307,7 @@ void handleCommonJS(AsyncWebServerRequest *request) {
 
 void handleRoot(AsyncWebServerRequest *request) {
   // Used for the root page (/) from the web server.
-  debug("Sending -> Index HTML");
+  debugln("Sending -> Index HTML");
   AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)INDEX_page, strlen(INDEX_page));
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   request->send(response); // Serve page content.
@@ -319,7 +315,7 @@ void handleRoot(AsyncWebServerRequest *request) {
 
 void handleRootJS(AsyncWebServerRequest *request) {
   // Used for the root page (/) from the web server.
-  debug("Sending -> Index JavaScript");
+  debugln("Sending -> Index JavaScript");
   AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", (const uint8_t*)INDEXJS_page, strlen(INDEXJS_page));
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   request->send(response); // Serve page content.
@@ -327,7 +323,7 @@ void handleRootJS(AsyncWebServerRequest *request) {
 
 void handleNetwork(AsyncWebServerRequest *request) {
   // Used for the network page from the web server.
-  debug("Sending -> Network HTML");
+  debugln("Sending -> Network HTML");
   AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)NETWORK_page, strlen(NETWORK_page));
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   request->send(response); // Serve page content.
@@ -335,7 +331,7 @@ void handleNetwork(AsyncWebServerRequest *request) {
 
 void handlePassword(AsyncWebServerRequest *request) {
   // Used for the password page from the web server.
-  debug("Sending -> Password HTML");
+  debugln("Sending -> Password HTML");
   AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)PASSWORD_page, strlen(PASSWORD_page));
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   request->send(response); // Serve page content.
@@ -343,7 +339,7 @@ void handlePassword(AsyncWebServerRequest *request) {
 
 void handleDeviceSettings(AsyncWebServerRequest *request) {
   // Used for the device page from the web server.
-  debug("Sending -> Device Settings HTML");
+  debugln("Sending -> Device Settings HTML");
   AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)DEVICE_page, strlen(DEVICE_page));
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   request->send(response); // Serve page content.
@@ -354,7 +350,7 @@ void handlePackSettings(AsyncWebServerRequest *request) {
   executeCommand(A_REQUEST_PREFERENCES_PACK);
 
   // Used for the settings page from the web server.
-  debug("Sending -> Pack Settings HTML");
+  debugln("Sending -> Pack Settings HTML");
   AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)PACK_SETTINGS_page, strlen(PACK_SETTINGS_page));
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   request->send(response); // Serve page content.
@@ -366,7 +362,7 @@ void handleWandSettings(AsyncWebServerRequest *request) {
   executeCommand(A_REQUEST_PREFERENCES_WAND);
 
   // Used for the settings page from the web server.
-  debug("Sending -> Wand Settings HTML");
+  debugln("Sending -> Wand Settings HTML");
   AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)WAND_SETTINGS_page, strlen(WAND_SETTINGS_page));
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   request->send(response); // Serve page content.
@@ -378,7 +374,7 @@ void handleSmokeSettings(AsyncWebServerRequest *request) {
   executeCommand(A_REQUEST_PREFERENCES_SMOKE);
 
   // Used for the settings page from the web server.
-  debug("Sending -> Smoke Settings HTML");
+  debugln("Sending -> Smoke Settings HTML");
   AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)SMOKE_SETTINGS_page, strlen(SMOKE_SETTINGS_page));
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   request->send(response); // Serve page content.
@@ -386,7 +382,7 @@ void handleSmokeSettings(AsyncWebServerRequest *request) {
 
 void handleStylesheet(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
-  debug("Sending -> Main StyleSheet");
+  debugln("Sending -> Main StyleSheet");
   AsyncWebServerResponse *response = request->beginResponse(200, "text/css", (const uint8_t*)STYLE_page, strlen(STYLE_page));
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   request->send(response); // Serve page content.
@@ -394,7 +390,7 @@ void handleStylesheet(AsyncWebServerRequest *request) {
 
 void handleEquipSvg(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
-  debug("Sending -> Equipment SVG");
+  debugln("Sending -> Equipment SVG");
   AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", EQUIP_svg, sizeof(EQUIP_svg));
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   response->addHeader("Content-Encoding", "gzip");
@@ -403,7 +399,7 @@ void handleEquipSvg(AsyncWebServerRequest *request) {
 
 void handleFavIco(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
-  debug("Sending -> Favicon");
+  debugln("Sending -> Favicon");
   AsyncWebServerResponse *response = request->beginResponse(200, "image/x-icon", FAVICON_ico, sizeof(FAVICON_ico));
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   response->addHeader("Content-Encoding", "gzip");
@@ -412,7 +408,7 @@ void handleFavIco(AsyncWebServerRequest *request) {
 
 void handleFavSvg(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
-  debug("Sending -> Favicon");
+  debugln("Sending -> Favicon");
   AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", FAVICON_svg, sizeof(FAVICON_svg));
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   response->addHeader("Content-Encoding", "gzip");
@@ -703,14 +699,13 @@ void handleGetPackConfig(AsyncWebServerRequest *request) {
 
 void handleGetWandConfig(AsyncWebServerRequest *request) {
   // Return current wand settings as a stringified JSON object.
-  // TODO: Make sure we call the necessary API to get wandConfig remotely.
+  // Object should be waiting in memory after being returned.
   request->send(200, "application/json", getWandConfig());
 }
 
 void handleGetSmokeConfig(AsyncWebServerRequest *request) {
   // Return current smoke settings as a stringified JSON object.
   getSmokePrefsObject(); // Call common function (also used by Attenuator)
-  // TODO: Make sure we've obtained the wand smokeConfig, too.
   request->send(200, "application/json", getSmokeConfig());
 }
 
@@ -732,13 +727,13 @@ void handleRestart(AsyncWebServerRequest *request) {
 }
 
 void handlePackOn(AsyncWebServerRequest *request) {
-  debug("Web: Turn Pack On");
+  debugln("Web: Turn Pack On");
   executeCommand(A_TURN_PACK_ON);
   request->send(200, "application/json", status);
 }
 
 void handlePackOff(AsyncWebServerRequest *request) {
-  debug("Web: Turn Pack Off");
+  debugln("Web: Turn Pack Off");
   executeCommand(A_TURN_PACK_OFF);
   request->send(200, "application/json", status);
 }
@@ -746,7 +741,7 @@ void handlePackOff(AsyncWebServerRequest *request) {
 void handleAttenuatePack(AsyncWebServerRequest *request) {
   if(i_cyclotron_multiplier > 2) {
     // Only send command to pack if cyclotron is not "normal".
-    debug("Web: Cancel Overheat Warning");
+    debugln("Web: Cancel Overheat Warning");
     executeCommand(A_WARNING_CANCELLED);
     request->send(200, "application/json", status);
   } else {
@@ -760,91 +755,169 @@ void handleAttenuatePack(AsyncWebServerRequest *request) {
 }
 
 void handleManualVent(AsyncWebServerRequest *request) {
-  debug("Web: Manual Vent Triggered");
+  debugln("Web: Manual Vent Triggered");
   executeCommand(A_MANUAL_OVERHEAT);
   request->send(200, "application/json", status);
 }
 
 void handleManualLockout(AsyncWebServerRequest *request) {
-  debug("Web: Manual Lockout Triggered");
+  debugln("Web: Manual Lockout Triggered");
   executeCommand(A_SYSTEM_LOCKOUT);
   request->send(200, "application/json", status);
 }
 
 void handleCancelLockout(AsyncWebServerRequest *request) {
-  debug("Web: Cancel Lockout Triggered");
+  debugln("Web: Cancel Lockout Triggered");
   executeCommand(A_CANCEL_LOCKOUT);
   request->send(200, "application/json", status);
 }
 
+uint16_t getYearFromPath(String s_path) {
+  // Check that the path value is not empty.
+  if (s_path.length() > 0) {
+    int lastSlash = s_path.lastIndexOf('/');
+    if (lastSlash >= 0 && lastSlash < s_path.length() - 1) {
+      String segment = s_path.substring(lastSlash + 1);
+      uint16_t year = segment.toInt();
+      // Only return if segment is a valid theme year (1984, 1989, 2021, 2024)
+      if (year == 1984 || year == 1989 || year == 2021 || year == 2024) {
+        return year;
+      }
+    }
+  }
+
+  return 0; // Indicate no valid theme was set.
+}
+
+void handleThemeChange(AsyncWebServerRequest *request) {
+  debugln("Web: Theme Change Triggered");
+
+  // Pre-check: Prevent theme change if pack or wand is running.
+  if (b_pack_on || b_wand_on) {
+    String result;
+    jsonBody.clear();
+    jsonBody["status"] = "Theme change not allowed while pack or wand is running.";
+    serializeJson(jsonBody, result);
+    request->send(409, "application/json", result); // 409 Conflict
+    return;
+  }
+
+  uint16_t i_year = getYearFromPath(request->url());
+  switch (i_year) {
+    case 1984:
+      SYSTEM_YEAR = SYSTEM_1984;
+      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+      b_switch_mode_override = true; // Explicit mode set, override mode toggle.
+      packSerialSend(P_YEAR_1984);
+      attenuatorSerialSend(A_YEAR_1984);
+      playEffect(S_VOICE_1984);
+    break;
+    case 1989:
+      SYSTEM_YEAR = SYSTEM_1989;
+      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+      b_switch_mode_override = true; // Explicit mode set, override mode toggle.
+      packSerialSend(P_YEAR_1989);
+      attenuatorSerialSend(A_YEAR_1989);
+      playEffect(S_VOICE_1989);
+    break;
+    case 2021:
+      SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+      b_switch_mode_override = true; // Explicit mode set, override mode toggle.
+      packSerialSend(P_YEAR_AFTERLIFE);
+      attenuatorSerialSend(A_YEAR_AFTERLIFE);
+      playEffect(S_VOICE_AFTERLIFE);
+    break;
+    case 2024:
+      SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+      b_switch_mode_override = true; // Explicit mode set, override mode toggle.
+      packSerialSend(P_YEAR_FROZEN_EMPIRE);
+      attenuatorSerialSend(A_YEAR_FROZEN_EMPIRE);
+      playEffect(S_VOICE_FROZEN_EMPIRE);
+    break;
+    default:
+      // Should never get here but let's handle it just the same.
+      debugln("Invalid theme year");
+      String result;
+      jsonBody.clear();
+      jsonBody["status"] = "Invalid theme year";
+      serializeJson(jsonBody, result);
+      request->send(400, "application/json", result); // 400 Bad Request
+    break;
+  }
+
+  request->send(200, "application/json", status);
+}
+
 void handleToggleMute(AsyncWebServerRequest *request) {
-  debug("Web: Toggle Mute");
+  debugln("Web: Toggle Mute");
   executeCommand(A_TOGGLE_MUTE);
   request->send(200, "application/json", status);
 }
 
 void handleMasterVolumeUp(AsyncWebServerRequest *request) {
-  debug("Web: Master Volume Up");
+  debugln("Web: Master Volume Up");
   executeCommand(A_VOLUME_INCREASE);
   request->send(200, "application/json", status);
 }
 
 void handleMasterVolumeDown(AsyncWebServerRequest *request) {
-  debug("Web: Master Volume Down");
+  debugln("Web: Master Volume Down");
   executeCommand(A_VOLUME_DECREASE);
   request->send(200, "application/json", status);
 }
 
 void handleEffectsVolumeUp(AsyncWebServerRequest *request) {
-  debug("Web: Effects Volume Up");
+  debugln("Web: Effects Volume Up");
   executeCommand(A_VOLUME_SOUND_EFFECTS_INCREASE);
   request->send(200, "application/json", status);
 }
 
 void handleEffectsVolumeDown(AsyncWebServerRequest *request) {
-  debug("Web: Effects Volume Down");
+  debugln("Web: Effects Volume Down");
   executeCommand(A_VOLUME_SOUND_EFFECTS_DECREASE);
   request->send(200, "application/json", status);
 }
 
 void handleMusicVolumeUp(AsyncWebServerRequest *request) {
-  debug("Web: Music Volume Up");
+  debugln("Web: Music Volume Up");
   executeCommand(A_VOLUME_MUSIC_INCREASE);
   request->send(200, "application/json", status);
 }
 
 void handleMusicVolumeDown(AsyncWebServerRequest *request) {
-  debug("Web: Music Volume Down");
+  debugln("Web: Music Volume Down");
   executeCommand(A_VOLUME_MUSIC_DECREASE);
   request->send(200, "application/json", status);
 }
 
 void handleMusicStartStop(AsyncWebServerRequest *request) {
-  debug("Web: Music Start/Stop");
+  debugln("Web: Music Start/Stop");
   executeCommand(A_MUSIC_START_STOP);
   request->send(200, "application/json", status);
 }
 
 void handleMusicPauseResume(AsyncWebServerRequest *request) {
-  debug("Web: Music Pause/Resume");
+  debugln("Web: Music Pause/Resume");
   executeCommand(A_MUSIC_PAUSE_RESUME);
   request->send(200, "application/json", status);
 }
 
 void handleNextMusicTrack(AsyncWebServerRequest *request) {
-  debug("Web: Next Music Track");
+  debugln("Web: Next Music Track");
   executeCommand(A_MUSIC_NEXT_TRACK);
   request->send(200, "application/json", status);
 }
 
 void handlePrevMusicTrack(AsyncWebServerRequest *request) {
-  debug("Web: Prev Music Track");
+  debugln("Web: Prev Music Track");
   executeCommand(A_MUSIC_PREV_TRACK);
   request->send(200, "application/json", status);
 }
 
 void handleLoopMusicTrack(AsyncWebServerRequest *request) {
-  debug("Web: Toggle Music Track Loop");
+  debugln("Web: Toggle Music Track Loop");
   executeCommand(A_MUSIC_TRACK_LOOP_TOGGLE);
   request->send(200, "application/json", status);
 }
@@ -859,7 +932,7 @@ void handleSelectMusicTrack(AsyncWebServerRequest *request) {
 
   if(c_music_track.toInt() != 0 && c_music_track.toInt() >= i_music_track_start) {
     uint16_t i_music_track = c_music_track.toInt();
-    debug("Web: Selected Music Track: " + String(i_music_track));
+    debugln("Web: Selected Music Track: " + String(i_music_track));
     executeCommand(A_MUSIC_PLAY_TRACK, i_music_track); // Inform the pack of the new track.
     request->send(200, "application/json", status);
   }
@@ -874,20 +947,20 @@ void handleSelectMusicTrack(AsyncWebServerRequest *request) {
 }
 
 void handleSaveAllEEPROM(AsyncWebServerRequest *request) {
-  debug("Web: Save All EEPROM");
+  debugln("Web: Save All EEPROM");
   executeCommand(A_SAVE_EEPROM_SETTINGS_PACK);
   executeCommand(A_SAVE_EEPROM_SETTINGS_WAND);
   request->send(200, "application/json", status);
 }
 
 void handleSavePackEEPROM(AsyncWebServerRequest *request) {
-  debug("Web: Save Pack EEPROM");
+  debugln("Web: Save Pack EEPROM");
   executeCommand(A_SAVE_EEPROM_SETTINGS_PACK);
   request->send(200, "application/json", status);
 }
 
 void handleSaveWandEEPROM(AsyncWebServerRequest *request) {
-  debug("Web: Save Wand EEPROM");
+  debugln("Web: Save Wand EEPROM");
   executeCommand(A_SAVE_EEPROM_SETTINGS_WAND);
   request->send(200, "application/json", status);
 }
@@ -899,7 +972,7 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
     jsonBody = json.as<JsonObject>();
   }
   else {
-    debug("Body was not a JSON object");
+    debugln("Body was not a JSON object");
   }
 
   String result;
@@ -915,7 +988,7 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
         // Accesses namespace in read/write mode.
         if(preferences.begin("credentials", false)) {
           #if defined(DEBUG_SEND_TO_CONSOLE)
-            debug(F("New Private SSID: "));
+            debugln(F("New Private SSID: "));
             debugln(newSSID);
           #endif
           preferences.putString("ssid", newSSID); // Store SSID in case this was altered.
@@ -963,7 +1036,7 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
 
         // Update song lists if contents are under 2000 bytes.
         #if defined(DEBUG_SEND_TO_CONSOLE)
-          debug(F("Song List Bytes: "));
+          debugln(F("Song List Bytes: "));
           debugln(songList.length());
         #endif
         preferences.putString("track_list", songList);
@@ -1012,7 +1085,7 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
     jsonBody = json.as<JsonObject>();
   }
   else {
-    debug("Body was not a JSON object");
+    debugln("Body was not a JSON object");
   }
 
   String result;
@@ -1107,7 +1180,7 @@ AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHand
     jsonBody = json.as<JsonObject>();
   }
   else {
-    debug("Body was not a JSON object");
+    debugln("Body was not a JSON object");
   }
 
   String result;
@@ -1163,7 +1236,7 @@ AsyncCallbackJsonWebHandler *handleSaveSmokeConfig = new AsyncCallbackJsonWebHan
     jsonBody = json.as<JsonObject>();
   }
   else {
-    debug("Body was not a JSON object");
+    debugln("Body was not a JSON object");
   }
 
   String result;
@@ -1224,7 +1297,7 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
     jsonBody = json.as<JsonObject>();
   }
   else {
-    debug("Body was not a JSON object");
+    debugln("Body was not a JSON object");
   }
 
   String result;
@@ -1257,7 +1330,7 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
     }
   }
   else {
-    debug("No password in JSON body");
+    debugln("No password in JSON body");
     jsonBody.clear();
     jsonBody["status"] = "Unable to update password.";
     serializeJson(jsonBody, result); // Serialize to string.
@@ -1272,7 +1345,7 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
     jsonBody = json.as<JsonObject>();
   }
   else {
-    debug("Body was not a JSON object");
+    debugln("Body was not a JSON object");
   }
 
   String result;
@@ -1352,7 +1425,7 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
     }
   }
   else {
-    debug("No password in JSON body");
+    debugln("No password in JSON body");
     jsonBody.clear();
     jsonBody["status"] = "Unable to update password.";
     serializeJson(jsonBody, result); // Serialize to string.
@@ -1362,7 +1435,7 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
 
 void handleNotFound(AsyncWebServerRequest *request) {
   // Returned for any invalid URL requested.
-  debug("Web page not found");
+  debugln("Web page not found");
   request->send(404, "text/plain", "Not Found");
 }
 
@@ -1401,6 +1474,10 @@ void setupRouting() {
   httpServer.on("/pack/vent", HTTP_PUT, handleManualVent);
   httpServer.on("/pack/lockout/start", HTTP_PUT, handleManualLockout);
   httpServer.on("/pack/lockout/cancel", HTTP_PUT, handleCancelLockout);
+  httpServer.on("/pack/theme/1984", HTTP_PUT, handleThemeChange);
+  httpServer.on("/pack/theme/1989", HTTP_PUT, handleThemeChange);
+  httpServer.on("/pack/theme/2021", HTTP_PUT, handleThemeChange);
+  httpServer.on("/pack/theme/2024", HTTP_PUT, handleThemeChange);
   httpServer.on("/volume/toggle", HTTP_PUT, handleToggleMute);
   httpServer.on("/volume/master/up", HTTP_PUT, handleMasterVolumeUp);
   httpServer.on("/volume/master/down", HTTP_PUT, handleMasterVolumeDown);
