@@ -209,7 +209,7 @@ void saveConfigEEPROM() {
   uint8_t i_demo_light_mode = 1;
   uint8_t i_use_ribbon_cable = 1;
   uint8_t i_cyclotron_three_led_toggle = 1; // 1 = single led, 2 = three leds.
-  uint8_t i_default_system_volume = 101; // <- i_eeprom_volume_master_percentage + 1
+  uint8_t i_default_system_volume = 100; // <- i_eeprom_volume_master_percentage
   uint8_t i_overheat_smoke_duration_level_5 = i_ms_overheating_length_5 / 1000;
   uint8_t i_overheat_smoke_duration_level_4 = i_ms_overheating_length_4 / 1000;
   uint8_t i_overheat_smoke_duration_level_3 = i_ms_overheating_length_3 / 1000;
@@ -711,9 +711,8 @@ void readEEPROM() {
       }
     }
 
-    if(gObjConfigEEPROM.default_system_volume > 0 && gObjConfigEEPROM.default_system_volume < 102) {
-      // EEPROM value is from 1 to 101; subtract 1 to get the correct percentage.
-      i_volume_master_percentage = gObjConfigEEPROM.default_system_volume - 1;
+    if(gObjConfigEEPROM.default_system_volume < 101) {
+      i_volume_master_percentage = gObjConfigEEPROM.default_system_volume;
       i_volume_master_eeprom = (MINIMUM_VOLUME + i_volume_min_adj) - ((MINIMUM_VOLUME + i_volume_min_adj) * i_volume_master_percentage / 100);
       i_volume_revert = i_volume_master_eeprom;
       i_volume_master = i_volume_master_eeprom;
