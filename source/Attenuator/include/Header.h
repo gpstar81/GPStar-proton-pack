@@ -126,7 +126,7 @@ bool b_bargraph_present = false; // Denotes that i2c bus found the bargraph devi
 millisDelay ms_bargraph; // Timer to control bargraph updates consistently.
 
 // Denotes the speed of the cyclotron (1=Normal) which increases as firing continues.
-uint8_t i_speed_multiplier = 1;
+uint8_t i_cyclotron_multiplier = 1;
 
 // Denotes whether the cyclotron lid is currently on (covered) or off (exposed).
 bool b_cyclotron_lid_on = true;

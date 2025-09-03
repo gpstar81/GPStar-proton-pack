@@ -369,7 +369,7 @@ void checkRotaryEncoder() {
   // Take action if rotary encoder value was turned CW.
   if(i_val_rotary > i_last_val_rotary) {
     if(!ms_rotary_debounce.isRunning()) {
-      if(b_wand_firing && i_speed_multiplier > 2) {
+      if(b_wand_firing && i_cyclotron_multiplier > 2) {
         // Tell the pack to cancel the current overheat warning.
         // Only do so after 5 turns of the dial (CW).
         i_rotary_count++;
@@ -403,7 +403,7 @@ void checkRotaryEncoder() {
   // Take action if rotary encoder value was turned CCW.
   if(i_val_rotary < i_last_val_rotary) {
     if(!ms_rotary_debounce.isRunning()) {
-      if(b_wand_firing && i_speed_multiplier > 2) {
+      if(b_wand_firing && i_cyclotron_multiplier > 2) {
         // Tell the pack to cancel the current overheat warning.
         // Only do so after 5 turns of the dial (CCW).
         i_rotary_count++;
@@ -533,22 +533,22 @@ void checkUserInputs() {
   if(switch_right.getState() == LOW) {
     b_right_toggle_on = true;
 
-    if(b_wand_firing && i_speed_multiplier <= 2 && b_firing_feedback && !b_overheating && !b_pack_alarm) {
+    if(b_wand_firing && i_cyclotron_multiplier <= 2 && b_firing_feedback && !b_overheating && !b_pack_alarm) {
       // Give physical feedback through vibration while wand is firing, but not in an overheat/alarm state.
       useVibration(i_vibrate_min_time); // Use short bursts as this may be called multiple times in a row.
     }
-    else if((b_wand_firing && i_speed_multiplier > 2) || b_overheating || b_pack_alarm) {
+    else if((b_wand_firing && i_cyclotron_multiplier > 2) || b_overheating || b_pack_alarm) {
       // If in pre-overheat warning, overheat, or alarm modes...
 
       // Sets a timer value proportional to the speed of the cyclotron.
-      uint16_t i_blink_time = int(i_blink_leds / i_speed_multiplier);
+      uint16_t i_blink_time = int(i_blink_leds / i_cyclotron_multiplier);
 
       if(ms_blink_leds.justFinished()) {
         ms_blink_leds.start(i_blink_time);
       }
 
       if(ms_blink_leds.isRunning()) {
-        if(b_wand_firing && i_speed_multiplier >= 3 && !b_overheating) {
+        if(b_wand_firing && i_cyclotron_multiplier >= 3 && !b_overheating) {
           // Switch to a modified bargraph pattern for the pre-overheat (venting)
           // warning while the wand is still firing.
           BARGRAPH_PATTERN = BG_INNER_PULSE;

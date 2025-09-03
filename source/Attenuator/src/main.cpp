@@ -128,7 +128,7 @@ void AnimationTask(void *parameter) {
 
     // Update bargraph elements, leveraging cyclotron speed modifier.
     // In reality this multiplier is a divisor to the standard delay.
-    bargraphUpdate(i_speed_multiplier);
+    bargraphUpdate(i_cyclotron_multiplier);
 
     // Update the device LEDs and restart the timer.
     FastLED.show();

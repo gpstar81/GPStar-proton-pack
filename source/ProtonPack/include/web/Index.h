@@ -149,6 +149,15 @@ const char INDEX_page[] PROGMEM = R"=====(
       <br/>
       <br/>
       <br/>
+      <select id="themes" class="custom-select" onchange="themeSelect(this)">
+        <option value="1984">GB1 - 1984</option>
+        <option value="1989">GB2 - 1989</option>
+        <option value="2021">Afterlife</option>
+        <option value="2024">Frozen Empire</option>
+      </select>
+      <br/>
+      <br/>
+      <br/>
       <!--
       <button type="button" class="orange" onclick="packLOStart()" id="btnLOStart">Lockout</button>
       &nbsp;&nbsp;

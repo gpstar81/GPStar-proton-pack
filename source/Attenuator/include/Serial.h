@@ -445,7 +445,7 @@ bool checkPack() {
           b_pack_on = attenuatorSyncData.packOn == 1;
           b_wand_firing = attenuatorSyncData.wandFiring == 1;
           b_overheating = attenuatorSyncData.overheatingNow == 1;
-          i_speed_multiplier = attenuatorSyncData.speedMultiplier;
+          i_cyclotron_multiplier = attenuatorSyncData.speedMultiplier;
           i_spectral_custom_colour = attenuatorSyncData.spectralColour;
           i_spectral_custom_saturation = attenuatorSyncData.spectralSaturation;
 
@@ -845,7 +845,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       debug("Quick Venting");
 
       // Pack is performing quick vent; reset bargraph.
-      i_speed_multiplier = 1;
+      i_cyclotron_multiplier = 1;
       b_overheating = true;
       b_state_changed = true;
 
@@ -882,7 +882,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       b_state_changed = true;
       ms_blink_leds.stop();
 
-      i_speed_multiplier = 1; // Return to normal speed.
+      i_cyclotron_multiplier = 1; // Return to normal speed.
 
       bargraphClear();
       BARGRAPH_PATTERN = BG_POWER_RAMP;
@@ -893,7 +893,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
 
       b_wand_firing = true;
       b_state_changed = true;
-      ms_blink_leds.start(i_blink_leds / i_speed_multiplier);
+      ms_blink_leds.start(i_blink_leds / i_cyclotron_multiplier);
 
       bargraphClear();
       BARGRAPH_PATTERN = BG_OUTER_INNER;
@@ -907,7 +907,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       ms_blink_leds.stop();
 
       if(!b_overheating) {
-        i_speed_multiplier = 1; // Return to normal speed.
+        i_cyclotron_multiplier = 1; // Return to normal speed.
       }
 
       if(b_pack_alarm) {
@@ -937,16 +937,16 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     case A_CYCLOTRON_INCREASE_SPEED:
       debug("Cyclotron Speed Increasing...");
 
-      i_speed_multiplier++;
+      i_cyclotron_multiplier++;
       b_state_changed = true;
 
-      debug(String(i_speed_multiplier));
+      debug(String(i_cyclotron_multiplier));
     break;
 
     case A_CYCLOTRON_NORMAL_SPEED:
       debug("Cyclotron Speed Reset");
 
-      i_speed_multiplier = 1;
+      i_cyclotron_multiplier = 1;
       b_state_changed = true;
 
       if(b_wand_firing) {

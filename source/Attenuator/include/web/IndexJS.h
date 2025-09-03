@@ -214,6 +214,14 @@ function setButtonStates(mode, pack, wand, cyclotron, ionswitch, firing) {
     getEl("btnPackOn").disabled = false;
   }
 
+  if (pack == "Powered" || wand == "Powered") {
+    // If either the pack or wand is powered, we cannot change themes.
+    getEl("themes").disabled = true;
+  } else {
+    // Only allow theme change if both pack and wand are off.
+    getEl("themes").disabled = false;
+  }
+
   if (pack == "Powered" && (cyclotron == "Normal" || cyclotron == "Active") && firing != "Firing") {
     // Can only use manual vent if pack is not already venting, and not currently firing.
     // eg. Cyclotron is not in the Warning, Critical, or Recovery states.

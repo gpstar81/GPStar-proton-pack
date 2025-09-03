@@ -103,6 +103,8 @@ function openTab(evt, tabName) {
 /** Common Data Handling **/
 
 function handleStatus(response) {
+  // Generic handler for a JSON response with a "status" field.
+  // If a response is not JSON then the full text is displayed.
   if (isJsonString(response || "")) {
     var jObj = JSON.parse(response || "");
     if (jObj.status && jObj.status != "success") {
@@ -189,6 +191,7 @@ function musicPauseResume() {
 }
 
 function musicSelect(caller) {
+  // Change the music track by selected option: /music/select?track=<#>
   sendCommand("/music/select?track=" + caller.value);
 }
 
@@ -202,6 +205,11 @@ function musicNext() {
 
 function musicLoop() {
   sendCommand("/music/loop");
+}
+
+function themeSelect(caller) {
+  // Change the theme via selected option: /pack/theme/<year>
+  sendCommand("/pack/theme/" + caller.value);
 }
 
 function getStatus(callbackFunc) {

@@ -177,7 +177,7 @@ String getPower() {
 }
 
 String getCyclotronState() {
-  switch(i_speed_multiplier) {
+  switch(i_cyclotron_multiplier) {
     case 1:
        // Indicates an "idle" state, subject to the overheat status.
       return (b_overheating ? "Recovery" : "Normal");
@@ -740,7 +740,7 @@ void handlePackOff(AsyncWebServerRequest *request) {
 }
 
 void handleAttenuatePack(AsyncWebServerRequest *request) {
-  if(i_speed_multiplier > 2) {
+  if(i_cyclotron_multiplier > 2) {
     // Only send command to pack if cyclotron is not "normal".
     debugln("Web: Cancel Overheat Warning");
     attenuatorSerialSend(A_WARNING_CANCELLED);
