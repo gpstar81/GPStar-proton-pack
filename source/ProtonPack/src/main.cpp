@@ -358,14 +358,12 @@ void mainLoop() {
           resetRampDown();
 
           b_pack_shutting_down = true;
-
           ms_fadeout.start(0);
+          b_pack_on = false;
 
           // Tell the wand the pack is off, so shut down the wand if it happens to still be on.
           packSerialSend(P_OFF);
           attenuatorSerialSend(A_PACK_OFF);
-
-          b_pack_on = false;
         }
 
         if(b_ramp_down && !b_overheating && !b_pack_alarm) {
@@ -412,13 +410,13 @@ void mainLoop() {
         }
 
         if(!b_pack_on) {
-          // Tell the wand the pack is on.
-          packSerialSend(P_ON);
-          attenuatorSerialSend(A_PACK_ON);
-
           ms_fadeout.stop();
           b_fade_out = false;
           b_pack_on = true;
+
+          // Tell the wand the pack is on.
+          packSerialSend(P_ON);
+          attenuatorSerialSend(A_PACK_ON);
         }
 
         if(b_ramp_down && !ms_mash_lockout.isRunning()) {
