@@ -165,6 +165,8 @@ const char INDEX_page[] PROGMEM = R"=====(
       &mdash;
       <span id="wifiName"></span>
       <br/>
+      <span id="audioInfo"></span>
+      <br/>
       <span id="clientInfo"></span>
       <br/>
       <span id="extWifi"></span>

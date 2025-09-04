@@ -221,6 +221,7 @@ uint16_t i_music_track_count = 0; // Count of tracks as returned by the pack.
 uint16_t i_current_music_track = 0;
 uint16_t i_music_track_min = 0; // Min value for music track index (0 = unset).
 uint16_t i_music_track_max = 0; // Max value for music track index (0 = unset).
+uint16_t i_audio_version = 0; // Type/Version of Proton Pack audio board (0 = no audio).
 uint8_t i_volume_master_percentage = 100; // Master overall volume
 uint8_t i_volume_effects_percentage = 100; // Sound effects
 uint8_t i_volume_music_percentage = 100; // Music volume

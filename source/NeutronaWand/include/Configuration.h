@@ -19,12 +19,12 @@
 
 #pragma once
 
+#ifdef ESP32
 /*
  * Used to reflect the last build date for the binary.
  */
-String build_date = "V6_20250904131859";
+String build_date = "V6_20250904160853";
 
-#ifdef ESP32
 /*
  * Preferred WiFi Network Defaults (only for ESP32)
  * Directly provides information for an external WiFi network for the device to join.

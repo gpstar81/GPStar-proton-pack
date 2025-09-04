@@ -172,6 +172,7 @@ struct __attribute__((packed)) AttenuatorSyncData {
   uint8_t trackLooped;
   uint16_t currentTrack;
   uint16_t musicCount;
+  uint16_t audioVersion;
   uint16_t packVoltage;
 } attenuatorSyncData;
 
@@ -456,6 +457,7 @@ bool checkPack() {
           b_wand_connected = attenuatorSyncData.wandPresent == 1;
           b_cyclotron_lid_on = attenuatorSyncData.cyclotronLidState == 1;
           f_batt_volts = (float) attenuatorSyncData.packVoltage / 100;
+          i_audio_version = attenuatorSyncData.audioVersion;
           i_volume_master_percentage = attenuatorSyncData.masterVolume;
           i_volume_effects_percentage = attenuatorSyncData.effectsVolume;
           i_volume_music_percentage = attenuatorSyncData.musicVolume;

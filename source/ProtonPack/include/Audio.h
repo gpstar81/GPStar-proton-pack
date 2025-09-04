@@ -61,7 +61,7 @@ enum AUDIO_DEVICES AUDIO_DEVICE = A_NONE;
  */
 uint16_t i_music_track_count = 0; // Contains the total number of detected music tracks on the SD card.
 uint16_t i_current_music_track = 0; // Sets the ID number for the music track to be played.
-uint16_t i_gpstar_audio_version = 0; // Contains the firmware version for GPStar Audio (if applicable).
+uint16_t i_audio_version = 0; // Contains the firmware version for GPStar Audio (if applicable).
 const uint16_t i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
 const int8_t i_volume_abs_min = -70; // System (absolute) minimum volume possible.
 const int8_t i_volume_abs_max = 0; // System (absolute) maximum volume possible.
@@ -942,13 +942,14 @@ bool setupAudioDevice() {
   }
 
   if(audio.gpstarAudioHello()) {
-    i_gpstar_audio_version = audio.getVersionNumber();
+    i_audio_version = audio.getVersionNumber();
 
-    if(i_gpstar_audio_version != 0) {
+    if(i_audio_version != 0) {
       AUDIO_DEVICE = A_GPSTAR_AUDIO_ADV;
     }
     else {
       AUDIO_DEVICE = A_GPSTAR_AUDIO;
+      i_audio_version = 100; // Set to 100 to indicate old version.
     }
 
     i_volume_min_adj = 10; // Moves minimum volume up for GPStar Audio since its minimum is higher.
@@ -999,6 +1000,7 @@ bool setupAudioDevice() {
     audio.setReporting(true);
 
     AUDIO_DEVICE = A_WAV_TRIGGER;
+    i_audio_version = 1; // Set to 1 to indicate WAV Trigger.
 
     sendDebug(F("Using WAV Trigger"));
 

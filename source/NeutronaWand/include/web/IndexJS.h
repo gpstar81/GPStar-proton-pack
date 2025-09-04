@@ -101,6 +101,20 @@ function getDevicePrefs() {
         if ((jObj.wifiNameExt || "") != "" && (jObj.extAddr || "") != "" || (jObj.extMask || "") != "") {
           setHtml("extWifi", (jObj.wifiNameExt || "") + ": " + jObj.extAddr + " / " + jObj.extMask);
         }
+        switch(jObj.audioVersion || 0) {
+          case 0:
+            setHtml("audioInfo", "No Audio Detected");
+          break;
+          case 1:
+            setHtml("audioInfo", "WAV Trigger");
+          break;
+          case 100:
+            setHtml("audioInfo", "GPStar Audio v100");
+          break;
+          default:
+            setHtml("audioInfo", "GPStar Audio v" + (jObj.audioVersion || ""));
+          break;
+        }
       }
     }
   };

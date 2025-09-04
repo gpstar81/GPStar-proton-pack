@@ -429,6 +429,7 @@ String getDeviceConfig() {
     jsonBody["songList"] = "";
   }
   jsonBody["buildDate"] = build_date;
+  jsonBody["audioVersion"] = i_audio_version;
   jsonBody["wifiName"] = ap_ssid;
   jsonBody["wifiNameExt"] = wifi_ssid;
   jsonBody["extAddr"] = wifi_address;

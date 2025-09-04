@@ -209,6 +209,7 @@ struct __attribute__((packed)) AttenuatorSyncData {
   uint8_t trackLooped;
   uint16_t currentTrack;
   uint16_t musicCount;
+  uint16_t audioVersion;
   uint16_t packVoltage;
 } attenuatorSyncData;
 
@@ -1061,6 +1062,7 @@ void doAttenuatorSync() {
   attenuatorSyncData.overheatingNow = b_overheating ? 1 : 0;
 
   // This sends over the music status and the current music track.
+  attenuatorSyncData.audioVersion = i_audio_version;
   attenuatorSyncData.musicPlaying = b_playing_music ? 1 : 0;
   attenuatorSyncData.musicPaused = b_music_paused ? 1 : 0;
   attenuatorSyncData.trackLooped = b_repeat_track ? 2 : 1;
