@@ -390,7 +390,6 @@ void adjustGainEffect(uint16_t i_track_id, int8_t i_track_volume, bool b_fade, u
 // Fades out a single track.
 void fadeoutEffect(uint16_t i_track_id, uint16_t i_fade_time) {
   switch(AUDIO_DEVICE) {
-    case A_WAV_TRIGGER:
     case A_GPSTAR_AUDIO:
     case A_GPSTAR_AUDIO_ADV:
       audio.trackFade(i_track_id, -70, i_fade_time, true);
