@@ -51,7 +51,7 @@ Preferences preferences;
 
 // Set up values for the SSID and password for the built-in WiFi access point (AP).
 const uint8_t i_max_attempts = 3; // Max attempts to establish a external WiFi connection.
-const String ap_ssid_prefix = "StreamEffects"; // This will be the base of the SSID name.
+String ap_ssid_prefix = "StreamEffects"; // This will be the base of the SSID name.
 String ap_default_passwd = "555-2368"; // This will be the default password for the AP.
 String ap_ssid; // Reserved for holding the full, private AP name for this device.
 bool b_ap_started = false; // Denotes the softAP network has been started.
@@ -98,9 +98,9 @@ const uint16_t i_apClientCount = 200;
  * available at 192.168.2.2
  */
 WebSocketsClient wsClient;
-const String ws_host = "192.168.1.2";  // WebSocket server IP
+String ws_host = "192.168.1.2";  // WebSocket server IP
 const uint16_t ws_port = 80;           // WebSocket server port
-const String ws_uri = "/ws";           // WebSocket URI
+String ws_uri = "/ws";           // WebSocket URI
 bool b_socket_ready = false;           // WS client socket ready
 uint16_t i_websocket_retry_wait = 500; // Delay for WS retry
 
@@ -109,7 +109,7 @@ millisDelay ms_otacheck;
 const uint16_t i_otaCheck = 100;
 
 // Convert an IP address string to an IPAddress object.
-IPAddress convertToIP(String ipAddressString) {
+IPAddress convertToIP(const String ipAddressString) {
   uint16_t quads[4]; // Array to store 4 quads for the IP.
   uint8_t quadStartIndex = 0;
   int8_t quadEndIndex = 0;
@@ -137,7 +137,7 @@ IPAddress convertToIP(String ipAddressString) {
 }
 
 // Remove spaces and illegal characters meant for an SSID.
-String sanitizeSSID(String input) {
+String sanitizeSSID(const String input) {
     String result = "";
 
     for (size_t i = 0; i < input.length(); i++) {

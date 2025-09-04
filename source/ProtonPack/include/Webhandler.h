@@ -774,7 +774,7 @@ void handleCancelLockout(AsyncWebServerRequest *request) {
   request->send(200, "application/json", status);
 }
 
-uint16_t getYearFromPath(String s_path) {
+uint16_t getYearFromPath(const String s_path) {
   // Check that the path value is not empty.
   if (s_path.length() > 0) {
     int lastSlash = s_path.lastIndexOf('/');

@@ -61,6 +61,7 @@ enum AUDIO_DEVICES AUDIO_DEVICE = A_NONE;
  */
 uint16_t i_music_track_count = 0; // Contains the total number of detected music tracks on the SD card.
 uint16_t i_current_music_track = 0; // Sets the ID number for the music track to be played.
+uint16_t i_gpstar_audio_version = 0; // Contains the firmware version for GPStar Audio (if applicable).
 const uint16_t i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
 const int8_t i_volume_abs_min = -70; // System (absolute) minimum volume possible.
 const int8_t i_volume_abs_max = 0; // System (absolute) maximum volume possible.
@@ -456,7 +457,7 @@ void fadeoutEffect(uint16_t i_track_id, uint16_t i_fade_time) {
     case A_WAV_TRIGGER:
     case A_GPSTAR_AUDIO:
     case A_GPSTAR_AUDIO_ADV:
-      audio.trackFade(i_track_id, -70, i_fade_time, true);
+      audio.trackFade(i_track_id, i_volume_abs_min, i_fade_time, true);
     break;
 
     case A_NONE:
@@ -941,7 +942,9 @@ bool setupAudioDevice() {
   }
 
   if(audio.gpstarAudioHello()) {
-    if(audio.getVersionNumber() != 0) {
+    i_gpstar_audio_version = audio.getVersionNumber();
+
+    if(i_gpstar_audio_version != 0) {
       AUDIO_DEVICE = A_GPSTAR_AUDIO_ADV;
     }
     else {

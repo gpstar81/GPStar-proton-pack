@@ -21,7 +21,7 @@
 #pragma once
 
 // Writes a debug message to the serial console or sends to the WebSocket.
-void sendDebug(String message) {
+void sendDebug(const String message) {
   #if defined(DEBUG_SEND_TO_CONSOLE)
     debugln(message); // Print to serial console.
   #endif

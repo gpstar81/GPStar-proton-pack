@@ -21,7 +21,7 @@
 
 #pragma once
 
-void debug(String message) {
+void debug(const String message) {
   // Writes a debug message to the serial console.
   #if defined(DEBUG_SEND_TO_CONSOLE)
     Serial.println(message); // Print to serial console.

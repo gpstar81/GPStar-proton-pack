@@ -62,4 +62,4 @@ bool b_firing = false;
 uint8_t i_power = 1;
 
 // Forward declarations.
-void debug(String message);
+void debug(const String message);

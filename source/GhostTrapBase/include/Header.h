@@ -124,4 +124,4 @@ uint16_t i_smoke_opened_duration = 2000;
 uint16_t i_smoke_closed_duration = 3000;
 
 // Forward declarations.
-void debug(String message);
+void debug(const String message);
