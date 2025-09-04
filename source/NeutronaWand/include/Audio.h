@@ -106,6 +106,7 @@ void playEffect(uint16_t i_track_id, bool b_track_loop = false, int8_t i_track_v
 void stopEffect(uint16_t i_track_id);
 void playTransitionEffect(uint16_t i_track_id, uint16_t i_track_id2, bool b_track2_loop = false, uint16_t i_track2_offset = 0, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, uint16_t i_fade_time = 0, bool b_lock = true);
 void adjustGainEffect(uint16_t i_track_id, int8_t i_track_volume = i_volume_effects, bool b_fade = false, uint16_t i_fade_time = 0);
+void fadeoutEffect(uint16_t i_track_id, uint16_t i_fade_time = 50);
 void updateMasterVolume(bool startup = false);
 
 /*
@@ -128,7 +129,7 @@ void playEffect(uint16_t i_track_id, bool b_track_loop, int8_t i_track_volume, b
       if(b_fade_in) {
         audio.trackGain(i_track_id, i_volume_abs_min);
         audio.trackPlayPoly(i_track_id, b_lock);
-        audio.trackFade(i_track_id, i_track_volume, i_fade_time, 0);
+        audio.trackFade(i_track_id, i_track_volume, i_fade_time, false);
       }
       else {
         audio.trackGain(i_track_id, i_track_volume);
@@ -136,10 +137,10 @@ void playEffect(uint16_t i_track_id, bool b_track_loop, int8_t i_track_volume, b
       }
 
       if(b_track_loop) {
-        audio.trackLoop(i_track_id, 1);
+        audio.trackLoop(i_track_id, true);
       }
       else {
-        audio.trackLoop(i_track_id, 0);
+        audio.trackLoop(i_track_id, false);
       }
     break;
 
@@ -147,7 +148,7 @@ void playEffect(uint16_t i_track_id, bool b_track_loop, int8_t i_track_volume, b
       if(b_fade_in) {
         audio.trackGain(i_track_id, i_volume_abs_min);
         audio.trackPlayPoly(i_track_id, b_lock, b_preload_tracks ? 50 : 0);
-        audio.trackFade(i_track_id, i_track_volume, i_fade_time, 0);
+        audio.trackFade(i_track_id, i_track_volume, i_fade_time, false);
       }
       else {
         audio.trackGain(i_track_id, i_track_volume);
@@ -155,10 +156,10 @@ void playEffect(uint16_t i_track_id, bool b_track_loop, int8_t i_track_volume, b
       }
 
       if(b_track_loop) {
-        audio.trackLoop(i_track_id, 1);
+        audio.trackLoop(i_track_id, true);
       }
       else {
-        audio.trackLoop(i_track_id, 0);
+        audio.trackLoop(i_track_id, false);
       }
     break;
 
@@ -200,7 +201,7 @@ void playTransitionEffect(uint16_t i_track_id, uint16_t i_track_id2, bool b_trac
         audio.trackGain(i_track_id, i_volume_abs_min);
         audio.trackGain(i_track_id2, i_track_volume);
         audio.trackPlayPoly(i_track_id, b_lock, b_preload_tracks ? 50 : 0, i_track_id2, b_track2_loop, i_track2_offset);
-        audio.trackFade(i_track_id, i_track_volume, i_fade_time, 0);
+        audio.trackFade(i_track_id, i_track_volume, i_fade_time, false);
       }
       else {
         audio.trackGain(i_track_id, i_track_volume);
@@ -227,10 +228,10 @@ void playMusic() {
         if(b_gpstar_benchtest) {
           // Loop the music track.
           if(b_repeat_track) {
-            audio.trackLoop(i_current_music_track, 1);
+            audio.trackLoop(i_current_music_track, true);
           }
           else {
-            audio.trackLoop(i_current_music_track, 0);
+            audio.trackLoop(i_current_music_track, false);
           }
 
           audio.trackGain(i_current_music_track, i_volume_music);
@@ -246,10 +247,10 @@ void playMusic() {
         if(b_gpstar_benchtest) {
           // Loop the music track.
           if(b_repeat_track) {
-            audio.trackLoop(i_current_music_track, 1);
+            audio.trackLoop(i_current_music_track, true);
           }
           else {
-            audio.trackLoop(i_current_music_track, 0);
+            audio.trackLoop(i_current_music_track, false);
           }
 
           audio.trackGain(i_current_music_track, i_volume_music);
@@ -421,11 +422,27 @@ void adjustGainEffect(uint16_t i_track_id, int8_t i_track_volume, bool b_fade, u
     case A_GPSTAR_AUDIO:
     case A_GPSTAR_AUDIO_ADV:
       if(b_fade) {
-        audio.trackFade(i_track_id, i_track_volume, i_fade_time, 0);
+        audio.trackFade(i_track_id, i_track_volume, i_fade_time, false);
       }
       else {
         audio.trackGain(i_track_id, i_track_volume);
       }
+    break;
+
+    case A_NONE:
+    default:
+      // No audio device connected.
+    break;
+  }
+}
+
+// Fades out a single track.
+void fadeoutEffect(uint16_t i_track_id, uint16_t i_fade_time) {
+  switch(AUDIO_DEVICE) {
+    case A_WAV_TRIGGER:
+    case A_GPSTAR_AUDIO:
+    case A_GPSTAR_AUDIO_ADV:
+      audio.trackFade(i_track_id, -70, i_fade_time, true);
     break;
 
     case A_NONE:
@@ -822,14 +839,14 @@ void toggleMusicLoop() {
         b_repeat_track = true;
 
         if(i_music_track_count > 0) {
-          audio.trackLoop(i_current_music_track, 1);
+          audio.trackLoop(i_current_music_track, true);
         }
       }
       else {
         b_repeat_track = false;
 
         if(i_music_track_count > 0) {
-          audio.trackLoop(i_current_music_track, 0);
+          audio.trackLoop(i_current_music_track, false);
         }
       }
     break;

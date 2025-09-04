@@ -103,20 +103,21 @@ function getDevicePrefs() {
         // Display Preference
         switch(jObj.displayType || 0) {
           case 0:
+          default:
             // Text-Only Display
             hideEl("equipCRT");
             showEl("equipTXT");
-            break;
+          break;
           case 1:
             // Graphical Display
             showEl("equipCRT");
             hideEl("equipTXT");
-            break;
+          break;
           case 2:
             // Both graphical and text
             showEl("equipCRT");
             showEl("equipTXT");
-            break;
+          break;
         }
       }
     }
@@ -200,7 +201,7 @@ function disableActionButtons() {
   //getEl("btnLOCancel").disabled = true;
 }
 
-function setButtonStates(mode, pack, wand, cyclotron, ionswitch, firing) {
+function setButtonStates(mode, pack, wand, cyclotron, ionswitch, firing, ramping, themeid) {
   // Assume all direct user actions are not possible, then override as necessary.
   disableActionButtons();
 
@@ -214,7 +215,24 @@ function setButtonStates(mode, pack, wand, cyclotron, ionswitch, firing) {
     getEl("btnPackOn").disabled = false;
   }
 
-  if (pack == "Powered" || wand == "Powered") {
+  // Set the theme drop-down to the current theme.
+  switch(themeid) {
+    case 2:
+    default:
+      setValue("themes", "1984");
+    break;
+    case 3:
+      setValue("themes", "1989");
+    break;
+    case 4:
+      setValue("themes", "2021");
+    break;
+    case 5:
+      setValue("themes", "2024");
+    break;
+  }
+
+  if (pack == "Powered" || wand == "Powered" || ramping) {
     // If either the pack or wand is powered, we cannot change themes.
     getEl("themes").disabled = true;
   } else {
@@ -247,26 +265,27 @@ function getStreamColor(cMode) {
     case "Plasm System":
       // Dark Green
       color[1] = 80;
-      break;
+    break;
     case "Dark Matter Gen.":
       // Light Blue
       color[1] = 60;
       color[2] = 255;
-      break;
+    break;
     case "Particle System":
       // Orange
       color[0] = 255;
       color[1] = 140;
-      break;
+    break;
     case "Settings":
       // Gray
       color[0] = 40;
       color[1] = 40;
       color[2] = 40;
-      break;
+    break;
     default:
       // Proton Stream(s) as Red
       color[0] = 180;
+    break;
   }
 
   return color;
@@ -304,6 +323,7 @@ function updateGraphics(jObj){
       break;
       default:
         header = "- Disabled -";
+      break;
     }
     switch(jObj.themeID || 0) {
       case 2:
@@ -320,6 +340,7 @@ function updateGraphics(jObj){
       break;
       default:
         header += " / V0.0.00";
+      break;
     }
     setHtml("equipTitle", header);
 
@@ -347,19 +368,19 @@ function updateGraphics(jObj){
       case "Active":
         colorEl("cycOverlay", 255, 230, 0);
         blinkEl("cycOverlay", false);
-        break;
+      break;
       case "Warning":
         colorEl("cycOverlay", 255, 100, 0);
         blinkEl("cycOverlay", false);
-        break;
+      break;
       case "Critical":
         colorEl("cycOverlay", 255, 0, 0);
         blinkEl("cycOverlay", true);
-        break;
+      break;
       case "Recovery":
         colorEl("cycOverlay", 0, 0, 255);
         blinkEl("cycOverlay", false);
-        break;
+      break;
       default:
         if (jObj.pack == "Powered") {
           // Also covers cyclotron state of "Normal"
@@ -368,6 +389,7 @@ function updateGraphics(jObj){
           colorEl("cycOverlay", 100, 100, 100);
         }
         blinkEl("cycOverlay", false);
+      break;
     }
 
     if (jObj.pack == "Powered") {
@@ -527,7 +549,7 @@ function updateEquipment(jObj) {
     }
 
     // Update special UI elements based on the latest data values.
-    setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron, jObj.switch, jObj.firing);
+    setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron, jObj.switch, jObj.firing, jObj.ramping, jObj.themeID);
 
     // Update the current track info.
     musicTrackStart = jObj.musicStart || 0;

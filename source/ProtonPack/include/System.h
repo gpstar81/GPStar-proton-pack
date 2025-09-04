@@ -1231,26 +1231,26 @@ void packShutdown() {
   switch(SYSTEM_YEAR) {
     case SYSTEM_1984:
       stopEffect(S_GB1_1984_BOOT_UP);
-      stopEffect(S_GB1_1984_PACK_LOOP);
+      fadeoutEffect(S_GB1_1984_PACK_LOOP);
     break;
 
     case SYSTEM_1989:
       stopEffect(S_GB2_PACK_START);
-      stopEffect(S_GB2_PACK_LOOP);
+      fadeoutEffect(S_GB2_PACK_LOOP);
     break;
 
     case SYSTEM_AFTERLIFE:
     default:
       stopEffect(S_BOOTUP);
       stopEffect(S_AFTERLIFE_PACK_STARTUP);
-      stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
+      fadeoutEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
     break;
 
     case SYSTEM_FROZEN_EMPIRE:
       stopEffect(S_BOOTUP);
       stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
       stopEffect(S_FROZEN_EMPIRE_PACK_STARTUP);
-      stopEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP);
+      fadeoutEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP);
     break;
   }
 }
@@ -2662,6 +2662,7 @@ void cyclotronFade() {
         }
 
         uint8_t i_new_brightness = getBrightness(i_cyclotron_brightness);
+
         if(r_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (i_new_brightness - 1) && b_cyclotron_led_fading_in[i]) {
           i_cyclotron_led_value[i] = i_new_brightness;
           b_cyclotron_led_fading_in[i] = false;
@@ -2732,6 +2733,11 @@ void cyclotronFade() {
 
           if(r_cyclotron_led_fade_out[i].isRunning()) {
             uint8_t i_curr_brightness = r_cyclotron_led_fade_out[i].update();
+
+            if(i_curr_brightness < 25) {
+              // Reset ramp to fix fadeout bug.
+              r_cyclotron_led_fade_out[i].go(0);
+            }
 
             pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_curr_brightness, false, !b_overheating);
             i_cyclotron_led_value[i] = i_curr_brightness;

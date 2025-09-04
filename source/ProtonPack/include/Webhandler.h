@@ -611,6 +611,7 @@ String getEquipmentStatus() {
   jsonBody["themeID"] = SYSTEM_YEAR;
   jsonBody["switch"] = getRedSwitch();
   jsonBody["pack"] = (b_pack_on ? "Powered" : "Idle");
+  jsonBody["ramping"] = b_ramp_down;
   jsonBody["power"] = getPower();
   jsonBody["safety"] = getSafety();
   jsonBody["wand"] = (b_wand_connected ? "Connected" : "Not Connected");
@@ -623,6 +624,7 @@ String getEquipmentStatus() {
   jsonBody["temperature"] = (b_overheating ? "Venting" : "Normal");
   jsonBody["musicPlaying"] = b_playing_music;
   jsonBody["musicPaused"] = b_music_paused;
+  jsonBody["musicLooping"] = b_repeat_track;
   jsonBody["musicCurrent"] = i_current_music_track;
   jsonBody["musicStart"] = i_music_track_min;
   jsonBody["musicEnd"] = i_music_track_max;
@@ -793,7 +795,7 @@ void handleThemeChange(AsyncWebServerRequest *request) {
   debugln("Web: Theme Change Triggered");
 
   // Pre-check: Prevent theme change if pack or wand is running.
-  if (b_pack_on || b_wand_on) {
+  if (b_pack_on || b_wand_on || b_ramp_down) {
     String result;
     jsonBody.clear();
     jsonBody["status"] = "Theme change not allowed while pack or wand is running.";
