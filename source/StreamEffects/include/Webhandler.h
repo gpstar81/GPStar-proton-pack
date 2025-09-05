@@ -630,7 +630,7 @@ void webSocketClientEvent(WStype_t type, uint8_t * payload, size_t length) {
 // Function to setup WebSocket connection.
 void setupWebSocketClient() {
   debug(F("Initializing WebSocket Client Connection..."));
-  wsClient.begin(ws_host, ws_port, ws_uri);
+  wsClient.begin(WS_HOST, WS_PORT, WS_URI);
   wsClient.setReconnectInterval(i_websocket_retry_wait);
   wsClient.onEvent(webSocketClientEvent);
   b_socket_ready = true;

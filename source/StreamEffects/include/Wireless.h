@@ -51,7 +51,7 @@ Preferences preferences;
 
 // Set up values for the SSID and password for the built-in WiFi access point (AP).
 const uint8_t i_max_attempts = 3; // Max attempts to establish a external WiFi connection.
-String ap_ssid_prefix = "StreamEffects"; // This will be the base of the SSID name.
+const String AP_SSID_PREFIX = "StreamEffects"; // This will be the base of the SSID name.
 String ap_default_passwd = "555-2368"; // This will be the default password for the AP.
 String ap_ssid; // Reserved for holding the full, private AP name for this device.
 bool b_ap_started = false; // Denotes the softAP network has been started.
@@ -66,13 +66,6 @@ String wifi_pass;    // Preferred network password for external WiFi
 String wifi_address; // Static IP for external WiFi network
 String wifi_subnet;  // Subnet for external WiFi network
 String wifi_gateway; // Gateway IP for external WiFi network
-
-// Define an asynchronous web server at TCP port 80.
-// Docs: https://github.com/me-no-dev/ESPAsyncWebServer
-AsyncWebServer httpServer(80);
-
-// Define a websocket endpoint for the async web server.
-AsyncWebSocket ws("/ws");
 
 // Track the number of connected WiFi (AP) clients.
 uint8_t i_ap_client_count = 0;
@@ -98,15 +91,21 @@ const uint16_t i_apClientCount = 200;
  * available at 192.168.2.2
  */
 WebSocketsClient wsClient;
-String ws_host = "192.168.1.2";  // WebSocket server IP
-const uint16_t ws_port = 80;           // WebSocket server port
-String ws_uri = "/ws";           // WebSocket URI
+const String WS_HOST = "192.168.1.2";  // WebSocket server IP
+const uint16_t WS_PORT = 80;           // WebSocket server port
+const String WS_URI = "/ws";           // WebSocket URI
 bool b_socket_ready = false;           // WS client socket ready
 uint16_t i_websocket_retry_wait = 500; // Delay for WS retry
 
 // Create timer for OTA updates.
 millisDelay ms_otacheck;
 const uint16_t i_otaCheck = 100;
+
+// Define an asynchronous web server at TCP port 80.
+AsyncWebServer httpServer(WS_PORT);
+
+// Define a websocket endpoint for the async web server.
+AsyncWebSocket ws(WS_URI);
 
 // Convert an IP address string to an IPAddress object.
 IPAddress convertToIP(const String ipAddressString) {
@@ -176,18 +175,18 @@ bool startAccesPoint() {
       // Doesn't actually "reset" but forces default values for SSID and password.
       // Meant to allow the user to reset their credentials then re-flash after
       // commenting out the RESET_AP_SETTINGS definition in Configuration.h
-      ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix; // Use default SSID.
+      ap_ssid = AP_SSID_PREFIX + "_" + ap_ssid_suffix; // Use default SSID.
       ap_pass = ap_default_passwd; // Force use of the default WiFi password.
     #else
       // Use either the stored preferences or an expected default value.
-      ap_ssid = preferences.getString("ssid", ap_ssid_prefix + "_" + ap_ssid_suffix);
+      ap_ssid = preferences.getString("ssid", AP_SSID_PREFIX + "_" + ap_ssid_suffix);
       ap_ssid = sanitizeSSID(ap_ssid); // Jacques, clean him!
       ap_pass = preferences.getString("password", ap_default_passwd);
     #endif
     preferences.end();
   }
   else {
-    ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix; // Use default SSID.
+    ap_ssid = AP_SSID_PREFIX + "_" + ap_ssid_suffix; // Use default SSID.
     ap_pass = ap_default_passwd; // Force use of the default WiFi password.
 
     // If namespace is not initialized, open in read/write mode and set defaults.

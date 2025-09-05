@@ -52,7 +52,7 @@ Preferences preferences;
 
 // Set up values for the SSID and password for the built-in WiFi access point (AP).
 const uint8_t i_max_attempts = 3; // Max attempts to establish a external WiFi connection.
-String ap_ssid_prefix = "GhostTrap"; // This will be the base of the SSID name.
+const String AP_SSID_PREFIX = "GhostTrap"; // This will be the base of the SSID name.
 String ap_default_passwd = "555-2368"; // This will be the default password for the AP.
 String ap_ssid; // Reserved for holding the full, private AP name for this device.
 bool b_ap_started = false; // Denotes the softAP network has been started.
@@ -69,10 +69,10 @@ String wifi_gateway; // Gateway IP for external WiFi network
 
 // Define an asynchronous web server at TCP port 80.
 // Docs: https://github.com/me-no-dev/ESPAsyncWebServer
-AsyncWebServer httpServer(80);
+AsyncWebServer httpServer(WS_PORT);
 
 // Define a websocket endpoint for the async web server.
-AsyncWebSocket ws("/ws");
+AsyncWebSocket ws(WS_URI);
 
 // Track the number of connected WiFi (AP) clients.
 uint8_t i_ap_client_count = 0;
@@ -163,18 +163,18 @@ bool startAccesPoint() {
       // Doesn't actually "reset" but forces default values for SSID and password.
       // Meant to allow the user to reset their credentials then re-flash after
       // commenting out the RESET_AP_SETTINGS definition in Configuration.h
-      ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix; // Use default SSID.
+      ap_ssid = AP_SSID_PREFIX + "_" + ap_ssid_suffix; // Use default SSID.
       ap_pass = ap_default_passwd; // Force use of the default WiFi password.
     #else
       // Use either the stored preferences or an expected default value.
-      ap_ssid = preferences.getString("ssid", ap_ssid_prefix + "_" + ap_ssid_suffix);
+      ap_ssid = preferences.getString("ssid", AP_SSID_PREFIX + "_" + ap_ssid_suffix);
       ap_ssid = sanitizeSSID(ap_ssid); // Jacques, clean him!
       ap_pass = preferences.getString("password", ap_default_passwd);
     #endif
     preferences.end();
   }
   else {
-    ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix; // Use default SSID.
+    ap_ssid = AP_SSID_PREFIX + "_" + ap_ssid_suffix; // Use default SSID.
     ap_pass = ap_default_passwd; // Force use of the default WiFi password.
 
     // If namespace is not initialized, open in read/write mode and set defaults.
