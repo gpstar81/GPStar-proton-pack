@@ -809,22 +809,18 @@ void handleThemeChange(AsyncWebServerRequest *request) {
     case 1984:
       SYSTEM_YEAR = SYSTEM_1984;
       attenuatorSerialSend(A_YEAR_1984);
-      debugln("Theme changed to 1984");
     break;
     case 1989:
       SYSTEM_YEAR = SYSTEM_1989;
       attenuatorSerialSend(A_YEAR_1989);
-      debugln("Theme changed to 1989");
     break;
     case 2021:
       SYSTEM_YEAR = SYSTEM_AFTERLIFE;
       attenuatorSerialSend(A_YEAR_AFTERLIFE);
-      debugln("Theme changed to Afterlife (2021)");
     break;
     case 2024:
       SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
       attenuatorSerialSend(A_YEAR_FROZEN_EMPIRE);
-      debugln("Theme changed to Frozen Empire (2024)");
     break;
     default:
       debugln("Invalid theme year");

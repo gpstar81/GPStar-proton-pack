@@ -217,6 +217,46 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
       attenuatorSerialSend(A_MUSIC_TRACK_LOOP_TOGGLE, b_repeat_track ? 2 : 1);
     break;
 
+    case A_YEAR_1984:
+      SYSTEM_YEAR = SYSTEM_1984;
+      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+      b_switch_mode_override = true; // Explicit mode set, override mode toggle.
+      packSerialSend(P_YEAR_1984);
+      attenuatorSerialSend(A_YEAR_1984);
+      playEffect(S_VOICE_1984);
+      debugln("Theme changed to GB1 (1984)");
+    break;
+
+    case A_YEAR_1989:
+      SYSTEM_YEAR = SYSTEM_1989;
+      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+      b_switch_mode_override = true; // Explicit mode set, override mode toggle.
+      packSerialSend(P_YEAR_1989);
+      attenuatorSerialSend(A_YEAR_1989);
+      playEffect(S_VOICE_1989);
+      debugln("Theme changed to GB2 (1989)");
+    break;
+
+    case A_YEAR_AFTERLIFE:
+      SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+      b_switch_mode_override = true; // Explicit mode set, override mode toggle.
+      packSerialSend(P_YEAR_AFTERLIFE);
+      attenuatorSerialSend(A_YEAR_AFTERLIFE);
+      playEffect(S_VOICE_AFTERLIFE);
+      debugln("Theme changed to Afterlife (2021)");
+    break;
+
+    case A_YEAR_FROZEN_EMPIRE:
+      SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+      b_switch_mode_override = true; // Explicit mode set, override mode toggle.
+      packSerialSend(P_YEAR_FROZEN_EMPIRE);
+      attenuatorSerialSend(A_YEAR_FROZEN_EMPIRE);
+      playEffect(S_VOICE_FROZEN_EMPIRE);
+      debugln("Theme changed to Frozen Empire (2024)");
+    break;
+
     case A_REQUEST_PREFERENCES_PACK:
       // If requested by the serial device, send back all pack EEPROM preferences.
       // This will send a data payload directly from the pack as all data is local.

@@ -808,36 +808,16 @@ void handleThemeChange(AsyncWebServerRequest *request) {
   uint16_t i_year = getYearFromPath(request->url());
   switch (i_year) {
     case 1984:
-      SYSTEM_YEAR = SYSTEM_1984;
-      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-      b_switch_mode_override = true; // Explicit mode set, override mode toggle.
-      packSerialSend(P_YEAR_1984);
-      attenuatorSerialSend(A_YEAR_1984);
-      playEffect(S_VOICE_1984);
+      executeCommand(A_YEAR_1984);
     break;
     case 1989:
-      SYSTEM_YEAR = SYSTEM_1989;
-      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-      b_switch_mode_override = true; // Explicit mode set, override mode toggle.
-      packSerialSend(P_YEAR_1989);
-      attenuatorSerialSend(A_YEAR_1989);
-      playEffect(S_VOICE_1989);
+      executeCommand(A_YEAR_1989);
     break;
     case 2021:
-      SYSTEM_YEAR = SYSTEM_AFTERLIFE;
-      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-      b_switch_mode_override = true; // Explicit mode set, override mode toggle.
-      packSerialSend(P_YEAR_AFTERLIFE);
-      attenuatorSerialSend(A_YEAR_AFTERLIFE);
-      playEffect(S_VOICE_AFTERLIFE);
+      executeCommand(A_YEAR_AFTERLIFE);
     break;
     case 2024:
-      SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
-      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-      b_switch_mode_override = true; // Explicit mode set, override mode toggle.
-      packSerialSend(P_YEAR_FROZEN_EMPIRE);
-      attenuatorSerialSend(A_YEAR_FROZEN_EMPIRE);
-      playEffect(S_VOICE_FROZEN_EMPIRE);
+      executeCommand(A_YEAR_FROZEN_EMPIRE);
     break;
     default:
       // Should never get here but let's handle it just the same.
