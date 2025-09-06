@@ -37,8 +37,8 @@
   #define PACK_STATUS_LED_PIN 8 // V1.5 GPStar Proton Pack onboard LED pin.
   #define RIBBON_CABLE_SWITCH_PIN 9 // Switch to detect if the ribbon cable has been removed.
   #define NFILTER_LED_PIN 12 // (Optional) Use a white LED with a forward voltage of 3.0-3.2 and up to 20mA forward current.
-  #define ROTARY_ENCODER_A 13
-  #define ROTARY_ENCODER_B 14
+  #define ROTARY_ENCODER_A 14
+  #define ROTARY_ENCODER_B 13
   #define VIBRATION_TOGGLE_PIN 17 // Master switch to turn all vibration features on or off.
   #define YEAR_TOGGLE_PIN 18 // Switch to toggle between system year modes on the fly.
   #define CYCLOTRON_LID_SWITCH_PIN 38 // Pin used for Cyclotron lid detection capability.
