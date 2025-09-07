@@ -146,14 +146,6 @@ function packVent() {
   sendCommand("/pack/vent");
 }
 
-function packLOStart() {
-  sendCommand("/pack/lockout/start");
-}
-
-function packLOCancel() {
-  sendCommand("/pack/lockout/cancel");
-}
-
 function toggleMute() {
   sendCommand("/volume/toggle");
 }

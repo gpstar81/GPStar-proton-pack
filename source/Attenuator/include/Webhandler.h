@@ -762,18 +762,6 @@ void handleManualVent(AsyncWebServerRequest *request) {
   request->send(200, "application/json", status);
 }
 
-void handleManualLockout(AsyncWebServerRequest *request) {
-  debugln("Web: Manual Lockout Triggered");
-  attenuatorSerialSend(A_SYSTEM_LOCKOUT);
-  request->send(200, "application/json", status);
-}
-
-void handleCancelLockout(AsyncWebServerRequest *request) {
-  debugln("Web: Cancel Lockout Triggered");
-  attenuatorSerialSend(A_CANCEL_LOCKOUT);
-  request->send(200, "application/json", status);
-}
-
 uint16_t getYearFromPath(const String s_path) {
   // Check that the path value is not empty.
   if (s_path.length() > 0) {
@@ -1525,8 +1513,6 @@ void setupRouting() {
   httpServer.on("/pack/off", HTTP_PUT, handlePackOff);
   httpServer.on("/pack/attenuate", HTTP_PUT, handleAttenuatePack);
   httpServer.on("/pack/vent", HTTP_PUT, handleManualVent);
-  httpServer.on("/pack/lockout/start", HTTP_PUT, handleManualLockout);
-  httpServer.on("/pack/lockout/cancel", HTTP_PUT, handleCancelLockout);
   httpServer.on("/pack/theme/1984", HTTP_PUT, handleThemeChange);
   httpServer.on("/pack/theme/1989", HTTP_PUT, handleThemeChange);
   httpServer.on("/pack/theme/2021", HTTP_PUT, handleThemeChange);

@@ -507,6 +507,7 @@ input:checked + .slider:before {
   transition:background-color .3s ease;
   width:85px;
   -webkit-filter:grayscale(100%);
+  filter:grayscale(100%);
 }
 
 .tabs button:hover {

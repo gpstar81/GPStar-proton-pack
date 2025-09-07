@@ -81,59 +81,75 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b class="labelSwitch">RGB Vent Light Enabled:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="rgbVentEnabled" name="rgbVentEnabled" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">RGB Vent Light:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Auto Vent Light Brightness:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="autoVentLight" name="autoVentLight" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Auto Vent Light Brightness:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Spectral Modes Enabled:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="spectralModesEnabled" name="spectralModesEnabled" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Spectral Modes:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Overheating Enabled:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="overheatEnabled" name="overheatEnabled" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Overheating:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Quick Venting Enabled:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="quickVenting" name="quickVenting" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Quick Venting:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Send Sounds to Pack:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-text="yesno" data-label="left">
         <input id="wandSoundsToPack" name="wandSoundsToPack" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Pack Plays Wand Sounds:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">&nbsp;Wand Beep Loop:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="wandBeepLoop" name="wandBeepLoop" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">AL/FE Beep Loop:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Wand Boot Errors:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="wandBootError" name="wandBootError" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Boot Errors:</span>
       </label>
     </div>
   </div>
@@ -164,17 +180,21 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Blink on Overheat:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-text="yesno" data-label="left">
         <input id="bargraphOverheatBlink" name="bargraphOverheatBlink" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Blink in Overheat:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Invert Animations:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-text="yesno" data-label="left">
         <input id="invertWandBargraph" name="invertWandBargraph" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Invert Animations:</span>
       </label>
     </div>
   </div>
@@ -228,6 +248,32 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       getEl("btnSave").disabled = true;
     }
 
+    function disableControls() {
+      // Disables all controls.
+      getEl("ledWandCount").disabled = true;
+      getEl("ledWandHue").disabled = true;
+      getEl("ledWandSat").disabled = true;
+      getEl("rgbVentEnabled").disabled = true;
+      getEl("spectralModesEnabled").disabled = true;
+      getEl("overheatEnabled").disabled = true;
+      getEl("defaultFiringMode").disabled = true;
+      getEl("wandVibration").disabled = true;
+      getEl("wandSoundsToPack").disabled = true;
+      getEl("quickVenting").disabled = true;
+      getEl("autoVentLight").disabled = true;
+      getEl("wandBeepLoop").disabled = true;
+      getEl("wandBootError").disabled = true;
+      getEl("defaultYearModeWand").disabled = true;
+      getEl("defaultYearModeCTS").disabled = true;
+      getEl("numBargraphSegments").disabled = true;
+      getEl("invertWandBargraph").disabled = true;
+      getEl("bargraphOverheatBlink").disabled = true;
+      getEl("bargraphIdleAnimation").disabled = true;
+      getEl("bargraphFireAnimation").disabled = true;
+      getEl("ledWandHue").disabled = true;
+      getEl("ledWandSat").disabled = true;
+    }
+
     // Converts a value from one range to another: eg. convertRange(160, [2,254], [0,360])
     function convertRange(value, r1, r2) {
       return Math.round((value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0]);
@@ -249,11 +295,13 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
           if (settings) {
             if (!settings.wandConnected || !settings.prefsAvailable) {
               alert("Preferences could not be downloaded. Please confirm a GPStar Neutrona Wand is connected, then refresh the page to try again.");
+              disableControls();
               return;
             }
 
             if (settings.packPowered || settings.wandPowered) {
               alert("Pack and/or Wand are currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings.");
+              disableControls();
               return;
             }
 

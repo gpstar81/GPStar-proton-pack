@@ -88,45 +88,57 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       <output class="labelSlider" id="masterVolOut" for="defaultSystemVolume"></output>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Lights Off During Overheat:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-text="yesno" data-label="left">
         <input id="overheatLightsOff" name="overheatLightsOff" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Lights Off During Overheat:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Overheat Sync Smoke to Fan:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-text="yesno" data-label="left">
         <input id="overheatSyncToFan" name="overheatSyncToFan" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Overheat Sync Smoke to Fan:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Proton Stream Impact Effects:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="protonStreamEffects" name="protonStreamEffects" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Proton Stream Impact Effects:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Ribbon Cable Alarm:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="ribbonCableAlarm" name="ribbonCableAlarm" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Ribbon Cable Alarm:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Startup Light Mode Enabled:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-text="yesno" data-label="left">
         <input id="demoLightMode" name="demoLightMode" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Battery On Starts Pack:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Strobe N-Filter on Overheat:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-text="yesno" data-label="left">
         <input id="overheatStrobeNF" name="overheatStrobeNF" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Strobe N-Filter on Overheat:</span>
       </label>
     </div>
   </div>
@@ -177,24 +189,30 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Center LED Fade Effect:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="ledCycLidFade" name="ledCycLidFade" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Center LED Fade Effect:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Simulate Ring Spin Effect:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="ledCycLidSimRing" name="ledCycLidSimRing" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Simulated Ring Spin Effect:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Enable Video Game Colours:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="ledVGCyclotron" name="ledVGCyclotron" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Video Game Colours:</span>
       </label>
     </div>
   </div>
@@ -227,10 +245,12 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Swap Red/Green LEDs (GRB):</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-text="yesno" data-label="left">
         <input id="ledCycCakeGRB" name="ledCycCakeGRB" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Swap Red/Green LEDs (GRB):</span>
       </label>
     </div>
     <div class="setting">
@@ -299,17 +319,21 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       <output class="labelSlider" id="pcLumOut" for="ledPowercellLum"></output>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Invert Power Cell Animation:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-text="yesno" data-label="left">
         <input id="ledInvertPowercell" name="ledInvertPowercell" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Invert Power Cell Animation:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Enable Video Game Colours:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="ledVGPowercell" name="ledVGPowercell" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Video Game Colours:</span>
       </label>
     </div>
   </div>
@@ -330,7 +354,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
 
     function onLoad(event) {
       // Wait 0.4s for serial communications between devices.
-      setTimeout(getSettings, 400);
+      setTimeout(getSettings, 100);
 
       // Disable the save button until we obtain settings.
       getEl("btnSave").disabled = true;

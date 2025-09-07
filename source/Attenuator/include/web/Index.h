@@ -158,14 +158,6 @@ const char INDEX_page[] PROGMEM = R"=====(
       <br/>
       <br/>
       <br/>
-      <!--
-      <button type="button" class="orange" onclick="packLOStart()" id="btnLOStart">Lockout</button>
-      &nbsp;&nbsp;
-      <button type="button" class="blue" onclick="packLOCancel()" id="btnLOCancel">Resume</button>
-      <br/>
-      <br/>
-      <br/>
-      -->
     </div>
   </div>
 
