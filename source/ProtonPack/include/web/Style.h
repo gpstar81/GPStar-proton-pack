@@ -612,8 +612,6 @@ input[type=text] {
 .toggle-switchy > input + .toggle > .switch {display:block; height:100%; position:absolute; right:0; z-index:3; box-sizing:border-box;}
 .toggle-switchy > input + .toggle:before,
 .toggle-switchy > input + .toggle:after {display:flex; align-items:center; position:absolute; z-index:2; height:100%;}
-.toggle-switchy > input + .toggle:before {right:55%;}
-.toggle-switchy > input + .toggle:after {left:50%;}
 .toggle-switchy > input + .toggle + .label {margin-left:10px;}
 .toggle-switchy[data-label='left'] > input + .toggle {order:2;}
 .toggle-switchy[data-label='left'] > input + .toggle + .label {order:1; margin-left:0; margin-right:10px; font-weight:bold}

@@ -199,18 +199,38 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
       }
     break;
 
-    case P_MASTER_AUDIO_SILENT_MODE:
-      // Remember the current master volume level.
-      i_volume_revert = i_volume_master;
+    case P_MUSIC_LOOP_STATUS:
+      switch(i_value) {
+        case 1:
+        default:
+          // The pack is telling us it is repeating all tracks.
+          b_repeat_track = false;
+        break;
 
-      // The pack is telling us to be silent.
-      i_volume_master = i_volume_abs_min;
-      updateMasterVolume();
+        case 2:
+          // The pack is telling us it is repeating one track.
+          b_repeat_track = true;
+        break;
+      }
     break;
 
-    case P_MASTER_AUDIO_NORMAL:
-      // The pack is telling us to revert the volume to normal.
-      i_volume_master = i_volume_revert;
+    case P_MASTER_AUDIO_STATUS:
+      switch(i_value) {
+        case 1:
+        default:
+          // The pack is telling us to revert the volume to normal.
+          i_volume_master = i_volume_revert;
+        break;
+
+        case 2:
+          // Remember the current master volume level.
+          i_volume_revert = i_volume_master;
+
+          // The pack is telling us to be silent.
+          i_volume_master = i_volume_abs_min;
+        break;
+      }
+
       updateMasterVolume();
     break;
 

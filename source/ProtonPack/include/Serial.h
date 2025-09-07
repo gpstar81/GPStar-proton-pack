@@ -3123,14 +3123,16 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_MUSIC_TRACK_LOOP_TOGGLE:
       toggleMusicLoop();
       attenuatorSerialSend(A_MUSIC_TRACK_LOOP_TOGGLE, b_repeat_track ? 2 : 1);
+      packSerialSend(P_MUSIC_LOOP_STATUS, b_repeat_track ? 2 : 1);
     break;
 
     case W_TOGGLE_MUTE:
       if(i_volume_master == i_volume_abs_min) {
         i_volume_master = i_volume_revert;
 
-        // Notify the Attenuator we are unmuted.
+        // Notify serial devices we are unmuted.
         attenuatorSerialSend(A_TOGGLE_MUTE, 1);
+        packSerialSend(P_MASTER_AUDIO_STATUS, 1);
       }
       else {
         i_volume_revert = i_volume_master;
@@ -3138,8 +3140,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         // Set the master volume to minimum.
         i_volume_master = i_volume_abs_min;
 
-        // Notify the Attenuator we are muted.
+        // Notify serial devices we are muted.
         attenuatorSerialSend(A_TOGGLE_MUTE, 2);
+        packSerialSend(P_MASTER_AUDIO_STATUS, 2);
       }
 
       updateMasterVolume();

@@ -129,8 +129,8 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
       if(i_volume_master == i_volume_abs_min) {
         i_volume_master = i_volume_revert;
 
-        packSerialSend(P_MASTER_AUDIO_NORMAL);
         attenuatorSerialSend(A_TOGGLE_MUTE, 1);
+        packSerialSend(P_MASTER_AUDIO_STATUS, 1);
       }
       else {
         i_volume_revert = i_volume_master;
@@ -138,8 +138,8 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
         // Set the master volume to minimum.
         i_volume_master = i_volume_abs_min;
 
-        packSerialSend(P_MASTER_AUDIO_SILENT_MODE);
         attenuatorSerialSend(A_TOGGLE_MUTE, 2);
+        packSerialSend(P_MASTER_AUDIO_STATUS, 2);
       }
 
       updateMasterVolume();
@@ -215,6 +215,7 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
     case A_MUSIC_TRACK_LOOP_TOGGLE:
       toggleMusicLoop();
       attenuatorSerialSend(A_MUSIC_TRACK_LOOP_TOGGLE, b_repeat_track ? 2 : 1);
+      packSerialSend(P_MUSIC_LOOP_STATUS, b_repeat_track ? 2 : 1);
     break;
 
     case A_YEAR_1984:
