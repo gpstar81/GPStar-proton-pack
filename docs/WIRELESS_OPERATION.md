@@ -2,7 +2,7 @@
 
 This guide will cover the web interface available via an ESP32 chip which offers a visual, web-based UI capable of controlling operations of your Proton Pack and Neutrona Wand.
 
-While this guide is primarily targetted to the UI from an **Attenuator** (or standalone ESP32 for wireless operation), it is relevant to the GPStar II pack and wand controllers which offer the same functionality. This guide will be ammended further in the near future as those devices becoome available.
+While this guide is primarily targeted to the UI from an **Attenuator** (or standalone ESP32 for wireless operation), it is relevant to the GPStar II pack and wand controllers which offer the same functionality. This guide will be amended further in the near future as those devices becoome available.
 
 ## Requirements
 
