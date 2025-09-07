@@ -1,6 +1,8 @@
 # Wireless Operation
 
-This guide will cover the web interface available via an ESP32 chip used as either the **Attenuator** or **Wireless Adapter** devices, and is capable of controlling some operations of your Proton Pack and Neutrona Wand.
+This guide will cover the web interface available via an ESP32 chip which offers a visual, web-based UI capable of controlling operations of your Proton Pack and Neutrona Wand.
+
+While this guide is primarily targetted to the UI from an **Attenuator** (or standalone ESP32 for wireless operation), it is relevant to the GPStar II pack and wand controllers which offer the same functionality. This guide will be ammended further in the near future as those devices becoome available.
 
 ## Requirements
 
@@ -233,8 +235,10 @@ The following URI's are API endpoints available for managing actions within your
 	PUT /pack/off - Turn the pack onf (subject to system state)
 	PUT /pack/attenuate - Cancel pack overheat via "attenuation"
 	PUT /pack/vent - Perform manual vent (subject to system state)
-	PUT /pack/lockout/start - Perform manual lockout (subject to system state)
-	PUT /pack/lockout/cancel - Cancel manual lockout (subject to system state)
+	PUT /pack/theme/1984 - Switch to GB1 theme
+	PUT /pack/theme/1989 - Switch to GB2 theme
+	PUT /pack/theme/2021 - Switch to GB:AL theme
+	PUT /pack/theme/2024 - Switch to GB:FE theme
 
 	PUT /volume/toggle - Toggle mute for all devices
 	PUT /volume/master/up - Increase system (master) volume
@@ -274,5 +278,5 @@ The following URI's are API endpoints available for managing actions within your
 	WARNING: Only call these API's as necessary as these cause write cycles to the EEPROM!
 
 	PUT /eeprom/all - Stores all current preferences to pack/wand EEPROMs (eg. smoke settings)
-	PUT /eeprom/pack - Stores current pack preferences to pack EEPROM
-	PUT /eeprom/wand - Stores current wand preferences to wand EEPROM
+	PUT /eeprom/pack - Stores current pack preferences to pack EEPROM only
+	PUT /eeprom/wand - Stores current wand preferences to wand EEPROM only
