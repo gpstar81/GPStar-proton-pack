@@ -283,8 +283,17 @@ void setup() {
   // Set palette by stream mode.
   updateStreamPalette();
 
-  // Change the addressable LED to black by default.
+  // Change all possible addressable LEDs to black by default.
   fill_solid(device_leds, DEVICE_NUM_LEDS, CRGB::Black);
+
+  // Accesses namespace in read-only mode.
+  bool b_namespace_opened = preferences.begin("device", true);
+  if(b_namespace_opened) {
+    if(preferences.contains("numLeds")) {
+      deviceNumLeds = preferences.getShort("numLeds");
+    }
+    preferences.end();
+  }
 
   // Initialize palettes with custom color gradients
   paletteProton = CRGBPalette16(

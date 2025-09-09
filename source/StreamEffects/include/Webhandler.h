@@ -20,14 +20,14 @@
 #pragma once
 
 // Web page files (defines all text as char[] variable)
-#include "CommonJS.h" // COMMONJS_page
-#include "Index.h" // INDEX_page
-#include "IndexJS.h" // INDEXJS_page
-#include "Device.h" // DEVICE_page
-#include "ExtWiFi.h" // NETWORK_page
-#include "Password.h" // PASSWORD_page
-#include "Style.h" // STYLE_page
-#include "Icon.h" // FAVICON_ico, FAVICON_svg
+#include "web/CommonJS.h" // COMMONJS_page
+#include "web/Index.h" // INDEX_page
+#include "web/IndexJS.h" // INDEXJS_page
+#include "web/Device.h" // DEVICE_page
+#include "web/ExtWiFi.h" // NETWORK_page
+#include "web/Password.h" // PASSWORD_page
+#include "web/Style.h" // STYLE_page
+#include "web/Icon.h" // FAVICON_ico, FAVICON_svg
 
 // Forward function declarations.
 void setupRouting();
@@ -178,6 +178,7 @@ String getDeviceConfig() {
   jsonBody["wifiNameExt"] = wifi_ssid;
   jsonBody["extAddr"] = wifi_address;
   jsonBody["extMask"] = wifi_subnet;
+  jsonBody["numLeds"] = deviceNumLeds;
 
   // Serialize JSON object to string.
   serializeJson(jsonBody, equipSettings);
@@ -307,6 +308,17 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
         jsonBody["status"] = "Error: Network name must be between 8 and 32 characters in length.";
         serializeJson(jsonBody, result); // Serialize to string.
         request->send(200, "application/json", result);
+      }
+    }
+
+    // General Options - Returned as unsigned integers
+    if(jsonBody["numLeds"].is<unsigned short>()) {
+      deviceNumLeds = jsonBody["numLeds"].as<unsigned short>();
+
+      // Accesses namespace in read/write mode.
+      if(preferences.begin("device", false)) {
+        preferences.putShort("numLeds", deviceNumLeds);
+        preferences.end();
       }
     }
 

@@ -53,6 +53,7 @@ void printPartitions() {
 }
 
 void ledsOff() {
+  // Change all possible addressable LEDs to black.
   fill_solid(device_leds, DEVICE_NUM_LEDS, CRGB::Black);
 }
 
@@ -64,7 +65,7 @@ void animateLights() {
     ms_anim_change.start(i_animation_time);
 
     // Iterate through all LEDs
-    for (uint16_t i = 0; i < DEVICE_NUM_LEDS; i++) {
+    for (uint16_t i = 0; i < deviceNumLeds; i++) {
       // Calculate a brightness factor based on the wave position
       uint8_t brightness = sin8((wavePosition + i * 20) % 255);
 

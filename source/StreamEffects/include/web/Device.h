@@ -50,6 +50,12 @@ const char DEVICE_page[] PROGMEM = R"=====(
       <input type="text" id="wifiName" width="42" maxlength="32" placeholder="Custom SSID"
        title="Only letters, numbers, hyphens, and underscores are allowed, up to 32 characters."/>
     </div>
+    <div class="setting">
+      <b>Stream LED Count:</b><br/>
+      <input type="range" id="numLeds" name="numLeds" min="50" max="500" value="250" step="5"
+       oninput="numLedsOut.value=numLeds.value"/>
+      <output class="labelSlider" id="numLedsOut" for="numLeds"></output>
+    </div>
   </div>
 
   <div class="block">
@@ -79,7 +85,8 @@ const char DEVICE_page[] PROGMEM = R"=====(
           if (settings) {
             // Update fields with the current values, or supply an expected default as necessary.
             setValue("wifiName", settings.wifiName || "");
-            updateByteCount();
+            setValue("numLeds", settings.numLeds || 250); // Default to 250 LEDs.
+            setHtml("numLedsOut", getValue("numLeds"));
           }
         }
       };
@@ -108,7 +115,8 @@ const char DEVICE_page[] PROGMEM = R"=====(
 
       // Saves current settings to attenuator, updating runtime variables and making changes immediately effective.
       var settings = {
-        wifiName: wifiName
+        wifiName: wifiName,
+        numLeds: getInt("numLeds") || 250
       };
       var body = JSON.stringify(settings);
 
