@@ -52,38 +52,48 @@ const char DEVICE_page[] PROGMEM = R"=====(
        title="Only letters, numbers, hyphens, and underscores are allowed, up to 32 characters."/>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Invert Device LED Order:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-text="yesno" data-label="left">
         <input id="invertLEDs" name="invertLEDs" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Invert Device LED Order:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Enable Piezo Buzzer:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="buzzer" name="buzzer" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Piezo Buzzer:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Enable Vibration:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="vibration" name="vibration" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Vibration:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Feedback on Overheat:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="overheat" name="overheat" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Feedback on Overheat:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Feedback when Firing:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="firing" name="firing" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Feedback when Firing:</span>
       </label>
     </div>
     <div class="setting">

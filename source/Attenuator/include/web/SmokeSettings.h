@@ -47,10 +47,12 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
   <h1>General Options</h1>
   <div class="block left">
     <div class="setting">
-      <b class="labelSwitch">Enable Smoke Effects:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="smokeEnabled" name="smokeEnabled" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Smoke Effects:</span>
       </label>
     </div>
   </div>
@@ -58,17 +60,21 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
   <h1>Power Level 5</h1>
   <div class="block left">
     <div class="setting">
-      <b class="labelSwitch">Overheating Enabled:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="overheatLevel5" name="overheatLevel5" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Overheating:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Continuous Firing Smoke:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="overheatContinuous5" name="overheatContinuous5" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Sustained Firing Smoke:</span>
       </label>
     </div>
     <div class="setting">
@@ -88,17 +94,21 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
   <h1>Power Level 4</h1>
   <div class="block left">
     <div class="setting">
-      <b class="labelSwitch">Overheating Enabled:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="overheatLevel4" name="overheatLevel4" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Overheating:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Continuous Firing Smoke:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="overheatContinuous4" name="overheatContinuous4" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Sustained Firing Smoke:</span>
       </label>
     </div>
     <div class="setting">
@@ -118,17 +128,21 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
   <h1>Power Level 3</h1>
   <div class="block left">
     <div class="setting">
-      <b class="labelSwitch">Overheating Enabled:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="overheatLevel3" name="overheatLevel3" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Overheating:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Continuous Firing Smoke:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="overheatContinuous3" name="overheatContinuous3" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Sustained Firing Smoke:</span>
       </label>
     </div>
     <div class="setting">
@@ -148,17 +162,21 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
   <h1>Power Level 2</h1>
   <div class="block left">
     <div class="setting">
-      <b class="labelSwitch">Overheating Enabled:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="overheatLevel2" name="overheatLevel2" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Overheating:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Continuous Firing Smoke:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="overheatContinuous2" name="overheatContinuous2" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Sustained Firing Smoke:</span>
       </label>
     </div>
     <div class="setting">
@@ -178,17 +196,21 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
   <h1>Power Level 1</h1>
   <div class="block left">
     <div class="setting">
-      <b class="labelSwitch">Overheating Enabled:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="overheatLevel1" name="overheatLevel1" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Overheating:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Continuous Firing Smoke:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="overheatContinuous1" name="overheatContinuous1" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Sustained Firing Smoke:</span>
       </label>
     </div>
     <div class="setting">

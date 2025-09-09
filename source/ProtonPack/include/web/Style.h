@@ -60,8 +60,8 @@ a {
 }
 
 p {
-  font-size:18px;
-  margin:5px 0 8px;
+  font-size:16px;
+  margin:4px 0 6px;
 }
 
 .dark {
@@ -118,11 +118,12 @@ p {
   font-family:Tahoma,Verdana,Arial;
   font-size:.9em;
   font-weight:600;
+  min-width:40px;
 }
 
 .infoState {
   font-family:Courier New,Courier,sans-serif;
-  font-size:1em;
+  font-size:0.9em;
 }
 
 .equipment {

@@ -200,18 +200,8 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
     break;
 
     case P_MUSIC_LOOP_STATUS:
-      switch(i_value) {
-        case 1:
-        default:
-          // The pack is telling us it is repeating all tracks.
-          b_repeat_track = false;
-        break;
-
-        case 2:
-          // The pack is telling us it is repeating one track.
-          b_repeat_track = true;
-        break;
-      }
+      // The pack is telling us if the current music track is looped or not.
+      b_repeat_track = i_value == 2;
     break;
 
     case P_MASTER_AUDIO_STATUS:

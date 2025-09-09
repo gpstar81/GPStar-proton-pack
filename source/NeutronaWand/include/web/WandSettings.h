@@ -81,59 +81,75 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b class="labelSwitch">RGB Vent Light Enabled:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="rgbVentEnabled" name="rgbVentEnabled" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">RGB Vent Light:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Auto Vent Light Brightness:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="autoVentLight" name="autoVentLight" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Auto Vent Light Brightness:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Spectral Modes Enabled:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="spectralModesEnabled" name="spectralModesEnabled" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Spectral Modes:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Overheating Enabled:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="overheatEnabled" name="overheatEnabled" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Overheating:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Quick Venting Enabled:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="quickVenting" name="quickVenting" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Quick Venting:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Send Sounds to Pack:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-text="yesno" data-label="left">
         <input id="wandSoundsToPack" name="wandSoundsToPack" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Pack Plays Wand Sounds:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">&nbsp;Wand Beep Loop:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="wandBeepLoop" name="wandBeepLoop" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">AL/FE Beep Loop:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Wand Boot Errors:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-label="left">
         <input id="wandBootError" name="wandBootError" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Boot Errors:</span>
       </label>
     </div>
   </div>
@@ -164,17 +180,21 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Blink on Overheat:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-text="yesno" data-label="left">
         <input id="bargraphOverheatBlink" name="bargraphOverheatBlink" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Blink in Overheat:</span>
       </label>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Invert Animations:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-text="yesno" data-label="left">
         <input id="invertWandBargraph" name="invertWandBargraph" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Invert Animations:</span>
       </label>
     </div>
   </div>
@@ -222,7 +242,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
 
     function onLoad(event) {
       // Wait 0.4s for serial communications between devices.
-      setTimeout(getSettings, 400);
+      setTimeout(getSettings, 100);
 
       // Disable the save button until we obtain settings.
       getEl("btnSave").disabled = true;

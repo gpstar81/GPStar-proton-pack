@@ -22,6 +22,12 @@
 #pragma once
 
 const char STYLE_page[] PROGMEM = R"=====(
+@font-face {
+  font-family:'power_symbol';
+  src:url(data:application/octet-stream;base64,d09GMgABAAAAAALMAA4AAAAABiQAAAJ0AAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP0ZGVE0cGiYGVgCCSggEEQgKghCCFAsKAAE2AiQDEAQgBYJiBzcbJAUgjpQuUybx8P92j7/PHUTQvADoZJRxFVdZafGhooRdCjlkQuTz3hqPGibwAbxLL9wBtFkvDDigjHoBHTcFeHICAXpAlLWLNteDkthZ1+dIebklAj5796UavNH67pfwdb8vPxBoiNY6S0LIhBwJgUDUqeKaQl4MK24RnePjsvdsTs1JinoAoCvA3M0zNprc4+8ef5eb/9vsubqUCECGDB0FmC4T6CjXF6VcSPT4+///ob85H9cVAFESgEhIAIAQ9z69aIb4/38J5KAucszBNkCOwRJIed58SIMTTY6tb1Sv4YkLb1M6+87F9yLqxLl362+sfz0uPN/27bfhTrIuv+cGvfj2i/UvgPxBq3eCI+UX3n0XF0tuPPJ6umJR16zRR9NuvnJz8JjDVdOukqimv56ZHVJtmtr980GbPq8vWLny5/MXd/777LP/7Wr9385nn7PJxfOoIxGv92nTaOtai86vHDj34MTR11878tvrR4+8duLBgXOvdG5RTQUeD0PGP1En98vQx8viY82y5Cia0cKR8zL+YVmkVwsEex47FGuajP+1boO6FsPa6ZSzyt6oK4Ggrv//8lxdVJgpAAB5ncp0qAv2M/wgkJsigYQQmGwwoLGHAkASIBSaCJDkugiQ6Wi1ADlOCVBo4LoApcJDmcjrAYRQX4akrlbIjNYTOU6g0NrpTqX67sFeexyxyX62GsFU0OyxgyeHeWbaY7eDxSH7bbFJV0MNVulqrK4uXTPGIMOdPVQlR/Bqk1Ts37Kp69DBVdexXY2pjRk0fNDBngGLR1YHbBtEdVXrOHS9Kq0NrmZYJG0ANTlCitTw61SCP1wGAAA=)format('woff2');
+  unicode-range:U+23FB;
+}
+
 html {
   display:inline-block;
   font-family:Tahoma,Verdana,Arial;
@@ -32,6 +38,7 @@ html {
 }
 
 body {
+  font-size:100%;
   margin:0 0 20px;
   position:relative;
 }
@@ -54,8 +61,8 @@ a {
 }
 
 p {
-  font-size:18px;
-  margin:5px 0 8px;
+  font-size:16px;
+  margin:4px 0 6px;
 }
 
 .dark {
@@ -112,11 +119,12 @@ p {
   font-family:Tahoma,Verdana,Arial;
   font-size:.9em;
   font-weight:600;
+  min-width:40px;
 }
 
 .infoState {
   font-family:Courier New,Courier,sans-serif;
-  font-size:1em;
+  font-size:0.9em;
 }
 
 .equipment {
@@ -316,64 +324,8 @@ input[type=text] {
   width:60px;
 }
 
-.switch {
-  display:inline-block;
-  position:relative;
-  width:60px;
-  height:34px;
-}
-
-.switch input {
-  opacity:0;
-  width:0;
-  height:0;
-}
-
-.slider {
-  background-color:#ccc;
-  bottom:0;
-  cursor:pointer;
-  left:0;
-  position:absolute;
-  right:0;
-  top:0;
-  transition:.4s;
-}
-
-.slider:before {
-  background-color:#fff;
-  bottom:4px;
-  content:"";
-  height:26px;
-  left:4px;
-  position:absolute;
-  transition:.4s;
-  width:26px;
-}
-
-input:checked + .slider {
-  background-color:#2196F3;
-}
-
-input:focus + .slider {
-  box-shadow:0 0 1px #2196F3;
-}
-
-input:checked + .slider:before {
-  transform:translateX(26px);
-}
-
-.slider.round {
-  border-radius:34px;
-}
-
-.slider.round:before {
-  border-radius:50%;
-}
-
 .bar-container,
-.volume-container,
-.music-navigation {
+.volume-container {
   display:flex;
   margin:0 auto;
   max-width:360px;
@@ -439,49 +391,6 @@ input:checked + .slider:before {
   margin-bottom:5px;
 }
 
-.music-navigation {
-  justify-content:space-between;
-  margin:10px auto;
-  width:320px;
-}
-
-.music-navigation button {
-  align-items:center;
-  background-color:#008CBA;
-  border:1px solid #006C9A;
-  border-radius:0;
-  cursor:pointer;
-  display:flex;
-  font-family:monospace;
-  font-size:1.8em;
-  height:40px;
-  justify-content:center;
-  margin:0;
-  transition:background-color .3s ease;
-  width:85px;
-}
-
-.music-navigation button:first-child {
-  border-radius:5px 0 0 5px;
-}
-
-.music-navigation button:last-child {
-  border-radius:0 5px 5px 0;
-}
-
-.music-navigation button:hover {
-  background-color:#009DCB;
-}
-
-.music-navigation button:active {
-  transform:scale(0.95);
-}
-
-#tracks {
-  margin-top:15px;
-  width:320px;
-}
-
 .tab {
   display:none;
 }
@@ -499,8 +408,10 @@ input:checked + .slider:before {
   border-radius:0;
   cursor:pointer;
   flex:1;
-  font-family:monospace;
+  font-family:monospace,power_symbol;
   font-size:2.2em;
+  padding:0px;
+  line-height:60px;
   height:60px;
   position:relative;
   margin:0;
@@ -517,4 +428,51 @@ input:checked + .slider:before {
 .tabs button.active {
   background:#999;
 }
+
+/* https://github.com/adamculpepper/toggle-switchy */
+.toggle-switchy {color:#fff;}
+.toggle-switchy > input + .toggle:before {content:'ON';}
+.toggle-switchy > input + .toggle:after {content:'OFF';}
+.toggle-switchy > input + .toggle > .switch {background:#fff;}
+.toggle-switchy > input + .toggle + .label {color:#000;}
+.toggle-switchy > input:checked + .toggle {background:#3498db;}
+.toggle-switchy > input:not(:checked) + .toggle {background:#ccc;}
+.toggle-switchy > input:checked + .toggle > .switch {border:3px solid #3498db;}
+.toggle-switchy > input:not(:checked) + .toggle > .switch {border:3px solid #ccc;}
+.toggle-switchy > input + .toggle {border-radius:4px;}
+.toggle-switchy > input + .toggle .switch {border-radius:6px;}
+.toggle-switchy {display:inline-flex; align-items:center; user-select:none; position:relative; vertical-align:middle; margin-bottom:0;}
+.toggle-switchy:hover {cursor:pointer;}
+.toggle-switchy > input {position:absolute; opacity:0;}
+.toggle-switchy > input + .toggle {align-items:center; position:relative;}
+.toggle-switchy > input + .toggle {overflow:hidden; position:relative; flex-shrink:0;}
+.toggle-switchy > input[disabled] + .toggle {opacity:0.5;}
+.toggle-switchy > input[disabled] + .toggle:hover {cursor:not-allowed;}
+.toggle-switchy > input + .toggle {width:100%; height:100%; margin:0; cursor:pointer;}
+.toggle-switchy > input + .toggle > .switch {display:block; height:100%; position:absolute; right:0; z-index:3; box-sizing:border-box;}
+.toggle-switchy > input + .toggle:before,
+.toggle-switchy > input + .toggle:after {display:flex; align-items:center; position:absolute; z-index:2; height:100%;}
+.toggle-switchy > input + .toggle + .label {margin-left:10px;}
+.toggle-switchy[data-label='left'] > input + .toggle {order:2;}
+.toggle-switchy[data-label='left'] > input + .toggle + .label {order:1; margin-left:0; margin-right:10px; font-weight:bold}
+.toggle-switchy > input + .toggle:before {opacity:0;}
+.toggle-switchy > input:checked + .toggle:before {opacity:1;}
+.toggle-switchy > input:checked + .toggle:after {opacity:0;}
+.toggle-switchy > input + .toggle {transition:background 200ms linear, box-shadow 200ms linear;}
+.toggle-switchy > input + .toggle:before,
+.toggle-switchy > input + .toggle:after {transition:all 200ms linear;}
+.toggle-switchy > input + .toggle > .switch {transition:right 200ms linear, border-color 200ms linear;}
+.toggle-switchy > input + .toggle {width:65px; height:30px;}
+.toggle-switchy > input + .toggle > .switch {width:30px;}
+.toggle-switchy > input + .toggle:before,
+.toggle-switchy > input + .toggle:after {font-size:0.8rem;}
+.toggle-switchy > input:not(:checked) + .toggle > .switch {right:calc(100% - 30px);}
+.toggle-switchy > input + .toggle,
+.toggle-switchy > input + .toggle > .switch {border-radius:50px;}
+.toggle-switchy > input + .toggle:before {right:50%;}
+.toggle-switchy > input + .toggle:after {left:50%;}
+.toggle-switchy[data-text='repeat'] > input + .toggle:before {content:'ONE';}
+.toggle-switchy[data-text='repeat'] > input + .toggle:after {content:'ALL';}
+.toggle-switchy[data-text='yesno'] > input + .toggle:before {content:'YES';}
+.toggle-switchy[data-text='yesno'] > input + .toggle:after {content:'NO';}
 )=====";

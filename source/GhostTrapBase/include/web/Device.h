@@ -65,10 +65,12 @@ const char DEVICE_page[] PROGMEM = R"=====(
   <h1>Door Triggers</h1>
   <div class="block left">
     <div class="setting">
-      <b class="labelSwitch">Enable Smoke on Trap Open:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-text="yesno" data-label="left">
         <input id="openedSmokeEnabled" name="openedSmokeEnabled" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Smoke on Trap Open:</span>
       </label>
     </div>
     <div class="setting">
@@ -78,10 +80,12 @@ const char DEVICE_page[] PROGMEM = R"=====(
       <output class="labelSlider" id="durationOpenedOut" for="openedSmokeDuration"></output>
     </div>
     <div class="setting">
-      <b class="labelSwitch">Enable Smoke on Trap Close:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-text="yesno" data-label="left">
         <input id="closedSmokeEnabled" name="closedSmokeEnabled" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Smoke on Trap Close:</span>
       </label>
     </div>
     <div class="setting">

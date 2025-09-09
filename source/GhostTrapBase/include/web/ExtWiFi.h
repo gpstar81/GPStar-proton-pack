@@ -47,10 +47,12 @@ const char NETWORK_page[] PROGMEM = R"=====(
 
   <div class="block left">
     <div class="setting">
-      <b class="labelSwitch">Use External WiFi Network:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-text="yesno" data-label="left">
         <input id="enabled" name="enabled" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Use External WiFi Network:</span>
       </label>
     </div>
     &nbsp;&nbsp;&nbsp;<b>WiFi Network:</b>
@@ -65,10 +67,12 @@ const char NETWORK_page[] PROGMEM = R"=====(
     and gateway to be used by the controller on the preferred WiFi network. Note that any
     changes to the network name or password will clear previously-entered values.
     <div class="setting">
-      <b class="labelSwitch">Edit IP Address Values:</b>
-      <label class="switch">
+      <label class="toggle-switchy" data-text="yesno" data-label="left">
         <input id="editIP" name="editIP" type="checkbox">
-        <span class="slider round"></span>
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Use Static IP Address:</span>
       </label>
     </div>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Static IP:</b> <input type="text" id="address" width="100" maxlength="15" disabled/>

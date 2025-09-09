@@ -541,6 +541,7 @@ function updateEquipment(jObj) {
     if ((jObj.volMusic || 0) == 0) {
       setHtml("musicVolume", "Min");
     }
+    setToggle("toggleMute", jObj.volMuted);
 
     // Music Playback Status
     if (jObj.musicPlaying && !jObj.musicPaused) {
@@ -553,6 +554,7 @@ function updateEquipment(jObj) {
       // If no music is playing or paused, show a default message.
       setHtml("playbackStatus", "No Music Playing");
     }
+    setToggle("toggleLoop", jObj.musicLooping);
 
     // Update special UI elements based on the latest data values.
     setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron, jObj.switch, jObj.firing, jObj.themeID);
