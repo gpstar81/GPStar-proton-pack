@@ -54,7 +54,7 @@ void printPartitions() {
 
 void ledsOff() {
   // Change all possible addressable LEDs to black.
-  fill_solid(device_leds, DEVICE_NUM_LEDS, CRGB::Black);
+  fill_solid(device_leds, DEVICE_MAX_LEDS, CRGB::Black);
 }
 
 void animateLights() {

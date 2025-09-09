@@ -276,7 +276,7 @@ void setup() {
   POWER_LEVEL = LEVEL_1;
 
   // Device RGB LEDs for use when needed.
-  FastLED.addLeds<NEOPIXEL, DEVICE_LED_PIN>(device_leds, DEVICE_NUM_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.addLeds<NEOPIXEL, DEVICE_LED_PIN>(device_leds, DEVICE_MAX_LEDS).setCorrection(TypicalLEDStrip);
   FastLED.setMaxRefreshRate(0); // Disable FastLED's blocking 2.5ms delay.
   ms_anim_change.start(i_animation_time); // Default animation time.
 
@@ -284,12 +284,12 @@ void setup() {
   updateStreamPalette();
 
   // Change all possible addressable LEDs to black by default.
-  fill_solid(device_leds, DEVICE_NUM_LEDS, CRGB::Black);
+  fill_solid(device_leds, DEVICE_MAX_LEDS, CRGB::Black);
 
   // Accesses namespace in read-only mode.
   bool b_namespace_opened = preferences.begin("device", true);
   if(b_namespace_opened) {
-    if(preferences.contains("numLeds")) {
+    if(preferences.isKey("numLeds")) {
       deviceNumLeds = preferences.getShort("numLeds");
     }
     preferences.end();

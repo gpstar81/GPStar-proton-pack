@@ -52,7 +52,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b>Stream LED Count:</b><br/>
-      <input type="range" id="numLeds" name="numLeds" min="50" max="500" value="250" step="5"
+      <input type="range" id="numLeds" name="numLeds" min="50" max="500" value="250" step="1"
        oninput="numLedsOut.value=numLeds.value"/>
       <output class="labelSlider" id="numLedsOut" for="numLeds"></output>
     </div>

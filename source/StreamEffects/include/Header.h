@@ -29,9 +29,9 @@
  * 50 LEDs per Meter: https://a.co/d/dlDyCkz
  */
 #define DEVICE_LED_PIN 4
-#define DEFAULT_NUM_LEDS 500 // Set a hard max for allocating the array of LEDs
+#define DEVICE_MAX_LEDS 500 // Set a hard max for allocating the array of LEDs
 uint8_t deviceNumLeds = 250; // Default is 50 LEDs per meter, wtih a length of 5 meters (eg. 250)
-CRGB device_leds[DEFAULT_NUM_LEDS];
+CRGB device_leds[DEVICE_MAX_LEDS];
 
 /*
  * Define Color Palettes
