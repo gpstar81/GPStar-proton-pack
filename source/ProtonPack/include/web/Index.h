@@ -96,7 +96,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     <div>
       <div class="volume-container">
         <div class="volume-control">
-          <h3>System</h3>
+          <h3>Master</h3>
           <button type="button" onclick="volSysUp()">+</button>
           <span id="masterVolume"></span>
           <button type="button" onclick="volSysDown()">&minus;</button>
@@ -114,6 +114,9 @@ const char INDEX_page[] PROGMEM = R"=====(
           <button type="button" onclick="volMusicDown()">&minus;</button>
         </div>
       </div>
+    </div>
+
+    <div id="audio-toggles" class="card">
       <div style="display: inline-block">
         <h3>Master Mute</h3>
         <label class="toggle-switchy">
@@ -133,6 +136,7 @@ const char INDEX_page[] PROGMEM = R"=====(
         </label>
       </div>
     </div>
+
     <div class="card">
       <h3 class="centered">Music Navigation</h3>
       <div class="music-navigation">
@@ -169,6 +173,8 @@ const char INDEX_page[] PROGMEM = R"=====(
         <option value="2021">Afterlife</option>
         <option value="2024">Frozen Empire</option>
       </select>
+      <br/>
+      <br/>
       <br/>
       <br/>
       <br/>

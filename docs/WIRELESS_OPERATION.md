@@ -247,6 +247,7 @@ The following URI's are API endpoints available for managing actions within your
 	PUT /volume/effects/down - Decrease effects volume
 	PUT /volume/music/up - Increase music volume
 	PUT /volume/music/down - Decrease music volume
+	PUT /volume/music/loop - Toggle looping a single track
 
 	PUT /music/startstop - Toggle music playback via start/stop
 	PUT /music/pauseresume - Toggle music playback via resume/pause

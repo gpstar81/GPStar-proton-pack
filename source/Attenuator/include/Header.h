@@ -131,6 +131,9 @@ uint8_t i_cyclotron_multiplier = 1;
 // Denotes whether the cyclotron lid is currently on (covered) or off (exposed).
 bool b_cyclotron_lid_on = true;
 
+// Indicates whether the cyclotron is ramping up or down.
+bool b_ramping = false;
+
 /*
  * Barmeter 28 segment bargraph mapping: allows accessing elements sequentially (0-27)
  * If the pattern appears inverted from what is expected, flip by using the following:

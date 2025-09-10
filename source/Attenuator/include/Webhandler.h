@@ -615,6 +615,7 @@ String getEquipmentStatus() {
     jsonBody["themeID"] = SYSTEM_YEAR;
     jsonBody["switch"] = getRedSwitch();
     jsonBody["pack"] = (b_pack_on ? "Powered" : "Idle");
+    jsonBody["ramping"] = b_ramping;
     jsonBody["power"] = getPower();
     jsonBody["safety"] = getSafety();
     jsonBody["wand"] = (b_wand_connected ? "Connected" : "Not Connected");
