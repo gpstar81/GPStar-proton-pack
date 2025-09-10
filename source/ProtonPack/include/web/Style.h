@@ -557,7 +557,7 @@ input[type=text] {
 }
 
 #audio-toggles {
-  background:#fff;
+  background:#eee;
   margin:0px auto;
   min-height:100px;
   text-align:center;

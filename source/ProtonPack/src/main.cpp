@@ -162,6 +162,7 @@ void setup() {
 
   // Status indicator LED on the v1.5 GPStar Proton Pack Board.
   pinModeFast(PACK_STATUS_LED_PIN, OUTPUT);
+  digitalWriteFast(PACK_STATUS_LED_PIN, LOW);
 
   // Configure the various switches on the pack.
   switch_power.setDebounceTime(50);

@@ -258,6 +258,7 @@ void setup() {
 
   // Status indicator LED on the v1.4 GPStar Neutrona Wand Board.
   pinModeFast(WAND_STATUS_LED_PIN, OUTPUT);
+  digitalWriteFast(WAND_STATUS_LED_PIN, LOW);
 
   // Wand status.
   WAND_STATUS = MODE_OFF;
