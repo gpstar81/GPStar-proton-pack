@@ -235,6 +235,9 @@ The following URI's are API endpoints available for managing actions within your
 	PUT /pack/off - Turn the pack onf (subject to system state)
 	PUT /pack/attenuate - Cancel pack overheat via "attenuation"
 	PUT /pack/vent - Perform manual vent (subject to system state)
+	PUT /pack/smoke - Toggle smoke on/off
+	PUT /pack/vibration - Toggle vibration on/off
+	PUT /pack/cyclodirection - Toggle cyclotron animation between clockwise and counter-clockwise
 	PUT /pack/theme/1984 - Switch to GB1 theme
 	PUT /pack/theme/1989 - Switch to GB2 theme
 	PUT /pack/theme/2021 - Switch to GB:AL theme

@@ -647,4 +647,6 @@ input[type=text] {
 .toggle-switchy[data-text='repeat'] > input + .toggle:after {content:'ALL';}
 .toggle-switchy[data-text='yesno'] > input + .toggle:before {content:'YES';}
 .toggle-switchy[data-text='yesno'] > input + .toggle:after {content:'NO';}
+.toggle-switchy[data-text='direction'] > input + .toggle:before {content:'CW';}
+.toggle-switchy[data-text='direction'] > input + .toggle:after {content:'CCW';}
 )=====";

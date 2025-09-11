@@ -167,13 +167,43 @@ const char INDEX_page[] PROGMEM = R"=====(
       <br/>
       <br/>
       <br/>
+      <div style="display: inline-block">
+        <h3>Smoke</h3>
+        <label class="toggle-switchy">
+          <input id="toggleSmoke" name="toggleSmoke" type="checkbox" onchange="toggleSmoke()">
+          <span class="toggle">
+            <span class="switch"></span>
+          </span>
+        </label>
+      </div>
+      <div style="display: inline-block">
+        <h3>Vibration</h3>
+        <label class="toggle-switchy">
+          <input id="toggleVibration" name="toggleVibration" type="checkbox" onchange="toggleVibration()">
+          <span class="toggle">
+            <span class="switch"></span>
+          </span>
+        </label>
+      </div>
+      <br/>
+      <div style="display: inline-block">
+        <h3>Cyclotron Direction</h3>
+        <label class="toggle-switchy" data-text="direction">
+          <input id="cyclotronDirection" name="cyclotronDirection" type="checkbox" onchange="cyclotronDirection()">
+          <span class="toggle">
+            <span class="switch"></span>
+          </span>
+        </label>
+      </div>
+      <br/>
+      <br/>
+      <br/>
       <select id="themes" class="custom-select" onchange="themeSelect(this)">
         <option value="1984">GB1 - 1984</option>
         <option value="1989">GB2 - 1989</option>
         <option value="2021">Afterlife</option>
         <option value="2024">Frozen Empire</option>
       </select>
-      <br/>
       <br/>
       <br/>
       <br/>

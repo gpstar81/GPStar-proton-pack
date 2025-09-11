@@ -575,6 +575,21 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       BARGRAPH_PATTERN = BG_RAMP_DOWN;
     break;
 
+    case A_TOGGLE_SMOKE:
+      debug("Received smoke value: " + String(i_value));
+      b_smoke_enabled = i_value == 2;
+    break;
+
+    case A_TOGGLE_VIBRATION:
+      debug("Received vibration value: " + String(i_value));
+      b_vibration_switch_on = i_value == 2;
+    break;
+
+    case A_CYCLOTRON_DIRECTION_TOGGLE:
+      debug("Received cyclotron direction value: " + String(i_value));
+      b_clockwise = i_value == 2;
+    break;
+
     case A_TOGGLE_MUTE:
       debug("Received mute value: " + String(i_value));
       b_master_muted = i_value == 2;

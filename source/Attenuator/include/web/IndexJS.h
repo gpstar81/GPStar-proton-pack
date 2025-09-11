@@ -213,7 +213,7 @@ function disableActionButtons() {
   getEl("btnAttenuate").disabled = true;
 }
 
-function setButtonStates(mode, pack, wand, cyclotron, ionswitch, firing, ramping, themeid) {
+function setButtonStates(mode, pack, wand, cyclotron, ionswitch, firing, ramping, smoke, vibration, direction, themeid) {
   // Assume all direct user actions are not possible, then override as necessary.
   disableActionButtons();
 
@@ -226,6 +226,11 @@ function setButtonStates(mode, pack, wand, cyclotron, ionswitch, firing, ramping
     // Can turn on the pack if not already powered (implies wand is not powered).
     getEl("btnPackOn").disabled = false;
   }
+
+  // Set the smoke, vibration, and cyclotron direction toggles to the current setting.
+  setToggle("toggleSmoke", smoke);
+  setToggle("toggleVibration", vibration);
+  setToggle("cyclotronDirection", direction);
 
   // Set the theme drop-down to the current theme.
   switch(themeid) {
@@ -557,7 +562,7 @@ function updateEquipment(jObj) {
     setToggle("toggleLoop", jObj.musicLooping);
 
     // Update special UI elements based on the latest data values.
-    setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron, jObj.switch, jObj.firing, jObj.ramping, jObj.themeID);
+    setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron, jObj.switch, jObj.firing, jObj.ramping, jObj.smoke, jObj.vibration, jObj.direction, jObj.themeID);
 
     // Update the current track info.
     musicTrackStart = jObj.musicStart || 0;

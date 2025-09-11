@@ -175,11 +175,13 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       <output class="labelSlider" id="cycLumOut" for="ledCycLidLum"></output>
     </div>
     <div class="setting">
-      <b>Spin Direction:</b>
-      <select id="cyclotronDirection" name="cyclotronDirection" style="width:200px">
-        <option value="0">Counter-Clockwise</option>
-        <option value="1">Clockwise</option>
-      </select>
+      <label class="toggle-switchy" data-text="direction" data-label="left">
+        <input id="cyclotronDirection" name="cyclotronDirection" type="checkbox">
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Spin Direction:</span>
+      </label>
     </div>
     <div class="setting">
       <b>&nbsp;&nbsp;&nbsp;Center LEDs:</b>
@@ -465,7 +467,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             setValue("ledCycLidSat", convertRange(settings.ledCycLidSat || 254, [1,254], [0,100])); // Full Saturation
             setValue("ledCycLidLum", settings.ledCycLidLum || 100); // Full Brightness
             setHtml("cycLumOut", getValue("ledCycLidLum"));
-            setValue("cyclotronDirection", settings.cyclotronDirection || 0);
+            setToggle("cyclotronDirection", settings.cyclotronDirection);
             setValue("ledCycLidCenter", settings.ledCycLidCenter || 0);
             setToggle("ledCycLidFade", settings.ledCycLidFade);
             setToggle("ledVGCyclotron", settings.ledVGCyclotron);
@@ -523,7 +525,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         ledCycLidHue: convertRange(getInt("ledCycLidHue"), [0,360], [1,254]) || 254,
         ledCycLidSat: convertRange(getInt("ledCycLidSat"), [0,100], [1,254]) || 254,
         ledCycLidLum: getInt("ledCycLidLum") || 100,
-        cyclotronDirection: getInt("cyclotronDirection"),
+        cyclotronDirection: getToggle("cyclotronDirection"),
         ledCycLidCenter: getInt("ledCycLidCenter"),
         ledCycLidFade: getToggle("ledCycLidFade"),
         ledVGCyclotron: getToggle("ledVGCyclotron"),

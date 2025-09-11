@@ -125,6 +125,21 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
       restartFromWandMash();
     break;
 
+    case A_TOGGLE_SMOKE:
+      b_smoke_enabled = !b_smoke_enabled;
+      attenuatorSerialSend(A_TOGGLE_SMOKE, b_smoke_enabled ? 2 : 1);
+    break;
+
+    case A_TOGGLE_VIBRATION:
+      b_vibration_switch_on = !b_vibration_switch_on;
+      attenuatorSerialSend(A_TOGGLE_VIBRATION, b_vibration_switch_on ? 2 : 1);
+    break;
+
+    case A_CYCLOTRON_DIRECTION_TOGGLE:
+      b_clockwise = !b_clockwise;
+      attenuatorSerialSend(A_CYCLOTRON_DIRECTION_TOGGLE, b_clockwise ? 2 : 1);
+    break;
+
     case A_TOGGLE_MUTE:
       if(i_volume_master == i_volume_abs_min) {
         i_volume_master = i_volume_revert;

@@ -199,6 +199,18 @@ function musicLoop() {
   sendCommand("/music/loop");
 }
 
+function toggleSmoke() {
+  sendCommand("/pack/smoke/");
+}
+
+function toggleVibration() {
+  sendCommand("/pack/vibration/");
+}
+
+function cyclotronDirection() {
+  sendCommand("/pack/cyclodirection");
+}
+
 function themeSelect(caller) {
   // Change the theme via selected option: /pack/theme/<year>
   sendCommand("/pack/theme/" + caller.value);

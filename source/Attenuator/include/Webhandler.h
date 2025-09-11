@@ -613,6 +613,9 @@ String getEquipmentStatus() {
     jsonBody["modeID"] = (SYSTEM_MODE == MODE_SUPER_HERO) ? 1 : 0;
     jsonBody["theme"] = getTheme();
     jsonBody["themeID"] = SYSTEM_YEAR;
+    jsonBody["smoke"] = b_smoke_enabled;
+    jsonBody["vibration"] = b_vibration_switch_on;
+    jsonBody["direction"] = b_clockwise;
     jsonBody["switch"] = getRedSwitch();
     jsonBody["pack"] = (b_pack_on ? "Powered" : "Idle");
     jsonBody["ramping"] = b_pack_shutting_down;
@@ -762,6 +765,24 @@ void handleAttenuatePack(AsyncWebServerRequest *request) {
 void handleManualVent(AsyncWebServerRequest *request) {
   debugln("Web: Manual Vent Triggered");
   attenuatorSerialSend(A_MANUAL_OVERHEAT);
+  request->send(200, "application/json", status);
+}
+
+void handleToggleSmoke(AsyncWebServerRequest *request) {
+  debugln("Web: Smoke Toggle Triggered");
+  attenuatorSerialSend(A_TOGGLE_SMOKE);
+  request->send(200, "application/json", status);
+}
+
+void handleToggleVibration(AsyncWebServerRequest *request) {
+  debugln("Web: Vibration Toggle Triggered");
+  attenuatorSerialSend(A_TOGGLE_VIBRATION);
+  request->send(200, "application/json", status);
+}
+
+void handleCyclotronDirection(AsyncWebServerRequest *request) {
+  debugln("Web: Cyclotron Direction Toggle Triggered");
+  attenuatorSerialSend(A_CYCLOTRON_DIRECTION_TOGGLE);
   request->send(200, "application/json", status);
 }
 
@@ -1516,6 +1537,9 @@ void setupRouting() {
   httpServer.on("/pack/off", HTTP_PUT, handlePackOff);
   httpServer.on("/pack/attenuate", HTTP_PUT, handleAttenuatePack);
   httpServer.on("/pack/vent", HTTP_PUT, handleManualVent);
+  httpServer.on("/pack/smoke", HTTP_PUT, handleToggleSmoke);
+  httpServer.on("/pack/vibration", HTTP_PUT, handleToggleVibration);
+  httpServer.on("/pack/cyclodirection", HTTP_PUT, handleCyclotronDirection);
   httpServer.on("/pack/theme/1984", HTTP_PUT, handleThemeChange);
   httpServer.on("/pack/theme/1989", HTTP_PUT, handleThemeChange);
   httpServer.on("/pack/theme/2021", HTTP_PUT, handleThemeChange);

@@ -241,6 +241,9 @@ bool b_wand_on = false;
 bool b_pack_alarm = false;
 bool b_wand_firing = false;
 bool b_overheating = false;
+bool b_smoke_enabled = false;
+bool b_vibration_switch_on = false;
+bool b_clockwise = false;
 
 // Flags relating to the synchronization process.
 millisDelay ms_packsync;
