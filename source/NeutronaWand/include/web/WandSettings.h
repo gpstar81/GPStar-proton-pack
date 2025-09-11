@@ -82,15 +82,6 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <label class="toggle-switchy" data-label="left">
-        <input id="rgbVentEnabled" name="rgbVentEnabled" type="checkbox">
-        <span class="toggle">
-          <span class="switch"></span>
-        </span>
-        <span class="label">RGB Vent Light:</span>
-      </label>
-    </div>
-    <div class="setting">
-      <label class="toggle-switchy" data-label="left">
         <input id="autoVentLight" name="autoVentLight" type="checkbox">
         <span class="toggle">
           <span class="switch"></span>
@@ -248,6 +239,29 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       getEl("btnSave").disabled = true;
     }
 
+    function disableControls() {
+      // Disables all controls.
+      getEl("ledWandCount").disabled = true;
+      getEl("ledWandHue").disabled = true;
+      getEl("ledWandSat").disabled = true;
+      getEl("spectralModesEnabled").disabled = true;
+      getEl("overheatEnabled").disabled = true;
+      getEl("defaultFiringMode").disabled = true;
+      getEl("wandVibration").disabled = true;
+      getEl("wandSoundsToPack").disabled = true;
+      getEl("quickVenting").disabled = true;
+      getEl("autoVentLight").disabled = true;
+      getEl("wandBeepLoop").disabled = true;
+      getEl("wandBootError").disabled = true;
+      getEl("defaultYearModeWand").disabled = true;
+      getEl("defaultYearModeCTS").disabled = true;
+      getEl("numBargraphSegments").disabled = true;
+      getEl("invertWandBargraph").disabled = true;
+      getEl("bargraphOverheatBlink").disabled = true;
+      getEl("bargraphIdleAnimation").disabled = true;
+      getEl("bargraphFireAnimation").disabled = true;
+    }
+
     // Converts a value from one range to another: eg. convertRange(160, [2,254], [0,360])
     function convertRange(value, r1, r2) {
       return Math.round((value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0]);
@@ -269,11 +283,13 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
           if (settings) {
             if (!settings.prefsAvailable) {
               alert("Preferences could not be downloaded. Please refresh the page to try again.");
+              disableControls();
               return;
             }
 
             if (settings.wandPowered) {
               alert("Wand is currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings.");
+              disableControls();
               return;
             }
 
@@ -296,7 +312,6 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
             setValue("ledWandCount", settings.ledWandCount || 0); // Haslab: 0 (5 LED)
             setValue("ledWandHue", convertRange(settings.ledWandHue || 254, [1,254], [0,360])); // Default: Red
             setValue("ledWandSat", convertRange(settings.ledWandSat || 254, [1,254], [0,100])); // Full Saturation
-            setToggle("rgbVentEnabled", settings.rgbVentEnabled);
             setToggle("spectralModesEnabled", settings.spectralModesEnabled);
             setToggle("overheatEnabled", settings.overheatEnabled);
             setValue("defaultFiringMode", settings.defaultFiringMode || 1);
@@ -330,7 +345,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         ledWandCount: getInt("ledWandCount") || 0,
         ledWandHue: convertRange(getInt("ledWandHue"), [0,360], [1,254]) || 254,
         ledWandSat: convertRange(getInt("ledWandSat"), [0,100], [1,254]) || 254,
-        rgbVentEnabled: getToggle("rgbVentEnabled"),
+        rgbVentEnabled: 1, // ESP32-S3 must have rgbVentEnabled true
         spectralModesEnabled: getToggle("spectralModesEnabled"),
         overheatEnabled: getToggle("overheatEnabled"),
         defaultFiringMode: getInt("defaultFiringMode") || 1,

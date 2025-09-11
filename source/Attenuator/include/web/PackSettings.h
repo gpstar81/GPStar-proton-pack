@@ -360,6 +360,45 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       getEl("btnSave").disabled = true;
     }
 
+    function disableControls() {
+      // Disables all controls.
+      getEl("defaultSystemModePack").disabled = true;
+      getEl("defaultYearThemePack").disabled = true;
+      getEl("currentYearThemePack").disabled = true;
+      getEl("packVibration").disabled = true;
+      getEl("defaultSystemVolume").disabled = true;
+      getEl("overheatLightsOff").disabled = true;
+      getEl("overheatSyncToFan").disabled = true;
+      getEl("protonStreamEffects").disabled = true;
+      getEl("ribbonCableAlarm").disabled = true;
+      getEl("demoLightMode").disabled = true;
+      getEl("overheatStrobeNF").disabled = true;
+      getEl("ledCycLidCount").disabled = true;
+      getEl("ledCycLidHue").disabled = true;
+      getEl("ledCycLidSat").disabled = true;
+      getEl("ledCycLidLum").disabled = true;
+      getEl("cyclotronDirection").disabled = true;
+      getEl("ledCycLidCenter").disabled = true;
+      getEl("ledCycLidFade").disabled = true;
+      getEl("ledCycLidSimRing").disabled = true;
+      getEl("ledVGCyclotron").disabled = true;
+      getEl("ledCycInnerPanel").disabled = true;
+      getEl("ledCycPanLum").disabled = true;
+      getEl("ledCycCakeCount").disabled = true;
+      getEl("ledCycCakeGRB").disabled = true;
+      getEl("ledCycCakeHue").disabled = true;
+      getEl("ledCycCakeSat").disabled = true;
+      getEl("ledCycCakeLum").disabled = true;
+      getEl("ledCycCavCount").disabled = true;
+      getEl("ledCycCavType").disabled = true;
+      getEl("ledPowercellCount").disabled = true;
+      getEl("ledPowercellHue").disabled = true;
+      getEl("ledPowercellSat").disabled = true;
+      getEl("ledPowercellLum").disabled = true;
+      getEl("ledInvertPowercell").disabled = true;
+      getEl("ledVGPowercell").disabled = true;
+    }
+
     // Converts a value from one range to another: eg. convertRange(160, [2,254], [0,360])
     function convertRange(value, r1, r2) {
       return Math.round((value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0]);
@@ -381,11 +420,13 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
           if (settings) {
             if (!settings.prefsAvailable) {
               alert("An unexpected error occurred and preferences could not be downloaded. Please refresh the page to try again.");
+              disableControls();
               return;
             }
 
             if (settings.packPowered || settings.wandPowered) {
               alert("Pack and/or Wand are currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings.");
+              disableControls();
               return;
             }
 

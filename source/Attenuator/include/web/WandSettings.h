@@ -270,8 +270,6 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       getEl("bargraphOverheatBlink").disabled = true;
       getEl("bargraphIdleAnimation").disabled = true;
       getEl("bargraphFireAnimation").disabled = true;
-      getEl("ledWandHue").disabled = true;
-      getEl("ledWandSat").disabled = true;
     }
 
     // Converts a value from one range to another: eg. convertRange(160, [2,254], [0,360])
@@ -358,7 +356,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         ledWandCount: getInt("ledWandCount") || 0,
         ledWandHue: convertRange(getInt("ledWandHue"), [0,360], [1,254]) || 254,
         ledWandSat: convertRange(getInt("ledWandSat"), [0,100], [1,254]) || 254,
-        rgbVentEnabled: getToggle("rgbVentEnabled"),
+        rgbVentEnabled: getToggle("rgbVentEnabled"), // TODO: Need to dynamically disable this control if wand is ESP32-S3!
         spectralModesEnabled: getToggle("spectralModesEnabled"),
         overheatEnabled: getToggle("overheatEnabled"),
         defaultFiringMode: getInt("defaultFiringMode") || 1,

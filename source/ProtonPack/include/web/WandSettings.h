@@ -82,15 +82,6 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <label class="toggle-switchy" data-label="left">
-        <input id="rgbVentEnabled" name="rgbVentEnabled" type="checkbox">
-        <span class="toggle">
-          <span class="switch"></span>
-        </span>
-        <span class="label">RGB Vent Light:</span>
-      </label>
-    </div>
-    <div class="setting">
-      <label class="toggle-switchy" data-label="left">
         <input id="autoVentLight" name="autoVentLight" type="checkbox">
         <span class="toggle">
           <span class="switch"></span>
@@ -253,7 +244,6 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       getEl("ledWandCount").disabled = true;
       getEl("ledWandHue").disabled = true;
       getEl("ledWandSat").disabled = true;
-      getEl("rgbVentEnabled").disabled = true;
       getEl("spectralModesEnabled").disabled = true;
       getEl("overheatEnabled").disabled = true;
       getEl("defaultFiringMode").disabled = true;
@@ -270,8 +260,6 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       getEl("bargraphOverheatBlink").disabled = true;
       getEl("bargraphIdleAnimation").disabled = true;
       getEl("bargraphFireAnimation").disabled = true;
-      getEl("ledWandHue").disabled = true;
-      getEl("ledWandSat").disabled = true;
     }
 
     // Converts a value from one range to another: eg. convertRange(160, [2,254], [0,360])
@@ -324,7 +312,6 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
             setValue("ledWandCount", settings.ledWandCount || 0); // Haslab: 0 (5 LED)
             setValue("ledWandHue", convertRange(settings.ledWandHue || 254, [1,254], [0,360])); // Default: Red
             setValue("ledWandSat", convertRange(settings.ledWandSat || 254, [1,254], [0,100])); // Full Saturation
-            setToggle("rgbVentEnabled", settings.rgbVentEnabled);
             setToggle("spectralModesEnabled", settings.spectralModesEnabled);
             setToggle("overheatEnabled", settings.overheatEnabled);
             setValue("defaultFiringMode", settings.defaultFiringMode || 1);
@@ -358,7 +345,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         ledWandCount: getInt("ledWandCount") || 0,
         ledWandHue: convertRange(getInt("ledWandHue"), [0,360], [1,254]) || 254,
         ledWandSat: convertRange(getInt("ledWandSat"), [0,100], [1,254]) || 254,
-        rgbVentEnabled: getToggle("rgbVentEnabled"),
+        rgbVentEnabled: 1, // ESP32-S3 must have rgbVentEnabled true
         spectralModesEnabled: getToggle("spectralModesEnabled"),
         overheatEnabled: getToggle("overheatEnabled"),
         defaultFiringMode: getInt("defaultFiringMode") || 1,

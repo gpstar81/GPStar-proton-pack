@@ -364,7 +364,7 @@ void mainLoop() {
 
           // Tell the wand the pack is off, so shut down the wand if it happens to still be on.
           packSerialSend(P_OFF);
-          attenuatorSerialSend(A_PACK_OFF);
+          attenuatorSerialSend(A_PACK_OFF, b_pack_shutting_down ? 1 : 0);
         }
 
         if(b_ramp_down && !b_overheating && !b_pack_alarm) {

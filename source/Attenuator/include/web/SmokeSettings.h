@@ -249,6 +249,31 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
       getEl("btnSave").disabled = true;
     }
 
+    function disableControls() {
+      // Disables all controls.
+      getEl("smokeEnabled").disabled = true;
+      getEl("overheatLevel5").disabled = true;
+      getEl("overheatContinuous5").disabled = true;
+      getEl("overheatDelay5").disabled = true;
+      getEl("overheatDuration5").disabled = true;
+      getEl("overheatLevel4").disabled = true;
+      getEl("overheatContinuous4").disabled = true;
+      getEl("overheatDelay4").disabled = true;
+      getEl("overheatDuration4").disabled = true;
+      getEl("overheatLevel3").disabled = true;
+      getEl("overheatContinuous3").disabled = true;
+      getEl("overheatDelay3").disabled = true;
+      getEl("overheatDuration3").disabled = true;
+      getEl("overheatLevel2").disabled = true;
+      getEl("overheatContinuous2").disabled = true;
+      getEl("overheatDelay2").disabled = true;
+      getEl("overheatDuration2").disabled = true;
+      getEl("overheatLevel1").disabled = true;
+      getEl("overheatContinuous1").disabled = true;
+      getEl("overheatDelay1").disabled = true;
+      getEl("overheatDuration1").disabled = true;
+    }
+
     function getSettings() {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
@@ -257,11 +282,14 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
           if (settings) {
             if (!settings.prefsAvailable) {
               alert("An unexpected error occurred and preferences could not be downloaded. Please refresh the page to try again.");
+              disableControls();
               return;
             }
 
             if (settings.packPowered || settings.wandPowered) {
               alert("Pack and/or Wand are currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings.");
+              disableControls();
+              return;
             }
 
             if (!settings.wandConnected) {

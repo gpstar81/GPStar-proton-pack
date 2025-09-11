@@ -1354,7 +1354,7 @@ void packOffReset() {
 
   if(b_pack_shutting_down) {
     b_pack_shutting_down = false;
-
+    attenuatorSerialSend(A_PACK_OFF, b_pack_shutting_down ? 1 : 0);
     clearCyclotronFades();
   }
 

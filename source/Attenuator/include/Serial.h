@@ -530,6 +530,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
 
       // Pack is on (directly).
       b_pack_on = true;
+      b_pack_shutting_down = false;
       b_state_changed = true;
 
       BARGRAPH_PATTERN = BG_POWER_RAMP;
@@ -550,6 +551,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
 
       // Pack is off (directly or via the wand).
       b_pack_on = false;
+      b_pack_shutting_down = (i_value == 1);
       b_state_changed = true;
 
       if(BARGRAPH_STATE != BG_OFF) {

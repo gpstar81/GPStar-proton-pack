@@ -448,8 +448,8 @@ String getPackConfig() {
   jsonBody["prefsAvailable"] = true;
 
   // Return current powered state for pack and wand.
-  jsonBody["packPowered"] = (b_pack_on ? true : false);
-  jsonBody["wandPowered"] = (b_wand_on ? true : false);
+  jsonBody["packPowered"] = (b_pack_on || b_pack_shutting_down);
+  jsonBody["wandPowered"] = b_wand_on;
 
   // Proton Pack Runtime Options
   jsonBody["defaultSystemModePack"] = packConfig.defaultSystemModePack; // [0=SH,1=MO]
@@ -504,9 +504,9 @@ String getWandConfig() {
   jsonBody["prefsAvailable"] = b_received_prefs_wand;
 
   // Return current powered state for pack and wand.
-  jsonBody["packPowered"] = (b_pack_on ? true : false);
-  jsonBody["wandPowered"] = (b_wand_on ? true : false);
-  jsonBody["wandConnected"] = (b_wand_connected ? true : false);
+  jsonBody["packPowered"] = (b_pack_on || b_pack_shutting_down);
+  jsonBody["wandPowered"] = b_wand_on;
+  jsonBody["wandConnected"] = b_wand_connected;
 
   // Neutrona Wand LED Options
   jsonBody["ledWandCount"] = wandConfig.ledWandCount; // [0=5 (Stock), 1=48 (Frutto), 2=50 (GPStar), 3=2 (Tip)]
@@ -546,9 +546,9 @@ String getSmokeConfig() {
   jsonBody["prefsAvailable"] = true;
 
   // Return current powered state for pack and wand.
-  jsonBody["packPowered"] = (b_pack_on ? true : false);
-  jsonBody["wandPowered"] = (b_wand_on ? true : false);
-  jsonBody["wandConnected"] = (b_wand_connected ? true : false);
+  jsonBody["packPowered"] = (b_pack_on || b_pack_shutting_down);
+  jsonBody["wandPowered"] = b_wand_on;
+  jsonBody["wandConnected"] = b_wand_connected;
 
   // Proton Pack
   jsonBody["smokeEnabled"] = (smokeConfig.smokeEnabled == 1); // true|false
@@ -611,7 +611,7 @@ String getEquipmentStatus() {
   jsonBody["themeID"] = SYSTEM_YEAR;
   jsonBody["switch"] = getRedSwitch();
   jsonBody["pack"] = (b_pack_on ? "Powered" : "Idle");
-  jsonBody["ramping"] = b_ramp_down;
+  jsonBody["ramping"] = b_pack_shutting_down;
   jsonBody["power"] = getPower();
   jsonBody["safety"] = getSafety();
   jsonBody["wand"] = (b_wand_connected ? "Connected" : "Not Connected");
@@ -784,7 +784,7 @@ void handleThemeChange(AsyncWebServerRequest *request) {
   debugln("Web: Theme Change Triggered");
 
   // Pre-check: Prevent theme change if pack or wand is running.
-  if (b_pack_on || b_wand_on || b_ramp_down) {
+  if (b_pack_on || b_wand_on || b_pack_shutting_down) {
     String result;
     jsonBody.clear();
     jsonBody["status"] = "Theme change not allowed while pack or wand is running.";
