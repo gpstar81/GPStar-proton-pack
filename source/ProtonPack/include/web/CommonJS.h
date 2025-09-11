@@ -213,23 +213,23 @@ function handleToggle(el, apiOn, apiOff) {
 }
 
 function toggleMute(el) {
-  handleToggleWithTransition(el, "/volume/mute", "/volume/unmute");
+  handleToggle(el, "/volume/mute", "/volume/unmute");
 }
 
 function musicLoop(el) {
-  handleToggleWithTransition(el, "/music/loop/single", "/music/loop/all");
+  handleToggle(el, "/music/loop/single", "/music/loop/all");
 }
 
 function toggleSmoke(el) {
-  handleToggleWithTransition(el, "/pack/smoke/on", "/pack/smoke/off");
+  handleToggle(el, "/pack/smoke/on", "/pack/smoke/off");
 }
 
 function toggleVibration(el) {
-  handleToggleWithTransition(el, "/pack/vibration/on", "/pack/vibration/off");
+  handleToggle(el, "/pack/vibration/on", "/pack/vibration/off");
 }
 
 function cyclotronDirection(el) {
-  handleToggleWithTransition(el, "/pack/cyclotron/clockwise", "/pack/cyclotron/counterclockwise");
+  handleToggle(el, "/pack/cyclotron/clockwise", "/pack/cyclotron/counterclockwise");
 }
 
 function themeSelect(caller) {

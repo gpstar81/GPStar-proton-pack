@@ -213,11 +213,11 @@ function handleToggle(el, apiOn, apiOff) {
 }
 
 function toggleMute(el) {
-  handleToggleWithTransition(el, "/volume/mute", "/volume/unmute");
+  handleToggle(el, "/volume/mute", "/volume/unmute");
 }
 
 function musicLoop(el) {
-  handleToggleWithTransition(el, "/music/loop/single", "/music/loop/all");
+  handleToggle(el, "/music/loop/single", "/music/loop/all");
 }
 
 function themeSelect(caller) {
