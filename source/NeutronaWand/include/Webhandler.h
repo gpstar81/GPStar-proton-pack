@@ -664,21 +664,48 @@ void handleRestart(AsyncWebServerRequest *request) {
   ESP.restart();
 }
 
-void handleToggleMute(AsyncWebServerRequest *request) {
-  debugln("Web: Toggle Mute");
-  if(i_volume_master == i_volume_abs_min) {
+void toggleDeviceMute() {
+  if (i_volume_master == i_volume_abs_min) {
     i_volume_master = i_volume_revert;
-  }
-  else {
+  } else {
     i_volume_revert = i_volume_master;
 
     // Set the master volume to minimum.
     i_volume_master = i_volume_abs_min;
   }
+
   // Update the master volume.
   updateMasterVolume();
-  request->send(200, "application/json", status);
-  notifyWSClients();
+}
+
+void handleToggleMute(AsyncWebServerRequest *request) {
+  debugln("Web: Toggle Mute");
+
+  String s_path = request->url();
+  if (s_path.length() > 0) {
+    int lastSlash = s_path.lastIndexOf('/');
+    if (lastSlash >= 0 && lastSlash < s_path.length() - 1) {
+      String segment = s_path.substring(lastSlash + 1);
+      if (segment == "mute") {
+        toggleDeviceMute();
+        notifyWSClients();
+        request->send(200, "application/json", status);
+        return;
+      } else if (segment == "unmute") {
+        toggleDeviceMute();
+        notifyWSClients();
+        request->send(200, "application/json", status);
+        return;
+      }
+    }
+  }
+
+  debugln("Invalid Action");
+  String result;
+  jsonBody.clear();
+  jsonBody["status"] = "Invalid Action";
+  serializeJson(jsonBody, result);
+  request->send(400, "application/json", result); // 400 Bad Request
 }
 
 void handleMasterVolumeUp(AsyncWebServerRequest *request) {
@@ -761,9 +788,32 @@ void handlePrevMusicTrack(AsyncWebServerRequest *request) {
 
 void handleLoopMusicTrack(AsyncWebServerRequest *request) {
   debugln("Web: Toggle Music Track Loop");
-  toggleMusicLoop();
-  request->send(200, "application/json", status);
-  notifyWSClients();
+
+  String s_path = request->url();
+  if (s_path.length() > 0) {
+    int lastSlash = s_path.lastIndexOf('/');
+    if (lastSlash >= 0 && lastSlash < s_path.length() - 1) {
+      String segment = s_path.substring(lastSlash + 1);
+      if (segment == "single") {
+        toggleMusicLoop();
+        notifyWSClients();
+        request->send(200, "application/json", status);
+        return;
+      } else if (segment == "all") {
+        toggleMusicLoop();
+        notifyWSClients();
+        request->send(200, "application/json", status);
+        return;
+      }
+    }
+  }
+
+  debugln("Invalid Looping Option");
+  String result;
+  jsonBody.clear();
+  jsonBody["status"] = "Invalid Looping Option";
+  serializeJson(jsonBody, result);
+  request->send(400, "application/json", result); // 400 Bad Request
 }
 
 void handleSelectMusicTrack(AsyncWebServerRequest *request) {

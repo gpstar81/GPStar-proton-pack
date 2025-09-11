@@ -770,20 +770,86 @@ void handleManualVent(AsyncWebServerRequest *request) {
 
 void handleToggleSmoke(AsyncWebServerRequest *request) {
   debugln("Web: Smoke Toggle Triggered");
-  attenuatorSerialSend(A_TOGGLE_SMOKE);
-  request->send(200, "application/json", status);
+
+  String s_path = request->url();
+  if (s_path.length() > 0) {
+    int lastSlash = s_path.lastIndexOf('/');
+    if (lastSlash >= 0 && lastSlash < s_path.length() - 1) {
+      String segment = s_path.substring(lastSlash + 1);
+      if (segment == "on") {
+        attenuatorSerialSend(A_TOGGLE_SMOKE);
+        request->send(200, "application/json", status);
+        return;
+      } else if (segment == "off") {
+        attenuatorSerialSend(A_TOGGLE_SMOKE);
+        request->send(200, "application/json", status);
+        return;
+      }
+    }
+  }
+
+  debugln("Invalid Option");
+  String result;
+  jsonBody.clear();
+  jsonBody["status"] = "Invalid Option";
+  serializeJson(jsonBody, result);
+  request->send(400, "application/json", result); // 400 Bad Request
 }
 
 void handleToggleVibration(AsyncWebServerRequest *request) {
   debugln("Web: Vibration Toggle Triggered");
-  attenuatorSerialSend(A_TOGGLE_VIBRATION);
-  request->send(200, "application/json", status);
+
+  String s_path = request->url();
+  if (s_path.length() > 0) {
+    int lastSlash = s_path.lastIndexOf('/');
+    if (lastSlash >= 0 && lastSlash < s_path.length() - 1) {
+      String segment = s_path.substring(lastSlash + 1);
+      if (segment == "on") {
+        attenuatorSerialSend(A_TOGGLE_VIBRATION);
+        request->send(200, "application/json", status);
+        return;
+      } else if (segment == "off") {
+        attenuatorSerialSend(A_TOGGLE_VIBRATION);
+        request->send(200, "application/json", status);
+        return;
+      }
+    }
+  }
+
+  debugln("Invalid Smoke State");
+  String result;
+  jsonBody.clear();
+  jsonBody["status"] = "Invalid Smoke State";
+  serializeJson(jsonBody, result);
+  request->send(400, "application/json", result); // 400 Bad Request
 }
 
 void handleCyclotronDirection(AsyncWebServerRequest *request) {
   debugln("Web: Cyclotron Direction Toggle Triggered");
-  attenuatorSerialSend(A_CYCLOTRON_DIRECTION_TOGGLE);
-  request->send(200, "application/json", status);
+
+  String s_path = request->url();
+  if (s_path.length() > 0) {
+    int lastSlash = s_path.lastIndexOf('/');
+    if (lastSlash >= 0 && lastSlash < s_path.length() - 1) {
+      String segment = s_path.substring(lastSlash + 1);
+      if (segment == "clockwise") {
+        attenuatorSerialSend(A_CYCLOTRON_DIRECTION_TOGGLE);
+        request->send(200, "application/json", status);
+        return;
+      } else if (segment == "counterclockwise") {
+        attenuatorSerialSend(A_CYCLOTRON_DIRECTION_TOGGLE);
+        request->send(200, "application/json", status);
+        return;
+      }
+    }
+  }
+
+  debugln("Invalid Direction");
+  String result;
+  jsonBody.clear();
+  jsonBody["status"] = "Invalid Direction";
+  serializeJson(jsonBody, result);
+  request->send(400, "application/json", result); // 400 Bad Request
 }
 
 uint16_t getYearFromPath(const String s_path) {
@@ -835,10 +901,10 @@ void handleThemeChange(AsyncWebServerRequest *request) {
       attenuatorSerialSend(A_YEAR_FROZEN_EMPIRE);
     break;
     default:
-      debugln("Invalid theme year");
+      debugln("Invalid Theme Year");
       String result;
       jsonBody.clear();
-      jsonBody["status"] = "Invalid theme year";
+      jsonBody["status"] = "Invalid Theme Year";
       serializeJson(jsonBody, result);
       request->send(400, "application/json", result); // 400 Bad Request
     break;
@@ -849,8 +915,30 @@ void handleThemeChange(AsyncWebServerRequest *request) {
 
 void handleToggleMute(AsyncWebServerRequest *request) {
   debugln("Web: Toggle Mute");
-  attenuatorSerialSend(A_TOGGLE_MUTE);
-  request->send(200, "application/json", status);
+
+  String s_path = request->url();
+  if (s_path.length() > 0) {
+    int lastSlash = s_path.lastIndexOf('/');
+    if (lastSlash >= 0 && lastSlash < s_path.length() - 1) {
+      String segment = s_path.substring(lastSlash + 1);
+      if (segment == "mute") {
+        attenuatorSerialSend(A_TOGGLE_MUTE);
+        request->send(200, "application/json", status);
+        return;
+      } else if (segment == "unmute") {
+        attenuatorSerialSend(A_TOGGLE_MUTE);
+        request->send(200, "application/json", status);
+        return;
+      }
+    }
+  }
+
+  debugln("Invalid Action");
+  String result;
+  jsonBody.clear();
+  jsonBody["status"] = "Invalid Action";
+  serializeJson(jsonBody, result);
+  request->send(400, "application/json", result); // 400 Bad Request
 }
 
 void handleMasterVolumeUp(AsyncWebServerRequest *request) {
@@ -915,8 +1003,30 @@ void handlePrevMusicTrack(AsyncWebServerRequest *request) {
 
 void handleLoopMusicTrack(AsyncWebServerRequest *request) {
   debugln("Web: Toggle Music Track Loop");
-  attenuatorSerialSend(A_MUSIC_TRACK_LOOP_TOGGLE);
-  request->send(200, "application/json", status);
+
+  String s_path = request->url();
+  if (s_path.length() > 0) {
+    int lastSlash = s_path.lastIndexOf('/');
+    if (lastSlash >= 0 && lastSlash < s_path.length() - 1) {
+      String segment = s_path.substring(lastSlash + 1);
+      if (segment == "single") {
+        attenuatorSerialSend(A_MUSIC_TRACK_LOOP_TOGGLE);
+        request->send(200, "application/json", status);
+        return;
+      } else if (segment == "all") {
+        attenuatorSerialSend(A_MUSIC_TRACK_LOOP_TOGGLE);
+        request->send(200, "application/json", status);
+        return;
+      }
+    }
+  }
+
+  debugln("Invalid Looping Option");
+  String result;
+  jsonBody.clear();
+  jsonBody["status"] = "Invalid Looping Option";
+  serializeJson(jsonBody, result);
+  request->send(400, "application/json", result); // 400 Bad Request
 }
 
 void handleSelectMusicTrack(AsyncWebServerRequest *request) {
