@@ -1004,11 +1004,11 @@ void handleLoopMusicTrack(AsyncWebServerRequest *request) {
     if (lastSlash >= 0 && lastSlash < s_path.length() - 1) {
       String segment = s_path.substring(lastSlash + 1);
       if (segment == "single") {
-        attenuatorSerialSend(A_MUSIC_TRACK_LOOP_TOGGLE);
+        executeCommand(A_MUSIC_TRACK_LOOP_TOGGLE);
         request->send(200, "application/json", status);
         return;
       } else if (segment == "all") {
-        attenuatorSerialSend(A_MUSIC_TRACK_LOOP_TOGGLE);
+        executeCommand(A_MUSIC_TRACK_LOOP_TOGGLE);
         request->send(200, "application/json", status);
         return;
       }
