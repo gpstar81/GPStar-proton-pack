@@ -235,15 +235,19 @@ The following URI's are API endpoints available for managing actions within your
 	PUT /pack/off - Turn the pack onf (subject to system state)
 	PUT /pack/attenuate - Cancel pack overheat via "attenuation"
 	PUT /pack/vent - Perform manual vent (subject to system state)
-	PUT /pack/smoke - Toggle smoke on/off
-	PUT /pack/vibration - Toggle vibration on/off
-	PUT /pack/cyclodirection - Toggle cyclotron animation between clockwise and counter-clockwise
+	PUT /pack/cyclotron/clockwise - Spin cyclotron clockwise
+	PUT /pack/cyclotron/counterclockwise - Spin cyclotron counterclockwise
 	PUT /pack/theme/1984 - Switch to GB1 theme
 	PUT /pack/theme/1989 - Switch to GB2 theme
 	PUT /pack/theme/2021 - Switch to GB:AL theme
 	PUT /pack/theme/2024 - Switch to GB:FE theme
+	PUT /pack/smoke/on - Enable smoke
+	PUT /pack/smoke/off - Disable smoke
+	PUT /pack/vibration/on - Enable vibration
+	PUT /pack/vibration/off - Disable vibration
 
-	PUT /volume/toggle - Toggle mute for all devices
+	PUT /volume/mute - Mute for all devices
+	PUT /volume/unmute - Unmute for all devices
 	PUT /volume/master/up - Increase system (master) volume
 	PUT /volume/master/down - Decrease system (master) volume
 	PUT /volume/effects/up - Increase effects volume
@@ -256,7 +260,8 @@ The following URI's are API endpoints available for managing actions within your
 	PUT /music/pauseresume - Toggle music playback via resume/pause
 	PUT /music/next - Move to next track
 	PUT /music/prev - Move to previous track
-	PUT /music/loop - Toggle looping of current track
+	PUT /music/loop/all - Set looping at end of playlist
+	PUT /music/loop/single - Set looping of a single track
 	PUT /music/select?track=[INTEGER] - Select a specific music track (Min Value: 500)
 
 	GET /wifi/settings - Returns the current external WiFi settings

@@ -807,7 +807,7 @@ void handleThemeChange(AsyncWebServerRequest *request) {
   debugln("Web: Theme Change Triggered");
 
   // Pre-check: Prevent theme change if pack or wand is running.
-  if (b_pack_on || b_wand_on) {
+  if (b_pack_on || b_wand_on || b_pack_shutting_down) {
     String result;
     jsonBody.clear();
     jsonBody["status"] = "Theme change not allowed while pack or wand is running.";
@@ -1070,6 +1070,7 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
       preferences.putShort("radiation_idle", RAD_LENS_IDLE);
       preferences.putShort("display_type", DISPLAY_TYPE);
 
+      // Store the song list to preferences.
       if(songList.length() <= 2000) {
         if(songList == "null") {
           songList = "";
@@ -1537,14 +1538,18 @@ void setupRouting() {
   httpServer.on("/pack/off", HTTP_PUT, handlePackOff);
   httpServer.on("/pack/attenuate", HTTP_PUT, handleAttenuatePack);
   httpServer.on("/pack/vent", HTTP_PUT, handleManualVent);
-  httpServer.on("/pack/smoke", HTTP_PUT, handleToggleSmoke);
-  httpServer.on("/pack/vibration", HTTP_PUT, handleToggleVibration);
-  httpServer.on("/pack/cyclodirection", HTTP_PUT, handleCyclotronDirection);
+  httpServer.on("/pack/cyclotron/clockwise", HTTP_PUT, handleCyclotronDirection);
+  httpServer.on("/pack/cyclotron/counterclockwise", HTTP_PUT, handleCyclotronDirection);
   httpServer.on("/pack/theme/1984", HTTP_PUT, handleThemeChange);
   httpServer.on("/pack/theme/1989", HTTP_PUT, handleThemeChange);
   httpServer.on("/pack/theme/2021", HTTP_PUT, handleThemeChange);
   httpServer.on("/pack/theme/2024", HTTP_PUT, handleThemeChange);
-  httpServer.on("/volume/toggle", HTTP_PUT, handleToggleMute);
+  httpServer.on("/pack/smoke/on", HTTP_PUT, handleToggleSmoke);
+  httpServer.on("/pack/smoke/off", HTTP_PUT, handleToggleSmoke);
+  httpServer.on("/pack/vibration/on", HTTP_PUT, handleToggleVibration);
+  httpServer.on("/pack/vibration/off", HTTP_PUT, handleToggleVibration);
+  httpServer.on("/volume/mute", HTTP_PUT, handleToggleMute);
+  httpServer.on("/volume/unmute", HTTP_PUT, handleToggleMute);
   httpServer.on("/volume/master/up", HTTP_PUT, handleMasterVolumeUp);
   httpServer.on("/volume/master/down", HTTP_PUT, handleMasterVolumeDown);
   httpServer.on("/volume/effects/up", HTTP_PUT, handleEffectsVolumeUp);
@@ -1556,7 +1561,8 @@ void setupRouting() {
   httpServer.on("/music/next", HTTP_PUT, handleNextMusicTrack);
   httpServer.on("/music/select", HTTP_PUT, handleSelectMusicTrack);
   httpServer.on("/music/prev", HTTP_PUT, handlePrevMusicTrack);
-  httpServer.on("/music/loop", HTTP_PUT, handleLoopMusicTrack);
+  httpServer.on("/music/loop/all", HTTP_PUT, handleLoopMusicTrack);
+  httpServer.on("/music/loop/single", HTTP_PUT, handleLoopMusicTrack);
   httpServer.on("/wifi/settings", HTTP_GET, handleGetWifi);
 
   // Body Handlers

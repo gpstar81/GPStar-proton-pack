@@ -417,6 +417,36 @@ input[type=text] {
   width:320px;
 }
 
+.telemetry {
+  padding:5px 10px !important;
+}
+
+.viz-content {
+  width:100%;
+  height:400px;
+  margin:auto;
+}
+
+#gyro, #accel, #ahrs, #calc {
+  float:left;
+  width:48%;
+  margin-right:2%;
+  box-sizing:border-box;
+}
+
+.equipment::after {
+  content:"";
+  display:table;
+  clear:both;
+}
+
+#audio-toggles {
+  background:#fff;
+  margin:0px auto;
+  min-height:100px;
+  text-align:center;
+}
+
 .tab {
   display:none;
 }
@@ -501,27 +531,4 @@ input[type=text] {
 .toggle-switchy[data-text='repeat'] > input + .toggle:after {content:'ALL';}
 .toggle-switchy[data-text='yesno'] > input + .toggle:before {content:'YES';}
 .toggle-switchy[data-text='yesno'] > input + .toggle:after {content:'NO';}
-
-.telemetry {
-  padding:5px 10px !important;
-}
-
-.viz-content {
-  width:100%;
-  height:400px;
-  margin:auto;
-}
-
-#gyro, #accel, #ahrs, #calc {
-  float:left;
-  width:48%;
-  margin-right:2%;
-  box-sizing:border-box;
-}
-
-.equipment::after {
-  content:"";
-  display:table;
-  clear:both;
-}
 )=====";

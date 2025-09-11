@@ -30,9 +30,9 @@ window.addEventListener("resize", onWindowResize);
 
 function onLoad(event) {
   document.getElementsByClassName("tablinks")[0].click();
+  disableSensorButtons(); // Set button states by default.
   getDevicePrefs(); // Get all preferences.
   initWebSocket(); // Open the WebSocket.
-  disableSensorButtons();
   getStatus(updateEquipment); // Get status immediately.
   init3D(); // Initialize 3D representation.
 }
@@ -213,6 +213,7 @@ function updateEquipment(jObj) {
       getEl("btnMusicStartStop").disabled = false;
       getEl("btnMusicPauseResume").disabled = false;
       getEl("btnMusicNext").disabled = false;
+      getEl("toggleLoop").disabled = true;
     } else {
       getEl("btnVolMusicUp").disabled = true;
       getEl("btnVolMusicDown").disabled = true;
@@ -222,6 +223,7 @@ function updateEquipment(jObj) {
       getEl("btnMusicStartStop").disabled = true;
       getEl("btnMusicPauseResume").disabled = true;
       getEl("btnMusicNext").disabled = true;
+      getEl("toggleLoop").disabled = false;
     }
 
     // Volume Information

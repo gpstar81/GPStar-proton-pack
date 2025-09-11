@@ -120,7 +120,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       <div style="display: inline-block">
         <h3>Master Mute</h3>
         <label class="toggle-switchy">
-          <input id="toggleMute" name="toggleMute" type="checkbox" onchange="toggleMute()">
+          <input id="toggleMute" name="toggleMute" type="checkbox" onchange="toggleMute(this)">
           <span class="toggle">
             <span class="switch"></span>
           </span>
@@ -129,7 +129,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       <div style="display: inline-block">
         <h3>Music Repeat</h3>
         <label class="toggle-switchy" data-text="repeat">
-          <input id="toggleLoop" name="toggleLoop" type="checkbox" onchange="musicLoop()">
+          <input id="toggleLoop" name="toggleLoop" type="checkbox" onchange="musicLoop(this)">
           <span class="toggle">
             <span class="switch"></span>
           </span>
@@ -170,7 +170,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       <div style="display: inline-block">
         <h3>Smoke</h3>
         <label class="toggle-switchy">
-          <input id="toggleSmoke" name="toggleSmoke" type="checkbox" onchange="toggleSmoke()">
+          <input id="toggleSmoke" name="toggleSmoke" type="checkbox" onchange="toggleSmoke(this)">
           <span class="toggle">
             <span class="switch"></span>
           </span>
@@ -179,7 +179,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       <div style="display: inline-block">
         <h3>Vibration</h3>
         <label class="toggle-switchy">
-          <input id="toggleVibration" name="toggleVibration" type="checkbox" onchange="toggleVibration()">
+          <input id="toggleVibration" name="toggleVibration" type="checkbox" onchange="toggleVibration(this)">
           <span class="toggle">
             <span class="switch"></span>
           </span>
@@ -189,7 +189,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       <div style="display: inline-block">
         <h3>Cyclotron Direction</h3>
         <label class="toggle-switchy" data-text="direction">
-          <input id="cyclotronDirection" name="cyclotronDirection" type="checkbox" onchange="cyclotronDirection()">
+          <input id="cyclotronDirection" name="cyclotronDirection" type="checkbox" onchange="cyclotronDirection(this)">
           <span class="toggle">
             <span class="switch"></span>
           </span>
@@ -208,12 +208,13 @@ const char INDEX_page[] PROGMEM = R"=====(
       <br/>
       <br/>
       <br/>
+      <br/>
     </div>
   </div>
 
   <div id="tab4" class="tab">
     <div class="card" style="text-align:center;">
-      <a href="/settings/device">Special Settings</a>
+      <a href="/settings/device">Special Device Settings</a>
       <br/>
       <br/>
       <a href="/settings/pack">Proton Pack Settings</a>

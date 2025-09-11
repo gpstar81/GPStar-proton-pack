@@ -80,7 +80,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     <div>
       <div class="volume-container">
         <div class="volume-control">
-          <h3>System</h3>
+          <h3>Master</h3>
           <button type="button" id="btnVolSysUp" onclick="volSysUp()">+</button>
           <span id="masterVolume"></span>
           <button type="button" id="btnVolSysDown" onclick="volSysDown()">&minus;</button>
@@ -98,11 +98,29 @@ const char INDEX_page[] PROGMEM = R"=====(
           <button type="button" id="btnVolMusicDown" onclick="volMusicDown()">&minus;</button>
         </div>
       </div>
-      <button type="button" class="orange" onclick="toggleMute()">Mute/Unmute</button>
-      <!--
-      <button type="button" class="orange" onclick="musicLoop()">Loop Track</button>
-      -->
     </div>
+
+    <div id="audio-toggles" class="card">
+      <div style="display: inline-block">
+        <h3>Master Mute</h3>
+        <label class="toggle-switchy">
+          <input id="toggleMute" name="toggleMute" type="checkbox" onchange="toggleMute(this)">
+          <span class="toggle">
+            <span class="switch"></span>
+          </span>
+        </label>
+      </div>
+      <div style="display: inline-block">
+        <h3>Music Repeat</h3>
+        <label class="toggle-switchy" data-text="repeat">
+          <input id="toggleLoop" name="toggleLoop" type="checkbox" onchange="musicLoop(this)">
+          <span class="toggle">
+            <span class="switch"></span>
+          </span>
+        </label>
+      </div>
+    </div>
+
     <div class="card">
       <h3 class="centered">Music Navigation</h3>
       <div class="music-navigation">

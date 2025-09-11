@@ -665,7 +665,7 @@ void handleRestart(AsyncWebServerRequest *request) {
 }
 
 void handleToggleMute(AsyncWebServerRequest *request) {
-  debug("Web: Toggle Mute");
+  debugln("Web: Toggle Mute");
   if(i_volume_master == i_volume_abs_min) {
     i_volume_master = i_volume_revert;
   }
@@ -682,49 +682,49 @@ void handleToggleMute(AsyncWebServerRequest *request) {
 }
 
 void handleMasterVolumeUp(AsyncWebServerRequest *request) {
-  debug("Web: Master Volume Up");
+  debugln("Web: Master Volume Up");
   increaseVolume();
   request->send(200, "application/json", status);
   notifyWSClients();
 }
 
 void handleMasterVolumeDown(AsyncWebServerRequest *request) {
-  debug("Web: Master Volume Down");
+  debugln("Web: Master Volume Down");
   decreaseVolume();
   request->send(200, "application/json", status);
   notifyWSClients();
 }
 
 void handleEffectsVolumeUp(AsyncWebServerRequest *request) {
-  debug("Web: Effects Volume Up");
+  debugln("Web: Effects Volume Up");
   increaseVolumeEffects();
   request->send(200, "application/json", status);
   notifyWSClients();
 }
 
 void handleEffectsVolumeDown(AsyncWebServerRequest *request) {
-  debug("Web: Effects Volume Down");
+  debugln("Web: Effects Volume Down");
   decreaseVolumeEffects();
   request->send(200, "application/json", status);
   notifyWSClients();
 }
 
 void handleMusicVolumeUp(AsyncWebServerRequest *request) {
-  debug("Web: Music Volume Up");
+  debugln("Web: Music Volume Up");
   increaseVolumeMusic();
   request->send(200, "application/json", status);
   notifyWSClients();
 }
 
 void handleMusicVolumeDown(AsyncWebServerRequest *request) {
-  debug("Web: Music Volume Down");
+  debugln("Web: Music Volume Down");
   decreaseVolumeMusic();
   request->send(200, "application/json", status);
   notifyWSClients();
 }
 
 void handleMusicStartStop(AsyncWebServerRequest *request) {
-  debug("Web: Music Start/Stop");
+  debugln("Web: Music Start/Stop");
   if(!b_playing_music && !b_music_paused) {
     playMusic();
   } else {
@@ -735,7 +735,7 @@ void handleMusicStartStop(AsyncWebServerRequest *request) {
 }
 
 void handleMusicPauseResume(AsyncWebServerRequest *request) {
-  debug("Web: Music Pause/Resume");
+  debugln("Web: Music Pause/Resume");
   if(b_playing_music && !b_music_paused) {
     pauseMusic();
   } else {
@@ -746,21 +746,21 @@ void handleMusicPauseResume(AsyncWebServerRequest *request) {
 }
 
 void handleNextMusicTrack(AsyncWebServerRequest *request) {
-  debug("Web: Next Music Track");
+  debugln("Web: Next Music Track");
   musicNextTrack();
   request->send(200, "application/json", status);
   notifyWSClients();
 }
 
 void handlePrevMusicTrack(AsyncWebServerRequest *request) {
-  debug("Web: Prev Music Track");
+  debugln("Web: Prev Music Track");
   musicPrevTrack();
   request->send(200, "application/json", status);
   notifyWSClients();
 }
 
 void handleLoopMusicTrack(AsyncWebServerRequest *request) {
-  debug("Web: Toggle Music Track Loop");
+  debugln("Web: Toggle Music Track Loop");
   toggleMusicLoop();
   request->send(200, "application/json", status);
   notifyWSClients();
@@ -776,7 +776,7 @@ void handleSelectMusicTrack(AsyncWebServerRequest *request) {
 
   if(c_music_track.toInt() != 0 && c_music_track.toInt() >= i_music_track_start) {
     uint16_t i_music_track = c_music_track.toInt();
-    debug("Web: Selected Music Track: " + String(i_music_track));
+    debugln("Web: Selected Music Track: " + String(i_music_track));
     playMusic(); // Start playing music.
     request->send(200, "application/json", status);
   }
@@ -793,7 +793,7 @@ void handleSelectMusicTrack(AsyncWebServerRequest *request) {
 }
 
 void handleSaveWandEEPROM(AsyncWebServerRequest *request) {
-  debug("Web: Save Wand EEPROM");
+  debugln("Web: Save Wand EEPROM");
   executeCommand(P_SAVE_EEPROM_WAND);
   request->send(200, "application/json", status);
 }
@@ -805,7 +805,7 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
     jsonBody = json.as<JsonObject>();
   }
   else {
-    debug("Body was not a JSON object");
+    debugln("Body was not a JSON object");
   }
 
   String result;
@@ -821,7 +821,7 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
         // Accesses namespace in read/write mode.
         if(preferences.begin("credentials", false)) {
           #if defined(DEBUG_SEND_TO_CONSOLE)
-            debug(F("New Private SSID: "));
+            debugln(F("New Private SSID: "));
             debugln(newSSID);
           #endif
           preferences.putString("ssid", newSSID); // Store SSID in case this was altered.
@@ -871,7 +871,7 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
 
         // Update song lists if contents are under 2000 bytes.
         #if defined(DEBUG_SEND_TO_CONSOLE)
-          debug(F("Song List Bytes: "));
+          debugln(F("Song List Bytes: "));
           debugln(songList.length());
         #endif
         preferences.putString("track_list", songList);
@@ -920,7 +920,7 @@ AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHand
     jsonBody = json.as<JsonObject>();
   }
   else {
-    debug("Body was not a JSON object");
+    debugln("Body was not a JSON object");
   }
 
   String result;
@@ -950,7 +950,7 @@ AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHand
       jsonBody.clear();
       jsonBody["status"] = "Settings updated, please test before saving to EEPROM.";
       serializeJson(jsonBody, result); // Serialize to string.
-      handleWandPrefsUpdate(); // Have the wand the new settings.
+      handleWandPrefsUpdate(); // Have the wand pass the new settings.
       request->send(200, "application/json", result);
     }
     catch (...) {
@@ -976,7 +976,7 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
     jsonBody = json.as<JsonObject>();
   }
   else {
-    debug("Body was not a JSON object");
+    debugln("Body was not a JSON object");
   }
 
   String result;
@@ -1009,7 +1009,7 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
     }
   }
   else {
-    debug("No password in JSON body");
+    debugln("No password in JSON body");
     jsonBody.clear();
     jsonBody["status"] = "Unable to update password.";
     serializeJson(jsonBody, result); // Serialize to string.
@@ -1024,7 +1024,7 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
     jsonBody = json.as<JsonObject>();
   }
   else {
-    debug("Body was not a JSON object");
+    debugln("Body was not a JSON object");
   }
 
   String result;
@@ -1104,7 +1104,7 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
     }
   }
   else {
-    debug("No password in JSON body");
+    debugln("No password in JSON body");
     jsonBody.clear();
     jsonBody["status"] = "Unable to update password.";
     serializeJson(jsonBody, result); // Serialize to string.
@@ -1114,7 +1114,7 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
 
 void handleNotFound(AsyncWebServerRequest *request) {
   // Returned for any invalid URL requested.
-  debug("Web page not found");
+  debugln("Web page not found");
   request->send(404, "text/plain", "Not Found");
 }
 
@@ -1142,7 +1142,8 @@ void setupRouting() {
   httpServer.on("/eeprom/wand", HTTP_PUT, handleSaveWandEEPROM);
   httpServer.on("/status", HTTP_GET, handleGetStatus);
   httpServer.on("/restart", HTTP_DELETE, handleRestart);
-  httpServer.on("/volume/toggle", HTTP_PUT, handleToggleMute);
+  httpServer.on("/volume/mute", HTTP_PUT, handleToggleMute);
+  httpServer.on("/volume/unmute", HTTP_PUT, handleToggleMute);
   httpServer.on("/volume/master/up", HTTP_PUT, handleMasterVolumeUp);
   httpServer.on("/volume/master/down", HTTP_PUT, handleMasterVolumeDown);
   httpServer.on("/volume/effects/up", HTTP_PUT, handleEffectsVolumeUp);
@@ -1154,7 +1155,8 @@ void setupRouting() {
   httpServer.on("/music/next", HTTP_PUT, handleNextMusicTrack);
   httpServer.on("/music/select", HTTP_PUT, handleSelectMusicTrack);
   httpServer.on("/music/prev", HTTP_PUT, handlePrevMusicTrack);
-  httpServer.on("/music/loop", HTTP_PUT, handleLoopMusicTrack);
+  httpServer.on("/music/loop/all", HTTP_PUT, handleLoopMusicTrack);
+  httpServer.on("/music/loop/single", HTTP_PUT, handleLoopMusicTrack);
   httpServer.on("/wifi/settings", HTTP_GET, handleGetWifi);
   httpServer.on("/sensors/recenter", HTTP_PUT, handleResetSensors);
   httpServer.on("/sensors/calibrate/enable", HTTP_PUT, handleCalibrateSensorsEnabled);
