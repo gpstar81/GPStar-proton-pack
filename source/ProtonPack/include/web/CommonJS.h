@@ -183,9 +183,6 @@ function musicPauseResume() {
 }
 
 function toggleMute(el) {
-  if (el._lockout) return;
-  el._lockout = true;
-
   // Change state only when a CSS transition is completed.
   function onTransitionEnd(e) {
     if (e.propertyName === "right") {
@@ -194,7 +191,6 @@ function toggleMute(el) {
       } else {
         sendCommand("/volume/unmute");
       }
-      el._lockout = false;
       el.removeEventListener('transitionend', onTransitionEnd);
     }
   }
@@ -216,9 +212,6 @@ function musicNext() {
 }
 
 function musicLoop(el) {
-  if (el._lockout) return;
-  el._lockout = true;
-
   // Change state only when a CSS transition is completed.
   function onTransitionEnd(e) {
     if (e.propertyName === "right") {
@@ -227,7 +220,6 @@ function musicLoop(el) {
       } else {
         sendCommand("/music/loop/all");
       }
-      el._lockout = false;
       el.removeEventListener('transitionend', onTransitionEnd);
     }
   }
@@ -235,10 +227,7 @@ function musicLoop(el) {
   el.addEventListener('transitionend', onTransitionEnd);
 }
 
-function toggleSmoke() {
-  if (el._lockout) return;
-  el._lockout = true;
-
+function toggleSmoke(el) {
   // Change state only when a CSS transition is completed.
   function onTransitionEnd(e) {
     if (e.propertyName === "right") {
@@ -247,7 +236,6 @@ function toggleSmoke() {
       } else {
         sendCommand("/pack/smoke/off");
       }
-      el._lockout = false;
       el.removeEventListener('transitionend', onTransitionEnd);
     }
   }
@@ -255,10 +243,7 @@ function toggleSmoke() {
   el.addEventListener('transitionend', onTransitionEnd);
 }
 
-function toggleVibration() {
-  if (el._lockout) return;
-  el._lockout = true;
-
+function toggleVibration(el) {
   // Change state only when a CSS transition is completed.
   function onTransitionEnd(e) {
     if (e.propertyName === "right") {
@@ -267,7 +252,6 @@ function toggleVibration() {
       } else {
         sendCommand("/pack/vibration/off");
       }
-      el._lockout = false;
       el.removeEventListener('transitionend', onTransitionEnd);
     }
   }
@@ -275,10 +259,7 @@ function toggleVibration() {
   el.addEventListener('transitionend', onTransitionEnd);
 }
 
-function cyclotronDirection() {
-  if (el._lockout) return;
-  el._lockout = true;
-
+function cyclotronDirection(el) {
   // Change state only when a CSS transition is completed.
   function onTransitionEnd(e) {
     if (e.propertyName === "right") {
@@ -287,7 +268,6 @@ function cyclotronDirection() {
       } else {
         sendCommand("/pack/cyclotron/counterclockwise");
       }
-      el._lockout = false;
       el.removeEventListener('transitionend', onTransitionEnd);
     }
   }

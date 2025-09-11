@@ -183,9 +183,6 @@ function musicPauseResume() {
 }
 
 function toggleMute(el) {
-  if (el._lockout) return;
-  el._lockout = true;
-
   // Change state only when a CSS transition is completed.
   function onTransitionEnd(e) {
     if (e.propertyName === "right") {
@@ -194,7 +191,6 @@ function toggleMute(el) {
       } else {
         sendCommand("/volume/unmute");
       }
-      el._lockout = false;
       el.removeEventListener('transitionend', onTransitionEnd);
     }
   }
@@ -216,9 +212,6 @@ function musicNext() {
 }
 
 function musicLoop(el) {
-  if (el._lockout) return;
-  el._lockout = true;
-
   // Change state only when a CSS transition is completed.
   function onTransitionEnd(e) {
     if (e.propertyName === "right") {
@@ -227,7 +220,6 @@ function musicLoop(el) {
       } else {
         sendCommand("/music/loop/all");
       }
-      el._lockout = false;
       el.removeEventListener('transitionend', onTransitionEnd);
     }
   }
