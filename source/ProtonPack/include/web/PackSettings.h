@@ -224,7 +224,6 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     <div class="setting">
       <b>Inner Panel:</b>
       <select id="ledCycInnerPanel" name="ledCycInnerPanel" style="width:180px">
-        <option value="1">Individual LEDs</option>
         <option value="2">Frutto (Static Colours)</option>
         <option value="3">Frutto (Dynamic Colours)</option>
       </select>
@@ -478,7 +477,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             setValue("ledCycCakeSat", convertRange(settings.ledCycCakeSat || 254, [1,254], [0,100])); // Full Saturation
             setValue("ledCycCakeLum", settings.ledCycCakeLum || 100); // Full Brightness
             setHtml("cakeLumOut", getValue("ledCycCakeLum"));
-            setValue("ledCycInnerPanel", settings.ledCycInnerPanel || 1); // Default: Individual
+            setValue("ledCycInnerPanel", settings.ledCycInnerPanel || 3); // Default: Dynamic
             setValue("ledCycPanLum", settings.ledCycPanLum || 100); // Full Brightness
             setHtml("panLumOut", getValue("ledCycPanLum"));
             setToggle("ledCycCakeGRB", settings.ledCycCakeGRB);
@@ -535,7 +534,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         ledCycCakeHue: convertRange(getInt("ledCycCakeHue"), [0,360], [1,254]) || 254,
         ledCycCakeSat: convertRange(getInt("ledCycCakeSat"), [0,100], [1,254]) || 254,
         ledCycCakeLum: getInt("ledCycCakeLum") || 100,
-        ledCycInnerPanel: getInt("ledCycInnerPanel") || 1,
+        ledCycInnerPanel: getInt("ledCycInnerPanel") || 3,
         ledCycPanLum: getInt("ledCycPanLum") || 100,
         ledCycCakeGRB: getToggle("ledCycCakeGRB"),
         ledCycCavCount: getInt("ledCycCavCount"),

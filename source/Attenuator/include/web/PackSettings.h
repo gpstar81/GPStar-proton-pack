@@ -535,7 +535,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         ledCycCakeHue: convertRange(getInt("ledCycCakeHue"), [0,360], [1,254]) || 254,
         ledCycCakeSat: convertRange(getInt("ledCycCakeSat"), [0,100], [1,254]) || 254,
         ledCycCakeLum: getInt("ledCycCakeLum") || 100,
-        ledCycInnerPanel: getInt("ledCycInnerPanel") || 1,
+        ledCycInnerPanel: getInt("ledCycInnerPanel") || 1, // TODO: Need to dynamically default to 3 if pack is ESP32-S3!
         ledCycPanLum: getInt("ledCycPanLum") || 100,
         ledCycCakeGRB: getToggle("ledCycCakeGRB"),
         ledCycCavCount: getInt("ledCycCavCount"),
