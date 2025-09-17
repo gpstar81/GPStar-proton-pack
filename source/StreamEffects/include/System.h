@@ -19,14 +19,19 @@
 
 #pragma once
 
-void debug(const String message) {
-  // Writes a debug message to the serial console.
-  #if defined(DEBUG_SEND_TO_CONSOLE)
-    Serial.println(message); // Print to serial console.
-  #endif
-  #if defined(DEBUG_SEND_TO_WEBSOCKET)
-    ws.textAll(message); // Send a copy to the WebSocket.
-  #endif
+// Clear any prior information from the WebSocket client.
+void resetWebSocketData() {
+  wsData.mode = "";
+  wsData.theme = "";
+  wsData.switchState = "";
+  wsData.pack = "";
+  wsData.safety = "";
+  wsData.wandPower = 5; // Default to max power.
+  wsData.wandMode = "";
+  wsData.firing = "";
+  wsData.cable = "";
+  wsData.cyclotron = "";
+  wsData.temperature = "";
 }
 
 // Obtain a list of partitions for this device.
@@ -76,7 +81,7 @@ void animateLights() {
     }
 
     // Increment the palette index and wave position for the next frame
-    paletteIndex += (i_animation_step / 2) * i_power; // Adjust this step size for smoother or faster transitions
-    wavePosition += i_animation_step * i_power; // Adjust this step size to control wave speed
+    paletteIndex += (i_animation_step / 2) * wsData.wandPower; // Adjust this step size for smoother or faster transitions
+    wavePosition += i_animation_step * wsData.wandPower; // Adjust this step size to control wave speed
   }
 }

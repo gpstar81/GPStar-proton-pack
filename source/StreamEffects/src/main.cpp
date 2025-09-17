@@ -24,6 +24,20 @@
 // Define this before including <FastLED.h>
 #define FASTLED_INTERNAL
 
+// Set to 1 to enable built-in debug messages via Serial device output.
+#define DEBUG 1
+
+// Debug macros
+#if DEBUG == 1
+  #define debug(...) Serial.print(__VA_ARGS__)
+  #define debugf(...) Serial.printf(__VA_ARGS__)
+  #define debugln(...) Serial.println(__VA_ARGS__)
+#else
+  #define debug(...)
+  #define debugf(...)
+  #define debugln(...)
+#endif
+
 // PROGMEM macros
 #define PROGMEM_READU32(x) pgm_read_dword_near(&(x))
 #define PROGMEM_READU16(x) pgm_read_word_near(&(x))
@@ -41,6 +55,18 @@
 #include "Colours.h"
 #include "Wireless.h"
 #include "System.h"
+
+// Writes a debug message to the serial console or sends to the WebSocket.
+void sendDebug(const String message) {
+  #if defined(DEBUG_SEND_TO_CONSOLE)
+    debugln(message); // Print to serial console.
+  #endif
+  #if defined(DEBUG_SEND_TO_WEBSOCKET) and defined(ESP32)
+    if (b_ws_started) {
+      ws.textAll(message); // Send a copy to the WebSocket.
+    }
+  #endif
+}
 
 // Task Handles
 TaskHandle_t AnimationTaskHandle = NULL;
@@ -85,8 +111,8 @@ void AnimationTask(void *parameter) {
       Serial.println(uxTaskGetStackHighWaterMark(NULL));
     #endif
 
-    // Update light animation based on websocket data.
-    if(b_firing) {
+    // Update light animation based on websocket data (or self-test mode).
+    if(b_firing || b_testing) {
       animateLights();
     }
     else {
@@ -126,7 +152,7 @@ void PreferencesTask(void *parameter) {
     #endif
 
     // If initialization fails, erase and reinitialize NVS.
-    debug(F("Erasing and reinitializing NVS..."));
+    debugln(F("Erasing and reinitializing NVS..."));
     nvs_flash_erase();
 
     err = nvs_flash_init();
@@ -136,11 +162,11 @@ void PreferencesTask(void *parameter) {
       #endif
     }
     else {
-      debug(F("NVS reinitialized successfully"));
+      debugln(F("NVS reinitialized successfully"));
     }
   }
   else {
-    debug(F("NVS initialized successfully"));
+    debugln(F("NVS initialized successfully"));
   }
 
   #if defined(DEBUG_TASK_TO_CONSOLE)
@@ -185,7 +211,7 @@ void WiFiManagementTask(void *parameter) {
       }
 
       if (WiFi.status() == WL_CONNECTED && b_ext_wifi_started && !b_socket_ready) {
-        debug(F("WiFi Connected, Socket Not Configured"));
+        debugln(F("WiFi Connected, Socket Not Configured"));
         b_ext_wifi_paused = false; // Resume retries when needed.
         setupWebSocketClient(); // Restore the WebSocket connection.
       }
@@ -203,6 +229,8 @@ void WiFiManagementTask(void *parameter) {
 
       // Try to start the external WiFi.
       if(!b_ext_wifi_started && !b_ext_wifi_paused) {
+        resetWebSocketData(); // Clear previous information sent from the pack.
+        notifyWSClients(); // Notify clients of the change of data.
         b_ext_wifi_started = startExternalWifi();
       }
     }
@@ -260,10 +288,6 @@ void WiFiSetupTask(void *parameter) {
 void setup() {
   Serial.begin(115200); // Serial monitor via USB connection.
   delay(1000); // Provide a delay to allow serial output.
-
-  // Set up built-in non-addressable LED.
-  pinMode(STATUS_LED_PIN, OUTPUT);
-  digitalWrite(STATUS_LED_PIN, HIGH);
 
   // Provide an opportunity to set the CPU Frequency MHz: 80, 160, 240 [Default = 240]
   // Lower frequency means less power consumption, but slower performance (obviously).
@@ -382,7 +406,7 @@ void setup() {
   vTaskDelay(100 / portTICK_PERIOD_MS); // Delay for 100ms to avoid competition.
 
   // Create a single-run setup task with the highest priority for WiFi/WebServer startup.
-  xTaskCreatePinnedToCore(WiFiSetupTask, "WiFiSetupTask", 4096, NULL, 3, &WiFiSetupTaskHandle, 1);
+  xTaskCreatePinnedToCore(WiFiSetupTask, "WiFiSetupTask", 8192, NULL, 3, &WiFiSetupTaskHandle, 1);
 
   // Delay all lower priority tasks until WiFi and WebServer setup is done.
   vTaskDelay(200 / portTICK_PERIOD_MS); // Delay for 200ms to avoid competition.

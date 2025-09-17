@@ -28,6 +28,10 @@ function getInt(id){
   return parseInt(getValue(id) || 0, 10);
 }
 
+function getFloat(id){
+  return parseFloat(getValue(id) || 0);
+}
+
 function getText(id){
   return (getValue(id) || "").trim();
 }
@@ -81,7 +85,29 @@ function isJsonString(str) {
   return true;
 }
 
+function openTab(evt, tabName) {
+  // Hide all tab contents
+  var tabs = document.getElementsByClassName("tab");
+  for (var i = 0; i < tabs.length; i++) {
+      tabs[i].style.display = "none";
+  }
+
+  // Remove the active class from all tab links
+  var tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+      tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+
+  // Show the current tab and add an "active" class to the button that opened the tab
+  showEl(tabName);
+  evt.currentTarget.className += " active";
+}
+
+/** Common Data Handling **/
+
 function handleStatus(response) {
+  // Generic handler for a JSON response with a "status" field.
+  // If a response is not JSON then the full text is displayed.
   if (isJsonString(response || "")) {
     var jObj = JSON.parse(response || "");
     if (jObj.status && jObj.status != "success") {
@@ -89,6 +115,57 @@ function handleStatus(response) {
     }
   } else {
     alert(response); // Display plain text message.
+  }
+}
+
+/** Common API Commands **/
+
+function sendCommand(apiUri) {
+  // Sends an action command to the server (device) using a PUT request.
+  // These commands have no response data, so we just handle the status.
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      handleStatus(this.responseText);
+    }
+  };
+  xhttp.open("PUT", apiUri, true);
+  xhttp.send();
+}
+
+
+function getStatus(callbackFunc) {
+  // This function expects a JSON response from the server which must be parsed and sent to the callback function.
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      if (callbackFunc && typeof callbackFunc === "function") {
+        // If a callback function is provided, call it with the JSON response.
+        callbackFunc(JSON.parse(this.responseText));
+      } else {
+        // Otherwise display a message that no callback function was provided.
+        console.warn("No callback function provided for getStatus response.");
+      }
+    }
+  };
+  xhttp.open("GET", "/status", true);
+  xhttp.send();
+}
+
+function doRestart() {
+  // A special command which requires user confirmation before proceeding.
+  if (confirm("Are you sure you wish to restart the serial device?")) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 204) {
+        // Reload the page after 2 seconds.
+        setTimeout(function() {
+          window.location.reload();
+        }, 2000);
+      }
+    };
+    xhttp.open("DELETE", "/restart", true);
+    xhttp.send();
   }
 }
 )=====";

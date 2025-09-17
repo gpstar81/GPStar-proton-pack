@@ -1073,7 +1073,7 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
     jsonBody = json.as<JsonObject>();
   }
   else {
-    debugln("Body was not a JSON object");
+    debugln(F("Body was not a JSON object"));
   }
 
   String result;

@@ -31,6 +31,42 @@
 
 // Forward function declarations.
 void setupRouting();
+void notifyWSClients();
+void ledsOff();
+
+/*
+ * Helper Functions
+ */
+
+// Function to update the current palette based on stream mode.
+void updateStreamPalette() {
+  switch(STREAM_MODE) {
+    case PROTON:
+      cp_StreamPalette = paletteProton;
+    break;
+    case SLIME:
+      cp_StreamPalette = paletteSlime;
+    break;
+    case STASIS:
+      cp_StreamPalette = paletteStasis;
+    break;
+    case MESON:
+      cp_StreamPalette = paletteMeson;
+    break;
+    case SPECTRAL:
+      cp_StreamPalette = paletteSpectral;
+    break;
+    case HOLIDAY_HALLOWEEN:
+      cp_StreamPalette = paletteHalloween;
+    break;
+    case HOLIDAY_CHRISTMAS:
+      cp_StreamPalette = paletteChristmas;
+    break;
+    default:
+      cp_StreamPalette = paletteWhite;
+    break;
+  }
+}
 
 /*
  * Web Handler Functions - Performs actions or returns data for web UI
@@ -43,37 +79,61 @@ void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *clien
   switch(type) {
     case WS_EVT_CONNECT:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][%lu] Connect\n", server->url(), client->id());
+        debugf("WebSocket[%s][%lu] Connect\n", server->url(), client->id());
       #endif
       i_ws_client_count++;
+      notifyWSClients();
     break;
 
     case WS_EVT_DISCONNECT:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][C:%lu] Disconnect\n", server->url(), client->id());
+        debugf("WebSocket[%s][C:%lu] Disconnect\n", server->url(), client->id());
       #endif
       if(i_ws_client_count > 0) {
         i_ws_client_count--;
+        notifyWSClients();
       }
     break;
 
     case WS_EVT_ERROR:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][C:%lu] Error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
+        debugf("WebSocket[%s][C:%lu] Error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
       #endif
     break;
 
     case WS_EVT_PONG:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][C:%lu] Pong[L:%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
+        debugf("WebSocket[%s][C:%lu] Pong[L:%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
       #endif
     break;
 
     case WS_EVT_DATA:
       #if defined(DEBUG_SEND_TO_CONSOLE)
-        Serial.printf("WebSocket[%s][C:%lu] Data[L:%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
+        debugf("WebSocket[%s][C:%lu] Data[L:%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
       #endif
     break;
+  }
+}
+
+void onOTAStart() {
+  // Log when OTA has started
+  debugln(F("OTA update started"));
+}
+
+void onOTAProgress(size_t current, size_t final) {
+  // Log every 1 second
+  if (millis() - i_progress_millis > 1000) {
+    i_progress_millis = millis();
+    debugf("OTA Progress Current: %u bytes, Final: %u bytes\n", current, final);
+  }
+}
+
+void onOTAEnd(bool success) {
+  // Log when OTA has finished
+  if (success) {
+    debugln(F("OTA update finished successfully!"));
+  } else {
+    debugln(F("There was an error during OTA update!"));
   }
 }
 
@@ -105,64 +165,80 @@ void startWebServer() {
   b_ws_started = true;
 
   #if defined(DEBUG_SEND_TO_CONSOLE)
-    Serial.println(F("Async HTTP Server Started"));
+    debugln(F("Async HTTP Server Started"));
   #endif
 }
 
 void handleCommonJS(AsyncWebServerRequest *request) {
   // Used for the root page (/) from the web server.
-  debug("Sending -> Index JavaScript");
-  request->send(200, "application/javascript", String(COMMONJS_page)); // Serve page content.
+  debugln("Sending -> Common JavaScript");
+  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", (const uint8_t*)COMMONJS_page, strlen(COMMONJS_page));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  request->send(response); // Serve page content.
 }
 
 void handleRoot(AsyncWebServerRequest *request) {
   // Used for the root page (/) from the web server.
-  debug("Sending -> Index HTML");
-  request->send(200, "text/html", String(INDEX_page)); // Serve page content.
+  debugln("Sending -> Index HTML");
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)INDEX_page, strlen(INDEX_page));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  request->send(response); // Serve page content.
 }
 
 void handleRootJS(AsyncWebServerRequest *request) {
   // Used for the root page (/) from the web server.
-  debug("Sending -> Index JavaScript");
-  request->send(200, "application/javascript", String(INDEXJS_page)); // Serve page content.
+  debugln("Sending -> Index JavaScript");
+  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", (const uint8_t*)INDEXJS_page, strlen(INDEXJS_page));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  request->send(response); // Serve page content.
 }
 
 void handleNetwork(AsyncWebServerRequest *request) {
   // Used for the network page from the web server.
-  debug("Sending -> Network HTML");
-  request->send(200, "text/html", String(NETWORK_page)); // Serve page content.
+  debugln("Sending -> Network HTML");
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)NETWORK_page, strlen(NETWORK_page));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  request->send(response); // Serve page content.
 }
 
 void handlePassword(AsyncWebServerRequest *request) {
   // Used for the password page from the web server.
-  debug("Sending -> Password HTML");
-  request->send(200, "text/html", String(PASSWORD_page)); // Serve page content.
+  debugln("Sending -> Password HTML");
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)PASSWORD_page, strlen(PASSWORD_page));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  request->send(response); // Serve page content.
 }
 
 void handleDeviceSettings(AsyncWebServerRequest *request) {
   // Used for the device page from the web server.
-  debug("Sending -> Device Settings HTML");
-  request->send(200, "text/html", String(DEVICE_page)); // Serve page content.
+  debugln("Sending -> Device Settings HTML");
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)DEVICE_page, strlen(DEVICE_page));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  request->send(response); // Serve page content.
 }
 
 void handleStylesheet(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
-  debug("Sending -> Main StyleSheet");
-  request->send(200, "text/css", String(STYLE_page)); // Serve page content.
+  debugln("Sending -> Main StyleSheet");
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/css", (const uint8_t*)STYLE_page, strlen(STYLE_page));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  request->send(response); // Serve page content.
 }
 
 void handleFavIco(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
-  debug("Sending -> Favicon");
+  debugln("Sending -> Favicon");
   AsyncWebServerResponse *response = request->beginResponse(200, "image/x-icon", FAVICON_ico, sizeof(FAVICON_ico));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
   response->addHeader("Content-Encoding", "gzip");
   request->send(response);
 }
 
 void handleFavSvg(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
-  debug("Sending -> Favicon");
+  debugln("Sending -> Favicon");
   AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", FAVICON_svg, sizeof(FAVICON_svg));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
   response->addHeader("Content-Encoding", "gzip");
   request->send(response);
 }
@@ -183,6 +259,33 @@ String getDeviceConfig() {
   // Serialize JSON object to string.
   serializeJson(jsonBody, equipSettings);
   return equipSettings;
+}
+
+String getEquipmentStatus() {
+  // Prepare a JSON object with information we have gleaned from the system.
+  String equipStatus;
+  jsonBody.clear();
+
+  jsonBody["mode"] = wsData.mode;
+  jsonBody["theme"] = wsData.theme;
+  jsonBody["switch"] = wsData.switchState;
+  jsonBody["pack"] = wsData.pack;
+  jsonBody["safety"] = wsData.safety;
+  jsonBody["power"] = wsData.wandPower;
+  jsonBody["wandMode"] = wsData.wandMode;
+  jsonBody["firing"] = wsData.firing;
+  jsonBody["cable"] = wsData.cable;
+  jsonBody["cyclotron"] = wsData.cyclotron;
+  jsonBody["temperature"] = wsData.temperature;
+  jsonBody["apClients"] = i_ap_client_count;
+  jsonBody["wsClients"] = i_ws_client_count;
+  jsonBody["extWifiEnabled"] = b_wifi_enabled;
+  jsonBody["extWifiPaused"] = b_ext_wifi_paused;
+  jsonBody["extWifiStarted"] = b_ext_wifi_started;
+
+  // Serialize JSON object to string.
+  serializeJson(jsonBody, equipStatus);
+  return equipStatus;
 }
 
 String getWifiSettings() {
@@ -235,12 +338,17 @@ void handleGetDeviceConfig(AsyncWebServerRequest *request) {
   request->send(200, "application/json", getDeviceConfig());
 }
 
+void handleGetStatus(AsyncWebServerRequest *request) {
+  // Return current system status as a stringified JSON object.
+  request->send(200, "application/json", getEquipmentStatus());
+}
+
 void handleGetWifi(AsyncWebServerRequest *request) {
   // Return current system status as a stringified JSON object.
   request->send(200, "application/json", getWifiSettings());
 }
 
-void handleRestartDevice(AsyncWebServerRequest *request) {
+void handleRestart(AsyncWebServerRequest *request) {
   // Performs a restart of the device.
   request->send(204, "application/json", status);
   delay(1000);
@@ -254,6 +362,7 @@ void handleRestartWiFi(AsyncWebServerRequest *request) {
   // Disconnect from the WiFi network and re-apply any changes.
   WiFi.disconnect();
   b_ext_wifi_started = false;
+  notifyWSClients();
 
   delay(100); // Delay needed.
 
@@ -270,14 +379,36 @@ void handleRestartWiFi(AsyncWebServerRequest *request) {
   request->send(200, "application/json", result);
 }
 
-// Handles the JSON body for the pack settings save request.
+void handleEnableSelfTest(AsyncWebServerRequest *request) {
+  debugln("Web: Self Test Enabled");
+  if (STREAM_MODE != SELFTEST) {
+    STREAM_MODE_PREV = STREAM_MODE; // Save current mode.
+    STREAM_MODE = SELFTEST; // Switch to self-test mode.
+    updateStreamPalette(); // Update stream colors.
+    b_testing = true; // Enable testing flag.
+  }
+  request->send(200, "application/json", status);
+}
+
+void handleDisableSelfTest(AsyncWebServerRequest *request) {
+  debugln("Web: Self Test Disabled");
+  if (STREAM_MODE == SELFTEST) {
+    STREAM_MODE = STREAM_MODE_PREV; // Restore previous mode.
+    updateStreamPalette(); // Update stream colors.
+    b_testing = false; // Disable testing flag.
+    ledsOff(); // Turn off all LEDs.
+  }
+  request->send(200, "application/json", status);
+}
+
+// Handles the JSON body for the device settings save request.
 AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHandler("/config/device/save", [](AsyncWebServerRequest *request, JsonVariant &json) {
   jsonBody.clear();
   if(json.is<JsonObject>()) {
     jsonBody = json.as<JsonObject>();
   }
   else {
-    Serial.print("Body was not a JSON object");
+    debugln(F("Body was not a JSON object"));
   }
 
   String result;
@@ -293,8 +424,8 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
         // Accesses namespace in read/write mode.
         if(preferences.begin("credentials", false)) {
           #if defined(DEBUG_SEND_TO_CONSOLE)
-            Serial.print(F("New Private SSID: "));
-            Serial.println(newSSID);
+            debugln(F("New Private SSID: "));
+            debugln(newSSID);
           #endif
           preferences.putString("ssid", newSSID); // Store SSID in case this was altered.
           preferences.end();
@@ -350,7 +481,7 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
     jsonBody = json.as<JsonObject>();
   }
   else {
-    Serial.print("Body was not a JSON object");
+    debugln("Body was not a JSON object");
   }
 
   String result;
@@ -362,8 +493,8 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
       // Accesses namespace in read/write mode.
       if(preferences.begin("credentials", false)) {
         #if defined(DEBUG_SEND_TO_CONSOLE)
-          Serial.print(F("New Private WiFi Password: "));
-          Serial.println(newPasswd);
+          debug(F("New Private WiFi Password: "));
+          debugln(newPasswd);
         #endif
         preferences.putString("password", newPasswd); // Store user-provided password.
         preferences.end();
@@ -383,7 +514,7 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
     }
   }
   else {
-    debug("No password in JSON body");
+    debugln("No password in JSON body");
     jsonBody.clear();
     jsonBody["status"] = "Unable to update password.";
     serializeJson(jsonBody, result); // Serialize to string.
@@ -398,7 +529,7 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
     jsonBody = json.as<JsonObject>();
   }
   else {
-    Serial.print("Body was not a JSON object");
+    debugln("Body was not a JSON object");
   }
 
   String result;
@@ -450,11 +581,13 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
       // Disconnect from the WiFi network and re-apply any changes.
       WiFi.disconnect();
       b_ext_wifi_started = false;
+      notifyWSClients();
 
       delay(100); // Delay needed.
 
       if(b_enabled) {
         b_ext_wifi_started = startExternalWifi(); // Restart and set global flag.
+
         if(b_ext_wifi_started) {
           jsonBody["status"] = "Settings updated, WiFi connection restarted successfully.";
         }
@@ -477,7 +610,7 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
     }
   }
   else {
-    debug("No password in JSON body");
+    debugln("No password in JSON body");
     jsonBody.clear();
     jsonBody["status"] = "Unable to update password.";
     serializeJson(jsonBody, result); // Serialize to string.
@@ -487,7 +620,7 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
 
 void handleNotFound(AsyncWebServerRequest *request) {
   // Returned for any invalid URL requested.
-  debug("Web page not found");
+  debugln("Web page not found");
   request->send(404, "text/plain", "Not Found");
 }
 
@@ -508,9 +641,12 @@ void setupRouting() {
 
   // Get/Set Handlers
   httpServer.on("/config/device", HTTP_GET, handleGetDeviceConfig);
-  httpServer.on("/restart", HTTP_DELETE, handleRestartDevice);
+  httpServer.on("/status", HTTP_GET, handleGetStatus);
+  httpServer.on("/restart", HTTP_DELETE, handleRestart);
   httpServer.on("/wifi/restart", HTTP_GET, handleRestartWiFi);
   httpServer.on("/wifi/settings", HTTP_GET, handleGetWifi);
+  httpServer.on("/selftest/enable", HTTP_PUT, handleEnableSelfTest);
+  httpServer.on("/selftest/disable", HTTP_PUT, handleDisableSelfTest);
 
   // Body Handlers
   httpServer.addHandler(handleSaveDeviceConfig); // /config/device/save
@@ -518,33 +654,11 @@ void setupRouting() {
   httpServer.addHandler(wifiChangeHandler); // /wifi/update
 }
 
-// Function to update the current palette based on stream mode.
-void updateStreamPalette() {
-  switch(STREAM_MODE) {
-    case PROTON:
-      cp_StreamPalette = paletteProton;
-      break;
-    case SLIME:
-      cp_StreamPalette = paletteSlime;
-      break;
-    case STASIS:
-      cp_StreamPalette = paletteStasis;
-      break;
-    case MESON:
-      cp_StreamPalette = paletteMeson;
-      break;
-    case SPECTRAL:
-      cp_StreamPalette = paletteSpectral;
-      break;
-    case HOLIDAY_HALLOWEEN:
-      cp_StreamPalette = paletteHalloween;
-      break;
-    case HOLIDAY_CHRISTMAS:
-      cp_StreamPalette = paletteChristmas;
-      break;
-    default:
-      cp_StreamPalette = paletteWhite;
-      break;
+// Send notification to all websocket clients.
+void notifyWSClients() {
+  if(b_ws_started) {
+    // Send latest status to all connected clients.
+    ws.textAll(getEquipmentStatus());
   }
 }
 
@@ -552,17 +666,17 @@ void updateStreamPalette() {
 void webSocketClientEvent(WStype_t type, uint8_t * payload, size_t length) {
   switch(type) {
     case WStype_DISCONNECTED:
-      debug("Client WebSocket Disconnected!");
-      WiFi.disconnect();
-      b_ext_wifi_started = false;
-      digitalWrite(STATUS_LED_PIN, HIGH);
-      delay(100); // Delay needed.
+      debugln("Client WebSocket Disconnected!");
+      b_socket_ready = false;
+      wsClient.disconnect();
+      delay(200); // Short delay before reconnecting.
+      wsClient.begin(WS_HOST, WS_PORT, WS_URI);
+      wsClient.setReconnectInterval(i_websocket_retry_wait);
     break;
 
     case WStype_CONNECTED:
       Serial.printf("WebSocket Connected to url: %s\n", payload);
       b_socket_ready = true;
-      digitalWrite(STATUS_LED_PIN, LOW);
       wsClient.sendTXT("Hello from Stream Effects");
     break;
     case WStype_ERROR:
@@ -579,63 +693,65 @@ void webSocketClientEvent(WStype_t type, uint8_t * payload, size_t length) {
       DeserializationError jsonError = deserializeJson(jsonBody, payload);
       if (!jsonError) {
         // Store values as a known datatype (String).
-        String data_mode = jsonBody["mode"];
-        String data_theme = jsonBody["theme"];
-        String data_switch = jsonBody["switch"];
-        String data_pack = jsonBody["pack"];
-        String data_safety = jsonBody["safety"];
-        String data_wandPower = jsonBody["wandPower"];
-        String data_wandMode = jsonBody["wandMode"];
-        String data_firing = jsonBody["firing"];
-        String data_cable = jsonBody["cable"];
-        String data_ctron = jsonBody["cyclotron"];
-        String data_temp = jsonBody["temperature"];
-
-        // Convert power (1-5) to an integer.
-        i_power = (int)jsonBody["power"];
+        wsData.mode = jsonBody["mode"].as<String>();
+        wsData.theme = jsonBody["theme"].as<String>();
+        wsData.switchState = jsonBody["switch"].as<String>();
+        wsData.pack = jsonBody["pack"].as<String>();
+        wsData.safety = jsonBody["safety"].as<String>();
+        wsData.wandPower = jsonBody["power"].as<unsigned short>(); // Only integer value.
+        wsData.wandMode = jsonBody["wandMode"].as<String>();
+        wsData.firing = jsonBody["firing"].as<String>();
+        wsData.cable = jsonBody["cable"].as<String>();
+        wsData.cyclotron = jsonBody["cyclotron"].as<String>();
+        wsData.temperature = jsonBody["temperature"].as<String>();
 
         // Output some data to the serial console when needed.
-        String dataMessage = data_wandMode + " is " + data_firing + " at level " + i_power;
-        debug(dataMessage);
+        debugln(wsData.wandMode + " is " + wsData.firing + " at level " + String(wsData.wandPower));
 
         // Change LED for testing
-        if(data_firing == "Firing") {
+        if(wsData.firing == "Firing") {
           b_firing = true;
         }
         else {
           b_firing = false;
         }
 
+        // Skip further mode changes if in self-test mode.
+        if (b_testing) {
+          return;
+        }
+
         // Always keep up with the current stream mode.
-        if(data_wandMode == "Proton Stream") {
+        if(wsData.wandMode == "Proton Stream") {
           STREAM_MODE = PROTON;
         }
-        else if(data_wandMode == "Plasm System") {
+        else if(wsData.wandMode == "Plasm System") {
           STREAM_MODE = SLIME;
         }
-        else if(data_wandMode == "Dark Matter Gen.") {
+        else if(wsData.wandMode == "Dark Matter Gen.") {
           STREAM_MODE = STASIS;
         }
-        else if(data_wandMode == "Particle System") {
+        else if(wsData.wandMode == "Particle System") {
           STREAM_MODE = MESON;
         }
-        else if(data_wandMode == "Spectral Stream") {
+        else if(wsData.wandMode == "Spectral Stream") {
           STREAM_MODE = SPECTRAL;
         }
-        else if(data_wandMode == "Halloween") {
+        else if(wsData.wandMode == "Halloween") {
           STREAM_MODE = HOLIDAY_HALLOWEEN;
         }
-        else if(data_wandMode == "Christmas") {
+        else if(wsData.wandMode == "Christmas") {
           STREAM_MODE = HOLIDAY_CHRISTMAS;
         }
-        else if(data_wandMode == "Settings") {
+        else if(wsData.wandMode == "Settings") {
           STREAM_MODE = SETTINGS;
         }
         else {
           STREAM_MODE = SPECTRAL_CUSTOM; // Custom Stream
         }
 
-        updateStreamPalette();
+        updateStreamPalette(); // Set stream color palette
+        notifyWSClients(); // Update local WebSocket clients
       }
     break;
   }
@@ -643,10 +759,9 @@ void webSocketClientEvent(WStype_t type, uint8_t * payload, size_t length) {
 
 // Function to setup WebSocket connection.
 void setupWebSocketClient() {
-  debug(F("Initializing WebSocket Client Connection..."));
+  debugln(F("Initializing WebSocket Client Connection..."));
   wsClient.begin(WS_HOST, WS_PORT, WS_URI);
   wsClient.setReconnectInterval(i_websocket_retry_wait);
   wsClient.onEvent(webSocketClientEvent);
   b_socket_ready = true;
-  digitalWrite(STATUS_LED_PIN, LOW);
 }
