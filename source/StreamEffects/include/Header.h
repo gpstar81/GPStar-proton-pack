@@ -25,6 +25,13 @@
  */
 
 /*
+ * Pin for non-addressable LED
+ * On WEMOS D1 Mini ESP32 this is pin 2
+ * Note that this LED is active LOW!
+ */
+#define STATUS_LED_PIN 2
+
+/*
  * Pin for Addressable LEDs
  * 50 LEDs per Meter: https://a.co/d/dlDyCkz
  */

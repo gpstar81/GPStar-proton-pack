@@ -555,13 +555,15 @@ void webSocketClientEvent(WStype_t type, uint8_t * payload, size_t length) {
       debug("Client WebSocket Disconnected!");
       WiFi.disconnect();
       b_ext_wifi_started = false;
+      digitalWrite(STATUS_LED_PIN, HIGH);
       delay(100); // Delay needed.
     break;
 
     case WStype_CONNECTED:
       Serial.printf("WebSocket Connected to url: %s\n", payload);
       b_socket_ready = true;
-      wsClient.sendTXT("Hello from Belt Gizmo");
+      digitalWrite(STATUS_LED_PIN, LOW);
+      wsClient.sendTXT("Hello from Stream Effects");
     break;
     case WStype_ERROR:
       Serial.printf("WebSocket Error: %s\n", payload);
@@ -646,4 +648,5 @@ void setupWebSocketClient() {
   wsClient.setReconnectInterval(i_websocket_retry_wait);
   wsClient.onEvent(webSocketClientEvent);
   b_socket_ready = true;
+  digitalWrite(STATUS_LED_PIN, LOW);
 }
