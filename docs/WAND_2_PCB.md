@@ -49,7 +49,7 @@ Connections for the wand should be made according to the tables below.
 | SW45/SW4 | GND/D2/GND/D3 | 4-pin JST-PH connection for the Intensify button and Activate toggle |
 | SW6 | GND/A6 | 2-pin JST-PH connection for the orange wand-end mode/alt switch |
 
-**Note:** The 3-pin connector for the Barrel LEDs is compatible with the [Frutto Technology 49-LED wand barrel replacement](https://fruttotechnology.com/ols/products/wand-barrel-replacement-49-leds-pcb) as a drop-in replacement.
+**Note:** The 3-pin connector for the Barrel LEDs is compatible with the [GPStar 50-LED Neutrona Barrel](https://gpstartechnologies.com/products/gpstar-neutrona-barrel) or the [GPStar Barrel LED Mini](https://gpstartechnologies.com/products/gpstar-barrel-led-mini).
 
 ### Stock Connectors (Terminal Blocks)
 
@@ -91,6 +91,7 @@ Connections for the wand should be made according to the tables below.
 | BARREL-LED | GND/D24 | Connection for white wand tip light.<br><br>The left (top in the photo) pin is GND, the right (bottom in the photo) pin is D24 which provides 5V and has a 100Ω resistor connected to it.<br><br>`Connector type: JST-PH`<br><br>`Do not draw more than 40mA from this connector.` |
 | 5V-OUT | +/\- | Power for additional accessories, intended for the 28-segment or 30-segment bargraph.<br><br>`Connector type: JST-PH` |
 | SCL/SDA | SCL/SDA | Expansion serial port using I2C, intended for the 28-segment or 30-segment bargraph.<br><br>`Connector type: JST-PH`|
+
 | INFRARED | 5V/D17/GND | Dedicated port for an infrared LED circuit (port outputs 5V with a signal line).<br><br>`Connector type: JST-PH`|
 
 ### Hardware Calibration
