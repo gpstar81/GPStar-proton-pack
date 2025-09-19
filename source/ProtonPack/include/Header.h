@@ -272,17 +272,13 @@ const uint8_t i_cyclotron_40led_matrix[OUTER_CYCLOTRON_LED_MAX] PROGMEM = { 1, 2
 
 /*
  * Inner Cyclotron LED Panel
- * Individual = Use stock connectors on the pack controller for individual LEDs [ATMega ONLY]
+ * Disabled = Frutto Technology LED panel will be disabled; non-Addressable LEDs will continue working [ATMega only]
  * RGB Static = Use the Frutto Technology LED panel, but colors remain consistent for all stream modes
- * RGB Dynamic = Use the Frutto Technology LED panel, allowing colors to change based on stream modes [Default for ESP32]
+ * RGB Dynamic = Use the Frutto Technology LED panel, allowing colors to change based on stream modes [Default]
  * When enabled, this becomes the first in the chain from the Inner Cyclotron JST-XH connector from the Proton Pack.
  */
-enum INNER_CYC_PANEL_MODES { PANEL_INDIVIDUAL, PANEL_RGB_STATIC, PANEL_RGB_DYNAMIC };
-#ifdef ESP32
-  enum INNER_CYC_PANEL_MODES INNER_CYC_PANEL_MODE = PANEL_RGB_DYNAMIC;
-#else
-  enum INNER_CYC_PANEL_MODES INNER_CYC_PANEL_MODE = PANEL_INDIVIDUAL;
-#endif
+enum INNER_CYC_PANEL_MODES { PANEL_DISABLED, PANEL_RGB_STATIC, PANEL_RGB_DYNAMIC };
+enum INNER_CYC_PANEL_MODES INNER_CYC_PANEL_MODE = PANEL_RGB_DYNAMIC;
 
 /*
  * Inner Cyclotron NeoPixel ring ramp control.

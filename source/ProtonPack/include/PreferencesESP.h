@@ -119,9 +119,13 @@ void saveLEDEEPROM() {
     break;
   }
 
-  // 2 = Individual, 3 = RGB Static, 4 = RGB Dynamic.
+  // 2 = Disabled, 3 = RGB Static, 4 = RGB Dynamic.
   uint8_t i_inner_cyclotron_led_panel = 4;
   switch(INNER_CYC_PANEL_MODE) {
+    case PANEL_DISABLED:
+      i_inner_cyclotron_led_panel = 2;
+    break;
+
     case PANEL_RGB_STATIC:
       i_inner_cyclotron_led_panel = 3;
     break;
@@ -487,8 +491,12 @@ void readEEPROM() {
 
     if(gObjLEDEEPROM.inner_cyclotron_led_panel > 0 && gObjLEDEEPROM.inner_cyclotron_led_panel < 5) {
       if(gObjLEDEEPROM.inner_cyclotron_led_panel > 1) {
-        // 3 = RGB Static, 4 = RGB Dynamic.
+        // 2 = Disabled, 3 = RGB Static, 4 = RGB Dynamic.
         switch(gObjLEDEEPROM.inner_cyclotron_led_panel) {
+          case 2:
+            INNER_CYC_PANEL_MODE = PANEL_DISABLED;
+          break;
+
           case 3:
             INNER_CYC_PANEL_MODE = PANEL_RGB_STATIC;
           break;

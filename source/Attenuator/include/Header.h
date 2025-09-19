@@ -234,6 +234,7 @@ String s_track_listing = "";
 /*
  * Some pack flags which get transmitted to the attenuator depending on the pack status.
  */
+bool b_esp32_pack = false;
 bool b_pack_on = false;
 bool b_pack_shutting_down = false;
 bool b_wand_connected = false;

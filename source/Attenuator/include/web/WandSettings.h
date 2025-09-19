@@ -306,6 +306,11 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
             // Valid settings were received and both the pack and wand are off, so allow updating settings.
             getEl("btnSave").disabled = false;
 
+            // GPStar Pack II detected, so disable toggle for the RGB Vent Light as it is invalid for the GPStar Wand II.
+            if(settings.esp32Pack) {
+              getEl("rgbVentEnabled").disabled = true;
+            }
+
             /**
              * Note: Colour (hue) value range for FastLED uses the following scale, though CSS uses 0-360 for HSL colour.
              *  0 = Red
@@ -356,7 +361,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         ledWandCount: getInt("ledWandCount") || 0,
         ledWandHue: convertRange(getInt("ledWandHue"), [0,360], [1,254]) || 254,
         ledWandSat: convertRange(getInt("ledWandSat"), [0,100], [1,254]) || 254,
-        rgbVentEnabled: getToggle("rgbVentEnabled"), // TODO: Need to dynamically disable this control if wand is ESP32-S3!
+        rgbVentEnabled: getToggle("rgbVentEnabled"),
         spectralModesEnabled: getToggle("spectralModesEnabled"),
         overheatEnabled: getToggle("overheatEnabled"),
         defaultFiringMode: getInt("defaultFiringMode") || 1,

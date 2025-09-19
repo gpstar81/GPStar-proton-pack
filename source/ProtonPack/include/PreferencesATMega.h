@@ -228,11 +228,10 @@ void readEEPROM() {
 
     if(obj_led_eeprom.inner_cyclotron_led_panel > 0 && obj_led_eeprom.inner_cyclotron_led_panel < 5) {
       if(obj_led_eeprom.inner_cyclotron_led_panel > 1) {
-        // 2 = Individual, 3 = RGB Static, 4 = RGB Dynamic.
+        // 2 = Disabled, 3 = RGB Static, 4 = RGB Dynamic.
         switch(obj_led_eeprom.inner_cyclotron_led_panel) {
           case 2:
-          default:
-            INNER_CYC_PANEL_MODE = PANEL_INDIVIDUAL;
+            INNER_CYC_PANEL_MODE = PANEL_DISABLED;
           break;
 
           case 3:
@@ -240,6 +239,7 @@ void readEEPROM() {
           break;
 
           case 4:
+          default:
             INNER_CYC_PANEL_MODE = PANEL_RGB_DYNAMIC;
           break;
         }
@@ -617,10 +617,10 @@ void saveLEDEEPROM() {
     break;
   }
 
-  // 2 = Individual, 3 = RGB Static, 4 = RGB Dynamic.
+  // 2 = Disabled, 3 = RGB Static, 4 = RGB Dynamic.
   uint8_t i_inner_cyclotron_led_panel = 4;
   switch(INNER_CYC_PANEL_MODE) {
-    case PANEL_INDIVIDUAL:
+    case PANEL_DISABLED:
       i_inner_cyclotron_led_panel = 2;
     break;
 

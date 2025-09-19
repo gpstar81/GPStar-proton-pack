@@ -455,6 +455,7 @@ String getPackConfig() {
     // Return current powered state for pack and wand.
     jsonBody["packPowered"] = (b_pack_on || b_pack_shutting_down);
     jsonBody["wandPowered"] = b_wand_on;
+    jsonBody["esp32Pack"] = b_esp32_pack;
 
     // Proton Pack Runtime Options
     jsonBody["defaultSystemModePack"] = packConfig.defaultSystemModePack; // [0=SH,1=MO]
@@ -514,6 +515,7 @@ String getWandConfig() {
     jsonBody["packPowered"] = (b_pack_on || b_pack_shutting_down);
     jsonBody["wandPowered"] = b_wand_on;
     jsonBody["wandConnected"] = b_wand_connected;
+    jsonBody["esp32Pack"] = b_esp32_pack;
 
     // Neutrona Wand LED Options
     jsonBody["ledWandCount"] = wandConfig.ledWandCount; // [0=5 (Stock), 1=48 (Frutto), 2=50 (GPStar), 3=2 (Tip)]

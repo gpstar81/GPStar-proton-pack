@@ -499,6 +499,9 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
 
     case A_SYNC_START:
       debug("Sync Start");
+
+      // Indicates whether we are talking to a GPStar Pack II.
+      b_esp32_pack = (i_value == 1);
     break;
 
     case A_SYNC_END:

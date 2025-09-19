@@ -222,10 +222,11 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
   <h1>Inner Cyclotron</h1>
   <div class="block left">
     <div class="setting">
-      <b>Inner Panel:</b>
+      <b>Inner Panel (RGB LEDs):</b>
       <select id="ledCycInnerPanel" name="ledCycInnerPanel" style="width:180px">
-        <option value="2">Frutto (Static Colours)</option>
-        <option value="3">Frutto (Dynamic Colours)</option>
+        <option value="1">Disabled</option>
+        <option value="2">Static Colours</option>
+        <option value="3">Dynamic Colours</option>
       </select>
     </div>
     <div class="setting">

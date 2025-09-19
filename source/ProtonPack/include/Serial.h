@@ -348,7 +348,7 @@ void getPackPrefsObject() {
   // Inner Cyclotron
   packConfig.ledCycPanLum = i_cyclotron_panel_brightness;
   switch(INNER_CYC_PANEL_MODE) {
-    case PANEL_INDIVIDUAL:
+    case PANEL_DISABLED:
     default:
       packConfig.ledCycInnerPanel = 1;
     break;
@@ -786,11 +786,7 @@ void handlePackPrefsUpdate() {
   i_cyclotron_panel_brightness = packConfig.ledCycPanLum;
   switch(packConfig.ledCycInnerPanel) {
     case 1:
-    #ifdef ESP32
-      INNER_CYC_PANEL_MODE = PANEL_RGB_DYNAMIC;
-    #else
-      INNER_CYC_PANEL_MODE = PANEL_INDIVIDUAL;
-    #endif
+      INNER_CYC_PANEL_MODE = PANEL_DISABLED;
     break;
     case 2:
       INNER_CYC_PANEL_MODE = PANEL_RGB_STATIC;
@@ -986,7 +982,13 @@ void doAttenuatorSync() {
   }
 
   sendDebug(F("Attenuator Sync Start"));
-  attenuatorSerialSend(A_SYNC_START);
+  #ifdef ESP32
+    // Notify upstream we are a GPStar Pack II.
+    attenuatorSerialSend(A_SYNC_START, 1);
+  #else
+    // Notify upstream we are a GPStar Pack I.
+    attenuatorSerialSend(A_SYNC_START);
+  #endif
 
   // Tell the Attenuator about the wand status.
   attenuatorSyncData.wandPresent = b_wand_connected ? 1 : 0;
@@ -2141,8 +2143,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_TOGGLE_INNER_CYCLOTRON_PANEL:
       // Toggle the optional inner cyclotron LED panel board.
       switch(INNER_CYC_PANEL_MODE) {
-        case PANEL_INDIVIDUAL:
-        default:
+        case PANEL_DISABLED:
           INNER_CYC_PANEL_MODE = PANEL_RGB_STATIC;
 
           stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_STATIC_COLORS);
@@ -2163,17 +2164,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           packSerialSend(P_INNER_CYCLOTRON_PANEL_DYNAMIC);
         break;
         case PANEL_RGB_DYNAMIC:
-        #ifdef ESP32
-          INNER_CYC_PANEL_MODE = PANEL_RGB_STATIC;
-
-          stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_STATIC_COLORS);
-          stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DYNAMIC_COLORS);
-          stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
-          playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_STATIC_COLORS);
-
-          packSerialSend(P_INNER_CYCLOTRON_PANEL_STATIC);
-        #else
-          INNER_CYC_PANEL_MODE = PANEL_INDIVIDUAL;
+        default:
+          INNER_CYC_PANEL_MODE = PANEL_DISABLED;
 
           stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_STATIC_COLORS);
           stopEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DYNAMIC_COLORS);
@@ -2181,7 +2173,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           playEffect(S_VOICE_INNER_CYCLOTRON_LED_PANEL_DISABLED);
 
           packSerialSend(P_INNER_CYCLOTRON_PANEL_DISABLED);
-        #endif
         break;
       }
 
