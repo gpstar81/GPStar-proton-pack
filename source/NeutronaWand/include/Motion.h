@@ -86,8 +86,10 @@ Adafruit_Mahony ahrs_filter; // Create a filter object for sensor fusion (AHRS);
 enum SENSOR_READ_TARGETS { NOT_INITIALIZED, CALIBRATION, OFFSETS, TELEMETRY };
 enum SENSOR_READ_TARGETS SENSOR_READ_TARGET = NOT_INITIALIZED;
 
-// Orientation positions expected by mounting positions.
+// Orientation positions expected by mounting for final installation (eg. as held by the user).
+// This will be set by user preference in the web interface and saved to "device" preferences.
 enum INSTALL_ORIENTATIONS {
+  UNKNOWN_ORIENTATION,
   COMPONENTS_UP_USB_FRONT,
   COMPONENTS_UP_USB_REAR,
   COMPONENTS_DOWN_USB_FRONT,
@@ -97,7 +99,7 @@ enum INSTALL_ORIENTATIONS {
   COMPONENTS_RIGHT_USB_FRONT,
   COMPONENTS_RIGHT_USB_REAR
 };
-enum INSTALL_ORIENTATIONS INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_FRONT; // Default for Hasbro installations.
+enum INSTALL_ORIENTATIONS INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_FRONT; // Default for Haslab installations.
 
 /**
  * Constant: FILTER_ALPHA
@@ -547,8 +549,10 @@ void readRawSensorData() {
     switch(INSTALL_ORIENTATION) {
       case COMPONENTS_UP_USB_FRONT:
       break;
+
       case COMPONENTS_UP_USB_REAR:
       break;
+
       case COMPONENTS_DOWN_USB_FRONT:
       default:
         // Default Hasbro installation orientation.
@@ -567,15 +571,20 @@ void readRawSensorData() {
         motionData.gyroY = gyro_event.gyro.x * -1;
         motionData.gyroZ = gyro_event.gyro.z * -1;
       break;
+
       case COMPONENTS_DOWN_USB_REAR:
       break;
+
       case COMPONENTS_LEFT_USB_FRONT:
       break;
+
       case COMPONENTS_LEFT_USB_REAR:
       break;
+
       case COMPONENTS_RIGHT_USB_FRONT:
         // Default Mack's Factory installation orientation.
       break;
+
       case COMPONENTS_RIGHT_USB_REAR:
       break;
 

@@ -211,6 +211,7 @@ void setup() {
   gyroscope->printSensorDetails();
   magnetometer->printSensorDetails();
 
+  getSpecialPreferences(); // Get all device preferences.
   configureSensors(); // Set sensor ranges and defaults.
   delay(40); // Pause briefly for the devices to start.
   readRawSensorData(); // Perform an initial sensor read.

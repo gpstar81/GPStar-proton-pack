@@ -436,6 +436,36 @@ String getDeviceConfig() {
   jsonBody["softIron9"] = magCalData.mag_softiron[8];
   jsonBody["magField"] = magCalData.mag_field;
 
+  switch(INSTALL_ORIENTATION) {
+    case COMPONENTS_UP_USB_FRONT:
+      jsonBody["orientation"] = 1;
+    break;
+    case COMPONENTS_UP_USB_REAR:
+      jsonBody["orientation"] = 2;
+    break;
+    case COMPONENTS_DOWN_USB_FRONT:
+      jsonBody["orientation"] = 3;
+    break;
+    case COMPONENTS_DOWN_USB_REAR:
+      jsonBody["orientation"] = 4;
+    break;
+    case COMPONENTS_LEFT_USB_FRONT:
+      jsonBody["orientation"] = 5;
+    break;
+    case COMPONENTS_LEFT_USB_REAR:
+      jsonBody["orientation"] = 6;
+    break;
+    case COMPONENTS_RIGHT_USB_FRONT:
+      jsonBody["orientation"] = 7;
+    break;
+    case COMPONENTS_RIGHT_USB_REAR:
+      jsonBody["orientation"] = 8;
+    break;
+    default:
+      jsonBody["orientation"] = 3; // Default to Components Down, USB Front.
+    break;
+  }
+
   // Serialize JSON object to string.
   serializeJson(jsonBody, equipSettings);
   return equipSettings;
@@ -889,6 +919,38 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
       }
     }
 
+    uint8_t i_orientation = jsonBody["orientation"].as<unsigned short>();
+    switch(i_orientation) {
+      case 1:
+        INSTALL_ORIENTATION = COMPONENTS_UP_USB_FRONT;
+      break;
+      case 2:
+        INSTALL_ORIENTATION = COMPONENTS_UP_USB_REAR;
+      break;
+      case 3:
+        INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_FRONT;
+      break;
+      case 4:
+        INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_REAR;
+      break;
+      case 5:
+        INSTALL_ORIENTATION = COMPONENTS_LEFT_USB_FRONT;
+      break;
+      case 6:
+        INSTALL_ORIENTATION = COMPONENTS_LEFT_USB_REAR;
+      break;
+      case 7:
+        INSTALL_ORIENTATION = COMPONENTS_RIGHT_USB_FRONT;
+      break;
+      case 8:
+        INSTALL_ORIENTATION = COMPONENTS_RIGHT_USB_REAR;
+      break;
+      default:
+        // Do not change orientation if an invalid value was provided.
+        i_orientation = 0;
+      break;
+    }
+
     // Set the current magnetic calibration values.
     magCalData.mag_hardiron[0] = jsonBody["hardIron1"].as<float>();
     magCalData.mag_hardiron[1] = jsonBody["hardIron2"].as<float>();
@@ -910,6 +972,11 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
 
     // Accesses namespace in read/write mode.
     if(preferences.begin("device", false)) {
+      // Store the orientation value to preferences (if not zero).
+      if (i_orientation > 0) {
+        preferences.putShort("orientation", i_orientation);
+      }
+
       // Store the magnetic calibration struct (object) to preferences.
       preferences.putBytes("mag_cal", &magCalData, sizeof(magCalData));
 

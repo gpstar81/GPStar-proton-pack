@@ -52,6 +52,19 @@ const char DEVICE_page[] PROGMEM = R"=====(
        title="Only letters, numbers, hyphens, and underscores are allowed, up to 32 characters."/>
     </div>
     <div class="setting">
+      <b>Install Orientation:</b><br/>
+      <select id="orientation" class="custom-select">
+        <option value="1">Components Up, USB Front</option>
+        <option value="2">Components Up, USB Rear</option>
+        <option value="3">Components Down, USB Front</option>
+        <option value="4">Components Down, USB Rear</option>
+        <option value="5">Components Left, USB Front</option>
+        <option value="6">Components Left, USB Rear</option>
+        <option value="7">Components Right, USB Front</option>
+        <option value="8">Components Right, USB Rear</option>
+      </select>
+    </div>
+    <div class="setting">
       <b>MotionCal - Magnetic Offsets:</b><br/>
       <input type="text" id="hardIron1" width="8" maxlength="8" placeholder="X Axis"/><br/>
       <input type="text" id="hardIron2" width="8" maxlength="8" placeholder="Y Axis"/><br/>
@@ -117,6 +130,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
           if (settings) {
             // Update fields with the current values, or supply an expected default as necessary.
             setValue("wifiName", settings.wifiName || "");
+            setValue("orientation", settings.orientation || 3);
             setValue("hardIron1", settings.hardIron1 ?? 0);
             setValue("hardIron2", settings.hardIron2 ?? 0);
             setValue("hardIron3", settings.hardIron3 ?? 0);
@@ -167,6 +181,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
       // Saves current settings to attenuator, updating runtime variables and making changes immediately effective.
       var settings = {
         wifiName: wifiName,
+        orientation: getInt("orientation") || 0,
         hardIron1: getFloat("hardIron1"),
         hardIron2: getFloat("hardIron2"),
         hardIron3: getFloat("hardIron3"),

@@ -787,6 +787,40 @@ void getSpecialPreferences() {
     s_track_listing = preferences.getString("track_list", "");
 
     // Restore the magnetometer calibration data from preferences.
+    if (preferences.isKey("orientation")) {
+      switch(preferences.getShort("orientation", 0)) {
+        case 1:
+          INSTALL_ORIENTATION = COMPONENTS_UP_USB_FRONT;
+        break;
+        case 2:
+          INSTALL_ORIENTATION = COMPONENTS_UP_USB_REAR;
+        break;
+        case 3:
+          INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_FRONT;
+        break;
+        case 4:
+          INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_REAR;
+        break;
+        case 5:
+          INSTALL_ORIENTATION = COMPONENTS_LEFT_USB_FRONT;
+        break;
+        case 6:
+          INSTALL_ORIENTATION = COMPONENTS_LEFT_USB_REAR;
+        break;
+        case 7:
+          INSTALL_ORIENTATION = COMPONENTS_RIGHT_USB_FRONT;
+        break;
+        case 8:
+          INSTALL_ORIENTATION = COMPONENTS_RIGHT_USB_REAR;
+        break;
+        default:
+          // Use a default orientation (Haslab).
+          INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_FRONT;
+        break;
+      }
+    }
+
+    // Restore the magnetometer calibration data from preferences.
     if (preferences.isKey("mag_cal")) {
       preferences.getBytes("mag_cal", &magCalData, sizeof(magCalData));
     }
