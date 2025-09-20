@@ -422,3 +422,42 @@ bool startWiFi() {
 
 // Provide all handler functions for the API layer.
 #include "Webhandler.h"
+
+// Stops the web server and disables WiFi to save power or for security.
+void shutdownWireless() {
+  if (WiFi.getMode() != WIFI_OFF) {
+    // Close all websocket connections and stop the web server.
+    ws.closeAll();
+    httpServer.end();
+    b_ws_started = false;
+
+    // Disconnect WiFi and turn off radio.
+    WiFi.disconnect(true);
+    WiFi.mode(WIFI_OFF);
+    b_ap_started = false;
+    b_ext_wifi_started = false;
+
+    #if defined(DEBUG_WIRELESS_SETUP)
+      debugln(F("Wireless and web server shut down."));
+    #endif
+  }
+}
+
+// Restarts WiFi and web server when needed.
+void restartWireless() {
+  if (!b_ap_started) {
+    if(startWiFi()) {
+      // Start the local web server.
+      startWebServer();
+
+      // Begin timer for remote client events.
+      ms_cleanup.start(i_websocketCleanup);
+      ms_apclient.start(i_apClientCount);
+      ms_otacheck.start(i_otaCheck);
+
+      #if defined(DEBUG_WIRELESS_SETUP)
+        debugln(F("Wireless and web server restarted."));
+      #endif
+    }
+  }
+}

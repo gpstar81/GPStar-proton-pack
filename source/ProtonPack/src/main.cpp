@@ -621,15 +621,7 @@ void loop() {
       // Force the WiFi to remain on, disregarding any Attenuator connection.
       if(!b_ws_started && b_pack_post_finish) {
         // Begin by setting up WiFi as a prerequisite to all else.
-        if(startWiFi()) {
-          // Start the local web server.
-          startWebServer();
-
-          // Begin timers for remote client events.
-          ms_cleanup.start(i_websocketCleanup);
-          ms_apclient.start(i_apClientCount);
-          ms_otacheck.start(i_otaCheck);
-        }
+        restartWireless();
       }
     break;
 
@@ -642,15 +634,7 @@ void loop() {
       }
       else if(!b_attenuator_connected && !b_attenuator_syncing && !b_ws_started && b_pack_post_finish) {
         // Begin by setting up WiFi as a prerequisite to all else.
-        if(startWiFi()) {
-          // Start the local web server.
-          startWebServer();
-
-          // Begin timers for remote client events.
-          ms_cleanup.start(i_websocketCleanup);
-          ms_apclient.start(i_apClientCount);
-          ms_otacheck.start(i_otaCheck);
-        }
+        restartWireless();
       }
     break;
   }

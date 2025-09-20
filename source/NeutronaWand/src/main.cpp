@@ -323,17 +323,6 @@ void setup() {
   }
 
 #ifdef ESP32
-  // Begin by setting up WiFi as a prerequisite to all else.
-  if(startWiFi()) {
-    // Start the local web server.
-    startWebServer();
-
-    // Begin timer for remote client events.
-    ms_cleanup.start(i_websocketCleanup);
-    ms_apclient.start(i_apClientCount);
-    ms_otacheck.start(i_otaCheck);
-  }
-
   debugf("Setup complete, free heap: %u bytes\n", ESP.getFreeHeap());
 #endif
 }
@@ -658,5 +647,19 @@ void loop() {
 
   // Check the motion sensors if they are available and the timer has completed.
   checkMotionSensors();
+
+  // Take action with Wifi based on user preference.
+  switch(WIFI_MODE) {
+    case WIFI_ENABLED:
+      // Begin by setting up WiFi as a prerequisite to all else.
+      restartWireless();
+    break;
+
+    case WIFI_DISABLED:
+    default:
+      // Do not start WiFi or the web server.
+      shutdownWireless();
+    break;
+  }
 #endif
 }

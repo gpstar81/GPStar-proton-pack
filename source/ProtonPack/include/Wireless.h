@@ -439,13 +439,19 @@ void shutdownWireless() {
 
 // Restarts WiFi and web server when needed.
 void restartWireless() {
-  // Start WiFi (SoftAP or external, as per user settings)
-  startWiFi();
+  if (!b_ap_started) {
+    if(startWiFi()) {
+      // Start the local web server.
+      startWebServer();
 
-  // Start web server and websocket
-  startWebServer();
+      // Begin timer for remote client events.
+      ms_cleanup.start(i_websocketCleanup);
+      ms_apclient.start(i_apClientCount);
+      ms_otacheck.start(i_otaCheck);
 
-  #if defined(DEBUG_WIRELESS_SETUP)
-    debugln(F("Wireless and web server restarted."));
-  #endif
+      #if defined(DEBUG_WIRELESS_SETUP)
+        debugln(F("Wireless and web server restarted."));
+      #endif
+    }
+  }
 }
