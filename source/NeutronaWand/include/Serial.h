@@ -71,7 +71,8 @@ struct __attribute__((packed)) MessagePacket {
 struct MessagePacket sendData;
 struct MessagePacket recvData;
 
-struct __attribute__((packed)) WandPrefs {
+struct __attribute__((packed)) {
+  uint8_t isESP32;
   uint8_t ledWandCount;
   uint8_t ledWandHue;
   uint8_t ledWandSat;
@@ -142,6 +143,13 @@ struct __attribute__((packed)) WandSyncData {
 // Common helper function to populate the wandConfig object with global variables.
 void getWandPrefsObject() {
   sendDebug(F("Getting Wand Preferences"));
+
+  // Return an indication of whether the device is an ESP32 or not.
+#ifdef ESP32
+  wandConfig.isESP32 = 1;
+#else
+  wandConfig.isESP32 = 0;
+#endif
 
   // Boolean types will simply translate as 1/0, ENUMs should be converted.
   switch(WAND_BARREL_LED_COUNT) {

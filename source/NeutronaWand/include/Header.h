@@ -536,7 +536,17 @@ const uint32_t i_ms_power_indicator = 60000; // 1 minute -> 60000 milliseconds
 const uint16_t i_ms_power_indicator_blink = 500;
 
 /**
- * Infrared (IR) signal for the Ghost Trap or other devices.
+ * WiFi Activation Preference (GPStar II Only).
+ *   Set to WIFI_ENABLED to force WiFi on (default).
+ *   Set to WIFI_DISABLED to force WiFi off (override).
+ */
+#ifdef ESP32
+  enum WIFI_MODES { WIFI_ENABLED, WIFI_DISABLED };
+  enum WIFI_MODES WIFI_MODE = WIFI_ENABLED;
+#endif
+
+/**
+ * Infrared (IR) signal for the Ghost Trap or other devices (GPStar II Only).
  */
 #ifdef ESP32
   #define CARRIER_KHZ 38 // Defines the standard IR carrier frequency in kHz.

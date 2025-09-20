@@ -540,6 +540,17 @@ void checkAttenuator();
 void checkWand();
 void powercellDraw(uint8_t i_start = 0);
 
+/**
+ * WiFi Activation Preference (GPStar II Only).
+ *   Set to WIFI_DEFAULT to allow dynamic control based on presence of an Attenuator.
+ *   Set to WIFI_ENABLED to force WiFi on regardless of Attenuator presence.
+ *   Set to WIFI_DISABLED to force WiFi off regardless of Attenuator presence.
+ */
+#ifdef ESP32
+  enum WIFI_MODES { WIFI_DEFAULT, WIFI_ENABLED, WIFI_DISABLED };
+  enum WIFI_MODES WIFI_MODE = WIFI_DEFAULT;
+#endif
+
 /*
  * If you are compiling this for an Arduino Mega and the error message brings you here, go to the bottom of the Configuration.h file for more information.
  */

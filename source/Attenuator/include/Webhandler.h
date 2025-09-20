@@ -452,10 +452,12 @@ String getPackConfig() {
     // Provide a flag to indicate prefs were received via serial coms.
     jsonBody["prefsAvailable"] = b_received_prefs_pack;
 
+    // Use the device-reported value so we can fine-tune the UI options.
+    jsonBody["esp32Pack"] = (packConfig.isESP32 == 1);
+
     // Return current powered state for pack and wand.
     jsonBody["packPowered"] = (b_pack_on || b_pack_shutting_down);
     jsonBody["wandPowered"] = b_wand_on;
-    jsonBody["esp32Pack"] = b_esp32_pack;
 
     // Proton Pack Runtime Options
     jsonBody["defaultSystemModePack"] = packConfig.defaultSystemModePack; // [0=SH,1=MO]
@@ -511,11 +513,13 @@ String getWandConfig() {
     // Provide a flag to indicate prefs were received via serial coms.
     jsonBody["prefsAvailable"] = b_received_prefs_wand;
 
+    // Use the device-reported value so we can fine-tune the UI options.
+    jsonBody["esp32Wand"] = (wandConfig.isESP32 == 1);
+
     // Return current powered state for pack and wand.
     jsonBody["packPowered"] = (b_pack_on || b_pack_shutting_down);
     jsonBody["wandPowered"] = b_wand_on;
     jsonBody["wandConnected"] = b_wand_connected;
-    jsonBody["esp32Pack"] = b_esp32_pack;
 
     // Neutrona Wand LED Options
     jsonBody["ledWandCount"] = wandConfig.ledWandCount; // [0=5 (Stock), 1=48 (Frutto), 2=50 (GPStar), 3=2 (Tip)]

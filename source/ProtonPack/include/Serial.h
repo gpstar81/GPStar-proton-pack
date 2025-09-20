@@ -84,6 +84,7 @@ struct MessagePacket sendDataS;
 struct MessagePacket recvDataS;
 
 struct __attribute__((packed)) PackPrefs {
+  uint8_t isESP32;
   uint8_t defaultSystemModePack;
   uint8_t defaultYearThemePack;
   uint8_t currentYearThemePack;
@@ -122,6 +123,7 @@ struct __attribute__((packed)) PackPrefs {
 } packConfig;
 
 struct __attribute__((packed)) WandPrefs {
+  uint8_t isESP32;
   uint8_t ledWandCount;
   uint8_t ledWandHue;
   uint8_t ledWandSat;
@@ -302,6 +304,13 @@ void getPackPrefsObject() {
   sendDebug(F("Getting Pack Preferences"));
 
   uint8_t i_eeprom_volume_master_percentage = 100 * ((MINIMUM_VOLUME + i_volume_min_adj) - i_volume_master_eeprom) / (MINIMUM_VOLUME + i_volume_min_adj);
+
+  // Return an indication of whether the device is an ESP32 or not.
+#ifdef ESP32
+  packConfig.isESP32 = 1;
+#else
+  packConfig.isESP32 = 0;
+#endif
 
   // General Settings
   packConfig.defaultSystemModePack = SYSTEM_MODE;
@@ -982,6 +991,8 @@ void doAttenuatorSync() {
   }
 
   sendDebug(F("Attenuator Sync Start"));
+
+  // Report the hardware type immediately upon sync for identification purposes.
   #ifdef ESP32
     // Notify upstream we are a GPStar Pack II.
     attenuatorSerialSend(A_SYNC_START, 1);

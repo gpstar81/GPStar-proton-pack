@@ -62,6 +62,7 @@ struct MessagePacket sendData;
 struct MessagePacket recvData;
 
 struct __attribute__((packed)) PackPrefs {
+  uint8_t isESP32;
   uint8_t defaultSystemModePack;
   uint8_t defaultYearThemePack;
   uint8_t currentYearThemePack;
@@ -100,6 +101,7 @@ struct __attribute__((packed)) PackPrefs {
 } packConfig;
 
 struct __attribute__((packed)) WandPrefs {
+  uint8_t isESP32;
   uint8_t ledWandCount;
   uint8_t ledWandHue;
   uint8_t ledWandSat;
