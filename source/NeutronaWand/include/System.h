@@ -9603,14 +9603,14 @@ void checkRotaryEncoder() {
             wandSerialSend(W_VOLUME_MUSIC_DECREASE);
           }
           else if(i_wand_menu - 1 < 1) {
-            // We are entering the sub menu. Only accessible when the Neutrona Wand is powered down.
+            // We are entering a sub menu. Only accessible when the Neutrona Wand is powered down.
             if(WAND_STATUS == MODE_OFF) {
               switch(WAND_MENU_LEVEL) {
                 case MENU_LEVEL_1:
                   WAND_MENU_LEVEL = MENU_LEVEL_2;
                   i_wand_menu = 5;
 
-                  // Turn on the slo blow led to indicate we are in the Neutrona Wand sub menu.
+                  // Turn on the slo blow led to indicate we are in sub menu level 2.
                   digitalWriteFast(SLO_BLO_LED_PIN, HIGH);
 
                   // Play an indication beep to notify we have changed menu levels.
@@ -9629,9 +9629,34 @@ void checkRotaryEncoder() {
                   wandSerialSend(W_MENU_LEVEL_2);
                 break;
 
+              #ifdef ESP32
                 case MENU_LEVEL_2:
+                  // Menu level 3 is only available on the GPStar II controller.
+                  WAND_MENU_LEVEL = MENU_LEVEL_3;
+                  i_wand_menu = 5;
+
+                  // Turn on the vent/top LED to indicate entering sub menu level 3.
+                  ventLightControl(1);
+
+                  // Play an indication beep to notify we have changed menu levels.
+                  stopEffect(S_BEEPS);
+                  playEffect(S_BEEPS);
+
+                  stopEffect(S_LEVEL_1);
+                  stopEffect(S_LEVEL_2);
+                  stopEffect(S_LEVEL_3);
+                  stopEffect(S_LEVEL_4);
+                  stopEffect(S_LEVEL_5);
+
+                  playEffect(S_LEVEL_3);
+
+                  // Tell the Proton Pack to play some sounds.
+                  wandSerialSend(W_MENU_LEVEL_3);
+                break;
+              #endif
+
                 default:
-                  // Cannot go further than level 2 for this menu.
+                  // Cannot go further than level 2 (GPStar I) or level 3 (GPStar II) for this menu.
                   i_wand_menu = 1;
                 break;
               }
@@ -9669,12 +9694,36 @@ void checkRotaryEncoder() {
             // We are leaving changing menu levels. Only accessible when the Neutrona Wand is powered down.
             if(WAND_STATUS == MODE_OFF) {
               switch(WAND_MENU_LEVEL) {
+                case MENU_LEVEL_3:
+                  WAND_MENU_LEVEL = MENU_LEVEL_2;
+
+                  i_wand_menu = 1;
+
+                  // Turn off the vent/top LED to indicate leaving this sub menu.
+                  ventLightControl(0);
+
+                  // Play an indication beep to notify we have changed menu levels.
+                  stopEffect(S_BEEPS);
+                  playEffect(S_BEEPS);
+
+                  stopEffect(S_LEVEL_1);
+                  stopEffect(S_LEVEL_2);
+                  stopEffect(S_LEVEL_3);
+                  stopEffect(S_LEVEL_4);
+                  stopEffect(S_LEVEL_5);
+
+                  playEffect(S_LEVEL_2);
+
+                  // Tell the Proton Pack to play some sounds.
+                  wandSerialSend(W_MENU_LEVEL_2);
+                break;
+
                 case MENU_LEVEL_2:
                   WAND_MENU_LEVEL = MENU_LEVEL_1;
 
                   i_wand_menu = 1;
 
-                  // Turn off the slo blow led to indicate we are no longer in the Neutrona Wand sub menu.
+                  // Turn off the slo blow led to indicate we are no longer in the Neutrona Wand sub menus.
                   digitalWriteFast(SLO_BLO_LED_PIN, LOW);
 
                   // Play an indication beep to notify we have changed menu levels.

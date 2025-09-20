@@ -1313,29 +1313,52 @@ void checkWandAction() {
         // Menu Level 1: (Barrel Wing Button) -> Exit menu. <--handled by altWingButtonCheck() if wand is on, or mainLoop() if wand is off
         // Menu Level 2: (Intensify) -> Enable or disable crossing the streams / video game modes.
         // Menu Level 2: (Barrel Wing Button) -> Enable/Disable Video Game Colour Modes for the Proton Pack LEDs (when video game mode is selected).
+        // Menu Level 3: (Intensify) -> GPStar II: Toggle the Neutrona Wand WiFi.
+        // Menu Level 3: (Barrel Wing Button) -> GPStar II: Toggle the Proton Pack WiFi.
         case 5:
-        // Music track loop setting.
-        if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
-          if(switch_intensify.pushed()) {
-            toggleMusicLoop();
+          // Music track loop setting.
+          if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
+            if(switch_intensify.pushed()) {
+              toggleMusicLoop();
 
-            // Tell pack to loop the music track.
-            wandSerialSend(W_MUSIC_TRACK_LOOP_TOGGLE);
-          }
-        }
-        else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-          if(switch_intensify.pushed()) {
-            toggleWandModes();
-          }
-
-          // Enable/Disable Video Game Colour Modes for the Proton Pack LEDs.
-          if(switch_mode.pushed()) {
-            if(FIRING_MODE == VG_MODE) {
-              // Tell the Proton Pack to cycle through the Video Game Colour toggles.
-              wandSerialSend(W_VIDEO_GAME_MODE_COLOUR_TOGGLE);
+              // Tell pack to loop the music track.
+              wandSerialSend(W_MUSIC_TRACK_LOOP_TOGGLE);
             }
           }
-        }
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
+            if(switch_intensify.pushed()) {
+              toggleWandModes();
+            }
+
+            // Enable/Disable Video Game Colour Modes for the Proton Pack LEDs.
+            if(switch_mode.pushed()) {
+              if(FIRING_MODE == VG_MODE) {
+                // Tell the Proton Pack to cycle through the Video Game Colour toggles.
+                wandSerialSend(W_VIDEO_GAME_MODE_COLOUR_TOGGLE);
+              }
+            }
+          }
+          #ifdef ESP32
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
+            if(switch_intensify.pushed()) {
+              // Toggle the Neutrona Wand WiFi.
+              if (WIFI_MODE == WIFI_ENABLED) {
+                WIFI_MODE = WIFI_DISABLED;
+                stopEffect(S_VOICE_WAND_WIFI_DISABLED);
+                playEffect(S_VOICE_WAND_WIFI_DISABLED);
+              } else {
+                WIFI_MODE = WIFI_ENABLED;
+                stopEffect(S_VOICE_WAND_WIFI_ENABLED);
+                playEffect(S_VOICE_WAND_WIFI_ENABLED);
+              }
+            }
+
+            if(switch_mode.pushed()) {
+              // Toggle the Proton Pack WiFi (just send the command, let the pack sort it out).
+              wandSerialSend(W_TOGGLE_PACK_WIFI);
+            }
+          }
+          #endif
         break;
 
         // Menu Level 1: (Intensify + Top dial) -> Adjust the LED dimming of the Power Cell, Cyclotron and Inner Cyclotron.

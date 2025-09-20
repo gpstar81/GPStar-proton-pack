@@ -2151,6 +2151,21 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       attenuatorSerialSend(A_SETTINGS_MODE);
     break;
 
+    case W_TOGGLE_PACK_WIFI:
+    #ifdef ESP32
+      // Toggle the Proton Pack WiFi.
+      if (WIFI_MODE == WIFI_DEFAULT || WIFI_MODE == WIFI_ENABLED) {
+        WIFI_MODE = WIFI_DISABLED;
+        stopEffect(S_VOICE_PACK_WIFI_DISABLED);
+        playEffect(S_VOICE_PACK_WIFI_DISABLED);
+      } else {
+        WIFI_MODE = WIFI_ENABLED;
+        stopEffect(S_VOICE_PACK_WIFI_ENABLED);
+        playEffect(S_VOICE_PACK_WIFI_ENABLED);
+      }
+    #endif
+    break;
+
     case W_TOGGLE_INNER_CYCLOTRON_PANEL:
       // Toggle the optional inner cyclotron LED panel board.
       switch(INNER_CYC_PANEL_MODE) {
