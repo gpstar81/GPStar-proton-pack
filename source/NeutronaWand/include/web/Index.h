@@ -67,7 +67,7 @@ const char INDEX_page[] PROGMEM = R"=====(
         </p>
       </div>
       <div class="viz-content">
-        <div id="3Dobj"></div>
+        <div id="3Dtelemetry"></div>
       </div>
     </div>
     <button type="button" id="btnRecenter" class="blue" onclick="resetPosition()">Re-center</button>
@@ -154,6 +154,9 @@ const char INDEX_page[] PROGMEM = R"=====(
       &nbsp;&nbsp;&nbsp;
       <button type="button" id="btnCalibrateOff" class="red" onclick="disableCalibration()">Disable Calibration</button>
       <br/>
+      <div class="viz-content">
+        <div id="3Dcalibration"></div>
+      </div>
     </div>
   </div>
 
@@ -167,7 +170,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       <br/>
       <hr/>
       <br/>
-      <a href="/update">Update ESP32 Firmware</a>
+      <a href="/update">Update Neutrona Wand Firmware</a>
       <br/>
       <br/>
       <a href="/password">Secure Device WiFi</a>

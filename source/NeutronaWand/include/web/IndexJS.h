@@ -265,103 +265,179 @@ function updateEquipment(jObj) {
   }
 }
 
-// Define variables and functions for 3D rendering and viewing.
-let renderer, scene, camera, mesh, size;
+class Telemetry3DView {
+  constructor(domId, geometryUrl) {
+    this.el = document.getElementById(domId);
+    this.width = this.el.parentElement.clientWidth;
+    this.height = this.el.parentElement.clientHeight;
+    this.aspect = this.width / this.height;
 
-function parentWidth(elem) {
-  return elem.parentElement.clientWidth;
-}
+    // Create the scene with a transparent background.
+    this.scene = new THREE.Scene();
+    this.scene.background = null;
 
-function parentHeight(elem) {
-  return elem.parentElement.clientHeight;
-}
+    // Set up renderer with a transparent background
+    this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+    this.renderer.setSize(this.width, this.height);
+    this.el.appendChild(this.renderer.domElement);
 
-function init3D() {
-  const container = document.getElementById("3Dobj");
-  const width = parentWidth(container);
-  const height = parentHeight(container);
-  const aspect = width / height;
+    // Add lights to the scene for realistic shading and visibility.
+    // HemisphereLight simulates ambient light from the sky and ground, providing soft global illumination.
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
+    hemiLight.position.set(0,200,0); // Position above the scene (Y axis) for natural lighting effect
+    this.scene.add(hemiLight);
 
-  // Create the scene with a transparent background.
-  scene = new THREE.Scene();
-  scene.background = null;
+    // DirectionalLight simulates sunlight, casting parallel rays and creating shadows and highlights.
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    dirLight.position.set(100,100,100); // Position at an angle for dynamic shading (3/4 view)
+    this.scene.add(dirLight);
 
-  // Set up renderer with a transparent background
-  renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
-  renderer.setSize(width, height);
-  container.appendChild(renderer.domElement);
+    // Add lines for the XYZ axes as visual aid (X: red, Y: green, Z: blue) with 200 unit length.
+    // const axesHelper = new THREE.AxesHelper(200);
+    // scene.add(axesHelper);
 
-  // Add lights to the scene for realistic shading and visibility.
-  // HemisphereLight simulates ambient light from the sky and ground, providing soft global illumination.
-  const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
-  hemiLight.position.set(0,200,0); // Position above the scene (Y axis) for natural lighting effect
-  scene.add(hemiLight);
+    // Load geometry from JSON (converted from STL)
+    fetch(geometryUrl)
+      .then(res => res.json())
+      .then(json => {
+        const loader = new THREE.BufferGeometryLoader();
+        const geometry = loader.parse(json);
 
-  // DirectionalLight simulates sunlight, casting parallel rays and creating shadows and highlights.
-  const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-  dirLight.position.set(100,100,100); // Position at an angle for dynamic shading (3/4 view)
-  scene.add(dirLight);
+        // Center the geometry itself so the mesh rotates around its center
+        geometry.computeBoundingBox();
+        const box = geometry.boundingBox;
+        this.size = new THREE.Vector3();
+        box.getSize(this.size); // Original size of the mesh in original units (assume: mm)
+        const center = new THREE.Vector3();
+        box.getCenter(center); // True center of the mesh itself using the bounding box
+        geometry.translate(-center.x, -center.y, -center.z); // Center the object on the origin
 
-  // Add lines for the XYZ axes as visual aid (X: red, Y: green, Z: blue) with 200 unit length.
-  // const axesHelper = new THREE.AxesHelper(200);
-  // scene.add(axesHelper);
+        // Select a material and color then create the mesh for the scene
+        const material = new THREE.MeshLambertMaterial({color: 0x00A000});
+        this.mesh = new THREE.Mesh(geometry, material);
+        this.scene.add(this.mesh);
 
-  // Load geometry from JSON (converted from STL)
-  fetch("/geometry.json")
-    .then(res => res.json())
-    .then(json => {
-      const loader = new THREE.BufferGeometryLoader();
-      const geometry = loader.parse(json);
+        // Set up an orthographic camera; better for technical models without distortion.
+        const frustumSize = Math.max(this.size.x, this.size.y, this.size.z) * 1.2; // Scale to fit mesh comfortably
+        this.camera = new THREE.OrthographicCamera(
+          (-frustumSize * this.aspect / 2), // Left
+          (frustumSize * this.aspect / 2),  // Right
+          (frustumSize / 2),                // Top
+          (-frustumSize / 2),               // Bottom
+          0.1,                              // Near clipping plane
+          300                               // Far clipping plane
+        );
 
-      // Center the geometry itself so the mesh rotates around its center
-      geometry.computeBoundingBox();
-      const box = geometry.boundingBox;
-      size = new THREE.Vector3();
-      box.getSize(size); // Original size of the mesh in original units (assume: mm)
-      const center = new THREE.Vector3();
-      box.getCenter(center); // True center of the mesh itself using the bounding box
-      geometry.translate(-center.x, -center.y, -center.z); // Center the object on the origin
+        // Position camera and look at the center of the scene
+        this.camera.position.set(0, this.size.y, frustumSize);
 
-      // Select a material and color then create the mesh for the scene
-      const material = new THREE.MeshLambertMaterial({color: 0x00A000});
-      mesh = new THREE.Mesh(geometry, material);
-      scene.add(mesh);
-
-      // Set up an orthographic camera; better for technical models without distortion.
-      const frustumSize = Math.max(size.x, size.y, size.z) * 1.2; // Scale to fit mesh comfortably
-      camera = new THREE.OrthographicCamera(
-        (-frustumSize * aspect / 2), // Left
-        (frustumSize * aspect / 2),  // Right
-        (frustumSize / 2),           // Top
-        (-frustumSize / 2),          // Bottom
-        0.1,                         // Near clipping plane
-        300                          // Far clipping plane
-      );
-
-      // Position camera and look at the center of the scene
-      camera.position.set(0, size.y, frustumSize);
-
-      if (camera) {
         // Camera positioning using the center of the mesh as the focal point
-        camera.lookAt(new THREE.Vector3()); // Look at the center (0,0,0) so we rotate at the center
-        scene.add(camera);
-        renderer.render(scene, camera); // Immediately render the scene using defaults
-      } else {
-        console.error("Camera not available for scene, unable to render.");
-      }
-    })
-    .catch(err => console.error(err));
+        this.camera.lookAt(new THREE.Vector3()); // Look at the center (0,0,0) so we rotate at the center
+        this.scene.add(this.camera);
+        this.render(); // Immediately render the scene using defaults
+      });
+  }
+
+  render() {
+    if (this.scene && this.camera) {
+      this.renderer.render(this.scene, this.camera);
+    }
+  }
+
+  // Update mesh orientation using quaternion
+  setQuaternion(qx, qy, qz, qw) {
+    if (this.mesh) {
+      this.mesh.quaternion.set(qx, qy, qz, qw);
+      this.render();
+    }
+  }
+
+  // Update camera position if needed
+  setCameraPosition(x, y, z) {
+    if (this.camera) {
+      this.camera.position.set(x, y, z);
+      this.camera.lookAt(0, 0, 0);
+      this.render();
+    }
+  }
 }
 
-// Resize the 3D object when the browser window changes size
-function onWindowResize() {
-  if (typeof container !== 'undefined'){
-    const w = parentWidth(container);
-    const h = parentHeight(container);
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-    renderer.setSize(w, h);
+// Class: Calibration3DView
+// Purpose: Handles the 3D calibration visualization using a simple sphere.
+class Calibration3DView {
+  constructor(domId) {
+    this.el = document.getElementById(domId);
+    this.width = this.el.parentElement.clientWidth;
+    this.height = this.el.parentElement.clientHeight;
+    this.aspect = this.width / this.height;
+    this.scene = new THREE.Scene();
+    this.scene.background = null;
+    this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+    this.renderer.setSize(this.width, this.height);
+    this.el.appendChild(this.renderer.domElement);
+
+    // Lighting
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
+    hemiLight.position.set(0,200,0);
+    this.scene.add(hemiLight);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    dirLight.position.set(100,100,100);
+    this.scene.add(dirLight);
+
+    // Sphere geometry
+    const geometry = new THREE.SphereGeometry(1, 32, 32);
+    const material = new THREE.MeshLambertMaterial({color: 0x0000A0});
+    this.mesh = new THREE.Mesh(geometry, material);
+    this.scene.add(this.mesh);
+
+    // Camera
+    const frustumSize = 3;
+    this.camera = new THREE.OrthographicCamera(
+      (-frustumSize * this.aspect / 2),
+      (frustumSize * this.aspect / 2),
+      (frustumSize / 2),
+      (-frustumSize / 2),
+      0.1,
+      100
+    );
+    this.camera.position.set(0, 0, 5);
+    this.camera.lookAt(new THREE.Vector3());
+    this.scene.add(this.camera);
+    this.render();
   }
+
+  render() {
+    if (this.scene && this.camera) {
+      this.renderer.render(this.scene, this.camera);
+    }
+  }
+
+  // Update sphere position or add calibration points
+  setPoints(points) {
+    // Remove previous points
+    if (this.pointsGroup) {
+      this.scene.remove(this.pointsGroup);
+    }
+    this.pointsGroup = new THREE.Group();
+    points.forEach(p => {
+      const geometry = new THREE.SphereGeometry(0.02, 8, 8);
+      const material = new THREE.MeshBasicMaterial({color: 0xff0000});
+      const point = new THREE.Mesh(geometry, material);
+      point.position.set(p.x, p.y, p.z);
+      this.pointsGroup.add(point);
+    });
+    this.scene.add(this.pointsGroup);
+    this.render();
+  }
+}
+
+// Instances for each visualization
+let telemetry3D, calibration3D;
+
+// Initialize both visualizations
+function init3D() {
+  telemetry3D = new Telemetry3DView("3Dtelemetry", "/geometry.json");
+  calibration3D = new Calibration3DView("3Dcalibration");
 }
 
 function formatFloat(value) {
@@ -380,7 +456,7 @@ function formatFloat(value) {
 }
 
 if (!!window.EventSource) {
-  // Create events for the sensor readings
+  // Create events for the sensor readings.
   var source = new EventSource("/events");
 
   source.addEventListener("open", function(e) {
@@ -392,6 +468,17 @@ if (!!window.EventSource) {
       console.log("Server-Side Events disconnected");
     }
   }, false);
+
+  source.addEventListener("coverage", function(e) {
+    console.log("Coverage: ", e.data, "%");
+  });
+
+  source.addEventListener("calibration", function(e) {
+    const points = JSON.parse(e.data); // array of {x, y, z}
+    if (calibration3D) {
+      calibration3D.setPoints(points);
+    }
+  });
 
   source.addEventListener("telemetry", function(e) {
     var obj = JSON.parse(e.data);
@@ -416,26 +503,23 @@ if (!!window.EventSource) {
     setHtml("shaken", "&nbsp;&nbsp;&nbsp;" + (obj.shaken ? "&oplus;" : "&mdash;"));
 
     // Proceed with updating the rendered scene if all objects are present.
-    if (scene && camera && mesh) {
+    if (telemetry3D && telemetry3D.mesh) {
       // Change cube rotation after checking for the available data (quaternion preferred).
       // This uses a right-handed coordinate system with X (right), Y (up), and Z (towards viewer).
       // Map accordingly from device to view: Pitch (Y) -> X, Yaw (Z) -> Y, Roll (X) -> Z.
 
       // Use quaternion (x,y,z,w) calculations for more accurate orientation and avoid gimbal lock.
-      mesh.quaternion.set(-obj.qy, -obj.qz, obj.qx, obj.qw);
+      telemetry3D.setQuaternion(-obj.qy, -obj.qz, obj.qx, obj.qw);
 
       // Move camera behind the object based on yaw
       const radius = 200; // Distance from object, adjust as needed
       const camX = radius * Math.sin(yawRads);
       const camZ = radius * Math.cos(yawRads);
-      if (size) {
-        camera.position.set(camX, size.y * 2, camZ); // Keep Y fixed just above the Z plane for a slight downward angle
+      if (telemetry3D.size) {
+        telemetry3D.setCameraPosition(camX, telemetry3D.size.y * 2, camZ); // Keep Y fixed just above the Z plane for a slight downward angle
       } else {
-        camera.position.set(camX, 0, camZ); // Keep Y fixed at 0 if size is not available
+        telemetry3D.setCameraPosition(camX, 0, camZ); // Keep Y fixed at 0 if size is not available
       }
-      camera.lookAt(0, 0, 0); // Keep looking at the center of the object
-
-      renderer.render(scene, camera);
     }
   }, false);
 }

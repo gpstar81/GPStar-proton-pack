@@ -199,6 +199,7 @@ String getSensorState() {
 JsonDocument jsonBody; // Used for processing JSON body/payload data.
 JsonDocument jsonSuccess; // Used for sending JSON status as success.
 JsonDocument jsonTelemetry; // Used for sending JSON telemetry data.
+JsonDocument jsonCalibration; // Used for sending JSON calibration data.
 String status; // Holder for simple "status: success" response.
 
 void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
@@ -596,6 +597,31 @@ String getWifiSettings() {
   return wifiNetwork;
 }
 
+String getCalibration() {
+  // Prepare a JSON object with magnetometer and gyroscope/acceleration data.
+  String calibrationData;
+  calibrationData.clear();
+
+  // Arrays of data points for magnetometer calibration visualization.
+  const float* xPtr;
+  const float* yPtr;
+  const float* zPtr;
+
+  int numPoints = MagCal::getVisPoints(xPtr, yPtr, zPtr);
+  JsonArray arr = jsonCalibration.to<JsonArray>();
+
+  for(int i=0; i<numPoints; i++) {
+      JsonObject obj = arr.add<JsonObject>();
+      obj["x"] = xPtr[i];
+      obj["y"] = yPtr[i];
+      obj["z"] = zPtr[i];
+  }
+
+  // Serialize JSON object to string.
+  serializeJson(jsonCalibration, calibrationData);
+  return calibrationData;
+}
+
 String getTelemetry() {
   // Prepare a JSON object with magnetometer and gyroscope/acceleration data.
   String telemetryData;
@@ -660,15 +686,24 @@ void handleResetSensors(AsyncWebServerRequest *request) {
 void handleCalibrateSensorsEnabled(AsyncWebServerRequest *request) {
   // Turn on calibration mode for the motion sensors.
   resetAllMotionData(false); // Clear but don't re-calibrate.
-  SENSOR_READ_TARGET = CALIBRATION;
+  SENSOR_READ_TARGET = CALIBRATION; // Enables collection of calibration data.
+  MagCal::beginCalibration(); // Start collection of samples, clears counters.
   request->send(200, "application/json", status);
   notifyWSClients();
 }
 
 void handleCalibrateSensorsDisabled(AsyncWebServerRequest *request) {
   // Turn off calibration mode for the motion sensors.
-  SENSOR_READ_TARGET = OFFSETS;
-  resetAllMotionData(true); // Reset and re-calibrate
+  magCalData = MagCal::computeCalibration(); // Compute calibration data.
+
+  // Save the calibration data (as an object) to preferences.
+  if(preferences.begin("device", false)) {
+    preferences.putBytes("mag_cal", &magCalData, sizeof(magCalData));
+  }
+
+  SENSOR_READ_TARGET = OFFSETS; // Switch to offsets mode for brief collection.
+  resetAllMotionData(true); // Reset and re-calibrate with fresh offsets.
+
   request->send(200, "application/json", status);
   notifyWSClients();
 }
@@ -1290,6 +1325,19 @@ void notifyWSClients() {
   if(b_ws_started) {
     // Send latest status to all connected clients.
     ws.textAll(getEquipmentStatus());
+  }
+}
+
+void sendCalibrationPoints() {
+  if(b_ws_started) {
+    // Gather the latest filtered motion data, serialize it to a JSON string,
+    // and send it to all connected EventSource (SSE) clients as a "telemetry"
+    // event name (using the current time as a unique event identifier).
+    events.send(getCalibration().c_str(), "calibration", millis());
+
+    // Also send the current coverage percentage.
+    float coverage = MagCal::getCoveragePercent();
+    events.send(String(coverage).c_str(), "coverage", millis());
   }
 }
 

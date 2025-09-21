@@ -66,6 +66,9 @@
 #include <Adafruit_LSM6DS3TRC.h>
 #include <Adafruit_AHRS.h>
 
+// Local Files
+#include "MagCalibration.h"
+
 /**
  * Magnetometer and IMU
  * Defines all device objects and variables.
@@ -126,20 +129,7 @@ enum INSTALL_ORIENTATIONS INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_FRONT; // De
  */
 const float FILTER_ALPHA = 0.4f;
 
-/**
- * Magnetometer calibration variables obtained through using MotionCal and USB console output.
- * This should be performed near the end of an installation of the Neutrona Wand when the PCB
- * is fully assembled and in its final orientation with any speakers and their magnets nearby.
- * Default values come from a typical calibration session where the PCB is not yet installed.
- * See: https://www.pjrc.com/store/prop_shield.html for MotionCal usage.
- */
-struct CalibrationData {
-  float mag_hardiron[3] = {-32.05, 21.13, -3.21};
-  float mag_softiron[9] = {1.011, 0.051, -0.012, 0.051, 0.988, -0.005, -0.012, -0.005, 1.004};
-  float mag_field = 41.75;
-};
-
-// Global objects to hold the latest raw or filtered sensor readings.
+// Global object to hold magnetic calibration data.
 CalibrationData magCalData;
 
 /**
@@ -228,6 +218,7 @@ void readRawSensorData();
 void reportCalibrationData();
 void resetAllMotionData(bool b_calibrate);
 void notifyWSClients(); // From Webhandler.h
+void sendCalibrationPoints(); // From Webhandler.h
 void sendTelemetryData(); // From Webhandler.h
 
 /**
@@ -524,7 +515,7 @@ void resetAllMotionData(bool b_calibrate = false) {
 /**
  * Function: readRawSensorData
  * Purpose: Reads all sensor data directly from the magnetometer and IMU, transforming according to the installation orientation.
- *          IMPORTANT: Only read the raw values from the sensors, do not apply any offsets or filtering here!
+ *          IMPORTANT: Only read the raw values from the sensors, do not apply any localized offsets or filtering here!
  * Inputs: None (uses global sensor objects)
  * Outputs: None (updates global sensor objects)
  */
@@ -536,16 +527,17 @@ void readRawSensorData() {
     gyroscope->getEvent(&gyro_event);
     accelerometer->getEvent(&accel_event);
 
-    // Hard iron corrections.
+    // Hard iron corrections applied directly to magnetic readings (orientation does not matter).
     float mx = mag_event.magnetic.x - magCalData.mag_hardiron[0];
     float my = mag_event.magnetic.y - magCalData.mag_hardiron[1];
     float mz = mag_event.magnetic.z - magCalData.mag_hardiron[2];
 
-    // Soft iron corrections.
+    // Soft iron corrections applied directly to magnetic readings (orientation does not matter).
     mag_event.magnetic.x = mx * magCalData.mag_softiron[0] + my * magCalData.mag_softiron[1] + mz * magCalData.mag_softiron[2];
     mag_event.magnetic.y = mx * magCalData.mag_softiron[3] + my * magCalData.mag_softiron[4] + mz * magCalData.mag_softiron[5];
     mag_event.magnetic.z = mx * magCalData.mag_softiron[6] + my * magCalData.mag_softiron[7] + mz * magCalData.mag_softiron[8];
 
+    // Map the IMU sensor readings to the correct axes based on the installation orientation.
     switch(INSTALL_ORIENTATION) {
       case COMPONENTS_UP_USB_FRONT:
         // Update the magnetometer data (swapping the X and Y axes due to component's installation).
@@ -1065,5 +1057,15 @@ void reportCalibrationData() {
   Serial.print(mag_event.magnetic.x); Serial.print(",");
   Serial.print(mag_event.magnetic.y); Serial.print(",");
   Serial.print(mag_event.magnetic.z); Serial.println("");
+
+  // Send the magnetometer data to the MagCal logic for collection.
+  MagCal::addSample(
+      mag_event.magnetic.x,
+      mag_event.magnetic.y,
+      mag_event.magnetic.z
+  );
+
+  // Send the current calibration points to web-connected clients.
+  sendCalibrationPoints();
 #endif
 }

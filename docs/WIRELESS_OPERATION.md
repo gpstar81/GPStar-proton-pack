@@ -125,7 +125,7 @@ These provide a web interface for managing options which are accessed via the LE
 
 These links allow you to change or control aspects of the available devices in lieu of the EEPROM menu.
 
-- **Update ESP32 Firmware** - Allows you to update the ESP32 firmware using Over-the-Air updates. See the [ATTENUATOR_FLASHING](ATTENUATOR_FLASHING.md) guide for details
+- **Update Firmware** - Allows you to update the firmware using Over-the-Air updates. See the [ATTENUATOR_FLASHING](ATTENUATOR_FLASHING.md) guide for details
 - **Secure Device WiFi**- Allows changing of the default password for the private WiFi network
 - **Change WiFi Settings** - Provides an optional means of joining an existing, external WiFi network for access of your device
 - **Restart/Resync** - Allows a remote restart of the software by performing a reboot ONLY of the ESP32 device

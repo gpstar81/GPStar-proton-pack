@@ -108,6 +108,8 @@ This project is structured for development with PlatformIO, using the Arduino fr
 2. **Commenting Code**:
    - Functions and methods should include comments explaining their purpose, inputs, outputs, and any side effects.
    - Objects and classes should be documented to describe their role in the system and their key attributes or methods.
+   - When refactoring code, keep any existing comments to help identify the original intent and help with file compares.
+   - Provide new comments on a new line below any existing comments, providing any context or reasoning for the changes.
    - For code involving complex math or algorithms, provide detailed comments explaining the logic and purpose of the calculations. Example:
 
    ````cpp
