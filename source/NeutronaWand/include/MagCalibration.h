@@ -53,12 +53,11 @@ struct CalibrationData {
  */
 namespace MagCal {
 
-  // Configurable constants
-  // For higher precision: increase MAX_POINTS or implement finer buckets
-  constexpr int MAX_SAMPLES = 500;       // Max raw samples stored during calibration
-  constexpr int MAX_POINTS = 200;        // Max points for visualization
-  constexpr int NUM_AZIMUTH_BINS = 36;   // 10° horizontal divisions
-  constexpr int NUM_ELEVATION_BINS = 18; // 10° vertical divisions
+  // Configurable constants; increase for more precision
+  constexpr int MAX_SAMPLES = 250;       // Max raw samples stored during calibration
+  constexpr int MAX_POINTS = 100;        // Max points for visualization
+  constexpr int NUM_AZIMUTH_BINS = 18;   // 20° horizontal divisions
+  constexpr int NUM_ELEVATION_BINS = 9;  // 20° vertical divisions
   constexpr int TOTAL_BUCKETS = NUM_AZIMUTH_BINS * NUM_ELEVATION_BINS;
 
   // Internal buffers
@@ -79,7 +78,7 @@ namespace MagCal {
   inline void beginCalibration() {
       sampleCount = 0;
       visCount = 0;
-      for(int i=0;i<TOTAL_BUCKETS;i++) buckets[i] = false;
+      for(int i=0; i<TOTAL_BUCKETS; i++) buckets[i] = false;
   }
 
   // Add a raw magnetometer sample, only stores if it expands coverage
@@ -87,7 +86,7 @@ namespace MagCal {
     if(sampleCount >= MAX_SAMPLES) return;
 
     // Normalize vector
-    float r = sqrt(x*x + y*y + z*z);
+    float r = sqrt(x * x + y * y + z * z);
     if(r == 0) return;
     float nx = x / r;
     float ny = y / r;
@@ -102,9 +101,9 @@ namespace MagCal {
     int elIndex = (int)((el + M_PI/2) / M_PI * NUM_ELEVATION_BINS);
 
     if(azIndex < 0) azIndex = 0;
-    if(azIndex >= NUM_AZIMUTH_BINS) azIndex = NUM_AZIMUTH_BINS-1;
+    if(azIndex >= NUM_AZIMUTH_BINS) azIndex = NUM_AZIMUTH_BINS - 1;
     if(elIndex < 0) elIndex = 0;
-    if(elIndex >= NUM_ELEVATION_BINS) elIndex = NUM_ELEVATION_BINS-1;
+    if(elIndex >= NUM_ELEVATION_BINS) elIndex = NUM_ELEVATION_BINS - 1;
 
     int bucketIndex = elIndex * NUM_AZIMUTH_BINS + azIndex;
 
@@ -120,10 +119,10 @@ namespace MagCal {
 
       // Store in visualization buffer
       if(visCount < MAX_POINTS) {
-          visX[visCount] = x;
-          visY[visCount] = y;
-          visZ[visCount] = z;
-          visCount++;
+        visX[visCount] = x;
+        visY[visCount] = y;
+        visZ[visCount] = z;
+        visCount++;
       }
     }
   }
@@ -131,7 +130,7 @@ namespace MagCal {
   // Get coverage % (0..100)
   inline float getCoveragePercent() {
     int filled = 0;
-    for(int i=0;i<TOTAL_BUCKETS;i++) if(buckets[i]) filled++;
+    for(int i = 0; i < TOTAL_BUCKETS; i++) if (buckets[i]) filled++;
     return (filled / (float)TOTAL_BUCKETS) * 100.0f;
   }
 
@@ -150,29 +149,29 @@ namespace MagCal {
     if(sampleCount == 0) return cal; // Nothing to compute
 
     // Step 1: find min/max per axis
-    float minX=xSamples[0], maxX=xSamples[0];
-    float minY=ySamples[0], maxY=ySamples[0];
-    float minZ=zSamples[0], maxZ=zSamples[0];
+    float minX = xSamples[0], maxX = xSamples[0];
+    float minY = ySamples[0], maxY = ySamples[0];
+    float minZ = zSamples[0], maxZ = zSamples[0];
 
-    for(int i=1;i<sampleCount;i++){
-        if (xSamples[i]<minX) minX=xSamples[i];
-        if (xSamples[i]>maxX) maxX=xSamples[i];
-        if (ySamples[i]<minY) minY=ySamples[i];
-        if (ySamples[i]>maxY) maxY=ySamples[i];
-        if (zSamples[i]<minZ) minZ=zSamples[i];
-        if (zSamples[i]>maxZ) maxZ=zSamples[i];
+    for(int i = 1; i < sampleCount; i++){
+      if (xSamples[i] < minX) minX = xSamples[i];
+      if (xSamples[i] > maxX) maxX = xSamples[i];
+      if (ySamples[i] < minY) minY = ySamples[i];
+      if (ySamples[i] > maxY) maxY = ySamples[i];
+      if (zSamples[i] < minZ) minZ = zSamples[i];
+      if (zSamples[i] > maxZ) maxZ = zSamples[i];
     }
 
     // Step 2: hard-iron offsets
-    cal.mag_hardiron[0] = (maxX+minX)/2.0f;
-    cal.mag_hardiron[1] = (maxY+minY)/2.0f;
-    cal.mag_hardiron[2] = (maxZ+minZ)/2.0f;
+    cal.mag_hardiron[0] = (maxX+minX) / 2.0f;
+    cal.mag_hardiron[1] = (maxY+minY) / 2.0f;
+    cal.mag_hardiron[2] = (maxZ+minZ) / 2.0f;
 
     // Step 3: soft-iron diagonal scaling
-    float avgRadius = ((maxX-minX)+(maxY-minY)+(maxZ-minZ))/6.0f;
-    float scaleX = avgRadius / ((maxX-minX)/2.0f);
-    float scaleY = avgRadius / ((maxY-minY)/2.0f);
-    float scaleZ = avgRadius / ((maxZ-minZ)/2.0f);
+    float avgRadius = ((maxX-minX) + (maxY-minY) + (maxZ-minZ)) / 6.0f;
+    float scaleX = avgRadius / ((maxX-minX) / 2.0f);
+    float scaleY = avgRadius / ((maxY-minY) / 2.0f);
+    float scaleZ = avgRadius / ((maxZ-minZ) / 2.0f);
 
     cal.mag_softiron[0] = scaleX;
     cal.mag_softiron[1] = 0;
@@ -186,11 +185,11 @@ namespace MagCal {
 
     // Step 4: average field magnitude
     float sumB = 0;
-    for(int i=0;i<sampleCount;i++){
-        float mx = (xSamples[i]-cal.mag_hardiron[0])*scaleX;
-        float my = (ySamples[i]-cal.mag_hardiron[1])*scaleY;
-        float mz = (zSamples[i]-cal.mag_hardiron[2])*scaleZ;
-        sumB += sqrt(mx*mx + my*my + mz*mz);
+    for(int i = 0; i < sampleCount; i++){
+      float mx = (xSamples[i] - cal.mag_hardiron[0]) * scaleX;
+      float my = (ySamples[i] - cal.mag_hardiron[1]) * scaleY;
+      float mz = (zSamples[i] - cal.mag_hardiron[2]) * scaleZ;
+      sumB += sqrt(mx * mx + my * my + mz * mz);
     }
     cal.mag_field = sumB / sampleCount;
 

@@ -382,8 +382,7 @@ class Calibration3DView {
 
     // Create the scene with a transparent background.
     this.scene = new THREE.Scene();
-    //this.scene.background = null;
-    this.scene.background = new THREE.Color(0x444444);
+    this.scene.background = null;
 
     // Set up renderer with antialiasing and alpha for transparency
     this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
@@ -402,32 +401,14 @@ class Calibration3DView {
     this.scene.add(dirLight);
 
     // Add lines for the XYZ axes as visual aid (X: red, Y: green, Z: blue) with 200 unit length.
-    // const axesHelper = new THREE.AxesHelper(200);
-    // this.scene.add(axesHelper);
+    const axesHelper = new THREE.AxesHelper(400);
+    this.scene.add(axesHelper);
 
-    // Add a grid on the XZ plane for spatial reference, with spacing 10x10.
-    const gridHelper = new THREE.GridHelper(10, 10);
-    this.scene.add(gridHelper);
-
-    // Sphere geometry: represents the device or IMU at the origin.
-    // - Radius: 1 unit (arbitrary, but should be visible)
-    // - Segments: 32 for smoothness
-    // - Color: Green (0x00A000)
-    // - Opacity: 0.5 (50% transparent)
-    const geometry = new THREE.SphereGeometry(1, 32, 32);
-    const material = new THREE.MeshBasicMaterial({
-      color: 0x00A000,
-      transparent: true,
-      opacity: 1
-    });
-    this.mesh = new THREE.Mesh(geometry, material);
-    this.scene.add(this.mesh);
-
-    // Set up a perspective camera; better for spatial orientation.
+    // Set up a perspective camera; better for spatial orientation (near/far).
     this.camera = new THREE.PerspectiveCamera(90, this.aspect, 0.1, 1000);
 
     // Position camera and look at the center of the scene
-    this.camera.position.set(0, 2, 20);
+    this.camera.position.set(0, 4, 50);
 
     // Camera positioning using the center of the mesh as the focal point
     this.camera.lookAt(new THREE.Vector3());
@@ -454,28 +435,90 @@ class Calibration3DView {
    * Visualize calibration points (array with {x, y, z} coordinates) as small red spheres in 3D space.
    */
   setPoints(points) {
-    // Remove previous points group if it exists
-    if (this.pointsGroup) {
-      this.scene.remove(this.pointsGroup);
-    }
-
-    // Create a new group to hold all calibration points
-    if (points && points.length > 0) {
+    // Create the group if it doesn't exist
+    if (!this.pointsGroup) {
       this.pointsGroup = new THREE.Group();
-      points.forEach(p => {
-        if (p) {
-          // Each point is visualized as a small red sphere mesh at (x, y, z)
-          const geometry = new THREE.SphereGeometry(0.6, 8, 8);
-          const material = new THREE.MeshBasicMaterial({color: 0xff0000});
-          const point = new THREE.Mesh(geometry, material);
-          point.position.set(p.x, p.y, p.z);
-          this.pointsGroup.add(point);
-        }
-      });
       this.scene.add(this.pointsGroup);
     }
 
+    // Reuse or create meshes as needed
+    const existing = this.pointsGroup.children.length;
+    const needed = points ? points.length : 0;
+
+    // Add new meshes only if needed (keeps a pool of meshes for efficiency)
+    for (let i = existing; i < needed; i++) {
+      const geometry = new THREE.SphereGeometry(0.6, 8, 8);
+      const material = new THREE.MeshBasicMaterial({color: 0xff0000});
+      const mesh = new THREE.Mesh(geometry, material);
+      this.pointsGroup.add(mesh);
+    }
+
+    // Update positions and visibility from the pool of meshes
+    for (let i = 0; i < this.pointsGroup.children.length; i++) {
+      const mesh = this.pointsGroup.children[i];
+      if (i < needed) {
+        const p = points[i];
+        mesh.position.set(p.x, p.y, p.z);
+        mesh.visible = true;
+      } else {
+        mesh.visible = false;
+      }
+    }
+
+    // Re-center the camera if there are enough points to justify it
+    let center = this.getPointsCentroid();
+    if (points.length > 10 && center && this.camera) {
+      this.camera.lookAt(center.x, center.y, center.z);
+    }
+
     this.render();
+  }
+
+  /**
+   * Removes all calibration points from the scene and disposes their geometry/material.
+   */
+  clearPoints() {
+    if (this.pointsGroup) {
+      // Remove group from scene
+      this.scene.remove(this.pointsGroup);
+
+      // Dispose geometry and material for each mesh
+      this.pointsGroup.children.forEach(mesh => {
+        if (mesh.geometry) mesh.geometry.dispose();
+        if (mesh.material) mesh.material.dispose();
+      });
+
+      // Clear reference and render
+      this.pointsGroup = null;
+      this.render();
+    }
+  }
+
+  /**
+   * Calculates the centroid (arithmetic mean) of all visible calibration points.
+   * Returns an object {x, y, z} or null if no points are visible.
+   */
+  getPointsCentroid() {
+    if (!this.pointsGroup || this.pointsGroup.children.length === 0) return null;
+    let sum = {x: 0, y: 0, z: 0};
+    let count = 0;
+
+    this.pointsGroup.children.forEach(mesh => {
+      if (mesh.visible) {
+        sum.x += mesh.position.x;
+        sum.y += mesh.position.y;
+        sum.z += mesh.position.z;
+        count++;
+      }
+    });
+
+    if (count === 0) return null;
+
+    return {
+      x: sum.x / count,
+      y: sum.y / count,
+      z: sum.z / count
+    };
   }
 }
 
@@ -598,6 +641,7 @@ function triggerInfrared() {
 function enableCalibration() {
   if (confirm("Are you sure you want to begin sending calibration output?")) {
     sendCommand("/sensors/calibrate/enable");
+    calibration3D.clearPoints();
     showEl("calInfo");
   }
 }
@@ -606,6 +650,7 @@ function disableCalibration() {
   if (confirm("Are you sure you are done collecting calibration data?")) {
     sendCommand("/sensors/calibrate/disable");
     hideEl("calInfo");
+    calibration3D.clearPoints();
   }
 }
 )=====";
