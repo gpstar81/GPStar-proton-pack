@@ -52,7 +52,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
        title="Only letters, numbers, hyphens, and underscores are allowed, up to 32 characters."/>
     </div>
     <div class="setting">
-      <b>Install Orientation:</b><br/>
+      <b>Controller Installation Orientation:</b><br/>
       <select id="orientation" class="custom-select" style="width:320px">
         <option value="1">Components Up, USB Front</option>
         <option value="2">Components Up, USB Rear</option>

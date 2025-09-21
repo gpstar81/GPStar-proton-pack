@@ -300,7 +300,7 @@ class Telemetry3DView {
 
     // Add lines for the XYZ axes as visual aid (X: red, Y: green, Z: blue) with 200 unit length.
     // const axesHelper = new THREE.AxesHelper(200);
-    // scene.add(axesHelper);
+    // this.scene.add(axesHelper);
 
     // Load geometry from JSON (converted from STL)
     fetch(geometryUrl)
@@ -375,47 +375,78 @@ class Telemetry3DView {
 }
 
 class Calibration3DView {
+  /**
+   * Class: Calibration3DView
+   * Purpose: Handles the 3D calibration visualization using Three.js.
+   *   - Renders a sphere at the origin to represent the IMU or device.
+   *   - Optionally renders calibration points as small red spheres in 3D space.
+   *   - Adds XYZ axes for orientation reference.
+   *   - Uses an orthographic camera for undistorted technical visualization.
+   */
   constructor(domId) {
+    // Get the DOM element to render into
     this.el = document.getElementById(domId);
     this.width = parentWidth(this.el);
     this.height = parentHeight(this.el);
     this.aspect = this.width / this.height;
+
+    // Create the scene with a transparent background.
     this.scene = new THREE.Scene();
     this.scene.background = null;
+
+    // Set up renderer with antialiasing and alpha for transparency
     this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
     this.renderer.setSize(this.width, this.height);
     this.el.appendChild(this.renderer.domElement);
 
-    // Lighting
+    // Add lights to the scene for realistic shading and visibility.
+    // HemisphereLight simulates ambient light from the sky and ground, providing soft global illumination.
     const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
     hemiLight.position.set(0,200,0);
     this.scene.add(hemiLight);
+
+    // DirectionalLight simulates sunlight, casting parallel rays and creating shadows and highlights.
     const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
     dirLight.position.set(100,100,100);
     this.scene.add(dirLight);
 
-    // Sphere geometry
+    // Add lines for the XYZ axes as visual aid (X: red, Y: green, Z: blue) with 200 unit length.
+    const axesHelper = new THREE.AxesHelper(200);
+    this.scene.add(axesHelper);
+
+    // Sphere geometry: represents the device or IMU at the origin.
+    // - Radius: 1 unit (arbitrary, but should be visible)
+    // - Segments: 32 for smoothness
+    // - Color: Green (0x00A000)
     const geometry = new THREE.SphereGeometry(1, 32, 32);
-    const material = new THREE.MeshLambertMaterial({color: 0x0000A0});
+    const material = new THREE.MeshLambertMaterial({color: 0x00A000});
     this.mesh = new THREE.Mesh(geometry, material);
     this.scene.add(this.mesh);
 
-    // Camera
-    const frustumSize = 3;
+    // Set up an orthographic camera; better for technical models without distortion.
+    const frustumSize = 10; // Controls the visible area; increase to see more points
     this.camera = new THREE.OrthographicCamera(
-      (-frustumSize * this.aspect / 2),
-      (frustumSize * this.aspect / 2),
-      (frustumSize / 2),
-      (-frustumSize / 2),
-      0.1,
-      100
+      (-frustumSize * this.aspect / 2), // Left
+      (frustumSize * this.aspect / 2),  // Right
+      (frustumSize / 2),                // Top
+      (-frustumSize / 2),               // Bottom
+      0.1,                              // Near clipping plane
+      100                               // Far clipping plane
     );
-    this.camera.position.set(0, 0, 5);
-    this.camera.lookAt(new THREE.Vector3());
+
+    // Place the camera far enough back along Z and elevate slightly to see the whole sphere and points.
+    this.camera.position.set(0, 2, 4);
+    this.camera.lookAt(0, 0, 0); // Always look at the origin
     this.scene.add(this.camera);
+
+    // Initial render of the scene
     this.render();
   }
 
+  /**
+   * Renders the current scene from the camera's perspective.
+   * Also handles resizing if the parent element changes size.
+   */
   render() {
     if (this.scene && this.camera) {
       this.width = parentWidth(this.el);
@@ -428,20 +459,34 @@ class Calibration3DView {
     }
   }
 
-  // Update sphere position or add calibration points
+  /**
+   * setPoints(points)
+   * Purpose: Visualize calibration points as small red spheres in 3D space.
+   * Inputs:
+   *   - points: Array of objects with {x, y, z} coordinates.
+   * Behavior:
+   *   - For each point, creates a new THREE.Mesh using a small sphere geometry and red material.
+   *   - Each mesh is positioned at the point's coordinates and added to a group.
+   *   - The group is added to the scene for rendering.
+   */
   setPoints(points) {
-    // Remove previous points
+    // Remove previous points group if it exists
     if (this.pointsGroup) {
       this.scene.remove(this.pointsGroup);
     }
+
+    // Create a new group to hold all calibration points
     this.pointsGroup = new THREE.Group();
     points.forEach(p => {
-      const geometry = new THREE.SphereGeometry(0.02, 8, 8);
+      // Each point is visualized as a small red sphere mesh at (x, y, z)
+      const geometry = new THREE.SphereGeometry(0.1, 8, 8);
       const material = new THREE.MeshBasicMaterial({color: 0xff0000});
       const point = new THREE.Mesh(geometry, material);
       point.position.set(p.x, p.y, p.z);
       this.pointsGroup.add(point);
     });
+
+    // Add the group of points to the scene and render
     this.scene.add(this.pointsGroup);
     this.render();
   }
@@ -482,13 +527,14 @@ if (!!window.EventSource) {
 
   source.addEventListener("calibration", function(e) {
     const points = JSON.parse(e.data); // array of {x, y, z}
+
     if (calibration3D) {
       calibration3D.setPoints(points);
     }
   }, false);
 
   source.addEventListener("telemetry", function(e) {
-    var obj = JSON.parse(e.data);
+    const obj = JSON.parse(e.data);
 
     // Convert roll, pitch, and yaw from degrees to radians for Three.js
     var rollRads = (obj.roll || 0) * Math.PI / 180;

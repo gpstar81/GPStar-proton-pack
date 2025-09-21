@@ -139,16 +139,18 @@ const char INDEX_page[] PROGMEM = R"=====(
   <div id="tab3" class="tab">
     <div class="card" style="text-align:center;">
       <div class="block left">
-        <p>
-          Magnetic calibration is critical to obtaining a correct reading from sensors and should be performed only when all components are fully installed.
-          Press the "Enable Calibration" button to begin, then rotate your Neutrona Wand in all directions to collect calibration data, represented as dots on a sphere.
-          The more dots collected and the more round the sphere, the better the calibration data and the coverage percentage will increase towards 100%.
-          Press the "Disable Calibration" button to stop collecting data, store the calculated values, and return to standard telemetry data view.
-        </p>
+        Magnetic calibration is critical to obtaining a correct reading from sensors and must be performed only when all components are fully installed.
+        <ol style="padding-left:20px;">
+          <li>Press "Enable Calibration" to begin.</li>
+          <li>Rotate your Neutrona Wand in all directions to collect calibration data (represented as dots on a sphere).</li>
+          <li>Fill the sphere with dots until the coverage is as close to 100% as possible.</li>
+          <li>Press "Disable Calibration" to stop and store the calculated values.</li>
+        </ol>
       </div>
       <button type="button" id="btnCalibrateOn" class="green" onclick="enableCalibration()">Enable Calibration</button>
       &nbsp;&nbsp;&nbsp;
       <button type="button" id="btnCalibrateOff" class="red" onclick="disableCalibration()">Disable Calibration</button>
+      <br/>
       <br/>
       <div class="telemetry">
         <p id="calInfo">
