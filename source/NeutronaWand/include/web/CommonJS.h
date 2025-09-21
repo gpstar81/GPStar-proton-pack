@@ -134,22 +134,6 @@ function sendCommand(apiUri) {
   xhttp.send();
 }
 
-function packOn() {
-  sendCommand("/pack/on");
-}
-
-function packOff() {
-  sendCommand("/pack/off");
-}
-
-function packAttenuate() {
-  sendCommand("/pack/attenuate");
-}
-
-function packVent() {
-  sendCommand("/pack/vent");
-}
-
 function volSysUp() {
   sendCommand("/volume/master/up");
 }
@@ -218,11 +202,6 @@ function toggleMute(el) {
 
 function musicLoop(el) {
   handleToggle(el, "/music/loop/single", "/music/loop/all");
-}
-
-function themeSelect(caller) {
-  // Change the theme via selected option: /pack/theme/<year>
-  sendCommand("/pack/theme/" + caller.value);
 }
 
 function getStatus(callbackFunc) {

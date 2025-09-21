@@ -152,8 +152,8 @@ const char INDEX_page[] PROGMEM = R"=====(
       <button type="button" id="btnCalibrateOff" class="red" onclick="disableCalibration()">Disable Calibration</button>
       <br/>
       <br/>
-      <div class="telemetry">
-        <p id="calInfo">
+      <div class="telemetry" id="calInfo">
+        <p>
           <span class="infoLabel">Coverage:</span> <span class="infoState" id="coverage">&mdash;</span>
         </p>
         <div class="viz-content">
