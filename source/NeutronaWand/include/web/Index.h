@@ -140,22 +140,23 @@ const char INDEX_page[] PROGMEM = R"=====(
     <div class="card" style="text-align:center;">
       <div class="block left">
         <p>
-          Magnetic calibration is critical to obtaining a correct reading from sensors and should be performed in a controlled environment.
-          To begin sending calibration data through the USB connector to your computer, first ensure that the device is properly connected
-          and the MotionCal software is running and able to see the port for the Neutrona Wand controller.
-          Once connected and running, press the "Enable Calibration" button to begin sending data to the MotionCal software.
-          Rotate your Neutrona Wand in all directions to collect calibration data, represented as dots on a sphere.
-          The more dots collected and the more round the sphere, the better the calibration data.
-          Once collected, enter the calibration data via the <a href="/settings/device">Special Device Settings</a> page.
-          Press the "Disable Calibration" button to stop sending data and return to standard telemetry data view.
+          Magnetic calibration is critical to obtaining a correct reading from sensors and should be performed only when all components are fully installed.
+          Press the "Enable Calibration" button to begin, then rotate your Neutrona Wand in all directions to collect calibration data, represented as dots on a sphere.
+          The more dots collected and the more round the sphere, the better the calibration data and the coverage percentage will increase towards 100%.
+          Press the "Disable Calibration" button to stop collecting data, store the calculated values, and return to standard telemetry data view.
         </p>
       </div>
       <button type="button" id="btnCalibrateOn" class="green" onclick="enableCalibration()">Enable Calibration</button>
       &nbsp;&nbsp;&nbsp;
       <button type="button" id="btnCalibrateOff" class="red" onclick="disableCalibration()">Disable Calibration</button>
       <br/>
-      <div class="viz-content">
-        <div id="3Dcalibration"></div>
+      <div class="telemetry">
+        <p id="calInfo">
+          <span class="infoLabel">Coverage:</span> <span class="infoState" id="coverage">&mdash;</span>
+        </p>
+        <div class="viz-content">
+          <div id="3Dcalibration"></div>
+        </div>
       </div>
     </div>
   </div>

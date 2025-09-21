@@ -53,7 +53,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b>Install Orientation:</b><br/>
-      <select id="orientation" class="custom-select">
+      <select id="orientation" class="custom-select" style="width:320px">
         <option value="1">Components Up, USB Front</option>
         <option value="2">Components Up, USB Rear</option>
         <option value="3">Components Down, USB Front</option>
@@ -65,13 +65,13 @@ const char DEVICE_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>MotionCal - Magnetic Offsets:</b><br/>
+      <b>Hard Iron Magnetic Offsets:</b><br/>
       <input type="text" id="hardIron1" width="8" maxlength="8" placeholder="X Axis"/><br/>
       <input type="text" id="hardIron2" width="8" maxlength="8" placeholder="Y Axis"/><br/>
       <input type="text" id="hardIron3" width="8" maxlength="8" placeholder="Z Axis"/><br/>
     </div>
     <div class="setting">
-      <b>MotionCal - Magnetic Mapping:</b><br/>
+      <b>Soft Iron Magnetic Mapping:</b><br/>
       <input type="text" id="softIron1" width="8" maxlength="8" placeholder="Value 1"/>
       <input type="text" id="softIron2" width="8" maxlength="8" placeholder="Value 2"/>
       <input type="text" id="softIron3" width="8" maxlength="8" placeholder="Value 3"/>
@@ -85,7 +85,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
       <input type="text" id="softIron9" width="8" maxlength="8" placeholder="Value 9"/>
     </div>
     <div class="setting">
-      <b>MotionCal - Magnetic Field:</b><br/>
+      <b>Magnetic Field (&micro;T):</b><br/>
       <input type="text" id="magField" width="8" maxlength="8" placeholder="0"/>
     </div>
     <div class="setting">

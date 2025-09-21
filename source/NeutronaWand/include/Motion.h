@@ -919,8 +919,10 @@ void checkMotionSensors() {
       debugln();
     #endif
 
-      // Send telemetry data to connected clients via server-side events.
-      sendTelemetryData();
+      if (SENSOR_READ_TARGET == TELEMETRY) {
+        // Send telemetry data to connected clients via server-side events.
+        sendTelemetryData();
+      }
     }
   }
 #endif
@@ -1035,28 +1037,28 @@ void reportCalibrationData() {
   accelerometer->getEvent(&accel_event);
 
   // 'Raw' values to match expectation of MotionCal
-  Serial.print("Raw:");
-  Serial.print(int(accel_event.acceleration.x*8192/9.8)); Serial.print(",");
-  Serial.print(int(accel_event.acceleration.y*8192/9.8)); Serial.print(",");
-  Serial.print(int(accel_event.acceleration.z*8192/9.8)); Serial.print(",");
-  Serial.print(int(gyro_event.gyro.x*SENSORS_RADS_TO_DPS*16)); Serial.print(",");
-  Serial.print(int(gyro_event.gyro.y*SENSORS_RADS_TO_DPS*16)); Serial.print(",");
-  Serial.print(int(gyro_event.gyro.z*SENSORS_RADS_TO_DPS*16)); Serial.print(",");
-  Serial.print(int(mag_event.magnetic.x*10)); Serial.print(",");
-  Serial.print(int(mag_event.magnetic.y*10)); Serial.print(",");
-  Serial.print(int(mag_event.magnetic.z*10)); Serial.println("");
+  // Serial.print("Raw:");
+  // Serial.print(int(accel_event.acceleration.x*8192/9.8)); Serial.print(",");
+  // Serial.print(int(accel_event.acceleration.y*8192/9.8)); Serial.print(",");
+  // Serial.print(int(accel_event.acceleration.z*8192/9.8)); Serial.print(",");
+  // Serial.print(int(gyro_event.gyro.x*SENSORS_RADS_TO_DPS*16)); Serial.print(",");
+  // Serial.print(int(gyro_event.gyro.y*SENSORS_RADS_TO_DPS*16)); Serial.print(",");
+  // Serial.print(int(gyro_event.gyro.z*SENSORS_RADS_TO_DPS*16)); Serial.print(",");
+  // Serial.print(int(mag_event.magnetic.x*10)); Serial.print(",");
+  // Serial.print(int(mag_event.magnetic.y*10)); Serial.print(",");
+  // Serial.print(int(mag_event.magnetic.z*10)); Serial.println("");
 
   // 'Uni' values to match expectation of MotionCal
-  Serial.print("Uni:");
-  Serial.print(accel_event.acceleration.x); Serial.print(",");
-  Serial.print(accel_event.acceleration.y); Serial.print(",");
-  Serial.print(accel_event.acceleration.z); Serial.print(",");
-  Serial.print(gyro_event.gyro.x, 4); Serial.print(",");
-  Serial.print(gyro_event.gyro.y, 4); Serial.print(",");
-  Serial.print(gyro_event.gyro.z, 4); Serial.print(",");
-  Serial.print(mag_event.magnetic.x); Serial.print(",");
-  Serial.print(mag_event.magnetic.y); Serial.print(",");
-  Serial.print(mag_event.magnetic.z); Serial.println("");
+  // Serial.print("Uni:");
+  // Serial.print(accel_event.acceleration.x); Serial.print(",");
+  // Serial.print(accel_event.acceleration.y); Serial.print(",");
+  // Serial.print(accel_event.acceleration.z); Serial.print(",");
+  // Serial.print(gyro_event.gyro.x, 4); Serial.print(",");
+  // Serial.print(gyro_event.gyro.y, 4); Serial.print(",");
+  // Serial.print(gyro_event.gyro.z, 4); Serial.print(",");
+  // Serial.print(mag_event.magnetic.x); Serial.print(",");
+  // Serial.print(mag_event.magnetic.y); Serial.print(",");
+  // Serial.print(mag_event.magnetic.z); Serial.println("");
 
   // Send the magnetometer data to the MagCal logic for collection.
   MagCal::addSample(

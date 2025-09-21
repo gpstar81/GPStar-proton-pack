@@ -25,11 +25,9 @@ var websocket;
 var statusInterval;
 var musicTrackStart = 0, musicTrackMax = 0, musicTrackCurrent = 0, musicTrackList = [];
 
-window.addEventListener("load", onLoad);
-window.addEventListener("resize", onWindowResize);
-
 function onLoad(event) {
   document.getElementsByClassName("tablinks")[0].click();
+  hideEl("calInfo"); // Hide the calibration coverage info.
   disableSensorButtons(); // Set button states by default.
   getDevicePrefs(); // Get all preferences.
   initWebSocket(); // Open the WebSocket.
@@ -265,11 +263,19 @@ function updateEquipment(jObj) {
   }
 }
 
+function parentWidth(elem) {
+  return elem.parentElement.clientWidth;
+}
+
+function parentHeight(elem) {
+  return elem.parentElement.clientHeight;
+}
+
 class Telemetry3DView {
   constructor(domId, geometryUrl) {
     this.el = document.getElementById(domId);
-    this.width = this.el.parentElement.clientWidth;
-    this.height = this.el.parentElement.clientHeight;
+    this.width = parentWidth(this.el);
+    this.height = parentHeight(this.el);
     this.aspect = this.width / this.height;
 
     // Create the scene with a transparent background.
@@ -334,12 +340,18 @@ class Telemetry3DView {
         // Camera positioning using the center of the mesh as the focal point
         this.camera.lookAt(new THREE.Vector3()); // Look at the center (0,0,0) so we rotate at the center
         this.scene.add(this.camera);
-        this.render(); // Immediately render the scene using defaults
+        this.render();
       });
   }
 
   render() {
     if (this.scene && this.camera) {
+      this.width = parentWidth(this.el);
+      this.height = parentHeight(this.el);
+      this.aspect = this.width / this.height;
+      this.camera.aspect = this.aspect;
+      this.camera.updateProjectionMatrix();
+      this.renderer.setSize(this.width, this.height);
       this.renderer.render(this.scene, this.camera);
     }
   }
@@ -362,13 +374,11 @@ class Telemetry3DView {
   }
 }
 
-// Class: Calibration3DView
-// Purpose: Handles the 3D calibration visualization using a simple sphere.
 class Calibration3DView {
   constructor(domId) {
     this.el = document.getElementById(domId);
-    this.width = this.el.parentElement.clientWidth;
-    this.height = this.el.parentElement.clientHeight;
+    this.width = parentWidth(this.el);
+    this.height = parentHeight(this.el);
     this.aspect = this.width / this.height;
     this.scene = new THREE.Scene();
     this.scene.background = null;
@@ -408,6 +418,12 @@ class Calibration3DView {
 
   render() {
     if (this.scene && this.camera) {
+      this.width = parentWidth(this.el);
+      this.height = parentHeight(this.el);
+      this.aspect = this.width / this.height;
+      this.camera.aspect = this.aspect;
+      this.camera.updateProjectionMatrix();
+      this.renderer.setSize(this.width, this.height);
       this.renderer.render(this.scene, this.camera);
     }
   }
@@ -429,15 +445,6 @@ class Calibration3DView {
     this.scene.add(this.pointsGroup);
     this.render();
   }
-}
-
-// Instances for each visualization
-let telemetry3D, calibration3D;
-
-// Initialize both visualizations
-function init3D() {
-  telemetry3D = new Telemetry3DView("3Dtelemetry", "/geometry.json");
-  calibration3D = new Calibration3DView("3Dcalibration");
 }
 
 function formatFloat(value) {
@@ -470,15 +477,15 @@ if (!!window.EventSource) {
   }, false);
 
   source.addEventListener("coverage", function(e) {
-    console.log("Coverage: ", e.data, "%");
-  });
+    setHtml("coverage", formatFloat(parseFloat(e.data) || 0) + "%");
+  }, false);
 
   source.addEventListener("calibration", function(e) {
     const points = JSON.parse(e.data); // array of {x, y, z}
     if (calibration3D) {
       calibration3D.setPoints(points);
     }
-  });
+  }, false);
 
   source.addEventListener("telemetry", function(e) {
     var obj = JSON.parse(e.data);
@@ -524,6 +531,21 @@ if (!!window.EventSource) {
   }, false);
 }
 
+// Instances for each visualization
+let telemetry3D, calibration3D;
+
+// Initialize both visualizations
+function init3D() {
+  telemetry3D = new Telemetry3DView("3Dtelemetry", "/geometry.json");
+  calibration3D = new Calibration3DView("3Dcalibration");
+}
+
+window.addEventListener("load", onLoad);
+
+/**
+ * API Commands
+ */
+
 function resetPosition() {
   sendCommand("/sensors/recenter");
 }
@@ -533,14 +555,16 @@ function triggerInfrared() {
 }
 
 function enableCalibration() {
-  if(confirm("Are you sure you want to begin sending calibration output?")) {
+  if (confirm("Are you sure you want to begin sending calibration output?")) {
     sendCommand("/sensors/calibrate/enable");
+    showEl("calInfo");
   }
 }
 
 function disableCalibration() {
-  if(confirm("Are you sure you are done collecting calibration data?")) {
+  if (confirm("Are you sure you are done collecting calibration data?")) {
     sendCommand("/sensors/calibrate/disable");
+    hideEl("calInfo");
   }
 }
 )=====";
