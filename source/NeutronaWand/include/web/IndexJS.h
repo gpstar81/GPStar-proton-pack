@@ -382,7 +382,8 @@ class Calibration3DView {
 
     // Create the scene with a transparent background.
     this.scene = new THREE.Scene();
-    this.scene.background = null;
+    //this.scene.background = null;
+    this.scene.background = new THREE.Color(0x444444);
 
     // Set up renderer with antialiasing and alpha for transparency
     this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
@@ -401,14 +402,24 @@ class Calibration3DView {
     this.scene.add(dirLight);
 
     // Add lines for the XYZ axes as visual aid (X: red, Y: green, Z: blue) with 200 unit length.
-    const axesHelper = new THREE.AxesHelper(400);
-    this.scene.add(axesHelper);
+    // const axesHelper = new THREE.AxesHelper(200);
+    // this.scene.add(axesHelper);
 
-    // Set up a perspective camera; better for spatial orientation (near/far).
-    this.camera = new THREE.PerspectiveCamera(90, this.aspect, 0.1, 1000);
+    // Sphere geometry placed at the origin of the scene.
+    const geometry = new THREE.SphereGeometry(2, 32, 32);
+    const material = new THREE.MeshBasicMaterial({
+      color: 0x222222,
+      transparent: true,
+      opacity: 0.5
+    });
+    this.mesh = new THREE.Mesh(geometry, material);
+    this.scene.add(this.mesh);
+
+    // Set up a perspective camera; better for spatial orientation.
+    this.camera = new THREE.PerspectiveCamera(80, this.aspect, 0.1, 1000);
 
     // Position camera and look at the center of the scene
-    this.camera.position.set(0, 4, 50);
+    this.camera.position.set(0, 4, 60);
 
     // Camera positioning using the center of the mesh as the focal point
     this.camera.lookAt(new THREE.Vector3());

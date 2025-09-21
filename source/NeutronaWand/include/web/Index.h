@@ -142,7 +142,7 @@ const char INDEX_page[] PROGMEM = R"=====(
         Magnetic calibration is critical to obtaining a correct reading from sensors and must be performed only when all components are fully installed.
         <ol style="padding-left:20px;">
           <li>Press "Enable Calibration" to begin.</li>
-          <li>Rotate your Neutrona Wand in all directions to collect calibration data (represented as dots on a sphere).</li>
+          <li>Rotate your Neutrona Wand slowly in all directions to collect calibration data (represented as dots in a sphere).</li>
           <li>Fill the sphere with dots until the coverage is as close to 100% as possible.</li>
           <li>Press "Disable Calibration" to stop and store the calculated values.</li>
         </ol>
