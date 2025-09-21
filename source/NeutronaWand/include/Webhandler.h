@@ -444,6 +444,7 @@ String getDeviceConfig() {
       jsonBody["orientation"] = 2;
     break;
     case COMPONENTS_DOWN_USB_FRONT:
+    default:
       jsonBody["orientation"] = 3;
     break;
     case COMPONENTS_DOWN_USB_REAR:
@@ -460,9 +461,6 @@ String getDeviceConfig() {
     break;
     case COMPONENTS_RIGHT_USB_REAR:
       jsonBody["orientation"] = 8;
-    break;
-    default:
-      jsonBody["orientation"] = 3; // Default to Components Down, USB Front.
     break;
   }
 

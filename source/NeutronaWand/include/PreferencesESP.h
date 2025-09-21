@@ -796,6 +796,8 @@ void getSpecialPreferences() {
           INSTALL_ORIENTATION = COMPONENTS_UP_USB_REAR;
         break;
         case 3:
+        default:
+          // Default for Haslab.
           INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_FRONT;
         break;
         case 4:
@@ -808,14 +810,11 @@ void getSpecialPreferences() {
           INSTALL_ORIENTATION = COMPONENTS_LEFT_USB_REAR;
         break;
         case 7:
+          // Default for Mack's Factory.
           INSTALL_ORIENTATION = COMPONENTS_RIGHT_USB_FRONT;
         break;
         case 8:
           INSTALL_ORIENTATION = COMPONENTS_RIGHT_USB_REAR;
-        break;
-        default:
-          // Use a default orientation (Haslab).
-          INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_FRONT;
         break;
       }
     }

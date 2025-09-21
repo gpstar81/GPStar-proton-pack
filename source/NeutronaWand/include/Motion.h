@@ -548,47 +548,127 @@ void readRawSensorData() {
 
     switch(INSTALL_ORIENTATION) {
       case COMPONENTS_UP_USB_FRONT:
+        // Update the magnetometer data (swapping the X and Y axes due to component's installation).
+        motionData.magX = mag_event.magnetic.y * -1;
+        motionData.magY = mag_event.magnetic.x * -1;
+        motionData.magZ = mag_event.magnetic.z * -1;
+
+        // Update the acceleration and gyroscope values (swapping the X and Y axes due to component's installation).
+        motionData.accelX = accel_event.acceleration.y;
+        motionData.accelY = accel_event.acceleration.x;
+        motionData.accelZ = accel_event.acceleration.z;
+        motionData.gyroX = gyro_event.gyro.y * -1;
+        motionData.gyroY = gyro_event.gyro.x * -1;
+        motionData.gyroZ = gyro_event.gyro.z * -1;
       break;
 
       case COMPONENTS_UP_USB_REAR:
+        // Update the magnetometer data (swapping the X and Y axes due to component's installation).
+        motionData.magX = mag_event.magnetic.y;
+        motionData.magY = mag_event.magnetic.x;
+        motionData.magZ = mag_event.magnetic.z * -1;
+
+        // Update the acceleration and gyroscope values (swapping the X and Y axes due to component's installation).
+        motionData.accelX = accel_event.acceleration.y * -1;
+        motionData.accelY = accel_event.acceleration.x * -1;
+        motionData.accelZ = accel_event.acceleration.z;
+        motionData.gyroX = gyro_event.gyro.y;
+        motionData.gyroY = gyro_event.gyro.x;
+        motionData.gyroZ = gyro_event.gyro.z * -1;
       break;
 
       case COMPONENTS_DOWN_USB_FRONT:
       default:
         // Default Hasbro installation orientation.
         // Update the magnetometer data (swapping the X and Y axes due to component's installation).
-        // Note: We must invert Y (L-R) and Z (U-D) values because the device is effectively installed upside down.
-        motionData.magX = mag_event.magnetic.y;
-        motionData.magY = mag_event.magnetic.x * -1;
-        motionData.magZ = mag_event.magnetic.z * -1;
+        motionData.magX = mag_event.magnetic.y * -1;
+        motionData.magY = mag_event.magnetic.x;
+        motionData.magZ = mag_event.magnetic.z;
 
         // Update the acceleration and gyroscope values (swapping the X and Y axes due to component's installation).
-        // Note: We must invert Y (L-R) and Z (U-D) values because the device is effectively installed upside down.
         motionData.accelX = accel_event.acceleration.y;
         motionData.accelY = accel_event.acceleration.x * -1;
         motionData.accelZ = accel_event.acceleration.z * -1;
-        motionData.gyroX = gyro_event.gyro.y;
-        motionData.gyroY = gyro_event.gyro.x * -1;
-        motionData.gyroZ = gyro_event.gyro.z * -1;
+        motionData.gyroX = gyro_event.gyro.y * -1;
+        motionData.gyroY = gyro_event.gyro.x;
+        motionData.gyroZ = gyro_event.gyro.z;
       break;
 
       case COMPONENTS_DOWN_USB_REAR:
+        // Update the magnetometer data (swapping the X and Y axes due to component's installation).
+        motionData.magX = mag_event.magnetic.y;
+        motionData.magY = mag_event.magnetic.x * -1;
+        motionData.magZ = mag_event.magnetic.z;
+
+        // Update the acceleration and gyroscope values (swapping the X and Y axes due to component's installation).
+        motionData.accelX = accel_event.acceleration.y * -1;
+        motionData.accelY = accel_event.acceleration.x;
+        motionData.accelZ = accel_event.acceleration.z * -1;
+        motionData.gyroX = gyro_event.gyro.y;
+        motionData.gyroY = gyro_event.gyro.x * -1;
+        motionData.gyroZ = gyro_event.gyro.z;
       break;
 
       case COMPONENTS_LEFT_USB_FRONT:
+        // Update the magnetometer data (swapping all three axes due to the component's installation).
+        motionData.magX = mag_event.magnetic.y * -1;
+        motionData.magY = mag_event.magnetic.z * -1;
+        motionData.magZ = mag_event.magnetic.x;
+
+        // Update the acceleration and gyroscope values (swapping all three axes due to the component's installation).
+        motionData.accelX = accel_event.acceleration.y;
+        motionData.accelY = accel_event.acceleration.z;
+        motionData.accelZ = accel_event.acceleration.x * -1;
+        motionData.gyroX = gyro_event.gyro.y * -1;
+        motionData.gyroY = gyro_event.gyro.z * -1;
+        motionData.gyroZ = gyro_event.gyro.x;
       break;
 
       case COMPONENTS_LEFT_USB_REAR:
+        // Update the magnetometer data (swapping all three axes due to the component's installation).
+        motionData.magX = mag_event.magnetic.y;
+        motionData.magY = mag_event.magnetic.z * -1;
+        motionData.magZ = mag_event.magnetic.x * -1;
+
+        // Update the acceleration and gyroscope values (swapping all three axes due to the component's installation).
+        motionData.accelX = accel_event.acceleration.y * -1;
+        motionData.accelY = accel_event.acceleration.z;
+        motionData.accelZ = accel_event.acceleration.x;
+        motionData.gyroX = gyro_event.gyro.y;
+        motionData.gyroY = gyro_event.gyro.z * -1;
+        motionData.gyroZ = gyro_event.gyro.x * -1;
       break;
 
       case COMPONENTS_RIGHT_USB_FRONT:
         // Default Mack's Factory installation orientation.
+        // Update the magnetometer data (swapping all three axes due to the component's installation).
+        motionData.magX = mag_event.magnetic.y * -1;
+        motionData.magY = mag_event.magnetic.z;
+        motionData.magZ = mag_event.magnetic.x * -1;
+
+        // Update the acceleration and gyroscope values (swapping all three axes due to the component's installation).
+        motionData.accelX = accel_event.acceleration.y;
+        motionData.accelY = accel_event.acceleration.z * -1;
+        motionData.accelZ = accel_event.acceleration.x;
+        motionData.gyroX = gyro_event.gyro.y * -1;
+        motionData.gyroY = gyro_event.gyro.z;
+        motionData.gyroZ = gyro_event.gyro.x * -1;
       break;
 
       case COMPONENTS_RIGHT_USB_REAR:
-      break;
+        // Update the magnetometer data (swapping all three axes due to the component's installation).
+        motionData.magX = mag_event.magnetic.y;
+        motionData.magY = mag_event.magnetic.z;
+        motionData.magZ = mag_event.magnetic.x;
 
-      // @TODO: Draw the rest of the f*cking owl. (https://www.reddit.com/r/funny/comments/eccj2/how_to_draw_an_owl/)
+        // Update the acceleration and gyroscope values (swapping all three axes due to the component's installation).
+        motionData.accelX = accel_event.acceleration.y * -1;
+        motionData.accelY = accel_event.acceleration.z * -1;
+        motionData.accelZ = accel_event.acceleration.x * -1;
+        motionData.gyroX = gyro_event.gyro.y;
+        motionData.gyroY = gyro_event.gyro.z;
+        motionData.gyroZ = gyro_event.gyro.x;
+      break;
     }
 
     // Lastly, the AHRS library update() function expects deg/s gyro values, so convert accordingly.

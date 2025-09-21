@@ -1345,11 +1345,15 @@ void checkWandAction() {
               if (WIFI_MODE == WIFI_ENABLED) {
                 WIFI_MODE = WIFI_DISABLED;
                 stopEffect(S_VOICE_WAND_WIFI_DISABLED);
+                stopEffect(S_VOICE_WAND_WIFI_ENABLED);
                 playEffect(S_VOICE_WAND_WIFI_DISABLED);
+                wandSerialSend(W_WAND_WIFI_DISABLED);
               } else {
                 WIFI_MODE = WIFI_ENABLED;
+                stopEffect(S_VOICE_WAND_WIFI_DISABLED);
                 stopEffect(S_VOICE_WAND_WIFI_ENABLED);
                 playEffect(S_VOICE_WAND_WIFI_ENABLED);
+                wandSerialSend(W_WAND_WIFI_ENABLED);
               }
             }
 
