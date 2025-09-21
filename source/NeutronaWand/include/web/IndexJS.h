@@ -382,8 +382,7 @@ class Calibration3DView {
 
     // Create the scene with a transparent background.
     this.scene = new THREE.Scene();
-    //this.scene.background = null;
-    this.scene.background = new THREE.Color(0x444444);
+    this.scene.background = null;
 
     // Set up renderer with antialiasing and alpha for transparency
     this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
