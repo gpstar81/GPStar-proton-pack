@@ -693,14 +693,19 @@ void handleCalibrateSensorsEnabled(AsyncWebServerRequest *request) {
 }
 
 void handleCalibrateSensorsDisabled(AsyncWebServerRequest *request) {
-  // Turn off calibration mode for the motion sensors.
-  magCalData = MagCal::computeCalibrationComplete(); // Compute calibration data.
+  // Determine if proper coverage was achieved before calculating and storing data.
+  float coverage = MagCal::getCoveragePercent();
+  if (coverage >= 60.0f) {
+    // Compute calibration data for the standard calibration object.
+    magCalData = MagCal::computeCalibrationComplete();
 
-  // Save the calibration data (as an object) to preferences.
-  if(preferences.begin("device", false)) {
-    preferences.putBytes("mag_cal", &magCalData, sizeof(magCalData));
+    // Save the calibration data (as an object) to preferences.
+    if(preferences.begin("device", false)) {
+      preferences.putBytes("mag_cal", &magCalData, sizeof(magCalData));
+    }
   }
 
+  // Turn off calibration mode for the motion sensors.
   SENSOR_READ_TARGET = OFFSETS; // Switch to offsets mode for brief collection.
   resetAllMotionData(true); // Reset and re-calibrate with fresh offsets.
 
@@ -1335,7 +1340,7 @@ void sendCalibrationPoints() {
     // event name (using the current time as a unique event identifier).
     events.send(getCalibration().c_str(), "calibration", millis());
 
-    // Also send the current coverage percentage.
+    // Also send the current coverage percentage as a unique event.
     float coverage = MagCal::getCoveragePercent();
     events.send(String(coverage).c_str(), "coverage", millis());
   }

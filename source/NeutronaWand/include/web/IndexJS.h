@@ -547,6 +547,8 @@ function formatFloat(value) {
   return sign + pad + whole + "." + frac;
 }
 
+let lastCoverage = 0;
+
 if (!!window.EventSource) {
   // Create events for the sensor readings.
   var source = new EventSource("/events");
@@ -565,7 +567,8 @@ if (!!window.EventSource) {
     if (e.data === undefined) return;
 
     // Update the calibration coverage percentage.
-    setHtml("coverage", formatFloat(parseFloat(e.data) || 0) + "%");
+    lastCoverage = parseFloat(e.data) || 0;
+    setHtml("coverage", formatFloat(lastCoverage) + "%");
   }, false);
 
   source.addEventListener("calibration", function(e) {
@@ -657,6 +660,12 @@ function enableCalibration() {
 }
 
 function disableCalibration() {
+  if (lastCoverage < 60) {
+    if (confirm("Coverage is less than 60%, do you wish to continue collecting data?")) {
+      return; // Leave calibration mode active.
+    }
+  }
+
   if (confirm("Are you sure you are done collecting calibration data?")) {
     sendCommand("/sensors/calibrate/disable");
     hideEl("calInfo");

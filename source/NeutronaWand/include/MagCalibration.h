@@ -53,12 +53,13 @@ struct CalibrationData {
  */
 namespace MagCal {
 
-  // Configurable constants; increase for more precision
-  constexpr int MAX_SAMPLES = 250;       // Max raw samples stored during calibration
-  constexpr int MAX_POINTS = 100;        // Max points for visualization
-  constexpr int NUM_AZIMUTH_BINS = 18;   // 20° horizontal divisions
-  constexpr int NUM_ELEVATION_BINS = 9;  // 20° vertical divisions
-  constexpr int TOTAL_BUCKETS = NUM_AZIMUTH_BINS * NUM_ELEVATION_BINS;
+  // Configurable constants; increase samples and bins for more precision if necessary.
+  // The bin approach ensures even coverage of the sphere by dividing it into discrete sections.
+  // Each filled bin becomes a stored sample until all bins are filled (represented as coverage).
+  constexpr int NUM_AZIMUTH_BINS = 18;        // 20° horizontal divisions (heading: 1-360°)
+  constexpr int NUM_ELEVATION_BINS = 9;       // 20° vertical divisions (-90° to +90°)
+  constexpr int MAX_POINTS = NUM_AZIMUTH_BINS * NUM_ELEVATION_BINS; // Total discrete bins, also used for visualization
+  constexpr int MAX_SAMPLES = MAX_POINTS * 2; // Max unique samples stored during calibration
 
   // Internal buffers
   static float xSamples[MAX_SAMPLES];
@@ -71,23 +72,24 @@ namespace MagCal {
   static float visZ[MAX_POINTS];
   static int visCount = 0;
 
-  // Bucket filled flags
-  static bool buckets[TOTAL_BUCKETS] = {false};
+  // Bin filled flags
+  static bool bins[MAX_POINTS] = {false};
 
   // Begin a new calibration session by clearing buffers and coverage.
   inline void beginCalibration() {
       sampleCount = 0;
       visCount = 0;
-      for(int i=0; i<TOTAL_BUCKETS; i++) buckets[i] = false;
+      for(int i=0; i<MAX_POINTS; i++) bins[i] = false;
   }
 
   // Add a raw magnetometer sample, only stores if it expands coverage
-  inline void addSample(float x, float y, float z) {
-    if(sampleCount >= MAX_SAMPLES) return;
+  // Returns true if sample was added, false if ignored (duplicate bin or max samples reached)
+  inline bool addSample(float x, float y, float z) {
+    if(sampleCount >= MAX_SAMPLES) return false; // Max samples reached
 
     // Normalize vector
     float r = sqrt(x * x + y * y + z * z);
-    if(r == 0) return;
+    if (r == 0) return false; // Invalid sample
     float nx = x / r;
     float ny = y / r;
     float nz = z / r;
@@ -96,7 +98,7 @@ namespace MagCal {
     float az = atan2(ny, nx); // -PI..PI
     float el = asin(nz);      // -PI/2..PI/2
 
-    // Map to bucket indices
+    // Map to bin indices
     int azIndex = (int)((az + M_PI) / (2 * M_PI) * NUM_AZIMUTH_BINS);
     int elIndex = (int)((el + M_PI/2) / M_PI * NUM_ELEVATION_BINS);
 
@@ -105,11 +107,11 @@ namespace MagCal {
     if(elIndex < 0) elIndex = 0;
     if(elIndex >= NUM_ELEVATION_BINS) elIndex = NUM_ELEVATION_BINS - 1;
 
-    int bucketIndex = elIndex * NUM_AZIMUTH_BINS + azIndex;
+    int binIndex = elIndex * NUM_AZIMUTH_BINS + azIndex;
 
-    // Only store if bucket is empty
-    if(!buckets[bucketIndex]) {
-      buckets[bucketIndex] = true;
+    // Only store if bin is empty
+    if (!bins[binIndex]) {
+      bins[binIndex] = true;
 
       // Store in calibration buffer
       xSamples[sampleCount] = x;
@@ -118,20 +120,24 @@ namespace MagCal {
       sampleCount++;
 
       // Store in visualization buffer
-      if(visCount < MAX_POINTS) {
+      if (visCount < MAX_POINTS) {
         visX[visCount] = x;
         visY[visCount] = y;
         visZ[visCount] = z;
         visCount++;
       }
+
+      return true; // new bin filled
     }
+
+    return false; // duplicate bin or max samples reached
   }
 
   // Get coverage % (0..100)
   inline float getCoveragePercent() {
     int filled = 0;
-    for(int i = 0; i < TOTAL_BUCKETS; i++) if (buckets[i]) filled++;
-    return (filled / (float)TOTAL_BUCKETS) * 100.0f;
+    for(int i = 0; i < MAX_POINTS; i++) if (bins[i]) filled++;
+    return (filled / (float)MAX_POINTS) * 100.0f;
   }
 
   // Get usable points for visualization
