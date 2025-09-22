@@ -405,11 +405,11 @@ class Calibration3DView {
     // this.scene.add(axesHelper);
 
     // Sphere geometry placed at the origin of the scene.
-    const geometry = new THREE.SphereGeometry(2, 32, 32);
+    const geometry = new THREE.SphereGeometry(5, 32, 32);
     const material = new THREE.MeshBasicMaterial({
       color: 0x222222,
       transparent: true,
-      opacity: 0.5
+      opacity: 0.4
     });
     this.mesh = new THREE.Mesh(geometry, material);
     this.scene.add(this.mesh);
@@ -418,7 +418,7 @@ class Calibration3DView {
     this.camera = new THREE.PerspectiveCamera(80, this.aspect, 0.1, 1000);
 
     // Position camera and look at the center of the scene
-    this.camera.position.set(0, 4, 60);
+    this.camera.position.set(0, 5, 70);
 
     // Camera positioning using the center of the mesh as the focal point
     this.camera.lookAt(new THREE.Vector3());
@@ -457,28 +457,35 @@ class Calibration3DView {
 
     // Add new meshes only if needed (keeps a pool of meshes for efficiency)
     for (let i = existing; i < needed; i++) {
-      const geometry = new THREE.SphereGeometry(0.6, 8, 8);
+      const geometry = new THREE.SphereGeometry(0.8, 16, 16);
       const material = new THREE.MeshBasicMaterial({color: 0xff0000});
-      const mesh = new THREE.Mesh(geometry, material);
-      this.pointsGroup.add(mesh);
+      const pointMesh = new THREE.Mesh(geometry, material);
+      this.pointsGroup.add(pointMesh);
     }
 
     // Update positions and visibility from the pool of meshes
     for (let i = 0; i < this.pointsGroup.children.length; i++) {
-      const mesh = this.pointsGroup.children[i];
+      const childMesh = this.pointsGroup.children[i];
+
       if (i < needed) {
         const p = points[i];
-        mesh.position.set(p.x, p.y, p.z);
-        mesh.visible = true;
+        childMesh.position.set(p.x, p.y, p.z);
+        childMesh.visible = true;
       } else {
-        mesh.visible = false;
+        childMesh.visible = false;
       }
     }
 
-    // Re-center the camera if there are enough points to justify it
     let center = this.getPointsCentroid();
-    if (points.length > 10 && center && this.camera) {
-      this.camera.lookAt(center.x, center.y, center.z);
+    if (center && points.length > 10) {
+      if (this.mesh) {
+        // Move the default mesh (origin sphere) to the centroid
+        this.mesh.position.set(center.x, center.y, center.z);
+      }
+      if (this.camera) {
+        // Re-center the camera on the centroid of the points
+        this.camera.lookAt(center.x, center.y, center.z);
+      }
     }
 
     this.render();
@@ -652,7 +659,7 @@ function triggerInfrared() {
 }
 
 function enableCalibration() {
-  if (confirm("Are you sure you want to begin sending calibration output?")) {
+  if (confirm("Are you sure you want to start calibration?")) {
     sendCommand("/sensors/calibrate/enable");
     calibration3D.clearPoints();
     showEl("calInfo");

@@ -85,7 +85,7 @@ namespace MagCal {
   // Add a raw magnetometer sample, only stores if it expands coverage
   // Returns true if sample was added, false if ignored (duplicate bin or max samples reached)
   inline bool addSample(float x, float y, float z) {
-    if(sampleCount >= MAX_SAMPLES) return false; // Max samples reached
+    if (sampleCount >= MAX_SAMPLES) return false; // Max samples reached
 
     // Normalize vector
     float r = sqrt(x * x + y * y + z * z);
@@ -102,10 +102,10 @@ namespace MagCal {
     int azIndex = (int)((az + M_PI) / (2 * M_PI) * NUM_AZIMUTH_BINS);
     int elIndex = (int)((el + M_PI/2) / M_PI * NUM_ELEVATION_BINS);
 
-    if(azIndex < 0) azIndex = 0;
-    if(azIndex >= NUM_AZIMUTH_BINS) azIndex = NUM_AZIMUTH_BINS - 1;
-    if(elIndex < 0) elIndex = 0;
-    if(elIndex >= NUM_ELEVATION_BINS) elIndex = NUM_ELEVATION_BINS - 1;
+    if (azIndex < 0) azIndex = 0;
+    if (azIndex >= NUM_AZIMUTH_BINS) azIndex = NUM_AZIMUTH_BINS - 1;
+    if (elIndex < 0) elIndex = 0;
+    if (elIndex >= NUM_ELEVATION_BINS) elIndex = NUM_ELEVATION_BINS - 1;
 
     int binIndex = elIndex * NUM_AZIMUTH_BINS + azIndex;
 
@@ -133,10 +133,10 @@ namespace MagCal {
     return false; // duplicate bin or max samples reached
   }
 
-  // Get coverage % (0..100)
+  // Get coverage % (0..100) based on filled bins
   inline float getCoveragePercent() {
     int filled = 0;
-    for(int i = 0; i < MAX_POINTS; i++) if (bins[i]) filled++;
+    for (int i = 0; i < MAX_POINTS; i++) if (bins[i]) filled++;
     return (filled / (float)MAX_POINTS) * 100.0f;
   }
 
@@ -311,7 +311,8 @@ namespace MagCal {
     }
   }
 
-  // Complete final calibration with ellipsoid fitting (full 3x3 soft-iron)
+  // Complete final calibration with centroid + covariance whitening (full 3x3 soft-iron)
+  // Note: This is not a full ellipsoid fitting as used by MotionCal.
   inline CalibrationData computeCalibrationComplete() {
     CalibrationData cal;
 
@@ -359,7 +360,7 @@ namespace MagCal {
     return cal;
   }
 
-  // Alternative final calibration with only diagonal soft-iron (basic)
+  // Alternative final calibration with only diagonal soft-iron (basic, diagonal scaling only)
   inline CalibrationData computeCalibrationBasic() {
     CalibrationData cal;
 
