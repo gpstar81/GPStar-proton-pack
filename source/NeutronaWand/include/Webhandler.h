@@ -697,7 +697,7 @@ void handleCalibrateSensorsDisabled(AsyncWebServerRequest *request) {
   float coverage = MagCal::getCoveragePercent();
   if (coverage >= 60.0f) {
     // Compute calibration data for the standard calibration object.
-    magCalData = MagCal::computeCalibrationComplete();
+    magCalData = MagCal::computeCalibrationEllipsoid();
 
     // Save the calibration data (as an object) to preferences.
     if(preferences.begin("device", false)) {
