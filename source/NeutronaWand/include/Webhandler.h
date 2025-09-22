@@ -694,7 +694,7 @@ void handleCalibrateSensorsEnabled(AsyncWebServerRequest *request) {
 
 void handleCalibrateSensorsDisabled(AsyncWebServerRequest *request) {
   // Turn off calibration mode for the motion sensors.
-  magCalData = MagCal::computeCalibration(); // Compute calibration data.
+  magCalData = MagCal::computeCalibrationComplete(); // Compute calibration data.
 
   // Save the calibration data (as an object) to preferences.
   if(preferences.begin("device", false)) {
