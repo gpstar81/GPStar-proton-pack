@@ -476,7 +476,7 @@ String getWandConfig() {
   jsonBody.clear();
 
   // Provide a flag to indicate prefs are directly available.
-  jsonBody["prefsAvailable"] = true;
+  jsonBody["prefsAvailable"] = true; // Always true for the immediate device.
 
   // Return current powered state for pack and wand.
   jsonBody["wandPowered"] = (WAND_STATUS == MODE_ON);

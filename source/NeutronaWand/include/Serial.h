@@ -71,7 +71,7 @@ struct __attribute__((packed)) MessagePacket {
 struct MessagePacket sendData;
 struct MessagePacket recvData;
 
-struct __attribute__((packed)) {
+struct __attribute__((packed)) WandPrefs {
   uint8_t isESP32;
   uint8_t ledWandCount;
   uint8_t ledWandHue;
