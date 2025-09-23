@@ -619,6 +619,11 @@ void checkPack() {
 
               // Indicate that a pack is now connected.
               WAND_CONN_STATE = PACK_CONNECTED;
+
+              // Disable the built-in wifi as the pack now handles it.
+              #ifdef ESP32
+              WIFI_MODE = WIFI_DISABLED;
+              #endif
             }
           }
           else if(recvCmd.s == W_COM_START && recvCmd.c == W_SYNC_NOW && recvCmd.d1 == 0 && recvCmd.e == W_COM_END) {

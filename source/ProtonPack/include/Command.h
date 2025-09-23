@@ -54,6 +54,9 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
       b_attenuator_syncing = false;
       b_attenuator_connected = true;
       ms_attenuator_check.start(i_attenuator_disconnect_delay);
+      #ifdef ESP32
+      WIFI_MODE = WIFI_DISABLED;
+      #endif
     break;
 
     case A_TURN_PACK_ON:
