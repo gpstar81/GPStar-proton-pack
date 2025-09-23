@@ -419,8 +419,8 @@ uint8_t i_heatdown_counter = 100;
  *            Releasing the Barrel Wing Switch returns to Proton Stream, and releasing Intensify stops firing completely.
  * Stream = Type of particle stream to be thrown by the wand
  */
-enum BARREL_STATES { BARREL_RETRACTED, BARREL_EXTENDED };
-enum BARREL_STATES BARREL_STATE = BARREL_EXTENDED; // Set to extended for bootup to prevent sound from playing erroneously. The wand will adjust as necessary.
+enum BARREL_STATES { BARREL_UNKNOWN, BARREL_RETRACTED, BARREL_EXTENDED };
+enum BARREL_STATES BARREL_STATE = BARREL_UNKNOWN; // Set to unknown for bootup to prevent sound from playing erroneously.
 enum FIRING_MODES { VG_MODE, CTS_MODE, CTS_MIX_MODE };
 enum FIRING_MODES FIRING_MODE = VG_MODE; // Default firing mode is VG Mode.
 enum FIRING_MODES LAST_FIRING_MODE = VG_MODE; // Default firing mode is VG Mode.
