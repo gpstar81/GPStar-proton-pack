@@ -554,6 +554,42 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
       playEffect(S_VOICE_YEAR_MODE_DEFAULT);
     break;
 
+    case P_SET_STREAM_MODE:
+      if(vgModeCheck()) {
+        // Only change our stream mode if VG mode is actually enabled.
+        switch(i_value) {
+          case 1:
+          default:
+            STREAM_MODE = PROTON;
+          break;
+          case 2:
+            STREAM_MODE = STASIS;
+          break;
+          case 3:
+            STREAM_MODE = SLIME;
+          break;
+          case 4:
+            STREAM_MODE = MESON;
+          break;
+          case 5:
+            STREAM_MODE = SPECTRAL;
+          break;
+          case 6:
+            STREAM_MODE = HOLIDAY_HALLOWEEN;
+          break;
+          case 7:
+            STREAM_MODE = HOLIDAY_CHRISTMAS;
+          break;
+          case 8:
+            STREAM_MODE = SPECTRAL_CUSTOM;
+          break;
+        }
+
+        // Apply the change immediately.
+        streamModeCheck();
+      }
+    break;
+
     case P_SMOKE_DISABLED:
       // Play smoke disabled voice.
       stopEffect(S_VOICE_SMOKE_DISABLED);

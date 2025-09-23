@@ -496,7 +496,7 @@ void hatLightControl() {
     case MODE_OFF:
     default:
       if(SYSTEM_MODE == MODE_ORIGINAL) {
-        if(!b_pack_ion_arm_switch_on) {
+        if(RED_SWITCH_MODE == SWITCH_OFF) {
           // Keep the hat lights turned off.
           digitalWriteFast(BARREL_HAT_LED_PIN, LOW);
           digitalWriteFast(TOP_HAT_LED_PIN, LOW);
@@ -2198,28 +2198,33 @@ void bargraphPowerCheck2021Alt(bool b_override) {
 void updatePackPowerLevel() {
   switch(i_power_level) {
     case 5:
+    default:
       // Level 5
+      POWER_LEVEL = LEVEL_5;
       wandSerialSend(W_POWER_LEVEL_5);
     break;
 
     case 4:
       // Level 4
+      POWER_LEVEL = LEVEL_4;
       wandSerialSend(W_POWER_LEVEL_4);
     break;
 
     case 3:
       // Level 3
+      POWER_LEVEL = LEVEL_3;
       wandSerialSend(W_POWER_LEVEL_3);
     break;
 
     case 2:
       // Level 2
+      POWER_LEVEL = LEVEL_2;
       wandSerialSend(W_POWER_LEVEL_2);
     break;
 
     case 1:
-    default:
       // Level 1
+      POWER_LEVEL = LEVEL_1;
       wandSerialSend(W_POWER_LEVEL_1);
     break;
   }
@@ -3062,7 +3067,7 @@ void wandVentStateCheck() {
 // Barrel safety switch is connected to analog pin 7.
 bool switchBarrel() {
   if(switch_barrel.on()) {
-    if(b_switch_barrel_extended) {
+    if(BARREL_STATE == BARREL_EXTENDED) {
       if(b_extra_pack_sounds) {
         wandSerialSend(W_WAND_BARREL_RETRACT);
       }
@@ -3070,12 +3075,12 @@ bool switchBarrel() {
       playEffect(S_WAND_BARREL_RETRACT);
 
       wandSerialSend(W_BARREL_RETRACTED);
-      b_switch_barrel_extended = false;
+      BARREL_STATE = BARREL_RETRACTED;
     }
   }
   else {
     // Play the barrel extension sound effect.
-    if(!b_switch_barrel_extended) {
+    if(BARREL_STATE == BARREL_RETRACTED) {
       if((getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE)) {
         if(b_extra_pack_sounds) {
           wandSerialSend(W_AFTERLIFE_WAND_BARREL_EXTEND);
@@ -3094,11 +3099,13 @@ bool switchBarrel() {
       }
 
       wandSerialSend(W_BARREL_EXTENDED);
-      b_switch_barrel_extended = true;
+      BARREL_STATE = BARREL_EXTENDED;
     }
   }
 
-  return b_switch_barrel_extended; // Immediate return of state.
+  // Set the appropriate state flag.
+
+  return (BARREL_STATE == BARREL_EXTENDED); // Immediate return of state.
 }
 
 // Arms/Disarms the power-on reminder (if enabled).
@@ -3611,7 +3618,7 @@ void fireControlCheck() {
         }
       }
 
-      if(switch_intensify.on() && switch_wand.on() && switch_vent.on() && b_switch_barrel_extended) {
+      if(switch_intensify.on() && switch_wand.on() && switch_vent.on() && BARREL_STATE == BARREL_EXTENDED) {
         switch(STREAM_MODE) {
           case PROTON:
           case SLIME:
@@ -3668,7 +3675,7 @@ void fireControlCheck() {
 
       // When Cross The Streams mode is enabled, video game modes are disabled and the wand menu settings can only be accessed when the Neutrona Wand is powered down.
       if(FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) {
-        if(switch_mode.on() && switch_wand.on() && switch_vent.on() && b_switch_barrel_extended) {
+        if(switch_mode.on() && switch_wand.on() && switch_vent.on() && BARREL_STATE == BARREL_EXTENDED) {
           if(ms_bmash.remaining() < 1) {
             // Clear counter/timer until user begins firing.
             i_bmash_count = 0;
@@ -3702,7 +3709,7 @@ void fireControlCheck() {
             b_firing_alt = true;
           }
         }
-        else if(switch_mode.on() && switch_wand.on() && switch_vent.on() && b_switch_barrel_extended) {
+        else if(switch_mode.on() && switch_wand.on() && switch_vent.on() && BARREL_STATE == BARREL_EXTENDED) {
           switch(STREAM_MODE) {
             case PROTON:
               // Handle Boson Dart fire start here.
@@ -3862,7 +3869,7 @@ void checkSwitches() {
     case MODE_OFF:
       switch(SYSTEM_MODE) {
         case MODE_ORIGINAL:
-          if(b_pack_ion_arm_switch_on) {
+          if(RED_SWITCH_MODE == SWITCH_ON) {
             if(WAND_ACTION_STATUS == ACTION_IDLE) {
               // We are going to handle the toggle switch sequence for the MODE_ORIGINAL here.
               if(switch_activate.on() && switch_vent.on() && switch_wand.on()) {
@@ -10003,8 +10010,8 @@ void checkRotaryEncoder() {
 
 // Function to control all actions relating to the pack's ion arm switch.
 void changeIonArmSwitchState(bool state) {
-  if(state && !b_pack_ion_arm_switch_on) {
-    b_pack_ion_arm_switch_on = true;
+  if(state && RED_SWITCH_MODE == SWITCH_OFF) {
+    RED_SWITCH_MODE = SWITCH_ON;
 
     // Disable the power on reminder.
     setPowerOnReminder(false);
@@ -10045,8 +10052,8 @@ void changeIonArmSwitchState(bool state) {
       }
     }
   }
-  else if(!state && b_pack_ion_arm_switch_on) {
-    b_pack_ion_arm_switch_on = false;
+  else if(!state && RED_SWITCH_MODE == SWITCH_ON) {
+    RED_SWITCH_MODE = SWITCH_OFF;
 
     switch(SYSTEM_MODE) {
       case MODE_ORIGINAL:
@@ -10136,7 +10143,7 @@ void wandExitMenu() {
 
   // In original mode, we need to re-initalise the 28 and 30 segment bargraph if some switches are already toggled on.
   if(SYSTEM_MODE == MODE_ORIGINAL) {
-    if(switch_vent.on() && switch_wand.on() && b_pack_ion_arm_switch_on) {
+    if(switch_vent.on() && switch_wand.on() && RED_SWITCH_MODE == SWITCH_ON) {
       if(b_extra_pack_sounds) {
         wandSerialSend(W_MODE_ORIGINAL_HEATUP);
       }
@@ -10163,7 +10170,7 @@ void wandExitEEPROMMenu() {
 
   if(b_gpstar_benchtest) {
     // Also need to make sure to reset the "ion arm switch" to off if standalone.
-    b_pack_ion_arm_switch_on = false;
+    RED_SWITCH_MODE = SWITCH_OFF;
   }
 
   i_wand_menu = 5;
@@ -10189,7 +10196,7 @@ void wandExitEEPROMMenu() {
 void checkPowerOnReminder() {
   if(WAND_ACTION_STATUS == ACTION_IDLE && (!b_pack_on || b_gpstar_benchtest)) {
     if(ms_power_indicator.justFinished()) {
-      if((SYSTEM_MODE == MODE_ORIGINAL && !b_pack_ion_arm_switch_on) || SYSTEM_MODE == MODE_SUPER_HERO) {
+      if((SYSTEM_MODE == MODE_ORIGINAL && RED_SWITCH_MODE == SWITCH_OFF) || SYSTEM_MODE == MODE_SUPER_HERO) {
         // Blink the Clippard LED to indicate to the user that the system battery is still powered on.
         digitalWriteFast(CLIPPARD_LED_PIN, (digitalReadFast(CLIPPARD_LED_PIN) == LOW) ? HIGH : LOW);
       }

@@ -366,7 +366,7 @@ void mainLoop() {
       if(WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
         if(WAND_ACTION_STATUS != ACTION_SETTINGS && b_gpstar_benchtest && SYSTEM_MODE == MODE_ORIGINAL && switch_intensify.doubleClick()) {
           // This allows a standalone wand to "flip the ion arm switch" when in MODE_ORIGINAL by double-clicking the Intensify switch while the wand is turned off
-          changeIonArmSwitchState(!b_pack_ion_arm_switch_on);
+          changeIonArmSwitchState(RED_SWITCH_MODE == SWITCH_OFF);
         }
 
         if(switch_mode.pushed() || b_pack_alarm) {

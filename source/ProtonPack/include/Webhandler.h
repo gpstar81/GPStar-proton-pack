@@ -119,6 +119,7 @@ String getSafety() {
 String getWandMode() {
   switch(STREAM_MODE) {
     case PROTON:
+    default:
       return "Proton Stream";
     break;
     case SLIME:
@@ -147,9 +148,6 @@ String getWandMode() {
     break;
     case SETTINGS:
       return "Settings";
-    break;
-    default:
-      return "Unknown";
     break;
   }
 }

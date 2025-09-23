@@ -386,7 +386,9 @@ enum BARREL_STATES BARREL_STATE;
 enum POWER_LEVELS { LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5 };
 enum POWER_LEVELS POWER_LEVEL;
 enum STREAM_MODES { PROTON, STASIS, SLIME, MESON, SPECTRAL, HOLIDAY_HALLOWEEN, HOLIDAY_CHRISTMAS, SPECTRAL_CUSTOM, SETTINGS };
-enum STREAM_MODES STREAM_MODE;
+enum STREAM_MODES STREAM_MODE = PROTON; // Default stream mode is Proton.
+enum RED_SWITCH_MODES { SWITCH_ON, SWITCH_OFF };
+enum RED_SWITCH_MODES RED_SWITCH_MODE = SWITCH_OFF; // Default to ion arm switch off until we set otherwise.
 bool b_settings = false; // Used to keep track of being in the wand settings menu.
 
 /*
@@ -397,8 +399,6 @@ bool b_settings = false; // Used to keep track of being in the wand settings men
  */
 enum SYSTEM_MODES { MODE_SUPER_HERO, MODE_ORIGINAL };
 enum SYSTEM_MODES SYSTEM_MODE;
-enum RED_SWITCH_MODES { SWITCH_ON, SWITCH_OFF };
-enum RED_SWITCH_MODES RED_SWITCH_MODE;
 
 /*
  * Cross The Streams Status
@@ -418,7 +418,6 @@ bool b_wand_connected = false;
 bool b_wand_syncing = false;
 bool b_wand_on = false;
 bool b_wand_mash_lockout = false;
-bool b_neutrona_wand_barrel_extended = true; // Assume barrel extended (safety off).
 const uint8_t i_wand_power_level_max = 5; // Max power level of the wand.
 uint8_t i_wand_power_level = 5; // Power level of the wand.
 millisDelay ms_wand_check; // Timer used to determine whether the wand has been disconnected.

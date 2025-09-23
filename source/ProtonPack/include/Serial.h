@@ -1003,7 +1003,7 @@ void doAttenuatorSync() {
 
   // Tell the Attenuator about the wand status.
   attenuatorSyncData.wandPresent = b_wand_connected ? 1 : 0;
-  attenuatorSyncData.barrelExtended = b_neutrona_wand_barrel_extended ? 1 : 0;
+  attenuatorSyncData.barrelExtended = (BARREL_STATE == BARREL_EXTENDED) ? 1 : 0;
   attenuatorSyncData.wandFiring = b_wand_firing ? 1 : 0;
 
   switch(SYSTEM_YEAR) {
@@ -1404,7 +1404,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_BARREL_EXTENDED:
       // Remember the last state sent from the wand (for re-sync with the Attenuator).
-      b_neutrona_wand_barrel_extended = true;
+      BARREL_STATE = BARREL_EXTENDED;
 
       // Tell the Attenuator that the Neutrona Wand barrel is extended.
       attenuatorSerialSend(A_BARREL_EXTENDED);
@@ -1412,7 +1412,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_BARREL_RETRACTED:
       // Remember the last state sent from the wand (for re-sync with the Attenuator).
-      b_neutrona_wand_barrel_extended = false;
+      BARREL_STATE = BARREL_RETRACTED;
 
       // Tell the Attenuator that the Neutrona Wand barrel is retracted.
       attenuatorSerialSend(A_BARREL_RETRACTED);
@@ -2306,6 +2306,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         }
       }
 
+      POWER_LEVEL = LEVEL_1;
       attenuatorSerialSend(A_POWER_LEVEL_1);
     break;
 
@@ -2324,6 +2325,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         }
       }
 
+      POWER_LEVEL = LEVEL_2;
       attenuatorSerialSend(A_POWER_LEVEL_2);
     break;
 
@@ -2342,6 +2344,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         }
       }
 
+      POWER_LEVEL = LEVEL_3;
       attenuatorSerialSend(A_POWER_LEVEL_3);
     break;
 
@@ -2360,6 +2363,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         }
       }
 
+      POWER_LEVEL = LEVEL_4;
       attenuatorSerialSend(A_POWER_LEVEL_4);
     break;
 
@@ -2379,6 +2383,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         }
       }
 
+      POWER_LEVEL = LEVEL_5;
       attenuatorSerialSend(A_POWER_LEVEL_5);
     break;
 

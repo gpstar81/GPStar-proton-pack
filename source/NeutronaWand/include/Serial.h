@@ -795,6 +795,26 @@ void checkPack() {
           i_power_level = wandSyncData.powerLevel;
           i_power_level_prev = i_power_level;
 
+          // Set the appropriate flags for power level.
+          switch(i_power_level) {
+            case 1:
+              POWER_LEVEL = LEVEL_1;
+            break;
+            case 2:
+              POWER_LEVEL = LEVEL_2;
+            break;
+            case 3:
+              POWER_LEVEL = LEVEL_3;
+            break;
+            case 4:
+              POWER_LEVEL = LEVEL_4;
+            break;
+            case 5:
+            default:
+              POWER_LEVEL = LEVEL_5;
+            break;
+          }
+
           // Set our firing mode.
           switch(wandSyncData.streamMode) {
             case 1:

@@ -97,8 +97,6 @@ enum WAND_ACTION_STATE WAND_ACTION_STATUS;
  */
 enum SYSTEM_MODES { MODE_SUPER_HERO, MODE_ORIGINAL };
 enum SYSTEM_MODES SYSTEM_MODE;
-enum RED_SWITCH_MODES { SWITCH_ON, SWITCH_OFF };
-enum RED_SWITCH_MODES RED_SWITCH_MODE;
 
 /*
  * Which year mode the Proton Pack is set into which may not be the same the user prefers for the wand.
@@ -273,7 +271,6 @@ Switch switch_vent(VENT_SWITCH_PIN); // Turns on the vent light. Bottom right sw
 Switch switch_wand(WAND_SWITCH_PIN); // Controls the beeping. Top right switch on the wand.
 Switch switch_mode(MODE_SWITCH_PIN); // Changes firing modes, crosses streams, or used in settings menus.
 Switch switch_barrel(BARREL_SWITCH_PIN); // Checks whether barrel is retracted or not.
-bool b_switch_barrel_extended = true; // Set to true for bootup to prevent sound from playing erroneously. The Neutrona Wand will adjust as necessary.
 uint8_t ventSwitchedCount = 0;
 uint8_t wandSwitchedCount = 0;
 
@@ -423,14 +420,16 @@ uint8_t i_heatdown_counter = 100;
  * Stream = Type of particle stream to be thrown by the wand
  */
 enum BARREL_STATES { BARREL_RETRACTED, BARREL_EXTENDED };
-enum BARREL_STATES BARREL_STATE;
+enum BARREL_STATES BARREL_STATE = BARREL_EXTENDED; // Set to extended for bootup to prevent sound from playing erroneously. The wand will adjust as necessary.
 enum FIRING_MODES { VG_MODE, CTS_MODE, CTS_MIX_MODE };
-enum FIRING_MODES FIRING_MODE;
-enum FIRING_MODES LAST_FIRING_MODE;
+enum FIRING_MODES FIRING_MODE = VG_MODE; // Default firing mode is VG Mode.
+enum FIRING_MODES LAST_FIRING_MODE = VG_MODE; // Default firing mode is VG Mode.
 enum POWER_LEVELS { LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5 };
-enum POWER_LEVELS POWER_LEVEL;
+enum POWER_LEVELS POWER_LEVEL = LEVEL_5; // Default startup power level is 5.
 enum STREAM_MODES { PROTON, STASIS, SLIME, MESON, SPECTRAL, HOLIDAY_HALLOWEEN, HOLIDAY_CHRISTMAS, SPECTRAL_CUSTOM, SETTINGS };
-enum STREAM_MODES STREAM_MODE;
+enum STREAM_MODES STREAM_MODE = PROTON; // Default stream mode is Proton.
+enum RED_SWITCH_MODES { SWITCH_ON, SWITCH_OFF };
+enum RED_SWITCH_MODES RED_SWITCH_MODE = SWITCH_OFF; // Default to ion arm switch off until pack tells us otherwise.
 
 /*
  * Firing timers.
@@ -471,7 +470,6 @@ enum WAND_CONN_STATES WAND_CONN_STATE;
 bool b_pack_on = false; // Denotes the pack has been powered on.
 bool b_pack_alarm = false; // Denotes the pack alarm is sounding (ribbon cable disconnected).
 bool b_pack_post_finish = true; // Checks whether the attached pack is currently in its POST sequence. Assume finished unless pack tells us otherwise.
-bool b_pack_ion_arm_switch_on = false; // For MODE_ORIGINAL. Lets us know if the Proton Pack Ion Arm switch is on to give power to the pack & wand.
 bool b_pack_cyclotron_lid_on = false; // For SYSTEM_FROZEN_EMPIRE. Lets us know if the pack's cyclotron lid is on or not. Default to false to favor FE effects unless told otherwise.
 uint8_t i_cyclotron_speed_up = 1; // For telling the pack to speed up or slow down the Cyclotron lights.
 millisDelay ms_packsync; // Timer for attempting synchronization with a connected pack.

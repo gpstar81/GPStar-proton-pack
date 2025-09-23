@@ -87,7 +87,7 @@ void checkWandAction() {
           modeFiring(); // Tell the pack whether firing has started/stopped.
 
           // Stop firing if any of the main switches are turned off or the barrel is retracted.
-          if(!switch_vent.on() || !switch_wand.on() || !b_switch_barrel_extended) {
+          if(!switch_vent.on() || !switch_wand.on() || BARREL_STATE == BARREL_RETRACTED) {
             modeFireStop();
           }
         }
