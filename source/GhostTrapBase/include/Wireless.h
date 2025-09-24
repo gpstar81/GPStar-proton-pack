@@ -130,18 +130,26 @@ IPAddress convertToIP(const String ipAddressString) {
 
 // Remove spaces and illegal characters meant for an SSID.
 String sanitizeSSID(const String input) {
-    String result = "";
+  String result = "";
 
-    for(size_t i = 0; i < input.length(); i++) {
-      char c = input[i];
+  for(size_t i = 0; i < input.length(); i++) {
+    char c = input[i];
 
-      // Only allow alphanumeric, hyphens, and underscores
-      if(isalnum(c) || c == '-' || c == '_') {
-        result += c;
-      }
+    // Only allow alphanumeric, hyphens, and underscores
+    if(isalnum(c) || c == '-' || c == '_') {
+      result += c;
     }
+  }
 
-    return result;
+  return result;
+}
+
+// Reset the AP password in case the user forgot it.
+void resetWifiPassword() {
+  if(preferences.begin("credentials", false)) {
+    preferences.putString("password", ap_default_passwd);
+    preferences.end();
+  }
 }
 
 /*
@@ -213,7 +221,7 @@ bool startAccesPoint() {
     delay(300); // Wait briefly before configuring network.
 
     // Simple networking IP info exclusively for the AP.
-    IPAddress localIP(192, 168, 1, 2);
+    IPAddress localIP(192, 168, 1, 10);
     IPAddress gateway(0, 0, 0, 0); // Not needed for AP.
     IPAddress subnet(255, 255, 255, 0);
     IPAddress dhcpStart(192, 168, 1, 100);

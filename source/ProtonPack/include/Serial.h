@@ -38,6 +38,7 @@
 // ESP32 allows defining custom objects, so create ones for UART0 and UART1.
 HardwareSerial WandSerial(0); // Associate WandSerial with UART0
 HardwareSerial AttenuatorSerial(1); // Associate AttenuatorSerial with UART1
+void resetWifiPassword(); // Forward function declaration.
 #else
 // ATMEGA 2560 has hardcoded serial UART objects, so use aliases instead.
 #define AttenuatorSerial Serial1
@@ -2173,6 +2174,16 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         stopEffect(S_VOICE_PACK_WIFI_ENABLED);
         playEffect(S_VOICE_PACK_WIFI_ENABLED);
       }
+    #endif
+    break;
+
+    case W_RESET_WIFI_PASSWORD:
+    #ifdef ESP32
+      // Reset the WiFi password to default.
+      resetWifiPassword();
+
+      // Turn off the WiFi.
+      WIFI_MODE = WIFI_DISABLED;
     #endif
     break;
 

@@ -124,18 +124,26 @@ IPAddress convertToIP(const String ipAddressString) {
 
 // Remove spaces and illegal characters meant for an SSID.
 String sanitizeSSID(const String input) {
-    String result = "";
+  String result = "";
 
-    for(size_t i = 0; i < input.length(); i++) {
-      char c = input[i];
+  for(size_t i = 0; i < input.length(); i++) {
+    char c = input[i];
 
-      // Only allow alphanumeric, hyphens, and underscores
-      if(isalnum(c) || c == '-' || c == '_') {
-        result += c;
-      }
+    // Only allow alphanumeric, hyphens, and underscores
+    if(isalnum(c) || c == '-' || c == '_') {
+      result += c;
     }
+  }
 
-    return result;
+  return result;
+}
+
+// Reset the AP password in case the user forgot it.
+void resetWifiPassword() {
+  if(preferences.begin("credentials", false)) {
+    preferences.putString("password", ap_default_passwd);
+    preferences.end();
+  }
 }
 
 /*

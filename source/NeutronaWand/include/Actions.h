@@ -19,6 +19,10 @@
 
 #pragma once
 
+#ifdef ESP32
+void resetWifiPassword(); // Forward function declaration.
+#endif
+
 void checkWandAction() {
   switch(WAND_ACTION_STATUS) {
     case ACTION_IDLE:
@@ -1622,6 +1626,22 @@ void checkWandAction() {
               }
             }
           }
+          #ifdef ESP32
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
+            if(switch_intensify.pushed()) {
+              // Reset the WiFi password to default.
+              resetWifiPassword();
+
+              // Turn off the WiFi.
+              WIFI_MODE = WIFI_DISABLED;
+            }
+
+            if(switch_mode.pushed()) {
+              // Tell the Proton Pack to reset its WiFi password.
+              wandSerialSend(W_RESET_WIFI_PASSWORD);
+            }
+          }
+          #endif
         break;
       }
     break;

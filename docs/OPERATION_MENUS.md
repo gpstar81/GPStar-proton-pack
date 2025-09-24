@@ -94,7 +94,7 @@ To access Menu Level 3, use the `Top Dial` on the top of the wand to move down a
 | 4️⃣ | -Reserved- |  |  |
 | 3️⃣ | -Reserved- |  |  |
 | 2️⃣ | -Reserved- |  |  |
-| 1️⃣ | -Reserved- |  |  |
+| 1️⃣ | WiFi&nbsp;Password&nbsp;Reset | Reset the Wand WiFi password to default | Reset the Pack WiFi password to default |
 
 
 ### Menu Exit
