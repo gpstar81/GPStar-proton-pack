@@ -18,6 +18,7 @@
  */
 
 #pragma once
+void updateLEDs();
 
 /**
  * Function: sanitizeCyclotronMultipliers
@@ -5316,6 +5317,8 @@ void systemPOST() {
       packSerialSend(P_POST_FINISH);
 
       b_pack_post_finish = true;
+      updateLEDs();
+      delay(FAST_LED_UPDATE_MS); // Delay to give the LEDs a chance to finish updating.
     }
     else {
       ms_delay_post_3.start(5);
