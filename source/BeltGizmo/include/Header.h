@@ -55,7 +55,7 @@ boolean b_use_gbr = true; // Use GBR instead of RGB for the device LEDs
  * Wand Firing Modes + Settings
  */
 enum POWER_LEVELS { LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5 };
-enum POWER_LEVELS POWER_LEVEL;
+enum POWER_LEVELS POWER_LEVEL = LEVEL_5;
 enum STREAM_MODES { PROTON, STASIS, SLIME, MESON, SPECTRAL, HOLIDAY_HALLOWEEN, HOLIDAY_CHRISTMAS, SPECTRAL_CUSTOM, SETTINGS };
 enum STREAM_MODES STREAM_MODE;
 bool b_firing = false;

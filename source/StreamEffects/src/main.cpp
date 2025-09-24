@@ -299,9 +299,9 @@ void setup() {
 
   btStop(); // Disable Bluetooth which is not needed for this hardware.
 
-  // Boot into proton mode at level 1 by default.
+  // Boot into proton mode at level 5 by default.
   STREAM_MODE = PROTON;
-  POWER_LEVEL = LEVEL_1;
+  POWER_LEVEL = LEVEL_5;
 
   // Device RGB LEDs for use when needed.
   FastLED.addLeds<NEOPIXEL, DEVICE_LED_PIN>(device_leds, DEVICE_MAX_LEDS).setCorrection(TypicalLEDStrip);

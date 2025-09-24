@@ -168,10 +168,8 @@ String getPower() {
       return "4";
     break;
     case LEVEL_5:
-      return "5";
-    break;
     default:
-      return "-";
+      return "5";
     break;
   }
 }

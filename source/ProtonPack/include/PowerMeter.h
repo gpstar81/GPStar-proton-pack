@@ -441,7 +441,7 @@ void checkPowerMeter() {
         PACK_ACTION_STATE = ACTION_OFF;
         attenuatorSerialSend(A_WAND_OFF);
         attenuatorSerialSend(A_PACK_OFF);
-        attenuatorSerialSend(A_POWER_LEVEL_1);
+        attenuatorSerialSend(A_POWER_LEVEL_5);
         attenuatorSerialSend(A_WAND_POWER_AMPS, 0);
       }
     }
