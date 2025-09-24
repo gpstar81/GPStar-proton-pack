@@ -562,7 +562,7 @@ void mainLoop() {
   }
 }
 
-void updateLEDs () {
+void updateLEDs() {
   // Update all LED's when the FastLED timer has finished.
   if(ms_fast_led.justFinished()) {
     FastLED.show();
@@ -596,7 +596,7 @@ void loop() {
   // Handle any actions after POST event.
   mainLoop();
 
-  // Update the LEDs
+  // Update the LEDs.
   updateLEDs();
 
 #ifdef ESP32

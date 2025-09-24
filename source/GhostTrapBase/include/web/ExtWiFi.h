@@ -72,10 +72,10 @@ const char NETWORK_page[] PROGMEM = R"=====(
         <span class="toggle">
           <span class="switch"></span>
         </span>
-        <span class="label">Use Static IP Address:</span>
+        <span class="label">Set Static IP Address</span>
       </label>
     </div>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Static IP:</b> <input type="text" id="address" width="100" maxlength="15" disabled/>
+    &nbsp;&nbsp;&nbsp;&nbsp;<b>IP Address:</b> <input type="text" id="address" width="100" maxlength="15" disabled/>
     <br/>
     &nbsp;<b>Subnet Mask:</b> <input type="text" id="subnet" width="100" maxlength="15" disabled/>
     <br/>
@@ -112,10 +112,6 @@ const char NETWORK_page[] PROGMEM = R"=====(
             setValue("address", settings.address || "");
             setValue("subnet", settings.subnet || "");
             setValue("gateway", settings.gateway || "");
-
-            if (getValue("address") != "" || getValue("subnet") != "" || getValue("gateway") != "") {
-              setToggle("useStaticIP", true);
-            }
           }
         }
       };
@@ -151,7 +147,7 @@ const char NETWORK_page[] PROGMEM = R"=====(
 
     getEl("useStaticIP").addEventListener("change", function() {
       // Get the checkbox state to enable the IP fields.
-      var useStatic = getToggle("useStaticIP");
+      var editEnabled = getToggle("useStaticIP");
 
       // Enable or disable based on checkbox state.
       addressInput.disabled = !editEnabled;
