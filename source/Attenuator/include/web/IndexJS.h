@@ -149,7 +149,7 @@ function removeOptions(selectElement) {
 
 function updateTrackListing() {
   // Continue if start/end values are sane and something actually changed.
-  if (musicTrackStart > 0 && musicTrackMax < 1000 && musicTrackMax >= musicTrackStart) {
+  if (musicTrackStart >= 500 && musicTrackMax < 4596 && musicTrackMax >= musicTrackStart) {
     // Prepare for track names, if available.
     var trackNum = 0;
     var trackName = "";
