@@ -370,7 +370,7 @@ void mainLoop() {
         }
 
         if(switch_mode.pushed() || b_pack_alarm) {
-          if(WAND_ACTION_STATUS != ACTION_SETTINGS && !b_pack_alarm && (!b_pack_on || b_gpstar_benchtest)) {
+          if(WAND_ACTION_STATUS != ACTION_SETTINGS && !b_pack_alarm) {
             playEffect(S_CLICK);
 
             WAND_ACTION_STATUS = ACTION_SETTINGS;
@@ -390,14 +390,26 @@ void mainLoop() {
           }
           else {
             // Only exit the settings menu when on menu #5 in the top menu or the pack ribbon cable alarm is active.
-            if(i_wand_menu == 5 && WAND_MENU_LEVEL == MENU_LEVEL_1 && WAND_ACTION_STATUS == ACTION_SETTINGS) {
+            if((i_wand_menu == 5 && WAND_MENU_LEVEL == MENU_LEVEL_1 && WAND_ACTION_STATUS == ACTION_SETTINGS) || b_pack_alarm) {
               wandExitMenu();
             }
           }
         }
         else if(WAND_ACTION_STATUS == ACTION_SETTINGS && b_pack_on) {
-          if(!b_gpstar_benchtest) {
-            wandExitMenu();
+          if(!b_gpstar_benchtest && WAND_MENU_LEVEL != MENU_LEVEL_1) {
+            WAND_MENU_LEVEL = MENU_LEVEL_1;
+
+            i_wand_menu = 5;
+
+            // Turn off the vent/top LED to indicate leaving the sub menus.
+            ventLightControl(0);
+
+            // Turn off the slo blow led to indicate we are no longer in the Neutrona Wand sub menus.
+            digitalWriteFast(SLO_BLO_LED_PIN, LOW);
+
+            // Play an indication beep to notify we have changed menu levels.
+            stopEffect(S_BEEPS);
+            playEffect(S_BEEPS);
           }
         }
       }

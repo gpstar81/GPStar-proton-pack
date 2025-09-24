@@ -9616,8 +9616,8 @@ void checkRotaryEncoder() {
             wandSerialSend(W_VOLUME_MUSIC_DECREASE);
           }
           else if(i_wand_menu - 1 < 1) {
-            // We are entering a sub menu. Only accessible when the Neutrona Wand is powered down.
-            if(WAND_STATUS == MODE_OFF) {
+            // We are entering a sub menu. Only accessible when the Proton Pack is powered down.
+            if(!b_pack_on || (b_gpstar_benchtest && WAND_STATUS == MODE_OFF)) {
               switch(WAND_MENU_LEVEL) {
                 case MENU_LEVEL_1:
                   WAND_MENU_LEVEL = MENU_LEVEL_2;
@@ -9704,8 +9704,8 @@ void checkRotaryEncoder() {
             wandSerialSend(W_VOLUME_MUSIC_INCREASE);
           }
           else if(i_wand_menu + 1 > 5) {
-            // We are leaving changing menu levels. Only accessible when the Neutrona Wand is powered down.
-            if(WAND_STATUS == MODE_OFF) {
+            // We are leaving changing menu levels. Only accessible when the Proton Pack is powered down.
+            if(!b_pack_on || (b_gpstar_benchtest && WAND_STATUS == MODE_OFF)) {
               switch(WAND_MENU_LEVEL) {
                 case MENU_LEVEL_3:
                   WAND_MENU_LEVEL = MENU_LEVEL_2;
