@@ -100,8 +100,8 @@ void saveLEDEEPROM() {
 
 // Load LED settings from Preferences into the global instance
 void loadLEDEEPROM() {
-  if (preferences.begin("led", true)) {
-    if (preferences.isKey("led")) {
+  if(preferences.begin("led", true)) {
+    if(preferences.isKey("led")) {
       preferences.getBytes("led", &gObjLEDEEPROM, sizeof(gObjLEDEEPROM));
     }
     preferences.end();
@@ -110,7 +110,7 @@ void loadLEDEEPROM() {
 
 // Clear LED settings in Preferences
 void clearLEDEEPROM() {
-  if (preferences.begin("led", false)) {
+  if(preferences.begin("led", false)) {
     preferences.clear();
     preferences.end();
   }
@@ -355,7 +355,7 @@ void saveConfigEEPROM() {
   gObjConfigEEPROM.overheatLevel1 = i_overheat_level_1;
   gObjConfigEEPROM.wandVibration = i_wand_vibration;
 
-  if (preferences.begin("config", false)) {
+  if(preferences.begin("config", false)) {
     preferences.putBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
     preferences.end();
   }
@@ -365,8 +365,8 @@ void saveConfigEEPROM() {
 
 // Load config settings from Preferences
 void loadConfigEEPROM() {
-  if (preferences.begin("config", true)) {
-    if (preferences.isKey("config")) {
+  if(preferences.begin("config", true)) {
+    if(preferences.isKey("config")) {
       preferences.getBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
     }
     preferences.end();
@@ -375,7 +375,7 @@ void loadConfigEEPROM() {
 
 // Clear config settings in Preferences
 void clearConfigEEPROM() {
-  if (preferences.begin("config", false)) {
+  if(preferences.begin("config", false)) {
     preferences.clear();
     preferences.end();
   }
@@ -385,7 +385,7 @@ void clearConfigEEPROM() {
 
 // CRC helpers for Preferences
 void updateCRCEEPROM(uint32_t crc) {
-  if (preferences.begin("crc", false)) {
+  if(preferences.begin("crc", false)) {
     preferences.putUInt("crc", crc);
     preferences.end();
   }
@@ -394,7 +394,7 @@ void updateCRCEEPROM(uint32_t crc) {
 uint32_t getCRCEEPROM() {
   uint32_t crc = 0;
 
-  if (preferences.begin("crc", true)) {
+  if(preferences.begin("crc", true)) {
     crc = preferences.getUInt("crc");
     preferences.end();
   }
@@ -787,7 +787,7 @@ void getSpecialPreferences() {
     s_track_listing = preferences.getString("track_list", "");
 
     // Restore the magnetometer calibration data from preferences.
-    if (preferences.isKey("orientation")) {
+    if(preferences.isKey("orientation")) {
       switch(preferences.getShort("orientation", 0)) {
         case 1:
           INSTALL_ORIENTATION = COMPONENTS_UP_USB_FRONT;
@@ -820,7 +820,7 @@ void getSpecialPreferences() {
     }
 
     // Restore the magnetometer calibration data from preferences.
-    if (preferences.isKey("mag_cal")) {
+    if(preferences.isKey("mag_cal")) {
       preferences.getBytes("mag_cal", &magCalData, sizeof(magCalData));
     }
 

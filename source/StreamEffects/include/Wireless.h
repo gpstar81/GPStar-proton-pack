@@ -116,16 +116,17 @@ IPAddress convertToIP(const String ipAddressString) {
   uint8_t quadStartIndex = 0;
   int8_t quadEndIndex = 0;
 
-  for (uint8_t i = 0; i < 4; i++) {
+  for(uint8_t i = 0; i < 4; i++) {
     // Find the index of the next dot
     quadEndIndex = ipAddressString.indexOf('.', quadStartIndex);
 
-    if (quadEndIndex != -1) {
+    if(quadEndIndex != -1) {
       // If a dot is found, extract and store the quad
       String quad = ipAddressString.substring(quadStartIndex, quadEndIndex);
       quads[i] = quad.toInt(); // Convert the quad string to an integer
       quadStartIndex = quadEndIndex + 1;
-    } else {
+    }
+    else {
       // If the dot is not found, this is the last quad
       String lastQuad = ipAddressString.substring(quadStartIndex);
       quads[i] = lastQuad.toInt();
@@ -142,13 +143,13 @@ IPAddress convertToIP(const String ipAddressString) {
 String sanitizeSSID(const String input) {
     String result = "";
 
-    for (size_t i = 0; i < input.length(); i++) {
-        char c = input[i];
+    for(size_t i = 0; i < input.length(); i++) {
+      char c = input[i];
 
-        // Only allow alphanumeric, hyphens, and underscores
-        if (isalnum(c) || c == '-' || c == '_') {
-            result += c;
-        }
+      // Only allow alphanumeric, hyphens, and underscores
+      if(isalnum(c) || c == '-' || c == '_') {
+        result += c;
+      }
     }
 
     return result;
@@ -358,9 +359,9 @@ bool startExternalWifi() {
       // Perform a scan of available networks.
       int n = WiFi.scanNetworks();
       debugln("Scan complete. Networks found:");
-      for (int i = 0; i < n; ++i) {
+      for(int i = 0; i < n; ++i) {
         debug(WiFi.SSID(i));
-        if (WiFi.SSID(i) == wifi_ssid) {
+        if(WiFi.SSID(i) == wifi_ssid) {
           debug(" (*)");
         }
         debugln(" [" + String(WiFi.RSSI(i)) + " dBm]");
@@ -369,16 +370,16 @@ bool startExternalWifi() {
     #endif
 
     // Only disconnect if already connected or connecting.
-    if (WiFi.status() == WL_CONNECTED || WiFi.status() == WL_CONNECT_FAILED || WiFi.status() == WL_NO_SSID_AVAIL) {
+    if(WiFi.status() == WL_CONNECTED || WiFi.status() == WL_CONNECT_FAILED || WiFi.status() == WL_NO_SSID_AVAIL) {
       WiFi.disconnect(true); // Ensure disconnection and erase old config.
       delay(200);
     }
 
     // Provide adequate attempts to connect to the external WiFi network.
-    while (i_curr_attempt < i_max_attempts) {
+    while(i_curr_attempt < i_max_attempts) {
       notifyWSClients(); // Update local WebSocket clients on each attempt.
 
-      if (WiFi.getMode() != WIFI_MODE_APSTA) {
+      if(WiFi.getMode() != WIFI_MODE_APSTA) {
         WiFi.mode(WIFI_MODE_APSTA); // Ensure correct mode for simultaneous AP+STA.
         delay(200);
       }
@@ -390,7 +391,7 @@ bool startExternalWifi() {
 
       // Wait for the connection to be established.
       uint8_t attempt = 0;
-      while (attempt < i_max_attempts && WiFi.status() != WL_CONNECTED) {
+      while(attempt < i_max_attempts && WiFi.status() != WL_CONNECTED) {
         delay(500);
         #if defined(DEBUG_WIRELESS_SETUP)
           debug(F("Connecting to external WiFi network, attempt #"));
@@ -400,7 +401,7 @@ bool startExternalWifi() {
         attempt++;
       }
 
-      if (WiFi.status() == WL_CONNECTED) {
+      if(WiFi.status() == WL_CONNECTED) {
         // Configure static IP values for tis device on the preferred network.
         if(wifi_address.length() >= 7 && wifi_subnet.length() >= 7 && wifi_gateway.length() >= 7) {
           #if defined(DEBUG_WIRELESS_SETUP)
@@ -440,7 +441,8 @@ bool startExternalWifi() {
         WiFi.setAutoReconnect(false); // Don't try to reconnect, wait for a power cycle.
 
         return true; // Exit the loop if connected successfully.
-      } else {
+      }
+      else {
         #if defined(DEBUG_WIRELESS_SETUP)
           debugln(F("Failed to connect to external WiFi. Retrying..."));
         #endif
@@ -448,7 +450,7 @@ bool startExternalWifi() {
       }
     }
 
-    if (i_curr_attempt == i_max_attempts) {
+    if(i_curr_attempt == i_max_attempts) {
       #if defined(DEBUG_WIRELESS_SETUP)
         debugln(F("Max connection attempts reached."));
         debugln(F("Cannot connect to external WiFi."));
@@ -484,7 +486,7 @@ bool startWiFi() {
   // Set the mDNS hostname to "ProtonPack_NNNN.local" just like the private AP name.
   bool b_mdns_started = MDNS.begin(ap_ssid.c_str());
   #if defined(DEBUG_WIRELESS_SETUP)
-    if (b_mdns_started) {
+    if(b_mdns_started) {
       debug(F("mDNS Responder Started: "));
       debugln(ap_ssid + ".local");
     }

@@ -122,7 +122,7 @@ void onOTAStart() {
 
 void onOTAProgress(size_t current, size_t final) {
   // Log every 1 second
-  if (millis() - i_progress_millis > 1000) {
+  if(millis() - i_progress_millis > 1000) {
     i_progress_millis = millis();
     debugf("OTA Progress Current: %u bytes, Final: %u bytes\n", current, final);
   }
@@ -130,9 +130,10 @@ void onOTAProgress(size_t current, size_t final) {
 
 void onOTAEnd(bool success) {
   // Log when OTA has finished
-  if (success) {
+  if(success) {
     debugln(F("OTA update finished successfully!"));
-  } else {
+  }
+  else {
     debugln(F("There was an error during OTA update!"));
   }
 }
@@ -381,7 +382,7 @@ void handleRestartWiFi(AsyncWebServerRequest *request) {
 
 void handleEnableSelfTest(AsyncWebServerRequest *request) {
   debugln("Web: Self Test Enabled");
-  if (STREAM_MODE != SELFTEST) {
+  if(STREAM_MODE != SELFTEST) {
     STREAM_MODE_PREV = STREAM_MODE; // Save current mode.
     STREAM_MODE = SELFTEST; // Switch to self-test mode.
     updateStreamPalette(); // Update stream colors.
@@ -392,7 +393,7 @@ void handleEnableSelfTest(AsyncWebServerRequest *request) {
 
 void handleDisableSelfTest(AsyncWebServerRequest *request) {
   debugln("Web: Self Test Disabled");
-  if (STREAM_MODE == SELFTEST) {
+  if(STREAM_MODE == SELFTEST) {
     STREAM_MODE = STREAM_MODE_PREV; // Restore previous mode.
     updateStreamPalette(); // Update stream colors.
     b_testing = false; // Disable testing flag.
@@ -542,10 +543,12 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
     String subnetMask = jsonBody["subnet"].as<String>();
     String gatewayIP = jsonBody["gateway"].as<String>();
 
-    // If no errors encountered, continue with storing a preferred network (with credentials and IP information).
-    if(wifiNetwork.length() >= 2 && wifiPasswd.length() >= 8) {
-      // Accesses namespace in read/write mode.
-      if(preferences.begin("network", false)) {
+    // Accesses namespace in read/write mode.
+    if(preferences.begin("network", false)) {
+      // Store the state of toggle switches regardless.
+      preferences.putBool("enabled", b_enabled);
+
+      if(wifiNetwork.length() >= 2 && wifiPasswd.length() >= 8) {
         // Clear old network IP info if SSID or password have been changed.
         String old_ssid = preferences.getString("ssid", "");
         String old_passwd = preferences.getString("password", "");
@@ -556,23 +559,41 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
         }
 
         // Store the critical values to enable/disable the external WiFi.
-        preferences.putBool("enabled", b_enabled);
         preferences.putString("ssid", wifiNetwork);
         preferences.putString("password", wifiPasswd);
 
         // Continue saving only if network values are 7 characters or more (eg. N.N.N.N)
+        bool b_static_ip = true;
         if(localAddr.length() >= 7 && localAddr != wifi_address) {
           preferences.putString("address", localAddr);
+        }
+        else {
+          b_static_ip = false;
         }
         if(subnetMask.length() >= 7 && subnetMask != wifi_subnet) {
           preferences.putString("subnet", subnetMask);
         }
+        else {
+          b_static_ip = false;
+        }
         if(gatewayIP.length() >= 7 && gatewayIP != wifi_gateway) {
           preferences.putString("gateway", gatewayIP);
         }
-
-        preferences.end();
+        else {
+          b_static_ip = false;
+        }
+        if(!b_static_ip) {
+          // If any of the above values were invalid, blank all three.
+          preferences.putString("address", "");
+          preferences.putString("subnet", "");
+          preferences.putString("gateway", "");
+        }
       }
+
+      preferences.end();
+    }
+    else {
+      b_errors = true;
     }
 
     if(!b_errors) {
@@ -691,7 +712,7 @@ void webSocketClientEvent(WStype_t type, uint8_t * payload, size_t length) {
       * error is present from deserialization.
       */
       DeserializationError jsonError = deserializeJson(jsonBody, payload);
-      if (!jsonError) {
+      if(!jsonError) {
         // Store values as a known datatype (String).
         wsData.mode = jsonBody["mode"].as<String>();
         wsData.theme = jsonBody["theme"].as<String>();
@@ -717,7 +738,7 @@ void webSocketClientEvent(WStype_t type, uint8_t * payload, size_t length) {
         }
 
         // Skip further mode changes if in self-test mode.
-        if (b_testing) {
+        if(b_testing) {
           return;
         }
 

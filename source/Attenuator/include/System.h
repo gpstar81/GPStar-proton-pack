@@ -35,13 +35,13 @@ void printPartitions() {
   const esp_partition_t *partition;
   esp_partition_iterator_t iterator = esp_partition_find(ESP_PARTITION_TYPE_ANY, ESP_PARTITION_SUBTYPE_ANY, NULL);
 
-  if (iterator == nullptr) {
+  if(iterator == nullptr) {
     debugln(F("No partitions found."));
     return;
   }
 
   debugln(F("Partitions:"));
-  while (iterator != nullptr) {
+  while(iterator != nullptr) {
     partition = esp_partition_get(iterator);
     debugf("Label: %s, Size: %lu bytes, Address: 0x%08lx\n",
            partition->label,

@@ -68,7 +68,7 @@ const char NETWORK_page[] PROGMEM = R"=====(
     changes to the network name or password will clear previously-entered values.
     <div class="setting">
       <label class="toggle-switchy" data-text="yesno" data-label="left">
-        <input id="editIP" name="editIP" type="checkbox">
+        <input id="useStaticIP" name="useStaticIP" type="checkbox">
         <span class="toggle">
           <span class="switch"></span>
         </span>
@@ -112,6 +112,10 @@ const char NETWORK_page[] PROGMEM = R"=====(
             setValue("address", settings.address || "");
             setValue("subnet", settings.subnet || "");
             setValue("gateway", settings.gateway || "");
+
+            if (getValue("address") != "" || getValue("subnet") != "" || getValue("gateway") != "") {
+              setToggle("useStaticIP", true);
+            }
           }
         }
       };
@@ -145,9 +149,9 @@ const char NETWORK_page[] PROGMEM = R"=====(
       gatewayInput.value = "";
     });
 
-    getEl("editIP").addEventListener("change", function() {
+    getEl("useStaticIP").addEventListener("change", function() {
       // Get the checkbox state to enable the IP fields.
-      var editEnabled = getToggle("editIP");
+      var useStatic = getToggle("useStaticIP");
 
       // Enable or disable based on checkbox state.
       addressInput.disabled = !editEnabled;
@@ -170,22 +174,30 @@ const char NETWORK_page[] PROGMEM = R"=====(
         return;
       }
 
-      var wAddress = getText("address");
-      if (wAddress != "" && !isValidIP(wAddress)) {
-        alert("IP Address is invalid, please correct and try again.");
-        return;
-      }
+      var wStatic = getToggle("useStaticIP");
+      if (wStatic) {
+        var wAddress = getText("address");
+        if (wAddress != "" && !isValidIP(wAddress)) {
+          alert("IP Address is invalid, please correct and try again.");
+          return;
+        }
 
-      var wSubnet = getText("subnet");
-      if (wSubnet != "" && !isValidIP(wSubnet)) {
-        alert("Subnet Mask is invalid, please correct and try again.");
-        return;
-      }
+        var wSubnet = getText("subnet");
+        if (wSubnet != "" && !isValidIP(wSubnet)) {
+          alert("Subnet Mask is invalid, please correct and try again.");
+          return;
+        }
 
-      var wGateway = getText("gateway");
-      if (wGateway != "" && !isValidIP(wGateway)) {
-        alert("Gateway IP is invalid, please correct and try again.");
-        return;
+        var wGateway = getText("gateway");
+        if (wGateway != "" && !isValidIP(wGateway)) {
+          alert("Gateway IP is invalid, please correct and try again.");
+          return;
+        }
+      }
+      else {
+        wAddress = "";
+        wSubnet = "";
+        wGateway = "";
       }
 
       var body = JSON.stringify({

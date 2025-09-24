@@ -569,22 +569,22 @@ void printMemoryStats() {
   debugln(F(" bytes"));
 
   // Stack memory (for other tasks)
-  if (AnimationTaskHandle != NULL) {
+  if(AnimationTaskHandle != NULL) {
     debug(F("|--Animation: "));
     debug(formatBytesWithCommas(uxTaskGetStackHighWaterMark(AnimationTaskHandle)));
     debugln(F(" / 2,048 bytes"));
   }
-  if (SerialCommsTaskHandle != NULL) {
+  if(SerialCommsTaskHandle != NULL) {
     debug(F("|--Serial Comms: "));
     debug(formatBytesWithCommas(uxTaskGetStackHighWaterMark(SerialCommsTaskHandle)));
     debugln(F(" / 4,096 bytes"));
   }
-  if (UserInputTaskHandle != NULL) {
+  if(UserInputTaskHandle != NULL) {
     debug(F("|--User Input: "));
     debug(formatBytesWithCommas(uxTaskGetStackHighWaterMark(UserInputTaskHandle)));
     debugln(F(" / 4,096 bytes"));
   }
-  if (WiFiManagementTaskHandle != NULL) {
+  if(WiFiManagementTaskHandle != NULL) {
     debug(F("|--WiFi Mgmt.: "));
     debug(formatBytesWithCommas(uxTaskGetStackHighWaterMark(WiFiManagementTaskHandle)));
     debugln(F(" / 2,048 bytes"));

@@ -36,13 +36,13 @@ void printPartitions() {
   const esp_partition_t *partition;
   esp_partition_iterator_t iterator = esp_partition_find(ESP_PARTITION_TYPE_ANY, ESP_PARTITION_SUBTYPE_ANY, NULL);
 
-  if (iterator == nullptr) {
+  if(iterator == nullptr) {
     Serial.println(F("No partitions found."));
     return;
   }
 
   Serial.println(F("Partitions:"));
-  while (iterator != nullptr) {
+  while(iterator != nullptr) {
     partition = esp_partition_get(iterator);
     Serial.printf("Label: %s, Size: %lu bytes, Address: 0x%08lx\n",
                   partition->label,
@@ -61,9 +61,9 @@ void updateTopLEDs() {
   fill_solid(top_leds, NUM_TOP_PIXELS, CRGB::Black);
 
   // Set the top RGB LEDs to some color, randomizing with flashes of white.
-  for (int i = 0; i < NUM_TOP_PIXELS; i++) {
+  for(int i = 0; i < NUM_TOP_PIXELS; i++) {
     i_random = random(0, 2);
-    switch (i_random) {
+    switch(i_random) {
       case 0:
         top_leds[i] = getHueAsGRB(i, C_GREEN);
       break;
@@ -85,7 +85,8 @@ void updateLEDs() {  // Static variable to use for choice of LED color.
       // Turn on the LED to indicate the device is fully ready.
       digitalWrite(BUILT_IN_LED, HIGH);
     #endif
-  } else {
+  }
+  else {
     #if defined(USE_ESP32_S3)
       // Set the built-in LED to red while the WiFi and WebSocket are not ready.
       device_leds[0] = getHueAsRGB(0, C_RED, 128);
@@ -95,21 +96,21 @@ void updateLEDs() {  // Static variable to use for choice of LED color.
     #endif
   }
 
-  if (ms_light.isRunning()) {
-    if (digitalRead(TOP_2WHITE) == LOW) {
+  if(ms_light.isRunning()) {
+    if(digitalRead(TOP_2WHITE) == LOW) {
       // While the timer is active, keep the top 2 white LEDs lit.
       debug(F("LED On"));
       digitalWrite(TOP_2WHITE, HIGH); // Set to HIGH (on)
       ms_top_leds.start(i_top_leds_delay); // Start the delay for top LEDs.
     }
 
-    if (ms_top_leds.justFinished()) {
+    if(ms_top_leds.justFinished()) {
       ms_top_leds.repeat(); // Restart the delay
       updateTopLEDs(); // Call the function to alter LEDs
     }
   }
 
-  if (ms_light.justFinished()) {
+  if(ms_light.justFinished()) {
     debug(F("LED Off"));
     digitalWrite(TOP_2WHITE, LOW); // Set to LOW (off)
 
@@ -122,15 +123,15 @@ void updateLEDs() {  // Static variable to use for choice of LED color.
  * Determine the current state of the blower.
  */
 void checkBlower() {
-  if (ms_blower.isRunning() && digitalRead(BLOWER_PIN) == LOW) {
+  if(ms_blower.isRunning() && digitalRead(BLOWER_PIN) == LOW) {
     // If timer is active but power is not applied, turn on the device AFTER the delay period has elapsed.
-    if ((millis() - ms_blower.getStartTime()) >= i_blower_start_delay) {
+    if((millis() - ms_blower.getStartTime()) >= i_blower_start_delay) {
       debug(F("Blower On"));
       digitalWrite(BLOWER_PIN, HIGH); // Set to HIGH (on)
     }
   }
 
-  if (ms_blower.justFinished()) {
+  if(ms_blower.justFinished()) {
     debug(F("Blower Off"));
     digitalWrite(BLOWER_PIN, LOW); // Set to LOW (off)
   }
@@ -140,13 +141,13 @@ void checkBlower() {
  * Determine the current state of the smoke device.
  */
 void checkSmoke() {
-  if (ms_smoke.isRunning() && digitalRead(SMOKE_PIN) == LOW) {
+  if(ms_smoke.isRunning() && digitalRead(SMOKE_PIN) == LOW) {
     // If timer is active but power is not applied, turn on the device immediately.
     debug(F("Smoke On"));
     digitalWrite(SMOKE_PIN, HIGH); // Set to HIGH (on)
   }
 
-  if (ms_smoke.justFinished()) {
+  if(ms_smoke.justFinished()) {
     debug(F("Smoke Off"));
     digitalWrite(SMOKE_PIN, LOW); // Set to LOW (off)
   }
@@ -180,10 +181,10 @@ bool doorsOpened() {
  */
 void checkDoors() {
   // Determine whether the trap doors are currently opened or closed.
-  if (doorsClosed()) {
+  if(doorsClosed()) {
     DOOR_STATE = DOORS_CLOSED;
   }
-  if (doorsOpened()) {
+  if(doorsOpened()) {
     DOOR_STATE = DOORS_OPENED;
   }
 }
@@ -210,17 +211,17 @@ void stopSmoke() {
  * Execute a smoke sequence for a given duration.
  */
 void startSmoke(uint16_t i_duration) {
-  if (!ms_smoke.isRunning()) {
+  if(!ms_smoke.isRunning()) {
     // Check lower/upper limits for duration.
-    if (i_duration < i_smoke_duration_min) {
+    if(i_duration < i_smoke_duration_min) {
       i_duration = i_smoke_duration_min;
     }
-    if (i_duration > i_smoke_duration_max) {
+    if(i_duration > i_smoke_duration_max) {
       i_duration = i_smoke_duration_max;
     }
 
     // If enabled, begin setting timers for the various devices (LED, blower, and smoke).
-    if (b_smoke_enabled && i_duration >= i_smoke_duration_min && i_duration <= i_smoke_duration_max) {
+    if(b_smoke_enabled && i_duration >= i_smoke_duration_min && i_duration <= i_smoke_duration_max) {
       ms_blower.start(i_duration * 2); // Run the blower twice as long as the smoke duration.
       ms_light.start(i_duration * 1.5); // Keep the LED lit only 1.5x the smoke duration.
       ms_smoke.start(i_duration); // Only run smoke for as long as the system will allow.

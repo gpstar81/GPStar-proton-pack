@@ -208,14 +208,14 @@ void UserInputTask(void *parameter) {
     checkDoors(); // Check for door state (open/close).
 
     // Trigger an update to the user that the doors have changed state.
-    if (LAST_DOOR_STATE != DOORS_UNKNOWN && LAST_DOOR_STATE != DOOR_STATE) {
+    if(LAST_DOOR_STATE != DOORS_UNKNOWN && LAST_DOOR_STATE != DOOR_STATE) {
       notifyWSClients(); // Alert connected clients that the doors changed.
 
-      if (DOOR_STATE == DOORS_OPENED && b_smoke_opened_enabled) {
+      if(DOOR_STATE == DOORS_OPENED && b_smoke_opened_enabled) {
         startSmoke(i_smoke_opened_duration); // Run smoke for X seconds after doors open.
         ms_light.start(i_smoke_opened_duration * 2); // Override light timer to double duration.
       }
-      if (DOOR_STATE == DOORS_CLOSED && b_smoke_closed_enabled) {
+      if(DOOR_STATE == DOORS_CLOSED && b_smoke_closed_enabled) {
         startSmoke(i_smoke_closed_duration); // Run smoke for X seconds after doors close.
       }
     }
@@ -444,17 +444,17 @@ void printMemoryStats() {
   Serial.println(F(" bytes"));
 
   // Stack memory (for other tasks)
-  if (AnimationTaskHandle != NULL) {
+  if(AnimationTaskHandle != NULL) {
     Serial.print(F("|--Animation: "));
     Serial.print(formatBytesWithCommas(uxTaskGetStackHighWaterMark(AnimationTaskHandle)));
     Serial.println(F(" / 2,048 bytes"));
   }
-  if (UserInputTaskHandle != NULL) {
+  if(UserInputTaskHandle != NULL) {
     Serial.print(F("|--User Input: "));
     Serial.print(formatBytesWithCommas(uxTaskGetStackHighWaterMark(UserInputTaskHandle)));
     Serial.println(F(" / 4,096 bytes"));
   }
-  if (WiFiManagementTaskHandle != NULL) {
+  if(WiFiManagementTaskHandle != NULL) {
     Serial.print(F("|--WiFi Mgmt.: "));
     Serial.print(formatBytesWithCommas(uxTaskGetStackHighWaterMark(WiFiManagementTaskHandle)));
     Serial.println(F(" / 2,048 bytes"));

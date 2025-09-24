@@ -682,7 +682,7 @@ bool detectShakeEvent() {
   const float ANGVEL_SHAKE_THRESHOLD = 180.0f;  // In deg/s, adjust as needed
 
   // Detect shake if either threshold is exceeded
-  if (filteredMotionData.gForce > GFORCE_SHAKE_THRESHOLD &&
+  if(filteredMotionData.gForce > GFORCE_SHAKE_THRESHOLD &&
       filteredMotionData.angVel > ANGVEL_SHAKE_THRESHOLD) {
   #if defined(DEBUG_TELEMETRY_DATA)
     debug(F("gForce="));
@@ -919,7 +919,7 @@ void checkMotionSensors() {
       debugln();
     #endif
 
-      if (SENSOR_READ_TARGET == TELEMETRY) {
+      if(SENSOR_READ_TARGET == TELEMETRY) {
         // Send telemetry data to connected clients via server-side events.
         sendTelemetryData();
       }
@@ -1062,7 +1062,7 @@ void reportCalibrationData() {
   Serial.print(mag_event.magnetic.z); Serial.println("");
 
   // Send the magnetometer data to the MagCal logic for collection into bins.
-  if (MagCal::addSample(mag_event.magnetic.x, mag_event.magnetic.y, mag_event.magnetic.z)) {
+  if(MagCal::addSample(mag_event.magnetic.x, mag_event.magnetic.y, mag_event.magnetic.z)) {
     // Only send the calibration points to web-connected clients if a new point is added.
     sendCalibrationPoints();
   }

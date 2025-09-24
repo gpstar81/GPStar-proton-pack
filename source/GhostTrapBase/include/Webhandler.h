@@ -463,10 +463,12 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
     String subnetMask = jsonBody["subnet"].as<String>();
     String gatewayIP = jsonBody["gateway"].as<String>();
 
-    // If no errors encountered, continue with storing a preferred network (with credentials and IP information).
-    if(wifiNetwork.length() >= 2 && wifiPasswd.length() >= 8) {
-      // Accesses namespace in read/write mode.
-      if(preferences.begin("network", false)) {
+    // Accesses namespace in read/write mode.
+    if(preferences.begin("network", false)) {
+      // Store the state of toggle switches regardless.
+      preferences.putBool("enabled", b_enabled);
+
+      if(wifiNetwork.length() >= 2 && wifiPasswd.length() >= 8) {
         // Clear old network IP info if SSID or password have been changed.
         String old_ssid = preferences.getString("ssid", "");
         String old_passwd = preferences.getString("password", "");
@@ -477,23 +479,41 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
         }
 
         // Store the critical values to enable/disable the external WiFi.
-        preferences.putBool("enabled", b_enabled);
         preferences.putString("ssid", wifiNetwork);
         preferences.putString("password", wifiPasswd);
 
         // Continue saving only if network values are 7 characters or more (eg. N.N.N.N)
+        bool b_static_ip = true;
         if(localAddr.length() >= 7 && localAddr != wifi_address) {
           preferences.putString("address", localAddr);
+        }
+        else {
+          b_static_ip = false;
         }
         if(subnetMask.length() >= 7 && subnetMask != wifi_subnet) {
           preferences.putString("subnet", subnetMask);
         }
+        else {
+          b_static_ip = false;
+        }
         if(gatewayIP.length() >= 7 && gatewayIP != wifi_gateway) {
           preferences.putString("gateway", gatewayIP);
         }
-
-        preferences.end();
+        else {
+          b_static_ip = false;
+        }
+        if(!b_static_ip) {
+          // If any of the above values were invalid, blank all three.
+          preferences.putString("address", "");
+          preferences.putString("subnet", "");
+          preferences.putString("gateway", "");
+        }
       }
+
+      preferences.end();
+    }
+    else {
+      b_errors = true;
     }
 
     if(!b_errors) {

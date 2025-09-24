@@ -245,7 +245,7 @@ void onOTAStart() {
 
 void onOTAProgress(size_t current, size_t final) {
   // Log every 1 second
-  if (millis() - i_progress_millis > 1000) {
+  if(millis() - i_progress_millis > 1000) {
     i_progress_millis = millis();
     debugf("OTA Progress Current: %u bytes, Final: %u bytes\n", current, final);
   }
@@ -253,9 +253,10 @@ void onOTAProgress(size_t current, size_t final) {
 
 void onOTAEnd(bool success) {
   // Log when OTA has finished
-  if (success) {
+  if(success) {
     debug(F("OTA update finished successfully!"));
-  } else {
+  }
+  else {
     debug(F("There was an error during OTA update!"));
   }
 }
@@ -693,7 +694,7 @@ void handleCalibrateSensorsEnabled(AsyncWebServerRequest *request) {
 void handleCalibrateSensorsDisabled(AsyncWebServerRequest *request) {
   // Determine if proper coverage was achieved before calculating and storing data.
   float coverage = MagCal::getCoveragePercent();
-  if (coverage >= 60.0f) {
+  if(coverage >= 60.0f) {
     // Compute calibration data for the standard calibration object.
     magCalData = MagCal::computeCalibrationEllipsoid();
 
@@ -731,9 +732,10 @@ void handleRestart(AsyncWebServerRequest *request) {
 }
 
 void toggleDeviceMute() {
-  if (i_volume_master == i_volume_abs_min) {
+  if(i_volume_master == i_volume_abs_min) {
     i_volume_master = i_volume_revert;
-  } else {
+  }
+  else {
     i_volume_revert = i_volume_master;
 
     // Set the master volume to minimum.
@@ -748,16 +750,17 @@ void handleToggleMute(AsyncWebServerRequest *request) {
   debugln("Web: Toggle Mute");
 
   String s_path = request->url();
-  if (s_path.length() > 0) {
+  if(s_path.length() > 0) {
     int lastSlash = s_path.lastIndexOf('/');
-    if (lastSlash >= 0 && lastSlash < s_path.length() - 1) {
+    if(lastSlash >= 0 && lastSlash < s_path.length() - 1) {
       String segment = s_path.substring(lastSlash + 1);
-      if (segment == "mute") {
+      if(segment == "mute") {
         toggleDeviceMute();
         notifyWSClients();
         request->send(200, "application/json", status);
         return;
-      } else if (segment == "unmute") {
+      }
+      else if(segment == "unmute") {
         toggleDeviceMute();
         notifyWSClients();
         request->send(200, "application/json", status);
@@ -820,7 +823,8 @@ void handleMusicStartStop(AsyncWebServerRequest *request) {
   debugln("Web: Music Start/Stop");
   if(!b_playing_music && !b_music_paused) {
     playMusic();
-  } else {
+  }
+  else {
     stopMusic();
   }
   request->send(200, "application/json", status);
@@ -831,7 +835,8 @@ void handleMusicPauseResume(AsyncWebServerRequest *request) {
   debugln("Web: Music Pause/Resume");
   if(b_playing_music && !b_music_paused) {
     pauseMusic();
-  } else {
+  }
+  else {
     resumeMusic();
   }
   request->send(200, "application/json", status);
@@ -856,16 +861,17 @@ void handleLoopMusicTrack(AsyncWebServerRequest *request) {
   debugln("Web: Toggle Music Track Loop");
 
   String s_path = request->url();
-  if (s_path.length() > 0) {
+  if(s_path.length() > 0) {
     int lastSlash = s_path.lastIndexOf('/');
-    if (lastSlash >= 0 && lastSlash < s_path.length() - 1) {
+    if(lastSlash >= 0 && lastSlash < s_path.length() - 1) {
       String segment = s_path.substring(lastSlash + 1);
-      if (segment == "single") {
+      if(segment == "single") {
         toggleMusicLoop();
         notifyWSClients();
         request->send(200, "application/json", status);
         return;
-      } else if (segment == "all") {
+      }
+      else if(segment == "all") {
         toggleMusicLoop();
         notifyWSClients();
         request->send(200, "application/json", status);
@@ -1009,7 +1015,7 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
     // Accesses namespace in read/write mode.
     if(preferences.begin("device", false)) {
       // Store the orientation value to preferences (if not zero).
-      if (i_orientation > 0) {
+      if(i_orientation > 0) {
         preferences.putShort("orientation", i_orientation);
       }
 
@@ -1190,10 +1196,12 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
     String subnetMask = jsonBody["subnet"].as<String>();
     String gatewayIP = jsonBody["gateway"].as<String>();
 
-    // If no errors encountered, continue with storing a preferred network (with credentials and IP information).
-    if(wifiNetwork.length() >= 2 && wifiPasswd.length() >= 8) {
-      // Accesses namespace in read/write mode.
-      if(preferences.begin("network", false)) {
+    // Accesses namespace in read/write mode.
+    if(preferences.begin("network", false)) {
+      // Store the state of toggle switches regardless.
+      preferences.putBool("enabled", b_enabled);
+
+      if(wifiNetwork.length() >= 2 && wifiPasswd.length() >= 8) {
         // Clear old network IP info if SSID or password have been changed.
         String old_ssid = preferences.getString("ssid", "");
         String old_passwd = preferences.getString("password", "");
@@ -1204,23 +1212,41 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
         }
 
         // Store the critical values to enable/disable the external WiFi.
-        preferences.putBool("enabled", b_enabled);
         preferences.putString("ssid", wifiNetwork);
         preferences.putString("password", wifiPasswd);
 
         // Continue saving only if network values are 7 characters or more (eg. N.N.N.N)
+        bool b_static_ip = true;
         if(localAddr.length() >= 7 && localAddr != wifi_address) {
           preferences.putString("address", localAddr);
+        }
+        else {
+          b_static_ip = false;
         }
         if(subnetMask.length() >= 7 && subnetMask != wifi_subnet) {
           preferences.putString("subnet", subnetMask);
         }
+        else {
+          b_static_ip = false;
+        }
         if(gatewayIP.length() >= 7 && gatewayIP != wifi_gateway) {
           preferences.putString("gateway", gatewayIP);
         }
-
-        preferences.end();
+        else {
+          b_static_ip = false;
+        }
+        if(!b_static_ip) {
+          // If any of the above values were invalid, blank all three.
+          preferences.putString("address", "");
+          preferences.putString("subnet", "");
+          preferences.putString("gateway", "");
+        }
       }
+
+      preferences.end();
+    }
+    else {
+      b_errors = true;
     }
 
     if(!b_errors) {

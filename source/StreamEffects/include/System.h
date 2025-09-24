@@ -39,13 +39,13 @@ void printPartitions() {
   const esp_partition_t *partition;
   esp_partition_iterator_t iterator = esp_partition_find(ESP_PARTITION_TYPE_ANY, ESP_PARTITION_SUBTYPE_ANY, NULL);
 
-  if (iterator == nullptr) {
+  if(iterator == nullptr) {
     Serial.println(F("No partitions found."));
     return;
   }
 
   Serial.println(F("Partitions:"));
-  while (iterator != nullptr) {
+  while(iterator != nullptr) {
     partition = esp_partition_get(iterator);
     Serial.printf("Label: %s, Size: %lu bytes, Address: 0x%08lx\n",
                   partition->label,
@@ -66,11 +66,11 @@ void animateLights() {
   static uint8_t paletteIndex = 0; // Tracks the current base color index in the palette
   static uint16_t wavePosition = 0; // Tracks the position of the wave
 
-  if (ms_anim_change.justFinished()) {
+  if(ms_anim_change.justFinished()) {
     ms_anim_change.start(i_animation_time);
 
     // Iterate through all LEDs
-    for (uint16_t i = 0; i < deviceNumLeds; i++) {
+    for(uint16_t i = 0; i < deviceNumLeds; i++) {
       // Calculate a brightness factor based on the wave position
       uint8_t brightness = sin8((wavePosition + i * 20) % 255);
 

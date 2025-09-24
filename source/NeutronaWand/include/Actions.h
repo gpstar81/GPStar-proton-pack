@@ -1342,13 +1342,14 @@ void checkWandAction() {
           else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
             if(switch_intensify.pushed()) {
               // Toggle the Neutrona Wand WiFi.
-              if (WIFI_MODE == WIFI_ENABLED) {
+              if(WIFI_MODE == WIFI_ENABLED) {
                 WIFI_MODE = WIFI_DISABLED;
                 stopEffect(S_VOICE_WAND_WIFI_DISABLED);
                 stopEffect(S_VOICE_WAND_WIFI_ENABLED);
                 playEffect(S_VOICE_WAND_WIFI_DISABLED);
                 wandSerialSend(W_WAND_WIFI_DISABLED);
-              } else {
+              }
+              else {
                 WIFI_MODE = WIFI_ENABLED;
                 stopEffect(S_VOICE_WAND_WIFI_DISABLED);
                 stopEffect(S_VOICE_WAND_WIFI_ENABLED);

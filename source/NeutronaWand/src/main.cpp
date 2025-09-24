@@ -106,7 +106,7 @@ void sendDebug(const String message) {
     debugln(message); // Print to serial console.
   #endif
   #if defined(DEBUG_SEND_TO_WEBSOCKET) and defined(ESP32)
-    if (b_ws_started) {
+    if(b_ws_started) {
       ws.textAll(message); // Send a copy to the WebSocket.
     }
   #endif
@@ -162,7 +162,7 @@ void setup() {
 
   // RGB Vent Light.
   FastLED.addLeds<NEOPIXEL, TOP_LED_PIN>(vent_leds, VENT_LEDS_MAX).setCorrection(TypicalLEDStrip);
-  for (uint8_t i = 0; i < VENT_LEDS_MAX; i++) {
+  for(uint8_t i = 0; i < VENT_LEDS_MAX; i++) {
     // Initialize all vent_leds to white initially.
     vent_leds[i] = getHueAsRGB(C_WHITE);
   }
@@ -201,9 +201,9 @@ void setup() {
 
   // Attempt to start the sensors or die trying.
   Wire1.begin(IMU_SDA, IMU_SCL, 400000UL);
-  if (!initializeSensors()) {
+  if(!initializeSensors()) {
     debugln("Failed to find sensors");
-    while (1) delay(10);
+    while(1) delay(10);
   }
 
   // Print information about the sensors.
@@ -587,6 +587,33 @@ void mainLoop() {
 
 // The main loop of the program which manages all system operations which must occur on every loop.
 void loop() {
+#ifdef ESP32
+  // The ESP32 uses a dual-core CPU with the loop() executing in Core0 by default.
+  // Using vTaskDelay even without core-pinning will allow other tasks to run on Core1.
+  // Features such as networking, WiFi, and OTA updates can benefit from this brief delay.
+  vTaskDelay(pdMS_TO_TICKS(1)); // Translate 1 ms to ticks for delay.
+
+  // Run checks on web-related tasks.
+  webLoops();
+
+  // Check the motion sensors if they are available and the timer has completed.
+  checkMotionSensors();
+
+  // Take action with Wifi based on user preference.
+  switch(WIFI_MODE) {
+    case WIFI_ENABLED:
+    default:
+      // Begin by setting up WiFi as a prerequisite to all else.
+      restartWireless();
+    break;
+
+    case WIFI_DISABLED:
+      // Do not start WiFi or the web server.
+      shutdownWireless();
+    break;
+  }
+#endif
+
   switch(WAND_CONN_STATE) {
     case PACK_DISCONNECTED:
       // While waiting for a proton pack, issue a request for synchronization.
@@ -648,31 +675,4 @@ void loop() {
 
     ms_fast_led.start(i_fast_led_delay);
   }
-
-#ifdef ESP32
-  // The ESP32 uses a dual-core CPU with the loop() executing in Core0 by default.
-  // Using vTaskDelay even without core-pinning will allow other tasks to run on Core1.
-  // Features such as networking, WiFi, and OTA updates can benefit from this brief delay.
-  vTaskDelay(pdMS_TO_TICKS(1)); // Translate 1 ms to ticks for delay.
-
-  // Run checks on web-related tasks.
-  webLoops();
-
-  // Check the motion sensors if they are available and the timer has completed.
-  checkMotionSensors();
-
-  // Take action with Wifi based on user preference.
-  switch(WIFI_MODE) {
-    case WIFI_ENABLED:
-      // Begin by setting up WiFi as a prerequisite to all else.
-      restartWireless();
-    break;
-
-    case WIFI_DISABLED:
-    default:
-      // Do not start WiFi or the web server.
-      shutdownWireless();
-    break;
-  }
-#endif
 }

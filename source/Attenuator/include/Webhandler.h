@@ -244,7 +244,7 @@ void onOTAStart() {
 
 void onOTAProgress(size_t current, size_t final) {
   // Log every 1 second
-  if (millis() - i_progress_millis > 1000) {
+  if(millis() - i_progress_millis > 1000) {
     i_progress_millis = millis();
     debugf("OTA Progress Current: %u bytes, Final: %u bytes\n", current, final);
   }
@@ -252,9 +252,10 @@ void onOTAProgress(size_t current, size_t final) {
 
 void onOTAEnd(bool success) {
   // Log when OTA has finished
-  if (success) {
+  if(success) {
     debugln(F("OTA update finished successfully!"));
-  } else {
+  }
+  else {
     debugln(F("There was an error during OTA update!"));
   }
 }
@@ -756,7 +757,8 @@ void handleAttenuatePack(AsyncWebServerRequest *request) {
     debugln("Web: Cancel Overheat Warning");
     attenuatorSerialSend(A_WARNING_CANCELLED);
     request->send(200, "application/json", status);
-  } else {
+  }
+  else {
     // Tell the user why the requested action failed.
     String result;
     jsonBody.clear();
@@ -776,15 +778,16 @@ void handleToggleSmoke(AsyncWebServerRequest *request) {
   debugln("Web: Smoke Toggle Triggered");
 
   String s_path = request->url();
-  if (s_path.length() > 0) {
+  if(s_path.length() > 0) {
     int lastSlash = s_path.lastIndexOf('/');
-    if (lastSlash >= 0 && lastSlash < s_path.length() - 1) {
+    if(lastSlash >= 0 && lastSlash < s_path.length() - 1) {
       String segment = s_path.substring(lastSlash + 1);
-      if (segment == "on") {
+      if(segment == "on") {
         attenuatorSerialSend(A_TOGGLE_SMOKE);
         request->send(200, "application/json", status);
         return;
-      } else if (segment == "off") {
+      }
+      else if(segment == "off") {
         attenuatorSerialSend(A_TOGGLE_SMOKE);
         request->send(200, "application/json", status);
         return;
@@ -804,15 +807,16 @@ void handleToggleVibration(AsyncWebServerRequest *request) {
   debugln("Web: Vibration Toggle Triggered");
 
   String s_path = request->url();
-  if (s_path.length() > 0) {
+  if(s_path.length() > 0) {
     int lastSlash = s_path.lastIndexOf('/');
-    if (lastSlash >= 0 && lastSlash < s_path.length() - 1) {
+    if(lastSlash >= 0 && lastSlash < s_path.length() - 1) {
       String segment = s_path.substring(lastSlash + 1);
-      if (segment == "on") {
+      if(segment == "on") {
         attenuatorSerialSend(A_TOGGLE_VIBRATION);
         request->send(200, "application/json", status);
         return;
-      } else if (segment == "off") {
+      }
+      else if(segment == "off") {
         attenuatorSerialSend(A_TOGGLE_VIBRATION);
         request->send(200, "application/json", status);
         return;
@@ -832,15 +836,16 @@ void handleCyclotronDirection(AsyncWebServerRequest *request) {
   debugln("Web: Cyclotron Direction Toggle Triggered");
 
   String s_path = request->url();
-  if (s_path.length() > 0) {
+  if(s_path.length() > 0) {
     int lastSlash = s_path.lastIndexOf('/');
-    if (lastSlash >= 0 && lastSlash < s_path.length() - 1) {
+    if(lastSlash >= 0 && lastSlash < s_path.length() - 1) {
       String segment = s_path.substring(lastSlash + 1);
-      if (segment == "clockwise") {
+      if(segment == "clockwise") {
         attenuatorSerialSend(A_CYCLOTRON_DIRECTION_TOGGLE);
         request->send(200, "application/json", status);
         return;
-      } else if (segment == "counterclockwise") {
+      }
+      else if(segment == "counterclockwise") {
         attenuatorSerialSend(A_CYCLOTRON_DIRECTION_TOGGLE);
         request->send(200, "application/json", status);
         return;
@@ -858,13 +863,13 @@ void handleCyclotronDirection(AsyncWebServerRequest *request) {
 
 uint16_t getYearFromPath(const String s_path) {
   // Check that the path value is not empty.
-  if (s_path.length() > 0) {
+  if(s_path.length() > 0) {
     int lastSlash = s_path.lastIndexOf('/');
-    if (lastSlash >= 0 && lastSlash < s_path.length() - 1) {
+    if(lastSlash >= 0 && lastSlash < s_path.length() - 1) {
       String segment = s_path.substring(lastSlash + 1);
       uint16_t year = segment.toInt();
       // Only return if segment is a valid theme year (1984, 1989, 2021, 2024)
-      if (year == 1984 || year == 1989 || year == 2021 || year == 2024) {
+      if(year == 1984 || year == 1989 || year == 2021 || year == 2024) {
         return year;
       }
     }
@@ -877,7 +882,7 @@ void handleThemeChange(AsyncWebServerRequest *request) {
   debugln("Web: Theme Change Triggered");
 
   // Pre-check: Prevent theme change if pack or wand is running.
-  if (b_pack_on || b_wand_on || b_pack_shutting_down) {
+  if(b_pack_on || b_wand_on || b_pack_shutting_down) {
     String result;
     jsonBody.clear();
     jsonBody["status"] = "Theme change not allowed while pack or wand is running.";
@@ -887,7 +892,7 @@ void handleThemeChange(AsyncWebServerRequest *request) {
   }
 
   uint16_t i_year = getYearFromPath(request->url());
-  switch (i_year) {
+  switch(i_year) {
     case 1984:
       SYSTEM_YEAR = SYSTEM_1984;
       attenuatorSerialSend(A_YEAR_1984);
@@ -921,15 +926,16 @@ void handleToggleMute(AsyncWebServerRequest *request) {
   debugln("Web: Toggle Mute");
 
   String s_path = request->url();
-  if (s_path.length() > 0) {
+  if(s_path.length() > 0) {
     int lastSlash = s_path.lastIndexOf('/');
-    if (lastSlash >= 0 && lastSlash < s_path.length() - 1) {
+    if(lastSlash >= 0 && lastSlash < s_path.length() - 1) {
       String segment = s_path.substring(lastSlash + 1);
-      if (segment == "mute") {
+      if(segment == "mute") {
         attenuatorSerialSend(A_TOGGLE_MUTE);
         request->send(200, "application/json", status);
         return;
-      } else if (segment == "unmute") {
+      }
+      else if(segment == "unmute") {
         attenuatorSerialSend(A_TOGGLE_MUTE);
         request->send(200, "application/json", status);
         return;
@@ -1009,15 +1015,16 @@ void handleLoopMusicTrack(AsyncWebServerRequest *request) {
   debugln("Web: Toggle Music Track Loop");
 
   String s_path = request->url();
-  if (s_path.length() > 0) {
+  if(s_path.length() > 0) {
     int lastSlash = s_path.lastIndexOf('/');
-    if (lastSlash >= 0 && lastSlash < s_path.length() - 1) {
+    if(lastSlash >= 0 && lastSlash < s_path.length() - 1) {
       String segment = s_path.substring(lastSlash + 1);
-      if (segment == "single") {
+      if(segment == "single") {
         attenuatorSerialSend(A_MUSIC_TRACK_LOOP_TOGGLE);
         request->send(200, "application/json", status);
         return;
-      } else if (segment == "all") {
+      }
+      else if(segment == "all") {
         attenuatorSerialSend(A_MUSIC_TRACK_LOOP_TOGGLE);
         request->send(200, "application/json", status);
         return;
@@ -1538,10 +1545,12 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
     String subnetMask = jsonBody["subnet"].as<String>();
     String gatewayIP = jsonBody["gateway"].as<String>();
 
-    // If no errors encountered, continue with storing a preferred network (with credentials and IP information).
-    if(wifiNetwork.length() >= 2 && wifiPasswd.length() >= 8) {
-      // Accesses namespace in read/write mode.
-      if(preferences.begin("network", false)) {
+    // Accesses namespace in read/write mode.
+    if(preferences.begin("network", false)) {
+      // Store the state of toggle switches regardless.
+      preferences.putBool("enabled", b_enabled);
+
+      if(wifiNetwork.length() >= 2 && wifiPasswd.length() >= 8) {
         // Clear old network IP info if SSID or password have been changed.
         String old_ssid = preferences.getString("ssid", "");
         String old_passwd = preferences.getString("password", "");
@@ -1552,23 +1561,41 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
         }
 
         // Store the critical values to enable/disable the external WiFi.
-        preferences.putBool("enabled", b_enabled);
         preferences.putString("ssid", wifiNetwork);
         preferences.putString("password", wifiPasswd);
 
         // Continue saving only if network values are 7 characters or more (eg. N.N.N.N)
+        bool b_static_ip = true;
         if(localAddr.length() >= 7 && localAddr != wifi_address) {
           preferences.putString("address", localAddr);
+        }
+        else {
+          b_static_ip = false;
         }
         if(subnetMask.length() >= 7 && subnetMask != wifi_subnet) {
           preferences.putString("subnet", subnetMask);
         }
+        else {
+          b_static_ip = false;
+        }
         if(gatewayIP.length() >= 7 && gatewayIP != wifi_gateway) {
           preferences.putString("gateway", gatewayIP);
         }
-
-        preferences.end();
+        else {
+          b_static_ip = false;
+        }
+        if(!b_static_ip) {
+          // If any of the above values were invalid, blank all three.
+          preferences.putString("address", "");
+          preferences.putString("subnet", "");
+          preferences.putString("gateway", "");
+        }
       }
+
+      preferences.end();
+    }
+    else {
+      b_errors = true;
     }
 
     if(!b_errors) {

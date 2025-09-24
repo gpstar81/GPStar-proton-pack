@@ -480,7 +480,7 @@ void attenuatorSerialSend(uint8_t i_command, uint16_t i_value) {
 
 #ifdef ESP32
   // Send latest status to the WebSocket (ESP32 only), skipping this action on certain commands.
-  if (!isExcludedCommand(i_command)) {
+  if(!isExcludedCommand(i_command)) {
     notifyWSClients();
   }
 #endif
@@ -506,7 +506,7 @@ void attenuatorSendData(uint8_t i_message) {
 
 #ifdef ESP32
   // Send latest status to the WebSocket (ESP32 only), skipping this action on certain commands.
-  if (!isExcludedCommand(i_message)) {
+  if(!isExcludedCommand(i_message)) {
     notifyWSClients();
   }
 #endif
@@ -2161,12 +2161,13 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_TOGGLE_PACK_WIFI:
     #ifdef ESP32
       // Toggle the Proton Pack WiFi.
-      if (WIFI_MODE == WIFI_DEFAULT || WIFI_MODE == WIFI_ENABLED) {
+      if(WIFI_MODE == WIFI_DEFAULT || WIFI_MODE == WIFI_ENABLED) {
         WIFI_MODE = WIFI_DISABLED;
         stopEffect(S_VOICE_PACK_WIFI_DISABLED);
         stopEffect(S_VOICE_PACK_WIFI_ENABLED);
         playEffect(S_VOICE_PACK_WIFI_DISABLED);
-      } else {
+      }
+      else {
         WIFI_MODE = WIFI_ENABLED;
         stopEffect(S_VOICE_PACK_WIFI_DISABLED);
         stopEffect(S_VOICE_PACK_WIFI_ENABLED);

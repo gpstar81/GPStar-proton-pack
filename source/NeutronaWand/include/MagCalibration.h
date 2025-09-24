@@ -90,11 +90,11 @@ namespace MagCal {
   // Add a raw magnetometer sample, only stores if it expands coverage
   // Returns true if sample was added, false if ignored (duplicate bin or max samples reached)
   inline bool addSample(float x, float y, float z) {
-    if (sampleCount >= MAX_SAMPLES) return false; // Max samples reached
+    if(sampleCount >= MAX_SAMPLES) return false; // Max samples reached
 
     // Normalize vector
     float r = sqrt(x * x + y * y + z * z);
-    if (r == 0) return false; // Invalid sample
+    if(r == 0) return false; // Invalid sample
     float nx = x / r;
     float ny = y / r;
     float nz = z / r;
@@ -107,15 +107,15 @@ namespace MagCal {
     int azIndex = (int)((az + M_PI) / (2 * M_PI) * NUM_AZIMUTH_BINS);
     int elIndex = (int)((el + M_PI/2) / M_PI * NUM_ELEVATION_BINS);
 
-    if (azIndex < 0) azIndex = 0;
-    if (azIndex >= NUM_AZIMUTH_BINS) azIndex = NUM_AZIMUTH_BINS - 1;
-    if (elIndex < 0) elIndex = 0;
-    if (elIndex >= NUM_ELEVATION_BINS) elIndex = NUM_ELEVATION_BINS - 1;
+    if(azIndex < 0) azIndex = 0;
+    if(azIndex >= NUM_AZIMUTH_BINS) azIndex = NUM_AZIMUTH_BINS - 1;
+    if(elIndex < 0) elIndex = 0;
+    if(elIndex >= NUM_ELEVATION_BINS) elIndex = NUM_ELEVATION_BINS - 1;
 
     int binIndex = elIndex * NUM_AZIMUTH_BINS + azIndex;
 
     // Only store if bin is empty
-    if (!bins[binIndex]) {
+    if(!bins[binIndex]) {
       bins[binIndex] = true;
 
       // Store in calibration buffer
@@ -125,7 +125,7 @@ namespace MagCal {
       sampleCount++;
 
       // Store in visualization buffer
-      if (visCount < MAX_POINTS) {
+      if(visCount < MAX_POINTS) {
         visX[visCount] = x;
         visY[visCount] = y;
         visZ[visCount] = z;
@@ -141,7 +141,7 @@ namespace MagCal {
   // Get coverage % (0..100) based on filled bins
   inline float getCoveragePercent() {
     int filled = 0;
-    for (int i = 0; i < MAX_POINTS; i++) if (bins[i]) filled++;
+    for(int i = 0; i < MAX_POINTS; i++) if(bins[i]) filled++;
     return (filled / (float)MAX_POINTS) * 100.0f;
   }
 
@@ -165,12 +165,12 @@ namespace MagCal {
     float minZ = zSamples[0], maxZ = zSamples[0];
 
     for(int i = 1; i < sampleCount; i++){
-      if (xSamples[i] < minX) minX = xSamples[i];
-      if (xSamples[i] > maxX) maxX = xSamples[i];
-      if (ySamples[i] < minY) minY = ySamples[i];
-      if (ySamples[i] > maxY) maxY = ySamples[i];
-      if (zSamples[i] < minZ) minZ = zSamples[i];
-      if (zSamples[i] > maxZ) maxZ = zSamples[i];
+      if(xSamples[i] < minX) minX = xSamples[i];
+      if(xSamples[i] > maxX) maxX = xSamples[i];
+      if(ySamples[i] < minY) minY = ySamples[i];
+      if(ySamples[i] > maxY) maxY = ySamples[i];
+      if(zSamples[i] < minZ) minZ = zSamples[i];
+      if(zSamples[i] > maxZ) maxZ = zSamples[i];
     }
 
     // Step 2: hard-iron offsets
@@ -209,9 +209,9 @@ namespace MagCal {
 
   // Helper: Compute mean (center) of samples
   inline void computeMeanCenter(float &cx, float &cy, float &cz) {
-    if (sampleCount == 0) { cx = cy = cz = 0.0f; return; }
+    if(sampleCount == 0) { cx = cy = cz = 0.0f; return; }
     double sx = 0, sy = 0, sz = 0;
-    for (int i = 0; i < sampleCount; ++i) {
+    for(int i = 0; i < sampleCount; ++i) {
       sx += xSamples[i];
       sy += ySamples[i];
       sz += zSamples[i];
@@ -224,11 +224,11 @@ namespace MagCal {
   // Helper: Compute covariance matrix of centered samples (3x3 symmetric)
   inline void computeCovariance(const float cx, const float cy, const float cz, float cov[3][3]) {
     // zero
-    for (int i=0;i<3;i++) for (int j=0;j<3;j++) cov[i][j] = 0.0f;
-    if (sampleCount < 2) return;
+    for(int i=0;i<3;i++) for(int j=0;j<3;j++) cov[i][j] = 0.0f;
+    if(sampleCount < 2) return;
 
     // accumulate
-    for (int i = 0; i < sampleCount; ++i) {
+    for(int i = 0; i < sampleCount; ++i) {
       float dx = xSamples[i] - cx;
       float dy = ySamples[i] - cy;
       float dz = zSamples[i] - cz;
@@ -255,15 +255,15 @@ namespace MagCal {
     // initialize
     float a00 = A[0][0], a01 = A[0][1], a02 = A[0][2];
     float a11 = A[1][1], a12 = A[1][2], a22 = A[2][2];
-    for (int r=0;r<3;r++) for (int c=0;c<3;c++) V[r][c] = (r==c)?1.0f:0.0f;
+    for(int r=0;r<3;r++) for(int c=0;c<3;c++) V[r][c] = (r==c)?1.0f:0.0f;
 
     const int MAX_ITER = 60;
-    for (int iter=0; iter<MAX_ITER; ++iter) {
+    for(int iter=0; iter<MAX_ITER; ++iter) {
       float abs01 = fabsf(a01), abs02 = fabsf(a02), abs12 = fabsf(a12);
-      if (abs01 < 1e-8f && abs02 < 1e-8f && abs12 < 1e-8f) break;
+      if(abs01 < 1e-8f && abs02 < 1e-8f && abs12 < 1e-8f) break;
       int p=0,q=1; float maxv = abs01;
-      if (abs02 > maxv) { maxv=abs02; p=0; q=2; }
-      if (abs12 > maxv) { maxv=abs12; p=1; q=2; }
+      if(abs02 > maxv) { maxv=abs02; p=0; q=2; }
+      if(abs12 > maxv) { maxv=abs12; p=1; q=2; }
 
       float apq = (p==0 && q==1)?a01 : (p==0 && q==2)?a02 : a12;
       float app = (p==0)?a00 : (p==1)?a11 : a22;
@@ -273,19 +273,21 @@ namespace MagCal {
 
       // update matrix entries according to p,q
       float b01=a01,b02=a02,b12=a12;
-      if (p==0 && q==1) {
+      if(p==0 && q==1) {
         a00 = c*c*app - 2.0f*s*c*apq + s*s*aqq;
         a11 = s*s*app + 2.0f*s*c*apq + c*c*aqq;
         a01 = 0.0f;
         a02 = c*b02 - s*b12;
         a12 = s*b02 + c*b12;
-      } else if (p==0 && q==2) {
+      }
+      else if(p==0 && q==2) {
         a00 = c*c*app - 2.0f*s*c*apq + s*s*aqq;
         a22 = s*s*app + 2.0f*s*c*apq + c*c*aqq;
         a02 = 0.0f;
         a01 = c*b01 - s*b12;
         a12 = s*b01 + c*b12;
-      } else {
+      }
+      else {
         a11 = c*c*app - 2.0f*s*c*apq + s*s*aqq;
         a22 = s*s*app + 2.0f*s*c*apq + c*c*aqq;
         a12 = 0.0f;
@@ -294,7 +296,7 @@ namespace MagCal {
       }
 
       // update V columns p,q
-      for (int r=0;r<3;r++) {
+      for(int r=0;r<3;r++) {
         float vip = V[r][p], viq = V[r][q];
         V[r][p] = c*vip - s*viq;
         V[r][q] = s*vip + c*viq;
@@ -303,12 +305,12 @@ namespace MagCal {
 
     w[0]=a00; w[1]=a11; w[2]=a22;
     // sort descending
-    for (int i=0;i<2;i++) {
+    for(int i=0;i<2;i++) {
       int idx=i;
-      for (int j=i+1;j<3;j++) if (w[j] > w[idx]) idx=j;
-      if (idx!=i) {
+      for(int j=i+1;j<3;j++) if(w[j] > w[idx]) idx=j;
+      if(idx!=i) {
         float tw=w[i]; w[i]=w[idx]; w[idx]=tw;
-        for (int r=0;r<3;r++) { float tv=V[r][i]; V[r][i]=V[r][idx]; V[r][idx]=tv; }
+        for(int r=0;r<3;r++) { float tv=V[r][i]; V[r][i]=V[r][idx]; V[r][idx]=tv; }
       }
     }
   }
@@ -321,28 +323,28 @@ namespace MagCal {
     float lambda[3];
     // copy cov into mutable array for jacobi
     float Acopy[3][3];
-    for (int i=0;i<3;i++) for (int j=0;j<3;j++) Acopy[i][j] = cov[i][j];
+    for(int i=0;i<3;i++) for(int j=0;j<3;j++) Acopy[i][j] = cov[i][j];
 
     jacobiEigen3(Acopy, V, lambda);
 
     // guard: ensure positive eigenvalues
-    for (int i=0;i<3;i++) if (lambda[i] <= 1e-9f) lambda[i] = 1e-9f;
+    for(int i=0;i<3;i++) if(lambda[i] <= 1e-9f) lambda[i] = 1e-9f;
 
     // compute D^{-1/2}
     float DinvSqrt[3];
-    for (int i=0;i<3;i++) DinvSqrt[i] = 1.0f / sqrtf(lambda[i]);
+    for(int i=0;i<3;i++) DinvSqrt[i] = 1.0f / sqrtf(lambda[i]);
 
     // M = V * diag(DinvSqrt) * V^T  (row-major)
     // compute temp = V * diag(DinvSqrt)
     float temp[3][3];
-    for (int r=0;r<3;r++) {
-      for (int c=0;c<3;c++) temp[r][c] = V[r][c] * DinvSqrt[c];
+    for(int r=0;r<3;r++) {
+      for(int c=0;c<3;c++) temp[r][c] = V[r][c] * DinvSqrt[c];
     }
     // Mout = temp * V^T
-    for (int r=0;r<3;r++) {
-      for (int c=0;c<3;c++) {
+    for(int r=0;r<3;r++) {
+      for(int c=0;c<3;c++) {
         float sum = 0.0f;
-        for (int k=0;k<3;k++) sum += temp[r][k] * V[c][k]; // V^T element (k,c) -> V[c][k]
+        for(int k=0;k<3;k++) sum += temp[r][k] * V[c][k]; // V^T element (k,c) -> V[c][k]
         Mout[r][c] = sum;
       }
     }
@@ -353,7 +355,7 @@ namespace MagCal {
   inline CalibrationData computeCalibrationCentroid() {
     CalibrationData cal;
 
-    if (sampleCount == 0) return cal;
+    if(sampleCount == 0) return cal;
 
     // 1) compute centroid (hard-iron estimate)
     float cx, cy, cz;
@@ -373,7 +375,7 @@ namespace MagCal {
     // Optionally scale so that mean corrected magnitude equals typical Earth field.
     // Compute mean radius after applying M to centered samples
     double sumR = 0.0;
-    for (int i=0;i<sampleCount;i++) {
+    for(int i=0;i<sampleCount;i++) {
       float dx = xSamples[i] - cx;
       float dy = ySamples[i] - cy;
       float dz = zSamples[i] - cz;
@@ -407,42 +409,42 @@ namespace MagCal {
   inline bool solveLinearSystem(int n, float A[], float b[], float x[]) {
     // Build augmented matrix of size n x (n+1) in local stack (n<=10 so fine)
     float aug[10][11];
-    for (int i = 0; i < n; ++i) {
-      for (int j = 0; j < n; ++j) aug[i][j] = A[i * n + j];
+    for(int i = 0; i < n; ++i) {
+      for(int j = 0; j < n; ++j) aug[i][j] = A[i * n + j];
       aug[i][n] = b[i];
     }
 
     // Forward elimination with partial pivot
-    for (int col = 0; col < n; ++col) {
+    for(int col = 0; col < n; ++col) {
       // find pivot
       int piv = col;
       float maxv = fabsf(aug[col][col]);
-      for (int r = col + 1; r < n; ++r) {
+      for(int r = col + 1; r < n; ++r) {
         float v = fabsf(aug[r][col]);
-        if (v > maxv) { maxv = v; piv = r; }
+        if(v > maxv) { maxv = v; piv = r; }
       }
-      if (maxv < 1e-12f) return false; // singular
+      if(maxv < 1e-12f) return false; // singular
 
       // swap rows if needed
-      if (piv != col) {
-        for (int c = col; c <= n; ++c) {
+      if(piv != col) {
+        for(int c = col; c <= n; ++c) {
           float tmp = aug[col][c]; aug[col][c] = aug[piv][c]; aug[piv][c] = tmp;
         }
       }
 
       // normalize & eliminate
       float pivot = aug[col][col];
-      for (int c = col; c <= n; ++c) aug[col][c] /= pivot;
-      for (int r = 0; r < n; ++r) {
-        if (r == col) continue;
+      for(int c = col; c <= n; ++c) aug[col][c] /= pivot;
+      for(int r = 0; r < n; ++r) {
+        if(r == col) continue;
         float fac = aug[r][col];
-        if (fac == 0.0f) continue;
-        for (int c = col; c <= n; ++c) aug[r][c] -= fac * aug[col][c];
+        if(fac == 0.0f) continue;
+        for(int c = col; c <= n; ++c) aug[r][c] -= fac * aug[col][c];
       }
     }
 
     // extract solution
-    for (int i = 0; i < n; ++i) x[i] = aug[i][n];
+    for(int i = 0; i < n; ++i) x[i] = aug[i][n];
     return true;
   }
 
@@ -452,7 +454,7 @@ namespace MagCal {
     float d = A_in[1][0], e = A_in[1][1], f = A_in[1][2];
     float g = A_in[2][0], h = A_in[2][1], i = A_in[2][2];
     float det = a*(e*i - f*h) - b*(d*i - f*g) + c*(d*h - e*g);
-    if (fabsf(det) < 1e-12f) return false;
+    if(fabsf(det) < 1e-12f) return false;
     float invdet = 1.0f / det;
     A_out[0][0] =  (e*i - f*h) * invdet;
     A_out[0][1] = -(b*i - c*h) * invdet;
@@ -470,7 +472,7 @@ namespace MagCal {
   inline CalibrationData computeCalibrationEllipsoid() {
     CalibrationData cal;
 
-    if (sampleCount < 15) {
+    if(sampleCount < 15) {
       // not enough samples for stable fit; fallback to diagonal method (quick)
       // (You can tweak threshold)
       // fallback: compute min/max & diagonal scale (your existing code)
@@ -478,9 +480,9 @@ namespace MagCal {
       float minY=ySamples[0], maxY=ySamples[0];
       float minZ=zSamples[0], maxZ=zSamples[0];
       for(int i=1;i<sampleCount;i++){
-        if (xSamples[i]<minX) minX=xSamples[i]; if (xSamples[i]>maxX) maxX=xSamples[i];
-        if (ySamples[i]<minY) minY=ySamples[i]; if (ySamples[i]>maxY) maxY=ySamples[i];
-        if (zSamples[i]<minZ) minZ=zSamples[i]; if (zSamples[i]>maxZ) maxZ=zSamples[i];
+        if(xSamples[i]<minX) minX=xSamples[i]; if(xSamples[i]>maxX) maxX=xSamples[i];
+        if(ySamples[i]<minY) minY=ySamples[i]; if(ySamples[i]>maxY) maxY=ySamples[i];
+        if(zSamples[i]<minZ) minZ=zSamples[i]; if(zSamples[i]>maxZ) maxZ=zSamples[i];
       }
       cal.mag_hardiron[0] = (maxX+minX)/2.0f;
       cal.mag_hardiron[1] = (maxY+minY)/2.0f;
@@ -494,7 +496,7 @@ namespace MagCal {
       cal.mag_softiron[6] = 0; cal.mag_softiron[7]=0; cal.mag_softiron[8]=scaleZ;
       // compute mean radius
       double sumB=0;
-      for (int i=0;i<sampleCount;i++){
+      for(int i=0;i<sampleCount;i++){
         float mx = (xSamples[i]-cal.mag_hardiron[0]) * scaleX;
         float my = (ySamples[i]-cal.mag_hardiron[1]) * scaleY;
         float mz = (zSamples[i]-cal.mag_hardiron[2]) * scaleZ;
@@ -511,11 +513,11 @@ namespace MagCal {
     float ATA[Ncols*Ncols];
     float ATb[Ncols];
     // zero
-    for (int i=0;i<Ncols*Ncols;i++) ATA[i]=0.0f;
-    for (int i=0;i<Ncols;i++) ATb[i]=0.0f;
+    for(int i=0;i<Ncols*Ncols;i++) ATA[i]=0.0f;
+    for(int i=0;i<Ncols;i++) ATb[i]=0.0f;
 
     // accumulate
-    for (int s=0; s<sampleCount; ++s) {
+    for(int s=0; s<sampleCount; ++s) {
       float x = xSamples[s], y = ySamples[s], z = zSamples[s];
       float row[Ncols];
       row[0] = x*x;
@@ -528,8 +530,8 @@ namespace MagCal {
       row[7] = y;
       row[8] = z;
       // ATA += row^T * row
-      for (int i=0;i<Ncols;i++) {
-        for (int j=0;j<Ncols;j++) {
+      for(int i=0;i<Ncols;i++) {
+        for(int j=0;j<Ncols;j++) {
           ATA[i*Ncols + j] += row[i] * row[j];
         }
         ATb[i] += row[i] * 1.0f; // b=1
@@ -539,16 +541,16 @@ namespace MagCal {
     // Solve ATA * coeffs = ATb
     float coeffs[Ncols];
     bool ok = solveLinearSystem(Ncols, ATA, ATb, coeffs);
-    if (!ok) {
+    if(!ok) {
       // fallback to diagonal method
       // (same fallback as above)
       float minX=xSamples[0], maxX=xSamples[0];
       float minY=ySamples[0], maxY=ySamples[0];
       float minZ=zSamples[0], maxZ=zSamples[0];
       for(int i=1;i<sampleCount;i++){
-        if (xSamples[i]<minX) minX=xSamples[i]; if (xSamples[i]>maxX) maxX=xSamples[i];
-        if (ySamples[i]<minY) minY=ySamples[i]; if (ySamples[i]>maxY) maxY=ySamples[i];
-        if (zSamples[i]<minZ) minZ=zSamples[i]; if (zSamples[i]>maxZ) maxZ=zSamples[i];
+        if(xSamples[i]<minX) minX=xSamples[i]; if(xSamples[i]>maxX) maxX=xSamples[i];
+        if(ySamples[i]<minY) minY=ySamples[i]; if(ySamples[i]>maxY) maxY=ySamples[i];
+        if(zSamples[i]<minZ) minZ=zSamples[i]; if(zSamples[i]>maxZ) maxZ=zSamples[i];
       }
       cal.mag_hardiron[0] = (maxX+minX)/2.0f;
       cal.mag_hardiron[1] = (maxY+minY)/2.0f;
@@ -561,7 +563,7 @@ namespace MagCal {
       cal.mag_softiron[3] = 0; cal.mag_softiron[4]=scaleY; cal.mag_softiron[5]=0;
       cal.mag_softiron[6] = 0; cal.mag_softiron[7]=0; cal.mag_softiron[8]=scaleZ;
       double sumB=0;
-      for (int i=0;i<sampleCount;i++){
+      for(int i=0;i<sampleCount;i++){
         float mx = (xSamples[i]-cal.mag_hardiron[0]) * scaleX;
         float my = (ySamples[i]-cal.mag_hardiron[1]) * scaleY;
         float mz = (zSamples[i]-cal.mag_hardiron[2]) * scaleZ;
@@ -592,15 +594,15 @@ namespace MagCal {
     // compute center c = -0.5 * Q^{-1} * L where L = [G,H,I]
     float Qinv[3][3];
     bool invok = invert3x3(Q, Qinv);
-    if (!invok) {
+    if(!invok) {
       // fallback to diagonal
       float minX=xSamples[0], maxX=xSamples[0];
       float minY=ySamples[0], maxY=ySamples[0];
       float minZ=zSamples[0], maxZ=zSamples[0];
       for(int i=1;i<sampleCount;i++){
-        if (xSamples[i]<minX) minX=xSamples[i]; if (xSamples[i]>maxX) maxX=xSamples[i];
-        if (ySamples[i]<minY) minY=ySamples[i]; if (ySamples[i]>maxY) maxY=ySamples[i];
-        if (zSamples[i]<minZ) minZ=zSamples[i]; if (zSamples[i]>maxZ) maxZ=zSamples[i];
+        if(xSamples[i]<minX) minX=xSamples[i]; if(xSamples[i]>maxX) maxX=xSamples[i];
+        if(ySamples[i]<minY) minY=ySamples[i]; if(ySamples[i]>maxY) maxY=ySamples[i];
+        if(zSamples[i]<minZ) minZ=zSamples[i]; if(zSamples[i]>maxZ) maxZ=zSamples[i];
       }
       cal.mag_hardiron[0] = (maxX+minX)/2.0f;
       cal.mag_hardiron[1] = (maxY+minY)/2.0f;
@@ -613,7 +615,7 @@ namespace MagCal {
       cal.mag_softiron[3] = 0; cal.mag_softiron[4]=scaleY; cal.mag_softiron[5]=0;
       cal.mag_softiron[6] = 0; cal.mag_softiron[7]=0; cal.mag_softiron[8]=scaleZ;
       double sumB=0;
-      for (int i=0;i<sampleCount;i++){
+      for(int i=0;i<sampleCount;i++){
         float mx = (xSamples[i]-cal.mag_hardiron[0]) * scaleX;
         float my = (ySamples[i]-cal.mag_hardiron[1]) * scaleY;
         float mz = (zSamples[i]-cal.mag_hardiron[2]) * scaleZ;
@@ -639,15 +641,15 @@ namespace MagCal {
     float Lc = G*cx + H*cy + I*cz;
     float constant = cQc + Lc + J;
     float R = -constant;
-    if (R <= 0.0f) {
+    if(R <= 0.0f) {
       // invalid fit (likely poor coverage) -> fallback to diagonal
       float minX=xSamples[0], maxX=xSamples[0];
       float minY=ySamples[0], maxY=ySamples[0];
       float minZ=zSamples[0], maxZ=zSamples[0];
       for(int i=1;i<sampleCount;i++){
-        if (xSamples[i]<minX) minX=xSamples[i]; if (xSamples[i]>maxX) maxX=xSamples[i];
-        if (ySamples[i]<minY) minY=ySamples[i]; if (ySamples[i]>maxY) maxY=ySamples[i];
-        if (zSamples[i]<minZ) minZ=zSamples[i]; if (zSamples[i]>maxZ) maxZ=zSamples[i];
+        if(xSamples[i]<minX) minX=xSamples[i]; if(xSamples[i]>maxX) maxX=xSamples[i];
+        if(ySamples[i]<minY) minY=ySamples[i]; if(ySamples[i]>maxY) maxY=ySamples[i];
+        if(zSamples[i]<minZ) minZ=zSamples[i]; if(zSamples[i]>maxZ) maxZ=zSamples[i];
       }
       cal.mag_hardiron[0] = (maxX+minX)/2.0f;
       cal.mag_hardiron[1] = (maxY+minY)/2.0f;
@@ -660,7 +662,7 @@ namespace MagCal {
       cal.mag_softiron[3] = 0; cal.mag_softiron[4]=scaleY; cal.mag_softiron[5]=0;
       cal.mag_softiron[6] = 0; cal.mag_softiron[7]=0; cal.mag_softiron[8]=scaleZ;
       double sumB=0;
-      for (int i=0;i<sampleCount;i++){
+      for(int i=0;i<sampleCount;i++){
         float mx = (xSamples[i]-cal.mag_hardiron[0]) * scaleX;
         float my = (ySamples[i]-cal.mag_hardiron[1]) * scaleY;
         float mz = (zSamples[i]-cal.mag_hardiron[2]) * scaleZ;
@@ -672,30 +674,30 @@ namespace MagCal {
 
     // Eigen-decompose Q to get V, lambda
     float Qcopy[3][3];
-    for (int r=0;r<3;r++) for (int c=0;c<3;c++) Qcopy[r][c] = Q[r][c];
+    for(int r=0;r<3;r++) for(int c=0;c<3;c++) Qcopy[r][c] = Q[r][c];
     float V[3][3], lambda[3];
     jacobiEigen3(Qcopy, V, lambda);
 
     // Ensure positive eigenvalues (guard)
-    for (int i=0;i<3;i++) if (lambda[i] <= 1e-12f) lambda[i] = 1e-12f;
+    for(int i=0;i<3;i++) if(lambda[i] <= 1e-12f) lambda[i] = 1e-12f;
 
     // Build M = V * diag(sqrt(lambda)/sqrt(R)) * V^T
     float diag[3];
     float invSqrtR = 1.0f / sqrtf(R);
-    for (int i=0;i<3;i++) diag[i] = sqrtf(lambda[i]) * invSqrtR;
+    for(int i=0;i<3;i++) diag[i] = sqrtf(lambda[i]) * invSqrtR;
 
     float temp[3][3];
-    for (int r=0;r<3;r++) for (int c=0;c<3;c++) temp[r][c] = V[r][c] * diag[c];
+    for(int r=0;r<3;r++) for(int c=0;c<3;c++) temp[r][c] = V[r][c] * diag[c];
     float M[3][3];
-    for (int r=0;r<3;r++) for (int c=0;c<3;c++) {
+    for(int r=0;r<3;r++) for(int c=0;c<3;c++) {
       float s = 0.0f;
-      for (int k=0;k<3;k++) s += temp[r][k] * V[c][k]; // note V^T element is V[c][k]
+      for(int k=0;k<3;k++) s += temp[r][k] * V[c][k]; // note V^T element is V[c][k]
       M[r][c] = s;
     }
 
     // Compute mean raw magnitude (centered) to scale M to sensor units (µT)
     double meanRaw = 0.0;
-    for (int i=0;i<sampleCount;i++) {
+    for(int i=0;i<sampleCount;i++) {
       float dx = xSamples[i] - cx;
       float dy = ySamples[i] - cy;
       float dz = zSamples[i] - cz;
@@ -705,8 +707,8 @@ namespace MagCal {
     float scaleFactor = (meanRaw > 1e-6) ? (float)meanRaw : 1.0f;
 
     // final soft-iron matrix in sensor units (row-major)
-    for (int r=0;r<3;r++) {
-      for (int c=0;c<3;c++) {
+    for(int r=0;r<3;r++) {
+      for(int c=0;c<3;c++) {
         float val = M[r][c] * scaleFactor;
         cal.mag_softiron[r*3 + c] = val;
       }

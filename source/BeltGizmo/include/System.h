@@ -34,13 +34,13 @@ void printPartitions() {
   const esp_partition_t *partition;
   esp_partition_iterator_t iterator = esp_partition_find(ESP_PARTITION_TYPE_ANY, ESP_PARTITION_SUBTYPE_ANY, NULL);
 
-  if (iterator == nullptr) {
+  if(iterator == nullptr) {
     Serial.println(F("No partitions found."));
     return;
   }
 
   Serial.println(F("Partitions:"));
-  while (iterator != nullptr) {
+  while(iterator != nullptr) {
     partition = esp_partition_get(iterator);
     Serial.printf("Label: %s, Size: %lu bytes, Address: 0x%08lx\n",
                   partition->label,
@@ -62,7 +62,7 @@ void animateLights() {
   uint8_t i_color;
 
   // Update timer interval in case i_power changes
-  if (ms_anim_change.justFinished()) {
+  if(ms_anim_change.justFinished()) {
     if(b_firing) {
       // Speed up animation only when firing.
       ms_anim_change.start(i_animation_duration / ((i_power + 1) * 2));
@@ -72,7 +72,7 @@ void animateLights() {
       ms_anim_change.start(i_animation_duration);
     }
 
-    for (int i = 0; i < DEVICE_NUM_LEDS; i++) {
+    for(int i = 0; i < DEVICE_NUM_LEDS; i++) {
       uint8_t i_brightness = map(sin8((i_led_position + i * 32) % 255), 0, 255, i_min_brightness, i_max_brightness);
 
       switch(STREAM_MODE) {
@@ -102,7 +102,7 @@ void animateLights() {
         break;
       }
 
-      if (b_use_gbr) {
+      if(b_use_gbr) {
         // Use GBR format for the device LEDs.
         device_leds[i] = getHueAsGBR(PRIMARY_LED, i_color, 255 - i_brightness);
       }

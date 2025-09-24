@@ -308,7 +308,7 @@ void wandSerialSend(uint8_t i_command, uint16_t i_value) {
 #ifdef ESP32
   // Send latest status to the WebSocket (ESP32 only), skipping this action on certain commands.
   // We make a special case for a disconnected pack, or one in benchtest mode, so that the WebSocket gets updates.
-  if ((WAND_CONN_STATE == PACK_DISCONNECTED || WAND_CONN_STATE == NC_BENCHTEST) && !isExcludedCommand(i_command)) {
+  if((WAND_CONN_STATE == PACK_DISCONNECTED || WAND_CONN_STATE == NC_BENCHTEST) && !isExcludedCommand(i_command)) {
     notifyWSClients();
   }
 #endif
@@ -346,7 +346,7 @@ void wandSerialSendData(uint8_t i_message) {
 #ifdef ESP32
   // Send latest status to the WebSocket (ESP32 only), skipping this action on certain commands.
   // We make a special case for a disconnected pack, or one in benchtest mode, so that the WebSocket gets updates.
-  if ((WAND_CONN_STATE == PACK_DISCONNECTED || WAND_CONN_STATE == NC_BENCHTEST) && !isExcludedCommand(i_message)) {
+  if((WAND_CONN_STATE == PACK_DISCONNECTED || WAND_CONN_STATE == NC_BENCHTEST) && !isExcludedCommand(i_message)) {
     notifyWSClients();
   }
 #endif
@@ -956,10 +956,18 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       // Acknowledgement that the wand is now synchronized.
       wandSerialSend(W_SYNCHRONIZED);
 
-      // Tell the pack the status of the Neutrona Wand barrel. We only need to tell if its extended.
-      // Otherwise the switchBarrel() will tell it if it's retracted during bootup.
-      if(switchBarrel()) {
-        wandSerialSend(W_BARREL_EXTENDED);
+      // Tell the pack the status of the Neutrona Wand barrel.
+      if(BARREL_STATE != BARREL_UNKNOWN) {
+        if(switchBarrel()) {
+          wandSerialSend(W_BARREL_EXTENDED);
+        }
+        else {
+          wandSerialSend(W_BARREL_RETRACTED);
+        }
+      }
+      else {
+        // If the barrel state is unknown, this function will automatically report upstream.
+        switchBarrel();
       }
 
       return true;

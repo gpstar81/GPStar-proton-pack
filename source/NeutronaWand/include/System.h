@@ -3109,8 +3109,6 @@ bool switchBarrel() {
     }
   }
 
-  // Set the appropriate state flag.
-
   return (BARREL_STATE == BARREL_EXTENDED); // Immediate return of state.
 }
 
@@ -7124,7 +7122,7 @@ uint8_t getRandomFiringEffect() {
 void mixExtraFiringEffects() {
 #ifdef ESP32
   // Mix some impact sound based on user-initiated motions while firing.
-  if (STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects && filteredMotionData.shaken) {
+  if(STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects && filteredMotionData.shaken) {
     // Only play impact sound if firing, in Proton mode, and threshold exceeded.
     uint8_t i_random_effect = getRandomFiringEffect(); // Use last-played effect to choose another.
     switch(i_random_effect) {
@@ -10368,10 +10366,11 @@ void resetOverheatLevels() {
 // Use an attached infrared LED to send a command. Only available if using the Wand II (ESP32).
 void sendInfraredCommand(const String sType) {
 #ifdef ESP32
-  if (sType.equals("ghostintrap")) {
+  if(sType.equals("ghostintrap")) {
     // Send the standard Ghost Trap (PKE) IR signal.
     IrSender.sendRaw(ir_GhostInTrap, sizeof(ir_GhostInTrap) / sizeof(ir_GhostInTrap[0]), CARRIER_KHZ);
-  } else {
+  }
+  else {
     debugln(F("Unknown IR Command"));
   }
 #endif

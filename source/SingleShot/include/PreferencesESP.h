@@ -71,7 +71,7 @@ void saveConfigEEPROM() {
   gObjConfigEEPROM.invertBargraph = b_bargraph_invert ? 2 : 1;
   gObjConfigEEPROM.defaultSystemVolume = (eepromVolumeMasterPercentage <= 100) ? (eepromVolumeMasterPercentage + 1) : 101;
 
-  switch (VIBRATION_MODE_EEPROM) {
+  switch(VIBRATION_MODE_EEPROM) {
     case VIBRATION_ALWAYS:
     default:
       gObjConfigEEPROM.deviceVibration = 1;
@@ -84,7 +84,7 @@ void saveConfigEEPROM() {
     break;
   }
 
-  if (preferences.begin("config", false)) {
+  if(preferences.begin("config", false)) {
     preferences.putBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
     preferences.end();
   }
@@ -94,8 +94,8 @@ void saveConfigEEPROM() {
 
 // Load configuration preferences from NVS (ESP32)
 void loadConfigEEPROM() {
-  if (preferences.begin("config", true)) {
-    if (preferences.isKey("config")) {
+  if(preferences.begin("config", true)) {
+    if(preferences.isKey("config")) {
       preferences.getBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
     }
     preferences.end();
@@ -104,7 +104,7 @@ void loadConfigEEPROM() {
 
 // Clear configuration preferences in NVS (ESP32)
 void clearConfigEEPROM() {
-  if (preferences.begin("config", false)) {
+  if(preferences.begin("config", false)) {
     preferences.clear();
     preferences.end();
   }
@@ -114,7 +114,7 @@ void clearConfigEEPROM() {
 
 // CRC helpers for Preferences (ESP32)
 void updateCRCEEPROM(uint32_t crc) {
-  if (preferences.begin("crc", false)) {
+  if(preferences.begin("crc", false)) {
     preferences.putUInt("crc", crc);
     preferences.end();
   }
@@ -123,7 +123,7 @@ void updateCRCEEPROM(uint32_t crc) {
 uint32_t getCRCEEPROM() {
   uint32_t crc = 0;
 
-  if (preferences.begin("crc", true)) {
+  if(preferences.begin("crc", true)) {
     crc = preferences.getUInt("crc");
     preferences.end();
   }
@@ -143,20 +143,20 @@ uint32_t eepromCRC() {
 void readEEPROM() {
   uint32_t storedCrc = getCRCEEPROM();
   uint32_t calcCrc = eepromCRC();
-  if (storedCrc == calcCrc) {
+  if(storedCrc == calcCrc) {
     // Map loaded config to runtime variables
     b_device_boot_errors = (gObjConfigEEPROM.deviceBootErrors > 1);
     b_vent_light_control = (gObjConfigEEPROM.ventLightAutoIntensity > 1);
     b_bargraph_invert = (gObjConfigEEPROM.invertBargraph > 1);
 
-    if (gObjConfigEEPROM.defaultSystemVolume > 0 && gObjConfigEEPROM.defaultSystemVolume < 102) {
+    if(gObjConfigEEPROM.defaultSystemVolume > 0 && gObjConfigEEPROM.defaultSystemVolume < 102) {
       i_volume_master_percentage = gObjConfigEEPROM.defaultSystemVolume - 1;
       i_volume_master_eeprom = MINIMUM_VOLUME - ((MINIMUM_VOLUME - i_volume_abs_max) * i_volume_master_percentage / 100);
       i_volume_revert = i_volume_master_eeprom;
       i_volume_master = i_volume_master_eeprom;
     }
 
-    switch (gObjConfigEEPROM.deviceVibration) {
+    switch(gObjConfigEEPROM.deviceVibration) {
       case 3:
         VIBRATION_MODE_EEPROM = VIBRATION_NONE;
         break;
@@ -169,7 +169,8 @@ void readEEPROM() {
         break;
     }
     VIBRATION_MODE = VIBRATION_MODE_EEPROM;
-  } else {
+  }
+  else {
     // CRC mismatch: clear preferences and notify
     playEffect(S_VOICE_EEPROM_LOADING_FAILED_RESET);
     clearConfigEEPROM();

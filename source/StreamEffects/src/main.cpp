@@ -62,7 +62,7 @@ void sendDebug(const String message) {
     debugln(message); // Print to serial console.
   #endif
   #if defined(DEBUG_SEND_TO_WEBSOCKET) and defined(ESP32)
-    if (b_ws_started) {
+    if(b_ws_started) {
       ws.textAll(message); // Send a copy to the WebSocket.
     }
   #endif
@@ -210,7 +210,7 @@ void WiFiManagementTask(void *parameter) {
         ms_apclient.start(i_apClientCount);
       }
 
-      if (WiFi.status() == WL_CONNECTED && b_ext_wifi_started && !b_socket_ready) {
+      if(WiFi.status() == WL_CONNECTED && b_ext_wifi_started && !b_socket_ready) {
         debugln(F("WiFi Connected, Socket Not Configured"));
         b_ext_wifi_paused = false; // Resume retries when needed.
         setupWebSocketClient(); // Restore the WebSocket connection.
@@ -478,12 +478,12 @@ void printMemoryStats() {
   Serial.println(F(" bytes"));
 
   // Stack memory (for other tasks)
-  if (AnimationTaskHandle != NULL) {
+  if(AnimationTaskHandle != NULL) {
     Serial.print(F("|--Animation: "));
     Serial.print(formatBytesWithCommas(uxTaskGetStackHighWaterMark(AnimationTaskHandle)));
     Serial.println(F(" / 2,048 bytes"));
   }
-  if (WiFiManagementTaskHandle != NULL) {
+  if(WiFiManagementTaskHandle != NULL) {
     Serial.print(F("|--WiFi Mgmt.: "));
     Serial.print(formatBytesWithCommas(uxTaskGetStackHighWaterMark(WiFiManagementTaskHandle)));
     Serial.println(F(" / 2,048 bytes"));
@@ -501,7 +501,7 @@ void loop() {
   #endif
 
   // Exception: Run the WebSocket client loop if connected to WiFi.
-  if (b_ext_wifi_started && b_socket_ready) {
+  if(b_ext_wifi_started && b_socket_ready) {
     wsClient.loop();
   }
 }
