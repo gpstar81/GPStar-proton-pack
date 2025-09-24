@@ -371,7 +371,7 @@ bool startExternalWifi() {
 
     // Only disconnect if already connected or connecting.
     if(WiFi.status() == WL_CONNECTED || WiFi.status() == WL_CONNECT_FAILED || WiFi.status() == WL_NO_SSID_AVAIL) {
-      WiFi.disconnect(true); // Ensure disconnection and erase old config.
+      WiFi.disconnect(true); // Ensure disconnection.
       delay(200);
     }
 

@@ -435,7 +435,9 @@ void shutdownWireless() {
 
     // Disconnect WiFi and turn off radio.
     WiFi.disconnect(true);
+    delay(1);
     WiFi.mode(WIFI_OFF);
+    delay(1);
     b_ap_started = false;
     b_ext_wifi_started = false;
 
