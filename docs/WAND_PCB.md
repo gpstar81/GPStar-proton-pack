@@ -1,6 +1,10 @@
 <h1><span class="logo-icon"></span> GPStar Wand PCB Hookup</h1>
 
-This guide is part of the kit approach to providing a minimally-invasive upgrade to the stock HasLab controllers. For the Neutrona Wand all available connections for JST-PH wiring is present, though a significant amount of wire-cutting will be required to separate the stock controller and re-attach using terminal blocks on the new PCB. The diagrams below detail the standard HasLab connections as well as using the 28-segment or 30-segment bargraphs.
+&starf; For a comparison of the original GPStar and GPStar II controllers please see [this comparison guide](https://gpstartechnologies.com/blogs/gpstar-blog/gpstar-ii-vs-gpstar) on the main GPStar website.
+
+This is the guide for all first-generation PCB kits which fully **supports all stock devices** within the Haslab Neutrona Wand.
+
+The goal of this kit is to provide a minimally-invasive upgrade to the stock controllers. For the Neutrona Wand all available connections for JST-PH wiring is present, though a significant amount of wire-cutting will be required to separate the stock controller and re-attach using terminal blocks on the new PCB. The diagrams below detail the standard HasLab connections as well as using the 28-segment or 30-segment bargraphs.
 
 ![Standard PCB Connections](images/WandPCB-Standard.png)
 
@@ -25,7 +29,7 @@ Connections for the wand should be made according to the tables below.
 | SW45/SW4 | GND/D2/GND/D3 | 4-pin JST-PH connection for the Intensify button and Activate toggle |
 | SW6 | GND/A6 | 2-pin JST-PH connection for the orange wand-end mode/alt switch |
 
-**Note:** The 3-pin connector for the Barrel LEDs is compatible with the [Frutto Technology 49-LED wand barrel replacement](https://fruttotechnology.com/ols/products/wand-barrel-replacement-49-leds-pcb) as a drop-in replacement.
+**Note:** The 3-pin connector for the Barrel LEDs is compatible with the [GPStar 50-LED Neutrona Barrel](https://gpstartechnologies.com/products/gpstar-neutrona-barrel) or the [GPStar Barrel LED Mini](https://gpstartechnologies.com/products/gpstar-barrel-led-mini).
 
 ### Stock Connectors (Terminal Blocks)
 
@@ -85,3 +89,4 @@ For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI B
 | SCL/SDA | SCL/SDA | Expansion serial port using I2C.<br><br>`Connector type: JST-PH`|
 
 **Note:** If using the [28-segment or 30-segment bargraph](BARGRAPH.md), power may be delivered via the 5V-OUT while the SCL/SDA serial connection will provide data/control.
+

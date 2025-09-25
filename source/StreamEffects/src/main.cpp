@@ -24,6 +24,20 @@
 // Define this before including <FastLED.h>
 #define FASTLED_INTERNAL
 
+// Set to 1 to enable built-in debug messages via Serial device output.
+#define DEBUG 1
+
+// Debug macros
+#if DEBUG == 1
+  #define debug(...) Serial.print(__VA_ARGS__)
+  #define debugf(...) Serial.printf(__VA_ARGS__)
+  #define debugln(...) Serial.println(__VA_ARGS__)
+#else
+  #define debug(...)
+  #define debugf(...)
+  #define debugln(...)
+#endif
+
 // PROGMEM macros
 #define PROGMEM_READU32(x) pgm_read_dword_near(&(x))
 #define PROGMEM_READU16(x) pgm_read_word_near(&(x))
@@ -42,6 +56,18 @@
 #include "Wireless.h"
 #include "System.h"
 
+// Writes a debug message to the serial console or sends to the WebSocket.
+void sendDebug(const String message) {
+  #if defined(DEBUG_SEND_TO_CONSOLE)
+    debugln(message); // Print to serial console.
+  #endif
+  #if defined(DEBUG_SEND_TO_WEBSOCKET) and defined(ESP32)
+    if(b_ws_started) {
+      ws.textAll(message); // Send a copy to the WebSocket.
+    }
+  #endif
+}
+
 // Task Handles
 TaskHandle_t AnimationTaskHandle = NULL;
 TaskHandle_t PreferencesTaskHandle = NULL;
@@ -57,7 +83,7 @@ volatile uint32_t idleTimeCore1 = 0;
 #if defined(DEBUG_PERFORMANCE)
 void idleTaskCore0(void * parameter) {
   while(true) {
-    idleTimeCore0 = idleTimeCore0 + 1;
+    idleTimeCore0++;
     vTaskDelay(1);
   }
 }
@@ -67,7 +93,7 @@ void idleTaskCore0(void * parameter) {
 #if defined(DEBUG_PERFORMANCE)
 void idleTaskCore1(void * parameter) {
   while(true) {
-    idleTimeCore1 = idleTimeCore1 + 1;
+    idleTimeCore1++;
     vTaskDelay(1);
   }
 }
@@ -85,8 +111,8 @@ void AnimationTask(void *parameter) {
       Serial.println(uxTaskGetStackHighWaterMark(NULL));
     #endif
 
-    // Update light animation based on websocket data.
-    if(b_firing) {
+    // Update light animation based on websocket data (or self-test mode).
+    if(b_firing || b_testing) {
       animateLights();
     }
     else {
@@ -126,7 +152,7 @@ void PreferencesTask(void *parameter) {
     #endif
 
     // If initialization fails, erase and reinitialize NVS.
-    debug(F("Erasing and reinitializing NVS..."));
+    debugln(F("Erasing and reinitializing NVS..."));
     nvs_flash_erase();
 
     err = nvs_flash_init();
@@ -136,11 +162,11 @@ void PreferencesTask(void *parameter) {
       #endif
     }
     else {
-      debug(F("NVS reinitialized successfully"));
+      debugln(F("NVS reinitialized successfully"));
     }
   }
   else {
-    debug(F("NVS initialized successfully"));
+    debugln(F("NVS initialized successfully"));
   }
 
   #if defined(DEBUG_TASK_TO_CONSOLE)
@@ -184,8 +210,8 @@ void WiFiManagementTask(void *parameter) {
         ms_apclient.start(i_apClientCount);
       }
 
-      if (WiFi.status() == WL_CONNECTED && b_ext_wifi_started && !b_socket_ready) {
-        debug(F("WiFi Connected, Socket Not Configured"));
+      if(WiFi.status() == WL_CONNECTED && b_ext_wifi_started && !b_socket_ready) {
+        debugln(F("WiFi Connected, Socket Not Configured"));
         b_ext_wifi_paused = false; // Resume retries when needed.
         setupWebSocketClient(); // Restore the WebSocket connection.
       }
@@ -203,6 +229,8 @@ void WiFiManagementTask(void *parameter) {
 
       // Try to start the external WiFi.
       if(!b_ext_wifi_started && !b_ext_wifi_paused) {
+        resetWebSocketData(); // Clear previous information sent from the pack.
+        notifyWSClients(); // Notify clients of the change of data.
         b_ext_wifi_started = startExternalWifi();
       }
     }
@@ -271,20 +299,29 @@ void setup() {
 
   btStop(); // Disable Bluetooth which is not needed for this hardware.
 
-  // Boot into proton mode at level 1 by default.
+  // Boot into proton mode at level 5 by default.
   STREAM_MODE = PROTON;
-  POWER_LEVEL = LEVEL_1;
+  POWER_LEVEL = LEVEL_5;
 
   // Device RGB LEDs for use when needed.
-  FastLED.addLeds<NEOPIXEL, DEVICE_LED_PIN>(device_leds, DEVICE_NUM_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.addLeds<NEOPIXEL, DEVICE_LED_PIN>(device_leds, DEVICE_MAX_LEDS).setCorrection(TypicalLEDStrip);
   FastLED.setMaxRefreshRate(0); // Disable FastLED's blocking 2.5ms delay.
   ms_anim_change.start(i_animation_time); // Default animation time.
 
   // Set palette by stream mode.
   updateStreamPalette();
 
-  // Change the addressable LED to black by default.
-  fill_solid(device_leds, DEVICE_NUM_LEDS, CRGB::Black);
+  // Change all possible addressable LEDs to black by default.
+  fill_solid(device_leds, DEVICE_MAX_LEDS, CRGB::Black);
+
+  // Accesses namespace in read-only mode.
+  bool b_namespace_opened = preferences.begin("device", true);
+  if(b_namespace_opened) {
+    if(preferences.isKey("numLeds")) {
+      deviceNumLeds = preferences.getShort("numLeds");
+    }
+    preferences.end();
+  }
 
   // Initialize palettes with custom color gradients
   paletteProton = CRGBPalette16(
@@ -369,7 +406,7 @@ void setup() {
   vTaskDelay(100 / portTICK_PERIOD_MS); // Delay for 100ms to avoid competition.
 
   // Create a single-run setup task with the highest priority for WiFi/WebServer startup.
-  xTaskCreatePinnedToCore(WiFiSetupTask, "WiFiSetupTask", 4096, NULL, 3, &WiFiSetupTaskHandle, 1);
+  xTaskCreatePinnedToCore(WiFiSetupTask, "WiFiSetupTask", 8192, NULL, 3, &WiFiSetupTaskHandle, 1);
 
   // Delay all lower priority tasks until WiFi and WebServer setup is done.
   vTaskDelay(200 / portTICK_PERIOD_MS); // Delay for 200ms to avoid competition.
@@ -441,12 +478,12 @@ void printMemoryStats() {
   Serial.println(F(" bytes"));
 
   // Stack memory (for other tasks)
-  if (AnimationTaskHandle != NULL) {
+  if(AnimationTaskHandle != NULL) {
     Serial.print(F("|--Animation: "));
     Serial.print(formatBytesWithCommas(uxTaskGetStackHighWaterMark(AnimationTaskHandle)));
     Serial.println(F(" / 2,048 bytes"));
   }
-  if (WiFiManagementTaskHandle != NULL) {
+  if(WiFiManagementTaskHandle != NULL) {
     Serial.print(F("|--WiFi Mgmt.: "));
     Serial.print(formatBytesWithCommas(uxTaskGetStackHighWaterMark(WiFiManagementTaskHandle)));
     Serial.println(F(" / 2,048 bytes"));
@@ -464,7 +501,7 @@ void loop() {
   #endif
 
   // Exception: Run the WebSocket client loop if connected to WiFi.
-  if (b_ext_wifi_started && b_socket_ready) {
+  if(b_ext_wifi_started && b_socket_ready) {
     wsClient.loop();
   }
 }

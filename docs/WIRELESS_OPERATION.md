@@ -1,6 +1,8 @@
 # Wireless Operation
 
-This guide will cover the web interface available via an ESP32 chip used as either the **Attenuator** or **Wireless Adapter** devices, and is capable of controlling some operations of your Proton Pack and Neutrona Wand.
+This guide will cover the web interface available via an ESP32 chip which offers a visual, web-based UI capable of controlling operations of your Proton Pack and Neutrona Wand.
+
+While this guide is primarily targeted to the UI from an **Attenuator** (or standalone ESP32 for wireless operation), it is relevant to the GPStar II pack and wand controllers which offer the same functionality. This guide will be amended further in the near future as those devices becoome available.
 
 ## Requirements
 
@@ -123,7 +125,7 @@ These provide a web interface for managing options which are accessed via the LE
 
 These links allow you to change or control aspects of the available devices in lieu of the EEPROM menu.
 
-- **Update ESP32 Firmware** - Allows you to update the ESP32 firmware using Over-the-Air updates. See the [ATTENUATOR_FLASHING](ATTENUATOR_FLASHING.md) guide for details
+- **Update Firmware** - Allows you to update the firmware using Over-the-Air updates. See the [ATTENUATOR_FLASHING](ATTENUATOR_FLASHING.md) guide for details
 - **Secure Device WiFi**- Allows changing of the default password for the private WiFi network
 - **Change WiFi Settings** - Provides an optional means of joining an existing, external WiFi network for access of your device
 - **Restart/Resync** - Allows a remote restart of the software by performing a reboot ONLY of the ESP32 device
@@ -233,22 +235,33 @@ The following URI's are API endpoints available for managing actions within your
 	PUT /pack/off - Turn the pack onf (subject to system state)
 	PUT /pack/attenuate - Cancel pack overheat via "attenuation"
 	PUT /pack/vent - Perform manual vent (subject to system state)
-	PUT /pack/lockout/start - Perform manual lockout (subject to system state)
-	PUT /pack/lockout/cancel - Cancel manual lockout (subject to system state)
+	PUT /pack/cyclotron/clockwise - Spin cyclotron clockwise
+	PUT /pack/cyclotron/counterclockwise - Spin cyclotron counterclockwise
+	PUT /pack/theme/1984 - Switch to GB1 theme
+	PUT /pack/theme/1989 - Switch to GB2 theme
+	PUT /pack/theme/2021 - Switch to GB:AL theme
+	PUT /pack/theme/2024 - Switch to GB:FE theme
+	PUT /pack/smoke/on - Enable smoke
+	PUT /pack/smoke/off - Disable smoke
+	PUT /pack/vibration/on - Enable vibration
+	PUT /pack/vibration/off - Disable vibration
 
-	PUT /volume/toggle - Toggle mute for all devices
+	PUT /volume/mute - Mute for all devices
+	PUT /volume/unmute - Unmute for all devices
 	PUT /volume/master/up - Increase system (master) volume
 	PUT /volume/master/down - Decrease system (master) volume
 	PUT /volume/effects/up - Increase effects volume
 	PUT /volume/effects/down - Decrease effects volume
 	PUT /volume/music/up - Increase music volume
 	PUT /volume/music/down - Decrease music volume
+	PUT /volume/music/loop - Toggle looping a single track
 
 	PUT /music/startstop - Toggle music playback via start/stop
 	PUT /music/pauseresume - Toggle music playback via resume/pause
 	PUT /music/next - Move to next track
 	PUT /music/prev - Move to previous track
-	PUT /music/loop - Toggle looping of current track
+	PUT /music/loop/all - Set looping at end of playlist
+	PUT /music/loop/single - Set looping of a single track
 	PUT /music/select?track=[INTEGER] - Select a specific music track (Min Value: 500)
 
 	GET /wifi/settings - Returns the current external WiFi settings
@@ -274,5 +287,5 @@ The following URI's are API endpoints available for managing actions within your
 	WARNING: Only call these API's as necessary as these cause write cycles to the EEPROM!
 
 	PUT /eeprom/all - Stores all current preferences to pack/wand EEPROMs (eg. smoke settings)
-	PUT /eeprom/pack - Stores current pack preferences to pack EEPROM
-	PUT /eeprom/wand - Stores current wand preferences to wand EEPROM
+	PUT /eeprom/pack - Stores current pack preferences to pack EEPROM only
+	PUT /eeprom/wand - Stores current wand preferences to wand EEPROM only

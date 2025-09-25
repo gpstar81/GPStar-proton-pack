@@ -82,4 +82,21 @@ To access Menu Level 2, use the `Top Dial` on the top of the wand to move down a
 
 <sup>6</sup> See [Inner Cyclotron](CYCLOTRON_INNER.md) for more information on the motorised cyclotron modification for the Proton Pack.
 
-To exit the menu system, navigate to `Menu Level 1, Option 5` (Slo-blo LED is no longer illuminated) and press the `Barrel Wing Button`. A voice callout will be heard when transitioning between the top and sub menu levels.
+### Menu Level 3
+
+📝 **Note:** The Neutrona Wand Menu Level 3 is available only with GPStar II controllers and can only be reached while the Neutrona Wand and Proton Pack are both turned off.
+
+To access Menu Level 3, use the `Top Dial` on the top of the wand to move down and past `Option 1` on Menu Level 2. When you reach the the next menu level, an audio cue will play and the Slo-Blo LED and Vent Light will both light up to indicate this menu state.
+
+| Option | Purpose | Intensify Button | Barrel Wing Button |
+|:------:|---------|------------------|--------------------|
+| 5️⃣ | WiFi&nbsp;Control | Toggle the Wand WiFi On/Off | Toggle the Pack WiFi On/Off |
+| 4️⃣ | -Reserved- |  |  |
+| 3️⃣ | -Reserved- |  |  |
+| 2️⃣ | -Reserved- |  |  |
+| 1️⃣ | WiFi&nbsp;Password&nbsp;Reset | Reset the Wand WiFi password to default | Reset the Pack WiFi password to default |
+
+
+### Menu Exit
+
+To exit the menu system, use the `Top Dial` to navigate back to `Menu Level 1, Option 5` (Slo-blo and Vent LED's are no longer illuminated) and press the `Barrel Wing Button`. A voice callout will be heard when transitioning between the top and sub menu levels.

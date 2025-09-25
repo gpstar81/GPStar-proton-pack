@@ -4,7 +4,7 @@ A special port labelled "RX1/TX1" (or "Attenuator" on later PCBs) exists as an e
 
 This is an OPTIONAL component which consists of an ESP32 microcontroller and a collection of LEDs, switches, and rotary dial to allow you to perform actions single-handed from the front of your Proton Pack when worn. *Please note that the original [Attenuator DIY guide](ATTENUATOR_DIY.md) used an Arduino Nano which is no longer capable of providing the storage space required by the full range of features supported and that hardware has been deprecated in favor of the ESP32 platform.*
 
-This guide will explain the purpose of the Pack Attenuator with its physical controls, though if you wish to only add WiFi capability please view the [Wireless Adapter guide](WIRELESS.md).
+This guide will explain the purpose of the Pack Attenuator with its physical controls, though if you wish to only add WiFi capability to the original GPStar Pack PCB please view the [Wireless Adapter guide](WIRELESS.md).
 
 ## Overview
 
