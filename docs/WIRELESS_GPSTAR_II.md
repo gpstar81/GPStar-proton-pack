@@ -3,14 +3,15 @@
 This guide will cover the web interface available that is built into the GPStar Proton Pack II and GPStar Neutrona Wand II.
 
 ## Proton Pack
+If you have a Attenuator connected, the GPStar Proton Pack II will turn off its WiFi for power saving. You can manually turn on or turn off the WiFi for it from the [OPERATION_MENUS](OPERATION_MENUS.md)
 
 To connect to the GPStar Proton Pack II over WiFi, a private WiFi network (access point) which will appear as **"GPStar_Pack2"**, and this will be secured with a default password of **"555-2368"**.
 
-Once connected, your computer/phone/table should be assigned an IP address starting from **"192.168.1.100"** with a subnet of **"255.255.255.0"**. Please remember that if you intend to have multiple devices connect via this private WiFi network you will be assigned a unique IP address for each client device (eg. phone, tablet, or computer).
+Once connected, your computer/phone/tablet should be assigned an IP address starting from **"192.168.1.100"** with a subnet of **"255.255.255.0"**. Please remember that if you intend to have multiple devices connect via this private WiFi network you will be assigned a unique IP address for each client device (eg. phone, tablet, or computer).
 
 A web-based user interface is available at [http://gpstar_pack2.local](http://gpstar_pack2.local) or [http://192.168.1.4](http://192.168.1.4) to view the state of your Proton Pack and Neutrona Wand, and to manage specific actions. The available sections are described below.
 
-### Tab 1: Equipment Status
+#### Tab 1: Equipment Status
 
 <img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main1.jpg"/>
 
@@ -42,7 +43,7 @@ Special thanks and credit to fellow cosplayer [Alexander Hibbs (@BeaulieuDesigns
 
 <div style="clear:both"></div>
 
-### Tab 2: Audio Controls
+#### Tab 2: Audio Controls
 
 <img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main2-ii.jpg"/>
 
@@ -67,7 +68,7 @@ By default, only the track numbers are known to the audio device as all music tr
 
 <div style="clear:both"></div>
 
-### Tab 3: Pack Controls
+#### Tab 3: Pack Controls
 
 Controls will be made available on a per-action or per-state basis.
 
@@ -89,7 +90,7 @@ Shown here, the pack and wand are both in an Idle state while in the "Super Hero
 
 <div style="clear:both"></div>
 
-### Tab 4: Preferences / Administration
+#### Tab 4: Preferences / Administration
 
 <img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main4-pack.jpg"/>
 
@@ -106,7 +107,7 @@ At the bottom of the screen is a timestamp representing the date of the software
 
 <div style="clear:both"></div>
 
-### Tab 5: Special Device Settings
+#### Tab 5: Special Device Settings
 
 <img style="float:right;padding:10px;width:300px;" src="images/gpstar-ii-special-device-settings.jpg"/>
 
@@ -114,8 +115,7 @@ The special device settings allows you to change the graphical user interface, c
 
 <div style="clear:both"></div>
 
-
-## Pack Settings
+### Proton Pack Settings
 
 <img style="float:right;padding:10px;width:300px;" src="images/WebUI-Pack.jpg"/>
 
@@ -127,7 +127,7 @@ Set options related specifically to the Proton Pack. Options such as the color/s
 
 <div style="clear:both"></div>
 
-## Neutrona Wand Settings
+### Neutrona Wand Settings
 
 <img style="float:right;padding:10px;width:300px;" src="images/WebUI-Wand.jpg"/>
 
@@ -139,7 +139,7 @@ Set options related specifically to the Neutrona Wand. These can be accessed fro
 
 <div style="clear:both"></div>
 
-## Overheat/Smoke Settings
+### Overheat/Smoke Settings
 
 <img style="float:right;padding:10px;width:300px;" src="images/WebUI-Smoke.jpg"/>
 
@@ -149,7 +149,7 @@ Adjust overall smoke effects (toggle on/off) and adjust per-level effects. Natur
 
 <div style="clear:both"></div>
 
-## External WiFi Settings
+### External WiFi Settings
 
 <img style="float:right;padding:10px;width:300px;" src="images/WebUI-WiFi.jpg"/>
 
@@ -165,6 +165,74 @@ It is possible to have your device join an existing WiFi network which may provi
 Use of an unsecured WiFi network is not supported and not recommended.
 
 <div style="clear:both"></div>
+
+## Neutrona Wand
+
+The WiFi on the GPStar Neutrona Wand II is disabled for power saving measures when it is connected to a GPStar Proton Pack II. You can manually turn on or turn off the WiFi for the GPStar Neutrona Wand II from the [OPERATION_MENUS](OPERATION_MENUS.md)
+
+When a GPStar Neutrona II is connected to a GPStar Proton Pack II, all the Neutrona Wand settings can be accessed from the GPStar Proton Pack II. 
+
+To connect to the GPStar Neutrona Wand II over WiFi, a private WiFi network (access point) which will appear as **"GPStar_Wand2"**, and this will be secured with a default password of **"555-2368"**.
+
+Once connected, your computer/phone/tablet should be assigned an IP address starting from **"192.168.1.100"** with a subnet of **"255.255.255.0"**. Please remember that if you intend to have multiple devices connect via this private WiFi network you will be assigned a unique IP address for each client device (eg. phone, tablet, or computer).
+
+A web-based user interface is available at [http://gpstar_wand2.local](http://gpstar_wand2.local) or [http://192.168.1.6](http://192.168.1.6) to view the state of your Neutrona Wand, and to manage specific actions. The available sections are described below.
+
+#### Tab 1: Neutrona Wand Status
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Wand-Menu.jpg"/>
+
+The Neutrona Wand status screen will display the real time rotational coordinates and other sensor data in real time. Moving your Neutrona Wand up, down, and or rotating will automatically update visually on screen. Two buttons at the bottom of the screen allow you to re-centre the 3D representation of your Neutrona Wand and also to trigger a Infrared Signal if you have a GPStar Infrared sensor attached to your Neutrona Wand.
+
+<div style="clear:both"></div>
+
+#### Tab 2: Audio Controls
+The same as seen in the Audio Controls in the Proton Pack settings above.
+
+#### Tab 3: Sensor Calibration
+<img style="float:right;padding:10px;width:300px;" src="images/CalibrationEnabled.png"/>
+
+The GPStar Neturona Wand II is equipped with a gyroscope and magnetometer. The sensors can be even more finely calibrated to provide more accurate data after it is fully installed into your Neutrona Wand, taking into account nearby magnetic sources such as a speaker.
+
+You can begin a sensor calibration but pressing the Enable Calibration button. You will then start slowly rotating your Neutrona Wand in all directions. A visual calibration monitor will appear on screen to show your progress. Rotate your Neutrona Wand slowly to fill it with dots until the coverage is as close as possible to 100%. Press the Disable Calibration button when you are finished to save the newly calibrated settings into the system memory.
+
+**Note:** You must have at least 60% coverage in order for the calibration data to be effective! If you exit the calibration process before reaching 60% you will be given a confirmation to either continue collecting data or stop the process and no calibration values will be calculated.
+
+See the [WAND_CALIBRATION](WAND_CALIBRATION.md) for more details.
+
+<div style="clear:both"></div>
+
+#### Tab 4: Preferences / Administration
+
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Wand-Menu-Tab4.jpg"/>
+
+These provide a web interface for managing options which are accessed via the LED or Config EEPROM menus. The settings are divided into 4 sections: Special Device Settings, Neutrona Wand Settings.
+
+These links allow you to change or control aspects of the available devices in lieu of the EEPROM menu.
+
+- **Update Firmware** - Allows you to update the firmware using Over-the-Air updates. See the [FLASHING](FLASHING.md) guide for details
+- **Secure Device WiFi**- Allows changing of the default password for the private WiFi network
+- **Change WiFi Settings** - Provides an optional means of joining an existing, external WiFi network for access of your device
+- **Restart/Resync** - Allows a remote restart of the software by performing a reboot ONLY of the device
+
+At the bottom of the screen is a timestamp representing the date of the software build for the firmware, the current GPStar Audio Firmware version, along with the name of the private WiFi network offered by the current device. If connected to an external WiFi network the current IP address and subnet mask will be displayed.
+
+<div style="clear:both"></div>
+
+### Special Device Settings
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Wand-Menu-Settings.jpg"/>
+
+In the Special Device Settings for the Neutrona Wand, you should see magnetic offset information which display "Hard Iron" (geo-magnetic corrections) and "Soft Iron" (nearby magnetic interference). These values will be used to provide a customised magnetic profile explicitly for your Neutrona Wand.
+
+With the Controller Installation Orientation Menu option, you can further fine tunes the sensor settings by telling the GPStar system which way the GPStar Neutrona Wand II board is installed inside your Neutrona Wand body. For example, on Hasbro Neutrona Wands, it will be Components Down, USB Front. For a Mack's Factory Neutrona Wand, it will be in a different orientation such as the Components facing Left and the USB front.
+
+Also in this section is the ability to rename the Network ID for the Neutrona Wand.
+
+Lastly, you can configure the music track names for the GPStar Neutrona Wand II in stand-alone mode **Using it without a GPStar Proton Pack II**
+
+<div style="clear:both"></div>
+
+### Neutrona Wand Settings
+The same as seen in the Neutrona Wand settings accessed from the Proton Pack above.
 
 ## WiFi Password Reset
 

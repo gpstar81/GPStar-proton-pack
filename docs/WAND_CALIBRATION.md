@@ -22,6 +22,7 @@ When you are satisfied with the results or the coverage value no longer changes,
 
 ## Verifying Calibration
 
-Click on the Settings tab at the top of the UI and go to the "Special Device Settings" page. On this screen you should see magnetic offset information which display "Hard Iron" (geo-magnetic corrections) and "Soft Iron" (nearby magnetic interference). These values will be used to provide a customized magnetic profile explicitly for your Neutrona Wand.
+Click on the Settings tab at the top of the UI and go to the "Special Device Settings" page. On this screen you should see magnetic offset information which display "Hard Iron" (geo-magnetic corrections) and "Soft Iron" (nearby magnetic interference). These values will be used to provide a customised magnetic profile explicitly for your Neutrona Wand.
 
+Also available in this section is Controller Installation Orientation Menu option. This further fine tunes the sensor settings by telling the GPStar system which way the GPStar Neutrona Wand II board is installed inside your Neutrona Wand body. For example, on Hasbro Neutrona Wands, it will be Components Down, USB Front. For a Mack's Factory Neutrona Wand, it will be in a different orientation such as the Components facing Left and the USB front.
 ![Calibration Values](images/Calibrations.png)
