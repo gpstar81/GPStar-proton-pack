@@ -91,7 +91,6 @@ void sendDebug(const String message) {
 }
 
 void setup() {
-<<<<<<< HEAD
 #ifdef ESP32
   // Reduce CPU frequency to 160 MHz to save ~33% power compared to 240 MHz.
   // Do not set below 80 MHz as it will affect WiFi and other peripherals.
@@ -157,28 +156,6 @@ void setup() {
     powerMeterInit();
   }
 
-=======
-  Serial.begin(9600); // Standard HW serial (USB) console.
-  AttenuatorSerial.begin(9600); // Add-on Attenuator communication.
-  WandSerial.begin(9600); // Communication to the Neutrona Wand.
-
-  // Initialize the SerialTransfer objects by passing in the appropriate ports.
-  attenuatorComs.begin(AttenuatorSerial, false, Serial, 100); // Attenuator/Wireless
-  wandComs.begin(WandSerial, false); // Neutrona Wand
-
-  // Setup the audio device for this controller.
-  setupAudioDevice();
-
-  // Setup the i2c bus using the Wire protocol.
-  Wire.begin();
-  Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
-
-  // Initialize an optional power meter on the i2c bus.
-  if(b_use_power_meter) {
-    powerMeterInit();
-  }
-
->>>>>>> origin/main
   // Rotary encoder for volume control.
   pinModeFast(ROTARY_ENCODER_A, INPUT_PULLUP);
   pinModeFast(ROTARY_ENCODER_B, INPUT_PULLUP);
@@ -193,22 +170,15 @@ void setup() {
   switch_mode.setDebounceTime(50);
   switch_vibration.setDebounceTime(50);
   switch_cyclotron_lid.setDebounceTime(50);
-<<<<<<< HEAD
 #ifndef ESP32
-=======
->>>>>>> origin/main
   switch_cyclotron_direction.setDebounceTime(50);
   switch_smoke.setDebounceTime(50);
 #endif
 
-<<<<<<< HEAD
 // Change PWM frequency of pin 45 for the vibration motor, we do not want it high pitched.
 #ifdef ESP32
   // Use of the register is not needed by ESP32, as it uses a different method for PWM.
 #else
-=======
-  // Change PWM frequency of pin 45 for the vibration motor, we do not want it high pitched.
->>>>>>> origin/main
   // For ATmega2560, we set the PWM frequency for pin 45 (TCCR5B) to 122.55 Hz.
   TCCR5B = (TCCR5B & B11111000) | B00000100;
   pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
@@ -235,13 +205,10 @@ void setup() {
 
   // Inner Cyclotron LEDs (Inner Panel + Cyclotron + Cavity).
   FastLED.addLeds<NEOPIXEL, CYCLOTRON_LED_PIN>(cyclotron_leds, INNER_CYCLOTRON_LED_PANEL_MAX + INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX).setCorrection(TypicalLEDStrip);
-<<<<<<< HEAD
 
 #ifdef ESP32
   // Reserved for future expansion.
   // FastLED.addLeds<NEOPIXEL, EXPANSION1_LED_PIN>(tvg_leds, 64).setCorrection(TypicalLEDStrip);
-=======
->>>>>>> origin/main
 
   // Reserved for future expansion.
   // FastLED.addLeds<NEOPIXEL, EXPANSION2_LED_PIN>(expansion_leds, 64).setCorrection(TypicalLEDStrip);
@@ -336,6 +303,14 @@ void setup() {
   // Perform initial pack reset.
   packOffReset();
 
+  if(SYSTEM_MODE == MODE_SUPER_HERO) {
+    // Auto start the pack if it is in demo light mode.
+    if(b_demo_light_mode) {
+      // Turn the pack on.
+      PACK_ACTION_STATE = ACTION_ACTIVATE;
+    }
+  }
+
   // Perform power-on sequence if demo light mode is not enabled per user preferences.
   if(!b_demo_light_mode) {
     // System Power On Self Test
@@ -343,11 +318,6 @@ void setup() {
     ms_delay_post.start(0);
   }
   else {
-    if(SYSTEM_MODE == MODE_SUPER_HERO) {
-      // Auto start the pack if it is in demo light mode.
-      PACK_ACTION_STATE = ACTION_ACTIVATE;
-    }
-
     b_pack_post_finish = true;
   }
 
@@ -356,10 +326,7 @@ void setup() {
 #endif
 }
 
-<<<<<<< HEAD
 // Loop logic dedicated to this device which handles all of the standard operations.
-=======
->>>>>>> origin/main
 void mainLoop() {
   if(b_pack_post_finish) {
     checkMusic();
@@ -397,13 +364,7 @@ void mainLoop() {
 
           // Tell the wand the pack is off, so shut down the wand if it happens to still be on.
           packSerialSend(P_OFF);
-<<<<<<< HEAD
           attenuatorSerialSend(A_PACK_OFF, b_pack_shutting_down ? 1 : 0);
-=======
-          attenuatorSend(A_PACK_OFF);
-
-          b_pack_on = false;
->>>>>>> origin/main
         }
 
         if(b_ramp_down && !b_overheating && !b_pack_alarm) {
@@ -450,13 +411,6 @@ void mainLoop() {
         }
 
         if(!b_pack_on) {
-<<<<<<< HEAD
-=======
-          // Tell the wand the pack is on.
-          packSerialSend(P_ON);
-          attenuatorSend(A_PACK_ON);
-
->>>>>>> origin/main
           ms_fadeout.stop();
           b_fade_out = false;
           b_pack_on = true;
@@ -607,28 +561,6 @@ void mainLoop() {
     systemPOST();
   }
 }
-<<<<<<< HEAD
-=======
-
-void loop() {
-  // Update the available audio device.
-  updateAudio();
-
-  // Check for any new serial commands were received from the Neutrona Wand.
-  checkWand();
-
-  // Check if the wand is considered to have been disconnected.
-  wandDisconnectCheck();
-
-  // Check if Attenuator is present.
-  attenuatorHandShake();
-
-  // Check if any new serial commands were received.
-  checkAttenuator();
-
-  // Handle any actions after POST event.
-  mainLoop();
->>>>>>> origin/main
 
 void updateLEDs() {
   // Update all LED's when the FastLED timer has finished.

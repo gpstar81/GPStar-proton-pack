@@ -2,11 +2,7 @@
 
 # Perform a full compile of all binaries using PlatformIO (pio).
 #
-<<<<<<< HEAD
 # This script compiles only the Neutrona Wand.
-=======
-# This script compiles only the Proton Pack.
->>>>>>> origin/main
 
 BINDIR="../binaries"
 SRCDIR="../source"
@@ -14,7 +10,6 @@ PROJECT_DIR="$SRCDIR/NeutronaWand"
 
 mkdir -p ${BINDIR}/wand/extras
 
-<<<<<<< HEAD
 # Current build timestamp and major version to be reflected in the build for ESP32.
 MJVER="${MJVER:="V6"}"
 TIMESTAMP="${TIMESTAMP:=$(date +"%Y%m%d%H%M%S")}"
@@ -23,8 +18,6 @@ TIMESTAMP="${TIMESTAMP:=$(date +"%Y%m%d%H%M%S")}"
 echo "Setting Build Timestamp: ${MJVER}_${TIMESTAMP}"
 sed -i -e 's/\(String build_date = "\)[^"]*\(";\)/\1'"${MJVER}_${TIMESTAMP}"'\2/' ${PROJECT_DIR}/include/Configuration.h
 
-=======
->>>>>>> origin/main
 echo ""
 
 # Neutrona Wand (Normal)
@@ -52,7 +45,6 @@ if [ -f ${PROJECT_DIR}/.pio/build/atmega2560/firmware.hex ]; then
 fi
 echo ""
 
-<<<<<<< HEAD
 echo "Neutrona Wand Binary [ESP32] - Building..."
 
 # Clean the project before building
@@ -84,8 +76,6 @@ if [ -f ${PROJECT_DIR}/.pio/build/esp32s3/partitions.bin ]; then
 fi
 echo ""
 
-=======
->>>>>>> origin/main
 # Neutrona Wand (Bench Test)
 
 # Change flag(s) for compilation
@@ -107,10 +97,6 @@ pio run -e atmega2560 --project-dir "$PROJECT_DIR" --jobs 4
 
 # Check if the build was successful
 if [ $? -eq 0 ]; then
-<<<<<<< HEAD
-=======
-  restore_benchtest_flags
->>>>>>> origin/main
   echo "Neutrona Wand (Bench Test) Binary [ATMega] - Build succeeded!"
 else
   restore_benchtest_flags
@@ -125,7 +111,6 @@ if [ -f ${PROJECT_DIR}/.pio/build/atmega2560/firmware.hex ]; then
 fi
 echo ""
 
-<<<<<<< HEAD
 echo "Neutrona Wand (Bench Test) Binary [ESP32] - Building..."
 
 # Clean the project before building
@@ -151,6 +136,4 @@ if [ -f ${PROJECT_DIR}/.pio/build/esp32s3/firmware.bin ]; then
 fi
 echo ""
 
-=======
->>>>>>> origin/main
 rm -f ${PROJECT_DIR}/include/*.h-e

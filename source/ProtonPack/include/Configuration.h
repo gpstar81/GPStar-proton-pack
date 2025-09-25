@@ -23,7 +23,7 @@
 /*
  * Used to reflect the last build date for the binary.
  */
-String build_date = "V6_20250924202231";
+String build_date = "V6_20250924210705";
 
 /*
  * Preferred WiFi Network Defaults (only for ESP32)

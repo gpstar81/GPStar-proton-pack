@@ -278,16 +278,10 @@ uint8_t wandSwitchedCount = 0;
  * Hasbro bargraph LEDs.
  */
 const uint8_t i_bargraph_segments_5_led = 5;
-<<<<<<< HEAD
 #ifndef ESP32
   const uint8_t i_bargraph_5_led_invert[i_bargraph_segments_5_led] PROGMEM = {BARGRAPH_LED_5_PIN, BARGRAPH_LED_4_PIN, BARGRAPH_LED_3_PIN, BARGRAPH_LED_2_PIN, BARGRAPH_LED_1_PIN};
   const uint8_t i_bargraph_5_led_normal[i_bargraph_segments_5_led] PROGMEM = {BARGRAPH_LED_1_PIN, BARGRAPH_LED_2_PIN, BARGRAPH_LED_3_PIN, BARGRAPH_LED_4_PIN, BARGRAPH_LED_5_PIN};
 #endif
-=======
-const uint8_t i_bargraph_5_led_invert[i_bargraph_segments_5_led] PROGMEM = {BARGRAPH_LED_5_PIN, BARGRAPH_LED_4_PIN, BARGRAPH_LED_3_PIN, BARGRAPH_LED_2_PIN, BARGRAPH_LED_1_PIN};
-const uint8_t i_bargraph_5_led_normal[i_bargraph_segments_5_led] PROGMEM = {BARGRAPH_LED_1_PIN, BARGRAPH_LED_2_PIN, BARGRAPH_LED_3_PIN, BARGRAPH_LED_4_PIN, BARGRAPH_LED_5_PIN};
-bool b_bargraph_status[i_bargraph_segments_5_led] = {};
->>>>>>> origin/main
 
 /*
  * Afterlife/Frozen Empire wand idle ramp transition timers.

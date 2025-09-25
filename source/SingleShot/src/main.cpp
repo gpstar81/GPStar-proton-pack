@@ -107,7 +107,6 @@ Task animateTask(16, TASK_FOREVER, &animateTaskCallback);
 Task inputsTask(14, TASK_FOREVER, &inputTaskCallback);
 
 void setup() {
-<<<<<<< HEAD
 #ifdef ESP32
   // To save power, reduce CPU frequency to 160 MHz.
   setCpuFrequencyMhz(160);
@@ -129,15 +128,11 @@ void setup() {
 #else
   Serial.begin(9600); // Standard HW serial (USB) console.
 #endif
-=======
-  Serial.begin(9600); // Standard HW serial (USB) console.
->>>>>>> origin/main
 
   // Setup the audio device for this controller.
   setupAudioDevice();
 
   // Change PWM frequency for the vibration motor, we do not want it high pitched.
-<<<<<<< HEAD
 #ifdef ESP32
   // Use of the register is not needed by ESP32, as it uses a different method for PWM.
 #else
@@ -158,11 +153,6 @@ void setup() {
     ms_otacheck.start(i_otaCheck);
   }
 #endif
-=======
-  // For ATmega2560, we set the PWM frequency for pin 11 (TCCR5B) to 122.55 Hz.
-  TCCR1B = (TCCR1B & B11111000) | B00000100;
-  pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
->>>>>>> origin/main
 
   // System LEDs
   FastLED.addLeds<NEOPIXEL, SYSTEM_LED_PIN>(system_leds, CYCLOTRON_LED_COUNT + BARREL_LED_COUNT).setCorrection(TypicalLEDStrip);

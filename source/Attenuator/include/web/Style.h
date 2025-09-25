@@ -450,14 +450,6 @@ input[type=text] {
   width:320px;
 }
 
-.music-playback {
-  display: flex;
-  align-items:center;
-  justify-content:center;
-  margin:10px auto;
-  width:320px
-}
-
 .bar-container {
   display:inline-flex;
   margin-left:20px;

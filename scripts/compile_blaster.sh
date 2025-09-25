@@ -8,7 +8,6 @@ BINDIR="../binaries"
 SRCDIR="../source"
 PROJECT_DIR="$SRCDIR/SingleShot"
 
-<<<<<<< HEAD
 mkdir -p ${BINDIR}/blaster/extras
 
 # Current build timestamp and major version to be reflected in the build for ESP32.
@@ -19,8 +18,6 @@ TIMESTAMP="${TIMESTAMP:=$(date +"%Y%m%d%H%M%S")}"
 echo "Setting Build Timestamp: ${MJVER}_${TIMESTAMP}"
 sed -i -e 's/\(String build_date = "\)[^"]*\(";\)/\1'"${MJVER}_${TIMESTAMP}"'\2/' ${PROJECT_DIR}/include/Configuration.h
 
-=======
->>>>>>> origin/main
 echo ""
 
 # Single-Shot Blaster
@@ -47,7 +44,6 @@ fi
 echo "Firmware copy completed."
 echo ""
 
-<<<<<<< HEAD
 echo "Single-Shot Blaster Binary [ESP32] - Building..."
 
 # Clean the project before building
@@ -79,6 +75,4 @@ if [ -f ${PROJECT_DIR}/.pio/build/esp32s3/partitions.bin ]; then
 fi
 echo ""
 
-=======
->>>>>>> origin/main
 rm -f ${PROJECT_DIR}/include/*.h-e

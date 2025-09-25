@@ -6,13 +6,6 @@
     {
       "name": "Attenuator",
       "path": "source/Attenuator"
-<<<<<<< HEAD
-=======
-    },
-    {
-      "name": "ATmegaEEPROM",
-      "path": "source/ATmegaEEPROM"
->>>>>>> origin/main
     },
     {
       "name": "BeltGizmo",
@@ -54,12 +47,8 @@
     "editor.tabSize": 2,
     "files.associations": {
       "string": "cpp",
-<<<<<<< HEAD
       "cstdint": "cpp",
       "cmath": "cpp"
-=======
-      "cstdint": "cpp"
->>>>>>> origin/main
     },
     "workbench.editor.enablePreview": false
   }

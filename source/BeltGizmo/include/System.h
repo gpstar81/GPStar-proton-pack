@@ -102,11 +102,7 @@ void animateLights() {
         break;
       }
 
-<<<<<<< HEAD
       if(b_use_gbr) {
-=======
-      if (b_use_gbr) {
->>>>>>> origin/main
         // Use GBR format for the device LEDs.
         device_leds[i] = getHueAsGBR(PRIMARY_LED, i_color, 255 - i_brightness);
       }

@@ -99,7 +99,6 @@ function getDevicePrefs() {
         if ((jObj.wifiNameExt || "") != "" && (jObj.extAddr || "") != "" || (jObj.extMask || "") != "") {
           setHtml("extWifi", (jObj.wifiNameExt || "") + ": " + jObj.extAddr + " / " + jObj.extMask);
         }
-<<<<<<<< HEAD:source/Attenuator/include/web/IndexJS.h
         switch(jObj.audioVersion || 0) {
           case 0:
             setHtml("audioInfo", "No Audio Detected");
@@ -114,42 +113,25 @@ function getDevicePrefs() {
             setHtml("audioInfo", "GPStar Audio v" + (jObj.audioVersion || ""));
           break;
         }
-========
->>>>>>>> origin/main:source/Attenuator/include/IndexJS.h
 
         // Display Preference
         switch(jObj.displayType || 0) {
           case 0:
-<<<<<<<< HEAD:source/Attenuator/include/web/IndexJS.h
           default:
             // Text-Only Display
             hideEl("equipCRT");
             showEl("equipTXT");
           break;
-========
-            // Text-Only Display
-            hideEl("equipCRT");
-            showEl("equipTXT");
-            break;
->>>>>>>> origin/main:source/Attenuator/include/IndexJS.h
           case 1:
             // Graphical Display
             showEl("equipCRT");
             hideEl("equipTXT");
-<<<<<<<< HEAD:source/Attenuator/include/web/IndexJS.h
           break;
-========
-            break;
->>>>>>>> origin/main:source/Attenuator/include/IndexJS.h
           case 2:
             // Both graphical and text
             showEl("equipCRT");
             showEl("equipTXT");
-<<<<<<<< HEAD:source/Attenuator/include/web/IndexJS.h
           break;
-========
-            break;
->>>>>>>> origin/main:source/Attenuator/include/IndexJS.h
         }
       }
     }
@@ -578,18 +560,6 @@ function updateEquipment(jObj) {
       setHtml("playbackStatus", "No Music Playing");
     }
     setToggle("toggleLoop", jObj.musicLooping);
-
-    // Music Playback Status
-    if (jObj.musicPlaying && !jObj.musicPaused) {
-      // If music is playing (but not paused), show that status.
-      setHtml("playbackStatus", "Music Playing");
-    } else if (jObj.musicPaused) {
-      // If music is playing AND paused, show that status.
-      setHtml("playbackStatus", "Music Paused");
-    } else {
-      // If no music is playing or paused, show a default message.
-      setHtml("playbackStatus", "No Music Playing");
-    }
 
     // Update special UI elements based on the latest data values.
     setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron, jObj.switch, jObj.firing, jObj.ramping, jObj.smoke, jObj.vibration, jObj.direction, jObj.themeID);
