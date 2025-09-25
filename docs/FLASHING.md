@@ -10,8 +10,10 @@ Please refer to the table below for a list of devices and their supported softwa
 
 | Controller Device | v1.x | v2.x | v3.x | v4.x | v5.x | v6.x |
 |-------------------|------|------|------|------|------|------|
-| <span class="logo-icon-tiny"></span> GPStar Proton Pack PCB   | Yes | Yes | Yes | Yes | Yes | Yes |
-| <span class="logo-icon-tiny"></span> GPStar Neutrona Wand PCB | Yes | Yes | Yes | Yes | Yes | Yes |
+| <span class="logo-icon-tiny"></span> GPStar Proton Pack II   | No | No | No | No | No | Yes |
+| <span class="logo-icon-tiny"></span> GPStar Neutrona Wand II | No | No | No | No | No | Yes |
+| <span class="logo-icon-tiny"></span> GPStar Proton Pack   | Yes | Yes | Yes | Yes | Yes | Yes |
+| <span class="logo-icon-tiny"></span> GPStar Neutrona Wand | Yes | Yes | Yes | Yes | Yes | Yes |
 | <sup>d1</sup> DIY Arduino Mega Proton Pack   | Yes | Yes <sup>2</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> |
 | <sup>d1</sup> DIY Arduino Mega Neutrona Wand | Yes | Yes <sup>2</sup> | Yes <sup>2</sup> | Yes <sup>2</sup> | Yes <sup>2</sup> | Yes <sup>2</sup> |
 | <sup>s1</sup> Attenuator (Arduino Nano) | Yes | Yes | Yes | Yes | Yes | No <sup>4</sup> |
@@ -28,12 +30,27 @@ Please refer to the table below for a list of devices and their supported softwa
 
 <sup>4</sup> Support for the Arduino Nano as an Attenuator controller ended as of the v6.0.0 release. That device must be replaced with an ESP-WROOM-32 module to support the later software releases.
 
-## 📝 IMPORTANT NOTES FOR FLASHING UPDATES
+## 📝 GPStar II Flashing
+The GPStar Proton Pack II and GPStar Neutrona Wand II can be updated wirelessly.
+
+**The WiFi on the GPStar Neutrona Wand II is disabled for power saving measures when it is connected to a GPStar Proton Pack II. Alternatively, if you have a Attenuator connected, the GPStar Proton Pack II will turn off its WiFi for power saving. You can manually turn on or turn off the WiFi for each device from the [OPERATION_MENUS](OPERATION_MENUS.md)**
+
+- Connect to the respective devices WiFi and navigate to the settings section. Then click on the Update Proton Pack or Neutrona Wand Firmware.
+
+<img style="padding:10px;width:300px;" src="images/gpstar-ii-settings.jpg"/>
+
+- Use the select file button and select the .bin firmware for the device that can be found in the `/binaries` directory.
+
+<img style="padding:10px;width:300px;" src="images/gpstar-ii-update.jpg"/>
+
+- The upload will begin immediately. Once at 100% the device will reboot.
+
+## 📝 GPStar Flashing
 
 1. The same software version should be updated to **ALL** available devices, even if the changelog does not advertise modifications for a certain component. This ensures proper serial communication between devices.
 1. If you are flashing updates to your existing setup, make sure that **BOTH** your Proton Pack and Neutrona Wand Micro SD Cards have all the latest sound effects from this repository as found in the [sounds](https://github.com/gpstar81/GPStar-proton-pack/blob/main/sounds/) directory.
 
-## Flashing Updates
+### Flashing Updates
 
 After connecting your GPStar Proton Pack or Neutrona Wand board to your computer with the included FTDI to USB programming cable, download the GPStar firmware flasher from the [extras](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/) folder and run the program.
 
@@ -43,11 +60,6 @@ After connecting your GPStar Proton Pack or Neutrona Wand board to your computer
 
 - [Windows (x86/x64)](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/gpstarFirmwareFlasher.exe?raw=1)
 - [MacOS Intel/M1](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/GPStar-Firmware-Flasher-Mac.dmg?raw=1)
-
-### GPStar Audio Firmware Flasher
-
-- [Windows (x64 only)](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/sound/GPStar%20Audio/gpstarAudioFirmwareFlasher.exe?raw=1)
-- [MacOS Intel](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/sound/GPStar%20Audio/GPStar-Audio-Firmware-Flasher-Mac.dmg?raw=1) (Must enable Rosetta for Apple Silicon CPUs)
 
 ### GPStar ESP32 Firmware Flasher
 
@@ -70,7 +82,7 @@ When downloading the binaries via GitHub, click on the file then on the **`Downl
 
 [https://gpstartechnologies.com/pages/support-downloads](https://gpstartechnologies.com/pages/support-downloads)
 
-## Connection to your GPStar Proton Pack and Neutrona Wand PCBs
+### Connection to your GPStar Proton Pack and Neutrona Wand PCBs
 
 Use the included FTDI to USB programming cable that comes with the GPStar kits or use any other suitable FTDI 5V basic serial connector. The UART Pins on the PCB should align with with the standard wire order for FTDI-to-USB cables which use a single Dupont 6-pin connector. Observe these common colours and notes to ensure proper orientation:
 
@@ -83,17 +95,7 @@ Use the included FTDI to USB programming cable that comes with the GPStar kits o
 
 📝 **Note:** For the Neutrona Wand, some users have adopted use of the [Hasbro Plasma Series Spengler's Neutrona Wand: Data Port Front Tube](https://www.etsy.com/listing/1756220009/) as offered by RADIsLAB, which includes a parts list for a dedicated programming cable which stay mounted inside of the device.
 
-## Connection to your GPStar Audio
-
-Use the included FTDI to USB programming cable that comes with the GPStar kits or use any other suitable FTDI 5V basic serial connector. The UART Pins on the PCB should align with with the standard wire order for FTDI-to-USB cables which use a single Dupont 6-pin connector. Observe these common colours and notes to ensure proper orientation:
-
-**IMPORTANT: Beside the connection on the GPStar Audio board, there is a small black switch, move it to the LOAD position before connecting the cable.**
-
-**After flashing, please move the switch back to the BOOT position.**
-
-![UART GPStar Audio Connection](images/uart_gpstar_audio.jpg)
-
-## Using the Flashing Software
+### Using the Flashing Software
 
 ### Windows
 
@@ -114,6 +116,21 @@ Use the included FTDI to USB programming cable that comes with the GPStar kits o
 1. Select the firmware from the firmware selection box for the GPStar board you wish to flash.
 1. Then select the PORT for the connection to your gpstar Board after connecting the gpstar board to your computer with the programming cable. `The PORT will be different for every user and may not look like what you see in the screenshot image.`
 1. Click on the UPLOAD button and wait for it to complete.
+
+## GPStar Audio Flashing
+
+Use a FTDI to USB programming cable that comes with the first generation GPStar kits or use any other suitable FTDI 5V basic serial connector. The UART Pins on the PCB should align with with the standard wire order for FTDI-to-USB cables which use a single Dupont 6-pin connector. Observe these common colours and notes to ensure proper orientation:
+
+**IMPORTANT: Beside the connection on the GPStar Audio board, there is a small black switch, move it to the LOAD position before connecting the cable.**
+
+**After flashing, please move the switch back to the BOOT position.**
+
+### GPStar Audio Firmware Flasher
+
+- [Windows (x64 only)](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/sound/GPStar%20Audio/gpstarAudioFirmwareFlasher.exe?raw=1)
+- [MacOS Intel](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/sound/GPStar%20Audio/GPStar-Audio-Firmware-Flasher-Mac.dmg?raw=1) (Must enable Rosetta for Apple Silicon CPUs)
+
+![UART GPStar Audio Connection](images/uart_gpstar_audio.jpg)
 
 ## Flashing Update Instruction Video
 

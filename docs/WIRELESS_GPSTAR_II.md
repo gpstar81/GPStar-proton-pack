@@ -1,0 +1,260 @@
+# GPStar II Wireless Operation
+
+This guide will cover the web interface available that is built into the GPStar Proton Pack II and GPStar Neutrona Wand II.
+
+## Proton Pack
+
+To connect to the GPStar Proton Pack II over WiFi, a private WiFi network (access point) which will appear as **"GPStar_Pack2"**, and this will be secured with a default password of **"555-2368"**.
+
+Once connected, your computer/phone/table should be assigned an IP address starting from **"192.168.1.100"** with a subnet of **"255.255.255.0"**. Please remember that if you intend to have multiple devices connect via this private WiFi network you will be assigned a unique IP address for each client device (eg. phone, tablet, or computer).
+
+A web-based user interface is available at [http://gpstar_pack2.local](http://gpstar_pack2.local) or [http://192.168.1.4](http://192.168.1.4) to view the state of your Proton Pack and Neutrona Wand, and to manage specific actions. The available sections are described below.
+
+### Tab 1: Equipment Status
+
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main1.jpg"/>
+
+The equipment status will reflect the current state of your Proton Pack and Neutrona Wand and will update in real-time as you interact with those devices. This information is available as either a text-based or graphical display, or both if you prefer (set via Preferences).
+
+When using the graphical display, most components of the Proton pack and Neutrona Wand are represented by colour-coded overlays on the component will may be affected by runtime actions:
+
+- The top of the display will indicate the mode (Standard = Mode Original, Upgraded = Super Hero) along with the year theme (V1.9.8x or V2.0.2x).
+- When the Ion Arm switch is engaged for Mode Original, the overlay for the Ion Arm will be green to indicate a ready state. When in Super Hero mode this overlay will be green when the Proton Pack is powered on.
+- When the Proton Pack is powered on:
+	- The Power Cell, Booster Tube, and Cyclotron overlays will be green as their default state.
+	- When the Cyclotron is in a normal state the overlay will be green. It will change to yellow then red as it goes through the pre-warning and overheat states. During venting the overlay will be blue to indicate the recovery period.
+	- The color state of the Booster Tube is linked to the "Output" text value which is the voltage measured at the Proton Pack PCB (in volts, but displayed as Gev). During high power draw events such as smoke generation the voltage can drop briefly, and will be reflected as a red overlay when that value is below 4.2V
+- When the Neutrona Wand is powered on, the overlay above the Activate/Intensify portion of the gun box will indicate if the barrel is retracted (red) or extended (green).
+- The current power level for the Neutrona Wand will be indicated by the "L-#" beside the barrel.
+- The type of firing mode will be displayed below the Neutrona Wand and will be color coded via the barrel. Color intensity increases with the power level.
+	- Proton Stream: Red (includes Spectral modes)
+	- Plasm System: Green (incl. for 1989 theme)
+	- Dark Matter Gen.: Blue
+	- Particle System: Orange
+	- Settings: Gray
+- When using the power-detection feature with a stock Haslab Neutrona Wand the default stream will be Proton with a power level of 5. Instead of the stream type being displayed, there will be a wattage value displayed as Gigawatts (GW).
+- If the Ribbon Cable is removed, a warning icon will appear over that component to indicate an alarm state.
+- When the Cyclotron lid is removed a radiation exposure warning will be displayed at the bottom of the CRT display.
+
+**Note:** When using the text-based display, if you see a "&mdash;" (dash) beside the labels it can indicate a potential communication issue. Simply refresh the page and/or check your WiFi connection to the device.
+
+Special thanks and credit to fellow cosplayer [Alexander Hibbs (@BeaulieuDesigns87)](https://www.etsy.com/shop/BeaulieuDesigns87) from the [South Carolina Ghostbusters](https://www.facebook.com/SCGhostbusters/), who created the amazingly detailed Proton Pack and Neutrona Wand technical illustration, available as a [printed poster](https://www.etsy.com/listing/1406461576/proton-pack-blueprint-matte-poster) or [digital image](https://www.etsy.com/listing/1411559802/proton-pack-blueprint-digital-download). He has graciously provided a version of his design to make the new graphical interface.
+
+<div style="clear:both"></div>
+
+### Tab 2: Audio Controls
+
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main2-ii.jpg"/>
+
+This section allows full control of the system (overall) volume, effects volume, and music volume along with the ability to mute/unmute all devices. The current volume levels will be shown and updated in real-time whether adjusted via the web UI, the pack, or the wand.
+
+For playback of music you can use the improved navigation controls:
+
+| Indicator | Track Action |
+|-----------|--------------|
+| &#9664;&#9664; | Previous |
+| &#9634;&nbsp;&#9654; | Start/Stop |
+| &#9646;&#9646;&nbsp;&#9654; | Pause/Resume |
+| &#9654;&#9654; | Next/Skip |
+
+<div style="clear:both"></div>
+
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-SongSelect.jpg"/>
+
+You may also jump directly to a specific track for playback via the selection field (switching immediately if already playing, otherwise that track will be started via the Start/Stop button).
+
+By default, only the track numbers are known to the audio device as all music tracks must begin at value "500" per the naming convention used by the GPStar controller software. However it is possible to add a track listing to the device's memory so that user-friendly song names can be displayed. See the Special Device Settings Section described below for more information.
+
+<div style="clear:both"></div>
+
+### Tab 3: Pack Controls
+
+Controls will be made available on a per-action or per-state basis.
+
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main2-pack.jpg"/>
+
+Shown here, the pack and wand are both in an Idle state while in the "Super Hero" operation mode which allows the pack to be turned on/off remotely. The options to remotely vent or to "Attenuate" are only enabled when the devices are in a specific state.
+
+**Vent:** This can only be triggered remotely when in the "Super Hero" mode and while the Pack State is "Powered".
+
+**Attenuate:** When firing, the Cyclotron State must be either "Warning" or "Critical" to enable this button.
+
+**Smoke:** Enable or disable smoke effects.
+
+**Vibration:** Enable or disable Proton Pack vibration.
+
+**Cyclotron Rotation Direction:** Set your cyclotron rotation from clockwise or counter clockwise.
+
+**Theme:** Set the theme mode of your Proton Pack between: 1984, 1989, Afterlife or Frozen Empire.
+
+<div style="clear:both"></div>
+
+### Tab 4: Preferences / Administration
+
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main4-pack.jpg"/>
+
+These provide a web interface for managing options which are accessed via the LED or Config EEPROM menus. The settings are divided into 4 sections: Special Device Settings, Proton Pack, Neutrona Wand, and Overheat/Smoke. The features available via these sections will be covered in-depth later in this document.
+
+These links allow you to change or control aspects of the available devices in lieu of the EEPROM menu.
+
+- **Update Firmware** - Allows you to update the firmware using Over-the-Air updates. See the [FLASHING](FLASHING.md) guide for details
+- **Secure Device WiFi**- Allows changing of the default password for the private WiFi network
+- **Change WiFi Settings** - Provides an optional means of joining an existing, external WiFi network for access of your device
+- **Restart/Resync** - Allows a remote restart of the software by performing a reboot ONLY of the device
+
+At the bottom of the screen is a timestamp representing the date of the software build for the firmware, the current GPStar Audio Firmware version, along with the name of the private WiFi network offered by the current device. If connected to an external WiFi network the current IP address and subnet mask will be displayed.
+
+<div style="clear:both"></div>
+
+### Tab 5: Special Device Settings
+
+<img style="float:right;padding:10px;width:300px;" src="images/gpstar-ii-special-device-settings.jpg"/>
+
+The special device settings allows you to change the graphical user interface, change the private network name and adding tracking names to music.
+
+<div style="clear:both"></div>
+
+
+## Pack Settings
+
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Pack.jpg"/>
+
+Set options related specifically to the Proton Pack. Options such as the color/saturation sliders will only take effect if you have installed upgrades to the RGB Power Cell and Cyclotron lid light kits. Similarly, the Video Game mode option will have no effect on the stock Haslab LEDs.
+
+**Reminder:** The ability to update settings or save to EEPROM will be disabled so long as the pack and wand are running. Turn off all physical toggles to set these devices to an idle state before adjusting settings. Refresh the page to get the latest values for preferences.
+
+📝 **Note:** When changing options such as the count of LEDs in use for a device, or some options such as the Operation Mode, a full power-cycle of the equipment is required after saving to EEPROM.
+
+<div style="clear:both"></div>
+
+## Neutrona Wand Settings
+
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Wand.jpg"/>
+
+Set options related specifically to the Neutrona Wand. These can be accessed from the GPStar Proton Pack II, or by connecting to the GPStar Neutrona Wand II directly over WiFi.
+
+**Reminder:** The ability to update settings or save to EEPROM will be disabled so long as the pack and wand are running. Turn off all physical toggles to set these devices to an idle state before adjusting settings. Refresh the page to get the latest values for preferences.
+
+📝 **Note:** When changing options such as the count of LEDs in use for a device, a full power-cycle of the equipment is required after saving to EEPROM.
+
+<div style="clear:both"></div>
+
+## Overheat/Smoke Settings
+
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Smoke.jpg"/>
+
+Adjust overall smoke effects (toggle on/off) and adjust per-level effects. Naturally, these options will have no effect on operation without a smoke kit installed.
+
+**Reminder:** The ability to update settings or save to EEPROM will be disabled so long as the pack and wand are running. Turn off all physical toggles to set these devices to an idle state before adjusting settings. Refresh the page to get the latest values for preferences.
+
+<div style="clear:both"></div>
+
+## External WiFi Settings
+
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-WiFi.jpg"/>
+
+It is possible to have your device join an existing WiFi network which may provide a more stable network connection.
+
+1. Access the "Change WiFi Settings" page to make the necessary device modifications.
+1. Enable the external WiFi options and supply the preferred WiFi network name (SSID) and WPA2 password for access.
+	- Optionally, you may specify an IP address, subnet mask, and gateway IP if you wish to use static values. Otherwise, the device will obtain these values automatically from your chosen network via DHCP.
+1. Save the changes, which will cause the device to reboot and attempt to connect to the network (up to 3 tries).
+1. Return to the "Change WiFi Settings" section to observe the IP address information. If the connection was successful, an IP address, subnet mask, and gateway IP will be shown.
+1. While connected to the same WiFi network on your computer/phone/tablet, use the IP address shown to connect to your device's web interface.
+
+Use of an unsecured WiFi network is not supported and not recommended.
+
+<div style="clear:both"></div>
+
+## WiFi Password Reset
+
+If you have forgotten the password to your GPStar Proton Pack II or GPStar Neutrona Wand II private WiFi network, you can reset the password via the action menu level 3 in the Neutrona Wand.
+
+See the [OPERATION_MENUS](OPERATION_MENUS.md) for more details.
+
+Once reset, the default password will be **555-2368**
+
+## Increasing WiFi Performance
+
+It should be clearly stated that the WiFi built into these boards are a low-power device. When used in a crowded (read: convention) environment the signal may become overwhelmed by competing RF devices. When possible, configure the device to connect to a stronger, stable wireless network as a client rather than relying on the built-in access point as this may improve the range and performance of the web-based interface.
+
+- For **Android** devices offering a cellular hotspot, these devices may utilize a feature called "Client Isolation Mode" which will prevent hotspot clients from seeing each other. Unless you can disable this option (via a rooted device) you will not be able to reach the web UI via the hotspot network.
+- For **iOS** devices offering a cellular hotspot, please make sure that the "Maximize Compatibility" option is enabled. This will ensure your device offers the 2.4GHz radio and will be seen by the GPStar Proton Pack II or GPStar Neutrona Wand II.
+
+## Web API
+
+The web UI is built as a single-page application, using single HTML pages for the interface elements and performing actions using an API layer. These API endpoints are available for use if you wish to build your own interface. They pass data in JSON format though the exact structure is not described here at this time.
+
+The following URI's will serve the informational/maintenance pages as shown previously in this guide:
+
+	GET / - Standard Index/Landing Page
+	GET /network - External WiFi Settings Page
+	GET /password - WiFi Password Update Page
+	GET /settings/pack - Pack Settings Page
+	GET /settings/wand - Wand Settings Page
+	GET /settings/smoke - Smoke Settings Page
+	GET /style.css - Common Stylesheet
+	GET /common.js - Common JavaScript
+	GET /index.js - Index Page JavaScript
+
+For real-time updates, the built-in web server offers a special URI `/ws` to support [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API). When connected to that endpoint, the device will "push" any relevant information direct to clients in real-time. Note that this data may be in the form of a JSON object or just a plain string, so check the contents of the text data carefully before usage.
+
+The following URI's are API endpoints available for managing actions within your devices. You may use these to create your own UI or control your pack/wand via other hardware devices. For instance, you can monitor the `/status` endpoint for changes, or use the volume/music endpoints to create your own jukebox interface. All data should use the `application/json` content type for sending or receiving of data. Where applicable for body data to be sent to the device a footnote describes where to find a sample of the JSON payload.
+
+	GET /status - Obtain all current equipment status (pack + wand)
+	DELETE /restart - Perform a software restart of the device controller
+
+	PUT /pack/on - Turn the pack on (subject to system state)
+	PUT /pack/off - Turn the pack onf (subject to system state)
+	PUT /pack/attenuate - Cancel pack overheat via "attenuation"
+	PUT /pack/vent - Perform manual vent (subject to system state)
+	PUT /pack/cyclotron/clockwise - Spin cyclotron clockwise
+	PUT /pack/cyclotron/counterclockwise - Spin cyclotron counterclockwise
+	PUT /pack/theme/1984 - Switch to GB1 theme
+	PUT /pack/theme/1989 - Switch to GB2 theme
+	PUT /pack/theme/2021 - Switch to GB:AL theme
+	PUT /pack/theme/2024 - Switch to GB:FE theme
+	PUT /pack/smoke/on - Enable smoke
+	PUT /pack/smoke/off - Disable smoke
+	PUT /pack/vibration/on - Enable vibration
+	PUT /pack/vibration/off - Disable vibration
+
+	PUT /volume/mute - Mute for all devices
+	PUT /volume/unmute - Unmute for all devices
+	PUT /volume/master/up - Increase system (master) volume
+	PUT /volume/master/down - Decrease system (master) volume
+	PUT /volume/effects/up - Increase effects volume
+	PUT /volume/effects/down - Decrease effects volume
+	PUT /volume/music/up - Increase music volume
+	PUT /volume/music/down - Decrease music volume
+	PUT /volume/music/loop - Toggle looping a single track
+
+	PUT /music/startstop - Toggle music playback via start/stop
+	PUT /music/pauseresume - Toggle music playback via resume/pause
+	PUT /music/next - Move to next track
+	PUT /music/prev - Move to previous track
+	PUT /music/loop/all - Set looping at end of playlist
+	PUT /music/loop/single - Set looping of a single track
+	PUT /music/select?track=[INTEGER] - Select a specific music track (Min Value: 500)
+
+	GET /wifi/settings - Returns the current external WiFi settings
+	PUT /wifi/update - Save new/modified external WiFi settings
+		Body: Send same JSON body as returned by /wifi/settings
+
+	GET /config/pack - Obtain the current pack equipment settings
+	PUT /config/pack/save - Saves pack settings for evaluation
+		Body: Send same JSON body as returned by /config/pack
+
+	GET /config/wand - Obtain the current wand equipment settings
+	PUT /config/wand/save - Saves wand settings for evaluation
+		Body: Send same JSON body as returned by /config/wand
+
+	GET /config/smoke - Obtain the current pack/wand smoke settings
+	PUT /config/smoke/save - Saves smoke settings for evaluation
+		Body: Send same JSON body as returned by /config/smoke
+
+	WARNING: Only call these API's as necessary as these cause write cycles to the EEPROM!
+
+	PUT /eeprom/all - Stores all current preferences to pack/wand EEPROMs (eg. smoke settings)
+	PUT /eeprom/pack - Stores current pack preferences to pack EEPROM only
+	PUT /eeprom/wand - Stores current wand preferences to wand EEPROM only
