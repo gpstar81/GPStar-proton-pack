@@ -2182,8 +2182,13 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Reset the WiFi password to default.
       resetWifiPassword();
 
-      // Turn off the WiFi.
+      // Turn off the WiFi until the user decides to manually enable and reconnect.
       WIFI_MODE = WIFI_DISABLED;
+
+      // Give some audio feedback as to what just happened.
+      stopEffect(S_VOICE_PACK_WIFI_RESET);
+      stopEffect(S_VOICE_WAND_WIFI_RESET);
+      playEffect(S_VOICE_PACK_WIFI_RESET);
     #endif
     break;
 

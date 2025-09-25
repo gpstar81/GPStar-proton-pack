@@ -1374,6 +1374,8 @@ void checkWandAction() {
         // Menu Level 1: (Barrel Wing Button) -> Cycle through which dimming mode to adjust in the Proton Pack. Power Cell, Cyclotron, Inner Cyclotron.
         // Menu Level 2: (Intensify) -> Enable or disable overheating.
         // Menu Level 2: (Barrel Wing Button) -> Enable or disable smoke for the Proton Pack.
+        // Menu Level 3: (Intensify) -> GPStar II: -AVAILABLE-
+        // Menu Level 3: (Barrel Wing Button) -> GPStar II: -AVAILABLE-
         case 4:
           // Adjust the Proton Pack / Neutrona Wand sound effects volume.
           if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
@@ -1401,6 +1403,8 @@ void checkWandAction() {
         // Menu Level 1: (Barrel Wing Button + top dial) Adjust Proton Pack / Neutrona Wand music volume.
         // Menu Level 2: (Intensify) -> Toggle Cyclotron rotation direction.
         // Menu Level 2: (Barrel Wing Button) -> Toggle the Proton Pack Single LED or 3 LEDs for 1984/1989 modes.
+        // Menu Level 3: (Intensify) -> GPStar II: -AVAILABLE-
+        // Menu Level 3: (Barrel Wing Button) -> GPStar II: -AVAILABLE-
         case 3:
           // Top menu code is handled in checkRotaryEncoder()
           // Sub menu. Adjust Cyclotron settings.
@@ -1421,6 +1425,8 @@ void checkWandAction() {
         // Menu Level 1: (Barrel Wing Button) -> Go to previous music track.
         // Menu Level 2: (Intensify) -> Enable pack vibration, enable pack vibration while firing only, disable pack vibration. *Note that the pack vibration switch will toggle both pack and wand vibration on or off*
         // Menu Level 2: (Barrel Wing Button) -> Enable wand vibration, enable wand vibration while firing only, disable wand vibration.
+        // Menu Level 3: (Intensify) -> GPStar II: -AVAILABLE-
+        // Menu Level 3: (Barrel Wing Button) -> GPStar II: -AVAILABLE-
         case 2:
           // Change music tracks.
           if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
@@ -1505,6 +1511,8 @@ void checkWandAction() {
         // Menu Level 1: (Barrel Wing Button) -> Mute the Proton Pack and Neutrona Wand.
         // Menu Level 2: (Intensify) -> Switch between 1984/1989/Afterlife/Frozen Empire mode.
         // Menu Level 2: (Barrel Wing Button) -> Enable or disable Proton Stream impact effects.
+        // Menu Level 3: (Intensify) -> GPStar II: Reset the wand WiFi password to default.
+        // Menu Level 3: (Barrel Wing Button) -> GPStar II: Reset the pack WiFi password to default.
         case 1:
           // Play or stop the current music track.
           if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
@@ -1632,8 +1640,13 @@ void checkWandAction() {
               // Reset the WiFi password to default.
               resetWifiPassword();
 
-              // Turn off the WiFi.
+              // Turn off the WiFi until the user decides to manually enable and reconnect.
               WIFI_MODE = WIFI_DISABLED;
+
+              // Give some audio feedback as to what just happened.
+              stopEffect(S_VOICE_PACK_WIFI_RESET);
+              stopEffect(S_VOICE_WAND_WIFI_RESET);
+              playEffect(S_VOICE_WAND_WIFI_RESET);
             }
 
             if(switch_mode.pushed()) {
