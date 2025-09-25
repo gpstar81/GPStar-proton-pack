@@ -20,7 +20,7 @@ The following list of parts will allow you to assemble the electronics and inter
 
 | Qty | Desc | Use | Link |
 |-----|------|-----|------|
-|  1  | GPStar Neutrona Wand PCB | Main device controller | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-neutrona-wand) |
+|  1  | GPStar Neutrona Wand PCB | Main device controller | [GPStar I](https://gpstartechnologies.com/products/gpstar-neutrona-wand) or [GPStar II](https://gpstartechnologies.com/products/gpstar-neutrona-wand-ii) |
 |  1  | GPStar Audio Controller | Sound driver with amplifier | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-audio) |
 |  1  | GPStar Neutrona Wand Bargraph | 28-segment bargraph | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-neutrona-wand-bargraph) |
 |  2  | GPStar 7-LED Jewel | RGB lighting for barrel and cyclotron | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-jewel) |
@@ -48,8 +48,11 @@ Connections for the device should be made according to the tables below.
 - Ordering aligns with PCB labels or when viewed left-to-right with the connector keyhole at the bottom right.
 - Pins denoted A#/D# correspond to the internal code and connection to the controller chip.
 - Ground may be designated as "GND" or simply "-".
+- Either the GPStar I Neutrona Wand or GPStar II Neutrona Wand controller
 
-![](images/SingleShotPCB-Labels.png)
+![](images/SingleShotPCB-Mk1.png)
+
+![](images/SingleShotPCB-Mk2.png)
 
 ### Socket Connections (JST-PH)
 
@@ -64,6 +67,8 @@ Connections for the device should be made according to the tables below.
 
 ### Wire Connectors (Terminal Blocks)
 
+For GPStar Neutrona Wand I
+
 | Label/Pin | Notes |
 |-----------|-------|
 | D8 | Slo-Blo VCC |
@@ -76,10 +81,32 @@ Connections for the device should be made according to the tables below.
 | GND | Clippard LED (Top Left) GND |
 | R+ | Rumble (vibration) motor VCC |
 | R- | Rumble (vibration) motor GND |
+| - | - |
 | VCC | Power (+) for rotary encoder |
 | D12 | Blinking top right LED / RGB vent light data |
 | D13 | White vent light LED |
 | VL+ | VCC for top/vent lights |
+| D7 | Rotary encoder B (DT) |
+| D6 | Rotary encoder A (CLK) |
+| ROT- | Ground for rotary encoder |
+
+For GPStar Neutrona Wand II
+
+| Label/Pin | Notes |
+|-----------|-------|
+| D8 | Slo-Blo VCC |
+| GND | Slo-Blo GND |
+| D4 | Lower-right Toggle (wire order does not matter) |
+| GND | Lower-right Toggle (wire order does not matter) |
+| A0 | Upper-right Toggle (wire order does not matter) |
+| GND | Upper-right Toggle (wire order does not matter) |
+| 5V+ | Clippard LED (Top Left) VCC |
+| D9 | Clippard LED (Top Left) GND |
+| R+ | Rumble (vibration) motor VCC |
+| R- | Rumble (vibration) motor GND |
+| - | - |
+| GND | Ground for RGB Top/Vent Light |
+| D12 | Data for RGB Top/Vent Light |
 | D7 | Rotary encoder B (DT) |
 | D6 | Rotary encoder A (CLK) |
 | ROT- | Ground for rotary encoder |
