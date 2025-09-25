@@ -92,6 +92,7 @@ bool b_vent_lights_changed = false; // Check for whether there was actually a ch
  * Non-addressable LEDs
  * Uses a common object to define and set expected properties for all LEDs
  */
+<<<<<<< HEAD
 #ifdef ESP32
 #define SLO_BLO_LED_PIN 12 // SLO-BLO LED. (Red LED)
 #define CLIPPARD_LED_PIN 3 // LED underneath the Clippard valve. (Orange or White LED)
@@ -101,6 +102,8 @@ bool b_vent_lights_changed = false; // Check for whether there was actually a ch
 #define BARREL_TIP_LED_PIN 46 // White LED at tip of the wand barrel. (White LED)
 #define WAND_STATUS_LED_PIN 38 // V1.4 GPStar Neutrona Wand onboard LED pin.
 #else
+=======
+>>>>>>> origin/main
 #define SLO_BLO_LED_PIN 8 // SLO-BLO LED. (Red LED)
 #define CLIPPARD_LED_PIN 9 // LED underneath the Clippard valve. (Orange or White LED)
 #define TOP_LED_PIN 12 // Blinking white light beside the vent on top of the wand.
@@ -109,7 +112,10 @@ bool b_vent_lights_changed = false; // Check for whether there was actually a ch
 #define TOP_HAT_LED_PIN 23 // Hat light at top of the wand body near vent. (Orange or White LED)
 #define BARREL_TIP_LED_PIN 24 // White LED at tip of the wand barrel. (White LED)
 #define WAND_STATUS_LED_PIN 38 // V1.4 GPStar Neutrona Wand onboard LED pin.
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> origin/main
 struct StandaloneLED {
   uint8_t Pin; // Pin Assignment
   uint8_t On;  // State for "on"
@@ -146,10 +152,15 @@ struct StandaloneLED {
 StandaloneLED led_Status = {WAND_STATUS_LED_PIN, HIGH, LOW};
 StandaloneLED led_SloBlo = {SLO_BLO_LED_PIN, HIGH, LOW};
 StandaloneLED led_Clippard = {CLIPPARD_LED_PIN, HIGH, LOW};
+<<<<<<< HEAD
 #ifndef ESP32
 StandaloneLED led_TopWhite = {TOP_LED_PIN, LOW, HIGH};
 StandaloneLED led_Vent = {VENT_LED_PIN, LOW, HIGH};
 #endif
+=======
+StandaloneLED led_TopWhite = {TOP_LED_PIN, LOW, HIGH};
+StandaloneLED led_Vent = {VENT_LED_PIN, LOW, HIGH};
+>>>>>>> origin/main
 StandaloneLED led_Hat1 = {BARREL_HAT_LED_PIN, HIGH, LOW};
 StandaloneLED led_Hat2 = {TOP_HAT_LED_PIN, HIGH, LOW};
 StandaloneLED led_Tip = {BARREL_TIP_LED_PIN, HIGH, LOW};
@@ -244,11 +255,15 @@ struct Encoder {
  *
  * These are references for the EEPROM menu. Empty is a zero value, not used in the EEPROM.
  */
+<<<<<<< HEAD
 #ifdef ESP32
 #define VIBRATION_PIN 18 // Pin for the vibration motor.
 #else
 #define VIBRATION_PIN 11 // Pin for the vibration motor.
 #endif
+=======
+#define VIBRATION_PIN 11 // Pin for the vibration motor.
+>>>>>>> origin/main
 enum VIBRATION_MODES { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE };
 enum VIBRATION_MODES VIBRATION_MODE_EEPROM;
 enum VIBRATION_MODES VIBRATION_MODE;
@@ -260,6 +275,7 @@ millisDelay ms_menu_vibration; // Timer to do non-blocking confirmation buzzing 
  * Various toggles and buttons on the device.
  * Uses the Switch class which provides debounce control and detects state.
  */
+<<<<<<< HEAD
 #ifdef ESP32
 #define INTENSIFY_SWITCH_PIN 39
 #define ACTIVATE_SWITCH_PIN 40
@@ -267,12 +283,17 @@ millisDelay ms_menu_vibration; // Timer to do non-blocking confirmation buzzing 
 #define DEVICE_SWITCH_PIN 8
 #define GRIP_SWITCH_PIN 11
 #else
+=======
+>>>>>>> origin/main
 #define INTENSIFY_SWITCH_PIN 2
 #define ACTIVATE_SWITCH_PIN 3
 #define VENT_SWITCH_PIN 4
 #define DEVICE_SWITCH_PIN A0
 #define GRIP_SWITCH_PIN A6
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> origin/main
 Switch switch_intensify(INTENSIFY_SWITCH_PIN); // Considered a primary firing button, though for this device will be an alt-fire.
 Switch switch_activate(ACTIVATE_SWITCH_PIN); // Considered the primary power toggle on the right of the gun box.
 Switch switch_device(DEVICE_SWITCH_PIN); // Top right switch on the device. Enables device for firing.

@@ -332,6 +332,7 @@ void soundBeepLoop() {
       // Quick check to know if effects belong to the next-gen movies (as opposed to the OG 80's themes).
       bool b_next_gen = (getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE);
 
+<<<<<<< HEAD
       // Explicitly stop beeps first just in case it tries to double up.
       stopEffect(S_AFTERLIFE_BEEP_WAND_S1);
       stopEffect(S_AFTERLIFE_BEEP_WAND_S2);
@@ -344,6 +345,13 @@ void soundBeepLoop() {
           wandSerialSend(W_WAND_BEEP_START);
         }
 
+=======
+      if(b_next_gen && b_beep_loop) {
+        if(b_extra_pack_sounds) {
+          wandSerialSend(W_WAND_BEEP_START);
+        }
+
+>>>>>>> origin/main
         switch(i_power_level) {
           case 1:
           default:
@@ -762,6 +770,14 @@ uint8_t bargraphLookupTable(uint8_t index) {
   #else
     return 0; // Return 0 if in error.
   #endif
+  }
+}
+
+void bargraphClearAlt() {
+  if(BARGRAPH_TYPE == SEGMENTS_28 || BARGRAPH_TYPE == SEGMENTS_30) {
+    ht_bargraph.clearAll();
+
+    i_bargraph_status_alt = 0;
   }
 }
 
@@ -1506,12 +1522,15 @@ void afterlifeRampSound1() {
 }
 
 void postActivation(bool shortBoot = false) {
+<<<<<<< HEAD
 #ifdef ESP32
   // When the wand is activated we should consider the user's current orientation by
   // way of holding of the device as the new reference position for motion tracking.
   resetAllMotionData(true);
 #endif
 
+=======
+>>>>>>> origin/main
   if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
     i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
   }

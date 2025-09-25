@@ -617,10 +617,17 @@ void saveLEDEEPROM() {
     break;
   }
 
+<<<<<<< HEAD:source/ProtonPack/include/PreferencesATMega.h
   // 2 = Disabled, 3 = RGB Static, 4 = RGB Dynamic.
   uint8_t i_inner_cyclotron_led_panel = 4;
   switch(INNER_CYC_PANEL_MODE) {
     case PANEL_DISABLED:
+=======
+  // 2 = Individual, 3 = RGB Static, 4 = RGB Dynamic.
+  uint8_t i_inner_cyclotron_led_panel = 4;
+  switch(INNER_CYC_PANEL_MODE) {
+    case PANEL_INDIVIDUAL:
+>>>>>>> origin/main:source/ProtonPack/include/Preferences.h
       i_inner_cyclotron_led_panel = 2;
     break;
 

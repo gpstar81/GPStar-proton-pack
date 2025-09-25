@@ -2,7 +2,11 @@
 
 # Perform a full compile of all binaries using PlatformIO (pio).
 #
+<<<<<<< HEAD
 # This script compiles only the Belt Gizmo ESP32 binary.
+=======
+# This script compiles only the main ESP32 binary.
+>>>>>>> origin/main
 
 BINDIR="../binaries"
 SRCDIR="../source"

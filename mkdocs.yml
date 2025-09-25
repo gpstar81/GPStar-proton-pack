@@ -59,7 +59,10 @@ nav:
     - General Usage: OPERATION_USAGE.md
     - Runtime Menus: OPERATION_MENUS.md
     - EEPROM Menus: OPERATION_EEPROM.md
+<<<<<<< HEAD
     - WiFi Operation: WIRELESS_OPERATION.md
+=======
+>>>>>>> origin/main
   - From the Engineer Corps:
     - Single-Shot Blaster: SINGLESHOT.md
     - Belt Gizmo: BELT_GIZMO.md

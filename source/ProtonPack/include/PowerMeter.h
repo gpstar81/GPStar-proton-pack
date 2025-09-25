@@ -109,7 +109,11 @@ void powerMeterInit() {
   else {
     // If returning a non-zero value, device could not be reset or is not present on the I2C bus.
     b_power_meter_available = false;
+<<<<<<< HEAD
     sendDebug(F("Unable to find power monitoring device on i2c. Power meter features will be disabled."));
+=======
+    debugln(F("Unable to find power monitoring device on i2c. Power meter features will be disabled."));
+>>>>>>> origin/main
   }
 
   // Always obtain a voltage reading directly from the pack PCB.
@@ -178,7 +182,10 @@ void doPackVoltageReading() {
   // Scale the value, which returns the actual value of Vcc x 100
   const long INTERNAL_REFERENCE_VOLTAGE = 1115L; // Adjust this value to your board's specific internal BG voltage x1000.
   packReading.BusVoltage = (((INTERNAL_REFERENCE_VOLTAGE * 1023L) / ADC) + 5L) / 10L; // Calculates for straight line value.
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> origin/main
 }
 
 // Perform a reading of values from the power meter for the pack.
@@ -196,8 +203,12 @@ void updateWandPowerState() {
   // This is called whenever the power meter is available--for wand hot-swapping purposes.
   // Data is sent as integer so this is sent multiplied by 100 to get 2 decimal precision.
   if(si_update == 0) {
+<<<<<<< HEAD
     f_wand_amps = f_sliding_window[19] * 100;
     attenuatorSerialSend(A_WAND_POWER_AMPS, f_wand_amps);
+=======
+    attenuatorSend(A_WAND_POWER_AMPS, f_sliding_window[19] * 100);
+>>>>>>> origin/main
   }
 
   // Handle packside overheat sequence.
@@ -269,7 +280,11 @@ void updateWandPowerState() {
 
       // Wand must have been fully activated, so set variables accordingly.
       b_wand_on = true;
+<<<<<<< HEAD
       attenuatorSerialSend(A_WAND_ON);
+=======
+      attenuatorSend(A_WAND_ON);
+>>>>>>> origin/main
       b_wand_just_started = true;
 
       // The Hasbro wand cannot fire for 2.75 seconds after activation, so add a null period.
@@ -282,11 +297,19 @@ void updateWandPowerState() {
         b_wand_overheated = false;
 
         // Fake a full-power proton stream setting to the Attenuator
+<<<<<<< HEAD
         attenuatorSerialSend(A_POWER_LEVEL_5);
         attenuatorSerialSend(A_PROTON_MODE);
 
         // Tell the Attenuator the pack is powered on
         attenuatorSerialSend(A_PACK_ON);
+=======
+        attenuatorSend(A_POWER_LEVEL_5);
+        attenuatorSend(A_PROTON_MODE);
+
+        // Tell the Attenuator the pack is powered on
+        attenuatorSend(A_PACK_ON);
+>>>>>>> origin/main
       }
     }
     else if(b_pack_started_by_meter) {
@@ -314,13 +337,21 @@ void updateWandPowerState() {
         // Turn the pack off.
         if(PACK_STATE != MODE_OFF) {
           PACK_ACTION_STATE = ACTION_OFF;
+<<<<<<< HEAD
           attenuatorSerialSend(A_PACK_OFF);
+=======
+          attenuatorSend(A_PACK_OFF);
+>>>>>>> origin/main
         }
       }
 
       b_wand_on = false;
       b_pack_started_by_meter = false;
+<<<<<<< HEAD
       attenuatorSerialSend(A_WAND_OFF);
+=======
+      attenuatorSend(A_WAND_OFF);
+>>>>>>> origin/main
     }
     else if(PACK_STATE == MODE_OFF) {
       b_pack_started_by_meter = false; // Make sure this is kept as false since the pack was manually shut down.
@@ -380,9 +411,16 @@ void updateWandPowerState() {
 
 // Send latest voltage value to the Attenuator, if connected.
 void updatePackPowerState() {
+<<<<<<< HEAD
   // Data is sent as uint16_t so this is already multiplied by 100 to get 2 decimal precision.
   f_batt_volts = packReading.BusVoltage;
   attenuatorSerialSend(A_BATTERY_VOLTAGE_PACK, f_batt_volts);
+=======
+  if(b_attenuator_connected) {
+    // Data is sent as uint16_t so this is already multiplied by 100 to get 2 decimal precision.
+    attenuatorSend(A_BATTERY_VOLTAGE_PACK, packReading.BusVoltage);
+  }
+>>>>>>> origin/main
 }
 
 // Displays the latest gathered power meter values (for debugging only!).
@@ -439,10 +477,17 @@ void checkPowerMeter() {
         b_wand_on = false;
         b_pack_started_by_meter = false;
         PACK_ACTION_STATE = ACTION_OFF;
+<<<<<<< HEAD
         attenuatorSerialSend(A_WAND_OFF);
         attenuatorSerialSend(A_PACK_OFF);
         attenuatorSerialSend(A_POWER_LEVEL_5);
         attenuatorSerialSend(A_WAND_POWER_AMPS, 0);
+=======
+        attenuatorSend(A_WAND_OFF);
+        attenuatorSend(A_PACK_OFF);
+        attenuatorSend(A_POWER_LEVEL_1);
+        attenuatorSend(A_WAND_POWER_AMPS, 0);
+>>>>>>> origin/main
       }
     }
 

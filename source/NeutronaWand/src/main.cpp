@@ -113,6 +113,7 @@ void sendDebug(const String message) {
 }
 
 void setup() {
+<<<<<<< HEAD
 #ifdef ESP32
   // Reduce CPU frequency to 160 MHz to save ~33% power compared to 240 MHz.
   // Alternatively set CPU to 80 MHz to save ~50% power compared to 240 MHz.
@@ -141,20 +142,31 @@ void setup() {
   PackSerial.begin(9600); // Communication to the Proton Pack.
 #endif
 
+=======
+  Serial.begin(9600); // Standard HW serial (USB) console.
+  PackSerial.begin(9600); // Communication to the Proton Pack.
+
+>>>>>>> origin/main
   // Initialize the SerialTransfer object by passing in the appropriate ports.
   packComs.begin(PackSerial, false); // Proton Pack
 
   // Setup the audio device for this controller.
   setupAudioDevice();
 
+<<<<<<< HEAD
 #ifdef ESP32
   // Use of the register is not needed by ESP32, as it uses a different method for PWM.
 #else
+=======
+>>>>>>> origin/main
   // Change PWM frequency for the vibration motor, we do not want it high pitched.
   // For ATmega2560, we set the PWM frequency for pin 11 (TCCR5B) to 122.55 Hz.
   TCCR1B = (TCCR1B & B11111000) | B00000100;
   pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> origin/main
 
   // Barrel LEDs - NOTE: These are GRB not RGB so note that all CRGB objects will have R/G swapped.
   FastLED.addLeds<NEOPIXEL, BARREL_LED_PIN>(barrel_leds, BARREL_LEDS_MAX).setCorrection(TypicalLEDStrip);
@@ -162,10 +174,15 @@ void setup() {
 
   // RGB Vent Light.
   FastLED.addLeds<NEOPIXEL, TOP_LED_PIN>(vent_leds, VENT_LEDS_MAX).setCorrection(TypicalLEDStrip);
+<<<<<<< HEAD
   for(uint8_t i = 0; i < VENT_LEDS_MAX; i++) {
     // Initialize all vent_leds to white initially.
     vent_leds[i] = getHueAsRGB(C_WHITE);
   }
+=======
+  vent_leds[0] = getHueAsRGB(C_WHITE); // Set vent light array to white for initial reset.
+  vent_leds[1] = getHueAsRGB(C_WHITE); // Set top light array to white for initial reset.
+>>>>>>> origin/main
   ms_vent_light.start(i_vent_light_update_interval); // Setup a timer for updating the vent light.
 
   // Setup default system settings.
@@ -199,6 +216,7 @@ void setup() {
   // This is the i2c bus to be used solely for the bargraph.
   Wire.begin(I2C_SDA, I2C_SCL, 400000UL);
 
+<<<<<<< HEAD
   // Attempt to start the sensors or die trying.
   Wire1.begin(IMU_SDA, IMU_SCL, 400000UL);
   if(!initializeSensors()) {
@@ -221,6 +239,8 @@ void setup() {
   Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
 #endif
 
+=======
+>>>>>>> origin/main
   // Scan i2c for 28/30 segment bargraph.
   Wire.beginTransmission(0x70);
   if(Wire.endTransmission() == 0) {
@@ -255,7 +275,10 @@ void setup() {
 #else
   pinMode(VENT_LED_PIN, OUTPUT); // Vent light could be either Digital or PWM based on user setting, so use default functions.
   pinMode(TOP_LED_PIN, OUTPUT); // Blinking top light could be either addressable or non-addressable based on user setting, so use default functions.
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> origin/main
 
   // Status indicator LED on the v1.4 GPStar Neutrona Wand Board.
   pinModeFast(WAND_STATUS_LED_PIN, OUTPUT);

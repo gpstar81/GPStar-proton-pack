@@ -31,6 +31,7 @@
 #include <GPStarAudio.h>
 gpstarAudio audio;
 
+<<<<<<< HEAD
 // --- AudioSerial definition for ESP32 ---
 // The ESP32 macro is automatically defined by the Arduino/PlatformIO toolchain
 // when compiling for ESP32-based boards. No need to define it manually.
@@ -49,6 +50,9 @@ gpstarAudio audio;
   // On Mega 2560, alias AudioSerial to Serial3 instead.
   #define AudioSerial Serial3
 #endif
+=======
+#define AudioSerial Serial3
+>>>>>>> origin/main
 
 /*
  * Audio Devices
@@ -796,7 +800,11 @@ void checkMusic() {
               stopMusic();
 
               // Switch to the next track.
+<<<<<<< HEAD
               if(i_current_music_track + 1 > i_music_track_start + i_music_track_count - 1) {
+=======
+              if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
+>>>>>>> origin/main
                 i_current_music_track = i_music_track_start;
               }
               else {
@@ -871,11 +879,15 @@ void toggleMusicLoop() {
 bool setupAudioDevice() {
   char gVersion[VERSION_STRING_LEN];
 
+<<<<<<< HEAD
 #ifdef ESP32
   AudioSerial.begin(57600, SERIAL_8N1, AUDIO_RX_PIN, AUDIO_TX_PIN);
 #else
   AudioSerial.begin(57600);
 #endif
+=======
+  AudioSerial.begin(57600);
+>>>>>>> origin/main
 
   audio.start(AudioSerial);
 
@@ -901,6 +913,13 @@ bool setupAudioDevice() {
       i_volume_abs_max = 10; // Allow GPStar Audio to use +10dB if on external power.
     }
 
+<<<<<<< HEAD
+=======
+    if(!b_gpstar_benchtest) {
+      i_volume_abs_max = 10; // Allow GPStar Audio to use +10dB if on external power.
+    }
+
+>>>>>>> origin/main
     i_volume_master = MINIMUM_VOLUME - ((MINIMUM_VOLUME - i_volume_abs_max) * i_volume_master_percentage / 100); // Master overall volume.
     i_volume_master_eeprom = i_volume_master; // Master overall volume that is saved into the eeprom menu and loaded during bootup.
     i_volume_revert = i_volume_master; // Used to restore volume level from a muted state.

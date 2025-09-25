@@ -25,6 +25,7 @@
 // Define this before including <FastLED.h>
 #define FASTLED_INTERNAL
 
+<<<<<<< HEAD
 // Set to 1 to enable built-in debug messages via Serial device output.
 #define DEBUG 0
 
@@ -39,6 +40,8 @@
   #define debugln(...)
 #endif
 
+=======
+>>>>>>> origin/main
 // PROGMEM macros
 #define PROGMEM_READU32(x) pgm_read_dword_near(&(x))
 #define PROGMEM_READU16(x) pgm_read_word_near(&(x))
