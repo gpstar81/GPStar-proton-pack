@@ -61,7 +61,7 @@ enum DISPLAY_TYPES : uint8_t {
   STATUS_GRAPHIC = 1,
   STATUS_BOTH = 2
 };
-enum DISPLAY_TYPES DISPLAY_TYPE;
+enum DISPLAY_TYPES DISPLAY_TYPE = STATUS_GRAPHIC;
 
 /*
  * Manage the colour and blink pattern for the top LED.

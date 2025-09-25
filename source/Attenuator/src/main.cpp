@@ -411,7 +411,6 @@ void setup() {
 
   // Set a default animation for the radiation indicator.
   RAD_LENS_IDLE = AMBER_PULSE;
-  DISPLAY_TYPE = STATUS_TEXT;
 
   // Begin at menu level one. This affects the behavior of the rotary dial.
   MENU_LEVEL = MENU_1;
