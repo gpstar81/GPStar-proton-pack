@@ -12,10 +12,6 @@
       "path": "source/BeltGizmo"
     },
     {
-      "name": "CalibrateIMU",
-      "path": "source/CalibrateIMU"
-    },
-    {
       "name": "GhostTrapBase",
       "path": "source/GhostTrapBase"
     },
