@@ -16,7 +16,7 @@ Both the [GPStar Proton Pack PCB](PACK_PCB.md) and [DIY Arduino](DIY_PACK.md) ap
 
 Before proceeding it should be made clear what exactly a "smoke kit" consists of. In simplest terms this is a combination of 4 components: a vape coil (atomizer), an air pump, a fan or blower, and a white LED. Traditionally, the vape coil will be paired directly with the air pump as it is dangerous to run a vape coil without proper airflow. The fan and LED may either be separated or combined--there are many community makers of smoke kits with various implementations where components may be bundled differently.
 
-For modders who are comfortable with building their own smoke solution we recommend [this guide to creating your own smoke generator](SMOKE_DIY.md). For purposes of integrating and connecting a smoke solution please read the remainder of this guide.
+For modders who are comfortable with building their own smoke solution we recommend viewing [the DIY Smoke guide to creating your own smoke generator](SMOKE_DIY.md). For purposes of integrating and connecting a smoke solution please read the remainder of this guide.
 
 ### Common Materials
 

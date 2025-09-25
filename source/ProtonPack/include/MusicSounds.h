@@ -448,10 +448,16 @@ enum sound_fx {
   S_CHRISTMAS_FIRING_EXTRA,
   S_VOICE_RGB_VENT_LIGHTS_ENABLED,
   S_VOICE_RGB_VENT_LIGHTS_DISABLED,
-  S_VOICE_BARREL_LED_2
+  S_VOICE_BARREL_LED_2,
+  S_VOICE_PACK_WIFI_ENABLED,
+  S_VOICE_PACK_WIFI_DISABLED,
+  S_VOICE_WAND_WIFI_ENABLED,
+  S_VOICE_WAND_WIFI_DISABLED,
+  S_VOICE_WAND_WIFI_RESET,
+  S_VOICE_PACK_WIFI_RESET
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const uint16_t i_last_effects_track = S_VOICE_BARREL_LED_2;
+const uint16_t i_last_effects_track = S_VOICE_PACK_WIFI_RESET;

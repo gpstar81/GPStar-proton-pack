@@ -8,10 +8,6 @@
       "path": "source/Attenuator"
     },
     {
-      "name": "ATmegaEEPROM",
-      "path": "source/ATmegaEEPROM"
-    },
-    {
       "name": "BeltGizmo",
       "path": "source/BeltGizmo"
     },

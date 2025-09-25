@@ -6,20 +6,34 @@ These are the most important guides which will get you familiar with the major c
 
 ## Installation
 
-1. [Pack PCB](PACK_PCB.md)
+For a comparison of the original GPStar and GPStar II controllers please see [this comparison guide](https://gpstartechnologies.com/blogs/gpstar-blog/gpstar-ii-vs-gpstar) on the main GPStar website.
 
-1. [Wand PCB](WAND_PCB.md)
+1. [Pack II Controller](PACK_2_PCB.md)
+
+1. [Wand II Controller](WAND_2_PCB.md)
+
+1. [Pack PCB Controller](PACK_PCB.md)
+
+1. [Wand PCB Controller](WAND_PCB.md)
+
+1. [GPStar Audio Controller](GPSTAR_AUDIO_PCB.md)
 
 1. [Pack-Wand Hose](HOSE.md)
-
-1. [GPStar Audio PCB](GPSTAR_AUDIO_PCB.md)
-
-1. [Installation Videos](INSTALL_VIDEOS_JONOGUNN.md)
 
 1. [Troubleshooting](TROUBLESHOOTING.md)
 
 A full installation guide is available as a PDF here:
 [GPStar Proton Pack Kit Installation Manual](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/gpstar-Haslab-Proton-Pack-Kit-Installation-Manual-V4.pdf?raw=1)
+
+## Video Tutorials
+
+*"We have the tools, we have the talent!" - Winston*
+
+We must acknowledge and celebrate our community members who have created entertaining and informational videos demonstrating the install processes. Please see this collection of videos curated by creator:
+
+1. [Installs by Jonogunn](INSTALL_VIDEOS_JONOGUNN.md)
+
+1. [Installs by Nor-Cal Ghostbusters](INSTALL_VIDEOS_NORCALGB.md)
 
 ## Maintenance
 
@@ -74,6 +88,8 @@ This section is presented in a way to offer a more complete view of what compone
 
 **Installation, Operation, and Troubleshooting**
 
+Are you troubled by installation problems? Do you experience feelings of dread opening your pack or wand? Have you or your equipment ever experienced a malfunction, error, or mysterious smoke? If the answer is yes, then don't wait another minute. Pick up the phone and call the professionals...
+
 | **Task**         | **Guide** |
 |------------------|---------------------------------------------|
 | Initial Assembly | [Installation Videos](INSTALL_VIDEOS_JONOGUNN.md) & [Installation Guide (PDF)](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/gpstar-Haslab-Proton-Pack-Kit-Installation-Manual-V4.pdf?raw=1) |
@@ -83,13 +99,17 @@ This section is presented in a way to offer a more complete view of what compone
 
 **Software Development (Advanced Topics)**
 
+Here be dragons. This section is for VERY ADVANCED users only.
+
 | **Task**         | **Guide** |
 |------------------|---------------------------------------------|
 | Compile Software | [VSCode + PlatformIO](VSCODE.md)
 | Modify Software  | [Advanced Software Configuration](ADVCONFIG.md) |
-| Upload Software  | [Pack/Wand Flashing](COMPILING_FLASHING.md) or [Attenuator/Wireless Flashing](ATTENUATOR_FLASHING.md) |
+| Upload Software  | [Pack/Wand Flashing](COMPILING_FLASHING.md) or [AttenuatorFlashing](ATTENUATOR_FLASHING.md) |
 
 **Special/Standalone Devices**
+
+From the Paranormal Research division, we bring you the latest in integrated accessories for your kit.
 
 | **Devices**         | **Guide** |
 |------------------|---------------------------------------------|
