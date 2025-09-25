@@ -1644,6 +1644,7 @@ void checkWandAction() {
               WIFI_MODE = WIFI_DISABLED;
 
               // Give some audio feedback as to what just happened.
+              wandSerialSend(W_WAND_WIFI_RESET);
               stopEffect(S_VOICE_PACK_WIFI_RESET);
               stopEffect(S_VOICE_WAND_WIFI_RESET);
               playEffect(S_VOICE_WAND_WIFI_RESET);

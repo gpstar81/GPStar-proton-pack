@@ -2192,6 +2192,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     #endif
     break;
 
+    case W_WAND_WIFI_RESET:
+      stopEffect(S_VOICE_PACK_WIFI_RESET);
+      stopEffect(S_VOICE_WAND_WIFI_RESET);
+      playEffect(S_VOICE_WAND_WIFI_RESET);
+    break;
+
     case W_WAND_WIFI_DISABLED:
       stopEffect(S_VOICE_WAND_WIFI_DISABLED);
       stopEffect(S_VOICE_WAND_WIFI_ENABLED);
