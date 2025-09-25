@@ -46,12 +46,15 @@
 #include <ElegantOTA.h>
 #include <WebSocketsClient.h>
 
+// Forward function declarations.
+void notifyWSClients();
+
 // Preferences for SSID and AP password, which will use a "credentials" namespace.
 Preferences preferences;
 
 // Set up values for the SSID and password for the built-in WiFi access point (AP).
-const uint8_t i_max_attempts = 3; // Max attempts to establish a external WiFi connection.
-const String ap_ssid_prefix = "StreamEffects"; // This will be the base of the SSID name.
+const uint8_t i_max_attempts = 5; // Max attempts to establish a external WiFi connection.
+const char AP_SSID_PREFIX[] = "StreamEffects"; // This will be the base of the SSID name.
 String ap_default_passwd = "555-2368"; // This will be the default password for the AP.
 String ap_ssid; // Reserved for holding the full, private AP name for this device.
 bool b_ap_started = false; // Denotes the softAP network has been started.
@@ -67,12 +70,24 @@ String wifi_address; // Static IP for external WiFi network
 String wifi_subnet;  // Subnet for external WiFi network
 String wifi_gateway; // Gateway IP for external WiFi network
 
+/**
+ * Define a WebSocket client connection and related variables.
+ * This should be a standard GPStar Proton Pack wireless device at 192.168.1.2,
+ * which means our local network needs to differ and so this device will be
+ * available at 192.168.2.2
+ */
+WebSocketsClient wsClient;
+const char WS_HOST[] = "192.168.1.2";  // WebSocket server IP
+const uint16_t WS_PORT = 80;           // WebSocket server port
+const char WS_URI[] = "/ws";           // WebSocket URI
+bool b_socket_ready = false;           // WS client socket ready
+uint16_t i_websocket_retry_wait = 500; // Delay for WS retry
+
 // Define an asynchronous web server at TCP port 80.
-// Docs: https://github.com/me-no-dev/ESPAsyncWebServer
-AsyncWebServer httpServer(80);
+AsyncWebServer httpServer(WS_PORT);
 
 // Define a websocket endpoint for the async web server.
-AsyncWebSocket ws("/ws");
+AsyncWebSocket ws(WS_URI);
 
 // Track the number of connected WiFi (AP) clients.
 uint8_t i_ap_client_count = 0;
@@ -91,39 +106,27 @@ const uint16_t i_websocketCleanup = 5000;
 millisDelay ms_apclient;
 const uint16_t i_apClientCount = 200;
 
-/**
- * Define a WebSocket client connection and related variables.
- * This should be a standard GPStar Proton Pack wireless device at 192.168.1.2,
- * which means our local network needs to differ and so this device will be
- * available at 192.168.2.2
- */ 
-WebSocketsClient wsClient;
-const String ws_host = "192.168.1.2";  // WebSocket server IP
-const uint16_t ws_port = 80;           // WebSocket server port
-const String ws_uri = "/ws";           // WebSocket URI
-bool b_socket_ready = false;           // WS client socket ready
-uint16_t i_websocket_retry_wait = 500; // Delay for WS retry
-
 // Create timer for OTA updates.
 millisDelay ms_otacheck;
 const uint16_t i_otaCheck = 100;
 
 // Convert an IP address string to an IPAddress object.
-IPAddress convertToIP(String ipAddressString) {
+IPAddress convertToIP(const String ipAddressString) {
   uint16_t quads[4]; // Array to store 4 quads for the IP.
   uint8_t quadStartIndex = 0;
   int8_t quadEndIndex = 0;
 
-  for (uint8_t i = 0; i < 4; i++) {
+  for(uint8_t i = 0; i < 4; i++) {
     // Find the index of the next dot
     quadEndIndex = ipAddressString.indexOf('.', quadStartIndex);
 
-    if (quadEndIndex != -1) {
+    if(quadEndIndex != -1) {
       // If a dot is found, extract and store the quad
       String quad = ipAddressString.substring(quadStartIndex, quadEndIndex);
       quads[i] = quad.toInt(); // Convert the quad string to an integer
       quadStartIndex = quadEndIndex + 1;
-    } else {
+    }
+    else {
       // If the dot is not found, this is the last quad
       String lastQuad = ipAddressString.substring(quadStartIndex);
       quads[i] = lastQuad.toInt();
@@ -137,19 +140,61 @@ IPAddress convertToIP(String ipAddressString) {
 }
 
 // Remove spaces and illegal characters meant for an SSID.
-String sanitizeSSID(String input) {
-    String result = "";
+String sanitizeSSID(const String input) {
+  String result = "";
 
-    for (size_t i = 0; i < input.length(); i++) {
-        char c = input[i];
+  for(size_t i = 0; i < input.length(); i++) {
+    char c = input[i];
 
-        // Only allow alphanumeric, hyphens, and underscores
-        if (isalnum(c) || c == '-' || c == '_') {
-            result += c;
-        }
+    // Only allow alphanumeric, hyphens, and underscores
+    if(isalnum(c) || c == '-' || c == '_') {
+      result += c;
     }
+  }
 
-    return result;
+  return result;
+}
+
+// Reset the AP password in case the user forgot it.
+void resetWifiPassword() {
+  if(preferences.begin("credentials", false)) {
+    preferences.putString("password", ap_default_passwd);
+    preferences.end();
+  }
+}
+
+// Report the current WiFi status to the console.
+void reportWiFiStatus() {
+  debug(F("Current WiFi Status: "));
+  switch(WiFi.status()) {
+    case WL_NO_SHIELD:
+      debugln(F("WL_NO_SHIELD"));
+    break;
+    case WL_IDLE_STATUS:
+      debugln(F("WL_IDLE_STATUS"));
+    break;
+    case WL_NO_SSID_AVAIL:
+      debugln(F("WL_NO_SSID_AVAIL"));
+    break;
+    case WL_SCAN_COMPLETED:
+      debugln(F("WL_SCAN_COMPLETED"));
+    break;
+    case WL_CONNECTED:
+      debugln(F("WL_CONNECTED"));
+    break;
+    case WL_CONNECT_FAILED:
+      debugln(F("WL_CONNECT_FAILED"));
+    break;
+    case WL_CONNECTION_LOST:
+      debugln(F("WL_CONNECTION_LOST"));
+    break;
+    case WL_DISCONNECTED:
+      debugln(F("WL_DISCONNECTED"));
+    break;
+    default:
+      debugln(F("UNKNOWN"));
+    break;
+  }
 }
 
 /*
@@ -159,9 +204,9 @@ String sanitizeSSID(String input) {
 bool startAccesPoint() {
   // Report some diagnostic data which will be necessary for this portion of setup.
   #if defined(DEBUG_WIRELESS_SETUP)
-    Serial.println();
-    Serial.print(F("Device WiFi MAC Address: "));
-    Serial.println(WiFi.macAddress());
+    debugln();
+    debug(F("Device WiFi MAC Address: "));
+    debugln(WiFi.macAddress());
   #endif
 
   // Create an AP name unique to this device, to avoid stepping on similar hardware.
@@ -176,18 +221,18 @@ bool startAccesPoint() {
       // Doesn't actually "reset" but forces default values for SSID and password.
       // Meant to allow the user to reset their credentials then re-flash after
       // commenting out the RESET_AP_SETTINGS definition in Configuration.h
-      ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix; // Use default SSID.
+      ap_ssid = String(AP_SSID_PREFIX) + "_" + ap_ssid_suffix; // Use default SSID.
       ap_pass = ap_default_passwd; // Force use of the default WiFi password.
     #else
       // Use either the stored preferences or an expected default value.
-      ap_ssid = preferences.getString("ssid", ap_ssid_prefix + "_" + ap_ssid_suffix);
+      ap_ssid = preferences.getString("ssid", String(AP_SSID_PREFIX) + "_" + ap_ssid_suffix);
       ap_ssid = sanitizeSSID(ap_ssid); // Jacques, clean him!
       ap_pass = preferences.getString("password", ap_default_passwd);
     #endif
     preferences.end();
   }
   else {
-    ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix; // Use default SSID.
+    ap_ssid = String(AP_SSID_PREFIX) + "_" + ap_ssid_suffix; // Use default SSID.
     ap_pass = ap_default_passwd; // Force use of the default WiFi password.
 
     // If namespace is not initialized, open in read/write mode and set defaults.
@@ -199,24 +244,22 @@ bool startAccesPoint() {
   }
 
   #if defined(DEBUG_WIRELESS_SETUP)
-    Serial.println();
-    Serial.println(F("Starting Private WiFi Configuration"));
-    Serial.print(F("Stored Private SSID: "));
-    Serial.println(ap_ssid);
-    Serial.print(F("Stored Private PASS: "));
-    Serial.println(ap_pass);
+    debugln();
+    debugln(F("Starting Private WiFi Configuration"));
+    debug(F("Stored Private SSID: "));
+    debugln(ap_ssid);
+    debug(F("Stored Private PASS: "));
+    debugln(ap_pass);
   #endif
 
   // Start the WiFi radio as an Access Point using the SSID and password (as WPA2).
   // Additionally, sets radio to channel 1, don't hide SSID, and max 4 connections.
   // Note that the WiFi protocols available for use are 802.11 b/g/n over 2.4GHz.
   bool b_success = false;
-
-  // Otherwise, set the password as desired by the user (or the default).
   b_success = WiFi.softAP(ap_ssid.c_str(), ap_pass.c_str(), 1, false, 4);
 
   #if defined(DEBUG_WIRELESS_SETUP)
-    Serial.println(b_success ? "AP Ready" : "AP Failed");
+    debugln(b_success ? "AP Ready" : "AP Failed");
   #endif
 
   if(b_success) {
@@ -234,24 +277,24 @@ bool startAccesPoint() {
     WiFi.softAPbandwidth(WIFI_BW_HT20); // Use 20MHz for range/compatibility.
     WiFi.softAPenableIPv6(false); // Just here to ensure IPv6 is not enabled.
     #if defined(DEBUG_WIRELESS_SETUP)
-      Serial.print(F("AP Name (SSID): "));
-      Serial.println(WiFi.softAPSSID());
-      Serial.print(F("AP     Channel: "));
-      Serial.println(WiFi.channel());
-      Serial.print(F("AP IP Addr/Sub: "));
-      Serial.print(WiFi.softAPIP());
-      Serial.print(F(" / "));
-      Serial.println(WiFi.softAPSubnetCIDR());
-      Serial.print(F("AP     Network: "));
-      Serial.println(WiFi.softAPNetworkID());
-      Serial.print(F("AP   Broadcast: "));
-      Serial.println(WiFi.softAPBroadcastIP());
-      Serial.print(F("AP    Hostname: "));
-      Serial.println(WiFi.softAPgetHostname());
-      Serial.print(F("AP Mac Address: "));
-      Serial.println(WiFi.softAPmacAddress());
-      Serial.print(F("AP  Gateway IP: "));
-      Serial.println(WiFi.gatewayIP());
+      debug(F("AP Name (SSID): "));
+      debugln(WiFi.softAPSSID());
+      debug(F("AP     Channel: "));
+      debugln(WiFi.channel());
+      debug(F("AP IP Addr/Sub: "));
+      debug(WiFi.softAPIP());
+      debug(F(" / "));
+      debugln(WiFi.softAPSubnetCIDR());
+      debug(F("AP     Network: "));
+      debugln(WiFi.softAPNetworkID());
+      debug(F("AP   Broadcast: "));
+      debugln(WiFi.softAPBroadcastIP());
+      debug(F("AP    Hostname: "));
+      debugln(WiFi.softAPgetHostname());
+      debug(F("AP Mac Address: "));
+      debugln(WiFi.softAPmacAddress());
+      debug(F("AP  Gateway IP: "));
+      debugln(WiFi.gatewayIP());
     #endif
   }
 
@@ -295,40 +338,85 @@ bool startExternalWifi() {
     uint8_t i_curr_attempt = 0;
 
     #if defined(DEBUG_WIRELESS_SETUP)
-      Serial.println();
-      Serial.println(F("Attempting External WiFi Configuration"));
-      Serial.print(F("Stored External SSID: "));
-      Serial.println(wifi_ssid);
-      Serial.print(F("Stored External PASS: "));
-      Serial.println(wifi_pass);
+      debugln();
+      debugln(F("Attempting External WiFi Configuration"));
+      debug(F("Stored External SSID: "));
+      debugln(wifi_ssid);
+      debug(F("Stored External PASS: "));
+      debugln(wifi_pass);
+      debug(F("Current WiFi Mode: "));
+      switch(WiFi.getMode()) {
+        case WIFI_MODE_NULL:
+          debugln(F("WIFI_MODE_NULL"));
+        break;
+        case WIFI_MODE_STA:
+          debugln(F("WIFI_MODE_STA"));
+        break;
+        case WIFI_MODE_AP:
+          debugln(F("WIFI_MODE_AP"));
+        break;
+        case WIFI_MODE_APSTA:
+          debugln(F("WIFI_MODE_APSTA"));
+        break;
+        default:
+          debugln(F("UNKNOWN"));
+        break;
+      }
+      reportWiFiStatus();
+
+      // Perform a scan of available networks.
+      int n = WiFi.scanNetworks();
+      debugln("Scan complete. Networks found:");
+      for(int i = 0; i < n; ++i) {
+        debug(WiFi.SSID(i));
+        if(WiFi.SSID(i) == wifi_ssid) {
+          debug(" (*)");
+        }
+        debugln(" [" + String(WiFi.RSSI(i)) + " dBm]");
+      }
+      delay(200);
     #endif
 
+    // Only disconnect if already connected or connecting.
+    if(WiFi.status() == WL_CONNECTED || WiFi.status() == WL_CONNECT_FAILED || WiFi.status() == WL_NO_SSID_AVAIL) {
+      WiFi.disconnect(true); // Ensure disconnection.
+      delay(200);
+    }
+
     // Provide adequate attempts to connect to the external WiFi network.
-    while (i_curr_attempt < i_max_attempts) {
+    while(i_curr_attempt < i_max_attempts) {
+      notifyWSClients(); // Update local WebSocket clients on each attempt.
+
+      if(WiFi.getMode() != WIFI_MODE_APSTA) {
+        WiFi.mode(WIFI_MODE_APSTA); // Ensure correct mode for simultaneous AP+STA.
+        delay(200);
+      }
+
       WiFi.persistent(false); // Don't write SSID/Password to flash memory.
 
-      // Attempt to connect to a specified WiFi network.
+      // Attempt to connect to a specified WiFi network (eg. Attenuator or Proton Pack).
       WiFi.begin(wifi_ssid.c_str(), wifi_pass.c_str());
 
       // Wait for the connection to be established.
       uint8_t attempt = 0;
-      while (attempt < i_max_attempts && WiFi.status() != WL_CONNECTED) {
+      while(attempt < i_max_attempts && WiFi.status() != WL_CONNECTED) {
         delay(500);
         #if defined(DEBUG_WIRELESS_SETUP)
-          Serial.print(F("Connecting to external WiFi network, attempt #"));
-          Serial.println(attempt);
+          debug(F("Connecting to external WiFi network, attempt #"));
+          debugln(attempt);
+          reportWiFiStatus();
         #endif
         attempt++;
       }
 
-      if (WiFi.status() == WL_CONNECTED) {
+      if(WiFi.status() == WL_CONNECTED) {
         // Configure static IP values for tis device on the preferred network.
         if(wifi_address.length() >= 7 && wifi_subnet.length() >= 7 && wifi_gateway.length() >= 7) {
           #if defined(DEBUG_WIRELESS_SETUP)
-            Serial.print(F("Using Stored IP: "));
-            Serial.print(wifi_address);
-            Serial.print(F(" / "));
-            Serial.println(wifi_subnet);
+            debug(F("Using Stored IP: "));
+            debug(wifi_address);
+            debug(F(" / "));
+            debugln(wifi_subnet);
           #endif
 
           if(wifi_gateway.length() < 7) {
@@ -352,27 +440,28 @@ bool startExternalWifi() {
         wifi_gateway = gatewayIP.toString();
 
         #if defined(DEBUG_WIRELESS_SETUP)
-          Serial.print(F("WiFi IP Address: "));
-          Serial.print(localIP);
-          Serial.print(F(" / "));
-          Serial.println(subnetMask);
+          debug(F("WiFi IP Address: "));
+          debug(localIP);
+          debug(F(" / "));
+          debugln(subnetMask);
         #endif
 
         WiFi.setAutoReconnect(false); // Don't try to reconnect, wait for a power cycle.
 
         return true; // Exit the loop if connected successfully.
-      } else {
+      }
+      else {
         #if defined(DEBUG_WIRELESS_SETUP)
-          Serial.println(F("Failed to connect to WiFi. Retrying..."));
+          debugln(F("Failed to connect to external WiFi. Retrying..."));
         #endif
         i_curr_attempt++;
       }
     }
 
-    if (i_curr_attempt == i_max_attempts) {
+    if(i_curr_attempt == i_max_attempts) {
       #if defined(DEBUG_WIRELESS_SETUP)
-        Serial.println(F("Max connection attempts reached."));
-        Serial.println(F("Cannot connect to external WiFi."));
+        debugln(F("Max connection attempts reached."));
+        debugln(F("Cannot connect to external WiFi."));
       #endif
       b_ext_wifi_paused = true; // Pause retries after exhausting attempts.
     }
@@ -384,8 +473,8 @@ bool startExternalWifi() {
 bool startWiFi() {
   // Begin some diagnostic information to console.
   #if defined(DEBUG_WIRELESS_SETUP)
-    Serial.println();
-    Serial.println(F("Begin WiFi Configuration"));
+    debugln();
+    debugln(F("Begin WiFi Configuration"));
   #endif
 
   // Disable WiFi power save mode (via the esp_wifi_set_ps function).
@@ -405,12 +494,12 @@ bool startWiFi() {
   // Set the mDNS hostname to "ProtonPack_NNNN.local" just like the private AP name.
   bool b_mdns_started = MDNS.begin(ap_ssid.c_str());
   #if defined(DEBUG_WIRELESS_SETUP)
-    if (b_mdns_started) {
-      Serial.print(F("mDNS Responder Started: "));
-      Serial.println(ap_ssid + ".local");
+    if(b_mdns_started) {
+      debug(F("mDNS Responder Started: "));
+      debugln(ap_ssid + ".local");
     }
     else {
-      Serial.println(F("Error Starting mDNS Responder!"));
+      debugln(F("Error Starting mDNS Responder!"));
     }
   #else
     // Suppress unused variable warning.
@@ -419,28 +508,6 @@ bool startWiFi() {
   delay(200);
 
   return b_ap_started; // At least return whether the soft AP started successfully.
-}
-
-void onOTAStart() {
-  // Log when OTA has started
-  debug(F("OTA update started"));
-}
-
-void onOTAProgress(size_t current, size_t final) {
-  // Log every 1 second
-  if (millis() - i_progress_millis > 1000) {
-    i_progress_millis = millis();
-    Serial.printf("OTA Progress Current: %u bytes, Final: %u bytes\n", current, final);
-  }
-}
-
-void onOTAEnd(bool success) {
-  // Log when OTA has finished
-  if (success) {
-    debug(F("OTA update finished successfully!"));
-  } else {
-    debug(F("There was an error during OTA update!"));
-  }
 }
 
 // Provide all handler functions for the API layer.

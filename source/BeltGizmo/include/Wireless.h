@@ -51,7 +51,7 @@ Preferences preferences;
 
 // Set up values for the SSID and password for the built-in WiFi access point (AP).
 const uint8_t i_max_attempts = 3; // Max attempts to establish a external WiFi connection.
-const String ap_ssid_prefix = "BeltGizmo"; // This will be the base of the SSID name.
+const char AP_SSID_PREFIX[] = "BeltGizmo"; // This will be the base of the SSID name.
 String ap_default_passwd = "555-2368"; // This will be the default password for the AP.
 String ap_ssid; // Reserved for holding the full, private AP name for this device.
 bool b_ap_started = false; // Denotes the softAP network has been started.
@@ -66,13 +66,6 @@ String wifi_pass;    // Preferred network password for external WiFi
 String wifi_address; // Static IP for external WiFi network
 String wifi_subnet;  // Subnet for external WiFi network
 String wifi_gateway; // Gateway IP for external WiFi network
-
-// Define an asynchronous web server at TCP port 80.
-// Docs: https://github.com/me-no-dev/ESPAsyncWebServer
-AsyncWebServer httpServer(80);
-
-// Define a websocket endpoint for the async web server.
-AsyncWebSocket ws("/ws");
 
 // Track the number of connected WiFi (AP) clients.
 uint8_t i_ap_client_count = 0;
@@ -98,9 +91,9 @@ const uint16_t i_apClientCount = 200;
  * available at 192.168.2.2
  */
 WebSocketsClient wsClient;
-const String ws_host = "192.168.1.2";  // WebSocket server IP
-const uint16_t ws_port = 80;           // WebSocket server port
-const String ws_uri = "/ws";           // WebSocket URI
+const char WS_HOST[] = "192.168.1.2";  // WebSocket server IP
+const uint16_t WS_PORT = 80;           // WebSocket server port
+const char WS_URI[] = "/ws";           // WebSocket URI
 bool b_socket_ready = false;           // WS client socket ready
 uint16_t i_websocket_retry_wait = 500; // Delay for WS retry
 
@@ -108,22 +101,29 @@ uint16_t i_websocket_retry_wait = 500; // Delay for WS retry
 millisDelay ms_otacheck;
 const uint16_t i_otaCheck = 100;
 
+// Define an asynchronous web server at TCP port 80.
+AsyncWebServer httpServer(WS_PORT);
+
+// Define a websocket endpoint for the async web server.
+AsyncWebSocket ws(WS_URI);
+
 // Convert an IP address string to an IPAddress object.
-IPAddress convertToIP(String ipAddressString) {
+IPAddress convertToIP(const String ipAddressString) {
   uint16_t quads[4]; // Array to store 4 quads for the IP.
   uint8_t quadStartIndex = 0;
   int8_t quadEndIndex = 0;
 
-  for (uint8_t i = 0; i < 4; i++) {
+  for(uint8_t i = 0; i < 4; i++) {
     // Find the index of the next dot
     quadEndIndex = ipAddressString.indexOf('.', quadStartIndex);
 
-    if (quadEndIndex != -1) {
+    if(quadEndIndex != -1) {
       // If a dot is found, extract and store the quad
       String quad = ipAddressString.substring(quadStartIndex, quadEndIndex);
       quads[i] = quad.toInt(); // Convert the quad string to an integer
       quadStartIndex = quadEndIndex + 1;
-    } else {
+    }
+    else {
       // If the dot is not found, this is the last quad
       String lastQuad = ipAddressString.substring(quadStartIndex);
       quads[i] = lastQuad.toInt();
@@ -137,19 +137,27 @@ IPAddress convertToIP(String ipAddressString) {
 }
 
 // Remove spaces and illegal characters meant for an SSID.
-String sanitizeSSID(String input) {
-    String result = "";
+String sanitizeSSID(const String input) {
+  String result = "";
 
-    for (size_t i = 0; i < input.length(); i++) {
-        char c = input[i];
+  for(size_t i = 0; i < input.length(); i++) {
+    char c = input[i];
 
-        // Only allow alphanumeric, hyphens, and underscores
-        if (isalnum(c) || c == '-' || c == '_') {
-            result += c;
-        }
+    // Only allow alphanumeric, hyphens, and underscores
+    if(isalnum(c) || c == '-' || c == '_') {
+      result += c;
     }
+  }
 
-    return result;
+  return result;
+}
+
+// Reset the AP password in case the user forgot it.
+void resetWifiPassword() {
+  if(preferences.begin("credentials", false)) {
+    preferences.putString("password", ap_default_passwd);
+    preferences.end();
+  }
 }
 
 /*
@@ -176,18 +184,18 @@ bool startAccesPoint() {
       // Doesn't actually "reset" but forces default values for SSID and password.
       // Meant to allow the user to reset their credentials then re-flash after
       // commenting out the RESET_AP_SETTINGS definition in Configuration.h
-      ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix; // Use default SSID.
+      ap_ssid = String(AP_SSID_PREFIX) + "_" + ap_ssid_suffix; // Use default SSID.
       ap_pass = ap_default_passwd; // Force use of the default WiFi password.
     #else
       // Use either the stored preferences or an expected default value.
-      ap_ssid = preferences.getString("ssid", ap_ssid_prefix + "_" + ap_ssid_suffix);
+      ap_ssid = preferences.getString("ssid", String(AP_SSID_PREFIX) + "_" + ap_ssid_suffix);
       ap_ssid = sanitizeSSID(ap_ssid); // Jacques, clean him!
       ap_pass = preferences.getString("password", ap_default_passwd);
     #endif
     preferences.end();
   }
   else {
-    ap_ssid = ap_ssid_prefix + "_" + ap_ssid_suffix; // Use default SSID.
+    ap_ssid = String(AP_SSID_PREFIX) + "_" + ap_ssid_suffix; // Use default SSID.
     ap_pass = ap_default_passwd; // Force use of the default WiFi password.
 
     // If namespace is not initialized, open in read/write mode and set defaults.
@@ -304,7 +312,7 @@ bool startExternalWifi() {
     #endif
 
     // Provide adequate attempts to connect to the external WiFi network.
-    while (i_curr_attempt < i_max_attempts) {
+    while(i_curr_attempt < i_max_attempts) {
       WiFi.persistent(false); // Don't write SSID/Password to flash memory.
 
       // Attempt to connect to a specified WiFi network.
@@ -315,7 +323,7 @@ bool startExternalWifi() {
 
       // Wait for the connection to be established.
       uint8_t attempt = 0;
-      while (attempt < i_max_attempts && WiFi.status() != WL_CONNECTED) {
+      while(attempt < i_max_attempts && WiFi.status() != WL_CONNECTED) {
         delay(500);
         #if defined(DEBUG_WIRELESS_SETUP)
           Serial.print(F("Connecting to external WiFi network, attempt #"));
@@ -324,7 +332,7 @@ bool startExternalWifi() {
         attempt++;
       }
 
-      if (WiFi.status() == WL_CONNECTED) {
+      if(WiFi.status() == WL_CONNECTED) {
         // Configure static IP values for tis device on the preferred network.
         if(wifi_address.length() >= 7 && wifi_subnet.length() >= 7 && wifi_gateway.length() >= 7) {
           #if defined(DEBUG_WIRELESS_SETUP)
@@ -364,7 +372,8 @@ bool startExternalWifi() {
         WiFi.setAutoReconnect(false); // Don't try to reconnect, wait for a power cycle.
 
         return true; // Exit the loop if connected successfully.
-      } else {
+      }
+      else {
         #if defined(DEBUG_WIRELESS_SETUP)
           Serial.println(F("Failed to connect to WiFi. Retrying..."));
         #endif
@@ -372,7 +381,7 @@ bool startExternalWifi() {
       }
     }
 
-    if (i_curr_attempt == i_max_attempts) {
+    if(i_curr_attempt == i_max_attempts) {
       #if defined(DEBUG_WIRELESS_SETUP)
         Serial.println(F("Max connection attempts reached."));
         Serial.println(F("Cannot connect to external WiFi."));
@@ -408,7 +417,7 @@ bool startWiFi() {
   // Set the mDNS hostname to "ProtonPack_NNNN.local" just like the private AP name.
   bool b_mdns_started = MDNS.begin(ap_ssid.c_str());
   #if defined(DEBUG_WIRELESS_SETUP)
-    if (b_mdns_started) {
+    if(b_mdns_started) {
       Serial.print(F("mDNS Responder Started: "));
       Serial.println(ap_ssid + ".local");
     }
@@ -431,7 +440,7 @@ void onOTAStart() {
 
 void onOTAProgress(size_t current, size_t final) {
   // Log every 1 second
-  if (millis() - i_progress_millis > 1000) {
+  if(millis() - i_progress_millis > 1000) {
     i_progress_millis = millis();
     Serial.printf("OTA Progress Current: %u bytes, Final: %u bytes\n", current, final);
   }
@@ -439,9 +448,10 @@ void onOTAProgress(size_t current, size_t final) {
 
 void onOTAEnd(bool success) {
   // Log when OTA has finished
-  if (success) {
+  if(success) {
     debug(F("OTA update finished successfully!"));
-  } else {
+  }
+  else {
     debug(F("There was an error during OTA update!"));
   }
 }

@@ -94,3 +94,6 @@ Connections for the wand should be made according to the tables below.
 
 | INFRARED | 5V/D17/GND | Dedicated port for an infrared LED circuit (port outputs 5V with a signal line).<br><br>`Connector type: JST-PH`|
 
+### Hardware Calibration
+
+In order to get accurate readings from your wand's magnetometer you must first perform magnetic calibration based on your specific installation and hardware. This means the calibration must be performed AFTER the controller has been fully installed with the speaker and any other accessories within your wand. Please see the [Wand Calibration Guide](WAND_CALIBRATION.md) for more information.

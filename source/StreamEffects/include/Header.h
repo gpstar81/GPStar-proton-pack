@@ -29,8 +29,9 @@
  * 50 LEDs per Meter: https://a.co/d/dlDyCkz
  */
 #define DEVICE_LED_PIN 4
-#define DEVICE_NUM_LEDS 250
-CRGB device_leds[DEVICE_NUM_LEDS];
+#define DEVICE_MAX_LEDS 500 // Set a hard max for allocating the array of LEDs
+uint8_t deviceNumLeds = 250; // Default is 50 LEDs per meter, with a length of 5 meters (eg. 250)
+CRGB device_leds[DEVICE_MAX_LEDS];
 
 /*
  * Define Color Palettes
@@ -61,15 +62,35 @@ const uint8_t i_animation_step = 6; // Base rate for stepping through positions
 uint8_t i_min_brightness = 0;   // Minimum brightness
 uint8_t i_max_brightness = 255; // Maximum brightness
 
+/**
+ * WebSocketData - Holds all relevant fields received from the WebSocket JSON payload.
+ */
+struct WebSocketData {
+  String mode = "";
+  String theme = "";
+  String switchState = "";
+  String pack = "";
+  String safety = "";
+  uint8_t wandPower = 5; // Default to max power.
+  String wandMode = "";
+  String firing = "";
+  String cable = "";
+  String cyclotron = "";
+  String temperature = "";
+};
+WebSocketData wsData; // Instance of WebSocketData struct.
+
 /*
  * Wand Firing Modes + Settings
  */
 enum POWER_LEVELS { LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5 };
-enum POWER_LEVELS POWER_LEVEL;
-enum STREAM_MODES { PROTON, STASIS, SLIME, MESON, SPECTRAL, HOLIDAY_HALLOWEEN, HOLIDAY_CHRISTMAS, SPECTRAL_CUSTOM, SETTINGS };
+enum POWER_LEVELS POWER_LEVEL = LEVEL_5;
+enum STREAM_MODES { PROTON, STASIS, SLIME, MESON, SPECTRAL, HOLIDAY_HALLOWEEN, HOLIDAY_CHRISTMAS, SPECTRAL_CUSTOM, SETTINGS, SELFTEST };
 enum STREAM_MODES STREAM_MODE;
 bool b_firing = false;
-uint8_t i_power = 1;
 
-// Forward declarations.
-void debug(String message);
+/*
+ * Special Flags for Self-Test Mode
+ */
+enum STREAM_MODES STREAM_MODE_PREV;
+bool b_testing = false;

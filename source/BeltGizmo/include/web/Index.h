@@ -40,7 +40,7 @@ const char INDEX_page[] PROGMEM = R"=====(
     <br/>
     <hr/>
     <br/>
-    <a href="/update">Update ESP32 Firmware</a>
+    <a href="/update">Update Belt Gizmo Firmware</a>
     <br/>
     <br/>
     <a href="/password">Secure Device WiFi</a>
