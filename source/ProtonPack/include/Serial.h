@@ -1147,7 +1147,7 @@ void checkWand() {
 
           // Update the flag for our local wifi if applicable.
           #ifdef ESP32
-          if(WIFI_MODE == WIFI_ENABLED) {
+          if(WIFI_MODE == WIFI_ENABLED || (WIFI_MODE == WIFI_DEFAULT && !b_attenuator_connected && !b_attenuator_syncing)) {
             b_received_prefs_wand = true;
           }
           #endif
