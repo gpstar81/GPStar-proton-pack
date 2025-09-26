@@ -949,6 +949,16 @@ uint8_t getStreamModeFromPath(const String s_path) {
 void handleStreamModeChange(AsyncWebServerRequest *request) {
   debugln("Web: Firing Mode Change Triggered");
 
+  // Pre-check: Prevent stream mode change if pack is firing or in error state.
+  if(b_wand_firing || b_overheating || b_pack_alarm || b_pack_shutting_down) {
+    String result;
+    jsonBody.clear();
+    jsonBody["status"] = "Stream mode change not allowed while pack is firing or in error state.";
+    serializeJson(jsonBody, result);
+    request->send(409, "application/json", result); // 409 Conflict
+    return;
+  }
+
   uint8_t i_mode = getStreamModeFromPath(request->url());
   switch(i_mode) {
     case 1:

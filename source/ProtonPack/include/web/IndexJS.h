@@ -250,7 +250,11 @@ function setButtonStates(mode, pack, wand, cyclotron, ionswitch, firing, ramping
   }
 
   // Start by enabling the firing mode selector; it will be disabled as necessary below.
-  getEl("streamMode").disabled = false;
+  if((cyclotron == "Normal" || cyclotron == "Active") && firing != "Firing" && !ramping) {
+	getEl("streamMode").disabled = false;
+  } else {
+	getEl("streamMode").disabled = true;
+  }
 
   switch(wandmode) {
     case "Proton Stream":
