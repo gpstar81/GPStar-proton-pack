@@ -195,7 +195,7 @@ The GPStar Neturona Wand II is equipped with a gyroscope and magnetometer. The s
 
 You can begin a sensor calibration but pressing the Enable Calibration button. You will then start relatively slowly rotating your Neutrona Wand in all directions. A visual calibration monitor will appear on screen to show your progress. Rotate the Neutrona Wand to fill in the dots until the coverage is as close as possible to 100%. 
 
-**TIP: Point the Neutrona Wand down, and slowly raise it up in an arc. Turn slightly and then arc back to full down. Repeat this process until you have done a 360.
+**TIP: Point the Neutrona Wand down, and slowly raise it up in an arc. Turn slightly and then arc back to full down. Repeat this process until you have done a 360.**
 
 Press the Disable Calibration button when you are finished to save the newly calibrated settings into the system memory.
 
