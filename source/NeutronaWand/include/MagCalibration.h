@@ -26,8 +26,8 @@
 
 /**
  * Magnetometer calibration library which should be utilized AFTER the Neutrona Wand PCB has
- * been fully assembled into it's final state. This includes any speakers (with magnets) so
- * that the calibration data takes these into account.
+ * been fully assembled into its final state. This includes any speakers (magnetic sources)
+ * so that the calibration process takes these into account in the calculated matrix.
  */
 
 /**
@@ -153,104 +153,8 @@ namespace MagCal {
     return visCount;
   }
 
-  // Basic calibration with diagonal scaling only for soft iron offsets
-  inline CalibrationData computeCalibrationDiagonal() {
-    CalibrationData cal;
-
-    if(sampleCount == 0) return cal; // Nothing to compute
-
-    // Step 1: find min/max per axis
-    float minX = xSamples[0], maxX = xSamples[0];
-    float minY = ySamples[0], maxY = ySamples[0];
-    float minZ = zSamples[0], maxZ = zSamples[0];
-
-    for(int i = 1; i < sampleCount; i++){
-      if(xSamples[i] < minX) minX = xSamples[i];
-      if(xSamples[i] > maxX) maxX = xSamples[i];
-      if(ySamples[i] < minY) minY = ySamples[i];
-      if(ySamples[i] > maxY) maxY = ySamples[i];
-      if(zSamples[i] < minZ) minZ = zSamples[i];
-      if(zSamples[i] > maxZ) maxZ = zSamples[i];
-    }
-
-    // Step 2: hard-iron offsets
-    cal.mag_hardiron[0] = (maxX+minX) / 2.0f;
-    cal.mag_hardiron[1] = (maxY+minY) / 2.0f;
-    cal.mag_hardiron[2] = (maxZ+minZ) / 2.0f;
-
-    // Step 3: soft-iron diagonal scaling
-    float avgRadius = ((maxX-minX) + (maxY-minY) + (maxZ-minZ)) / 6.0f;
-    float scaleX = avgRadius / ((maxX-minX) / 2.0f);
-    float scaleY = avgRadius / ((maxY-minY) / 2.0f);
-    float scaleZ = avgRadius / ((maxZ-minZ) / 2.0f);
-
-    cal.mag_softiron[0] = scaleX;
-    cal.mag_softiron[1] = 0;
-    cal.mag_softiron[2] = 0;
-    cal.mag_softiron[3] = 0;
-    cal.mag_softiron[4] = scaleY;
-    cal.mag_softiron[5] = 0;
-    cal.mag_softiron[6] = 0;
-    cal.mag_softiron[7] = 0;
-    cal.mag_softiron[8] = scaleZ;
-
-    // Step 4: average field magnitude
-    float sumB = 0;
-    for(int i = 0; i < sampleCount; i++){
-      float mx = (xSamples[i] - cal.mag_hardiron[0]) * scaleX;
-      float my = (ySamples[i] - cal.mag_hardiron[1]) * scaleY;
-      float mz = (zSamples[i] - cal.mag_hardiron[2]) * scaleZ;
-      sumB += sqrt(mx * mx + my * my + mz * mz);
-    }
-    cal.mag_field = sumB / sampleCount;
-
-    return cal;
-  }
-
-  // Helper: Compute mean (center) of samples
-  inline void computeMeanCenter(float &cx, float &cy, float &cz) {
-    if(sampleCount == 0) { cx = cy = cz = 0.0f; return; }
-    double sx = 0, sy = 0, sz = 0;
-    for(int i = 0; i < sampleCount; ++i) {
-      sx += xSamples[i];
-      sy += ySamples[i];
-      sz += zSamples[i];
-    }
-    cx = (float)(sx / sampleCount);
-    cy = (float)(sy / sampleCount);
-    cz = (float)(sz / sampleCount);
-  }
-
-  // Helper: Compute covariance matrix of centered samples (3x3 symmetric)
-  inline void computeCovariance(const float cx, const float cy, const float cz, float cov[3][3]) {
-    // zero
-    for(int i=0;i<3;i++) for(int j=0;j<3;j++) cov[i][j] = 0.0f;
-    if(sampleCount < 2) return;
-
-    // accumulate
-    for(int i = 0; i < sampleCount; ++i) {
-      float dx = xSamples[i] - cx;
-      float dy = ySamples[i] - cy;
-      float dz = zSamples[i] - cz;
-      cov[0][0] += dx * dx;
-      cov[0][1] += dx * dy;
-      cov[0][2] += dx * dz;
-      cov[1][1] += dy * dy;
-      cov[1][2] += dy * dz;
-      cov[2][2] += dz * dz;
-    }
-
-    // normalize by (N - 1) for sample covariance
-    float norm = 1.0f / (float)(sampleCount - 1);
-    cov[0][0] *= norm;
-    cov[0][1] *= norm; cov[1][0] = cov[0][1];
-    cov[0][2] *= norm; cov[2][0] = cov[0][2];
-    cov[1][1] *= norm;
-    cov[1][2] *= norm; cov[2][1] = cov[1][2];
-    cov[2][2] *= norm;
-  }
-
-  // Helper: Common Jacobi eigen-decomposition (symmetric 3x3). Outputs V (columns are eigenvectors) and w (eigenvalues).
+  // Helper: Common Jacobi eigen-decomposition (symmetric 3x3).
+  // Outputs V (columns are eigenvectors) and w (eigenvalues).
   inline void jacobiEigen3(float A[3][3], float V[3][3], float w[3]) {
     // initialize
     float a00 = A[0][0], a01 = A[0][1], a02 = A[0][2];
@@ -315,95 +219,7 @@ namespace MagCal {
     }
   }
 
-  // --- BEGIN: Full 3x3 soft-iron using centroid + covariance whitening ---
-
-  // Build soft-iron matrix M that whitens covariance: M = E * diag(1/sqrt(lambda)) * E^T
-  inline void buildSoftIronFromCov(const float cov[3][3], float Mout[3][3]) {
-    float V[3][3];
-    float lambda[3];
-    // copy cov into mutable array for jacobi
-    float Acopy[3][3];
-    for(int i=0;i<3;i++) for(int j=0;j<3;j++) Acopy[i][j] = cov[i][j];
-
-    jacobiEigen3(Acopy, V, lambda);
-
-    // guard: ensure positive eigenvalues
-    for(int i=0;i<3;i++) if(lambda[i] <= 1e-9f) lambda[i] = 1e-9f;
-
-    // compute D^{-1/2}
-    float DinvSqrt[3];
-    for(int i=0;i<3;i++) DinvSqrt[i] = 1.0f / sqrtf(lambda[i]);
-
-    // M = V * diag(DinvSqrt) * V^T  (row-major)
-    // compute temp = V * diag(DinvSqrt)
-    float temp[3][3];
-    for(int r=0;r<3;r++) {
-      for(int c=0;c<3;c++) temp[r][c] = V[r][c] * DinvSqrt[c];
-    }
-    // Mout = temp * V^T
-    for(int r=0;r<3;r++) {
-      for(int c=0;c<3;c++) {
-        float sum = 0.0f;
-        for(int k=0;k<3;k++) sum += temp[r][k] * V[c][k]; // V^T element (k,c) -> V[c][k]
-        Mout[r][c] = sum;
-      }
-    }
-  }
-
-  // Complete final calibration with centroid + covariance whitening (full 3x3 soft-iron)
-  // Note: This is not a full ellipsoid fitting as used by MotionCal software
-  inline CalibrationData computeCalibrationCentroid() {
-    CalibrationData cal;
-
-    if(sampleCount == 0) return cal;
-
-    // 1) compute centroid (hard-iron estimate)
-    float cx, cy, cz;
-    computeMeanCenter(cx, cy, cz);
-    cal.mag_hardiron[0] = cx;
-    cal.mag_hardiron[1] = cy;
-    cal.mag_hardiron[2] = cz;
-
-    // 2) compute covariance of centered samples
-    float cov[3][3];
-    computeCovariance(cx, cy, cz, cov);
-
-    // 3) build whitening matrix from covariance (soft-iron matrix)
-    float M[3][3];
-    buildSoftIronFromCov(cov, M);
-
-    // Optionally scale so that mean corrected magnitude equals typical Earth field.
-    // Compute mean radius after applying M to centered samples
-    double sumR = 0.0;
-    for(int i=0;i<sampleCount;i++) {
-      float dx = xSamples[i] - cx;
-      float dy = ySamples[i] - cy;
-      float dz = zSamples[i] - cz;
-      // r' = M * d
-      float rx = M[0][0]*dx + M[0][1]*dy + M[0][2]*dz;
-      float ry = M[1][0]*dx + M[1][1]*dy + M[1][2]*dz;
-      float rz = M[2][0]*dx + M[2][1]*dy + M[2][2]*dz;
-      sumR += sqrtf(rx*rx + ry*ry + rz*rz);
-    }
-    float meanR = (float)(sumR / sampleCount);
-
-    // If you want mag_field to be in microTesla, you can compute scaling factor to map meanR -> measured Earth field.
-    // But we will set mag_field = meanR, and leave matrix as whitening (so corrected magnitudes ~1.0)
-    cal.mag_field = meanR;
-
-    // Write M into cal.mag_softiron in row-major order
-    cal.mag_softiron[0] = M[0][0]; cal.mag_softiron[1] = M[0][1]; cal.mag_softiron[2] = M[0][2];
-    cal.mag_softiron[3] = M[1][0]; cal.mag_softiron[4] = M[1][1]; cal.mag_softiron[5] = M[1][2];
-    cal.mag_softiron[6] = M[2][0]; cal.mag_softiron[7] = M[2][1]; cal.mag_softiron[8] = M[2][2];
-
-    return cal;
-  }
-
-  // --- END: Full 3x3 soft-iron using centroid + covariance whitening ---
-
-  // --- BEGIN: Full 3x3 soft-iron ellipsoid fit ---
-
-  // Solve small linear system Ax = b using Gaussian elimination with partial pivoting.
+  // Helper: Solve small linear system Ax = b using Gaussian elimination with partial pivoting.
   // n must be <= 10; uses in-place arrays A (n x n), b (n). Result in x[n].
   // Returns true on success.
   inline bool solveLinearSystem(int n, float A[], float b[], float x[]) {
@@ -448,7 +264,7 @@ namespace MagCal {
     return true;
   }
 
-  // 3x3 inverse (returns false if singular). A_in and A_out are row-major 3x3 floats.
+  // Helper: 3x3 inverse (returns false if singular). A_in and A_out are row-major 3x3 floats.
   inline bool invert3x3(const float A_in[3][3], float A_out[3][3]) {
     float a = A_in[0][0], b = A_in[0][1], c = A_in[0][2];
     float d = A_in[1][0], e = A_in[1][1], f = A_in[1][2];
@@ -512,7 +328,8 @@ namespace MagCal {
     const int Ncols = 9;
     float ATA[Ncols*Ncols];
     float ATb[Ncols];
-    // zero
+
+    // zero out
     for(int i=0;i<Ncols*Ncols;i++) ATA[i]=0.0f;
     for(int i=0;i<Ncols;i++) ATb[i]=0.0f;
 
@@ -529,6 +346,7 @@ namespace MagCal {
       row[6] = x;
       row[7] = y;
       row[8] = z;
+
       // ATA += row^T * row
       for(int i=0;i<Ncols;i++) {
         for(int j=0;j<Ncols;j++) {
@@ -715,11 +533,8 @@ namespace MagCal {
     }
 
     // mag_field record: mean corrected magnitude (approx)
-    // If user wants MotionCal-style µT absolute, you can also use meanRaw as mag_field
     cal.mag_field = (float)meanRaw;
 
     return cal;
   }
-
-  // --- END: Full 3x3 soft-iron ellipsoid fit ---
 }

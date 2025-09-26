@@ -656,6 +656,7 @@ String getTelemetry() {
 void handleGetDeviceConfig(AsyncWebServerRequest *request) {
   // Return current device settings as a stringified JSON object.
   request->send(200, "application/json", getDeviceConfig());
+  sendCalibrationPoints(); // Send calibration data if enabled.
 }
 
 void handleGetWandConfig(AsyncWebServerRequest *request) {
@@ -1358,7 +1359,7 @@ void notifyWSClients() {
 }
 
 void sendCalibrationPoints() {
-  if(b_ws_started) {
+  if(b_ws_started && SENSOR_READ_TARGET == CALIBRATION) {
     // Gather the latest filtered motion data, serialize it to a JSON string,
     // and send it to all connected EventSource (SSE) clients as a "telemetry"
     // event name (using the current time as a unique event identifier).
@@ -1371,7 +1372,7 @@ void sendCalibrationPoints() {
 }
 
 void sendTelemetryData() {
-  if(b_ws_started) {
+  if(b_ws_started && SENSOR_READ_TARGET == TELEMETRY) {
     // Gather the latest filtered motion data, serialize it to a JSON string,
     // and send it to all connected EventSource (SSE) clients as a "telemetry"
     // event name (using the current time as a unique event identifier).

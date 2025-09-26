@@ -176,6 +176,16 @@ function setButtonStates(sensorState) {
       getEl("btnRecenter").disabled = true;
       getEl("btnCalibrateOn").disabled = true;
       getEl("btnCalibrateOff").disabled = false;
+
+      // Switch to the calibration tab if not already there.
+      if (document.getElementsByClassName("tablinks")[2].classList.contains("active") == false) {
+        document.getElementsByClassName("tablinks")[2].click();
+      }
+
+      // Ensure the calibration info is visible.
+      if (document.getElementById("calInfo").style.display == "none") {
+        showEl("calInfo");
+      }
       break;
     case "Offsets":
       // While in offset calculation mode no buttons are enabled.
@@ -290,7 +300,7 @@ class Telemetry3DView {
     // Add lights to the scene for realistic shading and visibility.
     // HemisphereLight simulates ambient light from the sky and ground, providing soft global illumination.
     const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
-    hemiLight.position.set(0,200,0); // Position above the scene (Y axis) for natural lighting effect
+    hemiLight.position.set(0, 200, 0); // Position above the scene (Y axis) for natural lighting effect
     this.scene.add(hemiLight);
 
     // DirectionalLight simulates sunlight, casting parallel rays and creating shadows and highlights.
@@ -382,7 +392,7 @@ class Calibration3DView {
 
     // Create the scene with a transparent background.
     this.scene = new THREE.Scene();
-    this.scene.background = null;
+    this.scene.background = new THREE.Color(0xffffff);
 
     // Set up renderer with antialiasing and alpha for transparency
     this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
@@ -405,7 +415,7 @@ class Calibration3DView {
     // this.scene.add(axesHelper);
 
     // Sphere geometry placed at the origin of the scene.
-    const geometry = new THREE.SphereGeometry(5, 32, 32);
+    const geometry = new THREE.SphereGeometry(6, 32, 32);
     const material = new THREE.MeshBasicMaterial({
       color: 0x222222,
       transparent: true,
@@ -418,7 +428,7 @@ class Calibration3DView {
     this.camera = new THREE.PerspectiveCamera(80, this.aspect, 0.1, 1000);
 
     // Position camera and look at the center of the scene
-    this.camera.position.set(0, 5, 70);
+    this.camera.position.set(0, 5, 75);
 
     // Camera positioning using the center of the mesh as the focal point
     this.camera.lookAt(new THREE.Vector3());
@@ -457,7 +467,7 @@ class Calibration3DView {
 
     // Add new meshes only if needed (keeps a pool of meshes for efficiency)
     for (let i = existing; i < needed; i++) {
-      const geometry = new THREE.SphereGeometry(0.8, 16, 16);
+      const geometry = new THREE.SphereGeometry(1, 16, 16);
       const material = new THREE.MeshBasicMaterial({color: 0xff0000});
       const pointMesh = new THREE.Mesh(geometry, material);
       this.pointsGroup.add(pointMesh);
@@ -659,7 +669,7 @@ function triggerInfrared() {
 }
 
 function enableCalibration() {
-  if (confirm("Are you sure you want to start calibration?")) {
+  if (confirm("Ready to start calibration?")) {
     sendCommand("/sensors/calibrate/enable");
     calibration3D.clearPoints();
     showEl("calInfo");
@@ -667,13 +677,21 @@ function enableCalibration() {
 }
 
 function disableCalibration() {
+  var endCalibration = false; // Assume nothing until the user confirms.
+
   if (lastCoverage < 60) {
-    if (confirm("Coverage is less than 60%, do you wish to continue collecting data?")) {
-      return; // Leave calibration mode active.
+    // Warn if coverage is too low and confirm if the user wishes to end.
+    if (confirm("Coverage is less than 60% and no magnetic offsets will be calculated. Do you wish to stop collecting data for calibration?")) {
+      endCalibration = true;
+    }
+  } else {
+    if (confirm("Do you wish to stop collecting data for calibration? Magnetic offsets will be calculated based on the collected data.")) {
+      endCalibration = true;
     }
   }
 
-  if (confirm("Are you sure you are done collecting calibration data?")) {
+  // User confirmed they wish to end calibration.
+  if (endCalibration) {
     sendCommand("/sensors/calibrate/disable");
     hideEl("calInfo");
     calibration3D.clearPoints();
