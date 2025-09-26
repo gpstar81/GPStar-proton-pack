@@ -207,6 +207,16 @@ const char INDEX_page[] PROGMEM = R"=====(
       <br/>
       <br/>
       <br/>
+      <select id="streamMode" class="custom-select" onchange="streamModeSelect(this)">
+        <option value="proton">Proton Stream</option>
+        <option value="stasis">Dark Matter Gen.</option>
+        <option value="slime">Plasm System</option>
+        <option value="meson">Particle System</option>
+        <option value="spectral">Spectral Stream</option>
+        <option value="holiday_halloween">Halloween</option>
+        <option value="holiday_christmas">Christmas</option>
+        <option value="spectral_custom">Custom Stream</option>
+      </select>
       <br/>
       <br/>
     </div>

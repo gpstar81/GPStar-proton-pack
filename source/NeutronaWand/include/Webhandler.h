@@ -240,7 +240,7 @@ void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *clien
 
 void onOTAStart() {
   // Log when OTA has started
-  debug(F("OTA update started"));
+  debugln(F("OTA update started"));
 }
 
 void onOTAProgress(size_t current, size_t final) {
@@ -254,10 +254,10 @@ void onOTAProgress(size_t current, size_t final) {
 void onOTAEnd(bool success) {
   // Log when OTA has finished
   if(success) {
-    debug(F("OTA update finished successfully!"));
+    debugln(F("OTA update finished successfully!"));
   }
   else {
-    debug(F("There was an error during OTA update!"));
+    debugln(F("There was an error during OTA update!"));
   }
 }
 

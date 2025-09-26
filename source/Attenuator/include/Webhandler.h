@@ -795,10 +795,10 @@ void handleToggleSmoke(AsyncWebServerRequest *request) {
     }
   }
 
-  debugln("Invalid Option");
+  debugln("Invalid Smoke State");
   String result;
   jsonBody.clear();
-  jsonBody["status"] = "Invalid Option";
+  jsonBody["status"] = "Invalid Smoke State";
   serializeJson(jsonBody, result);
   request->send(400, "application/json", result); // 400 Bad Request
 }
@@ -824,10 +824,10 @@ void handleToggleVibration(AsyncWebServerRequest *request) {
     }
   }
 
-  debugln("Invalid Smoke State");
+  debugln("Invalid Vibration State");
   String result;
   jsonBody.clear();
-  jsonBody["status"] = "Invalid Smoke State";
+  jsonBody["status"] = "Invalid Vibration State";
   serializeJson(jsonBody, result);
   request->send(400, "application/json", result); // 400 Bad Request
 }
@@ -916,6 +916,87 @@ void handleThemeChange(AsyncWebServerRequest *request) {
       jsonBody["status"] = "Invalid Theme Year";
       serializeJson(jsonBody, result);
       request->send(400, "application/json", result); // 400 Bad Request
+      return;
+    break;
+  }
+
+  request->send(200, "application/json", status);
+}
+
+uint8_t getStreamModeFromPath(const String s_path) {
+  uint8_t mode = 0; // Set default value to 0 to signal invalid firing mode.
+  // Check that the path value is not empty.
+  if(s_path.length() > 0) {
+    int lastSlash = s_path.lastIndexOf('/');
+    if(lastSlash >= 0 && lastSlash < s_path.length() - 1) {
+      String segment = s_path.substring(lastSlash + 1);
+      if(segment == "proton") {
+        mode = 1;
+      }
+      else if(segment == "stasis") {
+        mode = 2;
+      }
+      else if(segment == "slime") {
+        mode = 3;
+      }
+      else if(segment == "meson") {
+        mode = 4;
+      }
+      else if(segment == "spectral") {
+        mode = 5;
+      }
+      else if(segment == "holiday_halloween") {
+        mode = 6;
+      }
+      else if(segment == "holiday_christmas") {
+        mode = 7;
+      }
+      else if(segment == "spectral_custom") {
+        mode = 8;
+      }
+    }
+  }
+
+  return mode;
+}
+
+void handleStreamModeChange(AsyncWebServerRequest *request) {
+  debugln("Web: Firing Mode Change Triggered");
+
+  uint8_t i_mode = getStreamModeFromPath(request->url());
+  switch(i_mode) {
+    case 1:
+      attenuatorSerialSend(A_PROTON_MODE);
+    break;
+    case 2:
+      attenuatorSerialSend(A_STASIS_MODE);
+    break;
+    case 3:
+      attenuatorSerialSend(A_SLIME_MODE);
+    break;
+    case 4:
+      attenuatorSerialSend(A_MESON_MODE);
+    break;
+    case 5:
+      attenuatorSerialSend(A_SPECTRAL_MODE);
+    break;
+    case 6:
+      attenuatorSerialSend(A_HALLOWEEN_MODE);
+    break;
+    case 7:
+      attenuatorSerialSend(A_CHRISTMAS_MODE);
+    break;
+    case 8:
+      attenuatorSerialSend(A_SPECTRAL_CUSTOM_MODE);
+    break;
+    default:
+      debugln("Invalid Firing Mode");
+      String result;
+      jsonBody.clear();
+      jsonBody["status"] = "Invalid Firing Mode";
+      serializeJson(jsonBody, result);
+      request->send(400, "application/json", result); // 400 Bad Request
+      return;
     break;
   }
 
@@ -1685,6 +1766,14 @@ void setupRouting() {
   httpServer.on("/pack/theme/1989", HTTP_PUT, handleThemeChange);
   httpServer.on("/pack/theme/2021", HTTP_PUT, handleThemeChange);
   httpServer.on("/pack/theme/2024", HTTP_PUT, handleThemeChange);
+  httpServer.on("/pack/stream/proton", HTTP_PUT, handleStreamModeChange);
+  httpServer.on("/pack/stream/stasis", HTTP_PUT, handleStreamModeChange);
+  httpServer.on("/pack/stream/slime", HTTP_PUT, handleStreamModeChange);
+  httpServer.on("/pack/stream/meson", HTTP_PUT, handleStreamModeChange);
+  httpServer.on("/pack/stream/spectral", HTTP_PUT, handleStreamModeChange);
+  httpServer.on("/pack/stream/holiday_halloween", HTTP_PUT, handleStreamModeChange);
+  httpServer.on("/pack/stream/holiday_christmas", HTTP_PUT, handleStreamModeChange);
+  httpServer.on("/pack/stream/spectral_custom", HTTP_PUT, handleStreamModeChange);
   httpServer.on("/pack/smoke/on", HTTP_PUT, handleToggleSmoke);
   httpServer.on("/pack/smoke/off", HTTP_PUT, handleToggleSmoke);
   httpServer.on("/pack/vibration/on", HTTP_PUT, handleToggleVibration);

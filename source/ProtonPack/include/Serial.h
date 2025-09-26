@@ -2048,7 +2048,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Update the Inner Cyclotron LEDs if required.
       cyclotronSwitchLEDUpdate();
 
-      attenuatorSerialSend(A_HALLOWEEN_MODE, i_value);
+      attenuatorSerialSend(A_HALLOWEEN_MODE);
     break;
 
     case W_CHRISTMAS_MODE:
@@ -2098,7 +2098,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Update the Inner Cyclotron LEDs if required.
       cyclotronSwitchLEDUpdate();
 
-      attenuatorSerialSend(A_CHRISTMAS_MODE, i_value);
+      attenuatorSerialSend(A_CHRISTMAS_MODE);
     break;
 
     case W_SPECTRAL_CUSTOM_MODE:

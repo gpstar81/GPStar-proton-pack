@@ -213,7 +213,7 @@ function disableActionButtons() {
   getEl("btnAttenuate").disabled = true;
 }
 
-function setButtonStates(mode, pack, wand, cyclotron, ionswitch, firing, ramping, smoke, vibration, direction, themeid) {
+function setButtonStates(mode, pack, wand, cyclotron, ionswitch, firing, ramping, smoke, vibration, direction, themeid, wandmode) {
   // Assume all direct user actions are not possible, then override as necessary.
   disableActionButtons();
 
@@ -246,6 +246,40 @@ function setButtonStates(mode, pack, wand, cyclotron, ionswitch, firing, ramping
     break;
     case 5:
       setValue("themes", "2024");
+    break;
+  }
+
+  // Start by enabling the firing mode selector; it will be disabled as necessary below.
+  getEl("streamMode").disabled = false;
+
+  switch(wandmode) {
+    case "Proton Stream":
+      setValue("streamMode", "proton");
+    break;
+    case "Plasm System":
+      setValue("streamMode", "slime");
+    break;
+    case "Dark Matter Gen.":
+      setValue("streamMode", "stasis");
+    break;
+    case "Particle System":
+      setValue("streamMode", "meson");
+    break;
+    case "Spectral Stream":
+      setValue("streamMode", "spectral");
+    break;
+    case "Halloween":
+      setValue("streamMode", "holiday_halloween");
+    break;
+    case "Christmas":
+      setValue("streamMode", "holiday_christmas");
+    break;
+    case "Custom Stream":
+      setValue("streamMode", "spectral_custom");
+    break;
+    default:
+      // Invalid mode specified, so disable control.
+      getEl("streamMode").disabled = true;
     break;
   }
 
@@ -562,7 +596,7 @@ function updateEquipment(jObj) {
     setToggle("toggleLoop", jObj.musicLooping);
 
     // Update special UI elements based on the latest data values.
-    setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron, jObj.switch, jObj.firing, jObj.ramping, jObj.smoke, jObj.vibration, jObj.direction, jObj.themeID);
+    setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron, jObj.switch, jObj.firing, jObj.ramping, jObj.smoke, jObj.vibration, jObj.direction, jObj.themeID, jObj.wandMode);
 
     // Update the current track info.
     musicTrackStart = jObj.musicStart || 0;

@@ -237,6 +237,11 @@ function themeSelect(caller) {
   sendCommand("/pack/theme/" + caller.value);
 }
 
+function streamModeSelect(caller) {
+  // Change the stream mode via selected option: /pack/stream/<firing_mode>
+  sendCommand("/pack/stream/" + caller.value);
+}
+
 function getStatus(callbackFunc) {
   // This function expects a JSON response from the server which must be parsed and sent to the callback function.
   var xhttp = new XMLHttpRequest();
