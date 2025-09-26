@@ -5,7 +5,7 @@ This guide will cover the web interface available that is built into the GPStar 
 ## Proton Pack
 If you have a Attenuator connected, the GPStar Proton Pack II will turn off its WiFi for power saving. You can manually turn on or turn off the WiFi for it from the [OPERATION_MENUS](OPERATION_MENUS.md)
 
-To connect to the GPStar Proton Pack II over WiFi, a private WiFi network (access point) which will appear as **"GPStar_Pack2"**, and this will be secured with a default password of **"555-2368"**.
+To connect to the GPStar Proton Pack II over WiFi, a private WiFi network (access point) which will appear as **"GPStar_Pack2"**, and this will be secured with a default password of **555-2368**.
 
 Once connected, your computer/phone/tablet should be assigned an IP address starting from **"192.168.1.100"** with a subnet of **"255.255.255.0"**. Please remember that if you intend to have multiple devices connect via this private WiFi network you will be assigned a unique IP address for each client device (eg. phone, tablet, or computer).
 
@@ -193,7 +193,11 @@ The same as seen in the Audio Controls in the Proton Pack settings above.
 
 The GPStar Neturona Wand II is equipped with a gyroscope and magnetometer. The sensors can be even more finely calibrated to provide more accurate data after it is fully installed into your Neutrona Wand, taking into account nearby magnetic sources such as a speaker.
 
-You can begin a sensor calibration but pressing the Enable Calibration button. You will then start slowly rotating your Neutrona Wand in all directions. A visual calibration monitor will appear on screen to show your progress. Rotate your Neutrona Wand slowly to fill it with dots until the coverage is as close as possible to 100%. Press the Disable Calibration button when you are finished to save the newly calibrated settings into the system memory.
+You can begin a sensor calibration but pressing the Enable Calibration button. You will then start relatively slowly rotating your Neutrona Wand in all directions. A visual calibration monitor will appear on screen to show your progress. Rotate the Neutrona Wand to fill in the dots until the coverage is as close as possible to 100%. 
+
+**TIP: Point the Neutrona Wand down, and slowly raise it up in an arc. Turn slightly and then arc back to full down. Repeat this process until you have done a 360.**
+
+Press the Disable Calibration button when you are finished to save the newly calibrated settings into the system memory.
 
 **Note:** You must have at least 60% coverage in order for the calibration data to be effective! If you exit the calibration process before reaching 60% you will be given a confirmation to either continue collecting data or stop the process and no calibration values will be calculated.
 
