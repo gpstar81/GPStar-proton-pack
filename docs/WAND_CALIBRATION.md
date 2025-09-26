@@ -8,7 +8,7 @@ To begin, connect to the WiFi on the GPStar Neutrona Wand II, enabling first via
 
 Once connected to the Neutrona Wand via WiFi and accessing the web UI, click on the Calibration Menu icon at the top. To begin the data collection process click on the `Enable Calibration` button.
 
-![Calibration Disabled](images/CalibrationDisabled.png)
+<img style="padding:10px;width:300px;" src="images/CalibrationDisabled.png"/>
 
 The system will now will ask you to rotate your Neutrona Wand slowly in all directions. A visual calibration monitor will appear on screen to show your progress. Rotate your Neutrona Wand slowly to fill it with dots until the coverage is as close as possible to 100%.
 
@@ -18,11 +18,12 @@ When you are satisfied with the results or the coverage value no longer changes,
 
 **Note:** You must have at least 60% coverage in order for the calibration data to be effective! If you exit the calibration process before reaching 60% you will be given a confirmation to either continue collecting data or stop the process and no calibration values will be calculated.
 
-![Calibration Enabled](images/CalibrationEnabled.png)
+<img style="padding:10px;width:300px;" src="images/CalibrationEnabled.png"/>
 
 ## Verifying Calibration
 
 Click on the Settings tab at the top of the UI and go to the "Special Device Settings" page. On this screen you should see magnetic offset information which display "Hard Iron" (geo-magnetic corrections) and "Soft Iron" (nearby magnetic interference). These values will be used to provide a customised magnetic profile explicitly for your Neutrona Wand.
 
 Also available in this section is Controller Installation Orientation Menu option. This further fine tunes the sensor settings by telling the GPStar system which way the GPStar Neutrona Wand II board is installed inside your Neutrona Wand body. For example, on Hasbro Neutrona Wands, it will be Components Down, USB Front. For a Mack's Factory Neutrona Wand, it will be in a different orientation such as the Components facing Left and the USB front.
-![Calibration Values](images/Calibrations.png)
+
+<img style="padding:10px;width:300px;" src="images/Calibrations.png"/>
