@@ -10,7 +10,9 @@ Once connected to the Neutrona Wand via WiFi and accessing the web UI, click on 
 
 <img style="padding:10px;width:300px;" src="images/CalibrationDisabled.png"/>
 
-The system will now will ask you to rotate your Neutrona Wand slowly in all directions. A visual calibration monitor will appear on screen to show your progress. Rotate your Neutrona Wand slowly to fill it with dots until the coverage is as close as possible to 100%.
+The system will now will ask you to rotate your Neutrona Wand relatively slowly in all directions. A visual calibration monitor will appear on screen to show your progress. Rotate your Neutrona Wand slowly to fill it with dots until the coverage is as close as possible to 100%.
+
+** TIP: Point the Neutrona Wand down, and slowly raise it up in an arc. Turn slightly and then arc back to full down. Repeat this process until you have done a 360.
 
 ## Stopping Calibration
 
