@@ -228,7 +228,7 @@ At the bottom of the screen is a timestamp representing the date of the software
 
 In the Special Device Settings for the Neutrona Wand, you should see magnetic offset information which display "Hard Iron" (geo-magnetic corrections) and "Soft Iron" (nearby magnetic interference). These values will be used to provide a customised magnetic profile explicitly for your Neutrona Wand.
 
-With the Controller Installation Orientation Menu option, you can further fine tunes the sensor settings by telling the GPStar system which way the GPStar Neutrona Wand II board is installed inside your Neutrona Wand body. For example, on Hasbro Neutrona Wands, it will be Components Down, USB Front. For a Mack's Factory Neutrona Wand, it will be in a different orientation such as the Components facing Left and the USB front.
+With the Controller Installation Orientation Menu option, you can further fine tune the sensor settings by telling the GPStar system which way the GPStar Neutrona Wand II board is installed inside your Neutrona Wand body. For example, on Hasbro Neutrona Wands, it will be Components Down, USB Front. For a Mack's Factory Neutrona Wand, it will be in a different orientation such as the Components facing Left and the USB front.
 
 Also in this section is the ability to rename the Network ID for the Neutrona Wand.
 
@@ -331,4 +331,5 @@ The following URI's are API endpoints available for managing actions within your
 	PUT /eeprom/all - Stores all current preferences to pack/wand EEPROMs (eg. smoke settings)
 	PUT /eeprom/pack - Stores current pack preferences to pack EEPROM only
 	PUT /eeprom/wand - Stores current wand preferences to wand EEPROM only
+
 
