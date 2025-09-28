@@ -111,7 +111,7 @@ At the bottom of the screen is a timestamp representing the date of the software
 
 <img style="float:right;padding:10px;width:300px;" src="images/gpstar-ii-special-device-settings.jpg"/>
 
-The special device settings allows you to change the graphical user interface, change the private network name and adding tracking names to music.
+The special device settings allows you to change the graphical user interface, change the private network name and adding track names to music.
 
 <div style="clear:both"></div>
 
@@ -331,3 +331,4 @@ The following URI's are API endpoints available for managing actions within your
 	PUT /eeprom/all - Stores all current preferences to pack/wand EEPROMs (eg. smoke settings)
 	PUT /eeprom/pack - Stores current pack preferences to pack EEPROM only
 	PUT /eeprom/wand - Stores current wand preferences to wand EEPROM only
+
