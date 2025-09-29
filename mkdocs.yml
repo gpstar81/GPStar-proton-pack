@@ -50,6 +50,7 @@ nav:
     - Sound Output: SOUND.md
     - Pack-Wand Hose: HOSE.md
     - Smoke Kits: SMOKE.md
+    - Web API Reference: WEB_API_REFERENCE.md
     - Legacy DIY: DIY_LEGACY.md
   - Install Videos:
     - Jonogunn: INSTALL_VIDEOS_JONOGUNN.md

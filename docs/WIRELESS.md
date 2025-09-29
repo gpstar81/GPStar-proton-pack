@@ -1,4 +1,6 @@
-# Wireless Adapter (Optional)
+# Wireless Adapter (Optional, Deprecated)
+
+Please note that this is an older. standalone guide for bringing WiFi-only operation to your GPStar I Proton Pack without need for a full [Attenuator](ATTENUATOR.md) device. With the introduction of the GPStar II controllers you should view the dedicated [GPStar II Wireless Guide](WIRELESS_GPSTAR_II.md) for operation.
 
 Use of the serial expansion port on the gpstar Proton Pack can bring WiFi capabilities to your unlicensed nuclear reactor! This is a minimal version of the Attenuator device without input or output devices (no lights, sound, vibration, or switches) and may be installed directly into your pack alongside the gpstar Proton Pack controller.
 

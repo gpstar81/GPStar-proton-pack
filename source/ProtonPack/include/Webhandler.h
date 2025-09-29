@@ -1690,10 +1690,8 @@ void setupRouting() {
   httpServer.on("/pack/vent", HTTP_PUT, handleManualVent);
   httpServer.on("/pack/cyclotron/clockwise", HTTP_PUT, handleCyclotronDirection);
   httpServer.on("/pack/cyclotron/counterclockwise", HTTP_PUT, handleCyclotronDirection);
-  httpServer.on("/pack/theme/1984", HTTP_PUT, handleThemeChange);
-  httpServer.on("/pack/theme/1989", HTTP_PUT, handleThemeChange);
-  httpServer.on("/pack/theme/2021", HTTP_PUT, handleThemeChange);
-  httpServer.on("/pack/theme/2024", HTTP_PUT, handleThemeChange);
+  httpServer.on("/pack/smoke/on", HTTP_PUT, handleToggleSmoke);
+  httpServer.on("/pack/smoke/off", HTTP_PUT, handleToggleSmoke);
   httpServer.on("/pack/stream/proton", HTTP_PUT, handleStreamModeChange);
   httpServer.on("/pack/stream/stasis", HTTP_PUT, handleStreamModeChange);
   httpServer.on("/pack/stream/slime", HTTP_PUT, handleStreamModeChange);
@@ -1702,8 +1700,10 @@ void setupRouting() {
   httpServer.on("/pack/stream/holiday_halloween", HTTP_PUT, handleStreamModeChange);
   httpServer.on("/pack/stream/holiday_christmas", HTTP_PUT, handleStreamModeChange);
   httpServer.on("/pack/stream/spectral_custom", HTTP_PUT, handleStreamModeChange);
-  httpServer.on("/pack/smoke/on", HTTP_PUT, handleToggleSmoke);
-  httpServer.on("/pack/smoke/off", HTTP_PUT, handleToggleSmoke);
+  httpServer.on("/pack/theme/1984", HTTP_PUT, handleThemeChange);
+  httpServer.on("/pack/theme/1989", HTTP_PUT, handleThemeChange);
+  httpServer.on("/pack/theme/2021", HTTP_PUT, handleThemeChange);
+  httpServer.on("/pack/theme/2024", HTTP_PUT, handleThemeChange);
   httpServer.on("/pack/vibration/on", HTTP_PUT, handleToggleVibration);
   httpServer.on("/pack/vibration/off", HTTP_PUT, handleToggleVibration);
   httpServer.on("/volume/mute", HTTP_PUT, handleToggleMute);

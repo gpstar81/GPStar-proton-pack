@@ -1,8 +1,6 @@
 # Attenuator Wireless Operation
 
-This guide will cover the web interface available via an Attenuator or standalone WiFi add-on which offers a visual, web-based UI capable of controlling operations of your Proton Pack and Neutrona Wand.
-
-While this guide is primarily targeted to the UI from an **Attenuator** (or standalone WiFi add-on), it is relevant to the GPStar II pack and wand controllers which offer the same functionality.
+All devices within the GPStar ecosystem capable of operation over WiFi utilize a built-in web server which offers an API-first design for communications. This guide specifically covers the interactions as will be available to the Attenuator or legacy Wireless Adapter.
 
 ## Requirements
 
@@ -198,88 +196,3 @@ It is possible to have your device join an existing WiFi network which may provi
 1. While connected to the same WiFi network on your computer/phone/tablet, use the IP address shown to connect to your device's web interface.
 
 Use of an unsecured WiFi network is not supported and not recommended.
-
-<div style="clear:both"></div>
-
-## Web API
-
-The web UI is built as a single-page application, using single HTML pages for the interface elements and performing actions using an API layer. These API endpoints are available for use if you wish to build your own interface. They pass data in JSON format though the exact structure is not described here at this time.
-
-The following URI's will serve the informational/maintenance pages as shown previously in this guide:
-
-	GET / - Standard Index/Landing Page
-	GET /network - External WiFi Settings Page
-	GET /password - WiFi Password Update Page
-	GET /settings/attenuator = Attenuator Settings Page
-	GET /settings/pack - Pack Settings Page
-	GET /settings/wand - Wand Settings Page
-	GET /settings/smoke - Smoke Settings Page
-	GET /style.css - Common Stylesheet
-	GET /common.js - Common JavaScript
-	GET /index.js - Index Page JavaScript
-
-For real-time updates, the built-in web server offers a special URI `/ws` to support [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API). When connected to that endpoint, the device will "push" any relevant information direct to clients in real-time. Note that this data may be in the form of a JSON object or just a plain string, so check the contents of the text data carefully before usage.
-
-The following URI's are API endpoints available for managing actions within your devices. You may use these to create your own UI or control your pack/wand via other hardware devices. For instance, you can monitor the `/status` endpoint for changes, or use the volume/music endpoints to create your own jukebox interface. All data should use the `application/json` content type for sending or receiving of data. Where applicable for body data to be sent to the device a footnote describes where to find a sample of the JSON payload.
-
-	GET /status - Obtain all current equipment status (pack + wand)
-	DELETE /restart - Perform a software restart of the Attenuator or Wireless controller
-
-	PUT /pack/on - Turn the pack on (subject to system state)
-	PUT /pack/off - Turn the pack onf (subject to system state)
-	PUT /pack/attenuate - Cancel pack overheat via "attenuation"
-	PUT /pack/vent - Perform manual vent (subject to system state)
-	PUT /pack/cyclotron/clockwise - Spin cyclotron clockwise
-	PUT /pack/cyclotron/counterclockwise - Spin cyclotron counterclockwise
-	PUT /pack/theme/1984 - Switch to GB1 theme
-	PUT /pack/theme/1989 - Switch to GB2 theme
-	PUT /pack/theme/2021 - Switch to GB:AL theme
-	PUT /pack/theme/2024 - Switch to GB:FE theme
-	PUT /pack/smoke/on - Enable smoke
-	PUT /pack/smoke/off - Disable smoke
-	PUT /pack/vibration/on - Enable vibration
-	PUT /pack/vibration/off - Disable vibration
-
-	PUT /volume/mute - Mute for all devices
-	PUT /volume/unmute - Unmute for all devices
-	PUT /volume/master/up - Increase system (master) volume
-	PUT /volume/master/down - Decrease system (master) volume
-	PUT /volume/effects/up - Increase effects volume
-	PUT /volume/effects/down - Decrease effects volume
-	PUT /volume/music/up - Increase music volume
-	PUT /volume/music/down - Decrease music volume
-	PUT /volume/music/loop - Toggle looping a single track
-
-	PUT /music/startstop - Toggle music playback via start/stop
-	PUT /music/pauseresume - Toggle music playback via resume/pause
-	PUT /music/next - Move to next track
-	PUT /music/prev - Move to previous track
-	PUT /music/loop/all - Set looping at end of playlist
-	PUT /music/loop/single - Set looping of a single track
-	PUT /music/select?track=[INTEGER] - Select a specific music track (Min Value: 500)
-
-	GET /wifi/settings - Returns the current external WiFi settings
-	PUT /wifi/update - Save new/modified external WiFi settings
-		Body: Send same JSON body as returned by /wifi/settings
-
-	GET /config/device - Obtain the current (local) device settings
-	PUT /config/device/save - Saves attenuator settings
-		Body: Send same JSON body as returned by /config/pack
-
-	GET /config/pack - Obtain the current pack equipment settings
-	PUT /config/pack/save - Saves pack settings for evaluation
-		Body: Send same JSON body as returned by /config/pack
-
-	GET /config/wand - Obtain the current wand equipment settings
-	PUT /config/wand/save - Saves wand settings for evaluation
-		Body: Send same JSON body as returned by /config/wand
-
-	GET /config/smoke - Obtain the current pack/wand smoke settings
-	PUT /config/smoke/save - Saves smoke settings for evaluation
-		Body: Send same JSON body as returned by /config/smoke
-
-	WARNING: Only call these API's as necessary as these cause write cycles to the EEPROM!
-
-	PUT /eeprom/all - Stores all current preferences to pack/wand EEPROMs (eg. smoke settings)
-	PUT /eeprom/pack - Stores current pack preferences to pack EEPROM only
-	PUT /eeprom/wand - Stores current wand preferences to wand EEPROM only
