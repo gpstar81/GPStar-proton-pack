@@ -50,14 +50,14 @@ function doHeartbeat() {
 }
 
 function onOpen(event) {
-  console.log("WebSocket connection opened");
+  console.log("Connection opened");
 
   // Clear the automated status interval timer.
   clearInterval(statusInterval);
 }
 
 function onClose(event) {
-  console.log("WebSocket connection closed");
+  console.log("Connection closed");
   setTimeout(initWebSocket, 1000);
 
   // Fallback for when WebSocket is unavailable.

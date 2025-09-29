@@ -66,27 +66,27 @@ const char DEVICE_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b>Hard Iron Magnetic Offsets:</b><br/>
-      <input type="text" id="hardIron1" width="8" maxlength="8" placeholder="X Axis"/><br/>
-      <input type="text" id="hardIron2" width="8" maxlength="8" placeholder="Y Axis"/><br/>
-      <input type="text" id="hardIron3" width="8" maxlength="8" placeholder="Z Axis"/><br/>
+      <input type="text" id="hardIron1" size="9" maxlength="8" placeholder="X Axis"/><br/>
+      <input type="text" id="hardIron2" size="9" maxlength="8" placeholder="Y Axis"/><br/>
+      <input type="text" id="hardIron3" size="9" maxlength="8" placeholder="Z Axis"/><br/>
     </div>
     <div class="setting">
       <b>Soft Iron Magnetic Mapping:</b><br/>
-      <input type="text" id="softIron1" width="8" maxlength="8" placeholder="Value 1"/>
-      <input type="text" id="softIron2" width="8" maxlength="8" placeholder="Value 2"/>
-      <input type="text" id="softIron3" width="8" maxlength="8" placeholder="Value 3"/>
+      <input type="text" id="softIron1" size="9" maxlength="8" placeholder="Value 1"/>
+      <input type="text" id="softIron2" size="9" maxlength="8" placeholder="Value 2"/>
+      <input type="text" id="softIron3" size="9" maxlength="8" placeholder="Value 3"/>
       <br/>
-      <input type="text" id="softIron4" width="8" maxlength="8" placeholder="Value 4"/>
-      <input type="text" id="softIron5" width="8" maxlength="8" placeholder="Value 5"/>
-      <input type="text" id="softIron6" width="8" maxlength="8" placeholder="Value 6"/>
+      <input type="text" id="softIron4" size="9" maxlength="8" placeholder="Value 4"/>
+      <input type="text" id="softIron5" size="9" maxlength="8" placeholder="Value 5"/>
+      <input type="text" id="softIron6" size="9" maxlength="8" placeholder="Value 6"/>
       <br/>
-      <input type="text" id="softIron7" width="8" maxlength="8" placeholder="Value 7"/>
-      <input type="text" id="softIron8" width="8" maxlength="8" placeholder="Value 8"/>
-      <input type="text" id="softIron9" width="8" maxlength="8" placeholder="Value 9"/>
+      <input type="text" id="softIron7" size="9" maxlength="8" placeholder="Value 7"/>
+      <input type="text" id="softIron8" size="9" maxlength="8" placeholder="Value 8"/>
+      <input type="text" id="softIron9" size="9" maxlength="8" placeholder="Value 9"/>
     </div>
     <div class="setting">
       <b>Magnetic Field (&micro;T):</b><br/>
-      <input type="text" id="magField" width="8" maxlength="8" placeholder="0"/>
+      <input type="text" id="magField" size="9" maxlength="8" placeholder="0"/>
     </div>
     <div class="setting">
       <b>Song List:</b> <span id="byteCount"></span><br/>

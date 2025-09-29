@@ -232,7 +232,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     window.addEventListener("load", onLoad);
 
     function onLoad(event) {
-      // Wait 0.4s for serial communications between devices.
+      // Wait 0.1s for serial communications between devices.
       setTimeout(getSettings, 100);
 
       // Disable the save button until we obtain settings.

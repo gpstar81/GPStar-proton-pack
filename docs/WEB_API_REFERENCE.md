@@ -30,6 +30,8 @@ The following URI's are API endpoints available for managing actions within your
 	GET /status - Obtain all current equipment status (pack + wand)
 	DELETE /restart - Perform a software restart of the Attenuator or Wireless controller
 
+Available for only the Attenuator and GPStar Proton Pack II:
+
 	PUT /pack/on - Turn the pack on (subject to system state)
 	PUT /pack/off - Turn the pack onf (subject to system state)
 	PUT /pack/attenuate - Cancel pack overheat via "attenuation"
@@ -53,15 +55,23 @@ The following URI's are API endpoints available for managing actions within your
 	PUT /pack/vibration/on - Enable vibration
 	PUT /pack/vibration/off - Disable vibration
 
-	PUT /volume/mute - Mute for all devices
-	PUT /volume/unmute - Unmute for all devices
-	PUT /volume/master/up - Increase system (master) volume
-	PUT /volume/master/down - Decrease system (master) volume
+Available only to the GPStar Neutrona Wand II:
+
+	PUT /sensors/recenter - Re-orient using the current position
+	PUT /sensors/calibrate/enable - Start the magnetic calibration process
+	PUT /sensors/calibrate/disable - Finish the magnetic calibration process
+	PUT /infrared/signal?type=[STRING] - Send an IR signal (Default: ghostintrap)
+
+Common audio controls:
+
+	PUT /volume/mute - Mute all effects and music
+	PUT /volume/unmute - Unmute all effects and music
+	PUT /volume/master/up - Increase master (overall) volume
+	PUT /volume/master/down - Decrease master (overall) volume
 	PUT /volume/effects/up - Increase effects volume
 	PUT /volume/effects/down - Decrease effects volume
 	PUT /volume/music/up - Increase music volume
 	PUT /volume/music/down - Decrease music volume
-	PUT /volume/music/loop - Toggle looping a single track
 
 	PUT /music/startstop - Toggle music playback via start/stop
 	PUT /music/pauseresume - Toggle music playback via resume/pause
@@ -71,31 +81,33 @@ The following URI's are API endpoints available for managing actions within your
 	PUT /music/loop/single - Set looping of a single track
 	PUT /music/select?track=[INTEGER] - Select a specific music track (Min Value: 500)
 
-	GET /wifi/settings - Returns the current external WiFi settings
-	PUT /wifi/update - Save new/modified external WiFi settings
-		Body: Send same JSON body as returned by /wifi/settings
+Settings for devices as accessible by [A]ttenuator, [P]ack, or [ALL]:
 
-	GET /config/device - Obtain the current special device settings
-	PUT /config/device/save - Saves attenuator settings
-		Body: Send same JSON body as returned by /config/pack
+	GET /wifi/settings - Returns the current external WiFi settings [ALL]
+	PUT /wifi/update - Save new/modified external WiFi settings [ALL]
+		Body: Send same JSON body as returned by 'GET /wifi/settings'
 
-	GET /config/pack - Obtain the current pack equipment settings
-	PUT /config/pack/save - Saves pack settings for evaluation
-		Body: Send same JSON body as returned by /config/pack
+	GET /config/device - Returns the current special device settings [ALL]
+	PUT /config/device/save - Saves special device settings [ALL]
+		Body: Send same JSON body as returned by 'GET /config/device'
 
-	GET /config/wand - Obtain the current wand equipment settings
-	PUT /config/wand/save - Saves wand settings for evaluation
-		Body: Send same JSON body as returned by /config/wand
+	GET /config/pack - Returns the current pack equipment settings [A,P]
+	PUT /config/pack/save - Saves pack settings for evaluation [A,P]
+		Body: Send same JSON body as returned by 'GET /config/pack'
 
-	GET /config/smoke - Obtain the current pack/wand smoke settings
-	PUT /config/smoke/save - Saves smoke settings for evaluation
-		Body: Send same JSON body as returned by /config/smoke
+	GET /config/wand - Returns the current wand equipment settings [ALL]
+	PUT /config/wand/save - Saves wand settings for evaluation [ALL]
+		Body: Send same JSON body as returned by 'GET /config/wand'
 
-	WARNING: Only call these API's as necessary as these cause write cycles to the EEPROM!
+	GET /config/smoke - Returns the current pack/wand smoke settings [A,P]
+	PUT /config/smoke/save - Saves smoke settings for evaluation [A,P]
+		Body: Send same JSON body as returned by 'GET /config/smoke'
 
-	PUT /eeprom/all - Stores all current preferences to pack/wand EEPROMs (eg. smoke settings)
-	PUT /eeprom/pack - Stores current pack preferences to pack EEPROM only
-	PUT /eeprom/wand - Stores current wand preferences to wand EEPROM only
+WARNING: Only call these API's as necessary as these cause write cycles to the EEPROM!
+
+	PUT /eeprom/all - Stores all current preferences to pack/wand EEPROMs (eg. smoke settings) [A,P]
+	PUT /eeprom/pack - Stores current pack preferences to pack EEPROM only [A,P]
+	PUT /eeprom/wand - Stores current wand preferences to wand EEPROM only [ALL]
 
 ## WebSockets
 

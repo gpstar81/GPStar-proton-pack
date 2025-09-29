@@ -307,7 +307,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
             getEl("btnSave").disabled = false;
 
             // GPStar Pack II detected, so disable toggle for the RGB Vent Light as it is invalid for the GPStar Wand II.
-            if(settings.esp32Pack) {
+            if (settings.esp32Pack) {
               getEl("rgbVentEnabled").disabled = true;
             }
 

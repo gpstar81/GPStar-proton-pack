@@ -28,6 +28,10 @@ function getInt(id){
   return parseInt(getValue(id) || 0, 10);
 }
 
+function getFloat(id){
+  return parseFloat(getValue(id) || 0);
+}
+
 function getText(id){
   return (getValue(id) || "").trim();
 }
@@ -81,7 +85,11 @@ function isJsonString(str) {
   return true;
 }
 
+/** Common Data Handling **/
+
 function handleStatus(response) {
+  // Generic handler for a JSON response with a "status" field.
+  // If a response is not JSON then the full text is displayed.
   if (isJsonString(response || "")) {
     var jObj = JSON.parse(response || "");
     if (jObj.status && jObj.status != "success") {
@@ -92,7 +100,11 @@ function handleStatus(response) {
   }
 }
 
+/** Common API Commands **/
+
 function sendCommand(apiUri) {
+  // Sends an action command to the server (device) using a PUT request.
+  // These commands have no response data, so we just handle the status.
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
@@ -104,6 +116,7 @@ function sendCommand(apiUri) {
 }
 
 function doRestart() {
+  // A special command which requires user confirmation before proceeding.
   if (confirm("Are you sure you wish to restart the serial device?")) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {

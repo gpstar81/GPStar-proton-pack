@@ -284,6 +284,11 @@ namespace MagCal {
     return true;
   }
 
+  // Helper: Round float to 3 decimal places
+  inline float roundFloat3(float val) {
+    return roundf(val * 1000.0f) / 1000.0f;
+  }
+
   // Full ellipsoid fit -> center & 3x3 soft-iron matrix
   inline CalibrationData computeCalibrationEllipsoid() {
     CalibrationData cal;
@@ -534,6 +539,16 @@ namespace MagCal {
 
     // mag_field record: mean corrected magnitude (approx)
     cal.mag_field = (float)meanRaw;
+
+    // At the end of all calculations, round all calibration fields to 3 decimal places
+    // This ensures consistent precision for storage and use
+    for(int i = 0; i < 3; ++i) {
+      cal.mag_hardiron[i] = roundFloat3(cal.mag_hardiron[i]);
+    }
+    for(int i = 0; i < 9; ++i) {
+      cal.mag_softiron[i] = roundFloat3(cal.mag_softiron[i]);
+    }
+    cal.mag_field = roundFloat3(cal.mag_field);
 
     return cal;
   }

@@ -98,7 +98,7 @@ struct objConfigEEPROM {
 };
 
 /*
- * Read all user preferences from Proton Pack controller EEPROM.
+ * Read all user preferences from device controller EEPROM.
  */
 void readEEPROM() {
   // Get the stored CRC from the EEPROM.

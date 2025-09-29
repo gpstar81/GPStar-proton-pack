@@ -55,10 +55,10 @@ const char NETWORK_page[] PROGMEM = R"=====(
       </label>
     </div>
     &nbsp;&nbsp;&nbsp;<b>WiFi Network:</b>
-    <input type="text" id="network" width="100" maxlength="32" placeholder="External SSID"
+    <input type="text" id="network" size="60" maxlength="32" placeholder="External SSID"
      title="Only letters, numbers, hyphens, and underscores are allowed, up to 32 characters."/>
     <br/>
-    &nbsp;<b>WiFi Password:</b> <input type="text" id="password" width="100" maxlength="63" placeholder="External Password"/>
+    &nbsp;<b>WiFi Password:</b> <input type="text" id="password" size="60" maxlength="63" placeholder="External Password"/>
     <br/>
     <br/>
     <br/>
@@ -74,11 +74,11 @@ const char NETWORK_page[] PROGMEM = R"=====(
         <span class="label">Set Static IP Address</span>
       </label>
     </div>
-    &nbsp;&nbsp;&nbsp;&nbsp;<b>IP Address:</b> <input type="text" id="address" width="100" maxlength="15" disabled/>
+    &nbsp;&nbsp;&nbsp;&nbsp;<b>IP Address:</b> <input type="text" id="address" size="20" maxlength="15" disabled/>
     <br/>
-    &nbsp;<b>Subnet Mask:</b> <input type="text" id="subnet" width="100" maxlength="15" disabled/>
+    &nbsp;<b>Subnet Mask:</b> <input type="text" id="subnet" size="20" maxlength="15" disabled/>
     <br/>
-    &nbsp;&nbsp;&nbsp;<b>Gateway IP:</b> <input type="text" id="gateway" width="100" maxlength="15" disabled/>
+    &nbsp;&nbsp;&nbsp;<b>Gateway IP:</b> <input type="text" id="gateway" size="20" maxlength="15" disabled/>
   </div>
 
   <div class="block">
