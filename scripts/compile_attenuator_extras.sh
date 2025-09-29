@@ -45,7 +45,7 @@ fi
 
 # Copy the new firmware to the expected binaries directory
 if [ -f ${PROJECT_DIR}/.pio/build/esp32dev/firmware.bin ]; then
-  mv ${PROJECT_DIR}/.pio/build/esp32dev/firmware.bin ${BINDIR}/attenuator/Attenuator-Standalone.bin
+  mv ${PROJECT_DIR}/.pio/build/esp32dev/firmware.bin ${BINDIR}/attenuator/extras/Attenuator-Standalone.bin
   echo "Firmware copy completed."
 fi
 echo ""
