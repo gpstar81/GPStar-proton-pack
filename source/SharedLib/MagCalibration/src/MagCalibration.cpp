@@ -19,7 +19,12 @@
  */
 
 #include <MagCalibration.h>
-#include <cmath>
+#include <math.h>
+
+// Define M_PI if not defined
+#ifndef M_PI
+  #define M_PI 3.14159265358979323846
+#endif
 
 /**
  * MagCalibration: Encapsulates calibration data, sampling, and computation.

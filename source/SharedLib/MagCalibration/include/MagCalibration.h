@@ -19,7 +19,6 @@
  */
 
 #pragma once
-#include <cmath>
 
 /**
  * This code was co-authored by ChatGPT and GitHub Copilot.
