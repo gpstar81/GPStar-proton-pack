@@ -1,7 +1,7 @@
 {
-  "name": "SharedLib",
+  "name": "MagCalibration",
   "version": "1.0.0",
-  "description": "Common utilities and data structures for GPStar projects.",
+  "description": "Common library for magnetic calibration routines and data structures for GPStar projects.",
   "keywords": [
     "enumerations",
     "magnetometer",
