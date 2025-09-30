@@ -606,7 +606,7 @@ String getCalibration() {
   const float* yPtr;
   const float* zPtr;
 
-  int numPoints = MagCal::getVisPoints(xPtr, yPtr, zPtr);
+  int numPoints = magCal.getVisPoints(xPtr, yPtr, zPtr);
   JsonArray arr = jsonCalibration.to<JsonArray>();
 
   for(int i=0; i<numPoints; i++) {
@@ -687,17 +687,17 @@ void handleCalibrateSensorsEnabled(AsyncWebServerRequest *request) {
   // Turn on calibration mode for the motion sensors.
   resetAllMotionData(false); // Clear but don't re-calibrate.
   SENSOR_READ_TARGET = CALIBRATION; // Enables collection of calibration data.
-  MagCal::beginCalibration(); // Start collection of samples, clears counters.
+  magCal.beginCalibration(); // Start collection of samples, clears counters.
   request->send(200, "application/json", status);
   notifyWSClients();
 }
 
 void handleCalibrateSensorsDisabled(AsyncWebServerRequest *request) {
   // Determine if proper coverage was achieved before calculating and storing data.
-  float coverage = MagCal::getCoveragePercent();
+  float coverage = magCal.getCoveragePercent();
   if(coverage >= 60.0f) {
     // Compute calibration data for the standard calibration object.
-    magCalData = MagCal::computeCalibrationEllipsoid();
+    magCalData = magCal.computeCalibration();
 
     // Save the calibration data (as an object) to preferences.
     if(preferences.begin("device", false)) {
@@ -1366,7 +1366,7 @@ void sendCalibrationPoints() {
     events.send(getCalibration().c_str(), "calibration", millis());
 
     // Also send the current coverage percentage as a unique event.
-    float coverage = MagCal::getCoveragePercent();
+    float coverage = magCal.getCoveragePercent();
     events.send(String(coverage).c_str(), "coverage", millis());
   }
 }

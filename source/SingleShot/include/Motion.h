@@ -66,9 +66,6 @@
 #include <Adafruit_LSM6DS3TRC.h>
 #include <Adafruit_AHRS.h>
 
-// Local Files
-#include "MagCalibration.h"
-
 /**
  * Magnetometer and IMU
  * Defines all device objects and variables.
@@ -1055,7 +1052,7 @@ void reportCalibrationData() {
   Serial.print(mag_event.magnetic.z); Serial.println("");
 
   // Send the magnetometer data to the MagCal logic for collection into bins.
-  if(MagCal::addSample(mag_event.magnetic.x, mag_event.magnetic.y, mag_event.magnetic.z)) {
+  if(magCal.addSample(mag_event.magnetic.x, mag_event.magnetic.y, mag_event.magnetic.z)) {
     // Only send the calibration points to web-connected clients if a new point is added.
     sendCalibrationPoints();
   }

@@ -79,6 +79,11 @@
 // Forward declaration for use in all includes.
 void sendDebug(const String message);
 
+#ifdef ESP32
+  #include <MagCalibration.h>
+  MagCalibration magCal;
+#endif
+
 // Local Files
 #include "Configuration.h"
 #include "MusicSounds.h"

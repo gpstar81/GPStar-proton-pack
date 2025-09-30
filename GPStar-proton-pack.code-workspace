@@ -4,6 +4,10 @@
       "path": "."
     },
     {
+      "name": "SharedLib",
+      "path": "source/SharedLib"
+    },
+    {
       "name": "Attenuator",
       "path": "source/Attenuator"
     },

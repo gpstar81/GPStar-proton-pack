@@ -1,0 +1,31 @@
+{
+  "name": "SharedLib",
+  "version": "1.0.0",
+  "description": "Common utilities and data structures for GPStar projects.",
+  "keywords": [
+    "enumerations",
+    "magnetometer",
+    "calibration",
+    "utilities",
+    "gpstar"
+  ],
+  "authors": [
+    {
+      "name": "Michael Rajotte",
+      "email": "michael.rajotte@gpstartechnologies.com"
+    },
+    {
+      "name": "Dustin Grau",
+      "email": "dustin.grau@gmail.com"
+    },
+    {
+      "name": "Nomake Wan"
+    }
+  ],
+  "license": "GPL-3.0-or-later",
+  "frameworks": "*",
+  "platforms": "*",
+  "build": {
+    "includeDir": "include"
+  }
+}

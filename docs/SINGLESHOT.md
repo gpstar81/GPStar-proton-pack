@@ -35,7 +35,7 @@ Electronic components are available as a single kit purchase as the
 * Various pre-wired LED lighting
 * Small slide switch to enable/disable power.
 
-Due to shipping limitations of lithim-ion batteries you must provide the necessary power source by puchasing in your locale. Battery power must be at least 2500mAh (2.5Ah) to provide sufficient power to the GPStar Power Boost USB-C, which both provides regulated power and offers a way to directly recharge the battery. This device will draw around 0.8A at full volume.
+Due to shipping limitations of lithim-ion batteries you must provide the necessary power source by purchasing in your locale. Battery power must be at least 2500mAh (2.5Ah) to provide sufficient power to the GPStar Power Boost USB-C, which both provides regulated power and offers a way to directly recharge the battery. This device will draw around 0.8A at full volume.
 
 Options for a suitable 3.7V LiPo or Li-Ion Battery (minimum 2500mAh):
 
