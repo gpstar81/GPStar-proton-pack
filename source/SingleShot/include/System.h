@@ -1129,3 +1129,16 @@ void deviceExitEEPROMMenu() {
 
   vibrationOff(); // Make sure we stop any menu-related vibration, if any.
 }
+
+// Use an attached infrared LED to send a command. Only available if using the Wand II (ESP32).
+void sendInfraredCommand(const String sType) {
+#ifdef ESP32
+  if(sType.equals("ghostintrap")) {
+    // Send the standard Ghost Trap (PKE) IR signal.
+    IrSender.sendRaw(ir_GhostInTrap, sizeof(ir_GhostInTrap) / sizeof(ir_GhostInTrap[0]), CARRIER_KHZ);
+  }
+  else {
+    debugln(F("Unknown IR Command"));
+  }
+#endif
+}

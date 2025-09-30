@@ -46,41 +46,6 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
   <h1>General Options</h1>
   <div class="block left">
     <div class="setting">
-      <b>Stream/Firing Mode:</b>
-      <select id="defaultFiringMode" name="defaultFiringMode" style="width:170px">
-        <option value="1">Video Game</option>
-        <option value="2">CTS</option>
-        <option value="3">CTS Mix</option>
-      </select>
-    </div>
-    <div class="setting">
-      &nbsp;&nbsp;&nbsp;<b>Wand Year Theme:</b>
-      <select id="defaultYearModeWand" name="defaultYearModeWand" style="width:170px">
-        <option value="1">Via System</option>
-        <option value="2">1984</option>
-        <option value="3">1989</option>
-        <option value="4">Afterlife</option>
-        <option value="5">Frozen Empire</option>
-      </select>
-    </div>
-    <div class="setting">
-      &nbsp;&nbsp;&nbsp;&nbsp;<b>Default CTS Mode:</b>
-      <select id="defaultYearModeCTS" name="defaultYearModeCTS" style="width:170px">
-        <option value="1">Via System</option>
-        <option value="2">1984</option>
-        <option value="4">Afterlife</option>
-      </select>
-    </div>
-    <div class="setting">
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Use Vibration:</b>
-      <select id="wandVibration" name="wandVibration">
-        <option value="4">Via Toggle</option>
-        <option value="3">Never</option>
-        <option value="2">When Firing</option>
-        <option value="1">Always</option>
-      </select>
-    </div>
-    <div class="setting">
       <label class="toggle-switchy" data-label="left">
         <input id="autoVentLight" name="autoVentLight" type="checkbox">
         <span class="toggle">
@@ -91,52 +56,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <label class="toggle-switchy" data-label="left">
-        <input id="spectralModesEnabled" name="spectralModesEnabled" type="checkbox">
-        <span class="toggle">
-          <span class="switch"></span>
-        </span>
-        <span class="label">Spectral Modes:</span>
-      </label>
-    </div>
-    <div class="setting">
-      <label class="toggle-switchy" data-label="left">
-        <input id="overheatEnabled" name="overheatEnabled" type="checkbox">
-        <span class="toggle">
-          <span class="switch"></span>
-        </span>
-        <span class="label">Overheating:</span>
-      </label>
-    </div>
-    <div class="setting">
-      <label class="toggle-switchy" data-label="left">
-        <input id="quickVenting" name="quickVenting" type="checkbox">
-        <span class="toggle">
-          <span class="switch"></span>
-        </span>
-        <span class="label">Quick Venting:</span>
-      </label>
-    </div>
-    <div class="setting">
-      <label class="toggle-switchy" data-text="yesno" data-label="left">
-        <input id="wandSoundsToPack" name="wandSoundsToPack" type="checkbox">
-        <span class="toggle">
-          <span class="switch"></span>
-        </span>
-        <span class="label">Pack Plays Wand Sounds:</span>
-      </label>
-    </div>
-    <div class="setting">
-      <label class="toggle-switchy" data-label="left">
-        <input id="wandBeepLoop" name="wandBeepLoop" type="checkbox">
-        <span class="toggle">
-          <span class="switch"></span>
-        </span>
-        <span class="label">AL/FE Beep Loop:</span>
-      </label>
-    </div>
-    <div class="setting">
-      <label class="toggle-switchy" data-label="left">
-        <input id="wandBootError" name="wandBootError" type="checkbox">
+        <input id="deviceBootError" name="deviceBootError" type="checkbox">
         <span class="toggle">
           <span class="switch"></span>
         </span>
@@ -148,38 +68,6 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
   <h1>Bargraph Options</h1>
   <div class="block left">
     <div class="setting">
-      <b>&nbsp;&nbsp;&nbsp;Num Segments:</b>
-      <select id="numBargraphSegments" name="numBargraphSegments" style="width:180px">
-        <option value="28">28 Segments</option>
-        <option value="30">30 Segments</option>
-      </select>
-    </div>
-    <div class="setting">
-      <b>&nbsp;&nbsp;&nbsp;Idle Animation:</b>
-      <select id="bargraphIdleAnimation" name="bargraphIdleAnimation" style="width:180px">
-        <option value="1">Default</option>
-        <option value="2">Super Hero</option>
-        <option value="3">Mode Original</option>
-      </select>
-    </div>
-    <div class="setting">
-      <b>Firing Animation:</b>
-      <select id="bargraphFireAnimation" name="bargraphFireAnimation" style="width:180px">
-        <option value="1">Default</option>
-        <option value="2">Super Hero</option>
-        <option value="3">Mode Original</option>
-      </select>
-    </div>
-    <div class="setting">
-      <label class="toggle-switchy" data-text="yesno" data-label="left">
-        <input id="bargraphOverheatBlink" name="bargraphOverheatBlink" type="checkbox">
-        <span class="toggle">
-          <span class="switch"></span>
-        </span>
-        <span class="label">Blink in Overheat:</span>
-      </label>
-    </div>
-    <div class="setting">
       <label class="toggle-switchy" data-text="yesno" data-label="left">
         <input id="invertWandBargraph" name="invertWandBargraph" type="checkbox">
         <span class="toggle">
@@ -187,33 +75,6 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         </span>
         <span class="label">Invert Animations:</span>
       </label>
-    </div>
-  </div>
-
-  <h1>Barrel LEDs</h1>
-  <div class="block left">
-    <div class="setting">
-      <b>LED Count:</b>
-      <select id="ledWandCount" name="ledWandCount">
-        <option value="0">5 - Stock</option>
-        <option value="1">48 - Frutto</option>
-        <option value="2">50 - GPStar</option>
-        <option value="3">2 - Tip</option>
-      </select>
-    </div>
-    <div class="setting">
-      <b>Custom Colour (Hue):</b><br/>
-      <input type="range" id="ledWandHue" name="ledWandHue" min="2" max="360" value="360" step="2"
-       oninput="updateColour('wandColourPreview', 'wandHueOut', 'wandSatOut', ledWandHue.value, ledWandSat.value)"/>
-      <output class="labelSlider" id="wandHueOut" for="ledWandHue"></output>
-      <br/>
-      <div id="wandColourPreview" class="swatch"></div>
-    </div>
-    <div class="setting">
-      <b>Custom Saturation %:</b><br/>
-      <input type="range" id="ledWandSat" name="ledWandSat" min="2" max="100" value="100" step="2"
-       oninput="updateColour('wandColourPreview', 'wandHueOut', 'wandSatOut', ledWandHue.value, ledWandSat.value)"/>
-      <output class="labelSlider" id="wandSatOut" for="ledWandSat"></output>
     </div>
   </div>
 
@@ -241,25 +102,9 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
 
     function disableControls() {
       // Disables all controls.
-      getEl("ledWandCount").disabled = true;
-      getEl("ledWandHue").disabled = true;
-      getEl("ledWandSat").disabled = true;
-      getEl("spectralModesEnabled").disabled = true;
-      getEl("overheatEnabled").disabled = true;
-      getEl("defaultFiringMode").disabled = true;
-      getEl("wandVibration").disabled = true;
-      getEl("wandSoundsToPack").disabled = true;
-      getEl("quickVenting").disabled = true;
       getEl("autoVentLight").disabled = true;
-      getEl("wandBeepLoop").disabled = true;
-      getEl("wandBootError").disabled = true;
-      getEl("defaultYearModeWand").disabled = true;
-      getEl("defaultYearModeCTS").disabled = true;
-      getEl("numBargraphSegments").disabled = true;
+      getEl("deviceBootError").disabled = true;
       getEl("invertWandBargraph").disabled = true;
-      getEl("bargraphOverheatBlink").disabled = true;
-      getEl("bargraphIdleAnimation").disabled = true;
-      getEl("bargraphFireAnimation").disabled = true;
     }
 
     // Converts a value from one range to another: eg. convertRange(160, [2,254], [0,360])
@@ -296,38 +141,9 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
             // Valid settings were received and both the pack and wand are off, so allow updating settings.
             getEl("btnSave").disabled = false;
 
-            /**
-             * Note: Colour (hue) value range for FastLED uses the following scale, though CSS uses 0-360 for HSL colour.
-             *  0 = Red
-             *  32 = Orange
-             *  64 = Yellow
-             *  96 = Green
-             *  128 = Aqua
-             *  160 = Blue
-             *  192 = Purple
-             *  224 = Pink
-             *  254 = Red
-             */
-
-            setValue("ledWandCount", settings.ledWandCount || 0); // Haslab: 0 (5 LED)
-            setValue("ledWandHue", convertRange(settings.ledWandHue || 254, [1,254], [0,360])); // Default: Red
-            setValue("ledWandSat", convertRange(settings.ledWandSat || 254, [1,254], [0,100])); // Full Saturation
-            setToggle("spectralModesEnabled", settings.spectralModesEnabled);
-            setToggle("overheatEnabled", settings.overheatEnabled);
-            setValue("defaultFiringMode", settings.defaultFiringMode || 1);
-            setValue("wandVibration", settings.wandVibration || 4);
-            setToggle("wandSoundsToPack", settings.wandSoundsToPack);
-            setToggle("quickVenting", settings.quickVenting);
             setToggle("autoVentLight", settings.autoVentLight);
-            setToggle("wandBeepLoop", settings.wandBeepLoop);
-            setToggle("wandBootError", settings.wandBootError);
-            setValue("defaultYearModeWand", settings.defaultYearModeWand || 1);
-            setValue("defaultYearModeCTS", settings.defaultYearModeCTS || 1);
-            setValue("numBargraphSegments", settings.numBargraphSegments || 28);
+            setToggle("deviceBootError", settings.deviceBootError);
             setToggle("invertWandBargraph", settings.invertWandBargraph);
-            setToggle("bargraphOverheatBlink", settings.bargraphOverheatBlink);
-            setValue("bargraphIdleAnimation", settings.bargraphIdleAnimation || 1);
-            setValue("bargraphFireAnimation", settings.bargraphFireAnimation || 1);
 
             // Update colour preview and value display for hue/saturation sliders.
             updateColour("wandColourPreview", "wandHueOut", "wandSatOut", getEl("ledWandHue").value, getEl("ledWandSat").value);
@@ -342,26 +158,9 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       // Saves current settings to wand, updating runtime variables and making changes immediately effective.
       // This does NOT save to the EEPROM automatically as the user is encouraged to test prior to that action.
       var settings = {
-        ledWandCount: getInt("ledWandCount") || 0,
-        ledWandHue: convertRange(getInt("ledWandHue"), [0,360], [1,254]) || 254,
-        ledWandSat: convertRange(getInt("ledWandSat"), [0,100], [1,254]) || 254,
-        rgbVentEnabled: 1, // ESP32-S3 must have rgbVentEnabled true
-        spectralModesEnabled: getToggle("spectralModesEnabled"),
-        overheatEnabled: getToggle("overheatEnabled"),
-        defaultFiringMode: getInt("defaultFiringMode") || 1,
-        wandVibration: getInt("wandVibration") || 4,
-        wandSoundsToPack: getToggle("wandSoundsToPack"),
-        quickVenting: getToggle("quickVenting"),
         autoVentLight: getToggle("autoVentLight"),
-        wandBeepLoop: getToggle("wandBeepLoop"),
-        wandBootError: getToggle("wandBootError"),
-        defaultYearModeWand: getInt("defaultYearModeWand") || 1,
-        defaultYearModeCTS: getInt("defaultYearModeCTS") || 1,
-        numBargraphSegments: getInt("numBargraphSegments") || 28,
-        invertWandBargraph: getToggle("invertWandBargraph"),
-        bargraphOverheatBlink: getToggle("bargraphOverheatBlink"),
-        bargraphIdleAnimation: getInt("bargraphIdleAnimation") || 1,
-        bargraphFireAnimation: getInt("bargraphFireAnimation") || 1
+        deviceBootError: getToggle("deviceBootError"),
+        invertWandBargraph: getToggle("invertWandBargraph")
       };
       var body = JSON.stringify(settings);
 

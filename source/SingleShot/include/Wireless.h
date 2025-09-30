@@ -72,6 +72,9 @@ AsyncWebServer httpServer(WS_PORT);
 // Define a websocket endpoint for the async web server.
 AsyncWebSocket ws(WS_URI);
 
+// Create a server-side event source on /events.
+AsyncEventSource events("/events");
+
 // Track the number of connected WiFi (AP) clients.
 uint8_t i_ap_client_count = 0;
 
@@ -305,6 +308,9 @@ bool startExternalWifi() {
       // Attempt to connect to a specified WiFi network.
       WiFi.begin(wifi_ssid.c_str(), wifi_pass.c_str());
 
+      // Limit Tx power to save battery and reduce interference.
+      WiFi.setTxPower(WIFI_POWER_7dBm); // Set to 7 dBm (default is ~20 dBm).
+
       // Wait for the connection to be established.
       uint8_t attempt = 0;
       while(attempt < i_max_attempts && WiFi.status() != WL_CONNECTED) {
@@ -383,8 +389,8 @@ bool startWiFi() {
     debugln(F("Begin WiFi Configuration"));
   #endif
 
-  // Disable WiFi power save mode (via the esp_wifi_set_ps function).
-  WiFi.setSleep(false);
+  // Enable WiFi power save mode (via the esp_wifi_set_ps function).
+  WiFi.setSleep(true);
   delay(100);
 
   // Attempt connection to an external (preferred) WiFi as a client.
@@ -425,28 +431,46 @@ bool startWiFi() {
   return b_ap_started; // At least return whether the soft AP started successfully.
 }
 
-void onOTAStart() {
-  // Log when OTA has started
-  debug(F("OTA update started"));
-}
-
-void onOTAProgress(size_t current, size_t final) {
-  // Log every 1 second
-  if(millis() - i_progress_millis > 1000) {
-    i_progress_millis = millis();
-    debugf("OTA Progress Current: %u bytes, Final: %u bytes\n", current, final);
-  }
-}
-
-void onOTAEnd(bool success) {
-  // Log when OTA has finished
-  if(success) {
-    debug(F("OTA update finished successfully!"));
-  }
-  else {
-    debug(F("There was an error during OTA update!"));
-  }
-}
-
 // Provide all handler functions for the API layer.
 #include "Webhandler.h"
+
+// Stops the web server and disables WiFi to save power or for security.
+void shutdownWireless() {
+  if(WiFi.getMode() != WIFI_OFF) {
+    // Close all websocket connections and stop the web server.
+    ws.closeAll();
+    httpServer.end();
+    b_ws_started = false;
+
+    // Disconnect WiFi and turn off radio.
+    WiFi.disconnect(true);
+    delay(1);
+    WiFi.mode(WIFI_OFF);
+    delay(1);
+    b_ap_started = false;
+    b_ext_wifi_started = false;
+
+    #if defined(DEBUG_WIRELESS_SETUP)
+      debugln(F("Wireless and web server shut down."));
+    #endif
+  }
+}
+
+// Restarts WiFi and web server when needed.
+void restartWireless() {
+  if(!b_ap_started) {
+    if(startWiFi()) {
+      // Start the local web server.
+      startWebServer();
+
+      // Begin timer for remote client events.
+      ms_cleanup.start(i_websocketCleanup);
+      ms_apclient.start(i_apClientCount);
+      ms_otacheck.start(i_otaCheck);
+
+      #if defined(DEBUG_WIRELESS_SETUP)
+        debugln(F("Wireless and web server restarted."));
+      #endif
+    }
+  }
+}

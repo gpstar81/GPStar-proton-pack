@@ -29,8 +29,7 @@
   #define IMU_SCL 47
   #define IMU_SDA 48
 
-  #define GYRO_INT1_PIN 1
-  #define GYRO_INT2_PIN 2
+
   #define CLIPPARD_LED_PIN 3 // LED underneath the Clippard valve. (Orange or White LED)
   #define ROTARY_ENCODER_A 4
   #define ROTARY_ENCODER_B 5
@@ -245,7 +244,8 @@ static uint16_t store = 0;
 /*
  * Vibration
  *
- * Vibration default is based on the toggle switch position from the Proton Pack. These are references for the EEPROM menu. Empty is a zero value, not used in the EEPROM.
+ * Vibration default is based on the toggle switch position from the Proton Pack.
+ * These are references for the EEPROM menu. Empty is a zero value, not used in the EEPROM.
  */
 enum VIBRATION_MODES { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE, VIBRATION_DEFAULT, CYCLOTRON_MOTOR };
 enum VIBRATION_MODES VIBRATION_MODE_EEPROM;

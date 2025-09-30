@@ -32,6 +32,9 @@
  * the pattern itself (though in some cases this is unavoidable or distinctly necessary).
  */
 
+// Used to scan the i2c bus and to locate the 28-segment bargraph.
+#define WIRE Wire
+
 /*
  * Bargraph Patterns and States
  *

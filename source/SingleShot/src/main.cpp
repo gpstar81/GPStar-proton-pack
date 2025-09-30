@@ -52,9 +52,21 @@
 #define PROGMEM_READU16(x) pgm_read_word_near(&(x))
 #define PROGMEM_READU8(x) pgm_read_byte_near(&(x))
 
+#ifdef ESP32
+  // Disables static receiver code like receive timer ISR handler and static IRReceiver and irparams data.
+  // Saves 450 bytes program memory and 269 bytes RAM if receiving functions are not required.
+  #define DISABLE_CODE_FOR_RECEIVER
+
+  // Disable carrier PWM generation in software and use (restricted) hardware PWM.
+  // This is the default for ESP32 and by defining here avoids a compiler warning.
+  #define SEND_PWM_BY_TIMER
+
+  // Do not use a feedback LED for the IR signal.
+  #define NO_LED_FEEDBACK_CODE
+#endif
+
 // 3rd-Party Libraries
 #include <CRC32.h>
-#include <EEPROM.h>
 #include <millisDelay.h>
 #include <FastLED.h>
 #include <avdweb_Switch.h>
@@ -62,14 +74,13 @@
 #include <Wire.h>
 #ifdef ESP32
   #include <HardwareSerial.h>
-  #include <Adafruit_LIS3MDL.h>
-  #include <Adafruit_LSM6DS3TRC.h>
-  Adafruit_LIS3MDL magSensor;
-  Adafruit_LSM6DS3TRC imuSensor;
-  bool b_mag_found = false;
-  bool b_imu_found = false;
-  millisDelay ms_sensor_delay;
+  #include <IRremote.hpp>
+#else
+  #include <EEPROM.h>
 #endif
+
+// Forward declaration for use in all includes.
+void sendDebug(const String message);
 
 // Local Files
 #include "Configuration.h"
@@ -80,6 +91,7 @@
 #include "Cyclotron.h"
 #include "Audio.h"
 #ifdef ESP32
+  #include "Motion.h"
   #include "PreferencesESP.h"
 #else
   #include "PreferencesATMega.h"
@@ -90,9 +102,22 @@
   #include "Wireless.h"
 #endif
 
+// Writes a debug message to the serial console or sends to the WebSocket.
+void sendDebug(const String message) {
+  #if defined(DEBUG_SEND_TO_CONSOLE)
+    debugln(message); // Print to serial console.
+  #endif
+  #if defined(DEBUG_SEND_TO_WEBSOCKET) and defined(ESP32)
+    if(b_ws_started) {
+      ws.textAll(message); // Send a copy to the WebSocket.
+    }
+  #endif
+}
+
 // Forward declaration of scheduler task callback(s).
 void animateTaskCallback();
 void inputTaskCallback();
+void motionTaskCallback();
 
 // Create the primary task scheduler.
 Scheduler schedule;
@@ -106,10 +131,18 @@ Task animateTask(16, TASK_FOREVER, &animateTaskCallback);
 // Average visual reaction time to changes is 13-20ms.
 Task inputsTask(14, TASK_FOREVER, &inputTaskCallback);
 
+#ifdef ESP32
+  // Create a task to check for motion via IMU/magnetometer.
+  // We only need to update every 20ms (50Hz).
+  Task motionTask(i_sensor_read_delay, TASK_FOREVER, &motionTaskCallback);
+#endif
+
 void setup() {
 #ifdef ESP32
-  // To save power, reduce CPU frequency to 160 MHz.
-  setCpuFrequencyMhz(160);
+  // Reduce CPU frequency to 160 MHz to save ~33% power compared to 240 MHz.
+  // Alternatively set CPU to 80 MHz to save ~50% power compared to 240 MHz.
+  // Do not set below 80 MHz as it will affect WiFi and other peripherals.
+  setCpuFrequencyMhz(80);
 
   // This is required in order to make sure the board boots successfully.
   Serial.begin(115200);
@@ -132,43 +165,32 @@ void setup() {
   // Setup the audio device for this controller.
   setupAudioDevice();
 
-  // Change PWM frequency for the vibration motor, we do not want it high pitched.
 #ifdef ESP32
   // Use of the register is not needed by ESP32, as it uses a different method for PWM.
 #else
+  // Change PWM frequency for the vibration motor, we do not want it high pitched.
   // For ATmega2560, we set the PWM frequency for pin 11 (TCCR5B) to 122.55 Hz.
   TCCR1B = (TCCR1B & B11111000) | B00000100;
   pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
 #endif
 
-#ifdef ESP32
-  // Begin by setting up WiFi as a prerequisite to all else.
-  if(startWiFi()) {
-    // Start the local web server.
-    startWebServer();
-
-    // Begin timer for remote client events.
-    ms_cleanup.start(i_websocketCleanup);
-    ms_apclient.start(i_apClientCount);
-    ms_otacheck.start(i_otaCheck);
-  }
-#endif
-
-  // System LEDs
+  // System LEDs - Consists of the chain of cyclotron and barrel LEDs
   FastLED.addLeds<NEOPIXEL, SYSTEM_LED_PIN>(system_leds, CYCLOTRON_LED_COUNT + BARREL_LED_COUNT).setCorrection(TypicalLEDStrip);
   FastLED.setMaxRefreshRate(0); // Disable FastLED's blocking 2.5ms delay.
 
-  // RGB Vent Light
+  // RGB Vent Light.
   FastLED.addLeds<NEOPIXEL, TOP_LED_PIN>(vent_leds, VENT_LEDS_MAX).setCorrection(TypicalLEDStrip);
-  vent_leds[0] = getHueAsRGB(C_WHITE); // Set vent light array to white for initial reset.
-  vent_leds[1] = getHueAsRGB(C_WHITE); // Set top light array to white for initial reset.
+  for(uint8_t i = 0; i < VENT_LEDS_MAX; i++) {
+    // Initialize all vent_leds to white initially.
+    vent_leds[i] = getHueAsRGB(C_WHITE);
+  }
 
   // Setup default system settings.
   VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
   VIBRATION_MODE = VIBRATION_MODE_EEPROM;
   DEVICE_MENU_LEVEL = MENU_LEVEL_1;
   MENU_OPTION_LEVEL = OPTION_5;
-  POWER_LEVEL = LEVEL_1;
+  POWER_LEVEL = LEVEL_5;
 
   // Set callback events for these toggles, which need to count the activations for EEPROM menu entry.
   switch_vent.setPushedCallback(&ventSwitched); // For the LED EEPROM Menu
@@ -177,32 +199,31 @@ void setup() {
   // Rotary encoder on the top of the device.
   encoder.initialize();
 
-
 #ifdef ESP32
   // ESP32-S3 requires manually specifying SDA and SCL pins first.
+  // This is the i2c bus to be used solely for the bargraph.
+  Wire.begin(I2C_SDA, I2C_SCL, 400000UL);
+
+  // Attempt to start the sensors or die trying.
   Wire1.begin(IMU_SDA, IMU_SCL, 400000UL);
-
-  // Initialize the LIS3MDL magnetometer.
-  if(magSensor.begin_I2C(LIS3MDL_I2CADDR_DEFAULT, &Wire1)) {
-    b_mag_found = true;
-    magSensor.setPerformanceMode(LIS3MDL_MEDIUMMODE);
-    magSensor.setOperationMode(LIS3MDL_CONTINUOUSMODE);
-    magSensor.setDataRate(LIS3MDL_DATARATE_1000_HZ);
-    magSensor.setRange(LIS3MDL_RANGE_4_GAUSS);
-    magSensor.setIntThreshold(500);
-    magSensor.configInterrupt(false, false, true, true, false, true);
+  if(!initializeSensors()) {
+    debugln("Failed to find sensors");
+    while(1) delay(10);
   }
 
-  // Initialize the LSM6DS3TR-C IMU.
-  if(imuSensor.begin_I2C(LSM6DS_I2CADDR_DEFAULT, &Wire1)) {
-    b_imu_found = true;
-    imuSensor.setAccelRange(LSM6DS_ACCEL_RANGE_2_G);
-    imuSensor.setGyroRange(LSM6DS_GYRO_RANGE_250_DPS);
-    imuSensor.setAccelDataRate(LSM6DS_RATE_6_66K_HZ);
-    imuSensor.setGyroDataRate(LSM6DS_RATE_6_66K_HZ);
-    imuSensor.configInt1(false, false, true);
-    imuSensor.configInt2(false, true, false);
-  }
+  // Print information about the sensors.
+  accelerometer->printSensorDetails();
+  gyroscope->printSensorDetails();
+  magnetometer->printSensorDetails();
+
+  getSpecialPreferences(); // Get all device preferences.
+  configureSensors(); // Set sensor ranges and defaults.
+  delay(40); // Pause briefly for the devices to start.
+  readRawSensorData(); // Perform an initial sensor read.
+  resetAllMotionData(true); // Reset and calibrate.
+#else
+  Wire.begin();
+  Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
 #endif
 
   // Setup the bargraph after a brief delay.
@@ -294,6 +315,20 @@ void animateTaskCallback() {
 void inputTaskCallback() {
 #ifdef ESP32
   webLoops(); // Handle web server loops, including WebSocket events and OTA updates.
+
+  // Take action with Wifi based on user preference.
+  switch(WIFI_MODE) {
+    case WIFI_ENABLED:
+    default:
+      // Begin by setting up WiFi as a prerequisite to all else.
+      restartWireless();
+    break;
+
+    case WIFI_DISABLED:
+      // Do not start WiFi or the web server.
+      shutdownWireless();
+    break;
+  }
 #endif
 
   updateAudio(); // Update the state of the available sound board.
@@ -311,6 +346,13 @@ void inputTaskCallback() {
 
   // Perform updates/actions based on timer events.
   checkGeneralTimers();
+}
+
+// Task callback for handling motion detection
+void motionTaskCallback() {
+#ifdef ESP32
+  checkMotionSensors();
+#endif
 }
 
 void loop() {

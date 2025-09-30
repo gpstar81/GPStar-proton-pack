@@ -24,7 +24,7 @@
 /*
  * Used to reflect the last build date for the binary.
  */
-String build_date = "V6_20250926034956";
+String build_date = "V6_20250929213544";
 
 /*
  * Preferred WiFi Network Defaults (only for ESP32)
@@ -40,9 +40,10 @@ String user_wifi_pass = ""; // Preferred network password for external WiFi
  * debugging, while the websocket will help with confirming operations
  * while using the device (post-setup for wireless).
  */
-//#define DEBUG_WIRELESS_SETUP   // Output debugs related to the WiFi/network setup.
-//#define DEBUG_SEND_TO_CONSOLE  // Send any general messages to the serial (USB) console.
+//#define DEBUG_WIRELESS_SETUP     // Output debugs related to the WiFi/network setup.
+//#define DEBUG_SEND_TO_CONSOLE    // Send any general messages to the serial (USB) console.
 //#define DEBUG_SEND_TO_WEBSOCKET  // Send any messages to connected WebSocket clients.
+//#define DEBUG_TELEMETRY_DATA     // Output debugs related to the motion sensors.
 
 /*
  * Force the use of default SSID and password for wireless capabilities.
@@ -51,6 +52,19 @@ String user_wifi_pass = ""; // Preferred network password for external WiFi
  * the software which has this line commented out.
  */
 //#define RESET_AP_SETTINGS
+
+/*
+ * Enable the use of the onboard sensors for telemetry tracking.
+ * Leave this defined to enable the magnetometer and gyroscope.
+ * Only available on the ESP32 builds.
+ */
+#define MOTION_SENSORS
+
+/*
+ * Enable the use of motion offsets (bias compensation) for sensors.
+ * Only available on the ESP32 builds.
+ */
+#define MOTION_OFFSETS
 #endif
 
 /*
@@ -60,11 +74,11 @@ String user_wifi_pass = ""; // Preferred network password for external WiFi
 
 /*
  * You can set the default master startup volume for your device here.
-  * Values are in % of the volume.
+ * Values are in % of the volume.
  * 0 = quietest
  * 100 = loudest
  */
-const uint8_t STARTUP_VOLUME = 80;
+const uint8_t STARTUP_VOLUME = 100;
 
 /*
  * You can set the default music volume for your device here.
@@ -87,7 +101,7 @@ const uint8_t STARTUP_VOLUME_EFFECTS = 100;
  * Values must be from 0 to -70. 0 = the loudest and -70 = the quietest.
  * Volume changes are based on percentages.
  */
-const int8_t MINIMUM_VOLUME = -70;
+const int8_t MINIMUM_VOLUME = -35;
 
 /*
  * Percentage increments of main volume change.
@@ -103,6 +117,15 @@ const uint8_t VOLUME_MUSIC_MULTIPLIER = 5;
  * Percentage increments of the sound effects volume change.
  */
 const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
+
+/*
+ * Set to false to disable the onboard amplifier on the WAV Trigger.
+ * Turning off the onboard amp draws less power.
+ * If using the AUX cable jack, the amp can be disabled to save power.
+ * If you use the output pins directly on the WAV Trigger board to your speakers, you will need to enable the onboard amp.
+ * NOTE: The onboard mono audio amplifier and speaker connector specifications: 2W into 4 Ohms, 1.25W into 8 Ohms
+ */
+const bool b_onboard_amp_enabled = true;
 
 /*
  * When set to true, the bargraph will invert the sequence.
@@ -134,15 +157,6 @@ bool b_power_on_indicator = true;
  * When set to false, this will be ignored.
  */
 bool b_device_boot_errors = true;
-
-/*
- * Set to false to disable the onboard amplifier on the WAV Trigger.
- * Turning off the onboard amp draws less power.
- * If using the AUX cable jack, the amp can be disabled to save power.
- * If you use the output pins directly on the WAV Trigger board to your speakers, you will need to enable the onboard amp.
- * NOTE: The onboard mono audio amplifier and speaker connector specifications: 2W into 4 Ohms, 1.25W into 8 Ohms
- */
-const bool b_onboard_amp_enabled = true;
 
 /*
  * Set to false to ignore reading data from the EEPROM.

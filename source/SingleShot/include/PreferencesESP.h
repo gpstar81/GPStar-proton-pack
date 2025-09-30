@@ -35,14 +35,13 @@
  * Function prototypes.
  */
 void readEEPROM();
+void clearConfigEEPROM();
 void saveConfigEEPROM();
 void loadConfigEEPROM();
-void clearConfigEEPROM();
 void updateCRCEEPROM(uint32_t);
 uint32_t getCRCEEPROM(void);
 uint32_t eepromCRC(void);
 void resetOverheatLevels();
-void resetWhiteLEDBlinkRate();
 
 // Include ESP32 Preferences library
 #include <Preferences.h>
@@ -60,7 +59,7 @@ struct objConfigEEPROM {
   uint8_t deviceVibration;
 } gObjConfigEEPROM;
 
-// Save configuration preferences to NVS (ESP32)
+// Save config settings to Preferences
 void saveConfigEEPROM() {
   // Convert the current EEPROM volume value into a percentage.
   uint8_t eepromVolumeMasterPercentage = 100 * (MINIMUM_VOLUME - i_volume_master_eeprom) / MINIMUM_VOLUME;
@@ -171,8 +170,68 @@ void readEEPROM() {
     VIBRATION_MODE = VIBRATION_MODE_EEPROM;
   }
   else {
-    // CRC mismatch: clear preferences and notify
+    // CRC mismatch; clear preferences
     playEffect(S_VOICE_EEPROM_LOADING_FAILED_RESET);
     clearConfigEEPROM();
+  }
+}
+
+// Used to get UI preferences from the device namespace.
+void getSpecialPreferences() {
+  /*
+   * Get Local Device Preferences
+   * Accesses the "device" namespace in read-only mode under the "nvs" partition.
+   */
+  bool b_namespace_opened = preferences.begin("device", true);
+  if(b_namespace_opened) {
+    // Return stored values if available, otherwise use a default value.
+    s_track_listing = preferences.getString("track_list", "");
+
+    // Restore the magnetometer calibration data from preferences.
+    if(preferences.isKey("orientation")) {
+      switch(preferences.getShort("orientation", 0)) {
+        case 1:
+          INSTALL_ORIENTATION = COMPONENTS_UP_USB_FRONT;
+        break;
+        case 2:
+          INSTALL_ORIENTATION = COMPONENTS_UP_USB_REAR;
+        break;
+        case 3:
+        default:
+          // Default for Haslab.
+          INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_FRONT;
+        break;
+        case 4:
+          INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_REAR;
+        break;
+        case 5:
+          INSTALL_ORIENTATION = COMPONENTS_LEFT_USB_FRONT;
+        break;
+        case 6:
+          INSTALL_ORIENTATION = COMPONENTS_LEFT_USB_REAR;
+        break;
+        case 7:
+          // Default for Mack's Factory.
+          INSTALL_ORIENTATION = COMPONENTS_RIGHT_USB_FRONT;
+        break;
+        case 8:
+          INSTALL_ORIENTATION = COMPONENTS_RIGHT_USB_REAR;
+        break;
+      }
+    }
+
+    // Restore the magnetometer calibration data from preferences.
+    if(preferences.isKey("mag_cal")) {
+      preferences.getBytes("mag_cal", &magCalData, sizeof(magCalData));
+    }
+
+    preferences.end();
+  }
+  else {
+    // If namespace is not initialized, open in read/write mode and set defaults.
+    if(preferences.begin("device", false)) {
+      preferences.putString("track_list", "");
+      preferences.end();
+    }
   }
 }
