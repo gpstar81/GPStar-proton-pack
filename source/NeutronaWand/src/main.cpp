@@ -85,9 +85,9 @@ void sendDebug(const String message);
 #endif
 
 // Local Files
+#include <Communication.h>
 #include "Configuration.h"
 #include "MusicSounds.h"
-#include "Communication.h"
 #include "Header.h"
 #include "Colours.h"
 #include "Audio.h"

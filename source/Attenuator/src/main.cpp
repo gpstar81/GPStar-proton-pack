@@ -55,8 +55,8 @@
 #include <nvs_flash.h>
 
 // Local Files
+#include <Communication.h>
 #include "Configuration.h"
-#include "Communication.h"
 #include "Header.h"
 #include "Bargraph.h"
 #include "Colours.h"

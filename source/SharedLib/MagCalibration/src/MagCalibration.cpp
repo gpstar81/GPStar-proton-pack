@@ -1,5 +1,5 @@
 /**
- *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
+ *   GPStar Supporting Library.
  *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                         & Dustin Grau <dustin.grau@gmail.com>
  *

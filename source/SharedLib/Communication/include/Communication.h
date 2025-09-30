@@ -1,6 +1,7 @@
 /**
- *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
+ *   GPStar Supporting Library.
  *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,6 +19,171 @@
  */
 
 #pragma once
+#include <stdint.h>
+
+// Types of packets to be sent via serial communication.
+enum PACKET_TYPE : uint8_t {
+  PACKET_UNKNOWN = 0,
+  PACKET_COMMAND = 1,
+  PACKET_DATA = 2,
+  PACKET_PACK = 3,
+  PACKET_WAND = 4,
+  PACKET_SMOKE = 5,
+  PACKET_SYNC = 6
+};
+
+// For command signals (1 byte ID, 2 byte optional data).
+struct __attribute__((packed)) CommandPacket {
+  uint8_t s;
+  uint8_t c;
+  uint16_t d1; // Reserved for values over 255 (eg. current music track)
+  uint8_t e;
+};
+
+// For generic data communication (1 byte ID, 4 byte array).
+struct __attribute__((packed)) MessagePacket {
+  uint8_t s;
+  uint8_t m;
+  uint8_t d[3]; // Reserved for multiple, arbitrary byte values.
+  uint8_t e;
+};
+
+// Preferences for the Proton Pack device.
+struct __attribute__((packed)) PackPrefs {
+  uint8_t isESP32;
+  uint8_t defaultSystemModePack;
+  uint8_t defaultYearThemePack;
+  uint8_t currentYearThemePack;
+  uint8_t defaultSystemVolume;
+  uint8_t packVibration;
+  uint8_t ribbonCableAlarm;
+  uint8_t cyclotronDirection;
+  uint8_t demoLightMode;
+  uint8_t protonStreamEffects;
+  uint8_t overheatStrobeNF;
+  uint8_t overheatSyncToFan;
+  uint8_t overheatLightsOff;
+  uint8_t ledCycLidCount;
+  uint8_t ledCycLidHue;
+  uint8_t ledCycLidSat;
+  uint8_t ledCycLidLum;
+  uint8_t ledCycLidCenter;
+  uint8_t ledCycLidFade;
+  uint8_t ledCycLidSimRing;
+  uint8_t ledCycInnerPanel;
+  uint8_t ledCycPanLum;
+  uint8_t ledCycCakeCount;
+  uint8_t ledCycCakeHue;
+  uint8_t ledCycCakeSat;
+  uint8_t ledCycCakeLum;
+  uint8_t ledCycCakeGRB;
+  uint8_t ledCycCavCount;
+  uint8_t ledCycCavType;
+  uint8_t ledVGCyclotron;
+  uint8_t ledPowercellCount;
+  uint8_t ledInvertPowercell;
+  uint8_t ledPowercellHue;
+  uint8_t ledPowercellSat;
+  uint8_t ledPowercellLum;
+  uint8_t ledVGPowercell;
+} packConfig;
+
+// Preferences for the Neutrona Wand device.
+struct __attribute__((packed)) WandPrefs {
+  uint8_t isESP32;
+  uint8_t ledWandCount;
+  uint8_t ledWandHue;
+  uint8_t ledWandSat;
+  uint8_t rgbVentEnabled;
+  uint8_t spectralModesEnabled;
+  uint8_t overheatEnabled;
+  uint8_t defaultFiringMode;
+  uint8_t wandVibration;
+  uint8_t wandSoundsToPack;
+  uint8_t quickVenting;
+  uint8_t autoVentLight;
+  uint8_t wandBeepLoop;
+  uint8_t wandBootError;
+  uint8_t defaultYearModeWand;
+  uint8_t defaultYearModeCTS;
+  uint8_t numBargraphSegments;
+  uint8_t invertWandBargraph;
+  uint8_t bargraphOverheatBlink;
+  uint8_t bargraphIdleAnimation;
+  uint8_t bargraphFireAnimation;
+} wandConfig;
+
+// Preferences for smoke/overheat behavior.
+struct __attribute__((packed)) SmokePrefs {
+  // Pack
+  uint8_t smokeEnabled;
+  uint8_t overheatContinuous5;
+  uint8_t overheatContinuous4;
+  uint8_t overheatContinuous3;
+  uint8_t overheatContinuous2;
+  uint8_t overheatContinuous1;
+  uint8_t overheatDuration5;
+  uint8_t overheatDuration4;
+  uint8_t overheatDuration3;
+  uint8_t overheatDuration2;
+  uint8_t overheatDuration1;
+  // Wand
+  uint8_t overheatLevel5;
+  uint8_t overheatLevel4;
+  uint8_t overheatLevel3;
+  uint8_t overheatLevel2;
+  uint8_t overheatLevel1;
+  uint8_t overheatDelay5;
+  uint8_t overheatDelay4;
+  uint8_t overheatDelay3;
+  uint8_t overheatDelay2;
+  uint8_t overheatDelay1;
+} smokeConfig;
+
+// Data for synchronizing the Neutrona Wand.
+struct __attribute__((packed)) WandSyncData {
+  uint8_t systemMode;
+  uint8_t ionArmSwitch;
+  uint8_t cyclotronLidState;
+  uint8_t systemYear;
+  uint8_t packOn;
+  uint8_t powerLevel;
+  uint8_t streamMode;
+  uint8_t vibrationEnabled;
+  uint8_t effectsVolume;
+  uint8_t masterMuted;
+  uint8_t musicStatus;
+  uint8_t repeatMusicTrack;
+} wandSyncData;
+
+// Data for synchronizing the Attenuator.
+struct __attribute__((packed)) AttenuatorSyncData {
+  uint8_t systemMode;
+  uint8_t ionArmSwitch;
+  uint8_t cyclotronLidState;
+  uint8_t systemYear;
+  uint8_t packOn;
+  uint8_t powerLevel;
+  uint8_t streamMode;
+  uint8_t wandPresent;
+  uint8_t barrelExtended;
+  uint8_t wandFiring;
+  uint8_t overheatingNow;
+  uint8_t speedMultiplier;
+  uint8_t spectralColour;
+  uint8_t spectralSaturation;
+  uint8_t masterMuted;
+  uint8_t masterVolume;
+  uint8_t effectsVolume;
+  uint8_t musicVolume;
+  uint8_t musicPlaying;
+  uint8_t musicPaused;
+  uint8_t trackLooped;
+  uint16_t currentTrack;
+  uint16_t musicCount;
+  uint16_t audioVersion;
+  uint16_t packVoltage;
+} attenuatorSyncData;
 
 /*
  * These enum definitions must be kept in sync across the devices they communicate with, using the same dataype and ordering.
@@ -25,6 +191,7 @@
  * It is therefore important that the total number of elements per enum must remain below 254 to not overflow that (byte) type.
  */
 
+ // Specifically for device synchronization.
 enum DEVICE_ID : uint8_t {
   A_COM_START,
   P_COM_START,
@@ -34,6 +201,7 @@ enum DEVICE_ID : uint8_t {
   W_COM_END
 };
 
+// Specifically for actions called from the Proton Pack.
 enum PACK_MESSAGE : uint8_t {
   P_NULL,
   P_HANDSHAKE,
@@ -145,6 +313,7 @@ enum PACK_MESSAGE : uint8_t {
   P_POST_FINISH
 };
 
+// Specifically for actions called from the Neutrona Wand.
 enum WAND_MESSAGE : uint8_t {
   W_NULL,
   W_HANDSHAKE,
@@ -369,4 +538,98 @@ enum WAND_MESSAGE : uint8_t {
   W_RGB_VENT_ENABLED,
   W_IMPACT_SOUND,
   W_COM_SOUND_NUMBER
+};
+
+// Primarily for Attenuator communications but may become a more unified API list.
+enum API_MESSAGE : uint8_t {
+  A_NULL,
+  A_HANDSHAKE,
+  A_SYNC_START,
+  A_SYNC_DATA,
+  A_SYNC_END,
+  A_WAND_ON,
+  A_WAND_OFF,
+  A_FIRING,
+  A_FIRING_STOPPED,
+  A_SYSTEM_LOCKOUT,
+  A_CANCEL_LOCKOUT,
+  A_PROTON_MODE,
+  A_STASIS_MODE,
+  A_SLIME_MODE,
+  A_MESON_MODE,
+  A_SPECTRAL_MODE,
+  A_HALLOWEEN_MODE,
+  A_CHRISTMAS_MODE,
+  A_SPECTRAL_CUSTOM_MODE,
+  A_SETTINGS_MODE,
+  A_VENTING,
+  A_VENTING_FINISHED,
+  A_OVERHEATING,
+  A_OVERHEATING_FINISHED,
+  A_WARNING_CANCELLED,
+  A_CYCLOTRON_LID_ON,
+  A_CYCLOTRON_LID_OFF,
+  A_CYCLOTRON_NORMAL_SPEED,
+  A_CYCLOTRON_INCREASE_SPEED,
+  A_CYCLOTRON_DIRECTION_TOGGLE,
+  A_POWER_LEVEL_1,
+  A_POWER_LEVEL_2,
+  A_POWER_LEVEL_3,
+  A_POWER_LEVEL_4,
+  A_POWER_LEVEL_5,
+  A_MUSIC_TRACK_LOOP_TOGGLE,
+  A_VOLUME_SOUND_EFFECTS_INCREASE,
+  A_VOLUME_SOUND_EFFECTS_DECREASE,
+  A_VOLUME_MUSIC_INCREASE,
+  A_VOLUME_MUSIC_DECREASE,
+  A_MUSIC_NEXT_TRACK,
+  A_MUSIC_PREV_TRACK,
+  A_VOLUME_DECREASE,
+  A_VOLUME_INCREASE,
+  A_VOLUME_SYNC,
+  A_SAVE_EEPROM_SETTINGS_PACK,
+  A_SAVE_EEPROM_SETTINGS_WAND,
+  A_YEAR_FROZEN_EMPIRE,
+  A_YEAR_AFTERLIFE,
+  A_YEAR_1989,
+  A_YEAR_1984,
+  A_ALARM_ON,
+  A_ALARM_OFF,
+  A_PACK_ON,
+  A_PACK_OFF,
+  A_TURN_PACK_ON,
+  A_TURN_PACK_OFF,
+  A_SPECTRAL_COLOUR_DATA,
+  A_MUSIC_START_STOP,
+  A_TOGGLE_MUTE,
+  A_TOGGLE_SMOKE,
+  A_TOGGLE_VIBRATION,
+  A_BARREL_EXTENDED,
+  A_BARREL_RETRACTED,
+  A_MODE_SUPER_HERO,
+  A_MODE_ORIGINAL,
+  A_ION_ARM_SWITCH_ON,
+  A_ION_ARM_SWITCH_OFF,
+  A_MANUAL_OVERHEAT,
+  A_MUSIC_TRACK_COUNT_SYNC,
+  A_MUSIC_PAUSE_RESUME,
+  A_MUSIC_IS_PLAYING,
+  A_MUSIC_IS_NOT_PLAYING,
+  A_MUSIC_IS_PAUSED,
+  A_MUSIC_IS_NOT_PAUSED,
+  A_MUSIC_PLAY_TRACK,
+  A_BATTERY_VOLTAGE_PACK,
+  A_TEMPERATURE_PACK,
+  A_WAND_POWER_AMPS,
+  A_WAND_CONNECTED,
+  A_WAND_DISCONNECTED,
+  A_REQUEST_PREFERENCES_PACK,
+  A_REQUEST_PREFERENCES_WAND,
+  A_REQUEST_PREFERENCES_SMOKE,
+  A_SEND_PREFERENCES_PACK,
+  A_SEND_PREFERENCES_WAND,
+  A_SEND_PREFERENCES_SMOKE,
+  A_SAVE_PREFERENCES_PACK,
+  A_SAVE_PREFERENCES_WAND,
+  A_SAVE_PREFERENCES_SMOKE
 };

@@ -38,103 +38,11 @@
 #endif
 SerialTransfer packComs;
 
-// Types of packets to be sent.
-enum PACKET_TYPE : uint8_t {
-  PACKET_UNKNOWN = 0,
-  PACKET_COMMAND = 1,
-  PACKET_DATA = 2,
-  PACKET_PACK = 3,
-  PACKET_WAND = 4,
-  PACKET_SMOKE = 5,
-  PACKET_SYNC = 6
-};
-
-// For command signals (1 byte ID, 2 byte optional data).
-struct __attribute__((packed)) CommandPacket {
-  uint8_t s;
-  uint8_t c;
-  uint16_t d1; // Reserved for values over 255 (eg. current music track)
-  uint8_t e;
-};
-
+// Command and Message Data Packets
 struct CommandPacket sendCmd;
 struct CommandPacket recvCmd;
-
-// For generic data communication (1 byte ID, 4 byte array).
-struct __attribute__((packed)) MessagePacket {
-  uint8_t s;
-  uint8_t m;
-  uint8_t d[3]; // Reserved for multiple, arbitrary byte values.
-  uint8_t e;
-};
-
 struct MessagePacket sendData;
 struct MessagePacket recvData;
-
-struct __attribute__((packed)) WandPrefs {
-  uint8_t isESP32;
-  uint8_t ledWandCount;
-  uint8_t ledWandHue;
-  uint8_t ledWandSat;
-  uint8_t rgbVentEnabled;
-  uint8_t spectralModesEnabled;
-  uint8_t overheatEnabled;
-  uint8_t defaultFiringMode;
-  uint8_t wandVibration;
-  uint8_t wandSoundsToPack;
-  uint8_t quickVenting;
-  uint8_t autoVentLight;
-  uint8_t wandBeepLoop;
-  uint8_t wandBootError;
-  uint8_t defaultYearModeWand;
-  uint8_t defaultYearModeCTS;
-  uint8_t numBargraphSegments;
-  uint8_t invertWandBargraph;
-  uint8_t bargraphOverheatBlink;
-  uint8_t bargraphIdleAnimation;
-  uint8_t bargraphFireAnimation;
-} wandConfig;
-
-struct __attribute__((packed)) SmokePrefs {
-  // Pack
-  uint8_t smokeEnabled;
-  uint8_t overheatContinuous5;
-  uint8_t overheatContinuous4;
-  uint8_t overheatContinuous3;
-  uint8_t overheatContinuous2;
-  uint8_t overheatContinuous1;
-  uint8_t overheatDuration5;
-  uint8_t overheatDuration4;
-  uint8_t overheatDuration3;
-  uint8_t overheatDuration2;
-  uint8_t overheatDuration1;
-  // Wand
-  uint8_t overheatLevel5;
-  uint8_t overheatLevel4;
-  uint8_t overheatLevel3;
-  uint8_t overheatLevel2;
-  uint8_t overheatLevel1;
-  uint8_t overheatDelay5;
-  uint8_t overheatDelay4;
-  uint8_t overheatDelay3;
-  uint8_t overheatDelay2;
-  uint8_t overheatDelay1;
-} smokeConfig;
-
-struct __attribute__((packed)) WandSyncData {
-  uint8_t systemMode;
-  uint8_t ionArmSwitch;
-  uint8_t cyclotronLidState;
-  uint8_t systemYear;
-  uint8_t packOn;
-  uint8_t powerLevel;
-  uint8_t streamMode;
-  uint8_t vibrationEnabled;
-  uint8_t effectsVolume;
-  uint8_t masterMuted;
-  uint8_t musicStatus;
-  uint8_t repeatMusicTrack;
-} wandSyncData;
 
 /*
  * Serial API Helper Functions
