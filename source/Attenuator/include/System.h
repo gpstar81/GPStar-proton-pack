@@ -515,7 +515,9 @@ void checkUserInputs() {
   }
   else {
     if(switch_left.getState() == HIGH) {
-      bargraphOff(); // Clear all bargraph elements and turn off the device.
+      if(BARGRAPH_STATE != BG_OFF) {
+        bargraphOff(); // Clear all bargraph elements and turn off the device.
+      }
     }
   }
 

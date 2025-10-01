@@ -732,10 +732,10 @@ void checkWandAction() {
 
           if(switch_mode.pushed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
-              if(!b_spectral_mode_enabled || !b_holiday_mode_enabled || !b_spectral_custom_mode_enabled) {
+              if(!b_spectral_mode_enabled || !b_holiday_modes_enabled || !b_spectral_custom_mode_enabled) {
                 // Enable the spectral modes.
                 b_spectral_mode_enabled = true;
-                b_holiday_mode_enabled = true;
+                b_holiday_modes_enabled = true;
                 b_spectral_custom_mode_enabled = true;
 
                 stopEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
@@ -747,7 +747,7 @@ void checkWandAction() {
               else {
                 // Disable the spectral modes.
                 b_spectral_mode_enabled = false;
-                b_holiday_mode_enabled = false;
+                b_holiday_modes_enabled = false;
                 b_spectral_custom_mode_enabled = false;
 
                 stopEffect(S_VOICE_SPECTRAL_MODES_DISABLED);

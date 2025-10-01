@@ -153,12 +153,12 @@ void readEEPROM() {
       if(obj_config_eeprom.spectral_mode > 1) {
         b_spectral_mode_enabled = true;
         b_spectral_custom_mode_enabled = true;
-        b_holiday_mode_enabled = true;
+        b_holiday_modes_enabled = true;
       }
       else {
         b_spectral_mode_enabled = false;
         b_spectral_custom_mode_enabled = false;
-        b_holiday_mode_enabled = false;
+        b_holiday_modes_enabled = false;
       }
     }
 

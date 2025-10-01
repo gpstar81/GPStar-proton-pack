@@ -1,7 +1,7 @@
 /**
  *   GPStar Ghost Trap - Ghostbusters Props, Mods, and Kits.
  *   Copyright (C) 2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
- *                    & Nomake Wan <-redacted->
+ *                    & Nomake Wan <nomake_wan@yahoo.co.jp>
  *                    & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
