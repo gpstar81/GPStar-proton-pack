@@ -163,7 +163,7 @@ void startWebServer() {
   httpServer.begin();
 
   // Denote that the web server should be started.
-  b_ws_started = true;
+  b_httpd_started = true;
 
   #if defined(DEBUG_SEND_TO_CONSOLE)
     debugln(F("Async HTTP Server Started"));
@@ -677,7 +677,7 @@ void setupRouting() {
 
 // Send notification to all websocket clients.
 void notifyWSClients() {
-  if(b_ws_started) {
+  if(b_httpd_started) {
     // Send latest status to all connected clients.
     ws.textAll(getEquipmentStatus());
   }

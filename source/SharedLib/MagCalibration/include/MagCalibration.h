@@ -1,8 +1,7 @@
 /**
- *   GPStar Supporting Library.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
- *                         & Dustin Grau <dustin.grau@gmail.com>
- *                         & Nomake Wan
+ *   MagCalibration - Magnetometer calibration class for GPStar devices.
+ *   Handles magnetometer data collection and calibration calculations.
+ *   Copyright (C) 2023-2025 Michael Rajotte, Dustin Grau, Nomake Wan
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by

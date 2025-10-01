@@ -224,7 +224,7 @@ void startWebServer() {
   httpServer.begin();
 
   // Denote that the web server should be started.
-  b_ws_started = true;
+  b_httpd_started = true;
 
   #if defined(DEBUG_SEND_TO_CONSOLE)
     debugln(F("Async HTTP Server Started"));
@@ -1236,14 +1236,14 @@ void setupRouting() {
 
 // Send notification to all websocket clients.
 void notifyWSClients() {
-  if(b_ws_started) {
+  if(b_httpd_started) {
     // Send latest status to all connected clients.
     ws.textAll(getEquipmentStatus());
   }
 }
 
 void sendCalibrationPoints() {
-  if(b_ws_started && SENSOR_READ_TARGET == CALIBRATION) {
+  if(b_httpd_started && SENSOR_READ_TARGET == CALIBRATION) {
     // Gather the latest filtered motion data, serialize it to a JSON string,
     // and send it to all connected EventSource (SSE) clients as a "telemetry"
     // event name (using the current time as a unique event identifier).
@@ -1256,7 +1256,7 @@ void sendCalibrationPoints() {
 }
 
 void sendTelemetryData() {
-  if(b_ws_started && SENSOR_READ_TARGET == TELEMETRY) {
+  if(b_httpd_started && SENSOR_READ_TARGET == TELEMETRY) {
     // Gather the latest filtered motion data, serialize it to a JSON string,
     // and send it to all connected EventSource (SSE) clients as a "telemetry"
     // event name (using the current time as a unique event identifier).
@@ -1266,7 +1266,7 @@ void sendTelemetryData() {
 
 // Perform management if the AP and web server are started.
 void webLoops() {
-  if(b_ap_started && b_ws_started) {
+  if(b_local_ap_started && b_httpd_started) {
     if(ms_cleanup.remaining() < 1) {
       // Clean up oldest WebSocket connections.
       ws.cleanupClients();

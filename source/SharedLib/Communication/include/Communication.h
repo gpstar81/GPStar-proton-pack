@@ -1,7 +1,7 @@
 /**
- *   GPStar Supporting Library.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
- *                         & Dustin Grau <dustin.grau@gmail.com>
+ *   Communications - Serial communication packet definitions for GPStar devices.
+ *   Provides common objects and enums for serial data exchange.
+ *   Copyright (C) 2023-2025 Michael Rajotte, Dustin Grau, Nomake Wan
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by

@@ -84,7 +84,7 @@ void sendDebug(const String message) {
     debugln(message); // Print to serial console.
   #endif
   #if defined(DEBUG_SEND_TO_WEBSOCKET) and defined(ESP32)
-    if(b_ws_started) {
+    if(b_httpd_started) {
       ws.textAll(message); // Send a copy to the WebSocket.
     }
   #endif
@@ -619,7 +619,7 @@ void loop() {
 
     case WIFI_ENABLED:
       // Force the WiFi to remain on, disregarding any Attenuator connection.
-      if(!b_ws_started && b_pack_post_finish) {
+      if(!b_httpd_started && b_pack_post_finish) {
         // Begin by setting up WiFi as a prerequisite to all else.
         restartWireless();
       }
@@ -632,7 +632,7 @@ void loop() {
         // Turn off WiFi and the web server if the Attenuator is connected.
         shutdownWireless();
       }
-      else if(!b_attenuator_connected && !b_attenuator_syncing && !b_ws_started && b_pack_post_finish) {
+      else if(!b_attenuator_connected && !b_attenuator_syncing && !b_httpd_started && b_pack_post_finish) {
         // Begin by setting up WiFi as a prerequisite to all else.
         restartWireless();
       }

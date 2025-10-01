@@ -47,14 +47,7 @@
 /*
  * Used to reflect the last build date for the binary.
  */
-String build_date = "V6_20250930101306";
-
-/*
- * Preferred WiFi Network Defaults
- * Directly provides information for an external WiFi network for the device to join.
- */
-String user_wifi_ssid = ""; // Preferred network SSID for external WiFi
-String user_wifi_pass = ""; // Preferred network password for external WiFi
+String build_date = "V6_20251001070116";
 
 /*
  * Enable Physical Feedback Effects (Sound + Vibration)

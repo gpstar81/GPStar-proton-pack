@@ -62,7 +62,7 @@ void sendDebug(const String message) {
     debugln(message); // Print to serial console.
   #endif
   #if defined(DEBUG_SEND_TO_WEBSOCKET) and defined(ESP32)
-    if(b_ws_started) {
+    if(b_httpd_started) {
       ws.textAll(message); // Send a copy to the WebSocket.
     }
   #endif
@@ -193,8 +193,8 @@ void WiFiManagementTask(void *parameter) {
     #endif
 
     // Handle reconnection to external WiFi when necessary.
-    if(b_ap_started) {
-      if(b_ws_started && ms_cleanup.remaining() < 1) {
+    if(b_local_ap_started) {
+      if(b_httpd_started && ms_cleanup.remaining() < 1) {
         // Clean up oldest WebSocket connections.
         ws.cleanupClients();
 
@@ -218,7 +218,7 @@ void WiFiManagementTask(void *parameter) {
     }
 
     // Proceed with management if the AP and web server are started.
-    if(b_ap_started) {
+    if(b_local_ap_started) {
       if(ms_otacheck.remaining() < 1) {
         // Handles device reboot after an OTA update.
         ElegantOTA.loop();
@@ -253,7 +253,7 @@ void WiFiSetupTask(void *parameter) {
 
   // Begin by setting up WiFi as a prerequisite to all else.
   if(startWiFi()) {
-    if(b_ap_started) {
+    if(b_local_ap_started) {
       // Indicate we've established the private network.
       device_leds[0] = getHueAsRGB(PRIMARY_LED, C_BLUE, 255);
       FastLED.show();

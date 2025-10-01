@@ -113,7 +113,7 @@ void sendDebug(const String message) {
     debugln(message); // Print to serial console.
   #endif
   #if defined(DEBUG_SEND_TO_WEBSOCKET) and defined(ESP32)
-    if(b_ws_started) {
+    if(b_httpd_started) {
       ws.textAll(message); // Send a copy to the WebSocket.
     }
   #endif

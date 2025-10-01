@@ -55,8 +55,8 @@ const uint8_t i_max_attempts = 3; // Max attempts to establish a external WiFi c
 const char AP_SSID_PREFIX[] = "GhostTrap"; // This will be the base of the SSID name.
 String ap_default_passwd = "555-2368"; // This will be the default password for the AP.
 String ap_ssid; // Reserved for holding the full, private AP name for this device.
-bool b_ap_started = false; // Denotes the softAP network has been started.
-bool b_ws_started = false; // Denotes the web server has been started.
+bool b_local_ap_started = false; // Denotes the softAP network has been started.
+bool b_httpd_started = false; // Denotes the web server has been started.
 bool b_ext_wifi_started = false; // Denotes external WiFi was joined.
 
 // Local variables for connecting to a preferred WiFi network (when available).
@@ -409,8 +409,8 @@ bool startWiFi() {
 
   // Start the built-in access point (softAP) with the preferred credentials.
   // This should ALWAYS be available for direct connections to the device.
-  if(!b_ap_started) {
-    b_ap_started = startAccesPoint();
+  if(!b_local_ap_started) {
+    b_local_ap_started = startAccesPoint();
   }
 
   // Set the mDNS hostname to "GhostTrap_NNNN.local" just like the private AP name.
@@ -429,7 +429,7 @@ bool startWiFi() {
   #endif
   delay(200);
 
-  return b_ap_started; // At least return whether the soft AP started successfully.
+  return b_local_ap_started; // At least return whether the soft AP started successfully.
 }
 
 void onOTAStart() {

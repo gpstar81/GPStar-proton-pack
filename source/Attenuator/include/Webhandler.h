@@ -34,6 +34,27 @@
 #include "web/Equip.h" // EQUIP_svg
 #include "web/Icon.h" // FAVICON_ico, FAVICON_svg
 
+// Define standard ports and URI endpoints.
+const uint16_t WS_PORT = 80; // Web Server (+WebSocket) port
+const char WS_URI[] = "/ws"; // WebSocket endpoint URI
+bool b_httpd_started = false; // Denotes the web server has been started.
+
+// Define an asynchronous web server at TCP port 80.
+AsyncWebServer httpServer(WS_PORT);
+
+// Define a websocket endpoint for the async web server.
+AsyncWebSocket ws(WS_URI);
+
+// Track the number of connected WebSocket clients.
+uint8_t i_ws_client_count = 0;
+
+// Track time to refresh progress for OTA updates.
+unsigned long i_progress_millis = 0;
+
+// Create timer for WebSocket cleanup.
+millisDelay ms_cleanup;
+const uint16_t i_websocketCleanup = 5000;
+
 // Forward function declarations.
 void setupRouting();
 
@@ -285,7 +306,7 @@ void startWebServer() {
   httpServer.begin();
 
   // Denote that the web server should be started.
-  b_ws_started = true;
+  b_httpd_started = true;
 
   #if defined(DEBUG_SEND_TO_CONSOLE)
     debugln(F("Async HTTP Server Started"));
@@ -432,10 +453,10 @@ String getDeviceConfig() {
   }
   jsonBody["buildDate"] = build_date;
   jsonBody["audioVersion"] = i_audio_version;
-  jsonBody["wifiName"] = ap_ssid;
-  jsonBody["wifiNameExt"] = wifi_ssid;
-  jsonBody["extAddr"] = wifi_address;
-  jsonBody["extMask"] = wifi_subnet;
+  jsonBody["wifiName"] = wirelessMgr.getLocalNetworkName();
+  jsonBody["wifiNameExt"] = wirelessMgr.getExtWifiNetworkName();
+  jsonBody["extAddr"] = String(wirelessMgr.getExtWifiAddress());
+  jsonBody["extMask"] = String(wirelessMgr.getExtWifiSubnet());
 
   // Serialize JSON object to string.
   serializeJson(jsonBody, equipSettings);
@@ -662,6 +683,9 @@ String getWifiSettings() {
   String wifiNetwork;
   jsonBody.clear();
 
+  // Create Preferences object to handle non-volatile storage (NVS).
+  Preferences preferences;
+
   // Accesses namespace in read-only mode.
   if(preferences.begin("network", true)) {
     jsonBody["enabled"] = preferences.getBool("enabled", false);
@@ -670,17 +694,17 @@ String getWifiSettings() {
 
     jsonBody["address"] = preferences.getString("address");
     if(jsonBody["address"].as<String>() == "") {
-      jsonBody["address"] = wifi_address;
+      jsonBody["address"] = String(wirelessMgr.getExtWifiAddress());
     }
 
     jsonBody["subnet"] = preferences.getString("subnet");
     if(jsonBody["subnet"].as<String>() == "") {
-      jsonBody["subnet"] = wifi_subnet;
+      jsonBody["subnet"] = String(wirelessMgr.getExtWifiSubnet());
     }
 
     jsonBody["gateway"] = preferences.getString("gateway");
     if(jsonBody["gateway"].as<String>() == "") {
-      jsonBody["gateway"] = wifi_gateway;
+      jsonBody["gateway"] = String(wirelessMgr.getExtWifiGateway());
     }
 
     preferences.end();
@@ -1192,8 +1216,11 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
     bool b_ssid_changed = false;
 
     // Update the private network name ONLY if the new value differs from the current SSID.
-    if(newSSID != ap_ssid){
+    if(newSSID != "" && newSSID != wirelessMgr.getLocalNetworkName()){
       if(newSSID.length() >= 8 && newSSID.length() <= 32) {
+        // Create Preferences object to handle non-volatile storage (NVS).
+        Preferences preferences;
+
         // Accesses namespace in read/write mode.
         if(preferences.begin("credentials", false)) {
           #if defined(DEBUG_SEND_TO_CONSOLE)
@@ -1271,6 +1298,9 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
     // Get the track listing from the text field.
     String songList = jsonBody["songList"].as<String>();
     bool b_list_err = false;
+
+    // Create Preferences object to handle non-volatile storage (NVS).
+    Preferences preferences;
 
     // Accesses namespace in read/write mode.
     if(preferences.begin("device", false)) {
@@ -1584,6 +1614,9 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
 
     // Password is used for the built-in Access Point ability, which will be used when a preferred network is not available.
     if(newPasswd.length() >= 8) {
+      // Create Preferences object to handle non-volatile storage (NVS).
+      Preferences preferences;
+
       // Accesses namespace in read/write mode.
       if(preferences.begin("credentials", false)) {
         #if defined(DEBUG_SEND_TO_CONSOLE)
@@ -1636,6 +1669,9 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
     String subnetMask = jsonBody["subnet"].as<String>();
     String gatewayIP = jsonBody["gateway"].as<String>();
 
+    // Create Preferences object to handle non-volatile storage (NVS).
+    Preferences preferences;
+
     // Accesses namespace in read/write mode.
     if(preferences.begin("network", false)) {
       // Store the state of toggle switches regardless.
@@ -1657,19 +1693,19 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
 
         // Continue saving only if network values are 7 characters or more (eg. N.N.N.N)
         bool b_static_ip = true;
-        if(localAddr.length() >= 7 && localAddr != wifi_address) {
+        if(localAddr.length() >= 7 && localAddr != String(wirelessMgr.getExtWifiAddress())) {
           preferences.putString("address", localAddr);
         }
         else {
           b_static_ip = false;
         }
-        if(subnetMask.length() >= 7 && subnetMask != wifi_subnet) {
+        if(subnetMask.length() >= 7 && subnetMask != String(wirelessMgr.getExtWifiSubnet())) {
           preferences.putString("subnet", subnetMask);
         }
         else {
           b_static_ip = false;
         }
-        if(gatewayIP.length() >= 7 && gatewayIP != wifi_gateway) {
+        if(gatewayIP.length() >= 7 && gatewayIP != String(wirelessMgr.getExtWifiGateway())) {
           preferences.putString("gateway", gatewayIP);
         }
         else {
@@ -1816,7 +1852,7 @@ void setupRouting() {
 
 // Send notification to all websocket clients.
 void notifyWSClients() {
-  if(b_ws_started) {
+  if(b_httpd_started) {
     // Send latest status to all connected clients.
     ws.textAll(getEquipmentStatus());
   }
@@ -1824,7 +1860,7 @@ void notifyWSClients() {
 
 // Perform management if the AP and web server are started.
 void webLoops() {
-  if(b_ap_started && b_ws_started) {
+  if(b_local_ap_started && b_httpd_started) {
     if(ms_cleanup.remaining() < 1) {
       // Clean up oldest WebSocket connections.
       ws.cleanupClients();

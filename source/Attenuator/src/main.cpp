@@ -62,6 +62,7 @@
 #include "Colours.h"
 #include "Serial.h"
 #include "Wireless.h"
+#include "Webhandler.h"
 #include "System.h"
 
 // Task Handles
@@ -181,6 +182,7 @@ void PreferencesTask(void *parameter) {
    * Get Local Device Preferences
    * Accesses the "device" namespace in read-only mode under the "nvs" partition.
    */
+  Preferences preferences;
   bool b_namespace_opened = preferences.begin("device", true);
   if(b_namespace_opened) {
     // Return stored values if available, otherwise use a default value.
@@ -468,6 +470,12 @@ void setup() {
   if(b_wait_for_pack) {
     ms_packsync.start(0);
   }
+
+  #if defined(RESET_AP_SETTINGS)
+    // Reset the WiFi password to the expected default on every startup.
+    wirelessMgr.resetWifiPassword();
+    debugln(F("WARNING: Firmware forced a reset of the local WiFi password!"));
+  #endif
 
   /**
    * By default the WiFi will run on core0, while the standard loop() runs on core1.

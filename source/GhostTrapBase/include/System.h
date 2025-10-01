@@ -77,7 +77,7 @@ void updateTopLEDs() {
  * Determine the current state of any LEDs before next FastLED refresh.
  */
 void updateLEDs() {  // Static variable to use for choice of LED color.
-  if(b_ap_started && b_ws_started) {
+  if(b_local_ap_started && b_httpd_started) {
     #if defined(USE_ESP32_S3)
       // Set the built-in LED to green to indicate the device is fully ready.
       device_leds[0] = getHueAsRGB(0, C_GREEN, 128);

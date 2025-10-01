@@ -102,7 +102,7 @@ void startWebServer() {
   httpServer.begin();
 
   // Denote that the web server should be started.
-  b_ws_started = true;
+  b_httpd_started = true;
 
   #if defined(DEBUG_SEND_TO_CONSOLE)
     Serial.println(F("Async HTTP Server Started"));
