@@ -373,16 +373,20 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_WAND_CONNECTED:
-      // debug("Wand Connected");
+      debug("Wand Connected");
 
       b_wand_connected = true;
+      b_received_prefs_wand = false;
       b_state_changed = true;
+
+      attenuatorSerialSend(A_REQUEST_PREFERENCES_WAND); // Request current wand prefs.
     break;
 
     case A_WAND_DISCONNECTED:
-      // debug("Wand Disconnected");
+      debug("Wand Disconnected");
 
       b_wand_connected = false;
+      b_received_prefs_wand = false;
       b_state_changed = true;
     break;
 

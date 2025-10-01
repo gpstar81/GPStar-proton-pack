@@ -171,7 +171,7 @@ bool b_power_on_indicator = true;
  * Spectral modes are only supported by the gpstar Neutrona Wand board.
  */
 bool b_spectral_mode_enabled = false;
-bool b_holiday_mode_enabled = false;
+bool b_holiday_modes_enabled = false;
 bool b_spectral_custom_mode_enabled = false;
 
 /*

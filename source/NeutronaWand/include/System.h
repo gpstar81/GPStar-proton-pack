@@ -9829,7 +9829,7 @@ void checkRotaryEncoder() {
                 if(b_spectral_mode_enabled) {
                   STREAM_MODE = SPECTRAL;
                 }
-                else if(b_holiday_mode_enabled) {
+                else if(b_holiday_modes_enabled) {
                   STREAM_MODE = HOLIDAY_HALLOWEEN;
                 }
                 else if(b_spectral_custom_mode_enabled) {
@@ -9841,7 +9841,7 @@ void checkRotaryEncoder() {
               }
               else if(STREAM_MODE == SPECTRAL) {
                 // Conditional mode advancement.
-                if(b_holiday_mode_enabled) {
+                if(b_holiday_modes_enabled) {
                   // Note: Once in a holiday mode, user can switch between additional modes using the BWB switch.
                   STREAM_MODE = HOLIDAY_HALLOWEEN;
                 }
@@ -9940,7 +9940,7 @@ void checkRotaryEncoder() {
                 if(b_spectral_custom_mode_enabled) {
                   STREAM_MODE = SPECTRAL_CUSTOM;
                 }
-                else if(b_holiday_mode_enabled) {
+                else if(b_holiday_modes_enabled) {
                   // Note: Once in a holiday mode, user can switch between additional modes using the BWB switch.
                   STREAM_MODE = HOLIDAY_HALLOWEEN;
                 }
@@ -9953,7 +9953,7 @@ void checkRotaryEncoder() {
               }
               else if(STREAM_MODE == SPECTRAL_CUSTOM) {
                 // Conditional mode advancement.
-                if(b_holiday_mode_enabled) {
+                if(b_holiday_modes_enabled) {
                   STREAM_MODE = HOLIDAY_HALLOWEEN;
                 }
                 else if(b_spectral_mode_enabled) {

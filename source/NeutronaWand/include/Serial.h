@@ -341,7 +341,7 @@ void handleWandPrefsUpdate() {
   i_spectral_wand_custom_saturation = wandConfig.ledWandSat;
   b_spectral_mode_enabled = (wandConfig.spectralModesEnabled == 1);
   b_spectral_custom_mode_enabled = b_spectral_mode_enabled;
-  b_holiday_mode_enabled = b_spectral_mode_enabled;
+  b_holiday_modes_enabled = b_spectral_mode_enabled;
 
   switch(wandConfig.defaultFiringMode) {
     case 1:
