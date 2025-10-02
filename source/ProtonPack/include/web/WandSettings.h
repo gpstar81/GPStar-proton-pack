@@ -80,6 +80,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         <option value="1">Always</option>
       </select>
     </div>
+    <!-- Toggle for rgbVentEnabled not available for GPStar Neutrona Wand II -->
     <div class="setting">
       <label class="toggle-switchy" data-label="left">
         <input id="autoVentLight" name="autoVentLight" type="checkbox">

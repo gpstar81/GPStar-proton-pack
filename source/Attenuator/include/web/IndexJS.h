@@ -213,27 +213,39 @@ function disableActionButtons() {
   getEl("btnAttenuate").disabled = true;
 }
 
-function setButtonStates(mode, pack, wand, cyclotron, ionswitch, firing, ramping, smoke, vibration, direction, themeid, wandmode, vgmode) {
+function setButtonStates(statusObj) {
   // Assume all direct user actions are not possible, then override as necessary.
   disableActionButtons();
 
-  if ((pack == "Powered" || (mode == "Original" && ionswitch == "Ready")) && wand != "Powered") {
+  // Consolidate common state checks into simple boolean values with user-friendly names.
+  const packPowered = statusObj.pack === "Powered";
+  const wandPowered = statusObj.wand === "Powered";
+  const cyclotronNormal = statusObj.cyclotron === "Normal" || statusObj.cyclotron === "Active";
+  const cyclotronOverheat = statusObj.cyclotron === "Warning" || statusObj.cyclotron === "Critical";
+  const modeOriginal = statusObj.mode === "Original";
+  const modeSuperHero = statusObj.mode === "Super Hero";
+  const ionswitchReady = statusObj.ionswitch === "Ready";
+  const firingActive = statusObj.firing === "Firing";
+  const rampingActive = !!statusObj.ramping; // Convert to boolean, handling undefined/null.
+  const vgmodeActive = !!statusObj.vgmode; // Convert to boolean, handling undefined/null.
+
+  if ((packPowered || (modeOriginal && ionswitchReady)) && !wandPowered) {
     // Can only turn off the pack, so long as the wand is not powered.
     getEl("btnPackOff").disabled = false;
   }
 
-  if ((mode == "Super Hero" && pack != "Powered") || (mode == "Original" && ionswitch != "Ready")) {
+  if ((modeSuperHero && !packPowered) || (modeOriginal && !ionswitchReady)) {
     // Can turn on the pack if not already powered (implies wand is not powered).
     getEl("btnPackOn").disabled = false;
   }
 
-  // Set the smoke, vibration, and cyclotron direction toggles to the current setting.
-  setToggle("toggleSmoke", smoke);
-  setToggle("toggleVibration", vibration);
-  setToggle("cyclotronDirection", direction);
+  // Set the toggles to their current state.
+  setToggle("toggleSmoke", statusObj.smoke);
+  setToggle("toggleVibration", statusObj.vibration);
+  setToggle("cyclotronDirection", statusObj.direction);
 
   // Set the theme drop-down to the current theme.
-  switch(themeid) {
+  switch(statusObj.themeid) {
     case 2:
     default:
       setValue("themes", "1984");
@@ -250,13 +262,13 @@ function setButtonStates(mode, pack, wand, cyclotron, ionswitch, firing, ramping
   }
 
   // Start by enabling the firing mode selector; it will be disabled as necessary below.
-  if((cyclotron == "Normal" || cyclotron == "Active") && firing != "Firing" && mode == "Super Hero" && vgmode && !ramping) {
-	getEl("streamMode").disabled = false;
+  if (cyclotronNormal && !firingActive && modeSuperHero && vgmodeActive && !rampingActive) {
+    getEl("streamMode").disabled = false;
   } else {
-	getEl("streamMode").disabled = true;
+    getEl("streamMode").disabled = true;
   }
 
-  switch(wandmode) {
+  switch(statusObj.wandmode) {
     case "Proton Stream":
       setValue("streamMode", "proton");
     break;
@@ -288,7 +300,7 @@ function setButtonStates(mode, pack, wand, cyclotron, ionswitch, firing, ramping
     break;
   }
 
-  if (pack == "Powered" || wand == "Powered" || ramping) {
+  if (packPowered || wandPowered || rampingActive) {
     // If either the pack or wand is powered, we cannot change themes.
     getEl("themes").disabled = true;
   } else {
@@ -296,13 +308,13 @@ function setButtonStates(mode, pack, wand, cyclotron, ionswitch, firing, ramping
     getEl("themes").disabled = false;
   }
 
-  if (pack == "Powered" && (cyclotron == "Normal" || cyclotron == "Active") && firing != "Firing") {
+  if (packPowered && cyclotronNormal && !firingActive) {
     // Can only use manual vent if pack is not already venting, and not currently firing.
     // eg. Cyclotron is not in the Warning, Critical, or Recovery states.
     getEl("btnVent").disabled = false;
   }
 
-  if (cyclotron == "Warning" || cyclotron == "Critical") {
+  if (cyclotronOverheat) {
     // Can only attenuate if cyclotron is in the pre-overheat states.
     getEl("btnAttenuate").disabled = false;
   }
@@ -601,7 +613,7 @@ function updateEquipment(jObj) {
     setToggle("toggleLoop", jObj.musicLooping);
 
     // Update special UI elements based on the latest data values.
-    setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron, jObj.switch, jObj.firing, jObj.ramping, jObj.smoke, jObj.vibration, jObj.direction, jObj.themeID, jObj.wandMode, jObj.vgMode);
+    setButtonStates(jObj);
 
     // Update the current track info.
     musicTrackStart = jObj.musicStart || 0;

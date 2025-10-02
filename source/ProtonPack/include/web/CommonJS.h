@@ -238,7 +238,7 @@ function themeSelect(caller) {
 }
 
 function streamModeSelect(caller) {
-  // Change the stream mode via selected option: /pack/stream/<firing_mode>
+  // Change the stream mode via selected option: /pack/stream/<stream_mode>
   sendCommand("/pack/stream/" + caller.value);
 }
 

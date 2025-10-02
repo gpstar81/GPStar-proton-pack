@@ -48,7 +48,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
   <div class="block left">
     <div class="setting">
       <b>Private Network:</b>
-      <input type="text" id="wifiName" width="42" maxlength="32" placeholder="Custom SSID"
+      <input type="text" id="wifiName" size="60" maxlength="32" placeholder="Custom SSID"
        title="Only letters, numbers, hyphens, and underscores are allowed, up to 32 characters."/>
     </div>
     <div class="setting">
