@@ -32,7 +32,7 @@ function onLoad(event) {
   getDevicePrefs(); // Get all preferences.
   initWebSocket(); // Open the WebSocket.
   getStatus(updateEquipment); // Get status immediately.
-  init3D(); // Initialize 3D representation.
+  init3D(); // Initialize 3D representations.
 }
 
 function initWebSocket() {
@@ -208,8 +208,6 @@ function setButtonStates(sensorState) {
 function updateEquipment(jObj) {
   // Update display if we have the expected data (containing mode and theme at a minimum).
   if (jObj && jObj.mode && jObj.theme) {
-    // Update button states based on sensor information.
-    setButtonStates(jObj.sensors || "");
 
     // Enable/Disable Music Controls
     if (jObj.benchtest) {
@@ -247,6 +245,7 @@ function updateEquipment(jObj) {
     if ((jObj.volMusic || 0) == 0) {
       setHtml("musicVolume", "Min");
     }
+    setToggle("toggleMute", jObj.volMuted);
 
     // Music Playback Status
     if (jObj.musicPlaying && !jObj.musicPaused) {
@@ -259,6 +258,10 @@ function updateEquipment(jObj) {
       // If no music is playing or paused, show a default message.
       setHtml("playbackStatus", "No Music Playing");
     }
+    setToggle("toggleLoop", jObj.musicLooping);
+
+    // Update special UI elements based on sensor information.
+    setButtonStates(jObj.sensors || "");
 
     // Update the current track info.
     musicTrackStart = jObj.musicStart || 0;
@@ -272,6 +275,8 @@ function updateEquipment(jObj) {
     setHtml("clientInfo", "AP Clients: " + (jObj.apClients || 0) + " / WebSocket Clients: " + (jObj.wsClients || 0));
   }
 }
+
+/** 3D Visualizations **/
 
 function parentWidth(elem) {
   return elem.parentElement.clientWidth;
@@ -638,7 +643,7 @@ if (!!window.EventSource) {
       const camX = radius * Math.sin(yawRads);
       const camZ = radius * Math.cos(yawRads);
       if (telemetry3D.size) {
-        // Keep Y fixed just above the Z plane for a slight downward angle  
+        // Keep Y fixed just above the Z plane for a slight downward angle
         telemetry3D.setCameraPosition(camX, telemetry3D.size.y * 2, camZ);
       } else {
         telemetry3D.setCameraPosition(camX, 0, camZ); // Keep Y fixed at 0 if size is not available
@@ -656,6 +661,7 @@ function init3D() {
   calibration3D = new Calibration3DView("3Dcalibration");
 }
 
+// Delay the onLoad event until all necessary JS has been loaded
 window.addEventListener("load", onLoad);
 
 /** API Commands **/
