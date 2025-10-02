@@ -355,7 +355,6 @@ void handlePackSettings(AsyncWebServerRequest *request) {
 
 void handleWandSettings(AsyncWebServerRequest *request) {
   // Tell the pack that we'll need the latest wand EEPROM values.
-  b_received_prefs_wand = false;
   executeCommand(A_REQUEST_PREFERENCES_WAND);
 
   // Used for the settings page from the web server.
@@ -606,6 +605,7 @@ String getEquipmentStatus() {
   jsonBody["modeID"] = (SYSTEM_MODE == MODE_SUPER_HERO) ? 1 : 0;
   jsonBody["theme"] = getTheme();
   jsonBody["themeID"] = SYSTEM_YEAR;
+  jsonBody["vgMode"] = (wandConfig.defaultFiringMode == 1 || !b_wand_connected);
   jsonBody["smoke"] = b_smoke_enabled;
   jsonBody["vibration"] = b_vibration_switch_on;
   jsonBody["direction"] = b_clockwise;

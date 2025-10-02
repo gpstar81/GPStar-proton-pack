@@ -1211,6 +1211,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       ms_wand_check.start(i_wand_disconnect_delay); // Wand is synchronized, so start the keep-alive timer.
       attenuatorSerialSend(A_WAND_CONNECTED); // Tell the Attenuator the wand is (re-)connected.
 
+      if(!b_attenuator_connected && !b_attenuator_syncing) {
+        // If we have no Attenuator connected, request the current wand settings.
+        executeCommand(A_REQUEST_PREFERENCES_WAND);
+      }
+
       if(b_demo_light_mode) {
         // Demo light mode enabled. Send command to turn on the Neutrona Wand.
         packSerialSend(P_TURN_WAND_ON);

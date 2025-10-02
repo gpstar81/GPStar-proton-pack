@@ -639,6 +639,7 @@ String getEquipmentStatus() {
     jsonBody["modeID"] = (SYSTEM_MODE == MODE_SUPER_HERO) ? 1 : 0;
     jsonBody["theme"] = getTheme();
     jsonBody["themeID"] = SYSTEM_YEAR;
+    jsonBody["vgMode"] = (wandConfig.defaultFiringMode == 1 || !b_wand_connected);
     jsonBody["smoke"] = b_smoke_enabled;
     jsonBody["vibration"] = b_vibration_switch_on;
     jsonBody["direction"] = b_clockwise;

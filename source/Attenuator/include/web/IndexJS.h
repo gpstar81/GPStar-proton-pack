@@ -213,7 +213,7 @@ function disableActionButtons() {
   getEl("btnAttenuate").disabled = true;
 }
 
-function setButtonStates(mode, pack, wand, cyclotron, ionswitch, firing, ramping, smoke, vibration, direction, themeid, wandmode) {
+function setButtonStates(mode, pack, wand, cyclotron, ionswitch, firing, ramping, smoke, vibration, direction, themeid, wandmode, vgmode) {
   // Assume all direct user actions are not possible, then override as necessary.
   disableActionButtons();
 
@@ -250,7 +250,7 @@ function setButtonStates(mode, pack, wand, cyclotron, ionswitch, firing, ramping
   }
 
   // Start by enabling the firing mode selector; it will be disabled as necessary below.
-  if((cyclotron == "Normal" || cyclotron == "Active") && firing != "Firing" && !ramping) {
+  if((cyclotron == "Normal" || cyclotron == "Active") && firing != "Firing" && mode == "Super Hero" && vgmode && !ramping) {
 	getEl("streamMode").disabled = false;
   } else {
 	getEl("streamMode").disabled = true;
@@ -283,6 +283,7 @@ function setButtonStates(mode, pack, wand, cyclotron, ionswitch, firing, ramping
     break;
     default:
       // Invalid mode specified, so disable control.
+      setValue("streamMode", "proton");
       getEl("streamMode").disabled = true;
     break;
   }
@@ -600,7 +601,7 @@ function updateEquipment(jObj) {
     setToggle("toggleLoop", jObj.musicLooping);
 
     // Update special UI elements based on the latest data values.
-    setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron, jObj.switch, jObj.firing, jObj.ramping, jObj.smoke, jObj.vibration, jObj.direction, jObj.themeID, jObj.wandMode);
+    setButtonStates(jObj.mode, jObj.pack, jObj.wandPower, jObj.cyclotron, jObj.switch, jObj.firing, jObj.ramping, jObj.smoke, jObj.vibration, jObj.direction, jObj.themeID, jObj.wandMode, jObj.vgMode);
 
     // Update the current track info.
     musicTrackStart = jObj.musicStart || 0;
