@@ -1628,7 +1628,6 @@ void checkSwitches() {
     stopEffect(S_VENT_DRY);
 
     playEffect(S_CLICK);
-
     playEffect(S_VENT_DRY);
 
     // Play some spark sounds if the pack is running and the lid is put back on.

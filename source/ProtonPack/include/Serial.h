@@ -680,8 +680,8 @@ void handlePackPrefsUpdate() {
   b_powercell_colour_toggle = (packConfig.ledVGPowercell == 1);
 
   // Offer some feedback to the user
-  stopEffect(S_VENT_DRY);
-  playEffect(S_VENT_DRY);
+  stopEffect(S_BEEP_VARIATION);
+  playEffect(S_BEEP_VARIATION);
 
   // Update system values and reset as needed.
   resetInnerCyclotronLEDs(); // Must call this first, prior to updating counts
@@ -697,8 +697,8 @@ void handleWandPrefsUpdate() {
   packSerialSendData(P_SAVE_PREFERENCES_WAND);
 
   // Offer some feedback to the user
-  stopEffect(S_VENT_DRY);
-  playEffect(S_VENT_DRY);
+  stopEffect(S_BEEP_VARIATION);
+  playEffect(S_BEEP_VARIATION);
 }
 
 // Save and send the smoke preferences based on the current configuration object.
@@ -4460,6 +4460,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           playEffect(S_FIRE_SPARKS_5, false, i_volume_effects - 10, false, 0, false);
         break;
       }
+    break;
+
+    case W_BARREL_ERROR_SOUND:
+      // Plays the error sound for when the user forgets to extend the barrel before firing.
+      stopEffect(S_VENT_DRY);
+      playEffect(S_VENT_DRY);
     break;
 
     case W_COM_SOUND_NUMBER:

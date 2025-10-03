@@ -103,7 +103,6 @@ void wandHeatUp() {
   stopEffect(S_PACK_SLIME_OPEN);
   stopEffect(S_STASIS_OPEN);
   stopEffect(S_MESON_OPEN);
-  stopEffect(S_VENT_DRY);
   stopEffect(S_MODE_SWITCH);
 
   if(b_gpstar_benchtest) {
@@ -3676,6 +3675,15 @@ void fireControlCheck() {
           break;
         }
       }
+      else if(BARREL_STATE != BARREL_EXTENDED) {
+        // If all other conditions are met but barrel is not extended, play audio cue.
+        if(b_extra_pack_sounds) {
+          wandSerialSend(W_BARREL_ERROR_SOUND);
+        }
+
+        stopEffect(S_VENT_DRY);
+        playEffect(S_VENT_DRY);
+      }
 
       // When Cross The Streams mode is enabled, video game modes are disabled and the wand menu settings can only be accessed when the Neutrona Wand is powered down.
       if(FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) {
@@ -3705,6 +3713,15 @@ void fireControlCheck() {
           }
 
           b_firing_alt = false;
+        }
+        else if(BARREL_STATE != BARREL_EXTENDED) {
+          // If all other conditions are met but barrel is not extended, play audio cue.
+          if(b_extra_pack_sounds) {
+            wandSerialSend(W_BARREL_ERROR_SOUND);
+          }
+
+          stopEffect(S_VENT_DRY);
+          playEffect(S_VENT_DRY);
         }
       }
       else {
@@ -3776,6 +3793,15 @@ void fireControlCheck() {
               // Do nothing.
             break;
           }
+        }
+        else if(BARREL_STATE != BARREL_EXTENDED) {
+          // If all other conditions are met but barrel is not extended, play audio cue.
+          if(b_extra_pack_sounds) {
+            wandSerialSend(W_BARREL_ERROR_SOUND);
+          }
+
+          stopEffect(S_VENT_DRY);
+          playEffect(S_VENT_DRY);
         }
       }
 
