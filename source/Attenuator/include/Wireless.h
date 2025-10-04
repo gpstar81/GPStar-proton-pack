@@ -20,8 +20,8 @@
 
 #pragma once
 
-// Declare external reference to WirelessManager (defined in main.cpp after NVS init).
-extern WirelessManager wirelessMgr;
+// Declare external reference to WirelessManager pointer (allocated in main.cpp after NVS init)
+extern WirelessManager* wirelessMgr;
 
 // Set up values for the SSID and password for the built-in WiFi access point (AP).
 const uint8_t i_max_attempts = 3; // Max attempts to establish a external WiFi connection.
@@ -77,9 +77,9 @@ bool startAccesPoint() {
     debugln();
     debugln(F("Starting Private WiFi Configuration"));
     debug(F("Stored Private SSID: "));
-    debugln(wirelessMgr.getLocalNetworkName());
+    debugln(wirelessMgr->getLocalNetworkName());
     debug(F("Stored Private PASS: "));
-    debugln(wirelessMgr.getLocalPassword());
+    debugln(wirelessMgr->getLocalPassword());
   #endif
 
   // Start the WiFi radio as an Access Point using the SSID and password (as WPA2).
@@ -88,14 +88,14 @@ bool startAccesPoint() {
   bool b_success = false;
   if(encoder_center.getStateRaw() == LOW) {
     // If encoder post is being pressed during boot-up then immediately use the default password.
-    b_success = WiFi.softAP(wirelessMgr.getLocalNetworkName().c_str(), wirelessMgr.getDefaultPassword(), 1, false, 4);
+    b_success = WiFi.softAP(wirelessMgr->getLocalNetworkName().c_str(), wirelessMgr->getDefaultPassword(), 1, false, 4);
 
     // Always output a serial message in case anything is listening, as this is important.
     debugln(F("WARNING: User forced use of the default WiFi password!"));
   }
   else {
     // Otherwise, set the password as desired by the user (or the default).
-    b_success = WiFi.softAP(wirelessMgr.getLocalNetworkName().c_str(), wirelessMgr.getLocalPassword().c_str(), 1, false, 4);
+    b_success = WiFi.softAP(wirelessMgr->getLocalNetworkName().c_str(), wirelessMgr->getLocalPassword().c_str(), 1, false, 4);
   }
   #if defined(DEBUG_WIRELESS_SETUP)
     debugln(b_success ? "AP Ready" : "AP Failed");
@@ -105,8 +105,8 @@ bool startAccesPoint() {
     delay(300); // Wait briefly before configuring network.
 
     // Set networking IP info and report WiFi properties to console.
-    WiFi.softAPConfig(wirelessMgr.getLocalAddress(), wirelessMgr.getLocalGateway(), wirelessMgr.getLocalSubnet(), wirelessMgr.getLocalDhcpStart());
-    WiFi.softAPsetHostname(wirelessMgr.getLocalNetworkName().c_str()); // Hostname is the same as SSID.
+    WiFi.softAPConfig(wirelessMgr->getLocalAddress(), wirelessMgr->getLocalGateway(), wirelessMgr->getLocalSubnet(), wirelessMgr->getLocalDhcpStart());
+    WiFi.softAPsetHostname(wirelessMgr->getLocalNetworkName().c_str()); // Hostname is the same as SSID.
     WiFi.softAPbandwidth(WIFI_BW_HT20); // Use 20MHz for range/compatibility.
     WiFi.softAPenableIPv6(false); // Just here to ensure IPv6 is not enabled.
     #if defined(DEBUG_WIRELESS_SETUP)
@@ -138,7 +138,7 @@ bool startExternalWifi() {
   // Check for stored network preferences and attempt to connect as a client.
 
   // User wants to utilize the external WiFi network and has valid SSID and password.
-  if(wirelessMgr.isExtWifiEnabled() && wirelessMgr.getExtWifiNetworkName().length() >= 2 && wirelessMgr.getExtWifiPassword().length() >= 8) {
+  if(wirelessMgr->isExtWifiEnabled() && wirelessMgr->getExtWifiNetworkName().length() >= 2 && wirelessMgr->getExtWifiPassword().length() >= 8) {
     uint8_t i_curr_attempt = 0;
 
     // When external WiFi is desired, enable simultaneous SoftAP + Station mode.
@@ -149,9 +149,9 @@ bool startExternalWifi() {
       debugln();
       debugln(F("Attempting External WiFi Configuration"));
       debug(F("Stored External SSID: "));
-      debugln(wirelessMgr.getExtWifiNetworkName());
+      debugln(wirelessMgr->getExtWifiNetworkName());
       debug(F("Stored External PASS: "));
-      debugln(wirelessMgr.getExtWifiPassword());
+      debugln(wirelessMgr->getExtWifiPassword());
     #endif
 
     // Provide adequate attempts to connect to the external WiFi network.
@@ -159,7 +159,7 @@ bool startExternalWifi() {
       WiFi.persistent(false); // Don't write SSID/Password to flash memory.
 
       // Attempt to connect to a specified WiFi network.
-      WiFi.begin(wirelessMgr.getExtWifiNetworkName().c_str(), wirelessMgr.getExtWifiPassword().c_str());
+      WiFi.begin(wirelessMgr->getExtWifiNetworkName().c_str(), wirelessMgr->getExtWifiPassword().c_str());
 
       // Wait for the connection to be established.
       uint8_t attempt = 0;
@@ -174,31 +174,31 @@ bool startExternalWifi() {
 
       if(WiFi.status() == WL_CONNECTED) {
         // Configure static IP values for this device on the preferred network.
-        if(wirelessMgr.HasValidExtIP()) {
+        if(wirelessMgr->HasValidExtIP()) {
           #if defined(DEBUG_WIRELESS_SETUP)
             debug(F("Using Stored IP: "));
-            debug(String(wirelessMgr.getExtWifiAddress()));
+            debug(String(wirelessMgr->getExtWifiAddress()));
             debug(F(" / "));
-            debugln(String(wirelessMgr.getExtWifiSubnet()));
+            debugln(String(wirelessMgr->getExtWifiSubnet()));
           #endif
 
-          if(!wirelessMgr.IsValidIP(wirelessMgr.getExtWifiGateway())) {
+          if(!wirelessMgr->IsValidIP(wirelessMgr->getExtWifiGateway())) {
             // If no gateway is set, set a default gateway based on the IP.
-            wirelessMgr.setDefaultExtWifiGateway();
+            wirelessMgr->setDefaultExtWifiGateway();
           }
 
           // Set a static IP for this device using stored preferences.
-          WiFi.config(wirelessMgr.getExtWifiAddress(), wirelessMgr.getExtWifiGateway(), wirelessMgr.getExtWifiSubnet());
+          WiFi.config(wirelessMgr->getExtWifiAddress(), wirelessMgr->getExtWifiGateway(), wirelessMgr->getExtWifiSubnet());
         }
 
         // Get the IP address/subnet/gateway for this device on the preferred network.
-        wirelessMgr.getExtWifiNetworkInfo();
+        wirelessMgr->getExtWifiNetworkInfo();
 
         #if defined(DEBUG_WIRELESS_SETUP)
           debug(F("WiFi IP Address: "));
-          debug(wirelessMgr.getExtWifiAddress());
+          debug(wirelessMgr->getExtWifiAddress());
           debug(F(" / "));
-          debugln(wirelessMgr.getExtWifiSubnet());
+          debugln(wirelessMgr->getExtWifiSubnet());
         #endif
 
         WiFi.setAutoReconnect(false); // Don't try to reconnect, wait for a power cycle.
@@ -238,7 +238,7 @@ bool startWiFi() {
   // Attempt connection to an external (preferred) WiFi as a client.
   b_ext_wifi_started = startExternalWifi();
 
-  if(!wirelessMgr.isExtWifiEnabled() || !b_ext_wifi_started) {
+  if(!wirelessMgr->isExtWifiEnabled() || !b_ext_wifi_started) {
     #if defined(DEBUG_WIRELESS_SETUP)
       debugln(F("External WiFi not available, switching to SoftAP mode..."));
     #endif
@@ -255,11 +255,11 @@ bool startWiFi() {
   }
 
   // Set the mDNS hostname to "<ssid>.local" just like the private AP name.
-  bool b_mdns_started = wirelessMgr.startMdnsService();
+  bool b_mdns_started = wirelessMgr->startMdnsService();
   #if defined(DEBUG_WIRELESS_SETUP)
     if(b_mdns_started) {
       debug(F("mDNS Responder Started: "));
-      debugln(wirelessMgr.getMdnsName());
+      debugln(wirelessMgr->getMdnsName());
     }
     else {
       debugln(F("Error Starting mDNS Responder!"));

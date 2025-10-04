@@ -70,6 +70,10 @@
 #include "Webhandler.h"
 #include "System.h"
 
+// Define the WirelessManager pointer globally (initialized to nullptr).
+// This matches the extern declaration in Wireless.h
+WirelessManager* wirelessMgr = nullptr;
+
 // Task Handles
 TaskHandle_t AnimationTaskHandle = NULL;
 TaskHandle_t PreferencesTaskHandle = NULL;
@@ -365,6 +369,17 @@ void WiFiSetupTask(void *parameter) {
     debugln(xPortGetCoreID());
   #endif
 
+  // Define the WirelessManager object only after NVS/Preferences are initialized.
+  if(wirelessMgr == nullptr) {
+    wirelessMgr = new WirelessManager("Attenuator", "192.168.1.2");
+
+    #if defined(RESET_AP_SETTINGS)
+      // Reset the WiFi password to the expected default on every startup.
+      wirelessMgr->resetWifiPassword();
+      debugln(F("WARNING: Firmware forced a reset of the local WiFi password!"));
+    #endif
+  }
+
   // Begin by setting up WiFi as a prerequisite to all else.
   if(startWiFi()) {
     // Start the local web server.
@@ -516,15 +531,6 @@ void setup() {
   #if defined(DEBUG_PERFORMANCE)
   xTaskCreatePinnedToCore(idleTaskCore0, "Idle Task Core 0", 1000, NULL, 1, NULL, 0);
   xTaskCreatePinnedToCore(idleTaskCore1, "Idle Task Core 1", 1000, NULL, 1, NULL, 1);
-  #endif
-
-  // Define the WirelessManager object after NVS/Preferences are initialized
-  wirelessMgr = WirelessManager("Attenuator", "192.168.1.2");
-
-  #if defined(RESET_AP_SETTINGS)
-    // Reset the WiFi password to the expected default on every startup.
-    wirelessMgr.resetWifiPassword();
-    debugln(F("WARNING: Firmware forced a reset of the local WiFi password!"));
   #endif
 }
 

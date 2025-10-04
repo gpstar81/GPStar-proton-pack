@@ -457,10 +457,10 @@ String getDeviceConfig() {
   }
   jsonBody["buildDate"] = build_date;
   jsonBody["audioVersion"] = i_audio_version;
-  jsonBody["wifiName"] = wirelessMgr.getLocalNetworkName();
-  jsonBody["wifiNameExt"] = wirelessMgr.getExtWifiNetworkName();
-  jsonBody["extAddr"] = String(wirelessMgr.getExtWifiAddress());
-  jsonBody["extMask"] = String(wirelessMgr.getExtWifiSubnet());
+  jsonBody["wifiName"] = wirelessMgr->getLocalNetworkName();
+  jsonBody["wifiNameExt"] = wirelessMgr->getExtWifiNetworkName();
+  jsonBody["extAddr"] = String(wirelessMgr->getExtWifiAddress());
+  jsonBody["extMask"] = String(wirelessMgr->getExtWifiSubnet());
 
   // Serialize JSON object to string.
   serializeJson(jsonBody, equipSettings);
@@ -699,17 +699,17 @@ String getWifiSettings() {
 
     jsonBody["address"] = preferences.getString("address");
     if(jsonBody["address"].as<String>() == "") {
-      jsonBody["address"] = String(wirelessMgr.getExtWifiAddress());
+      jsonBody["address"] = String(wirelessMgr->getExtWifiAddress());
     }
 
     jsonBody["subnet"] = preferences.getString("subnet");
     if(jsonBody["subnet"].as<String>() == "") {
-      jsonBody["subnet"] = String(wirelessMgr.getExtWifiSubnet());
+      jsonBody["subnet"] = String(wirelessMgr->getExtWifiSubnet());
     }
 
     jsonBody["gateway"] = preferences.getString("gateway");
     if(jsonBody["gateway"].as<String>() == "") {
-      jsonBody["gateway"] = String(wirelessMgr.getExtWifiGateway());
+      jsonBody["gateway"] = String(wirelessMgr->getExtWifiGateway());
     }
 
     preferences.end();
@@ -1221,7 +1221,7 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
     bool b_ssid_changed = false;
 
     // Update the private network name ONLY if the new value differs from the current SSID.
-    if(newSSID != "" && newSSID != wirelessMgr.getLocalNetworkName()){
+    if(newSSID != "" && newSSID != wirelessMgr->getLocalNetworkName()){
       if(newSSID.length() >= 8 && newSSID.length() <= 32) {
         // Create Preferences object to handle non-volatile storage (NVS).
         Preferences preferences;
@@ -1698,19 +1698,19 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
 
         // Continue saving only if network values are 7 characters or more (eg. N.N.N.N)
         bool b_static_ip = true;
-        if(localAddr.length() >= 7 && localAddr != String(wirelessMgr.getExtWifiAddress())) {
+        if(localAddr.length() >= 7 && localAddr != String(wirelessMgr->getExtWifiAddress())) {
           preferences.putString("address", localAddr);
         }
         else {
           b_static_ip = false;
         }
-        if(subnetMask.length() >= 7 && subnetMask != String(wirelessMgr.getExtWifiSubnet())) {
+        if(subnetMask.length() >= 7 && subnetMask != String(wirelessMgr->getExtWifiSubnet())) {
           preferences.putString("subnet", subnetMask);
         }
         else {
           b_static_ip = false;
         }
-        if(gatewayIP.length() >= 7 && gatewayIP != String(wirelessMgr.getExtWifiGateway())) {
+        if(gatewayIP.length() >= 7 && gatewayIP != String(wirelessMgr->getExtWifiGateway())) {
           preferences.putString("gateway", gatewayIP);
         }
         else {
