@@ -61,6 +61,8 @@ const uint16_t i_websocketCleanup = 5000;
 
 // Forward function declarations.
 void setupRouting();
+bool canChangeStreamMode();
+void changeStreamMode(STREAM_MODES new_mode);
 
 // Rounds a float to 2 decimal places.
 float roundFloat(float value) {
@@ -992,8 +994,8 @@ uint8_t getStreamModeFromPath(const String s_path) {
 void handleStreamModeChange(AsyncWebServerRequest *request) {
   debugln("Web: Firing Mode Change Triggered");
 
-  // Pre-check: Prevent stream mode change if pack is firing or in error state.
-  if(b_wand_firing || b_overheating || b_pack_alarm || b_pack_shutting_down) {
+  // Pre-check: Prevent stream mode change when the system can't handle it.
+  if(!canChangeStreamMode()) {
     String result;
     jsonBody.clear();
     jsonBody["status"] = "Stream mode change not allowed while pack is firing or in error state.";
@@ -1002,31 +1004,33 @@ void handleStreamModeChange(AsyncWebServerRequest *request) {
     return;
   }
 
+  // Get the requested stream mode from the URL path and map to a valid stream type.
   uint8_t i_mode = getStreamModeFromPath(request->url());
+  STREAM_MODES new_stream_mode = UNSET;
   switch(i_mode) {
     case 1:
-      attenuatorSerialSend(A_PROTON_MODE);
+      new_stream_mode = PROTON;
     break;
     case 2:
-      attenuatorSerialSend(A_STASIS_MODE);
+      new_stream_mode = STASIS;
     break;
     case 3:
-      attenuatorSerialSend(A_SLIME_MODE);
+      new_stream_mode = SLIME;
     break;
     case 4:
-      attenuatorSerialSend(A_MESON_MODE);
+      new_stream_mode = MESON;
     break;
     case 5:
-      attenuatorSerialSend(A_SPECTRAL_MODE);
+      new_stream_mode = SPECTRAL;
     break;
     case 6:
-      attenuatorSerialSend(A_HALLOWEEN_MODE);
+      new_stream_mode = HOLIDAY_HALLOWEEN;
     break;
     case 7:
-      attenuatorSerialSend(A_CHRISTMAS_MODE);
+      new_stream_mode = HOLIDAY_CHRISTMAS;
     break;
     case 8:
-      attenuatorSerialSend(A_SPECTRAL_CUSTOM_MODE);
+      new_stream_mode = SPECTRAL_CUSTOM;
     break;
     default:
       debugln("Invalid Firing Mode");
@@ -1039,6 +1043,9 @@ void handleStreamModeChange(AsyncWebServerRequest *request) {
     break;
   }
 
+  // If we get here, we have a valid stream mode to be set.
+  // The changeStreamMode function will handle any further checks.
+  changeStreamMode(new_stream_mode);
   request->send(200, "application/json", status);
 }
 

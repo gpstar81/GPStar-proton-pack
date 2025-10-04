@@ -164,7 +164,7 @@ enum BARREL_STATES BARREL_STATE;
 enum POWER_LEVELS { LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5 };
 enum POWER_LEVELS POWER_LEVEL = LEVEL_5;
 enum POWER_LEVELS POWER_LEVEL_PREV = LEVEL_5;
-enum STREAM_MODES { PROTON, STASIS, SLIME, MESON, SPECTRAL, HOLIDAY_HALLOWEEN, HOLIDAY_CHRISTMAS, SPECTRAL_CUSTOM, SETTINGS };
+enum STREAM_MODES { UNSET, PROTON, STASIS, SLIME, MESON, SPECTRAL, HOLIDAY_HALLOWEEN, HOLIDAY_CHRISTMAS, SPECTRAL_CUSTOM, SETTINGS };
 enum STREAM_MODES STREAM_MODE;
 
 /*
@@ -175,6 +175,7 @@ enum STREAM_MODES STREAM_MODE;
 #define RIGHT_TOGGLE_PIN 35
 ezButton switch_left(LEFT_TOGGLE_PIN, EXTERNAL_PULLUP);
 ezButton switch_right(RIGHT_TOGGLE_PIN, EXTERNAL_PULLUP);
+// Provide a known default at startup for switches.
 bool b_left_toggle_on = false;
 bool b_right_toggle_on = false;
 bool b_right_toggle_center_start = false;
@@ -183,7 +184,7 @@ bool b_right_toggle_center_start = false;
  * Debounce Settings
  */
 const uint8_t switch_debounce_time = 50;
-const uint8_t rotary_debounce_time = 100;
+const uint8_t rotary_debounce_time = 200;
 
 /*
  * Rotary encoder for various uses.
@@ -206,11 +207,13 @@ int i_val_rotary;
 int i_last_val_rotary;
 
 /*
- * Define states for the rotary dial center press.
+ * Define states for the rotary dial center press or rotation.
  */
+enum DIAL_ROTATIONS { NO_ROTATION, CLOCKWISE, COUNTERCLOCKWISE };
+enum DIAL_ROTATIONS DIAL_ROTATION;
 enum CENTER_STATES { NO_ACTION, SHORT_PRESS, DOUBLE_PRESS, LONG_PRESS };
 enum CENTER_STATES CENTER_STATE;
-enum MENU_LEVELS { MENU_1, MENU_2 };
+enum MENU_LEVELS { MENU_1, MENU_2, MENU_STREAM };
 enum MENU_LEVELS MENU_LEVEL;
 
 /*
