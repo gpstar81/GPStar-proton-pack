@@ -21,55 +21,28 @@
 
 #pragma once
 
-// Reserved for I2C Bus
-// SDA -> GPIO21
-// SLC -> GPIO22
-
-// Reserved for Serial2
-// RX2 -> GPIO16
-// TX2 -> GPIO17
-
-#define USE_ESP32_S3
-
-/*
- * Pin for Addressable LEDs
- */
-#if defined(USE_ESP32_S3)
-  // GPIO21 for Waveshare ESP32-S3 Mini (RGB LED)
-  #define BUILT_IN_LED 21
-  #define DEVICE_NUM_LEDS 1
-  CRGB device_leds[DEVICE_NUM_LEDS];
-#else
-  // GPIO2 for ESP-WROOM-32 (Blue LED)
-  #define BUILT_IN_LED 2
-#endif
-
 /*
  * Pins for Devices
  */
-#if defined(USE_ESP32_S3)
-  // ESP32-S3 Mini
-  #define BLOWER_PIN 5 // 30mm blower fan for smoke
-  #define SMOKE_PIN 7 // MOSFET for smoke (coil + pump)
-  #define TOP_2WHITE 10 // Frutto top panel (2 white LEDs)
-  #define TOP_PIXELS 11 // Frutto top panel (12 RGB pixels)
-  #define DOOR_CLOSED_PIN 8 // Green Socket (Input Only)
-  #define DOOR_OPENED_PIN 9 // Red Socket (Input Only)
-#else
-  // ESP-WROOM-32
-  #define BLOWER_PIN 18 // 30mm blower fan for smoke
-  #define SMOKE_PIN 23 // MOSFET for smoke (coil + pump)
-  #define TOP_2WHITE 32 // Frutto top panel (2 white LEDs)
-  #define TOP_PIXELS 33 // Frutto top panel (12 RGB pixels)
-  #define DOOR_CLOSED_PIN 34 // Green Socket (Input Only)
-  #define DOOR_OPENED_PIN 35 // Red Socket (Input Only)
-#endif
-
-/*
- * Frutto Trap Top (Pixels)
- */
-#define NUM_TOP_PIXELS 12
-CRGB top_leds[NUM_TOP_PIXELS];
+#define ENCODER_A 4 // Pin which connects to the "A" side of the rotary encoder
+#define ENCODER_B 5 // Pin which connects to the "B" side of the rotary encoder
+#define TOP_ROD_SWITCH_PIN 7 // Pin which connects to the top rod detection switch
+#define BOTTOM_ROD_SWITCH_PIN 17 // Pin which connects to the bottom rod detection switch
+#define PEDAL_LED_PIN 18 // Pin which connects to the pedal LED
+#define PEDAL_SWITCH_PIN 42 // Pin which connects to the pedal switch
+#define SERVICE_SWITCH_PIN 3 // Pin which connects to the hidden switch in the trap handle
+#define G_INT1_PIN 12 // Pin which connects to the G_INT1 pin on the IMU
+#define G_INT2_PIN 21 // Pin which connects to the G_INT2 pin on the IMU
+#define NORUMBLE_TOGGLE_PIN 13 // Pin which detects when the DPST switch is in the no-rumble position
+#define RUMBLE_TOGGLE_PIN 14 // Pin which detects when the DPST switch is in the rumble position
+#define SDA_PIN 47 // SDA pin for I2C communications with the IMU
+#define SCL_PIN 48 // SCL pin for I2C communications with the IMU
+#define GHOST_SELECTOR_W_PIN 40 // Pin from the "W" wire of the ghost selector knob
+#define GHOST_SELECTOR_R_PIN 39 // Pin from the "R" wire of the ghost selector knob
+#define GHOST_SELECTOR_B_PIN 38 // Pin from the "B" wire of the ghost selector knob
+#define RED_LED_PIN 41 // Pin to control the red LED on the top of the trap base
+#define VIBRATION_PIN 2 // Pin to trigger vibration motor
+#define UPDI_PIN 1 // Pin to program trap cartridge via UPDI
 
 /*
  * Timers for Devices
@@ -122,6 +95,3 @@ bool b_smoke_opened_enabled = false;
 bool b_smoke_closed_enabled = false;
 uint16_t i_smoke_opened_duration = 2000;
 uint16_t i_smoke_closed_duration = 3000;
-
-// Forward declarations.
-void debug(const String message);

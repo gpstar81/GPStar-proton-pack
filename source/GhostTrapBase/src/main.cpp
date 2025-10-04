@@ -22,9 +22,19 @@
 // Required for PlatformIO
 #include <Arduino.h>
 
-// Suppress warning about SPI hardware pins
-// Define this before including <FastLED.h>
-#define FASTLED_INTERNAL
+// Set to 1 to enable built-in debug messages
+#define DEBUG 0
+
+// Debug macros
+#if DEBUG == 1
+  #define debug(...) Serial.print(__VA_ARGS__)
+  #define debugf(...) Serial.printf(__VA_ARGS__)
+  #define debugln(...) Serial.println(__VA_ARGS__)
+#else
+  #define debug(...)
+  #define debugf(...)
+  #define debugln(...)
+#endif
 
 // PROGMEM macro
 #define PROGMEM_READU32(x) pgm_read_dword_near(&(x))
@@ -33,19 +43,37 @@
 
 // 3rd-Party Libraries
 #include <millisDelay.h>
-#include <FastLED.h>
 #include <ezButton.h>
 #include <esp_system.h>
 #include <nvs_flash.h>
 
+// Serial comms definitions (move to Serial.h?)
+#define TX_PIN 44 // Pin to transmit serial data to trap cartridge
+#define RX_PIN 43 // Pin to receive serial data from trap cartridge
+#define CartridgeComs Serial0
+
+// Forward declaration for use in all includes.
+void sendDebug(const String message);
+
 // Local Files
 #include "Configuration.h"
 #include "Header.h"
-#include "Colours.h"
 #include "MusicSounds.h"
 #include "Audio.h"
 #include "Wireless.h"
 #include "System.h"
+
+// Writes a debug message to the serial console or sends to the WebSocket.
+void sendDebug(const String message) {
+  #if defined(DEBUG_SEND_TO_CONSOLE)
+    debugln(message); // Print to serial console.
+  #endif
+  #if defined(DEBUG_SEND_TO_WEBSOCKET)
+    if(b_httpd_started) {
+      ws.textAll(message); // Send a copy to the WebSocket.
+    }
+  #endif
+}
 
 // Task Handles
 TaskHandle_t AnimationTaskHandle = NULL;
@@ -93,13 +121,6 @@ void AnimationTask(void *parameter) {
 
     // Update LEDs using appropriate colour scheme and environment vars.
     updateLEDs();
-
-    // Update the state of any LEDs.
-    FastLED.show();
-
-    // Verify the state of any other devices which need updating.
-    checkBlower();
-    checkSmoke();
 
     vTaskDelay(8 / portTICK_PERIOD_MS); // 8ms delay
   }
@@ -302,6 +323,9 @@ void setup() {
   Serial.begin(115200); // Serial monitor via USB connection.
   delay(1000); // Provide a delay to allow serial output.
 
+  Serial0.end();
+  CartridgeComs.begin(9600, SERIAL_8N1, RX_PIN, TX_PIN);
+
   // Provide an opportunity to set the CPU Frequency MHz: 80, 160, 240 [Default = 240]
   // Lower frequency means less power consumption, but slower performance (obviously).
   setCpuFrequencyMhz(160);
@@ -310,41 +334,15 @@ void setup() {
     Serial.println(getCpuFrequencyMhz());
   #endif
 
-  #if defined(USE_ESP32_S3)
-    // RGB LED on the ESP32-S3 device itself.
-    FastLED.addLeds<WS2812, BUILT_IN_LED>(device_leds, DEVICE_NUM_LEDS);
-  #endif
-
-  // RGB LEDs on the top of the trap (Frutto Technology).
-  FastLED.addLeds<WS2812, TOP_PIXELS>(top_leds, NUM_TOP_PIXELS);
-
   // Get initial switch/button states.
   switchLoops();
 
   // Delay before configuring and running tasks.
   delay(200);
 
-  // Configure the blower fan.
-  pinMode(BLOWER_PIN, OUTPUT);
-  digitalWrite(BLOWER_PIN, LOW); // Set to LOW (off)
-
-  // Configure the smoke (coil + pump) device.
-  pinMode(SMOKE_PIN, OUTPUT);
-  digitalWrite(SMOKE_PIN, LOW); // Set to LOW (off)
-
-  // Configure the the top 2 white lights.
-  pinMode(TOP_2WHITE, OUTPUT);
-  digitalWrite(TOP_2WHITE, LOW); // Set to LOW (off)
-
   // Set up for reading the switches to determine door state.
-  pinMode(DOOR_CLOSED_PIN, INPUT);
-  pinMode(DOOR_OPENED_PIN, INPUT);
   DOOR_STATE = DOORS_UNKNOWN; // Default until we first read the pins.
   LAST_DOOR_STATE = DOOR_STATE; // Keep setting in sync until read.
-
-  // Prepare the on-board (non-power) LED to be used as an output pin for indication.
-  pinMode(BUILT_IN_LED, OUTPUT);
-  digitalWrite(BUILT_IN_LED, LOW);
 
   /**
    * By default the WiFi will run on core0, while the standard loop() runs on core1.

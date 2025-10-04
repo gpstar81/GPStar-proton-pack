@@ -31,6 +31,13 @@ enum AUDIO_DEVICES { A_NONE, A_GPSTAR_AUDIO, A_GPSTAR_AUDIO_ADV };
 enum AUDIO_DEVICES AUDIO_DEVICE;
 
 /*
+ * Serial device
+ */
+#define AUDIO_RX_PIN 15 // Pin to receive serial data from the GPStar Audio
+#define AUDIO_TX_PIN 16 // Pin to transmit serial data to the GPStar Audio
+HardwareSerial AudioSerial(2);
+
+/*
  * Audio Variables
  */
 uint16_t i_music_track_count = 0; // Contains the total number of detected music tracks on the SD card.
@@ -39,7 +46,7 @@ uint16_t i_audio_version = 0; // Contains the firmware version for GPStar Audio 
 const uint16_t i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
 const int8_t i_volume_abs_min = -70; // System (absolute) minimum volume possible.
 const int8_t i_volume_abs_max = 0; // System (absolute) maximum volume possible.
-uint8_t i_volume_min_adj = 0; // Adjustment factor for minimum volume.
+uint8_t i_volume_min_adj = 10; // Adjustment factor for minimum volume.
 bool b_playing_music = false; // Sets whether a music track is currently playing or not.
 bool b_music_paused = false; // Sets whether a music track is currently paused or not.
 bool b_repeat_track = false; // Sets whether to repeat one music track or loop through all music tracks.
@@ -323,7 +330,7 @@ void musicNextTrack() {
 
     i_current_music_track = i_temp_track; // Change only AFTER stopping music playback.
 
-    // Play the appropriate track on pack and wand, and notify the serial1 device.
+    // Play the appropriate track on pack and wand, and notify the AudioSerial device.
     playMusic();
   }
   else {
@@ -351,7 +358,7 @@ void musicPrevTrack() {
 
     i_current_music_track = i_temp_track; // Change only AFTER stopping music playback.
 
-    // Play the appropriate track on pack and wand, and notify the serial1 device.
+    // Play the appropriate track on pack and wand, and notify the AudioSerial device.
     playMusic();
   }
   else {
@@ -528,7 +535,7 @@ void buildMusicCount(uint16_t i_num_tracks) {
   }
   else {
     i_music_track_count = 0; // If the music count is corrupt, make it 0
-    debug(F("Warning: Calculated music count exceeds 4096; SD card corruption likely!"));
+    sendDebug(F("Warning: Calculated music count exceeds 4096; SD card corruption likely!"));
   }
 }
 
@@ -622,7 +629,7 @@ void checkMusic() {
     ms_music_next_track.stop();
     ms_check_music.start(i_music_check_delay);
 
-    // Play the appropriate track on the pack and wand, and notify the serial1 device.
+    // Play the appropriate track on the pack and wand, and notify the AudioSerial device.
     playMusic();
   }
 }
@@ -668,38 +675,16 @@ bool setupAudioDevice() {
   // Short delay to allow the audio boards to boot up.
   delay(1000);
 
-  char gVersion[VERSION_STRING_LEN];
+  AudioSerial.begin(57600, SERIAL_8N1, AUDIO_RX_PIN, AUDIO_TX_PIN);
 
-  Serial1.begin(57600);
+  audio.start(AudioSerial);
 
-  audio.start(Serial1);
+  uint16_t i_timeout = millis() + 1000;
 
-  // Ask for some Wav Trigger information.
-  audio.requestVersionString();
-  audio.requestSystemInfo();
-
-  delay(10);
-
-  // Stop all tracks.
-  audio.stopAllTracks();
-
-  // Reset the sample rate offset. Only for the WAV Trigger.
-  audio.samplerateOffset(0);
-
-  audio.masterGain(i_volume_abs_min); // Reset the master gain db. Range is -70 to 0. Bootup the system muted, then we reset it after the system is loaded.
-
-  // Onboard amplifier on or off. Only for the WAV Trigger.
-  audio.setAmpPwr(b_onboard_amp_enabled);
-
-  // Enable track reporting. Only for the WAV Trigger.
-  audio.setReporting(true);
-
-  // Allow time for hello command and other data to return back.
-  delay(350);
-
-  audio.hello();
-
-  delay(350);
+  while(!audio.gpstarAudioHello() && millis() < i_timeout) {
+    audio.hello();
+    delay(10);
+  }
 
   if(audio.gpstarAudioHello()) {
     i_audio_version = audio.getVersionNumber();
@@ -712,24 +697,25 @@ bool setupAudioDevice() {
       i_audio_version = 100; // Set to 100 to indicate old version.
     }
 
-    i_volume_min_adj = 10; // Moves minimum volume up for GPStar Audio since its minimum is higher.
     i_volume_master = (MINIMUM_VOLUME + i_volume_min_adj) - ((MINIMUM_VOLUME + i_volume_min_adj) * i_volume_master_percentage / 100); // Master overall volume.
     i_volume_master_eeprom = i_volume_master; // Master overall volume that is saved into the eeprom menu and loaded during bootup.
     i_volume_revert = i_volume_master; // Used to restore volume level from a muted state.
 
-    debug(F("Using GPStar Audio"));
+    sendDebug(F("Using GPStar Audio"));
     debug(F("Version: "));
-    //debug(audio.getVersionNumber());
+    debugln(audio.getVersionNumber());
 
-    //buildMusicCount((uint16_t) audio.getNumTracks());
+    buildMusicCount(audio.getNumTracks());
+    audio.gpstarLEDStatus(false);
 
     return true;
   }
   else {
     // No audio devices connected.
     AUDIO_DEVICE = A_NONE;
+    AudioSerial.end();
 
-    debug(F("No Audio Device"));
+    sendDebug(F("No Audio Device"));
 
     return false;
   }
