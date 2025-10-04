@@ -26,7 +26,8 @@
 #define FASTLED_INTERNAL
 
 // Set to 1 to enable built-in debug messages via Serial device output.
-#define DEBUG 0
+// Use with DEBUG_SEND_TO_CONSOLE and othe DEBUG_'s in Configuration.h
+#define DEBUG 1
 
 // Debug macros
 #if DEBUG == 1
@@ -53,9 +54,13 @@
 #include <SerialTransfer.h>
 #include <esp_system.h>
 #include <nvs_flash.h>
+#include <Preferences.h>
+
+// Shared Libraries
+#include <Communication.h>
+#include <WirelessManager.h>
 
 // Local Files
-#include <Communication.h>
 #include "Configuration.h"
 #include "Header.h"
 #include "Bargraph.h"
@@ -471,12 +476,6 @@ void setup() {
     ms_packsync.start(0);
   }
 
-  #if defined(RESET_AP_SETTINGS)
-    // Reset the WiFi password to the expected default on every startup.
-    wirelessMgr.resetWifiPassword();
-    debugln(F("WARNING: Firmware forced a reset of the local WiFi password!"));
-  #endif
-
   /**
    * By default the WiFi will run on core0, while the standard loop() runs on core1.
    * We can make efficient use of the available cores by "pinning" a task to a core.
@@ -517,6 +516,15 @@ void setup() {
   #if defined(DEBUG_PERFORMANCE)
   xTaskCreatePinnedToCore(idleTaskCore0, "Idle Task Core 0", 1000, NULL, 1, NULL, 0);
   xTaskCreatePinnedToCore(idleTaskCore1, "Idle Task Core 1", 1000, NULL, 1, NULL, 1);
+  #endif
+
+  // Define the WirelessManager object after NVS/Preferences are initialized
+  wirelessMgr = WirelessManager("Attenuator", "192.168.1.2");
+
+  #if defined(RESET_AP_SETTINGS)
+    // Reset the WiFi password to the expected default on every startup.
+    wirelessMgr.resetWifiPassword();
+    debugln(F("WARNING: Firmware forced a reset of the local WiFi password!"));
   #endif
 }
 

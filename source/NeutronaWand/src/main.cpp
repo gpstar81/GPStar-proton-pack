@@ -84,8 +84,13 @@ void sendDebug(const String message);
   MagCalibration magCal;
 #endif
 
-// Local Files
+// Shared Libraries
 #include <Communication.h>
+#ifdef ESP32
+//#include <WirelessManager.h>
+#endif
+
+// Local Files
 #include "Configuration.h"
 #include "MusicSounds.h"
 #include "Header.h"

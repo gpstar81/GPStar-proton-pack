@@ -104,6 +104,8 @@ This project is structured for development with PlatformIO, using the Arduino fr
 1. **Thought Process and Plan of Action**:
    - When making recommendations or edits, clearly lay out the thought process and the plan of action.
    - Provide a "before" and "after" comparison for edits, allowing for review and approval before changes are finalized.
+   - **NEVER make code changes without first discussing the approach and getting explicit approval from the user.**
+   - Always explain the reasoning behind suggested changes and potential alternatives before implementing them.
 
 2. **Commenting Code**:
    - Functions and methods should include comments explaining their purpose, inputs, outputs, and any side effects.
@@ -129,3 +131,4 @@ This project is structured for development with PlatformIO, using the Arduino fr
 
        return distance;
    }
+`````

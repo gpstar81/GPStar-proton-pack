@@ -58,8 +58,13 @@
 // Forward declaration for use in all includes.
 void sendDebug(const String message);
 
-// Local Files
+// Shared Libraries
 #include <Communication.h>
+#ifdef ESP32
+//#include <WirelessManager.h>
+#endif
+
+// Local Files
 #include "Configuration.h"
 #include "MusicSounds.h"
 #include "Header.h"

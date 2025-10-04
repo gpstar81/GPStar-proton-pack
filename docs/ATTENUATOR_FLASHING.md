@@ -2,7 +2,7 @@
 
 NOTICE - As of the V6.0 release all support for the Arduino Nano hardware has been deprecated as we can no longer build the necessary binaries for the limited memory space on that device. Going forward, only the ESP32 will be supported for the Attenuator device, whether purchased as a kit from Frutto Technologies or as a DIY solution.
 
-The ESP32 microcontroller is capable of supporting Over-The-Air (OTA) updates for firmware, meaning you will need to utilize a desktop web browser from a computer (not a mobile device or tablet) and the built-in WiFi access point provided by the controller (prefix: "ProtonPack_"). **However, please note the following special conditions!**
+The ESP32 microcontroller is capable of supporting Over-The-Air (OTA) updates for firmware, meaning you will need to utilize a desktop web browser from a computer (not a mobile device or tablet) and the built-in WiFi access point provided by the controller as **"GPStar_Attenuator"** (or with the prefix: **"ProtonPack_"**). **However, please note the following special conditions!**
 
 1. If you used an off-the-shelf ESP32 device, then the software which enables the WiFi access point is **not yet loaded** so you will need to follow the "First-Time Upload" for the initial upload of firmware to your device.
 1. If you are performing your first upgrade to the version v6.x firmware, you will need to perform the exact same process as the "First-Time Upload" to re-partition your device to accept the larger firmware files.
@@ -137,12 +137,12 @@ You will need to utilize a command-line tool to upload the firmware to your devi
 This applies to all updates you will perform AFTER the first-time upload of the firmware for the device, when the private WiFi network for the Proton Pack is available via the custom firmware.
 
 1. Power up your Proton Pack and ESP32 device (whether standalone or as part of the Attenuator hardware).
-1. Open the WiFi preferences on your computer/device and look for the SSID which begins **"ProtonPack_"**.
+1. Open the WiFi preferences on your computer/device and look for the SSID which matches **"GPStar_Attenuator"** or begins **"ProtonPack_"**.
 	* If this is your first connection to this access point, use the default password **"555-2368"**.
 1. Navigate directly to the URL: [http://192.168.1.2/update](http://192.168.1.2/update)
 1. Use the "Select File" button and select the [Attenuator.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/Attenuator.bin?raw=1) file from the `/binaries/attenuator` directory.
 1. The upload will begin immediately. Once at 100% the device will reboot.
-1. Navigate to [http://192.168.1.2](http://192.168.1.2) or `http://protonpack_####.local` to confirm that the device is able to communicate with the Proton Pack PCB.
+1. Navigate to [http://192.168.1.2](http://192.168.1.2) or `http://GPStar_Attenuator.local` or `http://protonpack_####.local` to confirm that the device is able to communicate with the Proton Pack PCB.
 
 ![](images/WebUI-Update1.jpg)
 
@@ -160,7 +160,7 @@ While every device gets a unique SSID for the wireless network, the password is 
 
 Since this device will make use of a private WiFi network with a default password, it is STRONGLY encouraged that you take a moment to change the password to something you prefer to avoid unauthorized access of your equipment.
 
-Once you are able to reach the web UI at [http://192.168.1.2](http://192.168.1.2) or `http://protonpack_####.local` scroll to the bottom of the page to find the "Secure Device WiFi" link. Follow the instructions on the page to set a new password for your device. This will be unique to the ESP32 controller and will persist as the new default even if the device is power-cycled. Passwords must only be at least 8 characters and you will be required to enter a matching password as confirmation to ensure you entered the expected string of characters.
+Once you are able to reach the web UI at [http://192.168.1.2](http://192.168.1.2) or `http://GPStar_Attenuator.local` or `http://ProtonPack_####.local` scroll to the bottom of the page to find the "Secure Device WiFi" link. Follow the instructions on the page to set a new password for your device. This will be unique to the ESP32 controller and will persist as the new default even if the device is power-cycled. Passwords must only be at least 8 characters and you will be required to enter a matching password as confirmation to ensure you entered the expected string of characters.
 
 The password you choose will be stored in an area of the device's flash memory that is unaffected by future firmware updates. Therefore, if you forget your password you may need to load a special version of the firmware which can bypass that stored value and allow you to use the default password again. This process is covered in the next section.
 

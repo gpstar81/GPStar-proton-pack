@@ -20,13 +20,8 @@
 
 #pragma once
 
-#include <WirelessManager.h>
-#include <AsyncJson.h>
-#include <ESPAsyncWebServer.h>
-#include <ElegantOTA.h>
-
-// Instantiate the Wireless Manager for handling WiFi connections and AP setup.
-WirelessManager wirelessMgr("Attenuator", "192.168.1.2");
+// Declare external reference to WirelessManager (defined in main.cpp after NVS init).
+extern WirelessManager wirelessMgr;
 
 // Set up values for the SSID and password for the built-in WiFi access point (AP).
 const uint8_t i_max_attempts = 3; // Max attempts to establish a external WiFi connection.
@@ -259,7 +254,7 @@ bool startWiFi() {
     b_local_ap_started = startAccesPoint();
   }
 
-  // Set the mDNS hostname to "ProtonPack_NNNN.local" just like the private AP name.
+  // Set the mDNS hostname to "<ssid>.local" just like the private AP name.
   bool b_mdns_started = wirelessMgr.startMdnsService();
   #if defined(DEBUG_WIRELESS_SETUP)
     if(b_mdns_started) {

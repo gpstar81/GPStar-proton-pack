@@ -20,6 +20,10 @@
 
 #pragma once
 
+#include <AsyncJson.h>
+#include <ESPAsyncWebServer.h>
+#include <ElegantOTA.h>
+
 // Web page files (defines all text as char[] variable)
 #include "web/CommonJS.h" // COMMONJS_page
 #include "web/Index.h" // INDEX_page

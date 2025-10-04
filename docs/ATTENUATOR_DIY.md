@@ -68,7 +68,7 @@ It is worth noting that the device is meant to attach to the left shoulder strap
 
 ## WiFi Connectivity
 
-A primary benefit of using an ESP32 controller it is possible to connect to the device via WiFi. The SSID (Network Name) will be broadcast as **"ProtonPack_####"** where "####" is the last 4 hexadecimal values for the MAC address of the WiFi interface. This will differ for each ESP32 device, making each network unique to the attached pack. The default password is **"555-2368"** and can (and should) be changed via the web interface after successfully connecting to the network. The IP address for the device will be hardcoded as "192.168.1.2" with the web interface accessible at `http://192.168.1.2` or simply `http://ProtonPack_####.local`.
+A primary benefit of using an ESP32 controller it is possible to connect to the device via WiFi. The SSID (Network Name) will be broadcast as either **"GPStar_Attenuator"** or **"ProtonPack_####"** where "####" is the last 4 hexadecimal values for the MAC address of the WiFi interface. This will differ for each ESP32 device, making each network unique to the attached pack. The default password is **"555-2368"** and can (and should) be changed via the web interface after successfully connecting to the network. The IP address for the device will be hardcoded as "192.168.1.2" with the web interface accessible at `http://192.168.1.2` or simply `http://GPStar_Attenuator.local` or `http://ProtonPack_####.local`.
 
 **Security Notice**
 

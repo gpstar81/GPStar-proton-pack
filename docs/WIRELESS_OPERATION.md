@@ -19,7 +19,7 @@ It should be clearly stated that these are low-power consumer device and will no
 
 If you have forgotten the password to your device's private WiFi network, you can load the special `Attenuator-Reset.bin` firmware by following the ["Forgot Your WiFi Password" section of the ATTENUATOR_FLASHING guide](https://github.com/gpstar81/GPStar-proton-pack/blob/main/blob/main/ATTENUATOR_FLASHING.md#forgot-your-wifi-password).
 
-As of the 5.2.2 firmware release a special debug option is available when using the hardware as an Attenuator, or if a momentary switch is installed between pin D4 and GND on the WiFi add-on controller. While powering on the device, push down on the main dial on the Attenuator (or press the momentary switch), and the device will bypass any stored password for local WiFi. This will bypass setting of a password for the built-in WiFi network, allowing the "ProtonPack_" network to run without WPA2 security. This should **only be done as a last resort** to regain access to the device if the password is forgotten or another technical issue may be preventing access!
+As of the 5.2.2 firmware release a special debug option is available when using the hardware as an Attenuator, or if a momentary switch is installed between pin D4 and GND on the WiFi add-on controller. While powering on the device, push down on the main dial on the Attenuator (or press the momentary switch), and the device will bypass any stored password for local WiFi. This will reset the WiFi password for the built-in WiFi network, allowing the you to log back into the device and change to a suitable password. This should **only be done as a last resort** to regain access to the device if the password is forgotten or another technical issue may be preventing access!
 
 ## Firmware Flashing
 
@@ -36,7 +36,7 @@ Additionally, when using the device as an Attenuator, the top most LED on that d
 
 ## Web Interface
 
-The Attenuator or Wireless Adapter will offer a default, private WiFi network (access point) which begins with the pattern **"ProtonPack_NNNN"** where the NNNN is unique to each devices's WiFi network interface, and this will be secured with a default password of **"555-2368"**.
+The Attenuator or Wireless Adapter will offer a default, private WiFi network (access point) which begins with the pattern **"ProtonPack_####"** where the #### is unique to each devices's WiFi network interface, and this will be secured with a default password of **"555-2368"**. Alternatively, the device may simply appear as **"GPStar_Attenuator"** in later firmware releases.
 
 Once connected, your computer/phone/table should be assigned an IP address starting from **"192.168.1.100"** with a subnet of **"255.255.255.0"**. Please remember that if you intend to have multiple Attenuator/Wireless devices connect via this private WiFi network you will be assigned a unique IP address for each client device (eg. phone, tablet, or computer).
 
