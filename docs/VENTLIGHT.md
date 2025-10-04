@@ -1,6 +1,6 @@
-# GPStar RGB Vent Lights (Optional)
+# GPStar RGB Vent Lights
 
-A colour changing vent light board that can be installed very easily with the GPStar Neutrona Wand PCB with no soldering required.
+A colour changing vent light board that can be installed very easily with the GPStar Neutrona Wand.
 
 ![](images/GPStar-RGB-Vent-Lights.jpg)
 

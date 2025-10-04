@@ -42,6 +42,7 @@ nav:
       - Bargraph: BARGRAPH.md
       - Hatlights: HATS.md
       - Vent Lights: VENTLIGHT.md
+      - Neutrona Encoder: NEUTRONA_ENCODER.md
     - Pack Attenuator:
       - Attenuator: ATTENUATOR.md
       - WiFi Adapter: WIRELESS.md
