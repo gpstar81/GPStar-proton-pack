@@ -200,15 +200,36 @@ bool WirelessManager::resetWifiPassword() {
   return false;
 }
 
+// Function: getMdnsName
+// Purpose: Returns the mDNS hostname with ".local" suffix, with fallback safety check.
+// Inputs: None.
+// Outputs:
+//   - String: The mDNS hostname with ".local" suffix (e.g., "GPStar_Attenuator.local").
+//             Returns "MDNS_NOT_SET" if mDNS could not be initialized.
+// Side Effects: None.
+String WirelessManager::getMdnsName() const {
+  // Try to get the primary hostname directly (index 0), or will be an empty string.
+  String mdnsHostname = MDNS.hostname(0);
+  
+  // Check if hostname is valid and not empty.
+  if (mdnsHostname.length() > 0) {
+    return mdnsHostname + ".local";
+  }
+
+  // Return clear debug indicator if mDNS isn't ready or returns empty.
+  return "MDNS_NOT_SET";
+}
+
 // Function: startMdnsService
 // Purpose: Starts the local MDNS responder service using the AP name.
 // Inputs: None.
 // Outputs:
 //   - bool: True if MDNS service started successfully, false otherwise.
 bool WirelessManager::startMdnsService() {
-  if (MDNS.begin(getMdnsName())) {
+  if (MDNS.begin(getLocalNetworkName().c_str())) {
     MDNS.addService("http", "tcp", 80);
     return true;
   }
+
   return false;
 }

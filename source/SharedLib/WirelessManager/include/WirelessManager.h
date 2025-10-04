@@ -72,7 +72,7 @@ class WirelessManager {
     String getDefaultPassword() const { return String(AP_DEFAULT_PASSWORD); }
 
     // Public getter for the MDNS name (eg. "GPStar_<deviceName>.local")
-    String getMdnsName() const { return localNetworkName + ".local"; }
+    String getMdnsName() const;
 
     // Public getter for local IP information
     IPAddress getLocalAddress() const { return localAddress; }

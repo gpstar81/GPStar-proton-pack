@@ -27,7 +27,7 @@
 
 // Set to 1 to enable built-in debug messages via Serial device output.
 // Use with DEBUG_SEND_TO_CONSOLE and other DEBUG_'s in Configuration.h
-#define DEBUG 1
+#define DEBUG 0
 
 // Debug macros
 #if DEBUG == 1
