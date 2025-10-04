@@ -73,7 +73,7 @@ void changeStreamMode(STREAM_MODES new_mode) {
   }
 
   // Continue to change the stream mode.
-  // @TODO: Add checks for the spectral modes being available.
+  // @TODO: Add checks for the VG and spectral modes being available.
   switch(new_mode) {
     case PROTON:
       attenuatorSerialSend(A_PROTON_MODE);
@@ -418,16 +418,24 @@ void checkRotaryPress() {
 
 /*
  * Determines if encoder was turned CW or CCW.
+ * 
+ * Reads a rotary encoder and detects direction based on the relationship
+ * between the A and B signal lines. Works with most common rotary encoders
+ * including KY-040, EC11, and similar devices.
+ * 
+ * Variables:
+ * - i_encoder_pos: Tracks raw encoder position changes
+ * - i_val_rotary: Encoder position for direction detection
  */
 void readEncoder() {
   if(digitalRead(r_encoderA) == digitalRead(r_encoderB)) {
-    i_encoder_pos++; // Clockwise
+    i_encoder_pos++; // Clockwise: signals match during forward motion
   }
   else {
-    i_encoder_pos--; // Counter-clockwise
+    i_encoder_pos--; // Counter-clockwise: signals differ during reverse motion
   }
 
-  i_val_rotary = i_encoder_pos / 2.5;
+  i_val_rotary = i_encoder_pos; // Direct 1:1 tracking.
 }
 
 /*
@@ -705,9 +713,19 @@ void checkUserInputs() {
   if(switch_right.getState() == LOW) {
     b_right_toggle_on = true;
 
-    MENU_LEVEL = MENU_STREAM; // Set encoder menu to stream mode selection.
+    // Only enter stream select mode if wand is not firing or in an error state.
+    if(canChangeStreamMode()) {
+      // Enter the stream select mode for the top dial.
+      if (MENU_LEVEL != MENU_STREAM) {
+        MENU_LEVEL = MENU_STREAM;
 
-    if(b_wand_firing && i_cyclotron_multiplier <= 2 && b_firing_feedback && !b_overheating && !b_pack_alarm) {
+        // Provide feedback that the system changed menu state.
+        useVibration(i_vibrate_min_time); // Give a quick nudge.
+        buzzOn(784); // Tone as note G4
+      }
+    }
+    
+    if(b_wand_firing && i_cyclotron_multiplier <= 2 && b_firing_feedback && !(b_overheating || b_pack_alarm)) {
       // Give physical feedback through vibration while wand is firing, but not in an overheat/alarm state.
       useVibration(i_vibrate_min_time); // Use short bursts as this may be called multiple times in a row.
     }
@@ -758,7 +776,7 @@ void checkUserInputs() {
 
       // Provide feedback that the system changed menu state.
       useVibration(i_vibrate_min_time); // Give a quick nudge.
-      buzzOn(784); // Tone as note G4
+      buzzOn(440); // Tone as note A4
     }
   }
 
