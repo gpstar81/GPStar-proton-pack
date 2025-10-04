@@ -552,7 +552,8 @@ input[type=text] {
   width:320px;
 }
 
-#themes {
+#themes,
+#streamMode {
   width:230px;
 }
 

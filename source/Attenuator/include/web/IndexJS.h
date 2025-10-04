@@ -245,7 +245,7 @@ function setButtonStates(statusObj) {
   setToggle("cyclotronDirection", statusObj.direction);
 
   // Set the theme drop-down to the current theme.
-  switch(statusObj.themeid) {
+  switch(statusObj.themeID) {
     case 2:
     default:
       setValue("themes", "1984");
