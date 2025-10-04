@@ -202,7 +202,7 @@ function setDefaultOverlays() {
 
   // Clear special text elements until we know the system state.
   setHtml("equipTitle", "");
-  setHtml("streamMode", "");
+  setHtml("streamStatus", "");
 }
 
 function disableActionButtons() {
@@ -222,19 +222,18 @@ function setButtonStates(statusObj) {
   const wandPowered = statusObj.wand === "Powered";
   const cyclotronNormal = statusObj.cyclotron === "Normal" || statusObj.cyclotron === "Active";
   const cyclotronOverheat = statusObj.cyclotron === "Warning" || statusObj.cyclotron === "Critical";
-  const modeOriginal = statusObj.mode === "Original";
-  const modeSuperHero = statusObj.mode === "Super Hero";
-  const ionswitchReady = statusObj.ionswitch === "Ready";
+  const modeSuperHero = !!+statusObj.modeID;
+  const ionswitchReady = statusObj.switch === "Ready";
   const firingActive = statusObj.firing === "Firing";
-  const rampingActive = !!statusObj.ramping; // Convert to boolean, handling undefined/null.
-  const vgmodeActive = !!statusObj.vgmode; // Convert to boolean, handling undefined/null.
+  const rampingActive = !!+statusObj.ramping; // Convert to boolean, handling undefined/null.
+  const vgmodeActive = !!+statusObj.vgMode; // Convert to boolean, handling undefined/null.
 
-  if ((packPowered || (modeOriginal && ionswitchReady)) && !wandPowered) {
+  if ((packPowered || (!modeSuperHero && ionswitchReady)) && !wandPowered) {
     // Can only turn off the pack, so long as the wand is not powered.
     getEl("btnPackOff").disabled = false;
   }
 
-  if ((modeSuperHero && !packPowered) || (modeOriginal && !ionswitchReady)) {
+  if ((modeSuperHero && !packPowered) || (!modeSuperHero && !ionswitchReady)) {
     // Can turn on the pack if not already powered (implies wand is not powered).
     getEl("btnPackOn").disabled = false;
   }
@@ -268,7 +267,7 @@ function setButtonStates(statusObj) {
     getEl("streamMode").disabled = true;
   }
 
-  switch(statusObj.wandmode) {
+  switch(statusObj.wandMode) {
     case "Proton Stream":
       setValue("streamMode", "proton");
     break;
@@ -470,7 +469,7 @@ function updateGraphics(jObj){
     // Current Wand Status
     if (jObj.wand == "Connected") {
       // Only update if the wand is physically connected to the pack.
-      setHtml("streamMode", jObj.wandMode || "");
+      setHtml("streamStatus", jObj.wandMode || "");
       setHtml("powerLevel", "L-" + (jObj.power || "0"));
       showEl("barrelOverlay");
       colorEl("barrelOverlay", color[0], color[1], color[2], "0." + Math.round(jObj.power * 1.2, 10));
@@ -494,10 +493,10 @@ function updateGraphics(jObj){
       setHtml("powerLevel", "");
       if (parseFloat(jObj.wandAmps || 0) > 0.01) {
         // If we have a non-zero amperage reading, display that as it means a stock wand is attached.
-        setHtml("streamMode", "Stream: " + parseFloat((jObj.wandAmps || 0)).toFixed(2) + " GW");
+        setHtml("streamStatus", "Stream: " + parseFloat((jObj.wandAmps || 0)).toFixed(2) + " GW");
       } else {
         // Otherwise we consider a wand to be "disengaged" as it could be inactive or detached.
-        setHtml("streamMode", "- Disengaged -");
+        setHtml("streamStatus", "- Disengaged -");
       }
       hideEl("barrelOverlay");
       colorEl("safetyOverlay", 100, 100, 100);
@@ -532,7 +531,7 @@ function updateGraphics(jObj){
 
     // Set special text elements based on the current equipment state.
     setHtml("equipTitle", "- Desynchronized -");
-    setHtml("streamMode", "- Disengaged -");
+    setHtml("streamStatus", "- Disengaged -");
   }
 }
 
