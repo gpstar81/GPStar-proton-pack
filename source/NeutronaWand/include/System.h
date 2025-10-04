@@ -9672,8 +9672,9 @@ void checkRotaryEncoder() {
                   WAND_MENU_LEVEL = MENU_LEVEL_3;
                   i_wand_menu = 5;
 
-                  // Turn on the vent/top LED to indicate entering sub menu level 3.
-                  ventLightControl(1);
+                  // Turn on some lights to visually indicate which menu we are in.
+                  digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
+                  ventLightControl(); // Level 3
 
                   // Play an indication beep to notify we have changed menu levels.
                   stopEffect(S_BEEPS);
@@ -9737,7 +9738,7 @@ void checkRotaryEncoder() {
                   i_wand_menu = 1;
 
                   // Turn off the vent/top LED to indicate leaving this sub menu.
-                  ventLightControl(0);
+                  ventLightControl(0); // Level 3
 
                   // Play an indication beep to notify we have changed menu levels.
                   stopEffect(S_BEEPS);
