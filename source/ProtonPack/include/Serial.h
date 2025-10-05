@@ -601,7 +601,7 @@ void handlePackPrefsUpdate() {
       i_cyclotron_leds = OUTER_CYCLOTRON_LED_MAX;
     break;
 
-    // For Frutto Technology Max Cyclotron (36) LEDs.
+    // For GPStar Cyclotron (36) LEDs.
     case 36:
       i_cyclotron_leds = FRUTTO_MAX_CYCLOTRON_LED_COUNT;
     break;
@@ -3803,7 +3803,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       switch(i_cyclotron_leds) {
         case OUTER_CYCLOTRON_LED_MAX:
-          // Switch to 36 LEDs. Frutto Technology Max.
+          // Switch to 36 LEDs. GPStar.
           i_cyclotron_leds = FRUTTO_MAX_CYCLOTRON_LED_COUNT;
 
           resetCyclotronState();

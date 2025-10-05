@@ -398,12 +398,12 @@ void wandTipOn() {
             c_temp = C_CHARTREUSE;
           }
           else {
-            // Set the tip of the Frutto LED array to beige if playing the lockout/cable spark animation.
+            // Set the tip of the GPStar Neutrona Barrel LED array to beige if playing the lockout/cable spark animation.
             c_temp = C_BEIGE;
           }
         }
         else if(b_firing_cross_streams && !b_pack_cyclotron_lid_on) {
-          // Set the tip of the Frutto LED array to greenish if in Frozen Empire and using CTS mode.
+          // Set the tip of the GPStar Neutrona Barrel LED array to greenish if in Frozen Empire and using CTS mode.
           c_temp = C_CHARTREUSE;
         }
         else if(STREAM_MODE == SLIME) {
@@ -417,7 +417,7 @@ void wandTipOn() {
       }
       else {
         if(b_wand_mash_error || b_pack_alarm) {
-          // Set the tip of the Frutto LED array to beige if playing the lockout/cable spark animation.
+          // Set the tip of the GPStar Neutrona Barrel LED array to beige if playing the lockout/cable spark animation.
           c_temp = C_BEIGE;
         }
         else if(STREAM_MODE == SLIME) {
@@ -461,7 +461,7 @@ void wandTipOff() {
     case LEDS_50:
     case LEDS_48:
       if(WAND_BARREL_LED_COUNT == LEDS_48) {
-        // Set the tip of the Frutto LED array to black.
+        // Set the tip of the GPStar Neutrona Barrel LED array to black.
         barrel_leds[12] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
       }
       else if(WAND_BARREL_LED_COUNT == LEDS_50) {

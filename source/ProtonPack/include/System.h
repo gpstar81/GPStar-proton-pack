@@ -198,7 +198,7 @@ uint8_t cyclotronLookupTable(uint8_t index) {
     break;
 
     case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
-      // Frutto Max 36 LED array.
+      // GPStar LED array.
       return PROGMEM_READU8(i_cyclotron_36led_matrix[index]);
     break;
 

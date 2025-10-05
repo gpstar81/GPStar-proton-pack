@@ -77,7 +77,7 @@ CHSV getHue(uint8_t i_colour, uint8_t i_brightness = 255, uint8_t i_saturation =
   // For colour cycles, this indicates how often to change colour.
   uint8_t i_cycle = 2;
 
-  // For the Frutto barrel we need to reduce the cycle count so the colours are more perceptible.
+  // For the GPStar and Frutto barrel we need to reduce the cycle count so the colours are more perceptible.
   if(WAND_BARREL_LED_COUNT == LEDS_48 || WAND_BARREL_LED_COUNT == LEDS_50) {
     i_cycle = 255;
   }

@@ -647,7 +647,7 @@ void checkUserInputs() {
    * When paired with the gpstar Proton Pack controller, will turn the
    * pack on or off. When the pack is on the bargraph will automatically
    * enable and display an animation which matches the Neutrona Wand
-   * bargraph (whether stock 5-LED version or 28-segment by Frutto).
+   * bargraph (whether stock 5-LED version or GPStar bargraph).
    *
    * Standalone:
    * When not paired with the GPStar Proton Pack controller, will turn

@@ -83,7 +83,7 @@
 #define HASLAB_POWERCELL_LED_COUNT 13
 
 /*
- * The Frutto Power Cell has 15 LEDs.
+ * The GPStar and Frutto Power Cell has 15 LEDs.
  */
 #define FRUTTO_POWERCELL_LED_COUNT 15
 
@@ -98,7 +98,7 @@
 #define FRUTTO_CYCLOTRON_LED_COUNT 20
 
 /*
- * The Frutto Max Cyclotron Lid has 36 LEDs.
+ * The GPStar and Frutto Max Cyclotron Lid has 36 LEDs.
  */
 #define FRUTTO_MAX_CYCLOTRON_LED_COUNT 36
 
@@ -272,9 +272,9 @@ const uint8_t i_cyclotron_40led_matrix[OUTER_CYCLOTRON_LED_MAX] PROGMEM = { 1, 2
 
 /*
  * Inner Cyclotron LED Panel
- * Disabled = Frutto Technology LED panel will be disabled; non-Addressable LEDs will continue working [ATMega only]
- * RGB Static = Use the Frutto Technology LED panel, but colors remain consistent for all stream modes
- * RGB Dynamic = Use the Frutto Technology LED panel, allowing colors to change based on stream modes [Default]
+ * Disabled = GPStar or Frutto Technology LED panel will be disabled; non-Addressable LEDs will continue working [ATMega only]
+ * RGB Static = Use the GPStar or Frutto Technology LED panel, but colors remain consistent for all stream modes
+ * RGB Dynamic = Use the GPStar or Frutto Technology LED panel, allowing colors to change based on stream modes [Default]
  * When enabled, this becomes the first in the chain from the Inner Cyclotron JST-XH connector from the Proton Pack.
  */
 enum INNER_CYC_PANEL_MODES { PANEL_DISABLED, PANEL_RGB_STATIC, PANEL_RGB_DYNAMIC };
