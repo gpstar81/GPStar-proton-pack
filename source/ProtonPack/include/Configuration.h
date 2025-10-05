@@ -80,7 +80,7 @@ uint8_t i_cyclotron_leds = 36;
  *
  * CYCLOTRON_DELAY_2021_12_LED is for the stock Haslab 12 LED setup.
  * CYCLOTRON_DELAY_2021_20_LED is for the Frutto Technology 20 LED setup.
- * CYCLOTRON_DELAY_2021_36_LED is for the Frutto Technology Max 36 LED setup.
+ * CYCLOTRON_DELAY_2021_36_LED is for the GPStar 36 LED setup.
  * CYCLOTRON_DELAY_2021_40_LED is for a 40 LED NeoPixel ring.
  */
 #define CYCLOTRON_DELAY_1984 300 // 300ms as seen on-screen in GB1/GB2.
@@ -98,7 +98,7 @@ uint16_t i_1984_delay = CYCLOTRON_DELAY_TVG; // Default to TVG as b_fade_cyclotr
  *
  * i_1984_cyclotron_12_leds is for the stock Haslab 12 LED setup.
  * i_1984_cyclotron_20_leds is for the Frutto Technology 20 LED setup.
- * i_1984_cyclotron_36_leds is for the Frutto Technology Max 36 LED setup.
+ * i_1984_cyclotron_36_leds is for the GPStar 36 LED setup.
  * i_1984_cyclotron_40_leds is for a 40 LED NeoPixel ring.
  */
 const uint8_t i_1984_cyclotron_12_leds_cw[4] PROGMEM = { 1, 4, 7, 10 };
@@ -143,7 +143,7 @@ bool b_cyclotron_simulate_ring = true;
 
 /*
  * Cyclotron Video Game Colour Toggle
- * If you are using Cyclotron Lid LEDs and Inner Cyclotron LEDs with RGB support, such as the Frutto Technology Cyclotron LEDs or NeoPixel Rings etc.
+ * If you are using Cyclotron Lid LEDs and Inner Cyclotron LEDs with RGB support, such as the GPStar or Frutto Technology Cyclotron LEDs or NeoPixel Rings etc.
  * You can toggle if you want it to change colours to match the Video Game Modes or stay the default red at all times.
  * Note that this has no effect on the stock HasLab Cyclotron Lid LEDs, which are red only.
  * The default setting is true, which makes the Cyclotron Lid and Inner Cyclotron change colours to match the Video Game Modes.
@@ -162,7 +162,7 @@ const bool b_cyclotron_haslab_chsv_colour_change = false;
 /*
  * Power Cell LEDs
  * The number of Power Cell LEDs. Stock HasLab has 13.
- * If you are installing a Frutto Technology Power Cell which has 15 LEDs, then change this to 15.
+ * If you are installing a GPStar or Frutto Power Cell which has 15 LEDs, then change this to 15.
  * Note that you may need to adjust the i_powercell_delay_1984 and i_powercell_delay_2021 to a lower number to increase the Power Cell update speed.
  * Any settings saved in the EEPROM menu will overwrite these settings.
  */
@@ -177,8 +177,8 @@ uint8_t i_powercell_leds = 15;
  */
 #define POWERCELL_DELAY_1984_13_LED 46 // 1984/1989 delay for HasLab 13-LED Power Cell.
 #define POWERCELL_DELAY_2021_13_LED 40 // Afterlife/Frozen Empire delay for HasLab 13-LED Power Cell.
-#define POWERCELL_DELAY_1984_15_LED 40 // 1984/1989 delay for Frutto 15-LED Power Cell.
-#define POWERCELL_DELAY_2021_15_LED 34 // Afterlife/Frozen Empire delay for Frutto 15-LED Power Cell.
+#define POWERCELL_DELAY_1984_15_LED 40 // 1984/1989 delay for GPStar or Frutto 15-LED Power Cell.
+#define POWERCELL_DELAY_2021_15_LED 34 // Afterlife/Frozen Empire delay for GPStar or Frutto 15-LED Power Cell.
 uint8_t i_powercell_delay_1984 = POWERCELL_DELAY_1984_15_LED;
 uint8_t i_powercell_delay_2021 = POWERCELL_DELAY_2021_15_LED;
 
@@ -190,7 +190,7 @@ bool b_powercell_invert = false;
 
 /*
  * Power Cell Video Game Colour Toggle
- * If you are using Power Cell LEDs with RGB support, such as the Frutto Technology Power Cells,
+ * If you are using Power Cell LEDs with RGB support, such as the GPStar Power Cells,
  * You can toggle if you want it to change colours to match the Video Game Modes or stay the default blue at all times.
  * Note that this has no effect on the stock HasLab Power Cell LEDs, which are blue only.
  * The default setting is false; true makes the Power Cell change colours to match the Video Game Modes.

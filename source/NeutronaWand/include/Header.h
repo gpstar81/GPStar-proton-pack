@@ -172,7 +172,7 @@ const uint16_t i_meson_blast_delay_level_1 = 220;
  * The Hasbro Neutrona Wand has 5 LEDs. 0 = Base, 4 = tip. These are addressable with a single pin and are RGB.
  * Support for up to 50 LEDs from the GPStar Neutrona Barrel. (body of 48 + 2 strobe tips which are also RGB).
  */
-#define BARREL_LEDS_MAX 50 // The maximum number of barrel LEDs supported (Frutto = 48 + Strobe Tip).
+#define BARREL_LEDS_MAX 50 // The maximum number of barrel LEDs supported (GPStar = 48 + 2 Strobe Tips. Frutto = 48 + Strobe Tip).
 CRGB barrel_leds[BARREL_LEDS_MAX];
 // Array of LEDs on the GPStar Neutrona Barrel. LEDs 36 and 37 are the very tips and will not be in this array.
 const uint8_t gpstar_neutrona_barrel[48] PROGMEM = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 49, 48, 47, 46, 45, 44, 43, 42, 41, 40, 39, 38};
@@ -197,7 +197,6 @@ enum WAND_BARREL_LED_COUNTS : uint8_t {
 
 /*
  * Delay for fastled to update the addressable LEDs.
- * The Frutto barrel has up to 49 addressable LEDs.
  * 0.0312 ms to update each LED, then a 0.05 ms resting period once all are updated.
  * So 1.58 ms should be okay? Let's bump it up to 3 just in case.
  */
@@ -336,7 +335,7 @@ HT16K33 ht_bargraph;
 
 /*
  * Used to change to 28-segment bargraph features.
- * The Frutto 28-segment bargraph is automatically detected on boot and sets this to true.
+ * The bargraph is automatically detected on boot and sets this to true.
  * Part #: BL28Z-3005SA04Y
  */
 enum BARGRAPH_TYPES : uint8_t {
