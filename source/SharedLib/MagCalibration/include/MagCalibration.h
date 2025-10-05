@@ -73,22 +73,55 @@ class MagCalibration {
     CalibrationData computeCalibration() const;
 
   private:
-    // Constants for binning and buffer sizes.
-    static constexpr int NUM_AZIMUTH_BINS = 18;
-    static constexpr int NUM_ELEVATION_BINS = 9;
-    static constexpr int MAX_POINTS = NUM_AZIMUTH_BINS * NUM_ELEVATION_BINS;
-    static constexpr int MAX_SAMPLES = MAX_POINTS * 2;
+    /**
+     * SPHERICAL COORDINATE BINNING SYSTEM:
+     * 
+     * This class divides the magnetometer's 3D measurement space into a grid of spherical bins.
+     * Since magnetometer readings represent magnetic field vectors, we normalize them to unit 
+     * vectors on a sphere surface and categorize them by direction.
+     * 
+     * COORDINATE SYSTEM:
+     * - Input: Raw magnetometer readings (x, y, z) in µT (micro-Tesla)
+     * - Normalized: Unit vector (nx, ny, nz) where sqrt(nx² + ny² + nz²) = 1.0
+     * - Spherical: (azimuth, elevation) angles in radians
+     * 
+     * AZIMUTH (Horizontal Rotation):
+     * - Range: -π to +π radians (-180° to +180°) = 360° total coverage
+     * - Physical meaning: Rotation around the Z-axis (like compass heading)
+     * - Bins: 18 bins × 20° each = 360° total coverage
+     * - Formula: azimuth = atan2(ny, nx)
+     * 
+     * ELEVATION (Vertical Tilt):
+     * - Range: -π/2 to +π/2 radians (-90° to +90°) = 180° total coverage
+     * - Physical meaning: Tilt up/down from horizontal plane
+     * - Bins: 9 bins × 20° each = 180° total coverage
+     * - Formula: elevation = asin(nz)
+     * 
+     * TOTAL COVERAGE SPACE:
+     * - Total bins: 18 × 9 = 162 discrete orientation regions
+     * - Each bin represents a 20° × 20° "patch" on the unit sphere
+     * - 100% coverage = all 162 bins filled with at least one sample
+     * 
+     * COVERAGE REQUIREMENTS:
+     * For good calibration, the magnetometer should be oriented through many 
+     * different directions. The user should move the device not only around
+     * and up/down, but also rotate it throughout the motions to pick up all
+     * spatial orientations.
+     */
+    static constexpr int NUM_AZIMUTH_BINS = 18; // Horizontal, around the Z axis (0 to 360 degrees).
+    static constexpr int NUM_ELEVATION_BINS = 9; // Vertical, from -90 to +90 degrees (up/down).
+    static constexpr int MAX_POINTS = NUM_AZIMUTH_BINS * NUM_ELEVATION_BINS; // aka. Bin total.
+    static constexpr int MAX_SAMPLES = MAX_POINTS * 2; // Ensure sufficient samples for fitting.
 
     // Internal buffers for samples and visualization.
     float xSamples[MAX_SAMPLES];
     float ySamples[MAX_SAMPLES];
     float zSamples[MAX_SAMPLES];
-    int sampleCount;
-
+    int sampleCount; // Common tracker for samples taken.
     float visX[MAX_POINTS];
     float visY[MAX_POINTS];
     float visZ[MAX_POINTS];
-    int visCount;
+    int visCount; // Common tracker for points available.
 
     // Bin filled flags.
     bool bins[MAX_POINTS];

@@ -48,9 +48,11 @@ MagCalibration::MagCalibration() {
 
 // Begin a new calibration session by clearing buffers and coverage.
 void MagCalibration::beginCalibration() {
-    sampleCount = 0;
-    visCount = 0;
-    for(int i=0; i<MAX_POINTS; i++) bins[i] = false;
+  sampleCount = 0;
+  visCount = 0;
+  for(int i=0; i<MAX_POINTS; i++) {
+    bins[i] = false;
+  }
 }
 
 /**
@@ -60,45 +62,90 @@ void MagCalibration::beginCalibration() {
 /**
  * Function: addSample
  * Purpose: Add a raw magnetometer sample, only stores if it expands coverage
- * Inputs: float x, float y, float z
+ * Inputs: float x, float y, float z - raw magnetometer readings in µT (micro-Tesla)
  * Outputs: bool - true if sample was added, false if ignored (duplicate bin or max samples reached).
+ * 
+ * HOW IT WORKS:
+ * This function takes a magnetometer reading and decides if it's worth keeping.
+ * The goal is to collect samples from many different device orientations to build
+ * a complete picture of the magnetic field around the device.
+ * 
+ * WORKFLOW:
+ * 1. Check if we have room for more samples
+ * 2. Make sure the reading is valid (not zero)
+ * 3. Figure out which direction the device is pointing
+ * 4. See if we already have a sample from that direction
+ * 5. If it's a new direction, keep the sample
+ * 6. If we've seen that direction before, ignore it
  */
 bool MagCalibration::addSample(float x, float y, float z) {
-  if(sampleCount >= MAX_SAMPLES) return false; // Max samples reached
+  // STEP 1: Check storage capacity
+  // We can only store a limited number of samples (324 total)
+  // If we're full, reject any new samples
+  if(sampleCount >= MAX_SAMPLES) {
+    return false; // Max samples reached
+  }
 
-  // Normalize vector
+  // STEP 2: Validate the magnetometer reading
+  // Calculate the strength of the magnetic field reading
   float r = sqrt(x * x + y * y + z * z);
-  if(r == 0) return false; // Invalid sample
+  
+  // Reject readings with zero strength (sensor errors or interference)
+  if(r == 0) {
+    return false; // Invalid sample
+  }
+  
+  // Convert to unit vector - we only care about direction, not strength
+  // This puts all readings on the same scale for comparison
   float nx = x / r;
   float ny = y / r;
   float nz = z / r;
 
-  // Spherical coordinates
-  float az = atan2(ny, nx); // -PI..PI
-  float el = asin(nz);      // -PI/2..PI/2
+  // STEP 3: Convert to orientation angles
+  // Think of this like getting compass heading and tilt angle
+  // az = horizontal rotation (like compass: North, East, South, West)
+  // el = vertical tilt (like pitch: up, level, down)
+  float az = atan2(ny, nx); // Horizontal orientation (-180° to +180°)
+  float el = asin(nz);      // Vertical tilt (-90° to +90°)
 
-  // Map to bin indices
-  int azIndex = (int)((az + M_PI) / (2 * M_PI) * NUM_AZIMUTH_BINS);
-  int elIndex = (int)((el + M_PI/2) / M_PI * NUM_ELEVATION_BINS);
+  // STEP 4: Figure out which "bin" this orientation belongs to
+  // We divide the sphere into 162 regions (18 horizontal × 9 vertical)
+  // Each region covers about 20° in each direction
+  int azIndex = (int)((az + M_PI) / (2 * M_PI) * NUM_AZIMUTH_BINS);     // Which horizontal slice (0-17)
+  int elIndex = (int)((el + M_PI/2) / M_PI * NUM_ELEVATION_BINS);       // Which vertical slice (0-8)
 
-  if(azIndex < 0) azIndex = 0;
-  if(azIndex >= NUM_AZIMUTH_BINS) azIndex = NUM_AZIMUTH_BINS - 1;
-  if(elIndex < 0) elIndex = 0;
-  if(elIndex >= NUM_ELEVATION_BINS) elIndex = NUM_ELEVATION_BINS - 1;
+  // STEP 5: Make sure we got valid bin numbers
+  // Sometimes floating point math can give us numbers slightly outside our range
+  if(azIndex < 0) {
+    azIndex = 0;
+  }
+  if(azIndex >= NUM_AZIMUTH_BINS) {
+    azIndex = NUM_AZIMUTH_BINS - 1;
+  }
+  if(elIndex < 0) {
+    elIndex = 0;
+  }
+  if(elIndex >= NUM_ELEVATION_BINS) {
+    elIndex = NUM_ELEVATION_BINS - 1;
+  }
 
+  // Convert 2D coordinates to a single bin number (0-161)
   int binIndex = elIndex * NUM_AZIMUTH_BINS + azIndex;
 
-  // Only store if bin is empty
+  // STEP 6: Check if this orientation is new
+  // We only want one sample per orientation region
+  // Once we have a sample from a 20°×20° area, we ignore future samples from that area
   if(!bins[binIndex]) {
+    // This is a new orientation! Mark it as covered
     bins[binIndex] = true;
 
-    // Store in calibration buffer
+    // Store the raw magnetometer reading for calibration calculations
     xSamples[sampleCount] = x;
     ySamples[sampleCount] = y;
     zSamples[sampleCount] = z;
     sampleCount++;
 
-    // Store in visualization buffer
+    // Also store it for the web visualization (limited to 162 points)
     if(visCount < MAX_POINTS) {
       visX[visCount] = x;
       visY[visCount] = y;
@@ -106,10 +153,13 @@ bool MagCalibration::addSample(float x, float y, float z) {
       visCount++;
     }
 
-    return true; // new bin filled
+    return true; // SUCCESS: New orientation covered, sample stored
   }
 
-  return false; // duplicate bin or max samples reached
+  // STEP 7: Reject duplicate orientation
+  // We already have a sample from this direction, so this one doesn't help
+  // The user needs to move the device to a different orientation to make progress
+  return false; // IGNORED: Already have sample from this orientation
 }
 
 /**
@@ -120,7 +170,11 @@ bool MagCalibration::addSample(float x, float y, float z) {
  */
 float MagCalibration::getCoveragePercent() const {
   int filled = 0;
-  for(int i = 0; i < MAX_POINTS; i++) if(bins[i]) filled++;
+  for(int i = 0; i < MAX_POINTS; i++) {
+    if(bins[i]) {
+      filled++;
+    }
+  }
   return (filled / (float)MAX_POINTS) * 100.0f;
 }
 
@@ -154,12 +208,24 @@ CalibrationData MagCalibration::computeCalibration() const {
     float minY=ySamples[0], maxY=ySamples[0];
     float minZ=zSamples[0], maxZ=zSamples[0];
     for(int i=1;i<sampleCount;i++){
-      if(xSamples[i]<minX) minX=xSamples[i];
-      if(xSamples[i]>maxX) maxX=xSamples[i];
-      if(ySamples[i]<minY) minY=ySamples[i];
-      if(ySamples[i]>maxY) maxY=ySamples[i];
-      if(zSamples[i]<minZ) minZ=zSamples[i];
-      if(zSamples[i]>maxZ) maxZ=zSamples[i];
+      if(xSamples[i]<minX) {
+        minX=xSamples[i];
+      }
+      if(xSamples[i]>maxX) {
+        maxX=xSamples[i];
+      }
+      if(ySamples[i]<minY) {
+        minY=ySamples[i];
+      }
+      if(ySamples[i]>maxY) {
+        maxY=ySamples[i];
+      }
+      if(zSamples[i]<minZ) {
+        minZ=zSamples[i];
+      }
+      if(zSamples[i]>maxZ) {
+        maxZ=zSamples[i];
+      }
     }
     cal.mag_hardiron[0] = (maxX+minX)/2.0f;
     cal.mag_hardiron[1] = (maxY+minY)/2.0f;
@@ -169,23 +235,23 @@ CalibrationData MagCalibration::computeCalibration() const {
     float scaleY = avgRadius / ((maxY-minY)/2.0f);
     float scaleZ = avgRadius / ((maxZ-minZ)/2.0f);
     cal.mag_softiron[0] = scaleX;
-    cal.mag_softiron[1]=0;
-    cal.mag_softiron[2]=0;
+    cal.mag_softiron[1] = 0;
+    cal.mag_softiron[2] = 0;
     cal.mag_softiron[3] = 0;
-    cal.mag_softiron[4]=scaleY;
-    cal.mag_softiron[5]=0;
+    cal.mag_softiron[4] = scaleY;
+    cal.mag_softiron[5] = 0;
     cal.mag_softiron[6] = 0;
-    cal.mag_softiron[7]=0;
-    cal.mag_softiron[8]=scaleZ;
+    cal.mag_softiron[7] = 0;
+    cal.mag_softiron[8] = scaleZ;
     // compute mean radius
-    double sumB=0;
-    for(int i=0;i<sampleCount;i++){
-      float mx = (xSamples[i]-cal.mag_hardiron[0]) * scaleX;
-      float my = (ySamples[i]-cal.mag_hardiron[1]) * scaleY;
-      float mz = (zSamples[i]-cal.mag_hardiron[2]) * scaleZ;
+    double sumB = 0;
+    for(int i = 0; i < sampleCount; i++) {
+      float mx = (xSamples[i] - cal.mag_hardiron[0]) * scaleX;
+      float my = (ySamples[i] - cal.mag_hardiron[1]) * scaleY;
+      float mz = (zSamples[i] - cal.mag_hardiron[2]) * scaleZ;
       sumB += sqrtf(mx*mx + my*my + mz*mz);
     }
-    cal.mag_field = (sampleCount>0) ? (float)(sumB / sampleCount) : 50.0f;
+    cal.mag_field = (sampleCount > 0) ? (float)(sumB / sampleCount) : 50.0f;
     return cal;
   }
 
@@ -197,11 +263,15 @@ CalibrationData MagCalibration::computeCalibration() const {
   float ATb[Ncols];
 
   // zero out
-  for(int i=0;i<Ncols*Ncols;i++) ATA[i]=0.0f;
-  for(int i=0;i<Ncols;i++) ATb[i]=0.0f;
+  for(int i = 0; i < Ncols*Ncols; i++) {
+    ATA[i] = 0.0f;
+  }
+  for(int i = 0; i < Ncols; i++) {
+    ATb[i] = 0.0f;
+  }
 
   // accumulate
-  for(int s=0; s<sampleCount; ++s) {
+  for(int s = 0; s < sampleCount; ++s) {
     float x = xSamples[s], y = ySamples[s], z = zSamples[s];
     float row[Ncols];
     row[0] = x*x;
@@ -215,9 +285,9 @@ CalibrationData MagCalibration::computeCalibration() const {
     row[8] = z;
 
     // ATA += row^T * row
-    for(int i=0;i<Ncols;i++) {
-      for(int j=0;j<Ncols;j++) {
-        ATA[i*Ncols + j] += row[i] * row[j];
+    for(int i = 0; i < Ncols; i++) {
+      for(int j = 0; j < Ncols; j++) {
+        ATA[i * Ncols + j] += row[i] * row[j];
       }
       ATb[i] += row[i] * 1.0f; // b=1
     }
@@ -229,16 +299,28 @@ CalibrationData MagCalibration::computeCalibration() const {
   if(!ok) {
     // fallback to diagonal method
     // (same fallback as above)
-    float minX=xSamples[0], maxX=xSamples[0];
-    float minY=ySamples[0], maxY=ySamples[0];
-    float minZ=zSamples[0], maxZ=zSamples[0];
-    for(int i=1;i<sampleCount;i++){
-      if(xSamples[i]<minX) minX=xSamples[i];
-      if(xSamples[i]>maxX) maxX=xSamples[i];
-      if(ySamples[i]<minY) minY=ySamples[i];
-      if(ySamples[i]>maxY) maxY=ySamples[i];
-      if(zSamples[i]<minZ) minZ=zSamples[i];
-      if(zSamples[i]>maxZ) maxZ=zSamples[i];
+    float minX = xSamples[0], maxX = xSamples[0];
+    float minY = ySamples[0], maxY = ySamples[0];
+    float minZ = zSamples[0], maxZ = zSamples[0];
+    for(int i = 1; i < sampleCount; i++){
+      if(xSamples[i] < minX) {
+        minX = xSamples[i];
+      }
+      if(xSamples[i] > maxX) {
+        maxX = xSamples[i];
+      }
+      if(ySamples[i] < minY) {
+        minY = ySamples[i];
+      }
+      if(ySamples[i] > maxY) {
+        maxY = ySamples[i];
+      }
+      if(zSamples[i] < minZ) {
+        minZ = zSamples[i];
+      }
+      if(zSamples[i] > maxZ) {
+        maxZ = zSamples[i];
+      }
     }
     cal.mag_hardiron[0] = (maxX+minX)/2.0f;
     cal.mag_hardiron[1] = (maxY+minY)/2.0f;
@@ -248,22 +330,22 @@ CalibrationData MagCalibration::computeCalibration() const {
     float scaleY = avgRadius / ((maxY-minY)/2.0f);
     float scaleZ = avgRadius / ((maxZ-minZ)/2.0f);
     cal.mag_softiron[0] = scaleX;
-    cal.mag_softiron[1]=0;
-    cal.mag_softiron[2]=0;
+    cal.mag_softiron[1] = 0;
+    cal.mag_softiron[2] = 0;
     cal.mag_softiron[3] = 0;
-    cal.mag_softiron[4]=scaleY;
-    cal.mag_softiron[5]=0;
+    cal.mag_softiron[4] = scaleY;
+    cal.mag_softiron[5] = 0;
     cal.mag_softiron[6] = 0;
-    cal.mag_softiron[7]=0;
-    cal.mag_softiron[8]=scaleZ;
-    double sumB=0;
-    for(int i=0;i<sampleCount;i++){
-      float mx = (xSamples[i]-cal.mag_hardiron[0]) * scaleX;
-      float my = (ySamples[i]-cal.mag_hardiron[1]) * scaleY;
-      float mz = (zSamples[i]-cal.mag_hardiron[2]) * scaleZ;
+    cal.mag_softiron[7] = 0;
+    cal.mag_softiron[8] = scaleZ;
+    double sumB = 0;
+    for(int i = 0; i < sampleCount; i++){
+      float mx = (xSamples[i] - cal.mag_hardiron[0]) * scaleX;
+      float my = (ySamples[i] - cal.mag_hardiron[1]) * scaleY;
+      float mz = (zSamples[i] - cal.mag_hardiron[2]) * scaleZ;
       sumB += sqrtf(mx*mx + my*my + mz*mz);
     }
-    cal.mag_field = (sampleCount>0) ? (float)(sumB / sampleCount) : 50.0f;
+    cal.mag_field = (sampleCount > 0) ? (float)(sumB / sampleCount) : 50.0f;
     return cal;
   }
 
@@ -300,12 +382,24 @@ CalibrationData MagCalibration::computeCalibration() const {
     float minY=ySamples[0], maxY=ySamples[0];
     float minZ=zSamples[0], maxZ=zSamples[0];
     for(int i=1;i<sampleCount;i++){
-      if(xSamples[i]<minX) minX=xSamples[i];
-      if(xSamples[i]>maxX) maxX=xSamples[i];
-      if(ySamples[i]<minY) minY=ySamples[i];
-      if(ySamples[i]>maxY) maxY=ySamples[i];
-      if(zSamples[i]<minZ) minZ=zSamples[i];
-      if(zSamples[i]>maxZ) maxZ=zSamples[i];
+      if(xSamples[i]<minX) {
+        minX=xSamples[i];
+      }
+      if(xSamples[i]>maxX) {
+        maxX=xSamples[i];
+      }
+      if(ySamples[i]<minY) {
+        minY=ySamples[i];
+      }
+      if(ySamples[i]>maxY) {
+        maxY=ySamples[i];
+      }
+      if(zSamples[i]<minZ) {
+        minZ=zSamples[i];
+      }
+      if(zSamples[i]>maxZ) {
+        maxZ=zSamples[i];
+      }
     }
     cal.mag_hardiron[0] = (maxX+minX)/2.0f;
     cal.mag_hardiron[1] = (maxY+minY)/2.0f;
@@ -356,12 +450,24 @@ CalibrationData MagCalibration::computeCalibration() const {
     float minY=ySamples[0], maxY=ySamples[0];
     float minZ=zSamples[0], maxZ=zSamples[0];
     for(int i=1;i<sampleCount;i++){
-      if(xSamples[i]<minX) minX=xSamples[i];
-      if(xSamples[i]>maxX) maxX=xSamples[i];
-      if(ySamples[i]<minY) minY=ySamples[i];
-      if(ySamples[i]>maxY) maxY=ySamples[i];
-      if(zSamples[i]<minZ) minZ=zSamples[i];
-      if(zSamples[i]>maxZ) maxZ=zSamples[i];
+      if(xSamples[i]<minX) {
+        minX=xSamples[i];
+      }
+      if(xSamples[i]>maxX) {
+        maxX=xSamples[i];
+      }
+      if(ySamples[i]<minY) {
+        minY=ySamples[i];
+      }
+      if(ySamples[i]>maxY) {
+        maxY=ySamples[i];
+      }
+      if(zSamples[i]<minZ) {
+        minZ=zSamples[i];
+      }
+      if(zSamples[i]>maxZ) {
+        maxZ=zSamples[i];
+      }
     }
     cal.mag_hardiron[0] = (maxX+minX)/2.0f;
     cal.mag_hardiron[1] = (maxY+minY)/2.0f;
@@ -392,25 +498,43 @@ CalibrationData MagCalibration::computeCalibration() const {
 
   // Eigen-decompose Q to get V, lambda
   float Qcopy[3][3];
-  for(int r=0;r<3;r++) for(int c=0;c<3;c++) Qcopy[r][c] = Q[r][c];
+  for(int r=0;r<3;r++) {
+    for(int c=0;c<3;c++) {
+      Qcopy[r][c] = Q[r][c];
+    }
+  }
   float V[3][3], lambda[3];
   jacobiEigen3(Qcopy, V, lambda);
 
   // Ensure positive eigenvalues (guard)
-  for(int i=0;i<3;i++) if(lambda[i] <= 1e-12f) lambda[i] = 1e-12f;
+  for(int i=0;i<3;i++) {
+    if(lambda[i] <= 1e-12f) {
+      lambda[i] = 1e-12f;
+    }
+  }
 
   // Build M = V * diag(sqrt(lambda)/sqrt(R)) * V^T
   float diag[3];
   float invSqrtR = 1.0f / sqrtf(R);
-  for(int i=0;i<3;i++) diag[i] = sqrtf(lambda[i]) * invSqrtR;
+  for(int i=0;i<3;i++) {
+    diag[i] = sqrtf(lambda[i]) * invSqrtR;
+  }
 
   float temp[3][3];
-  for(int r=0;r<3;r++) for(int c=0;c<3;c++) temp[r][c] = V[r][c] * diag[c];
+  for(int r=0;r<3;r++) {
+    for(int c=0;c<3;c++) {
+      temp[r][c] = V[r][c] * diag[c];
+    }
+  }
   float M[3][3];
-  for(int r=0;r<3;r++) for(int c=0;c<3;c++) {
-    float s = 0.0f;
-    for(int k=0;k<3;k++) s += temp[r][k] * V[c][k]; // note V^T element is V[c][k]
-    M[r][c] = s;
+  for(int r=0;r<3;r++) {
+    for(int c=0;c<3;c++) {
+      float s = 0.0f;
+      for(int k=0;k<3;k++) {
+        s += temp[r][k] * V[c][k]; // note V^T element is V[c][k]
+      }
+      M[r][c] = s;
+    }
   }
 
   // Compute mean raw magnitude (centered) to scale M to sensor units (µT)
@@ -455,18 +579,32 @@ CalibrationData MagCalibration::computeCalibration() const {
 // Helper: Common Jacobi eigen-decomposition (symmetric 3x3).
 // Outputs V (columns are eigenvectors) and w (eigenvalues).
 void MagCalibration::jacobiEigen3(float A[3][3], float V[3][3], float w[3]) const {
-  // initialize
+  // Initialize identity matrix V where diagonal elements = 1.0f, off-diagonal = 0.0f
   float a00 = A[0][0], a01 = A[0][1], a02 = A[0][2];
   float a11 = A[1][1], a12 = A[1][2], a22 = A[2][2];
-  for(int r=0;r<3;r++) for(int c=0;c<3;c++) V[r][c] = (r==c)?1.0f:0.0f;
+  for(int r = 0; r < 3; r++) {
+    for(int c = 0; c < 3; c++) {
+      V[r][c] = (r == c) ? 1.0f : 0.0f;
+    }
+  }
 
   const int MAX_ITER = 60;
-  for(int iter=0; iter<MAX_ITER; ++iter) {
+  for(int iter = 0; iter < MAX_ITER; ++iter) {
     float abs01 = fabsf(a01), abs02 = fabsf(a02), abs12 = fabsf(a12);
-    if(abs01 < 1e-8f && abs02 < 1e-8f && abs12 < 1e-8f) break;
-    int p=0,q=1; float maxv = abs01;
-    if(abs02 > maxv) { maxv=abs02; p=0; q=2; }
-    if(abs12 > maxv) { maxv=abs12; p=1; q=2; }
+    if(abs01 < 1e-8f && abs02 < 1e-8f && abs12 < 1e-8f) {
+      break;
+    }
+    int p = 0, q = 1; float maxv = abs01;
+    if(abs02 > maxv) {
+      maxv = abs02;
+      p = 0;
+      q = 2;
+    }
+    if(abs12 > maxv) {
+      maxv = abs12;
+      p = 1;
+      q = 2;
+    }
 
     float apq = (p==0 && q==1)?a01 : (p==0 && q==2)?a02 : a12;
     float app = (p==0)?a00 : (p==1)?a11 : a22;
@@ -506,17 +644,17 @@ void MagCalibration::jacobiEigen3(float A[3][3], float V[3][3], float w[3]) cons
     }
   }
 
-  w[0]=a00; w[1]=a11; w[2]=a22;
+  w[0] = a00; w[1] = a11; w[2] = a22;
   // sort descending
-  for(int i=0;i<2;i++) {
-    int idx=i;
-    for(int j=i+1;j<3;j++) if(w[j] > w[idx]) idx=j;
-    if(idx!=i) {
-      float tw=w[i]; w[i]=w[idx]; w[idx]=tw;
-      for(int r=0;r<3;r++) {
-        float tv=V[r][i];
-        V[r][i]=V[r][idx];
-        V[r][idx]=tv; 
+  for(int i = 0; i < 2; i++) {
+    int idx = i;
+    for(int j = i + 1; j < 3; j++) if(w[j] > w[idx]) idx = j;
+    if(idx != i) {
+      float tw = w[i]; w[i] = w[idx]; w[idx] = tw;
+      for(int r = 0; r < 3; r++) {
+        float tv = V[r][i];
+        V[r][i] = V[r][idx];
+        V[r][idx] = tv;
       }
     }
   }
@@ -540,14 +678,21 @@ bool MagCalibration::solveLinearSystem(int n, float A[], float b[], float x[]) c
     float maxv = fabsf(aug[col][col]);
     for(int r = col + 1; r < n; ++r) {
       float v = fabsf(aug[r][col]);
-      if(v > maxv) { maxv = v; piv = r; }
+      if(v > maxv) {
+        maxv = v;
+        piv = r;
+      }
     }
-    if(maxv < 1e-12f) return false; // singular
+    if(maxv < 1e-12f) {
+      return false; // singular
+    }
 
     // swap rows if needed
     if(piv != col) {
       for(int c = col; c <= n; ++c) {
-        float tmp = aug[col][c]; aug[col][c] = aug[piv][c]; aug[piv][c] = tmp;
+        float tmp = aug[col][c];
+        aug[col][c] = aug[piv][c];
+        aug[piv][c] = tmp;
       }
     }
 
@@ -555,9 +700,13 @@ bool MagCalibration::solveLinearSystem(int n, float A[], float b[], float x[]) c
     float pivot = aug[col][col];
     for(int c = col; c <= n; ++c) aug[col][c] /= pivot;
     for(int r = 0; r < n; ++r) {
-      if(r == col) continue;
+      if(r == col) {
+        continue;
+      }
       float fac = aug[r][col];
-      if(fac == 0.0f) continue;
+      if(fac == 0.0f) {
+        continue;
+      }
       for(int c = col; c <= n; ++c) aug[r][c] -= fac * aug[col][c];
     }
   }
