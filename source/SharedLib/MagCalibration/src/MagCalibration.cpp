@@ -204,36 +204,36 @@ CalibrationData MagCalibration::computeCalibration() const {
     // not enough samples for stable fit; fallback to diagonal method (quick)
     // (You can tweak threshold)
     // fallback: compute min/max & diagonal scale (your existing code)
-    float minX=xSamples[0], maxX=xSamples[0];
-    float minY=ySamples[0], maxY=ySamples[0];
-    float minZ=zSamples[0], maxZ=zSamples[0];
-    for(int i=1;i<sampleCount;i++){
-      if(xSamples[i]<minX) {
-        minX=xSamples[i];
+    float minX = xSamples[0], maxX = xSamples[0];
+    float minY = ySamples[0], maxY = ySamples[0];
+    float minZ = zSamples[0], maxZ = zSamples[0];
+    for(int i = 1; i < sampleCount; i++){
+      if(xSamples[i] < minX) {
+        minX = xSamples[i];
       }
-      if(xSamples[i]>maxX) {
-        maxX=xSamples[i];
+      if(xSamples[i] > maxX) {
+        maxX = xSamples[i];
       }
-      if(ySamples[i]<minY) {
-        minY=ySamples[i];
+      if(ySamples[i] < minY) {
+        minY = ySamples[i];
       }
-      if(ySamples[i]>maxY) {
-        maxY=ySamples[i];
+      if(ySamples[i] > maxY) {
+        maxY = ySamples[i];
       }
-      if(zSamples[i]<minZ) {
-        minZ=zSamples[i];
+      if(zSamples[i] < minZ) {
+        minZ = zSamples[i];
       }
-      if(zSamples[i]>maxZ) {
-        maxZ=zSamples[i];
+      if(zSamples[i] > maxZ) {
+        maxZ = zSamples[i];
       }
     }
-    cal.mag_hardiron[0] = (maxX+minX)/2.0f;
-    cal.mag_hardiron[1] = (maxY+minY)/2.0f;
-    cal.mag_hardiron[2] = (maxZ+minZ)/2.0f;
-    float avgRadius = ((maxX-minX)+(maxY-minY)+(maxZ-minZ))/6.0f;
-    float scaleX = avgRadius / ((maxX-minX)/2.0f);
-    float scaleY = avgRadius / ((maxY-minY)/2.0f);
-    float scaleZ = avgRadius / ((maxZ-minZ)/2.0f);
+    cal.mag_hardiron[0] = (maxX + minX) / 2.0f;
+    cal.mag_hardiron[1] = (maxY + minY) / 2.0f;
+    cal.mag_hardiron[2] = (maxZ + minZ) / 2.0f;
+    float avgRadius = ((maxX - minX) + (maxY - minY) + (maxZ - minZ)) / 6.0f;
+    float scaleX = avgRadius / ((maxX - minX) / 2.0f);
+    float scaleY = avgRadius / ((maxY - minY) / 2.0f);
+    float scaleZ = avgRadius / ((maxZ - minZ) / 2.0f);
     cal.mag_softiron[0] = scaleX;
     cal.mag_softiron[1] = 0;
     cal.mag_softiron[2] = 0;
@@ -302,7 +302,7 @@ CalibrationData MagCalibration::computeCalibration() const {
     float minX = xSamples[0], maxX = xSamples[0];
     float minY = ySamples[0], maxY = ySamples[0];
     float minZ = zSamples[0], maxZ = zSamples[0];
-    for(int i = 1; i < sampleCount; i++){
+    for(int i = 1; i < sampleCount; i++) {
       if(xSamples[i] < minX) {
         minX = xSamples[i];
       }
@@ -378,47 +378,47 @@ CalibrationData MagCalibration::computeCalibration() const {
   bool invok = invert3x3(Q, Qinv);
   if(!invok) {
     // fallback to diagonal
-    float minX=xSamples[0], maxX=xSamples[0];
-    float minY=ySamples[0], maxY=ySamples[0];
-    float minZ=zSamples[0], maxZ=zSamples[0];
-    for(int i=1;i<sampleCount;i++){
-      if(xSamples[i]<minX) {
-        minX=xSamples[i];
+    float minX = xSamples[0], maxX = xSamples[0];
+    float minY = ySamples[0], maxY = ySamples[0];
+    float minZ = zSamples[0], maxZ = zSamples[0];
+    for(int i = 1; i < sampleCount; i++) {
+      if(xSamples[i] < minX) {
+        minX = xSamples[i];
       }
-      if(xSamples[i]>maxX) {
-        maxX=xSamples[i];
+      if(xSamples[i] > maxX) {
+        maxX = xSamples[i];
       }
-      if(ySamples[i]<minY) {
-        minY=ySamples[i];
+      if(ySamples[i] < minY) {
+        minY = ySamples[i];
       }
-      if(ySamples[i]>maxY) {
-        maxY=ySamples[i];
+      if(ySamples[i] > maxY) {
+        maxY = ySamples[i];
       }
-      if(zSamples[i]<minZ) {
-        minZ=zSamples[i];
+      if(zSamples[i] < minZ) {
+        minZ = zSamples[i];
       }
-      if(zSamples[i]>maxZ) {
-        maxZ=zSamples[i];
+      if(zSamples[i] > maxZ) {
+        maxZ = zSamples[i];
       }
     }
-    cal.mag_hardiron[0] = (maxX+minX)/2.0f;
-    cal.mag_hardiron[1] = (maxY+minY)/2.0f;
-    cal.mag_hardiron[2] = (maxZ+minZ)/2.0f;
-    float avgRadius = ((maxX-minX)+(maxY-minY)+(maxZ-minZ))/6.0f;
-    float scaleX = avgRadius / ((maxX-minX)/2.0f);
-    float scaleY = avgRadius / ((maxY-minY)/2.0f);
-    float scaleZ = avgRadius / ((maxZ-minZ)/2.0f);
+    cal.mag_hardiron[0] = (maxX + minX) / 2.0f;
+    cal.mag_hardiron[1] = (maxY + minY) / 2.0f;
+    cal.mag_hardiron[2] = (maxZ + minZ) / 2.0f;
+    float avgRadius = ((maxX - minX) + (maxY - minY) + (maxZ - minZ)) / 6.0f;
+    float scaleX = avgRadius / ((maxX - minX) / 2.0f);
+    float scaleY = avgRadius / ((maxY - minY) / 2.0f);
+    float scaleZ = avgRadius / ((maxZ - minZ) / 2.0f);
     cal.mag_softiron[0] = scaleX;
-    cal.mag_softiron[1]=0;
-    cal.mag_softiron[2]=0;
+    cal.mag_softiron[1] = 0;
+    cal.mag_softiron[2] = 0;
     cal.mag_softiron[3] = 0;
-    cal.mag_softiron[4]=scaleY;
-    cal.mag_softiron[5]=0;
+    cal.mag_softiron[4] = scaleY;
+    cal.mag_softiron[5] = 0;
     cal.mag_softiron[6] = 0;
-    cal.mag_softiron[7]=0;
-    cal.mag_softiron[8]=scaleZ;
-    double sumB=0;
-    for(int i=0;i<sampleCount;i++){
+    cal.mag_softiron[7] = 0;
+    cal.mag_softiron[8] = scaleZ;
+    double sumB = 0;
+    for(int i=0;i<sampleCount;i++) {
       float mx = (xSamples[i]-cal.mag_hardiron[0]) * scaleX;
       float my = (ySamples[i]-cal.mag_hardiron[1]) * scaleY;
       float mz = (zSamples[i]-cal.mag_hardiron[2]) * scaleZ;
@@ -439,67 +439,67 @@ CalibrationData MagCalibration::computeCalibration() const {
 
   // compute constant: c^T Q c + L^T c + J
   float cQc = cx*(Q[0][0]*cx + Q[0][1]*cy + Q[0][2]*cz)
-          + cy*(Q[1][0]*cx + Q[1][1]*cy + Q[1][2]*cz)
-          + cz*(Q[2][0]*cx + Q[2][1]*cy + Q[2][2]*cz);
+            + cy*(Q[1][0]*cx + Q[1][1]*cy + Q[1][2]*cz)
+            + cz*(Q[2][0]*cx + Q[2][1]*cy + Q[2][2]*cz);
   float Lc = G*cx + H*cy + I*cz;
   float constant = cQc + Lc + J;
   float R = -constant;
   if(R <= 0.0f) {
     // invalid fit (likely poor coverage) -> fallback to diagonal
-    float minX=xSamples[0], maxX=xSamples[0];
-    float minY=ySamples[0], maxY=ySamples[0];
-    float minZ=zSamples[0], maxZ=zSamples[0];
-    for(int i=1;i<sampleCount;i++){
-      if(xSamples[i]<minX) {
-        minX=xSamples[i];
+    float minX = xSamples[0], maxX = xSamples[0];
+    float minY = ySamples[0], maxY = ySamples[0];
+    float minZ = zSamples[0], maxZ = zSamples[0];
+    for(int i = 1; i < sampleCount; i++) {
+      if(xSamples[i] < minX) {
+        minX = xSamples[i];
       }
-      if(xSamples[i]>maxX) {
-        maxX=xSamples[i];
+      if(xSamples[i] > maxX) {
+        maxX = xSamples[i];
       }
-      if(ySamples[i]<minY) {
-        minY=ySamples[i];
+      if(ySamples[i] < minY) {
+        minY = ySamples[i];
       }
-      if(ySamples[i]>maxY) {
-        maxY=ySamples[i];
+      if(ySamples[i] > maxY) {
+        maxY = ySamples[i];
       }
-      if(zSamples[i]<minZ) {
-        minZ=zSamples[i];
+      if(zSamples[i] < minZ) {
+        minZ = zSamples[i];
       }
-      if(zSamples[i]>maxZ) {
-        maxZ=zSamples[i];
+      if(zSamples[i] > maxZ) {
+        maxZ = zSamples[i];
       }
     }
-    cal.mag_hardiron[0] = (maxX+minX)/2.0f;
-    cal.mag_hardiron[1] = (maxY+minY)/2.0f;
-    cal.mag_hardiron[2] = (maxZ+minZ)/2.0f;
-    float avgRadius = ((maxX-minX)+(maxY-minY)+(maxZ-minZ))/6.0f;
-    float scaleX = avgRadius / ((maxX-minX)/2.0f);
-    float scaleY = avgRadius / ((maxY-minY)/2.0f);
-    float scaleZ = avgRadius / ((maxZ-minZ)/2.0f);
+    cal.mag_hardiron[0] = (maxX + minX) / 2.0f;
+    cal.mag_hardiron[1] = (maxY + minY) / 2.0f;
+    cal.mag_hardiron[2] = (maxZ + minZ) / 2.0f;
+    float avgRadius = ((maxX - minX) + (maxY - minY) + (maxZ - minZ)) / 6.0f;
+    float scaleX = avgRadius / ((maxX - minX) / 2.0f);
+    float scaleY = avgRadius / ((maxY - minY) / 2.0f);
+    float scaleZ = avgRadius / ((maxZ - minZ) / 2.0f);
     cal.mag_softiron[0] = scaleX;
-    cal.mag_softiron[1]=0;
-    cal.mag_softiron[2]=0;
+    cal.mag_softiron[1] = 0;
+    cal.mag_softiron[2] = 0;
     cal.mag_softiron[3] = 0;
-    cal.mag_softiron[4]=scaleY;
-    cal.mag_softiron[5]=0;
+    cal.mag_softiron[4] = scaleY;
+    cal.mag_softiron[5] = 0;
     cal.mag_softiron[6] = 0;
-    cal.mag_softiron[7]=0;
-    cal.mag_softiron[8]=scaleZ;
-    double sumB=0;
-    for(int i=0;i<sampleCount;i++){
-      float mx = (xSamples[i]-cal.mag_hardiron[0]) * scaleX;
-      float my = (ySamples[i]-cal.mag_hardiron[1]) * scaleY;
-      float mz = (zSamples[i]-cal.mag_hardiron[2]) * scaleZ;
+    cal.mag_softiron[7] = 0;
+    cal.mag_softiron[8] = scaleZ;
+    double sumB = 0;
+    for(int i = 0; i < sampleCount; i++) {
+      float mx = (xSamples[i] - cal.mag_hardiron[0]) * scaleX;
+      float my = (ySamples[i] - cal.mag_hardiron[1]) * scaleY;
+      float mz = (zSamples[i] - cal.mag_hardiron[2]) * scaleZ;
       sumB += sqrtf(mx*mx + my*my + mz*mz);
     }
-    cal.mag_field = (sampleCount>0) ? (float)(sumB / sampleCount) : 50.0f;
+    cal.mag_field = (sampleCount > 0) ? (float)(sumB / sampleCount) : 50.0f;
     return cal;
   }
 
   // Eigen-decompose Q to get V, lambda
   float Qcopy[3][3];
-  for(int r=0;r<3;r++) {
-    for(int c=0;c<3;c++) {
+  for(int r = 0; r < 3; r++) {
+    for(int c = 0; c < 3; c++) {
       Qcopy[r][c] = Q[r][c];
     }
   }
@@ -507,7 +507,7 @@ CalibrationData MagCalibration::computeCalibration() const {
   jacobiEigen3(Qcopy, V, lambda);
 
   // Ensure positive eigenvalues (guard)
-  for(int i=0;i<3;i++) {
+  for(int i = 0; i < 3; i++) {
     if(lambda[i] <= 1e-12f) {
       lambda[i] = 1e-12f;
     }
@@ -516,21 +516,21 @@ CalibrationData MagCalibration::computeCalibration() const {
   // Build M = V * diag(sqrt(lambda)/sqrt(R)) * V^T
   float diag[3];
   float invSqrtR = 1.0f / sqrtf(R);
-  for(int i=0;i<3;i++) {
+  for(int i = 0; i < 3; i++) {
     diag[i] = sqrtf(lambda[i]) * invSqrtR;
   }
 
   float temp[3][3];
-  for(int r=0;r<3;r++) {
-    for(int c=0;c<3;c++) {
+  for(int r = 0; r < 3; r++) {
+    for(int c = 0; c < 3; c++) {
       temp[r][c] = V[r][c] * diag[c];
     }
   }
   float M[3][3];
-  for(int r=0;r<3;r++) {
-    for(int c=0;c<3;c++) {
+  for(int r = 0; r < 3; r++) {
+    for(int c = 0; c < 3; c++) {
       float s = 0.0f;
-      for(int k=0;k<3;k++) {
+      for(int k = 0; k < 3; k++) {
         s += temp[r][k] * V[c][k]; // note V^T element is V[c][k]
       }
       M[r][c] = s;
@@ -539,7 +539,7 @@ CalibrationData MagCalibration::computeCalibration() const {
 
   // Compute mean raw magnitude (centered) to scale M to sensor units (µT)
   double meanRaw = 0.0;
-  for(int i=0;i<sampleCount;i++) {
+  for(int i = 0; i < sampleCount; i++) {
     float dx = xSamples[i] - cx;
     float dy = ySamples[i] - cy;
     float dz = zSamples[i] - cz;
@@ -549,8 +549,8 @@ CalibrationData MagCalibration::computeCalibration() const {
   float scaleFactor = (meanRaw > 1e-6) ? (float)meanRaw : 1.0f;
 
   // final soft-iron matrix in sensor units (row-major)
-  for(int r=0;r<3;r++) {
-    for(int c=0;c<3;c++) {
+  for(int r = 0; r < 3; r++) {
+    for(int c = 0; c < 3; c++) {
       float val = M[r][c] * scaleFactor;
       cal.mag_softiron[r*3 + c] = val;
     }
