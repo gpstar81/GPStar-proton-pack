@@ -59,7 +59,7 @@ Changes are made by pressing either the `Intensify` button on the gun box or the
 
 📝 **Note:** The Neutrona Wand Menu Level 2 can only be reached while the Neutrona Wand and Proton Pack are both turned off.
 
-To access Menu Level 2, use the `Top Dial` on the top of the wand to move down and past `Option 1` on Menu Level 1. When you reach the the next menu level, an audio cue will play and the Slo-Blo LED will light up to indicate this menu state.
+To access Menu Level 2, use the `Top Dial` on the top of the wand to move down and past `Option 1` on Menu Level 1. When you reach the the next menu level, an audio cue will play and the **Slo-Blo LED** will light up to indicate this menu state.
 
 ![](images/OperationNeutrona10.jpg)
 
@@ -86,7 +86,7 @@ To access Menu Level 2, use the `Top Dial` on the top of the wand to move down a
 
 📝 **Note:** The Neutrona Wand Menu Level 3 is available only with GPStar II controllers and can only be reached while the Neutrona Wand and Proton Pack are both turned off.
 
-To access Menu Level 3, use the `Top Dial` on the top of the wand to move down and past `Option 1` on Menu Level 2. When you reach the the next menu level, an audio cue will play and the Slo-Blo LED and Vent Light will both light up to indicate this menu state.
+To access Menu Level 3, use the `Top Dial` on the top of the wand to move down and past `Option 1` on Menu Level 2. When you reach the the next menu level, an audio cue will play and the **Slo-Blo LED** and **Vent Light** will both light up to indicate this menu state.
 
 | Option | Purpose | Intensify Button | Barrel Wing Button |
 |:------:|---------|------------------|--------------------|
