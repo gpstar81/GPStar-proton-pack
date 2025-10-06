@@ -299,9 +299,9 @@ CalibrationData MagCalibration::computeCalibration() const {
   if(!ok) {
     // fallback to diagonal method
     // (same fallback as above)
-    float minX = xSamples[0], maxX = xSamples[0];
-    float minY = ySamples[0], maxY = ySamples[0];
-    float minZ = zSamples[0], maxZ = zSamples[0];
+    double minX = xSamples[0], maxX = xSamples[0];
+    double minY = ySamples[0], maxY = ySamples[0];
+    double minZ = zSamples[0], maxZ = zSamples[0];
     for(int i = 1; i < sampleCount; i++) {
       if(xSamples[i] < minX) {
         minX = xSamples[i];
@@ -322,49 +322,49 @@ CalibrationData MagCalibration::computeCalibration() const {
         maxZ = zSamples[i];
       }
     }
-    cal.mag_hardiron[0] = (maxX + minX) / 2.0f;
-    cal.mag_hardiron[1] = (maxY + minY) / 2.0f;
-    cal.mag_hardiron[2] = (maxZ + minZ) / 2.0f;
-    float rangeX = maxX - minX;
-    float rangeY = maxY - minY; 
-    float rangeZ = maxZ - minZ;
-    float avgRadius = (rangeX + rangeY + rangeZ) / 6.0f;
+    cal.mag_hardiron[0] = (float)((maxX + minX) / 2.0);
+    cal.mag_hardiron[1] = (float)((maxY + minY) / 2.0);
+    cal.mag_hardiron[2] = (float)((maxZ + minZ) / 2.0);
+    double rangeX = maxX - minX;
+    double rangeY = maxY - minY; 
+    double rangeZ = maxZ - minZ;
+    double avgRadius = (rangeX + rangeY + rangeZ) / 6.0;
 
     // Handle each axis independently - only apply identity scaling to problematic axes
-    float scaleX, scaleY, scaleZ;
+    double scaleX, scaleY, scaleZ;
 
     // Check each range individually and handle division by zero per axis
-    if(rangeX == 0.0f) {
-      scaleX = 1.0f; // Identity scaling for X-axis (no correction)
+    if(rangeX == 0.0) {
+      scaleX = 1.0; // Identity scaling for X-axis (no correction)
     } else {
-      scaleX = avgRadius / (rangeX / 2.0f); // Normal scaling calculation
+      scaleX = avgRadius / (rangeX / 2.0); // Normal scaling calculation
     }
-    if(rangeY == 0.0f) {
-      scaleY = 1.0f; // Identity scaling for Y-axis (no correction)
+    if(rangeY == 0.0) {
+      scaleY = 1.0; // Identity scaling for Y-axis (no correction)
     } else {
-      scaleY = avgRadius / (rangeY / 2.0f); // Normal scaling calculation
+      scaleY = avgRadius / (rangeY / 2.0); // Normal scaling calculation
     }
-    if(rangeZ == 0.0f) {
-      scaleZ = 1.0f; // Identity scaling for Z-axis (no correction)
+    if(rangeZ == 0.0) {
+      scaleZ = 1.0; // Identity scaling for Z-axis (no correction)
     } else {
-      scaleZ = avgRadius / (rangeZ / 2.0f); // Normal scaling calculation
+      scaleZ = avgRadius / (rangeZ / 2.0); // Normal scaling calculation
     }
 
-    cal.mag_softiron[0] = scaleX;
-    cal.mag_softiron[1] = 0;
-    cal.mag_softiron[2] = 0;
-    cal.mag_softiron[3] = 0;
-    cal.mag_softiron[4] = scaleY;
-    cal.mag_softiron[5] = 0;
-    cal.mag_softiron[6] = 0;
-    cal.mag_softiron[7] = 0;
-    cal.mag_softiron[8] = scaleZ;
-    double sumB = 0;
+    cal.mag_softiron[0] = (float)scaleX;
+    cal.mag_softiron[1] = 0.0f;
+    cal.mag_softiron[2] = 0.0f;
+    cal.mag_softiron[3] = 0.0f;
+    cal.mag_softiron[4] = (float)scaleY;
+    cal.mag_softiron[5] = 0.0f;
+    cal.mag_softiron[6] = 0.0f;
+    cal.mag_softiron[7] = 0.0f;
+    cal.mag_softiron[8] = (float)scaleZ;
+    double sumB = 0.0;
     for(int i = 0; i < sampleCount; i++){
-      float mx = (xSamples[i] - cal.mag_hardiron[0]) * scaleX;
-      float my = (ySamples[i] - cal.mag_hardiron[1]) * scaleY;
-      float mz = (zSamples[i] - cal.mag_hardiron[2]) * scaleZ;
-      sumB += sqrtf(mx*mx + my*my + mz*mz);
+      double mx = (xSamples[i] - cal.mag_hardiron[0]) * scaleX;
+      double my = (ySamples[i] - cal.mag_hardiron[1]) * scaleY;
+      double mz = (zSamples[i] - cal.mag_hardiron[2]) * scaleZ;
+      sumB += sqrt(mx*mx + my*my + mz*mz);
     }
     cal.mag_field = (sampleCount > 0) ? (float)(sumB / sampleCount) : 50.0f;
     return cal;
@@ -399,9 +399,9 @@ CalibrationData MagCalibration::computeCalibration() const {
   bool invok = invert3x3(Q, Qinv);
   if(!invok) {
     // fallback to diagonal
-    float minX = xSamples[0], maxX = xSamples[0];
-    float minY = ySamples[0], maxY = ySamples[0];
-    float minZ = zSamples[0], maxZ = zSamples[0];
+    double minX = xSamples[0], maxX = xSamples[0];
+    double minY = ySamples[0], maxY = ySamples[0];
+    double minZ = zSamples[0], maxZ = zSamples[0];
     for(int i = 1; i < sampleCount; i++) {
       if(xSamples[i] < minX) {
         minX = xSamples[i];
@@ -422,49 +422,49 @@ CalibrationData MagCalibration::computeCalibration() const {
         maxZ = zSamples[i];
       }
     }
-    cal.mag_hardiron[0] = (maxX + minX) / 2.0f;
-    cal.mag_hardiron[1] = (maxY + minY) / 2.0f;
-    cal.mag_hardiron[2] = (maxZ + minZ) / 2.0f;
-    float rangeX = maxX - minX;
-    float rangeY = maxY - minY; 
-    float rangeZ = maxZ - minZ;
-    float avgRadius = (rangeX + rangeY + rangeZ) / 6.0f;
+    cal.mag_hardiron[0] = (float)((maxX + minX) / 2.0);
+    cal.mag_hardiron[1] = (float)((maxY + minY) / 2.0);
+    cal.mag_hardiron[2] = (float)((maxZ + minZ) / 2.0);
+    double rangeX = maxX - minX;
+    double rangeY = maxY - minY; 
+    double rangeZ = maxZ - minZ;
+    double avgRadius = (rangeX + rangeY + rangeZ) / 6.0;
 
     // Handle each axis independently - only apply identity scaling to problematic axes
-    float scaleX, scaleY, scaleZ;
+    double scaleX, scaleY, scaleZ;
 
     // Check each range individually and handle division by zero per axis
-    if(rangeX == 0.0f) {
-      scaleX = 1.0f; // Identity scaling for X-axis (no correction)
+    if(rangeX == 0.0) {
+      scaleX = 1.0; // Identity scaling for X-axis (no correction)
     } else {
-      scaleX = avgRadius / (rangeX / 2.0f); // Normal scaling calculation
+      scaleX = avgRadius / (rangeX / 2.0); // Normal scaling calculation
     }
-    if(rangeY == 0.0f) {
-      scaleY = 1.0f; // Identity scaling for Y-axis (no correction)
+    if(rangeY == 0.0) {
+      scaleY = 1.0; // Identity scaling for Y-axis (no correction)
     } else {
-      scaleY = avgRadius / (rangeY / 2.0f); // Normal scaling calculation
+      scaleY = avgRadius / (rangeY / 2.0); // Normal scaling calculation
     }
-    if(rangeZ == 0.0f) {
-      scaleZ = 1.0f; // Identity scaling for Z-axis (no correction)
+    if(rangeZ == 0.0) {
+      scaleZ = 1.0; // Identity scaling for Z-axis (no correction)
     } else {
-      scaleZ = avgRadius / (rangeZ / 2.0f); // Normal scaling calculation
+      scaleZ = avgRadius / (rangeZ / 2.0); // Normal scaling calculation
     }
 
-    cal.mag_softiron[0] = scaleX;
-    cal.mag_softiron[1] = 0;
-    cal.mag_softiron[2] = 0;
-    cal.mag_softiron[3] = 0;
-    cal.mag_softiron[4] = scaleY;
-    cal.mag_softiron[5] = 0;
-    cal.mag_softiron[6] = 0;
-    cal.mag_softiron[7] = 0;
-    cal.mag_softiron[8] = scaleZ;
-    double sumB = 0;
+    cal.mag_softiron[0] = (float)scaleX;
+    cal.mag_softiron[1] = 0.0f;
+    cal.mag_softiron[2] = 0.0f;
+    cal.mag_softiron[3] = 0.0f;
+    cal.mag_softiron[4] = (float)scaleY;
+    cal.mag_softiron[5] = 0.0f;
+    cal.mag_softiron[6] = 0.0f;
+    cal.mag_softiron[7] = 0.0f;
+    cal.mag_softiron[8] = (float)scaleZ;
+    double sumB = 0.0;
     for(int i = 0; i < sampleCount; i++){
-      float mx = (xSamples[i] - cal.mag_hardiron[0]) * scaleX;
-      float my = (ySamples[i] - cal.mag_hardiron[1]) * scaleY;
-      float mz = (zSamples[i] - cal.mag_hardiron[2]) * scaleZ;
-      sumB += sqrtf(mx*mx + my*my + mz*mz);
+      double mx = (xSamples[i] - cal.mag_hardiron[0]) * scaleX;
+      double my = (ySamples[i] - cal.mag_hardiron[1]) * scaleY;
+      double mz = (zSamples[i] - cal.mag_hardiron[2]) * scaleZ;
+      sumB += sqrt(mx*mx + my*my + mz*mz);
     }
     cal.mag_field = (sampleCount > 0) ? (float)(sumB / sampleCount) : 50.0f;
     return cal;
@@ -488,9 +488,9 @@ CalibrationData MagCalibration::computeCalibration() const {
   float R = -constant;
   if(R <= 0.0f) {
     // invalid fit (likely poor coverage) -> fallback to diagonal
-    float minX = xSamples[0], maxX = xSamples[0];
-    float minY = ySamples[0], maxY = ySamples[0];
-    float minZ = zSamples[0], maxZ = zSamples[0];
+    double minX = xSamples[0], maxX = xSamples[0];
+    double minY = ySamples[0], maxY = ySamples[0];
+    double minZ = zSamples[0], maxZ = zSamples[0];
     for(int i = 1; i < sampleCount; i++) {
       if(xSamples[i] < minX) {
         minX = xSamples[i];
@@ -511,49 +511,49 @@ CalibrationData MagCalibration::computeCalibration() const {
         maxZ = zSamples[i];
       }
     }
-    cal.mag_hardiron[0] = (maxX + minX) / 2.0f;
-    cal.mag_hardiron[1] = (maxY + minY) / 2.0f;
-    cal.mag_hardiron[2] = (maxZ + minZ) / 2.0f;
-    float rangeX = maxX - minX;
-    float rangeY = maxY - minY; 
-    float rangeZ = maxZ - minZ;
-    float avgRadius = (rangeX + rangeY + rangeZ) / 6.0f;
+    cal.mag_hardiron[0] = (float)((maxX + minX) / 2.0);
+    cal.mag_hardiron[1] = (float)((maxY + minY) / 2.0);
+    cal.mag_hardiron[2] = (float)((maxZ + minZ) / 2.0);
+    double rangeX = maxX - minX;
+    double rangeY = maxY - minY; 
+    double rangeZ = maxZ - minZ;
+    double avgRadius = (rangeX + rangeY + rangeZ) / 6.0;
 
     // Handle each axis independently - only apply identity scaling to problematic axes
-    float scaleX, scaleY, scaleZ;
+    double scaleX, scaleY, scaleZ;
 
     // Check each range individually and handle division by zero per axis
-    if(rangeX == 0.0f) {
-      scaleX = 1.0f; // Identity scaling for X-axis (no correction)
+    if(rangeX == 0.0) {
+      scaleX = 1.0; // Identity scaling for X-axis (no correction)
     } else {
-      scaleX = avgRadius / (rangeX / 2.0f); // Normal scaling calculation
+      scaleX = avgRadius / (rangeX / 2.0); // Normal scaling calculation
     }
-    if(rangeY == 0.0f) {
-      scaleY = 1.0f; // Identity scaling for Y-axis (no correction)
+    if(rangeY == 0.0) {
+      scaleY = 1.0; // Identity scaling for Y-axis (no correction)
     } else {
-      scaleY = avgRadius / (rangeY / 2.0f); // Normal scaling calculation
+      scaleY = avgRadius / (rangeY / 2.0); // Normal scaling calculation
     }
-    if(rangeZ == 0.0f) {
-      scaleZ = 1.0f; // Identity scaling for Z-axis (no correction)
+    if(rangeZ == 0.0) {
+      scaleZ = 1.0; // Identity scaling for Z-axis (no correction)
     } else {
-      scaleZ = avgRadius / (rangeZ / 2.0f); // Normal scaling calculation
+      scaleZ = avgRadius / (rangeZ / 2.0); // Normal scaling calculation
     }
 
-    cal.mag_softiron[0] = scaleX;
-    cal.mag_softiron[1] = 0;
-    cal.mag_softiron[2] = 0;
-    cal.mag_softiron[3] = 0;
-    cal.mag_softiron[4] = scaleY;
-    cal.mag_softiron[5] = 0;
-    cal.mag_softiron[6] = 0;
-    cal.mag_softiron[7] = 0;
-    cal.mag_softiron[8] = scaleZ;
-    double sumB = 0;
-    for(int i = 0; i < sampleCount; i++) {
-      float mx = (xSamples[i] - cal.mag_hardiron[0]) * scaleX;
-      float my = (ySamples[i] - cal.mag_hardiron[1]) * scaleY;
-      float mz = (zSamples[i] - cal.mag_hardiron[2]) * scaleZ;
-      sumB += sqrtf(mx*mx + my*my + mz*mz);
+    cal.mag_softiron[0] = (float)scaleX;
+    cal.mag_softiron[1] = 0.0f;
+    cal.mag_softiron[2] = 0.0f;
+    cal.mag_softiron[3] = 0.0f;
+    cal.mag_softiron[4] = (float)scaleY;
+    cal.mag_softiron[5] = 0.0f;
+    cal.mag_softiron[6] = 0.0f;
+    cal.mag_softiron[7] = 0.0f;
+    cal.mag_softiron[8] = (float)scaleZ;
+    double sumB = 0.0;
+    for(int i = 0; i < sampleCount; i++){
+      double mx = (xSamples[i] - cal.mag_hardiron[0]) * scaleX;
+      double my = (ySamples[i] - cal.mag_hardiron[1]) * scaleY;
+      double mz = (zSamples[i] - cal.mag_hardiron[2]) * scaleZ;
+      sumB += sqrt(mx*mx + my*my + mz*mz);
     }
     cal.mag_field = (sampleCount > 0) ? (float)(sumB / sampleCount) : 50.0f;
     return cal;
@@ -603,10 +603,10 @@ CalibrationData MagCalibration::computeCalibration() const {
   // Compute mean raw magnitude (centered) to scale M to sensor units (µT)
   double meanRaw = 0.0;
   for(int i = 0; i < sampleCount; i++) {
-    float dx = xSamples[i] - cx;
-    float dy = ySamples[i] - cy;
-    float dz = zSamples[i] - cz;
-    meanRaw += sqrtf(dx*dx + dy*dy + dz*dz);
+    double dx = xSamples[i] - cx;
+    double dy = ySamples[i] - cy;
+    double dz = zSamples[i] - cz;
+    meanRaw += sqrt(dx*dx + dy*dy + dz*dz);
   }
   meanRaw = meanRaw / sampleCount;
   float scaleFactor = (meanRaw > 1e-6) ? (float)meanRaw : 1.0f;
