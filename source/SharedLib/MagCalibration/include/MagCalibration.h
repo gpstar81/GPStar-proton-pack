@@ -98,9 +98,9 @@ class MagCalibration {
      * - Formula: elevation = asin(nz)
      * 
      * TOTAL COVERAGE SPACE:
-     * - Total bins: 18 × 9 = 162 discrete orientation regions
-     * - Each bin represents a 20° × 20° "patch" on the unit sphere
-     * - 100% coverage = all 162 bins filled with at least one sample
+     * - Total bins: 36 × 18 = 648 discrete orientation regions
+     * - Each bin represents a 10° × 10° "patch" on the unit sphere
+     * - 100% coverage = all 648 bins filled with at least one sample
      * 
      * COVERAGE REQUIREMENTS:
      * For good calibration, the magnetometer should be oriented through many 
@@ -108,8 +108,8 @@ class MagCalibration {
      * and up/down, but also rotate it throughout the motions to pick up all
      * spatial orientations.
      */
-    static constexpr int NUM_AZIMUTH_BINS = 18; // Horizontal, around the Z axis (0 to 360 degrees).
-    static constexpr int NUM_ELEVATION_BINS = 9; // Vertical, from -90 to +90 degrees (up/down).
+    static constexpr int NUM_AZIMUTH_BINS = 36; // Horizontal, around the Z axis (0 to 360 degrees).
+    static constexpr int NUM_ELEVATION_BINS = 18; // Vertical, from -90 to +90 degrees (up/down).
     static constexpr int MAX_POINTS = NUM_AZIMUTH_BINS * NUM_ELEVATION_BINS; // aka. Bin total.
     static constexpr int MAX_SAMPLES = MAX_POINTS * 2; // Ensure sufficient samples for fitting.
 

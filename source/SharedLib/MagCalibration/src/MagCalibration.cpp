@@ -117,10 +117,10 @@ bool MagCalibration::addSample(float x, float y, float z) {
   float el = asin(nz); // Vertical tilt (-90° to +90°)
 
   // STEP 4: Figure out which "bin" this orientation belongs to
-  // We divide the sphere into 162 regions (18 horizontal × 9 vertical)
-  // Each region covers about 20° in each direction
-  int azIndex = (int)((az + M_PI) / (2 * M_PI) * NUM_AZIMUTH_BINS);     // Which horizontal slice (0-17)
-  int elIndex = (int)((el + M_PI/2) / M_PI * NUM_ELEVATION_BINS);       // Which vertical slice (0-8)
+  // We divide the sphere into 648 regions (36 horizontal × 18 vertical)
+  // Each region covers about 10° in each direction
+  int azIndex = (int)((az + M_PI) / (2 * M_PI) * NUM_AZIMUTH_BINS); // Which horizontal slice (0-35)
+  int elIndex = (int)((el + M_PI/2) / M_PI * NUM_ELEVATION_BINS);   // Which vertical slice (0-17)
 
   // STEP 5: Make sure we got valid bin numbers
   // Sometimes floating point math can give us numbers slightly outside our range
@@ -142,7 +142,7 @@ bool MagCalibration::addSample(float x, float y, float z) {
 
   // STEP 6: Check if this orientation is new
   // We only want one sample per orientation region
-  // Once we have a sample from a 20°×20° area, we ignore future samples from that area
+  // Once we have a sample from a 10°x10° area, we ignore future samples from that area
   if(!bins[binIndex]) {
     // This is a new orientation! Mark it as covered
     bins[binIndex] = true;
