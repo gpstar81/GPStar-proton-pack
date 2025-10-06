@@ -113,11 +113,13 @@ class MagCalibration {
     static constexpr int MAX_POINTS = NUM_AZIMUTH_BINS * NUM_ELEVATION_BINS; // aka. Bin total.
     static constexpr int MAX_SAMPLES = MAX_POINTS * 2; // Ensure sufficient samples for fitting.
 
-    // Internal buffers for samples and visualization.
-    float xSamples[MAX_SAMPLES];
-    float ySamples[MAX_SAMPLES];
-    float zSamples[MAX_SAMPLES];
+    // Internal buffers for samples using double precision.
+    double xSamples[MAX_SAMPLES];
+    double ySamples[MAX_SAMPLES];
+    double zSamples[MAX_SAMPLES];
     int sampleCount; // Common tracker for samples taken.
+
+    // Internal buffers for visualization data.
     float visX[MAX_POINTS];
     float visY[MAX_POINTS];
     float visZ[MAX_POINTS];
@@ -130,7 +132,7 @@ class MagCalibration {
     void jacobiEigen3(float A[3][3], float V[3][3], float w[3]) const;
 
     // Helper: Solve small linear system Ax = b.
-    bool solveLinearSystem(int n, float A[], float b[], float x[]) const;
+    bool solveLinearSystem(int n, double A[], double b[], float x[]) const;
 
     // Helper: 3x3 inverse (returns false if singular).
     bool invert3x3(const float A_in[3][3], float A_out[3][3]) const;

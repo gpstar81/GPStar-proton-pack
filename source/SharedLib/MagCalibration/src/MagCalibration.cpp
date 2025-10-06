@@ -80,15 +80,18 @@ void MagCalibration::beginCalibration() {
  */
 bool MagCalibration::addSample(float x, float y, float z) {
   // STEP 1: Check storage capacity
-  // We can only store a limited number of samples (324 total)
+  // We can only store a limited number of samples
   // If we're full, reject any new samples
   if(sampleCount >= MAX_SAMPLES) {
     return false; // Max samples reached
   }
 
   // STEP 2: Validate the magnetometer reading
-  // Calculate the strength of the magnetic field reading
-  float r = sqrt(x * x + y * y + z * z);
+  // Calculate the strength of the magnetic field reading using double precision
+  double dx = (double)x;
+  double dy = (double)y;
+  double dz = (double)z;
+  double r = sqrt(dx * dx + dy * dy + dz * dz);
   
   // Reject readings with zero strength (sensor errors or interference)
   if(r == 0) {
@@ -97,24 +100,24 @@ bool MagCalibration::addSample(float x, float y, float z) {
   
   // Convert to unit vector - we only care about direction, not strength
   // This puts all readings on the same scale for comparison
-  float nx = x / r;
-  float ny = y / r;
-  float nz = z / r;
+  double nx = dx / r;
+  double ny = dy / r;
+  double nz = dz / r;
 
   // STEP 3: Convert to orientation angles
   // Think of this like getting compass heading and tilt angle
   // az = horizontal rotation (like compass: North, East, South, West)
   // el = vertical tilt (like pitch: up, level, down)
-  float az = atan2(ny, nx); // Horizontal orientation (-180° to +180°)
+  double az = atan2(ny, nx); // Horizontal orientation (-180° to +180°)
 
   // Clamp nz to valid range for asin() to prevent NaN from floating-point precision errors
-  if(nz > 1.0f) {
-    nz = 1.0f; // Values > 1.0 would produce NaN
+  if(nz > 1.0) {
+    nz = 1.0; // Values > 1.0 would produce NaN
   }
-  if(nz < -1.0f) {
-    nz = -1.0f; // Values < -1.0 would produce NaN
+  if(nz < -1.0) {
+    nz = -1.0; // Values < -1.0 would produce NaN
   }
-  float el = asin(nz); // Vertical tilt (-90° to +90°)
+  double el = asin(nz); // Vertical tilt (-90° to +90°)
 
   // STEP 4: Figure out which "bin" this orientation belongs to
   // We divide the sphere into 648 regions (36 horizontal × 18 vertical)
@@ -148,12 +151,12 @@ bool MagCalibration::addSample(float x, float y, float z) {
     bins[binIndex] = true;
 
     // Store the raw magnetometer reading for calibration calculations
-    xSamples[sampleCount] = x;
-    ySamples[sampleCount] = y;
-    zSamples[sampleCount] = z;
+    xSamples[sampleCount] = dx;
+    ySamples[sampleCount] = dy;
+    zSamples[sampleCount] = dz;
     sampleCount++;
 
-    // Also store it for the web visualization (limited to 162 points)
+    // Also store it for the web visualization
     if(visCount < MAX_POINTS) {
       visX[visCount] = x;
       visY[visCount] = y;
@@ -208,77 +211,55 @@ int MagCalibration::getVisPoints(const float*& outX, const float*& outY, const f
 CalibrationData MagCalibration::computeCalibration() const {
   CalibrationData cal;
 
-  if(sampleCount < 15) {
-    // not enough samples for stable fit; fallback to diagonal method (quick)
-    // (You can tweak threshold)
-    // fallback: compute min/max & diagonal scale (your existing code)
-    float minX = xSamples[0], maxX = xSamples[0];
-    float minY = ySamples[0], maxY = ySamples[0];
-    float minZ = zSamples[0], maxZ = zSamples[0];
-    for(int i = 1; i < sampleCount; i++){
-      if(xSamples[i] < minX) {
-        minX = xSamples[i];
-      }
-      if(xSamples[i] > maxX) {
-        maxX = xSamples[i];
-      }
-      if(ySamples[i] < minY) {
-        minY = ySamples[i];
-      }
-      if(ySamples[i] > maxY) {
-        maxY = ySamples[i];
-      }
-      if(zSamples[i] < minZ) {
-        minZ = zSamples[i];
-      }
-      if(zSamples[i] > maxZ) {
-        maxZ = zSamples[i];
-      }
+  if(sampleCount < (MAX_SAMPLES / 2)) {
+    // Enhanced precision fallback diagonal method
+    double minX = xSamples[0], maxX = xSamples[0];
+    double minY = ySamples[0], maxY = ySamples[0];
+    double minZ = zSamples[0], maxZ = zSamples[0];
+    
+    for(int i = 1; i < sampleCount; i++) {
+      if(xSamples[i] < minX) minX = xSamples[i];
+      if(xSamples[i] > maxX) maxX = xSamples[i];
+      if(ySamples[i] < minY) minY = ySamples[i];
+      if(ySamples[i] > maxY) maxY = ySamples[i];
+      if(zSamples[i] < minZ) minZ = zSamples[i];
+      if(zSamples[i] > maxZ) maxZ = zSamples[i];
     }
-    cal.mag_hardiron[0] = (maxX + minX) / 2.0f;
-    cal.mag_hardiron[1] = (maxY + minY) / 2.0f;
-    cal.mag_hardiron[2] = (maxZ + minZ) / 2.0f;
-    float rangeX = maxX - minX;
-    float rangeY = maxY - minY; 
-    float rangeZ = maxZ - minZ;
-    float avgRadius = (rangeX + rangeY + rangeZ) / 6.0f;
+    
+    // Enhanced precision calculations with proper type conversions
+    cal.mag_hardiron[0] = (float)((maxX + minX) / 2.0);
+    cal.mag_hardiron[1] = (float)((maxY + minY) / 2.0);
+    cal.mag_hardiron[2] = (float)((maxZ + minZ) / 2.0);
+    
+    double rangeX = maxX - minX;
+    double rangeY = maxY - minY; 
+    double rangeZ = maxZ - minZ;
+    double avgRadius = (rangeX + rangeY + rangeZ) / 6.0;
 
-    // Handle each axis independently - only apply identity scaling to problematic axes
-    float scaleX, scaleY, scaleZ;
+    // Enhanced precision scaling calculations
+    double scaleX, scaleY, scaleZ;
+    scaleX = (rangeX == 0.0) ? 1.0 : avgRadius / (rangeX / 2.0);
+    scaleY = (rangeY == 0.0) ? 1.0 : avgRadius / (rangeY / 2.0);
+    scaleZ = (rangeZ == 0.0) ? 1.0 : avgRadius / (rangeZ / 2.0);
 
-    // Check each range individually and handle division by zero per axis
-    if(rangeX == 0.0f) {
-      scaleX = 1.0f; // Identity scaling for X-axis (no correction)
-    } else {
-      scaleX = avgRadius / (rangeX / 2.0f); // Normal scaling calculation
-    }
-    if(rangeY == 0.0f) {
-      scaleY = 1.0f; // Identity scaling for Y-axis (no correction)
-    } else {
-      scaleY = avgRadius / (rangeY / 2.0f); // Normal scaling calculation
-    }
-    if(rangeZ == 0.0f) {
-      scaleZ = 1.0f; // Identity scaling for Z-axis (no correction)
-    } else {
-      scaleZ = avgRadius / (rangeZ / 2.0f); // Normal scaling calculation
-    }
-
-    cal.mag_softiron[0] = scaleX;
-    cal.mag_softiron[1] = 0;
-    cal.mag_softiron[2] = 0;
-    cal.mag_softiron[3] = 0;
-    cal.mag_softiron[4] = scaleY;
-    cal.mag_softiron[5] = 0;
-    cal.mag_softiron[6] = 0;
-    cal.mag_softiron[7] = 0;
-    cal.mag_softiron[8] = scaleZ;
-    // compute mean radius
-    double sumB = 0;
+    // Store results with proper precision conversion
+    cal.mag_softiron[0] = (float)scaleX; // Convert double to float for output
+    cal.mag_softiron[1] = 0.0f;
+    cal.mag_softiron[2] = 0.0f;
+    cal.mag_softiron[3] = 0.0f;
+    cal.mag_softiron[4] = (float)scaleY; // Convert double to float for output
+    cal.mag_softiron[5] = 0.0f;
+    cal.mag_softiron[6] = 0.0f;
+    cal.mag_softiron[7] = 0.0f;
+    cal.mag_softiron[8] = (float)scaleZ; // Convert double to float for output
+    
+    // Enhanced precision magnitude calculation
+    double sumB = 0.0;
     for(int i = 0; i < sampleCount; i++) {
-      float mx = (xSamples[i] - cal.mag_hardiron[0]) * scaleX;
-      float my = (ySamples[i] - cal.mag_hardiron[1]) * scaleY;
-      float mz = (zSamples[i] - cal.mag_hardiron[2]) * scaleZ;
-      sumB += sqrtf(mx*mx + my*my + mz*mz);
+      double mx = (xSamples[i] - cal.mag_hardiron[0]) * scaleX;
+      double my = (ySamples[i] - cal.mag_hardiron[1]) * scaleY;
+      double mz = (zSamples[i] - cal.mag_hardiron[2]) * scaleZ;
+      sumB += sqrt(mx*mx + my*my + mz*mz); // Use sqrt() for double precision
     }
     cal.mag_field = (sampleCount > 0) ? (float)(sumB / sampleCount) : 50.0f;
     return cal;
@@ -288,37 +269,27 @@ CalibrationData MagCalibration::computeCalibration() const {
   // For each sample i: [x^2, y^2, z^2, xy, xz, yz, x, y, z] * coeffs = 1
   // We'll solve normal equations (9x9).
   const int Ncols = 9;
-  float ATA[Ncols*Ncols];
-  float ATb[Ncols];
+  double ATA[Ncols*Ncols];
+  double ATb[Ncols];
 
-  // zero out
-  for(int i = 0; i < Ncols*Ncols; i++) {
-    ATA[i] = 0.0f;
-  }
-  for(int i = 0; i < Ncols; i++) {
-    ATb[i] = 0.0f;
-  }
+  // Initialize with double precision
+  for(int i = 0; i < Ncols*Ncols; i++) ATA[i] = 0.0;
+  for(int i = 0; i < Ncols; i++) ATb[i] = 0.0;
 
-  // accumulate
+  // Enhanced precision accumulation
   for(int s = 0; s < sampleCount; ++s) {
-    float x = xSamples[s], y = ySamples[s], z = zSamples[s];
-    float row[Ncols];
-    row[0] = x*x;
-    row[1] = y*y;
-    row[2] = z*z;
-    row[3] = x*y;
-    row[4] = x*z;
-    row[5] = y*z;
-    row[6] = x;
-    row[7] = y;
-    row[8] = z;
+    double x = xSamples[s], y = ySamples[s], z = zSamples[s];
+    double row[Ncols];
+    row[0] = x*x; row[1] = y*y; row[2] = z*z;
+    row[3] = x*y; row[4] = x*z; row[5] = y*z;
+    row[6] = x;   row[7] = y;   row[8] = z;
 
-    // ATA += row^T * row
+    // Double precision matrix operations
     for(int i = 0; i < Ncols; i++) {
       for(int j = 0; j < Ncols; j++) {
         ATA[i * Ncols + j] += row[i] * row[j];
       }
-      ATb[i] += row[i] * 1.0f; // b=1
+      ATb[i] += row[i] * 1.0;
     }
   }
 
@@ -755,61 +726,62 @@ void MagCalibration::jacobiEigen3(float A[3][3], float V[3][3], float w[3]) cons
 // Helper: Solve small linear system Ax = b using Gaussian elimination with partial pivoting.
 // n must be <= 10; uses in-place arrays A (n x n), b (n). Result in x[n].
 // Returns true on success.
-bool MagCalibration::solveLinearSystem(int n, float A[], float b[], float x[]) const {
+bool MagCalibration::solveLinearSystem(int n, double A[], double b[], float x[]) const {
   // Validate input bounds to prevent stack overflow
   if(n > 10 || n <= 0) {
     return false; // Invalid system size
   }
 
   // Build augmented matrix of size n x (n+1) in local stack (n<=10 so fine)
-  float aug[10][11];
+  // Use double precision for enhanced accuracy in matrix operations
+  double aug[10][11];
   for(int i = 0; i < n; ++i) {
     for(int j = 0; j < n; ++j) aug[i][j] = A[i * n + j];
     aug[i][n] = b[i];
   }
 
-  // Forward elimination with partial pivot
+  // Forward elimination with partial pivot using double precision
   for(int col = 0; col < n; ++col) {
-    // find pivot
+    // Find pivot using double precision comparisons
     int piv = col;
-    float maxv = fabsf(aug[col][col]);
+    double maxv = fabs(aug[col][col]); // Use fabs() for double precision
     for(int r = col + 1; r < n; ++r) {
-      float v = fabsf(aug[r][col]);
+      double v = fabs(aug[r][col]); // Use fabs() for double precision
       if(v > maxv) {
         maxv = v;
         piv = r;
       }
     }
-    if(maxv < 1e-12f) {
+    if(maxv < 1e-12) { // Use double precision threshold
       return false; // singular
     }
 
-    // swap rows if needed
+    // Swap rows if needed
     if(piv != col) {
       for(int c = col; c <= n; ++c) {
-        float tmp = aug[col][c];
+        double tmp = aug[col][c];
         aug[col][c] = aug[piv][c];
         aug[piv][c] = tmp;
       }
     }
 
-    // normalize & eliminate
-    float pivot = aug[col][col];
+    // Normalize & eliminate using double precision
+    double pivot = aug[col][col];
     for(int c = col; c <= n; ++c) aug[col][c] /= pivot;
     for(int r = 0; r < n; ++r) {
       if(r == col) {
         continue;
       }
-      float fac = aug[r][col];
-      if(fac == 0.0f) {
+      double fac = aug[r][col];
+      if(fac == 0.0) { // Use double precision constant
         continue;
       }
       for(int c = col; c <= n; ++c) aug[r][c] -= fac * aug[col][c];
     }
   }
 
-  // extract solution
-  for(int i = 0; i < n; ++i) x[i] = aug[i][n];
+  // Extract solution and convert to float for interface compatibility
+  for(int i = 0; i < n; ++i) x[i] = (float)aug[i][n];
   return true;
 }
 
