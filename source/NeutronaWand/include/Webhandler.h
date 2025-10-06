@@ -599,21 +599,24 @@ String getWifiSettings() {
 String getCalibration() {
   // Prepare a JSON object with magnetometer and gyroscope/acceleration data.
   String calibrationData;
-  calibrationData.clear();
+
+  // Create a JSON object with a "coverage" percentage and an array of points.
+  jsonCalibration.clear();
+  jsonCalibration["coverage"] = roundFloat(magCal.getCoveragePercent());
+  JsonArray pointsArray = jsonCalibration["points"].to<JsonArray>();
 
   // Arrays of data points for magnetometer calibration visualization.
   const float* xPtr;
   const float* yPtr;
   const float* zPtr;
 
+  // Add the points to the dedicated JSON array.
   int numPoints = magCal.getVisPoints(xPtr, yPtr, zPtr);
-  JsonArray arr = jsonCalibration.to<JsonArray>();
-
   for(int i=0; i<numPoints; i++) {
-      JsonObject obj = arr.add<JsonObject>();
-      obj["x"] = xPtr[i];
-      obj["y"] = yPtr[i];
-      obj["z"] = zPtr[i];
+      JsonObject point = pointsArray.add<JsonObject>();
+      point["x"] = xPtr[i];
+      point["y"] = yPtr[i];
+      point["z"] = zPtr[i];
   }
 
   // Serialize JSON object to string.
@@ -1361,13 +1364,9 @@ void notifyWSClients() {
 void sendCalibrationPoints() {
   if(b_httpd_started && SENSOR_READ_TARGET == CALIBRATION) {
     // Gather the latest filtered motion data, serialize it to a JSON string,
-    // and send it to all connected EventSource (SSE) clients as a "telemetry"
-    // event name (using the current time as a unique event identifier).
+    // and send it to all connected EventSource (SSE) clients as a "calibration"
+    // event name (using the current ms time as a unique event identifier).
     events.send(getCalibration().c_str(), "calibration", millis());
-
-    // Also send the current coverage percentage as a unique event.
-    float coverage = magCal.getCoveragePercent();
-    events.send(String(coverage).c_str(), "coverage", millis());
   }
 }
 
@@ -1375,7 +1374,7 @@ void sendTelemetryData() {
   if(b_httpd_started && SENSOR_READ_TARGET == TELEMETRY) {
     // Gather the latest filtered motion data, serialize it to a JSON string,
     // and send it to all connected EventSource (SSE) clients as a "telemetry"
-    // event name (using the current time as a unique event identifier).
+    // event name (using the current ms time as a unique event identifier).
     events.send(getTelemetry().c_str(), "telemetry", millis());
   }
 }

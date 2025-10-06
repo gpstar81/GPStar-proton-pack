@@ -434,6 +434,13 @@ input[type=text] {
   box-sizing:border-box;
 }
 
+#hardIron1, #hardIron2, #hardIron3,
+#softIron1, #softIron2, #softIron3,
+#softIron4, #softIron5, #softIron6,
+#softIron7, #softIron8, #softIron9 {
+  width:140px !important;
+}
+
 .equipment::after {
   content:"";
   display:table;
