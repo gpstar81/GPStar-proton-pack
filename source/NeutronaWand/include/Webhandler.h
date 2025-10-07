@@ -42,6 +42,12 @@ float roundFloat(float value) {
   return roundf(value * 1000.0f) / 1000.0f;
 }
 
+// Rounds a double to 3 decimal places.
+float roundDouble(double value) {
+  // Shifts the decimal point, rounds, then shifts back.
+  return (float)round(value * 1000.0) / 1000.0;
+}
+
 /*
  * Text Helper Functions - Converts ENUM values to user-friendly text
  */
@@ -600,25 +606,25 @@ String getWifiSettings() {
 String getCalibration() {
   String calibrationData;
 
-  // Create a JSON object with a "[c]overage" percentage and an array of coordinate "[p]oints".
+  // Create a JSON object with a "coverage" percentage and an array of coordinate "points".
   jsonCalibration.clear();
   jsonCalibration["c"] = roundFloat(magCal.getCoveragePercent());
   JsonArray pointsArray = jsonCalibration["p"].to<JsonArray>();
 
   // Arrays of data points for magnetometer calibration visualization.
-  const float* xPtr;
-  const float* yPtr;
-  const float* zPtr;
+  const double* xPtr;
+  const double* yPtr;
+  const double* zPtr;
 
   // Get the visualization points from the magnetometer calibration object.
-  int numPoints = magCal.getVisPoints(xPtr, yPtr, zPtr);
+  uint16_t numPoints = magCal.getVisPoints(xPtr, yPtr, zPtr);
   
   // Add points as coordinate arrays [x, y, z] for compact JSON representation.
-  for(int i = 0; i < numPoints; i++) {
+  for(uint16_t i = 0; i < numPoints; i++) {
     JsonArray point = pointsArray.add<JsonArray>();
-    point.add(xPtr[i]); // X coordinate
-    point.add(yPtr[i]); // Y coordinate
-    point.add(zPtr[i]); // Z coordinate
+    point.add(roundDouble(xPtr[i])); // X coordinate
+    point.add(roundDouble(yPtr[i])); // Y coordinate
+    point.add(roundDouble(zPtr[i])); // Z coordinate
   }
 
   // Serialize JSON object to string.

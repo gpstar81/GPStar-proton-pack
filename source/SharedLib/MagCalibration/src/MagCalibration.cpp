@@ -18,7 +18,11 @@
  *
  */
 
+ // Standard library includes for math and string functions
 #include <math.h>
+#include <string.h>
+
+// Library Header
 #include <MagCalibration.h>
 
 // Define M_PI if not defined
@@ -46,13 +50,14 @@ MagCalibration::MagCalibration() {
   beginCalibration();
 }
 
-// Begin a new calibration session by clearing buffers and coverage.
+// Begin a new calibration session by clearing all counters, arrays, and flags.
 void MagCalibration::beginCalibration() {
   sampleCount = 0;
-  visCount = 0;
-  for(int i=0; i<MAX_POINTS; i++) {
-    bins[i] = false;
-  }
+
+  memset(bins, 0, sizeof(bins)); // Clear coverage tracking (bool array to false)
+  memset(xSamples, 0, sizeof(xSamples)); // Clear X samples (double array to 0.0)
+  memset(ySamples, 0, sizeof(ySamples)); // Clear Y samples (double array to 0.0)
+  memset(zSamples, 0, sizeof(zSamples)); // Clear Z samples (double array to 0.0)
 }
 
 /**
@@ -82,7 +87,7 @@ bool MagCalibration::addSample(float x, float y, float z) {
   // STEP 1: Check storage capacity
   // We can only store a limited number of samples
   // If we're full, reject any new samples
-  if(sampleCount >= MAX_SAMPLES) {
+  if(sampleCount >= MAX_POINTS) {
     return false; // Max samples reached
   }
 
@@ -91,7 +96,7 @@ bool MagCalibration::addSample(float x, float y, float z) {
   double dx = (double)x;
   double dy = (double)y;
   double dz = (double)z;
-  double r = sqrt(dx * dx + dy * dy + dz * dz);
+  double r = sqrt(dx * dx + dy * dy + dz * dz); // sqrt() automatically handles double precision
   
   // Reject readings with zero strength (sensor errors or interference)
   if(r == 0) {
@@ -156,14 +161,6 @@ bool MagCalibration::addSample(float x, float y, float z) {
     zSamples[sampleCount] = dz;
     sampleCount++;
 
-    // Also store it for the web visualization
-    if(visCount < MAX_POINTS) {
-      visX[visCount] = x;
-      visY[visCount] = y;
-      visZ[visCount] = z;
-      visCount++;
-    }
-
     return true; // SUCCESS: New orientation covered, sample stored
   }
 
@@ -181,7 +178,7 @@ bool MagCalibration::addSample(float x, float y, float z) {
  */
 float MagCalibration::getCoveragePercent() const {
   int filled = 0;
-  for(int i = 0; i < MAX_POINTS; i++) {
+  for(uint16_t i = 0; i < MAX_POINTS; i++) {
     if(bins[i]) {
       filled++;
     }
@@ -195,11 +192,11 @@ float MagCalibration::getCoveragePercent() const {
  * Inputs: const float*& outX, const float*& outY, const float*& outZ
  * Outputs: int - number of points, and sets outX, outY, outZ to point to internal arrays.
  */
-int MagCalibration::getVisPoints(const float*& outX, const float*& outY, const float*& outZ) const {
-  outX = visX;
-  outY = visY;
-  outZ = visZ;
-  return visCount;
+uint16_t MagCalibration::getVisPoints(const double*& outX, const double*& outY, const double*& outZ) const {
+  outX = xSamples;
+  outY = ySamples;
+  outZ = zSamples;
+  return sampleCount;
 }
 
 /**
@@ -211,13 +208,14 @@ int MagCalibration::getVisPoints(const float*& outX, const float*& outY, const f
 CalibrationData MagCalibration::computeCalibration() const {
   CalibrationData cal;
 
-  if(sampleCount < (MAX_SAMPLES / 2)) {
+  // If we have less than 50% coverage, fall back to simple min/max method.
+  if(sampleCount < (MAX_POINTS / 2)) {
     // Enhanced precision fallback diagonal method
     double minX = xSamples[0], maxX = xSamples[0];
     double minY = ySamples[0], maxY = ySamples[0];
     double minZ = zSamples[0], maxZ = zSamples[0];
     
-    for(int i = 1; i < sampleCount; i++) {
+    for(uint16_t i = 1; i < sampleCount; i++) {
       if(xSamples[i] < minX) minX = xSamples[i];
       if(xSamples[i] > maxX) maxX = xSamples[i];
       if(ySamples[i] < minY) minY = ySamples[i];
@@ -255,7 +253,7 @@ CalibrationData MagCalibration::computeCalibration() const {
     
     // Enhanced precision magnitude calculation
     double sumB = 0.0;
-    for(int i = 0; i < sampleCount; i++) {
+    for(uint16_t i = 0; i < sampleCount; i++) {
       double mx = (xSamples[i] - cal.mag_hardiron[0]) * scaleX;
       double my = (ySamples[i] - cal.mag_hardiron[1]) * scaleY;
       double mz = (zSamples[i] - cal.mag_hardiron[2]) * scaleZ;
@@ -277,7 +275,7 @@ CalibrationData MagCalibration::computeCalibration() const {
   for(int i = 0; i < Ncols; i++) ATb[i] = 0.0;
 
   // Enhanced precision accumulation
-  for(int s = 0; s < sampleCount; ++s) {
+  for(uint16_t s = 0; s < sampleCount; ++s) {
     double x = xSamples[s], y = ySamples[s], z = zSamples[s];
     double row[Ncols];
     row[0] = x*x; row[1] = y*y; row[2] = z*z;
@@ -302,7 +300,7 @@ CalibrationData MagCalibration::computeCalibration() const {
     double minX = xSamples[0], maxX = xSamples[0];
     double minY = ySamples[0], maxY = ySamples[0];
     double minZ = zSamples[0], maxZ = zSamples[0];
-    for(int i = 1; i < sampleCount; i++) {
+    for(uint16_t i = 1; i < sampleCount; i++) {
       if(xSamples[i] < minX) {
         minX = xSamples[i];
       }
@@ -360,7 +358,7 @@ CalibrationData MagCalibration::computeCalibration() const {
     cal.mag_softiron[7] = 0.0f;
     cal.mag_softiron[8] = (float)scaleZ;
     double sumB = 0.0;
-    for(int i = 0; i < sampleCount; i++){
+    for(uint16_t i = 0; i < sampleCount; i++){
       double mx = (xSamples[i] - cal.mag_hardiron[0]) * scaleX;
       double my = (ySamples[i] - cal.mag_hardiron[1]) * scaleY;
       double mz = (zSamples[i] - cal.mag_hardiron[2]) * scaleZ;
@@ -402,7 +400,7 @@ CalibrationData MagCalibration::computeCalibration() const {
     double minX = xSamples[0], maxX = xSamples[0];
     double minY = ySamples[0], maxY = ySamples[0];
     double minZ = zSamples[0], maxZ = zSamples[0];
-    for(int i = 1; i < sampleCount; i++) {
+    for(uint16_t i = 1; i < sampleCount; i++) {
       if(xSamples[i] < minX) {
         minX = xSamples[i];
       }
@@ -460,7 +458,7 @@ CalibrationData MagCalibration::computeCalibration() const {
     cal.mag_softiron[7] = 0.0f;
     cal.mag_softiron[8] = (float)scaleZ;
     double sumB = 0.0;
-    for(int i = 0; i < sampleCount; i++){
+    for(uint16_t i = 0; i < sampleCount; i++){
       double mx = (xSamples[i] - cal.mag_hardiron[0]) * scaleX;
       double my = (ySamples[i] - cal.mag_hardiron[1]) * scaleY;
       double mz = (zSamples[i] - cal.mag_hardiron[2]) * scaleZ;
@@ -491,7 +489,7 @@ CalibrationData MagCalibration::computeCalibration() const {
     double minX = xSamples[0], maxX = xSamples[0];
     double minY = ySamples[0], maxY = ySamples[0];
     double minZ = zSamples[0], maxZ = zSamples[0];
-    for(int i = 1; i < sampleCount; i++) {
+    for(uint16_t i = 1; i < sampleCount; i++) {
       if(xSamples[i] < minX) {
         minX = xSamples[i];
       }
@@ -549,7 +547,7 @@ CalibrationData MagCalibration::computeCalibration() const {
     cal.mag_softiron[7] = 0.0f;
     cal.mag_softiron[8] = (float)scaleZ;
     double sumB = 0.0;
-    for(int i = 0; i < sampleCount; i++){
+    for(uint16_t i = 0; i < sampleCount; i++){
       double mx = (xSamples[i] - cal.mag_hardiron[0]) * scaleX;
       double my = (ySamples[i] - cal.mag_hardiron[1]) * scaleY;
       double mz = (zSamples[i] - cal.mag_hardiron[2]) * scaleZ;
@@ -602,7 +600,7 @@ CalibrationData MagCalibration::computeCalibration() const {
 
   // Compute mean raw magnitude (centered) to scale M to sensor units (µT)
   double meanRaw = 0.0;
-  for(int i = 0; i < sampleCount; i++) {
+  for(uint16_t i = 0; i < sampleCount; i++) {
     double dx = xSamples[i] - cx;
     double dy = ySamples[i] - cy;
     double dz = zSamples[i] - cz;

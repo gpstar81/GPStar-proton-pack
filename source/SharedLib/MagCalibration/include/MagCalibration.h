@@ -71,7 +71,7 @@ class MagCalibration {
 
     // Get usable points for visualization.
     // Outputs: pointers to internal arrays and count.
-    int getVisPoints(const float*& outX, const float*& outY, const float*& outZ) const;
+    uint16_t getVisPoints(const double*& outX, const double*& outY, const double*& outZ) const;
 
     // Compute calibration parameters from collected samples.
     CalibrationData computeCalibration() const;
@@ -128,21 +128,11 @@ class MagCalibration {
     // Memory usage scales quadratically with resolution (4x memory for half the degrees)
     static constexpr uint16_t MAX_POINTS = NUM_AZIMUTH_BINS * NUM_ELEVATION_BINS;
 
-    // Sample storage scaled to bin count for adequate coverage
-    // Each bin should have opportunity for multiple samples during natural movement
-    static constexpr uint16_t MAX_SAMPLES = MAX_POINTS * 2;
-
     // Internal buffers for samples using double precision.
-    double xSamples[MAX_SAMPLES];
-    double ySamples[MAX_SAMPLES];
-    double zSamples[MAX_SAMPLES];
-    int sampleCount; // Common tracker for samples taken.
-
-    // Internal buffers for visualization data.
-    float visX[MAX_POINTS];
-    float visY[MAX_POINTS];
-    float visZ[MAX_POINTS];
-    int visCount; // Common tracker for points available.
+    double xSamples[MAX_POINTS];
+    double ySamples[MAX_POINTS];
+    double zSamples[MAX_POINTS];
+    uint16_t sampleCount; // Common tracker for samples taken.
 
     // Bin filled flags.
     bool bins[MAX_POINTS];
