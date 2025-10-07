@@ -483,8 +483,8 @@ class Calibration3DView {
       const childMesh = this.pointsGroup.children[i];
 
       if (i < needed) {
-        const p = points[i];
-        childMesh.position.set(p.x, p.y, p.z);
+        const p = points[i]; // Array as [x, y, z]
+        childMesh.position.set(p[0], p[1], p[2]);
         childMesh.visible = true;
       } else {
         childMesh.visible = false;
@@ -590,17 +590,17 @@ if (!!window.EventSource) {
 
     var calData = {}; // Always begin with an empty object.
     try {
-      calData = JSON.parse(e.data); // float + array of {x, y, z}
+      calData = JSON.parse(e.data); // float + array of [x, y, z] triplets
     } catch (e) { }
 
     // Update the calibration coverage percentage.
-    lastCoverage = parseFloat(calData.coverage || 0);
+    lastCoverage = parseFloat(calData.c || 0);
     if (lastCoverage > 0) {
       setHtml("coverage", formatFloat(lastCoverage) + "%");
     }
 
-    if (calibration3D && (calData.points || []).length > 0) {
-      calibration3D.setPoints(calData.points);
+    if (calibration3D && (calData.p || []).length > 0) {
+      calibration3D.setPoints(calData.p);
     }
   }, false);
 

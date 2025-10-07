@@ -596,27 +596,29 @@ String getWifiSettings() {
   return wifiNetwork;
 }
 
+// Prepare a JSON object with magnetometer calibration data points for visualization.
 String getCalibration() {
-  // Prepare a JSON object with magnetometer and gyroscope/acceleration data.
   String calibrationData;
 
-  // Create a JSON object with a "coverage" percentage and an array of points.
+  // Create a JSON object with a "[c]overage" percentage and an array of coordinate "[p]oints".
   jsonCalibration.clear();
-  jsonCalibration["coverage"] = roundFloat(magCal.getCoveragePercent());
-  JsonArray pointsArray = jsonCalibration["points"].to<JsonArray>();
+  jsonCalibration["c"] = roundFloat(magCal.getCoveragePercent());
+  JsonArray pointsArray = jsonCalibration["p"].to<JsonArray>();
 
   // Arrays of data points for magnetometer calibration visualization.
   const float* xPtr;
   const float* yPtr;
   const float* zPtr;
 
-  // Add the points to the dedicated JSON array.
+  // Get the visualization points from the magnetometer calibration object.
   int numPoints = magCal.getVisPoints(xPtr, yPtr, zPtr);
-  for(int i=0; i<numPoints; i++) {
-      JsonObject point = pointsArray.add<JsonObject>();
-      point["x"] = xPtr[i];
-      point["y"] = yPtr[i];
-      point["z"] = zPtr[i];
+  
+  // Add points as coordinate arrays [x, y, z] for compact JSON representation.
+  for(int i = 0; i < numPoints; i++) {
+    JsonArray point = pointsArray.add<JsonArray>();
+    point.add(xPtr[i]); // X coordinate
+    point.add(yPtr[i]); // Y coordinate
+    point.add(zPtr[i]); // Z coordinate
   }
 
   // Serialize JSON object to string.

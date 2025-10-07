@@ -20,6 +20,10 @@
 
 #pragma once
 
+// Standard library includes for integer type definitions
+#include <stdint.h>  // Provides uint8_t, uint16_t, etc.
+#include <stdbool.h> // Provides bool type definition.
+
 /**
  * This code was co-authored by ChatGPT and GitHub Copilot.
  */
@@ -78,7 +82,8 @@ class MagCalibration {
      * 
      * This class divides the magnetometer's 3D measurement space into a grid of spherical bins.
      * Since magnetometer readings represent magnetic field vectors, we normalize them to unit 
-     * vectors on a sphere surface and categorize them by direction.
+     * vectors on a sphere surface and categorize them by direction. The use of bins allows us
+     * to control the size of the data structures necessary for storing coverage information.
      * 
      * COORDINATE SYSTEM:
      * - Input: Raw magnetometer readings (x, y, z) in µT (micro-Tesla)
@@ -88,19 +93,22 @@ class MagCalibration {
      * AZIMUTH (Horizontal Rotation):
      * - Range: -π to +π radians (-180° to +180°) = 360° total coverage
      * - Physical meaning: Rotation around the Z-axis (like compass heading)
-     * - Bins: 18 bins × 20° each = 360° total coverage
+     * - Bins: 360° total coverage / degrees per bin = total bins
      * - Formula: azimuth = atan2(ny, nx)
      * 
      * ELEVATION (Vertical Tilt):
      * - Range: -π/2 to +π/2 radians (-90° to +90°) = 180° total coverage
      * - Physical meaning: Tilt up/down from horizontal plane
-     * - Bins: 9 bins × 20° each = 180° total coverage
+     * - Bins: 90° total coverage / degrees per bin = total bins
      * - Formula: elevation = asin(nz)
      * 
      * TOTAL COVERAGE SPACE:
-     * - Total bins: 36 × 18 = 648 discrete orientation regions
-     * - Each bin represents a 10° × 10° "patch" on the unit sphere
-     * - 100% coverage = all 648 bins filled with at least one sample
+     * - Each bin represents a N° × N° "patch" on the unit sphere
+     * - 100% coverage = all bins filled with at least one sample
+     * - Ideally we want at least 60% coverage of bins for good calibration
+     * - Examples:
+     *    - 10° bins = 36 azimuth × 18 elevation = 648 total bins
+     *    - 5° bins = 72 azimuth × 36 elevation = 2,592 total bins
      * 
      * COVERAGE REQUIREMENTS:
      * For good calibration, the magnetometer should be oriented through many 
@@ -108,10 +116,21 @@ class MagCalibration {
      * and up/down, but also rotate it throughout the motions to pick up all
      * spatial orientations.
      */
-    static constexpr int NUM_AZIMUTH_BINS = 36; // Horizontal, around the Z axis (0 to 360 degrees).
-    static constexpr int NUM_ELEVATION_BINS = 18; // Vertical, from -90 to +90 degrees (up/down).
-    static constexpr int MAX_POINTS = NUM_AZIMUTH_BINS * NUM_ELEVATION_BINS; // aka. Bin total.
-    static constexpr int MAX_SAMPLES = MAX_POINTS * 2; // Ensure sufficient samples for fitting.
+    static constexpr uint8_t BIN_DEGREES = 6; // Bin size in whole degrees, used to calculate number of bins.
+
+    // Calculate bin counts from resolution (360° azimuth coverage, 180° elevation coverage)
+    // Azimuth bins cover full horizontal rotation (compass directions)
+    // Elevation bins cover vertical tilt range (from looking down to looking up)
+    static constexpr uint8_t NUM_AZIMUTH_BINS = (uint8_t)(360 / BIN_DEGREES);   // Horizontal orientation bins
+    static constexpr uint8_t NUM_ELEVATION_BINS = (uint8_t)(180 / BIN_DEGREES); // Vertical tilt bins
+
+    // Total orientation regions to cover for complete calibration
+    // Memory usage scales quadratically with resolution (4x memory for half the degrees)
+    static constexpr uint16_t MAX_POINTS = NUM_AZIMUTH_BINS * NUM_ELEVATION_BINS;
+
+    // Sample storage scaled to bin count for adequate coverage
+    // Each bin should have opportunity for multiple samples during natural movement
+    static constexpr uint16_t MAX_SAMPLES = MAX_POINTS * 2;
 
     // Internal buffers for samples using double precision.
     double xSamples[MAX_SAMPLES];

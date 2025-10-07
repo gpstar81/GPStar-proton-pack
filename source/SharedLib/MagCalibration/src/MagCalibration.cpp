@@ -120,10 +120,10 @@ bool MagCalibration::addSample(float x, float y, float z) {
   double el = asin(nz); // Vertical tilt (-90° to +90°)
 
   // STEP 4: Figure out which "bin" this orientation belongs to
-  // We divide the sphere into 648 regions (36 horizontal × 18 vertical) covering about 10° in each direction
+  // We divide the sphere into regions (using BIN_DEGREES) covering about N° in each direction
   // Note that this is why we use double precision for the math as it ensures we get accurate binning
-  int azIndex = (int)((az + M_PI) / (2 * M_PI) * NUM_AZIMUTH_BINS); // Which horizontal slice (0-35)
-  int elIndex = (int)((el + M_PI / 2) / M_PI * NUM_ELEVATION_BINS); // Which vertical slice (0-17)
+  int azIndex = (int)((az + M_PI) / (2 * M_PI) * NUM_AZIMUTH_BINS); // Which horizontal slice
+  int elIndex = (int)((el + M_PI / 2) / M_PI * NUM_ELEVATION_BINS); // Which vertical slice
 
   // STEP 5: Make sure we got valid bin numbers
   // Sometimes floating point math can give us numbers slightly outside our range
