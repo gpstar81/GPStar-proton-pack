@@ -43,6 +43,12 @@ float roundFloat(float value) {
   return roundf(value * 1000.0f) / 1000.0f;
 }
 
+// Rounds a double to 3 decimal places.
+float roundDouble(double value) {
+  // Shifts the decimal point, rounds, then shifts back.
+  return (float)round(value * 1000.0) / 1000.0;
+}
+
 /*
  * Text Helper Functions - Converts ENUM values to user-friendly text
  */
@@ -495,24 +501,29 @@ String getWifiSettings() {
   return wifiNetwork;
 }
 
+// Prepare a JSON object with magnetometer calibration data points for visualization.
 String getCalibration() {
-  // Prepare a JSON object with magnetometer and gyroscope/acceleration data.
   String calibrationData;
-  calibrationData.clear();
+
+  // Create a JSON object with a "coverage" percentage and an array of coordinate "points".
+  jsonCalibration.clear();
+  jsonCalibration["c"] = roundFloat(magCal.getCoveragePercent());
+  JsonArray pointsArray = jsonCalibration["p"].to<JsonArray>();
 
   // Arrays of data points for magnetometer calibration visualization.
-  const float* xPtr;
-  const float* yPtr;
-  const float* zPtr;
+  const double* xPtr;
+  const double* yPtr;
+  const double* zPtr;
 
-  int numPoints = magCal.getVisPoints(xPtr, yPtr, zPtr);
-  JsonArray arr = jsonCalibration.to<JsonArray>();
-
-  for(int i=0; i<numPoints; i++) {
-      JsonObject obj = arr.add<JsonObject>();
-      obj["x"] = xPtr[i];
-      obj["y"] = yPtr[i];
-      obj["z"] = zPtr[i];
+  // Get the visualization points from the magnetometer calibration object.
+  uint16_t numPoints = magCal.getVisPoints(xPtr, yPtr, zPtr);
+  
+  // Add points as coordinate arrays [x, y, z] for compact JSON representation.
+  for(uint16_t i = 0; i < numPoints; i++) {
+    JsonArray point = pointsArray.add<JsonArray>();
+    point.add(roundDouble(xPtr[i])); // X coordinate
+    point.add(roundDouble(yPtr[i])); // Y coordinate
+    point.add(roundDouble(zPtr[i])); // Z coordinate
   }
 
   // Serialize JSON object to string.
@@ -1245,13 +1256,9 @@ void notifyWSClients() {
 void sendCalibrationPoints() {
   if(b_httpd_started && SENSOR_READ_TARGET == CALIBRATION) {
     // Gather the latest filtered motion data, serialize it to a JSON string,
-    // and send it to all connected EventSource (SSE) clients as a "telemetry"
-    // event name (using the current time as a unique event identifier).
+    // and send it to all connected EventSource (SSE) clients as a "calibration"
+    // event name (using the current ms time as a unique event identifier).
     events.send(getCalibration().c_str(), "calibration", millis());
-
-    // Also send the current coverage percentage as a unique event.
-    float coverage = magCal.getCoveragePercent();
-    events.send(String(coverage).c_str(), "coverage", millis());
   }
 }
 
@@ -1259,7 +1266,7 @@ void sendTelemetryData() {
   if(b_httpd_started && SENSOR_READ_TARGET == TELEMETRY) {
     // Gather the latest filtered motion data, serialize it to a JSON string,
     // and send it to all connected EventSource (SSE) clients as a "telemetry"
-    // event name (using the current time as a unique event identifier).
+    // event name (using the current ms time as a unique event identifier).
     events.send(getTelemetry().c_str(), "telemetry", millis());
   }
 }

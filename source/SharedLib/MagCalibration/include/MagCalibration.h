@@ -116,7 +116,7 @@ class MagCalibration {
      * and up/down, but also rotate it throughout the motions to pick up all
      * spatial orientations.
      */
-    static constexpr uint8_t BIN_DEGREES = 6; // Bin size in whole degrees, used to calculate number of bins.
+    static constexpr uint8_t BIN_DEGREES = 9; // Bin size in whole degrees, used to calculate number of bins.
 
     // Calculate bin counts from resolution (360° azimuth coverage, 180° elevation coverage)
     // Azimuth bins cover full horizontal rotation (compass directions)

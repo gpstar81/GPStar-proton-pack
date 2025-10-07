@@ -814,8 +814,15 @@ String formatSignedFloat(float value) {
 void checkMotionSensors() {
 #ifdef MOTION_SENSORS
   if(b_imu_found && b_mag_found) {
-    // Read the latest data, using it for calibration or telemetry processing.
-    processMotionData();
+    // Read the IMU/MAG values every N milliseconds.
+    if(!ms_sensor_read_delay.isRunning()) {
+      // Start the delay timer if not already running.
+      ms_sensor_read_delay.start(i_sensor_read_delay);
+    }
+    else if(ms_sensor_read_delay.justFinished()) {
+      // Read the latest data, using it for calibration or telemetry processing.
+      processMotionData();
+    }
 
     // Report the averaged IMU/MAG values every N milliseconds.
     if(!ms_sensor_report_delay.isRunning()) {
