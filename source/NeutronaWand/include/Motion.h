@@ -556,12 +556,12 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
   // Map the sensor readings to the correct axes based on the installation orientation
   switch(INSTALL_ORIENTATION) {
     case COMPONENTS_UP_USB_FRONT:
-      // Magnetometer data (swapping the X and Y axes due to component's installation)
-      oriented.magX = mag_event.magnetic.y * -1;
-      oriented.magY = mag_event.magnetic.x * -1;
+      // Magnetometer data (inverting all axes)
+      oriented.magX = mag_event.magnetic.x * -1;
+      oriented.magY = mag_event.magnetic.y * -1;
       oriented.magZ = mag_event.magnetic.z * -1;
       
-      // Acceleration and gyroscope values (swapping the X and Y axes due to component's installation)
+      // Acceleration and gyroscope values (swapping the X/Y axes)
       oriented.accelX = accel_event.acceleration.y;
       oriented.accelY = accel_event.acceleration.x;
       oriented.accelZ = accel_event.acceleration.z;
@@ -571,12 +571,12 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
     break;
 
     case COMPONENTS_UP_USB_REAR:
-      // Magnetometer data (swapping the X and Y axes due to component's installation)
-      oriented.magX = mag_event.magnetic.y;
-      oriented.magY = mag_event.magnetic.x;
+      // Magnetometer data (inverting only Z axis)
+      oriented.magX = mag_event.magnetic.x;
+      oriented.magY = mag_event.magnetic.y;
       oriented.magZ = mag_event.magnetic.z * -1;
       
-      // Acceleration and gyroscope values (swapping the X and Y axes due to component's installation)
+      // Acceleration and gyroscope values (swapping and inverting the X/Y axes)
       oriented.accelX = accel_event.acceleration.y * -1;
       oriented.accelY = accel_event.acceleration.x * -1;
       oriented.accelZ = accel_event.acceleration.z;
@@ -586,14 +586,13 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
     break;
 
     case COMPONENTS_DOWN_USB_FRONT:
-    default:
       // Default Hasbro installation orientation
-      // Magnetometer data (swapping the X and Y axes due to component's installation)
-      oriented.magX = mag_event.magnetic.y * -1;
-      oriented.magY = mag_event.magnetic.x;
+      // Magnetometer data (inverting the X/Y axes)
+      oriented.magX = mag_event.magnetic.x * -1;
+      oriented.magY = mag_event.magnetic.y * -1;
       oriented.magZ = mag_event.magnetic.z;
       
-      // Acceleration and gyroscope values (swapping the X and Y axes due to component's installation)
+      // Acceleration and gyroscope values (swapping the X/Y axes, inverting X/Z)
       oriented.accelX = accel_event.acceleration.y;
       oriented.accelY = accel_event.acceleration.x * -1;
       oriented.accelZ = accel_event.acceleration.z * -1;
@@ -603,12 +602,12 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
     break;
 
     case COMPONENTS_DOWN_USB_REAR:
-      // Magnetometer data (swapping the X and Y axes due to component's installation)
-      oriented.magX = mag_event.magnetic.y;
-      oriented.magY = mag_event.magnetic.x * -1;
+      // Magnetometer data (inverting the X axis)
+      oriented.magX = mag_event.magnetic.x * -1;
+      oriented.magY = mag_event.magnetic.y;
       oriented.magZ = mag_event.magnetic.z;
       
-      // Acceleration and gyroscope values (swapping the X and Y axes due to component's installation)
+      // Acceleration and gyroscope values (swapping the X/Y axes, inverting X/Z)
       oriented.accelX = accel_event.acceleration.y * -1;
       oriented.accelY = accel_event.acceleration.x;
       oriented.accelZ = accel_event.acceleration.z * -1;
@@ -618,12 +617,12 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
     break;
 
     case COMPONENTS_LEFT_USB_FRONT:
-      // Magnetometer data (swapping all three axes due to the component's installation)
+      // Magnetometer data (swapping X/Y axes and inverting X/Z)
       oriented.magX = mag_event.magnetic.y * -1;
-      oriented.magY = mag_event.magnetic.z * -1;
-      oriented.magZ = mag_event.magnetic.x;
+      oriented.magY = mag_event.magnetic.x;
+      oriented.magZ = mag_event.magnetic.z * -1;
       
-      // Acceleration and gyroscope values (swapping all three axes due to the component's installation)
+      // Acceleration and gyroscope values (swapping all three axes)
       oriented.accelX = accel_event.acceleration.y;
       oriented.accelY = accel_event.acceleration.z;
       oriented.accelZ = accel_event.acceleration.x * -1;
@@ -633,12 +632,12 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
     break;
 
     case COMPONENTS_LEFT_USB_REAR:
-      // Magnetometer data (swapping all three axes due to the component's installation)
+      // Magnetometer data (swapping X/Y axes and inverting Y/Z)
       oriented.magX = mag_event.magnetic.y;
-      oriented.magY = mag_event.magnetic.z * -1;
-      oriented.magZ = mag_event.magnetic.x * -1;
+      oriented.magY = mag_event.magnetic.x * -1;
+      oriented.magZ = mag_event.magnetic.z * -1;
       
-      // Acceleration and gyroscope values (swapping all three axes due to the component's installation)
+      // Acceleration and gyroscope values (swapping all three axes)
       oriented.accelX = accel_event.acceleration.y * -1;
       oriented.accelY = accel_event.acceleration.z;
       oriented.accelZ = accel_event.acceleration.x;
@@ -649,12 +648,12 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
 
     case COMPONENTS_RIGHT_USB_FRONT:
       // Default Mack's Factory installation orientation
-      // Magnetometer data (swapping all three axes due to the component's installation)
+      // Magnetometer data (swapping and inverting all axes)
       oriented.magX = mag_event.magnetic.y * -1;
-      oriented.magY = mag_event.magnetic.z;
+      oriented.magY = mag_event.magnetic.z * -1;
       oriented.magZ = mag_event.magnetic.x * -1;
       
-      // Acceleration and gyroscope values (swapping all three axes due to the component's installation)
+      // Acceleration and gyroscope values (swapping all three axes)
       oriented.accelX = accel_event.acceleration.y;
       oriented.accelY = accel_event.acceleration.z * -1;
       oriented.accelZ = accel_event.acceleration.x;
@@ -664,18 +663,31 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
     break;
 
     case COMPONENTS_RIGHT_USB_REAR:
-      // Magnetometer data (swapping all three axes due to the component's installation)
+      // Magnetometer data (swapping all three axes and inverting Y/Z)
       oriented.magX = mag_event.magnetic.y;
-      oriented.magY = mag_event.magnetic.z;
-      oriented.magZ = mag_event.magnetic.x;
+      oriented.magY = mag_event.magnetic.z * -1;
+      oriented.magZ = mag_event.magnetic.x * -1;
       
-      // Acceleration and gyroscope values (swapping all three axes due to the component's installation)
+      // Acceleration and gyroscope values (swapping all three axes)
       oriented.accelX = accel_event.acceleration.y * -1;
       oriented.accelY = accel_event.acceleration.z * -1;
       oriented.accelZ = accel_event.acceleration.x * -1;
       oriented.gyroX = gyro_event.gyro.y;
       oriented.gyroY = gyro_event.gyro.z;
       oriented.gyroZ = gyro_event.gyro.x;
+    break;
+
+    case UNKNOWN_ORIENTATION:
+      // If the orientation is unknown, do not modify the sensor readings.
+      oriented.magX = mag_event.magnetic.x;
+      oriented.magY = mag_event.magnetic.y;
+      oriented.magZ = mag_event.magnetic.z;
+      oriented.accelX = accel_event.acceleration.x;
+      oriented.accelY = accel_event.acceleration.y;
+      oriented.accelZ = accel_event.acceleration.z;
+      oriented.gyroX = gyro_event.gyro.x;
+      oriented.gyroY = gyro_event.gyro.y;
+      oriented.gyroZ = gyro_event.gyro.z;
     break;
   }
   
@@ -1091,6 +1103,9 @@ void reportCalibrationData() {
   magnetometer->getEvent(&mag_event);
   gyroscope->getEvent(&gyro_event);
   accelerometer->getEvent(&accel_event);
+
+  // Uncomment to force the device's raw orientation for calibration reporting, when necessary.
+  INSTALL_ORIENTATION = COMPONENTS_RIGHT_USB_REAR;
 
   // Apply orientation mapping to get data in the device's coordinate system.
   // This ensures calibration tools see the correct axes for your installation.
