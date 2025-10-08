@@ -9673,7 +9673,6 @@ void checkRotaryEncoder() {
                   i_wand_menu = 5;
 
                   // Turn on some lights to visually indicate which menu we are in.
-                  digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
                   ventLightControl(); // Level 3
 
                   // Play an indication beep to notify we have changed menu levels.
@@ -10304,7 +10303,7 @@ void ventLightControl(uint8_t i_intensity) {
     }
   #endif
 
-    if(i_intensity < 20) {
+    if(i_intensity < 25) {
       // Turn off if not off already.
       if(vent_leds[0]) {
         vent_leds[0] = getHueAsRGB(C_BLACK);
@@ -10313,6 +10312,10 @@ void ventLightControl(uint8_t i_intensity) {
     }
     else {
       switch(STREAM_MODE) {
+        case SETTINGS:
+          vent_leds[0] = getHueAsRGB(C_RED, 128);
+        break;
+
         case STASIS:
           vent_leds[0] = getHueAsRGB(C_MID_BLUE, i_intensity);
         break;

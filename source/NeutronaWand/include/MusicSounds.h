@@ -454,10 +454,13 @@ enum sound_fx {
   S_VOICE_WAND_WIFI_ENABLED,
   S_VOICE_WAND_WIFI_DISABLED,
   S_VOICE_WAND_WIFI_RESET,
-  S_VOICE_PACK_WIFI_RESET
+  S_VOICE_PACK_WIFI_RESET,
+  S_VOICE_BARREL_SWITCH_INVERTED,
+  S_VOICE_BARREL_SWITCH_DEFAULT,
+  S_VOICE_BARREL_SWITCH_DISABLED
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const uint16_t i_last_effects_track = S_VOICE_PACK_WIFI_RESET;
+const uint16_t i_last_effects_track = S_VOICE_BARREL_SWITCH_DISABLED;

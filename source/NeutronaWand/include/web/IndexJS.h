@@ -838,7 +838,7 @@ function updateAzimuthChart(azimuthBins) {
  * in a readable format for quick assessment of calibration progress.
  */
 function updateCoverageStatistics(elevationBins, azimuthBins) {
-  if (!elevationBins || !azimuthBins) return;
+  if (!elevationBins.length || !azimuthBins.length) return;
 
   // Count filled elevation bins (bins with sample count > 0)
   var filledElevationBins = 0;

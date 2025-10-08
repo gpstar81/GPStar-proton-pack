@@ -402,7 +402,9 @@ void handleWandPrefsUpdate() {
 
   b_extra_pack_sounds = (wandConfig.wandSoundsToPack == 1);
   b_quick_vent = (wandConfig.quickVenting == 1);
+  #ifndef ESP32
   b_rgb_vent_light = (wandConfig.rgbVentEnabled == 1);
+  #endif
   b_vent_light_control = (wandConfig.autoVentLight == 1);
   b_beep_loop = (wandConfig.wandBeepLoop == 1);
   b_wand_boot_errors = (wandConfig.wandBootError == 1);
