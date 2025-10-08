@@ -500,6 +500,7 @@ String getWandConfig() {
   jsonBody["overheatEnabled"] = wandConfig.overheatEnabled; // true|false
   jsonBody["defaultFiringMode"] = wandConfig.defaultFiringMode; // [1=VG,2=CTS,3=CTS_MIX]
   jsonBody["wandVibration"] = wandConfig.wandVibration; // [1=ALWAYS,2=FIRING,3=NEVER,4=TOGGLE]
+  jsonBody["barrelSwitchPolarity"] = wandConfig.barrelSwitchPolarity; // [1=DEFAULT,2=INVERTED,3=DISABLED]
   jsonBody["wandSoundsToPack"] = wandConfig.wandSoundsToPack; // true|false
   jsonBody["quickVenting"] = wandConfig.quickVenting; // true|false (Super-Hero Mode Only)
   jsonBody["rgbVentEnabled"] = wandConfig.rgbVentEnabled; // true|false
@@ -1150,6 +1151,7 @@ AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHand
       wandConfig.overheatEnabled = jsonBody["overheatEnabled"].as<uint8_t>();
       wandConfig.defaultFiringMode = jsonBody["defaultFiringMode"].as<uint8_t>();
       wandConfig.wandVibration = jsonBody["wandVibration"].as<uint8_t>();
+      wandConfig.barrelSwitchPolarity = jsonBody["barrelSwitchPolarity"].as<uint8_t>();
       wandConfig.wandSoundsToPack = jsonBody["wandSoundsToPack"].as<uint8_t>();
       wandConfig.quickVenting = jsonBody["quickVenting"].as<uint8_t>();
       wandConfig.autoVentLight = jsonBody["autoVentLight"].as<uint8_t>();

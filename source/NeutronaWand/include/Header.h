@@ -264,6 +264,8 @@ bool b_vibration_switch_on = true;
 /*
  * Various Switches on the wand.
  */
+enum BARREL_SWITCH_POLARITIES { SWITCH_DEFAULT, SWITCH_INVERTED, SWITCH_DISABLED };
+enum BARREL_SWITCH_POLARITIES BARREL_SWITCH_POLARITY = SWITCH_DEFAULT;
 Switch switch_intensify(INTENSIFY_SWITCH_PIN); // Intensify switch.
 Switch switch_activate(ACTIVATE_SWITCH_PIN); // Activate switch.
 Switch switch_vent(VENT_SWITCH_PIN); // Turns on the vent light. Bottom right switch on the wand.

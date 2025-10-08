@@ -46,7 +46,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
   <h1>General Options</h1>
   <div class="block left">
     <div class="setting">
-      <b>Stream/Firing Mode:</b>
+      <b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stream/Firing Mode:</b>
       <select id="defaultFiringMode" name="defaultFiringMode" style="width:170px">
         <option value="1">Video Game</option>
         <option value="2">CTS</option>
@@ -54,7 +54,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      &nbsp;&nbsp;&nbsp;<b>Wand Year Theme:</b>
+      <b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Wand Year Theme:</b>
       <select id="defaultYearModeWand" name="defaultYearModeWand" style="width:170px">
         <option value="1">Via System</option>
         <option value="2">1984</option>
@@ -64,7 +64,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      &nbsp;&nbsp;&nbsp;&nbsp;<b>Default CTS Mode:</b>
+      <b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Default CTS Mode:</b>
       <select id="defaultYearModeCTS" name="defaultYearModeCTS" style="width:170px">
         <option value="1">Via System</option>
         <option value="2">1984</option>
@@ -72,12 +72,20 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Use Vibration:</b>
-      <select id="wandVibration" name="wandVibration">
+      <b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Use Vibration:</b>
+      <select id="wandVibration" name="wandVibration" style="width:170px">
         <option value="4">Via Toggle</option>
         <option value="3">Never</option>
         <option value="2">When Firing</option>
         <option value="1">Always</option>
+      </select>
+    </div>
+    <div class="setting">
+      <b>Barrel Safety Switch Polarity:</b>
+      <select id="barrelSwitchPolarity" name="barrelSwitchPolarity" style="width:170px">
+        <option value="1">Default</option>
+        <option value="2">Inverted</option>
+        <option value="3">Disabled</option>
       </select>
     </div>
     <!-- Toggle for rgbVentEnabled not available for GPStar Neutrona Wand II -->
@@ -249,6 +257,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       getEl("overheatEnabled").disabled = true;
       getEl("defaultFiringMode").disabled = true;
       getEl("wandVibration").disabled = true;
+      getEl("barrelSwitchPolarity").disabled = true;
       getEl("wandSoundsToPack").disabled = true;
       getEl("quickVenting").disabled = true;
       getEl("autoVentLight").disabled = true;
@@ -317,6 +326,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
             setToggle("overheatEnabled", settings.overheatEnabled);
             setValue("defaultFiringMode", settings.defaultFiringMode || 1);
             setValue("wandVibration", settings.wandVibration || 4);
+            setValue("barrelSwitchPolarity", settings.barrelSwitchPolarity || 1);
             setToggle("wandSoundsToPack", settings.wandSoundsToPack);
             setToggle("quickVenting", settings.quickVenting);
             setToggle("autoVentLight", settings.autoVentLight);
@@ -351,6 +361,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         overheatEnabled: getToggle("overheatEnabled"),
         defaultFiringMode: getInt("defaultFiringMode") || 1,
         wandVibration: getInt("wandVibration") || 4,
+        barrelSwitchPolarity: getInt("barrelSwitchPolarity") || 1,
         wandSoundsToPack: getToggle("wandSoundsToPack"),
         quickVenting: getToggle("quickVenting"),
         autoVentLight: getToggle("autoVentLight"),

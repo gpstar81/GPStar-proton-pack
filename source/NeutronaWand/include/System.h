@@ -3065,7 +3065,7 @@ void wandVentStateCheck() {
 
 // Barrel safety switch is connected to analog pin 7.
 bool switchBarrel() {
-  if(switch_barrel.on()) {
+  if((BARREL_SWITCH_POLARITY == SWITCH_DEFAULT && switch_barrel.on()) || (BARREL_SWITCH_POLARITY == SWITCH_INVERTED && !switch_barrel.on())) {
     if(BARREL_STATE != BARREL_RETRACTED) {
       if(BARREL_STATE != BARREL_UNKNOWN) {
         // Prevents sound from playing on bootup.

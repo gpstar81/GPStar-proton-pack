@@ -55,7 +55,8 @@ const uint16_t i_eepromAddress = 0; // The address in the EEPROM to start readin
  */
 struct objLEDEEPROM {
   uint8_t barrel_spectral_custom;
-  uint8_t barrel_spectral_saturation_custom; // Unused
+  uint8_t barrel_spectral_saturation_custom; // Currently unused
+  uint8_t vent_light_auto_intensity;
   uint8_t num_barrel_leds;
   uint8_t num_bargraph_leds;
   uint8_t rgb_vent_light;
@@ -71,10 +72,9 @@ struct objConfigEEPROM {
   uint8_t extra_proton_sounds;
   uint8_t neutrona_wand_sounds;
   uint8_t spectral_mode;
-  uint8_t holiday_mode; // This will be deprecated in 6.0 as part of a new menu refactoring.
+  uint8_t holiday_mode; // This will be deprecated in 6.x as part of a new menu refactoring.
   uint8_t quick_vent;
   uint8_t wand_boot_errors;
-  uint8_t vent_light_auto_intensity;
   uint8_t invert_bargraph;
   uint8_t bargraph_mode;
   uint8_t bargraph_firing_animation;
@@ -94,6 +94,7 @@ struct objConfigEEPROM {
   uint8_t overheat_level_3;
   uint8_t overheat_level_2;
   uint8_t overheat_level_1;
+  uint8_t barrel_switch_polarity;
   uint8_t wand_vibration;
 };
 
@@ -177,15 +178,6 @@ void readEEPROM() {
       }
       else {
         b_wand_boot_errors = false;
-      }
-    }
-
-    if(obj_config_eeprom.vent_light_auto_intensity > 0 && obj_config_eeprom.vent_light_auto_intensity < 3) {
-      if(obj_config_eeprom.vent_light_auto_intensity > 1) {
-        b_vent_light_control = true;
-      }
-      else {
-        b_vent_light_control = false;
       }
     }
 
@@ -382,6 +374,23 @@ void readEEPROM() {
       }
     }
 
+    if(obj_config_eeprom.barrel_switch_polarity > 0 && obj_config_eeprom.barrel_switch_polarity < 4) {
+      switch(obj_config_eeprom.barrel_switch_polarity) {
+        case 1:
+        default:
+          BARREL_SWITCH_POLARITY = SWITCH_DEFAULT;
+        break;
+
+        case 2:
+          BARREL_SWITCH_POLARITY = SWITCH_INVERTED;
+        break;
+
+        case 3:
+          BARREL_SWITCH_POLARITY = SWITCH_DISABLED;
+        break;
+      }
+    }
+
     if(obj_config_eeprom.wand_vibration > 0 && obj_config_eeprom.wand_vibration < 5) {
       switch(obj_config_eeprom.wand_vibration) {
         case 4:
@@ -433,6 +442,15 @@ void readEEPROM() {
 
     if(obj_led_eeprom.barrel_spectral_saturation_custom > 0 && obj_led_eeprom.barrel_spectral_saturation_custom != 255) {
       i_spectral_wand_custom_saturation = obj_led_eeprom.barrel_spectral_saturation_custom;
+    }
+
+    if(obj_led_eeprom.vent_light_auto_intensity > 0 && obj_led_eeprom.vent_light_auto_intensity < 3) {
+      if(obj_led_eeprom.vent_light_auto_intensity > 1) {
+        b_vent_light_control = true;
+      }
+      else {
+        b_vent_light_control = false;
+      }
     }
 
     if(obj_led_eeprom.num_barrel_leds == LEDS_2 || obj_led_eeprom.num_barrel_leds == LEDS_5 ||
@@ -509,7 +527,12 @@ void saveLEDEEPROM() {
 
   uint8_t i_barrel_led_count = WAND_BARREL_LED_COUNT; // 5 = Hasbro, 50 = GPStar Neutrona Barrel, 2 = GPStar Barrel LED Mini, 48 = Frutto.
   uint8_t i_bargraph_led_count = BARGRAPH_TYPE_EEPROM; // 28 segment, 30 segment.
+  uint8_t i_vent_light_auto_intensity = 2; // 1 = Vent Light auto intensity disabled, 2 = Vent Light auto intensity enabled
   uint8_t i_rgb_vent_light = 1; // 1 = RGB Vent Light disabled, 2 = RGB Vent Light enabled
+
+  if(!b_vent_light_control) {
+    i_vent_light_auto_intensity = 1;
+  }
 
   if(b_rgb_vent_light) {
     i_rgb_vent_light = 2;
@@ -519,6 +542,7 @@ void saveLEDEEPROM() {
   objLEDEEPROM obj_led_eeprom = {
     i_spectral_wand_custom_colour,
     i_spectral_wand_custom_saturation,
+    i_vent_light_auto_intensity,
     i_barrel_led_count,
     i_bargraph_led_count,
     i_rgb_vent_light
@@ -552,7 +576,6 @@ void saveConfigEEPROM() {
   uint8_t i_spectral = 1;
   uint8_t i_quick_vent = 2;
   uint8_t i_wand_boot_errors = 1;
-  uint8_t i_vent_light_auto_intensity = 2;
   uint8_t i_invert_bargraph = 1;
   uint8_t i_bargraph_mode = 1; // 1 = default, 2 = super hero, 3 = original.
   uint8_t i_bargraph_firing_animation = 1; // 1 = default, 2 = super hero, 3 = original.
@@ -572,6 +595,7 @@ void saveConfigEEPROM() {
   uint8_t i_overheat_level_3 = 1;
   uint8_t i_overheat_level_2 = 1;
   uint8_t i_overheat_level_1 = 1;
+  uint8_t i_barrel_switch_polarity = 1; // 1 = default, 2 = inverted, 3 = disabled.
   uint8_t i_wand_vibration = 4; // 1 = always, 2 = when firing, 3 = off, 4 = default.
 
   if(FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) {
@@ -604,10 +628,6 @@ void saveConfigEEPROM() {
 
   if(b_wand_boot_errors) {
     i_wand_boot_errors = 2;
-  }
-
-  if(!b_vent_light_control) {
-    i_vent_light_auto_intensity = 1;
   }
 
   if(b_bargraph_invert) {
@@ -725,6 +745,21 @@ void saveConfigEEPROM() {
     i_overheat_level_1 = 2;
   }
 
+  switch(BARREL_SWITCH_POLARITY) {
+    case SWITCH_DEFAULT:
+    default:
+      i_barrel_switch_polarity = 1;
+    break;
+
+    case SWITCH_INVERTED:
+      i_barrel_switch_polarity = 2;
+    break;
+
+    case SWITCH_DISABLED:
+      i_barrel_switch_polarity = 3;
+    break;
+  }
+
   switch(VIBRATION_MODE_EEPROM) {
     case VIBRATION_ALWAYS:
       i_wand_vibration = 1;
@@ -755,7 +790,6 @@ void saveConfigEEPROM() {
     0,
     i_quick_vent,
     i_wand_boot_errors,
-    i_vent_light_auto_intensity,
     i_invert_bargraph,
     i_bargraph_mode,
     i_bargraph_firing_animation,
@@ -775,6 +809,7 @@ void saveConfigEEPROM() {
     i_overheat_level_3,
     i_overheat_level_2,
     i_overheat_level_1,
+    i_barrel_switch_polarity,
     i_wand_vibration
   };
 

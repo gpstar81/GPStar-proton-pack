@@ -62,6 +62,8 @@ struct objLEDEEPROM {
   uint8_t cyclotron_cavity_type;
   uint8_t inner_cyclotron_led_panel;
   uint8_t powercell_inverted;
+  uint8_t vg_powercell;
+  uint8_t vg_cyclotron;
 } gObjLEDEEPROM;
 
 struct objConfigEEPROM {
@@ -75,8 +77,6 @@ struct objConfigEEPROM {
   uint8_t overheat_sync_to_fan;
   uint8_t year_mode;
   uint8_t system_mode;
-  uint8_t vg_powercell;
-  uint8_t vg_cyclotron;
   uint8_t demo_light_mode;
   uint8_t cyclotron_three_led_toggle;
   uint8_t default_system_volume;
@@ -142,6 +142,17 @@ void saveLEDEEPROM() {
     i_powercell_inverted = 2;
   }
 
+  // Power Cell and Cyclotron VG color flags.
+  uint8_t i_vg_powercell = 1;
+  uint8_t i_vg_cyclotron = 2;
+  if(b_powercell_colour_toggle) {
+    i_vg_powercell = 2;
+  }
+
+  if(!b_cyclotron_colour_toggle) {
+    i_vg_cyclotron = 1;
+  }
+
   gObjLEDEEPROM.powercell_count = i_powercell_leds;
   gObjLEDEEPROM.cyclotron_count = i_cyclotron_leds;
   gObjLEDEEPROM.inner_cyclotron_count = i_inner_cyclotron_cake_num_leds;
@@ -160,6 +171,8 @@ void saveLEDEEPROM() {
   gObjLEDEEPROM.cyclotron_cavity_type = i_inner_cyclotron_cavity_led_type;
   gObjLEDEEPROM.inner_cyclotron_led_panel = i_inner_cyclotron_led_panel;
   gObjLEDEEPROM.powercell_inverted = i_powercell_inverted;
+  gObjLEDEEPROM.vg_powercell = i_vg_powercell;
+  gObjLEDEEPROM.vg_cyclotron = i_vg_cyclotron;
 
   if(preferences.begin("led", false)) {
     preferences.putBytes("led", &gObjLEDEEPROM, sizeof(gObjLEDEEPROM));
@@ -208,8 +221,6 @@ void saveConfigEEPROM() {
   uint8_t i_year_mode_eeprom = SYSTEM_EEPROM_YEAR;
   uint8_t i_system_mode = 1; // 1 = super hero, 2 = original.
 
-  uint8_t i_vg_powercell = 1;
-  uint8_t i_vg_cyclotron = 2;
   uint8_t i_demo_light_mode = 1;
   uint8_t i_use_ribbon_cable = 1;
   uint8_t i_cyclotron_three_led_toggle = 1; // 1 = single led, 2 = three leds.
@@ -262,14 +273,6 @@ void saveConfigEEPROM() {
 
   if(SYSTEM_MODE == MODE_ORIGINAL) {
     i_system_mode = 2;
-  }
-
-  if(b_powercell_colour_toggle) {
-    i_vg_powercell = 2;
-  }
-
-  if(!b_cyclotron_colour_toggle) {
-    i_vg_cyclotron = 1;
   }
 
   if(b_demo_light_mode) {
@@ -342,8 +345,6 @@ void saveConfigEEPROM() {
   gObjConfigEEPROM.overheat_sync_to_fan = i_overheat_sync_to_fan;
   gObjConfigEEPROM.year_mode = i_year_mode_eeprom;
   gObjConfigEEPROM.system_mode = i_system_mode;
-  gObjConfigEEPROM.vg_powercell = i_vg_powercell;
-  gObjConfigEEPROM.vg_cyclotron = i_vg_cyclotron;
   gObjConfigEEPROM.demo_light_mode = i_demo_light_mode;
   gObjConfigEEPROM.cyclotron_three_led_toggle = i_cyclotron_three_led_toggle;
   gObjConfigEEPROM.default_system_volume = i_default_system_volume;
@@ -486,6 +487,24 @@ void readEEPROM() {
       }
       else {
         b_powercell_invert = false;
+      }
+    }
+
+    if(gObjLEDEEPROM.vg_powercell > 0 && gObjLEDEEPROM.vg_powercell < 3) {
+      if(gObjLEDEEPROM.vg_powercell > 1) {
+        b_powercell_colour_toggle = true;
+      }
+      else {
+        b_powercell_colour_toggle = false;
+      }
+    }
+
+    if(gObjLEDEEPROM.vg_cyclotron > 0 && gObjLEDEEPROM.vg_cyclotron < 3) {
+      if(gObjLEDEEPROM.vg_cyclotron > 1) {
+        b_cyclotron_colour_toggle = true;
+      }
+      else {
+        b_cyclotron_colour_toggle = false;
       }
     }
 
@@ -671,24 +690,6 @@ void readEEPROM() {
       }
       else {
         SYSTEM_MODE = MODE_SUPER_HERO;
-      }
-    }
-
-    if(gObjConfigEEPROM.vg_powercell > 0 && gObjConfigEEPROM.vg_powercell < 3) {
-      if(gObjConfigEEPROM.vg_powercell > 1) {
-        b_powercell_colour_toggle = true;
-      }
-      else {
-        b_powercell_colour_toggle = false;
-      }
-    }
-
-    if(gObjConfigEEPROM.vg_cyclotron > 0 && gObjConfigEEPROM.vg_cyclotron < 3) {
-      if(gObjConfigEEPROM.vg_cyclotron > 1) {
-        b_cyclotron_colour_toggle = true;
-      }
-      else {
-        b_cyclotron_colour_toggle = false;
       }
     }
 

@@ -99,6 +99,7 @@ struct __attribute__((packed)) WandPrefs {
   uint8_t overheatEnabled;
   uint8_t defaultFiringMode;
   uint8_t wandVibration;
+  uint8_t barrelSwitchPolarity;
   uint8_t wandSoundsToPack;
   uint8_t quickVenting;
   uint8_t autoVentLight;
@@ -532,12 +533,17 @@ enum WAND_MESSAGE : uint8_t {
   W_WAND_WIFI_RESET,
   W_WAND_WIFI_DISABLED,
   W_WAND_WIFI_ENABLED,
+  W_BARREL_ERROR_SOUND,
+  W_BARREL_SWITCH_DEFAULT,
+  W_BARREL_SWITCH_INVERTED,
+  W_BARREL_SWITCH_DISABLED,
   W_BARGRAPH_28_SEGMENTS,
   W_BARGRAPH_30_SEGMENTS,
   W_RGB_VENT_DISABLED,
   W_RGB_VENT_ENABLED,
+  W_AUTO_VENT_INTENSITY_DISABLED,
+  W_AUTO_VENT_INTENSITY_ENABLED,
   W_IMPACT_SOUND,
-  W_BARREL_ERROR_SOUND,
   W_COM_SOUND_NUMBER
 };
 

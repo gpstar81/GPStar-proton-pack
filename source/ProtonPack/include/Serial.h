@@ -4187,6 +4187,20 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       playEffect(S_VOICE_RGB_VENT_LIGHTS_ENABLED);
     break;
 
+    case W_AUTO_VENT_INTENSITY_DISABLED:
+      stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
+      stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
+
+      playEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
+    break;
+
+    case W_AUTO_VENT_INTENSITY_ENABLED:
+      stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
+      stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
+
+      playEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
+    break;
+
     case W_BARGRAPH_28_SEGMENTS:
       stopEffect(S_VOICE_BARGRAPH_28_SEGMENTS);
       stopEffect(S_VOICE_BARGRAPH_30_SEGMENTS);
@@ -4466,6 +4480,30 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Plays the error sound for when the user forgets to extend the barrel before firing.
       stopEffect(S_VENT_DRY);
       playEffect(S_VENT_DRY);
+    break;
+
+    case W_BARREL_SWITCH_DEFAULT:
+      stopEffect(S_VOICE_BARREL_SWITCH_DEFAULT);
+      stopEffect(S_VOICE_BARREL_SWITCH_INVERTED);
+      stopEffect(S_VOICE_BARREL_SWITCH_DISABLED);
+
+      playEffect(S_VOICE_BARREL_SWITCH_DEFAULT);
+    break;
+
+    case W_BARREL_SWITCH_INVERTED:
+      stopEffect(S_VOICE_BARREL_SWITCH_DEFAULT);
+      stopEffect(S_VOICE_BARREL_SWITCH_INVERTED);
+      stopEffect(S_VOICE_BARREL_SWITCH_DISABLED);
+
+      playEffect(S_VOICE_BARREL_SWITCH_INVERTED);
+    break;
+
+    case W_BARREL_SWITCH_DISABLED:
+      stopEffect(S_VOICE_BARREL_SWITCH_DEFAULT);
+      stopEffect(S_VOICE_BARREL_SWITCH_INVERTED);
+      stopEffect(S_VOICE_BARREL_SWITCH_DISABLED);
+
+      playEffect(S_VOICE_BARREL_SWITCH_DISABLED);
     break;
 
     case W_COM_SOUND_NUMBER:

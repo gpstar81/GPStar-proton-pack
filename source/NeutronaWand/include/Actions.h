@@ -379,6 +379,7 @@ void checkWandAction() {
         // Level 1 Intensify: Cycle through the different Power Cell LED counts.
         // Level 1 Barrel Wing Button: Adjust the Power Cell colour hue. <- Controlled by checkRotaryEncoder()
         // Level 2 Intensify: Toggle inverting of Power Cell LED direction (required for 1984 Power Cell).
+        // Level 2 Barrel Wing Button: Toggle the auto vent light intensity control on/off.
         case 3:
           if(switch_intensify.pushed()) {
             switch(WAND_MENU_LEVEL) {
@@ -392,11 +393,45 @@ void checkWandAction() {
               break;
             }
           }
+          else if(switch_mode.pushed()) {
+            switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_2:
+                if(b_vent_light_control) {
+                  // Disable the auto vent light intensity functionality.
+                  b_vent_light_control = false;
+
+                  stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
+                  stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
+
+                  playEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
+
+                  wandSerialSend(W_AUTO_VENT_INTENSITY_DISABLED);
+                }
+                else {
+                  // Enable the auto vent light intensity functionality.
+                  b_vent_light_control = true;
+
+                  stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
+                  stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
+
+                  playEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
+
+                  wandSerialSend(W_AUTO_VENT_INTENSITY_ENABLED);
+                }
+              break;
+
+              case MENU_LEVEL_1:
+              default:
+                // Do nothing as this is controlled by checkRotaryEncoder().
+              break;
+            }
+          }
         break;
 
         // Level 1 Intensify: Cycle through the different Cyclotron LED counts.
         // Level 1 Barrel Wing Button: Adjust the Cyclotron colour hue. <- Controlled by checkRotaryEncoder()
         // Level 2 Intensify: Enable or disable the Inner Cyclotron LED Panel.
+        // Level 2 Barrel Wing Button: Cycle through VG colour modes to disable them (see operational guide for more details on this).
         case 2:
           if(switch_intensify.pushed()) {
             switch(WAND_MENU_LEVEL) {
@@ -407,6 +442,19 @@ void checkWandAction() {
               case MENU_LEVEL_1:
               default:
                 wandSerialSend(W_TOGGLE_CYCLOTRON_LEDS);
+              break;
+            }
+          }
+          else if(switch_mode.pushed()) {
+            switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_2:
+                // Enable or disable video game colours for the Power Cell, Cyclotron, etc.
+                wandSerialSend(W_VIDEO_GAME_MODE_COLOUR_TOGGLE);
+              break;
+
+              case MENU_LEVEL_1:
+              default:
+                // Do nothing as this is controlled by checkRotaryEncoder().
               break;
             }
           }
@@ -869,7 +917,7 @@ void checkWandAction() {
         // Menu Level 1: Intensify: Enable or Disable overheating settings.
         // Menu Level 1: Barrel Wing Button: Enable or disable smoke.
         // Menu Level 2: Intensify: Enable/Disable Wand beeping in Afterlife / Frozen Empire modes.
-        // Menu Level 2: Barrel Wing Button: Cycle through VG colour modes to disable them. (see operational guide for more details on this).
+        // Menu Level 2: Barrel Wing Button: Barrel Safety Switch Polarity Toggle setting: Default / Inverted / Disabled
         // Menu Level 3: Intensify: Bargraph Idle Animation Toggle setting: Super Hero / Bargraph Original / System Default
         // Menu Level 3: Barrel Wing Button: Bargraph Firing Animation Toggle setting: Super Hero / Bargraph Original / System Default
         // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Level 3
@@ -980,8 +1028,42 @@ void checkWandAction() {
               wandSerialSend(W_SMOKE_TOGGLE);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-              // Enable or disable video game colours for the Power Cell, Cyclotron etc.
-              wandSerialSend(W_VIDEO_GAME_MODE_COLOUR_TOGGLE);
+              if(BARREL_SWITCH_POLARITY == SWITCH_DEFAULT) {
+                // Change barrel safety switch polarity to inverted.
+                BARREL_SWITCH_POLARITY = SWITCH_INVERTED;
+
+                stopEffect(S_VOICE_BARREL_SWITCH_DEFAULT);
+                stopEffect(S_VOICE_BARREL_SWITCH_INVERTED);
+                stopEffect(S_VOICE_BARREL_SWITCH_DISABLED);
+
+                playEffect(S_VOICE_BARREL_SWITCH_INVERTED);
+
+                wandSerialSend(W_BARREL_SWITCH_INVERTED);
+              }
+              else if(BARREL_SWITCH_POLARITY == SWITCH_INVERTED) {
+                // Change barrel safety switch polarity to disabled.
+                BARREL_SWITCH_POLARITY = SWITCH_DISABLED;
+
+                stopEffect(S_VOICE_BARREL_SWITCH_DEFAULT);
+                stopEffect(S_VOICE_BARREL_SWITCH_INVERTED);
+                stopEffect(S_VOICE_BARREL_SWITCH_DISABLED);
+
+                playEffect(S_VOICE_BARREL_SWITCH_DISABLED);
+
+                wandSerialSend(W_BARREL_SWITCH_DISABLED);
+              }
+              else {
+                // Change barrel safety switch polarity to default.
+                BARREL_SWITCH_POLARITY = SWITCH_DEFAULT;
+
+                stopEffect(S_VOICE_BARREL_SWITCH_DEFAULT);
+                stopEffect(S_VOICE_BARREL_SWITCH_INVERTED);
+                stopEffect(S_VOICE_BARREL_SWITCH_DISABLED);
+
+                playEffect(S_VOICE_BARREL_SWITCH_DEFAULT);
+
+                wandSerialSend(W_BARREL_SWITCH_DEFAULT);
+              }
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
               switch(BARGRAPH_EEPROM_FIRING_ANIMATION) {
