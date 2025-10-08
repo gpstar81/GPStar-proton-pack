@@ -435,19 +435,14 @@ input[type=text] {
 }
 
 .coverage-analysis {
-  color: rgba(0,160,0,1);
   margin: 15px 0;
-  text-shadow: #060 1px 0 5px;
 }
 
 .coverage-title {
-  color: rgba(0,160,0,1);
-  font-family: Tahoma,Verdana,Arial;
   font-size: 0.9em;
   font-weight: 600;
   margin: 10px 0 5px;
   text-align: center;
-  text-shadow: #060 1px 0 5px;
 }
 
 .elevation-display {
@@ -456,7 +451,7 @@ input[type=text] {
 
 .elevation-chart-container {
   position: relative;
-  height: 80px;
+  height: 90px;
   margin: 5px 0;
 }
 
@@ -489,10 +484,8 @@ input[type=text] {
 }
 
 .degree-label {
-  color: rgba(0,160,0,0.8);
   font-family: Courier New,Courier,sans-serif;
   font-size: 0.7em;
-  text-shadow: #060 1px 0 3px;
 }
 
 .azimuth-display {
@@ -525,11 +518,9 @@ input[type=text] {
 
 .compass-label {
   position: absolute;
-  color: rgba(0,160,0,0.8);
   font-family: Tahoma,Verdana,Arial;
   font-size: 0.8em;
   font-weight: 600;
-  text-shadow: #060 1px 0 3px;
 }
 
 .compass-n {
@@ -562,22 +553,17 @@ input[type=text] {
 }
 
 .status-message {
-  color: rgba(0,160,0,1);
-  font-family: Courier New,Courier,sans-serif;
   font-size: 0.8em;
   text-align: center;
-  text-shadow: #060 1px 0 3px;
   line-height: 1.2;
 }
 
 .status-message.warning {
-  color: rgba(255,165,0,1);
-  text-shadow: #fa0 1px 0 3px;
+  color: rgba(255,120,0,1);
 }
 
 .status-message.error {
   color: rgba(255,0,0,1);
-  text-shadow: #f00 1px 0 3px;
 }
 
 #hardIron1, #hardIron2, #hardIron3,

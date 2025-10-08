@@ -145,7 +145,7 @@ const char INDEX_page[] PROGMEM = R"=====(
         <ol style="padding-left:20px;">
           <li>Press "Enable Calibration" to begin.</li>
           <li>Raise and lower your Neutrona Wand <b>slowly</b> while turning 360&deg; to collect calibration data.</li>
-          <li>Fill the display below with red dots until the coverage is as close to 100% as possible.</li>
+          <li>Fill the display below with red dots until the total coverage is as close to 100% as possible.</li>
           <li>If coverage stalls, try adding a twisting motion or figure-eights into your movements.</li>
           <li>Press "Disable Calibration" to stop collection and store new calculated values.</li>
         </ol>
@@ -157,7 +157,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       <br/>
       <div class="telemetry" id="calInfo">
         <p>
-          <span class="infoLabel">Coverage:</span> <span class="infoState" id="coverage">&mdash;</span>
+          <span class="infoLabel">Total Coverage:</span> <span class="infoState" id="coverage">&mdash;</span>
         </p>
         <!-- Shows vertical (elevation) orientation coverage gaps as a bar chart -->
         <div class="coverage-analysis">
@@ -165,8 +165,7 @@ const char INDEX_page[] PROGMEM = R"=====(
             <h4 class="coverage-title">Vertical Coverage</h4>
             <div class="elevation-chart-container">
               <div id="elevationChart" class="elevation-chart">
-                <!-- Elevation bars will be populated dynamically via JavaScript -->
-                <!-- Each bar represents coverage in a specific elevation range -->
+                <!-- Elevation bars will be populated dynamically by range -->
               </div>
               <div class="elevation-labels">
                 <span class="degree-label">-90°</span>
@@ -180,8 +179,7 @@ const char INDEX_page[] PROGMEM = R"=====(
             <h4 class="coverage-title">Horizontal Coverage</h4>
             <div class="azimuth-chart-container">
               <div id="azimuthChart" class="azimuth-chart">
-                <!-- SVG-based circular chart will be populated dynamically -->
-                <!-- Shows coverage around 360° compass directions -->
+                <!-- SVG-based compass will be populated dynamically -->
               </div>
               <div class="compass-directions">
                 <span class="compass-label compass-n">N</span>
