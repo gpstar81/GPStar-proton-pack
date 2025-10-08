@@ -3,8 +3,9 @@ Thumbs.db
 *.bootloader.*
 *.partitions.*
 *.h-e
-*.log
 /source/*/.pio
 /source/*/.vscode
+/source/*/log
+/source/*/logs
 site/
 .vscode/settings.json

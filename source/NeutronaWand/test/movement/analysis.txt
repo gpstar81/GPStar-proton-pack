@@ -1,0 +1,136 @@
+Magnetometer Calibration Analysis Tool
+Purpose: Analyze prototype vs production binning behavior
+=========================================
+
+=== ANALYSIS CONFIGURATION ===
+Bin Size: 9° per bin
+Grid Dimensions: 40 azimuth bins × 20 elevation bins
+Total Bins Available: 800 bins
+Azimuth Range: 0° to 360° (coverage: 40 bins)
+Elevation Range: -90° to +90° (coverage: 20 bins)
+Coverage Resolution: Each bin represents        ° ×     ° area
+
+Loading log files...
+Loaded 2521 readings from movement/prototype_last3.log
+Loaded 2903 readings from movement/production_last3.log
+
+Processing PROTOTYPE dataset...
+  Processed 0 / 2521 samples...
+  Processed 1000 / 2521 samples...
+  Processed 2000 / 2521 samples...
+Analysis complete: 2521 valid samples, 363 unique bins (45.4% coverage)
+
+Processing PRODUCTION dataset...
+  Processed 0 / 2903 samples...
+  Processed 1000 / 2903 samples...
+  Processed 2000 / 2903 samples...
+Analysis complete: 2903 valid samples, 70 unique bins (8.8% coverage)
+
+=== DETAILED ANALYSIS: PROTOTYPE ===
+Source File: movement/prototype_last3.log
+  Detailed breakdown written to: movement/prototype_last3_analysis.txt
+
+Sample Statistics:
+  Total Lines: 2521
+  Valid Samples: 2521
+  Accepted Samples: 363
+  Unique Bins: 363 / 800
+  Coverage: 45.38%
+  Processing Efficiency: 100.0% valid samples
+
+Magnitude Analysis:
+  Average: 52.20 µT
+  Range: 9.14 to 85.29 µT
+  Spread: 76.15 µT
+
+Angular Analysis:
+  Azimuth - Avg: -39.6°, Range: -180.0° to 179.9°
+  Elevation - Avg: -2.3°, Range: -82.8° to 85.5°
+
+Elevation Bin Distribution:
+  Bin  0 ( -90.0°):    3 samples
+  Bin  1 ( -81.0°):   13 samples
+  Bin  2 ( -72.0°):   25 samples
+  Bin  3 ( -63.0°):   71 samples
+  Bin  4 ( -54.0°):  117 samples
+  Bin  5 ( -45.0°):  203 samples
+  Bin  6 ( -36.0°):  193 samples
+  Bin  7 ( -27.0°):  309 samples
+  Bin  8 ( -18.0°):  196 samples
+  Bin  9 (  -9.0°):  278 samples
+  Bin 10 (   0.0°):  161 samples
+  Bin 11 (   9.0°):  167 samples
+  Bin 12 (  18.0°):  183 samples
+  Bin 13 (  27.0°):  247 samples
+  Bin 14 (  36.0°):  151 samples
+  Bin 15 (  45.0°):  112 samples
+  Bin 16 (  54.0°):   50 samples
+  Bin 17 (  63.0°):   22 samples
+  Bin 18 (  72.0°):   15 samples
+  Bin 19 (  81.0°):    5 samples
+
+Active Azimuth Bins: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 
+                     15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 
+                     30 31 32 33 34 35 36 37 38 39 
+
+Acceptance Summary:
+  Accepted: 363 / 2521 (14.4%)
+
+=== DETAILED ANALYSIS: PRODUCTION ===
+Source File: movement/production_last3.log
+  Detailed breakdown written to: movement/production_last3_analysis.txt
+
+Sample Statistics:
+  Total Lines: 2903
+  Valid Samples: 2903
+  Accepted Samples: 70
+  Unique Bins: 70 / 800
+  Coverage: 8.75%
+  Processing Efficiency: 100.0% valid samples
+
+Magnitude Analysis:
+  Average: 92.53 µT
+  Range: 39.67 to 136.49 µT
+  Spread: 96.82 µT
+
+Angular Analysis:
+  Azimuth - Avg: 117.8°, Range: -179.8° to 180.0°
+  Elevation - Avg: -46.3°, Range: -75.1° to -7.8°
+
+Elevation Bin Distribution:
+  Bin  1 ( -81.0°):   26 samples
+  Bin  2 ( -72.0°):  664 samples
+  Bin  3 ( -63.0°):  460 samples
+  Bin  4 ( -54.0°):  463 samples
+  Bin  5 ( -45.0°):  382 samples
+  Bin  6 ( -36.0°):  373 samples
+  Bin  7 ( -27.0°):  404 samples
+  Bin  8 ( -18.0°):  129 samples
+  Bin  9 (  -9.0°):    2 samples
+
+Active Azimuth Bins: 0 1 31 32 33 34 35 36 37 38 39 
+
+Acceptance Summary:
+  Accepted: 70 / 2903 (2.4%)
+
+=== COMPARATIVE ANALYSIS ===
+Metric                    | Prototype       | Production      | Ratio (P/Pr)
+----------------------------------------------------------------------
+Valid Samples             | 2521            | 2903            | 1.15        
+Unique Bins               | 363             | 70              | 0.19        
+Coverage %                | 45.4            | 8.8             | 0.19        
+Avg Magnitude (µT)       | 52.2            | 92.5            | 1.77        
+Avg Elevation (°)        | -2.33           | -46.32          | 19.90       
+Avg Azimuth (°)          | -39.62          | 117.76          | -2.97       
+
+=== KEY FINDINGS ===
+1. Magnitude Difference: Production readings are 1.8x stronger
+   -> SIGNIFICANT: Trace removal eliminated magnetic damping
+2. Coverage Difference: Production achieves 0.2x the coverage
+   -> CRITICAL: Severe coverage reduction detected
+3. Elevation Shift: Production reads -44.0° different elevation
+   -> SIGNIFICANT: Large elevation bias detected
+4. Bin Overlap: 13.6% of bins are shared between datasets
+   -> CRITICAL: Low bin overlap suggests systematic bias
+
+Analysis complete!
