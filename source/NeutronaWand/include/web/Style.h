@@ -422,9 +422,10 @@ input[type=text] {
 }
 
 .viz-content {
-  width:100%;
+  border-radius:12px;
   height:400px;
   margin:auto;
+  width:100%;
 }
 
 #gyro, #accel, #ahrs, #calc {
@@ -554,7 +555,7 @@ input[type=text] {
 
 .status-message {
   font-size: 0.8em;
-  text-align: center;
+  text-align: left;
   line-height: 1.2;
 }
 

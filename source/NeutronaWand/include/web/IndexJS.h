@@ -838,7 +838,7 @@ function updateAzimuthChart(azimuthBins) {
  * in a readable format for quick assessment of calibration progress.
  */
 function updateCoverageStatistics(elevationBins, azimuthBins) {
-  if (!elevationBins.length || !azimuthBins.length) return;
+  if (!elevationBins || !azimuthBins) return;
 
   // Count filled elevation bins (bins with sample count > 0)
   var filledElevationBins = 0;
@@ -856,13 +856,17 @@ function updateCoverageStatistics(elevationBins, azimuthBins) {
     }
   }
 
+  // Calculate percentages for more intuitive display
+  var elevationPercent = ((filledElevationBins / elevationBins.length) * 100).toFixed(1);
+  var azimuthPercent = ((filledAzimuthBins / azimuthBins.length) * 100).toFixed(1);
+
   // Update elevation coverage display
   // Purpose: Show vertical coverage progress as filled/total ratio
-  setHtml("elevationCoverage", filledElevationBins + " / " + elevationBins.length + " bins");
+  setHtml("elevationCoverage", elevationPercent + "%");
   
   // Update azimuth coverage display  
   // Purpose: Show horizontal coverage progress as filled/total ratio
-  setHtml("azimuthCoverage", filledAzimuthBins + " / " + azimuthBins.length + " bins");
+  setHtml("azimuthCoverage", azimuthPercent + "%");
 }
 
 /**
@@ -897,7 +901,7 @@ function updateCoverageStatus(elevationBins, azimuthBins, overallCoverage) {
     // Check for elevation coverage gaps
     var lowElevationCovered = false; // Check -90° to -30° range
     var highElevationCovered = false; // Check +30° to +90° range
-    var elevationBinRange = elevationBins.length / 6; // Approximate range for low/high sections
+    var elevationBinRange = Math.floor(elevationBins.length / 6); // Use Math.floor for integer division
     
     // Check low elevation coverage (pointing down)
     for (var i = 0; i < elevationBinRange; i++) {
@@ -931,8 +935,13 @@ function updateCoverageStatus(elevationBins, azimuthBins, overallCoverage) {
     statusMessage = "Excellent coverage! Continue until satisfied, then disable calibration.";
   }
 
-  // Update status display with appropriate styling
-  statusElement.innerHTML = statusMessage;
-  statusElement.className = statusClass;
+  // Update status display with appropriate styling and error handling
+  // Purpose: Ensure status messages appear even if DOM structure changes
+  try {
+    statusElement.innerHTML = statusMessage;
+    statusElement.className = statusClass;
+  } catch (error) {
+    console.log("Error updating coverage status: " + error.message);
+  }
 }
 )=====";
