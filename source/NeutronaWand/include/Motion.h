@@ -62,6 +62,13 @@
  * closest to +9.8 would be considered the active axis for that orientation. Simply laying the device on 2/3 axes
  * will help identify the installation orientation and we can easily determine the appropriate axis mappings.
  *
+ * For magnetic readings we will still use NED orientation though we have specific expectations for readings.
+ * There is also a geographic component which will alter the readings based on your location on Earth.
+ * With the device laying flat on a table and oriented North, we expect:
+ *   X: Should be positive and largest (horizontal, forward, points toward magnetic north)
+ *   Y: Smaller value than X, can be positive or negative (horizontal, right, depends on local declination)
+ *   Z: Positive, typically largest (vertical, downward, toward Earth)
+ *
  * This convention gives us the readings expected for sensor fusion in an Altitude Heading Reference System (AHRS).
  * That will take care of producing the roll (X), pitch (Y), and yaw (Z) as necessary for 3D representation later.
  */
@@ -587,11 +594,11 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
 
     case COMPONENTS_DOWN_USB_FRONT:
       // Default Hasbro installation orientation
-      // Magnetometer data (inverting the X/Y axes)
-      oriented.magX = mag_event.magnetic.x * -1;
-      oriented.magY = mag_event.magnetic.y * -1;
+      // Magnetometer data (inverting the X axis)
+      oriented.magX = mag_event.magnetic.y * -1;
+      oriented.magY = mag_event.magnetic.x;
       oriented.magZ = mag_event.magnetic.z;
-      
+
       // Acceleration and gyroscope values (swapping the X/Y axes, inverting X/Z)
       oriented.accelX = accel_event.acceleration.y;
       oriented.accelY = accel_event.acceleration.x * -1;
@@ -1105,7 +1112,7 @@ void reportCalibrationData() {
   accelerometer->getEvent(&accel_event);
 
   // Uncomment to force the device's raw orientation for calibration reporting, when necessary.
-  INSTALL_ORIENTATION = COMPONENTS_RIGHT_USB_REAR;
+  // INSTALL_ORIENTATION = UNKNOWN_ORIENTATION;
 
   // Apply orientation mapping to get data in the device's coordinate system.
   // This ensures calibration tools see the correct axes for your installation.

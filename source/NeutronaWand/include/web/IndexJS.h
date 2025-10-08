@@ -820,7 +820,7 @@ function updateAzimuthChart(azimuthBins) {
     circle.setAttribute("cx", x.toFixed(2));
     circle.setAttribute("cy", y.toFixed(2));
     circle.setAttribute("r", sampleCount > 0 ? "2" : "1"); // Larger if filled
-    circle.setAttribute("fill", sampleCount > 0 ? "rgba(0,255,0,0.8)" : "rgba(255,0,0,0.8)");
+    circle.setAttribute("fill", sampleCount > 0 ? "rgba(0,160,0,0.8)" : "rgba(255,0,0,0.8)");
     circle.setAttribute("title", "Bin " + i + " (" + degrees.toFixed(1) + "°): " + sampleCount + " samples");
     
     svg.appendChild(circle);

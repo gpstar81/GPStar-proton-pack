@@ -422,10 +422,13 @@ input[type=text] {
 }
 
 .viz-content {
-  border-radius:12px;
   height:400px;
   margin:auto;
   width:100%;
+}
+
+#3Dcalibration {
+  border-radius:12px;  
 }
 
 #gyro, #accel, #ahrs, #calc {
@@ -474,7 +477,7 @@ input[type=text] {
 }
 
 .elevation-bin.filled {
-  background-color: rgba(0,255,0,0.8);
+  background-color: rgba(0,160,0,0.8);
 }
 
 .elevation-labels {
