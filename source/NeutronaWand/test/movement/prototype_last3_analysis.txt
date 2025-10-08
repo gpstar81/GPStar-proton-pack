@@ -1,7 +1,7 @@
 Magnetometer Calibration Analysis - Detailed Sample Breakdown
 Source File: movement/prototype_last3.log
 Dataset Label: PROTOTYPE
-Generated: Oct  7 2025 19:58:38
+Generated: Oct  7 2025 20:03:49
 Total Samples: 2521
 Unique Bins Filled: 363 / 800 (45.38% coverage)
 ================================================================================

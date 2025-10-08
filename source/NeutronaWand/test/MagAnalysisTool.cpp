@@ -544,9 +544,11 @@ void printConfigurationInfo() {
   std::cout << "Grid Dimensions: " << (uint16_t)NUM_AZIMUTH_BINS << " azimuth bins × " 
             << (uint16_t)NUM_ELEVATION_BINS << " elevation bins" << std::endl;
   std::cout << "Total Bins Available: " << MAX_POINTS << " bins" << std::endl;
-  std::cout << "Azimuth Range: 0° to 360° (coverage: " << (360 / BIN_DEGREES) << " bins)" << std::endl;
-  std::cout << "Elevation Range: -90° to +90° (coverage: " << (180 / BIN_DEGREES) << " bins)" << std::endl;
-  std::cout << "Coverage Resolution: Each bin represents " << BIN_DEGREES << "° × " << BIN_DEGREES << "° area" << std::endl;
+  std::cout << "Azimuth Range: 0° to 360° (coverage: " << (uint16_t)NUM_AZIMUTH_BINS << " bins)" << std::endl;
+  std::cout << "Elevation Range: -90° to +90° (coverage: " << (uint16_t)NUM_ELEVATION_BINS << " bins)" << std::endl;
+  // Fix the coverage resolution line to properly display the degree values
+  std::cout << "Coverage Resolution: Each bin represents " << (uint16_t)BIN_DEGREES 
+            << "° × " << (uint16_t)BIN_DEGREES << "° area" << std::endl;
 }
 
 // Function: main
