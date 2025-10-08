@@ -551,13 +551,13 @@ void resetAllMotionData(bool b_calibrate = false) {
  *          This function only handles coordinate system transformation, no calibration or filtering.
  * Inputs:
  *   - const sensors_event_t& mag_event: Raw magnetometer event data
- *   - const sensors_event_t& accel_event: Raw accelerometer event data  
+ *   - const sensors_event_t& accel_event: Raw accelerometer event data
  *   - const sensors_event_t& gyro_event: Raw gyroscope event data
  * Outputs:
  *   - OrientedSensorData: Sensor readings mapped to the correct coordinate system
  */
-OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event, 
-                                          const sensors_event_t& accel_event, 
+OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
+                                          const sensors_event_t& accel_event,
                                           const sensors_event_t& gyro_event) {
   OrientedSensorData oriented;
 
@@ -568,7 +568,7 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
       oriented.magX = mag_event.magnetic.x * -1;
       oriented.magY = mag_event.magnetic.y * -1;
       oriented.magZ = mag_event.magnetic.z * -1;
-      
+
       // Acceleration and gyroscope values (swapping the X/Y axes)
       oriented.accelX = accel_event.acceleration.y;
       oriented.accelY = accel_event.acceleration.x;
@@ -583,7 +583,7 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
       oriented.magX = mag_event.magnetic.x;
       oriented.magY = mag_event.magnetic.y;
       oriented.magZ = mag_event.magnetic.z * -1;
-      
+
       // Acceleration and gyroscope values (swapping and inverting the X/Y axes)
       oriented.accelX = accel_event.acceleration.y * -1;
       oriented.accelY = accel_event.acceleration.x * -1;
@@ -614,7 +614,7 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
       oriented.magX = mag_event.magnetic.x * -1;
       oriented.magY = mag_event.magnetic.y;
       oriented.magZ = mag_event.magnetic.z;
-      
+
       // Acceleration and gyroscope values (swapping the X/Y axes, inverting X/Z)
       oriented.accelX = accel_event.acceleration.y * -1;
       oriented.accelY = accel_event.acceleration.x;
@@ -629,7 +629,7 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
       oriented.magX = mag_event.magnetic.y * -1;
       oriented.magY = mag_event.magnetic.x;
       oriented.magZ = mag_event.magnetic.z * -1;
-      
+
       // Acceleration and gyroscope values (swapping all three axes)
       oriented.accelX = accel_event.acceleration.y;
       oriented.accelY = accel_event.acceleration.z;
@@ -644,7 +644,7 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
       oriented.magX = mag_event.magnetic.y;
       oriented.magY = mag_event.magnetic.x * -1;
       oriented.magZ = mag_event.magnetic.z * -1;
-      
+
       // Acceleration and gyroscope values (swapping all three axes)
       oriented.accelX = accel_event.acceleration.y * -1;
       oriented.accelY = accel_event.acceleration.z;
@@ -660,7 +660,7 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
       oriented.magX = mag_event.magnetic.y * -1;
       oriented.magY = mag_event.magnetic.z * -1;
       oriented.magZ = mag_event.magnetic.x * -1;
-      
+
       // Acceleration and gyroscope values (swapping all three axes)
       oriented.accelX = accel_event.acceleration.y;
       oriented.accelY = accel_event.acceleration.z * -1;
@@ -675,7 +675,7 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
       oriented.magX = mag_event.magnetic.y;
       oriented.magY = mag_event.magnetic.z * -1;
       oriented.magZ = mag_event.magnetic.x * -1;
-      
+
       // Acceleration and gyroscope values (swapping all three axes)
       oriented.accelX = accel_event.acceleration.y * -1;
       oriented.accelY = accel_event.acceleration.z * -1;
@@ -698,7 +698,7 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
       oriented.gyroZ = gyro_event.gyro.z;
     break;
   }
-  
+
   return oriented;
 }
 
@@ -729,7 +729,7 @@ void readRawSensorData() {
     motionData.magX = mx * magCalData.mag_softiron[0] + my * magCalData.mag_softiron[1] + mz * magCalData.mag_softiron[2];
     motionData.magY = mx * magCalData.mag_softiron[3] + my * magCalData.mag_softiron[4] + mz * magCalData.mag_softiron[5];
     motionData.magZ = mx * magCalData.mag_softiron[6] + my * magCalData.mag_softiron[7] + mz * magCalData.mag_softiron[8];
-    
+
     // Store oriented values in global motionData
     motionData.accelX = oriented.accelX;
     motionData.accelY = oriented.accelY;
@@ -1036,7 +1036,7 @@ void processMotionData() {
 
       // Apply offsets to IMU readings (values should be 0 if not calculated).
       if (INSTALL_ORIENTATION != COMPONENTS_FACTORY_DEFAULT) {
-        // Only apply offfsets if we know the installation orientation.
+        // Only apply offsets if we know the installation orientation.
         motionData.accelX -= motionOffsets.accelX;
         motionData.accelY -= motionOffsets.accelY;
         motionData.accelZ -= motionOffsets.accelZ;
