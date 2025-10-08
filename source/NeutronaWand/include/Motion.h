@@ -103,16 +103,17 @@ enum SENSOR_READ_TARGETS SENSOR_READ_TARGET = NOT_INITIALIZED;
 
 // Orientation positions expected by mounting for final installation (eg. as held by the user).
 // This will be set by user preference in the web interface and saved to "device" preferences.
-enum INSTALL_ORIENTATIONS {
-  FACTORY_DEFAULT,
-  COMPONENTS_UP_USB_FRONT,
-  COMPONENTS_UP_USB_REAR,
-  COMPONENTS_DOWN_USB_FRONT,
-  COMPONENTS_DOWN_USB_REAR,
-  COMPONENTS_LEFT_USB_FRONT,
-  COMPONENTS_LEFT_USB_REAR,
-  COMPONENTS_RIGHT_USB_FRONT,
-  COMPONENTS_RIGHT_USB_REAR
+enum INSTALL_ORIENTATIONS : uint8_t {
+  COMPONENTS_NOT_ORIENTED = 0,
+  COMPONENTS_UP_USB_FRONT = 1,
+  COMPONENTS_UP_USB_REAR = 2,
+  COMPONENTS_DOWN_USB_FRONT = 3,
+  COMPONENTS_DOWN_USB_REAR = 4,
+  COMPONENTS_LEFT_USB_FRONT = 5,
+  COMPONENTS_LEFT_USB_REAR = 6,
+  COMPONENTS_RIGHT_USB_FRONT = 7,
+  COMPONENTS_RIGHT_USB_REAR = 8,
+  COMPONENTS_FACTORY_DEFAULT = 9
 };
 enum INSTALL_ORIENTATIONS INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_FRONT; // Default for Haslab installations.
 
@@ -684,7 +685,7 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
       oriented.gyroZ = gyro_event.gyro.x;
     break;
 
-    case FACTORY_DEFAULT:
+    case COMPONENTS_FACTORY_DEFAULT:
       // If the orientation is unknown, do not modify the sensor readings.
       oriented.magX = mag_event.magnetic.x;
       oriented.magY = mag_event.magnetic.y;
@@ -1034,12 +1035,15 @@ void processMotionData() {
       motionData.gForce = calculateGForce(motionData);
 
       // Apply offsets to IMU readings (values should be 0 if not calculated).
-      motionData.accelX -= motionOffsets.accelX;
-      motionData.accelY -= motionOffsets.accelY;
-      motionData.accelZ -= motionOffsets.accelZ;
-      motionData.gyroX -= motionOffsets.gyroX;
-      motionData.gyroY -= motionOffsets.gyroY;
-      motionData.gyroZ -= motionOffsets.gyroZ;
+      if (INSTALL_ORIENTATION != COMPONENTS_FACTORY_DEFAULT) {
+        // Only apply offfsets if we know the installation orientation.
+        motionData.accelX -= motionOffsets.accelX;
+        motionData.accelY -= motionOffsets.accelY;
+        motionData.accelZ -= motionOffsets.accelZ;
+        motionData.gyroX -= motionOffsets.gyroX;
+        motionData.gyroY -= motionOffsets.gyroY;
+        motionData.gyroZ -= motionOffsets.gyroZ;
+      }
 
       // Update the orientation via sensor fusion.
       updateOrientation();
@@ -1112,7 +1116,7 @@ void reportCalibrationData() {
   accelerometer->getEvent(&accel_event);
 
   // Uncomment to force the device's raw orientation for calibration reporting, when necessary.
-  // INSTALL_ORIENTATION = FACTORY_DEFAULT;
+  // INSTALL_ORIENTATION = COMPONENTS_FACTORY_DEFAULT;
 
   // Apply orientation mapping to get data in the device's coordinate system.
   // This ensures calibration tools see the correct axes for your installation.

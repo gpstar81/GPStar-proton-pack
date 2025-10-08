@@ -185,6 +185,7 @@ function setButtonStates(sensorState) {
       // Ensure the calibration info is visible.
       if (document.getElementById("calInfo").style.display == "none") {
         showEl("calInfo");
+        hideEl("mag");
       }
       break;
     case "Offsets":
@@ -473,7 +474,7 @@ class Calibration3DView {
     // Add new meshes only if needed (keeps a pool of meshes for efficiency)
     for (let i = existing; i < needed; i++) {
       const geometry = new THREE.SphereGeometry(1, 16, 16);
-      const material = new THREE.MeshBasicMaterial({color: 0xff0000});
+      const material = new THREE.MeshLambertMaterial({color: 0xff0000});
       const pointMesh = new THREE.Mesh(geometry, material);
       this.pointsGroup.add(pointMesh);
     }
@@ -827,7 +828,7 @@ function updateAzimuthChart(azimuthBins) {
     circle.setAttribute("r", sampleCount > 0 ? "2" : "1"); // Larger if filled
     circle.setAttribute("fill", sampleCount > 0 ? "rgba(0,160,0,0.8)" : "rgba(255,0,0,0.8)");
     circle.setAttribute("title", "Bin " + i + " (" + degrees.toFixed(1) + "°): " + sampleCount + " samples");
-    
+
     svg.appendChild(circle);
   }
 }
@@ -895,19 +896,19 @@ function updateCoverageStatus(elevationBins, azimuthBins, overallCoverage) {
   // Analyze coverage patterns to provide specific guidance
   if (overallCoverage < 5) {
     // Very low coverage - basic movement guidance
-    statusMessage = "Begin moving device in all orientations to start calibration...";
+    statusMessage = "Begin moving the wand in all directions to start calibration...";
   } else if (overallCoverage < 30) {
     // Low coverage - encourage more movement variety
-    statusMessage = "Continue rotating and tilting device to increase coverage...";
+    statusMessage = "Continue rotating and tilting the wand to increase coverage...";
     statusClass += " warning";
   } else if (overallCoverage < 60) {
     // Moderate coverage - analyze specific gaps
-    
+
     // Check for elevation coverage gaps
     var lowElevationCovered = false; // Check -90° to -30° range
     var highElevationCovered = false; // Check +30° to +90° range
-    var elevationBinRange = Math.floor(elevationBins.length / 6); // Use Math.floor for integer division
-    
+    var elevationBinRange = Math.floor(elevationBins.length / 6);
+
     // Check low elevation coverage (pointing down)
     for (var i = 0; i < elevationBinRange; i++) {
       if ((elevationBins[i] || 0) > 0) {
@@ -915,7 +916,7 @@ function updateCoverageStatus(elevationBins, azimuthBins, overallCoverage) {
         break;
       }
     }
-    
+
     // Check high elevation coverage (pointing up)
     for (var i = elevationBins.length - elevationBinRange; i < elevationBins.length; i++) {
       if ((elevationBins[i] || 0) > 0) {
@@ -923,21 +924,22 @@ function updateCoverageStatus(elevationBins, azimuthBins, overallCoverage) {
         break;
       }
     }
-    
+
     // Provide specific guidance based on missing coverage areas
     if (!lowElevationCovered && !highElevationCovered) {
-      statusMessage = "Try tilting device more - point up toward ceiling and down toward floor...";
+      statusMessage = "Try tilting the wand more - point up toward the ceiling and down toward the floor...";
     } else if (!lowElevationCovered) {
-      statusMessage = "Point device downward more - try aiming toward the floor while rotating...";
+      statusMessage = "Point the wand downward more - try aiming toward the floor while rotating...";
     } else if (!highElevationCovered) {
-      statusMessage = "Point device upward more - try aiming toward the ceiling while rotating...";
+      statusMessage = "Point the wand upward more - try aiming toward the ceiling while rotating...";
     } else {
-      statusMessage = "Good elevation coverage! Continue rotating for more azimuth coverage...";
+      statusMessage = "Good vertical coverage! Continue rotating for improved horizontal coverage...";
     }
     statusClass += " warning";
   } else {
     // Good coverage - encourage completion
     statusMessage = "Excellent coverage! Continue until satisfied, then disable calibration.";
+    statusClass += " success";
   }
 
   // Update status display with appropriate styling and error handling

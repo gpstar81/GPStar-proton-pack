@@ -468,7 +468,7 @@ String getDeviceConfig() {
     case COMPONENTS_RIGHT_USB_REAR:
       jsonBody["orientation"] = 8;
     break;
-    case FACTORY_DEFAULT:
+    case COMPONENTS_FACTORY_DEFAULT:
       jsonBody["orientation"] = 9;
     break;
   }
@@ -684,7 +684,7 @@ String getTelemetry() {
   jsonTelemetry["gyroX"] = roundFloat(filteredMotionData.gyroX);
   jsonTelemetry["gyroY"] = roundFloat(filteredMotionData.gyroY);
   jsonTelemetry["gyroZ"] = roundFloat(filteredMotionData.gyroZ);
-  // Magnetic in microteslas (uT).
+  // Magnetometer in microteslas (uT).
   jsonTelemetry["magX"] = roundFloat(filteredMotionData.magX);
   jsonTelemetry["magY"] = roundFloat(filteredMotionData.magY);
   jsonTelemetry["magZ"] = roundFloat(filteredMotionData.magZ);
@@ -1017,6 +1017,7 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
     }
 
     uint8_t i_orientation = jsonBody["orientation"].as<unsigned short>();
+    INSTALL_ORIENTATIONS PREVIOUS_ORIENTATION = INSTALL_ORIENTATION;
     switch(i_orientation) {
       case 1:
         INSTALL_ORIENTATION = COMPONENTS_UP_USB_FRONT;
@@ -1043,28 +1044,32 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
         INSTALL_ORIENTATION = COMPONENTS_RIGHT_USB_REAR;
       break;
       case 9:
-        INSTALL_ORIENTATION = FACTORY_DEFAULT;
+        INSTALL_ORIENTATION = COMPONENTS_FACTORY_DEFAULT;
       break;
       default:
         // Do not change orientation if an invalid value was provided.
-        i_orientation = 0;
       break;
     }
 
-    // Set the current magnetic calibration values.
-    magCalData.mag_hardiron[0] = jsonBody["hardIron1"].as<float>();
-    magCalData.mag_hardiron[1] = jsonBody["hardIron2"].as<float>();
-    magCalData.mag_hardiron[2] = jsonBody["hardIron3"].as<float>();
-    magCalData.mag_softiron[0] = jsonBody["softIron1"].as<float>();
-    magCalData.mag_softiron[1] = jsonBody["softIron2"].as<float>();
-    magCalData.mag_softiron[2] = jsonBody["softIron3"].as<float>();
-    magCalData.mag_softiron[3] = jsonBody["softIron4"].as<float>();
-    magCalData.mag_softiron[4] = jsonBody["softIron5"].as<float>();
-    magCalData.mag_softiron[5] = jsonBody["softIron6"].as<float>();
-    magCalData.mag_softiron[6] = jsonBody["softIron7"].as<float>();
-    magCalData.mag_softiron[7] = jsonBody["softIron8"].as<float>();
-    magCalData.mag_softiron[8] = jsonBody["softIron9"].as<float>();
-    magCalData.mag_field = jsonBody["magField"].as<float>();
+    if(INSTALL_ORIENTATION != PREVIOUS_ORIENTATION) {
+      // Reset the magnetic calibration values to defaults on orientation change.
+      magCalData = magCal.getDefaultCalibration();
+    } else {
+      // Set the current magnetic calibration values when orientation is unchanged.
+      magCalData.mag_hardiron[0] = jsonBody["hardIron1"].as<float>();
+      magCalData.mag_hardiron[1] = jsonBody["hardIron2"].as<float>();
+      magCalData.mag_hardiron[2] = jsonBody["hardIron3"].as<float>();
+      magCalData.mag_softiron[0] = jsonBody["softIron1"].as<float>();
+      magCalData.mag_softiron[1] = jsonBody["softIron2"].as<float>();
+      magCalData.mag_softiron[2] = jsonBody["softIron3"].as<float>();
+      magCalData.mag_softiron[3] = jsonBody["softIron4"].as<float>();
+      magCalData.mag_softiron[4] = jsonBody["softIron5"].as<float>();
+      magCalData.mag_softiron[5] = jsonBody["softIron6"].as<float>();
+      magCalData.mag_softiron[6] = jsonBody["softIron7"].as<float>();
+      magCalData.mag_softiron[7] = jsonBody["softIron8"].as<float>();
+      magCalData.mag_softiron[8] = jsonBody["softIron9"].as<float>();
+      magCalData.mag_field = jsonBody["magField"].as<float>();
+    }
 
     // Get the track listing from the text field.
     String songList = jsonBody["songList"].as<String>();
@@ -1072,8 +1077,8 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
 
     // Accesses namespace in read/write mode.
     if(preferences.begin("device", false)) {
-      // Store the orientation value to preferences (if not zero).
-      if(i_orientation > 0) {
+      // Store the orientation value to preferences if changed.
+      if(INSTALL_ORIENTATION != PREVIOUS_ORIENTATION) {
         preferences.putShort("orientation", i_orientation);
       }
 

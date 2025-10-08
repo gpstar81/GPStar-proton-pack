@@ -59,6 +59,28 @@ class MagCalibration {
   public:
     MagCalibration();
 
+    // Returns a CalibrationData struct with default values.
+    CalibrationData getDefaultCalibration() const {
+      CalibrationData defaults;
+      // mag_hardiron: zero offsets
+      defaults.mag_hardiron[0] = 0.0f;
+      defaults.mag_hardiron[1] = 0.0f;
+      defaults.mag_hardiron[2] = 0.0f;
+      // mag_softiron: identity matrix
+      defaults.mag_softiron[0] = 1.0f;
+      defaults.mag_softiron[1] = 0.0f;
+      defaults.mag_softiron[2] = 0.0f;
+      defaults.mag_softiron[3] = 0.0f;
+      defaults.mag_softiron[4] = 1.0f;
+      defaults.mag_softiron[5] = 0.0f;
+      defaults.mag_softiron[6] = 0.0f;
+      defaults.mag_softiron[7] = 0.0f;
+      defaults.mag_softiron[8] = 1.0f;
+      // mag_field: typical Earth field strength
+      defaults.mag_field = 50.0f;
+      return defaults;
+    }
+
     // Begin a new calibration session by clearing buffers and coverage.
     void beginCalibration();
 

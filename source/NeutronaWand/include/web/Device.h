@@ -205,6 +205,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
         if (this.readyState == 4) {
           if (this.status == 200) {
             handleStatus(this.responseText);
+            getSettings(); // Refresh settings.
           }
 
           if (this.status == 201) {

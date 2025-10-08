@@ -145,7 +145,7 @@ const char INDEX_page[] PROGMEM = R"=====(
         <ol style="padding-left:20px;">
           <li>Press "Enable Calibration" to begin.</li>
           <li>Raise and lower your Neutrona Wand <b>slowly</b> while turning 360&deg; to collect calibration data.</li>
-          <li>Fill the display below with red dots until the total coverage is as close to 100% as possible.</li>
+          <li>Fill the visualization below with red dots and the Composite Coverage is at least 60%.</li>
           <li>If coverage stalls, try adding a twisting motion or figure-eights into your movements.</li>
           <li>Press "Disable Calibration" to stop collection and store new calculated values.</li>
         </ol>
@@ -164,7 +164,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       </div>
       <div class="telemetry" id="calInfo">
         <p>
-          <span class="infoLabel">Total Coverage:</span> <span class="infoState" id="coverage">&mdash;</span>
+          <span class="infoLabel">Composite Coverage:</span> <span class="infoState" id="coverage">&mdash;</span>
         </p>
         <!-- Shows vertical (elevation) orientation coverage gaps as a bar chart -->
         <div class="coverage-analysis">
