@@ -40,10 +40,18 @@ To access the EEPROM LED Menu System, hold down the `Intensify Button` and toggl
 | 5️⃣ | 1984/1989&nbsp;Cyclotron&nbsp;Fade&nbsp;Toggle&nbsp;/ Pack&nbsp;LED&nbsp;Brightness&nbsp;Adjustment | Toggle whether the outer cyclotron LEDs have a fade effect or not in 1984 and 1989 year modes. | `(Barrel Wing Button)` Toggles between Power Cell, Cyclotron, Inner Cyclotron, or Inner Cyclotron Switch Panel devices<br/><br/>`(Barrel Wing Button + Top Dial)` Increases/Decreases the selected device's LED brightness |
 | 4️⃣ | Bargraph&nbsp;Segment&nbsp;Count&nbsp;Toggle&nbsp;/ RGB&nbsp;Vent&nbsp;Light&nbsp;Toggle | Toggle between 28 segments or 30 segments for the optional bargraph.<sup>1</sup> | Enable/Disable the optional addressable RGB LED vent/top light board.<br/>**Not available for GPStar II wands** |
 | 3️⃣ | Power&nbsp;Cell&nbsp;Invert&nbsp;/ Auto&nbsp;Vent&nbsp;Light&nbsp;Intensity&nbsp;Toggle | Change the direction of the Power Cell animation. | Toggle whether the vent light on the Neutrona Wand will change brightness depending on power level and firing state or stay full brightness always. |
-| 2️⃣ | Inner&nbsp;Cyclotron&nbsp;LED&nbsp;Panel&nbsp;Toggle&nbsp;/ VG&nbsp;Colour&nbsp;Mode&nbsp;Toggles | Toggle the optional Inner Cyclotron LED Panel between disabled (individual LEDs on GPStar I), static colours (for prop-accurate coloured cliplite covers), and dynamic colours (for the LED panel with clear cliplite covers). | Cycle through VG colour modes.<sup>3</sup> |
+| 2️⃣ | Inner&nbsp;Cyclotron&nbsp;LED&nbsp;Panel&nbsp;Toggle&nbsp;/ VG&nbsp;Colour&nbsp;Mode&nbsp;Toggles | Toggle the optional Inner Cyclotron LED Panel between disabled (individual LEDs on GPStar I), static colours (for prop-accurate coloured cliplite covers), and dynamic colours (for the LED panel with clear cliplite covers). | Cycle through VG colour modes.<sup>2</sup> |
 | 1️⃣ | Inner&nbsp;Cyclotron&nbsp;GRB&nbsp;Toggle | Toggle your Inner Cyclotron from RGB or GRB LEDs. | `unused` |
 
 <sup>1</sup> This setting will only take effect if you have an optional bargraph plugged into the i2c data port when the wand is first started.
+
+<sup>2</sup> Enables/disables the video game colour modes for the Proton Pack's Power Cell and Cyclotron lights. This only affects the pack when in Video Game mode, not for CTS modes, and offers the following states:
+
+- Disable all the video game colours (Power Cell remains blue, Cyclotron remains red).
+- Enable only the Power Cell LEDs to change colours (requires RGB Power Cell).
+- Enable only the Cyclotron LEDs to change colours (requires RGB replacement such as a Neopixel ring).
+- Enable both the Power Cell and Cyclotron to use video game colours.
+
 <div class="page-break"></div>
 
 ## Configuration - Bottom Menu
@@ -94,14 +102,7 @@ Please note whatever settings you have temporarily changed in the regular menus 
 
 <sup>2</sup> See [Inner Cyclotron](CYCLOTRON_INNER.md) for more information on the motorised cyclotron modification for the Proton Pack.
 
-<sup>3</sup> Enables/disables the video game colour modes for the Proton Pack's Power Cell and Cyclotron lights. This only affects the pack when in Video Game mode, not for CTS modes, and offers the following states:
-
-- Disable all the video game colours (Power Cell remains blue, Cyclotron remains red).
-- Enable only the Power Cell LEDs to change colours (requires RGB Power Cell).
-- Enable only the Cyclotron LEDs to change colours (requires RGB replacement such as a Neopixel ring).
-- Enable both the Power Cell and Cyclotron to use video game colours.
-
-<sup>4</sup> If the Neutrona Wand is in standalone mode, this does nothing. To change the default year for a standalone Neutrona Wand, please see Menu Level 3 below.
+<sup>3</sup> If the Neutrona Wand is in standalone mode, this does nothing. To change the default year for a standalone Neutrona Wand, please see Menu Level 3 below.
 
 <div class="page-break"></div>
 
