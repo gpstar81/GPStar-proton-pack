@@ -357,10 +357,21 @@ void updateWandPowerState() {
 
         if((f_diff_average > 0.0285 && f_diff_average < 0.045) || (f_range > 0.26 && b_positive_rate)) {
           // With this big a jump, we must have started firing.
-          ms_delay_post_2.start(i_wand_overheat_delay);
-          i_wand_power_level = 5;
+          if(SYSTEM_YEAR == SYSTEM_1989 && i_wand_power_level != 4) {
+            // In GB2 mode, switch to PL4 for unique GB2 firing sound.
+            i_wand_power_level = 4;
+            POWER_LEVEL = LEVEL_4;
+            attenuatorSerialSend(A_POWER_LEVEL_4);
+          }
+          else if(SYSTEM_YEAR != SYSTEM_1989 && i_wand_power_level != 5) {
+            // Make sure we are back in PL5 otherwise.
+            i_wand_power_level = 5;
+            POWER_LEVEL = LEVEL_5;
+            attenuatorSerialSend(A_POWER_LEVEL_5);
+          }
           f_idle_value = f_sliding_window[0];
           b_firing_intensify = true;
+          ms_delay_post_2.start(i_wand_overheat_delay);
           wandFiring();
         }
       }
