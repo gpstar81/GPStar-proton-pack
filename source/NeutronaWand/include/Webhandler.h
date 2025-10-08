@@ -603,10 +603,21 @@ String getWifiSettings() {
 }
 
 // Prepare a JSON object with magnetometer calibration data points for visualization.
+// Function: getCalibration
+// Purpose: Prepare JSON object with magnetometer calibration data and complete bin distribution arrays
+// Inputs: None (accesses global magCal object)
+// Outputs: String containing JSON data with coverage, points, and complete bin distribution arrays
+//
+// This function creates a comprehensive calibration data payload that includes:
+// - Coverage percentage for progress monitoring
+// - Coordinate points for 3D visualization
+// - Complete elevation bin distribution (all bins, 0 for empty)
+// - Complete azimuth bin distribution (all bins, 0 for empty)
+// The complete arrays preserve index-to-degree mapping for client-side processing.
 String getCalibration() {
   String calibrationData;
 
-  // Create a JSON object with a "coverage" percentage and an array of coordinate "points".
+  // Create a JSON object with calibration data and bin distribution information.
   jsonCalibration.clear();
   jsonCalibration["c"] = roundFloat(magCal.getCoveragePercent());
   JsonArray pointsArray = jsonCalibration["p"].to<JsonArray>();
@@ -625,6 +636,30 @@ String getCalibration() {
     point.add(roundDouble(xPtr[i])); // X coordinate
     point.add(roundDouble(yPtr[i])); // Y coordinate
     point.add(roundDouble(zPtr[i])); // Z coordinate
+  }
+
+  // Add complete elevation bin distribution data for vertical coverage analysis.
+  // Purpose: Shows sample counts for ALL elevation bins, preserving index-to-degree mapping
+  // Array index directly corresponds to elevation bin number for degree calculation
+  const uint16_t* elevationCounts;
+  uint8_t numElevationBins = magCal.getElevationBinDistribution(elevationCounts);
+  JsonArray elevationArray = jsonCalibration["e"].to<JsonArray>();
+  
+  // Send ALL elevation bins (including empty ones as 0) to preserve index mapping
+  for(uint8_t i = 0; i < numElevationBins; i++) {
+    elevationArray.add(elevationCounts[i]); // Include all bins: filled and empty
+  }
+
+  // Add complete azimuth bin distribution data for horizontal coverage analysis.
+  // Purpose: Shows sample counts for ALL azimuth bins, preserving index-to-degree mapping
+  // Array index directly corresponds to azimuth bin number for degree calculation
+  const uint16_t* azimuthCounts;
+  uint8_t numAzimuthBins = magCal.getAzimuthBinDistribution(azimuthCounts);
+  JsonArray azimuthArray = jsonCalibration["a"].to<JsonArray>();
+  
+  // Send ALL azimuth bins (including empty ones as 0) to preserve index mapping
+  for(uint8_t i = 0; i < numAzimuthBins; i++) {
+    azimuthArray.add(azimuthCounts[i]); // Include all bins: filled and empty
   }
 
   // Serialize JSON object to string.

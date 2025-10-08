@@ -58,6 +58,11 @@ void MagCalibration::beginCalibration() {
   memset(xSamples, 0, sizeof(xSamples)); // Clear X samples (double array to 0.0)
   memset(ySamples, 0, sizeof(ySamples)); // Clear Y samples (double array to 0.0)
   memset(zSamples, 0, sizeof(zSamples)); // Clear Z samples (double array to 0.0)
+  
+  // Clear bin distribution tracking arrays
+  // Purpose: Reset all bin usage counters for a fresh calibration session
+  memset(elevationBinCounts, 0, sizeof(elevationBinCounts)); // Clear elevation bin counters
+  memset(azimuthBinCounts, 0, sizeof(azimuthBinCounts));     // Clear azimuth bin counters
 }
 
 /**
@@ -160,6 +165,12 @@ bool MagCalibration::addSample(float x, float y, float z) {
     ySamples[sampleCount] = dy;
     zSamples[sampleCount] = dz;
     sampleCount++;
+
+    // Update bin distribution tracking
+    // Purpose: Track coverage distribution for real-time monitoring and diagnostics
+    // These counters enable external applications to display coverage patterns
+    elevationBinCounts[elIndex]++; // Increment counter for this elevation region
+    azimuthBinCounts[azIndex]++;   // Increment counter for this azimuth region
 
     return true; // SUCCESS: New orientation covered, sample stored
   }
@@ -806,4 +817,63 @@ bool MagCalibration::invert3x3(const float A_in[3][3], float A_out[3][3]) const 
 // Helper: Round float to 3 decimal places
 float MagCalibration::roundFloat3(float val) const {
   return roundf(val * 1000.0f) / 1000.0f;
+}
+
+/**
+ * Function: getElevationBinDistribution
+ * Purpose: Get elevation bin distribution for coverage analysis and diagnostics
+ * Inputs: const uint16_t*& outElevationCounts - reference to pointer for output array
+ * Outputs: uint8_t - number of elevation bins, sets outElevationCounts to internal array
+ * 
+ * This function provides access to the elevation coverage distribution, showing how many
+ * samples have been collected in each vertical orientation range. This data is useful for:
+ * - Real-time calibration progress monitoring
+ * - Identifying gaps in vertical coverage
+ * - Diagnostic analysis of movement patterns
+ * - Visual feedback during calibration process
+ */
+uint8_t MagCalibration::getElevationBinDistribution(const uint16_t*& outElevationCounts) const {
+  outElevationCounts = elevationBinCounts;
+  return NUM_ELEVATION_BINS;
+}
+
+/**
+ * Function: getAzimuthBinDistribution  
+ * Purpose: Get azimuth bin distribution for coverage analysis and diagnostics
+ * Inputs: const uint16_t*& outAzimuthCounts - reference to pointer for output array
+ * Outputs: uint8_t - number of azimuth bins, sets outAzimuthCounts to internal array
+ * 
+ * This function provides access to the azimuth coverage distribution, showing how many
+ * samples have been collected in each horizontal orientation range. This data is useful for:
+ * - Real-time calibration progress monitoring  
+ * - Identifying gaps in horizontal coverage
+ * - Diagnostic analysis of rotation patterns
+ * - Visual feedback during calibration process
+ */
+uint8_t MagCalibration::getAzimuthBinDistribution(const uint16_t*& outAzimuthCounts) const {
+  outAzimuthCounts = azimuthBinCounts;
+  return NUM_AZIMUTH_BINS;
+}
+
+/**
+ * Function: getActiveBinCount
+ * Purpose: Get total number of bins with at least one sample for quick coverage assessment
+ * Inputs: none
+ * Outputs: uint16_t - count of bins that contain samples
+ * 
+ * This function provides a quick way to determine how many orientation regions have been
+ * covered without needing to process the full bin arrays. Useful for:
+ * - Quick coverage assessment
+ * - Progress indicators
+ * - Calibration completion determination
+ * - Performance monitoring
+ */
+uint16_t MagCalibration::getActiveBinCount() const {
+  uint16_t activeBins = 0;
+  for(uint16_t i = 0; i < MAX_POINTS; i++) {
+    if(bins[i]) {
+      activeBins++;
+    }
+  }
+  return activeBins;
 }

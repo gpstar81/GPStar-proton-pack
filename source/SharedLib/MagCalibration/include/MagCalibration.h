@@ -76,6 +76,17 @@ class MagCalibration {
     // Compute calibration parameters from collected samples.
     CalibrationData computeCalibration() const;
 
+    // Get elevation bin distribution for coverage analysis.
+    // Outputs: pointer to internal elevation bin count array and bin count.
+    uint8_t getElevationBinDistribution(const uint16_t*& outElevationCounts) const;
+
+    // Get active azimuth bins for coverage analysis.
+    // Outputs: pointer to internal azimuth bin count array and bin count.
+    uint8_t getAzimuthBinDistribution(const uint16_t*& outAzimuthCounts) const;
+
+    // Get total number of active bins (bins with at least one sample).
+    uint16_t getActiveBinCount() const;
+
   private:
     /**
      * SPHERICAL COORDINATE BINNING SYSTEM:
@@ -136,6 +147,12 @@ class MagCalibration {
 
     // Bin filled flags.
     bool bins[MAX_POINTS];
+
+    // Bin usage tracking for distribution analysis
+    // Purpose: Track how many samples have been collected in each orientation region
+    // These arrays enable real-time monitoring of calibration coverage distribution
+    uint16_t elevationBinCounts[NUM_ELEVATION_BINS]; // Samples per elevation bin (vertical coverage)
+    uint16_t azimuthBinCounts[NUM_AZIMUTH_BINS];     // Samples per azimuth bin (horizontal coverage)
 
     // Helper: Jacobi eigen-decomposition (symmetric 3x3).
     void jacobiEigen3(float A[3][3], float V[3][3], float w[3]) const;

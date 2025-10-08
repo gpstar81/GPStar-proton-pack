@@ -33,6 +33,55 @@ static constexpr uint8_t NUM_AZIMUTH_BINS = (uint8_t)(360 / BIN_DEGREES);
 static constexpr uint8_t NUM_ELEVATION_BINS = (uint8_t)(180 / BIN_DEGREES);
 static constexpr uint16_t MAX_POINTS = NUM_AZIMUTH_BINS * NUM_ELEVATION_BINS;
 
+// Elevation Bias Compensation Configuration
+// Purpose: Enable/disable elevation bias compensation for testing production board calibration
+// Usage: Set to true to apply an elevation compensation, false to disable
+// Note: This simulates the compensation that would be needed in MagCalibration.cpp
+static constexpr bool ENABLE_ELEVATION_COMPENSATION = false; // SET TO true TO TEST COMPENSATION
+
+// Elevation compensation constants
+// Purpose: Define the compensation values based on analysis of prototype vs production data
+// The degree offset was determined from the difference in average elevation readings
+static constexpr double ELEVATION_BIAS_DEGREES = 44.0;  // Degrees to compensate
+static constexpr double ELEVATION_BIAS_RADIANS = ELEVATION_BIAS_DEGREES * M_PI / 180.0; // Radians equivalent
+
+// Function: applyElevationCompensation  
+// Purpose: Apply elevation bias compensation to magnetometer readings for testing
+// Inputs: rawElevation - Original elevation angle in radians from magnetometer calculation
+// Outputs: Compensated elevation angle in radians
+// 
+// This function applies a universal elevation compensation to all datasets when enabled.
+// The purpose is to test the compensation theory on both prototype and production data
+// to validate whether this correction improves coverage for production boards and 
+// degrades coverage for prototype boards (confirming the bias direction).
+//
+// The degree offset was determined from analysis showing production boards read systematically
+// lower elevation angles compared to prototype boards for identical physical orientations.
+double applyElevationCompensation(double rawElevation) {
+  // Apply compensation universally when enabled, regardless of board type
+  // Purpose: Test compensation effects on all datasets to validate theory
+  if(ENABLE_ELEVATION_COMPENSATION) {
+    // Add the bias compensation to shift elevation readings by some degrees
+    // This tests whether the systematic bias correction improves production coverage
+    double compensatedElevation = rawElevation + ELEVATION_BIAS_RADIANS;
+    
+    // Ensure the compensated elevation stays within valid range [-π/2, π/2]
+    // This prevents mathematical errors in subsequent bin calculations
+    // Clamp to valid elevation range to prevent out-of-bounds bin indices
+    if(compensatedElevation > M_PI / 2.0) {
+      compensatedElevation = M_PI / 2.0;  // Clamp to +90°
+    }
+    if(compensatedElevation < -M_PI / 2.0) {
+      compensatedElevation = -M_PI / 2.0; // Clamp to -90°
+    }
+    
+    return compensatedElevation;
+  }
+  
+  // No compensation applied - return original elevation unchanged
+  return rawElevation;
+}
+
 // Structure: MagSample
 // Purpose: Store a single magnetometer reading with analysis results
 struct MagSample {
@@ -125,11 +174,16 @@ MagSample processMagSample(double x, double y, double z, uint16_t lineNumber) {
   if(nz_clamped < -1.0) nz_clamped = -1.0;
   sample.elevation = asin(nz_clamped);
   
+  // STEP 3.5: Apply elevation compensation universally if enabled
+  // Purpose: Test compensation effects on all datasets to validate theory
+  // This applies the same compensation to both prototype and production data
+  sample.elevation = applyElevationCompensation(sample.elevation);
+  
   // Convert to degrees for easier interpretation
   sample.azimuthDeg = sample.azimuth * 180.0 / M_PI;
   sample.elevationDeg = sample.elevation * 180.0 / M_PI;
   
-  // STEP 4: Calculate bin indices (identical to addSample())
+  // STEP 4: Calculate bin indices using compensated elevation
   sample.azIndex = (int)((sample.azimuth + M_PI) / (2 * M_PI) * NUM_AZIMUTH_BINS);
   sample.elIndex = (int)((sample.elevation + M_PI / 2) / M_PI * NUM_ELEVATION_BINS);
   
@@ -139,7 +193,7 @@ MagSample processMagSample(double x, double y, double z, uint16_t lineNumber) {
   if(sample.elIndex < 0) sample.elIndex = 0;
   if(sample.elIndex >= NUM_ELEVATION_BINS) sample.elIndex = NUM_ELEVATION_BINS - 1;
   
-  // STEP 6: Calculate final bin index (identical to addSample())
+  // STEP 6: Calculate final bin index using compensated values
   sample.binIndex = sample.elIndex * NUM_AZIMUTH_BINS + sample.azIndex;
   
   // Mark as valid for bin assignment
@@ -235,6 +289,9 @@ DatasetAnalysis analyzeDataset(const std::vector<std::array<double, 3>>& reading
   double sumAzimuth = 0.0;
   
   std::cout << "\nProcessing " << label << " dataset..." << std::endl;
+  if(ENABLE_ELEVATION_COMPENSATION) {
+    std::cout << "  *** UNIVERSAL ELEVATION COMPENSATION ENABLED ***" << std::endl;
+  }
   
   // Process each reading
   for(uint16_t i = 0; i < readings.size(); i++) {
@@ -243,6 +300,7 @@ DatasetAnalysis analyzeDataset(const std::vector<std::array<double, 3>>& reading
       std::cout << "  Processed " << i << " / " << readings.size() << " samples..." << std::endl;
     }
     
+    // Apply universal compensation (no board type parameter needed)
     MagSample sample = processMagSample(readings[i][0], readings[i][1], readings[i][2], i + 1);
     
     if(sample.validSample) {
@@ -546,13 +604,288 @@ void printConfigurationInfo() {
   std::cout << "Total Bins Available: " << MAX_POINTS << " bins" << std::endl;
   std::cout << "Azimuth Range: 0° to 360° (coverage: " << (uint16_t)NUM_AZIMUTH_BINS << " bins)" << std::endl;
   std::cout << "Elevation Range: -90° to +90° (coverage: " << (uint16_t)NUM_ELEVATION_BINS << " bins)" << std::endl;
-  // Fix the coverage resolution line to properly display the degree values
   std::cout << "Coverage Resolution: Each bin represents " << (uint16_t)BIN_DEGREES 
             << "° × " << (uint16_t)BIN_DEGREES << "° area" << std::endl;
+  
+  // Update compensation status display for universal application
+  std::cout << "Elevation Compensation: " << (ENABLE_ELEVATION_COMPENSATION ? "ENABLED" : "DISABLED");
+  if(ENABLE_ELEVATION_COMPENSATION) {
+    std::cout << " (" << ELEVATION_BIAS_DEGREES << "° applied to ALL datasets)";
+  }
+  std::cout << std::endl;
 }
 
-// Function: main
-// Purpose: Main program entry point
+// Function: writeCompleteAnalysisToFile
+// Purpose: Write all analysis results to a comprehensive summary file
+// Inputs: Analysis results for both datasets
+// Outputs: Creates analysis.txt file with complete summary
+//
+// This function captures all the analysis output that would normally appear on console
+// and writes it to a single comprehensive file for easy review and sharing.
+void writeCompleteAnalysisToFile(const DatasetAnalysis& prototypeAnalysis, 
+                                const DatasetAnalysis& productionAnalysis) {
+  std::ofstream outFile("analysis.txt");
+  if(!outFile.is_open()) {
+    std::cerr << "Warning: Could not create analysis.txt output file" << std::endl;
+    return;
+  }
+  
+  // Write header and configuration
+  outFile << "Magnetometer Calibration Analysis Tool" << std::endl;
+  outFile << "Purpose: Analyze prototype vs production binning behavior" << std::endl;
+  outFile << "=========================================" << std::endl;
+  
+  // Configuration section
+  outFile << "\n=== ANALYSIS CONFIGURATION ===" << std::endl;
+  outFile << "Bin Size: " << (uint16_t)BIN_DEGREES << "° per bin" << std::endl;
+  outFile << "Grid Dimensions: " << (uint16_t)NUM_AZIMUTH_BINS << " azimuth bins × " 
+          << (uint16_t)NUM_ELEVATION_BINS << " elevation bins" << std::endl;
+  outFile << "Total Bins Available: " << MAX_POINTS << " bins" << std::endl;
+  outFile << "Azimuth Range: 0° to 360° (coverage: " << (uint16_t)NUM_AZIMUTH_BINS << " bins)" << std::endl;
+  outFile << "Elevation Range: -90° to +90° (coverage: " << (uint16_t)NUM_ELEVATION_BINS << " bins)" << std::endl;
+  outFile << "Coverage Resolution: Each bin represents " << (uint16_t)BIN_DEGREES 
+          << "° × " << (uint16_t)BIN_DEGREES << "° area" << std::endl;
+  
+  outFile << "Elevation Compensation: " << (ENABLE_ELEVATION_COMPENSATION ? "ENABLED" : "DISABLED");
+  if(ENABLE_ELEVATION_COMPENSATION) {
+    outFile << " (" << ELEVATION_BIAS_DEGREES << "° applied to ALL datasets)";
+  }
+  outFile << std::endl;
+  
+  // File loading summary
+  outFile << "\nLoading log files..." << std::endl;
+  outFile << "Loaded " << prototypeAnalysis.totalLines << " readings from " << prototypeAnalysis.filename << std::endl;
+  outFile << "Loaded " << productionAnalysis.totalLines << " readings from " << productionAnalysis.filename << std::endl;
+  
+  // Processing results
+  outFile << "\nProcessing " << prototypeAnalysis.label << " dataset..." << std::endl;
+  if(ENABLE_ELEVATION_COMPENSATION) {
+    outFile << "  *** UNIVERSAL ELEVATION COMPENSATION ENABLED ***" << std::endl;
+  }
+  outFile << "Analysis complete: " << prototypeAnalysis.validSamples << " valid samples, " 
+          << prototypeAnalysis.uniqueBins << " unique bins (" << std::fixed << std::setprecision(1) 
+          << prototypeAnalysis.coveragePercent << "% coverage)" << std::endl;
+  
+  outFile << "\nProcessing " << productionAnalysis.label << " dataset..." << std::endl;
+  if(ENABLE_ELEVATION_COMPENSATION) {
+    outFile << "  *** UNIVERSAL ELEVATION COMPENSATION ENABLED ***" << std::endl;
+  }
+  outFile << "Analysis complete: " << productionAnalysis.validSamples << " valid samples, " 
+          << productionAnalysis.uniqueBins << " unique bins (" << std::fixed << std::setprecision(1) 
+          << productionAnalysis.coveragePercent << "% coverage)" << std::endl;
+  
+  // Write detailed analysis for prototype
+  outFile << "\n=== DETAILED ANALYSIS: " << prototypeAnalysis.label << " ===" << std::endl;
+  outFile << "Source File: " << prototypeAnalysis.filename << std::endl;
+  outFile << "  Detailed breakdown written to: " << prototypeAnalysis.filename.substr(0, prototypeAnalysis.filename.find_last_of(".")) << "_analysis.txt" << std::endl;
+  
+  // Prototype statistics
+  outFile << "\nSample Statistics:" << std::endl;
+  outFile << "  Total Lines: " << prototypeAnalysis.totalLines << std::endl;
+  outFile << "  Valid Samples: " << prototypeAnalysis.validSamples << std::endl;
+  outFile << "  Accepted Samples: " << prototypeAnalysis.acceptedSamples << std::endl;
+  outFile << "  Unique Bins: " << prototypeAnalysis.uniqueBins << " / " << MAX_POINTS << std::endl;
+  outFile << "  Coverage: " << std::fixed << std::setprecision(2) << prototypeAnalysis.coveragePercent << "%" << std::endl;
+  outFile << "  Processing Efficiency: " << std::fixed << std::setprecision(1) 
+          << (prototypeAnalysis.validSamples / (float)prototypeAnalysis.totalLines * 100.0f) << "% valid samples" << std::endl;
+  
+  outFile << "\nMagnitude Analysis:" << std::endl;
+  outFile << "  Average: " << std::fixed << std::setprecision(2) << prototypeAnalysis.avgMagnitude << " µT" << std::endl;
+  outFile << "  Range: " << prototypeAnalysis.minMagnitude << " to " << prototypeAnalysis.maxMagnitude << " µT" << std::endl;
+  outFile << "  Spread: " << (prototypeAnalysis.maxMagnitude - prototypeAnalysis.minMagnitude) << " µT" << std::endl;
+  
+  outFile << "\nAngular Analysis:" << std::endl;
+  outFile << "  Azimuth - Avg: " << std::fixed << std::setprecision(1) << prototypeAnalysis.avgAzimuth 
+          << "°, Range: " << prototypeAnalysis.minAzimuth << "° to " << prototypeAnalysis.maxAzimuth << "°" << std::endl;
+  outFile << "  Elevation - Avg: " << prototypeAnalysis.avgElevation 
+          << "°, Range: " << prototypeAnalysis.minElevation << "° to " << prototypeAnalysis.maxElevation << "°" << std::endl;
+  
+  // Prototype elevation bin distribution
+  outFile << "\nElevation Bin Distribution:" << std::endl;
+  for(int i = 0; i < NUM_ELEVATION_BINS; i++) {
+    if(prototypeAnalysis.elevationBinCounts[i] > 0) {
+      double binCenter = (i * BIN_DEGREES) - 90.0;
+      outFile << "  Bin " << std::setw(2) << i << " (" << std::setw(6) << std::fixed 
+              << std::setprecision(1) << binCenter << "°): " << std::setw(4) 
+              << prototypeAnalysis.elevationBinCounts[i] << " samples" << std::endl;
+    }
+  }
+  
+  // Prototype active azimuth bins
+  outFile << "\nActive Azimuth Bins: ";
+  int prototypeBins = 0;
+  for(int i = 0; i < NUM_AZIMUTH_BINS; i++) {
+    if(prototypeAnalysis.azimuthBinCounts[i] > 0) {
+      outFile << i << " ";
+      prototypeBins++;
+      if(prototypeBins % 15 == 0) outFile << "\n                     ";
+    }
+  }
+  outFile << std::endl;
+  
+  // Prototype acceptance summary
+  uint16_t prototypeAccepted = 0;
+  for(const auto& sample : prototypeAnalysis.samples) {
+    if(sample.wouldBeAccepted) prototypeAccepted++;
+  }
+  outFile << "\nAcceptance Summary:" << std::endl;
+  outFile << "  Accepted: " << prototypeAccepted << " / " << prototypeAnalysis.samples.size() 
+          << " (" << std::fixed << std::setprecision(1) 
+          << (prototypeAccepted / (float)prototypeAnalysis.samples.size() * 100.0f) << "%)" << std::endl;
+  
+  // Write detailed analysis for production
+  outFile << "\n=== DETAILED ANALYSIS: " << productionAnalysis.label << " ===" << std::endl;
+  outFile << "Source File: " << productionAnalysis.filename << std::endl;
+  outFile << "  Detailed breakdown written to: " << productionAnalysis.filename.substr(0, productionAnalysis.filename.find_last_of(".")) << "_analysis.txt" << std::endl;
+  
+  // Production statistics
+  outFile << "\nSample Statistics:" << std::endl;
+  outFile << "  Total Lines: " << productionAnalysis.totalLines << std::endl;
+  outFile << "  Valid Samples: " << productionAnalysis.validSamples << std::endl;
+  outFile << "  Accepted Samples: " << productionAnalysis.acceptedSamples << std::endl;
+  outFile << "  Unique Bins: " << productionAnalysis.uniqueBins << " / " << MAX_POINTS << std::endl;
+  outFile << "  Coverage: " << std::fixed << std::setprecision(2) << productionAnalysis.coveragePercent << "%" << std::endl;
+  outFile << "  Processing Efficiency: " << std::fixed << std::setprecision(1) 
+          << (productionAnalysis.validSamples / (float)productionAnalysis.totalLines * 100.0f) << "% valid samples" << std::endl;
+  
+  outFile << "\nMagnitude Analysis:" << std::endl;
+  outFile << "  Average: " << std::fixed << std::setprecision(2) << productionAnalysis.avgMagnitude << " µT" << std::endl;
+  outFile << "  Range: " << productionAnalysis.minMagnitude << " to " << productionAnalysis.maxMagnitude << " µT" << std::endl;
+  outFile << "  Spread: " << (productionAnalysis.maxMagnitude - productionAnalysis.minMagnitude) << " µT" << std::endl;
+  
+  outFile << "\nAngular Analysis:" << std::endl;
+  outFile << "  Azimuth - Avg: " << std::fixed << std::setprecision(1) << productionAnalysis.avgAzimuth 
+          << "°, Range: " << productionAnalysis.minAzimuth << "° to " << productionAnalysis.maxAzimuth << "°" << std::endl;
+  outFile << "  Elevation - Avg: " << productionAnalysis.avgElevation 
+          << "°, Range: " << productionAnalysis.minElevation << "° to " << productionAnalysis.maxElevation << "°" << std::endl;
+  
+  // Production elevation bin distribution
+  outFile << "\nElevation Bin Distribution:" << std::endl;
+  for(int i = 0; i < NUM_ELEVATION_BINS; i++) {
+    if(productionAnalysis.elevationBinCounts[i] > 0) {
+      double binCenter = (i * BIN_DEGREES) - 90.0;
+      outFile << "  Bin " << std::setw(2) << i << " (" << std::setw(6) << std::fixed 
+              << std::setprecision(1) << binCenter << "°): " << std::setw(4) 
+              << productionAnalysis.elevationBinCounts[i] << " samples" << std::endl;
+    }
+  }
+  
+  // Production active azimuth bins
+  outFile << "\nActive Azimuth Bins: ";
+  int productionBins = 0;
+  for(int i = 0; i < NUM_AZIMUTH_BINS; i++) {
+    if(productionAnalysis.azimuthBinCounts[i] > 0) {
+      outFile << i << " ";
+      productionBins++;
+      if(productionBins % 15 == 0) outFile << "\n                     ";
+    }
+  }
+  outFile << std::endl;
+  
+  // Production acceptance summary
+  uint16_t productionAccepted = 0;
+  for(const auto& sample : productionAnalysis.samples) {
+    if(sample.wouldBeAccepted) productionAccepted++;
+  }
+  outFile << "\nAcceptance Summary:" << std::endl;
+  outFile << "  Accepted: " << productionAccepted << " / " << productionAnalysis.samples.size() 
+          << " (" << std::fixed << std::setprecision(1) 
+          << (productionAccepted / (float)productionAnalysis.samples.size() * 100.0f) << "%)" << std::endl;
+  
+  // Comparative analysis section
+  outFile << "\n=== COMPARATIVE ANALYSIS ===" << std::endl;
+  
+  outFile << std::left << std::setw(25) << "Metric" << " | " 
+          << std::setw(15) << "Prototype" << " | " 
+          << std::setw(15) << "Production" << " | " 
+          << std::setw(12) << "Ratio (P/Pr)" << std::endl;
+  outFile << std::string(70, '-') << std::endl;
+  
+  // Sample statistics comparison
+  outFile << std::setw(25) << "Valid Samples" << " | "
+          << std::setw(15) << prototypeAnalysis.validSamples << " | "
+          << std::setw(15) << productionAnalysis.validSamples << " | "
+          << std::setw(12) << std::fixed << std::setprecision(2) 
+          << (float)productionAnalysis.validSamples / prototypeAnalysis.validSamples << std::endl;
+          
+  outFile << std::setw(25) << "Unique Bins" << " | "
+          << std::setw(15) << prototypeAnalysis.uniqueBins << " | "
+          << std::setw(15) << productionAnalysis.uniqueBins << " | "
+          << std::setw(12) << (float)productionAnalysis.uniqueBins / prototypeAnalysis.uniqueBins << std::endl;
+          
+  outFile << std::setw(25) << "Coverage %" << " | "
+          << std::setw(15) << std::setprecision(1) << prototypeAnalysis.coveragePercent << " | "
+          << std::setw(15) << productionAnalysis.coveragePercent << " | "
+          << std::setw(12) << std::setprecision(2) << productionAnalysis.coveragePercent / prototypeAnalysis.coveragePercent << std::endl;
+          
+  outFile << std::setw(25) << "Avg Magnitude (µT)" << " | "
+          << std::setw(15) << std::setprecision(1) << prototypeAnalysis.avgMagnitude << " | "
+          << std::setw(15) << productionAnalysis.avgMagnitude << " | "
+          << std::setw(12) << std::setprecision(2) << productionAnalysis.avgMagnitude / prototypeAnalysis.avgMagnitude << std::endl;
+          
+  outFile << std::setw(25) << "Avg Elevation (°)" << " | "
+          << std::setw(15) << prototypeAnalysis.avgElevation << " | "
+          << std::setw(15) << productionAnalysis.avgElevation << " | "
+          << std::setw(12) << productionAnalysis.avgElevation / prototypeAnalysis.avgElevation << std::endl;
+          
+  outFile << std::setw(25) << "Avg Azimuth (°)" << " | "
+          << std::setw(15) << prototypeAnalysis.avgAzimuth << " | "
+          << std::setw(15) << productionAnalysis.avgAzimuth << " | "
+          << std::setw(12) << productionAnalysis.avgAzimuth / prototypeAnalysis.avgAzimuth << std::endl;
+  
+  // Key findings analysis
+  outFile << "\n=== KEY FINDINGS ===" << std::endl;
+  
+  // Magnitude analysis
+  double magRatio = productionAnalysis.avgMagnitude / prototypeAnalysis.avgMagnitude;
+  outFile << "1. Magnitude Difference: Production readings are " 
+          << std::fixed << std::setprecision(1) << magRatio << "x stronger" << std::endl;
+  if(magRatio > 1.5) {
+    outFile << "   -> SIGNIFICANT: Trace removal eliminated magnetic damping" << std::endl;
+  }
+  
+  // Coverage analysis
+  double coverageRatio = productionAnalysis.coveragePercent / prototypeAnalysis.coveragePercent;
+  outFile << "2. Coverage Difference: Production achieves " 
+          << coverageRatio << "x the coverage" << std::endl;
+  if(coverageRatio < 0.3) {
+    outFile << "   -> CRITICAL: Severe coverage reduction detected" << std::endl;
+  }
+  
+  // Elevation analysis
+  double elevationDiff = productionAnalysis.avgElevation - prototypeAnalysis.avgElevation;
+  outFile << "3. Elevation Shift: Production reads " 
+          << elevationDiff << "° different elevation" << std::endl;
+  if(fabs(elevationDiff) > 10.0) {
+    outFile << "   -> SIGNIFICANT: Large elevation bias detected" << std::endl;
+  }
+  
+  // Bin overlap analysis
+  int sharedBins = 0;
+  for(int i = 0; i < MAX_POINTS; i++) {
+    if(prototypeAnalysis.binCoverage[i] && productionAnalysis.binCoverage[i]) {
+      sharedBins++;
+    }
+  }
+  float overlapPercent = 0.0f;
+  int totalUniqueBins = prototypeAnalysis.uniqueBins + productionAnalysis.uniqueBins - sharedBins;
+  if(totalUniqueBins > 0) {
+    overlapPercent = (sharedBins / (float)totalUniqueBins) * 100.0f;
+  }
+  outFile << "4. Bin Overlap: " << std::fixed << std::setprecision(1) 
+          << overlapPercent << "% of bins are shared between datasets" << std::endl;
+  if(overlapPercent < 50.0f) {
+    outFile << "   -> CRITICAL: Low bin overlap suggests systematic bias" << std::endl;
+  }
+  
+  outFile << "\nAnalysis complete!" << std::endl;
+  
+  outFile.close();
+  std::cout << "Complete analysis written to: analysis.txt" << std::endl;
+}
+
+// Modify the main function around line 750:
+// Add call to write complete analysis after comparative analysis
 int main(int argc, char* argv[]) {
   std::cout << "Magnetometer Calibration Analysis Tool" << std::endl;
   std::cout << "Purpose: Analyze prototype vs production binning behavior" << std::endl;
@@ -591,6 +924,11 @@ int main(int argc, char* argv[]) {
   
   // Print comparative analysis
   compareAnalysis(prototypeAnalysis, productionAnalysis);
+  
+  // Write complete summary to analysis.txt file
+  // Purpose: Capture all analysis output in a single file for easy review and sharing
+  // This eliminates the need to manually copy console output to a file
+  writeCompleteAnalysisToFile(prototypeAnalysis, productionAnalysis);
   
   std::cout << "\nAnalysis complete!" << std::endl;
   return 0;

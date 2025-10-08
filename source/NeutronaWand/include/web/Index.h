@@ -159,6 +159,46 @@ const char INDEX_page[] PROGMEM = R"=====(
         <p>
           <span class="infoLabel">Coverage:</span> <span class="infoState" id="coverage">&mdash;</span>
         </p>
+        <!-- Shows vertical (elevation) orientation coverage gaps as a bar chart -->
+        <div class="coverage-analysis">
+          <div class="elevation-display">
+            <h4 class="coverage-title">Vertical Coverage</h4>
+            <div class="elevation-chart-container">
+              <div id="elevationChart" class="elevation-chart">
+                <!-- Elevation bars will be populated dynamically via JavaScript -->
+                <!-- Each bar represents coverage in a specific elevation range -->
+              </div>
+              <div class="elevation-labels">
+                <span class="degree-label">-90°</span>
+                <span class="degree-label">0°</span>
+                <span class="degree-label">+90°</span>
+              </div>
+            </div>
+          </div>
+          <!-- Shows horizontal (azimuth) rotation coverage as a circular chart -->
+          <div class="azimuth-display">
+            <h4 class="coverage-title">Horizontal Coverage</h4>
+            <div class="azimuth-chart-container">
+              <div id="azimuthChart" class="azimuth-chart">
+                <!-- SVG-based circular chart will be populated dynamically -->
+                <!-- Shows coverage around 360° compass directions -->
+              </div>
+              <div class="compass-directions">
+                <span class="compass-label compass-n">N</span>
+                <span class="compass-label compass-e">E</span>
+                <span class="compass-label compass-s">S</span>
+                <span class="compass-label compass-w">W</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Real-time feedback about calibration progress and recommendations -->
+        <div class="coverage-feedback">
+          <div id="coverageStatus" class="status-message">
+            <!-- Dynamic status messages will appear here via JavaScript -->
+            <!-- Examples: "Move device upward", "Rotate more completely", etc. -->
+          </div>
+        </div>
         <div class="viz-content">
           <div id="3Dcalibration"></div>
         </div>
