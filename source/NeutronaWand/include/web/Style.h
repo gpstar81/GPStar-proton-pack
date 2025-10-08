@@ -427,8 +427,14 @@ input[type=text] {
   width:100%;
 }
 
-#3Dcalibration {
-  border-radius:12px;  
+#mag {
+  align-items:center;  
+  display:flex;
+  gap:0.7em;
+}
+
+#mag .infoLabel {
+  min-width:20px;
 }
 
 #gyro, #accel, #ahrs, #calc {

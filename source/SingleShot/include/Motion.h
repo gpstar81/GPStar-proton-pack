@@ -89,7 +89,7 @@ enum SENSOR_READ_TARGETS SENSOR_READ_TARGET = NOT_INITIALIZED;
 // Orientation positions expected by mounting for final installation (eg. as held by the user).
 // This will be set by user preference in the web interface and saved to "device" preferences.
 enum INSTALL_ORIENTATIONS {
-  UNKNOWN_ORIENTATION,
+  FACTORY_DEFAULT,
   COMPONENTS_UP_USB_FRONT,
   COMPONENTS_UP_USB_REAR,
   COMPONENTS_DOWN_USB_FRONT,

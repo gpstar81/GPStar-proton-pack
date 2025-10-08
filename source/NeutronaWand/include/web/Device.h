@@ -62,6 +62,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
         <option value="6">Components Left, USB Rear</option>
         <option value="7">Components Right, USB Front</option>
         <option value="8">Components Right, USB Rear</option>
+        <option value="9">Factory Defaults (Debug)</option>
       </select>
     </div>
     <div class="setting">
@@ -134,16 +135,16 @@ const char DEVICE_page[] PROGMEM = R"=====(
             setValue("hardIron1", settings.hardIron1 ?? 0);
             setValue("hardIron2", settings.hardIron2 ?? 0);
             setValue("hardIron3", settings.hardIron3 ?? 0);
-            setValue("softIron1", settings.softIron1 ?? 0);
+            setValue("softIron1", settings.softIron1 ?? 1);
             setValue("softIron2", settings.softIron2 ?? 0);
             setValue("softIron3", settings.softIron3 ?? 0);
             setValue("softIron4", settings.softIron4 ?? 0);
-            setValue("softIron5", settings.softIron5 ?? 0);
+            setValue("softIron5", settings.softIron5 ?? 1);
             setValue("softIron6", settings.softIron6 ?? 0);
             setValue("softIron7", settings.softIron7 ?? 0);
             setValue("softIron8", settings.softIron8 ?? 0);
-            setValue("softIron9", settings.softIron9 ?? 0);
-            setValue("magField", settings.magField ?? 0);
+            setValue("softIron9", settings.softIron9 ?? 1);
+            setValue("magField", settings.magField ?? 50);
             setValue("songList", settings.songList || "");
             updateByteCount();
           }
@@ -181,20 +182,20 @@ const char DEVICE_page[] PROGMEM = R"=====(
       // Saves current settings to attenuator, updating runtime variables and making changes immediately effective.
       var settings = {
         wifiName: wifiName,
-        orientation: getInt("orientation") || 0,
-        hardIron1: getFloat("hardIron1"),
-        hardIron2: getFloat("hardIron2"),
-        hardIron3: getFloat("hardIron3"),
-        softIron1: getFloat("softIron1"),
-        softIron2: getFloat("softIron2"),
-        softIron3: getFloat("softIron3"),
-        softIron4: getFloat("softIron4"),
-        softIron5: getFloat("softIron5"),
-        softIron6: getFloat("softIron6"),
-        softIron7: getFloat("softIron7"),
-        softIron8: getFloat("softIron8"),
-        softIron9: getFloat("softIron9"),
-        magField: getFloat("magField"),
+        orientation: getInt("orientation") || 3,
+        hardIron1: getFloat("hardIron1") || 0,
+        hardIron2: getFloat("hardIron2") || 0,
+        hardIron3: getFloat("hardIron3") || 0,
+        softIron1: getFloat("softIron1") || 1,
+        softIron2: getFloat("softIron2") || 0,
+        softIron3: getFloat("softIron3") || 0,
+        softIron4: getFloat("softIron4") || 0,
+        softIron5: getFloat("softIron5") || 1,
+        softIron6: getFloat("softIron6") || 0,
+        softIron7: getFloat("softIron7") || 0,
+        softIron8: getFloat("softIron8") || 0,
+        softIron9: getFloat("softIron9") || 1,
+        magField: getFloat("magField") || 50,
         songList: getText("songList")
       };
       var body = JSON.stringify(settings);

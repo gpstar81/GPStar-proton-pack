@@ -638,6 +638,9 @@ if (!!window.EventSource) {
     setHtml("gForce", formatFloat(obj.gForce || 0) + "");
     setHtml("angVel", formatFloat(obj.angVel || 0) + "&deg;/s");
     setHtml("shaken", "&nbsp;&nbsp;&nbsp;" + (obj.shaken ? "&oplus;" : "&mdash;"));
+    setHtml("magX",  formatFloat(obj.magX || 0)  + "&micro;T");
+    setHtml("magY",  formatFloat(obj.magY || 0)  + "&micro;T");
+    setHtml("magZ",  formatFloat(obj.magZ || 0)  + "&micro;T");
 
     // Proceed with updating the rendered scene if all objects are present.
     if (telemetry3D && telemetry3D.mesh) {
@@ -689,6 +692,7 @@ function enableCalibration() {
     sendCommand("/sensors/calibrate/enable");
     calibration3D.clearPoints();
     showEl("calInfo");
+    hideEl("mag");
   }
 }
 
@@ -710,6 +714,7 @@ function disableCalibration() {
   if (endCalibration) {
     sendCommand("/sensors/calibrate/disable");
     hideEl("calInfo");
+    showEl("mag");
     calibration3D.clearPoints();
   }
 }

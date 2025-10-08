@@ -104,7 +104,7 @@ enum SENSOR_READ_TARGETS SENSOR_READ_TARGET = NOT_INITIALIZED;
 // Orientation positions expected by mounting for final installation (eg. as held by the user).
 // This will be set by user preference in the web interface and saved to "device" preferences.
 enum INSTALL_ORIENTATIONS {
-  UNKNOWN_ORIENTATION,
+  FACTORY_DEFAULT,
   COMPONENTS_UP_USB_FRONT,
   COMPONENTS_UP_USB_REAR,
   COMPONENTS_DOWN_USB_FRONT,
@@ -596,7 +596,7 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
       // Default Hasbro installation orientation
       // Magnetometer data (inverting the X axis)
       oriented.magX = mag_event.magnetic.y * -1;
-      oriented.magY = mag_event.magnetic.x;
+      oriented.magY = mag_event.magnetic.x * -1;
       oriented.magZ = mag_event.magnetic.z;
 
       // Acceleration and gyroscope values (swapping the X/Y axes, inverting X/Z)
@@ -684,7 +684,7 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
       oriented.gyroZ = gyro_event.gyro.x;
     break;
 
-    case UNKNOWN_ORIENTATION:
+    case FACTORY_DEFAULT:
       // If the orientation is unknown, do not modify the sensor readings.
       oriented.magX = mag_event.magnetic.x;
       oriented.magY = mag_event.magnetic.y;
@@ -1112,7 +1112,7 @@ void reportCalibrationData() {
   accelerometer->getEvent(&accel_event);
 
   // Uncomment to force the device's raw orientation for calibration reporting, when necessary.
-  // INSTALL_ORIENTATION = UNKNOWN_ORIENTATION;
+  // INSTALL_ORIENTATION = FACTORY_DEFAULT;
 
   // Apply orientation mapping to get data in the device's coordinate system.
   // This ensures calibration tools see the correct axes for your installation.

@@ -468,6 +468,9 @@ String getDeviceConfig() {
     case COMPONENTS_RIGHT_USB_REAR:
       jsonBody["orientation"] = 8;
     break;
+    case FACTORY_DEFAULT:
+      jsonBody["orientation"] = 9;
+    break;
   }
 
   // Serialize JSON object to string.
@@ -680,6 +683,10 @@ String getTelemetry() {
   jsonTelemetry["gyroX"] = roundFloat(filteredMotionData.gyroX);
   jsonTelemetry["gyroY"] = roundFloat(filteredMotionData.gyroY);
   jsonTelemetry["gyroZ"] = roundFloat(filteredMotionData.gyroZ);
+  // Magnetic in microteslas (uT).
+  jsonTelemetry["magX"] = roundFloat(filteredMotionData.magX);
+  jsonTelemetry["magY"] = roundFloat(filteredMotionData.magY);
+  jsonTelemetry["magZ"] = roundFloat(filteredMotionData.magZ);
   // Special calculated values (g-force and angular velocity)
   jsonTelemetry["gForce"] = roundFloat(filteredMotionData.gForce);
   jsonTelemetry["angVel"] = roundFloat(filteredMotionData.angVel);
@@ -1033,6 +1040,9 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
       break;
       case 8:
         INSTALL_ORIENTATION = COMPONENTS_RIGHT_USB_REAR;
+      break;
+      case 9:
+        INSTALL_ORIENTATION = FACTORY_DEFAULT;
       break;
       default:
         // Do not change orientation if an invalid value was provided.
