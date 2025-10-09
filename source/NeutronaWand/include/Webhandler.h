@@ -442,6 +442,7 @@ String getDeviceConfig() {
   jsonBody["softIron9"] = magCalData.mag_softiron[8];
   jsonBody["magField"] = magCalData.mag_field;
 
+  // Map the installation orientation to a number for the web UI.
   switch(INSTALL_ORIENTATION) {
     case COMPONENTS_UP_USB_FRONT:
       jsonBody["orientation"] = 1;
@@ -471,6 +472,48 @@ String getDeviceConfig() {
     case COMPONENTS_FACTORY_DEFAULT:
       jsonBody["orientation"] = 9;
     break;
+  }
+
+  // Report the magnetometer self test results.
+  JsonObject selfTestObj = jsonBody["magSelfTest"].to<JsonObject>();
+
+  // Group XYZ values as arrays for each category
+  JsonArray baseline = selfTestObj["baseline"].to<JsonArray>();
+  baseline.add(magSelfTest.baselineX);
+  baseline.add(magSelfTest.baselineY);
+  baseline.add(magSelfTest.baselineZ);
+
+  JsonArray testResult = selfTestObj["results"].to<JsonArray>();
+  testResult.add(magSelfTest.selfTestX);
+  testResult.add(magSelfTest.selfTestY);
+  testResult.add(magSelfTest.selfTestZ);
+
+  JsonArray delta = selfTestObj["delta"].to<JsonArray>();
+  delta.add(magSelfTest.deltaX);
+  delta.add(magSelfTest.deltaY);
+  delta.add(magSelfTest.deltaZ);
+
+  JsonArray passResult = selfTestObj["pass"].to<JsonArray>();
+  passResult.add(magSelfTest.passX);
+  passResult.add(magSelfTest.passY);
+  passResult.add(magSelfTest.passZ);
+
+  // Report the magnetometer configuration.
+  JsonObject magConfig = jsonBody["magConfig"].to<JsonObject>();
+
+  // Add user-friendly config options
+  magConfig["performanceMode"] = magConfigInfo.performanceMode;
+  magConfig["dataRate"] = magConfigInfo.dataRate;
+  magConfig["range"] = magConfigInfo.range;
+  magConfig["operationMode"] = magConfigInfo.operationMode;
+
+  // Add raw register values as an array of objects
+  JsonArray registers = magConfig["registers"].to<JsonArray>();
+  for (size_t i = 0; i < sizeof(magConfigInfo.rawRegisters) / sizeof(magConfigInfo.rawRegisters[0]); ++i) {
+    JsonObject regObj = registers[i].to<JsonObject>();
+    regObj["name"] = magConfigInfo.rawRegisters[i].name;
+    regObj["address"] = magConfigInfo.rawRegisters[i].address;
+    regObj["value"] = magConfigInfo.rawRegisters[i].value;
   }
 
   // Serialize JSON object to string.

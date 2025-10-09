@@ -132,6 +132,17 @@ void setup() {
   // This is required in order to make sure the board boots successfully.
   Serial.begin(115200);
 
+#if DEBUG == 1
+  // When debugging is enabled, wait for Serial to be ready (max 3 seconds).
+  unsigned long startMillis = millis();
+  while (!Serial && millis() - startMillis < 3000) {
+    delay(10);
+  }
+  Serial.flush(); // Ensure buffer is clear.
+  Serial.setTxTimeoutMs(0); // Optional: reduce USB-CDC transmission delay.
+  Serial.println(F("Serial is Ready")); // Should appear after Serial is ready.
+#endif
+
   // Serial0 (UART0) is enabled by default; end() sets GPIO43 & GPIO44 to GPIO.
   Serial0.end();
 
@@ -205,6 +216,9 @@ void setup() {
   pinModeFast(ROTARY_ENCODER_B, INPUT_PULLUP);
 
 #ifdef ESP32
+  // Get all special device preferences from NVS which may be needed for sensors.
+  getSpecialPreferences();
+
   // ESP32-S3 requires manually specifying SDA and SCL pins first.
   // This is the i2c bus to be used solely for the bargraph.
   Wire.begin(I2C_SDA, I2C_SCL, 400000UL);
@@ -216,16 +230,8 @@ void setup() {
     while(1) delay(10);
   }
 
-  // Print information about the sensors.
-  accelerometer->printSensorDetails();
-  gyroscope->printSensorDetails();
-  magnetometer->printSensorDetails();
-
-  getSpecialPreferences(); // Get all device preferences.
-  configureSensors(); // Set sensor ranges and defaults.
   delay(40); // Pause briefly for the devices to start.
-  readRawSensorData(); // Perform an initial sensor read.
-  resetAllMotionData(true); // Reset and calibrate.
+  configureSensors(); // Set sensor ranges and defaults.
 #else
   Wire.begin();
   Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
@@ -335,6 +341,10 @@ void setup() {
 
 #ifdef ESP32
   debugf("Setup complete, free heap: %u bytes\n", ESP.getFreeHeap());
+
+  // Take an initial reading of the sensors and perform a quick offset check.
+  readRawSensorData();
+  resetAllMotionData(true);
 #endif
 }
 

@@ -634,6 +634,16 @@ input[type=text] {
   background:#999;
 }
 
+.mag-info-table,
+.mag-reg-table,
+.mag-selftest-table {
+  border-collapse:collapse;
+  border-spacing:2px;
+  width:400px;
+  margin-left:5px;
+  margin-top:10px;
+}
+
 /* https://github.com/adamculpepper/toggle-switchy */
 .toggle-switchy {color:#fff;}
 .toggle-switchy > input + .toggle:before {content:'ON';}

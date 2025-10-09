@@ -344,7 +344,232 @@ bool initializeSensors() {
   gyroscope = imuSensor.getGyroSensor();
   magnetometer = &magSensor;
 
+  #if DEBUG == 1
+    // Print information about the sensors.
+    accelerometer->printSensorDetails();
+    gyroscope->printSensorDetails();
+    magnetometer->printSensorDetails();
+  #endif
+
   return true;
+#endif
+}
+
+/**
+ * Struct: MagSelfTestResult
+ * Purpose: Holds results of LIS3MDL self-test including baseline, self-test, delta, and pass/fail status.
+ * Members:
+ *   - baselineX, baselineY, baselineZ: Baseline readings before self-test (µT)
+ *   - selfTestX, selfTestY, selfTestZ: Readings during self-test (µT)
+ *   - deltaX, deltaY, deltaZ: Difference between self-test and baseline (µT)
+ *   - passX, passY, passZ: Pass/fail status for each axis
+ */
+struct MagSelfTestResult {
+  float baselineX;
+  float baselineY;
+  float baselineZ;
+  float selfTestX;
+  float selfTestY;
+  float selfTestZ;
+  float deltaX;
+  float deltaY;
+  float deltaZ;
+  bool passX;
+  bool passY;
+  bool passZ;
+} magSelfTest;
+
+/**
+ * Function: runMagSelfTest
+ * Purpose: Runs LIS3MDL self-test and returns results in a struct.
+ * Inputs:
+ *   - Adafruit_LIS3MDL &mag: Reference to LIS3MDL sensor object.
+ * Outputs:
+ *   - MagSelfTestResult: Struct containing all relevant self-test data.
+ */
+MagSelfTestResult runMagSelfTest() {
+#ifdef MOTION_SENSORS
+  MagSelfTestResult result;
+
+  // 1. Record baseline readings
+  sensors_event_t baseline;
+  magSensor.getEvent(&baseline);
+  result.baselineX = baseline.magnetic.x;
+  result.baselineY = baseline.magnetic.y;
+  result.baselineZ = baseline.magnetic.z;
+
+  // 2. Enable self-test
+  magSensor.selfTest(true);
+  delay(10); // Wait for self-test to take effect
+
+  // 3. Read self-test values
+  sensors_event_t selfTest;
+  magSensor.getEvent(&selfTest);
+  result.selfTestX = selfTest.magnetic.x;
+  result.selfTestY = selfTest.magnetic.y;
+  result.selfTestZ = selfTest.magnetic.z;
+
+  // 4. Disable self-test
+  magSensor.selfTest(false);
+
+  // 5. Calculate deltas
+  result.deltaX = result.selfTestX - result.baselineX;
+  result.deltaY = result.selfTestY - result.baselineY;
+  result.deltaZ = result.selfTestZ - result.baselineZ;
+
+  // 6. Pass/fail logic for ±12 gauss (Table 2: X/Y 100–300 µT, Z 10–100 µT)
+  result.passX = (result.deltaX >= 100.0f && result.deltaX <= 300.0f);
+  result.passY = (result.deltaY >= 100.0f && result.deltaY <= 300.0f);
+  result.passZ = (fabs(result.deltaZ) >= 10.0f && fabs(result.deltaZ) <= 100.0f);
+
+  return result;
+#endif
+}
+
+// Helper to read one register via I2C.
+uint8_t readRegister( uint8_t reg) {
+  Wire1.beginTransmission(LIS3MDL_I2CADDR_DEFAULT);
+  Wire1.write(reg);
+  // send restart (false) so we can requestFrom immediately
+  if (Wire1.endTransmission(false) != 0) {
+    // transmission error / device NACK
+    return 0xFF;
+  }
+  if (Wire1.requestFrom(LIS3MDL_I2CADDR_DEFAULT, (uint8_t)1) != 1) {
+    return 0xFF;
+  }
+  return Wire1.read();
+}
+
+// Struct: MagConfigInfo
+// Purpose: Holds raw LIS3MDL register values and decoded configuration options.
+// Members:
+//   - rawRegisters: Array of register values (indexed by register address)
+//   - performanceMode, dataRate, range, operationMode: Decoded config values (as enums or strings)
+struct MagConfigInfo {
+  struct RegisterValue {
+    const char* name;
+    uint8_t address;
+    uint8_t value;
+  } rawRegisters[25];
+  const char* performanceMode;
+  const char* dataRate;
+  const char* range;
+  const char* operationMode;
+} magConfigInfo;
+
+/**
+ * Function: readMagConfig
+ * Purpose: Returns raw register values and current config options.
+ * Inputs:
+ *   - Adafruit_LIS3MDL &mag: Reference to LIS3MDL sensor object.
+ *   - TwoWire &wire: Reference to I2C bus (default Wire1).
+ *   - uint8_t i2c_addr: I2C address of the LIS3MDL (default 0x1E).
+ * Outputs:
+ *   - MagConfigInfo: Struct containing all relevant config data.
+ */
+MagConfigInfo readMagConfig() {
+#ifdef MOTION_SENSORS
+  MagConfigInfo info;
+
+  struct {
+    const char *name;
+    uint8_t reg;
+  } regs[] = {
+    {"OFFSET_X_REG_L_M", 0x05},
+    {"OFFSET_X_REG_H_M", 0x06},
+    {"OFFSET_Y_REG_L_M", 0x07},
+    {"OFFSET_Y_REG_H_M", 0x08},
+    {"OFFSET_Z_REG_L_M", 0x09},
+    {"OFFSET_Z_REG_H_M", 0x0A},
+    {"WHO_AM_I",   0x0F},
+    {"CTRL_REG1",  0x20},
+    {"CTRL_REG2",  0x21},
+    {"CTRL_REG3",  0x22},
+    {"CTRL_REG4",  0x23},
+    {"CTRL_REG5",  0x24},
+    {"STATUS_REG", 0x27},
+    {"OUT_X_L",    0x28},
+    {"OUT_X_H",    0x29},
+    {"OUT_Y_L",    0x2A},
+    {"OUT_Y_H",    0x2B},
+    {"OUT_Z_L",    0x2C},
+    {"OUT_Z_H",    0x2D},
+    {"TEMP_OUT_L", 0x2E},
+    {"TEMP_OUT_H", 0x2F},
+    {"INT_CFG",    0x30},
+    {"INT_SRC",    0x31},
+    {"INT_THS_L",  0x32},
+    {"INT_THS_H",  0x33}
+  };
+
+  if (!b_mag_found) {
+    // Sensor not initialized, fill with error values
+    for (size_t i = 0; i < sizeof(regs)/sizeof(regs[0]); ++i) {
+      info.rawRegisters[i].name = regs[i].name;
+      info.rawRegisters[i].address = regs[i].reg;
+      info.rawRegisters[i].value = 0xFF;
+    }
+    info.performanceMode = "Sensor Not Found";
+    info.dataRate = "Sensor Not Found";
+    info.range = "Sensor Not Found";
+    info.operationMode = "Sensor Not Found";
+    return info;
+  }
+
+  // Populate raw register values (ensure array size matches)
+  const size_t numRegs = sizeof(regs) / sizeof(regs[0]);
+  static_assert(numRegs == sizeof(info.rawRegisters) / sizeof(info.rawRegisters[0]), "rawRegisters size mismatch");
+  for (size_t i = 0; i < numRegs; ++i) {
+    info.rawRegisters[i].name = regs[i].name;
+    info.rawRegisters[i].address = regs[i].reg;
+    info.rawRegisters[i].value = readRegister(regs[i].reg);
+  }
+
+  // Decode performance mode
+  switch (magSensor.getPerformanceMode()) {
+    case LIS3MDL_LOWPOWERMODE:    info.performanceMode = "Low Power Mode"; break;
+    case LIS3MDL_MEDIUMMODE:      info.performanceMode = "Medium Performance Mode"; break;
+    case LIS3MDL_HIGHMODE:        info.performanceMode = "High Performance Mode"; break;
+    case LIS3MDL_ULTRAHIGHMODE:   info.performanceMode = "Ultra-High Performance Mode"; break;
+    default:                      info.performanceMode = "Unknown / Other"; break;
+  }
+
+  // Decode data rate
+  switch (magSensor.getDataRate()) {
+    case LIS3MDL_DATARATE_0_625_HZ:   info.dataRate = "0.625 Hz"; break;
+    case LIS3MDL_DATARATE_1_25_HZ:    info.dataRate = "1.25 Hz"; break;
+    case LIS3MDL_DATARATE_2_5_HZ:     info.dataRate = "2.5 Hz"; break;
+    case LIS3MDL_DATARATE_5_HZ:       info.dataRate = "5 Hz"; break;
+    case LIS3MDL_DATARATE_10_HZ:      info.dataRate = "10 Hz"; break;
+    case LIS3MDL_DATARATE_20_HZ:      info.dataRate = "20 Hz"; break;
+    case LIS3MDL_DATARATE_40_HZ:      info.dataRate = "40 Hz"; break;
+    case LIS3MDL_DATARATE_80_HZ:      info.dataRate = "80 Hz"; break;
+    case LIS3MDL_DATARATE_155_HZ:     info.dataRate = "155 Hz Ultra High"; break;
+    case LIS3MDL_DATARATE_300_HZ:     info.dataRate = "300 Hz High"; break;
+    case LIS3MDL_DATARATE_560_HZ:     info.dataRate = "560 Hz Medium"; break;
+    case LIS3MDL_DATARATE_1000_HZ:    info.dataRate = "1000 Hz Low Power"; break;
+    default:                          info.dataRate = "Unknown / Other"; break;
+  }
+
+  // Decode range
+  switch (magSensor.getRange()) {
+    case LIS3MDL_RANGE_4_GAUSS:   info.range = "±4 gauss"; break;
+    case LIS3MDL_RANGE_8_GAUSS:   info.range = "±8 gauss"; break;
+    case LIS3MDL_RANGE_12_GAUSS:  info.range = "±12 gauss"; break;
+    case LIS3MDL_RANGE_16_GAUSS:  info.range = "±16 gauss"; break;
+    default:                      info.range = "Unknown / Other"; break;
+  }
+
+  // Decode operation mode
+  switch(magSensor.getOperationMode()) {
+    case LIS3MDL_CONTINUOUSMODE:  info.operationMode = "Continuous-conversion"; break;
+    case LIS3MDL_SINGLEMODE:      info.operationMode = "Single-conversion"; break;
+    case LIS3MDL_POWERDOWNMODE:   info.operationMode = "Power-down"; break;
+    default:                      info.operationMode = "Unknown / Other"; break;
+  }
+
+  return info;
 #endif
 }
 
@@ -353,8 +578,20 @@ bool initializeSensors() {
  * Purpose: Configures the motion sensors.
  */
 void configureSensors() {
+  Serial.println(F("Configuring motion sensors..."));
 #ifdef MOTION_SENSORS
   if(b_mag_found && b_imu_found) {
+    /**
+     * Purpose: Sets the LIS3MDL magnetometer's measurement mode.
+     * Options:
+     *   - LIS3MDL_CONTINUOUSMODE: Continuous measurement mode (recommended for real-time applications).
+     *   - LIS3MDL_SINGLEMODE: Single-shot measurement mode (lower power, not suitable for streaming).
+     *   - LIS3MDL_POWERDOWNMODE: Power-down mode (sensor is off).
+     *
+     *   - Note that magSensor.begin_I2C() defaults to LIS3MDL_CONTINUOUSMODE.
+     */
+    magSensor.setOperationMode(LIS3MDL_CONTINUOUSMODE);
+
     /**
      * Purpose: Sets the LIS3MDL magnetometer's performance mode, balancing power consumption and measurement accuracy.
      * Options:
@@ -366,17 +603,6 @@ void configureSensors() {
      *   - Note that magSensor.begin_I2C() defaults to LIS3MDL_ULTRAHIGHMODE.
      */
     magSensor.setPerformanceMode(LIS3MDL_LOWPOWERMODE);
-
-    /**
-     * Purpose: Sets the LIS3MDL magnetometer's measurement mode.
-     * Options:
-     *   - LIS3MDL_CONTINUOUSMODE: Continuous measurement mode (recommended for real-time applications).
-     *   - LIS3MDL_SINGLEMODE: Single-shot measurement mode (lower power, not suitable for streaming).
-     *   - LIS3MDL_POWERDOWNMODE: Power-down mode (sensor is off).
-     *
-     *   - Note that magSensor.begin_I2C() defaults to LIS3MDL_CONTINUOUSMODE.
-     */
-    //magSensor.setOperationMode(LIS3MDL_CONTINUOUSMODE);
 
     /**
      * Purpose: Sets the LIS3MDL magnetometer's output data rate (ODR).
@@ -395,21 +621,21 @@ void configureSensors() {
      *   - LIS3MDL_DATARATE_1000_HZ: 1000 Hz. Overrides to LIS3MDL_LOWPOWERMODE.
      *
      *   - Note that magSensor.begin_I2C() defaults to LIS3MDL_DATARATE_155_HZ.
-     *   - Setting data rate to 155/300/560/1000 implicitly calls setPerformanceMode.
+     *   - Setting data rate to 155/300/560/1000 implicitly calls setPerformanceMode and sets accordingly.
      */
     magSensor.setDataRate(LIS3MDL_DATARATE_80_HZ);
 
     /**
      * Purpose: Sets the LIS3MDL magnetometer's measurement range (sensitivity).
      * Options:
-     *   - LIS3MDL_RANGE_4_GAUSS: ±4 Gauss (highest sensitivity, lowest max field).
-     *   - LIS3MDL_RANGE_8_GAUSS: ±8 Gauss (mid sensitivity, mid max field).
-     *   - LIS3MDL_RANGE_12_GAUSS: ±12 Gauss (low-mid sensitivity, high-mid max field).
-     *   - LIS3MDL_RANGE_16_GAUSS: ±16 Gauss (lowest sensitivity, highest max field).
+     *   - LIS3MDL_RANGE_4_GAUSS: ±4 Gauss [6842 LSB/g, 0.146 µT/LSB] (Default: highest sensitivity, lowest max field).
+     *   - LIS3MDL_RANGE_8_GAUSS: ±8 Gauss [3421 LSB/g, 0.292 µT/LSB] (1/2: mid sensitivity, mid max field).
+     *   - LIS3MDL_RANGE_12_GAUSS: ±12 Gauss [3421 LSB/g, 0.292 µT/LSB] (1/3: low-mid sensitivity, high-mid max field).
+     *   - LIS3MDL_RANGE_16_GAUSS: ±16 Gauss [1711 LSB/g, 0.584 µT/LSB] (1/4: lowest sensitivity, highest max field).
      *
      *   - Note that magSensor.begin_I2C() defaults to LIS3MDL_RANGE_4_GAUSS.
      */
-    //magSensor.setRange(LIS3MDL_RANGE_4_GAUSS);
+    magSensor.setRange(LIS3MDL_RANGE_8_GAUSS);
 
     /**
      * Purpose: Sets the LIS3MDL magnetometer's interrupt threshold.
@@ -436,6 +662,9 @@ void configureSensors() {
                               false, // Don't latch (pulse)
                               false); // Disable the interrupt
 
+    // Dump all LIS3MDL registers for debugging and perform a self-test.
+    magConfigInfo = readMagConfig();
+    magSelfTest = runMagSelfTest();
 
     /**
      * Purpose: Sets the LSM6DS3TR-C IMU's accelerometer measurement range.
@@ -1074,7 +1303,9 @@ void collectMotionOffsets() {
 #if defined(MOTION_SENSORS) && defined(MOTION_OFFSETS)
   if(motionOffsets.samples < i_sensor_samples) {
     motionOffsets.samples++; // Increment the sample count.
-    debugln("Calibrating motion offsets... Sample " + String(motionOffsets.samples) + " of " + String(i_sensor_samples));
+    #if defined(DEBUG_SEND_TO_CONSOLE)
+      debugln("Calibrating motion offsets... Sample " + String(motionOffsets.samples) + " of " + String(i_sensor_samples));
+    #endif
 
     readRawSensorData(); // Read the raw sensor data and place the latest values in the motionData object.
 
