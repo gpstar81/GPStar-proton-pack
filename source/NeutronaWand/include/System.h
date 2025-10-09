@@ -3065,101 +3065,46 @@ void wandVentStateCheck() {
 
 // Barrel safety switch is connected to analog pin 7.
 bool switchBarrel() {
-  if(switch_barrel.on() && BARREL_SWITCH_POLARITY != SWITCH_DISABLED) {
-    switch(BARREL_SWITCH_POLARITY) {
-      case SWITCH_DEFAULT:
-      default:
-        if(BARREL_STATE != BARREL_RETRACTED) {
-          if(BARREL_STATE != BARREL_UNKNOWN) {
-            // Prevents sound from playing on bootup.
-            if(b_extra_pack_sounds) {
-              wandSerialSend(W_WAND_BARREL_RETRACT);
-            }
-
-            playEffect(S_WAND_BARREL_RETRACT);
-          }
-
-          wandSerialSend(W_BARREL_RETRACTED);
-          BARREL_STATE = BARREL_RETRACTED;
+  if((BARREL_SWITCH_POLARITY == SWITCH_DEFAULT && switch_barrel.on()) || (BARREL_SWITCH_POLARITY == SWITCH_INVERTED && !switch_barrel.on())) {
+    if(BARREL_STATE != BARREL_RETRACTED) {
+      if(BARREL_STATE != BARREL_UNKNOWN) {
+        // Prevents sound from playing on bootup.
+        if(b_extra_pack_sounds) {
+          wandSerialSend(W_WAND_BARREL_RETRACT);
         }
-      break;
 
-      case SWITCH_INVERTED:
-        // Play the barrel extension sound effect.
-        if(BARREL_STATE != BARREL_EXTENDED) {
-          if(BARREL_STATE != BARREL_UNKNOWN) {
-            // Prevents sound from playing on bootup.
-            if((getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE)) {
-              if(b_extra_pack_sounds) {
-                wandSerialSend(W_AFTERLIFE_WAND_BARREL_EXTEND);
-              }
+        playEffect(S_WAND_BARREL_RETRACT);
+      }
 
-              // Plays the "thwoop" barrel extension sound in Afterlife mode.
-              playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND);
-            }
-            else {
-              if(b_extra_pack_sounds) {
-                wandSerialSend(W_GB1_WAND_BARREL_EXTEND);
-              }
-
-              // Plays the "thwoop" barrel extension sound in Afterlife mode.
-              playEffect(S_GB1_1984_WAND_BARREL_EXTEND);
-            }
-          }
-
-          wandSerialSend(W_BARREL_EXTENDED);
-          BARREL_STATE = BARREL_EXTENDED;
-        }
-      break;
+      wandSerialSend(W_BARREL_RETRACTED);
+      BARREL_STATE = BARREL_RETRACTED;
     }
   }
   else {
-    switch(BARREL_SWITCH_POLARITY) {
-      case SWITCH_DEFAULT:
-      case SWITCH_DISABLED:
-      default:
-        // Play the barrel extension sound effect.
-        if(BARREL_STATE != BARREL_EXTENDED) {
-          if(BARREL_STATE != BARREL_UNKNOWN) {
-            // Prevents sound from playing on bootup.
-            if((getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE)) {
-              if(b_extra_pack_sounds) {
-                wandSerialSend(W_AFTERLIFE_WAND_BARREL_EXTEND);
-              }
-
-              // Plays the "thwoop" barrel extension sound in Afterlife mode.
-              playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND);
-            }
-            else {
-              if(b_extra_pack_sounds) {
-                wandSerialSend(W_GB1_WAND_BARREL_EXTEND);
-              }
-
-              // Plays the "thwoop" barrel extension sound in Afterlife mode.
-              playEffect(S_GB1_1984_WAND_BARREL_EXTEND);
-            }
+    // Play the barrel extension sound effect.
+    if(BARREL_STATE != BARREL_EXTENDED) {
+      if(BARREL_STATE != BARREL_UNKNOWN) {
+        // Prevents sound from playing on bootup.
+        if((getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE)) {
+          if(b_extra_pack_sounds) {
+            wandSerialSend(W_AFTERLIFE_WAND_BARREL_EXTEND);
           }
 
-          wandSerialSend(W_BARREL_EXTENDED);
-          BARREL_STATE = BARREL_EXTENDED;
+          // Plays the "thwoop" barrel extension sound in Afterlife mode.
+          playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND);
         }
-      break;
-
-      case SWITCH_INVERTED:
-        if(BARREL_STATE != BARREL_RETRACTED) {
-          if(BARREL_STATE != BARREL_UNKNOWN) {
-            // Prevents sound from playing on bootup.
-            if(b_extra_pack_sounds) {
-              wandSerialSend(W_WAND_BARREL_RETRACT);
-            }
-
-            playEffect(S_WAND_BARREL_RETRACT);
+        else {
+          if(b_extra_pack_sounds) {
+            wandSerialSend(W_GB1_WAND_BARREL_EXTEND);
           }
 
-          wandSerialSend(W_BARREL_RETRACTED);
-          BARREL_STATE = BARREL_RETRACTED;
+          // Plays the "thwoop" barrel extension sound in Afterlife mode.
+          playEffect(S_GB1_1984_WAND_BARREL_EXTEND);
         }
-      break;
+      }
+
+      wandSerialSend(W_BARREL_EXTENDED);
+      BARREL_STATE = BARREL_EXTENDED;
     }
   }
 
@@ -3676,6 +3621,16 @@ void fireControlCheck() {
         }
       }
 
+      if(BARREL_STATE != BARREL_EXTENDED && switch_wand.on() && switch_vent.on() && (switch_intensify.pushed() || switch_mode.pushed())) {
+        // If barrel is not extended and user attempts to fire, play an error sound.
+        if(b_extra_pack_sounds) {
+          wandSerialSend(W_BARREL_ERROR_SOUND);
+        }
+
+        stopEffect(S_VENT_DRY);
+        playEffect(S_VENT_DRY);
+      }
+
       if(switch_intensify.on() && switch_wand.on() && switch_vent.on() && BARREL_STATE == BARREL_EXTENDED) {
         switch(STREAM_MODE) {
           case PROTON:
@@ -3730,15 +3685,6 @@ void fireControlCheck() {
           break;
         }
       }
-      else if(BARREL_STATE != BARREL_EXTENDED) {
-        // If all other conditions are met but barrel is not extended, play audio cue.
-        if(b_extra_pack_sounds) {
-          wandSerialSend(W_BARREL_ERROR_SOUND);
-        }
-
-        stopEffect(S_VENT_DRY);
-        playEffect(S_VENT_DRY);
-      }
 
       // When Cross The Streams mode is enabled, video game modes are disabled and the wand menu settings can only be accessed when the Neutrona Wand is powered down.
       if(FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) {
@@ -3768,15 +3714,6 @@ void fireControlCheck() {
           }
 
           b_firing_alt = false;
-        }
-        else if(BARREL_STATE != BARREL_EXTENDED) {
-          // If all other conditions are met but barrel is not extended, play audio cue.
-          if(b_extra_pack_sounds) {
-            wandSerialSend(W_BARREL_ERROR_SOUND);
-          }
-
-          stopEffect(S_VENT_DRY);
-          playEffect(S_VENT_DRY);
         }
       }
       else {
@@ -3848,15 +3785,6 @@ void fireControlCheck() {
               // Do nothing.
             break;
           }
-        }
-        else if(BARREL_STATE != BARREL_EXTENDED) {
-          // If all other conditions are met but barrel is not extended, play audio cue.
-          if(b_extra_pack_sounds) {
-            wandSerialSend(W_BARREL_ERROR_SOUND);
-          }
-
-          stopEffect(S_VENT_DRY);
-          playEffect(S_VENT_DRY);
         }
       }
 
