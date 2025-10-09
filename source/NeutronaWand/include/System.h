@@ -3068,7 +3068,7 @@ bool switchBarrel() {
   if((BARREL_SWITCH_POLARITY == SWITCH_DEFAULT && switch_barrel.on()) || (BARREL_SWITCH_POLARITY == SWITCH_INVERTED && !switch_barrel.on())) {
     if(BARREL_STATE != BARREL_RETRACTED) {
       if(BARREL_STATE != BARREL_UNKNOWN) {
-        // Prevents sound from playing on bootup.
+        // Prevents sound from playing on bootup or when the polarity setting is changed.
         if(b_extra_pack_sounds) {
           wandSerialSend(W_WAND_BARREL_RETRACT);
         }
@@ -3084,7 +3084,7 @@ bool switchBarrel() {
     // Play the barrel extension sound effect.
     if(BARREL_STATE != BARREL_EXTENDED) {
       if(BARREL_STATE != BARREL_UNKNOWN) {
-        // Prevents sound from playing on bootup.
+        // Prevents sound from playing on bootup or when the polarity setting is changed.
         if((getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE)) {
           if(b_extra_pack_sounds) {
             wandSerialSend(W_AFTERLIFE_WAND_BARREL_EXTEND);

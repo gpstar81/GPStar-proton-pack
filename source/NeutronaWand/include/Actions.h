@@ -1032,6 +1032,9 @@ void checkWandAction() {
                 // Change barrel safety switch polarity to inverted.
                 BARREL_SWITCH_POLARITY = SWITCH_INVERTED;
 
+                // Reset the barrel state to prevent repeated sounds.
+                BARREL_STATE = BARREL_UNKNOWN;
+
                 stopEffect(S_VOICE_BARREL_SWITCH_DEFAULT);
                 stopEffect(S_VOICE_BARREL_SWITCH_INVERTED);
                 stopEffect(S_VOICE_BARREL_SWITCH_DISABLED);
@@ -1044,6 +1047,9 @@ void checkWandAction() {
                 // Change barrel safety switch polarity to disabled.
                 BARREL_SWITCH_POLARITY = SWITCH_DISABLED;
 
+                // Reset the barrel state to prevent repeated sounds.
+                BARREL_STATE = BARREL_UNKNOWN;
+
                 stopEffect(S_VOICE_BARREL_SWITCH_DEFAULT);
                 stopEffect(S_VOICE_BARREL_SWITCH_INVERTED);
                 stopEffect(S_VOICE_BARREL_SWITCH_DISABLED);
@@ -1055,6 +1061,9 @@ void checkWandAction() {
               else {
                 // Change barrel safety switch polarity to default.
                 BARREL_SWITCH_POLARITY = SWITCH_DEFAULT;
+
+                // Reset the barrel state to prevent repeated sounds.
+                BARREL_STATE = BARREL_UNKNOWN;
 
                 stopEffect(S_VOICE_BARREL_SWITCH_DEFAULT);
                 stopEffect(S_VOICE_BARREL_SWITCH_INVERTED);

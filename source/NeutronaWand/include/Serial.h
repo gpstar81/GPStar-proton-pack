@@ -390,14 +390,20 @@ void handleWandPrefsUpdate() {
   switch(wandConfig.barrelSwitchPolarity) {
     case 1:
     default:
+      // Reset the barrel state to prevent repeated sounds.
+      BARREL_STATE = BARREL_UNKNOWN;
       BARREL_SWITCH_POLARITY = SWITCH_DEFAULT;
     break;
 
     case 2:
+      // Reset the barrel state to prevent repeated sounds.
+      BARREL_STATE = BARREL_UNKNOWN;
       BARREL_SWITCH_POLARITY = SWITCH_INVERTED;
     break;
 
     case 3:
+      // Reset the barrel state to prevent repeated sounds.
+      BARREL_STATE = BARREL_UNKNOWN;
       BARREL_SWITCH_POLARITY = SWITCH_DISABLED;
     break;
   }
