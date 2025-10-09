@@ -136,6 +136,21 @@ void getWandPrefsObject() {
     break;
   }
 
+  switch(BARREL_SWITCH_POLARITY) {
+    case SWITCH_DEFAULT:
+    default:
+      wandConfig.barrelSwitchPolarity = 1;
+    break;
+
+    case SWITCH_INVERTED:
+      wandConfig.barrelSwitchPolarity = 2;
+    break;
+
+    case SWITCH_DISABLED:
+      wandConfig.barrelSwitchPolarity = 3;
+    break;
+  }
+
   switch(VIBRATION_MODE_EEPROM) {
     case VIBRATION_ALWAYS:
       wandConfig.wandVibration = 1;
@@ -374,6 +389,21 @@ void handleWandPrefsUpdate() {
   }
 
   LAST_FIRING_MODE = FIRING_MODE;
+
+  switch(wandConfig.barrelSwitchPolarity) {
+    case 1:
+    default:
+      BARREL_SWITCH_POLARITY = SWITCH_DEFAULT;
+    break;
+
+    case 2:
+      BARREL_SWITCH_POLARITY = SWITCH_INVERTED;
+    break;
+
+    case 3:
+      BARREL_SWITCH_POLARITY = SWITCH_DISABLED;
+    break;
+  }
 
   switch(wandConfig.wandVibration) {
     case 1:
