@@ -364,7 +364,6 @@ void handleWandPrefsUpdate() {
       // Default: Video Game
       FIRING_MODE = VG_MODE;
       setVGMode();
-      wandSerialSend(W_VIDEO_GAME_MODE);
     break;
 
     case 2:
@@ -374,7 +373,6 @@ void handleWandPrefsUpdate() {
       // Force into Proton mode.
       STREAM_MODE = PROTON;
       wandSerialSend(W_PROTON_MODE);
-      wandSerialSend(W_CROSS_THE_STREAMS);
     break;
 
     case 3:
@@ -384,7 +382,6 @@ void handleWandPrefsUpdate() {
       // Force into Proton mode.
       STREAM_MODE = PROTON;
       wandSerialSend(W_PROTON_MODE);
-      wandSerialSend(W_CROSS_THE_STREAMS_MIX);
     break;
   }
 
