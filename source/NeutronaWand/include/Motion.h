@@ -823,11 +823,11 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
     break;
 
     case COMPONENTS_DOWN_USB_FRONT:
-      // Default Hasbro installation orientation - CONFIRMED
+      // Default Hasbro installation orientation
 
       // Magnetometer values
       oriented.magX = mag_event.magnetic.y * -1;
-      oriented.magY = mag_event.magnetic.x * -1;
+      oriented.magY = mag_event.magnetic.x;
       oriented.magZ = mag_event.magnetic.z;
 
       // Acceleration and gyroscope values
@@ -857,8 +857,8 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
     case COMPONENTS_LEFT_USB_FRONT:
       // Magnetometer values
       oriented.magX = mag_event.magnetic.y * -1;
-      oriented.magY = mag_event.magnetic.x;       // mag_event.magnetic.z * -1;
-      oriented.magZ = mag_event.magnetic.z * -1;  // mag_event.magnetic.x;
+      oriented.magY = mag_event.magnetic.z * -1;
+      oriented.magZ = mag_event.magnetic.x;
 
       // Acceleration and gyroscope values
       oriented.accelX = accel_event.acceleration.y;
@@ -872,8 +872,8 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
     case COMPONENTS_LEFT_USB_REAR:
       // Magnetometer values
       oriented.magX = mag_event.magnetic.y;
-      oriented.magY = mag_event.magnetic.x * -1; // mag_event.magnetic.z * -1;
-      oriented.magZ = mag_event.magnetic.z * -1; // mag_event.magnetic.x * -1;
+      oriented.magY = mag_event.magnetic.z * -1;
+      oriented.magZ = mag_event.magnetic.x * -1;
 
       // Acceleration and gyroscope values
       oriented.accelX = accel_event.acceleration.y * -1;
@@ -885,11 +885,11 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
     break;
 
     case COMPONENTS_RIGHT_USB_FRONT:
-      // Default Mack's Factory installation orientation - CONFIRMED
+      // Default Mack's Factory installation orientation
 
       // Magnetometer values
       oriented.magX = mag_event.magnetic.y * -1;
-      oriented.magY = mag_event.magnetic.z * -1;
+      oriented.magY = mag_event.magnetic.z;
       oriented.magZ = mag_event.magnetic.x * -1;
 
       // Acceleration and gyroscope values
@@ -904,8 +904,8 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
     case COMPONENTS_RIGHT_USB_REAR:
       // Magnetometer values
       oriented.magX = mag_event.magnetic.y;
-      oriented.magY = mag_event.magnetic.z * -1; // mag_event.magnetic.z;
-      oriented.magZ = mag_event.magnetic.x * -1; // mag_event.magnetic.x;
+      oriented.magY = mag_event.magnetic.z;
+      oriented.magZ = mag_event.magnetic.x;
 
       // Acceleration and gyroscope values
       oriented.accelX = accel_event.acceleration.y * -1;
