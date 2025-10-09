@@ -185,7 +185,6 @@ function setButtonStates(sensorState) {
       // Ensure the calibration info is visible.
       if (document.getElementById("calInfo").style.display == "none") {
         showEl("calInfo");
-        hideEl("mag");
       }
       break;
     case "Offsets":
@@ -600,18 +599,25 @@ if (!!window.EventSource) {
       setHtml("coverage", formatFloat(lastCoverage) + "%");
     }
 
-    // Update existing 3D visualization with coordinate points
-    if (calibration3D && (calData.p || []).length > 0) {
-      calibration3D.setPoints(calData.p);
+    // Display the last added sample for reference.
+    if (calData.v && (calData.v || []).length == 3) {
+      setHtml("magX", formatFloat(calData.v[0] || 0) + "&micro;T");
+      setHtml("magY", formatFloat(calData.v[1] || 0) + "&micro;T");
+      setHtml("magZ", formatFloat(calData.v[2] || 0) + "&micro;T");
     }
 
     // Process enhanced bin distribution data for coverage analysis
     // Purpose: Update elevation and azimuth coverage visualizations with real-time data
     if (calData.e && calData.a) {
-      updateElevationChart(calData.e);      // Update vertical coverage bar chart
-      updateAzimuthChart(calData.a);        // Update horizontal coverage circular chart
+      updateElevationChart(calData.e); // Update vertical coverage bar chart
+      updateAzimuthChart(calData.a);   // Update horizontal coverage circular chart
       updateCoverageStatistics(calData.e, calData.a); // Update numerical coverage displays
       updateCoverageStatus(calData.e, calData.a, lastCoverage); // Provide user feedback
+    }
+
+    // Update existing 3D visualization with coordinate points, when available.
+    if (calibration3D && (calData.p || []).length > 0) {
+      calibration3D.setPoints(calData.p);
     }
   }, false);
 
@@ -620,11 +626,6 @@ if (!!window.EventSource) {
     try {
       obj = JSON.parse(e.data);
     } catch (e) { }
-
-    // Convert roll, pitch, and yaw from degrees to radians for Three.js
-    var rollRads = (obj.roll || 0) * Math.PI / 180;
-    var pitchRads = (obj.pitch || 0) * Math.PI / 180;
-    var yawRads = (obj.yaw || 0) * Math.PI / 180;
 
     // Update the HTML elements with the telemetry data
     setHtml("gyroX",  formatFloat(obj.gyroX || 0)  + "&deg;/s");
@@ -651,6 +652,11 @@ if (!!window.EventSource) {
 
       // Use quaternion (x,y,z,w) calculations for more accurate orientation and avoid gimbal lock.
       telemetry3D.setQuaternion(-obj.qy, -obj.qz, obj.qx, obj.qw);
+
+      // Convert roll, pitch, and yaw from degrees to radians for Three.js
+      var rollRads = (obj.roll || 0) * Math.PI / 180;
+      var pitchRads = (obj.pitch || 0) * Math.PI / 180;
+      var yawRads = (obj.yaw || 0) * Math.PI / 180;
 
       // Move camera behind the object based on yaw
       const radius = 200; // Distance from object, adjust as needed
@@ -693,7 +699,6 @@ function enableCalibration() {
     sendCommand("/sensors/calibrate/enable");
     calibration3D.clearPoints();
     showEl("calInfo");
-    hideEl("mag");
   }
 }
 
@@ -715,7 +720,6 @@ function disableCalibration() {
   if (endCalibration) {
     sendCommand("/sensors/calibrate/disable");
     hideEl("calInfo");
-    showEl("mag");
     calibration3D.clearPoints();
   }
 }

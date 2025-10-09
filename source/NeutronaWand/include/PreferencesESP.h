@@ -820,6 +820,10 @@ void getSpecialPreferences() {
     // Restore the magnetometer calibration data from preferences.
     if(preferences.isKey("orientation")) {
       switch(preferences.getShort("orientation", 0)) {
+        case 0:
+        default:
+          INSTALL_ORIENTATION = COMPONENTS_NOT_ORIENTED;
+        break;
         case 1:
           INSTALL_ORIENTATION = COMPONENTS_UP_USB_FRONT;
         break;
@@ -827,7 +831,6 @@ void getSpecialPreferences() {
           INSTALL_ORIENTATION = COMPONENTS_UP_USB_REAR;
         break;
         case 3:
-        default:
           // Default for Haslab.
           INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_FRONT;
         break;
@@ -847,6 +850,10 @@ void getSpecialPreferences() {
         case 8:
           INSTALL_ORIENTATION = COMPONENTS_RIGHT_USB_REAR;
         break;
+        case 9:
+          // Special debug mode for bench testing without orientation.
+          INSTALL_ORIENTATION = COMPONENTS_FACTORY_DEFAULT;
+        break;
       }
     }
 
@@ -861,7 +868,14 @@ void getSpecialPreferences() {
     // If namespace is not initialized, open in read/write mode and set defaults.
     if(preferences.begin("device", false)) {
       preferences.putString("track_list", "");
+      preferences.putShort("orientation", 3); // COMPONENTS_DOWN_USB_FRONT
+      preferences.putBytes("mag_cal", &magCalData, sizeof(magCalData));
       preferences.end();
     }
+  }
+
+  // Fallback to the Haslab as default if not set.
+  if (INSTALL_ORIENTATION == COMPONENTS_NOT_ORIENTED) {
+    INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_FRONT;
   }
 }

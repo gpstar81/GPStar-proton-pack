@@ -89,6 +89,11 @@ void MagCalibration::beginCalibration() {
  * 6. If we've seen that direction before, ignore it
  */
 bool MagCalibration::addSample(float x, float y, float z) {
+  // Always update lastRawSample with the latest raw values.
+  lastRawSample.x = x;
+  lastRawSample.y = y;
+  lastRawSample.z = z;
+
   // STEP 1: Check storage capacity
   // We can only store a limited number of samples
   // If we're full, reject any new samples
@@ -102,7 +107,7 @@ bool MagCalibration::addSample(float x, float y, float z) {
   double dy = (double)y;
   double dz = (double)z;
   double r = sqrt(dx * dx + dy * dy + dz * dz); // sqrt() automatically handles double precision
-  
+
   // Reject readings with zero strength (sensor errors or interference)
   if(r == 0) {
     return false; // Invalid sample
@@ -179,6 +184,16 @@ bool MagCalibration::addSample(float x, float y, float z) {
   // We already have a sample from this direction, so this one doesn't help
   // The user needs to move the device to a different orientation to make progress
   return false; // IGNORED: Already have sample from this orientation
+}
+
+/**
+ * Function: getLastSample
+ * Purpose: Return the most recent raw sample, regardless of whether it was stored.
+ * Inputs: none
+ * Outputs: MagSample - struct containing x, y, z as floats.
+ */
+MagSample MagCalibration::getLastSample() const {
+  return lastRawSample;
 }
 
 /**

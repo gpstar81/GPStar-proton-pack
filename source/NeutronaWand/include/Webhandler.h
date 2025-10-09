@@ -652,7 +652,7 @@ String getWifiSettings() {
 // Prepare a JSON object with magnetometer calibration data points for visualization.
 // Function: getCalibration
 // Purpose: Prepare JSON object with magnetometer calibration data and complete bin distribution arrays
-// Inputs: None (accesses global magCal object)
+// Inputs: Logical indicating to send all points (accesses the global magCal object for data)
 // Outputs: String containing JSON data with coverage, points, and complete bin distribution arrays
 //
 // This function creates a comprehensive calibration data payload that includes:
@@ -661,29 +661,19 @@ String getWifiSettings() {
 // - Complete elevation bin distribution (all bins, 0 for empty)
 // - Complete azimuth bin distribution (all bins, 0 for empty)
 // The complete arrays preserve index-to-degree mapping for client-side processing.
-String getCalibration() {
+String getCalibration(bool b_update_points = false) {
   String calibrationData;
 
   // Create a JSON object with calibration data and bin distribution information.
   jsonCalibration.clear();
   jsonCalibration["c"] = roundFloat(magCal.getCoveragePercent());
-  JsonArray pointsArray = jsonCalibration["p"].to<JsonArray>();
 
-  // Arrays of data points for magnetometer calibration visualization.
-  const double* xPtr;
-  const double* yPtr;
-  const double* zPtr;
-
-  // Get the visualization points from the magnetometer calibration object.
-  uint16_t numPoints = magCal.getVisPoints(xPtr, yPtr, zPtr);
-  
-  // Add points as coordinate arrays [x, y, z] for compact JSON representation.
-  for(uint16_t i = 0; i < numPoints; i++) {
-    JsonArray point = pointsArray.add<JsonArray>();
-    point.add(roundDouble(xPtr[i])); // X coordinate
-    point.add(roundDouble(yPtr[i])); // Y coordinate
-    point.add(roundDouble(zPtr[i])); // Z coordinate
-  }
+  // Add the last sample as a separate array for reference.
+  JsonArray magValue = jsonCalibration["v"].to<JsonArray>();
+  MagSample lastSample = magCal.getLastSample();
+  magValue.add(roundFloat(lastSample.x));
+  magValue.add(roundFloat(lastSample.y));
+  magValue.add(roundFloat(lastSample.z));
 
   // Add complete elevation bin distribution data for vertical coverage analysis.
   // Purpose: Shows sample counts for ALL elevation bins, preserving index-to-degree mapping
@@ -707,6 +697,26 @@ String getCalibration() {
   // Send ALL azimuth bins (including empty ones as 0) to preserve index mapping
   for(uint8_t i = 0; i < numAzimuthBins; i++) {
     azimuthArray.add(azimuthCounts[i]); // Include all bins: filled and empty
+  }
+
+  // The points arrays can be large so only update when necessary.
+  if (b_update_points) {
+    // Arrays of data points for magnetometer calibration visualization.
+    const double* xPtr;
+    const double* yPtr;
+    const double* zPtr;
+
+    // Get the visualization points from the magnetometer calibration object.
+    uint16_t numPoints = magCal.getVisPoints(xPtr, yPtr, zPtr);
+
+    // Add points as coordinate arrays [x, y, z] for compact JSON representation.
+    JsonArray pointsArray = jsonCalibration["p"].to<JsonArray>();
+    for(uint16_t i = 0; i < numPoints; i++) {
+      JsonArray point = pointsArray.add<JsonArray>();
+      point.add(roundDouble(xPtr[i])); // X coordinate
+      point.add(roundDouble(yPtr[i])); // Y coordinate
+      point.add(roundDouble(zPtr[i])); // Z coordinate
+    }
   }
 
   // Serialize JSON object to string.
@@ -753,7 +763,7 @@ String getTelemetry() {
 void handleGetDeviceConfig(AsyncWebServerRequest *request) {
   // Return current device settings as a stringified JSON object.
   request->send(200, "application/json", getDeviceConfig());
-  sendCalibrationPoints(); // Send calibration data if enabled.
+  sendCalibrationData(false); // Send calibration data if enabled.
 }
 
 void handleGetWandConfig(AsyncWebServerRequest *request) {
@@ -799,6 +809,7 @@ void handleCalibrateSensorsDisabled(AsyncWebServerRequest *request) {
     // Save the calibration data (as an object) to preferences.
     if(preferences.begin("device", false)) {
       preferences.putBytes("mag_cal", &magCalData, sizeof(magCalData));
+      preferences.end();
     }
   }
 
@@ -1464,12 +1475,12 @@ void notifyWSClients() {
   }
 }
 
-void sendCalibrationPoints() {
+void sendCalibrationData(bool b_update_points) {
   if(b_httpd_started && SENSOR_READ_TARGET == CALIBRATION) {
     // Gather the latest filtered motion data, serialize it to a JSON string,
     // and send it to all connected EventSource (SSE) clients as a "calibration"
     // event name (using the current ms time as a unique event identifier).
-    events.send(getCalibration().c_str(), "calibration", millis());
+    events.send(getCalibration(b_update_points).c_str(), "calibration", millis());
   }
 }
 

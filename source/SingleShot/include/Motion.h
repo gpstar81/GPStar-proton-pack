@@ -215,7 +215,7 @@ void readRawSensorData();
 void reportCalibrationData();
 void resetAllMotionData(bool b_calibrate);
 void notifyWSClients(); // From Webhandler.h
-void sendCalibrationPoints(); // From Webhandler.h
+void sendCalibrationData(); // From Webhandler.h
 void sendTelemetryData(); // From Webhandler.h
 
 /**
@@ -1061,7 +1061,7 @@ void reportCalibrationData() {
   // Send the magnetometer data to the MagCal logic for collection into bins.
   if(magCal.addSample(mag_event.magnetic.x, mag_event.magnetic.y, mag_event.magnetic.z)) {
     // Only send the calibration points to web-connected clients if a new point is added.
-    sendCalibrationPoints();
+    sendCalibrationData();
   }
 #endif
 }

@@ -28,6 +28,16 @@
  * This code was co-authored by ChatGPT and GitHub Copilot.
  */
 
+ /**
+ * Struct: MagSample
+ * Purpose: Holds a single magnetometer sample as floats.
+ */
+struct MagSample {
+  float x = 0.0f;
+  float y = 0.0f;
+  float z = 0.0f;
+};
+
 /**
  * Magnetometer calibration struct.
  * - mag_hardiron: x/y/z offsets to remove permanent magnet biases
@@ -55,6 +65,7 @@ struct CalibrationData {
  *   CalibrationData data = magCal.computeCalibration();
  */
 class MagCalibration {
+  MagSample lastRawSample; // Always holds the most recent raw sample.
 
   public:
     MagCalibration();
@@ -87,6 +98,9 @@ class MagCalibration {
     // Add a raw magnetometer sample, only stores if it expands coverage.
     // Returns true if sample was added, false if ignored (duplicate bin or max samples reached).
     bool addSample(float x, float y, float z);
+
+    // Return the raw magnetometer data of the last raw sample taken.
+    MagSample getLastSample() const;
 
     // Get coverage % (0..100) based on filled bins.
     float getCoveragePercent() const;

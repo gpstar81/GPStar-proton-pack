@@ -115,7 +115,7 @@ enum INSTALL_ORIENTATIONS : uint8_t {
   COMPONENTS_RIGHT_USB_REAR = 8,
   COMPONENTS_FACTORY_DEFAULT = 9
 };
-enum INSTALL_ORIENTATIONS INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_FRONT; // Default for Haslab installations.
+enum INSTALL_ORIENTATIONS INSTALL_ORIENTATION = COMPONENTS_NOT_ORIENTED; // Default until preferences are restored.
 
 /**
  * Constant: FILTER_ALPHA
@@ -251,7 +251,7 @@ void readRawSensorData();
 void reportCalibrationData();
 void resetAllMotionData(bool b_calibrate);
 void notifyWSClients(); // From Webhandler.h
-void sendCalibrationPoints(); // From Webhandler.h
+void sendCalibrationData(bool b_update_points); // From Webhandler.h
 void sendTelemetryData(); // From Webhandler.h
 
 /**
@@ -793,12 +793,12 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
   // Map the sensor readings to the correct axes based on the installation orientation
   switch(INSTALL_ORIENTATION) {
     case COMPONENTS_UP_USB_FRONT:
-      // Magnetometer data (inverting all axes)
-      oriented.magX = mag_event.magnetic.x * -1;
-      oriented.magY = mag_event.magnetic.y * -1;
+      // Magnetometer values
+      oriented.magX = mag_event.magnetic.y * -1;
+      oriented.magY = mag_event.magnetic.x * -1;
       oriented.magZ = mag_event.magnetic.z * -1;
 
-      // Acceleration and gyroscope values (swapping the X/Y axes)
+      // Acceleration and gyroscope values
       oriented.accelX = accel_event.acceleration.y;
       oriented.accelY = accel_event.acceleration.x;
       oriented.accelZ = accel_event.acceleration.z;
@@ -808,12 +808,12 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
     break;
 
     case COMPONENTS_UP_USB_REAR:
-      // Magnetometer data (inverting only Z axis)
-      oriented.magX = mag_event.magnetic.x;
-      oriented.magY = mag_event.magnetic.y;
+      // Magnetometer values
+      oriented.magX = mag_event.magnetic.y;
+      oriented.magY = mag_event.magnetic.x;
       oriented.magZ = mag_event.magnetic.z * -1;
 
-      // Acceleration and gyroscope values (swapping and inverting the X/Y axes)
+      // Acceleration and gyroscope values
       oriented.accelX = accel_event.acceleration.y * -1;
       oriented.accelY = accel_event.acceleration.x * -1;
       oriented.accelZ = accel_event.acceleration.z;
@@ -824,12 +824,13 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
 
     case COMPONENTS_DOWN_USB_FRONT:
       // Default Hasbro installation orientation
-      // Magnetometer data (inverting the X axis)
+
+      // Magnetometer values
       oriented.magX = mag_event.magnetic.y * -1;
       oriented.magY = mag_event.magnetic.x * -1;
       oriented.magZ = mag_event.magnetic.z;
 
-      // Acceleration and gyroscope values (swapping the X/Y axes, inverting X/Z)
+      // Acceleration and gyroscope values
       oriented.accelX = accel_event.acceleration.y;
       oriented.accelY = accel_event.acceleration.x * -1;
       oriented.accelZ = accel_event.acceleration.z * -1;
@@ -839,12 +840,12 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
     break;
 
     case COMPONENTS_DOWN_USB_REAR:
-      // Magnetometer data (inverting the X axis)
-      oriented.magX = mag_event.magnetic.x * -1;
-      oriented.magY = mag_event.magnetic.y;
+      // Magnetometer values
+      oriented.magX = mag_event.magnetic.y;
+      oriented.magY = mag_event.magnetic.x * -1;
       oriented.magZ = mag_event.magnetic.z;
 
-      // Acceleration and gyroscope values (swapping the X/Y axes, inverting X/Z)
+      // Acceleration and gyroscope values
       oriented.accelX = accel_event.acceleration.y * -1;
       oriented.accelY = accel_event.acceleration.x;
       oriented.accelZ = accel_event.acceleration.z * -1;
@@ -854,12 +855,12 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
     break;
 
     case COMPONENTS_LEFT_USB_FRONT:
-      // Magnetometer data (swapping X/Y axes and inverting X/Z)
+      // Magnetometer values
       oriented.magX = mag_event.magnetic.y * -1;
       oriented.magY = mag_event.magnetic.x;
       oriented.magZ = mag_event.magnetic.z * -1;
 
-      // Acceleration and gyroscope values (swapping all three axes)
+      // Acceleration and gyroscope values
       oriented.accelX = accel_event.acceleration.y;
       oriented.accelY = accel_event.acceleration.z;
       oriented.accelZ = accel_event.acceleration.x * -1;
@@ -869,12 +870,12 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
     break;
 
     case COMPONENTS_LEFT_USB_REAR:
-      // Magnetometer data (swapping X/Y axes and inverting Y/Z)
+      // Magnetometer values
       oriented.magX = mag_event.magnetic.y;
       oriented.magY = mag_event.magnetic.x * -1;
       oriented.magZ = mag_event.magnetic.z * -1;
 
-      // Acceleration and gyroscope values (swapping all three axes)
+      // Acceleration and gyroscope values
       oriented.accelX = accel_event.acceleration.y * -1;
       oriented.accelY = accel_event.acceleration.z;
       oriented.accelZ = accel_event.acceleration.x;
@@ -885,12 +886,13 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
 
     case COMPONENTS_RIGHT_USB_FRONT:
       // Default Mack's Factory installation orientation
-      // Magnetometer data (swapping and inverting all axes)
+
+      // Magnetometer values
       oriented.magX = mag_event.magnetic.y * -1;
       oriented.magY = mag_event.magnetic.z * -1;
       oriented.magZ = mag_event.magnetic.x * -1;
 
-      // Acceleration and gyroscope values (swapping all three axes)
+      // Acceleration and gyroscope values
       oriented.accelX = accel_event.acceleration.y;
       oriented.accelY = accel_event.acceleration.z * -1;
       oriented.accelZ = accel_event.acceleration.x;
@@ -900,12 +902,12 @@ OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
     break;
 
     case COMPONENTS_RIGHT_USB_REAR:
-      // Magnetometer data (swapping all three axes and inverting Y/Z)
+      // Magnetometer values
       oriented.magX = mag_event.magnetic.y;
       oriented.magY = mag_event.magnetic.z * -1;
       oriented.magZ = mag_event.magnetic.x * -1;
 
-      // Acceleration and gyroscope values (swapping all three axes)
+      // Acceleration and gyroscope values
       oriented.accelX = accel_event.acceleration.y * -1;
       oriented.accelY = accel_event.acceleration.z * -1;
       oriented.accelZ = accel_event.acceleration.x * -1;
@@ -1255,7 +1257,8 @@ void processMotionData() {
 
     case TELEMETRY:
     default:
-      readRawSensorData(); // Read the raw sensor data and place the latest values in the motionData object.
+      // Read the raw sensor data with orientation corrections and update the motionData object.
+      readRawSensorData();
 
       // Calculate the magnitude of the raw angular velocity vector (deg/s).
       motionData.angVel = calculateAngularVelocity(motionData);
@@ -1379,9 +1382,7 @@ void reportCalibrationData() {
 
   // Send the oriented magnetometer data to the MagCal logic for collection into bins.
   // This ensures the calibration is done in the device's coordinate system.
-  if(magCal.addSample(oriented.magX, oriented.magY, oriented.magZ)) {
-    // Only send the calibration points to web-connected clients if a new point is added.
-    sendCalibrationPoints();
-  }
+  bool b_point_added = magCal.addSample(oriented.magX, oriented.magY, oriented.magZ);
+  sendCalibrationData(b_point_added);
 #endif
 }
