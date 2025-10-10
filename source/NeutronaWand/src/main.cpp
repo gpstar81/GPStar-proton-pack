@@ -273,6 +273,10 @@ void setup() {
   pinMode(TOP_LED_PIN, OUTPUT); // Blinking top light could be either addressable or non-addressable based on user setting, so use default functions.
 #endif
 
+#ifdef ESP32
+  ms_infrared_timer.start(0); // Setup the infrared timer.
+#endif
+
   // Status indicator LED on the v1.4 GPStar Neutrona Wand Board.
   pinModeFast(WAND_STATUS_LED_PIN, OUTPUT);
   digitalWriteFast(WAND_STATUS_LED_PIN, LOW);

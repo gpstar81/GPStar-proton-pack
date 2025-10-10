@@ -3563,6 +3563,19 @@ void modePulseStart() {
   }
 }
 
+// Use an attached infrared LED to send a command. Only available if using the Wand II (ESP32).
+void sendInfraredCommand(const String sType) {
+#ifdef ESP32
+  if(sType.equals("ghostintrap")) {
+    // Send the standard Ghost Trap (PKE) IR signal.
+    IrSender.sendRaw(ir_GhostInTrap, sizeof(ir_GhostInTrap) / sizeof(ir_GhostInTrap[0]), CARRIER_KHZ);
+  }
+  else {
+    debugln(F("Unknown IR Command"));
+  }
+#endif
+}
+
 // Called from checkSwitches(); Check if we should fire, or if the wand and pack turn off.
 void fireControlCheck() {
   // Firing action stuff and shutting cyclotron and the Neutrona Wand off.
@@ -3629,6 +3642,14 @@ void fireControlCheck() {
 
         stopEffect(S_VENT_DRY);
         playEffect(S_VENT_DRY);
+
+        #ifdef ESP32
+          if(ms_infrared_timer.justFinished()) {
+            // Trigger infrared
+            sendInfraredCommand("ghostintrap");
+            ms_infrared_timer.start(i_infrared_timer_delay);
+          }
+        #endif
       }
 
       if(switch_intensify.on() && switch_wand.on() && switch_vent.on() && BARREL_STATE == BARREL_EXTENDED) {
@@ -10374,17 +10395,4 @@ void resetOverheatLevels() {
   b_overheat_level[2] = b_overheat_level_3;
   b_overheat_level[3] = b_overheat_level_4;
   b_overheat_level[4] = b_overheat_level_5;
-}
-
-// Use an attached infrared LED to send a command. Only available if using the Wand II (ESP32).
-void sendInfraredCommand(const String sType) {
-#ifdef ESP32
-  if(sType.equals("ghostintrap")) {
-    // Send the standard Ghost Trap (PKE) IR signal.
-    IrSender.sendRaw(ir_GhostInTrap, sizeof(ir_GhostInTrap) / sizeof(ir_GhostInTrap[0]), CARRIER_KHZ);
-  }
-  else {
-    debugln(F("Unknown IR Command"));
-  }
-#endif
 }

@@ -555,6 +555,9 @@ const uint16_t i_ms_power_indicator_blink = 500;
     1770, 1200, 600, 600, 600, 600, 580, 1200, 600, 600,
     580, 1200, 600, 1200, 580, 600, 580, 1200, 600
   };
+
+  millisDelay ms_infrared_timer;
+  const uint16_t i_infrared_timer_delay = 1000;
 #endif
 
 /*
