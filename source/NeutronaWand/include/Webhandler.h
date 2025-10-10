@@ -663,10 +663,16 @@ String getWifiSettings() {
 // The complete arrays preserve index-to-degree mapping for client-side processing.
 String getCalibration(bool b_update_points = false) {
   String calibrationData;
+  const char* statusMsg = magCal.getStatusMessage();
 
   // Create a JSON object with calibration data and bin distribution information.
   jsonCalibration.clear();
   jsonCalibration["c"] = roundFloat(magCal.getCoveragePercent());
+
+  // Add status message if provided and not blank
+  if (statusMsg && statusMsg[0] != '\0') {
+    jsonCalibration["s"] = statusMsg;
+  }
 
   // Add the last sample as a separate array for reference.
   JsonArray magValue = jsonCalibration["v"].to<JsonArray>();

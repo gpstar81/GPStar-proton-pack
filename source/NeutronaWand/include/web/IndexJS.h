@@ -185,6 +185,7 @@ function setButtonStates(sensorState) {
       // Ensure the calibration info is visible.
       if (document.getElementById("calInfo").style.display == "none") {
         showEl("calInfo");
+        setHtml("calStatus", "");
       }
       break;
     case "Offsets":
@@ -592,11 +593,16 @@ if (!!window.EventSource) {
     try {
       calData = JSON.parse(e.data); // Enhanced JSON with coverage, points, and bin distributions
     } catch (e) { }
-
+   
     // Update the calibration coverage percentage.
     lastCoverage = parseFloat(calData.c || 0);
     if (lastCoverage > 0) {
       setHtml("coverage", formatFloat(lastCoverage) + "%");
+    }
+
+    // Report any status messages sent from the calibration process.
+    if (calData.s && calData.s != "") {
+      setHtml("calStatus", calData.s || "");
     }
 
     // Display the last added sample for reference.
@@ -699,6 +705,7 @@ function enableCalibration() {
     sendCommand("/sensors/calibrate/enable");
     calibration3D.clearPoints();
     showEl("calInfo");
+    setHtml("calStatus", "");
   }
 }
 

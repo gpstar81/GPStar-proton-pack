@@ -102,7 +102,8 @@ This project is structured for development with PlatformIO, using the Arduino fr
 ## Commenting and Editing Styles
 
 1. **Thought Process and Plan of Action**:
-   - When making recommendations or edits, clearly lay out the thought process and the plan of action FIRST.
+   - When making recommendations or edits, lay out a minimal thought process and a plan of action FIRST.
+   - Try to state up front whether an approach may be on the right track or not, then clarify as necessary.
    - Always explain the reasoning behind suggested changes and potential alternatives before implementing them.
    - Allow the user to review and **explicitly** approve the approach before making ANY changes to the code.
    - Provide a "before" and "after" comparison for edits, allowing for review and approval before changes are finalized.

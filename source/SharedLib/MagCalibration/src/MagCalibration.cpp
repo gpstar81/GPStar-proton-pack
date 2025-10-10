@@ -21,6 +21,7 @@
  // Standard library includes for math and string functions
 #include <math.h>
 #include <string.h>
+#include <stdio.h>
 
 // Library Header
 #include <MagCalibration.h>
@@ -50,9 +51,9 @@ MagCalibration::MagCalibration() {
   beginCalibration();
 }
 
-// Begin a new calibration session by clearing all counters, arrays, and flags.
-void MagCalibration::beginCalibration() {
-  sampleCount = 0;
+// Private helper: Clears only sample arrays, counters, and bin tracking
+void MagCalibration::resetSamples() {
+  sampleCount = 0; // Reset count of stored samples
 
   memset(bins, 0, sizeof(bins)); // Clear coverage tracking (bool array to false)
   memset(xSamples, 0, sizeof(xSamples)); // Clear X samples (double array to 0.0)
@@ -63,6 +64,14 @@ void MagCalibration::beginCalibration() {
   // Purpose: Reset all bin usage counters for a fresh calibration session
   memset(elevationBinCounts, 0, sizeof(elevationBinCounts)); // Clear elevation bin counters
   memset(azimuthBinCounts, 0, sizeof(azimuthBinCounts));     // Clear azimuth bin counters
+}
+
+// Begin a new calibration session by clearing all counters, arrays, and flags.
+void MagCalibration::beginCalibration() {
+  resetSamples();
+  hardIronOffset = {0.0f, 0.0f, 0.0f};
+  hardIronOffsetApplied = false;
+  statusMessage[0] = '\0'; // Clear status message
 }
 
 /**
@@ -94,9 +103,28 @@ bool MagCalibration::addSample(float x, float y, float z) {
   lastRawSample.y = y;
   lastRawSample.z = z;
 
+  // Check if we should calculate and apply hard-iron offset
+  if (!hardIronOffsetApplied && sampleCount >= HARD_IRON_SAMPLE_THRESHOLD) {
+    HardIronResult hiResult = calculateHardIronOffsets();
+    if (hiResult.sufficientSpread) {
+      hardIronOffset = hiResult.offsets; // Apply offset for future samples.
+      hardIronOffsetApplied = true; // Mark that offset is now applied.
+      resetSamples(); // Clear previous samples and coverage to begin again.
+      snprintf(statusMessage, sizeof(statusMessage), "Hard-iron offset applied. Previous samples cleared.");
+    } else {
+      snprintf(statusMessage, sizeof(statusMessage), "Spread insufficient for hard-iron offset.");
+    }
+  }
+
+  // If offset is applied, adjust incoming sample
+  if (hardIronOffsetApplied) {
+    x -= hardIronOffset.x;
+    y -= hardIronOffset.y;
+    z -= hardIronOffset.z;
+  }
+
   // STEP 1: Check storage capacity
-  // We can only store a limited number of samples
-  // If we're full, reject any new samples
+  // We can only store a limited number of samples and if we're full, reject any new samples.
   if(sampleCount >= MAX_POINTS) {
     return false; // Max samples reached
   }
@@ -159,21 +187,19 @@ bool MagCalibration::addSample(float x, float y, float z) {
   int binIndex = elIndex * NUM_AZIMUTH_BINS + azIndex;
 
   // STEP 6: Check if this orientation is new
-  // We only want one sample per orientation region
-  // Once we have a sample from a 10°x10° area, we ignore future samples from that area
+  // We only want one sample per orientation region, otherwise we ignore future samples from that area.
   if(!bins[binIndex]) {
-    // This is a new orientation! Mark it as covered
+    // This is a new orientation! Mark it as covered.
     bins[binIndex] = true;
 
-    // Store the raw magnetometer reading for calibration calculations
+    // Store the raw magnetometer reading for calibration calculations.
     xSamples[sampleCount] = dx;
     ySamples[sampleCount] = dy;
     zSamples[sampleCount] = dz;
     sampleCount++;
 
-    // Update bin distribution tracking
-    // Purpose: Track coverage distribution for real-time monitoring and diagnostics
-    // These counters enable external applications to display coverage patterns
+    // Update bin distribution tracking for real-time monitoring and diagnostics.
+    // These counters enable external applications to display coverage patterns.
     elevationBinCounts[elIndex]++; // Increment counter for this elevation region
     azimuthBinCounts[azIndex]++;   // Increment counter for this azimuth region
 
@@ -226,6 +252,54 @@ uint16_t MagCalibration::getVisPoints(const double*& outX, const double*& outY, 
 }
 
 /**
+ * Function: calculateHardIronOffsets
+ * Purpose: Computes hard-iron offsets (center of min/max) from collected samples.
+ * Inputs: none
+ * Outputs: MagSample - struct containing x, y, z offsets (µT).
+ */
+HardIronResult MagCalibration::calculateHardIronOffsets() const {
+  HardIronResult result = {};
+  result.offsets = {0.0f, 0.0f, 0.0f};
+  result.rangeX = result.rangeY = result.rangeZ = 0.0f;
+  result.sufficientSpread = false; // Default to false.
+
+  if (sampleCount < HARD_IRON_SAMPLE_THRESHOLD) {
+    return result; // Too few samples, return defaults.
+  }
+
+  // Calculate min/max for each axis using double precision
+  double minX = xSamples[0], maxX = xSamples[0];
+  double minY = ySamples[0], maxY = ySamples[0];
+  double minZ = zSamples[0], maxZ = zSamples[0];
+
+  for (uint16_t i = 1; i < sampleCount; ++i) {
+    if (xSamples[i] < minX) minX = xSamples[i];
+    if (xSamples[i] > maxX) maxX = xSamples[i];
+    if (ySamples[i] < minY) minY = ySamples[i];
+    if (ySamples[i] > maxY) maxY = ySamples[i];
+    if (zSamples[i] < minZ) minZ = zSamples[i];
+    if (zSamples[i] > maxZ) maxZ = zSamples[i];
+  }
+
+  // Calculate offsets as the center of min/max.
+  result.offsets.x = static_cast<float>((maxX + minX) / 2.0);
+  result.offsets.y = static_cast<float>((maxY + minY) / 2.0);
+  result.offsets.z = static_cast<float>((maxZ + minZ) / 2.0);
+
+  // Calculate range for each axis.
+  result.rangeX = static_cast<float>(maxX - minX);
+  result.rangeY = static_cast<float>(maxY - minY);
+  result.rangeZ = static_cast<float>(maxZ - minZ);
+
+  // Apply a threshold to indicate sufficient spread (e.g., 30 µT per axis)
+  result.sufficientSpread = (result.rangeX > HARD_IRON_SPREAD_THRESHOLD) &&
+                            (result.rangeY > HARD_IRON_SPREAD_THRESHOLD) &&
+                            (result.rangeZ > HARD_IRON_SPREAD_THRESHOLD);
+
+  return result;
+}
+
+/**
  * Function: computeCalibration
  * Purpose: Full ellipsoid fit -> center & 3x3 soft-iron matrix
  * Inputs: none
@@ -240,7 +314,7 @@ CalibrationData MagCalibration::computeCalibration() const {
     double minX = xSamples[0], maxX = xSamples[0];
     double minY = ySamples[0], maxY = ySamples[0];
     double minZ = zSamples[0], maxZ = zSamples[0];
-    
+
     for(uint16_t i = 1; i < sampleCount; i++) {
       if(xSamples[i] < minX) minX = xSamples[i];
       if(xSamples[i] > maxX) maxX = xSamples[i];
@@ -249,12 +323,12 @@ CalibrationData MagCalibration::computeCalibration() const {
       if(zSamples[i] < minZ) minZ = zSamples[i];
       if(zSamples[i] > maxZ) maxZ = zSamples[i];
     }
-    
+
     // Enhanced precision calculations with proper type conversions
     cal.mag_hardiron[0] = (float)((maxX + minX) / 2.0);
     cal.mag_hardiron[1] = (float)((maxY + minY) / 2.0);
     cal.mag_hardiron[2] = (float)((maxZ + minZ) / 2.0);
-    
+
     double rangeX = maxX - minX;
     double rangeY = maxY - minY; 
     double rangeZ = maxZ - minZ;
@@ -276,7 +350,7 @@ CalibrationData MagCalibration::computeCalibration() const {
     cal.mag_softiron[6] = 0.0f;
     cal.mag_softiron[7] = 0.0f;
     cal.mag_softiron[8] = (float)scaleZ; // Convert double to float for output
-    
+
     // Enhanced precision magnitude calculation
     double sumB = 0.0;
     for(uint16_t i = 0; i < sampleCount; i++) {

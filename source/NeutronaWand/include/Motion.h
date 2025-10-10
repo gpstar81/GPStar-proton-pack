@@ -1352,8 +1352,8 @@ void reportCalibrationData() {
   // Uncomment to force the device's raw orientation for calibration reporting, when necessary.
   // INSTALL_ORIENTATION = COMPONENTS_FACTORY_DEFAULT;
 
-  // Apply orientation mapping to get data in the device's coordinate system.
-  // This ensures calibration tools see the correct axes for your installation.
+  // Apply orientation mapping to get data in the device's intended coordinate system (NED).
+  // This ensures all calibration offsets will be stored relative to the XYZ axis intended.
   OrientedSensorData oriented = applySensorOrientation(mag_event, accel_event, gyro_event);
 
   // 'Raw' values to match expectation of MotionCal (using oriented data)

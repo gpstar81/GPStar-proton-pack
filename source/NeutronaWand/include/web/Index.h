@@ -196,8 +196,10 @@ const char INDEX_page[] PROGMEM = R"=====(
         <!-- Real-time feedback about calibration progress and recommendations -->
         <div class="coverage-feedback">
           <div id="coverageStatus" class="status-message">
-            <!-- Dynamic status messages will appear here via JavaScript -->
-            <!-- Examples: "Move device upward", "Rotate more completely", etc. -->
+            <!-- Dynamic status/instructions will appear here via JavaScript -->
+          </div>
+          <div id="calStatus" class="status-message">
+            <!-- Special devices messages will be sent here -->
           </div>
         </div>
         <div class="viz-content">
