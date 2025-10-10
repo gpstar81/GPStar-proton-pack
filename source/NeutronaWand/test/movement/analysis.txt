@@ -148,3 +148,23 @@ Analysis complete!
 [DEBUG] Hard-iron spread Z: 2.84 (threshold: 30)
 [DEBUG] Hard-iron offset NOT applied. Reason: Spread insufficient (X: 1.99, Y: 1.11, Z: 2.84).
 
+
+=== FALLBACK ANALYSIS SUMMARY ===
+
+[FALLBACK DEBUG] Used all valid samples (3119) for hard-iron offset calculation.
+[FALLBACK DEBUG] Spread X: 86.91 (threshold: 30)
+[FALLBACK DEBUG] Spread Y: 89.71 (threshold: 30)
+[FALLBACK DEBUG] Spread Z: 89.7 (threshold: 30)
+[FALLBACK DEBUG] Hard-iron offset applied: X=-33.515 Y=53.685 Z=-60.27
+[FALLBACK DEBUG] Re-processing production file with fallback offset...
+
+Fallback Coverage: 69.38% (555 bins)
+Fallback Avg Magnitude: 42.48 µT
+Fallback Avg Elevation: -22.65°
+Fallback Avg Azimuth: -28.99°
+Fallback Accepted Samples: 555
+Fallback Valid Samples: 3119
+Fallback Min/Max Magnitude: 29.08 / 52.12 µT
+Fallback Min/Max Elevation: -88.85 / 87.60°
+Fallback Min/Max Azimuth: -179.80 / 179.80°
+

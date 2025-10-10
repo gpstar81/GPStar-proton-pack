@@ -506,83 +506,83 @@ void printDetailedAnalysis(const DatasetAnalysis& analysis) {
 
 // Function: compareAnalysis
 // Purpose: Print side-by-side comparison of two datasets
-void compareAnalysis(const DatasetAnalysis& prototype, const DatasetAnalysis& production) {
+void compareAnalysis(const DatasetAnalysis& prototypeAnalysis, const DatasetAnalysis& productionAnalysis) {
   std::cout << "\n=== COMPARATIVE ANALYSIS ===" << std::endl;
-  
+
   std::cout << std::left << std::setw(25) << "Metric" << " | " 
             << std::setw(15) << "Prototype" << " | " 
             << std::setw(15) << "Production" << " | " 
             << std::setw(12) << "Ratio (P/Pr)" << std::endl;
   std::cout << std::string(70, '-') << std::endl;
-  
+
   // Sample statistics comparison
   std::cout << std::setw(25) << "Valid Samples" << " | "
-            << std::setw(15) << prototype.validSamples << " | "
-            << std::setw(15) << production.validSamples << " | "
+            << std::setw(15) << prototypeAnalysis.validSamples << " | "
+            << std::setw(15) << productionAnalysis.validSamples << " | "
             << std::setw(12) << std::fixed << std::setprecision(2) 
-            << (float)production.validSamples / prototype.validSamples << std::endl;
-            
+            << (float)productionAnalysis.validSamples / prototypeAnalysis.validSamples << std::endl;
+
   std::cout << std::setw(25) << "Unique Bins" << " | "
-            << std::setw(15) << prototype.uniqueBins << " | "
-            << std::setw(15) << production.uniqueBins << " | "
-            << std::setw(12) << (float)production.uniqueBins / prototype.uniqueBins << std::endl;
-            
+            << std::setw(15) << prototypeAnalysis.uniqueBins << " | "
+            << std::setw(15) << productionAnalysis.uniqueBins << " | "
+            << std::setw(12) << (float)productionAnalysis.uniqueBins / prototypeAnalysis.uniqueBins << std::endl;
+
   std::cout << std::setw(25) << "Coverage %" << " | "
-            << std::setw(15) << std::setprecision(1) << prototype.coveragePercent << " | "
-            << std::setw(15) << production.coveragePercent << " | "
-            << std::setw(12) << std::setprecision(2) << production.coveragePercent / prototype.coveragePercent << std::endl;
-            
+            << std::setw(15) << std::setprecision(1) << prototypeAnalysis.coveragePercent << " | "
+            << std::setw(15) << productionAnalysis.coveragePercent << " | "
+            << std::setw(12) << std::setprecision(2) << productionAnalysis.coveragePercent / prototypeAnalysis.coveragePercent << std::endl;
+
   std::cout << std::setw(25) << "Avg Magnitude (µT)" << " | "
-            << std::setw(15) << std::setprecision(1) << prototype.avgMagnitude << " | "
-            << std::setw(15) << production.avgMagnitude << " | "
-            << std::setw(12) << std::setprecision(2) << production.avgMagnitude / prototype.avgMagnitude << std::endl;
-            
+            << std::setw(15) << std::setprecision(1) << prototypeAnalysis.avgMagnitude << " | "
+            << std::setw(15) << productionAnalysis.avgMagnitude << " | "
+            << std::setw(12) << std::setprecision(2) << productionAnalysis.avgMagnitude / prototypeAnalysis.avgMagnitude << std::endl;
+
   std::cout << std::setw(25) << "Avg Elevation (°)" << " | "
-            << std::setw(15) << prototype.avgElevation << " | "
-            << std::setw(15) << production.avgElevation << " | "
-            << std::setw(12) << production.avgElevation / prototype.avgElevation << std::endl;
-            
+            << std::setw(15) << prototypeAnalysis.avgElevation << " | "
+            << std::setw(15) << productionAnalysis.avgElevation << " | "
+            << std::setw(12) << productionAnalysis.avgElevation / prototypeAnalysis.avgElevation << std::endl;
+
   std::cout << std::setw(25) << "Avg Azimuth (°)" << " | "
-            << std::setw(15) << prototype.avgAzimuth << " | "
-            << std::setw(15) << production.avgAzimuth << " | "
-            << std::setw(12) << production.avgAzimuth / prototype.avgAzimuth << std::endl;
-  
+            << std::setw(15) << prototypeAnalysis.avgAzimuth << " | "
+            << std::setw(15) << productionAnalysis.avgAzimuth << " | "
+            << std::setw(12) << productionAnalysis.avgAzimuth / prototypeAnalysis.avgAzimuth << std::endl;
+
   // Key findings analysis
   std::cout << "\n=== KEY FINDINGS ===" << std::endl;
-  
+
   // Magnitude analysis
-  double magRatio = production.avgMagnitude / prototype.avgMagnitude;
+  double magRatio = productionAnalysis.avgMagnitude / prototypeAnalysis.avgMagnitude;
   std::cout << "1. Magnitude Difference: Production readings are " 
             << std::fixed << std::setprecision(1) << magRatio << "x stronger" << std::endl;
   if(magRatio > 1.5) {
     std::cout << "   -> SIGNIFICANT: Trace removal eliminated magnetic damping" << std::endl;
   }
-  
+
   // Coverage analysis
-  double coverageRatio = production.coveragePercent / prototype.coveragePercent;
+  double coverageRatio = productionAnalysis.coveragePercent / prototypeAnalysis.coveragePercent;
   std::cout << "2. Coverage Difference: Production achieves " 
             << coverageRatio << "x the coverage" << std::endl;
   if(coverageRatio < 0.3) {
     std::cout << "   -> CRITICAL: Severe coverage reduction detected" << std::endl;
   }
-  
+
   // Elevation analysis
-  double elevationDiff = production.avgElevation - prototype.avgElevation;
+  double elevationDiff = productionAnalysis.avgElevation - prototypeAnalysis.avgElevation;
   std::cout << "3. Elevation Shift: Production reads " 
             << elevationDiff << "° different elevation" << std::endl;
   if(fabs(elevationDiff) > 10.0) {
     std::cout << "   -> SIGNIFICANT: Large elevation bias detected" << std::endl;
   }
-  
+
   // Bin overlap analysis
   int sharedBins = 0;
   for(int i = 0; i < MAX_POINTS; i++) {
-    if(prototype.binCoverage[i] && production.binCoverage[i]) {
+    if(prototypeAnalysis.binCoverage[i] && productionAnalysis.binCoverage[i]) {
       sharedBins++;
     }
   }
   float overlapPercent = 0.0f;
-  int totalUniqueBins = prototype.uniqueBins + production.uniqueBins - sharedBins;
+  int totalUniqueBins = prototypeAnalysis.uniqueBins + productionAnalysis.uniqueBins - sharedBins;
   if(totalUniqueBins > 0) {
     overlapPercent = (sharedBins / (float)totalUniqueBins) * 100.0f;
   }
@@ -1087,6 +1087,151 @@ int main(int argc, char* argv[]) {
   compareAnalysis(prototypeResult.analysis, productionResult.analysis);
   writeCompleteAnalysisToFile(prototypeResult.analysis, productionResult.analysis,
                              prototypeResult.debugLog, productionResult.debugLog);
+
+  // Fallback: If hard-iron offset was NOT applied, use all valid samples for offset and re-run
+  if (productionResult.debugLog.find("Hard-iron offset applied") == std::string::npos) {
+    std::cout << "\n[INFO] Fallback: Calculating hard-iron offsets using all available production samples..." << std::endl;
+
+    // Collect all valid samples from the production file
+    std::vector<MagSample> allValidSamples;
+    for (uint16_t i = 0; i < productionReadings.size(); i++) {
+      MagSample sample = processMagSample(productionReadings[i][0], productionReadings[i][1], productionReadings[i][2], i + 1);
+      if (sample.validSample) {
+        allValidSamples.push_back(sample);
+      }
+    }
+
+    // Calculate offsets using all valid samples
+    HardIronResult fallbackOffset = calculateHardIronOffsets(allValidSamples);
+
+    std::stringstream fallbackDebug;
+    fallbackDebug << "\n[FALLBACK DEBUG] Used all valid samples (" << allValidSamples.size() << ") for hard-iron offset calculation.\n";
+    fallbackDebug << "[FALLBACK DEBUG] Spread X: " << fallbackOffset.rangeX << " (threshold: " << HARD_IRON_SPREAD_THRESHOLD << ")\n";
+    fallbackDebug << "[FALLBACK DEBUG] Spread Y: " << fallbackOffset.rangeY << " (threshold: " << HARD_IRON_SPREAD_THRESHOLD << ")\n";
+    fallbackDebug << "[FALLBACK DEBUG] Spread Z: " << fallbackOffset.rangeZ << " (threshold: " << HARD_IRON_SPREAD_THRESHOLD << ")\n";
+    fallbackDebug << "[FALLBACK DEBUG] Hard-iron offset applied: X=" << fallbackOffset.x << " Y=" << fallbackOffset.y << " Z=" << fallbackOffset.z << "\n";
+    fallbackDebug << "[FALLBACK DEBUG] Re-processing production file with fallback offset...\n";
+
+    // Re-run analysis with fallback offset applied
+    DatasetAnalysis fallbackAnalysis = {};
+    fallbackAnalysis.label = "PRODUCTION_FALLBACK";
+    fallbackAnalysis.filename = productionFile;
+    fallbackAnalysis.totalLines = productionReadings.size();
+
+    memset(fallbackAnalysis.elevationBinCounts, 0, sizeof(fallbackAnalysis.elevationBinCounts));
+    memset(fallbackAnalysis.azimuthBinCounts, 0, sizeof(fallbackAnalysis.azimuthBinCounts));
+    memset(fallbackAnalysis.binCoverage, 0, sizeof(fallbackAnalysis.binCoverage));
+    bool bins[MAX_POINTS] = {};
+    fallbackAnalysis.uniqueBins = 0;
+    fallbackAnalysis.acceptedSamples = 0;
+    fallbackAnalysis.validSamples = 0;
+    fallbackAnalysis.samples.clear();
+
+    double sumMagnitude = 0.0, sumElevation = 0.0, sumAzimuth = 0.0;
+    fallbackAnalysis.minMagnitude = 1e6; fallbackAnalysis.maxMagnitude = 0.0;
+    fallbackAnalysis.minElevation = 1e6; fallbackAnalysis.maxElevation = -1e6;
+    fallbackAnalysis.minAzimuth = 1e6; fallbackAnalysis.maxAzimuth = -1e6;
+
+    for (uint16_t i = 0; i < productionReadings.size(); i++) {
+      double x = productionReadings[i][0] - fallbackOffset.x;
+      double y = productionReadings[i][1] - fallbackOffset.y;
+      double z = productionReadings[i][2] - fallbackOffset.z;
+      MagSample sample = processMagSample(x, y, z, i + 1);
+      if (sample.validSample) {
+        fallbackAnalysis.validSamples++;
+        sample.newBin = !bins[sample.binIndex];
+        sample.wouldBeAccepted = sample.newBin;
+        if (sample.newBin) {
+          bins[sample.binIndex] = true;
+          fallbackAnalysis.binCoverage[sample.binIndex] = true;
+          fallbackAnalysis.uniqueBins++;
+          fallbackAnalysis.acceptedSamples++;
+        }
+        fallbackAnalysis.elevationBinCounts[sample.elIndex]++;
+        fallbackAnalysis.azimuthBinCounts[sample.azIndex]++;
+        sumMagnitude += sample.magnitude;
+        sumElevation += sample.elevationDeg;
+        sumAzimuth += sample.azimuthDeg;
+        if (sample.magnitude < fallbackAnalysis.minMagnitude) fallbackAnalysis.minMagnitude = sample.magnitude;
+        if (sample.magnitude > fallbackAnalysis.maxMagnitude) fallbackAnalysis.maxMagnitude = sample.magnitude;
+        if (sample.elevationDeg < fallbackAnalysis.minElevation) fallbackAnalysis.minElevation = sample.elevationDeg;
+        if (sample.elevationDeg > fallbackAnalysis.maxElevation) fallbackAnalysis.maxElevation = sample.elevationDeg;
+        if (sample.azimuthDeg < fallbackAnalysis.minAzimuth) fallbackAnalysis.minAzimuth = sample.azimuthDeg;
+        if (sample.azimuthDeg > fallbackAnalysis.maxAzimuth) fallbackAnalysis.maxAzimuth = sample.azimuthDeg;
+        fallbackAnalysis.samples.push_back(sample);
+      }
+    }
+
+    if (fallbackAnalysis.validSamples > 0) {
+      fallbackAnalysis.avgMagnitude = sumMagnitude / fallbackAnalysis.validSamples;
+      fallbackAnalysis.avgElevation = sumElevation / fallbackAnalysis.validSamples;
+      fallbackAnalysis.avgAzimuth = sumAzimuth / fallbackAnalysis.validSamples;
+    }
+    fallbackAnalysis.coveragePercent = (fallbackAnalysis.uniqueBins / (float)MAX_POINTS) * 100.0f;
+
+    // Write fallback results to a new file with _fallback.txt suffix
+    std::string fallbackFilename = productionFile;
+    size_t dotPos = fallbackFilename.find_last_of(".");
+    if(dotPos != std::string::npos) {
+      fallbackFilename = fallbackFilename.substr(0, dotPos);
+    }
+    fallbackFilename += "_fallback.txt";
+
+    std::ofstream fallbackFile(fallbackFilename);
+    if(!fallbackFile.is_open()) {
+      std::cerr << "Warning: Could not create fallback output file " << fallbackFilename << std::endl;
+    } else {
+      fallbackFile << "Magnetometer Calibration Fallback Analysis Tool\n";
+      fallbackFile << "Purpose: Fallback hard-iron offset using all available samples\n";
+      fallbackFile << "=========================================\n";
+      fallbackFile << "\nSource File: " << productionFile << "\n";
+      fallbackFile << "\n=== FALLBACK DEBUG LOG ===\n" << fallbackDebug.str() << std::endl;
+
+      fallbackFile << "\n=== DETAILED ANALYSIS: PRODUCTION_FALLBACK ===\n";
+      fallbackFile << "Total Samples: " << fallbackAnalysis.samples.size() << "\n";
+      fallbackFile << "Unique Bins Filled: " << fallbackAnalysis.uniqueBins << " / " << MAX_POINTS 
+                   << " (" << std::fixed << std::setprecision(2) << fallbackAnalysis.coveragePercent << "% coverage)\n";
+      fallbackFile << "Valid Samples: " << fallbackAnalysis.validSamples << "\n";
+      fallbackFile << "Accepted Samples: " << fallbackAnalysis.acceptedSamples << "\n";
+      fallbackFile << "Avg Magnitude: " << fallbackAnalysis.avgMagnitude << " µT\n";
+      fallbackFile << "Avg Elevation: " << fallbackAnalysis.avgElevation << "°\n";
+      fallbackFile << "Avg Azimuth: " << fallbackAnalysis.avgAzimuth << "°\n";
+      fallbackFile << "Min/Max Magnitude: " << fallbackAnalysis.minMagnitude << " / " << fallbackAnalysis.maxMagnitude << " µT\n";
+      fallbackFile << "Min/Max Elevation: " << fallbackAnalysis.minElevation << " / " << fallbackAnalysis.maxElevation << "°\n";
+      fallbackFile << "Min/Max Azimuth: " << fallbackAnalysis.minAzimuth << " / " << fallbackAnalysis.maxAzimuth << "°\n";
+      fallbackFile << "\nSample-by-sample breakdown:\n";
+      for(const auto& sample : fallbackAnalysis.samples) {
+        fallbackFile << "Sample " << sample.lineNumber << ": "
+                     << "Mag=" << sample.magnitude << "µT, "
+                     << "El=" << sample.elevationDeg << "°, "
+                     << "Az=" << sample.azimuthDeg << "°, "
+                     << "Bin=" << sample.binIndex << ", "
+                     << (sample.newBin ? "Accepted" : "Rejected") << "\n";
+      }
+      fallbackFile << "\nAnalysis complete!\n";
+      fallbackFile.close();
+      std::cout << "Fallback analysis written to: " << fallbackFilename << std::endl;
+    }
+
+    // After writing the main analysis.txt file:
+    std::ofstream analysisFile("analysis.txt", std::ios::app); // Open for appending
+    if (analysisFile.is_open()) {
+      analysisFile << "\n=== FALLBACK ANALYSIS SUMMARY ===\n";
+      analysisFile << fallbackDebug.str();
+      analysisFile << "\nFallback Coverage: " << std::fixed << std::setprecision(2)
+                   << fallbackAnalysis.coveragePercent << "% (" << fallbackAnalysis.uniqueBins << " bins)\n";
+      analysisFile << "Fallback Avg Magnitude: " << fallbackAnalysis.avgMagnitude << " µT\n";
+      analysisFile << "Fallback Avg Elevation: " << fallbackAnalysis.avgElevation << "°\n";
+      analysisFile << "Fallback Avg Azimuth: " << fallbackAnalysis.avgAzimuth << "°\n";
+      analysisFile << "Fallback Accepted Samples: " << fallbackAnalysis.acceptedSamples << "\n";
+      analysisFile << "Fallback Valid Samples: " << fallbackAnalysis.validSamples << "\n";
+      analysisFile << "Fallback Min/Max Magnitude: " << fallbackAnalysis.minMagnitude << " / " << fallbackAnalysis.maxMagnitude << " µT\n";
+      analysisFile << "Fallback Min/Max Elevation: " << fallbackAnalysis.minElevation << " / " << fallbackAnalysis.maxElevation << "°\n";
+      analysisFile << "Fallback Min/Max Azimuth: " << fallbackAnalysis.minAzimuth << " / " << fallbackAnalysis.maxAzimuth << "°\n";
+      analysisFile << "\n";
+      analysisFile.close();
+    }
+  }
 
   std::cout << "\nAnalysis complete!" << std::endl;
   return 0;
