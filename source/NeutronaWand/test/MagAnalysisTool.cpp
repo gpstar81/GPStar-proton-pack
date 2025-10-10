@@ -28,10 +28,14 @@
 #endif
 
 // Constants from MagCalibration.h - replicated for analysis
-static constexpr uint8_t BIN_DEGREES = 9; // ONLY CHANGE THIS VALUE!
+static constexpr uint8_t BIN_DEGREES = 9;
 static constexpr uint8_t NUM_AZIMUTH_BINS = (uint8_t)(360 / BIN_DEGREES);
 static constexpr uint8_t NUM_ELEVATION_BINS = (uint8_t)(180 / BIN_DEGREES);
 static constexpr uint16_t MAX_POINTS = NUM_AZIMUTH_BINS * NUM_ELEVATION_BINS;
+
+// Hard-iron calibration thresholds
+static constexpr uint16_t HARD_IRON_SAMPLE_THRESHOLD = 20;    // Minimum samples before offset check
+static constexpr double HARD_IRON_SPREAD_THRESHOLD = 30.0;    // Minimum spread per axis (µT)
 
 // Elevation Bias Compensation Configuration
 // Purpose: Enable/disable elevation bias compensation for testing production board calibration
@@ -623,7 +627,9 @@ void printConfigurationInfo() {
 // This function captures all the analysis output that would normally appear on console
 // and writes it to a single comprehensive file for easy review and sharing.
 void writeCompleteAnalysisToFile(const DatasetAnalysis& prototypeAnalysis, 
-                                const DatasetAnalysis& productionAnalysis) {
+                                const DatasetAnalysis& productionAnalysis,
+                                const std::string& prototypeDebug,
+                                const std::string& productionDebug) {
   std::ofstream outFile("analysis.txt");
   if(!outFile.is_open()) {
     std::cerr << "Warning: Could not create analysis.txt output file" << std::endl;
@@ -880,8 +886,169 @@ void writeCompleteAnalysisToFile(const DatasetAnalysis& prototypeAnalysis,
   
   outFile << "\nAnalysis complete!" << std::endl;
   
+  // Write debug logs for each dataset
+  outFile << "\n=== DEBUG LOG: PROTOTYPE ===\n" << prototypeDebug << std::endl;
+  outFile << "\n=== DEBUG LOG: PRODUCTION ===\n" << productionDebug << std::endl;
+
   outFile.close();
   std::cout << "Complete analysis written to: analysis.txt" << std::endl;
+}
+
+// Structure: HardIronResult
+struct HardIronResult {
+  double x, y, z;
+  double rangeX, rangeY, rangeZ;
+  bool sufficientSpread;
+};
+
+// Function: calculateHardIronOffsets
+HardIronResult calculateHardIronOffsets(const std::vector<MagSample>& samples) {
+  HardIronResult result = {};
+  if(samples.empty()) return result;
+  double minX = samples[0].x, maxX = samples[0].x;
+  double minY = samples[0].y, maxY = samples[0].y;
+  double minZ = samples[0].z, maxZ = samples[0].z;
+  for(const auto& s : samples) {
+    if(s.x < minX) minX = s.x;
+    if(s.x > maxX) maxX = s.x;
+    if(s.y < minY) minY = s.y;
+    if(s.y > maxY) maxY = s.y;
+    if(s.z < minZ) minZ = s.z;
+    if(s.z > maxZ) maxZ = s.z;
+  }
+  result.x = (maxX + minX) / 2.0;
+  result.y = (maxY + minY) / 2.0;
+  result.z = (maxZ + minZ) / 2.0;
+  result.rangeX = maxX - minX;
+  result.rangeY = maxY - minY;
+  result.rangeZ = maxZ - minZ;
+  result.sufficientSpread = (result.rangeX > HARD_IRON_SPREAD_THRESHOLD) &&
+                            (result.rangeY > HARD_IRON_SPREAD_THRESHOLD) &&
+                            (result.rangeZ > HARD_IRON_SPREAD_THRESHOLD);
+  return result;
+}
+
+// Update analyzeDatasetWithHardIron to collect debug output
+struct AnalysisResult {
+  DatasetAnalysis analysis;
+  std::string debugLog;
+};
+
+AnalysisResult analyzeDatasetWithHardIron(const std::vector<std::array<double, 3>>& readings,
+                                          const std::string& label,
+                                          const std::string& filename) {
+  DatasetAnalysis analysis = {};
+  analysis.label = label;
+  analysis.filename = filename;
+  analysis.totalLines = readings.size();
+
+  std::stringstream debug;
+  debug << "\n[DEBUG] Calibration sample count: " << readings.size() << std::endl;
+
+  // First pass: collect samples for offset calculation
+  std::vector<MagSample> calibrationSamples;
+  for(uint16_t i = 0; i < readings.size(); i++) {
+    MagSample sample = processMagSample(readings[i][0], readings[i][1], readings[i][2], i + 1);
+    if(sample.validSample) {
+      calibrationSamples.push_back(sample);
+      if(calibrationSamples.size() == HARD_IRON_SAMPLE_THRESHOLD) break;
+    }
+  }
+
+  // Calculate hard-iron offset
+  HardIronResult hardIronOffset = calculateHardIronOffsets(calibrationSamples);
+  bool hardIronOffsetApplied = hardIronOffset.sufficientSpread;
+
+  debug << "[DEBUG] Calibration sample count: " << calibrationSamples.size() << std::endl;
+  debug << "[DEBUG] Hard-iron spread X: " << hardIronOffset.rangeX << " (threshold: " << HARD_IRON_SPREAD_THRESHOLD << ")" << std::endl;
+  debug << "[DEBUG] Hard-iron spread Y: " << hardIronOffset.rangeY << " (threshold: " << HARD_IRON_SPREAD_THRESHOLD << ")" << std::endl;
+  debug << "[DEBUG] Hard-iron spread Z: " << hardIronOffset.rangeZ << " (threshold: " << HARD_IRON_SPREAD_THRESHOLD << ")" << std::endl;
+
+  if(hardIronOffsetApplied) {
+    debug << "[DEBUG] Hard-iron offset applied after " << HARD_IRON_SAMPLE_THRESHOLD << " samples: "
+          << "X=" << hardIronOffset.x << " Y=" << hardIronOffset.y << " Z=" << hardIronOffset.z << std::endl;
+    debug << "[DEBUG] Resetting sample counters and bin coverage..." << std::endl;
+    debug << "[DEBUG] Re-processing input file with hard-iron offset applied to all samples..." << std::endl;
+  } else {
+    debug << "[DEBUG] Hard-iron offset NOT applied. Reason: ";
+    if(calibrationSamples.size() < HARD_IRON_SAMPLE_THRESHOLD) {
+      debug << "Insufficient valid samples (" << calibrationSamples.size() << " < " << HARD_IRON_SAMPLE_THRESHOLD << ")." << std::endl;
+    } else {
+      debug << "Spread insufficient (X: " << hardIronOffset.rangeX << ", Y: " << hardIronOffset.rangeY << ", Z: " << hardIronOffset.rangeZ << ")." << std::endl;
+    }
+  }
+
+  // After calculating hard-iron offset
+  if(hardIronOffsetApplied) {
+    std::cout << "Hard-iron offset applied after " << HARD_IRON_SAMPLE_THRESHOLD << " samples: "
+              << "X=" << hardIronOffset.x << " Y=" << hardIronOffset.y << " Z=" << hardIronOffset.z << std::endl;
+    std::cout << "Resetting sample counters and bin coverage..." << std::endl;
+    std::cout << "Re-processing input file with hard-iron offset applied to all samples..." << std::endl;
+  }
+
+  // Clear counters and bins
+  memset(analysis.elevationBinCounts, 0, sizeof(analysis.elevationBinCounts));
+  memset(analysis.azimuthBinCounts, 0, sizeof(analysis.azimuthBinCounts));
+  memset(analysis.binCoverage, 0, sizeof(analysis.binCoverage));
+  bool bins[MAX_POINTS] = {};
+  analysis.uniqueBins = 0;
+  analysis.acceptedSamples = 0;
+  analysis.validSamples = 0;
+  analysis.samples.clear();
+
+  // Second pass: process all samples with offset applied if needed
+  double sumMagnitude = 0.0, sumElevation = 0.0, sumAzimuth = 0.0;
+  analysis.minMagnitude = 1e6; analysis.maxMagnitude = 0.0;
+  analysis.minElevation = 1e6; analysis.maxElevation = -1e6;
+  analysis.minAzimuth = 1e6; analysis.maxAzimuth = -1e6;
+
+  for(uint16_t i = 0; i < readings.size(); i++) {
+    double x = readings[i][0];
+    double y = readings[i][1];
+    double z = readings[i][2];
+    if(hardIronOffsetApplied) {
+      x -= hardIronOffset.x;
+      y -= hardIronOffset.y;
+      z -= hardIronOffset.z;
+    }
+    MagSample sample = processMagSample(x, y, z, i + 1);
+    if(sample.validSample) {
+      analysis.validSamples++;
+      sample.newBin = !bins[sample.binIndex];
+      sample.wouldBeAccepted = sample.newBin;
+      if(sample.newBin) {
+        bins[sample.binIndex] = true;
+        analysis.binCoverage[sample.binIndex] = true;
+        analysis.uniqueBins++;
+        analysis.acceptedSamples++;
+      }
+      analysis.elevationBinCounts[sample.elIndex]++;
+      analysis.azimuthBinCounts[sample.azIndex]++;
+      sumMagnitude += sample.magnitude;
+      sumElevation += sample.elevationDeg;
+      sumAzimuth += sample.azimuthDeg;
+      if(sample.magnitude < analysis.minMagnitude) analysis.minMagnitude = sample.magnitude;
+      if(sample.magnitude > analysis.maxMagnitude) analysis.maxMagnitude = sample.magnitude;
+      if(sample.elevationDeg < analysis.minElevation) analysis.minElevation = sample.elevationDeg;
+      if(sample.elevationDeg > analysis.maxElevation) analysis.maxElevation = sample.elevationDeg;
+      if(sample.azimuthDeg < analysis.minAzimuth) analysis.minAzimuth = sample.azimuthDeg;
+      if(sample.azimuthDeg > analysis.maxAzimuth) analysis.maxAzimuth = sample.azimuthDeg;
+      analysis.samples.push_back(sample);
+    }
+  }
+
+  // Calculate averages
+  if(analysis.validSamples > 0) {
+    analysis.avgMagnitude = sumMagnitude / analysis.validSamples;
+    analysis.avgElevation = sumElevation / analysis.validSamples;
+    analysis.avgAzimuth = sumAzimuth / analysis.validSamples;
+  }
+  analysis.coveragePercent = (analysis.uniqueBins / (float)MAX_POINTS) * 100.0f;
+
+  AnalysisResult result;
+  result.analysis = analysis;
+  result.debugLog = debug.str();
+  return result;
 }
 
 // Modify the main function around line 750:
@@ -890,46 +1057,37 @@ int main(int argc, char* argv[]) {
   std::cout << "Magnetometer Calibration Analysis Tool" << std::endl;
   std::cout << "Purpose: Analyze prototype vs production binning behavior" << std::endl;
   std::cout << "=========================================" << std::endl;
-  
-  // Display current analysis configuration
+
   printConfigurationInfo();
-  
+
   if(argc != 3) {
     std::cout << "\nUsage: " << argv[0] << " <prototype_log> <production_log>" << std::endl;
     std::cout << "\nExample:" << std::endl;
     std::cout << "  " << argv[0] << " prototype_last3.log production_last3.log" << std::endl;
     return 1;
   }
-  
+
   std::string prototypeFile = argv[1];
   std::string productionFile = argv[2];
-  
-  // Load log files
-  std::cout << "\nLoading log files..." << std::endl;
+
   auto prototypeReadings = loadLogFile(prototypeFile);
   auto productionReadings = loadLogFile(productionFile);
-  
+
   if(prototypeReadings.empty() || productionReadings.empty()) {
     std::cerr << "Error: Failed to load log files or files are empty" << std::endl;
     return 1;
   }
-  
-  // Analyze both datasets
-  DatasetAnalysis prototypeAnalysis = analyzeDataset(prototypeReadings, "PROTOTYPE", prototypeFile);
-  DatasetAnalysis productionAnalysis = analyzeDataset(productionReadings, "PRODUCTION", productionFile);
-  
-  // Print detailed analysis for each dataset
-  printDetailedAnalysis(prototypeAnalysis);
-  printDetailedAnalysis(productionAnalysis);
-  
-  // Print comparative analysis
-  compareAnalysis(prototypeAnalysis, productionAnalysis);
-  
-  // Write complete summary to analysis.txt file
-  // Purpose: Capture all analysis output in a single file for easy review and sharing
-  // This eliminates the need to manually copy console output to a file
-  writeCompleteAnalysisToFile(prototypeAnalysis, productionAnalysis);
-  
+
+  // Use new analysis function
+  AnalysisResult prototypeResult = analyzeDatasetWithHardIron(prototypeReadings, "PROTOTYPE", prototypeFile);
+  AnalysisResult productionResult = analyzeDatasetWithHardIron(productionReadings, "PRODUCTION", productionFile);
+
+  printDetailedAnalysis(prototypeResult.analysis);
+  printDetailedAnalysis(productionResult.analysis);
+  compareAnalysis(prototypeResult.analysis, productionResult.analysis);
+  writeCompleteAnalysisToFile(prototypeResult.analysis, productionResult.analysis,
+                             prototypeResult.debugLog, productionResult.debugLog);
+
   std::cout << "\nAnalysis complete!" << std::endl;
   return 0;
 }

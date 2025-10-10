@@ -128,3 +128,23 @@ Avg Azimuth (°)          | 59.82           | 126.16          | 2.11
    -> CRITICAL: Low bin overlap suggests systematic bias
 
 Analysis complete!
+
+=== DEBUG LOG: PROTOTYPE ===
+
+[DEBUG] Calibration sample count: 3741
+[DEBUG] Calibration sample count: 20
+[DEBUG] Hard-iron spread X: 1.32 (threshold: 30)
+[DEBUG] Hard-iron spread Y: 1.64 (threshold: 30)
+[DEBUG] Hard-iron spread Z: 2.3 (threshold: 30)
+[DEBUG] Hard-iron offset NOT applied. Reason: Spread insufficient (X: 1.32, Y: 1.64, Z: 2.3).
+
+
+=== DEBUG LOG: PRODUCTION ===
+
+[DEBUG] Calibration sample count: 3119
+[DEBUG] Calibration sample count: 20
+[DEBUG] Hard-iron spread X: 1.99 (threshold: 30)
+[DEBUG] Hard-iron spread Y: 1.11 (threshold: 30)
+[DEBUG] Hard-iron spread Z: 2.84 (threshold: 30)
+[DEBUG] Hard-iron offset NOT applied. Reason: Spread insufficient (X: 1.99, Y: 1.11, Z: 2.84).
+
