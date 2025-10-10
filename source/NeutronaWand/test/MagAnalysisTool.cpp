@@ -362,26 +362,21 @@ DatasetAnalysis analyzeDataset(const std::vector<std::array<double, 3>>& reading
 }
 
 // Function: writeDetailedSampleBreakdown
-// Purpose: Write complete sample-by-sample analysis to a dedicated output file
-// Inputs: Analysis results structure
-// Outputs: Creates a detailed breakdown file for review
-void writeDetailedSampleBreakdown(const DatasetAnalysis& analysis) {
-  // Generate output filename based on source log file
+// Purpose: Write sample-by-sample analysis to a file with a custom suffix
+void writeDetailedSampleBreakdown(const DatasetAnalysis& analysis, const std::string& suffix) {
   std::string outputFilename = analysis.filename;
-  
-  // Remove .log extension if present and add _analysis.txt
   size_t lastDot = outputFilename.find_last_of(".");
   if(lastDot != std::string::npos) {
     outputFilename = outputFilename.substr(0, lastDot);
   }
-  outputFilename += "_analysis.txt";
-  
+  outputFilename += suffix;
+
   std::ofstream outFile(outputFilename);
   if(!outFile.is_open()) {
     std::cerr << "Warning: Could not create output file " << outputFilename << std::endl;
     return;
   }
-  
+
   // Write file header
   outFile << "Magnetometer Calibration Analysis - Detailed Sample Breakdown" << std::endl;
   outFile << "Source File: " << analysis.filename << std::endl;
@@ -391,11 +386,11 @@ void writeDetailedSampleBreakdown(const DatasetAnalysis& analysis) {
   outFile << "Unique Bins Filled: " << analysis.uniqueBins << " / " << MAX_POINTS 
           << " (" << std::fixed << std::setprecision(2) << analysis.coveragePercent << "% coverage)" << std::endl;
   outFile << std::string(80, '=') << std::endl;
-  
+
   // Write column headers
   outFile << "Line |     X     |     Y     |     Z     |  Mag  | Az°  | El°  |AzBin|ElBin| Bin |Added" << std::endl;
   outFile << "-----|-----------|-----------|-----------|-------|------|------|-----|-----|-----|-----" << std::endl;
-  
+
   // Write all sample data
   for(size_t i = 0; i < analysis.samples.size(); i++) {
     const auto& sample = analysis.samples[i];
@@ -411,14 +406,14 @@ void writeDetailedSampleBreakdown(const DatasetAnalysis& analysis) {
             << std::setw(4) << sample.binIndex << " |"
             << (sample.wouldBeAccepted ? " YES" : " NO ") << std::endl;
   }
-  
+
   // Write acceptance summary at end of file
   outFile << std::string(80, '=') << std::endl;
   outFile << "SAMPLE ACCEPTANCE SUMMARY" << std::endl;
-  
+
   uint16_t acceptedCount = 0;
   uint16_t rejectedCount = 0;
-  
+
   for(const auto& sample : analysis.samples) {
     if(sample.wouldBeAccepted) {
       acceptedCount++;
@@ -426,13 +421,13 @@ void writeDetailedSampleBreakdown(const DatasetAnalysis& analysis) {
       rejectedCount++;
     }
   }
-  
+
   outFile << "Total Samples: " << analysis.samples.size() << std::endl;
   outFile << "Accepted (NEW bins): " << acceptedCount << std::endl;
   outFile << "Rejected (duplicate bins): " << rejectedCount << std::endl;
   outFile << "Acceptance Rate: " << std::fixed << std::setprecision(1) 
           << (acceptedCount / (float)analysis.samples.size() * 100.0f) << "%" << std::endl;
-  
+
   outFile.close();
   std::cout << "  Detailed breakdown written to: " << outputFilename << std::endl;
 }
@@ -443,8 +438,9 @@ void printDetailedAnalysis(const DatasetAnalysis& analysis) {
   std::cout << "\n=== DETAILED ANALYSIS: " << analysis.label << " ===" << std::endl;
   std::cout << "Source File: " << analysis.filename << std::endl;
   
-  // Write detailed sample breakdown to file
-  writeDetailedSampleBreakdown(analysis);
+  // Use "_analysis.txt" for normal, "_fallback.txt" for fallback
+  std::string suffix = (analysis.label == "PRODUCTION_FALLBACK") ? "_fallback.txt" : "_analysis.txt";
+  writeDetailedSampleBreakdown(analysis, suffix);
   
   // Overall statistics (keep on console)
   std::cout << "\nSample Statistics:" << std::endl;
@@ -813,27 +809,27 @@ void writeCompleteAnalysisToFile(const DatasetAnalysis& prototypeAnalysis,
           << std::setw(15) << productionAnalysis.validSamples << " | "
           << std::setw(12) << std::fixed << std::setprecision(2) 
           << (float)productionAnalysis.validSamples / prototypeAnalysis.validSamples << std::endl;
-          
+
   outFile << std::setw(25) << "Unique Bins" << " | "
           << std::setw(15) << prototypeAnalysis.uniqueBins << " | "
           << std::setw(15) << productionAnalysis.uniqueBins << " | "
           << std::setw(12) << (float)productionAnalysis.uniqueBins / prototypeAnalysis.uniqueBins << std::endl;
-          
+
   outFile << std::setw(25) << "Coverage %" << " | "
           << std::setw(15) << std::setprecision(1) << prototypeAnalysis.coveragePercent << " | "
           << std::setw(15) << productionAnalysis.coveragePercent << " | "
           << std::setw(12) << std::setprecision(2) << productionAnalysis.coveragePercent / prototypeAnalysis.coveragePercent << std::endl;
-          
+
   outFile << std::setw(25) << "Avg Magnitude (µT)" << " | "
           << std::setw(15) << std::setprecision(1) << prototypeAnalysis.avgMagnitude << " | "
           << std::setw(15) << productionAnalysis.avgMagnitude << " | "
           << std::setw(12) << std::setprecision(2) << productionAnalysis.avgMagnitude / prototypeAnalysis.avgMagnitude << std::endl;
-          
+
   outFile << std::setw(25) << "Avg Elevation (°)" << " | "
           << std::setw(15) << prototypeAnalysis.avgElevation << " | "
           << std::setw(15) << productionAnalysis.avgElevation << " | "
           << std::setw(12) << productionAnalysis.avgElevation / prototypeAnalysis.avgElevation << std::endl;
-          
+
   outFile << std::setw(25) << "Avg Azimuth (°)" << " | "
           << std::setw(15) << prototypeAnalysis.avgAzimuth << " | "
           << std::setw(15) << productionAnalysis.avgAzimuth << " | "
@@ -884,12 +880,6 @@ void writeCompleteAnalysisToFile(const DatasetAnalysis& prototypeAnalysis,
     outFile << "   -> CRITICAL: Low bin overlap suggests systematic bias" << std::endl;
   }
   
-  outFile << "\nAnalysis complete!" << std::endl;
-  
-  // Write debug logs for each dataset
-  outFile << "\n=== DEBUG LOG: PROTOTYPE ===\n" << prototypeDebug << std::endl;
-  outFile << "\n=== DEBUG LOG: PRODUCTION ===\n" << productionDebug << std::endl;
-
   outFile.close();
   std::cout << "Complete analysis written to: analysis.txt" << std::endl;
 }
@@ -1168,50 +1158,7 @@ int main(int argc, char* argv[]) {
       fallbackAnalysis.avgAzimuth = sumAzimuth / fallbackAnalysis.validSamples;
     }
     fallbackAnalysis.coveragePercent = (fallbackAnalysis.uniqueBins / (float)MAX_POINTS) * 100.0f;
-
-    // Write fallback results to a new file with _fallback.txt suffix
-    std::string fallbackFilename = productionFile;
-    size_t dotPos = fallbackFilename.find_last_of(".");
-    if(dotPos != std::string::npos) {
-      fallbackFilename = fallbackFilename.substr(0, dotPos);
-    }
-    fallbackFilename += "_fallback.txt";
-
-    std::ofstream fallbackFile(fallbackFilename);
-    if(!fallbackFile.is_open()) {
-      std::cerr << "Warning: Could not create fallback output file " << fallbackFilename << std::endl;
-    } else {
-      fallbackFile << "Magnetometer Calibration Fallback Analysis Tool\n";
-      fallbackFile << "Purpose: Fallback hard-iron offset using all available samples\n";
-      fallbackFile << "=========================================\n";
-      fallbackFile << "\nSource File: " << productionFile << "\n";
-      fallbackFile << "\n=== FALLBACK DEBUG LOG ===\n" << fallbackDebug.str() << std::endl;
-
-      fallbackFile << "\n=== DETAILED ANALYSIS: PRODUCTION_FALLBACK ===\n";
-      fallbackFile << "Total Samples: " << fallbackAnalysis.samples.size() << "\n";
-      fallbackFile << "Unique Bins Filled: " << fallbackAnalysis.uniqueBins << " / " << MAX_POINTS 
-                   << " (" << std::fixed << std::setprecision(2) << fallbackAnalysis.coveragePercent << "% coverage)\n";
-      fallbackFile << "Valid Samples: " << fallbackAnalysis.validSamples << "\n";
-      fallbackFile << "Accepted Samples: " << fallbackAnalysis.acceptedSamples << "\n";
-      fallbackFile << "Avg Magnitude: " << fallbackAnalysis.avgMagnitude << " µT\n";
-      fallbackFile << "Avg Elevation: " << fallbackAnalysis.avgElevation << "°\n";
-      fallbackFile << "Avg Azimuth: " << fallbackAnalysis.avgAzimuth << "°\n";
-      fallbackFile << "Min/Max Magnitude: " << fallbackAnalysis.minMagnitude << " / " << fallbackAnalysis.maxMagnitude << " µT\n";
-      fallbackFile << "Min/Max Elevation: " << fallbackAnalysis.minElevation << " / " << fallbackAnalysis.maxElevation << "°\n";
-      fallbackFile << "Min/Max Azimuth: " << fallbackAnalysis.minAzimuth << " / " << fallbackAnalysis.maxAzimuth << "°\n";
-      fallbackFile << "\nSample-by-sample breakdown:\n";
-      for(const auto& sample : fallbackAnalysis.samples) {
-        fallbackFile << "Sample " << sample.lineNumber << ": "
-                     << "Mag=" << sample.magnitude << "µT, "
-                     << "El=" << sample.elevationDeg << "°, "
-                     << "Az=" << sample.azimuthDeg << "°, "
-                     << "Bin=" << sample.binIndex << ", "
-                     << (sample.newBin ? "Accepted" : "Rejected") << "\n";
-      }
-      fallbackFile << "\nAnalysis complete!\n";
-      fallbackFile.close();
-      std::cout << "Fallback analysis written to: " << fallbackFilename << std::endl;
-    }
+    writeDetailedSampleBreakdown(fallbackAnalysis, "_fallback.txt");
 
     // After writing the main analysis.txt file:
     std::ofstream analysisFile("analysis.txt", std::ios::app); // Open for appending
