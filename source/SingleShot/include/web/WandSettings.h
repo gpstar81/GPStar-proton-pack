@@ -1,5 +1,5 @@
 /**
- *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
+ *   GPStar Single Shot Blaster - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                         & Dustin Grau <dustin.grau@gmail.com>
  *
@@ -27,17 +27,17 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
   <meta charset="UTF-8">
   <meta http-equiv="Cache-control" content="public">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Neutrona Wand Settings</title>
+  <title>Single Shot Blaster Settings</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
   <link rel="shortcut icon" href="/favicon.ico"/>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <h1 id="top">Wand Settings</h1>
+  <h1 id="top">Single Shot Blaster Settings</h1>
   <div class="block left">
     <p>
       Change system configuration options using the available toggles and selectors.
-      Options may only be changed when the pack and wand are not powered and running.
+      Options may only be changed when the blaster is not powered or running.
       Use the "Update Settings" button to save values to your equipment.
     </p>
     <br/>
@@ -127,14 +127,14 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
           var settings = JSON.parse(this.responseText);
           if (settings) {
             if (!settings.prefsAvailable) {
-              alert("Preferences could not be downloaded. Please refresh the page to try again.");
               disableControls();
+              alert("Preferences could not be downloaded. Please refresh the page to try again.");
               return;
             }
 
             if (settings.wandPowered) {
-              alert("Wand is currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings.");
               disableControls();
+              alert("Blaster is currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings.");
               return;
             }
 
@@ -171,7 +171,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
             handleStatus(this.responseText);
             setTimeout(getSettings, 400); // Get latest settings.
 
-            if (confirm("Settings successfully updated. Do you want to store the latest settings to the wand EEPROM?")) {
+            if (confirm("Settings successfully updated. Do you want to store the latest settings to the blaster EEPROM?")) {
               saveEEPROM(); // Perform action only if the user answers OK to the confirmation.
             }
           } else {

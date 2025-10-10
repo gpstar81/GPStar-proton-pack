@@ -281,14 +281,14 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
           var settings = JSON.parse(this.responseText);
           if (settings) {
             if (!settings.prefsAvailable) {
-              alert("An unexpected error occurred and preferences could not be downloaded. Please refresh the page to try again.");
               disableControls();
+              alert("An unexpected error occurred and preferences could not be downloaded. Please refresh the page to try again.");
               return;
             }
 
             if (settings.packPowered || settings.wandPowered) {
-              alert("Pack and/or Wand are currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings.");
               disableControls();
+              alert("Pack and/or Wand are currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings.");
               return;
             }
 

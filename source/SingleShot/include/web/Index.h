@@ -1,5 +1,5 @@
 /**
- *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
+ *   GPStar Single Shot Blaster - Ghostbusters Proton Pack & Neutrona Wand.
  *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                         & Dustin Grau <dustin.grau@gmail.com>
  *
@@ -28,8 +28,8 @@ const char INDEX_page[] PROGMEM = R"=====(
   <meta http-equiv="Cache-control" content="public">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-title" content="Neutrona Wand"/>
-  <title>Neutrona Wand</title>
+  <meta name="apple-mobile-web-app-title" content="Single Shot Blaster"/>
+  <title>Single Shot Blaster</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
   <link rel="shortcut icon" href="/favicon.ico"/>
   <link rel="stylesheet" href="/style.css">
@@ -140,11 +140,11 @@ const char INDEX_page[] PROGMEM = R"=====(
     <div class="card" style="text-align:center;">
       <div class="block left">
         Magnetic calibration is critical to obtaining a correct reading from sensors and must be performed only when all
-        components have been fully installed in your Neutrona Wand, and you have selected the correct Controller
+        components have been fully installed in your Single Shot Blaster, and you have selected the correct Controller
         Installation Orientation on the Special Device Settings page.
         <ol style="padding-left:20px;">
           <li>Press "Enable Calibration" to begin.</li>
-          <li>Raise and lower your Neutrona Wand <b>slowly</b> while turning 360&deg; to collect calibration data.</li>
+          <li>Raise and lower your Single Shot Blaster <b>slowly</b> while turning 360&deg; to collect calibration data.</li>
           <li>Fill the visualization below with red dots and the Composite Coverage is at least 60%.</li>
           <li>If coverage stalls, try adding a twisting motion or figure-eights into your movements.</li>
           <li>Press "Disable Calibration" to stop collection and store new calculated values.</li>
@@ -214,12 +214,12 @@ const char INDEX_page[] PROGMEM = R"=====(
       <a href="/settings/device">Special Device Settings</a>
       <br/>
       <br/>
-      <a href="/settings/wand">Neutrona Wand Settings</a>
+      <a href="/settings/wand">Single Shot Blaster Settings</a>
       <br/>
       <br/>
       <hr/>
       <br/>
-      <a href="/update">Update Neutrona Wand Firmware</a>
+      <a href="/update">Update Single Shot Blaster Firmware</a>
       <br/>
       <br/>
       <a href="/password">Secure Device WiFi</a>

@@ -292,14 +292,14 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
           var settings = JSON.parse(this.responseText);
           if (settings) {
             if (!settings.wandConnected || !settings.prefsAvailable) {
-              alert("Preferences could not be downloaded. Please confirm a GPStar Neutrona Wand is connected, then refresh the page to try again.");
               disableControls();
+              alert("Preferences could not be downloaded. Please confirm a GPStar Neutrona Wand is connected, then refresh the page to try again.");
               return;
             }
 
             if (settings.packPowered || settings.wandPowered) {
-              alert("Pack and/or Wand are currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings.");
               disableControls();
+              alert("Pack and/or Wand are currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings.");
               return;
             }
 
