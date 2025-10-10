@@ -308,7 +308,7 @@ input[type=text] {
 }
 
 .music-playback {
-  display: flex;
+  display:flex;
   align-items:center;
   justify-content:center;
   margin:10px auto;
@@ -422,9 +422,19 @@ input[type=text] {
 }
 
 .viz-content {
-  width:100%;
   height:400px;
   margin:auto;
+  width:100%;
+}
+
+#mag {
+  align-items:center;
+  display:flex;
+  gap:0.7em;
+}
+
+#mag .infoLabel {
+  min-width:20px;
 }
 
 #gyro, #accel, #ahrs, #calc {
@@ -432,6 +442,138 @@ input[type=text] {
   width:48%;
   margin-right:2%;
   box-sizing:border-box;
+}
+
+.coverage-analysis {
+  margin:15px 0;
+}
+
+.coverage-title {
+  font-size:0.9em;
+  font-weight:600;
+  margin:10px 0 5px;
+  text-align:center;
+}
+
+.elevation-display {
+  margin:10px 0;
+}
+
+.elevation-chart-container {
+  position:relative;
+  height:100px;
+  margin:5px 0;
+}
+
+.elevation-chart {
+  display:flex;
+  align-items:flex-end;
+  height:90px;
+  border-bottom:1px solid rgba(0,160,0,0.6);
+  gap:1px;
+  justify-content:space-between;
+  padding:0 5px;
+}
+
+.elevation-bin {
+  background-color:rgba(255,0,0,0.8);
+  flex:1;
+  min-height:2px;
+  transition:height 0.3s ease, background-color 0.3s ease;
+}
+
+.elevation-bin.filled {
+  background-color:rgba(0,160,0,0.8);
+}
+
+.elevation-labels {
+  display:flex;
+  justify-content:space-between;
+  margin-top:3px;
+  padding:0 5px;
+}
+
+.degree-label {
+  font-family:Courier New,Courier,sans-serif;
+  font-size:0.7em;
+}
+
+.azimuth-display {
+  margin:15px 0;
+}
+
+.azimuth-chart-container {
+  position:relative;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:120px;
+  margin:5px 0;
+}
+
+.azimuth-chart {
+  position:relative;
+  width:100px;
+  height:100px;
+}
+
+.compass-directions {
+  position:absolute;
+  width:120px;
+  height:120px;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
+}
+
+.compass-label {
+  position:absolute;
+  font-family:Tahoma,Verdana,Arial;
+  font-size:0.8em;
+  font-weight:600;
+}
+
+.compass-n {
+  top:-5px;
+  left:50%;
+  transform:translateX(-50%);
+}
+
+.compass-e {
+  right:-5px;
+  top:50%;
+  transform:translateY(-50%);
+}
+
+.compass-s {
+  bottom:-5px;
+  left:50%;
+  transform:translateX(-50%);
+}
+
+.compass-w {
+  left:-5px;
+  top:50%;
+  transform:translateY(-50%);
+}
+
+.coverage-feedback {
+  margin:10px 0;
+  min-height:20px;
+}
+
+.status-message {
+  font-size:0.8em;
+  text-align:left;
+  line-height:1.2;
+}
+
+.status-message.success {
+  color:rgba(0,160,0,1);
+}
+
+.status-message.warning {
+  color:rgba(255,0,0,1);
 }
 
 #hardIron1, #hardIron2, #hardIron3,
@@ -490,6 +632,16 @@ input[type=text] {
 
 .tabs button.active {
   background:#999;
+}
+
+.mag-info-table,
+.mag-reg-table,
+.mag-selftest-table {
+  border-collapse:collapse;
+  border-spacing:2px;
+  width:400px;
+  margin-left:5px;
+  margin-top:10px;
 }
 
 /* https://github.com/adamculpepper/toggle-switchy */

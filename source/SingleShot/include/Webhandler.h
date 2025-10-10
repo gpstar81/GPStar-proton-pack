@@ -369,6 +369,7 @@ String getDeviceConfig() {
   jsonBody["softIron9"] = magCalData.mag_softiron[8];
   jsonBody["magField"] = magCalData.mag_field;
 
+  // Map the installation orientation to a number for the web UI.
   switch(INSTALL_ORIENTATION) {
     case COMPONENTS_UP_USB_FRONT:
       jsonBody["orientation"] = 1;
@@ -395,6 +396,51 @@ String getDeviceConfig() {
     case COMPONENTS_RIGHT_USB_REAR:
       jsonBody["orientation"] = 8;
     break;
+    case COMPONENTS_FACTORY_DEFAULT:
+      jsonBody["orientation"] = 9;
+    break;
+  }
+
+  // Report the magnetometer self test results.
+  JsonObject selfTestObj = jsonBody["magSelfTest"].to<JsonObject>();
+
+  // Group XYZ values as arrays for each category
+  JsonArray baseline = selfTestObj["baseline"].to<JsonArray>();
+  baseline.add(magSelfTest.baselineX);
+  baseline.add(magSelfTest.baselineY);
+  baseline.add(magSelfTest.baselineZ);
+
+  JsonArray testResult = selfTestObj["results"].to<JsonArray>();
+  testResult.add(magSelfTest.selfTestX);
+  testResult.add(magSelfTest.selfTestY);
+  testResult.add(magSelfTest.selfTestZ);
+
+  JsonArray delta = selfTestObj["delta"].to<JsonArray>();
+  delta.add(magSelfTest.deltaX);
+  delta.add(magSelfTest.deltaY);
+  delta.add(magSelfTest.deltaZ);
+
+  JsonArray passResult = selfTestObj["pass"].to<JsonArray>();
+  passResult.add(magSelfTest.passX);
+  passResult.add(magSelfTest.passY);
+  passResult.add(magSelfTest.passZ);
+
+  // Report the magnetometer configuration.
+  JsonObject magConfig = jsonBody["magConfig"].to<JsonObject>();
+
+  // Add user-friendly config options
+  magConfig["performanceMode"] = magConfigInfo.performanceMode;
+  magConfig["dataRate"] = magConfigInfo.dataRate;
+  magConfig["range"] = magConfigInfo.range;
+  magConfig["operationMode"] = magConfigInfo.operationMode;
+
+  // Add raw register values as an array of objects
+  JsonArray registers = magConfig["registers"].to<JsonArray>();
+  for (size_t i = 0; i < sizeof(magConfigInfo.rawRegisters) / sizeof(magConfigInfo.rawRegisters[0]); ++i) {
+    JsonObject regObj = registers[i].to<JsonObject>();
+    regObj["name"] = magConfigInfo.rawRegisters[i].name;
+    regObj["address"] = magConfigInfo.rawRegisters[i].address;
+    regObj["value"] = magConfigInfo.rawRegisters[i].value;
   }
 
   // Serialize JSON object to string.
@@ -502,28 +548,79 @@ String getWifiSettings() {
 }
 
 // Prepare a JSON object with magnetometer calibration data points for visualization.
-String getCalibration() {
+// Function: getCalibration
+// Purpose: Prepare JSON object with magnetometer calibration data and complete bin distribution arrays
+// Inputs: Logical indicating to send all points (accesses the global magCal object for data)
+// Outputs: String containing JSON data with coverage, points, and complete bin distribution arrays
+//
+// This function creates a comprehensive calibration data payload that includes:
+// - Coverage percentage for progress monitoring
+// - Coordinate points for 3D visualization
+// - Complete elevation bin distribution (all bins, 0 for empty)
+// - Complete azimuth bin distribution (all bins, 0 for empty)
+// The complete arrays preserve index-to-degree mapping for client-side processing.
+String getCalibration(bool b_update_points = false) {
   String calibrationData;
+  const char* statusMsg = magCal.getStatusMessage();
 
-  // Create a JSON object with a "coverage" percentage and an array of coordinate "points".
+  // Create a JSON object with calibration data and bin distribution information.
   jsonCalibration.clear();
   jsonCalibration["c"] = roundFloat(magCal.getCoveragePercent());
-  JsonArray pointsArray = jsonCalibration["p"].to<JsonArray>();
 
-  // Arrays of data points for magnetometer calibration visualization.
-  const double* xPtr;
-  const double* yPtr;
-  const double* zPtr;
+  // Add status message if provided and not blank
+  if (statusMsg && statusMsg[0] != '\0') {
+    jsonCalibration["s"] = statusMsg;
+  }
 
-  // Get the visualization points from the magnetometer calibration object.
-  uint16_t numPoints = magCal.getVisPoints(xPtr, yPtr, zPtr);
-  
-  // Add points as coordinate arrays [x, y, z] for compact JSON representation.
-  for(uint16_t i = 0; i < numPoints; i++) {
-    JsonArray point = pointsArray.add<JsonArray>();
-    point.add(roundDouble(xPtr[i])); // X coordinate
-    point.add(roundDouble(yPtr[i])); // Y coordinate
-    point.add(roundDouble(zPtr[i])); // Z coordinate
+  // Add the last sample as a separate array for reference.
+  JsonArray magValue = jsonCalibration["v"].to<JsonArray>();
+  MagSample lastSample = magCal.getLastSample();
+  magValue.add(roundFloat(lastSample.x));
+  magValue.add(roundFloat(lastSample.y));
+  magValue.add(roundFloat(lastSample.z));
+
+  // Add complete elevation bin distribution data for vertical coverage analysis.
+  // Purpose: Shows sample counts for ALL elevation bins, preserving index-to-degree mapping
+  // Array index directly corresponds to elevation bin number for degree calculation
+  const uint16_t* elevationCounts;
+  uint8_t numElevationBins = magCal.getElevationBinDistribution(elevationCounts);
+  JsonArray elevationArray = jsonCalibration["e"].to<JsonArray>();
+
+  // Send ALL elevation bins (including empty ones as 0) to preserve index mapping
+  for(uint8_t i = 0; i < numElevationBins; i++) {
+    elevationArray.add(elevationCounts[i]); // Include all bins: filled and empty
+  }
+
+  // Add complete azimuth bin distribution data for horizontal coverage analysis.
+  // Purpose: Shows sample counts for ALL azimuth bins, preserving index-to-degree mapping
+  // Array index directly corresponds to azimuth bin number for degree calculation
+  const uint16_t* azimuthCounts;
+  uint8_t numAzimuthBins = magCal.getAzimuthBinDistribution(azimuthCounts);
+  JsonArray azimuthArray = jsonCalibration["a"].to<JsonArray>();
+
+  // Send ALL azimuth bins (including empty ones as 0) to preserve index mapping
+  for(uint8_t i = 0; i < numAzimuthBins; i++) {
+    azimuthArray.add(azimuthCounts[i]); // Include all bins: filled and empty
+  }
+
+  // The points arrays can be large so only update when necessary.
+  if (b_update_points) {
+    // Arrays of data points for magnetometer calibration visualization.
+    const double* xPtr;
+    const double* yPtr;
+    const double* zPtr;
+
+    // Get the visualization points from the magnetometer calibration object.
+    uint16_t numPoints = magCal.getVisPoints(xPtr, yPtr, zPtr);
+
+    // Add points as coordinate arrays [x, y, z] for compact JSON representation.
+    JsonArray pointsArray = jsonCalibration["p"].to<JsonArray>();
+    for(uint16_t i = 0; i < numPoints; i++) {
+      JsonArray point = pointsArray.add<JsonArray>();
+      point.add(roundDouble(xPtr[i])); // X coordinate
+      point.add(roundDouble(yPtr[i])); // Y coordinate
+      point.add(roundDouble(zPtr[i])); // Z coordinate
+    }
   }
 
   // Serialize JSON object to string.
@@ -544,6 +641,10 @@ String getTelemetry() {
   jsonTelemetry["gyroX"] = roundFloat(filteredMotionData.gyroX);
   jsonTelemetry["gyroY"] = roundFloat(filteredMotionData.gyroY);
   jsonTelemetry["gyroZ"] = roundFloat(filteredMotionData.gyroZ);
+  // Magnetometer in microteslas (uT).
+  jsonTelemetry["magX"] = roundFloat(filteredMotionData.magX);
+  jsonTelemetry["magY"] = roundFloat(filteredMotionData.magY);
+  jsonTelemetry["magZ"] = roundFloat(filteredMotionData.magZ);
   // Special calculated values (g-force and angular velocity)
   jsonTelemetry["gForce"] = roundFloat(filteredMotionData.gForce);
   jsonTelemetry["angVel"] = roundFloat(filteredMotionData.angVel);
@@ -566,7 +667,7 @@ String getTelemetry() {
 void handleGetDeviceConfig(AsyncWebServerRequest *request) {
   // Return current device settings as a stringified JSON object.
   request->send(200, "application/json", getDeviceConfig());
-  sendCalibrationData(); // Send calibration data if enabled.
+  sendCalibrationData(false); // Send calibration data if enabled.
 }
 
 void handleGetWandConfig(AsyncWebServerRequest *request) {
@@ -612,6 +713,7 @@ void handleCalibrateSensorsDisabled(AsyncWebServerRequest *request) {
     // Save the calibration data (as an object) to preferences.
     if(preferences.begin("device", false)) {
       preferences.putBytes("mag_cal", &magCalData, sizeof(magCalData));
+      preferences.end();
     }
   }
 
@@ -875,6 +977,7 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
     }
 
     uint8_t i_orientation = jsonBody["orientation"].as<unsigned short>();
+    INSTALL_ORIENTATIONS PREVIOUS_ORIENTATION = INSTALL_ORIENTATION;
     switch(i_orientation) {
       case 1:
         INSTALL_ORIENTATION = COMPONENTS_UP_USB_FRONT;
@@ -900,26 +1003,33 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
       case 8:
         INSTALL_ORIENTATION = COMPONENTS_RIGHT_USB_REAR;
       break;
+      case 9:
+        INSTALL_ORIENTATION = COMPONENTS_FACTORY_DEFAULT;
+      break;
       default:
         // Do not change orientation if an invalid value was provided.
-        i_orientation = 0;
       break;
     }
 
-    // Set the current magnetic calibration values.
-    magCalData.mag_hardiron[0] = jsonBody["hardIron1"].as<float>();
-    magCalData.mag_hardiron[1] = jsonBody["hardIron2"].as<float>();
-    magCalData.mag_hardiron[2] = jsonBody["hardIron3"].as<float>();
-    magCalData.mag_softiron[0] = jsonBody["softIron1"].as<float>();
-    magCalData.mag_softiron[1] = jsonBody["softIron2"].as<float>();
-    magCalData.mag_softiron[2] = jsonBody["softIron3"].as<float>();
-    magCalData.mag_softiron[3] = jsonBody["softIron4"].as<float>();
-    magCalData.mag_softiron[4] = jsonBody["softIron5"].as<float>();
-    magCalData.mag_softiron[5] = jsonBody["softIron6"].as<float>();
-    magCalData.mag_softiron[6] = jsonBody["softIron7"].as<float>();
-    magCalData.mag_softiron[7] = jsonBody["softIron8"].as<float>();
-    magCalData.mag_softiron[8] = jsonBody["softIron9"].as<float>();
-    magCalData.mag_field = jsonBody["magField"].as<float>();
+    if(INSTALL_ORIENTATION != PREVIOUS_ORIENTATION) {
+      // Reset the magnetic calibration values to defaults on orientation change.
+      magCalData = magCal.getDefaultCalibration();
+    } else {
+      // Set the current magnetic calibration values when orientation is unchanged.
+      magCalData.mag_hardiron[0] = jsonBody["hardIron1"].as<float>();
+      magCalData.mag_hardiron[1] = jsonBody["hardIron2"].as<float>();
+      magCalData.mag_hardiron[2] = jsonBody["hardIron3"].as<float>();
+      magCalData.mag_softiron[0] = jsonBody["softIron1"].as<float>();
+      magCalData.mag_softiron[1] = jsonBody["softIron2"].as<float>();
+      magCalData.mag_softiron[2] = jsonBody["softIron3"].as<float>();
+      magCalData.mag_softiron[3] = jsonBody["softIron4"].as<float>();
+      magCalData.mag_softiron[4] = jsonBody["softIron5"].as<float>();
+      magCalData.mag_softiron[5] = jsonBody["softIron6"].as<float>();
+      magCalData.mag_softiron[6] = jsonBody["softIron7"].as<float>();
+      magCalData.mag_softiron[7] = jsonBody["softIron8"].as<float>();
+      magCalData.mag_softiron[8] = jsonBody["softIron9"].as<float>();
+      magCalData.mag_field = jsonBody["magField"].as<float>();
+    }
 
     // Get the track listing from the text field.
     String songList = jsonBody["songList"].as<String>();
@@ -927,8 +1037,8 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
 
     // Accesses namespace in read/write mode.
     if(preferences.begin("device", false)) {
-      // Store the orientation value to preferences (if not zero).
-      if(i_orientation > 0) {
+      // Store the orientation value to preferences if changed.
+      if(INSTALL_ORIENTATION != PREVIOUS_ORIENTATION) {
         preferences.putShort("orientation", i_orientation);
       }
 
@@ -1253,12 +1363,12 @@ void notifyWSClients() {
   }
 }
 
-void sendCalibrationData() {
+void sendCalibrationData(bool b_update_points) {
   if(b_httpd_started && SENSOR_READ_TARGET == CALIBRATION) {
     // Gather the latest filtered motion data, serialize it to a JSON string,
     // and send it to all connected EventSource (SSE) clients as a "calibration"
     // event name (using the current ms time as a unique event identifier).
-    events.send(getCalibration().c_str(), "calibration", millis());
+    events.send(getCalibration(b_update_points).c_str(), "calibration", millis());
   }
 }
 

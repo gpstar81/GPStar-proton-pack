@@ -153,7 +153,7 @@ class MagCalibration {
     static constexpr float HARD_IRON_SPREAD_THRESHOLD = 30.0f;
 
     // Hard-iron offset to apply to incoming samples once calculated.
-    MagSample hardIronOffset = {0.0f, 0.0f, 0.0f};
+    MagSample hardIronOffset;
 
     /**
      * SPHERICAL COORDINATE BINNING SYSTEM:

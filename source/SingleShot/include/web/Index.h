@@ -145,7 +145,7 @@ const char INDEX_page[] PROGMEM = R"=====(
         <ol style="padding-left:20px;">
           <li>Press "Enable Calibration" to begin.</li>
           <li>Raise and lower your Neutrona Wand <b>slowly</b> while turning 360&deg; to collect calibration data.</li>
-          <li>Fill the display below with red dots until the coverage is as close to 100% as possible.</li>
+          <li>Fill the visualization below with red dots and the Composite Coverage is at least 60%.</li>
           <li>If coverage stalls, try adding a twisting motion or figure-eights into your movements.</li>
           <li>Press "Disable Calibration" to stop collection and store new calculated values.</li>
         </ol>
@@ -155,10 +155,53 @@ const char INDEX_page[] PROGMEM = R"=====(
       <button type="button" id="btnCalibrateOff" class="red" onclick="disableCalibration()">Disable Calibration</button>
       <br/>
       <br/>
+      <div>
+        <p id="mag">
+          <span class="infoLabel">&nbsp;X:</span> <span class="infoState" id="magX">&mdash;</span>
+          <span class="infoLabel">&nbsp;Y:</span> <span class="infoState" id="magY">&mdash;</span>
+          <span class="infoLabel">&nbsp;Z:</span> <span class="infoState" id="magZ">&mdash;</span>
+        </p>
+      </div>
       <div class="telemetry" id="calInfo">
         <p>
-          <span class="infoLabel">Coverage:</span> <span class="infoState" id="coverage">&mdash;</span>
+          <span class="infoLabel">Composite Coverage:</span> <span class="infoState" id="coverage">&mdash;</span>
         </p>
+        <!-- Shows vertical (elevation) orientation coverage gaps as a bar chart -->
+        <div class="coverage-analysis">
+          <div class="elevation-display">
+            <h4 class="coverage-title">Vertical Coverage: <span id="elevationCoverage"></span></h4>
+            <div class="elevation-chart-container">
+              <div id="elevationChart" class="elevation-chart"></div>
+              <div class="elevation-labels">
+                <span class="degree-label">-90°</span>
+                <span class="degree-label">0°</span>
+                <span class="degree-label">+90°</span>
+              </div>
+            </div>
+          </div>
+          <!-- Shows horizontal (azimuth) rotation coverage as a circular chart -->
+          <div class="azimuth-display">
+            <h4 class="coverage-title">Horizontal Coverage: <span id="azimuthCoverage"></span></h4>
+            <div class="azimuth-chart-container">
+              <div id="azimuthChart" class="azimuth-chart"></div>
+              <div class="compass-directions">
+                <span class="compass-label compass-n">N</span>
+                <span class="compass-label compass-e">E</span>
+                <span class="compass-label compass-s">S</span>
+                <span class="compass-label compass-w">W</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Real-time feedback about calibration progress and recommendations -->
+        <div class="coverage-feedback">
+          <div id="coverageStatus" class="status-message">
+            <!-- Dynamic status/instructions will appear here via JavaScript -->
+          </div>
+          <div id="calStatus" class="status-message">
+            <!-- Special devices messages will be sent here -->
+          </div>
+        </div>
         <div class="viz-content">
           <div id="3Dcalibration"></div>
         </div>

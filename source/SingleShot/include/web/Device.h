@@ -62,6 +62,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
         <option value="6">Components Left, USB Rear</option>
         <option value="7">Components Right, USB Front</option>
         <option value="8">Components Right, USB Rear</option>
+        <option value="9">Factory Defaults (Debug)</option>
       </select>
     </div>
     <div class="setting">
@@ -93,6 +94,21 @@ const char DEVICE_page[] PROGMEM = R"=====(
       <textarea id="songList" name="songList" rows="40" cols="38"
        style="text-align:left;" oninput="updateByteCount()"
        placeholder="Add a list of track names, 1 per line, up to 2000 Bytes in total"></textarea>
+    </div>
+    <div class="setting">
+      <b>Magnetometer Config:</b>
+      <div id="magnetometerConfig"></div>
+      <br/>
+      <b>Self-Test Results:</b>
+      <div id="magnetometerSelfTest"></div>
+      <br/>
+      <details>
+        <summary><b>Raw Registers</b></summary>
+        <table class='mag-reg-table'>
+          <tr><th>Name</th><th>Address</th><th>Value</th></tr>
+          <tbody id="magRegTableBody"></tbody>
+        </table>
+      </details>
     </div>
   </div>
 
@@ -134,18 +150,50 @@ const char DEVICE_page[] PROGMEM = R"=====(
             setValue("hardIron1", settings.hardIron1 ?? 0);
             setValue("hardIron2", settings.hardIron2 ?? 0);
             setValue("hardIron3", settings.hardIron3 ?? 0);
-            setValue("softIron1", settings.softIron1 ?? 0);
+            setValue("softIron1", settings.softIron1 ?? 1);
             setValue("softIron2", settings.softIron2 ?? 0);
             setValue("softIron3", settings.softIron3 ?? 0);
             setValue("softIron4", settings.softIron4 ?? 0);
-            setValue("softIron5", settings.softIron5 ?? 0);
+            setValue("softIron5", settings.softIron5 ?? 1);
             setValue("softIron6", settings.softIron6 ?? 0);
             setValue("softIron7", settings.softIron7 ?? 0);
             setValue("softIron8", settings.softIron8 ?? 0);
-            setValue("softIron9", settings.softIron9 ?? 0);
-            setValue("magField", settings.magField ?? 0);
+            setValue("softIron9", settings.softIron9 ?? 1);
+            setValue("magField", settings.magField ?? 50);
             setValue("songList", settings.songList || "");
             updateByteCount();
+
+            // Magnetometer Configuration
+            if (settings.magConfig) {
+              var infoHtml = "<table class='mag-info-table'>\n";
+              infoHtml += "<tr><th>Performance Mode</th><td>" + settings.magConfig.performanceMode + "</td></tr>\n";
+              infoHtml += "<tr><th>Data Rate</th><td>" + settings.magConfig.dataRate + "</td></tr>\n";
+              infoHtml += "<tr><th>Range</th><td>" + settings.magConfig.range + "</td></tr>\n";
+              infoHtml += "<tr><th>Operation Mode</th><td>" + settings.magConfig.operationMode + "</td></tr>\n";
+              infoHtml += "</table>";
+              getEl("magnetometerConfig").innerHTML = infoHtml;
+
+              // Self-Test Results
+              if (settings.magSelfTest) {
+                var testHtml = "<table class='mag-selftest-table'>\n";
+                testHtml += "<tr><th></th><th>X</th><th>Y</th><th>Z</th></tr>\n";
+                testHtml += "<tr><th>Baseline</th><td>" + settings.magSelfTest.baseline[0] + "</td><td>" + settings.magSelfTest.baseline[1] + "</td><td>" + settings.magSelfTest.baseline[2] + "</td></tr>\n";
+                testHtml += "<tr><th>Self-Test</th><td>" + settings.magSelfTest.results[0] + "</td><td>" + settings.magSelfTest.results[1] + "</td><td>" + settings.magSelfTest.results[2] + "</td></tr>\n";
+                testHtml += "<tr><th>Delta</th><td>" + settings.magSelfTest.delta[0] + "</td><td>" + settings.magSelfTest.delta[1] + "</td><td>" + settings.magSelfTest.delta[2] + "</td></tr>\n";
+                testHtml += "<tr><th>Pass</th><td>" + (settings.magSelfTest.pass[0] ? "&check;" : "&#x274C") + "</td><td>" + (settings.magSelfTest.pass[1] ? "&check;" : "&#x274C") + "</td><td>" + (settings.magSelfTest.pass[2] ? "&check;" : "&#x274C") + "</td></tr>\n";
+                testHtml += "</table>";
+                getEl("magnetometerSelfTest").innerHTML = testHtml;
+              }
+
+              // Optionally, show raw registers
+              if (settings.magConfig.registers && settings.magConfig.registers.length > 0) {
+                var registerRows = "";
+                settings.magConfig.registers.forEach(function(reg) {
+                  registerRows += "<tr><td>" + reg.name + "</td><td>0x" + reg.address.toString(16).padStart(2, '0') + "</td><td>0x" + reg.value.toString(16).padStart(2, '0') + "</td></tr>\n";
+                });
+                getEl("magRegTableBody").innerHTML = registerRows;
+              }
+            }
           }
         }
       };
@@ -181,20 +229,20 @@ const char DEVICE_page[] PROGMEM = R"=====(
       // Saves current settings to attenuator, updating runtime variables and making changes immediately effective.
       var settings = {
         wifiName: wifiName,
-        orientation: getInt("orientation") || 0,
-        hardIron1: getFloat("hardIron1"),
-        hardIron2: getFloat("hardIron2"),
-        hardIron3: getFloat("hardIron3"),
-        softIron1: getFloat("softIron1"),
-        softIron2: getFloat("softIron2"),
-        softIron3: getFloat("softIron3"),
-        softIron4: getFloat("softIron4"),
-        softIron5: getFloat("softIron5"),
-        softIron6: getFloat("softIron6"),
-        softIron7: getFloat("softIron7"),
-        softIron8: getFloat("softIron8"),
-        softIron9: getFloat("softIron9"),
-        magField: getFloat("magField"),
+        orientation: getInt("orientation") || 3,
+        hardIron1: getFloat("hardIron1") || 0,
+        hardIron2: getFloat("hardIron2") || 0,
+        hardIron3: getFloat("hardIron3") || 0,
+        softIron1: getFloat("softIron1") || 1,
+        softIron2: getFloat("softIron2") || 0,
+        softIron3: getFloat("softIron3") || 0,
+        softIron4: getFloat("softIron4") || 0,
+        softIron5: getFloat("softIron5") || 1,
+        softIron6: getFloat("softIron6") || 0,
+        softIron7: getFloat("softIron7") || 0,
+        softIron8: getFloat("softIron8") || 0,
+        softIron9: getFloat("softIron9") || 1,
+        magField: getFloat("magField") || 50,
         songList: getText("songList")
       };
       var body = JSON.stringify(settings);
@@ -204,6 +252,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
         if (this.readyState == 4) {
           if (this.status == 200) {
             handleStatus(this.responseText);
+            getSettings(); // Refresh settings.
           }
 
           if (this.status == 201) {

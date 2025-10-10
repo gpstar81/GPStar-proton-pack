@@ -20,6 +20,14 @@
 #pragma once
 
 /**
+ * The Big TODO List:
+ * - Implement gyro calibration: https://learn.adafruit.com/adafruit-sensorlab-gyroscope-calibration?view=all
+ * - Implement accelerometer calibration via 6-direction acknowledgement.
+ * - Implement magnetometer compensation due to iterference (production board changes).
+ * - Implement automatic orientation direction detection via above calibrations.
+ */
+
+/**
  * The mockup below represents the installation of the sensors and their registration mark for purposes of orientation.
  * In both orientations the USB-C port is at the top of the device and the terminal blocks are represented on the side as
  * appropriate for the orientation. For both views the Y axis runs top to bottom, with the Y+ direction being bottom/South.
@@ -53,6 +61,13 @@
  * the device is laid FLAT on a single axis. If placed on the component or PCB side any axis with a positive value
  * closest to +9.8 would be considered the active axis for that orientation. Simply laying the device on 2/3 axes
  * will help identify the installation orientation and we can easily determine the appropriate axis mappings.
+ *
+ * For magnetic readings we will still use NED orientation though we have specific expectations for readings.
+ * There is also a geographic component which will alter the readings based on your location on Earth.
+ * With the device laying flat on a table and oriented North, we expect:
+ *   X: Should be positive and largest (horizontal, forward, points toward magnetic north)
+ *   Y: Smaller value than X, can be positive or negative (horizontal, right, depends on local declination)
+ *   Z: Positive, typically largest (vertical, downward, toward Earth)
  *
  * This convention gives us the readings expected for sensor fusion in an Altitude Heading Reference System (AHRS).
  * That will take care of producing the roll (X), pitch (Y), and yaw (Z) as necessary for 3D representation later.
@@ -88,18 +103,19 @@ enum SENSOR_READ_TARGETS SENSOR_READ_TARGET = NOT_INITIALIZED;
 
 // Orientation positions expected by mounting for final installation (eg. as held by the user).
 // This will be set by user preference in the web interface and saved to "device" preferences.
-enum INSTALL_ORIENTATIONS {
-  FACTORY_DEFAULT,
-  COMPONENTS_UP_USB_FRONT,
-  COMPONENTS_UP_USB_REAR,
-  COMPONENTS_DOWN_USB_FRONT,
-  COMPONENTS_DOWN_USB_REAR,
-  COMPONENTS_LEFT_USB_FRONT,
-  COMPONENTS_LEFT_USB_REAR,
-  COMPONENTS_RIGHT_USB_FRONT,
-  COMPONENTS_RIGHT_USB_REAR
+enum INSTALL_ORIENTATIONS : uint8_t {
+  COMPONENTS_NOT_ORIENTED = 0,
+  COMPONENTS_UP_USB_FRONT = 1,
+  COMPONENTS_UP_USB_REAR = 2,
+  COMPONENTS_DOWN_USB_FRONT = 3,
+  COMPONENTS_DOWN_USB_REAR = 4,
+  COMPONENTS_LEFT_USB_FRONT = 5,
+  COMPONENTS_LEFT_USB_REAR = 6,
+  COMPONENTS_RIGHT_USB_FRONT = 7,
+  COMPONENTS_RIGHT_USB_REAR = 8,
+  COMPONENTS_FACTORY_DEFAULT = 9
 };
-enum INSTALL_ORIENTATIONS INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_FRONT; // Default for Haslab installations.
+enum INSTALL_ORIENTATIONS INSTALL_ORIENTATION = COMPONENTS_NOT_ORIENTED; // Default until preferences are restored.
 
 /**
  * Constant: FILTER_ALPHA
@@ -128,6 +144,26 @@ const float FILTER_ALPHA = 0.4f;
 
 // Global object to hold magnetic calibration data.
 CalibrationData magCalData;
+
+/**
+ * Struct: OrientedSensorData
+ * Purpose: Holds raw sensor readings that have been oriented according to installation but not yet calibrated or filtered.
+ * Attributes:
+ *   - magX, magY, magZ: Oriented magnetometer readings (uTesla)
+ *   - accelX, accelY, accelZ: Oriented accelerometer readings (m/s^2)
+ *   - gyroX, gyroY, gyroZ: Oriented gyroscope readings (deg/s)
+ */
+struct OrientedSensorData {
+  float magX = 0.0f;
+  float magY = 0.0f;
+  float magZ = 0.0f;
+  float accelX = 0.0f;
+  float accelY = 0.0f;
+  float accelZ = 0.0f;
+  float gyroX = 0.0f;
+  float gyroY = 0.0f;
+  float gyroZ = 0.0f;
+};
 
 /**
  * Struct: MotionData
@@ -215,7 +251,7 @@ void readRawSensorData();
 void reportCalibrationData();
 void resetAllMotionData(bool b_calibrate);
 void notifyWSClients(); // From Webhandler.h
-void sendCalibrationData(); // From Webhandler.h
+void sendCalibrationData(bool b_update_points); // From Webhandler.h
 void sendTelemetryData(); // From Webhandler.h
 
 /**
@@ -308,7 +344,232 @@ bool initializeSensors() {
   gyroscope = imuSensor.getGyroSensor();
   magnetometer = &magSensor;
 
+  #if DEBUG == 1
+    // Print information about the sensors.
+    accelerometer->printSensorDetails();
+    gyroscope->printSensorDetails();
+    magnetometer->printSensorDetails();
+  #endif
+
   return true;
+#endif
+}
+
+/**
+ * Struct: MagSelfTestResult
+ * Purpose: Holds results of LIS3MDL self-test including baseline, self-test, delta, and pass/fail status.
+ * Members:
+ *   - baselineX, baselineY, baselineZ: Baseline readings before self-test (µT)
+ *   - selfTestX, selfTestY, selfTestZ: Readings during self-test (µT)
+ *   - deltaX, deltaY, deltaZ: Difference between self-test and baseline (µT)
+ *   - passX, passY, passZ: Pass/fail status for each axis
+ */
+struct MagSelfTestResult {
+  float baselineX;
+  float baselineY;
+  float baselineZ;
+  float selfTestX;
+  float selfTestY;
+  float selfTestZ;
+  float deltaX;
+  float deltaY;
+  float deltaZ;
+  bool passX;
+  bool passY;
+  bool passZ;
+} magSelfTest;
+
+/**
+ * Function: runMagSelfTest
+ * Purpose: Runs LIS3MDL self-test and returns results in a struct.
+ * Inputs:
+ *   - Adafruit_LIS3MDL &mag: Reference to LIS3MDL sensor object.
+ * Outputs:
+ *   - MagSelfTestResult: Struct containing all relevant self-test data.
+ */
+MagSelfTestResult runMagSelfTest() {
+#ifdef MOTION_SENSORS
+  MagSelfTestResult result;
+
+  // 1. Record baseline readings
+  sensors_event_t baseline;
+  magSensor.getEvent(&baseline);
+  result.baselineX = baseline.magnetic.x;
+  result.baselineY = baseline.magnetic.y;
+  result.baselineZ = baseline.magnetic.z;
+
+  // 2. Enable self-test
+  magSensor.selfTest(true);
+  delay(10); // Wait for self-test to take effect
+
+  // 3. Read self-test values
+  sensors_event_t selfTest;
+  magSensor.getEvent(&selfTest);
+  result.selfTestX = selfTest.magnetic.x;
+  result.selfTestY = selfTest.magnetic.y;
+  result.selfTestZ = selfTest.magnetic.z;
+
+  // 4. Disable self-test
+  magSensor.selfTest(false);
+
+  // 5. Calculate deltas
+  result.deltaX = result.selfTestX - result.baselineX;
+  result.deltaY = result.selfTestY - result.baselineY;
+  result.deltaZ = result.selfTestZ - result.baselineZ;
+
+  // 6. Pass/fail logic for ±12 gauss (Table 2: X/Y 100–300 µT, Z 10–100 µT)
+  result.passX = (result.deltaX >= 100.0f && result.deltaX <= 300.0f);
+  result.passY = (result.deltaY >= 100.0f && result.deltaY <= 300.0f);
+  result.passZ = (fabs(result.deltaZ) >= 10.0f && fabs(result.deltaZ) <= 100.0f);
+
+  return result;
+#endif
+}
+
+// Helper to read one register via I2C.
+uint8_t readRegister( uint8_t reg) {
+  Wire1.beginTransmission(LIS3MDL_I2CADDR_DEFAULT);
+  Wire1.write(reg);
+  // send restart (false) so we can requestFrom immediately
+  if (Wire1.endTransmission(false) != 0) {
+    // transmission error / device NACK
+    return 0xFF;
+  }
+  if (Wire1.requestFrom(LIS3MDL_I2CADDR_DEFAULT, (uint8_t)1) != 1) {
+    return 0xFF;
+  }
+  return Wire1.read();
+}
+
+// Struct: MagConfigInfo
+// Purpose: Holds raw LIS3MDL register values and decoded configuration options.
+// Members:
+//   - rawRegisters: Array of register values (indexed by register address)
+//   - performanceMode, dataRate, range, operationMode: Decoded config values (as enums or strings)
+struct MagConfigInfo {
+  struct RegisterValue {
+    const char* name;
+    uint8_t address;
+    uint8_t value;
+  } rawRegisters[25];
+  const char* performanceMode;
+  const char* dataRate;
+  const char* range;
+  const char* operationMode;
+} magConfigInfo;
+
+/**
+ * Function: readMagConfig
+ * Purpose: Returns raw register values and current config options.
+ * Inputs:
+ *   - Adafruit_LIS3MDL &mag: Reference to LIS3MDL sensor object.
+ *   - TwoWire &wire: Reference to I2C bus (default Wire1).
+ *   - uint8_t i2c_addr: I2C address of the LIS3MDL (default 0x1E).
+ * Outputs:
+ *   - MagConfigInfo: Struct containing all relevant config data.
+ */
+MagConfigInfo readMagConfig() {
+#ifdef MOTION_SENSORS
+  MagConfigInfo info;
+
+  struct {
+    const char *name;
+    uint8_t reg;
+  } regs[] = {
+    {"OFFSET_X_REG_L_M", 0x05},
+    {"OFFSET_X_REG_H_M", 0x06},
+    {"OFFSET_Y_REG_L_M", 0x07},
+    {"OFFSET_Y_REG_H_M", 0x08},
+    {"OFFSET_Z_REG_L_M", 0x09},
+    {"OFFSET_Z_REG_H_M", 0x0A},
+    {"WHO_AM_I",   0x0F},
+    {"CTRL_REG1",  0x20},
+    {"CTRL_REG2",  0x21},
+    {"CTRL_REG3",  0x22},
+    {"CTRL_REG4",  0x23},
+    {"CTRL_REG5",  0x24},
+    {"STATUS_REG", 0x27},
+    {"OUT_X_L",    0x28},
+    {"OUT_X_H",    0x29},
+    {"OUT_Y_L",    0x2A},
+    {"OUT_Y_H",    0x2B},
+    {"OUT_Z_L",    0x2C},
+    {"OUT_Z_H",    0x2D},
+    {"TEMP_OUT_L", 0x2E},
+    {"TEMP_OUT_H", 0x2F},
+    {"INT_CFG",    0x30},
+    {"INT_SRC",    0x31},
+    {"INT_THS_L",  0x32},
+    {"INT_THS_H",  0x33}
+  };
+
+  if (!b_mag_found) {
+    // Sensor not initialized, fill with error values
+    for (size_t i = 0; i < sizeof(regs)/sizeof(regs[0]); ++i) {
+      info.rawRegisters[i].name = regs[i].name;
+      info.rawRegisters[i].address = regs[i].reg;
+      info.rawRegisters[i].value = 0xFF;
+    }
+    info.performanceMode = "Sensor Not Found";
+    info.dataRate = "Sensor Not Found";
+    info.range = "Sensor Not Found";
+    info.operationMode = "Sensor Not Found";
+    return info;
+  }
+
+  // Populate raw register values (ensure array size matches)
+  const size_t numRegs = sizeof(regs) / sizeof(regs[0]);
+  static_assert(numRegs == sizeof(info.rawRegisters) / sizeof(info.rawRegisters[0]), "rawRegisters size mismatch");
+  for (size_t i = 0; i < numRegs; ++i) {
+    info.rawRegisters[i].name = regs[i].name;
+    info.rawRegisters[i].address = regs[i].reg;
+    info.rawRegisters[i].value = readRegister(regs[i].reg);
+  }
+
+  // Decode performance mode
+  switch (magSensor.getPerformanceMode()) {
+    case LIS3MDL_LOWPOWERMODE:    info.performanceMode = "Low Power Mode"; break;
+    case LIS3MDL_MEDIUMMODE:      info.performanceMode = "Medium Performance Mode"; break;
+    case LIS3MDL_HIGHMODE:        info.performanceMode = "High Performance Mode"; break;
+    case LIS3MDL_ULTRAHIGHMODE:   info.performanceMode = "Ultra-High Performance Mode"; break;
+    default:                      info.performanceMode = "Unknown / Other"; break;
+  }
+
+  // Decode data rate
+  switch (magSensor.getDataRate()) {
+    case LIS3MDL_DATARATE_0_625_HZ:   info.dataRate = "0.625 Hz"; break;
+    case LIS3MDL_DATARATE_1_25_HZ:    info.dataRate = "1.25 Hz"; break;
+    case LIS3MDL_DATARATE_2_5_HZ:     info.dataRate = "2.5 Hz"; break;
+    case LIS3MDL_DATARATE_5_HZ:       info.dataRate = "5 Hz"; break;
+    case LIS3MDL_DATARATE_10_HZ:      info.dataRate = "10 Hz"; break;
+    case LIS3MDL_DATARATE_20_HZ:      info.dataRate = "20 Hz"; break;
+    case LIS3MDL_DATARATE_40_HZ:      info.dataRate = "40 Hz"; break;
+    case LIS3MDL_DATARATE_80_HZ:      info.dataRate = "80 Hz"; break;
+    case LIS3MDL_DATARATE_155_HZ:     info.dataRate = "155 Hz Ultra High"; break;
+    case LIS3MDL_DATARATE_300_HZ:     info.dataRate = "300 Hz High"; break;
+    case LIS3MDL_DATARATE_560_HZ:     info.dataRate = "560 Hz Medium"; break;
+    case LIS3MDL_DATARATE_1000_HZ:    info.dataRate = "1000 Hz Low Power"; break;
+    default:                          info.dataRate = "Unknown / Other"; break;
+  }
+
+  // Decode range
+  switch (magSensor.getRange()) {
+    case LIS3MDL_RANGE_4_GAUSS:   info.range = "±4 gauss"; break;
+    case LIS3MDL_RANGE_8_GAUSS:   info.range = "±8 gauss"; break;
+    case LIS3MDL_RANGE_12_GAUSS:  info.range = "±12 gauss"; break;
+    case LIS3MDL_RANGE_16_GAUSS:  info.range = "±16 gauss"; break;
+    default:                      info.range = "Unknown / Other"; break;
+  }
+
+  // Decode operation mode
+  switch(magSensor.getOperationMode()) {
+    case LIS3MDL_CONTINUOUSMODE:  info.operationMode = "Continuous-conversion"; break;
+    case LIS3MDL_SINGLEMODE:      info.operationMode = "Single-conversion"; break;
+    case LIS3MDL_POWERDOWNMODE:   info.operationMode = "Power-down"; break;
+    default:                      info.operationMode = "Unknown / Other"; break;
+  }
+
+  return info;
 #endif
 }
 
@@ -317,8 +578,20 @@ bool initializeSensors() {
  * Purpose: Configures the motion sensors.
  */
 void configureSensors() {
+  Serial.println(F("Configuring motion sensors..."));
 #ifdef MOTION_SENSORS
   if(b_mag_found && b_imu_found) {
+    /**
+     * Purpose: Sets the LIS3MDL magnetometer's measurement mode.
+     * Options:
+     *   - LIS3MDL_CONTINUOUSMODE: Continuous measurement mode (recommended for real-time applications).
+     *   - LIS3MDL_SINGLEMODE: Single-shot measurement mode (lower power, not suitable for streaming).
+     *   - LIS3MDL_POWERDOWNMODE: Power-down mode (sensor is off).
+     *
+     *   - Note that magSensor.begin_I2C() defaults to LIS3MDL_CONTINUOUSMODE.
+     */
+    magSensor.setOperationMode(LIS3MDL_CONTINUOUSMODE);
+
     /**
      * Purpose: Sets the LIS3MDL magnetometer's performance mode, balancing power consumption and measurement accuracy.
      * Options:
@@ -330,17 +603,6 @@ void configureSensors() {
      *   - Note that magSensor.begin_I2C() defaults to LIS3MDL_ULTRAHIGHMODE.
      */
     magSensor.setPerformanceMode(LIS3MDL_LOWPOWERMODE);
-
-    /**
-     * Purpose: Sets the LIS3MDL magnetometer's measurement mode.
-     * Options:
-     *   - LIS3MDL_CONTINUOUSMODE: Continuous measurement mode (recommended for real-time applications).
-     *   - LIS3MDL_SINGLEMODE: Single-shot measurement mode (lower power, not suitable for streaming).
-     *   - LIS3MDL_POWERDOWNMODE: Power-down mode (sensor is off).
-     *
-     *   - Note that magSensor.begin_I2C() defaults to LIS3MDL_CONTINUOUSMODE.
-     */
-    //magSensor.setOperationMode(LIS3MDL_CONTINUOUSMODE);
 
     /**
      * Purpose: Sets the LIS3MDL magnetometer's output data rate (ODR).
@@ -359,21 +621,21 @@ void configureSensors() {
      *   - LIS3MDL_DATARATE_1000_HZ: 1000 Hz. Overrides to LIS3MDL_LOWPOWERMODE.
      *
      *   - Note that magSensor.begin_I2C() defaults to LIS3MDL_DATARATE_155_HZ.
-     *   - Setting data rate to 155/300/560/1000 implicitly calls setPerformanceMode.
+     *   - Setting data rate to 155/300/560/1000 implicitly calls setPerformanceMode and sets accordingly.
      */
     magSensor.setDataRate(LIS3MDL_DATARATE_80_HZ);
 
     /**
      * Purpose: Sets the LIS3MDL magnetometer's measurement range (sensitivity).
      * Options:
-     *   - LIS3MDL_RANGE_4_GAUSS: ±4 Gauss (highest sensitivity, lowest max field).
-     *   - LIS3MDL_RANGE_8_GAUSS: ±8 Gauss (mid sensitivity, mid max field).
-     *   - LIS3MDL_RANGE_12_GAUSS: ±12 Gauss (low-mid sensitivity, high-mid max field).
-     *   - LIS3MDL_RANGE_16_GAUSS: ±16 Gauss (lowest sensitivity, highest max field).
+     *   - LIS3MDL_RANGE_4_GAUSS: ±4 Gauss [6842 LSB/g, 0.146 µT/LSB] (Default: highest sensitivity, lowest max field).
+     *   - LIS3MDL_RANGE_8_GAUSS: ±8 Gauss [3421 LSB/g, 0.292 µT/LSB] (1/2: mid sensitivity, mid max field).
+     *   - LIS3MDL_RANGE_12_GAUSS: ±12 Gauss [3421 LSB/g, 0.292 µT/LSB] (1/3: low-mid sensitivity, high-mid max field).
+     *   - LIS3MDL_RANGE_16_GAUSS: ±16 Gauss [1711 LSB/g, 0.584 µT/LSB] (1/4: lowest sensitivity, highest max field).
      *
      *   - Note that magSensor.begin_I2C() defaults to LIS3MDL_RANGE_4_GAUSS.
      */
-    //magSensor.setRange(LIS3MDL_RANGE_4_GAUSS);
+    magSensor.setRange(LIS3MDL_RANGE_8_GAUSS);
 
     /**
      * Purpose: Sets the LIS3MDL magnetometer's interrupt threshold.
@@ -400,6 +662,9 @@ void configureSensors() {
                               false, // Don't latch (pulse)
                               false); // Disable the interrupt
 
+    // Dump all LIS3MDL registers for debugging and perform a self-test.
+    magConfigInfo = readMagConfig();
+    magSelfTest = runMagSelfTest();
 
     /**
      * Purpose: Sets the LSM6DS3TR-C IMU's accelerometer measurement range.
@@ -510,8 +775,167 @@ void resetAllMotionData(bool b_calibrate = false) {
 }
 
 /**
+ * Function: applySensorOrientation
+ * Purpose: Maps raw sensor readings to the correct axes based on the installation orientation.
+ *          This function only handles coordinate system transformation, no calibration or filtering.
+ * Inputs:
+ *   - const sensors_event_t& mag_event: Raw magnetometer event data
+ *   - const sensors_event_t& accel_event: Raw accelerometer event data
+ *   - const sensors_event_t& gyro_event: Raw gyroscope event data
+ * Outputs:
+ *   - OrientedSensorData: Sensor readings mapped to the correct coordinate system
+ */
+OrientedSensorData applySensorOrientation(const sensors_event_t& mag_event,
+                                          const sensors_event_t& accel_event,
+                                          const sensors_event_t& gyro_event) {
+  OrientedSensorData oriented;
+
+  // Map the sensor readings to the correct axes based on the installation orientation
+  switch(INSTALL_ORIENTATION) {
+    case COMPONENTS_UP_USB_FRONT:
+      // Magnetometer values
+      oriented.magX = mag_event.magnetic.y * -1;
+      oriented.magY = mag_event.magnetic.x * -1;
+      oriented.magZ = mag_event.magnetic.z * -1;
+
+      // Acceleration and gyroscope values
+      oriented.accelX = accel_event.acceleration.y;
+      oriented.accelY = accel_event.acceleration.x;
+      oriented.accelZ = accel_event.acceleration.z;
+      oriented.gyroX = gyro_event.gyro.y * -1;
+      oriented.gyroY = gyro_event.gyro.x * -1;
+      oriented.gyroZ = gyro_event.gyro.z * -1;
+    break;
+
+    case COMPONENTS_UP_USB_REAR:
+      // Magnetometer values
+      oriented.magX = mag_event.magnetic.y;
+      oriented.magY = mag_event.magnetic.x;
+      oriented.magZ = mag_event.magnetic.z * -1;
+
+      // Acceleration and gyroscope values
+      oriented.accelX = accel_event.acceleration.y * -1;
+      oriented.accelY = accel_event.acceleration.x * -1;
+      oriented.accelZ = accel_event.acceleration.z;
+      oriented.gyroX = gyro_event.gyro.y;
+      oriented.gyroY = gyro_event.gyro.x;
+      oriented.gyroZ = gyro_event.gyro.z * -1;
+    break;
+
+    case COMPONENTS_DOWN_USB_FRONT:
+      // Default Hasbro installation orientation
+
+      // Magnetometer values
+      oriented.magX = mag_event.magnetic.y * -1;
+      oriented.magY = mag_event.magnetic.x;
+      oriented.magZ = mag_event.magnetic.z;
+
+      // Acceleration and gyroscope values
+      oriented.accelX = accel_event.acceleration.y;
+      oriented.accelY = accel_event.acceleration.x * -1;
+      oriented.accelZ = accel_event.acceleration.z * -1;
+      oriented.gyroX = gyro_event.gyro.y * -1;
+      oriented.gyroY = gyro_event.gyro.x;
+      oriented.gyroZ = gyro_event.gyro.z;
+    break;
+
+    case COMPONENTS_DOWN_USB_REAR:
+      // Magnetometer values
+      oriented.magX = mag_event.magnetic.y;
+      oriented.magY = mag_event.magnetic.x * -1;
+      oriented.magZ = mag_event.magnetic.z;
+
+      // Acceleration and gyroscope values
+      oriented.accelX = accel_event.acceleration.y * -1;
+      oriented.accelY = accel_event.acceleration.x;
+      oriented.accelZ = accel_event.acceleration.z * -1;
+      oriented.gyroX = gyro_event.gyro.y;
+      oriented.gyroY = gyro_event.gyro.x * -1;
+      oriented.gyroZ = gyro_event.gyro.z;
+    break;
+
+    case COMPONENTS_LEFT_USB_FRONT:
+      // Magnetometer values
+      oriented.magX = mag_event.magnetic.y * -1;
+      oriented.magY = mag_event.magnetic.z * -1;
+      oriented.magZ = mag_event.magnetic.x;
+
+      // Acceleration and gyroscope values
+      oriented.accelX = accel_event.acceleration.y;
+      oriented.accelY = accel_event.acceleration.z;
+      oriented.accelZ = accel_event.acceleration.x * -1;
+      oriented.gyroX = gyro_event.gyro.y * -1;
+      oriented.gyroY = gyro_event.gyro.z * -1;
+      oriented.gyroZ = gyro_event.gyro.x;
+    break;
+
+    case COMPONENTS_LEFT_USB_REAR:
+      // Magnetometer values
+      oriented.magX = mag_event.magnetic.y;
+      oriented.magY = mag_event.magnetic.z * -1;
+      oriented.magZ = mag_event.magnetic.x * -1;
+
+      // Acceleration and gyroscope values
+      oriented.accelX = accel_event.acceleration.y * -1;
+      oriented.accelY = accel_event.acceleration.z;
+      oriented.accelZ = accel_event.acceleration.x;
+      oriented.gyroX = gyro_event.gyro.y;
+      oriented.gyroY = gyro_event.gyro.z * -1;
+      oriented.gyroZ = gyro_event.gyro.x * -1;
+    break;
+
+    case COMPONENTS_RIGHT_USB_FRONT:
+      // Default Mack's Factory installation orientation
+
+      // Magnetometer values
+      oriented.magX = mag_event.magnetic.y * -1;
+      oriented.magY = mag_event.magnetic.z;
+      oriented.magZ = mag_event.magnetic.x * -1;
+
+      // Acceleration and gyroscope values
+      oriented.accelX = accel_event.acceleration.y;
+      oriented.accelY = accel_event.acceleration.z * -1;
+      oriented.accelZ = accel_event.acceleration.x;
+      oriented.gyroX = gyro_event.gyro.y * -1;
+      oriented.gyroY = gyro_event.gyro.z;
+      oriented.gyroZ = gyro_event.gyro.x * -1;
+    break;
+
+    case COMPONENTS_RIGHT_USB_REAR:
+      // Magnetometer values
+      oriented.magX = mag_event.magnetic.y;
+      oriented.magY = mag_event.magnetic.z;
+      oriented.magZ = mag_event.magnetic.x;
+
+      // Acceleration and gyroscope values
+      oriented.accelX = accel_event.acceleration.y * -1;
+      oriented.accelY = accel_event.acceleration.z * -1;
+      oriented.accelZ = accel_event.acceleration.x * -1;
+      oriented.gyroX = gyro_event.gyro.y;
+      oriented.gyroY = gyro_event.gyro.z;
+      oriented.gyroZ = gyro_event.gyro.x;
+    break;
+
+    case COMPONENTS_FACTORY_DEFAULT:
+      // If the orientation is unknown, do not modify the sensor readings.
+      oriented.magX = mag_event.magnetic.x;
+      oriented.magY = mag_event.magnetic.y;
+      oriented.magZ = mag_event.magnetic.z;
+      oriented.accelX = accel_event.acceleration.x;
+      oriented.accelY = accel_event.acceleration.y;
+      oriented.accelZ = accel_event.acceleration.z;
+      oriented.gyroX = gyro_event.gyro.x;
+      oriented.gyroY = gyro_event.gyro.y;
+      oriented.gyroZ = gyro_event.gyro.z;
+    break;
+  }
+
+  return oriented;
+}
+
+/**
  * Function: readRawSensorData
- * Purpose: Reads all sensor data directly from the magnetometer and IMU, transforming according to the installation orientation.
+ * Purpose: Reads all sensor data directly from the magnetometer and IMU, applies calibration corrections and orientation mapping.
  *          IMPORTANT: Only read the raw values from the sensors, do not apply any localized offsets or filtering here!
  * Inputs: None (uses global sensor objects)
  * Outputs: None (updates global sensor objects)
@@ -519,148 +943,33 @@ void resetAllMotionData(bool b_calibrate = false) {
 void readRawSensorData() {
 #ifdef MOTION_SENSORS
   if(b_imu_found && b_mag_found) {
-    // Poll the sensors.
+    // Poll the sensors for raw data
     magnetometer->getEvent(&mag_event);
     gyroscope->getEvent(&gyro_event);
     accelerometer->getEvent(&accel_event);
 
-    // Hard iron corrections applied directly to magnetic readings (orientation does not matter).
-    float mx = mag_event.magnetic.x - magCalData.mag_hardiron[0];
-    float my = mag_event.magnetic.y - magCalData.mag_hardiron[1];
-    float mz = mag_event.magnetic.z - magCalData.mag_hardiron[2];
+    // Apply orientation mapping to all sensor data
+    OrientedSensorData oriented = applySensorOrientation(mag_event, accel_event, gyro_event);
 
-    // Soft iron corrections applied directly to magnetic readings (orientation does not matter).
-    mag_event.magnetic.x = mx * magCalData.mag_softiron[0] + my * magCalData.mag_softiron[1] + mz * magCalData.mag_softiron[2];
-    mag_event.magnetic.y = mx * magCalData.mag_softiron[3] + my * magCalData.mag_softiron[4] + mz * magCalData.mag_softiron[5];
-    mag_event.magnetic.z = mx * magCalData.mag_softiron[6] + my * magCalData.mag_softiron[7] + mz * magCalData.mag_softiron[8];
+    // Apply hard iron corrections to magnetic readings (orientation independent)
+    float mx = oriented.magX - magCalData.mag_hardiron[0];
+    float my = oriented.magY - magCalData.mag_hardiron[1];
+    float mz = oriented.magZ - magCalData.mag_hardiron[2];
 
-    // Map the IMU sensor readings to the correct axes based on the installation orientation.
-    switch(INSTALL_ORIENTATION) {
-      case COMPONENTS_UP_USB_FRONT:
-        // Update the magnetometer data (swapping the X and Y axes due to component's installation).
-        motionData.magX = mag_event.magnetic.y * -1;
-        motionData.magY = mag_event.magnetic.x * -1;
-        motionData.magZ = mag_event.magnetic.z * -1;
+    // Apply soft iron corrections to magnetic readings (orientation independent)
+    motionData.magX = mx * magCalData.mag_softiron[0] + my * magCalData.mag_softiron[1] + mz * magCalData.mag_softiron[2];
+    motionData.magY = mx * magCalData.mag_softiron[3] + my * magCalData.mag_softiron[4] + mz * magCalData.mag_softiron[5];
+    motionData.magZ = mx * magCalData.mag_softiron[6] + my * magCalData.mag_softiron[7] + mz * magCalData.mag_softiron[8];
 
-        // Update the acceleration and gyroscope values (swapping the X and Y axes due to component's installation).
-        motionData.accelX = accel_event.acceleration.y;
-        motionData.accelY = accel_event.acceleration.x;
-        motionData.accelZ = accel_event.acceleration.z;
-        motionData.gyroX = gyro_event.gyro.y * -1;
-        motionData.gyroY = gyro_event.gyro.x * -1;
-        motionData.gyroZ = gyro_event.gyro.z * -1;
-      break;
+    // Store oriented values in global motionData
+    motionData.accelX = oriented.accelX;
+    motionData.accelY = oriented.accelY;
+    motionData.accelZ = oriented.accelZ;
+    motionData.gyroX = oriented.gyroX;
+    motionData.gyroY = oriented.gyroY;
+    motionData.gyroZ = oriented.gyroZ;
 
-      case COMPONENTS_UP_USB_REAR:
-        // Update the magnetometer data (swapping the X and Y axes due to component's installation).
-        motionData.magX = mag_event.magnetic.y;
-        motionData.magY = mag_event.magnetic.x;
-        motionData.magZ = mag_event.magnetic.z * -1;
-
-        // Update the acceleration and gyroscope values (swapping the X and Y axes due to component's installation).
-        motionData.accelX = accel_event.acceleration.y * -1;
-        motionData.accelY = accel_event.acceleration.x * -1;
-        motionData.accelZ = accel_event.acceleration.z;
-        motionData.gyroX = gyro_event.gyro.y;
-        motionData.gyroY = gyro_event.gyro.x;
-        motionData.gyroZ = gyro_event.gyro.z * -1;
-      break;
-
-      case COMPONENTS_DOWN_USB_FRONT:
-      default:
-        // Default Hasbro installation orientation.
-        // Update the magnetometer data (swapping the X and Y axes due to component's installation).
-        motionData.magX = mag_event.magnetic.y * -1;
-        motionData.magY = mag_event.magnetic.x;
-        motionData.magZ = mag_event.magnetic.z;
-
-        // Update the acceleration and gyroscope values (swapping the X and Y axes due to component's installation).
-        motionData.accelX = accel_event.acceleration.y;
-        motionData.accelY = accel_event.acceleration.x * -1;
-        motionData.accelZ = accel_event.acceleration.z * -1;
-        motionData.gyroX = gyro_event.gyro.y * -1;
-        motionData.gyroY = gyro_event.gyro.x;
-        motionData.gyroZ = gyro_event.gyro.z;
-      break;
-
-      case COMPONENTS_DOWN_USB_REAR:
-        // Update the magnetometer data (swapping the X and Y axes due to component's installation).
-        motionData.magX = mag_event.magnetic.y;
-        motionData.magY = mag_event.magnetic.x * -1;
-        motionData.magZ = mag_event.magnetic.z;
-
-        // Update the acceleration and gyroscope values (swapping the X and Y axes due to component's installation).
-        motionData.accelX = accel_event.acceleration.y * -1;
-        motionData.accelY = accel_event.acceleration.x;
-        motionData.accelZ = accel_event.acceleration.z * -1;
-        motionData.gyroX = gyro_event.gyro.y;
-        motionData.gyroY = gyro_event.gyro.x * -1;
-        motionData.gyroZ = gyro_event.gyro.z;
-      break;
-
-      case COMPONENTS_LEFT_USB_FRONT:
-        // Update the magnetometer data (swapping all three axes due to the component's installation).
-        motionData.magX = mag_event.magnetic.y * -1;
-        motionData.magY = mag_event.magnetic.z * -1;
-        motionData.magZ = mag_event.magnetic.x;
-
-        // Update the acceleration and gyroscope values (swapping all three axes due to the component's installation).
-        motionData.accelX = accel_event.acceleration.y;
-        motionData.accelY = accel_event.acceleration.z;
-        motionData.accelZ = accel_event.acceleration.x * -1;
-        motionData.gyroX = gyro_event.gyro.y * -1;
-        motionData.gyroY = gyro_event.gyro.z * -1;
-        motionData.gyroZ = gyro_event.gyro.x;
-      break;
-
-      case COMPONENTS_LEFT_USB_REAR:
-        // Update the magnetometer data (swapping all three axes due to the component's installation).
-        motionData.magX = mag_event.magnetic.y;
-        motionData.magY = mag_event.magnetic.z * -1;
-        motionData.magZ = mag_event.magnetic.x * -1;
-
-        // Update the acceleration and gyroscope values (swapping all three axes due to the component's installation).
-        motionData.accelX = accel_event.acceleration.y * -1;
-        motionData.accelY = accel_event.acceleration.z;
-        motionData.accelZ = accel_event.acceleration.x;
-        motionData.gyroX = gyro_event.gyro.y;
-        motionData.gyroY = gyro_event.gyro.z * -1;
-        motionData.gyroZ = gyro_event.gyro.x * -1;
-      break;
-
-      case COMPONENTS_RIGHT_USB_FRONT:
-        // Default Mack's Factory installation orientation.
-        // Update the magnetometer data (swapping all three axes due to the component's installation).
-        motionData.magX = mag_event.magnetic.y * -1;
-        motionData.magY = mag_event.magnetic.z;
-        motionData.magZ = mag_event.magnetic.x * -1;
-
-        // Update the acceleration and gyroscope values (swapping all three axes due to the component's installation).
-        motionData.accelX = accel_event.acceleration.y;
-        motionData.accelY = accel_event.acceleration.z * -1;
-        motionData.accelZ = accel_event.acceleration.x;
-        motionData.gyroX = gyro_event.gyro.y * -1;
-        motionData.gyroY = gyro_event.gyro.z;
-        motionData.gyroZ = gyro_event.gyro.x * -1;
-      break;
-
-      case COMPONENTS_RIGHT_USB_REAR:
-        // Update the magnetometer data (swapping all three axes due to the component's installation).
-        motionData.magX = mag_event.magnetic.y;
-        motionData.magY = mag_event.magnetic.z;
-        motionData.magZ = mag_event.magnetic.x;
-
-        // Update the acceleration and gyroscope values (swapping all three axes due to the component's installation).
-        motionData.accelX = accel_event.acceleration.y * -1;
-        motionData.accelY = accel_event.acceleration.z * -1;
-        motionData.accelZ = accel_event.acceleration.x * -1;
-        motionData.gyroX = gyro_event.gyro.y;
-        motionData.gyroY = gyro_event.gyro.z;
-        motionData.gyroZ = gyro_event.gyro.x;
-      break;
-    }
-
-    // Lastly, the AHRS library update() function expects deg/s gyro values, so convert accordingly.
+    // Convert gyroscope from rad/s to deg/s as expected by AHRS library
     motionData.gyroX *= SENSORS_RADS_TO_DPS;
     motionData.gyroY *= SENSORS_RADS_TO_DPS;
     motionData.gyroZ *= SENSORS_RADS_TO_DPS;
@@ -948,7 +1257,8 @@ void processMotionData() {
 
     case TELEMETRY:
     default:
-      readRawSensorData(); // Read the raw sensor data and place the latest values in the motionData object.
+      // Read the raw sensor data with orientation corrections and update the motionData object.
+      readRawSensorData();
 
       // Calculate the magnitude of the raw angular velocity vector (deg/s).
       motionData.angVel = calculateAngularVelocity(motionData);
@@ -957,12 +1267,15 @@ void processMotionData() {
       motionData.gForce = calculateGForce(motionData);
 
       // Apply offsets to IMU readings (values should be 0 if not calculated).
-      motionData.accelX -= motionOffsets.accelX;
-      motionData.accelY -= motionOffsets.accelY;
-      motionData.accelZ -= motionOffsets.accelZ;
-      motionData.gyroX -= motionOffsets.gyroX;
-      motionData.gyroY -= motionOffsets.gyroY;
-      motionData.gyroZ -= motionOffsets.gyroZ;
+      if (INSTALL_ORIENTATION != COMPONENTS_FACTORY_DEFAULT) {
+        // Only apply offsets if we know the installation orientation.
+        motionData.accelX -= motionOffsets.accelX;
+        motionData.accelY -= motionOffsets.accelY;
+        motionData.accelZ -= motionOffsets.accelZ;
+        motionData.gyroX -= motionOffsets.gyroX;
+        motionData.gyroY -= motionOffsets.gyroY;
+        motionData.gyroZ -= motionOffsets.gyroZ;
+      }
 
       // Update the orientation via sensor fusion.
       updateOrientation();
@@ -993,7 +1306,9 @@ void collectMotionOffsets() {
 #if defined(MOTION_SENSORS) && defined(MOTION_OFFSETS)
   if(motionOffsets.samples < i_sensor_samples) {
     motionOffsets.samples++; // Increment the sample count.
-    debugln("Calibrating motion offsets... Sample " + String(motionOffsets.samples) + " of " + String(i_sensor_samples));
+    #if defined(DEBUG_SEND_TO_CONSOLE)
+      debugln("Calibrating motion offsets... Sample " + String(motionOffsets.samples) + " of " + String(i_sensor_samples));
+    #endif
 
     readRawSensorData(); // Read the raw sensor data and place the latest values in the motionData object.
 
@@ -1023,8 +1338,8 @@ void collectMotionOffsets() {
 
 /**
  * Function: reportCalibrationData
- * Purpose: Reports the current calibration data direct from the motion sensors.
- * This data contains no offsets or axis modifications, it is only the raw data.
+ * Purpose: Reports the current calibration data from the motion sensors with proper orientation mapping.
+ *          This ensures calibration tools receive data in the device's coordinate system, not the raw chip coordinates.
  * Data is output direct to serial console (USB) for capture by external tools.
  * See: https://www.pjrc.com/store/prop_shield.html for MotionCal downloads.
  */
@@ -1034,34 +1349,40 @@ void reportCalibrationData() {
   gyroscope->getEvent(&gyro_event);
   accelerometer->getEvent(&accel_event);
 
-  // 'Raw' values to match expectation of MotionCal
+  // Uncomment to force the device's raw orientation for calibration reporting, when necessary.
+  // INSTALL_ORIENTATION = COMPONENTS_FACTORY_DEFAULT;
+
+  // Apply orientation mapping to get data in the device's intended coordinate system (NED).
+  // This ensures all calibration offsets will be stored relative to the XYZ axis intended.
+  OrientedSensorData oriented = applySensorOrientation(mag_event, accel_event, gyro_event);
+
+  // 'Raw' values to match expectation of MotionCal (using oriented data)
   Serial.print("Raw:");
-  Serial.print(int(accel_event.acceleration.x*8192/9.8)); Serial.print(",");
-  Serial.print(int(accel_event.acceleration.y*8192/9.8)); Serial.print(",");
-  Serial.print(int(accel_event.acceleration.z*8192/9.8)); Serial.print(",");
-  Serial.print(int(gyro_event.gyro.x*SENSORS_RADS_TO_DPS*16)); Serial.print(",");
-  Serial.print(int(gyro_event.gyro.y*SENSORS_RADS_TO_DPS*16)); Serial.print(",");
-  Serial.print(int(gyro_event.gyro.z*SENSORS_RADS_TO_DPS*16)); Serial.print(",");
-  Serial.print(int(mag_event.magnetic.x*10)); Serial.print(",");
-  Serial.print(int(mag_event.magnetic.y*10)); Serial.print(",");
-  Serial.print(int(mag_event.magnetic.z*10)); Serial.println("");
+  Serial.print(int(oriented.accelX * 8192 / 9.8)); Serial.print(",");
+  Serial.print(int(oriented.accelY * 8192 / 9.8)); Serial.print(",");
+  Serial.print(int(oriented.accelZ * 8192 / 9.8)); Serial.print(",");
+  Serial.print(int(oriented.gyroX * SENSORS_RADS_TO_DPS * 16)); Serial.print(",");
+  Serial.print(int(oriented.gyroY * SENSORS_RADS_TO_DPS * 16)); Serial.print(",");
+  Serial.print(int(oriented.gyroZ * SENSORS_RADS_TO_DPS * 16)); Serial.print(",");
+  Serial.print(int(oriented.magX * 10)); Serial.print(",");
+  Serial.print(int(oriented.magY * 10)); Serial.print(",");
+  Serial.print(int(oriented.magZ * 10)); Serial.println("");
 
-  // 'Uni' values to match expectation of MotionCal
+  // 'Uni' values to match expectation of MotionCal (using oriented data)
   Serial.print("Uni:");
-  Serial.print(accel_event.acceleration.x); Serial.print(",");
-  Serial.print(accel_event.acceleration.y); Serial.print(",");
-  Serial.print(accel_event.acceleration.z); Serial.print(",");
-  Serial.print(gyro_event.gyro.x, 4); Serial.print(",");
-  Serial.print(gyro_event.gyro.y, 4); Serial.print(",");
-  Serial.print(gyro_event.gyro.z, 4); Serial.print(",");
-  Serial.print(mag_event.magnetic.x); Serial.print(",");
-  Serial.print(mag_event.magnetic.y); Serial.print(",");
-  Serial.print(mag_event.magnetic.z); Serial.println("");
+  Serial.print(oriented.accelX); Serial.print(",");
+  Serial.print(oriented.accelY); Serial.print(",");
+  Serial.print(oriented.accelZ); Serial.print(",");
+  Serial.print(oriented.gyroX, 4); Serial.print(",");
+  Serial.print(oriented.gyroY, 4); Serial.print(",");
+  Serial.print(oriented.gyroZ, 4); Serial.print(",");
+  Serial.print(oriented.magX); Serial.print(",");
+  Serial.print(oriented.magY); Serial.print(",");
+  Serial.print(oriented.magZ); Serial.println("");
 
-  // Send the magnetometer data to the MagCal logic for collection into bins.
-  if(magCal.addSample(mag_event.magnetic.x, mag_event.magnetic.y, mag_event.magnetic.z)) {
-    // Only send the calibration points to web-connected clients if a new point is added.
-    sendCalibrationData();
-  }
+  // Send the oriented magnetometer data to the MagCal logic for collection into bins.
+  // This ensures the calibration is done in the device's coordinate system.
+  bool b_point_added = magCal.addSample(oriented.magX, oriented.magY, oriented.magZ);
+  sendCalibrationData(b_point_added);
 #endif
 }

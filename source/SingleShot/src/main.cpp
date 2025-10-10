@@ -205,6 +205,9 @@ void setup() {
   encoder.initialize();
 
 #ifdef ESP32
+  // Get all special device preferences from NVS which may be needed for sensors.
+  getSpecialPreferences();
+
   // ESP32-S3 requires manually specifying SDA and SCL pins first.
   // This is the i2c bus to be used solely for the bargraph.
   Wire.begin(I2C_SDA, I2C_SCL, 400000UL);
@@ -216,14 +219,8 @@ void setup() {
     while(1) delay(10);
   }
 
-  // Print information about the sensors.
-  accelerometer->printSensorDetails();
-  gyroscope->printSensorDetails();
-  magnetometer->printSensorDetails();
-
-  getSpecialPreferences(); // Get all device preferences.
-  configureSensors(); // Set sensor ranges and defaults.
   delay(40); // Pause briefly for the devices to start.
+  configureSensors(); // Set sensor ranges and defaults.
   readRawSensorData(); // Perform an initial sensor read.
   resetAllMotionData(true); // Reset and calibrate.
 #else

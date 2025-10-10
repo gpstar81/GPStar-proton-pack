@@ -69,7 +69,9 @@ void MagCalibration::resetSamples() {
 // Begin a new calibration session by clearing all counters, arrays, and flags.
 void MagCalibration::beginCalibration() {
   resetSamples();
-  hardIronOffset = {0.0f, 0.0f, 0.0f};
+  hardIronOffset.x = 0.0f;
+  hardIronOffset.y = 0.0f;
+  hardIronOffset.z = 0.0f;
   hardIronOffsetApplied = false;
   statusMessage[0] = '\0'; // Clear status message
 }
@@ -259,7 +261,9 @@ uint16_t MagCalibration::getVisPoints(const double*& outX, const double*& outY, 
  */
 HardIronResult MagCalibration::calculateHardIronOffsets() const {
   HardIronResult result = {};
-  result.offsets = {0.0f, 0.0f, 0.0f};
+  result.offsets.x = 0.0f;
+  result.offsets.y = 0.0f;
+  result.offsets.z = 0.0f;
   result.rangeX = result.rangeY = result.rangeZ = 0.0f;
   result.sufficientSpread = false; // Default to false.
 

@@ -185,6 +185,7 @@ function setButtonStates(sensorState) {
       // Ensure the calibration info is visible.
       if (document.getElementById("calInfo").style.display == "none") {
         showEl("calInfo");
+        setHtml("calStatus", "");
       }
       break;
     case "Offsets":
@@ -473,7 +474,7 @@ class Calibration3DView {
     // Add new meshes only if needed (keeps a pool of meshes for efficiency)
     for (let i = existing; i < needed; i++) {
       const geometry = new THREE.SphereGeometry(1, 16, 16);
-      const material = new THREE.MeshBasicMaterial({color: 0xff0000});
+      const material = new THREE.MeshLambertMaterial({color: 0xff0000});
       const pointMesh = new THREE.Mesh(geometry, material);
       this.pointsGroup.add(pointMesh);
     }
@@ -590,7 +591,7 @@ if (!!window.EventSource) {
 
     var calData = {}; // Always begin with an empty object.
     try {
-      calData = JSON.parse(e.data); // float + array of [x, y, z] triplets
+      calData = JSON.parse(e.data); // Enhanced JSON with coverage, points, and bin distributions
     } catch (e) { }
 
     // Update the calibration coverage percentage.
@@ -599,6 +600,28 @@ if (!!window.EventSource) {
       setHtml("coverage", formatFloat(lastCoverage) + "%");
     }
 
+    // Report any status messages sent from the calibration process.
+    if (calData.s && calData.s != "") {
+      setHtml("calStatus", calData.s || "");
+    }
+
+    // Display the last added sample for reference.
+    if (calData.v && (calData.v || []).length == 3) {
+      setHtml("magX", formatFloat(calData.v[0] || 0) + "&micro;T");
+      setHtml("magY", formatFloat(calData.v[1] || 0) + "&micro;T");
+      setHtml("magZ", formatFloat(calData.v[2] || 0) + "&micro;T");
+    }
+
+    // Process enhanced bin distribution data for coverage analysis
+    // Purpose: Update elevation and azimuth coverage visualizations with real-time data
+    if (calData.e && calData.a) {
+      updateElevationChart(calData.e); // Update vertical coverage bar chart
+      updateAzimuthChart(calData.a);   // Update horizontal coverage circular chart
+      updateCoverageStatistics(calData.e, calData.a); // Update numerical coverage displays
+      updateCoverageStatus(calData.e, calData.a, lastCoverage); // Provide user feedback
+    }
+
+    // Update existing 3D visualization with coordinate points, when available.
     if (calibration3D && (calData.p || []).length > 0) {
       calibration3D.setPoints(calData.p);
     }
@@ -609,11 +632,6 @@ if (!!window.EventSource) {
     try {
       obj = JSON.parse(e.data);
     } catch (e) { }
-
-    // Convert roll, pitch, and yaw from degrees to radians for Three.js
-    var rollRads = (obj.roll || 0) * Math.PI / 180;
-    var pitchRads = (obj.pitch || 0) * Math.PI / 180;
-    var yawRads = (obj.yaw || 0) * Math.PI / 180;
 
     // Update the HTML elements with the telemetry data
     setHtml("gyroX",  formatFloat(obj.gyroX || 0)  + "&deg;/s");
@@ -628,6 +646,9 @@ if (!!window.EventSource) {
     setHtml("gForce", formatFloat(obj.gForce || 0) + "");
     setHtml("angVel", formatFloat(obj.angVel || 0) + "&deg;/s");
     setHtml("shaken", "&nbsp;&nbsp;&nbsp;" + (obj.shaken ? "&oplus;" : "&mdash;"));
+    setHtml("magX",  formatFloat(obj.magX || 0)  + "&micro;T");
+    setHtml("magY",  formatFloat(obj.magY || 0)  + "&micro;T");
+    setHtml("magZ",  formatFloat(obj.magZ || 0)  + "&micro;T");
 
     // Proceed with updating the rendered scene if all objects are present.
     if (telemetry3D && telemetry3D.mesh) {
@@ -637,6 +658,11 @@ if (!!window.EventSource) {
 
       // Use quaternion (x,y,z,w) calculations for more accurate orientation and avoid gimbal lock.
       telemetry3D.setQuaternion(-obj.qy, -obj.qz, obj.qx, obj.qw);
+
+      // Convert roll, pitch, and yaw from degrees to radians for Three.js
+      var rollRads = (obj.roll || 0) * Math.PI / 180;
+      var pitchRads = (obj.pitch || 0) * Math.PI / 180;
+      var yawRads = (obj.yaw || 0) * Math.PI / 180;
 
       // Move camera behind the object based on yaw
       const radius = 200; // Distance from object, adjust as needed
@@ -679,6 +705,7 @@ function enableCalibration() {
     sendCommand("/sensors/calibrate/enable");
     calibration3D.clearPoints();
     showEl("calInfo");
+    setHtml("calStatus", "");
   }
 }
 
@@ -701,6 +728,238 @@ function disableCalibration() {
     sendCommand("/sensors/calibrate/disable");
     hideEl("calInfo");
     calibration3D.clearPoints();
+  }
+}
+
+/**
+ * Function: updateElevationChart
+ * Purpose: Create visual representation of vertical coverage distribution using elevation bin data
+ * Inputs: elevationBins - Array of sample counts per elevation bin (includes zeros for empty bins)
+ * Outputs: Updates DOM with elevation coverage visualization as horizontal bars
+ *
+ * This function converts the elevation bin array into a bar chart where each bar represents
+ * coverage in a specific elevation range. Array index directly maps to elevation degrees:
+ * Formula: degrees = (index * 180 / array.length) - 90 (maps to -90° to +90° range)
+ */
+function updateElevationChart(elevationBins) {
+  var elevationChart = getEl("elevationChart");
+  if (!elevationChart || !elevationBins || elevationBins.length === 0) return;
+
+  // Clear existing bars
+  elevationChart.innerHTML = "";
+
+  // Calculate degrees per bin from array length
+  // Purpose: Convert array index to elevation degrees for accurate degree mapping
+  var degreesPerBin = 180 / elevationBins.length;
+
+  // Create bars for each elevation bin
+  for (var i = 0; i < elevationBins.length; i++) {
+    var sampleCount = elevationBins[i] || 0; // Ensure we handle undefined values as 0
+
+    // Calculate elevation degrees for this bin index
+    // Formula: degrees = (index * degreesPerBin) - 90
+    // Maps index 0 to -90°, middle index to 0°, last index to +90°
+    var centerDegrees = (i * degreesPerBin) - 90;
+
+    // Create bar element for this elevation bin
+    var bar = document.createElement("div");
+    bar.className = "elevation-bin";
+
+    // Set bar height based on sample count (minimum 2px for visibility)
+    // Purpose: Provide visual feedback about sample density in each elevation range
+    var barHeight = Math.max(sampleCount * 2, 2);
+    bar.style.height = barHeight + "px";
+
+    // Color coding: green if filled (samples > 0), red if empty
+    // Purpose: Immediate visual feedback about coverage gaps
+    if (sampleCount > 0) {
+      bar.classList.add("filled");
+    }
+
+    // Add tooltip with bin information for user reference
+    bar.title = "Bin " + i + " (" + centerDegrees.toFixed(1) + "°): " + sampleCount + " samples";
+
+    elevationChart.appendChild(bar);
+  }
+}
+
+/**
+ * Function: updateAzimuthChart
+ * Purpose: Create circular visualization of horizontal coverage using azimuth bin data
+ * Inputs: azimuthBins - Array of sample counts per azimuth bin (includes zeros for empty bins)
+ * Outputs: Updates DOM with azimuth coverage visualization as SVG circular chart
+ *
+ * This function converts the azimuth bin array into a circular chart where each point represents
+ * coverage in a specific azimuth range. Array index directly maps to azimuth degrees:
+ * Formula: degrees = index * 360 / array.length (maps to 0° to 360° range)
+ */
+function updateAzimuthChart(azimuthBins) {
+  var azimuthChart = getEl("azimuthChart");
+  if (!azimuthChart || !azimuthBins || azimuthBins.length === 0) return;
+
+  // SVG circle chart parameters for consistent sizing
+  var centerX = 50, centerY = 50, radius = 40; // SVG viewBox coordinates
+  var svgSize = 100; // Total SVG size
+
+  // Create SVG element for circular representation
+  // Purpose: Provide compass-style visualization of horizontal rotation coverage
+  azimuthChart.innerHTML =
+    '<svg width="' + svgSize + '" height="' + svgSize + '" viewBox="0 0 ' + svgSize + ' ' + svgSize + '">' +
+    '<circle cx="' + centerX + '" cy="' + centerY + '" r="' + radius + '" ' +
+    'fill="none" stroke="rgba(0,160,0,0.3)" stroke-width="1"/>' +
+    '</svg>';
+
+  var svg = azimuthChart.querySelector("svg");
+
+  // Calculate degrees per bin from array length
+  // Purpose: Convert array index to azimuth degrees for accurate compass mapping
+  var degreesPerBin = 360 / azimuthBins.length;
+
+  // Create indicators for each azimuth bin
+  for (var i = 0; i < azimuthBins.length; i++) {
+    var sampleCount = azimuthBins[i] || 0; // Ensure we handle undefined values as 0
+
+    // Calculate azimuth degrees for this bin index
+    // Formula: degrees = index * degreesPerBin
+    // Maps index 0 to 0° (North), increasing clockwise
+    var degrees = i * degreesPerBin;
+
+    // Convert degrees to radians for trigonometric calculations
+    // Subtract 90° to start at top (North) instead of right (East)
+    var radians = (degrees - 90) * Math.PI / 180;
+
+    // Calculate position on circle using trigonometry
+    var x = centerX + radius * Math.cos(radians);
+    var y = centerY + radius * Math.sin(radians);
+
+    // Create visual indicator for this bin position
+    var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttribute("cx", x.toFixed(2));
+    circle.setAttribute("cy", y.toFixed(2));
+    circle.setAttribute("r", sampleCount > 0 ? "2" : "1"); // Larger if filled
+    circle.setAttribute("fill", sampleCount > 0 ? "rgba(0,160,0,0.8)" : "rgba(255,0,0,0.8)");
+    circle.setAttribute("title", "Bin " + i + " (" + degrees.toFixed(1) + "°): " + sampleCount + " samples");
+
+    svg.appendChild(circle);
+  }
+}
+
+/**
+ * Function: updateCoverageStatistics
+ * Purpose: Update numerical coverage displays for elevation and azimuth bins
+ * Inputs: elevationBins - Array of elevation bin sample counts
+ *         azimuthBins - Array of azimuth bin sample counts
+ * Outputs: Updates DOM elements with coverage statistics
+ *
+ * This function calculates how many bins contain samples and displays the statistics
+ * in a readable format for quick assessment of calibration progress.
+ */
+function updateCoverageStatistics(elevationBins, azimuthBins) {
+  if (!elevationBins || !azimuthBins) return;
+
+  // Count filled elevation bins (bins with sample count > 0)
+  var filledElevationBins = 0;
+  for (var i = 0; i < elevationBins.length; i++) {
+    if ((elevationBins[i] || 0) > 0) {
+      filledElevationBins++;
+    }
+  }
+
+  // Count filled azimuth bins (bins with sample count > 0)
+  var filledAzimuthBins = 0;
+  for (var i = 0; i < azimuthBins.length; i++) {
+    if ((azimuthBins[i] || 0) > 0) {
+      filledAzimuthBins++;
+    }
+  }
+
+  // Calculate percentages for more intuitive display
+  var elevationPercent = ((filledElevationBins / elevationBins.length) * 100).toFixed(1);
+  var azimuthPercent = ((filledAzimuthBins / azimuthBins.length) * 100).toFixed(1);
+
+  // Update elevation coverage display
+  // Purpose: Show vertical coverage progress as filled/total ratio
+  setHtml("elevationCoverage", elevationPercent + "%");
+
+  // Update azimuth coverage display
+  // Purpose: Show horizontal coverage progress as filled/total ratio
+  setHtml("azimuthCoverage", azimuthPercent + "%");
+}
+
+/**
+ * Function: updateCoverageStatus
+ * Purpose: Provide real-time feedback and recommendations for improving calibration coverage
+ * Inputs: elevationBins - Array of elevation bin sample counts
+ *         azimuthBins - Array of azimuth bin sample counts
+ *         overallCoverage - Overall coverage percentage
+ * Outputs: Updates DOM with actionable status messages for user guidance
+ *
+ * This function analyzes coverage patterns and provides specific guidance to help users
+ * improve their calibration by identifying the most significant coverage gaps.
+ */
+function updateCoverageStatus(elevationBins, azimuthBins, overallCoverage) {
+  var statusElement = getEl("coverageStatus");
+  if (!statusElement || !elevationBins || !azimuthBins) return;
+
+  var statusMessage = "";
+  var statusClass = "status-message";
+
+  // Analyze coverage patterns to provide specific guidance
+  if (overallCoverage < 5) {
+    // Very low coverage - basic movement guidance
+    statusMessage = "Begin moving the wand in all directions to start calibration...";
+  } else if (overallCoverage < 30) {
+    // Low coverage - encourage more movement variety
+    statusMessage = "Continue rotating and tilting the wand to increase coverage...";
+    statusClass += " warning";
+  } else if (overallCoverage < 60) {
+    // Moderate coverage - analyze specific gaps
+
+    // Check for elevation coverage gaps
+    var lowElevationCovered = false; // Check -90° to -30° range
+    var highElevationCovered = false; // Check +30° to +90° range
+    var elevationBinRange = Math.floor(elevationBins.length / 6);
+
+    // Check low elevation coverage (pointing down)
+    for (var i = 0; i < elevationBinRange; i++) {
+      if ((elevationBins[i] || 0) > 0) {
+        lowElevationCovered = true;
+        break;
+      }
+    }
+
+    // Check high elevation coverage (pointing up)
+    for (var i = elevationBins.length - elevationBinRange; i < elevationBins.length; i++) {
+      if ((elevationBins[i] || 0) > 0) {
+        highElevationCovered = true;
+        break;
+      }
+    }
+
+    // Provide specific guidance based on missing coverage areas
+    if (!lowElevationCovered && !highElevationCovered) {
+      statusMessage = "Try tilting the wand more - point up toward the ceiling and down toward the floor...";
+    } else if (!lowElevationCovered) {
+      statusMessage = "Point the wand downward more - try aiming toward the floor while rotating...";
+    } else if (!highElevationCovered) {
+      statusMessage = "Point the wand upward more - try aiming toward the ceiling while rotating...";
+    } else {
+      statusMessage = "Good vertical coverage! Continue rotating for improved horizontal coverage...";
+    }
+    statusClass += " warning";
+  } else {
+    // Good coverage - encourage completion
+    statusMessage = "Excellent coverage! Continue until satisfied, then disable calibration.";
+    statusClass += " success";
+  }
+
+  // Update status display with appropriate styling and error handling
+  // Purpose: Ensure status messages appear even if DOM structure changes
+  try {
+    statusElement.innerHTML = statusMessage;
+    statusElement.className = statusClass;
+  } catch (error) {
+    console.log("Error updating coverage status: " + error.message);
   }
 }
 )=====";
