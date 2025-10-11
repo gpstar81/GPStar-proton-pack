@@ -519,6 +519,9 @@ void hatLightControl() {
     break;
 
     case MODE_ON:
+      // Clippard LED is linked to the wand switch; check to see if it needs to be on.
+      digitalWriteFast(CLIPPARD_LED_PIN, switch_wand.on() ? HIGH : LOW);
+
       if(b_pack_alarm) {
         if(ms_error_blink.remaining() < i_error_blink_delay / 2) {
           digitalWriteFast(TOP_HAT_LED_PIN, LOW);
@@ -1542,9 +1545,6 @@ void postActivation(bool shortBoot = false) {
 
     // Turn on slo-blo light.
     digitalWriteFast(SLO_BLO_LED_PIN, HIGH);
-
-    // Turn on the Clippard LED.
-    digitalWriteFast(CLIPPARD_LED_PIN, HIGH);
 
     // Turn on top white light and its blink timer.
     ms_white_light.start(i_white_light_interval);
