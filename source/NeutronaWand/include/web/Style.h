@@ -428,7 +428,7 @@ input[type=text] {
 }
 
 #mag {
-  align-items:center;  
+  align-items:center;
   display:flex;
   gap:0.7em;
 }
@@ -444,7 +444,7 @@ input[type=text] {
   box-sizing:border-box;
 }
 
-.coverage-analysis {
+.distribution-analysis {
   margin:15px 0;
 }
 
@@ -453,10 +453,6 @@ input[type=text] {
   font-weight:600;
   margin:10px 0 5px;
   text-align:center;
-}
-
-.elevation-display {
-  margin:10px 0;
 }
 
 .elevation-chart-container {
@@ -496,10 +492,6 @@ input[type=text] {
 .degree-label {
   font-family:Courier New,Courier,sans-serif;
   font-size:0.7em;
-}
-
-.azimuth-display {
-  margin:15px 0;
 }
 
 .azimuth-chart-container {

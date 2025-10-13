@@ -121,17 +121,12 @@ void MagCalibration::beginCalibration() {
  * 6. If we've seen that direction before, ignore it
  */
 bool MagCalibration::addSample(float x, float y, float z) {
-  // Always update lastRawSample with the latest raw values.
-  lastRawSample.x = x;
-  lastRawSample.y = y;
-  lastRawSample.z = z;
-
   // Check if we should calculate and apply hard-iron offset as the Phase 1 of calibration.
   // This is done only once when we have enough samples w/ good spread to make an estimate.
   if (!provisionalHardIron.offsetsApplied) {
     if (sampleCount < HARD_IRON_SAMPLE_THRESHOLD) {
       // Not enough samples to attempt a calculation yet, so instruct the user on what to do.
-      snprintf(statusMessage, sizeof(statusMessage), "Move the device in wide circular orbits around you...");
+      snprintf(statusMessage, sizeof(statusMessage), "Move the device in full circular rotations in multiple directions: horizontal, vertical, and diagonal.");
     } else {
       // We have enough samples to attempt a hard-iron offset calculation.
       provisionalHardIron = calculateHardIronOffsets(); // Run the calculation for hard-iron offsets.
@@ -155,6 +150,11 @@ bool MagCalibration::addSample(float x, float y, float z) {
     y -= provisionalHardIron.offsets.y;
     z -= provisionalHardIron.offsets.z;
   }
+
+  // Always update lastRawSample with the latest sample values.
+  lastRawSample.x = x;
+  lastRawSample.y = y;
+  lastRawSample.z = z;
 
   // STEP 1: Check storage capacity
   // We can only store a limited number of samples and if we're full, rejecting any new samples.

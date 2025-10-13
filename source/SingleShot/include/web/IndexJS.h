@@ -185,7 +185,7 @@ function setButtonStates(sensorState) {
       // Ensure the calibration info is visible.
       if (document.getElementById("calInfo").style.display == "none") {
         showEl("calInfo");
-        setHtml("calStatus", "");
+        setHtml("deviceStatus", "");
       }
       break;
     case "Offsets":
@@ -422,7 +422,7 @@ class Calibration3DView {
 
     // Sphere geometry placed at the origin of the scene.
     const geometry = new THREE.SphereGeometry(6, 32, 32);
-    const material = new THREE.MeshBasicMaterial({
+    const material = new THREE.MeshLambertMaterial({
       color: 0x222222,
       transparent: true,
       opacity: 0.4
@@ -434,7 +434,7 @@ class Calibration3DView {
     this.camera = new THREE.PerspectiveCamera(80, this.aspect, 0.1, 1000);
 
     // Position camera and look at the center of the scene
-    this.camera.position.set(0, 5, 75);
+    this.camera.position.set(0, 5, 90);
 
     // Camera positioning using the center of the mesh as the focal point
     this.camera.lookAt(new THREE.Vector3());
@@ -602,7 +602,7 @@ if (!!window.EventSource) {
 
     // Report any status messages sent from the calibration process.
     if (calData.s && calData.s != "") {
-      setHtml("calStatus", calData.s || "");
+      setHtml("deviceStatus", calData.s || "");
     }
 
     // Display the last added sample for reference.
@@ -617,8 +617,8 @@ if (!!window.EventSource) {
     if (calData.e && calData.a) {
       updateElevationChart(calData.e); // Update vertical coverage bar chart
       updateAzimuthChart(calData.a);   // Update horizontal coverage circular chart
-      updateCoverageStatistics(calData.e, calData.a); // Update numerical coverage displays
-      updateCoverageStatus(calData.e, calData.a, lastCoverage); // Provide user feedback
+      updateDistributionStats(calData.e, calData.a); // Update numerical coverage displays
+      updateuserFeedback(calData.e, calData.a, lastCoverage); // Provide user feedback
     }
 
     // Update existing 3D visualization with coordinate points, when available.
@@ -705,7 +705,7 @@ function enableCalibration() {
     sendCommand("/sensors/calibrate/enable");
     calibration3D.clearPoints();
     showEl("calInfo");
-    setHtml("calStatus", "");
+    setHtml("deviceStatus", "");
   }
 }
 
@@ -845,16 +845,17 @@ function updateAzimuthChart(azimuthBins) {
 }
 
 /**
- * Function: updateCoverageStatistics
+ * Function: updateDistributionStats
  * Purpose: Update numerical coverage displays for elevation and azimuth bins
  * Inputs: elevationBins - Array of elevation bin sample counts
  *         azimuthBins - Array of azimuth bin sample counts
  * Outputs: Updates DOM elements with coverage statistics
  *
  * This function calculates how many bins contain samples and displays the statistics
- * in a readable format for quick assessment of calibration progress.
+ * in a readable format for quick assessment of calibration progress. This is more of
+ * a "coverage distribution" metric for a specific aspect rather than a true percent.
  */
-function updateCoverageStatistics(elevationBins, azimuthBins) {
+function updateDistributionStats(elevationBins, azimuthBins) {
   if (!elevationBins || !azimuthBins) return;
 
   // Count filled elevation bins (bins with sample count > 0)
@@ -879,15 +880,15 @@ function updateCoverageStatistics(elevationBins, azimuthBins) {
 
   // Update elevation coverage display
   // Purpose: Show vertical coverage progress as filled/total ratio
-  setHtml("elevationCoverage", elevationPercent + "%");
+  setHtml("elevationDistribution", elevationPercent + "%");
 
   // Update azimuth coverage display
   // Purpose: Show horizontal coverage progress as filled/total ratio
-  setHtml("azimuthCoverage", azimuthPercent + "%");
+  setHtml("azimuthDistribution", azimuthPercent + "%");
 }
 
 /**
- * Function: updateCoverageStatus
+ * Function: updateuserFeedback
  * Purpose: Provide real-time feedback and recommendations for improving calibration coverage
  * Inputs: elevationBins - Array of elevation bin sample counts
  *         azimuthBins - Array of azimuth bin sample counts
@@ -897,8 +898,8 @@ function updateCoverageStatistics(elevationBins, azimuthBins) {
  * This function analyzes coverage patterns and provides specific guidance to help users
  * improve their calibration by identifying the most significant coverage gaps.
  */
-function updateCoverageStatus(elevationBins, azimuthBins, overallCoverage) {
-  var statusElement = getEl("coverageStatus");
+function updateuserFeedback(elevationBins, azimuthBins, overallCoverage) {
+  var statusElement = getEl("userFeedback");
   if (!statusElement || !elevationBins || !azimuthBins) return;
 
   var statusMessage = "";
@@ -938,18 +939,18 @@ function updateCoverageStatus(elevationBins, azimuthBins, overallCoverage) {
 
     // Provide specific guidance based on missing coverage areas
     if (!lowElevationCovered && !highElevationCovered) {
-      statusMessage = "Try tilting the wand more - point up toward the ceiling and down toward the floor...";
+      statusMessage = "Coverage density is low for edge elevations - try adding a twist into your movements...";
     } else if (!lowElevationCovered) {
       statusMessage = "Point the wand downward more - try aiming toward the floor while rotating...";
     } else if (!highElevationCovered) {
       statusMessage = "Point the wand upward more - try aiming toward the ceiling while rotating...";
     } else {
-      statusMessage = "Good vertical coverage! Continue rotating for improved horizontal coverage...";
+      statusMessage = "Good distribution! Continue moving for improved coverage density...";
     }
     statusClass += " warning";
   } else {
     // Good coverage - encourage completion
-    statusMessage = "Excellent coverage! Continue until satisfied, then disable calibration.";
+    statusMessage = "Excellent coverage! Continue until satisfied, then end the calibration.";
     statusClass += " success";
   }
 

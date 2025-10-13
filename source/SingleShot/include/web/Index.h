@@ -139,20 +139,23 @@ const char INDEX_page[] PROGMEM = R"=====(
   <div id="tab3" class="tab">
     <div class="card" style="text-align:center;">
       <div class="block left">
-        Magnetic calibration is critical to obtaining a correct reading from sensors and must be performed only when all
-        components have been fully installed in your Single Shot Blaster, and you have selected the correct Controller
-        Installation Orientation on the Special Device Settings page.
-        <ol style="padding-left:20px;">
-          <li>Press "Enable Calibration" to begin.</li>
-          <li>Raise and lower your Single Shot Blaster <b>slowly</b> while turning 360&deg; to collect calibration data.</li>
-          <li>Fill the visualization below with red dots and the Composite Coverage is at least 60%.</li>
-          <li>If coverage stalls, try adding a twisting motion or figure-eights into your movements.</li>
-          <li>Press "Disable Calibration" to stop collection and store new calculated values.</li>
-        </ol>
+        <details>
+          <summary><b>Magnetic Calibration</b></summary>
+          Magnetic calibration is critical to obtaining a correct reading from sensors and must be performed only AFTER all
+          components have been fully installed in your Single Shot Blasater, and you have selected the appropriate Controller
+          Installation Orientation for your wand, as set via the <a href="/settings/device">Special Device Settings</a> page.
+          <ol style="padding-left:20px;">
+            <li>Press <b>"Start Calibration"</b> to begin.</li>
+            <li>Raise and lower your Single Shot Blasater <b>slowly</b> while turning 360&deg; to collect calibration data.</li>
+            <li>Fill the visualization below with red dots and the <b>Coverage Density</b> is at least 60%.</li>
+            <li>If coverage stalls, try adding a twisting motion or figure-eights into your up/down movements.</li>
+            <li>Press <b>"Stop Calibration"</b> to stop collection and store new calculated values.</li>
+          </ol>
+        </details>
       </div>
-      <button type="button" id="btnCalibrateOn" class="green" onclick="enableCalibration()">Enable Calibration</button>
+      <button type="button" id="btnCalibrateOn" class="green" onclick="enableCalibration()">Start Calibration</button>
       &nbsp;&nbsp;&nbsp;
-      <button type="button" id="btnCalibrateOff" class="red" onclick="disableCalibration()">Disable Calibration</button>
+      <button type="button" id="btnCalibrateOff" class="red" onclick="disableCalibration()">Stop Calibration</button>
       <br/>
       <br/>
       <div>
@@ -163,44 +166,43 @@ const char INDEX_page[] PROGMEM = R"=====(
         </p>
       </div>
       <div class="telemetry" id="calInfo">
-        <p>
-          <span class="infoLabel">Composite Coverage:</span> <span class="infoState" id="coverage">&mdash;</span>
+        <div class="coverage-feedback">
+          <!-- Special devices messages will be sent here via API -->
+          <div id="deviceStatus" class="status-message"></div>
+        </div>
+        <p class="centered">
+          <span class="infoLabel">Coverage Density:&nbsp;</span> <span class="infoState" id="coverage">&mdash;</span>
         </p>
-        <!-- Shows vertical (elevation) orientation coverage gaps as a bar chart -->
-        <div class="coverage-analysis">
-          <div class="elevation-display">
-            <h4 class="coverage-title">Vertical Coverage: <span id="elevationCoverage"></span></h4>
-            <div class="elevation-chart-container">
-              <div id="elevationChart" class="elevation-chart"></div>
-              <div class="elevation-labels">
-                <span class="degree-label">-90°</span>
-                <span class="degree-label">0°</span>
-                <span class="degree-label">+90°</span>
-              </div>
+        <div class="distribution-analysis">
+          <p class="centered">
+            <span class="infoLabel">Vertical Distribution:&nbsp;</span> <span class="infoState" id="elevationDistribution"></span>
+          </p>
+          <div class="elevation-chart-container">
+            <!-- Shows vertical (elevation) orientation coverage gaps as a bar chart -->
+            <div id="elevationChart" class="elevation-chart"></div>
+            <div class="elevation-labels">
+              <span class="degree-label">-90°</span>
+              <span class="degree-label">0°</span>
+              <span class="degree-label">+90°</span>
             </div>
           </div>
-          <!-- Shows horizontal (azimuth) rotation coverage as a circular chart -->
-          <div class="azimuth-display">
-            <h4 class="coverage-title">Horizontal Coverage: <span id="azimuthCoverage"></span></h4>
-            <div class="azimuth-chart-container">
-              <div id="azimuthChart" class="azimuth-chart"></div>
-              <div class="compass-directions">
-                <span class="compass-label compass-n">N</span>
-                <span class="compass-label compass-e">E</span>
-                <span class="compass-label compass-s">S</span>
-                <span class="compass-label compass-w">W</span>
-              </div>
+          <p class="centered">
+            <span class="infoLabel">Horizontal Distribution:&nbsp;</span> <span class="infoState" id="azimuthDistribution"></span>
+          </p>
+          <div class="azimuth-chart-container">
+            <!-- Shows horizontal (azimuth) rotation coverage as a circular chart -->
+            <div id="azimuthChart" class="azimuth-chart"></div>
+            <div class="compass-directions">
+              <span class="compass-label compass-n">N</span>
+              <span class="compass-label compass-e">E</span>
+              <span class="compass-label compass-s">S</span>
+              <span class="compass-label compass-w">W</span>
             </div>
           </div>
         </div>
-        <!-- Real-time feedback about calibration progress and recommendations -->
         <div class="coverage-feedback">
-          <div id="coverageStatus" class="status-message">
-            <!-- Dynamic status/instructions will appear here via JavaScript -->
-          </div>
-          <div id="calStatus" class="status-message">
-            <!-- Special devices messages will be sent here -->
-          </div>
+          <!-- Dynamic status/instructions will appear here via JavaScript -->
+          <div id="userFeedback" class="status-message"></div>
         </div>
         <div class="viz-content">
           <div id="3Dcalibration"></div>

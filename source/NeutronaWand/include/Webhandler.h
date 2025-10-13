@@ -687,7 +687,7 @@ String getCalibration(bool b_update_points = false) {
   const uint16_t* elevationCounts;
   uint8_t numElevationBins = magCal.getElevationBinDistribution(elevationCounts);
   JsonArray elevationArray = jsonCalibration["e"].to<JsonArray>();
-  
+
   // Send ALL elevation bins (including empty ones as 0) to preserve index mapping
   for(uint8_t i = 0; i < numElevationBins; i++) {
     elevationArray.add(elevationCounts[i]); // Include all bins: filled and empty
@@ -699,7 +699,7 @@ String getCalibration(bool b_update_points = false) {
   const uint16_t* azimuthCounts;
   uint8_t numAzimuthBins = magCal.getAzimuthBinDistribution(azimuthCounts);
   JsonArray azimuthArray = jsonCalibration["a"].to<JsonArray>();
-  
+
   // Send ALL azimuth bins (including empty ones as 0) to preserve index mapping
   for(uint8_t i = 0; i < numAzimuthBins; i++) {
     azimuthArray.add(azimuthCounts[i]); // Include all bins: filled and empty
