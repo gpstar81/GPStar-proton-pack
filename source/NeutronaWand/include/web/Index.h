@@ -143,16 +143,16 @@ const char INDEX_page[] PROGMEM = R"=====(
         components have been fully installed in your Neutrona Wand, and you have selected the correct Controller
         Installation Orientation on the Special Device Settings page.
         <ol style="padding-left:20px;">
-          <li>Press "Enable Calibration" to begin.</li>
+          <li>Press "Start Calibration" to begin.</li>
           <li>Raise and lower your Neutrona Wand <b>slowly</b> while turning 360&deg; to collect calibration data.</li>
           <li>Fill the visualization below with red dots and the Composite Coverage is at least 60%.</li>
           <li>If coverage stalls, try adding a twisting motion or figure-eights into your movements.</li>
-          <li>Press "Disable Calibration" to stop collection and store new calculated values.</li>
+          <li>Press "Stop Calibration" to stop collection and store new calculated values.</li>
         </ol>
       </div>
-      <button type="button" id="btnCalibrateOn" class="green" onclick="enableCalibration()">Enable Calibration</button>
+      <button type="button" id="btnCalibrateOn" class="green" onclick="enableCalibration()">Start Calibration</button>
       &nbsp;&nbsp;&nbsp;
-      <button type="button" id="btnCalibrateOff" class="red" onclick="disableCalibration()">Disable Calibration</button>
+      <button type="button" id="btnCalibrateOff" class="red" onclick="disableCalibration()">Stop Calibration</button>
       <br/>
       <br/>
       <div>

@@ -34,8 +34,8 @@ static constexpr uint8_t NUM_ELEVATION_BINS = (uint8_t)(180 / BIN_DEGREES);
 static constexpr uint16_t MAX_POINTS = NUM_AZIMUTH_BINS * NUM_ELEVATION_BINS;
 
 // Hard-iron calibration thresholds
-static constexpr uint16_t HARD_IRON_SAMPLE_THRESHOLD = 20;    // Minimum samples before offset check
-static constexpr double HARD_IRON_SPREAD_THRESHOLD = 30.0;    // Minimum spread per axis (µT)
+static constexpr uint16_t HARD_IRON_SAMPLE_THRESHOLD = 40; // Minimum samples before offset check
+static constexpr double HARD_IRON_SPREAD_THRESHOLD = 40.0; // Minimum spread per axis (µT)
 
 // Elevation Bias Compensation Configuration
 // Purpose: Enable/disable elevation bias compensation for testing production board calibration
@@ -86,9 +86,9 @@ double applyElevationCompensation(double rawElevation) {
   return rawElevation;
 }
 
-// Structure: MagSample
+// Structure: MagData
 // Purpose: Store a single magnetometer reading with analysis results
-struct MagSample {
+struct MagData {
   // Raw input data
   double x, y, z;                    // Original magnetometer readings
   uint16_t lineNumber;               // Line number in log file for tracking
@@ -134,18 +134,18 @@ struct DatasetAnalysis {
   bool binCoverage[MAX_POINTS];                    // Which bins are filled
   
   // Complete sample data for detailed analysis
-  std::vector<MagSample> samples;    // All processed samples
+  std::vector<MagData> samples;    // All processed samples
 };
 
-// Function: processMagSample
+// Function: processMagData
 // Purpose: Replicate the exact addSample() logic for analysis
 // Inputs: Raw magnetometer data (x, y, z), line number for tracking
 // Outputs: Complete analysis of this sample including bin assignment
 // 
 // This function performs identical mathematical operations as MagCalibration::addSample()
 // but provides comprehensive diagnostic information instead of just true/false.
-MagSample processMagSample(double x, double y, double z, uint16_t lineNumber) {
-  MagSample sample = {};
+MagData processMagData(double x, double y, double z, uint16_t lineNumber) {
+  MagData sample = {};
   sample.x = x;
   sample.y = y;
   sample.z = z;
@@ -305,7 +305,7 @@ DatasetAnalysis analyzeDataset(const std::vector<std::array<double, 3>>& reading
     }
     
     // Apply universal compensation (no board type parameter needed)
-    MagSample sample = processMagSample(readings[i][0], readings[i][1], readings[i][2], i + 1);
+    MagData sample = processMagData(readings[i][0], readings[i][1], readings[i][2], i + 1);
     
     if(sample.validSample) {
       analysis.validSamples++;
@@ -884,16 +884,16 @@ void writeCompleteAnalysisToFile(const DatasetAnalysis& prototypeAnalysis,
   std::cout << "Complete analysis written to: analysis.txt" << std::endl;
 }
 
-// Structure: HardIronResult
-struct HardIronResult {
+// Structure: HardIronOffsets
+struct HardIronOffsets {
   double x, y, z;
   double rangeX, rangeY, rangeZ;
   bool sufficientSpread;
 };
 
 // Function: calculateHardIronOffsets
-HardIronResult calculateHardIronOffsets(const std::vector<MagSample>& samples) {
-  HardIronResult result = {};
+HardIronOffsets calculateHardIronOffsets(const std::vector<MagData>& samples) {
+  HardIronOffsets result = {};
   if(samples.empty()) return result;
   double minX = samples[0].x, maxX = samples[0].x;
   double minY = samples[0].y, maxY = samples[0].y;
@@ -936,9 +936,9 @@ AnalysisResult analyzeDatasetWithHardIron(const std::vector<std::array<double, 3
   debug << "\n[DEBUG] Calibration sample count: " << readings.size() << std::endl;
 
   // First pass: collect samples for offset calculation
-  std::vector<MagSample> calibrationSamples;
+  std::vector<MagData> calibrationSamples;
   for(uint16_t i = 0; i < readings.size(); i++) {
-    MagSample sample = processMagSample(readings[i][0], readings[i][1], readings[i][2], i + 1);
+    MagData sample = processMagData(readings[i][0], readings[i][1], readings[i][2], i + 1);
     if(sample.validSample) {
       calibrationSamples.push_back(sample);
       if(calibrationSamples.size() == HARD_IRON_SAMPLE_THRESHOLD) break;
@@ -946,7 +946,7 @@ AnalysisResult analyzeDatasetWithHardIron(const std::vector<std::array<double, 3
   }
 
   // Calculate hard-iron offset
-  HardIronResult hardIronOffset = calculateHardIronOffsets(calibrationSamples);
+  HardIronOffsets hardIronOffset = calculateHardIronOffsets(calibrationSamples);
   bool hardIronOffsetApplied = hardIronOffset.sufficientSpread;
 
   debug << "[DEBUG] Calibration sample count: " << calibrationSamples.size() << std::endl;
@@ -1001,7 +1001,7 @@ AnalysisResult analyzeDatasetWithHardIron(const std::vector<std::array<double, 3
       y -= hardIronOffset.y;
       z -= hardIronOffset.z;
     }
-    MagSample sample = processMagSample(x, y, z, i + 1);
+    MagData sample = processMagData(x, y, z, i + 1);
     if(sample.validSample) {
       analysis.validSamples++;
       sample.newBin = !bins[sample.binIndex];
@@ -1083,16 +1083,16 @@ int main(int argc, char* argv[]) {
     std::cout << "\n[INFO] Fallback: Calculating hard-iron offsets using all available production samples..." << std::endl;
 
     // Collect all valid samples from the production file
-    std::vector<MagSample> allValidSamples;
+    std::vector<MagData> allValidSamples;
     for (uint16_t i = 0; i < productionReadings.size(); i++) {
-      MagSample sample = processMagSample(productionReadings[i][0], productionReadings[i][1], productionReadings[i][2], i + 1);
+      MagData sample = processMagData(productionReadings[i][0], productionReadings[i][1], productionReadings[i][2], i + 1);
       if (sample.validSample) {
         allValidSamples.push_back(sample);
       }
     }
 
     // Calculate offsets using all valid samples
-    HardIronResult fallbackOffset = calculateHardIronOffsets(allValidSamples);
+    HardIronOffsets fallbackOffset = calculateHardIronOffsets(allValidSamples);
 
     std::stringstream fallbackDebug;
     fallbackDebug << "\n[FALLBACK DEBUG] Used all valid samples (" << allValidSamples.size() << ") for hard-iron offset calculation.\n";
@@ -1126,7 +1126,7 @@ int main(int argc, char* argv[]) {
       double x = productionReadings[i][0] - fallbackOffset.x;
       double y = productionReadings[i][1] - fallbackOffset.y;
       double z = productionReadings[i][2] - fallbackOffset.z;
-      MagSample sample = processMagSample(x, y, z, i + 1);
+      MagData sample = processMagData(x, y, z, i + 1);
       if (sample.validSample) {
         fallbackAnalysis.validSamples++;
         sample.newBin = !bins[sample.binIndex];

@@ -18,6 +18,14 @@
  *
  */
 
+ /**
+ * This code was co-authored through both ChatGPT and GitHub Copilot.
+ * All efforts were made to ensure correctness and clarity throughout
+ * and follow standard practices for performing calculations for the
+ * necessary offsets. Any similarities to existing projects should be
+ * considered coincidental unless otherwise noted.
+ */
+
 #pragma once
 
 // Standard library includes for integer type definitions
@@ -25,29 +33,28 @@
 #include <stdbool.h> // Provides bool type definition.
 
 /**
- * This code was co-authored by ChatGPT and GitHub Copilot.
+ * Struct: MagData
+ * Purpose: Holds a single triplet of XYZ values as floats.
  */
-
- /**
- * Struct: MagSample
- * Purpose: Holds a single magnetometer sample (triplet) as floats.
- */
-struct MagSample {
+struct MagData {
   float x = 0.0f;
   float y = 0.0f;
   float z = 0.0f;
 };
 
  /**
- * Struct: HardIronResult
- * Purpose: Holds offsets and spread info from hard-iron calculation.
+ * Struct: HardIronOffsets
+ * Purpose: Holds offsets and spread info from hard-iron calculation B1.
+ * Used to hold the results of provisional samples for hard-iron offset
+ * calculation, and will be applied to samples for purposes of creating
+ * a revised hard-iron offset (B2) and soft-iron matrix. Final offsets
+ * for hard-iron will be computed as B1 + B2.
  */
-struct HardIronResult {
-  MagSample offsets;
-  float rangeX = 0.0f;
-  float rangeY = 0.0f;
-  float rangeZ = 0.0f;
+struct HardIronOffsets {
+  MagData offsets;
+  MagData range;
   bool sufficientSpread = false;
+  bool offsetsApplied = false;
 };
 
 /**
@@ -86,21 +93,22 @@ class MagCalibration {
     // Returns a CalibrationData struct with default values.
     CalibrationData getDefaultCalibration() const {
       CalibrationData defaults;
-      // mag_hardiron: zero offsets
+
+      // Assign default hard-iron offsets
       defaults.mag_hardiron[0] = 0.0f;
       defaults.mag_hardiron[1] = 0.0f;
       defaults.mag_hardiron[2] = 0.0f;
 
-      // mag_softiron: identity matrix
-      defaults.mag_softiron[0] = 1.0f;
-      defaults.mag_softiron[1] = 0.0f;
-      defaults.mag_softiron[2] = 0.0f;
-      defaults.mag_softiron[3] = 0.0f;
-      defaults.mag_softiron[4] = 1.0f;
-      defaults.mag_softiron[5] = 0.0f;
-      defaults.mag_softiron[6] = 0.0f;
-      defaults.mag_softiron[7] = 0.0f;
-      defaults.mag_softiron[8] = 1.0f;
+      // Assign default soft-iron matrix (identity for diagonal, zero for off-diagonal)
+      defaults.mag_softiron[0] = 1.0f; // X scale
+      defaults.mag_softiron[1] = 0.0f; // XY
+      defaults.mag_softiron[2] = 0.0f; // XZ
+      defaults.mag_softiron[3] = 0.0f; // YX
+      defaults.mag_softiron[4] = 1.0f; // Y scale
+      defaults.mag_softiron[5] = 0.0f; // YZ
+      defaults.mag_softiron[6] = 0.0f; // ZX
+      defaults.mag_softiron[7] = 0.0f; // ZY
+      defaults.mag_softiron[8] = 1.0f; // Z scale
 
       // mag_field: typical Earth field strength
       defaults.mag_field = 50.0f;
@@ -116,7 +124,7 @@ class MagCalibration {
     bool addSample(float x, float y, float z);
 
     // Return the raw magnetometer data of the last raw sample taken.
-    MagSample getLastSample() const;
+    MagData getLastSample() const;
 
     // Get coverage % (0..100) based on filled bins.
     float getCoveragePercent() const;
@@ -126,7 +134,7 @@ class MagCalibration {
     uint16_t getVisPoints(const double*& outX, const double*& outY, const double*& outZ) const;
 
     // Compute hard-iron offsets from collected samples.
-    HardIronResult calculateHardIronOffsets() const;
+    HardIronOffsets calculateHardIronOffsets();
 
     // Compute calibration parameters from collected samples.
     CalibrationData computeCalibration() const;
@@ -143,17 +151,16 @@ class MagCalibration {
     uint16_t getActiveBinCount() const;
 
   private:
-    MagSample lastRawSample; // Always holds the most recent raw sample.
-    char statusMessage[128]; // Holds last status message for debugging.
-
     // Minimum samples before allowing hard-iron calculations.  
-    static constexpr uint16_t HARD_IRON_SAMPLE_THRESHOLD = 20;
+    static constexpr uint16_t HARD_IRON_SAMPLE_THRESHOLD = 40;
 
     // Minimum range in µT for sufficient hard-iron calculations.  
-    static constexpr float HARD_IRON_SPREAD_THRESHOLD = 30.0f;
+    static constexpr float HARD_IRON_SPREAD_THRESHOLD = 40.0f;
 
-    // Hard-iron offset to apply to incoming samples once calculated.
-    MagSample hardIronOffset;
+    // Hard-iron offset to apply to incoming samples, once calculated.
+    HardIronOffsets provisionalHardIron;
+    MagData lastRawSample; // Always holds the most recent raw sample.
+    char statusMessage[128]; // Holds last status message for debugging.
 
     /**
      * SPHERICAL COORDINATE BINNING SYSTEM:
@@ -215,17 +222,23 @@ class MagCalibration {
     // Bin filled flags.
     bool bins[MAX_POINTS];
 
-    // Flag: true if hard-iron offsets have been applied to samples.
-    bool hardIronOffsetApplied = false;
-
     // Bin usage tracking for distribution analysis
     // Purpose: Track how many samples have been collected in each orientation region
     // These arrays enable real-time monitoring of calibration coverage distribution
     uint16_t elevationBinCounts[NUM_ELEVATION_BINS]; // Samples per elevation bin (vertical coverage)
     uint16_t azimuthBinCounts[NUM_AZIMUTH_BINS];     // Samples per azimuth bin (horizontal coverage)
 
+    // Helper: Calculate calibration using diagonal fallback method.
+    CalibrationData calculateDiagonalFallback() const;
+
+    // Resets provisionalHardIron to default values.
+    void resetProvisionalHardIron();
+
     // Helper: Clear all samples and reset state for collection.
     void resetSamples();
+
+    // Helper: Clear any existing status message.
+    void clearStatusMessage();
 
     // Helper: Jacobi eigen-decomposition (symmetric 3x3).
     void jacobiEigen3(float A[3][3], float V[3][3], float w[3]) const;

@@ -949,7 +949,7 @@ function updateCoverageStatus(elevationBins, azimuthBins, overallCoverage) {
     statusClass += " warning";
   } else {
     // Good coverage - encourage completion
-    statusMessage = "Excellent coverage! Continue until satisfied, then disable calibration.";
+    statusMessage = "Excellent coverage! Continue until satisfied, then end the calibration.";
     statusClass += " success";
   }
 

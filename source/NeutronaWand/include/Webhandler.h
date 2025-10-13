@@ -676,7 +676,7 @@ String getCalibration(bool b_update_points = false) {
 
   // Add the last sample as a separate array for reference.
   JsonArray magValue = jsonCalibration["v"].to<JsonArray>();
-  MagSample lastSample = magCal.getLastSample();
+  MagData lastSample = magCal.getLastSample();
   magValue.add(roundFloat(lastSample.x));
   magValue.add(roundFloat(lastSample.y));
   magValue.add(roundFloat(lastSample.z));

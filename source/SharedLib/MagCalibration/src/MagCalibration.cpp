@@ -18,7 +18,15 @@
  *
  */
 
- // Standard library includes for math and string functions
+/**
+ * This code was co-authored through both ChatGPT and GitHub Copilot.
+ * All efforts were made to ensure correctness and clarity throughout
+ * and follow standard practices for performing calculations for the
+ * necessary offsets. Any similarities to existing projects should be
+ * considered coincidental unless otherwise noted.
+ */
+
+// Standard library includes for math and string functions
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
@@ -51,6 +59,17 @@ MagCalibration::MagCalibration() {
   beginCalibration();
 }
 
+void MagCalibration::resetProvisionalHardIron() {
+  provisionalHardIron.offsets.x = 0.0f;
+  provisionalHardIron.offsets.y = 0.0f;
+  provisionalHardIron.offsets.z = 0.0f;
+  provisionalHardIron.range.x = 0.0f;
+  provisionalHardIron.range.y = 0.0f;
+  provisionalHardIron.range.z = 0.0f;
+  provisionalHardIron.sufficientSpread = false;
+  provisionalHardIron.offsetsApplied = false;
+}
+
 // Private helper: Clears only sample arrays, counters, and bin tracking
 void MagCalibration::resetSamples() {
   sampleCount = 0; // Reset count of stored samples
@@ -66,14 +85,16 @@ void MagCalibration::resetSamples() {
   memset(azimuthBinCounts, 0, sizeof(azimuthBinCounts));     // Clear azimuth bin counters
 }
 
+// Clear any existing status message.
+void MagCalibration::clearStatusMessage() {
+  statusMessage[0] = '\0'; // Clear status message
+}
+
 // Begin a new calibration session by clearing all counters, arrays, and flags.
 void MagCalibration::beginCalibration() {
+  resetProvisionalHardIron();
   resetSamples();
-  hardIronOffset.x = 0.0f;
-  hardIronOffset.y = 0.0f;
-  hardIronOffset.z = 0.0f;
-  hardIronOffsetApplied = false;
-  statusMessage[0] = '\0'; // Clear status message
+  clearStatusMessage();
 }
 
 /**
@@ -105,29 +126,41 @@ bool MagCalibration::addSample(float x, float y, float z) {
   lastRawSample.y = y;
   lastRawSample.z = z;
 
-  // Check if we should calculate and apply hard-iron offset
-  if (!hardIronOffsetApplied && sampleCount >= HARD_IRON_SAMPLE_THRESHOLD) {
-    HardIronResult hiResult = calculateHardIronOffsets();
-    if (hiResult.sufficientSpread) {
-      hardIronOffset = hiResult.offsets; // Apply offset for future samples.
-      hardIronOffsetApplied = true; // Mark that offset is now applied.
-      resetSamples(); // Clear previous samples and coverage to begin again.
-      snprintf(statusMessage, sizeof(statusMessage), "Hard-iron offset applied. Previous samples cleared.");
+  // Check if we should calculate and apply hard-iron offset as the Phase 1 of calibration.
+  // This is done only once when we have enough samples w/ good spread to make an estimate.
+  if (!provisionalHardIron.offsetsApplied) {
+    if (sampleCount < HARD_IRON_SAMPLE_THRESHOLD) {
+      // Not enough samples to attempt a calculation yet, so instruct the user on what to do.
+      snprintf(statusMessage, sizeof(statusMessage), "Move the device in wide circular orbits around you...");
     } else {
-      snprintf(statusMessage, sizeof(statusMessage), "Spread insufficient for hard-iron offset.");
+      // We have enough samples to attempt a hard-iron offset calculation.
+      provisionalHardIron = calculateHardIronOffsets(); // Run the calculation for hard-iron offsets.
+
+      if (provisionalHardIron.sufficientSpread) {
+        provisionalHardIron.offsetsApplied = true; // Mark that the hard-iron offset can now be applied.
+        resetSamples(); // Clear all previous samples and coverage to begin again with adjusted values.
+
+        // Inform the user that Phase 1 is complete and we're moving to Phase 2 which needs more samples.
+        snprintf(statusMessage, sizeof(statusMessage), "Phase 1 calibration complete, collecting for phase 2...");
+      } else {
+        // Indicates that we performed a calculation but don't have enough spread yet, so keep going.
+        snprintf(statusMessage, sizeof(statusMessage), "Preparing for phase 1 calibration, continue moving...");
+      }
     }
   }
 
-  // If offset is applied, adjust incoming sample
-  if (hardIronOffsetApplied) {
-    x -= hardIronOffset.x;
-    y -= hardIronOffset.y;
-    z -= hardIronOffset.z;
+  // If offset is to be applied, adjust the incoming sample.
+  if (provisionalHardIron.offsetsApplied) {
+    x -= provisionalHardIron.offsets.x;
+    y -= provisionalHardIron.offsets.y;
+    z -= provisionalHardIron.offsets.z;
   }
 
   // STEP 1: Check storage capacity
-  // We can only store a limited number of samples and if we're full, reject any new samples.
+  // We can only store a limited number of samples and if we're full, rejecting any new samples.
   if(sampleCount >= MAX_POINTS) {
+    // This should be nigh impossible but just in case let's inform the user.
+    snprintf(statusMessage, sizeof(statusMessage), "Maximum samples reached, please end the calibration process.");
     return false; // Max samples reached
   }
 
@@ -138,9 +171,17 @@ bool MagCalibration::addSample(float x, float y, float z) {
   double dz = (double)z;
   double r = sqrt(dx * dx + dy * dy + dz * dz); // sqrt() automatically handles double precision
 
-  // Reject readings with zero strength (sensor errors or interference)
-  if(r == 0) {
-    return false; // Invalid sample
+  // Reject samples with unexpected or invalid magnitude (varies by phase of calibration).
+  if (provisionalHardIron.offsetsApplied) {
+    // After Offsets: reject outliers and sensor errors
+    if(r < 10.0 || r > 100.0 || isnan(r) || isinf(r)) {
+      return false;
+    }
+  } else {
+    // Before Offsets: only reject zero, NaN, or Inf values
+    if(r == 0 || isnan(r) || isinf(r)) {
+      return false;
+    }
   }
   
   // Convert to unit vector - we only care about direction, not strength
@@ -218,9 +259,9 @@ bool MagCalibration::addSample(float x, float y, float z) {
  * Function: getLastSample
  * Purpose: Return the most recent raw sample, regardless of whether it was stored.
  * Inputs: none
- * Outputs: MagSample - struct containing x, y, z as floats.
+ * Outputs: MagData - struct containing x, y, z as floats.
  */
-MagSample MagCalibration::getLastSample() const {
+MagData MagCalibration::getLastSample() const {
   return lastRawSample;
 }
 
@@ -257,18 +298,14 @@ uint16_t MagCalibration::getVisPoints(const double*& outX, const double*& outY, 
  * Function: calculateHardIronOffsets
  * Purpose: Computes hard-iron offsets (center of min/max) from collected samples.
  * Inputs: none
- * Outputs: MagSample - struct containing x, y, z offsets (µT).
+ * Outputs: MagData - struct containing x, y, z offsets (µT).
  */
-HardIronResult MagCalibration::calculateHardIronOffsets() const {
-  HardIronResult result = {};
-  result.offsets.x = 0.0f;
-  result.offsets.y = 0.0f;
-  result.offsets.z = 0.0f;
-  result.rangeX = result.rangeY = result.rangeZ = 0.0f;
-  result.sufficientSpread = false; // Default to false.
+HardIronOffsets MagCalibration::calculateHardIronOffsets() {
+  // Clear any existing values for the provisional hard-iron offsets.
+  resetProvisionalHardIron();
 
   if (sampleCount < HARD_IRON_SAMPLE_THRESHOLD) {
-    return result; // Too few samples, return defaults.
+    return provisionalHardIron; // Too few samples, return defaults.
   }
 
   // Calculate min/max for each axis using double precision
@@ -286,21 +323,124 @@ HardIronResult MagCalibration::calculateHardIronOffsets() const {
   }
 
   // Calculate offsets as the center of min/max.
-  result.offsets.x = static_cast<float>((maxX + minX) / 2.0);
-  result.offsets.y = static_cast<float>((maxY + minY) / 2.0);
-  result.offsets.z = static_cast<float>((maxZ + minZ) / 2.0);
+  provisionalHardIron.offsets.x = static_cast<float>((maxX + minX) / 2.0);
+  provisionalHardIron.offsets.y = static_cast<float>((maxY + minY) / 2.0);
+  provisionalHardIron.offsets.z = static_cast<float>((maxZ + minZ) / 2.0);
 
   // Calculate range for each axis.
-  result.rangeX = static_cast<float>(maxX - minX);
-  result.rangeY = static_cast<float>(maxY - minY);
-  result.rangeZ = static_cast<float>(maxZ - minZ);
+  provisionalHardIron.range.x = static_cast<float>(maxX - minX);
+  provisionalHardIron.range.y = static_cast<float>(maxY - minY);
+  provisionalHardIron.range.z = static_cast<float>(maxZ - minZ);
 
   // Apply a threshold to indicate sufficient spread (e.g., 30 µT per axis)
-  result.sufficientSpread = (result.rangeX > HARD_IRON_SPREAD_THRESHOLD) &&
-                            (result.rangeY > HARD_IRON_SPREAD_THRESHOLD) &&
-                            (result.rangeZ > HARD_IRON_SPREAD_THRESHOLD);
+  provisionalHardIron.sufficientSpread = (provisionalHardIron.range.x > HARD_IRON_SPREAD_THRESHOLD) &&
+                                         (provisionalHardIron.range.y > HARD_IRON_SPREAD_THRESHOLD) &&
+                                         (provisionalHardIron.range.z > HARD_IRON_SPREAD_THRESHOLD);
 
-  return result;
+  return provisionalHardIron;
+}
+
+/**
+ * Function: calculateDiagonalFallback
+ * Purpose: Computes hard-iron offset and diagonal soft-iron matrix using min/max method.
+ * Inputs: none (uses member arrays)
+ * Outputs: CalibrationData - struct containing hard-iron offset, soft-iron matrix, and field strength
+ * 
+ * This function centralizes the fallback logic for calibration, ensuring consistent results
+ * whenever the full ellipsoid fit cannot be performed. It is used in cases of poor coverage,
+ * failed matrix inversion, or invalid fit.
+ */
+CalibrationData MagCalibration::calculateDiagonalFallback() const {
+  CalibrationData cal = {};
+
+  if(sampleCount == 0) {
+    // No samples, return defaults
+    // Assign default hard-iron offsets (no samples case)
+    cal.mag_hardiron[0] = 0.0f;
+    cal.mag_hardiron[1] = 0.0f;
+    cal.mag_hardiron[2] = 0.0f;
+
+    // Assign default soft-iron matrix (identity for diagonal, zero for off-diagonal)
+    cal.mag_softiron[0] = 1.0f; // X scale
+    cal.mag_softiron[1] = 0.0f; // XY
+    cal.mag_softiron[2] = 0.0f; // XZ
+    cal.mag_softiron[3] = 0.0f; // YX
+    cal.mag_softiron[4] = 1.0f; // Y scale
+    cal.mag_softiron[5] = 0.0f; // YZ
+    cal.mag_softiron[6] = 0.0f; // ZX
+    cal.mag_softiron[7] = 0.0f; // ZY
+    cal.mag_softiron[8] = 1.0f; // Z scale
+
+    cal.mag_field = 50.0f;
+    return cal;
+  }
+
+  // Find min/max for each axis
+  double minX = xSamples[0], maxX = xSamples[0];
+  double minY = ySamples[0], maxY = ySamples[0];
+  double minZ = zSamples[0], maxZ = zSamples[0];
+  for(uint16_t i = 1; i < sampleCount; i++) {
+    if(xSamples[i] < minX) minX = xSamples[i];
+    if(xSamples[i] > maxX) maxX = xSamples[i];
+    if(ySamples[i] < minY) minY = ySamples[i];
+    if(ySamples[i] > maxY) maxY = ySamples[i];
+    if(zSamples[i] < minZ) minZ = zSamples[i];
+    if(zSamples[i] > maxZ) maxZ = zSamples[i];
+  }
+
+  // Hard-iron offset: center of min/max
+  cal.mag_hardiron[0] = (float)((maxX + minX) / 2.0);
+  cal.mag_hardiron[1] = (float)((maxY + minY) / 2.0);
+  cal.mag_hardiron[2] = (float)((maxZ + minZ) / 2.0);
+
+  // Soft-iron scaling factors
+  double rangeX = maxX - minX;
+  double rangeY = maxY - minY; 
+  double rangeZ = maxZ - minZ;
+  double avgRadius = (rangeX + rangeY + rangeZ) / 6.0;
+
+  double scaleX = (rangeX == 0.0) ? 1.0 : avgRadius / (rangeX / 2.0);
+  double scaleY = (rangeY == 0.0) ? 1.0 : avgRadius / (rangeY / 2.0);
+  double scaleZ = (rangeZ == 0.0) ? 1.0 : avgRadius / (rangeZ / 2.0);
+
+  // Diagonal soft-iron matrix
+  cal.mag_softiron[0] = (float)scaleX;
+  cal.mag_softiron[1] = 0.0f;
+  cal.mag_softiron[2] = 0.0f;
+  cal.mag_softiron[3] = 0.0f;
+  cal.mag_softiron[4] = (float)scaleY;
+  cal.mag_softiron[5] = 0.0f;
+  cal.mag_softiron[6] = 0.0f;
+  cal.mag_softiron[7] = 0.0f;
+  cal.mag_softiron[8] = (float)scaleZ;
+
+  // Mean field magnitude
+  double sumB = 0.0;
+  for(uint16_t i = 0; i < sampleCount; i++) {
+    double mx = (xSamples[i] - cal.mag_hardiron[0]) * scaleX;
+    double my = (ySamples[i] - cal.mag_hardiron[1]) * scaleY;
+    double mz = (zSamples[i] - cal.mag_hardiron[2]) * scaleZ;
+    sumB += sqrt(mx*mx + my*my + mz*mz);
+  }
+  cal.mag_field = (sampleCount > 0) ? (float)(sumB / sampleCount) : 50.0f;
+
+  // Round all calibration fields to 3 decimal places for consistency
+  for(int i = 0; i < 3; ++i) {
+    cal.mag_hardiron[i] = roundFloat3(cal.mag_hardiron[i]);
+  }
+  for(int i = 0; i < 9; ++i) {
+    cal.mag_softiron[i] = roundFloat3(cal.mag_softiron[i]);
+  }
+  cal.mag_field = roundFloat3(cal.mag_field);
+
+  // Add initial hard-iron offset to the fallback offset for final calibration.
+  // This ensures both the provisional offset (applied during sample collection)
+  // and the fallback offset (from min/max method) are included.
+  cal.mag_hardiron[0] = (float)((maxX + minX) / 2.0) + provisionalHardIron.offsets.x;
+  cal.mag_hardiron[1] = (float)((maxY + minY) / 2.0) + provisionalHardIron.offsets.y;
+  cal.mag_hardiron[2] = (float)((maxZ + minZ) / 2.0) + provisionalHardIron.offsets.z;
+
+  return cal;
 }
 
 /**
@@ -314,57 +454,8 @@ CalibrationData MagCalibration::computeCalibration() const {
 
   // If we have less than 50% coverage, fall back to simple min/max method.
   if(sampleCount < (MAX_POINTS / 2)) {
-    // Enhanced precision fallback diagonal method
-    double minX = xSamples[0], maxX = xSamples[0];
-    double minY = ySamples[0], maxY = ySamples[0];
-    double minZ = zSamples[0], maxZ = zSamples[0];
-
-    for(uint16_t i = 1; i < sampleCount; i++) {
-      if(xSamples[i] < minX) minX = xSamples[i];
-      if(xSamples[i] > maxX) maxX = xSamples[i];
-      if(ySamples[i] < minY) minY = ySamples[i];
-      if(ySamples[i] > maxY) maxY = ySamples[i];
-      if(zSamples[i] < minZ) minZ = zSamples[i];
-      if(zSamples[i] > maxZ) maxZ = zSamples[i];
-    }
-
-    // Enhanced precision calculations with proper type conversions
-    cal.mag_hardiron[0] = (float)((maxX + minX) / 2.0);
-    cal.mag_hardiron[1] = (float)((maxY + minY) / 2.0);
-    cal.mag_hardiron[2] = (float)((maxZ + minZ) / 2.0);
-
-    double rangeX = maxX - minX;
-    double rangeY = maxY - minY; 
-    double rangeZ = maxZ - minZ;
-    double avgRadius = (rangeX + rangeY + rangeZ) / 6.0;
-
-    // Enhanced precision scaling calculations
-    double scaleX, scaleY, scaleZ;
-    scaleX = (rangeX == 0.0) ? 1.0 : avgRadius / (rangeX / 2.0);
-    scaleY = (rangeY == 0.0) ? 1.0 : avgRadius / (rangeY / 2.0);
-    scaleZ = (rangeZ == 0.0) ? 1.0 : avgRadius / (rangeZ / 2.0);
-
-    // Store results with proper precision conversion
-    cal.mag_softiron[0] = (float)scaleX; // Convert double to float for output
-    cal.mag_softiron[1] = 0.0f;
-    cal.mag_softiron[2] = 0.0f;
-    cal.mag_softiron[3] = 0.0f;
-    cal.mag_softiron[4] = (float)scaleY; // Convert double to float for output
-    cal.mag_softiron[5] = 0.0f;
-    cal.mag_softiron[6] = 0.0f;
-    cal.mag_softiron[7] = 0.0f;
-    cal.mag_softiron[8] = (float)scaleZ; // Convert double to float for output
-
-    // Enhanced precision magnitude calculation
-    double sumB = 0.0;
-    for(uint16_t i = 0; i < sampleCount; i++) {
-      double mx = (xSamples[i] - cal.mag_hardiron[0]) * scaleX;
-      double my = (ySamples[i] - cal.mag_hardiron[1]) * scaleY;
-      double mz = (zSamples[i] - cal.mag_hardiron[2]) * scaleZ;
-      sumB += sqrt(mx*mx + my*my + mz*mz); // Use sqrt() for double precision
-    }
-    cal.mag_field = (sampleCount > 0) ? (float)(sumB / sampleCount) : 50.0f;
-    return cal;
+    // Use fallback logic to create diagonal offsets
+    return calculateDiagonalFallback();
   }
 
   // Build design matrix columns for solving for 9 coefficients (A,B,C,D,E,F,G,H,I) with J = -1.
@@ -399,77 +490,8 @@ CalibrationData MagCalibration::computeCalibration() const {
   float coeffs[Ncols];
   bool ok = solveLinearSystem(Ncols, ATA, ATb, coeffs);
   if(!ok) {
-    // fallback to diagonal method
-    // (same fallback as above)
-    double minX = xSamples[0], maxX = xSamples[0];
-    double minY = ySamples[0], maxY = ySamples[0];
-    double minZ = zSamples[0], maxZ = zSamples[0];
-    for(uint16_t i = 1; i < sampleCount; i++) {
-      if(xSamples[i] < minX) {
-        minX = xSamples[i];
-      }
-      if(xSamples[i] > maxX) {
-        maxX = xSamples[i];
-      }
-      if(ySamples[i] < minY) {
-        minY = ySamples[i];
-      }
-      if(ySamples[i] > maxY) {
-        maxY = ySamples[i];
-      }
-      if(zSamples[i] < minZ) {
-        minZ = zSamples[i];
-      }
-      if(zSamples[i] > maxZ) {
-        maxZ = zSamples[i];
-      }
-    }
-    cal.mag_hardiron[0] = (float)((maxX + minX) / 2.0);
-    cal.mag_hardiron[1] = (float)((maxY + minY) / 2.0);
-    cal.mag_hardiron[2] = (float)((maxZ + minZ) / 2.0);
-    double rangeX = maxX - minX;
-    double rangeY = maxY - minY; 
-    double rangeZ = maxZ - minZ;
-    double avgRadius = (rangeX + rangeY + rangeZ) / 6.0;
-
-    // Handle each axis independently - only apply identity scaling to problematic axes
-    double scaleX, scaleY, scaleZ;
-
-    // Check each range individually and handle division by zero per axis
-    if(rangeX == 0.0) {
-      scaleX = 1.0; // Identity scaling for X-axis (no correction)
-    } else {
-      scaleX = avgRadius / (rangeX / 2.0); // Normal scaling calculation
-    }
-    if(rangeY == 0.0) {
-      scaleY = 1.0; // Identity scaling for Y-axis (no correction)
-    } else {
-      scaleY = avgRadius / (rangeY / 2.0); // Normal scaling calculation
-    }
-    if(rangeZ == 0.0) {
-      scaleZ = 1.0; // Identity scaling for Z-axis (no correction)
-    } else {
-      scaleZ = avgRadius / (rangeZ / 2.0); // Normal scaling calculation
-    }
-
-    cal.mag_softiron[0] = (float)scaleX;
-    cal.mag_softiron[1] = 0.0f;
-    cal.mag_softiron[2] = 0.0f;
-    cal.mag_softiron[3] = 0.0f;
-    cal.mag_softiron[4] = (float)scaleY;
-    cal.mag_softiron[5] = 0.0f;
-    cal.mag_softiron[6] = 0.0f;
-    cal.mag_softiron[7] = 0.0f;
-    cal.mag_softiron[8] = (float)scaleZ;
-    double sumB = 0.0;
-    for(uint16_t i = 0; i < sampleCount; i++){
-      double mx = (xSamples[i] - cal.mag_hardiron[0]) * scaleX;
-      double my = (ySamples[i] - cal.mag_hardiron[1]) * scaleY;
-      double mz = (zSamples[i] - cal.mag_hardiron[2]) * scaleZ;
-      sumB += sqrt(mx*mx + my*my + mz*mz);
-    }
-    cal.mag_field = (sampleCount > 0) ? (float)(sumB / sampleCount) : 50.0f;
-    return cal;
+    // Use fallback logic to create diagonal offsets
+    return calculateDiagonalFallback();
   }
 
   // Map coeffs -> full quadratic form
@@ -500,76 +522,8 @@ CalibrationData MagCalibration::computeCalibration() const {
   float Qinv[3][3];
   bool invok = invert3x3(Q, Qinv);
   if(!invok) {
-    // fallback to diagonal
-    double minX = xSamples[0], maxX = xSamples[0];
-    double minY = ySamples[0], maxY = ySamples[0];
-    double minZ = zSamples[0], maxZ = zSamples[0];
-    for(uint16_t i = 1; i < sampleCount; i++) {
-      if(xSamples[i] < minX) {
-        minX = xSamples[i];
-      }
-      if(xSamples[i] > maxX) {
-        maxX = xSamples[i];
-      }
-      if(ySamples[i] < minY) {
-        minY = ySamples[i];
-      }
-      if(ySamples[i] > maxY) {
-        maxY = ySamples[i];
-      }
-      if(zSamples[i] < minZ) {
-        minZ = zSamples[i];
-      }
-      if(zSamples[i] > maxZ) {
-        maxZ = zSamples[i];
-      }
-    }
-    cal.mag_hardiron[0] = (float)((maxX + minX) / 2.0);
-    cal.mag_hardiron[1] = (float)((maxY + minY) / 2.0);
-    cal.mag_hardiron[2] = (float)((maxZ + minZ) / 2.0);
-    double rangeX = maxX - minX;
-    double rangeY = maxY - minY; 
-    double rangeZ = maxZ - minZ;
-    double avgRadius = (rangeX + rangeY + rangeZ) / 6.0;
-
-    // Handle each axis independently - only apply identity scaling to problematic axes
-    double scaleX, scaleY, scaleZ;
-
-    // Check each range individually and handle division by zero per axis
-    if(rangeX == 0.0) {
-      scaleX = 1.0; // Identity scaling for X-axis (no correction)
-    } else {
-      scaleX = avgRadius / (rangeX / 2.0); // Normal scaling calculation
-    }
-    if(rangeY == 0.0) {
-      scaleY = 1.0; // Identity scaling for Y-axis (no correction)
-    } else {
-      scaleY = avgRadius / (rangeY / 2.0); // Normal scaling calculation
-    }
-    if(rangeZ == 0.0) {
-      scaleZ = 1.0; // Identity scaling for Z-axis (no correction)
-    } else {
-      scaleZ = avgRadius / (rangeZ / 2.0); // Normal scaling calculation
-    }
-
-    cal.mag_softiron[0] = (float)scaleX;
-    cal.mag_softiron[1] = 0.0f;
-    cal.mag_softiron[2] = 0.0f;
-    cal.mag_softiron[3] = 0.0f;
-    cal.mag_softiron[4] = (float)scaleY;
-    cal.mag_softiron[5] = 0.0f;
-    cal.mag_softiron[6] = 0.0f;
-    cal.mag_softiron[7] = 0.0f;
-    cal.mag_softiron[8] = (float)scaleZ;
-    double sumB = 0.0;
-    for(uint16_t i = 0; i < sampleCount; i++){
-      double mx = (xSamples[i] - cal.mag_hardiron[0]) * scaleX;
-      double my = (ySamples[i] - cal.mag_hardiron[1]) * scaleY;
-      double mz = (zSamples[i] - cal.mag_hardiron[2]) * scaleZ;
-      sumB += sqrt(mx*mx + my*my + mz*mz);
-    }
-    cal.mag_field = (sampleCount > 0) ? (float)(sumB / sampleCount) : 50.0f;
-    return cal;
+    // Use fallback logic to create diagonal offsets
+    return calculateDiagonalFallback();
   }
 
   float Lvec[3] = { G, H, I };
@@ -577,9 +531,12 @@ CalibrationData MagCalibration::computeCalibration() const {
   float cy = -0.5f * (Qinv[1][0]*Lvec[0] + Qinv[1][1]*Lvec[1] + Qinv[1][2]*Lvec[2]);
   float cz = -0.5f * (Qinv[2][0]*Lvec[0] + Qinv[2][1]*Lvec[1] + Qinv[2][2]*Lvec[2]);
 
-  cal.mag_hardiron[0] = cx;
-  cal.mag_hardiron[1] = cy;
-  cal.mag_hardiron[2] = cz;
+  // Add initial hard-iron offset to the computed offset for final calibration.
+  // This ensures both the provisional offset (applied during sample collection)
+  // and the refined offset (from ellipsoid fit or fallback) are included.
+  cal.mag_hardiron[0] = cx + provisionalHardIron.offsets.x;
+  cal.mag_hardiron[1] = cy + provisionalHardIron.offsets.y;
+  cal.mag_hardiron[2] = cz + provisionalHardIron.offsets.z;
 
   // compute constant: c^T Q c + L^T c + J
   float cQc = cx*(Q[0][0]*cx + Q[0][1]*cy + Q[0][2]*cz)
@@ -589,76 +546,8 @@ CalibrationData MagCalibration::computeCalibration() const {
   float constant = cQc + Lc + J;
   float R = -constant;
   if(R <= 0.0f) {
-    // invalid fit (likely poor coverage) -> fallback to diagonal
-    double minX = xSamples[0], maxX = xSamples[0];
-    double minY = ySamples[0], maxY = ySamples[0];
-    double minZ = zSamples[0], maxZ = zSamples[0];
-    for(uint16_t i = 1; i < sampleCount; i++) {
-      if(xSamples[i] < minX) {
-        minX = xSamples[i];
-      }
-      if(xSamples[i] > maxX) {
-        maxX = xSamples[i];
-      }
-      if(ySamples[i] < minY) {
-        minY = ySamples[i];
-      }
-      if(ySamples[i] > maxY) {
-        maxY = ySamples[i];
-      }
-      if(zSamples[i] < minZ) {
-        minZ = zSamples[i];
-      }
-      if(zSamples[i] > maxZ) {
-        maxZ = zSamples[i];
-      }
-    }
-    cal.mag_hardiron[0] = (float)((maxX + minX) / 2.0);
-    cal.mag_hardiron[1] = (float)((maxY + minY) / 2.0);
-    cal.mag_hardiron[2] = (float)((maxZ + minZ) / 2.0);
-    double rangeX = maxX - minX;
-    double rangeY = maxY - minY; 
-    double rangeZ = maxZ - minZ;
-    double avgRadius = (rangeX + rangeY + rangeZ) / 6.0;
-
-    // Handle each axis independently - only apply identity scaling to problematic axes
-    double scaleX, scaleY, scaleZ;
-
-    // Check each range individually and handle division by zero per axis
-    if(rangeX == 0.0) {
-      scaleX = 1.0; // Identity scaling for X-axis (no correction)
-    } else {
-      scaleX = avgRadius / (rangeX / 2.0); // Normal scaling calculation
-    }
-    if(rangeY == 0.0) {
-      scaleY = 1.0; // Identity scaling for Y-axis (no correction)
-    } else {
-      scaleY = avgRadius / (rangeY / 2.0); // Normal scaling calculation
-    }
-    if(rangeZ == 0.0) {
-      scaleZ = 1.0; // Identity scaling for Z-axis (no correction)
-    } else {
-      scaleZ = avgRadius / (rangeZ / 2.0); // Normal scaling calculation
-    }
-
-    cal.mag_softiron[0] = (float)scaleX;
-    cal.mag_softiron[1] = 0.0f;
-    cal.mag_softiron[2] = 0.0f;
-    cal.mag_softiron[3] = 0.0f;
-    cal.mag_softiron[4] = (float)scaleY;
-    cal.mag_softiron[5] = 0.0f;
-    cal.mag_softiron[6] = 0.0f;
-    cal.mag_softiron[7] = 0.0f;
-    cal.mag_softiron[8] = (float)scaleZ;
-    double sumB = 0.0;
-    for(uint16_t i = 0; i < sampleCount; i++){
-      double mx = (xSamples[i] - cal.mag_hardiron[0]) * scaleX;
-      double my = (ySamples[i] - cal.mag_hardiron[1]) * scaleY;
-      double mz = (zSamples[i] - cal.mag_hardiron[2]) * scaleZ;
-      sumB += sqrt(mx*mx + my*my + mz*mz);
-    }
-    cal.mag_field = (sampleCount > 0) ? (float)(sumB / sampleCount) : 50.0f;
-    return cal;
+    // Use fallback logic to create diagonal offsets
+    return calculateDiagonalFallback();
   }
 
   // Eigen-decompose Q to get V, lambda
