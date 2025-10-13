@@ -74,7 +74,7 @@
 - The primary purpose of the `Top Dial` on the top of the gun box is to change the power level of the wand, affecting the intensity of the stream effects (indicated by increasing or decreasing the bargraph lights just as the stock wand did).
    - Rotate clockwise to raise power, and counter-clockwise to lower power.
 - There are 5 wand power levels in Super Hero mode and 4 in Mode Original.
-   - &starf; New for 6.0.2+ - The default power level is now 5 (previously 1) for full power when in Super Hero Mode. This more closely matches moments from the movies such as the Sedgwick Hotel (from the 1984 film) and Afterlife ("switch me on") scenes.
+   - &starf; New for 6.0.2+ - The default power level is now 5 (previously 1) for full power when in Super Hero Mode. This more closely matches moments from the movies such as the Sedgewick Hotel (from the 1984 film) and Afterlife ("switch me on") scenes.
 - For lower power levels, the proton stream is more red. On higher power levels, the stream will appear more yellow.
 	- Note that it is the other way around for 1989 mode to be more faithful to how proton streams appeared in that film.
 - When Video Game Mode is active and the Neutrona Wand is **ON** and the top toggle switch is **DOWN**, rotating the `Top Dial` will switch between weapon modes. For a description of these modes please see the Video Game Mode section. 📝 `Super Hero mode only`
@@ -109,7 +109,7 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 
 - The `Activate` toggle on the gun box turns on both the Proton Pack and Neutrona Wand.
 	- The switch under the Proton Pack's Ion Arm does not need to be engaged for this to work.
-- The green lever near the gunbox acts as a safety and must be pulled to extend the barrel before firing.
+- The green lever near the gunbox acts as a safety and must be pulled to extend the barrel before firing. This can be disabled by setting the barrel safety switch polarity to "disabled".
 - While firing, the default bargraph animations slide/split the bargraph in half and scroll up and down simultaneously.
 	- **Button Mash Lockout:** If you press the firing button(s) too rapidly the system will malfunction and lock you out for a period of time proportional to the current power level. When in the Frozen Empire theme the pack will "freeze over" with an ice crackling effect, then break free to restart after a few seconds. This mimics the scene between Phoebe and Garraka when she used her modified "Brass Pack".
 
@@ -117,17 +117,17 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 
 ![](images/OperationNeutrona3.jpg)
 
-- Right-hand toggles (Bottom and Top) affect the vent light and additional sound effects.
+- Right-hand toggles (Bottom and Top) affect the vent light, Clippard light, and additional sound effects.
 	- The Neutrona Wand **will not fire** unless both of these switches are **UP**.
 	- **Hot Shutdown**: &starf; New for 6.0.2+ - You can turn the Neutrona Wand off without turning off the Proton Pack by leaving the bottom-right switch **UP** when flipping the `Activate` switch **DOWN**. To shut down both the wand and pack, flip the `Activate` switch **UP** then flip the bottom toggle **DOWN** before flipping the `Activate` switch **DOWN**.
 	- **Boot-Up Errors**: If you attempt to boot up your Neutrona Wand while the top toggle switch is **UP**, the Neutrona Wand will boot into an error mode. Flip the top toggle switch **DOWN** and restart your Neutrona Wand to boot normally. This feature can be enabled or disabled in the Neutrona Wand EEPROM Configuration Menu.
 	- **Quick Vent**: If the Neutrona Wand is **ON** and the Top toggle switch is **DOWN**, pressing `Intensify` will perform a quick vent. Holding down `Intensify` will perform a full overheat sequence. **This is the default behaviour**, though this feature can be disabled in the Neutrona Wand EEPROM Configuration Menu.
 - While in 1984 or 1989 theme mode:
 	- Bottom toggle switch turns on the vent light and plays the wand power up sound.
-	- Top toggle switch plays a single beep sound.
+	- Top toggle switch turns on the Clippard light and plays a single beep sound.
 - While in Afterlife or Frozen Empire theme mode:
 	- Bottom toggle switch turns on the vent light and the wand plays a ramp up sound.
- 	- Top toggle switch turns on the looping beeping sounds.
+ 	- Top toggle switch turns on the Clippard light and plays looping beeping sounds.
 
 <div class="page-break"></div>
 
@@ -146,13 +146,13 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 ![](images/OperationNeutrona13.jpg)
 
 - The bottom toggle will put the Neutrona Wand into standby mode with an audible beep, and the slo-blo LED will begin to blink.
-- If the bottom toggle is **UP** the top toggle turns on the bargraph, the vent light, and Clippard LED and the heatup sound will play. The bargraph will ramp up and back down to the lowest level setting.
+- If the bottom toggle is **UP** the top toggle turns on the bargraph, the vent light, and Clippard light and the heatup sound will play. The bargraph will ramp up and back down to the lowest level setting.
 
 #### Activate Toggle
 
 - `Activate` toggle on the gun box turns on the cyclotron of the Proton Pack. To activate the cyclotron, both right hand toggle switches on the Neutrona Wand must be **UP**.
 	- The Cyclotron will not turn on unless both toggle switches on the Neutrona Wand are **UP** and the Ion Arm switch on the Pack is in the **ON** position.
-- The green lever near the gunbox acts as a safety and must be pulled to extend the barrel before firing.
+- The green lever near the gunbox acts as a safety and must be pulled to extend the barrel before firing. This can be disabled by setting the barrel safety switch polarity to "disabled".
 
 <div class="page-break"></div>
 
