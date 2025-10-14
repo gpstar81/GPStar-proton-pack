@@ -19,6 +19,9 @@
 
 #pragma once
 void updateLEDs();
+#ifdef ESP32
+void resetWifiPassword(); // Forward function declaration.
+#endif
 
 /**
  * Function: sanitizeCyclotronMultipliers
@@ -1740,6 +1743,10 @@ void checkSwitches() {
     stopEffect(S_VOICE_VIBRATION_DISABLED);
 
     if(switch_vibration.getState() == LOW) {
+      if(PACK_STATE == MODE_OFF && switch_alarm.getState() == HIGH) {
+        vibrationSwitchedCount++;
+      }
+
       if(!b_vibration_switch_on) {
         // Tell the wand to enable vibration.
         packSerialSend(P_VIBRATION_ENABLED);
@@ -1770,22 +1777,30 @@ void checkSwitches() {
     b_switch_mode_override = false;
   }
 
-  if(b_use_ribbon_cable && (switch_alarm.isPressed() || switch_alarm.isReleased())) {
-    // Play a sound when the ribbon cable is attached or detached.
-    if(ribbonCableAttached()) {
-      // Only play this sound if the pack is off to match Frozen Empire.
-      if(PACK_STATE == MODE_OFF) {
-        stopEffect(S_CLICK);
-        playEffect(S_CLICK);
+  if(switch_alarm.isPressed() || switch_alarm.isReleased()) {
+    // Reset the vibration switch counter.
+    vibrationSwitchedCount = 0;
+
+    if(b_use_ribbon_cable) {
+      // Play a sound when the ribbon cable is attached or detached.
+      if(ribbonCableAttached()) {
+        // Only play this sound if the pack is off to match Frozen Empire.
+        if(PACK_STATE == MODE_OFF) {
+          stopEffect(S_CLICK);
+          playEffect(S_CLICK);
+        }
       }
-    }
-    else {
-      stopEffect(S_RIBBON_CABLE_DETACH);
-      playEffect(S_RIBBON_CABLE_DETACH);
+      else {
+        stopEffect(S_RIBBON_CABLE_DETACH);
+        playEffect(S_RIBBON_CABLE_DETACH);
+      }
     }
   }
 
   if(switch_power.isPressed() || switch_power.isReleased()) {
+    // Reset the vibration switch counter.
+    vibrationSwitchedCount = 0;
+
     // When the ion arm switch is used to turn the Proton Pack on, play a extra sound effect in Afterlife or Frozen Empire.
     switch(SYSTEM_YEAR) {
       case SYSTEM_AFTERLIFE:
@@ -5322,6 +5337,26 @@ void systemPOST() {
     else {
       ms_delay_post_3.start(5);
     }
+  }
+}
+
+void resetWifiCommand() {
+  bool b_reset_success = false;
+  #ifndef ESP32
+    // If not ESP32, send a message to the wireless module to have it reset its password.
+    if(b_attenuator_connected) {
+      attenuatorSerialSend(A_RESET_WIFI_PASSWORD);
+      b_reset_success = true;
+    }
+  #else
+    // If GPStar Pack II, reset our own Wifi password.
+    resetWifiPassword();
+    b_reset_success = true;
+  #endif
+
+  // Play voice confirmation if successful.
+  if(b_reset_success) {
+    playEffect(S_VOICE_PACK_WIFI_RESET);
   }
 }
 

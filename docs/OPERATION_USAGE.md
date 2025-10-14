@@ -264,10 +264,11 @@ Cross The Streams (CTS) is the default firing mode for Mode Original. Cross The 
 
 Please view the [supplemental operation guide for EEPROM menus](OPERATION_EEPROM.md) which can be used to alter hardware configurations and to set user preferences which will persist across battery power-down events.
 
-### PDF Operational Guide
+### PDF Operational Guides
 
-(Direct Download link)
-[GPStar Operational Guide [pdf]](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/gpstar-Operational-Guide.pdf?raw=1)
+(Direct Download links)
+[GPStar I Operational Guide [pdf]](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/gpstar-Operational-Guide.pdf?raw=1)
+[GPStar II Operational Guide [pdf]](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/GPStar-II-Operation-Guide.pdf?raw=1)
 
 <div class="page-break"></div>
 

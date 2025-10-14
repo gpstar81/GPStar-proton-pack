@@ -28,6 +28,9 @@
 HardwareSerial PackSerial(2); // Associate PackSerial with UART2
 SerialTransfer packComs;
 
+// Declare external reference to WirelessManager pointer (allocated in main.cpp after NVS init)
+extern WirelessManager* wirelessMgr;
+
 // Command and Message Data Packets
 struct CommandPacket sendCmd;
 struct CommandPacket recvCmd;
@@ -370,6 +373,11 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       ms_packsync.start(i_sync_disconnect_delay);
 
       attenuatorSerialSend(A_SYNC_END); // Signal end of sync.
+    break;
+
+    case A_RESET_WIFI_PASSWORD:
+      // Pack told us to reset our Wifi password, so do that.
+      wirelessMgr->resetWifiPassword();
     break;
 
     case A_WAND_CONNECTED:

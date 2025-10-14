@@ -350,6 +350,12 @@ void mainLoop() {
         // Turn on the status indicator LED.
         digitalWriteFast(PACK_STATUS_LED_PIN, HIGH);
 
+        if(vibrationSwitchedCount >= 5) {
+          // Vibration switch was just toggled 5 times with ribbon cable off, so reset the pack wifi password.
+          resetWifiCommand();
+          vibrationSwitchedCount = 0;
+        }
+
         if(PACK_ACTION_STATE == ACTION_IDLE && ms_delay_post.justFinished()) {
           // Brass Pack shutdown steam effect.
           playEffect(PROGMEM_READU16(sfx_smoke[random(5)]));

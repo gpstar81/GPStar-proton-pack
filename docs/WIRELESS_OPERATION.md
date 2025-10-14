@@ -15,11 +15,13 @@ It should be clearly stated that these are low-power consumer device and will no
 - For **Android** devices offering a cellular hotspot, these devices may utilize a feature called "Client Isolation Mode" which will prevent hotspot clients from seeing each other. Unless you can disable this option (via a rooted device) you will not be able to reach the web UI via the hotspot network.
 - For **iOS** devices offering a cellular hotspot, please make sure that the "Maximize Compatibility" option is enabled. This will ensure your device offers the 2.4GHz radio and will be seen by the device.
 
-## WiFi Debug Mode
+## WiFi Password Reset
 
-If you have forgotten the password to your device's private WiFi network, you can load the special `Attenuator-Reset.bin` firmware by following the ["Forgot Your WiFi Password" section of the ATTENUATOR_FLASHING guide](https://github.com/gpstar81/GPStar-proton-pack/blob/main/blob/main/ATTENUATOR_FLASHING.md#forgot-your-wifi-password).
+If you have forgotten the password to your device's private WiFi network, you can load the special `Attenuator-Reset.bin` firmware by following the ["Forgot Your WiFi Password" section of the ATTENUATOR_FLASHING guide](ATTENUATOR_FLASHING.md#forgot-your-wifi-password).
 
 As of the 5.2.2 firmware release a special debug option is available when using the hardware as an Attenuator, or if a momentary switch is installed between pin D4 and GND on the WiFi add-on controller. While powering on the device, push down on the main dial on the Attenuator (or press the momentary switch), and the device will bypass any stored password for local WiFi. This will reset the WiFi password for the built-in WiFi network, allowing the you to log back into the device and change to a suitable password. This should **only be done as a last resort** to regain access to the device if the password is forgotten or another technical issue may be preventing access!
+
+As of the 6.1.0 firmware release, the password for a GPStar I wireless module can be reset by removing the ribbon cable and toggling the vibration on/off switch 5 times while the Proton Pack is not running.
 
 ## Firmware Flashing
 

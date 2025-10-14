@@ -26,7 +26,7 @@
  * https://github.com/gpstar81/haslab-proton-pack/tree/main/extras
  *
  * Information on how to update your WAV Trigger devices can be found on the GPStar github repository.
- * https://github.com/gpstar81/haslab-proton-pack/blob/main/WAVTRIGGER.md
+ * https://github.com/gpstar81/haslab-proton-pack/blob/main/docs/WAVTRIGGER.md
  */
 #include <GPStarAudio.h>
 gpstarAudio audio;
