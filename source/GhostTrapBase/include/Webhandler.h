@@ -509,6 +509,14 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
           preferences.putString("gateway", "");
         }
       }
+      else {
+        // Reset all values to defaults.
+        preferences.putString("ssid", "");
+        preferences.putString("password", "");
+        preferences.putString("address", "");
+        preferences.putString("subnet", "");
+        preferences.putString("gateway", "");
+      }
 
       preferences.end();
     }
