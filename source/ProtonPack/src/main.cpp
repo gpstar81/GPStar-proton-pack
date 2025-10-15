@@ -308,14 +308,6 @@ void setup() {
   // Perform initial pack reset.
   packOffReset();
 
-  if(SYSTEM_MODE == MODE_SUPER_HERO) {
-    // Auto start the pack if it is in demo light mode.
-    if(b_demo_light_mode) {
-      // Turn the pack on.
-      PACK_ACTION_STATE = ACTION_ACTIVATE;
-    }
-  }
-
   // Perform power-on sequence if demo light mode is not enabled per user preferences.
   if(!b_demo_light_mode) {
     // System Power On Self Test
@@ -323,6 +315,11 @@ void setup() {
     ms_delay_post.start(0);
   }
   else {
+    if(SYSTEM_MODE == MODE_SUPER_HERO) {
+      // Auto start the pack if it is in demo light mode.
+      PACK_ACTION_STATE = ACTION_ACTIVATE;
+    }
+
     b_pack_post_finish = true;
   }
 
@@ -589,6 +586,9 @@ void updateLEDs() {
 
 // The main loop of the program which manages all system operations which must occur on every loop.
 void loop() {
+  #ifdef ESP32
+  if(b_initial_wifi_setup_finished) {
+  #endif
   // Update the available audio device.
   updateAudio();
 
@@ -609,8 +609,8 @@ void loop() {
 
   // Update the LEDs.
   updateLEDs();
-
 #ifdef ESP32
+  }
   // The ESP32 uses a dual-core CPU with the loop() executing in Core0 by default.
   // Using vTaskDelay even without core-pinning will allow other tasks to run on Core1.
   // Features such as networking, WiFi, and OTA updates can benefit from this delay.
@@ -648,6 +648,10 @@ void loop() {
         restartWireless();
       }
     break;
+  }
+  
+  if(!b_initial_wifi_setup_finished) {
+    b_initial_wifi_setup_finished = true;
   }
 #endif
 }

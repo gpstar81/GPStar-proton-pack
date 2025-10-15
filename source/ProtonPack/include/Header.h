@@ -549,6 +549,7 @@ void powercellDraw(uint8_t i_start = 0);
 #ifdef ESP32
   enum WIFI_MODES { WIFI_DEFAULT, WIFI_ENABLED, WIFI_DISABLED };
   enum WIFI_MODES WIFI_MODE = WIFI_DEFAULT;
+  bool b_initial_wifi_setup_finished = false; // Used to offset demo light mode startup by 1 loop.
 #endif
 
 /*

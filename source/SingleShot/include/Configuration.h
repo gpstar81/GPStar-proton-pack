@@ -24,7 +24,7 @@
 /*
  * Used to reflect the last build date for the binary.
  */
-String build_date = "V6_20251015045731";
+String build_date = "V6_20251015081356";
 
 /*
  * Preferred WiFi Network Defaults (only for ESP32)
@@ -136,7 +136,7 @@ bool b_bargraph_invert = false;
  * Enables the optional addressable RGB vent/top light board.
  */
 #ifdef ESP32
-  bool b_rgb_vent_light = true; // Only RGB for ESP32 builds, user settings are ignored.
+  const bool b_rgb_vent_light = true; // Only RGB for ESP32 builds, user settings are ignored.
 #else
   bool b_rgb_vent_light = false; // Assumes stock LED for ATMega, overridden with EEPROM.
 #endif
