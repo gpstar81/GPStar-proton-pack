@@ -157,17 +157,22 @@ const char NETWORK_page[] PROGMEM = R"=====(
 
     function saveSettings() {
       var wEnabled = getToggle("enabled");
-
       var wNetwork = getText("network");
-      if (wEnabled && wNetwork.length < 2) {
-        alert("The WiFi network must be a minimum of 2 characters.");
-        return;
-      }
-
       var wPassword = getText("password");
-      if (wEnabled && wPassword.length < 8) {
-        alert("The WiFi password must be a minimum of 8 characters to meet WPA2 requirements.");
-        return;
+      if (wEnabled) {
+        if (wNetwork.length < 2) {
+          alert("The WiFi network must be a minimum of 2 characters.");
+          return;
+        }
+
+        if (wPassword.length < 8) {
+          alert("The WiFi password must be a minimum of 8 characters to meet WPA2 requirements.");
+          return;
+        }
+      }
+      else {
+        wPassword = "";
+        wNetwork = "";
       }
 
       var wStatic = getToggle("useStaticIP");
