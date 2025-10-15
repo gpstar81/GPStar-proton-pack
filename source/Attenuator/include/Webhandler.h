@@ -712,17 +712,17 @@ String getWifiSettings() {
 
     jsonBody["address"] = preferences.getString("address");
     if(jsonBody["address"].as<String>() == "") {
-      jsonBody["address"] = String(wirelessMgr->getExtWifiAddress());
+      jsonBody["address"] = wirelessMgr->getExtWifiAddress().toString();
     }
 
     jsonBody["subnet"] = preferences.getString("subnet");
     if(jsonBody["subnet"].as<String>() == "") {
-      jsonBody["subnet"] = String(wirelessMgr->getExtWifiSubnet());
+      jsonBody["subnet"] = wirelessMgr->getExtWifiSubnet().toString();
     }
 
     jsonBody["gateway"] = preferences.getString("gateway");
     if(jsonBody["gateway"].as<String>() == "") {
-      jsonBody["gateway"] = String(wirelessMgr->getExtWifiGateway());
+      jsonBody["gateway"] = wirelessMgr->getExtWifiGateway().toString();
     }
 
     preferences.end();
