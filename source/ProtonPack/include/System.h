@@ -863,6 +863,9 @@ void packStartup(bool firstStart) {
   PACK_STATE = MODE_ON;
   PACK_ACTION_STATE = ACTION_IDLE;
 
+  // Reset the vibration switch counter.
+  vibrationSwitchedCount = 0;
+
   // Stop the Brass Pack shutdown timer in case it's running.
   ms_delay_post.stop();
 

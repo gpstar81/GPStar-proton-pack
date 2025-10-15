@@ -86,6 +86,7 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t ledPowercellSat;
   uint8_t ledPowercellLum;
   uint8_t ledVGPowercell;
+  uint8_t resetWifiPassword;
 } packConfig;
 
 // Preferences for the Neutrona Wand device.

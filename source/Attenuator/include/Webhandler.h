@@ -480,6 +480,7 @@ String getPackConfig() {
 
     // Use the device-reported value so we can fine-tune the UI options.
     jsonBody["esp32Pack"] = (packConfig.isESP32 == 1);
+    jsonBody["resetWifiPassword"] = false;
 
     // Return current powered state for pack and wand.
     jsonBody["packPowered"] = (b_pack_on || b_pack_shutting_down);
@@ -523,6 +524,9 @@ String getPackConfig() {
     jsonBody["ledPowercellSat"] = packConfig.ledPowercellSat; // Spectral custom saturation 2-254
     jsonBody["ledPowercellLum"] = packConfig.ledPowercellLum; // Brightness 20-100
     jsonBody["ledVGPowercell"] = packConfig.ledVGPowercell; // true|false
+  }
+  else {
+    jsonBody["prefsAvailable"] = false;
   }
 
   // Serialize JSON object to string.
@@ -571,6 +575,9 @@ String getWandConfig() {
     jsonBody["bargraphOverheatBlink"] = wandConfig.bargraphOverheatBlink; // true|false
     jsonBody["bargraphIdleAnimation"] = wandConfig.bargraphIdleAnimation; // [1=SYSTEM,2=SH,3=MO]
     jsonBody["bargraphFireAnimation"] = wandConfig.bargraphFireAnimation; // [1=SYSTEM,2=SH,3=MO]
+  }
+  else {
+    jsonBody["prefsAvailable"] = false;
   }
 
   // Serialize JSON object to string.
@@ -628,6 +635,9 @@ String getSmokeConfig() {
     // Power Level 1
     jsonBody["overheatLevel1"] = (smokeConfig.overheatLevel1 == 1); // true|false
     jsonBody["overheatDelay1"] = smokeConfig.overheatDelay1; // 2-60 Seconds
+  }
+  else {
+    jsonBody["prefsAvailable"] = false;
   }
 
   // Serialize JSON object to string.
@@ -1414,6 +1424,9 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
           RED_SWITCH_MODE = SWITCH_OFF;
         break;
       }
+
+      // GPStar II Wifi password reset
+      packConfig.resetWifiPassword = jsonBody["resetWifiPassword"].as<uint8_t>();
 
       // Cyclotron Lid
       packConfig.ledCycLidCount = jsonBody["ledCycLidCount"].as<uint8_t>();

@@ -154,6 +154,9 @@ void getPackPrefsObject() {
   packConfig.isESP32 = 0;
 #endif
 
+  // Wifi reset command default value
+  packConfig.resetWifiPassword = 0;
+
   // General Settings
   packConfig.defaultSystemModePack = SYSTEM_MODE;
   packConfig.defaultYearThemePack = SYSTEM_EEPROM_YEAR;
@@ -466,6 +469,22 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value);
 // Perform update of the pack preferences based on the current configuration object.
 void handlePackPrefsUpdate() {
   sendDebug(F("Saving Pack Preferences"));
+
+  switch(packConfig.resetWifiPassword) {
+    case 0:
+    default:
+      // Do nothing.
+    break;
+    #ifdef ESP32
+    case 1:
+      // If we are GPStar II and received this command, reset our Wifi password.
+      resetWifiPassword();
+
+      // Immediately reset the config object to prevent repeat calls.
+      packConfig.resetWifiPassword = 0;
+    break;
+    #endif
+  }
 
   switch(packConfig.defaultSystemModePack) {
     case 0:

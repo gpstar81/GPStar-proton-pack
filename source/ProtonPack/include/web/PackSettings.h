@@ -462,7 +462,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             setToggle("overheatSyncToFan", settings.overheatSyncToFan);
             setToggle("demoLightMode", settings.demoLightMode);
 
-            setValue("ledCycLidCount", settings.ledCycLidCount || 12); // Haslab: 12
+            setValue("ledCycLidCount", settings.ledCycLidCount || 36); // GPStar: 36
             setValue("ledCycLidHue", convertRange(settings.ledCycLidHue || 254, [1,254], [0,360])); // Default: Red
             setValue("ledCycLidSat", convertRange(settings.ledCycLidSat || 254, [1,254], [0,100])); // Full Saturation
             setValue("ledCycLidLum", settings.ledCycLidLum || 100); // Full Brightness
@@ -486,7 +486,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             setHtml("ledCycCavCountOut", getValue("ledCycCavCount"));
             setValue("ledCycCavType", settings.ledCycCavType || 1); // Default: RGB
 
-            setValue("ledPowercellCount", settings.ledPowercellCount || 13); // Haslab: 13
+            setValue("ledPowercellCount", settings.ledPowercellCount || 15); // GPStar: 15
             setToggle("ledInvertPowercell", settings.ledInvertPowercell);
             setValue("ledPowercellHue", convertRange(settings.ledPowercellHue || 160, [1,254], [0,360])); // Default: Blue
             setValue("ledPowercellSat", convertRange(settings.ledPowercellSat || 254, [1,254], [0,100])); // Full Saturation

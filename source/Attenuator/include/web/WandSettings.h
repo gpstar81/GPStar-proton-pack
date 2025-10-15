@@ -88,7 +88,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         <option value="3">Disabled</option>
       </select>
     </div>
-    <div class="setting">
+    <div class="setting" id="rgbVentDiv">
       <label class="toggle-switchy" data-label="left">
         <input id="rgbVentEnabled" name="rgbVentEnabled" type="checkbox">
         <span class="toggle">
@@ -315,9 +315,9 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
             // Valid settings were received and both the pack and wand are off, so allow updating settings.
             getEl("btnSave").disabled = false;
 
-            // GPStar Pack II detected, so disable toggle for the RGB Vent Light as it is invalid for the GPStar Wand II.
-            if (settings.esp32Pack) {
-              getEl("rgbVentEnabled").disabled = true;
+            // GPStar Wand II detected, so disable toggle for the RGB Vent Light as it is invalid for the GPStar Wand II.
+            if (settings.esp32Wand) {
+              getEl("rgbVentDiv").style.display = 'none';
             }
 
             /**

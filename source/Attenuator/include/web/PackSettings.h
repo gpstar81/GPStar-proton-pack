@@ -340,6 +340,19 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     </div>
   </div>
 
+  <h1 id="wifiPasswordH1">GPStar II Proton Pack WiFi Password Reset</h1>
+  <div class="block left" id="wifiPasswordDiv">
+    <div class="setting">
+      <label class="toggle-switchy" data-text="yesno" data-label="left">
+        <input id="resetWifiPassword" name="resetWifiPassword" type="checkbox">
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Reset WiFi Password:</span>
+      </label>
+    </div>
+  </div>
+
   <div class="block">
     <a href="#top">Top</a>
     <hr/>
@@ -399,6 +412,9 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       getEl("ledPowercellLum").disabled = true;
       getEl("ledInvertPowercell").disabled = true;
       getEl("ledVGPowercell").disabled = true;
+      getEl("resetWifiPassword").disabled = true;
+      getEl("wifiPasswordH1").style.display = 'none';
+      getEl("wifiPasswordDiv").style.display = 'none';
     }
 
     // Converts a value from one range to another: eg. convertRange(160, [2,254], [0,360])
@@ -432,6 +448,12 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
               return;
             }
 
+            if (!settings.esp32Pack) {
+              // Hide the GPStar II wifi reset section if pack is not GPStar II.
+              getEl("wifiPassword").style.display = 'none';
+              getEl("resetWifiPassword").style.display = 'none';
+            }
+
             // Valid settings were received and both the pack and wand are off, so allow updating settings.
             getEl("btnSave").disabled = false;
 
@@ -462,7 +484,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             setToggle("overheatSyncToFan", settings.overheatSyncToFan);
             setToggle("demoLightMode", settings.demoLightMode);
 
-            setValue("ledCycLidCount", settings.ledCycLidCount || 12); // Haslab: 12
+            setValue("ledCycLidCount", settings.ledCycLidCount || 36); // GPStar: 36
             setValue("ledCycLidHue", convertRange(settings.ledCycLidHue || 254, [1,254], [0,360])); // Default: Red
             setValue("ledCycLidSat", convertRange(settings.ledCycLidSat || 254, [1,254], [0,100])); // Full Saturation
             setValue("ledCycLidLum", settings.ledCycLidLum || 100); // Full Brightness
@@ -486,7 +508,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             setHtml("ledCycCavCountOut", getValue("ledCycCavCount"));
             setValue("ledCycCavType", settings.ledCycCavType || 1); // Default: RGB
 
-            setValue("ledPowercellCount", settings.ledPowercellCount || 13); // Haslab: 13
+            setValue("ledPowercellCount", settings.ledPowercellCount || 15); // GPStar: 15
             setToggle("ledInvertPowercell", settings.ledInvertPowercell);
             setValue("ledPowercellHue", convertRange(settings.ledPowercellHue || 160, [1,254], [0,360])); // Default: Blue
             setValue("ledPowercellSat", convertRange(settings.ledPowercellSat || 254, [1,254], [0,100])); // Full Saturation
@@ -546,7 +568,9 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         ledPowercellHue: convertRange(getInt("ledPowercellHue"), [0,360], [1,254]) || 160,
         ledPowercellSat: convertRange(getInt("ledPowercellSat"), [0,100], [1,254]) || 254,
         ledPowercellLum: getInt("ledPowercellLum") || 100,
-        ledVGPowercell: getToggle("ledVGPowercell")
+        ledVGPowercell: getToggle("ledVGPowercell"),
+
+        resetWifiPassword: getToggle("resetWifiPassword")
       };
       var body = JSON.stringify(settings);
 
