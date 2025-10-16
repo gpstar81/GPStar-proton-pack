@@ -5377,7 +5377,7 @@ void readTemperature() {
       debugf("\t\tTemp: %.1f C (%.1f F)\n", f_temperature_c, f_temperature_f);
 
       // Send value to the Attenuator, multiplied by 100 to avoid float issues.
-      attenuatorSerialSend(A_TEMPERATURE_PACK, f_temperature_c * 100);
+      //attenuatorSerialSend(A_TEMPERATURE_PACK, f_temperature_c * 100);
     }
   }
 }
