@@ -135,7 +135,7 @@ void ventLight(bool b_on) {
   uint8_t i_colour_scheme = getDeviceColour(VENT_LIGHT, STREAM_MODE, true);
   b_vent_light_on = b_on;
 
-  if(b_on) {
+  if(b_on && b_cyclotron_lid_on) {
     // If doing firing smoke effects, let's change the light colours.
     if((b_wand_firing && b_smoke_continuous_level[i_wand_power_level - 1]) || b_overheating) {
       if(STREAM_MODE == PROTON) {
@@ -749,8 +749,9 @@ void cyclotronLidLedsOff() {
 }
 
 void resetCyclotronState() {
-  // Turn off optional N-Filter LED.
-  digitalWriteFast(NFILTER_LED_PIN, LOW);
+  // Turn off optional N-Filter LEDs.
+  ventLight(false);
+  ventLightLEDW(false);
 
   // Stop the slime Cyclotron effect timer.
   ms_cyclotron_slime_effect.stop();
