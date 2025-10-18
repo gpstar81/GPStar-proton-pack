@@ -14,6 +14,18 @@ body:
       description: Please describe in detail the behavior you would like to see implemented.
     validations:
       required: true
+  - type: dropdown
+    id: feature-base
+    attributes:
+      label: GPStar Controller Version
+      description: Select the version of GPStar controllers applicable.
+      options:
+        - GPStar I
+        - GPStar II
+        - Any/All
+      default: 0
+    validations:
+      required: true
   - type: textarea
     id: feature-hardware
     attributes:
