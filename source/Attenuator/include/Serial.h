@@ -318,7 +318,7 @@ bool checkPack() {
           b_wand_connected = attenuatorSyncData.wandPresent == 1;
           b_cyclotron_lid_on = attenuatorSyncData.cyclotronLidState == 1;
           f_batt_volts = (float) attenuatorSyncData.packVoltage / 100;
-          i_audio_version = attenuatorSyncData.audioVersion;
+          i_pack_audio_version = attenuatorSyncData.packAudioVersion;
           i_volume_master_percentage = attenuatorSyncData.masterVolume;
           i_volume_effects_percentage = attenuatorSyncData.effectsVolume;
           i_volume_music_percentage = attenuatorSyncData.musicVolume;
@@ -903,6 +903,11 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       // Convert to a value X.NN based on expected 1Amp maximum.
       f_wand_amps = (float) i_value / 100;
       b_state_changed = true;
+    break;
+
+    case A_WAND_AUDIO_VERSION:
+      i_wand_audio_version = i_value;
+      debug("Wand Audio Version: " + String(i_value));
     break;
 
     default:

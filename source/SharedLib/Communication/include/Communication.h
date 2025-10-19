@@ -86,6 +86,7 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t ledPowercellSat;
   uint8_t ledPowercellLum;
   uint8_t ledVGPowercell;
+  uint8_t gpstarAudioLed;
   uint8_t resetWifiPassword;
 } packConfig;
 
@@ -96,6 +97,7 @@ struct __attribute__((packed)) WandPrefs {
   uint8_t ledWandHue;
   uint8_t ledWandSat;
   uint8_t rgbVentEnabled;
+  uint8_t gpstarAudioLed;
   uint8_t spectralModesEnabled;
   uint8_t overheatEnabled;
   uint8_t defaultFiringMode;
@@ -108,6 +110,7 @@ struct __attribute__((packed)) WandPrefs {
   uint8_t wandBootError;
   uint8_t defaultYearModeWand;
   uint8_t defaultYearModeCTS;
+  uint8_t defaultWandVolume;
   uint8_t numBargraphSegments;
   uint8_t invertWandBargraph;
   uint8_t bargraphOverheatBlink;
@@ -183,7 +186,8 @@ struct __attribute__((packed)) AttenuatorSyncData {
   uint8_t trackLooped;
   uint16_t currentTrack;
   uint16_t musicCount;
-  uint16_t audioVersion;
+  uint16_t packAudioVersion;
+  uint16_t wandAudioVersion;
   uint16_t packVoltage;
 } attenuatorSyncData;
 
@@ -311,6 +315,8 @@ enum PACK_MESSAGE : uint8_t {
   P_INNER_CYCLOTRON_PANEL_DYNAMIC,
   P_POWERCELL_NOT_INVERTED,
   P_POWERCELL_INVERTED,
+  P_PACK_GPSTAR_AUDIO_LED_DISABLED,
+  P_PACK_GPSTAR_AUDIO_LED_ENABLED,
   P_TURN_WAND_ON,
   P_POST_FINISH
 };
@@ -544,6 +550,10 @@ enum WAND_MESSAGE : uint8_t {
   W_RGB_VENT_ENABLED,
   W_AUTO_VENT_INTENSITY_DISABLED,
   W_AUTO_VENT_INTENSITY_ENABLED,
+  W_GPSTAR_AUDIO_LED_TOGGLE,
+  W_WAND_GPSTAR_AUDIO_LED_DISABLED,
+  W_WAND_GPSTAR_AUDIO_LED_ENABLED,
+  W_WAND_AUDIO_VERSION,
   W_IMPACT_SOUND,
   W_COM_SOUND_NUMBER
 };
@@ -631,6 +641,7 @@ enum API_MESSAGE : uint8_t {
   A_WAND_POWER_AMPS,
   A_WAND_CONNECTED,
   A_WAND_DISCONNECTED,
+  A_WAND_AUDIO_VERSION,
   A_RESET_WIFI_PASSWORD,
   A_REQUEST_PREFERENCES_PACK,
   A_REQUEST_PREFERENCES_WAND,

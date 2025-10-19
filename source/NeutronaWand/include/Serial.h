@@ -52,6 +52,8 @@ struct MessagePacket recvData;
 void getWandPrefsObject() {
   sendDebug(F("Getting Wand Preferences"));
 
+  uint8_t i_eeprom_volume_master_percentage = 100 * (MINIMUM_VOLUME - i_volume_master_eeprom) / MINIMUM_VOLUME;
+
   // Return an indication of whether the device is an ESP32 or not.
 #ifdef ESP32
   wandConfig.isESP32 = 1;
@@ -81,6 +83,7 @@ void getWandPrefsObject() {
 
   wandConfig.ledWandHue = i_spectral_wand_custom_colour;
   wandConfig.ledWandSat = i_spectral_wand_custom_saturation;
+  wandConfig.defaultWandVolume = i_eeprom_volume_master_percentage;
   wandConfig.spectralModesEnabled = b_spectral_mode_enabled ? 1 : 0;
   wandConfig.overheatEnabled = b_overheat_enabled ? 1 : 0;
 
@@ -103,6 +106,7 @@ void getWandPrefsObject() {
   wandConfig.autoVentLight = b_vent_light_control ? 1 : 0;
   wandConfig.wandBeepLoop = b_beep_loop ? 1 : 0;
   wandConfig.wandBootError = b_wand_boot_errors ? 1 : 0;
+  wandConfig.gpstarAudioLed = b_gpstar_audio_led_enabled ? 1 : 0;
 
   switch(WAND_YEAR_MODE) {
     case YEAR_DEFAULT:
@@ -441,6 +445,7 @@ void handleWandPrefsUpdate() {
   b_vent_light_control = (wandConfig.autoVentLight == 1);
   b_beep_loop = (wandConfig.wandBeepLoop == 1);
   b_wand_boot_errors = (wandConfig.wandBootError == 1);
+  b_gpstar_audio_led_enabled = (wandConfig.gpstarAudioLed == 1);
 
   switch(wandConfig.defaultYearModeWand) {
     case 1:
@@ -522,11 +527,14 @@ void handleWandPrefsUpdate() {
     break;
   }
 
+  i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * wandConfig.defaultWandVolume / 100);
+
   // Offer some feedback to the user
   stopEffect(S_BEEPS);
   playEffect(S_BEEPS);
 
   // Update and reset wand components.
+  setAudioLED(b_gpstar_audio_led_enabled);
   bargraphYearModeUpdate();
   resetOverheatLevels();
   resetWhiteLEDBlinkRate();
@@ -898,6 +906,9 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
       // Acknowledgement that the wand is now synchronized.
       wandSerialSend(W_SYNCHRONIZED);
+
+      // Inform the pack of our audio configuration.
+      wandSerialSend(W_WAND_AUDIO_VERSION, i_audio_version);
 
       // Tell the pack the status of the Neutrona Wand barrel.
       if(BARREL_STATE != BARREL_UNKNOWN) {

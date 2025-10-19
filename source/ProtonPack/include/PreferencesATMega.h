@@ -74,6 +74,7 @@ struct objLEDEEPROM {
   uint8_t powercell_inverted;
   uint8_t vg_powercell;
   uint8_t vg_cyclotron;
+  uint8_t gpstar_audio_led;
 };
 
 /*
@@ -311,6 +312,17 @@ void readEEPROM() {
 
     if(obj_led_eeprom.inner_panel_brightness > 19 && obj_led_eeprom.inner_panel_brightness < 101) {
       i_cyclotron_panel_brightness = obj_led_eeprom.inner_panel_brightness;
+    }
+
+    if(obj_led_eeprom.gpstar_audio_led > 0 && obj_led_eeprom.gpstar_audio_led < 3) {
+      if(obj_led_eeprom.gpstar_audio_led > 1) {
+        b_gpstar_audio_led_enabled = true;
+      }
+      else {
+        b_gpstar_audio_led_enabled = false;
+      }
+
+      setAudioLED(b_gpstar_audio_led_enabled);
     }
 
     // Update the LED counts for the Proton Pack.
@@ -651,6 +663,12 @@ void saveLEDEEPROM() {
     i_vg_cyclotron = 1;
   }
 
+  // GPStar Audio LED status.
+  uint8_t i_gpstar_audio_led = 1;
+  if(b_gpstar_audio_led_enabled) {
+    i_gpstar_audio_led = 2;
+  }
+
   // Write the data to the EEPROM if any of the values have changed.
   objLEDEEPROM obj_led_eeprom = {
     i_powercell_leds,
@@ -672,7 +690,8 @@ void saveLEDEEPROM() {
     i_inner_cyclotron_led_panel,
     i_powercell_inverted,
     i_vg_powercell,
-    i_vg_cyclotron
+    i_vg_cyclotron,
+    i_gpstar_audio_led
   };
 
   // Save and update our object in the EEPROM.

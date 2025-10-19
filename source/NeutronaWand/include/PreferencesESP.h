@@ -50,6 +50,7 @@ struct objLEDEEPROM {
   uint8_t numBarrelLeds;
   uint8_t numBargraphLeds;
   // Note there is no RGB Vent Light setting for ESP32 as it must always be enabled
+  uint8_t gpstar_audio_led;
 } gObjLEDEEPROM;
 
 // Data structure for configuration settings (stored in Preferences)
@@ -93,6 +94,7 @@ void saveLEDEEPROM() {
   gObjLEDEEPROM.ventLightAutoIntensity = b_vent_light_control ? 2 : 1;
   gObjLEDEEPROM.numBarrelLeds = WAND_BARREL_LED_COUNT;
   gObjLEDEEPROM.numBargraphLeds = BARGRAPH_TYPE_EEPROM;
+  gObjLEDEEPROM.gpstar_audio_led = b_gpstar_audio_led_enabled ? 2 : 1;
 
   preferences.begin("led", false);
   preferences.putBytes("led", &gObjLEDEEPROM, sizeof(gObjLEDEEPROM));
@@ -611,7 +613,7 @@ void readEEPROM() {
       }
     }
 
-    if(gObjConfigEEPROM.defaultWandVolume > 0 && gObjConfigEEPROM.defaultWandVolume < 102 && b_gpstar_benchtest) {
+    if(gObjConfigEEPROM.defaultWandVolume > 0 && gObjConfigEEPROM.defaultWandVolume < 102) {
       // EEPROM value is from 1 to 101; subtract 1 to get the correct percentage.
       i_volume_master_percentage = gObjConfigEEPROM.defaultWandVolume - 1;
       i_volume_master_eeprom = MINIMUM_VOLUME - ((MINIMUM_VOLUME - i_volume_abs_max) * i_volume_master_percentage / 100);
@@ -796,6 +798,17 @@ void readEEPROM() {
       }
 
       BARGRAPH_TYPE = BARGRAPH_TYPE_EEPROM;
+    }
+
+    if(gObjLEDEEPROM.gpstar_audio_led > 0 && gObjLEDEEPROM.gpstar_audio_led < 3) {
+      if(gObjLEDEEPROM.gpstar_audio_led > 1) {
+        b_gpstar_audio_led_enabled = true;
+      }
+      else {
+        b_gpstar_audio_led_enabled = false;
+      }
+
+      setAudioLED(b_gpstar_audio_led_enabled);
     }
   }
   else {

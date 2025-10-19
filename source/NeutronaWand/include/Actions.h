@@ -157,13 +157,21 @@ void checkWandAction() {
       settingsBlinkingLights();
 
       switch(i_wand_menu) {
-        // Level 1 Intensify: Clear the Proton Pack EEPROM settings and exit.
-        // Level 1 Barrel Wing Button: Save the current settings to the Proton Pack EEPROM and exit.
-        // Level 2 Intensify: Video Game Neutrona Wand lights toggle.
+        // Level 1 Intensify: Clear the EEPROM settings and exit.
+        // Level 1 Barrel Wing Button: Save the current settings to the EEPROM and exit.
+        // Level 2 Intensify: Toggle 84/89 outer cyclotron fade effect.
+        // Level 2 Barrel Wing Button: Toggle brightness for Proton Pack LEDs.
+        // Level 3 Intensify: Toggle GPStar Audio LED state on Proton Pack.
+        // Level 3 Barrel Wing Button: Toggle GPStar Audio LED state on Neutrona Wand.
         case 5:
           // Tell the Proton Pack to clear the EEPROM settings and exit.
           if(switch_intensify.pushed()) {
             switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_3:
+                // Toggle Proton Pack GPStar Audio LED status.
+                wandSerialSend(W_GPSTAR_AUDIO_LED_TOGGLE);
+              break;
+
               case MENU_LEVEL_2:
                 // Toggle 84/89 outer cyclotron fade effect.
                 wandSerialSend(W_TOGGLE_CYCLOTRON_FADING);
@@ -184,37 +192,53 @@ void checkWandAction() {
               break;
             }
           }
-          else if(switch_mode.pushed()) {
+          else {
             switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_3:
+                if(switch_mode.pushed()) {
+                  // Toggle Neutrona Wand GPStar Audio LED status.
+                  stopEffect(S_VOICE_NEUTRONA_WAND_GPSTAR_AUDIO_LED_DISABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_GPSTAR_AUDIO_LED_ENABLED);
+
+                  if(b_gpstar_audio_led_enabled) {
+                    // Turn off GPStar Audio LED.
+                    b_gpstar_audio_led_enabled = false;
+                    playEffect(S_VOICE_NEUTRONA_WAND_GPSTAR_AUDIO_LED_DISABLED);
+                    wandSerialSend(W_WAND_GPSTAR_AUDIO_LED_DISABLED);
+                  }
+                  else {
+                    // Turn on GPStar Audio LED.
+                    b_gpstar_audio_led_enabled = true;
+                    playEffect(S_VOICE_NEUTRONA_WAND_GPSTAR_AUDIO_LED_ENABLED);
+                    wandSerialSend(W_WAND_GPSTAR_AUDIO_LED_ENABLED);
+                  }
+
+                  setAudioLED(b_gpstar_audio_led_enabled);
+                }
+              break;
+
               case MENU_LEVEL_2:
-                // Handled with singleClick below.
+                if(switch_mode.singleClick()) {
+                  // Change which device we are currently dimming.
+                  // Note that the actual dimming is handled by checkRotaryEncoder().
+                  wandSerialSend(W_DIMMING_TOGGLE);
+                }
               break;
 
               case MENU_LEVEL_1:
               default:
-                // Tell the Proton Pack to save the current settings to the EEPROM and exit.
-                wandSerialSend(W_SAVE_LED_EEPROM_SETTINGS);
-                wandSerialSend(W_SPECTRAL_LIGHTS_OFF);
+                if(switch_mode.pushed()) {
+                  // Tell the Proton Pack to save the current settings to the EEPROM and exit.
+                  wandSerialSend(W_SAVE_LED_EEPROM_SETTINGS);
+                  wandSerialSend(W_SPECTRAL_LIGHTS_OFF);
 
-                stopEffect(S_VOICE_EEPROM_SAVE);
-                playEffect(S_VOICE_EEPROM_SAVE);
+                  stopEffect(S_VOICE_EEPROM_SAVE);
+                  playEffect(S_VOICE_EEPROM_SAVE);
 
-                saveLEDEEPROM();
+                  saveLEDEEPROM();
 
-                wandExitEEPROMMenu();
-              break;
-            }
-          }
-          else if(switch_mode.singleClick()) {
-            switch(WAND_MENU_LEVEL) {
-              case MENU_LEVEL_2:
-                // Change which device we are currently dimming.
-                wandSerialSend(W_DIMMING_TOGGLE);
-              break;
-
-              case MENU_LEVEL_1:
-              default:
-                // Do nothing.
+                  wandExitEEPROMMenu();
+                }
               break;
             }
           }
@@ -489,91 +513,14 @@ void checkWandAction() {
         // Menu Level 1: Barrel Wing Button: Save the current settings to the Neutrona Wand EEPROM and exit.
         // Menu Level 2: Intensify: Quick Vent.
         // Menu Level 2: Barrel Wing Button: Wand Boot Errors.
-        // Menu Level 3: Intensify + top dial: Default main system volume.
+        // Menu Level 3: Intensify: Toggle between Neutrona Wand and Proton Pack default startup volume adjustment.
         // Menu Level 3: Barrel Wing Button: Set Neutrona Wand year mode (84/89/AL/FE/Match Proton Pack).
         // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Level 5
         // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Level 5
         // Menu Level 5: Intensify: Enable/Disable overheat in power level #5
         // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power level #5
         case 5:
-          // Tell the Neutrona Wand to clear the EEPROM settings and exit.
-          if(switch_intensify.pushed()) {
-            if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
-              // Tell the Proton Pack to clear its current configuration from the EEPROM.
-              wandSerialSend(W_CLEAR_CONFIG_EEPROM_SETTINGS);
-
-              stopEffect(S_VOICE_EEPROM_ERASE);
-              playEffect(S_VOICE_EEPROM_ERASE);
-
-              // Clear wand EEPROM.
-              clearConfigEEPROM();
-
-              wandExitEEPROMMenu();
-            }
-            else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-              if(b_quick_vent) {
-                b_quick_vent = false;
-
-                stopEffect(S_VOICE_QUICK_VENT_DISABLED);
-                stopEffect(S_VOICE_QUICK_VENT_ENABLED);
-                playEffect(S_VOICE_QUICK_VENT_DISABLED);
-
-                wandSerialSend(W_QUICK_VENT_DISABLED);
-              }
-              else {
-                b_quick_vent = true;
-
-                stopEffect(S_VOICE_QUICK_VENT_DISABLED);
-                stopEffect(S_VOICE_QUICK_VENT_ENABLED);
-                playEffect(S_VOICE_QUICK_VENT_ENABLED);
-
-                wandSerialSend(W_QUICK_VENT_ENABLED);
-              }
-            }
-            else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
-              // Main system volume adjustment.
-              // Adjustment is handled in checkRotaryEncoder()
-              stopEffect(S_VOICE_DEFAULT_SYSTEM_VOLUME_ADJUSTMENT);
-              playEffect(S_VOICE_DEFAULT_SYSTEM_VOLUME_ADJUSTMENT);
-
-              wandSerialSend(W_SOUND_DEFAULT_SYSTEM_VOLUME_ADJUSTMENT);
-            }
-            else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
-              // Overheat smoke duration level 5.
-              // Adjustment is handled in checkRotaryEncoder()
-              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
-              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_4);
-              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_3);
-              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_2);
-              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_1);
-              playEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
-
-              wandSerialSend(W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_5);
-            }
-            else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
-              if(b_overheat_level_5) {
-                b_overheat_level_5 = false;
-
-                stopEffect(S_VOICE_OVERHEAT_LEVEL_5_DISABLED);
-                stopEffect(S_VOICE_OVERHEAT_LEVEL_5_ENABLED);
-                playEffect(S_VOICE_OVERHEAT_LEVEL_5_DISABLED);
-
-                wandSerialSend(W_OVERHEAT_LEVEL_5_DISABLED);
-              }
-              else {
-                b_overheat_level_5 = true;
-
-                stopEffect(S_VOICE_OVERHEAT_LEVEL_5_ENABLED);
-                stopEffect(S_VOICE_OVERHEAT_LEVEL_5_DISABLED);
-                playEffect(S_VOICE_OVERHEAT_LEVEL_5_ENABLED);
-
-                wandSerialSend(W_OVERHEAT_LEVEL_5_ENABLED);
-              }
-
-              resetOverheatLevels();
-            }
-          }
-          else if(switch_mode.pushed()) {
+          if(switch_mode.pushed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               // Tell the Proton Pack to save its current configuration to the EEPROM.
               wandSerialSend(W_SAVE_CONFIG_EEPROM_SETTINGS);
@@ -702,6 +649,108 @@ void checkWandAction() {
               wandSerialSend(W_CONTINUOUS_SMOKE_TOGGLE_5);
             }
           }
+          else {
+            switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_5:
+                if(switch_intensify.pushed()) {
+                  if(b_overheat_level_5) {
+                    b_overheat_level_5 = false;
+
+                    stopEffect(S_VOICE_OVERHEAT_LEVEL_5_DISABLED);
+                    stopEffect(S_VOICE_OVERHEAT_LEVEL_5_ENABLED);
+                    playEffect(S_VOICE_OVERHEAT_LEVEL_5_DISABLED);
+
+                    wandSerialSend(W_OVERHEAT_LEVEL_5_DISABLED);
+                  }
+                  else {
+                    b_overheat_level_5 = true;
+
+                    stopEffect(S_VOICE_OVERHEAT_LEVEL_5_ENABLED);
+                    stopEffect(S_VOICE_OVERHEAT_LEVEL_5_DISABLED);
+                    playEffect(S_VOICE_OVERHEAT_LEVEL_5_ENABLED);
+
+                    wandSerialSend(W_OVERHEAT_LEVEL_5_ENABLED);
+                  }
+
+                  resetOverheatLevels();
+                }
+              break;
+
+              case MENU_LEVEL_4:
+                if(switch_intensify.pushed()) {
+                  // Overheat smoke duration level 5.
+                  // Adjustment is handled in checkRotaryEncoder()
+                  stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
+                  stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_4);
+                  stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_3);
+                  stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_2);
+                  stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_1);
+                  playEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
+
+                  wandSerialSend(W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_5);
+                }
+              break;
+
+              case MENU_LEVEL_3:
+                if(switch_intensify.singleClick() && !b_gpstar_benchtest) {
+                  // Toggle between Neutrona Wand and Proton Pack default volume adjustment.
+                  if(VOLUME_ADJUST_DEVICE == VOLUME_PROTON_PACK) {
+                    VOLUME_ADJUST_DEVICE = VOLUME_NEUTRONA_WAND;
+
+                    stopEffect(S_VOICE_NEUTRONA_WAND_VOLUME_ADJUSTMENT);
+                    stopEffect(S_VOICE_PROTON_PACK_VOLUME_ADJUSTMENT);
+                    playEffect(S_VOICE_NEUTRONA_WAND_VOLUME_ADJUSTMENT);
+                  }
+                  else {
+                    VOLUME_ADJUST_DEVICE = VOLUME_PROTON_PACK;
+
+                    stopEffect(S_VOICE_NEUTRONA_WAND_VOLUME_ADJUSTMENT);
+                    stopEffect(S_VOICE_PROTON_PACK_VOLUME_ADJUSTMENT);
+                    playEffect(S_VOICE_PROTON_PACK_VOLUME_ADJUSTMENT);
+                  }
+                }
+              break;
+
+              case MENU_LEVEL_2:
+                if(switch_intensify.pushed()) {
+                  if(b_quick_vent) {
+                    b_quick_vent = false;
+
+                    stopEffect(S_VOICE_QUICK_VENT_DISABLED);
+                    stopEffect(S_VOICE_QUICK_VENT_ENABLED);
+                    playEffect(S_VOICE_QUICK_VENT_DISABLED);
+
+                    wandSerialSend(W_QUICK_VENT_DISABLED);
+                  }
+                  else {
+                    b_quick_vent = true;
+
+                    stopEffect(S_VOICE_QUICK_VENT_DISABLED);
+                    stopEffect(S_VOICE_QUICK_VENT_ENABLED);
+                    playEffect(S_VOICE_QUICK_VENT_ENABLED);
+
+                    wandSerialSend(W_QUICK_VENT_ENABLED);
+                  }
+                }
+              break;
+
+              case MENU_LEVEL_1:
+              default:
+                if(switch_intensify.pushed()) {
+                  // Tell the Proton Pack to clear its current configuration from the EEPROM.
+                  wandSerialSend(W_CLEAR_CONFIG_EEPROM_SETTINGS);
+
+                  stopEffect(S_VOICE_EEPROM_ERASE);
+                  playEffect(S_VOICE_EEPROM_ERASE);
+
+                  // Clear wand EEPROM.
+                  clearConfigEEPROM();
+
+                  wandExitEEPROMMenu();
+                }
+              break;
+            }
+          }
         break;
 
         // Menu Level 1: Intensify: Cycle through the modes (Video Game, Cross The Streams, Cross The Streams Mix)
@@ -777,8 +826,7 @@ void checkWandAction() {
               resetOverheatLevels();
             }
           }
-
-          if(switch_mode.pushed()) {
+          else if(switch_mode.pushed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               if(!b_spectral_mode_enabled || !b_holiday_modes_enabled || !b_spectral_custom_mode_enabled) {
                 // Enable the spectral modes.
@@ -1021,8 +1069,7 @@ void checkWandAction() {
               resetOverheatLevels();
             }
           }
-
-          if(switch_mode.pushed()) {
+          else if(switch_mode.pushed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               // Enable or disable smoke.
               wandSerialSend(W_SMOKE_TOGGLE);
@@ -1188,9 +1235,7 @@ void checkWandAction() {
               resetOverheatLevels();
             }
           }
-
-          // Barrel Wing Button: Enable/Disable Ring Simulation in the Cyclotron LEDs in Afterlife (2021) mode.
-          if(switch_mode.pushed()) {
+          else if(switch_mode.pushed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               wandSerialSend(W_CYCLOTRON_SIMULATE_RING_TOGGLE);
             }
@@ -1312,8 +1357,7 @@ void checkWandAction() {
               resetOverheatLevels();
             }
           }
-
-          if(switch_mode.pushed()) {
+          else if(switch_mode.pushed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               // Tell the Proton Pack to toggle the Proton Stream impact effects.
               wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
@@ -1424,9 +1468,7 @@ void checkWandAction() {
             if(switch_intensify.pushed()) {
               toggleWandModes();
             }
-
-            // Enable/Disable Video Game Colour Modes for the Proton Pack LEDs.
-            if(switch_mode.pushed()) {
+            else if(switch_mode.pushed()) {
               if(FIRING_MODE == VG_MODE) {
                 // Tell the Proton Pack to cycle through the Video Game Colour toggles.
                 wandSerialSend(W_VIDEO_GAME_MODE_COLOUR_TOGGLE);
@@ -1452,8 +1494,7 @@ void checkWandAction() {
                 wandSerialSend(W_WAND_WIFI_ENABLED);
               }
             }
-
-            if(switch_mode.pushed()) {
+            else if(switch_mode.pushed()) {
               // Toggle the Proton Pack WiFi (just send the command, let the pack sort it out).
               wandSerialSend(W_TOGGLE_PACK_WIFI);
             }
@@ -1481,9 +1522,7 @@ void checkWandAction() {
             if(switch_intensify.pushed()) {
               toggleOverheating();
             }
-
-            // Enable or disable smoke for the Proton Pack.
-            if(switch_mode.pushed()) {
+            else if(switch_mode.pushed()) {
               // Tell the Proton Pack to toggle the smoke on or off.
               wandSerialSend(W_SMOKE_TOGGLE);
             }
@@ -1504,8 +1543,7 @@ void checkWandAction() {
               // Tell the Proton Pack to change the Cyclotron rotation direction.
               wandSerialSend(W_CYCLOTRON_DIRECTION_TOGGLE);
             }
-
-            if(switch_mode.pushed()) {
+            else if(switch_mode.pushed()) {
               // Tell the Proton Pack to toggle the Single LED or 3 LEDs for 1984/1989 modes.
               wandSerialSend(W_CYCLOTRON_LED_TOGGLE);
             }
@@ -1530,8 +1568,7 @@ void checkWandAction() {
                 wandSerialSend(W_MUSIC_NEXT_TRACK);
               }
             }
-
-            if(switch_mode.pushed()) {
+            else if(switch_mode.pushed()) {
               if(b_gpstar_benchtest) {
                 musicPrevTrack();
               }
@@ -1542,13 +1579,12 @@ void checkWandAction() {
             }
           }
           else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-            // Enable or disable vibration for the pack or during firing only.
             if(switch_intensify.pushed()) {
+              // Enable or disable vibration for the pack or during firing only.
               wandSerialSend(W_VIBRATION_CYCLE_TOGGLE);
             }
-
-            // Enable or disable vibration or firing vibration only for the wand.
-            if(switch_mode.pushed()) {
+            else if(switch_mode.pushed()) {
+              // Enable or disable vibration or firing vibration only for the wand.
               stopEffect(S_BEEPS_ALT);
               playEffect(S_BEEPS_ALT);
 
@@ -1605,7 +1641,6 @@ void checkWandAction() {
         // Menu Level 3: (Intensify) -> GPStar II: Reset the wand WiFi password to default.
         // Menu Level 3: (Barrel Wing Button) -> GPStar II: Reset the pack WiFi password to default.
         case 1:
-          // Play or stop the current music track.
           if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
             if(switch_intensify.pushed()) {
               // Tell the pack to start or stop its music.
@@ -1621,9 +1656,8 @@ void checkWandAction() {
                 }
               }
             }
-
-            // Silence the Proton Pack and Neutrona Wand or revert back to previously-selected volume.
-            if(switch_mode.pushed()) {
+            else if(switch_mode.pushed()) {
+              // Silence the Proton Pack and Neutrona Wand or revert back to previously-selected volume.
               if(i_volume_master == i_volume_abs_min) {
                 i_volume_master = i_volume_revert;
               }
@@ -1701,8 +1735,7 @@ void checkWandAction() {
                 }
               }
             }
-
-            if(switch_mode.pushed()) {
+            else if(switch_mode.pushed()) {
               // Tell the Proton Pack to toggle the Proton Stream Impact Effects.
               wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
 
@@ -1740,8 +1773,7 @@ void checkWandAction() {
               stopEffect(S_VOICE_WAND_WIFI_RESET);
               playEffect(S_VOICE_WAND_WIFI_RESET);
             }
-
-            if(switch_mode.pushed()) {
+            else if(switch_mode.pushed()) {
               // Tell the Proton Pack to reset its WiFi password.
               wandSerialSend(W_RESET_WIFI_PASSWORD);
             }

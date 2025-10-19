@@ -9130,13 +9130,14 @@ void checkRotaryEncoder() {
       case ACTION_CONFIG_EEPROM_MENU:
         // Counter clockwise.
         if(prev_next_code == 0x0b) {
-          if(WAND_MENU_LEVEL == MENU_LEVEL_3 && i_wand_menu == 5 && switch_intensify.on() && !switch_mode.on()) {
-            // Adjust the default bootup system volume.
-            wandSerialSend(W_VOLUME_DECREASE_EEPROM);
-
-            // If there is no Pack, we set our own default system volume.
-            if(b_gpstar_benchtest) {
+          if(WAND_MENU_LEVEL == MENU_LEVEL_3 && i_wand_menu == 5 && switch_intensify.longPress() && !switch_mode.on()) {
+            if(b_gpstar_benchtest || VOLUME_ADJUST_DEVICE == VOLUME_NEUTRONA_WAND) {
+              // Adjust Neutrona Wand default startup volume.
               decreaseVolumeEEPROM();
+            }
+            else {
+              // Adjust Proton Pack default startup volume.
+              wandSerialSend(W_VOLUME_DECREASE_EEPROM);
             }
           }
           else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 5 && switch_intensify.on() && !switch_mode.on()) {
@@ -9295,13 +9296,14 @@ void checkRotaryEncoder() {
 
         // Clockwise.
         if(prev_next_code == 0x07) {
-          if(WAND_MENU_LEVEL == MENU_LEVEL_3 && i_wand_menu == 5 && switch_intensify.on() && !switch_mode.on()) {
-            // Adjust the default bootup system volume.
-            wandSerialSend(W_VOLUME_INCREASE_EEPROM);
-
-            // If there is no Pack, we set our own default system volume.
-            if(b_gpstar_benchtest) {
+          if(WAND_MENU_LEVEL == MENU_LEVEL_3 && i_wand_menu == 5 && switch_intensify.longPress() && !switch_mode.on()) {
+            if(b_gpstar_benchtest || VOLUME_ADJUST_DEVICE == VOLUME_NEUTRONA_WAND) {
+              // Adjust Neutrona Wand default startup volume.
               increaseVolumeEEPROM();
+            }
+            else {
+              // Adjust Proton Pack default startup volume.
+              wandSerialSend(W_VOLUME_INCREASE_EEPROM);
             }
           }
           else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 5 && switch_intensify.on() && !switch_mode.on()) {
@@ -9526,8 +9528,36 @@ void checkRotaryEncoder() {
                 wandSerialSend(W_MENU_LEVEL_2);
               break;
 
-              // Menu 2 the deepest level.
               case MENU_LEVEL_2:
+                WAND_MENU_LEVEL = MENU_LEVEL_3;
+                i_wand_menu = 5;
+
+                // Turn on some lights to visually indicate which menu we are in.
+                digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
+                ventLightControl(); // Level 3
+
+                // Turn off the other lights.
+                ventTopLightControl(false); // Level 4
+                digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
+
+                // Play an indication beep to notify we have changed menu levels.
+                stopEffect(S_BEEPS);
+                playEffect(S_BEEPS);
+
+                stopEffect(S_LEVEL_1);
+                stopEffect(S_LEVEL_2);
+                stopEffect(S_LEVEL_3);
+                stopEffect(S_LEVEL_4);
+                stopEffect(S_LEVEL_5);
+
+                playEffect(S_LEVEL_3);
+
+                // Tell the Proton Pack to play some sounds.
+                wandSerialSend(W_MENU_LEVEL_3);
+              break;
+
+              // Menu 3 the deepest level.
+              case MENU_LEVEL_3:
               default:
                 i_wand_menu = 1;
               break;
@@ -9583,6 +9613,34 @@ void checkRotaryEncoder() {
           }
           else if(i_wand_menu + 1 > 5) {
             switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_3:
+                WAND_MENU_LEVEL = MENU_LEVEL_2;
+                i_wand_menu = 1;
+
+                // Turn on some lights to visually indicate which menu we are in.
+                digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
+
+                // Turn off the other lights.
+                ventLightControl(0); // Level 3
+                ventTopLightControl(false); // Level 4
+                digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
+
+                // Play an indication beep to notify we have changed menu levels.
+                stopEffect(S_BEEPS);
+                playEffect(S_BEEPS);
+
+                stopEffect(S_LEVEL_1);
+                stopEffect(S_LEVEL_2);
+                stopEffect(S_LEVEL_3);
+                stopEffect(S_LEVEL_4);
+                stopEffect(S_LEVEL_5);
+
+                playEffect(S_LEVEL_2);
+
+                // Tell the Proton Pack to play some sounds.
+                wandSerialSend(W_MENU_LEVEL_2);
+              break;
+
               case MENU_LEVEL_2:
                 WAND_MENU_LEVEL = MENU_LEVEL_1;
                 i_wand_menu = 1;

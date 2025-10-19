@@ -98,6 +98,15 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <label class="toggle-switchy" data-text="yesno" data-label="left">
+        <input id="overheatStrobeNF" name="overheatStrobeNF" type="checkbox">
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Strobe N-Filter on Overheat:</span>
+      </label>
+    </div>
+    <div class="setting">
+      <label class="toggle-switchy" data-text="yesno" data-label="left">
         <input id="overheatSyncToFan" name="overheatSyncToFan" type="checkbox">
         <span class="toggle">
           <span class="switch"></span>
@@ -132,13 +141,13 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         <span class="label">Battery On Starts Pack:</span>
       </label>
     </div>
-    <div class="setting">
-      <label class="toggle-switchy" data-text="yesno" data-label="left">
-        <input id="overheatStrobeNF" name="overheatStrobeNF" type="checkbox">
+    <div class="setting" id="gpstarAudioLedDiv">
+      <label class="toggle-switchy" data-label="left">
+        <input id="gpstarAudioLed" name="gpstarAudioLed" type="checkbox">
         <span class="toggle">
           <span class="switch"></span>
         </span>
-        <span class="label">Strobe N-Filter on Overheat:</span>
+        <span class="label">GPStar Audio Status LED:</span>
       </label>
     </div>
   </div>
@@ -370,11 +379,12 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       getEl("packVibration").disabled = true;
       getEl("defaultSystemVolume").disabled = true;
       getEl("overheatLightsOff").disabled = true;
+      getEl("overheatStrobeNF").disabled = true;
       getEl("overheatSyncToFan").disabled = true;
       getEl("protonStreamEffects").disabled = true;
       getEl("ribbonCableAlarm").disabled = true;
       getEl("demoLightMode").disabled = true;
-      getEl("overheatStrobeNF").disabled = true;
+      getEl("gpstarAudioLed").disabled = true;
       getEl("ledCycLidCount").disabled = true;
       getEl("ledCycLidHue").disabled = true;
       getEl("ledCycLidSat").disabled = true;
@@ -399,6 +409,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       getEl("ledPowercellLum").disabled = true;
       getEl("ledInvertPowercell").disabled = true;
       getEl("ledVGPowercell").disabled = true;
+      getEl("gpstarAudioLedDiv").style.display = 'none';
     }
 
     // Converts a value from one range to another: eg. convertRange(160, [2,254], [0,360])
@@ -432,6 +443,12 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
               return;
             }
 
+            if (!settings.gpstarAudio) {
+              // Hide the GPStar Audio LED Status toggle if pack is not using GPStar Audio.
+              getEl("gpstarAudioLedDiv").style.display = 'none';
+              getEl("gpstarAudioLed").disabled = true;
+            }
+
             // Valid settings were received and both the pack and wand are off, so allow updating settings.
             getEl("btnSave").disabled = false;
 
@@ -461,6 +478,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             setToggle("overheatLightsOff", settings.overheatLightsOff);
             setToggle("overheatSyncToFan", settings.overheatSyncToFan);
             setToggle("demoLightMode", settings.demoLightMode);
+            setToggle("gpstarAudioLed", settings.gpstarAudioLed);
 
             setValue("ledCycLidCount", settings.ledCycLidCount || 36); // GPStar: 36
             setValue("ledCycLidHue", convertRange(settings.ledCycLidHue || 254, [1,254], [0,360])); // Default: Red
@@ -520,6 +538,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         overheatLightsOff: getToggle("overheatLightsOff"),
         overheatSyncToFan: getToggle("overheatSyncToFan"),
         demoLightMode: getToggle("demoLightMode"),
+        gpstarAudioLed: getToggle("gpstarAudioLed"),
 
         ledCycLidCount: getInt("ledCycLidCount") || 12,
         ledCycLidHue: convertRange(getInt("ledCycLidHue"), [0,360], [1,254]) || 254,

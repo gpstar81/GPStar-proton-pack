@@ -168,6 +168,7 @@ void getPackPrefsObject() {
   packConfig.overheatSyncToFan = b_overheat_sync_to_fan ? 1 : 0;
   packConfig.demoLightMode = b_demo_light_mode ? 1 : 0;
   packConfig.ribbonCableAlarm = b_use_ribbon_cable ? 1 : 0;
+  packConfig.gpstarAudioLed = b_gpstar_audio_led_enabled ? 1 : 0;
 
   switch(VIBRATION_MODE_EEPROM) {
     case VIBRATION_ALWAYS:
@@ -293,6 +294,7 @@ bool isExcludedCommand(uint8_t i_command) {
          i_command == A_SYNC_END ||
          i_command == A_BATTERY_VOLTAGE_PACK ||
          i_command == A_WAND_POWER_AMPS ||
+         i_command == A_WAND_AUDIO_VERSION ||
          i_command == A_REQUEST_PREFERENCES_PACK ||
          i_command == A_REQUEST_PREFERENCES_WAND ||
          i_command == A_REQUEST_PREFERENCES_SMOKE ||
@@ -698,11 +700,15 @@ void handlePackPrefsUpdate() {
   i_powercell_brightness = packConfig.ledPowercellLum;
   b_powercell_colour_toggle = (packConfig.ledVGPowercell == 1);
 
+  // GPStar Audio LED Status
+  b_gpstar_audio_led_enabled = (packConfig.gpstarAudioLed == 1);
+
   // Offer some feedback to the user
   stopEffect(S_BEEP_VARIATION);
   playEffect(S_BEEP_VARIATION);
 
   // Update system values and reset as needed.
+  setAudioLED(b_gpstar_audio_led_enabled);
   resetInnerCyclotronLEDs(); // Must call this first, prior to updating counts
   updateProtonPackLEDCounts(); // Must call this after resetting # of LEDs
   resetCyclotronLEDs(); // Update delays based on LED count
@@ -936,7 +942,8 @@ void doAttenuatorSync() {
   attenuatorSyncData.overheatingNow = b_overheating ? 1 : 0;
 
   // This sends over the music status and the current music track.
-  attenuatorSyncData.audioVersion = i_audio_version;
+  attenuatorSyncData.packAudioVersion = i_audio_version;
+  attenuatorSyncData.wandAudioVersion = i_wand_audio_version;
   attenuatorSyncData.musicPlaying = b_playing_music ? 1 : 0;
   attenuatorSyncData.musicPaused = b_music_paused ? 1 : 0;
   attenuatorSyncData.trackLooped = b_repeat_track ? 2 : 1;
@@ -1111,12 +1118,12 @@ void doWandSync() {
   // Send the state of the cyclotron lid.
   wandSyncData.cyclotronLidState = b_cyclotron_lid_on ? 2 : 1;
 
-  // Tell the wand if we are currently playing music.
-  wandSyncData.musicStatus = b_playing_music ? 2 : 1; // 1 = Not playing music, 2 = Playing music.
-
   // Tell the wand if the currently playing music is paused, if playing.
   if(b_playing_music) {
-    wandSyncData.musicStatus = b_music_paused ? 4 : 3; // 3 = Not paused, 4 = Paused.
+    wandSyncData.musicStatus = b_music_paused ? 4 : 3; // 3 = Playing music, 4 = Paused.
+  }
+  else {
+    wandSyncData.musicStatus = 1; // 1 = Not playing music.
   }
 
   // Denote the current looping preference for the current track; used by the menu system.
@@ -4523,6 +4530,43 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_BARREL_SWITCH_DISABLED);
 
       playEffect(S_VOICE_BARREL_SWITCH_DISABLED);
+    break;
+
+    case W_GPSTAR_AUDIO_LED_TOGGLE:
+      stopEffect(S_VOICE_PROTON_PACK_GPSTAR_AUDIO_LED_DISABLED);
+      stopEffect(S_VOICE_PROTON_PACK_GPSTAR_AUDIO_LED_ENABLED);
+
+      if(b_gpstar_audio_led_enabled) {
+        // Turn off GPStar Audio LED.
+        b_gpstar_audio_led_enabled = false;
+        playEffect(S_VOICE_PROTON_PACK_GPSTAR_AUDIO_LED_DISABLED);
+        packSerialSend(P_PACK_GPSTAR_AUDIO_LED_DISABLED);
+      }
+      else {
+        // Turn on GPStar Audio LED.
+        b_gpstar_audio_led_enabled = true;
+        playEffect(S_VOICE_PROTON_PACK_GPSTAR_AUDIO_LED_ENABLED);
+        packSerialSend(P_PACK_GPSTAR_AUDIO_LED_ENABLED);
+      }
+
+      setAudioLED(b_gpstar_audio_led_enabled);
+    break;
+
+    case W_WAND_GPSTAR_AUDIO_LED_DISABLED:
+      stopEffect(S_VOICE_NEUTRONA_WAND_GPSTAR_AUDIO_LED_DISABLED);
+      stopEffect(S_VOICE_NEUTRONA_WAND_GPSTAR_AUDIO_LED_ENABLED);
+      playEffect(S_VOICE_NEUTRONA_WAND_GPSTAR_AUDIO_LED_DISABLED);
+    break;
+
+    case W_WAND_GPSTAR_AUDIO_LED_ENABLED:
+      stopEffect(S_VOICE_NEUTRONA_WAND_GPSTAR_AUDIO_LED_DISABLED);
+      stopEffect(S_VOICE_NEUTRONA_WAND_GPSTAR_AUDIO_LED_ENABLED);
+      playEffect(S_VOICE_NEUTRONA_WAND_GPSTAR_AUDIO_LED_ENABLED);
+    break;
+
+    case W_WAND_AUDIO_VERSION:
+      i_wand_audio_version = i_value;
+      attenuatorSerialSend(A_WAND_AUDIO_VERSION, i_wand_audio_version);
     break;
 
     case W_COM_SOUND_NUMBER:

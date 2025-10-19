@@ -501,6 +501,7 @@ bool b_pack_on = false;
 bool b_pack_shutting_down = false;
 bool b_spectral_lights_on = false;
 bool b_fade_out = false;
+uint16_t i_wand_audio_version = 0;
 const uint16_t i_gbfe_brass_shutdown_delay = 8796;
 const uint8_t i_fadeout_duration = 50;
 millisDelay ms_fadeout;

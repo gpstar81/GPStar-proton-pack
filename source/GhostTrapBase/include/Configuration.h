@@ -45,7 +45,7 @@
 /*
  * Used to reflect the last build date for the binary.
  */
-String build_date = "V6_20251017211927";
+String build_date = "V6_20251019135743";
 
 /*
  * Preferred WiFi Network Defaults
@@ -104,3 +104,8 @@ const uint8_t VOLUME_MUSIC_MULTIPLIER = 5;
  * Percentage increments of the sound effects volume change.
  */
 const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
+
+/*
+ * Set to true to have the LED on the GPStar Audio stay on while the system is running.
+ */
+bool b_gpstar_audio_led_enabled = false;

@@ -64,6 +64,7 @@ struct objLEDEEPROM {
   uint8_t powercell_inverted;
   uint8_t vg_powercell;
   uint8_t vg_cyclotron;
+  uint8_t gpstar_audio_led;
 } gObjLEDEEPROM;
 
 struct objConfigEEPROM {
@@ -96,12 +97,6 @@ struct objConfigEEPROM {
 
 // Save LED settings to Preferences
 void saveLEDEEPROM() {
-  // GRB / RGB Inner Cyclotron toggle flag
-  uint8_t i_grb_cyclotron_cake = 1;
-  if(CAKE_LED_TYPE == GRB_LED) {
-    i_grb_cyclotron_cake = 2;
-  }
-
   // 2 = RGB, 3 = GRB, 4 = GBR.
   uint8_t i_inner_cyclotron_cavity_led_type = 2;
   switch(CAVITY_LED_TYPE) {
@@ -136,27 +131,10 @@ void saveLEDEEPROM() {
     break;
   }
 
-  // Power Cell inverted toggle flag.
-  uint8_t i_powercell_inverted = 1;
-  if(b_powercell_invert) {
-    i_powercell_inverted = 2;
-  }
-
-  // Power Cell and Cyclotron VG color flags.
-  uint8_t i_vg_powercell = 1;
-  uint8_t i_vg_cyclotron = 2;
-  if(b_powercell_colour_toggle) {
-    i_vg_powercell = 2;
-  }
-
-  if(!b_cyclotron_colour_toggle) {
-    i_vg_cyclotron = 1;
-  }
-
   gObjLEDEEPROM.powercell_count = i_powercell_leds;
   gObjLEDEEPROM.cyclotron_count = i_cyclotron_leds;
   gObjLEDEEPROM.inner_cyclotron_count = i_inner_cyclotron_cake_num_leds;
-  gObjLEDEEPROM.grb_inner_cyclotron = i_grb_cyclotron_cake;
+  gObjLEDEEPROM.grb_inner_cyclotron = (CAKE_LED_TYPE == GRB_LED) ? 2 : 1;
   gObjLEDEEPROM.powercell_spectral_custom = i_spectral_powercell_custom_colour;
   gObjLEDEEPROM.cyclotron_spectral_custom = i_spectral_cyclotron_custom_colour;
   gObjLEDEEPROM.cyclotron_inner_spectral_custom = i_spectral_cyclotron_inner_custom_colour;
@@ -170,9 +148,10 @@ void saveLEDEEPROM() {
   gObjLEDEEPROM.cyclotron_cavity_count = i_inner_cyclotron_cavity_num_leds;
   gObjLEDEEPROM.cyclotron_cavity_type = i_inner_cyclotron_cavity_led_type;
   gObjLEDEEPROM.inner_cyclotron_led_panel = i_inner_cyclotron_led_panel;
-  gObjLEDEEPROM.powercell_inverted = i_powercell_inverted;
-  gObjLEDEEPROM.vg_powercell = i_vg_powercell;
-  gObjLEDEEPROM.vg_cyclotron = i_vg_cyclotron;
+  gObjLEDEEPROM.powercell_inverted = b_powercell_invert ? 2 : 1;
+  gObjLEDEEPROM.vg_powercell = b_powercell_colour_toggle ? 2 : 1;
+  gObjLEDEEPROM.vg_cyclotron = b_cyclotron_colour_toggle ? 2 : 1;
+  gObjLEDEEPROM.gpstar_audio_led = b_gpstar_audio_led_enabled ? 2 : 1;
 
   if(preferences.begin("led", false)) {
     preferences.putBytes("led", &gObjLEDEEPROM, sizeof(gObjLEDEEPROM));
@@ -575,6 +554,17 @@ void readEEPROM() {
 
     if(gObjLEDEEPROM.inner_panel_brightness > 19 && gObjLEDEEPROM.inner_panel_brightness < 101) {
       i_cyclotron_panel_brightness = gObjLEDEEPROM.inner_panel_brightness;
+    }
+
+    if(gObjLEDEEPROM.gpstar_audio_led > 0 && gObjLEDEEPROM.gpstar_audio_led < 3) {
+      if(gObjLEDEEPROM.gpstar_audio_led > 1) {
+        b_gpstar_audio_led_enabled = true;
+      }
+      else {
+        b_gpstar_audio_led_enabled = false;
+      }
+
+      setAudioLED(b_gpstar_audio_led_enabled);
     }
 
     // Update the LED counts for the Proton Pack.

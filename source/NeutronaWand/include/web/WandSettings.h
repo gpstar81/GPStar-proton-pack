@@ -88,6 +88,12 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         <option value="3">Disabled</option>
       </select>
     </div>
+    <div class="setting">
+      <b>Master Volume % at Startup:</b><br/>
+      <input type="range" id="defaultWandVolume" name="defaultWandVolume" min="5" max="100" value="100" step="5"
+       oninput="masterVolOut.value=defaultWandVolume.value"/>
+      <output class="labelSlider" id="masterVolOut" for="defaultWandVolume"></output>
+    </div>
     <!-- Toggle for rgbVentEnabled not available for GPStar Neutrona Wand II -->
     <div class="setting">
       <label class="toggle-switchy" data-label="left">
@@ -150,6 +156,15 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
           <span class="switch"></span>
         </span>
         <span class="label">Boot Errors:</span>
+      </label>
+    </div>
+    <div class="setting" id="gpstarAudioLedDiv">
+      <label class="toggle-switchy" data-label="left">
+        <input id="gpstarAudioLed" name="gpstarAudioLed" type="checkbox">
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">GPStar Audio Status LED:</span>
       </label>
     </div>
   </div>
@@ -263,13 +278,16 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       getEl("autoVentLight").disabled = true;
       getEl("wandBeepLoop").disabled = true;
       getEl("wandBootError").disabled = true;
+      getEl("gpstarAudioLed").disabled = true;
       getEl("defaultYearModeWand").disabled = true;
       getEl("defaultYearModeCTS").disabled = true;
+      getEl("defaultWandVolume").disabled = true;
       getEl("numBargraphSegments").disabled = true;
       getEl("invertWandBargraph").disabled = true;
       getEl("bargraphOverheatBlink").disabled = true;
       getEl("bargraphIdleAnimation").disabled = true;
       getEl("bargraphFireAnimation").disabled = true;
+      getEl("gpstarAudioLedDiv").style.display = 'none';
     }
 
     // Converts a value from one range to another: eg. convertRange(160, [2,254], [0,360])
@@ -303,6 +321,12 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
               return;
             }
 
+            if (!settings.gpstarAudio) {
+              // Hide the GPStar Audio LED Status toggle if wand is not using GPStar Audio.
+              getEl("gpstarAudioLedDiv").style.display = 'none';
+              getEl("gpstarAudioLed").disabled = true;
+            }
+
             // Valid settings were received and both the pack and wand are off, so allow updating settings.
             getEl("btnSave").disabled = false;
 
@@ -332,8 +356,10 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
             setToggle("autoVentLight", settings.autoVentLight);
             setToggle("wandBeepLoop", settings.wandBeepLoop);
             setToggle("wandBootError", settings.wandBootError);
+            setToggle("gpstarAudioLed", settings.gpstarAudioLed);
             setValue("defaultYearModeWand", settings.defaultYearModeWand || 1);
             setValue("defaultYearModeCTS", settings.defaultYearModeCTS || 1);
+            setValue("defaultWandVolume", settings.defaultWandVolume || 100);
             setValue("numBargraphSegments", settings.numBargraphSegments || 28);
             setToggle("invertWandBargraph", settings.invertWandBargraph);
             setToggle("bargraphOverheatBlink", settings.bargraphOverheatBlink);
@@ -367,8 +393,10 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         autoVentLight: getToggle("autoVentLight"),
         wandBeepLoop: getToggle("wandBeepLoop"),
         wandBootError: getToggle("wandBootError"),
+        gpstarAudioLed: getToggle("gpstarAudioLed"),
         defaultYearModeWand: getInt("defaultYearModeWand") || 1,
         defaultYearModeCTS: getInt("defaultYearModeCTS") || 1,
+        defaultWandVolume: getInt("defaultWandVolume") || 100,
         numBargraphSegments: getInt("numBargraphSegments") || 28,
         invertWandBargraph: getToggle("invertWandBargraph"),
         bargraphOverheatBlink: getToggle("bargraphOverheatBlink"),

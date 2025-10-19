@@ -485,6 +485,7 @@ String getPackConfig() {
   jsonBody["ledPowercellSat"] = packConfig.ledPowercellSat; // Spectral custom saturation 2-254
   jsonBody["ledPowercellLum"] = packConfig.ledPowercellLum; // Brightness 20-100
   jsonBody["ledVGPowercell"] = packConfig.ledVGPowercell; // true|false
+  jsonBody["gpstarAudioLed"] = packConfig.gpstarAudioLed; // true|false
 
   // Serialize JSON object to string.
   serializeJson(jsonBody, equipSettings);
@@ -519,10 +520,12 @@ String getWandConfig() {
   jsonBody["quickVenting"] = wandConfig.quickVenting; // true|false (Super-Hero Mode Only)
   jsonBody["rgbVentEnabled"] = wandConfig.rgbVentEnabled; // true|false
   jsonBody["autoVentLight"] = wandConfig.autoVentLight; // true|false
+  jsonBody["gpstarAudioLed"] = wandConfig.gpstarAudioLed; // true|false
   jsonBody["wandBeepLoop"] = wandConfig.wandBeepLoop; // true|false (Afterlife/Frozen Empire Only)
   jsonBody["wandBootError"] = wandConfig.wandBootError; // true|false (Super-Hero Mode Only)
   jsonBody["defaultYearModeWand"] = wandConfig.defaultYearModeWand; // [1=TOGGLE,2=1984,3=1989,4=2021,5=2024]
   jsonBody["defaultYearModeCTS"] = wandConfig.defaultYearModeCTS; // [1=TOGGLE,2=1984,4=2021]
+  jsonBody["defaultWandVolume"] = wandConfig.defaultWandVolume; // 5-100
   jsonBody["numBargraphSegments"] = wandConfig.numBargraphSegments; // [28=28-segment,30=30-segment]
   jsonBody["invertWandBargraph"] = wandConfig.invertWandBargraph; // true|false
   jsonBody["bargraphOverheatBlink"] = wandConfig.bargraphOverheatBlink; // true|false
@@ -1300,6 +1303,7 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
       packConfig.overheatLightsOff = jsonBody["overheatLightsOff"].as<uint8_t>();
       packConfig.overheatSyncToFan = jsonBody["overheatSyncToFan"].as<uint8_t>();
       packConfig.demoLightMode = jsonBody["demoLightMode"].as<uint8_t>();
+      packConfig.gpstarAudioLed = jsonBody["gpstarAudioLed"].as<uint8_t>();
 
       // Update certain operational values immediately.
       switch(packConfig.defaultSystemModePack) {
@@ -1387,6 +1391,7 @@ AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHand
       wandConfig.ledWandHue = jsonBody["ledWandHue"].as<uint8_t>();
       wandConfig.ledWandSat = jsonBody["ledWandSat"].as<uint8_t>();
       wandConfig.rgbVentEnabled = jsonBody["rgbVentEnabled"].as<uint8_t>();
+      wandConfig.gpstarAudioLed = jsonBody["gpstarAudioLed"].as<uint8_t>();
       wandConfig.spectralModesEnabled = jsonBody["spectralModesEnabled"].as<uint8_t>();
       wandConfig.overheatEnabled = jsonBody["overheatEnabled"].as<uint8_t>();
       wandConfig.defaultFiringMode = jsonBody["defaultFiringMode"].as<uint8_t>();
@@ -1399,6 +1404,7 @@ AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHand
       wandConfig.wandBootError = jsonBody["wandBootError"].as<uint8_t>();
       wandConfig.defaultYearModeWand = jsonBody["defaultYearModeWand"].as<uint8_t>();
       wandConfig.defaultYearModeCTS = jsonBody["defaultYearModeCTS"].as<uint8_t>();
+      wandConfig.defaultWandVolume = jsonBody["defaultWandVolume"].as<uint8_t>();
       wandConfig.numBargraphSegments = jsonBody["numBargraphSegments"].as<uint8_t>();
       wandConfig.invertWandBargraph = jsonBody["invertWandBargraph"].as<uint8_t>();
       wandConfig.bargraphOverheatBlink = jsonBody["bargraphOverheatBlink"].as<uint8_t>();

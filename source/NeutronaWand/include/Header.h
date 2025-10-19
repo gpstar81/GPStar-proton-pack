@@ -462,7 +462,7 @@ uint16_t i_last_firing_effect_mix = 0; // Used by standalone Neutrona Wand.
  * Used to identify the state of the wand as it connects to a Proton Pack.
  * These should be mutually exclusive and non-overlapping states for the wand communications.
  */
-enum WAND_CONN_STATES { NC_BENCHTEST, PACK_DISCONNECTED, PACK_CONNECTED };
+enum WAND_CONN_STATES { PACK_DISCONNECTED, PACK_CONNECTED, NC_BENCHTEST };
 enum WAND_CONN_STATES WAND_CONN_STATE;
 
 /*
@@ -483,6 +483,8 @@ const uint16_t i_heartbeat_delay = 3250; // Delay to send a heartbeat (handshake
  */
 enum WAND_MENU_LEVELS { MENU_LEVEL_1, MENU_LEVEL_2, MENU_LEVEL_3, MENU_LEVEL_4, MENU_LEVEL_5 };
 enum WAND_MENU_LEVELS WAND_MENU_LEVEL;
+enum VOLUME_ADJUST_DEVICES { VOLUME_PROTON_PACK, VOLUME_NEUTRONA_WAND };
+enum VOLUME_ADJUST_DEVICES VOLUME_ADJUST_DEVICE;
 uint8_t i_wand_menu = 5;
 const uint16_t i_settings_blink_delay = 400;
 millisDelay ms_settings_blink;

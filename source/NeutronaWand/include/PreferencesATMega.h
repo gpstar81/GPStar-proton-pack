@@ -60,6 +60,7 @@ struct objLEDEEPROM {
   uint8_t num_barrel_leds;
   uint8_t num_bargraph_leds;
   uint8_t rgb_vent_light;
+  uint8_t gpstar_audio_led;
 };
 
 /*
@@ -291,7 +292,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.default_wand_volume > 0 && obj_config_eeprom.default_wand_volume < 102 && b_gpstar_benchtest) {
+    if(obj_config_eeprom.default_wand_volume > 0 && obj_config_eeprom.default_wand_volume < 102) {
       // EEPROM value is from 1 to 101; subtract 1 to get the correct percentage.
       i_volume_master_percentage = obj_config_eeprom.default_wand_volume - 1;
       i_volume_master_eeprom = MINIMUM_VOLUME - ((MINIMUM_VOLUME - i_volume_abs_max) * i_volume_master_percentage / 100);
@@ -500,6 +501,17 @@ void readEEPROM() {
         b_rgb_vent_light = false;
       }
     }
+
+    if(obj_led_eeprom.gpstar_audio_led > 0 && obj_led_eeprom.gpstar_audio_led < 3) {
+      if(obj_led_eeprom.gpstar_audio_led > 1) {
+        b_gpstar_audio_led_enabled = true;
+      }
+      else {
+        b_gpstar_audio_led_enabled = false;
+      }
+
+      setAudioLED(b_gpstar_audio_led_enabled);
+    }
   }
   else {
     // CRC doesn't match; let's clear the EEPROMs to be safe.
@@ -529,6 +541,7 @@ void saveLEDEEPROM() {
   uint8_t i_bargraph_led_count = BARGRAPH_TYPE_EEPROM; // 28 segment, 30 segment.
   uint8_t i_vent_light_auto_intensity = 2; // 1 = Vent Light auto intensity disabled, 2 = Vent Light auto intensity enabled
   uint8_t i_rgb_vent_light = 1; // 1 = RGB Vent Light disabled, 2 = RGB Vent Light enabled
+  uint8_t i_gpstar_audio_led = 1; // 1 = GPStar Audio LED disabled, 2 = GPStar Audio LED enabled
 
   if(!b_vent_light_control) {
     i_vent_light_auto_intensity = 1;
@@ -538,6 +551,10 @@ void saveLEDEEPROM() {
     i_rgb_vent_light = 2;
   }
 
+  if(b_gpstar_audio_led_enabled) {
+    i_gpstar_audio_led = 2;
+  }
+
   // Build the LED EEPROM object with the new data.
   objLEDEEPROM obj_led_eeprom = {
     i_spectral_wand_custom_colour,
@@ -545,7 +562,8 @@ void saveLEDEEPROM() {
     i_vent_light_auto_intensity,
     i_barrel_led_count,
     i_bargraph_led_count,
-    i_rgb_vent_light
+    i_rgb_vent_light,
+    i_gpstar_audio_led
   };
 
   // Save to the EEPROM.
