@@ -319,6 +319,7 @@ bool checkPack() {
           b_cyclotron_lid_on = attenuatorSyncData.cyclotronLidState == 1;
           f_batt_volts = (float) attenuatorSyncData.packVoltage / 100;
           i_pack_audio_version = attenuatorSyncData.packAudioVersion;
+          i_wand_audio_version = attenuatorSyncData.wandAudioVersion;
           i_volume_master_percentage = attenuatorSyncData.masterVolume;
           i_volume_effects_percentage = attenuatorSyncData.effectsVolume;
           i_volume_music_percentage = attenuatorSyncData.musicVolume;
