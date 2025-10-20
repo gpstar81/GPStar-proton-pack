@@ -161,7 +161,7 @@ void getPackPrefsObject() {
   packConfig.defaultSystemModePack = SYSTEM_MODE;
   packConfig.defaultYearThemePack = SYSTEM_EEPROM_YEAR;
   packConfig.currentYearThemePack = SYSTEM_YEAR;
-  packConfig.defaultSystemVolume = i_eeprom_volume_master_percentage;
+  packConfig.defaultPackVolume = i_eeprom_volume_master_percentage;
   packConfig.protonStreamEffects = b_stream_effects ? 1 : 0;
   packConfig.overheatStrobeNF = b_overheat_strobe ? 1 : 0;
   packConfig.overheatLightsOff = b_overheat_lights_off ? 1 : 0;
@@ -607,7 +607,7 @@ void handlePackPrefsUpdate() {
     break;
   }
 
-  i_volume_master_eeprom = (MINIMUM_VOLUME + i_volume_min_adj) - ((MINIMUM_VOLUME + i_volume_min_adj) * packConfig.defaultSystemVolume / 100);
+  i_volume_master_eeprom = (MINIMUM_VOLUME + i_volume_min_adj) - ((MINIMUM_VOLUME + i_volume_min_adj) * packConfig.defaultPackVolume / 100);
   b_stream_effects = (packConfig.protonStreamEffects == 1);
   b_overheat_strobe = (packConfig.overheatStrobeNF == 1);
   b_overheat_lights_off = (packConfig.overheatLightsOff == 1);

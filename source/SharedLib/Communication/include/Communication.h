@@ -54,7 +54,7 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t defaultSystemModePack;
   uint8_t defaultYearThemePack;
   uint8_t currentYearThemePack;
-  uint8_t defaultSystemVolume;
+  uint8_t defaultPackVolume;
   uint8_t packVibration;
   uint8_t ribbonCableAlarm;
   uint8_t cyclotronDirection;
@@ -116,6 +116,7 @@ struct __attribute__((packed)) WandPrefs {
   uint8_t bargraphOverheatBlink;
   uint8_t bargraphIdleAnimation;
   uint8_t bargraphFireAnimation;
+  uint8_t resetWifiPassword;
 } wandConfig;
 
 // Preferences for smoke/overheat behavior.

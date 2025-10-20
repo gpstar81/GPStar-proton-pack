@@ -46,7 +46,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
   <h1>General Options</h1>
   <div class="block left">
     <div class="setting">
-      <b>Operation Mode:</b>
+      <b>&nbsp;Operation Mode:</b>
       <select id="defaultSystemModePack" name="defaultSystemModePack" style="width:180px">
         <option value="0">Super Hero</option>
         <option value="1">Mode Original</option>
@@ -72,7 +72,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>&nbsp;&nbsp;&nbsp;&nbsp;Use Vibration:</b>
+      <b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Use Vibration:</b>
       <select id="packVibration" name="packVibration">
         <option value="1">Always</option>
         <option value="2">When Firing</option>
@@ -83,9 +83,9 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <b>Master Volume % at Startup:</b><br/>
-      <input type="range" id="defaultSystemVolume" name="defaultSystemVolume" min="5" max="100" value="100" step="5"
-       oninput="masterVolOut.value=defaultSystemVolume.value"/>
-      <output class="labelSlider" id="masterVolOut" for="defaultSystemVolume"></output>
+      <input type="range" id="defaultPackVolume" name="defaultPackVolume" min="5" max="100" value="100" step="5"
+       oninput="masterVolOut.value=defaultPackVolume.value"/>
+      <output class="labelSlider" id="masterVolOut" for="defaultPackVolume"></output>
     </div>
     <div class="setting">
       <label class="toggle-switchy" data-text="yesno" data-label="left">
@@ -138,10 +138,10 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         <span class="toggle">
           <span class="switch"></span>
         </span>
-        <span class="label">Battery On Starts Pack:</span>
+        <span class="label">Start Pack at Battery On:</span>
       </label>
     </div>
-    <div class="setting" id="gpstarAudioLedDiv">
+    <div class="setting" id="gpstarAudioLedToggle">
       <label class="toggle-switchy" data-label="left">
         <input id="gpstarAudioLed" name="gpstarAudioLed" type="checkbox">
         <span class="toggle">
@@ -377,7 +377,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       getEl("defaultYearThemePack").disabled = true;
       getEl("currentYearThemePack").disabled = true;
       getEl("packVibration").disabled = true;
-      getEl("defaultSystemVolume").disabled = true;
+      getEl("defaultPackVolume").disabled = true;
       getEl("overheatLightsOff").disabled = true;
       getEl("overheatStrobeNF").disabled = true;
       getEl("overheatSyncToFan").disabled = true;
@@ -409,7 +409,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       getEl("ledPowercellLum").disabled = true;
       getEl("ledInvertPowercell").disabled = true;
       getEl("ledVGPowercell").disabled = true;
-      getEl("gpstarAudioLedDiv").style.display = 'none';
+      getEl("gpstarAudioLedToggle").style.display = 'none';
     }
 
     // Converts a value from one range to another: eg. convertRange(160, [2,254], [0,360])
@@ -445,7 +445,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
 
             if (!settings.gpstarAudio) {
               // Hide the GPStar Audio LED Status toggle if pack is not using GPStar Audio.
-              getEl("gpstarAudioLedDiv").style.display = 'none';
+              hideEl("gpstarAudioLedToggle");
               getEl("gpstarAudioLed").disabled = true;
             }
 
@@ -469,8 +469,8 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             setValue("defaultSystemModePack", settings.defaultSystemModePack || 0);
             setValue("defaultYearThemePack", settings.defaultYearThemePack || 1); // Value cannot be 0.
             setValue("currentYearThemePack", settings.currentYearThemePack || 4); // Value cannot be 0.
-            setValue("defaultSystemVolume", settings.defaultSystemVolume || 100); // Default to full volume.
-            setHtml("masterVolOut", getValue("defaultSystemVolume"));
+            setValue("defaultPackVolume", settings.defaultPackVolume || 100); // Default to full volume.
+            setHtml("masterVolOut", getValue("defaultPackVolume"));
             setValue("packVibration", settings.packVibration || 4);
             setToggle("protonStreamEffects", settings.protonStreamEffects);
             setToggle("ribbonCableAlarm", settings.ribbonCableAlarm);
@@ -530,7 +530,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         defaultSystemModePack: getInt("defaultSystemModePack"),
         defaultYearThemePack: getInt("defaultYearThemePack") || 1,
         currentYearThemePack: getInt("currentYearThemePack") || 4,
-        defaultSystemVolume: getInt("defaultSystemVolume") || 100,
+        defaultPackVolume: getInt("defaultPackVolume") || 100,
         packVibration: getInt("packVibration") || 4,
         protonStreamEffects: getToggle("protonStreamEffects"),
         ribbonCableAlarm: getToggle("ribbonCableAlarm"),

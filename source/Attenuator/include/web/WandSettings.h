@@ -94,7 +94,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
        oninput="masterVolOut.value=defaultWandVolume.value"/>
       <output class="labelSlider" id="masterVolOut" for="defaultWandVolume"></output>
     </div>
-    <div class="setting" id="rgbVentDiv">
+    <div class="setting" id="rgbVentToggle">
       <label class="toggle-switchy" data-label="left">
         <input id="rgbVentEnabled" name="rgbVentEnabled" type="checkbox">
         <span class="toggle">
@@ -166,7 +166,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         <span class="label">Boot Errors:</span>
       </label>
     </div>
-    <div class="setting" id="gpstarAudioLedDiv">
+    <div class="setting" id="gpstarAudioLedToggle">
       <label class="toggle-switchy" data-label="left">
         <input id="gpstarAudioLed" name="gpstarAudioLed" type="checkbox">
         <span class="toggle">
@@ -249,6 +249,19 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     </div>
   </div>
 
+  <h1 id="gpstar2">GPStar II Options</h1>
+  <div class="block left">
+    <div class="setting">
+      <label class="toggle-switchy" data-text="yesno" data-label="left">
+        <input id="resetWifiPassword" name="resetWifiPassword" type="checkbox">
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Reset WiFi Password:</span>
+      </label>
+    </div>
+  </div>
+
   <div class="block">
     <a href="#top">Top</a>
     <hr/>
@@ -296,7 +309,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       getEl("bargraphOverheatBlink").disabled = true;
       getEl("bargraphIdleAnimation").disabled = true;
       getEl("bargraphFireAnimation").disabled = true;
-      getEl("gpstarAudioLedDiv").style.display = 'none';
+      getEl("gpstarAudioLedToggle").style.display = 'none';
     }
 
     // Converts a value from one range to another: eg. convertRange(160, [2,254], [0,360])
@@ -330,15 +343,19 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
               return;
             }
 
-            // GPStar Wand II detected, so disable toggle for the RGB Vent Light as it is invalid for the GPStar Wand II.
             if (settings.esp32Wand) {
-              getEl("rgbVentDiv").style.display = 'none';
+              // Disable toggle for the RGB Vent Light as it is not applicable to the GPStar Wand II.
+              hideEl("rgbVentToggle");
               getEl("rgbVentEnabled").disabled = true;
+            } else {
+              // Hide any GPStar II options when not available.
+              hideEl("gpstar2");
+              getEl("resetWifiPassword").disabled = true;
             }
 
             if (!settings.gpstarAudio) {
               // Hide the GPStar Audio LED Status toggle if wand is not using GPStar Audio.
-              getEl("gpstarAudioLedDiv").style.display = 'none';
+              hideEl("gpstarAudioLedToggle");
               getEl("gpstarAudioLed").disabled = true;
             }
 
@@ -376,6 +393,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
             setValue("defaultYearModeWand", settings.defaultYearModeWand || 1);
             setValue("defaultYearModeCTS", settings.defaultYearModeCTS || 1);
             setValue("defaultWandVolume", settings.defaultWandVolume || 100);
+            setHtml("masterVolOut", getValue("defaultWandVolume"));
             setValue("numBargraphSegments", settings.numBargraphSegments || 28);
             setToggle("invertWandBargraph", settings.invertWandBargraph);
             setToggle("bargraphOverheatBlink", settings.bargraphOverheatBlink);
@@ -417,7 +435,8 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         invertWandBargraph: getToggle("invertWandBargraph"),
         bargraphOverheatBlink: getToggle("bargraphOverheatBlink"),
         bargraphIdleAnimation: getInt("bargraphIdleAnimation") || 1,
-        bargraphFireAnimation: getInt("bargraphFireAnimation") || 1
+        bargraphFireAnimation: getInt("bargraphFireAnimation") || 1,
+        resetWifiPassword: getToggle("resetWifiPassword")
       };
       var body = JSON.stringify(settings);
 

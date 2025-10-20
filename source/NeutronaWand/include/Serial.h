@@ -332,6 +332,22 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value);
 void handleWandPrefsUpdate() {
   sendDebug(F("Saving Wand Preferences"));
 
+  switch(wandConfig.resetWifiPassword) {
+    case 0:
+    default:
+      // Do nothing.
+    break;
+    #ifdef ESP32
+    case 1:
+      // If we are GPStar II and received this command, reset our Wifi password.
+      resetWifiPassword();
+
+      // Immediately reset the config object to prevent repeat calls.
+      wandConfig.resetWifiPassword = 0;
+    break;
+    #endif
+  }
+
   switch(wandConfig.ledWandCount) {
     case 0:
     default:
