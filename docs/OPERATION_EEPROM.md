@@ -143,7 +143,7 @@ Adjust the vent smoke duration during overheat events and overheat start delay f
 
 ### Configuration Menu - Level 5
 
-Toggles overheating ability and continuous smoke effects during firing for each wand power level. The continuous smoke effects will randomly activate for very short bursts while continuously firing for long periods.
+Toggles overheating ability and smoke effects during sustained firing for each wand power level. The sustained smoke effects will randomly activate for very short bursts while firing continuously for long periods.
 
 #### ⚠️ WARNING
 
@@ -151,11 +151,11 @@ Toggles overheating ability and continuous smoke effects during firing for each 
 
 | Option | Purpose | Intensify Button | Barrel Wing Button |
 |:------:|---------|------------------|--------------------|
-| 5️⃣ | Power&nbsp;Level&nbsp;5 | Enable/Disable Overheating<br/>`Default: enabled` | Enable/Disable continuous firing smoke effects<br/>`Default: enabled` |
-| 4️⃣ | Power&nbsp;Level&nbsp;4 | Enable/Disable Overheating<br/>`Default: disabled` | Enable/Disable continuous firing smoke effects<br/>`Default: enabled` |
-| 3️⃣ | Power&nbsp;Level&nbsp;3 | Enable/Disable Overheating<br/>`Default: disabled` | Enable/Disable continuous firing smoke effects<br/>`Default: enabled` |
-| 2️⃣ | Power&nbsp;Level&nbsp;2 | Enable/Disable Overheating<br/>`Default: disabled` | Enable/Disable continuous firing smoke effects<br/>`Default: enabled` |
-| 1️⃣ | Power&nbsp;Level&nbsp;1 | Enable/Disable Overheating<br/>`Default: disabled` | Enable/Disable continuous firing smoke effects<br/>`Default: enabled` |
+| 5️⃣ | Power&nbsp;Level&nbsp;5 | Enable/Disable Overheating<br/>`Default: enabled` | Enable/Disable sustained firing smoke effects<br/>`Default: enabled` |
+| 4️⃣ | Power&nbsp;Level&nbsp;4 | Enable/Disable Overheating<br/>`Default: disabled` | Enable/Disable sustained firing smoke effects<br/>`Default: enabled` |
+| 3️⃣ | Power&nbsp;Level&nbsp;3 | Enable/Disable Overheating<br/>`Default: disabled` | Enable/Disable sustained firing smoke effects<br/>`Default: enabled` |
+| 2️⃣ | Power&nbsp;Level&nbsp;2 | Enable/Disable Overheating<br/>`Default: disabled` | Enable/Disable sustained firing smoke effects<br/>`Default: enabled` |
+| 1️⃣ | Power&nbsp;Level&nbsp;1 | Enable/Disable Overheating<br/>`Default: disabled` | Enable/Disable sustained firing smoke effects<br/>`Default: enabled` |
 
 ## Advanced User Configurations
 

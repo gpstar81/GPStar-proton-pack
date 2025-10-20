@@ -518,7 +518,7 @@ void checkWandAction() {
         // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Level 5
         // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Level 5
         // Menu Level 5: Intensify: Enable/Disable overheat in power level #5
-        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power level #5
+        // Menu Level 5: Barrel Wing Button: Enable/Disable sustained smoke in power level #5
         case 5:
           if(switch_mode.pushed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
@@ -762,7 +762,7 @@ void checkWandAction() {
         // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Level 4
         // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Level 4
         // Menu Level 5: Intensify: Enable/Disable overheat in power level #4
-        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power level #4
+        // Menu Level 5: Barrel Wing Button: Enable/Disable sustained smoke in power level #4
         case 4:
           if(switch_intensify.pushed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
@@ -971,7 +971,7 @@ void checkWandAction() {
         // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Level 3
         // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Level 3
         // Menu Level 5: Intensify: Enable/Disable overheat in power level #3
-        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power level #3
+        // Menu Level 5: Barrel Wing Button: Enable/Disable sustained smoke in power level #3
         case 3:
           if(switch_intensify.pushed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
@@ -1186,7 +1186,7 @@ void checkWandAction() {
         // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Level 2
         // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Level 2
         // Menu Level 5: Intensify: Enable/Disable overheat in power level #2
-        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power level #2
+        // Menu Level 5: Barrel Wing Button: Enable/Disable sustained smoke in power level #2
         case 2:
           if(switch_intensify.pushed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
@@ -1275,7 +1275,7 @@ void checkWandAction() {
         // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Level 1
         // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Level 1
         // Menu Level 5: Intensify: Enable/Disable overheat in power level #1
-        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power level #1
+        // Menu Level 5: Barrel Wing Button: Enable/Disable sustained smoke in power level #1
         case 1:
           if(switch_intensify.pushed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {

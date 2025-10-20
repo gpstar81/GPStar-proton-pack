@@ -362,7 +362,7 @@ bool b_stream_effects = true;
 /*
  * If you want the optional N-Filter NeoPixel jewel to strobe during overheat venting.
  * If false, the light will stay solid during overheat venting.
- * This does not affect the LED-W optional light nor does it affect the jewel during continuous fire venting which always strobes.
+ * This does not affect the LED-W optional light nor does it affect the jewel during sustained fire venting which always strobes.
  * LED-W always stays solid during any venting sequences.
  */
 bool b_overheat_strobe = true;
@@ -395,8 +395,8 @@ bool b_smoke_enabled = true;
  */
 
 /*
- * Enable or disable smoke during continuous firing.
- * Control which of the 4 pins go high during continuous firing smoke effects.
+ * Enable or disable smoke during sustained firing.
+ * Control which of the 4 pins go high during sustained firing smoke effects.
  * This can be overridden if b_smoke_enabled is set to false.
  */
 bool b_smoke_nfilter_continuous_firing = true;
@@ -405,8 +405,8 @@ bool b_fan_nfilter_continuous_firing = true;
 bool b_fan_booster_continuous_firing = true;
 
 /*
- * Enable or disable smoke in individual wand power levels for continuous firing smoke.
- * Example: if b_smoke_continuous_level_1 is true, smoke will happen in continuous firing in wand power level 1. If false, no smoke in mode 1.
+ * Enable or disable smoke in individual wand power levels for sustained firing smoke.
+ * Example: if b_smoke_continuous_level_1 is true, smoke will happen in sustained firing in wand power level 1. If false, no smoke in mode 1.
  * This is overridden if b_smoke_enabled or can be by the continuous_firing settings above when they are set to false.
  */
 bool b_smoke_continuous_level_1 = true;
@@ -416,7 +416,7 @@ bool b_smoke_continuous_level_4 = true;
 bool b_smoke_continuous_level_5 = true;
 
 /*
- * How long (in milliseconds) until the smoke pins (+ fan) are activated during continuous firing in each firing power level (not overheating venting).
+ * How long (in milliseconds) until the smoke pins (+ fan) are activated during sustained firing in each firing power level (not overheating venting).
  * Example: 30,000 milliseconds (30 seconds)
  */
 const uint16_t i_smoke_timer_level_1 = 30000;
@@ -430,7 +430,7 @@ const uint16_t i_smoke_timer_level_5 = 6000;
  * When the pins are high (controlled by the i_smoke_timer above), then smoke will be generated if you have smoke machines wired up.
  * Default is 3000 milliseconds (3 seconds).
  * This does not affect smoke during overheat.
- * This only affects how long your smoke stays on after it has been triggered in continuous firing.
+ * This only affects how long your smoke stays on after it has been triggered in sustained firing.
  */
 const uint16_t i_smoke_on_time_level_1 = 3000;
 const uint16_t i_smoke_on_time_level_2 = 3000;
