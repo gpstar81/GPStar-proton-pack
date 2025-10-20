@@ -579,6 +579,8 @@ void readEEPROM() {
         break;
       }
     }
+
+    resetContinuousSmoke();
   }
   else {
     // CRC doesn't match; let's clear the EEPROMs to be safe.
@@ -587,8 +589,6 @@ void readEEPROM() {
     clearConfigEEPROM();
     clearLEDEEPROM();
   }
-
-  resetContinuousSmoke();
 }
 
 void clearLEDEEPROM() {

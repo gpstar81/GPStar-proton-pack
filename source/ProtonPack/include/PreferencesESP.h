@@ -814,6 +814,8 @@ void readEEPROM() {
         break;
       }
     }
+
+    resetContinuousSmoke();
   }
   else {
     // CRC mismatch; clear preferences
