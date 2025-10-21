@@ -58,19 +58,12 @@ void ledsOff() {
 
 // Animates the LEDs in a wave-like pattern
 void animateLights() {
-  static uint16_t i_led_position = 0;
+  static uint8_t i_led_position = 0; // 8-bit Phase Wrap
   uint8_t i_color;
 
-  // Update timer interval in case i_power changes
+  // Time to update the animation of the LEDs
   if(ms_anim_change.justFinished()) {
-    if(b_firing) {
-      // Speed up animation only when firing.
-      ms_anim_change.start(i_animation_duration / ((i_power + 1) * 2));
-    }
-    else {
-      // Otherwise return to normal speed.
-      ms_anim_change.start(i_animation_duration);
-    }
+    ledsOff(); // Clear LEDs before updating animation.
 
     // Determine the color once per animation sequence as based on the current stream mode.
     switch(STREAM_MODE) {
@@ -103,16 +96,39 @@ void animateLights() {
     // Compute a full-bright CRGB once and scale per-LED with nscale8_video.
     CRGB baseColor = b_use_gbr ? getHueAsGBR(PRIMARY_LED, i_color, 255) : getHueAsRGB(PRIMARY_LED, i_color, 255);
 
-    for(int i = 0; i < DEVICE_NUM_LEDS; i++) {
-      // Compute the wave brightness value (0..255), casting to uint8_t to make the phase explicit for sin8.
-      uint8_t i_brightness = map(sin8((uint8_t)(i_led_position + i * 32)), 0, 255, i_min_brightness, i_max_brightness);
+    // Fixed-point position across DEVICE_NUM_LEDS (Q8 fractional part)
+    uint16_t scaledPos = (uint16_t)i_led_position * (uint16_t)DEVICE_NUM_LEDS;
+    uint8_t i_index = (uint8_t)(scaledPos >> 8); // Integer LED index
+    uint8_t i_frac = (uint8_t)(scaledPos & 0xFF); // 0..255 fractional part
 
-      // Scale the brightnes of the base color.
-      CRGB c = baseColor;
-      c.nscale8_video(i_brightness);
-      device_leds[i] = c;
+    // Split peak between i_index and the next LED
+    uint8_t i_weightA = 255 - i_frac; // Weight for i_index
+    uint8_t i_weightB = i_frac;       // Weight for i_index+1
+
+    // Apply weights (nscale8_video expects 0..255)
+    CRGB cA = baseColor; cA.nscale8_video(i_weightA);
+    device_leds[i_index] = cA;
+
+    // Wrap next index manually (avoids modulo)
+    uint8_t i_indexB = i_index + 1;
+    if (i_indexB >= DEVICE_NUM_LEDS) i_indexB = 0;
+    CRGB cB = baseColor; cB.nscale8_video(i_weightB);
+    device_leds[i_indexB] = cB;
+
+    // Smooth the result slightly by using a blur on the hot pixel.
+    const uint8_t i_blurAmount = 32;
+    blur1d(device_leds, DEVICE_NUM_LEDS, i_blurAmount);
+
+    // Move the wave position by shifting position for the next update.
+    i_led_position += i_animation_step; // Implicitly wraps at 256 upon overflow
+
+    if(b_firing) {
+      // Speed up animation when firing, based on power level.
+      ms_anim_change.start(i_animation_duration / ((i_power + 1) * 2));
     }
-
-    i_led_position += i_animation_step; // Move the wave position by shifting position for the next update.
+    else {
+      // Otherwise return to normal speed at idle.
+      ms_anim_change.start(i_animation_duration);
+    }
   }
 }
