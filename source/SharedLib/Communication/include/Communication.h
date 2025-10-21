@@ -21,6 +21,13 @@
 #pragma once
 #include <stdint.h>
 
+/**
+ * Data is sent between devices using the SerialTransfer library and struct objects.
+ * Every struct uses packed data and each preference is stored as a single byte value,
+ * though some values are sent as double-byte on rare occasion. Only ATMega and ESP32
+ * are used and both are little-endian so no declaration of byte-order is provided.
+ */
+
 // Types of packets to be sent via serial communication.
 enum PACKET_TYPE : uint8_t {
   PACKET_UNKNOWN = 0,
@@ -40,7 +47,7 @@ struct __attribute__((packed)) CommandPacket {
   uint8_t e;
 };
 
-// For generic data communication (1 byte ID, 4 byte array).
+// For generic data communication (1 byte ID, 3 byte array).
 struct __attribute__((packed)) MessagePacket {
   uint8_t s;
   uint8_t m;
@@ -90,6 +97,9 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t resetWifiPassword;
 } packConfig;
 
+// Output a compiler message if the final struct exceeds a specific size needed for SerialTransfer.
+static_assert(sizeof(packConfig) <= 40, "WARNING: PackConfig has grown too large (>40 bytes)");
+
 // Preferences for the Neutrona Wand device.
 struct __attribute__((packed)) WandPrefs {
   uint8_t isESP32;
@@ -119,6 +129,9 @@ struct __attribute__((packed)) WandPrefs {
   uint8_t resetWifiPassword;
 } wandConfig;
 
+// Output a compiler message if the final struct exceeds a specific size needed for SerialTransfer.
+static_assert(sizeof(wandConfig) <= 40, "WARNING: WandPrefs has grown too large (>40 bytes)");
+
 // Preferences for smoke/overheat behavior.
 struct __attribute__((packed)) SmokePrefs {
   // Pack
@@ -146,6 +159,9 @@ struct __attribute__((packed)) SmokePrefs {
   uint8_t overheatDelay1;
 } smokeConfig;
 
+// Output a compiler message if the final struct exceeds a specific size needed for SerialTransfer.
+static_assert(sizeof(smokeConfig) <= 40, "WARNING: SmokePrefs has grown too large (>40 bytes)");
+
 // Data for synchronizing the Neutrona Wand.
 struct __attribute__((packed)) WandSyncData {
   uint8_t systemMode;
@@ -161,6 +177,9 @@ struct __attribute__((packed)) WandSyncData {
   uint8_t musicStatus;
   uint8_t repeatMusicTrack;
 } wandSyncData;
+
+// Output a compiler message if the final struct exceeds a specific size needed for SerialTransfer.
+static_assert(sizeof(wandSyncData) <= 40, "WARNING: WandSyncData has grown too large (>40 bytes)");
 
 // Data for synchronizing the Attenuator.
 struct __attribute__((packed)) AttenuatorSyncData {
@@ -191,6 +210,9 @@ struct __attribute__((packed)) AttenuatorSyncData {
   uint16_t wandAudioVersion;
   uint16_t packVoltage;
 } attenuatorSyncData;
+
+// Output a compiler message if the final struct exceeds a specific size needed for SerialTransfer.
+static_assert(sizeof(attenuatorSyncData) <= 40, "WARNING: AttenuatorSyncData has grown too large (>40 bytes)");
 
 /*
  * These enum definitions must be kept in sync across the devices they communicate with, using the same dataype and ordering.
@@ -319,8 +341,12 @@ enum PACK_MESSAGE : uint8_t {
   P_PACK_GPSTAR_AUDIO_LED_DISABLED,
   P_PACK_GPSTAR_AUDIO_LED_ENABLED,
   P_TURN_WAND_ON,
-  P_POST_FINISH
+  P_POST_FINISH,
+  P_NO_OP
 };
+
+// Output a compiler message if the final ENUM exceeds the datatype expected.
+static_assert(P_NO_OP < 255, "WARNING: PACK_MESSAGE has grown too large for uint8_t!");
 
 // Specifically for actions called from the Neutrona Wand.
 enum WAND_MESSAGE : uint8_t {
@@ -556,8 +582,12 @@ enum WAND_MESSAGE : uint8_t {
   W_WAND_GPSTAR_AUDIO_LED_ENABLED,
   W_WAND_AUDIO_VERSION,
   W_IMPACT_SOUND,
-  W_COM_SOUND_NUMBER
+  W_COM_SOUND_NUMBER,
+  W_NO_OP
 };
+
+// Output a compiler message if the final ENUM exceeds the datatype expected.
+static_assert(W_NO_OP < 255, "WARNING: WAND_MESSAGE has grown too large for uint8_t!");
 
 // Primarily for Attenuator communications but may become a more unified API list.
 enum API_MESSAGE : uint8_t {
@@ -652,5 +682,9 @@ enum API_MESSAGE : uint8_t {
   A_SEND_PREFERENCES_SMOKE,
   A_SAVE_PREFERENCES_PACK,
   A_SAVE_PREFERENCES_WAND,
-  A_SAVE_PREFERENCES_SMOKE
+  A_SAVE_PREFERENCES_SMOKE,
+  A_NO_OP
 };
+
+// Output a compiler message if the final ENUM exceeds the datatype expected.
+static_assert(A_NO_OP < 255, "WARNING: API_MESSAGE has grown too large for uint8_t!");

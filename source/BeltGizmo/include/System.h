@@ -72,44 +72,45 @@ void animateLights() {
       ms_anim_change.start(i_animation_duration);
     }
 
+    // Determine the color once per animation sequence as based on the current stream mode.
+    switch(STREAM_MODE) {
+      case PROTON:
+        i_color = C_RED;
+      break;
+      case SLIME:
+        i_color = C_GREEN;
+      break;
+      case STASIS:
+        i_color = C_BLUE;
+      break;
+      case MESON:
+        i_color = C_ORANGE;
+      break;
+      case SPECTRAL:
+        i_color = C_RAINBOW;
+      break;
+      case HOLIDAY_HALLOWEEN:
+        i_color = C_ORANGEPURPLE;
+      break;
+      case HOLIDAY_CHRISTMAS:
+        i_color = C_REDGREEN;
+      break;
+      default:
+        i_color = C_WHITE;
+      break;
+    }
+
+    // Compute a full-bright CRGB once and scale per-LED with nscale8_video.
+    CRGB baseColor = b_use_gbr ? getHueAsGBR(PRIMARY_LED, i_color, 255) : getHueAsRGB(PRIMARY_LED, i_color, 255);
+
     for(int i = 0; i < DEVICE_NUM_LEDS; i++) {
-      uint8_t i_brightness = map(sin8((i_led_position + i * 32) % 255), 0, 255, i_min_brightness, i_max_brightness);
+      // Compute the wave brightness value (0..255), casting to uint8_t to make the phase explicit for sin8.
+      uint8_t i_brightness = map(sin8((uint8_t)(i_led_position + i * 32)), 0, 255, i_min_brightness, i_max_brightness);
 
-      switch(STREAM_MODE) {
-        case PROTON:
-          i_color = C_RED;
-        break;
-        case SLIME:
-          i_color = C_GREEN;
-        break;
-        case STASIS:
-          i_color = C_BLUE;
-        break;
-        case MESON:
-          i_color = C_ORANGE;
-        break;
-        case SPECTRAL:
-          i_color = C_RAINBOW;
-        break;
-        case HOLIDAY_HALLOWEEN:
-          i_color = C_ORANGEPURPLE;
-        break;
-        case HOLIDAY_CHRISTMAS:
-          i_color = C_REDGREEN;
-        break;
-        default:
-          i_color = C_WHITE;
-        break;
-      }
-
-      if(b_use_gbr) {
-        // Use GBR format for the device LEDs.
-        device_leds[i] = getHueAsGBR(PRIMARY_LED, i_color, 255 - i_brightness);
-      }
-      else {
-        // Use RGB format for the device LEDs.
-        device_leds[i] = getHueAsRGB(PRIMARY_LED, i_color, 255 - i_brightness);
-      }
+      // Scale the brightnes of the base color.
+      CRGB c = baseColor;
+      c.nscale8_video(i_brightness);
+      device_leds[i] = c;
     }
 
     i_led_position += i_animation_step; // Move the wave position by shifting position for the next update.
