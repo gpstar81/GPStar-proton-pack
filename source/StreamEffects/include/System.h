@@ -19,6 +19,16 @@
 
 #pragma once
 
+// Writes a debug message to the serial console or sends to the WebSocket.
+void sendDebug(const String message) {
+  #if defined(DEBUG_SEND_TO_CONSOLE)
+    debugln(message); // Print to serial console.
+  #endif
+  #if defined(DEBUG_SEND_TO_WEBSOCKET)
+    ws.textAll(message); // Send a copy to the WebSocket.
+  #endif
+}
+
 // Clear any prior information from the WebSocket client.
 void resetWebSocketData() {
   wsData.mode = "";
@@ -40,14 +50,14 @@ void printPartitions() {
   esp_partition_iterator_t iterator = esp_partition_find(ESP_PARTITION_TYPE_ANY, ESP_PARTITION_SUBTYPE_ANY, NULL);
 
   if(iterator == nullptr) {
-    Serial.println(F("No partitions found."));
+    debugln(F("No partitions found."));
     return;
   }
 
-  Serial.println(F("Partitions:"));
+  debugln(F("Partitions:"));
   while(iterator != nullptr) {
     partition = esp_partition_get(iterator);
-    Serial.printf("Label: %s, Size: %lu bytes, Address: 0x%08lx\n",
+    debugf("Label: %s, Size: %lu bytes, Address: 0x%08lx\n",
                   partition->label,
                   partition->size,
                   partition->address);
@@ -62,6 +72,7 @@ void ledsOff() {
   fill_solid(device_leds, DEVICE_MAX_LEDS, CRGB::Black);
 }
 
+// Animates the LEDs using a color palette
 void animateLights() {
   static uint8_t paletteIndex = 0; // Tracks the current base color index in the palette
   static uint16_t wavePosition = 0; // Tracks the position of the wave

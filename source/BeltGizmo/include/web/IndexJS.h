@@ -26,8 +26,10 @@ var statusInterval;
 window.addEventListener("load", onLoad);
 
 function onLoad(event) {
+  document.getElementsByClassName("tablinks")[0].click();
   getDevicePrefs(); // Get all preferences.
   initWebSocket(); // Open the WebSocket.
+  getStatus(updateEquipment); // Get status immediately.
 }
 
 function initWebSocket() {
@@ -61,14 +63,19 @@ function onClose(event) {
   // Fallback for when WebSocket is unavailable.
   if (!statusInterval) {
     statusInterval = setInterval(function() {
-      getStatus(); // Check for status every X seconds
+      getStatus(updateEquipment); // Check for status every X seconds
     }, 1000);
   }
 }
 
 function onMessage(event) {
-  // Everything gets sent to console.
-  console.log(event.data);
+  if (isJsonString(event.data)) {
+    // If JSON, use as status update.
+    updateEquipment(JSON.parse(event.data));
+  } else {
+    // Anything else gets sent to console.
+    console.log(event.data);
+  }
 }
 
 function getDevicePrefs() {
@@ -89,5 +96,110 @@ function getDevicePrefs() {
   };
   xhttp.open("GET", "/config/device", true);
   xhttp.send();
+}
+
+function getStreamColor(cMode) {
+  var color = [0, 0, 0];
+
+  switch(cMode){
+    case "Plasm System":
+      // Dark Green
+      color[1] = 80;
+    break;
+    case "Dark Matter Gen.":
+      // Light Blue
+      color[1] = 60;
+      color[2] = 255;
+    break;
+    case "Particle System":
+      // Orange
+      color[0] = 255;
+      color[1] = 140;
+    break;
+    case "Settings":
+      // Gray
+      color[0] = 40;
+      color[1] = 40;
+      color[2] = 40;
+    break;
+    default:
+      // Proton Stream(s) as Red
+      color[0] = 180;
+    break;
+  }
+
+  return color;
+}
+
+function updateBars(iPower, cMode) {
+  var color = getStreamColor(cMode);
+  var powerBars = getEl("powerBars");
+  if (powerBars) {
+    powerBars.innerHTML = ""; // Clear previous bars if any
+
+    if (iPower > 0) {
+      for (var i = 1; i <= iPower; i++) {
+        var bar = document.createElement("div");
+        bar.className = "bar";
+        bar.style.backgroundColor = "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", 0." + Math.round(i * 1.8, 10) + ")";
+        powerBars.appendChild(bar);
+      }
+    }
+  }
+}
+
+function updateEquipment(jObj) {
+  // Update display if we have the expected data (containing mode and theme at a minimum).
+  if (jObj) {
+    if (jObj.mode && jObj.theme) {
+      // Current Pack Status
+      setHtml("mode", jObj.mode || "...");
+      setHtml("theme", jObj.theme || "...");
+      setHtml("pack", jObj.pack || "...");
+      setHtml("switch", jObj.switch || "...");
+      setHtml("cable", jObj.cable || "...");
+      setHtml("cyclotron", jObj.cyclotron || "...");
+      setHtml("temperature", jObj.temperature || "...");
+
+      // Current Wand Status
+      setHtml("wandMode", jObj.wandMode || "...");
+      setHtml("safety", jObj.safety || "...");
+      setHtml("power", jObj.power || "...");
+      setHtml("firing", jObj.firing || "...");
+      updateBars(jObj.power || 0, jObj.wandMode || "");
+    } else {
+      // If no data, clear everything.
+      setHtml("mode", "...");
+      setHtml("theme", "...");
+      setHtml("pack", "...");
+      setHtml("switch", "...");
+      setHtml("cable", "...");
+      setHtml("cyclotron", "...");
+      setHtml("temperature", "...");
+      setHtml("wandMode", "...");
+      setHtml("safety", "...");
+      setHtml("power", "...");
+      setHtml("firing", "...");
+      updateBars(0, "");
+    }
+
+    // External WiFi Status
+    if (jObj.extWifiEnabled) {
+      setHtml("wifiStatus", jObj.extWifiStarted ? "Connected" : (jObj.extWifiPaused ? "Paused" : "Connecting..."));
+    } else {
+      setHtml("wifiStatus", "Disabled");
+    }
+
+    // Connected Wifi Clients - Private AP vs. WebSocket
+    setHtml("clientInfo", "AP Clients: " + (jObj.apClients || 0) + " / WebSocket Clients: " + (jObj.wsClients || 0));
+  }
+}
+
+function testOn() {
+  sendCommand("/selftest/enable");
+}
+
+function testOff() {
+  sendCommand("/selftest/disable");
 }
 )=====";
