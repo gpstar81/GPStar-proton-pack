@@ -74,11 +74,15 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
     case P_MODE_SUPER_HERO:
       SYSTEM_MODE = MODE_SUPER_HERO;
       vgModeCheck(); // Re-check VG/CTS mode.
+      updateStreamFlags(); // Update the stream flags.
+      wandSerialSend(W_STREAM_FLAGS, STREAM_MODE_FLAG); // Send the updated flags upstream.
     break;
 
     case P_MODE_ORIGINAL:
       SYSTEM_MODE = MODE_ORIGINAL;
       vgModeCheck(); // Assert CTS mode.
+      updateStreamFlags(); // Update the stream flags.
+      wandSerialSend(W_STREAM_FLAGS, STREAM_MODE_FLAG); // Send the updated flags upstream.
     break;
 
     case P_OVERHEATING_FINISHED:

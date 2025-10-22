@@ -57,7 +57,7 @@ void printPartitions() {
  * Prevent stream mode change if wand is firing, in an error state, or VG modes are disabled.
  */
 bool canChangeStreamMode() {
-  if(b_wand_firing || b_overheating || b_pack_alarm || b_pack_shutting_down || !(STREAM_MODE_FLAG & FLAG_VG)) {
+  if(b_wand_firing || b_overheating || b_pack_alarm || b_pack_shutting_down || SYSTEM_MODE == MODE_ORIGINAL || !(STREAM_MODE_FLAG & FLAG_VG)) {
     return false;
   }
   return true;
