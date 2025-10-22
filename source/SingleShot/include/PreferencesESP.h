@@ -41,7 +41,7 @@ void loadConfigEEPROM();
 void updateCRCEEPROM(uint32_t);
 uint32_t getCRCEEPROM(void);
 uint32_t eepromCRC(void);
-void resetOverheatLevels();
+void updateOverheatLevels();
 
 // Include ESP32 Preferences library
 #include <Preferences.h>

@@ -20,7 +20,7 @@
 
 #pragma once
 
-const char WAND_SETTINGS_page[] PROGMEM = R"=====(
+const char BLASTER_SETTINGS_page[] PROGMEM = R"=====(
 <!DOCTYPE html>
 <html>
 <head>
@@ -69,7 +69,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
   <div class="block left">
     <div class="setting">
       <label class="toggle-switchy" data-text="yesno" data-label="left">
-        <input id="invertWandBargraph" name="invertWandBargraph" type="checkbox">
+        <input id="invertBlasterBargraph" name="invertBlasterBargraph" type="checkbox">
         <span class="toggle">
           <span class="switch"></span>
         </span>
@@ -104,7 +104,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       // Disables all controls.
       getEl("autoVentLight").disabled = true;
       getEl("deviceBootError").disabled = true;
-      getEl("invertWandBargraph").disabled = true;
+      getEl("invertBlasterBargraph").disabled = true;
     }
 
     // Converts a value from one range to another: eg. convertRange(160, [2,254], [0,360])
@@ -132,35 +132,35 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
               return;
             }
 
-            if (settings.wandPowered) {
+            if (settings.blasterPowered) {
               disableControls();
               alert("Blaster is currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings.");
               return;
             }
 
-            // Valid settings were received and both the pack and wand are off, so allow updating settings.
+            // Valid settings were received and both the pack and blaster are off, so allow updating settings.
             getEl("btnSave").disabled = false;
 
             setToggle("autoVentLight", settings.autoVentLight);
             setToggle("deviceBootError", settings.deviceBootError);
-            setToggle("invertWandBargraph", settings.invertWandBargraph);
+            setToggle("invertBlasterBargraph", settings.invertBlasterBargraph);
 
             // Update colour preview and value display for hue/saturation sliders.
-            updateColour("wandColourPreview", "wandHueOut", "wandSatOut", getEl("ledWandHue").value, getEl("ledWandSat").value);
+            updateColour("blasterColourPreview", "blasterHueOut", "blasterSatOut", getEl("ledBlasterHue").value, getEl("ledBlasterSat").value);
           }
         }
       };
-      xhttp.open("GET", "/config/wand", true);
+      xhttp.open("GET", "/config/blaster", true);
       xhttp.send();
     }
 
     function saveSettings() {
-      // Saves current settings to wand, updating runtime variables and making changes immediately effective.
+      // Saves current settings to blaster, updating runtime variables and making changes immediately effective.
       // This does NOT save to the EEPROM automatically as the user is encouraged to test prior to that action.
       var settings = {
         autoVentLight: getToggle("autoVentLight"),
         deviceBootError: getToggle("deviceBootError"),
-        invertWandBargraph: getToggle("invertWandBargraph")
+        invertBlasterBargraph: getToggle("invertBlasterBargraph")
       };
       var body = JSON.stringify(settings);
 
@@ -179,7 +179,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
           }
         }
       };
-      xhttp.open("PUT", "/config/wand/save", true);
+      xhttp.open("PUT", "/config/blaster/save", true);
       xhttp.setRequestHeader("Content-Type", "application/json");
       xhttp.send(body);
     }
@@ -191,7 +191,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
           handleStatus(this.responseText);
         }
       };
-      xhttp.open("PUT", "/eeprom/wand", true);
+      xhttp.open("PUT", "/eeprom/blaster", true);
       xhttp.send();
     }
   </script>

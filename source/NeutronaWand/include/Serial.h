@@ -55,11 +55,13 @@ void getWandPrefsObject() {
   uint8_t i_eeprom_volume_master_percentage = 100 * (MINIMUM_VOLUME - i_volume_master_eeprom) / MINIMUM_VOLUME;
 
   // Return an indication of whether the device is an ESP32 or not.
+/*
 #ifdef ESP32
   wandConfig.isESP32 = 1;
 #else
   wandConfig.isESP32 = 0;
 #endif
+*/
 
   // Boolean types will simply translate as 1/0, ENUMs should be converted.
   switch(WAND_BARREL_LED_COUNT) {
@@ -552,8 +554,12 @@ void handleWandPrefsUpdate() {
   // Update and reset wand components.
   setAudioLED(b_gpstar_audio_led_enabled);
   bargraphYearModeUpdate();
-  resetOverheatLevels();
+  updateOverheatLevels();
+  updateStreamFlags();
   resetWhiteLEDBlinkRate();
+
+  // Inform the pack of our current stream flags.
+  wandSerialSend(W_STREAM_FLAGS, STREAM_MODE_FLAG);
 }
 
 // Pack communication to the wand.
@@ -684,7 +690,7 @@ void checkPack() {
           i_ms_overheat_initiate_level_1 = smokeConfig.overheatDelay1 * 1000;
 
           // Update and reset wand components.
-          resetOverheatLevels();
+          updateOverheatLevels();
         break;
 
         case PACKET_SYNC:
@@ -824,6 +830,9 @@ void checkPack() {
             break;
           }
 
+          // Reset our stream flags just in case something changed.
+          updateStreamFlags();
+
           // Set up master vibration switch if not configured to override it.
           if(VIBRATION_MODE_EEPROM == VIBRATION_DEFAULT) {
             b_vibration_switch_on = wandSyncData.vibrationEnabled == 2;
@@ -925,6 +934,9 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
 
       // Inform the pack of our audio configuration.
       wandSerialSend(W_WAND_AUDIO_VERSION, i_audio_version);
+
+      // Inform the pack of our current stream flags.
+      wandSerialSend(W_STREAM_FLAGS, STREAM_MODE_FLAG);
 
       // Tell the pack the status of the Neutrona Wand barrel.
       if(BARREL_STATE != BARREL_UNKNOWN) {

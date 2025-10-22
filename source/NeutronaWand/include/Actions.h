@@ -672,7 +672,7 @@ void checkWandAction() {
                     wandSerialSend(W_OVERHEAT_LEVEL_5_ENABLED);
                   }
 
-                  resetOverheatLevels();
+                  updateOverheatLevels();
                 }
               break;
 
@@ -823,7 +823,7 @@ void checkWandAction() {
                 wandSerialSend(W_OVERHEAT_LEVEL_4_ENABLED);
               }
 
-              resetOverheatLevels();
+              updateOverheatLevels();
             }
           }
           else if(switch_mode.pushed()) {
@@ -1066,7 +1066,7 @@ void checkWandAction() {
                 wandSerialSend(W_OVERHEAT_LEVEL_3_ENABLED);
               }
 
-              resetOverheatLevels();
+              updateOverheatLevels();
             }
           }
           else if(switch_mode.pushed()) {
@@ -1232,7 +1232,7 @@ void checkWandAction() {
                 wandSerialSend(W_OVERHEAT_LEVEL_2_ENABLED);
               }
 
-              resetOverheatLevels();
+              updateOverheatLevels();
             }
           }
           else if(switch_mode.pushed()) {
@@ -1354,7 +1354,7 @@ void checkWandAction() {
                 wandSerialSend(W_OVERHEAT_LEVEL_1_ENABLED);
               }
 
-              resetOverheatLevels();
+              updateOverheatLevels();
             }
           }
           else if(switch_mode.pushed()) {

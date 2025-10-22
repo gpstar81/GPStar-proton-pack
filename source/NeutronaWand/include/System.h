@@ -10172,6 +10172,19 @@ void changeIonArmSwitchState(bool state) {
   }
 }
 
+// Rebuilds the stream mode flags variable.
+void updateStreamFlags() {
+  // Start by setting the flags to none.
+  STREAM_MODE_FLAG = FLAG_NONE;
+
+  // Then combine our bools into the flag.
+  STREAM_MODE_FLAG |= (vgModeCheck() ? FLAG_VG : FLAG_NONE);
+  STREAM_MODE_FLAG |= (b_spectral_mode_enabled ? FLAG_SPECTRAL : FLAG_NONE);
+  STREAM_MODE_FLAG |= (b_spectral_custom_mode_enabled ? FLAG_SPECTRAL_CUSTOM : FLAG_NONE);
+  STREAM_MODE_FLAG |= (b_holiday_modes_enabled ? FLAG_HOLIDAY_HALLOWEEN : FLAG_NONE);
+  STREAM_MODE_FLAG |= (b_holiday_modes_enabled ? FLAG_HOLIDAY_CHRISTMAS : FLAG_NONE);
+}
+
 // Exit the wand menu system while the wand is off.
 void wandExitMenu() {
   i_wand_menu = 5;
@@ -10233,6 +10246,13 @@ void wandExitMenu() {
   // Reset the white LED blink rate setting in case we changed years.
   resetWhiteLEDBlinkRate();
 
+  // Reset our stream flags in case something changed.
+  updateStreamFlags();
+
+  // Send current preferences to the pack for use by the Attenuator.
+  wandSerialSend(W_STREAM_FLAGS, STREAM_MODE_FLAG);
+  wandSerialSend(W_SEND_PREFERENCES_WAND);
+
   // In original mode, we need to re-initalise the 28 and 30 segment bargraph if some switches are already toggled on.
   if(SYSTEM_MODE == MODE_ORIGINAL) {
     if(switch_vent.on() && switch_wand.on() && RED_SWITCH_MODE == SWITCH_ON) {
@@ -10279,7 +10299,11 @@ void wandExitEEPROMMenu() {
   // Reset the white LED blink rate setting in case we changed years.
   resetWhiteLEDBlinkRate();
 
+  // Reset our stream flags in case something changed.
+  updateStreamFlags();
+
   // Send current preferences to the pack for use by the Attenuator.
+  wandSerialSend(W_STREAM_FLAGS, STREAM_MODE_FLAG);
   wandSerialSend(W_SEND_PREFERENCES_WAND);
   wandSerialSend(W_SEND_PREFERENCES_SMOKE);
 }
@@ -10447,7 +10471,7 @@ void resetWhiteLEDBlinkRate() {
 }
 
 // Rebuilds the overheat enable array.
-void resetOverheatLevels() {
+void updateOverheatLevels() {
   b_overheat_level[0] = b_overheat_level_1;
   b_overheat_level[1] = b_overheat_level_2;
   b_overheat_level[2] = b_overheat_level_3;

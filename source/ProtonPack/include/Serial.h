@@ -50,12 +50,12 @@ SerialTransfer wandComs;
 // Command and Message Data Packets
 struct CommandPacket sendCmdW;
 struct CommandPacket recvCmdW;
-struct CommandPacket sendCmdS;
-struct CommandPacket recvCmdS;
+struct CommandPacket sendCmdA;
+struct CommandPacket recvCmdA;
 struct MessagePacket sendDataW;
 struct MessagePacket recvDataW;
-struct MessagePacket sendDataS;
-struct MessagePacket recvDataS;
+struct MessagePacket sendDataA;
+struct MessagePacket recvDataA;
 
 /*
  * Serial API Helper Functions
@@ -148,11 +148,13 @@ void getPackPrefsObject() {
   uint8_t i_eeprom_volume_master_percentage = 100 * ((MINIMUM_VOLUME + i_volume_min_adj) - i_volume_master_eeprom) / (MINIMUM_VOLUME + i_volume_min_adj);
 
   // Return an indication of whether the device is an ESP32 or not.
+/*
 #ifdef ESP32
   packConfig.isESP32 = 1;
 #else
   packConfig.isESP32 = 0;
 #endif
+*/
 
   // Wifi reset command default value
   packConfig.resetWifiPassword = 0;
@@ -317,12 +319,12 @@ void attenuatorSerialSend(uint8_t i_command, uint16_t i_value) {
   // debug(F("Command to Attenuator: "));
   // debugln(i_command);
 
-  sendCmdS.s = P_COM_START;
-  sendCmdS.c = i_command;
-  sendCmdS.d1 = i_value;
-  sendCmdS.e = P_COM_END;
+  sendCmdA.s = P_COM_START;
+  sendCmdA.c = i_command;
+  sendCmdA.d1 = i_value;
+  sendCmdA.e = P_COM_END;
 
-  i_send_size = attenuatorComs.txObj(sendCmdS);
+  i_send_size = attenuatorComs.txObj(sendCmdA);
   attenuatorComs.sendData(i_send_size, (uint8_t) PACKET_COMMAND);
 
 #ifdef ESP32
@@ -344,12 +346,12 @@ void attenuatorSendData(uint8_t i_message) {
   // debug(F("Data to Attenuator: "))
   // debugln(i_message);
 
-  sendDataS.s = P_COM_START;
-  sendDataS.m = i_message;
-  sendDataS.e = P_COM_END;
+  sendDataA.s = P_COM_START;
+  sendDataA.m = i_message;
+  sendDataA.e = P_COM_END;
 
   // Set all elements of the data array to 0
-  memset(sendDataW.d, 0, sizeof(sendDataW.d));
+  memset(sendDataA.d, 0, sizeof(sendDataA.d));
 
 #ifdef ESP32
   // Send latest status to the WebSocket (ESP32 only), skipping this action on certain commands.
@@ -362,10 +364,10 @@ void attenuatorSendData(uint8_t i_message) {
   switch(i_message) {
     case A_SPECTRAL_CUSTOM_MODE:
     case A_SPECTRAL_COLOUR_DATA:
-      sendDataS.d[0] = i_spectral_cyclotron_custom_colour;
-      sendDataS.d[1] = i_spectral_cyclotron_custom_saturation;
+      sendDataA.d[0] = i_spectral_cyclotron_custom_colour;
+      sendDataA.d[1] = i_spectral_cyclotron_custom_saturation;
 
-      i_send_size = attenuatorComs.txObj(sendDataS);
+      i_send_size = attenuatorComs.txObj(sendDataA);
       attenuatorComs.sendData(i_send_size, (uint8_t) PACKET_DATA);
     break;
 
@@ -376,11 +378,11 @@ void attenuatorSendData(uint8_t i_message) {
 
     case A_VOLUME_SYNC:
       // Send the current volume levels.
-      sendDataS.d[0] = i_volume_master_percentage;
-      sendDataS.d[1] = i_volume_effects_percentage;
-      sendDataS.d[2] = i_volume_music_percentage;
+      sendDataA.d[0] = i_volume_master_percentage;
+      sendDataA.d[1] = i_volume_effects_percentage;
+      sendDataA.d[2] = i_volume_music_percentage;
 
-      i_send_size = attenuatorComs.txObj(sendDataS);
+      i_send_size = attenuatorComs.txObj(sendDataA);
       attenuatorComs.sendData(i_send_size, (uint8_t) PACKET_DATA);
     break;
 
@@ -437,7 +439,7 @@ void packSerialSendData(uint8_t i_message) {
 
   sendDataW.s = P_COM_START;
   sendDataW.m = i_message;
-  sendDataW.s = P_COM_END;
+  sendDataW.e = P_COM_END;
 
   // Set all elements of the data array to 0
   memset(sendDataW.d, 0, sizeof(sendDataW.d));
@@ -769,21 +771,21 @@ void checkAttenuator() {
       // Determine the type of packet which was sent by the Attenuator.
       switch(i_packet_id) {
         case PACKET_COMMAND:
-          attenuatorComs.rxObj(recvCmdS);
-          if(recvCmdS.c > 0 && recvCmdS.s == A_COM_START && recvCmdS.e == A_COM_END) {
+          attenuatorComs.rxObj(recvCmdA);
+          if(recvCmdA.c > 0 && recvCmdA.s == A_COM_START && recvCmdA.e == A_COM_END) {
             debug(F("Recv. Attenuator Command: "));
-            debugln(recvCmdS.c);
+            debugln(recvCmdA.c);
 
             if(!b_attenuator_connected) {
-              // Can't proceed if the wand isn't connected; prevents phantom actions from occurring.
-              if(recvCmdS.c != A_SYNC_START && recvCmdS.c != A_HANDSHAKE && recvCmdS.c != A_SYNC_END) {
+              // Can't proceed if the Attenuator isn't connected; prevents phantom actions from occurring.
+              if(recvCmdA.c != A_SYNC_START && recvCmdA.c != A_HANDSHAKE && recvCmdA.c != A_SYNC_END) {
                 // This applies for any action other than those responsible for sync operations.
                 return;
               }
             }
 
             // Pass through to the true API command handler.
-            executeCommand(recvCmdS.c, recvCmdS.d1);
+            executeCommand(recvCmdA.c, recvCmdA.d1);
           }
         break;
 
@@ -793,10 +795,10 @@ void checkAttenuator() {
             return;
           }
 
-          attenuatorComs.rxObj(recvDataS);
-          if(recvDataS.m > 0 && recvDataS.s == A_COM_START && recvDataS.e == A_COM_END) {
+          attenuatorComs.rxObj(recvDataA);
+          if(recvDataA.m > 0 && recvDataA.s == A_COM_START && recvDataA.e == A_COM_END) {
             debug(F("Recv. Attenuator Message: "));
-            debugln(recvDataS.m);
+            debugln(recvDataA.m);
             // No handlers at this time.
           }
         break;
@@ -872,6 +874,7 @@ void doAttenuatorSync() {
   attenuatorSyncData.wandPresent = b_wand_connected ? 1 : 0;
   attenuatorSyncData.barrelExtended = (BARREL_STATE == BARREL_EXTENDED) ? 1 : 0;
   attenuatorSyncData.wandFiring = b_wand_firing ? 1 : 0;
+  attenuatorSyncData.streamFlags = STREAM_MODE_FLAG;
 
   switch(SYSTEM_YEAR) {
     case SYSTEM_1984:
@@ -1289,6 +1292,14 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       // Tell the Attenuator that the Neutrona Wand barrel is retracted.
       attenuatorSerialSend(A_BARREL_RETRACTED);
+    break;
+
+    case W_STREAM_FLAGS:
+      // Update our STREAM_MODE_FLAG variable with the new one from the wand.
+      STREAM_MODE_FLAG = (uint8_t)i_value;
+
+      // Tell the Attenuator that the Neutrona Wand has updated its stream flags.
+      attenuatorSerialSend(A_STREAM_FLAGS, STREAM_MODE_FLAG);
     break;
 
     case W_BARGRAPH_OVERHEAT_BLINK_ENABLED:

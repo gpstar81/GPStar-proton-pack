@@ -479,7 +479,7 @@ String getPackConfig() {
     jsonBody["prefsAvailable"] = b_received_prefs_pack;
 
     // Use the device-reported values so we can fine-tune the UI options.
-    jsonBody["esp32Pack"] = (packConfig.isESP32 == 1);
+    jsonBody["esp32Pack"] = b_esp32_pack;
     jsonBody["resetWifiPassword"] = false;
     jsonBody["gpstarAudio"] = (i_pack_audio_version > 1);
 
@@ -546,7 +546,7 @@ String getWandConfig() {
     jsonBody["prefsAvailable"] = b_received_prefs_wand;
 
     // Use the device-reported values so we can fine-tune the UI options.
-    jsonBody["esp32Wand"] = (wandConfig.isESP32 == 1);
+    jsonBody["esp32Wand"] = b_esp32_pack;
     jsonBody["gpstarAudio"] = (i_wand_audio_version > 1);
 
     // Return current powered state for pack and wand.

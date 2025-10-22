@@ -42,7 +42,7 @@ void updateCRCEEPROM();
 uint32_t getCRCEEPROM(void);
 uint32_t eepromCRC(void);
 void bargraphYearModeUpdate();
-void resetOverheatLevels();
+void updateOverheatLevels();
 void resetWhiteLEDBlinkRate();
 
 /*
@@ -426,7 +426,7 @@ void readEEPROM() {
     }
 
     // Rebuild the overheat enabled power levels.
-    resetOverheatLevels();
+    updateOverheatLevels();
 
     // Reset the blinking white LED interval.
     resetWhiteLEDBlinkRate();

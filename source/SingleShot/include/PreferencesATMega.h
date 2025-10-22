@@ -39,7 +39,7 @@ void clearConfigEEPROM();
 void saveConfigEEPROM();
 void updateCRCEEPROM();
 uint32_t eepromCRC(void);
-void resetOverheatLevels();
+void updateOverheatLevels();
 
 /*
  * General EEPROM Variables

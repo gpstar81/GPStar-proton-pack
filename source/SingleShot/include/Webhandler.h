@@ -27,7 +27,7 @@
 #include "web/Device.h" // DEVICE_page
 #include "web/ExtWiFi.h" // NETWORK_page
 #include "web/Password.h" // PASSWORD_page
-#include "web/WandSettings.h" // WAND_SETTINGS_page
+#include "web/BlasterSettings.h" // BLASTER_SETTINGS_page
 #include "web/Style.h" // STYLE_page
 #include "web/Icon.h" // FAVICON_ico, FAVICON_svg
 #include "web/Geometry.h" // GEOMETRY_json
@@ -94,30 +94,35 @@ String getSensorState() {
  * API Helper Structures/Functions
  */
 
-struct __attribute__((packed)) WandPrefs {
+struct __attribute__((packed)) BlasterPrefs {
   uint8_t isESP32;
   uint8_t autoVentLight;
   uint8_t deviceBootError;
-  uint8_t invertWandBargraph;
-} wandConfig;
+  uint8_t invertBlasterBargraph;
+} blasterConfig;
 
-// Common helper function to populate the wandConfig object with global variables.
-void getWandPrefsObject() {
-  sendDebug(F("Getting Wand Preferences"));
+// Common helper function to populate the blasterConfig object with global variables.
+void getBlasterPrefsObject() {
+  sendDebug(F("Getting Blaster Preferences"));
 
-  wandConfig.isESP32 = 1;
-  wandConfig.autoVentLight = b_vent_light_control ? 1 : 0;
-  wandConfig.deviceBootError = b_device_boot_errors ? 1 : 0;
-  wandConfig.invertWandBargraph = b_bargraph_invert ? 1 : 0;
+#ifdef ESP32
+  blasterConfig.isESP32 = 1;
+#else
+  blasterConfig.isESP32 = 0;
+#endif
+
+  blasterConfig.autoVentLight = b_vent_light_control ? 1 : 0;
+  blasterConfig.deviceBootError = b_device_boot_errors ? 1 : 0;
+  blasterConfig.invertBlasterBargraph = b_bargraph_invert ? 1 : 0;
 }
 
-// Perform update of the wand preferences based on the current configuration object.
-void handleWandPrefsUpdate() {
-  sendDebug(F("Saving Wand Preferences"));
+// Perform update of the blaster preferences based on the current configuration object.
+void handleBlasterPrefsUpdate() {
+  sendDebug(F("Saving Blaster Preferences"));
 
-  b_vent_light_control = (wandConfig.autoVentLight == 1);
-  b_device_boot_errors = (wandConfig.deviceBootError == 1);
-  b_bargraph_invert = (wandConfig.invertWandBargraph == 1);
+  b_vent_light_control = (blasterConfig.autoVentLight == 1);
+  b_device_boot_errors = (blasterConfig.deviceBootError == 1);
+  b_bargraph_invert = (blasterConfig.invertBlasterBargraph == 1);
 
   // Offer some feedback to the user
   stopEffect(S_BEEPS);
@@ -285,10 +290,10 @@ void handleDeviceSettings(AsyncWebServerRequest *request) {
   request->send(response); // Serve page content.
 }
 
-void handleWandSettings(AsyncWebServerRequest *request) {
+void handleBlasterSettings(AsyncWebServerRequest *request) {
   // Used for the settings page from the web server.
-  debug("Sending -> Wand Settings HTML");
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)WAND_SETTINGS_page, strlen(WAND_SETTINGS_page));
+  debug("Sending -> Blaster Settings HTML");
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)BLASTER_SETTINGS_page, strlen(BLASTER_SETTINGS_page));
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   request->send(response); // Serve page content.
 }
@@ -448,7 +453,7 @@ String getDeviceConfig() {
   return equipSettings;
 }
 
-String getWandConfig() {
+String getBlasterConfig() {
   // Prepare a JSON object with information we have gleaned from the system.
   String equipSettings;
   jsonBody.clear();
@@ -456,13 +461,13 @@ String getWandConfig() {
   // Provide a flag to indicate prefs are directly available.
   jsonBody["prefsAvailable"] = true; // Always true for the immediate device.
 
-  // Return current powered state for pack and wand.
-  jsonBody["wandPowered"] = (DEVICE_STATUS == MODE_ON);
+  // Return current powered state for pack and blaster.
+  jsonBody["blasterPowered"] = (DEVICE_STATUS == MODE_ON);
 
-  // Neutrona Wand Runtime Options
-  jsonBody["autoVentLight"] = wandConfig.autoVentLight; // true|false
-  jsonBody["deviceBootError"] = wandConfig.deviceBootError; // true|false (Super-Hero Mode Only)
-  jsonBody["invertWandBargraph"] = wandConfig.invertWandBargraph; // true|false
+  // Neutrona Blaster Runtime Options
+  jsonBody["autoVentLight"] = blasterConfig.autoVentLight; // true|false
+  jsonBody["deviceBootError"] = blasterConfig.deviceBootError; // true|false (Super-Hero Mode Only)
+  jsonBody["invertBlasterBargraph"] = blasterConfig.invertBlasterBargraph; // true|false
 
   // Serialize JSON object to string.
   serializeJson(jsonBody, equipSettings);
@@ -483,7 +488,7 @@ String getEquipmentStatus() {
   }
 
   jsonBody["power"] = getPower();
-  jsonBody["wandPower"] = (DEVICE_STATUS == MODE_ON ? "Powered" : "Idle");
+  jsonBody["blasterPower"] = (DEVICE_STATUS == MODE_ON ? "Powered" : "Idle");
   jsonBody["firing"] = (b_firing ? "Firing" : "Idle");
   jsonBody["musicPlaying"] = b_playing_music;
   jsonBody["musicPaused"] = b_music_paused;
@@ -670,10 +675,10 @@ void handleGetDeviceConfig(AsyncWebServerRequest *request) {
   sendCalibrationData(false); // Send calibration data if enabled.
 }
 
-void handleGetWandConfig(AsyncWebServerRequest *request) {
-  // Return current wand settings as a stringified JSON object.
-  getWandPrefsObject(); // Call common function (also used by Pack/Attenuator)
-  request->send(200, "application/json", getWandConfig());
+void handleGetBlasterConfig(AsyncWebServerRequest *request) {
+  // Return current blaster settings as a stringified JSON object.
+  getBlasterPrefsObject(); // Call common function (also used by Pack/Attenuator)
+  request->send(200, "application/json", getBlasterConfig());
 }
 
 void handleGetStatus(AsyncWebServerRequest *request) {
@@ -927,8 +932,8 @@ void handleSelectMusicTrack(AsyncWebServerRequest *request) {
   notifyWSClients();
 }
 
-void handleSaveWandEEPROM(AsyncWebServerRequest *request) {
-  debugln("Web: Save Wand EEPROM");
+void handleSaveBlasterEEPROM(AsyncWebServerRequest *request) {
+  debugln("Web: Save Blaster EEPROM");
   saveConfigEEPROM();
   stopEffect(S_VOICE_EEPROM_SAVE);
   playEffect(S_VOICE_EEPROM_SAVE);
@@ -1095,8 +1100,8 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
   }
 });
 
-// Handles the JSON body for the wand settings save request.
-AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHandler("/config/wand/save", [](AsyncWebServerRequest *request, JsonVariant &json) {
+// Handles the JSON body for the blaster settings save request.
+AsyncCallbackJsonWebHandler *handleSaveBlasterConfig = new AsyncCallbackJsonWebHandler("/config/blaster/save", [](AsyncWebServerRequest *request, JsonVariant &json) {
   jsonBody.clear();
   if(json.is<JsonObject>()) {
     jsonBody = json.as<JsonObject>();
@@ -1108,14 +1113,14 @@ AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHand
   String result;
   if(DEVICE_STATUS == MODE_OFF) {
     try {
-      wandConfig.autoVentLight = jsonBody["autoVentLight"].as<uint8_t>();
-      wandConfig.deviceBootError = jsonBody["deviceBootError"].as<uint8_t>();
-      wandConfig.invertWandBargraph = jsonBody["invertWandBargraph"].as<uint8_t>();
+      blasterConfig.autoVentLight = jsonBody["autoVentLight"].as<uint8_t>();
+      blasterConfig.deviceBootError = jsonBody["deviceBootError"].as<uint8_t>();
+      blasterConfig.invertBlasterBargraph = jsonBody["invertBlasterBargraph"].as<uint8_t>();
 
       jsonBody.clear();
       jsonBody["status"] = "Settings updated, please test before saving to EEPROM.";
       serializeJson(jsonBody, result); // Serialize to string.
-      handleWandPrefsUpdate(); // Have the wand pass the new settings.
+      handleBlasterPrefsUpdate(); // Have the blaster pass the new settings.
       request->send(200, "application/json", result);
     }
     catch (...) {
@@ -1128,7 +1133,7 @@ AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHand
   else {
     // Tell the user why the requested action failed.
     jsonBody.clear();
-    jsonBody["status"] = "Pack and/or Wand are running, save action cancelled";
+    jsonBody["status"] = "Single Shot Blaster is running, save action cancelled";
     serializeJson(jsonBody, result); // Serialize to string.
     request->send(200, "application/json", result);
   }
@@ -1323,7 +1328,7 @@ void setupRouting() {
   httpServer.on("/network", HTTP_GET, handleNetwork);
   httpServer.on("/password", HTTP_GET, handlePassword);
   httpServer.on("/settings/device", HTTP_GET, handleDeviceSettings);
-  httpServer.on("/settings/wand", HTTP_GET, handleWandSettings);
+  httpServer.on("/settings/blaster", HTTP_GET, handleBlasterSettings);
   httpServer.on("/style.css", HTTP_GET, handleStylesheet);
   httpServer.on("/geometry.json", HTTP_GET, handleGeometry);
   httpServer.on("/three.js", HTTP_GET, handleThreeJS);
@@ -1331,8 +1336,8 @@ void setupRouting() {
 
   // Get/Set Handlers
   httpServer.on("/config/device", HTTP_GET, handleGetDeviceConfig);
-  httpServer.on("/config/wand", HTTP_GET, handleGetWandConfig);
-  httpServer.on("/eeprom/wand", HTTP_PUT, handleSaveWandEEPROM);
+  httpServer.on("/config/blaster", HTTP_GET, handleGetBlasterConfig);
+  httpServer.on("/eeprom/blaster", HTTP_PUT, handleSaveBlasterEEPROM);
   httpServer.on("/status", HTTP_GET, handleGetStatus);
   httpServer.on("/restart", HTTP_DELETE, handleRestart);
   httpServer.on("/volume/mute", HTTP_PUT, handleToggleMute);
@@ -1358,7 +1363,7 @@ void setupRouting() {
 
   // Body Handlers
   httpServer.addHandler(handleSaveDeviceConfig); // /config/device/save
-  httpServer.addHandler(handleSaveWandConfig); // /config/wand/save
+  httpServer.addHandler(handleSaveBlasterConfig); // /config/blaster/save
   httpServer.addHandler(passwordChangeHandler); // /password/update
   httpServer.addHandler(wifiChangeHandler); // /wifi/update
 }

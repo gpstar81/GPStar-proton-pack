@@ -142,8 +142,8 @@ const char INDEX_page[] PROGMEM = R"=====(
         <details>
           <summary><b>Magnetic Calibration</b></summary>
           Magnetic calibration is critical to obtaining a correct reading from sensors and must be performed only AFTER all
-          components have been fully installed in your Single Shot Blasater, and you have selected the appropriate Controller
-          Installation Orientation for your wand, as set via the <a href="/settings/device">Special Device Settings</a> page.
+          components have been fully installed in your Single Shot Blaster, and you have selected the appropriate Controller
+          Installation Orientation for your blaster, as set via the <a href="/settings/device">Special Device Settings</a> page.
           <ol style="padding-left:20px;">
             <li>Press <b>"Start Calibration"</b> to begin.</li>
             <li>Raise and lower your Single Shot Blasater <b>slowly</b> while turning 360&deg; to collect calibration data.</li>
@@ -216,7 +216,7 @@ const char INDEX_page[] PROGMEM = R"=====(
       <a href="/settings/device">Special Device Settings</a>
       <br/>
       <br/>
-      <a href="/settings/wand">Single Shot Blaster Settings</a>
+      <a href="/settings/blaster">Single Shot Blaster Settings</a>
       <br/>
       <br/>
       <hr/>

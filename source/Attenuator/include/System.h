@@ -54,10 +54,10 @@ void printPartitions() {
 }
 
 /*
- * Prevent stream mode change if wand is firing or in an error state.
+ * Prevent stream mode change if wand is firing, in an error state, or VG modes are disabled.
  */
 bool canChangeStreamMode() {
-  if(b_wand_firing || b_overheating || b_pack_alarm || b_pack_shutting_down) {
+  if(b_wand_firing || b_overheating || b_pack_alarm || b_pack_shutting_down || !(STREAM_MODE_FLAG & FLAG_VG)) {
     return false;
   }
   return true;
@@ -73,31 +73,65 @@ void changeStreamMode(STREAM_MODES new_mode) {
   }
 
   // Continue to change the stream mode.
-  // @TODO: Add checks for the VG and spectral modes being available.
   switch(new_mode) {
     case PROTON:
       attenuatorSerialSend(A_PROTON_MODE);
     break;
     case STASIS:
-      attenuatorSerialSend(A_STASIS_MODE);
+      if(!!(STREAM_MODE_FLAG & FLAG_VG)) {
+        attenuatorSerialSend(A_STASIS_MODE);
+      }
+      else {
+        debugln("VG modes not enabled, cannot switch to Stasis.");
+      }
     break;
     case SLIME:
-      attenuatorSerialSend(A_SLIME_MODE);
+      if(!!(STREAM_MODE_FLAG & FLAG_VG)) {
+        attenuatorSerialSend(A_SLIME_MODE);
+      }
+      else {
+        debugln("VG modes not enabled, cannot switch to Slime.");
+      }
     break;
     case MESON:
-      attenuatorSerialSend(A_MESON_MODE);
+      if(!!(STREAM_MODE_FLAG & FLAG_VG)) {
+        attenuatorSerialSend(A_MESON_MODE);
+      }
+      else {
+        debugln("VG modes not enabled, cannot switch to Meson.");
+      }
     break;
     case SPECTRAL:
-      attenuatorSerialSend(A_SPECTRAL_MODE);
+      if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL)) {
+        attenuatorSerialSend(A_SPECTRAL_MODE);
+      }
+      else {
+        debugln("Spectral mode not enabled, cannot switch to Spectral.");
+      }
     break;
     case HOLIDAY_HALLOWEEN:
-      attenuatorSerialSend(A_HALLOWEEN_MODE);
+      if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_HALLOWEEN)) {
+        attenuatorSerialSend(A_HALLOWEEN_MODE);
+      }
+      else {
+        debugln("Halloween mode not enabled, cannot switch to Halloween.");
+      }
     break;
     case HOLIDAY_CHRISTMAS:
-      attenuatorSerialSend(A_CHRISTMAS_MODE);
+      if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_CHRISTMAS)) {
+        attenuatorSerialSend(A_CHRISTMAS_MODE);
+      }
+      else {
+        debugln("Christmas mode not enabled, cannot switch to Christmas.");
+      }
     break;
     case SPECTRAL_CUSTOM:
-      attenuatorSerialSend(A_SPECTRAL_CUSTOM_MODE);
+      if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
+        attenuatorSerialSend(A_SPECTRAL_CUSTOM_MODE);
+      }
+      else {
+        debugln("Spectral Custom mode not enabled, cannot switch to Spectral Custom.");
+      }
     break;
     default:
       debugln("Invalid Stream Mode");
@@ -492,35 +526,74 @@ void checkRotaryEncoder() {
               if(canChangeStreamMode()) {
                 switch(STREAM_MODE) {
                   case PROTON:
-                    changeStreamMode(SPECTRAL_CUSTOM);
-                  break;
-                  case STASIS:
-                    changeStreamMode(PROTON);
-                  break;
-                  case SLIME:
                     changeStreamMode(STASIS);
                   break;
-                  case MESON:
+                  case STASIS:
                     changeStreamMode(SLIME);
                   break;
-                  case SPECTRAL:
+                  case SLIME:
                     changeStreamMode(MESON);
                   break;
+                  case MESON:
+                    if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL)) {
+                      changeStreamMode(SPECTRAL);
+                    }
+                    else if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_HALLOWEEN)) {
+                      changeStreamMode(HOLIDAY_HALLOWEEN);
+                    }
+                    else if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_CHRISTMAS)) {
+                      changeStreamMode(HOLIDAY_CHRISTMAS);
+                    }
+                    else if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
+                      changeStreamMode(SPECTRAL_CUSTOM);
+                    }
+                    else {
+                      changeStreamMode(PROTON);
+                    }
+                  break;
+                  case SPECTRAL:
+                    if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_HALLOWEEN)) {
+                      changeStreamMode(HOLIDAY_HALLOWEEN);
+                    }
+                    else if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_CHRISTMAS)) {
+                      changeStreamMode(HOLIDAY_CHRISTMAS);
+                    }
+                    else if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
+                      changeStreamMode(SPECTRAL_CUSTOM);
+                    }
+                    else {
+                      changeStreamMode(PROTON);
+                    }
+                  break;
                   case HOLIDAY_HALLOWEEN:
-                    changeStreamMode(SPECTRAL);
+                    if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_CHRISTMAS)) {
+                      changeStreamMode(HOLIDAY_CHRISTMAS);
+                    }
+                    else if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
+                      changeStreamMode(SPECTRAL_CUSTOM);
+                    }
+                    else {
+                      changeStreamMode(PROTON);
+                    }
                   break;
                   case HOLIDAY_CHRISTMAS:
-                    changeStreamMode(HOLIDAY_HALLOWEEN);
+                    if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
+                      changeStreamMode(SPECTRAL_CUSTOM);
+                    }
+                    else {
+                      changeStreamMode(PROTON);
+                    }
                   break;
                   case SPECTRAL_CUSTOM:
-                    changeStreamMode(HOLIDAY_CHRISTMAS);
+                    changeStreamMode(PROTON);
                   break;
                   default:
-                    debugln("Invalid Stream Mode");
+                    debugln("Invalid Stream Mode; reverting to Proton");
+                    changeStreamMode(PROTON);
                   break;
                 }
               }
-              debug("Rotary: Previous Stream Mode");
+              debug("Rotary: Next Stream Mode");
             break;
           }
         }
@@ -562,35 +635,74 @@ void checkRotaryEncoder() {
               if(canChangeStreamMode()) {
                 switch(STREAM_MODE) {
                   case PROTON:
-                    changeStreamMode(STASIS);
+                    if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
+                      changeStreamMode(SPECTRAL_CUSTOM);
+                    }
+                    else if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_CHRISTMAS)) {
+                      changeStreamMode(HOLIDAY_CHRISTMAS);
+                    }
+                    else if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_HALLOWEEN)) {
+                      changeStreamMode(HOLIDAY_HALLOWEEN);
+                    }
+                    else if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL)) {
+                      changeStreamMode(SPECTRAL);
+                    }
+                    else {
+                      changeStreamMode(MESON);
+                    }
                   break;
                   case STASIS:
-                    changeStreamMode(SLIME);
-                  break;
-                  case SLIME:
-                    changeStreamMode(MESON);
-                  break;
-                  case MESON:
-                    changeStreamMode(SPECTRAL);
-                  break;
-                  case SPECTRAL:
-                    changeStreamMode(HOLIDAY_HALLOWEEN);
-                  break;
-                  case HOLIDAY_HALLOWEEN:
-                    changeStreamMode(HOLIDAY_CHRISTMAS);
-                  break;
-                  case HOLIDAY_CHRISTMAS:
-                    changeStreamMode(SPECTRAL_CUSTOM);
-                  break;
-                  case SPECTRAL_CUSTOM:
                     changeStreamMode(PROTON);
                   break;
+                  case SLIME:
+                    changeStreamMode(STASIS);
+                  break;
+                  case MESON:
+                    changeStreamMode(SLIME);
+                  break;
+                  case SPECTRAL:
+                    changeStreamMode(MESON);
+                  break;
+                  case HOLIDAY_HALLOWEEN:
+                    if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL)) {
+                      changeStreamMode(SPECTRAL);
+                    }
+                    else {
+                      changeStreamMode(MESON);
+                    }
+                  break;
+                  case HOLIDAY_CHRISTMAS:
+                    if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_HALLOWEEN)) {
+                      changeStreamMode(HOLIDAY_HALLOWEEN);
+                    }
+                    else if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL)) {
+                      changeStreamMode(SPECTRAL);
+                    }
+                    else {
+                      changeStreamMode(MESON);
+                    }
+                  break;
+                  case SPECTRAL_CUSTOM:
+                    if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_CHRISTMAS)) {
+                      changeStreamMode(HOLIDAY_CHRISTMAS);
+                    }
+                    else if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_HALLOWEEN)) {
+                      changeStreamMode(HOLIDAY_HALLOWEEN);
+                    }
+                    else if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL)) {
+                      changeStreamMode(SPECTRAL);
+                    }
+                    else {
+                      changeStreamMode(MESON);
+                    }
+                  break;
                   default:
-                    debugln("Invalid Stream Mode");
+                    debugln("Invalid Stream Mode; reverting to Proton");
+                    changeStreamMode(PROTON);
                   break;
                 }
               }
-              debug("Rotary: Next Stream Mode");
+              debug("Rotary: Previous Stream Mode");
             break;
           }
         }

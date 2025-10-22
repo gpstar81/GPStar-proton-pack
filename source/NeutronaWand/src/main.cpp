@@ -316,6 +316,9 @@ void setup() {
   // Check if we should be in video game mode or not.
   vgModeCheck();
 
+  // Update our STREAM_MODE_FLAG variable for reporting upstream.
+  updateStreamFlags();
+
   // Setup the bargraph.
   bargraphYearModeUpdate();
 

@@ -70,7 +70,7 @@ void attenuatorSerialSendData(uint8_t i_message) {
 
   sendData.s = A_COM_START;
   sendData.m = i_message;
-  sendData.s = A_COM_END;
+  sendData.e = A_COM_END;
 
   // Set all elements of the data array to 0
   memset(sendData.d, 0, sizeof(sendData.d));
@@ -307,6 +307,7 @@ bool checkPack() {
           b_pack_on = attenuatorSyncData.packOn == 1;
           b_wand_firing = attenuatorSyncData.wandFiring == 1;
           b_overheating = attenuatorSyncData.overheatingNow == 1;
+          STREAM_MODE_FLAG = attenuatorSyncData.streamFlags;
           i_cyclotron_multiplier = attenuatorSyncData.speedMultiplier;
           i_spectral_custom_colour = attenuatorSyncData.spectralColour;
           i_spectral_custom_saturation = attenuatorSyncData.spectralSaturation;
@@ -819,12 +820,14 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       debug("Cyclotron Lid On...");
 
       b_cyclotron_lid_on = true;
+      b_state_changed = true;
     break;
 
     case A_CYCLOTRON_LID_OFF:
       debug("Cyclotron Lid Off...");
 
       b_cyclotron_lid_on = false;
+      b_state_changed = true;
     break;
 
     case A_CYCLOTRON_INCREASE_SPEED:
@@ -870,6 +873,12 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
         BARREL_STATE = BARREL_RETRACTED;
         b_state_changed = true;
       }
+    break;
+
+    case A_STREAM_FLAGS:
+      debug("Received new Stream Mode flags");
+
+      STREAM_MODE_FLAG = (uint8_t)i_value;
     break;
 
     case A_BATTERY_VOLTAGE_PACK:

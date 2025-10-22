@@ -26,6 +26,15 @@
  * Every struct uses packed data and each preference is stored as a single byte value,
  * though some values are sent as double-byte on rare occasion. Only ATMega and ESP32
  * are used and both are little-endian so no declaration of byte-order is provided.
+ *
+ * Note that SerialTransfer encapsulates all data packets with a 4-byte preamble and
+ * a 2-byte postamble, adding 6 bytes of overhead to any transfer.
+ *
+ * Additionally, at 9600 baud it takes roughly 1 millisecond to transfer 1 byte of
+ * data. By default, SerialTransfer considers a packet 'stale' after 50 milliseconds.
+ * The exception is the Proton Pack to Attenuator connection, which doubles this to
+ * 100 milliseconds. Thus it is important to keep the size of any payload plus
+ * overhead to less than this timeout length in bytes.
  */
 
 // Types of packets to be sent via serial communication.
@@ -57,7 +66,6 @@ struct __attribute__((packed)) MessagePacket {
 
 // Preferences for the Proton Pack device.
 struct __attribute__((packed)) PackPrefs {
-  uint8_t isESP32;
   uint8_t defaultSystemModePack;
   uint8_t defaultYearThemePack;
   uint8_t currentYearThemePack;
@@ -98,11 +106,10 @@ struct __attribute__((packed)) PackPrefs {
 } packConfig;
 
 // Output a compiler message if the final struct exceeds a specific size needed for SerialTransfer.
-static_assert(sizeof(packConfig) <= 40, "WARNING: PackConfig has grown too large (>40 bytes)");
+static_assert(sizeof(packConfig) < 85, "WARNING: PackConfig has grown too large (>84 bytes)");
 
 // Preferences for the Neutrona Wand device.
 struct __attribute__((packed)) WandPrefs {
-  uint8_t isESP32;
   uint8_t ledWandCount;
   uint8_t ledWandHue;
   uint8_t ledWandSat;
@@ -130,7 +137,7 @@ struct __attribute__((packed)) WandPrefs {
 } wandConfig;
 
 // Output a compiler message if the final struct exceeds a specific size needed for SerialTransfer.
-static_assert(sizeof(wandConfig) <= 40, "WARNING: WandPrefs has grown too large (>40 bytes)");
+static_assert(sizeof(wandConfig) < 35, "WARNING: WandPrefs has grown too large (>34 bytes)");
 
 // Preferences for smoke/overheat behavior.
 struct __attribute__((packed)) SmokePrefs {
@@ -160,7 +167,7 @@ struct __attribute__((packed)) SmokePrefs {
 } smokeConfig;
 
 // Output a compiler message if the final struct exceeds a specific size needed for SerialTransfer.
-static_assert(sizeof(smokeConfig) <= 40, "WARNING: SmokePrefs has grown too large (>40 bytes)");
+static_assert(sizeof(smokeConfig) < 35, "WARNING: SmokePrefs has grown too large (>34 bytes)");
 
 // Data for synchronizing the Neutrona Wand.
 struct __attribute__((packed)) WandSyncData {
@@ -179,7 +186,7 @@ struct __attribute__((packed)) WandSyncData {
 } wandSyncData;
 
 // Output a compiler message if the final struct exceeds a specific size needed for SerialTransfer.
-static_assert(sizeof(wandSyncData) <= 40, "WARNING: WandSyncData has grown too large (>40 bytes)");
+static_assert(sizeof(wandSyncData) < 35, "WARNING: WandSyncData has grown too large (>34 bytes)");
 
 // Data for synchronizing the Attenuator.
 struct __attribute__((packed)) AttenuatorSyncData {
@@ -190,6 +197,7 @@ struct __attribute__((packed)) AttenuatorSyncData {
   uint8_t packOn;
   uint8_t powerLevel;
   uint8_t streamMode;
+  uint8_t streamFlags;
   uint8_t wandPresent;
   uint8_t barrelExtended;
   uint8_t wandFiring;
@@ -212,7 +220,7 @@ struct __attribute__((packed)) AttenuatorSyncData {
 } attenuatorSyncData;
 
 // Output a compiler message if the final struct exceeds a specific size needed for SerialTransfer.
-static_assert(sizeof(attenuatorSyncData) <= 40, "WARNING: AttenuatorSyncData has grown too large (>40 bytes)");
+static_assert(sizeof(attenuatorSyncData) < 85, "WARNING: AttenuatorSyncData has grown too large (>84 bytes)");
 
 /*
  * These enum definitions must be kept in sync across the devices they communicate with, using the same dataype and ordering.
@@ -359,6 +367,7 @@ enum WAND_MESSAGE : uint8_t {
   W_FIRING,
   W_FIRING_STOPPED,
   W_BUTTON_MASHING,
+  W_STREAM_FLAGS,
   W_PROTON_MODE,
   W_SLIME_MODE,
   W_STASIS_MODE,
@@ -602,6 +611,7 @@ enum API_MESSAGE : uint8_t {
   A_FIRING_STOPPED,
   A_SYSTEM_LOCKOUT,
   A_CANCEL_LOCKOUT,
+  A_STREAM_FLAGS,
   A_PROTON_MODE,
   A_STASIS_MODE,
   A_SLIME_MODE,

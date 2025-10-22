@@ -908,10 +908,10 @@ function updateuserFeedback(elevationBins, azimuthBins, overallCoverage) {
   // Analyze coverage patterns to provide specific guidance
   if (overallCoverage < 5) {
     // Very low coverage - basic movement guidance
-    statusMessage = "Begin moving the wand in all directions to start calibration...";
+    statusMessage = "Begin moving the blaster in all directions to start calibration...";
   } else if (overallCoverage < 30) {
     // Low coverage - encourage more movement variety
-    statusMessage = "Continue rotating and tilting the wand to increase coverage...";
+    statusMessage = "Continue rotating and tilting the blaster to increase coverage...";
     statusClass += " warning";
   } else if (overallCoverage < 60) {
     // Moderate coverage - analyze specific gaps
@@ -941,9 +941,9 @@ function updateuserFeedback(elevationBins, azimuthBins, overallCoverage) {
     if (!lowElevationCovered && !highElevationCovered) {
       statusMessage = "Coverage density is low for edge elevations - try adding a twist into your movements...";
     } else if (!lowElevationCovered) {
-      statusMessage = "Point the wand downward more - try aiming toward the floor while rotating...";
+      statusMessage = "Point the blaster downward more - try aiming toward the floor while rotating...";
     } else if (!highElevationCovered) {
-      statusMessage = "Point the wand upward more - try aiming toward the ceiling while rotating...";
+      statusMessage = "Point the blaster upward more - try aiming toward the ceiling while rotating...";
     } else {
       statusMessage = "Good distribution! Continue moving for improved coverage density...";
     }
