@@ -196,6 +196,7 @@ void PreferencesTask(void *parameter) {
   if(b_namespace_opened) {
     // Return stored values if available, otherwise use a default value.
     b_invert_leds = preferences.getBool("invert_led", false);
+    b_grb_leds = preferences.getBool("grb_led", false);
     b_enable_buzzer = preferences.getBool("use_buzzer", true);
     b_enable_vibration = preferences.getBool("use_vibration", true);
     b_overheat_feedback = preferences.getBool("use_overheat", true);
@@ -233,6 +234,7 @@ void PreferencesTask(void *parameter) {
     // If namespace is not initialized, open in read/write mode and set defaults.
     if(preferences.begin("device", false)) {
       preferences.putBool("invert_led", b_invert_leds);
+      preferences.putBool("grb_led", b_grb_leds);
       preferences.putBool("use_buzzer", b_enable_buzzer);
       preferences.putBool("use_vibration", b_enable_vibration);
       preferences.putBool("use_overheat", b_overheat_feedback);

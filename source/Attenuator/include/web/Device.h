@@ -61,6 +61,15 @@ const char DEVICE_page[] PROGMEM = R"=====(
       </label>
     </div>
     <div class="setting">
+      <label class="toggle-switchy" data-text="yesno" data-label="left">
+        <input id="grbLEDs" name="grbLEDs" type="checkbox">
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Use GRB for LEDs:</span>
+      </label>
+    </div>
+    <div class="setting">
       <label class="toggle-switchy" data-label="left">
         <input id="buzzer" name="buzzer" type="checkbox">
         <span class="toggle">
@@ -154,6 +163,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
             // Update fields with the current values, or supply an expected default as necessary.
             setValue("wifiName", settings.wifiName || "");
             setToggle("invertLEDs", settings.invertLEDs);
+            setToggle("grbLEDs", settings.grbLEDs);
             setToggle("buzzer", settings.buzzer);
             setToggle("vibration", settings.vibration);
             setToggle("overheat", settings.overheat);
@@ -198,6 +208,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
       var settings = {
         wifiName: wifiName,
         invertLEDs: getToggle("invertLEDs"),
+        grbLEDs: getToggle("grbLEDs"),
         buzzer: getToggle("buzzer"),
         vibration: getToggle("vibration"),
         overheat: getToggle("overheat"),

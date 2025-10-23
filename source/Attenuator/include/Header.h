@@ -36,6 +36,7 @@ CRGB device_leds[DEVICE_NUM_LEDS];
  * This feature will only be available for the ESP32-based controller.
  */
 bool b_invert_leds = false; // Denotes whether the order should be reversed.
+bool b_grb_leds = false; // Denotes whether to use GRB ordering for LEDs.
 uint8_t i_device_led[DEVICE_NUM_LEDS] = {0, 1, 2}; // Default Order
 
 /*

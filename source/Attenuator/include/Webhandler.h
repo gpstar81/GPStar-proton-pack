@@ -445,6 +445,7 @@ String getDeviceConfig() {
 
   // Provide current values for the device.
   jsonBody["invertLEDs"] = b_invert_leds;
+  jsonBody["grbLEDs"] = b_grb_leds;
   jsonBody["buzzer"] = b_enable_buzzer;
   jsonBody["vibration"] = b_enable_vibration;
   jsonBody["overheat"] = b_overheat_feedback;
@@ -1276,6 +1277,11 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
       b_invert_leds = jsonBody["invertLEDs"].as<bool>();
     }
 
+    if(jsonBody["grbLEDs"].is<unsigned short>()) {
+      // Use GRB color values for addressable LEDs.
+      b_grb_leds = jsonBody["grbLEDs"].as<bool>();
+    }
+
     if(jsonBody["buzzer"].is<unsigned short>()) {
       // Enable/disable the buzzer completely.
       b_enable_buzzer = jsonBody["buzzer"].as<bool>();
@@ -1333,6 +1339,7 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
     // Accesses namespace in read/write mode.
     if(preferences.begin("device", false)) {
       preferences.putBool("invert_led", b_invert_leds);
+      preferences.putBool("grb_led", b_grb_leds);
       preferences.putBool("use_buzzer", b_enable_buzzer);
       preferences.putBool("use_vibration", b_enable_vibration);
       preferences.putBool("use_overheat", b_overheat_feedback);

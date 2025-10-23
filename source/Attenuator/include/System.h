@@ -229,7 +229,7 @@ void updateLEDs() {
       // Keep indicator solid.
       ms_top_blink.stop(); // Stop the blink timer which won't be used at this menu level.
       b_top_led_off = false; // Denotes LED is not in an off (blinking) state, but solid.
-      device_leds[i_device_led[0]] = getHueAsRGB(i_device_led[0], i_top_led_colour, i_top_led_brightness);
+      device_leds[i_device_led[0]] = getHueAsRGB(i_device_led[0], i_top_led_colour, i_top_led_brightness, b_grb_leds);
     break;
 
     case MENU_2:
@@ -241,11 +241,11 @@ void updateLEDs() {
 
       if(b_top_led_off) {
         // Not completely dark but very dim (1/10th of the normal brightness).
-        device_leds[i_device_led[0]] = getHueAsRGB(i_device_led[0], i_top_led_colour, int(i_top_led_brightness / 10));
+        device_leds[i_device_led[0]] = getHueAsRGB(i_device_led[0], i_top_led_colour, int(i_top_led_brightness / 10), b_grb_leds);
       }
       else {
         // Return to normal brightness for the current top LED colour.
-        device_leds[i_device_led[0]] = getHueAsRGB(i_device_led[0], i_top_led_colour, i_top_led_brightness);
+        device_leds[i_device_led[0]] = getHueAsRGB(i_device_led[0], i_top_led_colour, i_top_led_brightness, b_grb_leds);
       }
     break;
   }
@@ -253,16 +253,16 @@ void updateLEDs() {
   // Set upper LED based on alarm or overheating state, when connected.
   // Otherwise, use the standard pattern/colour for illumination.
   if(b_pack_alarm || b_overheating) {
-    device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_RED_FADE);
+    device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_RED_FADE, 255, b_grb_leds);
   }
   else {
     switch(RAD_LENS_IDLE) {
       case ORANGE_FADE:
-        device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_ORANGE_FADE);
+        device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_ORANGE_FADE, 255, b_grb_leds);
       break;
       case AMBER_PULSE:
       default:
-        device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_AMBER_PULSE);
+        device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_AMBER_PULSE, 255, b_grb_leds);
       break;
     }
   }
@@ -321,7 +321,7 @@ void updateLEDs() {
     }
   }
   else {
-    device_leds[i_device_led[2]] = getHueAsRGB(i_device_led[2], i_scheme);
+    device_leds[i_device_led[2]] = getHueAsRGB(i_device_led[2], i_scheme, 255, b_grb_leds);
   }
 }
 
