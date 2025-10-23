@@ -29,6 +29,10 @@ Assembly of this device WILL require SOLDERING skills and is considered a DIY ap
 
 The following is a diagram of the **ESP32-Mini pins** from left and right, when oriented with the USB connection facing down (south) AND from the underside, like the pinout diagram above-left. Note that this device has 2 rows of pins so it is best to orient to the view which has the silkscreened labels.
 
+	!! IMPORTANT !!
+	This diagram is based on the dev module recommended in the links above.
+	If your device differs there will likely be position or label changes.
+
 | Connection | ESP32 (R) |     | ESP32 (L) | Connection |
 |------------|-----------|-----|-----------|------------|
 | GND LED -  | GND   TXD |     | RST   GND |            |
