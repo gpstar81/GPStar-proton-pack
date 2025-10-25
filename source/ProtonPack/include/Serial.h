@@ -715,6 +715,7 @@ void handlePackPrefsUpdate() {
   updateProtonPackLEDCounts(); // Must call this after resetting # of LEDs
   resetCyclotronLEDs(); // Update delays based on LED count
   resetRampSpeeds(); // Update delays based on LED count
+  packOffReset(); // Make sure we reset any and all LEDs.
 }
 
 // Send the current wand preferences based on the current configuration object.
@@ -745,7 +746,7 @@ void handleSmokePrefsUpdate() {
   b_smoke_continuous_level_2 = (smokeConfig.overheatContinuous2 == 1);
   b_smoke_continuous_level_1 = (smokeConfig.overheatContinuous1 == 1);
   b_smoke_enabled = (smokeConfig.smokeEnabled == 1);
-  resetContinuousSmoke(); // Set other variables as necessary
+  updateContinuousSmoke(); // Set other variables as necessary
 
   // This will pass values from the smokeConfig object
   packSerialSendData(P_SAVE_PREFERENCES_SMOKE);
@@ -2132,6 +2133,12 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Reset the LED count for the panel and update the LED counts.
       resetInnerCyclotronLEDs(); // Must call this first, prior to updating counts
       updateProtonPackLEDCounts(); // Must call this after resetting # of LEDs
+      packOffReset(); // Reset all active LEDs.
+
+      if(b_spectral_lights_on) {
+        spectralLightsOff();
+        spectralLightsOn();
+      }
     break;
 
     case W_TOGGLE_CYCLOTRON_FADING:
@@ -3795,8 +3802,10 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       updateProtonPackLEDCounts();
 
-      spectralLightsOff();
-      spectralLightsOn();
+      if(b_spectral_lights_on) {
+        spectralLightsOff();
+        spectralLightsOn();
+      }
     break;
 
     case W_TOGGLE_POWERCELL_LEDS:
@@ -3828,8 +3837,10 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       updateProtonPackLEDCounts();
 
-      spectralLightsOff();
-      spectralLightsOn();
+      if(b_spectral_lights_on) {
+        spectralLightsOff();
+        spectralLightsOn();
+      }
     break;
 
     case W_TOGGLE_CYCLOTRON_LEDS:
@@ -3885,8 +3896,10 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       resetCyclotronLEDs();
 
-      spectralLightsOff();
-      spectralLightsOn();
+      if(b_spectral_lights_on) {
+        spectralLightsOff();
+        spectralLightsOn();
+      }
     break;
 
     case W_TOGGLE_RGB_INNER_CYCLOTRON_LEDS:
@@ -4058,7 +4071,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         packSerialSend(P_CONTINUOUS_SMOKE_5_ENABLED);
       }
 
-      resetContinuousSmoke();
+      updateContinuousSmoke();
     break;
 
     case W_CONTINUOUS_SMOKE_TOGGLE_4:
@@ -4081,7 +4094,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         packSerialSend(P_CONTINUOUS_SMOKE_4_ENABLED);
       }
 
-      resetContinuousSmoke();
+      updateContinuousSmoke();
     break;
 
     case W_CONTINUOUS_SMOKE_TOGGLE_3:
@@ -4104,7 +4117,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         packSerialSend(P_CONTINUOUS_SMOKE_3_ENABLED);
       }
 
-      resetContinuousSmoke();
+      updateContinuousSmoke();
     break;
 
     case W_CONTINUOUS_SMOKE_TOGGLE_2:
@@ -4127,7 +4140,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         packSerialSend(P_CONTINUOUS_SMOKE_2_ENABLED);
       }
 
-      resetContinuousSmoke();
+      updateContinuousSmoke();
     break;
 
     case W_CONTINUOUS_SMOKE_TOGGLE_1:
@@ -4150,7 +4163,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         packSerialSend(P_CONTINUOUS_SMOKE_1_ENABLED);
       }
 
-      resetContinuousSmoke();
+      updateContinuousSmoke();
     break;
 
     case W_BARREL_LEDS_2:

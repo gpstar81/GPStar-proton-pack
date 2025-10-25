@@ -32,7 +32,7 @@ uint32_t getCRCEEPROM(void);
 uint32_t eepromCRC(void);
 void resetCyclotronLEDs();
 void resetInnerCyclotronLEDs();
-void resetContinuousSmoke();
+void updateContinuousSmoke();
 void updateProtonPackLEDCounts();
 
 // Include ESP32 Preferences library
@@ -815,7 +815,7 @@ void readEEPROM() {
       }
     }
 
-    resetContinuousSmoke();
+    updateContinuousSmoke();
   }
   else {
     // CRC mismatch; clear preferences

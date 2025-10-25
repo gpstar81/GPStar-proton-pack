@@ -42,7 +42,7 @@ void updateCRCEEPROM();
 uint32_t eepromCRC(void);
 void resetCyclotronLEDs();
 void resetInnerCyclotronLEDs();
-void resetContinuousSmoke();
+void updateContinuousSmoke();
 void updateProtonPackLEDCounts();
 
 /*
@@ -580,7 +580,7 @@ void readEEPROM() {
       }
     }
 
-    resetContinuousSmoke();
+    updateContinuousSmoke();
   }
   else {
     // CRC doesn't match; let's clear the EEPROMs to be safe.

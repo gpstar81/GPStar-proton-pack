@@ -463,7 +463,7 @@ void packAlarm() {
 
 // Returns whether we should be using the slime cyclotron effect or not.
 bool usingSlimeCyclotron() {
-  if(STREAM_MODE == SLIME && b_cyclotron_colour_toggle) {
+  if(STREAM_MODE == SLIME && b_cyclotron_colour_toggle && b_cyclotron_lid_on) {
     if(i_cyclotron_leds == HASLAB_CYCLOTRON_LED_COUNT && !b_cyclotron_haslab_chsv_colour_change) {
       return false;
     }
@@ -773,7 +773,7 @@ void resetCyclotronState() {
   }
 
   // Tell the Inner Cyclotron to turn off the LEDs.
-  if(b_cyclotron_lid_on || (!b_pack_alarm || PACK_STATE == MODE_OFF)) {
+  if(b_cyclotron_lid_on || !b_pack_alarm || PACK_STATE == MODE_OFF) {
     innerCyclotronCakeOff();
     innerCyclotronCavityOff();
   }
@@ -4969,7 +4969,7 @@ void resetCyclotronLEDs() {
   }
 }
 
-void resetContinuousSmoke() {
+void updateContinuousSmoke() {
   b_smoke_continuous_level[0] = b_smoke_continuous_level_1;
   b_smoke_continuous_level[1] = b_smoke_continuous_level_2;
   b_smoke_continuous_level[2] = b_smoke_continuous_level_3;
