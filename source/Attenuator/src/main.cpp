@@ -463,7 +463,7 @@ void setup() {
   encoder_center.setDebounceTime(switch_debounce_time);
 
   // Rotary encoder on the top of the Attenuator.
-  encoder.initialize();
+  encoder.initialize(true); // Uses true to indicate inverted direction.
   ms_rotary_debounce.start(rotary_debounce_time);
 
   // Setup the bargraph after a brief delay.
