@@ -46,7 +46,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
   <h1>General Options</h1>
   <div class="block left">
     <div class="setting">
-      <b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stream/Firing Mode:</b>
+      <b>Stream/Firing Mode:</b>
       <select id="defaultFiringMode" name="defaultFiringMode" style="width:170px">
         <option value="1">Video Game</option>
         <option value="2">CTS</option>
@@ -54,7 +54,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Wand Year Theme:</b>
+      <b>&nbsp;&nbsp;&nbsp;Wand Year Theme:</b>
       <select id="defaultYearModeWand" name="defaultYearModeWand" style="width:170px">
         <option value="1">Via System</option>
         <option value="2">1984</option>
@@ -64,7 +64,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Default CTS Mode:</b>
+      <b>&nbsp;&nbsp;&nbsp;&nbsp;Default CTS Mode:</b>
       <select id="defaultYearModeCTS" name="defaultYearModeCTS" style="width:170px">
         <option value="1">Via System</option>
         <option value="2">1984</option>
@@ -72,7 +72,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Use Vibration:</b>
+      <b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Use Vibration:</b>
       <select id="wandVibration" name="wandVibration" style="width:170px">
         <option value="4">Via Toggle</option>
         <option value="3">Never</option>
@@ -81,18 +81,12 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>Barrel Safety Switch Polarity:</b>
-      <select id="barrelSwitchPolarity" name="barrelSwitchPolarity" style="width:170px">
+      <b>Barrel Safety Switch:</b>
+      <select id="barrelSwitchPolarity" name="barrelSwitchPolarity">
         <option value="1">Default</option>
         <option value="2">Inverted</option>
         <option value="3">Disabled</option>
       </select>
-    </div>
-    <div class="setting">
-      <b>Master Volume % at Startup:</b><br/>
-      <input type="range" id="defaultWandVolume" name="defaultWandVolume" min="5" max="100" value="100" step="5"
-       oninput="masterVolOut.value=defaultWandVolume.value"/>
-      <output class="labelSlider" id="masterVolOut" for="defaultWandVolume"></output>
     </div>
     <div class="setting" id="rgbVentToggle">
       <label class="toggle-switchy" data-label="left">
@@ -140,6 +134,25 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       </label>
     </div>
     <div class="setting">
+      <label class="toggle-switchy" data-label="left">
+        <input id="wandBootError" name="wandBootError" type="checkbox">
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Boot Errors:</span>
+      </label>
+    </div>
+  </div>
+
+  <h1>Audio Options</h1>
+  <div class="block left">
+    <div class="setting">
+      <b>Master Volume % at Startup:</b><br/>
+      <input type="range" id="defaultWandVolume" name="defaultWandVolume" min="5" max="100" value="100" step="5"
+       oninput="masterVolOut.value=defaultWandVolume.value"/>
+      <output class="labelSlider" id="masterVolOut" for="defaultWandVolume"></output>
+    </div>
+    <div class="setting">
       <label class="toggle-switchy" data-text="yesno" data-label="left">
         <input id="wandSoundsToPack" name="wandSoundsToPack" type="checkbox">
         <span class="toggle">
@@ -155,15 +168,6 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
           <span class="switch"></span>
         </span>
         <span class="label">AL/FE Beep Loop:</span>
-      </label>
-    </div>
-    <div class="setting">
-      <label class="toggle-switchy" data-label="left">
-        <input id="wandBootError" name="wandBootError" type="checkbox">
-        <span class="toggle">
-          <span class="switch"></span>
-        </span>
-        <span class="label">Boot Errors:</span>
       </label>
     </div>
     <div class="setting" id="gpstarAudioLedToggle">

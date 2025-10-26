@@ -50,7 +50,11 @@
       "cstdint": "cpp",
       "cmath": "cpp",
       "complex": "cpp",
-      "ostream": "cpp"
+      "ostream": "cpp",
+      "array": "cpp",
+      "span": "cpp",
+      "string_view": "cpp",
+      "vector": "cpp"
     },
     "workbench.editor.enablePreview": false
   }

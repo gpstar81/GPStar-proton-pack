@@ -53,6 +53,15 @@ const char DEVICE_page[] PROGMEM = R"=====(
     </div>
     <div class="setting">
       <label class="toggle-switchy" data-text="yesno" data-label="left">
+        <input id="invertRotation" name="invertRotation" type="checkbox">
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Invert Dial Rotation:</span>
+      </label>
+    </div>
+    <div class="setting">
+      <label class="toggle-switchy" data-text="yesno" data-label="left">
         <input id="invertLEDs" name="invertLEDs" type="checkbox">
         <span class="toggle">
           <span class="switch"></span>
@@ -162,6 +171,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
           if (settings) {
             // Update fields with the current values, or supply an expected default as necessary.
             setValue("wifiName", settings.wifiName || "");
+            setToggle("invertRotation", settings.invertRotation);
             setToggle("invertLEDs", settings.invertLEDs);
             setToggle("grbLEDs", settings.grbLEDs);
             setToggle("buzzer", settings.buzzer);
@@ -207,6 +217,7 @@ const char DEVICE_page[] PROGMEM = R"=====(
       // Saves current settings to attenuator, updating runtime variables and making changes immediately effective.
       var settings = {
         wifiName: wifiName,
+        invertRotation: getToggle("invertRotation"),
         invertLEDs: getToggle("invertLEDs"),
         grbLEDs: getToggle("grbLEDs"),
         buzzer: getToggle("buzzer"),

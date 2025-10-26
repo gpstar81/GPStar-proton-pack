@@ -444,6 +444,7 @@ String getDeviceConfig() {
   jsonBody.clear();
 
   // Provide current values for the device.
+  jsonBody["invertRotation"] = encoder.isRotationInverted();
   jsonBody["invertLEDs"] = b_invert_leds;
   jsonBody["grbLEDs"] = b_grb_leds;
   jsonBody["buzzer"] = b_enable_buzzer;
@@ -1272,6 +1273,12 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
     }
 
     // General Options - Returned as unsigned integers
+    if(jsonBody["invertRotation"].is<unsigned short>()) {
+      // Inverts the rotation of the dial as viewed by the user.
+      bool b_invert_dial = jsonBody["invertRotation"].as<bool>();
+      encoder.setRotationInverted(b_invert_dial);
+    }
+
     if(jsonBody["invertLEDs"].is<unsigned short>()) {
       // Inverts the order of the LEDs as seen by the device.
       b_invert_leds = jsonBody["invertLEDs"].as<bool>();
@@ -1338,6 +1345,7 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
 
     // Accesses namespace in read/write mode.
     if(preferences.begin("device", false)) {
+      preferences.putBool("invert_dial", encoder.isRotationInverted());
       preferences.putBool("invert_led", b_invert_leds);
       preferences.putBool("grb_led", b_grb_leds);
       preferences.putBool("use_buzzer", b_enable_buzzer);

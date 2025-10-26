@@ -169,16 +169,16 @@ StandaloneLED led_Tip = {BARREL_TIP_LED_PIN, HIGH, LOW};
  * Also controls independent music volume while the device is off and if music is playing.
  */
 #ifdef ESP32
-  #define r_encoderA 4
-  #define r_encoderB 5
+  #define ROTARY_ENCODER_A 4
+  #define ROTARY_ENCODER_B 5
 #else
-  #define r_encoderA 6
-  #define r_encoderB 7
+  #define ROTARY_ENCODER_A 6
+  #define ROTARY_ENCODER_B 7
 #endif
 enum ENCODER_STATES : int8_t { ENCODER_IDLE = 0, ENCODER_CW = 1, ENCODER_CCW = -1 };
 struct Encoder {
-  const static uint8_t PinA = r_encoderA;
-  const static uint8_t PinB = r_encoderB;
+  const static uint8_t PinA = ROTARY_ENCODER_A;
+  const static uint8_t PinB = ROTARY_ENCODER_B;
 
   private:
     uint8_t PrevNextCode = 0;

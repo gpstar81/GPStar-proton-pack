@@ -187,19 +187,22 @@ bool b_right_toggle_center_start = false;
  * Debounce Settings
  */
 const uint8_t switch_debounce_time = 50;
-const uint8_t rotary_debounce_time = 50;
 
 /*
  * Rotary encoder for various uses.
  */
-#define r_encoderA 32
-#define r_encoderB 33
-#define r_button 4
-ezButton encoder_center(r_button); // For center-press on encoder dial.
+#define ROTARY_ENCODER_A 33
+#define ROTARY_ENCODER_B 32
+#define ROTARY_SWITCH 4
+ezButton encoder_center(ROTARY_SWITCH); // For center-press on encoder dial.
 enum ENCODER_STATES : int8_t { ENCODER_IDLE = 0, ENCODER_CW = 1, ENCODER_CCW = -1 };
+
+/*
+ * Simple class for the rotary encoder events.
+ */
 struct Encoder {
-  const static uint8_t PinA = r_encoderA;
-  const static uint8_t PinB = r_encoderB;
+  const static uint8_t PinA = ROTARY_ENCODER_A;
+  const static uint8_t PinB = ROTARY_ENCODER_B;
 
   private:
     uint8_t PrevNextCode = 0;
@@ -242,6 +245,13 @@ struct Encoder {
   public:
     enum ENCODER_STATES STATE;
 
+    // Consume the current transient STATE and clear it so the caller receives the event once.
+    ENCODER_STATES consumeState() {
+      ENCODER_STATES s = STATE;
+      STATE = ENCODER_IDLE;
+      return s;
+    }
+
     void initialize(bool inverted = false) {
       // Rotary encoder on the top of the device.
       pinMode(PinA, INPUT_PULLUP);
@@ -249,6 +259,12 @@ struct Encoder {
       STATE = ENCODER_IDLE;
       b_direction_inverted = inverted;
     }
+
+    // Runtime getter for dial direction (false = default, true = inverted).
+    bool isRotationInverted() { return b_direction_inverted; }
+
+    // Runtime setter to invert direction.
+    void setRotationInverted(bool invert) { b_direction_inverted = invert; }
 
     void check() {
       // Read the current encoder value, noting state when adjusted.
@@ -271,7 +287,6 @@ struct Encoder {
     }
 } encoder;
 
-millisDelay ms_rotary_debounce; // Put some timing on the rotary so we do not overload the serial communication buffer.
 millisDelay ms_center_double_tap; // Timer for determinine when a double-tap was detected.
 millisDelay ms_center_long_press; // Timer for determining when a long press was detected.
 bool b_center_pressed = false;

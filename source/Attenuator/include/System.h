@@ -394,14 +394,14 @@ void checkRotaryPress() {
           // A short, single press should start or stop the music.
           attenuatorSerialSend(A_MUSIC_START_STOP);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
-          debug("Rotary: Music Start/Stop");
+          debugln("Rotary: Music Start/Stop");
         break;
 
         case MENU_2:
           // A short, single press should advance to the next track.
           attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
-          debug("Rotary: Next Track");
+          debugln("Rotary: Next Track");
         break;
       }
     break;
@@ -413,14 +413,14 @@ void checkRotaryPress() {
           // A double press should mute the pack and wand.
           attenuatorSerialSend(A_TOGGLE_MUTE);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
-          debug("Rotary: Toggle Mute");
+          debugln("Rotary: Toggle Mute");
         break;
 
         case MENU_2:
           // A double press should move back to the previous track.
           attenuatorSerialSend(A_MUSIC_PREV_TRACK);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
-          debug("Rotary: Previous Track");
+          debugln("Rotary: Previous Track");
         break;
       }
     break;
@@ -431,13 +431,13 @@ void checkRotaryPress() {
       switch(MENU_LEVEL) {
         case MENU_1:
           MENU_LEVEL = MENU_2; // Change menu level.
-          debug("Rotary: Menu 2");
+          debugln("Rotary: Menu 2");
           useVibration(i_vibrate_min_time); // Give a quick nudge.
           buzzOn(784); // Tone as note G4
         break;
         case MENU_2:
           MENU_LEVEL = MENU_1; // Change menu level.
-          debug("Rotary: Menu 1");
+          debugln("Rotary: Menu 1");
           useVibration(i_vibrate_min_time); // Give a quick nudge.
           buzzOn(440); // Tone as note A4
         break;
@@ -458,14 +458,9 @@ void checkRotaryPress() {
 void checkRotaryEncoder() {
   encoder.check();
 
-  if(ms_rotary_debounce.justFinished()) {
-    ms_rotary_debounce.repeat();
-  }
-  else {
-    return;
-  }
-
-  switch(encoder.STATE) {
+  // Consume the last event and handle as necessary. This uses a special method to read and
+  // immediately clear the last encoder STATE value so it won't be lost by scheduling/order.
+  switch(encoder.consumeState()) {
     case ENCODER_CW:
       if(b_wand_firing && i_cyclotron_multiplier > 2) {
         // Do the actual attenuation for the Proton Pack!
@@ -474,7 +469,7 @@ void checkRotaryEncoder() {
         i_rotary_count++;
         if(i_rotary_count % 5 == 0) {
           attenuatorSerialSend(A_WARNING_CANCELLED);
-          debug("Rotary: Overheat Cancelled");
+          debugln("Rotary: Overheat Cancelled");
           i_rotary_count = 0;
         }
       }
@@ -484,17 +479,17 @@ void checkRotaryEncoder() {
           case MENU_1:
             // Tell pack to increase overall volume.
             attenuatorSerialSend(A_VOLUME_INCREASE);
-            debug("Rotary: Master Volume+");
+            debugln("Rotary: Master Volume+");
           break;
 
           case MENU_2:
             // Tell pack to increase effects volume.
             attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_INCREASE);
-            debug("Rotary: Effects Volume+");
+            debugln("Rotary: Effects Volume+");
           break;
 
           case MENU_STREAM:
-            // Change to the next stream mode.
+            // Change to the previous stream mode.
             if(canChangeStreamMode()) {
               switch(STREAM_MODE) {
                 case PROTON:
@@ -565,7 +560,7 @@ void checkRotaryEncoder() {
                 break;
               }
             }
-            debug("Rotary: Next Stream Mode");
+            debugln("Rotary: Previous Stream Mode");
           break;
         }
       }
@@ -579,7 +574,7 @@ void checkRotaryEncoder() {
         i_rotary_count++;
         if(i_rotary_count % 5 == 0) {
           attenuatorSerialSend(A_WARNING_CANCELLED);
-          debug("Rotary: Overheat Cancelled");
+          debugln("Rotary: Overheat Cancelled");
           i_rotary_count = 0;
         }
       }
@@ -589,17 +584,17 @@ void checkRotaryEncoder() {
           case MENU_1:
             // Tell pack to decrease overall volume.
             attenuatorSerialSend(A_VOLUME_DECREASE);
-            debug("Rotary: Master Volume-");
+            debugln("Rotary: Master Volume-");
           break;
 
           case MENU_2:
             // Tell pack to decrease effects volume.
             attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_DECREASE);
-            debug("Rotary: Effects Volume-");
+            debugln("Rotary: Effects Volume-");
           break;
 
           case MENU_STREAM:
-            // Change to the previous stream mode.
+            // Change to the next stream mode.
             if(canChangeStreamMode()) {
               switch(STREAM_MODE) {
                 case PROTON:
@@ -670,7 +665,7 @@ void checkRotaryEncoder() {
                 break;
               }
             }
-            debug("Rotary: Previous Stream Mode");
+            debugln("Rotary: Next Stream Mode");
           break;
         }
       }

@@ -27,7 +27,7 @@
 
 // Set to 1 to enable built-in debug messages via Serial device output.
 // Use with DEBUG_SEND_TO_CONSOLE and other DEBUG_'s in Configuration.h
-#define DEBUG 0
+#define DEBUG 1
 
 // Debug macros
 #if DEBUG == 1
@@ -195,12 +195,20 @@ void PreferencesTask(void *parameter) {
   bool b_namespace_opened = preferences.begin("device", true);
   if(b_namespace_opened) {
     // Return stored values if available, otherwise use a default value.
+    bool b_invert_dial = preferences.getBool("invert_dial", false);
     b_invert_leds = preferences.getBool("invert_led", false);
     b_grb_leds = preferences.getBool("grb_led", false);
     b_enable_buzzer = preferences.getBool("use_buzzer", true);
     b_enable_vibration = preferences.getBool("use_vibration", true);
     b_overheat_feedback = preferences.getBool("use_overheat", true);
     b_firing_feedback = preferences.getBool("fire_feedback", false);
+
+    if (b_invert_dial) {
+      encoder.setRotationInverted(true);
+    }
+    else {
+      encoder.setRotationInverted(false);
+    }
 
     switch(preferences.getShort("radiation_idle", 0)) {
       case 0:
@@ -233,6 +241,7 @@ void PreferencesTask(void *parameter) {
   else {
     // If namespace is not initialized, open in read/write mode and set defaults.
     if(preferences.begin("device", false)) {
+      preferences.putBool("invert_dial", encoder.isRotationInverted());
       preferences.putBool("invert_led", b_invert_leds);
       preferences.putBool("grb_led", b_grb_leds);
       preferences.putBool("use_buzzer", b_enable_buzzer);
@@ -408,6 +417,9 @@ void setup() {
   Serial.begin(115200); // Serial monitor via USB connection.
   delay(1000); // Provide a delay to allow serial output.
 
+  // Suppress INFO logs, show only warnings and errors:
+  esp_log_level_set("*", ESP_LOG_WARN);
+
   // Expect a PackSerial connection with communication to a GPStar Proton Pack PCB.
   PackSerial.begin(9600, SERIAL_8N1, RXD2, TXD2);
   packComs.begin(PackSerial, false, Serial, 100);
@@ -462,10 +474,9 @@ void setup() {
   switch_right.setDebounceTime(switch_debounce_time);
   encoder_center.setDebounceTime(switch_debounce_time);
 
-  // Rotary encoder on the top of the Attenuator.
-  encoder.initialize(true); // Uses true to indicate inverted direction.
-  ms_rotary_debounce.start(rotary_debounce_time);
-
+  // Rotary encoder on the top of the device.
+  encoder.initialize();
+  
   // Setup the bargraph after a brief delay.
   delay(10);
   setupBargraph();
