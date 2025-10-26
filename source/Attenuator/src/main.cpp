@@ -463,9 +463,8 @@ void setup() {
   encoder_center.setDebounceTime(switch_debounce_time);
 
   // Rotary encoder on the top of the Attenuator.
-  pinMode(r_encoderA, INPUT_PULLUP);
-  pinMode(r_encoderB, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(r_encoderA), readEncoder, CHANGE);
+  encoder.initialize();
+  ms_rotary_debounce.start(rotary_debounce_time);
 
   // Setup the bargraph after a brief delay.
   delay(10);

@@ -245,7 +245,6 @@ struct Encoder {
         STATE = ENCODER_IDLE;
       }
     }
-
 } encoder;
 
 /*

@@ -187,7 +187,7 @@ bool b_right_toggle_center_start = false;
  * Debounce Settings
  */
 const uint8_t switch_debounce_time = 50;
-const uint8_t rotary_debounce_time = 200;
+const uint8_t rotary_debounce_time = 50;
 
 /*
  * Rotary encoder for various uses.
@@ -196,6 +196,78 @@ const uint8_t rotary_debounce_time = 200;
 #define r_encoderB 33
 #define r_button 4
 ezButton encoder_center(r_button); // For center-press on encoder dial.
+enum ENCODER_STATES { ENCODER_IDLE = 0, ENCODER_CW = 1, ENCODER_CCW = -1 };
+struct Encoder {
+  const static uint8_t PinA = r_encoderA;
+  const static uint8_t PinB = r_encoderB;
+
+  private:
+    uint8_t PrevNextCode = 0;
+    uint16_t CodeStore = 0;
+
+    int8_t read() {
+      static int8_t RotEncTable[] = {0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0};
+
+      PrevNextCode <<= 2;
+
+      if(digitalRead(r_encoderB)) {
+        PrevNextCode |= 0x02;
+      }
+
+      if(digitalRead(r_encoderA)) {
+        PrevNextCode |= 0x01;
+      }
+
+      PrevNextCode &= 0x0f;
+
+      // If valid then CodeStore as 16 bit data.
+      if(RotEncTable[PrevNextCode]) {
+        CodeStore <<= 4;
+        CodeStore |= PrevNextCode;
+
+        if((CodeStore & 0xff) == 0x2b) {
+          return -1;
+        }
+
+        if((CodeStore & 0xff) == 0x17) {
+          return 1;
+        }
+      }
+
+      return 0;
+    }
+
+  public:
+    enum ENCODER_STATES STATE;
+
+    void initialize() {
+      // Rotary encoder on the top of the device.
+      pinMode(PinA, INPUT_PULLUP);
+      pinMode(PinB, INPUT_PULLUP);
+      STATE = ENCODER_IDLE;
+    }
+
+    void check() {
+      static int8_t i_last_val; // Always stored to know if change occurred.
+
+      // Read the current encoder value, noting state when adjusted.
+      if(i_last_val != read()) {
+        // Clockwise.
+        if(PrevNextCode == 0x07) {
+          STATE = ENCODER_CW;
+        }
+
+        // Counter-clockwise.
+        if(PrevNextCode == 0x0b) {
+          STATE = ENCODER_CCW;
+        }
+      }
+      else {
+        STATE = ENCODER_IDLE;
+      }
+    }
+} encoder;
+
 millisDelay ms_rotary_debounce; // Put some timing on the rotary so we do not overload the serial communication buffer.
 millisDelay ms_center_double_tap; // Timer for determinine when a double-tap was detected.
 millisDelay ms_center_long_press; // Timer for determining when a long press was detected.
@@ -205,15 +277,10 @@ const uint16_t i_center_double_tap_delay = 300; // When to consider the center d
 const uint16_t i_center_long_press_delay = 600; // When to consider the center dial has a "long" press.
 uint8_t i_press_count = 0;
 uint8_t i_rotary_count = 0;
-int i_encoder_pos = 0;
-int i_val_rotary;
-int i_last_val_rotary;
 
 /*
  * Define states for the rotary dial center press or rotation.
  */
-enum DIAL_ROTATIONS { NO_ROTATION, CLOCKWISE, COUNTERCLOCKWISE };
-enum DIAL_ROTATIONS DIAL_ROTATION;
 enum CENTER_STATES { NO_ACTION, SHORT_PRESS, DOUBLE_PRESS, LONG_PRESS };
 enum CENTER_STATES CENTER_STATE;
 enum MENU_LEVELS { MENU_1, MENU_2, MENU_STREAM };
