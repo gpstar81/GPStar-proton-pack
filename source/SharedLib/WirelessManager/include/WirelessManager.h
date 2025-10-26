@@ -64,6 +64,10 @@ class WirelessManager {
   public:
     WirelessManager(const String& deviceName, const String& deviceAddress);
 
+    // Scan for available SSIDs and write them into caller-provided array.
+    // Returns number of SSIDs written (0..maxResults). Blocking call while scan completes.
+    uint8_t scanForSSIDs(String ssids[], uint8_t maxResults = 40);
+
     // Public getter for localNetworkName
     String getLocalNetworkName() const { return localNetworkName; }
 

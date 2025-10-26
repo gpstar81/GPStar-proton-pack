@@ -37,6 +37,7 @@ This project is structured for development with PlatformIO, using the Arduino fr
    - Use `PascalCase` for class names (e.g., `Device`).
    - Use `camelCase` for variables and functions (e.g., `initializeWiFi`).
    - Use `UPPER_SNAKE_CASE` for constants (e.g., `MAX_CONNECTIONS`).
+   - Prefix local variables with a lowercase letter and underscore designating type (e.g. "i_" for integer types, "b_" for bool, etc.)
 
 3. **PlatformIO-Specific Practices**:
    - Use the `platformio.ini` file to manage dependencies and build configurations.
@@ -107,6 +108,7 @@ This project is structured for development with PlatformIO, using the Arduino fr
    - Always explain the reasoning behind suggested changes and potential alternatives before implementing them.
    - Allow the user to review and **explicitly** approve the approach before making ANY changes to the code.
    - Provide a "before" and "after" comparison for edits, allowing for review and approval before changes are finalized.
+   - NEVER provide code changes in a unified DIFF format, always provide a clear before and after code block for review.
 
 2. **Commenting Code**:
    - Functions and methods should include comments explaining their purpose, inputs, outputs, and any side effects.

@@ -233,3 +233,68 @@ bool WirelessManager::startMdnsService() {
 
   return false;
 }
+
+/**
+ * Function: scanForSSIDs
+ * Purpose: Performs a WiFi scan and writes unique 2.4GHz SSIDs into a caller-provided array.
+ * Inputs:
+ *   - ssids: preallocated array of String objects to receive SSIDs
+ *   - maxResults: capacity of ssids array
+ * Outputs:
+ *   - uint8_t: number of unique SSIDs written into ssids
+ *
+ * Notes:
+ *   - Blocking call while the scan runs.
+ *   - Ensures STA capability is enabled for scanning but does not force-disable AP.
+ *   - Filters results to channels 1..14 (2.4 GHz).
+ *   - Ensures results are unique by SSID string (duplicates skipped).
+ */
+uint8_t WirelessManager::scanForSSIDs(String ssids[], uint8_t maxResults) {
+  if (maxResults == 0) return 0;
+
+  // Ensure STA capability is enabled for scanning; enable AP+STA only if STA bit missing.
+  if ((WiFi.getMode() & WIFI_MODE_STA) == 0) {
+    WiFi.mode(WIFI_AP_STA);
+  }
+
+  // Clear previous scan results to free memory.
+  WiFi.scanDelete();
+
+  // NOTE: This is a blocking call while the scan runs.
+  int i_found = WiFi.scanNetworks();
+  if (i_found <= 0) {
+    WiFi.scanDelete();
+    return 0;
+  }
+
+  uint8_t i_count = 0;
+  for (int i = 0; i < i_found && i_count < maxResults; ++i) {
+    // IEEE 802.11 defines 2.4 GHz Wi‑Fi channels as channel numbers 1-14, which is what we want.
+    int i_channel = WiFi.channel(i);
+    if (i_channel < 1 || i_channel > 14) {      
+      continue; // Skip 5 GHz or unknown-channel networks.
+    }
+
+    String s_ssid = WiFi.SSID(i);
+    if (s_ssid.length() == 0) {
+      continue;
+    }
+
+    // Check for duplicates: only add SSID if not already present in ssids[]
+    bool b_duplicate = false;
+    for (uint8_t i_j = 0; i_j < i_count; ++i_j) {
+      if (ssids[i_j] == s_ssid) {
+        b_duplicate = true;
+        break;
+      }
+    }
+    if (b_duplicate) {
+      continue;
+    }
+
+    ssids[i_count++] = s_ssid; // Add unique SSID
+  }
+
+  WiFi.scanDelete();
+  return i_count;
+}

@@ -417,9 +417,6 @@ void setup() {
   Serial.begin(115200); // Serial monitor via USB connection.
   delay(1000); // Provide a delay to allow serial output.
 
-  // Suppress INFO logs, show only warnings and errors:
-  esp_log_level_set("*", ESP_LOG_WARN);
-
   // Expect a PackSerial connection with communication to a GPStar Proton Pack PCB.
   PackSerial.begin(9600, SERIAL_8N1, RXD2, TXD2);
   packComs.begin(PackSerial, false, Serial, 100);
