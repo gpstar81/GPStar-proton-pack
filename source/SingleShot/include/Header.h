@@ -175,7 +175,7 @@ StandaloneLED led_Tip = {BARREL_TIP_LED_PIN, HIGH, LOW};
   #define r_encoderA 6
   #define r_encoderB 7
 #endif
-enum ENCODER_STATES { ENCODER_IDLE = 0, ENCODER_CW = 1, ENCODER_CCW = -1 };
+enum ENCODER_STATES : int8_t { ENCODER_IDLE = 0, ENCODER_CW = 1, ENCODER_CCW = -1 };
 struct Encoder {
   const static uint8_t PinA = r_encoderA;
   const static uint8_t PinB = r_encoderB;
@@ -183,17 +183,19 @@ struct Encoder {
   private:
     uint8_t PrevNextCode = 0;
     uint16_t CodeStore = 0;
+    int8_t i_last_val = 0; // Use a small integer as value range is 1 to -1 depending on direction.
+    bool b_direction_inverted = false; // Invert the direction of rotation to match user expectation.
 
     int8_t read() {
-      static int8_t RotEncTable[] = {0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0};
+      const static int8_t RotEncTable[] = {0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0};
 
       PrevNextCode <<= 2;
 
-      if(digitalRead(r_encoderB)) {
+      if(digitalRead(PinB)) {
         PrevNextCode |= 0x02;
       }
 
-      if(digitalRead(r_encoderA)) {
+      if(digitalRead(PinA)) {
         PrevNextCode |= 0x01;
       }
 
@@ -219,30 +221,31 @@ struct Encoder {
   public:
     enum ENCODER_STATES STATE;
 
-    void initialize() {
+    void initialize(bool inverted = false) {
       // Rotary encoder on the top of the device.
       pinMode(PinA, INPUT_PULLUP);
       pinMode(PinB, INPUT_PULLUP);
       STATE = ENCODER_IDLE;
+      b_direction_inverted = inverted;
     }
 
     void check() {
-      static int8_t i_last_val; // Always stored to know if change occurred.
-
       // Read the current encoder value, noting state when adjusted.
-      if(i_last_val != read()) {
-        // Clockwise.
-        if(PrevNextCode == 0x07) {
-          STATE = ENCODER_CW;
-        }
+      int8_t i_new_val = read();
 
-        // Counter-clockwise.
-        if(PrevNextCode == 0x0b) {
-          STATE = ENCODER_CCW;
+      // Default to idle which ensures STATE is always assigned.
+      STATE = ENCODER_IDLE;
+
+      // Change state only if there was a recognized change.
+      if(i_last_val != i_new_val) {
+        i_last_val = i_new_val; // Update stored last value so next call can detect changes.
+
+        // Map terminal PrevNextCode to CW/CCW, invert if requested.
+        if (PrevNextCode == 0x07) {
+          STATE = b_direction_inverted ? ENCODER_CCW : ENCODER_CW;
+        } else if (PrevNextCode == 0x0b) {
+          STATE = b_direction_inverted ? ENCODER_CW : ENCODER_CCW;
         }
-      }
-      else {
-        STATE = ENCODER_IDLE;
       }
     }
 } encoder;

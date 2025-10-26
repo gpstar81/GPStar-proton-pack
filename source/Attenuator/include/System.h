@@ -494,111 +494,6 @@ void checkRotaryEncoder() {
           break;
 
           case MENU_STREAM:
-            // Change to the previous stream mode.
-            if(canChangeStreamMode()) {
-              switch(STREAM_MODE) {
-                case PROTON:
-                  changeStreamMode(STASIS);
-                break;
-                case STASIS:
-                  changeStreamMode(SLIME);
-                break;
-                case SLIME:
-                  changeStreamMode(MESON);
-                break;
-                case MESON:
-                  if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL)) {
-                    changeStreamMode(SPECTRAL);
-                  }
-                  else if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_HALLOWEEN)) {
-                    changeStreamMode(HOLIDAY_HALLOWEEN);
-                  }
-                  else if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_CHRISTMAS)) {
-                    changeStreamMode(HOLIDAY_CHRISTMAS);
-                  }
-                  else if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
-                    changeStreamMode(SPECTRAL_CUSTOM);
-                  }
-                  else {
-                    changeStreamMode(PROTON);
-                  }
-                break;
-                case SPECTRAL:
-                  if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_HALLOWEEN)) {
-                    changeStreamMode(HOLIDAY_HALLOWEEN);
-                  }
-                  else if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_CHRISTMAS)) {
-                    changeStreamMode(HOLIDAY_CHRISTMAS);
-                  }
-                  else if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
-                    changeStreamMode(SPECTRAL_CUSTOM);
-                  }
-                  else {
-                    changeStreamMode(PROTON);
-                  }
-                break;
-                case HOLIDAY_HALLOWEEN:
-                  if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_CHRISTMAS)) {
-                    changeStreamMode(HOLIDAY_CHRISTMAS);
-                  }
-                  else if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
-                    changeStreamMode(SPECTRAL_CUSTOM);
-                  }
-                  else {
-                    changeStreamMode(PROTON);
-                  }
-                break;
-                case HOLIDAY_CHRISTMAS:
-                  if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
-                    changeStreamMode(SPECTRAL_CUSTOM);
-                  }
-                  else {
-                    changeStreamMode(PROTON);
-                  }
-                break;
-                case SPECTRAL_CUSTOM:
-                  changeStreamMode(PROTON);
-                break;
-                default:
-                  debugln("Invalid Stream Mode; reverting to Proton");
-                  changeStreamMode(PROTON);
-                break;
-              }
-            }
-            debug("Rotary: Next Stream Mode");
-          break;
-        }
-      }
-    break;
-
-    case ENCODER_CCW:
-      if(b_wand_firing && i_cyclotron_multiplier > 2) {
-        // Do the actual attenuation for the Proton Pack!
-        // Cancels an overheat warning when firing and cyclotron state is higher than 2.
-        // Only do so after 5 turns of the dial (CCW).
-        i_rotary_count++;
-        if(i_rotary_count % 5 == 0) {
-          attenuatorSerialSend(A_WARNING_CANCELLED);
-          debug("Rotary: Overheat Cancelled");
-          i_rotary_count = 0;
-        }
-      }
-      else if(!b_wand_firing) {
-        // Perform action based on the current menu level.
-        switch(MENU_LEVEL) {
-          case MENU_1:
-            // Tell pack to decrease overall volume.
-            attenuatorSerialSend(A_VOLUME_DECREASE);
-            debug("Rotary: Master Volume-");
-          break;
-
-          case MENU_2:
-            // Tell pack to decrease effects volume.
-            attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_DECREASE);
-            debug("Rotary: Effects Volume-");
-          break;
-
-          case MENU_STREAM:
             // Change to the next stream mode.
             if(canChangeStreamMode()) {
               switch(STREAM_MODE) {
@@ -663,6 +558,111 @@ void checkRotaryEncoder() {
                   else {
                     changeStreamMode(MESON);
                   }
+                break;
+                default:
+                  debugln("Invalid Stream Mode; reverting to Proton");
+                  changeStreamMode(PROTON);
+                break;
+              }
+            }
+            debug("Rotary: Next Stream Mode");
+          break;
+        }
+      }
+    break;
+
+    case ENCODER_CCW:
+      if(b_wand_firing && i_cyclotron_multiplier > 2) {
+        // Do the actual attenuation for the Proton Pack!
+        // Cancels an overheat warning when firing and cyclotron state is higher than 2.
+        // Only do so after 5 turns of the dial (CCW).
+        i_rotary_count++;
+        if(i_rotary_count % 5 == 0) {
+          attenuatorSerialSend(A_WARNING_CANCELLED);
+          debug("Rotary: Overheat Cancelled");
+          i_rotary_count = 0;
+        }
+      }
+      else if(!b_wand_firing) {
+        // Perform action based on the current menu level.
+        switch(MENU_LEVEL) {
+          case MENU_1:
+            // Tell pack to decrease overall volume.
+            attenuatorSerialSend(A_VOLUME_DECREASE);
+            debug("Rotary: Master Volume-");
+          break;
+
+          case MENU_2:
+            // Tell pack to decrease effects volume.
+            attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_DECREASE);
+            debug("Rotary: Effects Volume-");
+          break;
+
+          case MENU_STREAM:
+            // Change to the previous stream mode.
+            if(canChangeStreamMode()) {
+              switch(STREAM_MODE) {
+                case PROTON:
+                  changeStreamMode(STASIS);
+                break;
+                case STASIS:
+                  changeStreamMode(SLIME);
+                break;
+                case SLIME:
+                  changeStreamMode(MESON);
+                break;
+                case MESON:
+                  if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL)) {
+                    changeStreamMode(SPECTRAL);
+                  }
+                  else if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_HALLOWEEN)) {
+                    changeStreamMode(HOLIDAY_HALLOWEEN);
+                  }
+                  else if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_CHRISTMAS)) {
+                    changeStreamMode(HOLIDAY_CHRISTMAS);
+                  }
+                  else if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
+                    changeStreamMode(SPECTRAL_CUSTOM);
+                  }
+                  else {
+                    changeStreamMode(PROTON);
+                  }
+                break;
+                case SPECTRAL:
+                  if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_HALLOWEEN)) {
+                    changeStreamMode(HOLIDAY_HALLOWEEN);
+                  }
+                  else if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_CHRISTMAS)) {
+                    changeStreamMode(HOLIDAY_CHRISTMAS);
+                  }
+                  else if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
+                    changeStreamMode(SPECTRAL_CUSTOM);
+                  }
+                  else {
+                    changeStreamMode(PROTON);
+                  }
+                break;
+                case HOLIDAY_HALLOWEEN:
+                  if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_CHRISTMAS)) {
+                    changeStreamMode(HOLIDAY_CHRISTMAS);
+                  }
+                  else if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
+                    changeStreamMode(SPECTRAL_CUSTOM);
+                  }
+                  else {
+                    changeStreamMode(PROTON);
+                  }
+                break;
+                case HOLIDAY_CHRISTMAS:
+                  if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
+                    changeStreamMode(SPECTRAL_CUSTOM);
+                  }
+                  else {
+                    changeStreamMode(PROTON);
+                  }
+                break;
+                case SPECTRAL_CUSTOM:
+                  changeStreamMode(PROTON);
                 break;
                 default:
                   debugln("Invalid Stream Mode; reverting to Proton");
