@@ -169,6 +169,8 @@ enum STREAM_MODES { UNSET, PROTON, STASIS, SLIME, MESON, SPECTRAL, HOLIDAY_HALLO
 enum STREAM_MODES STREAM_MODE;
 enum STREAM_MODE_FLAGS : uint8_t { FLAG_NONE = 0, FLAG_VG = 1, FLAG_SPECTRAL = 2, FLAG_SPECTRAL_CUSTOM = 4, FLAG_HOLIDAY_HALLOWEEN = 8, FLAG_HOLIDAY_CHRISTMAS = 16 };
 uint8_t STREAM_MODE_FLAG = FLAG_VG; // By default, only enable the three VG modes.
+millisDelay ms_streamchange; // Debounce for change of stream via dial.
+uint16_t i_stream_change_delay = 500; // Delay between stream mode changes.
 
 /*
  * Toggle Switches

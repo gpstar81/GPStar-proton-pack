@@ -72,6 +72,12 @@ void changeStreamMode(STREAM_MODES new_mode) {
     return;
   }
 
+  // Debounce rapid calls to avoid flooding the serial interface.
+  if (ms_streamchange.remaining() > 0) {
+    debugln("Stream mode change suppressed due to debounce timer.");
+    return;
+  }
+
   // Continue to change the stream mode.
   switch(new_mode) {
     case PROTON:
@@ -137,6 +143,8 @@ void changeStreamMode(STREAM_MODES new_mode) {
       debugln("Invalid Stream Mode");
     break;
   }
+
+  ms_streamchange.start(i_stream_change_delay); // Restart debounce timer.
 }
 
 /*
