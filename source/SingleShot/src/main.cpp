@@ -33,7 +33,7 @@
 // See: https://github.com/arkhipenko/TaskScheduler/wiki/API-Documentation
 #include <TaskScheduler.h>
 
-// Set to 1 to enable built-in debug messages
+// Set to 1 to enable built-in debug messages via Serial device output.
 #define DEBUG 0
 
 // Debug macros
@@ -85,6 +85,11 @@ void sendDebug(const String message);
 #ifdef ESP32
   #include <MagCalibration.h>
   MagCalibration magCal;
+
+  #include <WirelessManager.h>
+  // Define the WirelessManager pointer globally (initialized to nullptr).
+  // This matches the extern declaration in Wireless.h
+  WirelessManager* wirelessMgr = nullptr;
 #endif
 
 // Local Files
@@ -105,6 +110,7 @@ void sendDebug(const String message);
 #include "Actions.h"
 #ifdef ESP32
   #include "Wireless.h"
+  #include "Webhandler.h"
 #endif
 
 // Writes a debug message to the serial console or sends to the WebSocket.
@@ -162,6 +168,17 @@ void setup() {
    */
   for(uint8_t gpio_pin = 39; gpio_pin < 43; gpio_pin++) {
     PIN_FUNC_SELECT(IO_MUX_GPIO0_REG + (gpio_pin * 4), PIN_FUNC_GPIO);
+  }
+
+  // Define the WirelessManager object only after NVS/Preferences are initialized.
+  if(wirelessMgr == nullptr) {
+    wirelessMgr = new WirelessManager("Blaster", "192.168.1.8");
+
+    #if defined(RESET_AP_SETTINGS)
+      // Reset the WiFi password to the expected default on every startup.
+      wirelessMgr->resetWifiPassword();
+      debugln(F("WARNING: Firmware forced a reset of the local WiFi password!"));
+    #endif
   }
 #else
   Serial.begin(9600); // Standard HW serial (USB) console.
@@ -317,20 +334,6 @@ void animateTaskCallback() {
 void inputTaskCallback() {
 #ifdef ESP32
   webLoops(); // Handle web server loops, including WebSocket events and OTA updates.
-
-  // Take action with Wifi based on user preference.
-  switch(WIFI_MODE) {
-    case WIFI_ENABLED:
-    default:
-      // Begin by setting up WiFi as a prerequisite to all else.
-      restartWireless();
-    break;
-
-    case WIFI_DISABLED:
-      // Do not start WiFi or the web server.
-      shutdownWireless();
-    break;
-  }
 #endif
 
   updateAudio(); // Update the state of the available sound board.
