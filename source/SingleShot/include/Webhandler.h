@@ -65,59 +65,6 @@ const uint16_t i_websocketCleanup = 5000;
 void setupRouting();
 void getSpecialPreferences();
 
-// Rounds a float to 3 decimal places.
-float roundFloat(float value) {
-  // Shifts the decimal point, rounds, then shifts back.
-  return roundf(value * 1000.0f) / 1000.0f;
-}
-
-// Rounds a double to 3 decimal places.
-float roundDouble(double value) {
-  // Shifts the decimal point, rounds, then shifts back.
-  return (float)round(value * 1000.0) / 1000.0;
-}
-
-/*
- * Text Helper Functions - Converts ENUM values to user-friendly text
- */
-String getPower() {
-  switch(POWER_LEVEL) {
-    case LEVEL_1:
-      return "1";
-    break;
-    case LEVEL_2:
-      return "2";
-    break;
-    case LEVEL_3:
-      return "3";
-    break;
-    case LEVEL_4:
-      return "4";
-    break;
-    case LEVEL_5:
-    default:
-      return "5";
-    break;
-  }
-}
-
-String getSensorState() {
-  switch(SENSOR_READ_TARGET) {
-    case CALIBRATION:
-      return "Calibration";
-    break;
-    case OFFSETS:
-      return "Offsets";
-    break;
-    case TELEMETRY:
-      return "Telemetry";
-    break;
-    default:
-      return "Unknown";
-    break;
-  }
-}
-
 /*
  * API Helper Structures/Functions
  */
@@ -158,218 +105,62 @@ void handleBlasterPrefsUpdate() {
 }
 
 /*
- * Web Handler Functions - Performs actions or returns data for web UI
+ * Text Helper Functions - Converts ENUM values to consistent, user-friendly text
  */
 
-void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
-  switch(type) {
-    case WS_EVT_CONNECT:
-      #if defined(DEBUG_SEND_TO_CONSOLE)
-        debugf("WebSocket[%s][%lu] Connect\n", server->url(), client->id());
-      #endif
-      i_ws_client_count++;
-    break;
+// Rounds a float to 3 decimal places.
+float roundFloat(float value) {
+  // Shifts the decimal point, rounds, then shifts back.
+  return roundf(value * 1000.0f) / 1000.0f;
+}
 
-    case WS_EVT_DISCONNECT:
-      #if defined(DEBUG_SEND_TO_CONSOLE)
-        debugf("WebSocket[%s][C:%lu] Disconnect\n", server->url(), client->id());
-      #endif
-      if(i_ws_client_count > 0) {
-        i_ws_client_count--;
-      }
-    break;
+// Rounds a double to 3 decimal places.
+float roundDouble(double value) {
+  // Shifts the decimal point, rounds, then shifts back.
+  return (float)round(value * 1000.0) / 1000.0;
+}
 
-    case WS_EVT_ERROR:
-      #if defined(DEBUG_SEND_TO_CONSOLE)
-        debugf("WebSocket[%s][C:%lu] Error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
-      #endif
+String getPower() {
+  switch(POWER_LEVEL) {
+    case LEVEL_1:
+      return "1";
     break;
-
-    case WS_EVT_PONG:
-      #if defined(DEBUG_SEND_TO_CONSOLE)
-        debugf("WebSocket[%s][C:%lu] Pong[L:%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
-      #endif
+    case LEVEL_2:
+      return "2";
     break;
-
-    case WS_EVT_DATA:
-      #if defined(DEBUG_SEND_TO_CONSOLE)
-        debugf("WebSocket[%s][C:%lu] Data[L:%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
-      #endif
+    case LEVEL_3:
+      return "3";
+    break;
+    case LEVEL_4:
+      return "4";
+    break;
+    case LEVEL_5:
+    default:
+      return "5";
     break;
   }
 }
 
-void onOTAStart() {
-  // Log when OTA has started
-  debugln(F("OTA update started"));
-}
-
-void onOTAProgress(size_t current, size_t final) {
-  // Log every 1 second
-  if(millis() - i_progress_millis > 1000) {
-    i_progress_millis = millis();
-    debugf("OTA Progress Current: %u bytes, Final: %u bytes\n", current, final);
+String getSensorState() {
+  switch(SENSOR_READ_TARGET) {
+    case CALIBRATION:
+      return "Calibration";
+    break;
+    case OFFSETS:
+      return "Offsets";
+    break;
+    case TELEMETRY:
+      return "Telemetry";
+    break;
+    default:
+      return "Unknown";
+    break;
   }
 }
 
-void onOTAEnd(bool success) {
-  // Log when OTA has finished
-  if(success) {
-    debugln(F("OTA update finished successfully!"));
-  }
-  else {
-    debugln(F("There was an error during OTA update!"));
-  }
-}
-
-// Return a small JSON object with a "status" property: {"status":"<value>"}
-// This returns the provided status string verbatim (no escaping or modification).
-String returnJsonStatus(const String &status = String("success")) {
-  String s_out;
-  s_out.reserve(status.length() + 16); // Reserve space to avoid multiple allocations.
-  s_out = "{\"status\":\"";
-  s_out += status; // Append status value.
-  s_out += "\"}";
-  return s_out;
-}
-
-void startWebServer() {
-  // Configures URI routing with function handlers.
-  setupRouting();
-
-  // Get preferences for the web UI.
-  getSpecialPreferences();
-
-  // Configure the WebSocket endpoint.
-  ws.onEvent(onWebSocketEventHandler);
-  httpServer.addHandler(&ws);
-
-  // Handle web server Events for telemetry data.
-  events.onConnect([](AsyncEventSourceClient *client){
-    if(client->lastId()){
-      debugf("Client reconnected! Last message ID that it got is: %u\n", client->lastId());
-    }
-  });
-  httpServer.addHandler(&events);
-
-  // Configure the OTA firmware endpoint handler.
-  ElegantOTA.begin(&httpServer);
-
-  // ElegantOTA callbacks
-  ElegantOTA.onStart(onOTAStart);
-  ElegantOTA.onProgress(onOTAProgress);
-  ElegantOTA.onEnd(onOTAEnd);
-
-  // Start the web server.
-  httpServer.begin();
-
-  // Denote that the web server should be started.
-  b_httpd_started = true;
-
-  #if defined(DEBUG_SEND_TO_CONSOLE)
-    debugln(F("Async HTTP Server Started"));
-  #endif
-}
-
-void handleCommonJS(AsyncWebServerRequest *request) {
-  // Used for the root page (/) from the web server.
-  debugln("Sending -> Common JavaScript");
-  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", (const uint8_t*)COMMONJS_page, strlen(COMMONJS_page));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  request->send(response); // Serve page content.
-}
-
-void handleRoot(AsyncWebServerRequest *request) {
-  // Used for the root page (/) from the web server.
-  debugln("Sending -> Index HTML");
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)INDEX_page, strlen(INDEX_page));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  request->send(response); // Serve page content.
-}
-
-void handleRootJS(AsyncWebServerRequest *request) {
-  // Used for the root page (/) from the web server.
-  debugln("Sending -> Index JavaScript");
-  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", (const uint8_t*)INDEXJS_page, strlen(INDEXJS_page));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  request->send(response); // Serve page content.
-}
-
-void handleNetwork(AsyncWebServerRequest *request) {
-  // Used for the network page from the web server.
-  debugln("Sending -> Network HTML");
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)NETWORK_page, strlen(NETWORK_page));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  request->send(response); // Serve page content.
-}
-
-void handlePassword(AsyncWebServerRequest *request) {
-  // Used for the password page from the web server.
-  debugln("Sending -> Password HTML");
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)PASSWORD_page, strlen(PASSWORD_page));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  request->send(response); // Serve page content.
-}
-
-void handleDeviceSettings(AsyncWebServerRequest *request) {
-  // Used for the device page from the web server.
-  debugln("Sending -> Device Settings HTML");
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)DEVICE_page, strlen(DEVICE_page));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  request->send(response); // Serve page content.
-}
-
-void handleBlasterSettings(AsyncWebServerRequest *request) {
-  // Used for the settings page from the web server.
-  debugln("Sending -> Blaster Settings HTML");
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)BLASTER_SETTINGS_page, strlen(BLASTER_SETTINGS_page));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  request->send(response); // Serve page content.
-}
-
-void handleStylesheet(AsyncWebServerRequest *request) {
-  // Used for the common stylesheet of the web server.
-  debugln("Sending -> Main StyleSheet");
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/css", (const uint8_t*)STYLE_page, strlen(STYLE_page));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  request->send(response); // Serve page content.
-}
-
-void handleFavIco(AsyncWebServerRequest *request) {
-  // Used for the favicon of the web server.
-  debugln("Sending -> Favicon");
-  AsyncWebServerResponse *response = request->beginResponse(200, "image/x-icon", FAVICON_ico, sizeof(FAVICON_ico));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip");
-  request->send(response); // Serve gzipped .ico file.
-}
-
-void handleFavSvg(AsyncWebServerRequest *request) {
-  // Used for the favicon of the web server.
-  debugln("Sending -> Favicon");
-  AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", FAVICON_svg, sizeof(FAVICON_svg));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip");
-  request->send(response); // Serve gzipped .svg file.
-}
-
-void handleGeometry(AsyncWebServerRequest *request) {
-  // Used for the model geometry (/geometry.json) from the web server.
-  debugln("Sending -> STL Geometry");
-  AsyncWebServerResponse *response = request->beginResponse(200, "application/json; charset=UTF-8", GEOMETRY_json, sizeof(GEOMETRY_json));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip");
-  request->send(response); // Serve gzipped JSON content.
-}
-
-void handleThreeJS(AsyncWebServerRequest *request) {
-  // Used for the root page (/three.js) from the web server.
-  debugln("Sending -> Three.js Library");
-  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", THREEJS_page, sizeof(THREEJS_page));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip");
-  request->send(response); // Serve STL content.
-}
+/**
+ * JSON Body Helpers - Creates stringified JSON representations of device configurations
+ */
 
 String getDeviceConfig() {
   // Prepare a JSON object with information we have gleaned from the system.
@@ -491,10 +282,10 @@ String getBlasterConfig() {
   // Provide a flag to indicate prefs are directly available.
   jsonBody["prefsAvailable"] = true; // Always true for the immediate device.
 
-  // Return current powered state for pack and blaster.
+  // Return current powered state for the blaster.
   jsonBody["blasterPowered"] = (DEVICE_STATUS == MODE_ON);
 
-  // Neutrona Blaster Runtime Options
+  // Single Shot Blaster Runtime Options
   jsonBody["autoVentLight"] = blasterConfig.autoVentLight; // true|false
   jsonBody["deviceBootError"] = blasterConfig.deviceBootError; // true|false (Super-Hero Mode Only)
   jsonBody["invertBlasterBargraph"] = blasterConfig.invertBlasterBargraph; // true|false
@@ -702,6 +493,283 @@ String getTelemetry() {
   return telemetryData;
 }
 
+/*
+ * Web Handler Functions - Performs actions or returns data for web UI
+ */
+
+void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
+  switch(type) {
+    case WS_EVT_CONNECT:
+      #if defined(DEBUG_SEND_TO_CONSOLE)
+        debugf("WebSocket[%s][%lu] Connect\n", server->url(), client->id());
+      #endif
+      i_ws_client_count++;
+    break;
+
+    case WS_EVT_DISCONNECT:
+      #if defined(DEBUG_SEND_TO_CONSOLE)
+        debugf("WebSocket[%s][C:%lu] Disconnect\n", server->url(), client->id());
+      #endif
+      if(i_ws_client_count > 0) {
+        i_ws_client_count--;
+      }
+    break;
+
+    case WS_EVT_ERROR:
+      #if defined(DEBUG_SEND_TO_CONSOLE)
+        debugf("WebSocket[%s][C:%lu] Error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
+      #endif
+    break;
+
+    case WS_EVT_PONG:
+      #if defined(DEBUG_SEND_TO_CONSOLE)
+        debugf("WebSocket[%s][C:%lu] Pong[L:%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
+      #endif
+    break;
+
+    case WS_EVT_DATA:
+      #if defined(DEBUG_SEND_TO_CONSOLE)
+        debugf("WebSocket[%s][C:%lu] Data[L:%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
+      #endif
+    break;
+  }
+}
+
+// Send notification to all websocket clients.
+void notifyWSClients() {
+  if(b_httpd_started) {
+    // Send latest status to all connected clients.
+    ws.textAll(getEquipmentStatus());
+  }
+}
+
+void onOTAStart() {
+  // Log when OTA has started
+  debugln(F("OTA update started"));
+}
+
+void onOTAProgress(size_t current, size_t final) {
+  // Log every 1 second
+  if(millis() - i_progress_millis > 1000) {
+    i_progress_millis = millis();
+    debugf("OTA Progress Current: %u bytes, Final: %u bytes\n", current, final);
+  }
+}
+
+void onOTAEnd(bool success) {
+  // Log when OTA has finished
+  if(success) {
+    debugln(F("OTA update finished successfully!"));
+  }
+  else {
+    debugln(F("There was an error during OTA update!"));
+  }
+}
+
+// Return a small JSON object with a "status" property: {"status":"<value>"}
+// This returns the provided status string verbatim (no escaping or modification).
+String returnJsonStatus(const String &status = String("success")) {
+  String s_out;
+  s_out.reserve(status.length() + 16); // Reserve space to avoid multiple allocations.
+  s_out = "{\"status\":\"";
+  s_out += status; // Append status value.
+  s_out += "\"}";
+  return s_out;
+}
+
+void startWebServer() {
+  // Configures URI routing with function handlers.
+  setupRouting();
+
+  // Get preferences for the web UI.
+  getSpecialPreferences();
+
+  // Configure the WebSocket endpoint.
+  ws.onEvent(onWebSocketEventHandler);
+  httpServer.addHandler(&ws);
+
+  // Handle web server Events for telemetry data.
+  events.onConnect([](AsyncEventSourceClient *client){
+    if(client->lastId()){
+      debugf("Client reconnected! Last message ID that it got is: %u\n", client->lastId());
+    }
+  });
+  httpServer.addHandler(&events);
+
+  // Configure the OTA firmware endpoint handler.
+  ElegantOTA.begin(&httpServer);
+
+  // ElegantOTA callbacks
+  ElegantOTA.onStart(onOTAStart);
+  ElegantOTA.onProgress(onOTAProgress);
+  ElegantOTA.onEnd(onOTAEnd);
+
+  // Start the web server.
+  httpServer.begin();
+
+  // Denote that the web server should be started.
+  b_httpd_started = true;
+
+  #if defined(DEBUG_SEND_TO_CONSOLE)
+    debugln(F("Async HTTP Server Started"));
+  #endif
+}
+
+// Perform management if the AP and web server are started.
+void webLoops() {
+  if(b_local_ap_started && b_httpd_started) {
+    if(ms_cleanup.remaining() < 1) {
+      // Clean up oldest WebSocket connections.
+      ws.cleanupClients();
+
+      // Restart timer for next cleanup action.
+      ms_cleanup.start(i_websocketCleanup);
+    }
+
+    if(ms_apclient.remaining() < 1) {
+      // Update the current count of AP clients.
+      i_ap_client_count = WiFi.softAPgetStationNum();
+
+      // Restart timer for next count.
+      ms_apclient.start(i_apClientCount);
+    }
+
+    if(ms_otacheck.remaining() < 1) {
+      // Handles device reboot after an OTA update.
+      ElegantOTA.loop();
+
+      // Restart timer for next check.
+      ms_otacheck.start(i_otaCheck);
+    }
+  }
+}
+
+void sendCalibrationData(bool b_update_points) {
+  if(b_httpd_started && SENSOR_READ_TARGET == CALIBRATION) {
+    // Gather the latest filtered motion data, serialize it to a JSON string,
+    // and send it to all connected EventSource (SSE) clients as a "calibration"
+    // event name (using the current ms time as a unique event identifier).
+    events.send(getCalibration(b_update_points).c_str(), "calibration", millis());
+  }
+}
+
+void sendTelemetryData() {
+  if(b_httpd_started && SENSOR_READ_TARGET == TELEMETRY) {
+    // Gather the latest filtered motion data, serialize it to a JSON string,
+    // and send it to all connected EventSource (SSE) clients as a "telemetry"
+    // event name (using the current ms time as a unique event identifier).
+    events.send(getTelemetry().c_str(), "telemetry", millis());
+  }
+}
+
+/**
+ * Standard Page Handlers - Delivers the main web pages and common content
+ */
+
+void handleRoot(AsyncWebServerRequest *request) {
+  // Used for the root page (/) from the web server.
+  debugln("Sending -> Index HTML");
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)INDEX_page, strlen(INDEX_page));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  request->send(response); // Serve page content.
+}
+
+void handleRootJS(AsyncWebServerRequest *request) {
+  // Used for the root page (/) from the web server.
+  debugln("Sending -> Index JavaScript");
+  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", (const uint8_t*)INDEXJS_page, strlen(INDEXJS_page));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  request->send(response); // Serve page content.
+}
+
+void handleCommonJS(AsyncWebServerRequest *request) {
+  // Used for the root page (/) from the web server.
+  debugln("Sending -> Common JavaScript");
+  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", (const uint8_t*)COMMONJS_page, strlen(COMMONJS_page));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  request->send(response); // Serve page content.
+}
+
+void handleStylesheet(AsyncWebServerRequest *request) {
+  // Used for the common stylesheet of the web server.
+  debugln("Sending -> Main StyleSheet");
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/css", (const uint8_t*)STYLE_page, strlen(STYLE_page));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  request->send(response); // Serve page content.
+}
+
+void handleFavIco(AsyncWebServerRequest *request) {
+  // Used for the favicon of the web server.
+  debugln("Sending -> Favicon");
+  AsyncWebServerResponse *response = request->beginResponse(200, "image/x-icon", FAVICON_ico, sizeof(FAVICON_ico));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  response->addHeader("Content-Encoding", "gzip");
+  request->send(response); // Serve gzipped .ico file.
+}
+
+void handleFavSvg(AsyncWebServerRequest *request) {
+  // Used for the favicon of the web server.
+  debugln("Sending -> Favicon");
+  AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", FAVICON_svg, sizeof(FAVICON_svg));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  response->addHeader("Content-Encoding", "gzip");
+  request->send(response); // Serve gzipped .svg file.
+}
+
+void handleNetwork(AsyncWebServerRequest *request) {
+  // Used for the network page from the web server.
+  debugln("Sending -> Network HTML");
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)NETWORK_page, strlen(NETWORK_page));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  request->send(response); // Serve page content.
+}
+
+void handlePassword(AsyncWebServerRequest *request) {
+  // Used for the password page from the web server.
+  debugln("Sending -> Password HTML");
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)PASSWORD_page, strlen(PASSWORD_page));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  request->send(response); // Serve page content.
+}
+
+void handleDeviceSettings(AsyncWebServerRequest *request) {
+  // Used for the device page from the web server.
+  debugln("Sending -> Device Settings HTML");
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)DEVICE_page, strlen(DEVICE_page));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  request->send(response); // Serve page content.
+}
+
+void handleGeometry(AsyncWebServerRequest *request) {
+  // Used for the model geometry (/geometry.json) from the web server.
+  debugln("Sending -> STL Geometry");
+  AsyncWebServerResponse *response = request->beginResponse(200, "application/json; charset=UTF-8", GEOMETRY_json, sizeof(GEOMETRY_json));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  response->addHeader("Content-Encoding", "gzip");
+  request->send(response); // Serve gzipped JSON content.
+}
+
+void handleThreeJS(AsyncWebServerRequest *request) {
+  // Used for the root page (/three.js) from the web server.
+  debugln("Sending -> Three.js Library");
+  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", THREEJS_page, sizeof(THREEJS_page));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  response->addHeader("Content-Encoding", "gzip");
+  request->send(response); // Serve STL content.
+}
+
+/**
+ * Peripheral Page Handlers - Delivers the preference pages for available peripherals
+ */
+
+void handleBlasterSettings(AsyncWebServerRequest *request) {
+  // Used for the settings page from the web server.
+  debugln("Sending -> Blaster Settings HTML");
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)BLASTER_SETTINGS_page, strlen(BLASTER_SETTINGS_page));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  request->send(response); // Serve page content.
+}
+
 void handleGetDeviceConfig(AsyncWebServerRequest *request) {
   // Return current device settings as a stringified JSON object.
   request->send(200, "application/json", getDeviceConfig());
@@ -744,63 +812,16 @@ void handleGetSSIDs(AsyncWebServerRequest *request) {
   request->send(200, "application/json", wifiNetworks);
 }
 
-void handleResetSensors(AsyncWebServerRequest *request) {
-  // Re-center by resetting all current telemetry data for motion sensors.
-  // This allows all motion data to be zeroed out and begin a new average.
-  resetAllMotionData(true);
-  request->send(200, "application/json", returnJsonStatus());
-  notifyWSClients();
-}
-
-void handleCalibrateSensorsEnabled(AsyncWebServerRequest *request) {
-  // Turn on calibration mode for the motion sensors.
-  resetAllMotionData(false); // Clear but don't re-calibrate.
-  SENSOR_READ_TARGET = CALIBRATION; // Enables collection of calibration data.
-  magCal.beginCalibration(); // Start collection of samples, clears counters.
-  request->send(200, "application/json", returnJsonStatus());
-  notifyWSClients();
-}
-
-void handleCalibrateSensorsDisabled(AsyncWebServerRequest *request) {
-  // Determine if proper coverage was achieved before calculating and storing data.
-  float coverage = magCal.getCoveragePercent();
-  if(coverage >= 60.0f) {
-    // Compute calibration data for the standard calibration object.
-    magCalData = magCal.computeCalibration();
-
-    // Save the calibration data (as an object) to preferences.
-    if(preferences.begin("device", false)) {
-      preferences.putBytes("mag_cal", &magCalData, sizeof(magCalData));
-      preferences.end();
-    }
-  }
-
-  // Turn off calibration mode for the motion sensors.
-  SENSOR_READ_TARGET = OFFSETS; // Switch to offsets mode for brief collection.
-  resetAllMotionData(true); // Reset and re-calibrate with fresh offsets.
-
-  request->send(200, "application/json", returnJsonStatus());
-  notifyWSClients();
-}
-
-void handleInfraredSignal(AsyncWebServerRequest *request) {
-  String c_signal_type = "";
-
-  if(request->hasParam("type")) {
-    // Get the parameter "track" if it exists (will be a String).
-    c_signal_type = request->getParam("type")->value();
-    sendInfraredCommand(c_signal_type);
-  }
-
-  request->send(200, "application/json", returnJsonStatus());
-}
-
 void handleRestart(AsyncWebServerRequest *request) {
   // Performs a restart of the device.
   request->send(204, "application/json", returnJsonStatus());
   delay(1000);
   ESP.restart();
 }
+
+/**
+ * Action Handlers - Perform specific actions via web requests
+ */
 
 void toggleDeviceMute() {
   if(i_volume_master == i_volume_abs_min) {
@@ -981,6 +1002,61 @@ void handleSaveBlasterEEPROM(AsyncWebServerRequest *request) {
   request->send(200, "application/json", returnJsonStatus());
 }
 
+void handleResetSensors(AsyncWebServerRequest *request) {
+  // Re-center by resetting all current telemetry data for motion sensors.
+  // This allows all motion data to be zeroed out and begin a new average.
+  resetAllMotionData(true);
+  request->send(200, "application/json", returnJsonStatus());
+  notifyWSClients();
+}
+
+void handleCalibrateSensorsEnabled(AsyncWebServerRequest *request) {
+  // Turn on calibration mode for the motion sensors.
+  resetAllMotionData(false); // Clear but don't re-calibrate.
+  SENSOR_READ_TARGET = CALIBRATION; // Enables collection of calibration data.
+  magCal.beginCalibration(); // Start collection of samples, clears counters.
+  request->send(200, "application/json", returnJsonStatus());
+  notifyWSClients();
+}
+
+void handleCalibrateSensorsDisabled(AsyncWebServerRequest *request) {
+  // Determine if proper coverage was achieved before calculating and storing data.
+  float coverage = magCal.getCoveragePercent();
+  if(coverage >= 60.0f) {
+    // Compute calibration data for the standard calibration object.
+    magCalData = magCal.computeCalibration();
+
+    // Save the calibration data (as an object) to preferences.
+    if(preferences.begin("device", false)) {
+      preferences.putBytes("mag_cal", &magCalData, sizeof(magCalData));
+      preferences.end();
+    }
+  }
+
+  // Turn off calibration mode for the motion sensors.
+  SENSOR_READ_TARGET = OFFSETS; // Switch to offsets mode for brief collection.
+  resetAllMotionData(true); // Reset and re-calibrate with fresh offsets.
+
+  request->send(200, "application/json", returnJsonStatus());
+  notifyWSClients();
+}
+
+void handleInfraredSignal(AsyncWebServerRequest *request) {
+  String c_signal_type = "";
+
+  if(request->hasParam("type")) {
+    // Get the parameter "track" if it exists (will be a String).
+    c_signal_type = request->getParam("type")->value();
+    sendInfraredCommand(c_signal_type);
+  }
+
+  request->send(200, "application/json", returnJsonStatus());
+}
+
+/**
+ * Body Handler Methods - These handlers process JSON body content from POST requests
+ */
+
 // Handles the JSON body for the Attenuator settings save request.
 AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHandler("/config/device/save", [](AsyncWebServerRequest *request, JsonVariant &json) {
   JsonDocument jsonBody;
@@ -1130,7 +1206,7 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
   catch (...) {
     request->send(200, "application/json", returnJsonStatus("An error was encountered while saving settings."));
   }
-});
+}); // handleSaveDeviceConfig
 
 // Handles the JSON body for the blaster settings save request.
 AsyncCallbackJsonWebHandler *handleSaveBlasterConfig = new AsyncCallbackJsonWebHandler("/config/blaster/save", [](AsyncWebServerRequest *request, JsonVariant &json) {
@@ -1160,7 +1236,7 @@ AsyncCallbackJsonWebHandler *handleSaveBlasterConfig = new AsyncCallbackJsonWebH
     // Tell the user why the requested action failed.
     request->send(200, "application/json", returnJsonStatus("Single Shot Blaster is running, save action cancelled"));
   }
-});
+}); // handleSaveWandConfig
 
 // Handles the JSON body for the password change request.
 AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHandler("/password/update", [](AsyncWebServerRequest *request, JsonVariant &json) {
@@ -1202,7 +1278,7 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
     debugln("No password in JSON body");
     request->send(200, "application/json", returnJsonStatus("Unable to update password."));
   }
-});
+}); // passwordChangeHandler
 
 // Handles the JSON body for the wifi network info.
 AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler("/wifi/update", [](AsyncWebServerRequest *request, JsonVariant &json) {
@@ -1320,7 +1396,7 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
     debugln("No password in JSON body");
     request->send(200, "application/json", returnJsonStatus("Unable to update password."));
   }
-});
+}); // wifiChangeHandler
 
 void handleNotFound(AsyncWebServerRequest *request) {
   // Returned for any invalid URL requested.
@@ -1328,9 +1404,9 @@ void handleNotFound(AsyncWebServerRequest *request) {
   request->send(404, "text/plain", "Not Found");
 }
 
+// Define all known URI endpoints for the web server.
+// Declare this last as it uses all of the above functions.
 void setupRouting() {
-  // Define the endpoints for the web server.
-
   // Static Pages
   httpServer.on("/", HTTP_GET, handleRoot);
   httpServer.on("/common.js", HTTP_GET, handleCommonJS);
@@ -1379,59 +1455,4 @@ void setupRouting() {
   httpServer.addHandler(handleSaveBlasterConfig); // /config/blaster/save
   httpServer.addHandler(passwordChangeHandler); // /password/update
   httpServer.addHandler(wifiChangeHandler); // /wifi/update
-}
-
-// Send notification to all websocket clients.
-void notifyWSClients() {
-  if(b_httpd_started) {
-    // Send latest status to all connected clients.
-    ws.textAll(getEquipmentStatus());
-  }
-}
-
-void sendCalibrationData(bool b_update_points) {
-  if(b_httpd_started && SENSOR_READ_TARGET == CALIBRATION) {
-    // Gather the latest filtered motion data, serialize it to a JSON string,
-    // and send it to all connected EventSource (SSE) clients as a "calibration"
-    // event name (using the current ms time as a unique event identifier).
-    events.send(getCalibration(b_update_points).c_str(), "calibration", millis());
-  }
-}
-
-void sendTelemetryData() {
-  if(b_httpd_started && SENSOR_READ_TARGET == TELEMETRY) {
-    // Gather the latest filtered motion data, serialize it to a JSON string,
-    // and send it to all connected EventSource (SSE) clients as a "telemetry"
-    // event name (using the current ms time as a unique event identifier).
-    events.send(getTelemetry().c_str(), "telemetry", millis());
-  }
-}
-
-// Perform management if the AP and web server are started.
-void webLoops() {
-  if(b_local_ap_started && b_httpd_started) {
-    if(ms_cleanup.remaining() < 1) {
-      // Clean up oldest WebSocket connections.
-      ws.cleanupClients();
-
-      // Restart timer for next cleanup action.
-      ms_cleanup.start(i_websocketCleanup);
-    }
-
-    if(ms_apclient.remaining() < 1) {
-      // Update the current count of AP clients.
-      i_ap_client_count = WiFi.softAPgetStationNum();
-
-      // Restart timer for next count.
-      ms_apclient.start(i_apClientCount);
-    }
-
-    if(ms_otacheck.remaining() < 1) {
-      // Handles device reboot after an OTA update.
-      ElegantOTA.loop();
-
-      // Restart timer for next check.
-      ms_otacheck.start(i_otaCheck);
-    }
-  }
 }

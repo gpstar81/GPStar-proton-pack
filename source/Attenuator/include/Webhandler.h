@@ -35,8 +35,8 @@
 #include "web/WandSettings.h" // WAND_SETTINGS_page
 #include "web/SmokeSettings.h" // SMOKE_SETTINGS_page
 #include "web/Style.h" // STYLE_page
-#include "web/Equip.h" // EQUIP_svg
 #include "web/Icon.h" // FAVICON_ico, FAVICON_svg
+#include "web/Equip.h" // EQUIP_svg
 
 // Define standard ports and URI endpoints.
 const uint16_t WS_PORT = 80; // Web Server (+WebSocket) port
@@ -64,14 +64,14 @@ void setupRouting();
 bool canChangeStreamMode();
 void changeStreamMode(STREAM_MODES new_mode);
 
+/*
+ * Text Helper Functions - Converts ENUM values to consistent, user-friendly text
+ */
+
 // Rounds a float to 2 decimal places.
 float roundFloat(float value) {
   return roundf(value * 100.0f) / 100.0f;
 }
-
-/*
- * Text Helper Functions - Converts ENUM values to user-friendly text
- */
 
 String getMode() {
   switch(SYSTEM_MODE) {
@@ -217,227 +217,9 @@ String getCyclotronState() {
   }
 }
 
-/*
- * Web Handler Functions - Performs actions or returns data for web UI
+/**
+ * JSON Body Helpers - Creates stringified JSON representations of device configurations
  */
-
-void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
-  switch(type) {
-    case WS_EVT_CONNECT:
-      #if defined(DEBUG_SEND_TO_CONSOLE)
-        debugf("WebSocket[%s][%lu] Connect\n", server->url(), client->id());
-      #endif
-      i_ws_client_count++;
-    break;
-
-    case WS_EVT_DISCONNECT:
-      #if defined(DEBUG_SEND_TO_CONSOLE)
-        debugf("WebSocket[%s][C:%lu] Disconnect\n", server->url(), client->id());
-      #endif
-      if(i_ws_client_count > 0) {
-        i_ws_client_count--;
-      }
-    break;
-
-    case WS_EVT_ERROR:
-      #if defined(DEBUG_SEND_TO_CONSOLE)
-        debugf("WebSocket[%s][C:%lu] Error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
-      #endif
-    break;
-
-    case WS_EVT_PONG:
-      #if defined(DEBUG_SEND_TO_CONSOLE)
-        debugf("WebSocket[%s][C:%lu] Pong[L:%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
-      #endif
-    break;
-
-    case WS_EVT_DATA:
-      #if defined(DEBUG_SEND_TO_CONSOLE)
-        debugf("WebSocket[%s][C:%lu] Data[L:%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
-      #endif
-    break;
-  }
-}
-
-void onOTAStart() {
-  // Log when OTA has started
-  debugln(F("OTA update started"));
-}
-
-void onOTAProgress(size_t current, size_t final) {
-  // Log every 1 second
-  if(millis() - i_progress_millis > 1000) {
-    i_progress_millis = millis();
-    debugf("OTA Progress Current: %u bytes, Final: %u bytes\n", current, final);
-  }
-}
-
-void onOTAEnd(bool success) {
-  // Log when OTA has finished
-  if(success) {
-    debugln(F("OTA update finished successfully!"));
-  }
-  else {
-    debugln(F("There was an error during OTA update!"));
-  }
-}
-
-// Return a small JSON object with a "status" property: {"status":"<value>"}
-// This returns the provided status string verbatim (no escaping or modification).
-String returnJsonStatus(const String &status = String("success")) {
-  String s_out;
-  s_out.reserve(status.length() + 16); // Reserve space to avoid multiple allocations.
-  s_out = "{\"status\":\"";
-  s_out += status; // Append status value.
-  s_out += "\"}";
-  return s_out;
-}
-
-void startWebServer() {
-  // Configures URI routing with function handlers.
-  setupRouting();
-
-  // Configure the WebSocket endpoint.
-  ws.onEvent(onWebSocketEventHandler);
-  httpServer.addHandler(&ws);
-
-  // Configure the OTA firmware endpoint handler.
-  ElegantOTA.begin(&httpServer);
-
-  // ElegantOTA callbacks
-  ElegantOTA.onStart(onOTAStart);
-  ElegantOTA.onProgress(onOTAProgress);
-  ElegantOTA.onEnd(onOTAEnd);
-
-  // Start the web server.
-  httpServer.begin();
-
-  // Denote that the web server should be started.
-  b_httpd_started = true;
-
-  #if defined(DEBUG_SEND_TO_CONSOLE)
-    debugln(F("Async HTTP Server Started"));
-  #endif
-}
-
-void handleCommonJS(AsyncWebServerRequest *request) {
-  // Used for the root page (/) from the web server.
-  debugln("Sending -> Common JavaScript");
-  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", (const uint8_t*)COMMONJS_page, strlen(COMMONJS_page));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  request->send(response); // Serve page content.
-}
-
-void handleRoot(AsyncWebServerRequest *request) {
-  // Used for the root page (/) from the web server.
-  debugln("Sending -> Index HTML");
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)INDEX_page, strlen(INDEX_page));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  request->send(response); // Serve page content.
-}
-
-void handleRootJS(AsyncWebServerRequest *request) {
-  // Used for the root page (/) from the web server.
-  debugln("Sending -> Index JavaScript");
-  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", (const uint8_t*)INDEXJS_page, strlen(INDEXJS_page));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  request->send(response); // Serve page content.
-}
-
-void handleNetwork(AsyncWebServerRequest *request) {
-  // Used for the network page from the web server.
-  debugln("Sending -> Network HTML");
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)NETWORK_page, strlen(NETWORK_page));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  request->send(response); // Serve page content.
-}
-
-void handlePassword(AsyncWebServerRequest *request) {
-  // Used for the password page from the web server.
-  debugln("Sending -> Password HTML");
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)PASSWORD_page, strlen(PASSWORD_page));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  request->send(response); // Serve page content.
-}
-
-void handleDeviceSettings(AsyncWebServerRequest *request) {
-  // Used for the device page from the web server.
-  debugln("Sending -> Device Settings HTML");
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)DEVICE_page, strlen(DEVICE_page));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  request->send(response); // Serve page content.
-}
-
-void handlePackSettings(AsyncWebServerRequest *request) {
-  // Tell the pack that we'll need the latest pack EEPROM values.
-  b_received_prefs_pack = false;
-  attenuatorSerialSend(A_REQUEST_PREFERENCES_PACK);
-
-  // Used for the settings page from the web server.
-  debugln("Sending -> Pack Settings HTML");
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)PACK_SETTINGS_page, strlen(PACK_SETTINGS_page));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  request->send(response); // Serve page content.
-}
-
-void handleWandSettings(AsyncWebServerRequest *request) {
-  // Tell the pack that we'll need the latest wand EEPROM values.
-  b_received_prefs_wand = false;
-  attenuatorSerialSend(A_REQUEST_PREFERENCES_WAND);
-
-  // Used for the settings page from the web server.
-  debugln("Sending -> Wand Settings HTML");
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)WAND_SETTINGS_page, strlen(WAND_SETTINGS_page));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  request->send(response); // Serve page content.
-}
-
-void handleSmokeSettings(AsyncWebServerRequest *request) {
-  // Tell the pack that we'll need the latest smoke EEPROM values.
-  b_received_prefs_smoke = false;
-  attenuatorSerialSend(A_REQUEST_PREFERENCES_SMOKE);
-
-  // Used for the settings page from the web server.
-  debugln("Sending -> Smoke Settings HTML");
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)SMOKE_SETTINGS_page, strlen(SMOKE_SETTINGS_page));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  request->send(response); // Serve page content.
-}
-
-void handleStylesheet(AsyncWebServerRequest *request) {
-  // Used for the root page (/) of the web server.
-  debugln("Sending -> Main StyleSheet");
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/css", (const uint8_t*)STYLE_page, strlen(STYLE_page));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  request->send(response); // Serve page content.
-}
-
-void handleEquipSvg(AsyncWebServerRequest *request) {
-  // Used for the root page (/) of the web server.
-  debugln("Sending -> Equipment SVG");
-  AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", EQUIP_svg, sizeof(EQUIP_svg));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip");
-  request->send(response);
-}
-
-void handleFavIco(AsyncWebServerRequest *request) {
-  // Used for the root page (/) of the web server.
-  debugln("Sending -> Favicon");
-  AsyncWebServerResponse *response = request->beginResponse(200, "image/x-icon", FAVICON_ico, sizeof(FAVICON_ico));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip");
-  request->send(response);
-}
-
-void handleFavSvg(AsyncWebServerRequest *request) {
-  // Used for the root page (/) of the web server.
-  debugln("Sending -> Favicon");
-  AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", FAVICON_svg, sizeof(FAVICON_svg));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip");
-  request->send(response);
-}
 
 String getDeviceConfig() {
   // Prepare a JSON object with information we have gleaned from the system.
@@ -752,6 +534,273 @@ String getWifiSettings() {
   return wifiNetwork;
 }
 
+/*
+ * Web Handler Functions - Performs actions or returns data for web UI
+ */
+
+void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
+  switch(type) {
+    case WS_EVT_CONNECT:
+      #if defined(DEBUG_SEND_TO_CONSOLE)
+        debugf("WebSocket[%s][%lu] Connect\n", server->url(), client->id());
+      #endif
+      i_ws_client_count++;
+    break;
+
+    case WS_EVT_DISCONNECT:
+      #if defined(DEBUG_SEND_TO_CONSOLE)
+        debugf("WebSocket[%s][C:%lu] Disconnect\n", server->url(), client->id());
+      #endif
+      if(i_ws_client_count > 0) {
+        i_ws_client_count--;
+      }
+    break;
+
+    case WS_EVT_ERROR:
+      #if defined(DEBUG_SEND_TO_CONSOLE)
+        debugf("WebSocket[%s][C:%lu] Error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
+      #endif
+    break;
+
+    case WS_EVT_PONG:
+      #if defined(DEBUG_SEND_TO_CONSOLE)
+        debugf("WebSocket[%s][C:%lu] Pong[L:%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
+      #endif
+    break;
+
+    case WS_EVT_DATA:
+      #if defined(DEBUG_SEND_TO_CONSOLE)
+        debugf("WebSocket[%s][C:%lu] Data[L:%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
+      #endif
+    break;
+  }
+}
+
+// Send notification to all websocket clients.
+void notifyWSClients() {
+  if(b_httpd_started) {
+    // Send latest status to all connected clients.
+    ws.textAll(getEquipmentStatus());
+  }
+}
+
+void onOTAStart() {
+  // Log when OTA has started
+  debugln(F("OTA update started"));
+}
+
+void onOTAProgress(size_t current, size_t final) {
+  // Log every 1 second
+  if(millis() - i_progress_millis > 1000) {
+    i_progress_millis = millis();
+    debugf("OTA Progress Current: %u bytes, Final: %u bytes\n", current, final);
+  }
+}
+
+void onOTAEnd(bool success) {
+  // Log when OTA has finished
+  if(success) {
+    debugln(F("OTA update finished successfully!"));
+  }
+  else {
+    debugln(F("There was an error during OTA update!"));
+  }
+}
+
+// Return a small JSON object with a "status" property: {"status":"<value>"}
+// This returns the provided status string verbatim (no escaping or modification).
+String returnJsonStatus(const String &status = String("success")) {
+  String s_out;
+  s_out.reserve(status.length() + 16); // Reserve space to avoid multiple allocations.
+  s_out = "{\"status\":\"";
+  s_out += status; // Append status value.
+  s_out += "\"}";
+  return s_out;
+}
+
+void startWebServer() {
+  // Configures URI routing with function handlers.
+  setupRouting();
+
+  // Configure the WebSocket endpoint.
+  ws.onEvent(onWebSocketEventHandler);
+  httpServer.addHandler(&ws);
+
+  // Configure the OTA firmware endpoint handler.
+  ElegantOTA.begin(&httpServer);
+
+  // ElegantOTA callbacks
+  ElegantOTA.onStart(onOTAStart);
+  ElegantOTA.onProgress(onOTAProgress);
+  ElegantOTA.onEnd(onOTAEnd);
+
+  // Start the web server.
+  httpServer.begin();
+
+  // Denote that the web server should be started.
+  b_httpd_started = true;
+
+  #if defined(DEBUG_SEND_TO_CONSOLE)
+    debugln(F("Async HTTP Server Started"));
+  #endif
+}
+
+// Perform management if the AP and web server are started.
+void webLoops() {
+  if(b_local_ap_started && b_httpd_started) {
+    if(ms_cleanup.remaining() < 1) {
+      // Clean up oldest WebSocket connections.
+      ws.cleanupClients();
+
+      // Restart timer for next cleanup action.
+      ms_cleanup.start(i_websocketCleanup);
+    }
+
+    if(ms_apclient.remaining() < 1) {
+      // Update the current count of AP clients.
+      i_ap_client_count = WiFi.softAPgetStationNum();
+
+      // Restart timer for next count.
+      ms_apclient.start(i_apClientCount);
+    }
+
+    if(ms_otacheck.remaining() < 1) {
+      // Handles device reboot after an OTA update.
+      ElegantOTA.loop();
+
+      // Restart timer for next check.
+      ms_otacheck.start(i_otaCheck);
+    }
+  }
+}
+
+/**
+ * Standard Page Handlers - Delivers the main web pages and common content
+ */
+
+void handleRoot(AsyncWebServerRequest *request) {
+  // Used for the root page (/) from the web server.
+  debugln("Sending -> Index HTML");
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)INDEX_page, strlen(INDEX_page));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  request->send(response); // Serve page content.
+}
+
+void handleRootJS(AsyncWebServerRequest *request) {
+  // Used for the root page (/) from the web server.
+  debugln("Sending -> Index JavaScript");
+  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", (const uint8_t*)INDEXJS_page, strlen(INDEXJS_page));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  request->send(response); // Serve page content.
+}
+
+void handleCommonJS(AsyncWebServerRequest *request) {
+  // Used for the root page (/) from the web server.
+  debugln("Sending -> Common JavaScript");
+  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", (const uint8_t*)COMMONJS_page, strlen(COMMONJS_page));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  request->send(response); // Serve page content.
+}
+
+void handleStylesheet(AsyncWebServerRequest *request) {
+  // Used for the common stylesheet of the web server.
+  debugln("Sending -> Main StyleSheet");
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/css", (const uint8_t*)STYLE_page, strlen(STYLE_page));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  request->send(response); // Serve page content.
+}
+
+void handleFavIco(AsyncWebServerRequest *request) {
+  // Used for the favicon of the web server.
+  debugln("Sending -> Favicon");
+  AsyncWebServerResponse *response = request->beginResponse(200, "image/x-icon", FAVICON_ico, sizeof(FAVICON_ico));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  response->addHeader("Content-Encoding", "gzip");
+  request->send(response); // Serve gzipped .ico file.
+}
+
+void handleFavSvg(AsyncWebServerRequest *request) {
+  // Used for the favicon of the web server.
+  debugln("Sending -> Favicon");
+  AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", FAVICON_svg, sizeof(FAVICON_svg));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  response->addHeader("Content-Encoding", "gzip");
+  request->send(response); // Serve gzipped .svg file.
+}
+
+void handleNetwork(AsyncWebServerRequest *request) {
+  // Used for the network page from the web server.
+  debugln("Sending -> Network HTML");
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)NETWORK_page, strlen(NETWORK_page));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  request->send(response); // Serve page content.
+}
+
+void handlePassword(AsyncWebServerRequest *request) {
+  // Used for the password page from the web server.
+  debugln("Sending -> Password HTML");
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)PASSWORD_page, strlen(PASSWORD_page));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  request->send(response); // Serve page content.
+}
+
+void handleDeviceSettings(AsyncWebServerRequest *request) {
+  // Used for the device page from the web server.
+  debugln("Sending -> Device Settings HTML");
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)DEVICE_page, strlen(DEVICE_page));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  request->send(response); // Serve page content.
+}
+
+/**
+ * Peripheral Page Handlers - Delivers the preference pages for available peripherals
+ */
+
+void handlePackSettings(AsyncWebServerRequest *request) {
+  // Tell the pack that we'll need the latest pack EEPROM values.
+  b_received_prefs_pack = false;
+  attenuatorSerialSend(A_REQUEST_PREFERENCES_PACK);
+
+  // Used for the settings page from the web server.
+  debugln("Sending -> Pack Settings HTML");
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)PACK_SETTINGS_page, strlen(PACK_SETTINGS_page));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  request->send(response); // Serve page content.
+}
+
+void handleWandSettings(AsyncWebServerRequest *request) {
+  // Tell the pack that we'll need the latest wand EEPROM values.
+  b_received_prefs_wand = false;
+  attenuatorSerialSend(A_REQUEST_PREFERENCES_WAND);
+
+  // Used for the settings page from the web server.
+  debugln("Sending -> Wand Settings HTML");
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)WAND_SETTINGS_page, strlen(WAND_SETTINGS_page));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  request->send(response); // Serve page content.
+}
+
+void handleSmokeSettings(AsyncWebServerRequest *request) {
+  // Tell the pack that we'll need the latest smoke EEPROM values.
+  b_received_prefs_smoke = false;
+  attenuatorSerialSend(A_REQUEST_PREFERENCES_SMOKE);
+
+  // Used for the settings page from the web server.
+  debugln("Sending -> Smoke Settings HTML");
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)SMOKE_SETTINGS_page, strlen(SMOKE_SETTINGS_page));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  request->send(response); // Serve page content.
+}
+
+void handleEquipSvg(AsyncWebServerRequest *request) {
+  // Used for the equipment view from the web server.
+  debugln("Sending -> Equipment SVG");
+  AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", EQUIP_svg, sizeof(EQUIP_svg));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  response->addHeader("Content-Encoding", "gzip");
+  request->send(response); // Serve image content.
+}
+
 void handleGetDeviceConfig(AsyncWebServerRequest *request) {
   // Return current device settings as a stringified JSON object.
   request->send(200, "application/json", getDeviceConfig());
@@ -809,6 +858,10 @@ void handleRestart(AsyncWebServerRequest *request) {
   delay(1000);
   ESP.restart();
 }
+
+/**
+ * Action Handlers - Perform specific actions via web requests
+ */
 
 void handlePackOn(AsyncWebServerRequest *request) {
   debugln("Web: Turn Pack On");
@@ -1206,6 +1259,10 @@ void handleSaveWandEEPROM(AsyncWebServerRequest *request) {
   request->send(200, "application/json", returnJsonStatus());
 }
 
+/**
+ * Body Handler Methods - These handlers process JSON body content from POST requests
+ */
+
 // Handles the JSON body for the Attenuator settings save request.
 AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHandler("/config/device/save", [](AsyncWebServerRequest *request, JsonVariant &json) {
   JsonDocument jsonBody;
@@ -1297,6 +1354,7 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
         break;
       }
     }
+
     if(jsonBody["displayType"].is<unsigned short>()) {
       switch(jsonBody["displayType"].as<unsigned short>()) {
         case 0:
@@ -1366,7 +1424,7 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
   catch (...) {
     request->send(200, "application/json", returnJsonStatus("An error was encountered while saving settings."));
   }
-});
+}); // handleSaveDeviceConfig
 
 // Handles the JSON body for the pack settings save request.
 AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHandler("/config/pack/save", [](AsyncWebServerRequest *request, JsonVariant &json) {
@@ -1461,7 +1519,7 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
     // Tell the user why the requested action failed.
     request->send(200, "application/json", returnJsonStatus("Pack and/or Wand are running, save action cancelled"));
   }
-});
+}); // handleSavePackConfig
 
 // Handles the JSON body for the wand settings save request.
 AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHandler("/config/wand/save", [](AsyncWebServerRequest *request, JsonVariant &json) {
@@ -1516,7 +1574,7 @@ AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHand
     // Tell the user why the requested action failed.
     request->send(200, "application/json", returnJsonStatus("Pack and/or Wand are running, save action cancelled"));
   }
-});
+}); // handleSaveWandConfig
 
 // Handles the JSON body for the smoke settings save request.
 AsyncCallbackJsonWebHandler *handleSaveSmokeConfig = new AsyncCallbackJsonWebHandler("/config/smoke/save", [](AsyncWebServerRequest *request, JsonVariant &json) {
@@ -1573,7 +1631,7 @@ AsyncCallbackJsonWebHandler *handleSaveSmokeConfig = new AsyncCallbackJsonWebHan
     // Tell the user why the requested action failed.
     request->send(200, "application/json", returnJsonStatus("Pack and/or Wand are running, save action cancelled"));
   }
-});
+}); // handleSaveSmokeConfig
 
 // Handles the JSON body for the password change request.
 AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHandler("/password/update", [](AsyncWebServerRequest *request, JsonVariant &json) {
@@ -1615,7 +1673,7 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
     debugln("No password in JSON body");
     request->send(200, "application/json", returnJsonStatus("Unable to update password."));
   }
-});
+}); // passwordChangeHandler
 
 // Handles the JSON body for the wifi network info.
 AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler("/wifi/update", [](AsyncWebServerRequest *request, JsonVariant &json) {
@@ -1733,7 +1791,7 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
     debugln("No password in JSON body");
     request->send(200, "application/json", returnJsonStatus("Unable to update password."));
   }
-});
+}); // wifiChangeHandler
 
 void handleNotFound(AsyncWebServerRequest *request) {
   // Returned for any invalid URL requested.
@@ -1741,13 +1799,12 @@ void handleNotFound(AsyncWebServerRequest *request) {
   request->send(404, "text/plain", "Not Found");
 }
 
+// Define all known URI endpoints for the web server.
+// Declare this last as it uses all of the above functions.
 void setupRouting() {
-  // Define the endpoints for the web server.
-
   // Static Pages
   httpServer.on("/", HTTP_GET, handleRoot);
   httpServer.on("/common.js", HTTP_GET, handleCommonJS);
-  httpServer.on("/equipment.svg", HTTP_GET, handleEquipSvg);
   httpServer.on("/favicon.ico", HTTP_GET, handleFavIco);
   httpServer.on("/favicon.svg", HTTP_GET, handleFavSvg);
   httpServer.on("/index.js", HTTP_GET, handleRootJS);
@@ -1758,6 +1815,7 @@ void setupRouting() {
   httpServer.on("/settings/smoke", HTTP_GET, handleSmokeSettings);
   httpServer.on("/settings/wand", HTTP_GET, handleWandSettings);
   httpServer.on("/style.css", HTTP_GET, handleStylesheet);
+  httpServer.on("/equipment.svg", HTTP_GET, handleEquipSvg);
   httpServer.onNotFound(handleNotFound);
 
   // Get/Set Handlers
@@ -1817,41 +1875,4 @@ void setupRouting() {
   httpServer.addHandler(handleSaveWandConfig); // /config/wand/save
   httpServer.addHandler(passwordChangeHandler); // /password/update
   httpServer.addHandler(wifiChangeHandler); // /wifi/update
-}
-
-// Send notification to all websocket clients.
-void notifyWSClients() {
-  if(b_httpd_started) {
-    // Send latest status to all connected clients.
-    ws.textAll(getEquipmentStatus());
-  }
-}
-
-// Perform management if the AP and web server are started.
-void webLoops() {
-  if(b_local_ap_started && b_httpd_started) {
-    if(ms_cleanup.remaining() < 1) {
-      // Clean up oldest WebSocket connections.
-      ws.cleanupClients();
-
-      // Restart timer for next cleanup action.
-      ms_cleanup.start(i_websocketCleanup);
-    }
-
-    if(ms_apclient.remaining() < 1) {
-      // Update the current count of AP clients.
-      i_ap_client_count = WiFi.softAPgetStationNum();
-
-      // Restart timer for next count.
-      ms_apclient.start(i_apClientCount);
-    }
-
-    if(ms_otacheck.remaining() < 1) {
-      // Handles device reboot after an OTA update.
-      ElegantOTA.loop();
-
-      // Restart timer for next check.
-      ms_otacheck.start(i_otaCheck);
-    }
-  }
 }

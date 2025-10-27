@@ -153,9 +153,9 @@ const char INDEX_page[] PROGMEM = R"=====(
           </ol>
         </details>
       </div>
-      <button type="button" id="btnCalibrateOn" class="green" onclick="enableCalibration()">Start Calibration</button>
+      <button type="button" id="btnCalibrateOn" class="green" onclick="enableCalibration()" style="width:130px;">Start Calibration</button>
       &nbsp;&nbsp;&nbsp;
-      <button type="button" id="btnCalibrateOff" class="red" onclick="disableCalibration()">Stop Calibration</button>
+      <button type="button" id="btnCalibrateOff" class="red" onclick="disableCalibration()" style="width:130px;">Stop Calibration</button>
       <br/>
       <br/>
       <div>
