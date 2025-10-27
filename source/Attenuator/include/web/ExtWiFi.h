@@ -89,7 +89,7 @@ const char NETWORK_page[] PROGMEM = R"=====(
     &nbsp;&nbsp;&nbsp;
     <button type="button" class="green" onclick="saveSettings()">Save</button>
     &nbsp;&nbsp;&nbsp;
-    <button type="button" class="orange" onclick="getNetworks()" id="refreshNetworks" style="width:120px;">Refresh Networks</button>
+    <button type="button" class="orange" onclick="getNetworks()" id="refreshNetworks" style="width:160px;">Refresh Networks</button>
     <br/>
     <br/>
   </div>

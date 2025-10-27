@@ -466,8 +466,8 @@ String getDeviceConfig() {
   jsonBody["audioVersion"] = i_pack_audio_version;
   jsonBody["wifiName"] = wirelessMgr->getLocalNetworkName();
   jsonBody["wifiNameExt"] = wirelessMgr->getExtWifiNetworkName();
-  jsonBody["extAddr"] = String(wirelessMgr->getExtWifiAddress());
-  jsonBody["extMask"] = String(wirelessMgr->getExtWifiSubnet());
+  jsonBody["extAddr"] = wirelessMgr->getExtWifiAddress().toString();
+  jsonBody["extMask"] = wirelessMgr->getExtWifiSubnet().toString();
 
   // Serialize JSON object to string.
   serializeJson(jsonBody, equipSettings);
@@ -796,9 +796,6 @@ void handleGetSSIDs(AsyncWebServerRequest *request) {
   // Make a single array property and add each discovered SSID.
   JsonArray arr = jsonBody["networks"].to<JsonArray>();
   for (uint8_t i = 0; i < i_found; ++i) {
-    #if defined(DEBUG_SEND_TO_CONSOLE)
-      debugf("Found SSID: %s\n", ssidList[i].c_str());
-    #endif
     arr.add(ssidList[i]);
   }
 
