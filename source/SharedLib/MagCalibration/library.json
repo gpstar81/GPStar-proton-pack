@@ -7,6 +7,7 @@
     "magnetometer",
     "calibration",
     "utilities",
+    "esp32",
     "gpstar"
   ],
   "authors": [
@@ -24,8 +25,8 @@
     }
   ],
   "license": "GPL-3.0-or-later",
-  "frameworks": "*",
-  "platforms": "*",
+  "frameworks": ["arduino"],
+  "platforms": ["espressif32"],
   "build": {
     "includeDir": "include"
   }

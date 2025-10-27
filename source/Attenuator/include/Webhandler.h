@@ -145,6 +145,7 @@ String getSafety() {
 String getWandMode() {
   switch(STREAM_MODE) {
     case PROTON:
+    default:
       return "Proton Stream";
     break;
     case SLIME:
@@ -173,9 +174,6 @@ String getWandMode() {
     break;
     case SETTINGS:
       return "Settings";
-    break;
-    default:
-      return "Unknown";
     break;
   }
 }
@@ -766,6 +764,7 @@ void handleGetPackConfig(AsyncWebServerRequest *request) {
 
 void handleGetWandConfig(AsyncWebServerRequest *request) {
   // Return current wand settings as a stringified JSON object.
+  // Object should be waiting in memory after being returned.
   request->send(200, "application/json", getWandConfig());
 }
 
@@ -1019,7 +1018,7 @@ void handleStreamModeChange(AsyncWebServerRequest *request) {
 
   // Get the requested stream mode from the URL path and map to a valid stream type.
   uint8_t i_mode = getStreamModeFromPath(request->url());
-  STREAM_MODES new_stream_mode = UNSET;
+  STREAM_MODES new_stream_mode = UNSET_STREAM;
   switch(i_mode) {
     case 1:
       new_stream_mode = PROTON;
@@ -1047,7 +1046,7 @@ void handleStreamModeChange(AsyncWebServerRequest *request) {
     break;
     default:
       debugln("Invalid Firing Mode");
-      request->send(400, "application/json", returnJsonStatus("Invalid Firing Mode")); // 400 Bad Request
+      request->send(400, "application/json", returnJsonStatus("Invalid Stream Mode")); // 400 Bad Request
       return;
     break;
   }
@@ -1180,7 +1179,7 @@ void handleSelectMusicTrack(AsyncWebServerRequest *request) {
     uint16_t i_music_track = c_music_track.toInt();
     debugln("Web: Selected Music Track: " + String(i_music_track));
     attenuatorSerialSend(A_MUSIC_PLAY_TRACK, i_music_track); // Inform the pack of the new track.
-    request->send(200, "application/json", returnJsonStatus("Web: Selected Music Track: " + String(i_music_track)));
+    request->send(200, "application/json", returnJsonStatus("Selected Music Track: " + String(i_music_track)));
   }
   else {
     // Tell the user why the requested action failed.
@@ -1662,19 +1661,19 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
 
         // Continue saving only if network values are 7 characters or more (eg. N.N.N.N)
         bool b_static_ip = true;
-        if(localAddr.length() >= 7 && localAddr != String(wirelessMgr->getExtWifiAddress())) {
+        if(localAddr.length() >= 7 && localAddr != wirelessMgr->getExtWifiAddress().toString()) {
           preferences.putString("address", localAddr);
         }
         else {
           b_static_ip = false;
         }
-        if(subnetMask.length() >= 7 && subnetMask != String(wirelessMgr->getExtWifiSubnet())) {
+        if(subnetMask.length() >= 7 && subnetMask != wirelessMgr->getExtWifiSubnet().toString()) {
           preferences.putString("subnet", subnetMask);
         }
         else {
           b_static_ip = false;
         }
-        if(gatewayIP.length() >= 7 && gatewayIP != String(wirelessMgr->getExtWifiGateway())) {
+        if(gatewayIP.length() >= 7 && gatewayIP != wirelessMgr->getExtWifiGateway().toString()) {
           preferences.putString("gateway", gatewayIP);
         }
         else {
@@ -1703,8 +1702,6 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
     }
 
     if(!b_errors) {
-      JsonDocument jsonBody;
-
       // Disconnect from the WiFi network and re-apply any changes.
       WiFi.disconnect();
       b_ext_wifi_started = false;

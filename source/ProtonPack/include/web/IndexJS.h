@@ -96,7 +96,7 @@ function getDevicePrefs() {
         // Device Info
         setHtml("buildDate", "Build: " + (jObj.buildDate || ""));
         setHtml("wifiName", jObj.wifiName || "");
-        if ((jObj.wifiNameExt || "") != "" && (jObj.extAddr || "") != "" || (jObj.extMask || "") != "") {
+        if ((jObj.wifiNameExt || "") != "") {
           setHtml("extWifi", (jObj.wifiNameExt || "") + ": " + jObj.extAddr + " / " + jObj.extMask);
         }
         switch(jObj.audioVersion || 0) {

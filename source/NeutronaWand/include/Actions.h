@@ -19,10 +19,6 @@
 
 #pragma once
 
-#ifdef ESP32
-void resetWifiPassword(); // Forward function declaration.
-#endif
-
 void checkWandAction() {
   switch(WAND_ACTION_STATUS) {
     case ACTION_IDLE:
@@ -1762,7 +1758,7 @@ void checkWandAction() {
           else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
             if(switch_intensify.pushed()) {
               // Reset the WiFi password to default.
-              resetWifiPassword();
+              wirelessMgr->resetWifiPassword();
 
               // Turn off the WiFi until the user decides to manually enable and reconnect.
               WIFI_MODE = WIFI_DISABLED;

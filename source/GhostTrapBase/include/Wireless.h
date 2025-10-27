@@ -144,14 +144,6 @@ String sanitizeSSID(const String input) {
   return result;
 }
 
-// Reset the AP password in case the user forgot it.
-void resetWifiPassword() {
-  if(preferences.begin("credentials", false)) {
-    preferences.putString("password", ap_default_passwd);
-    preferences.end();
-  }
-}
-
 /*
  * WiFi Management Functions
  */

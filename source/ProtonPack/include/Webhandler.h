@@ -20,6 +20,10 @@
 
 #pragma once
 
+#include <AsyncJson.h>
+#include <ESPAsyncWebServer.h>
+#include <ElegantOTA.h>
+
 // Web page files (defines all text as char[] variable)
 #include "web/CommonJS.h" // COMMONJS_page
 #include "web/Index.h" // INDEX_page
@@ -34,9 +38,31 @@
 #include "web/Equip.h" // EQUIP_svg
 #include "web/Icon.h" // FAVICON_ico, FAVICON_svg
 
+// Define standard ports and URI endpoints.
+const uint16_t WS_PORT = 80; // Web Server (+WebSocket) port
+const char WS_URI[] = "/ws"; // WebSocket endpoint URI
+bool b_httpd_started = false; // Denotes the web server has been started.
+
+// Define an asynchronous web server at TCP port 80.
+AsyncWebServer httpServer(WS_PORT);
+
+// Define a websocket endpoint for the async web server.
+AsyncWebSocket ws(WS_URI);
+
+// Track the number of connected WebSocket clients.
+uint8_t i_ws_client_count = 0;
+
+// Track time to refresh progress for OTA updates.
+unsigned long i_progress_millis = 0;
+
+// Create timer for WebSocket cleanup.
+millisDelay ms_cleanup;
+const uint16_t i_websocketCleanup = 5000;
+
 // Forward function declarations.
 void setupRouting();
 void getSpecialPreferences();
+bool canChangeStreamMode();
 
 // Rounds a float to 2 decimal places.
 float roundFloat(float value) {
@@ -194,9 +220,6 @@ String getCyclotronState() {
 /*
  * Web Handler Functions - Performs actions or returns data for web UI
  */
-JsonDocument jsonBody; // Used for processing JSON body/payload data.
-JsonDocument jsonSuccess; // Used for sending JSON status as success.
-String status; // Holder for simple "status: success" response.
 
 void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
   switch(type) {
@@ -259,17 +282,23 @@ void onOTAEnd(bool success) {
   }
 }
 
+// Return a small JSON object with a "status" property: {"status":"<value>"}
+// This returns the provided status string verbatim (no escaping or modification).
+String returnJsonStatus(const String &status = String("success")) {
+  String s_out;
+  s_out.reserve(status.length() + 16); // Reserve space to avoid multiple allocations.
+  s_out = "{\"status\":\"";
+  s_out += status; // Append status value.
+  s_out += "\"}";
+  return s_out;
+}
+
 void startWebServer() {
   // Configures URI routing with function handlers.
   setupRouting();
 
   // Get preferences for the web UI.
   getSpecialPreferences();
-
-  // Prepare a standard "success" message for responses.
-  jsonSuccess.clear();
-  jsonSuccess["status"] = "success";
-  serializeJson(jsonSuccess, status);
 
   // Configure the WebSocket endpoint.
   ws.onEvent(onWebSocketEventHandler);
@@ -376,44 +405,44 @@ void handleSmokeSettings(AsyncWebServerRequest *request) {
 }
 
 void handleStylesheet(AsyncWebServerRequest *request) {
-  // Used for the root page (/) of the web server.
+  // Used for the common stylesheet of the web server.
   debugln("Sending -> Main StyleSheet");
   AsyncWebServerResponse *response = request->beginResponse(200, "text/css", (const uint8_t*)STYLE_page, strlen(STYLE_page));
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   request->send(response); // Serve page content.
 }
 
-void handleEquipSvg(AsyncWebServerRequest *request) {
-  // Used for the root page (/) of the web server.
-  debugln("Sending -> Equipment SVG");
-  AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", EQUIP_svg, sizeof(EQUIP_svg));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip");
-  request->send(response);
-}
-
 void handleFavIco(AsyncWebServerRequest *request) {
-  // Used for the root page (/) of the web server.
+  // Used for the favicon of the web server.
   debugln("Sending -> Favicon");
   AsyncWebServerResponse *response = request->beginResponse(200, "image/x-icon", FAVICON_ico, sizeof(FAVICON_ico));
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   response->addHeader("Content-Encoding", "gzip");
-  request->send(response);
+  request->send(response); // Serve gzipped .ico file.
 }
 
 void handleFavSvg(AsyncWebServerRequest *request) {
-  // Used for the root page (/) of the web server.
+  // Used for the favicon of the web server.
   debugln("Sending -> Favicon");
   AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", FAVICON_svg, sizeof(FAVICON_svg));
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   response->addHeader("Content-Encoding", "gzip");
-  request->send(response);
+  request->send(response); // Serve gzipped .svg file.
+}
+
+void handleEquipSvg(AsyncWebServerRequest *request) {
+  // Used for the equipment view from the web server.
+  debugln("Sending -> Equipment SVG");
+  AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", EQUIP_svg, sizeof(EQUIP_svg));
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  response->addHeader("Content-Encoding", "gzip");
+  request->send(response); // Serve image content.
 }
 
 String getDeviceConfig() {
   // Prepare a JSON object with information we have gleaned from the system.
   String equipSettings;
-  jsonBody.clear();
+  JsonDocument jsonBody;
 
   // Provide current values for the device.
   jsonBody["displayType"] = DISPLAY_TYPE;
@@ -425,10 +454,10 @@ String getDeviceConfig() {
   }
   jsonBody["buildDate"] = build_date;
   jsonBody["audioVersion"] = i_audio_version;
-  jsonBody["wifiName"] = ap_ssid;
-  jsonBody["wifiNameExt"] = wifi_ssid;
-  jsonBody["extAddr"] = wifi_address;
-  jsonBody["extMask"] = wifi_subnet;
+  jsonBody["wifiName"] = wirelessMgr->getLocalNetworkName();
+  jsonBody["wifiNameExt"] = wirelessMgr->getExtWifiNetworkName();
+  jsonBody["extAddr"] = wirelessMgr->getExtWifiAddress().toString();
+  jsonBody["extMask"] = wirelessMgr->getExtWifiSubnet().toString();
 
   // Serialize JSON object to string.
   serializeJson(jsonBody, equipSettings);
@@ -438,7 +467,7 @@ String getDeviceConfig() {
 String getPackConfig() {
   // Prepare a JSON object with information we have gleaned from the system.
   String equipSettings;
-  jsonBody.clear();
+  JsonDocument jsonBody;
 
   // Provide a flag to indicate prefs are directly available.
   jsonBody["prefsAvailable"] = true; // Always true for the immediate device.
@@ -495,7 +524,7 @@ String getPackConfig() {
 String getWandConfig() {
   // Prepare a JSON object with information we have gleaned from the system.
   String equipSettings;
-  jsonBody.clear();
+  JsonDocument jsonBody;
 
   // Provide a flag to indicate prefs were received via serial coms.
   jsonBody["prefsAvailable"] = b_received_prefs_wand;
@@ -540,7 +569,7 @@ String getWandConfig() {
 String getSmokeConfig() {
   // Prepare a JSON object with information we have gleaned from the system.
   String equipSettings;
-  jsonBody.clear();
+  JsonDocument jsonBody;
 
   // Provide a flag to indicate prefs were received via serial coms.
   jsonBody["prefsAvailable"] = true; // Always true for the immediate device.
@@ -595,7 +624,7 @@ String getSmokeConfig() {
 String getEquipmentStatus() {
   // Prepare a JSON object with information we have gleaned from the system.
   String equipStatus;
-  jsonBody.clear();
+  JsonDocument jsonBody;
 
   uint16_t i_music_track_min = 0;
   uint16_t i_music_track_max = 0;
@@ -651,7 +680,10 @@ String getEquipmentStatus() {
 String getWifiSettings() {
   // Prepare a JSON object with information stored in preferences (or a blank default).
   String wifiNetwork;
-  jsonBody.clear();
+  JsonDocument jsonBody;
+
+  // Create Preferences object to handle non-volatile storage (NVS).
+  Preferences preferences;
 
   // Accesses namespace in read-only mode.
   if(preferences.begin("network", true)) {
@@ -661,17 +693,17 @@ String getWifiSettings() {
 
     jsonBody["address"] = preferences.getString("address");
     if(jsonBody["address"].as<String>() == "") {
-      jsonBody["address"] = wifi_address;
+      jsonBody["address"] = wirelessMgr->getExtWifiAddress().toString();
     }
 
     jsonBody["subnet"] = preferences.getString("subnet");
     if(jsonBody["subnet"].as<String>() == "") {
-      jsonBody["subnet"] = wifi_subnet;
+      jsonBody["subnet"] = wirelessMgr->getExtWifiSubnet().toString();
     }
 
     jsonBody["gateway"] = preferences.getString("gateway");
     if(jsonBody["gateway"].as<String>() == "") {
-      jsonBody["gateway"] = wifi_gateway;
+      jsonBody["gateway"] = wirelessMgr->getExtWifiGateway().toString();
     }
 
     preferences.end();
@@ -726,9 +758,29 @@ void handleGetWifi(AsyncWebServerRequest *request) {
   request->send(200, "application/json", getWifiSettings());
 }
 
+void handleGetSSIDs(AsyncWebServerRequest *request) {
+  // Prepare a JSON object with an array of WiFi networks nearby.
+  String wifiNetworks;
+  String ssidList[40];
+  JsonDocument jsonBody;
+
+  // Return available SSIDs (up to 40) as a String array.
+  uint8_t i_found = wirelessMgr->scanForSSIDs(ssidList, 40);
+
+  // Make a single array property and add each discovered SSID.
+  JsonArray arr = jsonBody["networks"].to<JsonArray>();
+  for (uint8_t i = 0; i < i_found; ++i) {
+    arr.add(ssidList[i]);
+  }
+
+  // Serialize JSON object to string.
+  serializeJson(jsonBody, wifiNetworks);
+  request->send(200, "application/json", wifiNetworks);
+}
+
 void handleRestart(AsyncWebServerRequest *request) {
   // Performs a restart of the device.
-  request->send(204, "application/json", status);
+  request->send(204, "application/json", returnJsonStatus());
   delay(1000);
   ESP.restart();
 }
@@ -736,13 +788,13 @@ void handleRestart(AsyncWebServerRequest *request) {
 void handlePackOn(AsyncWebServerRequest *request) {
   debugln("Web: Turn Pack On");
   executeCommand(A_TURN_PACK_ON);
-  request->send(200, "application/json", status);
+  request->send(200, "application/json", returnJsonStatus());
 }
 
 void handlePackOff(AsyncWebServerRequest *request) {
   debugln("Web: Turn Pack Off");
   executeCommand(A_TURN_PACK_OFF);
-  request->send(200, "application/json", status);
+  request->send(200, "application/json", returnJsonStatus());
 }
 
 void handleAttenuatePack(AsyncWebServerRequest *request) {
@@ -750,22 +802,18 @@ void handleAttenuatePack(AsyncWebServerRequest *request) {
     // Only send command to pack if cyclotron is not "normal".
     debugln("Web: Cancel Overheat Warning");
     executeCommand(A_WARNING_CANCELLED);
-    request->send(200, "application/json", status);
+    request->send(200, "application/json", returnJsonStatus());
   }
   else {
     // Tell the user why the requested action failed.
-    String result;
-    jsonBody.clear();
-    jsonBody["status"] = "System not in overheat warning";
-    serializeJson(jsonBody, result); // Serialize to string.
-    request->send(200, "application/json", result);
+    request->send(200, "application/json", returnJsonStatus("System not in overheat warning"));
   }
 }
 
 void handleManualVent(AsyncWebServerRequest *request) {
   debugln("Web: Manual Vent Triggered");
   executeCommand(A_MANUAL_OVERHEAT);
-  request->send(200, "application/json", status);
+  request->send(200, "application/json", returnJsonStatus());
 }
 
 void handleToggleSmoke(AsyncWebServerRequest *request) {
@@ -778,23 +826,19 @@ void handleToggleSmoke(AsyncWebServerRequest *request) {
       String segment = s_path.substring(lastSlash + 1);
       if(segment == "on") {
         executeCommand(A_TOGGLE_SMOKE);
-        request->send(200, "application/json", status);
+        request->send(200, "application/json", returnJsonStatus());
         return;
       }
       else if(segment == "off") {
         executeCommand(A_TOGGLE_SMOKE);
-        request->send(200, "application/json", status);
+        request->send(200, "application/json", returnJsonStatus());
         return;
       }
     }
   }
 
   debugln("Invalid Smoke State");
-  String result;
-  jsonBody.clear();
-  jsonBody["status"] = "Invalid Smoke State";
-  serializeJson(jsonBody, result);
-  request->send(400, "application/json", result); // 400 Bad Request
+  request->send(400, "application/json", returnJsonStatus("Invalid Smoke State")); // 400 Bad Request
 }
 
 void handleToggleVibration(AsyncWebServerRequest *request) {
@@ -807,23 +851,19 @@ void handleToggleVibration(AsyncWebServerRequest *request) {
       String segment = s_path.substring(lastSlash + 1);
       if(segment == "on") {
         executeCommand(A_TOGGLE_VIBRATION);
-        request->send(200, "application/json", status);
+        request->send(200, "application/json", returnJsonStatus());
         return;
       }
       else if(segment == "off") {
         executeCommand(A_TOGGLE_VIBRATION);
-        request->send(200, "application/json", status);
+        request->send(200, "application/json", returnJsonStatus());
         return;
       }
     }
   }
 
   debugln("Invalid Vibration State");
-  String result;
-  jsonBody.clear();
-  jsonBody["status"] = "Invalid Vibration State";
-  serializeJson(jsonBody, result);
-  request->send(400, "application/json", result); // 400 Bad Request
+  request->send(400, "application/json", returnJsonStatus("Invalid Vibration State")); // 400 Bad Request
 }
 
 void handleCyclotronDirection(AsyncWebServerRequest *request) {
@@ -836,23 +876,19 @@ void handleCyclotronDirection(AsyncWebServerRequest *request) {
       String segment = s_path.substring(lastSlash + 1);
       if(segment == "clockwise") {
         executeCommand(A_CYCLOTRON_DIRECTION_TOGGLE);
-        request->send(200, "application/json", status);
+        request->send(200, "application/json", returnJsonStatus());
         return;
       }
       else if(segment == "counterclockwise") {
         executeCommand(A_CYCLOTRON_DIRECTION_TOGGLE);
-        request->send(200, "application/json", status);
+        request->send(200, "application/json", returnJsonStatus());
         return;
       }
     }
   }
 
   debugln("Invalid Direction");
-  String result;
-  jsonBody.clear();
-  jsonBody["status"] = "Invalid Direction";
-  serializeJson(jsonBody, result);
-  request->send(400, "application/json", result); // 400 Bad Request
+  request->send(400, "application/json", returnJsonStatus("Invalid Direction")); // 400 Bad Request
 }
 
 uint16_t getYearFromPath(const String s_path) {
@@ -877,11 +913,7 @@ void handleThemeChange(AsyncWebServerRequest *request) {
 
   // Pre-check: Prevent theme change if pack or wand is running.
   if(b_pack_on || b_wand_on || b_pack_shutting_down) {
-    String result;
-    jsonBody.clear();
-    jsonBody["status"] = "Theme change not allowed while pack or wand is running.";
-    serializeJson(jsonBody, result);
-    request->send(409, "application/json", result); // 409 Conflict
+    request->send(409, "application/json", returnJsonStatus("Theme change not allowed while pack or wand is running.")); // 409 Conflict
     return;
   }
 
@@ -901,16 +933,12 @@ void handleThemeChange(AsyncWebServerRequest *request) {
     break;
     default:
       debugln("Invalid Theme Year");
-      String result;
-      jsonBody.clear();
-      jsonBody["status"] = "Invalid Theme Year";
-      serializeJson(jsonBody, result);
-      request->send(400, "application/json", result); // 400 Bad Request
+      request->send(400, "application/json", returnJsonStatus("Invalid Theme Year")); // 400 Bad Request
       return;
     break;
   }
 
-  request->send(200, "application/json", status);
+  request->send(200, "application/json", returnJsonStatus());
 }
 
 uint8_t getStreamModeFromPath(const String s_path) {
@@ -953,54 +981,51 @@ uint8_t getStreamModeFromPath(const String s_path) {
 void handleStreamModeChange(AsyncWebServerRequest *request) {
   debugln("Web: Firing Mode Change Triggered");
 
-  // Pre-check: Prevent stream mode change if pack is firing or in error state.
-  if(b_wand_firing || b_overheating || b_pack_alarm || b_pack_shutting_down) {
-    String result;
-    jsonBody.clear();
-    jsonBody["status"] = "Stream mode change not allowed while pack is firing or in error state.";
-    serializeJson(jsonBody, result);
-    request->send(409, "application/json", result); // 409 Conflict
+  // Pre-check: Prevent stream mode change when the system can't handle it.
+  if(!canChangeStreamMode()) {
+    request->send(409, "application/json", returnJsonStatus("Stream mode change not allowed while pack is firing or in error state.")); // 409 Conflict
     return;
   }
 
+  // Get the requested stream mode from the URL path and map to a valid stream type.
   uint8_t i_mode = getStreamModeFromPath(request->url());
+  STREAM_MODES new_stream_mode = UNSET_STREAM;
   switch(i_mode) {
     case 1:
-      executeCommand(A_PROTON_MODE);
+      new_stream_mode = PROTON;
     break;
     case 2:
-      executeCommand(A_STASIS_MODE);
+      new_stream_mode = STASIS;
     break;
     case 3:
-      executeCommand(A_SLIME_MODE);
+      new_stream_mode = SLIME;
     break;
     case 4:
-      executeCommand(A_MESON_MODE);
+      new_stream_mode = MESON;
     break;
     case 5:
-      executeCommand(A_SPECTRAL_MODE);
+      new_stream_mode = SPECTRAL;
     break;
     case 6:
-      executeCommand(A_HALLOWEEN_MODE);
+      new_stream_mode = HOLIDAY_HALLOWEEN;
     break;
     case 7:
-      executeCommand(A_CHRISTMAS_MODE);
+      new_stream_mode = HOLIDAY_CHRISTMAS;
     break;
     case 8:
-      executeCommand(A_SPECTRAL_CUSTOM_MODE);
+      new_stream_mode = SPECTRAL_CUSTOM;
     break;
     default:
       debugln("Invalid Firing Mode");
-      String result;
-      jsonBody.clear();
-      jsonBody["status"] = "Invalid Firing Mode";
-      serializeJson(jsonBody, result);
-      request->send(400, "application/json", result); // 400 Bad Request
+      request->send(400, "application/json", returnJsonStatus("Invalid Stream Mode")); // 400 Bad Request
       return;
     break;
   }
 
-  request->send(200, "application/json", status);
+  // If we get here, we have a valid stream mode to be set.
+  // The changeStreamMode function will handle any further checks.
+  changeStreamMode(new_stream_mode);
+  request->send(200, "application/json", returnJsonStatus());
 }
 
 void handleToggleMute(AsyncWebServerRequest *request) {
@@ -1013,83 +1038,79 @@ void handleToggleMute(AsyncWebServerRequest *request) {
       String segment = s_path.substring(lastSlash + 1);
       if(segment == "mute") {
         executeCommand(A_TOGGLE_MUTE);
-        request->send(200, "application/json", status);
+        request->send(200, "application/json", returnJsonStatus());
         return;
       }
       else if(segment == "unmute") {
         executeCommand(A_TOGGLE_MUTE);
-        request->send(200, "application/json", status);
+        request->send(200, "application/json", returnJsonStatus());
         return;
       }
     }
   }
 
   debugln("Invalid Action");
-  String result;
-  jsonBody.clear();
-  jsonBody["status"] = "Invalid Action";
-  serializeJson(jsonBody, result);
-  request->send(400, "application/json", result); // 400 Bad Request
+  request->send(400, "application/json", returnJsonStatus("Invalid Action")); // 400 Bad Request
 }
 
 void handleMasterVolumeUp(AsyncWebServerRequest *request) {
   debugln("Web: Master Volume Up");
   executeCommand(A_VOLUME_INCREASE);
-  request->send(200, "application/json", status);
+  request->send(200, "application/json", returnJsonStatus());
 }
 
 void handleMasterVolumeDown(AsyncWebServerRequest *request) {
   debugln("Web: Master Volume Down");
   executeCommand(A_VOLUME_DECREASE);
-  request->send(200, "application/json", status);
+  request->send(200, "application/json", returnJsonStatus());
 }
 
 void handleEffectsVolumeUp(AsyncWebServerRequest *request) {
   debugln("Web: Effects Volume Up");
   executeCommand(A_VOLUME_SOUND_EFFECTS_INCREASE);
-  request->send(200, "application/json", status);
+  request->send(200, "application/json", returnJsonStatus());
 }
 
 void handleEffectsVolumeDown(AsyncWebServerRequest *request) {
   debugln("Web: Effects Volume Down");
   executeCommand(A_VOLUME_SOUND_EFFECTS_DECREASE);
-  request->send(200, "application/json", status);
+  request->send(200, "application/json", returnJsonStatus());
 }
 
 void handleMusicVolumeUp(AsyncWebServerRequest *request) {
   debugln("Web: Music Volume Up");
   executeCommand(A_VOLUME_MUSIC_INCREASE);
-  request->send(200, "application/json", status);
+  request->send(200, "application/json", returnJsonStatus());
 }
 
 void handleMusicVolumeDown(AsyncWebServerRequest *request) {
   debugln("Web: Music Volume Down");
   executeCommand(A_VOLUME_MUSIC_DECREASE);
-  request->send(200, "application/json", status);
+  request->send(200, "application/json", returnJsonStatus());
 }
 
 void handleMusicStartStop(AsyncWebServerRequest *request) {
   debugln("Web: Music Start/Stop");
   executeCommand(A_MUSIC_START_STOP);
-  request->send(200, "application/json", status);
+  request->send(200, "application/json", returnJsonStatus());
 }
 
 void handleMusicPauseResume(AsyncWebServerRequest *request) {
   debugln("Web: Music Pause/Resume");
   executeCommand(A_MUSIC_PAUSE_RESUME);
-  request->send(200, "application/json", status);
+  request->send(200, "application/json", returnJsonStatus());
 }
 
 void handleNextMusicTrack(AsyncWebServerRequest *request) {
   debugln("Web: Next Music Track");
   executeCommand(A_MUSIC_NEXT_TRACK);
-  request->send(200, "application/json", status);
+  request->send(200, "application/json", returnJsonStatus());
 }
 
 void handlePrevMusicTrack(AsyncWebServerRequest *request) {
   debugln("Web: Prev Music Track");
   executeCommand(A_MUSIC_PREV_TRACK);
-  request->send(200, "application/json", status);
+  request->send(200, "application/json", returnJsonStatus());
 }
 
 void handleLoopMusicTrack(AsyncWebServerRequest *request) {
@@ -1102,23 +1123,19 @@ void handleLoopMusicTrack(AsyncWebServerRequest *request) {
       String segment = s_path.substring(lastSlash + 1);
       if(segment == "single") {
         executeCommand(A_MUSIC_TRACK_LOOP_TOGGLE);
-        request->send(200, "application/json", status);
+        request->send(200, "application/json", returnJsonStatus());
         return;
       }
       else if(segment == "all") {
         executeCommand(A_MUSIC_TRACK_LOOP_TOGGLE);
-        request->send(200, "application/json", status);
+        request->send(200, "application/json", returnJsonStatus());
         return;
       }
     }
   }
 
   debugln("Invalid Looping Option");
-  String result;
-  jsonBody.clear();
-  jsonBody["status"] = "Invalid Looping Option";
-  serializeJson(jsonBody, result);
-  request->send(400, "application/json", result); // 400 Bad Request
+  request->send(400, "application/json", "Invalid Looping Option"); // 400 Bad Request
 }
 
 void handleSelectMusicTrack(AsyncWebServerRequest *request) {
@@ -1133,15 +1150,11 @@ void handleSelectMusicTrack(AsyncWebServerRequest *request) {
     uint16_t i_music_track = c_music_track.toInt();
     debugln("Web: Selected Music Track: " + String(i_music_track));
     executeCommand(A_MUSIC_PLAY_TRACK, i_music_track); // Inform the pack of the new track.
-    request->send(200, "application/json", status);
+    request->send(200, "application/json", returnJsonStatus("Selected Music Track: " + String(i_music_track)));
   }
   else {
     // Tell the user why the requested action failed.
-    String result;
-    jsonBody.clear();
-    jsonBody["status"] = "Invalid track number requested";
-    serializeJson(jsonBody, result); // Serialize to string.
-    request->send(200, "application/json", result);
+    request->send(200, "application/json", returnJsonStatus("Invalid track number requested"));
   }
 }
 
@@ -1149,29 +1162,29 @@ void handleSaveAllEEPROM(AsyncWebServerRequest *request) {
   debugln("Web: Save All EEPROM");
   executeCommand(A_SAVE_EEPROM_SETTINGS_PACK);
   executeCommand(A_SAVE_EEPROM_SETTINGS_WAND);
-  request->send(200, "application/json", status);
+  request->send(200, "application/json", returnJsonStatus());
 }
 
 void handleSavePackEEPROM(AsyncWebServerRequest *request) {
   debugln("Web: Save Pack EEPROM");
   executeCommand(A_SAVE_EEPROM_SETTINGS_PACK);
-  request->send(200, "application/json", status);
+  request->send(200, "application/json", returnJsonStatus());
 }
 
 void handleSaveWandEEPROM(AsyncWebServerRequest *request) {
   debugln("Web: Save Wand EEPROM");
   executeCommand(A_SAVE_EEPROM_SETTINGS_WAND);
-  request->send(200, "application/json", status);
+  request->send(200, "application/json", returnJsonStatus());
 }
 
 // Handles the JSON body for the Attenuator settings save request.
 AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHandler("/config/device/save", [](AsyncWebServerRequest *request, JsonVariant &json) {
-  jsonBody.clear();
+  JsonDocument jsonBody;
   if(json.is<JsonObject>()) {
     jsonBody = json.as<JsonObject>();
   }
   else {
-    debugln(F("Body was not a JSON object"));
+    debugln("Body was not a JSON object");
   }
 
   String result;
@@ -1182,8 +1195,11 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
     bool b_ssid_changed = false;
 
     // Update the private network name ONLY if the new value differs from the current SSID.
-    if(newSSID != ap_ssid){
+    if(newSSID != "" && newSSID != wirelessMgr->getLocalNetworkName()){
       if(newSSID.length() >= 8 && newSSID.length() <= 32) {
+        // Create Preferences object to handle non-volatile storage (NVS).
+        Preferences preferences;
+
         // Accesses namespace in read/write mode.
         if(preferences.begin("credentials", false)) {
           #if defined(DEBUG_SEND_TO_CONSOLE)
@@ -1198,10 +1214,7 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
       }
       else {
         // Immediately return an error if the network name was invalid.
-        jsonBody.clear();
-        jsonBody["status"] = "Error: Network name must be between 8 and 32 characters in length.";
-        serializeJson(jsonBody, result); // Serialize to string.
-        request->send(200, "application/json", result);
+        request->send(200, "application/json", returnJsonStatus("Error: Network name must be between 8 and 32 characters in length."));
       }
     }
 
@@ -1223,6 +1236,9 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
     // Get the track listing from the text field.
     String songList = jsonBody["songList"].as<String>();
     bool b_list_err = false;
+
+    // Create Preferences object to handle non-volatile storage (NVS).
+    Preferences preferences;
 
     // Accesses namespace in read/write mode.
     if(preferences.begin("device", false)) {
@@ -1252,35 +1268,23 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
     }
 
     if(b_list_err){
-      jsonBody.clear();
-      jsonBody["status"] = "Settings updated, but song list exceeds the 2,000 bytes maximum and was not saved.";
-      serializeJson(jsonBody, result); // Serialize to string.
-      request->send(200, "application/json", result);
+      request->send(200, "application/json", returnJsonStatus("Settings updated, but song list exceeds the 2,000 bytes maximum and was not saved."));
     }
     else if(b_ssid_changed){
-      jsonBody.clear();
-      jsonBody["status"] = "Settings updated, restart required. Please use the new network name to connect to your device.";
-      serializeJson(jsonBody, result); // Serialize to string.
-      request->send(201, "application/json", result);
+      request->send(201, "application/json", returnJsonStatus("Settings updated, restart required. Please use the new network name to connect to your device."));
     }
     else {
-      jsonBody.clear();
-      jsonBody["status"] = "Settings updated.";
-      serializeJson(jsonBody, result); // Serialize to string.
-      request->send(200, "application/json", result);
+      request->send(200, "application/json", returnJsonStatus("Settings updated."));
     }
   }
   catch (...) {
-    jsonBody.clear();
-    jsonBody["status"] = "An error was encountered while saving settings.";
-    serializeJson(jsonBody, result); // Serialize to string.
-    request->send(200, "application/json", result);
+    request->send(200, "application/json", returnJsonStatus("An error was encountered while saving settings."));
   }
 });
 
 // Handles the JSON body for the pack settings save request.
 AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHandler("/config/pack/save", [](AsyncWebServerRequest *request, JsonVariant &json) {
-  jsonBody.clear();
+  JsonDocument jsonBody;
   if(json.is<JsonObject>()) {
     jsonBody = json.as<JsonObject>();
   }
@@ -1352,31 +1356,22 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
       packConfig.ledPowercellLum = jsonBody["ledPowercellLum"].as<uint8_t>();
       packConfig.ledVGPowercell = jsonBody["ledVGPowercell"].as<uint8_t>();
 
-      jsonBody.clear();
-      jsonBody["status"] = "Settings updated, please test before saving to EEPROM.";
-      serializeJson(jsonBody, result); // Serialize to string.
       handlePackPrefsUpdate(); // Have the pack save the new settings.
-      request->send(200, "application/json", result);
-     }
+      request->send(200, "application/json", returnJsonStatus("Settings updated, please test before saving to EEPROM."));
+    }
     catch (...) {
-      jsonBody.clear();
-      jsonBody["status"] = "An error was encountered while saving settings.";
-      serializeJson(jsonBody, result); // Serialize to string.
-      request->send(200, "application/json", result);
+      request->send(200, "application/json", returnJsonStatus("An error was encountered while saving settings."));
     }
   }
   else {
     // Tell the user why the requested action failed.
-    jsonBody.clear();
-    jsonBody["status"] = "Pack and/or Wand are running, save action cancelled";
-    serializeJson(jsonBody, result); // Serialize to string.
-    request->send(200, "application/json", result);
+    request->send(200, "application/json", returnJsonStatus("Pack and/or Wand are running, save action cancelled"));
   }
 });
 
 // Handles the JSON body for the wand settings save request.
 AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHandler("/config/wand/save", [](AsyncWebServerRequest *request, JsonVariant &json) {
-  jsonBody.clear();
+  JsonDocument jsonBody;
   if(json.is<JsonObject>()) {
     jsonBody = json.as<JsonObject>();
   }
@@ -1411,31 +1406,22 @@ AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHand
       wandConfig.bargraphIdleAnimation = jsonBody["bargraphIdleAnimation"].as<uint8_t>();
       wandConfig.bargraphFireAnimation = jsonBody["bargraphFireAnimation"].as<uint8_t>();
 
-      jsonBody.clear();
-      jsonBody["status"] = "Settings updated, please test before saving to EEPROM.";
-      serializeJson(jsonBody, result); // Serialize to string.
       handleWandPrefsUpdate(); // Have the pack pass the new settings.
-      request->send(200, "application/json", result);
+      request->send(200, "application/json", returnJsonStatus("Settings updated, please test before saving to EEPROM."));
     }
     catch (...) {
-      jsonBody.clear();
-      jsonBody["status"] = "An error was encountered while saving settings.";
-      serializeJson(jsonBody, result); // Serialize to string.
-      request->send(200, "application/json", result);
+      request->send(200, "application/json", returnJsonStatus("An error was encountered while saving settings."));
     }
   }
   else {
     // Tell the user why the requested action failed.
-    jsonBody.clear();
-    jsonBody["status"] = "Pack and/or Wand are running, save action cancelled";
-    serializeJson(jsonBody, result); // Serialize to string.
-    request->send(200, "application/json", result);
+    request->send(200, "application/json", returnJsonStatus("Pack and/or Wand are running, save action cancelled"));
   }
 });
 
 // Handles the JSON body for the smoke settings save request.
 AsyncCallbackJsonWebHandler *handleSaveSmokeConfig = new AsyncCallbackJsonWebHandler("/config/smoke/save", [](AsyncWebServerRequest *request, JsonVariant &json) {
-  jsonBody.clear();
+  JsonDocument jsonBody;
   if(json.is<JsonObject>()) {
     jsonBody = json.as<JsonObject>();
   }
@@ -1472,31 +1458,22 @@ AsyncCallbackJsonWebHandler *handleSaveSmokeConfig = new AsyncCallbackJsonWebHan
       smokeConfig.overheatDelay2 = jsonBody["overheatDelay2"].as<uint8_t>();
       smokeConfig.overheatDelay1 = jsonBody["overheatDelay1"].as<uint8_t>();
 
-      jsonBody.clear();
-      jsonBody["status"] = "Settings updated, please test before saving to EEPROM.";
-      serializeJson(jsonBody, result); // Serialize to string.
       handleSmokePrefsUpdate(); // Have the pack save and pass the new settings.
-      request->send(200, "application/json", result);
+      request->send(200, "application/json", returnJsonStatus("Settings updated, please test before saving to EEPROM."));
     }
     catch (...) {
-      jsonBody.clear();
-      jsonBody["status"] = "An error was encountered while saving settings.";
-      serializeJson(jsonBody, result); // Serialize to string.
-      request->send(200, "application/json", result);
+      request->send(200, "application/json", returnJsonStatus("An error was encountered while saving settings."));
     }
   }
   else {
     // Tell the user why the requested action failed.
-    jsonBody.clear();
-    jsonBody["status"] = "Pack and/or Wand are running, save action cancelled";
-    serializeJson(jsonBody, result); // Serialize to string.
-    request->send(200, "application/json", result);
+    request->send(200, "application/json", returnJsonStatus("Pack and/or Wand are running, save action cancelled"));
   }
 });
 
 // Handles the JSON body for the password change request.
 AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHandler("/password/update", [](AsyncWebServerRequest *request, JsonVariant &json) {
-  jsonBody.clear();
+  JsonDocument jsonBody;
   if(json.is<JsonObject>()) {
     jsonBody = json.as<JsonObject>();
   }
@@ -1510,6 +1487,9 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
 
     // Password is used for the built-in Access Point ability, which will be used when a preferred network is not available.
     if(newPasswd.length() >= 8) {
+      // Create Preferences object to handle non-volatile storage (NVS).
+      Preferences preferences;
+
       // Accesses namespace in read/write mode.
       if(preferences.begin("credentials", false)) {
         #if defined(DEBUG_SEND_TO_CONSOLE)
@@ -1520,31 +1500,22 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
         preferences.end();
       }
 
-      jsonBody.clear();
-      jsonBody["status"] = "Password updated, restart required. Please enter your new WiFi password when prompted by your device.";
-      serializeJson(jsonBody, result); // Serialize to string.
-      request->send(201, "application/json", result);
+      request->send(201, "application/json", returnJsonStatus("Password updated, restart required. Please enter your new WiFi password when prompted by your device."));
     }
     else {
       // Password must be at least 8 characters in length.
-      jsonBody.clear();
-      jsonBody["status"] = "Password must be a minimum of 8 characters to meet WPA2 requirements.";
-      serializeJson(jsonBody, result); // Serialize to string.
-      request->send(200, "application/json", result);
+      request->send(200, "application/json", returnJsonStatus("Password must be a minimum of 8 characters to meet WPA2 requirements."));
     }
   }
   else {
     debugln("No password in JSON body");
-    jsonBody.clear();
-    jsonBody["status"] = "Unable to update password.";
-    serializeJson(jsonBody, result); // Serialize to string.
-    request->send(200, "application/json", result);
+    request->send(200, "application/json", returnJsonStatus("Unable to update password."));
   }
 });
 
 // Handles the JSON body for the wifi network info.
 AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler("/wifi/update", [](AsyncWebServerRequest *request, JsonVariant &json) {
-  jsonBody.clear();
+  JsonDocument jsonBody;
   if(json.is<JsonObject>()) {
     jsonBody = json.as<JsonObject>();
   }
@@ -1561,6 +1532,9 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
     String localAddr = jsonBody["address"].as<String>();
     String subnetMask = jsonBody["subnet"].as<String>();
     String gatewayIP = jsonBody["gateway"].as<String>();
+
+    // Create Preferences object to handle non-volatile storage (NVS).
+    Preferences preferences;
 
     // Accesses namespace in read/write mode.
     if(preferences.begin("network", false)) {
@@ -1583,19 +1557,19 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
 
         // Continue saving only if network values are 7 characters or more (eg. N.N.N.N)
         bool b_static_ip = true;
-        if(localAddr.length() >= 7 && localAddr != wifi_address) {
+        if(localAddr.length() >= 7 && localAddr != wirelessMgr->getExtWifiAddress().toString()) {
           preferences.putString("address", localAddr);
         }
         else {
           b_static_ip = false;
         }
-        if(subnetMask.length() >= 7 && subnetMask != wifi_subnet) {
+        if(subnetMask.length() >= 7 && subnetMask != wirelessMgr->getExtWifiSubnet().toString()) {
           preferences.putString("subnet", subnetMask);
         }
         else {
           b_static_ip = false;
         }
-        if(gatewayIP.length() >= 7 && gatewayIP != wifi_gateway) {
+        if(gatewayIP.length() >= 7 && gatewayIP != wirelessMgr->getExtWifiGateway().toString()) {
           preferences.putString("gateway", gatewayIP);
         }
         else {
@@ -1624,44 +1598,36 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
     }
 
     if(!b_errors) {
-      jsonBody.clear();
-
       // Disconnect from the WiFi network and re-apply any changes.
       WiFi.disconnect();
       b_ext_wifi_started = false;
 
       delay(100); // Delay needed.
 
+      String s_reason = "";
       if(b_enabled) {
         b_ext_wifi_started = startExternalWifi(); // Restart and set global flag.
 
         if(b_ext_wifi_started) {
-          jsonBody["status"] = "Settings updated, WiFi connection restarted successfully.";
+          s_reason = "Settings updated, WiFi connection restarted successfully.";
         }
         else {
-          jsonBody["status"] = "Settings updated, but WiFi connection was not successful.";
+          s_reason = "Settings updated, but WiFi connection was not successful.";
         }
       }
       else {
-        jsonBody["status"] = "Settings updated, and external WiFi has been disconnected.";
+        s_reason = "Settings updated, and external WiFi has been disconnected.";
       }
 
-      serializeJson(jsonBody, result); // Serialize to string.
-      request->send(200, "application/json", result);
+      request->send(200, "application/json", returnJsonStatus(s_reason));
     }
     else {
-      jsonBody.clear();
-      jsonBody["status"] = "Errors encountered while processing request data. Please re-check submitted values and try again.";
-      serializeJson(jsonBody, result); // Serialize to string.
-      request->send(200, "application/json", result);
+      request->send(200, "application/json", returnJsonStatus("Errors encountered while processing request data. Please re-check submitted values and try again."));
     }
   }
   else {
     debugln("No password in JSON body");
-    jsonBody.clear();
-    jsonBody["status"] = "Unable to update password.";
-    serializeJson(jsonBody, result); // Serialize to string.
-    request->send(200, "application/json", result);
+    request->send(200, "application/json", returnJsonStatus("Unable to update password."));
   }
 });
 
@@ -1738,6 +1704,7 @@ void setupRouting() {
   httpServer.on("/music/loop/all", HTTP_PUT, handleLoopMusicTrack);
   httpServer.on("/music/loop/single", HTTP_PUT, handleLoopMusicTrack);
   httpServer.on("/wifi/settings", HTTP_GET, handleGetWifi);
+  httpServer.on("/wifi/networks", HTTP_GET, handleGetSSIDs);
 
   // Body Handlers
   httpServer.addHandler(handleSaveDeviceConfig); // /config/device/save
@@ -1781,6 +1748,47 @@ void webLoops() {
 
       // Restart timer for next check.
       ms_otacheck.start(i_otaCheck);
+    }
+  }
+}
+
+// Stops the web server and disables WiFi to save power or for security.
+void shutdownWireless() {
+  if(WiFi.getMode() != WIFI_OFF) {
+    // Close all websocket connections and stop the web server.
+    ws.closeAll();
+    httpServer.end();
+    b_httpd_started = false;
+
+    // Disconnect WiFi and turn off radio.
+    WiFi.disconnect(true);
+    delay(1);
+    WiFi.mode(WIFI_OFF);
+    delay(1);
+    b_local_ap_started = false;
+    b_ext_wifi_started = false;
+
+    #if defined(DEBUG_WIRELESS_SETUP)
+      debugln(F("Wireless and web server shut down."));
+    #endif
+  }
+}
+
+// Restarts WiFi and web server when needed.
+void restartWireless() {
+  if(!b_local_ap_started) {
+    if(startWiFi()) {
+      // Start the local web server.
+      startWebServer();
+
+      // Begin timer for remote client events.
+      ms_cleanup.start(i_websocketCleanup);
+      ms_apclient.start(i_apClientCount);
+      ms_otacheck.start(i_otaCheck);
+
+      #if defined(DEBUG_WIRELESS_SETUP)
+        debugln(F("Wireless and web server restarted."));
+      #endif
     }
   }
 }

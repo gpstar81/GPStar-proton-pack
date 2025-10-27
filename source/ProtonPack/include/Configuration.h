@@ -23,14 +23,7 @@
 /*
  * Used to reflect the last build date for the binary.
  */
-String build_date = "V6_20251026104140";
-
-/*
- * Preferred WiFi Network Defaults (only for ESP32)
- * Directly provides information for an external WiFi network for the device to join.
- */
-String user_wifi_ssid = ""; // Preferred network SSID for external WiFi
-String user_wifi_pass = ""; // Preferred network password for external WiFi
+String build_date = "V6_20251027073018";
 
 /*
  * Control debug messages for various actions during normal operation.

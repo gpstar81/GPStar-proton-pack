@@ -42,7 +42,6 @@
 // 3rd-Party Libraries
 #include <CRC32.h>
 #include <digitalWriteFast.h>
-#include <EEPROM.h>
 #include <millisDelay.h>
 #include <FastLED.h>
 #include <ezButton.h>
@@ -53,6 +52,8 @@
   #include <HDC1080.h>
   GuL::HDC1080 tempSensor(Wire1);
   #include <HardwareSerial.h>
+#else
+  #include <EEPROM.h>
 #endif
 
 // Forward declaration for use in all includes.
@@ -61,7 +62,10 @@ void sendDebug(const String message);
 // Shared Libraries
 #include <Communication.h>
 #ifdef ESP32
-//#include <WirelessManager.h>
+  #include <WirelessManager.h>
+  // Define the WirelessManager pointer globally (initialized to nullptr).
+  // This matches the extern declaration in Wireless.h
+  WirelessManager* wirelessMgr = nullptr;
 #endif
 
 // Local Files
@@ -81,6 +85,7 @@ void sendDebug(const String message);
 #include "Serial.h"
 #ifdef ESP32
   #include "Wireless.h"
+  #include "Webhandler.h"
 #endif
 
 // Writes a debug message to the serial console or sends to the WebSocket.
@@ -121,6 +126,17 @@ void setup() {
 
   // Assign Serial2 to pins 44/43 for the Neutrona Wand communications.
   WandSerial.begin(9600, SERIAL_8N1, WAND_RX_PIN, WAND_TX_PIN);
+
+  // Define the WirelessManager object only after NVS/Preferences are initialized.
+  if(wirelessMgr == nullptr) {
+    wirelessMgr = new WirelessManager("Pack2", "192.168.1.4");
+
+    #if defined(RESET_AP_SETTINGS)
+      // Reset the WiFi password to the expected default on every startup.
+      wirelessMgr->resetWifiPassword();
+      debugln(F("WARNING: Firmware forced a reset of the local WiFi password!"));
+    #endif
+  }
 #else
   Serial.begin(9600); // Standard HW serial (USB) console.
   AttenuatorSerial.begin(9600); // Add-on Attenuator communication (19/18).
@@ -326,6 +342,20 @@ void setup() {
 #ifdef ESP32
   debugf("Setup complete, free heap: %u bytes\n", ESP.getFreeHeap());
 #endif
+}
+
+void updateLEDs() {
+  // Update all LED's when the FastLED timer has finished.
+  if(ms_fast_led.justFinished()) {
+    FastLED.show();
+
+    // Restart the FastLED timer.
+    ms_fast_led.start(i_fast_led_delay);
+
+    if(b_powercell_updating) {
+      b_powercell_updating = false;
+    }
+  }
 }
 
 // Loop logic dedicated to this device which handles all of the standard operations.
@@ -570,20 +600,6 @@ void mainLoop() {
   }
 }
 
-void updateLEDs() {
-  // Update all LED's when the FastLED timer has finished.
-  if(ms_fast_led.justFinished()) {
-    FastLED.show();
-
-    // Restart the FastLED timer.
-    ms_fast_led.start(i_fast_led_delay);
-
-    if(b_powercell_updating) {
-      b_powercell_updating = false;
-    }
-  }
-}
-
 // The main loop of the program which manages all system operations which must occur on every loop.
 void loop() {
   #ifdef ESP32
@@ -649,7 +665,7 @@ void loop() {
       }
     break;
   }
-  
+
   if(!b_initial_wifi_setup_finished) {
     b_initial_wifi_setup_finished = true;
   }

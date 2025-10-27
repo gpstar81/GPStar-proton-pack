@@ -1,10 +1,11 @@
 {
   "name": "Wireless",
   "version": "1.0.0",
-  "description": "Common library for wifi management for GPStar projects.",
+  "description": "Common library for ESP32 WiFi management for GPStar projects.",
   "keywords": [
     "enumerations",
     "wifi",
+    "esp32",
     "gpstar"
   ],
   "authors": [
@@ -22,8 +23,8 @@
     }
   ],
   "license": "GPL-3.0-or-later",
-  "frameworks": "*",
-  "platforms": "*",
+  "frameworks": ["arduino"],
+  "platforms": ["espressif32"],
   "build": {
     "includeDir": "include"
   }

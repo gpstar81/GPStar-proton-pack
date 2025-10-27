@@ -22,7 +22,7 @@
     }
   ],
   "license": "GPL-3.0-or-later",
-  "frameworks": "*",
+  "frameworks": ["arduino"],
   "platforms": "*",
   "build": {
     "includeDir": "include"

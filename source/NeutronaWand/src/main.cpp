@@ -28,7 +28,7 @@
 // Required for PlatformIO
 #include <Arduino.h>
 
-// Set to 1 to enable built-in debug messages
+// Set to 1 to enable built-in debug messages via Serial device output.
 #define DEBUG 0
 
 // Debug macros
@@ -79,15 +79,16 @@
 // Forward declaration for use in all includes.
 void sendDebug(const String message);
 
-#ifdef ESP32
-  #include <MagCalibration.h>
-  MagCalibration magCal;
-#endif
-
 // Shared Libraries
 #include <Communication.h>
 #ifdef ESP32
-//#include <WirelessManager.h>
+  #include <MagCalibration.h>
+  MagCalibration magCal;
+
+  #include <WirelessManager.h>
+  // Define the WirelessManager pointer globally (initialized to nullptr).
+  // This matches the extern declaration in Wireless.h
+  WirelessManager* wirelessMgr = nullptr;
 #endif
 
 // Local Files
@@ -108,6 +109,7 @@ void sendDebug(const String message);
 #include "Serial.h"
 #ifdef ESP32
   #include "Wireless.h"
+  #include "Webhandler.h"
 #endif
 
 // Writes a debug message to the serial console or sends to the WebSocket.
@@ -157,6 +159,17 @@ void setup() {
 
   // Assign PackSerial to pins 21/14 for the Proton Pack communications.
   PackSerial.begin(9600, SERIAL_8N1, PACK_RX_PIN, PACK_TX_PIN);
+
+  // Define the WirelessManager object only after NVS/Preferences are initialized.
+  if(wirelessMgr == nullptr) {
+    wirelessMgr = new WirelessManager("Wand2", "192.168.1.6");
+
+    #if defined(RESET_AP_SETTINGS)
+      // Reset the WiFi password to the expected default on every startup.
+      wirelessMgr->resetWifiPassword();
+      debugln(F("WARNING: Firmware forced a reset of the local WiFi password!"));
+    #endif
+  }
 #else
   Serial.begin(9600); // Standard HW serial (USB) console.
   PackSerial.begin(9600); // Communication to the Proton Pack.

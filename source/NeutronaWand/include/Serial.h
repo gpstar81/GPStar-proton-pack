@@ -342,7 +342,7 @@ void handleWandPrefsUpdate() {
     #ifdef ESP32
     case 1:
       // If we are GPStar II and received this command, reset our Wifi password.
-      resetWifiPassword();
+      wirelessMgr->resetWifiPassword();
 
       // Immediately reset the config object to prevent repeat calls.
       wandConfig.resetWifiPassword = 0;

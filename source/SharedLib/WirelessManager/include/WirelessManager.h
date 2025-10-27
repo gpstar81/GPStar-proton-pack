@@ -20,6 +20,8 @@
 
 #pragma once
 
+#ifdef ESP32
+
 #include <WiFi.h>
 #include <WiFiAP.h>
 #include <ESPmDNS.h>
@@ -142,3 +144,5 @@ class WirelessManager {
     void loadWirelessPreferences();
     IPAddress convertToIP(const String ipAddressString);
 };
+
+#endif // ESP32

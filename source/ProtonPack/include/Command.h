@@ -19,7 +19,7 @@
 
 #pragma once
 
-// Forward function declaration.
+// Forward function declarations.
 void doAttenuatorSync(); // From Serial.h
 void notifyWSClients(); // From Webhandler.h
 

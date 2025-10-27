@@ -46,14 +46,14 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
   <h1>General Options</h1>
   <div class="block left">
     <div class="setting">
-      <b>&nbsp;Operation Mode:</b>
+      <b>Operation Mode:</b>
       <select id="defaultSystemModePack" name="defaultSystemModePack" style="width:180px">
         <option value="0">Super Hero</option>
         <option value="1">Mode Original</option>
       </select>
     </div>
     <div class="setting">
-      <b>&nbsp;&nbsp;&nbsp;Default Theme:</b>
+      <b>&nbsp;&nbsp;Default Theme:</b>
       <select id="defaultYearThemePack" name="defaultYearThemePack" style="width:180px">
         <option value="1">System Toggle</option>
         <option value="2">1984</option>
@@ -63,7 +63,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>&nbsp;&nbsp;&nbsp;Current Theme:</b>
+      <b>&nbsp;Current Theme:</b>
       <select id="currentYearThemePack" name="currentYearThemePack" style="width:180px">
         <option value="2">1984</option>
         <option value="3">1989</option>
@@ -72,7 +72,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </select>
     </div>
     <div class="setting">
-      <b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Use Vibration:</b>
+      <b>&nbsp;&nbsp;&nbsp;&nbsp;Use Vibration:</b>
       <select id="packVibration" name="packVibration">
         <option value="1">Always</option>
         <option value="2">When Firing</option>
@@ -80,12 +80,6 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         <option value="4">Via Toggle</option>
         <option value="5">Motorized Cyclotron</option>
       </select>
-    </div>
-    <div class="setting">
-      <b>Master Volume % at Startup:</b><br/>
-      <input type="range" id="defaultPackVolume" name="defaultPackVolume" min="5" max="100" value="100" step="5"
-       oninput="masterVolOut.value=defaultPackVolume.value"/>
-      <output class="labelSlider" id="masterVolOut" for="defaultPackVolume"></output>
     </div>
     <div class="setting">
       <label class="toggle-switchy" data-text="yesno" data-label="left">
@@ -115,21 +109,12 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       </label>
     </div>
     <div class="setting">
-      <label class="toggle-switchy" data-label="left">
-        <input id="protonStreamEffects" name="protonStreamEffects" type="checkbox">
-        <span class="toggle">
-          <span class="switch"></span>
-        </span>
-        <span class="label">Proton Stream Impact Effects:</span>
-      </label>
-    </div>
-    <div class="setting">
-      <label class="toggle-switchy" data-label="left">
+      <label class="toggle-switchy" data-text="yesno" data-label="left">
         <input id="ribbonCableAlarm" name="ribbonCableAlarm" type="checkbox">
         <span class="toggle">
           <span class="switch"></span>
         </span>
-        <span class="label">Ribbon Cable Alarm:</span>
+        <span class="label">Respond to Ribbon Cable Alarm:</span>
       </label>
     </div>
     <div class="setting">
@@ -139,6 +124,25 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
           <span class="switch"></span>
         </span>
         <span class="label">Start Pack at Battery On:</span>
+      </label>
+    </div>
+  </div>
+
+  <h1>Audio Options</h1>
+  <div class="block left">
+    <div class="setting">
+      <b>Master Volume % at Startup:</b><br/>
+      <input type="range" id="defaultPackVolume" name="defaultPackVolume" min="5" max="100" value="100" step="5"
+       oninput="masterVolOut.value=defaultPackVolume.value"/>
+      <output class="labelSlider" id="masterVolOut" for="defaultPackVolume"></output>
+    </div>
+    <div class="setting">
+      <label class="toggle-switchy" data-label="left">
+        <input id="protonStreamEffects" name="protonStreamEffects" type="checkbox">
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">Proton Stream Impact Effects:</span>
       </label>
     </div>
     <div class="setting" id="gpstarAudioLedToggle">

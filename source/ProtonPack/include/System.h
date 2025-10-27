@@ -18,10 +18,15 @@
  */
 
 #pragma once
-void updateLEDs();
+
 #ifdef ESP32
-void resetWifiPassword(); // Forward function declaration.
+  // Declare external reference to WirelessManager pointer (allocated in main.cpp after NVS init)
+  extern WirelessManager* wirelessMgr;
 #endif
+
+// Forward function declarations.
+void updateLEDs();
+void executeCommand(uint8_t i_command, uint16_t i_value); // From Command.h
 
 /**
  * Function: sanitizeCyclotronMultipliers
@@ -5346,22 +5351,116 @@ void systemPOST() {
 
 void resetWifiCommand() {
   bool b_reset_success = false;
-  #ifndef ESP32
+  #ifdef ESP32
+    // If GPStar Pack II, reset our own Wifi password.
+    wirelessMgr->resetWifiPassword();
+    b_reset_success = true;
+  #else
     // If not ESP32, send a message to the wireless module to have it reset its password.
     if(b_attenuator_connected) {
       attenuatorSerialSend(A_RESET_WIFI_PASSWORD);
       b_reset_success = true;
     }
-  #else
-    // If GPStar Pack II, reset our own Wifi password.
-    resetWifiPassword();
-    b_reset_success = true;
   #endif
 
   // Play voice confirmation if successful.
   if(b_reset_success) {
     playEffect(S_VOICE_PACK_WIFI_RESET);
   }
+}
+
+/*
+ * Prevent stream mode change if wand is firing, in an error state, or VG modes are disabled.
+ */
+bool canChangeStreamMode() {
+  if(!b_pack_on || b_wand_firing || b_overheating || b_pack_alarm || b_pack_shutting_down || SYSTEM_MODE == MODE_ORIGINAL || !(STREAM_MODE_FLAG & FLAG_VG)) {
+    return false;
+  }
+  return true;
+}
+
+/*
+ * Change the current stream mode to a new mode, if allowed.
+ */
+void changeStreamMode(STREAM_MODES new_mode) {
+  if(!canChangeStreamMode()) {
+    debugln("Stream mode change not allowed while pack is firing or in error state.");
+    return;
+  }
+
+  // Debounce rapid calls to avoid flooding the serial interface.
+  if (ms_streamchange.remaining() > 0) {
+    debugln("Stream mode change suppressed due to debounce timer.");
+    return;
+  }
+
+  // Continue to change the stream mode.
+  switch(new_mode) {
+    case PROTON:
+      executeCommand(A_PROTON_MODE, 0);
+    break;
+    case STASIS:
+      if(!!(STREAM_MODE_FLAG & FLAG_VG)) {
+        executeCommand(A_STASIS_MODE, 0);
+      }
+      else {
+        debugln("VG modes not enabled, cannot switch to Stasis.");
+      }
+    break;
+    case SLIME:
+      if(!!(STREAM_MODE_FLAG & FLAG_VG)) {
+        executeCommand(A_SLIME_MODE, 0);
+      }
+      else {
+        debugln("VG modes not enabled, cannot switch to Slime.");
+      }
+    break;
+    case MESON:
+      if(!!(STREAM_MODE_FLAG & FLAG_VG)) {
+        executeCommand(A_MESON_MODE, 0);
+      }
+      else {
+        debugln("VG modes not enabled, cannot switch to Meson.");
+      }
+    break;
+    case SPECTRAL:
+      if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL)) {
+        executeCommand(A_SPECTRAL_MODE, 0);
+      }
+      else {
+        debugln("Spectral mode not enabled, cannot switch to Spectral.");
+      }
+    break;
+    case HOLIDAY_HALLOWEEN:
+      if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_HALLOWEEN)) {
+        executeCommand(A_HALLOWEEN_MODE, 0);
+      }
+      else {
+        debugln("Halloween mode not enabled, cannot switch to Halloween.");
+      }
+    break;
+    case HOLIDAY_CHRISTMAS:
+      if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_CHRISTMAS)) {
+        executeCommand(A_CHRISTMAS_MODE, 0);
+      }
+      else {
+        debugln("Christmas mode not enabled, cannot switch to Christmas.");
+      }
+    break;
+    case SPECTRAL_CUSTOM:
+      if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
+        executeCommand(A_SPECTRAL_CUSTOM_MODE, 0);
+      }
+      else {
+        debugln("Spectral Custom mode not enabled, cannot switch to Spectral Custom.");
+      }
+    break;
+    default:
+      debugln("Invalid Stream Mode");
+    break;
+  }
+
+  ms_streamchange.start(i_stream_change_delay); // Restart debounce timer.
 }
 
 #ifdef ESP32

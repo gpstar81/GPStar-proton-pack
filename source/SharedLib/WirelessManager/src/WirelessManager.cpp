@@ -18,6 +18,8 @@
  *
  */
 
+#ifdef ESP32
+
 #include <WirelessManager.h>
 
 // Remove spaces and illegal characters meant for an SSID.
@@ -298,3 +300,5 @@ uint8_t WirelessManager::scanForSSIDs(String ssids[], uint8_t maxResults) {
   WiFi.scanDelete();
   return i_count;
 }
+
+#endif // ESP32

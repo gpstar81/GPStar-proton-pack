@@ -38,7 +38,6 @@
 // ESP32 allows defining custom objects, so create ones for UART0 and UART1.
 HardwareSerial WandSerial(0); // Associate WandSerial with UART0
 HardwareSerial AttenuatorSerial(1); // Associate AttenuatorSerial with UART1
-void resetWifiPassword(); // Forward function declaration.
 #else
 // ATMEGA 2560 has hardcoded serial UART objects, so use aliases instead.
 #define AttenuatorSerial Serial1
@@ -482,7 +481,7 @@ void handlePackPrefsUpdate() {
     #ifdef ESP32
     case 1:
       // If we are GPStar II and received this command, reset our Wifi password.
-      resetWifiPassword();
+      wirelessMgr->resetWifiPassword();
 
       // Immediately reset the config object to prevent repeat calls.
       packConfig.resetWifiPassword = 0;
@@ -2064,7 +2063,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_RESET_WIFI_PASSWORD:
     #ifdef ESP32
       // Reset the WiFi password to default.
-      resetWifiPassword();
+      wirelessMgr->resetWifiPassword();
 
       // Turn off the WiFi until the user decides to manually enable and reconnect.
       WIFI_MODE = WIFI_DISABLED;
