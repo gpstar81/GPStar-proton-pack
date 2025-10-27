@@ -55,11 +55,13 @@ const char NETWORK_page[] PROGMEM = R"=====(
         <span class="label">Use External WiFi Network:</span>
       </label>
     </div>
+    <b>2.4GHz Networks:</b> <select id="ssidSelect"></select>
+    <br/>
     &nbsp;&nbsp;&nbsp;<b>WiFi Network:</b>
-    <input type="text" id="network" width="100" maxlength="32" placeholder="External SSID"
+    <input type="text" id="network" size="60" maxlength="32" placeholder="External SSID"
      title="Only letters, numbers, hyphens, and underscores are allowed, up to 32 characters."/>
     <br/>
-    &nbsp;<b>WiFi Password:</b> <input type="text" id="password" width="100" maxlength="63" placeholder="External Password"/>
+    &nbsp;<b>WiFi Password:</b> <input type="text" id="password" size="60" maxlength="63" placeholder="External Password"/>
     <br/>
     <br/>
     <br/>
@@ -75,11 +77,11 @@ const char NETWORK_page[] PROGMEM = R"=====(
         <span class="label">Set Static IP Address</span>
       </label>
     </div>
-    &nbsp;&nbsp;&nbsp;&nbsp;<b>IP Address:</b> <input type="text" id="address" width="100" maxlength="15" disabled/>
+    &nbsp;&nbsp;&nbsp;&nbsp;<b>IP Address:</b> <input type="text" id="address" size="20" maxlength="15" disabled/>
     <br/>
-    &nbsp;<b>Subnet Mask:</b> <input type="text" id="subnet" width="100" maxlength="15" disabled/>
+    &nbsp;<b>Subnet Mask:</b> <input type="text" id="subnet" size="20" maxlength="15" disabled/>
     <br/>
-    &nbsp;&nbsp;&nbsp;<b>Gateway IP:</b> <input type="text" id="gateway" width="100" maxlength="15" disabled/>
+    &nbsp;&nbsp;&nbsp;<b>Gateway IP:</b> <input type="text" id="gateway" size="20" maxlength="15" disabled/>
   </div>
 
   <div class="block">
@@ -87,6 +89,8 @@ const char NETWORK_page[] PROGMEM = R"=====(
     <a href="/">&laquo; Back</a>
     &nbsp;&nbsp;&nbsp;
     <button type="button" class="green" onclick="saveSettings()">Save</button>
+    &nbsp;&nbsp;&nbsp;
+    <button type="button" class="orange" onclick="getNetworks()" id="refreshNetworks" style="width:160px;">Refresh Networks</button>
     <br/>
     <br/>
   </div>
@@ -97,7 +101,49 @@ const char NETWORK_page[] PROGMEM = R"=====(
 
     function onLoad(event) {
       // Wait for page to fully load.
-      setTimeout(getSettings, 50);
+      setTimeout(function() {
+        getSettings();
+        getNetworks();
+      }, 50);
+    }
+
+    // Ensure the select element reflects the current network input value.
+    // If the current network isn't present in the options, add the value as the first selectable option
+    // so the UI shows the selected value regardless of which API returned first.
+    function selectCurrentNetwork() {
+      var ssidSelect = getEl("ssidSelect");
+      if (!ssidSelect) return;
+      var currentNetwork = getText("network") || "";
+
+      if (!currentNetwork) {
+        // If no current network, select the placeholder
+        ssidSelect.value = "";
+        return;
+      }
+
+      // Try to select matching option
+      ssidSelect.value = currentNetwork;
+
+      // If no option matched, add it as the first non-placeholder option and select it
+      var found = false;
+      for (var j = 0; j < ssidSelect.options.length; ++j) {
+        if (ssidSelect.options[j].value === currentNetwork) {
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        var opt = document.createElement("option");
+        opt.value = currentNetwork;
+        opt.text = currentNetwork;
+        // insert at index 1 (after placeholder) so scanned entries remain below
+        try {
+          ssidSelect.add(opt, 1);
+        } catch (e) {
+          ssidSelect.add(opt);
+        }
+        ssidSelect.value = currentNetwork;
+      }
     }
 
     function getSettings() {
@@ -112,11 +158,91 @@ const char NETWORK_page[] PROGMEM = R"=====(
             setValue("address", settings.address || "");
             setValue("subnet", settings.subnet || "");
             setValue("gateway", settings.gateway || "");
+            // Ensure the select reflects the current network even if networks haven't been loaded yet.
+            selectCurrentNetwork();
           }
         }
       };
       xhttp.open("GET", "/wifi/settings", true);
       xhttp.send();
+    }
+
+    function getNetworks() {
+      // Disable the refresh button while the request is running.
+      disableEl("refreshNetworks");
+
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4) {
+          if (this.status == 200) {
+            var resp = JSON.parse(this.responseText);
+            if (resp) {
+              populateNetworks(resp.networks || []);
+            }
+          }
+
+          // Restore button interactivity
+          enableEl("refreshNetworks");
+        }
+      };
+      xhttp.open("GET", "/wifi/networks", true);
+      xhttp.send();
+    }
+
+    function populateNetworks(networks) {
+      var ssidSelect = getEl("ssidSelect");
+      if (!ssidSelect) return;
+
+      // Clear existing options except the placeholder at index 0
+      while (ssidSelect.options.length > 1) {
+        ssidSelect.remove(1);
+      }
+
+      if (!networks || !Array.isArray(networks)) {
+        // Attempt to sync with any known current network even if networks aren't present
+        selectCurrentNetwork();
+        return;
+      }
+
+      var currentNetwork = getText("network") || "";
+
+      for (var i = 0; i < networks.length; ++i) {
+        var name = networks[i] || "";
+        var opt = document.createElement("option");
+        opt.value = name;
+        opt.text = name;
+        ssidSelect.add(opt);
+      }
+
+      // If there is an existing selected network, mark it selected. If it's missing, helper will add it.
+      if (currentNetwork) {
+        ssidSelect.value = currentNetwork;
+        if (ssidSelect.value !== currentNetwork) {
+          selectCurrentNetwork();
+        }
+      }
+
+      // Wire change handler (idempotent)
+      ssidSelect.onchange = function() {
+        var chosen = ssidSelect.value || "";
+        // Set network input to selected value
+        setValue("network", chosen);
+
+        // Clear other fields as requested
+        setValue("password", "");
+        setValue("address", "");
+        setValue("subnet", "");
+        setValue("gateway", "");
+        setToggle("useStaticIP", false);
+
+        // Optionally clear static IP UI fields (they are disabled when toggle false)
+        getEl("address").value = "";
+        getEl("subnet").value = "";
+        getEl("gateway").value = "";
+      };
+
+      // Final sync to ensure selection regardless of which API responded first
+      selectCurrentNetwork();
     }
 
     function isValidIP(ipAddress) {
@@ -136,6 +262,12 @@ const char NETWORK_page[] PROGMEM = R"=====(
       addressInput.value = "";
       subnetInput.value = "";
       gatewayInput.value = "";
+
+      // If input matches an option in the select, make it selected; otherwise clear select.
+      var ssidSelect = getEl("ssidSelect");
+      if (ssidSelect) {
+        ssidSelect.value = this.value || "";
+      }
     });
 
     getEl("password").addEventListener("input", function() {

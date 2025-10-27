@@ -26,13 +26,6 @@
 String build_date = "V6_20251027074042";
 
 /*
- * Preferred WiFi Network Defaults (only for ESP32)
- * Directly provides information for an external WiFi network for the device to join.
- */
-String user_wifi_ssid = ""; // Preferred network SSID for external WiFi
-String user_wifi_pass = ""; // Preferred network password for external WiFi
-
-/*
  * Control debug messages for various actions during normal operation.
  * Uncomment the desired line(s) to output messages when and where you
  * expect to see them. Using the console should be reserved for active

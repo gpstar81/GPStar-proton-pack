@@ -46,13 +46,6 @@
 String build_date = "V6_20251026104140";
 
 /*
- * Parent WiFi Network Defaults
- * Directly provides information for a parent WiFi network for the device to join.
- */
-String user_wifi_ssid = ""; // Preferred network SSID for external WiFi
-String user_wifi_pass = ""; // Preferred network password for external WiFi
-
-/*
  * Custom values from pack EEPROM.
  *
  * Override as desired if b_wait_for_pack is false.

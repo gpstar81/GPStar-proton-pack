@@ -46,9 +46,9 @@ const char PASSWORD_page[] PROGMEM = R"=====(
   </div>
 
   <div class="block left">
-    <b>New AP Password:</b> <input type="text" id="password" width="60" maxlength="63" placeholder="Custom Password"/>
+    <b>New AP Password:</b> <input type="text" id="password" size="60" maxlength="63" placeholder="Custom Password"/>
     <br/>
-    <b>Confirm Password:</b> <input type="text" id="password2" width="60" maxlength="63" placeholder="Confirm Password"/>
+    <b>Confirm Password:</b> <input type="text" id="password2" size="60" maxlength="63" placeholder="Confirm Password"/>
   </div>
 
   <div class="block">
