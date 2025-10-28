@@ -264,7 +264,8 @@ String getPackConfig() {
     jsonBody["prefsAvailable"] = b_received_prefs_pack;
 
     // Use the device-reported values so we can fine-tune the UI options.
-    jsonBody["esp32Pack"] = b_esp32_pack;
+    jsonBody["esp32Pack"] = packConfig.isESP32;
+    jsonBody["wifiState"] = packConfig.wifiState;
     jsonBody["resetWifiPassword"] = false;
     jsonBody["gpstarAudio"] = (i_pack_audio_version > 1);
 
@@ -331,7 +332,9 @@ String getWandConfig() {
     jsonBody["prefsAvailable"] = b_received_prefs_wand;
 
     // Use the device-reported values so we can fine-tune the UI options.
-    jsonBody["esp32Wand"] = b_esp32_pack;
+    jsonBody["esp32Wand"] = wandConfig.isESP32;
+    jsonBody["wifiState"] = wandConfig.wifiState;
+    jsonBody["resetWifiPassword"] = false;
     jsonBody["gpstarAudio"] = (i_wand_audio_version > 1);
 
     // Return current powered state for pack and wand.
@@ -538,6 +541,14 @@ String getWifiSettings() {
  * Web Handler Functions - Performs actions or returns data for web UI
  */
 
+// Send notification to all websocket clients.
+void notifyWSClients() {
+  if(b_httpd_started) {
+    // Send latest status to all connected clients.
+    ws.textAll(getEquipmentStatus());
+  }
+}
+
 void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
   switch(type) {
     case WS_EVT_CONNECT:
@@ -545,6 +556,7 @@ void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *clien
         debugf("WebSocket[%s][%lu] Connect\n", server->url(), client->id());
       #endif
       i_ws_client_count++;
+      notifyWSClients();
     break;
 
     case WS_EVT_DISCONNECT:
@@ -553,6 +565,7 @@ void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *clien
       #endif
       if(i_ws_client_count > 0) {
         i_ws_client_count--;
+        notifyWSClients();
       }
     break;
 
@@ -573,14 +586,6 @@ void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *clien
         debugf("WebSocket[%s][C:%lu] Data[L:%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
       #endif
     break;
-  }
-}
-
-// Send notification to all websocket clients.
-void notifyWSClients() {
-  if(b_httpd_started) {
-    // Send latest status to all connected clients.
-    ws.textAll(getEquipmentStatus());
   }
 }
 
@@ -1263,14 +1268,14 @@ void handleSaveWandEEPROM(AsyncWebServerRequest *request) {
  * Body Handler Methods - These handlers process JSON body content from POST requests
  */
 
-// Handles the JSON body for the Attenuator settings save request.
+// Handles the JSON body for the device settings save request.
 AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHandler("/config/device/save", [](AsyncWebServerRequest *request, JsonVariant &json) {
   JsonDocument jsonBody;
   if(json.is<JsonObject>()) {
     jsonBody = json.as<JsonObject>();
   }
   else {
-    debugln("Body was not a JSON object");
+    debugln(F("Body was not a JSON object"));
   }
 
   String result;
@@ -1467,7 +1472,8 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
         break;
       }
 
-      // GPStar II Wifi password reset
+      // GPStar II WiFi Options
+      packConfig.wifiState = jsonBody["wifiState"].as<uint8_t>();
       packConfig.resetWifiPassword = jsonBody["resetWifiPassword"].as<uint8_t>();
 
       // Cyclotron Lid
@@ -1557,6 +1563,10 @@ AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHand
       wandConfig.bargraphOverheatBlink = jsonBody["bargraphOverheatBlink"].as<uint8_t>();
       wandConfig.bargraphIdleAnimation = jsonBody["bargraphIdleAnimation"].as<uint8_t>();
       wandConfig.bargraphFireAnimation = jsonBody["bargraphFireAnimation"].as<uint8_t>();
+
+      // GPStar II WiFi Options
+      wandConfig.wifiState = jsonBody["wifiState"].as<uint8_t>();
+      wandConfig.resetWifiPassword = jsonBody["resetWifiPassword"].as<uint8_t>();
 
       if(b_wait_for_pack) {
         request->send(503, "application/json", returnJsonStatus("Pack has lost sync, please try saving settings again."));
@@ -1763,6 +1773,7 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
       // Disconnect from the WiFi network and re-apply any changes.
       WiFi.disconnect();
       b_ext_wifi_started = false;
+      notifyWSClients();
 
       delay(100); // Delay needed.
 
@@ -1807,6 +1818,7 @@ void setupRouting() {
   httpServer.on("/common.js", HTTP_GET, handleCommonJS);
   httpServer.on("/favicon.ico", HTTP_GET, handleFavIco);
   httpServer.on("/favicon.svg", HTTP_GET, handleFavSvg);
+  httpServer.on("/style.css", HTTP_GET, handleStylesheet);
   httpServer.on("/index.js", HTTP_GET, handleRootJS);
   httpServer.on("/network", HTTP_GET, handleNetwork);
   httpServer.on("/password", HTTP_GET, handlePassword);
@@ -1814,7 +1826,6 @@ void setupRouting() {
   httpServer.on("/settings/pack", HTTP_GET, handlePackSettings);
   httpServer.on("/settings/smoke", HTTP_GET, handleSmokeSettings);
   httpServer.on("/settings/wand", HTTP_GET, handleWandSettings);
-  httpServer.on("/style.css", HTTP_GET, handleStylesheet);
   httpServer.on("/equipment.svg", HTTP_GET, handleEquipSvg);
   httpServer.onNotFound(handleNotFound);
 

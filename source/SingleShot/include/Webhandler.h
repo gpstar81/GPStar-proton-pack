@@ -497,6 +497,14 @@ String getTelemetry() {
  * Web Handler Functions - Performs actions or returns data for web UI
  */
 
+// Send notification to all websocket clients.
+void notifyWSClients() {
+  if(b_httpd_started) {
+    // Send latest status to all connected clients.
+    ws.textAll(getEquipmentStatus());
+  }
+}
+
 void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
   switch(type) {
     case WS_EVT_CONNECT:
@@ -504,6 +512,7 @@ void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *clien
         debugf("WebSocket[%s][%lu] Connect\n", server->url(), client->id());
       #endif
       i_ws_client_count++;
+      notifyWSClients();
     break;
 
     case WS_EVT_DISCONNECT:
@@ -512,6 +521,7 @@ void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *clien
       #endif
       if(i_ws_client_count > 0) {
         i_ws_client_count--;
+        notifyWSClients();
       }
     break;
 
@@ -532,14 +542,6 @@ void onWebSocketEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *clien
         debugf("WebSocket[%s][C:%lu] Data[L:%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
       #endif
     break;
-  }
-}
-
-// Send notification to all websocket clients.
-void notifyWSClients() {
-  if(b_httpd_started) {
-    // Send latest status to all connected clients.
-    ws.textAll(getEquipmentStatus());
   }
 }
 
@@ -1057,14 +1059,14 @@ void handleInfraredSignal(AsyncWebServerRequest *request) {
  * Body Handler Methods - These handlers process JSON body content from POST requests
  */
 
-// Handles the JSON body for the Attenuator settings save request.
+// Handles the JSON body for the device settings save request.
 AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHandler("/config/device/save", [](AsyncWebServerRequest *request, JsonVariant &json) {
   JsonDocument jsonBody;
   if(json.is<JsonObject>()) {
     jsonBody = json.as<JsonObject>();
   }
   else {
-    debugln("Body was not a JSON object");
+    debugln(F("Body was not a JSON object"));
   }
 
   String result;
@@ -1368,6 +1370,7 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
       // Disconnect from the WiFi network and re-apply any changes.
       WiFi.disconnect();
       b_ext_wifi_started = false;
+      notifyWSClients();
 
       delay(100); // Delay needed.
 
@@ -1412,12 +1415,12 @@ void setupRouting() {
   httpServer.on("/common.js", HTTP_GET, handleCommonJS);
   httpServer.on("/favicon.ico", HTTP_GET, handleFavIco);
   httpServer.on("/favicon.svg", HTTP_GET, handleFavSvg);
+  httpServer.on("/style.css", HTTP_GET, handleStylesheet);
   httpServer.on("/index.js", HTTP_GET, handleRootJS);
   httpServer.on("/network", HTTP_GET, handleNetwork);
   httpServer.on("/password", HTTP_GET, handlePassword);
   httpServer.on("/settings/device", HTTP_GET, handleDeviceSettings);
   httpServer.on("/settings/blaster", HTTP_GET, handleBlasterSettings);
-  httpServer.on("/style.css", HTTP_GET, handleStylesheet);
   httpServer.on("/geometry.json", HTTP_GET, handleGeometry);
   httpServer.on("/three.js", HTTP_GET, handleThreeJS);
   httpServer.onNotFound(handleNotFound);

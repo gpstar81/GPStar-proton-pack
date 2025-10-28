@@ -19,6 +19,10 @@
 
 #pragma once
 
+// Forward function declarations.
+void restartWireless(); // From Webhandler.h
+void shutdownWireless(); // From Webhandler.h
+
 /*
  * Proton Pack communication.
  */
@@ -55,13 +59,15 @@ void getWandPrefsObject() {
   uint8_t i_eeprom_volume_master_percentage = 100 * (MINIMUM_VOLUME - i_volume_master_eeprom) / MINIMUM_VOLUME;
 
   // Return an indication of whether the device is an ESP32 or not.
-/*
 #ifdef ESP32
   wandConfig.isESP32 = 1;
+  wandConfig.wifiState = (WIFI_MODE == WIFI_ENABLED); // Set current Wifi state.
+  wandConfig.resetWifiPassword = 0; // Always set to 0 to prevent repeated resets.
 #else
   wandConfig.isESP32 = 0;
+  wandConfig.wifiState = 0;
+  wandConfig.resetWifiPassword = 0;
 #endif
-*/
 
   // Boolean types will simply translate as 1/0, ENUMs should be converted.
   switch(WAND_BARREL_LED_COUNT) {
@@ -334,21 +340,41 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value);
 void handleWandPrefsUpdate() {
   sendDebug(F("Saving Wand Preferences"));
 
+#ifdef ESP32
+  switch(wandConfig.wifiState) {
+    case 0:
+      if (WIFI_MODE != WIFI_DISABLED) {
+        // Disable WiFi if it is not already disabled.
+        WIFI_MODE = WIFI_DISABLED;
+        playEffect(S_VOICE_WAND_WIFI_DISABLED);
+        shutdownWireless();
+      }
+    break;
+    case 1:
+      // Unconditionally turn on WiFi.
+      WIFI_MODE = WIFI_ENABLED;
+      playEffect(S_VOICE_WAND_WIFI_ENABLED);
+      restartWireless();
+    break;
+    default:
+      // Do nothing.
+    break;
+  }
+
   switch(wandConfig.resetWifiPassword) {
     case 0:
     default:
       // Do nothing.
     break;
-    #ifdef ESP32
     case 1:
-      // If we are GPStar II and received this command, reset our Wifi password.
+      // Reset the Wifi password to the system default.
       wirelessMgr->resetWifiPassword();
 
       // Immediately reset the config object to prevent repeat calls.
       wandConfig.resetWifiPassword = 0;
     break;
-    #endif
   }
+#endif
 
   switch(wandConfig.ledWandCount) {
     case 0:

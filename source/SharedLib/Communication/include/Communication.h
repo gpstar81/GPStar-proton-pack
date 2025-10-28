@@ -66,6 +66,7 @@ struct __attribute__((packed)) MessagePacket {
 
 // Preferences for the Proton Pack device.
 struct __attribute__((packed)) PackPrefs {
+  uint8_t isESP32;
   uint8_t defaultSystemModePack;
   uint8_t defaultYearThemePack;
   uint8_t currentYearThemePack;
@@ -102,6 +103,7 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t ledPowercellLum;
   uint8_t ledVGPowercell;
   uint8_t gpstarAudioLed;
+  uint8_t wifiState;
   uint8_t resetWifiPassword;
 } packConfig;
 
@@ -110,11 +112,11 @@ static_assert(sizeof(packConfig) < 85, "WARNING: PackConfig has grown too large 
 
 // Preferences for the Neutrona Wand device.
 struct __attribute__((packed)) WandPrefs {
+  uint8_t isESP32;
   uint8_t ledWandCount;
   uint8_t ledWandHue;
   uint8_t ledWandSat;
   uint8_t rgbVentEnabled;
-  uint8_t gpstarAudioLed;
   uint8_t spectralModesEnabled;
   uint8_t overheatEnabled;
   uint8_t defaultFiringMode;
@@ -133,6 +135,8 @@ struct __attribute__((packed)) WandPrefs {
   uint8_t bargraphOverheatBlink;
   uint8_t bargraphIdleAnimation;
   uint8_t bargraphFireAnimation;
+  uint8_t gpstarAudioLed;
+  uint8_t wifiState;
   uint8_t resetWifiPassword;
 } wandConfig;
 

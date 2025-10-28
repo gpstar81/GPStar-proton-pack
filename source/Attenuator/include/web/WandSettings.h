@@ -253,16 +253,27 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
     </div>
   </div>
 
-  <h1 id="gpstar2">GPStar II Options</h1>
-  <div class="block left">
-    <div class="setting">
-      <label class="toggle-switchy" data-text="yesno" data-label="left">
-        <input id="resetWifiPassword" name="resetWifiPassword" type="checkbox">
-        <span class="toggle">
-          <span class="switch"></span>
-        </span>
-        <span class="label">Reset WiFi Password:</span>
-      </label>
+  <div id="gpstar2">
+    <h1>GPStar II Options</h1>
+    <div class="block left">
+      <div class="setting">
+        <label class="toggle-switchy" data-text="yesno" data-label="left">
+          <input id="wifiState" name="wifiState" type="checkbox">
+          <span class="toggle">
+            <span class="switch"></span>
+          </span>
+          <span class="label">Wand WiFi Enabled:</span>
+        </label>
+      </div>
+      <div class="setting">
+        <label class="toggle-switchy" data-text="yesno" data-label="left">
+          <input id="resetWifiPassword" name="resetWifiPassword" type="checkbox">
+          <span class="toggle">
+            <span class="switch"></span>
+          </span>
+          <span class="label">Reset WiFi Password:</span>
+        </label>
+      </div>
     </div>
   </div>
 
@@ -290,30 +301,33 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
 
     function disableControls() {
       // Disables all controls.
-      getEl("ledWandCount").disabled = true;
-      getEl("ledWandHue").disabled = true;
-      getEl("ledWandSat").disabled = true;
-      getEl("rgbVentEnabled").disabled = true;
-      getEl("spectralModesEnabled").disabled = true;
-      getEl("overheatEnabled").disabled = true;
-      getEl("defaultFiringMode").disabled = true;
-      getEl("wandVibration").disabled = true;
-      getEl("barrelSwitchPolarity").disabled = true;
-      getEl("wandSoundsToPack").disabled = true;
-      getEl("quickVenting").disabled = true;
-      getEl("autoVentLight").disabled = true;
-      getEl("wandBeepLoop").disabled = true;
-      getEl("wandBootError").disabled = true;
-      getEl("gpstarAudioLed").disabled = true;
-      getEl("defaultYearModeWand").disabled = true;
-      getEl("defaultYearModeCTS").disabled = true;
-      getEl("defaultWandVolume").disabled = true;
-      getEl("numBargraphSegments").disabled = true;
-      getEl("invertWandBargraph").disabled = true;
-      getEl("bargraphOverheatBlink").disabled = true;
-      getEl("bargraphIdleAnimation").disabled = true;
-      getEl("bargraphFireAnimation").disabled = true;
-      getEl("gpstarAudioLedToggle").style.display = 'none';
+      disableEl("ledWandCount");
+      disableEl("ledWandHue");
+      disableEl("ledWandSat");
+      disableEl("rgbVentEnabled");
+      disableEl("spectralModesEnabled");
+      disableEl("overheatEnabled");
+      disableEl("defaultFiringMode");
+      disableEl("wandVibration");
+      disableEl("barrelSwitchPolarity");
+      disableEl("wandSoundsToPack");
+      disableEl("quickVenting");
+      disableEl("autoVentLight");
+      disableEl("wandBeepLoop");
+      disableEl("wandBootError");
+      disableEl("gpstarAudioLed");
+      disableEl("defaultYearModeWand");
+      disableEl("defaultYearModeCTS");
+      disableEl("defaultWandVolume");
+      disableEl("numBargraphSegments");
+      disableEl("invertWandBargraph");
+      disableEl("bargraphOverheatBlink");
+      disableEl("bargraphIdleAnimation");
+      disableEl("bargraphFireAnimation");
+      hideEl("gpstarAudioLedToggle");
+      disableEl("wifiState");
+      disableEl("resetWifiPassword");
+      hideEl("gpstar2");
     }
 
     // Converts a value from one range to another: eg. convertRange(160, [2,254], [0,360])
@@ -350,21 +364,27 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
             if (settings.esp32Wand) {
               // Disable toggle for the RGB Vent Light as it is not applicable to the GPStar Wand II.
               hideEl("rgbVentToggle");
-              getEl("rgbVentEnabled").disabled = true;
+              disableEl("rgbVentEnabled");
+
+              // Enable all WiFi controls.
+              showEl("gpstar2");
+              setToggle("wifiState", settings.wifiState);
+              enableEl("wifiState");
+              enableEl("resetWifiPassword");
             } else {
               // Hide any GPStar II options when not available.
               hideEl("gpstar2");
-              getEl("resetWifiPassword").disabled = true;
+              disableEl("resetWifiPassword");
             }
 
             if (!settings.gpstarAudio) {
               // Hide the GPStar Audio LED Status toggle if wand is not using GPStar Audio.
               hideEl("gpstarAudioLedToggle");
-              getEl("gpstarAudioLed").disabled = true;
+              disableEl("gpstarAudioLed");
             }
 
             // Valid settings were received and both the pack and wand are off, so allow updating settings.
-            getEl("btnSave").disabled = false;
+            enableEl("btnSave");
 
             /**
              * Note: Colour (hue) value range for FastLED uses the following scale, though CSS uses 0-360 for HSL colour.
@@ -440,6 +460,7 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
         bargraphOverheatBlink: getToggle("bargraphOverheatBlink"),
         bargraphIdleAnimation: getInt("bargraphIdleAnimation") || 1,
         bargraphFireAnimation: getInt("bargraphFireAnimation") || 1,
+        wifiState: getToggle("wifiState"),
         resetWifiPassword: getToggle("resetWifiPassword")
       };
       var body = JSON.stringify(settings);

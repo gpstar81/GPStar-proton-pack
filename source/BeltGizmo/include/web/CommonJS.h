@@ -37,11 +37,13 @@ function getText(id){
 }
 
 function getToggle(id){
-  return (getEl(id).checked ? 1 : 0);
+  var el = getEl(id);
+  return (el && el.checked) ? 1 : 0;
 }
 
 function getValue(id){
-  return getEl(id).value;
+  var el = getEl(id);
+  return (el && typeof el.value !== 'undefined') ? el.value : null;
 }
 
 function setHtml(id, value){
@@ -49,11 +51,13 @@ function setHtml(id, value){
 }
 
 function setToggle(id, value){
-  getEl(id).checked = (value ? true : false);
+  var el = getEl(id);
+  if (el) el.checked = !!value;
 }
 
 function setValue(id, value){
-  getEl(id).value = value;
+  var el = getEl(id);
+  if (el) el.value = value;
 }
 
 function hideEl(id){
@@ -62,6 +66,14 @@ function hideEl(id){
 
 function showEl(id){
   getEl(id).style.display = "block";
+}
+
+function disableEl(id){
+  getEl(id).disabled = true;
+}
+
+function enableEl(id){
+  getEl(id).disabled = false;
 }
 
 function colorEl(id, red, green, blue, alpha = 0.5){

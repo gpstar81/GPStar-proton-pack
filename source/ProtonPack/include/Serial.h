@@ -19,6 +19,10 @@
 
 #pragma once
 
+// Forward function declarations.
+void restartWireless(); // From Webhandler.h
+void shutdownWireless(); // From Webhandler.h
+
 /*
  * Neutrona Wand & Attenuator communication.
  */
@@ -147,16 +151,15 @@ void getPackPrefsObject() {
   uint8_t i_eeprom_volume_master_percentage = 100 * ((MINIMUM_VOLUME + i_volume_min_adj) - i_volume_master_eeprom) / (MINIMUM_VOLUME + i_volume_min_adj);
 
   // Return an indication of whether the device is an ESP32 or not.
-/*
 #ifdef ESP32
   packConfig.isESP32 = 1;
+  packConfig.wifiState = (WIFI_MODE == WIFI_ENABLED); // Set current Wifi state.
+  packConfig.resetWifiPassword = 0; // Always set to 0 to prevent repeated resets.
 #else
   packConfig.isESP32 = 0;
-#endif
-*/
-
-  // Wifi reset command default value
+  packConfig.wifiState = 0;
   packConfig.resetWifiPassword = 0;
+#endif
 
   // General Settings
   packConfig.defaultSystemModePack = SYSTEM_MODE;
@@ -473,21 +476,41 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value);
 void handlePackPrefsUpdate() {
   sendDebug(F("Saving Pack Preferences"));
 
+#ifdef ESP32
+  switch(packConfig.wifiState) {
+    case 0:
+      if (WIFI_MODE != WIFI_DISABLED) {
+        // Disable WiFi if it is not already disabled.
+        WIFI_MODE = WIFI_DISABLED;
+        playEffect(S_VOICE_PACK_WIFI_DISABLED);
+        shutdownWireless();
+      }
+    break;
+    case 1:
+      // Unconditionally turn on WiFi.
+      WIFI_MODE = WIFI_ENABLED;
+      playEffect(S_VOICE_PACK_WIFI_ENABLED);
+      restartWireless();
+    break;
+    default:
+      // Do nothing.
+    break;
+  }
+
   switch(packConfig.resetWifiPassword) {
     case 0:
     default:
       // Do nothing.
     break;
-    #ifdef ESP32
     case 1:
-      // If we are GPStar II and received this command, reset our Wifi password.
+      // Reset the Wifi password to the system default.
       wirelessMgr->resetWifiPassword();
 
       // Immediately reset the config object to prevent repeat calls.
       packConfig.resetWifiPassword = 0;
     break;
-    #endif
   }
+#endif
 
   switch(packConfig.defaultSystemModePack) {
     case 0:

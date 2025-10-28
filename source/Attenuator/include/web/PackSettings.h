@@ -353,16 +353,27 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
     </div>
   </div>
 
-  <h1 id="gpstar2">GPStar II Options</h1>
-  <div class="block left" id="wifiPasswordDiv">
-    <div class="setting">
-      <label class="toggle-switchy" data-text="yesno" data-label="left">
-        <input id="resetWifiPassword" name="resetWifiPassword" type="checkbox">
-        <span class="toggle">
-          <span class="switch"></span>
-        </span>
-        <span class="label">Reset WiFi Password:</span>
-      </label>
+  <div id="gpstar2">
+    <h1>GPStar II Options</h1>
+    <div class="block left" id="wifiPasswordDiv">
+      <div class="setting">
+        <label class="toggle-switchy" data-text="yesno" data-label="left">
+          <input id="wifiState" name="wifiState" type="checkbox">
+          <span class="toggle">
+            <span class="switch"></span>
+          </span>
+          <span class="label">Pack WiFi Enabled:</span>
+        </label>
+      </div>
+      <div class="setting">
+        <label class="toggle-switchy" data-text="yesno" data-label="left">
+          <input id="resetWifiPassword" name="resetWifiPassword" type="checkbox">
+          <span class="toggle">
+            <span class="switch"></span>
+          </span>
+          <span class="label">Reset WiFi Password:</span>
+        </label>
+      </div>
     </div>
   </div>
 
@@ -390,45 +401,46 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
 
     function disableControls() {
       // Disables all controls.
-      getEl("defaultSystemModePack").disabled = true;
-      getEl("defaultYearThemePack").disabled = true;
-      getEl("currentYearThemePack").disabled = true;
-      getEl("packVibration").disabled = true;
-      getEl("defaultPackVolume").disabled = true;
-      getEl("overheatLightsOff").disabled = true;
-      getEl("overheatStrobeNF").disabled = true;
-      getEl("overheatSyncToFan").disabled = true;
-      getEl("protonStreamEffects").disabled = true;
-      getEl("ribbonCableAlarm").disabled = true;
-      getEl("demoLightMode").disabled = true;
-      getEl("gpstarAudioLed").disabled = true;
-      getEl("ledCycLidCount").disabled = true;
-      getEl("ledCycLidHue").disabled = true;
-      getEl("ledCycLidSat").disabled = true;
-      getEl("ledCycLidLum").disabled = true;
-      getEl("cyclotronDirection").disabled = true;
-      getEl("ledCycLidCenter").disabled = true;
-      getEl("ledCycLidFade").disabled = true;
-      getEl("ledCycLidSimRing").disabled = true;
-      getEl("ledVGCyclotron").disabled = true;
-      getEl("ledCycInnerPanel").disabled = true;
-      getEl("ledCycPanLum").disabled = true;
-      getEl("ledCycCakeCount").disabled = true;
-      getEl("ledCycCakeGRB").disabled = true;
-      getEl("ledCycCakeHue").disabled = true;
-      getEl("ledCycCakeSat").disabled = true;
-      getEl("ledCycCakeLum").disabled = true;
-      getEl("ledCycCavCount").disabled = true;
-      getEl("ledCycCavType").disabled = true;
-      getEl("ledPowercellCount").disabled = true;
-      getEl("ledPowercellHue").disabled = true;
-      getEl("ledPowercellSat").disabled = true;
-      getEl("ledPowercellLum").disabled = true;
-      getEl("ledInvertPowercell").disabled = true;
-      getEl("ledVGPowercell").disabled = true;
-      getEl("gpstarAudioLedToggle").style.display = 'none';
+      disableEl("defaultSystemModePack");
+      disableEl("defaultYearThemePack");
+      disableEl("currentYearThemePack");
+      disableEl("packVibration");
+      disableEl("defaultPackVolume");
+      disableEl("overheatLightsOff");
+      disableEl("overheatStrobeNF");
+      disableEl("overheatSyncToFan");
+      disableEl("protonStreamEffects");
+      disableEl("ribbonCableAlarm");
+      disableEl("demoLightMode");
+      disableEl("gpstarAudioLed");
+      disableEl("ledCycLidCount");
+      disableEl("ledCycLidHue");
+      disableEl("ledCycLidSat");
+      disableEl("ledCycLidLum");
+      disableEl("cyclotronDirection");
+      disableEl("ledCycLidCenter");
+      disableEl("ledCycLidFade");
+      disableEl("ledCycLidSimRing");
+      disableEl("ledVGCyclotron");
+      disableEl("ledCycInnerPanel");
+      disableEl("ledCycPanLum");
+      disableEl("ledCycCakeCount");
+      disableEl("ledCycCakeGRB");
+      disableEl("ledCycCakeHue");
+      disableEl("ledCycCakeSat");
+      disableEl("ledCycCakeLum");
+      disableEl("ledCycCavCount");
+      disableEl("ledCycCavType");
+      disableEl("ledPowercellCount");
+      disableEl("ledPowercellHue");
+      disableEl("ledPowercellSat");
+      disableEl("ledPowercellLum");
+      disableEl("ledInvertPowercell");
+      disableEl("ledVGPowercell");
+      disableEl("gpstarAudioLedToggle");
+      disableEl("wifiState");
+      disableEl("resetWifiPassword");
       hideEl("gpstar2");
-      getEl("resetWifiPassword").disabled = true;
     }
 
     // Converts a value from one range to another: eg. convertRange(160, [2,254], [0,360])
@@ -465,21 +477,24 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
             if (settings.esp32Pack) {
               // Show any GPStar II options when hardware available.
               showEl("gpstar2");
-              getEl("resetWifiPassword").disabled = false;
+              setToggle("wifiState", settings.wifiState);
+              enableEl("wifiState");
+              enableEl("resetWifiPassword");
             } else {
-              // Hide any GPStar II options when not available.
+              // Hide all GPStar II options when not available.
               hideEl("gpstar2");
-              getEl("resetWifiPassword").disabled = true;
+              disableEl("wifiState");
+              disableEl("resetWifiPassword");
             }
 
             if (!settings.gpstarAudio) {
               // Hide the GPStar Audio LED Status toggle if pack is not using GPStar Audio.
               hideEl("gpstarAudioLedToggle");
-              getEl("gpstarAudioLed").disabled = true;
+              disableEl("gpstarAudioLed");
             }
 
             // Valid settings were received and both the pack and wand are off, so allow updating settings.
-            getEl("btnSave").disabled = false;
+            enableEl("btnSave");
 
             /**
              * Note: Colour (hue) value range for FastLED uses the following scale, though CSS uses 0-360 for HSL colour.
@@ -596,6 +611,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
         ledPowercellLum: getInt("ledPowercellLum") || 100,
         ledVGPowercell: getToggle("ledVGPowercell"),
 
+        wifiState: getToggle("wifiState"),
         resetWifiPassword: getToggle("resetWifiPassword")
       };
       var body = JSON.stringify(settings);
