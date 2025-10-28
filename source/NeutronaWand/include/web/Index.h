@@ -140,6 +140,22 @@ const char INDEX_page[] PROGMEM = R"=====(
     <div class="card" style="text-align:center;">
       <div class="block left">
         <details>
+          <summary><b>Gyroscope Calibration</b></summary>
+          Gyroscope calibration is useful for ensuring rolling/twisting movements are accurate and must be performed
+          only AFTER you have selected the appropriate Controller Installation Orientation for your wand, as set via
+          the <a href="/settings/device">Special Device Settings</a> page.
+          <ol style="padding-left:20px;">
+            <li>Leave the Neutrona Wand laying still, in any orientation.</li>
+            <li>Press <b>"Gyro Calibration"</b> to begin.</li>
+            <li>A timer will appear with a 30 second countdown clock.</li>
+            <li>Wait until the countdown completes before picking up the device.</li>
+          </ol>
+          <button type="button" id="btnGyroCal" class="green" onclick="doGyroCalibration()" style="width:130px;">Gyro Calibration</button>
+          &nbsp;&nbsp;&nbsp;
+          <span id="gyroCounter"></span>
+        </details>
+        <br/>
+        <details>
           <summary><b>Magnetic Calibration</b></summary>
           Magnetic calibration is critical to obtaining a correct reading from sensors and must be performed only AFTER all
           components have been fully installed in your Neutrona Wand, and you have selected the appropriate Controller

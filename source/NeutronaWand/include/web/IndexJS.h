@@ -163,19 +163,23 @@ function updateTrackListing() {
 
 function disableSensorButtons() {
   // Used to just disable all the sensor-related buttons initially
-  getEl("btnRecenter").disabled = true;
-  getEl("btnCalibrateOn").disabled = true;
-  getEl("btnCalibrateOff").disabled = true;
+  // Use centralized helpers to manage disabled state consistently.
+  disableEl("btnRecenter");
+  disableEl("btnGyroCal");
+  disableEl("btnCalibrateOn");
+  disableEl("btnCalibrateOff");
 }
 
 function setButtonStates(sensorState) {
   // Use the sensor state to determine button states.
   switch(sensorState) {
-    case "Calibration":
-      // While in calibration mode only the "off" button is enabled.
-      getEl("btnRecenter").disabled = true;
-      getEl("btnCalibrateOn").disabled = true;
-      getEl("btnCalibrateOff").disabled = false;
+    case "Magnetometer Calibration":
+      // While in magnetometer calibration mode only the "off" button is enabled.
+      // Use helpers to avoid direct DOM property manipulation.
+      disableEl("btnRecenter");
+      disableEl("btnGyroCal")
+      disableEl("btnCalibrateOn");
+      enableEl("btnCalibrateOff");
 
       // Switch to the calibration tab if not already there.
       if (document.getElementsByClassName("tablinks")[2].classList.contains("active") == false) {
@@ -188,17 +192,31 @@ function setButtonStates(sensorState) {
         setHtml("deviceStatus", "");
       }
       break;
+    case "Gyro Calibration":
+      // While in Gyro calibration mode only the "off" button is enabled.
+      disableEl("btnRecenter");
+      disableEl("btnGyroCal")
+      disableEl("btnCalibrateOn");
+      disableEl("btnCalibrateOff");
+
+      // Switch to the calibration tab if not already there.
+      if (document.getElementsByClassName("tablinks")[2].classList.contains("active") == false) {
+        document.getElementsByClassName("tablinks")[2].click();
+      }
+      break;
     case "Offsets":
       // While in offset calculation mode no buttons are enabled.
-      getEl("btnRecenter").disabled = true;
-      getEl("btnCalibrateOn").disabled = true;
-      getEl("btnCalibrateOff").disabled = true;
+      disableEl("btnRecenter");
+      disableEl("btnGyroCal")
+      disableEl("btnCalibrateOn");
+      disableEl("btnCalibrateOff");
       break;
     case "Telemetry":
       // While in telemetry mode only re-center and calibration enable buttons are enabled.
-      getEl("btnRecenter").disabled = false;
-      getEl("btnCalibrateOn").disabled = false;
-      getEl("btnCalibrateOff").disabled = true;
+      enableEl("btnRecenter");
+      enableEl("btnGyroCal")
+      enableEl("btnCalibrateOn");
+      disableEl("btnCalibrateOff");
       break;
     default:
       disableSensorButtons();
@@ -212,25 +230,25 @@ function updateEquipment(jObj) {
 
     // Enable/Disable Music Controls
     if (jObj.benchtest) {
-      getEl("btnVolMusicUp").disabled = false;
-      getEl("btnVolMusicDown").disabled = false;
-      getEl("playbackStatus").disabled = false;
-      getEl("tracks").disabled = false;
-      getEl("btnMusicPrev").disabled = false;
-      getEl("btnMusicStartStop").disabled = false;
-      getEl("btnMusicPauseResume").disabled = false;
-      getEl("btnMusicNext").disabled = false;
-      getEl("toggleLoop").disabled = true;
+      enableEl("btnVolMusicUp");
+      enableEl("btnVolMusicDown");
+      enableEl("playbackStatus");
+      enableEl("tracks");
+      enableEl("btnMusicPrev");
+      enableEl("btnMusicStartStop");
+      enableEl("btnMusicPauseResume");
+      enableEl("btnMusicNext");
+      disableEl("toggleLoop");
     } else {
-      getEl("btnVolMusicUp").disabled = true;
-      getEl("btnVolMusicDown").disabled = true;
-      getEl("playbackStatus").disabled = true;
-      getEl("tracks").disabled = true;
-      getEl("btnMusicPrev").disabled = true;
-      getEl("btnMusicStartStop").disabled = true;
-      getEl("btnMusicPauseResume").disabled = true;
-      getEl("btnMusicNext").disabled = true;
-      getEl("toggleLoop").disabled = false;
+      disableEl("btnVolMusicUp");
+      disableEl("btnVolMusicDown");
+      disableEl("playbackStatus");
+      disableEl("tracks");
+      disableEl("btnMusicPrev");
+      disableEl("btnMusicStartStop");
+      disableEl("btnMusicPauseResume");
+      disableEl("btnMusicNext");
+      enableEl("toggleLoop");
     }
 
     // Volume Information
@@ -618,7 +636,7 @@ if (!!window.EventSource) {
       updateElevationChart(calData.e); // Update vertical coverage bar chart
       updateAzimuthChart(calData.a);   // Update horizontal coverage circular chart
       updateDistributionStats(calData.e, calData.a); // Update numerical coverage displays
-      updateuserFeedback(calData.e, calData.a, lastCoverage); // Provide user feedback
+      updateUserFeedback(calData.e, calData.a, lastCoverage); // Provide user feedback
     }
 
     // Update existing 3D visualization with coordinate points, when available.
@@ -700,9 +718,45 @@ function triggerInfrared() {
   sendCommand("/infrared/signal?type=ghostintrap");
 }
 
+let gyroCalibrating = false;
+let gyroCalTime = 30.00;
+let updateInterval = 100;
+let timerStart;
+
+function updateTimer() {
+  const elapsed = (performance.now() - timerStart) / 1000;
+  const remaining = Math.max(0, gyroCalTime - elapsed);
+
+  if (remaining > 0) {
+    gyroCalibrating = true;
+    getEl("gyroCounter").innerHTML = remaining.toFixed(1) + "s remaining";
+    setTimeout(updateTimer, updateInterval);
+  } else {
+    gyroCalibrating = false;
+    enableEl("btnGyroCal");
+    enableEl("btnCalibrateOn");
+    enableEl("btnCalibrateOff");
+    getEl("gyroCounter").innerHTML = "";
+    alert("Gyroscope calibration complete!");
+  }
+}
+
+function doGyroCalibration() {
+  if (confirm("Ready to start gyroscope calibration?")) {
+    disableEl("btnGyroCal");
+    disableEl("btnCalibrateOn");
+    disableEl("btnCalibrateOff");
+    getEl("gyroCounter").innerHTML = "...";
+    sendCommand("/sensors/calibrate/gyro");
+    timerStart = performance.now();
+    updateTimer();
+  }
+}
+
 function enableCalibration() {
-  if (confirm("Ready to start calibration?")) {
+  if (confirm("Ready to start magnetic calibration?")) {
     sendCommand("/sensors/calibrate/enable");
+    disableEl("btnGyroCal");
     calibration3D.clearPoints();
     showEl("calInfo");
     setHtml("deviceStatus", "");
@@ -726,6 +780,7 @@ function disableCalibration() {
   // User confirmed they wish to end calibration.
   if (endCalibration) {
     sendCommand("/sensors/calibrate/disable");
+    enableEl("btnGyroCal");
     hideEl("calInfo");
     calibration3D.clearPoints();
   }
@@ -888,7 +943,7 @@ function updateDistributionStats(elevationBins, azimuthBins) {
 }
 
 /**
- * Function: updateuserFeedback
+ * Function: updateUserFeedback
  * Purpose: Provide real-time feedback and recommendations for improving calibration coverage
  * Inputs: elevationBins - Array of elevation bin sample counts
  *         azimuthBins - Array of azimuth bin sample counts
@@ -898,7 +953,7 @@ function updateDistributionStats(elevationBins, azimuthBins) {
  * This function analyzes coverage patterns and provides specific guidance to help users
  * improve their calibration by identifying the most significant coverage gaps.
  */
-function updateuserFeedback(elevationBins, azimuthBins, overallCoverage) {
+function updateUserFeedback(elevationBins, azimuthBins, overallCoverage) {
   var statusElement = getEl("userFeedback");
   if (!statusElement || !elevationBins || !azimuthBins) return;
 

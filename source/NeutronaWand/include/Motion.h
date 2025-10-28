@@ -98,7 +98,7 @@ const uint16_t i_sensor_report_delay = 50; // Delay between telemetry reporting 
 Adafruit_Mahony ahrs_filter; // Create a filter object for sensor fusion (AHRS); Mahony better suited for human motion.
 
 // Current state of the motion sensors and target for telemetry.
-enum SENSOR_READ_TARGETS { NOT_INITIALIZED, CALIBRATION, OFFSETS, TELEMETRY };
+enum SENSOR_READ_TARGETS { NOT_INITIALIZED, MAG_CALIBRATION, GYRO_CALIBRATION, OFFSETS, TELEMETRY };
 enum SENSOR_READ_TARGETS SENSOR_READ_TARGET = NOT_INITIALIZED;
 
 // Orientation positions expected by mounting for final installation (eg. as held by the user).
@@ -1247,7 +1247,11 @@ void processMotionData() {
       // Can't do anything until the sensors have been initialized and configured.
     break;
 
-    case CALIBRATION:
+    case GYRO_CALIBRATION:
+      reportCalibrationData(); // Send raw data to console (USB) output for external capture.
+    break;
+
+    case MAG_CALIBRATION:
       reportCalibrationData(); // Send raw data to console (USB) output for external capture.
     break;
 

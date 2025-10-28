@@ -208,8 +208,11 @@ String getPower() {
 
 String getSensorState() {
   switch(SENSOR_READ_TARGET) {
-    case CALIBRATION:
-      return "Calibration";
+    case MAG_CALIBRATION:
+      return "Magnetometer Calibration";
+    break;
+    case GYRO_CALIBRATION:
+      return "Gyro Calibration";
     break;
     case OFFSETS:
       return "Offsets";
@@ -785,7 +788,7 @@ void restartWireless() {
 }
 
 void sendCalibrationData(bool b_update_points) {
-  if(b_httpd_started && SENSOR_READ_TARGET == CALIBRATION) {
+  if(b_httpd_started && SENSOR_READ_TARGET == MAG_CALIBRATION) {
     // Gather the latest filtered motion data, serialize it to a JSON string,
     // and send it to all connected EventSource (SSE) clients as a "calibration"
     // event name (using the current ms time as a unique event identifier).
@@ -1148,10 +1151,23 @@ void handleResetSensors(AsyncWebServerRequest *request) {
   notifyWSClients();
 }
 
+void handleCalibrateGyroSensor(AsyncWebServerRequest *request) {
+  // Turn on calibration mode for the motion sensors.
+  resetAllMotionData(false); // Clear but don't re-calibrate.
+  SENSOR_READ_TARGET = GYRO_CALIBRATION; // Enables collection of gyroscope data.
+  notifyWSClients();
+
+  delay(30000); // TODO: Write code to do the work for 30 seconds of offsets.
+
+  SENSOR_READ_TARGET = TELEMETRY; // Switch back to telemetry mode.
+  request->send(200, "application/json", returnJsonStatus());
+  notifyWSClients();
+}
+
 void handleCalibrateSensorsEnabled(AsyncWebServerRequest *request) {
   // Turn on calibration mode for the motion sensors.
   resetAllMotionData(false); // Clear but don't re-calibrate.
-  SENSOR_READ_TARGET = CALIBRATION; // Enables collection of calibration data.
+  SENSOR_READ_TARGET = MAG_CALIBRATION; // Enables collection of magnetometer data.
   magCal.beginCalibration(); // Start collection of samples, clears counters.
   request->send(200, "application/json", returnJsonStatus());
   notifyWSClients();
@@ -1605,6 +1621,7 @@ void setupRouting() {
   httpServer.on("/wifi/settings", HTTP_GET, handleGetWifi);
   httpServer.on("/wifi/networks", HTTP_GET, handleGetSSIDs);
   httpServer.on("/sensors/recenter", HTTP_PUT, handleResetSensors);
+  httpServer.on("/sensors/calibrate/gyro", HTTP_PUT, handleCalibrateGyroSensor);
   httpServer.on("/sensors/calibrate/enable", HTTP_PUT, handleCalibrateSensorsEnabled);
   httpServer.on("/sensors/calibrate/disable", HTTP_PUT, handleCalibrateSensorsDisabled);
   httpServer.on("/infrared/signal", HTTP_PUT, handleInfraredSignal);
