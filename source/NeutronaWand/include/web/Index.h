@@ -70,9 +70,7 @@ const char INDEX_page[] PROGMEM = R"=====(
         <div id="3Dtelemetry"></div>
       </div>
     </div>
-    <button type="button" id="btnRecenter" class="blue" onclick="resetPosition()">Re-center</button>
-    &nbsp;&nbsp;&nbsp;
-    <button type="button" id="btnInfrared" class="orange" onclick="triggerInfrared()">Infrared</button>
+    <button type="button" id="btnInfrared" class="orange" onclick="triggerInfrared()" style="width:160px;">Trigger PKE Infrared</button>
     <br/>
   </div>
 

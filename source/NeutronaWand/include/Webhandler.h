@@ -477,7 +477,7 @@ String getWifiSettings() {
 }
 
 // Prepare a JSON object with magnetometer calibration data points for visualization.
-// Function: getCalibration
+// Function: getCalibrationJSON
 // Purpose: Prepare JSON object with magnetometer calibration data and complete bin distribution arrays
 // Inputs: Logical indicating to send all points (accesses the global magCal object for data)
 // Outputs: String containing JSON data with coverage, points, and complete bin distribution arrays
@@ -488,13 +488,25 @@ String getWifiSettings() {
 // - Complete elevation bin distribution (all bins, 0 for empty)
 // - Complete azimuth bin distribution (all bins, 0 for empty)
 // The complete arrays preserve index-to-degree mapping for client-side processing.
-String getCalibration(bool b_update_points = false) {
+String getCalibrationJSON(bool b_update_points = false) {
   String calibrationData;
   const char* statusMsg = magCal.getStatusMessage();
 
   // Create a JSON object with calibration data and bin distribution information.
   JsonDocument jsonCalibration;
-  jsonCalibration["c"] = roundFloat(magCal.getCoveragePercent());
+  float f_last_coverage = magCal.getCoveragePercent();
+  jsonCalibration["c"] = roundFloat(f_last_coverage);
+
+  // Provide audio feedback at every 10% coverage milestone.
+  static int16_t i_last_milestone = -1;
+  int16_t i_current = (int16_t)f_last_coverage / 10.0f;
+  if (i_last_milestone == -1) {
+    i_last_milestone = i_current; // Init on first call.
+  }
+  else if (i_current != i_last_milestone) {
+    i_last_milestone = i_current;
+    playEffect(S_BEEPS_ALT);
+  }
 
   // Add status message if provided and not blank
   if (statusMsg && statusMsg[0] != '\0') {
@@ -792,7 +804,7 @@ void sendCalibrationData(bool b_update_points) {
     // Gather the latest filtered motion data, serialize it to a JSON string,
     // and send it to all connected EventSource (SSE) clients as a "calibration"
     // event name (using the current ms time as a unique event identifier).
-    events.send(getCalibration(b_update_points).c_str(), "calibration", millis());
+    events.send(getCalibrationJSON(b_update_points).c_str(), "calibration", millis());
   }
 }
 
@@ -1146,7 +1158,7 @@ void handleSaveWandEEPROM(AsyncWebServerRequest *request) {
 void handleResetSensors(AsyncWebServerRequest *request) {
   // Re-center by resetting all current telemetry data for motion sensors.
   // This allows all motion data to be zeroed out and begin a new average.
-  resetAllMotionData(true);
+  resetAllMotionData(true); // Clear and re-calibrate (quick).
   request->send(200, "application/json", returnJsonStatus());
   notifyWSClients();
 }
@@ -1158,7 +1170,7 @@ void handleCalibrateGyroSensor(AsyncWebServerRequest *request) {
   notifyWSClients();
 }
 
-void handleCalibrateSensorsEnabled(AsyncWebServerRequest *request) {
+void handleMagCalEnabled(AsyncWebServerRequest *request) {
   // Turn on calibration mode for the magnetometer.
   resetAllMotionData(false); // Clear but don't re-calibrate.
   SENSOR_READ_TARGET = MAG_CALIBRATION; // Enables collection of magnetometer data.
@@ -1167,7 +1179,7 @@ void handleCalibrateSensorsEnabled(AsyncWebServerRequest *request) {
   notifyWSClients();
 }
 
-void handleCalibrateSensorsDisabled(AsyncWebServerRequest *request) {
+void handleMagCalDisabled(AsyncWebServerRequest *request) {
   // Determine if proper coverage was achieved before calculating and storing data.
   float coverage = magCal.getCoveragePercent();
   if(coverage >= 60.0f) {
@@ -1619,8 +1631,8 @@ void setupRouting() {
   httpServer.on("/wifi/networks", HTTP_GET, handleGetSSIDs);
   httpServer.on("/sensors/recenter", HTTP_PUT, handleResetSensors);
   httpServer.on("/sensors/calibrate/gyro", HTTP_PUT, handleCalibrateGyroSensor);
-  httpServer.on("/sensors/calibrate/enable", HTTP_PUT, handleCalibrateSensorsEnabled);
-  httpServer.on("/sensors/calibrate/disable", HTTP_PUT, handleCalibrateSensorsDisabled);
+  httpServer.on("/sensors/calibrate/enable", HTTP_PUT, handleMagCalEnabled);
+  httpServer.on("/sensors/calibrate/disable", HTTP_PUT, handleMagCalDisabled);
   httpServer.on("/infrared/signal", HTTP_PUT, handleInfraredSignal);
 
   // Body Handlers

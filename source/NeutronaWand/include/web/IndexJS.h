@@ -164,7 +164,6 @@ function updateTrackListing() {
 function disableSensorButtons() {
   // Used to just disable all the sensor-related buttons initially
   // Use centralized helpers to manage disabled state consistently.
-  disableEl("btnRecenter");
   disableEl("btnGyroCal");
   disableEl("btnCalibrateOn");
   disableEl("btnCalibrateOff");
@@ -176,7 +175,6 @@ function setButtonStates(sensorState) {
     case "Magnetometer Calibration":
       // While in magnetometer calibration mode only the "off" button is enabled.
       // Use helpers to avoid direct DOM property manipulation.
-      disableEl("btnRecenter");
       disableEl("btnGyroCal")
       disableEl("btnCalibrateOn");
       enableEl("btnCalibrateOff");
@@ -194,7 +192,6 @@ function setButtonStates(sensorState) {
       break;
     case "Gyro Calibration":
       // While in Gyro calibration mode only the "off" button is enabled.
-      disableEl("btnRecenter");
       disableEl("btnGyroCal")
       disableEl("btnCalibrateOn");
       disableEl("btnCalibrateOff");
@@ -206,14 +203,12 @@ function setButtonStates(sensorState) {
       break;
     case "Offsets":
       // While in offset calculation mode no buttons are enabled.
-      disableEl("btnRecenter");
       disableEl("btnGyroCal")
       disableEl("btnCalibrateOn");
       disableEl("btnCalibrateOff");
       break;
     case "Telemetry":
       // While in telemetry mode only re-center and calibration enable buttons are enabled.
-      enableEl("btnRecenter");
       enableEl("btnGyroCal")
       enableEl("btnCalibrateOn");
       disableEl("btnCalibrateOff");
@@ -710,11 +705,8 @@ window.addEventListener("load", onLoad);
 
 /** API Commands **/
 
-function resetPosition() {
-  sendCommand("/sensors/recenter");
-}
-
 function triggerInfrared() {
+  // Trigger an IR signal as sent by the PKE meter.
   sendCommand("/infrared/signal?type=ghostintrap");
 }
 

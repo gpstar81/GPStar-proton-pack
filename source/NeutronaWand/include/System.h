@@ -1508,12 +1508,6 @@ void afterlifeRampSound1() {
 }
 
 void postActivation(bool shortBoot = false) {
-#ifdef ESP32
-  // When the wand is activated we should quickly clear all motion data.
-  // A quick calibration will be performed using the current position.
-  resetAllMotionData(true);
-#endif
-
   if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
     i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
   }

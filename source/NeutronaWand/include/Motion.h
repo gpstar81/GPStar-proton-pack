@@ -1413,10 +1413,19 @@ void averageCalibrationData() {
   calibratedOffsets.gyroY = calibratedOffsets.sumGyroY * f_inv;
   calibratedOffsets.gyroZ = calibratedOffsets.sumGyroZ * f_inv;
 
+  // Provide audio feedback via beep every ~1 seconds during calibration.
+  static int16_t i_last_beep_interval = -1;
+  int16_t i_interval = (int16_t)(ms_gyro_calibration.remaining() / 1000);
+  if(i_interval != i_last_beep_interval) {
+    i_last_beep_interval = i_interval;
+    playEffect(S_BEEPS_ALT);
+  }
+
   // Stop collection once the calibration timer has finished.
   if(ms_gyro_calibration.justFinished()) {
     i_gyro_calibration_duration = 0; // Reset the timer duration.
     debugln(F("Gyro calibration complete; offsets computed."));
+    playEffect(S_BEEPS_BARGRAPH);
 
     // Save only accel offsets as a triplet.
     accelOffsets.x = calibratedOffsets.accelX;
