@@ -73,16 +73,14 @@ ul li {
 details,
 details * {
   text-align:justify;
-  text-justify:inter-word;
-  -webkit-hyphens:none;
-  -ms-hyphens:none;
-  -moz-hyphens:v;
   hyphens:none;
+  margin-right:5px;
   overflow-wrap:normal;
   word-break:normal;
 }
 
 details > summary {
+  margin-bottom:10px;
   text-align:left;
   text-align-last:left;
 }
