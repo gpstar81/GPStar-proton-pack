@@ -35,12 +35,12 @@ void bargraphYearModeUpdate();
 void updateOverheatLevels();
 void resetWhiteLEDBlinkRate();
 
+// Reference global instances defined elsewhere
+extern Axis3F accelOffsets;
+extern Axis3F gyroOffsets;
+
 // Include ESP32 Preferences library
 #include <Preferences.h>
-
-// Preferences for system configuration, which will use a "led" and "config" namespaces.
-// For Wireless.h will store SSID and AP password within a "credentials" namespace.
-Preferences preferences;
 
 // Data structure for LED settings (stored in Preferences)
 struct objLEDEEPROM {
@@ -96,15 +96,22 @@ void saveLEDEEPROM() {
   gObjLEDEEPROM.numBargraphLeds = BARGRAPH_TYPE_EEPROM;
   gObjLEDEEPROM.gpstar_audio_led = b_gpstar_audio_led_enabled ? 2 : 1;
 
-  preferences.begin("led", false);
-  preferences.putBytes("led", &gObjLEDEEPROM, sizeof(gObjLEDEEPROM));
-  preferences.end();
+  // Create Preferences object to handle non-volatile storage (NVS).
+  Preferences preferences;
+
+  if(preferences.begin("led", false)) {
+    preferences.putBytes("led", &gObjLEDEEPROM, sizeof(gObjLEDEEPROM));
+    preferences.end();
+  }
 
   updateCRCEEPROM(eepromCRC());
 }
 
 // Load LED settings from Preferences into the global instance
 void loadLEDEEPROM() {
+  // Create Preferences object to handle non-volatile storage (NVS).
+  Preferences preferences;
+
   if(preferences.begin("led", true)) {
     if(preferences.isKey("led")) {
       preferences.getBytes("led", &gObjLEDEEPROM, sizeof(gObjLEDEEPROM));
@@ -115,6 +122,9 @@ void loadLEDEEPROM() {
 
 // Clear LED settings in Preferences
 void clearLEDEEPROM() {
+  // Create Preferences object to handle non-volatile storage (NVS).
+  Preferences preferences;
+
   if(preferences.begin("led", false)) {
     preferences.clear();
     preferences.end();
@@ -371,6 +381,9 @@ void saveConfigEEPROM() {
   gObjConfigEEPROM.barrelSwitchPolarity = i_barrel_switch_polarity;
   gObjConfigEEPROM.wandVibration = i_wand_vibration;
 
+  // Create Preferences object to handle non-volatile storage (NVS).
+  Preferences preferences;
+
   if(preferences.begin("config", false)) {
     preferences.putBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
     preferences.end();
@@ -381,6 +394,9 @@ void saveConfigEEPROM() {
 
 // Load config settings from Preferences
 void loadConfigEEPROM() {
+  // Create Preferences object to handle non-volatile storage (NVS).
+  Preferences preferences;
+
   if(preferences.begin("config", true)) {
     if(preferences.isKey("config")) {
       preferences.getBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
@@ -391,6 +407,9 @@ void loadConfigEEPROM() {
 
 // Clear config settings in Preferences
 void clearConfigEEPROM() {
+  // Create Preferences object to handle non-volatile storage (NVS).
+  Preferences preferences;
+
   if(preferences.begin("config", false)) {
     preferences.clear();
     preferences.end();
@@ -401,6 +420,9 @@ void clearConfigEEPROM() {
 
 // CRC helpers for Preferences
 void updateCRCEEPROM(uint32_t crc) {
+  // Create Preferences object to handle non-volatile storage (NVS).
+  Preferences preferences;
+
   if(preferences.begin("crc", false)) {
     preferences.putUInt("crc", crc);
     preferences.end();
@@ -409,6 +431,9 @@ void updateCRCEEPROM(uint32_t crc) {
 
 uint32_t getCRCEEPROM() {
   uint32_t crc = 0;
+
+  // Create Preferences object to handle non-volatile storage (NVS).
+  Preferences preferences;
 
   if(preferences.begin("crc", true)) {
     crc = preferences.getUInt("crc");
@@ -821,12 +846,11 @@ void readEEPROM() {
 
 // Used to get UI preferences from the device namespace.
 void getSpecialPreferences() {
-  /*
-   * Get Local Device Preferences
-   * Accesses the "device" namespace in read-only mode under the "nvs" partition.
-   */
-  bool b_namespace_opened = preferences.begin("device", true);
-  if(b_namespace_opened) {
+  // Create Preferences object to handle non-volatile storage (NVS).
+  Preferences preferences;
+
+  // Accesses the "device" namespace in read-only mode.
+  if(preferences.begin("device", true)) {
     // Return stored values if available, otherwise use a default value.
     s_track_listing = preferences.getString("track_list", "");
 
@@ -873,6 +897,20 @@ void getSpecialPreferences() {
     // Restore the magnetometer calibration data from preferences.
     if(preferences.isKey("mag_cal")) {
       preferences.getBytes("mag_cal", &magCalData, sizeof(magCalData));
+
+      size_t readA = preferences.getBytes("accel_cal", &accelOffsets, sizeof(accelOffsets));
+      if(readA == sizeof(accelOffsets)) {
+        calibratedOffsets.accelX = accelOffsets.x;
+        calibratedOffsets.accelY = accelOffsets.y;
+        calibratedOffsets.accelZ = accelOffsets.z;
+      }
+
+      size_t readG = preferences.getBytes("gyro_cal", &gyroOffsets, sizeof(gyroOffsets));
+      if(readG == sizeof(gyroOffsets)) {
+        calibratedOffsets.gyroX = gyroOffsets.x;
+        calibratedOffsets.gyroY = gyroOffsets.y;
+        calibratedOffsets.gyroZ = gyroOffsets.z;
+      }
     }
 
     preferences.end();
@@ -888,7 +926,7 @@ void getSpecialPreferences() {
   }
 
   // Fallback to the Haslab as default if not set.
-  if (INSTALL_ORIENTATION == COMPONENTS_NOT_ORIENTED) {
+  if(INSTALL_ORIENTATION == COMPONENTS_NOT_ORIENTED) {
     INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_FRONT;
   }
 }

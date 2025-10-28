@@ -1152,20 +1152,14 @@ void handleResetSensors(AsyncWebServerRequest *request) {
 }
 
 void handleCalibrateGyroSensor(AsyncWebServerRequest *request) {
-  // Turn on calibration mode for the motion sensors.
-  resetAllMotionData(false); // Clear but don't re-calibrate.
-  SENSOR_READ_TARGET = GYRO_CALIBRATION; // Enables collection of gyroscope data.
-  notifyWSClients();
-
-  delay(30000); // TODO: Write code to do the work for 30 seconds of offsets.
-
-  SENSOR_READ_TARGET = TELEMETRY; // Switch back to telemetry mode.
+  // Turn on calibration mode for the gyroscope sensor.
+  beginGyroCalibration(30); // Run calibration for 30 seconds.
   request->send(200, "application/json", returnJsonStatus());
   notifyWSClients();
 }
 
 void handleCalibrateSensorsEnabled(AsyncWebServerRequest *request) {
-  // Turn on calibration mode for the motion sensors.
+  // Turn on calibration mode for the magnetometer.
   resetAllMotionData(false); // Clear but don't re-calibrate.
   SENSOR_READ_TARGET = MAG_CALIBRATION; // Enables collection of magnetometer data.
   magCal.beginCalibration(); // Start collection of samples, clears counters.
@@ -1179,6 +1173,9 @@ void handleCalibrateSensorsDisabled(AsyncWebServerRequest *request) {
   if(coverage >= 60.0f) {
     // Compute calibration data for the standard calibration object.
     magCalData = magCal.computeCalibration();
+
+    // Create Preferences object to handle non-volatile storage (NVS).
+    Preferences preferences;
 
     // Save the calibration data (as an object) to preferences.
     if(preferences.begin("device", false)) {

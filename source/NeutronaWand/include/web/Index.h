@@ -138,42 +138,49 @@ const char INDEX_page[] PROGMEM = R"=====(
 
   <div id="tab3" class="tab">
     <div class="card" style="text-align:center;">
-      <div class="block left">
+      <div class="instructions">
         <details>
           <summary><b>Gyroscope Calibration</b></summary>
-          Gyroscope calibration is useful for ensuring rolling/twisting movements are accurate and must be performed
-          only AFTER you have selected the appropriate Controller Installation Orientation for your wand, as set via
-          the <a href="/settings/device">Special Device Settings</a> page.
+          Gyroscope calibration ensures sensor readings are stable and accurate. This calibration must be performed
+          only AFTER you have selected the appropriate <b>Controller Installation Orientation</b> for your Neutrona Wand,
+          as set via the <a href="/settings/device">Special Device Settings</a> page.
           <ol style="padding-left:20px;">
-            <li>Leave the Neutrona Wand laying still, in any orientation.</li>
+            <li>Leave the Neutrona Wand laying still on a solid surface, in any orientation.</li>
             <li>Press <b>"Gyro Calibration"</b> to begin.</li>
-            <li>A timer will appear with a 30 second countdown clock.</li>
-            <li>Wait until the countdown completes before picking up the device.</li>
+            <li>A timer will appear below with a 30-second countdown clock.</li>
+            <li><b>Do not touch</b> the device or the surface where it rests, and wait until the countdown timer completes.</li>
           </ol>
+        </details>
+        <div>
+          <br/>
           <button type="button" id="btnGyroCal" class="green" onclick="doGyroCalibration()" style="width:130px;">Gyro Calibration</button>
           &nbsp;&nbsp;&nbsp;
           <span id="gyroCounter"></span>
-        </details>
-        <br/>
+          <br/>
+          <br/>
+        </div>
         <details>
           <summary><b>Magnetic Calibration</b></summary>
           Magnetic calibration is critical to obtaining a correct reading from sensors and must be performed only AFTER all
-          components have been fully installed in your Neutrona Wand, and you have selected the appropriate Controller
-          Installation Orientation for your wand, as set via the <a href="/settings/device">Special Device Settings</a> page.
+          components have been fully installed in your Neutrona Wand, and you have selected the appropriate <b>Controller
+          Installation Orientation</b> for your wand, as set via the <a href="/settings/device">Special Device Settings</a> page.
           <ol style="padding-left:20px;">
             <li>Press <b>"Start Calibration"</b> to begin.</li>
-            <li>Raise and lower your Neutrona Wand <b>slowly</b> while turning 360&deg; to collect calibration data.</li>
-            <li>Fill the visualization below with red dots and the <b>Coverage Density</b> is at least 60%.</li>
-            <li>If coverage stalls, try adding a twisting motion or figure-eights into your up/down movements.</li>
-            <li>Press <b>"Stop Calibration"</b> to stop collection and store new calculated values.</li>
+            <li>Raise and lower your Neutrona Wand <b>slowly</b> while turning 360&deg; to collect calibration data in all directions.</li>
+            <li>Use the visualization below to help you reach a <b>Coverage Density</b> of at least <b>60%</b>.</li>
+            <li>If the coverage % stalls, try adding a twisting motion or figure-eights into your up/down movements.</li>
+            <li>Press <b>"Stop Calibration"</b> to stop collection and store the calculated values.</li>
           </ol>
         </details>
+        <div>
+          <br/>  
+          <button type="button" id="btnCalibrateOn" class="green" onclick="enableCalibration()" style="width:130px;">Start Calibration</button>
+          &nbsp;&nbsp;&nbsp;
+          <button type="button" id="btnCalibrateOff" class="red" onclick="disableCalibration()" style="width:130px;">Stop Calibration</button>
+          <br/>
+          <br/>
+        </div>
       </div>
-      <button type="button" id="btnCalibrateOn" class="green" onclick="enableCalibration()" style="width:130px;">Start Calibration</button>
-      &nbsp;&nbsp;&nbsp;
-      <button type="button" id="btnCalibrateOff" class="red" onclick="disableCalibration()" style="width:130px;">Stop Calibration</button>
-      <br/>
-      <br/>
       <div>
         <p id="mag">
           <span class="infoLabel">&nbsp;X:</span> <span class="infoState" id="magX">&mdash;</span>
@@ -181,48 +188,48 @@ const char INDEX_page[] PROGMEM = R"=====(
           <span class="infoLabel">&nbsp;Z:</span> <span class="infoState" id="magZ">&mdash;</span>
         </p>
       </div>
-      <div class="telemetry" id="calInfo">
-        <div class="coverage-feedback">
-          <!-- Special devices messages will be sent here via API -->
-          <div id="deviceStatus" class="status-message"></div>
+    </div>
+    <div class="telemetry" id="calInfo">
+      <div class="coverage-feedback">
+        <!-- Special devices messages will be sent here via API -->
+        <div id="deviceStatus" class="status-message"></div>
+      </div>
+      <p class="centered">
+        <span class="infoLabel">Coverage Density:&nbsp;</span> <span class="infoState" id="coverage">&mdash;</span>
+      </p>
+      <div class="distribution-analysis">
+        <p class="centered">
+          <span class="infoLabel">Vertical Distribution:&nbsp;</span> <span class="infoState" id="elevationDistribution"></span>
+        </p>
+        <div class="elevation-chart-container">
+          <!-- Shows vertical (elevation) orientation coverage gaps as a bar chart -->
+          <div id="elevationChart" class="elevation-chart"></div>
+          <div class="elevation-labels">
+            <span class="degree-label">-90°</span>
+            <span class="degree-label">0°</span>
+            <span class="degree-label">+90°</span>
+          </div>
         </div>
         <p class="centered">
-          <span class="infoLabel">Coverage Density:&nbsp;</span> <span class="infoState" id="coverage">&mdash;</span>
+          <span class="infoLabel">Horizontal Distribution:&nbsp;</span> <span class="infoState" id="azimuthDistribution"></span>
         </p>
-        <div class="distribution-analysis">
-          <p class="centered">
-            <span class="infoLabel">Vertical Distribution:&nbsp;</span> <span class="infoState" id="elevationDistribution"></span>
-          </p>
-          <div class="elevation-chart-container">
-            <!-- Shows vertical (elevation) orientation coverage gaps as a bar chart -->
-            <div id="elevationChart" class="elevation-chart"></div>
-            <div class="elevation-labels">
-              <span class="degree-label">-90°</span>
-              <span class="degree-label">0°</span>
-              <span class="degree-label">+90°</span>
-            </div>
-          </div>
-          <p class="centered">
-            <span class="infoLabel">Horizontal Distribution:&nbsp;</span> <span class="infoState" id="azimuthDistribution"></span>
-          </p>
-          <div class="azimuth-chart-container">
-            <!-- Shows horizontal (azimuth) rotation coverage as a circular chart -->
-            <div id="azimuthChart" class="azimuth-chart"></div>
-            <div class="compass-directions">
-              <span class="compass-label compass-n">N</span>
-              <span class="compass-label compass-e">E</span>
-              <span class="compass-label compass-s">S</span>
-              <span class="compass-label compass-w">W</span>
-            </div>
+        <div class="azimuth-chart-container">
+          <!-- Shows horizontal (azimuth) rotation coverage as a circular chart -->
+          <div id="azimuthChart" class="azimuth-chart"></div>
+          <div class="compass-directions">
+            <span class="compass-label compass-n">N</span>
+            <span class="compass-label compass-e">E</span>
+            <span class="compass-label compass-s">S</span>
+            <span class="compass-label compass-w">W</span>
           </div>
         </div>
-        <div class="coverage-feedback">
-          <!-- Dynamic status/instructions will appear here via JavaScript -->
-          <div id="userFeedback" class="status-message"></div>
-        </div>
-        <div class="viz-content">
-          <div id="3Dcalibration"></div>
-        </div>
+      </div>
+      <div class="coverage-feedback">
+        <!-- Dynamic status/instructions will appear here via JavaScript -->
+        <div id="userFeedback" class="status-message"></div>
+      </div>
+      <div class="viz-content">
+        <div id="3Dcalibration"></div>
       </div>
     </div>
   </div>

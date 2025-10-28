@@ -192,8 +192,7 @@ void PreferencesTask(void *parameter) {
    * Accesses the "device" namespace in read-only mode under the "nvs" partition.
    */
   Preferences preferences;
-  bool b_namespace_opened = preferences.begin("device", true);
-  if(b_namespace_opened) {
+  if(preferences.begin("device", true)) {
     // Return stored values if available, otherwise use a default value.
     bool b_invert_dial = preferences.getBool("invert_dial", false);
     b_invert_leds = preferences.getBool("invert_led", false);

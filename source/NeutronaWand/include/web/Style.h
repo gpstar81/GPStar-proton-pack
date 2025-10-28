@@ -64,6 +64,29 @@ p {
   margin:4px 0 6px;
 }
 
+li,
+ol li,
+ul li {
+  margin-bottom:0.25em;
+}
+
+details,
+details * {
+  text-align:justify;
+  text-justify:inter-word;
+  -webkit-hyphens:none;
+  -ms-hyphens:none;
+  -moz-hyphens:v;
+  hyphens:none;
+  overflow-wrap:normal;
+  word-break:normal;
+}
+
+details > summary {
+  text-align:left;
+  text-align-last:left;
+}
+
 .dark {
   background-color:#444;
 }
@@ -90,6 +113,13 @@ p {
 .block {
   margin:10px 5px 30px;
   padding:10px 5px;
+  width:99%;
+}
+
+.instructions {
+  margin:10px 0px 30px;
+  padding:10px 5px;
+  text-align:left;
   width:99%;
 }
 

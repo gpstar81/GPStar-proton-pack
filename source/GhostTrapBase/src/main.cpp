@@ -169,8 +169,7 @@ void PreferencesTask(void *parameter) {
    * Accesses the "device" namespace in read-only mode under the "nvs" partition.
    */
   Preferences preferences;
-  bool b_namespace_opened = preferences.begin("device", true);
-  if(b_namespace_opened) {
+  if(preferences.begin("device", true)) {
     switch(preferences.getShort("display_type", 0)) {
       case 0:
         DISPLAY_TYPE = STATUS_TEXT;
