@@ -248,6 +248,10 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
   <div id="gpstar2">
     <h1>GPStar II Options</h1>
     <div class="block left">
+      <p>
+        WiFi is automatically enabled on the GPStar II Neutrona Wand except when a Proton Pack is attached.
+        It is advised to keep WiFi disabled to save power, unless needed to perform firmware updates or sensor calibration.
+      </p>
       <div class="setting">
         <label class="toggle-switchy" data-text="yesno" data-label="left">
           <input id="wifiState" name="wifiState" type="checkbox">

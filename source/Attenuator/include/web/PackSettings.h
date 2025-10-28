@@ -355,7 +355,11 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
 
   <div id="gpstar2">
     <h1>GPStar II Options</h1>
-    <div class="block left" id="wifiPasswordDiv">
+    <div class="block left">
+      <p>
+        WiFi is automatically enabled on the GPStar II Proton Pack except when an Attenuator is attached.
+        It is advised to keep WiFi disabled to save power, unless needed to perform firmware updates.
+      </p>
       <div class="setting">
         <label class="toggle-switchy" data-text="yesno" data-label="left">
           <input id="wifiState" name="wifiState" type="checkbox">
