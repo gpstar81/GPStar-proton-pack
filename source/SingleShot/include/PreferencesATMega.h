@@ -148,23 +148,11 @@ void saveConfigEEPROM() {
   uint8_t i_eeprom_volume_master_percentage = 100 * (MINIMUM_VOLUME - i_volume_master_eeprom) / MINIMUM_VOLUME;
 
   // 1 = false, 2 = true.
-  uint8_t i_device_boot_errors = 2; // Assumed true by default.
-  uint8_t i_vent_light_auto_intensity = 2; // Assumed true by default.
-  uint8_t i_invert_bargraph = 1; // Assumed false by default.
+  uint8_t i_device_boot_errors = b_device_boot_errors ? 2 : 1; // Assumed true by default.
+  uint8_t i_vent_light_auto_intensity = b_vent_light_control ? 2 : 1; // Assumed true by default.
+  uint8_t i_invert_bargraph = b_bargraph_invert ? 2 : 1; // Assumed false by default.
   uint8_t i_default_system_volume = 101; // <- i_eeprom_volume_master_percentage + 1
   uint8_t i_device_vibration = 4; // 1 = always, 2 = when firing, 3 = off, 4 = default.
-
-  if(!b_device_boot_errors) {
-    i_device_boot_errors = 1;
-  }
-
-  if(!b_vent_light_control) {
-    i_vent_light_auto_intensity = 1;
-  }
-
-  if(b_bargraph_invert) {
-    i_invert_bargraph = 2;
-  }
 
   if(i_eeprom_volume_master_percentage <= 100) {
     // Need to add 1 to this because the EEPROM cannot contain a 0 value.

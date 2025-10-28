@@ -23,7 +23,7 @@
 /*
  * Used to reflect the last build date for the binary.
  */
-String build_date = "V6_20251027205320";
+String build_date = "V6_20251028123208";
 
 /*
  * Control debug messages for various actions during normal operation.
@@ -177,9 +177,11 @@ uint8_t i_powercell_delay_2021 = POWERCELL_DELAY_2021_15_LED;
 
 /*
  * Invert the Power Cell animation.
- * Default is false.
+ * Hasbro 13-LED and Frutto 15-LED use a non-inverted pattern.
+ * GPStar 15-LED use an inverted pattern.
+ * Default is true.
  */
-bool b_powercell_invert = false;
+bool b_powercell_invert = true;
 
 /*
  * Power Cell Video Game Colour Toggle

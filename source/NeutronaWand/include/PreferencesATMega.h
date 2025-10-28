@@ -539,21 +539,9 @@ void saveLEDEEPROM() {
 
   uint8_t i_barrel_led_count = WAND_BARREL_LED_COUNT; // 5 = Hasbro, 50 = GPStar Neutrona Barrel, 2 = GPStar Barrel LED Mini, 48 = Frutto.
   uint8_t i_bargraph_led_count = BARGRAPH_TYPE_EEPROM; // 28 segment, 30 segment.
-  uint8_t i_vent_light_auto_intensity = 2; // 1 = Vent Light auto intensity disabled, 2 = Vent Light auto intensity enabled
-  uint8_t i_rgb_vent_light = 1; // 1 = RGB Vent Light disabled, 2 = RGB Vent Light enabled
-  uint8_t i_gpstar_audio_led = 1; // 1 = GPStar Audio LED disabled, 2 = GPStar Audio LED enabled
-
-  if(!b_vent_light_control) {
-    i_vent_light_auto_intensity = 1;
-  }
-
-  if(b_rgb_vent_light) {
-    i_rgb_vent_light = 2;
-  }
-
-  if(b_gpstar_audio_led_enabled) {
-    i_gpstar_audio_led = 2;
-  }
+  uint8_t i_vent_light_auto_intensity = b_vent_light_control ? 2 : 1; // 1 = Vent Light auto intensity disabled, 2 = Vent Light auto intensity enabled
+  uint8_t i_rgb_vent_light = b_rgb_vent_light ? 2 : 1; // 1 = RGB Vent Light disabled, 2 = RGB Vent Light enabled
+  uint8_t i_gpstar_audio_led = b_gpstar_audio_led_enabled ? 2 : 1; // 1 = GPStar Audio LED disabled, 2 = GPStar Audio LED enabled
 
   // Build the LED EEPROM object with the new data.
   objLEDEEPROM obj_led_eeprom = {
@@ -586,71 +574,35 @@ void saveConfigEEPROM() {
   uint8_t i_eeprom_volume_master_percentage = 100 * (MINIMUM_VOLUME - i_volume_master_eeprom) / MINIMUM_VOLUME;
 
   // 1 = false, 2 = true.
-  uint8_t i_cross_the_streams = 1;
-  uint8_t i_cross_the_streams_mix = 1;
-  uint8_t i_overheating = 2;
-  uint8_t i_extra_proton_sounds = 2;
-  uint8_t i_neutrona_wand_sounds = 2;
-  uint8_t i_spectral = 1;
-  uint8_t i_quick_vent = 2;
-  uint8_t i_wand_boot_errors = 1;
-  uint8_t i_invert_bargraph = 1;
+  uint8_t i_cross_the_streams = (FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) ? 2 : 1;
+  uint8_t i_cross_the_streams_mix = (FIRING_MODE == CTS_MIX_MODE) ? 2 : 1;
+  uint8_t i_overheating = b_overheat_enabled ? 2 : 1;
+  uint8_t i_extra_proton_sounds = b_stream_effects ? 2 : 1;
+  uint8_t i_neutrona_wand_sounds = b_extra_pack_sounds ? 2 : 1;
+  uint8_t i_spectral = b_spectral_mode_enabled ? 2 : 1;
+  uint8_t i_quick_vent = b_quick_vent ? 2 : 1;
+  uint8_t i_wand_boot_errors = b_wand_boot_errors ? 2 : 1;
+  uint8_t i_invert_bargraph = b_bargraph_invert ? 2 : 1;
   uint8_t i_bargraph_mode = 1; // 1 = default, 2 = super hero, 3 = original.
   uint8_t i_bargraph_firing_animation = 1; // 1 = default, 2 = super hero, 3 = original.
-  uint8_t i_bargraph_overheat_blinking = 1;
+  uint8_t i_bargraph_overheat_blinking = b_overheat_bargraph_blink ? 2 : 1;
   uint8_t i_neutrona_wand_year_mode = 1; // 1 = default, 2 = 1984, 3 = 1989, 4 = Afterlife, 5 = Frozen Empire.
   uint8_t i_cts_mode = 1; // 1 = default, 2 = 1984, 3 = 1989, 4 = Afterlife, 5 = Frozen Empire.
-  uint8_t i_system_mode = 1; // 1 = super hero, 2 = original.
-  uint8_t i_beep_loop = 2;
+  uint8_t i_system_mode = (SYSTEM_MODE == MODE_ORIGINAL) ? 2 : 1; // 1 = super hero, 2 = original.
+  uint8_t i_beep_loop = b_beep_loop ? 2 : 1;
   uint8_t i_default_wand_volume = 101; // <- i_eeprom_volume_master_percentage + 1
   uint8_t i_overheat_start_timer_level_5 = i_ms_overheat_initiate_level_5 / 1000;
   uint8_t i_overheat_start_timer_level_4 = i_ms_overheat_initiate_level_4 / 1000;
   uint8_t i_overheat_start_timer_level_3 = i_ms_overheat_initiate_level_3 / 1000;
   uint8_t i_overheat_start_timer_level_2 = i_ms_overheat_initiate_level_2 / 1000;
   uint8_t i_overheat_start_timer_level_1 = i_ms_overheat_initiate_level_1 / 1000;
-  uint8_t i_overheat_level_5 = 1;
-  uint8_t i_overheat_level_4 = 1;
-  uint8_t i_overheat_level_3 = 1;
-  uint8_t i_overheat_level_2 = 1;
-  uint8_t i_overheat_level_1 = 1;
+  uint8_t i_overheat_level_5 = b_overheat_level_5 ? 2 : 1;
+  uint8_t i_overheat_level_4 = b_overheat_level_4 ? 2 : 1;
+  uint8_t i_overheat_level_3 = b_overheat_level_3 ? 2 : 1;
+  uint8_t i_overheat_level_2 = b_overheat_level_2 ? 2 : 1;
+  uint8_t i_overheat_level_1 = b_overheat_level_1 ? 2 : 1;
   uint8_t i_barrel_switch_polarity = 1; // 1 = default, 2 = inverted, 3 = disabled.
   uint8_t i_wand_vibration = 4; // 1 = always, 2 = when firing, 3 = off, 4 = default.
-
-  if(FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) {
-    i_cross_the_streams = 2;
-  }
-
-  if(FIRING_MODE == CTS_MIX_MODE) {
-    i_cross_the_streams_mix = 2;
-  }
-
-  if(!b_overheat_enabled) {
-    i_overheating = 1;
-  }
-
-  if(!b_stream_effects) {
-    i_extra_proton_sounds = 1;
-  }
-
-  if(!b_extra_pack_sounds) {
-    i_neutrona_wand_sounds = 1;
-  }
-
-  if(b_spectral_mode_enabled) {
-    i_spectral = 2;
-  }
-
-  if(!b_quick_vent) {
-    i_quick_vent = 1;
-  }
-
-  if(b_wand_boot_errors) {
-    i_wand_boot_errors = 2;
-  }
-
-  if(b_bargraph_invert) {
-    i_invert_bargraph = 2;
-  }
 
   switch(BARGRAPH_MODE_EEPROM) {
     case BARGRAPH_EEPROM_SUPER_HERO:
@@ -690,10 +642,6 @@ void saveConfigEEPROM() {
     break;
   }
 
-  if(b_overheat_bargraph_blink) {
-    i_bargraph_overheat_blinking = 2;
-  }
-
   switch(WAND_YEAR_MODE) {
     case YEAR_FROZEN_EMPIRE:
       i_neutrona_wand_year_mode = 5;
@@ -730,37 +678,9 @@ void saveConfigEEPROM() {
     break;
   }
 
-  if(SYSTEM_MODE == MODE_ORIGINAL) {
-    i_system_mode = 2;
-  }
-
   if(i_eeprom_volume_master_percentage <= 100) {
     // Need to add 1 to this because the EEPROM cannot contain a 0 value.
     i_default_wand_volume = i_eeprom_volume_master_percentage + 1;
-  }
-
-  if(!b_beep_loop) {
-    i_beep_loop = 1;
-  }
-
-  if(b_overheat_level_5) {
-    i_overheat_level_5 = 2;
-  }
-
-  if(b_overheat_level_4) {
-    i_overheat_level_4 = 2;
-  }
-
-  if(b_overheat_level_3) {
-    i_overheat_level_3 = 2;
-  }
-
-  if(b_overheat_level_2) {
-    i_overheat_level_2 = 2;
-  }
-
-  if(b_overheat_level_1) {
-    i_overheat_level_1 = 2;
   }
 
   switch(BARREL_SWITCH_POLARITY) {
