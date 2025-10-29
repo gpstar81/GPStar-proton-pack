@@ -5,7 +5,7 @@
   "keywords": [
     "enumerations",
     "magnetometer",
-    "calibration",
+    "magCal",
     "utilities",
     "esp32",
     "gpstar"

@@ -476,8 +476,30 @@ String getWifiSettings() {
   return wifiNetwork;
 }
 
+String getGyroCalJSON() {
+  String calibrationData;
+
+  // Create a JSON object with the countdown timer value.
+  JsonDocument jsonCalibration;
+
+  // Time remaining in seconds, rounded to 3 decimal places.
+  jsonCalibration["t"] = roundFloat(ms_gyro_calibration.remaining() / 1000.0f);
+
+  // Current averaged values for offsets the gyro and accelerometer.
+  jsonCalibration["aX"] = roundFloat(calibratedOffsets.accelX);
+  jsonCalibration["aY"] = roundFloat(calibratedOffsets.accelY);
+  jsonCalibration["aZ"] = roundFloat(calibratedOffsets.accelZ);
+  jsonCalibration["gX"] = roundFloat(calibratedOffsets.gyroX);
+  jsonCalibration["gY"] = roundFloat(calibratedOffsets.gyroY);
+  jsonCalibration["gZ"] = roundFloat(calibratedOffsets.gyroZ);
+
+  // Serialize JSON object to string.
+  serializeJson(jsonCalibration, calibrationData);
+  return calibrationData;
+}
+
 // Prepare a JSON object with magnetometer calibration data points for visualization.
-// Function: getCalibrationJSON
+// Function: getMagCalJSON
 // Purpose: Prepare JSON object with magnetometer calibration data and complete bin distribution arrays
 // Inputs: Logical indicating to send all points (accesses the global magCal object for data)
 // Outputs: String containing JSON data with coverage, points, and complete bin distribution arrays
@@ -488,7 +510,7 @@ String getWifiSettings() {
 // - Complete elevation bin distribution (all bins, 0 for empty)
 // - Complete azimuth bin distribution (all bins, 0 for empty)
 // The complete arrays preserve index-to-degree mapping for client-side processing.
-String getCalibrationJSON(bool b_update_points = false) {
+String getMagCalJSON(bool b_update_points = false) {
   String calibrationData;
   const char* statusMsg = magCal.getStatusMessage();
 
@@ -575,17 +597,17 @@ String getTelemetry() {
   JsonDocument jsonTelemetry;
 
   // Acceleration in meters/second^2 (m/s^2).
-  jsonTelemetry["accelX"] = roundFloat(filteredMotionData.accelX);
-  jsonTelemetry["accelY"] = roundFloat(filteredMotionData.accelY);
-  jsonTelemetry["accelZ"] = roundFloat(filteredMotionData.accelZ);
+  jsonTelemetry["aX"] = roundFloat(filteredMotionData.accelX);
+  jsonTelemetry["aY"] = roundFloat(filteredMotionData.accelY);
+  jsonTelemetry["aZ"] = roundFloat(filteredMotionData.accelZ);
   // Gyroscope in degrees/second (deg/s).
-  jsonTelemetry["gyroX"] = roundFloat(filteredMotionData.gyroX);
-  jsonTelemetry["gyroY"] = roundFloat(filteredMotionData.gyroY);
-  jsonTelemetry["gyroZ"] = roundFloat(filteredMotionData.gyroZ);
+  jsonTelemetry["gX"] = roundFloat(filteredMotionData.gyroX);
+  jsonTelemetry["gY"] = roundFloat(filteredMotionData.gyroY);
+  jsonTelemetry["gZ"] = roundFloat(filteredMotionData.gyroZ);
   // Magnetometer in microteslas (uT).
-  jsonTelemetry["magX"] = roundFloat(filteredMotionData.magX);
-  jsonTelemetry["magY"] = roundFloat(filteredMotionData.magY);
-  jsonTelemetry["magZ"] = roundFloat(filteredMotionData.magZ);
+  jsonTelemetry["mX"] = roundFloat(filteredMotionData.magX);
+  jsonTelemetry["mY"] = roundFloat(filteredMotionData.magY);
+  jsonTelemetry["mZ"] = roundFloat(filteredMotionData.magZ);
   // Special calculated values (g-force and angular velocity)
   jsonTelemetry["gForce"] = roundFloat(filteredMotionData.gForce);
   jsonTelemetry["angVel"] = roundFloat(filteredMotionData.angVel);
@@ -595,10 +617,10 @@ String getTelemetry() {
   jsonTelemetry["pitch"] = roundFloat(spatialData.pitch);
   jsonTelemetry["yaw"] = roundFloat(spatialData.yaw);
   // Spatial data in quaternion (w, x, y, z).
-  jsonTelemetry["qw"] = roundFloat(spatialData.quaternion[0]);
-  jsonTelemetry["qx"] = roundFloat(spatialData.quaternion[1]);
-  jsonTelemetry["qy"] = roundFloat(spatialData.quaternion[2]);
-  jsonTelemetry["qz"] = roundFloat(spatialData.quaternion[3]);
+  jsonTelemetry["qW"] = roundFloat(spatialData.quaternion[0]);
+  jsonTelemetry["qX"] = roundFloat(spatialData.quaternion[1]);
+  jsonTelemetry["qY"] = roundFloat(spatialData.quaternion[2]);
+  jsonTelemetry["qZ"] = roundFloat(spatialData.quaternion[3]);
 
   // Serialize JSON object to string.
   serializeJson(jsonTelemetry, telemetryData);
@@ -799,12 +821,21 @@ void restartWireless() {
   }
 }
 
-void sendCalibrationData(bool b_update_points) {
+void sendGyroCalData() {
+  if(b_httpd_started && SENSOR_READ_TARGET == GYRO_CALIBRATION) {
+    // Gather the latest countdown timer data, serialize it to a JSON string,
+    // and send it to all connected EventSource (SSE) clients as a "gyroCal"
+    // event name (using the current ms time as a unique event identifier).
+    events.send(getGyroCalJSON().c_str(), "gyroCal", millis());
+  }
+}
+
+void sendMagCalData(bool b_update_points) {
   if(b_httpd_started && SENSOR_READ_TARGET == MAG_CALIBRATION) {
     // Gather the latest filtered motion data, serialize it to a JSON string,
-    // and send it to all connected EventSource (SSE) clients as a "calibration"
+    // and send it to all connected EventSource (SSE) clients as a "magCal"
     // event name (using the current ms time as a unique event identifier).
-    events.send(getCalibrationJSON(b_update_points).c_str(), "calibration", millis());
+    events.send(getMagCalJSON(b_update_points).c_str(), "magCal", millis());
   }
 }
 
@@ -928,7 +959,7 @@ void handleWandSettings(AsyncWebServerRequest *request) {
 void handleGetDeviceConfig(AsyncWebServerRequest *request) {
   // Return current device settings as a stringified JSON object.
   request->send(200, "application/json", getDeviceConfig());
-  sendCalibrationData(false); // Send calibration data if enabled.
+  sendMagCalData(false); // Send calibration data if enabled.
 }
 
 void handleGetWandConfig(AsyncWebServerRequest *request) {

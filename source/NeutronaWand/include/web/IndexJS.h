@@ -599,7 +599,20 @@ if (!!window.EventSource) {
     }
   }, false);
 
-  source.addEventListener("calibration", function(e) {
+  source.addEventListener("gyroCal", function(e) {
+    if (e.data === undefined) return;
+
+    var calData = {}; // Always begin with an empty object.
+    try {
+      calData = JSON.parse(e.data); // Basic JSON with timer information
+    } catch (e) { }
+
+    // Update the calibration time remaining.
+    timeRemaining = parseFloat(calData.t || 0).toFixed(2);
+    getEl("gyroCounter").innerHTML = timeRemaining + "s remaining";
+  }, false);
+
+  source.addEventListener("magCal", function(e) {
     if (e.data === undefined) return;
 
     var calData = {}; // Always begin with an empty object.
@@ -647,21 +660,21 @@ if (!!window.EventSource) {
     } catch (e) { }
 
     // Update the HTML elements with the telemetry data
-    setHtml("gyroX",  formatFloat(obj.gyroX || 0)  + "&deg;/s");
-    setHtml("gyroY",  formatFloat(obj.gyroY || 0)  + "&deg;/s");
-    setHtml("gyroZ",  formatFloat(obj.gyroZ || 0)  + "&deg;/s");
-    setHtml("accelX", formatFloat(obj.accelX || 0) + "m/s<sup>2</sup>");
-    setHtml("accelY", formatFloat(obj.accelY || 0) + "m/s<sup>2</sup>");
-    setHtml("accelZ", formatFloat(obj.accelZ || 0) + "m/s<sup>2</sup>");
+    setHtml("gyroX",  formatFloat(obj.gX || 0)  + "&deg;/s");
+    setHtml("gyroY",  formatFloat(obj.gY || 0)  + "&deg;/s");
+    setHtml("gyroZ",  formatFloat(obj.gZ || 0)  + "&deg;/s");
+    setHtml("accelX", formatFloat(obj.aX || 0) + "m/s<sup>2</sup>");
+    setHtml("accelY", formatFloat(obj.aY || 0) + "m/s<sup>2</sup>");
+    setHtml("accelZ", formatFloat(obj.aZ || 0) + "m/s<sup>2</sup>");
     setHtml("roll",   formatFloat(obj.roll || 0)   + "&deg;");
     setHtml("pitch",  formatFloat(obj.pitch || 0)  + "&deg;");
     setHtml("yaw",    formatFloat(obj.yaw || 0)    + "&deg;");
     setHtml("gForce", formatFloat(obj.gForce || 0) + "");
     setHtml("angVel", formatFloat(obj.angVel || 0) + "&deg;/s");
     setHtml("shaken", "&nbsp;&nbsp;&nbsp;" + (obj.shaken ? "&oplus;" : "&mdash;"));
-    setHtml("magX",  formatFloat(obj.magX || 0)  + "&micro;T");
-    setHtml("magY",  formatFloat(obj.magY || 0)  + "&micro;T");
-    setHtml("magZ",  formatFloat(obj.magZ || 0)  + "&micro;T");
+    setHtml("magX",  formatFloat(obj.mX || 0)  + "&micro;T");
+    setHtml("magY",  formatFloat(obj.mY || 0)  + "&micro;T");
+    setHtml("magZ",  formatFloat(obj.mZ || 0)  + "&micro;T");
 
     // Proceed with updating the rendered scene if all objects are present.
     if (telemetry3D && telemetry3D.mesh) {
@@ -670,7 +683,7 @@ if (!!window.EventSource) {
       // Map accordingly from device to view: Pitch (Y) -> X, Yaw (Z) -> Y, Roll (X) -> Z.
 
       // Use quaternion (x,y,z,w) calculations for more accurate orientation and avoid gimbal lock.
-      telemetry3D.setQuaternion(-obj.qy, -obj.qz, obj.qx, obj.qw);
+      telemetry3D.setQuaternion(-obj.qY, -obj.qZ, obj.qX, obj.qW);
 
       // Convert roll, pitch, and yaw from degrees to radians for Three.js
       var rollRads = (obj.roll || 0) * Math.PI / 180;
@@ -710,29 +723,6 @@ function triggerInfrared() {
   sendCommand("/infrared/signal?type=ghostintrap");
 }
 
-let gyroCalibrating = false;
-let gyroCalTime = 30.00;
-let updateInterval = 100;
-let timerStart;
-
-function updateTimer() {
-  const elapsed = (performance.now() - timerStart) / 1000;
-  const remaining = Math.max(0, gyroCalTime - elapsed);
-
-  if (remaining > 0) {
-    gyroCalibrating = true;
-    getEl("gyroCounter").innerHTML = remaining.toFixed(1) + "s remaining";
-    setTimeout(updateTimer, updateInterval);
-  } else {
-    gyroCalibrating = false;
-    enableEl("btnGyroCal");
-    enableEl("btnCalibrateOn");
-    enableEl("btnCalibrateOff");
-    getEl("gyroCounter").innerHTML = "";
-    alert("Gyroscope calibration complete!");
-  }
-}
-
 function doGyroCalibration() {
   if (confirm("Ready to start gyroscope calibration?")) {
     disableEl("btnGyroCal");
@@ -740,8 +730,6 @@ function doGyroCalibration() {
     disableEl("btnCalibrateOff");
     getEl("gyroCounter").innerHTML = "...";
     sendCommand("/sensors/calibrate/gyro");
-    timerStart = performance.now();
-    updateTimer();
   }
 }
 

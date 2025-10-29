@@ -163,19 +163,21 @@ function updateTrackListing() {
 
 function disableSensorButtons() {
   // Used to just disable all the sensor-related buttons initially
-  getEl("btnRecenter").disabled = true;
-  getEl("btnCalibrateOn").disabled = true;
-  getEl("btnCalibrateOff").disabled = true;
+  // Use centralized helpers to manage disabled state consistently.
+  disableEl("btnGyroCal");
+  disableEl("btnCalibrateOn");
+  disableEl("btnCalibrateOff");
 }
 
 function setButtonStates(sensorState) {
   // Use the sensor state to determine button states.
   switch(sensorState) {
-    case "Calibration":
-      // While in calibration mode only the "off" button is enabled.
-      getEl("btnRecenter").disabled = true;
-      getEl("btnCalibrateOn").disabled = true;
-      getEl("btnCalibrateOff").disabled = false;
+    case "Magnetometer Calibration":
+      // While in magnetometer calibration mode only the "off" button is enabled.
+      // Use helpers to avoid direct DOM property manipulation.
+      disableEl("btnGyroCal")
+      disableEl("btnCalibrateOn");
+      enableEl("btnCalibrateOff");
 
       // Switch to the calibration tab if not already there.
       if (document.getElementsByClassName("tablinks")[2].classList.contains("active") == false) {
@@ -188,17 +190,28 @@ function setButtonStates(sensorState) {
         setHtml("deviceStatus", "");
       }
       break;
+    case "Gyro Calibration":
+      // While in Gyro calibration mode only the "off" button is enabled.
+      disableEl("btnGyroCal")
+      disableEl("btnCalibrateOn");
+      disableEl("btnCalibrateOff");
+
+      // Switch to the calibration tab if not already there.
+      if (document.getElementsByClassName("tablinks")[2].classList.contains("active") == false) {
+        document.getElementsByClassName("tablinks")[2].click();
+      }
+      break;
     case "Offsets":
       // While in offset calculation mode no buttons are enabled.
-      getEl("btnRecenter").disabled = true;
-      getEl("btnCalibrateOn").disabled = true;
-      getEl("btnCalibrateOff").disabled = true;
+      disableEl("btnGyroCal")
+      disableEl("btnCalibrateOn");
+      disableEl("btnCalibrateOff");
       break;
     case "Telemetry":
       // While in telemetry mode only re-center and calibration enable buttons are enabled.
-      getEl("btnRecenter").disabled = false;
-      getEl("btnCalibrateOn").disabled = false;
-      getEl("btnCalibrateOff").disabled = true;
+      enableEl("btnGyroCal")
+      enableEl("btnCalibrateOn");
+      disableEl("btnCalibrateOff");
       break;
     default:
       disableSensorButtons();
@@ -212,25 +225,25 @@ function updateEquipment(jObj) {
 
     // Enable/Disable Music Controls
     if (jObj.benchtest) {
-      getEl("btnVolMusicUp").disabled = false;
-      getEl("btnVolMusicDown").disabled = false;
-      getEl("playbackStatus").disabled = false;
-      getEl("tracks").disabled = false;
-      getEl("btnMusicPrev").disabled = false;
-      getEl("btnMusicStartStop").disabled = false;
-      getEl("btnMusicPauseResume").disabled = false;
-      getEl("btnMusicNext").disabled = false;
-      getEl("toggleLoop").disabled = true;
+      enableEl("btnVolMusicUp");
+      enableEl("btnVolMusicDown");
+      enableEl("playbackStatus");
+      enableEl("tracks");
+      enableEl("btnMusicPrev");
+      enableEl("btnMusicStartStop");
+      enableEl("btnMusicPauseResume");
+      enableEl("btnMusicNext");
+      disableEl("toggleLoop");
     } else {
-      getEl("btnVolMusicUp").disabled = true;
-      getEl("btnVolMusicDown").disabled = true;
-      getEl("playbackStatus").disabled = true;
-      getEl("tracks").disabled = true;
-      getEl("btnMusicPrev").disabled = true;
-      getEl("btnMusicStartStop").disabled = true;
-      getEl("btnMusicPauseResume").disabled = true;
-      getEl("btnMusicNext").disabled = true;
-      getEl("toggleLoop").disabled = false;
+      disableEl("btnVolMusicUp");
+      disableEl("btnVolMusicDown");
+      disableEl("playbackStatus");
+      disableEl("tracks");
+      disableEl("btnMusicPrev");
+      disableEl("btnMusicStartStop");
+      disableEl("btnMusicPauseResume");
+      disableEl("btnMusicNext");
+      enableEl("toggleLoop");
     }
 
     // Volume Information
@@ -586,7 +599,20 @@ if (!!window.EventSource) {
     }
   }, false);
 
-  source.addEventListener("calibration", function(e) {
+  source.addEventListener("gyroCal", function(e) {
+    if (e.data === undefined) return;
+
+    var calData = {}; // Always begin with an empty object.
+    try {
+      calData = JSON.parse(e.data); // Basic JSON with timer information
+    } catch (e) { }
+
+    // Update the calibration time remaining.
+    timeRemaining = parseFloat(calData.t || 0).toFixed(2);
+    getEl("gyroCounter").innerHTML = timeRemaining + "s remaining";
+  }, false);
+
+  source.addEventListener("magCal", function(e) {
     if (e.data === undefined) return;
 
     var calData = {}; // Always begin with an empty object.
@@ -618,7 +644,7 @@ if (!!window.EventSource) {
       updateElevationChart(calData.e); // Update vertical coverage bar chart
       updateAzimuthChart(calData.a);   // Update horizontal coverage circular chart
       updateDistributionStats(calData.e, calData.a); // Update numerical coverage displays
-      updateuserFeedback(calData.e, calData.a, lastCoverage); // Provide user feedback
+      updateUserFeedback(calData.e, calData.a, lastCoverage); // Provide user feedback
     }
 
     // Update existing 3D visualization with coordinate points, when available.
@@ -634,21 +660,21 @@ if (!!window.EventSource) {
     } catch (e) { }
 
     // Update the HTML elements with the telemetry data
-    setHtml("gyroX",  formatFloat(obj.gyroX || 0)  + "&deg;/s");
-    setHtml("gyroY",  formatFloat(obj.gyroY || 0)  + "&deg;/s");
-    setHtml("gyroZ",  formatFloat(obj.gyroZ || 0)  + "&deg;/s");
-    setHtml("accelX", formatFloat(obj.accelX || 0) + "m/s<sup>2</sup>");
-    setHtml("accelY", formatFloat(obj.accelY || 0) + "m/s<sup>2</sup>");
-    setHtml("accelZ", formatFloat(obj.accelZ || 0) + "m/s<sup>2</sup>");
+    setHtml("gyroX",  formatFloat(obj.gX || 0)  + "&deg;/s");
+    setHtml("gyroY",  formatFloat(obj.gY || 0)  + "&deg;/s");
+    setHtml("gyroZ",  formatFloat(obj.gZ || 0)  + "&deg;/s");
+    setHtml("accelX", formatFloat(obj.aX || 0) + "m/s<sup>2</sup>");
+    setHtml("accelY", formatFloat(obj.aY || 0) + "m/s<sup>2</sup>");
+    setHtml("accelZ", formatFloat(obj.aZ || 0) + "m/s<sup>2</sup>");
     setHtml("roll",   formatFloat(obj.roll || 0)   + "&deg;");
     setHtml("pitch",  formatFloat(obj.pitch || 0)  + "&deg;");
     setHtml("yaw",    formatFloat(obj.yaw || 0)    + "&deg;");
     setHtml("gForce", formatFloat(obj.gForce || 0) + "");
     setHtml("angVel", formatFloat(obj.angVel || 0) + "&deg;/s");
     setHtml("shaken", "&nbsp;&nbsp;&nbsp;" + (obj.shaken ? "&oplus;" : "&mdash;"));
-    setHtml("magX",  formatFloat(obj.magX || 0)  + "&micro;T");
-    setHtml("magY",  formatFloat(obj.magY || 0)  + "&micro;T");
-    setHtml("magZ",  formatFloat(obj.magZ || 0)  + "&micro;T");
+    setHtml("magX",  formatFloat(obj.mX || 0)  + "&micro;T");
+    setHtml("magY",  formatFloat(obj.mY || 0)  + "&micro;T");
+    setHtml("magZ",  formatFloat(obj.mZ || 0)  + "&micro;T");
 
     // Proceed with updating the rendered scene if all objects are present.
     if (telemetry3D && telemetry3D.mesh) {
@@ -657,7 +683,7 @@ if (!!window.EventSource) {
       // Map accordingly from device to view: Pitch (Y) -> X, Yaw (Z) -> Y, Roll (X) -> Z.
 
       // Use quaternion (x,y,z,w) calculations for more accurate orientation and avoid gimbal lock.
-      telemetry3D.setQuaternion(-obj.qy, -obj.qz, obj.qx, obj.qw);
+      telemetry3D.setQuaternion(-obj.qY, -obj.qZ, obj.qX, obj.qW);
 
       // Convert roll, pitch, and yaw from degrees to radians for Three.js
       var rollRads = (obj.roll || 0) * Math.PI / 180;
@@ -692,17 +718,25 @@ window.addEventListener("load", onLoad);
 
 /** API Commands **/
 
-function resetPosition() {
-  sendCommand("/sensors/recenter");
-}
-
 function triggerInfrared() {
+  // Trigger an IR signal as sent by the PKE meter.
   sendCommand("/infrared/signal?type=ghostintrap");
 }
 
+function doGyroCalibration() {
+  if (confirm("Ready to start gyroscope calibration?")) {
+    disableEl("btnGyroCal");
+    disableEl("btnCalibrateOn");
+    disableEl("btnCalibrateOff");
+    getEl("gyroCounter").innerHTML = "...";
+    sendCommand("/sensors/calibrate/gyro");
+  }
+}
+
 function enableCalibration() {
-  if (confirm("Ready to start calibration?")) {
+  if (confirm("Ready to start magnetic calibration?")) {
     sendCommand("/sensors/calibrate/enable");
+    disableEl("btnGyroCal");
     calibration3D.clearPoints();
     showEl("calInfo");
     setHtml("deviceStatus", "");
@@ -726,6 +760,7 @@ function disableCalibration() {
   // User confirmed they wish to end calibration.
   if (endCalibration) {
     sendCommand("/sensors/calibrate/disable");
+    enableEl("btnGyroCal");
     hideEl("calInfo");
     calibration3D.clearPoints();
   }
@@ -888,7 +923,7 @@ function updateDistributionStats(elevationBins, azimuthBins) {
 }
 
 /**
- * Function: updateuserFeedback
+ * Function: updateUserFeedback
  * Purpose: Provide real-time feedback and recommendations for improving calibration coverage
  * Inputs: elevationBins - Array of elevation bin sample counts
  *         azimuthBins - Array of azimuth bin sample counts
@@ -898,7 +933,7 @@ function updateDistributionStats(elevationBins, azimuthBins) {
  * This function analyzes coverage patterns and provides specific guidance to help users
  * improve their calibration by identifying the most significant coverage gaps.
  */
-function updateuserFeedback(elevationBins, azimuthBins, overallCoverage) {
+function updateUserFeedback(elevationBins, azimuthBins, overallCoverage) {
   var statusElement = getEl("userFeedback");
   if (!statusElement || !elevationBins || !azimuthBins) return;
 
@@ -908,10 +943,10 @@ function updateuserFeedback(elevationBins, azimuthBins, overallCoverage) {
   // Analyze coverage patterns to provide specific guidance
   if (overallCoverage < 5) {
     // Very low coverage - basic movement guidance
-    statusMessage = "Begin moving the blaster in all directions to start calibration...";
+    statusMessage = "Begin moving the wand in all directions to start calibration...";
   } else if (overallCoverage < 30) {
     // Low coverage - encourage more movement variety
-    statusMessage = "Continue rotating and tilting the blaster to increase coverage...";
+    statusMessage = "Continue rotating and tilting the wand to increase coverage...";
     statusClass += " warning";
   } else if (overallCoverage < 60) {
     // Moderate coverage - analyze specific gaps
@@ -941,9 +976,9 @@ function updateuserFeedback(elevationBins, azimuthBins, overallCoverage) {
     if (!lowElevationCovered && !highElevationCovered) {
       statusMessage = "Coverage density is low for edge elevations - try adding a twist into your movements...";
     } else if (!lowElevationCovered) {
-      statusMessage = "Point the blaster downward more - try aiming toward the floor while rotating...";
+      statusMessage = "Point the wand downward more - try aiming toward the floor while rotating...";
     } else if (!highElevationCovered) {
-      statusMessage = "Point the blaster upward more - try aiming toward the ceiling while rotating...";
+      statusMessage = "Point the wand upward more - try aiming toward the ceiling while rotating...";
     } else {
       statusMessage = "Good distribution! Continue moving for improved coverage density...";
     }

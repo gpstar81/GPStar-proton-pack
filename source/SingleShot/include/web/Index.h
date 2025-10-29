@@ -138,26 +138,45 @@ const char INDEX_page[] PROGMEM = R"=====(
 
   <div id="tab3" class="tab">
     <div class="card" style="text-align:center;">
-      <div class="block left">
+      <div class="instructions">
+        <details>
+          <summary><b>Gyroscope Calibration</b></summary>
+          Gyroscope calibration ensures sensor readings are stable and accurate. This calibration must be performed
+          only AFTER you have selected the appropriate <b>Controller Installation Orientation</b> for your Single Shot Blaster,
+          as set via the <a href="/settings/device">Special Device Settings</a> page.
+          <ol style="padding-left:20px;">
+            <li>Leave the Single Shot Blaster laying <b>flat</b> on a solid surface in an <b>upright position</b>.</li>
+            <li>Press <b>"Gyro Calibration"</b> to begin.</li>
+            <li>A timer will appear below with a 30-second countdown clock.</li>
+            <li><b>Do not touch</b> the device or the surface where it rests, and wait until the countdown timer completes.</li>
+          </ol>
+        </details>
+        <div>
+          <button type="button" id="btnGyroCal" class="green" onclick="doGyroCalibration()" style="width:130px;">Gyro Calibration</button>
+          &nbsp;&nbsp;&nbsp;
+          <span id="gyroCounter"></span>
+        </div>
+        <br/>
+        <br/>
         <details>
           <summary><b>Magnetic Calibration</b></summary>
           Magnetic calibration is critical to obtaining a correct reading from sensors and must be performed only AFTER all
-          components have been fully installed in your Single Shot Blaster, and you have selected the appropriate Controller
-          Installation Orientation for your blaster, as set via the <a href="/settings/device">Special Device Settings</a> page.
+          components have been fully installed in your Single Shot Blaster, and you have selected the appropriate <b>Controller
+          Installation Orientation</b> for your blaster, as set via the <a href="/settings/device">Special Device Settings</a> page.
           <ol style="padding-left:20px;">
             <li>Press <b>"Start Calibration"</b> to begin.</li>
-            <li>Raise and lower your Single Shot Blasater <b>slowly</b> while turning 360&deg; to collect calibration data.</li>
-            <li>Fill the visualization below with red dots and the <b>Coverage Density</b> is at least 60%.</li>
-            <li>If coverage stalls, try adding a twisting motion or figure-eights into your up/down movements.</li>
-            <li>Press <b>"Stop Calibration"</b> to stop collection and store new calculated values.</li>
+            <li>Raise and lower your Single Shot Blaster <b>slowly</b> while turning 360&deg; to collect calibration data in all directions.</li>
+            <li>Use the visualization below to help you reach a <b>Coverage Density</b> of at least <b>60%</b>.</li>
+            <li>If the coverage % stalls, try adding a twisting motion or figure-eights into your up/down movements.</li>
+            <li>Press <b>"Stop Calibration"</b> to stop collection and store the calculated values.</li>
           </ol>
         </details>
+        <div>
+          <button type="button" id="btnCalibrateOn" class="green" onclick="enableCalibration()" style="width:130px;">Start Calibration</button>
+          &nbsp;&nbsp;&nbsp;
+          <button type="button" id="btnCalibrateOff" class="red" onclick="disableCalibration()" style="width:130px;">Stop Calibration</button>
+        </div>
       </div>
-      <button type="button" id="btnCalibrateOn" class="green" onclick="enableCalibration()" style="width:130px;">Start Calibration</button>
-      &nbsp;&nbsp;&nbsp;
-      <button type="button" id="btnCalibrateOff" class="red" onclick="disableCalibration()" style="width:130px;">Stop Calibration</button>
-      <br/>
-      <br/>
       <div>
         <p id="mag">
           <span class="infoLabel">&nbsp;X:</span> <span class="infoState" id="magX">&mdash;</span>

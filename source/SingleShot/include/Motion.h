@@ -91,14 +91,15 @@ Adafruit_Sensor *accelerometer, *gyroscope, *magnetometer;
 sensors_event_t mag_event, gyro_event, accel_event;
 bool b_mag_found = false;
 bool b_imu_found = false;
-millisDelay ms_sensor_read_delay, ms_sensor_report_delay;
+millisDelay ms_sensor_read_delay, ms_sensor_report_delay, ms_gyro_calibration;
 const uint8_t i_sensor_samples = 50; // Sets count of samples to take for averaging offsets.
 const uint16_t i_sensor_read_delay = 20; // Delay between sensor reads in milliseconds (20ms = 50Hz).
 const uint16_t i_sensor_report_delay = 50; // Delay between telemetry reporting (via console/web) in milliseconds.
+uint32_t i_gyro_calibration_duration; // Time in milliseconds to run a gyroscope calibration (ms_gyro_calibration).
 Adafruit_Mahony ahrs_filter; // Create a filter object for sensor fusion (AHRS); Mahony better suited for human motion.
 
 // Current state of the motion sensors and target for telemetry.
-enum SENSOR_READ_TARGETS { NOT_INITIALIZED, CALIBRATION, OFFSETS, TELEMETRY };
+enum SENSOR_READ_TARGETS { NOT_INITIALIZED, MAG_CALIBRATION, GYRO_CALIBRATION, OFFSETS, TELEMETRY };
 enum SENSOR_READ_TARGETS SENSOR_READ_TARGET = NOT_INITIALIZED;
 
 // Orientation positions expected by mounting for final installation (eg. as held by the user).
@@ -213,7 +214,7 @@ struct MotionOffsets {
   float sumGyroX = 0.0f;
   float sumGyroY = 0.0f;
   float sumGyroZ = 0.0f;
-  uint8_t samples = 0;
+  uint16_t samples = 0;
   float accelX = 0.0f;
   float accelY = 0.0f;
   float accelZ = 0.0f;
@@ -223,7 +224,16 @@ struct MotionOffsets {
 };
 
 // Global object to hold the calibration readings.
-MotionOffsets motionOffsets;
+MotionOffsets calibratedOffsets, quickOffsets;
+
+// Generic 3-axis container usable for gyro or accel offsets/storage.
+struct Axis3F {
+  float x = 0.0f;
+  float y = 0.0f;
+  float z = 0.0f;
+};
+Axis3F accelOffsets; // For acceleration offsets.
+Axis3F gyroOffsets; // For gyroscope offsets.
 
 /**
  * Struct: SpatialData
@@ -245,13 +255,15 @@ SpatialData spatialData;
 // Forward function declarations.
 float calculateAngularVelocity(const MotionData& data);
 float calculateGForce(const MotionData& data);
-void collectMotionOffsets();
+void collectQuickMotionOffsets();
 void processMotionData();
 void readRawSensorData();
+void averageCalibrationData();
 void reportCalibrationData();
 void resetAllMotionData(bool b_calibrate);
 void notifyWSClients(); // From Webhandler.h
-void sendCalibrationData(bool b_update_points); // From Webhandler.h
+void sendGyroCalData(); // From Webhandler.h
+void sendMagCalData(bool b_update_points); // From Webhandler.h
 void sendTelemetryData(); // From Webhandler.h
 
 /**
@@ -765,12 +777,13 @@ void resetAllMotionData(bool b_calibrate = false) {
   debugln(F("Resetting all motion data."));
   resetMotionData(motionData);
   resetMotionData(filteredMotionData);
-  resetMotionOffsets(motionOffsets);
   resetSpatialData(spatialData);
 
   if(b_calibrate) {
+    debugln(F("Reset all motion data, performing quick offset collection..."));
     SENSOR_READ_TARGET = OFFSETS; // Set target to collect offsets after reset.
-    collectMotionOffsets(); // Calibrate IMU offsets with X samples.
+    resetMotionOffsets(quickOffsets); // Clear previous offsets set/collected.
+    collectQuickMotionOffsets(); // Calibrate IMU offsets with X samples.
   }
 }
 
@@ -951,28 +964,24 @@ void readRawSensorData() {
     // Apply orientation mapping to all sensor data
     OrientedSensorData oriented = applySensorOrientation(mag_event, accel_event, gyro_event);
 
-    // Apply hard iron corrections to magnetic readings (orientation independent)
+    // Apply hard iron corrections to magnetic readings (post-orientation).
     float mx = oriented.magX - magCalData.mag_hardiron[0];
     float my = oriented.magY - magCalData.mag_hardiron[1];
     float mz = oriented.magZ - magCalData.mag_hardiron[2];
 
-    // Apply soft iron corrections to magnetic readings (orientation independent)
+    // Apply soft iron corrections to magnetic readings (post-orientation).
     motionData.magX = mx * magCalData.mag_softiron[0] + my * magCalData.mag_softiron[1] + mz * magCalData.mag_softiron[2];
     motionData.magY = mx * magCalData.mag_softiron[3] + my * magCalData.mag_softiron[4] + mz * magCalData.mag_softiron[5];
     motionData.magZ = mx * magCalData.mag_softiron[6] + my * magCalData.mag_softiron[7] + mz * magCalData.mag_softiron[8];
 
-    // Store oriented values in global motionData
+    // Store the oriented values in global motionData struct for access.
+    // Converts gyroscope from rad/s to deg/s as expected by AHRS library.
     motionData.accelX = oriented.accelX;
     motionData.accelY = oriented.accelY;
     motionData.accelZ = oriented.accelZ;
-    motionData.gyroX = oriented.gyroX;
-    motionData.gyroY = oriented.gyroY;
-    motionData.gyroZ = oriented.gyroZ;
-
-    // Convert gyroscope from rad/s to deg/s as expected by AHRS library
-    motionData.gyroX *= SENSORS_RADS_TO_DPS;
-    motionData.gyroY *= SENSORS_RADS_TO_DPS;
-    motionData.gyroZ *= SENSORS_RADS_TO_DPS;
+    motionData.gyroX = oriented.gyroX * SENSORS_RADS_TO_DPS;
+    motionData.gyroY = oriented.gyroY * SENSORS_RADS_TO_DPS;
+    motionData.gyroZ = oriented.gyroZ * SENSORS_RADS_TO_DPS;
   }
 #endif
 }
@@ -1112,7 +1121,7 @@ String formatSignedFloat(float value) {
   int whole = abs((int)value);
   // Determine padding: if whole < 10, pad 2 spaces; < 100, pad 1 space; else no pad
   const char* pad = (whole < 10) ? "  " : (whole < 100) ? " " : "";
-  sprintf(buf, "%c%s%.2f", (value >= 0 ? '+' : '-'), pad, abs(value));
+  sprintf(buf, "%c%s%.2f", (value >= 0 ? '+' : '-'), pad, fabsf(value));
   return String(buf);
 }
 
@@ -1141,11 +1150,11 @@ void checkMotionSensors() {
       // Print the filtered sensor data to the debug console.
     #if defined(DEBUG_TELEMETRY_DATA)
       debug("\t\tOff Accel X: ");
-      debug(formatSignedFloat(motionOffsets.accelX));
+      debug(formatSignedFloat(calibratedOffsets.accelX));
       debug(" \tY: ");
-      debug(formatSignedFloat(motionOffsets.accelY));
+      debug(formatSignedFloat(calibratedOffsets.accelY));
       debug(" \tZ: ");
-      debug(formatSignedFloat(motionOffsets.accelZ));
+      debug(formatSignedFloat(calibratedOffsets.accelZ));
       debugln(" m/s^2 ");
 
       debug("\t\tRaw Accel X: ");
@@ -1174,12 +1183,12 @@ void checkMotionSensors() {
       debugln();
 
       debug("\t\tOff Gyro  X: ");
-      debug(formatSignedFloat(motionOffsets.gyroX));
+      debug(formatSignedFloat(calibratedOffsets.gyroX));
       debug(" \tY: ");
-      debug(formatSignedFloat(motionOffsets.gyroY));
+      debug(formatSignedFloat(calibratedOffsets.gyroY));
       debug(" \tZ: ");
-      debug(formatSignedFloat(motionOffsets.gyroZ));
-      debugln(" rads/s ");
+      debug(formatSignedFloat(calibratedOffsets.gyroZ));
+      debugln(" deg/s ");
 
       debug("\t\tRaw Gyro  X: ");
       debug(formatSignedFloat(motionData.gyroX));
@@ -1187,7 +1196,7 @@ void checkMotionSensors() {
       debug(formatSignedFloat(motionData.gyroY));
       debug(" \tZ: ");
       debug(formatSignedFloat(motionData.gyroZ));
-      debugln(" rads/s ");
+      debugln(" deg/s ");
 
       debug("\t\tAvg Gyro  X: ");
       debug(formatSignedFloat(filteredMotionData.gyroX));
@@ -1195,7 +1204,7 @@ void checkMotionSensors() {
       debug(formatSignedFloat(filteredMotionData.gyroY));
       debug(" \tZ: ");
       debug(formatSignedFloat(filteredMotionData.gyroZ));
-      debugln(" rads/s ");
+      debugln(" deg/s ");
       debugln();
 
       debug("\t\tRaw Mag   X: ");
@@ -1234,6 +1243,14 @@ void checkMotionSensors() {
 #endif
 }
 
+// Helper: Returns true when a MotionOffsets instance appears to be default/empty.
+inline bool isMotionOffsetsDefault(const MotionOffsets &m) {
+  // Explicit field checks are preferred over raw byte checks to avoid issues with padding/NaN.
+  return (m.samples == 0) &&
+         (m.accelX == 0.0f) && (m.accelY == 0.0f) && (m.accelZ == 0.0f) &&
+         (m.gyroX  == 0.0f) && (m.gyroY  == 0.0f) && (m.gyroZ  == 0.0f);
+}
+
 /**
  * Function: processMotionData
  * Purpose: Reads the motion sensors and prints the data to the debug console (if enabled).
@@ -1247,12 +1264,16 @@ void processMotionData() {
       // Can't do anything until the sensors have been initialized and configured.
     break;
 
-    case CALIBRATION:
+    case GYRO_CALIBRATION:
+      averageCalibrationData(); // Send raw data to console (USB) output for external capture.
+    break;
+
+    case MAG_CALIBRATION:
       reportCalibrationData(); // Send raw data to console (USB) output for external capture.
     break;
 
     case OFFSETS:
-      collectMotionOffsets(); // Collect sensor data and calibrate IMU offsets with N samples.
+      collectQuickMotionOffsets(); // Collect sensor data and calculate IMU offsets of N samples.
     break;
 
     case TELEMETRY:
@@ -1266,15 +1287,22 @@ void processMotionData() {
       // Calculate the magnitude of the raw acceleration vector (g-force).
       motionData.gForce = calculateGForce(motionData);
 
-      // Apply offsets to IMU readings (values should be 0 if not calculated).
+      // Apply offsets to IMU readings only after we know the installation orientation.
       if (INSTALL_ORIENTATION != COMPONENTS_FACTORY_DEFAULT) {
-        // Only apply offsets if we know the installation orientation.
-        motionData.accelX -= motionOffsets.accelX;
-        motionData.accelY -= motionOffsets.accelY;
-        motionData.accelZ -= motionOffsets.accelZ;
-        motionData.gyroX -= motionOffsets.gyroX;
-        motionData.gyroY -= motionOffsets.gyroY;
-        motionData.gyroZ -= motionOffsets.gyroZ;
+        // Choose Offsets: Prefer calibratedOffsets, but use quickOffsets when calibrated offsets are default/empty.
+        const MotionOffsets *usedOffsets = &calibratedOffsets;
+        if (isMotionOffsetsDefault(calibratedOffsets)) {
+          usedOffsets = &quickOffsets;
+          debugln(F("No calibrated offsets present; using quickOffsets for runtime corrections."));
+        }
+
+        // Apply chosen offsets
+        motionData.accelX -= usedOffsets->accelX;
+        motionData.accelY -= usedOffsets->accelY;
+        motionData.accelZ -= usedOffsets->accelZ;
+        motionData.gyroX  -= usedOffsets->gyroX;
+        motionData.gyroY  -= usedOffsets->gyroY;
+        motionData.gyroZ  -= usedOffsets->gyroZ;
       }
 
       // Update the orientation via sensor fusion.
@@ -1297,41 +1325,161 @@ void processMotionData() {
 }
 
 /**
- * Function: collectMotionOffsets
+ * Function: collectQuickMotionOffsets
  * Purpose: Samples the IMU while stationary to determine and set baseline offsets for accelerometer and gyroscope.
- * Inputs: None (uses global motionOffsets and samples count).
- * Outputs: None (updates global motionOffsets struct)
+ * Inputs: None (uses global motionData, quickOffsets, and samples count).
+ * Outputs: None (updates global quickOffsets struct)
  */
-void collectMotionOffsets() {
+void collectQuickMotionOffsets() {
 #if defined(MOTION_SENSORS) && defined(MOTION_OFFSETS)
-  if(motionOffsets.samples < i_sensor_samples) {
-    motionOffsets.samples++; // Increment the sample count.
+  if(quickOffsets.samples < i_sensor_samples) {
+    quickOffsets.samples++; // Increment the sample count.
     #if defined(DEBUG_SEND_TO_CONSOLE)
-      debugln("Calibrating motion offsets... Sample " + String(motionOffsets.samples) + " of " + String(i_sensor_samples));
+      debugln("Calibrating motion offsets... Sample " + String(quickOffsets.samples) + " of " + String(i_sensor_samples));
     #endif
 
     readRawSensorData(); // Read the raw sensor data and place the latest values in the motionData object.
 
-    // Keep a running sum of the accelerometer and gyroscope values per axis.
-    motionOffsets.sumAccelX += motionData.accelX; // Accumulate accelerometer X values.
-    motionOffsets.sumAccelY += motionData.accelY; // Accumulate accelerometer Y values.
-    motionOffsets.sumAccelZ += motionData.accelZ; // Accumulate accelerometer Z values.
-    motionOffsets.sumGyroX += motionData.gyroX; // Accumulate gyroscope X values.
-    motionOffsets.sumGyroY += motionData.gyroY; // Accumulate gyroscope Y values.
-    motionOffsets.sumGyroZ += motionData.gyroZ; // Accumulate gyroscope Z values.
+    // Collect using running sums to avoid possible overflows.
+    quickOffsets.sumAccelX += motionData.accelX;
+    quickOffsets.sumAccelY += motionData.accelY;
+    quickOffsets.sumAccelZ += motionData.accelZ;
+    quickOffsets.sumGyroX += motionData.gyroX;
+    quickOffsets.sumGyroY += motionData.gyroY;
+    quickOffsets.sumGyroZ += motionData.gyroZ;
 
-    // Calculate average offsets after each sample for real-time feedback.
-    motionOffsets.accelX = motionOffsets.sumAccelX / motionOffsets.samples;
-    motionOffsets.accelY = motionOffsets.sumAccelY / motionOffsets.samples;
-    motionOffsets.accelZ = (motionOffsets.sumAccelZ / motionOffsets.samples) - 9.80665f; // Get offset from gravity for Z axis (9.81 m/s^2)
-    motionOffsets.gyroX = motionOffsets.sumGyroX / motionOffsets.samples;
-    motionOffsets.gyroY = motionOffsets.sumGyroY / motionOffsets.samples;
-    motionOffsets.gyroZ = motionOffsets.sumGyroZ / motionOffsets.samples;
+    // Live averages for telemetry / debug, avoids large buffer storage.
+    uint32_t i_samples = (quickOffsets.samples == 0) ? 1 : quickOffsets.samples;
+    float f_inv = 1.0f / (float)i_samples; // For floating-point division (reciprocal ).
+    quickOffsets.accelX = quickOffsets.sumAccelX * f_inv;
+    quickOffsets.accelY = quickOffsets.sumAccelY * f_inv;
+    quickOffsets.accelZ = (quickOffsets.sumAccelZ * f_inv) - 9.80665f; // Get offset from gravity for Z axis (9.81 m/s^2)
+    quickOffsets.gyroX = quickOffsets.sumGyroX * f_inv;
+    quickOffsets.gyroY = quickOffsets.sumGyroY * f_inv;
+    quickOffsets.gyroZ = quickOffsets.sumGyroZ * f_inv;
   }
   else {
-    debugln(F("Calibration completed, switching to standard telemetry collection mode."));
+    debugln(F("Quick offsets collected, switching to standard telemetry collection mode."));
     SENSOR_READ_TARGET = TELEMETRY; // Set target to telemetry after calibration.
     notifyWSClients(); // Send a special notification after offsets are loaded.
+  }
+#endif
+}
+
+/**
+ * Function: beginGyroCalibration
+ * Purpose: Puts the motion system into gyroscope calibration mode to collect and average data for 30 seconds.
+ */
+void beginGyroCalibration(uint8_t i_duration_seconds) {
+#ifdef MOTION_SENSORS
+  debugln(F("Starting gyroscope calibration mode..."));
+  resetAllMotionData(false); // Clear but don't perform quick calibration.
+  resetMotionOffsets(calibratedOffsets); // Clear the calibrated offsets.
+  SENSOR_READ_TARGET = GYRO_CALIBRATION; // Set target to gyro calibration.
+  i_gyro_calibration_duration = (uint32_t)i_duration_seconds * 1000UL; // Convert seconds to milliseconds.
+  ms_gyro_calibration.start(i_gyro_calibration_duration); // Start the calibration timer.
+#endif
+}
+
+/**
+ * Function: averageCalibrationData
+ * Purpose: Collects the current calibration data from the motion sensors with proper orientation mapping.
+ *          This ensures calibration tools receive data in the device's coordinate system, not the raw chip coordinates.
+ *          Data is collected internally for purposes of averaging results.
+ */
+void averageCalibrationData() {
+#ifdef MOTION_SENSORS
+  readRawSensorData(); // Read the raw sensor data and place the latest values in the motionData object.
+
+  // Guard sample count from wrapping.
+  if (calibratedOffsets.samples < UINT16_MAX) {
+    calibratedOffsets.samples++;
+  }
+
+  // Collect using running sums to avoid possible overflows.
+  calibratedOffsets.sumAccelX += motionData.accelX;
+  calibratedOffsets.sumAccelY += motionData.accelY;
+  calibratedOffsets.sumAccelZ += motionData.accelZ;
+  calibratedOffsets.sumGyroX += motionData.gyroX;
+  calibratedOffsets.sumGyroY += motionData.gyroY;
+  calibratedOffsets.sumGyroZ += motionData.gyroZ;
+
+  // Live averages for telemetry / debug, avoids large buffer storage.
+  uint32_t i_samples = (calibratedOffsets.samples == 0) ? 1 : calibratedOffsets.samples;
+  float f_inv = 1.0f / (float)i_samples; // For floating-point division (reciprocal ).
+  calibratedOffsets.accelX = calibratedOffsets.sumAccelX * f_inv;
+  calibratedOffsets.accelY = calibratedOffsets.sumAccelY * f_inv;
+  calibratedOffsets.accelZ = (calibratedOffsets.sumAccelZ * f_inv) - 9.80665f; // Get offset from gravity for Z axis (9.81 m/s^2)
+  calibratedOffsets.gyroX = calibratedOffsets.sumGyroX * f_inv;
+  calibratedOffsets.gyroY = calibratedOffsets.sumGyroY * f_inv;
+  calibratedOffsets.gyroZ = calibratedOffsets.sumGyroZ * f_inv;
+
+  // Provide audio feedback via beep every ~1 seconds during calibration.
+  static int16_t i_last_beep_interval = -1;
+  int16_t i_interval = (int16_t)(ms_gyro_calibration.remaining() / 1000);
+  if(i_interval != i_last_beep_interval) {
+    i_last_beep_interval = i_interval;
+    playEffect(S_BEEPS_ALT);
+  }
+
+  sendGyroCalData(); // Report the latest timer value.
+
+  // Stop collection once the calibration timer has finished.
+  if(ms_gyro_calibration.justFinished()) {
+    i_gyro_calibration_duration = 0; // Reset the timer duration.
+    debugln(F("Gyro calibration complete; offsets computed."));
+    playEffect(S_BEEPS_LOW);
+
+    // Save only accel offsets as a triplet.
+    accelOffsets.x = calibratedOffsets.accelX;
+    accelOffsets.y = calibratedOffsets.accelY;
+    accelOffsets.z = calibratedOffsets.accelZ;
+
+    // Save only gyro offsets as a triplet.
+    gyroOffsets.x = calibratedOffsets.gyroX;
+    gyroOffsets.y = calibratedOffsets.gyroY;
+    gyroOffsets.z = calibratedOffsets.gyroZ;
+
+    // Report the final calibration results.
+    debugln(F("Final calibration summary:"));
+    debug(F("\tSamples: "));
+    debugln(calibratedOffsets.samples);
+    debug(F("\tAccel Offsets (m/s^2): X="));
+    debug(formatSignedFloat(accelOffsets.x));
+    debug(F(" Y="));
+    debug(formatSignedFloat(accelOffsets.y));
+    debug(F(" Z="));
+    debugln(String(accelOffsets.z) + " m/s^2");
+    debug(F("\tGyro Offsets (deg/s):  X="));
+    debug(formatSignedFloat(gyroOffsets.x));
+    debug(F(" Y="));
+    debug(formatSignedFloat(gyroOffsets.y));
+    debug(F(" Z="));
+    debugln(String(gyroOffsets.z) + " deg/s");
+
+    // Reset the counters and summation fields.
+    calibratedOffsets.sumAccelX = 0.0f;
+    calibratedOffsets.sumAccelY = 0.0f;
+    calibratedOffsets.sumAccelZ = 0.0f;
+    calibratedOffsets.sumGyroX = 0.0f;
+    calibratedOffsets.sumGyroY = 0.0f;
+    calibratedOffsets.sumGyroZ = 0.0f;
+    calibratedOffsets.samples = 0;
+
+    // Create Preferences object to handle non-volatile storage (NVS).
+    Preferences preferences;
+
+    // Save the offset data (as an object) to preferences.
+    if(preferences.begin("device", false)) {
+      preferences.putBytes("accel_cal", &accelOffsets, sizeof(accelOffsets));
+      preferences.putBytes("gyro_cal", &gyroOffsets, sizeof(gyroOffsets));
+      preferences.end();
+    }
+
+    // Switch back to telemetry and notify clients
+    SENSOR_READ_TARGET = TELEMETRY;
+    notifyWSClients();
+    return;
   }
 #endif
 }
@@ -1340,11 +1488,11 @@ void collectMotionOffsets() {
  * Function: reportCalibrationData
  * Purpose: Reports the current calibration data from the motion sensors with proper orientation mapping.
  *          This ensures calibration tools receive data in the device's coordinate system, not the raw chip coordinates.
- * Data is output direct to serial console (USB) for capture by external tools.
- * See: https://www.pjrc.com/store/prop_shield.html for MotionCal downloads.
+ *          Data is output direct to serial console (USB) for capture by external tools, if desired.
  */
 void reportCalibrationData() {
 #ifdef MOTION_SENSORS
+  // Begin by reading the raw sensor data.
   magnetometer->getEvent(&mag_event);
   gyroscope->getEvent(&gyro_event);
   accelerometer->getEvent(&accel_event);
@@ -1380,9 +1528,10 @@ void reportCalibrationData() {
   Serial.print(oriented.magY); Serial.print(",");
   Serial.print(oriented.magZ); Serial.println("");
 
-  // Send the oriented magnetometer data to the MagCal logic for collection into bins.
-  // This ensures the calibration is done in the device's coordinate system.
+  // While reporting is running we send the oriented magnetometer data to the MagCal
+  // logic for collection into bins. This ensures the mag calibration is performed
+  // relative in the device's intended coordinate system and displayed to the user.
   bool b_point_added = magCal.addSample(oriented.magX, oriented.magY, oriented.magZ);
-  sendCalibrationData(b_point_added);
+  sendMagCalData(b_point_added);
 #endif
 }

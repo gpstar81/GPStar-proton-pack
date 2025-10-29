@@ -262,7 +262,8 @@ void averageCalibrationData();
 void reportCalibrationData();
 void resetAllMotionData(bool b_calibrate);
 void notifyWSClients(); // From Webhandler.h
-void sendCalibrationData(bool b_update_points); // From Webhandler.h
+void sendGyroCalData(); // From Webhandler.h
+void sendMagCalData(bool b_update_points); // From Webhandler.h
 void sendTelemetryData(); // From Webhandler.h
 
 /**
@@ -1421,6 +1422,8 @@ void averageCalibrationData() {
     playEffect(S_BEEPS_ALT);
   }
 
+  sendGyroCalData(); // Report the latest timer value.
+
   // Stop collection once the calibration timer has finished.
   if(ms_gyro_calibration.justFinished()) {
     i_gyro_calibration_duration = 0; // Reset the timer duration.
@@ -1529,6 +1532,6 @@ void reportCalibrationData() {
   // logic for collection into bins. This ensures the mag calibration is performed
   // relative in the device's intended coordinate system and displayed to the user.
   bool b_point_added = magCal.addSample(oriented.magX, oriented.magY, oriented.magZ);
-  sendCalibrationData(b_point_added);
+  sendMagCalData(b_point_added);
 #endif
 }
