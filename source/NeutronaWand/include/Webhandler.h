@@ -1107,11 +1107,16 @@ void handleMusicStartStop(AsyncWebServerRequest *request) {
 
 void handleMusicPauseResume(AsyncWebServerRequest *request) {
   debugln("Web: Music Pause/Resume");
-  if(b_playing_music && !b_music_paused) {
-    pauseMusic();
+  if(b_playing_music) {
+    if(b_music_paused) {
+      resumeMusic();
+    }
+    else {
+      pauseMusic();
+    }
   }
   else {
-    resumeMusic();
+    playMusic();
   }
   request->send(200, "application/json", returnJsonStatus());
   notifyWSClients();

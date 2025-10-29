@@ -204,10 +204,7 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
         stopMusic();
       }
       else {
-        if(i_music_track_count > 0 && i_current_music_track >= i_music_track_start) {
-          // Play the appropriate track on pack and wand, and notify the Attenuator.
-          playMusic();
-        }
+        playMusic();
       }
     break;
 
@@ -223,10 +220,7 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
       }
       else {
         // if not playing music, start playing the current track.
-        if(i_music_track_count > 0 && i_current_music_track >= i_music_track_start) {
-          // Play the appropriate track on pack and wand, and notify the Attenuator.
-          playMusic();
-        }
+        playMusic();
       }
     break;
 
