@@ -17,7 +17,13 @@ This project is made possible by Ghostbusters community makers and volunteers sp
 * Alexander Hibbs (@BeaulieuDesigns87)
 	* For his SVG equipment schematic as used in the WiFi web UI.
 
-Thank you to our supporters on [GBFans.com](https://www.gbfans.com/forum) and the [Facebook group](https://www.facebook.com/groups/gpstartechnologies).
+Thank you to our supporters on [GBFans.com](https://www.gbfans.com/forum) and the [GPStar Facebook group](https://www.facebook.com/groups/gpstartechnologies).
+
+## Attributions
+
+All 3D visualizations for web UI displays were sources from the community and are Licensed under the "Creative Commons - Attribution - Share Alike" license.
+
+* Neutrona Wand - JSON-converted version of ["Proton Gun/Wand" by DoctorEgon on Thingiverse](https://www.thingiverse.com/thing:309201/files)
 
 ## Project History
 

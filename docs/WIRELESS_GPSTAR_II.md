@@ -212,7 +212,7 @@ The same as seen in the Audio Controls in the Proton Pack settings above.
 
 #### Tab 3: Sensor Calibration
 
-<img style="float:right;padding:10px;width:300px;" src="images/CalibrationEnabled.png"/>
+<img style="float:right;padding:10px;width:300px;" src="images/CalibrationDisabled.png"/>
 
 The GPStar Neturona Wand II is equipped with a gyroscope and magnetometer. The sensors can be even more finely calibrated to provide more accurate data after it is fully installed into your Neutrona Wand, taking into account nearby magnetic sources such as a speaker.
 
@@ -221,7 +221,6 @@ You can begin a sensor calibration by pressing the Enable Calibration button. Yo
 **TIP: Point the Neutrona Wand down, and slowly raise it up in an arc. Turn slightly and then arc back to full down. Repeat this process until you have done a 360.**
 
 Press the Disable Calibration button when you are finished to save the newly calibrated settings into the system memory.
-
 
 **Note:** You must have at least 60% coverage in order for the calibration data to be effective! If you exit the calibration process before reaching 60% you will be given a confirmation to either continue collecting data or stop the process and no calibration values will be calculated.
 

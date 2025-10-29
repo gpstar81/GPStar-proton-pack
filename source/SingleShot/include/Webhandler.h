@@ -1162,6 +1162,7 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
     }
 
     uint8_t i_orientation = jsonBody["orientation"].as<unsigned short>();
+    bool b_orientation_changed = false;
     INSTALL_ORIENTATIONS PREVIOUS_ORIENTATION = INSTALL_ORIENTATION;
     switch(i_orientation) {
       case 1:
@@ -1199,6 +1200,7 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
     if(INSTALL_ORIENTATION != PREVIOUS_ORIENTATION) {
       // Reset the magnetic calibration values to defaults on orientation change.
       magCalData = magCal.getDefaultCalibration();
+      b_orientation_changed = true;
     } else {
       // Set the current magnetic calibration values when orientation is unchanged.
       magCalData.mag_hardiron[0] = jsonBody["hardIron1"].as<float>();
@@ -1232,6 +1234,25 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
 
       // Store the magnetic calibration struct (object) to preferences.
       preferences.putBytes("mag_cal", &magCalData, sizeof(magCalData));
+
+      if(b_orientation_changed) {
+        resetMotionOffsets(calibratedOffsets); // Clear previous offsets set/collected.
+        resetAllMotionData(true); // Reset and re-calibrate with fresh, quick offsets.
+
+        // Reset the accelerometer offsets.
+        accelOffsets.x = 0;
+        accelOffsets.y = 0;
+        accelOffsets.z = 0;
+
+        // Reset the gyroscope offsets.
+        gyroOffsets.x = 0;
+        gyroOffsets.y = 0;
+        gyroOffsets.z = 0;
+
+        // Save the new empty offsets to preferences.
+        preferences.putBytes("accel_cal", &accelOffsets, sizeof(accelOffsets));
+        preferences.putBytes("gyro_cal", &gyroOffsets, sizeof(gyroOffsets));
+      }
 
       // Store the song list to preferences.
       if(songList.length() <= 2000) {
