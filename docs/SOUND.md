@@ -29,7 +29,18 @@ The compatibility matrix below notes whether a device is compatible with major v
 
 **Firmware Updates**
 
-All firmware files for the audio controllers can be found in the [extras/sound/](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/sound/) folder. Files are grouped by their device name, and a firmware update tool for the GPStar Audio firmware is available for ease of flashing that device.
+Use the FTDI to USB programming cable that came with the first generation GPStar kits or any other suitable FTDI 5V basic serial connector. The UART Pins on the PCB should align with with the standard wire order for FTDI-to-USB cables which use a single Dupont 6-pin connector. Observe these common colours and notes to ensure proper orientation:
+
+**IMPORTANT: Beside the connection on the GPStar Audio board, there is a small black switch, move it to the LOAD position before connecting the cable.**
+
+**After flashing, please move the switch back to the BOOT position.**
+
+### GPStar Audio Firmware Flasher
+
+- [Windows (x64 only)](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/sound/GPStar%20Audio/gpstarAudioFirmwareFlasher.exe?raw=1)
+- [MacOS Intel](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/sound/GPStar%20Audio/GPStar-Audio-Firmware-Flasher-Mac.dmg?raw=1) (Must enable Rosetta for Apple Silicon CPUs)
+
+![UART GPStar Audio Connection](images/uart_gpstar_audio.jpg)
 
 ## Pack Audio
 

@@ -223,28 +223,16 @@ function updateEquipment(jObj) {
   // Update display if we have the expected data (containing mode and theme at a minimum).
   if (jObj && jObj.mode && jObj.theme) {
 
-    // Enable/Disable Music Controls
-    if (jObj.benchtest) {
-      enableEl("btnVolMusicUp");
-      enableEl("btnVolMusicDown");
-      enableEl("playbackStatus");
-      enableEl("tracks");
-      enableEl("btnMusicPrev");
-      enableEl("btnMusicStartStop");
-      enableEl("btnMusicPauseResume");
-      enableEl("btnMusicNext");
-      disableEl("toggleLoop");
-    } else {
-      disableEl("btnVolMusicUp");
-      disableEl("btnVolMusicDown");
-      disableEl("playbackStatus");
-      disableEl("tracks");
-      disableEl("btnMusicPrev");
-      disableEl("btnMusicStartStop");
-      disableEl("btnMusicPauseResume");
-      disableEl("btnMusicNext");
-      enableEl("toggleLoop");
-    }
+    // Enable Music Controls
+    enableEl("btnVolMusicUp");
+    enableEl("btnVolMusicDown");
+    enableEl("playbackStatus");
+    enableEl("tracks");
+    enableEl("btnMusicPrev");
+    enableEl("btnMusicStartStop");
+    enableEl("btnMusicPauseResume");
+    enableEl("btnMusicNext");
+    enableEl("toggleLoop");
 
     // Volume Information
     setHtml("masterVolume", (jObj.volMaster || 0) + "%");

@@ -21,10 +21,8 @@
 
 /**
  * The Big TODO List:
- * - Implement gyro calibration: https://learn.adafruit.com/adafruit-sensorlab-gyroscope-calibration?view=all
  * - Implement accelerometer calibration via 6-direction acknowledgement.
- * - Implement magnetometer compensation due to iterference (production board changes).
- * - Implement automatic orientation direction detection via above calibrations.
+ * - Implement automatic orientation direction detection via above calibration.
  */
 
 /**
@@ -95,6 +93,7 @@ millisDelay ms_sensor_read_delay, ms_sensor_report_delay, ms_gyro_calibration;
 const uint8_t i_sensor_samples = 50; // Sets count of samples to take for averaging offsets.
 const uint16_t i_sensor_read_delay = 20; // Delay between sensor reads in milliseconds (20ms = 50Hz).
 const uint16_t i_sensor_report_delay = 50; // Delay between telemetry reporting (via console/web) in milliseconds.
+const float f_gravity = 9.80665f; // Constant for converting m/s^2 to Gs.
 uint32_t i_gyro_calibration_duration; // Time in milliseconds to run a gyroscope calibration (ms_gyro_calibration).
 Adafruit_Mahony ahrs_filter; // Create a filter object for sensor fusion (AHRS); Mahony better suited for human motion.
 
@@ -669,7 +668,7 @@ void configureSensors() {
      *   - latch: Latch interrupt (true = latched until cleared, false = pulse).
      *   - enabled: Enable the interrupt (true/false).
      */
-    magSensor.configInterrupt(false, false, false, // Enable one or more axis
+    magSensor.configInterrupt(false, false, false, // Enable one or more axes
                               true, // Polarity active high
                               false, // Don't latch (pulse)
                               false); // Disable the interrupt
@@ -1046,7 +1045,7 @@ float calculateGForce(const MotionData& data) {
     data.accelX * data.accelX +
     data.accelY * data.accelY +
     data.accelZ * data.accelZ
-  ) / 9.80665f; // 1g = 9.80665 m/s^2
+  ) / f_gravity; // 1g = 9.80665 m/s^2
 }
 
 /**
@@ -1076,7 +1075,7 @@ void updateFilteredMotionData() {
 void updateOrientation() {
 #ifdef MOTION_SENSORS
   /**
-   * Fusion expects gyroscope in deg/s, accelerometer in m/s2, magnetometer in uT.
+   * Fusion expects gyroscope in deg/s, accelerometer in m/s^2, magnetometer in uT.
    * It assumes a gravity-positive z-axis and NED aerospace framing.
    * All 9 DoF values will calculate roll (X), pitch (Y), and yaw (Z).
    * The sample frequency is in Hz and already calculated from the update time in ms.
@@ -1353,7 +1352,7 @@ void collectQuickMotionOffsets() {
     float f_inv = 1.0f / (float)i_samples; // For floating-point division (reciprocal ).
     quickOffsets.accelX = quickOffsets.sumAccelX * f_inv;
     quickOffsets.accelY = quickOffsets.sumAccelY * f_inv;
-    quickOffsets.accelZ = (quickOffsets.sumAccelZ * f_inv) - 9.80665f; // Get offset from gravity for Z axis (9.81 m/s^2)
+    quickOffsets.accelZ = (quickOffsets.sumAccelZ * f_inv) - f_gravity; // Get offset from gravity for Z axis (9.81 m/s^2)
     quickOffsets.gyroX = quickOffsets.sumGyroX * f_inv;
     quickOffsets.gyroY = quickOffsets.sumGyroY * f_inv;
     quickOffsets.gyroZ = quickOffsets.sumGyroZ * f_inv;
@@ -1409,7 +1408,7 @@ void averageCalibrationData() {
   float f_inv = 1.0f / (float)i_samples; // For floating-point division (reciprocal ).
   calibratedOffsets.accelX = calibratedOffsets.sumAccelX * f_inv;
   calibratedOffsets.accelY = calibratedOffsets.sumAccelY * f_inv;
-  calibratedOffsets.accelZ = (calibratedOffsets.sumAccelZ * f_inv) - 9.80665f; // Get offset from gravity for Z axis (9.81 m/s^2)
+  calibratedOffsets.accelZ = (calibratedOffsets.sumAccelZ * f_inv) - f_gravity; // Get offset from gravity for Z axis (9.81 m/s^2)
   calibratedOffsets.gyroX = calibratedOffsets.sumGyroX * f_inv;
   calibratedOffsets.gyroY = calibratedOffsets.sumGyroY * f_inv;
   calibratedOffsets.gyroZ = calibratedOffsets.sumGyroZ * f_inv;

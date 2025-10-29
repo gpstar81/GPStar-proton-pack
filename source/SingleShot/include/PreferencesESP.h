@@ -43,6 +43,10 @@ uint32_t getCRCEEPROM(void);
 uint32_t eepromCRC(void);
 void updateOverheatLevels();
 
+// Reference global instances defined elsewhere
+extern Axis3F accelOffsets;
+extern Axis3F gyroOffsets;
+
 // Include ESP32 Preferences library
 #include <Preferences.h>
 
@@ -230,6 +234,20 @@ void getSpecialPreferences() {
     // Restore the magnetometer calibration data from preferences.
     if(preferences.isKey("mag_cal")) {
       preferences.getBytes("mag_cal", &magCalData, sizeof(magCalData));
+
+      size_t readA = preferences.getBytes("accel_cal", &accelOffsets, sizeof(accelOffsets));
+      if(readA == sizeof(accelOffsets)) {
+        calibratedOffsets.accelX = accelOffsets.x;
+        calibratedOffsets.accelY = accelOffsets.y;
+        calibratedOffsets.accelZ = accelOffsets.z;
+      }
+
+      size_t readG = preferences.getBytes("gyro_cal", &gyroOffsets, sizeof(gyroOffsets));
+      if(readG == sizeof(gyroOffsets)) {
+        calibratedOffsets.gyroX = gyroOffsets.x;
+        calibratedOffsets.gyroY = gyroOffsets.y;
+        calibratedOffsets.gyroZ = gyroOffsets.z;
+      }
     }
 
     preferences.end();
@@ -245,7 +263,7 @@ void getSpecialPreferences() {
   }
 
   // Fallback to the Haslab as default if not set.
-  if (INSTALL_ORIENTATION == COMPONENTS_NOT_ORIENTED) {
+  if(INSTALL_ORIENTATION == COMPONENTS_NOT_ORIENTED) {
     INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_FRONT;
   }
 }

@@ -233,7 +233,7 @@ function updateEquipment(jObj) {
       enableEl("btnMusicStartStop");
       enableEl("btnMusicPauseResume");
       enableEl("btnMusicNext");
-      disableEl("toggleLoop");
+      enableEl("toggleLoop");
     } else {
       disableEl("btnVolMusicUp");
       disableEl("btnVolMusicDown");
@@ -243,7 +243,7 @@ function updateEquipment(jObj) {
       disableEl("btnMusicStartStop");
       disableEl("btnMusicPauseResume");
       disableEl("btnMusicNext");
-      enableEl("toggleLoop");
+      disableEl("toggleLoop");
     }
 
     // Volume Information

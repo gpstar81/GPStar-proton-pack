@@ -74,18 +74,18 @@ bool b_vent_lights_changed = false; // Check for whether there was actually a ch
   #define SLO_BLO_LED_PIN 12 // SLO-BLO LED. (Red LED)
   #define CLIPPARD_LED_PIN 3 // LED underneath the Clippard valve. (Orange or White LED)
   #define BARREL_LED_PIN 41 // Data pin for the addressable LEDs in the barrel.
-  #define BARREL_HAT_LED_PIN 10 // Hat light at front of the wand near the barrel tip. (Orange LED)
-  #define TOP_HAT_LED_PIN 9 // Hat light at top of the wand body near vent. (Orange or White LED)
-  #define BARREL_TIP_LED_PIN 46 // White LED at tip of the wand barrel. (White LED)
+  #define BARREL_HAT_LED_PIN 10 // Hat light at front of the blaster near the barrel tip. (Orange LED)
+  #define TOP_HAT_LED_PIN 9 // Hat light at top of the blaster body near vent. (Orange or White LED)
+  #define BARREL_TIP_LED_PIN 46 // White LED at tip of the blaster barrel. (White LED)
   #define WAND_STATUS_LED_PIN 38 // V1.4 GPStar Neutrona Wand onboard LED pin.
 #else
   #define SLO_BLO_LED_PIN 8 // SLO-BLO LED. (Red LED)
   #define CLIPPARD_LED_PIN 9 // LED underneath the Clippard valve. (Orange or White LED)
-  #define TOP_LED_PIN 12 // Blinking white light beside the vent on top of the wand.
+  #define TOP_LED_PIN 12 // Blinking white light beside the vent on top of the blaster.
   #define VENT_LED_PIN 13 // Vent light (either stock or RGB LED).
-  #define BARREL_HAT_LED_PIN 22 // Hat[1] light at front of the wand near the barrel tip. (Orange LED)
-  #define TOP_HAT_LED_PIN 23 // Hat[2] light at top of the wand body near vent. (Orange or White LED)
-  #define BARREL_TIP_LED_PIN 24 // White LED at tip of the wand barrel. (White LED)
+  #define BARREL_HAT_LED_PIN 22 // Hat[1] light at front of the blaster near the barrel tip. (Orange LED)
+  #define TOP_HAT_LED_PIN 23 // Hat[2] light at top of the blaster body near vent. (Orange or White LED)
+  #define BARREL_TIP_LED_PIN 24 // White LED at tip of the blaster barrel. (White LED)
   #define WAND_STATUS_LED_PIN 38 // V1.4 GPStar Neutrona Wand onboard LED pin.
 #endif
 

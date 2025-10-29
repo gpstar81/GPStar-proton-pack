@@ -47,9 +47,9 @@ If you encounter any issues while attempting to access your ESP32 device via a U
 
 **Option 1: Using GPStar ESP32 Firmware Uploader**
 
-This uses a purpose-built flash tool just like the tools for the Proton Pack, Neutrona Wand, Single-Shot Blaster and GPStar Audio. Thanks to its ease of use, this is our recommended method for performing the first-time USB upload process. First, download either the Windows or Mac OSX flash tool from the [extras](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/) folder. If you are on Windows x86 or Linux, try Option 2 below instead.
+This uses a purpose-built flash tool just like the tools for the Proton Pack, Neutrona Wand, Single-Shot Blaster and GPStar Audio. Thanks to its ease of use, this is our recommended method for performing the first-time USB upload process. First, download either the Windows or Mac OSX flash tool from the [extras](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/) folder. If you are on Linux, try Option 2 below instead.
 
-**Windows (x64 only):** [GPStar ESP32 Firmware Flasher](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/gpstarESP32FirmwareFlasher.exe?raw=1)
+**Windows:** [GPStar ESP32 Firmware Flasher](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/gpstarESP32FirmwareFlasher.exe?raw=1)
 
 **MacOS Intel/M1:** [GPStar ESP32 Firmware Flasher (Mac OSX)](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/GPStar-ESP32-Flasher.dmg?raw=1)
 
@@ -99,11 +99,9 @@ This uses a 3rd-party website to upload using the Web Serial protocol which is o
 
 View [a quick video](images/ESP_Firmware_Update.mp4) of what this process should look like. Your list of USB devices may differ, and it may require selecting a different device if you cannot immediately determine which connected device is your ESP32.
 
-📝 **NOTE:** If your device still cannot be found automatically you may need to view the **"[USB Troubleshooting](#usb-troubleshooting)"** section at the bottom of this guide.
-
 **Option 3: Via Command-Line**
 
-You will need to utilize a command-line tool to upload the firmware to your device from your local computer. Note this is *not recommended* unless you are using a platform other than Windows x64 or Mac OSX, such as Linux.
+You will need to utilize a command-line tool to upload the firmware to your device from your local computer. Note this is *not recommended* unless you are using a platform other than Windows or Mac OSX, such as Linux.
 
 1. Install the latest Python 3.x utility based on your operating system:
 
@@ -210,7 +208,7 @@ Without disconnecting the device from your computer, and using the **same** brow
 
 **Problem 3:** The process described in Solution 2 did not work, help!
 
-**Solution 3:** Try using Option 1 instead. For users not on Windows x64 or Mac OSX, use Option 3 to run `esptool` manually.
+**Solution 3:** Try using Option 1 instead. For users not on Windows or Mac OSX, use Option 3 to run `esptool` manually.
 
 **Problem 4:** For Linux users, if you get a "Permission denied" error when running `esptool` you may need to add your user to the dialout group.
 
@@ -228,7 +226,7 @@ Without disconnecting the device from your computer, and using the **same** brow
 
 These guides from Espressif may be of some help as a reference:
 
-* [Espressif - esptool Installation](https://docs.espressif.com/projects/esptool/en/latest/esp32/installation.html#installation)
+* [Espressif - esptool Installation](https://docs.espressif.com/projects/esptool/en/latest/esp32/installation.html)
 * [Espressif - Flashing Firmware](https://docs.espressif.com/projects/esptool/en/latest/esp32/esptool/flashing-firmware.html)
 * [Espressif - Boot Mode Selection](https://docs.espressif.com/projects/esptool/en/latest/esp32/advanced-topics/boot-mode-selection.html)
 
