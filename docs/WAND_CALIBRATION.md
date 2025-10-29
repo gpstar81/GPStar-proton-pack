@@ -12,7 +12,7 @@ Once connected to the Neutrona Wand via WiFi and accessing the web UI, click on 
 
 ## Before You Begin
 
-Click on the Settings tab at the top of the UI and go to the "Special Device Settings" page. Available in this section is the **Controller Installation Orientation** selection. This sets the intended installation of the sensors which is crucial for identifying the X, Y, and Z axes for spacial orientation. For example, on Hasbro Neutrona Wands, it will be "Components Down, USB Front". For a Mack's Factory Neutrona Wand, it will be in a different orientation such as "Components Left, USB Front". Please note that changing the orientation will reset the magnetic offset values and re-calibration will be required.
+Click on the Settings tab at the top of the UI and go to the "Special Device Settings" page. Available in this section is the **Controller Installation Orientation** selection. This sets the intended installation of the sensors which is crucial for identifying the X, Y, and Z axes for spatial orientation. For example, on Hasbro Neutrona Wands, it will be "Components Down, USB Front". For a Mack's Factory Neutrona Wand, it will be in a different orientation such as "Components Left, USB Front". Please note that changing the orientation will reset the magnetic offset values and re-calibration will be required.
 
 **This option MUST be correctly selected and saved BEFORE starting any calibration processes!**
 
