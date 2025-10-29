@@ -22,7 +22,9 @@ For modders who are comfortable with building their own smoke solution we recomm
 
 The following may be necessary to connect your smoke generator to the Proton Pack, if not provided as part of a maker's kit.
 
-- [5V Relay Module with Optocoupler](https://a.co/d/h0b5SN5) - Must support a HIGH signal to turn the relay on!
+- One of the following:
+	- [GPStar Relay](https://gpstartechnologies.com/) - Now shipped with most kits
+	- [5V Relay Module with Optocoupler](https://a.co/d/h0b5SN5) - Must support a HIGH signal to turn the relay on!
 - [6mm OD / 4mm ID Silicone Tubing](https://a.co/d/7qeekAG) - For routing smoke from the vape coil
 
 ### Disclaimers
@@ -74,9 +76,17 @@ Some additional but optional parts which may be required for these devices:
 
 As previously noted in the warnings section, this is where a 5V Relay Module becomes necessary. For a 5V relay, this device will electrically isolate the power provided by the PCB or Arduino from the power source running the smoke generator. This is the recommended solution for safely turning on your smoke generator. Remember that most vape coils will draw 1.5 to 2 Amps so your power supply must be able to provide that safely without triggering a safety shutoff.
 
+#### GPStar Relay ####
+
+![GPStar Relay](images/GPStarRelay.jpg)
+
+The GPStar Relay uses a standard 5V relay module but in a much easier to use package. There is a dedicated "Proton Pack" port which will connect to the Smoke1 or Smoke2 JST-XH connectors, a dedicated power input (expected: 3.7V-12V), and the standard connections for Normally Open (NO) and Normally Closed (NC) contacts. The center on this relay is the GROUND connection direct to the battery, making it more straightforward to connect your smoke kit.
+
+#### Common 5V Relay ####
+
 ![Typical 5V Relay Module](images/RelayModule.jpg)
 
-Most relays work using 3 wires: 2 for power (+/-) to the relay itself, and 1 for the signal to turn the relay on or off. One solution is to use a relay which can accept a HIGH signal to turn on and use the + connection to drive both the relay power and input signal. This arrangement typically uses less than 100mA and can safely connect to the Smoke1 or Smoke2 connectors.
+Most relays work using 3 wires: 2 for power (+/-) to the relay itself, and 1 for the signal to turn the relay on or off. One solution is to use a relay which can accept a HIGH signal to turn on and use the + connection to drive both the relay power and input signal. This arrangement typically uses less than 100mA and can safely connect to the Smoke1 or Smoke2 JST-XH connectors.
 
 ![Jumper between V+ and IN signal](images/RelayTrigger.jpg)
 
