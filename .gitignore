@@ -1,12 +1,10 @@
-.DS_Store
-Thumbs.db
+**/.DS_Store
+**/Thumbs.db
+**/.pio
+**/.vscode
+**/*.log
 *.bootloader.*
 *.partitions.*
-*.h-e
-*.log
-/source/*/.pio
-/source/*/.vscode
 /source/*/log
 /source/*/logs
 site/
-.vscode/settings.json
