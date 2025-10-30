@@ -78,7 +78,7 @@ void MagCalibration::resetSamples() {
   memset(xSamples, 0, sizeof(xSamples)); // Clear X samples (double array to 0.0)
   memset(ySamples, 0, sizeof(ySamples)); // Clear Y samples (double array to 0.0)
   memset(zSamples, 0, sizeof(zSamples)); // Clear Z samples (double array to 0.0)
-  
+
   // Clear bin distribution tracking arrays
   // Purpose: Reset all bin usage counters for a fresh calibration session
   memset(elevationBinCounts, 0, sizeof(elevationBinCounts)); // Clear elevation bin counters
@@ -106,12 +106,12 @@ void MagCalibration::beginCalibration() {
  * Purpose: Add a raw magnetometer sample, only stores if it expands coverage
  * Inputs: float x, float y, float z - raw magnetometer readings in µT (micro-Tesla)
  * Outputs: bool - true if sample was added, false if ignored (duplicate bin or max samples reached).
- * 
+ *
  * HOW IT WORKS:
  * This function takes a magnetometer reading and decides if it's worth keeping.
  * The goal is to collect samples from many different device orientations to build
  * a complete picture of the magnetic field around the device.
- * 
+ *
  * WORKFLOW:
  * 1. Check if we have room for more samples
  * 2. Make sure the reading is valid (not zero)
@@ -183,7 +183,7 @@ bool MagCalibration::addSample(float x, float y, float z) {
       return false;
     }
   }
-  
+
   // Convert to unit vector - we only care about direction, not strength
   // This puts all readings on the same scale for comparison
   double nx = dx / r;
@@ -345,7 +345,7 @@ HardIronOffsets MagCalibration::calculateHardIronOffsets() {
  * Purpose: Computes hard-iron offset and diagonal soft-iron matrix using min/max method.
  * Inputs: none (uses member arrays)
  * Outputs: CalibrationData - struct containing hard-iron offset, soft-iron matrix, and field strength
- * 
+ *
  * This function centralizes the fallback logic for calibration, ensuring consistent results
  * whenever the full ellipsoid fit cannot be performed. It is used in cases of poor coverage,
  * failed matrix inversion, or invalid fit.
@@ -395,7 +395,7 @@ CalibrationData MagCalibration::calculateDiagonalFallback() const {
 
   // Soft-iron scaling factors
   double rangeX = maxX - minX;
-  double rangeY = maxY - minY; 
+  double rangeY = maxY - minY;
   double rangeZ = maxZ - minZ;
   double avgRadius = (rangeX + rangeY + rangeZ) / 6.0;
 
@@ -806,7 +806,7 @@ float MagCalibration::roundFloat3(float val) const {
  * Purpose: Get elevation bin distribution for coverage analysis and diagnostics
  * Inputs: const uint16_t*& outElevationCounts - reference to pointer for output array
  * Outputs: uint8_t - number of elevation bins, sets outElevationCounts to internal array
- * 
+ *
  * This function provides access to the elevation coverage distribution, showing how many
  * samples have been collected in each vertical orientation range. This data is useful for:
  * - Real-time calibration progress monitoring
@@ -820,14 +820,14 @@ uint8_t MagCalibration::getElevationBinDistribution(const uint16_t*& outElevatio
 }
 
 /**
- * Function: getAzimuthBinDistribution  
+ * Function: getAzimuthBinDistribution
  * Purpose: Get azimuth bin distribution for coverage analysis and diagnostics
  * Inputs: const uint16_t*& outAzimuthCounts - reference to pointer for output array
  * Outputs: uint8_t - number of azimuth bins, sets outAzimuthCounts to internal array
- * 
+ *
  * This function provides access to the azimuth coverage distribution, showing how many
  * samples have been collected in each horizontal orientation range. This data is useful for:
- * - Real-time calibration progress monitoring  
+ * - Real-time calibration progress monitoring
  * - Identifying gaps in horizontal coverage
  * - Diagnostic analysis of rotation patterns
  * - Visual feedback during calibration process
@@ -842,7 +842,7 @@ uint8_t MagCalibration::getAzimuthBinDistribution(const uint16_t*& outAzimuthCou
  * Purpose: Get total number of bins with at least one sample for quick coverage assessment
  * Inputs: none
  * Outputs: uint16_t - count of bins that contain samples
- * 
+ *
  * This function provides a quick way to determine how many orientation regions have been
  * covered without needing to process the full bin arrays. Useful for:
  * - Quick coverage assessment

@@ -796,7 +796,7 @@ void checkUserInputs() {
         buzzOn(784); // Tone as note G4
       }
     }
-    
+
     if(b_wand_firing && i_cyclotron_multiplier <= 2 && b_firing_feedback && !(b_overheating || b_pack_alarm)) {
       // Give physical feedback through vibration while wand is firing, but not in an overheat/alarm state.
       useVibration(i_vibrate_min_time); // Use short bursts as this may be called multiple times in a row.

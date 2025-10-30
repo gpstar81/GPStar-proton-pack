@@ -105,9 +105,9 @@ You will need to utilize a command-line tool to upload the firmware to your devi
 
 1. Install the latest Python 3.x utility based on your operating system:
 
-	-  Windows: Download the installer from [Python](https://www.python.org/downloads/windows/). When installing you may be prompted to "Add Python to PATH", and it is recommended to accept that option.
-	-  Linux: Execute `sudo apt update && sudo apt install -y python3 python3-pip`
-	-  MacOS: Execute `brew install python` using Homebrew ([instructions here](https://brew.sh/))
+	- Windows: Download the installer from [Python](https://www.python.org/downloads/windows/). When installing you may be prompted to "Add Python to PATH", and it is recommended to accept that option.
+	- Linux: Execute `sudo apt update && sudo apt install -y python3 python3-pip`
+	- MacOS: Execute `brew install python` using Homebrew ([instructions here](https://brew.sh/))
 
 1. From a terminal (command line) prompt run the following which will install the `pip` tool along with the `esptool` utility:
 

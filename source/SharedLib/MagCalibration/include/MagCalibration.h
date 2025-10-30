@@ -151,10 +151,10 @@ class MagCalibration {
     uint16_t getActiveBinCount() const;
 
   private:
-    // Minimum samples before allowing hard-iron calculations.  
+    // Minimum samples before allowing hard-iron calculations.
     static constexpr uint16_t HARD_IRON_SAMPLE_THRESHOLD = 40;
 
-    // Minimum range in µT for sufficient hard-iron calculations.  
+    // Minimum range in µT for sufficient hard-iron calculations.
     static constexpr float HARD_IRON_SPREAD_THRESHOLD = 40.0f;
 
     // Hard-iron offset to apply to incoming samples, once calculated.
@@ -164,29 +164,29 @@ class MagCalibration {
 
     /**
      * SPHERICAL COORDINATE BINNING SYSTEM:
-     * 
+     *
      * This class divides the magnetometer's 3D measurement space into a grid of spherical bins.
-     * Since magnetometer readings represent magnetic field vectors, we normalize them to unit 
+     * Since magnetometer readings represent magnetic field vectors, we normalize them to unit
      * vectors on a sphere surface and categorize them by direction. The use of bins allows us
      * to control the size of the data structures necessary for storing coverage information.
-     * 
+     *
      * COORDINATE SYSTEM:
      * - Input: Raw magnetometer readings (x, y, z) in µT (micro-Tesla)
      * - Normalized: Unit vector (nx, ny, nz) where sqrt(nx² + ny² + nz²) = 1.0
      * - Spherical: (azimuth, elevation) angles in radians
-     * 
+     *
      * AZIMUTH (Horizontal Rotation):
      * - Range: -π to +π radians (-180° to +180°) = 360° total coverage
      * - Physical meaning: Rotation around the Z-axis (like compass heading)
      * - Bins: 360° total coverage / degrees per bin = total bins
      * - Formula: azimuth = atan2(ny, nx)
-     * 
+     *
      * ELEVATION (Vertical Tilt):
      * - Range: -π/2 to +π/2 radians (-90° to +90°) = 180° total coverage
      * - Physical meaning: Tilt up/down from horizontal plane
      * - Bins: 90° total coverage / degrees per bin = total bins
      * - Formula: elevation = asin(nz)
-     * 
+     *
      * TOTAL COVERAGE SPACE:
      * - Each bin represents a N° × N° "patch" on the unit sphere
      * - 100% coverage = all bins filled with at least one sample
@@ -194,9 +194,9 @@ class MagCalibration {
      * - Examples:
      *    - 10° bins = 36 azimuth × 18 elevation = 648 total bins
      *    - 5° bins = 72 azimuth × 36 elevation = 2,592 total bins
-     * 
+     *
      * COVERAGE REQUIREMENTS:
-     * For good calibration, the magnetometer should be oriented through many 
+     * For good calibration, the magnetometer should be oriented through many
      * different directions. The user should move the device not only around
      * and up/down, but also rotate it throughout the motions to pick up all
      * spatial orientations.

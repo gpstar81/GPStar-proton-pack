@@ -49,7 +49,7 @@ WirelessManager::WirelessManager(const String& deviceName, const String& deviceA
   // Initialize member variables before constructor body runs.
   : localDeviceName(deviceName),                              // Sets the default device name
     localNetworkName(String(AP_DEFAULT_PREFIX) + deviceName), // Sets AP SSID to "GPStar_<deviceName>"
-    localPassword(AP_DEFAULT_PASSWORD),                       // Sets default local AP password  
+    localPassword(AP_DEFAULT_PASSWORD),                       // Sets default local AP password
     localAddress(convertToIP(deviceAddress)),                 // Converts and sets device IP address
     localSubnet(convertToIP("255.255.255.0")),            // Sets default subnet mask
     localGateway(convertToIP("0.0.0.0")),                     // Sets default gateway
@@ -212,7 +212,7 @@ bool WirelessManager::resetWifiPassword() {
 String WirelessManager::getMdnsName() const {
   // Try to get the primary hostname directly (index 0), or will be an empty string.
   String mdnsHostname = MDNS.hostname(0);
-  
+
   // Check if hostname is valid and not empty.
   if(mdnsHostname.length() > 0) {
     return mdnsHostname + ".local";
@@ -273,7 +273,7 @@ uint8_t WirelessManager::scanForSSIDs(String ssids[], uint8_t maxResults) {
   for(int i = 0; i < i_found && i_count < maxResults; ++i) {
     // IEEE 802.11 defines 2.4 GHz Wi‑Fi channels as channel numbers 1-14, which is what we want.
     int i_channel = WiFi.channel(i);
-    if(i_channel < 1 || i_channel > 14) {      
+    if(i_channel < 1 || i_channel > 14) {
       continue; // Skip 5 GHz or unknown-channel networks.
     }
 

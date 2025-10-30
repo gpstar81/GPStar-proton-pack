@@ -472,7 +472,7 @@ void setup() {
 
   // Rotary encoder on the top of the device.
   encoder.initialize();
-  
+
   // Setup the bargraph after a brief delay.
   delay(10);
   setupBargraph();

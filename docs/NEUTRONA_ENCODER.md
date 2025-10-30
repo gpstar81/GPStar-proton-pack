@@ -10,8 +10,8 @@ Mount the board and wire the connections as indicated in the photo below. Note t
 
 | Neutrona Encoder | Neutrona Wand |
 |------------|---------------|
-| A | D7  |
-| B | ROT-  |
+| A | D7 |
+| B | ROT- |
 | C | D6 |
 
 

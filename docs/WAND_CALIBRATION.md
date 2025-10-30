@@ -1,6 +1,6 @@
 <h1><span class="logo-icon"></span> GPStar Neutrona Wand II Calibration</h1>
 
-The GPStar Neturona Wand II is equipped with a gyroscope/accelerometer (IMU) and magnetometer. These sensors can be finely calibrated to provide more accurate data after it is fully installed into your GPStar Neutrona Wand II  (or GPStar Single Shot Blaster II), taking into account nearby magnetic sources such as a speaker.
+The GPStar Neturona Wand II is equipped with a gyroscope/accelerometer (IMU) and magnetometer. These sensors can be finely calibrated to provide more accurate data after it is fully installed into your GPStar Neutrona Wand II (or GPStar Single Shot Blaster II), taking into account nearby magnetic sources such as a speaker.
 
 To begin, connect to the WiFi on the GPStar Neutrona Wand II, enabling first via the [Operational Menu](OPERATION_MENUS.md) `Level 3 -> Option 5 -> Intensify`.
 
