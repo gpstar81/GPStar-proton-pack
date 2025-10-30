@@ -24,7 +24,7 @@
 /*
  * Used to reflect the last build date for the binary.
  */
-String build_date = "V6_20251029073623";
+String build_date = "V6_20251029212955";
 
 /*
  * Control debug messages for various actions during normal operation.
@@ -119,6 +119,11 @@ const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
  * NOTE: The onboard mono audio amplifier and speaker connector specifications: 2W into 4 Ohms, 1.25W into 8 Ohms
  */
 const bool b_onboard_amp_enabled = true;
+
+/*
+ * Set to true to have the LED on the GPStar Audio stay on while the system is running.
+ */
+bool b_gpstar_audio_led_enabled = false;
 
 /*
  * When set to true, the bargraph will invert the sequence.

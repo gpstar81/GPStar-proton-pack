@@ -51,7 +51,9 @@ const uint16_t i_eepromAddress = 0; // The address in the EEPROM to start readin
  */
 struct objConfigEEPROM {
   uint8_t device_boot_errors;
+  uint8_t gpstar_audio_led;
   uint8_t vent_light_auto_intensity;
+  uint8_t rgb_vent_light;
   uint8_t invert_bargraph;
   uint8_t default_system_volume;
   uint8_t device_vibration;
@@ -80,12 +82,32 @@ void readEEPROM() {
       }
     }
 
+    if(obj_config_eeprom.gpstar_audio_led > 0 && obj_config_eeprom.gpstar_audio_led < 3) {
+      if(obj_config_eeprom.gpstar_audio_led > 1) {
+        b_gpstar_audio_led_enabled = true;
+      }
+      else {
+        b_gpstar_audio_led_enabled = false;
+      }
+
+      setAudioLED(b_gpstar_audio_led_enabled);
+    }
+
     if(obj_config_eeprom.vent_light_auto_intensity > 0 && obj_config_eeprom.vent_light_auto_intensity < 3) {
       if(obj_config_eeprom.vent_light_auto_intensity > 1) {
         b_vent_light_control = true;
       }
       else {
         b_vent_light_control = false;
+      }
+    }
+
+    if(obj_config_eeprom.rgb_vent_light > 0 && obj_config_eeprom.rgb_vent_light < 3) {
+      if(obj_config_eeprom.rgb_vent_light > 1) {
+        b_rgb_vent_light = true;
+      }
+      else {
+        b_rgb_vent_light = false;
       }
     }
 
@@ -149,7 +171,9 @@ void saveConfigEEPROM() {
 
   // 1 = false, 2 = true.
   uint8_t i_device_boot_errors = b_device_boot_errors ? 2 : 1; // Assumed true by default.
+  uint8_t i_gpstar_audio_led = b_gpstar_audio_led_enabled ? 2 : 1; // Assumed false by default.
   uint8_t i_vent_light_auto_intensity = b_vent_light_control ? 2 : 1; // Assumed true by default.
+  uint8_t i_rgb_vent_light = b_rgb_vent_light ? 2 : 1; // Assumed false by default.
   uint8_t i_invert_bargraph = b_bargraph_invert ? 2 : 1; // Assumed false by default.
   uint8_t i_default_system_volume = 101; // <- i_eeprom_volume_master_percentage + 1
   uint8_t i_device_vibration = 4; // 1 = always, 2 = when firing, 3 = off, 4 = default.
@@ -177,7 +201,9 @@ void saveConfigEEPROM() {
   // Write the data to the EEPROM if any of the values have changed.
   objConfigEEPROM obj_config_eeprom = {
     i_device_boot_errors,
+    i_gpstar_audio_led,
     i_vent_light_auto_intensity,
+    i_rgb_vent_light,
     i_invert_bargraph,
     i_default_system_volume,
     i_device_vibration

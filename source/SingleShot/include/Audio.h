@@ -787,6 +787,20 @@ void toggleMusicLoop() {
   }
 }
 
+void setAudioLED(bool on) {
+  switch(AUDIO_DEVICE) {
+    case A_GPSTAR_AUDIO:
+    case A_GPSTAR_AUDIO_ADV:
+      // Set GPStar Audio LED state immediately.
+      audio.gpstarLEDStatus(on);
+    break;
+
+    default:
+      // Do nothing if not GPStar Audio.
+    break;
+  }
+}
+
 /*
  * Audio Setup Routines
  * Used to detect, update, and reset the available audio devices.
@@ -829,7 +843,7 @@ bool setupAudioDevice() {
     debugln(audio.getVersionNumber());
 
     buildMusicCount(audio.getNumTracks());
-    audio.gpstarLEDStatus(false);
+    setAudioLED(b_gpstar_audio_led_enabled);
 
     return true;
   }

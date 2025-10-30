@@ -214,10 +214,6 @@ void setup() {
   MENU_OPTION_LEVEL = OPTION_5;
   POWER_LEVEL = LEVEL_5;
 
-  // Set callback events for these toggles, which need to count the activations for EEPROM menu entry.
-  switch_vent.setPushedCallback(&ventSwitched); // For the LED EEPROM Menu
-  switch_device.setPushedCallback(&deviceSwitched); // For the Config EEPROM Menu
-
   // Rotary encoder on the top of the device.
   encoder.initialize();
 

@@ -312,6 +312,9 @@ bool lowerMenuLevel() {
       }
     break;
     case MENU_LEVEL_2:
+      // For now we only have two levels; do not go deeper.
+      b_changed = false;
+      /*
       if(DEVICE_STATUS == MODE_OFF && DEVICE_ACTION_STATUS == ACTION_SETTINGS) {
         // Do not advance past level 2 for the settings menu when off.
         b_changed = false;
@@ -332,6 +335,7 @@ bool lowerMenuLevel() {
         stopEffect(S_VOICE_LEVEL_4);
         stopEffect(S_VOICE_LEVEL_5);
       }
+      */
     break;
     case MENU_LEVEL_3:
       DEVICE_MENU_LEVEL = MENU_LEVEL_4;
@@ -847,9 +851,6 @@ void deviceOff() {
     case MODE_OFF:
       // Turn off all device lights.
       allLightsOff();
-
-      deviceSwitchedCount = 0;
-      ventSwitchedCount = 0;
     break;
     default:
       // Do nothing if we aren't MODE_OFF
@@ -1060,16 +1061,6 @@ void vibrationSetting() {
   }
 }
 
-void ventSwitched(void* n) {
-  (void)(n); // Suppress unused variable warning
-  ventSwitchedCount++;
-}
-
-void deviceSwitched(void* n) {
-  (void)(n); // Suppress unused variable warning
-  deviceSwitchedCount++;
-}
-
 // Enter the device menu system.
 void deviceEnterMenu() {
   debug(F("deviceEnterMenu|"));
@@ -1096,6 +1087,14 @@ void deviceExitMenu() {
   DEVICE_MENU_LEVEL = MENU_LEVEL_1;
   MENU_OPTION_LEVEL = OPTION_5;
 
+  // If device is off, make sure we save our current settings to the EEPROM.
+  if(DEVICE_STATUS == MODE_OFF) {
+    saveConfigEEPROM();
+    stopEffect(S_VOICE_EEPROM_SAVE);
+    playEffect(S_VOICE_EEPROM_SAVE);
+  }
+
+  stopEffect(S_CLICK);
   playEffect(S_CLICK);
 
   DEVICE_ACTION_STATUS = ACTION_IDLE;
@@ -1107,27 +1106,6 @@ void deviceExitMenu() {
     bargraph.PATTERN = BG_POWER_RAMP; // Bargraph idling loop.
     led_SloBlo.turnOn(); // Turn on SLO-BLO if device is on.
   }
-}
-
-// Exit the device menu EEPROM system while the device is off.
-void deviceExitEEPROMMenu() {
-  debug(F("deviceExitEEPROMMenu|"));
-  debugln(DEVICE_ACTION_STATUS);
-
-  // Reset the menu level/option to default
-  DEVICE_MENU_LEVEL = MENU_LEVEL_1;
-  MENU_OPTION_LEVEL = OPTION_5;
-
-  playEffect(S_BEEPS);
-
-  DEVICE_ACTION_STATUS = ACTION_IDLE;
-
-  allLightsOff();
-
-  deviceSwitchedCount = 0;
-  ventSwitchedCount = 0;
-
-  vibrationOff(); // Make sure we stop any menu-related vibration, if any.
 }
 
 // Use an attached infrared LED to send a command. Only available if using the Wand II (ESP32).

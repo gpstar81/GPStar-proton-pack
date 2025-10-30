@@ -70,25 +70,38 @@ void getSpecialPreferences();
  */
 
 struct __attribute__((packed)) BlasterPrefs {
-  uint8_t isESP32;
   uint8_t autoVentLight;
   uint8_t deviceBootError;
+  uint8_t gpstarAudioLed;
   uint8_t invertBlasterBargraph;
+  uint8_t defaultSystemVolume;
+  uint8_t deviceVibration;
 } blasterConfig;
 
 // Common helper function to populate the blasterConfig object with global variables.
 void getBlasterPrefsObject() {
   sendDebug(F("Getting Blaster Preferences"));
 
-#ifdef ESP32
-  blasterConfig.isESP32 = 1;
-#else
-  blasterConfig.isESP32 = 0;
-#endif
+  uint8_t i_eeprom_volume_master_percentage = 100 * (MINIMUM_VOLUME - i_volume_master_eeprom) / MINIMUM_VOLUME;
 
   blasterConfig.autoVentLight = b_vent_light_control ? 1 : 0;
   blasterConfig.deviceBootError = b_device_boot_errors ? 1 : 0;
+  blasterConfig.gpstarAudioLed = b_gpstar_audio_led_enabled ? 1 : 0;
   blasterConfig.invertBlasterBargraph = b_bargraph_invert ? 1 : 0;
+  blasterConfig.defaultSystemVolume = i_eeprom_volume_master_percentage;
+
+  switch(VIBRATION_MODE_EEPROM) {
+    case VIBRATION_ALWAYS:
+    default:
+      blasterConfig.deviceVibration = 1;
+    break;
+    case VIBRATION_FIRING_ONLY:
+      blasterConfig.deviceVibration = 2;
+    break;
+    case VIBRATION_NONE:
+      blasterConfig.deviceVibration = 3;
+    break;
+  }
 }
 
 // Perform update of the blaster preferences based on the current configuration object.
@@ -97,11 +110,34 @@ void handleBlasterPrefsUpdate() {
 
   b_vent_light_control = (blasterConfig.autoVentLight == 1);
   b_device_boot_errors = (blasterConfig.deviceBootError == 1);
+  b_gpstar_audio_led_enabled = (blasterConfig.gpstarAudioLed == 1);
   b_bargraph_invert = (blasterConfig.invertBlasterBargraph == 1);
 
+  switch(blasterConfig.deviceVibration) {
+    case 1:
+    default:
+      VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
+      VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+    break;
+
+    case 2:
+      VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
+      VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+    break;
+
+    case 3:
+      VIBRATION_MODE_EEPROM = VIBRATION_NONE;
+      VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+    break;
+  }
+
+  i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * blasterConfig.defaultSystemVolume / 100);
+  setAudioLED(b_gpstar_audio_led_enabled);
+  saveConfigEEPROM();
+
   // Offer some feedback to the user
-  stopEffect(S_BEEPS);
-  playEffect(S_BEEPS);
+  stopEffect(S_VOICE_EEPROM_SAVE);
+  playEffect(S_VOICE_EEPROM_SAVE);
 }
 
 /*
@@ -287,10 +323,14 @@ String getBlasterConfig() {
 
   // Return current powered state for the blaster.
   jsonBody["blasterPowered"] = (DEVICE_STATUS == MODE_ON);
+  jsonBody["gpstarAudio"] = (i_audio_version > 1);
 
   // Single Shot Blaster Runtime Options
   jsonBody["autoVentLight"] = blasterConfig.autoVentLight; // true|false
-  jsonBody["deviceBootError"] = blasterConfig.deviceBootError; // true|false (Super-Hero Mode Only)
+  jsonBody["defaultSystemVolume"] = blasterConfig.defaultSystemVolume; // 5-100
+  jsonBody["deviceBootError"] = blasterConfig.deviceBootError; // true|false
+  jsonBody["deviceVibration"] = blasterConfig.deviceVibration; // [1=ALWAYS,2=FIRING,3=NEVER]
+  jsonBody["gpstarAudioLed"] = blasterConfig.gpstarAudioLed; // true|false
   jsonBody["invertBlasterBargraph"] = blasterConfig.invertBlasterBargraph; // true|false
 
   // Serialize JSON object to string.
@@ -1307,7 +1347,10 @@ AsyncCallbackJsonWebHandler *handleSaveBlasterConfig = new AsyncCallbackJsonWebH
     try {
       blasterConfig.autoVentLight = jsonBody["autoVentLight"].as<uint8_t>();
       blasterConfig.deviceBootError = jsonBody["deviceBootError"].as<uint8_t>();
+      blasterConfig.gpstarAudioLed = jsonBody["gpstarAudioLed"].as<uint8_t>();
       blasterConfig.invertBlasterBargraph = jsonBody["invertBlasterBargraph"].as<uint8_t>();
+      blasterConfig.defaultSystemVolume = jsonBody["defaultSystemVolume"].as<uint8_t>();
+      blasterConfig.deviceVibration = jsonBody["deviceVibration"].as<uint8_t>();
 
       handleBlasterPrefsUpdate(); // Have the blaster pass the new settings.
       request->send(200, "application/json", returnJsonStatus("Settings updated, please test before saving to EEPROM."));
@@ -1320,7 +1363,7 @@ AsyncCallbackJsonWebHandler *handleSaveBlasterConfig = new AsyncCallbackJsonWebH
     // Tell the user why the requested action failed.
     request->send(200, "application/json", returnJsonStatus("Single Shot Blaster is running, save action cancelled"));
   }
-}); // handleSaveWandConfig
+}); // handleSaveBlasterConfig
 
 // Handles the JSON body for the password change request.
 AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHandler("/password/update", [](AsyncWebServerRequest *request, JsonVariant &json) {

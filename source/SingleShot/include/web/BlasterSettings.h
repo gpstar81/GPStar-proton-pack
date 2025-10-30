@@ -46,6 +46,14 @@ const char BLASTER_SETTINGS_page[] PROGMEM = R"=====(
   <h1>General Options</h1>
   <div class="block left">
     <div class="setting">
+      <b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Use Vibration:</b>
+      <select id="deviceVibration" name="deviceVibration" style="width:170px">
+        <option value="3">Never</option>
+        <option value="2">When Firing</option>
+        <option value="1">Always</option>
+      </select>
+    </div>
+    <div class="setting">
       <label class="toggle-switchy" data-label="left">
         <input id="autoVentLight" name="autoVentLight" type="checkbox">
         <span class="toggle">
@@ -61,6 +69,25 @@ const char BLASTER_SETTINGS_page[] PROGMEM = R"=====(
           <span class="switch"></span>
         </span>
         <span class="label">Boot Errors:</span>
+      </label>
+    </div>
+  </div>
+
+  <h1>Audio Options</h1>
+  <div class="block left">
+    <div class="setting">
+      <b>Master Volume % at Startup:</b><br/>
+      <input type="range" id="defaultSystemVolume" name="defaultSystemVolume" min="5" max="100" value="100" step="5"
+       oninput="masterVolOut.value=defaultSystemVolume.value"/>
+      <output class="labelSlider" id="masterVolOut" for="defaultSystemVolume"></output>
+    </div>
+    <div class="setting" id="gpstarAudioLedToggle">
+      <label class="toggle-switchy" data-label="left">
+        <input id="gpstarAudioLed" name="gpstarAudioLed" type="checkbox">
+        <span class="toggle">
+          <span class="switch"></span>
+        </span>
+        <span class="label">GPStar Audio Status LED:</span>
       </label>
     </div>
   </div>
@@ -102,9 +129,13 @@ const char BLASTER_SETTINGS_page[] PROGMEM = R"=====(
 
     function disableControls() {
       // Disables all controls.
-      getEl("autoVentLight").disabled = true;
-      getEl("deviceBootError").disabled = true;
-      getEl("invertBlasterBargraph").disabled = true;
+      disableEl("autoVentLight");
+      disableEl("defaultSystemVolume");
+      disableEl("deviceBootError");
+      disableEl("deviceVibration");
+      disableEl("gpstarAudioLed");
+      disableEl("invertBlasterBargraph");
+      hideEl("gpstarAudioLedToggle");
     }
 
     // Converts a value from one range to another: eg. convertRange(160, [2,254], [0,360])
@@ -138,15 +169,24 @@ const char BLASTER_SETTINGS_page[] PROGMEM = R"=====(
               return;
             }
 
+            if (!settings.gpstarAudio) {
+              // Hide the GPStar Audio LED Status toggle if wand is not using GPStar Audio.
+              hideEl("gpstarAudioLedToggle");
+              disableEl("gpstarAudioLed");
+            }
+
             // Valid settings were received and both the pack and blaster are off, so allow updating settings.
-            getEl("btnSave").disabled = false;
+            enableEl("btnSave");
 
             setToggle("autoVentLight", settings.autoVentLight);
+            setValue("defaultSystemVolume", settings.defaultSystemVolume || 100);
             setToggle("deviceBootError", settings.deviceBootError);
+            setValue("deviceVibration", settings.wandVibration || 1);
+            setToggle("gpstarAudioLed", settings.gpstarAudioLed);
             setToggle("invertBlasterBargraph", settings.invertBlasterBargraph);
 
             // Update colour preview and value display for hue/saturation sliders.
-            updateColour("blasterColourPreview", "blasterHueOut", "blasterSatOut", getEl("ledBlasterHue").value, getEl("ledBlasterSat").value);
+            //updateColour("blasterColourPreview", "blasterHueOut", "blasterSatOut", getEl("ledBlasterHue").value, getEl("ledBlasterSat").value);
           }
         }
       };
@@ -159,7 +199,10 @@ const char BLASTER_SETTINGS_page[] PROGMEM = R"=====(
       // This does NOT save to the EEPROM automatically as the user is encouraged to test prior to that action.
       var settings = {
         autoVentLight: getToggle("autoVentLight"),
+        defaultSystemVolume: getInt("defaultSystemVolume") || 100,
         deviceBootError: getToggle("deviceBootError"),
+        deviceVibration: getInt("deviceVibration") || 1,
+        gpstarAudioLed: getToggle("gpstarAudioLed"),
         invertBlasterBargraph: getToggle("invertBlasterBargraph")
       };
       var body = JSON.stringify(settings);
@@ -170,10 +213,6 @@ const char BLASTER_SETTINGS_page[] PROGMEM = R"=====(
           if (this.status == 200) {
             handleStatus(this.responseText);
             setTimeout(getSettings, 400); // Get latest settings.
-
-            if (confirm("Settings successfully updated. Do you want to store the latest settings to the blaster EEPROM?")) {
-              saveEEPROM(); // Perform action only if the user answers OK to the confirmation.
-            }
           } else {
             handleStatus(this.responseText);
           }

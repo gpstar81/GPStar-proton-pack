@@ -57,6 +57,7 @@ Preferences preferences;
 // Data structure for configuration settings (stored in Preferences)
 struct objConfigEEPROM {
   uint8_t deviceBootErrors;
+  uint8_t gpstarAudioLed;
   uint8_t ventLightAutoIntensity;
   uint8_t invertBargraph;
   uint8_t defaultSystemVolume;
@@ -70,6 +71,7 @@ void saveConfigEEPROM() {
 
   // 1 = false, 2 = true.
   gObjConfigEEPROM.deviceBootErrors = b_device_boot_errors ? 2 : 1;
+  gObjConfigEEPROM.gpstarAudioLed = b_gpstar_audio_led_enabled ? 2 : 1;
   gObjConfigEEPROM.ventLightAutoIntensity = b_vent_light_control ? 2 : 1;
   gObjConfigEEPROM.invertBargraph = b_bargraph_invert ? 2 : 1;
   gObjConfigEEPROM.defaultSystemVolume = (eepromVolumeMasterPercentage <= 100) ? (eepromVolumeMasterPercentage + 1) : 101;
@@ -149,6 +151,7 @@ void readEEPROM() {
   if(storedCrc == calcCrc) {
     // Map loaded config to runtime variables
     b_device_boot_errors = (gObjConfigEEPROM.deviceBootErrors > 1);
+    b_gpstar_audio_led_enabled = (gObjConfigEEPROM.gpstarAudioLed > 1);
     b_vent_light_control = (gObjConfigEEPROM.ventLightAutoIntensity > 1);
     b_bargraph_invert = (gObjConfigEEPROM.invertBargraph > 1);
 
@@ -172,6 +175,7 @@ void readEEPROM() {
         break;
     }
     VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+    setAudioLED(b_gpstar_audio_led_enabled);
   }
   else {
     // CRC mismatch; clear preferences

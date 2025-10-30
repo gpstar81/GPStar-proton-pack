@@ -100,7 +100,7 @@ enum DEVICE_STATE DEVICE_STATUS;
  * Various device action states.
  * Indicates a specific mode of operation as initiated by the user.
  */
-enum DEVICE_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE, ACTION_FIRING, ACTION_ERROR, ACTION_SETTINGS, ACTION_CONFIG_EEPROM_MENU };
+enum DEVICE_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE, ACTION_FIRING, ACTION_ERROR, ACTION_SETTINGS };
 enum DEVICE_ACTION_STATE DEVICE_ACTION_STATUS;
 
 /*
@@ -289,8 +289,6 @@ Switch switch_activate(ACTIVATE_SWITCH_PIN); // Considered the primary power tog
 Switch switch_device(DEVICE_SWITCH_PIN); // Top right switch on the device. Enables device for firing.
 Switch switch_vent(VENT_SWITCH_PIN); // Bottom right switch on the device. Turns on the vent light.
 Switch switch_grip(GRIP_SWITCH_PIN); // Hand-grip button to be the primary fire and used in settings menus.
-uint8_t ventSwitchedCount = 0; // Used for detection of LED EEPROM menu access
-uint8_t deviceSwitchedCount = 0; // Used for detection of Config EEPROM menu access
 
 /*
  * Control for the primary blast sound effects.
@@ -404,5 +402,3 @@ const uint16_t i_ms_power_indicator_blink = 500;
  * Function prototypes.
  */
 void checkDeviceAction();
-void ventSwitched(void* n = nullptr);
-void deviceSwitched(void* n = nullptr);
