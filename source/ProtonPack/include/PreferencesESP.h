@@ -266,9 +266,8 @@ void saveConfigEEPROM() {
     i_cyclotron_three_led_toggle = 2;
   }
 
-  if(i_eeprom_volume_master_percentage <= 100) {
-    // Need to add 1 to this because the EEPROM cannot contain a 0 value.
-    i_default_system_volume = i_eeprom_volume_master_percentage + 1;
+  if(i_eeprom_volume_master_percentage < 101) {
+    i_default_system_volume = i_eeprom_volume_master_percentage;
   }
 
   if(!b_smoke_continuous_level_5) {
