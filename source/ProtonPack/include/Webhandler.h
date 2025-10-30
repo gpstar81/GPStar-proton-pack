@@ -257,6 +257,7 @@ String getPackConfig() {
   // Return current powered state for pack and wand.
   jsonBody["packPowered"] = (b_pack_on || b_pack_shutting_down);
   jsonBody["wandPowered"] = b_wand_on;
+  jsonBody["gpstarAudio"] = (i_audio_version > 1);
 
   // Proton Pack Runtime Options
   jsonBody["defaultSystemModePack"] = packConfig.defaultSystemModePack; // [0=SH,1=MO]
@@ -861,7 +862,7 @@ void handleGetSSIDs(AsyncWebServerRequest *request) {
 
   // Make a single array property and add each discovered SSID.
   JsonArray arr = jsonBody["networks"].to<JsonArray>();
-  for (uint8_t i = 0; i < i_found; ++i) {
+  for(uint8_t i = 0; i < i_found; ++i) {
     arr.add(ssidList[i]);
   }
 
@@ -1408,6 +1409,7 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
       packConfig.overheatSyncToFan = jsonBody["overheatSyncToFan"].as<uint8_t>();
       packConfig.demoLightMode = jsonBody["demoLightMode"].as<uint8_t>();
       packConfig.gpstarAudioLed = jsonBody["gpstarAudioLed"].as<uint8_t>();
+      packConfig.wifiState = 2; // Set to 2 to prevent the pack from altering its current WiFi setting.
 
       // Update certain operational values immediately.
       switch(packConfig.defaultSystemModePack) {

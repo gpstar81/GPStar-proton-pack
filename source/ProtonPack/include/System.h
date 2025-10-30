@@ -5389,7 +5389,7 @@ void changeStreamMode(STREAM_MODES new_mode) {
   }
 
   // Debounce rapid calls to avoid flooding the serial interface.
-  if (ms_streamchange.remaining() > 0) {
+  if(ms_streamchange.remaining() > 0) {
     debugln("Stream mode change suppressed due to debounce timer.");
     return;
   }

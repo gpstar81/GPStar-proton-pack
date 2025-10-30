@@ -87,7 +87,7 @@ void animateLights() {
   static uint16_t i_led_phase = 0; // 16-bit phase accumulator (high byte = 0..255 visible phase)
   uint8_t i_color;
 
-  if (!ms_anim_change.justFinished()) return; // nothing to do this frame
+  if(!ms_anim_change.justFinished()) return; // nothing to do this frame
 
   ledsOff(); // Clear LEDs before updating animation.
 
@@ -135,7 +135,7 @@ void animateLights() {
   device_leds[i_index] = cA;
 
   uint8_t i_indexB = i_index + 1;
-  if (i_indexB >= DEVICE_NUM_LEDS) {
+  if(i_indexB >= DEVICE_NUM_LEDS) {
     i_indexB = 0;
   }
   CRGB cB = baseColor; cB.nscale8_video(i_weightB);
@@ -147,13 +147,13 @@ void animateLights() {
 
   // IMPORTANT: advance the 16-bit phase so the visible (high) byte moves by i_animation_step.
   // Shift left 8 so visible phase increments by i_animation_step each frame.
-  if (b_invert_animation) {
+  if(b_invert_animation) {
     i_led_phase -= (uint16_t)i_animation_step << 8;
   } else {
     i_led_phase += (uint16_t)i_animation_step << 8;
   }
 
-  if (b_firing) {
+  if(b_firing) {
     // Speed up animation when firing, based on power level.
     ms_anim_change.start(i_animation_duration / ((wsData.wandPower + 1) * 2));
   } else {

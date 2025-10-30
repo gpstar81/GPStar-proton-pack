@@ -73,7 +73,7 @@ void changeStreamMode(STREAM_MODES new_mode) {
   }
 
   // Debounce rapid calls to avoid flooding the serial interface.
-  if (ms_streamchange.remaining() > 0) {
+  if(ms_streamchange.remaining() > 0) {
     debugln("Stream mode change suppressed due to debounce timer.");
     return;
   }
@@ -702,7 +702,7 @@ void switchLoops() {
 void checkUserInputs() {
   switchLoops();
 
-  if (MENU_LEVEL != MENU_STREAM) {
+  if(MENU_LEVEL != MENU_STREAM) {
     // Check for a press event (long/short) only if not in stream select mode.
     checkRotaryPress();
   }
@@ -788,7 +788,7 @@ void checkUserInputs() {
     // Only enter stream select mode if wand is not firing or in an error state.
     if(canChangeStreamMode()) {
       // Enter the stream select mode for the top dial.
-      if (MENU_LEVEL != MENU_STREAM) {
+      if(MENU_LEVEL != MENU_STREAM) {
         MENU_LEVEL = MENU_STREAM;
 
         // Provide feedback that the system changed menu state.
@@ -843,7 +843,7 @@ void checkUserInputs() {
     b_right_toggle_on = false;
 
     // Return to dial menu level 1 if previously in stream select.
-    if (MENU_LEVEL == MENU_STREAM) {
+    if(MENU_LEVEL == MENU_STREAM) {
       MENU_LEVEL = MENU_1;
 
       // Provide feedback that the system changed menu state.

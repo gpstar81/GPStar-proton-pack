@@ -123,15 +123,15 @@ void MagCalibration::beginCalibration() {
 bool MagCalibration::addSample(float x, float y, float z) {
   // Check if we should calculate and apply hard-iron offset as the Phase 1 of calibration.
   // This is done only once when we have enough samples w/ good spread to make an estimate.
-  if (!provisionalHardIron.offsetsApplied) {
-    if (sampleCount < HARD_IRON_SAMPLE_THRESHOLD) {
+  if(!provisionalHardIron.offsetsApplied) {
+    if(sampleCount < HARD_IRON_SAMPLE_THRESHOLD) {
       // Not enough samples to attempt a calculation yet, so instruct the user on what to do.
       snprintf(statusMessage, sizeof(statusMessage), "Move the device in full circular rotations in multiple directions: horizontal, vertical, and diagonal.");
     } else {
       // We have enough samples to attempt a hard-iron offset calculation.
       provisionalHardIron = calculateHardIronOffsets(); // Run the calculation for hard-iron offsets.
 
-      if (provisionalHardIron.sufficientSpread) {
+      if(provisionalHardIron.sufficientSpread) {
         provisionalHardIron.offsetsApplied = true; // Mark that the hard-iron offset can now be applied.
         resetSamples(); // Clear all previous samples and coverage to begin again with adjusted values.
 
@@ -145,7 +145,7 @@ bool MagCalibration::addSample(float x, float y, float z) {
   }
 
   // If offset is to be applied, adjust the incoming sample.
-  if (provisionalHardIron.offsetsApplied) {
+  if(provisionalHardIron.offsetsApplied) {
     x -= provisionalHardIron.offsets.x;
     y -= provisionalHardIron.offsets.y;
     z -= provisionalHardIron.offsets.z;
@@ -172,7 +172,7 @@ bool MagCalibration::addSample(float x, float y, float z) {
   double r = sqrt(dx * dx + dy * dy + dz * dz); // sqrt() automatically handles double precision
 
   // Reject samples with unexpected or invalid magnitude (varies by phase of calibration).
-  if (provisionalHardIron.offsetsApplied) {
+  if(provisionalHardIron.offsetsApplied) {
     // After Offsets: reject outliers and sensor errors
     if(r < 10.0 || r > 100.0 || isnan(r) || isinf(r)) {
       return false;
@@ -304,7 +304,7 @@ HardIronOffsets MagCalibration::calculateHardIronOffsets() {
   // Clear any existing values for the provisional hard-iron offsets.
   resetProvisionalHardIron();
 
-  if (sampleCount < HARD_IRON_SAMPLE_THRESHOLD) {
+  if(sampleCount < HARD_IRON_SAMPLE_THRESHOLD) {
     return provisionalHardIron; // Too few samples, return defaults.
   }
 
@@ -313,13 +313,13 @@ HardIronOffsets MagCalibration::calculateHardIronOffsets() {
   double minY = ySamples[0], maxY = ySamples[0];
   double minZ = zSamples[0], maxZ = zSamples[0];
 
-  for (uint16_t i = 1; i < sampleCount; ++i) {
-    if (xSamples[i] < minX) minX = xSamples[i];
-    if (xSamples[i] > maxX) maxX = xSamples[i];
-    if (ySamples[i] < minY) minY = ySamples[i];
-    if (ySamples[i] > maxY) maxY = ySamples[i];
-    if (zSamples[i] < minZ) minZ = zSamples[i];
-    if (zSamples[i] > maxZ) maxZ = zSamples[i];
+  for(uint16_t i = 1; i < sampleCount; ++i) {
+    if(xSamples[i] < minX) minX = xSamples[i];
+    if(xSamples[i] > maxX) maxX = xSamples[i];
+    if(ySamples[i] < minY) minY = ySamples[i];
+    if(ySamples[i] > maxY) maxY = ySamples[i];
+    if(zSamples[i] < minZ) minZ = zSamples[i];
+    if(zSamples[i] > maxZ) maxZ = zSamples[i];
   }
 
   // Calculate offsets as the center of min/max.

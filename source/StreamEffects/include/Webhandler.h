@@ -556,7 +556,7 @@ void handleGetSSIDs(AsyncWebServerRequest *request) {
 
   // Make a single array property and add each discovered SSID.
   JsonArray arr = jsonBody["networks"].to<JsonArray>();
-  for (uint8_t i = 0; i < i_found; ++i) {
+  for(uint8_t i = 0; i < i_found; ++i) {
     arr.add(ssidList[i]);
   }
 

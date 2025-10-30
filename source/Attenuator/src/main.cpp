@@ -202,7 +202,7 @@ void PreferencesTask(void *parameter) {
     b_overheat_feedback = preferences.getBool("use_overheat", true);
     b_firing_feedback = preferences.getBool("fire_feedback", false);
 
-    if (b_invert_dial) {
+    if(b_invert_dial) {
       encoder.setRotationInverted(true);
     }
     else {

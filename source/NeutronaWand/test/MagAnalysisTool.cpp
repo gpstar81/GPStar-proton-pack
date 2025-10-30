@@ -1079,14 +1079,14 @@ int main(int argc, char* argv[]) {
                              prototypeResult.debugLog, productionResult.debugLog);
 
   // Fallback: If hard-iron offset was NOT applied, use all valid samples for offset and re-run
-  if (productionResult.debugLog.find("Hard-iron offset applied") == std::string::npos) {
+  if(productionResult.debugLog.find("Hard-iron offset applied") == std::string::npos) {
     std::cout << "\n[INFO] Fallback: Calculating hard-iron offsets using all available production samples..." << std::endl;
 
     // Collect all valid samples from the production file
     std::vector<MagData> allValidSamples;
-    for (uint16_t i = 0; i < productionReadings.size(); i++) {
+    for(uint16_t i = 0; i < productionReadings.size(); i++) {
       MagData sample = processMagData(productionReadings[i][0], productionReadings[i][1], productionReadings[i][2], i + 1);
-      if (sample.validSample) {
+      if(sample.validSample) {
         allValidSamples.push_back(sample);
       }
     }
@@ -1122,16 +1122,16 @@ int main(int argc, char* argv[]) {
     fallbackAnalysis.minElevation = 1e6; fallbackAnalysis.maxElevation = -1e6;
     fallbackAnalysis.minAzimuth = 1e6; fallbackAnalysis.maxAzimuth = -1e6;
 
-    for (uint16_t i = 0; i < productionReadings.size(); i++) {
+    for(uint16_t i = 0; i < productionReadings.size(); i++) {
       double x = productionReadings[i][0] - fallbackOffset.x;
       double y = productionReadings[i][1] - fallbackOffset.y;
       double z = productionReadings[i][2] - fallbackOffset.z;
       MagData sample = processMagData(x, y, z, i + 1);
-      if (sample.validSample) {
+      if(sample.validSample) {
         fallbackAnalysis.validSamples++;
         sample.newBin = !bins[sample.binIndex];
         sample.wouldBeAccepted = sample.newBin;
-        if (sample.newBin) {
+        if(sample.newBin) {
           bins[sample.binIndex] = true;
           fallbackAnalysis.binCoverage[sample.binIndex] = true;
           fallbackAnalysis.uniqueBins++;
@@ -1142,17 +1142,17 @@ int main(int argc, char* argv[]) {
         sumMagnitude += sample.magnitude;
         sumElevation += sample.elevationDeg;
         sumAzimuth += sample.azimuthDeg;
-        if (sample.magnitude < fallbackAnalysis.minMagnitude) fallbackAnalysis.minMagnitude = sample.magnitude;
-        if (sample.magnitude > fallbackAnalysis.maxMagnitude) fallbackAnalysis.maxMagnitude = sample.magnitude;
-        if (sample.elevationDeg < fallbackAnalysis.minElevation) fallbackAnalysis.minElevation = sample.elevationDeg;
-        if (sample.elevationDeg > fallbackAnalysis.maxElevation) fallbackAnalysis.maxElevation = sample.elevationDeg;
-        if (sample.azimuthDeg < fallbackAnalysis.minAzimuth) fallbackAnalysis.minAzimuth = sample.azimuthDeg;
-        if (sample.azimuthDeg > fallbackAnalysis.maxAzimuth) fallbackAnalysis.maxAzimuth = sample.azimuthDeg;
+        if(sample.magnitude < fallbackAnalysis.minMagnitude) fallbackAnalysis.minMagnitude = sample.magnitude;
+        if(sample.magnitude > fallbackAnalysis.maxMagnitude) fallbackAnalysis.maxMagnitude = sample.magnitude;
+        if(sample.elevationDeg < fallbackAnalysis.minElevation) fallbackAnalysis.minElevation = sample.elevationDeg;
+        if(sample.elevationDeg > fallbackAnalysis.maxElevation) fallbackAnalysis.maxElevation = sample.elevationDeg;
+        if(sample.azimuthDeg < fallbackAnalysis.minAzimuth) fallbackAnalysis.minAzimuth = sample.azimuthDeg;
+        if(sample.azimuthDeg > fallbackAnalysis.maxAzimuth) fallbackAnalysis.maxAzimuth = sample.azimuthDeg;
         fallbackAnalysis.samples.push_back(sample);
       }
     }
 
-    if (fallbackAnalysis.validSamples > 0) {
+    if(fallbackAnalysis.validSamples > 0) {
       fallbackAnalysis.avgMagnitude = sumMagnitude / fallbackAnalysis.validSamples;
       fallbackAnalysis.avgElevation = sumElevation / fallbackAnalysis.validSamples;
       fallbackAnalysis.avgAzimuth = sumAzimuth / fallbackAnalysis.validSamples;
@@ -1162,7 +1162,7 @@ int main(int argc, char* argv[]) {
 
     // After writing the main analysis.txt file:
     std::ofstream analysisFile("analysis.txt", std::ios::app); // Open for appending
-    if (analysisFile.is_open()) {
+    if(analysisFile.is_open()) {
       analysisFile << "\n=== FALLBACK ANALYSIS SUMMARY ===\n";
       analysisFile << fallbackDebug.str();
       analysisFile << "\nFallback Coverage: " << std::fixed << std::setprecision(2)

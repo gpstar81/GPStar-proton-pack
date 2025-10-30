@@ -442,11 +442,11 @@ uint8_t readRegister( uint8_t reg) {
   Wire1.beginTransmission(LIS3MDL_I2CADDR_DEFAULT);
   Wire1.write(reg);
   // send restart (false) so we can requestFrom immediately
-  if (Wire1.endTransmission(false) != 0) {
+  if(Wire1.endTransmission(false) != 0) {
     // transmission error / device NACK
     return 0xFF;
   }
-  if (Wire1.requestFrom(LIS3MDL_I2CADDR_DEFAULT, (uint8_t)1) != 1) {
+  if(Wire1.requestFrom(LIS3MDL_I2CADDR_DEFAULT, (uint8_t)1) != 1) {
     return 0xFF;
   }
   return Wire1.read();
@@ -514,9 +514,9 @@ MagConfigInfo readMagConfig() {
     {"INT_THS_H",  0x33}
   };
 
-  if (!b_mag_found) {
+  if(!b_mag_found) {
     // Sensor not initialized, fill with error values
-    for (size_t i = 0; i < sizeof(regs)/sizeof(regs[0]); ++i) {
+    for(size_t i = 0; i < sizeof(regs)/sizeof(regs[0]); ++i) {
       info.rawRegisters[i].name = regs[i].name;
       info.rawRegisters[i].address = regs[i].reg;
       info.rawRegisters[i].value = 0xFF;
@@ -531,7 +531,7 @@ MagConfigInfo readMagConfig() {
   // Populate raw register values (ensure array size matches)
   const size_t numRegs = sizeof(regs) / sizeof(regs[0]);
   static_assert(numRegs == sizeof(info.rawRegisters) / sizeof(info.rawRegisters[0]), "rawRegisters size mismatch");
-  for (size_t i = 0; i < numRegs; ++i) {
+  for(size_t i = 0; i < numRegs; ++i) {
     info.rawRegisters[i].name = regs[i].name;
     info.rawRegisters[i].address = regs[i].reg;
     info.rawRegisters[i].value = readRegister(regs[i].reg);
@@ -1287,10 +1287,10 @@ void processMotionData() {
       motionData.gForce = calculateGForce(motionData);
 
       // Apply offsets to IMU readings only after we know the installation orientation.
-      if (INSTALL_ORIENTATION != COMPONENTS_FACTORY_DEFAULT) {
+      if(INSTALL_ORIENTATION != COMPONENTS_FACTORY_DEFAULT) {
         // Choose Offsets: Prefer calibratedOffsets, but use quickOffsets when calibrated offsets are default/empty.
         const MotionOffsets *usedOffsets = &calibratedOffsets;
-        if (isMotionOffsetsDefault(calibratedOffsets)) {
+        if(isMotionOffsetsDefault(calibratedOffsets)) {
           usedOffsets = &quickOffsets;
           debugln(F("No calibrated offsets present; using quickOffsets for runtime corrections."));
         }
@@ -1391,7 +1391,7 @@ void averageCalibrationData() {
   readRawSensorData(); // Read the raw sensor data and place the latest values in the motionData object.
 
   // Guard sample count from wrapping.
-  if (calibratedOffsets.samples < UINT16_MAX) {
+  if(calibratedOffsets.samples < UINT16_MAX) {
     calibratedOffsets.samples++;
   }
 

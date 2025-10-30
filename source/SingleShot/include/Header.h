@@ -241,9 +241,9 @@ struct Encoder {
         i_last_val = i_new_val; // Update stored last value so next call can detect changes.
 
         // Map terminal PrevNextCode to CW/CCW, invert if requested.
-        if (PrevNextCode == 0x07) {
+        if(PrevNextCode == 0x07) {
           STATE = b_direction_inverted ? ENCODER_CCW : ENCODER_CW;
-        } else if (PrevNextCode == 0x0b) {
+        } else if(PrevNextCode == 0x0b) {
           STATE = b_direction_inverted ? ENCODER_CW : ENCODER_CCW;
         }
       }

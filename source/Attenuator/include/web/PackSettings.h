@@ -441,7 +441,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       disableEl("ledPowercellLum");
       disableEl("ledInvertPowercell");
       disableEl("ledVGPowercell");
-      disableEl("gpstarAudioLedToggle");
+      hideEl("gpstarAudioLedToggle");
       disableEl("wifiState");
       disableEl("resetWifiPassword");
       hideEl("gpstar2");

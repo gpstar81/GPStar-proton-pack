@@ -479,7 +479,7 @@ void handlePackPrefsUpdate() {
 #ifdef ESP32
   switch(packConfig.wifiState) {
     case 0:
-      if (WIFI_MODE != WIFI_DISABLED) {
+      if(WIFI_MODE != WIFI_DISABLED) {
         // Disable WiFi if it is not already disabled.
         WIFI_MODE = WIFI_DISABLED;
         playEffect(S_VOICE_PACK_WIFI_DISABLED);

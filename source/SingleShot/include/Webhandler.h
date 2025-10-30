@@ -301,7 +301,7 @@ String getDeviceConfig() {
 
   // Add raw register values as an array of objects
   JsonArray registers = magConfig["registers"].to<JsonArray>();
-  for (size_t i = 0; i < sizeof(magConfigInfo.rawRegisters) / sizeof(magConfigInfo.rawRegisters[0]); ++i) {
+  for(size_t i = 0; i < sizeof(magConfigInfo.rawRegisters) / sizeof(magConfigInfo.rawRegisters[0]); ++i) {
     JsonObject regObj = registers[i].to<JsonObject>();
     regObj["name"] = magConfigInfo.rawRegisters[i].name;
     regObj["address"] = magConfigInfo.rawRegisters[i].address;
@@ -465,16 +465,16 @@ String getMagCalJSON(bool b_update_points = false) {
   // Provide audio feedback at every 10% coverage milestone.
   static int16_t i_last_milestone = -1;
   int16_t i_current = (int16_t)f_last_coverage / 10.0f;
-  if (i_last_milestone == -1) {
+  if(i_last_milestone == -1) {
     i_last_milestone = i_current; // Init on first call.
   }
-  else if (i_current != i_last_milestone) {
+  else if(i_current != i_last_milestone) {
     i_last_milestone = i_current;
     playEffect(S_BEEPS_ALT);
   }
 
   // Add status message if provided and not blank
-  if (statusMsg && statusMsg[0] != '\0') {
+  if(statusMsg && statusMsg[0] != '\0') {
     jsonCalibration["s"] = statusMsg;
   }
 
@@ -510,7 +510,7 @@ String getMagCalJSON(bool b_update_points = false) {
   }
 
   // The points arrays can be large so only update when necessary.
-  if (b_update_points) {
+  if(b_update_points) {
     // Arrays of data points for magnetometer calibration visualization.
     const double* xPtr;
     const double* yPtr;
@@ -891,7 +891,7 @@ void handleGetSSIDs(AsyncWebServerRequest *request) {
 
   // Make a single array property and add each discovered SSID.
   JsonArray arr = jsonBody["networks"].to<JsonArray>();
-  for (uint8_t i = 0; i < i_found; ++i) {
+  for(uint8_t i = 0; i < i_found; ++i) {
     arr.add(ssidList[i]);
   }
 

@@ -96,10 +96,10 @@ IPAddress WirelessManager::convertToIP(const String ipAddressString) {
   int lastIndex = 0;
   int nextIndex = 0;
 
-  for (uint8_t i = 0; i < 4; i++) {
+  for(uint8_t i = 0; i < 4; i++) {
     nextIndex = ipAddressString.indexOf('.', lastIndex);
     String quadStr;
-    if (nextIndex != -1 && i < 3) {
+    if(nextIndex != -1 && i < 3) {
       quadStr = ipAddressString.substring(lastIndex, nextIndex);
       lastIndex = nextIndex + 1;
     } else {
@@ -109,8 +109,8 @@ IPAddress WirelessManager::convertToIP(const String ipAddressString) {
   }
 
   // Basic validation: ensure all quads are in 0-255 range
-  for (uint8_t i = 0; i < 4; i++) {
-    if (quads[i] > 255) return IPAddress(0, 0, 0, 0);
+  for(uint8_t i = 0; i < 4; i++) {
+    if(quads[i] > 255) return IPAddress(0, 0, 0, 0);
   }
 
   return IPAddress(quads[0], quads[1], quads[2], quads[3]);
@@ -118,7 +118,7 @@ IPAddress WirelessManager::convertToIP(const String ipAddressString) {
 
 void WirelessManager::loadWirelessPreferences() {
   // Prepare to return either stored preferences or a default value for local SSID/password.
-  if (preferences.begin("credentials", true)) {
+  if(preferences.begin("credentials", true)) {
     // Use either the stored preferences or an expected default value.
     localNetworkName = preferences.getString("ssid", String(AP_DEFAULT_PREFIX) + localDeviceName);
     localNetworkName = sanitizeSSID(localNetworkName); // Jacques, clean him!
@@ -130,7 +130,7 @@ void WirelessManager::loadWirelessPreferences() {
     localPassword = AP_DEFAULT_PASSWORD; // Force use of the local default WiFi password.
 
     // If namespace is not initialized, open in read/write mode and set defaults.
-    if (preferences.begin("credentials", false)) {
+    if(preferences.begin("credentials", false)) {
       preferences.putString("ssid", localNetworkName);
       preferences.putString("password", localPassword);
       preferences.end();
@@ -138,7 +138,7 @@ void WirelessManager::loadWirelessPreferences() {
   }
 
   // Use either the stored preferences or an expected default value.
-  if (preferences.begin("network", true)) {
+  if(preferences.begin("network", true)) {
     extWifiEnabled = preferences.getBool("enabled", false);
     extWifiNetworkName = preferences.getString("ssid", "");
     extWifiPassword = preferences.getString("password", "");
@@ -148,7 +148,7 @@ void WirelessManager::loadWirelessPreferences() {
     preferences.end();
   } else {
     // If namespace is not initialized, open in read/write mode and set defaults.
-    if (preferences.begin("network", false)) {
+    if(preferences.begin("network", false)) {
       preferences.putBool("enabled", false);
       preferences.putString("ssid", "");
       preferences.putString("password", "");
@@ -166,7 +166,7 @@ void WirelessManager::loadWirelessPreferences() {
 // Outputs: None. Modifies extWifiGateway member variable.
 void WirelessManager::setDefaultExtWifiGateway() {
   // Set a default gateway based on the external IP address.
-  if (IsValidIP(extWifiAddress)) {
+  if(IsValidIP(extWifiAddress)) {
     extWifiGateway = IPAddress(extWifiAddress[0], extWifiAddress[1], extWifiAddress[2], 1);
   } else {
     extWifiGateway = IPAddress(0, 0, 0, 0);
@@ -179,7 +179,7 @@ void WirelessManager::setDefaultExtWifiGateway() {
 // Outputs:
 //   - bool: True if information was successfully obtained, false otherwise.
 bool WirelessManager::getExtWifiNetworkInfo() {
-  if (WiFi.status() == WL_CONNECTED) {
+  if(WiFi.status() == WL_CONNECTED) {
     // Get the IP address for this device on the external network.
     extWifiAddress = WiFi.localIP();
     extWifiSubnet = WiFi.subnetMask();
@@ -194,7 +194,7 @@ bool WirelessManager::getExtWifiNetworkInfo() {
 // Inputs: None.
 // Outputs: None. Modifies the stored password in preferences.
 bool WirelessManager::resetWifiPassword() {
-  if (preferences.begin("credentials", false)) {
+  if(preferences.begin("credentials", false)) {
     preferences.putString("password", AP_DEFAULT_PASSWORD);
     preferences.end();
     return true;
@@ -214,7 +214,7 @@ String WirelessManager::getMdnsName() const {
   String mdnsHostname = MDNS.hostname(0);
   
   // Check if hostname is valid and not empty.
-  if (mdnsHostname.length() > 0) {
+  if(mdnsHostname.length() > 0) {
     return mdnsHostname + ".local";
   }
 
@@ -228,7 +228,7 @@ String WirelessManager::getMdnsName() const {
 // Outputs:
 //   - bool: True if MDNS service started successfully, false otherwise.
 bool WirelessManager::startMdnsService() {
-  if (MDNS.begin(getLocalNetworkName().c_str())) {
+  if(MDNS.begin(getLocalNetworkName().c_str())) {
     MDNS.addService("http", "tcp", 80);
     return true;
   }
@@ -252,10 +252,10 @@ bool WirelessManager::startMdnsService() {
  *   - Ensures results are unique by SSID string (duplicates skipped).
  */
 uint8_t WirelessManager::scanForSSIDs(String ssids[], uint8_t maxResults) {
-  if (maxResults == 0) return 0;
+  if(maxResults == 0) return 0;
 
   // Ensure STA capability is enabled for scanning; enable AP+STA only if STA bit missing.
-  if ((WiFi.getMode() & WIFI_MODE_STA) == 0) {
+  if((WiFi.getMode() & WIFI_MODE_STA) == 0) {
     WiFi.mode(WIFI_AP_STA);
   }
 
@@ -264,33 +264,33 @@ uint8_t WirelessManager::scanForSSIDs(String ssids[], uint8_t maxResults) {
 
   // NOTE: This is a blocking call while the scan runs.
   int i_found = WiFi.scanNetworks();
-  if (i_found <= 0) {
+  if(i_found <= 0) {
     WiFi.scanDelete();
     return 0;
   }
 
   uint8_t i_count = 0;
-  for (int i = 0; i < i_found && i_count < maxResults; ++i) {
+  for(int i = 0; i < i_found && i_count < maxResults; ++i) {
     // IEEE 802.11 defines 2.4 GHz Wi‑Fi channels as channel numbers 1-14, which is what we want.
     int i_channel = WiFi.channel(i);
-    if (i_channel < 1 || i_channel > 14) {      
+    if(i_channel < 1 || i_channel > 14) {      
       continue; // Skip 5 GHz or unknown-channel networks.
     }
 
     String s_ssid = WiFi.SSID(i);
-    if (s_ssid.length() == 0) {
+    if(s_ssid.length() == 0) {
       continue;
     }
 
     // Check for duplicates: only add SSID if not already present in ssids[]
     bool b_duplicate = false;
-    for (uint8_t i_j = 0; i_j < i_count; ++i_j) {
-      if (ssids[i_j] == s_ssid) {
+    for(uint8_t i_j = 0; i_j < i_count; ++i_j) {
+      if(ssids[i_j] == s_ssid) {
         b_duplicate = true;
         break;
       }
     }
-    if (b_duplicate) {
+    if(b_duplicate) {
       continue;
     }
 

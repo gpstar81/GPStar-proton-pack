@@ -413,7 +413,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       disableEl("ledPowercellLum");
       disableEl("ledInvertPowercell");
       disableEl("ledVGPowercell");
-      disableEl("gpstarAudioLedToggle");
+      hideEl("gpstarAudioLedToggle");
     }
 
     // Converts a value from one range to another: eg. convertRange(160, [2,254], [0,360])
