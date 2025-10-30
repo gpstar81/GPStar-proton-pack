@@ -372,7 +372,7 @@ const char PACK_SETTINGS_page[] PROGMEM = R"=====(
       setTimeout(getSettings, 100);
 
       // Disable the save button until we obtain settings.
-      getEl("btnSave").disabled = true;
+      disableEl("btnSave");
     }
 
     function disableControls() {

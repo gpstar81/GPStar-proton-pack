@@ -43,7 +43,7 @@
 /*
  * Used to reflect the last build date for the binary.
  */
-String build_date = "V6_20251028230033";
+String build_date = "V6_20251030014501";
 
 /*
  * Custom values from pack EEPROM.

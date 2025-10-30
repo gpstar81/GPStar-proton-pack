@@ -84,19 +84,33 @@ void settingsMenuCheck() {
     case MENU_LEVEL_1:
       switch(MENU_OPTION_LEVEL) {
         case OPTION_5:
-          // Intensify: Enable/Disable Music Track Looping
+          // Intensify: Enable/Disable Music Track Looping.
           if(b_playing_music && switch_intensify.pushed()) {
             toggleMusicLoop();
             debugln(F("Toggle Music Loop"));
           }
 
-          // Grip: Exits the menu system
+          // Grip: Exits the menu system.
           // Allow the method gripButtonCheck() handle this on the next loop
         break;
 
         case OPTION_4:
+          // Intensify: Enable/Disable System Mute.
+          if(switch_intensify.pushed()) {
+            if(i_volume_master == i_volume_abs_min) {
+              i_volume_master = i_volume_revert;
+            }
+            else {
+              i_volume_revert = i_volume_master;
+
+              // Set the master volume to silent.
+              i_volume_master = i_volume_abs_min;
+            }
+
+            updateMasterVolume();
+          }
           // Grip + Dial = System Volume
-          if(switch_grip.on()) {
+          else if(switch_grip.on()) {
             if(encoder.STATE == ENCODER_CW) {
               // Increase the master system volume.
               increaseVolume();

@@ -156,9 +156,55 @@ Adding a switch to the GPStar Power Boost device will allow you to fully turn of
 
 Full guide will be written as features are completed and operation is determined.
 
+### Entering The Menu System
+
+To enter the settings menu, press the grip button while the two left switches are in the **DOWN** position.
+
+<div class="page-break"></div>
+
+### Navigation
+
+Use the `Top Dial` on the top of the blaster to navigate up and down through the menu system.
+
+When you are in the settings menu system the bargraph's 5 LEDs begin flashing (or 5 distinct segments when using the 28-segment or 30-segment bargraph). All other functions of the blaster (such as firing) are temporarily disabled while in the menu system. There are 5 different menu options, which are indicated by bargraph LED segments 1 through 5 (from bottom to top) with option 5 being the default upon entering this mode. For example in navigation, when 1 LED (or bargraph segment) is flashing/displayed that means you are on `Option 1`.
+
+### Action Levels
+
+Changes are made by pressing either the `Intensify` button on the gun box or the `Grip Button` at the end of the blaster.
+
+<div class="page-break"></div>
+
+#### Menu Level 1
+
+| Option | Purpose | Intensify Button | Grip Button |
+|:------:|---------|------------------|--------------------|
+| 5️⃣ | Music&nbsp;Track&nbsp;Looping | Enable/disable looping of current track | Exit the menu system<sup>1</sup> |
+| 4️⃣ | Master&nbsp;Volume&nbsp;Controls | Mute the Single Shot Blaster or revert back to the previous volume | `(Grip Button + Top Dial)` Increases/Decreases Master Volume |
+| 3️⃣ | SFX Volume | `unused` | `(Grip Button + Top Dial)` Increases/Decreases SFX Volume |
+| 2️⃣ | Switch&nbsp;Music&nbsp;Track | Cycle backwards in music queue | Cycle forward in music queue |
+| 1️⃣ | Music&nbsp;Controls | Start/stop music playback | `(Grip Button + Top Dial)` Increases/Decreases Music Volume |
+
+<sup>1</sup> When you navigate back to `Option 5` and press the `Grip Button`, the blaster will return to idle (if menu was entered while blaster was on) or save all settings to EEPROM (if menu was entered while blaster was off). Note that music will continue to play (and advance/loop) even when the blaster is turned off.
+
+<div class="page-break"></div>
+
+#### Menu Level 2
+
+📝 **Note:** The Single Shot Blaster Menu Level 2 can only be reached while the Single Shot Blaster is turned off.
+
+To access Menu Level 2, use the `Top Dial` on the top of the blaster to move down and past `Option 1` on Menu Level 1. When you reach the the next menu level, an audio cue will play and the **Slo-Blo LED** will light up to indicate this menu state.
+
+| Option | Purpose | Intensify Button | Grip Button |
+|:------:|---------|------------------|--------------------|
+| 5️⃣ | Vent&nbsp;Light&nbsp;Toggles | Toggle whether the vent light on the Single Shot Blaster will change brightness depending on power | Enable/Disable the optional addressable RGB LED vent/top light |
+| 4️⃣ | Boot&nbsp;Errors / Invert&nbsp;Bargraph | Enable/Disable boot-up error if switches are flipped in the wrong order | Toggle bargraph animation direction |
+| 3️⃣ | Vibration&nbsp;Settings / GPStar&nbsp;Audio&nbsp;LED&nbsp;Control | Enable/Disable the status LED on GPStar Audio (if equipped) | Cycle through Single Shot Blaster vibration options |
+| 2️⃣ | `unused` | `unused` | `unused` |
+| 1️⃣ | `unused` | `unused` | `unused` |
+
 ## Firmware Updates
 
-Please follow the standard [FLASHING guide](FLASHING.md) using the `binaries/blaster/SingleShot.hex` firmware file.
+Please follow the standard [FLASHING guide](FLASHING.md) using the `binaries/blaster/SingleShot.hex` firmware file for GPStar I or `binaries/blaster/SingleShotII.bin` for GPStar II.
 
 ## Software Development Requirements
 

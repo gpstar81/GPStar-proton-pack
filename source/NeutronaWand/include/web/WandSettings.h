@@ -264,34 +264,34 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
       setTimeout(getSettings, 100);
 
       // Disable the save button until we obtain settings.
-      getEl("btnSave").disabled = true;
+      disableEl("btnSave");
     }
 
     function disableControls() {
       // Disables all controls.
-      getEl("ledWandCount").disabled = true;
-      getEl("ledWandHue").disabled = true;
-      getEl("ledWandSat").disabled = true;
-      getEl("spectralModesEnabled").disabled = true;
-      getEl("overheatEnabled").disabled = true;
-      getEl("defaultFiringMode").disabled = true;
-      getEl("wandVibration").disabled = true;
-      getEl("barrelSwitchPolarity").disabled = true;
-      getEl("wandSoundsToPack").disabled = true;
-      getEl("quickVenting").disabled = true;
-      getEl("autoVentLight").disabled = true;
-      getEl("wandBeepLoop").disabled = true;
-      getEl("wandBootError").disabled = true;
-      getEl("gpstarAudioLed").disabled = true;
-      getEl("defaultYearModeWand").disabled = true;
-      getEl("defaultYearModeCTS").disabled = true;
-      getEl("defaultWandVolume").disabled = true;
-      getEl("numBargraphSegments").disabled = true;
-      getEl("invertWandBargraph").disabled = true;
-      getEl("bargraphOverheatBlink").disabled = true;
-      getEl("bargraphIdleAnimation").disabled = true;
-      getEl("bargraphFireAnimation").disabled = true;
-      getEl("gpstarAudioLedToggle").style.display = 'none';
+      disableEl("ledWandCount");
+      disableEl("ledWandHue");
+      disableEl("ledWandSat");
+      disableEl("spectralModesEnabled");
+      disableEl("overheatEnabled");
+      disableEl("defaultFiringMode");
+      disableEl("wandVibration");
+      disableEl("barrelSwitchPolarity");
+      disableEl("wandSoundsToPack");
+      disableEl("quickVenting");
+      disableEl("autoVentLight");
+      disableEl("wandBeepLoop");
+      disableEl("wandBootError");
+      disableEl("gpstarAudioLed");
+      disableEl("defaultYearModeWand");
+      disableEl("defaultYearModeCTS");
+      disableEl("defaultWandVolume");
+      disableEl("numBargraphSegments");
+      disableEl("invertWandBargraph");
+      disableEl("bargraphOverheatBlink");
+      disableEl("bargraphIdleAnimation");
+      disableEl("bargraphFireAnimation");
+      hideEl("gpstarAudioLedToggle");
     }
 
     // Converts a value from one range to another: eg. convertRange(160, [2,254], [0,360])
@@ -328,11 +328,11 @@ const char WAND_SETTINGS_page[] PROGMEM = R"=====(
             if (!settings.gpstarAudio) {
               // Hide the GPStar Audio LED Status toggle if wand is not using GPStar Audio.
               hideEl("gpstarAudioLedToggle");
-              getEl("gpstarAudioLed").disabled = true;
+              disableEl("gpstarAudioLed");
             }
 
             // Valid settings were received and both the pack and wand are off, so allow updating settings.
-            getEl("btnSave").disabled = false;
+            enableEl("btnSave");
 
             /**
              * Note: Colour (hue) value range for FastLED uses the following scale, though CSS uses 0-360 for HSL colour.

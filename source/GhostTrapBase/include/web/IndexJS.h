@@ -35,24 +35,6 @@ function onLoad(event) {
   getStatus(); // Get status immediately.
 }
 
-function openTab(evt, tabName) {
-  // Hide all tab contents
-  var tabs = document.getElementsByClassName("tab");
-  for (var i = 0; i < tabs.length; i++) {
-      tabs[i].style.display = "none";
-  }
-
-  // Remove the active class from all tab links
-  var tablinks = document.getElementsByClassName("tablinks");
-  for (i = 0; i < tablinks.length; i++) {
-      tablinks[i].className = tablinks[i].className.replace(" active", "");
-  }
-
-  // Show the current tab and add an "active" class to the button that opened the tab
-  showEl(tabName);
-  evt.currentTarget.className += " active";
-}
-
 function initWebSocket() {
   console.log("Attempting to open a WebSocket connection...");
   let gateway = "ws://" + window.location.hostname + "/ws";
@@ -101,19 +83,19 @@ function onMessage(event) {
 
 function setButtonStates(smokeEnabled) {
   // Assume all functions are not possible, override as necessary.
-  getEl("btnSmoke2").disabled = true;
-  getEl("btnSmoke5").disabled = true;
-  getEl("btnSmokeEnable").disabled = true;
-  getEl("btnSmokeDisable").disabled = true;
+  disableEl("btnSmoke2");
+  disableEl("btnSmoke5");
+  disableEl("btnSmokeEnable");
+  disableEl("btnSmokeDisable");
 
   if (smokeEnabled) {
     // Enable specific buttons only when smoke is enabled.
-    getEl("btnSmoke2").disabled = false;
-    getEl("btnSmoke5").disabled = false;
-    getEl("btnSmokeDisable").disabled = false;
+    enableEl("btnSmoke2");
+    enableEl("btnSmoke5");
+    enableEl("btnSmokeDisable");
   } else {
     // Otherwise, make sure the user can re-enable smoke.
-    getEl("btnSmokeEnable").disabled = false;
+    enableEl("btnSmokeEnable");
   }
 }
 
