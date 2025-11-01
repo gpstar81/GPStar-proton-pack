@@ -352,13 +352,13 @@ class Telemetry3DView {
         this.mesh = new THREE.Mesh(geometry, material);
         this.scene.add(this.mesh);
 
-        // Calculate the frustrum (conical viewing volume) and scale to fit the mesh comfortably.
+        // Calculate the frustum (conical viewing volume) and scale to fit the mesh comfortably.
         // This volume is shaped like a truncated pyramid with its apex at the camera's position.
         // Anything closer than "near" or beyond "far" will be clipped when rendering.
         const frustumSize = Math.max(this.size.x, this.size.y, this.size.z) * 1.2;
 
         // The object is centered on the origin so 1/2 of the object lies on each size of the Z axis (front/back).
-        // Accounting for the frustrum size, position the camera along Z far enough back to view the entire object.
+        // Accounting for the frustum size, position the camera along Z far enough back to view the entire object.
         const camZ = frustumSize + (this.size.z / 2);
 
         // Set far clipping plane based on camera distance and mesh depth, plus a small safety margin.
