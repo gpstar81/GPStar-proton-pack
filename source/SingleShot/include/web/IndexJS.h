@@ -319,12 +319,12 @@ class Telemetry3DView {
     // const axesHelper = new THREE.AxesHelper(200);
     // this.scene.add(axesHelper);
 
-    // Load geometry from JSON (converted from STL)
+    // Load geometry from raw (binary) STL file via fetch.
     fetch(geometryUrl)
-      .then(res => res.json())
-      .then(json => {
-        const loader = new THREE.BufferGeometryLoader();
-        const geometry = loader.parse(json);
+      .then(res => res.arrayBuffer())
+      .then(buffer => {
+        const loader = new THREE.STLLoader();
+        const geometry = loader.parse(buffer);
 
         // Center the geometry itself so the mesh rotates around its center
         geometry.computeBoundingBox();
@@ -697,7 +697,7 @@ let telemetry3D, calibration3D;
 
 // Initialize both visualizations
 function init3D() {
-  telemetry3D = new Telemetry3DView("3Dtelemetry", "/geometry.json");
+  telemetry3D = new Telemetry3DView("3Dtelemetry", "/geometry.stl");
   calibration3D = new Calibration3DView("3Dcalibration");
 }
 
