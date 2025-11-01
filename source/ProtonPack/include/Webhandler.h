@@ -24,6 +24,47 @@
 #include <ESPAsyncWebServer.h>
 #include <ElegantOTA.h>
 
+// Declare the external binary data markers for embedded files.
+// common.js
+extern const uint8_t _binary_assets_common_js_start[];
+extern const uint8_t _binary_assets_common_js_end[];
+// equipment.svg
+extern const uint8_t _binary_assets_equipment_svg_gz_start[];
+extern const uint8_t _binary_assets_equipment_svg_gz_end[];
+// favicon.ico
+extern const uint8_t _binary_assets_favicon_ico_gz_start[];
+extern const uint8_t _binary_assets_favicon_ico_gz_end[];
+// favicon.svg
+extern const uint8_t _binary_assets_favicon_svg_gz_start[];
+extern const uint8_t _binary_assets_favicon_svg_gz_end[];
+// style.css
+extern const uint8_t _binary_assets_style_css_start[];
+extern const uint8_t _binary_assets_style_css_end[];
+// index.html
+extern const uint8_t _binary_assets_index_html_start[];
+extern const uint8_t _binary_assets_index_html_end[];
+// index.js
+extern const uint8_t _binary_assets_index_js_start[];
+extern const uint8_t _binary_assets_index_js_end[];
+// device.html
+extern const uint8_t _binary_assets_device_html_start[];
+extern const uint8_t _binary_assets_device_html_end[];
+// network.html
+extern const uint8_t _binary_assets_network_html_start[];
+extern const uint8_t _binary_assets_network_html_end[];
+// password.html
+extern const uint8_t _binary_assets_password_html_start[];
+extern const uint8_t _binary_assets_password_html_end[];
+// wand.html
+extern const uint8_t _binary_assets_pack_html_start[];
+extern const uint8_t _binary_assets_pack_html_end[];
+// wand.html
+extern const uint8_t _binary_assets_wand_html_start[];
+extern const uint8_t _binary_assets_wand_html_end[];
+// smoke.html
+extern const uint8_t _binary_assets_smoke_html_start[];
+extern const uint8_t _binary_assets_smoke_html_end[];
+
 // Define standard ports and URI endpoints.
 const uint16_t WS_PORT = 80; // Web Server (+WebSocket) port
 const char WS_URI[] = "/ws"; // WebSocket endpoint URI
@@ -684,26 +725,43 @@ void restartWireless() {
  * Standard Page Handlers - Delivers the main web pages and common content
  */
 
+// Function: embeddedFileSize
+// Purpose:  Compute the size (in bytes) of an embedded binary asset using
+//           the linker-provided start/end markers generated for each asset.
+// Inputs:
+//   - start: pointer to the first byte (e.g. _binary_assets_<file>_start)
+//   - end:   pointer to the one-past-last byte (e.g. _binary_assets_<file>_end)
+// Outputs:
+//   - size_t: number of bytes in the embedded asset (0 on invalid pointers or if end <= start)
+inline size_t embeddedFileSize(const uint8_t* start, const uint8_t* end) {
+  if (start == nullptr || end == nullptr) return 0;
+  if (end <= start) return 0;
+  return (size_t)(end - start);
+}
+
 void handleRoot(AsyncWebServerRequest *request) {
-  // Used for the root page (/) from the web server.
+  // Used for the root page (/ = index.html) from the web server.
   debugln("Sending -> Index HTML");
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)INDEX_page, strlen(INDEX_page));
+  size_t i_file_len = embeddedFileSize(_binary_assets_index_html_start, _binary_assets_index_html_end);
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", _binary_assets_index_html_start, i_file_len);
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   request->send(response); // Serve page content.
 }
 
 void handleRootJS(AsyncWebServerRequest *request) {
-  // Used for the root page (/) from the web server.
+  // Used for the root page (/ = index.js) from the web server.
   debugln("Sending -> Index JavaScript");
-  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", (const uint8_t*)INDEXJS_page, strlen(INDEXJS_page));
+  size_t i_file_len = embeddedFileSize(_binary_assets_index_js_start, _binary_assets_index_js_end);
+  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", _binary_assets_index_js_start, i_file_len);
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   request->send(response); // Serve page content.
 }
 
 void handleCommonJS(AsyncWebServerRequest *request) {
-  // Used for the root page (/) from the web server.
+  // Used for all pages (common.js) from the web server.
   debugln("Sending -> Common JavaScript");
-  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", (const uint8_t*)COMMONJS_page, strlen(COMMONJS_page));
+  size_t i_file_len = embeddedFileSize(_binary_assets_common_js_start, _binary_assets_common_js_end);
+  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", _binary_assets_common_js_start, i_file_len);
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   request->send(response); // Serve page content.
 }
@@ -711,7 +769,8 @@ void handleCommonJS(AsyncWebServerRequest *request) {
 void handleStylesheet(AsyncWebServerRequest *request) {
   // Used for the common stylesheet of the web server.
   debugln("Sending -> Main StyleSheet");
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/css", (const uint8_t*)STYLE_page, strlen(STYLE_page));
+  size_t i_file_len = embeddedFileSize(_binary_assets_style_css_start, _binary_assets_style_css_end);
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/css", _binary_assets_style_css_start, i_file_len);
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   request->send(response); // Serve page content.
 }
@@ -719,25 +778,38 @@ void handleStylesheet(AsyncWebServerRequest *request) {
 void handleFavIco(AsyncWebServerRequest *request) {
   // Used for the favicon of the web server.
   debugln("Sending -> Favicon");
-  AsyncWebServerResponse *response = request->beginResponse(200, "image/x-icon", FAVICON_ico, sizeof(FAVICON_ico));
+  size_t i_file_len = embeddedFileSize(_binary_assets_favicon_ico_gz_start, _binary_assets_favicon_ico_gz_end);
+  AsyncWebServerResponse *response = request->beginResponse(200, "image/x-icon", _binary_assets_favicon_ico_gz_start, i_file_len);
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip");
+  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
   request->send(response); // Serve gzipped .ico file.
 }
 
 void handleFavSvg(AsyncWebServerRequest *request) {
   // Used for the favicon of the web server.
   debugln("Sending -> Favicon");
-  AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", FAVICON_svg, sizeof(FAVICON_svg));
+  size_t i_file_len = embeddedFileSize(_binary_assets_favicon_svg_gz_start, _binary_assets_favicon_svg_gz_end);
+  AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", _binary_assets_favicon_svg_gz_start, i_file_len);
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
+  request->send(response); // Serve gzipped .svg file.
+}
+
+void handleEquipSvg(AsyncWebServerRequest *request) {
+  // Used for the equipment view from the web server.
+  debugln("Sending -> Equipment SVG");
+  size_t i_file_len = embeddedFileSize(_binary_assets_equipment_svg_gz_start, _binary_assets_equipment_svg_gz_end);
+  AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", _binary_assets_equipment_svg_gz_start, i_file_len);
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   response->addHeader("Content-Encoding", "gzip");
-  request->send(response); // Serve gzipped .svg file.
+  request->send(response); // Serve image content.
 }
 
 void handleNetwork(AsyncWebServerRequest *request) {
   // Used for the network page from the web server.
   debugln("Sending -> Network HTML");
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)NETWORK_page, strlen(NETWORK_page));
+  size_t i_file_len = embeddedFileSize(_binary_assets_network_html_start, _binary_assets_network_html_end);
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", _binary_assets_network_html_start, i_file_len);
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   request->send(response); // Serve page content.
 }
@@ -745,7 +817,8 @@ void handleNetwork(AsyncWebServerRequest *request) {
 void handlePassword(AsyncWebServerRequest *request) {
   // Used for the password page from the web server.
   debugln("Sending -> Password HTML");
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)PASSWORD_page, strlen(PASSWORD_page));
+  size_t i_file_len = embeddedFileSize(_binary_assets_password_html_start, _binary_assets_password_html_end);
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", _binary_assets_password_html_start, i_file_len);
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   request->send(response); // Serve page content.
 }
@@ -753,7 +826,8 @@ void handlePassword(AsyncWebServerRequest *request) {
 void handleDeviceSettings(AsyncWebServerRequest *request) {
   // Used for the device page from the web server.
   debugln("Sending -> Device Settings HTML");
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)DEVICE_page, strlen(DEVICE_page));
+  size_t i_file_len = embeddedFileSize(_binary_assets_device_html_start, _binary_assets_device_html_end);
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", _binary_assets_device_html_start, i_file_len);
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   request->send(response); // Serve page content.
 }
@@ -768,7 +842,8 @@ void handlePackSettings(AsyncWebServerRequest *request) {
 
   // Used for the settings page from the web server.
   debugln("Sending -> Pack Settings HTML");
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)PACK_SETTINGS_page, strlen(PACK_SETTINGS_page));
+  size_t i_file_len = embeddedFileSize(_binary_assets_pack_html_start, _binary_assets_pack_html_end);
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", _binary_assets_pack_html_start, i_file_len);
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   request->send(response); // Serve page content.
 }
@@ -779,7 +854,8 @@ void handleWandSettings(AsyncWebServerRequest *request) {
 
   // Used for the settings page from the web server.
   debugln("Sending -> Wand Settings HTML");
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)WAND_SETTINGS_page, strlen(WAND_SETTINGS_page));
+  size_t i_file_len = embeddedFileSize(_binary_assets_wand_html_start, _binary_assets_wand_html_end);
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", _binary_assets_wand_html_start, i_file_len);
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   request->send(response); // Serve page content.
 }
@@ -790,18 +866,10 @@ void handleSmokeSettings(AsyncWebServerRequest *request) {
 
   // Used for the settings page from the web server.
   debugln("Sending -> Smoke Settings HTML");
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", (const uint8_t*)SMOKE_SETTINGS_page, strlen(SMOKE_SETTINGS_page));
+  size_t i_file_len = embeddedFileSize(_binary_assets_smoke_html_start, _binary_assets_smoke_html_end);
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", _binary_assets_smoke_html_start, i_file_len);
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   request->send(response); // Serve page content.
-}
-
-void handleEquipSvg(AsyncWebServerRequest *request) {
-  // Used for the equipment view from the web server.
-  debugln("Sending -> Equipment SVG");
-  AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", EQUIP_svg, sizeof(EQUIP_svg));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip");
-  request->send(response); // Serve image content.
 }
 
 void handleGetDeviceConfig(AsyncWebServerRequest *request) {

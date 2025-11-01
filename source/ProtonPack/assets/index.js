@@ -18,9 +18,6 @@
  *
  */
 
-#pragma once
-
-const char INDEXJS_page[] PROGMEM = R"=====(
 var websocket;
 var statusInterval;
 var musicTrackStart = 0, musicTrackMax = 0, musicTrackCurrent = 0, musicTrackList = [];
@@ -629,4 +626,3 @@ function updateEquipment(jObj) {
   // Always run logic to update the graphics, even if we don't have the expected data.
   updateGraphics(jObj);
 }
-)=====";
