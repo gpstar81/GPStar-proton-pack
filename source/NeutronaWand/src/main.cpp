@@ -236,15 +236,30 @@ void setup() {
   // This is the i2c bus to be used solely for the bargraph.
   Wire.begin(I2C_SDA, I2C_SCL, 400000UL);
 
-  // Attempt to start the sensors or die trying.
+  // Attempt to start the sensors.
   Wire1.begin(IMU_SDA, IMU_SCL, 400000UL);
-  if(!initializeSensors()) {
-    debugln("Failed to find sensors");
-    while(1) delay(10);
+  uint8_t i_retries = 0;
+  while(i_retries < 250) {
+    if(!initializeSensors()) {
+      debugln("Failed to find sensors, retrying");
+      i_retries++;
+      delay(10);
+    }
+    else {
+      break;
+    }
   }
 
-  delay(40); // Pause briefly for the devices to start.
-  configureSensors(); // Set sensor ranges and defaults.
+  if(b_mag_found && b_imu_found) {
+    delay(40); // Pause briefly for the devices to start.
+    configureSensors(); // Set sensor ranges and defaults.
+    readRawSensorData(); // Perform an initial sensor read.
+    resetAllMotionData(true); // Reset and calibrate.
+  }
+  else {
+    // Sensor malfunction detected, so disconnect Wire1.
+    Wire1.end();
+  }
 #else
   Wire.begin();
   Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
@@ -361,10 +376,6 @@ void setup() {
 
 #ifdef ESP32
   debugf("Setup complete, free heap: %u bytes\n", ESP.getFreeHeap());
-
-  // Take an initial reading of the sensors and perform a quick offset check.
-  readRawSensorData();
-  resetAllMotionData(true);
 #endif
 }
 
@@ -637,7 +648,9 @@ void loop() {
   webLoops();
 
   // Check the motion sensors if they are available and the timer has completed.
-  checkMotionSensors();
+  if(b_mag_found && b_imu_found) {
+    checkMotionSensors();
+  }
 
   // Take action with Wifi based on user preference.
   switch(WIFI_MODE) {

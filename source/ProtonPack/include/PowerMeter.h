@@ -163,7 +163,9 @@ void doWandPowerReading() {
 void doPackVoltageReading() {
 #ifdef ESP32
   // For the ESP32 we cannot get the bandgap voltage so we'll use the INA219 chip to return a voltage.
-  packReading.BusVoltage = monitor.busVoltage();
+  if(b_power_meter_available) {
+    packReading.BusVoltage = monitor.busVoltage();
+  }
 #else
   // REFS1 REFS0               --> 0 1, AVcc internal ref. -Selects AVcc reference
   // MUX4 MUX3 MUX2 MUX1 MUX0  --> 11110 1.1V (VBG)        -Selects channel 30, bandgap voltage, to measure
