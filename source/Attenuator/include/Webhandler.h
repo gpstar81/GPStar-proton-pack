@@ -55,7 +55,7 @@ extern const uint8_t _binary_assets_network_html_end[];
 // password.html
 extern const uint8_t _binary_assets_password_html_start[];
 extern const uint8_t _binary_assets_password_html_end[];
-// wand.html
+// pack.html
 extern const uint8_t _binary_assets_pack_html_start[];
 extern const uint8_t _binary_assets_pack_html_end[];
 // wand.html
@@ -786,8 +786,8 @@ void handleEquipSvg(AsyncWebServerRequest *request) {
   size_t i_file_len = embeddedFileSize(_binary_assets_equipment_svg_gz_start, _binary_assets_equipment_svg_gz_end);
   AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", _binary_assets_equipment_svg_gz_start, i_file_len);
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip");
-  request->send(response); // Serve image content.
+  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
+  request->send(response);
 }
 
 void handleNetwork(AsyncWebServerRequest *request) {

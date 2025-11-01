@@ -18,9 +18,6 @@
  *
  */
 
-#pragma once
-
-const char COMMONJS_page[] PROGMEM = R"=====(
 function getEl(id){
   return document.getElementById(id);
 }
@@ -250,4 +247,3 @@ function doRestart() {
     xhttp.send();
   }
 }
-)=====";
