@@ -1479,6 +1479,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_AFTERLIFE_RAMP_LOOP_2_STOP:
+      stopEffect(S_AFTERLIFE_WAND_RAMP_2);
+      stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
       stopEffect(S_AFTERLIFE_WAND_IDLE_2);
     break;
 
