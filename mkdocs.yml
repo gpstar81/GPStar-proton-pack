@@ -1,8 +1,28 @@
+
+# ---------------------------------------------------------
+# MkDocs Configuration File
+# https://www.mkdocs.org/
+#
+# Quick Installation  (Python)
+#  python -m pip install --upgrade pip
+#  pip install mkdocs mkdocs-material mkdocs-mermaid2-plugin mkdocs-minify-plugin
+#
+# Update (When Necessary)
+#  pip install --upgrade mkdocs mkdocs-material mkdocs-mermaid2-plugin mkdocs-minify-plugin
+#
+# Run a local web server to view output:
+#  mkdocs serve
+# ---------------------------------------------------------
+
+# General information for the generated documentation
 site_name: GPStar Documentation
 site_description: Official documentation for the GPStar Proton Pack & Neutrona Wand kits and accessories
 copyright: GPStar Technologies
 
+# The directory where your Markdown files live
 docs_dir: docs
+
+# The directory where the static site will be generated
 site_dir: site
 
 theme:
@@ -18,6 +38,20 @@ extra_css:
 markdown_extensions:
   - attr_list
 
+plugins:
+  - search:
+      separator: '[\s\-,:!=\[\]()"/]+'
+      prebuild_index: true
+  - mermaid2:
+      arguments:
+        theme: default # or dark, forest, neutral
+        securityLevel: strict
+  - minify:
+      minify_html: true
+      minify_js: true
+      minify_css: true
+
+# Define the navigation structure
 nav:
   - Home: README.md
   - About: ABOUT.md

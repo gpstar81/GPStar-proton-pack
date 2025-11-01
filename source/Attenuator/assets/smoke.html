@@ -1,26 +1,4 @@
-/**
- *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
- *                         & Dustin Grau <dustin.grau@gmail.com>
- *
- *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation; either version 3 of the License, or
- *   (at your option) any later version.
- *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with this program; if not, see <https://www.gnu.org/licenses/>.
- *
- */
 
-#pragma once
-
-const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
 <!DOCTYPE html>
 <html>
 <head>
@@ -251,27 +229,27 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
 
     function disableControls() {
       // Disables all controls.
-      disableEl("smokeEnabled");
-      disableEl("overheatLevel5");
-      disableEl("overheatContinuous5");
-      disableEl("overheatDelay5");
-      disableEl("overheatDuration5");
-      disableEl("overheatLevel4");
-      disableEl("overheatContinuous4");
-      disableEl("overheatDelay4");
-      disableEl("overheatDuration4");
-      disableEl("overheatLevel3");
-      disableEl("overheatContinuous3");
-      disableEl("overheatDelay3");
-      disableEl("overheatDuration3");
-      disableEl("overheatLevel2");
-      disableEl("overheatContinuous2");
-      disableEl("overheatDelay2");
-      disableEl("overheatDuration2");
-      disableEl("overheatLevel1");
-      disableEl("overheatContinuous1");
-      disableEl("overheatDelay1");
-      disableEl("overheatDuration1");
+      getEl("smokeEnabled").disabled = true;
+      getEl("overheatLevel5").disabled = true;
+      getEl("overheatContinuous5").disabled = true;
+      getEl("overheatDelay5").disabled = true;
+      getEl("overheatDuration5").disabled = true;
+      getEl("overheatLevel4").disabled = true;
+      getEl("overheatContinuous4").disabled = true;
+      getEl("overheatDelay4").disabled = true;
+      getEl("overheatDuration4").disabled = true;
+      getEl("overheatLevel3").disabled = true;
+      getEl("overheatContinuous3").disabled = true;
+      getEl("overheatDelay3").disabled = true;
+      getEl("overheatDuration3").disabled = true;
+      getEl("overheatLevel2").disabled = true;
+      getEl("overheatContinuous2").disabled = true;
+      getEl("overheatDelay2").disabled = true;
+      getEl("overheatDuration2").disabled = true;
+      getEl("overheatLevel1").disabled = true;
+      getEl("overheatContinuous1").disabled = true;
+      getEl("overheatDelay1").disabled = true;
+      getEl("overheatDuration1").disabled = true;
     }
 
     function getSettings() {
@@ -293,32 +271,32 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
             }
 
             if (!settings.wandConnected) {
-              disableEl("overheatLevel1");
-              disableEl("overheatLevel2");
-              disableEl("overheatLevel3");
-              disableEl("overheatLevel4");
-              disableEl("overheatLevel5");
-              disableEl("overheatDelay1");
-              disableEl("overheatDelay2");
-              disableEl("overheatDelay3");
-              disableEl("overheatDelay4");
-              disableEl("overheatDelay5");
+              getEl("overheatLevel1").disabled = true;
+              getEl("overheatLevel2").disabled = true;
+              getEl("overheatLevel3").disabled = true;
+              getEl("overheatLevel4").disabled = true;
+              getEl("overheatLevel5").disabled = true;
+              getEl("overheatDelay1").disabled = true;
+              getEl("overheatDelay2").disabled = true;
+              getEl("overheatDelay3").disabled = true;
+              getEl("overheatDelay4").disabled = true;
+              getEl("overheatDelay5").disabled = true;
               alert("GPStar Neutrona Wand not detected; only partial smoke settings are available.");
             } else {
-              enableEl("overheatLevel1");
-              enableEl("overheatLevel2");
-              enableEl("overheatLevel3");
-              enableEl("overheatLevel4");
-              enableEl("overheatLevel5");
-              enableEl("overheatDelay1");
-              enableEl("overheatDelay2");
-              enableEl("overheatDelay3");
-              enableEl("overheatDelay4");
-              enableEl("overheatDelay5");
+              getEl("overheatLevel1").disabled = false;
+              getEl("overheatLevel2").disabled = false;
+              getEl("overheatLevel3").disabled = false;
+              getEl("overheatLevel4").disabled = false;
+              getEl("overheatLevel5").disabled = false;
+              getEl("overheatDelay1").disabled = false;
+              getEl("overheatDelay2").disabled = false;
+              getEl("overheatDelay3").disabled = false;
+              getEl("overheatDelay4").disabled = false;
+              getEl("overheatDelay5").disabled = false;
             }
 
             // Valid settings were received and both the pack and wand are off, so allow updating settings.
-            enableEl("btnSave");
+            getEl("btnSave").disabled = false;
 
             setToggle("smokeEnabled", settings.smokeEnabled);
 
@@ -424,4 +402,3 @@ const char SMOKE_SETTINGS_page[] PROGMEM = R"=====(
   </script>
 </body>
 </html>
-)=====";

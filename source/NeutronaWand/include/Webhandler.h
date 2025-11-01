@@ -34,6 +34,12 @@
 #include "web/Style.h" // STYLE_page
 #include "web/Icon.h" // FAVICON_ico, FAVICON_svg
 
+// Declare the external binary data markers for embedded files.
+extern const uint8_t _binary_assets_geometry_stl_gz_start[];
+extern const uint8_t _binary_assets_geometry_stl_gz_end[];
+extern const uint8_t _binary_assets_three_min_js_gz_start[];
+extern const uint8_t _binary_assets_three_min_js_gz_end[];
+
 // Define standard ports and URI endpoints.
 const uint16_t WS_PORT = 80; // Web Server (+WebSocket) port
 const char WS_URI[] = "/ws"; // WebSocket endpoint URI
@@ -850,6 +856,20 @@ void sendTelemetryData() {
  * Standard Page Handlers - Delivers the main web pages and common content
  */
 
+// Function: embeddedFileSize
+// Purpose:  Compute the size (in bytes) of an embedded binary asset using
+//           the linker-provided start/end markers generated for each asset.
+// Inputs:
+//   - start: pointer to the first byte (e.g. _binary_assets_assets_<file>_start)
+//   - end:   pointer to the one-past-last byte (e.g. _binary_assets_assets_<file>_end)
+// Outputs:
+//   - size_t: number of bytes in the embedded asset (0 on invalid pointers or if end <= start)
+inline size_t embeddedFileSize(const uint8_t* start, const uint8_t* end) {
+  if (start == nullptr || end == nullptr) return 0;
+  if (end <= start) return 0;
+  return (size_t)(end - start);
+}
+
 void handleRoot(AsyncWebServerRequest *request) {
   // Used for the root page (/) from the web server.
   debugln("Sending -> Index HTML");
@@ -924,43 +944,28 @@ void handleDeviceSettings(AsyncWebServerRequest *request) {
   request->send(response); // Serve page content.
 }
 
-// Declare the external binary data markers for embedded files.
-extern const uint8_t _binary_assets_geometry_stl_gz_start[];
-extern const uint8_t _binary_assets_geometry_stl_gz_end[];
-
 void handleGeometry(AsyncWebServerRequest *request) {
   // Used for the model geometry (assets/geometry.stl.gz) from the web server.
   debugln("Sending -> STL Geometry");
 
-  // Calculate file size from the embedded binary data addresses (bytes).
-  const uint8_t* first_byte = _binary_assets_geometry_stl_gz_start;
-  const uint8_t* last_byte = _binary_assets_geometry_stl_gz_end;
-  size_t file_len = (size_t)(last_byte - first_byte);
-
-  // Create response directly from flash and tell the client it’s gzip-compressed.
+  // Calculate file size from the embedded binary data and serve the file to the requesting client.
+  size_t file_len = embeddedFileSize(_binary_assets_geometry_stl_gz_end, _binary_assets_geometry_stl_gz_start);
   AsyncWebServerResponse *response = request->beginResponse(200, "model/stl", _binary_assets_geometry_stl_gz_start, file_len);
-  response->addHeader("Content-Encoding", "gzip");
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
   request->send(response);
 }
-
-// Declare the external binary data markers for embedded files.
-extern const uint8_t _binary_assets_three_min_js_gz_start[];
-extern const uint8_t _binary_assets_three_min_js_gz_end[];
 
 void handleThreeJS(AsyncWebServerRequest *request) {
   // Used for the root page (/three.min.js.gz) from the web server.
   debugln("Sending -> Three.js Library");
 
-  // Calculate file size from the embedded binary data addresses (bytes).
-  const uint8_t* first_byte = _binary_assets_three_min_js_gz_start;
-  const uint8_t* last_byte = _binary_assets_three_min_js_gz_end;
-  size_t file_len = (size_t)(last_byte - first_byte);
-
+  // Calculate file size from the embedded binary data and serve the file to the requesting client.
+  size_t file_len = embeddedFileSize(_binary_assets_three_min_js_gz_end, _binary_assets_three_min_js_gz_start);
   AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", _binary_assets_three_min_js_gz_start, file_len);
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip");
-  request->send(response); // Serve STL content.
+  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
+  request->send(response);
 }
 
 /**

@@ -18,9 +18,6 @@
  *
  */
 
-#pragma once
-
-const char INDEXJS_page[] PROGMEM = R"=====(
 var websocket;
 var statusInterval;
 var musicTrackStart = 0, musicTrackMax = 0, musicTrackCurrent = 0, musicTrackList = [];
@@ -207,10 +204,10 @@ function setDefaultOverlays() {
 
 function disableActionButtons() {
   // Used to just disable all the buttons, for instance if pack desyncs
-  disableEl("btnPackOff");
-  disableEl("btnPackOn");
-  disableEl("btnVent");
-  disableEl("btnAttenuate");
+  getEl("btnPackOff").disabled = true;
+  getEl("btnPackOn").disabled = true;
+  getEl("btnVent").disabled = true;
+  getEl("btnAttenuate").disabled = true;
 }
 
 function setButtonStates(statusObj) {
@@ -230,12 +227,12 @@ function setButtonStates(statusObj) {
 
   if ((packPowered || (!modeSuperHero && ionswitchReady)) && !wandPowered) {
     // Can only turn off the pack, so long as the wand is not powered.
-    enableEl("btnPackOff");
+    getEl("btnPackOff").disabled = false;
   }
 
   if ((modeSuperHero && !packPowered) || (!modeSuperHero && !ionswitchReady)) {
     // Can turn on the pack if not already powered (implies wand is not powered).
-    enableEl("btnPackOn");
+    getEl("btnPackOn").disabled = false;
   }
 
   // Set the toggles to their current state.
@@ -262,9 +259,9 @@ function setButtonStates(statusObj) {
 
   // Start by enabling the firing mode selector; it will be disabled as necessary below.
   if (cyclotronNormal && !firingActive && modeSuperHero && vgmodeActive && !rampingActive) {
-    enableEl("streamMode");
+    getEl("streamMode").disabled = false;
   } else {
-    disableEl("streamMode");
+    getEl("streamMode").disabled = true;
   }
 
   switch(statusObj.wandMode) {
@@ -295,27 +292,27 @@ function setButtonStates(statusObj) {
     default:
       // Invalid mode specified, so disable control.
       setValue("streamMode", "proton");
-      disableEl("streamMode");
+      getEl("streamMode").disabled = true;
     break;
   }
 
   if (packPowered || wandPowered || rampingActive) {
     // If either the pack or wand is powered, we cannot change themes.
-    disableEl("themes");
+    getEl("themes").disabled = true;
   } else {
     // Only allow theme change if both pack and wand are off.
-    enableEl("themes");
+    getEl("themes").disabled = false;
   }
 
   if (packPowered && cyclotronNormal && !firingActive) {
     // Can only use manual vent if pack is not already venting, and not currently firing.
     // eg. Cyclotron is not in the Warning, Critical, or Recovery states.
-    enableEl("btnVent");
+    getEl("btnVent").disabled = false;
   }
 
   if (cyclotronOverheat) {
     // Can only attenuate if cyclotron is in the pre-overheat states.
-    enableEl("btnAttenuate");
+    getEl("btnAttenuate").disabled = false;
   }
 }
 
@@ -629,4 +626,3 @@ function updateEquipment(jObj) {
   // Always run logic to update the graphics, even if we don't have the expected data.
   updateGraphics(jObj);
 }
-)=====";
