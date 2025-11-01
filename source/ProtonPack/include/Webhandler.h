@@ -1247,7 +1247,7 @@ void handleSelectMusicTrack(AsyncWebServerRequest *request) {
     uint16_t i_music_track = c_music_track.toInt();
     debugln("Web: Selected Music Track: " + String(i_music_track));
     executeCommand(A_MUSIC_PLAY_TRACK, i_music_track); // Inform the pack of the new track.
-    request->send(200, "application/json", returnJsonStatus("Selected Music Track: " + String(i_music_track)));
+    request->send(200, "application/json", returnJsonStatus());
   }
   else {
     // Tell the user why the requested action failed.
