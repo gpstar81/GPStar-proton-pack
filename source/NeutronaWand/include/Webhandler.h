@@ -23,17 +23,6 @@
 #include <ESPAsyncWebServer.h>
 #include <ElegantOTA.h>
 
-// Web page files (defines all text as char[] variable)
-#include "web/CommonJS.h" // COMMONJS_page
-#include "web/Index.h" // INDEX_page
-#include "web/IndexJS.h" // INDEXJS_page
-#include "web/Device.h" // DEVICE_page
-#include "web/ExtWiFi.h" // NETWORK_page
-#include "web/Password.h" // PASSWORD_page
-#include "web/WandSettings.h" // WAND_SETTINGS_page
-#include "web/Style.h" // STYLE_page
-#include "web/Icon.h" // FAVICON_ico, FAVICON_svg
-
 // Declare the external binary data markers for embedded files.
 extern const uint8_t _binary_assets_geometry_stl_gz_start[];
 extern const uint8_t _binary_assets_geometry_stl_gz_end[];
