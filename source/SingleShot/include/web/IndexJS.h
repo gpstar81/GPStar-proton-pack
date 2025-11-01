@@ -340,19 +340,30 @@ class Telemetry3DView {
         this.mesh = new THREE.Mesh(geometry, material);
         this.scene.add(this.mesh);
 
+        // Calculate the frustrum (conical viewing volume) and scale to fit the mesh comfortably.
+        // This volume is shaped like a truncated pyramid with its apex at the camera's position.
+        // Anything closer than "near" or beyond "far" will be clipped when rendering.
+        const frustumSize = Math.max(this.size.x, this.size.y, this.size.z) * 1.2;
+
+        // The object is centered on the origin so 1/2 of the object lies on each size of the Z axis (front/back).
+        // Accounting for the frustrum size, position the camera along Z far enough back to view the entire object.
+        const camZ = frustumSize + (this.size.z / 2);
+
+        // Set far clipping plane based on camera distance and mesh depth, plus a small safety margin.
+        const farPlane = camZ + (this.size.z / 2) + 10;
+
         // Set up an orthographic camera; better for technical models without distortion.
-        const frustumSize = Math.max(this.size.x, this.size.y, this.size.z) * 1.2; // Scale to fit mesh comfortably
         this.camera = new THREE.OrthographicCamera(
           (-frustumSize * this.aspect / 2), // Left
           (frustumSize * this.aspect / 2),  // Right
           (frustumSize / 2),                // Top
           (-frustumSize / 2),               // Bottom
           0.1,                              // Near clipping plane
-          300                               // Far clipping plane
+          farPlane                          // Far clipping plane
         );
 
         // Position camera and look at the center of the scene
-        this.camera.position.set(0, this.size.y, frustumSize);
+        this.camera.position.set(0, this.size.y, camZ);
 
         // Camera positioning using the center of the mesh as the focal point
         this.camera.lookAt(new THREE.Vector3());
