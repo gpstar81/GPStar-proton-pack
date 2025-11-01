@@ -1759,6 +1759,7 @@ void soundIdleStop() {
         }
 
         stopEffect(S_AFTERLIFE_WAND_RAMP_2);
+        stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
         stopEffect(S_AFTERLIFE_WAND_IDLE_2);
       break;
     }
