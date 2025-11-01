@@ -21,8 +21,9 @@
 #pragma once
 
 // JSON-converted version of "Proton Gun/Wand" by DoctorEgon on Thingiverse
-// Licensed under the Creative Commons - Attribution - Share Alike license
 // https://www.thingiverse.com/thing:309201/files
+// Licensed under the Creative Commons - Attribution - Share Alike 3.0 Unported license
+// https://creativecommons.org/licenses/by-sa/3.0/
 
 // https://notisrac.github.io/FileToCArray/
 // Array size is 65234

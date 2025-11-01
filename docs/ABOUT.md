@@ -23,7 +23,8 @@ Thank you to our supporters on [GBFans.com](https://www.gbfans.com/forum) and th
 
 All 3D visualizations for web UI displays were sources from the community and are Licensed under the "Creative Commons - Attribution - Share Alike" license.
 
-* Neutrona Wand - JSON-converted version of ["Proton Gun/Wand" by DoctorEgon on Thingiverse](https://www.thingiverse.com/thing:309201/files)
+* Neutrona Wand - ["Proton Gun/Wand" by DoctorEgon on Thingiverse](https://www.thingiverse.com/thing:309201/files)
+* Single-Shot Blaster - ["Ghostbusters Inspired Wrist Blaster" by Samuel Barabé on Thingiverse](https://www.thingiverse.com/thing:7013538/files)
 
 ## Project History
 
