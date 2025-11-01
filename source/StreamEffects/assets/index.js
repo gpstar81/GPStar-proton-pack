@@ -17,9 +17,6 @@
  *
  */
 
-#pragma once
-
-const char INDEXJS_page[] PROGMEM = R"=====(
 var websocket;
 var statusInterval;
 
@@ -202,4 +199,3 @@ function testOn() {
 function testOff() {
   sendCommand("/selftest/disable");
 }
-)=====";
