@@ -365,7 +365,9 @@ void inputTaskCallback() {
 // Task callback for handling motion detection
 void motionTaskCallback() {
 #ifdef ESP32
-  checkMotionSensors();
+  if(b_mag_found && b_imu_found) {
+    checkMotionSensors();
+  }
 #endif
 }
 
