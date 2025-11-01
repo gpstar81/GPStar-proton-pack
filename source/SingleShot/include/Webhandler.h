@@ -34,8 +34,6 @@
 #include "web/BlasterSettings.h" // BLASTER_SETTINGS_page
 #include "web/Style.h" // STYLE_page
 #include "web/Icon.h" // FAVICON_ico, FAVICON_svg
-#include "web/Geometry.h" // GEOMETRY_json
-#include "web/ThreeJS.h" // THREEJS_page
 
 // Define standard ports and URI endpoints.
 const uint16_t WS_PORT = 80; // Web Server (+WebSocket) port
@@ -828,19 +826,40 @@ void handleDeviceSettings(AsyncWebServerRequest *request) {
   request->send(response); // Serve page content.
 }
 
+// Declare the external binary data markers for embedded files.
+extern const uint8_t _binary_assets_geometry_stl_gz_start[];
+extern const uint8_t _binary_assets_geometry_stl_gz_end[];
+
 void handleGeometry(AsyncWebServerRequest *request) {
-  // Used for the model geometry (/geometry.json) from the web server.
+  // Used for the model geometry (assets/geometry.stl.gz) from the web server.
   debugln("Sending -> STL Geometry");
-  AsyncWebServerResponse *response = request->beginResponse(200, "application/json; charset=UTF-8", GEOMETRY_json, sizeof(GEOMETRY_json));
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+
+  // Calculate file size from the embedded binary data addresses (bytes).
+  const uint8_t* first_byte = _binary_assets_geometry_stl_gz_start;
+  const uint8_t* last_byte = _binary_assets_geometry_stl_gz_end;
+  size_t file_len = (size_t)(last_byte - first_byte);
+
+  // Create response directly from flash and tell the client it’s gzip-compressed.
+  AsyncWebServerResponse *response = request->beginResponse(200, "model/stl", _binary_assets_geometry_stl_gz_start, file_len);
   response->addHeader("Content-Encoding", "gzip");
-  request->send(response); // Serve gzipped JSON content.
+  response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  request->send(response);
 }
 
+// Declare the external binary data markers for embedded files.
+extern const uint8_t _binary_assets_three_min_js_gz_start[];
+extern const uint8_t _binary_assets_three_min_js_gz_end[];
+
 void handleThreeJS(AsyncWebServerRequest *request) {
-  // Used for the root page (/three.js) from the web server.
+  // Used for the root page (/three.min.js.gz) from the web server.
   debugln("Sending -> Three.js Library");
-  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", THREEJS_page, sizeof(THREEJS_page));
+
+  // Calculate file size from the embedded binary data addresses (bytes).
+  const uint8_t* first_byte = _binary_assets_three_min_js_gz_start;
+  const uint8_t* last_byte = _binary_assets_three_min_js_gz_end;
+  size_t file_len = (size_t)(last_byte - first_byte);
+
+  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", _binary_assets_three_min_js_gz_start, file_len);
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   response->addHeader("Content-Encoding", "gzip");
   request->send(response); // Serve STL content.
@@ -1546,7 +1565,7 @@ void setupRouting() {
   httpServer.on("/password", HTTP_GET, handlePassword);
   httpServer.on("/settings/device", HTTP_GET, handleDeviceSettings);
   httpServer.on("/settings/blaster", HTTP_GET, handleBlasterSettings);
-  httpServer.on("/geometry.json", HTTP_GET, handleGeometry);
+  httpServer.on("/geometry.stl", HTTP_GET, handleGeometry);
   httpServer.on("/three.js", HTTP_GET, handleThreeJS);
   httpServer.onNotFound(handleNotFound);
 

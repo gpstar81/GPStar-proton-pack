@@ -1680,7 +1680,7 @@ void setupRouting() {
   httpServer.on("/settings/device", HTTP_GET, handleDeviceSettings);
   httpServer.on("/settings/wand", HTTP_GET, handleWandSettings);
   httpServer.on("/geometry.stl", HTTP_GET, handleGeometry);
-    httpServer.on("/three.js", HTTP_GET, handleThreeJS);
+  httpServer.on("/three.js", HTTP_GET, handleThreeJS);
   httpServer.onNotFound(handleNotFound);
 
   // Get/Set Handlers
