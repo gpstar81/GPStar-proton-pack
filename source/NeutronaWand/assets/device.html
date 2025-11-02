@@ -67,6 +67,15 @@
 	  <input type="text" id="magField" size="9" maxlength="8" placeholder="0"/>
 	</div>
 	<div class="setting">
+	  <label class="toggle-switchy" data-text="yesno" data-label="left">
+		<input id="useStandalone" name="useStandalone" type="checkbox">
+		<span class="toggle">
+		  <span class="switch"></span>
+		</span>
+		<span class="label">Use in Standalone Mode</span>
+	  </label>
+	</div>
+	<div class="setting">
 	  <b>Song List:</b> <span id="byteCount"></span><br/>
 	  <textarea id="songList" name="songList" rows="40" cols="38"
 	   style="text-align:left;" oninput="updateByteCount()"
@@ -137,6 +146,7 @@
 			setValue("softIron8", settings.softIron8 ?? 0);
 			setValue("softIron9", settings.softIron9 ?? 1);
 			setValue("magField", settings.magField ?? 50);
+      setToggle("useStandalone", settings.useStandalone);
 			setValue("songList", settings.songList || "");
 			updateByteCount();
 
@@ -220,6 +230,7 @@
 		softIron8: getFloat("softIron8") || 0,
 		softIron9: getFloat("softIron9") || 1,
 		magField: getFloat("magField") || 50,
+    useStandalone: getToggle("useStandalone"),
 		songList: getText("songList")
 	  };
 	  var body = JSON.stringify(settings);

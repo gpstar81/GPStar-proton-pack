@@ -851,6 +851,9 @@ void getSpecialPreferences() {
 
   // Accesses the "device" namespace in read-only mode.
   if(preferences.begin("device", true)) {
+    // Restore the standalone (benchtest) mode flag from preferences.
+    b_gpstar_benchtest = preferences.getBool("standalone", false);
+
     // Return stored values if available, otherwise use a default value.
     s_track_listing = preferences.getString("track_list", "");
 
@@ -918,6 +921,7 @@ void getSpecialPreferences() {
   else {
     // If namespace is not initialized, open in read/write mode and set defaults.
     if(preferences.begin("device", false)) {
+      preferences.putBool("standalone", b_gpstar_benchtest);
       preferences.putString("track_list", "");
       preferences.putShort("orientation", 3); // COMPONENTS_DOWN_USB_FRONT
       preferences.putBytes("mag_cal", &magCalData, sizeof(magCalData));

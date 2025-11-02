@@ -362,6 +362,9 @@ String getDeviceConfig() {
     regObj["value"] = magConfigInfo.rawRegisters[i].value;
   }
 
+  // Report the current standalone (benchtest) mode setting.
+  jsonBody["useStandalone"] = b_gpstar_benchtest;
+
   // Serialize JSON object to string.
   serializeJson(jsonBody, equipSettings);
   return equipSettings;
@@ -960,7 +963,7 @@ void handleGeometry(AsyncWebServerRequest *request) {
 }
 
 void handleThreeJS(AsyncWebServerRequest *request) {
-  // Used for the root page (/three.min.js.gz) from the web server.
+  // Used for the root page (/three.min.js) from the web server.
   debugln("Sending -> Three.js Library");
 
   // Calculate file size from the embedded binary data and serve the file to the requesting client.
@@ -1409,6 +1412,9 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
       magCalData.mag_field = jsonBody["magField"].as<float>();
     }
 
+    // Check for standalone (benchtest) mode setting.
+    b_gpstar_benchtest = jsonBody["useStandalone"].as<bool>();
+
     // Get the track listing from the text field.
     String songList = jsonBody["songList"].as<String>();
     bool b_list_err = false;
@@ -1418,6 +1424,9 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
 
     // Accesses namespace in read/write mode.
     if(preferences.begin("device", false)) {
+      // Store the standalone (benchtest) mode setting to preferences.
+      preferences.putBool("standalone", b_gpstar_benchtest);
+
       // Store the orientation value to preferences if changed.
       if(INSTALL_ORIENTATION != PREVIOUS_ORIENTATION) {
         preferences.putShort("orientation", i_orientation);
