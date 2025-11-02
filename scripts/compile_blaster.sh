@@ -8,6 +8,7 @@ BINDIR="../binaries"
 SRCDIR="../source"
 PROJECT_DIR="$SRCDIR/SingleShot"
 ASSETS_DIR="$PROJECT_DIR/assets"
+GZIP_EXTS="svg,ico,stl,min.js"
 
 mkdir -p ${BINDIR}/blaster/extras
 
@@ -50,9 +51,28 @@ echo "Single-Shot Blaster Binary [ESP32] - Building..."
 # Clean the project before building
 pio run -e esp32s3 --project-dir "$PROJECT_DIR" --target clean
 
-# GZIP all web assets prior to compilation
-rm -f ${ASSETS_DIR}/*.gz
-find ${ASSETS_DIR} \( -name '*.svg' -o -name '*.ico' -o -name '*.stl' -o -name '*.min.js' \) -exec gzip -fkq {} \;
+# GZIP selected web assets prior to compilation
+# Split the comma-delimited GZIP_EXTS into an array (exts) and iterate.
+IFS=',' read -r -a exts <<< "$GZIP_EXTS"
+
+for ext in "${exts[@]}"; do
+  find "${ASSETS_DIR}" -type f -name "*.${ext}" -print0 \
+    | while IFS= read -r -d '' file; do
+        # Compress if .gz missing or original is newer than the .gz
+        if [ ! -f "${file}.gz" ] || [ "${file}" -nt "${file}.gz" ]; then
+          printf 'Compressing: %s\n' "$file"
+          # Quietly compress at maximum, force overwrite, keep original
+          gzip -9 -fkq -- "$file"
+        fi
+      done
+done
+
+# Remove any stale .gz files whose source no longer exists
+find "${ASSETS_DIR}" -name '*.gz' -print0 \
+  | while IFS= read -r -d '' gz; do
+      orig="${gz%.gz}"
+      [ ! -f "$orig" ] && rm -f -- "$gz"
+    done
 
 # Compile the PlatformIO project
 pio run -e esp32s3 --project-dir "$PROJECT_DIR" --jobs 4
