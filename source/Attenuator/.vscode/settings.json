@@ -1,0 +1,18 @@
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "prettier.htmlWhitespaceSensitivity": "ignore",
+  "prettier.printWidth": 180,
+  "prettier.singleAttributePerLine": false,
+  "prettier.singleQuote": false,
+  "prettier.tabWidth": 2,
+  "prettier.useTabs": false,
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  }
+}

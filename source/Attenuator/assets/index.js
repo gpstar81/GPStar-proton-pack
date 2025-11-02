@@ -20,7 +20,10 @@
 
 var websocket;
 var statusInterval;
-var musicTrackStart = 0, musicTrackMax = 0, musicTrackCurrent = 0, musicTrackList = [];
+var musicTrackStart = 0,
+  musicTrackMax = 0,
+  musicTrackCurrent = 0,
+  musicTrackList = [];
 
 window.addEventListener("load", onLoad);
 
@@ -62,7 +65,7 @@ function onClose(event) {
 
   // Fallback for when WebSocket is unavailable.
   if (!statusInterval) {
-    statusInterval = setInterval(function() {
+    statusInterval = setInterval(function () {
       getStatus(updateEquipment); // Check for status every X seconds
     }, 1000);
   }
@@ -81,7 +84,7 @@ function onMessage(event) {
 function getDevicePrefs() {
   // This is updated once per page load as it is not subject to frequent changes.
   var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
+  xhttp.onreadystatechange = function () {
     if (this.readyState == 4 && this.status == 200) {
       var jObj = JSON.parse(this.responseText);
       if (jObj) {
@@ -96,39 +99,39 @@ function getDevicePrefs() {
         if ((jObj.wifiNameExt || "") != "") {
           setHtml("extWifi", (jObj.wifiNameExt || "") + ": " + jObj.extAddr + " / " + jObj.extMask);
         }
-        switch(jObj.audioVersion || 0) {
+        switch (jObj.audioVersion || 0) {
           case 0:
             setHtml("audioInfo", "No Audio Detected");
-          break;
+            break;
           case 1:
             setHtml("audioInfo", "WAV Trigger");
-          break;
+            break;
           case 100:
             setHtml("audioInfo", "GPStar Audio v100");
-          break;
+            break;
           default:
             setHtml("audioInfo", "GPStar Audio v" + (jObj.audioVersion || ""));
-          break;
+            break;
         }
 
         // Display Preference
-        switch(jObj.displayType || 0) {
+        switch (jObj.displayType || 0) {
           case 0:
           default:
             // Text-Only Display
             hideEl("equipCRT");
             showEl("equipTXT");
-          break;
+            break;
           case 1:
             // Graphical Display
             showEl("equipCRT");
             hideEl("equipTXT");
-          break;
+            break;
           case 2:
             // Both graphical and text
             showEl("equipCRT");
             showEl("equipTXT");
-          break;
+            break;
         }
       }
     }
@@ -138,8 +141,9 @@ function getDevicePrefs() {
 }
 
 function removeOptions(selectElement) {
-  var i, len = selectElement.options.length - 1;
-  for(i = len; i >= 0; i--) {
+  var i,
+    len = selectElement.options.length - 1;
+  for (i = len; i >= 0; i--) {
     selectElement.remove(i);
   }
 }
@@ -241,20 +245,20 @@ function setButtonStates(statusObj) {
   setToggle("cyclotronDirection", statusObj.direction);
 
   // Set the theme drop-down to the current theme.
-  switch(statusObj.themeID) {
+  switch (statusObj.themeID) {
     case 2:
     default:
       setValue("themes", "1984");
-    break;
+      break;
     case 3:
       setValue("themes", "1989");
-    break;
+      break;
     case 4:
       setValue("themes", "2021");
-    break;
+      break;
     case 5:
       setValue("themes", "2024");
-    break;
+      break;
   }
 
   // Start by enabling the firing mode selector; it will be disabled as necessary below.
@@ -264,36 +268,36 @@ function setButtonStates(statusObj) {
     disableEl("streamMode");
   }
 
-  switch(statusObj.wandMode) {
+  switch (statusObj.wandMode) {
     case "Proton Stream":
       setValue("streamMode", "proton");
-    break;
+      break;
     case "Plasm System":
       setValue("streamMode", "slime");
-    break;
+      break;
     case "Dark Matter Gen.":
       setValue("streamMode", "stasis");
-    break;
+      break;
     case "Particle System":
       setValue("streamMode", "meson");
-    break;
+      break;
     case "Spectral Stream":
       setValue("streamMode", "spectral");
-    break;
+      break;
     case "Halloween":
       setValue("streamMode", "holiday_halloween");
-    break;
+      break;
     case "Christmas":
       setValue("streamMode", "holiday_christmas");
-    break;
+      break;
     case "Custom Stream":
       setValue("streamMode", "spectral_custom");
-    break;
+      break;
     default:
       // Invalid mode specified, so disable control.
       setValue("streamMode", "proton");
       disableEl("streamMode");
-    break;
+      break;
   }
 
   if (packPowered || wandPowered || rampingActive) {
@@ -319,31 +323,31 @@ function setButtonStates(statusObj) {
 function getStreamColor(cMode) {
   var color = [0, 0, 0];
 
-  switch(cMode){
+  switch (cMode) {
     case "Plasm System":
       // Dark Green
       color[1] = 80;
-    break;
+      break;
     case "Dark Matter Gen.":
       // Light Blue
       color[1] = 60;
       color[2] = 255;
-    break;
+      break;
     case "Particle System":
       // Orange
       color[0] = 255;
       color[1] = 140;
-    break;
+      break;
     case "Settings":
       // Gray
       color[0] = 40;
       color[1] = 40;
       color[2] = 40;
-    break;
+      break;
     default:
       // Proton Stream(s) as Red
       color[0] = 180;
-    break;
+      break;
   }
 
   return color;
@@ -366,39 +370,39 @@ function updateBars(iPower, cMode) {
   }
 }
 
-function updateGraphics(jObj){
+function updateGraphics(jObj) {
   // Update display if we have the expected data (containing mode and theme at a minimum).
   if (jObj && jObj.mode && jObj.theme) {
     var color = getStreamColor(jObj.wandMode || "");
 
     var header = ""; // Used for the title on the display.
-    switch(jObj.modeID || 0){
+    switch (jObj.modeID || 0) {
       case 0:
         header = "Standard"; // aka. Mode Original
-      break;
+        break;
       case 1:
         header = "Upgraded"; // aka. Super Hero
-      break;
+        break;
       default:
         header = "- Disabled -";
-      break;
+        break;
     }
-    switch(jObj.themeID || 0) {
+    switch (jObj.themeID || 0) {
       case 2:
         header += " / V1.9.84";
-      break;
+        break;
       case 3:
         header += " / V1.9.89";
-      break;
+        break;
       case 4:
         header += " / V2.0.21";
-      break;
+        break;
       case 5:
         header += " / V2.0.24";
-      break;
+        break;
       default:
         header += " / V0.0.00";
-      break;
+        break;
     }
     setHtml("equipTitle", header);
 
@@ -422,23 +426,23 @@ function updateGraphics(jObj){
       blinkEl("cableOverlay", false);
     }
 
-    switch(jObj.cyclotron){
+    switch (jObj.cyclotron) {
       case "Active":
         colorEl("cycOverlay", 255, 230, 0);
         blinkEl("cycOverlay", false);
-      break;
+        break;
       case "Warning":
         colorEl("cycOverlay", 255, 100, 0);
         blinkEl("cycOverlay", false);
-      break;
+        break;
       case "Critical":
         colorEl("cycOverlay", 255, 0, 0);
         blinkEl("cycOverlay", true);
-      break;
+        break;
       case "Recovery":
         colorEl("cycOverlay", 0, 0, 255);
         blinkEl("cycOverlay", false);
-      break;
+        break;
       default:
         if (jObj.pack == "Powered") {
           // Also covers cyclotron state of "Normal"
@@ -447,7 +451,7 @@ function updateGraphics(jObj){
           colorEl("cycOverlay", 100, 100, 100);
         }
         blinkEl("cycOverlay", false);
-      break;
+        break;
     }
 
     if (jObj.pack == "Powered") {
@@ -490,7 +494,7 @@ function updateGraphics(jObj){
       setHtml("powerLevel", "");
       if (parseFloat(jObj.wandAmps || 0) > 0.01) {
         // If we have a non-zero amperage reading, display that as it means a stock wand is attached.
-        setHtml("streamStatus", "Stream: " + parseFloat((jObj.wandAmps || 0)).toFixed(2) + " GW");
+        setHtml("streamStatus", "Stream: " + parseFloat(jObj.wandAmps || 0).toFixed(2) + " GW");
       } else {
         // Otherwise we consider a wand to be "disengaged" as it could be inactive or detached.
         setHtml("streamStatus", "- Disengaged -");
@@ -501,7 +505,7 @@ function updateGraphics(jObj){
 
     if (parseFloat(jObj.battVoltage || 0) > 1) {
       // Voltage should typically be ~5.0 at idle and >=4.2 under normal use; anything below that indicates a possible problem.
-      setHtml("battVoltage", "Output:<br/>" + parseFloat((jObj.battVoltage || 0)).toFixed(2) + " GeV");
+      setHtml("battVoltage", "Output:<br/>" + parseFloat(jObj.battVoltage || 0).toFixed(2) + " GeV");
       if (jObj.battVoltage < 4.2) {
         colorEl("boostOverlay", 255, 0, 0);
       } else {
@@ -516,7 +520,7 @@ function updateGraphics(jObj){
       // console.log("Temperature: " + parseFloat((jObj.packTempC || 0)).toFixed(2) + " C / " + parseFloat((jObj.packTempF || 0)).toFixed(2) + " F");
     }
 
-    if(jObj.cyclotron && !jObj.cyclotronLid) {
+    if (jObj.cyclotron && !jObj.cyclotronLid) {
       showEl("cyclotronLid");
     } else {
       hideEl("cyclotronLid");
@@ -541,7 +545,7 @@ function updateEquipment(jObj) {
     setHtml("pack", jObj.pack || "...");
     setHtml("switch", jObj.switch || "...");
     setHtml("cable", jObj.cable || "...");
-    if(jObj.cyclotron && !jObj.cyclotronLid) {
+    if (jObj.cyclotron && !jObj.cyclotronLid) {
       setHtml("cyclotron", (jObj.cyclotron || "") + " &#9762;");
     } else {
       setHtml("cyclotron", jObj.cyclotron || "...");
@@ -570,7 +574,7 @@ function updateEquipment(jObj) {
 
     if (jObj.battVoltage) {
       // Voltage should typically be <5.0 but >4.2 under normal use; anything below that indicates high drain.
-      setHtml("battVoltageTXT", parseFloat((jObj.battVoltage || 0)).toFixed(2));
+      setHtml("battVoltageTXT", parseFloat(jObj.battVoltage || 0).toFixed(2));
       if (jObj.battVoltage < 4.2) {
         setHtml("battHealth", "&#129707;"); // Draining Battery
       } else {

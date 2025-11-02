@@ -59,7 +59,7 @@ function onClose(event) {
 
   // Fallback for when WebSocket is unavailable.
   if (!statusInterval) {
-    statusInterval = setInterval(function() {
+    statusInterval = setInterval(function () {
       getStatus(updateEquipment); // Check for status every X seconds
     }, 1000);
   }
@@ -78,14 +78,14 @@ function onMessage(event) {
 function getDevicePrefs() {
   // This is updated once per page load as it is not subject to frequent changes.
   var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
+  xhttp.onreadystatechange = function () {
     if (this.readyState == 4 && this.status == 200) {
       var jObj = JSON.parse(this.responseText);
       if (jObj) {
         // Device Info
         setHtml("buildDate", "Build: " + (jObj.buildDate || ""));
         setHtml("wifiName", jObj.wifiName || "");
-        if ((jObj.wifiNameExt || "") != "" && (jObj.extAddr || "") != "" || (jObj.extMask || "") != "") {
+        if (((jObj.wifiNameExt || "") != "" && (jObj.extAddr || "") != "") || (jObj.extMask || "") != "") {
           setHtml("extWifi", (jObj.wifiNameExt || "") + ": " + jObj.extAddr + " / " + jObj.extMask);
         }
       }
@@ -98,31 +98,31 @@ function getDevicePrefs() {
 function getStreamColor(cMode) {
   var color = [0, 0, 0];
 
-  switch(cMode){
+  switch (cMode) {
     case "Plasm System":
       // Dark Green
       color[1] = 80;
-    break;
+      break;
     case "Dark Matter Gen.":
       // Light Blue
       color[1] = 60;
       color[2] = 255;
-    break;
+      break;
     case "Particle System":
       // Orange
       color[0] = 255;
       color[1] = 140;
-    break;
+      break;
     case "Settings":
       // Gray
       color[0] = 40;
       color[1] = 40;
       color[2] = 40;
-    break;
+      break;
     default:
       // Proton Stream(s) as Red
       color[0] = 180;
-    break;
+      break;
   }
 
   return color;
@@ -182,7 +182,7 @@ function updateEquipment(jObj) {
 
     // External WiFi Status
     if (jObj.extWifiEnabled) {
-      setHtml("wifiStatus", jObj.extWifiStarted ? "Connected" : (jObj.extWifiPaused ? "Paused" : "Connecting..."));
+      setHtml("wifiStatus", jObj.extWifiStarted ? "Connected" : jObj.extWifiPaused ? "Paused" : "Connecting...");
     } else {
       setHtml("wifiStatus", "Disabled");
     }

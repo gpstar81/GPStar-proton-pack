@@ -18,68 +18,68 @@
  *
  */
 
-function getEl(id){
+function getEl(id) {
   return document.getElementById(id);
 }
 
-function getInt(id){
+function getInt(id) {
   return parseInt(getValue(id) || 0, 10);
 }
 
-function getFloat(id){
+function getFloat(id) {
   return parseFloat(getValue(id) || 0);
 }
 
-function getText(id){
+function getText(id) {
   return (getValue(id) || "").trim();
 }
 
-function getToggle(id){
+function getToggle(id) {
   var el = getEl(id);
-  return (el && el.checked) ? 1 : 0;
+  return el && el.checked ? 1 : 0;
 }
 
-function getValue(id){
+function getValue(id) {
   var el = getEl(id);
-  return (el && typeof el.value !== 'undefined') ? el.value : null;
+  return el && typeof el.value !== "undefined" ? el.value : null;
 }
 
-function setHtml(id, value){
+function setHtml(id, value) {
   getEl(id).innerHTML = value || "";
 }
 
-function setToggle(id, value){
+function setToggle(id, value) {
   var el = getEl(id);
   if (el) el.checked = !!value;
 }
 
-function setValue(id, value){
+function setValue(id, value) {
   var el = getEl(id);
   if (el) el.value = value;
 }
 
-function hideEl(id){
+function hideEl(id) {
   getEl(id).style.display = "none";
 }
 
-function showEl(id){
+function showEl(id) {
   getEl(id).style.display = "block";
 }
 
-function disableEl(id){
+function disableEl(id) {
   getEl(id).disabled = true;
 }
 
-function enableEl(id){
+function enableEl(id) {
   getEl(id).disabled = false;
 }
 
-function colorEl(id, red, green, blue, alpha = 0.5){
+function colorEl(id, red, green, blue, alpha = 0.5) {
   getEl(id).style.backgroundColor = "rgba(" + red + ", " + green + ", " + blue + ", " + alpha + ")";
 }
 
 function blinkEl(id, state) {
-  if(state) {
+  if (state) {
     getEl(id).classList.add("blinking");
   } else {
     getEl(id).classList.remove("blinking");
@@ -99,13 +99,13 @@ function openTab(evt, tabName) {
   // Hide all tab contents
   var tabs = document.getElementsByClassName("tab");
   for (var i = 0; i < tabs.length; i++) {
-      tabs[i].style.display = "none";
+    tabs[i].style.display = "none";
   }
 
   // Remove the active class from all tab links
   var tablinks = document.getElementsByClassName("tablinks");
   for (i = 0; i < tablinks.length; i++) {
-      tablinks[i].className = tablinks[i].className.replace(" active", "");
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
   }
 
   // Show the current tab and add an "active" class to the button that opened the tab
@@ -134,7 +134,7 @@ function sendCommand(apiUri) {
   // Sends an action command to the server (device) using a PUT request.
   // These commands have no response data, so we just handle the status.
   var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
+  xhttp.onreadystatechange = function () {
     if (this.readyState == 4 && this.status == 200) {
       handleStatus(this.responseText);
     }
@@ -254,7 +254,7 @@ function streamModeSelect(caller) {
 function getStatus(callbackFunc) {
   // This function expects a JSON response from the server which must be parsed and sent to the callback function.
   var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
+  xhttp.onreadystatechange = function () {
     if (this.readyState == 4 && this.status == 200) {
       if (callbackFunc && typeof callbackFunc === "function") {
         // If a callback function is provided, call it with the JSON response.
@@ -273,10 +273,10 @@ function doRestart() {
   // A special command which requires user confirmation before proceeding.
   if (confirm("Are you sure you wish to restart the serial device?")) {
     var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
+    xhttp.onreadystatechange = function () {
       if (this.readyState == 4 && this.status == 204) {
         // Reload the page after 2 seconds.
-        setTimeout(function() {
+        setTimeout(function () {
           window.location.reload();
         }, 2000);
       }

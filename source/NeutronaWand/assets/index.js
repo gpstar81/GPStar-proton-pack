@@ -20,7 +20,10 @@
 
 var websocket;
 var statusInterval;
-var musicTrackStart = 0, musicTrackMax = 0, musicTrackCurrent = 0, musicTrackList = [];
+var musicTrackStart = 0,
+  musicTrackMax = 0,
+  musicTrackCurrent = 0,
+  musicTrackList = [];
 
 function onLoad(event) {
   document.getElementsByClassName("tablinks")[0].click();
@@ -62,7 +65,7 @@ function onClose(event) {
 
   // Fallback for when WebSocket is unavailable.
   if (!statusInterval) {
-    statusInterval = setInterval(function() {
+    statusInterval = setInterval(function () {
       getStatus(updateEquipment); // Check for status every X seconds
     }, 1000);
   }
@@ -81,7 +84,7 @@ function onMessage(event) {
 function getDevicePrefs() {
   // This is updated once per page load as it is not subject to frequent changes.
   var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
+  xhttp.onreadystatechange = function () {
     if (this.readyState == 4 && this.status == 200) {
       var jObj = JSON.parse(this.responseText);
       if (jObj) {
@@ -93,22 +96,22 @@ function getDevicePrefs() {
         // Device Info
         setHtml("buildDate", "Build: " + (jObj.buildDate || ""));
         setHtml("wifiName", jObj.wifiName || "");
-        if ((jObj.wifiNameExt || "") != "" && (jObj.extAddr || "") != "" || (jObj.extMask || "") != "") {
+        if (((jObj.wifiNameExt || "") != "" && (jObj.extAddr || "") != "") || (jObj.extMask || "") != "") {
           setHtml("extWifi", (jObj.wifiNameExt || "") + ": " + jObj.extAddr + " / " + jObj.extMask);
         }
-        switch(jObj.audioVersion || 0) {
+        switch (jObj.audioVersion || 0) {
           case 0:
             setHtml("audioInfo", "No Audio Detected");
-          break;
+            break;
           case 1:
             setHtml("audioInfo", "WAV Trigger");
-          break;
+            break;
           case 100:
             setHtml("audioInfo", "GPStar Audio v100");
-          break;
+            break;
           default:
             setHtml("audioInfo", "GPStar Audio v" + (jObj.audioVersion || ""));
-          break;
+            break;
         }
       }
     }
@@ -118,8 +121,9 @@ function getDevicePrefs() {
 }
 
 function removeOptions(selectElement) {
-  var i, len = selectElement.options.length - 1;
-  for(i = len; i >= 0; i--) {
+  var i,
+    len = selectElement.options.length - 1;
+  for (i = len; i >= 0; i--) {
     selectElement.remove(i);
   }
 }
@@ -168,11 +172,11 @@ function disableSensorButtons() {
 
 function setButtonStates(sensorState) {
   // Use the sensor state to determine button states.
-  switch(sensorState) {
+  switch (sensorState) {
     case "Magnetometer Calibration":
       // While in magnetometer calibration mode only the "off" button is enabled.
       // Use helpers to avoid direct DOM property manipulation.
-      disableEl("btnGyroCal")
+      disableEl("btnGyroCal");
       disableEl("btnCalibrateOn");
       enableEl("btnCalibrateOff");
 
@@ -189,7 +193,7 @@ function setButtonStates(sensorState) {
       break;
     case "Gyro Calibration":
       // While in Gyro calibration mode only the "off" button is enabled.
-      disableEl("btnGyroCal")
+      disableEl("btnGyroCal");
       disableEl("btnCalibrateOn");
       disableEl("btnCalibrateOff");
 
@@ -200,13 +204,13 @@ function setButtonStates(sensorState) {
       break;
     case "Offsets":
       // While in offset calculation mode no buttons are enabled.
-      disableEl("btnGyroCal")
+      disableEl("btnGyroCal");
       disableEl("btnCalibrateOn");
       disableEl("btnCalibrateOff");
       break;
     case "Telemetry":
       // While in telemetry mode only re-center and calibration enable buttons are enabled.
-      enableEl("btnGyroCal")
+      enableEl("btnGyroCal");
       enableEl("btnCalibrateOn");
       disableEl("btnCalibrateOff");
       break;
@@ -219,7 +223,6 @@ function setButtonStates(sensorState) {
 function updateEquipment(jObj) {
   // Update display if we have the expected data (containing mode and theme at a minimum).
   if (jObj && jObj.mode && jObj.theme) {
-
     // Enable/Disable Music Controls
     if (jObj.benchtest) {
       enableEl("btnVolMusicUp");
@@ -309,7 +312,7 @@ class Telemetry3DView {
     this.scene.background = null;
 
     // Set up renderer with a transparent background
-    this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     this.renderer.setSize(this.width, this.height);
     this.el.appendChild(this.renderer.domElement);
 
@@ -330,8 +333,8 @@ class Telemetry3DView {
 
     // Load geometry from raw (binary) STL file via fetch.
     fetch(geometryUrl)
-      .then(res => res.arrayBuffer())
-      .then(buffer => {
+      .then((res) => res.arrayBuffer())
+      .then((buffer) => {
         const loader = new THREE.STLLoader();
         const geometry = loader.parse(buffer);
 
@@ -345,7 +348,7 @@ class Telemetry3DView {
         geometry.translate(-center.x, -center.y, -center.z); // Center the object on the origin
 
         // Select a material and color then create the mesh for the scene
-        const material = new THREE.MeshLambertMaterial({color: 0x00A000});
+        const material = new THREE.MeshLambertMaterial({ color: 0x00a000 });
         this.mesh = new THREE.Mesh(geometry, material);
         this.scene.add(this.mesh);
 
@@ -356,19 +359,19 @@ class Telemetry3DView {
 
         // The object is centered on the origin so 1/2 of the object lies on each size of the Z axis (front/back).
         // Accounting for the frustum size, position the camera along Z far enough back to view the entire object.
-        const camZ = frustumSize + (this.size.z / 2);
+        const camZ = frustumSize + this.size.z / 2;
 
         // Set far clipping plane based on camera distance and mesh depth, plus a small safety margin.
-        const farPlane = camZ + (this.size.z / 2) + 10;
+        const farPlane = camZ + this.size.z / 2 + 10;
 
         // Set up an orthographic camera; better for technical models without distortion.
         this.camera = new THREE.OrthographicCamera(
-          (-frustumSize * this.aspect / 2), // Left
-          (frustumSize * this.aspect / 2),  // Right
-          (frustumSize / 2),                // Top
-          (-frustumSize / 2),               // Bottom
-          0.1,                              // Near clipping plane
-          farPlane                          // Far clipping plane
+          (-frustumSize * this.aspect) / 2, // Left
+          (frustumSize * this.aspect) / 2, // Right
+          frustumSize / 2, // Top
+          -frustumSize / 2, // Bottom
+          0.1, // Near clipping plane
+          farPlane // Far clipping plane
         );
 
         // Position camera and look at the center of the scene
@@ -422,14 +425,14 @@ class Calibration3DView {
     this.scene.background = new THREE.Color(0xffffff);
 
     // Set up renderer with antialiasing and alpha for transparency
-    this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     this.renderer.setSize(this.width, this.height);
     this.el.appendChild(this.renderer.domElement);
 
     // Add lights to the scene for realistic shading and visibility.
     // HemisphereLight simulates ambient light from the sky and ground, providing soft global illumination.
     const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
-    hemiLight.position.set(0,200,0);
+    hemiLight.position.set(0, 200, 0);
     this.scene.add(hemiLight);
 
     // DirectionalLight simulates sunlight, casting parallel rays and creating shadows and highlights.
@@ -446,7 +449,7 @@ class Calibration3DView {
     const material = new THREE.MeshLambertMaterial({
       color: 0x222222,
       transparent: true,
-      opacity: 0.4
+      opacity: 0.4,
     });
     this.mesh = new THREE.Mesh(geometry, material);
     this.scene.add(this.mesh);
@@ -495,7 +498,7 @@ class Calibration3DView {
     // Add new meshes only if needed (keeps a pool of meshes for efficiency)
     for (let i = existing; i < needed; i++) {
       const geometry = new THREE.SphereGeometry(1, 16, 16);
-      const material = new THREE.MeshLambertMaterial({color: 0xff0000});
+      const material = new THREE.MeshLambertMaterial({ color: 0xff0000 });
       const pointMesh = new THREE.Mesh(geometry, material);
       this.pointsGroup.add(pointMesh);
     }
@@ -537,7 +540,7 @@ class Calibration3DView {
       this.scene.remove(this.pointsGroup);
 
       // Dispose geometry and material for each mesh
-      this.pointsGroup.children.forEach(mesh => {
+      this.pointsGroup.children.forEach((mesh) => {
         if (mesh.geometry) mesh.geometry.dispose();
         if (mesh.material) mesh.material.dispose();
       });
@@ -554,10 +557,10 @@ class Calibration3DView {
    */
   getPointsCentroid() {
     if (!this.pointsGroup || this.pointsGroup.children.length === 0) return null;
-    let sum = {x: 0, y: 0, z: 0};
+    let sum = { x: 0, y: 0, z: 0 };
     let count = 0;
 
-    this.pointsGroup.children.forEach(mesh => {
+    this.pointsGroup.children.forEach((mesh) => {
       if (mesh.visible) {
         sum.x += mesh.position.x;
         sum.y += mesh.position.y;
@@ -571,7 +574,7 @@ class Calibration3DView {
     return {
       x: sum.x / count,
       y: sum.y / count,
-      z: sum.z / count
+      z: sum.z / count,
     };
   }
 }
@@ -597,119 +600,139 @@ if (!!window.EventSource) {
   // Create events for the sensor readings.
   var source = new EventSource("/events");
 
-  source.addEventListener("open", function(e) {
-    console.log("Server-Side Events connected");
-  }, false);
+  source.addEventListener(
+    "open",
+    function (e) {
+      console.log("Server-Side Events connected");
+    },
+    false
+  );
 
-  source.addEventListener("error", function(e) {
-    if (e.target.readyState != EventSource.OPEN) {
-      console.log("Server-Side Events disconnected");
-    }
-  }, false);
-
-  source.addEventListener("gyroCal", function(e) {
-    if (e.data === undefined) return;
-
-    var calData = {}; // Always begin with an empty object.
-    try {
-      calData = JSON.parse(e.data); // Basic JSON with timer information
-    } catch (e) { }
-
-    // Update the calibration time remaining.
-    timeRemaining = parseFloat(calData.t || 0).toFixed(2);
-    getEl("gyroCounter").innerHTML = timeRemaining + "s remaining";
-  }, false);
-
-  source.addEventListener("magCal", function(e) {
-    if (e.data === undefined) return;
-
-    var calData = {}; // Always begin with an empty object.
-    try {
-      calData = JSON.parse(e.data); // Enhanced JSON with coverage, points, and bin distributions
-    } catch (e) { }
-
-    // Update the calibration coverage percentage.
-    lastCoverage = parseFloat(calData.c || 0);
-    if (lastCoverage > 0) {
-      setHtml("coverage", formatFloat(lastCoverage) + "%");
-    }
-
-    // Report any status messages sent from the calibration process.
-    if (calData.s && calData.s != "") {
-      setHtml("deviceStatus", calData.s || "");
-    }
-
-    // Display the last added sample for reference.
-    if (calData.v && (calData.v || []).length == 3) {
-      setHtml("magX", formatFloat(calData.v[0] || 0) + "&micro;T");
-      setHtml("magY", formatFloat(calData.v[1] || 0) + "&micro;T");
-      setHtml("magZ", formatFloat(calData.v[2] || 0) + "&micro;T");
-    }
-
-    // Process enhanced bin distribution data for coverage analysis
-    // Purpose: Update elevation and azimuth coverage visualizations with real-time data
-    if (calData.e && calData.a) {
-      updateElevationChart(calData.e); // Update vertical coverage bar chart
-      updateAzimuthChart(calData.a);   // Update horizontal coverage circular chart
-      updateDistributionStats(calData.e, calData.a); // Update numerical coverage displays
-      updateUserFeedback(calData.e, calData.a, lastCoverage); // Provide user feedback
-    }
-
-    // Update existing 3D visualization with coordinate points, when available.
-    if (calibration3D && (calData.p || []).length > 0) {
-      calibration3D.setPoints(calData.p);
-    }
-  }, false);
-
-  source.addEventListener("telemetry", function(e) {
-    var obj = {};
-    try {
-      obj = JSON.parse(e.data);
-    } catch (e) { }
-
-    // Update the HTML elements with the telemetry data
-    setHtml("gyroX",  formatFloat(obj.gX || 0)  + "&deg;/s");
-    setHtml("gyroY",  formatFloat(obj.gY || 0)  + "&deg;/s");
-    setHtml("gyroZ",  formatFloat(obj.gZ || 0)  + "&deg;/s");
-    setHtml("accelX", formatFloat(obj.aX || 0) + "m/s<sup>2</sup>");
-    setHtml("accelY", formatFloat(obj.aY || 0) + "m/s<sup>2</sup>");
-    setHtml("accelZ", formatFloat(obj.aZ || 0) + "m/s<sup>2</sup>");
-    setHtml("roll",   formatFloat(obj.roll || 0)   + "&deg;");
-    setHtml("pitch",  formatFloat(obj.pitch || 0)  + "&deg;");
-    setHtml("yaw",    formatFloat(obj.yaw || 0)    + "&deg;");
-    setHtml("gForce", formatFloat(obj.gForce || 0) + "");
-    setHtml("angVel", formatFloat(obj.angVel || 0) + "&deg;/s");
-    setHtml("shaken", "&nbsp;&nbsp;&nbsp;" + (obj.shaken ? "&oplus;" : "&mdash;"));
-    setHtml("magX",  formatFloat(obj.mX || 0)  + "&micro;T");
-    setHtml("magY",  formatFloat(obj.mY || 0)  + "&micro;T");
-    setHtml("magZ",  formatFloat(obj.mZ || 0)  + "&micro;T");
-
-    // Proceed with updating the rendered scene if all objects are present.
-    if (telemetry3D && telemetry3D.mesh) {
-      // Change cube rotation after checking for the available data (quaternion preferred).
-      // This uses a right-handed coordinate system with X (right), Y (up), and Z (towards viewer).
-      // Map accordingly from device to view: Pitch (Y) -> X, Yaw (Z) -> Y, Roll (X) -> Z.
-
-      // Use quaternion (x,y,z,w) calculations for more accurate orientation and avoid gimbal lock.
-      telemetry3D.setQuaternion(-obj.qY, -obj.qZ, obj.qX, obj.qW);
-
-      // Convert roll, pitch, and yaw from degrees to radians for Three.js
-      var rollRads = (obj.roll || 0) * Math.PI / 180;
-      var pitchRads = (obj.pitch || 0) * Math.PI / 180;
-      var yawRads = (obj.yaw || 0) * Math.PI / 180;
-
-      // Move camera behind the object based on yaw
-      const radius = 200; // Distance from object, adjust as needed
-      const camX = radius * Math.sin(yawRads);
-      const camZ = radius * Math.cos(yawRads);
-      if (telemetry3D.size) {
-        // Keep Y fixed just above the Z plane for a slight downward angle
-        telemetry3D.setCameraPosition(camX, telemetry3D.size.y * 2, camZ);
-      } else {
-        telemetry3D.setCameraPosition(camX, 0, camZ); // Keep Y fixed at 0 if size is not available
+  source.addEventListener(
+    "error",
+    function (e) {
+      if (e.target.readyState != EventSource.OPEN) {
+        console.log("Server-Side Events disconnected");
       }
-    }
-  }, false);
+    },
+    false
+  );
+
+  source.addEventListener(
+    "gyroCal",
+    function (e) {
+      if (e.data === undefined) return;
+
+      var calData = {}; // Always begin with an empty object.
+      try {
+        calData = JSON.parse(e.data); // Basic JSON with timer information
+      } catch (e) {}
+
+      // Update the calibration time remaining.
+      timeRemaining = parseFloat(calData.t || 0).toFixed(2);
+      getEl("gyroCounter").innerHTML = timeRemaining + "s remaining";
+    },
+    false
+  );
+
+  source.addEventListener(
+    "magCal",
+    function (e) {
+      if (e.data === undefined) return;
+
+      var calData = {}; // Always begin with an empty object.
+      try {
+        calData = JSON.parse(e.data); // Enhanced JSON with coverage, points, and bin distributions
+      } catch (e) {}
+
+      // Update the calibration coverage percentage.
+      lastCoverage = parseFloat(calData.c || 0);
+      if (lastCoverage > 0) {
+        setHtml("coverage", formatFloat(lastCoverage) + "%");
+      }
+
+      // Report any status messages sent from the calibration process.
+      if (calData.s && calData.s != "") {
+        setHtml("deviceStatus", calData.s || "");
+      }
+
+      // Display the last added sample for reference.
+      if (calData.v && (calData.v || []).length == 3) {
+        setHtml("magX", formatFloat(calData.v[0] || 0) + "&micro;T");
+        setHtml("magY", formatFloat(calData.v[1] || 0) + "&micro;T");
+        setHtml("magZ", formatFloat(calData.v[2] || 0) + "&micro;T");
+      }
+
+      // Process enhanced bin distribution data for coverage analysis
+      // Purpose: Update elevation and azimuth coverage visualizations with real-time data
+      if (calData.e && calData.a) {
+        updateElevationChart(calData.e); // Update vertical coverage bar chart
+        updateAzimuthChart(calData.a); // Update horizontal coverage circular chart
+        updateDistributionStats(calData.e, calData.a); // Update numerical coverage displays
+        updateUserFeedback(calData.e, calData.a, lastCoverage); // Provide user feedback
+      }
+
+      // Update existing 3D visualization with coordinate points, when available.
+      if (calibration3D && (calData.p || []).length > 0) {
+        calibration3D.setPoints(calData.p);
+      }
+    },
+    false
+  );
+
+  source.addEventListener(
+    "telemetry",
+    function (e) {
+      var obj = {};
+      try {
+        obj = JSON.parse(e.data);
+      } catch (e) {}
+
+      // Update the HTML elements with the telemetry data
+      setHtml("gyroX", formatFloat(obj.gX || 0) + "&deg;/s");
+      setHtml("gyroY", formatFloat(obj.gY || 0) + "&deg;/s");
+      setHtml("gyroZ", formatFloat(obj.gZ || 0) + "&deg;/s");
+      setHtml("accelX", formatFloat(obj.aX || 0) + "m/s<sup>2</sup>");
+      setHtml("accelY", formatFloat(obj.aY || 0) + "m/s<sup>2</sup>");
+      setHtml("accelZ", formatFloat(obj.aZ || 0) + "m/s<sup>2</sup>");
+      setHtml("roll", formatFloat(obj.roll || 0) + "&deg;");
+      setHtml("pitch", formatFloat(obj.pitch || 0) + "&deg;");
+      setHtml("yaw", formatFloat(obj.yaw || 0) + "&deg;");
+      setHtml("gForce", formatFloat(obj.gForce || 0) + "");
+      setHtml("angVel", formatFloat(obj.angVel || 0) + "&deg;/s");
+      setHtml("shaken", "&nbsp;&nbsp;&nbsp;" + (obj.shaken ? "&oplus;" : "&mdash;"));
+      setHtml("magX", formatFloat(obj.mX || 0) + "&micro;T");
+      setHtml("magY", formatFloat(obj.mY || 0) + "&micro;T");
+      setHtml("magZ", formatFloat(obj.mZ || 0) + "&micro;T");
+
+      // Proceed with updating the rendered scene if all objects are present.
+      if (telemetry3D && telemetry3D.mesh) {
+        // Change cube rotation after checking for the available data (quaternion preferred).
+        // This uses a right-handed coordinate system with X (right), Y (up), and Z (towards viewer).
+        // Map accordingly from device to view: Pitch (Y) -> X, Yaw (Z) -> Y, Roll (X) -> Z.
+
+        // Use quaternion (x,y,z,w) calculations for more accurate orientation and avoid gimbal lock.
+        telemetry3D.setQuaternion(-obj.qY, -obj.qZ, obj.qX, obj.qW);
+
+        // Convert roll, pitch, and yaw from degrees to radians for Three.js
+        var rollRads = ((obj.roll || 0) * Math.PI) / 180;
+        var pitchRads = ((obj.pitch || 0) * Math.PI) / 180;
+        var yawRads = ((obj.yaw || 0) * Math.PI) / 180;
+
+        // Move camera behind the object based on yaw
+        const radius = 200; // Distance from object, adjust as needed
+        const camX = radius * Math.sin(yawRads);
+        const camZ = radius * Math.cos(yawRads);
+        if (telemetry3D.size) {
+          // Keep Y fixed just above the Z plane for a slight downward angle
+          telemetry3D.setCameraPosition(camX, telemetry3D.size.y * 2, camZ);
+        } else {
+          telemetry3D.setCameraPosition(camX, 0, camZ); // Keep Y fixed at 0 if size is not available
+        }
+      }
+    },
+    false
+  );
 }
 
 // Instances for each visualization
@@ -802,7 +825,7 @@ function updateElevationChart(elevationBins) {
     // Calculate elevation degrees for this bin index
     // Formula: degrees = (index * degreesPerBin) - 90
     // Maps index 0 to -90°, middle index to 0°, last index to +90°
-    var centerDegrees = (i * degreesPerBin) - 90;
+    var centerDegrees = i * degreesPerBin - 90;
 
     // Create bar element for this elevation bin
     var bar = document.createElement("div");
@@ -841,16 +864,32 @@ function updateAzimuthChart(azimuthBins) {
   if (!azimuthChart || !azimuthBins || azimuthBins.length === 0) return;
 
   // SVG circle chart parameters for consistent sizing
-  var centerX = 50, centerY = 50, radius = 40; // SVG viewBox coordinates
+  var centerX = 50,
+    centerY = 50,
+    radius = 40; // SVG viewBox coordinates
   var svgSize = 100; // Total SVG size
 
   // Create SVG element for circular representation
   // Purpose: Provide compass-style visualization of horizontal rotation coverage
   azimuthChart.innerHTML =
-    '<svg width="' + svgSize + '" height="' + svgSize + '" viewBox="0 0 ' + svgSize + ' ' + svgSize + '">' +
-    '<circle cx="' + centerX + '" cy="' + centerY + '" r="' + radius + '" ' +
+    '<svg width="' +
+    svgSize +
+    '" height="' +
+    svgSize +
+    '" viewBox="0 0 ' +
+    svgSize +
+    " " +
+    svgSize +
+    '">' +
+    '<circle cx="' +
+    centerX +
+    '" cy="' +
+    centerY +
+    '" r="' +
+    radius +
+    '" ' +
     'fill="none" stroke="rgba(0,160,0,0.3)" stroke-width="1"/>' +
-    '</svg>';
+    "</svg>";
 
   var svg = azimuthChart.querySelector("svg");
 
@@ -869,7 +908,7 @@ function updateAzimuthChart(azimuthBins) {
 
     // Convert degrees to radians for trigonometric calculations
     // Subtract 90° to start at top (North) instead of right (East)
-    var radians = (degrees - 90) * Math.PI / 180;
+    var radians = ((degrees - 90) * Math.PI) / 180;
 
     // Calculate position on circle using trigonometry
     var x = centerX + radius * Math.cos(radians);

@@ -21,7 +21,10 @@
 
 var websocket;
 var statusInterval;
-var musicTrackStart = 0, musicTrackMax = 0, musicTrackCurrent = 0, musicTrackList = [];
+var musicTrackStart = 0,
+  musicTrackMax = 0,
+  musicTrackCurrent = 0,
+  musicTrackList = [];
 
 window.addEventListener("load", onLoad);
 
@@ -62,7 +65,7 @@ function onClose(event) {
 
   // Fallback for when WebSocket is unavailable.
   if (!statusInterval) {
-    statusInterval = setInterval(function() {
+    statusInterval = setInterval(function () {
       getStatus(); // Check for status every X seconds
     }, 1000);
   }
@@ -96,7 +99,7 @@ function setButtonStates(smokeEnabled) {
   }
 }
 
-function updateGraphics(jObj){
+function updateGraphics(jObj) {
   // Update display if we have the expected data (containing door state at a minimum).
   if (jObj && jObj.doorState) {
     if (jObj.doorState == "Opened") {
@@ -128,7 +131,7 @@ function updateEquipment(jObj) {
 
 function getStatus() {
   var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
+  xhttp.onreadystatechange = function () {
     if (this.readyState == 4 && this.status == 200) {
       // Update the equipment (text) display, which will also update graphical elements.
       updateEquipment(JSON.parse(this.responseText));
@@ -141,31 +144,31 @@ function getStatus() {
 function getDevicePrefs() {
   // This is updated once per page load as it is not subject to frequent changes.
   var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
+  xhttp.onreadystatechange = function () {
     if (this.readyState == 4 && this.status == 200) {
       var jObj = JSON.parse(this.responseText);
       if (jObj) {
         // Device Info
         setHtml("buildDate", "Build: " + (jObj.buildDate || ""));
         setHtml("wifiName", jObj.wifiName || "");
-        if ((jObj.wifiNameExt || "") != "" && (jObj.extAddr || "") != "" || (jObj.extMask || "") != "") {
+        if (((jObj.wifiNameExt || "") != "" && (jObj.extAddr || "") != "") || (jObj.extMask || "") != "") {
           setHtml("extWifi", (jObj.wifiNameExt || "") + ": " + jObj.extAddr + " / " + jObj.extMask);
         }
-        switch(jObj.audioVersion || 0) {
+        switch (jObj.audioVersion || 0) {
           case 0:
           case 1:
             setHtml("audioInfo", "No Audio Detected");
-          break;
+            break;
           case 100:
             setHtml("audioInfo", "GPStar Audio v100");
-          break;
+            break;
           default:
             setHtml("audioInfo", "GPStar Audio v" + (jObj.audioVersion || ""));
-          break;
+            break;
         }
 
         // Display Preference
-        switch(jObj.displayType || 0) {
+        switch (jObj.displayType || 0) {
           case 0:
             // Text-Only Display
             hideEl("equipCRT");
@@ -192,10 +195,10 @@ function getDevicePrefs() {
 function doRestart() {
   if (confirm("Are you sure you wish to restart the serial device?")) {
     var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
+    xhttp.onreadystatechange = function () {
       if (this.readyState == 4 && this.status == 204) {
         // Reload the page after 2 seconds.
-        setTimeout(function() {
+        setTimeout(function () {
           window.location.reload();
         }, 2000);
       }
@@ -207,7 +210,7 @@ function doRestart() {
 
 function sendCommand(apiUri) {
   var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
+  xhttp.onreadystatechange = function () {
     if (this.readyState == 4 && this.status == 200) {
       handleStatus(this.responseText);
     }
