@@ -854,7 +854,7 @@ void handleGeometry(AsyncWebServerRequest *request) {
   debugln("Sending -> STL Geometry");
 
   // Calculate file size from the embedded binary data and serve the file to the requesting client.
-  size_t file_len = embeddedFileSize(_binary_assets_geometry_stl_gz_end, _binary_assets_geometry_stl_gz_start);
+  size_t file_len = embeddedFileSize(_binary_assets_geometry_stl_gz_start, _binary_assets_geometry_stl_gz_end);
   AsyncWebServerResponse *response = request->beginResponse(200, "model/stl", _binary_assets_geometry_stl_gz_start, file_len);
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
@@ -866,7 +866,7 @@ void handleThreeJS(AsyncWebServerRequest *request) {
   debugln("Sending -> Three.js Library");
 
   // Calculate file size from the embedded binary data and serve the file to the requesting client.
-  size_t file_len = embeddedFileSize(_binary_assets_three_min_js_gz_end, _binary_assets_three_min_js_gz_start);
+  size_t file_len = embeddedFileSize(_binary_assets_three_min_js_gz_start, _binary_assets_three_min_js_gz_end);
   AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", _binary_assets_three_min_js_gz_start, file_len);
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
   response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
