@@ -7,6 +7,7 @@
 BINDIR="../binaries"
 SRCDIR="../source"
 PROJECT_DIR="$SRCDIR/Attenuator"
+ASSETS_DIR="$PROJECT_DIR/assets"
 
 mkdir -p ${BINDIR}/attenuator/extras
 
@@ -28,6 +29,10 @@ sed -i -e 's/b_wait_for_pack = true/b_wait_for_pack = false/' ${PROJECT_DIR}/inc
 
 # Clean the project before building
 pio run --project-dir "$PROJECT_DIR" --target clean
+
+# GZIP all web assets prior to compilation
+rm -f ${ASSETS_DIR}/*.gz
+find ${ASSETS_DIR} \( -name '*.svg' -o -name '*.ico' -o -name '*.stl' -o -name '*.min.js' \) -exec gzip -fkq {} \;
 
 # Compile the PlatformIO project
 pio run --project-dir "$PROJECT_DIR" --jobs 4

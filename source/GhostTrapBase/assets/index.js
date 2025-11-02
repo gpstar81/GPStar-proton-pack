@@ -19,9 +19,6 @@
  *
  */
 
-#pragma once
-
-const char INDEXJS_page[] PROGMEM = R"=====(
 var websocket;
 var statusInterval;
 var musicTrackStart = 0, musicTrackMax = 0, musicTrackCurrent = 0, musicTrackList = [];
@@ -238,4 +235,3 @@ function lightOn() {
 function lightOff() {
   sendCommand("/light/off");
 }
-)=====";
