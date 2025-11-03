@@ -312,7 +312,7 @@ class Telemetry3DView {
     this.scene.background = null;
 
     // Set up renderer with a transparent background
-    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
     this.renderer.setSize(this.width, this.height);
     this.el.appendChild(this.renderer.domElement);
 
@@ -348,7 +348,7 @@ class Telemetry3DView {
         geometry.translate(-center.x, -center.y, -center.z); // Center the object on the origin
 
         // Select a material and color then create the mesh for the scene
-        const material = new THREE.MeshLambertMaterial({ color: 0x00a000 });
+        const material = new THREE.MeshLambertMaterial({color: 0x00a000});
         this.mesh = new THREE.Mesh(geometry, material);
         this.scene.add(this.mesh);
 
@@ -425,7 +425,7 @@ class Calibration3DView {
     this.scene.background = new THREE.Color(0xffffff);
 
     // Set up renderer with antialiasing and alpha for transparency
-    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
     this.renderer.setSize(this.width, this.height);
     this.el.appendChild(this.renderer.domElement);
 
@@ -498,7 +498,7 @@ class Calibration3DView {
     // Add new meshes only if needed (keeps a pool of meshes for efficiency)
     for (let i = existing; i < needed; i++) {
       const geometry = new THREE.SphereGeometry(1, 16, 16);
-      const material = new THREE.MeshLambertMaterial({ color: 0xff0000 });
+      const material = new THREE.MeshLambertMaterial({color: 0xff0000});
       const pointMesh = new THREE.Mesh(geometry, material);
       this.pointsGroup.add(pointMesh);
     }
@@ -557,7 +557,7 @@ class Calibration3DView {
    */
   getPointsCentroid() {
     if (!this.pointsGroup || this.pointsGroup.children.length === 0) return null;
-    let sum = { x: 0, y: 0, z: 0 };
+    let sum = {x: 0, y: 0, z: 0};
     let count = 0;
 
     this.pointsGroup.children.forEach((mesh) => {
