@@ -414,7 +414,17 @@ void WiFiSetupTask(void *parameter) {
 
 void setup() {
   Serial.begin(115200); // Serial monitor via USB connection.
-  delay(1000); // Provide a delay to allow serial output.
+
+#if DEBUG == 1
+  // When debugging is enabled, wait for Serial to be ready (max 3 seconds).
+  unsigned long startMillis = millis();
+  while (!Serial && millis() - startMillis < 3000) {
+    delay(10);
+  }
+  Serial.flush(); // Ensure buffer is clear.
+  Serial.setTxTimeoutMs(0); // Optional: reduce USB-CDC transmission delay.
+  Serial.println(F("Serial is Ready")); // Should appear after Serial is ready.
+#endif
 
   // Expect a PackSerial connection with communication to a GPStar Proton Pack PCB.
   PackSerial.begin(9600, SERIAL_8N1, RXD2, TXD2);
@@ -425,7 +435,10 @@ void setup() {
 
   // Provide an opportunity to set the CPU Frequency MHz: 80, 160, 240 [Default = 240]
   // Lower frequency means less power consumption, but slower performance (obviously).
-  setCpuFrequencyMhz(240);
+  // Reduce CPU frequency to 160 MHz to save ~33% power compared to 240 MHz.
+  // Alternatively set CPU to 80 MHz to save ~50% power compared to 240 MHz.
+  // Do not set below 80 MHz as it will affect WiFi and other peripherals.
+  setCpuFrequencyMhz(160);
   #if defined(DEBUG_SEND_TO_CONSOLE)
     debug(F("CPU Freq (MHz): "));
     debugln(getCpuFrequencyMhz());

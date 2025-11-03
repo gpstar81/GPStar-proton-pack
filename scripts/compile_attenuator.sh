@@ -8,7 +8,7 @@ BINDIR="../binaries"
 SRCDIR="../source"
 PROJECT_DIR="$SRCDIR/Attenuator"
 ASSETS_DIR="$PROJECT_DIR/assets"
-GZIP_EXTS="svg,ico,stl,min.js"
+GZIP_EXTS="svg,ico,stl,min.js,html,css,js"
 
 mkdir -p ${BINDIR}/attenuator/extras
 
