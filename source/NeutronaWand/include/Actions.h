@@ -1177,7 +1177,7 @@ void checkWandAction() {
         // Menu Level 1: Barrel Wing Button: Enable the simulation of a ring for the Cyclotron lid.
         // Menu Level 2: Intensify: Overheat strobe.
         // Menu Level 2: Barrel Wing Button: Overheat lights off.
-        // Menu Level 3: Intensify: Demo Light Mode Enabled
+        // Menu Level 3: Intensify: Startup (Demo) Light Mode Enabled
         // Menu Level 3: Barrel Wing Button: Toggle between 1 or 3 LEDs for the Cyclotron (1984/1989 mode)
         // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Level 2
         // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Level 2
