@@ -34,7 +34,7 @@
 #include <TaskScheduler.h>
 
 // Set to 1 to enable built-in debug messages via Serial device output.
-#define DEBUG 0
+#define DEBUG 1
 
 // Debug macros
 #if DEBUG == 1
@@ -82,6 +82,7 @@
 // Forward declaration for use in all includes.
 void sendDebug(const String message);
 
+// Shared Libraries
 #ifdef ESP32
   #include <MagCalibration.h>
   MagCalibration magCal;
@@ -157,6 +158,17 @@ void setup() {
 
   // This is required in order to make sure the board boots successfully.
   Serial.begin(115200);
+
+#if DEBUG == 1
+  // When debugging is enabled, wait for Serial to be ready (max 3 seconds).
+  unsigned long startMillis = millis();
+  while (!Serial && millis() - startMillis < 3000) {
+    delay(10);
+  }
+  Serial.flush(); // Ensure buffer is clear.
+  Serial.setTxTimeoutMs(0); // Optional: reduce USB-CDC transmission delay.
+  Serial.println(F("Serial is Ready")); // Should appear after Serial is ready.
+#endif
 
   // Serial0 (UART0) is enabled by default; end() sets GPIO43 & GPIO44 to GPIO.
   Serial0.end();

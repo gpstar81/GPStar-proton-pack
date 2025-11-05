@@ -862,7 +862,7 @@ void handleGeometry(AsyncWebServerRequest *request) {
 }
 
 void handleThreeJS(AsyncWebServerRequest *request) {
-  // Used for the root page (/three.min.js.gz) from the web server.
+  // Used for the root page (/three.min.js) from the web server.
   debugln("Sending -> Three.js Library");
 
   // Calculate file size from the embedded binary data and serve the file to the requesting client.

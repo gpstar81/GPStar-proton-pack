@@ -30,8 +30,8 @@
  * In both orientations the USB-C port is at the top of the device and the terminal blocks are represented on the side as
  * appropriate for the orientation. For both views the Y axis runs top to bottom, with the Y+ direction being bottom/South.
  * The X axis runs left to right, with the X+ direction being relative to the device direction (up West, down East),
- * and the Z axis is always toward you or away from you in these views (Up/Down). Because this may differ by Neutrona Wand maker we
- * must read the sensor data on whichever axis gives us the correct spatial orientation.
+ * and the Z axis is always toward you or away from you in these views (Up/Down). Because this may differ by
+ * installer we must read the sensor data on whichever axis gives us the correct spatial orientation.
  *
  *     Components Up                   Back of PCB
  *         |---|                          |---|
