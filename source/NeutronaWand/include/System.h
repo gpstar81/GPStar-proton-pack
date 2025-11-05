@@ -3640,7 +3640,7 @@ void fireControlCheck() {
 
         #ifdef ESP32
           if(ms_infrared_timer.justFinished()) {
-            // Trigger infrared
+            // Trigger infrared after firing.
             sendInfraredCommand("ghostintrap");
             ms_infrared_timer.start(i_infrared_timer_delay);
           }

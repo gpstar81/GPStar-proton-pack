@@ -884,6 +884,19 @@ void modePulseStart() {
   ms_semi_automatic_firing.start(350);
 }
 
+// Use an attached infrared LED to send a command. Only available if using the Wand II (ESP32).
+void sendInfraredCommand(const String sType) {
+#ifdef ESP32
+  if(sType.equals("ghostintrap")) {
+    // Send the standard Ghost Trap (PKE) IR signal.
+    IrSender.sendRaw(ir_GhostInTrap, sizeof(ir_GhostInTrap) / sizeof(ir_GhostInTrap[0]), CARRIER_KHZ);
+  }
+  else {
+    debugln(F("Unknown IR Command"));
+  }
+#endif
+}
+
 // Check if we should fire, or if the device was turned off.
 void fireControlCheck() {
   // Firing action stuff and shutting cyclotron and the Single-Shot Blaster off.
@@ -1015,6 +1028,11 @@ void vibrationDevice(uint8_t i_level) {
       }
       else {
         vibrationOff();
+
+        #ifdef ESP32
+          // Trigger infrared after firing pulse ends.
+          sendInfraredCommand("ghostintrap");
+        #endif
       }
     }
     else {
@@ -1108,17 +1126,4 @@ void deviceExitMenu() {
     bargraph.PATTERN = BG_POWER_RAMP; // Bargraph idling loop.
     led_SloBlo.turnOn(); // Turn on SLO-BLO if device is on.
   }
-}
-
-// Use an attached infrared LED to send a command. Only available if using the Wand II (ESP32).
-void sendInfraredCommand(const String sType) {
-#ifdef ESP32
-  if(sType.equals("ghostintrap")) {
-    // Send the standard Ghost Trap (PKE) IR signal.
-    IrSender.sendRaw(ir_GhostInTrap, sizeof(ir_GhostInTrap) / sizeof(ir_GhostInTrap[0]), CARRIER_KHZ);
-  }
-  else {
-    debugln(F("Unknown IR Command"));
-  }
-#endif
 }
