@@ -764,8 +764,6 @@ void sendMagCalData(bool b_update_points) {
 }
 
 void sendTelemetryData() {
-debugln("sendTelemetryData called");
-debugf("b_httpd_started=%d, SENSOR_READ_TARGET=%d (TELEMETRY=%d)\n", b_httpd_started, SENSOR_READ_TARGET, TELEMETRY);  
   if(b_httpd_started && SENSOR_READ_TARGET == TELEMETRY) {
     // Gather the latest filtered motion data, serialize it to a JSON string,
     // and send it to all connected EventSource (SSE) clients as a "telemetry"

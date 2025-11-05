@@ -1286,7 +1286,10 @@ void processMotionData() {
         const MotionOffsets *usedOffsets = &calibratedOffsets;
         if(isMotionOffsetsDefault(calibratedOffsets)) {
           usedOffsets = &quickOffsets;
-          debugln(F("No calibrated offsets present; using quickOffsets for runtime corrections."));
+
+          #if defined(DEBUG_TELEMETRY_DATA)
+            debugln(F("No calibrated offsets present; using quickOffsets for runtime corrections."));
+          #endif
         }
 
         // Apply chosen offsets
