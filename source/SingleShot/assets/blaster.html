@@ -159,7 +159,7 @@
               setToggle("autoVentLight", settings.autoVentLight);
               setValue("defaultSystemVolume", settings.defaultSystemVolume || 100);
               setToggle("deviceBootError", settings.deviceBootError);
-              setValue("deviceVibration", settings.wandVibration || 1);
+              setValue("deviceVibration", settings.deviceVibration || 2);
               setToggle("gpstarAudioLed", settings.gpstarAudioLed);
               setToggle("invertBlasterBargraph", settings.invertBlasterBargraph);
 
@@ -179,7 +179,7 @@
           autoVentLight: getToggle("autoVentLight"),
           defaultSystemVolume: getInt("defaultSystemVolume") || 100,
           deviceBootError: getToggle("deviceBootError"),
-          deviceVibration: getInt("deviceVibration") || 1,
+          deviceVibration: getInt("deviceVibration") || 2,
           gpstarAudioLed: getToggle("gpstarAudioLed"),
           invertBlasterBargraph: getToggle("invertBlasterBargraph"),
         };

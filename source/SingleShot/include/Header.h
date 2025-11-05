@@ -261,8 +261,7 @@ struct Encoder {
   #define VIBRATION_PIN 11 // Pin for the vibration motor.
 #endif
 enum VIBRATION_MODES { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE };
-enum VIBRATION_MODES VIBRATION_MODE_EEPROM;
-enum VIBRATION_MODES VIBRATION_MODE;
+enum VIBRATION_MODES VIBRATION_MODE = VIBRATION_FIRING_ONLY;
 const uint8_t i_vibration_level_min = 15; // Minimum vibration level is 6%.
 uint8_t i_vibration_level_current = 0; // Set the current value to 0 (off) on first start.
 millisDelay ms_menu_vibration; // Timer to do non-blocking confirmation buzzing in the vibration menu.

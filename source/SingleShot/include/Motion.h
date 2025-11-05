@@ -89,7 +89,7 @@ Adafruit_Sensor *accelerometer, *gyroscope, *magnetometer;
 sensors_event_t mag_event, gyro_event, accel_event;
 bool b_mag_found = false;
 bool b_imu_found = false;
-millisDelay ms_sensor_read_delay, ms_sensor_report_delay, ms_gyro_calibration;
+millisDelay ms_sensor_report_delay, ms_gyro_calibration;
 const uint8_t i_sensor_samples = 50; // Sets count of samples to take for averaging offsets.
 const uint16_t i_sensor_read_delay = 20; // Delay between sensor reads in milliseconds (20ms = 50Hz).
 const uint16_t i_sensor_report_delay = 50; // Delay between telemetry reporting (via console/web) in milliseconds.
@@ -778,12 +778,12 @@ void resetAllMotionData(bool b_calibrate = false) {
   resetMotionData(filteredMotionData);
   resetSpatialData(spatialData);
 
-  // if(b_calibrate) {
-  //   debugln(F("Reset all motion data, performing quick offset collection..."));
-  //   SENSOR_READ_TARGET = OFFSETS; // Set target to collect offsets after reset.
-  //   resetMotionOffsets(quickOffsets); // Clear previous offsets set/collected.
-  //   collectQuickMotionOffsets(); // Calibrate IMU offsets with X samples.
-  // }
+  if(b_calibrate) {
+    debugln(F("Reset all motion data, performing quick offset collection..."));
+    SENSOR_READ_TARGET = OFFSETS; // Set target to collect offsets after reset.
+    resetMotionOffsets(quickOffsets); // Clear previous offsets set/collected.
+    collectQuickMotionOffsets(); // Calibrate IMU offsets with X samples.
+  }
 }
 
 /**
@@ -1127,19 +1127,13 @@ String formatSignedFloat(float value) {
 /**
  * Function: checkMotionSensors
  * Purpose: Checks the timer to know when to read the latest motion sensor data and prints the data to the debug console (if enabled).
+ * NOTICE: For this device no timer is used to trigger the sensor reads; this is called by the task scheduler and its set interval.
  */
 void checkMotionSensors() {
 #ifdef MOTION_SENSORS
   if(b_imu_found && b_mag_found) {
-    // Read the IMU/MAG values every N milliseconds.
-    if(!ms_sensor_read_delay.isRunning()) {
-      // Start the delay timer if not already running.
-      ms_sensor_read_delay.start(i_sensor_read_delay);
-    }
-    else if(ms_sensor_read_delay.justFinished()) {
-      // Read the latest data, using it for calibration or telemetry processing.
-      processMotionData();
-    }
+    // Read the latest data, using it for calibration or telemetry processing.
+    processMotionData();
 
     // Report the averaged IMU/MAG values every N milliseconds.
     if(!ms_sensor_report_delay.isRunning()) {

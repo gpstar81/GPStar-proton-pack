@@ -129,7 +129,10 @@ void sendDebug(const String message) {
 // Forward declaration of scheduler task callback(s).
 void animateTaskCallback();
 void inputTaskCallback();
+#ifdef ESP32
 void motionTaskCallback();
+void wifiSetupTaskCallback();
+#endif
 
 // Create the primary task scheduler.
 Scheduler schedule;
@@ -147,6 +150,9 @@ Task inputsTask(14, TASK_FOREVER, &inputTaskCallback);
   // Create a task to check for motion via IMU/magnetometer.
   // We only need to update every 20ms (50Hz).
   Task motionTask(i_sensor_read_delay, TASK_FOREVER, &motionTaskCallback);
+
+  // Create a task for WiFi setup (single-run).
+  Task wifiSetupTask(0, TASK_ONCE, &wifiSetupTaskCallback);
 #endif
 
 void setup() {
@@ -220,8 +226,6 @@ void setup() {
   }
 
   // Setup default system settings.
-  VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
-  VIBRATION_MODE = VIBRATION_MODE_EEPROM;
   DEVICE_MENU_LEVEL = MENU_LEVEL_1;
   MENU_OPTION_LEVEL = OPTION_5;
   POWER_LEVEL = LEVEL_5;
@@ -318,6 +322,12 @@ void setup() {
   schedule.init();
   schedule.addTask(animateTask);
   schedule.addTask(inputsTask);
+#ifdef ESP32
+  schedule.addTask(motionTask);
+  schedule.addTask(wifiSetupTask);
+  motionTask.enable();
+  wifiSetupTask.enable();
+#endif
   animateTask.enable();
   inputsTask.enable();
 }
@@ -374,14 +384,32 @@ void inputTaskCallback() {
   checkGeneralTimers();
 }
 
-// Task callback for handling motion detection
-void motionTaskCallback() {
 #ifdef ESP32
+// Task callback for handling motion detection.
+void motionTaskCallback() {
   if(b_mag_found && b_imu_found) {
     checkMotionSensors();
   }
-#endif
 }
+
+// Task callback for WiFi setup (single-run).
+void wifiSetupTaskCallback() {
+  debugln(F("Starting WiFi setup task..."));
+  
+  // Begin by setting up WiFi as a prerequisite to all else.
+  if(startWiFi()) {
+    // Start the local web server.
+    startWebServer();
+    debugln(F("WiFi and web server started successfully"));
+  }
+  else {
+    debugln(F("Failed to start WiFi"));
+  }
+  
+  // Disable this task after it runs once.
+  wifiSetupTask.disable();
+}
+#endif
 
 void loop() {
   // Task execution via the scheduler.

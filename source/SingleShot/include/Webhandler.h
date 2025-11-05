@@ -115,12 +115,12 @@ void getBlasterPrefsObject() {
   blasterConfig.invertBlasterBargraph = b_bargraph_invert ? 1 : 0;
   blasterConfig.defaultSystemVolume = i_eeprom_volume_master_percentage;
 
-  switch(VIBRATION_MODE_EEPROM) {
+  switch(VIBRATION_MODE) {
     case VIBRATION_ALWAYS:
-    default:
       blasterConfig.deviceVibration = 1;
     break;
     case VIBRATION_FIRING_ONLY:
+    default:
       blasterConfig.deviceVibration = 2;
     break;
     case VIBRATION_NONE:
@@ -140,19 +140,16 @@ void handleBlasterPrefsUpdate() {
 
   switch(blasterConfig.deviceVibration) {
     case 1:
-    default:
-      VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
-      VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+      VIBRATION_MODE = VIBRATION_ALWAYS;
     break;
 
     case 2:
-      VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
-      VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+    default:
+      VIBRATION_MODE = VIBRATION_FIRING_ONLY;
     break;
 
     case 3:
-      VIBRATION_MODE_EEPROM = VIBRATION_NONE;
-      VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+      VIBRATION_MODE = VIBRATION_NONE;
     break;
   }
 
@@ -767,6 +764,8 @@ void sendMagCalData(bool b_update_points) {
 }
 
 void sendTelemetryData() {
+debugln("sendTelemetryData called");
+debugf("b_httpd_started=%d, SENSOR_READ_TARGET=%d (TELEMETRY=%d)\n", b_httpd_started, SENSOR_READ_TARGET, TELEMETRY);  
   if(b_httpd_started && SENSOR_READ_TARGET == TELEMETRY) {
     // Gather the latest filtered motion data, serialize it to a JSON string,
     // and send it to all connected EventSource (SSE) clients as a "telemetry"
@@ -1408,7 +1407,7 @@ AsyncCallbackJsonWebHandler *handleSaveBlasterConfig = new AsyncCallbackJsonWebH
       blasterConfig.deviceVibration = jsonBody["deviceVibration"].as<uint8_t>();
 
       handleBlasterPrefsUpdate(); // Have the blaster pass the new settings.
-      request->send(200, "application/json", returnJsonStatus("Settings updated, please test before saving to EEPROM."));
+      request->send(200, "application/json", returnJsonStatus("Settings updated and automatically saved to EEPROM."));
     }
     catch (...) {
       request->send(200, "application/json", returnJsonStatus("An error was encountered while saving settings."));

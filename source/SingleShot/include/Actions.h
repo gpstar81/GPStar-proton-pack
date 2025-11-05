@@ -309,11 +309,9 @@ void settingsMenuCheck() {
             stopEffect(S_BEEPS_ALT);
             playEffect(S_BEEPS_ALT);
 
-            switch(VIBRATION_MODE_EEPROM) {
+            switch(VIBRATION_MODE) {
               case VIBRATION_ALWAYS:
-              default:
-                VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
-                VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+                VIBRATION_MODE = VIBRATION_FIRING_ONLY;
 
                 stopEffect(S_VOICE_VIBRATION_FIRING_ENABLED);
                 stopEffect(S_VOICE_VIBRATION_ENABLED);
@@ -324,8 +322,8 @@ void settingsMenuCheck() {
                 ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
               break;
               case VIBRATION_FIRING_ONLY:
-                VIBRATION_MODE_EEPROM = VIBRATION_NONE;
-                VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+              default:
+                VIBRATION_MODE = VIBRATION_NONE;
 
                 stopEffect(S_VOICE_VIBRATION_FIRING_ENABLED);
                 stopEffect(S_VOICE_VIBRATION_ENABLED);
@@ -334,8 +332,7 @@ void settingsMenuCheck() {
                 playEffect(S_VOICE_VIBRATION_DISABLED);
               break;
               case VIBRATION_NONE:
-                VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
-                VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+                VIBRATION_MODE = VIBRATION_ALWAYS;
 
                 stopEffect(S_VOICE_VIBRATION_FIRING_ENABLED);
                 stopEffect(S_VOICE_VIBRATION_ENABLED);

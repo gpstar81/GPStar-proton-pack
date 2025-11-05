@@ -1018,7 +1018,8 @@ void vibrationDevice(uint8_t i_level) {
       }
     }
     else {
-      // Device vibrates even when idling, etc.
+    #ifndef ESP32
+      // VIBRATION_ALWAYS for ATMega Only: Device vibrates when idling, etc.
       if(ms_semi_automatic_firing.isRunning()) {
         if(i_vibration_level_current != (i_level * 2 < 64 ? i_level * 2 : 64)) {
           i_vibration_level_current = (i_level * 2 < 64 ? i_level * 2 : 64);
@@ -1029,6 +1030,7 @@ void vibrationDevice(uint8_t i_level) {
         i_vibration_level_current = i_level;
         analogWrite(VIBRATION_PIN, i_level);
       }
+    #endif
     }
   }
   else {

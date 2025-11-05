@@ -131,19 +131,16 @@ void readEEPROM() {
     if(obj_config_eeprom.device_vibration > 0 && obj_config_eeprom.device_vibration != 255) {
       switch(obj_config_eeprom.device_vibration) {
         case 3:
-          VIBRATION_MODE_EEPROM = VIBRATION_NONE;
-          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+          VIBRATION_MODE = VIBRATION_NONE;
         break;
 
         case 2:
-          VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
-          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+        default:
+          VIBRATION_MODE = VIBRATION_FIRING_ONLY;
         break;
 
         case 1:
-        default:
-          VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
-          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+          VIBRATION_MODE = VIBRATION_ALWAYS;
         break;
       }
     }
@@ -183,13 +180,13 @@ void saveConfigEEPROM() {
     i_default_system_volume = i_eeprom_volume_master_percentage + 1;
   }
 
-  switch(VIBRATION_MODE_EEPROM) {
+  switch(VIBRATION_MODE) {
     case VIBRATION_ALWAYS:
-    default:
       i_device_vibration = 1;
     break;
 
     case VIBRATION_FIRING_ONLY:
+    default:
       i_device_vibration = 2;
     break;
 

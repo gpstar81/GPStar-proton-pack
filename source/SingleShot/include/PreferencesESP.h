@@ -76,12 +76,12 @@ void saveConfigEEPROM() {
   gObjConfigEEPROM.invertBargraph = b_bargraph_invert ? 2 : 1;
   gObjConfigEEPROM.defaultSystemVolume = (eepromVolumeMasterPercentage <= 100) ? (eepromVolumeMasterPercentage + 1) : 101;
 
-  switch(VIBRATION_MODE_EEPROM) {
+  switch(VIBRATION_MODE) {
     case VIBRATION_ALWAYS:
-    default:
       gObjConfigEEPROM.deviceVibration = 1;
     break;
     case VIBRATION_FIRING_ONLY:
+    default:
       gObjConfigEEPROM.deviceVibration = 2;
     break;
     case VIBRATION_NONE:
@@ -164,17 +164,16 @@ void readEEPROM() {
 
     switch(gObjConfigEEPROM.deviceVibration) {
       case 3:
-        VIBRATION_MODE_EEPROM = VIBRATION_NONE;
+        VIBRATION_MODE = VIBRATION_NONE;
         break;
       case 2:
-        VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
+        VIBRATION_MODE = VIBRATION_FIRING_ONLY;
         break;
       case 1:
       default:
-        VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
+        VIBRATION_MODE = VIBRATION_ALWAYS;
         break;
     }
-    VIBRATION_MODE = VIBRATION_MODE_EEPROM;
     setAudioLED(b_gpstar_audio_led_enabled);
   }
   else {

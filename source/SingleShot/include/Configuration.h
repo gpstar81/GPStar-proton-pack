@@ -33,10 +33,10 @@ String build_date = "V6_20251103212650";
  * debugging, while the websocket will help with confirming operations
  * while using the device (post-setup for wireless).
  */
-#define DEBUG_WIRELESS_SETUP     // Output debugs related to the WiFi/network setup.
-#define DEBUG_SEND_TO_CONSOLE    // Send any general messages to the serial (USB) console.
+//#define DEBUG_WIRELESS_SETUP     // Output debugs related to the WiFi/network setup.
+//#define DEBUG_SEND_TO_CONSOLE    // Send any general messages to the serial (USB) console.
 //#define DEBUG_SEND_TO_WEBSOCKET  // Send any messages to connected WebSocket clients.
-#define DEBUG_TELEMETRY_DATA     // Output debugs related to the motion sensors.
+//#define DEBUG_TELEMETRY_DATA     // Output debugs related to the motion sensors.
 
 /*
  * Force the use of default SSID and password for wireless capabilities.
