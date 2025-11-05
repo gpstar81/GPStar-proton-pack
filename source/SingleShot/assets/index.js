@@ -222,7 +222,7 @@ function setButtonStates(sensorState) {
 
 function updateEquipment(jObj) {
   // Update display if we have the expected data (containing mode and theme at a minimum).
-  if (jObj && jObj.mode && jObj.theme) {
+  if (jObj && jObj.sensors) {
     // Enable Music Controls
     enableEl("btnVolMusicUp");
     enableEl("btnVolMusicDown");
