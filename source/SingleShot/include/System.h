@@ -985,9 +985,11 @@ void postActivation() {
     ms_warning_blink.stop();
     ms_error_blink.stop();
 
+    // Play bootup sound (runs only once).
     stopEffect(S_BOOTUP);
     playEffect(S_BOOTUP);
 
+    // Start idle loop sound (runs continuously).
     soundIdleLoop(true);
 
     if(bargraph.STATE == BG_OFF) {

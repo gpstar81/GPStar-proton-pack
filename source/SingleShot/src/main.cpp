@@ -97,6 +97,7 @@ void sendDebug(const String message);
 #include "Configuration.h"
 #include "MusicSounds.h"
 #include "Header.h"
+#include "Delay.h"
 #include "Colours.h"
 #include "Bargraph.h"
 #include "Cyclotron.h"
@@ -382,6 +383,9 @@ void inputTaskCallback() {
 
   // Perform updates/actions based on timer events.
   checkGeneralTimers();
+
+  // Check and execute any delayed execution callbacks.
+  checkDelayedExecutions();
 }
 
 #ifdef ESP32

@@ -14,11 +14,15 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.13.7'
+          python-version: '3.x'
 
-      - name: Install MkDocs and Material theme
+      - name: Install MkDocs and Material theme, add Mermaid2 and Minify plugins
         run: |
-          pip install mkdocs mkdocs-material
+          pip install \
+            mkdocs \
+            mkdocs-material \
+            mkdocs-mermaid2-plugin \
+            mkdocs-minify-plugin
 
       - name: Deploy to GitHub Pages
         run: |
