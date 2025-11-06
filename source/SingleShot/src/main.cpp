@@ -34,7 +34,7 @@
 #include <TaskScheduler.h>
 
 // Set to 1 to enable built-in debug messages via Serial device output.
-#define DEBUG 0
+#define DEBUG 1
 
 // Debug macros
 #if DEBUG == 1
@@ -82,6 +82,17 @@
 // Forward declaration for use in all includes.
 void sendDebug(const String message);
 
+// Forward declaration of scheduler task callback(s).
+void animateTaskCallback();
+void inputTaskCallback();
+#ifdef ESP32
+void motionTaskCallback();
+void wifiSetupTaskCallback();
+#endif
+
+// Create the primary task scheduler.
+Scheduler schedule;
+
 // Shared Libraries
 #ifdef ESP32
   #include <MagCalibration.h>
@@ -127,21 +138,12 @@ void sendDebug(const String message) {
   #endif
 }
 
-// Forward declaration of scheduler task callback(s).
-void animateTaskCallback();
-void inputTaskCallback();
-#ifdef ESP32
-void motionTaskCallback();
-void wifiSetupTaskCallback();
-#endif
-
-// Create the primary task scheduler.
-Scheduler schedule;
-
 // Create a task to handle all updates for LED/Bargraph animations.
 // 33ms reflects a refresh rate equivalent to 30fps.
+// 25ms reflects a refresh rate equivalent to 40fps.
+// 20ms reflects a refresh rate equivalent to 50fps.
 // 16ms reflects a refresh rate equivalent to 60fps.
-Task animateTask(16, TASK_FOREVER, &animateTaskCallback);
+Task animateTask(20, TASK_FOREVER, &animateTaskCallback);
 
 // Create a task to check for user inputs via switches/encoders.
 // Average visual reaction time to changes is 13-20ms.
@@ -149,8 +151,8 @@ Task inputsTask(14, TASK_FOREVER, &inputTaskCallback);
 
 #ifdef ESP32
   // Create a task to check for motion via IMU/magnetometer.
-  // We only need to update every 20ms (50Hz).
-  Task motionTask(i_sensor_read_delay, TASK_FOREVER, &motionTaskCallback);
+  // We only need to update every 50ms (20Hz).
+  Task motionTask(50, TASK_FOREVER, &motionTaskCallback);
 
   // Create a task for WiFi setup (single-run).
   Task wifiSetupTask(0, TASK_ONCE, &wifiSetupTaskCallback);
@@ -161,7 +163,7 @@ void setup() {
   // Reduce CPU frequency to 160 MHz to save ~33% power compared to 240 MHz.
   // Alternatively set CPU to 80 MHz to save ~50% power compared to 240 MHz.
   // Do not set below 80 MHz as it will affect WiFi and other peripherals.
-  setCpuFrequencyMhz(80);
+  setCpuFrequencyMhz(160);
 
   // This is required in order to make sure the board boots successfully.
   Serial.begin(115200);
@@ -383,9 +385,6 @@ void inputTaskCallback() {
 
   // Perform updates/actions based on timer events.
   checkGeneralTimers();
-
-  // Check and execute any delayed execution callbacks.
-  checkDelayedExecutions();
 }
 
 #ifdef ESP32

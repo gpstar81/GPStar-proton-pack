@@ -645,6 +645,9 @@ void checkGeneralTimers() {
   if(ms_slo_blo_blink.justFinished()) {
     ms_slo_blo_blink.start(i_slo_blo_blink_delay);
   }
+
+  // Check for any delayed execution callbacks that need to run.
+  checkDelayedExecutions();
 }
 
 void modeFireStart() {
@@ -969,8 +972,18 @@ void fireControlCheck() {
   }
 }
 
+void activateBargraphRamp() {
+  if(bargraph.STATE == BG_OFF) {
+    bargraph.reset(); // Enable bargraph for use (resets variables and turns it on).
+    bargraph.PATTERN = BG_POWER_RAMP; // Bargraph idling loop.
+  }
+}
+
 void postActivation() {
   if(DEVICE_STATUS != MODE_ERROR) {
+    // Activate the bargraph ramp animation.
+    executeDelayed(activateBargraphRamp, 1000);
+
     // Turn on slo-blo light.
     led_SloBlo.turnOn();
 
@@ -991,11 +1004,6 @@ void postActivation() {
 
     // Start idle loop sound (runs continuously).
     soundIdleLoop(true);
-
-    if(bargraph.STATE == BG_OFF) {
-      bargraph.reset(); // Enable bargraph for use (resets variables and turns it on).
-      bargraph.PATTERN = BG_POWER_RAMP; // Bargraph idling loop.
-    }
   }
 }
 

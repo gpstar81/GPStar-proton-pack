@@ -79,6 +79,8 @@
 #include <Adafruit_LSM6DS3TRC.h>
 #include <Adafruit_AHRS.h>
 
+extern Task motionTask; // Declare reference to the motion task used by the scheduler.
+
 /**
  * Magnetometer and IMU
  * Defines all device objects and variables.
@@ -89,10 +91,8 @@ Adafruit_Sensor *accelerometer, *gyroscope, *magnetometer;
 sensors_event_t mag_event, gyro_event, accel_event;
 bool b_mag_found = false;
 bool b_imu_found = false;
-millisDelay ms_sensor_report_delay, ms_gyro_calibration;
+millisDelay ms_gyro_calibration;
 const uint8_t i_sensor_samples = 50; // Sets count of samples to take for averaging offsets.
-const uint16_t i_sensor_read_delay = 20; // Delay between sensor reads in milliseconds (20ms = 50Hz).
-const uint16_t i_sensor_report_delay = 50; // Delay between telemetry reporting (via console/web) in milliseconds.
 const float f_gravity = 9.80665f; // Constant for converting m/s^2 to Gs.
 uint32_t i_gyro_calibration_duration; // Time in milliseconds to run a gyroscope calibration (ms_gyro_calibration).
 Adafruit_Mahony ahrs_filter; // Create a filter object for sensor fusion (AHRS); Mahony better suited for human motion.
@@ -589,8 +589,9 @@ MagConfigInfo readMagConfig() {
  * Purpose: Configures the motion sensors.
  */
 void configureSensors() {
-  Serial.println(F("Configuring motion sensors..."));
 #ifdef MOTION_SENSORS
+  debugln(F("Configuring motion sensors..."));
+
   if(b_mag_found && b_imu_found) {
     /**
      * Purpose: Sets the LIS3MDL magnetometer's measurement mode.
@@ -759,7 +760,7 @@ void configureSensors() {
     imuSensor.configInt2(false, true, false);
 
     // Set the sample frequency for the Madgwick filter (converting our sensor delay interval from milliseconds to Hz).
-    float f_sample_freq = (1000.0f / i_sensor_read_delay);
+    float f_sample_freq = (1000.0f / motionTask.getInterval());
     ahrs_filter.begin(f_sample_freq);
 
     // Set Mahony gain values to adjust responsiveness and stability of the filter.
@@ -1135,102 +1136,96 @@ void checkMotionSensors() {
     // Read the latest data, using it for calibration or telemetry processing.
     processMotionData();
 
-    // Report the averaged IMU/MAG values every N milliseconds.
-    if(!ms_sensor_report_delay.isRunning()) {
-      ms_sensor_report_delay.start(i_sensor_report_delay);
-    }
-    else if(ms_sensor_report_delay.justFinished()) {
-      // Print the filtered sensor data to the debug console.
-    #if defined(DEBUG_TELEMETRY_DATA)
-      debug("\t\tOff Accel X: ");
-      debug(formatSignedFloat(calibratedOffsets.accelX));
-      debug(" \tY: ");
-      debug(formatSignedFloat(calibratedOffsets.accelY));
-      debug(" \tZ: ");
-      debug(formatSignedFloat(calibratedOffsets.accelZ));
-      debugln(" m/s^2 ");
+  #if defined(DEBUG_TELEMETRY_DATA)
+    // Print the filtered sensor data to the debug console.
+    debug("\t\tOff Accel X: ");
+    debug(formatSignedFloat(calibratedOffsets.accelX));
+    debug(" \tY: ");
+    debug(formatSignedFloat(calibratedOffsets.accelY));
+    debug(" \tZ: ");
+    debug(formatSignedFloat(calibratedOffsets.accelZ));
+    debugln(" m/s^2 ");
 
-      debug("\t\tRaw Accel X: ");
-      debug(formatSignedFloat(motionData.accelX));
-      debug(" \tY: ");
-      debug(formatSignedFloat(motionData.accelY));
-      debug(" \tZ: ");
-      debug(formatSignedFloat(motionData.accelZ));
-      debugln(" m/s^2 ");
+    debug("\t\tRaw Accel X: ");
+    debug(formatSignedFloat(motionData.accelX));
+    debug(" \tY: ");
+    debug(formatSignedFloat(motionData.accelY));
+    debug(" \tZ: ");
+    debug(formatSignedFloat(motionData.accelZ));
+    debugln(" m/s^2 ");
 
-      debug("\t\tAvg Accel X: ");
-      debug(formatSignedFloat(filteredMotionData.accelX));
-      debug(" \tY: ");
-      debug(formatSignedFloat(filteredMotionData.accelY));
-      debug(" \tZ: ");
-      debug(formatSignedFloat(filteredMotionData.accelZ));
-      debugln(" m/s^2 ");
-      debugln();
+    debug("\t\tAvg Accel X: ");
+    debug(formatSignedFloat(filteredMotionData.accelX));
+    debug(" \tY: ");
+    debug(formatSignedFloat(filteredMotionData.accelY));
+    debug(" \tZ: ");
+    debug(formatSignedFloat(filteredMotionData.accelZ));
+    debugln(" m/s^2 ");
+    debugln();
 
-      debug("\t\tRaw G-Force: ");
-      debug(motionData.gForce);
-      debugln("g ");
-      debug("\t\tAvg G-Force: ");
-      debug(filteredMotionData.gForce);
-      debugln("g ");
-      debugln();
+    debug("\t\tRaw G-Force: ");
+    debug(motionData.gForce);
+    debugln("g ");
+    debug("\t\tAvg G-Force: ");
+    debug(filteredMotionData.gForce);
+    debugln("g ");
+    debugln();
 
-      debug("\t\tOff Gyro  X: ");
-      debug(formatSignedFloat(calibratedOffsets.gyroX));
-      debug(" \tY: ");
-      debug(formatSignedFloat(calibratedOffsets.gyroY));
-      debug(" \tZ: ");
-      debug(formatSignedFloat(calibratedOffsets.gyroZ));
-      debugln(" deg/s ");
+    debug("\t\tOff Gyro  X: ");
+    debug(formatSignedFloat(calibratedOffsets.gyroX));
+    debug(" \tY: ");
+    debug(formatSignedFloat(calibratedOffsets.gyroY));
+    debug(" \tZ: ");
+    debug(formatSignedFloat(calibratedOffsets.gyroZ));
+    debugln(" deg/s ");
 
-      debug("\t\tRaw Gyro  X: ");
-      debug(formatSignedFloat(motionData.gyroX));
-      debug(" \tY: ");
-      debug(formatSignedFloat(motionData.gyroY));
-      debug(" \tZ: ");
-      debug(formatSignedFloat(motionData.gyroZ));
-      debugln(" deg/s ");
+    debug("\t\tRaw Gyro  X: ");
+    debug(formatSignedFloat(motionData.gyroX));
+    debug(" \tY: ");
+    debug(formatSignedFloat(motionData.gyroY));
+    debug(" \tZ: ");
+    debug(formatSignedFloat(motionData.gyroZ));
+    debugln(" deg/s ");
 
-      debug("\t\tAvg Gyro  X: ");
-      debug(formatSignedFloat(filteredMotionData.gyroX));
-      debug(" \tY: ");
-      debug(formatSignedFloat(filteredMotionData.gyroY));
-      debug(" \tZ: ");
-      debug(formatSignedFloat(filteredMotionData.gyroZ));
-      debugln(" deg/s ");
-      debugln();
+    debug("\t\tAvg Gyro  X: ");
+    debug(formatSignedFloat(filteredMotionData.gyroX));
+    debug(" \tY: ");
+    debug(formatSignedFloat(filteredMotionData.gyroY));
+    debug(" \tZ: ");
+    debug(formatSignedFloat(filteredMotionData.gyroZ));
+    debugln(" deg/s ");
+    debugln();
 
-      debug("\t\tRaw Mag   X: ");
-      debug(formatSignedFloat(motionData.magX));
-      debug(" \tY: ");
-      debug(formatSignedFloat(motionData.magY));
-      debug(" \tZ: ");
-      debug(formatSignedFloat(motionData.magZ));
-      debugln(" uTesla ");
+    debug("\t\tRaw Mag   X: ");
+    debug(formatSignedFloat(motionData.magX));
+    debug(" \tY: ");
+    debug(formatSignedFloat(motionData.magY));
+    debug(" \tZ: ");
+    debug(formatSignedFloat(motionData.magZ));
+    debugln(" uTesla ");
 
-      debug("\t\tAvg Mag   X: ");
-      debug(formatSignedFloat(filteredMotionData.magX));
-      debug(" \tY: ");
-      debug(formatSignedFloat(filteredMotionData.magY));
-      debug(" \tZ: ");
-      debug(formatSignedFloat(filteredMotionData.magZ));
-      debugln(" uTesla ");
-      debugln();
+    debug("\t\tAvg Mag   X: ");
+    debug(formatSignedFloat(filteredMotionData.magX));
+    debug(" \tY: ");
+    debug(formatSignedFloat(filteredMotionData.magY));
+    debug(" \tZ: ");
+    debug(formatSignedFloat(filteredMotionData.magZ));
+    debugln(" uTesla ");
+    debugln();
 
-      debug("\t\tRoll (x): ");
-      debug(formatSignedFloat(spatialData.roll));
-      debug("\tPitch (Y): ");
-      debug(formatSignedFloat(spatialData.pitch));
-      debug("\tYaw (Z): ");
-      debug(formatSignedFloat(spatialData.yaw));
-      debugln();
-      debugln();
-    #endif
+    debug("\t\tRoll (x): ");
+    debug(formatSignedFloat(spatialData.roll));
+    debug("\tPitch (Y): ");
+    debug(formatSignedFloat(spatialData.pitch));
+    debug("\tYaw (Z): ");
+    debug(formatSignedFloat(spatialData.yaw));
+    debugln();
+    debugln();
+  #endif
 
-      if(SENSOR_READ_TARGET == TELEMETRY) {
-        // Send telemetry data to connected clients via server-side events.
-        sendTelemetryData();
-      }
+    if(SENSOR_READ_TARGET == TELEMETRY) {
+      // Send telemetry data to connected clients via server-side events.
+      sendTelemetryData();
     }
   }
 #endif
