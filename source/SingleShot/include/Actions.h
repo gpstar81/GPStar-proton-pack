@@ -518,10 +518,6 @@ void checkDeviceAction() {
 }
 
 void encoderChangedMenuOption() {
-  if(encoder.STATE == ENCODER_IDLE) {
-    return; // Leave if no change has occurred.
-  }
-
   if(switch_intensify.on() || switch_grip.on()) {
     // If either of these buttons is pressed while turning the rotary dial,
     // then we assume the user is not actually intending to change menu level.
@@ -529,15 +525,6 @@ void encoderChangedMenuOption() {
   }
 
   // Handle menu navigation based on rotation of the encoder
-  if(encoder.STATE == ENCODER_CW) {
-    if(decreaseOptionLevel()) {
-      bargraph.showBars(MENU_OPTION_LEVEL); // Update change to menu.
-    }
-  }
-  else if(encoder.STATE == ENCODER_CCW) {
-    if(increaseOptionLevel()) {
-      bargraph.showBars(MENU_OPTION_LEVEL); // Update change to menu.
-    }
   switch(encoder.STATE) {
     case ENCODER_CW:
       if(decreaseOptionLevel()) {
