@@ -289,6 +289,9 @@ struct Encoder {
     }
 } encoder;
 
+/*
+ * Rotary dial switch.
+ */
 millisDelay ms_center_double_tap; // Timer for determinine when a double-tap was detected.
 millisDelay ms_center_long_press; // Timer for determining when a long press was detected.
 bool b_center_pressed = false;

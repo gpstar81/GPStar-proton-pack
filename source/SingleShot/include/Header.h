@@ -176,6 +176,10 @@ StandaloneLED led_Tip = {BARREL_TIP_LED_PIN, HIGH, LOW};
   #define ROTARY_ENCODER_B 7
 #endif
 enum ENCODER_STATES : int8_t { ENCODER_IDLE = 0, ENCODER_CW = 1, ENCODER_CCW = -1 };
+
+/*
+ * Simple class for the rotary encoder events.
+ */
 struct Encoder {
   const static uint8_t PinA = ROTARY_ENCODER_A;
   const static uint8_t PinB = ROTARY_ENCODER_B;
@@ -228,6 +232,12 @@ struct Encoder {
       STATE = ENCODER_IDLE;
       b_direction_inverted = inverted;
     }
+
+    // Runtime getter for dial direction (false = default, true = inverted).
+    bool isRotationInverted() { return b_direction_inverted; }
+
+    // Runtime setter to invert direction.
+    void setRotationInverted(bool invert) { b_direction_inverted = invert; }
 
     void check() {
       // Read the current encoder value, noting state when adjusted.

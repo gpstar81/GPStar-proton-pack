@@ -148,12 +148,14 @@ void settingsMenuCheck() {
           // Intensify: Previous Track
           if(b_playing_music && switch_intensify.pushed()) {
             musicPrevTrack();
-            debugln(F("Prev Track"));
+            debug(F("Prev Track: #"));
+            debugln(i_current_music_track);
           }
           // Grip: Next Track
           else if(b_playing_music && switch_grip.pushed()) {
             musicNextTrack();
-            debugln(F("Next Track"));
+            debug(F("Next Track: #"));
+            debugln(i_current_music_track);
           }
         break;
 
@@ -536,6 +538,23 @@ void encoderChangedMenuOption() {
     if(increaseOptionLevel()) {
       bargraph.showBars(MENU_OPTION_LEVEL); // Update change to menu.
     }
+  switch(encoder.STATE) {
+    case ENCODER_CW:
+      if(decreaseOptionLevel()) {
+        bargraph.showBars(MENU_OPTION_LEVEL); // Update change to menu.
+      }
+    break;
+
+    case ENCODER_CCW:
+      if(increaseOptionLevel()) {
+        bargraph.showBars(MENU_OPTION_LEVEL); // Update change to menu.
+      }
+    break;
+
+    case ENCODER_IDLE:
+    default:
+      return; // Leave if no change has occurred.
+    break;
   }
 }
 

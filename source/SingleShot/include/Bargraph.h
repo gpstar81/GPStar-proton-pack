@@ -269,7 +269,7 @@ void bargraphUpdate(uint8_t i_delay_divisor = 1) {
 
   // Set the current delay by dividing the base delay by some value (Min: 2).
   // For most normal usage, the divisor will be 1 (thus, no change in delay).
-  uint8_t i_current_delay = max(2, int(Bargraph::UpdateDelay / i_delay_divisor));
+  uint8_t i_current_delay = max((uint8_t)2, (uint8_t)(Bargraph::UpdateDelay / i_delay_divisor));
 
   // Adjust the delay based on the number of total elements to be illuminated.
   // Primarily affects BG_POWER_RAMP at levels 1-4 to slow the ramp animation.
@@ -307,8 +307,8 @@ void bargraphUpdate(uint8_t i_delay_divisor = 1) {
           bargraph.STATE = BG_OFF;
         }
         else {
-          // Reset timer for next iteration, increasing the delay as elements are lit (easing out).
-          bargraph.ms_bargraph.start(i_current_delay + int(bargraph.element / 2));
+          // Reset timer for next iteration.
+          bargraph.ms_bargraph.start(i_current_delay);
         }
       break;
 
@@ -330,8 +330,8 @@ void bargraphUpdate(uint8_t i_delay_divisor = 1) {
           bargraph.ms_bargraph.start(i_current_delay * 3);
         }
         else {
-          // Reset timer for next iteration, increasing the delay as elements are lit (easing out).
-          bargraph.ms_bargraph.start(i_current_delay + int(bargraph.element / 2));
+          // Reset timer for next iteration.
+          bargraph.ms_bargraph.start(i_current_delay);
         }
       break;
 
