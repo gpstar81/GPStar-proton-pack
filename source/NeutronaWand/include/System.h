@@ -3733,7 +3733,7 @@ void fireControlCheck() {
         }
       }
       else {
-        if(STREAM_MODE == PROTON && WAND_ACTION_STATUS == ACTION_FIRING) {
+        if((STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL || STREAM_MODE == SPECTRAL_CUSTOM || STREAM_MODE == HOLIDAY_CHRISTMAS || STREAM_MODE == HOLIDAY_HALLOWEEN) && WAND_ACTION_STATUS == ACTION_FIRING) {
           if(switch_mode.on()) {
             b_firing_alt = true;
           }
@@ -7183,7 +7183,7 @@ void mixExtraFiringEffects() {
   }
 
   // Standalone Neutrona Wand gets additional effects which would normally be played by Proton Pack.
-  if(ms_firing_sound_mix.justFinished() && STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects && b_gpstar_benchtest) {
+  if(ms_firing_sound_mix.justFinished() && STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects) {
     uint8_t i_random_effect = getRandomFiringEffect(); // Use last-played effect to choose another.
     uint16_t i_s_random = random(2,4) * 1000; // Affects mix timer, not effect chosen.
 
