@@ -152,7 +152,7 @@ class MagCalibration {
 
   private:
     // Minimum samples before allowing hard-iron calculations.
-    static constexpr uint16_t HARD_IRON_SAMPLE_THRESHOLD = 40;
+    static constexpr uint16_t HARD_IRON_SAMPLE_THRESHOLD = 30;
 
     // Minimum range in µT for sufficient hard-iron calculations.
     static constexpr float HARD_IRON_SPREAD_THRESHOLD = 40.0f;

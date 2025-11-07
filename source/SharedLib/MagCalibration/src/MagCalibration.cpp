@@ -126,7 +126,7 @@ bool MagCalibration::addSample(float x, float y, float z) {
   if(!provisionalHardIron.offsetsApplied) {
     if(sampleCount < HARD_IRON_SAMPLE_THRESHOLD) {
       // Not enough samples to attempt a calculation yet, so instruct the user on what to do.
-      snprintf(statusMessage, sizeof(statusMessage), "Move the device in full circular rotations in multiple directions: horizontal, vertical, and diagonal.");
+      snprintf(statusMessage, sizeof(statusMessage), "Move the device in full circular motions in multiple directions. Collected %u of %u samples.", sampleCount, HARD_IRON_SAMPLE_THRESHOLD);
     } else {
       // We have enough samples to attempt a hard-iron offset calculation.
       provisionalHardIron = calculateHardIronOffsets(); // Run the calculation for hard-iron offsets.
