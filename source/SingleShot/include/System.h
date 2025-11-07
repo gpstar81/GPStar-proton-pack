@@ -974,9 +974,7 @@ void fireControlCheck() {
 
 void activateBargraphRamp() {
   if(bargraph.STATE == BG_OFF || bargraph.PATTERN != BG_POWER_RAMP) {
-    bargraph.clear(); // Ensure the bargraph is cleared first.
     bargraph.reset(); // Enable bargraph for use (resets variables and turns it on).
-    bargraph.commit(); // Force an immediate update of all segments.
     bargraph.PATTERN = BG_POWER_RAMP; // Bargraph idling loop.
   }
 }
@@ -984,7 +982,7 @@ void activateBargraphRamp() {
 void postActivation() {
   if(DEVICE_STATUS != MODE_ERROR) {
     // Activate the bargraph ramp animation.
-    executeDelayed(activateBargraphRamp, 2000);
+    executeDelayed(activateBargraphRamp, 200);
 
     // Turn on slo-blo light.
     led_SloBlo.turnOn();
