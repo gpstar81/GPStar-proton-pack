@@ -373,11 +373,11 @@ void readEEPROM() {
   uint32_t storedCrc = getCRCEEPROM();
   uint32_t calcCrc = eepromCRC();
   if(storedCrc == calcCrc) {
-    if(gObjLEDEEPROM.powercell_count == HASLAB_POWERCELL_LED_COUNT || gObjLEDEEPROM.powercell_count == FRUTTO_POWERCELL_LED_COUNT) {
+    if(gObjLEDEEPROM.powercell_count == HASLAB_POWERCELL_LED_COUNT || gObjLEDEEPROM.powercell_count == MAX_POWERCELL_LED_COUNT) {
       i_powercell_leds = gObjLEDEEPROM.powercell_count;
 
       switch(i_powercell_leds) {
-        case FRUTTO_POWERCELL_LED_COUNT:
+        case MAX_POWERCELL_LED_COUNT:
           // 15 Power Cell LEDs.
           i_powercell_delay_1984 = POWERCELL_DELAY_1984_15_LED;
           i_powercell_delay_2021 = POWERCELL_DELAY_2021_15_LED;
@@ -393,7 +393,7 @@ void readEEPROM() {
     }
 
     if(gObjLEDEEPROM.cyclotron_count == HASLAB_CYCLOTRON_LED_COUNT || gObjLEDEEPROM.cyclotron_count == FRUTTO_CYCLOTRON_LED_COUNT ||
-      gObjLEDEEPROM.cyclotron_count == FRUTTO_MAX_CYCLOTRON_LED_COUNT || gObjLEDEEPROM.cyclotron_count == OUTER_CYCLOTRON_LED_MAX) {
+      gObjLEDEEPROM.cyclotron_count == MAX_CYCLOTRON_LED_COUNT || gObjLEDEEPROM.cyclotron_count == OUTER_CYCLOTRON_LED_MAX) {
       i_cyclotron_leds = gObjLEDEEPROM.cyclotron_count;
     }
 

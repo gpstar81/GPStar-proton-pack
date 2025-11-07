@@ -116,8 +116,8 @@ enum POWER_LEVELS {
   LEVEL_4 = 4,
   LEVEL_5 = 5
 };
-enum POWER_LEVELS POWER_LEVEL;
-enum POWER_LEVELS POWER_LEVEL_PREV;
+enum POWER_LEVELS POWER_LEVEL = LEVEL_5;
+enum POWER_LEVELS POWER_LEVEL_PREV = POWER_LEVEL;
 
 struct StandaloneLED {
   uint8_t Pin; // Pin Assignment
@@ -363,7 +363,7 @@ enum DEVICE_MENU_LEVELS {
   MENU_LEVEL_3 = 3,
   MENU_LEVEL_4 = 4,
   MENU_LEVEL_5 = 5 };
-enum DEVICE_MENU_LEVELS DEVICE_MENU_LEVEL;
+enum DEVICE_MENU_LEVELS DEVICE_MENU_LEVEL = MENU_LEVEL_1;
 enum MENU_OPTION_LEVELS {
   OPTION_1 = 1,
   OPTION_2 = 2,
@@ -371,7 +371,7 @@ enum MENU_OPTION_LEVELS {
   OPTION_4 = 4,
   OPTION_5 = 5
 };
-enum MENU_OPTION_LEVELS MENU_OPTION_LEVEL;
+enum MENU_OPTION_LEVELS MENU_OPTION_LEVEL = OPTION_5;
 uint8_t i_device_menu = 5;
 const uint16_t i_settings_blink_delay = 400;
 millisDelay ms_settings_blink;

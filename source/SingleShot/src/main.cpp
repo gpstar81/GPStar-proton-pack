@@ -228,11 +228,6 @@ void setup() {
     vent_leds[i] = getHueAsRGB(C_WHITE);
   }
 
-  // Setup default system settings.
-  DEVICE_MENU_LEVEL = MENU_LEVEL_1;
-  MENU_OPTION_LEVEL = OPTION_5;
-  POWER_LEVEL = LEVEL_5;
-
   // Rotary encoder on the top of the device.
   encoder.initialize();
 

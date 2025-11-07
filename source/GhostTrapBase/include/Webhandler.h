@@ -27,8 +27,8 @@
 
 // Declare the external binary data markers for embedded files.
 // common.js
-extern const uint8_t _binary_assets_common_js_start[];
-extern const uint8_t _binary_assets_common_js_end[];
+extern const uint8_t _binary_assets_common_js_gz_start[];
+extern const uint8_t _binary_assets_common_js_gz_end[];
 // equipment.svg
 extern const uint8_t _binary_assets_equipment_svg_gz_start[];
 extern const uint8_t _binary_assets_equipment_svg_gz_end[];
@@ -39,23 +39,23 @@ extern const uint8_t _binary_assets_favicon_ico_gz_end[];
 extern const uint8_t _binary_assets_favicon_svg_gz_start[];
 extern const uint8_t _binary_assets_favicon_svg_gz_end[];
 // style.css
-extern const uint8_t _binary_assets_style_css_start[];
-extern const uint8_t _binary_assets_style_css_end[];
+extern const uint8_t _binary_assets_style_css_gz_start[];
+extern const uint8_t _binary_assets_style_css_gz_end[];
 // index.html
-extern const uint8_t _binary_assets_index_html_start[];
-extern const uint8_t _binary_assets_index_html_end[];
+extern const uint8_t _binary_assets_index_html_gz_start[];
+extern const uint8_t _binary_assets_index_html_gz_end[];
 // index.js
-extern const uint8_t _binary_assets_index_js_start[];
-extern const uint8_t _binary_assets_index_js_end[];
+extern const uint8_t _binary_assets_index_js_gz_start[];
+extern const uint8_t _binary_assets_index_js_gz_end[];
 // device.html
-extern const uint8_t _binary_assets_device_html_start[];
-extern const uint8_t _binary_assets_device_html_end[];
+extern const uint8_t _binary_assets_device_html_gz_start[];
+extern const uint8_t _binary_assets_device_html_gz_end[];
 // network.html
-extern const uint8_t _binary_assets_network_html_start[];
-extern const uint8_t _binary_assets_network_html_end[];
+extern const uint8_t _binary_assets_network_html_gz_start[];
+extern const uint8_t _binary_assets_network_html_gz_end[];
 // password.html
-extern const uint8_t _binary_assets_password_html_start[];
-extern const uint8_t _binary_assets_password_html_end[];
+extern const uint8_t _binary_assets_password_html_gz_start[];
+extern const uint8_t _binary_assets_password_html_gz_end[];
 
 // Define standard ports and URI endpoints.
 const uint16_t WS_PORT = 80; // Web Server (+WebSocket) port
@@ -204,63 +204,70 @@ void startWebServer() {
 void handleCommonJS(AsyncWebServerRequest *request) {
   // Used for the root page (/ = common.js) from the web server.
   debugln("Sending -> Common JavaScript");
-  size_t i_file_len = embeddedFileSize(_binary_assets_common_js_start, _binary_assets_common_js_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", _binary_assets_common_js_start, i_file_len);
+  size_t i_file_len = embeddedFileSize(_binary_assets_common_js_gz_start, _binary_assets_common_js_gz_end);
+  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", _binary_assets_common_js_gz_start, i_file_len);
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
   request->send(response); // Serve page content.
 }
 
 void handleRoot(AsyncWebServerRequest *request) {
   // Used for the root page (/ = index.html) from the web server.
   debugln("Sending -> Index HTML");
-  size_t i_file_len = embeddedFileSize(_binary_assets_index_html_start, _binary_assets_index_html_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", _binary_assets_index_html_start, i_file_len);
+  size_t i_file_len = embeddedFileSize(_binary_assets_index_html_gz_start, _binary_assets_index_html_gz_end);
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", _binary_assets_index_html_gz_start, i_file_len);
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
   request->send(response); // Serve page content.
 }
 
 void handleRootJS(AsyncWebServerRequest *request) {
   // Used for the root page (/ = index.js) from the web server.
   debugln("Sending -> Index JavaScript");
-  size_t i_file_len = embeddedFileSize(_binary_assets_index_js_start, _binary_assets_index_js_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", _binary_assets_index_js_start, i_file_len);
+  size_t i_file_len = embeddedFileSize(_binary_assets_index_js_gz_start, _binary_assets_index_js_gz_end);
+  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", _binary_assets_index_js_gz_start, i_file_len);
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
   request->send(response); // Serve page content.
 }
 
 void handleNetwork(AsyncWebServerRequest *request) {
   // Used for the network page from the web server.
   debugln("Sending -> Network HTML");
-  size_t i_file_len = embeddedFileSize(_binary_assets_network_html_start, _binary_assets_network_html_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", _binary_assets_network_html_start, i_file_len);
+  size_t i_file_len = embeddedFileSize(_binary_assets_network_html_gz_start, _binary_assets_network_html_gz_end);
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", _binary_assets_network_html_gz_start, i_file_len);
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
   request->send(response); // Serve page content.
 }
 
 void handlePassword(AsyncWebServerRequest *request) {
   // Used for the password page from the web server.
   debugln("Sending -> Password HTML");
-  size_t i_file_len = embeddedFileSize(_binary_assets_password_html_start, _binary_assets_password_html_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", _binary_assets_password_html_start, i_file_len);
+  size_t i_file_len = embeddedFileSize(_binary_assets_password_html_gz_start, _binary_assets_password_html_gz_end);
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", _binary_assets_password_html_gz_start, i_file_len);
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
   request->send(response); // Serve page content.
 }
 
 void handleDeviceSettings(AsyncWebServerRequest *request) {
   // Used for the device page from the web server.
   debugln("Sending -> Device Settings HTML");
-  size_t i_file_len = embeddedFileSize(_binary_assets_device_html_start, _binary_assets_device_html_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", _binary_assets_device_html_start, i_file_len);
+  size_t i_file_len = embeddedFileSize(_binary_assets_device_html_gz_start, _binary_assets_device_html_gz_end);
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", _binary_assets_device_html_gz_start, i_file_len);
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
   request->send(response); // Serve page content.
 }
 
 void handleStylesheet(AsyncWebServerRequest *request) {
   // Used for the root page (/) of the web server.
   debugln("Sending -> Main StyleSheet");
-  size_t i_file_len = embeddedFileSize(_binary_assets_style_css_start, _binary_assets_style_css_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/css", _binary_assets_style_css_start, i_file_len);
+  size_t i_file_len = embeddedFileSize(_binary_assets_style_css_gz_start, _binary_assets_style_css_gz_end);
+  AsyncWebServerResponse *response = request->beginResponse(200, "text/css", _binary_assets_style_css_gz_start, i_file_len);
   response->addHeader("Cache-Control", "no-cache, must-revalidate");
+  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
   request->send(response); // Serve page content.
 }
 

@@ -205,7 +205,7 @@ uint8_t cyclotronLookupTable(uint8_t index) {
       return PROGMEM_READU8(i_cyclotron_20led_matrix[index]);
     break;
 
-    case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+    case MAX_CYCLOTRON_LED_COUNT:
       // GPStar LED array.
       return PROGMEM_READU8(i_cyclotron_36led_matrix[index]);
     break;
@@ -2489,7 +2489,7 @@ uint8_t cyclotron84LookupTable(uint8_t index) {
         return PROGMEM_READU8(i_1984_cyclotron_20_leds_cw[index]);
       break;
 
-      case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+      case MAX_CYCLOTRON_LED_COUNT:
         // 1984 CW 36 LED array.
         return PROGMEM_READU8(i_1984_cyclotron_36_leds_cw[index]);
       break;
@@ -2513,7 +2513,7 @@ uint8_t cyclotron84LookupTable(uint8_t index) {
         return PROGMEM_READU8(i_1984_cyclotron_20_leds_ccw[index]);
       break;
 
-      case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+      case MAX_CYCLOTRON_LED_COUNT:
         // 1984 CCW 36 LED array.
         return PROGMEM_READU8(i_1984_cyclotron_36_leds_ccw[index]);
       break;
@@ -2696,7 +2696,7 @@ void cyclotronFade() {
           switch(i_cyclotron_leds) {
             case OUTER_CYCLOTRON_LED_MAX:
             case FRUTTO_CYCLOTRON_LED_COUNT:
-            case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+            case MAX_CYCLOTRON_LED_COUNT:
               r_cyclotron_led_fade_out[i].go(0, i_outer_current_ramp_speed * 3, CIRCULAR_OUT);
             break;
 
@@ -2783,7 +2783,7 @@ void cyclotron84LightOn(uint8_t cLed) {
   if(i_cyclotron_leds == FRUTTO_CYCLOTRON_LED_COUNT) {
     i_led_array_width = 2;
   }
-  else if(i_cyclotron_leds == FRUTTO_MAX_CYCLOTRON_LED_COUNT) {
+  else if(i_cyclotron_leds == MAX_CYCLOTRON_LED_COUNT) {
     i_led_array_width = 4;
   }
   */
@@ -2829,7 +2829,7 @@ void cyclotron84LightOff(uint8_t cLed) {
   if(i_cyclotron_leds == FRUTTO_CYCLOTRON_LED_COUNT) {
     i_led_array_width = 2;
   }
-  else if(i_cyclotron_leds == FRUTTO_MAX_CYCLOTRON_LED_COUNT) {
+  else if(i_cyclotron_leds == MAX_CYCLOTRON_LED_COUNT) {
     i_led_array_width = 4;
   }
   */
@@ -3029,7 +3029,7 @@ void cyclotron2021(uint16_t iRampDelay) {
 
       switch(i_cyclotron_leds) {
         case OUTER_CYCLOTRON_LED_MAX:
-        case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+        case MAX_CYCLOTRON_LED_COUNT:
           if(i_cyclotron_multiplier > 1) {
             if(t_iRampDelay - i_cyclotron_multiplier > 0) {
               t_iRampDelay = t_iRampDelay - i_cyclotron_multiplier;
@@ -3082,7 +3082,7 @@ void cyclotron2021(uint16_t iRampDelay) {
     }
 
     switch(i_cyclotron_leds) {
-      case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+      case MAX_CYCLOTRON_LED_COUNT:
         if(i_cyclotron_multiplier > 1) {
           if(iRampDelay - i_cyclotron_multiplier > 0) {
             iRampDelay = iRampDelay - i_cyclotron_multiplier;
@@ -3149,7 +3149,7 @@ void cyclotron2021(uint16_t iRampDelay) {
           // Do nothing; already 0.
         break;
 
-        case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+        case MAX_CYCLOTRON_LED_COUNT:
           if(b_ramp_down || b_ramp_up || b_pack_alarm || b_wand_mash_lockout) {
             if(i_curr_cyclotron_position == 39) {
               // Top gap between lenses is about 27 pixels wide.
@@ -3342,7 +3342,7 @@ void cyclotron1984Alarm() {
   if(i_cyclotron_leds == FRUTTO_CYCLOTRON_LED_COUNT) {
     i_led_array_width = 2;
   }
-  else if(i_cyclotron_leds == FRUTTO_MAX_CYCLOTRON_LED_COUNT) {
+  else if(i_cyclotron_leds == MAX_CYCLOTRON_LED_COUNT) {
     i_led_array_width = 4;
   }
   */
@@ -4957,7 +4957,7 @@ void resetCyclotronLEDs() {
     break;
 
     // For Frutto Technology Max Cyclotron (36) LEDs.
-    case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+    case MAX_CYCLOTRON_LED_COUNT:
       i_2021_delay = CYCLOTRON_DELAY_2021_36_LED;
     break;
 

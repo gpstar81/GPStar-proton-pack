@@ -85,7 +85,7 @@
 /*
  * The GPStar and Frutto Power Cell has 15 LEDs.
  */
-#define FRUTTO_POWERCELL_LED_COUNT 15
+#define MAX_POWERCELL_LED_COUNT 15
 
 /*
  * The HasLab Cyclotron Lid has 12 LEDs.
@@ -100,7 +100,7 @@
 /*
  * The GPStar and Frutto Max Cyclotron Lid has 36 LEDs.
  */
-#define FRUTTO_MAX_CYCLOTRON_LED_COUNT 36
+#define MAX_CYCLOTRON_LED_COUNT 36
 
 /*
  * Set the number of steps for the Outer Cyclotron (lid).
@@ -153,7 +153,7 @@
  *    That jewel chains off Cyclotron lens assembly #4 in the lid (top left lens).
  * Max 62 LEDs: 15 for the Power Cell, 40 for the Cyclotron lid, and 7 for the jewel.
  */
-const uint8_t i_max_pack_leds = FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX;
+const uint8_t i_max_pack_leds = MAX_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX;
 const uint8_t i_nfilter_jewel_leds = JEWEL_NFILTER_LED_COUNT;
 
 /*
@@ -180,7 +180,7 @@ uint8_t i_vent_light_start = i_powercell_leds + i_cyclotron_leds;
 /*
  * Proton Pack Power Cell and Cyclotron lid LED pin.
  */
-CRGB pack_leds[FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX + JEWEL_NFILTER_LED_COUNT];
+CRGB pack_leds[MAX_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX + JEWEL_NFILTER_LED_COUNT];
 
 /*
  * Inner Cyclotron LEDs (optional).
@@ -337,8 +337,8 @@ ezButton switch_smoke(SMOKE_TOGGLE_PIN); // Switch to enable smoke effects. Not 
  * Vibration default is based on the toggle switch position. These are references for the EEPROM menu. Empty is a zero value, not used in the EEPROM.
  */
 enum VIBRATION_MODES { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE, VIBRATION_DEFAULT, CYCLOTRON_MOTOR };
-enum VIBRATION_MODES VIBRATION_MODE_EEPROM;
-enum VIBRATION_MODES VIBRATION_MODE;
+enum VIBRATION_MODES VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
+enum VIBRATION_MODES VIBRATION_MODE = VIBRATION_FIRING_ONLY;
 uint8_t i_vibration_level = 0;
 uint8_t i_vibration_level_prev = 0;
 const uint8_t i_vibration_idle_level_2021 = 60; // Afterlife/Frozen Empire idle level is 23.5%.
@@ -382,10 +382,10 @@ bool b_vent_light_on = false; // To know if the light is on or off.
 /*
  * Wand Firing Modes + Settings
  */
-enum BARREL_STATES { BARREL_RETRACTED, BARREL_EXTENDED };
-enum BARREL_STATES BARREL_STATE;
+enum BARREL_STATES { BARREL_UNKNOWN, BARREL_RETRACTED, BARREL_EXTENDED };
+enum BARREL_STATES BARREL_STATE = BARREL_UNKNOWN;;
 enum POWER_LEVELS { LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5 };
-enum POWER_LEVELS POWER_LEVEL = LEVEL_5;
+enum POWER_LEVELS POWER_LEVEL = LEVEL_5; // Default power level is 5.
 enum STREAM_MODES { UNSET_STREAM, PROTON, STASIS, SLIME, MESON, SPECTRAL, HOLIDAY_HALLOWEEN, HOLIDAY_CHRISTMAS, SPECTRAL_CUSTOM, SETTINGS };
 enum STREAM_MODES STREAM_MODE = PROTON; // Default stream mode is Proton.
 enum STREAM_MODE_FLAGS : uint8_t { FLAG_NONE = 0, FLAG_VG = 1, FLAG_SPECTRAL = 2, FLAG_SPECTRAL_CUSTOM = 4, FLAG_HOLIDAY_HALLOWEEN = 8, FLAG_HOLIDAY_CHRISTMAS = 16 };
@@ -403,13 +403,13 @@ uint16_t i_stream_change_delay = 500; // Delay between stream mode changes.
  * Super Hero will be the default system mode.
  */
 enum SYSTEM_MODES { MODE_SUPER_HERO, MODE_ORIGINAL };
-enum SYSTEM_MODES SYSTEM_MODE;
+enum SYSTEM_MODES SYSTEM_MODE = MODE_SUPER_HERO;
 
 /*
  * Cross The Streams Status
  */
 enum STATUS_CROSS_THE_STREAMS { CTS_FIRING_1984, CTS_FIRING_2021, CTS_NOT_FIRING };
-enum STATUS_CROSS_THE_STREAMS STATUS_CTS;
+enum STATUS_CROSS_THE_STREAMS STATUS_CTS = CTS_NOT_FIRING;
 
 /*
  * Wand Status
@@ -493,9 +493,9 @@ enum device {
  * SYSTEM_EMPTY is just a empty place holder. We need this as we write this data to the EEPROM.
  */
 enum SYSTEM_YEARS { SYSTEM_EMPTY, SYSTEM_TOGGLE_SWITCH, SYSTEM_1984, SYSTEM_1989, SYSTEM_AFTERLIFE, SYSTEM_FROZEN_EMPIRE };
-enum SYSTEM_YEARS SYSTEM_YEAR;
-enum SYSTEM_YEARS SYSTEM_YEAR_TEMP;
-enum SYSTEM_YEARS SYSTEM_EEPROM_YEAR;
+enum SYSTEM_YEARS SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+enum SYSTEM_YEARS SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+enum SYSTEM_YEARS SYSTEM_EEPROM_YEAR = SYSTEM_TOGGLE_SWITCH;
 
 /*
  * Misc.

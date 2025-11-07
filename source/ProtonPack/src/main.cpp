@@ -221,7 +221,7 @@ void setup() {
   pinModeFast(NFILTER_LED_PIN, OUTPUT);
 
   // Power Cell, Cyclotron Lid, and N-Filter.
-  FastLED.addLeds<NEOPIXEL, PACK_LED_PIN>(pack_leds, FRUTTO_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX + JEWEL_NFILTER_LED_COUNT).setCorrection(TypicalLEDStrip);
+  FastLED.addLeds<NEOPIXEL, PACK_LED_PIN>(pack_leds, MAX_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX + JEWEL_NFILTER_LED_COUNT).setCorrection(TypicalLEDStrip);
   FastLED.setMaxRefreshRate(0); // Disable FastLED's blocking 2.5ms delay.
 
   // Inner Cyclotron LEDs (Inner Panel + Cyclotron + Cavity).
@@ -245,25 +245,6 @@ void setup() {
   pinModeFast(VIBRATION_TOGGLE_LED_PIN, OUTPUT);
 #endif
 
-  // Default mode is Super Hero (for simpler controls).
-  SYSTEM_MODE = MODE_SUPER_HERO;
-
-  // Assume the Super Hero arming mode with Afterlife (default for Haslab).
-  RED_SWITCH_MODE = SWITCH_OFF;
-
-  // Bootup the pack into Proton mode, the same as the wand.
-  STREAM_MODE = PROTON;
-
-  // Set the CTS to not firing.
-  STATUS_CTS = CTS_NOT_FIRING;
-
-  // Set default year selection to toggle switch.
-  SYSTEM_EEPROM_YEAR = SYSTEM_TOGGLE_SWITCH;
-
-  // Set default vibration mode.
-  VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
-  VIBRATION_MODE = VIBRATION_FIRING_ONLY;
-
   // Configure the vibration state.
   if(switch_vibration.getState() == LOW) {
     b_vibration_switch_on = true;
@@ -281,9 +262,6 @@ void setup() {
     SYSTEM_YEAR = SYSTEM_AFTERLIFE;
   }
   SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-
-  // Set a default for the cyclotron inner panel.
-  INNER_CYC_PANEL_MODE = PANEL_RGB_DYNAMIC;
 
   // Load any saved settings stored in the EEPROM memory of the Proton Pack.
   if(b_eeprom) {
@@ -332,7 +310,7 @@ void setup() {
   }
   else {
     if(SYSTEM_MODE == MODE_SUPER_HERO) {
-      // Auto start the pack if it is in demo light mode.
+      // Auto start the pack if it is in startup (demo) light mode.
       PACK_ACTION_STATE = ACTION_ACTIVATE;
     }
 

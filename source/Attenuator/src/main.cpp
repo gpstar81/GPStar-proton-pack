@@ -446,20 +446,6 @@ void setup() {
 
   btStop(); // Disable Bluetooth which is not needed for this hardware.
 
-  // Assume the Super Hero arming mode with Afterlife (default for Haslab).
-  SYSTEM_MODE = MODE_SUPER_HERO;
-  RED_SWITCH_MODE = SWITCH_OFF;
-  SYSTEM_YEAR = SYSTEM_AFTERLIFE;
-
-  // Boot into proton mode (default for pack and wand).
-  STREAM_MODE = PROTON;
-
-  // Set a default animation for the radiation indicator.
-  RAD_LENS_IDLE = AMBER_PULSE;
-
-  // Begin at menu level one. This affects the behavior of the rotary dial.
-  MENU_LEVEL = MENU_1;
-
   if(!b_wait_for_pack) {
     // If not waiting for the pack set power level to 5.
     POWER_LEVEL = LEVEL_5;

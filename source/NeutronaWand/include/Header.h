@@ -95,14 +95,14 @@ enum WAND_ACTION_STATE WAND_ACTION_STATUS;
  * Super Hero will be the default system mode.
  */
 enum SYSTEM_MODES { MODE_SUPER_HERO, MODE_ORIGINAL };
-enum SYSTEM_MODES SYSTEM_MODE;
+enum SYSTEM_MODES SYSTEM_MODE = MODE_SUPER_HERO;
 
 /*
  * Which year mode the Proton Pack is set into which may not be the same the user prefers for the wand.
  * Though this can/will be used if YEAR_DEFAULT is specified by the user as the WAND_YEAR_MODE.
  */
-enum SYSTEM_YEARS { SYSTEM_1984, SYSTEM_1989, SYSTEM_AFTERLIFE, SYSTEM_FROZEN_EMPIRE };
-enum SYSTEM_YEARS SYSTEM_YEAR;
+enum SYSTEM_YEARS { SYSTEM_EMPTY, SYSTEM_TOGGLE_SWITCH, SYSTEM_1984, SYSTEM_1989, SYSTEM_AFTERLIFE, SYSTEM_FROZEN_EMPIRE };
+enum SYSTEM_YEARS SYSTEM_YEAR = SYSTEM_AFTERLIFE;
 
 /*
  * Which year mode the Neutrona Wand is set into, regardless of which year the Proton Pack is in.
@@ -111,7 +111,7 @@ enum SYSTEM_YEARS SYSTEM_YEAR;
  * YEAR_DEFAULT lets the system choose based on the Proton Pack year settings.
  */
 enum WAND_YEAR_MODES { YEAR_DEFAULT, YEAR_1984, YEAR_1989, YEAR_AFTERLIFE, YEAR_FROZEN_EMPIRE };
-enum WAND_YEAR_MODES WAND_YEAR_MODE;
+enum WAND_YEAR_MODES WAND_YEAR_MODE = YEAR_DEFAULT;
 
 /*
  * Bargraph modes.
@@ -119,14 +119,14 @@ enum WAND_YEAR_MODES WAND_YEAR_MODE;
  * Original: Mimics the original diagrams and instructions based on production notes and in Afterlife. This is the default for Afterlife and Mode Original.
  */
 enum BARGRAPH_MODES { BARGRAPH_SUPER_HERO, BARGRAPH_ORIGINAL };
-enum BARGRAPH_MODES BARGRAPH_MODE;
+enum BARGRAPH_MODES BARGRAPH_MODE = BARGRAPH_ORIGINAL;
 
 /*
  * Used for manually toggling between the different bragraph modes and saving to the EEPROM memory.
  * This is the setting you want to change as the system uses this to configure the BARGRAPH_MODE.
  */
 enum BARGRAPH_MODES_EEPROM { BARGRAPH_EEPROM_DEFAULT, BARGRAPH_EEPROM_SUPER_HERO, BARGRAPH_EEPROM_ORIGINAL };
-enum BARGRAPH_MODES_EEPROM BARGRAPH_MODE_EEPROM;
+enum BARGRAPH_MODES_EEPROM BARGRAPH_MODE_EEPROM = BARGRAPH_EEPROM_DEFAULT;
 
 /*
  * Bargraph Firing Animations.
@@ -134,14 +134,14 @@ enum BARGRAPH_MODES_EEPROM BARGRAPH_MODE_EEPROM;
  * Animation Original: Mimics the original diagrams and instructions based on production notes. This is the default for Afterlife and Mode Original.
  */
 enum BARGRAPH_FIRING_ANIMATIONS { BARGRAPH_ANIMATION_SUPER_HERO, BARGRAPH_ANIMATION_ORIGINAL };
-enum BARGRAPH_FIRING_ANIMATIONS BARGRAPH_FIRING_ANIMATION;
+enum BARGRAPH_FIRING_ANIMATIONS BARGRAPH_FIRING_ANIMATION = BARGRAPH_ANIMATION_SUPER_HERO;
 
 /*
  * Used for manually toggling between the different bragraph firing animation modes and saving to the EEPROM memory.
  * This is the setting you want to change as the system uses this to configure the BARGRAPH_FIRING_ANIMATION.
  */
 enum BARGRAPH_EEPROM_FIRING_ANIMATIONS { BARGRAPH_EEPROM_ANIMATION_DEFAULT, BARGRAPH_EEPROM_ANIMATION_SUPER_HERO, BARGRAPH_EEPROM_ANIMATION_ORIGINAL };
-enum BARGRAPH_EEPROM_FIRING_ANIMATIONS BARGRAPH_EEPROM_FIRING_ANIMATION;
+enum BARGRAPH_EEPROM_FIRING_ANIMATIONS BARGRAPH_EEPROM_FIRING_ANIMATION = BARGRAPH_EEPROM_ANIMATION_DEFAULT;
 
 /*
  * Which CTS "Cross The Streams" year mode the Neutrona Wand is set to. The Proton Pack will match this when set.
@@ -149,7 +149,7 @@ enum BARGRAPH_EEPROM_FIRING_ANIMATIONS BARGRAPH_EEPROM_FIRING_ANIMATION;
  * CTS_DEFAULT lets the system choose based on the year setting of the Proton Pack.
  */
 enum WAND_YEAR_CTS_SETTING { CTS_DEFAULT, CTS_1984, CTS_AFTERLIFE };
-enum WAND_YEAR_CTS_SETTING WAND_YEAR_CTS;
+enum WAND_YEAR_CTS_SETTING WAND_YEAR_CTS = CTS_DEFAULT;
 
 /*
  * For MODE_ORIGINAL. For blinking the slo-blo light when the cyclotron is not on.
@@ -193,7 +193,7 @@ enum WAND_BARREL_LED_COUNTS : uint8_t {
   LEDS_5 = 5,
   LEDS_48 = 48,
   LEDS_50 = 50
-} WAND_BARREL_LED_COUNT;
+} WAND_BARREL_LED_COUNT = LEDS_50;
 
 /*
  * Delay for fastled to update the addressable LEDs.
@@ -247,8 +247,8 @@ static uint16_t store = 0;
  * These are references for the EEPROM menu. Empty is a zero value, not used in the EEPROM.
  */
 enum VIBRATION_MODES { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE, VIBRATION_DEFAULT, CYCLOTRON_MOTOR };
-enum VIBRATION_MODES VIBRATION_MODE_EEPROM;
-enum VIBRATION_MODES VIBRATION_MODE;
+enum VIBRATION_MODES VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
+enum VIBRATION_MODES VIBRATION_MODE = VIBRATION_NONE;
 const uint8_t i_vibration_level_min = 15; // Minimum vibration level is 6%.
 uint8_t i_vibration_level_current = 0; // Set the current value to 0 (off) on first start.
 millisDelay ms_menu_vibration; // Timer to do non-blocking confirmation buzzing in the vibration menu.
@@ -484,7 +484,7 @@ const uint16_t i_heartbeat_delay = 3250; // Delay to send a heartbeat (handshake
  * Wand Menu
  */
 enum WAND_MENU_LEVELS { MENU_LEVEL_1, MENU_LEVEL_2, MENU_LEVEL_3, MENU_LEVEL_4, MENU_LEVEL_5 };
-enum WAND_MENU_LEVELS WAND_MENU_LEVEL;
+enum WAND_MENU_LEVELS WAND_MENU_LEVEL = MENU_LEVEL_1;
 enum VOLUME_ADJUST_DEVICES { VOLUME_PROTON_PACK, VOLUME_NEUTRONA_WAND };
 enum VOLUME_ADJUST_DEVICES VOLUME_ADJUST_DEVICE;
 uint8_t i_wand_menu = 5;

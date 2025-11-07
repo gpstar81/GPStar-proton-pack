@@ -648,7 +648,7 @@ void handlePackPrefsUpdate() {
 
     // For GPStar Cyclotron (36) LEDs.
     case 36:
-      i_cyclotron_leds = FRUTTO_MAX_CYCLOTRON_LED_COUNT;
+      i_cyclotron_leds = MAX_CYCLOTRON_LED_COUNT;
     break;
 
     // For Frutto Technology Cyclotron (20) LEDs.
@@ -3840,7 +3840,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         case HASLAB_POWERCELL_LED_COUNT:
         default:
           // Switch to 15 Power Cell LEDs.
-          i_powercell_leds = FRUTTO_POWERCELL_LED_COUNT;
+          i_powercell_leds = MAX_POWERCELL_LED_COUNT;
           i_powercell_delay_1984 = POWERCELL_DELAY_1984_15_LED;
           i_powercell_delay_2021 = POWERCELL_DELAY_2021_15_LED;
 
@@ -3848,7 +3848,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           packSerialSend(P_POWERCELL_LEDS_15);
         break;
 
-        case FRUTTO_POWERCELL_LED_COUNT:
+        case MAX_POWERCELL_LED_COUNT:
           // Switch to 13 Power Cell LEDs.
           i_powercell_leds = HASLAB_POWERCELL_LED_COUNT;
           i_powercell_delay_1984 = POWERCELL_DELAY_1984_13_LED;
@@ -3876,7 +3876,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       switch(i_cyclotron_leds) {
         case OUTER_CYCLOTRON_LED_MAX:
           // Switch to 36 LEDs. GPStar.
-          i_cyclotron_leds = FRUTTO_MAX_CYCLOTRON_LED_COUNT;
+          i_cyclotron_leds = MAX_CYCLOTRON_LED_COUNT;
 
           resetCyclotronState();
 
@@ -3884,7 +3884,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           packSerialSend(P_CYCLOTRON_LEDS_36);
         break;
 
-        case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+        case MAX_CYCLOTRON_LED_COUNT:
           // Switch to 20 LEDs. Frutto Technology.
           i_cyclotron_leds = FRUTTO_CYCLOTRON_LED_COUNT;
 

@@ -122,11 +122,11 @@ void readEEPROM() {
     objLEDEEPROM obj_led_eeprom;
     EEPROM.get(i_eepromAddress, obj_led_eeprom);
 
-    if(obj_led_eeprom.powercell_count == HASLAB_POWERCELL_LED_COUNT || obj_led_eeprom.powercell_count == FRUTTO_POWERCELL_LED_COUNT) {
+    if(obj_led_eeprom.powercell_count == HASLAB_POWERCELL_LED_COUNT || obj_led_eeprom.powercell_count == MAX_POWERCELL_LED_COUNT) {
       i_powercell_leds = obj_led_eeprom.powercell_count;
 
       switch(i_powercell_leds) {
-        case FRUTTO_POWERCELL_LED_COUNT:
+        case MAX_POWERCELL_LED_COUNT:
           // 15 Power Cell LEDs.
           i_powercell_delay_1984 = POWERCELL_DELAY_1984_15_LED;
           i_powercell_delay_2021 = POWERCELL_DELAY_2021_15_LED;
@@ -148,7 +148,7 @@ void readEEPROM() {
     }
 
     if(obj_led_eeprom.cyclotron_count == HASLAB_CYCLOTRON_LED_COUNT || obj_led_eeprom.cyclotron_count == FRUTTO_CYCLOTRON_LED_COUNT ||
-      obj_led_eeprom.cyclotron_count == FRUTTO_MAX_CYCLOTRON_LED_COUNT || obj_led_eeprom.cyclotron_count == OUTER_CYCLOTRON_LED_MAX) {
+      obj_led_eeprom.cyclotron_count == MAX_CYCLOTRON_LED_COUNT || obj_led_eeprom.cyclotron_count == OUTER_CYCLOTRON_LED_MAX) {
       i_cyclotron_leds = obj_led_eeprom.cyclotron_count;
     }
     else if(b_power_meter_available) {
