@@ -195,9 +195,9 @@ void settingsMenuCheck() {
         case OPTION_5:
           // Intensify: Enable/Disable auto vent light intensity.
           if(switch_intensify.pushed()) {
-            if(b_vent_light_control) {
+            if(blasterConfig.ventLightAutoIntensity) {
               // Disable the auto vent light intensity feature.
-              b_vent_light_control = false;
+              blasterConfig.ventLightAutoIntensity = false;
 
               stopEffect(S_VOICE_VENT_AUTO_INTENSITY_ENABLED);
               stopEffect(S_VOICE_VENT_AUTO_INTENSITY_DISABLED);
@@ -206,7 +206,7 @@ void settingsMenuCheck() {
             }
             else {
               // Enable the auto vent light intensity feature.
-              b_vent_light_control = true;
+              blasterConfig.ventLightAutoIntensity = true;
 
               stopEffect(S_VOICE_VENT_AUTO_INTENSITY_ENABLED);
               stopEffect(S_VOICE_VENT_AUTO_INTENSITY_DISABLED);
@@ -241,9 +241,9 @@ void settingsMenuCheck() {
         case OPTION_4:
           // Intensify: Enable/Disable boot errors.
           if(switch_intensify.pushed()) {
-            if(b_device_boot_errors) {
+            if(blasterConfig.deviceBootErrorBeep) {
               // Disable blaster boot errors.
-              b_device_boot_errors = false;
+              blasterConfig.deviceBootErrorBeep = false;
 
               stopEffect(S_VOICE_BOOTUP_ERRORS_ENABLED);
               stopEffect(S_VOICE_BOOTUP_ERRORS_DISABLED);
@@ -252,7 +252,7 @@ void settingsMenuCheck() {
             }
             else {
               // Enable blaster boot errors.
-              b_device_boot_errors = true;
+              blasterConfig.deviceBootErrorBeep = true;
 
               stopEffect(S_VOICE_BOOTUP_ERRORS_ENABLED);
               stopEffect(S_VOICE_BOOTUP_ERRORS_DISABLED);
@@ -262,9 +262,9 @@ void settingsMenuCheck() {
           }
           // Grip: Normal/Inverted Bargraph Animation
           else if(switch_grip.pushed()) {
-            if(b_bargraph_invert) {
+            if(blasterConfig.invertBlasterBargraph) {
               // Revert to normal bargraph animation.
-              b_bargraph_invert = false;
+              blasterConfig.invertBlasterBargraph = false;
 
               stopEffect(S_VOICE_BARGRAPH_INVERTED);
               stopEffect(S_VOICE_BARGRAPH_NORMAL);
@@ -273,7 +273,7 @@ void settingsMenuCheck() {
             }
             else {
               // Switch to inverted bargraph animation.
-              b_bargraph_invert = true;
+              blasterConfig.invertBlasterBargraph = true;
 
               stopEffect(S_VOICE_BARGRAPH_INVERTED);
               stopEffect(S_VOICE_BARGRAPH_NORMAL);
@@ -285,9 +285,9 @@ void settingsMenuCheck() {
         case OPTION_3:
           // Intensify: Enable/Disable GPStar Audio LED.
           if(switch_intensify.pushed()) {
-            if(b_gpstar_audio_led_enabled) {
+            if(blasterConfig.gpstarAudioLed) {
               // Disable the GPStar Audio status LED.
-              b_gpstar_audio_led_enabled = false;
+              blasterConfig.gpstarAudioLed = false;
 
               stopEffect(S_VOICE_GPSTAR_AUDIO_LED_ENABLED);
               stopEffect(S_VOICE_GPSTAR_AUDIO_LED_DISABLED);
@@ -296,7 +296,7 @@ void settingsMenuCheck() {
             }
             else {
               // Enable the GPStar Audio status LED.
-              b_gpstar_audio_led_enabled = true;
+              blasterConfig.gpstarAudioLed = true;
 
               stopEffect(S_VOICE_GPSTAR_AUDIO_LED_ENABLED);
               stopEffect(S_VOICE_GPSTAR_AUDIO_LED_DISABLED);
@@ -304,16 +304,16 @@ void settingsMenuCheck() {
               playEffect(S_VOICE_GPSTAR_AUDIO_LED_ENABLED);
             }
 
-            setAudioLED(b_gpstar_audio_led_enabled);
+            setAudioLED(blasterConfig.gpstarAudioLed);
           }
           // Grip: Toggle through vibration settings.
           else if(switch_grip.pushed()) {
             stopEffect(S_BEEPS_ALT);
             playEffect(S_BEEPS_ALT);
 
-            switch(VIBRATION_MODE) {
+            switch(blasterConfig.deviceVibration) {
               case VIBRATION_ALWAYS:
-                VIBRATION_MODE = VIBRATION_FIRING_ONLY;
+                blasterConfig.deviceVibration = VIBRATION_FIRING_ONLY;
 
                 stopEffect(S_VOICE_VIBRATION_FIRING_ENABLED);
                 stopEffect(S_VOICE_VIBRATION_ENABLED);
@@ -325,7 +325,7 @@ void settingsMenuCheck() {
               break;
               case VIBRATION_FIRING_ONLY:
               default:
-                VIBRATION_MODE = VIBRATION_NONE;
+                blasterConfig.deviceVibration = VIBRATION_NONE;
 
                 stopEffect(S_VOICE_VIBRATION_FIRING_ENABLED);
                 stopEffect(S_VOICE_VIBRATION_ENABLED);
@@ -334,7 +334,7 @@ void settingsMenuCheck() {
                 playEffect(S_VOICE_VIBRATION_DISABLED);
               break;
               case VIBRATION_NONE:
-                VIBRATION_MODE = VIBRATION_ALWAYS;
+                blasterConfig.deviceVibration = VIBRATION_ALWAYS;
 
                 stopEffect(S_VOICE_VIBRATION_FIRING_ENABLED);
                 stopEffect(S_VOICE_VIBRATION_ENABLED);

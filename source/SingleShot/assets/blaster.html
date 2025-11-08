@@ -22,29 +22,29 @@
     <h1>General Options</h1>
     <div class="block left">
       <div class="setting">
-        <b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Use Vibration:</b>
+        <b>Enable Vibration:</b>
         <select id="deviceVibration" name="deviceVibration" style="width: 170px">
-          <option value="3">Never</option>
+          <option value="1">Never</option>
           <option value="2">When Firing</option>
-          <option value="1">Always</option>
+          <option value="4">Always</option>
         </select>
       </div>
       <div class="setting">
         <label class="toggle-switchy" data-label="left">
-          <input id="autoVentLight" name="autoVentLight" type="checkbox" />
+          <input id="ventLightAutoIntensity" name="ventLightAutoIntensity" type="checkbox" />
           <span class="toggle">
             <span class="switch"></span>
           </span>
-          <span class="label">Auto Vent Light Brightness:</span>
+          <span class="label">Vent Light Auto Brightness:</span>
         </label>
       </div>
       <div class="setting">
         <label class="toggle-switchy" data-label="left">
-          <input id="deviceBootError" name="deviceBootError" type="checkbox" />
+          <input id="deviceBootErrorBeep" name="deviceBootErrorBeep" type="checkbox" />
           <span class="toggle">
             <span class="switch"></span>
           </span>
-          <span class="label">Boot Errors:</span>
+          <span class="label">Boot Error Beep:</span>
         </label>
       </div>
     </div>
@@ -105,9 +105,9 @@
 
       function disableControls() {
         // Disables all controls.
-        disableEl("autoVentLight");
+        disableEl("ventLightAutoIntensity");
         disableEl("defaultSystemVolume");
-        disableEl("deviceBootError");
+        disableEl("deviceBootErrorBeep");
         disableEl("deviceVibration");
         disableEl("gpstarAudioLed");
         disableEl("invertBlasterBargraph");
@@ -156,15 +156,13 @@
               // Valid settings were received and both the pack and blaster are off, so allow updating settings.
               enableEl("btnSave");
 
-              setToggle("autoVentLight", settings.autoVentLight);
+              setToggle("ventLightAutoIntensity", settings.ventLightAutoIntensity);
               setValue("defaultSystemVolume", settings.defaultSystemVolume || 100);
-              setToggle("deviceBootError", settings.deviceBootError);
+              setHtml("masterVolOut", getValue("defaultSystemVolume"));
+              setToggle("deviceBootErrorBeep", settings.deviceBootErrorBeep);
               setValue("deviceVibration", settings.deviceVibration || 2);
               setToggle("gpstarAudioLed", settings.gpstarAudioLed);
               setToggle("invertBlasterBargraph", settings.invertBlasterBargraph);
-
-              // Update colour preview and value display for hue/saturation sliders.
-              //updateColour("blasterColourPreview", "blasterHueOut", "blasterSatOut", getEl("ledBlasterHue").value, getEl("ledBlasterSat").value);
             }
           }
         };
@@ -176,9 +174,9 @@
         // Saves current settings to blaster, updating runtime variables and making changes immediately effective.
         // This does NOT save to the EEPROM automatically as the user is encouraged to test prior to that action.
         var settings = {
-          autoVentLight: getToggle("autoVentLight"),
+          ventLightAutoIntensity: getToggle("ventLightAutoIntensity"),
           defaultSystemVolume: getInt("defaultSystemVolume") || 100,
-          deviceBootError: getToggle("deviceBootError"),
+          deviceBootErrorBeep: getToggle("deviceBootErrorBeep"),
           deviceVibration: getInt("deviceVibration") || 2,
           gpstarAudioLed: getToggle("gpstarAudioLed"),
           invertBlasterBargraph: getToggle("invertBlasterBargraph"),

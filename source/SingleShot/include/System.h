@@ -770,7 +770,7 @@ void ventLightControl(uint8_t i_intensity) {
 void deviceLightControlCheck() {
   // Vent light and first stage of the safety system.
   if(switch_vent.on()) {
-    if(b_vent_light_control) {
+    if(blasterConfig.ventLightAutoIntensity) {
       // Vent light on, brightness dependent on mode.
       if(DEVICE_ACTION_STATUS == ACTION_FIRING || (ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished())) {
         ventLightControl(255);
@@ -1011,7 +1011,7 @@ void modeActivate() {
   setPowerOnReminder(false);
 
   // The device was started while the top switch was already on, so let's put the device into startup error mode.
-  if(switch_device.on() && b_device_boot_errors) {
+  if(switch_device.on() && blasterConfig.deviceBootErrorBeep) {
     b_device_boot_error_on = true;
     modeError();
   }
@@ -1027,9 +1027,9 @@ void modeActivate() {
 }
 
 void vibrationDevice(uint8_t i_level) {
-  if(VIBRATION_MODE != VIBRATION_NONE && i_level > 0) {
+  if(blasterConfig.deviceVibration != VIBRATION_NONE && i_level > 0) {
     // Vibrate the device during firing only when enabled.
-    if(VIBRATION_MODE == VIBRATION_FIRING_ONLY) {
+    if(blasterConfig.deviceVibration == VIBRATION_FIRING_ONLY) {
       if(ms_semi_automatic_firing.isRunning()) {
         if(i_vibration_level_current != (i_level * 2 < 64 ? i_level * 2 : 64)) {
           i_vibration_level_current = (i_level * 2 < 64 ? i_level * 2 : 64);

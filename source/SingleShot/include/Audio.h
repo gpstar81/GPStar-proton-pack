@@ -95,7 +95,6 @@ uint8_t i_volume_music_percentage = STARTUP_VOLUME_MUSIC; // Music volume.
  * Effects/Music: i_volume_abs_min = Quietest, i_track_volume_abs_max = Loudest
  */
 int8_t i_volume_master = MINIMUM_VOLUME - ((MINIMUM_VOLUME - i_volume_abs_max) * i_volume_master_percentage / 100); // Master overall volume.
-int8_t i_volume_master_eeprom = i_volume_master; // Master overall volume that is saved into the eeprom menu and loaded during bootup in standalone mode.
 int8_t i_volume_revert = i_volume_master; // Used to restore volume level from a muted state.
 int8_t i_volume_effects = i_volume_abs_min - (i_volume_abs_min * i_volume_effects_percentage / 100); // Sound effects.
 int8_t i_volume_music = i_volume_abs_min - (i_volume_abs_min * i_volume_music_percentage / 100); // Music volume.
@@ -464,7 +463,7 @@ void updateMasterVolume(bool startup) {
 }
 
 void increaseVolumeEEPROM() {
-  if(i_volume_master_eeprom == i_volume_abs_max) {
+  if(i_volume_master == i_volume_abs_max) {
     // Cannot go any higher.
   }
   else {
@@ -475,16 +474,15 @@ void increaseVolumeEEPROM() {
       i_volume_master_percentage += VOLUME_MULTIPLIER;
     }
 
-    i_volume_master_eeprom = MINIMUM_VOLUME - ((MINIMUM_VOLUME - i_volume_abs_max) * i_volume_master_percentage / 100);
-    i_volume_master = i_volume_master_eeprom;
-    i_volume_revert = i_volume_master_eeprom;
+    i_volume_master = MINIMUM_VOLUME - ((MINIMUM_VOLUME - i_volume_abs_max) * i_volume_master_percentage / 100);
+    i_volume_revert = i_volume_master;
 
     updateMasterVolume();
   }
 }
 
 void decreaseVolumeEEPROM() {
-  if(i_volume_master_eeprom == MINIMUM_VOLUME) {
+  if(i_volume_master == MINIMUM_VOLUME) {
     // Cannot go any lower.
   }
   else {
@@ -495,9 +493,8 @@ void decreaseVolumeEEPROM() {
       i_volume_master_percentage -= VOLUME_MULTIPLIER;
     }
 
-    i_volume_master_eeprom = MINIMUM_VOLUME - ((MINIMUM_VOLUME - i_volume_abs_max) * i_volume_master_percentage / 100);
-    i_volume_master = i_volume_master_eeprom;
-    i_volume_revert = i_volume_master_eeprom;
+    i_volume_master = MINIMUM_VOLUME - ((MINIMUM_VOLUME - i_volume_abs_max) * i_volume_master_percentage / 100);
+    i_volume_revert = i_volume_master;
 
     updateMasterVolume();
   }
@@ -835,7 +832,6 @@ bool setupAudioDevice() {
     }
 
     i_volume_master = MINIMUM_VOLUME - ((MINIMUM_VOLUME - i_volume_abs_max) * i_volume_master_percentage / 100); // Master overall volume.
-    i_volume_master_eeprom = i_volume_master; // Master overall volume that is saved into the eeprom menu and loaded during bootup.
     i_volume_revert = i_volume_master; // Used to restore volume level from a muted state.
 
     debugln(F("Using GPStar Audio"));
@@ -843,7 +839,7 @@ bool setupAudioDevice() {
     debugln(audio.getVersionNumber());
 
     buildMusicCount(audio.getNumTracks());
-    setAudioLED(b_gpstar_audio_led_enabled);
+    setAudioLED(blasterConfig.gpstarAudioLed);
 
     return true;
   }

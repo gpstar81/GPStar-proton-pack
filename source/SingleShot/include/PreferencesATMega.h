@@ -37,9 +37,6 @@
 void readEEPROM();
 void clearConfigEEPROM();
 void saveConfigEEPROM();
-void updateCRCEEPROM();
-uint32_t eepromCRC(void);
-void updateOverheatLevels();
 
 /*
  * General EEPROM Variables
@@ -47,184 +44,49 @@ void updateOverheatLevels();
 const uint16_t i_eepromAddress = 0; // The address in the EEPROM to start reading from.
 
 /*
- * Data structure object for customizations which are saved into the EEPROM memory.
- */
-struct objConfigEEPROM {
-  uint8_t device_boot_errors;
-  uint8_t gpstar_audio_led;
-  uint8_t vent_light_auto_intensity;
-  uint8_t rgb_vent_light;
-  uint8_t invert_bargraph;
-  uint8_t default_system_volume;
-  uint8_t device_vibration;
-};
-
-/*
  * Read all user preferences from device controller EEPROM.
  */
 void readEEPROM() {
-  // Get the stored CRC from the EEPROM.
-  uint32_t l_crc_check;
-  EEPROM.get(EEPROM.length() - sizeof(eepromCRC()), l_crc_check);
-
-  // Check if the calculated CRC matches the stored CRC value in the EEPROM.
-  if(eepromCRC() == l_crc_check) {
-    // Read our object from the EEPROM.
-    objConfigEEPROM obj_config_eeprom;
-    EEPROM.get(i_eepromAddress, obj_config_eeprom);
-
-    if(obj_config_eeprom.device_boot_errors > 0 && obj_config_eeprom.device_boot_errors < 3) {
-      if(obj_config_eeprom.device_boot_errors > 1) {
-        b_device_boot_errors = true;
-      }
-      else {
-        b_device_boot_errors = false;
-      }
-    }
-
-    if(obj_config_eeprom.gpstar_audio_led > 0 && obj_config_eeprom.gpstar_audio_led < 3) {
-      if(obj_config_eeprom.gpstar_audio_led > 1) {
-        b_gpstar_audio_led_enabled = true;
-      }
-      else {
-        b_gpstar_audio_led_enabled = false;
-      }
-
-      setAudioLED(b_gpstar_audio_led_enabled);
-    }
-
-    if(obj_config_eeprom.vent_light_auto_intensity > 0 && obj_config_eeprom.vent_light_auto_intensity < 3) {
-      if(obj_config_eeprom.vent_light_auto_intensity > 1) {
-        b_vent_light_control = true;
-      }
-      else {
-        b_vent_light_control = false;
-      }
-    }
-
-    if(obj_config_eeprom.rgb_vent_light > 0 && obj_config_eeprom.rgb_vent_light < 3) {
-      if(obj_config_eeprom.rgb_vent_light > 1) {
-        b_rgb_vent_light = true;
-      }
-      else {
-        b_rgb_vent_light = false;
-      }
-    }
-
-    if(obj_config_eeprom.invert_bargraph > 0 && obj_config_eeprom.invert_bargraph < 3) {
-      if(obj_config_eeprom.invert_bargraph > 1) {
-        b_bargraph_invert = true;
-      }
-      else {
-        b_bargraph_invert = false;
-      }
-    }
-
-    if(obj_config_eeprom.default_system_volume > 0 && obj_config_eeprom.default_system_volume < 102) {
-      // EEPROM value is from 1 to 101; subtract 1 to get the correct percentage.
-      i_volume_master_percentage = obj_config_eeprom.default_system_volume - 1;
-      i_volume_master_eeprom = MINIMUM_VOLUME - ((MINIMUM_VOLUME - i_volume_abs_max) * i_volume_master_percentage / 100);
-      i_volume_revert = i_volume_master_eeprom;
-      i_volume_master = i_volume_master_eeprom;
-    }
-
-    if(obj_config_eeprom.device_vibration > 0 && obj_config_eeprom.device_vibration != 255) {
-      switch(obj_config_eeprom.device_vibration) {
-        case 3:
-          VIBRATION_MODE = VIBRATION_NONE;
-        break;
-
-        case 2:
-        default:
-          VIBRATION_MODE = VIBRATION_FIRING_ONLY;
-        break;
-
-        case 1:
-          VIBRATION_MODE = VIBRATION_ALWAYS;
-        break;
-      }
-    }
+  bool b_config_loaded = false;
+  
+  // Check if EEPROM contains valid data by reading a size marker.
+  uint16_t i_stored_size;
+  EEPROM.get(i_eepromAddress, i_stored_size);
+  
+  if(i_stored_size == sizeof(blasterConfig)) {
+    // Size matches - safe to load configuration directly
+    EEPROM.get(i_eepromAddress + sizeof(uint16_t), blasterConfig);
+    b_config_loaded = true;
+  }
+  
+  if(b_config_loaded) {
+    // Successfully loaded a valid configuration, apply to other variables.
+    i_volume_master_percentage = blasterConfig.defaultSystemVolume;
+    i_volume_master = MINIMUM_VOLUME - ((MINIMUM_VOLUME - i_volume_abs_max) * i_volume_master_percentage / 100);
+    i_volume_revert = i_volume_master;
+    setAudioLED(blasterConfig.gpstarAudioLed);
   }
   else {
-    // CRC doesn't match; let's clear the EEPROMs to be safe.
+    // Failed to load valid config; reset to defaults
     playEffect(S_VOICE_EEPROM_LOADING_FAILED_RESET);
-
     clearConfigEEPROM();
   }
 }
 
 void clearConfigEEPROM() {
-  // Clear out the EEPROM only in the memory addresses used for our EEPROM data object.
-  for(uint16_t i = i_eepromAddress; i < sizeof(objConfigEEPROM); i++) {
+  // Clear out the EEPROM for size marker + blasterConfig struct.
+  for(uint16_t i = i_eepromAddress; i < (sizeof(uint16_t) + sizeof(blasterConfig)); i++) {
     EEPROM.update(i, 0xFF); // Write 0xFF to each address
   }
-
-  updateCRCEEPROM();
+  
+  // Write invalid size marker to indicate no valid data.
+  uint16_t i_invalid_size = 0;
+  EEPROM.put(i_eepromAddress, i_invalid_size);
 }
 
 void saveConfigEEPROM() {
-  // Convert the current EEPROM volume value into a percentage.
-  uint8_t i_eeprom_volume_master_percentage = 100 * (MINIMUM_VOLUME - i_volume_master_eeprom) / MINIMUM_VOLUME;
-
-  // 1 = false, 2 = true.
-  uint8_t i_device_boot_errors = b_device_boot_errors ? 2 : 1; // Assumed true by default.
-  uint8_t i_gpstar_audio_led = b_gpstar_audio_led_enabled ? 2 : 1; // Assumed false by default.
-  uint8_t i_vent_light_auto_intensity = b_vent_light_control ? 2 : 1; // Assumed true by default.
-  uint8_t i_rgb_vent_light = b_rgb_vent_light ? 2 : 1; // Assumed false by default.
-  uint8_t i_invert_bargraph = b_bargraph_invert ? 2 : 1; // Assumed false by default.
-  uint8_t i_default_system_volume = 101; // <- i_eeprom_volume_master_percentage + 1
-  uint8_t i_device_vibration = 4; // 1 = always, 2 = when firing, 3 = off, 4 = default.
-
-  if(i_eeprom_volume_master_percentage <= 100) {
-    // Need to add 1 to this because the EEPROM cannot contain a 0 value.
-    i_default_system_volume = i_eeprom_volume_master_percentage + 1;
-  }
-
-  switch(VIBRATION_MODE) {
-    case VIBRATION_ALWAYS:
-      i_device_vibration = 1;
-    break;
-
-    case VIBRATION_FIRING_ONLY:
-    default:
-      i_device_vibration = 2;
-    break;
-
-    case VIBRATION_NONE:
-      i_device_vibration = 3;
-    break;
-  }
-
-  // Write the data to the EEPROM if any of the values have changed.
-  objConfigEEPROM obj_config_eeprom = {
-    i_device_boot_errors,
-    i_gpstar_audio_led,
-    i_vent_light_auto_intensity,
-    i_rgb_vent_light,
-    i_invert_bargraph,
-    i_default_system_volume,
-    i_device_vibration
-  };
-
-  // Save and update our object in the EEPROM.
-  EEPROM.put(i_eepromAddress, obj_config_eeprom);
-
-  updateCRCEEPROM();
-}
-
-// Update the CRC in the EEPROM.
-void updateCRCEEPROM() {
-  EEPROM.put(EEPROM.length() - sizeof(eepromCRC()), eepromCRC());
-}
-
-uint32_t eepromCRC(void) {
-  CRC32 crc;
-
-  for(uint16_t index = i_eepromAddress; index < (i_eepromAddress + sizeof(objConfigEEPROM)); index++) {
-    crc.update(EEPROM[index]);
-  }
-
-  crc.update(sizeof(objConfigEEPROM));
-
-  return (uint32_t)crc.finalize();
+  // Store size marker first, then the blasterConfig struct
+  uint16_t i_config_size = sizeof(blasterConfig);
+  EEPROM.put(i_eepromAddress, i_config_size);
+  EEPROM.put(i_eepromAddress + sizeof(uint16_t), blasterConfig);
 }

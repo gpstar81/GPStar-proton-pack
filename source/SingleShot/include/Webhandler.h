@@ -91,78 +91,6 @@ void setupRouting();
 void getSpecialPreferences();
 
 /*
- * API Helper Structures/Functions
- */
-
-struct __attribute__((packed)) BlasterPrefs {
-  uint8_t autoVentLight;
-  uint8_t deviceBootError;
-  uint8_t gpstarAudioLed;
-  uint8_t invertBlasterBargraph;
-  uint8_t defaultSystemVolume;
-  uint8_t deviceVibration;
-} blasterConfig;
-
-// Common helper function to populate the blasterConfig object with global variables.
-void getBlasterPrefsObject() {
-  sendDebug(F("Getting Blaster Preferences"));
-
-  uint8_t i_eeprom_volume_master_percentage = 100 * (MINIMUM_VOLUME - i_volume_master_eeprom) / MINIMUM_VOLUME;
-
-  blasterConfig.autoVentLight = b_vent_light_control ? 1 : 0;
-  blasterConfig.deviceBootError = b_device_boot_errors ? 1 : 0;
-  blasterConfig.gpstarAudioLed = b_gpstar_audio_led_enabled ? 1 : 0;
-  blasterConfig.invertBlasterBargraph = b_bargraph_invert ? 1 : 0;
-  blasterConfig.defaultSystemVolume = i_eeprom_volume_master_percentage;
-
-  switch(VIBRATION_MODE) {
-    case VIBRATION_ALWAYS:
-      blasterConfig.deviceVibration = 1;
-    break;
-    case VIBRATION_FIRING_ONLY:
-    default:
-      blasterConfig.deviceVibration = 2;
-    break;
-    case VIBRATION_NONE:
-      blasterConfig.deviceVibration = 3;
-    break;
-  }
-}
-
-// Perform update of the blaster preferences based on the current configuration object.
-void handleBlasterPrefsUpdate() {
-  sendDebug(F("Saving Blaster Preferences"));
-
-  b_vent_light_control = (blasterConfig.autoVentLight == 1);
-  b_device_boot_errors = (blasterConfig.deviceBootError == 1);
-  b_gpstar_audio_led_enabled = (blasterConfig.gpstarAudioLed == 1);
-  b_bargraph_invert = (blasterConfig.invertBlasterBargraph == 1);
-
-  switch(blasterConfig.deviceVibration) {
-    case 1:
-      VIBRATION_MODE = VIBRATION_ALWAYS;
-    break;
-
-    case 2:
-    default:
-      VIBRATION_MODE = VIBRATION_FIRING_ONLY;
-    break;
-
-    case 3:
-      VIBRATION_MODE = VIBRATION_NONE;
-    break;
-  }
-
-  i_volume_master_eeprom = MINIMUM_VOLUME - (MINIMUM_VOLUME * blasterConfig.defaultSystemVolume / 100);
-  setAudioLED(b_gpstar_audio_led_enabled);
-  saveConfigEEPROM();
-
-  // Offer some feedback to the user
-  stopEffect(S_VOICE_EEPROM_SAVE);
-  playEffect(S_VOICE_EEPROM_SAVE);
-}
-
-/*
  * Text Helper Functions - Converts ENUM values to consistent, user-friendly text
  */
 
@@ -348,9 +276,9 @@ String getBlasterConfig() {
   jsonBody["gpstarAudio"] = (i_audio_version > 1);
 
   // Single Shot Blaster Runtime Options
-  jsonBody["autoVentLight"] = blasterConfig.autoVentLight; // true|false
+  jsonBody["ventLightAutoIntensity"] = blasterConfig.ventLightAutoIntensity; // true|false
   jsonBody["defaultSystemVolume"] = blasterConfig.defaultSystemVolume; // 5-100
-  jsonBody["deviceBootError"] = blasterConfig.deviceBootError; // true|false
+  jsonBody["deviceBootErrorBeep"] = blasterConfig.deviceBootErrorBeep; // true|false
   jsonBody["deviceVibration"] = blasterConfig.deviceVibration; // [1=ALWAYS,2=FIRING,3=NEVER]
   jsonBody["gpstarAudioLed"] = blasterConfig.gpstarAudioLed; // true|false
   jsonBody["invertBlasterBargraph"] = blasterConfig.invertBlasterBargraph; // true|false
@@ -926,7 +854,6 @@ void handleGetDeviceConfig(AsyncWebServerRequest *request) {
 
 void handleGetBlasterConfig(AsyncWebServerRequest *request) {
   // Return current blaster settings as a stringified JSON object.
-  getBlasterPrefsObject(); // Call common function (also used by Pack/Attenuator)
   request->send(200, "application/json", getBlasterConfig());
 }
 
@@ -1405,14 +1332,43 @@ AsyncCallbackJsonWebHandler *handleSaveBlasterConfig = new AsyncCallbackJsonWebH
   String result;
   if(DEVICE_STATUS == MODE_OFF) {
     try {
-      blasterConfig.autoVentLight = jsonBody["autoVentLight"].as<uint8_t>();
-      blasterConfig.deviceBootError = jsonBody["deviceBootError"].as<uint8_t>();
-      blasterConfig.gpstarAudioLed = jsonBody["gpstarAudioLed"].as<uint8_t>();
-      blasterConfig.invertBlasterBargraph = jsonBody["invertBlasterBargraph"].as<uint8_t>();
-      blasterConfig.defaultSystemVolume = jsonBody["defaultSystemVolume"].as<uint8_t>();
-      blasterConfig.deviceVibration = jsonBody["deviceVibration"].as<uint8_t>();
+      // Note: The property for ventLightRGB will always be set to true for ESP32 devices.
+      blasterConfig.deviceBootErrorBeep = jsonBody["deviceBootErrorBeep"].as<uint8_t>() == 1;
+      blasterConfig.invertBlasterBargraph = jsonBody["invertBlasterBargraph"].as<uint8_t>() == 1;
+      blasterConfig.ventLightAutoIntensity = jsonBody["ventLightAutoIntensity"].as<uint8_t>() == 1;      
+      blasterConfig.gpstarAudioLed = jsonBody["gpstarAudioLed"].as<uint8_t>() == 1;
+      setAudioLED(blasterConfig.gpstarAudioLed);
 
-      handleBlasterPrefsUpdate(); // Have the blaster pass the new settings.
+      // Get user-selected volume and constrain to an acceptable range (5-100).
+      uint8_t i_volume = jsonBody["defaultSystemVolume"].as<uint8_t>();
+      if(i_volume < 5) {
+        i_volume = 5;
+      }
+      else if(i_volume > 100) {
+        i_volume = 100;
+      }
+      blasterConfig.defaultSystemVolume = i_volume;
+
+      // Map the user's choice for device vibration setting.
+      switch((uint8_t)jsonBody["deviceVibration"].as<uint8_t>()) {
+        case 1:
+          blasterConfig.deviceVibration = VIBRATION_NONE;
+        break;
+        case 2:
+        default:
+          blasterConfig.deviceVibration = VIBRATION_FIRING_ONLY;
+        break;
+        case 4:
+          blasterConfig.deviceVibration = VIBRATION_ALWAYS;
+        break;
+      }
+  
+      saveConfigEEPROM(); // Always save after updating settings.
+
+      // Offer some feedback to the user
+      stopEffect(S_VOICE_EEPROM_SAVE);
+      playEffect(S_VOICE_EEPROM_SAVE);
+
       request->send(200, "application/json", returnJsonStatus("Settings updated and automatically saved to EEPROM."));
     }
     catch (...) {

@@ -24,7 +24,7 @@
 /*
  * Used to reflect the last build date for the binary.
  */
-String build_date = "V6_20251107124015";
+String build_date = "V6_20251108153029";
 
 /*
  * Control debug messages for various actions during normal operation.
@@ -121,16 +121,6 @@ const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 const bool b_onboard_amp_enabled = true;
 
 /*
- * Set to true to have the LED on the GPStar Audio stay on while the system is running.
- */
-bool b_gpstar_audio_led_enabled = false;
-
-/*
- * When set to true, the bargraph will invert the sequence.
- */
-bool b_bargraph_invert = false;
-
-/*
  * Enables the optional addressable RGB vent/top light board.
  */
 #ifdef ESP32
@@ -140,23 +130,37 @@ bool b_bargraph_invert = false;
 #endif
 
 /*
- * Enables special brightness controls during idle and firing modes if set to true.
- */
-bool b_vent_light_control = true;
-
-/*
  * When set to true, the LED at the front of the Single-Shot Blaster body next to the Clippard valve will
  * start blinking after 1 minute of inactivity to indicate battery power is still feeding the system.
  */
 bool b_power_on_indicator = true;
 
 /*
- * Set to true to have your Single-Shot Blaster boot up with errors when the top right switch (beep switch) is on while you are turning on your device.
- * When set to false, this will be ignored.
- */
-bool b_device_boot_errors = true;
-
-/*
  * Set to false to ignore reading data from the EEPROM.
  */
 const bool b_eeprom = true;
+
+/*
+ * Vibration modes for the device.
+ */
+enum VIBRATION_MODES : uint8_t {
+  VIBRATION_EMPTY = 0,
+  VIBRATION_NONE = 1,
+  VIBRATION_FIRING_ONLY = 2,
+  VIBRATION_ALWAYS = 4  
+};
+
+/*
+ * Data structure object for device customizations which are saved into NVS/EEPROM.
+ * WARNING: Do not reorder fields without changing field names or types, as this
+ * would cause size validation to pass but load data into incorrect fields.
+ */
+struct __attribute__((packed)) UserDeviceConfig {
+  bool deviceBootErrorBeep = true; // Enables the error beeps when the device is started with the top right switch on.
+  bool invertBlasterBargraph = false; // When set to true, the bargraph will invert all animation sequences.
+  bool ventLightAutoIntensity = true; // Enables special brightness controls during idle and firing modes.
+  bool ventLightRGB = b_rgb_vent_light; // Enables the addressable RGB vent/top light board.
+  bool gpstarAudioLed = false; // When set to true, the LED on the GPStar Audio stay on while the system is running.
+  uint8_t defaultSystemVolume = STARTUP_VOLUME; // Sets the default system volume percentage (0-100).
+  VIBRATION_MODES deviceVibration = VIBRATION_FIRING_ONLY; // Sets the vibration mode (default: only when firing).
+} blasterConfig;
