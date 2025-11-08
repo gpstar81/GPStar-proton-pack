@@ -470,7 +470,7 @@ void mainLoop() {
             stopEffect(S_PACK_RECOVERY);
             playEffect(S_PACK_RECOVERY);
 
-            packStartup(false);
+            packStartup(false); // Start the pack using an abbreviated startup sequence.
           }
         }
 
@@ -569,7 +569,7 @@ void mainLoop() {
       break;
 
       case ACTION_ACTIVATE:
-        packStartup(true);
+        packStartup(true); // Start the pack using the full-length startup sequence.
       break;
     }
   }

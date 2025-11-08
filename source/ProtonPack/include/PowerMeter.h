@@ -71,7 +71,7 @@ PowerMeter wandReading;
 PowerMeter packReading;
 
 // Forward function declarations.
-void packStartup(bool firstStart);
+void packStartup(bool fullStartup);
 void wandFiring();
 void wandStoppedFiring();
 void cyclotronSpeedRevert();
@@ -279,7 +279,8 @@ void updateWandPowerState() {
 
       // Turn the pack on.
       if(PACK_STATE != MODE_ON) {
-        packStartup(false);
+        // When starting the pack via the wand, perform the user-preferred startup sequence.
+        packStartup(b_wand_long_startup);
         b_pack_started_by_meter = true;
         b_wand_overheated = false;
 

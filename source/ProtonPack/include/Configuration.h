@@ -23,7 +23,7 @@
 /*
  * Used to reflect the last build date for the binary.
  */
-String build_date = "V6_20251107124015";
+String build_date = "V6_20251108155533";
 
 /*
  * Control debug messages for various actions during normal operation.
@@ -347,6 +347,13 @@ bool b_gpstar_audio_led_enabled = false;
  * If you want your Proton Pack to be silent, change your STARTUP_VOLUME to be 0 and or unplug the power to your amplifier.
  */
 bool b_demo_light_mode = false;
+
+/*
+ * When set to false, when powering up the Proton Pack via the Neutrona Wand, the startup sequence will be abbreviated.
+ * Setting to true will perform a longer startup matching the Ion Arm switch startup.
+ * Applies primarily to the Afterlife and Frozen Empire themes only.
+ */
+bool b_wand_long_startup = false;
 
 /*
  * When set to true, various impact and other stream effects will overlap and mix randomly into the Proton Stream for an added experience.

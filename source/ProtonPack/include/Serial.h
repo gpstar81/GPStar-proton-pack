@@ -1278,9 +1278,10 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // The wand has been turned on.
       b_wand_on = true;
 
-      // Turn the pack on.
+      // Turn the pack on via the wand.
       if(PACK_STATE != MODE_ON) {
-        packStartup(false);
+        // When starting the pack via the wand, perform the user-preferred startup sequence.
+        packStartup(b_wand_long_startup);
         attenuatorSerialSend(A_PACK_ON);
       }
 

@@ -865,7 +865,7 @@ void playVentSounds() {
   playEffect(S_SPARKS_LOOP);
 }
 
-void packStartup(bool firstStart) {
+void packStartup(bool fullStartup) {
   PACK_STATE = MODE_ON;
   PACK_ACTION_STATE = ACTION_IDLE;
 
@@ -888,7 +888,7 @@ void packStartup(bool firstStart) {
     attenuatorSerialSend(A_ALARM_ON);
   }
   else {
-    if(!firstStart) {
+    if(!fullStartup) {
       // Tell the wand the pack alarm is off.
       packSerialSend(P_ALARM_OFF);
 
@@ -922,7 +922,7 @@ void packStartup(bool firstStart) {
 
       case SYSTEM_AFTERLIFE:
       default:
-        if(firstStart) {
+        if(fullStartup) {
           if(STREAM_MODE == SLIME) {
             playEffect(S_AFTERLIFE_PACK_STARTUP, false, i_volume_effects - 30);
             playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects - 40, true, 18000);
@@ -959,7 +959,7 @@ void packStartup(bool firstStart) {
           ms_idle_fire_fade.start(0);
         }
         else {
-          if(firstStart) {
+          if(fullStartup) {
             if(STREAM_MODE == SLIME) {
               playEffect(S_FROZEN_EMPIRE_PACK_STARTUP, false, i_volume_effects - 30);
               playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects - 40, true, 10000);
@@ -3538,7 +3538,7 @@ void packOverheatingFinished() {
 
   resetRampUp();
 
-  packStartup(false);
+  packStartup(false); // Start the pack using an abbreviated startup sequence.
 
   // Turn off the vent lights
   ventLight(false);
