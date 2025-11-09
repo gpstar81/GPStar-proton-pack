@@ -632,14 +632,15 @@ void handlePackPrefsUpdate() {
     break;
   }
 
+  sendDebug(F("Updating general variables..."));
   i_volume_master_eeprom = (MINIMUM_VOLUME + i_volume_min_adj) - ((MINIMUM_VOLUME + i_volume_min_adj) * packConfig.defaultPackVolume / 100);
-  b_stream_effects = (packConfig.protonStreamEffects == 1);
+  b_stream_effects = (packConfig.protonStreamEffects == 1); // Implement the stream impact sounds while firing.
   b_overheat_strobe = (packConfig.overheatStrobeNF == 1);
   b_overheat_lights_off = (packConfig.overheatLightsOff == 1);
-  b_overheat_sync_to_fan = (packConfig.overheatSyncToFan == 1);
-  b_demo_light_mode = (packConfig.demoLightMode == 1);
-  b_use_ribbon_cable = (packConfig.ribbonCableAlarm == 1);
-  b_wand_long_startup = (packConfig.wandQuickBootup == 0);
+  b_overheat_sync_to_fan = (packConfig.overheatSyncToFan == 1); // Sync the smoke and fan operation during overheat.
+  b_demo_light_mode = (packConfig.demoLightMode == 1); // Turn on the pack immediately after startup (aka. demo mode).
+  b_use_ribbon_cable = (packConfig.ribbonCableAlarm == 1); // Respond to the ribbon cable connection/disconnection state.
+  b_wand_long_startup = !(packConfig.wandQuickBootup == 1); // Negate this setting to match the name/purpose of the variable.
 
   // Cyclotron Lid
   switch(packConfig.ledCycLidCount) {
@@ -664,6 +665,8 @@ void handlePackPrefsUpdate() {
       i_cyclotron_leds = HASLAB_CYCLOTRON_LED_COUNT;
     break;
   }
+
+  sendDebug(F("Updating outer cyclotron variables..."));
   i_spectral_cyclotron_custom_colour = packConfig.ledCycLidHue;
   i_spectral_cyclotron_custom_saturation = packConfig.ledCycLidSat;
   i_cyclotron_brightness = packConfig.ledCycLidLum;
@@ -694,17 +697,21 @@ void handlePackPrefsUpdate() {
       INNER_CYC_PANEL_MODE = PANEL_RGB_DYNAMIC;
     break;
   }
+
+  sendDebug(F("Updating inner cyclotron variables..."));
   i_inner_cyclotron_cake_num_leds = packConfig.ledCycCakeCount;
   i_spectral_cyclotron_inner_custom_colour = packConfig.ledCycCakeHue;
   i_spectral_cyclotron_inner_custom_saturation = packConfig.ledCycCakeSat;
   i_cyclotron_inner_brightness = packConfig.ledCycCakeLum;
+  i_inner_cyclotron_cavity_num_leds = packConfig.ledCycCavCount;
+
   if(packConfig.ledCycCakeGRB == 1) {
     CAKE_LED_TYPE = GRB_LED;
   }
   else {
     CAKE_LED_TYPE = RGB_LED;
   }
-  i_inner_cyclotron_cavity_num_leds = packConfig.ledCycCavCount;
+
   switch(packConfig.ledCycCavType) {
     case 1:
     default:
@@ -719,6 +726,7 @@ void handlePackPrefsUpdate() {
   }
 
   // Power Cell
+  sendDebug(F("Updating power cell variables..."));
   i_powercell_leds = packConfig.ledPowercellCount;
   b_powercell_invert = (packConfig.ledInvertPowercell == 1);
   i_spectral_powercell_custom_colour = packConfig.ledPowercellHue;
@@ -734,12 +742,20 @@ void handlePackPrefsUpdate() {
   playEffect(S_BEEP_VARIATION);
 
   // Update system values and reset as needed.
+  sendDebug(F("Running update functions..."));
+sendDebug(F("Running setAudioLED..."));
   setAudioLED(b_gpstar_audio_led_enabled);
+sendDebug(F("Running resetInnerCyclotronLEDs..."));
   resetInnerCyclotronLEDs(); // Must call this first, prior to updating counts
+sendDebug(F("Running updateProtonPackLEDCounts..."));
   updateProtonPackLEDCounts(); // Must call this after resetting # of LEDs
+sendDebug(F("Running resetCyclotronLEDs..."));
   resetCyclotronLEDs(); // Update delays based on LED count
+sendDebug(F("Running resetRampSpeeds..."));
   resetRampSpeeds(); // Update delays based on LED count
+sendDebug(F("Running packOffReset..."));
   packOffReset(); // Make sure we reset any and all LEDs.
+  sendDebug(F("Completed update of pack settings"));
 }
 
 // Send the current wand preferences based on the current configuration object.

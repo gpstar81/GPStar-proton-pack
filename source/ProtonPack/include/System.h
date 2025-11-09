@@ -1321,9 +1321,13 @@ void cyclotronSwitchLEDOff() {
 }
 
 void packOffReset() {
+sendDebug(F("packOffReset: About to call powercellOff"));
   powercellOff();
+  
+sendDebug(F("packOffReset: About to call cyclotronSwitchLEDOff"));
   cyclotronSwitchLEDOff();
 
+sendDebug(F("packOffReset: Setting timer and boolean flags"));
   ms_overheating_length.stop();
   b_overheating = false;
   b_venting = false;
@@ -1332,9 +1336,13 @@ void packOffReset() {
   b_inner_ramp_down = false;
   b_reset_start_led = true; // Reset the start LED of the Cyclotron.
 
+sendDebug(F("packOffReset: About to call resetCyclotronState"));
   resetCyclotronState();
+
+sendDebug(F("packOffReset: About to call resetRampUp"));
   resetRampUp();
 
+sendDebug(F("packOffReset: Setting system year delays"));
   // Update Power Cell LED timer delay and optional Cyclotron LED switch plate LED timer delays.
   switch(SYSTEM_YEAR) {
     case SYSTEM_AFTERLIFE:
@@ -1351,6 +1359,7 @@ void packOffReset() {
     break;
   }
 
+sendDebug(F("packOffReset: Starting timers"));
   // Reset the Power Cell timer.
   ms_powercell.start(i_powercell_delay);
 
@@ -1362,24 +1371,32 @@ void packOffReset() {
   ms_cyclotron_ring.start(i_inner_ramp_delay);
 
   // Vibration/Cyclotron motor off.
+sendDebug(F("packOffReset: About to call vibrationOff"));
   vibrationOff();
   i_vibration_level = 0;
 
   if(b_pack_shutting_down) {
+sendDebug(F("packOffReset: Pack was shutting down - calling attenuatorSerialSend"));
     b_pack_shutting_down = false;
     attenuatorSerialSend(A_PACK_OFF, b_pack_shutting_down ? 1 : 0);
+    sendDebug(F("packOffReset: About to call clearCyclotronFades"));
     clearCyclotronFades();
   }
 
+sendDebug(F("packOffReset: Checking pack alarm"));
   // Tell the wand and any add-on devices that the alarm is off.
   if(b_pack_alarm) {
+sendDebug(F("packOffReset: Pack alarm was on - clearing alarm"));
     b_pack_alarm = false;
     // Tell the wand that the alarm is off.
+sendDebug(F("packOffReset: About to call packSerialSend"));
     packSerialSend(P_ALARM_OFF);
 
     // Tell any add-on devices that the alarm is off.
+sendDebug(F("packOffReset: About to call attenuatorSerialSend"));
     attenuatorSerialSend(A_ALARM_OFF);
   }
+sendDebug(F("packOffReset: Function completed successfully"));
 }
 
 void setYearModeByToggle() {
