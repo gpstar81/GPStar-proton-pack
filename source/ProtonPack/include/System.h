@@ -3918,6 +3918,21 @@ void cyclotronControl() {
   }
 }
 
+void stopOverheatBeepWarnings() {
+  switch(SYSTEM_YEAR) {
+    case SYSTEM_AFTERLIFE:
+    case SYSTEM_FROZEN_EMPIRE:
+    default:
+      stopEffect(S_PACK_BEEPS_OVERHEAT);
+    break;
+
+    case SYSTEM_1984:
+    case SYSTEM_1989:
+      stopEffect(S_BEEP_8);
+    break;
+  }
+}
+
 void packVentingFinished() {
   packSerialSend(P_VENTING_FINISHED);
   attenuatorSerialSend(A_VENTING_FINISHED);
@@ -4548,18 +4563,7 @@ void wandStoppedFiring() {
   ms_delay_post_2.stop();
 
   // Stop overheat beeps.
-  switch(SYSTEM_YEAR) {
-    case SYSTEM_AFTERLIFE:
-    case SYSTEM_FROZEN_EMPIRE:
-    default:
-      stopEffect(S_PACK_BEEPS_OVERHEAT);
-    break;
-
-    case SYSTEM_1984:
-    case SYSTEM_1989:
-      stopEffect(S_BEEP_8);
-    break;
-  }
+  stopOverheatBeepWarnings();
 }
 
 void checkMenuVibration() {
@@ -4581,6 +4585,9 @@ void checkMenuVibration() {
 }
 
 void cyclotronSpeedRevert() {
+  // Attenuator told us to reset, so stop beeps.
+  stopOverheatBeepWarnings();
+
   i_cyclotron_multiplier = 1;
   i_cyclotron_switch_led_multiplier = 1;
   i_powercell_multiplier = 1;
