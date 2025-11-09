@@ -72,6 +72,7 @@ struct objLEDEEPROM {
   uint8_t cyclotron_cavity_type;
   uint8_t inner_cyclotron_led_panel;
   uint8_t powercell_inverted;
+  uint8_t cyclotron_single_center_led;
   uint8_t vg_powercell;
   uint8_t vg_cyclotron;
   uint8_t gpstar_audio_led;
@@ -92,8 +93,8 @@ struct objConfigEEPROM {
   uint8_t year_mode; // 1984, 1989, Afterlife, Frozen Empire or the Proton Pack toggle switch default.
   uint8_t system_mode; // Super Hero or Mode Original.
   uint8_t demo_light_mode; // Enables pack startup automatically at bootup (battery power-on).
-  uint8_t cyclotron_three_led_toggle; // Toggles between the 1-LED or 3-LED for 84/89 modes.
-  uint8_t default_system_volume; // Default master volume at bootup (battery power-on)
+  uint8_t wand_quick_bootup; // Controls whether pack does short or full bootup from wand in AL/FE.
+  uint8_t default_system_volume; // Default master volume at bootup (battery power-on).
   uint8_t overheat_smoke_duration_level_5;
   uint8_t overheat_smoke_duration_level_4;
   uint8_t overheat_smoke_duration_level_3;
@@ -224,6 +225,15 @@ void readEEPROM() {
       }
       else {
         b_powercell_invert = false;
+      }
+    }
+
+    if(obj_led_eeprom.cyclotron_single_center_led > 0 && obj_led_eeprom.cyclotron_single_center_led < 3) {
+      if(obj_led_eeprom.cyclotron_single_center_led > 1) {
+        b_cyclotron_single_led = true;
+      }
+      else {
+        b_cyclotron_single_led = false;
       }
     }
 
@@ -457,21 +467,23 @@ void readEEPROM() {
       }
     }
 
+    if(obj_config_eeprom.wand_quick_bootup > 0 && obj_config_eeprom.wand_quick_bootup < 3) {
+      if(obj_config_eeprom.wand_quick_bootup > 1) {
+        // If quick bootup from wand is true, long startup must be false.
+        b_wand_long_startup = false;
+      }
+      else {
+        // If quick bootup from wand is false, long startup must be true.
+        b_wand_long_startup = true;
+      }
+    }
+
     if(obj_config_eeprom.use_ribbon_cable > 0 && obj_config_eeprom.use_ribbon_cable < 3) {
       if(obj_config_eeprom.use_ribbon_cable > 1) {
         b_use_ribbon_cable = true;
       }
       else {
         b_use_ribbon_cable = false;
-      }
-    }
-
-    if(obj_config_eeprom.cyclotron_three_led_toggle > 0 && obj_config_eeprom.cyclotron_three_led_toggle < 3) {
-      if(obj_config_eeprom.cyclotron_three_led_toggle > 1) {
-        b_cyclotron_single_led = false;
-      }
-      else {
-        b_cyclotron_single_led = true;
       }
     }
 
@@ -715,7 +727,7 @@ void saveConfigEEPROM() {
 
   uint8_t i_demo_light_mode = b_demo_light_mode ? 2 : 1;
   uint8_t i_use_ribbon_cable = b_use_ribbon_cable ? 2 : 1;
-  uint8_t i_cyclotron_three_led_toggle = b_cyclotron_single_led ? 1 : 2; // 1 = single led, 2 = three leds.
+  uint8_t i_cyclotron_single_center_led = b_cyclotron_single_led ? 2 : 1; // 1 = three leds, 2 = single led.
   uint8_t i_default_system_volume = 101; // <- i_eeprom_volume_master_percentage + 1
   uint8_t i_overheat_smoke_duration_level_5 = i_ms_overheating_length_5 / 1000;
   uint8_t i_overheat_smoke_duration_level_4 = i_ms_overheating_length_4 / 1000;
@@ -773,7 +785,7 @@ void saveConfigEEPROM() {
     i_year_mode_eeprom,
     i_system_mode,
     i_demo_light_mode,
-    i_cyclotron_three_led_toggle,
+    i_cyclotron_single_center_led,
     i_default_system_volume,
     i_overheat_smoke_duration_level_5,
     i_overheat_smoke_duration_level_4,

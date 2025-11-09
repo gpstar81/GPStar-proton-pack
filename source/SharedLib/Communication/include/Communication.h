@@ -73,6 +73,7 @@ struct __attribute__((packed)) PackPrefs {
   uint8_t defaultPackVolume;
   uint8_t packVibration;
   uint8_t ribbonCableAlarm;
+  uint8_t wandQuickBootup;
   uint8_t cyclotronDirection;
   uint8_t demoLightMode;
   uint8_t protonStreamEffects;
@@ -352,6 +353,8 @@ enum PACK_MESSAGE : uint8_t {
   P_POWERCELL_INVERTED,
   P_PACK_GPSTAR_AUDIO_LED_DISABLED,
   P_PACK_GPSTAR_AUDIO_LED_ENABLED,
+  P_QUICK_BOOTUP_ENABLED,
+  P_QUICK_BOOTUP_DISABLED,
   P_TURN_WAND_ON,
   P_POST_FINISH,
   P_NO_OP
@@ -594,6 +597,7 @@ enum WAND_MESSAGE : uint8_t {
   W_WAND_GPSTAR_AUDIO_LED_DISABLED,
   W_WAND_GPSTAR_AUDIO_LED_ENABLED,
   W_WAND_AUDIO_VERSION,
+  W_QUICK_BOOTUP_TOGGLE,
   W_IMPACT_SOUND,
   W_COM_SOUND_NUMBER,
   W_NO_OP

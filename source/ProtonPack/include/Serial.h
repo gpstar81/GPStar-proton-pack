@@ -172,6 +172,7 @@ void getPackPrefsObject() {
   packConfig.overheatSyncToFan = b_overheat_sync_to_fan ? 1 : 0;
   packConfig.demoLightMode = b_demo_light_mode ? 1 : 0;
   packConfig.ribbonCableAlarm = b_use_ribbon_cable ? 1 : 0;
+  packConfig.wandQuickBootup = !b_wand_long_startup ? 1 : 0;
   packConfig.gpstarAudioLed = b_gpstar_audio_led_enabled ? 1 : 0;
 
   switch(VIBRATION_MODE_EEPROM) {
@@ -638,6 +639,7 @@ void handlePackPrefsUpdate() {
   b_overheat_sync_to_fan = (packConfig.overheatSyncToFan == 1);
   b_demo_light_mode = (packConfig.demoLightMode == 1);
   b_use_ribbon_cable = (packConfig.ribbonCableAlarm == 1);
+  b_wand_long_startup = (packConfig.wandQuickBootup == 0);
 
   // Cyclotron Lid
   switch(packConfig.ledCycLidCount) {
@@ -4616,6 +4618,24 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_WAND_AUDIO_VERSION:
       i_wand_audio_version = i_value;
       attenuatorSerialSend(A_WAND_AUDIO_VERSION, i_wand_audio_version);
+    break;
+
+    case W_QUICK_BOOTUP_TOGGLE:
+      stopEffect(S_VOICE_QUICK_BOOTUP_ENABLED);
+      stopEffect(S_VOICE_QUICK_BOOTUP_DISABLED);
+
+      if(b_wand_long_startup) {
+        // Wand quick boot enabled.
+        b_wand_long_startup = false;
+        playEffect(S_VOICE_QUICK_BOOTUP_ENABLED);
+        packSerialSend(P_QUICK_BOOTUP_ENABLED);
+      }
+      else {
+        // Wand quick boot disabled.
+        b_wand_long_startup = true;
+        playEffect(S_VOICE_QUICK_BOOTUP_DISABLED);
+        packSerialSend(P_QUICK_BOOTUP_DISABLED);
+      }
     break;
 
     case W_COM_SOUND_NUMBER:

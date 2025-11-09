@@ -244,9 +244,15 @@ void checkWandAction() {
         // Level 1 Barrel Wing Button: Adjust the Neutrona Wand barrel colour hue. <- Controlled by checkRotaryEncoder()
         // Level 2 Intensify: Toggle between 28-segment and 30-segment bargraph LEDs.
         // Level 2 Barrel Wing Button: Enable/Disable the addressable RGB vent/top light board (non-ESP32 only).
+        // Level 3 Intensify: Toggle between 1 or 3 LEDs for the Cyclotron (1984/1989 mode).
         case 4:
           if(switch_intensify.pushed()) {
             switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_3:
+                // Tell the Proton Pack to toggle the Single LED or 3 LEDs for 1984/1989 modes.
+                wandSerialSend(W_CYCLOTRON_LED_TOGGLE);
+              break;
+
               case MENU_LEVEL_2:
                 if(BARGRAPH_TYPE_EEPROM != SEGMENTS_30) {
                   // Switch to 30-segment bargraph.
@@ -1178,7 +1184,7 @@ void checkWandAction() {
         // Menu Level 2: Intensify: Overheat strobe.
         // Menu Level 2: Barrel Wing Button: Overheat lights off.
         // Menu Level 3: Intensify: Startup (Demo) Light Mode Enabled
-        // Menu Level 3: Barrel Wing Button: Toggle between 1 or 3 LEDs for the Cyclotron (1984/1989 mode)
+        // Menu Level 3: Barrel Wing Button: Toggle whether wand bootup is short or full (Afterlife/Frozen Empire).
         // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Level 2
         // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Level 2
         // Menu Level 5: Intensify: Enable/Disable overheat in power level #2
@@ -1240,8 +1246,8 @@ void checkWandAction() {
               wandSerialSend(W_OVERHEAT_LIGHTS_OFF_TOGGLE);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
-              // Tell the Proton Pack to toggle the Single LED or 3 LEDs for 1984/1989 modes.
-              wandSerialSend(W_CYCLOTRON_LED_TOGGLE); // Move this to the LED menu in the future.
+              // Toggle whether the wand bootup does the full pack startup or not in AL/FE.
+              wandSerialSend(W_QUICK_BOOTUP_TOGGLE);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
               // Handled in checkRotaryEncoder()

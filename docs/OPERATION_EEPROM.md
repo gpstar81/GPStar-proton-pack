@@ -58,7 +58,7 @@ To access the EEPROM LED Menu System, hold down the `Intensify Button` and toggl
 | Option | Purpose | Intensify&nbsp;Button | Barrel&nbsp;Wing&nbsp;Button |
 |:------:|---------|------------------|--------------------|
 | 5️⃣ | GPStar&nbsp;Audio&nbsp;LED&nbsp;Toggle | Toggle whether the LED on the GPStar Audio board will be enabled or disabled on the Proton Pack. | Toggle whether the LED on the GPStar Audio board will be enabled or disabled on the Neutrona Wand. |
-| 4️⃣ | `unused` | `unused` | `unused` |
+| 4️⃣ | Cyclotron&nbsp;3&nbsp;LED&nbsp;Toggle | Toggle between 1 LED or 3 LEDs in each cyclotron lens in 1984/1989 year mode. | `unused` |
 | 3️⃣ | `unused` | `unused` | `unused` |
 | 2️⃣ | `unused` | `unused` | `unused` |
 | 1️⃣ | `unused` | `unused` | `unused` |
@@ -124,7 +124,7 @@ Please note whatever settings you have temporarily changed in the regular menus 
 | 5️⃣ | System&nbsp;Default&nbsp;Volume&nbsp;/ Neutrona&nbsp;Wand&nbsp;Year&nbsp;Mode | `(Intensify)` Toggle between changing the default volume for the Proton Pack or Neutrona Wand.<br/><br/>`(Intensify + Top Dial)` Adjusts the default volume for the selected device (Uses audio beeps for indication of volume). | Set the year mode your Neutrona Wand operates in. Options are: 1984/1989/Afterlife/Frozen Empire and System Default. When set to System Default, the Neutrona Wand matches the same year mode as that the Proton Pack is in. |
 | 4️⃣ | Invert&nbsp;Bargraph&nbsp;/ Bargraph&nbsp;Overheat&nbsp;Blinking | Toggles inverting of the bargraph in the Neutrona Wand (depending on installation orientation). | Enable/Disable the bargraph blink sequence during overheat. When enabled, the bargraph will blink and an error sound will play while overheating. When disabled, the bargraph will ramp down to off without error sounds while overheating. |
 | 3️⃣ | Bargraph&nbsp;Animations&nbsp;/ Bargraph&nbsp;Firing&nbsp;Animations | Toggle between animation modes as default for the idle bargraph: **Super Hero**, **Bargraph Original**, or **System Default**<br/>**System Default** chooses the default animation based on the year mode and system mode. | Toggle between animation modes as default for the bargraph when firing: **Super Hero**, **Bargraph Original**, or **System Default**<br/>**System Default** chooses the default animation based on the year mode and system mode. |
-| 2️⃣ | Demo&nbsp;Light&nbsp;Mode&nbsp;/ Cyclotron&nbsp;3&nbsp;LED&nbsp;Toggle | Enable/Disable the Startup (Demo) Light Mode. When enabled, the Proton Pack will automatically boot up as soon as the system has power. | Toggle between 1 LED or 3 LEDs in each cyclotron lens in 1984/1989 year mode. |
+| 2️⃣ | Demo&nbsp;Light&nbsp;Mode&nbsp;/ Wand&nbsp;Quick&nbsp;Bootup | Enable/Disable the Startup (Demo) Light Mode. When enabled, the Proton Pack will automatically boot up as soon as the system has power. | Toggle whether powering on the Proton Pack from the Neutrona Wand will play the full startup or short startup in Afterlife or Frozen Empire year modes. |
 | 1️⃣ | System&nbsp;Mode&nbsp;/ CTS&nbsp;Override | Toggle between the available system operation modes:<br/>**Super Hero** or **Mode Original** | Toggle between options for default CTS mode: **1984**, **Afterlife**, or **System Default**<br/>**System Default** automatically chooses the CTS mode based on the current year mode of your system. |
 
 ### Configuration Menu - Level 4

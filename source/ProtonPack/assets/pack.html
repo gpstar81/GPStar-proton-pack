@@ -95,6 +95,15 @@
       </div>
       <div class="setting">
         <label class="toggle-switchy" data-text="yesno" data-label="left">
+          <input id="wandQuickBootup" name="wandQuickBootup" type="checkbox" />
+          <span class="toggle">
+            <span class="switch"></span>
+          </span>
+          <span class="label">Short Bootup from Wand:</span>
+        </label>
+      </div>
+      <div class="setting">
+        <label class="toggle-switchy" data-text="yesno" data-label="left">
           <input id="demoLightMode" name="demoLightMode" type="checkbox" />
           <span class="toggle">
             <span class="switch"></span>
@@ -417,6 +426,7 @@
         disableEl("overheatSyncToFan");
         disableEl("protonStreamEffects");
         disableEl("ribbonCableAlarm");
+        disableEl("wandQuickBootup");
         disableEl("demoLightMode");
         disableEl("gpstarAudioLed");
         disableEl("ledCycLidCount");
@@ -510,6 +520,7 @@
               setValue("packVibration", settings.packVibration || 4);
               setToggle("protonStreamEffects", settings.protonStreamEffects);
               setToggle("ribbonCableAlarm", settings.ribbonCableAlarm);
+              setToggle("wandQuickBootup", settings.wandQuickBootup);
               setToggle("overheatStrobeNF", settings.overheatStrobeNF);
               setToggle("overheatLightsOff", settings.overheatLightsOff);
               setToggle("overheatSyncToFan", settings.overheatSyncToFan);
@@ -570,6 +581,7 @@
           packVibration: getInt("packVibration") || 4,
           protonStreamEffects: getToggle("protonStreamEffects"),
           ribbonCableAlarm: getToggle("ribbonCableAlarm"),
+          wandQuickBootup: getToggle("wandQuickBootup"),
           overheatStrobeNF: getToggle("overheatStrobeNF"),
           overheatLightsOff: getToggle("overheatLightsOff"),
           overheatSyncToFan: getToggle("overheatSyncToFan"),

@@ -294,6 +294,7 @@ String getPackConfig() {
   jsonBody["packVibration"] = packConfig.packVibration; // [1=ALWAYS,2=FIRING,3=NEVER,4=TOGGLE,5=MOTORIZED_CYCLOTRON]
   jsonBody["protonStreamEffects"] = packConfig.protonStreamEffects; // true|false
   jsonBody["ribbonCableAlarm"] = packConfig.ribbonCableAlarm; // true|false
+  jsonBody["wandQuickBootup"] = packConfig.wandQuickBootup; // true|false
   jsonBody["overheatStrobeNF"] = packConfig.overheatStrobeNF; // true|false
   jsonBody["overheatLightsOff"] = packConfig.overheatLightsOff; // true|false
   jsonBody["overheatSyncToFan"] = packConfig.overheatSyncToFan;// true|false
@@ -1467,6 +1468,7 @@ AsyncCallbackJsonWebHandler *handleSavePackConfig = new AsyncCallbackJsonWebHand
       packConfig.defaultPackVolume = jsonBody["defaultPackVolume"].as<uint8_t>();
       packConfig.packVibration = jsonBody["packVibration"].as<uint8_t>();
       packConfig.ribbonCableAlarm = jsonBody["ribbonCableAlarm"].as<uint8_t>();
+      packConfig.wandQuickBootup = jsonBody["wandQuickBootup"].as<uint8_t>();
       packConfig.protonStreamEffects = jsonBody["protonStreamEffects"].as<uint8_t>();
       packConfig.overheatStrobeNF = jsonBody["overheatStrobeNF"].as<uint8_t>();
       packConfig.overheatLightsOff = jsonBody["overheatLightsOff"].as<uint8_t>();

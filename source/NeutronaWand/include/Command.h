@@ -1039,6 +1039,18 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
       playEffect(S_VOICE_PROTON_PACK_GPSTAR_AUDIO_LED_ENABLED);
     break;
 
+    case P_QUICK_BOOTUP_ENABLED:
+      stopEffect(S_VOICE_QUICK_BOOTUP_ENABLED);
+      stopEffect(S_VOICE_QUICK_BOOTUP_DISABLED);
+      playEffect(S_VOICE_QUICK_BOOTUP_ENABLED);
+    break;
+
+    case P_QUICK_BOOTUP_DISABLED:
+      stopEffect(S_VOICE_QUICK_BOOTUP_ENABLED);
+      stopEffect(S_VOICE_QUICK_BOOTUP_DISABLED);
+      playEffect(S_VOICE_QUICK_BOOTUP_DISABLED);
+    break;
+
     case P_TURN_WAND_ON:
       if(WAND_STATUS == MODE_OFF && SYSTEM_MODE == MODE_SUPER_HERO) {
         if(switch_activate.on() && WAND_ACTION_STATUS == ACTION_IDLE) {

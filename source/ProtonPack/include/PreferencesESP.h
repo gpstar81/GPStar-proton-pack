@@ -62,6 +62,7 @@ struct objLEDEEPROM {
   uint8_t cyclotron_cavity_type;
   uint8_t inner_cyclotron_led_panel;
   uint8_t powercell_inverted;
+  uint8_t cyclotron_single_center_led;
   uint8_t vg_powercell;
   uint8_t vg_cyclotron;
   uint8_t gpstar_audio_led;
@@ -79,7 +80,7 @@ struct objConfigEEPROM {
   uint8_t year_mode;
   uint8_t system_mode;
   uint8_t demo_light_mode;
-  uint8_t cyclotron_three_led_toggle;
+  uint8_t wand_quick_bootup;
   uint8_t default_system_volume;
   uint8_t overheat_smoke_duration_level_5;
   uint8_t overheat_smoke_duration_level_4;
@@ -149,6 +150,7 @@ void saveLEDEEPROM() {
   gObjLEDEEPROM.cyclotron_cavity_type = i_inner_cyclotron_cavity_led_type;
   gObjLEDEEPROM.inner_cyclotron_led_panel = i_inner_cyclotron_led_panel;
   gObjLEDEEPROM.powercell_inverted = b_powercell_invert ? 2 : 1;
+  gObjLEDEEPROM.cyclotron_single_center_led = b_cyclotron_single_led ? 2 : 1;
   gObjLEDEEPROM.vg_powercell = b_powercell_colour_toggle ? 2 : 1;
   gObjLEDEEPROM.vg_cyclotron = b_cyclotron_colour_toggle ? 2 : 1;
   gObjLEDEEPROM.gpstar_audio_led = b_gpstar_audio_led_enabled ? 2 : 1;
@@ -187,109 +189,7 @@ void saveConfigEEPROM() {
   // Convert the current EEPROM volume value into a percentage.
   uint8_t i_eeprom_volume_master_percentage = 100 * ((MINIMUM_VOLUME + i_volume_min_adj) - i_volume_master_eeprom) / (MINIMUM_VOLUME + i_volume_min_adj);
 
-  // 1 = false, 2 = true.
-  uint8_t i_proton_stream_effects = 2;
-  uint8_t i_cyclotron_direction = 2; // 1 = counter-clockwise, 2 = clockwise.
-  uint8_t i_center_led_fade = 2;
-  uint8_t i_simulate_ring = 2;
-  uint8_t i_smoke_settings = 2;
-
-  uint8_t i_overheat_strobe = 2;
-  uint8_t i_overheat_lights_off = 2;
-  uint8_t i_overheat_sync_to_fan = 1;
-  uint8_t i_year_mode_eeprom = SYSTEM_EEPROM_YEAR;
-  uint8_t i_system_mode = 1; // 1 = super hero, 2 = original.
-
-  uint8_t i_demo_light_mode = 1;
-  uint8_t i_use_ribbon_cable = 1;
-  uint8_t i_cyclotron_three_led_toggle = 1; // 1 = single led, 2 = three leds.
-  uint8_t i_default_system_volume = 100; // <- i_eeprom_volume_master_percentage
-  uint8_t i_overheat_smoke_duration_level_5 = i_ms_overheating_length_5 / 1000;
-  uint8_t i_overheat_smoke_duration_level_4 = i_ms_overheating_length_4 / 1000;
-  uint8_t i_overheat_smoke_duration_level_3 = i_ms_overheating_length_3 / 1000;
-  uint8_t i_overheat_smoke_duration_level_2 = i_ms_overheating_length_2 / 1000;
-  uint8_t i_overheat_smoke_duration_level_1 = i_ms_overheating_length_1 / 1000;
-
-  uint8_t i_smoke_continuous_level_5 = 2;
-  uint8_t i_smoke_continuous_level_4 = 2;
-  uint8_t i_smoke_continuous_level_3 = 2;
-  uint8_t i_smoke_continuous_level_2 = 2;
-  uint8_t i_smoke_continuous_level_1 = 2;
-
   uint8_t i_pack_vibration = 4; // 1 = always, 2 = when firing, 3 = off, 4 = default.
-
-  if(!b_stream_effects) {
-    i_proton_stream_effects = 1;
-  }
-
-  if(!b_clockwise) {
-    i_cyclotron_direction = 1;
-  }
-
-  if(!b_fade_cyclotron_led) {
-    i_center_led_fade = 1;
-  }
-
-  if(!b_cyclotron_simulate_ring) {
-    i_simulate_ring = 1;
-  }
-
-  if(!b_smoke_enabled) {
-    i_smoke_settings = 1;
-  }
-
-  if(!b_overheat_strobe) {
-    i_overheat_strobe = 1;
-  }
-
-  if(!b_overheat_lights_off) {
-    i_overheat_lights_off = 1;
-  }
-
-  if(b_overheat_sync_to_fan) {
-    i_overheat_sync_to_fan = 2;
-  }
-
-  if(SYSTEM_MODE == MODE_ORIGINAL) {
-    i_system_mode = 2;
-  }
-
-  if(b_demo_light_mode) {
-    i_demo_light_mode = 2;
-  }
-
-  if(b_use_ribbon_cable) {
-    i_use_ribbon_cable = 2;
-  }
-
-  if(!b_cyclotron_single_led) {
-    i_cyclotron_three_led_toggle = 2;
-  }
-
-  if(i_eeprom_volume_master_percentage < 101) {
-    i_default_system_volume = i_eeprom_volume_master_percentage;
-  }
-
-  if(!b_smoke_continuous_level_5) {
-    i_smoke_continuous_level_5 = 1;
-  }
-
-  if(!b_smoke_continuous_level_4) {
-    i_smoke_continuous_level_4 = 1;
-  }
-
-  if(!b_smoke_continuous_level_3) {
-    i_smoke_continuous_level_3 = 1;
-  }
-
-  if(!b_smoke_continuous_level_2) {
-    i_smoke_continuous_level_2 = 1;
-  }
-
-  if(!b_smoke_continuous_level_1) {
-    i_smoke_continuous_level_1 = 1;
-  }
-
   switch(VIBRATION_MODE_EEPROM) {
     case VIBRATION_ALWAYS:
       i_pack_vibration = 1;
@@ -313,31 +213,31 @@ void saveConfigEEPROM() {
     break;
   }
 
-  gObjConfigEEPROM.stream_effects = i_proton_stream_effects;
-  gObjConfigEEPROM.cyclotron_direction = i_cyclotron_direction;
-  gObjConfigEEPROM.center_led_fade = i_center_led_fade;
-  gObjConfigEEPROM.simulate_ring = i_simulate_ring;
-  gObjConfigEEPROM.smoke_setting = i_smoke_settings;
-  gObjConfigEEPROM.overheat_strobe = i_overheat_strobe;
-  gObjConfigEEPROM.overheat_lights_off = i_overheat_lights_off;
-  gObjConfigEEPROM.overheat_sync_to_fan = i_overheat_sync_to_fan;
-  gObjConfigEEPROM.year_mode = i_year_mode_eeprom;
-  gObjConfigEEPROM.system_mode = i_system_mode;
-  gObjConfigEEPROM.demo_light_mode = i_demo_light_mode;
-  gObjConfigEEPROM.cyclotron_three_led_toggle = i_cyclotron_three_led_toggle;
-  gObjConfigEEPROM.default_system_volume = i_default_system_volume;
-  gObjConfigEEPROM.overheat_smoke_duration_level_5 = i_overheat_smoke_duration_level_5;
-  gObjConfigEEPROM.overheat_smoke_duration_level_4 = i_overheat_smoke_duration_level_4;
-  gObjConfigEEPROM.overheat_smoke_duration_level_3 = i_overheat_smoke_duration_level_3;
-  gObjConfigEEPROM.overheat_smoke_duration_level_2 = i_overheat_smoke_duration_level_2;
-  gObjConfigEEPROM.overheat_smoke_duration_level_1 = i_overheat_smoke_duration_level_1;
-  gObjConfigEEPROM.smoke_continuous_level_5 = i_smoke_continuous_level_5;
-  gObjConfigEEPROM.smoke_continuous_level_4 = i_smoke_continuous_level_4;
-  gObjConfigEEPROM.smoke_continuous_level_3 = i_smoke_continuous_level_3;
-  gObjConfigEEPROM.smoke_continuous_level_2 = i_smoke_continuous_level_2;
-  gObjConfigEEPROM.smoke_continuous_level_1 = i_smoke_continuous_level_1;
+  gObjConfigEEPROM.stream_effects = b_stream_effects ? 2 : 1;
+  gObjConfigEEPROM.cyclotron_direction = b_clockwise ? 2 : 1;
+  gObjConfigEEPROM.center_led_fade = b_fade_cyclotron_led ? 2 : 1;
+  gObjConfigEEPROM.simulate_ring = b_cyclotron_simulate_ring ? 2 : 1;
+  gObjConfigEEPROM.smoke_setting = b_smoke_enabled ? 2 : 1;
+  gObjConfigEEPROM.overheat_strobe = b_overheat_strobe ? 2 : 1;
+  gObjConfigEEPROM.overheat_lights_off = b_overheat_lights_off ? 2 : 1;
+  gObjConfigEEPROM.overheat_sync_to_fan = b_overheat_sync_to_fan ? 2 : 1;
+  gObjConfigEEPROM.year_mode = SYSTEM_EEPROM_YEAR;
+  gObjConfigEEPROM.system_mode = SYSTEM_MODE == MODE_ORIGINAL ? 2 : 1;
+  gObjConfigEEPROM.demo_light_mode = b_demo_light_mode ? 2 : 1;
+  gObjConfigEEPROM.wand_quick_bootup = !b_wand_long_startup ? 2 : 1; // Have to invert this one!
+  gObjConfigEEPROM.default_system_volume = (i_eeprom_volume_master_percentage < 101) ? i_eeprom_volume_master_percentage : 100;
+  gObjConfigEEPROM.overheat_smoke_duration_level_5 = i_ms_overheating_length_5 / 1000;
+  gObjConfigEEPROM.overheat_smoke_duration_level_4 = i_ms_overheating_length_4 / 1000;
+  gObjConfigEEPROM.overheat_smoke_duration_level_3 = i_ms_overheating_length_3 / 1000;
+  gObjConfigEEPROM.overheat_smoke_duration_level_2 = i_ms_overheating_length_2 / 1000;
+  gObjConfigEEPROM.overheat_smoke_duration_level_1 = i_ms_overheating_length_1 / 1000;
+  gObjConfigEEPROM.smoke_continuous_level_5 = b_smoke_continuous_level_5 ? 2 : 1;
+  gObjConfigEEPROM.smoke_continuous_level_4 = b_smoke_continuous_level_4 ? 2 : 1;
+  gObjConfigEEPROM.smoke_continuous_level_3 = b_smoke_continuous_level_3 ? 2 : 1;
+  gObjConfigEEPROM.smoke_continuous_level_2 = b_smoke_continuous_level_2 ? 2 : 1;
+  gObjConfigEEPROM.smoke_continuous_level_1 = b_smoke_continuous_level_1 ? 2 : 1;
   gObjConfigEEPROM.pack_vibration = i_pack_vibration;
-  gObjConfigEEPROM.use_ribbon_cable = i_use_ribbon_cable;
+  gObjConfigEEPROM.use_ribbon_cable = b_use_ribbon_cable ? 2 : 1;
 
   if(preferences.begin("config", false)) {
     preferences.putBytes("config", &gObjConfigEEPROM, sizeof(gObjConfigEEPROM));
@@ -465,6 +365,15 @@ void readEEPROM() {
       }
       else {
         b_powercell_invert = false;
+      }
+    }
+
+    if(gObjLEDEEPROM.cyclotron_single_center_led > 0 && gObjLEDEEPROM.cyclotron_single_center_led < 3) {
+      if(gObjLEDEEPROM.cyclotron_single_center_led > 1) {
+        b_cyclotron_single_led = true;
+      }
+      else {
+        b_cyclotron_single_led = false;
       }
     }
 
@@ -691,21 +600,23 @@ void readEEPROM() {
       }
     }
 
+    if(gObjConfigEEPROM.wand_quick_bootup > 0 && gObjConfigEEPROM.wand_quick_bootup < 3) {
+      if(gObjConfigEEPROM.wand_quick_bootup > 1) {
+        // If quick bootup from wand is true, long startup must be false.
+        b_wand_long_startup = false;
+      }
+      else {
+        // If quick bootup from wand is false, long startup must be true.
+        b_wand_long_startup = true;
+      }
+    }
+
     if(gObjConfigEEPROM.use_ribbon_cable > 0 && gObjConfigEEPROM.use_ribbon_cable < 3) {
       if(gObjConfigEEPROM.use_ribbon_cable > 1) {
         b_use_ribbon_cable = true;
       }
       else {
         b_use_ribbon_cable = false;
-      }
-    }
-
-    if(gObjConfigEEPROM.cyclotron_three_led_toggle > 0 && gObjConfigEEPROM.cyclotron_three_led_toggle < 3) {
-      if(gObjConfigEEPROM.cyclotron_three_led_toggle > 1) {
-        b_cyclotron_single_led = false;
-      }
-      else {
-        b_cyclotron_single_led = true;
       }
     }
 
