@@ -4585,9 +4585,6 @@ void checkMenuVibration() {
 }
 
 void cyclotronSpeedRevert() {
-  // Attenuator told us to reset, so stop beeps.
-  stopOverheatBeepWarnings();
-
   i_cyclotron_multiplier = 1;
   i_cyclotron_switch_led_multiplier = 1;
   i_powercell_multiplier = 1;

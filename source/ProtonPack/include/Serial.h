@@ -2200,10 +2200,13 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_CYCLOTRON_NORMAL_SPEED:
+      // Attenuator told us to reset, so stop beeps.
+      stopOverheatBeepWarnings();
+
       // Reset Cyclotron speed.
       cyclotronSpeedRevert();
 
-      // Indicate normalcy to serial device.
+      // Indicate normalcy to Attenuator.
       attenuatorSerialSend(A_CYCLOTRON_NORMAL_SPEED);
     break;
 
@@ -2211,7 +2214,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Speed up Cyclotron.
       cyclotronSpeedIncrease();
 
-      // Indicate speed-up to serial device.
+      // Indicate speed-up to Attenuator.
       attenuatorSerialSend(A_CYCLOTRON_INCREASE_SPEED);
     break;
 
