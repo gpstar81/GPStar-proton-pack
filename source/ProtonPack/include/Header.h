@@ -389,7 +389,7 @@ enum POWER_LEVELS POWER_LEVEL = LEVEL_5; // Default power level is 5.
 enum STREAM_MODES { UNSET_STREAM, PROTON, STASIS, SLIME, MESON, SPECTRAL, HOLIDAY_HALLOWEEN, HOLIDAY_CHRISTMAS, SPECTRAL_CUSTOM, SETTINGS };
 enum STREAM_MODES STREAM_MODE = PROTON; // Default stream mode is Proton.
 enum STREAM_MODE_FLAGS : uint8_t { FLAG_NONE = 0, FLAG_VG = 1, FLAG_SPECTRAL = 2, FLAG_SPECTRAL_CUSTOM = 4, FLAG_HOLIDAY_HALLOWEEN = 8, FLAG_HOLIDAY_CHRISTMAS = 16 };
-uint8_t STREAM_MODE_FLAG = FLAG_VG; // By default, only enable the three VG modes.
+uint8_t STREAM_MODE_FLAG = FLAG_VG | FLAG_SPECTRAL | FLAG_SPECTRAL_CUSTOM | FLAG_HOLIDAY_HALLOWEEN | FLAG_HOLIDAY_CHRISTMAS; // By default, enable all modes.
 enum RED_SWITCH_MODES { SWITCH_ON, SWITCH_OFF };
 enum RED_SWITCH_MODES RED_SWITCH_MODE = SWITCH_OFF; // Default to ion arm switch off until we set otherwise.
 bool b_settings = false; // Used to keep track of being in the wand settings menu.

@@ -314,7 +314,7 @@ function setButtonStates(statusObj) {
     enableEl("btnVent");
   }
 
-  if (cyclotronOverheat) {
+  if (cyclotronOverheat && wandPowered) {
     // Can only attenuate if cyclotron is in the pre-overheat states.
     enableEl("btnAttenuate");
   }

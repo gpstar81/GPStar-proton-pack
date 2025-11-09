@@ -470,7 +470,7 @@ void checkRotaryEncoder() {
   // immediately clear the last encoder STATE value so it won't be lost by scheduling/order.
   switch(encoder.consumeState()) {
     case ENCODER_CW:
-      if(b_wand_firing && i_cyclotron_multiplier > 2) {
+      if(b_wand_firing && b_wand_connected && i_cyclotron_multiplier > 2) {
         // Do the actual attenuation for the Proton Pack!
         // Cancels an overheat warning when firing and cyclotron state is higher than 2.
         // Only do so after 5 turns of the dial (CW).
@@ -575,7 +575,7 @@ void checkRotaryEncoder() {
     break;
 
     case ENCODER_CCW:
-      if(b_wand_firing && i_cyclotron_multiplier > 2) {
+      if(b_wand_firing && b_wand_connected && i_cyclotron_multiplier > 2) {
         // Do the actual attenuation for the Proton Pack!
         // Cancels an overheat warning when firing and cyclotron state is higher than 2.
         // Only do so after 5 turns of the dial (CCW).
