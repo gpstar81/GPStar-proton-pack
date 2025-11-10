@@ -743,17 +743,11 @@ void handlePackPrefsUpdate() {
 
   // Update system values and reset as needed.
   sendDebug(F("Running update functions..."));
-sendDebug(F("Running setAudioLED..."));
   setAudioLED(b_gpstar_audio_led_enabled);
-sendDebug(F("Running resetInnerCyclotronLEDs..."));
   resetInnerCyclotronLEDs(); // Must call this first, prior to updating counts
-sendDebug(F("Running updateProtonPackLEDCounts..."));
   updateProtonPackLEDCounts(); // Must call this after resetting # of LEDs
-sendDebug(F("Running resetCyclotronLEDs..."));
   resetCyclotronLEDs(); // Update delays based on LED count
-sendDebug(F("Running resetRampSpeeds..."));
   resetRampSpeeds(); // Update delays based on LED count
-sendDebug(F("Running packOffReset..."));
   packOffReset(); // Make sure we reset any and all LEDs.
   sendDebug(F("Completed update of pack settings"));
 }
