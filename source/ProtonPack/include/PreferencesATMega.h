@@ -658,6 +658,9 @@ void saveLEDEEPROM() {
   // Power Cell inverted toggle flag.
   uint8_t i_powercell_inverted = b_powercell_invert ? 2 : 1;
 
+  // Cyclotron 1/3-LED setting for 84/89 modes.
+  uint8_t i_cyclotron_single_center_led = b_cyclotron_single_led ? 2 : 1;
+
   // Power Cell and Cyclotron VG color flags.
   uint8_t i_vg_powercell = b_powercell_colour_toggle ? 2 : 1;
   uint8_t i_vg_cyclotron = b_cyclotron_colour_toggle ? 2 : 1;
@@ -685,6 +688,7 @@ void saveLEDEEPROM() {
     i_inner_cyclotron_cavity_led_type,
     i_inner_cyclotron_led_panel,
     i_powercell_inverted,
+    i_cyclotron_single_center_led,
     i_vg_powercell,
     i_vg_cyclotron,
     i_gpstar_audio_led
@@ -726,8 +730,8 @@ void saveConfigEEPROM() {
   uint8_t i_system_mode = (SYSTEM_MODE == MODE_ORIGINAL) ? 2 : 1; // 1 = super hero, 2 = original.
 
   uint8_t i_demo_light_mode = b_demo_light_mode ? 2 : 1;
+  uint8_t i_wand_quick_bootup = !b_wand_long_startup ? 2 : 1;
   uint8_t i_use_ribbon_cable = b_use_ribbon_cable ? 2 : 1;
-  uint8_t i_cyclotron_single_center_led = b_cyclotron_single_led ? 2 : 1; // 1 = three leds, 2 = single led.
   uint8_t i_default_system_volume = 101; // <- i_eeprom_volume_master_percentage + 1
   uint8_t i_overheat_smoke_duration_level_5 = i_ms_overheating_length_5 / 1000;
   uint8_t i_overheat_smoke_duration_level_4 = i_ms_overheating_length_4 / 1000;
@@ -785,7 +789,7 @@ void saveConfigEEPROM() {
     i_year_mode_eeprom,
     i_system_mode,
     i_demo_light_mode,
-    i_cyclotron_single_center_led,
+    i_wand_quick_bootup,
     i_default_system_volume,
     i_overheat_smoke_duration_level_5,
     i_overheat_smoke_duration_level_4,
