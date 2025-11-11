@@ -28,32 +28,18 @@
 void updateLEDs();
 void executeCommand(uint8_t i_command, uint16_t i_value); // From Command.h
 
-/**
- * Function: sanitizeCyclotronMultipliers
- * Purpose: Ensures cyclotron-related multipliers stay within safe bounds to prevent divide-by-zero and out-of-bounds errors.
- * Inputs: None (operates on global variables)
- * Outputs: None (modifies global variables in place)
- *          Adjusts i_cyclotron_multiplier, i_cyclotron_switch_led_multiplier, i_powercell_multiplier as needed.
- *
- * Min/max values are based on:
- *   - Minimum of 1: Prevents divide-by-zero errors in code sections where these multipliers are used as divisors (e.g., timer calculations, fade logic).
- *   - Maximums: These reflect the highest values allowed by the intended limits for each effect, as seen in the main control and increment functions.
- *      Cyclotron  : 9
- *      Switch LED : 9
- *      Powercell  : 6
- */
 void sanitizeCyclotronMultipliers() {
-  // Cyclotron multiplier: must be between 1 and 9
+  // Cyclotron multiplier: must be between 1 and 4
   if(i_cyclotron_multiplier < 1) i_cyclotron_multiplier = 1;
-  if(i_cyclotron_multiplier > 9) i_cyclotron_multiplier = 9;
+  if(i_cyclotron_multiplier > 4) i_cyclotron_multiplier = 4;
 
-  // Cyclotron switch LED multiplier: must be between 1 and 9
+  // Cyclotron switch LED multiplier: must be between 1 and 4
   if(i_cyclotron_switch_led_multiplier < 1) i_cyclotron_switch_led_multiplier = 1;
-  if(i_cyclotron_switch_led_multiplier > 9) i_cyclotron_switch_led_multiplier = 9;
+  if(i_cyclotron_switch_led_multiplier > 4) i_cyclotron_switch_led_multiplier = 4;
 
-  // Powercell multiplier: must be between 1 and 6
+  // Powercell multiplier: must be between 1 and 4
   if(i_powercell_multiplier < 1) i_powercell_multiplier = 1;
-  if(i_powercell_multiplier > 6) i_powercell_multiplier = 6;
+  if(i_powercell_multiplier > 4) i_powercell_multiplier = 4;
 }
 
 void innerCyclotronCakeOff() {
@@ -1150,9 +1136,6 @@ void packShutdown() {
 
     // Turn off the fans.
     fanNFilter(false);
-
-    // Turn off the Cyclotron auto speed timer.
-    ms_cyclotron_auto_speed_timer.stop();
 
     // Reset vent sounds flag.
     b_vent_sounds = true;
@@ -4110,30 +4093,6 @@ void packVentingStart() {
   attenuatorSerialSend(A_VENTING);
 }
 
-void checkCyclotronAutoSpeed() {
-  // No need to start any timers until after any ramping has finished; only in Afterlife and Frozen Empire do we do the auto speed increases.
-  if(b_wand_firing && !b_ramp_up && !b_ramp_down) {
-    if(ms_cyclotron_auto_speed_timer.justFinished() && i_cyclotron_multiplier < 6) {
-      // Increase the Cyclotron speed.
-      i_cyclotron_multiplier++;
-
-      // Increase the Cyclotron Switch Panel LEDs speed.
-      i_cyclotron_switch_led_multiplier++;
-
-      // Ensure values are within expected bounds.
-      sanitizeCyclotronMultipliers();
-
-      // Restart the timer.
-      if(i_wand_power_level > 0) {
-        ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
-      }
-      else {
-        ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length);
-      }
-    }
-  }
-}
-
 void modeFireStartSounds() {
   switch(STREAM_MODE) {
     case PROTON:
@@ -4380,10 +4339,6 @@ void wandFiring() {
   b_wand_firing = true;
   attenuatorSerialSend(A_FIRING);
 
-  if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-    ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
-  }
-
   if(b_stream_effects && STATUS_CTS == CTS_NOT_FIRING) {
     uint16_t i_s_random = random(7,15) * 1000;
     ms_firing_sound_mix.start(i_s_random);
@@ -4536,9 +4491,6 @@ void wandStoppedFiring() {
 
   attenuatorSerialSend(A_FIRING_STOPPED);
 
-  // Stop the auto speed timer.
-  ms_cyclotron_auto_speed_timer.stop();
-
   b_wand_firing = false;
   b_firing_alt = false;
   b_firing_intensify = false;
@@ -4593,30 +4545,9 @@ void cyclotronSpeedRevert() {
 }
 
 void cyclotronSpeedIncrease() {
-  switch(SYSTEM_YEAR) {
-    case SYSTEM_AFTERLIFE:
-    case SYSTEM_FROZEN_EMPIRE:
-    default:
-      if(i_cyclotron_multiplier < 9) {
-        i_cyclotron_multiplier++;
-      }
-
-      if(i_cyclotron_switch_led_multiplier < 9) {
-        i_cyclotron_switch_led_multiplier++;
-      }
-
-      if(i_powercell_multiplier < 6) {
-        i_powercell_multiplier++;
-      }
-    break;
-
-    case SYSTEM_1984:
-    case SYSTEM_1989:
-      i_cyclotron_multiplier++;
-      i_cyclotron_switch_led_multiplier++;
-      i_powercell_multiplier++;
-    break;
-  }
+  i_cyclotron_multiplier++;
+  i_cyclotron_switch_led_multiplier++;
+  i_powercell_multiplier++;
 
   sanitizeCyclotronMultipliers();
 }

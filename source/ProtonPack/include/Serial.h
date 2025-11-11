@@ -2253,10 +2253,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         if(ms_smoke_timer.isRunning()) {
           ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[i_wand_power_level - 1]));
         }
-
-        if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-          ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
-        }
       }
 
       POWER_LEVEL = LEVEL_1;
@@ -2271,10 +2267,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       if(b_wand_firing) {
         if(ms_smoke_timer.isRunning()) {
           ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[i_wand_power_level - 1]));
-        }
-
-        if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-          ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
         }
       }
 
@@ -2291,10 +2283,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         if(ms_smoke_timer.isRunning()) {
           ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[i_wand_power_level - 1]));
         }
-
-        if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-          ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
-        }
       }
 
       POWER_LEVEL = LEVEL_3;
@@ -2309,10 +2297,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       if(b_wand_firing) {
         if(ms_smoke_timer.isRunning()) {
           ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[i_wand_power_level - 1]));
-        }
-
-        if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-          ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
         }
       }
 
@@ -2329,10 +2313,6 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       if(b_wand_firing) {
         if(ms_smoke_timer.isRunning()) {
           ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[i_wand_power_level - 1]));
-        }
-
-        if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-          ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
         }
       }
 

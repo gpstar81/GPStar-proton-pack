@@ -5104,7 +5104,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Moving down.
           for(uint8_t i = i_bargraph_segments - (i_segment_adjust + 1); i >= i_bargraph_status_alt; i--) {
             if(i_bargraph_status_alt == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status_alt = random(6, i_bargraph_segments - i_segment_adjust);
                 break;
@@ -5141,7 +5141,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Need to move up.
           for(uint8_t i = 0; i <= i_bargraph_status_alt; i++) {
             if(i_bargraph_status_alt == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status_alt = random(8, i_bargraph_segments - i_segment_adjust);
                 break;
@@ -5184,7 +5184,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Moving down.
           for(uint8_t i = 25; i >= i_bargraph_status_alt; i--) {
             if(i_bargraph_status_alt == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status_alt = random(1, 25);
                 break;
@@ -5224,7 +5224,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Need to move up.
           for(uint8_t i = 0; i <= i_bargraph_status_alt; i++) {
             if(i_bargraph_status_alt == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status_alt = random(1, 25);
                 break;
@@ -5267,7 +5267,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Moving down.
           for(uint8_t i = 19; i >= i_bargraph_status_alt; i--) {
             if(i_bargraph_status_alt == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status_alt = random(1, 19);
                 break;
@@ -5307,7 +5307,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Need to move up.
           for(uint8_t i = 0; i <= i_bargraph_status_alt; i++) {
             if(i_bargraph_status_alt == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status_alt = random(1, 19);
                 break;
@@ -5350,7 +5350,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Moving down.
           for(uint8_t i = 13; i >= i_bargraph_status_alt; i--) {
             if(i_bargraph_status_alt == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status_alt = random(1, 13);
                 break;
@@ -5384,7 +5384,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Need to move up.
           for(uint8_t i = 0; i <= i_bargraph_status_alt; i++) {
             if(i_bargraph_status_alt == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status_alt = random(1, 13);
                 break;
@@ -5422,7 +5422,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Moving down.
           for(uint8_t i = 7; i >= i_bargraph_status_alt; i--) {
             if(i_bargraph_status_alt == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status_alt = random(0, 10);
                 break;
@@ -5456,7 +5456,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Need to move up.
           for(uint8_t i = 0; i <= i_bargraph_status_alt; i++) {
             if(i_bargraph_status_alt == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status_alt = random(0, 10);
                 break;
@@ -5542,7 +5542,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Moving down.
           for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
             if(i_bargraph_status == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
                 break;
@@ -5577,7 +5577,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Need to move up.
           for(uint8_t i = 0; i <= i_bargraph_status; i++) {
             if(i_bargraph_status == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
                 break;
@@ -5614,7 +5614,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Moving down.
           for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
             if(i_bargraph_status == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
                 break;
@@ -5649,7 +5649,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Need to move up.
           for(uint8_t i = 0; i <= i_bargraph_status; i++) {
             if(i_bargraph_status == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
                 break;
@@ -5686,7 +5686,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Moving down.
           for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
             if(i_bargraph_status == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
                 break;
@@ -5721,7 +5721,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Need to move up.
           for(uint8_t i = 0; i <= i_bargraph_status; i++) {
             if(i_bargraph_status == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
                 break;
@@ -5758,7 +5758,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Moving down.
           for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
             if(i_bargraph_status == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
                 break;
@@ -5793,7 +5793,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Need to move up.
           for(uint8_t i = 0; i <= i_bargraph_status; i++) {
             if(i_bargraph_status == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
                 break;
@@ -5831,7 +5831,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Moving down.
           for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
             if(i_bargraph_status == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
                 break;
@@ -5865,7 +5865,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Need to move up.
           for(uint8_t i = 0; i <= i_bargraph_status; i++) {
             if(i_bargraph_status == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
                 break;
@@ -5911,7 +5911,7 @@ void bargraphModeOriginalRampFiringAnimation() {
 }
 
 void cyclotronSpeedUp(uint8_t i_switch) {
-  if(i_switch != i_cyclotron_speed_up) {
+  if(i_switch != i_cyclotron_multiplier && i_cyclotron_multiplier < 5) {
     if(i_switch == 4) {
       // Tell pack to start beeping before we overheat it.
       wandSerialSend(W_BEEP_START);
@@ -5933,7 +5933,7 @@ void cyclotronSpeedUp(uint8_t i_switch) {
       ms_warning_blink.start(i_warning_blink_delay);
     }
 
-    i_cyclotron_speed_up++;
+    i_cyclotron_multiplier++;
 
     // Tell the pack to speed up the Cyclotron.
     wandSerialSend(W_CYCLOTRON_INCREASE_SPEED);
@@ -6075,7 +6075,7 @@ void bargraphRampFiring() {
         }
       }
 
-      i_cyclotron_speed_up = 1;
+      i_cyclotron_multiplier = 1;
     }
   }
   else {
@@ -8881,7 +8881,7 @@ void cyclotronSpeedRevert() {
   // Attenuator told us to reset, so stop beeps.
   stopOverheatBeepWarnings();
 
-  i_cyclotron_speed_up = 1;
+  i_cyclotron_multiplier = 1;
 }
 
 void bargraphYearModeUpdate() {

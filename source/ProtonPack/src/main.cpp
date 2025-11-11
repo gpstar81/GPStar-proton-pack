@@ -474,8 +474,6 @@ void mainLoop() {
           }
         }
 
-        checkCyclotronAutoSpeed();
-
         // Play a little bit of smoke and N-Filter vent lights while firing and other misc sound effects.
         if(b_wand_firing) {
           // Mix some impact sound effects.

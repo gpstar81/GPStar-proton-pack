@@ -797,7 +797,7 @@ void checkUserInputs() {
       }
     }
 
-    if(b_wand_firing && i_cyclotron_multiplier <= 2 && b_firing_feedback && !(b_overheating || b_pack_alarm)) {
+    if(b_wand_firing && i_cyclotron_multiplier < 3 && b_firing_feedback && !(b_overheating || b_pack_alarm)) {
       // Give physical feedback through vibration while wand is firing, but not in an overheat/alarm state.
       useVibration(i_vibrate_min_time); // Use short bursts as this may be called multiple times in a row.
     }
@@ -812,7 +812,7 @@ void checkUserInputs() {
       }
 
       if(ms_blink_leds.isRunning()) {
-        if(b_wand_firing && i_cyclotron_multiplier >= 3 && !b_overheating) {
+        if(b_wand_firing && i_cyclotron_multiplier > 2 && !b_overheating) {
           // Switch to a modified bargraph pattern for the pre-overheat (venting)
           // warning while the wand is still firing.
           BARGRAPH_PATTERN = BG_INNER_PULSE;

@@ -474,7 +474,7 @@ bool b_pack_on = false; // Denotes the pack has been powered on.
 bool b_pack_alarm = false; // Denotes the pack alarm is sounding (ribbon cable disconnected).
 bool b_pack_post_finish = true; // Checks whether the attached pack is currently in its POST sequence. Assume finished unless pack tells us otherwise.
 bool b_pack_cyclotron_lid_on = false; // For SYSTEM_FROZEN_EMPIRE. Lets us know if the pack's cyclotron lid is on or not. Default to false to favor FE effects unless told otherwise.
-uint8_t i_cyclotron_speed_up = 1; // For telling the pack to speed up or slow down the Cyclotron lights.
+uint8_t i_cyclotron_multiplier = 1; // For telling the pack to speed up or slow down the Cyclotron lights.
 millisDelay ms_packsync; // Timer for attempting synchronization with a connected pack.
 millisDelay ms_handshake; // Timer for attempting a keepalive handshake with a connected pack.
 const uint16_t i_sync_initial_delay = 750; // Delay to re-try the initial handshake with a proton pack.
