@@ -89,11 +89,14 @@ uint16_t i_1984_delay = CYCLOTRON_DELAY_TVG; // Default to TVG as b_fade_cyclotr
  * This is the middle LED aligned in each lens window. (0 is the first LED). Adjust these settings if you use different LED setups and installations.
  * Put the sequence in order from lowest to highest in both directions. (Top right lens as Cyclotron lens #1)
  *
+ * i_1984_cyclotron_4_leds is for a DIY 4 LED setup.
  * i_1984_cyclotron_12_leds is for the stock Haslab 12 LED setup.
  * i_1984_cyclotron_20_leds is for the Frutto Technology 20 LED setup.
  * i_1984_cyclotron_36_leds is for the GPStar 36 LED setup.
  * i_1984_cyclotron_40_leds is for a 40 LED NeoPixel ring.
  */
+const uint8_t i_1984_cyclotron_4_leds_cw[4] PROGMEM  = { 0, 1, 2, 3 };
+const uint8_t i_1984_cyclotron_4_leds_ccw[4] PROGMEM  = { 0, 3, 2, 1 };
 const uint8_t i_1984_cyclotron_12_leds_cw[4] PROGMEM = { 1, 4, 7, 10 };
 const uint8_t i_1984_cyclotron_12_leds_ccw[4] PROGMEM = { 1, 10, 7, 4 };
 const uint8_t i_1984_cyclotron_20_leds_cw[4] PROGMEM = { 2, 7, 12, 17 };

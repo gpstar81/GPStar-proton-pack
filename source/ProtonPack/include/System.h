@@ -180,8 +180,12 @@ void ventLight(bool b_on) {
 // This function handles returning ring-simulated Cyclotron lookup table values.
 uint8_t cyclotronLookupTable(uint8_t index) {
   switch(i_cyclotron_leds) {
+    case QUAD_CYCLOTRON_LED_COUNT:
+      // DIY 4 LED array.
+      return PROGMEM_READU8(i_cyclotron_4led_matrix[index]);
+    break;
+
     case HASLAB_CYCLOTRON_LED_COUNT:
-    default:
       // Hasbro 12 LED array.
       return PROGMEM_READU8(i_cyclotron_12led_matrix[index]);
     break;
@@ -192,7 +196,8 @@ uint8_t cyclotronLookupTable(uint8_t index) {
     break;
 
     case MAX_CYCLOTRON_LED_COUNT:
-      // GPStar LED array.
+    default:
+      // Frutto/GPStar 36 LED array.
       return PROGMEM_READU8(i_cyclotron_36led_matrix[index]);
     break;
 
@@ -2464,7 +2469,6 @@ uint8_t cyclotron84LookupTable(uint8_t index) {
   if(b_clockwise) {
     switch(i_cyclotron_leds) {
       case HASLAB_CYCLOTRON_LED_COUNT:
-      default:
         // 1984 CW 12 LED array.
         return PROGMEM_READU8(i_1984_cyclotron_12_leds_cw[index]);
       break;
@@ -2475,6 +2479,7 @@ uint8_t cyclotron84LookupTable(uint8_t index) {
       break;
 
       case MAX_CYCLOTRON_LED_COUNT:
+      default:
         // 1984 CW 36 LED array.
         return PROGMEM_READU8(i_1984_cyclotron_36_leds_cw[index]);
       break;
@@ -2488,7 +2493,6 @@ uint8_t cyclotron84LookupTable(uint8_t index) {
   else {
     switch(i_cyclotron_leds) {
       case HASLAB_CYCLOTRON_LED_COUNT:
-      default:
         // 1984 CCW 12 LED array.
         return PROGMEM_READU8(i_1984_cyclotron_12_leds_ccw[index]);
       break;
@@ -2499,6 +2503,7 @@ uint8_t cyclotron84LookupTable(uint8_t index) {
       break;
 
       case MAX_CYCLOTRON_LED_COUNT:
+      default:
         // 1984 CCW 36 LED array.
         return PROGMEM_READU8(i_1984_cyclotron_36_leds_ccw[index]);
       break;
@@ -2682,11 +2687,11 @@ void cyclotronFade() {
             case OUTER_CYCLOTRON_LED_MAX:
             case FRUTTO_CYCLOTRON_LED_COUNT:
             case MAX_CYCLOTRON_LED_COUNT:
+            default:
               r_cyclotron_led_fade_out[i].go(0, i_outer_current_ramp_speed * 3, CIRCULAR_OUT);
             break;
 
             case HASLAB_CYCLOTRON_LED_COUNT:
-            default:
               r_cyclotron_led_fade_out[i].go(0, i_outer_current_ramp_speed * 2, CIRCULAR_OUT);
             break;
           }
@@ -3015,6 +3020,7 @@ void cyclotron2021(uint16_t iRampDelay) {
       switch(i_cyclotron_leds) {
         case OUTER_CYCLOTRON_LED_MAX:
         case MAX_CYCLOTRON_LED_COUNT:
+        default:
           if(i_cyclotron_multiplier > 1) {
             if(t_iRampDelay - i_cyclotron_multiplier > 0) {
               t_iRampDelay = t_iRampDelay - i_cyclotron_multiplier;
@@ -3041,7 +3047,6 @@ void cyclotron2021(uint16_t iRampDelay) {
 
         case FRUTTO_CYCLOTRON_LED_COUNT:
         case HASLAB_CYCLOTRON_LED_COUNT:
-        default:
           i_fast_led_delay = FAST_LED_UPDATE_MS;
 
           if(i_cyclotron_multiplier > 1) {
@@ -3068,6 +3073,7 @@ void cyclotron2021(uint16_t iRampDelay) {
 
     switch(i_cyclotron_leds) {
       case MAX_CYCLOTRON_LED_COUNT:
+      default:
         if(i_cyclotron_multiplier > 1) {
           if(iRampDelay - i_cyclotron_multiplier > 0) {
             iRampDelay = iRampDelay - i_cyclotron_multiplier;
@@ -3099,7 +3105,6 @@ void cyclotron2021(uint16_t iRampDelay) {
       break;
 
       case HASLAB_CYCLOTRON_LED_COUNT:
-      default:
         if(i_cyclotron_multiplier > 1) {
           if(iRampDelay - i_cyclotron_multiplier > 0) {
             iRampDelay = iRampDelay - i_cyclotron_multiplier;
@@ -3135,6 +3140,7 @@ void cyclotron2021(uint16_t iRampDelay) {
         break;
 
         case MAX_CYCLOTRON_LED_COUNT:
+        default:
           if(b_ramp_down || b_ramp_up || b_pack_alarm || b_wand_mash_lockout) {
             if(i_curr_cyclotron_position == 39) {
               // Top gap between lenses is about 27 pixels wide.
@@ -3177,7 +3183,6 @@ void cyclotron2021(uint16_t iRampDelay) {
         break;
 
         case HASLAB_CYCLOTRON_LED_COUNT:
-        default:
           if(b_ramp_down || b_ramp_up || b_pack_alarm || b_wand_mash_lockout) {
             if(i_curr_cyclotron_position > 32) {
               // Top gap between lenses is about 9 pixels wide.
@@ -4899,6 +4904,7 @@ void resetCyclotronLEDs() {
 
     // For Frutto Technology Max Cyclotron (36) LEDs.
     case MAX_CYCLOTRON_LED_COUNT:
+    default:
       i_2021_delay = CYCLOTRON_DELAY_2021_36_LED;
     break;
 
@@ -4909,7 +4915,6 @@ void resetCyclotronLEDs() {
 
     // Default HasLab (12) LEDs.
     case HASLAB_CYCLOTRON_LED_COUNT:
-    default:
       i_2021_delay = CYCLOTRON_DELAY_2021_12_LED;
     break;
   }
