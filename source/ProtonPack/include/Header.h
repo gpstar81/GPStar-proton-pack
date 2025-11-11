@@ -243,6 +243,7 @@ const uint16_t i_2021_ramp_length = 6000;
 const uint16_t i_1984_ramp_length = 3000;
 const uint16_t i_2021_ramp_down_length = 10500;
 const uint16_t i_1984_ramp_down_length = 2500;
+const uint16_t i_1989_ramp_down_length = 100;
 uint16_t i_outer_current_ramp_speed = i_2021_ramp_delay;
 uint8_t i_cyclotron_multiplier = 1;
 bool b_ramp_up = true;

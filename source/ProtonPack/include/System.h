@@ -3857,9 +3857,13 @@ void cyclotronControl() {
       r_outer_cyclotron_ramp.go(i_outer_current_ramp_speed); // Reset the ramp.
       r_inner_cyclotron_ramp.go(i_inner_current_ramp_speed); // Reset the Inner Cyclotron ramp.
 
-      if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
+      if(SYSTEM_YEAR == SYSTEM_1984) {
         r_outer_cyclotron_ramp.go((uint16_t)(i_1984_delay * 1.3), i_1984_ramp_down_length, CIRCULAR_IN);
         r_inner_cyclotron_ramp.go(i_inner_ramp_delay, i_1984_ramp_down_length, CIRCULAR_IN);
+      }
+      else if(SYSTEM_YEAR == SYSTEM_1989) {
+        r_outer_cyclotron_ramp.go((uint16_t)(i_1984_delay * 1.3), i_1989_ramp_down_length, CIRCULAR_IN);
+        r_inner_cyclotron_ramp.go(i_inner_ramp_delay, i_1989_ramp_down_length, CIRCULAR_IN);
       }
       else {
         if(ms_mash_lockout.isRunning()) {
