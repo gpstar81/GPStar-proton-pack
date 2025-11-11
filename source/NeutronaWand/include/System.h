@@ -5911,7 +5911,7 @@ void bargraphModeOriginalRampFiringAnimation() {
 }
 
 void cyclotronSpeedUp(uint8_t i_switch) {
-  if(i_switch != i_cyclotron_multiplier && i_cyclotron_multiplier < 5) {
+  if(i_switch != i_cyclotron_multiplier && i_cyclotron_multiplier < 4) {
     if(i_switch == 4) {
       // Tell pack to start beeping before we overheat it.
       wandSerialSend(W_BEEP_START);
