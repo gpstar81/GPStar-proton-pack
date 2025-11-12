@@ -226,7 +226,7 @@ void playMusic() {
       case A_WAV_TRIGGER:
       case A_GPSTAR_AUDIO:
         // Play music only on bench test wand setups. Let the pack play the music on full kit setups.
-        if(b_gpstar_benchtest) {
+        if(b_wand_standalone) {
           // Loop the music track.
           if(b_repeat_track) {
             audio.trackLoop(i_current_music_track, true);
@@ -245,7 +245,7 @@ void playMusic() {
 
       case A_GPSTAR_AUDIO_ADV:
         // Play music only on bench test wand setups. Let the pack play the music on full kit setups.
-        if(b_gpstar_benchtest) {
+        if(b_wand_standalone) {
           // Loop the music track.
           if(b_repeat_track) {
             audio.trackLoop(i_current_music_track, true);
@@ -268,7 +268,7 @@ void playMusic() {
       break;
     }
 
-    if(b_gpstar_benchtest) {
+    if(b_wand_standalone) {
       // Keep track of music playback on the wand directly.
       ms_music_status_check.start(i_music_check_delay * 5);
     }
@@ -280,7 +280,7 @@ void stopMusic() {
     case A_WAV_TRIGGER:
     case A_GPSTAR_AUDIO:
     case A_GPSTAR_AUDIO_ADV:
-      if(b_gpstar_benchtest) {
+      if(b_wand_standalone) {
         if(i_music_track_count > 0 && i_current_music_track >= i_music_track_start) {
           audio.trackStop(i_current_music_track);
         }
@@ -309,7 +309,7 @@ void pauseMusic() {
       case A_WAV_TRIGGER:
       case A_GPSTAR_AUDIO:
       case A_GPSTAR_AUDIO_ADV:
-        if(b_gpstar_benchtest) {
+        if(b_wand_standalone) {
           audio.trackPause(i_current_music_track);
           audio.update();
         }
@@ -335,7 +335,7 @@ void resumeMusic() {
       case A_WAV_TRIGGER:
       case A_GPSTAR_AUDIO:
       case A_GPSTAR_AUDIO_ADV:
-        if(b_gpstar_benchtest) {
+        if(b_wand_standalone) {
           audio.resetTrackCounter();
           audio.trackResume(i_current_music_track);
           audio.update();
@@ -572,7 +572,7 @@ void updateEffectsVolume() {
       audio.trackGain(S_IDLE_LOOP_GUN_5, i_volume_effects);
 
       // Standalone wand has additional idle effects.
-      if(b_gpstar_benchtest) {
+      if(b_wand_standalone) {
         audio.trackGain(S_WAND_SLIME_IDLE_LOOP, i_volume_effects);
         audio.trackGain(S_WAND_STASIS_IDLE_LOOP, i_volume_effects);
         audio.trackGain(S_MESON_IDLE_LOOP, i_volume_effects);
@@ -666,7 +666,7 @@ void updateMusicVolume() {
       case A_WAV_TRIGGER:
       case A_GPSTAR_AUDIO:
       case A_GPSTAR_AUDIO_ADV:
-        if(b_gpstar_benchtest) {
+        if(b_wand_standalone) {
           audio.trackGain(i_current_music_track, i_volume_music);
         }
       break;
@@ -715,7 +715,7 @@ void decreaseVolumeMusic() {
 
 void buildMusicCount(uint16_t i_num_tracks) {
   // Build the music track count.
-  if(b_gpstar_benchtest) {
+  if(b_wand_standalone) {
     i_music_track_count = i_num_tracks - i_last_effects_track;
 
     if(i_music_track_count > 0 && i_music_track_count < 4097) {
@@ -911,7 +911,7 @@ bool setupAudioDevice() {
       i_audio_version = 100; // Set to 100 to indicate old version.
     }
 
-    if(!b_gpstar_benchtest) {
+    if(!b_wand_standalone) {
       i_volume_abs_max = 10; // Allow GPStar Audio to use +10dB if on external power.
     }
 
@@ -959,7 +959,7 @@ bool setupAudioDevice() {
     audio.setAmpPwr(b_onboard_amp_enabled);
 
     // Enable track reporting if in bench test mode. Only for the WAV Trigger.
-    audio.setReporting(b_gpstar_benchtest);
+    audio.setReporting(b_wand_standalone);
 
     AUDIO_DEVICE = A_WAV_TRIGGER;
     i_audio_version = 1; // Set to 1 to indicate WAV Trigger.

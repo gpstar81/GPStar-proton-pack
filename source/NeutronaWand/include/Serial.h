@@ -22,6 +22,7 @@
 // Forward function declarations.
 void restartWireless(); // From Webhandler.h
 void shutdownWireless(); // From Webhandler.h
+void toggleStandaloneMode(bool); // From System.h
 
 /*
  * Proton Pack communication.
@@ -242,14 +243,14 @@ void wandSerialSend(uint8_t i_command, uint16_t i_value) {
 
 #ifdef ESP32
   // Send latest status to the WebSocket (ESP32 only), skipping this action on certain commands.
-  // We make a special case for a disconnected pack, or one in benchtest mode, so that the WebSocket gets updates.
+  // We make a special case for a disconnected pack, or one in standalone mode, so that the WebSocket gets updates.
   if((WAND_CONN_STATE == PACK_DISCONNECTED || WAND_CONN_STATE == NC_BENCHTEST) && !isExcludedCommand(i_command)) {
     notifyWSClients();
   }
 #endif
 
   // Leave when a pack is not intended to be connected.
-  if(b_gpstar_benchtest) {
+  if(b_wand_standalone) {
     return;
   }
 
@@ -280,14 +281,14 @@ void wandSerialSendData(uint8_t i_message) {
 
 #ifdef ESP32
   // Send latest status to the WebSocket (ESP32 only), skipping this action on certain commands.
-  // We make a special case for a disconnected pack, or one in benchtest mode, so that the WebSocket gets updates.
+  // We make a special case for a disconnected pack, or one in standalone mode, so that the WebSocket gets updates.
   if((WAND_CONN_STATE == PACK_DISCONNECTED || WAND_CONN_STATE == NC_BENCHTEST) && !isExcludedCommand(i_message)) {
     notifyWSClients();
   }
 #endif
 
   // Leave when a pack is not intended to be connected.
-  if(b_gpstar_benchtest) {
+  if(b_wand_standalone) {
     return;
   }
 
@@ -591,7 +592,7 @@ void handleWandPrefsUpdate() {
 // Pack communication to the wand.
 void checkPack() {
   // Leave when a pack is not intended to be connected.
-  if(b_gpstar_benchtest) {
+  if(b_wand_standalone) {
     return;
   }
 
@@ -627,46 +628,7 @@ void checkPack() {
           }
           else if(recvCmd.s == W_COM_START && recvCmd.c == W_SYNC_NOW && recvCmd.d1 == 0 && recvCmd.e == W_COM_END) {
             // We just received our own heartbeat echoed back, so switch to standalone mode.
-            WAND_CONN_STATE = NC_BENCHTEST;
-            b_gpstar_benchtest = true;
-            b_pack_on = true; // Pretend that the pack (not really attached) has been powered on.
-
-            // Reset music status variables just in case they were previously set by a pack.
-            b_playing_music = false;
-            b_music_paused = false;
-
-            // Turn off the sync indicator LED as it is no longer necessary.
-            ventTopLightControl(false);
-            digitalWriteFast(WAND_STATUS_LED_PIN, LOW);
-
-            // Reset the audio device now that we are in standalone mode and need music playback.
-            setupAudioDevice();
-
-            // Start the music check timer for standalone mode.
-            ms_check_music.start(i_music_check_delay);
-
-            // Re-read the EEPROM now that we are in standalone mode to make sure system mode and volume are correct.
-            if(b_eeprom) {
-              readEEPROM();
-            }
-
-            // Reset our master volume according to the new EEPROM values.
-            updateMasterVolume(true);
-
-            // Sanity check to make sure that a firing mode was set as default.
-            if(FIRING_MODE != CTS_MODE && FIRING_MODE != CTS_MIX_MODE) {
-              FIRING_MODE = VG_MODE;
-              LAST_FIRING_MODE = FIRING_MODE;
-            }
-
-            // Check if we should be in video game mode or not.
-            vgModeCheck();
-
-            // Reset the bargraph.
-            bargraphYearModeUpdate();
-
-            // Stop the pack sync timer since we are no longer syncing to a pack.
-            ms_packsync.stop();
+            toggleStandaloneMode(true);
 
             // Immediately exit the serial data functions.
             return;

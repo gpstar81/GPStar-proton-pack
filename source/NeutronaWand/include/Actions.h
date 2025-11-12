@@ -694,7 +694,7 @@ void checkWandAction() {
               break;
 
               case MENU_LEVEL_3:
-                if(switch_intensify.singleClick() && !b_gpstar_benchtest) {
+                if(switch_intensify.singleClick() && !b_wand_standalone) {
                   // Toggle between Neutrona Wand and Proton Pack default volume adjustment.
                   if(VOLUME_ADJUST_DEVICE == VOLUME_PROTON_PACK) {
                     VOLUME_ADJUST_DEVICE = VOLUME_NEUTRONA_WAND;
@@ -1305,7 +1305,7 @@ void checkWandAction() {
               wandSerialSend(W_MODE_TOGGLE);
 
               // If there is no Pack, we need to cycle modes manually.
-              if(b_gpstar_benchtest) {
+              if(b_wand_standalone) {
                 if(SYSTEM_MODE == MODE_SUPER_HERO) {
                   SYSTEM_MODE = MODE_ORIGINAL;
 
@@ -1365,7 +1365,7 @@ void checkWandAction() {
               wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
 
               // Standalone Neutrona Wand has to change this setting on its own.
-              if(b_gpstar_benchtest) {
+              if(b_wand_standalone) {
                 if(b_stream_effects) {
                   b_stream_effects = false;
 
@@ -1562,7 +1562,7 @@ void checkWandAction() {
           // Change music tracks.
           if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
             if(switch_intensify.pushed()) {
-              if(b_gpstar_benchtest) {
+              if(b_wand_standalone) {
                 musicNextTrack();
               }
               else {
@@ -1571,7 +1571,7 @@ void checkWandAction() {
               }
             }
             else if(switch_mode.pushed()) {
-              if(b_gpstar_benchtest) {
+              if(b_wand_standalone) {
                 musicPrevTrack();
               }
               else {
@@ -1649,7 +1649,7 @@ void checkWandAction() {
               wandSerialSend(W_MUSIC_TOGGLE);
 
               // Handle standalone wand music playback.
-              if(b_gpstar_benchtest) {
+              if(b_wand_standalone) {
                 if(b_playing_music) {
                   stopMusic();
                 }
@@ -1681,7 +1681,7 @@ void checkWandAction() {
               wandSerialSend(W_YEAR_MODES_CYCLE);
 
               // There is no pack connected; let's change the years.
-              if(b_gpstar_benchtest) {
+              if(b_wand_standalone) {
                 stopEffect(S_BEEPS_BARGRAPH);
                 playEffect(S_BEEPS_BARGRAPH);
 
@@ -1742,7 +1742,7 @@ void checkWandAction() {
               wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
 
               // Standalone Neutrona Wand has to change this setting on its own.
-              if(b_gpstar_benchtest) {
+              if(b_wand_standalone) {
                 if(b_stream_effects) {
                   b_stream_effects = false;
 

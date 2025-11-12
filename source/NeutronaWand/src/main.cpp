@@ -204,7 +204,7 @@ void setup() {
 
   // Setup default system settings.
   setVGMode();
-  if(b_gpstar_benchtest) {
+  if(b_wand_standalone) {
     VIBRATION_MODE = VIBRATION_NONE;
   }
   else {
@@ -349,7 +349,7 @@ void setup() {
   // Initialize the timer for initial handshake.
   ms_packsync.start(0);
 
-  if(b_gpstar_benchtest) {
+  if(b_wand_standalone) {
     WAND_CONN_STATE = NC_BENCHTEST;
 
     b_pack_on = true; // Pretend that the pack (not really attached) has been powered on.
@@ -405,7 +405,7 @@ void mainLoop() {
   switch(WAND_STATUS) {
     case MODE_OFF:
       if(WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
-        if(WAND_ACTION_STATUS != ACTION_SETTINGS && b_gpstar_benchtest && SYSTEM_MODE == MODE_ORIGINAL && switch_intensify.doubleClick()) {
+        if(WAND_ACTION_STATUS != ACTION_SETTINGS && b_wand_standalone && SYSTEM_MODE == MODE_ORIGINAL && switch_intensify.doubleClick()) {
           // This allows a standalone wand to "flip the ion arm switch" when in MODE_ORIGINAL by double-clicking the Intensify switch while the wand is turned off
           changeIonArmSwitchState(RED_SWITCH_MODE == SWITCH_OFF);
         }
@@ -437,7 +437,7 @@ void mainLoop() {
           }
         }
         else if(WAND_ACTION_STATUS == ACTION_SETTINGS && b_pack_on) {
-          if(!b_gpstar_benchtest && WAND_MENU_LEVEL != MENU_LEVEL_1) {
+          if(!b_wand_standalone && WAND_MENU_LEVEL != MENU_LEVEL_1) {
             WAND_MENU_LEVEL = MENU_LEVEL_1;
 
             i_wand_menu = 5;
@@ -461,7 +461,7 @@ void mainLoop() {
         ventSwitchedCount = 0;
       }
 
-      if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && (!b_pack_on || b_gpstar_benchtest) && switch_intensify.on() && wandSwitchedCount >= 5) {
+      if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && (!b_pack_on || b_wand_standalone) && switch_intensify.on() && wandSwitchedCount >= 5) {
         stopEffect(S_BEEPS_BARGRAPH);
         playEffect(S_BEEPS_BARGRAPH);
 
@@ -484,13 +484,13 @@ void mainLoop() {
         wandLightsOffMenuSystem();
       }
       else if(WAND_ACTION_STATUS == ACTION_LED_EEPROM_MENU && b_pack_on) {
-        if(!b_gpstar_benchtest) {
+        if(!b_wand_standalone) {
           wandExitEEPROMMenu();
         }
       }
 
       if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU
-        && (!b_pack_on || b_gpstar_benchtest) && switch_intensify.on() && ventSwitchedCount >= 5) {
+        && (!b_pack_on || b_wand_standalone) && switch_intensify.on() && ventSwitchedCount >= 5) {
         stopEffect(S_BEEPS_BARGRAPH);
         playEffect(S_BEEPS_BARGRAPH);
 
@@ -510,7 +510,7 @@ void mainLoop() {
         wandLightsOffMenuSystem();
       }
       else if(WAND_ACTION_STATUS == ACTION_CONFIG_EEPROM_MENU && b_pack_on) {
-        if(!b_gpstar_benchtest) {
+        if(!b_wand_standalone) {
           wandExitEEPROMMenu();
         }
       }

@@ -274,7 +274,7 @@ void readEEPROM() {
       }
     }
 
-    if(obj_config_eeprom.system_mode > 0 && obj_config_eeprom.system_mode < 3 && b_gpstar_benchtest) {
+    if(obj_config_eeprom.system_mode > 0 && obj_config_eeprom.system_mode < 3 && b_wand_standalone) {
       if(obj_config_eeprom.system_mode > 1) {
         SYSTEM_MODE = MODE_ORIGINAL;
       }
@@ -398,7 +398,7 @@ void readEEPROM() {
         default:
           // Do nothing. Readings are taken from the vibration toggle switch from the Proton pack or configuration setting in stand alone mode.
           VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
-          if(b_gpstar_benchtest) {
+          if(b_wand_standalone) {
             VIBRATION_MODE = VIBRATION_NONE;
           }
           else {

@@ -253,7 +253,7 @@ In the Special Device Settings for the Neutrona Wand, you should see magnetic of
 
 With the Controller Installation Orientation Menu option, you can further fine tune the sensor settings by telling the GPStar system which way the GPStar Neutrona Wand II board is installed inside your Neutrona Wand body. For example, on Hasbro Neutrona Wands, it will be Components Down, USB Front. For a Mack's Factory Neutrona Wand, it will be in a different orientation such as the Components facing Left and the USB front.
 
-Also in this section is the ability to rename the Network ID for the Neutrona Wand.
+Also in this section is the ability to rename the Network ID for the Neutrona Wand, and a toggle to enable or disable Standalone Mode for the Neutrona Wand.
 
 Lastly, you can configure the music track names for the GPStar Neutrona Wand II in stand-alone mode **Using it without a GPStar Proton Pack II**
 

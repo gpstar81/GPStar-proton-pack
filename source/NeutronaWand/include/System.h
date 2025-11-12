@@ -47,7 +47,7 @@ SYSTEM_YEARS getNeutronaWandYearMode() {
 
 // Returns SYSTEM_YEAR when operating with a Proton Pack, or WAND_YEAR_MODE when in standalone operation
 SYSTEM_YEARS getSystemYearMode() {
-  if(b_gpstar_benchtest) {
+  if(b_wand_standalone) {
     return getNeutronaWandYearMode();
   }
   else {
@@ -105,7 +105,7 @@ void wandHeatUp() {
   stopEffect(S_MESON_OPEN);
   stopEffect(S_MODE_SWITCH);
 
-  if(b_gpstar_benchtest) {
+  if(b_wand_standalone) {
     stopEffect(S_WAND_SLIME_IDLE_LOOP);
     stopEffect(S_WAND_STASIS_IDLE_LOOP);
     stopEffect(S_MESON_IDLE_LOOP);
@@ -120,7 +120,7 @@ void wandHeatUp() {
     case STASIS:
       playEffect(S_STASIS_OPEN);
 
-      if(b_gpstar_benchtest && WAND_STATUS == MODE_ON && switch_vent.on()) {
+      if(b_wand_standalone && WAND_STATUS == MODE_ON && switch_vent.on()) {
         playEffect(S_WAND_STASIS_IDLE_LOOP, true, i_volume_effects, true, 2000);
       }
     break;
@@ -128,7 +128,7 @@ void wandHeatUp() {
     case SLIME:
       playEffect(S_PACK_SLIME_OPEN);
 
-      if(b_gpstar_benchtest && WAND_STATUS == MODE_ON && switch_vent.on()) {
+      if(b_wand_standalone && WAND_STATUS == MODE_ON && switch_vent.on()) {
         playEffect(S_WAND_SLIME_IDLE_LOOP, true, i_volume_effects, true, 700);
       }
     break;
@@ -136,7 +136,7 @@ void wandHeatUp() {
     case MESON:
       playEffect(S_MESON_OPEN);
 
-      if(b_gpstar_benchtest && WAND_STATUS == MODE_ON && switch_vent.on()) {
+      if(b_wand_standalone && WAND_STATUS == MODE_ON && switch_vent.on()) {
         playEffect(S_MESON_IDLE_LOOP, true, i_volume_effects, true, 1250);
       }
     break;
@@ -144,7 +144,7 @@ void wandHeatUp() {
     case HOLIDAY_HALLOWEEN:
       //playEffect(S_FIRE_START_SPARK);
 
-      if(b_gpstar_benchtest) {
+      if(b_wand_standalone) {
         playEffect(S_HALLOWEEN_MODE_VOICE);
       }
     break;
@@ -152,7 +152,7 @@ void wandHeatUp() {
     case HOLIDAY_CHRISTMAS:
       //playEffect(S_FIRE_START_SPARK);
 
-      if(b_gpstar_benchtest) {
+      if(b_wand_standalone) {
         playEffect(S_CHRISTMAS_MODE_VOICE);
       }
     break;
@@ -1413,7 +1413,7 @@ void soundIdleLoop(bool fadeIn) {
     break;
   }
 
-  if(b_gpstar_benchtest && fadeIn) {
+  if(b_wand_standalone && fadeIn) {
     switch(STREAM_MODE) {
       case SLIME:
         playEffect(S_WAND_SLIME_IDLE_LOOP, true, i_volume_effects, true, 900);
@@ -1459,7 +1459,7 @@ void soundIdleLoopStop(bool stopAlts) {
     break;
   }
 
-  if(stopAlts && b_gpstar_benchtest) {
+  if(stopAlts && b_wand_standalone) {
     switch(STREAM_MODE) {
       case SLIME:
         stopEffect(S_WAND_SLIME_IDLE_LOOP);
@@ -1589,7 +1589,7 @@ void postActivation(bool shortBoot = false) {
         case SYSTEM_AFTERLIFE:
         case SYSTEM_FROZEN_EMPIRE:
         default:
-          if(b_gpstar_benchtest) {
+          if(b_wand_standalone) {
             stopEffect(S_WAND_BOOTUP);
             playEffect(S_WAND_BOOTUP);
           }
@@ -1810,7 +1810,7 @@ void overheatingFinished() {
 }
 
 void quickVentFinished() {
-  if(b_gpstar_benchtest) {
+  if(b_wand_standalone) {
     ms_overheating.stop();
     stopEffect(S_QUICK_VENT_OPEN);
     playEffect(S_QUICK_VENT_CLOSE);
@@ -1827,7 +1827,7 @@ void startQuickVent() {
   WAND_ACTION_STATUS = ACTION_VENTING;
 
   // Since the Proton Pack tells the Neutrona Wand when venting is finished, standalone wand needs its own timer.
-  if(b_gpstar_benchtest) {
+  if(b_wand_standalone) {
     ms_overheating.start(i_ms_overheating >= 4000 ? i_ms_overheating / 2 : 2000);
 
     stopEffect(S_SLIME_EMPTY);
@@ -2579,7 +2579,7 @@ void startVentSequence() {
   WAND_ACTION_STATUS = ACTION_OVERHEATING;
 
   // Since the Proton Pack tells the Neutrona Wand when overheating is finished, standalone wand needs its own timer.
-  if(b_gpstar_benchtest) {
+  if(b_wand_standalone) {
     ms_overheating.start(i_ms_overheating);
   }
 
@@ -3294,7 +3294,7 @@ void wandOff() {
       switch(getNeutronaWandYearMode()) {
         case SYSTEM_1984:
         case SYSTEM_1989:
-          if(SYSTEM_MODE == MODE_SUPER_HERO && !b_sound_idle && !b_wand_mash_error && b_gpstar_benchtest) {
+          if(SYSTEM_MODE == MODE_SUPER_HERO && !b_sound_idle && !b_wand_mash_error && b_wand_standalone) {
             // Proton Pack plays shutdown sound, but standalone Wand needs to play its own.
             stopEffect(S_WAND_HEATDOWN);
             playEffect(S_WAND_HEATDOWN);
@@ -6206,7 +6206,7 @@ void modeFireStart() {
     ms_impact.start(random(10,16) * 1000);
 
     // Standalone wand plays additional SFX from Proton Pack.
-    if(b_gpstar_benchtest) {
+    if(b_wand_standalone) {
       ms_firing_sound_mix.start(random(7,15) * 1000);
     }
   }
@@ -7465,7 +7465,7 @@ void modeFiring() {
     }
 
     // Restart the impact sound timer for the standalone wand.
-    if(b_stream_effects && b_gpstar_benchtest) {
+    if(b_stream_effects && b_wand_standalone) {
       ms_firing_sound_mix.start(random(7,15) * 1000);
     }
   }
@@ -9126,7 +9126,7 @@ void checkRotaryEncoder() {
         // Counter clockwise.
         if(prev_next_code == 0x0b) {
           if(WAND_MENU_LEVEL == MENU_LEVEL_3 && i_wand_menu == 5 && switch_intensify.longPress() && !switch_mode.on()) {
-            if(b_gpstar_benchtest || VOLUME_ADJUST_DEVICE == VOLUME_NEUTRONA_WAND) {
+            if(b_wand_standalone || VOLUME_ADJUST_DEVICE == VOLUME_NEUTRONA_WAND) {
               // Adjust Neutrona Wand default startup volume.
               decreaseVolumeEEPROM();
             }
@@ -9292,7 +9292,7 @@ void checkRotaryEncoder() {
         // Clockwise.
         if(prev_next_code == 0x07) {
           if(WAND_MENU_LEVEL == MENU_LEVEL_3 && i_wand_menu == 5 && switch_intensify.longPress() && !switch_mode.on()) {
-            if(b_gpstar_benchtest || VOLUME_ADJUST_DEVICE == VOLUME_NEUTRONA_WAND) {
+            if(b_wand_standalone || VOLUME_ADJUST_DEVICE == VOLUME_NEUTRONA_WAND) {
               // Adjust Neutrona Wand default startup volume.
               increaseVolumeEEPROM();
             }
@@ -9698,7 +9698,7 @@ void checkRotaryEncoder() {
           }
           else if(i_wand_menu - 1 < 1) {
             // We are entering a sub menu. Only accessible when the Proton Pack is powered down.
-            if(!b_pack_on || (b_gpstar_benchtest && WAND_STATUS == MODE_OFF)) {
+            if(!b_pack_on || (b_wand_standalone && WAND_STATUS == MODE_OFF)) {
               switch(WAND_MENU_LEVEL) {
                 case MENU_LEVEL_1:
                   WAND_MENU_LEVEL = MENU_LEVEL_2;
@@ -9786,7 +9786,7 @@ void checkRotaryEncoder() {
           }
           else if(i_wand_menu + 1 > 5) {
             // We are leaving changing menu levels. Only accessible when the Proton Pack is powered down.
-            if(!b_pack_on || (b_gpstar_benchtest && WAND_STATUS == MODE_OFF)) {
+            if(!b_pack_on || (b_wand_standalone && WAND_STATUS == MODE_OFF)) {
               switch(WAND_MENU_LEVEL) {
                 case MENU_LEVEL_3:
                   WAND_MENU_LEVEL = MENU_LEVEL_2;
@@ -10275,7 +10275,7 @@ void wandExitEEPROMMenu() {
 
   vibrationOff(); // Make sure we stop any menu-related vibration, if any.
 
-  if(b_gpstar_benchtest) {
+  if(b_wand_standalone) {
     // Also need to make sure to reset the "ion arm switch" to off if standalone.
     RED_SWITCH_MODE = SWITCH_OFF;
   }
@@ -10303,9 +10303,58 @@ void wandExitEEPROMMenu() {
   wandSerialSend(W_SEND_PREFERENCES_SMOKE);
 }
 
+// Toggle between Standalone and non-Standalone operational modes.
+void toggleStandaloneMode(bool on) {
+  if(on) {
+    WAND_CONN_STATE = NC_BENCHTEST;
+    b_wand_standalone = true;
+    b_pack_on = true; // Pretend that the pack (not really attached) has been powered on.
+
+    // Reset music status variables just in case they were previously set by a pack.
+    b_playing_music = false;
+    b_music_paused = false;
+
+    // Turn off the sync indicator LED as it is no longer necessary.
+    ventTopLightControl(false);
+    digitalWriteFast(WAND_STATUS_LED_PIN, LOW);
+
+    // Reset the audio device now that we are in standalone mode and need music playback.
+    setupAudioDevice();
+
+    // Start the music check timer for standalone mode.
+    ms_check_music.start(i_music_check_delay);
+
+    // Re-read the EEPROM now that we are in standalone mode to make sure system mode and volume are correct.
+    if(b_eeprom) {
+      readEEPROM();
+    }
+
+    // Reset our master volume according to the new EEPROM values.
+    updateMasterVolume(true);
+
+    // Sanity check to make sure that a firing mode was set as default.
+    if(FIRING_MODE != CTS_MODE && FIRING_MODE != CTS_MIX_MODE) {
+      FIRING_MODE = VG_MODE;
+      LAST_FIRING_MODE = FIRING_MODE;
+    }
+
+    // Check if we should be in video game mode or not.
+    vgModeCheck();
+
+    // Reset the bargraph.
+    bargraphYearModeUpdate();
+
+    // Stop the pack sync timer since we are no longer syncing to a pack.
+    ms_packsync.stop();
+  }
+  else {
+    // Non-op for now; once wand implements disconnect logic we can fill this in
+  }
+}
+
 // Function to handle blinking for the power-on reminder (if enabled).
 void checkPowerOnReminder() {
-  if(WAND_ACTION_STATUS == ACTION_IDLE && (!b_pack_on || b_gpstar_benchtest)) {
+  if(WAND_ACTION_STATUS == ACTION_IDLE && (!b_pack_on || b_wand_standalone)) {
     if(ms_power_indicator.justFinished()) {
       if((SYSTEM_MODE == MODE_ORIGINAL && RED_SWITCH_MODE == SWITCH_OFF) || SYSTEM_MODE == MODE_SUPER_HERO) {
         // Blink the Clippard LED to indicate to the user that the system battery is still powered on.

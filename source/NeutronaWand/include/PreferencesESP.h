@@ -620,7 +620,7 @@ void readEEPROM() {
       }
     }
 
-    if(gObjConfigEEPROM.systemMode > 0 && gObjConfigEEPROM.systemMode < 3 && b_gpstar_benchtest) {
+    if(gObjConfigEEPROM.systemMode > 0 && gObjConfigEEPROM.systemMode < 3 && b_wand_standalone) {
       if(gObjConfigEEPROM.systemMode > 1) {
         SYSTEM_MODE = MODE_ORIGINAL;
       }
@@ -744,7 +744,12 @@ void readEEPROM() {
         default:
           // Do nothing. Readings are taken from the vibration toggle switch from the Proton pack or configuration setting in stand alone mode.
           VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
-          VIBRATION_MODE = VIBRATION_FIRING_ONLY;
+          if(b_wand_standalone) {
+            VIBRATION_MODE = VIBRATION_NONE;
+          }
+          else {
+            VIBRATION_MODE = VIBRATION_FIRING_ONLY;
+          }
         break;
 
         case 3:
@@ -851,8 +856,8 @@ void getSpecialPreferences() {
 
   // Accesses the "device" namespace in read-only mode.
   if(preferences.begin("device", true)) {
-    // Restore the standalone (benchtest) mode flag from preferences.
-    b_gpstar_benchtest = preferences.getBool("standalone", false);
+    // Restore the standalone mode flag from preferences.
+    b_wand_standalone = preferences.getBool("standalone", false);
 
     // Return stored values if available, otherwise use a default value.
     s_track_listing = preferences.getString("track_list", "");
@@ -921,7 +926,7 @@ void getSpecialPreferences() {
   else {
     // If namespace is not initialized, open in read/write mode and set defaults.
     if(preferences.begin("device", false)) {
-      preferences.putBool("standalone", b_gpstar_benchtest);
+      preferences.putBool("standalone", b_wand_standalone);
       preferences.putString("track_list", "");
       preferences.putShort("orientation", 3); // COMPONENTS_DOWN_USB_FRONT
       preferences.putBytes("mag_cal", &magCalData, sizeof(magCalData));

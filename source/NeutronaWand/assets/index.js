@@ -224,7 +224,7 @@ function updateEquipment(jObj) {
   // Update display if we have the expected data (containing mode and theme at a minimum).
   if (jObj && jObj.mode && jObj.theme) {
     // Enable/Disable Music Controls
-    if (jObj.benchtest) {
+    if (jObj.standalone) {
       enableEl("btnVolMusicUp");
       enableEl("btnVolMusicDown");
       enableEl("playbackStatus");

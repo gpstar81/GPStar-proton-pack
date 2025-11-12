@@ -88,6 +88,7 @@ const uint16_t i_websocketCleanup = 5000;
 // Forward function declarations.
 void setupRouting();
 void getSpecialPreferences();
+void toggleStandaloneMode(bool);
 
 /*
  * Text Helper Functions - Converts ENUM values to consistent, user-friendly text
@@ -362,8 +363,8 @@ String getDeviceConfig() {
     regObj["value"] = magConfigInfo.rawRegisters[i].value;
   }
 
-  // Report the current standalone (benchtest) mode setting.
-  jsonBody["useStandalone"] = b_gpstar_benchtest;
+  // Report the current standalone mode setting.
+  jsonBody["useStandalone"] = b_wand_standalone;
 
   // Serialize JSON object to string.
   serializeJson(jsonBody, equipSettings);
@@ -428,7 +429,7 @@ String getEquipmentStatus() {
     i_music_track_max = i_music_track_start + i_music_track_count - 1; // 500 + N - 1 to be inclusive of the offset value.
   }
 
-  jsonBody["benchtest"] = (b_gpstar_benchtest ? true : false);
+  jsonBody["standalone"] = (b_wand_standalone ? true : false);
   jsonBody["mode"] = getMode();
   jsonBody["modeID"] = (SYSTEM_MODE == MODE_SUPER_HERO) ? 1 : 0;
   jsonBody["theme"] = getTheme();
@@ -1420,8 +1421,13 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
       magCalData.mag_field = jsonBody["magField"].as<float>();
     }
 
-    // Check for standalone (benchtest) mode setting.
-    b_gpstar_benchtest = jsonBody["useStandalone"].as<bool>();
+    // Check for Standalone Mode mode switch.
+    bool b_standalone_toggled = jsonBody["useStandalone"].as<bool>();
+    bool b_restart_required = (!b_standalone_toggled && b_wand_standalone);
+    if(b_standalone_toggled && !b_wand_standalone) {
+      // Switch to Standalone Mode.
+      toggleStandaloneMode(true);
+    }
 
     // Get the track listing from the text field.
     String songList = jsonBody["songList"].as<String>();
@@ -1432,8 +1438,8 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
 
     // Accesses namespace in read/write mode.
     if(preferences.begin("device", false)) {
-      // Store the standalone (benchtest) mode setting to preferences.
-      preferences.putBool("standalone", b_gpstar_benchtest);
+      // Store the standalone mode setting to preferences.
+      preferences.putBool("standalone", b_standalone_toggled);
 
       // Store the orientation value to preferences if changed.
       if(INSTALL_ORIENTATION != PREVIOUS_ORIENTATION) {
@@ -1485,11 +1491,14 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
       preferences.end();
     }
 
-    if(b_list_err){
+    if(b_list_err) {
       request->send(200, "application/json", returnJsonStatus("Settings updated, but song list exceeds the 2,000 bytes maximum and was not saved."));
     }
-    else if(b_ssid_changed){
+    else if(b_ssid_changed) {
       request->send(201, "application/json", returnJsonStatus("Settings updated, restart required. Please use the new network name to connect to your device."));
+    }
+    else if(b_restart_required) {
+      request->send(201, "application/json", returnJsonStatus("Settings updated, restart required to disable Standalone Mode."));
     }
     else {
       request->send(200, "application/json", returnJsonStatus("Settings updated."));

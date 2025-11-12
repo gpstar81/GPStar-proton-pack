@@ -96,21 +96,23 @@ The following is a diagram of the ESP32 pins from left and right, when oriented 
 | Encoder A     | GPIO32    |     | GPIO19    | PN2222        |
 | Encoder B     | GPIO33    |     | GPIO18    | Piezo Buzzer  |
 |               | GPIO25    |     | GPIO5     |               |
-|               | GPIO26    |     | GPIO17    | to Pack RX1   |
-|               | GPIO27    |     | GPIO16    | to Pack TX1   |
+|               | GPIO26    |     | GPIO17    | to Pack RX1<sup>2</sup> |
+|               | GPIO27    |     | GPIO16    | to Pack TX1<sup>2</sup> |
 |               | GPIO14    |     | GPIO4     | Encoder Post  |
 |               | GPIO12    |     | GPIO2     |               |
 |               | GPIO13    |     | GPIO15    |               |
 | Ground (Pack) | GND       |     | GND       | Common Ground |
-| +5V (Pack)    | VIN       |     | 3.3V      | Vib. Motor +  |
+| +5V (Pack)    | 5V/VIN    |     | 3.3V      | Vib. Motor +  |
 |               |         | **USB** |         |               |
 
 When connecting to the pack, the following wiring scheme was used with the recommended 4-pin connector:
 
 	1 - GND (Black)
-	2 - VIN (Red)
-	3 - TX2 (White) to Pack RX1
-	4 - RX2 (Yellow) to Pack TX1
+	2 - 5V/VIN (Red)
+	3 - TX2 (White) to Pack RX1<sup>2</sup>
+	4 - RX2 (Yellow) to Pack TX1<sup>2</sup>
+
+<sup>2</sup> This is on GPStar I Proton Pack boards. On GPStar II Proton Pack boards the data pins are labeled "Attenuator RX2/TX2".
 
 It is advised to add a 330uF capacitor to the VIN+GND pins to help regulate power which will be shared with the controller, bargraph, and addressable LEDs.
 
@@ -143,7 +145,7 @@ The rotary encoder is similar to that used on the Proton Pack and Neutrona Wand 
 | ROTARY ENCODER (DIAL)             |   | MCU Pin   |
 |-----------------------------------|---|-----------|
 | GND                               | → | GND       |
-| <font color="red">+ (VCC)</font>  | → | VIN (5V)  |
+| <font color="red">+ (VCC)</font>  | → | 5V/VIN    |
 | <font color="green">SW</font>     | → | D4/GPIO4  |
 | <font color="blue">DT (B)</font>  | → | D2/GPIO33 |
 | <font color="blue">CLK (A)</font> | → | D3/GPIO32 |
@@ -152,9 +154,9 @@ The rotary encoder is similar to that used on the Proton Pack and Neutrona Wand 
 
 | LED'S                           |   | Component | MCU Pin |
 |---------------------------------|---|-----------|---------|
-| <font color="red">Red</font>    | → | 100uf | 5V/VIN    |
+| <font color="red">Red</font>    | → | 100uf | 5V/VIN      |
 | <font color="green">Green</font>  | → | 470 Ω | D9/GPIO23 |
-| <font color="gray">Black</font> | → | 100uf | GND       |
+| <font color="gray">Black</font> | → | 100uf | GND         |
 
 **Note:** It is advised to place a 100uf capacitor across the positive and negative connections to these devices, just to buffer any current fluctuations.
 
@@ -164,7 +166,7 @@ Addressable LEDs have a distinct data flow with solder pads labelled `DIN` and `
 
 | PIEZO BUZZER                   | Component(s) | MCU Pin |
 |--------------------------------|--------------|---------|
-| <font color="red">Red</font>   | →     | VIN/5V |
+| <font color="red">Red</font>   | →     | 5V/VIN |
 | Black                          | NPN C |          |
 |                                | NPN B | R 270 Ω → D10/GPIO18 |
 |                                | NPN E | GND      |
