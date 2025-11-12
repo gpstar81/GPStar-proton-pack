@@ -127,7 +127,6 @@ Use the included FTDI to USB programming cable that comes with the GPStar kits o
 ### GPStar ESP32 Firmware Flasher
 
 - [Windows](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/gpstarESP32FirmwareFlasher.exe?raw=1)
-- [MacOS Intel/M1](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/GPStar-ESP32-Flasher?raw=1)
 
 The latest pre-compiled firmware binaries can be found in the binaries folder of this repository.\
 [Binaries Folder](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/)
@@ -144,8 +143,6 @@ When downloading the binaries via GitHub, click on the file to open its webpage 
 
 ### Using the Flashing Software
 
-### Windows
-
 ![GPStar ESP32 firmware flasher Windows](images/flash-gpstar-2-firmware.png)
 
 1. Open the firmware flasher, then select the bootloader, partition file, boot_app0, and firmware in the appropriate selection boxes for the GPStar board you wish to flash.
@@ -153,16 +150,6 @@ When downloading the binaries via GitHub, click on the file to open its webpage 
 1. Click on the Upload button and wait for it to complete.
 
 `Note: If connecting the programming cable for the first time to your computer, it may take Windows a few minutes to setup the USB/JTAG drivers automatically before it starts working.`
-
-### macOS
-
-![GPStar ESP32 firmware flasher Mac](images/flash-gpstar-2-firmware-mac.png)
-
-1. Open the firmware flasher by double-clicking the .DMG file. This will mount a new drive for the application.
-1. Go to the mounted drive "GPSTAR-ESP32-FLASHER" and double-click on the `GPStar-ESP32-Flasher.app` to start the program.
-1. Select the bootloader, partition file, boot_app0, and firmware in the appropriate selection boxes for the GPStar board you wish to flash.
-1. Then select the PORT for the connection to your gpstar Board after connecting the gpstar board to your computer with the programming cable. `The PORT will be different for every user and may not look like what you see in the screenshot image.`
-1. Click on the UPLOAD button and wait for it to complete.
 
 ## (Optional) Compiling Source Code and Manually Flashing
 
