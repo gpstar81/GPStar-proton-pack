@@ -16,7 +16,7 @@ Please refer to the table below for a list of devices and their supported softwa
 | <span class="logo-icon-tiny"></span> GPStar Proton Pack II   | No | No | No | No | No | Yes |
 | <span class="logo-icon-tiny"></span> GPStar Neutrona Wand II | No | No | No | No | No | Yes |
 | <span class="logo-icon-tiny"></span> GPStar Single-shot Blaster II | No | No | No | No | No | Yes |
-| <sup>d1</sup> DIY Arduino Mega Proton Pack   | Yes | Yes <sup>2</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> |
+| <sup>d1</sup> DIY Arduino Mega Proton Pack   | Yes | Yes <sup>3</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> |
 | <sup>d1</sup> DIY Arduino Mega Neutrona Wand | Yes | Yes <sup>2</sup> | Yes <sup>2</sup> | Yes <sup>2</sup> | Yes <sup>2</sup> | Yes <sup>2</sup> |
 | <sup>s1</sup> Attenuator (Arduino Nano) | Yes | Yes | Yes | Yes | Yes | No <sup>4</sup> |
 | <sup>s1</sup> Attenuator (ESP32)        | No | No | Yes | Yes | Yes | Yes |
@@ -37,7 +37,7 @@ Please refer to the table below for a list of devices and their supported softwa
 ## 📝 GPStar II Flashing
 The GPStar Proton Pack II and GPStar Neutrona Wand II can be updated wirelessly.
 
-**The WiFi on the GPStar Neutrona Wand II is disabled for power saving measures when it is connected to a GPStar Proton Pack II. Alternatively, if you have a Attenuator connected, the GPStar Proton Pack II will turn off its WiFi for power saving. You can manually turn on or turn off the WiFi for each device from the [OPERATION_MENUS](OPERATION_MENUS.md)**
+**The WiFi on the GPStar Neutrona Wand II is disabled for power saving measures when it is connected to a GPStar Proton Pack II. Alternatively, if you have a Attenuator connected, the GPStar Proton Pack II will turn off its WiFi for power saving. You can manually turn on or turn off the WiFi for each device from the [Wand Operation Menu](OPERATION_MENUS.md)**.
 
 - Connect to the respective devices WiFi and navigate to the settings section. Then click on the Update Proton Pack or Neutrona Wand Firmware.
 
@@ -51,7 +51,7 @@ The GPStar Proton Pack II and GPStar Neutrona Wand II can be updated wirelessly.
 
 ### Connection to your GPStar II Proton Pack and Neutrona Wand PCBs
 
-Under normal circumstances you should only ever have to update the GPStar II boards over-the-air via the web UI as above. As a backup, the GPStar II Proton Pack and Neutrona Wand have a built-in USB-C connector that can be used to connect any computer to the board for manually flashing firmware. Connect a USB-C cable to the device from your computer, then use the GPStar ESP32 Firmware Flasher to update the firmware.
+Under normal circumstances you should only ever have to update the GPStar II boards over-the-air via the web UI as above. As a backup, the GPStar II Proton Pack and Neutrona Wand have a built-in USB-C connector that can be used to connect any computer to the board for manually flashing firmware. Connect a USB-C cable to the device from your computer, then use the GPStar ESP32 Firmware Flasher to update the firmware. See [GPStar II & ESP32 USB Flashing](#gpstar-ii-usb-flashing) below.
 
 ## 📝 GPStar I Flashing
 
@@ -69,23 +69,18 @@ After connecting your GPStar Proton Pack or Neutrona Wand board to your computer
 - [Windows (x86/x64)](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/gpstarFirmwareFlasher.exe?raw=1)
 - [MacOS Intel/M1](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/GPStar-Firmware-Flasher-Mac.dmg?raw=1)
 
-### GPStar ESP32 Firmware Flasher (GPStar II, Attenuator/WiFi Module, Belt Gizmo, Stream Effects, Ghost Trap Carrier)
-
-- [Windows](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/gpstarESP32FirmwareFlasher.exe?raw=1)
-- [MacOS Intel/M1](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/GPStar-ESP32-Flasher?raw=1)
-
 The latest pre-compiled firmware binaries can be found in the binaries folder of this repository.\
 [Binaries Folder](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/)
 
 When downloading the binaries via GitHub, click on the file to open its webpage then click on the **`Download raw file`** button in the upper-right of the page.
-
-**It is recommended to have both the Proton Pack and Neutrona Wand on the same, latest version of their respective firmware.**
 
 ![GPStar firmware flasher](images/flashDownload.png)
 
 **You can also find the latest stable versions of the Firmware and Flashing software at:**
 
 [https://gpstartechnologies.com/pages/support-downloads](https://gpstartechnologies.com/pages/support-downloads)
+
+**IMPORTANT: It is REQUIRED to have both the Proton Pack and Neutrona Wand on the same version of their respective firmware. It is also recommended that this be the latest available firmware.**
 
 ### Connection to your GPStar I Proton Pack and Neutrona Wand PCBs
 
@@ -106,11 +101,11 @@ Use the included FTDI to USB programming cable that comes with the GPStar kits o
 
 ![GPStar firmware flasher Windows](images/flash-gpstar-1-firmware.png)
 
-1. Open the firmware flasher, then select the firmware from the firmware selection box then select the firmware from the firmware selection box for the GPStar board you wish to flash.
-1. Then select the PORT for the connection to your GPStar Board. `Microsoft Windows users: The Default baud rate of 115200 should already be automatically selected.` `The PORT will be different for every user and may not look like what you see in the screenshot image. If you attempt to flash and your GPStar board can not be found, please select another PORT from the drop down menu and try again.`
-1. Click on the UPLOAD button and wait for it to complete.
+1. Open the firmware flasher, then select the firmware from the firmware selection box for the GPStar board you wish to flash.
+1. Then select the Port for the connection to your GPStar Board. `Microsoft Windows users: The Default baud rate of 115200 should already be automatically selected.` `The Port will be different for every user and may not look like what you see in the screenshot image. If you attempt to flash and your GPStar board can not be found, please select another PORT from the drop down menu and try again.`
+1. Click on the Upload button and wait for it to complete.
 
-`Note: If connecting the programming cable for the first time to your computer, it may take Windows a few minutes to setup the USB/TTL drivers automatically before it start working.`
+`Note: If connecting the programming cable for the first time to your computer, it may take Windows a few minutes to setup the USB/TTL drivers automatically before it starts working.`
 
 ### macOS
 
@@ -126,6 +121,48 @@ Use the included FTDI to USB programming cable that comes with the GPStar kits o
 
 [GPStar I Firmware Update Instruction Video](https://www.youtube.com/watch?v=Hbk-RCVR1ew) (YouTube)
 [![GPStar I Proton Pack & Neutrona Wand Flashing Demonstration Video](https://img.youtube.com/vi/Hbk-RCVR1ew/maxresdefault.jpg)](https://www.youtube.com/watch?v=Hbk-RCVR1ew)
+
+## GPStar II USB Flashing
+
+### GPStar ESP32 Firmware Flasher
+
+- [Windows](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/gpstarESP32FirmwareFlasher.exe?raw=1)
+- [MacOS Intel/M1](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/GPStar-ESP32-Flasher?raw=1)
+
+The latest pre-compiled firmware binaries can be found in the binaries folder of this repository.\
+[Binaries Folder](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/)
+
+When downloading the binaries via GitHub, click on the file to open its webpage then click on the **`Download raw file`** button in the upper-right of the page.
+
+![GPStar firmware flasher](images/flashDownload.png)
+
+**You can also find the latest stable versions of the Firmware and Flashing software at:**
+
+[https://gpstartechnologies.com/pages/support-downloads](https://gpstartechnologies.com/pages/support-downloads)
+
+**IMPORTANT: It is REQUIRED to have both the Proton Pack and Neutrona Wand on the same version of their respective firmware. It is also recommended that this be the latest available firmware.**
+
+### Using the Flashing Software
+
+### Windows
+
+![GPStar ESP32 firmware flasher Windows](images/flash-gpstar-2-firmware.png)
+
+1. Open the firmware flasher, then select the bootloader, partition file, boot_app0, and firmware in the appropriate selection boxes for the GPStar board you wish to flash.
+1. Then select the Port for the connection to your GPStar Board. `Microsoft Windows users: The Default baud rate of 921600 or 115200 should already be automatically selected.` `The Port will be different for every user and may not look like what you see in the screenshot image. If you attempt to flash and your GPStar board can not be found, please select another Port from the drop down menu and try again.`
+1. Click on the Upload button and wait for it to complete.
+
+`Note: If connecting the programming cable for the first time to your computer, it may take Windows a few minutes to setup the USB/JTAG drivers automatically before it starts working.`
+
+### macOS
+
+![GPStar ESP32 firmware flasher Mac](images/flash-gpstar-2-firmware-mac.png)
+
+1. Open the firmware flasher by double-clicking the .DMG file. This will mount a new drive for the application.
+1. Go to the mounted drive "GPSTAR-ESP32-FLASHER" and double-click on the `GPStar-ESP32-Flasher.app` to start the program.
+1. Select the bootloader, partition file, boot_app0, and firmware in the appropriate selection boxes for the GPStar board you wish to flash.
+1. Then select the PORT for the connection to your gpstar Board after connecting the gpstar board to your computer with the programming cable. `The PORT will be different for every user and may not look like what you see in the screenshot image.`
+1. Click on the UPLOAD button and wait for it to complete.
 
 ## (Optional) Compiling Source Code and Manually Flashing
 

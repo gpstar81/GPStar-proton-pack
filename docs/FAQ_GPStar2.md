@@ -16,13 +16,13 @@
 ## 🔌 Compatibility & Upgrades
 
 **Q:** Can I mix Gen 1 boards with Gen 2 (wand and pack)?
-**A:** Mixing is not recommended. Gen 1 uses 5V logic, while Gen 2 uses 3.3V, so signals aren’t directly compatible. An adapter may come later if there’s enough demand.
+**A:** Mixing is not recommended. Gen 1 uses 5V logic while Gen 2 uses 3.3V, so signals aren’t directly compatible. An adapter may come later if there’s enough demand.
 
 **Q:** What’s the easiest upgrade path from Gen 1 to GPStar II?
-**A:** If you already have a GPStar/Frutto bargraph and RGB cyclotron panel, you only need to swap the wand and pack boards. The old Hasbro 5-LED bargraph and individual cyclotron LEDs are no longer supported.
+**A:** If you already have a GPStar/Frutto bargraph, an RGB inner cyclotron panel (or are not using LEDs in your panel), and a GPStar RGB Vent Light then you only need to swap the wand and pack boards. The old Hasbro 5-LED bargraph, non-RGB vent lights (Hasbro/Frutto) and individual cyclotron switch plate LEDs are no longer supported.
 
 **Q:** Will GPStar II work with smoke kits and the Wi-Fi Attenuator?
-**A:** Yes, smoke kits remain fully supported. If you connect an Attenuator, it acts as the “Wi-Fi master” to conserve power. Without one, the pack or wand handles Wi-Fi.
+**A:** Yes, smoke kits remain fully supported, as does the Attenuator. If you connect an Attenuator, it acts as the “Wi-Fi master” to conserve power. Without one, the pack or wand handles Wi-Fi.
 
 ---
 

@@ -73,7 +73,7 @@ This uses a purpose-built flash tool just like the tools for the Proton Pack, Ne
 
 3. Open the GPStar ESP32 Firmware Flasher and browse to the files specified in step 2 above for each of the four requested file locations (see below screenshot).
 
-![](images/ESP32-gpstar-flash.jpg)
+![](images/flash-stream-firmware.png)
 
 4. The program should automatically detect the correct COM port and baud rate (see above screenshot). If it did not, use the drop-down menus to select the correct one for your PC.
 
