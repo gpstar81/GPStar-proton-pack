@@ -16,7 +16,7 @@ Click on the Settings tab at the top of the UI and go to the "Special Device Set
 
 **This option MUST be correctly selected and saved BEFORE starting any calibration processes!**
 
-![](images/Calibrations.png)
+![](images/WebUI-Wand-Menu-Settings1.jpg)
 
 ## Gyroscope Calibration
 

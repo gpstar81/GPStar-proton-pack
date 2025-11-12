@@ -127,7 +127,7 @@ At the bottom of the screen is a timestamp representing the date of the software
 
 <div style="clear:both"></div>
 
-### Special Device Settings
+### Special Proton Pack Device Settings
 
 <img style="float:right;padding:10px;width:300px;" src="images/gpstar-ii-special-device-settings.jpg"/>
 
@@ -245,17 +245,25 @@ At the bottom of the screen is a timestamp representing the date of the software
 
 <div style="clear:both"></div>
 
-### Special Device Settings
+### Special Neutrona Wand Device Settings
 
-<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Wand-Menu-Settings.jpg"/>
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Wand-Menu-Settings1.jpg"/>
 
-In the Special Device Settings for the Neutrona Wand, you should see magnetic offset information which display "Hard Iron" (geo-magnetic corrections) and "Soft Iron" (nearby magnetic interference). These values will be used to provide a customised magnetic profile explicitly for your Neutrona Wand.
+In the Special Device Settings for the Neutrona Wand, you can customize the name of the private wireless network when WiFi is enabled for the device.
 
-With the Controller Installation Orientation Menu option, you can further fine tune the sensor settings by telling the GPStar system which way the GPStar Neutrona Wand II board is installed inside your Neutrona Wand body. For example, on Hasbro Neutrona Wands, it will be Components Down, USB Front. For a Mack's Factory Neutrona Wand, it will be in a different orientation such as the Components facing Left and the USB front.
+The purpose of the Controller Installation Orientation Menu option is to establish the correct X, Y, and Z directions for the sensors relative to how the GPStar Neutrona Wand II board is installed inside your Neutrona Wand body. For example, on Hasbro Neutrona Wands it will be "Components Down, USB Front"; for a Mack's Factory Neutrona Wand, it will be in a different orientation such as the "Components Right, USB front".
 
-Also in this section is the ability to rename the Network ID for the Neutrona Wand, and a toggle to enable or disable Standalone Mode for the Neutrona Wand.
+The magnetic offset information it editable but not recommended to do so unless you understand the purpose. The display of "Hard Iron" (magnetic corrections) and "Soft Iron" (nearby metallic interference) can be used to verify that calibration of the device produced unique values to your Neutrona Wand device. These will be applied automatically to sensor readings to ensure consistent and stable behavior.
 
-Lastly, you can configure the music track names for the GPStar Neutrona Wand II in stand-alone mode **Using it without a GPStar Proton Pack II**
+<div style="clear:both"></div>
+
+<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Wand-Menu-Settings2.jpg"/>
+
+A toggle to enable or disable Standalone Mode for the Neutrona Wand is available, which makes testing of features more user-friendly during installation. When enabled, no communication will occur with the Proton Pack even if properly attached. **Be sure to disable this option for normal use or you will find that the Neutrona Wand will not control the Proton Pack as expected!**
+
+Lastly, you can configure the music track names for the GPStar Neutrona Wand II in stand-alone mode **Using it without a GPStar Proton Pack II**.
+
+**Note:** Diagnostic information related to the magnetometer is shown for troubleshooting purposes. This can be disregarded for normal use.
 
 <div style="clear:both"></div>
 
