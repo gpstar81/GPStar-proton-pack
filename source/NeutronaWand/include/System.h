@@ -9125,7 +9125,7 @@ void checkRotaryEncoder() {
       case ACTION_CONFIG_EEPROM_MENU:
         // Counter clockwise.
         if(prev_next_code == 0x0b) {
-          if(WAND_MENU_LEVEL == MENU_LEVEL_3 && i_wand_menu == 5 && switch_intensify.longPress() && !switch_mode.on()) {
+          if(WAND_MENU_LEVEL == MENU_LEVEL_3 && i_wand_menu == 5 && switch_intensify.isLongPressed() && !switch_mode.on()) {
             if(b_wand_standalone || VOLUME_ADJUST_DEVICE == VOLUME_NEUTRONA_WAND) {
               // Adjust Neutrona Wand default startup volume.
               decreaseVolumeEEPROM();
@@ -9291,7 +9291,7 @@ void checkRotaryEncoder() {
 
         // Clockwise.
         if(prev_next_code == 0x07) {
-          if(WAND_MENU_LEVEL == MENU_LEVEL_3 && i_wand_menu == 5 && switch_intensify.longPress() && !switch_mode.on()) {
+          if(WAND_MENU_LEVEL == MENU_LEVEL_3 && i_wand_menu == 5 && switch_intensify.isLongPressed() && !switch_mode.on()) {
             if(b_wand_standalone || VOLUME_ADJUST_DEVICE == VOLUME_NEUTRONA_WAND) {
               // Adjust Neutrona Wand default startup volume.
               increaseVolumeEEPROM();
@@ -9489,7 +9489,7 @@ void checkRotaryEncoder() {
             // Change colour of the Inner Cyclotron Spectral custom colour.
             wandSerialSend(W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_DECREASE);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_2 && i_wand_menu == 5 && !switch_intensify.on() && switch_mode.longPress()) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_2 && i_wand_menu == 5 && !switch_intensify.on() && switch_mode.isLongPressed()) {
             // Set default LED dimming level for the entire system.
             wandSerialSend(W_DIMMING_DECREASE);
           }
@@ -9602,7 +9602,7 @@ void checkRotaryEncoder() {
             // Change colour of the Inner Cyclotron Spectral custom colour.
             wandSerialSend(W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_INCREASE);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_2 && i_wand_menu == 5 && !switch_intensify.on() && switch_mode.longPress()) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_2 && i_wand_menu == 5 && !switch_intensify.on() && switch_mode.isLongPressed()) {
             // Set default LED dimming level for the entire system.
             wandSerialSend(W_DIMMING_INCREASE);
           }

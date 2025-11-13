@@ -262,15 +262,30 @@ millisDelay ms_menu_vibration; // Timer to do non-blocking confirmation buzzing 
 bool b_vibration_switch_on = true;
 
 /*
+ * Extend the Switch class to give us access to the longPressDisable variable.
+ * This is used to determine if Intensify or Barrel Wing Button are being held.
+ */
+class GPSwitch : public Switch {
+  public:
+    GPSwitch(byte _pin, byte PinMode = INPUT_PULLUP, bool polarity = LOW,
+        unsigned long debouncePeriod = 50, unsigned long longPressPeriod = 300,
+        unsigned long doubleClickPeriod = 250,
+        unsigned long deglitchPeriod = 10) : Switch(_pin, PinMode, polarity, debouncePeriod, longPressPeriod, doubleClickPeriod, deglitchPeriod) {}
+    bool isLongPressed() {
+      return longPressDisable;
+    }
+};
+
+/*
  * Various Switches on the wand.
  */
 enum BARREL_SWITCH_POLARITIES { SWITCH_DEFAULT, SWITCH_INVERTED, SWITCH_DISABLED };
 enum BARREL_SWITCH_POLARITIES BARREL_SWITCH_POLARITY = SWITCH_DEFAULT;
-Switch switch_intensify(INTENSIFY_SWITCH_PIN); // Intensify switch.
+GPSwitch switch_intensify(INTENSIFY_SWITCH_PIN); // Intensify switch.
 Switch switch_activate(ACTIVATE_SWITCH_PIN); // Activate switch.
 Switch switch_vent(VENT_SWITCH_PIN); // Turns on the vent light. Bottom right switch on the wand.
 Switch switch_wand(WAND_SWITCH_PIN); // Controls the beeping. Top right switch on the wand.
-Switch switch_mode(MODE_SWITCH_PIN); // Changes firing modes, crosses streams, or used in settings menus.
+GPSwitch switch_mode(MODE_SWITCH_PIN); // Changes firing modes, crosses streams, or used in settings menus.
 Switch switch_barrel(BARREL_SWITCH_PIN); // Checks whether barrel is retracted or not.
 uint8_t ventSwitchedCount = 0;
 uint8_t wandSwitchedCount = 0;
