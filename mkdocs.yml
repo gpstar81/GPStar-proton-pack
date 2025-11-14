@@ -1,8 +1,28 @@
+
+# ---------------------------------------------------------
+# MkDocs Configuration File
+# https://www.mkdocs.org/
+#
+# Quick Installation  (Python)
+#  python -m pip install --upgrade pip
+#  pip install mkdocs mkdocs-material mkdocs-mermaid2-plugin mkdocs-minify-plugin
+#
+# Update (When Necessary)
+#  pip install --upgrade mkdocs mkdocs-material mkdocs-mermaid2-plugin mkdocs-minify-plugin
+#
+# Run a local web server to view output:
+#  mkdocs serve
+# ---------------------------------------------------------
+
+# General information for the generated documentation
 site_name: GPStar Documentation
 site_description: Official documentation for the GPStar Proton Pack & Neutrona Wand kits and accessories
 copyright: GPStar Technologies
 
+# The directory where your Markdown files live
 docs_dir: docs
+
+# The directory where the static site will be generated
 site_dir: site
 
 theme:
@@ -18,18 +38,34 @@ extra_css:
 markdown_extensions:
   - attr_list
 
+plugins:
+  - search:
+      separator: '[\s\-,:!=\[\]()"/]+'
+      prebuild_index: true
+  - mermaid2:
+      arguments:
+        theme: default # or dark, forest, neutral
+        securityLevel: strict
+  - minify:
+      minify_html: true
+      minify_js: true
+      minify_css: true
+
+# Define the navigation structure
 nav:
   - Home: README.md
   - About: ABOUT.md
-  - Core Components:
-    - Introduction: GUIDE_LISTING.md
+  - Introduction: GUIDE_LISTING.md
+  - GPStar II:
     - Proton Pack II: PACK_2_PCB.md
     - Neutrona Wand II: WAND_2_PCB.md
+    - Sensor Calibration: WAND_CALIBRATION.md
+    - GPStar II Wireless: WIRELESS_GPSTAR_II.md
+  - GPStar:
     - Proton Pack: PACK_PCB.md
     - Neutrona Wand: WAND_PCB.md
-    - GPStar Audio: GPSTAR_AUDIO_PCB.md
-    - Pack-Wand Hose: HOSE.md
-  - Optional Components:
+  - GPStar Audio: GPSTAR_AUDIO_PCB.md
+  - Additional Components:
     - Proton Pack:
       - Cyclotron Lid: CYCLOTRON_LID.md
       - Inner Cyclotron: CYCLOTRON_INNER.md
@@ -40,13 +76,16 @@ nav:
       - Bargraph: BARGRAPH.md
       - Hatlights: HATS.md
       - Vent Lights: VENTLIGHT.md
+      - Neutrona Encoder: NEUTRONA_ENCODER.md
     - Pack Attenuator:
       - Attenuator: ATTENUATOR.md
       - WiFi Adapter: WIRELESS.md
   - Special Guides:
     - Power Requirements: POWER.md
     - Sound Output: SOUND.md
+    - Pack-Wand Hose: HOSE.md
     - Smoke Kits: SMOKE.md
+    - Web API Reference: WEB_API_REFERENCE.md
     - Legacy DIY: DIY_LEGACY.md
   - Install Videos:
     - Jonogunn: INSTALL_VIDEOS_JONOGUNN.md
@@ -59,7 +98,7 @@ nav:
     - General Usage: OPERATION_USAGE.md
     - Runtime Menus: OPERATION_MENUS.md
     - EEPROM Menus: OPERATION_EEPROM.md
-    - WiFi Operation: WIRELESS_OPERATION.md
+    - Attenuator WiFi Operation: WIRELESS_OPERATION.md
   - From the Engineer Corps:
     - Single-Shot Blaster: SINGLESHOT.md
     - Belt Gizmo: BELT_GIZMO.md

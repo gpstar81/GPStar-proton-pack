@@ -32,6 +32,9 @@
  * the pattern itself (though in some cases this is unavoidable or distinctly necessary).
  */
 
+// Used to scan the i2c bus and to locate the 28-segment bargraph.
+#define WIRE Wire
+
 /*
  * Bargraph Patterns and States
  *
@@ -217,8 +220,13 @@ struct Bargraph {
 /***** Core Setup - Declared after helper functions *****/
 
 void setupBargraph() {
+#ifdef ESP32
+  // ESP32-S3 requires manually specifying SDA and SCL pins first.
+  Wire.begin(I2C_SDA, I2C_SCL, 400000UL);
+#else
   Wire.begin();
   Wire.setClock(400000UL); // Sets the i2c bus to 400kHz
+#endif
 
   bargraph.initialize(); // Initialize device, if available
 
@@ -261,7 +269,7 @@ void bargraphUpdate(uint8_t i_delay_divisor = 1) {
 
   // Set the current delay by dividing the base delay by some value (Min: 2).
   // For most normal usage, the divisor will be 1 (thus, no change in delay).
-  uint8_t i_current_delay = max(2, int(Bargraph::UpdateDelay / i_delay_divisor));
+  uint8_t i_current_delay = max((uint8_t)2, (uint8_t)(Bargraph::UpdateDelay / i_delay_divisor));
 
   // Adjust the delay based on the number of total elements to be illuminated.
   // Primarily affects BG_POWER_RAMP at levels 1-4 to slow the ramp animation.
@@ -299,8 +307,8 @@ void bargraphUpdate(uint8_t i_delay_divisor = 1) {
           bargraph.STATE = BG_OFF;
         }
         else {
-          // Reset timer for next iteration, increasing the delay as elements are lit (easing out).
-          bargraph.ms_bargraph.start(i_current_delay + int(bargraph.element / 2));
+          // Reset timer for next iteration.
+          bargraph.ms_bargraph.start(i_current_delay);
         }
       break;
 
@@ -322,8 +330,8 @@ void bargraphUpdate(uint8_t i_delay_divisor = 1) {
           bargraph.ms_bargraph.start(i_current_delay * 3);
         }
         else {
-          // Reset timer for next iteration, increasing the delay as elements are lit (easing out).
-          bargraph.ms_bargraph.start(i_current_delay + int(bargraph.element / 2));
+          // Reset timer for next iteration.
+          bargraph.ms_bargraph.start(i_current_delay);
         }
       break;
 

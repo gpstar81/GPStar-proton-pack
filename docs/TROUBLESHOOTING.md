@@ -48,7 +48,7 @@ The wand assumes successful operation of the pack, so please only proceed once t
 The wand is expects to communicate with the pack and will only power on when that connection is successfully established. If no lights or audio are observed when using the Activate switch, please consider the following options.
 
 * Re-check the Power/GND connections in the hose to make sure they are not reversed. Also check if the ends of the wires are making contact on the Neutrik connectors when clamping down. You can tin the ends of the wires to make it a bit thicker or simply fold them over to double them up. Just make sure the Neutrik connectors are not clamping down on the rubber part of the wire.
-* If you are using the 28 Segment bargraph from Frutto Technology, make sure the connection cables are plugged into the proper connectors. If the power cable for the bargraph is plugged into the SCL/SDA connector on the wand board and the communication cable is plugged into the 5V power connector on the wand board, then the wand will not start up.
+* If you are using a replacement bargraph, make sure the connection cables are plugged into the proper connectors. If the power cable for the bargraph is plugged into the SCL/SDA connector on the wand board and the communication cable is plugged into the 5V power connector on the wand board, then the wand will not start up.
 
 ### Wand has a blinking vent light but does not start up
 
@@ -74,7 +74,7 @@ If there is still no sound from your Neutrona Wand, please refer to the Audio Tr
 
 * Make sure to following the naming conventions that are indicated in the [Loading The Audio Files](AUDIO_FILES.md) guide.
 * Remove any metadata that may be embedded in your wav files. This can cause problems with loading the music.
-* The Proton Pack at a minimum must contain all the music, however it is advised for the Neutrona Wand to have the same files as well if you want music to also play back from the Neutrona Wand audio system while the Neutrona Wand is operating in Bench Test Mode.
+* Music files need only be copied to the Proton Pack microSD card, but it is recommended to copy them to the Neutrona Wand as well for ease of use and the ability to swap cards if necessary. The Neutrona Wand will only play music through its speaker when running in Standalone mode.
 
 ### I'm firing but no overheating is happening!
 
@@ -85,11 +85,13 @@ If your pack and wand are on default settings (you may test this by entering the
 * Check to make sure that the overheating toggle for the specific power level you are in is also enabled (enabling overheating generally will not automatically enable it for all power levels).
 * Check to see what you have the Overheat Start Delay for the specific power level you are in set to. For example, merely enabling overheating for Power Level 1 will mean it will take 60 full seconds before overheating triggers by default.
 
-### Bench Test Mode
+### Neutrona Wand Standalone Mode
 
-If you wish to use the Neutrona Wand without a Proton Pack, flash [NeutronaWand-BenchTest.hex](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/wand/extras/NeutronaWand-BenchTest.hex?raw=1) from the Neutrona Wand binary extras folder to the device to enable a special mode which will allow the wand to operate without waiting for a response from the pack. As of firmware 5.3.3 you can also bridge/jumper the Proton Pack TX1 and RX1 pins on the Neutrona Wand circuit board to enable Bench Test mode without flashing the above firmware (see below image). This is useful for debugging whether an issue with your Proton Pack serial connection is the cause of your wand issues.
+If you wish to use the Neutrona Wand without a Proton Pack you can install a 2.0mm jumper into the PROTON PACK TX1/RX1 pins on the Neutrona Wand circuit board to enable standalone mode (see below image). This is useful for debugging whether an issue with your Proton Pack serial connection is the cause of your wand issues, or you simply want to play with the wand without a GPStar Proton Pack.
 
-![](images/GPStar-Wand-BenchTest.jpg)
+![](images/GPStar-Wand-Standalone.jpg)
+
+The GPStar II Neutrona Wand board can also be toggled to use Standalone Mode directly from the Special Device Settings page in the web UI. For more information see the [GPStar II Wireless Operation Guide](WIRELESS_GPSTAR_II.md#special-device-settings-1).
 
 ## Troubleshooting: Audio
 

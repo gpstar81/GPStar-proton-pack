@@ -47,7 +47,7 @@ SYSTEM_YEARS getNeutronaWandYearMode() {
 
 // Returns SYSTEM_YEAR when operating with a Proton Pack, or WAND_YEAR_MODE when in standalone operation
 SYSTEM_YEARS getSystemYearMode() {
-  if(b_gpstar_benchtest) {
+  if(b_wand_standalone) {
     return getNeutronaWandYearMode();
   }
   else {
@@ -103,10 +103,9 @@ void wandHeatUp() {
   stopEffect(S_PACK_SLIME_OPEN);
   stopEffect(S_STASIS_OPEN);
   stopEffect(S_MESON_OPEN);
-  stopEffect(S_VENT_DRY);
   stopEffect(S_MODE_SWITCH);
 
-  if(b_gpstar_benchtest) {
+  if(b_wand_standalone) {
     stopEffect(S_WAND_SLIME_IDLE_LOOP);
     stopEffect(S_WAND_STASIS_IDLE_LOOP);
     stopEffect(S_MESON_IDLE_LOOP);
@@ -121,7 +120,7 @@ void wandHeatUp() {
     case STASIS:
       playEffect(S_STASIS_OPEN);
 
-      if(b_gpstar_benchtest && WAND_STATUS == MODE_ON && switch_vent.on()) {
+      if(b_wand_standalone && WAND_STATUS == MODE_ON && switch_vent.on()) {
         playEffect(S_WAND_STASIS_IDLE_LOOP, true, i_volume_effects, true, 2000);
       }
     break;
@@ -129,7 +128,7 @@ void wandHeatUp() {
     case SLIME:
       playEffect(S_PACK_SLIME_OPEN);
 
-      if(b_gpstar_benchtest && WAND_STATUS == MODE_ON && switch_vent.on()) {
+      if(b_wand_standalone && WAND_STATUS == MODE_ON && switch_vent.on()) {
         playEffect(S_WAND_SLIME_IDLE_LOOP, true, i_volume_effects, true, 700);
       }
     break;
@@ -137,7 +136,7 @@ void wandHeatUp() {
     case MESON:
       playEffect(S_MESON_OPEN);
 
-      if(b_gpstar_benchtest && WAND_STATUS == MODE_ON && switch_vent.on()) {
+      if(b_wand_standalone && WAND_STATUS == MODE_ON && switch_vent.on()) {
         playEffect(S_MESON_IDLE_LOOP, true, i_volume_effects, true, 1250);
       }
     break;
@@ -145,7 +144,7 @@ void wandHeatUp() {
     case HOLIDAY_HALLOWEEN:
       //playEffect(S_FIRE_START_SPARK);
 
-      if(b_gpstar_benchtest) {
+      if(b_wand_standalone) {
         playEffect(S_HALLOWEEN_MODE_VOICE);
       }
     break;
@@ -153,7 +152,7 @@ void wandHeatUp() {
     case HOLIDAY_CHRISTMAS:
       //playEffect(S_FIRE_START_SPARK);
 
-      if(b_gpstar_benchtest) {
+      if(b_wand_standalone) {
         playEffect(S_CHRISTMAS_MODE_VOICE);
       }
     break;
@@ -332,6 +331,13 @@ void soundBeepLoop() {
       // Quick check to know if effects belong to the next-gen movies (as opposed to the OG 80's themes).
       bool b_next_gen = (getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE);
 
+      // Explicitly stop beeps first just in case it tries to double up.
+      stopEffect(S_AFTERLIFE_BEEP_WAND_S1);
+      stopEffect(S_AFTERLIFE_BEEP_WAND_S2);
+      stopEffect(S_AFTERLIFE_BEEP_WAND_S3);
+      stopEffect(S_AFTERLIFE_BEEP_WAND_S4);
+      stopEffect(S_AFTERLIFE_BEEP_WAND_S5);
+
       if(b_next_gen && b_beep_loop) {
         if(b_extra_pack_sounds) {
           wandSerialSend(W_WAND_BEEP_START);
@@ -392,12 +398,12 @@ void wandTipOn() {
             c_temp = C_CHARTREUSE;
           }
           else {
-            // Set the tip of the Frutto LED array to beige if playing the lockout/cable spark animation.
+            // Set the tip of the GPStar Neutrona Barrel LED array to beige if playing the lockout/cable spark animation.
             c_temp = C_BEIGE;
           }
         }
         else if(b_firing_cross_streams && !b_pack_cyclotron_lid_on) {
-          // Set the tip of the Frutto LED array to greenish if in Frozen Empire and using CTS mode.
+          // Set the tip of the GPStar Neutrona Barrel LED array to greenish if in Frozen Empire and using CTS mode.
           c_temp = C_CHARTREUSE;
         }
         else if(STREAM_MODE == SLIME) {
@@ -411,7 +417,7 @@ void wandTipOn() {
       }
       else {
         if(b_wand_mash_error || b_pack_alarm) {
-          // Set the tip of the Frutto LED array to beige if playing the lockout/cable spark animation.
+          // Set the tip of the GPStar Neutrona Barrel LED array to beige if playing the lockout/cable spark animation.
           c_temp = C_BEIGE;
         }
         else if(STREAM_MODE == SLIME) {
@@ -455,7 +461,7 @@ void wandTipOff() {
     case LEDS_50:
     case LEDS_48:
       if(WAND_BARREL_LED_COUNT == LEDS_48) {
-        // Set the tip of the Frutto LED array to black.
+        // Set the tip of the GPStar Neutrona Barrel LED array to black.
         barrel_leds[12] = getHueColour(C_BLACK, WAND_BARREL_LED_COUNT);
       }
       else if(WAND_BARREL_LED_COUNT == LEDS_50) {
@@ -489,7 +495,7 @@ void hatLightControl() {
     case MODE_OFF:
     default:
       if(SYSTEM_MODE == MODE_ORIGINAL) {
-        if(!b_pack_ion_arm_switch_on) {
+        if(RED_SWITCH_MODE == SWITCH_OFF) {
           // Keep the hat lights turned off.
           digitalWriteFast(BARREL_HAT_LED_PIN, LOW);
           digitalWriteFast(TOP_HAT_LED_PIN, LOW);
@@ -513,6 +519,9 @@ void hatLightControl() {
     break;
 
     case MODE_ON:
+      // Clippard LED is linked to the wand switch; check to see if it needs to be on.
+      digitalWriteFast(CLIPPARD_LED_PIN, switch_wand.on() ? HIGH : LOW);
+
       if(b_pack_alarm) {
         if(ms_error_blink.remaining() < i_error_blink_delay / 2) {
           digitalWriteFast(TOP_HAT_LED_PIN, LOW);
@@ -745,12 +754,16 @@ uint8_t bargraphLookupTable(uint8_t index) {
     }
   }
   else {
+  #ifndef ESP32
     if(b_bargraph_invert) {
       return PROGMEM_READU8(i_bargraph_5_led_invert[index]);
     }
     else {
       return PROGMEM_READU8(i_bargraph_5_led_normal[index]);
     }
+  #else
+    return 0; // Return 0 if in error.
+  #endif
   }
 }
 
@@ -782,6 +795,7 @@ void resetBargraphSpeed() {
 }
 
 void wandBargraphControl(uint8_t i_t_level) {
+#ifndef ESP32
   if(i_t_level > 4) {
     // On
     digitalWriteFast(bargraphLookupTable(5-1), LOW);
@@ -818,6 +832,7 @@ void wandBargraphControl(uint8_t i_t_level) {
   else {
     digitalWriteFast(bargraphLookupTable(1-1), HIGH);
   }
+#endif
 }
 
 void bargraphRampUp() {
@@ -1247,6 +1262,7 @@ void bargraphRampUp() {
       break;
     }
   }
+#ifndef ESP32
   else {
     uint8_t t_bargraph_ramp_multiplier = 1;
 
@@ -1370,6 +1386,7 @@ void bargraphRampUp() {
       break;
     }
   }
+#endif
 }
 
 void soundIdleLoop(bool fadeIn) {
@@ -1396,7 +1413,7 @@ void soundIdleLoop(bool fadeIn) {
     break;
   }
 
-  if(b_gpstar_benchtest && fadeIn) {
+  if(b_wand_standalone && fadeIn) {
     switch(STREAM_MODE) {
       case SLIME:
         playEffect(S_WAND_SLIME_IDLE_LOOP, true, i_volume_effects, true, 900);
@@ -1442,7 +1459,7 @@ void soundIdleLoopStop(bool stopAlts) {
     break;
   }
 
-  if(stopAlts && b_gpstar_benchtest) {
+  if(stopAlts && b_wand_standalone) {
     switch(STREAM_MODE) {
       case SLIME:
         stopEffect(S_WAND_SLIME_IDLE_LOOP);
@@ -1523,9 +1540,6 @@ void postActivation(bool shortBoot = false) {
     // Turn on slo-blo light.
     digitalWriteFast(SLO_BLO_LED_PIN, HIGH);
 
-    // Turn on the Clippard LED.
-    digitalWriteFast(CLIPPARD_LED_PIN, HIGH);
-
     // Turn on top white light and its blink timer.
     ms_white_light.start(i_white_light_interval);
     ventTopLightControl(true);
@@ -1575,7 +1589,7 @@ void postActivation(bool shortBoot = false) {
         case SYSTEM_AFTERLIFE:
         case SYSTEM_FROZEN_EMPIRE:
         default:
-          if(b_gpstar_benchtest) {
+          if(b_wand_standalone) {
             stopEffect(S_WAND_BOOTUP);
             playEffect(S_WAND_BOOTUP);
           }
@@ -1745,6 +1759,7 @@ void soundIdleStop() {
         }
 
         stopEffect(S_AFTERLIFE_WAND_RAMP_2);
+        stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
         stopEffect(S_AFTERLIFE_WAND_IDLE_2);
       break;
     }
@@ -1795,7 +1810,7 @@ void overheatingFinished() {
 }
 
 void quickVentFinished() {
-  if(b_gpstar_benchtest) {
+  if(b_wand_standalone) {
     ms_overheating.stop();
     stopEffect(S_QUICK_VENT_OPEN);
     playEffect(S_QUICK_VENT_CLOSE);
@@ -1812,7 +1827,7 @@ void startQuickVent() {
   WAND_ACTION_STATUS = ACTION_VENTING;
 
   // Since the Proton Pack tells the Neutrona Wand when venting is finished, standalone wand needs its own timer.
-  if(b_gpstar_benchtest) {
+  if(b_wand_standalone) {
     ms_overheating.start(i_ms_overheating >= 4000 ? i_ms_overheating / 2 : 2000);
 
     stopEffect(S_SLIME_EMPTY);
@@ -2177,28 +2192,33 @@ void bargraphPowerCheck2021Alt(bool b_override) {
 void updatePackPowerLevel() {
   switch(i_power_level) {
     case 5:
+    default:
       // Level 5
+      POWER_LEVEL = LEVEL_5;
       wandSerialSend(W_POWER_LEVEL_5);
     break;
 
     case 4:
       // Level 4
+      POWER_LEVEL = LEVEL_4;
       wandSerialSend(W_POWER_LEVEL_4);
     break;
 
     case 3:
       // Level 3
+      POWER_LEVEL = LEVEL_3;
       wandSerialSend(W_POWER_LEVEL_3);
     break;
 
     case 2:
       // Level 2
+      POWER_LEVEL = LEVEL_2;
       wandSerialSend(W_POWER_LEVEL_2);
     break;
 
     case 1:
-    default:
       // Level 1
+      POWER_LEVEL = LEVEL_1;
       wandSerialSend(W_POWER_LEVEL_1);
     break;
   }
@@ -2559,7 +2579,7 @@ void startVentSequence() {
   WAND_ACTION_STATUS = ACTION_OVERHEATING;
 
   // Since the Proton Pack tells the Neutrona Wand when overheating is finished, standalone wand needs its own timer.
-  if(b_gpstar_benchtest) {
+  if(b_wand_standalone) {
     ms_overheating.start(i_ms_overheating);
   }
 
@@ -2682,6 +2702,7 @@ void settingsBlinkingLights() {
         ht_bargraph.clearAll();
       }
     }
+  #ifndef ESP32
     else {
       if(b_solid_one) {
         digitalWriteFast(bargraphLookupTable(1-1), LOW);
@@ -2701,6 +2722,7 @@ void settingsBlinkingLights() {
         digitalWriteFast(bargraphLookupTable(5-1), HIGH);
       }
     }
+  #endif
   }
   else {
     switch(i_wand_menu) {
@@ -3038,44 +3060,50 @@ void wandVentStateCheck() {
 
 // Barrel safety switch is connected to analog pin 7.
 bool switchBarrel() {
-  if(switch_barrel.on()) {
-    if(b_switch_barrel_extended) {
-      if(b_extra_pack_sounds) {
-        wandSerialSend(W_WAND_BARREL_RETRACT);
+  if((BARREL_SWITCH_POLARITY == SWITCH_DEFAULT && switch_barrel.on()) || (BARREL_SWITCH_POLARITY == SWITCH_INVERTED && !switch_barrel.on())) {
+    if(BARREL_STATE != BARREL_RETRACTED) {
+      if(BARREL_STATE != BARREL_UNKNOWN) {
+        // Prevents sound from playing on bootup or when the polarity setting is changed.
+        if(b_extra_pack_sounds) {
+          wandSerialSend(W_WAND_BARREL_RETRACT);
+        }
+
+        playEffect(S_WAND_BARREL_RETRACT);
       }
 
-      playEffect(S_WAND_BARREL_RETRACT);
-
       wandSerialSend(W_BARREL_RETRACTED);
-      b_switch_barrel_extended = false;
+      BARREL_STATE = BARREL_RETRACTED;
     }
   }
   else {
     // Play the barrel extension sound effect.
-    if(!b_switch_barrel_extended) {
-      if((getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE)) {
-        if(b_extra_pack_sounds) {
-          wandSerialSend(W_AFTERLIFE_WAND_BARREL_EXTEND);
-        }
+    if(BARREL_STATE != BARREL_EXTENDED) {
+      if(BARREL_STATE != BARREL_UNKNOWN) {
+        // Prevents sound from playing on bootup or when the polarity setting is changed.
+        if((getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE)) {
+          if(b_extra_pack_sounds) {
+            wandSerialSend(W_AFTERLIFE_WAND_BARREL_EXTEND);
+          }
 
-        // Plays the "thwoop" barrel extension sound in Afterlife mode.
-        playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND);
-      }
-      else {
-        if(b_extra_pack_sounds) {
-          wandSerialSend(W_GB1_WAND_BARREL_EXTEND);
+          // Plays the "thwoop" barrel extension sound in Afterlife mode.
+          playEffect(S_AFTERLIFE_WAND_BARREL_EXTEND);
         }
+        else {
+          if(b_extra_pack_sounds) {
+            wandSerialSend(W_GB1_WAND_BARREL_EXTEND);
+          }
 
-        // Plays the "thwoop" barrel extension sound in Afterlife mode.
-        playEffect(S_GB1_1984_WAND_BARREL_EXTEND);
+          // Plays the "thwoop" barrel extension sound in Afterlife mode.
+          playEffect(S_GB1_1984_WAND_BARREL_EXTEND);
+        }
       }
 
       wandSerialSend(W_BARREL_EXTENDED);
-      b_switch_barrel_extended = true;
+      BARREL_STATE = BARREL_EXTENDED;
     }
   }
 
-  return b_switch_barrel_extended; // Immediate return of state.
+  return (BARREL_STATE == BARREL_EXTENDED); // Immediate return of state.
 }
 
 // Arms/Disarms the power-on reminder (if enabled).
@@ -3266,7 +3294,7 @@ void wandOff() {
       switch(getNeutronaWandYearMode()) {
         case SYSTEM_1984:
         case SYSTEM_1989:
-          if(SYSTEM_MODE == MODE_SUPER_HERO && !b_sound_idle && !b_wand_mash_error && b_gpstar_benchtest) {
+          if(SYSTEM_MODE == MODE_SUPER_HERO && !b_sound_idle && !b_wand_mash_error && b_wand_standalone) {
             // Proton Pack plays shutdown sound, but standalone Wand needs to play its own.
             stopEffect(S_WAND_HEATDOWN);
             playEffect(S_WAND_HEATDOWN);
@@ -3450,6 +3478,7 @@ void modeActivate() {
         playEffect(S_WAND_HEATUP_ALT);
       }
 
+      // Tell the pack the wand is turned on.
       wandSerialSend(W_ON);
 
       postActivation();
@@ -3529,6 +3558,19 @@ void modePulseStart() {
   }
 }
 
+// Use an attached infrared LED to send a command. Only available if using the Wand II (ESP32).
+void sendInfraredCommand(const String sType) {
+#ifdef ESP32
+  if(sType.equals("ghostintrap")) {
+    // Send the standard Ghost Trap (PKE) IR signal.
+    IrSender.sendRaw(ir_GhostInTrap, sizeof(ir_GhostInTrap) / sizeof(ir_GhostInTrap[0]), CARRIER_KHZ);
+  }
+  else {
+    debugln(F("Unknown IR Command"));
+  }
+#endif
+}
+
 // Called from checkSwitches(); Check if we should fire, or if the wand and pack turn off.
 void fireControlCheck() {
   // Firing action stuff and shutting cyclotron and the Neutrona Wand off.
@@ -3587,7 +3629,25 @@ void fireControlCheck() {
         }
       }
 
-      if(switch_intensify.on() && switch_wand.on() && switch_vent.on() && b_switch_barrel_extended) {
+      if(BARREL_STATE != BARREL_EXTENDED && switch_wand.on() && switch_vent.on() && (switch_intensify.pushed() || switch_mode.pushed())) {
+        // If barrel is not extended and user attempts to fire, play an error sound.
+        if(b_extra_pack_sounds) {
+          wandSerialSend(W_BARREL_ERROR_SOUND);
+        }
+
+        stopEffect(S_VENT_DRY);
+        playEffect(S_VENT_DRY);
+
+        #ifdef ESP32
+          if(ms_infrared_timer.justFinished()) {
+            // Trigger infrared after firing.
+            sendInfraredCommand("ghostintrap");
+            ms_infrared_timer.start(i_infrared_timer_delay);
+          }
+        #endif
+      }
+
+      if(switch_intensify.on() && switch_wand.on() && switch_vent.on() && BARREL_STATE == BARREL_EXTENDED) {
         switch(STREAM_MODE) {
           case PROTON:
           case SLIME:
@@ -3644,7 +3704,7 @@ void fireControlCheck() {
 
       // When Cross The Streams mode is enabled, video game modes are disabled and the wand menu settings can only be accessed when the Neutrona Wand is powered down.
       if(FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) {
-        if(switch_mode.on() && switch_wand.on() && switch_vent.on() && b_switch_barrel_extended) {
+        if(switch_mode.on() && switch_wand.on() && switch_vent.on() && BARREL_STATE == BARREL_EXTENDED) {
           if(ms_bmash.remaining() < 1) {
             // Clear counter/timer until user begins firing.
             i_bmash_count = 0;
@@ -3673,12 +3733,12 @@ void fireControlCheck() {
         }
       }
       else {
-        if(STREAM_MODE == PROTON && WAND_ACTION_STATUS == ACTION_FIRING) {
+        if((STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL || STREAM_MODE == SPECTRAL_CUSTOM || STREAM_MODE == HOLIDAY_CHRISTMAS || STREAM_MODE == HOLIDAY_HALLOWEEN) && WAND_ACTION_STATUS == ACTION_FIRING) {
           if(switch_mode.on()) {
             b_firing_alt = true;
           }
         }
-        else if(switch_mode.on() && switch_wand.on() && switch_vent.on() && b_switch_barrel_extended) {
+        else if(switch_mode.on() && switch_wand.on() && switch_vent.on() && BARREL_STATE == BARREL_EXTENDED) {
           switch(STREAM_MODE) {
             case PROTON:
               // Handle Boson Dart fire start here.
@@ -3838,7 +3898,7 @@ void checkSwitches() {
     case MODE_OFF:
       switch(SYSTEM_MODE) {
         case MODE_ORIGINAL:
-          if(b_pack_ion_arm_switch_on) {
+          if(RED_SWITCH_MODE == SWITCH_ON) {
             if(WAND_ACTION_STATUS == ACTION_IDLE) {
               // We are going to handle the toggle switch sequence for the MODE_ORIGINAL here.
               if(switch_activate.on() && switch_vent.on() && switch_wand.on()) {
@@ -4901,6 +4961,7 @@ void bargraphSuperHeroRampFiringAnimation() {
       }
     }
   }
+#ifndef ESP32
   else {
     // Hasbro 5 LED Bargraph.
     switch(i_bargraph_status) {
@@ -4970,6 +5031,7 @@ void bargraphSuperHeroRampFiringAnimation() {
       break;
     }
   }
+#endif
 }
 
 // This is the Mode Original bargraph firing animation. The top portion fluctuates during firing and becomes more erratic the longer firing continues.
@@ -5042,7 +5104,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Moving down.
           for(uint8_t i = i_bargraph_segments - (i_segment_adjust + 1); i >= i_bargraph_status_alt; i--) {
             if(i_bargraph_status_alt == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status_alt = random(6, i_bargraph_segments - i_segment_adjust);
                 break;
@@ -5079,7 +5141,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Need to move up.
           for(uint8_t i = 0; i <= i_bargraph_status_alt; i++) {
             if(i_bargraph_status_alt == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status_alt = random(8, i_bargraph_segments - i_segment_adjust);
                 break;
@@ -5122,7 +5184,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Moving down.
           for(uint8_t i = 25; i >= i_bargraph_status_alt; i--) {
             if(i_bargraph_status_alt == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status_alt = random(1, 25);
                 break;
@@ -5162,7 +5224,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Need to move up.
           for(uint8_t i = 0; i <= i_bargraph_status_alt; i++) {
             if(i_bargraph_status_alt == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status_alt = random(1, 25);
                 break;
@@ -5205,7 +5267,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Moving down.
           for(uint8_t i = 19; i >= i_bargraph_status_alt; i--) {
             if(i_bargraph_status_alt == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status_alt = random(1, 19);
                 break;
@@ -5245,7 +5307,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Need to move up.
           for(uint8_t i = 0; i <= i_bargraph_status_alt; i++) {
             if(i_bargraph_status_alt == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status_alt = random(1, 19);
                 break;
@@ -5288,7 +5350,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Moving down.
           for(uint8_t i = 13; i >= i_bargraph_status_alt; i--) {
             if(i_bargraph_status_alt == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status_alt = random(1, 13);
                 break;
@@ -5322,7 +5384,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Need to move up.
           for(uint8_t i = 0; i <= i_bargraph_status_alt; i++) {
             if(i_bargraph_status_alt == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status_alt = random(1, 13);
                 break;
@@ -5360,7 +5422,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Moving down.
           for(uint8_t i = 7; i >= i_bargraph_status_alt; i--) {
             if(i_bargraph_status_alt == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status_alt = random(0, 10);
                 break;
@@ -5394,7 +5456,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Need to move up.
           for(uint8_t i = 0; i <= i_bargraph_status_alt; i++) {
             if(i_bargraph_status_alt == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status_alt = random(0, 10);
                 break;
@@ -5480,7 +5542,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Moving down.
           for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
             if(i_bargraph_status == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
                 break;
@@ -5515,7 +5577,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Need to move up.
           for(uint8_t i = 0; i <= i_bargraph_status; i++) {
             if(i_bargraph_status == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
                 break;
@@ -5552,7 +5614,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Moving down.
           for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
             if(i_bargraph_status == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
                 break;
@@ -5587,7 +5649,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Need to move up.
           for(uint8_t i = 0; i <= i_bargraph_status; i++) {
             if(i_bargraph_status == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
                 break;
@@ -5624,7 +5686,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Moving down.
           for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
             if(i_bargraph_status == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
                 break;
@@ -5659,7 +5721,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Need to move up.
           for(uint8_t i = 0; i <= i_bargraph_status; i++) {
             if(i_bargraph_status == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
                 break;
@@ -5696,7 +5758,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Moving down.
           for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
             if(i_bargraph_status == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
                 break;
@@ -5731,7 +5793,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Need to move up.
           for(uint8_t i = 0; i <= i_bargraph_status; i++) {
             if(i_bargraph_status == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
                 break;
@@ -5769,7 +5831,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Moving down.
           for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
             if(i_bargraph_status == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
                 break;
@@ -5803,7 +5865,7 @@ void bargraphModeOriginalRampFiringAnimation() {
           // Need to move up.
           for(uint8_t i = 0; i <= i_bargraph_status; i++) {
             if(i_bargraph_status == i) {
-              switch(i_cyclotron_speed_up) {
+              switch(i_cyclotron_multiplier) {
                 case 5:
                   i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
                 break;
@@ -5849,7 +5911,7 @@ void bargraphModeOriginalRampFiringAnimation() {
 }
 
 void cyclotronSpeedUp(uint8_t i_switch) {
-  if(i_switch != i_cyclotron_speed_up) {
+  if(i_switch != i_cyclotron_multiplier && i_cyclotron_multiplier < 4) {
     if(i_switch == 4) {
       // Tell pack to start beeping before we overheat it.
       wandSerialSend(W_BEEP_START);
@@ -5871,7 +5933,7 @@ void cyclotronSpeedUp(uint8_t i_switch) {
       ms_warning_blink.start(i_warning_blink_delay);
     }
 
-    i_cyclotron_speed_up++;
+    i_cyclotron_multiplier++;
 
     // Tell the pack to speed up the Cyclotron.
     wandSerialSend(W_CYCLOTRON_INCREASE_SPEED);
@@ -6013,7 +6075,7 @@ void bargraphRampFiring() {
         }
       }
 
-      i_cyclotron_speed_up = 1;
+      i_cyclotron_multiplier = 1;
     }
   }
   else {
@@ -6144,7 +6206,7 @@ void modeFireStart() {
     ms_impact.start(random(10,16) * 1000);
 
     // Standalone wand plays additional SFX from Proton Pack.
-    if(b_gpstar_benchtest) {
+    if(b_wand_standalone) {
       ms_firing_sound_mix.start(random(7,15) * 1000);
     }
   }
@@ -7051,6 +7113,114 @@ void fireStreamStart(CRGB c_colour) {
   }
 }
 
+// Use the last-played firing effect to choose another effect at random.
+// Used by the ESP32 when sensing motion, otherwise played at random times.
+uint8_t getRandomFiringEffect() {
+  uint8_t i_random = 0;
+
+  switch(i_last_firing_effect_mix) {
+    case S_FIRE_SPARKS_2:
+      i_random = random(0,3);
+    break;
+
+    case S_FIRE_SPARKS_3:
+      i_random = random(0,2);
+    break;
+
+    case S_FIRE_SPARKS_4:
+      i_random = random(0,1);
+    break;
+
+    case S_FIRE_SPARKS_5:
+      i_random = 0;
+    break;
+
+    default:
+      // If no firing effect has played yet.
+      i_random = 0;
+    break;
+  }
+
+  return i_random;
+}
+
+void mixExtraFiringEffects() {
+#ifdef ESP32
+  // Mix some impact sound based on user-initiated motions while firing.
+  if(STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects && filteredMotionData.shaken) {
+    // Only play impact sound if firing, in Proton mode, and threshold exceeded.
+    uint8_t i_random_effect = getRandomFiringEffect(); // Use last-played effect to choose another.
+    switch(i_random_effect) {
+      case 3:
+        playEffect(S_FIRE_SPARKS_5, false, i_volume_effects - 10, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS_5;
+      break;
+
+      case 2:
+        playEffect(S_FIRE_SPARKS_4, false, i_volume_effects - 10, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS_4;
+      break;
+
+      case 1:
+        playEffect(S_FIRE_SPARKS_3, false, i_volume_effects - 10, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS_3;
+      break;
+
+      case 0:
+      default:
+        playEffect(S_FIRE_SPARKS_2, false, i_volume_effects - 10, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS_2;
+      break;
+    }
+
+    wandSerialSend(W_IMPACT_SOUND, i_random_effect); // Trigger an impact sound to play on the pack (matched to the random value chosen here).
+  }
+#endif
+  // Mix some impact sound every 10-15 seconds while firing.
+  if(ms_impact.justFinished() && STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects) {
+    playEffect(S_FIRE_LOOP_IMPACT, false, i_volume_effects, false, 0, false);
+    ms_impact.start(random(10,16) * 1000);
+  }
+
+  // Standalone Neutrona Wand gets additional effects which would normally be played by Proton Pack.
+  if(ms_firing_sound_mix.justFinished() && STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects) {
+    uint8_t i_random_effect = getRandomFiringEffect(); // Use last-played effect to choose another.
+    uint16_t i_s_random = random(2,4) * 1000; // Affects mix timer, not effect chosen.
+
+    switch(i_random_effect) {
+      case 3:
+        playEffect(S_FIRE_SPARKS, false, i_volume_effects, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS;
+
+        ms_firing_sound_mix.start(i_s_random * 5);
+      break;
+
+      case 2:
+        playEffect(S_FIRE_SPARKS_4, false, i_volume_effects, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS_4;
+
+        ms_firing_sound_mix.start(i_s_random);
+      break;
+
+      case 1:
+        playEffect(S_FIRE_SPARKS_3, false, i_volume_effects, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS_3;
+
+        ms_firing_sound_mix.start(i_s_random);
+      break;
+
+      case 0:
+      default:
+        playEffect(S_FIRE_SPARKS_2, false, i_volume_effects, false, 0, false);
+        playEffect(S_FIRE_SPARKS_5, false, i_volume_effects, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS_5;
+
+        ms_firing_sound_mix.start(1800);
+      break;
+    }
+  }
+}
+
 void modeFiring() {
   if(b_beeping) {
     // Stop the beep loop while firing.
@@ -7295,7 +7465,7 @@ void modeFiring() {
     }
 
     // Restart the impact sound timer for the standalone wand.
-    if(b_stream_effects && b_gpstar_benchtest) {
+    if(b_stream_effects && b_wand_standalone) {
       ms_firing_sound_mix.start(random(7,15) * 1000);
     }
   }
@@ -7471,81 +7641,8 @@ void modeFiring() {
     bargraphRampFiring();
   }
 
-  // Mix some impact sound every 10-15 seconds while firing.
-  if(ms_impact.justFinished() && STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects) {
-    playEffect(S_FIRE_LOOP_IMPACT, false, i_volume_effects, false, 0, false);
-    ms_impact.start(random(10,16) * 1000);
-  }
-
-  // Standalone Neutrona Wand gets additional impact sounds which would normally be played by Proton Pack.
-  if(ms_firing_sound_mix.justFinished() && STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects && b_gpstar_benchtest) {
-    uint8_t i_random = 0;
-
-    switch(i_last_firing_effect_mix) {
-      case S_FIRE_SPARKS:
-        i_random = random(0,2);
-      break;
-
-      case S_FIRE_SPARKS_3:
-      case S_FIRE_SPARKS_4:
-        i_random = 3;
-      break;
-
-      case S_FIRE_SPARKS_5:
-        i_random = 2;
-      break;
-
-      case S_FIRE_SPARKS_2:
-        i_random = 1;
-      break;
-
-      default:
-        // If no firing effect has played yet.
-        i_random = 3;
-      break;
-    }
-
-    uint16_t i_s_random = random(2,4) * 1000;
-
-    switch(i_random) {
-      case 3:
-        playEffect(S_FIRE_SPARKS, false, i_volume_effects, false, 0, false);
-        i_last_firing_effect_mix = S_FIRE_SPARKS;
-
-        ms_firing_sound_mix.start(i_s_random * 5);
-      break;
-
-      case 2:
-        playEffect(S_FIRE_SPARKS_4, false, i_volume_effects, false, 0, false);
-        i_last_firing_effect_mix = S_FIRE_SPARKS_4;
-
-        ms_firing_sound_mix.start(i_s_random);
-      break;
-
-      case 1:
-        playEffect(S_FIRE_SPARKS_3, false, i_volume_effects, false, 0, false);
-        i_last_firing_effect_mix = S_FIRE_SPARKS_3;
-
-        ms_firing_sound_mix.start(i_s_random);
-      break;
-
-      case 0:
-        playEffect(S_FIRE_SPARKS_2, false, i_volume_effects, false, 0, false);
-        playEffect(S_FIRE_SPARKS_5, false, i_volume_effects, false, 0, false);
-        i_last_firing_effect_mix = S_FIRE_SPARKS_5;
-
-        ms_firing_sound_mix.start(1800);
-      break;
-
-      default:
-        // This will never trigger because i_random will only ever be 0~3.
-        playEffect(S_FIRE_SPARKS_2, false, i_volume_effects, false, 0, false);
-        i_last_firing_effect_mix = S_FIRE_SPARKS_2;
-
-        ms_firing_sound_mix.start(500);
-      break;
-    }
-  }
+  // Mix some impact sound effects, if enabled.
+  mixExtraFiringEffects();
 }
 
 void wandBarrelHeatDown() {
@@ -8784,7 +8881,7 @@ void cyclotronSpeedRevert() {
   // Attenuator told us to reset, so stop beeps.
   stopOverheatBeepWarnings();
 
-  i_cyclotron_speed_up = 1;
+  i_cyclotron_multiplier = 1;
 }
 
 void bargraphYearModeUpdate() {
@@ -9028,13 +9125,14 @@ void checkRotaryEncoder() {
       case ACTION_CONFIG_EEPROM_MENU:
         // Counter clockwise.
         if(prev_next_code == 0x0b) {
-          if(WAND_MENU_LEVEL == MENU_LEVEL_3 && i_wand_menu == 5 && switch_intensify.on() && !switch_mode.on()) {
-            // Adjust the default bootup system volume.
-            wandSerialSend(W_VOLUME_DECREASE_EEPROM);
-
-            // If there is no Pack, we set our own default system volume.
-            if(b_gpstar_benchtest) {
+          if(WAND_MENU_LEVEL == MENU_LEVEL_3 && i_wand_menu == 5 && switch_intensify.isLongPressed() && !switch_mode.on()) {
+            if(b_wand_standalone || VOLUME_ADJUST_DEVICE == VOLUME_NEUTRONA_WAND) {
+              // Adjust Neutrona Wand default startup volume.
               decreaseVolumeEEPROM();
+            }
+            else {
+              // Adjust Proton Pack default startup volume.
+              wandSerialSend(W_VOLUME_DECREASE_EEPROM);
             }
           }
           else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 5 && switch_intensify.on() && !switch_mode.on()) {
@@ -9193,13 +9291,14 @@ void checkRotaryEncoder() {
 
         // Clockwise.
         if(prev_next_code == 0x07) {
-          if(WAND_MENU_LEVEL == MENU_LEVEL_3 && i_wand_menu == 5 && switch_intensify.on() && !switch_mode.on()) {
-            // Adjust the default bootup system volume.
-            wandSerialSend(W_VOLUME_INCREASE_EEPROM);
-
-            // If there is no Pack, we set our own default system volume.
-            if(b_gpstar_benchtest) {
+          if(WAND_MENU_LEVEL == MENU_LEVEL_3 && i_wand_menu == 5 && switch_intensify.isLongPressed() && !switch_mode.on()) {
+            if(b_wand_standalone || VOLUME_ADJUST_DEVICE == VOLUME_NEUTRONA_WAND) {
+              // Adjust Neutrona Wand default startup volume.
               increaseVolumeEEPROM();
+            }
+            else {
+              // Adjust Proton Pack default startup volume.
+              wandSerialSend(W_VOLUME_INCREASE_EEPROM);
             }
           }
           else if(WAND_MENU_LEVEL == MENU_LEVEL_4 && i_wand_menu == 5 && switch_intensify.on() && !switch_mode.on()) {
@@ -9390,7 +9489,7 @@ void checkRotaryEncoder() {
             // Change colour of the Inner Cyclotron Spectral custom colour.
             wandSerialSend(W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_DECREASE);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_2 && i_wand_menu == 5 && !switch_intensify.on() && switch_mode.longPress()) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_2 && i_wand_menu == 5 && !switch_intensify.on() && switch_mode.isLongPressed()) {
             // Set default LED dimming level for the entire system.
             wandSerialSend(W_DIMMING_DECREASE);
           }
@@ -9424,8 +9523,36 @@ void checkRotaryEncoder() {
                 wandSerialSend(W_MENU_LEVEL_2);
               break;
 
-              // Menu 2 the deepest level.
               case MENU_LEVEL_2:
+                WAND_MENU_LEVEL = MENU_LEVEL_3;
+                i_wand_menu = 5;
+
+                // Turn on some lights to visually indicate which menu we are in.
+                digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
+                ventLightControl(); // Level 3
+
+                // Turn off the other lights.
+                ventTopLightControl(false); // Level 4
+                digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
+
+                // Play an indication beep to notify we have changed menu levels.
+                stopEffect(S_BEEPS);
+                playEffect(S_BEEPS);
+
+                stopEffect(S_LEVEL_1);
+                stopEffect(S_LEVEL_2);
+                stopEffect(S_LEVEL_3);
+                stopEffect(S_LEVEL_4);
+                stopEffect(S_LEVEL_5);
+
+                playEffect(S_LEVEL_3);
+
+                // Tell the Proton Pack to play some sounds.
+                wandSerialSend(W_MENU_LEVEL_3);
+              break;
+
+              // Menu 3 the deepest level.
+              case MENU_LEVEL_3:
               default:
                 i_wand_menu = 1;
               break;
@@ -9475,12 +9602,40 @@ void checkRotaryEncoder() {
             // Change colour of the Inner Cyclotron Spectral custom colour.
             wandSerialSend(W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_INCREASE);
           }
-          else if(WAND_MENU_LEVEL == MENU_LEVEL_2 && i_wand_menu == 5 && !switch_intensify.on() && switch_mode.longPress()) {
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_2 && i_wand_menu == 5 && !switch_intensify.on() && switch_mode.isLongPressed()) {
             // Set default LED dimming level for the entire system.
             wandSerialSend(W_DIMMING_INCREASE);
           }
           else if(i_wand_menu + 1 > 5) {
             switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_3:
+                WAND_MENU_LEVEL = MENU_LEVEL_2;
+                i_wand_menu = 1;
+
+                // Turn on some lights to visually indicate which menu we are in.
+                digitalWriteFast(SLO_BLO_LED_PIN, HIGH); // Level 2
+
+                // Turn off the other lights.
+                ventLightControl(0); // Level 3
+                ventTopLightControl(false); // Level 4
+                digitalWriteFast(CLIPPARD_LED_PIN, LOW); // Level 5
+
+                // Play an indication beep to notify we have changed menu levels.
+                stopEffect(S_BEEPS);
+                playEffect(S_BEEPS);
+
+                stopEffect(S_LEVEL_1);
+                stopEffect(S_LEVEL_2);
+                stopEffect(S_LEVEL_3);
+                stopEffect(S_LEVEL_4);
+                stopEffect(S_LEVEL_5);
+
+                playEffect(S_LEVEL_2);
+
+                // Tell the Proton Pack to play some sounds.
+                wandSerialSend(W_MENU_LEVEL_2);
+              break;
+
               case MENU_LEVEL_2:
                 WAND_MENU_LEVEL = MENU_LEVEL_1;
                 i_wand_menu = 1;
@@ -9542,14 +9697,14 @@ void checkRotaryEncoder() {
             wandSerialSend(W_VOLUME_MUSIC_DECREASE);
           }
           else if(i_wand_menu - 1 < 1) {
-            // We are entering the sub menu. Only accessible when the Neutrona Wand is powered down.
-            if(WAND_STATUS == MODE_OFF) {
+            // We are entering a sub menu. Only accessible when the Proton Pack is powered down.
+            if(!b_pack_on || (b_wand_standalone && WAND_STATUS == MODE_OFF)) {
               switch(WAND_MENU_LEVEL) {
                 case MENU_LEVEL_1:
                   WAND_MENU_LEVEL = MENU_LEVEL_2;
                   i_wand_menu = 5;
 
-                  // Turn on the slo blow led to indicate we are in the Neutrona Wand sub menu.
+                  // Turn on the slo blow led to indicate we are in sub menu level 2.
                   digitalWriteFast(SLO_BLO_LED_PIN, HIGH);
 
                   // Play an indication beep to notify we have changed menu levels.
@@ -9568,9 +9723,34 @@ void checkRotaryEncoder() {
                   wandSerialSend(W_MENU_LEVEL_2);
                 break;
 
+              #ifdef ESP32
                 case MENU_LEVEL_2:
+                  // Menu level 3 is only available on the GPStar II controller.
+                  WAND_MENU_LEVEL = MENU_LEVEL_3;
+                  i_wand_menu = 5;
+
+                  // Turn on some lights to visually indicate which menu we are in.
+                  ventLightControl(); // Level 3
+
+                  // Play an indication beep to notify we have changed menu levels.
+                  stopEffect(S_BEEPS);
+                  playEffect(S_BEEPS);
+
+                  stopEffect(S_LEVEL_1);
+                  stopEffect(S_LEVEL_2);
+                  stopEffect(S_LEVEL_3);
+                  stopEffect(S_LEVEL_4);
+                  stopEffect(S_LEVEL_5);
+
+                  playEffect(S_LEVEL_3);
+
+                  // Tell the Proton Pack to play some sounds.
+                  wandSerialSend(W_MENU_LEVEL_3);
+                break;
+              #endif
+
                 default:
-                  // Cannot go further than level 2 for this menu.
+                  // Cannot go further than level 2 (GPStar I) or level 3 (GPStar II) for this menu.
                   i_wand_menu = 1;
                 break;
               }
@@ -9605,15 +9785,39 @@ void checkRotaryEncoder() {
             wandSerialSend(W_VOLUME_MUSIC_INCREASE);
           }
           else if(i_wand_menu + 1 > 5) {
-            // We are leaving changing menu levels. Only accessible when the Neutrona Wand is powered down.
-            if(WAND_STATUS == MODE_OFF) {
+            // We are leaving changing menu levels. Only accessible when the Proton Pack is powered down.
+            if(!b_pack_on || (b_wand_standalone && WAND_STATUS == MODE_OFF)) {
               switch(WAND_MENU_LEVEL) {
+                case MENU_LEVEL_3:
+                  WAND_MENU_LEVEL = MENU_LEVEL_2;
+
+                  i_wand_menu = 1;
+
+                  // Turn off the vent/top LED to indicate leaving this sub menu.
+                  ventLightControl(0); // Level 3
+
+                  // Play an indication beep to notify we have changed menu levels.
+                  stopEffect(S_BEEPS);
+                  playEffect(S_BEEPS);
+
+                  stopEffect(S_LEVEL_1);
+                  stopEffect(S_LEVEL_2);
+                  stopEffect(S_LEVEL_3);
+                  stopEffect(S_LEVEL_4);
+                  stopEffect(S_LEVEL_5);
+
+                  playEffect(S_LEVEL_2);
+
+                  // Tell the Proton Pack to play some sounds.
+                  wandSerialSend(W_MENU_LEVEL_2);
+                break;
+
                 case MENU_LEVEL_2:
                   WAND_MENU_LEVEL = MENU_LEVEL_1;
 
                   i_wand_menu = 1;
 
-                  // Turn off the slo blow led to indicate we are no longer in the Neutrona Wand sub menu.
+                  // Turn off the slo blow led to indicate we are no longer in the Neutrona Wand sub menus.
                   digitalWriteFast(SLO_BLO_LED_PIN, LOW);
 
                   // Play an indication beep to notify we have changed menu levels.
@@ -9708,7 +9912,7 @@ void checkRotaryEncoder() {
                 if(b_spectral_mode_enabled) {
                   STREAM_MODE = SPECTRAL;
                 }
-                else if(b_holiday_mode_enabled) {
+                else if(b_holiday_modes_enabled) {
                   STREAM_MODE = HOLIDAY_HALLOWEEN;
                 }
                 else if(b_spectral_custom_mode_enabled) {
@@ -9720,7 +9924,7 @@ void checkRotaryEncoder() {
               }
               else if(STREAM_MODE == SPECTRAL) {
                 // Conditional mode advancement.
-                if(b_holiday_mode_enabled) {
+                if(b_holiday_modes_enabled) {
                   // Note: Once in a holiday mode, user can switch between additional modes using the BWB switch.
                   STREAM_MODE = HOLIDAY_HALLOWEEN;
                 }
@@ -9819,7 +10023,7 @@ void checkRotaryEncoder() {
                 if(b_spectral_custom_mode_enabled) {
                   STREAM_MODE = SPECTRAL_CUSTOM;
                 }
-                else if(b_holiday_mode_enabled) {
+                else if(b_holiday_modes_enabled) {
                   // Note: Once in a holiday mode, user can switch between additional modes using the BWB switch.
                   STREAM_MODE = HOLIDAY_HALLOWEEN;
                 }
@@ -9832,7 +10036,7 @@ void checkRotaryEncoder() {
               }
               else if(STREAM_MODE == SPECTRAL_CUSTOM) {
                 // Conditional mode advancement.
-                if(b_holiday_mode_enabled) {
+                if(b_holiday_modes_enabled) {
                   STREAM_MODE = HOLIDAY_HALLOWEEN;
                 }
                 else if(b_spectral_mode_enabled) {
@@ -9893,8 +10097,8 @@ void checkRotaryEncoder() {
 
 // Function to control all actions relating to the pack's ion arm switch.
 void changeIonArmSwitchState(bool state) {
-  if(state && !b_pack_ion_arm_switch_on) {
-    b_pack_ion_arm_switch_on = true;
+  if(state && RED_SWITCH_MODE == SWITCH_OFF) {
+    RED_SWITCH_MODE = SWITCH_ON;
 
     // Disable the power on reminder.
     setPowerOnReminder(false);
@@ -9935,8 +10139,8 @@ void changeIonArmSwitchState(bool state) {
       }
     }
   }
-  else if(!state && b_pack_ion_arm_switch_on) {
-    b_pack_ion_arm_switch_on = false;
+  else if(!state && RED_SWITCH_MODE == SWITCH_ON) {
+    RED_SWITCH_MODE = SWITCH_OFF;
 
     switch(SYSTEM_MODE) {
       case MODE_ORIGINAL:
@@ -9961,6 +10165,19 @@ void changeIonArmSwitchState(bool state) {
       break;
     }
   }
+}
+
+// Rebuilds the stream mode flags variable.
+void updateStreamFlags() {
+  // Start by setting the flags to none.
+  STREAM_MODE_FLAG = FLAG_NONE;
+
+  // Then combine our bools into the flag.
+  STREAM_MODE_FLAG |= (vgModeCheck() ? FLAG_VG : FLAG_NONE);
+  STREAM_MODE_FLAG |= (b_spectral_mode_enabled ? FLAG_SPECTRAL : FLAG_NONE);
+  STREAM_MODE_FLAG |= (b_spectral_custom_mode_enabled ? FLAG_SPECTRAL_CUSTOM : FLAG_NONE);
+  STREAM_MODE_FLAG |= (b_holiday_modes_enabled ? FLAG_HOLIDAY_HALLOWEEN : FLAG_NONE);
+  STREAM_MODE_FLAG |= (b_holiday_modes_enabled ? FLAG_HOLIDAY_CHRISTMAS : FLAG_NONE);
 }
 
 // Exit the wand menu system while the wand is off.
@@ -10024,9 +10241,16 @@ void wandExitMenu() {
   // Reset the white LED blink rate setting in case we changed years.
   resetWhiteLEDBlinkRate();
 
+  // Reset our stream flags in case something changed.
+  updateStreamFlags();
+
+  // Send current preferences to the pack for use by the Attenuator.
+  wandSerialSend(W_STREAM_FLAGS, STREAM_MODE_FLAG);
+  wandSerialSend(W_SEND_PREFERENCES_WAND);
+
   // In original mode, we need to re-initalise the 28 and 30 segment bargraph if some switches are already toggled on.
   if(SYSTEM_MODE == MODE_ORIGINAL) {
-    if(switch_vent.on() && switch_wand.on() && b_pack_ion_arm_switch_on) {
+    if(switch_vent.on() && switch_wand.on() && RED_SWITCH_MODE == SWITCH_ON) {
       if(b_extra_pack_sounds) {
         wandSerialSend(W_MODE_ORIGINAL_HEATUP);
       }
@@ -10051,9 +10275,9 @@ void wandExitEEPROMMenu() {
 
   vibrationOff(); // Make sure we stop any menu-related vibration, if any.
 
-  if(b_gpstar_benchtest) {
+  if(b_wand_standalone) {
     // Also need to make sure to reset the "ion arm switch" to off if standalone.
-    b_pack_ion_arm_switch_on = false;
+    RED_SWITCH_MODE = SWITCH_OFF;
   }
 
   i_wand_menu = 5;
@@ -10070,16 +10294,69 @@ void wandExitEEPROMMenu() {
   // Reset the white LED blink rate setting in case we changed years.
   resetWhiteLEDBlinkRate();
 
+  // Reset our stream flags in case something changed.
+  updateStreamFlags();
+
   // Send current preferences to the pack for use by the Attenuator.
+  wandSerialSend(W_STREAM_FLAGS, STREAM_MODE_FLAG);
   wandSerialSend(W_SEND_PREFERENCES_WAND);
   wandSerialSend(W_SEND_PREFERENCES_SMOKE);
 }
 
+// Toggle between Standalone and non-Standalone operational modes.
+void toggleStandaloneMode(bool on) {
+  if(on) {
+    WAND_CONN_STATE = NC_BENCHTEST;
+    b_wand_standalone = true;
+    b_pack_on = true; // Pretend that the pack (not really attached) has been powered on.
+
+    // Reset music status variables just in case they were previously set by a pack.
+    b_playing_music = false;
+    b_music_paused = false;
+
+    // Turn off the sync indicator LED as it is no longer necessary.
+    ventTopLightControl(false);
+    digitalWriteFast(WAND_STATUS_LED_PIN, LOW);
+
+    // Reset the audio device now that we are in standalone mode and need music playback.
+    setupAudioDevice();
+
+    // Start the music check timer for standalone mode.
+    ms_check_music.start(i_music_check_delay);
+
+    // Re-read the EEPROM now that we are in standalone mode to make sure system mode and volume are correct.
+    if(b_eeprom) {
+      readEEPROM();
+    }
+
+    // Reset our master volume according to the new EEPROM values.
+    updateMasterVolume(true);
+
+    // Sanity check to make sure that a firing mode was set as default.
+    if(FIRING_MODE != CTS_MODE && FIRING_MODE != CTS_MIX_MODE) {
+      FIRING_MODE = VG_MODE;
+      LAST_FIRING_MODE = FIRING_MODE;
+    }
+
+    // Check if we should be in video game mode or not.
+    vgModeCheck();
+
+    // Reset the bargraph.
+    bargraphYearModeUpdate();
+
+    // Stop the pack sync timer since we are no longer syncing to a pack.
+    ms_packsync.stop();
+  }
+  else {
+    // Non-op for now; once wand implements disconnect logic we can fill this in
+  }
+}
+
 // Function to handle blinking for the power-on reminder (if enabled).
 void checkPowerOnReminder() {
-  if(WAND_ACTION_STATUS == ACTION_IDLE && (!b_pack_on || b_gpstar_benchtest)) {
+  if(WAND_ACTION_STATUS == ACTION_IDLE && (!b_pack_on || b_wand_standalone)) {
     if(ms_power_indicator.justFinished()) {
-      if((SYSTEM_MODE == MODE_ORIGINAL && !b_pack_ion_arm_switch_on) || SYSTEM_MODE == MODE_SUPER_HERO) {
+      if((SYSTEM_MODE == MODE_ORIGINAL && RED_SWITCH_MODE == SWITCH_OFF) || SYSTEM_MODE == MODE_SUPER_HERO) {
         // Blink the Clippard LED to indicate to the user that the system battery is still powered on.
         digitalWriteFast(CLIPPARD_LED_PIN, (digitalReadFast(CLIPPARD_LED_PIN) == LOW) ? HIGH : LOW);
       }
@@ -10092,10 +10369,12 @@ void checkPowerOnReminder() {
 
 void ventTopLightControl(bool b_on) {
   if(!b_on) {
+  #ifndef ESP32
     if(!b_rgb_vent_light) {
       // Turn off top light.
       digitalWriteFast(TOP_LED_PIN, HIGH);
     }
+  #endif
 
     // Turn off if not off already.
     if(vent_leds[1]) {
@@ -10104,10 +10383,12 @@ void ventTopLightControl(bool b_on) {
     }
   }
   else {
+  #ifndef ESP32
     if(!b_rgb_vent_light) {
       // Turn on top light.
       digitalWriteFast(TOP_LED_PIN, LOW);
     }
+  #endif
 
     // Turn on if not on already.
     if(!vent_leds[1]) {
@@ -10145,12 +10426,14 @@ void ventTopLightControl(bool b_on) {
 
 void ventLightControl(uint8_t i_intensity) {
   if(b_rgb_vent_light) {
+  #ifndef ESP32
     // Put in a check just to be sure the non-addressable pin stays off.
     if(digitalRead(VENT_LED_PIN) != HIGH) {
       analogWrite(VENT_LED_PIN, 255);
     }
+  #endif
 
-    if(i_intensity < 20) {
+    if(i_intensity < 25) {
       // Turn off if not off already.
       if(vent_leds[0]) {
         vent_leds[0] = getHueAsRGB(C_BLACK);
@@ -10159,6 +10442,10 @@ void ventLightControl(uint8_t i_intensity) {
     }
     else {
       switch(STREAM_MODE) {
+        case SETTINGS:
+          vent_leds[0] = getHueAsRGB(C_RED, 128);
+        break;
+
         case STASIS:
           vent_leds[0] = getHueAsRGB(C_MID_BLUE, i_intensity);
         break;
@@ -10206,9 +10493,11 @@ void ventLightControl(uint8_t i_intensity) {
       b_vent_lights_changed = true;
     }
   }
+#ifndef ESP32
   else {
     analogWrite(VENT_LED_PIN, 255 - PROGMEM_READU8(ledLookupTable[i_intensity]));
   }
+#endif
 }
 
 void resetWhiteLEDBlinkRate() {
@@ -10226,7 +10515,7 @@ void resetWhiteLEDBlinkRate() {
 }
 
 // Rebuilds the overheat enable array.
-void resetOverheatLevels() {
+void updateOverheatLevels() {
   b_overheat_level[0] = b_overheat_level_1;
   b_overheat_level[1] = b_overheat_level_2;
   b_overheat_level[2] = b_overheat_level_3;

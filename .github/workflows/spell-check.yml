@@ -7,9 +7,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Spell Check
         uses: codespell-project/actions-codespell@v2
         with:
           ignore_words_file: .codespellignore
-          skip: binaries,ci,circuits,extras,images,sounds,stl,ThreeJS.h
+          skip: binaries,ci,circuits,extras,images,sounds,stl,three.min.js

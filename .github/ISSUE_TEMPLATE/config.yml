@@ -6,3 +6,6 @@ contact_links:
   - name: GPStar Facebook Group
     url: https://www.facebook.com/groups/gpstartechnologies/
     about: Please join our community of users.
+  - name: GPStar Documentation
+    url: https://gpstar81.github.io/GPStar-proton-pack/
+    about: View product documentation.

@@ -19,6 +19,46 @@
 
 #pragma once
 
+#ifdef ESP32
+/*
+ * Used to reflect the last build date for the binary.
+ */
+String build_date = "V6_20251114095221";
+
+/*
+ * Control debug messages for various actions during normal operation.
+ * Uncomment the desired line(s) to output messages when and where you
+ * expect to see them. Using the console should be reserved for active
+ * debugging, while the websocket will help with confirming operations
+ * while using the device (post-setup for wireless).
+ */
+//#define DEBUG_WIRELESS_SETUP     // Output debugs related to the WiFi/network setup.
+//#define DEBUG_SEND_TO_CONSOLE    // Send any general messages to the serial (USB) console.
+//#define DEBUG_SEND_TO_WEBSOCKET  // Send any messages to connected WebSocket clients.
+//#define DEBUG_TELEMETRY_DATA     // Output debugs related to the motion sensors.
+
+/*
+ * Force the use of default SSID and password for wireless capabilities.
+ * Uncomment and upload to device, then perform a reset of your password
+ * to a new and known value. When completed, flash the latest version of
+ * the software which has this line commented out.
+ */
+//#define RESET_AP_SETTINGS
+
+/*
+ * Enable the use of the onboard sensors for telemetry tracking.
+ * Leave this defined to enable the magnetometer and gyroscope.
+ * Only available on the ESP32 builds.
+ */
+#define MOTION_SENSORS
+
+/*
+ * Enable the use of motion offsets (bias compensation) for sensors.
+ * Only available on the ESP32 builds.
+ */
+#define MOTION_OFFSETS
+#endif
+
 /*
  * -------------****** CUSTOM USER CONFIGURABLE SETTINGS ******-------------
  * Change the variables below to alter the behaviour of your Neutrona Wand.
@@ -85,6 +125,11 @@ const uint8_t VOLUME_EFFECTS_MULTIPLIER = 5;
 const bool b_onboard_amp_enabled = true;
 
 /*
+ * Set to true to have the LED on the GPStar Audio stay on while the system is running.
+ */
+bool b_gpstar_audio_led_enabled = false;
+
+/*
  * When set to true, the bargraph will invert the sequence.
  */
 bool b_bargraph_invert = false;
@@ -92,7 +137,11 @@ bool b_bargraph_invert = false;
 /*
  * Enables the optional addressable RGB vent/top light board.
  */
-bool b_rgb_vent_light = false;
+#ifdef ESP32
+  const bool b_rgb_vent_light = true; // Only RGB for ESP32 builds, user settings are ignored.
+#else
+  bool b_rgb_vent_light = false; // Assumes stock LED for ATMega, overridden with EEPROM.
+#endif
 
 /*
  * Enables special brightness controls during idle and firing modes if set to true.
@@ -120,7 +169,7 @@ bool b_power_on_indicator = true;
  * Spectral modes are only supported by the gpstar Neutrona Wand board.
  */
 bool b_spectral_mode_enabled = false;
-bool b_holiday_mode_enabled = false;
+bool b_holiday_modes_enabled = false;
 bool b_spectral_custom_mode_enabled = false;
 
 /*
@@ -208,4 +257,4 @@ const bool b_eeprom = true;
  * When set to true, the Neutrona Wand will function without a Proton Pack connected.
  * This prevents the Neutrona Wand from sending and reading serial data. Set to false return communication back to the Proton Pack.
  */
-bool b_gpstar_benchtest = false;
+bool b_wand_standalone = false;

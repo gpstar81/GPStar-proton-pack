@@ -36,6 +36,7 @@ CRGB device_leds[DEVICE_NUM_LEDS];
  * This feature will only be available for the ESP32-based controller.
  */
 bool b_invert_leds = false; // Denotes whether the order should be reversed.
+bool b_grb_leds = false; // Denotes whether to use GRB ordering for LEDs.
 uint8_t i_device_led[DEVICE_NUM_LEDS] = {0, 1, 2}; // Default Order
 
 /*
@@ -46,7 +47,7 @@ enum LED_ANIMATION : uint8_t {
   ORANGE_FADE = 1,
   RED_FADE = 2
 };
-enum LED_ANIMATION RAD_LENS_IDLE;
+enum LED_ANIMATION RAD_LENS_IDLE = AMBER_PULSE;
 
 /*
  * Flag to indicate serial comms have been established after bootup.
@@ -61,7 +62,7 @@ enum DISPLAY_TYPES : uint8_t {
   STATUS_GRAPHIC = 1,
   STATUS_BOTH = 2
 };
-enum DISPLAY_TYPES DISPLAY_TYPE;
+enum DISPLAY_TYPES DISPLAY_TYPE = STATUS_GRAPHIC;
 
 /*
  * Manage the colour and blink pattern for the top LED.
@@ -126,7 +127,7 @@ bool b_bargraph_present = false; // Denotes that i2c bus found the bargraph devi
 millisDelay ms_bargraph; // Timer to control bargraph updates consistently.
 
 // Denotes the speed of the cyclotron (1=Normal) which increases as firing continues.
-uint8_t i_speed_multiplier = 1;
+uint8_t i_cyclotron_multiplier = 1;
 
 // Denotes whether the cyclotron lid is currently on (covered) or off (exposed).
 bool b_cyclotron_lid_on = true;
@@ -146,15 +147,15 @@ bool b_cyclotron_lid_on = true;
  * System Mode
  */
 enum SYSTEM_MODES { MODE_SUPER_HERO, MODE_ORIGINAL };
-enum SYSTEM_MODES SYSTEM_MODE;
+enum SYSTEM_MODES SYSTEM_MODE = MODE_SUPER_HERO;
 enum RED_SWITCH_MODES { SWITCH_ON, SWITCH_OFF };
-enum RED_SWITCH_MODES RED_SWITCH_MODE;
+enum RED_SWITCH_MODES RED_SWITCH_MODE = SWITCH_OFF;
 
 /*
  * Year Theme
  */
 enum SYSTEM_YEARS { SYSTEM_EMPTY, SYSTEM_TOGGLE_SWITCH, SYSTEM_1984, SYSTEM_1989, SYSTEM_AFTERLIFE, SYSTEM_FROZEN_EMPIRE };
-enum SYSTEM_YEARS SYSTEM_YEAR;
+enum SYSTEM_YEARS SYSTEM_YEAR = SYSTEM_AFTERLIFE;
 
 /*
  * Wand Firing Modes + Settings
@@ -162,10 +163,14 @@ enum SYSTEM_YEARS SYSTEM_YEAR;
 enum BARREL_STATES { BARREL_RETRACTED, BARREL_EXTENDED };
 enum BARREL_STATES BARREL_STATE;
 enum POWER_LEVELS { LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5 };
-enum POWER_LEVELS POWER_LEVEL;
-enum POWER_LEVELS POWER_LEVEL_PREV;
-enum STREAM_MODES { PROTON, STASIS, SLIME, MESON, SPECTRAL, HOLIDAY_HALLOWEEN, HOLIDAY_CHRISTMAS, SPECTRAL_CUSTOM, SETTINGS };
-enum STREAM_MODES STREAM_MODE;
+enum POWER_LEVELS POWER_LEVEL = LEVEL_5;
+enum POWER_LEVELS POWER_LEVEL_PREV = LEVEL_5;
+enum STREAM_MODES { UNSET_STREAM, PROTON, STASIS, SLIME, MESON, SPECTRAL, HOLIDAY_HALLOWEEN, HOLIDAY_CHRISTMAS, SPECTRAL_CUSTOM, SETTINGS };
+enum STREAM_MODES STREAM_MODE = PROTON;
+enum STREAM_MODE_FLAGS : uint8_t { FLAG_NONE = 0, FLAG_VG = 1, FLAG_SPECTRAL = 2, FLAG_SPECTRAL_CUSTOM = 4, FLAG_HOLIDAY_HALLOWEEN = 8, FLAG_HOLIDAY_CHRISTMAS = 16 };
+uint8_t STREAM_MODE_FLAG = FLAG_VG; // By default, only enable the three VG modes.
+millisDelay ms_streamchange; // Debounce for change of stream via dial.
+uint16_t i_stream_change_delay = 500; // Delay between stream mode changes.
 
 /*
  * Toggle Switches
@@ -175,6 +180,7 @@ enum STREAM_MODES STREAM_MODE;
 #define RIGHT_TOGGLE_PIN 35
 ezButton switch_left(LEFT_TOGGLE_PIN, EXTERNAL_PULLUP);
 ezButton switch_right(RIGHT_TOGGLE_PIN, EXTERNAL_PULLUP);
+// Provide a known default at startup for switches.
 bool b_left_toggle_on = false;
 bool b_right_toggle_on = false;
 bool b_right_toggle_center_start = false;
@@ -183,16 +189,109 @@ bool b_right_toggle_center_start = false;
  * Debounce Settings
  */
 const uint8_t switch_debounce_time = 50;
-const uint8_t rotary_debounce_time = 100;
 
 /*
  * Rotary encoder for various uses.
  */
-#define r_encoderA 32
-#define r_encoderB 33
-#define r_button 4
-ezButton encoder_center(r_button); // For center-press on encoder dial.
-millisDelay ms_rotary_debounce; // Put some timing on the rotary so we do not overload the serial communication buffer.
+#define ROTARY_ENCODER_A 33
+#define ROTARY_ENCODER_B 32
+#define ROTARY_SWITCH 4
+ezButton encoder_center(ROTARY_SWITCH); // For center-press on encoder dial.
+enum ENCODER_STATES : int8_t { ENCODER_IDLE = 0, ENCODER_CW = 1, ENCODER_CCW = -1 };
+
+/*
+ * Simple class for the rotary encoder events.
+ */
+struct Encoder {
+  const static uint8_t PinA = ROTARY_ENCODER_A;
+  const static uint8_t PinB = ROTARY_ENCODER_B;
+
+  private:
+    uint8_t PrevNextCode = 0;
+    uint16_t CodeStore = 0;
+    int8_t i_last_val = 0; // Use a small integer as value range is 1 to -1 depending on direction.
+    bool b_direction_inverted = false; // Invert the direction of rotation to match user expectation.
+
+    int8_t read() {
+      const static int8_t RotEncTable[] = {0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0};
+
+      PrevNextCode <<= 2;
+
+      if(digitalRead(PinB)) {
+        PrevNextCode |= 0x02;
+      }
+
+      if(digitalRead(PinA)) {
+        PrevNextCode |= 0x01;
+      }
+
+      PrevNextCode &= 0x0f;
+
+      // If valid then CodeStore as 16 bit data.
+      if(RotEncTable[PrevNextCode]) {
+        CodeStore <<= 4;
+        CodeStore |= PrevNextCode;
+
+        if((CodeStore & 0xff) == 0x2b) {
+          return -1;
+        }
+
+        if((CodeStore & 0xff) == 0x17) {
+          return 1;
+        }
+      }
+
+      return 0;
+    }
+
+  public:
+    enum ENCODER_STATES STATE;
+
+    // Consume the current transient STATE and clear it so the caller receives the event once.
+    ENCODER_STATES consumeState() {
+      ENCODER_STATES s = STATE;
+      STATE = ENCODER_IDLE;
+      return s;
+    }
+
+    void initialize(bool inverted = false) {
+      // Rotary encoder on the top of the device.
+      pinMode(PinA, INPUT_PULLUP);
+      pinMode(PinB, INPUT_PULLUP);
+      STATE = ENCODER_IDLE;
+      b_direction_inverted = inverted;
+    }
+
+    // Runtime getter for dial direction (false = default, true = inverted).
+    bool isRotationInverted() { return b_direction_inverted; }
+
+    // Runtime setter to invert direction.
+    void setRotationInverted(bool invert) { b_direction_inverted = invert; }
+
+    void check() {
+      // Read the current encoder value, noting state when adjusted.
+      int8_t i_new_val = read();
+
+      // Default to idle which ensures STATE is always assigned.
+      STATE = ENCODER_IDLE;
+
+      // Change state only if there was a recognized change.
+      if(i_last_val != i_new_val) {
+        i_last_val = i_new_val; // Update stored last value so next call can detect changes.
+
+        // Map terminal PrevNextCode to CW/CCW, invert if requested.
+        if(PrevNextCode == 0x07) {
+          STATE = b_direction_inverted ? ENCODER_CCW : ENCODER_CW;
+        } else if(PrevNextCode == 0x0b) {
+          STATE = b_direction_inverted ? ENCODER_CW : ENCODER_CCW;
+        }
+      }
+    }
+} encoder;
+
+/*
+ * Rotary dial switch.
+ */
 millisDelay ms_center_double_tap; // Timer for determinine when a double-tap was detected.
 millisDelay ms_center_long_press; // Timer for determining when a long press was detected.
 bool b_center_pressed = false;
@@ -201,26 +300,25 @@ const uint16_t i_center_double_tap_delay = 300; // When to consider the center d
 const uint16_t i_center_long_press_delay = 600; // When to consider the center dial has a "long" press.
 uint8_t i_press_count = 0;
 uint8_t i_rotary_count = 0;
-int i_encoder_pos = 0;
-int i_val_rotary;
-int i_last_val_rotary;
 
 /*
- * Define states for the rotary dial center press.
+ * Define states for the rotary dial center press or rotation.
  */
 enum CENTER_STATES { NO_ACTION, SHORT_PRESS, DOUBLE_PRESS, LONG_PRESS };
 enum CENTER_STATES CENTER_STATE;
-enum MENU_LEVELS { MENU_1, MENU_2 };
-enum MENU_LEVELS MENU_LEVEL;
+enum MENU_LEVELS { MENU_1, MENU_2, MENU_STREAM };
+enum MENU_LEVELS MENU_LEVEL = MENU_1;
 
 /*
  * Music Track Info and Playback States
  */
 const uint16_t i_music_track_offset = 500; // Music tracks always start at index 500.
 uint16_t i_music_track_count = 0; // Count of tracks as returned by the pack.
-uint16_t i_music_track_current = 0;
+uint16_t i_current_music_track = 0;
 uint16_t i_music_track_min = 0; // Min value for music track index (0 = unset).
 uint16_t i_music_track_max = 0; // Max value for music track index (0 = unset).
+uint16_t i_pack_audio_version = 0; // Type/Version of Proton Pack audio board (0 = no audio).
+uint16_t i_wand_audio_version = 0; // Type/Version of Neutrona Wand audio board (0 = no audio).
 uint8_t i_volume_master_percentage = 100; // Master overall volume
 uint8_t i_volume_effects_percentage = 100; // Sound effects
 uint8_t i_volume_music_percentage = 100; // Music volume
@@ -233,12 +331,17 @@ String s_track_listing = "";
 /*
  * Some pack flags which get transmitted to the attenuator depending on the pack status.
  */
+bool b_esp32_pack = false; // Used by the A_SYNC_START for immediate identification.
 bool b_pack_on = false;
-bool b_wand_present = false;
+bool b_pack_shutting_down = false;
+bool b_wand_connected = false;
 bool b_wand_on = false;
 bool b_pack_alarm = false;
-bool b_firing = false;
+bool b_wand_firing = false;
 bool b_overheating = false;
+bool b_smoke_enabled = false;
+bool b_vibration_switch_on = false;
+bool b_clockwise = false;
 
 // Flags relating to the synchronization process.
 millisDelay ms_packsync;
@@ -254,5 +357,6 @@ bool b_received_prefs_smoke = false;
 float f_batt_volts = 0.0;
 float f_wand_amps = 0.0;
 
-// Forward declarations.
-void debug(String message);
+// Pack Temperature Values
+float f_temperature_c = 0;
+float f_temperature_f = 0;

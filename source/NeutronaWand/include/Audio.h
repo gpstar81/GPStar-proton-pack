@@ -26,12 +26,29 @@
  * https://github.com/gpstar81/haslab-proton-pack/tree/main/extras
  *
  * Information on how to update your WAV Trigger devices can be found on the GPStar github repository.
- * https://github.com/gpstar81/haslab-proton-pack/blob/main/WAVTRIGGER.md
+ * https://github.com/gpstar81/haslab-proton-pack/blob/main/docs/WAVTRIGGER.md
  */
 #include <GPStarAudio.h>
 gpstarAudio audio;
 
-#define AudioSerial Serial3
+// --- AudioSerial definition for ESP32 ---
+// The ESP32 macro is automatically defined by the Arduino/PlatformIO toolchain
+// when compiling for ESP32-based boards. No need to define it manually.
+// HardwareSerial is provided by the ESP32 Arduino core and allows creation of
+// additional UART serial ports. See: https://docs.espressif.com/projects/arduino-esp32/en/latest/api/serial.html
+#ifdef ESP32
+  #ifndef AUDIO_RX_PIN
+    #define AUDIO_RX_PIN 6
+  #endif
+  #ifndef AUDIO_TX_PIN
+    #define AUDIO_TX_PIN 7
+  #endif
+  // Create a HardwareSerial instance for AudioSerial set to UART2.
+  HardwareSerial AudioSerial(2);
+#else
+  // On Mega 2560, alias AudioSerial to Serial3 instead.
+  #define AudioSerial Serial3
+#endif
 
 /*
  * Audio Devices
@@ -42,8 +59,9 @@ enum AUDIO_DEVICES AUDIO_DEVICE;
 /*
  * Audio Variables
  */
-uint16_t i_music_count = 0; // Contains the total number of detected music tracks on the SD card.
+uint16_t i_music_track_count = 0; // Contains the total number of detected music tracks on the SD card.
 uint16_t i_current_music_track = 0; // Sets the ID number for the music track to be played.
+uint16_t i_audio_version = 0; // Contains the firmware version for GPStar Audio (if applicable).
 const uint16_t i_music_track_start = 500; // Music tracks start on file named 500_ and higher.
 const int8_t i_volume_abs_min = -70; // System (absolute) minimum volume possible.
 int8_t i_volume_abs_max = 0; // System (absolute) maximum volume possible. 0 dB for WAV Trigger, +10 dB for GPStar Audio.
@@ -52,6 +70,7 @@ bool b_playing_music = false; // Sets whether a music track is currently playing
 bool b_music_paused = false; // Sets whether a music track is currently paused or not.
 bool b_repeat_track = false; // Sets whether to repeat one music track or loop through all music tracks.
 bool b_preload_tracks = false; // Sets whether to add a 50ms delay before playing any file to allow slower SD cards more time to fill the buffer.
+String s_track_listing = ""; // Utilized only for the web UI to display the music track listing.
 
 /*
  * Music Control/Checking
@@ -88,6 +107,7 @@ void playEffect(uint16_t i_track_id, bool b_track_loop = false, int8_t i_track_v
 void stopEffect(uint16_t i_track_id);
 void playTransitionEffect(uint16_t i_track_id, uint16_t i_track_id2, bool b_track2_loop = false, uint16_t i_track2_offset = 0, int8_t i_track_volume = i_volume_effects, bool b_fade_in = false, uint16_t i_fade_time = 0, bool b_lock = true);
 void adjustGainEffect(uint16_t i_track_id, int8_t i_track_volume = i_volume_effects, bool b_fade = false, uint16_t i_fade_time = 0);
+void fadeoutEffect(uint16_t i_track_id, uint16_t i_fade_time = 50);
 void updateMasterVolume(bool startup = false);
 
 /*
@@ -110,7 +130,7 @@ void playEffect(uint16_t i_track_id, bool b_track_loop, int8_t i_track_volume, b
       if(b_fade_in) {
         audio.trackGain(i_track_id, i_volume_abs_min);
         audio.trackPlayPoly(i_track_id, b_lock);
-        audio.trackFade(i_track_id, i_track_volume, i_fade_time, 0);
+        audio.trackFade(i_track_id, i_track_volume, i_fade_time, false);
       }
       else {
         audio.trackGain(i_track_id, i_track_volume);
@@ -118,10 +138,10 @@ void playEffect(uint16_t i_track_id, bool b_track_loop, int8_t i_track_volume, b
       }
 
       if(b_track_loop) {
-        audio.trackLoop(i_track_id, 1);
+        audio.trackLoop(i_track_id, true);
       }
       else {
-        audio.trackLoop(i_track_id, 0);
+        audio.trackLoop(i_track_id, false);
       }
     break;
 
@@ -129,7 +149,7 @@ void playEffect(uint16_t i_track_id, bool b_track_loop, int8_t i_track_volume, b
       if(b_fade_in) {
         audio.trackGain(i_track_id, i_volume_abs_min);
         audio.trackPlayPoly(i_track_id, b_lock, b_preload_tracks ? 50 : 0);
-        audio.trackFade(i_track_id, i_track_volume, i_fade_time, 0);
+        audio.trackFade(i_track_id, i_track_volume, i_fade_time, false);
       }
       else {
         audio.trackGain(i_track_id, i_track_volume);
@@ -137,10 +157,10 @@ void playEffect(uint16_t i_track_id, bool b_track_loop, int8_t i_track_volume, b
       }
 
       if(b_track_loop) {
-        audio.trackLoop(i_track_id, 1);
+        audio.trackLoop(i_track_id, true);
       }
       else {
-        audio.trackLoop(i_track_id, 0);
+        audio.trackLoop(i_track_id, false);
       }
     break;
 
@@ -182,7 +202,7 @@ void playTransitionEffect(uint16_t i_track_id, uint16_t i_track_id2, bool b_trac
         audio.trackGain(i_track_id, i_volume_abs_min);
         audio.trackGain(i_track_id2, i_track_volume);
         audio.trackPlayPoly(i_track_id, b_lock, b_preload_tracks ? 50 : 0, i_track_id2, b_track2_loop, i_track2_offset);
-        audio.trackFade(i_track_id, i_track_volume, i_fade_time, 0);
+        audio.trackFade(i_track_id, i_track_volume, i_fade_time, false);
       }
       else {
         audio.trackGain(i_track_id, i_track_volume);
@@ -199,20 +219,20 @@ void playTransitionEffect(uint16_t i_track_id, uint16_t i_track_id2, bool b_trac
 
 // Play a music track using certain defaults.
 void playMusic() {
-  if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+  if(i_music_track_count > 0 && i_current_music_track >= i_music_track_start) {
     b_playing_music = true;
 
     switch(AUDIO_DEVICE) {
       case A_WAV_TRIGGER:
       case A_GPSTAR_AUDIO:
         // Play music only on bench test wand setups. Let the pack play the music on full kit setups.
-        if(b_gpstar_benchtest) {
+        if(b_wand_standalone) {
           // Loop the music track.
           if(b_repeat_track) {
-            audio.trackLoop(i_current_music_track, 1);
+            audio.trackLoop(i_current_music_track, true);
           }
           else {
-            audio.trackLoop(i_current_music_track, 0);
+            audio.trackLoop(i_current_music_track, false);
           }
 
           audio.trackGain(i_current_music_track, i_volume_music);
@@ -225,13 +245,13 @@ void playMusic() {
 
       case A_GPSTAR_AUDIO_ADV:
         // Play music only on bench test wand setups. Let the pack play the music on full kit setups.
-        if(b_gpstar_benchtest) {
+        if(b_wand_standalone) {
           // Loop the music track.
           if(b_repeat_track) {
-            audio.trackLoop(i_current_music_track, 1);
+            audio.trackLoop(i_current_music_track, true);
           }
           else {
-            audio.trackLoop(i_current_music_track, 0);
+            audio.trackLoop(i_current_music_track, false);
           }
 
           audio.trackGain(i_current_music_track, i_volume_music);
@@ -248,7 +268,7 @@ void playMusic() {
       break;
     }
 
-    if(b_gpstar_benchtest) {
+    if(b_wand_standalone) {
       // Keep track of music playback on the wand directly.
       ms_music_status_check.start(i_music_check_delay * 5);
     }
@@ -260,8 +280,8 @@ void stopMusic() {
     case A_WAV_TRIGGER:
     case A_GPSTAR_AUDIO:
     case A_GPSTAR_AUDIO_ADV:
-      if(b_gpstar_benchtest) {
-        if(i_music_count > 0 && i_current_music_track >= i_music_track_start) {
+      if(b_wand_standalone) {
+        if(i_music_track_count > 0 && i_current_music_track >= i_music_track_start) {
           audio.trackStop(i_current_music_track);
         }
 
@@ -289,7 +309,7 @@ void pauseMusic() {
       case A_WAV_TRIGGER:
       case A_GPSTAR_AUDIO:
       case A_GPSTAR_AUDIO_ADV:
-        if(b_gpstar_benchtest) {
+        if(b_wand_standalone) {
           audio.trackPause(i_current_music_track);
           audio.update();
         }
@@ -315,7 +335,7 @@ void resumeMusic() {
       case A_WAV_TRIGGER:
       case A_GPSTAR_AUDIO:
       case A_GPSTAR_AUDIO_ADV:
-        if(b_gpstar_benchtest) {
+        if(b_wand_standalone) {
           audio.resetTrackCounter();
           audio.trackResume(i_current_music_track);
           audio.update();
@@ -336,7 +356,7 @@ void musicNextTrack() {
   uint16_t i_temp_track = i_current_music_track; // Used for music navigation.
 
   // Determine the next track.
-  if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
+  if(i_current_music_track + 1 > i_music_track_start + i_music_track_count - 1) {
     // Start at the first track if already on the last.
     i_temp_track = i_music_track_start;
   }
@@ -366,7 +386,7 @@ void musicPrevTrack() {
   // Determine the previous track.
   if(i_current_music_track - 1 < i_music_track_start) {
     // Start at the last track if already on the first.
-    i_temp_track = i_music_track_start + (i_music_count - 1);
+    i_temp_track = i_music_track_start + (i_music_track_count - 1);
   }
   else {
     i_temp_track--;
@@ -403,11 +423,27 @@ void adjustGainEffect(uint16_t i_track_id, int8_t i_track_volume, bool b_fade, u
     case A_GPSTAR_AUDIO:
     case A_GPSTAR_AUDIO_ADV:
       if(b_fade) {
-        audio.trackFade(i_track_id, i_track_volume, i_fade_time, 0);
+        audio.trackFade(i_track_id, i_track_volume, i_fade_time, false);
       }
       else {
         audio.trackGain(i_track_id, i_track_volume);
       }
+    break;
+
+    case A_NONE:
+    default:
+      // No audio device connected.
+    break;
+  }
+}
+
+// Fades out a single track.
+void fadeoutEffect(uint16_t i_track_id, uint16_t i_fade_time) {
+  switch(AUDIO_DEVICE) {
+    case A_WAV_TRIGGER:
+    case A_GPSTAR_AUDIO:
+    case A_GPSTAR_AUDIO_ADV:
+      audio.trackFade(i_track_id, i_volume_abs_min, i_fade_time, true);
     break;
 
     case A_NONE:
@@ -434,7 +470,7 @@ void updateMasterVolume(bool startup) {
   if(!startup) {
     // If this isn't being called at boot, provide audio feedback and report the change.
     if(WAND_STATUS == MODE_OFF) {
-      // Provide feedback when the Proton Pack is not running.
+      // Provide feedback when the wand is not running.
       stopEffect(S_BEEPS_ALT);
       playEffect(S_BEEPS_ALT);
     }
@@ -536,7 +572,7 @@ void updateEffectsVolume() {
       audio.trackGain(S_IDLE_LOOP_GUN_5, i_volume_effects);
 
       // Standalone wand has additional idle effects.
-      if(b_gpstar_benchtest) {
+      if(b_wand_standalone) {
         audio.trackGain(S_WAND_SLIME_IDLE_LOOP, i_volume_effects);
         audio.trackGain(S_WAND_STASIS_IDLE_LOOP, i_volume_effects);
         audio.trackGain(S_MESON_IDLE_LOOP, i_volume_effects);
@@ -625,12 +661,12 @@ void decreaseVolumeEffects() {
 }
 
 void updateMusicVolume() {
-  if(i_music_count > 0) {
+  if(i_music_track_count > 0) {
     switch(AUDIO_DEVICE) {
       case A_WAV_TRIGGER:
       case A_GPSTAR_AUDIO:
       case A_GPSTAR_AUDIO_ADV:
-        if(b_gpstar_benchtest) {
+        if(b_wand_standalone) {
           audio.trackGain(i_current_music_track, i_volume_music);
         }
       break;
@@ -679,19 +715,19 @@ void decreaseVolumeMusic() {
 
 void buildMusicCount(uint16_t i_num_tracks) {
   // Build the music track count.
-  if(b_gpstar_benchtest) {
-    i_music_count = i_num_tracks - i_last_effects_track;
+  if(b_wand_standalone) {
+    i_music_track_count = i_num_tracks - i_last_effects_track;
 
-    if(i_music_count > 0 && i_music_count < 4097) {
+    if(i_music_track_count > 0 && i_music_track_count < 4097) {
       i_current_music_track = i_music_track_start; // Set the first track of music as file 500_
     }
     else {
-      i_music_count = 0; // If the music count is corrupt, make it 0
+      i_music_track_count = 0; // If the music count is corrupt, make it 0
       debugln(F("Warning: Calculated music count exceeds 4096; SD card corruption likely!"));
     }
   }
   else {
-    i_music_count = 0;
+    i_music_track_count = 0;
   }
 }
 
@@ -760,7 +796,7 @@ void checkMusic() {
               stopMusic();
 
               // Switch to the next track.
-              if(i_current_music_track + 1 > i_music_track_start + i_music_count - 1) {
+              if(i_current_music_track + 1 > i_music_track_start + i_music_track_count - 1) {
                 i_current_music_track = i_music_track_start;
               }
               else {
@@ -803,15 +839,15 @@ void toggleMusicLoop() {
       if(!b_repeat_track) {
         b_repeat_track = true;
 
-        if(i_music_count > 0) {
-          audio.trackLoop(i_current_music_track, 1);
+        if(i_music_track_count > 0) {
+          audio.trackLoop(i_current_music_track, true);
         }
       }
       else {
         b_repeat_track = false;
 
-        if(i_music_count > 0) {
-          audio.trackLoop(i_current_music_track, 0);
+        if(i_music_track_count > 0) {
+          audio.trackLoop(i_current_music_track, false);
         }
       }
     break;
@@ -828,6 +864,20 @@ void toggleMusicLoop() {
   }
 }
 
+void setAudioLED(bool on) {
+  switch(AUDIO_DEVICE) {
+    case A_GPSTAR_AUDIO:
+    case A_GPSTAR_AUDIO_ADV:
+      // Set GPStar Audio LED state immediately.
+      audio.gpstarLEDStatus(on);
+    break;
+
+    default:
+      // Do nothing if not GPStar Audio.
+    break;
+  }
+}
+
 /*
  * Audio Setup Routines
  * Used to detect, update, and reset the available audio devices.
@@ -835,7 +885,11 @@ void toggleMusicLoop() {
 bool setupAudioDevice() {
   char gVersion[VERSION_STRING_LEN];
 
+#ifdef ESP32
+  AudioSerial.begin(57600, SERIAL_8N1, AUDIO_RX_PIN, AUDIO_TX_PIN);
+#else
   AudioSerial.begin(57600);
+#endif
 
   audio.start(AudioSerial);
 
@@ -847,14 +901,17 @@ bool setupAudioDevice() {
   }
 
   if(audio.gpstarAudioHello()) {
-    if(audio.getVersionNumber() != 0) {
+    i_audio_version = audio.getVersionNumber();
+
+    if(i_audio_version != 0) {
       AUDIO_DEVICE = A_GPSTAR_AUDIO_ADV;
     }
     else {
       AUDIO_DEVICE = A_GPSTAR_AUDIO;
+      i_audio_version = 100; // Set to 100 to indicate old version.
     }
 
-    if(!b_gpstar_benchtest) {
+    if(!b_wand_standalone) {
       i_volume_abs_max = 10; // Allow GPStar Audio to use +10dB if on external power.
     }
 
@@ -867,7 +924,7 @@ bool setupAudioDevice() {
     debugln(audio.getVersionNumber());
 
     buildMusicCount(audio.getNumTracks());
-    audio.gpstarLEDStatus(false);
+    setAudioLED(b_gpstar_audio_led_enabled);
 
     return true;
   }
@@ -902,9 +959,10 @@ bool setupAudioDevice() {
     audio.setAmpPwr(b_onboard_amp_enabled);
 
     // Enable track reporting if in bench test mode. Only for the WAV Trigger.
-    audio.setReporting(b_gpstar_benchtest);
+    audio.setReporting(b_wand_standalone);
 
     AUDIO_DEVICE = A_WAV_TRIGGER;
+    i_audio_version = 1; // Set to 1 to indicate WAV Trigger.
 
     debugln(F("Using WAV Trigger"));
 

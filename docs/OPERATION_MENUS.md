@@ -27,7 +27,7 @@ Use the `Top Dial` on the top of the wand to navigate up and down through the me
 
 ![](images/OperationNeutrona8.jpg)
 
-When you are in the settings menu system the bargraph's 5 LEDs begin flashing (or 5 distinct segments when using the 28-segment or 30-segment bargraph). All other functions of the wand (such as firing) are temporarily disabled while in the menu system. There are 5 different menu settings, which are indicated by bargraph LED segments 1 through 5 (from bottom to top) with menu level 5 being the default upon entering this mode. For example in navigation, when 1 LED (or bargraph segment) is flashing/displayed that means you are on `Option 1`.
+When you are in the settings menu system the bargraph's 5 LEDs begin flashing (or 5 distinct segments when using the 28-segment or 30-segment bargraph). All other functions of the wand (such as firing) are temporarily disabled while in the menu system. There are 5 different menu options, which are indicated by bargraph LED segments 1 through 5 (from bottom to top) with option 5 being the default upon entering this mode. For example in navigation, when 1 LED (or bargraph segment) is flashing/displayed that means you are on `Option 1`.
 
 ![](images/OperationNeutrona9.jpg)
 
@@ -42,10 +42,10 @@ Changes are made by pressing either the `Intensify` button on the gun box or the
 | Option | Purpose | Intensify Button | Barrel Wing Button |
 |:------:|---------|------------------|--------------------|
 | 5️⃣ | Music&nbsp;Track&nbsp;Looping | Enable/disable looping of current track<sup>1</sup> | Exit the menu system<sup>2</sup> |
-| 4️⃣ | Proton&nbsp;Pack&nbsp;Light&nbsp;Dimming | `(Intensify + Top Dial)` Increases/Decreases  the selected device's LED brightness | Toggles between Power Cell, Cyclotron, Inner Cyclotron, or Inner Cyclotron Switch Panel devices |
+| 4️⃣ | Proton&nbsp;Pack&nbsp;Light&nbsp;Dimming | `(Intensify + Top Dial)` Increases/Decreases the selected device's LED brightness | Toggles between Power Cell, Cyclotron, Inner Cyclotron, or Inner Cyclotron Switch Panel devices |
 | 3️⃣ | Music & SFX Volume | `(Intensify + Top Dial)` Increases/Decreases SFX Volume | `(Barrel Wing Button + Top Dial)` Increases/Decreases Music Volume |
 | 2️⃣ | Switch&nbsp;Music&nbsp;Track | Cycle forward in music queue | Cycle backwards in music queue |
-| 1️⃣ | Play&nbsp;or&nbsp;Stop&nbsp;Music / System&nbsp;Mute | Start/stop music playback | Mute the Proton Pack and Neutrona Wand  or revert back to the previous volume<sup>3</sup> |
+| 1️⃣ | Play&nbsp;or&nbsp;Stop&nbsp;Music / System&nbsp;Mute | Start/stop music playback | Mute the Proton Pack and Neutrona Wand or revert back to the previous volume<sup>3</sup> |
 
 <sup>1</sup> Note that LED/segment #5 will stay solid when the single-track loop is enabled while in the top menu system; it will blink on/off when looping is disabled.
 
@@ -59,7 +59,7 @@ Changes are made by pressing either the `Intensify` button on the gun box or the
 
 📝 **Note:** The Neutrona Wand Menu Level 2 can only be reached while the Neutrona Wand and Proton Pack are both turned off.
 
-To access Menu Level 2, use the `Top Dial` on the top of the wand to move down and past `Option 1` on Menu Level 1. When you reach the the next menu level, an audio cue will play and the Slo-Blo LED will light up to indicate this menu state.
+To access Menu Level 2, use the `Top Dial` on the top of the wand to move down and past `Option 1` on Menu Level 1. When you reach the the next menu level, an audio cue will play and the **Slo-Blo LED** will light up to indicate this menu state.
 
 ![](images/OperationNeutrona10.jpg)
 
@@ -86,7 +86,7 @@ To access Menu Level 2, use the `Top Dial` on the top of the wand to move down a
 
 📝 **Note:** The Neutrona Wand Menu Level 3 is available only with GPStar II controllers and can only be reached while the Neutrona Wand and Proton Pack are both turned off.
 
-To access Menu Level 3, use the `Top Dial` on the top of the wand to move down and past `Option 1` on Menu Level 2. When you reach the the next menu level, an audio cue will play and the Slo-Blo LED and Vent Light will both light up to indicate this menu state.
+To access Menu Level 3, use the `Top Dial` on the top of the wand to move down and past `Option 1` on Menu Level 2. When you reach the the next menu level, an audio cue will play and the **Slo-Blo LED** and **Vent Light** will both light up to indicate this menu state.
 
 | Option | Purpose | Intensify Button | Barrel Wing Button |
 |:------:|---------|------------------|--------------------|

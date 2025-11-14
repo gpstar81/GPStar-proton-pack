@@ -1,10 +1,17 @@
-.DS_Store
-Thumbs.db
+**/.DS_Store
+**/Thumbs.db
+**/.pio
+
+# Ignore all files inside any .vscode directory
+**/.vscode/*
+# But do not ignore the .vscode directories themselves
+!**/.vscode/
+# Allow settings.json inside any .vscode directory to be tracked
+!**/.vscode/settings.json
+
+**/*.log
 *.bootloader.*
 *.partitions.*
-*.h-e
-*.log
-/source/*/.pio
-/source/*/.vscode
+/source/*/log
+/source/*/logs
 site/
-.vscode/settings.json

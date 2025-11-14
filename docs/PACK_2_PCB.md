@@ -11,6 +11,7 @@ Welcome to the second generation of GPStar Proton Pack controllers, intended for
 - Dedicated sockets for optional components and future expansion.
 - Integrates a WiFi radio for direct web-enabled controls and firmware updates.
 	- Compatibility with an Attenuator device is still fully supported. When connected to an Attenuator which offers WiFi capability, the Proton Pack II PCB will automatically disable its internal WiFi radio to conserve power.
+	- If you set a custom WiFi password and forget it the password can be reset from the [Neutrona Wand operation menu](OPERATION_MENUS.md#menu-level-3), or by removing the ribbon cable and toggling the vibration on/off switch 5 times while the Proton Pack is not running.
 
 **Other Hardware Changes:**
 
@@ -79,14 +80,13 @@ These connections are reserved for special purposes with optional accessories.
 
 | Label | Pins | Notes |
 |-------|------|-------|
-| SM-T | GND/D37| Smoke Toggle switch to enable/disable smoke effects (wire order does not matter).<br><br>`Connector type: JST-XH`|
 | SM-1 | \-/+ | Smoke effects for the N-Filter (D39). SM-1 provides 5V during N-Filter smoke effects. You can connect a 5V pump to this pin to power it, or use it to trigger a relay for off the shelf smoke solutions.<br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 1.5amps from this connector.` |
 | FN-1 | \-/+ | Fan for N-Filter smoke (D33). FN-1 provides 5V during N-Filter smoke effects. During the overheat sequence, it is timed to go off at the same time as the N-Filter light. You can connect a 5V fan to this pin if desired or to trigger a relay.<br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 1.5amps from this connector.` |
 | SM-2 | \-/+ | Smoke effects for the Booster Tube (D35). SM-2 provides 5V during Booster Tube smoke effects. You can connect a 5V pump to this pin to power it, or use it to trigger a relay for off the shelf smoke solutions.<br><br>`Do not draw more than 1.5amps from this connector.` |
 | FN-2 | \-/+ | Fan for the Booster Tube smoke (D50). FN-2 provides 5V during Booster Tube smoke effects. You can connect a 5V fan to this pin if desired or use it to trigger a relay.<br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 1.5amps from this connector.` |
 | NEO-C | D13/VCC/GND | Connection for the optional RGB LED cyclotron switch panel and RGB LED ring for the Inner Cyclotron "Cake".<br><br>`Connector type: JST-XH`|
 | EXP-1 | D41/5V/GND | Reserved for possible future expansion<br><br>`Connector type: JST-XH` |
-| EXP-1 | D42/5V/GND | Reserved for possible future expansion<br><br>`Connector type: JST-XH` |
+| EXP-2 | D42/5V/GND | Reserved for possible future expansion<br><br>`Connector type: JST-XH` |
 | LED-W | D46/GND | Connection for a standalone white LED in the N-Filter. D46 provides 5V and has a 100Ω resistor connected to it.<br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 40mA from this connector.` |
 | 5V-OUT | +/\- | Power for additional accessories. Commonly used to power an ESP32 wireless board or Attenuator.<br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 1.5amps from this connector.` |
 | EXPANSION | SCL/SDA | Expansion serial port for future devices using the I2C bus.<br><br>`Connector type: JST-XH`|

@@ -39,7 +39,7 @@ bool b_power_meter_available = false; // Whether a power meter device exists on 
 bool b_pack_started_by_meter = false; // Whether the pack was started via detection through the power meter.
 bool b_wand_just_started = false; // Whether the wand was just started via the power meter, used to debounce the startup process.
 bool b_wand_overheated = false; // Whether the wand overheated, as if it did we should ignore power off events.
-const uint16_t i_wand_overheat_delay = 14480; // How many milliseconds of continuous firing before we lock into overheating mode.
+const uint16_t i_wand_overheat_delay = 14480; // How many milliseconds of sustained firing before we lock into overheating mode.
 const uint16_t i_wand_overheat_duration = 2500; // How long to play the alarm for before going into the full overheat sequence on the pack.
 const uint16_t i_wand_startup_delay = 2750; // How many milliseconds after wand startup before we allow detecting firing events.
 const float f_ema_alpha = 0.2; // Smoothing factor (<1) for Exponential Moving Average (EMA) [Lower Value = Smoother Averaging].
@@ -47,6 +47,8 @@ float f_sliding_window[20] = {}; // Sliding window for detecting state changes, 
 float f_accumulator = 0.0; // Accumulator used for sliding window averaging operations.
 float f_diff_average = 0.0; // Stores the result of the sliding window average operation.
 float f_idle_value = 0.0; // Stores the previous idle value to be used for stop firing checks.
+float f_batt_volts = 0.0; // Stores the current battery voltage reading from the pack.
+float f_wand_amps = 0.0; // Stores the current amperage reading from the wand.
 
 // Define an object which can store
 struct PowerMeter {
@@ -69,7 +71,7 @@ PowerMeter wandReading;
 PowerMeter packReading;
 
 // Forward function declarations.
-void packStartup(bool firstStart);
+void packStartup(bool fullStartup);
 void wandFiring();
 void wandStoppedFiring();
 void cyclotronSpeedRevert();
@@ -77,7 +79,7 @@ void packOverheatingStart();
 
 // Configure and calibrate the power meter device.
 void powerMeterConfig() {
-  debugln(F("Configure Power Meter"));
+  sendDebug(F("Configure Power Meter"));
 
   // Custom configuration, defaults are RANGE_32V, GAIN_8_320MV, ADC_12BIT, ADC_12BIT, CONT_SH_BUS
   monitor.configure(INA219::RANGE_16V, INA219::GAIN_1_40MV, INA219::ADC_64SAMP, INA219::ADC_64SAMP, INA219::CONT_SH_BUS);
@@ -107,7 +109,7 @@ void powerMeterInit() {
   else {
     // If returning a non-zero value, device could not be reset or is not present on the I2C bus.
     b_power_meter_available = false;
-    debugln(F("Unable to find power monitoring device on i2c. Power meter features will be disabled."));
+    sendDebug(F("Unable to find power monitoring device on i2c. Power meter features will be disabled."));
   }
 
   // Always obtain a voltage reading directly from the pack PCB.
@@ -159,6 +161,12 @@ void doWandPowerReading() {
  * Outputs: Updates packReading.BusVoltage with the measured voltage (in V).
  */
 void doPackVoltageReading() {
+#ifdef ESP32
+  // For the ESP32 we cannot get the bandgap voltage so we'll use the INA219 chip to return a voltage.
+  if(b_power_meter_available) {
+    packReading.BusVoltage = monitor.busVoltage();
+  }
+#else
   // REFS1 REFS0               --> 0 1, AVcc internal ref. -Selects AVcc reference
   // MUX4 MUX3 MUX2 MUX1 MUX0  --> 11110 1.1V (VBG)        -Selects channel 30, bandgap voltage, to measure
   ADMUX = (0<<REFS1) | (1<<REFS0) | (0<<ADLAR)| (0<<MUX5) | (1<<MUX4) | (1<<MUX3) | (1<<MUX2) | (1<<MUX1) | (0<<MUX0);
@@ -172,6 +180,7 @@ void doPackVoltageReading() {
   // Scale the value, which returns the actual value of Vcc x 100
   const long INTERNAL_REFERENCE_VOLTAGE = 1115L; // Adjust this value to your board's specific internal BG voltage x1000.
   packReading.BusVoltage = (((INTERNAL_REFERENCE_VOLTAGE * 1023L) / ADC) + 5L) / 10L; // Calculates for straight line value.
+#endif
 }
 
 // Perform a reading of values from the power meter for the pack.
@@ -189,7 +198,8 @@ void updateWandPowerState() {
   // This is called whenever the power meter is available--for wand hot-swapping purposes.
   // Data is sent as integer so this is sent multiplied by 100 to get 2 decimal precision.
   if(si_update == 0) {
-    attenuatorSend(A_WAND_POWER_AMPS, f_sliding_window[19] * 100);
+    f_wand_amps = f_sliding_window[19] * 100;
+    attenuatorSerialSend(A_WAND_POWER_AMPS, f_wand_amps);
   }
 
   // Handle packside overheat sequence.
@@ -214,7 +224,7 @@ void updateWandPowerState() {
     ms_delay_post_2.stop();
   }
 
-  // Handle wand overheating sequence. Hasbro wand locks into overheating at 15 seconds of continuous fire.
+  // Handle wand overheating sequence. Hasbro wand locks into overheating at 15 seconds of sustained fire.
   if(ms_delay_post_2.justFinished() && !b_wand_overheated) {
     // We're locked into the overheating sequence. Start playing the overheat sound.
     switch(SYSTEM_YEAR) {
@@ -261,7 +271,7 @@ void updateWandPowerState() {
 
       // Wand must have been fully activated, so set variables accordingly.
       b_wand_on = true;
-      attenuatorSend(A_WAND_ON);
+      attenuatorSerialSend(A_WAND_ON);
       b_wand_just_started = true;
 
       // The Hasbro wand cannot fire for 2.75 seconds after activation, so add a null period.
@@ -269,16 +279,17 @@ void updateWandPowerState() {
 
       // Turn the pack on.
       if(PACK_STATE != MODE_ON) {
-        packStartup(false);
+        // When starting the pack via the wand, perform the user-preferred startup sequence.
+        packStartup(b_wand_long_startup);
         b_pack_started_by_meter = true;
         b_wand_overheated = false;
 
         // Fake a full-power proton stream setting to the Attenuator
-        attenuatorSend(A_POWER_LEVEL_5);
-        attenuatorSend(A_PROTON_MODE);
+        attenuatorSerialSend(A_POWER_LEVEL_5);
+        attenuatorSerialSend(A_PROTON_MODE);
 
         // Tell the Attenuator the pack is powered on
-        attenuatorSend(A_PACK_ON);
+        attenuatorSerialSend(A_PACK_ON);
       }
     }
     else if(b_pack_started_by_meter) {
@@ -306,13 +317,13 @@ void updateWandPowerState() {
         // Turn the pack off.
         if(PACK_STATE != MODE_OFF) {
           PACK_ACTION_STATE = ACTION_OFF;
-          attenuatorSend(A_PACK_OFF);
+          attenuatorSerialSend(A_PACK_OFF);
         }
       }
 
       b_wand_on = false;
       b_pack_started_by_meter = false;
-      attenuatorSend(A_WAND_OFF);
+      attenuatorSerialSend(A_WAND_OFF);
     }
     else if(PACK_STATE == MODE_OFF) {
       b_pack_started_by_meter = false; // Make sure this is kept as false since the pack was manually shut down.
@@ -349,10 +360,21 @@ void updateWandPowerState() {
 
         if((f_diff_average > 0.0285 && f_diff_average < 0.045) || (f_range > 0.26 && b_positive_rate)) {
           // With this big a jump, we must have started firing.
-          ms_delay_post_2.start(i_wand_overheat_delay);
-          i_wand_power_level = 5;
+          if(SYSTEM_YEAR == SYSTEM_1989 && i_wand_power_level != 4) {
+            // In GB2 mode, switch to PL4 for unique GB2 firing sound.
+            i_wand_power_level = 4;
+            POWER_LEVEL = LEVEL_4;
+            attenuatorSerialSend(A_POWER_LEVEL_4);
+          }
+          else if(SYSTEM_YEAR != SYSTEM_1989 && i_wand_power_level != 5) {
+            // Make sure we are back in PL5 otherwise.
+            i_wand_power_level = 5;
+            POWER_LEVEL = LEVEL_5;
+            attenuatorSerialSend(A_POWER_LEVEL_5);
+          }
           f_idle_value = f_sliding_window[0];
           b_firing_intensify = true;
+          ms_delay_post_2.start(i_wand_overheat_delay);
           wandFiring();
         }
       }
@@ -372,10 +394,9 @@ void updateWandPowerState() {
 
 // Send latest voltage value to the Attenuator, if connected.
 void updatePackPowerState() {
-  if(b_attenuator_connected) {
-    // Data is sent as uint16_t so this is already multiplied by 100 to get 2 decimal precision.
-    attenuatorSend(A_BATTERY_VOLTAGE_PACK, packReading.BusVoltage);
-  }
+  // Data is sent as uint16_t so this is already multiplied by 100 to get 2 decimal precision.
+  f_batt_volts = packReading.BusVoltage;
+  attenuatorSerialSend(A_BATTERY_VOLTAGE_PACK, f_batt_volts);
 }
 
 // Displays the latest gathered power meter values (for debugging only!).
@@ -432,10 +453,10 @@ void checkPowerMeter() {
         b_wand_on = false;
         b_pack_started_by_meter = false;
         PACK_ACTION_STATE = ACTION_OFF;
-        attenuatorSend(A_WAND_OFF);
-        attenuatorSend(A_PACK_OFF);
-        attenuatorSend(A_POWER_LEVEL_1);
-        attenuatorSend(A_WAND_POWER_AMPS, 0);
+        attenuatorSerialSend(A_WAND_OFF);
+        attenuatorSerialSend(A_PACK_OFF);
+        attenuatorSerialSend(A_POWER_LEVEL_5);
+        attenuatorSerialSend(A_WAND_POWER_AMPS, 0);
       }
     }
 

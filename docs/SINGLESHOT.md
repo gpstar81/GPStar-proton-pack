@@ -18,28 +18,29 @@ There is no shortage of resources for the device shell itself, as it has been mo
 
 The following list of parts will allow you to assemble the electronics and internal components to run the device. For a complete list of additional cosmetic parts and advice on assembly of the external components please see the incredibly detailed [Build Guide on GBFans](https://www.gbfans.com/forum/viewtopic.php?t=51824) by EctoLabs.
 
-| Qty | Desc | Use | Link |
-|-----|------|-----|------|
-|  1  | GPStar Neutrona Wand PCB | Main device controller | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-neutrona-wand) |
-|  1  | GPStar Audio Controller | Sound driver with amplifier | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-audio) |
-|  1  | GPStar Neutrona Wand Bargraph | 28-segment bargraph | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-neutrona-wand-bargraph) |
-|  2  | GPStar 7-LED Jewel | RGB lighting for barrel and cyclotron | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-jewel) |
-|  1  | GPStar Power Boost USB-C | For battery<sup>1</sup> power + charging | [Direct from GPStar](https://gpstartechnologies.com/products/gpstar-power-boost-usb-c) |
-|  1  | 4Ohm 40mm 3W Speaker | Primary speaker (under heatsink) | [https://a.co/d/bNin47P](https://a.co/d/bNin47P) |
-|  1  | KY-040 Rotary Encoder | Top rotary dial | [https://a.co/d/0wo1bSq](https://a.co/d/0wo1bSq) |
-|  1  | 12mm Momentary Push Button | Hand grip button | [https://a.co/d/8QxaSBm](https://a.co/d/8QxaSBm) |
-|  1  | DC Coreless Vibration Motors | Vibration feedback | [https://a.co/d/iMxmbfp](https://a.co/d/iMxmbfp) |
-|  3  | Mini SPST Toggle Switches | Device switches | [https://a.co/d/84qX5Yz](https://a.co/d/84qX5Yz) |
-|  2  | Mini Momentary Switches | Device buttons | [https://a.co/d/6e83Clb](https://a.co/d/6e83Clb) |
-|  1  | 15mm x 5mm Convex Lens | Barrel lens | [https://a.co/d/8Mr8ZMc](https://a.co/d/8Mr8ZMc) |
-|  5  | 5MM 3V Prewired LEDs | Various colored lights | [https://a.co/d/hqEyph8](https://a.co/d/hqEyph8) |
-|  1  | OPTIONAL: Micro UART Programmer | For built-in programming via USB | [https://a.co/d/ibHTVA5](https://a.co/d/ibHTVA5) |
-|  1  | Micro Slide Switch | Turn battery output on/off | [https://a.co/d/hVaKDSl](https://a.co/d/hVaKDSl) |
-|  1  | 3.7V LiPo or Li-Ion Battery<sup>2</sup> | Rechargeable lithium battery (min 2500mAh) | [https://a.co/d/gQlJsY0](https://a.co/d/gQlJsY0)<br/>[https://a.co/d/gML6MVC](https://a.co/d/gML6MVC) |
+Electronic components are available as a single kit purchase as the
+[GPStar II Single Shot Kit](https://gpstartechnologies.com/products/gpstar-ii-single-shot-kit). The kit will provide the following components, with exception of a battery:
 
-<sup>1</sup> While most Lithium batteries come with a JST-PH connector by default, the polarity may be reversed. Please observe the correct polarity for the booster/charger device! With the silver tabs up and the JST socket facing toward you, the positive (red) lead should be on the right. There will be -/+ markings on the power connector to the GPStar Power Boost to help you confirm BEFORE plugging in the battery.
+* GPStar Neutrona Wand II
+* GPStar Audio
+* GPStar Power Boost USB-C
+* GPStar Jewel (x2)
+* GPStar Neutrona Wand Encoder
+* GPStar RGB Vent Light
+* 28 Segment Bargraph
+* Visaton K36WP Speaker (2 watts / 8ohm)
+* 3 Toggle Switches
+* Intensify Toggle Button
+* PBS-33B Yellow Toggle Button pre-crimped with JST-PH housing
+* Various pre-wired LED lighting
+* Small slide switch to enable/disable power.
 
-<sup>2</sup> Battery power must be at least 2500mAh (2.5Ah) to provide sufficient power to the booster. This device will draw around 0.8A at full volume.
+Due to shipping limitations of lithim-ion batteries you must provide the necessary power source by purchasing in your locale. Battery power must be at least 2500mAh (2.5Ah) to provide sufficient power to the GPStar Power Boost USB-C, which both provides regulated power and offers a way to directly recharge the battery. This device will draw around 0.8A at full volume.
+
+Options for a suitable 3.7V LiPo or Li-Ion Battery (minimum 2500mAh):
+
+* [https://a.co/d/gQlJsY0](https://a.co/d/gQlJsY0)
+* [https://a.co/d/gML6MVC](https://a.co/d/gML6MVC)
 
 ## PCB Connection Details
 
@@ -48,14 +49,13 @@ Connections for the device should be made according to the tables below.
 - Ordering aligns with PCB labels or when viewed left-to-right with the connector keyhole at the bottom right.
 - Pins denoted A#/D# correspond to the internal code and connection to the controller chip.
 - Ground may be designated as "GND" or simply "-".
+- Either the GPStar I Neutrona Wand or GPStar II Neutrona Wand controller
 
-![](images/SingleShotPCB-Labels.png)
-
-### Socket Connections (JST-PH)
+### Common Socket Connections (JST-PH)
 
 | Label | Pins | Notes |
 |-------|------|-------|
-| 5V-IN | +/\- | 2-pin JST-PH for power from internal battery<br/>**This MUST be a regulated 5V source!** |
+| 5V-IN | +/\- | 2-pin JST-PH for power from GPStar Power Boost USB-C<br/>**This MUST be a regulated 5V source!** |
 | Q2 | VCC/D10/GND | 3-pin JST-PH connection for all addressable LEDs<sup>3</sup> |
 | SW45/SW4 | GND/D2/GND/D3 | 4-pin JST-PH connection for the Intensify button and Activate toggle |
 | SW6 | GND/A6 | 2-pin JST-PH connection for the hand-grip mode/fire switch |
@@ -63,6 +63,10 @@ Connections for the device should be made according to the tables below.
 <sup>3</sup> The 3-pin connector for the LEDs will connect to a pair of 7-LED "jewel" boards as built by GPStar Technologies. These will be installed and addressed by the controller in the order of the barrel first, followed by the cyclotron.
 
 ### Wire Connectors (Terminal Blocks)
+
+![](images/SingleShotPCB-Mk1.png)
+
+For GPStar Neutrona Wand I
 
 | Label/Pin | Notes |
 |-----------|-------|
@@ -76,10 +80,34 @@ Connections for the device should be made according to the tables below.
 | GND | Clippard LED (Top Left) GND |
 | R+ | Rumble (vibration) motor VCC |
 | R- | Rumble (vibration) motor GND |
+| - | - |
 | VCC | Power (+) for rotary encoder |
 | D12 | Blinking top right LED / RGB vent light data |
 | D13 | White vent light LED |
 | VL+ | VCC for top/vent lights |
+| D7 | Rotary encoder B (DT) |
+| D6 | Rotary encoder A (CLK) |
+| ROT- | Ground for rotary encoder |
+
+![](images/SingleShotPCB-Mk2.png)
+
+For GPStar Neutrona Wand II
+
+| Label/Pin | Notes |
+|-----------|-------|
+| D8 | Slo-Blo VCC |
+| GND | Slo-Blo GND |
+| D4 | Lower-right Toggle (wire order does not matter) |
+| GND | Lower-right Toggle (wire order does not matter) |
+| A0 | Upper-right Toggle (wire order does not matter) |
+| GND | Upper-right Toggle (wire order does not matter) |
+| 5V+ | Clippard LED (Top Left) VCC |
+| D9 | Clippard LED (Top Left) GND |
+| R+ | Rumble (vibration) motor VCC |
+| R- | Rumble (vibration) motor GND |
+| - | - |
+| GND | Ground for RGB Top/Vent Light |
+| D12 | Data for RGB Top/Vent Light |
 | D7 | Rotary encoder B (DT) |
 | D6 | Rotary encoder A (CLK) |
 | ROT- | Ground for rotary encoder |
@@ -92,10 +120,10 @@ Connections for the device should be made according to the tables below.
 | SCL/SDA | SCL/SDA | Reserved for the [28-segment or 30-segment bargraph](BARGRAPH.md) using I2C.<br><br>`Connector type: JST-PH`|
 | 5V-OUT | +/\- | Power for the bargraph.<br><br>`Connector type: JST-PH` |
 | AUDIO BOARD | GND/NC/VCC/TX/RX/NC | Communication and Power for the wands's GPStar Audio or WAV Trigger.<br><br>`Connector type: JST-PH` |
-| ICSP | DO NOT USE! | Programming header for bootloader updates (reserved).<br><br>`Connector type: Header pins` |
-| UART | See Below | Programming header for software updates (optional).<br><br>`Connector type: Header pins` |
+| ICSP | DO NOT USE! | Programming header for bootloader updates (reserved, for GPStar I only).<br><br>`Connector type: Header pins` |
+| UART | See Below | Programming header for software updates (optional, for GPStar I only).<br><br>`Connector type: Header pins` |
 
-For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI Basic 5V** used for programming the GPStar Audio or WAV Trigger. Pins on the PCB should align with with the standard wire order for FTDI-to-USB cables which use a single Dupont 6-pin connector. Observe these common colors and notes to ensure proper orientation:
+For connecting the UART pins on the GPStar I controller, use a suitable FTDI chip such as the same **FTDI Basic 5V** used for programming the GPStar Audio or WAV Trigger. Pins on the PCB should align with with the standard wire order for FTDI-to-USB cables which use a single Dupont 6-pin connector. Observe these common colors and notes to ensure proper orientation:
 
 - The ground pin will typically be a black wire, while VCC will typically be red.
 - The DTR pin on the PCB will connect to a wire labelled either DTR or RTS.
@@ -106,7 +134,7 @@ For connecting the UART pins, use a suitable FTDI chip such as the same **FTDI B
 
 ## Battery Power
 
-Per the BOM above, use of a 2000mAh or higher battery is crucial for supplying enough power for a full day of use. This **MUST be a Lithium battery** (either LiPo or Li-Ion) with a 3.7V output. The charging circuit is intended for use with Lithium batteries only. **Again, Lithium!**
+Per the bill of materials above, use of a 2500mAh or higher battery is crucial for supplying enough power for a full day of use. This **MUST be a Lithium battery** (either LiPo or Li-Ion) with a 3.7V output. The charging circuit is intended for use with Lithium batteries only. **Again, Lithium!**
 
 Both the GPStar Power Boost device for boosting and charging your battery offer 2 pairs of pins which are of importance here:
 
@@ -128,9 +156,55 @@ Adding a switch to the GPStar Power Boost device will allow you to fully turn of
 
 Full guide will be written as features are completed and operation is determined.
 
+### Entering The Menu System
+
+To enter the settings menu, press the grip button while the two left switches are in the **DOWN** position.
+
+<div class="page-break"></div>
+
+### Navigation
+
+Use the `Top Dial` on the top of the blaster to navigate up and down through the menu system.
+
+When you are in the settings menu system the bargraph's 5 LEDs begin flashing (or 5 distinct segments when using the 28-segment or 30-segment bargraph). All other functions of the blaster (such as firing) are temporarily disabled while in the menu system. There are 5 different menu options, which are indicated by bargraph LED segments 1 through 5 (from bottom to top) with option 5 being the default upon entering this mode. For example in navigation, when 1 LED (or bargraph segment) is flashing/displayed that means you are on `Option 1`.
+
+### Action Levels
+
+Changes are made by pressing either the `Intensify` button on the gun box or the `Grip Button` at the end of the blaster.
+
+<div class="page-break"></div>
+
+#### Menu Level 1
+
+| Option | Purpose | Intensify Button | Grip Button |
+|:------:|---------|------------------|--------------------|
+| 5️⃣ | Music&nbsp;Track&nbsp;Looping | Enable/disable looping of current track | Exit the menu system<sup>1</sup> |
+| 4️⃣ | Master&nbsp;Volume&nbsp;Controls | Mute the Single Shot Blaster or revert back to the previous volume | `(Grip Button + Top Dial)` Increases/Decreases Master Volume |
+| 3️⃣ | SFX Volume | `unused` | `(Grip Button + Top Dial)` Increases/Decreases SFX Volume |
+| 2️⃣ | Switch&nbsp;Music&nbsp;Track | Cycle backwards in music queue | Cycle forward in music queue |
+| 1️⃣ | Music&nbsp;Controls | Start/stop music playback | `(Grip Button + Top Dial)` Increases/Decreases Music Volume |
+
+<sup>1</sup> When you navigate back to `Option 5` and press the `Grip Button`, the blaster will return to idle (if menu was entered while blaster was on) or save all settings to EEPROM (if menu was entered while blaster was off). Note that music will continue to play (and advance/loop) even when the blaster is turned off.
+
+<div class="page-break"></div>
+
+#### Menu Level 2
+
+📝 **Note:** The Single Shot Blaster Menu Level 2 can only be reached while the Single Shot Blaster is turned off.
+
+To access Menu Level 2, use the `Top Dial` on the top of the blaster to move down and past `Option 1` on Menu Level 1. When you reach the the next menu level, an audio cue will play and the **Slo-Blo LED** will light up to indicate this menu state.
+
+| Option | Purpose | Intensify Button | Grip Button |
+|:------:|---------|------------------|--------------------|
+| 5️⃣ | Vent&nbsp;Light&nbsp;Toggles | Toggle whether the vent light on the Single Shot Blaster will change brightness depending on power | Enable/Disable the optional addressable RGB LED vent/top light |
+| 4️⃣ | Boot&nbsp;Errors / Invert&nbsp;Bargraph | Enable/Disable boot-up error if switches are flipped in the wrong order | Toggle bargraph animation direction |
+| 3️⃣ | Vibration&nbsp;Settings / GPStar&nbsp;Audio&nbsp;LED&nbsp;Control | Enable/Disable the status LED on GPStar Audio (if equipped) | Cycle through Single Shot Blaster vibration options |
+| 2️⃣ | `unused` | `unused` | `unused` |
+| 1️⃣ | `unused` | `unused` | `unused` |
+
 ## Firmware Updates
 
-Please follow the standard [FLASHING guide](FLASHING.md) using the `binaries/blaster/SingleShot.hex` firmware file.
+Please follow the standard [FLASHING guide](FLASHING.md) using the `binaries/blaster/SingleShot.hex` firmware file for GPStar I or `binaries/blaster/SingleShotII.bin` for GPStar II.
 
 ## Software Development Requirements
 

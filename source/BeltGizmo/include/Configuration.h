@@ -30,7 +30,7 @@
 //#define DEBUG_PERFORMANCE      // Send debug messages for CPU/memory to the (USB) console.
 //#define DEBUG_SEND_TO_CONSOLE  // Send any general messages to the serial (USB) console.
 //#define DEBUG_TASK_TO_CONSOLE  // Send any task messages to the serial (USB) console.
-#define DEBUG_SEND_TO_WEBSOCKET  // Send any messages to connected WebSocket clients.
+//#define DEBUG_SEND_TO_WEBSOCKET  // Send any messages to connected WebSocket clients.
 
 /*
  * Force the use of default SSID and password for wireless capabilities.
@@ -43,14 +43,7 @@
 /*
  * Used to reflect the last build date for the binary.
  */
-String build_date = "V6_20250925062436";
-
-/*
- * Parent WiFi Network Defaults
- * Directly provides information for a parent WiFi network for the device to join.
- */
-String user_wifi_ssid = ""; // Preferred network SSID for external WiFi
-String user_wifi_pass = ""; // Preferred network password for external WiFi
+String build_date = "V6_20251114095221";
 
 /*
  * Custom values from pack EEPROM.

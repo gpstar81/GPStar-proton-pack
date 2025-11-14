@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Cache-control" content="public" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Single Shot Blaster" />
+    <title>Single Shot Blaster</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body class="dark">
+    <div class="tabs dark">
+      <button class="tablinks" onclick="openTab(event, 'tab1')">&#9883;</button>
+      <button class="tablinks" onclick="openTab(event, 'tab2')">&#9836;</button>
+      <button class="tablinks" onclick="openTab(event, 'tab3')">&#9737;</button>
+      <button class="tablinks" onclick="openTab(event, 'tab4')">&#9881;</button>
+    </div>
+
+    <div id="tab1" class="tab">
+      <div id="equipCRT" class="equipment">
+        <div class="telemetry">
+          <p id="gyro">
+            <span class="infoLabel">&nbsp;&nbsp;X: &orarr;</span>
+            <span class="infoState" id="gyroX">&mdash;</span>
+            <br />
+            <span class="infoLabel">&nbsp;&nbsp;Y: &orarr;</span>
+            <span class="infoState" id="gyroY">&mdash;</span>
+            <br />
+            <span class="infoLabel">&nbsp;&nbsp;Z: &orarr;</span>
+            <span class="infoState" id="gyroZ">&mdash;</span>
+          </p>
+          <p id="accel">
+            <span class="infoLabel">&nbsp;&varr;&nbsp;</span>
+            <span class="infoState" id="accelX">&mdash;</span>
+            <br />
+            <span class="infoLabel">&harr;</span>
+            <span class="infoState" id="accelY">&mdash;</span>
+            <br />
+            <span class="infoLabel">&#9737;</span>
+            <span class="infoState" id="accelZ">&mdash;</span>
+          </p>
+          <p id="ahrs">
+            <span class="infoLabel">&nbsp;&nbsp;Roll &Phi;:</span>
+            <span class="infoState" id="roll">&mdash;</span>
+            <br />
+            <span class="infoLabel">Pitch &Theta;:</span>
+            <span class="infoState" id="pitch">&mdash;</span>
+            <br />
+            <span class="infoLabel">&nbsp;Yaw &Psi;:</span>
+            <span class="infoState" id="yaw">&mdash;</span>
+          </p>
+          <p id="calc">
+            <span class="infoLabel">&omega;:</span>
+            <span class="infoState" id="angVel">&mdash;</span>
+            <br />
+            <span class="infoLabel">
+              <i>g</i>
+              :
+            </span>
+            <span class="infoState" id="gForce">&mdash;</span>
+            <br />
+            <span class="infoLabel">&Delta;:</span>
+            <span class="infoState" id="shaken">&mdash;</span>
+          </p>
+        </div>
+        <div class="viz-content">
+          <div id="3Dtelemetry"></div>
+        </div>
+      </div>
+      <button type="button" id="btnInfrared" class="orange" onclick="triggerInfrared()" style="width: 160px">Trigger PKE Infrared</button>
+      <br />
+    </div>
+
+    <div id="tab2" class="tab">
+      <div>
+        <div class="volume-container">
+          <div class="volume-control">
+            <h3>Master</h3>
+            <button type="button" id="btnVolSysUp" onclick="volSysUp()">+</button>
+            <span id="masterVolume"></span>
+            <button type="button" id="btnVolSysDown" onclick="volSysDown()">&minus;</button>
+          </div>
+          <div class="volume-control">
+            <h3>Effects</h3>
+            <button type="button" id="btnVolFxUp" onclick="volFxUp()">+</button>
+            <span id="effectsVolume"></span>
+            <button type="button" id="btnVolFxDown" onclick="volFxDown()">&minus;</button>
+          </div>
+          <div class="volume-control">
+            <h3>Music</h3>
+            <button type="button" id="btnVolMusicUp" onclick="volMusicUp()">+</button>
+            <span id="musicVolume"></span>
+            <button type="button" id="btnVolMusicDown" onclick="volMusicDown()">&minus;</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="audio-toggles" class="card">
+        <div style="display: inline-block">
+          <h3>Master Mute</h3>
+          <label class="toggle-switchy">
+            <input id="toggleMute" name="toggleMute" type="checkbox" onchange="toggleMute(this)" />
+            <span class="toggle">
+              <span class="switch"></span>
+            </span>
+          </label>
+        </div>
+        <div style="display: inline-block">
+          <h3>Music Repeat</h3>
+          <label class="toggle-switchy" data-text="repeat">
+            <input id="toggleLoop" name="toggleLoop" type="checkbox" onchange="musicLoop(this)" />
+            <span class="toggle">
+              <span class="switch"></span>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="centered">Music Navigation</h3>
+        <div class="music-navigation">
+          <button type="button" id="btnMusicPrev" onclick="musicPrev()" title="Previous Track">&#9664;&#9664;</button>
+          <button type="button" id="btnMusicStartStop" onclick="musicStartStop()" title="Start/Stop">&#9634;&nbsp;&#9654;</button>
+          <button type="button" id="btnMusicPauseResume" onclick="musicPauseResume()" title="Play/Pause">&#9646;&#9646;&nbsp;&#9654;</button>
+          <button type="button" id="btnMusicNext" onclick="musicNext()" title="Next Track">&#9654;&#9654;</button>
+        </div>
+        <div class="music-playback">
+          <span id="playbackStatus" class="infoLabel">&mdash;</span>
+        </div>
+        <select id="tracks" class="custom-select" onchange="musicSelect(this)"></select>
+      </div>
+    </div>
+
+    <div id="tab3" class="tab">
+      <div class="card" style="text-align: center">
+        <div class="instructions">
+          <details>
+            <summary><b>Gyroscope Calibration</b></summary>
+            Gyroscope calibration ensures sensor readings are stable and accurate. This calibration must be performed only AFTER you have selected the appropriate
+            <b>Controller Installation Orientation</b>
+            for your Single Shot Blaster, as set via the
+            <a href="/settings/device">Special Device Settings</a>
+            page.
+            <ol style="padding-left: 20px">
+              <li>
+                Leave the Single Shot Blaster laying
+                <b>flat</b>
+                on a solid surface in an
+                <b>upright position</b>
+                .
+              </li>
+              <li>
+                Press
+                <b>"Gyro Calibration"</b>
+                to begin.
+              </li>
+              <li>A timer will appear below with a 30-second countdown clock.</li>
+              <li>
+                <b>Do not touch</b>
+                the device or the surface where it rests, and wait until the countdown timer completes.
+              </li>
+            </ol>
+          </details>
+          <div>
+            <button type="button" id="btnGyroCal" class="green" onclick="doGyroCalibration()" style="width: 130px">Gyro Calibration</button>
+            &nbsp;&nbsp;&nbsp;
+            <span id="gyroCounter"></span>
+          </div>
+          <br />
+          <br />
+          <details>
+            <summary><b>Magnetic Calibration</b></summary>
+            Magnetic calibration is critical to obtaining a correct reading from sensors and must be performed only AFTER all components have been fully installed in your Single
+            Shot Blaster, and you have selected the appropriate
+            <b>Controller Installation Orientation</b>
+            for your blaster, as set via the
+            <a href="/settings/device">Special Device Settings</a>
+            page.
+            <ol style="padding-left: 20px">
+              <li>
+                Press
+                <b>"Start Calibration"</b>
+                to begin.
+              </li>
+              <li>
+                Raise and lower your Single Shot Blaster
+                <b>slowly</b>
+                while turning 360&deg; to collect calibration data in all directions.
+              </li>
+              <li>
+                Use the visualization below to help you reach a
+                <b>Coverage Density</b>
+                of at least
+                <b>60%</b>
+                .
+              </li>
+              <li>If the coverage % stalls, try adding a twisting motion or figure-eights into your up/down movements.</li>
+              <li>
+                Press
+                <b>"Stop Calibration"</b>
+                to stop collection and store the calculated values.
+              </li>
+            </ol>
+          </details>
+          <div>
+            <button type="button" id="btnCalibrateOn" class="green" onclick="enableCalibration()" style="width: 130px">Start Calibration</button>
+            &nbsp;&nbsp;&nbsp;
+            <button type="button" id="btnCalibrateOff" class="red" onclick="disableCalibration()" style="width: 130px">Stop Calibration</button>
+          </div>
+        </div>
+        <div>
+          <p id="mag">
+            <span class="infoLabel">&nbsp;X:</span>
+            <span class="infoState" id="magX">&mdash;</span>
+            <span class="infoLabel">&nbsp;Y:</span>
+            <span class="infoState" id="magY">&mdash;</span>
+            <span class="infoLabel">&nbsp;Z:</span>
+            <span class="infoState" id="magZ">&mdash;</span>
+          </p>
+        </div>
+        <div class="telemetry" id="calInfo">
+          <div class="coverage-feedback">
+            <!-- Special devices messages will be sent here via API -->
+            <div id="deviceStatus" class="status-message"></div>
+          </div>
+          <p class="centered">
+            <span class="infoLabel">Coverage Density:&nbsp;</span>
+            <span class="infoState" id="coverage">&mdash;</span>
+          </p>
+          <div class="distribution-analysis">
+            <p class="centered">
+              <span class="infoLabel">Vertical Distribution:&nbsp;</span>
+              <span class="infoState" id="elevationDistribution"></span>
+            </p>
+            <div class="elevation-chart-container">
+              <!-- Shows vertical (elevation) orientation coverage gaps as a bar chart -->
+              <div id="elevationChart" class="elevation-chart"></div>
+              <div class="elevation-labels">
+                <span class="degree-label">-90°</span>
+                <span class="degree-label">0°</span>
+                <span class="degree-label">+90°</span>
+              </div>
+            </div>
+            <p class="centered">
+              <span class="infoLabel">Horizontal Distribution:&nbsp;</span>
+              <span class="infoState" id="azimuthDistribution"></span>
+            </p>
+            <div class="azimuth-chart-container">
+              <!-- Shows horizontal (azimuth) rotation coverage as a circular chart -->
+              <div id="azimuthChart" class="azimuth-chart"></div>
+              <div class="compass-directions">
+                <span class="compass-label compass-n">N</span>
+                <span class="compass-label compass-e">E</span>
+                <span class="compass-label compass-s">S</span>
+                <span class="compass-label compass-w">W</span>
+              </div>
+            </div>
+          </div>
+          <div class="coverage-feedback">
+            <!-- Dynamic status/instructions will appear here via JavaScript -->
+            <div id="userFeedback" class="status-message"></div>
+          </div>
+          <div class="viz-content">
+            <div id="3Dcalibration"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab4" class="tab">
+      <div class="card" style="text-align: center">
+        <a href="/settings/device">Special Device Settings</a>
+        <br />
+        <br />
+        <a href="/settings/blaster">Single Shot Blaster Settings</a>
+        <br />
+        <br />
+        <hr />
+        <br />
+        <a href="/update">Update Single Shot Blaster Firmware</a>
+        <br />
+        <br />
+        <a href="/password">Secure Device WiFi</a>
+        <br />
+        <br />
+        <a href="/network">Change WiFi Settings</a>
+        <br />
+        <br />
+        <a href="javascript:doRestart()">Restart/Resync</a>
+        <br />
+        <br />
+        <a href="https://gpstar81.github.io/GPStar-proton-pack/" target="_blank">Official Documentation</a>
+      </div>
+
+      <div class="footer">
+        <span id="buildDate"></span>
+        &mdash;
+        <span id="wifiName"></span>
+        <br />
+        <span id="audioInfo"></span>
+        <br />
+        <span id="clientInfo"></span>
+        <br />
+        <span id="extWifi"></span>
+      </div>
+    </div>
+
+    <script type="application/javascript" src="/common.js"></script>
+    <script type="application/javascript" src="/index.js"></script>
+    <script type="application/javascript" src="/three.js"></script>
+  </body>
+</html>

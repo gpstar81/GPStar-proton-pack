@@ -87,7 +87,7 @@ void checkWandAction() {
           modeFiring(); // Tell the pack whether firing has started/stopped.
 
           // Stop firing if any of the main switches are turned off or the barrel is retracted.
-          if(!switch_vent.on() || !switch_wand.on() || !b_switch_barrel_extended) {
+          if(!switch_vent.on() || !switch_wand.on() || BARREL_STATE != BARREL_EXTENDED) {
             modeFireStop();
           }
         }
@@ -153,13 +153,21 @@ void checkWandAction() {
       settingsBlinkingLights();
 
       switch(i_wand_menu) {
-        // Level 1 Intensify: Clear the Proton Pack EEPROM settings and exit.
-        // Level 1 Barrel Wing Button: Save the current settings to the Proton Pack EEPROM and exit.
-        // Level 2 Intensify: Video Game Neutrona Wand lights toggle.
+        // Level 1 Intensify: Clear the EEPROM settings and exit.
+        // Level 1 Barrel Wing Button: Save the current settings to the EEPROM and exit.
+        // Level 2 Intensify: Toggle 84/89 outer cyclotron fade effect.
+        // Level 2 Barrel Wing Button: Toggle brightness for Proton Pack LEDs.
+        // Level 3 Intensify: Toggle GPStar Audio LED state on Proton Pack.
+        // Level 3 Barrel Wing Button: Toggle GPStar Audio LED state on Neutrona Wand.
         case 5:
           // Tell the Proton Pack to clear the EEPROM settings and exit.
           if(switch_intensify.pushed()) {
             switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_3:
+                // Toggle Proton Pack GPStar Audio LED status.
+                wandSerialSend(W_GPSTAR_AUDIO_LED_TOGGLE);
+              break;
+
               case MENU_LEVEL_2:
                 // Toggle 84/89 outer cyclotron fade effect.
                 wandSerialSend(W_TOGGLE_CYCLOTRON_FADING);
@@ -180,37 +188,53 @@ void checkWandAction() {
               break;
             }
           }
-          else if(switch_mode.pushed()) {
+          else {
             switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_3:
+                if(switch_mode.pushed()) {
+                  // Toggle Neutrona Wand GPStar Audio LED status.
+                  stopEffect(S_VOICE_NEUTRONA_WAND_GPSTAR_AUDIO_LED_DISABLED);
+                  stopEffect(S_VOICE_NEUTRONA_WAND_GPSTAR_AUDIO_LED_ENABLED);
+
+                  if(b_gpstar_audio_led_enabled) {
+                    // Turn off GPStar Audio LED.
+                    b_gpstar_audio_led_enabled = false;
+                    playEffect(S_VOICE_NEUTRONA_WAND_GPSTAR_AUDIO_LED_DISABLED);
+                    wandSerialSend(W_WAND_GPSTAR_AUDIO_LED_DISABLED);
+                  }
+                  else {
+                    // Turn on GPStar Audio LED.
+                    b_gpstar_audio_led_enabled = true;
+                    playEffect(S_VOICE_NEUTRONA_WAND_GPSTAR_AUDIO_LED_ENABLED);
+                    wandSerialSend(W_WAND_GPSTAR_AUDIO_LED_ENABLED);
+                  }
+
+                  setAudioLED(b_gpstar_audio_led_enabled);
+                }
+              break;
+
               case MENU_LEVEL_2:
-                // Handled with singleClick below.
+                if(switch_mode.singleClick()) {
+                  // Change which device we are currently dimming.
+                  // Note that the actual dimming is handled by checkRotaryEncoder().
+                  wandSerialSend(W_DIMMING_TOGGLE);
+                }
               break;
 
               case MENU_LEVEL_1:
               default:
-                // Tell the Proton Pack to save the current settings to the EEPROM and exit.
-                wandSerialSend(W_SAVE_LED_EEPROM_SETTINGS);
-                wandSerialSend(W_SPECTRAL_LIGHTS_OFF);
+                if(switch_mode.pushed()) {
+                  // Tell the Proton Pack to save the current settings to the EEPROM and exit.
+                  wandSerialSend(W_SAVE_LED_EEPROM_SETTINGS);
+                  wandSerialSend(W_SPECTRAL_LIGHTS_OFF);
 
-                stopEffect(S_VOICE_EEPROM_SAVE);
-                playEffect(S_VOICE_EEPROM_SAVE);
+                  stopEffect(S_VOICE_EEPROM_SAVE);
+                  playEffect(S_VOICE_EEPROM_SAVE);
 
-                saveLEDEEPROM();
+                  saveLEDEEPROM();
 
-                wandExitEEPROMMenu();
-              break;
-            }
-          }
-          else if(switch_mode.singleClick()) {
-            switch(WAND_MENU_LEVEL) {
-              case MENU_LEVEL_2:
-                // Change which device we are currently dimming.
-                wandSerialSend(W_DIMMING_TOGGLE);
-              break;
-
-              case MENU_LEVEL_1:
-              default:
-                // Do nothing.
+                  wandExitEEPROMMenu();
+                }
               break;
             }
           }
@@ -219,10 +243,16 @@ void checkWandAction() {
         // Level 1 Intensify: Cycle through the different Neutrona Wand barrel LED counts.
         // Level 1 Barrel Wing Button: Adjust the Neutrona Wand barrel colour hue. <- Controlled by checkRotaryEncoder()
         // Level 2 Intensify: Toggle between 28-segment and 30-segment bargraph LEDs.
-        // Level 2 Barrel Wing Button: Enable/Disable the addressable RGB vent/top light board.
+        // Level 2 Barrel Wing Button: Enable/Disable the addressable RGB vent/top light board (non-ESP32 only).
+        // Level 3 Intensify: Toggle between 1 or 3 LEDs for the Cyclotron (1984/1989 mode).
         case 4:
           if(switch_intensify.pushed()) {
             switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_3:
+                // Tell the Proton Pack to toggle the Single LED or 3 LEDs for 1984/1989 modes.
+                wandSerialSend(W_CYCLOTRON_LED_TOGGLE);
+              break;
+
               case MENU_LEVEL_2:
                 if(BARGRAPH_TYPE_EEPROM != SEGMENTS_30) {
                   // Switch to 30-segment bargraph.
@@ -338,6 +368,7 @@ void checkWandAction() {
           else if(switch_mode.pushed()) {
             switch(WAND_MENU_LEVEL) {
               case MENU_LEVEL_2:
+              #ifndef ESP32
                 if(b_rgb_vent_light) {
                   // Disable the RGB vent light functionality.
                   b_rgb_vent_light = false;
@@ -360,6 +391,7 @@ void checkWandAction() {
 
                   wandSerialSend(W_RGB_VENT_ENABLED);
                 }
+              #endif
               break;
 
               case MENU_LEVEL_1:
@@ -373,6 +405,7 @@ void checkWandAction() {
         // Level 1 Intensify: Cycle through the different Power Cell LED counts.
         // Level 1 Barrel Wing Button: Adjust the Power Cell colour hue. <- Controlled by checkRotaryEncoder()
         // Level 2 Intensify: Toggle inverting of Power Cell LED direction (required for 1984 Power Cell).
+        // Level 2 Barrel Wing Button: Toggle the auto vent light intensity control on/off.
         case 3:
           if(switch_intensify.pushed()) {
             switch(WAND_MENU_LEVEL) {
@@ -386,11 +419,45 @@ void checkWandAction() {
               break;
             }
           }
+          else if(switch_mode.pushed()) {
+            switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_2:
+                if(b_vent_light_control) {
+                  // Disable the auto vent light intensity functionality.
+                  b_vent_light_control = false;
+
+                  stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
+                  stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
+
+                  playEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
+
+                  wandSerialSend(W_AUTO_VENT_INTENSITY_DISABLED);
+                }
+                else {
+                  // Enable the auto vent light intensity functionality.
+                  b_vent_light_control = true;
+
+                  stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
+                  stopEffect(S_VOICE_VENT_LIGHT_INTENSITY_DISABLED);
+
+                  playEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
+
+                  wandSerialSend(W_AUTO_VENT_INTENSITY_ENABLED);
+                }
+              break;
+
+              case MENU_LEVEL_1:
+              default:
+                // Do nothing as this is controlled by checkRotaryEncoder().
+              break;
+            }
+          }
         break;
 
         // Level 1 Intensify: Cycle through the different Cyclotron LED counts.
         // Level 1 Barrel Wing Button: Adjust the Cyclotron colour hue. <- Controlled by checkRotaryEncoder()
         // Level 2 Intensify: Enable or disable the Inner Cyclotron LED Panel.
+        // Level 2 Barrel Wing Button: Cycle through VG colour modes to disable them (see operational guide for more details on this).
         case 2:
           if(switch_intensify.pushed()) {
             switch(WAND_MENU_LEVEL) {
@@ -401,6 +468,19 @@ void checkWandAction() {
               case MENU_LEVEL_1:
               default:
                 wandSerialSend(W_TOGGLE_CYCLOTRON_LEDS);
+              break;
+            }
+          }
+          else if(switch_mode.pushed()) {
+            switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_2:
+                // Enable or disable video game colours for the Power Cell, Cyclotron, etc.
+                wandSerialSend(W_VIDEO_GAME_MODE_COLOUR_TOGGLE);
+              break;
+
+              case MENU_LEVEL_1:
+              default:
+                // Do nothing as this is controlled by checkRotaryEncoder().
               break;
             }
           }
@@ -435,91 +515,14 @@ void checkWandAction() {
         // Menu Level 1: Barrel Wing Button: Save the current settings to the Neutrona Wand EEPROM and exit.
         // Menu Level 2: Intensify: Quick Vent.
         // Menu Level 2: Barrel Wing Button: Wand Boot Errors.
-        // Menu Level 3: Intensify + top dial: Default main system volume.
+        // Menu Level 3: Intensify: Toggle between Neutrona Wand and Proton Pack default startup volume adjustment.
         // Menu Level 3: Barrel Wing Button: Set Neutrona Wand year mode (84/89/AL/FE/Match Proton Pack).
         // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Level 5
         // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Level 5
         // Menu Level 5: Intensify: Enable/Disable overheat in power level #5
-        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power level #5
+        // Menu Level 5: Barrel Wing Button: Enable/Disable sustained smoke in power level #5
         case 5:
-          // Tell the Neutrona Wand to clear the EEPROM settings and exit.
-          if(switch_intensify.pushed()) {
-            if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
-              // Tell the Proton Pack to clear its current configuration from the EEPROM.
-              wandSerialSend(W_CLEAR_CONFIG_EEPROM_SETTINGS);
-
-              stopEffect(S_VOICE_EEPROM_ERASE);
-              playEffect(S_VOICE_EEPROM_ERASE);
-
-              // Clear wand EEPROM.
-              clearConfigEEPROM();
-
-              wandExitEEPROMMenu();
-            }
-            else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-              if(b_quick_vent) {
-                b_quick_vent = false;
-
-                stopEffect(S_VOICE_QUICK_VENT_DISABLED);
-                stopEffect(S_VOICE_QUICK_VENT_ENABLED);
-                playEffect(S_VOICE_QUICK_VENT_DISABLED);
-
-                wandSerialSend(W_QUICK_VENT_DISABLED);
-              }
-              else {
-                b_quick_vent = true;
-
-                stopEffect(S_VOICE_QUICK_VENT_DISABLED);
-                stopEffect(S_VOICE_QUICK_VENT_ENABLED);
-                playEffect(S_VOICE_QUICK_VENT_ENABLED);
-
-                wandSerialSend(W_QUICK_VENT_ENABLED);
-              }
-            }
-            else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
-              // Main system volume adjustment.
-              // Adjustment is handled in checkRotaryEncoder()
-              stopEffect(S_VOICE_DEFAULT_SYSTEM_VOLUME_ADJUSTMENT);
-              playEffect(S_VOICE_DEFAULT_SYSTEM_VOLUME_ADJUSTMENT);
-
-              wandSerialSend(W_SOUND_DEFAULT_SYSTEM_VOLUME_ADJUSTMENT);
-            }
-            else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
-              // Overheat smoke duration level 5.
-              // Adjustment is handled in checkRotaryEncoder()
-              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
-              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_4);
-              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_3);
-              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_2);
-              stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_1);
-              playEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
-
-              wandSerialSend(W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_5);
-            }
-            else if(WAND_MENU_LEVEL == MENU_LEVEL_5) {
-              if(b_overheat_level_5) {
-                b_overheat_level_5 = false;
-
-                stopEffect(S_VOICE_OVERHEAT_LEVEL_5_DISABLED);
-                stopEffect(S_VOICE_OVERHEAT_LEVEL_5_ENABLED);
-                playEffect(S_VOICE_OVERHEAT_LEVEL_5_DISABLED);
-
-                wandSerialSend(W_OVERHEAT_LEVEL_5_DISABLED);
-              }
-              else {
-                b_overheat_level_5 = true;
-
-                stopEffect(S_VOICE_OVERHEAT_LEVEL_5_ENABLED);
-                stopEffect(S_VOICE_OVERHEAT_LEVEL_5_DISABLED);
-                playEffect(S_VOICE_OVERHEAT_LEVEL_5_ENABLED);
-
-                wandSerialSend(W_OVERHEAT_LEVEL_5_ENABLED);
-              }
-
-              resetOverheatLevels();
-            }
-          }
-          else if(switch_mode.pushed()) {
+          if(switch_mode.pushed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               // Tell the Proton Pack to save its current configuration to the EEPROM.
               wandSerialSend(W_SAVE_CONFIG_EEPROM_SETTINGS);
@@ -648,6 +651,108 @@ void checkWandAction() {
               wandSerialSend(W_CONTINUOUS_SMOKE_TOGGLE_5);
             }
           }
+          else {
+            switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_5:
+                if(switch_intensify.pushed()) {
+                  if(b_overheat_level_5) {
+                    b_overheat_level_5 = false;
+
+                    stopEffect(S_VOICE_OVERHEAT_LEVEL_5_DISABLED);
+                    stopEffect(S_VOICE_OVERHEAT_LEVEL_5_ENABLED);
+                    playEffect(S_VOICE_OVERHEAT_LEVEL_5_DISABLED);
+
+                    wandSerialSend(W_OVERHEAT_LEVEL_5_DISABLED);
+                  }
+                  else {
+                    b_overheat_level_5 = true;
+
+                    stopEffect(S_VOICE_OVERHEAT_LEVEL_5_ENABLED);
+                    stopEffect(S_VOICE_OVERHEAT_LEVEL_5_DISABLED);
+                    playEffect(S_VOICE_OVERHEAT_LEVEL_5_ENABLED);
+
+                    wandSerialSend(W_OVERHEAT_LEVEL_5_ENABLED);
+                  }
+
+                  updateOverheatLevels();
+                }
+              break;
+
+              case MENU_LEVEL_4:
+                if(switch_intensify.pushed()) {
+                  // Overheat smoke duration level 5.
+                  // Adjustment is handled in checkRotaryEncoder()
+                  stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
+                  stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_4);
+                  stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_3);
+                  stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_2);
+                  stopEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_1);
+                  playEffect(S_VOICE_OVERHEAT_SMOKE_DURATION_LEVEL_5);
+
+                  wandSerialSend(W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_5);
+                }
+              break;
+
+              case MENU_LEVEL_3:
+                if(switch_intensify.singleClick() && !b_wand_standalone) {
+                  // Toggle between Neutrona Wand and Proton Pack default volume adjustment.
+                  if(VOLUME_ADJUST_DEVICE == VOLUME_PROTON_PACK) {
+                    VOLUME_ADJUST_DEVICE = VOLUME_NEUTRONA_WAND;
+
+                    stopEffect(S_VOICE_NEUTRONA_WAND_VOLUME_ADJUSTMENT);
+                    stopEffect(S_VOICE_PROTON_PACK_VOLUME_ADJUSTMENT);
+                    playEffect(S_VOICE_NEUTRONA_WAND_VOLUME_ADJUSTMENT);
+                  }
+                  else {
+                    VOLUME_ADJUST_DEVICE = VOLUME_PROTON_PACK;
+
+                    stopEffect(S_VOICE_NEUTRONA_WAND_VOLUME_ADJUSTMENT);
+                    stopEffect(S_VOICE_PROTON_PACK_VOLUME_ADJUSTMENT);
+                    playEffect(S_VOICE_PROTON_PACK_VOLUME_ADJUSTMENT);
+                  }
+                }
+              break;
+
+              case MENU_LEVEL_2:
+                if(switch_intensify.pushed()) {
+                  if(b_quick_vent) {
+                    b_quick_vent = false;
+
+                    stopEffect(S_VOICE_QUICK_VENT_DISABLED);
+                    stopEffect(S_VOICE_QUICK_VENT_ENABLED);
+                    playEffect(S_VOICE_QUICK_VENT_DISABLED);
+
+                    wandSerialSend(W_QUICK_VENT_DISABLED);
+                  }
+                  else {
+                    b_quick_vent = true;
+
+                    stopEffect(S_VOICE_QUICK_VENT_DISABLED);
+                    stopEffect(S_VOICE_QUICK_VENT_ENABLED);
+                    playEffect(S_VOICE_QUICK_VENT_ENABLED);
+
+                    wandSerialSend(W_QUICK_VENT_ENABLED);
+                  }
+                }
+              break;
+
+              case MENU_LEVEL_1:
+              default:
+                if(switch_intensify.pushed()) {
+                  // Tell the Proton Pack to clear its current configuration from the EEPROM.
+                  wandSerialSend(W_CLEAR_CONFIG_EEPROM_SETTINGS);
+
+                  stopEffect(S_VOICE_EEPROM_ERASE);
+                  playEffect(S_VOICE_EEPROM_ERASE);
+
+                  // Clear wand EEPROM.
+                  clearConfigEEPROM();
+
+                  wandExitEEPROMMenu();
+                }
+              break;
+            }
+          }
         break;
 
         // Menu Level 1: Intensify: Cycle through the modes (Video Game, Cross The Streams, Cross The Streams Mix)
@@ -659,7 +764,7 @@ void checkWandAction() {
         // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Level 4
         // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Level 4
         // Menu Level 5: Intensify: Enable/Disable overheat in power level #4
-        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power level #4
+        // Menu Level 5: Barrel Wing Button: Enable/Disable sustained smoke in power level #4
         case 4:
           if(switch_intensify.pushed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
@@ -720,16 +825,15 @@ void checkWandAction() {
                 wandSerialSend(W_OVERHEAT_LEVEL_4_ENABLED);
               }
 
-              resetOverheatLevels();
+              updateOverheatLevels();
             }
           }
-
-          if(switch_mode.pushed()) {
+          else if(switch_mode.pushed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
-              if(!b_spectral_mode_enabled || !b_holiday_mode_enabled || !b_spectral_custom_mode_enabled) {
+              if(!b_spectral_mode_enabled || !b_holiday_modes_enabled || !b_spectral_custom_mode_enabled) {
                 // Enable the spectral modes.
                 b_spectral_mode_enabled = true;
-                b_holiday_mode_enabled = true;
+                b_holiday_modes_enabled = true;
                 b_spectral_custom_mode_enabled = true;
 
                 stopEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
@@ -741,7 +845,7 @@ void checkWandAction() {
               else {
                 // Disable the spectral modes.
                 b_spectral_mode_enabled = false;
-                b_holiday_mode_enabled = false;
+                b_holiday_modes_enabled = false;
                 b_spectral_custom_mode_enabled = false;
 
                 stopEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
@@ -863,13 +967,13 @@ void checkWandAction() {
         // Menu Level 1: Intensify: Enable or Disable overheating settings.
         // Menu Level 1: Barrel Wing Button: Enable or disable smoke.
         // Menu Level 2: Intensify: Enable/Disable Wand beeping in Afterlife / Frozen Empire modes.
-        // Menu Level 2: Barrel Wing Button: Cycle through VG colour modes to disable them. (see operational guide for more details on this).
+        // Menu Level 2: Barrel Wing Button: Barrel Safety Switch Polarity Toggle setting: Default / Inverted / Disabled
         // Menu Level 3: Intensify: Bargraph Idle Animation Toggle setting: Super Hero / Bargraph Original / System Default
         // Menu Level 3: Barrel Wing Button: Bargraph Firing Animation Toggle setting: Super Hero / Bargraph Original / System Default
         // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Level 3
         // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Level 3
         // Menu Level 5: Intensify: Enable/Disable overheat in power level #3
-        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power level #3
+        // Menu Level 5: Barrel Wing Button: Enable/Disable sustained smoke in power level #3
         case 3:
           if(switch_intensify.pushed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
@@ -964,18 +1068,60 @@ void checkWandAction() {
                 wandSerialSend(W_OVERHEAT_LEVEL_3_ENABLED);
               }
 
-              resetOverheatLevels();
+              updateOverheatLevels();
             }
           }
-
-          if(switch_mode.pushed()) {
+          else if(switch_mode.pushed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               // Enable or disable smoke.
               wandSerialSend(W_SMOKE_TOGGLE);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-              // Enable or disable video game colours for the Power Cell, Cyclotron etc.
-              wandSerialSend(W_VIDEO_GAME_MODE_COLOUR_TOGGLE);
+              if(BARREL_SWITCH_POLARITY == SWITCH_DEFAULT) {
+                // Change barrel safety switch polarity to inverted.
+                BARREL_SWITCH_POLARITY = SWITCH_INVERTED;
+
+                // Reset the barrel state to prevent repeated sounds.
+                BARREL_STATE = BARREL_UNKNOWN;
+
+                stopEffect(S_VOICE_BARREL_SWITCH_DEFAULT);
+                stopEffect(S_VOICE_BARREL_SWITCH_INVERTED);
+                stopEffect(S_VOICE_BARREL_SWITCH_DISABLED);
+
+                playEffect(S_VOICE_BARREL_SWITCH_INVERTED);
+
+                wandSerialSend(W_BARREL_SWITCH_INVERTED);
+              }
+              else if(BARREL_SWITCH_POLARITY == SWITCH_INVERTED) {
+                // Change barrel safety switch polarity to disabled.
+                BARREL_SWITCH_POLARITY = SWITCH_DISABLED;
+
+                // Reset the barrel state to prevent repeated sounds.
+                BARREL_STATE = BARREL_UNKNOWN;
+
+                stopEffect(S_VOICE_BARREL_SWITCH_DEFAULT);
+                stopEffect(S_VOICE_BARREL_SWITCH_INVERTED);
+                stopEffect(S_VOICE_BARREL_SWITCH_DISABLED);
+
+                playEffect(S_VOICE_BARREL_SWITCH_DISABLED);
+
+                wandSerialSend(W_BARREL_SWITCH_DISABLED);
+              }
+              else {
+                // Change barrel safety switch polarity to default.
+                BARREL_SWITCH_POLARITY = SWITCH_DEFAULT;
+
+                // Reset the barrel state to prevent repeated sounds.
+                BARREL_STATE = BARREL_UNKNOWN;
+
+                stopEffect(S_VOICE_BARREL_SWITCH_DEFAULT);
+                stopEffect(S_VOICE_BARREL_SWITCH_INVERTED);
+                stopEffect(S_VOICE_BARREL_SWITCH_DISABLED);
+
+                playEffect(S_VOICE_BARREL_SWITCH_DEFAULT);
+
+                wandSerialSend(W_BARREL_SWITCH_DEFAULT);
+              }
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
               switch(BARGRAPH_EEPROM_FIRING_ANIMATION) {
@@ -1037,12 +1183,12 @@ void checkWandAction() {
         // Menu Level 1: Barrel Wing Button: Enable the simulation of a ring for the Cyclotron lid.
         // Menu Level 2: Intensify: Overheat strobe.
         // Menu Level 2: Barrel Wing Button: Overheat lights off.
-        // Menu Level 3: Intensify: Demo Light Mode Enabled
-        // Menu Level 3: Barrel Wing Button: Toggle between 1 or 3 LEDs for the Cyclotron (1984/1989 mode)
+        // Menu Level 3: Intensify: Startup (Demo) Light Mode Enabled
+        // Menu Level 3: Barrel Wing Button: Toggle whether wand bootup is short or full (Afterlife/Frozen Empire).
         // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Level 2
         // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Level 2
         // Menu Level 5: Intensify: Enable/Disable overheat in power level #2
-        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power level #2
+        // Menu Level 5: Barrel Wing Button: Enable/Disable sustained smoke in power level #2
         case 2:
           if(switch_intensify.pushed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
@@ -1088,12 +1234,10 @@ void checkWandAction() {
                 wandSerialSend(W_OVERHEAT_LEVEL_2_ENABLED);
               }
 
-              resetOverheatLevels();
+              updateOverheatLevels();
             }
           }
-
-          // Barrel Wing Button: Enable/Disable Ring Simulation in the Cyclotron LEDs in Afterlife (2021) mode.
-          if(switch_mode.pushed()) {
+          else if(switch_mode.pushed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               wandSerialSend(W_CYCLOTRON_SIMULATE_RING_TOGGLE);
             }
@@ -1102,8 +1246,8 @@ void checkWandAction() {
               wandSerialSend(W_OVERHEAT_LIGHTS_OFF_TOGGLE);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
-              // Tell the Proton Pack to toggle the Single LED or 3 LEDs for 1984/1989 modes.
-              wandSerialSend(W_CYCLOTRON_LED_TOGGLE); // Move this to the LED menu in the future.
+              // Toggle whether the wand bootup does the full pack startup or not in AL/FE.
+              wandSerialSend(W_QUICK_BOOTUP_TOGGLE);
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_4) {
               // Handled in checkRotaryEncoder()
@@ -1133,7 +1277,7 @@ void checkWandAction() {
         // Menu Level 4: Intensify + top dial: Adjust overheat smoke duration by 1 second : Power Level 1
         // Menu Level 4: Barrel Wing Button + top dial: Adjust overheat start timer by 1 second : Power Level 1
         // Menu Level 5: Intensify: Enable/Disable overheat in power level #1
-        // Menu Level 5: Barrel Wing Button: Enable/Disable continuous smoke in power level #1
+        // Menu Level 5: Barrel Wing Button: Enable/Disable sustained smoke in power level #1
         case 1:
           if(switch_intensify.pushed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
@@ -1161,7 +1305,7 @@ void checkWandAction() {
               wandSerialSend(W_MODE_TOGGLE);
 
               // If there is no Pack, we need to cycle modes manually.
-              if(b_gpstar_benchtest) {
+              if(b_wand_standalone) {
                 if(SYSTEM_MODE == MODE_SUPER_HERO) {
                   SYSTEM_MODE = MODE_ORIGINAL;
 
@@ -1212,17 +1356,16 @@ void checkWandAction() {
                 wandSerialSend(W_OVERHEAT_LEVEL_1_ENABLED);
               }
 
-              resetOverheatLevels();
+              updateOverheatLevels();
             }
           }
-
-          if(switch_mode.pushed()) {
+          else if(switch_mode.pushed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
               // Tell the Proton Pack to toggle the Proton Stream impact effects.
               wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
 
               // Standalone Neutrona Wand has to change this setting on its own.
-              if(b_gpstar_benchtest) {
+              if(b_wand_standalone) {
                 if(b_stream_effects) {
                   b_stream_effects = false;
 
@@ -1311,35 +1454,62 @@ void checkWandAction() {
         // Menu Level 1: (Barrel Wing Button) -> Exit menu. <--handled by altWingButtonCheck() if wand is on, or mainLoop() if wand is off
         // Menu Level 2: (Intensify) -> Enable or disable crossing the streams / video game modes.
         // Menu Level 2: (Barrel Wing Button) -> Enable/Disable Video Game Colour Modes for the Proton Pack LEDs (when video game mode is selected).
+        // Menu Level 3: (Intensify) -> GPStar II: Toggle the Neutrona Wand WiFi.
+        // Menu Level 3: (Barrel Wing Button) -> GPStar II: Toggle the Proton Pack WiFi.
         case 5:
-        // Music track loop setting.
-        if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
-          if(switch_intensify.pushed()) {
-            toggleMusicLoop();
+          // Music track loop setting.
+          if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
+            if(switch_intensify.pushed()) {
+              toggleMusicLoop();
 
-            // Tell pack to loop the music track.
-            wandSerialSend(W_MUSIC_TRACK_LOOP_TOGGLE);
-          }
-        }
-        else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-          if(switch_intensify.pushed()) {
-            toggleWandModes();
-          }
-
-          // Enable/Disable Video Game Colour Modes for the Proton Pack LEDs.
-          if(switch_mode.pushed()) {
-            if(FIRING_MODE == VG_MODE) {
-              // Tell the Proton Pack to cycle through the Video Game Colour toggles.
-              wandSerialSend(W_VIDEO_GAME_MODE_COLOUR_TOGGLE);
+              // Tell pack to loop the music track.
+              wandSerialSend(W_MUSIC_TRACK_LOOP_TOGGLE);
             }
           }
-        }
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
+            if(switch_intensify.pushed()) {
+              toggleWandModes();
+            }
+            else if(switch_mode.pushed()) {
+              if(FIRING_MODE == VG_MODE) {
+                // Tell the Proton Pack to cycle through the Video Game Colour toggles.
+                wandSerialSend(W_VIDEO_GAME_MODE_COLOUR_TOGGLE);
+              }
+            }
+          }
+          #ifdef ESP32
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
+            if(switch_intensify.pushed()) {
+              // Toggle the Neutrona Wand WiFi.
+              if(WIFI_MODE == WIFI_ENABLED) {
+                WIFI_MODE = WIFI_DISABLED;
+                stopEffect(S_VOICE_WAND_WIFI_DISABLED);
+                stopEffect(S_VOICE_WAND_WIFI_ENABLED);
+                playEffect(S_VOICE_WAND_WIFI_DISABLED);
+                wandSerialSend(W_WAND_WIFI_DISABLED);
+              }
+              else {
+                WIFI_MODE = WIFI_ENABLED;
+                stopEffect(S_VOICE_WAND_WIFI_DISABLED);
+                stopEffect(S_VOICE_WAND_WIFI_ENABLED);
+                playEffect(S_VOICE_WAND_WIFI_ENABLED);
+                wandSerialSend(W_WAND_WIFI_ENABLED);
+              }
+            }
+            else if(switch_mode.pushed()) {
+              // Toggle the Proton Pack WiFi (just send the command, let the pack sort it out).
+              wandSerialSend(W_TOGGLE_PACK_WIFI);
+            }
+          }
+          #endif
         break;
 
         // Menu Level 1: (Intensify + Top dial) -> Adjust the LED dimming of the Power Cell, Cyclotron and Inner Cyclotron.
         // Menu Level 1: (Barrel Wing Button) -> Cycle through which dimming mode to adjust in the Proton Pack. Power Cell, Cyclotron, Inner Cyclotron.
         // Menu Level 2: (Intensify) -> Enable or disable overheating.
         // Menu Level 2: (Barrel Wing Button) -> Enable or disable smoke for the Proton Pack.
+        // Menu Level 3: (Intensify) -> GPStar II: -AVAILABLE-
+        // Menu Level 3: (Barrel Wing Button) -> GPStar II: -AVAILABLE-
         case 4:
           // Adjust the Proton Pack / Neutrona Wand sound effects volume.
           if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
@@ -1354,9 +1524,7 @@ void checkWandAction() {
             if(switch_intensify.pushed()) {
               toggleOverheating();
             }
-
-            // Enable or disable smoke for the Proton Pack.
-            if(switch_mode.pushed()) {
+            else if(switch_mode.pushed()) {
               // Tell the Proton Pack to toggle the smoke on or off.
               wandSerialSend(W_SMOKE_TOGGLE);
             }
@@ -1367,6 +1535,8 @@ void checkWandAction() {
         // Menu Level 1: (Barrel Wing Button + top dial) Adjust Proton Pack / Neutrona Wand music volume.
         // Menu Level 2: (Intensify) -> Toggle Cyclotron rotation direction.
         // Menu Level 2: (Barrel Wing Button) -> Toggle the Proton Pack Single LED or 3 LEDs for 1984/1989 modes.
+        // Menu Level 3: (Intensify) -> GPStar II: -AVAILABLE-
+        // Menu Level 3: (Barrel Wing Button) -> GPStar II: -AVAILABLE-
         case 3:
           // Top menu code is handled in checkRotaryEncoder()
           // Sub menu. Adjust Cyclotron settings.
@@ -1375,8 +1545,7 @@ void checkWandAction() {
               // Tell the Proton Pack to change the Cyclotron rotation direction.
               wandSerialSend(W_CYCLOTRON_DIRECTION_TOGGLE);
             }
-
-            if(switch_mode.pushed()) {
+            else if(switch_mode.pushed()) {
               // Tell the Proton Pack to toggle the Single LED or 3 LEDs for 1984/1989 modes.
               wandSerialSend(W_CYCLOTRON_LED_TOGGLE);
             }
@@ -1387,11 +1556,13 @@ void checkWandAction() {
         // Menu Level 1: (Barrel Wing Button) -> Go to previous music track.
         // Menu Level 2: (Intensify) -> Enable pack vibration, enable pack vibration while firing only, disable pack vibration. *Note that the pack vibration switch will toggle both pack and wand vibration on or off*
         // Menu Level 2: (Barrel Wing Button) -> Enable wand vibration, enable wand vibration while firing only, disable wand vibration.
+        // Menu Level 3: (Intensify) -> GPStar II: -AVAILABLE-
+        // Menu Level 3: (Barrel Wing Button) -> GPStar II: -AVAILABLE-
         case 2:
           // Change music tracks.
           if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
             if(switch_intensify.pushed()) {
-              if(b_gpstar_benchtest) {
+              if(b_wand_standalone) {
                 musicNextTrack();
               }
               else {
@@ -1399,9 +1570,8 @@ void checkWandAction() {
                 wandSerialSend(W_MUSIC_NEXT_TRACK);
               }
             }
-
-            if(switch_mode.pushed()) {
-              if(b_gpstar_benchtest) {
+            else if(switch_mode.pushed()) {
+              if(b_wand_standalone) {
                 musicPrevTrack();
               }
               else {
@@ -1411,13 +1581,12 @@ void checkWandAction() {
             }
           }
           else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
-            // Enable or disable vibration for the pack or during firing only.
             if(switch_intensify.pushed()) {
+              // Enable or disable vibration for the pack or during firing only.
               wandSerialSend(W_VIBRATION_CYCLE_TOGGLE);
             }
-
-            // Enable or disable vibration or firing vibration only for the wand.
-            if(switch_mode.pushed()) {
+            else if(switch_mode.pushed()) {
+              // Enable or disable vibration or firing vibration only for the wand.
               stopEffect(S_BEEPS_ALT);
               playEffect(S_BEEPS_ALT);
 
@@ -1471,15 +1640,16 @@ void checkWandAction() {
         // Menu Level 1: (Barrel Wing Button) -> Mute the Proton Pack and Neutrona Wand.
         // Menu Level 2: (Intensify) -> Switch between 1984/1989/Afterlife/Frozen Empire mode.
         // Menu Level 2: (Barrel Wing Button) -> Enable or disable Proton Stream impact effects.
+        // Menu Level 3: (Intensify) -> GPStar II: Reset the wand WiFi password to default.
+        // Menu Level 3: (Barrel Wing Button) -> GPStar II: Reset the pack WiFi password to default.
         case 1:
-          // Play or stop the current music track.
           if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
             if(switch_intensify.pushed()) {
               // Tell the pack to start or stop its music.
               wandSerialSend(W_MUSIC_TOGGLE);
 
               // Handle standalone wand music playback.
-              if(b_gpstar_benchtest) {
+              if(b_wand_standalone) {
                 if(b_playing_music) {
                   stopMusic();
                 }
@@ -1488,9 +1658,8 @@ void checkWandAction() {
                 }
               }
             }
-
-            // Silence the Proton Pack and Neutrona Wand or revert back to previously-selected volume.
-            if(switch_mode.pushed()) {
+            else if(switch_mode.pushed()) {
+              // Silence the Proton Pack and Neutrona Wand or revert back to previously-selected volume.
               if(i_volume_master == i_volume_abs_min) {
                 i_volume_master = i_volume_revert;
               }
@@ -1512,7 +1681,7 @@ void checkWandAction() {
               wandSerialSend(W_YEAR_MODES_CYCLE);
 
               // There is no pack connected; let's change the years.
-              if(b_gpstar_benchtest) {
+              if(b_wand_standalone) {
                 stopEffect(S_BEEPS_BARGRAPH);
                 playEffect(S_BEEPS_BARGRAPH);
 
@@ -1568,13 +1737,12 @@ void checkWandAction() {
                 }
               }
             }
-
-            if(switch_mode.pushed()) {
+            else if(switch_mode.pushed()) {
               // Tell the Proton Pack to toggle the Proton Stream Impact Effects.
               wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
 
               // Standalone Neutrona Wand has to change this setting on its own.
-              if(b_gpstar_benchtest) {
+              if(b_wand_standalone) {
                 if(b_stream_effects) {
                   b_stream_effects = false;
 
@@ -1592,6 +1760,27 @@ void checkWandAction() {
               }
             }
           }
+          #ifdef ESP32
+          else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
+            if(switch_intensify.pushed()) {
+              // Reset the WiFi password to default.
+              wirelessMgr->resetWifiPassword();
+
+              // Turn off the WiFi until the user decides to manually enable and reconnect.
+              WIFI_MODE = WIFI_DISABLED;
+
+              // Give some audio feedback as to what just happened.
+              wandSerialSend(W_WAND_WIFI_RESET);
+              stopEffect(S_VOICE_PACK_WIFI_RESET);
+              stopEffect(S_VOICE_WAND_WIFI_RESET);
+              playEffect(S_VOICE_WAND_WIFI_RESET);
+            }
+            else if(switch_mode.pushed()) {
+              // Tell the Proton Pack to reset its WiFi password.
+              wandSerialSend(W_RESET_WIFI_PASSWORD);
+            }
+          }
+          #endif
         break;
       }
     break;

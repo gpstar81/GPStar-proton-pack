@@ -1,4 +1,6 @@
-# Wireless Adapter (Optional)
+# Wireless Adapter (Optional, Deprecated)
+
+Please note that this is an older. standalone guide for bringing WiFi-only operation to your GPStar I Proton Pack without need for a full [Attenuator](ATTENUATOR.md) device. With the introduction of the GPStar II controllers you should view the dedicated [GPStar II Wireless Guide](WIRELESS_GPSTAR_II.md) for operation.
 
 Use of the serial expansion port on the gpstar Proton Pack can bring WiFi capabilities to your unlicensed nuclear reactor! This is a minimal version of the Attenuator device without input or output devices (no lights, sound, vibration, or switches) and may be installed directly into your pack alongside the gpstar Proton Pack controller.
 
@@ -16,6 +18,10 @@ The configuration for this device is extremely simple and can be implemented wit
 
 The following is a diagram of the **ESP32 pins** from left and right, when oriented with the USB connection facing down (south) like the pinout diagram above. Again, this table is based on the expected pin labels on the ESP32 itself--your terminal shield may differ slightly and should be checked for proper orientation when you insert the ESP32 into the socket.
 
+	!! IMPORTANT !!
+	This diagram is based on the 30-pin ESP32 dev module as recommended in the links above.
+	If your device differs, such as having 38 pins, there will be position or label changes.
+
 | Connection    | ESP32 (L) |     | ESP32 (R) | Connection    |
 |---------------|-----------|-----|-----------|---------------|
 |               | EN        |     | GPIO23    |               |
@@ -26,18 +32,20 @@ The following is a diagram of the **ESP32 pins** from left and right, when orien
 |               | GPIO32    |     | GPIO19    |               |
 |               | GPIO33    |     | GPIO18    |               |
 |               | GPIO25    |     | GPIO5     |               |
-|               | GPIO26    |     | GPIO17    | to Pack RX1   |
-|               | GPIO27    |     | GPIO16    | to Pack TX1   |
+|               | GPIO26    |     | GPIO17    | to Pack RX1<sup>1</sup> |
+|               | GPIO27    |     | GPIO16    | to Pack TX1<sup>1</sup> |
 |               | GPIO14    |     | GPIO4     |               |
 |               | GPIO12    |     | GPIO2     |               |
 |               | GPIO13    |     | GPIO15    |               |
 | to 5V-OUT -   | GND       |     | GND       |               |
-| to 5V-OUT +   | VIN       |     | 3.3V      |               |
+| to 5V-OUT +   | 5V/VIN    |     | 3.3V      |               |
 |               |         | **USB** |         |               |
 
-As shown above you will only need 4 connections using the pair of JST-XH connectors connecting the **5V-OUT** and **RX1/TX1** sockets to the ESP32 device. Since the pre-wired connections may only have a red/black color pattern the diagram below has been intentionally designed with this in mind, though the table above should be consulted for connections if your device does not work as expected.
+As shown above you will only need 4 connections using the pair of JST-XH connectors connecting the **5V-OUT** and **RX1/TX1**<sup>1</sup> sockets to the ESP32 device. Since the pre-wired connections may only have a red/black color pattern the diagram below has been intentionally designed with this in mind, though the table above should be consulted for connections if your device does not work as expected.
 
-**IMPORTANT:** Please check all LABELS for proper connections, regardless of wire color. Some early parts/kits may have shipped with JST connectors which swap the order of the red/black wires.
+<sup>1</sup> This is on GPStar I Proton Pack boards. On GPStar II Proton Pack boards the data pins are labeled "Attenuator RX2/TX2".
+
+**IMPORTANT:** Please check all LABELS for proper connections, regardless of wire color. Some early parts/kits may have shipped with JST connectors which swap the order of the red/black wires. Additionally, you meed to use a VIN pin for the 5V+ power supply (not a 5V pin if available), while all GND connections are shared and position does not matter.
 
 ![](images/PackPCB-Wireless.png)
 
@@ -47,7 +55,7 @@ This device currently uses the exact same firmware image as the Attenuator devic
 
 ## Operation
 
-When using the ESP32 controller it is possible to connect to the device via WiFi. The SSID (Network Name) will be broadcast as **"ProtonPack_####"** where "####" is the last 4 hexadecimal values for the MAC address of the WiFi interface. This will differ for each ESP32 device, making each network unique to the attached pack. The default password is **"555-2368"** and can (and should) be changed via the web interface after successfully connecting to the network. The IP address for the device will be hardcoded as **"192.168.1.2"** with the web interface accessible at `http://192.168.1.2`.
+When using the ESP32 controller it is possible to connect to the device via WiFi. The SSID (Network Name) will be broadcast as either **"GPStar_Attenuator"** or **"ProtonPack_####"** where "####" is the last 4 hexadecimal values for the MAC address of the WiFi interface. This will differ for each ESP32 device, making each network unique to the attached pack. The default password is **"555-2368"** and can (and should) be changed via the web interface after successfully connecting to the network. The IP address for the device will be hardcoded as **"192.168.1.2"** with the web interface accessible at `http://192.168.1.2`.
 
 For instructions on using the web interface to control your equipment, please see the [Wireless Operations](WIRELESS_OPERATION.md) guide.
 

@@ -1,0 +1,9 @@
+grep "Uni:" prototype.log | sed 's/^[0-9:.]* > //' > prototype_filtered.log
+
+cat prototype_filtered.log | sed 's/.*,\([^,]*,[^,]*,[^,]*\)$/\1/' > prototype_last3.log
+
+grep "Uni:" production.log | sed 's/^[0-9:.]* > //' > production_filtered.log
+
+cat production_filtered.log | sed 's/.*,\([^,]*,[^,]*,[^,]*\)$/\1/' > production_last3.log
+
+

@@ -63,8 +63,8 @@ Connections for the wand should be made according to the tables below.
 | GND | <font color="brown">Brown</font> | Lower-right Toggle (wire order does not matter) |
 | A0 | <font color="red">Red</font> | Upper-right Toggle (wire order does not matter) |
 | GND | <font color="red">Red</font> | Upper-right Toggle (wire order does not matter) |
-| D9 | <font color="red">Red</font> | Clippard LED (Top Left) GND |
-| 5V+ | <font color="gold">Yellow</font> | Clippard LED (Top Left) VCC |
+| 5V+ | <font color="red">Red</font> | Clippard LED (Top Left) VCC |
+| D9 | <font color="gold">Yellow</font> | Clippard LED (Top Left) GND |
 | R+ | <font color="red">Red</font> | Rumble (vibration) motor VCC |
 | R- | Black | Rumble (vibration) motor GND |
 | GND | Black | Ground for RGB vent light |

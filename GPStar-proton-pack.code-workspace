@@ -4,12 +4,24 @@
       "path": "."
     },
     {
+      "name": "SharedLib",
+      "path": "source/SharedLib"
+    },
+    {
       "name": "Attenuator",
       "path": "source/Attenuator"
     },
     {
       "name": "BeltGizmo",
       "path": "source/BeltGizmo"
+    },
+    {
+      "name": "GhostTrapBase",
+      "path": "source/GhostTrapBase"
+    },
+    {
+      "name": "GhostTrapCartridge",
+      "path": "source/GhostTrapCartridge"
     },
     {
       "name": "NeutronaWand",
@@ -35,7 +47,14 @@
     "editor.tabSize": 2,
     "files.associations": {
       "string": "cpp",
-      "cstdint": "cpp"
+      "cstdint": "cpp",
+      "cmath": "cpp",
+      "complex": "cpp",
+      "ostream": "cpp",
+      "array": "cpp",
+      "span": "cpp",
+      "string_view": "cpp",
+      "vector": "cpp"
     },
     "workbench.editor.enablePreview": false
   }

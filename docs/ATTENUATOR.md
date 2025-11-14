@@ -55,17 +55,18 @@ Ideally, the device is intended be connected to the GPStar Proton Pack Controlle
 ### Standard Controls
 
 * Left Toggle: Turns the pack on or off, similar to use of the switch under the Ion Arm
-* Right Toggle: Turns the Attenuator device itself on or off.
-	* When off, this turns off the device LEDs and silences any feedback from the buzzer and vibration motor.
+* Right Toggle: &starf; Changed for 6.1+, Enters the stream selection mode (via dial) when active 
 * Main Dial - Long Press: Alternates between two modes of operation
-	* Mode 1 (Default) - Indicated by a high buzzer tone
-		* Main Dial - Short Press: Starts or stops the current music track
- 		* Main Dial - Double Press: Mutes or unmutes all pack/wand audio
-		* Main Dial - Turn CW/CCW: Adjusts the overall volume for pack/wand
-	* Mode 2 - Indicated by a low buzzer tone
-		* Main Dial - Short Press: Advances to the next music track
- 		* Main Dial - Double Press: Move to the previous music track
-		* Main Dial - Turn CW/CCW: Adjusts the effects volume for pack/wand
+  * Mode 1 (Default) - Indicated by a high buzzer tone
+     * Main Dial - Short Press: Starts or stops the current music track
+     * Main Dial - Double Press: Mutes or unmutes all pack/wand audio
+     * Main Dial - Turn CW/CCW: Adjusts the overall volume for pack/wand
+  * Mode 2 - Indicated by a low buzzer tone
+     * Main Dial - Short Press: Advances to the next music track
+     * Main Dial - Double Press: Move to the previous music track
+     * Main Dial - Turn CW/CCW: Adjusts the effects volume for pack/wand
+  * Stream Select - Enabled or disabled by use of the right toggle &starf; New for 6.1+
+     * Main Dial - Counter-Clockwise to select next stream, Clockwise for previous
 
 Note that during an overheat warning, the device will emit sounds and vibrations in addition to lighting effects as the pack reaches a critical state. At this time the pack operator can turn the primary dial either direction to "attenuate" the pack and cancel the current warning. If the warning time is allowed to expire the the pack will enter the venting sequence.
 

@@ -7,6 +7,8 @@
 BINDIR="../binaries"
 SRCDIR="../source"
 PROJECT_DIR="$SRCDIR/BeltGizmo"
+ASSETS_DIR="$PROJECT_DIR/assets"
+GZIP_EXTS="svg,ico,stl,min.js"
 
 mkdir -p ${BINDIR}/gizmo/extras
 

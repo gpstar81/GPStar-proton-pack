@@ -53,10 +53,10 @@ void checkPowerOnReminder() {
 // Check the state of the grip button to determine whether we have entered the settings menu.
 void gripButtonCheck() {
   // Proceed if device is in an idle state or in either the settings or EEPROM menus.
-  if(DEVICE_ACTION_STATUS == ACTION_IDLE || DEVICE_ACTION_STATUS == ACTION_SETTINGS || DEVICE_ACTION_STATUS == ACTION_CONFIG_EEPROM_MENU) {
+  if(DEVICE_ACTION_STATUS == ACTION_IDLE || DEVICE_ACTION_STATUS == ACTION_SETTINGS) {
     if(switch_grip.pushed() && !(switch_device.on() && switch_vent.on())) {
       // Switch between firing mode and settings mode, but only when right toggles are both off.
-      if(DEVICE_ACTION_STATUS != ACTION_SETTINGS && DEVICE_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && !switch_vent.on() && !switch_device.on()) {
+      if(DEVICE_ACTION_STATUS != ACTION_SETTINGS && !switch_vent.on() && !switch_device.on()) {
         // Not currently in the settings menu so set that as the current action.
         DEVICE_ACTION_STATUS = ACTION_SETTINGS;
         ms_settings_blink.start(i_settings_blink_delay);
@@ -68,14 +68,6 @@ void gripButtonCheck() {
         DEVICE_ACTION_STATUS = ACTION_IDLE;
         ms_settings_blink.stop();
         deviceExitMenu();
-        return;
-      }
-      else if(DEVICE_ACTION_STATUS == ACTION_CONFIG_EEPROM_MENU && DEVICE_MENU_LEVEL == MENU_LEVEL_1 && MENU_OPTION_LEVEL == OPTION_5) {
-        // Only exit the settings menu when at option #5 on menu level 1.
-        DEVICE_ACTION_STATUS = ACTION_IDLE;
-        ms_settings_blink.stop();
-        bargraph.clear();
-        deviceExitEEPROMMenu();
         return;
       }
     }
@@ -92,19 +84,33 @@ void settingsMenuCheck() {
     case MENU_LEVEL_1:
       switch(MENU_OPTION_LEVEL) {
         case OPTION_5:
-          // Intensify: Enable/Disable Music Track Looping
+          // Intensify: Enable/Disable Music Track Looping.
           if(b_playing_music && switch_intensify.pushed()) {
             toggleMusicLoop();
             debugln(F("Toggle Music Loop"));
           }
 
-          // Grip: Exits the menu system
+          // Grip: Exits the menu system.
           // Allow the method gripButtonCheck() handle this on the next loop
         break;
 
         case OPTION_4:
+          // Intensify: Enable/Disable System Mute.
+          if(switch_intensify.pushed()) {
+            if(i_volume_master == i_volume_abs_min) {
+              i_volume_master = i_volume_revert;
+            }
+            else {
+              i_volume_revert = i_volume_master;
+
+              // Set the master volume to silent.
+              i_volume_master = i_volume_abs_min;
+            }
+
+            updateMasterVolume();
+          }
           // Grip + Dial = System Volume
-          if(switch_grip.on()) {
+          else if(switch_grip.on()) {
             if(encoder.STATE == ENCODER_CW) {
               // Increase the master system volume.
               increaseVolume();
@@ -142,13 +148,14 @@ void settingsMenuCheck() {
           // Intensify: Previous Track
           if(b_playing_music && switch_intensify.pushed()) {
             musicPrevTrack();
-            debugln(F("Prev Track"));
+            debug(F("Prev Track: #"));
+            debugln(i_current_music_track);
           }
-
           // Grip: Next Track
-          if(b_playing_music && switch_grip.pushed()) {
+          else if(b_playing_music && switch_grip.pushed()) {
             musicNextTrack();
-            debugln(F("Next Track"));
+            debug(F("Next Track: #"));
+            debugln(i_current_music_track);
           }
         break;
 
@@ -164,9 +171,8 @@ void settingsMenuCheck() {
               debugln(F("Stop Music"));
             }
           }
-
           // Grip + Dial = Music Volume
-          if(switch_grip.on()) {
+          else if(switch_grip.on()) {
             if(encoder.STATE == ENCODER_CW) {
               // Increase the music volume.
               increaseVolumeMusic();
@@ -189,9 +195,9 @@ void settingsMenuCheck() {
         case OPTION_5:
           // Intensify: Enable/Disable auto vent light intensity.
           if(switch_intensify.pushed()) {
-            if(b_vent_light_control) {
+            if(blasterConfig.ventLightAutoIntensity) {
               // Disable the auto vent light intensity feature.
-              b_vent_light_control = false;
+              blasterConfig.ventLightAutoIntensity = false;
 
               stopEffect(S_VOICE_VENT_AUTO_INTENSITY_ENABLED);
               stopEffect(S_VOICE_VENT_AUTO_INTENSITY_DISABLED);
@@ -200,7 +206,7 @@ void settingsMenuCheck() {
             }
             else {
               // Enable the auto vent light intensity feature.
-              b_vent_light_control = true;
+              blasterConfig.ventLightAutoIntensity = true;
 
               stopEffect(S_VOICE_VENT_AUTO_INTENSITY_ENABLED);
               stopEffect(S_VOICE_VENT_AUTO_INTENSITY_DISABLED);
@@ -208,9 +214,9 @@ void settingsMenuCheck() {
               playEffect(S_VOICE_VENT_AUTO_INTENSITY_ENABLED);
             }
           }
-
+        #ifndef ESP32
           // Grip: Enable/Disable RGB vent light support.
-          if(switch_grip.pushed()) {
+          else if(switch_grip.pushed()) {
             if(b_rgb_vent_light) {
               // Disable the RGB vent light functionality.
               b_rgb_vent_light = false;
@@ -228,6 +234,116 @@ void settingsMenuCheck() {
               stopEffect(S_VOICE_RGB_VENT_LIGHTS_DISABLED);
 
               playEffect(S_VOICE_RGB_VENT_LIGHTS_ENABLED);
+            }
+          }
+        #endif
+        break;
+        case OPTION_4:
+          // Intensify: Enable/Disable boot errors.
+          if(switch_intensify.pushed()) {
+            if(blasterConfig.deviceBootErrorBeep) {
+              // Disable blaster boot errors.
+              blasterConfig.deviceBootErrorBeep = false;
+
+              stopEffect(S_VOICE_BOOTUP_ERRORS_ENABLED);
+              stopEffect(S_VOICE_BOOTUP_ERRORS_DISABLED);
+
+              playEffect(S_VOICE_BOOTUP_ERRORS_DISABLED);
+            }
+            else {
+              // Enable blaster boot errors.
+              blasterConfig.deviceBootErrorBeep = true;
+
+              stopEffect(S_VOICE_BOOTUP_ERRORS_ENABLED);
+              stopEffect(S_VOICE_BOOTUP_ERRORS_DISABLED);
+
+              playEffect(S_VOICE_BOOTUP_ERRORS_ENABLED);
+            }
+          }
+          // Grip: Normal/Inverted Bargraph Animation
+          else if(switch_grip.pushed()) {
+            if(blasterConfig.invertBlasterBargraph) {
+              // Revert to normal bargraph animation.
+              blasterConfig.invertBlasterBargraph = false;
+
+              stopEffect(S_VOICE_BARGRAPH_INVERTED);
+              stopEffect(S_VOICE_BARGRAPH_NORMAL);
+
+              playEffect(S_VOICE_BARGRAPH_NORMAL);
+            }
+            else {
+              // Switch to inverted bargraph animation.
+              blasterConfig.invertBlasterBargraph = true;
+
+              stopEffect(S_VOICE_BARGRAPH_INVERTED);
+              stopEffect(S_VOICE_BARGRAPH_NORMAL);
+
+              playEffect(S_VOICE_BARGRAPH_INVERTED);
+            }
+          }
+        break;
+        case OPTION_3:
+          // Intensify: Enable/Disable GPStar Audio LED.
+          if(switch_intensify.pushed()) {
+            if(blasterConfig.gpstarAudioLed) {
+              // Disable the GPStar Audio status LED.
+              blasterConfig.gpstarAudioLed = false;
+
+              stopEffect(S_VOICE_GPSTAR_AUDIO_LED_ENABLED);
+              stopEffect(S_VOICE_GPSTAR_AUDIO_LED_DISABLED);
+
+              playEffect(S_VOICE_GPSTAR_AUDIO_LED_DISABLED);
+            }
+            else {
+              // Enable the GPStar Audio status LED.
+              blasterConfig.gpstarAudioLed = true;
+
+              stopEffect(S_VOICE_GPSTAR_AUDIO_LED_ENABLED);
+              stopEffect(S_VOICE_GPSTAR_AUDIO_LED_DISABLED);
+
+              playEffect(S_VOICE_GPSTAR_AUDIO_LED_ENABLED);
+            }
+
+            setAudioLED(blasterConfig.gpstarAudioLed);
+          }
+          // Grip: Toggle through vibration settings.
+          else if(switch_grip.pushed()) {
+            stopEffect(S_BEEPS_ALT);
+            playEffect(S_BEEPS_ALT);
+
+            switch(blasterConfig.deviceVibration) {
+              case VIBRATION_ALWAYS:
+                blasterConfig.deviceVibration = VIBRATION_FIRING_ONLY;
+
+                stopEffect(S_VOICE_VIBRATION_FIRING_ENABLED);
+                stopEffect(S_VOICE_VIBRATION_ENABLED);
+                stopEffect(S_VOICE_VIBRATION_DISABLED);
+
+                playEffect(S_VOICE_VIBRATION_FIRING_ENABLED);
+
+                ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
+              break;
+              case VIBRATION_FIRING_ONLY:
+              default:
+                blasterConfig.deviceVibration = VIBRATION_NONE;
+
+                stopEffect(S_VOICE_VIBRATION_FIRING_ENABLED);
+                stopEffect(S_VOICE_VIBRATION_ENABLED);
+                stopEffect(S_VOICE_VIBRATION_DISABLED);
+
+                playEffect(S_VOICE_VIBRATION_DISABLED);
+              break;
+              case VIBRATION_NONE:
+                blasterConfig.deviceVibration = VIBRATION_ALWAYS;
+
+                stopEffect(S_VOICE_VIBRATION_FIRING_ENABLED);
+                stopEffect(S_VOICE_VIBRATION_ENABLED);
+                stopEffect(S_VOICE_VIBRATION_DISABLED);
+
+                playEffect(S_VOICE_VIBRATION_ENABLED);
+
+                ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
+              break;
             }
           }
         break;
@@ -254,27 +370,6 @@ void settingsMenuCheck() {
 void checkDeviceAction() {
   switch(DEVICE_STATUS) {
     case MODE_OFF:
-      // Reset the count of the device switch
-      if(!switch_intensify.on()) {
-        deviceSwitchedCount = 0;
-        ventSwitchedCount = 0;
-      }
-
-      if(switch_intensify.on() && ventSwitchedCount >= 5 && DEVICE_ACTION_STATUS != ACTION_SETTINGS && DEVICE_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
-        // Enter the Config EEPROM menu if holding the Intensify button while toggling the vent switch (lower right) a minimum of 5 times, while not in a menu already.
-        stopEffect(S_BEEPS);
-        playEffect(S_BEEPS);
-
-        stopEffect(S_VOICE_EEPROM_CONFIG_MENU);
-        playEffect(S_VOICE_EEPROM_CONFIG_MENU);
-
-        DEVICE_ACTION_STATUS = ACTION_CONFIG_EEPROM_MENU;
-        ventSwitchedCount = 0; // We did it, now clear the count.
-        ms_settings_blink.start(i_settings_blink_delay);
-        deviceEnterMenu();
-        return;
-      }
-
       // Determine if the special grip button has been pressed (eg. firing, menu operation);
       gripButtonCheck();
 
@@ -414,10 +509,6 @@ void checkDeviceAction() {
       // Respond to button actions based on menu level/option.
       settingsMenuCheck();
     break;
-
-    case ACTION_CONFIG_EEPROM_MENU:
-      // TODO: Re-introduce Config EEPROM menu options for this device
-    break;
   }
 
   if(b_firing && DEVICE_ACTION_STATUS != ACTION_FIRING) {
@@ -427,10 +518,6 @@ void checkDeviceAction() {
 }
 
 void encoderChangedMenuOption() {
-  if(encoder.STATE == ENCODER_IDLE) {
-    return; // Leave if no change has occurred.
-  }
-
   if(switch_intensify.on() || switch_grip.on()) {
     // If either of these buttons is pressed while turning the rotary dial,
     // then we assume the user is not actually intending to change menu level.
@@ -438,15 +525,23 @@ void encoderChangedMenuOption() {
   }
 
   // Handle menu navigation based on rotation of the encoder
-  if(encoder.STATE == ENCODER_CW) {
-    if(decreaseOptionLevel()) {
-      bargraph.showBars(MENU_OPTION_LEVEL); // Update change to menu.
-    }
-  }
-  else if(encoder.STATE == ENCODER_CCW) {
-    if(increaseOptionLevel()) {
-      bargraph.showBars(MENU_OPTION_LEVEL); // Update change to menu.
-    }
+  switch(encoder.STATE) {
+    case ENCODER_CW:
+      if(decreaseOptionLevel()) {
+        bargraph.showBars(MENU_OPTION_LEVEL); // Update change to menu.
+      }
+    break;
+
+    case ENCODER_CCW:
+      if(increaseOptionLevel()) {
+        bargraph.showBars(MENU_OPTION_LEVEL); // Update change to menu.
+      }
+    break;
+
+    case ENCODER_IDLE:
+    default:
+      return; // Leave if no change has occurred.
+    break;
   }
 }
 
@@ -480,6 +575,7 @@ void checkEncoderAction() {
         case ACTION_ACTIVATE:
         case ACTION_FIRING:
         case ACTION_ERROR:
+        default:
           // No-Op.
         break;
 
@@ -489,11 +585,6 @@ void checkEncoderAction() {
 
           // Respond to button actions based on menu level/option.
           settingsMenuCheck();
-        break;
-
-        case ACTION_CONFIG_EEPROM_MENU:
-          // Perform menu and option navigation.
-          encoderChangedMenuOption();
         break;
       }
     break; // MODE_OFF

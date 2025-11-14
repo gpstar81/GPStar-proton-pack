@@ -7,6 +7,8 @@
 BINDIR="../binaries"
 SRCDIR="../source"
 PROJECT_DIR="$SRCDIR/Attenuator"
+ASSETS_DIR="$PROJECT_DIR/assets"
+GZIP_EXTS="svg,ico,stl,min.js,html,css,js"
 
 mkdir -p ${BINDIR}/attenuator/extras
 
@@ -45,7 +47,7 @@ fi
 
 # Copy the new firmware to the expected binaries directory
 if [ -f ${PROJECT_DIR}/.pio/build/esp32dev/firmware.bin ]; then
-  mv ${PROJECT_DIR}/.pio/build/esp32dev/firmware.bin ${BINDIR}/attenuator/Attenuator-Standalone.bin
+  mv ${PROJECT_DIR}/.pio/build/esp32dev/firmware.bin ${BINDIR}/attenuator/extras/Attenuator-Standalone.bin
   echo "Firmware copy completed."
 fi
 echo ""

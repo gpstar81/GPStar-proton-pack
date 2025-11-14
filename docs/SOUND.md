@@ -16,7 +16,7 @@ The compatibility matrix below notes whether a device is compatible with major v
 
 | Audio Device | v1.x | v2.x | v3.x | v4.x | v5.0.x | v5.1.x | v5.4.x | v6.0.x |
 |-------------------|------|------|------|------|------|------|------|------|
-| Robertsonics WAV Trigger  | v134 | v134 | v140 | v140 | v140 | v140 | v140 | v140 |
+| Robertsonics WAV Trigger | v134 | v134 | v140 | v140 | v140 | v140 | v140 | v140 |
 | <span class="logo-icon-tiny"></span> GPStar Audio | &mdash; | &mdash; | &mdash; | &mdash; | v100<sup>1</sup> | v102<sup>2</sup> | v103<sup>3</sup> | v104<sup>4</sup> |
 
 <sup>1</sup> All initial orders for GPStar Audio controllers shipped with v100 firmware which delivers all of the basic functionality needed for a Pack+Wand operation.
@@ -29,7 +29,18 @@ The compatibility matrix below notes whether a device is compatible with major v
 
 **Firmware Updates**
 
-All firmware files for the audio controllers can be found in the [extras/sound/](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/sound/) folder. Files are grouped by their device name, and a firmware update tool for the GPStar Audio firmware is available for ease of flashing that device.
+Use the FTDI to USB programming cable that came with the first generation GPStar kits or any other suitable FTDI 5V basic serial connector. The UART Pins on the PCB should align with with the standard wire order for FTDI-to-USB cables which use a single Dupont 6-pin connector. Observe these common colours and notes to ensure proper orientation:
+
+**IMPORTANT: Beside the connection on the GPStar Audio board, there is a small black switch, move it to the LOAD position before connecting the cable.**
+
+**After flashing, please move the switch back to the BOOT position.**
+
+### GPStar Audio Firmware Flasher
+
+- [Windows (x64 only)](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/sound/GPStar%20Audio/gpstarAudioFirmwareFlasher.exe?raw=1)
+- [MacOS Intel](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/sound/GPStar%20Audio/GPStar-Audio-Firmware-Flasher-Mac.dmg?raw=1) (Must enable Rosetta for Apple Silicon CPUs)
+
+![UART GPStar Audio Connection](images/uart_gpstar_audio.jpg)
 
 ## Pack Audio
 
@@ -77,7 +88,7 @@ The following items are optional and may not even be necessary depending on the 
 
 **Note:** As of mid-2024 all kits which include an amplifier will ship with the new GPStar Amplifier which is a high-powered Class D stereo amp. This device is very similar to the Drok amplifier noted, though it includes more 12V pass-through options for chaining other devices which need the full power offered by the Talentcell battery. It also includes a built-in 5V regulator which may be used for powering other kit devices via JST-XH connectors.
 
-The placement of your speakers is up to you. Though it is possible to mount a 3" speaker in the location used for the original pack speaker, a mount should be used to help offload some of the added weight from that device. And if the stock vibration motor is not important (as the solution above will provide some physical feedback in that regard), removal of that device opens up a cavity just behind and above the cross-bar of a standard ALICE frame for another speaker. For the latter, it will be necessary to carefully  drill some small holes into the motherboard of the pack for sound output.
+The placement of your speakers is up to you. Though it is possible to mount a 3" speaker in the location used for the original pack speaker, a mount should be used to help offload some of the added weight from that device. And if the stock vibration motor is not important (as the solution above will provide some physical feedback in that regard), removal of that device opens up a cavity just behind and above the cross-bar of a standard ALICE frame for another speaker. For the latter, it will be necessary to carefully drill some small holes into the motherboard of the pack for sound output.
 
 Shown below is an example of how a pair of stereo speakers may be mounted inside of the pack. The upper speaker is located where the original speaker was mounted, while the lower speaker occupies the space where the vibration motor casing was secured into the pack. Note the WAV Trigger and amplifier as shown here are mounted in the space normally occupied by the D-cell battery compartment, primarily so the volume control for the amplifier can be accessed from the service door when the pack is reassembled. That portion of the motherboard would need to be partially or fully removed if you wish to use this space as shown.
 

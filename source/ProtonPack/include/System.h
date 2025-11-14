@@ -19,6 +19,29 @@
 
 #pragma once
 
+#ifdef ESP32
+  // Declare external reference to WirelessManager pointer (allocated in main.cpp after NVS init)
+  extern WirelessManager* wirelessMgr;
+#endif
+
+// Forward function declarations.
+void updateLEDs();
+void executeCommand(uint8_t i_command, uint16_t i_value); // From Command.h
+
+void sanitizeCyclotronMultipliers() {
+  // Cyclotron multiplier: must be between 1 and 4
+  if(i_cyclotron_multiplier < 1) i_cyclotron_multiplier = 1;
+  if(i_cyclotron_multiplier > 4) i_cyclotron_multiplier = 4;
+
+  // Cyclotron switch LED multiplier: must be between 1 and 4
+  if(i_cyclotron_switch_led_multiplier < 1) i_cyclotron_switch_led_multiplier = 1;
+  if(i_cyclotron_switch_led_multiplier > 4) i_cyclotron_switch_led_multiplier = 4;
+
+  // Powercell multiplier: must be between 1 and 4
+  if(i_powercell_multiplier < 1) i_powercell_multiplier = 1;
+  if(i_powercell_multiplier > 4) i_powercell_multiplier = 4;
+}
+
 void innerCyclotronCakeOff() {
   for(uint8_t i = i_ic_cake_start; i <= i_ic_cake_end; i++) {
     cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_INNER, C_BLACK);
@@ -91,7 +114,7 @@ void vibrationOff() {
 }
 
 void ventLightLEDW(bool b_on) {
-  if(b_on && ((b_wand_firing && b_smoke_continuous_level[i_wand_power_level - 1]) || b_overheating || b_alarm)) {
+  if(b_on && ((b_wand_firing && b_smoke_continuous_level[i_wand_power_level - 1]) || b_overheating || b_pack_alarm)) {
     digitalWriteFast(NFILTER_LED_PIN, HIGH);
   }
   else {
@@ -103,7 +126,7 @@ void ventLight(bool b_on) {
   uint8_t i_colour_scheme = getDeviceColour(VENT_LIGHT, STREAM_MODE, true);
   b_vent_light_on = b_on;
 
-  if(b_on) {
+  if(b_on && b_cyclotron_lid_on) {
     // If doing firing smoke effects, let's change the light colours.
     if((b_wand_firing && b_smoke_continuous_level[i_wand_power_level - 1]) || b_overheating) {
       if(STREAM_MODE == PROTON) {
@@ -139,7 +162,7 @@ void ventLight(bool b_on) {
       // If continuous fire smoke is disabled in the current power level, do not turn on the N-Filter LEDs.
       i_colour_scheme = C_BLACK;
     }
-    else if(b_alarm) {
+    else if(b_pack_alarm) {
       i_colour_scheme = C_RED;
     }
 
@@ -157,8 +180,12 @@ void ventLight(bool b_on) {
 // This function handles returning ring-simulated Cyclotron lookup table values.
 uint8_t cyclotronLookupTable(uint8_t index) {
   switch(i_cyclotron_leds) {
+    case QUAD_CYCLOTRON_LED_COUNT:
+      // DIY 4 LED array.
+      return PROGMEM_READU8(i_cyclotron_4led_matrix[index]);
+    break;
+
     case HASLAB_CYCLOTRON_LED_COUNT:
-    default:
       // Hasbro 12 LED array.
       return PROGMEM_READU8(i_cyclotron_12led_matrix[index]);
     break;
@@ -168,8 +195,9 @@ uint8_t cyclotronLookupTable(uint8_t index) {
       return PROGMEM_READU8(i_cyclotron_20led_matrix[index]);
     break;
 
-    case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
-      // Frutto Max 36 LED array.
+    case MAX_CYCLOTRON_LED_COUNT:
+    default:
+      // Frutto/GPStar 36 LED array.
       return PROGMEM_READU8(i_cyclotron_36led_matrix[index]);
     break;
 
@@ -431,7 +459,7 @@ void packAlarm() {
 
 // Returns whether we should be using the slime cyclotron effect or not.
 bool usingSlimeCyclotron() {
-  if(STREAM_MODE == SLIME && b_cyclotron_colour_toggle) {
+  if(STREAM_MODE == SLIME && b_cyclotron_colour_toggle && b_cyclotron_lid_on) {
     if(i_cyclotron_leds == HASLAB_CYCLOTRON_LED_COUNT && !b_cyclotron_haslab_chsv_colour_change) {
       return false;
     }
@@ -566,15 +594,23 @@ void innerCyclotronRingUpdate(uint16_t iRampDelay) {
 
       if(i_cyclotron_multiplier > 1) {
         if(i_cyclotron_multiplier > 4) {
-          iRampDelay = iRampDelay - 4;
+          if(iRampDelay - 4 > 0) {
+            iRampDelay = iRampDelay - 4;
+          }
+          else {
+            iRampDelay = 0;
+          }
+        }
+        else if(iRampDelay - i_cyclotron_multiplier > 0) {
+          iRampDelay = iRampDelay - i_cyclotron_multiplier;
         }
         else {
-          iRampDelay = iRampDelay - i_cyclotron_multiplier;
+          iRampDelay = 1;
         }
       }
 
       if(iRampDelay < 1 || iRampDelay > i_inner_current_ramp_speed) {
-        iRampDelay = 1;
+        iRampDelay = 1; // Ensure a sane minimum is set (must be non-zero).
       }
 
       ms_cyclotron_ring.start(iRampDelay);
@@ -586,7 +622,7 @@ void innerCyclotronRingUpdate(uint16_t iRampDelay) {
       case 7:
       case 6:
         // A value of 6 should be the max, but just in case this value goes higher let's catch those possible cases.
-        if(iRampDelay - 4 < iRampDelay) {
+        if(iRampDelay - 4 > 2) {
           iRampDelay = iRampDelay - 4;
         }
         else {
@@ -596,7 +632,7 @@ void innerCyclotronRingUpdate(uint16_t iRampDelay) {
 
       case 5:
       case 4:
-        if(iRampDelay - 3 < iRampDelay) {
+        if(iRampDelay - 3 > 2) {
           iRampDelay = iRampDelay - 3;
         }
         else {
@@ -606,7 +642,7 @@ void innerCyclotronRingUpdate(uint16_t iRampDelay) {
 
       case 3:
       case 2:
-        if(iRampDelay - 2 < iRampDelay) {
+        if(iRampDelay - 2 > 2) {
           iRampDelay = iRampDelay - 2;
         }
         else {
@@ -617,18 +653,13 @@ void innerCyclotronRingUpdate(uint16_t iRampDelay) {
       case 1:
       default:
         // A value of 1 is considered the "normal" speed so treat it as the default.
-        if(iRampDelay - 1 < iRampDelay) {
+        if(iRampDelay - 1 > 2) {
           iRampDelay = iRampDelay - 1;
         }
         else {
           iRampDelay = 2;
         }
       break;
-
-      case 0:
-        // We should never have this value, but just in case make sure there's a known delay calculated.
-        iRampDelay = iRampDelay / i_cyclotron_multiplier;
-        break;
     }
 
     if(iRampDelay < 2) {
@@ -714,8 +745,9 @@ void cyclotronLidLedsOff() {
 }
 
 void resetCyclotronState() {
-  // Turn off optional N-Filter LED.
-  digitalWriteFast(NFILTER_LED_PIN, LOW);
+  // Turn off optional N-Filter LEDs.
+  ventLight(false);
+  ventLightLEDW(false);
 
   // Stop the slime Cyclotron effect timer.
   ms_cyclotron_slime_effect.stop();
@@ -737,7 +769,7 @@ void resetCyclotronState() {
   }
 
   // Tell the Inner Cyclotron to turn off the LEDs.
-  if(b_cyclotron_lid_on || (!b_alarm || PACK_STATE == MODE_OFF)) {
+  if(b_cyclotron_lid_on || !b_pack_alarm || PACK_STATE == MODE_OFF) {
     innerCyclotronCakeOff();
     innerCyclotronCavityOff();
   }
@@ -824,9 +856,12 @@ void playVentSounds() {
   playEffect(S_SPARKS_LOOP);
 }
 
-void packStartup(bool firstStart) {
+void packStartup(bool fullStartup) {
   PACK_STATE = MODE_ON;
   PACK_ACTION_STATE = ACTION_IDLE;
+
+  // Reset the vibration switch counter.
+  vibrationSwitchedCount = 0;
 
   // Stop the Brass Pack shutdown timer in case it's running.
   ms_delay_post.stop();
@@ -841,15 +876,15 @@ void packStartup(bool firstStart) {
 
     // Tell the wand and add-on device the pack ribbon cable alarm is on.
     packSerialSend(P_ALARM_ON);
-    attenuatorSend(A_ALARM_ON);
+    attenuatorSerialSend(A_ALARM_ON);
   }
   else {
-    if(!firstStart) {
+    if(!fullStartup) {
       // Tell the wand the pack alarm is off.
       packSerialSend(P_ALARM_OFF);
 
       // Tell any add-on devices that the alarm is off.
-      attenuatorSend(A_ALARM_OFF);
+      attenuatorSerialSend(A_ALARM_OFF);
     }
 
     // Start up the Cyclotron motor, if enabled.
@@ -878,7 +913,7 @@ void packStartup(bool firstStart) {
 
       case SYSTEM_AFTERLIFE:
       default:
-        if(firstStart) {
+        if(fullStartup) {
           if(STREAM_MODE == SLIME) {
             playEffect(S_AFTERLIFE_PACK_STARTUP, false, i_volume_effects - 30);
             playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects - 40, true, 18000);
@@ -915,7 +950,7 @@ void packStartup(bool firstStart) {
           ms_idle_fire_fade.start(0);
         }
         else {
-          if(firstStart) {
+          if(fullStartup) {
             if(STREAM_MODE == SLIME) {
               playEffect(S_FROZEN_EMPIRE_PACK_STARTUP, false, i_volume_effects - 30);
               playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects - 40, true, 10000);
@@ -1107,9 +1142,6 @@ void packShutdown() {
     // Turn off the fans.
     fanNFilter(false);
 
-    // Turn off the Cyclotron auto speed timer.
-    ms_cyclotron_auto_speed_timer.stop();
-
     // Reset vent sounds flag.
     b_vent_sounds = true;
   }
@@ -1160,7 +1192,7 @@ void packShutdown() {
     playEffect(S_QUICK_VENT_CLOSE);
   }
 
-  if(!b_alarm) {
+  if(!b_pack_alarm) {
     switch(SYSTEM_YEAR) {
       case SYSTEM_1984:
         playEffect(S_PACK_SHUTDOWN);
@@ -1200,26 +1232,26 @@ void packShutdown() {
   switch(SYSTEM_YEAR) {
     case SYSTEM_1984:
       stopEffect(S_GB1_1984_BOOT_UP);
-      stopEffect(S_GB1_1984_PACK_LOOP);
+      fadeoutEffect(S_GB1_1984_PACK_LOOP);
     break;
 
     case SYSTEM_1989:
       stopEffect(S_GB2_PACK_START);
-      stopEffect(S_GB2_PACK_LOOP);
+      fadeoutEffect(S_GB2_PACK_LOOP);
     break;
 
     case SYSTEM_AFTERLIFE:
     default:
       stopEffect(S_BOOTUP);
       stopEffect(S_AFTERLIFE_PACK_STARTUP);
-      stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
+      fadeoutEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
     break;
 
     case SYSTEM_FROZEN_EMPIRE:
       stopEffect(S_BOOTUP);
       stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
       stopEffect(S_FROZEN_EMPIRE_PACK_STARTUP);
-      stopEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP);
+      fadeoutEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP);
     break;
   }
 }
@@ -1239,7 +1271,7 @@ void powercellOff() {
 }
 
 void innerCyclotronLEDPanelOff() {
-  if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+  if(INNER_CYC_PANEL_MODE != PANEL_DISABLED) {
     if(b_cyclotron_lid_on) {
       // All lights turn off while the cyclotron lid is on.
       for(uint8_t i = i_ic_panel_start; i <= i_ic_panel_end; i++) {
@@ -1256,6 +1288,7 @@ void innerCyclotronLEDPanelOff() {
 }
 
 void cyclotronSwitchLEDOff() {
+#ifndef ESP32
   digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, LOW);
   digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, LOW);
 
@@ -1269,7 +1302,7 @@ void cyclotronSwitchLEDOff() {
     digitalWriteFast(YEAR_TOGGLE_LED_PIN, LOW);
     digitalWriteFast(VIBRATION_TOGGLE_LED_PIN, LOW);
   }
-
+#endif
   i_cyclotron_sw_led = 0;
 
   innerCyclotronLEDPanelOff();
@@ -1277,6 +1310,7 @@ void cyclotronSwitchLEDOff() {
 
 void packOffReset() {
   powercellOff();
+  
   cyclotronSwitchLEDOff();
 
   ms_overheating_length.stop();
@@ -1288,6 +1322,7 @@ void packOffReset() {
   b_reset_start_led = true; // Reset the start LED of the Cyclotron.
 
   resetCyclotronState();
+
   resetRampUp();
 
   // Update Power Cell LED timer delay and optional Cyclotron LED switch plate LED timer delays.
@@ -1322,18 +1357,18 @@ void packOffReset() {
 
   if(b_pack_shutting_down) {
     b_pack_shutting_down = false;
-
+    attenuatorSerialSend(A_PACK_OFF, b_pack_shutting_down ? 1 : 0);
     clearCyclotronFades();
   }
 
   // Tell the wand and any add-on devices that the alarm is off.
-  if(b_alarm) {
-    b_alarm = false;
+  if(b_pack_alarm) {
+    b_pack_alarm = false;
     // Tell the wand that the alarm is off.
     packSerialSend(P_ALARM_OFF);
 
     // Tell any add-on devices that the alarm is off.
-    attenuatorSend(A_ALARM_OFF);
+    attenuatorSerialSend(A_ALARM_OFF);
   }
 }
 
@@ -1349,7 +1384,7 @@ void setYearModeByToggle() {
 
         // Tell the wand/attenuator to switch to 1989 mode.
         packSerialSend(P_YEAR_1989);
-        attenuatorSend(A_YEAR_1989);
+        attenuatorSerialSend(A_YEAR_1989);
 
         // Play audio cue confirming the change. Only play the audio queue when the user physically flicks the switch.
         if(switch_mode.isPressed() || switch_mode.isReleased()) {
@@ -1362,7 +1397,7 @@ void setYearModeByToggle() {
 
         // Tell the wand/attenuator to switch to 1984 mode.
         packSerialSend(P_YEAR_1984);
-        attenuatorSend(A_YEAR_1984);
+        attenuatorSerialSend(A_YEAR_1984);
 
         // Play audio cue confirming the change. Only play the audio queue when the user physically flicks the switch.
         if(switch_mode.isPressed() || switch_mode.isReleased()) {
@@ -1380,7 +1415,7 @@ void setYearModeByToggle() {
 
         // Tell the wand/attenuator to switch to Afterlife mode.
         packSerialSend(P_YEAR_AFTERLIFE);
-        attenuatorSend(A_YEAR_AFTERLIFE);
+        attenuatorSerialSend(A_YEAR_AFTERLIFE);
 
         // Play audio cue confirming the change. Only play the audio queue when the user physically flicks the switch.
         if(switch_mode.isPressed() || switch_mode.isReleased()) {
@@ -1393,7 +1428,7 @@ void setYearModeByToggle() {
 
         // Tell the wand/attenuator to switch to Afterlife mode.
         packSerialSend(P_YEAR_FROZEN_EMPIRE);
-        attenuatorSend(A_YEAR_FROZEN_EMPIRE);
+        attenuatorSerialSend(A_YEAR_FROZEN_EMPIRE);
 
         // Play audio cue confirming the change. Only play the audio queue when the user physically flicks the switch.
         if(switch_mode.isPressed() || switch_mode.isReleased()) {
@@ -1410,7 +1445,7 @@ void setYearModeByToggle() {
 
 // LEDs for the 1984/2021 and vibration switches.
 void cyclotronSwitchPlateLEDs() {
-  bool b_brass_pack_effect_active = b_brass_pack_sound_loop || (SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && (b_ramp_down || b_alarm || b_wand_mash_lockout) && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM));
+  bool b_brass_pack_effect_active = b_brass_pack_sound_loop || (SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && (b_ramp_down || b_pack_alarm || b_wand_mash_lockout) && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM));
 
   if(!b_cyclotron_lid_on && !b_brass_pack_effect_active) {
     uint8_t i_brightness = getBrightness(i_cyclotron_panel_brightness);
@@ -1418,9 +1453,10 @@ void cyclotronSwitchPlateLEDs() {
     // Change colors for year theme switch indicator.
     if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
       if(ms_cyclotron_switch_plate_leds.remaining() < i_cyclotron_switch_plate_leds_delay / 2) {
+#ifndef ESP32
         digitalWriteFast(YEAR_TOGGLE_LED_PIN, HIGH);
-
-        if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+#endif
+        if(INNER_CYC_PANEL_MODE != PANEL_DISABLED) {
           if(INNER_CYC_PANEL_MODE == PANEL_RGB_STATIC) {
             // Static LED will always light green.
             cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_GREEN, i_brightness);
@@ -1438,17 +1474,19 @@ void cyclotronSwitchPlateLEDs() {
         }
       }
       else {
+#ifndef ESP32
         digitalWriteFast(YEAR_TOGGLE_LED_PIN, LOW);
-
-        if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+#endif
+        if(INNER_CYC_PANEL_MODE != PANEL_DISABLED) {
           cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
         }
       }
     }
     else {
+#ifndef ESP32
       digitalWriteFast(YEAR_TOGGLE_LED_PIN, HIGH);
-
-      if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+#endif
+      if(INNER_CYC_PANEL_MODE != PANEL_DISABLED) {
         if(INNER_CYC_PANEL_MODE == PANEL_RGB_STATIC || SYSTEM_YEAR == SYSTEM_AFTERLIFE) {
           // If using static LEDs or in Afterlife, LED will light green.
           cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_GREEN, i_brightness);
@@ -1463,34 +1501,38 @@ void cyclotronSwitchPlateLEDs() {
     // Change colors for vibration switch indicator.
     if(b_vibration_switch_on) {
       if(ms_cyclotron_switch_plate_leds.remaining() < i_cyclotron_switch_plate_leds_delay / 2) {
+#ifndef ESP32
         digitalWriteFast(VIBRATION_TOGGLE_LED_PIN, HIGH);
-
-        if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+#endif
+        if(INNER_CYC_PANEL_MODE != PANEL_DISABLED) {
           cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_ORANGE, i_brightness);
         }
       }
       else {
+#ifndef ESP32
         digitalWriteFast(VIBRATION_TOGGLE_LED_PIN, LOW);
-
-        if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+#endif
+        if(INNER_CYC_PANEL_MODE != PANEL_DISABLED) {
           cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
         }
       }
     }
     else {
+#ifndef ESP32
       digitalWriteFast(VIBRATION_TOGGLE_LED_PIN, HIGH);
-
-      if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+#endif
+      if(INNER_CYC_PANEL_MODE != PANEL_DISABLED) {
         cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_ORANGE, i_brightness);
       }
     }
   }
   else {
     // Keep the Cyclotron switch LEDs off when the lid is on.
+#ifndef ESP32
     digitalWriteFast(YEAR_TOGGLE_LED_PIN, LOW);
     digitalWriteFast(VIBRATION_TOGGLE_LED_PIN, LOW);
-
-    if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+#endif
+    if(INNER_CYC_PANEL_MODE != PANEL_DISABLED) {
       cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
       cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
     }
@@ -1536,7 +1578,7 @@ void spectralLightsOn() {
     }
   }
 
-  attenuatorSend(A_SPECTRAL_COLOUR_DATA);
+  attenuatorSerialSend(A_SPECTRAL_COLOUR_DATA);
 }
 
 void checkSwitches() {
@@ -1546,8 +1588,10 @@ void checkSwitches() {
   switch_mode.loop();
   switch_vibration.loop();
   switch_cyclotron_lid.loop();
+#ifndef ESP32
   switch_cyclotron_direction.loop();
   switch_smoke.loop();
+#endif
 
   cyclotronSwitchPlateLEDs();
 
@@ -1586,7 +1630,6 @@ void checkSwitches() {
     stopEffect(S_VENT_DRY);
 
     playEffect(S_CLICK);
-
     playEffect(S_VENT_DRY);
 
     // Play some spark sounds if the pack is running and the lid is put back on.
@@ -1608,7 +1651,7 @@ void checkSwitches() {
 
       // Tell the connected devices.
       packSerialSend(P_CYCLOTRON_LID_ON);
-      attenuatorSend(A_CYCLOTRON_LID_ON);
+      attenuatorSerialSend(A_CYCLOTRON_LID_ON);
 
       // Turn off Inner Cyclotron LEDs.
       innerCyclotronCakeOff();
@@ -1625,7 +1668,7 @@ void checkSwitches() {
 
       // Tell the connected devices.
       packSerialSend(P_CYCLOTRON_LID_OFF);
-      attenuatorSend(A_CYCLOTRON_LID_OFF);
+      attenuatorSerialSend(A_CYCLOTRON_LID_OFF);
 
       // Make sure the Inner Cyclotron turns on if we are in the EEPROM LED menu.
       if(b_spectral_lights_on) {
@@ -1634,6 +1677,7 @@ void checkSwitches() {
     }
   }
 
+#ifndef ESP32
   // Cyclotron direction toggle switch.
   if(switch_cyclotron_direction.isPressed() || switch_cyclotron_direction.isReleased()) {
     stopEffect(S_BEEPS);
@@ -1690,6 +1734,7 @@ void checkSwitches() {
       packSerialSend(P_SMOKE_ENABLED);
     }
   }
+#endif
 
   // Vibration toggle switch.
   if(switch_vibration.isPressed() || switch_vibration.isReleased()) {
@@ -1697,6 +1742,10 @@ void checkSwitches() {
     stopEffect(S_VOICE_VIBRATION_DISABLED);
 
     if(switch_vibration.getState() == LOW) {
+      if(PACK_STATE == MODE_OFF && switch_alarm.getState() == HIGH) {
+        vibrationSwitchedCount++;
+      }
+
       if(!b_vibration_switch_on) {
         // Tell the wand to enable vibration.
         packSerialSend(P_VIBRATION_ENABLED);
@@ -1727,22 +1776,30 @@ void checkSwitches() {
     b_switch_mode_override = false;
   }
 
-  if(b_use_ribbon_cable && (switch_alarm.isPressed() || switch_alarm.isReleased())) {
-    // Play a sound when the ribbon cable is attached or detached.
-    if(ribbonCableAttached()) {
-      // Only play this sound if the pack is off to match Frozen Empire.
-      if(PACK_STATE == MODE_OFF) {
-        stopEffect(S_CLICK);
-        playEffect(S_CLICK);
+  if(switch_alarm.isPressed() || switch_alarm.isReleased()) {
+    // Reset the vibration switch counter.
+    vibrationSwitchedCount = 0;
+
+    if(b_use_ribbon_cable) {
+      // Play a sound when the ribbon cable is attached or detached.
+      if(ribbonCableAttached()) {
+        // Only play this sound if the pack is off to match Frozen Empire.
+        if(PACK_STATE == MODE_OFF) {
+          stopEffect(S_CLICK);
+          playEffect(S_CLICK);
+        }
       }
-    }
-    else {
-      stopEffect(S_RIBBON_CABLE_DETACH);
-      playEffect(S_RIBBON_CABLE_DETACH);
+      else {
+        stopEffect(S_RIBBON_CABLE_DETACH);
+        playEffect(S_RIBBON_CABLE_DETACH);
+      }
     }
   }
 
   if(switch_power.isPressed() || switch_power.isReleased()) {
+    // Reset the vibration switch counter.
+    vibrationSwitchedCount = 0;
+
     // When the ion arm switch is used to turn the Proton Pack on, play a extra sound effect in Afterlife or Frozen Empire.
     switch(SYSTEM_YEAR) {
       case SYSTEM_AFTERLIFE:
@@ -1762,6 +1819,8 @@ void checkSwitches() {
     }
 
     if(switch_power.getState() == LOW) {
+      RED_SWITCH_MODE = SWITCH_ON;
+
       // Turn the pack on if switch is moved to on position in Mode Super Hero.
       if(SYSTEM_MODE == MODE_SUPER_HERO && PACK_STATE == MODE_OFF) {
         PACK_ACTION_STATE = ACTION_ACTIVATE;
@@ -1770,14 +1829,17 @@ void checkSwitches() {
       // Tell the Neutrona Wand that power to the Proton Pack is on.
       if(b_wand_connected) {
         packSerialSend(P_ION_ARM_SWITCH_ON);
+        RED_SWITCH_MODE = SWITCH_ON;
       }
 
       // Tell the Attenuator or any other device that the power to the Proton Pack is on.
       if(b_attenuator_connected) {
-        attenuatorSend(A_ION_ARM_SWITCH_ON);
+        attenuatorSerialSend(A_ION_ARM_SWITCH_ON);
       }
     }
     else {
+      RED_SWITCH_MODE = SWITCH_OFF;
+
       if(PACK_STATE == MODE_ON) {
         PACK_ACTION_STATE = ACTION_OFF;
       }
@@ -1789,7 +1851,7 @@ void checkSwitches() {
 
       // Tell the Attenuator or any other device that the power to the Proton Pack is off.
       if(b_attenuator_connected) {
-        attenuatorSend(A_ION_ARM_SWITCH_OFF);
+        attenuatorSerialSend(A_ION_ARM_SWITCH_OFF);
       }
     }
   }
@@ -1811,7 +1873,7 @@ void checkSwitches() {
 
               SYSTEM_YEAR = SYSTEM_1984;
 
-              attenuatorSend(A_YEAR_1984);
+              attenuatorSerialSend(A_YEAR_1984);
             break;
 
             case SYSTEM_1989:
@@ -1820,7 +1882,7 @@ void checkSwitches() {
 
               SYSTEM_YEAR = SYSTEM_1989;
 
-              attenuatorSend(A_YEAR_1989);
+              attenuatorSerialSend(A_YEAR_1989);
             break;
 
             case SYSTEM_FROZEN_EMPIRE:
@@ -1829,7 +1891,7 @@ void checkSwitches() {
 
               SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
 
-              attenuatorSend(A_YEAR_FROZEN_EMPIRE);
+              attenuatorSerialSend(A_YEAR_FROZEN_EMPIRE);
             break;
 
             case SYSTEM_AFTERLIFE:
@@ -1840,7 +1902,7 @@ void checkSwitches() {
               SYSTEM_YEAR = SYSTEM_AFTERLIFE;
               SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
 
-              attenuatorSend(A_YEAR_AFTERLIFE);
+              attenuatorSerialSend(A_YEAR_AFTERLIFE);
             break;
           }
 
@@ -1859,16 +1921,17 @@ void cyclotronSwitchLEDUpdate() {
     uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_PANEL, STREAM_MODE, b_cyclotron_colour_toggle);
     uint8_t i_brightness = getBrightness(i_cyclotron_panel_brightness);
 
-    if(b_alarm) {
+    if(b_pack_alarm) {
       if(i_cyclotron_sw_led > 0) {
+#ifndef ESP32
         digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, HIGH);
         digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, HIGH);
         digitalWriteFast(CYCLOTRON_SWITCH_LED_Y1_PIN, HIGH);
         digitalWriteFast(CYCLOTRON_SWITCH_LED_Y2_PIN, HIGH);
         digitalWriteFast(CYCLOTRON_SWITCH_LED_G1_PIN, HIGH);
         digitalWriteFast(CYCLOTRON_SWITCH_LED_G2_PIN, HIGH);
-
-        if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+#endif
+        if(INNER_CYC_PANEL_MODE != PANEL_DISABLED) {
           if(INNER_CYC_PANEL_MODE == PANEL_RGB_STATIC) {
             cyclotron_leds[0] = getHueAsRGB(CYCLOTRON_PANEL, C_RED, i_brightness);
             cyclotron_leds[1] = getHueAsRGB(CYCLOTRON_PANEL, C_RED, i_brightness);
@@ -1886,14 +1949,15 @@ void cyclotronSwitchLEDUpdate() {
         }
       }
       else {
+#ifndef ESP32
         digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, LOW);
         digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, LOW);
         digitalWriteFast(CYCLOTRON_SWITCH_LED_Y1_PIN, LOW);
         digitalWriteFast(CYCLOTRON_SWITCH_LED_Y2_PIN, LOW);
         digitalWriteFast(CYCLOTRON_SWITCH_LED_G1_PIN, LOW);
         digitalWriteFast(CYCLOTRON_SWITCH_LED_G2_PIN, LOW);
-
-        if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+#endif
+        if(INNER_CYC_PANEL_MODE != PANEL_DISABLED) {
           for(uint8_t i = i_ic_panel_start; i <= i_ic_panel_end - 2; i++) {
             cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
           }
@@ -1903,14 +1967,15 @@ void cyclotronSwitchLEDUpdate() {
     else {
       switch(i_cyclotron_sw_led) {
         case 0: // All Off
+#ifndef ESP32
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y1_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y2_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G1_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G2_PIN, LOW);
-
-          if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+#endif
+          if(INNER_CYC_PANEL_MODE != PANEL_DISABLED) {
             // All but the switch LEDs are turned off
             for(uint8_t i = i_ic_panel_start; i <= i_ic_panel_end - 2; i++) {
               cyclotron_leds[i] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
@@ -1919,14 +1984,15 @@ void cyclotronSwitchLEDUpdate() {
         break;
 
         case 1: // Add Green/Bottom
+#ifndef ESP32
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y1_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y2_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G1_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G2_PIN, HIGH);
-
-          if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+#endif
+          if(INNER_CYC_PANEL_MODE != PANEL_DISABLED) {
             if(INNER_CYC_PANEL_MODE == PANEL_RGB_STATIC) {
               cyclotron_leds[4] = getHueAsRGB(CYCLOTRON_PANEL, C_GREEN, i_brightness);
               cyclotron_leds[5] = getHueAsRGB(CYCLOTRON_PANEL, C_GREEN, i_brightness);
@@ -1939,14 +2005,15 @@ void cyclotronSwitchLEDUpdate() {
         break;
 
         case 2: // Add Yellow/Middle
+#ifndef ESP32
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y1_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y2_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G1_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G2_PIN, HIGH);
-
-          if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+#endif
+          if(INNER_CYC_PANEL_MODE != PANEL_DISABLED) {
             if(INNER_CYC_PANEL_MODE == PANEL_RGB_STATIC) {
               cyclotron_leds[2] = getHueAsRGB(CYCLOTRON_PANEL, C_ORANGE, i_brightness);
               cyclotron_leds[3] = getHueAsRGB(CYCLOTRON_PANEL, C_ORANGE, i_brightness);
@@ -1959,14 +2026,15 @@ void cyclotronSwitchLEDUpdate() {
         break;
 
         case 3: // Add Red/Top
+#ifndef ESP32
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y1_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y2_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G1_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G2_PIN, HIGH);
-
-          if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+#endif
+          if(INNER_CYC_PANEL_MODE != PANEL_DISABLED) {
             if(INNER_CYC_PANEL_MODE == PANEL_RGB_STATIC) {
               cyclotron_leds[0] = getHueAsRGB(CYCLOTRON_PANEL, C_RED, i_brightness);
               cyclotron_leds[1] = getHueAsRGB(CYCLOTRON_PANEL, C_RED, i_brightness);
@@ -1979,14 +2047,15 @@ void cyclotronSwitchLEDUpdate() {
         break;
 
         case 4: // All Illuminated (Pause)
+#ifndef ESP32
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y1_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y2_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G1_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G2_PIN, HIGH);
-
-          if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+#endif
+          if(INNER_CYC_PANEL_MODE != PANEL_DISABLED) {
             if(INNER_CYC_PANEL_MODE == PANEL_RGB_STATIC) {
               cyclotron_leds[0] = getHueAsRGB(CYCLOTRON_PANEL, C_RED, i_brightness);
               cyclotron_leds[1] = getHueAsRGB(CYCLOTRON_PANEL, C_RED, i_brightness);
@@ -2004,42 +2073,45 @@ void cyclotronSwitchLEDUpdate() {
         break;
 
         case 5: // Remove Green/Bottom
+#ifndef ESP32
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y1_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y2_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G1_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G2_PIN, LOW);
-
-          if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+#endif
+          if(INNER_CYC_PANEL_MODE != PANEL_DISABLED) {
             cyclotron_leds[4] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
             cyclotron_leds[5] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
           }
         break;
 
         case 6: // Remove Yellow/Middle
+#ifndef ESP32
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, HIGH);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y1_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y2_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G1_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G2_PIN, LOW);
-
-          if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+#endif
+          if(INNER_CYC_PANEL_MODE != PANEL_DISABLED) {
             cyclotron_leds[2] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
             cyclotron_leds[3] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
           }
         break;
 
         case 7:// Remove Red/Top
+#ifndef ESP32
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y1_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_Y2_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G1_PIN, LOW);
           digitalWriteFast(CYCLOTRON_SWITCH_LED_G2_PIN, LOW);
-
-          if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+#endif
+          if(INNER_CYC_PANEL_MODE != PANEL_DISABLED) {
             cyclotron_leds[0] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
             cyclotron_leds[1] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
           }
@@ -2053,7 +2125,7 @@ void cyclotronSwitchLEDLoop() {
   if(ms_cyclotron_switch_led.justFinished()) {
     if(!b_cyclotron_lid_on) {
       // Frozen Empire brass pack sound is handled here.
-      if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM) && !b_alarm && !b_overheating && !b_ramp_down && !b_wand_mash_lockout) {
+      if(SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM) && !b_pack_alarm && !b_overheating && !b_ramp_down && !b_wand_mash_lockout) {
         if(!b_brass_pack_sound_loop) {
           playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT, true, i_volume_effects, true, 2000);
           b_brass_pack_sound_loop = true;
@@ -2064,12 +2136,12 @@ void cyclotronSwitchLEDLoop() {
         b_brass_pack_sound_loop = false;
       }
 
-      if(b_brass_pack_sound_loop || (SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && (b_ramp_down || b_alarm || b_wand_mash_lockout) && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM))) {
+      if(b_brass_pack_sound_loop || (SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && (b_ramp_down || b_pack_alarm || b_wand_mash_lockout) && (STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL_CUSTOM))) {
         // Per user request, turn off the switch panel LEDs if brass pack is running.
         cyclotronSwitchLEDOff();
       }
       else {
-        if(b_alarm) {
+        if(b_pack_alarm) {
           if(i_cyclotron_sw_led > 0) {
             i_cyclotron_sw_led = 0;
           }
@@ -2102,7 +2174,7 @@ void cyclotronSwitchLEDLoop() {
     }
 
     // Setup the delays again.
-    uint16_t i_cyc_led_delay = i_cyclotron_switch_led_delay / i_cyclotron_switch_led_mulitplier;
+    uint16_t i_cyc_led_delay = i_cyclotron_switch_led_delay / i_cyclotron_switch_led_multiplier;
 
     switch(SYSTEM_YEAR) {
       case SYSTEM_AFTERLIFE:
@@ -2137,7 +2209,7 @@ void cyclotronSwitchLEDLoop() {
       break;
     }
 
-    if(b_alarm) {
+    if(b_pack_alarm) {
       i_cyc_led_delay = i_cyclotron_switch_led_delay * 2;
     }
 
@@ -2181,7 +2253,7 @@ void powercellRampDown() {
       break;
     }
 
-    if(b_alarm) {
+    if(b_pack_alarm) {
       i_pc_delay = i_powercell_delay * 3;
     }
 
@@ -2201,7 +2273,7 @@ void powercellLoop() {
     }
     else {
       if(!b_powercell_updating) {
-        if(((SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && b_cyclotron_lid_on && !b_wand_mash_lockout) || SYSTEM_YEAR == SYSTEM_AFTERLIFE) && i_powercell_led == 0 && !b_ramp_up && !b_ramp_down && !b_wand_firing && !b_alarm && !b_overheating) {
+        if(((SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && b_cyclotron_lid_on && !b_wand_mash_lockout) || SYSTEM_YEAR == SYSTEM_AFTERLIFE) && i_powercell_led == 0 && !b_ramp_up && !b_ramp_down && !b_wand_firing && !b_pack_alarm && !b_overheating) {
           if(!b_powercell_sound_loop) {
             playEffect(S_POWERCELL, true, i_volume_effects - i_wand_idle_level, true, 1400);
             b_powercell_sound_loop = true;
@@ -2211,7 +2283,7 @@ void powercellLoop() {
         powercellDraw(i_powercell_led); // Update starting at a specific LED.
 
         // Add a small delay to pause the Power Cell when all Power Cell LEDs are lit up, to match Afterlife and Frozen Empire.
-        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && !b_alarm && i_powercell_led == i_powercell_leds - 1) {
+        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) && !b_pack_alarm && i_powercell_led == i_powercell_leds - 1) {
           i_extra_delay = 350;
         }
 
@@ -2219,7 +2291,7 @@ void powercellLoop() {
       }
     }
 
-    if((b_overheating || b_ramp_down || b_ramp_up || b_alarm || (SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && (!b_cyclotron_lid_on || b_wand_mash_lockout))) && b_powercell_sound_loop) {
+    if((b_overheating || b_ramp_down || b_ramp_up || b_pack_alarm || (SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE && (!b_cyclotron_lid_on || b_wand_mash_lockout))) && b_powercell_sound_loop) {
       audio.trackLoop(S_POWERCELL, 0); // Turn off looping which stops the track.
       b_powercell_sound_loop = false;
     }
@@ -2244,7 +2316,7 @@ void powercellLoop() {
       break;
     }
 
-    if(b_alarm) {
+    if(b_pack_alarm) {
       i_pc_delay = i_powercell_delay * 5;
     }
 
@@ -2397,7 +2469,6 @@ uint8_t cyclotron84LookupTable(uint8_t index) {
   if(b_clockwise) {
     switch(i_cyclotron_leds) {
       case HASLAB_CYCLOTRON_LED_COUNT:
-      default:
         // 1984 CW 12 LED array.
         return PROGMEM_READU8(i_1984_cyclotron_12_leds_cw[index]);
       break;
@@ -2407,7 +2478,8 @@ uint8_t cyclotron84LookupTable(uint8_t index) {
         return PROGMEM_READU8(i_1984_cyclotron_20_leds_cw[index]);
       break;
 
-      case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+      case MAX_CYCLOTRON_LED_COUNT:
+      default:
         // 1984 CW 36 LED array.
         return PROGMEM_READU8(i_1984_cyclotron_36_leds_cw[index]);
       break;
@@ -2421,7 +2493,6 @@ uint8_t cyclotron84LookupTable(uint8_t index) {
   else {
     switch(i_cyclotron_leds) {
       case HASLAB_CYCLOTRON_LED_COUNT:
-      default:
         // 1984 CCW 12 LED array.
         return PROGMEM_READU8(i_1984_cyclotron_12_leds_ccw[index]);
       break;
@@ -2431,7 +2502,8 @@ uint8_t cyclotron84LookupTable(uint8_t index) {
         return PROGMEM_READU8(i_1984_cyclotron_20_leds_ccw[index]);
       break;
 
-      case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+      case MAX_CYCLOTRON_LED_COUNT:
+      default:
         // 1984 CCW 36 LED array.
         return PROGMEM_READU8(i_1984_cyclotron_36_leds_ccw[index]);
       break;
@@ -2535,7 +2607,7 @@ void slimeCyclotronEffect() {
         break;
       }
     }
-    else if(b_alarm || b_overheating || b_venting) {
+    else if(b_pack_alarm || b_overheating || b_venting) {
       i_random_lower = 20;
       i_random_upper = 41;
     }
@@ -2573,7 +2645,7 @@ void slimeCyclotronEffect() {
     }
   }
 
-  if(!b_wand_firing && !b_overheating && !b_alarm) {
+  if(!b_wand_firing && !b_overheating && !b_pack_alarm) {
     vibrationPack(i_vibration_level);
   }
 }
@@ -2604,6 +2676,7 @@ void cyclotronFade() {
         }
 
         uint8_t i_new_brightness = getBrightness(i_cyclotron_brightness);
+
         if(r_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (i_new_brightness - 1) && b_cyclotron_led_fading_in[i]) {
           i_cyclotron_led_value[i] = i_new_brightness;
           b_cyclotron_led_fading_in[i] = false;
@@ -2613,12 +2686,12 @@ void cyclotronFade() {
           switch(i_cyclotron_leds) {
             case OUTER_CYCLOTRON_LED_MAX:
             case FRUTTO_CYCLOTRON_LED_COUNT:
-            case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+            case MAX_CYCLOTRON_LED_COUNT:
+            default:
               r_cyclotron_led_fade_out[i].go(0, i_outer_current_ramp_speed * 3, CIRCULAR_OUT);
             break;
 
             case HASLAB_CYCLOTRON_LED_COUNT:
-            default:
               r_cyclotron_led_fade_out[i].go(0, i_outer_current_ramp_speed * 2, CIRCULAR_OUT);
             break;
           }
@@ -2656,6 +2729,8 @@ void cyclotronFade() {
           i_colour_scheme = C_RED;
         }
 
+        uint8_t i_new_brightness = getBrightness(i_cyclotron_brightness);
+
         for(uint8_t i = 0; i < i_cyclotron_leds; i++) {
           if(r_cyclotron_led_fade_in[i].isRunning()) {
             b_cyclotron_led_fading_in[i] = true;
@@ -2665,9 +2740,7 @@ void cyclotronFade() {
             i_cyclotron_led_value[i] = i_curr_brightness;
           }
 
-          uint8_t i_new_brightness = getBrightness(i_cyclotron_brightness);
-
-          if(r_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] > (i_new_brightness - 1) && b_cyclotron_led_fading_in[i]) {
+          if(r_cyclotron_led_fade_in[i].isFinished() && i_cyclotron_led_value[i] == (i_new_brightness - 1) && b_cyclotron_led_fading_in[i]) {
             pack_leds[i + i_cyclotron_led_start] = getHueAsRGB(CYCLOTRON_OUTER, i_colour_scheme, i_new_brightness, false, !b_overheating);
             i_cyclotron_led_value[i] = i_new_brightness;
           }
@@ -2700,7 +2773,7 @@ void cyclotron84LightOn(uint8_t cLed) {
   if(i_cyclotron_leds == FRUTTO_CYCLOTRON_LED_COUNT) {
     i_led_array_width = 2;
   }
-  else if(i_cyclotron_leds == FRUTTO_MAX_CYCLOTRON_LED_COUNT) {
+  else if(i_cyclotron_leds == MAX_CYCLOTRON_LED_COUNT) {
     i_led_array_width = 4;
   }
   */
@@ -2739,11 +2812,14 @@ void cyclotron84LightOff(uint8_t cLed) {
   uint8_t i_brightness = getBrightness(i_cyclotron_brightness); // Calculate desired brightness.
   uint8_t i_led_array_width = 1; // Variable to store the number of LEDs to either side of the center LED.
 
+  // Guard against divide-by-zero just in case.
+  sanitizeCyclotronMultipliers();
+
   /*
   if(i_cyclotron_leds == FRUTTO_CYCLOTRON_LED_COUNT) {
     i_led_array_width = 2;
   }
-  else if(i_cyclotron_leds == FRUTTO_MAX_CYCLOTRON_LED_COUNT) {
+  else if(i_cyclotron_leds == MAX_CYCLOTRON_LED_COUNT) {
     i_led_array_width = 4;
   }
   */
@@ -2774,7 +2850,7 @@ void cyclotron84LightOff(uint8_t cLed) {
 
     if(i_cyclotron_led_value[cLed - i_cyclotron_led_start] == i_brightness) {
       r_cyclotron_led_fade_out[cLed - i_cyclotron_led_start].go(i_brightness);
-      r_cyclotron_led_fade_out[cLed - i_cyclotron_led_start].go(i_brightness_tmp, (i_1984_delay * 2) / i_cyclotron_multiplier, CIRCULAR_OUT);
+      r_cyclotron_led_fade_out[cLed - i_cyclotron_led_start].go(i_brightness_tmp, (i_1984_delay * 1.5) / i_cyclotron_multiplier, LINEAR);
     }
 
     // Turn off the other 2 LEDs if we are allowing 3 to light up.
@@ -2782,7 +2858,7 @@ void cyclotron84LightOff(uint8_t cLed) {
       for(uint8_t i = 1; i <= i_led_array_width; i++) {
         if(i_cyclotron_led_value[cLed + i - i_cyclotron_led_start] == i_brightness) {
           r_cyclotron_led_fade_out[cLed + i - i_cyclotron_led_start].go(i_brightness);
-          r_cyclotron_led_fade_out[cLed + i - i_cyclotron_led_start].go(i_brightness_tmp, (i_1984_delay * 2) / i_cyclotron_multiplier, CIRCULAR_OUT);
+          r_cyclotron_led_fade_out[cLed + i - i_cyclotron_led_start].go(i_brightness_tmp, (i_1984_delay * 1.5) / i_cyclotron_multiplier, LINEAR);
         }
 
         uint8_t cLedTemp = cLed; // Create new temporary variable for the negative side.
@@ -2796,7 +2872,7 @@ void cyclotron84LightOff(uint8_t cLed) {
 
         if(i_cyclotron_led_value[cLedTemp - i_cyclotron_led_start] == i_brightness) {
           r_cyclotron_led_fade_out[cLedTemp - i_cyclotron_led_start].go(i_brightness);
-          r_cyclotron_led_fade_out[cLedTemp - i_cyclotron_led_start].go(i_brightness_tmp, (i_1984_delay * 2) / i_cyclotron_multiplier, CIRCULAR_OUT);
+          r_cyclotron_led_fade_out[cLedTemp - i_cyclotron_led_start].go(i_brightness_tmp, (i_1984_delay * 1.5) / i_cyclotron_multiplier, LINEAR);
         }
       }
     }
@@ -2805,6 +2881,9 @@ void cyclotron84LightOff(uint8_t cLed) {
 
 void cyclotron1984(uint16_t iRampDelay) {
   i_fast_led_delay = FAST_LED_UPDATE_MS;
+
+  // Guard against divide-by-zero just in case.
+  sanitizeCyclotronMultipliers();
 
   if(ms_cyclotron.justFinished()) {
     iRampDelay = iRampDelay / i_cyclotron_multiplier;
@@ -2845,7 +2924,7 @@ void cyclotron1984(uint16_t iRampDelay) {
       ms_cyclotron.start(iRampDelay);
     }
 
-    if(!b_wand_firing && !b_overheating && !b_alarm) {
+    if(!b_wand_firing && !b_overheating && !b_pack_alarm) {
       vibrationPack(i_vibration_level);
     }
 
@@ -2899,7 +2978,7 @@ void cyclotron2021(uint16_t iRampDelay) {
 
         ms_cyclotron.start(i_outer_current_ramp_speed);
 
-        i_vibration_level = i_vibration_level + 1;
+        i_vibration_level++;
 
         if(i_vibration_level < i_vibration_level_min) {
           i_vibration_level = i_vibration_level_min;
@@ -2922,10 +3001,10 @@ void cyclotron2021(uint16_t iRampDelay) {
         ms_cyclotron.start(i_outer_current_ramp_speed);
 
         if(i_outer_current_ramp_speed > 40 && i_vibration_level > i_vibration_level_min + 20) {
-          i_vibration_level = i_vibration_level - 1;
+          i_vibration_level--;
         }
         else if(i_outer_current_ramp_speed > 100 && i_vibration_level > i_vibration_level_min) {
-          i_vibration_level = i_vibration_level - 1;
+          i_vibration_level--;
         }
 
         if(i_vibration_level < i_vibration_level_min) {
@@ -2940,9 +3019,10 @@ void cyclotron2021(uint16_t iRampDelay) {
 
       switch(i_cyclotron_leds) {
         case OUTER_CYCLOTRON_LED_MAX:
-        case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+        case MAX_CYCLOTRON_LED_COUNT:
+        default:
           if(i_cyclotron_multiplier > 1) {
-            if(t_iRampDelay - i_cyclotron_multiplier < t_iRampDelay) {
+            if(t_iRampDelay - i_cyclotron_multiplier > 0) {
               t_iRampDelay = t_iRampDelay - i_cyclotron_multiplier;
             }
             else {
@@ -2967,11 +3047,10 @@ void cyclotron2021(uint16_t iRampDelay) {
 
         case FRUTTO_CYCLOTRON_LED_COUNT:
         case HASLAB_CYCLOTRON_LED_COUNT:
-        default:
           i_fast_led_delay = FAST_LED_UPDATE_MS;
 
           if(i_cyclotron_multiplier > 1) {
-            if(t_iRampDelay - i_cyclotron_multiplier < t_iRampDelay) {
+            if(t_iRampDelay - i_cyclotron_multiplier > 0) {
               t_iRampDelay = t_iRampDelay - i_cyclotron_multiplier;
             }
             else {
@@ -2988,14 +3067,15 @@ void cyclotron2021(uint16_t iRampDelay) {
       ms_cyclotron.start(t_iRampDelay);
     }
 
-    if(!b_wand_firing && !b_overheating && !b_alarm) {
+    if(!b_wand_firing && !b_overheating && !b_pack_alarm) {
       vibrationPack(i_vibration_level);
     }
 
     switch(i_cyclotron_leds) {
-      case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+      case MAX_CYCLOTRON_LED_COUNT:
+      default:
         if(i_cyclotron_multiplier > 1) {
-          if(iRampDelay - i_cyclotron_multiplier < iRampDelay) {
+          if(iRampDelay - i_cyclotron_multiplier > 0) {
             iRampDelay = iRampDelay - i_cyclotron_multiplier;
           }
           else {
@@ -3003,12 +3083,7 @@ void cyclotron2021(uint16_t iRampDelay) {
           }
         }
         else {
-          iRampDelay = iRampDelay / i_cyclotron_multiplier;
-
-          if(b_ramp_up || b_ramp_down) {
-            iRampDelay = iRampDelay * 1;
-          }
-          else {
+          if(!(b_ramp_up || b_ramp_down)) {
             iRampDelay = iRampDelay * 3;
           }
         }
@@ -3017,7 +3092,7 @@ void cyclotron2021(uint16_t iRampDelay) {
       case OUTER_CYCLOTRON_LED_MAX:
       case FRUTTO_CYCLOTRON_LED_COUNT:
         if(i_cyclotron_multiplier > 1) {
-          if(iRampDelay - i_cyclotron_multiplier < iRampDelay) {
+          if(iRampDelay - i_cyclotron_multiplier > 0) {
             iRampDelay = iRampDelay - i_cyclotron_multiplier;
           }
           else {
@@ -3025,16 +3100,13 @@ void cyclotron2021(uint16_t iRampDelay) {
           }
         }
         else {
-          iRampDelay = iRampDelay / i_cyclotron_multiplier;
-
           iRampDelay = iRampDelay * 3;
         }
       break;
 
       case HASLAB_CYCLOTRON_LED_COUNT:
-      default:
         if(i_cyclotron_multiplier > 1) {
-          if(iRampDelay - i_cyclotron_multiplier < iRampDelay) {
+          if(iRampDelay - i_cyclotron_multiplier > 0) {
             iRampDelay = iRampDelay - i_cyclotron_multiplier;
           }
           else {
@@ -3042,8 +3114,6 @@ void cyclotron2021(uint16_t iRampDelay) {
           }
         }
         else {
-          iRampDelay = iRampDelay / i_cyclotron_multiplier;
-
           iRampDelay = iRampDelay * 2;
         }
       break;
@@ -3069,8 +3139,9 @@ void cyclotron2021(uint16_t iRampDelay) {
           // Do nothing; already 0.
         break;
 
-        case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
-          if(b_ramp_down || b_ramp_up || b_alarm || b_wand_mash_lockout) {
+        case MAX_CYCLOTRON_LED_COUNT:
+        default:
+          if(b_ramp_down || b_ramp_up || b_pack_alarm || b_wand_mash_lockout) {
             if(i_curr_cyclotron_position == 39) {
               // Top gap between lenses is about 27 pixels wide.
               i_cyclotron_lens_gap = 27;
@@ -3091,7 +3162,7 @@ void cyclotron2021(uint16_t iRampDelay) {
         break;
 
         case FRUTTO_CYCLOTRON_LED_COUNT:
-          if(b_ramp_down || b_ramp_up || b_alarm || b_wand_mash_lockout) {
+          if(b_ramp_down || b_ramp_up || b_pack_alarm || b_wand_mash_lockout) {
             if(i_curr_cyclotron_position > 34) {
               // Top gap between lenses is about 15 pixels wide.
               i_cyclotron_lens_gap = 15;
@@ -3112,8 +3183,7 @@ void cyclotron2021(uint16_t iRampDelay) {
         break;
 
         case HASLAB_CYCLOTRON_LED_COUNT:
-        default:
-          if(b_ramp_down || b_ramp_up || b_alarm || b_wand_mash_lockout) {
+          if(b_ramp_down || b_ramp_up || b_pack_alarm || b_wand_mash_lockout) {
             if(i_curr_cyclotron_position > 32) {
               // Top gap between lenses is about 9 pixels wide.
               i_cyclotron_lens_gap = 9;
@@ -3262,7 +3332,7 @@ void cyclotron1984Alarm() {
   if(i_cyclotron_leds == FRUTTO_CYCLOTRON_LED_COUNT) {
     i_led_array_width = 2;
   }
-  else if(i_cyclotron_leds == FRUTTO_MAX_CYCLOTRON_LED_COUNT) {
+  else if(i_cyclotron_leds == MAX_CYCLOTRON_LED_COUNT) {
     i_led_array_width = 4;
   }
   */
@@ -3321,21 +3391,24 @@ void cyclotron1984Alarm() {
   }
   else {
     uint8_t i_brightness_tmp = 0;
-    bool b_fade_in_now = i_cyclotron_led_value[led1 - i_cyclotron_led_start] == i_brightness_tmp;
+    bool b_fade_in_now = i_cyclotron_led_value[led1 - i_cyclotron_led_start] == i_brightness_tmp ||
+                         i_cyclotron_led_value[led2 - i_cyclotron_led_start] == i_brightness_tmp ||
+                         i_cyclotron_led_value[led3 - i_cyclotron_led_start] == i_brightness_tmp ||
+                         i_cyclotron_led_value[led4 - i_cyclotron_led_start] == i_brightness_tmp;
 
     if(b_fade_in_now) {
       clearCyclotronFades();
-      r_cyclotron_led_fade_in[led1 - i_cyclotron_led_start].go(i_brightness, i_1984_delay * 2, CIRCULAR_IN);
-      r_cyclotron_led_fade_in[led2 - i_cyclotron_led_start].go(i_brightness, i_1984_delay * 2, CIRCULAR_IN);
-      r_cyclotron_led_fade_in[led3 - i_cyclotron_led_start].go(i_brightness, i_1984_delay * 2, CIRCULAR_IN);
-      r_cyclotron_led_fade_in[led4 - i_cyclotron_led_start].go(i_brightness, i_1984_delay * 2, CIRCULAR_IN);
+      r_cyclotron_led_fade_in[led1 - i_cyclotron_led_start].go(i_brightness, (i_1984_delay * 1.5), LINEAR);
+      r_cyclotron_led_fade_in[led2 - i_cyclotron_led_start].go(i_brightness, (i_1984_delay * 1.5), LINEAR);
+      r_cyclotron_led_fade_in[led3 - i_cyclotron_led_start].go(i_brightness, (i_1984_delay * 1.5), LINEAR);
+      r_cyclotron_led_fade_in[led4 - i_cyclotron_led_start].go(i_brightness, (i_1984_delay * 1.5), LINEAR);
     }
 
     // Turn on all the other cyclotron LEDs if required.
     if(!b_cyclotron_single_led) {
       for(uint8_t i = 1; i <= i_led_array_width; i++) {
         if(b_fade_in_now) {
-          r_cyclotron_led_fade_in[led1 + i - i_cyclotron_led_start].go(i_brightness, i_1984_delay * 2, CIRCULAR_IN);
+          r_cyclotron_led_fade_in[led1 + i - i_cyclotron_led_start].go(i_brightness, (i_1984_delay * 1.5), LINEAR);
         }
 
         if(led1 - i < i_cyclotron_led_start) {
@@ -3346,11 +3419,11 @@ void cyclotron1984Alarm() {
         }
 
         if(b_fade_in_now) {
-          r_cyclotron_led_fade_in[led1 - i_cyclotron_led_start].go(i_brightness, i_1984_delay * 2, CIRCULAR_IN);
+          r_cyclotron_led_fade_in[led1 - i_cyclotron_led_start].go(i_brightness, (i_1984_delay * 1.5), LINEAR);
         }
 
         if(b_fade_in_now) {
-          r_cyclotron_led_fade_in[led2 + i - i_cyclotron_led_start].go(i_brightness, i_1984_delay * 2, CIRCULAR_IN);
+          r_cyclotron_led_fade_in[led2 + i - i_cyclotron_led_start].go(i_brightness, (i_1984_delay * 1.5), LINEAR);
         }
 
         if(led2 - i < i_cyclotron_led_start) {
@@ -3361,11 +3434,11 @@ void cyclotron1984Alarm() {
         }
 
         if(b_fade_in_now) {
-          r_cyclotron_led_fade_in[led2 - i_cyclotron_led_start].go(i_brightness, i_1984_delay * 2, CIRCULAR_IN);
+          r_cyclotron_led_fade_in[led2 - i_cyclotron_led_start].go(i_brightness, (i_1984_delay * 1.5), LINEAR);
         }
 
         if(b_fade_in_now) {
-          r_cyclotron_led_fade_in[led3 + i - i_cyclotron_led_start].go(i_brightness, i_1984_delay * 2, CIRCULAR_IN);
+          r_cyclotron_led_fade_in[led3 + i - i_cyclotron_led_start].go(i_brightness, (i_1984_delay * 1.5), LINEAR);
         }
 
         if(led3 - i < i_cyclotron_led_start) {
@@ -3376,11 +3449,11 @@ void cyclotron1984Alarm() {
         }
 
         if(b_fade_in_now) {
-          r_cyclotron_led_fade_in[led3 - i_cyclotron_led_start].go(i_brightness, i_1984_delay * 2, CIRCULAR_IN);
+          r_cyclotron_led_fade_in[led3 - i_cyclotron_led_start].go(i_brightness, (i_1984_delay * 1.5), LINEAR);
         }
 
         if(b_fade_in_now) {
-          r_cyclotron_led_fade_in[led4 + i - i_cyclotron_led_start].go(i_brightness, i_1984_delay * 2, CIRCULAR_IN);
+          r_cyclotron_led_fade_in[led4 + i - i_cyclotron_led_start].go(i_brightness, (i_1984_delay * 1.5), LINEAR);
         }
 
         if(led4 - i < i_cyclotron_led_start) {
@@ -3391,7 +3464,7 @@ void cyclotron1984Alarm() {
         }
 
         if(b_fade_in_now) {
-          r_cyclotron_led_fade_in[led4 - i_cyclotron_led_start].go(i_brightness, i_1984_delay * 2, CIRCULAR_IN);
+          r_cyclotron_led_fade_in[led4 - i_cyclotron_led_start].go(i_brightness, (i_1984_delay * 1.5), LINEAR);
         }
       }
     }
@@ -3403,7 +3476,7 @@ void packOverheatingFinished() {
     packSerialSend(P_OVERHEATING_FINISHED);
   }
 
-  attenuatorSend(A_OVERHEATING_FINISHED);
+  attenuatorSerialSend(A_OVERHEATING_FINISHED);
 
   ms_overheating_length.stop();
 
@@ -3444,7 +3517,7 @@ void packOverheatingFinished() {
     resetCyclotronState();
   }
 
-  b_alarm = false;
+  b_pack_alarm = false;
 
   if(b_overheat_lights_off) {
     cyclotronSpeedRevert();
@@ -3455,7 +3528,7 @@ void packOverheatingFinished() {
 
   resetRampUp();
 
-  packStartup(false);
+  packStartup(false); // Start the pack using an abbreviated startup sequence.
 
   // Turn off the vent lights
   ventLight(false);
@@ -3501,7 +3574,7 @@ void packOverheatingStart() {
     clearCyclotronFades();
   }
 
-  attenuatorSend(A_OVERHEATING);
+  attenuatorSerialSend(A_OVERHEATING);
 }
 
 void cyclotronOverheating() {
@@ -3686,10 +3759,10 @@ void cyclotronControl() {
   }
 
   if(!ribbonCableAttached() && PACK_STATE != MODE_OFF && !b_ramp_down_start && !b_overheating) {
-    if(!b_alarm) {
+    if(!b_pack_alarm) {
       b_ramp_up = false;
       b_inner_ramp_up = false;
-      b_alarm = true;
+      b_pack_alarm = true;
 
       if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
         if(!usingSlimeCyclotron()) {
@@ -3709,14 +3782,14 @@ void cyclotronControl() {
       packSerialSend(P_ALARM_ON);
 
       // Tell any add-on devices that the alarm is on.
-      attenuatorSend(A_ALARM_ON);
+      attenuatorSerialSend(A_ALARM_ON);
     }
 
     // Ribbon cable has been removed.
     cyclotronNoCable();
   }
   else if(b_overheating) {
-    if(!b_alarm) {
+    if(!b_pack_alarm) {
       b_ramp_up = false;
       b_inner_ramp_up = false;
 
@@ -3739,7 +3812,7 @@ void cyclotronControl() {
         powercellOn();
       }
 
-      b_alarm = true;
+      b_pack_alarm = true;
 
       packAlarm();
     }
@@ -3789,9 +3862,13 @@ void cyclotronControl() {
       r_outer_cyclotron_ramp.go(i_outer_current_ramp_speed); // Reset the ramp.
       r_inner_cyclotron_ramp.go(i_inner_current_ramp_speed); // Reset the Inner Cyclotron ramp.
 
-      if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
+      if(SYSTEM_YEAR == SYSTEM_1984) {
         r_outer_cyclotron_ramp.go((uint16_t)(i_1984_delay * 1.3), i_1984_ramp_down_length, CIRCULAR_IN);
         r_inner_cyclotron_ramp.go(i_inner_ramp_delay, i_1984_ramp_down_length, CIRCULAR_IN);
+      }
+      else if(SYSTEM_YEAR == SYSTEM_1989) {
+        r_outer_cyclotron_ramp.go((uint16_t)(i_1984_delay * 1.3), i_1989_ramp_down_length, CIRCULAR_IN);
+        r_inner_cyclotron_ramp.go(i_inner_ramp_delay, i_1989_ramp_down_length, CIRCULAR_IN);
       }
       else {
         if(ms_mash_lockout.isRunning()) {
@@ -3835,9 +3912,24 @@ void cyclotronControl() {
   }
 }
 
+void stopOverheatBeepWarnings() {
+  switch(SYSTEM_YEAR) {
+    case SYSTEM_AFTERLIFE:
+    case SYSTEM_FROZEN_EMPIRE:
+    default:
+      stopEffect(S_PACK_BEEPS_OVERHEAT);
+    break;
+
+    case SYSTEM_1984:
+    case SYSTEM_1989:
+      stopEffect(S_BEEP_8);
+    break;
+  }
+}
+
 void packVentingFinished() {
   packSerialSend(P_VENTING_FINISHED);
-  attenuatorSend(A_VENTING_FINISHED);
+  attenuatorSerialSend(A_VENTING_FINISHED);
 
   ms_overheating_length.stop();
   ms_smoke_on.stop();
@@ -4007,23 +4099,7 @@ void packVentingStart() {
   // Reset Cyclotron speed.
   cyclotronSpeedRevert();
 
-  attenuatorSend(A_VENTING);
-}
-
-void checkCyclotronAutoSpeed() {
-  // No need to start any timers until after any ramping has finished; only in Afterlife and Frozen Empire do we do the auto speed increases.
-  if(b_wand_firing && !b_ramp_up && !b_ramp_down) {
-    if(ms_cyclotron_auto_speed_timer.justFinished() && i_cyclotron_multiplier < 6) {
-      // Increase the Cyclotron speed.
-      i_cyclotron_multiplier++;
-
-      // Increase the Cyclotron Switch Panel LEDs speed.
-      i_cyclotron_switch_led_mulitplier++;
-
-      // Restart the timer.
-      ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
-    }
-  }
+  attenuatorSerialSend(A_VENTING);
 }
 
 void modeFireStartSounds() {
@@ -4186,6 +4262,81 @@ void modeFireStartSounds() {
   }
 }
 
+void mixExtraFiringEffects() {
+// Disabled on ESP32 since the GPStar Wand II controls impact sounds with the IMU via serial.
+#ifndef ESP32
+  // Mix in additional effects for the proton stream to enhance the experience.
+  if(ms_firing_sound_mix.justFinished() && STREAM_MODE == PROTON && STATUS_CTS == CTS_NOT_FIRING && b_stream_effects) {
+    uint8_t i_random = 0;
+
+    switch(i_last_firing_effect_mix) {
+      case S_FIRE_SPARKS:
+        i_random = random(0,2);
+      break;
+
+      case S_FIRE_SPARKS_3:
+      case S_FIRE_SPARKS_4:
+        i_random = 3;
+      break;
+
+      case S_FIRE_SPARKS_5:
+        i_random = 2;
+      break;
+
+      case S_FIRE_SPARKS_2:
+        i_random = 1;
+      break;
+
+      default:
+        // If no firing effect has played yet.
+        i_random = 3;
+      break;
+    }
+
+    uint16_t i_s_random = random(2,4) * 1000; // 2 or 3 seconds
+
+    switch(i_random) {
+      case 3:
+        playEffect(S_FIRE_SPARKS, false, i_volume_effects, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS;
+
+        ms_firing_sound_mix.start(i_s_random * 5);
+      break;
+
+      case 2:
+        playEffect(S_FIRE_SPARKS_4, false, i_volume_effects, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS_4;
+
+        ms_firing_sound_mix.start(i_s_random);
+      break;
+
+      case 1:
+        playEffect(S_FIRE_SPARKS_3, false, i_volume_effects, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS_3;
+
+        ms_firing_sound_mix.start(i_s_random);
+      break;
+
+      case 0:
+        playEffect(S_FIRE_SPARKS_2, false, i_volume_effects, false, 0, false);
+        playEffect(S_FIRE_SPARKS_5, false, i_volume_effects, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS_5;
+
+        ms_firing_sound_mix.start(1800);
+      break;
+
+      default:
+        // This will never trigger because i_random will only ever be 0~3.
+        playEffect(S_FIRE_SPARKS_2, false, i_volume_effects, false, 0, false);
+        i_last_firing_effect_mix = S_FIRE_SPARKS_2;
+
+        ms_firing_sound_mix.start(500);
+      break;
+    }
+  }
+#endif
+}
+
 void wandFiring() {
   if(b_powercell_sound_loop) {
     stopEffect(S_POWERCELL); // Turn off the powercell sound effect.
@@ -4195,11 +4346,7 @@ void wandFiring() {
   modeFireStartSounds();
 
   b_wand_firing = true;
-  attenuatorSend(A_FIRING);
-
-  if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
-    ms_cyclotron_auto_speed_timer.start(i_cyclotron_auto_speed_timer_length / i_wand_power_level);
-  }
+  attenuatorSerialSend(A_FIRING);
 
   if(b_stream_effects && STATUS_CTS == CTS_NOT_FIRING) {
     uint16_t i_s_random = random(7,15) * 1000;
@@ -4351,10 +4498,7 @@ void wandStoppedFiring() {
 
   ms_firing_sound_mix.stop();
 
-  attenuatorSend(A_FIRING_STOPPED);
-
-  // Stop the auto speed timer.
-  ms_cyclotron_auto_speed_timer.stop();
+  attenuatorSerialSend(A_FIRING_STOPPED);
 
   b_wand_firing = false;
   b_firing_alt = false;
@@ -4382,18 +4526,7 @@ void wandStoppedFiring() {
   ms_delay_post_2.stop();
 
   // Stop overheat beeps.
-  switch(SYSTEM_YEAR) {
-    case SYSTEM_AFTERLIFE:
-    case SYSTEM_FROZEN_EMPIRE:
-    default:
-      stopEffect(S_PACK_BEEPS_OVERHEAT);
-    break;
-
-    case SYSTEM_1984:
-    case SYSTEM_1989:
-      stopEffect(S_BEEP_8);
-    break;
-  }
+  stopOverheatBeepWarnings();
 }
 
 void checkMenuVibration() {
@@ -4416,35 +4549,16 @@ void checkMenuVibration() {
 
 void cyclotronSpeedRevert() {
   i_cyclotron_multiplier = 1;
-  i_cyclotron_switch_led_mulitplier = 1;
+  i_cyclotron_switch_led_multiplier = 1;
   i_powercell_multiplier = 1;
 }
 
 void cyclotronSpeedIncrease() {
-  switch(SYSTEM_YEAR) {
-    case SYSTEM_AFTERLIFE:
-    case SYSTEM_FROZEN_EMPIRE:
-    default:
-      if(i_cyclotron_multiplier < 9) {
-        i_cyclotron_multiplier++;
-      }
+  i_cyclotron_multiplier++;
+  i_cyclotron_switch_led_multiplier++;
+  i_powercell_multiplier++;
 
-      if(i_cyclotron_switch_led_mulitplier < 9) {
-        i_cyclotron_switch_led_mulitplier++;
-      }
-
-      if(i_powercell_multiplier < 6) {
-        i_powercell_multiplier++;
-      }
-    break;
-
-    case SYSTEM_1984:
-    case SYSTEM_1989:
-      i_cyclotron_multiplier++;
-      i_cyclotron_switch_led_mulitplier++;
-      i_powercell_multiplier++;
-    break;
-  }
+  sanitizeCyclotronMultipliers();
 }
 
 int8_t readRotary() {
@@ -4512,7 +4626,7 @@ void attenuatorHandShake() {
     else if(ms_attenuator_check.remaining() < (ms_attenuator_check.delay() / 2) && !b_attenuator_syncing) {
       // Haven't heard from the Attenuator recently; let's check in.
       b_attenuator_syncing = true;
-      attenuatorSend(A_HANDSHAKE);
+      attenuatorSerialSend(A_HANDSHAKE);
     }
   }
 }
@@ -4575,7 +4689,7 @@ void wandDisconnectCheck() {
       b_wand_on = false; // No wand means the device is no longer powered on.
 
       // Tell the Attenuator the wand was disconnected.
-      attenuatorSend(A_WAND_DISCONNECTED);
+      attenuatorSerialSend(A_WAND_DISCONNECTED);
 
       if(b_wand_firing) {
         // Reset the pack to a non-firing state.
@@ -4613,6 +4727,9 @@ void wandDisconnectCheck() {
 
 void wandExtraSoundsBeepLoop() {
   if(!b_overheating) {
+    // Explicitly stop beeps first just in case it tries to double up.
+    wandExtraSoundsBeepLoopStop(false);
+
     switch(i_wand_power_level) {
       case 1:
         playEffect(S_AFTERLIFE_BEEP_WAND_S1, true, i_volume_effects - i_wand_idle_level);
@@ -4749,7 +4866,7 @@ void updateProtonPackLEDCounts() {
 
   // Calculate the inner cyclotron which may consist of the optional components:
   // [in order...] Switch Panel + Cake Lights + Cavity Lights
-  if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+  if(INNER_CYC_PANEL_MODE != PANEL_DISABLED) {
     i_ic_panel_end = i_inner_cyclotron_panel_num_leds - 1;
     i_ic_cake_start = i_ic_panel_end + 1;
     i_ic_cake_end = i_ic_cake_start + i_inner_cyclotron_cake_num_leds - 1;
@@ -4767,7 +4884,7 @@ void updateProtonPackLEDCounts() {
 
 // Update the LED counts for the inner cyclotron, if we are using the addon LED panel or not.
 void resetInnerCyclotronLEDs() {
-  if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+  if(INNER_CYC_PANEL_MODE != PANEL_DISABLED) {
     // For clarity, these are added in the order by which the devices would be connected in the chain.
     i_inner_cyclotron_panel_num_leds = INNER_CYCLOTRON_LED_PANEL_MAX; // Maximum is 8 (2 above switches, 6 on the side)
   }
@@ -4786,7 +4903,8 @@ void resetCyclotronLEDs() {
     break;
 
     // For Frutto Technology Max Cyclotron (36) LEDs.
-    case FRUTTO_MAX_CYCLOTRON_LED_COUNT:
+    case MAX_CYCLOTRON_LED_COUNT:
+    default:
       i_2021_delay = CYCLOTRON_DELAY_2021_36_LED;
     break;
 
@@ -4797,13 +4915,12 @@ void resetCyclotronLEDs() {
 
     // Default HasLab (12) LEDs.
     case HASLAB_CYCLOTRON_LED_COUNT:
-    default:
       i_2021_delay = CYCLOTRON_DELAY_2021_12_LED;
     break;
   }
 }
 
-void resetContinuousSmoke() {
+void updateContinuousSmoke() {
   b_smoke_continuous_level[0] = b_smoke_continuous_level_1;
   b_smoke_continuous_level[1] = b_smoke_continuous_level_2;
   b_smoke_continuous_level[2] = b_smoke_continuous_level_3;
@@ -4930,7 +5047,7 @@ void systemPOST() {
       pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, c_outer_cyclotron_colour);
       pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_WHITE);
 
-      if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+      if(INNER_CYC_PANEL_MODE != PANEL_DISABLED) {
         cyclotron_leds[0] = getHueAsRGB(CYCLOTRON_PANEL, C_RED);
         cyclotron_leds[1] = getHueAsRGB(CYCLOTRON_PANEL, C_RED);
         cyclotron_leds[2] = getHueAsRGB(CYCLOTRON_PANEL, C_ORANGE);
@@ -4940,6 +5057,7 @@ void systemPOST() {
         cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_GREEN);
         cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_ORANGE);
       }
+#ifndef ESP32
       else {
         digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, HIGH);
         digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, HIGH);
@@ -4950,6 +5068,7 @@ void systemPOST() {
         digitalWriteFast(YEAR_TOGGLE_LED_PIN, HIGH);
         digitalWriteFast(VIBRATION_TOGGLE_LED_PIN, HIGH);
       }
+#endif
     }
     else {
       pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
@@ -4958,7 +5077,7 @@ void systemPOST() {
       pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
       pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
 
-      if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+      if(INNER_CYC_PANEL_MODE != PANEL_DISABLED) {
         cyclotron_leds[0] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
         cyclotron_leds[1] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
         cyclotron_leds[2] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
@@ -4968,6 +5087,7 @@ void systemPOST() {
         cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
         cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
       }
+#ifndef ESP32
       else {
         digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, LOW);
         digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, LOW);
@@ -4978,6 +5098,7 @@ void systemPOST() {
         digitalWriteFast(YEAR_TOGGLE_LED_PIN, LOW);
         digitalWriteFast(VIBRATION_TOGGLE_LED_PIN, LOW);
       }
+#endif
     }
 
     i_post_powercell_up++;
@@ -5020,7 +5141,7 @@ void systemPOST() {
       pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, c_outer_cyclotron_colour);
       pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_WHITE);
 
-      if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+      if(INNER_CYC_PANEL_MODE != PANEL_DISABLED) {
         cyclotron_leds[0] = getHueAsRGB(CYCLOTRON_PANEL, C_RED);
         cyclotron_leds[1] = getHueAsRGB(CYCLOTRON_PANEL, C_RED);
         cyclotron_leds[2] = getHueAsRGB(CYCLOTRON_PANEL, C_ORANGE);
@@ -5030,6 +5151,7 @@ void systemPOST() {
         cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_GREEN);
         cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_ORANGE);
       }
+#ifndef ESP32
       else {
         digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, HIGH);
         digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, HIGH);
@@ -5040,6 +5162,7 @@ void systemPOST() {
         digitalWriteFast(YEAR_TOGGLE_LED_PIN, HIGH);
         digitalWriteFast(VIBRATION_TOGGLE_LED_PIN, HIGH);
       }
+#endif
     }
     else {
       pack_leds[i_tmp_led1] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
@@ -5048,7 +5171,7 @@ void systemPOST() {
       pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
       pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_BLACK);
 
-      if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+      if(INNER_CYC_PANEL_MODE != PANEL_DISABLED) {
         cyclotron_leds[0] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
         cyclotron_leds[1] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
         cyclotron_leds[2] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
@@ -5058,6 +5181,7 @@ void systemPOST() {
         cyclotron_leds[i_ic_panel_end - 1] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
         cyclotron_leds[i_ic_panel_end] = getHueAsRGB(CYCLOTRON_PANEL, C_BLACK);
       }
+#ifndef ESP32
       else {
         digitalWriteFast(CYCLOTRON_SWITCH_LED_R1_PIN, LOW);
         digitalWriteFast(CYCLOTRON_SWITCH_LED_R2_PIN, LOW);
@@ -5068,6 +5192,7 @@ void systemPOST() {
         digitalWriteFast(YEAR_TOGGLE_LED_PIN, LOW);
         digitalWriteFast(VIBRATION_TOGGLE_LED_PIN, LOW);
       }
+#endif
     }
 
     i_post_powercell_down++;
@@ -5088,7 +5213,7 @@ void systemPOST() {
     pack_leds[i_tmp_led4] = getHueAsRGB(CYCLOTRON_OUTER, c_outer_cyclotron_colour, i_post_fade);
     pack_leds[i_tmp_led5] = getHueAsRGB(CYCLOTRON_OUTER, C_WHITE, i_post_fade);
 
-    if(INNER_CYC_PANEL_MODE != PANEL_INDIVIDUAL) {
+    if(INNER_CYC_PANEL_MODE != PANEL_DISABLED) {
       cyclotron_leds[0] = getHueAsRGB(CYCLOTRON_PANEL, C_RED, i_post_fade);
       cyclotron_leds[1] = getHueAsRGB(CYCLOTRON_PANEL, C_RED, i_post_fade);
       cyclotron_leds[2] = getHueAsRGB(CYCLOTRON_PANEL, C_ORANGE, i_post_fade);
@@ -5161,9 +5286,145 @@ void systemPOST() {
       packSerialSend(P_POST_FINISH);
 
       b_pack_post_finish = true;
+      updateLEDs();
+      delay(FAST_LED_UPDATE_MS); // Delay to give the LEDs a chance to finish updating.
     }
     else {
       ms_delay_post_3.start(5);
     }
   }
 }
+
+void resetWifiCommand() {
+  bool b_reset_success = false;
+  #ifdef ESP32
+    // If GPStar Pack II, reset our own Wifi password.
+    wirelessMgr->resetWifiPassword();
+    b_reset_success = true;
+  #else
+    // If not ESP32, send a message to the wireless module to have it reset its password.
+    if(b_attenuator_connected) {
+      attenuatorSerialSend(A_RESET_WIFI_PASSWORD);
+      b_reset_success = true;
+    }
+  #endif
+
+  // Play voice confirmation if successful.
+  if(b_reset_success) {
+    playEffect(S_VOICE_PACK_WIFI_RESET);
+  }
+}
+
+/*
+ * Prevent stream mode change if wand is firing, in an error state, or VG modes are disabled.
+ */
+bool canChangeStreamMode() {
+  if(!b_pack_on || b_wand_firing || b_overheating || b_pack_alarm || b_pack_shutting_down || SYSTEM_MODE == MODE_ORIGINAL || !(STREAM_MODE_FLAG & FLAG_VG)) {
+    return false;
+  }
+  return true;
+}
+
+/*
+ * Change the current stream mode to a new mode, if allowed.
+ */
+void changeStreamMode(STREAM_MODES new_mode) {
+  if(!canChangeStreamMode()) {
+    debugln("Stream mode change not allowed while pack is firing or in error state.");
+    return;
+  }
+
+  // Debounce rapid calls to avoid flooding the serial interface.
+  if(ms_streamchange.remaining() > 0) {
+    debugln("Stream mode change suppressed due to debounce timer.");
+    return;
+  }
+
+  // Continue to change the stream mode.
+  switch(new_mode) {
+    case PROTON:
+      executeCommand(A_PROTON_MODE, 0);
+    break;
+    case STASIS:
+      if(!!(STREAM_MODE_FLAG & FLAG_VG)) {
+        executeCommand(A_STASIS_MODE, 0);
+      }
+      else {
+        debugln("VG modes not enabled, cannot switch to Stasis.");
+      }
+    break;
+    case SLIME:
+      if(!!(STREAM_MODE_FLAG & FLAG_VG)) {
+        executeCommand(A_SLIME_MODE, 0);
+      }
+      else {
+        debugln("VG modes not enabled, cannot switch to Slime.");
+      }
+    break;
+    case MESON:
+      if(!!(STREAM_MODE_FLAG & FLAG_VG)) {
+        executeCommand(A_MESON_MODE, 0);
+      }
+      else {
+        debugln("VG modes not enabled, cannot switch to Meson.");
+      }
+    break;
+    case SPECTRAL:
+      if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL)) {
+        executeCommand(A_SPECTRAL_MODE, 0);
+      }
+      else {
+        debugln("Spectral mode not enabled, cannot switch to Spectral.");
+      }
+    break;
+    case HOLIDAY_HALLOWEEN:
+      if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_HALLOWEEN)) {
+        executeCommand(A_HALLOWEEN_MODE, 0);
+      }
+      else {
+        debugln("Halloween mode not enabled, cannot switch to Halloween.");
+      }
+    break;
+    case HOLIDAY_CHRISTMAS:
+      if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_CHRISTMAS)) {
+        executeCommand(A_CHRISTMAS_MODE, 0);
+      }
+      else {
+        debugln("Christmas mode not enabled, cannot switch to Christmas.");
+      }
+    break;
+    case SPECTRAL_CUSTOM:
+      if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
+        executeCommand(A_SPECTRAL_CUSTOM_MODE, 0);
+      }
+      else {
+        debugln("Spectral Custom mode not enabled, cannot switch to Spectral Custom.");
+      }
+    break;
+    default:
+      debugln("Invalid Stream Mode");
+    break;
+  }
+
+  ms_streamchange.start(i_stream_change_delay); // Restart debounce timer.
+}
+
+#ifdef ESP32
+void readTemperature() {
+  // Read the HDC1080 and store the current temperature readings in C and F.
+  if(b_temp_sensor_detected) {
+    if(!ms_temp_read.isRunning()) {
+      tempSensor.startAcquisition(GuL::HDC1080::Channel::TEMPERATURE);
+      ms_temp_read.start(i_temp_read_delay); // Read every N seconds.
+    }
+    else if(ms_temp_read.justFinished()) {
+      f_temperature_c = tempSensor.getTemperature(); // Read value in Celsius
+      f_temperature_f = (f_temperature_c * 1.8) + 32; // Convert Celsius to Fahrenheit
+      debugf("\t\tTemp: %.1f C (%.1f F)\n", f_temperature_c, f_temperature_f);
+
+      // Send value to the Attenuator, multiplied by 100 to avoid float issues.
+      //attenuatorSerialSend(A_TEMPERATURE_PACK, f_temperature_c * 100);
+    }
+  }
+}
+#endif

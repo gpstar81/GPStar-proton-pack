@@ -47,7 +47,7 @@ Sound effects are prefixed with numbers 001-499 while music files will be prefix
 
 **As of release v5.3 and later it is normal to NOT hear music playback from the Neutrona Wand when connected to a Proton Pack.**
 
-This change forces music to only be played back through the Proton Pack, meaning it is only necessary to load music onto the SD card for the pack. It is only when using the Neutrona Wand in "benchtest" (aka. standalone) mode that music files are expected to be loaded onto the SD card for the wand.
+This change forces music to only be played back through the Proton Pack, meaning it is only necessary to load music onto the SD card for the pack. It is only when using the Neutrona Wand in standalone mode that music files are expected to be loaded onto the SD card for the wand.
 
 To add more music, copy stereo WAV tracks (uncompressed 16-bit 44.1kHz stereo WAV files) onto an SD card. File naming of the music tracks start at 500. So for example, `500_somesong.wav`, `501_somesong.wav`, `502_somesong.wav`, etc. **Do not leave any gaps in the number sequencing!** (For example of what NOT to do, `500_somesong.wav` followed by `502_somesong.wav` leaving off `501_somesong.wav` on the SD card.) The most and only important part in the naming is the XXX_ prefix for all tracks.
 

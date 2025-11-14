@@ -16,7 +16,7 @@ The AI should attempt to clean, organize, or enhance data when appropriate, with
 
 ## Project Overview
 
-This project is structured for development with PlatformIO, using the Arduino framework, and ATMega2560 and ESP32-based microcontrollers (aka. boards). The key components of the available projects include:
+This project is structured for development with VScode with the PlatformIO extension, using the Arduino framework, and multiple environments using ATMega2560 and ESP32-based microcontrollers (aka. boards). The key components of the available projects include:
 
 - **Devices**: Device-specific directories exist in the `sources` directory and represent a distinct sub-project.
 - **Source Code**: The main application logic resides in `src/main.cpp` of each sub-project.
@@ -25,43 +25,54 @@ This project is structured for development with PlatformIO, using the Arduino fr
 - **Board Configurations**: Board-specific configurations are stored in the sub-project's `boards/` directory.
 - **Partition Tables**: Custom partition tables are defined in the sub-project's `partitions/` directory.
 - **PlatformIO Configuration**: The `platformio.ini` file within each sub-project defines the build environment and dependencies.
+- **Shared Libraries**: A `SharedLib` directory contains shared resources (headers and/or classes) for multiple devices.
 
 ## Coding Guidelines
 
 1. **File Organization**:
    - Place all implementation code in `src/`.
    - Use the `include/` directory for header files that define shared constants, classes, and functions.
-   - Each sub-project should be self-contained with any libraries, includes, and supporting files.
+   - Use the `assets/` directory for static files like HTML, CSS, and JavaScript.
+   - Each sub-project should be mostly self-contained with any libraries, includes, and supporting files.
 
 2. **Naming Conventions**:
+   - Adhere to these conventions for new C++ (Arduino) code only; do not refactor existing code.
    - Use `PascalCase` for class names (e.g., `Device`).
-   - Use `camelCase` for variables and functions (e.g., `initializeWiFi`).
+   - Use `camelCase` for functions (e.g., `initializeWiFi`).
    - Use `UPPER_SNAKE_CASE` for constants (e.g., `MAX_CONNECTIONS`).
+   - Use a lowercase prefix plus `lower_snake_case` for local variable names (e.g., `device_status`).
+   - The prefix for local variables should be a lowercase letter and underscore designating type using the following as examples:
+     - "i_" for any integer types
+     - "f_" for float/double types
+     - "b_" for bool/boolean types
+     - "s_" for strings
+   - Preserve existing public API names unless explicitly approved to rename that API.
 
 3. **PlatformIO-Specific Practices**:
    - Use the `platformio.ini` file to manage dependencies and build configurations.
    - Keep board-specific settings in the `boards/` directory.
+   - Keep partition tables in the `partitions/` directory.
 
 4. **Code Style**:
-   - Follow consistent indentation (e.g., 2 spaces per level, 2 spaces per tab).
+   - Follow consistent indentation (e.g. No tabstops (\t), 2 spaces per level, 2 spaces per tab); do not reformat existing code, only new code.
    - Use comments to explain complex logic or hardware-specific code.
    - Avoid hardcoding values; use constants or configuration files instead.
 
 ## Development Patterns
 
 1. **WiFi Configuration**:
-   - Use the `ExtWiFi.h` header for WiFi-related functionality.
-   - Centralize WiFi credentials in `Configuration.h`.
+   - Use the `WirelessManager` shared class for managing basics such as credentials and configuration.
+   - Store sensitive information like SSIDs and passwords via NVS, avoiding hardcoding them in the source code.
 
 2. **Web Server**:
    - Use `Webhandler.h` to define routes and handle HTTP requests.
-   - Serve static files (e.g., `Index.h`, `Style.h`) for the web interface.
+   - Serve static files (e.g., `index.html`, `style.css`) for the web interface.
 
 3. **System Utilities**:
    - Use `System.h` for system-level utilities and initialization.
 
 4. **Time Management**:
-   - Any action which requires a delay should use the millisDelay() object and avoid the blocking delay() statement whenever possible.
+   - Any action which requires a delay should use the `millisDelay` object (included in all projects) and avoid the blocking `delay()` statement whenever possible.
    - For hardware such as ESP32 where RTOS is built-in and available attempt to follow patterns using a task scheduling approach.
 
 5. **Testing**:
@@ -98,19 +109,32 @@ This project is structured for development with PlatformIO, using the Arduino fr
    - Attempt to keep all variable types as small as necessary, for instance avoid `int` if a simple `uint8_t` would effectively hold the expected value.
    - For integer types use a specific size instead of a common name, for instance use `uint8_t` instead of `byte`.
    - Try to account for situations where an integer value may become negative and choose an appropriate type, for instance change to a signed integer.
+   - Don't worry about reformetting existing code, only add new code in the proper style.
 
 ## Commenting and Editing Styles
 
 1. **Thought Process and Plan of Action**:
-   - When making recommendations or edits, clearly lay out the thought process and the plan of action.
-   - Provide a "before" and "after" comparison for edits, allowing for review and approval before changes are finalized.
+   - Before making recommendations or suggesting edits, be sure to ask for any clarifications to avoid making assumptions; Align on the intended outcome first.
+   - If given a question for clarifications, try to state up front whether an approach may be on the right track or not, then offer clarification as necessary.
+   - Keep suggestions concise and to the point, focusing on steps one at a time if necessary to avoid overwhelming the user and allow testing in small increments.
+   - Allow the user to review and **explicitly** approve an approach before you make ANY changes to the code.
 
-2. **Commenting Code**:
-   - Functions and methods should include comments explaining their purpose, inputs, outputs, and any side effects.
+2. **Presentation Requirement for Proposed Code Edits**:
+   - Always provide two physically separate code blocks labeled exactly "Before" and "After".
+   - Each block must be a fenced code block using four backticks and the language name (use markdown for mixed text/code).
+   - The BEFORE block must show the exact existing code context (or the single marker "// ...existing code..." where appropriate) inside the fenced block.
+   - The AFTER block must show the proposed replacement or new code inside its own fenced block.
+   - Do not combine the two blocks; do not use unified diff format.
+   - After allowing preview of the BEFORE and AFTER, the user can accept or reject it.
+   - After preview, ask: "Apply the changes?"; to apply edits reply with any of the following: Approve, Approved, Yes.
+   - On any other response treat the change as "not approved" and wait for further instructions.
+
+3. **Commenting Code**:
+   - Functions and methods should include multi-line comments explaining their purpose, inputs, and outputs.
    - Objects and classes should be documented to describe their role in the system and their key attributes or methods.
    - When refactoring code, keep any existing comments to help identify the original intent and help with file compares.
    - Provide new comments on a new line below any existing comments, providing any context or reasoning for the changes.
-   - For code involving complex math or algorithms, provide detailed comments explaining the logic and purpose of the calculations. Example:
+   - For code involving complex math or algorithms, provide detailed comments explaining the logic and purpose of the calculations. For Example:
 
    ````cpp
    // Function: calculateTrajectory
@@ -129,3 +153,4 @@ This project is structured for development with PlatformIO, using the Arduino fr
 
        return distance;
    }
+`````

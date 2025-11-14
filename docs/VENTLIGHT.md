@@ -1,6 +1,6 @@
-# GPStar RGB Vent Lights (Optional)
+# GPStar RGB Vent Lights
 
-A colour changing vent light board that can be installed very easily with the GPStar Neutrona Wand PCB with no soldering required.
+A colour changing vent light board that can be installed very easily with the GPStar Neutrona Wand.
 
 ![](images/GPStar-RGB-Vent-Lights.jpg)
 
@@ -17,6 +17,10 @@ Mount the board and wire the connections as indicated in the photo below. Note t
 
 `After installation, you will need to enter the EEPROM Lighting Menu to enable the GPSTar RGB Vent Light. Please see the [EEPROM Configuration](OPERATION_EEPROM.md) guide.`
 
+### GPStar Neutrona Wand II
+![](images/GPStar_II_RGB_Vent_Light_Hookup.jpg)
+
+### GPStar Neutrona Wand
 ![](images/GPStar_RGB_Vent_Light_Hookup.jpg)
 
 # Frutto Technology High Intensity Vent Lights
@@ -26,6 +30,8 @@ A brighter high intensity vent light from Frutto Technology can be installed ver
 ## Installation
 
 Mount the board and wire the connections as indicated in the photo below. Note that the GND wire for the vent light board shares the same connection in the terminal blocks as the top dial ROT- terminal. This circuit draws around 100mA, so that is why you need to provide the GND pin.
+
+`WARNING: Only compatible with the original GPStar Neutrona Wand and not GPStar Neutrona Wand II.`
 
 `WARNING: The light is very intense, do not look at it directly.`
 

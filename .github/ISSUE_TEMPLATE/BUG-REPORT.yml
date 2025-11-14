@@ -50,6 +50,17 @@ body:
       default: 0
     validations:
       required: true
+  - type: dropdown
+    id: gpstar-base
+    attributes:
+      label: GPStar Controller Version
+      description: Select the version of GPStar controllers used in your system.
+      options:
+        - GPStar I
+        - GPStar II
+      default: 0
+    validations:
+      required: true
   - type: textarea
     id: hardware
     attributes:
@@ -62,7 +73,7 @@ body:
     id: troubleshooting
     attributes:
       label: Homework Completed
-      description: By submitting this issue, you did not find a solution via the [Troubleshooting Guide](https://github.com/gpstar81/GPStar-proton-pack/blob/main/TROUBLESHOOTING.md) or an existing bug report.
+      description: By submitting this issue, you did not find a solution via the [Troubleshooting Guide](https://gpstar81.github.io/GPStar-proton-pack/TROUBLESHOOTING/) or an existing bug report.
       options:
         - label: I did my part!
           required: true

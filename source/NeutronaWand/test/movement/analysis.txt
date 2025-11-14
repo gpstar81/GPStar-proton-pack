@@ -1,0 +1,148 @@
+Magnetometer Calibration Analysis Tool
+Purpose: Analyze prototype vs production binning behavior
+=========================================
+
+=== ANALYSIS CONFIGURATION ===
+Bin Size: 9° per bin
+Grid Dimensions: 40 azimuth bins × 20 elevation bins
+Total Bins Available: 800 bins
+Azimuth Range: 0° to 360° (coverage: 40 bins)
+Elevation Range: -90° to +90° (coverage: 20 bins)
+Coverage Resolution: Each bin represents 9° × 9° area
+Elevation Compensation: DISABLED
+
+Loading log files...
+Loaded 3741 readings from movement/prototype_last3.log
+Loaded 3119 readings from movement/production_last3.log
+
+Processing PROTOTYPE dataset...
+Analysis complete: 3741 valid samples, 494 unique bins (61.8% coverage)
+
+Processing PRODUCTION dataset...
+Analysis complete: 3119 valid samples, 70 unique bins (8.8% coverage)
+
+=== DETAILED ANALYSIS: PROTOTYPE ===
+Source File: movement/prototype_last3.log
+  Detailed breakdown written to: movement/prototype_last3_analysis.txt
+
+Sample Statistics:
+  Total Lines: 3741
+  Valid Samples: 3741
+  Accepted Samples: 494
+  Unique Bins: 494 / 800
+  Coverage: 61.75%
+  Processing Efficiency: 100.0% valid samples
+
+Magnitude Analysis:
+  Average: 48.97 µT
+  Range: 6.74 to 84.09 µT
+  Spread: 77.35 µT
+
+Angular Analysis:
+  Azimuth - Avg: 59.8°, Range: -179.9° to 179.9°
+  Elevation - Avg: -6.7°, Range: -83.8° to 86.4°
+
+Elevation Bin Distribution:
+  Bin  0 ( -90.0°):    8 samples
+  Bin  1 ( -81.0°):   55 samples
+  Bin  2 ( -72.0°):  218 samples
+  Bin  3 ( -63.0°):  151 samples
+  Bin  4 ( -54.0°):  252 samples
+  Bin  5 ( -45.0°):  287 samples
+  Bin  6 ( -36.0°):  295 samples
+  Bin  7 ( -27.0°):  259 samples
+  Bin  8 ( -18.0°):  355 samples
+  Bin  9 (  -9.0°):  231 samples
+  Bin 10 (   0.0°):  261 samples
+  Bin 11 (   9.0°):  270 samples
+  Bin 12 (  18.0°):  273 samples
+  Bin 13 (  27.0°):  347 samples
+  Bin 14 (  36.0°):  154 samples
+  Bin 15 (  45.0°):   89 samples
+  Bin 16 (  54.0°):  133 samples
+  Bin 17 (  63.0°):   69 samples
+  Bin 18 (  72.0°):   29 samples
+  Bin 19 (  81.0°):    5 samples
+
+Active Azimuth Bins: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 
+                     15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 
+                     30 31 32 33 34 35 36 37 38 39 
+
+Acceptance Summary:
+  Accepted: 494 / 3741 (13.2%)
+
+=== DETAILED ANALYSIS: PRODUCTION ===
+Source File: movement/production_last3.log
+  Detailed breakdown written to: movement/production_last3_analysis.txt
+
+Sample Statistics:
+  Total Lines: 3119
+  Valid Samples: 3119
+  Accepted Samples: 70
+  Unique Bins: 70 / 800
+  Coverage: 8.75%
+  Processing Efficiency: 100.0% valid samples
+
+Magnitude Analysis:
+  Average: 99.93 µT
+  Range: 43.86 to 133.71 µT
+  Spread: 89.85 µT
+
+Angular Analysis:
+  Azimuth - Avg: 126.2°, Range: 78.0° to 167.1°
+  Elevation - Avg: -49.7°, Range: -75.2° to -14.0°
+
+Elevation Bin Distribution:
+  Bin  1 ( -81.0°):   55 samples
+  Bin  2 ( -72.0°):  510 samples
+  Bin  3 ( -63.0°):  912 samples
+  Bin  4 ( -54.0°):  705 samples
+  Bin  5 ( -45.0°):  280 samples
+  Bin  6 ( -36.0°):  287 samples
+  Bin  7 ( -27.0°):  277 samples
+  Bin  8 ( -18.0°):   93 samples
+
+Active Azimuth Bins: 28 29 30 31 32 33 34 35 36 37 38 
+
+Acceptance Summary:
+  Accepted: 70 / 3119 (2.2%)
+
+=== COMPARATIVE ANALYSIS ===
+Metric                    | Prototype       | Production      | Ratio (P/Pr)
+----------------------------------------------------------------------
+Valid Samples             | 3741            | 3119            | 0.83        
+Unique Bins               | 494             | 70              | 0.14        
+Coverage %                | 61.8            | 8.8             | 0.14        
+Avg Magnitude (µT)       | 49.0            | 99.9            | 2.04        
+Avg Elevation (°)        | -6.75           | -49.73          | 7.37        
+Avg Azimuth (°)          | 59.82           | 126.16          | 2.11        
+
+=== KEY FINDINGS ===
+1. Magnitude Difference: Production readings are 2.0x stronger
+   -> SIGNIFICANT: Trace removal eliminated magnetic damping
+2. Coverage Difference: Production achieves 0.1x the coverage
+   -> CRITICAL: Severe coverage reduction detected
+3. Elevation Shift: Production reads -43.0° different elevation
+   -> SIGNIFICANT: Large elevation bias detected
+4. Bin Overlap: 13.9% of bins are shared between datasets
+   -> CRITICAL: Low bin overlap suggests systematic bias
+
+=== FALLBACK ANALYSIS SUMMARY ===
+
+[FALLBACK DEBUG] Used all valid samples (3119) for hard-iron offset calculation.
+[FALLBACK DEBUG] Spread X: 86.91 (threshold: 30)
+[FALLBACK DEBUG] Spread Y: 89.71 (threshold: 30)
+[FALLBACK DEBUG] Spread Z: 89.7 (threshold: 30)
+[FALLBACK DEBUG] Hard-iron offset applied: X=-33.515 Y=53.685 Z=-60.27
+[FALLBACK DEBUG] Re-processing production file with fallback offset...
+
+Fallback Coverage: 69.38% (555 bins)
+Fallback Avg Magnitude: 42.48 µT
+Fallback Avg Elevation: -22.65°
+Fallback Avg Azimuth: -28.99°
+Fallback Accepted Samples: 555
+Fallback Valid Samples: 3119
+Fallback Min/Max Magnitude: 29.08 / 52.12 µT
+Fallback Min/Max Elevation: -88.85 / 87.60°
+Fallback Min/Max Azimuth: -179.80 / 179.80°
+

@@ -20,10 +20,10 @@
 
 #pragma once
 
-void debug(String message) {
-  // Writes a debug message to the serial console.
+// Writes a debug message to the serial console or sends to the WebSocket.
+void sendDebug(const String message) {
   #if defined(DEBUG_SEND_TO_CONSOLE)
-    Serial.println(message); // Print to serial console.
+    debugln(message); // Print to serial console.
   #endif
   #if defined(DEBUG_SEND_TO_WEBSOCKET)
     ws.textAll(message); // Send a copy to the WebSocket.
@@ -35,24 +35,134 @@ void printPartitions() {
   const esp_partition_t *partition;
   esp_partition_iterator_t iterator = esp_partition_find(ESP_PARTITION_TYPE_ANY, ESP_PARTITION_SUBTYPE_ANY, NULL);
 
-  if (iterator == nullptr) {
-    Serial.println(F("No partitions found."));
+  if(iterator == nullptr) {
+    debugln(F("No partitions found."));
     return;
   }
 
-  Serial.println(F("Partitions:"));
-  while (iterator != nullptr) {
+  debugln(F("Partitions:"));
+  while(iterator != nullptr) {
     partition = esp_partition_get(iterator);
-    Serial.printf("Label: %s, Size: %lu bytes, Address: 0x%08lx\n",
-                  partition->label,
-                  partition->size,
-                  partition->address);
+    debugf("Label: %s, Size: %lu bytes, Address: 0x%08lx\n",
+           partition->label,
+           partition->size,
+           partition->address);
     iterator = esp_partition_next(iterator);
   }
 
   esp_partition_iterator_release(iterator);  // Release the iterator once done
 }
 
+/*
+ * Prevent stream mode change if wand is firing, in an error state, or VG modes are disabled.
+ */
+bool canChangeStreamMode() {
+  if(!b_pack_on || b_wand_firing || b_overheating || b_pack_alarm || b_pack_shutting_down || SYSTEM_MODE == MODE_ORIGINAL || !(STREAM_MODE_FLAG & FLAG_VG)) {
+    return false;
+  }
+  return true;
+}
+
+/*
+ * Change the current stream mode to a new mode, if allowed.
+ */
+void changeStreamMode(STREAM_MODES new_mode) {
+  if(!canChangeStreamMode()) {
+    debugln("Stream mode change not allowed while pack is firing or in error state.");
+    return;
+  }
+
+  // Debounce rapid calls to avoid flooding the serial interface.
+  if(ms_streamchange.remaining() > 0) {
+    debugln("Stream mode change suppressed due to debounce timer.");
+    return;
+  }
+
+  // Continue to change the stream mode.
+  switch(new_mode) {
+    case PROTON:
+      attenuatorSerialSend(A_PROTON_MODE);
+    break;
+    case STASIS:
+      if(!!(STREAM_MODE_FLAG & FLAG_VG)) {
+        attenuatorSerialSend(A_STASIS_MODE);
+      }
+      else {
+        debugln("VG modes not enabled, cannot switch to Stasis.");
+      }
+    break;
+    case SLIME:
+      if(!!(STREAM_MODE_FLAG & FLAG_VG)) {
+        attenuatorSerialSend(A_SLIME_MODE);
+      }
+      else {
+        debugln("VG modes not enabled, cannot switch to Slime.");
+      }
+    break;
+    case MESON:
+      if(!!(STREAM_MODE_FLAG & FLAG_VG)) {
+        attenuatorSerialSend(A_MESON_MODE);
+      }
+      else {
+        debugln("VG modes not enabled, cannot switch to Meson.");
+      }
+    break;
+    case SPECTRAL:
+      if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL)) {
+        attenuatorSerialSend(A_SPECTRAL_MODE);
+      }
+      else {
+        debugln("Spectral mode not enabled, cannot switch to Spectral.");
+      }
+    break;
+    case HOLIDAY_HALLOWEEN:
+      if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_HALLOWEEN)) {
+        attenuatorSerialSend(A_HALLOWEEN_MODE);
+      }
+      else {
+        debugln("Halloween mode not enabled, cannot switch to Halloween.");
+      }
+    break;
+    case HOLIDAY_CHRISTMAS:
+      if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_CHRISTMAS)) {
+        attenuatorSerialSend(A_CHRISTMAS_MODE);
+      }
+      else {
+        debugln("Christmas mode not enabled, cannot switch to Christmas.");
+      }
+    break;
+    case SPECTRAL_CUSTOM:
+      if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
+        attenuatorSerialSend(A_SPECTRAL_CUSTOM_MODE);
+      }
+      else {
+        debugln("Spectral Custom mode not enabled, cannot switch to Spectral Custom.");
+      }
+    break;
+    default:
+      debugln("Invalid Stream Mode");
+    break;
+  }
+
+  ms_streamchange.start(i_stream_change_delay); // Restart debounce timer.
+}
+
+/*
+ * Turns off the front-facing device LEDs (except top LED).
+ */
+void deviceLightsOff() {
+  // Turn off the LEDs by setting to black.
+  if(device_leds[i_device_led[1]] != CRGB::Black) {
+    device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_BLACK);
+  }
+  if(device_leds[i_device_led[2]] != CRGB::Black) {
+    device_leds[i_device_led[2]] = getHueAsRGB(i_device_led[2], C_BLACK);
+  }
+}
+
+/*
+ * Runs the buzzer for a set period of time using a provided frequency.
+ */
 void buzzOn(uint16_t i_freq) {
   if(b_enable_buzzer) {
     if(!b_buzzer_on) {
@@ -64,6 +174,9 @@ void buzzOn(uint16_t i_freq) {
   }
 }
 
+/*
+ * Stops the buzzer if it is currently active.
+ */
 void buzzOff() {
   if(b_buzzer_on) {
     noTone(BUZZER_PIN);
@@ -72,6 +185,9 @@ void buzzOff() {
   }
 }
 
+/*
+ * Runs the vibration motor for a set period of time (ms).
+ */
 void useVibration(uint16_t i_duration) {
   if(b_enable_vibration) {
     if(!b_vibrate_on) {
@@ -85,6 +201,9 @@ void useVibration(uint16_t i_duration) {
   }
 }
 
+/*
+ * Stops the vibration motor if it is currently active.
+ */
 void vibrateOff() {
   if(b_vibrate_on) {
     analogWrite(VIBRATION_PIN, i_min_power);
@@ -118,7 +237,7 @@ void updateLEDs() {
       // Keep indicator solid.
       ms_top_blink.stop(); // Stop the blink timer which won't be used at this menu level.
       b_top_led_off = false; // Denotes LED is not in an off (blinking) state, but solid.
-      device_leds[i_device_led[0]] = getHueAsRGB(i_device_led[0], i_top_led_colour, i_top_led_brightness);
+      device_leds[i_device_led[0]] = getHueAsRGB(i_device_led[0], i_top_led_colour, i_top_led_brightness, b_grb_leds);
     break;
 
     case MENU_2:
@@ -130,36 +249,29 @@ void updateLEDs() {
 
       if(b_top_led_off) {
         // Not completely dark but very dim (1/10th of the normal brightness).
-        device_leds[i_device_led[0]] = getHueAsRGB(i_device_led[0], i_top_led_colour, int(i_top_led_brightness / 10));
+        device_leds[i_device_led[0]] = getHueAsRGB(i_device_led[0], i_top_led_colour, int(i_top_led_brightness / 10), b_grb_leds);
       }
       else {
         // Return to normal brightness for the current top LED colour.
-        device_leds[i_device_led[0]] = getHueAsRGB(i_device_led[0], i_top_led_colour, i_top_led_brightness);
+        device_leds[i_device_led[0]] = getHueAsRGB(i_device_led[0], i_top_led_colour, i_top_led_brightness, b_grb_leds);
       }
     break;
   }
 
-  if(b_right_toggle_on) {
-    // Set upper LED based on alarm or overheating state, when connected.
-    // Otherwise, use the standard pattern/colour for illumination.
-    if(b_pack_alarm || b_overheating) {
-      device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_RED_FADE);
-    }
-    else {
-      switch(RAD_LENS_IDLE) {
-        case ORANGE_FADE:
-          device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_ORANGE_FADE);
-        break;
-        case AMBER_PULSE:
-        default:
-          device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_AMBER_PULSE);
-        break;
-      }
-    }
+  // Set upper LED based on alarm or overheating state, when connected.
+  // Otherwise, use the standard pattern/colour for illumination.
+  if(b_pack_alarm || b_overheating) {
+    device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_RED_FADE, 255, b_grb_leds);
   }
   else {
-    if(device_leds[i_device_led[1]] != CRGB::Black) {
-      device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_BLACK);
+    switch(RAD_LENS_IDLE) {
+      case ORANGE_FADE:
+        device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_ORANGE_FADE, 255, b_grb_leds);
+      break;
+      case AMBER_PULSE:
+      default:
+        device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_AMBER_PULSE, 255, b_grb_leds);
+      break;
     }
   }
 
@@ -210,14 +322,14 @@ void updateLEDs() {
   }
 
   // Update the lower LED based on the scheme determined above.
-  if(!b_right_toggle_on || b_blink_blank) {
-    // Turn off when right toggle is off or when mid-blink.
+  if(b_blink_blank) {
+    // Turn off when in mid-blink state.
     if(device_leds[i_device_led[2]] != CRGB::Black) {
       device_leds[i_device_led[2]] = getHueAsRGB(i_device_led[2], C_BLACK);
     }
   }
   else {
-    device_leds[i_device_led[2]] = getHueAsRGB(i_device_led[2], i_scheme);
+    device_leds[i_device_led[2]] = getHueAsRGB(i_device_led[2], i_scheme, 255, b_grb_leds);
   }
 }
 
@@ -290,14 +402,14 @@ void checkRotaryPress() {
           // A short, single press should start or stop the music.
           attenuatorSerialSend(A_MUSIC_START_STOP);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
-          debug("Rotary: Music Start/Stop");
+          debugln("Rotary: Music Start/Stop");
         break;
 
         case MENU_2:
           // A short, single press should advance to the next track.
           attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
-          debug("Rotary: Next Track");
+          debugln("Rotary: Next Track");
         break;
       }
     break;
@@ -309,14 +421,14 @@ void checkRotaryPress() {
           // A double press should mute the pack and wand.
           attenuatorSerialSend(A_TOGGLE_MUTE);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
-          debug("Rotary: Toggle Mute");
+          debugln("Rotary: Toggle Mute");
         break;
 
         case MENU_2:
           // A double press should move back to the previous track.
           attenuatorSerialSend(A_MUSIC_PREV_TRACK);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
-          debug("Rotary: Previous Track");
+          debugln("Rotary: Previous Track");
         break;
       }
     break;
@@ -327,13 +439,13 @@ void checkRotaryPress() {
       switch(MENU_LEVEL) {
         case MENU_1:
           MENU_LEVEL = MENU_2; // Change menu level.
-          debug("Rotary: Menu 2");
+          debugln("Rotary: Menu 2");
           useVibration(i_vibrate_min_time); // Give a quick nudge.
           buzzOn(784); // Tone as note G4
         break;
         case MENU_2:
           MENU_LEVEL = MENU_1; // Change menu level.
-          debug("Rotary: Menu 1");
+          debugln("Rotary: Menu 1");
           useVibration(i_vibrate_min_time); // Give a quick nudge.
           buzzOn(440); // Tone as note A4
         break;
@@ -347,98 +459,229 @@ void checkRotaryPress() {
 }
 
 /*
- * Determines if encoder was turned CW or CCW.
- */
-void readEncoder() {
-  if(digitalRead(r_encoderA) == digitalRead(r_encoderB)) {
-    i_encoder_pos++; // Clockwise
-  }
-  else {
-    i_encoder_pos--; // Counter-clockwise
-  }
-
-  i_val_rotary = i_encoder_pos / 2.5;
-}
-
-/*
  * Rotary Dial Rotation
  *
  * Performs action based turning the dial.
  */
 void checkRotaryEncoder() {
-  // Take action if rotary encoder value was turned CW.
-  if(i_val_rotary > i_last_val_rotary) {
-    if(!ms_rotary_debounce.isRunning()) {
-      if(b_firing && i_speed_multiplier > 2) {
-        // Tell the pack to cancel the current overheat warning.
+  encoder.check();
+
+  // Consume the last event and handle as necessary. This uses a special method to read and
+  // immediately clear the last encoder STATE value so it won't be lost by scheduling/order.
+  switch(encoder.consumeState()) {
+    case ENCODER_CW:
+      if(b_wand_firing && b_wand_connected && i_cyclotron_multiplier > 2) {
+        // Do the actual attenuation for the Proton Pack!
+        // Cancels an overheat warning when firing and cyclotron state is higher than 2.
         // Only do so after 5 turns of the dial (CW).
         i_rotary_count++;
         if(i_rotary_count % 5 == 0) {
           attenuatorSerialSend(A_WARNING_CANCELLED);
-          debug("Rotary: Overheat Cancelled");
+          debugln("Rotary: Overheat Cancelled");
           i_rotary_count = 0;
         }
       }
-      else if(!b_firing) {
+      else if(!b_wand_firing) {
         // Perform action based on the current menu level.
         switch(MENU_LEVEL) {
           case MENU_1:
             // Tell pack to increase overall volume.
             attenuatorSerialSend(A_VOLUME_INCREASE);
-            debug("Rotary: Master Volume+");
+            debugln("Rotary: Master Volume+");
           break;
 
           case MENU_2:
             // Tell pack to increase effects volume.
             attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_INCREASE);
-            debug("Rotary: Effects Volume+");
+            debugln("Rotary: Effects Volume+");
+          break;
+
+          case MENU_STREAM:
+            // Change to the previous stream mode.
+            if(canChangeStreamMode()) {
+              switch(STREAM_MODE) {
+                case PROTON:
+                  if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
+                    changeStreamMode(SPECTRAL_CUSTOM);
+                  }
+                  else if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_CHRISTMAS)) {
+                    changeStreamMode(HOLIDAY_CHRISTMAS);
+                  }
+                  else if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_HALLOWEEN)) {
+                    changeStreamMode(HOLIDAY_HALLOWEEN);
+                  }
+                  else if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL)) {
+                    changeStreamMode(SPECTRAL);
+                  }
+                  else {
+                    changeStreamMode(MESON);
+                  }
+                break;
+                case STASIS:
+                  changeStreamMode(PROTON);
+                break;
+                case SLIME:
+                  changeStreamMode(STASIS);
+                break;
+                case MESON:
+                  changeStreamMode(SLIME);
+                break;
+                case SPECTRAL:
+                  changeStreamMode(MESON);
+                break;
+                case HOLIDAY_HALLOWEEN:
+                  if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL)) {
+                    changeStreamMode(SPECTRAL);
+                  }
+                  else {
+                    changeStreamMode(MESON);
+                  }
+                break;
+                case HOLIDAY_CHRISTMAS:
+                  if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_HALLOWEEN)) {
+                    changeStreamMode(HOLIDAY_HALLOWEEN);
+                  }
+                  else if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL)) {
+                    changeStreamMode(SPECTRAL);
+                  }
+                  else {
+                    changeStreamMode(MESON);
+                  }
+                break;
+                case SPECTRAL_CUSTOM:
+                  if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_CHRISTMAS)) {
+                    changeStreamMode(HOLIDAY_CHRISTMAS);
+                  }
+                  else if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_HALLOWEEN)) {
+                    changeStreamMode(HOLIDAY_HALLOWEEN);
+                  }
+                  else if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL)) {
+                    changeStreamMode(SPECTRAL);
+                  }
+                  else {
+                    changeStreamMode(MESON);
+                  }
+                break;
+                default:
+                  debugln("Invalid Stream Mode; reverting to Proton");
+                  changeStreamMode(PROTON);
+                break;
+              }
+            }
+            debugln("Rotary: Previous Stream Mode");
           break;
         }
       }
+    break;
 
-      ms_rotary_debounce.start(rotary_debounce_time);
-    }
-  }
-
-  // Take action if rotary encoder value was turned CCW.
-  if(i_val_rotary < i_last_val_rotary) {
-    if(!ms_rotary_debounce.isRunning()) {
-      if(b_firing && i_speed_multiplier > 2) {
-        // Tell the pack to cancel the current overheat warning.
+    case ENCODER_CCW:
+      if(b_wand_firing && b_wand_connected && i_cyclotron_multiplier > 2) {
+        // Do the actual attenuation for the Proton Pack!
+        // Cancels an overheat warning when firing and cyclotron state is higher than 2.
         // Only do so after 5 turns of the dial (CCW).
         i_rotary_count++;
         if(i_rotary_count % 5 == 0) {
           attenuatorSerialSend(A_WARNING_CANCELLED);
-          debug("Rotary: Overheat Cancelled");
+          debugln("Rotary: Overheat Cancelled");
           i_rotary_count = 0;
         }
       }
-      else if(!b_firing) {
+      else if(!b_wand_firing) {
         // Perform action based on the current menu level.
         switch(MENU_LEVEL) {
           case MENU_1:
             // Tell pack to decrease overall volume.
             attenuatorSerialSend(A_VOLUME_DECREASE);
-            debug("Rotary: Master Volume-");
+            debugln("Rotary: Master Volume-");
           break;
 
           case MENU_2:
             // Tell pack to decrease effects volume.
             attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_DECREASE);
-            debug("Rotary: Effects Volume-");
+            debugln("Rotary: Effects Volume-");
+          break;
+
+          case MENU_STREAM:
+            // Change to the next stream mode.
+            if(canChangeStreamMode()) {
+              switch(STREAM_MODE) {
+                case PROTON:
+                  changeStreamMode(STASIS);
+                break;
+                case STASIS:
+                  changeStreamMode(SLIME);
+                break;
+                case SLIME:
+                  changeStreamMode(MESON);
+                break;
+                case MESON:
+                  if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL)) {
+                    changeStreamMode(SPECTRAL);
+                  }
+                  else if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_HALLOWEEN)) {
+                    changeStreamMode(HOLIDAY_HALLOWEEN);
+                  }
+                  else if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_CHRISTMAS)) {
+                    changeStreamMode(HOLIDAY_CHRISTMAS);
+                  }
+                  else if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
+                    changeStreamMode(SPECTRAL_CUSTOM);
+                  }
+                  else {
+                    changeStreamMode(PROTON);
+                  }
+                break;
+                case SPECTRAL:
+                  if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_HALLOWEEN)) {
+                    changeStreamMode(HOLIDAY_HALLOWEEN);
+                  }
+                  else if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_CHRISTMAS)) {
+                    changeStreamMode(HOLIDAY_CHRISTMAS);
+                  }
+                  else if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
+                    changeStreamMode(SPECTRAL_CUSTOM);
+                  }
+                  else {
+                    changeStreamMode(PROTON);
+                  }
+                break;
+                case HOLIDAY_HALLOWEEN:
+                  if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_CHRISTMAS)) {
+                    changeStreamMode(HOLIDAY_CHRISTMAS);
+                  }
+                  else if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
+                    changeStreamMode(SPECTRAL_CUSTOM);
+                  }
+                  else {
+                    changeStreamMode(PROTON);
+                  }
+                break;
+                case HOLIDAY_CHRISTMAS:
+                  if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
+                    changeStreamMode(SPECTRAL_CUSTOM);
+                  }
+                  else {
+                    changeStreamMode(PROTON);
+                  }
+                break;
+                case SPECTRAL_CUSTOM:
+                  changeStreamMode(PROTON);
+                break;
+                default:
+                  debugln("Invalid Stream Mode; reverting to Proton");
+                  changeStreamMode(PROTON);
+                break;
+              }
+            }
+            debugln("Rotary: Next Stream Mode");
           break;
         }
       }
+    break;
 
-      ms_rotary_debounce.start(rotary_debounce_time);
-    }
-  }
-
-  // Remember the last rotary value for comparison later.
-  i_last_val_rotary = i_val_rotary;
-
-  if(ms_rotary_debounce.justFinished()) {
-    ms_rotary_debounce.stop();
+    default:
+      // No action taken.
+    break;
   }
 }
 
@@ -458,8 +701,14 @@ void switchLoops() {
  */
 void checkUserInputs() {
   switchLoops();
-  checkRotaryPress();
-  if(!b_center_lockout) {
+
+  if(MENU_LEVEL != MENU_STREAM) {
+    // Check for a press event (long/short) only if not in stream select mode.
+    checkRotaryPress();
+  }
+
+  if(!b_center_lockout || MENU_LEVEL == MENU_STREAM) {
+    // Check for rotation only when center lockout is NOT active, or if in stream mode.
     checkRotaryEncoder();
   }
 
@@ -470,7 +719,7 @@ void checkUserInputs() {
    * When paired with the gpstar Proton Pack controller, will turn the
    * pack on or off. When the pack is on the bargraph will automatically
    * enable and display an animation which matches the Neutrona Wand
-   * bargraph (whether stock 5-LED version or 28-segment by Frutto).
+   * bargraph (whether stock 5-LED version or GPStar bargraph).
    *
    * Standalone:
    * When not paired with the GPStar Proton Pack controller, will turn
@@ -515,40 +764,55 @@ void checkUserInputs() {
   }
   else {
     if(switch_left.getState() == HIGH) {
-      bargraphOff(); // Clear all bargraph elements and turn off the device.
+      if(BARGRAPH_STATE != BG_OFF) {
+        bargraphOff(); // Clear all bargraph elements and turn off the device.
+      }
     }
   }
 
   /*
    * Right Toggle - Uses a pull-up resistor, so setting LOW indicates ON.
    *
-   * The right toggle activates the LEDs on the device manually.
+   * The right toggle activates the stream-mode selection via the encoder.
    *
-   * When paired with the gpstar Proton pack controller, the LEDs
-   * will change colours based on user interactions.
+   * When paired with the gpstar Proton pack controller, the LEDs will
+   * change colours based on user interactions. Additionally, feedback
+   * via vibration and buzzer will be provided as needed, and animation
+   * of the bargraph will change pattern.
    *
-   * Note that audio and physical feedback will also be disabled
-   * when this switch is in the off position.
+   * When the switch is off the encoder will return to volume/track control.
    */
   if(switch_right.getState() == LOW) {
     b_right_toggle_on = true;
 
-    if(b_firing && i_speed_multiplier <= 2 && b_firing_feedback && !b_overheating && !b_pack_alarm) {
+    // Only enter stream select mode if wand is not firing or in an error state.
+    if(canChangeStreamMode()) {
+      // Enter the stream select mode for the top dial.
+      if(MENU_LEVEL != MENU_STREAM) {
+        MENU_LEVEL = MENU_STREAM;
+
+        // Provide feedback that the system changed menu state.
+        useVibration(i_vibrate_min_time); // Give a quick nudge.
+        buzzOn(784); // Tone as note G4
+      }
+    }
+
+    if(b_wand_firing && i_cyclotron_multiplier < 3 && b_firing_feedback && !(b_overheating || b_pack_alarm)) {
       // Give physical feedback through vibration while wand is firing, but not in an overheat/alarm state.
       useVibration(i_vibrate_min_time); // Use short bursts as this may be called multiple times in a row.
     }
-    else if((b_firing && i_speed_multiplier > 2) || b_overheating || b_pack_alarm) {
+    else if((b_wand_firing && i_cyclotron_multiplier > 2) || b_overheating || b_pack_alarm) {
       // If in pre-overheat warning, overheat, or alarm modes...
 
       // Sets a timer value proportional to the speed of the cyclotron.
-      uint16_t i_blink_time = int(i_blink_leds / i_speed_multiplier);
+      uint16_t i_blink_time = int(i_blink_leds / i_cyclotron_multiplier);
 
       if(ms_blink_leds.justFinished()) {
         ms_blink_leds.start(i_blink_time);
       }
 
       if(ms_blink_leds.isRunning()) {
-        if(b_firing && i_speed_multiplier >= 3 && !b_overheating) {
+        if(b_wand_firing && i_cyclotron_multiplier > 2 && !b_overheating) {
           // Switch to a modified bargraph pattern for the pre-overheat (venting)
           // warning while the wand is still firing.
           BARGRAPH_PATTERN = BG_INNER_PULSE;
@@ -576,15 +840,15 @@ void checkUserInputs() {
     }
   }
   else {
-    // Toggle is in the OFF position.
     b_right_toggle_on = false;
-    b_blink_blank = false;
-    // Turn off the LEDs by setting to black.
-    if(device_leds[i_device_led[1]] != CRGB::Black) {
-      device_leds[i_device_led[1]] = getHueAsRGB(i_device_led[1], C_BLACK);
-    }
-    if(device_leds[i_device_led[2]] != CRGB::Black) {
-      device_leds[i_device_led[2]] = getHueAsRGB(i_device_led[2], C_BLACK);
+
+    // Return to dial menu level 1 if previously in stream select.
+    if(MENU_LEVEL == MENU_STREAM) {
+      MENU_LEVEL = MENU_1;
+
+      // Provide feedback that the system changed menu state.
+      useVibration(i_vibrate_min_time); // Give a quick nudge.
+      buzzOn(440); // Tone as note A4
     }
   }
 

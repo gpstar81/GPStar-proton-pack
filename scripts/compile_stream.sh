@@ -7,6 +7,8 @@
 BINDIR="../binaries"
 SRCDIR="../source"
 PROJECT_DIR="$SRCDIR/StreamEffects"
+ASSETS_DIR="$PROJECT_DIR/assets"
+GZIP_EXTS="svg,ico,stl,min.js"
 
 mkdir -p ${BINDIR}/stream/extras
 

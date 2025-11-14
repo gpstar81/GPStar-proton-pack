@@ -20,38 +20,15 @@
 
 #pragma once
 
-// Used to scan the i2c bus and to locate the 28-segment bargraph.
-#define WIRE Wire
-
 /*
- * Device state.
- * Typically either on or off, but could be in an intermediate error state.
+ * Motion Devices.
  */
-enum DEVICE_STATE { MODE_OFF, MODE_ON, MODE_ERROR };
-enum DEVICE_STATE DEVICE_STATUS;
-
-/*
- * Various device action states.
- * Indicates a specific mode of operation as initiated by the user.
- */
-enum DEVICE_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE, ACTION_FIRING, ACTION_ERROR, ACTION_SETTINGS, ACTION_CONFIG_EEPROM_MENU };
-enum DEVICE_ACTION_STATE DEVICE_ACTION_STATUS;
-
-/*
- * Device Stream Modes + Settings
- * Stream = Type of particle stream to be thrown by the device
- */
-enum STREAM_MODES { PROTON };
-enum STREAM_MODES STREAM_MODE;
-enum POWER_LEVELS {
-  LEVEL_1 = 1,
-  LEVEL_2 = 2,
-  LEVEL_3 = 3,
-  LEVEL_4 = 4,
-  LEVEL_5 = 5
-};
-enum POWER_LEVELS POWER_LEVEL;
-enum POWER_LEVELS POWER_LEVEL_PREV;
+#ifdef ESP32
+  #define GYRO_INT1_PIN 1
+  #define GYRO_INT2_PIN 2
+  #define MAG_INT_PIN 43
+  #define MAG_RDY_PIN 44
+#endif
 
 /*
  * Addressable LEDs
@@ -59,8 +36,20 @@ enum POWER_LEVELS POWER_LEVEL_PREV;
  * The barrel will be the first in the addressable LED chain, while the cyclotron is last.
  * LED #1 is the "top" (near the DIN pin) while #7 is the dead center of the jewel itself.
  */
-#define SYSTEM_LED_PIN 10
-#define TOP_LED_PIN 12
+#ifdef ESP32
+  // For the i2c Bus
+  #define I2C_SDA 15
+  #define I2C_SCL 16
+  #define IMU_SCL 47
+  #define IMU_SDA 48
+
+  #define SYSTEM_LED_PIN 41
+  #define TOP_LED_PIN 42 // RGB Vent light only for ESP32.
+#else
+  #define SYSTEM_LED_PIN 10
+  #define TOP_LED_PIN 12
+#endif
+
 #define CYCLOTRON_LED_COUNT 7 // GPStar 7-LED Jewel
 #define BARREL_LED_COUNT 7 // GPStar 7-LED Jewel
 CRGB system_leds[CYCLOTRON_LED_COUNT + BARREL_LED_COUNT];
@@ -81,14 +70,55 @@ bool b_vent_lights_changed = false; // Check for whether there was actually a ch
  * Non-addressable LEDs
  * Uses a common object to define and set expected properties for all LEDs
  */
-#define SLO_BLO_LED_PIN 8 // SLO-BLO LED. (Red LED)
-#define CLIPPARD_LED_PIN 9 // LED underneath the Clippard valve. (Orange or White LED)
-#define TOP_LED_PIN 12 // Blinking white light beside the vent on top of the wand.
-#define VENT_LED_PIN 13 // Vent light.
-#define BARREL_HAT_LED_PIN 22 // Hat light at front of the wand near the barrel tip. (Orange LED)
-#define TOP_HAT_LED_PIN 23 // Hat light at top of the wand body near vent. (Orange or White LED)
-#define BARREL_TIP_LED_PIN 24 // White LED at tip of the wand barrel. (White LED)
-#define WAND_STATUS_LED_PIN 38 // V1.4 GPStar Neutrona Wand onboard LED pin.
+#ifdef ESP32
+  #define SLO_BLO_LED_PIN 12 // SLO-BLO LED. (Red LED)
+  #define CLIPPARD_LED_PIN 3 // LED underneath the Clippard valve. (Orange or White LED)
+  #define BARREL_LED_PIN 41 // Data pin for the addressable LEDs in the barrel.
+  #define BARREL_HAT_LED_PIN 10 // Hat light at front of the blaster near the barrel tip. (Orange LED)
+  #define TOP_HAT_LED_PIN 9 // Hat light at top of the blaster body near vent. (Orange or White LED)
+  #define BARREL_TIP_LED_PIN 46 // White LED at tip of the blaster barrel. (White LED)
+  #define WAND_STATUS_LED_PIN 38 // V1.4 GPStar Neutrona Wand onboard LED pin.
+#else
+  #define SLO_BLO_LED_PIN 8 // SLO-BLO LED. (Red LED)
+  #define CLIPPARD_LED_PIN 9 // LED underneath the Clippard valve. (Orange or White LED)
+  #define TOP_LED_PIN 12 // Blinking white light beside the vent on top of the blaster.
+  #define VENT_LED_PIN 13 // Vent light (either stock or RGB LED).
+  #define BARREL_HAT_LED_PIN 22 // Hat[1] light at front of the blaster near the barrel tip. (Orange LED)
+  #define TOP_HAT_LED_PIN 23 // Hat[2] light at top of the blaster body near vent. (Orange or White LED)
+  #define BARREL_TIP_LED_PIN 24 // White LED at tip of the blaster barrel. (White LED)
+  #define WAND_STATUS_LED_PIN 38 // V1.4 GPStar Neutrona Wand onboard LED pin.
+#endif
+
+/*
+ * Device state.
+ * Typically either on or off, but could be in an intermediate error state.
+ */
+enum DEVICE_STATE { MODE_OFF, MODE_ON, MODE_ERROR };
+enum DEVICE_STATE DEVICE_STATUS;
+
+/*
+ * Various device action states.
+ * Indicates a specific mode of operation as initiated by the user.
+ */
+enum DEVICE_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE, ACTION_FIRING, ACTION_ERROR, ACTION_SETTINGS };
+enum DEVICE_ACTION_STATE DEVICE_ACTION_STATUS;
+
+/*
+ * Device Stream Modes + Settings
+ * Stream = Type of particle stream to be thrown by the device
+ */
+enum STREAM_MODES { PROTON };
+enum STREAM_MODES STREAM_MODE;
+enum POWER_LEVELS {
+  LEVEL_1 = 1,
+  LEVEL_2 = 2,
+  LEVEL_3 = 3,
+  LEVEL_4 = 4,
+  LEVEL_5 = 5
+};
+enum POWER_LEVELS POWER_LEVEL = LEVEL_5;
+enum POWER_LEVELS POWER_LEVEL_PREV = POWER_LEVEL;
+
 struct StandaloneLED {
   uint8_t Pin; // Pin Assignment
   uint8_t On;  // State for "on"
@@ -125,8 +155,10 @@ struct StandaloneLED {
 StandaloneLED led_Status = {WAND_STATUS_LED_PIN, HIGH, LOW};
 StandaloneLED led_SloBlo = {SLO_BLO_LED_PIN, HIGH, LOW};
 StandaloneLED led_Clippard = {CLIPPARD_LED_PIN, HIGH, LOW};
-StandaloneLED led_TopWhite = {TOP_LED_PIN, LOW, HIGH};
-StandaloneLED led_Vent = {VENT_LED_PIN, LOW, HIGH};
+#ifndef ESP32
+  StandaloneLED led_TopWhite = {TOP_LED_PIN, LOW, HIGH};
+  StandaloneLED led_Vent = {VENT_LED_PIN, LOW, HIGH};
+#endif
 StandaloneLED led_Hat1 = {BARREL_HAT_LED_PIN, HIGH, LOW};
 StandaloneLED led_Hat2 = {TOP_HAT_LED_PIN, HIGH, LOW};
 StandaloneLED led_Tip = {BARREL_TIP_LED_PIN, HIGH, LOW};
@@ -136,27 +168,38 @@ StandaloneLED led_Tip = {BARREL_TIP_LED_PIN, HIGH, LOW};
  * Changes the device power level and controls the device settings menu.
  * Also controls independent music volume while the device is off and if music is playing.
  */
-#define r_encoderA 6
-#define r_encoderB 7
-enum ENCODER_STATES { ENCODER_IDLE = 0, ENCODER_CW = 1, ENCODER_CCW = -1 };
+#ifdef ESP32
+  #define ROTARY_ENCODER_A 4
+  #define ROTARY_ENCODER_B 5
+#else
+  #define ROTARY_ENCODER_A 6
+  #define ROTARY_ENCODER_B 7
+#endif
+enum ENCODER_STATES : int8_t { ENCODER_IDLE = 0, ENCODER_CW = 1, ENCODER_CCW = -1 };
+
+/*
+ * Simple class for the rotary encoder events.
+ */
 struct Encoder {
-  const static uint8_t PinA = r_encoderA;
-  const static uint8_t PinB = r_encoderB;
+  const static uint8_t PinA = ROTARY_ENCODER_A;
+  const static uint8_t PinB = ROTARY_ENCODER_B;
 
   private:
     uint8_t PrevNextCode = 0;
     uint16_t CodeStore = 0;
+    int8_t i_last_val = 0; // Use a small integer as value range is 1 to -1 depending on direction.
+    bool b_direction_inverted = false; // Invert the direction of rotation to match user expectation.
 
     int8_t read() {
-      static int8_t RotEncTable[] = {0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0};
+      const static int8_t RotEncTable[] = {0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0};
 
       PrevNextCode <<= 2;
 
-      if(digitalRead(r_encoderB)) {
+      if(digitalRead(PinB)) {
         PrevNextCode |= 0x02;
       }
 
-      if(digitalRead(r_encoderA)) {
+      if(digitalRead(PinA)) {
         PrevNextCode |= 0x01;
       }
 
@@ -182,33 +225,39 @@ struct Encoder {
   public:
     enum ENCODER_STATES STATE;
 
-    void initialize() {
+    void initialize(bool inverted = false) {
       // Rotary encoder on the top of the device.
       pinMode(PinA, INPUT_PULLUP);
       pinMode(PinB, INPUT_PULLUP);
       STATE = ENCODER_IDLE;
+      b_direction_inverted = inverted;
     }
+
+    // Runtime getter for dial direction (false = default, true = inverted).
+    bool isRotationInverted() { return b_direction_inverted; }
+
+    // Runtime setter to invert direction.
+    void setRotationInverted(bool invert) { b_direction_inverted = invert; }
 
     void check() {
-      static int8_t i_last_val; // Always stored to know if change occurred.
-
       // Read the current encoder value, noting state when adjusted.
-      if(i_last_val != read()) {
-        // Clockwise.
-        if(PrevNextCode == 0x07) {
-          STATE = ENCODER_CW;
-        }
+      int8_t i_new_val = read();
 
-        // Counter-clockwise.
-        if(PrevNextCode == 0x0b) {
-          STATE = ENCODER_CCW;
+      // Default to idle which ensures STATE is always assigned.
+      STATE = ENCODER_IDLE;
+
+      // Change state only if there was a recognized change.
+      if(i_last_val != i_new_val) {
+        i_last_val = i_new_val; // Update stored last value so next call can detect changes.
+
+        // Map terminal PrevNextCode to CW/CCW, invert if requested.
+        if(PrevNextCode == 0x07) {
+          STATE = b_direction_inverted ? ENCODER_CCW : ENCODER_CW;
+        } else if(PrevNextCode == 0x0b) {
+          STATE = b_direction_inverted ? ENCODER_CW : ENCODER_CCW;
         }
-      }
-      else {
-        STATE = ENCODER_IDLE;
       }
     }
-
 } encoder;
 
 /*
@@ -216,10 +265,11 @@ struct Encoder {
  *
  * These are references for the EEPROM menu. Empty is a zero value, not used in the EEPROM.
  */
-#define VIBRATION_PIN 11 // Pin for the vibration motor.
-enum VIBRATION_MODES { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE };
-enum VIBRATION_MODES VIBRATION_MODE_EEPROM;
-enum VIBRATION_MODES VIBRATION_MODE;
+#ifdef ESP32
+  #define VIBRATION_PIN 18 // Pin for the vibration motor.
+#else
+  #define VIBRATION_PIN 11 // Pin for the vibration motor.
+#endif
 const uint8_t i_vibration_level_min = 15; // Minimum vibration level is 6%.
 uint8_t i_vibration_level_current = 0; // Set the current value to 0 (off) on first start.
 millisDelay ms_menu_vibration; // Timer to do non-blocking confirmation buzzing in the vibration menu.
@@ -228,18 +278,24 @@ millisDelay ms_menu_vibration; // Timer to do non-blocking confirmation buzzing 
  * Various toggles and buttons on the device.
  * Uses the Switch class which provides debounce control and detects state.
  */
-#define INTENSIFY_SWITCH_PIN 2
-#define ACTIVATE_SWITCH_PIN 3
-#define VENT_SWITCH_PIN 4
-#define DEVICE_SWITCH_PIN A0
-#define GRIP_SWITCH_PIN A6
+#ifdef ESP32
+  #define INTENSIFY_SWITCH_PIN 39
+  #define ACTIVATE_SWITCH_PIN 40
+  #define VENT_SWITCH_PIN 45
+  #define DEVICE_SWITCH_PIN 8
+  #define GRIP_SWITCH_PIN 11
+#else
+  #define INTENSIFY_SWITCH_PIN 2
+  #define ACTIVATE_SWITCH_PIN 3
+  #define VENT_SWITCH_PIN 4
+  #define DEVICE_SWITCH_PIN A0
+  #define GRIP_SWITCH_PIN A6
+#endif
 Switch switch_intensify(INTENSIFY_SWITCH_PIN); // Considered a primary firing button, though for this device will be an alt-fire.
 Switch switch_activate(ACTIVATE_SWITCH_PIN); // Considered the primary power toggle on the right of the gun box.
 Switch switch_device(DEVICE_SWITCH_PIN); // Top right switch on the device. Enables device for firing.
 Switch switch_vent(VENT_SWITCH_PIN); // Bottom right switch on the device. Turns on the vent light.
 Switch switch_grip(GRIP_SWITCH_PIN); // Hand-grip button to be the primary fire and used in settings menus.
-uint8_t ventSwitchedCount = 0; // Used for detection of LED EEPROM menu access
-uint8_t deviceSwitchedCount = 0; // Used for detection of Config EEPROM menu access
 
 /*
  * Control for the primary blast sound effects.
@@ -305,7 +361,7 @@ enum DEVICE_MENU_LEVELS {
   MENU_LEVEL_3 = 3,
   MENU_LEVEL_4 = 4,
   MENU_LEVEL_5 = 5 };
-enum DEVICE_MENU_LEVELS DEVICE_MENU_LEVEL;
+enum DEVICE_MENU_LEVELS DEVICE_MENU_LEVEL = MENU_LEVEL_1;
 enum MENU_OPTION_LEVELS {
   OPTION_1 = 1,
   OPTION_2 = 2,
@@ -313,7 +369,7 @@ enum MENU_OPTION_LEVELS {
   OPTION_4 = 4,
   OPTION_5 = 5
 };
-enum MENU_OPTION_LEVELS MENU_OPTION_LEVEL;
+enum MENU_OPTION_LEVELS MENU_OPTION_LEVEL = OPTION_5;
 uint8_t i_device_menu = 5;
 const uint16_t i_settings_blink_delay = 400;
 millisDelay ms_settings_blink;
@@ -336,9 +392,20 @@ millisDelay ms_power_indicator;
 const uint32_t i_ms_power_indicator = 60000; // 1 minute -> 60000 milliseconds
 const uint16_t i_ms_power_indicator_blink = 500;
 
+/**
+ * Infrared (IR) signal for the Ghost Trap or other devices (GPStar II Only).
+ */
+#ifdef ESP32
+  #define CARRIER_KHZ 38 // Defines the standard IR carrier frequency in kHz.
+
+  // Defines an IR command as captured from the PKE device at full power.
+  const uint16_t ir_GhostInTrap[] = {
+    1770, 1200, 600, 600, 600, 600, 580, 1200, 600, 600,
+    580, 1200, 600, 1200, 580, 600, 580, 1200, 600
+  };
+#endif
+
 /*
  * Function prototypes.
  */
 void checkDeviceAction();
-void ventSwitched(void* n = nullptr);
-void deviceSwitched(void* n = nullptr);
