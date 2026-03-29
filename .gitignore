@@ -15,3 +15,5 @@
 /source/*/log
 /source/*/logs
 site/
+/extras/rag
+source/Attenuator/assets/test.html*
