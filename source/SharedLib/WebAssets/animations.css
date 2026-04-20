@@ -1,0 +1,412 @@
+/* CRT Glitch Effect Animations */
+/* RGB Color Separation */
+@keyframes glitch-rgb {
+  0%,
+  100% {
+    text-shadow: 0 0 5px #060;
+  }
+  10% {
+    text-shadow:
+      -0.5px 0 5px rgba(255, 0, 0, 0.4),
+      0.5px 0 5px rgba(0, 255, 255, 0.4),
+      0 0 5px #060;
+  }
+  20% {
+    text-shadow:
+      1px 0 5px rgba(255, 0, 0, 0.5),
+      -1px 0 5px rgba(0, 255, 255, 0.5),
+      0 0 5px #060;
+  }
+  30% {
+    text-shadow:
+      -0.75px 0 5px rgba(255, 0, 0, 0.35),
+      0.75px 0 5px rgba(0, 255, 255, 0.35),
+      0 0 5px #060;
+  }
+  40%,
+  60% {
+    text-shadow: 0 0 5px #060;
+  }
+  70% {
+    text-shadow:
+      0.5px 0 5px rgba(255, 0, 0, 0.3),
+      -0.5px 0 5px rgba(0, 255, 255, 0.3),
+      0 0 5px #060;
+  }
+  80% {
+    text-shadow:
+      -1px 0 5px rgba(255, 0, 0, 0.45),
+      1px 0 5px rgba(0, 255, 255, 0.45),
+      0 0 5px #060;
+  }
+}
+
+/* Horizontal Scan Jitter */
+@keyframes glitch-scan {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10% {
+    transform: translateX(-3px);
+  }
+  20% {
+    transform: translateX(3px);
+  }
+  30% {
+    transform: translateX(-2px);
+  }
+  40% {
+    transform: translateX(2px);
+  }
+  50% {
+    transform: translateX(-1px);
+  }
+  60% {
+    transform: translateX(1px);
+  }
+  70% {
+    transform: translateX(-2px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+}
+
+/* Brightness Flicker */
+@keyframes glitch-flicker {
+  0%,
+  100% {
+    opacity: 1;
+    filter: brightness(1);
+  }
+  3% {
+    opacity: 0.92;
+    filter: brightness(0.92);
+  }
+  7% {
+    opacity: 1;
+    filter: brightness(1);
+  }
+  15% {
+    opacity: 0.88;
+    filter: brightness(0.88);
+  }
+  18% {
+    opacity: 1;
+    filter: brightness(1.05);
+  }
+  33% {
+    opacity: 0.95;
+    filter: brightness(0.95);
+  }
+  47% {
+    opacity: 1;
+    filter: brightness(1);
+  }
+  51% {
+    opacity: 0.9;
+    filter: brightness(0.9);
+  }
+  63% {
+    opacity: 1;
+    filter: brightness(1.02);
+  }
+  78% {
+    opacity: 0.93;
+    filter: brightness(0.93);
+  }
+  85% {
+    opacity: 1;
+    filter: brightness(1);
+  }
+}
+
+/* Clip Distortion */
+@keyframes glitch-distort {
+  0%,
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+  5% {
+    clip-path: inset(40% 0 40% 0);
+  }
+  10% {
+    clip-path: inset(0 0 0 0);
+  }
+  15% {
+    clip-path: inset(10% 0 10% 0);
+  }
+  20% {
+    clip-path: inset(0 0 0 0);
+  }
+  25% {
+    clip-path: inset(80% 0 0 0);
+  }
+  30% {
+    clip-path: inset(0 0 80% 0);
+  }
+  35%,
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* Screen Shake */
+@keyframes glitch-shake {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  10% {
+    transform: translate(-1px, 1px) rotate(-0.2deg);
+  }
+  20% {
+    transform: translate(1px, -1px) rotate(0.2deg);
+  }
+  30% {
+    transform: translate(-2px, 0.5px) rotate(-0.15deg);
+  }
+  40% {
+    transform: translate(2px, -0.5px) rotate(0.15deg);
+  }
+  50% {
+    transform: translate(-0.5px, 1px) rotate(-0.1deg);
+  }
+  60% {
+    transform: translate(0.5px, -1px) rotate(0.1deg);
+  }
+  70% {
+    transform: translate(-1px, 0.5px) rotate(-0.05deg);
+  }
+  80% {
+    transform: translate(1px, -0.5px) rotate(0.05deg);
+  }
+}
+
+/* Degaussing Wave */
+@keyframes glitch-degauss {
+  0% {
+    transform: translateY(-100px);
+    opacity: 0;
+  }
+  3% {
+    opacity: 1;
+  }
+  55% {
+    transform: translateY(480px);
+    opacity: 1;
+  }
+  58% {
+    transform: translateY(480px);
+    opacity: 0;
+  }
+  58.1%,
+  100% {
+    transform: translateY(-100px);
+    opacity: 0;
+  }
+}
+
+/* Ice Cracking Effect - Fade in across entire display */
+@keyframes glitch-icing-crack {
+  0% {
+    opacity: 0;
+    filter: blur(8px);
+  }
+  8% {
+    opacity: 0.3;
+    filter: blur(6px);
+  }
+  10% {
+    opacity: 0.25;
+    filter: blur(6px);
+  }
+  25% {
+    opacity: 0.6;
+    filter: blur(4px);
+  }
+  27% {
+    opacity: 0.55;
+    filter: blur(4px);
+  }
+  50% {
+    opacity: 0.85;
+    filter: blur(1px);
+  }
+  52% {
+    opacity: 0.8;
+    filter: blur(1px);
+  }
+  100% {
+    opacity: 0.95;
+    filter: blur(0.3px);
+  }
+}
+
+@keyframes glitch-icing-shimmer {
+  0%, 100% {
+    opacity: 0.90;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Preserve background scan lines when degauss is enabled */
+.equipment[effect-degauss="true"] {
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.equipment[effect-degauss="true"]::before {
+  background: linear-gradient(rgba(18, 16, 16, 0) 40%, rgba(200, 200, 200, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  background-size:
+    100% 2px,
+    3px 100%;
+  border-radius: 12px;
+  bottom: 0;
+  content: "";
+  display: block;
+  left: 0;
+  position: absolute;
+  pointer-events: none;
+  right: 0;
+  top: 0;
+  z-index: 1;
+}
+
+.equipment[effect-degauss="true"]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50px;
+  top: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(255, 0, 255, 0.3) 20%,
+    rgba(0, 255, 255, 0.4) 40%,
+    rgba(255, 255, 0, 0.35) 60%,
+    rgba(255, 0, 255, 0.3) 80%,
+    transparent 100%
+  );
+  filter: blur(9px);
+  animation: glitch-degauss 15s linear infinite;
+  pointer-events: none;
+  z-index: 20;
+  mix-blend-mode: color-dodge;
+  will-change: transform;
+}
+
+/* Ice cracking effect with dramatic frost overlay */
+.equipment[effect-icing="true"] {
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.equipment[effect-icing="true"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    /* Bold diagonal crack lines */
+    linear-gradient(142deg, transparent 28%, rgba(255, 255, 255, 0.9) 29%, rgba(180, 220, 255, 0.8) 29.5%, transparent 30.5%),
+    linear-gradient(38deg, transparent 42%, rgba(255, 255, 255, 0.85) 43%, rgba(200, 230, 255, 0.7) 43.5%, transparent 44.5%),
+    linear-gradient(95deg, transparent 59%, rgba(255, 255, 255, 0.9) 60%, rgba(190, 225, 255, 0.75) 60.5%, transparent 61.5%),
+    linear-gradient(168deg, transparent 22%, rgba(255, 255, 255, 0.8) 23%, rgba(210, 235, 255, 0.7) 23.5%, transparent 24.5%),
+    linear-gradient(205deg, transparent 67%, rgba(255, 255, 255, 0.85) 68%, rgba(195, 228, 255, 0.75) 68.5%, transparent 69.5%),
+    linear-gradient(75deg, transparent 15%, rgba(255, 255, 255, 0.75) 16%, rgba(205, 232, 255, 0.7) 16.5%, transparent 17.5%),
+    linear-gradient(320deg, transparent 52%, rgba(255, 255, 255, 0.8) 53%, rgba(188, 223, 255, 0.7) 53.5%, transparent 54.5%),
+    /* Ice crystal impact points */
+    radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.95) 0%, rgba(220, 240, 255, 0.6) 1.5%, transparent 5%),
+    radial-gradient(circle at 70% 55%, rgba(255, 255, 255, 0.9) 0%, rgba(210, 235, 255, 0.55) 2%, transparent 6%),
+    radial-gradient(circle at 45% 75%, rgba(255, 255, 255, 0.85) 0%, rgba(200, 230, 255, 0.5) 1.8%, transparent 5.5%),
+    radial-gradient(circle at 15% 60%, rgba(255, 255, 255, 0.8) 0%, rgba(215, 238, 255, 0.5) 1.5%, transparent 4.5%),
+    radial-gradient(circle at 85% 30%, rgba(255, 255, 255, 0.85) 0%, rgba(205, 232, 255, 0.55) 1.7%, transparent 5%),
+    /* Heavy frost overlay */
+    radial-gradient(ellipse at 50% 50%, rgba(240, 250, 255, 0.5), rgba(200, 230, 255, 0.65)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(200, 230, 255, 0.5));
+  filter: blur(0.3px);
+  pointer-events: none;
+  z-index: 15;
+  border-radius: 12px;
+  /* Fade in ice over 0.9s (keep visible), then pulse brightness every 1.2s after 1s delay */
+  animation: glitch-icing-crack 0.9s ease-out forwards, glitch-icing-shimmer 1.2s ease-in-out infinite 1s;
+}
+
+.equipment[effect-icing="true"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    /* Additional fine cracks */
+    linear-gradient(65deg, transparent 48%, rgba(255, 255, 255, 0.6) 48.5%, transparent 49%),
+    linear-gradient(115deg, transparent 34%, rgba(255, 255, 255, 0.55) 34.5%, transparent 35%),
+    linear-gradient(245deg, transparent 72%, rgba(255, 255, 255, 0.6) 72.5%, transparent 73%);
+  filter: blur(0.2px);
+  pointer-events: none;
+  z-index: 16;
+  border-radius: 12px;
+  animation: glitch-icing-crack 1.2s ease-out forwards;
+}
+
+/* Apply effects based on effect attributes */
+.equipment[effect-rgb="true"] {
+  animation: glitch-rgb 0.3s infinite;
+}
+
+.equipment[effect-scan="true"] {
+  animation: glitch-scan 0.4s infinite;
+}
+
+.equipment[effect-flicker="true"] {
+  animation: glitch-flicker 1.2s infinite;
+}
+
+.equipment[effect-distort="true"] {
+  animation: glitch-distort 2s infinite;
+}
+
+.equipment[effect-shake="true"] {
+  animation: glitch-shake 0.1s infinite;
+}
+
+/* Combine multiple effects */
+.equipment[effect-rgb="true"][effect-scan="true"] {
+  animation:
+    glitch-rgb 0.3s infinite,
+    glitch-scan 0.4s infinite;
+}
+
+.equipment[effect-rgb="true"][effect-flicker="true"] {
+  animation:
+    glitch-rgb 0.3s infinite,
+    glitch-flicker 1.2s infinite;
+}
+
+.equipment[effect-scan="true"][effect-flicker="true"] {
+  animation:
+    glitch-scan 0.4s infinite,
+    glitch-flicker 1.2s infinite;
+}
+
+.equipment[effect-rgb="true"][effect-scan="true"][effect-flicker="true"] {
+  animation:
+    glitch-rgb 0.3s infinite,
+    glitch-scan 0.4s infinite,
+    glitch-flicker 1.2s infinite;
+}
+
+.equipment[effect-shake="true"][effect-rgb="true"] {
+  animation:
+    glitch-shake 0.1s infinite,
+    glitch-rgb 0.3s infinite;
+}
+
+.equipment[effect-shake="true"][effect-flicker="true"] {
+  animation:
+    glitch-shake 0.1s infinite,
+    glitch-flicker 1.2s infinite;
+}

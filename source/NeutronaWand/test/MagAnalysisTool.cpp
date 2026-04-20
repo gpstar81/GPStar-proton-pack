@@ -1,17 +1,17 @@
 /**
  * Magnetometer Calibration Analysis Tool
  * Purpose: Standalone diagnostic tool to analyze prototype vs production magnetometer data
- * 
+ *
  * This tool replicates the exact addSample() logic from MagCalibration.cpp to identify
  * why production boards achieve only 10% coverage vs 60% on prototype boards.
- * 
+ *
  * Compilation:
  *   g++ -std=c++11 -O2 -o MagAnalysisTool MagAnalysisTool.cpp -lm
- * 
+ *
  * Usage:
  *   ./MagAnalysisTool prototype_last3.log production_last3.log
- * 
- * Copyright (C) 2023-2025 Michael Rajotte, Dustin Grau, Nomake Wan
+ *
+ * Copyright (C) 2023-2026 Michael Rajotte, Dustin Grau, Nomake Wan
  */
 
 #include <iostream>
@@ -34,8 +34,9 @@ static constexpr uint8_t NUM_ELEVATION_BINS = (uint8_t)(180 / BIN_DEGREES);
 static constexpr uint16_t MAX_POINTS = NUM_AZIMUTH_BINS * NUM_ELEVATION_BINS;
 
 // Hard-iron calibration thresholds
-static constexpr uint16_t HARD_IRON_SAMPLE_THRESHOLD = 40; // Minimum samples before offset check
-static constexpr double HARD_IRON_SPREAD_THRESHOLD = 40.0; // Minimum spread per axis (µT)
+static constexpr uint16_t HARD_IRON_SAMPLE_THRESHOLD = 20; // Minimum samples before offset check
+static constexpr float HARD_IRON_HORIZONTAL_SPREAD_THRESHOLD = 15.0f; // Minimum spread per axis (µT)
+static constexpr float HARD_IRON_VERTICAL_SPREAD_THRESHOLD = 30.0f; // Minimum vertical spread (µT)
 
 // Elevation Bias Compensation Configuration
 // Purpose: Enable/disable elevation bias compensation for testing production board calibration
@@ -49,14 +50,14 @@ static constexpr bool ENABLE_ELEVATION_COMPENSATION = false; // SET TO true TO T
 static constexpr double ELEVATION_BIAS_DEGREES = 44.0;  // Degrees to compensate
 static constexpr double ELEVATION_BIAS_RADIANS = ELEVATION_BIAS_DEGREES * M_PI / 180.0; // Radians equivalent
 
-// Function: applyElevationCompensation  
+// Function: applyElevationCompensation
 // Purpose: Apply elevation bias compensation to magnetometer readings for testing
 // Inputs: rawElevation - Original elevation angle in radians from magnetometer calculation
 // Outputs: Compensated elevation angle in radians
-// 
+//
 // This function applies a universal elevation compensation to all datasets when enabled.
 // The purpose is to test the compensation theory on both prototype and production data
-// to validate whether this correction improves coverage for production boards and 
+// to validate whether this correction improves coverage for production boards and
 // degrades coverage for prototype boards (confirming the bias direction).
 //
 // The degree offset was determined from analysis showing production boards read systematically
@@ -68,7 +69,7 @@ double applyElevationCompensation(double rawElevation) {
     // Add the bias compensation to shift elevation readings by some degrees
     // This tests whether the systematic bias correction improves production coverage
     double compensatedElevation = rawElevation + ELEVATION_BIAS_RADIANS;
-    
+
     // Ensure the compensated elevation stays within valid range [-π/2, π/2]
     // This prevents mathematical errors in subsequent bin calculations
     // Clamp to valid elevation range to prevent out-of-bounds bin indices
@@ -78,10 +79,10 @@ double applyElevationCompensation(double rawElevation) {
     if(compensatedElevation < -M_PI / 2.0) {
       compensatedElevation = -M_PI / 2.0; // Clamp to -90°
     }
-    
+
     return compensatedElevation;
   }
-  
+
   // No compensation applied - return original elevation unchanged
   return rawElevation;
 }
@@ -92,7 +93,7 @@ struct MagData {
   // Raw input data
   double x, y, z;                    // Original magnetometer readings
   uint16_t lineNumber;               // Line number in log file for tracking
-  
+
   // Calculated values (replicated from addSample() logic)
   double magnitude;                  // Magnetic field strength
   double nx, ny, nz;                 // Normalized unit vector
@@ -100,7 +101,7 @@ struct MagData {
   double azimuthDeg, elevationDeg;   // Spherical coordinates (degrees)
   int azIndex, elIndex;              // Bin indices
   int binIndex;                      // Final bin number
-  
+
   // Analysis flags
   bool validSample;                  // Whether sample passed validation
   bool newBin;                       // Whether this created a new bin
@@ -112,14 +113,14 @@ struct MagData {
 struct DatasetAnalysis {
   std::string label;                 // "PROTOTYPE" or "PRODUCTION"
   std::string filename;              // Source log file name
-  
+
   // Sample statistics
   uint16_t totalLines;               // Total lines processed from file
   uint16_t validSamples;             // Samples that passed validation
   uint16_t acceptedSamples;          // Samples that would be stored by addSample()
   uint16_t uniqueBins;               // Number of unique bins filled
   float coveragePercent;             // Coverage percentage achieved
-  
+
   // Mathematical statistics
   double avgMagnitude;               // Average magnetic field strength
   double minMagnitude, maxMagnitude; // Magnitude range
@@ -127,12 +128,12 @@ struct DatasetAnalysis {
   double minElevation, maxElevation; // Elevation range
   double avgAzimuth;                 // Average azimuth angle
   double minAzimuth, maxAzimuth;     // Azimuth range
-  
+
   // Bin tracking arrays
   uint16_t elevationBinCounts[NUM_ELEVATION_BINS]; // Samples per elevation bin
   uint16_t azimuthBinCounts[NUM_AZIMUTH_BINS];     // Samples per azimuth bin
   bool binCoverage[MAX_POINTS];                    // Which bins are filled
-  
+
   // Complete sample data for detailed analysis
   std::vector<MagData> samples;    // All processed samples
 };
@@ -141,7 +142,7 @@ struct DatasetAnalysis {
 // Purpose: Replicate the exact addSample() logic for analysis
 // Inputs: Raw magnetometer data (x, y, z), line number for tracking
 // Outputs: Complete analysis of this sample including bin assignment
-// 
+//
 // This function performs identical mathematical operations as MagCalibration::addSample()
 // but provides comprehensive diagnostic information instead of just true/false.
 MagData processMagData(double x, double y, double z, uint16_t lineNumber) {
@@ -150,59 +151,59 @@ MagData processMagData(double x, double y, double z, uint16_t lineNumber) {
   sample.y = y;
   sample.z = z;
   sample.lineNumber = lineNumber;
-  
+
   // STEP 1: Validate input (identical to addSample())
   double dx = x, dy = y, dz = z;
   double r = sqrt(dx * dx + dy * dy + dz * dz);
-  
+
   sample.magnitude = r;
   sample.validSample = (r != 0.0);
-  
+
   if(!sample.validSample) {
     // Invalid sample - would be rejected by addSample()
     sample.wouldBeAccepted = false;
     return sample;
   }
-  
+
   // STEP 2: Normalize to unit vector (identical to addSample())
   sample.nx = dx / r;
   sample.ny = dy / r;
   sample.nz = dz / r;
-  
+
   // STEP 3: Convert to spherical coordinates (identical to addSample())
   sample.azimuth = atan2(sample.ny, sample.nx);
-  
+
   // Clamp nz for asin() (identical to addSample())
   double nz_clamped = sample.nz;
   if(nz_clamped > 1.0) nz_clamped = 1.0;
   if(nz_clamped < -1.0) nz_clamped = -1.0;
   sample.elevation = asin(nz_clamped);
-  
+
   // STEP 3.5: Apply elevation compensation universally if enabled
   // Purpose: Test compensation effects on all datasets to validate theory
   // This applies the same compensation to both prototype and production data
   sample.elevation = applyElevationCompensation(sample.elevation);
-  
+
   // Convert to degrees for easier interpretation
   sample.azimuthDeg = sample.azimuth * 180.0 / M_PI;
   sample.elevationDeg = sample.elevation * 180.0 / M_PI;
-  
+
   // STEP 4: Calculate bin indices using compensated elevation
   sample.azIndex = (int)((sample.azimuth + M_PI) / (2 * M_PI) * NUM_AZIMUTH_BINS);
   sample.elIndex = (int)((sample.elevation + M_PI / 2) / M_PI * NUM_ELEVATION_BINS);
-  
+
   // STEP 5: Apply bounds checking (identical to addSample())
   if(sample.azIndex < 0) sample.azIndex = 0;
   if(sample.azIndex >= NUM_AZIMUTH_BINS) sample.azIndex = NUM_AZIMUTH_BINS - 1;
   if(sample.elIndex < 0) sample.elIndex = 0;
   if(sample.elIndex >= NUM_ELEVATION_BINS) sample.elIndex = NUM_ELEVATION_BINS - 1;
-  
+
   // STEP 6: Calculate final bin index using compensated values
   sample.binIndex = sample.elIndex * NUM_AZIMUTH_BINS + sample.azIndex;
-  
+
   // Mark as valid for bin assignment
   sample.wouldBeAccepted = true; // Will be updated by caller based on bin coverage
-  
+
   return sample;
 }
 
@@ -210,37 +211,37 @@ MagData processMagData(double x, double y, double z, uint16_t lineNumber) {
 // Purpose: Load and parse a magnetometer log file
 // Inputs: File path to log file
 // Outputs: Vector of parsed magnetometer readings
-// 
+//
 // Expects CSV format: x,y,z (one reading per line)
 std::vector<std::array<double, 3>> loadLogFile(const std::string& filename) {
   std::vector<std::array<double, 3>> readings;
   std::ifstream file(filename);
-  
+
   if(!file.is_open()) {
     std::cerr << "Error: Cannot open file " << filename << std::endl;
     return readings;
   }
-  
+
   std::string line;
   uint16_t lineNumber = 0;
-  
+
   while(std::getline(file, line)) {
     lineNumber++;
-    
+
     // Skip empty lines or lines starting with # (comments)
     if(line.empty() || line[0] == '#') {
       continue;
     }
-    
+
     // Parse CSV format: x,y,z
     std::stringstream ss(line);
     std::string token;
     std::vector<std::string> tokens;
-    
+
     while(std::getline(ss, token, ',')) {
       tokens.push_back(token);
     }
-    
+
     if(tokens.size() == 3) {
       try {
         double x = std::stod(tokens[0]);
@@ -254,7 +255,7 @@ std::vector<std::array<double, 3>> loadLogFile(const std::string& filename) {
       std::cerr << "Warning: Invalid format on line " << lineNumber << ": " << line << std::endl;
     }
   }
-  
+
   file.close();
   std::cout << "Loaded " << readings.size() << " readings from " << filename << std::endl;
   return readings;
@@ -264,22 +265,22 @@ std::vector<std::array<double, 3>> loadLogFile(const std::string& filename) {
 // Purpose: Perform complete analysis on a dataset, simulating addSample() behavior
 // Inputs: Vector of magnetometer readings, label for output, filename for tracking
 // Outputs: Complete analysis results structure
-DatasetAnalysis analyzeDataset(const std::vector<std::array<double, 3>>& readings, 
-                              const std::string& label, 
+DatasetAnalysis analyzeDataset(const std::vector<std::array<double, 3>>& readings,
+                              const std::string& label,
                               const std::string& filename) {
   DatasetAnalysis analysis = {};
   analysis.label = label;
   analysis.filename = filename;
   analysis.totalLines = readings.size();
-  
+
   // Initialize tracking arrays
   memset(analysis.elevationBinCounts, 0, sizeof(analysis.elevationBinCounts));
   memset(analysis.azimuthBinCounts, 0, sizeof(analysis.azimuthBinCounts));
   memset(analysis.binCoverage, 0, sizeof(analysis.binCoverage));
-  
+
   // Track bin coverage to simulate addSample() behavior exactly
   bool bins[MAX_POINTS] = {};
-  
+
   // Initialize statistics
   analysis.minMagnitude = 1e6;
   analysis.maxMagnitude = 0.0;
@@ -287,33 +288,33 @@ DatasetAnalysis analyzeDataset(const std::vector<std::array<double, 3>>& reading
   analysis.maxElevation = -1e6;
   analysis.minAzimuth = 1e6;
   analysis.maxAzimuth = -1e6;
-  
+
   double sumMagnitude = 0.0;
   double sumElevation = 0.0;
   double sumAzimuth = 0.0;
-  
+
   std::cout << "\nProcessing " << label << " dataset..." << std::endl;
   if(ENABLE_ELEVATION_COMPENSATION) {
     std::cout << "  *** UNIVERSAL ELEVATION COMPENSATION ENABLED ***" << std::endl;
   }
-  
+
   // Process each reading
   for(uint16_t i = 0; i < readings.size(); i++) {
     // Add progress reporting for large files
     if(readings.size() > 1000 && i % 1000 == 0) {
       std::cout << "  Processed " << i << " / " << readings.size() << " samples..." << std::endl;
     }
-    
+
     // Apply universal compensation (no board type parameter needed)
     MagData sample = processMagData(readings[i][0], readings[i][1], readings[i][2], i + 1);
-    
+
     if(sample.validSample) {
       analysis.validSamples++;
-      
+
       // Check if this would be a new bin (identical to addSample() logic)
       sample.newBin = !bins[sample.binIndex];
       sample.wouldBeAccepted = sample.newBin;
-      
+
       if(sample.newBin) {
         // Mark bin as covered (identical to addSample() logic)
         bins[sample.binIndex] = true;
@@ -321,16 +322,16 @@ DatasetAnalysis analyzeDataset(const std::vector<std::array<double, 3>>& reading
         analysis.uniqueBins++;
         analysis.acceptedSamples++;
       }
-      
+
       // Update bin counters
       analysis.elevationBinCounts[sample.elIndex]++;
       analysis.azimuthBinCounts[sample.azIndex]++;
-      
+
       // Update statistics
       sumMagnitude += sample.magnitude;
       sumElevation += sample.elevationDeg;
       sumAzimuth += sample.azimuthDeg;
-      
+
       // Track min/max values
       if(sample.magnitude < analysis.minMagnitude) analysis.minMagnitude = sample.magnitude;
       if(sample.magnitude > analysis.maxMagnitude) analysis.maxMagnitude = sample.magnitude;
@@ -338,26 +339,26 @@ DatasetAnalysis analyzeDataset(const std::vector<std::array<double, 3>>& reading
       if(sample.elevationDeg > analysis.maxElevation) analysis.maxElevation = sample.elevationDeg;
       if(sample.azimuthDeg < analysis.minAzimuth) analysis.minAzimuth = sample.azimuthDeg;
       if(sample.azimuthDeg > analysis.maxAzimuth) analysis.maxAzimuth = sample.azimuthDeg;
-      
+
       // Store sample for detailed analysis
       analysis.samples.push_back(sample);
     }
   }
-  
+
   // Calculate averages
   if(analysis.validSamples > 0) {
     analysis.avgMagnitude = sumMagnitude / analysis.validSamples;
     analysis.avgElevation = sumElevation / analysis.validSamples;
     analysis.avgAzimuth = sumAzimuth / analysis.validSamples;
   }
-  
+
   // Calculate coverage percentage
   analysis.coveragePercent = (analysis.uniqueBins / (float)MAX_POINTS) * 100.0f;
-  
-  std::cout << "Analysis complete: " << analysis.validSamples << " valid samples, " 
-            << analysis.uniqueBins << " unique bins (" << std::fixed << std::setprecision(1) 
+
+  std::cout << "Analysis complete: " << analysis.validSamples << " valid samples, "
+            << analysis.uniqueBins << " unique bins (" << std::fixed << std::setprecision(1)
             << analysis.coveragePercent << "% coverage)" << std::endl;
-  
+
   return analysis;
 }
 
@@ -383,7 +384,7 @@ void writeDetailedSampleBreakdown(const DatasetAnalysis& analysis, const std::st
   outFile << "Dataset Label: " << analysis.label << std::endl;
   outFile << "Generated: " << __DATE__ << " " << __TIME__ << std::endl;
   outFile << "Total Samples: " << analysis.samples.size() << std::endl;
-  outFile << "Unique Bins Filled: " << analysis.uniqueBins << " / " << MAX_POINTS 
+  outFile << "Unique Bins Filled: " << analysis.uniqueBins << " / " << MAX_POINTS
           << " (" << std::fixed << std::setprecision(2) << analysis.coveragePercent << "% coverage)" << std::endl;
   outFile << std::string(80, '=') << std::endl;
 
@@ -425,7 +426,7 @@ void writeDetailedSampleBreakdown(const DatasetAnalysis& analysis, const std::st
   outFile << "Total Samples: " << analysis.samples.size() << std::endl;
   outFile << "Accepted (NEW bins): " << acceptedCount << std::endl;
   outFile << "Rejected (duplicate bins): " << rejectedCount << std::endl;
-  outFile << "Acceptance Rate: " << std::fixed << std::setprecision(1) 
+  outFile << "Acceptance Rate: " << std::fixed << std::setprecision(1)
           << (acceptedCount / (float)analysis.samples.size() * 100.0f) << "%" << std::endl;
 
   outFile.close();
@@ -437,11 +438,11 @@ void writeDetailedSampleBreakdown(const DatasetAnalysis& analysis, const std::st
 void printDetailedAnalysis(const DatasetAnalysis& analysis) {
   std::cout << "\n=== DETAILED ANALYSIS: " << analysis.label << " ===" << std::endl;
   std::cout << "Source File: " << analysis.filename << std::endl;
-  
+
   // Use "_analysis.txt" for normal, "_fallback.txt" for fallback
   std::string suffix = (analysis.label == "PRODUCTION_FALLBACK") ? "_fallback.txt" : "_analysis.txt";
   writeDetailedSampleBreakdown(analysis, suffix);
-  
+
   // Overall statistics (keep on console)
   std::cout << "\nSample Statistics:" << std::endl;
   std::cout << "  Total Lines: " << analysis.totalLines << std::endl;
@@ -449,33 +450,33 @@ void printDetailedAnalysis(const DatasetAnalysis& analysis) {
   std::cout << "  Accepted Samples: " << analysis.acceptedSamples << std::endl;
   std::cout << "  Unique Bins: " << analysis.uniqueBins << " / " << MAX_POINTS << std::endl;
   std::cout << "  Coverage: " << std::fixed << std::setprecision(2) << analysis.coveragePercent << "%" << std::endl;
-  std::cout << "  Processing Efficiency: " << std::fixed << std::setprecision(1) 
+  std::cout << "  Processing Efficiency: " << std::fixed << std::setprecision(1)
             << (analysis.validSamples / (float)analysis.totalLines * 100.0f) << "% valid samples" << std::endl;
-  
+
   // Magnitude analysis (keep on console)
   std::cout << "\nMagnitude Analysis:" << std::endl;
   std::cout << "  Average: " << std::fixed << std::setprecision(2) << analysis.avgMagnitude << " µT" << std::endl;
   std::cout << "  Range: " << analysis.minMagnitude << " to " << analysis.maxMagnitude << " µT" << std::endl;
   std::cout << "  Spread: " << (analysis.maxMagnitude - analysis.minMagnitude) << " µT" << std::endl;
-  
+
   // Angular analysis (keep on console)
   std::cout << "\nAngular Analysis:" << std::endl;
-  std::cout << "  Azimuth - Avg: " << std::fixed << std::setprecision(1) << analysis.avgAzimuth 
+  std::cout << "  Azimuth - Avg: " << std::fixed << std::setprecision(1) << analysis.avgAzimuth
             << "°, Range: " << analysis.minAzimuth << "° to " << analysis.maxAzimuth << "°" << std::endl;
-  std::cout << "  Elevation - Avg: " << analysis.avgElevation 
+  std::cout << "  Elevation - Avg: " << analysis.avgElevation
             << "°, Range: " << analysis.minElevation << "° to " << analysis.maxElevation << "°" << std::endl;
-  
+
   // Elevation bin distribution (keep on console)
   std::cout << "\nElevation Bin Distribution:" << std::endl;
   for(int i = 0; i < NUM_ELEVATION_BINS; i++) {
     if(analysis.elevationBinCounts[i] > 0) {
       double binCenter = (i * BIN_DEGREES) - 90.0; // Convert bin to degrees
-      std::cout << "  Bin " << std::setw(2) << i << " (" << std::setw(6) << std::fixed 
-                << std::setprecision(1) << binCenter << "°): " << std::setw(4) 
+      std::cout << "  Bin " << std::setw(2) << i << " (" << std::setw(6) << std::fixed
+                << std::setprecision(1) << binCenter << "°): " << std::setw(4)
                 << analysis.elevationBinCounts[i] << " samples" << std::endl;
     }
   }
-  
+
   // Active azimuth bins (keep on console)
   std::cout << "\nActive Azimuth Bins: ";
   int activeBins = 0;
@@ -487,16 +488,16 @@ void printDetailedAnalysis(const DatasetAnalysis& analysis) {
     }
   }
   std::cout << std::endl;
-  
+
   // Calculate and show acceptance summary on console
   uint16_t acceptedCount = 0;
   for(const auto& sample : analysis.samples) {
     if(sample.wouldBeAccepted) acceptedCount++;
   }
-  
+
   std::cout << "\nAcceptance Summary:" << std::endl;
-  std::cout << "  Accepted: " << acceptedCount << " / " << analysis.samples.size() 
-            << " (" << std::fixed << std::setprecision(1) 
+  std::cout << "  Accepted: " << acceptedCount << " / " << analysis.samples.size()
+            << " (" << std::fixed << std::setprecision(1)
             << (acceptedCount / (float)analysis.samples.size() * 100.0f) << "%)" << std::endl;
 }
 
@@ -505,9 +506,9 @@ void printDetailedAnalysis(const DatasetAnalysis& analysis) {
 void compareAnalysis(const DatasetAnalysis& prototypeAnalysis, const DatasetAnalysis& productionAnalysis) {
   std::cout << "\n=== COMPARATIVE ANALYSIS ===" << std::endl;
 
-  std::cout << std::left << std::setw(25) << "Metric" << " | " 
-            << std::setw(15) << "Prototype" << " | " 
-            << std::setw(15) << "Production" << " | " 
+  std::cout << std::left << std::setw(25) << "Metric" << " | "
+            << std::setw(15) << "Prototype" << " | "
+            << std::setw(15) << "Production" << " | "
             << std::setw(12) << "Ratio (P/Pr)" << std::endl;
   std::cout << std::string(70, '-') << std::endl;
 
@@ -515,7 +516,7 @@ void compareAnalysis(const DatasetAnalysis& prototypeAnalysis, const DatasetAnal
   std::cout << std::setw(25) << "Valid Samples" << " | "
             << std::setw(15) << prototypeAnalysis.validSamples << " | "
             << std::setw(15) << productionAnalysis.validSamples << " | "
-            << std::setw(12) << std::fixed << std::setprecision(2) 
+            << std::setw(12) << std::fixed << std::setprecision(2)
             << (float)productionAnalysis.validSamples / prototypeAnalysis.validSamples << std::endl;
 
   std::cout << std::setw(25) << "Unique Bins" << " | "
@@ -548,7 +549,7 @@ void compareAnalysis(const DatasetAnalysis& prototypeAnalysis, const DatasetAnal
 
   // Magnitude analysis
   double magRatio = productionAnalysis.avgMagnitude / prototypeAnalysis.avgMagnitude;
-  std::cout << "1. Magnitude Difference: Production readings are " 
+  std::cout << "1. Magnitude Difference: Production readings are "
             << std::fixed << std::setprecision(1) << magRatio << "x stronger" << std::endl;
   if(magRatio > 1.5) {
     std::cout << "   -> SIGNIFICANT: Trace removal eliminated magnetic damping" << std::endl;
@@ -556,7 +557,7 @@ void compareAnalysis(const DatasetAnalysis& prototypeAnalysis, const DatasetAnal
 
   // Coverage analysis
   double coverageRatio = productionAnalysis.coveragePercent / prototypeAnalysis.coveragePercent;
-  std::cout << "2. Coverage Difference: Production achieves " 
+  std::cout << "2. Coverage Difference: Production achieves "
             << coverageRatio << "x the coverage" << std::endl;
   if(coverageRatio < 0.3) {
     std::cout << "   -> CRITICAL: Severe coverage reduction detected" << std::endl;
@@ -564,7 +565,7 @@ void compareAnalysis(const DatasetAnalysis& prototypeAnalysis, const DatasetAnal
 
   // Elevation analysis
   double elevationDiff = productionAnalysis.avgElevation - prototypeAnalysis.avgElevation;
-  std::cout << "3. Elevation Shift: Production reads " 
+  std::cout << "3. Elevation Shift: Production reads "
             << elevationDiff << "° different elevation" << std::endl;
   if(fabs(elevationDiff) > 10.0) {
     std::cout << "   -> SIGNIFICANT: Large elevation bias detected" << std::endl;
@@ -582,7 +583,7 @@ void compareAnalysis(const DatasetAnalysis& prototypeAnalysis, const DatasetAnal
   if(totalUniqueBins > 0) {
     overlapPercent = (sharedBins / (float)totalUniqueBins) * 100.0f;
   }
-  std::cout << "4. Bin Overlap: " << std::fixed << std::setprecision(1) 
+  std::cout << "4. Bin Overlap: " << std::fixed << std::setprecision(1)
             << overlapPercent << "% of bins are shared between datasets" << std::endl;
   if(overlapPercent < 50.0f) {
     std::cout << "   -> CRITICAL: Low bin overlap suggests systematic bias" << std::endl;
@@ -599,14 +600,14 @@ void compareAnalysis(const DatasetAnalysis& prototypeAnalysis, const DatasetAnal
 void printConfigurationInfo() {
   std::cout << "\n=== ANALYSIS CONFIGURATION ===" << std::endl;
   std::cout << "Bin Size: " << (uint16_t)BIN_DEGREES << "° per bin" << std::endl;
-  std::cout << "Grid Dimensions: " << (uint16_t)NUM_AZIMUTH_BINS << " azimuth bins × " 
+  std::cout << "Grid Dimensions: " << (uint16_t)NUM_AZIMUTH_BINS << " azimuth bins × "
             << (uint16_t)NUM_ELEVATION_BINS << " elevation bins" << std::endl;
   std::cout << "Total Bins Available: " << MAX_POINTS << " bins" << std::endl;
   std::cout << "Azimuth Range: 0° to 360° (coverage: " << (uint16_t)NUM_AZIMUTH_BINS << " bins)" << std::endl;
   std::cout << "Elevation Range: -90° to +90° (coverage: " << (uint16_t)NUM_ELEVATION_BINS << " bins)" << std::endl;
-  std::cout << "Coverage Resolution: Each bin represents " << (uint16_t)BIN_DEGREES 
+  std::cout << "Coverage Resolution: Each bin represents " << (uint16_t)BIN_DEGREES
             << "° × " << (uint16_t)BIN_DEGREES << "° area" << std::endl;
-  
+
   // Update compensation status display for universal application
   std::cout << "Elevation Compensation: " << (ENABLE_ELEVATION_COMPENSATION ? "ENABLED" : "DISABLED");
   if(ENABLE_ELEVATION_COMPENSATION) {
@@ -622,7 +623,7 @@ void printConfigurationInfo() {
 //
 // This function captures all the analysis output that would normally appear on console
 // and writes it to a single comprehensive file for easy review and sharing.
-void writeCompleteAnalysisToFile(const DatasetAnalysis& prototypeAnalysis, 
+void writeCompleteAnalysisToFile(const DatasetAnalysis& prototypeAnalysis,
                                 const DatasetAnalysis& productionAnalysis,
                                 const std::string& prototypeDebug,
                                 const std::string& productionDebug) {
@@ -631,56 +632,56 @@ void writeCompleteAnalysisToFile(const DatasetAnalysis& prototypeAnalysis,
     std::cerr << "Warning: Could not create analysis.txt output file" << std::endl;
     return;
   }
-  
+
   // Write header and configuration
   outFile << "Magnetometer Calibration Analysis Tool" << std::endl;
   outFile << "Purpose: Analyze prototype vs production binning behavior" << std::endl;
   outFile << "=========================================" << std::endl;
-  
+
   // Configuration section
   outFile << "\n=== ANALYSIS CONFIGURATION ===" << std::endl;
   outFile << "Bin Size: " << (uint16_t)BIN_DEGREES << "° per bin" << std::endl;
-  outFile << "Grid Dimensions: " << (uint16_t)NUM_AZIMUTH_BINS << " azimuth bins × " 
+  outFile << "Grid Dimensions: " << (uint16_t)NUM_AZIMUTH_BINS << " azimuth bins × "
           << (uint16_t)NUM_ELEVATION_BINS << " elevation bins" << std::endl;
   outFile << "Total Bins Available: " << MAX_POINTS << " bins" << std::endl;
   outFile << "Azimuth Range: 0° to 360° (coverage: " << (uint16_t)NUM_AZIMUTH_BINS << " bins)" << std::endl;
   outFile << "Elevation Range: -90° to +90° (coverage: " << (uint16_t)NUM_ELEVATION_BINS << " bins)" << std::endl;
-  outFile << "Coverage Resolution: Each bin represents " << (uint16_t)BIN_DEGREES 
+  outFile << "Coverage Resolution: Each bin represents " << (uint16_t)BIN_DEGREES
           << "° × " << (uint16_t)BIN_DEGREES << "° area" << std::endl;
-  
+
   outFile << "Elevation Compensation: " << (ENABLE_ELEVATION_COMPENSATION ? "ENABLED" : "DISABLED");
   if(ENABLE_ELEVATION_COMPENSATION) {
     outFile << " (" << ELEVATION_BIAS_DEGREES << "° applied to ALL datasets)";
   }
   outFile << std::endl;
-  
+
   // File loading summary
   outFile << "\nLoading log files..." << std::endl;
   outFile << "Loaded " << prototypeAnalysis.totalLines << " readings from " << prototypeAnalysis.filename << std::endl;
   outFile << "Loaded " << productionAnalysis.totalLines << " readings from " << productionAnalysis.filename << std::endl;
-  
+
   // Processing results
   outFile << "\nProcessing " << prototypeAnalysis.label << " dataset..." << std::endl;
   if(ENABLE_ELEVATION_COMPENSATION) {
     outFile << "  *** UNIVERSAL ELEVATION COMPENSATION ENABLED ***" << std::endl;
   }
-  outFile << "Analysis complete: " << prototypeAnalysis.validSamples << " valid samples, " 
-          << prototypeAnalysis.uniqueBins << " unique bins (" << std::fixed << std::setprecision(1) 
+  outFile << "Analysis complete: " << prototypeAnalysis.validSamples << " valid samples, "
+          << prototypeAnalysis.uniqueBins << " unique bins (" << std::fixed << std::setprecision(1)
           << prototypeAnalysis.coveragePercent << "% coverage)" << std::endl;
-  
+
   outFile << "\nProcessing " << productionAnalysis.label << " dataset..." << std::endl;
   if(ENABLE_ELEVATION_COMPENSATION) {
     outFile << "  *** UNIVERSAL ELEVATION COMPENSATION ENABLED ***" << std::endl;
   }
-  outFile << "Analysis complete: " << productionAnalysis.validSamples << " valid samples, " 
-          << productionAnalysis.uniqueBins << " unique bins (" << std::fixed << std::setprecision(1) 
+  outFile << "Analysis complete: " << productionAnalysis.validSamples << " valid samples, "
+          << productionAnalysis.uniqueBins << " unique bins (" << std::fixed << std::setprecision(1)
           << productionAnalysis.coveragePercent << "% coverage)" << std::endl;
-  
+
   // Write detailed analysis for prototype
   outFile << "\n=== DETAILED ANALYSIS: " << prototypeAnalysis.label << " ===" << std::endl;
   outFile << "Source File: " << prototypeAnalysis.filename << std::endl;
   outFile << "  Detailed breakdown written to: " << prototypeAnalysis.filename.substr(0, prototypeAnalysis.filename.find_last_of(".")) << "_analysis.txt" << std::endl;
-  
+
   // Prototype statistics
   outFile << "\nSample Statistics:" << std::endl;
   outFile << "  Total Lines: " << prototypeAnalysis.totalLines << std::endl;
@@ -688,31 +689,31 @@ void writeCompleteAnalysisToFile(const DatasetAnalysis& prototypeAnalysis,
   outFile << "  Accepted Samples: " << prototypeAnalysis.acceptedSamples << std::endl;
   outFile << "  Unique Bins: " << prototypeAnalysis.uniqueBins << " / " << MAX_POINTS << std::endl;
   outFile << "  Coverage: " << std::fixed << std::setprecision(2) << prototypeAnalysis.coveragePercent << "%" << std::endl;
-  outFile << "  Processing Efficiency: " << std::fixed << std::setprecision(1) 
+  outFile << "  Processing Efficiency: " << std::fixed << std::setprecision(1)
           << (prototypeAnalysis.validSamples / (float)prototypeAnalysis.totalLines * 100.0f) << "% valid samples" << std::endl;
-  
+
   outFile << "\nMagnitude Analysis:" << std::endl;
   outFile << "  Average: " << std::fixed << std::setprecision(2) << prototypeAnalysis.avgMagnitude << " µT" << std::endl;
   outFile << "  Range: " << prototypeAnalysis.minMagnitude << " to " << prototypeAnalysis.maxMagnitude << " µT" << std::endl;
   outFile << "  Spread: " << (prototypeAnalysis.maxMagnitude - prototypeAnalysis.minMagnitude) << " µT" << std::endl;
-  
+
   outFile << "\nAngular Analysis:" << std::endl;
-  outFile << "  Azimuth - Avg: " << std::fixed << std::setprecision(1) << prototypeAnalysis.avgAzimuth 
+  outFile << "  Azimuth - Avg: " << std::fixed << std::setprecision(1) << prototypeAnalysis.avgAzimuth
           << "°, Range: " << prototypeAnalysis.minAzimuth << "° to " << prototypeAnalysis.maxAzimuth << "°" << std::endl;
-  outFile << "  Elevation - Avg: " << prototypeAnalysis.avgElevation 
+  outFile << "  Elevation - Avg: " << prototypeAnalysis.avgElevation
           << "°, Range: " << prototypeAnalysis.minElevation << "° to " << prototypeAnalysis.maxElevation << "°" << std::endl;
-  
+
   // Prototype elevation bin distribution
   outFile << "\nElevation Bin Distribution:" << std::endl;
   for(int i = 0; i < NUM_ELEVATION_BINS; i++) {
     if(prototypeAnalysis.elevationBinCounts[i] > 0) {
       double binCenter = (i * BIN_DEGREES) - 90.0;
-      outFile << "  Bin " << std::setw(2) << i << " (" << std::setw(6) << std::fixed 
-              << std::setprecision(1) << binCenter << "°): " << std::setw(4) 
+      outFile << "  Bin " << std::setw(2) << i << " (" << std::setw(6) << std::fixed
+              << std::setprecision(1) << binCenter << "°): " << std::setw(4)
               << prototypeAnalysis.elevationBinCounts[i] << " samples" << std::endl;
     }
   }
-  
+
   // Prototype active azimuth bins
   outFile << "\nActive Azimuth Bins: ";
   int prototypeBins = 0;
@@ -724,22 +725,22 @@ void writeCompleteAnalysisToFile(const DatasetAnalysis& prototypeAnalysis,
     }
   }
   outFile << std::endl;
-  
+
   // Prototype acceptance summary
   uint16_t prototypeAccepted = 0;
   for(const auto& sample : prototypeAnalysis.samples) {
     if(sample.wouldBeAccepted) prototypeAccepted++;
   }
   outFile << "\nAcceptance Summary:" << std::endl;
-  outFile << "  Accepted: " << prototypeAccepted << " / " << prototypeAnalysis.samples.size() 
-          << " (" << std::fixed << std::setprecision(1) 
+  outFile << "  Accepted: " << prototypeAccepted << " / " << prototypeAnalysis.samples.size()
+          << " (" << std::fixed << std::setprecision(1)
           << (prototypeAccepted / (float)prototypeAnalysis.samples.size() * 100.0f) << "%)" << std::endl;
-  
+
   // Write detailed analysis for production
   outFile << "\n=== DETAILED ANALYSIS: " << productionAnalysis.label << " ===" << std::endl;
   outFile << "Source File: " << productionAnalysis.filename << std::endl;
   outFile << "  Detailed breakdown written to: " << productionAnalysis.filename.substr(0, productionAnalysis.filename.find_last_of(".")) << "_analysis.txt" << std::endl;
-  
+
   // Production statistics
   outFile << "\nSample Statistics:" << std::endl;
   outFile << "  Total Lines: " << productionAnalysis.totalLines << std::endl;
@@ -747,31 +748,31 @@ void writeCompleteAnalysisToFile(const DatasetAnalysis& prototypeAnalysis,
   outFile << "  Accepted Samples: " << productionAnalysis.acceptedSamples << std::endl;
   outFile << "  Unique Bins: " << productionAnalysis.uniqueBins << " / " << MAX_POINTS << std::endl;
   outFile << "  Coverage: " << std::fixed << std::setprecision(2) << productionAnalysis.coveragePercent << "%" << std::endl;
-  outFile << "  Processing Efficiency: " << std::fixed << std::setprecision(1) 
+  outFile << "  Processing Efficiency: " << std::fixed << std::setprecision(1)
           << (productionAnalysis.validSamples / (float)productionAnalysis.totalLines * 100.0f) << "% valid samples" << std::endl;
-  
+
   outFile << "\nMagnitude Analysis:" << std::endl;
   outFile << "  Average: " << std::fixed << std::setprecision(2) << productionAnalysis.avgMagnitude << " µT" << std::endl;
   outFile << "  Range: " << productionAnalysis.minMagnitude << " to " << productionAnalysis.maxMagnitude << " µT" << std::endl;
   outFile << "  Spread: " << (productionAnalysis.maxMagnitude - productionAnalysis.minMagnitude) << " µT" << std::endl;
-  
+
   outFile << "\nAngular Analysis:" << std::endl;
-  outFile << "  Azimuth - Avg: " << std::fixed << std::setprecision(1) << productionAnalysis.avgAzimuth 
+  outFile << "  Azimuth - Avg: " << std::fixed << std::setprecision(1) << productionAnalysis.avgAzimuth
           << "°, Range: " << productionAnalysis.minAzimuth << "° to " << productionAnalysis.maxAzimuth << "°" << std::endl;
-  outFile << "  Elevation - Avg: " << productionAnalysis.avgElevation 
+  outFile << "  Elevation - Avg: " << productionAnalysis.avgElevation
           << "°, Range: " << productionAnalysis.minElevation << "° to " << productionAnalysis.maxElevation << "°" << std::endl;
-  
+
   // Production elevation bin distribution
   outFile << "\nElevation Bin Distribution:" << std::endl;
   for(int i = 0; i < NUM_ELEVATION_BINS; i++) {
     if(productionAnalysis.elevationBinCounts[i] > 0) {
       double binCenter = (i * BIN_DEGREES) - 90.0;
-      outFile << "  Bin " << std::setw(2) << i << " (" << std::setw(6) << std::fixed 
-              << std::setprecision(1) << binCenter << "°): " << std::setw(4) 
+      outFile << "  Bin " << std::setw(2) << i << " (" << std::setw(6) << std::fixed
+              << std::setprecision(1) << binCenter << "°): " << std::setw(4)
               << productionAnalysis.elevationBinCounts[i] << " samples" << std::endl;
     }
   }
-  
+
   // Production active azimuth bins
   outFile << "\nActive Azimuth Bins: ";
   int productionBins = 0;
@@ -783,31 +784,31 @@ void writeCompleteAnalysisToFile(const DatasetAnalysis& prototypeAnalysis,
     }
   }
   outFile << std::endl;
-  
+
   // Production acceptance summary
   uint16_t productionAccepted = 0;
   for(const auto& sample : productionAnalysis.samples) {
     if(sample.wouldBeAccepted) productionAccepted++;
   }
   outFile << "\nAcceptance Summary:" << std::endl;
-  outFile << "  Accepted: " << productionAccepted << " / " << productionAnalysis.samples.size() 
-          << " (" << std::fixed << std::setprecision(1) 
+  outFile << "  Accepted: " << productionAccepted << " / " << productionAnalysis.samples.size()
+          << " (" << std::fixed << std::setprecision(1)
           << (productionAccepted / (float)productionAnalysis.samples.size() * 100.0f) << "%)" << std::endl;
-  
+
   // Comparative analysis section
   outFile << "\n=== COMPARATIVE ANALYSIS ===" << std::endl;
-  
-  outFile << std::left << std::setw(25) << "Metric" << " | " 
-          << std::setw(15) << "Prototype" << " | " 
-          << std::setw(15) << "Production" << " | " 
+
+  outFile << std::left << std::setw(25) << "Metric" << " | "
+          << std::setw(15) << "Prototype" << " | "
+          << std::setw(15) << "Production" << " | "
           << std::setw(12) << "Ratio (P/Pr)" << std::endl;
   outFile << std::string(70, '-') << std::endl;
-  
+
   // Sample statistics comparison
   outFile << std::setw(25) << "Valid Samples" << " | "
           << std::setw(15) << prototypeAnalysis.validSamples << " | "
           << std::setw(15) << productionAnalysis.validSamples << " | "
-          << std::setw(12) << std::fixed << std::setprecision(2) 
+          << std::setw(12) << std::fixed << std::setprecision(2)
           << (float)productionAnalysis.validSamples / prototypeAnalysis.validSamples << std::endl;
 
   outFile << std::setw(25) << "Unique Bins" << " | "
@@ -834,34 +835,34 @@ void writeCompleteAnalysisToFile(const DatasetAnalysis& prototypeAnalysis,
           << std::setw(15) << prototypeAnalysis.avgAzimuth << " | "
           << std::setw(15) << productionAnalysis.avgAzimuth << " | "
           << std::setw(12) << productionAnalysis.avgAzimuth / prototypeAnalysis.avgAzimuth << std::endl;
-  
+
   // Key findings analysis
   outFile << "\n=== KEY FINDINGS ===" << std::endl;
-  
+
   // Magnitude analysis
   double magRatio = productionAnalysis.avgMagnitude / prototypeAnalysis.avgMagnitude;
-  outFile << "1. Magnitude Difference: Production readings are " 
+  outFile << "1. Magnitude Difference: Production readings are "
           << std::fixed << std::setprecision(1) << magRatio << "x stronger" << std::endl;
   if(magRatio > 1.5) {
     outFile << "   -> SIGNIFICANT: Trace removal eliminated magnetic damping" << std::endl;
   }
-  
+
   // Coverage analysis
   double coverageRatio = productionAnalysis.coveragePercent / prototypeAnalysis.coveragePercent;
-  outFile << "2. Coverage Difference: Production achieves " 
+  outFile << "2. Coverage Difference: Production achieves "
           << coverageRatio << "x the coverage" << std::endl;
   if(coverageRatio < 0.3) {
     outFile << "   -> CRITICAL: Severe coverage reduction detected" << std::endl;
   }
-  
+
   // Elevation analysis
   double elevationDiff = productionAnalysis.avgElevation - prototypeAnalysis.avgElevation;
-  outFile << "3. Elevation Shift: Production reads " 
+  outFile << "3. Elevation Shift: Production reads "
           << elevationDiff << "° different elevation" << std::endl;
   if(fabs(elevationDiff) > 10.0) {
     outFile << "   -> SIGNIFICANT: Large elevation bias detected" << std::endl;
   }
-  
+
   // Bin overlap analysis
   int sharedBins = 0;
   for(int i = 0; i < MAX_POINTS; i++) {
@@ -874,12 +875,12 @@ void writeCompleteAnalysisToFile(const DatasetAnalysis& prototypeAnalysis,
   if(totalUniqueBins > 0) {
     overlapPercent = (sharedBins / (float)totalUniqueBins) * 100.0f;
   }
-  outFile << "4. Bin Overlap: " << std::fixed << std::setprecision(1) 
+  outFile << "4. Bin Overlap: " << std::fixed << std::setprecision(1)
           << overlapPercent << "% of bins are shared between datasets" << std::endl;
   if(overlapPercent < 50.0f) {
     outFile << "   -> CRITICAL: Low bin overlap suggests systematic bias" << std::endl;
   }
-  
+
   outFile.close();
   std::cout << "Complete analysis written to: analysis.txt" << std::endl;
 }
@@ -912,9 +913,9 @@ HardIronOffsets calculateHardIronOffsets(const std::vector<MagData>& samples) {
   result.rangeX = maxX - minX;
   result.rangeY = maxY - minY;
   result.rangeZ = maxZ - minZ;
-  result.sufficientSpread = (result.rangeX > HARD_IRON_SPREAD_THRESHOLD) &&
-                            (result.rangeY > HARD_IRON_SPREAD_THRESHOLD) &&
-                            (result.rangeZ > HARD_IRON_SPREAD_THRESHOLD);
+  result.sufficientSpread = (result.rangeX > HARD_IRON_HORIZONTAL_SPREAD_THRESHOLD) &&
+                            (result.rangeY > HARD_IRON_HORIZONTAL_SPREAD_THRESHOLD) &&
+                            (result.rangeZ > HARD_IRON_VERTICAL_SPREAD_THRESHOLD);
   return result;
 }
 
@@ -950,9 +951,9 @@ AnalysisResult analyzeDatasetWithHardIron(const std::vector<std::array<double, 3
   bool hardIronOffsetApplied = hardIronOffset.sufficientSpread;
 
   debug << "[DEBUG] Calibration sample count: " << calibrationSamples.size() << std::endl;
-  debug << "[DEBUG] Hard-iron spread X: " << hardIronOffset.rangeX << " (threshold: " << HARD_IRON_SPREAD_THRESHOLD << ")" << std::endl;
-  debug << "[DEBUG] Hard-iron spread Y: " << hardIronOffset.rangeY << " (threshold: " << HARD_IRON_SPREAD_THRESHOLD << ")" << std::endl;
-  debug << "[DEBUG] Hard-iron spread Z: " << hardIronOffset.rangeZ << " (threshold: " << HARD_IRON_SPREAD_THRESHOLD << ")" << std::endl;
+  debug << "[DEBUG] Hard-iron spread X: " << hardIronOffset.rangeX << " (threshold: " << HARD_IRON_HORIZONTAL_SPREAD_THRESHOLD << ")" << std::endl;
+  debug << "[DEBUG] Hard-iron spread Y: " << hardIronOffset.rangeY << " (threshold: " << HARD_IRON_HORIZONTAL_SPREAD_THRESHOLD << ")" << std::endl;
+  debug << "[DEBUG] Hard-iron spread Z: " << hardIronOffset.rangeZ << " (threshold: " << HARD_IRON_VERTICAL_SPREAD_THRESHOLD << ")" << std::endl;
 
   if(hardIronOffsetApplied) {
     debug << "[DEBUG] Hard-iron offset applied after " << HARD_IRON_SAMPLE_THRESHOLD << " samples: "
@@ -1096,9 +1097,9 @@ int main(int argc, char* argv[]) {
 
     std::stringstream fallbackDebug;
     fallbackDebug << "\n[FALLBACK DEBUG] Used all valid samples (" << allValidSamples.size() << ") for hard-iron offset calculation.\n";
-    fallbackDebug << "[FALLBACK DEBUG] Spread X: " << fallbackOffset.rangeX << " (threshold: " << HARD_IRON_SPREAD_THRESHOLD << ")\n";
-    fallbackDebug << "[FALLBACK DEBUG] Spread Y: " << fallbackOffset.rangeY << " (threshold: " << HARD_IRON_SPREAD_THRESHOLD << ")\n";
-    fallbackDebug << "[FALLBACK DEBUG] Spread Z: " << fallbackOffset.rangeZ << " (threshold: " << HARD_IRON_SPREAD_THRESHOLD << ")\n";
+    fallbackDebug << "[FALLBACK DEBUG] Spread X: " << fallbackOffset.rangeX << " (threshold: " << HARD_IRON_HORIZONTAL_SPREAD_THRESHOLD << ")\n";
+    fallbackDebug << "[FALLBACK DEBUG] Spread Y: " << fallbackOffset.rangeY << " (threshold: " << HARD_IRON_HORIZONTAL_SPREAD_THRESHOLD << ")\n";
+    fallbackDebug << "[FALLBACK DEBUG] Spread Z: " << fallbackOffset.rangeZ << " (threshold: " << HARD_IRON_VERTICAL_SPREAD_THRESHOLD << ")\n";
     fallbackDebug << "[FALLBACK DEBUG] Hard-iron offset applied: X=" << fallbackOffset.x << " Y=" << fallbackOffset.y << " Z=" << fallbackOffset.z << "\n";
     fallbackDebug << "[FALLBACK DEBUG] Re-processing production file with fallback offset...\n";
 

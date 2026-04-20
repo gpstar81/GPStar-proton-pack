@@ -1,61 +1,118 @@
 {
 	"folders": [
-    {
-      "path": "."
-    },
-    {
-      "name": "SharedLib",
-      "path": "source/SharedLib"
-    },
-    {
-      "name": "Attenuator",
-      "path": "source/Attenuator"
-    },
-    {
-      "name": "BeltGizmo",
-      "path": "source/BeltGizmo"
-    },
-    {
-      "name": "GhostTrapBase",
-      "path": "source/GhostTrapBase"
-    },
-    {
-      "name": "GhostTrapCartridge",
-      "path": "source/GhostTrapCartridge"
-    },
-    {
-      "name": "NeutronaWand",
-      "path": "source/NeutronaWand"
-    },
-    {
-      "name": "ProtonPack",
-      "path": "source/ProtonPack"
-    },
-    {
-      "name": "SingleShot",
-      "path": "source/SingleShot"
-    },
-    {
-      "name": "StreamEffects",
-      "path": "source/StreamEffects"
-    }
-  ],
+		{
+			"name": "GitHub Config",
+			"path": ".github"
+		},
+		{
+			"name": "Documentation",
+			"path": "docs"
+		},
+		{
+			"name": "Scripts",
+			"path": "scripts"
+		},
+		{
+			"name": "SharedLib-Communication",
+			"path": "source/SharedLib/Communication"
+		},
+		{
+			"name": "SharedLib-DeviceState",
+			"path": "source/SharedLib/DeviceState"
+		},
+		{
+			"name": "SharedLib-InfraredManager",
+			"path": "source/SharedLib/InfraredManager"
+		},
+		{
+			"name": "SharedLib-Lighting",
+			"path": "source/SharedLib/Lighting"
+		},
+		{
+			"name": "SharedLib-MagCalibration",
+			"path": "source/SharedLib/MagCalibration"
+		},
+		{
+			"name": "SharedLib-ShuffleMusic",
+			"path": "source/SharedLib/ShuffleMusic"
+		},
+		{
+			"name": "SharedLib-WebAssets",
+			"path": "source/SharedLib/WebAssets"
+		},
+		{
+			"name": "SharedLib-WebRouter",
+			"path": "source/SharedLib/WebRouter"
+		},
+		{
+			"name": "SharedLib-WirelessManager",
+			"path": "source/SharedLib/WirelessManager"
+		},
+		{
+			"name": "Attenuator",
+			"path": "source/Attenuator"
+		},
+		{
+			"name": "ProtonPack",
+			"path": "source/ProtonPack"
+		},
+		{
+			"name": "NeutronaWand",
+			"path": "source/NeutronaWand"
+		},
+		{
+			"name": "GhostTrapBase",
+			"path": "source/GhostTrapBase"
+		},
+		{
+			"name": "GhostTrapCartridge",
+			"path": "source/GhostTrapCartridge"
+		},
+		{
+			"name": "SingleShot",
+			"path": "source/SingleShot"
+		},
+		{
+			"name": "BeltGizmo",
+			"path": "source/BeltGizmo"
+		},
+		{
+			"name": "StreamEffects",
+			"path": "source/StreamEffects"
+		},
+    		{
+      			"path": "source/PSTT"
+    		}
+	],
 	"settings": {
-	  "editor.detectIndentation": false,
-	  "editor.indentSize": "2",
-	  "editor.insertSpaces": true,
-    "editor.tabSize": 2,
-    "files.associations": {
-      "string": "cpp",
-      "cstdint": "cpp",
-      "cmath": "cpp",
-      "complex": "cpp",
-      "ostream": "cpp",
-      "array": "cpp",
-      "span": "cpp",
-      "string_view": "cpp",
-      "vector": "cpp"
-    },
-    "workbench.editor.enablePreview": false
-  }
+		"editor.detectIndentation": false,
+		"editor.insertSpaces": true,
+		"editor.tabSize": 2,
+		"files.associations": {
+			"string": "cpp",
+			"cstdint": "cpp",
+			"cmath": "cpp",
+			"complex": "cpp",
+			"ostream": "cpp",
+			"array": "cpp",
+			"span": "cpp",
+			"string_view": "cpp",
+			"vector": "cpp",
+			"system_error": "cpp",
+			"compare": "cpp"
+		},
+		"workbench.editor.enablePreview": false,
+		"mcp": {
+			"servers": {
+				"gpstar-rag": {
+					"type": "stdio",
+					"command": "python",
+					"args": ["mcp_rag_llamaindex.py"],
+					"cwd": "${workspaceFolder:Scripts}",
+					"env": {}
+				}
+			},
+			"inputs": []
+		}
+	}
 }

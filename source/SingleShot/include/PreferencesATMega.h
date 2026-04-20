@@ -1,6 +1,6 @@
 /**
  *   GPStar Single-Shot Blaster
- *   Copyright (C) 2024-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2024-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                    & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -48,22 +48,23 @@ const uint16_t i_eepromAddress = 0; // The address in the EEPROM to start readin
  */
 void readEEPROM() {
   bool b_config_loaded = false;
-  
+
   // Check if EEPROM contains valid data by reading a size marker.
   uint16_t i_stored_size;
   EEPROM.get(i_eepromAddress, i_stored_size);
-  
+
   if(i_stored_size == sizeof(blasterConfig)) {
     // Size matches - safe to load configuration directly
     EEPROM.get(i_eepromAddress + sizeof(uint16_t), blasterConfig);
     b_config_loaded = true;
   }
-  
+
   if(b_config_loaded) {
     // Successfully loaded a valid configuration, apply to other variables.
     i_volume_master_percentage = blasterConfig.defaultSystemVolume;
     i_volume_master = MINIMUM_VOLUME - ((MINIMUM_VOLUME - i_volume_abs_max) * i_volume_master_percentage / 100);
     i_volume_revert = i_volume_master;
+    b_rgb_vent_light = blasterConfig.ventLightRGB;
     setAudioLED(blasterConfig.gpstarAudioLed);
   }
   else {
@@ -78,7 +79,7 @@ void clearConfigEEPROM() {
   for(uint16_t i = i_eepromAddress; i < (sizeof(uint16_t) + sizeof(blasterConfig)); i++) {
     EEPROM.update(i, 0xFF); // Write 0xFF to each address
   }
-  
+
   // Write invalid size marker to indicate no valid data.
   uint16_t i_invalid_size = 0;
   EEPROM.put(i_eepromAddress, i_invalid_size);

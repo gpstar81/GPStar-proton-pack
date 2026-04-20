@@ -41,9 +41,9 @@ Changes are made by pressing either the `Intensify` button on the gun box or the
 
 | Option | Purpose | Intensify Button | Barrel Wing Button |
 |:------:|---------|------------------|--------------------|
-| 5️⃣ | Music&nbsp;Track&nbsp;Looping | Enable/disable looping of current track<sup>1</sup> | Exit the menu system<sup>2</sup> |
+| 5️⃣ | Music&nbsp;Track&nbsp;Looping | Enable/Disable looping of current track<sup>1</sup> | Exit the menu system<sup>2</sup> |
 | 4️⃣ | Proton&nbsp;Pack&nbsp;Light&nbsp;Dimming | `(Intensify + Top Dial)` Increases/Decreases the selected device's LED brightness | Toggles between Power Cell, Cyclotron, Inner Cyclotron, or Inner Cyclotron Switch Panel devices |
-| 3️⃣ | Music & SFX Volume | `(Intensify + Top Dial)` Increases/Decreases SFX Volume | `(Barrel Wing Button + Top Dial)` Increases/Decreases Music Volume |
+| 3️⃣ | Music & SFX&nbsp;Volume | `(Intensify + Top Dial)` Increases/Decreases SFX Volume | `(Barrel Wing Button + Top Dial)` Increases/Decreases Music Volume |
 | 2️⃣ | Switch&nbsp;Music&nbsp;Track | Cycle forward in music queue | Cycle backwards in music queue |
 | 1️⃣ | Play&nbsp;or&nbsp;Stop&nbsp;Music / System&nbsp;Mute | Start/stop music playback | Mute the Proton Pack and Neutrona Wand or revert back to the previous volume<sup>3</sup> |
 
@@ -69,7 +69,7 @@ To access Menu Level 2, use the `Top Dial` on the top of the wand to move down a
 | 4️⃣ | Overheating / Smoke | Enable/Disable Overheating Ability | Enable/Disable Smoke Effects |
 | 3️⃣ | Cyclotron&nbsp;LED&nbsp;Control | Change Cyclotron rotation direction | Toggle between 1 or 3 centered LEDs in the Cyclotron Lid for 1984/1989 modes |
 | 2️⃣ | Vibration&nbsp;Settings | Cycle through Proton Pack vibration options<sup>6</sup> | Cycle through Neutrona Wand vibration options |
-| 1️⃣ | Year&nbsp;Mode&nbsp;Selection | Cycle through 1984, 1989, Afterlife, and Frozen Empire modes | Enable/Disable the Proton Stream impact sound effects |
+| 1️⃣ | Year&nbsp;Mode&nbsp;Selection / Shuffle&nbsp;Music&nbsp;Tracks | Cycle through 1984, 1989, Afterlife, and Frozen Empire modes | Enable/Disable shuffle play of music tracks<sup>7</sup> |
 
 <sup>4</sup> Switch between Video Game and Cross the Streams (CTS) operation modes. Note that LED/segment #5 will stay solid when CTS or CTS Mix are enabled while in Menu Level 2. Note also that Video Game mode is only available in Super Hero mode.
 
@@ -81,6 +81,8 @@ To access Menu Level 2, use the `Top Dial` on the top of the wand to move down a
 - Enable both the Power Cell and Cyclotron to use video game colours.
 
 <sup>6</sup> See [Inner Cyclotron](CYCLOTRON_INNER.md) for more information on the motorised cyclotron modification for the Proton Pack.
+
+<sup>7</sup> Note that LED/segment #1 will stay solid when shuffle play is enabled while in Menu Level 2; it will blink on/off when shuffle play is disabled.
 
 ### Menu Level 3
 
@@ -94,7 +96,7 @@ To access Menu Level 3, use the `Top Dial` on the top of the wand to move down a
 | 4️⃣ | -Reserved- |  |  |
 | 3️⃣ | -Reserved- |  |  |
 | 2️⃣ | -Reserved- |  |  |
-| 1️⃣ | WiFi&nbsp;Password&nbsp;Reset | Reset the Wand WiFi password to default | Reset the Pack WiFi password to default |
+| 1️⃣ | WiFi&nbsp;Password&nbsp;Reset | `(Long Press)` Reset the Wand WiFi password to default | `(Long Press)` Reset the Pack WiFi password to default |
 
 
 ### Menu Exit

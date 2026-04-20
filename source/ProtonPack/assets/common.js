@@ -1,6 +1,6 @@
 /**
  *   GPStar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -23,20 +23,24 @@ function getEl(id) {
 }
 
 function getInt(id) {
-  return parseInt(getValue(id) || 0, 10);
+  return parseInt(getValue(id) ?? 0, 10);
 }
 
 function getFloat(id) {
-  return parseFloat(getValue(id) || 0);
+  return parseFloat(getValue(id) ?? 0);
 }
 
 function getText(id) {
   return (getValue(id) || "").trim();
 }
 
+function getHtml(id) {
+  return (getEl(id).innerHTML);
+}
+
 function getToggle(id) {
   var el = getEl(id);
-  return el && el.checked ? 1 : 0;
+  return el && el.checked ? true : false;
 }
 
 function getValue(id) {
@@ -50,7 +54,9 @@ function setHtml(id, value) {
 
 function setToggle(id, value) {
   var el = getEl(id);
-  if (el) el.checked = !!value;
+  if (el) {
+    if (el._lockout != true) el.checked = value === true;
+  }
 }
 
 function setValue(id, value) {
@@ -135,7 +141,7 @@ function sendCommand(apiUri) {
   // These commands have no response data, so we just handle the status.
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function () {
-    if (this.readyState == 4 && this.status == 200) {
+    if (this.readyState == 4) {
       handleStatus(this.responseText);
     }
   };
@@ -157,6 +163,14 @@ function packAttenuate() {
 
 function packVent() {
   sendCommand("/pack/vent");
+}
+
+function cableOn() {
+  sendCommand("/pack/cable/on");
+}
+
+function cableOff() {
+  sendCommand("/pack/cable/off");
 }
 
 function volSysUp() {
@@ -226,7 +240,11 @@ function toggleMute(el) {
 }
 
 function musicLoop(el) {
-  handleToggle(el, "/music/loop/single", "/music/loop/all");
+  handleToggle(el, "/music/loop/one", "/music/loop/all");
+}
+
+function musicShuffle(el) {
+  handleToggle(el, "/music/shuffle/on", "/music/shuffle/off");
 }
 
 function toggleSmoke(el) {
@@ -255,7 +273,7 @@ function getStatus(callbackFunc) {
   // This function expects a JSON response from the server which must be parsed and sent to the callback function.
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function () {
-    if (this.readyState == 4 && this.status == 200) {
+    if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
       if (callbackFunc && typeof callbackFunc === "function") {
         // If a callback function is provided, call it with the JSON response.
         callbackFunc(JSON.parse(this.responseText));
@@ -274,7 +292,7 @@ function doRestart() {
   if (confirm("Are you sure you wish to restart the serial device?")) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
-      if (this.readyState == 4 && this.status == 204) {
+      if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
         // Reload the page after 2 seconds.
         setTimeout(function () {
           window.location.reload();

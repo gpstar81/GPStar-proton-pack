@@ -53,14 +53,14 @@ function doHeartbeat() {
 }
 
 function onOpen(event) {
-  console.log("Connection opened");
+  console.log("WebSocket connection opened");
 
   // Clear the automated status interval timer.
   clearInterval(statusInterval);
 }
 
 function onClose(event) {
-  console.log("Connection closed");
+  console.log("WebSocket connection closed");
   setTimeout(initWebSocket, 1000);
 
   // Fallback for when WebSocket is unavailable.
@@ -79,6 +79,38 @@ function onMessage(event) {
     // Anything else gets sent to console.
     console.log(event.data);
   }
+}
+
+if (!!window.EventSource) {
+  // Create events for one-way communication.
+  var source = new EventSource("/events");
+
+  source.addEventListener(
+    "open",
+    function (e) {
+      console.log("Server-Side Events connected");
+    },
+    false,
+  );
+
+  source.addEventListener(
+    "error",
+    function (e) {
+      if (e.target.readyState != EventSource.OPEN) {
+        console.log("Server-Side Events disconnected");
+      }
+    },
+    false,
+  );
+
+  source.addEventListener(
+    "debug",
+    function (e) {
+      if (e.data === undefined) return;
+      console.log("Debug: ", e.data);
+    },
+    false,
+  );
 }
 
 function setButtonStates(smokeEnabled) {
@@ -123,7 +155,7 @@ function updateEquipment(jObj) {
     setButtonStates(jObj.smokeEnabled);
 
     // Connected Wifi Clients - Private AP vs. WebSocket
-    setHtml("clientInfo", "AP Clients: " + (jObj.apClients || 0) + " / WebSocket Clients: " + (jObj.wsClients || 0));
+    setHtml("clientInfo", "AP Clients: " + (jObj.apClients ?? 0) + " / WebSocket Clients: " + (jObj.wsClients ?? 0));
 
     updateGraphics(jObj);
   }
@@ -132,9 +164,12 @@ function updateEquipment(jObj) {
 function getStatus() {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function () {
-    if (this.readyState == 4 && this.status == 200) {
+    if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
       // Update the equipment (text) display, which will also update graphical elements.
       updateEquipment(JSON.parse(this.responseText));
+    } else if (this.readyState == 4) {
+      // Handle error responses
+      handleStatus(this.responseText);
     }
   };
   xhttp.open("GET", "/status", true);
@@ -145,16 +180,16 @@ function getDevicePrefs() {
   // This is updated once per page load as it is not subject to frequent changes.
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function () {
-    if (this.readyState == 4 && this.status == 200) {
+    if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
       var jObj = JSON.parse(this.responseText);
       if (jObj) {
         // Device Info
         setHtml("buildDate", "Build: " + (jObj.buildDate || ""));
-        setHtml("wifiName", jObj.wifiName || "");
+        setHtml("wifiName", "Private Network: " + jObj.wifiName || "");
         if (((jObj.wifiNameExt || "") != "" && (jObj.extAddr || "") != "") || (jObj.extMask || "") != "") {
           setHtml("extWifi", (jObj.wifiNameExt || "") + ": " + jObj.extAddr + " / " + jObj.extMask);
         }
-        switch (jObj.audioVersion || 0) {
+        switch (jObj.audioVersion ?? 0) {
           case 0:
           case 1:
             setHtml("audioInfo", "No Audio Detected");
@@ -168,7 +203,7 @@ function getDevicePrefs() {
         }
 
         // Display Preference
-        switch (jObj.displayType || 0) {
+        switch (jObj.displayType ?? 0) {
           case 0:
             // Text-Only Display
             hideEl("equipCRT");
@@ -185,7 +220,18 @@ function getDevicePrefs() {
             showEl("equipTXT");
             break;
         }
+
+        // microSD Warnings
+        if (Boolean(jObj.audioCorrupt)) {
+          alert("Corruption has been detected on the microSD card. Please reformat the card as FAT32 and reload audio files.");
+        } else if (Boolean(jObj.audioOutdated)) {
+          // The file count on the microSD card does not match firmware; alert the user.
+          alert("Contents of microSD card do not match current firmware. Please make sure to update your microSD cards after updating firmware.");
+        }
       }
+    } else if (this.readyState == 4) {
+      // Handle error responses
+      handleStatus(this.responseText);
     }
   };
   xhttp.open("GET", "/config/device", true);
@@ -196,7 +242,7 @@ function doRestart() {
   if (confirm("Are you sure you wish to restart the serial device?")) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
-      if (this.readyState == 4 && this.status == 204) {
+      if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
         // Reload the page after 2 seconds.
         setTimeout(function () {
           window.location.reload();
@@ -211,7 +257,7 @@ function doRestart() {
 function sendCommand(apiUri) {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function () {
-    if (this.readyState == 4 && this.status == 200) {
+    if (this.readyState == 4) {
       handleStatus(this.responseText);
     }
   };

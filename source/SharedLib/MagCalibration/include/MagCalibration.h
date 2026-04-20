@@ -1,7 +1,7 @@
 /**
  *   MagCalibration - Magnetometer calibration class for GPStar devices.
  *   Handles magnetometer data collection and calibration calculations.
- *   Copyright (C) 2023-2025 Michael Rajotte, Dustin Grau, Nomake Wan
+ *   Copyright (C) 2023-2026 Michael Rajotte, Dustin Grau, Nomake Wan
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -152,10 +152,11 @@ class MagCalibration {
 
   private:
     // Minimum samples before allowing hard-iron calculations.
-    static constexpr uint16_t HARD_IRON_SAMPLE_THRESHOLD = 30;
+    static constexpr uint16_t HARD_IRON_SAMPLE_THRESHOLD = 20;
 
     // Minimum range in µT for sufficient hard-iron calculations.
-    static constexpr float HARD_IRON_SPREAD_THRESHOLD = 40.0f;
+    static constexpr float HARD_IRON_HORIZONTAL_SPREAD_THRESHOLD = 15.0f;
+    static constexpr float HARD_IRON_VERTICAL_SPREAD_THRESHOLD = 30.0f;
 
     // Hard-iron offset to apply to incoming samples, once calculated.
     HardIronOffsets provisionalHardIron;

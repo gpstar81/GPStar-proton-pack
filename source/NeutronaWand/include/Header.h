@@ -1,6 +1,6 @@
 /**
  *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -29,7 +29,6 @@
   #define IMU_SCL 47
   #define IMU_SDA 48
 
-
   #define CLIPPARD_LED_PIN 3 // LED underneath the Clippard valve. (Orange or White LED)
   #define ROTARY_ENCODER_A 4
   #define ROTARY_ENCODER_B 5
@@ -39,7 +38,6 @@
   #define MODE_SWITCH_PIN 11
   #define SLO_BLO_LED_PIN 12 // SLO-BLO LED. (Red LED)
   #define BARREL_SWITCH_PIN 13
-  #define IR_LED_PIN 17
   #define VIBRATION_PIN 18 // Pin for the vibration motor.
   #define WAND_STATUS_LED_PIN 38 // V1.4 GPStar Neutrona Wand onboard LED pin.
   #define INTENSIFY_SWITCH_PIN 39
@@ -89,28 +87,18 @@ enum WAND_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE, ACTION_FIRING
 enum WAND_ACTION_STATE WAND_ACTION_STATUS;
 
 /*
- * System modes.
- * Super Hero: A idealised system based on the close up of the Super Hero Proton Pack and Neutrona Wand in the 1984 Rooftop closeup scene and what is shown in Afterlife. (Different toggle switch sequences for turning on the pack and wand)
- * Original: Based on the original operational manual during production of GB1. (Wand toggle switches must be on before the cyclotron can turn on from the Wand only.)
- * Super Hero will be the default system mode.
- */
-enum SYSTEM_MODES { MODE_SUPER_HERO, MODE_ORIGINAL };
-enum SYSTEM_MODES SYSTEM_MODE = MODE_SUPER_HERO;
-
-/*
- * Which year mode the Proton Pack is set into which may not be the same the user prefers for the wand.
- * Though this can/will be used if YEAR_DEFAULT is specified by the user as the WAND_YEAR_MODE.
- */
-enum SYSTEM_YEARS { SYSTEM_EMPTY, SYSTEM_TOGGLE_SWITCH, SYSTEM_1984, SYSTEM_1989, SYSTEM_AFTERLIFE, SYSTEM_FROZEN_EMPIRE };
-enum SYSTEM_YEARS SYSTEM_YEAR = SYSTEM_AFTERLIFE;
-
-/*
  * Which year mode the Neutrona Wand is set into, regardless of which year the Proton Pack is in.
  * This affects just various wand beep sound effects, loops and lighting and bargraph.
  * However the bargraph animations can be overridden with BARGRAPH_MODE and BARGRAPH_FIRING_ANIMATION
  * YEAR_DEFAULT lets the system choose based on the Proton Pack year settings.
  */
-enum WAND_YEAR_MODES { YEAR_DEFAULT, YEAR_1984, YEAR_1989, YEAR_AFTERLIFE, YEAR_FROZEN_EMPIRE };
+enum WAND_YEAR_MODES : uint8_t {
+  YEAR_DEFAULT = 0,
+  YEAR_1984 = 1,
+  YEAR_1989 = 2,
+  YEAR_AFTERLIFE = 3,
+  YEAR_FROZEN_EMPIRE = 4
+};
 enum WAND_YEAR_MODES WAND_YEAR_MODE = YEAR_DEFAULT;
 
 /*
@@ -161,11 +149,11 @@ const uint16_t i_slo_blo_blink_delay = 500;
  * Control for the Meson Shock Blast sound effects.
 */
 millisDelay ms_meson_blast;
-const uint16_t i_meson_blast_delay_level_5 = 140;
-const uint16_t i_meson_blast_delay_level_4 = 160;
-const uint16_t i_meson_blast_delay_level_3 = 180;
-const uint16_t i_meson_blast_delay_level_2 = 200;
-const uint16_t i_meson_blast_delay_level_1 = 220;
+const uint16_t i_meson_blast_delay_level_5 = 125;
+const uint16_t i_meson_blast_delay_level_4 = 185;
+const uint16_t i_meson_blast_delay_level_3 = 215;
+const uint16_t i_meson_blast_delay_level_2 = 245;
+const uint16_t i_meson_blast_delay_level_1 = 275;
 
 /*
  * Barrel LEDs
@@ -183,10 +171,10 @@ const uint8_t frutto_barrel[48] PROGMEM = {0, 25, 24, 48, 1, 26, 23, 47, 2, 27, 
 
 /*
  * How many LEDs are in your Neutrona Wand Barrel.
- * Default setting is 5: for the Hasbro Neturona Wand.
+ * Default setting is 50 (GPStar Neutrona Barrel).
  * Supported options: Stock (5), GPStar Neturona Barrel (48 + 2 Strobe Tips), GPStar Barrel LED Mini (2) and Frutto Technology (48 + Strobe Tip)
  */
-uint8_t i_num_barrel_leds = 5;
+uint8_t i_num_barrel_leds = 50;
 enum WAND_BARREL_LED_COUNTS : uint8_t {
   LEDS_UNKNOWN = 0,
   LEDS_2 = 2,
@@ -246,11 +234,16 @@ static uint16_t store = 0;
  * Vibration default is based on the toggle switch position from the Proton Pack.
  * These are references for the EEPROM menu. Empty is a zero value, not used in the EEPROM.
  */
-enum VIBRATION_MODES { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE, VIBRATION_DEFAULT, CYCLOTRON_MOTOR };
 enum VIBRATION_MODES VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
-enum VIBRATION_MODES VIBRATION_MODE = VIBRATION_NONE;
-const uint8_t i_vibration_level_min = 15; // Minimum vibration level is 6%.
+const uint8_t i_vibration_level_min = 30; // Minimum vibration level is 11.7%.
+const uint16_t i_vibration_ramp_1984_length = 1250; // Ramp duration for first stage 1984/1989 ramp.
+const uint8_t i_vibration_ramp_1984 = 128; // First stage ramp target for 1984/1989.
+const uint8_t i_vibration_idle_1984 = 38; // Base idle vibration value for 1984/1989.
+const uint8_t i_vibration_idle_afterlife_1 = i_vibration_level_min * 1.5; // Base half idle vibration value for AL/FE.
+const uint8_t i_vibration_idle_afterlife_2 = i_vibration_level_min * 2; // Base full idle vibration value for AL/FE.
 uint8_t i_vibration_level_current = 0; // Set the current value to 0 (off) on first start.
+bool b_1984_vibration_ramp = false;
+ramp r_vibration_ramp; // Ramp to control vibration during state transitions.
 millisDelay ms_menu_vibration; // Timer to do non-blocking confirmation buzzing in the vibration menu.
 
 /*
@@ -262,30 +255,15 @@ millisDelay ms_menu_vibration; // Timer to do non-blocking confirmation buzzing 
 bool b_vibration_switch_on = true;
 
 /*
- * Extend the Switch class to give us access to the longPressDisable variable.
- * This is used to determine if Intensify or Barrel Wing Button are being held.
- */
-class GPSwitch : public Switch {
-  public:
-    GPSwitch(byte _pin, byte PinMode = INPUT_PULLUP, bool polarity = LOW,
-        unsigned long debouncePeriod = 50, unsigned long longPressPeriod = 300,
-        unsigned long doubleClickPeriod = 250,
-        unsigned long deglitchPeriod = 10) : Switch(_pin, PinMode, polarity, debouncePeriod, longPressPeriod, doubleClickPeriod, deglitchPeriod) {}
-    bool isLongPressed() {
-      return longPressDisable;
-    }
-};
-
-/*
  * Various Switches on the wand.
  */
 enum BARREL_SWITCH_POLARITIES { SWITCH_DEFAULT, SWITCH_INVERTED, SWITCH_DISABLED };
 enum BARREL_SWITCH_POLARITIES BARREL_SWITCH_POLARITY = SWITCH_DEFAULT;
-GPSwitch switch_intensify(INTENSIFY_SWITCH_PIN); // Intensify switch.
+Switch switch_intensify(INTENSIFY_SWITCH_PIN); // Intensify switch.
 Switch switch_activate(ACTIVATE_SWITCH_PIN); // Activate switch.
 Switch switch_vent(VENT_SWITCH_PIN); // Turns on the vent light. Bottom right switch on the wand.
 Switch switch_wand(WAND_SWITCH_PIN); // Controls the beeping. Top right switch on the wand.
-GPSwitch switch_mode(MODE_SWITCH_PIN); // Changes firing modes, crosses streams, or used in settings menus.
+Switch switch_mode(MODE_SWITCH_PIN); // Changes firing modes, crosses streams, or used in settings menus.
 Switch switch_barrel(BARREL_SWITCH_PIN); // Checks whether barrel is retracted or not.
 uint8_t ventSwitchedCount = 0;
 uint8_t wandSwitchedCount = 0;
@@ -302,10 +280,10 @@ const uint8_t i_bargraph_segments_5_led = 5;
 /*
  * Afterlife/Frozen Empire wand idle ramp transition timers.
  */
-millisDelay ms_gun_loop_1; // Used when transitioning to S_AFTERLIFE_WAND_IDLE_1.
-millisDelay ms_gun_loop_2; // Used when transitioning to S_AFTERLIFE_WAND_IDLE_2.
-const uint16_t i_gun_loop_1 = 1768; // S_AFTERLIFE_WAND_RAMP_1 is 1768ms long.
-const uint16_t i_gun_loop_2 = 1881; // S_AFTERLIFE_WAND_RAMP_2 is 1881ms long.
+millisDelay ms_gun_ramp_1; // Used when transitioning to S_AFTERLIFE_WAND_IDLE_1.
+millisDelay ms_gun_ramp_2; // Used when transitioning to S_AFTERLIFE_WAND_IDLE_2.
+const uint16_t i_gun_ramp_1_length = 1768; // S_AFTERLIFE_WAND_RAMP_1 is 1768ms long.
+const uint16_t i_gun_ramp_2_length = 1881; // S_AFTERLIFE_WAND_RAMP_2 is 1881ms long.
 
 /*
  * Overheat timers
@@ -325,16 +303,18 @@ const uint16_t i_overheat_delay_max = 60000; // The maximum amount of time befor
  */
 #ifndef ESP32
   const uint8_t ledLookupTable[256] PROGMEM = { 0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,7,7,7,8,8,8,9,9,9,10,10,11,11,11,12,12,13,13,14,14,15,15,16,16,17,17,18,18,19,19,20,20,21,21,22,23,23,24,24,25,26,26,27,28,28,29,30,30,31,32,32,33,34,35,35,36,37,38,38,39,40,41,42,42,43,44,45,46,47,47,48,49,50,51,52,53,54,55,56,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,73,74,75,76,77,78,79,80,81,82,84,85,86,87,88,89,91,92,93,94,95,97,98,99,100,102,103,104,105,107,108,109,111,112,113,115,116,117,119,120,121,123,124,126,127,128,130,131,133,134,136,137,139,140,142,143,145,146,148,149,151,152,154,155,157,158,160,162,163,165,166,168,170,171,173,175,176,178,180,181,183,185,186,188,190,192,193,195,197,199,200,202,204,206,207,209,211,213,215,217,218,220,222,224,226,228,230,232,233,235,237,239,241,243,245,247,249,251,253,255 };
+#else
+  const uint16_t ir_delay_power_1 = 300;
+  const uint16_t ir_delay_power_2 = 350;
+  const uint16_t ir_delay_power_3 = 400;
+  const uint16_t ir_delay_power_4 = 450;
+  const uint16_t ir_delay_power_5 = 500;
 #endif
-const uint8_t i_power_level_max = 5;
-const uint8_t i_power_level_min = 1;
 const uint8_t i_vent_led_power_1 = 102;
 const uint8_t i_vent_led_power_2 = 128;
 const uint8_t i_vent_led_power_3 = 153;
 const uint8_t i_vent_led_power_4 = 178;
 const uint8_t i_vent_led_power_5 = 204;
-uint8_t i_power_level = 5;
-uint8_t i_power_level_prev = 5;
 
 /*
  * Stock Hasbro Bargraph timers
@@ -387,19 +367,26 @@ uint16_t i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021;
 const uint8_t i_bargraph_segments = 30;
 const uint8_t i_bargraph_invert[i_bargraph_segments - 2] PROGMEM = {54, 38, 22, 6, 53, 37, 21, 5, 52, 36, 20, 4, 51, 35, 19, 3, 50, 34, 18, 2, 49, 33, 17, 1, 48, 32, 16, 0};
 const uint8_t i_bargraph_normal[i_bargraph_segments - 2] PROGMEM = {0, 16, 32, 48, 1, 17, 33, 49, 2, 18, 34, 50, 3, 19, 35, 51, 4, 20, 36, 52, 5, 21, 37, 53, 6, 22, 38, 54};
-const uint8_t i_bargraph_power_table_28[i_power_level_max + 1] PROGMEM = {0, 4, 11, 16, 22, 27};
+const uint8_t i_bargraph_power_table_28[MAX_POWER_LEVEL + 1] PROGMEM = {0, 4, 11, 16, 22, 27};
 
 /*
-  30 Segment bargraph mapping.
-*/
+ * (Optional) 30 Segment bargraph mapping.
+
+ * Segment Layout:
+ * 5: full: 24 - 29  (6 segments)
+ * 4: 3/4: 18 - 23   (6 segments)
+ * 3: 1/2: 12 - 17   (6 segments)
+ * 2: 1/4: 6 - 11    (6 segments)
+ * 1: none: 0 - 5    (6 segments)
+ */
 const uint8_t i_bargraph_wamco_invert[i_bargraph_segments] PROGMEM = {64, 48, 32, 16, 0, 1, 17, 33, 49, 65, 66, 50, 34, 18, 2, 3, 19, 35, 51, 67, 4, 20, 36, 52, 68, 53, 37, 21, 5, 69};
 const uint8_t i_bargraph_wamco_normal[i_bargraph_segments] PROGMEM = {69, 5, 21, 37, 53, 68, 52, 36, 20, 4, 67, 51, 35, 19, 3, 2, 18, 34, 50, 66, 65, 49, 33, 17, 1, 0, 16, 32, 48, 64};
-const uint8_t i_bargraph_power_table_wamco[i_power_level_max + 1] PROGMEM = {0, 5, 11, 17, 23, 29};
+const uint8_t i_bargraph_power_table_wamco[MAX_POWER_LEVEL + 1] PROGMEM = {0, 5, 11, 17, 23, 29};
 
 /*
  * (Optional) Support for Video Game Accessories (coming soon)
  */
-// bool b_overheat_indicators[13] = {false, false, false, false, false, false, false, false, false, false, false, false, false};
+// bool b_overheat_indicators[13] = {false};
 
 /*
  * Timers for the optional hat lights.
@@ -424,30 +411,6 @@ millisDelay ms_wand_heatup_fade;
 const uint8_t i_delay_heatup = 5;
 uint8_t i_heatup_counter = 0;
 uint8_t i_heatdown_counter = 100;
-
-/*
- * Wand Stream/Firing Modes + Settings
- * Firing = Affects the supported stream types by the wand. CTS modes only support a PROTON stream.
- *  VG = Supports all possible streams, including "Spectral" if VG Modes and Spectral Modes are enabled.
- *  CTS = Pressing the Barrel Wing Button together at the same time as the Intensify button does a cross the streams firing.
- *        You can release one of the two firing buttons and the Neutrona Wand will still continue to cross the streams.
- *  CTS Mix = Pressing the Barrel Wing Button together at the same time as the Intensify button does a cross the streams firing.
- *            Releasing the Barrel Wing Switch returns to Proton Stream, and releasing Intensify stops firing completely.
- * Stream = Type of particle stream to be thrown by the wand
- */
-enum BARREL_STATES { BARREL_UNKNOWN, BARREL_RETRACTED, BARREL_EXTENDED };
-enum BARREL_STATES BARREL_STATE = BARREL_UNKNOWN; // Set to unknown for bootup to prevent sound from playing erroneously.
-enum FIRING_MODES { VG_MODE, CTS_MODE, CTS_MIX_MODE };
-enum FIRING_MODES FIRING_MODE = VG_MODE; // Default firing mode is VG Mode.
-enum FIRING_MODES LAST_FIRING_MODE = VG_MODE; // Default firing mode is VG Mode.
-enum POWER_LEVELS { LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5 };
-enum POWER_LEVELS POWER_LEVEL = LEVEL_5; // Default startup power level is 5.
-enum STREAM_MODES { UNSET_STREAM, PROTON, STASIS, SLIME, MESON, SPECTRAL, HOLIDAY_HALLOWEEN, HOLIDAY_CHRISTMAS, SPECTRAL_CUSTOM, SETTINGS };
-enum STREAM_MODES STREAM_MODE = PROTON; // Default stream mode is Proton.
-enum STREAM_MODE_FLAGS : uint8_t { FLAG_NONE = 0, FLAG_VG = 1, FLAG_SPECTRAL = 2, FLAG_SPECTRAL_CUSTOM = 4, FLAG_HOLIDAY_HALLOWEEN = 8, FLAG_HOLIDAY_CHRISTMAS = 16 };
-uint8_t STREAM_MODE_FLAG = FLAG_VG; // By default, only enable the three VG modes.
-enum RED_SWITCH_MODES { SWITCH_ON, SWITCH_OFF };
-enum RED_SWITCH_MODES RED_SWITCH_MODE = SWITCH_OFF; // Default to ion arm switch off until pack tells us otherwise.
 
 /*
  * Firing timers.
@@ -481,15 +444,19 @@ uint16_t i_last_firing_effect_mix = 0; // Used by standalone Neutrona Wand.
  */
 enum WAND_CONN_STATES { PACK_DISCONNECTED, PACK_CONNECTED, NC_BENCHTEST };
 enum WAND_CONN_STATES WAND_CONN_STATE;
+uint8_t i_boot_connection_count = 0;
 
 /*
  * Some pack flags which get transmitted to the wand depending on the pack status.
  */
 bool b_pack_on = false; // Denotes the pack has been powered on.
-bool b_pack_alarm = false; // Denotes the pack alarm is sounding (ribbon cable disconnected).
+bool b_pack_alarm = false; // Denotes the pack alarm is sounding (ribbon cable disconnected, overheating).
 bool b_pack_post_finish = true; // Checks whether the attached pack is currently in its POST sequence. Assume finished unless pack tells us otherwise.
+bool b_pack_shutting_down = false; // Denotes the pack is in the process of shutting down but not fully shut down yet.
 bool b_pack_cyclotron_lid_on = false; // For SYSTEM_FROZEN_EMPIRE. Lets us know if the pack's cyclotron lid is on or not. Default to false to favor FE effects unless told otherwise.
+bool b_ribbon_cable_attached = true; // Denotes the ribbon cable on the pack is attached.
 uint8_t i_cyclotron_multiplier = 1; // For telling the pack to speed up or slow down the Cyclotron lights.
+uint8_t i_pack_audio_version = 0; // Denotes what audio board revision the pack is currently using.
 millisDelay ms_packsync; // Timer for attempting synchronization with a connected pack.
 millisDelay ms_handshake; // Timer for attempting a keepalive handshake with a connected pack.
 const uint16_t i_sync_initial_delay = 750; // Delay to re-try the initial handshake with a proton pack.
@@ -536,7 +503,7 @@ uint16_t i_bmash_cool_down = 3000; // Time period for the lock-out of user input
 uint8_t i_bmash_count = 0;         // Current count for rapid firing bursts.
 uint8_t i_bmash_max = 3;           // Burst count we consider before the lock-out.
 uint8_t i_bmash_spark_index = 0;   // Current spark number for the spark effect (0~2).
-bool b_wand_mash_error = false;    // Indicates if wand is in a lock-out phase.
+bool b_wand_mash_lockout = false;    // Indicates if wand is in a lock-out phase.
 
 /*
  * Used during the overheating sequences.
@@ -555,28 +522,13 @@ const uint16_t i_ms_power_indicator_blink = 500;
 
 /**
  * WiFi Activation Preference (GPStar II Only).
- *   Set to WIFI_ENABLED to force WiFi on (default).
- *   Set to WIFI_DISABLED to force WiFi off (override).
+ *   Set to WIFI_DEFAULT to allow dynamic control based on presence of an Pack.
+ *   Set to WIFI_ENABLED to force WiFi on regardless of Pack presence.
+ *   Set to WIFI_DISABLED to force WiFi off regardless of Pack presence.
  */
 #ifdef ESP32
-  enum WIFI_MODES { WIFI_ENABLED, WIFI_DISABLED };
-  enum WIFI_MODES WIFI_MODE = WIFI_ENABLED;
-#endif
-
-/**
- * Infrared (IR) signal for the Ghost Trap or other devices (GPStar II Only).
- */
-#ifdef ESP32
-  #define CARRIER_KHZ 38 // Defines the standard IR carrier frequency in kHz.
-
-  // Defines an IR command as captured from the PKE device at full power.
-  const uint16_t ir_GhostInTrap[] = {
-    1770, 1200, 600, 600, 600, 600, 580, 1200, 600, 600,
-    580, 1200, 600, 1200, 580, 600, 580, 1200, 600
-  };
-
-  millisDelay ms_infrared_timer;
-  const uint16_t i_infrared_timer_delay = 1000;
+  enum WIFI_USER_MODES { WIFI_DEFAULT, WIFI_ENABLED, WIFI_DISABLED };
+  enum WIFI_USER_MODES WIFI_USER_MODE = WIFI_DEFAULT;
 #endif
 
 /*

@@ -29,10 +29,11 @@
 enum sound_fx {
   S_EMPTY,
   S_BOOTUP,
-  S_SHUTDOWN
+  S_SHUTDOWN,
+  S_BEEP_8
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const uint16_t i_last_effects_track = S_SHUTDOWN;
+const uint16_t i_last_effects_track = S_BEEP_8;

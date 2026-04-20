@@ -11,7 +11,7 @@ It may go by many names, though we know it as the arm-mounted Neutrona Wand as s
 There is no shortage of resources for the device shell itself, as it has been modeled and remixed by several members of the Ghostbusters community. Below are some of the found sources offering either the 3D files or pre-printed parts. If you know of another resource for either please let us know and we'll update this list.
 
 - [3D Files by EctoLabs](https://github.com/EctoLabs/wrist-thrower)
-- [3D Files by Right Coast Creative (Craig Rivest, aka. @scoleri_brothers)](https://rightcoastcreative.com/ghostbusters/p/frozen-empire-arm-gauntlet)
+- [3D Files by Right Coast Creative (Craig Rivest, aka. @scoleri_brothers)](https://rightcoastprops.com/products/frozen-empire-arm-mounted-neutrona-gauntlet-stl-digital-download)
 - [Ghostbusters Frozen Empire Compact Arm Thrower by ShapeforgeProps](https://www.etsy.com/listing/1700904381/ghostbusters-frozen-empire-compact-arm)
 
 ## Bill of Materials
@@ -154,7 +154,44 @@ Adding a switch to the GPStar Power Boost device will allow you to fully turn of
 
 ## Operation Guide
 
-Full guide will be written as features are completed and operation is determined.
+### System Power Inactivity Indicator
+
+- The LED at the front of the Single Shot Blaster body next to the Clippard valve will start to blink after 1 minute of inactivity while the Blaster is powered down and no music is playing to indicate the system is still receiving power from the battery.
+
+### Top Dial Behavior
+
+- The primary purpose of the `Top Dial` on the top of the gun box is to change the power level of the blaster, affecting the firing rate of the Proton Pulse (indicated by increasing or decreasing the bargraph lights).
+   - Rotate clockwise to raise power, and counter-clockwise to lower power.
+- The `Top Dial` is also used to navigate the menu system (see "Entering The Menu System" section below).
+
+### Quick Audio Volume Adjustment
+
+- **System Volume**
+     - While the Single Shot Blaster is **OFF** and no music is playing, turn the `Top Dial` to quickly adjust the master volume.
+     - While the `Activate` switch is **UP** and the left-hand switches are **DOWN**, hold the `Intensify` button while turning the `Top Dial` to quickly adjust the master volume.
+	 - While the `Activate` switch is **UP** and the boot error sequence is playing, turn the `Top Dial` to quickly adjust the master volume.
+
+- **Music**
+    - While the Single Shot Blaster is **OFF** and music is playing, turn the `Top Dial` to quickly adjust the music volume.
+
+Refer to the [Loading The Audio Files](AUDIO_FILES.md) for more information on loading additional music tracks.
+
+### Activate Toggle
+
+- The `Activate` toggle on the gun box activates the Single Shot Blaster, activating the bargraph, SLO-BLO, hat light, top blinking light, and singletron.
+
+### Left-Hand Toggle Switch Behaviour
+
+- Left-hand toggles (Bottom and Top) affect the vent light, Clippard light, and additional sound effects.
+    - The Neutrona Wand **will not fire** unless both of these switches are **UP**.
+    - **Boot-Up Errors**: When enabled, if you attempt to boot up your Single Shot Blaster while the top toggle switch is **UP**, the blaster will boot into an error mode. Flip the top toggle switch **DOWN** and restart your blaster to boot normally. This feature can be enabled or disabled using the menu system.
+    - Bottom toggle switch turns on the vent light and plays the idle sound.
+    - Top toggle switch turns on the Clippard light and plays a single beep sound.
+
+#### Firing Proton Pulse
+
+- Pressing either the `Intensify` button on the gun box or the `Grip Button` at the end of the blaster while all switches are **UP** will fire a Proton Pulse.
+   - Holding down either the `Intensify` button or the `Grip Button` will continually fire a Proton Pulse with a fire rate based on the current power level.
 
 ### Entering The Menu System
 
@@ -178,19 +215,23 @@ Changes are made by pressing either the `Intensify` button on the gun box or the
 
 | Option | Purpose | Intensify Button | Grip Button |
 |:------:|---------|------------------|--------------------|
-| 5️⃣ | Music&nbsp;Track&nbsp;Looping | Enable/disable looping of current track | Exit the menu system<sup>1</sup> |
+| 5️⃣ | Music&nbsp;Track&nbsp;Looping | Enable/Disable looping of current track<sup>1</sup> | Exit the menu system<sup>2</sup> |
 | 4️⃣ | Master&nbsp;Volume&nbsp;Controls | Mute the Single Shot Blaster or revert back to the previous volume | `(Grip Button + Top Dial)` Increases/Decreases Master Volume |
-| 3️⃣ | SFX Volume | `unused` | `(Grip Button + Top Dial)` Increases/Decreases SFX Volume |
+| 3️⃣ | Shuffle&nbsp;Music&nbsp;Tracks / SFX&nbsp;Volume | Enable/Disable shuffle play of music tracks<sup>3</sup>  | `(Grip Button + Top Dial)` Increases/Decreases SFX Volume |
 | 2️⃣ | Switch&nbsp;Music&nbsp;Track | Cycle backwards in music queue | Cycle forward in music queue |
 | 1️⃣ | Music&nbsp;Controls | Start/stop music playback | `(Grip Button + Top Dial)` Increases/Decreases Music Volume |
 
-<sup>1</sup> When you navigate back to `Option 5` and press the `Grip Button`, the blaster will return to idle (if menu was entered while blaster was on) or save all settings to EEPROM (if menu was entered while blaster was off). Note that music will continue to play (and advance/loop) even when the blaster is turned off.
+<sup>1</sup> Note that LED/segment #5 will stay solid when the single-track loop is enabled while in the top menu system; it will blink on/off when looping is disabled.
+
+<sup>2</sup> When you navigate back to `Option 5` and press the `Grip Button`, the blaster will return to idle (if menu was entered while blaster was on) or save all settings to EEPROM (if menu was entered while blaster was off). Note that music will continue to play (and advance/loop) even when the blaster is turned off.
+
+<sup>3</sup> Note that LED/segment #3 will stay solid when shuffle play is enabled while in Menu Level 2; it will blink on/off when shuffle play is disabled.
 
 <div class="page-break"></div>
 
 #### Menu Level 2
 
-📝 **Note:** The Single Shot Blaster Menu Level 2 can only be reached while the Single Shot Blaster is turned off.
+📝 **Note:** The Single Shot Blaster Menu Level 2 can only be reached while the Single Shot Blaster is turned **OFF**.
 
 To access Menu Level 2, use the `Top Dial` on the top of the blaster to move down and past `Option 1` on Menu Level 1. When you reach the the next menu level, an audio cue will play and the **Slo-Blo LED** will light up to indicate this menu state.
 

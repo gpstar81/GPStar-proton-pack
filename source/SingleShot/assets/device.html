@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="UTF-8" />
@@ -16,7 +16,7 @@
         Adjust settings unique to this device's web interface. Use this screen to customize the private network used by the built-in WiFi network.
         <br />
         You may also use
-        <b>http://[PRIVATE_NETWORK].local</b>
+        <b>http://[CUSTOM_NAME].local</b>
         to access this device via your browser. Use the "Update Settings" button to save values to the controller.
       </p>
       <br />
@@ -46,7 +46,7 @@
           <option value="6">Components Left, USB Rear</option>
           <option value="7">Components Right, USB Front</option>
           <option value="8">Components Right, USB Rear</option>
-          <option value="9">Factory Defaults (Debug)</option>
+          <option selected value="9">Factory Defaults (Debug)</option>
         </select>
       </div>
       <div class="setting">
@@ -119,7 +119,7 @@
       <hr />
       <a href="/">&laquo; Back</a>
       &nbsp;&nbsp;
-      <button type="button" class="green" style="width: 120px" onclick="saveSettings()">Update&nbsp;Settings</button>
+      <button type="button" class="green" onclick="saveSettings()">Update&nbsp;Settings</button>
       <br />
       <br />
     </div>
@@ -143,12 +143,12 @@
       function getSettings() {
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
-          if (this.readyState == 4 && this.status == 200) {
+          if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
             var settings = JSON.parse(this.responseText);
             if (settings) {
               // Update fields with the current values, or supply an expected default as necessary.
               setValue("wifiName", settings.wifiName || "");
-              setValue("orientation", settings.orientation || 3);
+              setValue("orientation", settings.orientation || 9);
               setValue("hardIron1", settings.hardIron1 ?? 0);
               setValue("hardIron2", settings.hardIron2 ?? 0);
               setValue("hardIron3", settings.hardIron3 ?? 0);
@@ -226,6 +226,9 @@
                 }
               }
             }
+          } else if (this.readyState == 4) {
+            // Handle error responses
+            handleStatus(this.responseText);
           }
         };
         xhttp.open("GET", "/config/device", true);
@@ -260,19 +263,19 @@
         // Saves current settings to attenuator, updating runtime variables and making changes immediately effective.
         var settings = {
           wifiName: wifiName,
-          orientation: getInt("orientation") || 3,
-          hardIron1: getFloat("hardIron1") || 0,
-          hardIron2: getFloat("hardIron2") || 0,
-          hardIron3: getFloat("hardIron3") || 0,
-          softIron1: getFloat("softIron1") || 1,
-          softIron2: getFloat("softIron2") || 0,
-          softIron3: getFloat("softIron3") || 0,
-          softIron4: getFloat("softIron4") || 0,
-          softIron5: getFloat("softIron5") || 1,
-          softIron6: getFloat("softIron6") || 0,
-          softIron7: getFloat("softIron7") || 0,
-          softIron8: getFloat("softIron8") || 0,
-          softIron9: getFloat("softIron9") || 1,
+          orientation: getInt("orientation") || 9,
+          hardIron1: getFloat("hardIron1") ?? 0,
+          hardIron2: getFloat("hardIron2") ?? 0,
+          hardIron3: getFloat("hardIron3") ?? 0,
+          softIron1: getFloat("softIron1") ?? 1,
+          softIron2: getFloat("softIron2") ?? 0,
+          softIron3: getFloat("softIron3") ?? 0,
+          softIron4: getFloat("softIron4") ?? 0,
+          softIron5: getFloat("softIron5") ?? 1,
+          softIron6: getFloat("softIron6") ?? 0,
+          softIron7: getFloat("softIron7") ?? 0,
+          softIron8: getFloat("softIron8") ?? 0,
+          softIron9: getFloat("softIron9") ?? 1,
           magField: getFloat("magField") || 50,
           songList: getText("songList"),
         };
@@ -281,17 +284,18 @@
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
           if (this.readyState == 4) {
-            if (this.status == 200) {
+            if (this.status == 200 || this.status == 201) {
               handleStatus(this.responseText);
               getSettings(); // Refresh settings.
-            }
 
-            if (this.status == 201) {
-              handleStatus(this.responseText);
-
-              if (confirm("Restart device now?")) {
-                doRestart();
+              if (this.status == 201) {
+                if (confirm("Restart device now?")) {
+                  doRestart();
+                }
               }
+            } else {
+              // Handle non-success responses
+              handleStatus(this.responseText);
             }
           }
         };
@@ -303,7 +307,7 @@
       function doRestart() {
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
-          if (this.readyState == 4 && this.status == 204) {
+          if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
             // Reload the page after 2 seconds.
             setTimeout(function () {
               window.location.reload();

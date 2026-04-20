@@ -1,7 +1,7 @@
 /**
  *   MagCalibration - Magnetometer calibration class for GPStar devices.
  *   Handles magnetometer data collection and calibration calculations.
- *   Copyright (C) 2023-2025 Michael Rajotte, Dustin Grau, Nomake Wan
+ *   Copyright (C) 2023-2026 Michael Rajotte, Dustin Grau, Nomake Wan
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -332,10 +332,10 @@ HardIronOffsets MagCalibration::calculateHardIronOffsets() {
   provisionalHardIron.range.y = static_cast<float>(maxY - minY);
   provisionalHardIron.range.z = static_cast<float>(maxZ - minZ);
 
-  // Apply a threshold to indicate sufficient spread (e.g., 30 µT per axis)
-  provisionalHardIron.sufficientSpread = (provisionalHardIron.range.x > HARD_IRON_SPREAD_THRESHOLD) &&
-                                         (provisionalHardIron.range.y > HARD_IRON_SPREAD_THRESHOLD) &&
-                                         (provisionalHardIron.range.z > HARD_IRON_SPREAD_THRESHOLD);
+  // Apply a threshold to indicate sufficient spread (e.g., 15-30 µT per axis)
+  provisionalHardIron.sufficientSpread = (provisionalHardIron.range.x > HARD_IRON_HORIZONTAL_SPREAD_THRESHOLD) &&
+                                         (provisionalHardIron.range.y > HARD_IRON_HORIZONTAL_SPREAD_THRESHOLD) &&
+                                         (provisionalHardIron.range.z > HARD_IRON_VERTICAL_SPREAD_THRESHOLD);
 
   return provisionalHardIron;
 }

@@ -7,8 +7,6 @@
 BINDIR="../binaries"
 SRCDIR="../source"
 PROJECT_DIR="$SRCDIR/Attenuator"
-ASSETS_DIR="$PROJECT_DIR/assets"
-GZIP_EXTS="svg,ico,stl,min.js,html,css,js"
 
 mkdir -p ${BINDIR}/attenuator/extras
 
@@ -16,9 +14,14 @@ mkdir -p ${BINDIR}/attenuator/extras
 MJVER="${MJVER:="V6"}"
 TIMESTAMP="${TIMESTAMP:=$(date +"%Y%m%d%H%M%S")}"
 
-# Update date of compilation
+# Create or update BuildInfo.h with the new build date
+BUILDINFO_FILE="${PROJECT_DIR}/include/BuildInfo.h"
 echo "Setting Build Timestamp: ${MJVER}_${TIMESTAMP}"
-sed -i -e 's/\(String build_date = "\)[^"]*\(";\)/\1'"${MJVER}_${TIMESTAMP}"'\2/' ${PROJECT_DIR}/include/Configuration.h
+cat <<EOF > "${BUILDINFO_FILE}"
+#pragma once
+// Reflect the last build date for this binary.
+const char* build_date = "${MJVER}_${TIMESTAMP}";
+EOF
 
 echo ""
 

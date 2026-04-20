@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="UTF-8" />
@@ -20,14 +20,15 @@
     </div>
 
     <div id="tab1" class="tab">
-      <div id="equipCRT" class="equipment">
+      <div id="equipCRT" class="equipment" onclick="packAttenuateSilent(event)">
         <div id="equipTitle" class="infoState equip-title centered"></div>
-        <div id="ionOverlay" class="overlay ion-switch"></div>
+        <div id="ionOverlay" class="overlay ion-switch" onclick="packToggleIonArm(event)"></div>
         <div id="boostOverlay" class="overlay booster-box"></div>
         <div id="pcellOverlay" class="overlay power-box"></div>
         <div id="cableOverlay" class="overlay cable-warn">&#9888;</div>
+        <div id="altCableOverlay" class="overlay cable-state" onclick="packRibbonCableToggleSilent(event)"></div>
         <div id="cycOverlay" class="overlay cyc-circle"></div>
-        <div id="filterOverlay" class="overlay filter-circle"></div>
+        <div id="filterOverlay" class="overlay filter-circle" onclick="packVentSilent(event)"></div>
         <div id="barrelOverlay" class="overlay barrel-box"></div>
         <div id="powerLevel" class="overlay infoState power-title"></div>
         <div id="streamStatus" class="overlay infoState stream-title"></div>
@@ -151,6 +152,15 @@
             </span>
           </label>
         </div>
+        <div style="display: inline-block">
+          <h3>Music Shuffle</h3>
+          <label class="toggle-switchy">
+            <input id="toggleShuffle" name="toggleShuffle" type="checkbox" onchange="musicShuffle(this)" />
+            <span class="toggle">
+              <span class="switch"></span>
+            </span>
+          </label>
+        </div>
       </div>
 
       <div class="card">
@@ -223,16 +233,7 @@
         <br />
         <br />
         <br />
-        <select id="streamMode" class="custom-select" onchange="streamModeSelect(this)">
-          <option value="proton">Proton Stream</option>
-          <option value="stasis">Dark Matter Gen.</option>
-          <option value="slime">Plasm System</option>
-          <option value="meson">Particle System</option>
-          <option value="spectral">Spectral Stream</option>
-          <option value="holiday_halloween">Halloween</option>
-          <option value="holiday_christmas">Christmas</option>
-          <option value="spectral_custom">Custom Stream</option>
-        </select>
+        <select id="streamMode" class="custom-select" onchange="streamModeSelect(this)"></select>
         <br />
         <br />
       </div>
@@ -267,14 +268,17 @@
         <br />
         <br />
         <a href="https://gpstar81.github.io/GPStar-proton-pack/" target="_blank">Official Documentation</a>
+        <br />
+        <br />
+        <a href="/swaggerui" target="_blank">Web API Listing</a>
       </div>
 
       <div class="footer">
         <span id="buildDate"></span>
-        &mdash;
-        <span id="wifiName"></span>
         <br />
         <span id="audioInfo"></span>
+        <br />
+        <span id="wifiName"></span>
         <br />
         <span id="clientInfo"></span>
         <br />

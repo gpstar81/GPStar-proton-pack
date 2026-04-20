@@ -13,9 +13,9 @@ This project is made possible by Ghostbusters community makers and volunteers sp
 ## Special Community Thanks
 
 * Emre Sahare (GBFans: One Time)
-	* For the original prop mode "Mode Original" operation deciphering.
+    * For the original prop mode "Mode Original" operation deciphering.
 * Alexander Hibbs (@BeaulieuDesigns87)
-	* For his SVG equipment schematic as used in the WiFi web UI.
+    * For his SVG equipment schematic as used in the WiFi web UI.
 
 Thank you to our supporters on [GBFans.com](https://www.gbfans.com/forum) and the [GPStar Facebook group](https://www.facebook.com/groups/gpstartechnologies).
 

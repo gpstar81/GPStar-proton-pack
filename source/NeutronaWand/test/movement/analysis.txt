@@ -64,9 +64,9 @@ Elevation Bin Distribution:
   Bin 18 (  72.0°):   29 samples
   Bin 19 (  81.0°):    5 samples
 
-Active Azimuth Bins: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 
-                     15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 
-                     30 31 32 33 34 35 36 37 38 39 
+Active Azimuth Bins: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14
+                     15 16 17 18 19 20 21 22 23 24 25 26 27 28 29
+                     30 31 32 33 34 35 36 37 38 39
 
 Acceptance Summary:
   Accepted: 494 / 3741 (13.2%)
@@ -102,7 +102,7 @@ Elevation Bin Distribution:
   Bin  7 ( -27.0°):  277 samples
   Bin  8 ( -18.0°):   93 samples
 
-Active Azimuth Bins: 28 29 30 31 32 33 34 35 36 37 38 
+Active Azimuth Bins: 28 29 30 31 32 33 34 35 36 37 38
 
 Acceptance Summary:
   Accepted: 70 / 3119 (2.2%)
@@ -110,12 +110,12 @@ Acceptance Summary:
 === COMPARATIVE ANALYSIS ===
 Metric                    | Prototype       | Production      | Ratio (P/Pr)
 ----------------------------------------------------------------------
-Valid Samples             | 3741            | 3119            | 0.83        
-Unique Bins               | 494             | 70              | 0.14        
-Coverage %                | 61.8            | 8.8             | 0.14        
-Avg Magnitude (µT)       | 49.0            | 99.9            | 2.04        
-Avg Elevation (°)        | -6.75           | -49.73          | 7.37        
-Avg Azimuth (°)          | 59.82           | 126.16          | 2.11        
+Valid Samples             | 3741            | 3119            | 0.83
+Unique Bins               | 494             | 70              | 0.14
+Coverage %                | 61.8            | 8.8             | 0.14
+Avg Magnitude (µT)       | 49.0            | 99.9            | 2.04
+Avg Elevation (°)        | -6.75           | -49.73          | 7.37
+Avg Azimuth (°)          | 59.82           | 126.16          | 2.11
 
 === KEY FINDINGS ===
 1. Magnitude Difference: Production readings are 2.0x stronger

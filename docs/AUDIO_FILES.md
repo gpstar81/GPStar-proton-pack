@@ -21,13 +21,13 @@ SD Cards with capacities of **32GB OR LESS** can be formatted normally in the Wi
 
 ## SD Cards with capacities larger than 32GB
 
-For Windows users these will need to be formatted a different way. We recommend the free tool Fat32Format by Tom Thornhill. It can be found in the [extras](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/) folder of this repository or in the direct download link below
+For Windows users these will need to be formatted a different way. We recommend the free tool Fat32Format by Tom Thornhill. It can be found in the [extras](/extras/) folder of this repository or in the direct download link below
 
 (Web Site)
 [Fat 32 Format GUI version](http://ridgecrop.co.uk/index.htm?guiformat.htm)
 
 (Direct Download link)
-[guiformat.exe](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/sound/guiformat.exe?raw=1)
+[guiformat.exe](/extras/sound/guiformat.exe?raw=true)
 
 ![fat32formatter](images/fat32.jpg)
 
@@ -39,7 +39,7 @@ For Windows users these will need to be formatted a different way. We recommend 
 
 ### Sound Effects
 
-Load [all sound files from the "pack-wand" subdirectory of the "sounds" folder](https://github.com/gpstar81/GPStar-proton-pack/blob/main/sounds/) onto both SD cards. The file names must be identical and match between the SD cards so that all effects are synchronized and played by both Proton Pack and Neutrona Wand at the same time. Most effects are played on both the pack and wand while firing, with some minor adjustments to volume or fading to provide the most effective impact.
+Load [all sound files from the "pack-wand" subdirectory of the "sounds" folder](/sounds/) onto both SD cards. The file names must be identical and match between the SD cards so that all effects are synchronized and played by both Proton Pack and Neutrona Wand at the same time. Most effects are played on both the pack and wand while firing, with some minor adjustments to volume or fading to provide the most effective impact.
 
 Sound effects are prefixed with numbers 001-499 while music files will be prefixed as 500 and above. `DO NOT LEAVE GAPS IN PREFIXES WHEN NUMBERING FILES!` The only exception is between the last sound effect and first music track.
 

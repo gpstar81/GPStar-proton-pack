@@ -1,6 +1,6 @@
 /**
  *   GPStar BeltGizmo - Ghostbusters Props, Mods, and Kits.
- *   Copyright (C) 2024-2025 Dustin Grau <dustin.grau@gmail.com>
+ *   Copyright (C) 2024-2026 Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -29,8 +29,24 @@
  */
 #define BUILT_IN_LED 21 // GPIO21 for Waveshare ESP32-S3 Mini (RGB LED)
 #define DEVICE_LED_PIN 4
-#define DEVICE_NUM_LEDS 8
-CRGB device_leds[DEVICE_NUM_LEDS];
+#define DEVICE_MAX_LEDS 11 // 10 "nixie" tubes + 1 "E" bulb
+uint8_t i_num_leds = 8; // Default to 7 nixie tubes + 1 "E" bulb
+CRGB device_leds[DEVICE_MAX_LEDS];
+
+/*
+ * Define Color Options & Timers
+ */
+#define ANIMATION_DURATION_MS 800  // Time for a full end-to-end animation
+millisDelay ms_anim_change;
+const uint16_t i_animation_time = 400;
+const uint8_t i_animation_step = 4;
+uint16_t i_animation_duration = ANIMATION_DURATION_MS / i_num_leds;
+bool b_invert_animation = true; // false = Right to Left, true = Left to Right
+static const uint8_t i_colour_count = 4; // Total number of colour available.
+static const uint16_t i_selftest_interval = 2000; // 2 seconds between colour changes.
+millisDelay ms_selftest_cycle; // Timer for self-test cycling using an interval.
+uint8_t i_selftest_colour = 0; // Current colour index for cycling in self-test.
+uint8_t i_stream_colour; // Current colour index for the stream type.
 
 /*
  * Addressable LED Devices
@@ -40,15 +56,15 @@ enum device {
 };
 
 /*
- * Timer and delay for LED animation sequence
+ * LED colour order type for device
+ * Defaults to GBR for the type recommended for the build: https://a.co/d/ia74QSm
  */
-#define ANIMATION_DURATION_MS 800  // Time for a full end-to-end animation
-millisDelay ms_anim_change;
-const uint16_t i_animation_time = 400;
-const uint8_t i_animation_step = 4;
-uint16_t i_animation_duration = ANIMATION_DURATION_MS / DEVICE_NUM_LEDS;
-bool b_use_gbr = true; // Use GBR instead of RGB for the device LEDs
-bool b_invert_animation = true; // false = Right to Left, true = Left to Right
+enum LED_COLOR_TYPES : uint8_t {
+  LED_RGB = 1,
+  LED_GRB = 2,
+  LED_GBR = 3
+};
+LED_COLOR_TYPES LED_COLOR_TYPE = LED_GBR;
 
 /**
  * WebSocketData - Holds all relevant fields received from the WebSocket JSON payload.
@@ -62,23 +78,15 @@ struct WebSocketData {
   uint8_t wandPower = 5; // Default to max power.
   String wandMode = "";
   String firing = "";
+  bool ctsActive = false; // Default to not crossing streams.
   String cable = "";
   String cyclotron = "";
+  bool cyclotronLid = true; // Default to lid on.
   String temperature = "";
 };
 WebSocketData wsData; // Instance of WebSocketData struct.
 
 /*
- * Wand Firing Modes + Settings
+ * Special States
  */
-enum POWER_LEVELS { LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5 };
-enum POWER_LEVELS POWER_LEVEL = LEVEL_5;
-enum STREAM_MODES { PROTON, STASIS, SLIME, MESON, SPECTRAL, HOLIDAY_HALLOWEEN, HOLIDAY_CHRISTMAS, SPECTRAL_CUSTOM, SETTINGS, SELFTEST };
-enum STREAM_MODES STREAM_MODE;
 bool b_firing = false;
-
-/*
- * Special Flags for Self-Test Mode
- */
-enum STREAM_MODES STREAM_MODE_PREV;
-bool b_testing = false;

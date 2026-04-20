@@ -15,51 +15,59 @@
       <p>
         Configure and enable a preferred external WiFi network for this device to join when in range (eg. your home network). Enabling this feature allows you to make use of a
         preferred WiFi network such as those used by your mobile device(s).
-        <br />
-        You may optionally configure a static IP address along with a subnet and gateway for that network, if desired. Once joined, you may return to this screen to view the IP
-        address assigned by the external WiFi network.
       </p>
     </div>
 
     <div class="block left">
       <div class="setting">
         <label class="toggle-switchy" data-text="yesno" data-label="left">
-          <input id="enabled" name="enabled" type="checkbox" />
+          <input id="extEnabled" name="extEnabled" type="checkbox" />
           <span class="toggle">
             <span class="switch"></span>
           </span>
           <span class="label">Use External WiFi Network:</span>
         </label>
       </div>
-      <b>2.4GHz Networks:</b>
-      <select id="ssidSelect"></select>
+      <b>Select an available 2.4GHz Network:</b>
+      <br />
+      <br />
+      <select id="availNetworks"></select>
+      <button type="button" class="orange" onclick="getNetworks()" id="refreshNetworks">Refresh</button>
+      <br />
+      <br />
+      Or...
+      <br />
+      <br />
+      <b>Select a previously-used Network:</b>
+      <br />
+      <select id="savedNetworks"></select>
+      <button type="button" class="red" onclick="deleteNetwork()" id="deleteNetwork">Delete</button>
+      <br />
+      <br />
+      <br />
+      <b>Current Network Settings:</b>
+      <br />
       <br />
       &nbsp;&nbsp;&nbsp;
       <b>WiFi Network:</b>
-      <input
-        type="text"
-        id="network"
-        size="60"
-        maxlength="32"
-        placeholder="External SSID"
-        title="Only letters, numbers, hyphens, and underscores are allowed, up to 32 characters."
-      />
+      <input type="text" id="ssid" size="60" maxlength="32" placeholder="External SSID" title="Only letters, numbers, hyphens, and underscores are allowed, up to 32 characters." />
       <br />
       &nbsp;
       <b>WiFi Password:</b>
       <input type="text" id="password" size="60" maxlength="63" placeholder="External Password" />
       <br />
       <br />
-      <br />
-      If necessary, you may toggle the switch below to specify a static IP address, subnet, and gateway to be used by the controller on the preferred WiFi network. Note that any
-      changes to the network name or password will clear previously-entered values.
+      <b>Advanced Settings:</b>
+      Enable the "Use Static IP Address" toggle to specify a static IP address, subnet, and gateway to be used by this device on the preferred WiFi network. Note that any changes
+      to the network name or password will clear any previously-entered static IP values. When the toggle is disabled you may return to this screen to view the IP address
+      automatically assigned by the external WiFi network.
       <div class="setting">
         <label class="toggle-switchy" data-text="yesno" data-label="left">
           <input id="useStaticIP" name="useStaticIP" type="checkbox" />
           <span class="toggle">
             <span class="switch"></span>
           </span>
-          <span class="label">Set Static IP Address</span>
+          <span class="label">Use Static IP Address</span>
         </label>
       </div>
       &nbsp;&nbsp;&nbsp;&nbsp;
@@ -79,9 +87,7 @@
       <hr />
       <a href="/">&laquo; Back</a>
       &nbsp;&nbsp;&nbsp;
-      <button type="button" class="green" onclick="saveSettings()">Save</button>
-      &nbsp;&nbsp;&nbsp;
-      <button type="button" class="orange" onclick="getNetworks()" id="refreshNetworks" style="width: 160px">Refresh Networks</button>
+      <button type="button" class="green" onclick="saveSettings()" id="saveNetwork">Save</button>
       <br />
       <br />
     </div>
@@ -93,8 +99,8 @@
       function onLoad(event) {
         // Wait for page to fully load.
         setTimeout(function () {
-          getSettings();
           getNetworks();
+          getSettings();
         }, 50);
       }
 
@@ -102,23 +108,23 @@
       // If the current network isn't present in the options, add the value as the first selectable option
       // so the UI shows the selected value regardless of which API returned first.
       function selectCurrentNetwork() {
-        var ssidSelect = getEl("ssidSelect");
-        if (!ssidSelect) return;
-        var currentNetwork = getText("network") || "";
+        var fldNetwork = getEl("availNetworks");
+        if (!fldNetwork) return;
+        var currentNetwork = getText("ssid") || "";
 
         if (!currentNetwork) {
           // If no current network, select the placeholder
-          ssidSelect.value = "";
+          fldNetwork.value = "";
           return;
         }
 
         // Try to select matching option
-        ssidSelect.value = currentNetwork;
+        fldNetwork.value = currentNetwork;
 
         // If no option matched, add it as the first non-placeholder option and select it
         var found = false;
-        for (var j = 0; j < ssidSelect.options.length; ++j) {
-          if (ssidSelect.options[j].value === currentNetwork) {
+        for (var j = 0; j < fldNetwork.options.length; ++j) {
+          if (fldNetwork.options[j].value === currentNetwork) {
             found = true;
             break;
           }
@@ -127,31 +133,95 @@
           var opt = document.createElement("option");
           opt.value = currentNetwork;
           opt.text = currentNetwork;
-          // insert at index 1 (after placeholder) so scanned entries remain below
+          // Insert at index 1 (after placeholder) so scanned entries remain below
           try {
-            ssidSelect.add(opt, 1);
+            fldNetwork.add(opt, 1);
           } catch (e) {
-            ssidSelect.add(opt);
+            fldNetwork.add(opt);
           }
-          ssidSelect.value = currentNetwork;
+          fldNetwork.value = currentNetwork;
         }
+      }
+
+      var savedNetworks = []; // Saved networks for selection.
+
+      function populateSavedNetworks() {
+        var fldNetwork = getEl("savedNetworks");
+        if (!fldNetwork || !Array.isArray(savedNetworks)) return;
+        var currentNetwork = getText("ssid") || "";
+
+        fldNetwork.innerHTML = ""; // Clear the existing options.
+
+        savedNetworks.forEach(function (network, idx) {
+          if (network && network.ssid) {
+            var option = document.createElement("option");
+            option.value = idx; // Index of array as value.
+            option.text = network.ssid; // Display SSID.
+            if (network.ssid === currentNetwork) {
+              option.selected = true;
+            }
+            fldNetwork.appendChild(option);
+          }
+        });
+
+        // Change event handler populates fields when a saved network is selected.
+        fldNetwork.onchange = function () {
+          var idx = parseInt(fldNetwork.value, 10);
+          if (!isNaN(idx) && savedNetworks[idx]) {
+            var selected = savedNetworks[idx];
+            setValue("ssid", selected.ssid || "");
+            setValue("password", selected.password || "");
+
+            // Double negation ensures the value is a boolean.
+            // eg. true if staticIP is truthy, false otherwise.
+            if (!!selected.staticIP) {
+              setToggle("useStaticIP", true);
+              enableEl("address");
+              enableEl("subnet");
+              enableEl("gateway");
+              setValue("address", selected.address || "");
+              setValue("subnet", selected.subnet || "");
+              setValue("gateway", selected.gateway || "");
+            } else {
+              setToggle("useStaticIP", false);
+              disableEl("address");
+              disableEl("subnet");
+              disableEl("gateway");
+              setValue("address", "");
+              setValue("subnet", "");
+              setValue("gateway", "");
+            }
+          }
+        };
       }
 
       function getSettings() {
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
-          if (this.readyState == 4 && this.status == 200) {
+          if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
             var settings = JSON.parse(this.responseText);
-            if (settings) {
-              setToggle("enabled", settings.enabled);
-              setValue("network", settings.network || "");
-              setValue("password", settings.password || "");
-              setValue("address", settings.address || "");
-              setValue("subnet", settings.subnet || "");
-              setValue("gateway", settings.gateway || "");
-              // Ensure the select reflects the current network even if networks haven't been loaded yet.
+            if (settings && settings.active) {
+              // Update fields based on active settings.
+              setToggle("extEnabled", settings.active.enabled);
+              setValue("ssid", settings.active.ssid || "");
+              setValue("password", settings.active.password || "");
+              setToggle("staticIP", settings.active.staticIP || false);
+              setValue("address", settings.active.address || "");
+              setValue("subnet", settings.active.subnet || "");
+              setValue("gateway", settings.active.gateway || "");
+
+              // Ensure the select reflects the current network,
+              // even if networks haven't been loaded yet.
               selectCurrentNetwork();
             }
+            if (settings && settings.saved) {
+              // Retain saved networks for sorting/selection.
+              savedNetworks = settings.saved;
+              populateSavedNetworks();
+            }
+          } else if (this.readyState == 4) {
+            // Handle error responses
+            handleStatus(this.responseText);
           }
         };
         xhttp.open("GET", "/wifi/settings", true);
@@ -159,21 +229,30 @@
       }
 
       function getNetworks() {
-        // Disable the refresh button while the request is running.
+        // Disable the action buttons while the request is running.
+        disableEl("availNetworks");
+        disableEl("saveNetwork");
         disableEl("refreshNetworks");
+        disableEl("deleteNetwork");
 
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
-          if (this.readyState == 4) {
-            if (this.status == 200) {
-              var resp = JSON.parse(this.responseText);
-              if (resp) {
-                populateNetworks(resp.networks || []);
-              }
+          if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
+            var resp = JSON.parse(this.responseText);
+            if (resp) {
+              populateNetworks(resp.networks || []);
             }
-
-            // Restore button interactivity
+            enableEl("availNetworks");
+            enableEl("saveNetwork");
             enableEl("refreshNetworks");
+            enableEl("deleteNetwork");
+          } else if (this.readyState == 4) {
+            // Handle error responses
+            handleStatus(this.responseText);
+            enableEl("availNetworks");
+            enableEl("saveNetwork");
+            enableEl("refreshNetworks");
+            enableEl("deleteNetwork");
           }
         };
         xhttp.open("GET", "/wifi/networks", true);
@@ -181,12 +260,12 @@
       }
 
       function populateNetworks(networks) {
-        var ssidSelect = getEl("ssidSelect");
-        if (!ssidSelect) return;
+        var fldNetwork = getEl("availNetworks");
+        if (!fldNetwork) return;
 
         // Clear existing options except the placeholder at index 0
-        while (ssidSelect.options.length > 1) {
-          ssidSelect.remove(1);
+        while (fldNetwork.options.length > 1) {
+          fldNetwork.remove(1);
         }
 
         if (!networks || !Array.isArray(networks)) {
@@ -195,29 +274,29 @@
           return;
         }
 
-        var currentNetwork = getText("network") || "";
+        var currentNetwork = getText("ssid") || "";
 
         for (var i = 0; i < networks.length; ++i) {
           var name = networks[i] || "";
           var opt = document.createElement("option");
           opt.value = name;
           opt.text = name;
-          ssidSelect.add(opt);
+          fldNetwork.add(opt);
         }
 
         // If there is an existing selected network, mark it selected. If it's missing, helper will add it.
         if (currentNetwork) {
-          ssidSelect.value = currentNetwork;
-          if (ssidSelect.value !== currentNetwork) {
+          fldNetwork.value = currentNetwork;
+          if (fldNetwork.value !== currentNetwork) {
             selectCurrentNetwork();
           }
         }
 
         // Wire change handler (idempotent)
-        ssidSelect.onchange = function () {
-          var chosen = ssidSelect.value || "";
+        fldNetwork.onchange = function () {
+          var chosen = fldNetwork.value || "";
           // Set network input to selected value
-          setValue("network", chosen);
+          setValue("ssid", chosen);
 
           // Clear other fields as requested
           setValue("password", "");
@@ -252,16 +331,34 @@
       var subnetInput = getEl("subnet");
       var gatewayInput = getEl("gateway");
 
-      getEl("network").addEventListener("input", function () {
+      getEl("extEnabled").addEventListener("change", function () {
+        // Get the checkbox state to enable the network fields.
+        var editEnabled = getToggle("extEnabled");
+
+        // Enable or disable based on checkbox state.
+        if (editEnabled) {
+          enableEl("availNetworks");
+          enableEl("savedNetworks");
+          enableEl("ssid");
+          enableEl("password");
+        } else {
+          disableEl("availNetworks");
+          disableEl("savedNetworks");
+          disableEl("ssid");
+          disableEl("password");
+        }
+      });
+
+      getEl("ssid").addEventListener("input", function () {
         // Clear fields based on input changes.
         addressInput.value = "";
         subnetInput.value = "";
         gatewayInput.value = "";
 
         // If input matches an option in the select, make it selected; otherwise clear select.
-        var ssidSelect = getEl("ssidSelect");
-        if (ssidSelect) {
-          ssidSelect.value = this.value || "";
+        var fldNetwork = getEl("availNetworks");
+        if (fldNetwork) {
+          fldNetwork.value = this.value || "";
         }
       });
 
@@ -283,11 +380,11 @@
       });
 
       function saveSettings() {
-        var wEnabled = getToggle("enabled");
-        var wNetwork = getText("network");
+        var wEnabled = getToggle("extEnabled");
+        var wSSID = getText("ssid");
         var wPassword = getText("password");
         if (wEnabled) {
-          if (wNetwork.length < 2) {
+          if (wSSID.length < 2) {
             alert("The WiFi network must be a minimum of 2 characters.");
             return;
           }
@@ -297,8 +394,8 @@
             return;
           }
         } else {
+          wSSID = "";
           wPassword = "";
-          wNetwork = "";
         }
 
         var wStatic = getToggle("useStaticIP");
@@ -327,25 +424,67 @@
         }
 
         var body = JSON.stringify({
-          enabled: wEnabled,
-          password: wPassword,
-          network: wNetwork,
-          address: wAddress,
-          subnet: wSubnet,
-          gateway: wGateway,
+          active: {
+            enabled: wEnabled,
+            ssid: wSSID,
+            password: wPassword,
+            staticIP: wStatic || false,
+            address: wAddress || "",
+            subnet: wSubnet || "",
+            gateway: wGateway || "",
+          },
+          saved: savedNetworks || [],
         });
 
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
-          if (this.readyState == 4 && this.status == 200) {
+          if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
             var jObj = JSON.parse(this.responseText);
             alert(jObj.status); // Always display status returned.
             getSettings(); // Refresh the current network settings.
+          } else if (this.readyState == 4) {
+            // Handle error responses
+            handleStatus(this.responseText);
           }
         };
         xhttp.open("PUT", "/wifi/update", true);
         xhttp.setRequestHeader("Content-Type", "application/json");
         xhttp.send(body);
+      }
+
+      function deleteNetwork() {
+        var idx = parseInt(getValue("savedNetworks") ?? -1, 10);
+        if (isNaN(idx) || idx < 0) return;
+
+        var selectedSSID = savedNetworks[idx] ? (savedNetworks[idx] || {}).ssid || "" : "";
+        if (selectedSSID.length === 0) return;
+
+        if (confirm("Are you sure you wish to delete the saved network '" + selectedSSID + "'?")) {
+          // Clear fields if the deleted network was currently selected.
+          var currentSSID = getText("ssid") || "";
+          if (selectedSSID === currentSSID) {
+            setValue("ssid", "");
+            setValue("password", "");
+            setValue("address", "");
+            setValue("subnet", "");
+            setValue("gateway", "");
+            setToggle("useStaticIP", false);
+          }
+
+          var xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
+              var jObj = JSON.parse(this.responseText);
+              alert(jObj.status); // Always display status returned.
+              getSettings(); // Refresh the current network settings.
+            } else if (this.readyState == 4) {
+              // Handle error responses
+              handleStatus(this.responseText);
+            }
+          };
+          xhttp.open("DELETE", "/wifi/network/" + idx, true);
+          xhttp.send();
+        }
       }
     </script>
   </body>

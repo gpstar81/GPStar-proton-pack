@@ -20,7 +20,7 @@
 
 ## Q: Is a Proton Pack required?
 
-**A:** No, a pack is not required for a wand-only conversion. However, please note that to run a GPStar wand board off of the Hasbro battery sled, you will need to provide your own 5V DC converter to supply regulated 5VDC to the GPStar components (see above FAQ answer). By default, a GPStar Neutrona Wand board will look for a Proton Pack before activating. To bypass this and run the wand in standalone mode, insert a 2mm jumper into the PROTON PACK TX1/RX1 connector or otherwise short these pins together. For more information see the [Troubleshooting Guide](TROUBLESHOOTING.md#neutrona-wand-standalone-mode). Note that the GPStar II Neutrona Wand can also be toggled to use Standalone Mode via its web interface. For more information see the [GPStar II Wireless Operation Guide](WIRELESS_GPSTAR_II.md#special-device-settings-1).
+**A:** No, a pack is not required for a wand-only conversion. However, please note that to run a GPStar wand board off of the Hasbro battery sled, you will need to provide your own 5V DC converter to supply regulated 5VDC to the GPStar components (see above FAQ answer). By default, a GPStar Neutrona Wand board will look for a Proton Pack before activating. To bypass this and run the wand in standalone mode, insert a 2mm jumper into the PROTON PACK TX1/RX1 connector or otherwise short these pins together. For more information see the [Troubleshooting Guide](TROUBLESHOOTING.md#neutrona-wand-standalone-mode). Note that the GPStar II Neutrona Wand can also be toggled to use Standalone Mode via its web interface. For more information see the [GPStar II Wireless Operation Guide](WIRELESS_GPSTAR_II.md#special-neutrona-wand-device-settings).
 
 ## Q: Is a GPStar Neutrona Wand required?
 

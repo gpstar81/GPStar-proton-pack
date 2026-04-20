@@ -18,9 +18,9 @@ The configuration for this device is extremely simple and can be implemented wit
 
 The following is a diagram of the **ESP32 pins** from left and right, when oriented with the USB connection facing down (south) like the pinout diagram above. Again, this table is based on the expected pin labels on the ESP32 itself--your terminal shield may differ slightly and should be checked for proper orientation when you insert the ESP32 into the socket.
 
-	!! IMPORTANT !!
-	This diagram is based on the 30-pin ESP32 dev module as recommended in the links above.
-	If your device differs, such as having 38 pins, there will be position or label changes.
+    !! IMPORTANT !!
+    This diagram is based on the 30-pin ESP32 dev module as recommended in the links above.
+    If your device differs, such as having 38 pins, there will be position or label changes.
 
 | Connection    | ESP32 (L) |     | ESP32 (R) | Connection    |
 |---------------|-----------|-----|-----------|---------------|

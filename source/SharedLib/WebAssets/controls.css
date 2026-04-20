@@ -1,0 +1,287 @@
+/* Music & Volume Controls */
+.bar-container,
+.volume-container,
+.music-navigation {
+  display: flex;
+  margin: 0 auto;
+  max-width: 360px;
+  width: 360px;
+}
+
+.volume-container {
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
+}
+
+.music-playback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px auto;
+  width: 320px;
+}
+
+.bar-container {
+  display: inline-flex;
+  margin-left: 20px;
+  position: relative;
+  top: 3px;
+  width: 120px;
+}
+
+.bar {
+  background-color: lightgray;
+  border: 1px solid #222;
+  height: 15px;
+  width: 20px;
+}
+
+.volume-control {
+  align-items: center;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 10px auto;
+  padding: 10px;
+  width: 80px;
+}
+
+.volume-control h3 {
+  margin: 2px auto;
+}
+
+.volume-control button {
+  align-items: center;
+  background-color: #008cba;
+  border: 1px solid #006c9a;
+  cursor: pointer;
+  display: flex;
+  font-size: 20px;
+  height: 50px;
+  justify-content: center;
+  margin: 5px 0;
+  min-width: 50px !important;
+  transition: background-color 0.3s ease;
+}
+
+.volume-control button:hover {
+  background-color: #009dcb;
+}
+
+.volume-control button:active {
+  transform: scale(0.95);
+}
+
+.volume-label {
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.music-navigation {
+  justify-content: space-between;
+  margin: 10px auto;
+  width: 320px;
+}
+
+.music-navigation button {
+  align-items: center;
+  background-color: #008cba;
+  border: 1px solid #006c9a;
+  border-radius: 0;
+  cursor: pointer;
+  display: flex;
+  font-family: monospace;
+  font-size: 1.8em;
+  height: 40px;
+  justify-content: center;
+  margin: 0;
+  min-width: 80px;
+  transition: background-color 0.3s ease;
+}
+
+.music-navigation button:first-child {
+  border-radius: 5px 0 0 5px;
+}
+
+.music-navigation button:last-child {
+  border-radius: 0 5px 5px 0;
+}
+
+.music-navigation button:hover {
+  background-color: #009dcb;
+}
+
+.music-navigation button:active {
+  transform: scale(0.95);
+}
+
+#tracks {
+  margin: 15px auto 0 auto;
+  width: 100%;
+  display: block;
+}
+
+/* https://github.com/adamculpepper/toggle-switchy */
+.toggle-switchy {
+  color: #fff;
+}
+.toggle-switchy > input + .toggle:before {
+  content: "ON";
+}
+.toggle-switchy > input + .toggle:after {
+  content: "OFF";
+}
+.toggle-switchy > input + .toggle > .switch {
+  background: #fff;
+}
+.toggle-switchy > input + .toggle + .label {
+  color: #000;
+}
+.toggle-switchy > input:checked + .toggle {
+  background: #3498db;
+}
+.toggle-switchy > input:not(:checked) + .toggle {
+  background: #ccc;
+}
+.toggle-switchy > input:checked + .toggle > .switch {
+  border: 3px solid #3498db;
+}
+.toggle-switchy > input:not(:checked) + .toggle > .switch {
+  border: 3px solid #ccc;
+}
+.toggle-switchy > input + .toggle {
+  border-radius: 4px;
+}
+.toggle-switchy > input + .toggle .switch {
+  border-radius: 6px;
+}
+.toggle-switchy {
+  display: inline-flex;
+  align-items: center;
+  user-select: none;
+  position: relative;
+  vertical-align: middle;
+  margin-bottom: 0;
+}
+.toggle-switchy:hover {
+  cursor: pointer;
+}
+.toggle-switchy > input {
+  position: absolute;
+  opacity: 0;
+}
+.toggle-switchy > input + .toggle {
+  align-items: center;
+  position: relative;
+}
+.toggle-switchy > input + .toggle {
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+}
+.toggle-switchy > input[disabled] + .toggle {
+  opacity: 0.5;
+}
+.toggle-switchy > input[disabled] + .toggle:hover {
+  cursor: not-allowed;
+}
+.toggle-switchy > input + .toggle {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+.toggle-switchy > input + .toggle > .switch {
+  display: block;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  z-index: 3;
+  box-sizing: border-box;
+}
+.toggle-switchy > input + .toggle:before,
+.toggle-switchy > input + .toggle:after {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  z-index: 2;
+  height: 100%;
+}
+.toggle-switchy > input + .toggle + .label {
+  margin-left: 10px;
+}
+.toggle-switchy[data-label="left"] > input + .toggle {
+  order: 2;
+}
+.toggle-switchy[data-label="left"] > input + .toggle + .label {
+  order: 1;
+  margin-left: 0;
+  margin-right: 10px;
+  font-weight: bold;
+}
+.toggle-switchy > input + .toggle:before {
+  opacity: 0;
+}
+.toggle-switchy > input:checked + .toggle:before {
+  opacity: 1;
+}
+.toggle-switchy > input:checked + .toggle:after {
+  opacity: 0;
+}
+.toggle-switchy > input + .toggle {
+  transition:
+    background 200ms linear,
+    box-shadow 200ms linear;
+}
+.toggle-switchy > input + .toggle:before,
+.toggle-switchy > input + .toggle:after {
+  transition: all 200ms linear;
+}
+.toggle-switchy > input + .toggle > .switch {
+  transition:
+    right 200ms linear,
+    border-color 200ms linear;
+}
+.toggle-switchy > input + .toggle {
+  width: 65px;
+  height: 30px;
+}
+.toggle-switchy > input + .toggle > .switch {
+  width: 30px;
+}
+.toggle-switchy > input + .toggle:before,
+.toggle-switchy > input + .toggle:after {
+  font-size: 0.8rem;
+}
+.toggle-switchy > input:not(:checked) + .toggle > .switch {
+  right: calc(100% - 30px);
+}
+.toggle-switchy > input + .toggle,
+.toggle-switchy > input + .toggle > .switch {
+  border-radius: 50px;
+}
+.toggle-switchy > input + .toggle:before {
+  right: 50%;
+}
+.toggle-switchy > input + .toggle:after {
+  left: 50%;
+}
+
+/* Toggles with distinct text options */
+.toggle-switchy[data-text="yesno"] > input + .toggle:before {
+  content: "YES";
+}
+.toggle-switchy[data-text="yesno"] > input + .toggle:after {
+  content: "NO";
+}
+
+.toggle-switchy[data-text="repeat"] > input + .toggle:before {
+  content: "ONE";
+}
+.toggle-switchy[data-text="repeat"] > input + .toggle:after {
+  content: "ALL";
+}

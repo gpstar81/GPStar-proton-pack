@@ -11,7 +11,7 @@ Watch this demonstration of the Belt Gizmo and Stream Effects devices:
 
 ## External Shell
 
-Many models of this device exist in the wild and you can pick any that you prefer as your base. Or if you have an existing Belt Gizmo you may be able to modify it to incorporate the new electronics.
+Many printable 3D models of this device exist among the community and you may pick any that you prefer as your base. Or if you have an existing Belt Gizmo you may be able to modify it to incorporate the new electronics.
 
 - [Belt Gizmo by Dave W](https://makerworld.com/en/models/1481024-ghostbusters-belt-gizmo-customisable-readout#profileId-1546412)
 - [Belt Gizmo by MRKIOU](https://cults3d.com/en/3d-model/gadget/ghostbusters-belt-gizmo?srsltid=AfmBOoodHZSokoh6WtUnP8dFB2FAfHBY5bJPWOEOunehdjz8OXQWtP-q)
@@ -36,9 +36,9 @@ Assembly of this device WILL require SOLDERING skills and is considered a DIY ap
 
 The following is a diagram of the **ESP32-S3-Zero pins** from left and right, when oriented with the USB connection facing up (north) like the pinout diagram above-top. We only need a single
 
-	!! IMPORTANT !!
-	This diagram is based on the dev module recommended in the links above.
-	If your device differs there will likely be position or label changes.
+    !! IMPORTANT !!
+    This diagram is based on the dev module recommended in the links above.
+    If your device differs there will likely be position or label changes.
 
 | Connection    | ESP32 (L) |     | ESP32 (R) | Connection    |
 |---------------|-----------|-----|-----------|---------------|
@@ -57,7 +57,9 @@ The following is a diagram of the **ESP32-S3-Zero pins** from left and right, wh
 
 We need to both power the device but also allow for the battery pack to be charged without removing it from the Belt Gizmo every time. This approach uses a slide switch to cut power to the ESP32 and allows for faster charging without simultaneously draining the battery. We also make use of the Key switch to turn the power on or off. A single press will turn on the boost chip while two quick presses will turn it off.
 
-For the battery you have 2 options: use a JST socket to connect your battery or cut off the existing plug. The latter may be quicker if you are comfortable with re-soldering a new battery in the future should the current one no longer hold a charge. Carefully cut off the plug from the LiPo battery pack, cutting each wire **1 AT TIME** to avoid a short-circuit.
+For the battery you have 2 options: use a JST socket to connect your battery or cut off the existing plug. The latter may be quicker if you are comfortable with re-soldering a new battery in the future should the current one no longer hold a charge.
+
+> CAUTION: Carefully cut off the plug from the LiPo battery pack, cutting each wire **1 AT TIME** to avoid a short-circuit.
 
 You will connect battery leads to the through-hole connections opposite the battery: positive (red) to + and negative (black) to - as expected.
 
@@ -68,19 +70,36 @@ From the 5V through-hole ports you are best to solder a single wire to each due 
 
 The hole labelled K connects to one side of the SPST Momentary Switch, the other side to the 5V - wire used above.
 
-Note: You will not need the USB2 connector supplied with this device.
+> Note: You will **not** need the USB2 connector supplied with this device.
 
 ![](images/USB_Boost_Charge.jpg)
+
+## Circuit Diagram
+
+The following circuit diagram should bring all of the components together.
+
+* The momentary pushbutton (single-press) will enable the boost circuit to provide 5V from the 3.7V LiPo battery. 
+* The slide switch will provide power to the ESP32 and LEDs when switched on.
+* The ESP32 will provide the data to the addressable LEDs for the animation.
+
+![](images/gizmo_circuit.jpg)
+
+> * To charge the device, move the slide switch to the opposite position to turn off power flow to the ESP32 and LEDs.
+> * To turn off the device use a quick double-press of the momentary pushbutton to turn off the battery booster.
 
 ## Assembly
 
 ![](images/gizmo_front.jpg)
 
-The LEDs chosen for this project are the same which may be used with the Proton Pack when adding the sparking effect to your inner cyclotron cake. Essentially this used a spare segment of 8 addressable LEDs which fit within the 7 nixie tubes and the E block. Note that the 270 ohm resistor will be used on the data line which connects to pin GP4 of the ESP32.
+The LEDs chosen for this project are the same which may be used with the Proton Pack when adding the sparking effect to your inner cyclotron cake. Essentially this used a spare segment of 8 addressable LEDs which fit within the available nixie tubes and the E block. Note that the 270 ohm resistor will be used on the data line which connects to pin GP4 of the ESP32.
+
+> Note: Some prop designs may utilize 7 or 9 nixie tubes plus the E stop (up to 10 total LEDs), which may be configured on the device preferences web page via WiFi connection to the device.
 
 ![](images/gizmo_back.jpg)
 
 The STL file `stl/misc/belt_gizmo_back.stl` is available in this project as a holder for the electronics and is highly recommended to keep things clean and compact. This _should_ work with most Belt Gizmo designs, though it was created specifically for the MRKIOU (Q) design linked above.
+
+> Not shown in this and later photos is the power cut-off switch which is placed between the battery booster and ESP32 chip to allow the device to charge without running.
 
 ![](images/gizmo_tubes.jpg)
 
@@ -98,21 +117,19 @@ Not shown here is the mini slide switch which severs power to the ESP32 so that 
 
 **Option 1: Using GPStar ESP32 Firmware Uploader**
 
-This uses a purpose-built flash tool just like the tools for the Proton Pack, Neutrona Wand, Single-Shot Blaster and GPStar Audio. Thanks to its ease of use, this is our recommended method for performing the first-time USB upload process. First, download either the Windows or Mac OSX flash tool from the [extras](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/) folder. If you are on Linux, try Option 2 below instead.
+This uses a purpose-built flash tool just like the tools for the Proton Pack, Neutrona Wand, Single-Shot Blaster and GPStar Audio. Thanks to its ease of use, this is our recommended method for performing the first-time USB upload process. For Windows users, download the ESP32 firmware flasher tool which is labelled for use with the GPStar II and Attenuator devices, available via the **Support & Downloads** page on the GPStar website.
 
-**Windows:** [GPStar ESP32 Firmware Flasher](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/gpstarESP32FirmwareFlasher.exe?raw=1)
+[GPStar II / GPStar Attenuator Firmware Flasher](https://gpstartechnologies.com/pages/support-downloads)
 
-**MacOS Intel/M1:** [GPStar ESP32 Firmware Flasher (Mac OSX)](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/GPStar-ESP32-Flasher.dmg?raw=1)
+> For Linux or macOS users, you will need to use one of the alternative options described below.
 
 1. Plug your device into a USB port on your computer.
 2. Locate the following files from the `/binaries/gizmo` directory.
 
-	* [extras/BeltGizmo-Bootloader.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/gizmo/extras/BeltGizmo-Bootloader.bin?raw=1) = This is the standard bootloader for the ESP32 itself.
-	* [extras/BeltGizmo-Partitions.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/gizmo/extras/BeltGizmo-Partitions.bin?raw=1) = This specifies the partition scheme for the flash memory.
-	* [extras/boot_app0.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/gizmo/extras/boot_app0.bin?raw=1) = This is the software for selecting the available/next OTA partition.
-	* [BeltGizmo.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/gizmo/BeltGizmo.bin?raw=1) = This is the custom firmware for the GPStar kit.
+    * [extras/BeltGizmo-Bootloader.bin](/binaries/gizmo/extras/BeltGizmo-Bootloader.bin?raw=true) = This is the standard bootloader for the ESP32 itself.
+    * [BeltGizmo.bin](/binaries/gizmo/BeltGizmo.bin?raw=true) = This is the custom firmware for the GPStar kit.
 
-3. Open the GPStar ESP32 Firmware Flasher and browse to the files specified in step 2 above for each of the four requested file locations (see below screenshot).
+3. Open the GPStar ESP32 Firmware Flasher and browse to the files specified in step 2 above for both of the requested file locations (see below screenshot).
 
 ![](images/flash-gizmo-firmware.png)
 
@@ -130,19 +147,19 @@ This uses a 3rd-party website to upload using the Web Serial protocol which is o
 
 1. Locate the following files from the `/binaries/gizmo` directory.
 
-	* [extras/BeltGizmo-Bootloader.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/gizmo/extras/BeltGizmo-Bootloader.bin?raw=1) = This is the standard bootloader for the ESP32 itself.
-	* [extras/BeltGizmo-Partitions.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/gizmo/extras/BeltGizmo-Partitions.bin?raw=1) = This specifies the partition scheme for the flash memory.
-	* [extras/boot_app0.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/gizmo/extras/boot_app0.bin?raw=1) = This is the software for selecting the available/next OTA partition.
-	* [BeltGizmo.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/gizmo/BeltGizmo.bin?raw=1) = This is the custom firmware for the GPStar kit.
+    * [extras/BeltGizmo-Bootloader.bin](/binaries/gizmo/extras/BeltGizmo-Bootloader.bin?raw=true) = This is the standard bootloader for the ESP32 itself.
+    * [extras/BeltGizmo-Partitions.bin](/binaries/gizmo/extras/BeltGizmo-Partitions.bin?raw=true) = This specifies the partition scheme for the flash memory.
+    * [extras/boot_app0.bin](/binaries/gizmo/extras/boot_app0.bin?raw=true) = This is the software for selecting the available/next OTA partition.
+    * [BeltGizmo.bin](/binaries/gizmo/BeltGizmo.bin?raw=true) = This is the custom firmware for the GPStar kit.
 
 1. Click on the **CONNECT** button and select your USB serial device from the list of options and click on "Connect".
 
 1. Once connected, select the files (noted above) for the following address spaces:
 
-	* `0x0000` &rarr; [BeltGizmo-Bootloader.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/gizmo/extras/BeltGizmo-Bootloader.bin?raw=1)
-	* `0x8000` &rarr; [BeltGizmo-Partitions.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/gizmo/extras/BeltGizmo-Partitions.bin?raw=1)
-	* `0xE000` &rarr; [boot_app0.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/gizmo/extras/boot_app0.bin?raw=1)
-	* `0x10000` &rarr; [BeltGizmo.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/gizmo/BeltGizmo.bin?raw=1)
+    * `0x0000` &rarr; [BeltGizmo-Bootloader.bin](/binaries/gizmo/extras/BeltGizmo-Bootloader.bin?raw=true)
+    * `0x8000` &rarr; [BeltGizmo-Partitions.bin](/binaries/gizmo/extras/BeltGizmo-Partitions.bin?raw=true)
+    * `0xE000` &rarr; [boot_app0.bin](/binaries/gizmo/extras/boot_app0.bin?raw=true)
+    * `0x10000` &rarr; [BeltGizmo.bin](/binaries/gizmo/BeltGizmo.bin?raw=true)
 
 1. Click on the **PROGRAM** button to begin flashing. View the "Output" window to view progress of the flashing operation.
 
@@ -156,28 +173,28 @@ You will need to utilize a command-line tool to upload the firmware to your devi
 
 1. Install the latest Python 3.x utility based on your operating system:
 
-	- Windows: Download the installer from [Python](https://www.python.org/downloads/windows/). When installing you may be prompted to "Add Python to PATH", and it is recommended to accept that option.
-	- Linux: Execute `sudo apt update && sudo apt install -y python3 python3-pip`
-	- MacOS: Execute `brew install python` using Homebrew ([instructions here](https://brew.sh/))
+    - Windows: Download the installer from [Python](https://www.python.org/downloads/windows/). When installing you may be prompted to "Add Python to PATH", and it is recommended to accept that option.
+    - Linux: Execute `sudo apt update && sudo apt install -y python3 python3-pip`
+    - MacOS: Execute `brew install python` using Homebrew ([instructions here](https://brew.sh/))
 
 1. From a terminal (command line) prompt run the following which will install the `pip` tool along with the `esptool` utility:
 
-	```
-	python3 -m ensurepip
-	python3 -m pip install --upgrade pip setuptools esptool
-	```
+    ```
+    python3 -m ensurepip
+    python3 -m pip install --upgrade pip setuptools esptool
+    ```
 
 1. Confirm that python was installed successfully by running the commands `python --version` and `python3 --version`. Use the command that reports a 3.x version (`python` or `python3`) for all following steps. We will assume `python3` is available.
 
 1. Navigate to the `binaries/gizmo` directory within the extracted GPStar-proton-pack software release:
 
-	`cd <extracted_location>/binaries/gizmo`
+    `cd <extracted_location>/binaries/gizmo`
 
 1. Run the following command to flash the bootloader and firmware:
 
-	```
-	python3 -m esptool --port-filter vid=0x303A --chip esp32s3 --baud 921600 write-flash --flash-mode dio --flash-size detect --flash-freq 80m 0x0 extras/BeltGizmo-Bootloader.bin 0x8000 extras/BeltGizmo-Partitions.bin 0xe000 extras/boot_app0.bin 0x10000 BeltGizmo.bin
-	```
+    ```
+    python3 -m esptool --port-filter vid=0x303A --chip esp32s3 --baud 921600 write-flash --flash-mode dio --flash-size detect --flash-freq 80m 0x0 extras/BeltGizmo-Bootloader.bin 0x8000 extras/BeltGizmo-Partitions.bin 0xe000 extras/boot_app0.bin 0x10000 BeltGizmo.bin
+    ```
 
 📝 **NOTE:** If your device still cannot be found automatically you may need to view the **"[USB Troubleshooting](#usb-troubleshooting)"** section at the bottom of this guide.
 
@@ -187,9 +204,9 @@ This applies to all updates you will perform AFTER the first-time upload of the 
 
 1. Power on the Belt Gizmo.
 1. Open the WiFi preferences on your computer/device and look for the SSID which matches **"GPStar_BeltGizmo"** or begins **"ProtonPack_"**.
-	* If this is your first connection to this access point, use the default password **"555-2368"**.
+    * If this is your first connection to this access point, use the default password **"555-2368"**.
 1. Navigate directly to the URL: [http://192.168.1.2/update](http://192.168.1.2/update)
-1. Use the "Select File" button and select the [BeltGizmo.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/gizmo/BeltGizmo.bin?raw=1) file from the `/binaries/gizmo` directory.
+1. Use the "Select File" button and select the [BeltGizmo.bin](/binaries/gizmo/BeltGizmo.bin?raw=true) file from the `/binaries/gizmo` directory.
 1. The upload will begin immediately. Once at 100% the device will reboot.
 1. Navigate to [http://192.168.1.2](http://192.168.1.2) or `http://BeltGizmo_####.local` to confirm that the device is able to communicate with the Proton Pack PCB.
 
@@ -208,6 +225,14 @@ Look for a WiFi network of "BeltGizmo_0000" or similar and connect using the pas
 **Security Notice**
 
 This device uses a default password of `555-2368` and should be changed immediately. You also have the option of changing the SSID broadcast if desired.
+
+### System Linking
+
+You will need to pair this device's external WiFi to to your Proton Pack + Neutrona Wand system via the Attenuator (WiFI adapter) or GPStar II Proton Pack controller. Without this link you will not get information from your pack+wand to change colors, power, or firing state.
+
+### Self-Test Mode
+
+A special self-test mode exists on the 2nd tab of the web UI. Turn this on to cycle through color tests, which allows you to check the proper LED color order which can be changed via the device preferences page. The self-test sequence for this device is White &raquo; Red &raquo; Green &raquo; Blue (repeat).
 
 ## USB Troubleshooting
 
@@ -245,7 +270,7 @@ Without disconnecting the device from your computer, and using the **same** brow
 
 **Solution 4:** Run this command, then log out and back in for the changes to take effect:
 
-	`sudo usermod -aG dialout $USER`
+    `sudo usermod -aG dialout $USER`
 
 📝 **Tip:** If you have successfully flashed your ESP32 device and do not see the available WiFi access point, try plugging your USB cable directly into the Talentcell battery or try another USB port on your computer. In rare cases the USB port and/or cable cannot supply enough voltage to run the ESP32's WiFi radio.
 

@@ -1,6 +1,6 @@
 /**
  *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -19,16 +19,6 @@
  */
 
 #pragma once
-
-// Writes a debug message to the serial console or sends to the WebSocket.
-void sendDebug(const String message) {
-  #if defined(DEBUG_SEND_TO_CONSOLE)
-    debugln(message); // Print to serial console.
-  #endif
-  #if defined(DEBUG_SEND_TO_WEBSOCKET)
-    ws.textAll(message); // Send a copy to the WebSocket.
-  #endif
-}
 
 // Obtain a list of partitions for this device.
 void printPartitions() {
@@ -57,94 +47,123 @@ void printPartitions() {
  * Prevent stream mode change if wand is firing, in an error state, or VG modes are disabled.
  */
 bool canChangeStreamMode() {
-  if(!b_pack_on || b_wand_firing || b_overheating || b_pack_alarm || b_pack_shutting_down || SYSTEM_MODE == MODE_ORIGINAL || !(STREAM_MODE_FLAG & FLAG_VG)) {
+  if(!b_pack_on) {
+    sendDebug(F("canChangeStreamMode() -> BLOCKED: Pack is not on"));
     return false;
   }
+
+  if(b_wand_firing) {
+    sendDebug(F("canChangeStreamMode() -> BLOCKED: Wand is firing"));
+    return false;
+  }
+
+  if(b_overheating) {
+    sendDebug(F("canChangeStreamMode() -> BLOCKED: Pack is overheating"));
+    return false;
+  }
+
+  if(b_pack_alarm) {
+    sendDebug(F("canChangeStreamMode() -> BLOCKED: Pack alarm is active"));
+    return false;
+  }
+
+  if(b_pack_shutting_down) {
+    // Cannot change mode while pack is actively shutting down.
+    sendDebug(F("canChangeStreamMode() -> BLOCKED: Pack is shutting down"));
+    return false;
+  }
+
+  if(gpstarSystem.getSystemMode() == MODE_ORIGINAL) {
+    // Original mode does not support VG stream modes.
+    sendDebug(F("canChangeStreamMode() -> BLOCKED: System is in original mode"));
+    return false;
+  }
+
+  if(!gpstarSystem.supportsAnyAlternateStreams()) {
+    // At a minimum one or more VG modes must be enabled to allow changes beyond PROTON.
+    sendDebug(F("canChangeStreamMode() -> BLOCKED: no VG or spectral modes are enabled"));
+    return false;
+  }
+
   return true;
 }
 
 /*
- * Change the current stream mode to a new mode, if allowed.
+ * Helper function to send the appropriate serial command for a stream mode.
+ * Offers a final check to ensure only a supported mode will be sent.
  */
-void changeStreamMode(STREAM_MODES new_mode) {
+void sendStreamModeCommand(STREAM_MODES new_mode) {
+  debugf("sendStreamModeCommand() called with mode: %d\n", new_mode);
+
+  if(gpstarSystem.supportsStreamMode(new_mode)) {
+    attenuatorSerialSend(A_SET_STREAM_MODE, (uint8_t)new_mode);
+  }
+}
+
+/*
+ * Change the current stream mode to a specific mode, if allowed.
+ */
+bool changeStreamMode(STREAM_MODES new_mode) {
   if(!canChangeStreamMode()) {
-    debugln("Stream mode change not allowed while pack is firing or in error state.");
-    return;
+    sendDebug(F("Stream mode change not allowed while pack is firing or in error state."));
+    return false;
   }
 
   // Debounce rapid calls to avoid flooding the serial interface.
   if(ms_streamchange.remaining() > 0) {
-    debugln("Stream mode change suppressed due to debounce timer.");
-    return;
+    sendDebug(F("Stream mode change suppressed due to debounce timer."));
+    return false;
   }
 
-  // Continue to change the stream mode.
-  switch(new_mode) {
-    case PROTON:
-      attenuatorSerialSend(A_PROTON_MODE);
+  debugf("changeStreamMode(STREAM_MODES) called with mode: %d\n", new_mode);
+  debugf("Current stream mode: %d\n", gpstarSystem.getStreamMode());
+
+  // Send the command for the requested mode.
+  sendStreamModeCommand(new_mode);
+  ms_streamchange.start(i_stream_change_delay); // Restart debounce timer.
+  return true;
+}
+
+/*
+ * Change the current stream mode by encoder direction (next/previous), if allowed.
+ */
+bool changeStreamMode(ENCODER_STATES direction) {
+  if(!canChangeStreamMode()) {
+    sendDebug(F("Stream mode change not allowed while pack is firing or in error state."));
+    return false;
+  }
+
+  // Debounce rapid calls to avoid flooding the serial interface.
+  if(ms_streamchange.remaining() > 0) {
+    sendDebug(F("Stream mode change suppressed due to debounce timer."));
+    return false;
+  }
+
+  debugf("changeStreamMode(ENCODER_STATES) called with direction: %d\n", direction);
+  debugf("Current stream mode: %d\n", gpstarSystem.getStreamMode());
+
+  STREAM_MODES new_mode = gpstarSystem.getStreamMode();
+  switch(direction){
+    case ENCODER_CCW:
+      // Counter-clockwise for next mode, like the dial on the wand.
+      new_mode = gpstarSystem.nextStreamMode();
+      debugf("ENCODER_CCW: calculated next mode: %d\n", new_mode);
     break;
-    case STASIS:
-      if(!!(STREAM_MODE_FLAG & FLAG_VG)) {
-        attenuatorSerialSend(A_STASIS_MODE);
-      }
-      else {
-        debugln("VG modes not enabled, cannot switch to Stasis.");
-      }
-    break;
-    case SLIME:
-      if(!!(STREAM_MODE_FLAG & FLAG_VG)) {
-        attenuatorSerialSend(A_SLIME_MODE);
-      }
-      else {
-        debugln("VG modes not enabled, cannot switch to Slime.");
-      }
-    break;
-    case MESON:
-      if(!!(STREAM_MODE_FLAG & FLAG_VG)) {
-        attenuatorSerialSend(A_MESON_MODE);
-      }
-      else {
-        debugln("VG modes not enabled, cannot switch to Meson.");
-      }
-    break;
-    case SPECTRAL:
-      if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL)) {
-        attenuatorSerialSend(A_SPECTRAL_MODE);
-      }
-      else {
-        debugln("Spectral mode not enabled, cannot switch to Spectral.");
-      }
-    break;
-    case HOLIDAY_HALLOWEEN:
-      if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_HALLOWEEN)) {
-        attenuatorSerialSend(A_HALLOWEEN_MODE);
-      }
-      else {
-        debugln("Halloween mode not enabled, cannot switch to Halloween.");
-      }
-    break;
-    case HOLIDAY_CHRISTMAS:
-      if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_CHRISTMAS)) {
-        attenuatorSerialSend(A_CHRISTMAS_MODE);
-      }
-      else {
-        debugln("Christmas mode not enabled, cannot switch to Christmas.");
-      }
-    break;
-    case SPECTRAL_CUSTOM:
-      if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
-        attenuatorSerialSend(A_SPECTRAL_CUSTOM_MODE);
-      }
-      else {
-        debugln("Spectral Custom mode not enabled, cannot switch to Spectral Custom.");
-      }
+    case ENCODER_CW:
+      // Clockwise rotation for previous mode, like the dial on the wand.
+      new_mode = gpstarSystem.previousStreamMode();
+      debugf("ENCODER_CW: calculated previous mode: %d\n", new_mode);
     break;
     default:
-      debugln("Invalid Stream Mode");
+      sendDebug(F("Invalid encoder direction"));
+      return false;
     break;
   }
 
+  // Send the command for the calculated mode.
+  sendStreamModeCommand(new_mode);
   ms_streamchange.start(i_stream_change_delay); // Restart debounce timer.
+  return true;
 }
 
 /*
@@ -234,9 +253,9 @@ void updateLEDs() {
   // Update the top LED based on certain system statuses.
   switch(MENU_LEVEL) {
     case MENU_1:
-      // Keep indicator solid.
+      // Keep indicator solid when in this menu level (indicates default/stable).
       ms_top_blink.stop(); // Stop the blink timer which won't be used at this menu level.
-      b_top_led_off = false; // Denotes LED is not in an off (blinking) state, but solid.
+      b_top_led_alt = false; // Denotes LED is not in an off (blinking) state, but solid.
       device_leds[i_device_led[0]] = getHueAsRGB(i_device_led[0], i_top_led_colour, i_top_led_brightness, b_grb_leds);
     break;
 
@@ -244,15 +263,32 @@ void updateLEDs() {
       // Blink the LED when in this menu level.
       if(ms_top_blink.remaining() < 1) {
         ms_top_blink.start(i_top_blink_delay); // Restart the timer to change state.
-        b_top_led_off = !b_top_led_off; // Whatever the last value, just flip it.
+        b_top_led_alt = !b_top_led_alt; // Whatever the last value, just flip it.
       }
 
-      if(b_top_led_off) {
-        // Not completely dark but very dim (1/10th of the normal brightness).
-        device_leds[i_device_led[0]] = getHueAsRGB(i_device_led[0], i_top_led_colour, int(i_top_led_brightness / 10), b_grb_leds);
+      if(b_top_led_alt) {
+        // For an alternate state use yellow to indicate this menu mode.
+        device_leds[i_device_led[0]] = getHueAsRGB(i_device_led[0], C_YELLOW, i_top_led_brightness, b_grb_leds);
       }
       else {
         // Return to normal brightness for the current top LED colour.
+        device_leds[i_device_led[0]] = getHueAsRGB(i_device_led[0], i_top_led_colour, i_top_led_brightness, b_grb_leds);
+      }
+    break;
+
+    case MENU_STREAM:
+      // Blink the LED when in this menu level, but at 2x the rate of the MENU_2 option.
+      if(ms_top_blink.remaining() < 1) {
+        ms_top_blink.start(int(i_top_blink_delay / 2)); // Restart the timer to change state.
+        b_top_led_alt = !b_top_led_alt; // Whatever the last value, just flip it.
+      }
+
+      if(b_top_led_alt) {
+        // For an alternate state use white to indicate this menu mode.
+        device_leds[i_device_led[0]] = getHueAsRGB(i_device_led[0], C_WHITE, i_top_led_brightness, b_grb_leds);
+      }
+      else {
+        // Return to the normal, current top LED colour.
         device_leds[i_device_led[0]] = getHueAsRGB(i_device_led[0], i_top_led_colour, i_top_led_brightness, b_grb_leds);
       }
     break;
@@ -277,14 +313,13 @@ void updateLEDs() {
 
   // Set lower LED based on the current firing mode.
   uint8_t i_scheme;
-  switch(STREAM_MODE) {
+  switch(gpstarSystem.getStreamMode()) {
     case PROTON:
-    default:
       i_scheme = C_RED;
     break;
 
     case SLIME:
-      if(SYSTEM_YEAR == SYSTEM_1989) {
+      if(gpstarSystem.getSystemTheme() == SYSTEM_1989) {
         i_scheme = C_PINK;
       }
       else {
@@ -316,7 +351,7 @@ void updateLEDs() {
       i_scheme = C_SPECTRAL_CUSTOM;
     break;
 
-    case SETTINGS:
+    default:
       i_scheme = C_WHITE;
     break;
   }
@@ -402,14 +437,20 @@ void checkRotaryPress() {
           // A short, single press should start or stop the music.
           attenuatorSerialSend(A_MUSIC_START_STOP);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
-          debugln("Rotary: Music Start/Stop");
+          sendDebug(F("Rotary: Music Start/Stop"));
         break;
 
         case MENU_2:
           // A short, single press should advance to the next track.
           attenuatorSerialSend(A_MUSIC_NEXT_TRACK);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
-          debugln("Rotary: Next Track");
+          sendDebug(F("Rotary: Next Track"));
+        break;
+
+        case MENU_STREAM:
+          attenuatorSerialSend(A_MANUAL_QUICK_VENT);
+          useVibration(i_vibrate_min_time); // Give a quick nudge.
+          sendDebug(F("Rotary: Quick Vent"));
         break;
       }
     break;
@@ -421,14 +462,14 @@ void checkRotaryPress() {
           // A double press should mute the pack and wand.
           attenuatorSerialSend(A_TOGGLE_MUTE);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
-          debugln("Rotary: Toggle Mute");
+          sendDebug(F("Rotary: Toggle Mute"));
         break;
 
         case MENU_2:
           // A double press should move back to the previous track.
           attenuatorSerialSend(A_MUSIC_PREV_TRACK);
           useVibration(i_vibrate_min_time); // Give a quick nudge.
-          debugln("Rotary: Previous Track");
+          sendDebug(F("Rotary: Previous Track"));
         break;
       }
     break;
@@ -439,15 +480,22 @@ void checkRotaryPress() {
       switch(MENU_LEVEL) {
         case MENU_1:
           MENU_LEVEL = MENU_2; // Change menu level.
-          debugln("Rotary: Menu 2");
           useVibration(i_vibrate_min_time); // Give a quick nudge.
           buzzOn(784); // Tone as note G4
+          sendDebug(F("Rotary: Menu 2"));
         break;
+
         case MENU_2:
           MENU_LEVEL = MENU_1; // Change menu level.
-          debugln("Rotary: Menu 1");
           useVibration(i_vibrate_min_time); // Give a quick nudge.
           buzzOn(440); // Tone as note A4
+          sendDebug(F("Rotary: Menu 1"));
+        break;
+
+        case MENU_STREAM:
+          attenuatorSerialSend(A_MANUAL_OVERHEAT);
+          useVibration(i_vibrate_min_time); // Give a quick nudge.
+          sendDebug(F("Rotary: Forced Overheat"));
         break;
       }
     break;
@@ -477,7 +525,7 @@ void checkRotaryEncoder() {
         i_rotary_count++;
         if(i_rotary_count % 5 == 0) {
           attenuatorSerialSend(A_WARNING_CANCELLED);
-          debugln("Rotary: Overheat Cancelled");
+          sendDebug(F("Rotary: Overheat Cancelled"));
           i_rotary_count = 0;
         }
       }
@@ -487,88 +535,21 @@ void checkRotaryEncoder() {
           case MENU_1:
             // Tell pack to increase overall volume.
             attenuatorSerialSend(A_VOLUME_INCREASE);
-            debugln("Rotary: Master Volume+");
+            sendDebug(F("Rotary: Master Volume+"));
           break;
 
           case MENU_2:
             // Tell pack to increase effects volume.
             attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_INCREASE);
-            debugln("Rotary: Effects Volume+");
+            sendDebug(F("Rotary: Effects Volume+"));
           break;
 
           case MENU_STREAM:
             // Change to the previous stream mode.
             if(canChangeStreamMode()) {
-              switch(STREAM_MODE) {
-                case PROTON:
-                  if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
-                    changeStreamMode(SPECTRAL_CUSTOM);
-                  }
-                  else if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_CHRISTMAS)) {
-                    changeStreamMode(HOLIDAY_CHRISTMAS);
-                  }
-                  else if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_HALLOWEEN)) {
-                    changeStreamMode(HOLIDAY_HALLOWEEN);
-                  }
-                  else if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL)) {
-                    changeStreamMode(SPECTRAL);
-                  }
-                  else {
-                    changeStreamMode(MESON);
-                  }
-                break;
-                case STASIS:
-                  changeStreamMode(PROTON);
-                break;
-                case SLIME:
-                  changeStreamMode(STASIS);
-                break;
-                case MESON:
-                  changeStreamMode(SLIME);
-                break;
-                case SPECTRAL:
-                  changeStreamMode(MESON);
-                break;
-                case HOLIDAY_HALLOWEEN:
-                  if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL)) {
-                    changeStreamMode(SPECTRAL);
-                  }
-                  else {
-                    changeStreamMode(MESON);
-                  }
-                break;
-                case HOLIDAY_CHRISTMAS:
-                  if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_HALLOWEEN)) {
-                    changeStreamMode(HOLIDAY_HALLOWEEN);
-                  }
-                  else if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL)) {
-                    changeStreamMode(SPECTRAL);
-                  }
-                  else {
-                    changeStreamMode(MESON);
-                  }
-                break;
-                case SPECTRAL_CUSTOM:
-                  if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_CHRISTMAS)) {
-                    changeStreamMode(HOLIDAY_CHRISTMAS);
-                  }
-                  else if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_HALLOWEEN)) {
-                    changeStreamMode(HOLIDAY_HALLOWEEN);
-                  }
-                  else if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL)) {
-                    changeStreamMode(SPECTRAL);
-                  }
-                  else {
-                    changeStreamMode(MESON);
-                  }
-                break;
-                default:
-                  debugln("Invalid Stream Mode; reverting to Proton");
-                  changeStreamMode(PROTON);
-                break;
-              }
+              changeStreamMode(ENCODER_CW);
+              sendDebug(F("Rotary: Previous Stream Mode"));
             }
-            debugln("Rotary: Previous Stream Mode");
           break;
         }
       }
@@ -582,7 +563,7 @@ void checkRotaryEncoder() {
         i_rotary_count++;
         if(i_rotary_count % 5 == 0) {
           attenuatorSerialSend(A_WARNING_CANCELLED);
-          debugln("Rotary: Overheat Cancelled");
+          sendDebug(F("Rotary: Overheat Cancelled"));
           i_rotary_count = 0;
         }
       }
@@ -592,88 +573,21 @@ void checkRotaryEncoder() {
           case MENU_1:
             // Tell pack to decrease overall volume.
             attenuatorSerialSend(A_VOLUME_DECREASE);
-            debugln("Rotary: Master Volume-");
+            sendDebug(F("Rotary: Master Volume-"));
           break;
 
           case MENU_2:
             // Tell pack to decrease effects volume.
             attenuatorSerialSend(A_VOLUME_SOUND_EFFECTS_DECREASE);
-            debugln("Rotary: Effects Volume-");
+            sendDebug(F("Rotary: Effects Volume-"));
           break;
 
           case MENU_STREAM:
             // Change to the next stream mode.
             if(canChangeStreamMode()) {
-              switch(STREAM_MODE) {
-                case PROTON:
-                  changeStreamMode(STASIS);
-                break;
-                case STASIS:
-                  changeStreamMode(SLIME);
-                break;
-                case SLIME:
-                  changeStreamMode(MESON);
-                break;
-                case MESON:
-                  if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL)) {
-                    changeStreamMode(SPECTRAL);
-                  }
-                  else if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_HALLOWEEN)) {
-                    changeStreamMode(HOLIDAY_HALLOWEEN);
-                  }
-                  else if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_CHRISTMAS)) {
-                    changeStreamMode(HOLIDAY_CHRISTMAS);
-                  }
-                  else if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
-                    changeStreamMode(SPECTRAL_CUSTOM);
-                  }
-                  else {
-                    changeStreamMode(PROTON);
-                  }
-                break;
-                case SPECTRAL:
-                  if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_HALLOWEEN)) {
-                    changeStreamMode(HOLIDAY_HALLOWEEN);
-                  }
-                  else if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_CHRISTMAS)) {
-                    changeStreamMode(HOLIDAY_CHRISTMAS);
-                  }
-                  else if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
-                    changeStreamMode(SPECTRAL_CUSTOM);
-                  }
-                  else {
-                    changeStreamMode(PROTON);
-                  }
-                break;
-                case HOLIDAY_HALLOWEEN:
-                  if(!!(STREAM_MODE_FLAG & FLAG_HOLIDAY_CHRISTMAS)) {
-                    changeStreamMode(HOLIDAY_CHRISTMAS);
-                  }
-                  else if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
-                    changeStreamMode(SPECTRAL_CUSTOM);
-                  }
-                  else {
-                    changeStreamMode(PROTON);
-                  }
-                break;
-                case HOLIDAY_CHRISTMAS:
-                  if(!!(STREAM_MODE_FLAG & FLAG_SPECTRAL_CUSTOM)) {
-                    changeStreamMode(SPECTRAL_CUSTOM);
-                  }
-                  else {
-                    changeStreamMode(PROTON);
-                  }
-                break;
-                case SPECTRAL_CUSTOM:
-                  changeStreamMode(PROTON);
-                break;
-                default:
-                  debugln("Invalid Stream Mode; reverting to Proton");
-                  changeStreamMode(PROTON);
-                break;
-              }
+              changeStreamMode(ENCODER_CCW);
+              sendDebug(F("Rotary: Next Stream Mode"));
             }
-            debugln("Rotary: Next Stream Mode");
           break;
         }
       }
@@ -701,11 +615,7 @@ void switchLoops() {
  */
 void checkUserInputs() {
   switchLoops();
-
-  if(MENU_LEVEL != MENU_STREAM) {
-    // Check for a press event (long/short) only if not in stream select mode.
-    checkRotaryPress();
-  }
+  checkRotaryPress();
 
   if(!b_center_lockout || MENU_LEVEL == MENU_STREAM) {
     // Check for rotation only when center lockout is NOT active, or if in stream mode.
@@ -713,7 +623,7 @@ void checkUserInputs() {
   }
 
   /*
-   * Left Toggle - Uses a pull-up resistor, so setting LOW indicates ON.
+   * Left (Outer) Toggle - Uses a pull-up resistor, so setting LOW indicates ON.
    *
    * Paired:
    * When paired with the gpstar Proton Pack controller, will turn the
@@ -721,16 +631,14 @@ void checkUserInputs() {
    * enable and display an animation which matches the Neutrona Wand
    * bargraph (whether stock 5-LED version or GPStar bargraph).
    *
-   * Standalone:
-   * When not paired with the GPStar Proton Pack controller, will turn
-   * on the bargraph which will display a static, pre-set pattern.
+   * Standalone: No effect/function.
    */
 
   // Turns the pack on or off (when paired) via left toggle.
   if(switch_left.isPressed() || switch_left.isReleased()) {
-    if(switch_left.getState() == LOW) {
-      b_left_toggle_on = true;
+    b_left_toggle_on = (b_left_toggle_inverted && switch_left.getState() == HIGH) || (!b_left_toggle_inverted && switch_left.getState() == LOW);
 
+    if(b_left_toggle_on) {
       if(!b_pack_on) {
         attenuatorSerialSend(A_TURN_PACK_ON);
 
@@ -741,8 +649,6 @@ void checkUserInputs() {
       }
     }
     else {
-      b_left_toggle_on = false;
-
       if(b_pack_on) {
         attenuatorSerialSend(A_TURN_PACK_OFF);
 
@@ -763,7 +669,7 @@ void checkUserInputs() {
     }
   }
   else {
-    if(switch_left.getState() == HIGH) {
+    if(!b_left_toggle_on) {
       if(BARGRAPH_STATE != BG_OFF) {
         bargraphOff(); // Clear all bargraph elements and turn off the device.
       }
@@ -771,7 +677,7 @@ void checkUserInputs() {
   }
 
   /*
-   * Right Toggle - Uses a pull-up resistor, so setting LOW indicates ON.
+   * Right (Inner) Toggle - Uses a pull-up resistor, so setting LOW indicates ON.
    *
    * The right toggle activates the stream-mode selection via the encoder.
    *
@@ -782,9 +688,9 @@ void checkUserInputs() {
    *
    * When the switch is off the encoder will return to volume/track control.
    */
-  if(switch_right.getState() == LOW) {
-    b_right_toggle_on = true;
+  b_right_toggle_on = (b_right_toggle_inverted && switch_right.getState() == HIGH) || (!b_right_toggle_inverted && switch_right.getState() == LOW);
 
+  if(b_right_toggle_on) {
     // Only enter stream select mode if wand is not firing or in an error state.
     if(canChangeStreamMode()) {
       // Enter the stream select mode for the top dial.
@@ -840,8 +746,6 @@ void checkUserInputs() {
     }
   }
   else {
-    b_right_toggle_on = false;
-
     // Return to dial menu level 1 if previously in stream select.
     if(MENU_LEVEL == MENU_STREAM) {
       MENU_LEVEL = MENU_1;

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="UTF-8" />
@@ -13,37 +13,54 @@
     <h1 id="top">Special Device Settings</h1>
     <div class="block left">
       <p>
-        Adjust settings unique to this device's web interface. Use this screen to customize the private network used by the built-in WiFi network.
+        Change special device options using the available toggles and selectors. Use this screen to customize the device name as used by the built-in WiFi private network.
         <br />
         You may also use
-        <b>http://[PRIVATE_NETWORK].local</b>
+        <b>http://[CUSTOM_NAME].local</b>
         to access this device via your browser. Use the "Update Settings" button to save values to the controller.
       </p>
       <br />
     </div>
-    <h1>General Options</h1>
+
+    <h1>Device Identification</h1>
     <div class="block left">
       <div class="setting">
-        <b>Private Network:</b>
+        <b>Custom Name:</b>
         <input
           type="text"
           id="wifiName"
-          size="60"
+          size="40"
           maxlength="32"
           placeholder="Custom SSID"
           title="Only letters, numbers, hyphens, and underscores are allowed, up to 32 characters."
         />
       </div>
+    </div>
+
+    <h1>User-Input Options</h1>
+    <div class="block left">
       <div class="setting">
-        <b>Status Display:</b>
+        <b>Web UI Status Display:</b>
         <select id="displayType" name="displayType">
           <option value="0">Text</option>
-          <option value="1">Graphical</option>
+          <option selected value="1">Graphical</option>
           <option value="2">Both</option>
         </select>
       </div>
       <div class="setting">
-        <b>Song List:</b>
+        <label class="toggle-switchy" data-text="yesno" data-label="left">
+          <input id="useAnimation" name="useAnimation" type="checkbox" />
+          <span class="toggle">
+            <span class="switch"></span>
+          </span>
+          <span class="label">Use Animation Effects:</span>
+        </label>
+      </div>
+    </div>
+
+    <h1>Music Track Listing</h1>
+    <div class="block left">
+      <div class="setting">
         <span id="byteCount"></span>
         <br />
         <textarea
@@ -63,7 +80,7 @@
       <hr />
       <a href="/">&laquo; Back</a>
       &nbsp;&nbsp;
-      <button type="button" class="green" style="width: 120px" onclick="saveSettings()">Update&nbsp;Settings</button>
+      <button type="button" class="green" onclick="saveSettings()">Update&nbsp;Settings</button>
       <br />
       <br />
     </div>
@@ -87,15 +104,19 @@
       function getSettings() {
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
-          if (this.readyState == 4 && this.status == 200) {
+          if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
             var settings = JSON.parse(this.responseText);
             if (settings) {
               // Update fields with the current values, or supply an expected default as necessary.
               setValue("wifiName", settings.wifiName || "");
-              setValue("displayType", settings.displayType || 0); // Default: 0 [Text]
+              setValue("displayType", settings.displayType ?? 1); // Default: 1 [Graphical]
+              setToggle("useAnimation", settings.useAnimation);
               setValue("songList", settings.songList || "");
               updateByteCount();
             }
+          } else if (this.readyState == 4) {
+            // Handle error responses
+            handleStatus(this.responseText);
           }
         };
         xhttp.open("GET", "/config/device", true);
@@ -130,7 +151,8 @@
         // Saves current settings to attenuator, updating runtime variables and making changes immediately effective.
         var settings = {
           wifiName: wifiName,
-          displayType: getInt("displayType"),
+          displayType: getInt("displayType") ?? 1,
+          useAnimation: getToggle("useAnimation"),
           songList: getText("songList"),
         };
         var body = JSON.stringify(settings);
@@ -138,16 +160,17 @@
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
           if (this.readyState == 4) {
-            if (this.status == 200) {
-              handleStatus(this.responseText);
-            }
-
-            if (this.status == 201) {
+            if (this.status == 200 || this.status == 201) {
               handleStatus(this.responseText);
 
-              if (confirm("Restart device now?")) {
-                doRestart();
+              if (this.status == 201) {
+                if (confirm("Restart device now?")) {
+                  doRestart();
+                }
               }
+            } else {
+              // Handle non-success responses
+              handleStatus(this.responseText);
             }
           }
         };
@@ -159,7 +182,7 @@
       function doRestart() {
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
-          if (this.readyState == 4 && this.status == 204) {
+          if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
             // Reload the page after 2 seconds.
             setTimeout(function () {
               window.location.reload();

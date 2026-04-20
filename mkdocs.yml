@@ -5,10 +5,10 @@
 #
 # Quick Installation  (Python)
 #  python -m pip install --upgrade pip
-#  pip install mkdocs mkdocs-material mkdocs-mermaid2-plugin mkdocs-minify-plugin
+#  pip install mkdocs mkdocs-material mkdocs-mermaid2-plugin
 #
 # Update (When Necessary)
-#  pip install --upgrade mkdocs mkdocs-material mkdocs-mermaid2-plugin mkdocs-minify-plugin
+#  pip install --upgrade mkdocs mkdocs-material mkdocs-mermaid2-plugin
 #
 # Run a local web server to view output:
 #  mkdocs serve
@@ -44,12 +44,12 @@ plugins:
       prebuild_index: true
   - mermaid2:
       arguments:
-        theme: default # or dark, forest, neutral
+        theme: forest # Either of default, dark, forest, neutral
         securityLevel: strict
-  - minify:
-      minify_html: true
-      minify_js: true
-      minify_css: true
+        flowchart:
+          curve: linear     # Straight lines by default
+          useMaxWidth: true # Responsive diagrams
+          htmlLabels: true  # Allow HTML in labels
 
 # Define the navigation structure
 nav:
@@ -64,6 +64,7 @@ nav:
   - GPStar:
     - Proton Pack: PACK_PCB.md
     - Neutrona Wand: WAND_PCB.md
+    - Proton Stream Target Trainer: PSTT.md
   - GPStar Audio: GPSTAR_AUDIO_PCB.md
   - Additional Components:
     - Proton Pack:
@@ -81,7 +82,9 @@ nav:
       - Attenuator: ATTENUATOR.md
       - WiFi Adapter: WIRELESS.md
   - Special Guides:
-    - Power Requirements: POWER.md
+    - Power:
+      - Requirements: POWER.md
+      - Batteries: BATTERIES.md
     - Sound Output: SOUND.md
     - Pack-Wand Hose: HOSE.md
     - Smoke Kits: SMOKE.md

@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Cache-control" content="public" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Proton Stream Targeting Trainer" />
+    <title>Proton Stream Targeting Trainer</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body class="dark">
+    <div class="tabs dark">
+      <button class="tablinks" onclick="openTab(event, 'tab1')">&#9883;</button>
+      <button class="tablink red" onclick="psttDrop()" id="btnPsttDrop" style="filter:none;">&#128123; &#9660;</button>
+      <button class="tablinks green" onclick="psttReset()" id="btnPsttReset" style="filter:none;">&#128123; &#9650;</button>
+      <button class="tablinks" onclick="openTab(event, 'tab4')">&#9881;</button>
+    </div>
+
+    <div id="tab1" class="tab">
+      <div id="equipCRT" class="equipment">
+        <div class="health-column">
+          <div class="health-bar-container">
+            <div id="healthBar" class="health-bar"></div>
+          </div>
+          <div id="healthText" class="health-text">100%</div>
+        </div>
+        <div class="data-column">
+          <div id="dataConsole" class="data-console">Awaiting IR data...</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab4" class="tab">
+      <div class="card" style="text-align: center">
+        <a href="/settings/device">Special Device Settings</a>
+        <br />
+        <br />
+        <hr />
+        <br />
+        <a href="/update">Update PSTT Firmware</a>
+        <br />
+        <br />
+        <a href="/password">Secure Device WiFi</a>
+        <br />
+        <br />
+        <a href="/network">Change WiFi Settings</a>
+        <br />
+        <br />
+        <a href="javascript:doRestart()">Restart/Resync</a>
+        <br />
+        <br />
+        <a href="https://gpstar81.github.io/GPStar-proton-pack/" target="_blank">Official Documentation</a>
+        <br />
+        <br />
+        <a href="/swaggerui" target="_blank">Web API Listing</a>
+      </div>
+
+      <div class="footer">
+        <span id="buildDate"></span>
+        <br />
+        <span id="audioInfo"></span>
+        <br />
+        <span id="wifiName"></span>
+        <br />
+        <span id="clientInfo"></span>
+        <br />
+        <span id="extWifi"></span>
+      </div>
+    </div>
+
+    <script type="application/javascript" src="/common.js"></script>
+    <script type="application/javascript" src="/index.js"></script>
+  </body>
+</html>

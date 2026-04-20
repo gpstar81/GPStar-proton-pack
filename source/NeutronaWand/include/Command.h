@@ -1,6 +1,6 @@
 /**
  *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
     case P_ON:
       // Pack is on.
       b_pack_on = true;
+      b_pack_shutting_down = false;
     break;
 
     case P_OFF:
@@ -45,11 +46,11 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
         // Turn wand off.
         if(WAND_STATUS != MODE_OFF) {
           if(WAND_STATUS == MODE_ERROR) {
-            b_wand_mash_error = false;
+            b_wand_mash_lockout = false;
             wandOff();
           }
           else {
-            b_wand_mash_error = false;
+            b_wand_mash_lockout = false;
             WAND_ACTION_STATUS = ACTION_OFF;
           }
         }
@@ -57,6 +58,7 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
 
       // Pack is off.
       b_pack_on = false;
+      b_pack_shutting_down = (i_value == 1);
     break;
 
     case P_SOUND_SUPER_HERO:
@@ -72,17 +74,15 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
     break;
 
     case P_MODE_SUPER_HERO:
-      SYSTEM_MODE = MODE_SUPER_HERO;
+      gpstarWand.setSystemMode(MODE_SUPER_HERO);
       vgModeCheck(); // Re-check VG/CTS mode.
-      updateStreamFlags(); // Update the stream flags.
-      wandSerialSend(W_STREAM_FLAGS, STREAM_MODE_FLAG); // Send the updated flags upstream.
+      wandSerialSend(W_STREAM_FLAGS, gpstarWand.getStreamModeOpts()); // Send the latest flags upstream.
     break;
 
     case P_MODE_ORIGINAL:
-      SYSTEM_MODE = MODE_ORIGINAL;
+      gpstarWand.setSystemMode(MODE_ORIGINAL);
       vgModeCheck(); // Assert CTS mode.
-      updateStreamFlags(); // Update the stream flags.
-      wandSerialSend(W_STREAM_FLAGS, STREAM_MODE_FLAG); // Send the updated flags upstream.
+      wandSerialSend(W_STREAM_FLAGS, gpstarWand.getStreamModeOpts()); // Send the latest flags upstream.
     break;
 
     case P_OVERHEATING_FINISHED:
@@ -135,14 +135,15 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
     break;
 
     case P_MANUAL_OVERHEAT:
-      if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+      if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING) {
         if(b_pack_on && !b_pack_alarm && b_overheat_enabled) {
+          if(b_extra_pack_sounds) {
+            wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
+          }
+
           switch(getNeutronaWandYearMode()) {
             case SYSTEM_1984:
             case SYSTEM_1989:
-              if(b_extra_pack_sounds) {
-                wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
-              }
             break;
 
             case SYSTEM_AFTERLIFE:
@@ -153,7 +154,6 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
                 playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
 
                 if(b_extra_pack_sounds) {
-                  wandSerialSend(W_EXTRA_WAND_SOUNDS_STOP);
                   wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_1);
                 }
               }
@@ -165,6 +165,17 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
       }
       else if(WAND_STATUS == MODE_OFF) {
         wandSerialSend(W_OVERHEATING);
+      }
+    break;
+
+    case P_MANUAL_QUICK_VENT:
+      if(WAND_STATUS == MODE_ON && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING) {
+        if(b_pack_on && !b_pack_alarm && b_overheat_enabled) {
+          startQuickVent();
+        }
+      }
+      else if(WAND_STATUS == MODE_OFF) {
+        wandSerialSend(W_VENTING);
       }
     break;
 
@@ -205,30 +216,23 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
 
     case P_MUSIC_LOOP_STATUS:
       // The pack is telling us if the current music track is looped or not.
-      b_repeat_track = i_value == 2;
+      toggleMusicLoop(i_value);
+    break;
+
+    case P_MUSIC_SHUFFLE_STATUS:
+      // The pack is telling us if "shuffle all music tracks" is enabled or not.
+      toggleMusicShuffle(i_value);
     break;
 
     case P_MASTER_AUDIO_STATUS:
-      switch(i_value) {
-        case 1:
-        default:
-          // The pack is telling us to revert the volume to normal.
-          i_volume_master = i_volume_revert;
-        break;
-
-        case 2:
-          // Remember the current master volume level.
-          i_volume_revert = i_volume_master;
-
-          // The pack is telling us to be silent.
-          i_volume_master = i_volume_abs_min;
-        break;
-      }
-
-      updateMasterVolume();
+      // The pack is telling us whether the master mute is enabled or not.
+      toggleMute(i_value);
     break;
 
     case P_ALARM_ON:
+      // Set ribbon cable status.
+      b_ribbon_cable_attached = i_value == 1;
+
       // Alarm is on.
       b_pack_alarm = true;
 
@@ -262,58 +266,19 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
             break;
           }
 
-          if(!b_firing) {
-            // This is handled by modeFireStop() if firing when ribbon cable is removed.
-            prepBargraphRampDown();
-          }
+          // Prepare to ramp the bargraph down.
+          prepBargraphRampDown();
 
           if(WAND_ACTION_STATUS == ACTION_SETTINGS) {
             // If the wand is in settings mode while the alarm is activated, exit the settings mode.
-            switch(STREAM_MODE) {
-              case MESON:
-                // Tell the pack we are in meson mode.
-                wandSerialSend(W_MESON_MODE);
-              break;
-
-              case STASIS:
-                // Tell the pack we are in stasis mode.
-                wandSerialSend(W_STASIS_MODE);
-              break;
-
-              case SLIME:
-                // Tell the pack we are in slime mode.
-                wandSerialSend(W_SLIME_MODE);
-              break;
-
-              case SPECTRAL:
-                // Tell the pack we are in spectral mode.
-                wandSerialSend(W_SPECTRAL_MODE);
-              break;
-
-              case HOLIDAY_HALLOWEEN:
-                // Tell the pack we are in Halloween mode.
-                wandSerialSend(W_HALLOWEEN_MODE);
-              break;
-
-              case HOLIDAY_CHRISTMAS:
-                // Tell the pack we are in Christmas mode.
-                wandSerialSend(W_CHRISTMAS_MODE);
-              break;
-
-              case SPECTRAL_CUSTOM:
-                // Tell the pack we are in spectral custom mode.
-                wandSerialSend(W_SPECTRAL_CUSTOM_MODE);
-              break;
-
-              case PROTON:
-              default:
-                // Tell the pack we are in proton mode.
-                wandSerialSend(W_PROTON_MODE);
-              break;
-            }
-
+            wandSerialSend(W_SET_STREAM_MODE, gpstarWand.getStreamModeByte());
             WAND_ACTION_STATUS = ACTION_IDLE;
           }
+
+          // Update sounds as necessary.
+          soundBeepLoopStop();
+          soundIdleStop();
+          soundIdleLoopStop(true);
         }
 
         ms_error_blink.start(i_error_blink_delay); // Start the error blink timer.
@@ -321,11 +286,14 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
     break;
 
     case P_ALARM_OFF:
+      // Set ribbon cable status.
+      b_ribbon_cable_attached = i_value == 1;
+
       if(WAND_STATUS != MODE_ERROR && b_pack_alarm) {
         resetHatLights(); // Reset the hat light states.
 
         if(WAND_STATUS == MODE_ON) {
-          switch(SYSTEM_MODE) {
+          switch(gpstarWand.getSystemMode()) {
             case MODE_ORIGINAL:
               if(switch_vent.on() && switch_wand.on() && switch_activate.on()) {
                 prepBargraphRampUp();
@@ -384,12 +352,14 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
       // Vibration enabled (from Proton Pack vibration toggle switch).
       b_vibration_switch_on = true;
 
-      stopEffect(S_BEEPS_ALT);
-      playEffect(S_BEEPS_ALT);
+      if(WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
+        stopEffect(S_BEEPS_ALT);
+        playEffect(S_BEEPS_ALT);
 
-      stopEffect(S_VOICE_VIBRATION_ENABLED);
-      stopEffect(S_VOICE_VIBRATION_DISABLED);
-      playEffect(S_VOICE_VIBRATION_ENABLED);
+        stopEffect(S_VOICE_VIBRATION_ENABLED);
+        stopEffect(S_VOICE_VIBRATION_DISABLED);
+        playEffect(S_VOICE_VIBRATION_ENABLED);
+      }
     break;
 
     case P_VIBRATION_DISABLED:
@@ -473,28 +443,28 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
 
     case P_YEAR_1984:
       // Indicates system (pack) year is 1984 mode
-      SYSTEM_YEAR = SYSTEM_1984;
+      gpstarWand.setSystemTheme(SYSTEM_1984);
       bargraphYearModeUpdate();
       resetWhiteLEDBlinkRate();
     break;
 
     case P_YEAR_1989:
       // Indicates system (pack) year is 1984 mode
-      SYSTEM_YEAR = SYSTEM_1989;
+      gpstarWand.setSystemTheme(SYSTEM_1989);
       bargraphYearModeUpdate();
       resetWhiteLEDBlinkRate();
     break;
 
     case P_YEAR_AFTERLIFE:
       // Indicates system (pack) year is Afterlife mode
-      SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+      gpstarWand.setSystemTheme(SYSTEM_AFTERLIFE);
       bargraphYearModeUpdate();
       resetWhiteLEDBlinkRate();
     break;
 
     case P_YEAR_FROZEN_EMPIRE:
       // Indicates system (pack) year is Frozen Empire mode
-      SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+      gpstarWand.setSystemTheme(SYSTEM_FROZEN_EMPIRE);
       bargraphYearModeUpdate();
       resetWhiteLEDBlinkRate();
     break;
@@ -561,33 +531,7 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
     case P_SET_STREAM_MODE:
       if(vgModeCheck()) {
         // Only change our stream mode if VG mode is actually enabled.
-        switch(i_value) {
-          case 1:
-          default:
-            STREAM_MODE = PROTON;
-          break;
-          case 2:
-            STREAM_MODE = STASIS;
-          break;
-          case 3:
-            STREAM_MODE = SLIME;
-          break;
-          case 4:
-            STREAM_MODE = MESON;
-          break;
-          case 5:
-            STREAM_MODE = SPECTRAL;
-          break;
-          case 6:
-            STREAM_MODE = HOLIDAY_HALLOWEEN;
-          break;
-          case 7:
-            STREAM_MODE = HOLIDAY_CHRISTMAS;
-          break;
-          case 8:
-            STREAM_MODE = SPECTRAL_CUSTOM;
-          break;
-        }
+        gpstarWand.setStreamMode((STREAM_MODES)i_value);
 
         // Apply the change immediately.
         streamModeCheck();
@@ -1052,7 +996,7 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
     break;
 
     case P_TURN_WAND_ON:
-      if(WAND_STATUS == MODE_OFF && SYSTEM_MODE == MODE_SUPER_HERO) {
+      if(WAND_STATUS == MODE_OFF && gpstarWand.getSystemMode() == MODE_SUPER_HERO) {
         if(switch_activate.on() && WAND_ACTION_STATUS == ACTION_IDLE) {
           // Turn wand and pack on.
           WAND_ACTION_STATUS = ACTION_ACTIVATE;
@@ -1066,6 +1010,14 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
       saveConfigEEPROM();
       stopEffect(S_VOICE_EEPROM_SAVE);
       playEffect(S_VOICE_EEPROM_SAVE);
+    break;
+
+    case P_RESET_EEPROM_WAND:
+      // Reset the EEPROM on the wand controller
+      clearLEDEEPROM();
+      clearConfigEEPROM();
+      stopEffect(S_VOICE_EEPROM_ERASE);
+      playEffect(S_VOICE_EEPROM_ERASE);
     break;
 
     default:

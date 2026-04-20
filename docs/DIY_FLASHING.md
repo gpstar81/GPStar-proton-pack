@@ -34,7 +34,7 @@ The following libraries are required to be installed. All can be found within th
 - **digitalWriteFast** by Watterott and Armin Joachimsmeyer (1.2.1+)
 - **ezButton** by ArduinoGetStarted.com (1.0.6+)
 - **FastLED** by Daniel Garcia (3.9.14+)
-- **Ramp** by Sylvain Garnavault (0.6.3+)
+- **Ramp** by Sylvain Garnavault (0.7.0+)
 - **SafeString** by Matthew Ford (4.1.39+)
 - **SerialTransfer** by PowerBroker2 (3.1.4+)
 - **Simple ht16k33 Library** by Ipaseen (1.0.3+)

@@ -1,6 +1,6 @@
 /**
  *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -27,10 +27,10 @@
 
 // Set to 1 to enable built-in debug messages via Serial device output.
 // Use with DEBUG_SEND_TO_CONSOLE and other DEBUG_'s in Configuration.h
-#define DEBUG 0
+#define GPSTAR_DEBUG 0
 
 // Debug macros
-#if DEBUG == 1
+#if GPSTAR_DEBUG == 1
   #define debug(...) Serial.print(__VA_ARGS__)
   #define debugf(...) Serial.printf(__VA_ARGS__)
   #define debugln(...) Serial.println(__VA_ARGS__)
@@ -56,9 +56,33 @@
 #include <nvs_flash.h>
 #include <Preferences.h>
 
+// Writes a debug message to the serial console or sends to the WebSocket or Events stream.
+void sendDebug(const String& message) {
+  #if defined(DEBUG_SEND_TO_CONSOLE)
+    debugln(message); // Print to serial console.
+  #endif
+  #if defined(DEBUG_SEND_TO_WEBSOCKET)
+    ws.textAll(message); // Send a copy to the WebSocket.
+  #endif
+  #if defined(DEBUG_SEND_TO_EVENTS)
+    sendDebugEvent(message.c_str()); // Send message to the events stream.
+  #endif
+}
+
 // Shared Libraries
+#include <DeviceState.h>
 #include <Communication.h>
 #include <WirelessManager.h>
+#include <WebRouter.h>
+
+// Global instance of DeviceState class for the overall system.
+DeviceState gpstarSystem;
+
+// References to global instances of all preference/sync structs.
+extern PackPrefs packConfig;
+extern WandPrefs wandConfig;
+extern SmokePrefs smokeConfig;
+extern AttenuatorSyncData attenuatorSyncData;
 
 // Local Files
 #include "Configuration.h"
@@ -68,6 +92,7 @@
 #include "Serial.h"
 #include "Wireless.h"
 #include "Webhandler.h"
+#include "Webrouting.h"
 #include "System.h"
 
 // Define the WirelessManager pointer globally (initialized to nullptr).
@@ -91,7 +116,7 @@ volatile uint32_t idleTimeCore1 = 0;
 #if defined(DEBUG_PERFORMANCE)
 void idleTaskCore0(void * parameter) {
   while(true) {
-    idleTimeCore0++;
+    idleTimeCore0 = idleTimeCore0 + 1;
     vTaskDelay(1);
   }
 }
@@ -101,7 +126,7 @@ void idleTaskCore0(void * parameter) {
 #if defined(DEBUG_PERFORMANCE)
 void idleTaskCore1(void * parameter) {
   while(true) {
-    idleTimeCore1++;
+    idleTimeCore1 = idleTimeCore1 + 1;
     vTaskDelay(1);
   }
 }
@@ -134,11 +159,23 @@ void AnimationTask(void *parameter) {
     }
 
     // Update LEDs using appropriate colour scheme and environment vars.
-    updateLEDs();
+    if(b_enable_device_leds) {
+      // When device LEDs are enabled, update them as necessary.
+      updateLEDs();
+    } else {
+      // When device LEDs are disabled, keep them turned off.
+      deviceLightsOff();
+    }
 
     // Update bargraph elements, leveraging cyclotron speed modifier.
     // In reality this multiplier is a divisor to the standard delay.
-    bargraphUpdate(i_cyclotron_multiplier);
+    if(b_enable_bargraph) {
+      // When enabled, update the bargraph display.
+      bargraphUpdate(i_cyclotron_multiplier);
+    } else {
+      // When disabled, ensure the bargraph is turned off.
+      bargraphOff();
+    }
 
     // Update the device LEDs and restart the timer.
     FastLED.show();
@@ -195,12 +232,17 @@ void PreferencesTask(void *parameter) {
   if(preferences.begin("device", true)) {
     // Return stored values if available, otherwise use a default value.
     bool b_invert_dial = preferences.getBool("invert_dial", false);
+    b_left_toggle_inverted = preferences.getBool("invert_left_toggle", false);
+    b_right_toggle_inverted = preferences.getBool("invert_right_toggle, false");
     b_invert_leds = preferences.getBool("invert_led", false);
     b_grb_leds = preferences.getBool("grb_led", false);
     b_enable_buzzer = preferences.getBool("use_buzzer", true);
     b_enable_vibration = preferences.getBool("use_vibration", true);
+    b_enable_bargraph = preferences.getBool("use_bargraph", true);
+    b_enable_device_leds = preferences.getBool("use_leds", true);
     b_overheat_feedback = preferences.getBool("use_overheat", true);
     b_firing_feedback = preferences.getBool("fire_feedback", false);
+    b_enable_ui_animations = preferences.getBool("use_animations", true);
 
     if(b_invert_dial) {
       encoder.setRotationInverted(true);
@@ -209,7 +251,7 @@ void PreferencesTask(void *parameter) {
       encoder.setRotationInverted(false);
     }
 
-    switch(preferences.getShort("radiation_idle", 0)) {
+    switch(preferences.getUChar("radiation_idle", 0)) {
       case 0:
         RAD_LENS_IDLE = AMBER_PULSE;
       break;
@@ -221,7 +263,7 @@ void PreferencesTask(void *parameter) {
       break;
     }
 
-    switch(preferences.getShort("display_type", 0)) {
+    switch(preferences.getUChar("display_type", STATUS_GRAPHIC)) {
       case 0:
         DISPLAY_TYPE = STATUS_TEXT;
       break;
@@ -229,10 +271,10 @@ void PreferencesTask(void *parameter) {
         DISPLAY_TYPE = STATUS_GRAPHIC;
       break;
       case 2:
-      default:
         DISPLAY_TYPE = STATUS_BOTH;
       break;
     }
+    b_enable_ui_animations = preferences.getBool("use_animations", true);
 
     s_track_listing = preferences.getString("track_list", "");
     preferences.end();
@@ -241,14 +283,19 @@ void PreferencesTask(void *parameter) {
     // If namespace is not initialized, open in read/write mode and set defaults.
     if(preferences.begin("device", false)) {
       preferences.putBool("invert_dial", encoder.isRotationInverted());
+      preferences.putBool("invert_left_toggle", b_left_toggle_inverted);
+      preferences.putBool("invert_right_toggle", b_right_toggle_inverted);
       preferences.putBool("invert_led", b_invert_leds);
       preferences.putBool("grb_led", b_grb_leds);
       preferences.putBool("use_buzzer", b_enable_buzzer);
       preferences.putBool("use_vibration", b_enable_vibration);
+      preferences.putBool("use_bargraph", b_enable_bargraph);
+      preferences.putBool("use_leds", b_enable_device_leds);
       preferences.putBool("use_overheat", b_overheat_feedback);
       preferences.putBool("fire_feedback", b_firing_feedback);
-      preferences.putShort("radiation_idle", RAD_LENS_IDLE);
-      preferences.putShort("display_type", DISPLAY_TYPE);
+      preferences.putUChar("radiation_idle", RAD_LENS_IDLE);
+      preferences.putUChar("display_type", DISPLAY_TYPE);
+      preferences.putBool("use_animations", b_enable_ui_animations);
       preferences.putString("track_list", "");
       preferences.end();
     }
@@ -312,6 +359,7 @@ void SerialCommsTask(void *parameter) {
       if(ms_packsync.justFinished()) {
         // The pack just went missing, so treat as disconnected.
         b_wait_for_pack = true;
+        b_notify = true; // set to true here to trigger a web UI update
         ms_packsync.start(i_sync_initial_delay);
       }
 
@@ -381,7 +429,7 @@ void WiFiSetupTask(void *parameter) {
 
   // Define the WirelessManager object only after NVS/Preferences are initialized.
   if(wirelessMgr == nullptr) {
-    wirelessMgr = new WirelessManager("Attenuator", "192.168.1.2");
+    wirelessMgr = new WirelessManager(WirelessDeviceType::ATTENUATOR, "192.168.1.2");
 
     #if defined(RESET_AP_SETTINGS)
       // Reset the WiFi password to the expected default on every startup.
@@ -413,16 +461,22 @@ void WiFiSetupTask(void *parameter) {
 }
 
 void setup() {
+  // RGB LEDs for effects (upper/lower) and user status (top).
+  FastLED.addLeds<NEOPIXEL, DEVICE_LED_PIN>(device_leds, DEVICE_NUM_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.setMaxRefreshRate(0); // Disable FastLED's blocking 2.5ms delay.
+
+  // Update all addressable LEDs to prevent stale LED states.
+  FastLED.show();
+
   Serial.begin(115200); // Serial monitor via USB connection.
 
-#if DEBUG == 1
+#if GPSTAR_DEBUG == 1
   // When debugging is enabled, wait for Serial to be ready (max 3 seconds).
   unsigned long startMillis = millis();
   while (!Serial && millis() - startMillis < 3000) {
     delay(10);
   }
   Serial.flush(); // Ensure buffer is clear.
-  Serial.setTxTimeoutMs(0); // Optional: reduce USB-CDC transmission delay.
   Serial.println(F("Serial is Ready")); // Should appear after Serial is ready.
 #endif
 
@@ -448,21 +502,12 @@ void setup() {
 
   if(!b_wait_for_pack) {
     // If not waiting for the pack set power level to 5.
-    POWER_LEVEL = LEVEL_5;
+    gpstarSystem.setPowerLevel(LEVEL_5);
   }
   else {
     // When waiting for the pack set power level to 1.
-    POWER_LEVEL = LEVEL_1;
+    gpstarSystem.setPowerLevel(LEVEL_1);
   }
-
-  // RGB LEDs for effects (upper/lower) and user status (top).
-  FastLED.addLeds<NEOPIXEL, DEVICE_LED_PIN>(device_leds, DEVICE_NUM_LEDS).setCorrection(TypicalLEDStrip);
-  FastLED.setMaxRefreshRate(0); // Disable FastLED's blocking 2.5ms delay.
-
-  // Set all LEDs as off (black) until the device is ready.
-  device_leds[0] = getHueAsRGB(0, C_BLACK);
-  device_leds[1] = getHueAsRGB(1, C_BLACK);
-  device_leds[2] = getHueAsRGB(2, C_BLACK);
 
   // Debounce the toggle switches and encoder pushbutton.
   switch_left.setDebounceTime(switch_debounce_time);
@@ -481,7 +526,7 @@ void setup() {
   setToneChannel(0); // Forces Tone to use Channel 0.
 
   // Use the combined method for the arduino-esp32 platform, using the esp-idf v5.3+
-  ledcAttachChannel(VIBRATION_PIN, 5000, 8, 5); // Uses 5 kHz frequency, 8-bit resolution, channel 5
+  ledcAttachChannel(VIBRATION_PIN, 230, 8, 5); // Uses 230 Hz frequency, 8-bit resolution, channel 5
 
   // Turn off any user feedback.
   buzzOff();
@@ -522,8 +567,11 @@ void setup() {
   // Delay all lower priority tasks until Preferences are loaded.
   vTaskDelay(100 / portTICK_PERIOD_MS); // Delay for 100ms to avoid competition.
 
-  // Create a single-run setup task with the highest priority for WiFi/WebServer startup.
-  xTaskCreatePinnedToCore(WiFiSetupTask, "WiFiSetupTask", 4096, NULL, 5, &WiFiSetupTaskHandle, 1);
+  // Create a single-run setup task on Core 0 with the highest priority for WiFi/WebServer startup.
+  xTaskCreatePinnedToCore(WiFiSetupTask, "WiFiSetupTask", 4096, NULL, 5, &WiFiSetupTaskHandle, 0);
+
+  // Run all WiFi management on Core 0 where the WiFi stack runs, setting to a low priority.
+  xTaskCreatePinnedToCore(WiFiManagementTask, "WiFiManagementTask", 4096, NULL, 4, &WiFiManagementTaskHandle, 0);
 
   // Delay all lower priority tasks until WiFi and WebServer setup is done.
   vTaskDelay(200 / portTICK_PERIOD_MS); // Delay for 200ms to avoid competition.
@@ -532,7 +580,6 @@ void setup() {
   xTaskCreatePinnedToCore(SerialCommsTask, "SerialCommsTask", 4096, NULL, 4, &SerialCommsTaskHandle, 1);
   xTaskCreatePinnedToCore(UserInputTask, "UserInputTask", 4096, NULL, 3, &UserInputTaskHandle, 1);
   xTaskCreatePinnedToCore(AnimationTask, "AnimationTask", 4096, NULL, 2, &AnimationTaskHandle, 1);
-  xTaskCreatePinnedToCore(WiFiManagementTask, "WiFiManagementTask", 2048, NULL, 1, &WiFiManagementTaskHandle, 1);
 
   // Create idle tasks for each core, used to estimate % busy for core.
   #if defined(DEBUG_PERFORMANCE)
@@ -591,7 +638,7 @@ void printMemoryStats() {
   debugln(F(" bytes"));
 
   // Stack memory (for the main task)
-  debug(F("|-Tasks Stack High Water Mark:"));
+  debugln(F("|-Tasks Stack High Water Mark:"));
   debug(F("|--Main Task: "));
   debug(formatBytesWithCommas(uxTaskGetStackHighWaterMark(NULL)));
   debugln(F(" bytes"));
@@ -600,7 +647,7 @@ void printMemoryStats() {
   if(AnimationTaskHandle != NULL) {
     debug(F("|--Animation: "));
     debug(formatBytesWithCommas(uxTaskGetStackHighWaterMark(AnimationTaskHandle)));
-    debugln(F(" / 2,048 bytes"));
+    debugln(F(" / 4,096 bytes"));
   }
   if(SerialCommsTaskHandle != NULL) {
     debug(F("|--Serial Comms: "));
@@ -615,7 +662,7 @@ void printMemoryStats() {
   if(WiFiManagementTaskHandle != NULL) {
     debug(F("|--WiFi Mgmt.: "));
     debug(formatBytesWithCommas(uxTaskGetStackHighWaterMark(WiFiManagementTaskHandle)));
-    debugln(F(" / 2,048 bytes"));
+    debugln(F(" / 4,096 bytes"));
   }
 }
 

@@ -1,6 +1,6 @@
 /**
  *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -27,16 +27,23 @@ void checkWandAction() {
     break;
 
     case ACTION_OFF:
-      b_wand_mash_error = false;
+      b_wand_mash_lockout = false;
       wandOff();
     break;
 
     case ACTION_FIRING:
       if(b_pack_on && !b_pack_alarm) {
-        if(STREAM_MODE == MESON) {
+        if(gpstarWand.inStreamMode(MESON)) {
           if(ms_meson_blast.justFinished()) {
-            playEffect(S_MESON_FIRE_PULSE, false, i_volume_effects, false, 0, false);
-            wandSerialSend(W_MESON_FIRE_PULSE);
+            if(i_pack_audio_version < 109) {
+              // Only retransmit if the pack is on an older audio board.
+              wandSerialSend(W_MESON_FIRE_PULSE);
+            }
+
+            if(i_audio_version < 109) {
+              // Only manually repeat if our audio board is an older revision.
+              playEffect(S_MESON_FIRE_PULSE, false, i_volume_effects, false, 0, false);
+            }
 
             if(WAND_BARREL_LED_COUNT == LEDS_48 || WAND_BARREL_LED_COUNT == LEDS_50) {
               // Reset the barrel before starting a new pulse.
@@ -44,29 +51,8 @@ void checkWandAction() {
             }
 
             ms_firing_stream_effects.start(0); // Start new barrel animation.
-
-            switch(i_power_level) {
-              case 5:
-                ms_meson_blast.start(i_meson_blast_delay_level_5);
-              break;
-
-              case 4:
-                ms_meson_blast.start(i_meson_blast_delay_level_4);
-              break;
-
-              case 3:
-                ms_meson_blast.start(i_meson_blast_delay_level_3);
-              break;
-
-              case 2:
-                ms_meson_blast.start(i_meson_blast_delay_level_2);
-              break;
-
-              case 1:
-              default:
-                ms_meson_blast.start(i_meson_blast_delay_level_1);
-              break;
-            }
+            ms_meson_blast.repeat(); // Repeat the timer.
+            firingCheckIR(); // Handle IR for meson pulse.
           }
         }
 
@@ -87,9 +73,14 @@ void checkWandAction() {
           modeFiring(); // Tell the pack whether firing has started/stopped.
 
           // Stop firing if any of the main switches are turned off or the barrel is retracted.
-          if(!switch_vent.on() || !switch_wand.on() || BARREL_STATE != BARREL_EXTENDED) {
+          if(!switch_vent.on() || !switch_wand.on() || gpstarWand.getBarrelState() != BARREL_EXTENDED) {
             modeFireStop();
           }
+        }
+
+        // Send infrared command using the IR manager when firing.
+        if(!gpstarWand.inStreamMode(MESON)) {
+          firingCheckIR();
         }
       }
       else if(b_pack_alarm && b_firing) {
@@ -120,12 +111,6 @@ void checkWandAction() {
           playEffect(S_BEEPS_BARGRAPH, false, i_volume_effects, false, 0, false);
 
           ms_blink_sound_timer_2.repeat();
-        }
-      }
-      else {
-        // Prepare to make the bargraph ramp down.
-        if(ms_bargraph.justFinished()) {
-          bargraphRampUp();
         }
       }
 
@@ -285,16 +270,13 @@ void checkWandAction() {
 
               case MENU_LEVEL_1:
               default:
+                wandBarrelLightsOff();
+                wandTipOff();
+
                 switch(WAND_BARREL_LED_COUNT) {
                   case LEDS_5:
-                  default:
-                    wandBarrelLightsOff();
-                    wandTipOff();
-
                     WAND_BARREL_LED_COUNT = LEDS_48;
                     i_num_barrel_leds = 48;
-
-                    wandBarrelSpectralCustomConfigOn();
 
                     stopEffect(S_VOICE_BARREL_LED_48);
                     stopEffect(S_VOICE_BARREL_LED_5);
@@ -307,13 +289,8 @@ void checkWandAction() {
                   break;
 
                   case LEDS_48:
-                    wandBarrelLightsOff();
-                    wandTipOff();
-
                     WAND_BARREL_LED_COUNT = LEDS_50;
                     i_num_barrel_leds = 48; // Needs to be 48, as 2 are for the tip.
-
-                    wandBarrelSpectralCustomConfigOn();
 
                     stopEffect(S_VOICE_BARREL_LED_2);
                     stopEffect(S_VOICE_BARREL_LED_5);
@@ -326,13 +303,9 @@ void checkWandAction() {
                   break;
 
                   case LEDS_50:
-                    wandBarrelLightsOff();
-                    wandTipOff();
-
+                  default:
                     WAND_BARREL_LED_COUNT = LEDS_2;
                     i_num_barrel_leds = 2;
-
-                    wandBarrelSpectralCustomConfigOn();
 
                     stopEffect(S_VOICE_BARREL_LED_2);
                     stopEffect(S_VOICE_BARREL_LED_48);
@@ -344,13 +317,8 @@ void checkWandAction() {
                   break;
 
                   case LEDS_2:
-                    wandBarrelLightsOff();
-                    wandTipOff();
-
                     WAND_BARREL_LED_COUNT = LEDS_5;
                     i_num_barrel_leds = 5;
-
-                    wandBarrelSpectralCustomConfigOn();
 
                     stopEffect(S_VOICE_BARREL_LED_2);
                     stopEffect(S_VOICE_BARREL_LED_5);
@@ -362,11 +330,17 @@ void checkWandAction() {
                     wandSerialSend(W_BARREL_LEDS_5);
                   break;
                 }
+
+                wandBarrelSpectralCustomConfigOn();
               break;
             }
           }
           else if(switch_mode.pushed()) {
             switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_3:
+                // Do nothing.
+              break;
+
               case MENU_LEVEL_2:
               #ifndef ESP32
                 if(b_rgb_vent_light) {
@@ -409,6 +383,10 @@ void checkWandAction() {
         case 3:
           if(switch_intensify.pushed()) {
             switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_3:
+                // Do nothing.
+              break;
+
               case MENU_LEVEL_2:
                 wandSerialSend(W_TOGGLE_POWERCELL_DIRECTION);
               break;
@@ -421,6 +399,10 @@ void checkWandAction() {
           }
           else if(switch_mode.pushed()) {
             switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_3:
+                // Do nothing.
+              break;
+
               case MENU_LEVEL_2:
                 if(b_vent_light_control) {
                   // Disable the auto vent light intensity functionality.
@@ -461,6 +443,10 @@ void checkWandAction() {
         case 2:
           if(switch_intensify.pushed()) {
             switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_3:
+                // Do nothing.
+              break;
+
               case MENU_LEVEL_2:
                 wandSerialSend(W_TOGGLE_INNER_CYCLOTRON_PANEL);
               break;
@@ -473,6 +459,10 @@ void checkWandAction() {
           }
           else if(switch_mode.pushed()) {
             switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_3:
+                // Do nothing.
+              break;
+
               case MENU_LEVEL_2:
                 // Enable or disable video game colours for the Power Cell, Cyclotron, etc.
                 wandSerialSend(W_VIDEO_GAME_MODE_COLOUR_TOGGLE);
@@ -490,9 +480,14 @@ void checkWandAction() {
         // Level 1 Intensify: Cycle through the different inner Cyclotron LED counts.
         // Level 1 Barrel Wing Button: Adjust the Inner Cyclotron colour hue. <- Controlled by checkRotaryEncoder()
         // Level 2 Intensify: Enable or disable GRB mode for the inner Cyclotron LEDs.
+        // Level 2 Barrel Wing Button: Enable or disable having the addressable RGB vent/top light board change colours based on current stream
         case 1:
           if(switch_intensify.pushed()) {
             switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_3:
+                // Do nothing.
+              break;
+
               case MENU_LEVEL_2:
                 wandSerialSend(W_TOGGLE_RGB_INNER_CYCLOTRON_LEDS);
               break;
@@ -500,6 +495,41 @@ void checkWandAction() {
               case MENU_LEVEL_1:
               default:
                 wandSerialSend(W_TOGGLE_INNER_CYCLOTRON_LEDS);
+              break;
+            }
+          }
+          else if(switch_mode.pushed()) {
+            switch(WAND_MENU_LEVEL) {
+              case MENU_LEVEL_3:
+                // Do nothing.
+              break;
+
+              case MENU_LEVEL_2:
+                if(b_vent_light_stream_colours) {
+                  b_vent_light_stream_colours = false;
+
+                  stopEffect(S_VOICE_VENT_LIGHT_COLOURS_ENABLED);
+                  stopEffect(S_VOICE_VENT_LIGHT_COLOURS_DISABLED);
+
+                  playEffect(S_VOICE_VENT_LIGHT_COLOURS_DISABLED);
+
+                  wandSerialSend(W_VENT_LIGHT_COLOURS_DISABLED);
+                }
+                else {
+                  b_vent_light_stream_colours = true;
+
+                  stopEffect(S_VOICE_VENT_LIGHT_COLOURS_ENABLED);
+                  stopEffect(S_VOICE_VENT_LIGHT_COLOURS_DISABLED);
+
+                  playEffect(S_VOICE_VENT_LIGHT_COLOURS_ENABLED);
+
+                  wandSerialSend(W_VENT_LIGHT_COLOURS_ENABLED);
+                }
+              break;
+
+              case MENU_LEVEL_1:
+              default:
+                // Do nothing; this is controlled in checkRotaryEncoder() instead.
               break;
             }
           }
@@ -756,7 +786,7 @@ void checkWandAction() {
         break;
 
         // Menu Level 1: Intensify: Cycle through the modes (Video Game, Cross The Streams, Cross The Streams Mix)
-        // Menu Level 1: Barrel Wing Button: Enable Spectral and Holiday modes.
+        // Menu Level 1: Barrel Wing Button: Enable/Disable Spectral and Holiday modes.
         // Menu Level 2: Intensify: Enable pack vibration, enable pack vibration while firing only, disable pack vibration, reset to defaults. *Note that the pack vibration switch will toggle both pack and wand vibration on or off*
         // Menu Level 2: Barrel Wing Button: Enable wand vibration, enable wand vibration while firing only, disable wand vibration, reset to defaults.
         // Menu Level 3: Intensify: Invert Bargraph
@@ -830,29 +860,27 @@ void checkWandAction() {
           }
           else if(switch_mode.pushed()) {
             if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
-              if(!b_spectral_mode_enabled || !b_holiday_modes_enabled || !b_spectral_custom_mode_enabled) {
-                // Enable the spectral modes.
-                b_spectral_mode_enabled = true;
-                b_holiday_modes_enabled = true;
-                b_spectral_custom_mode_enabled = true;
-
-                stopEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
-                stopEffect(S_VOICE_SPECTRAL_MODES_ENABLED);
-                playEffect(S_VOICE_SPECTRAL_MODES_ENABLED);
-
-                wandSerialSend(W_SPECTRAL_MODES_ENABLED);
-              }
-              else {
-                // Disable the spectral modes.
-                b_spectral_mode_enabled = false;
-                b_holiday_modes_enabled = false;
-                b_spectral_custom_mode_enabled = false;
+              // Due to limited wand menu space, this toggles ALL spectral/holiday stream modes on or off.
+              // This should account for the user manually adjusting individual modes outside of the menu.
+              if(gpstarWand.supportsAllSpectralStreams()) {
+                // Disable all spectral/holiday stream modes if ANY are enabled.
+                gpstarWand.removeAllSpectralStreams();
 
                 stopEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
                 stopEffect(S_VOICE_SPECTRAL_MODES_ENABLED);
                 playEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
 
                 wandSerialSend(W_SPECTRAL_MODES_DISABLED);
+              }
+              else {
+                // Enable all spectral/holiday stream modes if NONE are enabled.
+                gpstarWand.enableAllSpectralStreams();
+
+                stopEffect(S_VOICE_SPECTRAL_MODES_DISABLED);
+                stopEffect(S_VOICE_SPECTRAL_MODES_ENABLED);
+                playEffect(S_VOICE_SPECTRAL_MODES_ENABLED);
+
+                wandSerialSend(W_SPECTRAL_MODES_ENABLED);
               }
             }
             else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
@@ -864,7 +892,7 @@ void checkWandAction() {
                 case VIBRATION_DEFAULT:
                 default:
                   VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
-                  VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+                  gpstarWand.setVibrationMode(VIBRATION_MODE_EEPROM);
                   b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
 
                   stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
@@ -880,7 +908,7 @@ void checkWandAction() {
                 break;
                 case VIBRATION_ALWAYS:
                   VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
-                  VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+                  gpstarWand.setVibrationMode(VIBRATION_MODE_EEPROM);
                   b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
 
                   stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
@@ -895,8 +923,8 @@ void checkWandAction() {
                   ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
                 break;
                 case VIBRATION_FIRING_ONLY:
-                  VIBRATION_MODE_EEPROM = VIBRATION_NONE;
-                  VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+                  VIBRATION_MODE_EEPROM = VIBRATION_NEVER;
+                  gpstarWand.setVibrationMode(VIBRATION_MODE_EEPROM);
 
                   stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
                   stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
@@ -907,9 +935,9 @@ void checkWandAction() {
 
                   wandSerialSend(W_VIBRATION_DISABLED);
                 break;
-                case VIBRATION_NONE:
+                case VIBRATION_NEVER:
                   VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
-                  VIBRATION_MODE = VIBRATION_FIRING_ONLY;
+                  gpstarWand.setVibrationMode(VIBRATION_FIRING_ONLY);
 
                   stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
                   stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
@@ -1082,7 +1110,7 @@ void checkWandAction() {
                 BARREL_SWITCH_POLARITY = SWITCH_INVERTED;
 
                 // Reset the barrel state to prevent repeated sounds.
-                BARREL_STATE = BARREL_UNKNOWN;
+                gpstarWand.setBarrelState(BARREL_UNKNOWN);
 
                 stopEffect(S_VOICE_BARREL_SWITCH_DEFAULT);
                 stopEffect(S_VOICE_BARREL_SWITCH_INVERTED);
@@ -1097,7 +1125,7 @@ void checkWandAction() {
                 BARREL_SWITCH_POLARITY = SWITCH_DISABLED;
 
                 // Reset the barrel state to prevent repeated sounds.
-                BARREL_STATE = BARREL_UNKNOWN;
+                gpstarWand.setBarrelState(BARREL_UNKNOWN);
 
                 stopEffect(S_VOICE_BARREL_SWITCH_DEFAULT);
                 stopEffect(S_VOICE_BARREL_SWITCH_INVERTED);
@@ -1112,7 +1140,7 @@ void checkWandAction() {
                 BARREL_SWITCH_POLARITY = SWITCH_DEFAULT;
 
                 // Reset the barrel state to prevent repeated sounds.
-                BARREL_STATE = BARREL_UNKNOWN;
+                gpstarWand.setBarrelState(BARREL_UNKNOWN);
 
                 stopEffect(S_VOICE_BARREL_SWITCH_DEFAULT);
                 stopEffect(S_VOICE_BARREL_SWITCH_INVERTED);
@@ -1306,15 +1334,15 @@ void checkWandAction() {
 
               // If there is no Pack, we need to cycle modes manually.
               if(b_wand_standalone) {
-                if(SYSTEM_MODE == MODE_SUPER_HERO) {
-                  SYSTEM_MODE = MODE_ORIGINAL;
+                if(gpstarWand.getSystemMode() == MODE_SUPER_HERO) {
+                  gpstarWand.setSystemMode(MODE_ORIGINAL);
 
                   stopEffect(S_VOICE_MODE_ORIGINAL);
                   stopEffect(S_VOICE_MODE_SUPER_HERO);
                   playEffect(S_VOICE_MODE_ORIGINAL);
                 }
                 else {
-                  SYSTEM_MODE = MODE_SUPER_HERO;
+                  gpstarWand.setSystemMode(MODE_SUPER_HERO);
 
                   stopEffect(S_VOICE_MODE_SUPER_HERO);
                   stopEffect(S_VOICE_MODE_ORIGINAL);
@@ -1460,10 +1488,13 @@ void checkWandAction() {
           // Music track loop setting.
           if(WAND_MENU_LEVEL == MENU_LEVEL_1) {
             if(switch_intensify.pushed()) {
-              toggleMusicLoop();
-
               // Tell pack to loop the music track.
               wandSerialSend(W_MUSIC_TRACK_LOOP_TOGGLE);
+
+              // Standalone Neutrona Wand has to change this setting on its own.
+              if(b_wand_standalone) {
+                toggleMusicLoop();
+              }
             }
           }
           else if(WAND_MENU_LEVEL == MENU_LEVEL_2) {
@@ -1471,7 +1502,7 @@ void checkWandAction() {
               toggleWandModes();
             }
             else if(switch_mode.pushed()) {
-              if(FIRING_MODE == VG_MODE) {
+              if(gpstarWand.isFiringModeVG()) {
                 // Tell the Proton Pack to cycle through the Video Game Colour toggles.
                 wandSerialSend(W_VIDEO_GAME_MODE_COLOUR_TOGGLE);
               }
@@ -1481,15 +1512,15 @@ void checkWandAction() {
           else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
             if(switch_intensify.pushed()) {
               // Toggle the Neutrona Wand WiFi.
-              if(WIFI_MODE == WIFI_ENABLED) {
-                WIFI_MODE = WIFI_DISABLED;
+              if(WIFI_USER_MODE == WIFI_ENABLED) {
+                WIFI_USER_MODE = WIFI_DISABLED;
                 stopEffect(S_VOICE_WAND_WIFI_DISABLED);
                 stopEffect(S_VOICE_WAND_WIFI_ENABLED);
                 playEffect(S_VOICE_WAND_WIFI_DISABLED);
                 wandSerialSend(W_WAND_WIFI_DISABLED);
               }
               else {
-                WIFI_MODE = WIFI_ENABLED;
+                WIFI_USER_MODE = WIFI_ENABLED;
                 stopEffect(S_VOICE_WAND_WIFI_DISABLED);
                 stopEffect(S_VOICE_WAND_WIFI_ENABLED);
                 playEffect(S_VOICE_WAND_WIFI_ENABLED);
@@ -1590,9 +1621,9 @@ void checkWandAction() {
               stopEffect(S_BEEPS_ALT);
               playEffect(S_BEEPS_ALT);
 
-              switch(VIBRATION_MODE) {
+              switch(gpstarWand.getVibrationMode()) {
                 case VIBRATION_ALWAYS:
-                  VIBRATION_MODE = VIBRATION_FIRING_ONLY;
+                  gpstarWand.setVibrationMode(VIBRATION_FIRING_ONLY);
                   b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
 
                   stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
@@ -1607,7 +1638,7 @@ void checkWandAction() {
                 break;
                 case VIBRATION_FIRING_ONLY:
                 default:
-                  VIBRATION_MODE = VIBRATION_NONE;
+                  gpstarWand.setVibrationMode(VIBRATION_NEVER);
 
                   stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
                   stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_ENABLED);
@@ -1617,8 +1648,8 @@ void checkWandAction() {
 
                   wandSerialSend(W_VIBRATION_DISABLED);
                 break;
-                case VIBRATION_NONE:
-                  VIBRATION_MODE = VIBRATION_ALWAYS;
+                case VIBRATION_NEVER:
+                  gpstarWand.setVibrationMode(VIBRATION_ALWAYS);
                   b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
 
                   stopEffect(S_VOICE_NEUTRONA_WAND_VIBRATION_FIRING_ENABLED);
@@ -1639,7 +1670,7 @@ void checkWandAction() {
         // Menu Level 1: (Intensify) -> Play music or stop music.
         // Menu Level 1: (Barrel Wing Button) -> Mute the Proton Pack and Neutrona Wand.
         // Menu Level 2: (Intensify) -> Switch between 1984/1989/Afterlife/Frozen Empire mode.
-        // Menu Level 2: (Barrel Wing Button) -> Enable or disable Proton Stream impact effects.
+        // Menu Level 2: (Barrel Wing Button) -> Shuffle music tracks setting.
         // Menu Level 3: (Intensify) -> GPStar II: Reset the wand WiFi password to default.
         // Menu Level 3: (Barrel Wing Button) -> GPStar II: Reset the pack WiFi password to default.
         case 1:
@@ -1738,36 +1769,23 @@ void checkWandAction() {
               }
             }
             else if(switch_mode.pushed()) {
-              // Tell the Proton Pack to toggle the Proton Stream Impact Effects.
-              wandSerialSend(W_PROTON_STREAM_IMPACT_TOGGLE);
+              // Tell pack to shuffle the music tracks.
+              wandSerialSend(W_MUSIC_TRACK_SHUFFLE_TOGGLE);
 
               // Standalone Neutrona Wand has to change this setting on its own.
               if(b_wand_standalone) {
-                if(b_stream_effects) {
-                  b_stream_effects = false;
-
-                  stopEffect(S_VOICE_PROTON_MIX_EFFECTS_ENABLED);
-                  stopEffect(S_VOICE_PROTON_MIX_EFFECTS_DISABLED);
-                  playEffect(S_VOICE_PROTON_MIX_EFFECTS_DISABLED);
-                }
-                else {
-                  b_stream_effects = true;
-
-                  stopEffect(S_VOICE_PROTON_MIX_EFFECTS_ENABLED);
-                  stopEffect(S_VOICE_PROTON_MIX_EFFECTS_DISABLED);
-                  playEffect(S_VOICE_PROTON_MIX_EFFECTS_ENABLED);
-                }
+                toggleMusicShuffle();
               }
             }
           }
           #ifdef ESP32
           else if(WAND_MENU_LEVEL == MENU_LEVEL_3) {
-            if(switch_intensify.pushed()) {
+            if(switch_intensify.longPress()) {
               // Reset the WiFi password to default.
               wirelessMgr->resetWifiPassword();
 
               // Turn off the WiFi until the user decides to manually enable and reconnect.
-              WIFI_MODE = WIFI_DISABLED;
+              WIFI_USER_MODE = WIFI_DISABLED;
 
               // Give some audio feedback as to what just happened.
               wandSerialSend(W_WAND_WIFI_RESET);
@@ -1775,7 +1793,7 @@ void checkWandAction() {
               stopEffect(S_VOICE_WAND_WIFI_RESET);
               playEffect(S_VOICE_WAND_WIFI_RESET);
             }
-            else if(switch_mode.pushed()) {
+            else if(switch_mode.longPress()) {
               // Tell the Proton Pack to reset its WiFi password.
               wandSerialSend(W_RESET_WIFI_PASSWORD);
             }

@@ -1,6 +1,6 @@
 /**
  *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,10 +20,7 @@
 #pragma once
 
 #ifdef ESP32
-/*
- * Used to reflect the last build date for the binary.
- */
-String build_date = "V6_20251114095221";
+  #include "BuildInfo.h"
 
 /*
  * Control debug messages for various actions during normal operation.
@@ -32,10 +29,11 @@ String build_date = "V6_20251114095221";
  * debugging, while the websocket will help with confirming operations
  * while using the device (post-setup for wireless).
  */
-//#define DEBUG_WIRELESS_SETUP     // Output debugs related to the WiFi/network setup.
-//#define DEBUG_SEND_TO_CONSOLE    // Send any general messages to the serial (USB) console.
-//#define DEBUG_SEND_TO_WEBSOCKET  // Send any messages to connected WebSocket clients.
-//#define DEBUG_TELEMETRY_DATA     // Output debugs related to the motion sensors.
+//#define DEBUG_WIRELESS_SETUP    // Output debugs related to the WiFi/network setup.
+//#define DEBUG_SEND_TO_CONSOLE   // Send any general messages to the serial (USB) console.
+//#define DEBUG_SEND_TO_WEBSOCKET // Send any messages to connected WebSocket clients.
+//#define DEBUG_SEND_TO_EVENTS    // Send any messages to the server-side events stream.
+//#define DEBUG_TELEMETRY_DATA    // Output debugs related to the motion sensors.
 
 /*
  * Force the use of default SSID and password for wireless capabilities.
@@ -57,6 +55,13 @@ String build_date = "V6_20251114095221";
  * Only available on the ESP32 builds.
  */
 #define MOTION_OFFSETS
+
+/*
+ * When set to true, the IR transmitter will be active while firing.
+ * Used to trigger the PSTT and Ghost Trap.
+ * Only available on the ESP32 builds.
+ */
+bool b_ir_while_firing = false;
 #endif
 
 /*
@@ -144,6 +149,12 @@ bool b_bargraph_invert = false;
 #endif
 
 /*
+ * Enables the optional addressable RGB vent/top light to display the current stream colours.
+ * If false, the vent/top light will only display the appropriate shades of white for the current year setting.
+ */
+bool b_vent_light_stream_colours = true;
+
+/*
  * Enables special brightness controls during idle and firing modes if set to true.
  */
 bool b_vent_light_control = true;
@@ -155,22 +166,17 @@ bool b_vent_light_control = true;
 bool b_quick_vent = true;
 
 /*
- * When set to true, the LED at the front of the Neutrona Wand body next to the Clippard valve will start blinking after 1 minute of inactivity while the Neutrona Wand and Proton Pack are powered off to indicate battery power is still feeding the system.
-*/
+ * When set to true, the LED at the front of the Neutrona Wand body next to the Clippard valve will start blinking
+ * after 1 minute of inactivity while the Neutrona Wand and Proton Pack are powered off to indicate battery power is still feeding the system.
+ */
 bool b_power_on_indicator = true;
 
 /*
- * When set to true, allows selection of special firing modes after the standard video game modes.
- * Nano builds of the wand do not get a full effect of the colours due to memory limitations.
- * gpstar Neutrona Wand boards will the full effect from the wand.
- * The Proton Pack needs RGB coloured LEDs to see the effects on the pack side.
- * Refer to the operational manual for more information regarding these special firing modes.
- * These settings can be controlled from the EEPROM menus.
- * Spectral modes are only supported by the gpstar Neutrona Wand board.
+ * Sets which stream mode will be the default on startup.
+ * If the wand is in standalone mode or the Proton Pack is off, this will take effect.
+ * If the Proton Pack is running when the wand is connected, the Proton Pack will override this setting.
  */
-bool b_spectral_mode_enabled = false;
-bool b_holiday_modes_enabled = false;
-bool b_spectral_custom_mode_enabled = false;
+ STREAM_MODES DEFAULT_STREAM_MODE = PROTON;
 
 /*
  * The CHSV colour value for the Spectral custom mode.
@@ -184,7 +190,8 @@ uint8_t i_spectral_wand_custom_colour = 200;
 /*
  * The CHSV saturation range for the Spectral custom mode.
  * This can be adjusted in the EEPROM LED menu. Any EEPROM settings will overwrite these values.
- * The Proton Pack custom spectral colours are stored on the Proton Pack EEPROM. The Neutrona Wand custom spectral colours are stored on the Neutrona Wand. So it is possible to mix and match different wands colours to different pack settings.
+ * The Proton Pack custom spectral colours are stored on the Proton Pack EEPROM.
+ * The Neutrona Wand custom spectral colours are stored on the Neutrona Wand. So it is possible to mix and match different wands colours to different pack settings.
  * Value range: 1 <--> 254
  */
 uint8_t i_spectral_wand_custom_saturation = 254;
@@ -210,7 +217,7 @@ bool b_overheat_bargraph_blink = false;
 
 /*
  * When set to false, the Neutrona Wand beeping will not loop in Afterlife mode.
-*/
+ */
 bool b_beep_loop = true;
 
 /*

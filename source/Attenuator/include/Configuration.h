@@ -1,6 +1,6 @@
 /**
  *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "BuildInfo.h"
+
 /*
  * Control debug messages for various actions during normal operation.
  * Uncomment the desired line(s) to output messages when and where you
@@ -27,14 +29,15 @@
  * debugging, while the websocket will help with confirming operations
  * while using the device (post-setup for wireless).
  *
- * For console output, must first set DEBUG 1 in main.cpp to enable debug macros.
+ * For console output, must first set GPSTAR_DEBUG 1 in main.cpp to enable debug macros.
  */
-//#define DEBUG_WIRELESS_SETUP   // Output debugs related to the WiFi/network setup.
-//#define DEBUG_PERFORMANCE      // Send debug messages for CPU/memory to the (USB) console.
-//#define DEBUG_SERIAL_COMMS     // Output debugs related to the serial communications.
-//#define DEBUG_SEND_TO_CONSOLE  // Send any general messages to the serial (USB) console.
-//#define DEBUG_TASK_TO_CONSOLE  // Send any task messages to the serial (USB) console.
-//#define DEBUG_SEND_TO_WEBSOCKET  // Send any messages to connected WebSocket clients.
+//#define DEBUG_WIRELESS_SETUP    // Output debugs related to the WiFi/network setup.
+//#define DEBUG_PERFORMANCE       // Send debug messages for CPU/memory to the (USB) console.
+//#define DEBUG_SERIAL_COMMS      // Output debugs related to the serial communications.
+//#define DEBUG_SEND_TO_CONSOLE   // Send any general messages to the serial (USB) console.
+//#define DEBUG_TASK_TO_CONSOLE   // Send any task messages to the serial (USB) console.
+//#define DEBUG_SEND_TO_WEBSOCKET // Send any messages to connected WebSocket clients.
+//#define DEBUG_SEND_TO_EVENTS    // Send any messages to the server-side events stream.
 
 /*
  * Force the use of default SSID and password for wireless capabilities.
@@ -45,9 +48,10 @@
 //#define RESET_AP_SETTINGS
 
 /*
- * Used to reflect the last build date for the binary.
+ * Invert logic for toggle switches
  */
-String build_date = "V6_20251114095221";
+bool b_left_toggle_inverted = false;
+bool b_right_toggle_inverted = false;
 
 /*
  * Enable Physical Feedback Effects (Sound + Vibration)
@@ -56,6 +60,15 @@ bool b_enable_buzzer = true; // Enable/disable all buzzing via the local piezo b
 bool b_enable_vibration = true; // Enable/disable all effects via the vibration motor
 bool b_overheat_feedback = true; // Enable/disable buzzing/vibration on pack overheat
 bool b_firing_feedback = false; // Enable/disable vibration when throwing a stream
+
+/*
+ * Enable Visual Feedback Effects (Bargraph + Device LEDs, UI Animations)
+ */
+bool b_enable_bargraph = true; // Enable/disable bargraph display
+bool b_enable_device_leds = true; // Enable/disable device LEDs display
+bool b_enable_ui_animations = true; // Enable/disable UI animation effects
+bool b_invert_leds = false; // Denotes whether the order should be reversed.
+bool b_grb_leds = false; // Denotes whether to use GRB ordering for LEDs.
 
 /*
  * Wait for pack communication or operate without pack integration.

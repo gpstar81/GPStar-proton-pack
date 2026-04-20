@@ -10,8 +10,8 @@ Welcome to the second generation of GPStar Proton Pack controllers, intended for
 - Temperature sensor for environmental responses or monitoring.
 - Dedicated sockets for optional components and future expansion.
 - Integrates a WiFi radio for direct web-enabled controls and firmware updates.
-	- Compatibility with an Attenuator device is still fully supported. When connected to an Attenuator which offers WiFi capability, the Proton Pack II PCB will automatically disable its internal WiFi radio to conserve power.
-	- If you set a custom WiFi password and forget it the password can be reset from the [Neutrona Wand operation menu](OPERATION_MENUS.md#menu-level-3), or by removing the ribbon cable and toggling the vibration on/off switch 5 times while the Proton Pack is not running.
+    - Compatibility with an Attenuator device is still fully supported. When connected to an Attenuator which offers WiFi capability, the Proton Pack II PCB will automatically disable its internal WiFi radio to conserve power.
+    - If you set a custom WiFi password and forget it the password can be reset from the [Neutrona Wand operation menu](OPERATION_MENUS.md#menu-level-3), or by removing the ribbon cable and toggling the vibration on/off switch 5 times while the Proton Pack is not running.
 
 **Other Hardware Changes:**
 

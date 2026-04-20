@@ -1,6 +1,6 @@
 /**
  *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -40,7 +40,7 @@ millisDelay ms_otacheck;
 const uint16_t i_otaCheck = 100;
 
 // Convert an IP address string to an IPAddress object.
-IPAddress convertToIP(const String ipAddressString) {
+IPAddress convertToIP(const String& ipAddressString) {
   uint16_t quads[4]; // Array to store 4 quads for the IP.
   uint8_t quadStartIndex = 0;
   int8_t quadEndIndex = 0;
@@ -83,19 +83,19 @@ bool startAccesPoint() {
   #endif
 
   // Start the WiFi radio as an Access Point using the SSID and password (as WPA2).
-  // Additionally, sets radio to channel 1, don't hide SSID, and max 4 connections.
+  // Additionally, sets radio to channel 1, don't hide SSID, and max 6 connections.
   // Note that the WiFi protocols available for use are 802.11 b/g/n over 2.4GHz.
   bool b_success = false;
   if(encoder_center.getStateRaw() == LOW) {
     // If encoder post is being pressed during boot-up then immediately use the default password.
-    b_success = WiFi.softAP(wirelessMgr->getLocalNetworkName().c_str(), wirelessMgr->getDefaultPassword(), 1, false, 4);
+    b_success = WiFi.softAP(wirelessMgr->getLocalNetworkName().c_str(), wirelessMgr->getDefaultPassword(), 1, false, 6);
 
     // Always output a serial message in case anything is listening, as this is important.
     debugln(F("WARNING: User forced use of the default WiFi password!"));
   }
   else {
     // Otherwise, set the password as desired by the user (or the default).
-    b_success = WiFi.softAP(wirelessMgr->getLocalNetworkName().c_str(), wirelessMgr->getLocalPassword().c_str(), 1, false, 4);
+    b_success = WiFi.softAP(wirelessMgr->getLocalNetworkName().c_str(), wirelessMgr->getLocalPassword().c_str(), 1, false, 6);
   }
   #if defined(DEBUG_WIRELESS_SETUP)
     debugln(b_success ? "AP Ready" : "AP Failed");
@@ -175,13 +175,6 @@ bool startExternalWifi() {
       if(WiFi.status() == WL_CONNECTED) {
         // Configure static IP values for this device on the preferred network.
         if(wirelessMgr->HasValidExtIP()) {
-          #if defined(DEBUG_WIRELESS_SETUP)
-            debug(F("Using Stored IP: "));
-            debug(String(wirelessMgr->getExtWifiAddress()));
-            debug(F(" / "));
-            debugln(String(wirelessMgr->getExtWifiSubnet()));
-          #endif
-
           if(!wirelessMgr->IsValidIP(wirelessMgr->getExtWifiGateway())) {
             // If no gateway is set, set a default gateway based on the IP.
             wirelessMgr->setDefaultExtWifiGateway();
@@ -196,9 +189,9 @@ bool startExternalWifi() {
 
         #if defined(DEBUG_WIRELESS_SETUP)
           debug(F("WiFi IP Address: "));
-          debug(wirelessMgr->getExtWifiAddress());
+          debug(wirelessMgr->getExtWifiAddress().toString());
           debug(F(" / "));
-          debugln(wirelessMgr->getExtWifiSubnet());
+          debugln(wirelessMgr->getExtWifiSubnet().toString());
         #endif
 
         WiFi.setAutoReconnect(false); // Don't try to reconnect, wait for a power cycle.
@@ -268,7 +261,7 @@ bool startWiFi() {
     // Suppress unused variable warning.
     (void)b_mdns_started;
   #endif
-  delay(200);
+  delay(100);
 
   return b_local_ap_started; // At least return whether the soft AP started successfully.
 }

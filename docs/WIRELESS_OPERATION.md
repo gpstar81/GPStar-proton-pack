@@ -48,7 +48,7 @@ A web-based user interface is available at [http://192.168.1.2](http://192.168.1
 
 ### Tab 1: Equipment Status
 
-<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main1.jpg"/>
+![Menu-Display](images/WebUI-Main1.jpg)
 
 The equipment status will reflect the current state of your Proton Pack and Neutrona Wand and will update in real-time as you interact with those devices. This information is available as either a text-based or graphical display, or both if you prefer (set via Attenuator Preferences).
 
@@ -57,17 +57,17 @@ When using the graphical display, most components of the Proton pack and Neutron
 - The top of the display will indicate the mode (Standard = Mode Original, Upgraded = Super Hero) along with the year theme (V1.9.8x or V2.0.2x).
 - When the Ion Arm switch is engaged for Mode Original, the overlay for the Ion Arm will be green to indicate a ready state. When in Super Hero mode this overlay will be green when the Proton Pack is powered on.
 - When the Proton Pack is powered on:
-	- The Power Cell, Booster Tube, and Cyclotron overlays will be green as their default state.
-	- When the Cyclotron is in a normal state the overlay will be green. It will change to yellow then red as it goes through the pre-warning and overheat states. During venting the overlay will be blue to indicate the recovery period.
-	- The color state of the Booster Tube is linked to the "Output" text value which is the voltage measured at the Proton Pack PCB (in volts, but displayed as Gev). During high power draw events such as smoke generation the voltage can drop briefly, and will be reflected as a red overlay when that value is below 4.2V
+    - The Power Cell, Booster Tube, and Cyclotron overlays will be green as their default state.
+    - When the Cyclotron is in a normal state the overlay will be green. It will change to yellow then red as it goes through the pre-warning and overheat states. During venting the overlay will be blue to indicate the recovery period.
+    - The color state of the Booster Tube is linked to the "Output" text value which is the voltage measured at the Proton Pack PCB (in volts, but displayed as Gev). During high power draw events such as smoke generation the voltage can drop briefly, and will be reflected as a red overlay when that value is below 4.2V
 - When the Neutrona Wand is powered on, the overlay above the Activate/Intensify portion of the gun box will indicate if the barrel is retracted (red) or extended (green).
 - The current power level for the Neutrona Wand will be indicated by the "L-#" beside the barrel.
 - The type of firing mode will be displayed below the Neutrona Wand and will be color coded via the barrel. Color intensity increases with the power level.
-	- Proton Stream: Red (includes Spectral modes)
-	- Plasm System: Green (incl. for 1989 theme)
-	- Dark Matter Gen.: Blue
-	- Particle System: Orange
-	- Settings: Gray
+    - Proton Stream: Red (includes Spectral modes)
+    - Plasm System: Green (incl. for 1989 theme)
+    - Dark Matter Gen.: Blue
+    - Particle System: Orange
+    - Settings: Gray
 - When using the power-detection feature with a stock Haslab Neutrona Wand the default stream will be Proton with a power level of 5. Instead of the stream type being displayed, there will be a wattage value displayed as Gigawatts (GW).
 - If the Ribbon Cable is removed, a warning icon will appear over that component to indicate an alarm state.
 - When the Cyclotron lid is removed a radiation exposure warning will be displayed at the bottom of the CRT display.
@@ -80,7 +80,7 @@ Special thanks and credit to fellow cosplayer [Alexander Hibbs (@BeaulieuDesigns
 
 ### Tab 2: Audio Controls
 
-<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main2.jpg"/>
+![Menu-Display](images/WebUI-Main2.jpg)
 
 This section allows full control of the system (overall) volume, effects volume, and music volume along with the ability to mute/unmute all devices. The current volume levels will be shown and updated in real-time whether adjusted via the web UI, the pack, or the wand.
 
@@ -95,7 +95,7 @@ For playback of music you can use the improved navigation controls:
 
 <div style="clear:both"></div>
 
-<img style="float:right;padding:10px;width:300px;" src="images/WebUI-SongSelect.jpg"/>
+![Menu-Display](images/WebUI-SongSelect.jpg)
 
 You may also jump directly to a specific track for playback via the selection field (switching immediately if already playing, otherwise that track will be started via the Start/Stop button).
 
@@ -107,7 +107,7 @@ By default, only the track numbers are known to the audio device as all music tr
 
 Controls will be made available on a per-action or per-state basis.
 
-<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main3.jpg"/>
+![Menu-Display](images/WebUI-Main3.jpg)
 
 Shown here, the pack and wand are both in an Idle state while in the "Super Hero" operation mode which allows the pack to be turned on/off remotely. The options to remotely vent or to "Attenuate" are only enabled when the devices are in a specific state.
 
@@ -119,7 +119,7 @@ Shown here, the pack and wand are both in an Idle state while in the "Super Hero
 
 ### Tab 4: Preferences / Administration
 
-<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Main4.jpg"/>
+![Menu-Display](images/WebUI-Main4.jpg)
 
 These provide a web interface for managing options which are accessed via the LED or Config EEPROM menus. The settings are divided into 3 sections: Pack, Wand, and Smoke. The features available via these sections will be covered in-depth later in this document.
 
@@ -136,7 +136,7 @@ At the bottom of the screen is a timestamp representing the date of the software
 
 ## Attenuator Settings
 
-<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Attenuator.jpg"/>
+![Menu-Display](images/WebUI-Attenuator.jpg)
 
 Set options related specifically to the Attenuator, such as when the vibration motor or buzzer may be used to provide physical feedback during operation.
 
@@ -144,7 +144,7 @@ Set options related specifically to the Attenuator, such as when the vibration m
 
 <div style="clear:both"></div>
 
-<img style="float:right;padding:10px;width:300px;" src="images/WebUI-SongList.jpg"/>
+![Menu-Display](images/WebUI-SongList.jpg)
 
 **NEW in 5.x** - The ability to add a user-friendly track listing has been integrated into the UI. Song titles may be entered as 1 entry per line, in the order by which they are numbered on your microSD card. The text is limited by bytes (max 2,000) not the number of lines, so to fit more entries into this text box you may need to use shorter song titles. This list of songs will be matched to each track number (starting from "500_" per the required numbering scheme). This data is stored only within the device and is only visible/used by the track selection field in the Music Navigation area.
 
@@ -152,7 +152,7 @@ Set options related specifically to the Attenuator, such as when the vibration m
 
 ## Pack Settings
 
-<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Pack.jpg"/>
+![Menu-Display](images/WebUI-Pack.jpg)
 
 Set options related specifically to the Proton Pack. Options such as the color/saturation sliders will only take effect if you have installed upgrades to the RGB Power Cell and Cyclotron lid light kits. Similarly, the Video Game mode option will have no effect on the stock Haslab LEDs.
 
@@ -164,7 +164,7 @@ Set options related specifically to the Proton Pack. Options such as the color/s
 
 ## Wand Settings
 
-<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Wand.jpg"/>
+![Menu-Display](images/WebUI-Wand.jpg)
 
 Set options related specifically to the Neutrona Wand.
 
@@ -176,7 +176,7 @@ Set options related specifically to the Neutrona Wand.
 
 ## Overheat/Smoke Settings
 
-<img style="float:right;padding:10px;width:300px;" src="images/WebUI-Smoke.jpg"/>
+![Menu-Display](images/WebUI-Smoke.jpg)
 
 Adjust overall smoke effects (toggle on/off) and adjust per-level effects. Naturally, these options will have no effect on operation without a smoke kit installed.
 
@@ -186,13 +186,13 @@ Adjust overall smoke effects (toggle on/off) and adjust per-level effects. Natur
 
 ## External WiFi Settings
 
-<img style="float:right;padding:10px;width:300px;" src="images/WebUI-WiFi.jpg"/>
+![Menu-Display](images/WebUI-WiFi.jpg)
 
 It is possible to have your device join an existing WiFi network which may provide a more stable network connection.
 
 1. Access the "Change WiFi Settings" page via [http://192.168.1.2/network](http://192.168.1.2/network) URL to make the necessary device modifications.
 1. Enable the external WiFi options and supply the preferred WiFi network name (SSID) and WPA2 password for access.
-	- Optionally, you may specify an IP address, subnet mask, and gateway IP if you wish to use static values. Otherwise, the device will obtain these values automatically from your chosen network via DHCP.
+    - Optionally, you may specify an IP address, subnet mask, and gateway IP if you wish to use static values. Otherwise, the device will obtain these values automatically from your chosen network via DHCP.
 1. Save the changes, which will cause the device to reboot and attempt to connect to the network (up to 3 tries).
 1. Return to the URL above to observe the IP address information. If the connection was successful, an IP address, subnet mask, and gateway IP will be shown.
 1. While connected to the same WiFi network on your computer/phone/tablet, use the IP address shown to connect to your device's web interface.

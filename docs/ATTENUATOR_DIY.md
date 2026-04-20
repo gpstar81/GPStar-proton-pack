@@ -7,7 +7,7 @@ This guide is intended to document the parts and processes required to build the
 
 ### Printing a Shell
 
-The STL files are available [through this repository](https://github.com/gpstar81/GPStar-proton-pack/blob/main/stl/attenuator) if you have the capability of printing your own Attenuator shell. Please see the accompanying [PDF](https://github.com/gpstar81/GPStar-proton-pack/blob/main/stl/attenuator/README-GB_Pack_Attenuator_Shell.pdf) in that directory for more details.
+The STL files are available [through this repository](/stl/attenuator/) if you have the capability of printing your own Attenuator shell. Please see the accompanying [PDF](/stl/attenuator/README-GB_Pack_Attenuator_Shell.pdf) in that directory for more details.
 
 ## Bill of Materials
 
@@ -41,8 +41,8 @@ This device was designed to allow for certain "real" parts as opposed to being 1
 
 * [M3x4 Button Hex Head Screws](https://a.co/d/h5No0N9) (Qty: 14) - Used for decoration on the sides of the body.
 * [M4x6 Cheese Head Slotted Screws](https://a.co/d/eUhDiRO) (Qty: 4) - Used for decoration on the top of the body.
-	* You could also use [8-40 x 1/4" Fillister Head Slotted Screws](https://a.co/d/es5eXBC)
-	* M4 nuts may be required to secure the screws to the Attenuator shell.
+    * You could also use [8-40 x 1/4" Fillister Head Slotted Screws](https://a.co/d/es5eXBC)
+    * M4 nuts may be required to secure the screws to the Attenuator shell.
 
 The back plate will be attached using either M5 or M4 screws depending on the material used. For screws, your best value is to purchase an assorted set as this cost less than buying a single size of screw.
 
@@ -62,9 +62,9 @@ Device labels can be obtained or created by any means desired. The sizes [offere
 
 It is worth noting that the device is meant to attach to the left shoulder strap of a standard ALICE pack. The width of the strap is typically around 80mm while worn, so this device will fit near perfectly once the strap is pressed against your shoulder/chest. These are the overall dimensions if you wish to approximate the needed space or design your own enclosure. Maintaining these dimensions ensures the components above will fit within the enclosure.
 
-	Width: 80mm
-	Height: 115mm
-	Depth: 38mm
+    Width: 80mm
+    Height: 115mm
+    Depth: 38mm
 
 ## WiFi Connectivity
 
@@ -107,10 +107,10 @@ The following is a diagram of the ESP32 pins from left and right, when oriented 
 
 When connecting to the pack, the following wiring scheme was used with the recommended 4-pin connector:
 
-	1 - GND (Black)
-	2 - 5V/VIN (Red)
-	3 - TX2 (White) to Pack RX1<sup>2</sup>
-	4 - RX2 (Yellow) to Pack TX1<sup>2</sup>
+    1 - GND (Black)
+    2 - 5V/VIN (Red)
+    3 - TX2 (White) to Pack RX1<sup>2</sup>
+    4 - RX2 (Yellow) to Pack TX1<sup>2</sup>
 
 <sup>2</sup> This is on GPStar I Proton Pack boards. On GPStar II Proton Pack boards the data pins are labeled "Attenuator RX2/TX2".
 

@@ -1,0 +1,66 @@
+#!/bin/bash
+
+echo ""
+echo "=========================================="
+echo "  PRE-COMMIT HOOK: Code Quality Check"
+echo "=========================================="
+echo ""
+
+# Get all modified files (staged + unstaged)
+STAGED_FILES=$(git diff --cached --name-only)
+MODIFIED_FILES=$(git diff --name-only)
+ALL_CHANGED=$(echo -e "$STAGED_FILES\n$MODIFIED_FILES" | sort -u | grep -v '^$')
+
+# Filter to target directories, excluding build/cache folders
+TARGET_FILES=$(echo "$ALL_CHANGED" | grep -E '^(docs/|source/)' | grep -v -E '\.(pio|vscode)/' | grep -v -E '\.gz$')
+
+if [ -z "$TARGET_FILES" ]; then
+    echo "✅ No modified files found in docs/ or source/ directories"
+    echo "   Commit can proceed."
+    echo ""
+    exit 0
+fi
+
+echo "📁 Checking modified files in docs/ and source/:"
+echo "$TARGET_FILES" | sed 's/^/   /'
+echo ""
+
+# Check for tabs only in source code and documentation files
+TAB_FILES=""
+echo "🔍 Scanning for tabs (should be spaces)..."
+for file in $TARGET_FILES; do
+    # Include web files and source code - only source code and docs
+    if [[ "$file" =~ \.(cpp|hpp|h|c|ino|md|txt|py|sh|html|js|css|json|xml)$ ]] && [ -f "$file" ]; then
+        if grep -P '\t' "$file" >/dev/null 2>&1 || grep $'\t' "$file" >/dev/null 2>&1; then
+            TAB_FILES="$TAB_FILES $file"
+        fi
+    fi
+done
+
+if [ ! -z "$TAB_FILES" ]; then
+    echo ""
+    echo "❌ COMMIT BLOCKED!"
+    echo ""
+    echo "💡 ISSUE: Tabs found in source files"
+    echo "   This project uses SPACES for indentation, not tabs."
+    echo ""
+    echo "📝 Files with tabs:"
+    for file in $TAB_FILES; do
+        echo "   • $file"
+    done
+    echo ""
+    echo "🔧 HOW TO FIX:"
+    echo "   1. Open each file above in your editor"
+    echo "   2. Replace all tabs with spaces (usually 2 or 4 spaces)"
+    echo "   3. Most editors have a 'Convert Tabs to Spaces' option"
+    echo "   4. Save the files and try committing again"
+    echo ""
+    echo "❌ Commit rejected - please fix the issues above"
+    echo ""
+    exit 1
+fi
+
+echo "✅ All checks passed!"
+echo "   No tabs found in source/documentation files"
+echo "   Commit can proceed."
+echo ""

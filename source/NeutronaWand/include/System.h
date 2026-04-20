@@ -1,6 +1,6 @@
 /**
  *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,8 +19,13 @@
 
 #pragma once
 
+// Extern declarations for global handlers
+#ifdef ESP32
+extern InfraredManager* irManager;
+#endif
+
 // Return the year mode that the Neturona Wand is supposed to be in. Or if overridden to be in a different year by the user.
-SYSTEM_YEARS getNeutronaWandYearMode() {
+SYSTEM_THEMES getNeutronaWandYearMode() {
   switch(WAND_YEAR_MODE) {
     case YEAR_1984:
       return SYSTEM_1984;
@@ -40,20 +45,29 @@ SYSTEM_YEARS getNeutronaWandYearMode() {
 
     case YEAR_DEFAULT:
     default:
-      return SYSTEM_YEAR;
+      return gpstarWand.getSystemTheme();
     break;
   }
 }
 
-// Returns SYSTEM_YEAR when operating with a Proton Pack, or WAND_YEAR_MODE when in standalone operation
-SYSTEM_YEARS getSystemYearMode() {
+// Returns gpstarWand.systemTheme when operating with a Proton Pack, or WAND_YEAR_MODE when in standalone operation
+SYSTEM_THEMES getSystemYearMode() {
   if(b_wand_standalone) {
     return getNeutronaWandYearMode();
   }
   else {
-    return SYSTEM_YEAR;
+    return gpstarWand.getSystemTheme();
   }
 }
+
+// Returns true or false for whether the pack is currently in the "brass pack" state.
+bool isBrassPack() {
+  return (getSystemYearMode() == SYSTEM_FROZEN_EMPIRE && !b_pack_cyclotron_lid_on && (gpstarWand.inStreamMode(PROTON) || gpstarWand.inStreamMode(SPECTRAL_CUSTOM)));
+}
+
+/**
+ * Device Helper Functions
+ */
 
 void vibrationOff() {
   ms_menu_vibration.stop();
@@ -111,7 +125,7 @@ void wandHeatUp() {
     stopEffect(S_MESON_IDLE_LOOP);
   }
 
-  switch(STREAM_MODE) {
+  switch(gpstarWand.getStreamMode()) {
     case PROTON:
     default:
       playEffect(S_FIRE_START_SPARK);
@@ -162,55 +176,14 @@ void wandHeatUp() {
 }
 
 void streamModeCheck() {
-  switch(STREAM_MODE) {
-    case HOLIDAY_HALLOWEEN:
-      // Tell the pack we are in Halloween mode.
-      wandSerialSend(W_HALLOWEEN_MODE);
-    break;
+  wandSerialSend(W_SET_STREAM_MODE, gpstarWand.getStreamModeByte());
 
-    case HOLIDAY_CHRISTMAS:
-      // Tell the pack we are in Christmas mode.
-      wandSerialSend(W_CHRISTMAS_MODE);
-    break;
-
-    case SPECTRAL:
-      // Tell the pack we are in spectral mode.
-      wandSerialSend(W_SPECTRAL_MODE);
-    break;
-
-    case SPECTRAL_CUSTOM:
-      // Tell the pack we are in spectral custom mode.
-      wandSerialSend(W_SPECTRAL_CUSTOM_MODE);
-    break;
-
-    case MESON:
-      // Tell the pack we are in meson mode.
-      wandSerialSend(W_MESON_MODE);
-    break;
-
-    case STASIS:
-      // Tell the pack we are in stasis mode.
-      wandSerialSend(W_STASIS_MODE);
-    break;
-
-    case SLIME:
-      // Tell the pack we are in slime mode.
-      wandSerialSend(W_SLIME_MODE);
-    break;
-
-    case PROTON:
-    default:
-      // Tell the pack we are in proton mode.
-      wandSerialSend(W_PROTON_MODE);
-    break;
-  }
-
-  if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU) {
+  if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_STATUS == MODE_ON) {
     wandHeatUp();
   }
 
   if(AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
-    if(STREAM_MODE == MESON) {
+    if(gpstarWand.inStreamMode(MESON)) {
       // Tell GPStar Audio we need short audio mode.
       audio.gpstarShortTrackOverload(false);
     }
@@ -224,61 +197,28 @@ void streamModeCheck() {
   ms_semi_automatic_check.stop();
 }
 
-// Sets the Neutrona Wand to video game mode.
-void setVGMode() {
-  SYSTEM_MODE = MODE_SUPER_HERO;
-  FIRING_MODE = VG_MODE;
-  LAST_FIRING_MODE = FIRING_MODE;
-}
-
 // Checks if video game mode should be set.
 bool vgModeCheck() {
   /*
    * Note: This gets called during setup() after reading the EEPROM so it should always set the proper values
    * as based on the user's preferences. Any runtime changes should also get picked up during crucial points.
    */
-  if(SYSTEM_MODE == MODE_ORIGINAL) {
+  if(gpstarWand.getSystemMode() == MODE_ORIGINAL) {
     // MODE_ORIGINAL does not support VG modes, so make sure CTS is enabled and firing mode is PROTON.
-    if(FIRING_MODE == VG_MODE) {
-      LAST_FIRING_MODE = VG_MODE; // Remember that the last firing mode was explicitly VG_MODE.
-      FIRING_MODE = CTS_MODE; // At a minimum, set the firing mode to CTS for Mode Original.
-    }
-    else {
-      // Already in CTS or CTS Mix, just remember that for later.
-      LAST_FIRING_MODE = FIRING_MODE;
+    if(gpstarWand.isFiringModeVG()) {
+      gpstarWand.setFiringModeCTS(); // At a minimum, set the firing mode to CTS for Mode Original.
+      wandSerialSend(W_SET_FIRING_MODE, FLAG_CTS_MODE); // Tell the pack about the change.
     }
 
-    if(STREAM_MODE != PROTON) {
-      STREAM_MODE = PROTON;
+    if(gpstarWand.setStreamMode(PROTON)) {
       streamModeCheck(); // This will send a serial command to the pack to set the correct stream.
     }
 
     return false; // Not using VG mode.
   }
   else {
-    if(FIRING_MODE != LAST_FIRING_MODE) {
-      // Restore the last firing mode the user was actively using.
-      // This could have been any of the available firing modes.
-      switch(LAST_FIRING_MODE) {
-        case VG_MODE:
-        default:
-          FIRING_MODE = VG_MODE;
-        break;
-
-        case CTS_MODE:
-          FIRING_MODE = CTS_MODE;
-        break;
-
-        case CTS_MIX_MODE:
-          FIRING_MODE = CTS_MIX_MODE;
-        break;
-      }
-
-      LAST_FIRING_MODE = FIRING_MODE;
-    }
-
     // Return whether VG mode is in use.
-    if(FIRING_MODE == VG_MODE) {
+    if(gpstarWand.isFiringModeVG()) {
       return true;
     }
     else {
@@ -298,11 +238,11 @@ void soundBeepLoopStop() {
 
     if(switch_wand.on() && switch_vent.on() && switch_activate.on() && WAND_STATUS == MODE_ON) {
       // Set all beep looping to false so they stop naturally.
-      audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S1, false);
-      audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S2, false);
-      audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S3, false);
-      audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S4, false);
-      audio.trackLoop(S_AFTERLIFE_BEEP_WAND_S5, false);
+      stopEffectLoop(S_AFTERLIFE_BEEP_WAND_S1);
+      stopEffectLoop(S_AFTERLIFE_BEEP_WAND_S2);
+      stopEffectLoop(S_AFTERLIFE_BEEP_WAND_S3);
+      stopEffectLoop(S_AFTERLIFE_BEEP_WAND_S4);
+      stopEffectLoop(S_AFTERLIFE_BEEP_WAND_S5);
 
       if(b_extra_pack_sounds) {
         wandSerialSend(W_WAND_BEEP_STOP_LOOP);
@@ -343,25 +283,25 @@ void soundBeepLoop() {
           wandSerialSend(W_WAND_BEEP_START);
         }
 
-        switch(i_power_level) {
-          case 1:
-          default:
+        switch(gpstarWand.getPowerLevel()) {
+          case LEVEL_1:
             playEffect(S_AFTERLIFE_BEEP_WAND_S1, true);
           break;
 
-          case 2:
+          case LEVEL_2:
             playEffect(S_AFTERLIFE_BEEP_WAND_S2, true);
           break;
 
-          case 3:
+          case LEVEL_3:
             playEffect(S_AFTERLIFE_BEEP_WAND_S3, true);
           break;
 
-          case 4:
+          case LEVEL_4:
             playEffect(S_AFTERLIFE_BEEP_WAND_S4, true);
           break;
 
-          case 5:
+          case LEVEL_5:
+          default:
             playEffect(S_AFTERLIFE_BEEP_WAND_S5, true);
           break;
         }
@@ -392,8 +332,8 @@ void wandTipOn() {
       colours c_temp = C_WHITE;
 
       if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE) {
-        if(b_wand_mash_error || b_pack_alarm) {
-          if(STREAM_MODE == PROTON && !b_pack_cyclotron_lid_on) {
+        if(b_wand_mash_lockout || b_pack_alarm) {
+          if(gpstarWand.inStreamMode(PROTON) && !b_pack_cyclotron_lid_on) {
             // Green goop effect if in Proton Stream mode and pack's cyclotron lid is off.
             c_temp = C_CHARTREUSE;
           }
@@ -406,7 +346,7 @@ void wandTipOn() {
           // Set the tip of the GPStar Neutrona Barrel LED array to greenish if in Frozen Empire and using CTS mode.
           c_temp = C_CHARTREUSE;
         }
-        else if(STREAM_MODE == SLIME) {
+        else if(gpstarWand.inStreamMode(SLIME)) {
           if(getSystemYearMode() == SYSTEM_1989) {
             c_temp = C_PASTEL_PINK;
           }
@@ -416,11 +356,11 @@ void wandTipOn() {
         }
       }
       else {
-        if(b_wand_mash_error || b_pack_alarm) {
+        if(b_wand_mash_lockout || b_pack_alarm) {
           // Set the tip of the GPStar Neutrona Barrel LED array to beige if playing the lockout/cable spark animation.
           c_temp = C_BEIGE;
         }
-        else if(STREAM_MODE == SLIME) {
+        else if(gpstarWand.inStreamMode(SLIME)) {
           if(getSystemYearMode() == SYSTEM_1989) {
             c_temp = C_PASTEL_PINK;
           }
@@ -439,7 +379,7 @@ void wandTipOn() {
       }
 
       // Illuminate the wand barrel tip LED.
-      if(STREAM_MODE != SLIME) {
+      if(!gpstarWand.inStreamMode(SLIME)) {
         digitalWriteFast(BARREL_TIP_LED_PIN, HIGH);
       }
     }
@@ -449,7 +389,7 @@ void wandTipOn() {
     case LEDS_2:
     default:
       // Illuminate the wand barrel tip LED.
-      if(STREAM_MODE != SLIME) {
+      if(!gpstarWand.inStreamMode(SLIME)) {
         digitalWriteFast(BARREL_TIP_LED_PIN, HIGH);
       }
     break;
@@ -494,8 +434,8 @@ void hatLightControl() {
   switch(WAND_STATUS) {
     case MODE_OFF:
     default:
-      if(SYSTEM_MODE == MODE_ORIGINAL) {
-        if(RED_SWITCH_MODE == SWITCH_OFF) {
+      if(gpstarWand.getSystemMode() == MODE_ORIGINAL) {
+        if(gpstarWand.getIonArmSwitch() == RED_SWITCH_OFF) {
           // Keep the hat lights turned off.
           digitalWriteFast(BARREL_HAT_LED_PIN, LOW);
           digitalWriteFast(TOP_HAT_LED_PIN, LOW);
@@ -609,36 +549,34 @@ void toggleWandModes() {
   stopEffect(S_VOICE_VIDEO_GAME_MODES);
 
   // Enable or disable crossing the streams / crossing the streams mix / video game modes.
-  if(SYSTEM_MODE != MODE_ORIGINAL && FIRING_MODE == CTS_MIX_MODE) {
+  if(gpstarWand.getSystemMode() != MODE_ORIGINAL && gpstarWand.isFiringModeCTSMix()) {
     // Turn off crossing the streams mix and switch back to video game mode.
     // Only supported when the System Mode is not Mode Original.
-    setVGMode();
+    gpstarWand.setFiringModeVG();
+    wandSerialSend(W_SET_FIRING_MODE, FLAG_VG_MODE); // Tell the pack about the change.
 
     playEffect(S_VOICE_VIDEO_GAME_MODES);
 
     wandSerialSend(W_VIDEO_GAME_MODE);
   }
-  else if(FIRING_MODE == CTS_MODE) {
-    FIRING_MODE = CTS_MIX_MODE;
-    LAST_FIRING_MODE = FIRING_MODE;
-
+  else if(gpstarWand.isFiringModeCTS()) {
+    gpstarWand.setFiringModeCTSMix();
+    wandSerialSend(W_SET_FIRING_MODE, FLAG_CTS_MIX_MODE); // Tell the pack about the change.
     playEffect(S_VOICE_CROSS_THE_STREAMS_MIX);
-
     wandSerialSend(W_CROSS_THE_STREAMS_MIX);
   }
   else {
     // Turn on crossing the streams mode to turn off video game mode.
-    FIRING_MODE = CTS_MODE;
-    LAST_FIRING_MODE = FIRING_MODE;
-
+    gpstarWand.setFiringModeCTS();
+    wandSerialSend(W_SET_FIRING_MODE, FLAG_CTS_MODE); // Tell the pack about the change.
     playEffect(S_VOICE_CROSS_THE_STREAMS);
-
     wandSerialSend(W_CROSS_THE_STREAMS);
   }
 
   // Reset to proton stream.
-  STREAM_MODE = PROTON;
-  streamModeCheck();
+  if(gpstarWand.setStreamMode(PROTON)) {
+    streamModeCheck();
+  }
 }
 
 // Controlled from the the Wand Sub Menu and Wand EEPROM Menu system.
@@ -670,9 +608,9 @@ void toggleOverheating() {
 }
 
 void vibrationWand(uint8_t i_level) {
-  if(VIBRATION_MODE != VIBRATION_NONE && b_vibration_switch_on && WAND_ACTION_STATUS != ACTION_OVERHEATING && !b_pack_alarm && b_pack_on && i_level > 0) {
+  if(gpstarWand.getVibrationMode() != VIBRATION_NEVER && b_vibration_switch_on && WAND_ACTION_STATUS != ACTION_OVERHEATING && !b_pack_alarm && b_pack_on && i_level > 0) {
     // Vibrate the wand during firing only when enabled. (When enabled by the pack)
-    if(VIBRATION_MODE == VIBRATION_FIRING_ONLY) {
+    if(gpstarWand.getVibrationMode() == VIBRATION_FIRING_ONLY) {
       if(WAND_ACTION_STATUS == ACTION_FIRING || ms_semi_automatic_firing.isRunning()) {
         if(ms_semi_automatic_firing.isRunning()) {
           if(i_vibration_level_current != (i_level * 2 < 256 ? i_level * 2 : 255)) {
@@ -709,28 +647,148 @@ void vibrationWand(uint8_t i_level) {
 }
 
 void vibrationSetting() {
-  if(!ms_bargraph.isRunning() && WAND_ACTION_STATUS != ACTION_FIRING) {
-    switch(i_power_level) {
-      case 1:
+  if(WAND_ACTION_STATUS != ACTION_FIRING) {
+    // First, set up our base idle value.
+    uint8_t i_vibration_base_level = i_vibration_level_min;
+    switch(getNeutronaWandYearMode()) {
+      case SYSTEM_1984:
+      case SYSTEM_1989:
+        if(switch_vent.on()) {
+          i_vibration_base_level = i_vibration_idle_1984;
+        }
+        else {
+          // If the vent switch is not on in 84/89, vibration remains off.
+          vibrationOff();
+          return;
+        }
+      break;
+      case SYSTEM_AFTERLIFE:
+      case SYSTEM_FROZEN_EMPIRE:
+        if(!switch_vent.on()) {
+          i_vibration_base_level = i_vibration_idle_afterlife_1;
+        }
+        else {
+          i_vibration_base_level = i_vibration_idle_afterlife_2;
+        }
       default:
-        vibrationWand(i_vibration_level_min);
       break;
+    }
 
-      case 2:
-        vibrationWand(i_vibration_level_min + 5);
+    // Then, make sure we have our power level offsets.
+    uint8_t i_power_level_offset = 0;
+    switch(gpstarWand.getPowerLevel()) {
+      case LEVEL_1:
+        // Do nothing; already set to 0.
       break;
-
-      case 3:
-        vibrationWand(i_vibration_level_min + 10);
+      case LEVEL_2:
+        i_power_level_offset = 5;
       break;
-
-      case 4:
-        vibrationWand(i_vibration_level_min + 12);
+      case LEVEL_3:
+        i_power_level_offset = 10;
       break;
-
+      case LEVEL_4:
+        i_power_level_offset = 12;
+      break;
       case 5:
-        vibrationWand(i_vibration_level_min + 25);
+      default:
+        i_power_level_offset = 25;
       break;
+    }
+
+    // Have to check for the 1984/1989 ramp status before proceeding.
+    switch(getNeutronaWandYearMode()) {
+      case SYSTEM_1984:
+      case SYSTEM_1989:
+        if(b_1984_vibration_ramp) {
+          // Start the 1984/1989 vibration rampdown.
+          r_vibration_ramp.go(i_vibration_ramp_1984);
+          r_vibration_ramp.go(i_vibration_base_level + i_power_level_offset, i_vibration_ramp_1984_length, LINEAR);
+          b_1984_vibration_ramp = false;
+        }
+      break;
+      default:
+        // Do nothing in all other cases.
+      break;
+    }
+
+    // All non-firing-related vibration goes here.
+    if(!r_vibration_ramp.isRunning()) {
+      // Non-ramping-related idle vibration goes here.
+      vibrationWand(i_vibration_base_level + i_power_level_offset);
+    }
+    else {
+      // Ramping-related vibration goes here.
+      vibrationWand(r_vibration_ramp.update());
+    }
+  }
+  else {
+    // All firing-related vibration goes here.
+    if(BARGRAPH_FIRING_ANIMATION == BARGRAPH_ANIMATION_ORIGINAL) {
+      if(BARGRAPH_TYPE == SEGMENTS_5) {
+        if(i_bargraph_status > 3) {
+          vibrationWand(i_vibration_level_min + 115);
+        }
+        else if(i_bargraph_status > 1) {
+          vibrationWand(i_vibration_level_min + 112);
+        }
+        else {
+          vibrationWand(i_vibration_level_min + 110);
+        }
+      }
+      else {
+        if(i_bargraph_status_alt > 22) {
+          vibrationWand(i_vibration_level_min + 115);
+        }
+        else if(i_bargraph_status_alt > 11) {
+          vibrationWand(i_vibration_level_min + 112);
+        }
+        else {
+          vibrationWand(i_vibration_level_min + 110);
+        }
+      }
+    }
+    else {
+      if(BARGRAPH_TYPE == SEGMENTS_30) {
+        switch(i_bargraph_status_alt) {
+          case 0 ... 6:
+            vibrationWand(i_vibration_level_min + 110);
+          break;
+          case 7 ... 11:
+            vibrationWand(i_vibration_level_min + 112);
+          break;
+          case 12 ... 14:
+            vibrationWand(i_vibration_level_min + 115);
+          break;
+        }
+      }
+      else if(BARGRAPH_TYPE == SEGMENTS_28) {
+        switch(i_bargraph_status_alt) {
+          case 0 ... 5:
+            vibrationWand(i_vibration_level_min + 110);
+          break;
+          case 6 ... 10:
+            vibrationWand(i_vibration_level_min + 112);
+          break;
+          case 11 ... 13:
+            vibrationWand(i_vibration_level_min + 115);
+          break;
+        }
+      }
+      else {
+        switch(i_bargraph_status) {
+          case 1:
+          case 5:
+            vibrationWand(i_vibration_level_min + 110);
+          break;
+          case 2:
+          case 4:
+            vibrationWand(i_vibration_level_min + 112);
+          break;
+          case 3:
+            vibrationWand(i_vibration_level_min + 115);
+          break;
+        }
+      }
     }
   }
 }
@@ -786,7 +844,7 @@ void resetBargraphSpeed() {
     default:
       i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984;
 
-      if(WAND_ACTION_STATUS == ACTION_OVERHEATING || (SYSTEM_MODE == MODE_ORIGINAL && WAND_STATUS == MODE_OFF)) {
+      if(WAND_ACTION_STATUS == ACTION_OVERHEATING || (gpstarWand.getSystemMode() == MODE_ORIGINAL && WAND_STATUS == MODE_OFF)) {
         // Under these special conditions we need a faster ramp.
         i_bargraph_multiplier_current *= 2;
       }
@@ -835,7 +893,7 @@ void wandBargraphControl(uint8_t i_t_level) {
 #endif
 }
 
-void bargraphRampUp() {
+void bargraphRamp() {
   if(BARGRAPH_TYPE == SEGMENTS_28) {
     /*
       // 28 Segment bargraph.
@@ -849,23 +907,6 @@ void bargraphRampUp() {
     switch(i_bargraph_status_alt) {
       case 0 ... 27:
         ht_bargraph.setLedNow(bargraphLookupTable(i_bargraph_status_alt));
-
-        if(i_bargraph_status_alt > 22) {
-          vibrationWand(i_vibration_level_min + 50);
-        }
-        else if(i_bargraph_status_alt > 16) {
-          vibrationWand(i_vibration_level_min + 40);
-        }
-        else if(i_bargraph_status_alt > 11) {
-          vibrationWand(i_vibration_level_min + 30);
-        }
-        else if(i_bargraph_status_alt > 4) {
-          vibrationWand(i_vibration_level_min + 20);
-        }
-        else if(i_bargraph_status_alt > 0) {
-          vibrationWand(i_vibration_level_min + 10);
-        }
-
         i_bargraph_status_alt++;
 
         if(i_bargraph_status_alt == 28) {
@@ -887,8 +928,6 @@ void bargraphRampUp() {
         i_tmp = (i_bargraph_segments - 2) - i_tmp;
 
         if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm) {
-          vibrationOff();
-
           ht_bargraph.clearLedNow(bargraphLookupTable(i_tmp));
 
           if(i_bargraph_status_alt == 55) {
@@ -902,7 +941,7 @@ void bargraphRampUp() {
           }
         }
         else {
-          if((i_power_level < 5 && BARGRAPH_MODE == BARGRAPH_ORIGINAL) || BARGRAPH_MODE == BARGRAPH_SUPER_HERO) {
+          if((gpstarWand.getPowerLevel() < MAX_POWER_LEVEL && BARGRAPH_MODE == BARGRAPH_ORIGINAL) || BARGRAPH_MODE == BARGRAPH_SUPER_HERO) {
             ht_bargraph.clearLedNow(bargraphLookupTable(i_tmp));
           }
 
@@ -915,8 +954,6 @@ void bargraphRampUp() {
                 b_bargraph_up = true;
                 i_bargraph_status_alt = 0;
                 resetBargraphSpeed();
-
-                vibrationWand(i_vibration_level_min);
               }
               else {
                 ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
@@ -925,106 +962,82 @@ void bargraphRampUp() {
             break;
 
             case BARGRAPH_ORIGINAL:
-              switch(i_power_level) {
-                case 5:
+              switch(gpstarWand.getPowerLevel()) {
+                case LEVEL_5:
+                default:
                   if(i_bargraph_status_alt == 55) {
                     ms_bargraph_alt.stop();
                     ms_bargraph.stop();
                     b_bargraph_up = false;
                     i_bargraph_status_alt = 27;
                     resetBargraphSpeed();
-
-                    vibrationWand(i_vibration_level_min + 25);
                   }
                   else {
                     ms_bargraph.stop();
                     b_bargraph_up = true;
                     i_bargraph_status_alt = 55 - i_bargraph_status_alt;
                     resetBargraphSpeed();
-
-                    vibrationWand(i_vibration_level_min + 25);
                   }
                 break;
 
-                case 4:
+                case LEVEL_4:
                   if(i_bargraph_status_alt == 32) {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
                     i_bargraph_status_alt = 22;
                     resetBargraphSpeed();
-
-                    vibrationWand(i_vibration_level_min + 30);
                   }
                   else if(i_bargraph_status_alt > 32) {
                     ms_bargraph.stop();
                     b_bargraph_up = true;
                     i_bargraph_status_alt = 55 - i_bargraph_status_alt;
                     resetBargraphSpeed();
-
-                    vibrationWand(i_vibration_level_min + 30);
                   }
                   else {
                     ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
                     i_bargraph_status_alt++;
-
-                    vibrationWand(i_vibration_level_min + 12);
                   }
                 break;
 
-                case 3:
+                case LEVEL_3:
                   if(i_bargraph_status_alt == 38) {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
                     i_bargraph_status_alt = 16;
                     resetBargraphSpeed();
-
-                    vibrationWand(i_vibration_level_min + 10);
                   }
                   else if(i_bargraph_status_alt > 38) {
                     ms_bargraph.stop();
                     b_bargraph_up = true;
                     i_bargraph_status_alt = 55 - i_bargraph_status_alt;
                     resetBargraphSpeed();
-
-                    vibrationWand(i_vibration_level_min + 10);
                   }
                   else {
                     ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
                     i_bargraph_status_alt++;
-
-                    vibrationWand(i_vibration_level_min + 20);
                   }
                 break;
 
-                case 2:
+                case LEVEL_2:
                   if(i_bargraph_status_alt == 43) {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
                     i_bargraph_status_alt = 11;
                     resetBargraphSpeed();
-
-                    vibrationWand(i_vibration_level_min + 5);
                   }
                   else if(i_bargraph_status_alt > 43) {
                     ms_bargraph.stop();
                     b_bargraph_up = true;
                     i_bargraph_status_alt = 55 - i_bargraph_status_alt;
                     resetBargraphSpeed();
-
-                    vibrationWand(i_vibration_level_min + 5);
                   }
                   else {
                     ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
                     i_bargraph_status_alt++;
-
-                    vibrationWand(i_vibration_level_min + 10);
                   }
                 break;
 
-                case 1:
-                default:
-                  vibrationWand(i_vibration_level_min);
-
+                case LEVEL_1:
                   if(i_bargraph_status_alt == 50) {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
@@ -1062,23 +1075,6 @@ void bargraphRampUp() {
     switch(i_bargraph_status_alt) {
       case 0 ... 29:
         ht_bargraph.setLedNow(bargraphLookupTable(i_bargraph_status_alt));
-
-        if(i_bargraph_status_alt > 23) {
-          vibrationWand(i_vibration_level_min + 50);
-        }
-        else if(i_bargraph_status_alt > 17) {
-          vibrationWand(i_vibration_level_min + 40);
-        }
-        else if(i_bargraph_status_alt > 11) {
-          vibrationWand(i_vibration_level_min + 30);
-        }
-        else if(i_bargraph_status_alt > 5) {
-          vibrationWand(i_vibration_level_min + 20);
-        }
-        else if(i_bargraph_status_alt > 0) {
-          vibrationWand(i_vibration_level_min + 10);
-        }
-
         i_bargraph_status_alt++;
 
         if(i_bargraph_status_alt == 30) {
@@ -1100,8 +1096,6 @@ void bargraphRampUp() {
         i_tmp = i_bargraph_segments - i_tmp;
 
         if(WAND_ACTION_STATUS == ACTION_OVERHEATING || b_pack_alarm) {
-            vibrationOff();
-
             ht_bargraph.clearLedNow(bargraphLookupTable(i_tmp));
 
             if(i_bargraph_status_alt == 59) {
@@ -1115,7 +1109,7 @@ void bargraphRampUp() {
             }
         }
         else {
-          if((i_power_level < 5 && BARGRAPH_MODE == BARGRAPH_ORIGINAL) || BARGRAPH_MODE == BARGRAPH_SUPER_HERO) {
+          if((gpstarWand.getPowerLevel() < MAX_POWER_LEVEL && BARGRAPH_MODE == BARGRAPH_ORIGINAL) || BARGRAPH_MODE == BARGRAPH_SUPER_HERO) {
             ht_bargraph.clearLedNow(bargraphLookupTable(i_tmp));
           }
 
@@ -1128,8 +1122,6 @@ void bargraphRampUp() {
                 b_bargraph_up = true;
                 i_bargraph_status_alt = 0;
                 resetBargraphSpeed();
-
-                vibrationWand(i_vibration_level_min);
               }
               else {
                 ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
@@ -1138,106 +1130,82 @@ void bargraphRampUp() {
             break;
 
             case BARGRAPH_ORIGINAL:
-              switch(i_power_level) {
-                case 5:
+              switch(gpstarWand.getPowerLevel()) {
+                case LEVEL_5:
+                default:
                   if(i_bargraph_status_alt == 59) {
                     ms_bargraph_alt.stop();
                     ms_bargraph.stop();
                     b_bargraph_up = false;
                     i_bargraph_status_alt = 29;
                     resetBargraphSpeed();
-
-                    vibrationWand(i_vibration_level_min + 25);
                   }
                   else {
                     ms_bargraph.stop();
                     b_bargraph_up = true;
                     i_bargraph_status_alt = 59 - i_bargraph_status_alt;
                     resetBargraphSpeed();
-
-                    vibrationWand(i_vibration_level_min + 25);
                   }
                 break;
 
-                case 4:
+                case LEVEL_4:
                   if(i_bargraph_status_alt == 35) {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
                     i_bargraph_status_alt = 23;
                     resetBargraphSpeed();
-
-                    vibrationWand(i_vibration_level_min + 30);
                   }
                   else if(i_bargraph_status_alt > 35) {
                     ms_bargraph.stop();
                     b_bargraph_up = true;
                     i_bargraph_status_alt = 59 - i_bargraph_status_alt;
                     resetBargraphSpeed();
-
-                    vibrationWand(i_vibration_level_min + 30);
                   }
                   else {
                     ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
                     i_bargraph_status_alt++;
-
-                    vibrationWand(i_vibration_level_min + 12);
                   }
                 break;
 
-                case 3:
+                case LEVEL_3:
                   if(i_bargraph_status_alt == 41) {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
                     i_bargraph_status_alt = 17;
                     resetBargraphSpeed();
-
-                    vibrationWand(i_vibration_level_min + 10);
                   }
                   else if(i_bargraph_status_alt > 41) {
                     ms_bargraph.stop();
                     b_bargraph_up = true;
                     i_bargraph_status_alt = 59 - i_bargraph_status_alt;
                     resetBargraphSpeed();
-
-                    vibrationWand(i_vibration_level_min + 10);
                   }
                   else {
                     ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
                     i_bargraph_status_alt++;
-
-                    vibrationWand(i_vibration_level_min + 20);
                   }
                 break;
 
-                case 2:
+                case LEVEL_2:
                   if(i_bargraph_status_alt == 47) {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
                     i_bargraph_status_alt = 11;
                     resetBargraphSpeed();
-
-                    vibrationWand(i_vibration_level_min + 5);
                   }
                   else if(i_bargraph_status_alt > 47) {
                     ms_bargraph.stop();
                     b_bargraph_up = true;
                     i_bargraph_status_alt = 59 - i_bargraph_status_alt;
                     resetBargraphSpeed();
-
-                    vibrationWand(i_vibration_level_min + 5);
                   }
                   else {
                     ms_bargraph.start(i_bargraph_interval * i_bargraph_multiplier_current);
                     i_bargraph_status_alt++;
-
-                    vibrationWand(i_vibration_level_min + 10);
                   }
                 break;
 
-                case 1:
-                default:
-                  vibrationWand(i_vibration_level_min);
-
+                case LEVEL_1:
                   if(i_bargraph_status_alt == 53) {
                     ms_bargraph.stop();
                     b_bargraph_up = false;
@@ -1272,43 +1240,33 @@ void bargraphRampUp() {
 
     switch(i_bargraph_status) {
       case 0:
-        vibrationWand(i_vibration_level_min + 10);
-
         wandBargraphControl(1);
         ms_bargraph.start(i_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
         i_bargraph_status++;
       break;
 
       case 1:
-        vibrationWand(i_vibration_level_min + 20);
-
         wandBargraphControl(2);
         ms_bargraph.start(i_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
         i_bargraph_status++;
       break;
 
       case 2:
-        vibrationWand(i_vibration_level_min + 30);
-
         wandBargraphControl(3);
         ms_bargraph.start(i_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
         i_bargraph_status++;
       break;
 
       case 3:
-        vibrationWand(i_vibration_level_min + 40);
-
         wandBargraphControl(4);
         ms_bargraph.start(i_bargraph_ramp_interval * t_bargraph_ramp_multiplier);
         i_bargraph_status++;
       break;
 
       case 4:
-        vibrationWand(i_vibration_level_min + 50);
-
         wandBargraphControl(5);
 
-        if(i_bargraph_status + 1 == i_power_level && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+        if(i_bargraph_status + 1 == gpstarWand.getPowerLevel() && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
           i_bargraph_status = 0;
         }
@@ -1319,11 +1277,9 @@ void bargraphRampUp() {
       break;
 
       case 5:
-        vibrationWand(i_vibration_level_min + 40);
-
         wandBargraphControl(4);
 
-        if(i_bargraph_status - 1 == i_power_level && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+        if(i_bargraph_status - 1 == gpstarWand.getPowerLevel() && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
           i_bargraph_status = 0;
         }
@@ -1334,11 +1290,9 @@ void bargraphRampUp() {
       break;
 
       case 6:
-        vibrationWand(i_vibration_level_min + 30);
-
         wandBargraphControl(3);
 
-        if(i_bargraph_status - 3 == i_power_level && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+        if(i_bargraph_status - 3 == gpstarWand.getPowerLevel() && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
           i_bargraph_status = 0;
         }
@@ -1349,11 +1303,9 @@ void bargraphRampUp() {
       break;
 
       case 7:
-        vibrationWand(i_vibration_level_min + 20);
-
         wandBargraphControl(2);
 
-        if(i_bargraph_status - 5 == i_power_level && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+        if(i_bargraph_status - 5 == gpstarWand.getPowerLevel() && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
           i_bargraph_status = 0;
         }
@@ -1364,11 +1316,9 @@ void bargraphRampUp() {
       break;
 
       case 8:
-        vibrationWand(i_vibration_level_min + 10);
-
         wandBargraphControl(1);
 
-        if(i_bargraph_status - 7 == i_power_level && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+        if(i_bargraph_status - 7 == gpstarWand.getPowerLevel() && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           ms_bargraph.stop();
           i_bargraph_status = 0;
         }
@@ -1390,31 +1340,31 @@ void bargraphRampUp() {
 }
 
 void soundIdleLoop(bool fadeIn) {
-  switch(i_power_level) {
-    case 1:
+  switch(gpstarWand.getPowerLevel()) {
+    case LEVEL_1:
+      playEffect(S_IDLE_LOOP_GUN_1, true, i_volume_effects, fadeIn, 1000);
+    break;
+
+    case LEVEL_2:
+      playEffect(S_IDLE_LOOP_GUN_1, true, i_volume_effects, fadeIn, 1000);
+    break;
+
+    case LEVEL_3:
+      playEffect(S_IDLE_LOOP_GUN_2, true, i_volume_effects, fadeIn, 1000);
+    break;
+
+    case LEVEL_4:
+      playEffect(S_IDLE_LOOP_GUN_2, true, i_volume_effects, fadeIn, 1000);
+    break;
+
+    case LEVEL_5:
     default:
-      playEffect(S_IDLE_LOOP_GUN_1, true, i_volume_effects, fadeIn, 1000);
-    break;
-
-    case 2:
-      playEffect(S_IDLE_LOOP_GUN_1, true, i_volume_effects, fadeIn, 1000);
-    break;
-
-    case 3:
-      playEffect(S_IDLE_LOOP_GUN_2, true, i_volume_effects, fadeIn, 1000);
-    break;
-
-    case 4:
-      playEffect(S_IDLE_LOOP_GUN_2, true, i_volume_effects, fadeIn, 1000);
-    break;
-
-    case 5:
       playEffect(S_IDLE_LOOP_GUN_5, true, i_volume_effects, fadeIn, 1000);
     break;
   }
 
   if(b_wand_standalone && fadeIn) {
-    switch(STREAM_MODE) {
+    switch(gpstarWand.getStreamMode()) {
       case SLIME:
         playEffect(S_WAND_SLIME_IDLE_LOOP, true, i_volume_effects, true, 900);
       break;
@@ -1432,35 +1382,35 @@ void soundIdleLoop(bool fadeIn) {
 }
 
 void soundIdleLoopStop(bool stopAlts) {
-  switch(i_power_level) {
-    case 1:
-    default:
+  switch(gpstarWand.getPowerLevel()) {
+    case LEVEL_1:
       stopEffect(S_IDLE_LOOP_GUN_1);
     break;
 
-    case 2:
-      stopEffect(S_IDLE_LOOP_GUN_1);
-      stopEffect(S_IDLE_LOOP_GUN_2);
-    break;
-
-    case 3:
+    case LEVEL_2:
       stopEffect(S_IDLE_LOOP_GUN_1);
       stopEffect(S_IDLE_LOOP_GUN_2);
     break;
 
-    case 4:
+    case LEVEL_3:
+      stopEffect(S_IDLE_LOOP_GUN_1);
+      stopEffect(S_IDLE_LOOP_GUN_2);
+    break;
+
+    case LEVEL_4:
       stopEffect(S_IDLE_LOOP_GUN_2);
       stopEffect(S_IDLE_LOOP_GUN_5);
     break;
 
-    case 5:
+    case LEVEL_5:
+    default:
       stopEffect(S_IDLE_LOOP_GUN_2);
       stopEffect(S_IDLE_LOOP_GUN_5);
     break;
   }
 
   if(stopAlts && b_wand_standalone) {
-    switch(STREAM_MODE) {
+    switch(gpstarWand.getStreamMode()) {
       case SLIME:
         stopEffect(S_WAND_SLIME_IDLE_LOOP);
       break;
@@ -1495,7 +1445,9 @@ void afterlifeRampSound1() {
     wandSerialSend(W_AFTERLIFE_GUN_RAMP_1);
   }
 
-  ms_gun_loop_1.start(i_gun_loop_1);
+  ms_gun_ramp_1.start(i_gun_ramp_1_length);
+  r_vibration_ramp.go(i_vibration_level_min);
+  r_vibration_ramp.go(i_vibration_idle_afterlife_1, i_gun_ramp_1_length, LINEAR);
 
   if(AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
     playTransitionEffect(S_AFTERLIFE_WAND_RAMP_1, S_AFTERLIFE_WAND_IDLE_1, true, 5);
@@ -1520,16 +1472,17 @@ void postActivation(bool shortBoot = false) {
 
   if(WAND_STATUS != MODE_ERROR) {
     if(!b_pack_alarm) {
-      switch(SYSTEM_MODE) {
+      switch(gpstarWand.getSystemMode()) {
         case MODE_ORIGINAL:
           if(!ms_bargraph.isRunning()) {
             // Ramp up the bargraph if required. Usually if everything is turned on via the top right toggle switch.
-            bargraphRampUp();
+            bargraphRamp();
           }
         break;
 
         case MODE_SUPER_HERO:
-          bargraphRampUp();
+        default:
+          bargraphRamp();
           if(switch_vent.on()) {
             b_all_switch_activation = true; // If vent switch is already on when Activate is flipped, set to true for soundIdleStart() to use
           }
@@ -1557,7 +1510,7 @@ void postActivation(bool shortBoot = false) {
           if(b_pack_on) {
             playEffect(S_WAND_BOOTUP_SHORT);
 
-            if(b_extra_pack_sounds && b_pack_on && !b_wand_mash_error) {
+            if(b_extra_pack_sounds && b_pack_on && !b_wand_mash_lockout) {
               wandSerialSend(W_WAND_BOOTUP_SHORT_SOUND);
             }
           }
@@ -1573,14 +1526,14 @@ void postActivation(bool shortBoot = false) {
           if(b_pack_on && !switch_vent.on()) {
             playEffect(S_WAND_BOOTUP_SHORT);
 
-            if(b_extra_pack_sounds && b_pack_on && !b_wand_mash_error) {
+            if(b_extra_pack_sounds && b_pack_on && !b_wand_mash_lockout) {
               wandSerialSend(W_WAND_BOOTUP_SHORT_SOUND);
             }
           }
           else {
             playEffect(S_GB2_WAND_START);
 
-            if(b_extra_pack_sounds && b_pack_on && !b_wand_mash_error) {
+            if(b_extra_pack_sounds && b_pack_on && !b_wand_mash_lockout) {
               wandSerialSend(W_WAND_BOOTUP_1989);
             }
           }
@@ -1639,6 +1592,9 @@ void soundIdleStart() {
           }
         }
 
+        // Initialize the vibration ramp for 1984/1989.
+        b_1984_vibration_ramp = true;
+
         soundIdleLoop(true);
 
         b_sound_idle = true;
@@ -1657,8 +1613,10 @@ void soundIdleStart() {
           }
         }
 
-        ms_gun_loop_1.stop();
-        ms_gun_loop_2.start(i_gun_loop_2);
+        ms_gun_ramp_1.stop();
+        ms_gun_ramp_2.start(i_gun_ramp_2_length);
+        r_vibration_ramp.go(i_vibration_idle_afterlife_1);
+        r_vibration_ramp.go(i_vibration_idle_afterlife_2, i_gun_ramp_2_length, LINEAR);
 
         if(b_sound_afterlife_idle_2_fade) {
           if(AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
@@ -1691,7 +1649,7 @@ void soundIdleStart() {
   }
 
   if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
-    if(ms_gun_loop_2.justFinished()) {
+    if(ms_gun_ramp_2.justFinished()) {
       if(b_extra_pack_sounds) {
         wandSerialSend(W_AFTERLIFE_GUN_LOOP_2);
       }
@@ -1717,7 +1675,7 @@ void soundIdleStop() {
         stopEffect(S_GB2_WAND_START);
         soundIdleLoopStop(true);
 
-        if(WAND_ACTION_STATUS != ACTION_OVERHEATING && !b_wand_mash_error) {
+        if(WAND_ACTION_STATUS != ACTION_OVERHEATING && !b_wand_mash_lockout) {
           if(b_extra_pack_sounds) {
             wandSerialSend(W_WAND_SHUTDOWN_SOUND);
           }
@@ -1737,14 +1695,16 @@ void soundIdleStop() {
 
           playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
         }
-        else if(!b_wand_mash_error){
+        else if(!b_wand_mash_lockout){
           // Ramp 2 -> Idle 1
           if(b_extra_pack_sounds) {
             wandSerialSend(W_AFTERLIFE_GUN_RAMP_DOWN_2);
           }
 
-          ms_gun_loop_1.start(i_gun_loop_2);
-          ms_gun_loop_2.stop();
+          ms_gun_ramp_1.start(i_gun_ramp_2_length);
+          ms_gun_ramp_2.stop();
+          r_vibration_ramp.go(i_vibration_idle_afterlife_2);
+          r_vibration_ramp.go(i_vibration_idle_afterlife_1, i_gun_ramp_2_length, LINEAR);
 
           if(AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
             playTransitionEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, S_AFTERLIFE_WAND_IDLE_1, true, 5);
@@ -1806,41 +1766,98 @@ void overheatingFinished() {
   WAND_ACTION_STATUS = ACTION_IDLE;
   b_overheat_recovery = true;
 
-  bargraphRampUp();
+  bargraphRamp();
 }
 
-void quickVentFinished() {
-  if(b_wand_standalone) {
-    ms_overheating.stop();
-    stopEffect(S_QUICK_VENT_OPEN);
-    playEffect(S_QUICK_VENT_CLOSE);
+// Tell the pack which power level the Neutrona Wand is set at.
+void updatePackPowerLevel() {
+  switch(gpstarWand.getPowerLevel()) {
+    case LEVEL_5:
+    default:
+      // Level 5
+      wandSerialSend(W_POWER_LEVEL_5);
 
-    if(STREAM_MODE == SLIME && WAND_STATUS == MODE_ON && switch_vent.on()) {
-      playEffect(S_WAND_SLIME_IDLE_LOOP, true, i_volume_effects, true, 900);
-    }
+      #ifdef ESP32
+      // If firing, also update the IR timer.
+      if(WAND_ACTION_STATUS == ACTION_FIRING) {
+        irManager->startTXTimer(ir_delay_power_5);
+        if(gpstarWand.inStreamMode(MESON)) {
+          // Resetart the Meson timer with the new delay.
+          rapidEffectDelay(S_MESON_FIRE_PULSE, i_meson_blast_delay_level_5);
+          ms_meson_blast.start(i_meson_blast_delay_level_5);
+        }
+      }
+      #endif
+    break;
+
+    case LEVEL_4:
+      // Level 4
+      wandSerialSend(W_POWER_LEVEL_4);
+
+      #ifdef ESP32
+      // If firing, also update the IR timer.
+      if(WAND_ACTION_STATUS == ACTION_FIRING) {
+        irManager->startTXTimer(ir_delay_power_4);
+        if(gpstarWand.inStreamMode(MESON)) {
+          // Resetart the Meson timer with the new delay.
+          rapidEffectDelay(S_MESON_FIRE_PULSE, i_meson_blast_delay_level_4);
+          ms_meson_blast.start(i_meson_blast_delay_level_4);
+        }
+      }
+      #endif
+    break;
+
+    case LEVEL_3:
+      // Level 3
+      wandSerialSend(W_POWER_LEVEL_3);
+
+      #ifdef ESP32
+      // If firing, also update the IR timer.
+      if(WAND_ACTION_STATUS == ACTION_FIRING) {
+        irManager->startTXTimer(ir_delay_power_3);
+        if(gpstarWand.inStreamMode(MESON)) {
+          // Resetart the Meson timer with the new delay.
+          rapidEffectDelay(S_MESON_FIRE_PULSE, i_meson_blast_delay_level_3);
+          ms_meson_blast.start(i_meson_blast_delay_level_3);
+        }
+      }
+      #endif
+    break;
+
+    case LEVEL_2:
+      // Level 2
+      wandSerialSend(W_POWER_LEVEL_2);
+
+      #ifdef ESP32
+      // If firing, also update the IR timer.
+      if(WAND_ACTION_STATUS == ACTION_FIRING) {
+        irManager->startTXTimer(ir_delay_power_2);
+        if(gpstarWand.inStreamMode(MESON)) {
+          // Resetart the Meson timer with the new delay.
+          rapidEffectDelay(S_MESON_FIRE_PULSE, i_meson_blast_delay_level_2);
+          ms_meson_blast.start(i_meson_blast_delay_level_2);
+        }
+      }
+      #endif
+    break;
+
+    case LEVEL_1:
+      // Level 1
+      wandSerialSend(W_POWER_LEVEL_1);
+
+      #ifdef ESP32
+      // If firing, also update the IR timer.
+      if(WAND_ACTION_STATUS == ACTION_FIRING) {
+        irManager->startTXTimer(ir_delay_power_1);
+        if(gpstarWand.inStreamMode(MESON)) {
+          // Resetart the Meson timer with the new delay.
+          rapidEffectDelay(S_MESON_FIRE_PULSE, i_meson_blast_delay_level_1);
+          ms_meson_blast.start(i_meson_blast_delay_level_1);
+        }
+      }
+      #endif
+    break;
   }
-
-  WAND_ACTION_STATUS = ACTION_IDLE;
-}
-
-void startQuickVent() {
-  WAND_ACTION_STATUS = ACTION_VENTING;
-
-  // Since the Proton Pack tells the Neutrona Wand when venting is finished, standalone wand needs its own timer.
-  if(b_wand_standalone) {
-    ms_overheating.start(i_ms_overheating >= 4000 ? i_ms_overheating / 2 : 2000);
-
-    stopEffect(S_SLIME_EMPTY);
-    stopEffect(S_WAND_SLIME_IDLE_LOOP);
-    stopEffect(S_QUICK_VENT_CLOSE);
-    playEffect(S_QUICK_VENT_OPEN);
-
-    if(STREAM_MODE == SLIME) {
-      playEffect(S_SLIME_EMPTY);
-    }
-  }
-
-  wandSerialSend(W_VENTING);
 }
 
 // Returns the top segment for a given power level for the 28 or 30 segment bargraphs.
@@ -1883,23 +1900,10 @@ void bargraphRedraw() {
       i_segment_adjust = 0;
     }
 
-    switch(i_power_level) {
-      case 5:
+    switch(gpstarWand.getPowerLevel()) {
+      case LEVEL_1 ... LEVEL_4:
         for(uint8_t i = 0; i < i_bargraph_segments - i_segment_adjust; i++) {
-          ht_bargraph.setLed(bargraphLookupTable(i));
-        }
-
-        ht_bargraph.sendLed(); // Commit the changes.
-        i_bargraph_status_alt = i_bargraph_segments - i_segment_adjust;
-      break;
-
-      case 4:
-      case 3:
-      case 2:
-      case 1:
-      default:
-        for(uint8_t i = 0; i < i_bargraph_segments - i_segment_adjust; i++) {
-          if(i <= bargraphPowerLookupTable(i_power_level)) {
+          if(i <= bargraphPowerLookupTable((uint8_t)gpstarWand.getPowerLevel())) {
             ht_bargraph.setLed(bargraphLookupTable(i));
           }
           else {
@@ -1908,31 +1912,41 @@ void bargraphRedraw() {
         }
 
         ht_bargraph.sendLed(); // Commit the changes.
-        i_bargraph_status_alt = bargraphPowerLookupTable(i_power_level);
+        i_bargraph_status_alt = bargraphPowerLookupTable((uint8_t)gpstarWand.getPowerLevel());
+      break;
+
+      case LEVEL_5:
+      default:
+        for(uint8_t i = 0; i < i_bargraph_segments - i_segment_adjust; i++) {
+          ht_bargraph.setLed(bargraphLookupTable(i));
+        }
+
+        ht_bargraph.sendLed(); // Commit the changes.
+        i_bargraph_status_alt = i_bargraph_segments - i_segment_adjust;
       break;
     }
   }
   else {
     // Stock haslab bargraph control.
-    switch(i_power_level) {
-      case 1:
-      default:
+    switch(gpstarWand.getPowerLevel()) {
+      case LEVEL_1:
         wandBargraphControl(1);
       break;
 
-      case 2:
+      case LEVEL_2:
         wandBargraphControl(2);
       break;
 
-      case 3:
+      case LEVEL_3:
         wandBargraphControl(3);
       break;
 
-      case 4:
+      case LEVEL_4:
         wandBargraphControl(4);
       break;
 
-      case 5:
+      case LEVEL_5:
+      default:
         wandBargraphControl(5);
       break;
     }
@@ -1980,8 +1994,27 @@ void bargraphPowerCheck() {
           ht_bargraph.setLedNow(bargraphLookupTable(i_bargraph_status_alt));
         }
 
-        switch(i_power_level) {
-          case 5:
+        switch(gpstarWand.getPowerLevel()) {
+          case LEVEL_1 ... LEVEL_4:
+            if(i_bargraph_status_alt > bargraphPowerLookupTable((uint8_t)gpstarWand.getPowerLevel()) - 1) {
+              b_bargraph_up = false;
+
+              if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
+                // We stop when we reach our target.
+                ms_bargraph_alt.stop();
+              }
+              else {
+                // A little pause when we reach the top.
+                ms_bargraph_alt.start(i_bargraph_wait / 2);
+              }
+            }
+            else {
+              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[(uint8_t)gpstarWand.getPowerLevel() - 1]);
+            }
+          break;
+
+          case LEVEL_5:
+          default:
             if(i_bargraph_status_alt > i_bargraph_segments - i_segment_adjust) {
               b_bargraph_up = false;
 
@@ -1997,29 +2030,7 @@ void bargraphPowerCheck() {
               }
             }
             else {
-              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_level - 1]);
-            }
-          break;
-
-          case 4:
-          case 3:
-          case 2:
-          case 1:
-          default:
-            if(i_bargraph_status_alt > bargraphPowerLookupTable(i_power_level) - 1) {
-              b_bargraph_up = false;
-
-              if(BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
-                // We stop when we reach our target.
-                ms_bargraph_alt.stop();
-              }
-              else {
-                // A little pause when we reach the top.
-                ms_bargraph_alt.start(i_bargraph_wait / 2);
-              }
-            }
-            else {
-              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_level - 1]);
+              ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[(uint8_t)gpstarWand.getPowerLevel() - 1]);
             }
           break;
         }
@@ -2048,28 +2059,25 @@ void bargraphPowerCheck() {
             i_bargraph_power_lookup_adjust = 0;
           }
 
-          switch(i_power_level) {
-            case 5:
+          switch(gpstarWand.getPowerLevel()) {
+            case LEVEL_1 ... LEVEL_4:
+              if(BARGRAPH_MODE == BARGRAPH_ORIGINAL && i_bargraph_status_alt < bargraphPowerLookupTable((uint8_t)gpstarWand.getPowerLevel()) + i_bargraph_power_lookup_adjust) {
+                // We stop when we reach our target.
+                ms_bargraph_alt.stop();
+              }
+              else {
+                ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[(uint8_t)gpstarWand.getPowerLevel() - 1]);
+              }
+            break;
+
+            case LEVEL_5:
+            default:
               if(BARGRAPH_MODE == BARGRAPH_ORIGINAL && i_bargraph_status_alt < i_bargraph_segments - i_segment_adjust) {
                 // We stop when we reach our target.
                 ms_bargraph_alt.stop();
               }
               else {
-                ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_level - 1]);
-              }
-            break;
-
-            case 4:
-            case 3:
-            case 2:
-            case 1:
-            default:
-              if(BARGRAPH_MODE == BARGRAPH_ORIGINAL && i_bargraph_status_alt < bargraphPowerLookupTable(i_power_level) + i_bargraph_power_lookup_adjust) {
-                // We stop when we reach our target.
-                ms_bargraph_alt.stop();
-              }
-              else {
-                ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[i_power_level - 1]);
+                ms_bargraph_alt.start(i_bargraph_interval * i_bargraph_multiplier[(uint8_t)gpstarWand.getPowerLevel() - 1]);
               }
             break;
           }
@@ -2079,27 +2087,66 @@ void bargraphPowerCheck() {
   }
   else {
     // Stock haslab bargraph control.
-    switch(i_power_level) {
-      case 1:
-      default:
+    switch(gpstarWand.getPowerLevel()) {
+      case LEVEL_1:
         wandBargraphControl(1);
       break;
 
-      case 2:
+      case LEVEL_2:
         wandBargraphControl(2);
       break;
 
-      case 3:
+      case LEVEL_3:
         wandBargraphControl(3);
       break;
 
-      case 4:
+      case LEVEL_4:
         wandBargraphControl(4);
       break;
 
-      case 5:
+      case LEVEL_5:
+      default:
         wandBargraphControl(5);
       break;
+    }
+  }
+}
+
+// Afterlife and Frozen Empire mode for the 28 and 30 segment bargraph.
+// Checks if we ramp up or down when changing power levels.
+// Forces the bargraph to redraw itself to the current power level.
+void bargraphPowerCheck2021Alt(bool b_override) {
+  if((WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) || b_override) {
+    if(gpstarWand.getPowerLevel() != gpstarWand.getPreviousPowerLevel() || b_override) {
+      if(gpstarWand.getPowerLevel() > gpstarWand.getPreviousPowerLevel()) {
+        b_bargraph_up = true;
+      }
+      else {
+        b_bargraph_up = false;
+      }
+
+      switch(gpstarWand.getPowerLevel()) {
+        case LEVEL_5:
+        default:
+          ms_bargraph_alt.start(i_bargraph_wait / 3);
+        break;
+
+        case LEVEL_4:
+          ms_bargraph_alt.start(i_bargraph_wait / 4);
+        break;
+
+        case LEVEL_3:
+          ms_bargraph_alt.start(i_bargraph_wait / 5);
+        break;
+
+        case LEVEL_2:
+          ms_bargraph_alt.start(i_bargraph_wait / 6);
+        break;
+
+        case LEVEL_1:
+          ms_bargraph_alt.start(i_bargraph_wait / 7);
+        break;
+      }
     }
   }
 }
@@ -2125,124 +2172,40 @@ void bargraphFull() {
 }
 
 void prepBargraphRampDown() {
-  if((WAND_STATUS == MODE_ON && WAND_ACTION_STATUS == ACTION_IDLE) || (WAND_STATUS == MODE_OFF && WAND_ACTION_STATUS == ACTION_IDLE && SYSTEM_MODE == MODE_ORIGINAL)) {
-    // If bargraph is set to ramp down during ribbon cable error, we need to set a few things.
-    soundBeepLoopStop();
-    soundIdleStop();
-    soundIdleLoopStop(true);
-
-    uint8_t i_segment_adjust = 2;
-    if(BARGRAPH_TYPE == SEGMENTS_30) {
-      i_segment_adjust = 0;
-    }
-
-    // Reset some bargraph levels before we ramp the bargraph down.
-    i_bargraph_status_alt = i_bargraph_segments - i_segment_adjust; // For 28 and 30 segment bargraph
-    i_bargraph_status = i_bargraph_segments_5_led; // For Hasbro 5 LED bargraph.
-
-    bargraphFull();
-
-    ms_bargraph.start(i_bargraph_ramp_interval);
-
-    // Prepare to make the bargraph ramp down now.
-    bargraphRampUp();
+  uint8_t i_segment_adjust = 2;
+  if(BARGRAPH_TYPE == SEGMENTS_30) {
+    i_segment_adjust = 0;
   }
-}
 
-// Afterlife and Frozen Empire mode for the 28 and 30 segment bargraph.
-// Checks if we ramp up or down when changing power levels.
-// Forces the bargraph to redraw itself to the current power level.
-void bargraphPowerCheck2021Alt(bool b_override) {
-  if((WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) || b_override) {
-    if(i_power_level != i_power_level_prev || b_override) {
-      if(i_power_level > i_power_level_prev) {
-        b_bargraph_up = true;
-      }
-      else {
-        b_bargraph_up = false;
-      }
+  // Reset some bargraph levels before we ramp the bargraph down.
+  i_bargraph_status_alt = i_bargraph_segments - i_segment_adjust; // For 28 and 30 segment bargraph
+  i_bargraph_status = i_bargraph_segments_5_led; // For Hasbro 5 LED bargraph.
 
-      switch(i_power_level) {
-        case 5:
-          ms_bargraph_alt.start(i_bargraph_wait / 3);
-        break;
+  bargraphFull();
 
-        case 4:
-          ms_bargraph_alt.start(i_bargraph_wait / 4);
-        break;
+  ms_bargraph.start(i_bargraph_ramp_interval);
 
-        case 3:
-          ms_bargraph_alt.start(i_bargraph_wait / 5);
-        break;
-
-        case 2:
-          ms_bargraph_alt.start(i_bargraph_wait / 6);
-        break;
-
-        case 1:
-        default:
-          ms_bargraph_alt.start(i_bargraph_wait / 7);
-        break;
-      }
-    }
-  }
-}
-
-// Tell the pack which power level the Neutrona Wand is set at.
-void updatePackPowerLevel() {
-  switch(i_power_level) {
-    case 5:
-    default:
-      // Level 5
-      POWER_LEVEL = LEVEL_5;
-      wandSerialSend(W_POWER_LEVEL_5);
-    break;
-
-    case 4:
-      // Level 4
-      POWER_LEVEL = LEVEL_4;
-      wandSerialSend(W_POWER_LEVEL_4);
-    break;
-
-    case 3:
-      // Level 3
-      POWER_LEVEL = LEVEL_3;
-      wandSerialSend(W_POWER_LEVEL_3);
-    break;
-
-    case 2:
-      // Level 2
-      POWER_LEVEL = LEVEL_2;
-      wandSerialSend(W_POWER_LEVEL_2);
-    break;
-
-    case 1:
-      // Level 1
-      POWER_LEVEL = LEVEL_1;
-      wandSerialSend(W_POWER_LEVEL_1);
-    break;
-  }
+  // Prepare to make the bargraph ramp down now.
+  bargraphRamp();
 }
 
 void prepBargraphRampUp() {
-  if((WAND_STATUS == MODE_ON && WAND_ACTION_STATUS == ACTION_IDLE) || (WAND_STATUS == MODE_OFF && WAND_ACTION_STATUS == ACTION_IDLE && SYSTEM_MODE == MODE_ORIGINAL)) {
-    bargraphClearAlt();
+  bargraphClearAlt();
 
-    ms_settings_blink.stop();
+  ms_settings_blink.stop();
 
-    // Prepare a few things before ramping the bargraph back up from a full ramp down.
-    if(!b_overheat_bargraph_blink) {
-      resetBargraphSpeed();
+  // Prepare a few things before ramping the bargraph back up from a full ramp down.
+  if(!b_overheat_bargraph_blink) {
+    resetBargraphSpeed();
 
-      // If using the 28 and 30 segment bargraph, in Afterlife, we need to redraw the segments.
-      // 1984/1989 years will go in to a auto ramp and do not need a manual refresh.
-      if((BARGRAPH_TYPE == SEGMENTS_28 || BARGRAPH_TYPE == SEGMENTS_30) && BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
-        bargraphPowerCheck2021Alt(false);
-      }
-
-      updatePackPowerLevel();
-      bargraphRampUp();
+    // If using the 28 and 30 segment bargraph, in Afterlife, we need to redraw the segments.
+    // 1984/1989 years will go in to a auto ramp and do not need a manual refresh.
+    if((BARGRAPH_TYPE == SEGMENTS_28 || BARGRAPH_TYPE == SEGMENTS_30) && BARGRAPH_MODE == BARGRAPH_ORIGINAL) {
+      bargraphPowerCheck2021Alt(false);
     }
+
+    updatePackPowerLevel();
+    bargraphRamp();
   }
 }
 
@@ -2262,6 +2225,15 @@ void stopOverheatBeepWarnings() {
   }
 }
 
+void stopMashErrorSounds() {
+  // Stop GB:FE button-smash sounds.
+  stopEffect(S_FROZEN_EMPIRE_BRASS_FIRE_TAIL);
+  stopEffect(S_WAND_STASIS_IDLE_LOOP);
+  // Stop normal button-smash sounds.
+  stopEffect(S_MASH_ERROR_LOOP);
+  stopEffect(S_SMASH_ERROR_RESTART);
+}
+
 void modeFireStopSounds() {
   // Reset some sound triggers.
   b_sound_firing_intensify_trigger = false;
@@ -2270,12 +2242,12 @@ void modeFireStopSounds() {
 
   ms_meson_blast.stop();
 
-  switch(STREAM_MODE) {
+  switch(gpstarWand.getStreamMode()) {
     case PROTON:
     default:
       switch(getSystemYearMode()) {
         case SYSTEM_1984:
-          if(i_power_level != i_power_level_max) {
+          if(gpstarWand.getPowerLevel() != MAX_POWER_LEVEL) {
             // Play different firing end stream sound depending on how long we have been firing for.
             if(ms_firing_length_timer.remaining() < 5000) {
               // Long firing tail end.
@@ -2356,17 +2328,17 @@ void modeFireStopSounds() {
     break;
 
     case MESON:
-      // Nothing.
+      // Set the pulse to stop looping.
+      stopEffectLoop(S_MESON_FIRE_PULSE);
     break;
   }
 
   // Stop all other firing sounds.
-  switch(STREAM_MODE) {
+  switch(gpstarWand.getStreamMode()) {
     case PROTON:
     default:
-      switch(i_power_level) {
-        case 1 ... 4:
-        default:
+      switch(gpstarWand.getPowerLevel()) {
+        case LEVEL_1 ... LEVEL_4:
           switch(getSystemYearMode()) {
             case SYSTEM_1984:
               stopEffect(S_GB1_1984_FIRE_START_SHORT);
@@ -2387,7 +2359,8 @@ void modeFireStopSounds() {
             break;
           }
         break;
-        case 5:
+        case LEVEL_5:
+        default:
           switch(getSystemYearMode()) {
             case SYSTEM_1984:
               stopEffect(S_GB1_1984_FIRE_START_HIGH_POWER);
@@ -2415,10 +2388,10 @@ void modeFireStopSounds() {
       stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
 
       // Handle these as part of the "default" case, which is technically an extension of the proton stream.
-      if(STREAM_MODE == HOLIDAY_HALLOWEEN) {
+      if(gpstarWand.inStreamMode(HOLIDAY_HALLOWEEN)) {
         stopEffect(S_HALLOWEEN_FIRING_EXTRA);
       }
-      if(STREAM_MODE == HOLIDAY_CHRISTMAS) {
+      if(gpstarWand.inStreamMode(HOLIDAY_CHRISTMAS)) {
         stopEffect(S_CHRISTMAS_FIRING_EXTRA);
       }
     break;
@@ -2441,10 +2414,8 @@ void modeFireStopSounds() {
   if(b_firing_cross_streams) {
     switch(WAND_YEAR_CTS) {
       case CTS_AFTERLIFE:
-        if(AUDIO_DEVICE == A_WAV_TRIGGER) {
-          stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-          stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
-        }
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
       break;
@@ -2464,10 +2435,8 @@ void modeFireStopSounds() {
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
           default:
-            if(AUDIO_DEVICE == A_WAV_TRIGGER) {
-              stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-              stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
-            }
+            stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+            stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
             playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
           break;
@@ -2509,7 +2478,7 @@ void modeFireStop() {
   switch(BARGRAPH_MODE) {
     case BARGRAPH_ORIGINAL:
       // Need to restart the regular bargraph timer.
-      i_bargraph_status = i_power_level - 1;
+      i_bargraph_status = (uint8_t)gpstarWand.getPowerLevel() - 1;
       i_bargraph_status_alt = 0;
 
       switch(BARGRAPH_FIRING_ANIMATION) {
@@ -2527,31 +2496,22 @@ void modeFireStop() {
 
           i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021 / 3;
 
-          bargraphRampUp();
+          bargraphRamp();
         break;
-      }
-
-      if(b_pack_alarm) {
-        // We are going to ramp the bargraph down if the pack alarm happens while we were firing.
-        prepBargraphRampDown();
       }
     break;
 
     case BARGRAPH_SUPER_HERO:
     default:
-      i_bargraph_status = i_power_level - 1;
+      i_bargraph_status = (uint8_t)gpstarWand.getPowerLevel() - 1;
       i_bargraph_status_alt = 0;
       bargraphClearAlt();
 
       i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984;
 
-      if(b_pack_alarm) {
-        // We are going to ramp the bargraph down if the pack alarm happens while we were firing.
-        prepBargraphRampDown();
-      }
-      else {
+      if(!b_pack_alarm) {
         // We ramp the bargraph back up after finishing firing.
-        bargraphRampUp();
+        bargraphRamp();
       }
     break;
   }
@@ -2561,6 +2521,11 @@ void modeFireStop() {
   ms_firing_sound_mix.stop();
   ms_firing_effect_end.start(0);
 
+  #ifdef ESP32
+  // Stop the infrared timer.
+  irManager->stopTXTimer();
+  #endif
+
   wandTipOff();
 
   resetHatLights();
@@ -2569,6 +2534,44 @@ void modeFireStop() {
   stopOverheatBeepWarnings();
 
   modeFireStopSounds();
+}
+
+void quickVentFinished() {
+  if(b_wand_standalone) {
+    ms_overheating.stop();
+    stopEffect(S_QUICK_VENT_OPEN);
+    playEffect(S_QUICK_VENT_CLOSE);
+
+    if(gpstarWand.inStreamMode(SLIME) && WAND_STATUS == MODE_ON && switch_vent.on()) {
+      playEffect(S_WAND_SLIME_IDLE_LOOP, true, i_volume_effects, true, 900);
+    }
+  }
+
+  WAND_ACTION_STATUS = ACTION_IDLE;
+}
+
+void startQuickVent() {
+  if(WAND_ACTION_STATUS == ACTION_FIRING && b_firing) {
+    modeFireStop();
+  }
+
+  WAND_ACTION_STATUS = ACTION_VENTING;
+
+  // Since the Proton Pack tells the Neutrona Wand when venting is finished, standalone wand needs its own timer.
+  if(b_wand_standalone) {
+    ms_overheating.start(i_ms_overheating >= 4000 ? i_ms_overheating / 2 : 2000);
+
+    stopEffect(S_SLIME_EMPTY);
+    stopEffect(S_WAND_SLIME_IDLE_LOOP);
+    stopEffect(S_QUICK_VENT_CLOSE);
+    playEffect(S_QUICK_VENT_OPEN);
+
+    if(gpstarWand.inStreamMode(SLIME)) {
+      playEffect(S_SLIME_EMPTY);
+    }
+  }
+
+  wandSerialSend(W_VENTING);
 }
 
 void startVentSequence() {
@@ -2608,18 +2611,8 @@ void startVentSequence() {
     ms_blink_sound_timer_2.start(i_blink_sound_timer_2);
   }
   else {
-    uint8_t i_segment_adjust = 2;
-    if(BARGRAPH_TYPE == SEGMENTS_30) {
-      i_segment_adjust = 0;
-    }
-
-    // Reset some bargraph levels before we ramp the bargraph down.
-    i_bargraph_status_alt = i_bargraph_segments - i_segment_adjust; // For 28 and 30 segment bargraph
-    i_bargraph_status = i_bargraph_segments_5_led; // For Hasbro 5 LED bargraph.
-
-    bargraphFull();
-
-    ms_bargraph.start(i_bargraph_ramp_interval);
+    // Ramp the bargraph down.
+    prepBargraphRampDown();
   }
 
   if(b_extra_pack_sounds) {
@@ -2653,11 +2646,17 @@ void settingsBlinkingLights() {
     }
 
     // Indicator for crossing the streams setting.
-    if((FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) && WAND_ACTION_STATUS == ACTION_SETTINGS && i_wand_menu == 5 && WAND_MENU_LEVEL == MENU_LEVEL_2) {
+    if((gpstarWand.isFiringModeCTS() || gpstarWand.isFiringModeCTSMix()) && WAND_ACTION_STATUS == ACTION_SETTINGS && i_wand_menu == 5 && WAND_MENU_LEVEL == MENU_LEVEL_2) {
       b_solid_five = true;
     }
 
+    // Indicator for master volume mute setting.
     if(i_volume_master == i_volume_abs_min && WAND_ACTION_STATUS == ACTION_SETTINGS && WAND_MENU_LEVEL == MENU_LEVEL_1) {
+      b_solid_one = true;
+    }
+
+    // Indicator for shuffle tracks setting.
+    if(b_shuffle_tracks && WAND_ACTION_STATUS == ACTION_SETTINGS && WAND_MENU_LEVEL == MENU_LEVEL_2) {
       b_solid_one = true;
     }
 
@@ -2687,7 +2686,7 @@ void settingsBlinkingLights() {
         ht_bargraph.sendLed(); // Commit the changes.
       }
       else if(b_solid_one) {
-        for(uint8_t i = 1; i < i_bargraph_segments - i_segment_adjust; i++) {
+        for(uint8_t i = 0; i < i_bargraph_segments - i_segment_adjust; i++) {
           if(i > 0 && i < i_bottom_segment_rows) {
             ht_bargraph.setLed(bargraphLookupTable(i));
           }
@@ -2939,7 +2938,7 @@ void settingsBlinkingLights() {
 // Called from checkSwitches(); Used to enter the settings menu in MODE_SUPER_HERO.
 void altWingButtonCheck() {
   if(WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_OFF && WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && !b_pack_alarm) {
-    if((!switch_wand.on() || !switch_vent.on()) && switch_mode.pushed()) {
+    if((!switch_wand.on() || !switch_vent.on()) && switch_mode.pushed() && !switch_intensify.on()) {
       // Only exit the settings menu when on menu #5.
       if(i_wand_menu == 5) {
         // Switch between firing mode and settings mode.
@@ -2952,7 +2951,7 @@ void altWingButtonCheck() {
           bargraphClearAlt();
 
           // Tell the pack we are in settings mode.
-          wandSerialSend(W_SETTINGS_MODE);
+          wandSerialSend(W_SET_STREAM_MODE, (uint8_t)SETTINGS);
         }
         else {
           streamModeCheck();
@@ -2983,16 +2982,6 @@ void altWingButtonCheck() {
         bargraphPowerCheck2021Alt(true);
       }
     }
-    else if((STREAM_MODE == HOLIDAY_HALLOWEEN || STREAM_MODE == HOLIDAY_CHRISTMAS) && switch_wand.on() && switch_vent.on() && switch_mode.pushed()) {
-      // Used to switch the Holiday firing mode between Halloween and Christmas colours.
-      if(STREAM_MODE == HOLIDAY_HALLOWEEN) {
-        STREAM_MODE = HOLIDAY_CHRISTMAS;
-      }
-      else {
-        STREAM_MODE = HOLIDAY_HALLOWEEN;
-      }
-      streamModeCheck();
-    }
   }
 }
 
@@ -3003,30 +2992,30 @@ void wandVentStateCheck() {
     if(switch_vent.on()) {
       if(b_vent_light_control) {
         // Vent light on, brightness dependent on mode.
-        if(STREAM_MODE != SLIME && (WAND_ACTION_STATUS == ACTION_FIRING || (ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished()))) {
+        if(!gpstarWand.inStreamMode(SLIME) && (WAND_ACTION_STATUS == ACTION_FIRING || ms_semi_automatic_firing.isRunning())) {
           ventLightControl(); // Turn on vent light at full brightness.
         }
         else {
           // Adjust brightness based on the power level.
-          switch(i_power_level) {
-            case 5:
+          switch(gpstarWand.getPowerLevel()) {
+            case LEVEL_5:
+            default:
               ventLightControl(i_vent_led_power_5);
             break;
 
-            case 4:
+            case LEVEL_4:
               ventLightControl(i_vent_led_power_4);
             break;
 
-            case 3:
+            case LEVEL_3:
               ventLightControl(i_vent_led_power_3);
             break;
 
-            case 2:
+            case LEVEL_2:
               ventLightControl(i_vent_led_power_2);
             break;
 
-            case 1:
-            default:
+            case LEVEL_1:
               ventLightControl(i_vent_led_power_1);
             break;
           }
@@ -3039,9 +3028,12 @@ void wandVentStateCheck() {
       soundIdleStart();
 
       if(switch_wand.on()) {
-        if(!b_beeping && !b_firing) {
+        if(!b_beeping && !b_firing && !isBrassPack()) {
           // Beep loop.
           soundBeepLoop();
+        }
+        else {
+          soundBeepLoopStop();
         }
       }
       else {
@@ -3061,8 +3053,8 @@ void wandVentStateCheck() {
 // Barrel safety switch is connected to analog pin 7.
 bool switchBarrel() {
   if((BARREL_SWITCH_POLARITY == SWITCH_DEFAULT && switch_barrel.on()) || (BARREL_SWITCH_POLARITY == SWITCH_INVERTED && !switch_barrel.on())) {
-    if(BARREL_STATE != BARREL_RETRACTED) {
-      if(BARREL_STATE != BARREL_UNKNOWN) {
+    if(gpstarWand.getBarrelState() != BARREL_RETRACTED) {
+      if(gpstarWand.getBarrelState() != BARREL_UNKNOWN) {
         // Prevents sound from playing on bootup or when the polarity setting is changed.
         if(b_extra_pack_sounds) {
           wandSerialSend(W_WAND_BARREL_RETRACT);
@@ -3072,13 +3064,13 @@ bool switchBarrel() {
       }
 
       wandSerialSend(W_BARREL_RETRACTED);
-      BARREL_STATE = BARREL_RETRACTED;
+      gpstarWand.setBarrelState(BARREL_RETRACTED);
     }
   }
   else {
     // Play the barrel extension sound effect.
-    if(BARREL_STATE != BARREL_EXTENDED) {
-      if(BARREL_STATE != BARREL_UNKNOWN) {
+    if(gpstarWand.getBarrelState() != BARREL_EXTENDED) {
+      if(gpstarWand.getBarrelState() != BARREL_UNKNOWN) {
         // Prevents sound from playing on bootup or when the polarity setting is changed.
         if((getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE)) {
           if(b_extra_pack_sounds) {
@@ -3099,11 +3091,11 @@ bool switchBarrel() {
       }
 
       wandSerialSend(W_BARREL_EXTENDED);
-      BARREL_STATE = BARREL_EXTENDED;
+      gpstarWand.setBarrelState(BARREL_EXTENDED);
     }
   }
 
-  return (BARREL_STATE == BARREL_EXTENDED); // Immediate return of state.
+  return (gpstarWand.getBarrelState() == BARREL_EXTENDED); // Immediate return of state.
 }
 
 // Arms/Disarms the power-on reminder (if enabled).
@@ -3198,48 +3190,7 @@ void wandOff() {
 
   if(WAND_ACTION_STATUS == ACTION_SETTINGS) {
     // If the wand is shut down while we are in settings mode (can happen if the pack is manually turned off), switch the wand and pack to proton mode.
-    switch(STREAM_MODE) {
-      case MESON:
-        // Tell the pack we are in meson mode.
-        wandSerialSend(W_MESON_MODE);
-      break;
-
-      case STASIS:
-        // Tell the pack we are in stasis mode.
-        wandSerialSend(W_STASIS_MODE);
-      break;
-
-      case SLIME:
-        // Tell the pack we are in slime mode.
-        wandSerialSend(W_SLIME_MODE);
-      break;
-
-      case SPECTRAL:
-        // Tell the pack we are in spectral mode.
-        wandSerialSend(W_SPECTRAL_MODE);
-      break;
-
-      case HOLIDAY_HALLOWEEN:
-        // Tell the pack we are in Halloween mode.
-        wandSerialSend(W_HALLOWEEN_MODE);
-      break;
-
-      case HOLIDAY_CHRISTMAS:
-        // Tell the pack we are in Christmas mode.
-        wandSerialSend(W_CHRISTMAS_MODE);
-      break;
-
-      case SPECTRAL_CUSTOM:
-        // Tell the pack we are in spectral custom mode.
-        wandSerialSend(W_SPECTRAL_CUSTOM_MODE);
-      break;
-
-      case PROTON:
-      default:
-        // Tell the pack we are in proton mode.
-        wandSerialSend(W_PROTON_MODE);
-      break;
-    }
+    wandSerialSend(W_SET_STREAM_MODE, gpstarWand.getStreamModeByte());
   }
 
   switch(getNeutronaWandYearMode()) {
@@ -3266,27 +3217,26 @@ void wandOff() {
   stopEffect(S_WAND_BOOTUP);
   stopEffect(S_SMASH_ERROR_RESTART);
 
-  if(WAND_ACTION_STATUS == ACTION_ERROR && !b_wand_boot_error_on && !b_wand_mash_error) {
+  if(WAND_ACTION_STATUS == ACTION_ERROR && !b_wand_boot_error_on && !b_wand_mash_lockout) {
     // We are exiting Wand Boot Error, so change wand state back to off/idle without informing Proton Pack.
     WAND_STATUS = MODE_OFF;
     WAND_ACTION_STATUS = ACTION_IDLE;
   }
-  else if(WAND_ACTION_STATUS != ACTION_ERROR && (b_wand_boot_error_on || b_wand_mash_error)) {
+  else if(WAND_ACTION_STATUS != ACTION_ERROR && (b_wand_boot_error_on || b_wand_mash_lockout)) {
     // We are entering either Wand Boot Error mode or Button Mash Timeout mode, so do nothing.
   }
   else {
     // Full wand shutdown in all other situations.
-    wandSerialSend(W_OFF, (switch_vent.on() && SYSTEM_MODE == MODE_SUPER_HERO) ? 0 : 1);
+    wandSerialSend(W_OFF, (switch_vent.on() && gpstarWand.getSystemMode() == MODE_SUPER_HERO) ? 0 : 1);
     WAND_STATUS = MODE_OFF;
     WAND_ACTION_STATUS = ACTION_IDLE;
 
-    if(b_wand_mash_error) {
-      stopEffect(S_WAND_STASIS_IDLE_LOOP);
-      stopEffect(S_SMASH_ERROR_LOOP);
+    if(b_wand_mash_lockout) {
+      stopMashErrorSounds();
     }
 
     // Turn off any barrel spark effects.
-    if(b_wand_mash_error || b_pack_alarm) {
+    if(b_wand_mash_lockout || b_pack_alarm) {
       barrelLightsOff();
     }
 
@@ -3294,7 +3244,7 @@ void wandOff() {
       switch(getNeutronaWandYearMode()) {
         case SYSTEM_1984:
         case SYSTEM_1989:
-          if(SYSTEM_MODE == MODE_SUPER_HERO && !b_sound_idle && !b_wand_mash_error && b_wand_standalone) {
+          if(gpstarWand.getSystemMode() == MODE_SUPER_HERO && !b_sound_idle && !b_wand_mash_lockout && b_wand_standalone) {
             // Proton Pack plays shutdown sound, but standalone Wand needs to play its own.
             stopEffect(S_WAND_HEATDOWN);
             playEffect(S_WAND_HEATDOWN);
@@ -3304,12 +3254,12 @@ void wandOff() {
         case SYSTEM_AFTERLIFE:
         case SYSTEM_FROZEN_EMPIRE:
         default:
-          if(!b_sound_idle && !b_wand_mash_error && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+          if(!b_sound_idle && !b_wand_mash_lockout && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
             playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
             b_play_afterlife_ramp_down = true;
           }
 
-          if(!b_wand_mash_error) {
+          if(!b_wand_mash_lockout) {
             if(b_extra_pack_sounds) {
               wandSerialSend(W_WAND_SHUTDOWN_SOUND);
             }
@@ -3321,12 +3271,17 @@ void wandOff() {
       }
     }
 
-    b_wand_mash_error = false;
+    b_wand_mash_lockout = false;
   }
 
   // Stop firing if the wand is turned off.
   if(b_firing) {
     modeFireStop();
+  }
+
+  // Make sure we reset our semi-automatic firing flag.
+  if(b_firing_semi_automatic) {
+    b_firing_semi_automatic = false;
   }
 
   if(b_extra_pack_sounds) {
@@ -3348,7 +3303,7 @@ void wandOff() {
   // Turn off any lingering mode switch sounds.
   stopEffect(S_MODE_SWITCH);
 
-  switch(STREAM_MODE) {
+  switch(gpstarWand.getStreamMode()) {
     case PROTON:
     default:
       stopEffect(S_FIRE_START_SPARK);
@@ -3367,14 +3322,6 @@ void wandOff() {
     break;
   }
 
-  if(WAND_ACTION_STATUS != ACTION_ERROR && b_wand_mash_error) {
-    if(b_extra_pack_sounds) {
-      wandSerialSend(W_WAND_MASH_ERROR_SOUND);
-    }
-
-    playEffect(S_WAND_MASH_ERROR);
-  }
-
   // Clear counter until user begins firing again.
   i_bmash_count = 0;
   b_sound_afterlife_idle_2_fade = true;
@@ -3389,7 +3336,7 @@ void wandOff() {
 
   switch(WAND_STATUS) {
     case MODE_OFF:
-      switch(SYSTEM_MODE) {
+      switch(gpstarWand.getSystemMode()) {
         case MODE_ORIGINAL:
           // Reset the bargraph speeds.
           resetBargraphSpeed();
@@ -3424,7 +3371,7 @@ void modeError() {
   WAND_STATUS = MODE_ERROR;
   WAND_ACTION_STATUS = ACTION_ERROR;
 
-  if(!b_wand_mash_error) {
+  if(!b_wand_mash_lockout) {
     // This is used for controlling the bargraph beeping while in boot error mode.
     ms_warning_blink.start(i_bargraph_beep_delay);
     ms_error_blink.start(i_error_blink_delay);
@@ -3440,30 +3387,19 @@ void modeError() {
     playEffect(S_BEEPS_BARGRAPH, false, i_volume_effects, false, 0, false);
   }
   else {
-    // This is used for the wand mash error sounds.
-    if(getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
-      // Use the crakling ice sound from the statis mode.
-      playEffect(S_WAND_STASIS_IDLE_LOOP);
-    }
-    else {
-      // Use the standard error alarm for this effect.
-      playEffect(S_SMASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
-    }
-
-    if(b_extra_pack_sounds) {
-      wandSerialSend(W_MASH_ERROR_LOOP);
-    }
+    // Make sure all mash-related sounds are stopped first.
+    stopMashErrorSounds();
   }
 }
 
 void modeActivate() {
   // Clear counter until user begins firing.
   i_bmash_count = 0;
-  b_wand_mash_error = false;
+  b_wand_mash_lockout = false;
   b_sound_afterlife_idle_2_fade = true;
   setPowerOnReminder(false);
 
-  switch(SYSTEM_MODE) {
+  switch(gpstarWand.getSystemMode()) {
     case MODE_ORIGINAL:
       WAND_STATUS = MODE_ON;
       WAND_ACTION_STATUS = ACTION_IDLE;
@@ -3515,7 +3451,7 @@ void modePulseStart() {
   i_fast_led_delay = FAST_LED_UPDATE_MS;
   barrelLightsOff();
 
-  switch(STREAM_MODE) {
+  switch(gpstarWand.getStreamMode()) {
     case PROTON:
       // Boson Dart.
       wandSerialSend(W_BOSON_DART_SOUND);
@@ -3558,19 +3494,6 @@ void modePulseStart() {
   }
 }
 
-// Use an attached infrared LED to send a command. Only available if using the Wand II (ESP32).
-void sendInfraredCommand(const String sType) {
-#ifdef ESP32
-  if(sType.equals("ghostintrap")) {
-    // Send the standard Ghost Trap (PKE) IR signal.
-    IrSender.sendRaw(ir_GhostInTrap, sizeof(ir_GhostInTrap) / sizeof(ir_GhostInTrap[0]), CARRIER_KHZ);
-  }
-  else {
-    debugln(F("Unknown IR Command"));
-  }
-#endif
-}
-
 // Called from checkSwitches(); Check if we should fire, or if the wand and pack turn off.
 void fireControlCheck() {
   // Firing action stuff and shutting cyclotron and the Neutrona Wand off.
@@ -3583,40 +3506,106 @@ void fireControlCheck() {
 
     if(i_bmash_count >= i_bmash_max) {
       // User has exceeded "normal" firing rate.
-      b_wand_mash_error = true;
+      b_wand_mash_lockout = true;
       modeError();
+
+      switch(gpstarWand.getStreamMode()) {
+        case PROTON:
+        default:
+          switch(getSystemYearMode()) {
+            case SYSTEM_1984:
+              if(gpstarWand.getPowerLevel() != MAX_POWER_LEVEL) {
+                stopEffect(S_FIRING_END);
+                stopEffect(S_FIRING_END_MID);
+                stopEffect(S_GB1_1984_FIRE_END_SHORT);
+              }
+              else {
+                stopEffect(S_GB1_1984_FIRE_END_HIGH_POWER);
+                stopEffect(S_GB1_1984_FIRE_END_MID_HIGH_POWER);
+                stopEffect(S_GB1_1984_FIRE_END_SHORT_HIGH_POWER);
+              }
+            break;
+            case SYSTEM_1989:
+              stopEffect(S_FIRING_END_GUN);
+              stopEffect(S_FIRING_END_MID);
+              stopEffect(S_FIRING_END);
+            break;
+            case SYSTEM_AFTERLIFE:
+            default:
+              stopEffect(S_AFTERLIFE_FIRE_END_SHORT);
+              stopEffect(S_AFTERLIFE_FIRE_END_MID);
+              stopEffect(S_AFTERLIFE_FIRE_END_LONG);
+            break;
+            case SYSTEM_FROZEN_EMPIRE:
+              stopEffect(S_AFTERLIFE_FIRE_END_MID);
+            break;
+          }
+
+          stopEffect(S_CROSS_STREAMS_END);
+          stopEffect(S_CROSS_STREAMS_START);
+          stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+          stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+        break;
+        case SLIME:
+          stopEffect(S_SLIME_END);
+        break;
+        case STASIS:
+          stopEffect(S_STASIS_END);
+        break;
+      }
+
       wandTipSpark();
 
       // Adjust the button mash cool down (aka. lockout) period based on the power level.
       // The wand controls the API calls to the pack to start/end this action.
       uint16_t i_timeout = i_bmash_cool_down; // Base timeout.
-      if(getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
-        i_timeout += 2000; // Add 2 seconds for this theme.
+      if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE) {
+        i_timeout += 3000; // Add 3 seconds for this theme.
+
+        if(isBrassPack()) {
+          playEffect(S_FROZEN_EMPIRE_BRASS_FIRE_TAIL); // Add the brass pack tail if applicable.
+        }
       }
-      switch(i_power_level) {
-        case 5:
+      switch(gpstarWand.getPowerLevel()) {
+        case LEVEL_5:
+        default:
           i_timeout += 2000;
         break;
 
-        case 4:
+        case LEVEL_4:
           i_timeout += 1500;
         break;
 
-        case 3:
+        case LEVEL_3:
           i_timeout += 1000;
         break;
 
-        case 2:
+        case LEVEL_2:
           i_timeout += 500;
         break;
 
-        case 1:
-        default:
+        case LEVEL_1:
           // No change
         break;
       }
       ms_bmash.start(i_timeout);
       wandSerialSend(W_BUTTON_MASHING, i_timeout);
+
+      // This is used for the wand mash error sound loops.
+      if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE) {
+        // Use the crakling ice sound from the statis mode.
+        playEffect(S_WAND_STASIS_IDLE_LOOP, true, i_volume_effects, true, 2500);
+      }
+      else {
+        // Use the standard error alarm for this effect.
+        if(b_extra_pack_sounds) {
+          wandSerialSend(W_WAND_MASH_ERROR_SOUND);
+          wandSerialSend(W_MASH_ERROR_LOOP);
+        }
+
+        playEffect(S_WAND_MASH_ERROR);
+        playEffect(S_MASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
+      }
     }
     else {
       if(i_slime_tether_count > 0 && ms_semi_automatic_check.remaining() < 1) {
@@ -3629,7 +3618,7 @@ void fireControlCheck() {
         }
       }
 
-      if(BARREL_STATE != BARREL_EXTENDED && switch_wand.on() && switch_vent.on() && (switch_intensify.pushed() || switch_mode.pushed())) {
+      if(gpstarWand.getBarrelState() != BARREL_EXTENDED && switch_wand.on() && switch_vent.on() && (switch_intensify.pushed() || switch_mode.pushed())) {
         // If barrel is not extended and user attempts to fire, play an error sound.
         if(b_extra_pack_sounds) {
           wandSerialSend(W_BARREL_ERROR_SOUND);
@@ -3639,16 +3628,16 @@ void fireControlCheck() {
         playEffect(S_VENT_DRY);
 
         #ifdef ESP32
-          if(ms_infrared_timer.justFinished()) {
+          if(irManager->isTXTimerExpired()) {
             // Trigger infrared after firing.
-            sendInfraredCommand("ghostintrap");
-            ms_infrared_timer.start(i_infrared_timer_delay);
+            irManager->sendCommand(IR_CMD_GHOST_TRAP);
+            irManager->startTXTimer(1000);
           }
         #endif
       }
 
-      if(switch_intensify.on() && switch_wand.on() && switch_vent.on() && BARREL_STATE == BARREL_EXTENDED) {
-        switch(STREAM_MODE) {
+      if(switch_intensify.on() && switch_wand.on() && switch_vent.on() && gpstarWand.getBarrelState() == BARREL_EXTENDED) {
+        switch(gpstarWand.getStreamMode()) {
           case PROTON:
           case SLIME:
           case SPECTRAL:
@@ -3703,8 +3692,8 @@ void fireControlCheck() {
       }
 
       // When Cross The Streams mode is enabled, video game modes are disabled and the wand menu settings can only be accessed when the Neutrona Wand is powered down.
-      if(FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) {
-        if(switch_mode.on() && switch_wand.on() && switch_vent.on() && BARREL_STATE == BARREL_EXTENDED) {
+      if(gpstarWand.isFiringModeCTS() || gpstarWand.isFiringModeCTSMix()) {
+        if(switch_mode.on() && switch_wand.on() && switch_vent.on() && gpstarWand.getBarrelState() == BARREL_EXTENDED) {
           if(ms_bmash.remaining() < 1) {
             // Clear counter/timer until user begins firing.
             i_bmash_count = 0;
@@ -3733,13 +3722,14 @@ void fireControlCheck() {
         }
       }
       else {
-        if((STREAM_MODE == PROTON || STREAM_MODE == SPECTRAL || STREAM_MODE == SPECTRAL_CUSTOM || STREAM_MODE == HOLIDAY_CHRISTMAS || STREAM_MODE == HOLIDAY_HALLOWEEN) && WAND_ACTION_STATUS == ACTION_FIRING) {
-          if(switch_mode.on()) {
+        if((gpstarWand.inStreamMode(PROTON) || gpstarWand.inStreamMode(SPECTRAL) || gpstarWand.inStreamMode(SPECTRAL_CUSTOM) || gpstarWand.inStreamMode(HOLIDAY_CHRISTMAS) || gpstarWand.inStreamMode(HOLIDAY_HALLOWEEN)) && WAND_ACTION_STATUS == ACTION_FIRING) {
+          if(switch_mode.on() || (isBrassPack() && switch_intensify.on())) {
+            // Set the alt firing trigger if the barrel wing button is pressed or the brass pack effects are currently active.
             b_firing_alt = true;
           }
         }
-        else if(switch_mode.on() && switch_wand.on() && switch_vent.on() && BARREL_STATE == BARREL_EXTENDED) {
-          switch(STREAM_MODE) {
+        else if(switch_mode.on() && switch_wand.on() && switch_vent.on() && gpstarWand.getBarrelState() == BARREL_EXTENDED) {
+          switch(gpstarWand.getStreamMode()) {
             case PROTON:
               // Handle Boson Dart fire start here.
               if(!b_firing_semi_automatic && ms_semi_automatic_check.remaining() < 1) {
@@ -3805,7 +3795,7 @@ void fireControlCheck() {
       }
 
       if(!switch_intensify.on()) {
-        switch(STREAM_MODE) {
+        switch(gpstarWand.getStreamMode()) {
           case PROTON:
           case SLIME:
           case SPECTRAL:
@@ -3830,8 +3820,8 @@ void fireControlCheck() {
         }
       }
 
-      if(!switch_mode.on() && FIRING_MODE == VG_MODE) {
-        switch(STREAM_MODE) {
+      if(!switch_mode.on() && gpstarWand.isFiringModeVG()) {
+        switch(gpstarWand.getStreamMode()) {
           case PROTON:
           case SLIME:
             // Handle resetting semi-auto bool here.
@@ -3855,7 +3845,7 @@ void fireControlCheck() {
 
     // Quick vent feature. When enabled, clicking Intensify will perform a quick vent, while holding will force the full overheat sequence.
     // Super Hero Mode only, because Mode Original uses different toggle switch combinations which makes this not possible.
-    if(b_quick_vent && SYSTEM_MODE == MODE_SUPER_HERO && !switch_wand.on() && switch_vent.on() && b_overheat_enabled) {
+    if(b_quick_vent && gpstarWand.getSystemMode() == MODE_SUPER_HERO && !switch_wand.on() && switch_vent.on() && b_overheat_enabled) {
       if(switch_intensify.singleClick()) {
         startQuickVent();
       }
@@ -3873,7 +3863,7 @@ void fireControlCheck() {
 
     if(WAND_ACTION_STATUS == ACTION_IDLE) {
       // Play a little spark effect if the user tries to fire while the ribbon cable is removed.
-      if((switch_intensify.pushed() || ((FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) && switch_mode.pushed())) && !ms_wand_heatup_fade.isRunning() && switch_vent.on() && switch_wand.on()) {
+      if((switch_intensify.pushed() || ((gpstarWand.isFiringModeCTS() || gpstarWand.isFiringModeCTSMix()) && switch_mode.pushed())) && !ms_wand_heatup_fade.isRunning() && switch_vent.on() && switch_wand.on()) {
         if(b_extra_pack_sounds) {
           wandSerialSend(W_WAND_MASH_ERROR_SOUND);
         }
@@ -3896,19 +3886,18 @@ void checkSwitches() {
 
   switch(WAND_STATUS) {
     case MODE_OFF:
-      switch(SYSTEM_MODE) {
+      switch(gpstarWand.getSystemMode()) {
         case MODE_ORIGINAL:
-          if(RED_SWITCH_MODE == SWITCH_ON) {
+          if(gpstarWand.getIonArmSwitch() == RED_SWITCH_ON) {
             if(WAND_ACTION_STATUS == ACTION_IDLE) {
               // We are going to handle the toggle switch sequence for the MODE_ORIGINAL here.
               if(switch_activate.on() && switch_vent.on() && switch_wand.on()) {
                 // Reset the power level back to what it should be.
-                i_power_level = i_power_level_prev;
+                gpstarWand.restorePowerLevel();
 
                 // Force to power level 2 if it is on power level 1 for MODE_ORIGINAL.
-                if(i_power_level < 2) {
-                  i_power_level = 2;
-                  i_power_level_prev = 2;
+                if(gpstarWand.getPowerLevel() < LEVEL_2) {
+                  gpstarWand.setPowerLevel(LEVEL_2);
                 }
 
                 updatePackPowerLevel();
@@ -3918,9 +3907,8 @@ void checkSwitches() {
               }
               else {
                 // Set the power level to 1 (0 circle). Record the power level so we can restore it when we power everything back up.
-                if(i_power_level != 1) {
-                  i_power_level_prev = i_power_level;
-                  i_power_level = 1;
+                if(gpstarWand.getPowerLevel() != MIN_POWER_LEVEL) {
+                  gpstarWand.setPowerLevel(LEVEL_1);
 
                   if(BARGRAPH_TYPE == SEGMENTS_28 || BARGRAPH_TYPE == SEGMENTS_30) {
                     bargraphPowerCheck2021Alt(false);
@@ -4007,7 +3995,7 @@ void checkSwitches() {
                   ventTopLightControl(true);
 
                   if(ms_bargraph.justFinished()) {
-                    bargraphRampUp();
+                    bargraphRamp();
                   }
                   else if(!ms_bargraph.isRunning() && WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
                     // Bargraph idling loop.
@@ -4037,32 +4025,34 @@ void checkSwitches() {
 
         case MODE_SUPER_HERO:
         default:
+          // Make sure we don't have any idle beeps running when wand is off.
+          soundBeepLoopStop();
+
           if(switch_activate.pushed() && WAND_ACTION_STATUS == ACTION_IDLE) {
-              // Turn wand and pack on.
-              WAND_ACTION_STATUS = ACTION_ACTIVATE;
-            }
-            soundBeepLoopStop();
+            // Turn wand and pack on if Activate was just toggled on.
+            WAND_ACTION_STATUS = ACTION_ACTIVATE;
+          }
         break;
       }
     break;
 
     case MODE_ERROR:
-      if(b_wand_mash_error && ms_bmash.isRunning()) {
+      if(b_wand_mash_lockout && ms_bmash.isRunning()) {
         if(b_vent_light_control) {
           // First determine the maximum brightness value for our power level.
           uint8_t i_vent_brightness = i_vent_led_power_1;
 
-          switch(i_power_level) {
-            case 2:
+          switch(gpstarWand.getPowerLevel()) {
+            case LEVEL_2:
               i_vent_brightness = i_vent_led_power_2;
             break;
-            case 3:
+            case LEVEL_3:
               i_vent_brightness = i_vent_led_power_3;
             break;
-            case 4:
+            case LEVEL_4:
               i_vent_brightness = i_vent_led_power_4;
             break;
-            case 5:
+            case LEVEL_5:
               i_vent_brightness = i_vent_led_power_5;
             break;
             default:
@@ -4082,7 +4072,7 @@ void checkSwitches() {
         }
       }
 
-      switch(SYSTEM_MODE) {
+      switch(gpstarWand.getSystemMode()) {
         case MODE_ORIGINAL:
           // Nothing.
         break;
@@ -4098,7 +4088,7 @@ void checkSwitches() {
     break;
 
     case MODE_ON:
-      switch(SYSTEM_MODE) {
+      switch(gpstarWand.getSystemMode()) {
         case MODE_ORIGINAL:
           // We shut the pack and wand down if any of the right toggle switches are turned off. Activate switch control is handled in fireControlCheck();
           if(!switch_vent.on() || !switch_wand.on()) {
@@ -4132,33 +4122,32 @@ void checkSwitches() {
 }
 
 void modeFireStartSounds() {
-  switch(STREAM_MODE) {
+  switch(gpstarWand.getStreamMode()) {
     case PROTON:
     default:
-      switch(i_power_level) {
-        case 1 ... 4:
-        default:
+      switch(gpstarWand.getPowerLevel()) {
+        case LEVEL_1 ... LEVEL_4:
           if(b_firing_intensify) {
             switch(getSystemYearMode()) {
               case SYSTEM_1984:
                 playEffect(S_GB1_1984_FIRE_START_SHORT, false, i_volume_effects, false, 0, false);
-                playEffect(S_GB1_1984_FIRE_LOOP_GUN, true, i_volume_effects, true, 250, false);
+                playEffect(S_GB1_1984_FIRE_LOOP_GUN, true, i_volume_effects, true, 250, true);
               break;
 
               case SYSTEM_1989:
                 playEffect(S_GB2_FIRE_START, false, i_volume_effects, false, 0, false);
-                playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, true, 6500, false);
+                playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, true, 6500, true);
               break;
 
               case SYSTEM_AFTERLIFE:
               default:
                 playEffect(S_AFTERLIFE_FIRE_START, false, i_volume_effects, false, 0, false);
-                playEffect(S_GB1_1984_FIRE_LOOP_GUN, true, i_volume_effects, true, 275, false);
+                playEffect(S_GB1_1984_FIRE_LOOP_GUN, true, i_volume_effects, true, 275, true);
               break;
 
               case SYSTEM_FROZEN_EMPIRE:
                 playEffect(S_FROZEN_EMPIRE_FIRE_START, false, i_volume_effects, false, 0, false);
-                playEffect(S_GB1_1984_FIRE_LOOP_GUN, true, i_volume_effects, true, 200, false);
+                playEffect(S_GB1_1984_FIRE_LOOP_GUN, true, i_volume_effects, true, 200, true);
               break;
             }
 
@@ -4171,15 +4160,15 @@ void modeFireStartSounds() {
           if(b_firing_alt) {
             if(getSystemYearMode() == SYSTEM_1989) {
               playEffect(S_GB2_FIRE_START, false, i_volume_effects, false, 0, false);
-              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 6500, false);
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 6500, true);
             }
             else if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE) {
               playEffect(S_FROZEN_EMPIRE_FIRE_START, false, i_volume_effects, false, 0, false);
-              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 300, false);
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 300, true);
             }
             else {
               playEffect(S_FIRE_START, false, i_volume_effects, false, 0, false);
-              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 300, false);
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 300, true);
             }
 
             b_sound_firing_alt_trigger = true;
@@ -4189,7 +4178,8 @@ void modeFireStartSounds() {
           }
         break;
 
-        case 5:
+        case LEVEL_5:
+        default:
           switch(getSystemYearMode()) {
             case SYSTEM_1984:
               playEffect(S_GB1_1984_FIRE_START_HIGH_POWER, false, i_volume_effects, false, 0, false);
@@ -4213,13 +4203,13 @@ void modeFireStartSounds() {
             // Reset some sound triggers.
             b_sound_firing_intensify_trigger = true;
             if(getSystemYearMode() == SYSTEM_1984) {
-              playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 1700, false);
+              playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 1700, true);
             }
             else if(getSystemYearMode() == SYSTEM_1989) {
-              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 700, false);
+              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 700, true);
             }
             else {
-              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 300, false);
+              playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 300, true);
             }
           }
           else {
@@ -4230,13 +4220,13 @@ void modeFireStartSounds() {
             // Reset some sound triggers.
             b_sound_firing_alt_trigger = true;
             if(getSystemYearMode() == SYSTEM_1989) {
-              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 700, false);
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 700, true);
             }
             else if(getSystemYearMode() == SYSTEM_1984) {
-              playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 1700, false);
+              playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, true, 1700, true);
             }
             else {
-              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 300, false);
+              playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, true, 300, true);
             }
           }
           else {
@@ -4247,10 +4237,10 @@ void modeFireStartSounds() {
 
       // Handle these as part of the "default" case, which is technically an extension of the proton stream.
       // Layers in an extra effect as a bit of an Easter Egg when using the holiday themes.
-      if(STREAM_MODE == HOLIDAY_HALLOWEEN) {
+      if(gpstarWand.inStreamMode(HOLIDAY_HALLOWEEN)) {
         playEffect(S_HALLOWEEN_FIRING_EXTRA, false, i_volume_effects, true, 100, false);
       }
-      if(STREAM_MODE == HOLIDAY_CHRISTMAS) {
+      if(gpstarWand.inStreamMode(HOLIDAY_CHRISTMAS)) {
         playEffect(S_CHRISTMAS_FIRING_EXTRA, false, i_volume_effects, true, 100, false);
       }
     break;
@@ -4258,38 +4248,49 @@ void modeFireStartSounds() {
     case SLIME:
       stopEffect(S_SLIME_END);
       playEffect(S_SLIME_START, false, i_volume_effects, false, 0, false);
-      playEffect(S_SLIME_LOOP, true, i_volume_effects, true, 850, false);
+      playEffect(S_SLIME_LOOP, true, i_volume_effects, true, 850, true);
     break;
 
     case STASIS:
       stopEffect(S_STASIS_END);
       playEffect(S_STASIS_START, false, i_volume_effects, false, 0, false);
-      playEffect(S_STASIS_LOOP, true, i_volume_effects, true, 1000, false);
+      playEffect(S_STASIS_LOOP, true, i_volume_effects, true, 1000, true);
     break;
 
     case MESON:
-      playEffect(S_MESON_FIRE_PULSE);
+      if(i_audio_version < 109) {
+        playEffect(S_MESON_FIRE_PULSE, false, i_volume_effects, false, 0, false);
+      }
+      else {
+        // Make sure we stop any currently-playing pulse sound first!
+        stopEffect(S_MESON_FIRE_PULSE);
+      }
 
-      switch(i_power_level) {
-        case 5:
-          ms_meson_blast.start(i_meson_blast_delay_level_5);
-        break;
-
-        case 4:
-          ms_meson_blast.start(i_meson_blast_delay_level_4);
-        break;
-
-        case 3:
-          ms_meson_blast.start(i_meson_blast_delay_level_3);
-        break;
-
-        case 2:
-          ms_meson_blast.start(i_meson_blast_delay_level_2);
-        break;
-
-        case 1:
+      switch(gpstarWand.getPowerLevel()) {
+        case LEVEL_5:
         default:
+          ms_meson_blast.start(i_meson_blast_delay_level_5);
+          playRapidEffect(S_MESON_FIRE_PULSE, i_meson_blast_delay_level_5);
+        break;
+
+        case LEVEL_4:
+          ms_meson_blast.start(i_meson_blast_delay_level_4);
+          playRapidEffect(S_MESON_FIRE_PULSE, i_meson_blast_delay_level_4);
+        break;
+
+        case LEVEL_3:
+          ms_meson_blast.start(i_meson_blast_delay_level_3);
+          playRapidEffect(S_MESON_FIRE_PULSE, i_meson_blast_delay_level_3);
+        break;
+
+        case LEVEL_2:
+          ms_meson_blast.start(i_meson_blast_delay_level_2);
+          playRapidEffect(S_MESON_FIRE_PULSE, i_meson_blast_delay_level_2);
+        break;
+
+        case LEVEL_1:
           ms_meson_blast.start(i_meson_blast_delay_level_1);
+          playRapidEffect(S_MESON_FIRE_PULSE, i_meson_blast_delay_level_1);
         break;
       }
     break;
@@ -4302,8 +4303,6 @@ void bargraphSuperHeroRampFiringAnimation() {
     if(BARGRAPH_TYPE == SEGMENTS_30) {
       switch(i_bargraph_status_alt) {
         case 0:
-          vibrationWand(i_vibration_level_min + 110);
-
           ht_bargraph.setLed(bargraphLookupTable(14));
           ht_bargraph.setLed(bargraphLookupTable(15));
 
@@ -4321,8 +4320,6 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 1:
-          vibrationWand(i_vibration_level_min + 110);
-
           ht_bargraph.setLed(bargraphLookupTable(13));
           ht_bargraph.setLed(bargraphLookupTable(16));
 
@@ -4344,8 +4341,6 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 2:
-          vibrationWand(i_vibration_level_min + 110);
-
           ht_bargraph.setLed(bargraphLookupTable(12));
           ht_bargraph.setLed(bargraphLookupTable(17));
 
@@ -4367,8 +4362,6 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 3:
-          vibrationWand(i_vibration_level_min + 110);
-
           ht_bargraph.setLed(bargraphLookupTable(11));
           ht_bargraph.setLed(bargraphLookupTable(18));
 
@@ -4390,8 +4383,6 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 4:
-          vibrationWand(i_vibration_level_min + 110);
-
           ht_bargraph.setLed(bargraphLookupTable(10));
           ht_bargraph.setLed(bargraphLookupTable(19));
 
@@ -4413,8 +4404,6 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 5:
-          vibrationWand(i_vibration_level_min + 110);
-
           ht_bargraph.setLed(bargraphLookupTable(9));
           ht_bargraph.setLed(bargraphLookupTable(20));
 
@@ -4436,8 +4425,6 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 6:
-          vibrationWand(i_vibration_level_min + 110);
-
           ht_bargraph.setLed(bargraphLookupTable(8));
           ht_bargraph.setLed(bargraphLookupTable(21));
 
@@ -4459,8 +4446,6 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 7:
-          vibrationWand(i_vibration_level_min + 112);
-
           ht_bargraph.setLed(bargraphLookupTable(7));
           ht_bargraph.setLed(bargraphLookupTable(22));
 
@@ -4482,8 +4467,6 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 8:
-          vibrationWand(i_vibration_level_min + 112);
-
           ht_bargraph.setLed(bargraphLookupTable(6));
           ht_bargraph.setLed(bargraphLookupTable(23));
 
@@ -4505,8 +4488,6 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 9:
-          vibrationWand(i_vibration_level_min + 112);
-
           ht_bargraph.setLed(bargraphLookupTable(5));
           ht_bargraph.setLed(bargraphLookupTable(24));
 
@@ -4528,8 +4509,6 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 10:
-          vibrationWand(i_vibration_level_min + 112);
-
           ht_bargraph.setLed(bargraphLookupTable(4));
           ht_bargraph.setLed(bargraphLookupTable(25));
 
@@ -4551,8 +4530,6 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 11:
-          vibrationWand(i_vibration_level_min + 112);
-
           ht_bargraph.setLed(bargraphLookupTable(3));
           ht_bargraph.setLed(bargraphLookupTable(26));
 
@@ -4574,8 +4551,6 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 12:
-          vibrationWand(i_vibration_level_min + 115);
-
           ht_bargraph.setLed(bargraphLookupTable(2));
           ht_bargraph.setLed(bargraphLookupTable(27));
 
@@ -4597,8 +4572,6 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 13:
-          vibrationWand(i_vibration_level_min + 115);
-
           ht_bargraph.setLed(bargraphLookupTable(1));
           ht_bargraph.setLed(bargraphLookupTable(28));
 
@@ -4620,8 +4593,6 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 14:
-          vibrationWand(i_vibration_level_min + 115);
-
           ht_bargraph.setLed(bargraphLookupTable(0));
           ht_bargraph.setLed(bargraphLookupTable(29));
 
@@ -4644,8 +4615,6 @@ void bargraphSuperHeroRampFiringAnimation() {
     else {
       switch(i_bargraph_status_alt) {
         case 0:
-          vibrationWand(i_vibration_level_min + 110);
-
           ht_bargraph.setLed(bargraphLookupTable(13));
           ht_bargraph.setLed(bargraphLookupTable(14));
 
@@ -4663,8 +4632,6 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 1:
-          vibrationWand(i_vibration_level_min + 110);
-
           ht_bargraph.setLed(bargraphLookupTable(12));
           ht_bargraph.setLed(bargraphLookupTable(15));
 
@@ -4686,8 +4653,6 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 2:
-          vibrationWand(i_vibration_level_min + 110);
-
           ht_bargraph.setLed(bargraphLookupTable(11));
           ht_bargraph.setLed(bargraphLookupTable(16));
 
@@ -4709,8 +4674,6 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 3:
-          vibrationWand(i_vibration_level_min + 110);
-
           ht_bargraph.setLed(bargraphLookupTable(10));
           ht_bargraph.setLed(bargraphLookupTable(17));
 
@@ -4732,8 +4695,6 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 4:
-          vibrationWand(i_vibration_level_min + 110);
-
           ht_bargraph.setLed(bargraphLookupTable(9));
           ht_bargraph.setLed(bargraphLookupTable(18));
 
@@ -4755,8 +4716,6 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 5:
-          vibrationWand(i_vibration_level_min + 110);
-
           ht_bargraph.setLed(bargraphLookupTable(8));
           ht_bargraph.setLed(bargraphLookupTable(19));
 
@@ -4778,8 +4737,6 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 6:
-          vibrationWand(i_vibration_level_min + 112);
-
           ht_bargraph.setLed(bargraphLookupTable(7));
           ht_bargraph.setLed(bargraphLookupTable(20));
 
@@ -4801,8 +4758,6 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 7:
-          vibrationWand(i_vibration_level_min + 112);
-
           ht_bargraph.setLed(bargraphLookupTable(6));
           ht_bargraph.setLed(bargraphLookupTable(21));
 
@@ -4824,8 +4779,6 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 8:
-          vibrationWand(i_vibration_level_min + 112);
-
           ht_bargraph.setLed(bargraphLookupTable(5));
           ht_bargraph.setLed(bargraphLookupTable(22));
 
@@ -4847,8 +4800,6 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 9:
-          vibrationWand(i_vibration_level_min + 112);
-
           ht_bargraph.setLed(bargraphLookupTable(4));
           ht_bargraph.setLed(bargraphLookupTable(23));
 
@@ -4870,8 +4821,6 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 10:
-          vibrationWand(i_vibration_level_min + 112);
-
           ht_bargraph.setLed(bargraphLookupTable(3));
           ht_bargraph.setLed(bargraphLookupTable(24));
 
@@ -4893,8 +4842,6 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 11:
-          vibrationWand(i_vibration_level_min + 115);
-
           ht_bargraph.setLed(bargraphLookupTable(2));
           ht_bargraph.setLed(bargraphLookupTable(25));
 
@@ -4916,8 +4863,6 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 12:
-          vibrationWand(i_vibration_level_min + 115);
-
           ht_bargraph.setLed(bargraphLookupTable(1));
           ht_bargraph.setLed(bargraphLookupTable(26));
 
@@ -4939,8 +4884,6 @@ void bargraphSuperHeroRampFiringAnimation() {
         break;
 
         case 13:
-          vibrationWand(i_vibration_level_min + 115);
-
           ht_bargraph.setLed(bargraphLookupTable(0));
           ht_bargraph.setLed(bargraphLookupTable(27));
 
@@ -4966,8 +4909,6 @@ void bargraphSuperHeroRampFiringAnimation() {
     // Hasbro 5 LED Bargraph.
     switch(i_bargraph_status) {
       case 1:
-        vibrationWand(i_vibration_level_min + 110);
-
         digitalWriteFast(bargraphLookupTable(1-1), LOW);
         digitalWriteFast(bargraphLookupTable(2-1), HIGH);
         digitalWriteFast(bargraphLookupTable(3-1), HIGH);
@@ -4979,8 +4920,6 @@ void bargraphSuperHeroRampFiringAnimation() {
       break;
 
       case 2:
-        vibrationWand(i_vibration_level_min + 112);
-
         digitalWriteFast(bargraphLookupTable(1-1), HIGH);
         digitalWriteFast(bargraphLookupTable(2-1), LOW);
         digitalWriteFast(bargraphLookupTable(3-1), HIGH);
@@ -4992,8 +4931,6 @@ void bargraphSuperHeroRampFiringAnimation() {
       break;
 
       case 3:
-        vibrationWand(i_vibration_level_min + 115);
-
         digitalWriteFast(bargraphLookupTable(1-1), HIGH);
         digitalWriteFast(bargraphLookupTable(2-1), HIGH);
         digitalWriteFast(bargraphLookupTable(3-1), LOW);
@@ -5005,8 +4942,6 @@ void bargraphSuperHeroRampFiringAnimation() {
       break;
 
       case 4:
-        vibrationWand(i_vibration_level_min + 112);
-
         digitalWriteFast(bargraphLookupTable(1-1), HIGH);
         digitalWriteFast(bargraphLookupTable(2-1), LOW);
         digitalWriteFast(bargraphLookupTable(3-1), HIGH);
@@ -5018,8 +4953,6 @@ void bargraphSuperHeroRampFiringAnimation() {
       break;
 
       case 5:
-        vibrationWand(i_vibration_level_min + 110);
-
         digitalWriteFast(bargraphLookupTable(1-1), LOW);
         digitalWriteFast(bargraphLookupTable(2-1), HIGH);
         digitalWriteFast(bargraphLookupTable(3-1), HIGH);
@@ -5064,25 +4997,25 @@ void bargraphModeOriginalRampFiringAnimation() {
     // When firing starts, i_bargraph_status_alt resets to 0 in modeFireStart();
     if(i_bargraph_status_alt == 0) {
       // Set our target.
-      switch(i_power_level) {
-        case 5:
+      switch(gpstarWand.getPowerLevel()) {
+        case LEVEL_5:
+        default:
           i_bargraph_status_alt = random(18, i_bargraph_segments - i_segment_adjust);
         break;
 
-        case 4:
+        case LEVEL_4:
           i_bargraph_status_alt = random(13, 25);
         break;
 
-        case 3:
+        case LEVEL_3:
           i_bargraph_status_alt = random(9, 19);
         break;
 
-        case 2:
+        case LEVEL_2:
           i_bargraph_status_alt = random(3, 13);
         break;
 
-        case 1:
-        default:
+        case LEVEL_1:
           // Not used in MODE_ORIGINAL.
           //i_bargraph_status_alt = random(0, 6);
         break;
@@ -5098,8 +5031,9 @@ void bargraphModeOriginalRampFiringAnimation() {
       }
     }
 
-    switch(i_power_level) {
-      case 5:
+    switch(gpstarWand.getPowerLevel()) {
+      case LEVEL_5:
+      default:
         if(b_tmp_down) {
           // Moving down.
           for(uint8_t i = i_bargraph_segments - (i_segment_adjust + 1); i >= i_bargraph_status_alt; i--) {
@@ -5179,7 +5113,7 @@ void bargraphModeOriginalRampFiringAnimation() {
         }
       break;
 
-      case 4:
+      case LEVEL_4:
         if(b_tmp_down) {
           // Moving down.
           for(uint8_t i = 25; i >= i_bargraph_status_alt; i--) {
@@ -5262,7 +5196,7 @@ void bargraphModeOriginalRampFiringAnimation() {
         }
       break;
 
-      case 3:
+      case LEVEL_3:
         if(b_tmp_down) {
           // Moving down.
           for(uint8_t i = 19; i >= i_bargraph_status_alt; i--) {
@@ -5345,7 +5279,7 @@ void bargraphModeOriginalRampFiringAnimation() {
         }
       break;
 
-      case 2:
+      case LEVEL_2:
         if(b_tmp_down) {
           // Moving down.
           for(uint8_t i = 13; i >= i_bargraph_status_alt; i--) {
@@ -5416,8 +5350,7 @@ void bargraphModeOriginalRampFiringAnimation() {
         }
       break;
 
-      case 1:
-      default:
+      case LEVEL_1:
         if(b_tmp_down) {
           // Moving down.
           for(uint8_t i = 7; i >= i_bargraph_status_alt; i--) {
@@ -5488,40 +5421,30 @@ void bargraphModeOriginalRampFiringAnimation() {
         }
       break;
     }
-
-    if(i_bargraph_status_alt > 22) {
-      vibrationWand(i_vibration_level_min + 115);
-    }
-    else if(i_bargraph_status_alt > 11) {
-      vibrationWand(i_vibration_level_min + 112);
-    }
-    else {
-      vibrationWand(i_vibration_level_min + 110);
-    }
   }
   else {
     // When firing starts, i_bargraph_status resets to 0 in modeFireStart();
     if(i_bargraph_status == 0) {
       // Set our target.
-      switch(i_power_level) {
-        case 5:
+      switch(gpstarWand.getPowerLevel()) {
+        case LEVEL_5:
+        default:
           i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
         break;
 
-        case 4:
+        case LEVEL_4:
           i_bargraph_status = random(2, i_bargraph_segments_5_led);
         break;
 
-        case 3:
+        case LEVEL_3:
           i_bargraph_status = random(1, i_bargraph_segments_5_led - 1);
         break;
 
-        case 2:
+        case LEVEL_2:
           i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
         break;
 
-        case 1:
-        default:
+        case LEVEL_1:
           i_bargraph_status = random(0, i_bargraph_segments_5_led - 3);
         break;
       }
@@ -5536,297 +5459,297 @@ void bargraphModeOriginalRampFiringAnimation() {
       }
     }
 
-    switch(i_power_level) {
-      case 5:
-        if(b_tmp_down) {
-          // Moving down.
-          for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
-            if(i_bargraph_status == i) {
-              switch(i_cyclotron_multiplier) {
-                case 5:
-                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 4:
-                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 3:
-                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 2:
-                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 1:
-                default:
-                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
-                break;
-              }
-            }
-
-
-            if(digitalReadFast(bargraphLookupTable(i-1)) == LOW) {
-              wandBargraphControl(i-1);
-              break;
-            }
-          }
-        }
-        else {
-          // Need to move up.
-          for(uint8_t i = 0; i <= i_bargraph_status; i++) {
-            if(i_bargraph_status == i) {
-              switch(i_cyclotron_multiplier) {
-                case 5:
-                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 4:
-                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 3:
-                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 2:
-                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 1:
-                default:
-                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
-                break;
-              }
-            }
-
-            if(digitalReadFast(bargraphLookupTable(i)) == HIGH) {
-              wandBargraphControl(i+1);
-              break;
-            }
-          }
-        }
-      break;
-
-      case 4:
-        if(b_tmp_down) {
-          // Moving down.
-          for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
-            if(i_bargraph_status == i) {
-              switch(i_cyclotron_multiplier) {
-                case 5:
-                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 4:
-                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 3:
-                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 2:
-                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 1:
-                default:
-                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
-                break;
-              }
-            }
-
-
-            if(digitalReadFast(bargraphLookupTable(i-1)) == LOW) {
-              wandBargraphControl(i-1);
-              break;
-            }
-          }
-        }
-        else {
-          // Need to move up.
-          for(uint8_t i = 0; i <= i_bargraph_status; i++) {
-            if(i_bargraph_status == i) {
-              switch(i_cyclotron_multiplier) {
-                case 5:
-                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 4:
-                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 3:
-                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 2:
-                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 1:
-                default:
-                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
-                break;
-              }
-            }
-
-            if(digitalReadFast(bargraphLookupTable(i)) == HIGH) {
-              wandBargraphControl(i+1);
-              break;
-            }
-          }
-        }
-      break;
-
-      case 3:
-        if(b_tmp_down) {
-          // Moving down.
-          for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
-            if(i_bargraph_status == i) {
-              switch(i_cyclotron_multiplier) {
-                case 5:
-                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 4:
-                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 3:
-                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 2:
-                  i_bargraph_status = random(1, i_bargraph_segments_5_led - 1);
-                break;
-
-                case 1:
-                default:
-                  i_bargraph_status = random(1, i_bargraph_segments_5_led - 1);
-                break;
-              }
-            }
-
-
-            if(digitalReadFast(bargraphLookupTable(i-1)) == LOW) {
-              wandBargraphControl(i-1);
-              break;
-            }
-          }
-        }
-        else {
-          // Need to move up.
-          for(uint8_t i = 0; i <= i_bargraph_status; i++) {
-            if(i_bargraph_status == i) {
-              switch(i_cyclotron_multiplier) {
-                case 5:
-                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 4:
-                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 3:
-                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 2:
-                  i_bargraph_status = random(1, i_bargraph_segments_5_led - 1);
-                break;
-
-                case 1:
-                default:
-                  i_bargraph_status = random(1, i_bargraph_segments_5_led - 1);
-                break;
-              }
-            }
-
-            if(digitalReadFast(bargraphLookupTable(i)) == HIGH) {
-              wandBargraphControl(i+1);
-              break;
-            }
-          }
-        }
-      break;
-
-      case 2:
-        if(b_tmp_down) {
-          // Moving down.
-          for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
-            if(i_bargraph_status == i) {
-              switch(i_cyclotron_multiplier) {
-                case 5:
-                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 4:
-                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 3:
-                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 2:
-                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 1:
-                default:
-                  i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
-                break;
-              }
-            }
-
-
-            if(digitalReadFast(bargraphLookupTable(i-1)) == LOW) {
-              wandBargraphControl(i-1);
-              break;
-            }
-          }
-        }
-        else {
-          // Need to move up.
-          for(uint8_t i = 0; i <= i_bargraph_status; i++) {
-            if(i_bargraph_status == i) {
-              switch(i_cyclotron_multiplier) {
-                case 5:
-                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 4:
-                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 3:
-                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
-                break;
-
-                case 2:
-                  i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
-                break;
-
-                case 1:
-                default:
-                  i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
-                break;
-              }
-            }
-
-            if(digitalReadFast(bargraphLookupTable(i)) == HIGH) {
-              wandBargraphControl(i+1);
-              break;
-            }
-          }
-        }
-      break;
-
-      case 1:
+    switch(gpstarWand.getPowerLevel()) {
+      case LEVEL_5:
       default:
+        if(b_tmp_down) {
+          // Moving down.
+          for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
+            if(i_bargraph_status == i) {
+              switch(i_cyclotron_multiplier) {
+                case 5:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 4:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 3:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 2:
+                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 1:
+                default:
+                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
+                break;
+              }
+            }
+
+
+            if(digitalReadFast(bargraphLookupTable(i-1)) == LOW) {
+              wandBargraphControl(i-1);
+              break;
+            }
+          }
+        }
+        else {
+          // Need to move up.
+          for(uint8_t i = 0; i <= i_bargraph_status; i++) {
+            if(i_bargraph_status == i) {
+              switch(i_cyclotron_multiplier) {
+                case 5:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 4:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 3:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 2:
+                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 1:
+                default:
+                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
+                break;
+              }
+            }
+
+            if(digitalReadFast(bargraphLookupTable(i)) == HIGH) {
+              wandBargraphControl(i+1);
+              break;
+            }
+          }
+        }
+      break;
+
+      case LEVEL_4:
+        if(b_tmp_down) {
+          // Moving down.
+          for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
+            if(i_bargraph_status == i) {
+              switch(i_cyclotron_multiplier) {
+                case 5:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 4:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 3:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 2:
+                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 1:
+                default:
+                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
+                break;
+              }
+            }
+
+
+            if(digitalReadFast(bargraphLookupTable(i-1)) == LOW) {
+              wandBargraphControl(i-1);
+              break;
+            }
+          }
+        }
+        else {
+          // Need to move up.
+          for(uint8_t i = 0; i <= i_bargraph_status; i++) {
+            if(i_bargraph_status == i) {
+              switch(i_cyclotron_multiplier) {
+                case 5:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 4:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 3:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 2:
+                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 1:
+                default:
+                  i_bargraph_status = random(2, i_bargraph_segments_5_led + 1);
+                break;
+              }
+            }
+
+            if(digitalReadFast(bargraphLookupTable(i)) == HIGH) {
+              wandBargraphControl(i+1);
+              break;
+            }
+          }
+        }
+      break;
+
+      case LEVEL_3:
+        if(b_tmp_down) {
+          // Moving down.
+          for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
+            if(i_bargraph_status == i) {
+              switch(i_cyclotron_multiplier) {
+                case 5:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 4:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 3:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 2:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led - 1);
+                break;
+
+                case 1:
+                default:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led - 1);
+                break;
+              }
+            }
+
+
+            if(digitalReadFast(bargraphLookupTable(i-1)) == LOW) {
+              wandBargraphControl(i-1);
+              break;
+            }
+          }
+        }
+        else {
+          // Need to move up.
+          for(uint8_t i = 0; i <= i_bargraph_status; i++) {
+            if(i_bargraph_status == i) {
+              switch(i_cyclotron_multiplier) {
+                case 5:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 4:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 3:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 2:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led - 1);
+                break;
+
+                case 1:
+                default:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led - 1);
+                break;
+              }
+            }
+
+            if(digitalReadFast(bargraphLookupTable(i)) == HIGH) {
+              wandBargraphControl(i+1);
+              break;
+            }
+          }
+        }
+      break;
+
+      case LEVEL_2:
+        if(b_tmp_down) {
+          // Moving down.
+          for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
+            if(i_bargraph_status == i) {
+              switch(i_cyclotron_multiplier) {
+                case 5:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 4:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 3:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 2:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 1:
+                default:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
+                break;
+              }
+            }
+
+
+            if(digitalReadFast(bargraphLookupTable(i-1)) == LOW) {
+              wandBargraphControl(i-1);
+              break;
+            }
+          }
+        }
+        else {
+          // Need to move up.
+          for(uint8_t i = 0; i <= i_bargraph_status; i++) {
+            if(i_bargraph_status == i) {
+              switch(i_cyclotron_multiplier) {
+                case 5:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 4:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 3:
+                  i_bargraph_status = random(1, i_bargraph_segments_5_led + 1);
+                break;
+
+                case 2:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
+                break;
+
+                case 1:
+                default:
+                  i_bargraph_status = random(0, i_bargraph_segments_5_led - 2);
+                break;
+              }
+            }
+
+            if(digitalReadFast(bargraphLookupTable(i)) == HIGH) {
+              wandBargraphControl(i+1);
+              break;
+            }
+          }
+        }
+      break;
+
+      case LEVEL_1:
         if(b_tmp_down) {
           // Moving down.
           for(uint8_t i = i_bargraph_segments_5_led; i >= i_bargraph_status; i--) {
@@ -5897,16 +5820,6 @@ void bargraphModeOriginalRampFiringAnimation() {
         }
       break;
     }
-  }
-
-  if(i_bargraph_status > 3) {
-    vibrationWand(i_vibration_level_min + 115);
-  }
-  else if(i_bargraph_status > 1) {
-    vibrationWand(i_vibration_level_min + 112);
-  }
-  else {
-    vibrationWand(i_vibration_level_min + 110);
   }
 }
 
@@ -5970,7 +5883,7 @@ void bargraphRampFiring() {
 
   // If in a power level on the wand that can overheat, change the speed of the bargraph ramp during firing based on time remaining before we overheat.
   if(ms_overheat_initiate.isRunning()) {
-    if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_level - 1] / 6) {
+    if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[(uint8_t)gpstarWand.getPowerLevel() - 1] / 6) {
       if(BARGRAPH_TYPE == SEGMENTS_28 || BARGRAPH_TYPE == SEGMENTS_30) {
         ms_bargraph_firing.start((i_ramp_interval / 8) + 2); // 7ms per segment
       }
@@ -5980,7 +5893,7 @@ void bargraphRampFiring() {
 
       cyclotronSpeedUp(6);
     }
-    else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_level - 1] / 5) {
+    else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[(uint8_t)gpstarWand.getPowerLevel() - 1] / 5) {
       if(BARGRAPH_TYPE == SEGMENTS_28 || BARGRAPH_TYPE == SEGMENTS_30) {
         ms_bargraph_firing.start((i_ramp_interval / 8) + 4); // 9ms per segment
       }
@@ -5990,7 +5903,7 @@ void bargraphRampFiring() {
 
       cyclotronSpeedUp(5);
     }
-    else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_level - 1] / 4) {
+    else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[(uint8_t)gpstarWand.getPowerLevel() - 1] / 4) {
       if(BARGRAPH_TYPE == SEGMENTS_28 || BARGRAPH_TYPE == SEGMENTS_30) {
         ms_bargraph_firing.start((i_ramp_interval / 4) + 1); // 11ms per segment
       }
@@ -6000,7 +5913,7 @@ void bargraphRampFiring() {
 
       cyclotronSpeedUp(4);
     }
-    else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_level - 1] / 3) {
+    else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[(uint8_t)gpstarWand.getPowerLevel() - 1] / 3) {
       if(BARGRAPH_TYPE == SEGMENTS_28 || BARGRAPH_TYPE == SEGMENTS_30) {
         ms_bargraph_firing.start((i_ramp_interval / 4) + 3); // 13ms per segment
       }
@@ -6010,7 +5923,7 @@ void bargraphRampFiring() {
 
       cyclotronSpeedUp(3);
     }
-    else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[i_power_level - 1] / 2) {
+    else if(ms_overheat_initiate.remaining() < i_ms_overheat_initiate[(uint8_t)gpstarWand.getPowerLevel() - 1] / 2) {
       if(BARGRAPH_TYPE == SEGMENTS_28 || BARGRAPH_TYPE == SEGMENTS_30) {
         ms_bargraph_firing.start((i_ramp_interval / 4) + 5); // 15ms per segment
       }
@@ -6022,50 +5935,50 @@ void bargraphRampFiring() {
     }
     else {
       if(BARGRAPH_TYPE == SEGMENTS_28 || BARGRAPH_TYPE == SEGMENTS_30) {
-        switch(i_power_level) {
-          case 5:
+        switch(gpstarWand.getPowerLevel()) {
+          case LEVEL_5:
+          default:
             ms_bargraph_firing.start((i_ramp_interval / 2) - 5); // 15ms per segment
           break;
 
-          case 4:
+          case LEVEL_4:
             ms_bargraph_firing.start(i_ramp_interval / 2); // 20ms per segment
           break;
 
-          case 3:
+          case LEVEL_3:
             ms_bargraph_firing.start((i_ramp_interval / 2) + 5); // 25ms per segment
           break;
 
-          case 2:
+          case LEVEL_2:
             ms_bargraph_firing.start((i_ramp_interval / 2) + 10); // 30ms per segment
           break;
 
-          case 1:
-          default:
+          case LEVEL_1:
             ms_bargraph_firing.start((i_ramp_interval / 2) + 15); // 35ms per segment
           break;
         }
       }
       else {
         if(BARGRAPH_FIRING_ANIMATION == BARGRAPH_ANIMATION_ORIGINAL) {
-          switch(i_power_level) {
-            case 5:
+          switch(gpstarWand.getPowerLevel()) {
+            case LEVEL_5:
+            default:
               ms_bargraph_firing.start(i_ramp_interval / 2); // 60ms per LED
             break;
 
-            case 4:
+            case LEVEL_4:
               ms_bargraph_firing.start((i_ramp_interval / 2) + 30); // 90ms per LED
             break;
 
-            case 3:
+            case LEVEL_3:
               ms_bargraph_firing.start(i_ramp_interval); // 120ms per LED
             break;
 
-            case 2:
+            case LEVEL_2:
               ms_bargraph_firing.start(i_ramp_interval * 2); // 240ms per LED
             break;
 
-            case 1:
-            default:
+            case LEVEL_1:
               ms_bargraph_firing.start(i_ramp_interval * 3); // 360ms per LED
             break;
           }
@@ -6080,50 +5993,50 @@ void bargraphRampFiring() {
   }
   else {
     if(BARGRAPH_TYPE == SEGMENTS_28 || BARGRAPH_TYPE == SEGMENTS_30) {
-      switch(i_power_level) {
-        case 5:
+      switch(gpstarWand.getPowerLevel()) {
+        case LEVEL_5:
+        default:
           ms_bargraph_firing.start((i_ramp_interval / 2) - 7); // 13ms per segment
         break;
 
-        case 4:
+        case LEVEL_4:
           ms_bargraph_firing.start((i_ramp_interval / 2) - 3); // 15ms per segment
         break;
 
-        case 3:
+        case LEVEL_3:
           ms_bargraph_firing.start(i_ramp_interval / 2); // 20ms per segment
         break;
 
-        case 2:
+        case LEVEL_2:
           ms_bargraph_firing.start((i_ramp_interval / 2) + 7); // 25ms per segment
         break;
 
-        case 1:
-        default:
+        case LEVEL_1:
           ms_bargraph_firing.start((i_ramp_interval / 2) + 12); // 30ms per segment
         break;
       }
     }
     else {
       if(BARGRAPH_FIRING_ANIMATION == BARGRAPH_ANIMATION_ORIGINAL) {
-        switch(i_power_level) {
-          case 5:
+        switch(gpstarWand.getPowerLevel()) {
+          case LEVEL_5:
+          default:
             ms_bargraph_firing.start(i_ramp_interval / 2); // 60ms per LED
           break;
 
-          case 4:
+          case LEVEL_4:
             ms_bargraph_firing.start((i_ramp_interval / 2) + 30); // 90ms per LED
           break;
 
-          case 3:
+          case LEVEL_3:
             ms_bargraph_firing.start(i_ramp_interval); // 120ms per LED
           break;
 
-          case 2:
+          case LEVEL_2:
             ms_bargraph_firing.start(i_ramp_interval * 2); // 240ms per LED
           break;
 
-          case 1:
-          default:
+          case LEVEL_1:
             ms_bargraph_firing.start(i_ramp_interval * 3); // 360ms per LED
           break;
         }
@@ -6171,20 +6084,20 @@ void modeFireStart() {
   // This will only overheat when enabled by using the alt firing when in crossing the streams mode.
   bool b_overheat_flag = true;
 
-  if(((FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) && !b_firing_alt) || !b_overheat_enabled) {
+  if(((gpstarWand.isFiringModeCTS() || gpstarWand.isFiringModeCTSMix()) && !b_firing_alt) || !b_overheat_enabled) {
     b_overheat_flag = false;
   }
 
   if(b_overheat_flag) {
     // If in high power level on the wand, start an overheat timer.
-    if(b_overheat_level[i_power_level - 1]) {
-      ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_level - 1]);
+    if(b_overheat_level[(uint8_t)gpstarWand.getPowerLevel() - 1]) {
+      ms_overheat_initiate.start(i_ms_overheat_initiate[(uint8_t)gpstarWand.getPowerLevel() - 1]);
     }
   }
 
   barrelLightsOff();
 
-  if(STREAM_MODE == MESON) {
+  if(gpstarWand.inStreamMode(MESON)) {
     ms_firing_stream_effects.start(0);
   }
   else {
@@ -6202,7 +6115,7 @@ void modeFireStart() {
 
   bargraphRampFiring();
 
-  if(STREAM_MODE == PROTON && b_stream_effects) {
+  if(gpstarWand.inStreamMode(PROTON) && b_stream_effects) {
     ms_impact.start(random(10,16) * 1000);
 
     // Standalone wand plays additional SFX from Proton Pack.
@@ -6212,6 +6125,28 @@ void modeFireStart() {
   }
 
   ms_firing_length_timer.start(i_firing_timer_length);
+
+  #ifdef ESP32
+  // Restart the infrared timer based on the current power level.
+  switch(gpstarWand.getPowerLevel()) {
+    case 1:
+      irManager->startTXTimer(ir_delay_power_1);
+    break;
+    case 2:
+      irManager->startTXTimer(ir_delay_power_2);
+    break;
+    case 3:
+      irManager->startTXTimer(ir_delay_power_3);
+    break;
+    case 4:
+      irManager->startTXTimer(ir_delay_power_4);
+    break;
+    case 5:
+    default:
+      irManager->startTXTimer(ir_delay_power_5);
+    break;
+  }
+  #endif
 }
 
 void fireStreamEffect(CRGB c_colour) {
@@ -6226,11 +6161,11 @@ void fireStreamEffect(CRGB c_colour) {
 
       if(ms_firing_stream_effects.justFinished()) {
         if(i_barrel_light - 1 >= 0 && i_barrel_light - 1 < i_num_barrel_leds) {
-          switch(STREAM_MODE) {
+          switch(gpstarWand.getStreamMode()) {
             case PROTON:
             default:
               if(b_firing_cross_streams) {
-                if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE && !b_pack_cyclotron_lid_on) {
+                if(isBrassPack()) {
                   barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_CHARTREUSE, WAND_BARREL_LED_COUNT);
                   //barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 2])] = c_colour;
                 }
@@ -6241,50 +6176,50 @@ void fireStreamEffect(CRGB c_colour) {
               }
               else if(getSystemYearMode() == SYSTEM_1989) {
                 // Shift the stream from orange to red on higher power levels.
-                switch(i_power_level) {
-                  case 1:
-                  default:
+                switch(gpstarWand.getPowerLevel()) {
+                  case LEVEL_1:
                     barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_RED5, WAND_BARREL_LED_COUNT);
                   break;
 
-                  case 2:
+                  case LEVEL_2:
                     barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
                   break;
 
-                  case 3:
+                  case LEVEL_3:
                     barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_RED3, WAND_BARREL_LED_COUNT);
                   break;
 
-                  case 4:
+                  case LEVEL_4:
                     barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
                   break;
 
-                  case 5:
+                  case LEVEL_5:
+                  default:
                     barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
                   break;
                 }
               }
               else {
                 // Shift the stream from red to orange on higher power levels.
-                switch(i_power_level) {
-                  case 1:
-                  default:
+                switch(gpstarWand.getPowerLevel()) {
+                  case LEVEL_1:
                     barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
                   break;
 
-                  case 2:
+                  case LEVEL_2:
                     barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
                   break;
 
-                  case 3:
+                  case LEVEL_3:
                     barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_RED3, WAND_BARREL_LED_COUNT);
                   break;
 
-                  case 4:
+                  case LEVEL_4:
                     barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
                   break;
 
-                  case 5:
+                  case LEVEL_5:
+                  default:
                     barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light - 1])] = getHueColour(C_RED5, WAND_BARREL_LED_COUNT);
                   break;
                 }
@@ -6322,45 +6257,45 @@ void fireStreamEffect(CRGB c_colour) {
 
           uint8_t i_s_speed = 0;
 
-          switch(STREAM_MODE) {
+          switch(gpstarWand.getStreamMode()) {
             case MESON:
               // Do nothing; animation is restarted by checkWandAction();
             break;
 
             default:
-              switch(i_power_level) {
-                case 1:
-                default:
+              switch(gpstarWand.getPowerLevel()) {
+                case LEVEL_1:
                   i_s_speed = 5; // 5ms
                 break;
 
-                case 2:
+                case LEVEL_2:
                   i_s_speed = 6; // 4ms
                 break;
 
-                case 3:
+                case LEVEL_3:
                   i_s_speed = 7; // 3ms
                 break;
 
-                case 4:
+                case LEVEL_4:
                   i_s_speed = 8; // 2ms
                 break;
 
-                case 5:
+                case LEVEL_5:
+                default:
                   i_s_speed = 9; // 1ms
                 break;
               }
             break;
           }
 
-          if(STREAM_MODE != MESON) {
+          if(!gpstarWand.inStreamMode(MESON)) {
             ms_firing_stream_effects.start(i_firing_stream_tmp - i_s_speed);
           }
         }
         else if(i_barrel_light < i_num_barrel_leds) {
           barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light])] = c_colour;
 
-          switch(STREAM_MODE) {
+          switch(gpstarWand.getStreamMode()) {
             case MESON:
               if(i_barrel_light + 1 < i_num_barrel_leds) {
                 barrel_leds[PROGMEM_READU8(gpstar_neutrona_barrel[i_barrel_light + 1])] = c_colour;
@@ -6379,25 +6314,25 @@ void fireStreamEffect(CRGB c_colour) {
             {
               uint8_t i_t_rand = random(0, i_num_barrel_leds / 3); // from 0 to 15
 
-              switch(i_power_level) {
-                case 5:
+              switch(gpstarWand.getPowerLevel()) {
+                case LEVEL_5:
+                default:
                   i_t_rand = i_t_rand + 10;
                 break;
 
-                case 4:
+                case LEVEL_4:
                   i_t_rand = i_t_rand + 8;
                 break;
 
-                case 3:
+                case LEVEL_3:
                   i_t_rand = i_t_rand + 6;
                 break;
 
-                case 2:
+                case LEVEL_2:
                   i_t_rand = i_t_rand + 3;
                 break;
 
-                case 1:
-                default:
+                case LEVEL_1:
                 i_t_rand = i_t_rand + 2;
                   // Nothing.
                 break;
@@ -6424,31 +6359,31 @@ void fireStreamEffect(CRGB c_colour) {
             break;
           }
 
-          switch(STREAM_MODE) {
+          switch(gpstarWand.getStreamMode()) {
             case MESON:
-              switch(i_power_level) {
-                case 1:
-                default:
+              switch(gpstarWand.getPowerLevel()) {
+                case LEVEL_1:
                   i_fast_led_delay = FAST_LED_UPDATE_MS; // 3ms
                   ms_firing_stream_effects.start((i_firing_stream / 25)); // 4ms
                 break;
 
-                case 2:
+                case LEVEL_2:
                   i_fast_led_delay = FAST_LED_UPDATE_MS; // 3ms
                   ms_firing_stream_effects.start((i_firing_stream / 25) - 1); // 3ms
                 break;
 
-                case 3:
+                case LEVEL_3:
                   i_fast_led_delay = FAST_LED_UPDATE_MS + 1; // 4ms
                   ms_firing_stream_effects.start((i_firing_stream / 25) - 1); // 3ms
                 break;
 
-                case 4:
+                case LEVEL_4:
                   i_fast_led_delay = FAST_LED_UPDATE_MS + 3; // 6ms
                   ms_firing_stream_effects.start((i_firing_stream / 25) - 1); // 3ms
                 break;
 
-                case 5:
+                case LEVEL_5:
+                default:
                   i_fast_led_delay = FAST_LED_UPDATE_MS + 4; // 7ms
                   ms_firing_stream_effects.start((i_firing_stream / 25) - 2); // 2ms
                 break;
@@ -6456,25 +6391,25 @@ void fireStreamEffect(CRGB c_colour) {
             break;
 
             case PROTON:
-              switch(i_power_level) {
-                case 1:
-                default:
+              switch(gpstarWand.getPowerLevel()) {
+                case LEVEL_1:
                   ms_firing_stream_effects.start((i_firing_stream / 25) + 4); // 8ms
                 break;
 
-                case 2:
+                case LEVEL_2:
                   ms_firing_stream_effects.start((i_firing_stream / 25) + 3); // 7ms
                 break;
 
-                case 3:
+                case LEVEL_3:
                   ms_firing_stream_effects.start((i_firing_stream / 25) + 2); // 6ms
                 break;
 
-                case 4:
+                case LEVEL_4:
                   ms_firing_stream_effects.start((i_firing_stream / 25) + 1); // 5ms
                 break;
 
-                case 5:
+                case LEVEL_5:
+                default:
                   ms_firing_stream_effects.start((i_firing_stream / 25)); // 4ms
                 break;
               }
@@ -6482,25 +6417,25 @@ void fireStreamEffect(CRGB c_colour) {
 
             case SLIME:
               if(WAND_ACTION_STATUS == ACTION_FIRING) {
-                switch(i_power_level) {
-                  case 1:
-                  default:
+                switch(gpstarWand.getPowerLevel()) {
+                  case LEVEL_1:
                     ms_firing_stream_effects.start((i_firing_stream / 25) + 2); // 6ms
                   break;
 
-                  case 2:
+                  case LEVEL_2:
                     ms_firing_stream_effects.start((i_firing_stream / 25) + 1); // 5ms
                   break;
 
-                  case 3:
+                  case LEVEL_3:
                     ms_firing_stream_effects.start((i_firing_stream / 25)); // 4ms
                   break;
 
-                  case 4:
+                  case LEVEL_4:
                     ms_firing_stream_effects.start((i_firing_stream / 25) - 1); // 3ms
                   break;
 
-                  case 5:
+                  case LEVEL_5:
+                  default:
                     ms_firing_stream_effects.start((i_firing_stream / 25) - 2); // 2ms
                   break;
                 }
@@ -6517,25 +6452,25 @@ void fireStreamEffect(CRGB c_colour) {
             break;
 
             default:
-              switch(i_power_level) {
-                case 1:
-                default:
+              switch(gpstarWand.getPowerLevel()) {
+                case LEVEL_1:
                   ms_firing_stream_effects.start((i_firing_stream / 25) + 2); // 6ms
                 break;
 
-                case 2:
+                case LEVEL_2:
                   ms_firing_stream_effects.start((i_firing_stream / 25) + 1); // 5ms
                 break;
 
-                case 3:
+                case LEVEL_3:
                   ms_firing_stream_effects.start((i_firing_stream / 25)); // 4ms
                 break;
 
-                case 4:
+                case LEVEL_4:
                   ms_firing_stream_effects.start((i_firing_stream / 25) - 1); // 3ms
                 break;
 
-                case 5:
+                case LEVEL_5:
+                default:
                   ms_firing_stream_effects.start((i_firing_stream / 25) - 2); // 2ms
                 break;
               }
@@ -6556,11 +6491,11 @@ void fireStreamEffect(CRGB c_colour) {
 
       if(ms_firing_stream_effects.justFinished()) {
         if(i_barrel_light - 1 >= 0 && i_barrel_light - 1 < i_num_barrel_leds) {
-          switch(STREAM_MODE) {
+          switch(gpstarWand.getStreamMode()) {
             case PROTON:
             default:
               if(b_firing_cross_streams) {
-                if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE && !b_pack_cyclotron_lid_on) {
+                if(isBrassPack()) {
                   barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_CHARTREUSE, WAND_BARREL_LED_COUNT);
                   //barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 2])] = c_colour;
                 }
@@ -6571,50 +6506,50 @@ void fireStreamEffect(CRGB c_colour) {
               }
               else if(getSystemYearMode() == SYSTEM_1989) {
                 // Shift the stream from orange to red on higher power levels.
-                switch(i_power_level) {
-                  case 1:
-                  default:
+                switch(gpstarWand.getPowerLevel()) {
+                  case LEVEL_1:
                     barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED5, WAND_BARREL_LED_COUNT);
                   break;
 
-                  case 2:
+                  case LEVEL_2:
                     barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
                   break;
 
-                  case 3:
+                  case LEVEL_3:
                     barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED3, WAND_BARREL_LED_COUNT);
                   break;
 
-                  case 4:
+                  case LEVEL_4:
                     barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
                   break;
 
-                  case 5:
+                  case LEVEL_5:
+                  default:
                     barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
                   break;
                 }
               }
               else {
                 // Shift the stream from red to orange on higher power levels.
-                switch(i_power_level) {
-                  case 1:
-                  default:
+                switch(gpstarWand.getPowerLevel()) {
+                  case LEVEL_1:
                     barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
                   break;
 
-                  case 2:
+                  case LEVEL_2:
                     barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
                   break;
 
-                  case 3:
+                  case LEVEL_3:
                     barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED3, WAND_BARREL_LED_COUNT);
                   break;
 
-                  case 4:
+                  case LEVEL_4:
                     barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
                   break;
 
-                  case 5:
+                  case LEVEL_5:
+                  default:
                     barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light - 1])] = getHueColour(C_RED5, WAND_BARREL_LED_COUNT);
                   break;
                 }
@@ -6652,45 +6587,45 @@ void fireStreamEffect(CRGB c_colour) {
 
           uint8_t i_s_speed = 0;
 
-          switch(STREAM_MODE) {
+          switch(gpstarWand.getStreamMode()) {
             case MESON:
               // Do nothing; animation is restarted by checkWandAction();
             break;
 
             default:
-              switch(i_power_level) {
-                case 1:
-                default:
+              switch(gpstarWand.getPowerLevel()) {
+                case LEVEL_1:
                   i_s_speed = 5; // 5ms
                 break;
 
-                case 2:
+                case LEVEL_2:
                   i_s_speed = 6; // 4ms
                 break;
 
-                case 3:
+                case LEVEL_3:
                   i_s_speed = 7; // 3ms
                 break;
 
-                case 4:
+                case LEVEL_4:
                   i_s_speed = 8; // 2ms
                 break;
 
-                case 5:
+                case LEVEL_5:
+                default:
                   i_s_speed = 9; // 1ms
                 break;
               }
             break;
           }
 
-          if(STREAM_MODE != MESON) {
+          if(!gpstarWand.inStreamMode(MESON)) {
             ms_firing_stream_effects.start(i_firing_stream_tmp - i_s_speed);
           }
         }
         else if(i_barrel_light < i_num_barrel_leds) {
           barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light])] = c_colour;
 
-          switch(STREAM_MODE) {
+          switch(gpstarWand.getStreamMode()) {
             case MESON:
               if(i_barrel_light + 1 < i_num_barrel_leds) {
                 barrel_leds[PROGMEM_READU8(frutto_barrel[i_barrel_light + 1])] = c_colour;
@@ -6709,25 +6644,25 @@ void fireStreamEffect(CRGB c_colour) {
             {
               uint8_t i_t_rand = random(0, i_num_barrel_leds / 3); // from 0 to 15
 
-              switch(i_power_level) {
-                case 5:
+              switch(gpstarWand.getPowerLevel()) {
+                case LEVEL_5:
+                default:
                   i_t_rand = i_t_rand + 10;
                 break;
 
-                case 4:
+                case LEVEL_4:
                   i_t_rand = i_t_rand + 8;
                 break;
 
-                case 3:
+                case LEVEL_3:
                   i_t_rand = i_t_rand + 6;
                 break;
 
-                case 2:
+                case LEVEL_2:
                   i_t_rand = i_t_rand + 3;
                 break;
 
-                case 1:
-                default:
+                case LEVEL_1:
                 i_t_rand = i_t_rand + 2;
                   // Nothing.
                 break;
@@ -6754,31 +6689,31 @@ void fireStreamEffect(CRGB c_colour) {
             break;
           }
 
-          switch(STREAM_MODE) {
+          switch(gpstarWand.getStreamMode()) {
             case MESON:
-              switch(i_power_level) {
-                case 1:
-                default:
+              switch(gpstarWand.getPowerLevel()) {
+                case LEVEL_1:
                   i_fast_led_delay = FAST_LED_UPDATE_MS; // 3ms
                   ms_firing_stream_effects.start((i_firing_stream / 25)); // 4ms
                 break;
 
-                case 2:
+                case LEVEL_2:
                   i_fast_led_delay = FAST_LED_UPDATE_MS; // 3ms
                   ms_firing_stream_effects.start((i_firing_stream / 25) - 1); // 3ms
                 break;
 
-                case 3:
+                case LEVEL_3:
                   i_fast_led_delay = FAST_LED_UPDATE_MS + 1; // 4ms
                   ms_firing_stream_effects.start((i_firing_stream / 25) - 1); // 3ms
                 break;
 
-                case 4:
+                case LEVEL_4:
                   i_fast_led_delay = FAST_LED_UPDATE_MS + 3; // 6ms
                   ms_firing_stream_effects.start((i_firing_stream / 25) - 1); // 3ms
                 break;
 
-                case 5:
+                case LEVEL_5:
+                default:
                   i_fast_led_delay = FAST_LED_UPDATE_MS + 4; // 7ms
                   ms_firing_stream_effects.start((i_firing_stream / 25) - 2); // 2ms
                 break;
@@ -6786,25 +6721,25 @@ void fireStreamEffect(CRGB c_colour) {
             break;
 
             case PROTON:
-              switch(i_power_level) {
-                case 1:
-                default:
+              switch(gpstarWand.getPowerLevel()) {
+                case LEVEL_1:
                   ms_firing_stream_effects.start((i_firing_stream / 25) + 4); // 8ms
                 break;
 
-                case 2:
+                case LEVEL_2:
                   ms_firing_stream_effects.start((i_firing_stream / 25) + 3); // 7ms
                 break;
 
-                case 3:
+                case LEVEL_3:
                   ms_firing_stream_effects.start((i_firing_stream / 25) + 2); // 6ms
                 break;
 
-                case 4:
+                case LEVEL_4:
                   ms_firing_stream_effects.start((i_firing_stream / 25) + 1); // 5ms
                 break;
 
-                case 5:
+                case LEVEL_5:
+                default:
                   ms_firing_stream_effects.start((i_firing_stream / 25)); // 4ms
                 break;
               }
@@ -6812,25 +6747,25 @@ void fireStreamEffect(CRGB c_colour) {
 
             case SLIME:
               if(WAND_ACTION_STATUS == ACTION_FIRING) {
-                switch(i_power_level) {
-                  case 1:
-                  default:
+                switch(gpstarWand.getPowerLevel()) {
+                  case LEVEL_1:
                     ms_firing_stream_effects.start((i_firing_stream / 25) + 2); // 6ms
                   break;
 
-                  case 2:
+                  case LEVEL_2:
                     ms_firing_stream_effects.start((i_firing_stream / 25) + 1); // 5ms
                   break;
 
-                  case 3:
+                  case LEVEL_3:
                     ms_firing_stream_effects.start((i_firing_stream / 25)); // 4ms
                   break;
 
-                  case 4:
+                  case LEVEL_4:
                     ms_firing_stream_effects.start((i_firing_stream / 25) - 1); // 3ms
                   break;
 
-                  case 5:
+                  case LEVEL_5:
+                  default:
                     ms_firing_stream_effects.start((i_firing_stream / 25) - 2); // 2ms
                   break;
                 }
@@ -6847,25 +6782,25 @@ void fireStreamEffect(CRGB c_colour) {
             break;
 
             default:
-              switch(i_power_level) {
-                case 1:
-                default:
+              switch(gpstarWand.getPowerLevel()) {
+                case LEVEL_1:
                   ms_firing_stream_effects.start((i_firing_stream / 25) + 2); // 6ms
                 break;
 
-                case 2:
+                case LEVEL_2:
                   ms_firing_stream_effects.start((i_firing_stream / 25) + 1); // 5ms
                 break;
 
-                case 3:
+                case LEVEL_3:
                   ms_firing_stream_effects.start((i_firing_stream / 25)); // 4ms
                 break;
 
-                case 4:
+                case LEVEL_4:
                   ms_firing_stream_effects.start((i_firing_stream / 25) - 1); // 3ms
                 break;
 
-                case 5:
+                case LEVEL_5:
+                default:
                   ms_firing_stream_effects.start((i_firing_stream / 25) - 2); // 2ms
                 break;
               }
@@ -6884,11 +6819,11 @@ void fireStreamEffect(CRGB c_colour) {
 
       if(ms_firing_stream_effects.justFinished()) {
         if(i_barrel_light - 1 >= 0 && i_barrel_light - 1 < i_num_barrel_leds) {
-          switch(STREAM_MODE) {
+          switch(gpstarWand.getStreamMode()) {
             case PROTON:
             default:
               if(b_firing_cross_streams) {
-                if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE && !b_pack_cyclotron_lid_on) {
+                if(isBrassPack()) {
                   barrel_leds[i_barrel_light - 1] = getHueColour(C_CHARTREUSE, WAND_BARREL_LED_COUNT);
                 }
                 else {
@@ -6897,50 +6832,50 @@ void fireStreamEffect(CRGB c_colour) {
               }
               else if(getSystemYearMode() == SYSTEM_1989) {
                 // Shift the stream from orange to red on higher power levels.
-                switch(i_power_level) {
-                  case 1:
-                  default:
+                switch(gpstarWand.getPowerLevel()) {
+                  case LEVEL_1:
                     barrel_leds[i_barrel_light - 1] = getHueColour(C_RED5, WAND_BARREL_LED_COUNT);
                   break;
 
-                  case 2:
+                  case LEVEL_2:
                     barrel_leds[i_barrel_light - 1] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
                   break;
 
-                  case 3:
+                  case LEVEL_3:
                     barrel_leds[i_barrel_light - 1] = getHueColour(C_RED3, WAND_BARREL_LED_COUNT);
                   break;
 
-                  case 4:
+                  case LEVEL_4:
                     barrel_leds[i_barrel_light - 1] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
                   break;
 
-                  case 5:
+                  case LEVEL_5:
+                  default:
                     barrel_leds[i_barrel_light - 1] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
                   break;
                 }
               }
               else {
                 // Shift the stream from red to orange on higher power levels.
-                switch(i_power_level) {
-                  case 1:
-                  default:
+                switch(gpstarWand.getPowerLevel()) {
+                  case LEVEL_1:
                     barrel_leds[i_barrel_light - 1] = getHueColour(C_RED, WAND_BARREL_LED_COUNT);
                   break;
 
-                  case 2:
+                  case LEVEL_2:
                     barrel_leds[i_barrel_light - 1] = getHueColour(C_RED2, WAND_BARREL_LED_COUNT);
                   break;
 
-                  case 3:
+                  case LEVEL_3:
                     barrel_leds[i_barrel_light - 1] = getHueColour(C_RED3, WAND_BARREL_LED_COUNT);
                   break;
 
-                  case 4:
+                  case LEVEL_4:
                     barrel_leds[i_barrel_light - 1] = getHueColour(C_RED4, WAND_BARREL_LED_COUNT);
                   break;
 
-                  case 5:
+                  case LEVEL_5:
+                  default:
                     barrel_leds[i_barrel_light - 1] = getHueColour(C_RED5, WAND_BARREL_LED_COUNT);
                   break;
                 }
@@ -6976,31 +6911,31 @@ void fireStreamEffect(CRGB c_colour) {
         if(i_barrel_light == i_num_barrel_leds) {
           i_barrel_light = 0;
 
-          switch(STREAM_MODE) {
+          switch(gpstarWand.getStreamMode()) {
             case MESON:
               // Do nothing; animation is restarted by checkWandAction();
             break;
 
             default:
-              switch(i_power_level) {
-                case 1:
-                default:
+              switch(gpstarWand.getPowerLevel()) {
+                case LEVEL_1:
                   ms_firing_stream_effects.start(i_firing_stream_tmp); // 100ms
                 break;
 
-                case 2:
+                case LEVEL_2:
                   ms_firing_stream_effects.start(i_firing_stream_tmp - 15); // 85ms
                 break;
 
-                case 3:
+                case LEVEL_3:
                   ms_firing_stream_effects.start(i_firing_stream_tmp - 30); // 70ms
                 break;
 
-                case 4:
+                case LEVEL_4:
                   ms_firing_stream_effects.start(i_firing_stream_tmp - 45); // 55ms
                 break;
 
-                case 5:
+                case LEVEL_5:
+                default:
                   ms_firing_stream_effects.start(i_firing_stream_tmp - 60); // 40ms
                 break;
               }
@@ -7010,27 +6945,27 @@ void fireStreamEffect(CRGB c_colour) {
         else if(i_barrel_light < i_num_barrel_leds) {
           barrel_leds[i_barrel_light] = c_colour;
 
-          switch(STREAM_MODE) {
+          switch(gpstarWand.getStreamMode()) {
             default:
-              switch(i_power_level) {
-                case 1:
-                default:
+              switch(gpstarWand.getPowerLevel()) {
+                case LEVEL_1:
                   ms_firing_stream_effects.start((i_firing_stream / 5) + 10); // 30ms
                 break;
 
-                case 2:
+                case LEVEL_2:
                   ms_firing_stream_effects.start((i_firing_stream / 5) + 8); // 28ms
                 break;
 
-                case 3:
+                case LEVEL_3:
                   ms_firing_stream_effects.start((i_firing_stream / 5) + 6); // 26ms
                 break;
 
-                case 4:
+                case LEVEL_4:
                   ms_firing_stream_effects.start((i_firing_stream / 5) + 5); // 25ms
                 break;
 
-                case 5:
+                case LEVEL_5:
+                default:
                   ms_firing_stream_effects.start((i_firing_stream / 5) + 4); // 24ms
                 break;
               }
@@ -7147,7 +7082,7 @@ uint8_t getRandomFiringEffect() {
 void mixExtraFiringEffects() {
 #ifdef ESP32
   // Mix some impact sound based on user-initiated motions while firing.
-  if(STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects && filteredMotionData.shaken) {
+  if(gpstarWand.inStreamMode(PROTON) && !b_firing_cross_streams && b_stream_effects && filteredMotionData.shaken) {
     // Only play impact sound if firing, in Proton mode, and threshold exceeded.
     uint8_t i_random_effect = getRandomFiringEffect(); // Use last-played effect to choose another.
     switch(i_random_effect) {
@@ -7177,13 +7112,13 @@ void mixExtraFiringEffects() {
   }
 #endif
   // Mix some impact sound every 10-15 seconds while firing.
-  if(ms_impact.justFinished() && STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects) {
+  if(ms_impact.justFinished() && gpstarWand.inStreamMode(PROTON) && !b_firing_cross_streams && b_stream_effects) {
     playEffect(S_FIRE_LOOP_IMPACT, false, i_volume_effects, false, 0, false);
     ms_impact.start(random(10,16) * 1000);
   }
 
   // Standalone Neutrona Wand gets additional effects which would normally be played by Proton Pack.
-  if(ms_firing_sound_mix.justFinished() && STREAM_MODE == PROTON && !b_firing_cross_streams && b_stream_effects) {
+  if(ms_firing_sound_mix.justFinished() && gpstarWand.inStreamMode(PROTON) && !b_firing_cross_streams && b_stream_effects) {
     uint8_t i_random_effect = getRandomFiringEffect(); // Use last-played effect to choose another.
     uint16_t i_s_random = random(2,4) * 1000; // Affects mix timer, not effect chosen.
 
@@ -7231,15 +7166,15 @@ void modeFiring() {
   if(b_firing_intensify && !b_sound_firing_intensify_trigger) {
     b_sound_firing_intensify_trigger = true;
 
-    if(FIRING_MODE == CTS_MIX_MODE && STREAM_MODE == PROTON) {
+    if(gpstarWand.isFiringModeCTSMix() && gpstarWand.inStreamMode(PROTON)) {
       // Tell the Proton Pack that the Neutrona Wand is firing in Intensify mode mix.
       wandSerialSend(W_FIRING_INTENSIFY_MIX);
 
       if(getSystemYearMode() == SYSTEM_1984) {
-        playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+        playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true);
       }
       else {
-        playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+        playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
       }
     }
   }
@@ -7247,7 +7182,7 @@ void modeFiring() {
   if(!b_firing_intensify && b_sound_firing_intensify_trigger) {
     b_sound_firing_intensify_trigger = false;
 
-    if(FIRING_MODE == CTS_MIX_MODE && STREAM_MODE == PROTON) {
+    if(gpstarWand.isFiringModeCTSMix() && gpstarWand.inStreamMode(PROTON)) {
       // Tell the Proton Pack that the Neutrona Wand is no longer firing in Intensify mode mix.
       wandSerialSend(W_FIRING_INTENSIFY_STOPPED_MIX);
 
@@ -7263,11 +7198,11 @@ void modeFiring() {
   if(b_firing_alt && !b_sound_firing_alt_trigger) {
     b_sound_firing_alt_trigger = true;
 
-    if(FIRING_MODE == CTS_MIX_MODE && STREAM_MODE == PROTON) {
+    if(gpstarWand.isFiringModeCTSMix() && gpstarWand.inStreamMode(PROTON)) {
       // Tell the Proton Pack that the Neutrona Wand is firing in Alt mode mix.
       wandSerialSend(W_FIRING_ALT_MIX);
 
-      if(i_power_level != i_power_level_max) {
+      if(gpstarWand.getPowerLevel() != MAX_POWER_LEVEL) {
         if(getSystemYearMode() == SYSTEM_1989) {
           stopEffect(S_GB2_FIRE_LOOP);
         }
@@ -7276,27 +7211,27 @@ void modeFiring() {
         }
 
         if(getSystemYearMode() == SYSTEM_1984) {
-          playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+          playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true);
         }
         else {
-          playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+          playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
         }
       }
 
-      playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
+      playEffect(S_FIRING_LOOP_GB1, true);
     }
   }
 
   if(!b_firing_alt && b_sound_firing_alt_trigger) {
     b_sound_firing_alt_trigger = false;
 
-    if(FIRING_MODE == CTS_MIX_MODE && STREAM_MODE == PROTON) {
+    if(gpstarWand.isFiringModeCTSMix() && gpstarWand.inStreamMode(PROTON)) {
       // Tell the Proton Pack that the Neutrona Wand is no longer firing in Alt mode mix.
       wandSerialSend(W_FIRING_ALT_STOPPED_MIX);
 
       stopEffect(S_FIRING_LOOP_GB1);
 
-      if(i_power_level != i_power_level_max) {
+      if(gpstarWand.getPowerLevel() != MAX_POWER_LEVEL) {
         if(getSystemYearMode() == SYSTEM_1984) {
           stopEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP);
         }
@@ -7305,10 +7240,10 @@ void modeFiring() {
         }
 
         if(getSystemYearMode() == SYSTEM_1989) {
-          playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, false, 0, false);
+          playEffect(S_GB2_FIRE_LOOP, true);
         }
         else {
-          playEffect(S_GB1_1984_FIRE_LOOP_GUN, true, i_volume_effects, false, 0, false);
+          playEffect(S_GB1_1984_FIRE_LOOP_GUN, true);
         }
       }
     }
@@ -7320,14 +7255,12 @@ void modeFiring() {
 
     switch(WAND_YEAR_CTS) {
       case CTS_AFTERLIFE:
-        if(AUDIO_DEVICE == A_WAV_TRIGGER) {
-          stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-          stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
-        }
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects, false, 0, false);
 
-        if(FIRING_MODE == CTS_MIX_MODE) {
+        if(gpstarWand.isFiringModeCTSMix()) {
           // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
           wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_MIX_2021);
         }
@@ -7345,7 +7278,7 @@ void modeFiring() {
 
         playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
 
-        if(FIRING_MODE == CTS_MIX_MODE) {
+        if(gpstarWand.isFiringModeCTSMix()) {
           // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
           wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_MIX_1984);
         }
@@ -7361,14 +7294,12 @@ void modeFiring() {
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
           default:
-            if(AUDIO_DEVICE == A_WAV_TRIGGER) {
-              stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-              stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
-            }
+            stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+            stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
             playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects, false, 0, false);
 
-            if(FIRING_MODE == CTS_MIX_MODE) {
+            if(gpstarWand.isFiringModeCTSMix()) {
               // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
               wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_MIX_2021);
             }
@@ -7387,7 +7318,7 @@ void modeFiring() {
 
             playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
 
-            if(FIRING_MODE == CTS_MIX_MODE) {
+            if(gpstarWand.isFiringModeCTSMix()) {
               // Tell the Proton Pack that the Neutrona Wand is crossing the streams mix.
               wandSerialSend(W_FIRING_CROSSING_THE_STREAMS_MIX_1984);
             }
@@ -7405,17 +7336,15 @@ void modeFiring() {
     }
   }
 
-  if((!b_firing_alt || !b_firing_intensify) && b_firing_cross_streams && FIRING_MODE == CTS_MIX_MODE) {
+  if((!b_firing_alt || !b_firing_intensify) && b_firing_cross_streams && gpstarWand.isFiringModeCTSMix()) {
     // In CTS Mix mode, you can release either Intensify or the Barrel Wing Button and firing will revert to the mode for the still-held button.
     b_firing_cross_streams = false;
     b_sound_firing_cross_the_streams = false;
 
     switch(WAND_YEAR_CTS) {
       case CTS_AFTERLIFE:
-        if(AUDIO_DEVICE == A_WAV_TRIGGER) {
-          stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-          stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
-        }
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
         playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
 
@@ -7439,10 +7368,8 @@ void modeFiring() {
           case SYSTEM_AFTERLIFE:
           case SYSTEM_FROZEN_EMPIRE:
           default:
-            if(AUDIO_DEVICE == A_WAV_TRIGGER) {
-              stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-              stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
-            }
+            stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+            stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
             playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
 
@@ -7473,13 +7400,13 @@ void modeFiring() {
   // Overheat timers.
   bool b_overheat_flag = true;
 
-  if(((FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) && !b_firing_alt) || !b_overheat_enabled) {
+  if(((gpstarWand.isFiringModeCTS() || gpstarWand.isFiringModeCTSMix()) && !b_firing_alt) || !b_overheat_enabled) {
     b_overheat_flag = false;
   }
 
   if(b_overheat_flag) {
     // If the user changes the wand power output while firing, turn off the overheat timer.
-    if(!b_overheat_level[i_power_level - 1] && ms_overheat_initiate.isRunning()) {
+    if(!b_overheat_level[(uint8_t)gpstarWand.getPowerLevel() - 1] && ms_overheat_initiate.isRunning()) {
       ms_overheat_initiate.stop();
 
       // Reset the hat lights and timers.
@@ -7488,10 +7415,10 @@ void modeFiring() {
       // Tell the pack to revert back to regular Cyclotron speeds.
       wandSerialSend(W_CYCLOTRON_NORMAL_SPEED);
     }
-    else if(b_overheat_level[i_power_level - 1] && !ms_overheat_initiate.isRunning()) {
+    else if(b_overheat_level[(uint8_t)gpstarWand.getPowerLevel() - 1] && !ms_overheat_initiate.isRunning()) {
       // If the user changes back to power level that overheats while firing, start up a timer.
       // This currently works only in power levels 1-4. 5 stays locked when firing.
-      ms_overheat_initiate.start(i_ms_overheat_initiate[i_power_level - 1]);
+      ms_overheat_initiate.start(i_ms_overheat_initiate[(uint8_t)gpstarWand.getPowerLevel() - 1]);
     }
   }
   else {
@@ -7507,11 +7434,11 @@ void modeFiring() {
   colours c_temp_start = C_WHITE;
   colours c_temp_effect = C_WHITE;
 
-  switch(STREAM_MODE) {
+  switch(gpstarWand.getStreamMode()) {
     case PROTON:
     default:
       if(b_firing_cross_streams) {
-        if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE && !b_pack_cyclotron_lid_on) {
+        if(isBrassPack()) {
           c_temp_start = C_CHARTREUSE;
           c_temp_effect = C_ORANGE;
         }
@@ -7522,29 +7449,29 @@ void modeFiring() {
       }
       else if(getSystemYearMode() == SYSTEM_1989) {
         // Shift the stream from orange to red on higher power levels.
-        switch(i_power_level) {
-          case 1:
-          default:
+        switch(gpstarWand.getPowerLevel()) {
+          case LEVEL_1:
             c_temp_start = C_RED5;
             c_temp_effect = C_LIGHT_BLUE;
           break;
 
-          case 2:
+          case LEVEL_2:
             c_temp_start = C_RED4;
             c_temp_effect = C_MID_BLUE;
           break;
 
-          case 3:
+          case LEVEL_3:
             c_temp_start = C_RED3;
             c_temp_effect = C_MID_BLUE;
           break;
 
-          case 4:
+          case LEVEL_4:
             c_temp_start = C_RED2;
             c_temp_effect = C_BLUE;
           break;
 
-          case 5:
+          case LEVEL_5:
+          default:
             c_temp_start = C_RED;
             c_temp_effect = C_BLUE;
           break;
@@ -7552,29 +7479,29 @@ void modeFiring() {
       }
       else {
         // Shift the stream from red to orange on higher power levels.
-        switch(i_power_level) {
-          case 1:
-          default:
+        switch(gpstarWand.getPowerLevel()) {
+          case LEVEL_1:
             c_temp_start = C_RED;
             c_temp_effect = C_BLUE;
           break;
 
-          case 2:
+          case LEVEL_2:
             c_temp_start = C_RED2;
             c_temp_effect = C_BLUE;
           break;
 
-          case 3:
+          case LEVEL_3:
             c_temp_start = C_RED3;
             c_temp_effect = C_LIGHT_BLUE;
           break;
 
-          case 4:
+          case LEVEL_4:
             c_temp_start = C_RED4;
             c_temp_effect = C_LIGHT_BLUE;
           break;
 
-          case 5:
+          case LEVEL_5:
+          default:
             c_temp_start = C_RED5;
             c_temp_effect = C_WHITE;
           break;
@@ -7629,7 +7556,7 @@ void modeFiring() {
     break;
   }
 
-  if(STREAM_MODE != MESON) {
+  if(!gpstarWand.inStreamMode(MESON)) {
     // Meson does not use "stream start" to make its pulse effect.
     fireStreamStart(getHueColour(c_temp_start, WAND_BARREL_LED_COUNT));
   }
@@ -7670,11 +7597,11 @@ void wandBarrelHeatDown() {
   // Initialize temporary colour variable to reduce code complexity.
   colours c_temp = C_WHITE;
 
-  if(b_wand_mash_error || b_pack_alarm) {
+  if(b_wand_mash_lockout || b_pack_alarm) {
     // Special spark effect handling for button mash lockout and ribbon cable removal.
 
     if(ms_wand_heatup_fade.justFinished() && i_heatdown_counter > 0) {
-      if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE && STREAM_MODE == PROTON && !b_pack_cyclotron_lid_on) {
+      if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE && gpstarWand.inStreamMode(PROTON) && !b_pack_cyclotron_lid_on) {
         // Green goop effect in FE mode if the cyclotron lid is off.
         c_temp = C_CHARTREUSE;
       }
@@ -7735,7 +7662,7 @@ void wandBarrelHeatDown() {
   }
 
   if(ms_wand_heatup_fade.justFinished() && i_heatdown_counter > 0) {
-    switch(STREAM_MODE) {
+    switch(gpstarWand.getStreamMode()) {
       case PROTON:
       default:
         // Do nothing since c_temp is already C_WHITE.
@@ -7838,14 +7765,14 @@ void wandBarrelHeatUp() {
   // Initialize temporary colour variable to reduce code complexity.
   colours c_temp = C_WHITE;
 
-  if(b_wand_mash_error || b_pack_alarm) {
+  if(b_wand_mash_lockout || b_pack_alarm) {
     // Special spark effect handling for button mash lockout and ribbon cable removal.
 
     if((i_bmash_spark_index < 1 && i_heatup_counter > 100) || (i_bmash_spark_index > 0 && i_heatup_counter > 75)) {
       wandBarrelHeatDown();
     }
     else if(ms_wand_heatup_fade.justFinished() && ((i_bmash_spark_index < 1 && i_heatup_counter <= 100) || (i_bmash_spark_index > 0 && i_heatup_counter <= 75))) {
-      if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE && STREAM_MODE == PROTON && !b_pack_cyclotron_lid_on) {
+      if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE && gpstarWand.inStreamMode(PROTON) && !b_pack_cyclotron_lid_on) {
         // Green goop effect in FE mode if the cyclotron lid is off.
         c_temp = C_CHARTREUSE;
       }
@@ -7897,7 +7824,7 @@ void wandBarrelHeatUp() {
     wandBarrelHeatDown();
   }
   else if(ms_wand_heatup_fade.justFinished() && i_heatup_counter <= 100) {
-    switch(STREAM_MODE) {
+    switch(gpstarWand.getStreamMode()) {
       case PROTON:
       default:
         // Do nothing since c_temp is already C_WHITE.
@@ -8068,7 +7995,7 @@ void firePulseEffect() {
     switch(BARGRAPH_MODE) {
       case BARGRAPH_ORIGINAL:
         // Need to restart the regular bargraph timer.
-        i_bargraph_status = i_power_level - 1;
+        i_bargraph_status = gpstarWand.getPowerLevel() - 1;
         i_bargraph_status_alt = 0;
 
         switch(BARGRAPH_FIRING_ANIMATION) {
@@ -8086,21 +8013,21 @@ void firePulseEffect() {
 
             i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_2021 / 3;
 
-            bargraphRampUp();
+            bargraphRamp();
           break;
         }
       break;
 
       case BARGRAPH_SUPER_HERO:
       default:
-        i_bargraph_status = i_power_level - 1;
+        i_bargraph_status = gpstarWand.getPowerLevel() - 1;
         i_bargraph_status_alt = 0;
         bargraphClearAlt();
 
         i_bargraph_multiplier_current = i_bargraph_multiplier_ramp_1984;
 
         // We ramp the bargraph back up after finishing firing.
-        bargraphRampUp();
+        bargraphRamp();
       break;
     }
 
@@ -8108,7 +8035,7 @@ void firePulseEffect() {
     digitalWriteFast(BARREL_HAT_LED_PIN, HIGH);
   }
 
-  if(STREAM_MODE == SLIME) {
+  if(gpstarWand.inStreamMode(SLIME)) {
     ms_firing_stream_effects.start(0); // Start new barrel animation.
 
     // Draw first pixel.
@@ -8127,7 +8054,7 @@ void firePulseEffect() {
 
   switch(i_pulse_step) {
     case 0:
-      switch(STREAM_MODE) {
+      switch(gpstarWand.getStreamMode()) {
         case PROTON:
           // Boson Dart.
           barrelLEDTranslation(0, C_RED);
@@ -8150,7 +8077,7 @@ void firePulseEffect() {
     break;
 
     case 1:
-      switch(STREAM_MODE) {
+      switch(gpstarWand.getStreamMode()) {
         case PROTON:
           // Boson Dart.
           barrelLEDTranslation(0, C_RED2);
@@ -8174,7 +8101,7 @@ void firePulseEffect() {
     break;
 
     case 2:
-      switch(STREAM_MODE) {
+      switch(gpstarWand.getStreamMode()) {
         case PROTON:
           // Boson Dart.
           barrelLEDTranslation(0, C_WHITE);
@@ -8201,7 +8128,7 @@ void firePulseEffect() {
     break;
 
     case 3:
-      switch(STREAM_MODE) {
+      switch(gpstarWand.getStreamMode()) {
         case PROTON:
           // Boson Dart.
           barrelLEDTranslation(0, C_RED2);
@@ -8229,7 +8156,7 @@ void firePulseEffect() {
     break;
 
     case 4:
-      switch(STREAM_MODE) {
+      switch(gpstarWand.getStreamMode()) {
         case PROTON:
           // Boson Dart.
           barrelLEDTranslation(0, C_RED);
@@ -8263,7 +8190,7 @@ void firePulseEffect() {
     break;
 
     case 5:
-      switch(STREAM_MODE) {
+      switch(gpstarWand.getStreamMode()) {
         case PROTON:
           // Boson Dart.
           barrelLEDTranslation(0, C_BLACK);
@@ -8294,7 +8221,7 @@ void firePulseEffect() {
     break;
 
     case 6:
-      switch(STREAM_MODE) {
+      switch(gpstarWand.getStreamMode()) {
         case PROTON:
           // Boson Dart.
           barrelLEDTranslation(1, C_BLACK);
@@ -8324,7 +8251,7 @@ void firePulseEffect() {
     break;
 
     case 7:
-      switch(STREAM_MODE) {
+      switch(gpstarWand.getStreamMode()) {
         case PROTON:
           // Boson Dart.
           barrelLEDTranslation(2, C_BLACK);
@@ -8353,7 +8280,7 @@ void firePulseEffect() {
     break;
 
     case 8:
-      switch(STREAM_MODE) {
+      switch(gpstarWand.getStreamMode()) {
         case PROTON:
           // Boson Dart.
           barrelLEDTranslation(3, C_BLACK);
@@ -8387,7 +8314,7 @@ void firePulseEffect() {
     break;
 
     case 9:
-      switch(STREAM_MODE) {
+      switch(gpstarWand.getStreamMode()) {
         case PROTON:
           // Boson Dart.
           barrelLEDTranslation(4, C_BLACK);
@@ -8415,7 +8342,7 @@ void firePulseEffect() {
     break;
 
     case 10:
-      switch(STREAM_MODE) {
+      switch(gpstarWand.getStreamMode()) {
         case STASIS:
           // Shock Blast.
           barrelLEDTranslation(3, C_WHITE);
@@ -8435,7 +8362,7 @@ void firePulseEffect() {
     break;
 
     case 11:
-      switch(STREAM_MODE) {
+      switch(gpstarWand.getStreamMode()) {
         case STASIS:
           // Shock Blast.
           barrelLEDTranslation(3, C_BLACK);
@@ -8455,7 +8382,7 @@ void firePulseEffect() {
     break;
 
     case 12:
-      switch(STREAM_MODE) {
+      switch(gpstarWand.getStreamMode()) {
         case STASIS:
           // Shock Blast.
           barrelLEDTranslation(4, C_WHITE);
@@ -8484,7 +8411,7 @@ void firePulseEffect() {
   i_pulse_step++;
 
   if(i_pulse_step < 14) {
-    if(STREAM_MODE == PROTON) {
+    if(gpstarWand.inStreamMode(PROTON)) {
       // Boson Dart is much slower than the others.
       i_firing_pulse_tmp *= 2;
     }
@@ -8497,10 +8424,15 @@ void firePulseEffect() {
     i_pulse_step = 0;
 
     if((getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) && WAND_ACTION_STATUS != ACTION_FIRING) {
-      if(STREAM_MODE != SLIME) {
+      if(!gpstarWand.inStreamMode(SLIME)) {
         digitalWriteFast(BARREL_HAT_LED_PIN, LOW); // Turn off hat light 1 when we stop firing in 1984/1989.
       }
     }
+
+    #ifdef ESP32
+      // Send infrared command using the IR manager when firing.
+      irManager->sendCommand(IR_CMD_FIRING, gpstarWand.getStreamMode(), gpstarWand.getPowerLevel(), IR_CMD_BLAST);
+    #endif
   }
 }
 
@@ -8509,11 +8441,11 @@ void fireEffectEnd() {
   colours c_temp = C_WHITE;
 
   if(i_barrel_light < i_num_barrel_leds && ms_firing_stream_effects.isRunning()) {
-    switch(STREAM_MODE) {
+    switch(gpstarWand.getStreamMode()) {
       case PROTON:
       default:
         if(b_firing_cross_streams) {
-          if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE && !b_pack_cyclotron_lid_on) {
+          if(isBrassPack()) {
             c_temp = C_ORANGE;
           }
           else {
@@ -8522,50 +8454,50 @@ void fireEffectEnd() {
         }
         else if(getSystemYearMode() == SYSTEM_1989) {
           // Shift the stream from orange to red on higher power levels.
-          switch(i_power_level) {
-            case 1:
-            default:
+          switch(gpstarWand.getPowerLevel()) {
+            case LEVEL_1:
               c_temp = C_LIGHT_BLUE;
             break;
 
-            case 2:
+            case LEVEL_2:
               c_temp = C_MID_BLUE;
             break;
 
-            case 3:
+            case LEVEL_3:
               c_temp = C_MID_BLUE;
             break;
 
-            case 4:
+            case LEVEL_4:
               c_temp = C_BLUE;
             break;
 
-            case 5:
+            case LEVEL_5:
+            default:
               c_temp = C_BLUE;
             break;
           }
         }
         else {
           // Shift the stream from red to orange on higher power levels.
-          switch(i_power_level) {
-            case 1:
+          switch(gpstarWand.getPowerLevel()) {
+            case LEVEL_1:
+              c_temp = C_BLUE;
+            break;
+
+            case LEVEL_2:
+              c_temp = C_BLUE;
+            break;
+
+            case LEVEL_3:
+              c_temp = C_LIGHT_BLUE;
+            break;
+
+            case LEVEL_4:
+              c_temp = C_LIGHT_BLUE;
+            break;
+
+            case LEVEL_5:
             default:
-              c_temp = C_BLUE;
-            break;
-
-            case 2:
-              c_temp = C_BLUE;
-            break;
-
-            case 3:
-              c_temp = C_LIGHT_BLUE;
-            break;
-
-            case 4:
-              c_temp = C_LIGHT_BLUE;
-            break;
-
-            case 5:
               c_temp = C_WHITE;
             break;
           }
@@ -8622,52 +8554,52 @@ void fireEffectEnd() {
 
       uint8_t i_s_speed = 0; // Stores an additional value used for the 48-LED barrel.
 
-      switch(STREAM_MODE) {
+      switch(gpstarWand.getStreamMode()) {
         case MESON:
-          switch(i_power_level) {
-            case 1:
+          switch(gpstarWand.getPowerLevel()) {
+            case LEVEL_1:
+              i_s_speed = 8;
+            break;
+
+            case LEVEL_2:
+              i_s_speed = 8;
+            break;
+
+            case LEVEL_3:
+              i_s_speed = 8;
+            break;
+
+            case LEVEL_4:
+              i_s_speed = 8;
+            break;
+
+            case LEVEL_5:
             default:
-              i_s_speed = 8;
-            break;
-
-            case 2:
-              i_s_speed = 8;
-            break;
-
-            case 3:
-              i_s_speed = 8;
-            break;
-
-            case 4:
-              i_s_speed = 8;
-            break;
-
-            case 5:
               i_s_speed = 9;
             break;
           }
         break;
 
         default:
-          switch(i_power_level) {
-            case 1:
-            default:
+          switch(gpstarWand.getPowerLevel()) {
+            case LEVEL_1:
               i_s_speed = 5;
             break;
 
-            case 2:
+            case LEVEL_2:
               i_s_speed = 6;
             break;
 
-            case 3:
+            case LEVEL_3:
               i_s_speed = 7;
             break;
 
-            case 4:
+            case LEVEL_4:
               i_s_speed = 8;
             break;
 
-            case 5:
+            case LEVEL_5:
+            default:
               i_s_speed = 9;
             break;
           }
@@ -8687,25 +8619,25 @@ void fireEffectEnd() {
           // Firing at "normal" speed.
           i_firing_stream_tmp = i_firing_stream;
 
-          switch(i_power_level) {
-            case 1:
-            default:
+          switch(gpstarWand.getPowerLevel()) {
+            case LEVEL_1:
               // Do nothing.
             break;
 
-            case 2:
+            case LEVEL_2:
               i_firing_stream_tmp = i_firing_stream_tmp - 15;
             break;
 
-            case 3:
+            case LEVEL_3:
               i_firing_stream_tmp = i_firing_stream_tmp - 30;
             break;
 
-            case 4:
+            case LEVEL_4:
               i_firing_stream_tmp = i_firing_stream_tmp - 45;
             break;
 
-            case 5:
+            case LEVEL_5:
+            default:
               i_firing_stream_tmp = i_firing_stream_tmp - 60;
             break;
           }
@@ -8717,11 +8649,11 @@ void fireEffectEnd() {
     }
   }
   else {
-    switch(STREAM_MODE) {
+    switch(gpstarWand.getStreamMode()) {
       case PROTON:
       default:
         if(b_firing_cross_streams) {
-          if(getSystemYearMode() == SYSTEM_FROZEN_EMPIRE && !b_pack_cyclotron_lid_on) {
+          if(isBrassPack()) {
             c_temp = C_CHARTREUSE;
           }
           else {
@@ -8730,50 +8662,50 @@ void fireEffectEnd() {
         }
         else if(getSystemYearMode() == SYSTEM_1989) {
           // Shift the stream from orange to red on higher power levels.
-          switch(i_power_level) {
-            case 1:
-            default:
+          switch(gpstarWand.getPowerLevel()) {
+            case LEVEL_1:
               c_temp = C_RED5;
             break;
 
-            case 2:
+            case LEVEL_2:
               c_temp = C_RED4;
             break;
 
-            case 3:
+            case LEVEL_3:
               c_temp = C_RED3;
             break;
 
-            case 4:
+            case LEVEL_4:
               c_temp = C_RED2;
             break;
 
-            case 5:
+            case LEVEL_5:
+            default:
               c_temp = C_RED;
             break;
           }
         }
         else {
           // Shift the stream from red to orange on higher power levels.
-          switch(i_power_level) {
-            case 1:
-            default:
+          switch(gpstarWand.getPowerLevel()) {
+            case LEVEL_1:
               c_temp = C_RED;
             break;
 
-            case 2:
+            case LEVEL_2:
               c_temp = C_RED2;
             break;
 
-            case 3:
+            case LEVEL_3:
               c_temp = C_RED3;
             break;
 
-            case 4:
+            case LEVEL_4:
               c_temp = C_RED4;
             break;
 
-            case 5:
+            case LEVEL_5:
+            default:
               c_temp = C_RED5;
             break;
           }
@@ -8897,7 +8829,7 @@ void bargraphYearModeUpdate() {
 
     case BARGRAPH_EEPROM_DEFAULT:
     default:
-      switch(SYSTEM_MODE) {
+      switch(gpstarWand.getSystemMode()) {
         case MODE_ORIGINAL:
           BARGRAPH_MODE = BARGRAPH_ORIGINAL;
         break;
@@ -8933,7 +8865,7 @@ void bargraphYearModeUpdate() {
 
     case BARGRAPH_EEPROM_ANIMATION_DEFAULT:
     default:
-      switch(SYSTEM_MODE) {
+      switch(gpstarWand.getSystemMode()) {
         case MODE_ORIGINAL:
           BARGRAPH_FIRING_ANIMATION = BARGRAPH_ANIMATION_ORIGINAL;
         break;
@@ -9001,9 +8933,15 @@ void overheatVoiceIndicator(uint16_t i_tmp_length) {
 
   uint16_t i_tmp_sound = (S_1 - 1) + i_tmp_length;
 
-  stopEffect(i_tmp_sound - 1);
+  if(i_tmp_sound - 1 >= S_1) {
+    stopEffect(i_tmp_sound - 1);
+  }
+
+  if(i_tmp_sound + 1 <= S_60) {
+    stopEffect(i_tmp_sound + 1);
+  }
+
   stopEffect(i_tmp_sound);
-  stopEffect(i_tmp_sound + 1);
   playEffect(i_tmp_sound);
 
   // Tell the Proton Pack to play this sound effect.
@@ -9698,7 +9636,7 @@ void checkRotaryEncoder() {
           }
           else if(i_wand_menu - 1 < 1) {
             // We are entering a sub menu. Only accessible when the Proton Pack is powered down.
-            if(!b_pack_on || (b_wand_standalone && WAND_STATUS == MODE_OFF)) {
+            if((!b_pack_on && !b_pack_shutting_down) || (b_wand_standalone && WAND_STATUS == MODE_OFF)) {
               switch(WAND_MENU_LEVEL) {
                 case MENU_LEVEL_1:
                   WAND_MENU_LEVEL = MENU_LEVEL_2;
@@ -9786,7 +9724,7 @@ void checkRotaryEncoder() {
           }
           else if(i_wand_menu + 1 > 5) {
             // We are leaving changing menu levels. Only accessible when the Proton Pack is powered down.
-            if(!b_pack_on || (b_wand_standalone && WAND_STATUS == MODE_OFF)) {
+            if((!b_pack_on && !b_pack_shutting_down) || (b_wand_standalone && WAND_STATUS == MODE_OFF)) {
               switch(WAND_MENU_LEVEL) {
                 case MENU_LEVEL_3:
                   WAND_MENU_LEVEL = MENU_LEVEL_2;
@@ -9854,16 +9792,15 @@ void checkRotaryEncoder() {
       break;
 
       default:
-        if(WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && !b_pack_alarm && !b_wand_mash_error) {
-          if(WAND_ACTION_STATUS == ACTION_FIRING && i_power_level == i_power_level_max) {
+        if(WAND_ACTION_STATUS != ACTION_OVERHEATING && WAND_ACTION_STATUS != ACTION_VENTING && !b_pack_alarm && !b_wand_mash_lockout) {
+          if(WAND_ACTION_STATUS == ACTION_FIRING && gpstarWand.getPowerLevel() == MAX_POWER_LEVEL) {
             // Do nothing, we are locked in full power level while firing.
           }
           // Counter clockwise.
           else if(prev_next_code == 0x0b) {
             if(switch_wand.on() && switch_vent.on() && switch_activate.on() && WAND_STATUS == MODE_ON) {
-              if(i_power_level - 1 >= (SYSTEM_MODE == MODE_ORIGINAL ? (i_power_level_min + 1) : i_power_level_min)) {
-                i_power_level_prev = i_power_level;
-                i_power_level--;
+              if(gpstarWand.getPowerLevel() - 1 >= (gpstarWand.getSystemMode() == MODE_ORIGINAL ? (MIN_POWER_LEVEL + 1) : MIN_POWER_LEVEL)) {
+                gpstarWand.decreasePowerLevel();
 
                 if(BARGRAPH_MODE == BARGRAPH_ORIGINAL && (BARGRAPH_TYPE == SEGMENTS_28 || BARGRAPH_TYPE == SEGMENTS_30)) {
                   bargraphPowerCheck2021Alt(false);
@@ -9898,56 +9835,7 @@ void checkRotaryEncoder() {
             }
             else if(vgModeCheck() && !switch_wand.on() && switch_vent.on() && WAND_STATUS == MODE_ON) {
               // Counter-Clockwise Rotation from Proton: STASIS -> SLIME -> MESON -> [SPECTRAL -> HOLIDAY_* -> SPECTRAL_CUSTOM] -> PROTON
-              if(STREAM_MODE == PROTON) {
-                STREAM_MODE = STASIS;
-              }
-              else if(STREAM_MODE == STASIS) {
-                STREAM_MODE = SLIME;
-              }
-              else if(STREAM_MODE == SLIME) {
-                STREAM_MODE = MESON;
-              }
-              else if(STREAM_MODE == MESON) {
-                // Conditional mode advancement.
-                if(b_spectral_mode_enabled) {
-                  STREAM_MODE = SPECTRAL;
-                }
-                else if(b_holiday_modes_enabled) {
-                  STREAM_MODE = HOLIDAY_HALLOWEEN;
-                }
-                else if(b_spectral_custom_mode_enabled) {
-                  STREAM_MODE = SPECTRAL_CUSTOM;
-                }
-                else {
-                  STREAM_MODE = PROTON;
-                }
-              }
-              else if(STREAM_MODE == SPECTRAL) {
-                // Conditional mode advancement.
-                if(b_holiday_modes_enabled) {
-                  // Note: Once in a holiday mode, user can switch between additional modes using the BWB switch.
-                  STREAM_MODE = HOLIDAY_HALLOWEEN;
-                }
-                else if(b_spectral_custom_mode_enabled) {
-                  STREAM_MODE = SPECTRAL_CUSTOM;
-                }
-                else {
-                  STREAM_MODE = PROTON;
-                }
-              }
-              else if(STREAM_MODE == HOLIDAY_HALLOWEEN || STREAM_MODE == HOLIDAY_CHRISTMAS) {
-                // Conditional mode advancement.
-                if(b_spectral_custom_mode_enabled) {
-                  STREAM_MODE = SPECTRAL_CUSTOM;
-                }
-                else {
-                  STREAM_MODE = PROTON;
-                }
-              }
-              else {
-                STREAM_MODE = PROTON;
-              }
-
+              gpstarWand.setStreamMode(gpstarWand.nextStreamMode());
               streamModeCheck();
             }
 
@@ -9970,19 +9858,18 @@ void checkRotaryEncoder() {
             }
           }
 
-          if(WAND_ACTION_STATUS == ACTION_FIRING && i_power_level == i_power_level_max) {
+          if(WAND_ACTION_STATUS == ACTION_FIRING && gpstarWand.getPowerLevel() == MAX_POWER_LEVEL) {
             // Do nothing, we are locked in full power level while firing.
           }
           // Clockwise.
           else if(prev_next_code == 0x07) {
             if(switch_wand.on() && switch_vent.on() && switch_activate.on() && WAND_STATUS == MODE_ON) {
-              if(i_power_level + 1 <= i_power_level_max) {
-                if(i_power_level + 1 == i_power_level_max && WAND_ACTION_STATUS == ACTION_FIRING) {
+              if(gpstarWand.getPowerLevel() + 1 <= MAX_POWER_LEVEL) {
+                if(gpstarWand.getPowerLevel() + 1 == MAX_POWER_LEVEL && WAND_ACTION_STATUS == ACTION_FIRING) {
                   // Do nothing, we do not want to go into max power level if firing in a lower power level already.
                 }
                 else {
-                  i_power_level_prev = i_power_level;
-                  i_power_level++;
+                  gpstarWand.increasePowerLevel();
 
                   if(BARGRAPH_MODE == BARGRAPH_ORIGINAL && (BARGRAPH_TYPE == SEGMENTS_28 || BARGRAPH_TYPE == SEGMENTS_30)) {
                     bargraphPowerCheck2021Alt(false);
@@ -10018,56 +9905,7 @@ void checkRotaryEncoder() {
             }
             else if(vgModeCheck() && !switch_wand.on() && switch_vent.on() && WAND_STATUS == MODE_ON) {
               // Clockwise Rotation from Proton: [SPECTRAL_CUSTOM -> HOLIDAY_* -> SPECTRAL] -> MESON -> SLIME -> STASIS -> PROTON
-              if(STREAM_MODE == PROTON) {
-                // Conditional mode advancement.
-                if(b_spectral_custom_mode_enabled) {
-                  STREAM_MODE = SPECTRAL_CUSTOM;
-                }
-                else if(b_holiday_modes_enabled) {
-                  // Note: Once in a holiday mode, user can switch between additional modes using the BWB switch.
-                  STREAM_MODE = HOLIDAY_HALLOWEEN;
-                }
-                else if(b_spectral_mode_enabled) {
-                  STREAM_MODE = SPECTRAL;
-                }
-                else {
-                  STREAM_MODE = MESON;
-                }
-              }
-              else if(STREAM_MODE == SPECTRAL_CUSTOM) {
-                // Conditional mode advancement.
-                if(b_holiday_modes_enabled) {
-                  STREAM_MODE = HOLIDAY_HALLOWEEN;
-                }
-                else if(b_spectral_mode_enabled) {
-                  STREAM_MODE = SPECTRAL;
-                }
-                else {
-                  STREAM_MODE = MESON;
-                }
-              }
-              else if(STREAM_MODE == HOLIDAY_HALLOWEEN || STREAM_MODE == HOLIDAY_CHRISTMAS) {
-                // Conditional mode advancement.
-                if(b_spectral_mode_enabled) {
-                  STREAM_MODE = SPECTRAL;
-                }
-                else {
-                  STREAM_MODE = MESON;
-                }
-              }
-              else if(STREAM_MODE == SPECTRAL) {
-                STREAM_MODE = MESON;
-              }
-              else if(STREAM_MODE == MESON) {
-                STREAM_MODE = SLIME;
-              }
-              else if(STREAM_MODE == SLIME) {
-                STREAM_MODE = STASIS;
-              }
-              else {
-                STREAM_MODE = PROTON;
-              }
-
+              gpstarWand.setStreamMode(gpstarWand.previousStreamMode());
               streamModeCheck();
             }
 
@@ -10097,8 +9935,8 @@ void checkRotaryEncoder() {
 
 // Function to control all actions relating to the pack's ion arm switch.
 void changeIonArmSwitchState(bool state) {
-  if(state && RED_SWITCH_MODE == SWITCH_OFF) {
-    RED_SWITCH_MODE = SWITCH_ON;
+  if(state &&gpstarWand.getIonArmSwitch() == RED_SWITCH_OFF) {
+    gpstarWand.setIonArmSwitch(RED_SWITCH_ON);
 
     // Disable the power on reminder.
     setPowerOnReminder(false);
@@ -10107,7 +9945,7 @@ void changeIonArmSwitchState(bool state) {
     if(WAND_ACTION_STATUS == ACTION_IDLE) {
       switch(WAND_STATUS) {
         case MODE_OFF:
-          switch(SYSTEM_MODE) {
+          switch(gpstarWand.getSystemMode()) {
             case MODE_ORIGINAL:
               if(switch_vent.on() && switch_wand.on()) {
                 if(b_extra_pack_sounds) {
@@ -10139,10 +9977,10 @@ void changeIonArmSwitchState(bool state) {
       }
     }
   }
-  else if(!state && RED_SWITCH_MODE == SWITCH_ON) {
-    RED_SWITCH_MODE = SWITCH_OFF;
+  else if(!state && gpstarWand.getIonArmSwitch() == RED_SWITCH_ON) {
+    gpstarWand.setIonArmSwitch(RED_SWITCH_OFF);
 
-    switch(SYSTEM_MODE) {
+    switch(gpstarWand.getSystemMode()) {
       case MODE_ORIGINAL:
         if(switch_vent.on() && switch_wand.on()) {
           if(b_extra_pack_sounds) {
@@ -10167,19 +10005,6 @@ void changeIonArmSwitchState(bool state) {
   }
 }
 
-// Rebuilds the stream mode flags variable.
-void updateStreamFlags() {
-  // Start by setting the flags to none.
-  STREAM_MODE_FLAG = FLAG_NONE;
-
-  // Then combine our bools into the flag.
-  STREAM_MODE_FLAG |= (vgModeCheck() ? FLAG_VG : FLAG_NONE);
-  STREAM_MODE_FLAG |= (b_spectral_mode_enabled ? FLAG_SPECTRAL : FLAG_NONE);
-  STREAM_MODE_FLAG |= (b_spectral_custom_mode_enabled ? FLAG_SPECTRAL_CUSTOM : FLAG_NONE);
-  STREAM_MODE_FLAG |= (b_holiday_modes_enabled ? FLAG_HOLIDAY_HALLOWEEN : FLAG_NONE);
-  STREAM_MODE_FLAG |= (b_holiday_modes_enabled ? FLAG_HOLIDAY_CHRISTMAS : FLAG_NONE);
-}
-
 // Exit the wand menu system while the wand is off.
 void wandExitMenu() {
   i_wand_menu = 5;
@@ -10188,48 +10013,7 @@ void wandExitMenu() {
     playEffect(S_CLICK);
   }
 
-  switch(STREAM_MODE) {
-    case MESON:
-      // Tell the pack we are in meson mode.
-      wandSerialSend(W_MESON_MODE);
-    break;
-
-    case STASIS:
-      // Tell the pack we are in stasis mode.
-      wandSerialSend(W_STASIS_MODE);
-    break;
-
-    case SLIME:
-      // Tell the pack we are in slime mode.
-      wandSerialSend(W_SLIME_MODE);
-    break;
-
-    case SPECTRAL:
-      // Tell the pack we are in spectral mode.
-      wandSerialSend(W_SPECTRAL_MODE);
-    break;
-
-    case HOLIDAY_HALLOWEEN:
-      // Tell the pack we are in Halloween mode.
-      wandSerialSend(W_HALLOWEEN_MODE);
-    break;
-
-    case HOLIDAY_CHRISTMAS:
-      // Tell the pack we are in Christmas mode.
-      wandSerialSend(W_CHRISTMAS_MODE);
-    break;
-
-    case SPECTRAL_CUSTOM:
-      // Tell the pack we are in spectral custom mode.
-      wandSerialSend(W_SPECTRAL_CUSTOM_MODE);
-    break;
-
-    case PROTON:
-    default:
-      // Tell the pack we are in proton mode.
-      wandSerialSend(W_PROTON_MODE);
-    break;
-  }
+  wandSerialSend(W_SET_STREAM_MODE, gpstarWand.getStreamModeByte());
 
   WAND_ACTION_STATUS = ACTION_IDLE;
 
@@ -10241,16 +10025,13 @@ void wandExitMenu() {
   // Reset the white LED blink rate setting in case we changed years.
   resetWhiteLEDBlinkRate();
 
-  // Reset our stream flags in case something changed.
-  updateStreamFlags();
-
   // Send current preferences to the pack for use by the Attenuator.
-  wandSerialSend(W_STREAM_FLAGS, STREAM_MODE_FLAG);
+  wandSerialSend(W_STREAM_FLAGS, gpstarWand.getStreamModeOpts());
   wandSerialSend(W_SEND_PREFERENCES_WAND);
 
   // In original mode, we need to re-initalise the 28 and 30 segment bargraph if some switches are already toggled on.
-  if(SYSTEM_MODE == MODE_ORIGINAL) {
-    if(switch_vent.on() && switch_wand.on() && RED_SWITCH_MODE == SWITCH_ON) {
+  if(gpstarWand.getSystemMode() == MODE_ORIGINAL) {
+    if(switch_vent.on() && switch_wand.on() && gpstarWand.getIonArmSwitch() == RED_SWITCH_ON) {
       if(b_extra_pack_sounds) {
         wandSerialSend(W_MODE_ORIGINAL_HEATUP);
       }
@@ -10277,7 +10058,7 @@ void wandExitEEPROMMenu() {
 
   if(b_wand_standalone) {
     // Also need to make sure to reset the "ion arm switch" to off if standalone.
-    RED_SWITCH_MODE = SWITCH_OFF;
+    gpstarWand.setIonArmSwitch(RED_SWITCH_OFF);
   }
 
   i_wand_menu = 5;
@@ -10294,11 +10075,8 @@ void wandExitEEPROMMenu() {
   // Reset the white LED blink rate setting in case we changed years.
   resetWhiteLEDBlinkRate();
 
-  // Reset our stream flags in case something changed.
-  updateStreamFlags();
-
   // Send current preferences to the pack for use by the Attenuator.
-  wandSerialSend(W_STREAM_FLAGS, STREAM_MODE_FLAG);
+  wandSerialSend(W_STREAM_FLAGS, gpstarWand.getStreamModeOpts());
   wandSerialSend(W_SEND_PREFERENCES_WAND);
   wandSerialSend(W_SEND_PREFERENCES_SMOKE);
 }
@@ -10332,10 +10110,9 @@ void toggleStandaloneMode(bool on) {
     // Reset our master volume according to the new EEPROM values.
     updateMasterVolume(true);
 
-    // Sanity check to make sure that a firing mode was set as default.
-    if(FIRING_MODE != CTS_MODE && FIRING_MODE != CTS_MIX_MODE) {
-      FIRING_MODE = VG_MODE;
-      LAST_FIRING_MODE = FIRING_MODE;
+    // If neither CTS mode nor CTS Mix mode is enabled, ensure we're in VG mode.
+    if(!(gpstarWand.isFiringModeCTS() || gpstarWand.isFiringModeCTSMix())) {
+      gpstarWand.setFiringModeVG();
     }
 
     // Check if we should be in video game mode or not.
@@ -10356,7 +10133,7 @@ void toggleStandaloneMode(bool on) {
 void checkPowerOnReminder() {
   if(WAND_ACTION_STATUS == ACTION_IDLE && (!b_pack_on || b_wand_standalone)) {
     if(ms_power_indicator.justFinished()) {
-      if((SYSTEM_MODE == MODE_ORIGINAL && RED_SWITCH_MODE == SWITCH_OFF) || SYSTEM_MODE == MODE_SUPER_HERO) {
+      if((gpstarWand.getSystemMode() == MODE_ORIGINAL && gpstarWand.getIonArmSwitch() == RED_SWITCH_OFF) || gpstarWand.getSystemMode() == MODE_SUPER_HERO) {
         // Blink the Clippard LED to indicate to the user that the system battery is still powered on.
         digitalWriteFast(CLIPPARD_LED_PIN, (digitalReadFast(CLIPPARD_LED_PIN) == LOW) ? HIGH : LOW);
       }
@@ -10392,31 +10169,41 @@ void ventTopLightControl(bool b_on) {
 
     // Turn on if not on already.
     if(!vent_leds[1]) {
-      switch(STREAM_MODE) {
-        case SPECTRAL:
-          vent_leds[1] = getHueAsRGB(C_RAINBOW);
-        break;
+      if(b_vent_light_stream_colours) {
+        switch(gpstarWand.getStreamMode()) {
+          case SPECTRAL:
+            vent_leds[1] = getHueAsRGB(C_RAINBOW);
+          break;
 
-        case HOLIDAY_HALLOWEEN:
-          vent_leds[1] = getHueAsRGB(C_ORANGEPURPLE);
-        break;
+          case HOLIDAY_HALLOWEEN:
+            vent_leds[1] = getHueAsRGB(C_ORANGEPURPLE);
+          break;
 
-        case HOLIDAY_CHRISTMAS:
-          vent_leds[1] = getHueAsRGB(C_REDGREEN);
-        break;
+          case HOLIDAY_CHRISTMAS:
+            vent_leds[1] = getHueAsRGB(C_REDGREEN);
+          break;
 
-        case SPECTRAL_CUSTOM:
-          vent_leds[1] = getHueAsRGB(C_CUSTOM);
-        break;
+          case SPECTRAL_CUSTOM:
+            vent_leds[1] = getHueAsRGB(C_CUSTOM);
+          break;
 
-        default:
-          if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
-            vent_leds[1] = getHueAsRGB(C_WARM_WHITE);
-          }
-          else {
-            vent_leds[1] = getHueAsRGB(C_WHITE);
-          }
-        break;
+          default:
+            if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
+              vent_leds[1] = getHueAsRGB(C_WARM_WHITE);
+            }
+            else {
+              vent_leds[1] = getHueAsRGB(C_WHITE);
+            }
+          break;
+        }
+      }
+      else {
+        if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
+          vent_leds[1] = getHueAsRGB(C_WARM_WHITE);
+        }
+        else {
+          vent_leds[1] = getHueAsRGB(C_WHITE);
+        }
       }
 
       b_vent_lights_changed = true;
@@ -10441,53 +10228,63 @@ void ventLightControl(uint8_t i_intensity) {
       }
     }
     else {
-      switch(STREAM_MODE) {
-        case SETTINGS:
-          vent_leds[0] = getHueAsRGB(C_RED, 128);
-        break;
+      if(b_vent_light_stream_colours) {
+        switch(gpstarWand.getStreamMode()) {
+          case SETTINGS:
+            vent_leds[0] = getHueAsRGB(C_RED, 128);
+          break;
 
-        case STASIS:
-          vent_leds[0] = getHueAsRGB(C_MID_BLUE, i_intensity);
-        break;
+          case STASIS:
+            vent_leds[0] = getHueAsRGB(C_MID_BLUE, i_intensity);
+          break;
 
-        case SLIME:
-          if(getSystemYearMode() == SYSTEM_1989) {
-            vent_leds[0] = getHueAsRGB(C_PASTEL_PINK, i_intensity);
-          }
-          else {
-            vent_leds[0] = getHueAsRGB(C_GREEN, i_intensity);
-          }
-        break;
+          case SLIME:
+            if(getSystemYearMode() == SYSTEM_1989) {
+              vent_leds[0] = getHueAsRGB(C_PASTEL_PINK, i_intensity);
+            }
+            else {
+              vent_leds[0] = getHueAsRGB(C_GREEN, i_intensity);
+            }
+          break;
 
-        case MESON:
-          vent_leds[0] = getHueAsRGB(C_YELLOW, i_intensity);
-        break;
+          case MESON:
+            vent_leds[0] = getHueAsRGB(C_YELLOW, i_intensity);
+          break;
 
-        case SPECTRAL:
-          vent_leds[0] = getHueAsRGB(C_RAINBOW, i_intensity);
-        break;
+          case SPECTRAL:
+            vent_leds[0] = getHueAsRGB(C_RAINBOW, i_intensity);
+          break;
 
-        case HOLIDAY_HALLOWEEN:
-          vent_leds[0] = getHueAsRGB(C_ORANGEPURPLE, i_intensity);
-        break;
+          case HOLIDAY_HALLOWEEN:
+            vent_leds[0] = getHueAsRGB(C_ORANGEPURPLE, i_intensity);
+          break;
 
-        case HOLIDAY_CHRISTMAS:
-          vent_leds[0] = getHueAsRGB(C_REDGREEN, i_intensity);
-        break;
+          case HOLIDAY_CHRISTMAS:
+            vent_leds[0] = getHueAsRGB(C_REDGREEN, i_intensity);
+          break;
 
-        case SPECTRAL_CUSTOM:
-          vent_leds[0] = getHueAsRGB(C_CUSTOM, i_intensity);
-        break;
+          case SPECTRAL_CUSTOM:
+            vent_leds[0] = getHueAsRGB(C_CUSTOM, i_intensity);
+          break;
 
-        case PROTON:
-        default:
-          if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
-            vent_leds[0] = getHueAsRGB(C_WHITE, i_intensity);
-          }
-          else {
-            vent_leds[0] = getHueAsRGB(C_WARM_WHITE, i_intensity);
-          }
-        break;
+          case PROTON:
+          default:
+            if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
+              vent_leds[0] = getHueAsRGB(C_WHITE, i_intensity);
+            }
+            else {
+              vent_leds[0] = getHueAsRGB(C_WARM_WHITE, i_intensity);
+            }
+          break;
+        }
+      }
+      else {
+        if(getNeutronaWandYearMode() == SYSTEM_1984 || getNeutronaWandYearMode() == SYSTEM_1989) {
+          vent_leds[0] = getHueAsRGB(C_WHITE, i_intensity);
+        }
+        else {
+          vent_leds[0] = getHueAsRGB(C_WARM_WHITE, i_intensity);
+        }
       }
 
       b_vent_lights_changed = true;
@@ -10498,6 +10295,40 @@ void ventLightControl(uint8_t i_intensity) {
     analogWrite(VENT_LED_PIN, 255 - PROGMEM_READU8(ledLookupTable[i_intensity]));
   }
 #endif
+}
+
+void firingCheckIR() {
+  #ifdef ESP32
+  if(b_ir_while_firing) {
+    // Send infrared command using the IR manager when firing the meson pulse.
+    if(irManager->isTXTimerExpired()) {
+      uint8_t ir_stream_mode = IR_STREAM_PROTON;
+      switch(gpstarWand.getStreamMode()) {
+        case PROTON:
+        default:
+          ir_stream_mode = IR_STREAM_PROTON;
+        break;
+        case SLIME:
+          ir_stream_mode = IR_STREAM_SLIME;
+        break;
+        case STASIS:
+          ir_stream_mode = IR_STREAM_STASIS;
+        break;
+        case MESON:
+          ir_stream_mode = IR_STREAM_MESON;
+        break;
+      }
+
+      if(b_firing_cross_streams) {
+        irManager->sendCommand(IR_CMD_FIRING, ir_stream_mode, gpstarWand.getPowerLevel(), IR_CMD_CTS);
+      }
+      else {
+        irManager->sendCommand(IR_CMD_FIRING, ir_stream_mode, gpstarWand.getPowerLevel(), IR_CMD_STREAM);
+      }
+      irManager->restartTXTimer();
+    }
+  }
+  #endif
 }
 
 void resetWhiteLEDBlinkRate() {

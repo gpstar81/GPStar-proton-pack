@@ -1,6 +1,6 @@
 /**
  *   GPStar BeltGizmo - Ghostbusters Props, Mods, and Kits.
- *   Copyright (C) 2024-2025 Dustin Grau <dustin.grau@gmail.com>
+ *   Copyright (C) 2024-2026 Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -47,14 +47,14 @@ function doHeartbeat() {
 }
 
 function onOpen(event) {
-  console.log("Connection opened");
+  console.log("WebSocket connection opened");
 
   // Clear the automated status interval timer.
   clearInterval(statusInterval);
 }
 
 function onClose(event) {
-  console.log("Connection closed");
+  console.log("WebSocket connection closed");
   setTimeout(initWebSocket, 1000);
 
   // Fallback for when WebSocket is unavailable.
@@ -75,33 +75,77 @@ function onMessage(event) {
   }
 }
 
+if (!!window.EventSource) {
+  // Create events for one-way communication.
+  var source = new EventSource("/events");
+
+  source.addEventListener(
+    "open",
+    function (e) {
+      console.log("Server-Side Events connected");
+    },
+    false,
+  );
+
+  source.addEventListener(
+    "error",
+    function (e) {
+      if (e.target.readyState != EventSource.OPEN) {
+        console.log("Server-Side Events disconnected");
+      }
+    },
+    false,
+  );
+
+  source.addEventListener(
+    "debug",
+    function (e) {
+      if (e.data === undefined) return;
+      console.log("Debug: ", e.data);
+    },
+    false,
+  );
+}
+
 function getDevicePrefs() {
   // This is updated once per page load as it is not subject to frequent changes.
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function () {
-    if (this.readyState == 4 && this.status == 200) {
+    if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
       var jObj = JSON.parse(this.responseText);
       if (jObj) {
         // Device Info
         setHtml("buildDate", "Build: " + (jObj.buildDate || ""));
-        setHtml("wifiName", jObj.wifiName || "");
-        if (((jObj.wifiNameExt || "") != "" && (jObj.extAddr || "") != "") || (jObj.extMask || "") != "") {
+        setHtml("wifiName", "Private Network: " + jObj.wifiName || "");
+        if ((jObj.wifiNameExt || "") != "" && (jObj.extAddr || "") != "" && (jObj.extMask || "") != "") {
           setHtml("extWifi", (jObj.wifiNameExt || "") + ": " + jObj.extAddr + " / " + jObj.extMask);
         }
       }
+    } else if (this.readyState == 4) {
+      // Handle error responses
+      handleStatus(this.responseText);
     }
   };
   xhttp.open("GET", "/config/device", true);
   xhttp.send();
 }
 
-function getStreamColor(cMode) {
+function getStreamColor(cMode, iTheme, iCustomVal = 200, iCustomSat = 254) {
   var color = [0, 0, 0];
+
+  // Use this to do our colour-change for spectral streams.
+  var tickSeconds = new Date().getSeconds();
 
   switch (cMode) {
     case "Plasm System":
-      // Dark Green
-      color[1] = 80;
+      if (iTheme == 3) {
+        // Pink
+        color[0] = 200;
+        color[2] = 180;
+      } else {
+        // Dark Green
+        color[1] = 80;
+      }
       break;
     case "Dark Matter Gen.":
       // Light Blue
@@ -119,6 +163,69 @@ function getStreamColor(cMode) {
       color[1] = 40;
       color[2] = 40;
       break;
+    case "Halloween":
+      if (tickSeconds % 2) {
+        // Orange
+        color[0] = 255;
+        color[1] = 140;
+      } else {
+        // Purple
+        color[0] = 200;
+        color[2] = 240;
+      }
+      break;
+    case "Christmas":
+      if (tickSeconds % 2) {
+        // Red
+        color[0] = 180;
+      } else {
+        // Green
+        color[1] = 180;
+      }
+      break;
+    case "Spectral Stream":
+      switch (tickSeconds % 8) {
+        case 0:
+        default:
+          // Red
+          color[0] = 180;
+          break;
+        case 1:
+          // Orange
+          color[0] = 255;
+          color[1] = 140;
+          break;
+        case 2:
+          // Yellow
+          color[0] = 240;
+          color[1] = 220;
+          break;
+        case 3:
+          // Green
+          color[1] = 180;
+          break;
+        case 4:
+          // Light Blue
+          color[1] = 60;
+          color[2] = 255;
+          break;
+        case 5:
+          // Blue
+          color[2] = 180;
+          break;
+        case 6:
+          // Indigo
+          color[0] = 90;
+          color[2] = 240;
+          break;
+        case 7:
+          // Purple
+          color[0] = 200;
+          color[2] = 240;
+          break;
+      }
+      break;
+    case "Custom Stream":
     default:
       // Proton Stream(s) as Red
       color[0] = 180;
@@ -128,8 +235,8 @@ function getStreamColor(cMode) {
   return color;
 }
 
-function updateBars(iPower, cMode) {
-  var color = getStreamColor(cMode);
+function updateBars(iPower, cMode, iTheme) {
+  var color = getStreamColor(cMode, iTheme);
   var powerBars = getEl("powerBars");
   if (powerBars) {
     powerBars.innerHTML = ""; // Clear previous bars if any
@@ -163,9 +270,9 @@ function updateEquipment(jObj) {
       setHtml("safety", jObj.safety || "...");
       setHtml("power", jObj.power || "...");
       setHtml("firing", jObj.firing || "...");
-      updateBars(jObj.power || 0, jObj.wandMode || "");
+      updateBars(jObj.power ?? 0, jObj.wandMode || "", jObj.themeID ?? 0);
     } else {
-      // If no data, clear everything.
+      // If no mode/theme data, clear everything.
       setHtml("mode", "...");
       setHtml("theme", "...");
       setHtml("pack", "...");
@@ -177,7 +284,7 @@ function updateEquipment(jObj) {
       setHtml("safety", "...");
       setHtml("power", "...");
       setHtml("firing", "...");
-      updateBars(0, "");
+      updateBars(0, "", 0);
     }
 
     // External WiFi Status
@@ -187,13 +294,17 @@ function updateEquipment(jObj) {
       setHtml("wifiStatus", "Disabled");
     }
 
+    // Status of remote WebSocket connection
+    setHtml("wsStatus", jObj.extWebSocketState || "...");
+    setHtml("wsMessage", jObj.extWebSocketMessage || "");
+
     // Connected Wifi Clients - Private AP vs. WebSocket
-    setHtml("clientInfo", "AP Clients: " + (jObj.apClients || 0) + " / WebSocket Clients: " + (jObj.wsClients || 0));
+    setHtml("clientInfo", "AP Clients: " + (jObj.apClients ?? 0) + " / WebSocket Clients: " + (jObj.wsClients ?? 0));
   }
 }
 
 function testOn() {
-  sendCommand("/selftest/enable");
+  sendCommand("/selftest/enable?power=5");
 }
 
 function testOff() {

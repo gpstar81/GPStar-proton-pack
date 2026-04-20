@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="UTF-8" />
@@ -16,7 +16,7 @@
         Adjust settings unique to this device's web interface. Use this screen to customize the private network used by the built-in WiFi network.
         <br />
         You may also use
-        <b>http://[PRIVATE_NETWORK].local</b>
+        <b>http://[CUSTOM_NAME].local</b>
         to access this device via your browser. Use the "Update Settings" button to save values to the controller.
       </p>
       <br />
@@ -40,11 +40,11 @@
         <select id="orientation" class="custom-select" style="width: 320px">
           <option value="1">Components Up, USB Front</option>
           <option value="2">Components Up, USB Rear</option>
-          <option value="3">Components Down, USB Front</option>
+          <option selected value="3">Components Down, USB Front (Hasbro)</option>
           <option value="4">Components Down, USB Rear</option>
           <option value="5">Components Left, USB Front</option>
           <option value="6">Components Left, USB Rear</option>
-          <option value="7">Components Right, USB Front</option>
+          <option value="7">Components Right, USB Front (Mack's)</option>
           <option value="8">Components Right, USB Rear</option>
           <option value="9">Factory Defaults (Debug)</option>
         </select>
@@ -85,7 +85,16 @@
           <span class="toggle">
             <span class="switch"></span>
           </span>
-          <span class="label">Use in Standalone Mode</span>
+          <span class="label">Use in Standalone Mode:</span>
+        </label>
+      </div>
+      <div class="setting">
+        <label class="toggle-switchy" data-text="yesno" data-label="left">
+          <input id="irWhileFiring" name="irWhileFiring" type="checkbox" />
+          <span class="toggle">
+            <span class="switch"></span>
+          </span>
+          <span class="label">Use IR While Firing:</span>
         </label>
       </div>
       <div class="setting">
@@ -128,7 +137,7 @@
       <hr />
       <a href="/">&laquo; Back</a>
       &nbsp;&nbsp;
-      <button type="button" class="green" style="width: 120px" onclick="saveSettings()">Update&nbsp;Settings</button>
+      <button type="button" class="green" onclick="saveSettings()">Update&nbsp;Settings</button>
       <br />
       <br />
     </div>
@@ -152,7 +161,7 @@
       function getSettings() {
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
-          if (this.readyState == 4 && this.status == 200) {
+          if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
             var settings = JSON.parse(this.responseText);
             if (settings) {
               // Update fields with the current values, or supply an expected default as necessary.
@@ -172,6 +181,7 @@
               setValue("softIron9", settings.softIron9 ?? 1);
               setValue("magField", settings.magField ?? 50);
               setToggle("useStandalone", settings.useStandalone);
+              setToggle("irWhileFiring", settings.irWhileFiring);
               setValue("songList", settings.songList || "");
               updateByteCount();
 
@@ -236,6 +246,9 @@
                 }
               }
             }
+          } else if (this.readyState == 4) {
+            // Handle error responses
+            handleStatus(this.responseText);
           }
         };
         xhttp.open("GET", "/config/device", true);
@@ -271,20 +284,21 @@
         var settings = {
           wifiName: wifiName,
           orientation: getInt("orientation") || 3,
-          hardIron1: getFloat("hardIron1") || 0,
-          hardIron2: getFloat("hardIron2") || 0,
-          hardIron3: getFloat("hardIron3") || 0,
-          softIron1: getFloat("softIron1") || 1,
-          softIron2: getFloat("softIron2") || 0,
-          softIron3: getFloat("softIron3") || 0,
-          softIron4: getFloat("softIron4") || 0,
-          softIron5: getFloat("softIron5") || 1,
-          softIron6: getFloat("softIron6") || 0,
-          softIron7: getFloat("softIron7") || 0,
-          softIron8: getFloat("softIron8") || 0,
-          softIron9: getFloat("softIron9") || 1,
+          hardIron1: getFloat("hardIron1") ?? 0,
+          hardIron2: getFloat("hardIron2") ?? 0,
+          hardIron3: getFloat("hardIron3") ?? 0,
+          softIron1: getFloat("softIron1") ?? 1,
+          softIron2: getFloat("softIron2") ?? 0,
+          softIron3: getFloat("softIron3") ?? 0,
+          softIron4: getFloat("softIron4") ?? 0,
+          softIron5: getFloat("softIron5") ?? 1,
+          softIron6: getFloat("softIron6") ?? 0,
+          softIron7: getFloat("softIron7") ?? 0,
+          softIron8: getFloat("softIron8") ?? 0,
+          softIron9: getFloat("softIron9") ?? 1,
           magField: getFloat("magField") || 50,
           useStandalone: getToggle("useStandalone"),
+          irWhileFiring: getToggle("irWhileFiring"),
           songList: getText("songList"),
         };
         var body = JSON.stringify(settings);
@@ -292,17 +306,18 @@
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
           if (this.readyState == 4) {
-            if (this.status == 200) {
+            if (this.status == 200 || this.status == 201) {
               handleStatus(this.responseText);
               getSettings(); // Refresh settings.
-            }
 
-            if (this.status == 201) {
-              handleStatus(this.responseText);
-
-              if (confirm("Restart device now?")) {
-                doRestart();
+              if (this.status == 201) {
+                if (confirm("Restart device now?")) {
+                  doRestart();
+                }
               }
+            } else {
+              // Handle non-success responses
+              handleStatus(this.responseText);
             }
           }
         };
@@ -314,7 +329,7 @@
       function doRestart() {
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
-          if (this.readyState == 4 && this.status == 204) {
+          if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
             // Reload the page after 2 seconds.
             setTimeout(function () {
               window.location.reload();

@@ -23,7 +23,7 @@ For a comparison of the original GPStar and GPStar II controllers please see [th
 1. [Troubleshooting](TROUBLESHOOTING.md)
 
 A full installation guide is available as a PDF here:
-[GPStar Proton Pack Kit Installation Manual](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/gpstar-Haslab-Proton-Pack-Kit-Installation-Manual-V4.pdf?raw=1)
+[GPStar Proton Pack Kit Installation Manual (PDF)](/extras/GPStar%20Hasbro%20Proton%20Pack%20Kit%20Installation%20Manual%20V4.pdf?raw=true)
 
 ## Video Tutorials
 
@@ -92,7 +92,7 @@ Are you troubled by installation problems? Do you experience feelings of dread o
 
 | **Task**         | **Guide** |
 |------------------|---------------------------------------------|
-| Initial Assembly | [Installation Videos](INSTALL_VIDEOS_JONOGUNN.md) & [Installation Guide (PDF)](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/gpstar-Haslab-Proton-Pack-Kit-Installation-Manual-V4.pdf?raw=1) |
+| Initial Assembly | [Installation Videos](INSTALL_VIDEOS_JONOGUNN.md) & [Installation Guide (PDF)](/extras/GPStar%20Hasbro%20Proton%20Pack%20Kit%20Installation%20Manual%20V4.pdf?raw=true) |
 | System Operation | [Equipment Operation Manual](OPERATION_USAGE.md) |
 | Configuration    | [EEPROM LED/Config Menus](OPERATION_EEPROM.md) |
 | I Need Help!     | [Troubleshooting](TROUBLESHOOTING.md) and [Frequently Asked Questions](FAQ.md) |
@@ -116,3 +116,4 @@ From the Paranormal Research division, we bring you the latest in integrated acc
 | Single-Shot Blaster | [Build and Operation Guide](SINGLESHOT.md) |
 | Belt Gizmo | [Build and Operation Guide](BELT_GIZMO.md) |
 | Stream Effects | [Build and Operation Guide](STREAM_EFFECTS.md) |
+| Proton Stream Target Trainer | [Operation Guide](PSTT.md) |

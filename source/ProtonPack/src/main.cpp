@@ -1,6 +1,6 @@
 /**
  *   GPStar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -21,10 +21,11 @@
 #include <Arduino.h>
 
 // Set to 1 to enable built-in debug messages via Serial device output.
-#define DEBUG 0
+// Use with DEBUG_SEND_TO_CONSOLE and other DEBUG_'s in Configuration.h
+#define GPSTAR_DEBUG 0
 
 // Debug macros
-#if DEBUG == 1
+#if GPSTAR_DEBUG == 1
   #define debug(...) Serial.print(__VA_ARGS__)
   #define debugf(...) Serial.printf(__VA_ARGS__)
   #define debugln(...) Serial.println(__VA_ARGS__)
@@ -57,16 +58,29 @@
 #endif
 
 // Forward declaration for use in all includes.
-void sendDebug(const String message);
+void sendDebug(const String& message);
 
 // Shared Libraries
+#include <DeviceState.h>
 #include <Communication.h>
 #ifdef ESP32
   #include <WirelessManager.h>
+  #include <WebRouter.h>
+
   // Define the WirelessManager pointer globally (initialized to nullptr).
   // This matches the extern declaration in Wireless.h
   WirelessManager* wirelessMgr = nullptr;
 #endif
+
+// Global instance of DeviceState class for the Proton Pack.
+DeviceState gpstarPack;
+
+// References to global instances of all preference/sync structs.
+extern PackPrefs packConfig;
+extern WandPrefs wandConfig;
+extern SmokePrefs smokeConfig;
+extern WandSyncData wandSyncData;
+extern AttenuatorSyncData attenuatorSyncData;
 
 // Local Files
 #include "Configuration.h"
@@ -86,10 +100,11 @@ void sendDebug(const String message);
 #ifdef ESP32
   #include "Wireless.h"
   #include "Webhandler.h"
+  #include "Webrouting.h"
 #endif
 
-// Writes a debug message to the serial console or sends to the WebSocket.
-void sendDebug(const String message) {
+// Writes a debug message to the serial console or sends to the WebSocket or Events stream.
+void sendDebug(const String& message) {
   #if defined(DEBUG_SEND_TO_CONSOLE)
     debugln(message); // Print to serial console.
   #endif
@@ -98,9 +113,28 @@ void sendDebug(const String message) {
       ws.textAll(message); // Send a copy to the WebSocket.
     }
   #endif
+  #if defined(DEBUG_SEND_TO_EVENTS) and defined(ESP32)
+    sendDebugEvent(message.c_str()); // Send message to the events stream.
+  #endif
 }
 
 void setup() {
+#ifdef ESP32
+  // Force RMT driver exclusively (requires FastLED 3.10.4 at a minimum, not yet released).
+  // This avoids issues with WiFi/networking on ESP32 when using the default bit-banging method.
+  //FastLED.setExclusiveDriver("RMT");
+#endif
+
+  // Power Cell, Cyclotron Lid, and N-Filter.
+  FastLED.addLeds<NEOPIXEL, PACK_LED_PIN>(pack_leds, MAX_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX + JEWEL_NFILTER_LED_COUNT).setCorrection(TypicalLEDStrip);
+  FastLED.setMaxRefreshRate(0); // Disable FastLED's blocking 2.5ms delay.
+
+  // Inner Cyclotron LEDs (Inner Panel + Cyclotron + Cavity).
+  FastLED.addLeds<NEOPIXEL, CYCLOTRON_LED_PIN>(cyclotron_leds, INNER_CYCLOTRON_LED_PANEL_MAX + INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX).setCorrection(TypicalLEDStrip);
+
+  // Update all addressable LEDs to prevent stale LED states.
+  FastLED.show();
+
 #ifdef ESP32
   // Reduce CPU frequency to 160 MHz to save ~33% power compared to 240 MHz.
   // Do not set below 80 MHz as it will affect WiFi and other peripherals.
@@ -109,8 +143,16 @@ void setup() {
   // This is required in order to make sure the board boots successfully.
   Serial.begin(115200);
 
-  // Serial0 (UART0) is enabled by default; end() sets GPIO43 & GPIO44 to GPIO.
-  Serial0.end();
+#if GPSTAR_DEBUG == 1
+  // When debugging is enabled, wait for Serial to be ready (max 3 seconds).
+  unsigned long startMillis = millis();
+  while (!Serial && millis() - startMillis < 3000) {
+    delay(10);
+  }
+  Serial.flush(); // Ensure buffer is clear.
+  Serial.setTxTimeoutMs(0); // Optional: reduce USB-CDC transmission delay.
+  Serial.println(F("Serial is Ready")); // Should appear after Serial is ready.
+#endif
 
   /* This loop changes GPIO39~GPIO42 to Function 1, which is GPIO.
    * PIN_FUNC_SELECT sets the IOMUX function register appropriately.
@@ -124,12 +166,12 @@ void setup() {
   // Assign AttenuatorSerial to pins 11/10 for the Attenuator/Wireless communications.
   AttenuatorSerial.begin(9600, SERIAL_8N1, ATTENUATOR_RX_PIN, ATTENUATOR_TX_PIN);
 
-  // Assign Serial2 to pins 44/43 for the Neutrona Wand communications.
+  // Assign WandSerial to pins 44/43 for the Neutrona Wand communications.
   WandSerial.begin(9600, SERIAL_8N1, WAND_RX_PIN, WAND_TX_PIN);
 
   // Define the WirelessManager object only after NVS/Preferences are initialized.
   if(wirelessMgr == nullptr) {
-    wirelessMgr = new WirelessManager("Pack2", "192.168.1.4");
+    wirelessMgr = new WirelessManager(WirelessDeviceType::PROTON_PACK, "192.168.1.4");
 
     #if defined(RESET_AP_SETTINGS)
       // Reset the WiFi password to the expected default on every startup.
@@ -199,6 +241,7 @@ void setup() {
 // Change PWM frequency of pin 45 for the vibration motor, we do not want it high pitched.
 #ifdef ESP32
   // Use of the register is not needed by ESP32, as it uses a different method for PWM.
+  ledcAttachChannel(VIBRATION_PIN, 155, 8, 5); // Uses 155 Hz frequency, 8-bit resolution, channel 5
 #else
   // For ATmega2560, we set the PWM frequency for pin 45 (TCCR5B) to 122.55 Hz.
   TCCR5B = (TCCR5B & B11111000) | B00000100;
@@ -219,13 +262,6 @@ void setup() {
 
   // Another optional N-Filter LED.
   pinModeFast(NFILTER_LED_PIN, OUTPUT);
-
-  // Power Cell, Cyclotron Lid, and N-Filter.
-  FastLED.addLeds<NEOPIXEL, PACK_LED_PIN>(pack_leds, MAX_POWERCELL_LED_COUNT + OUTER_CYCLOTRON_LED_MAX + JEWEL_NFILTER_LED_COUNT).setCorrection(TypicalLEDStrip);
-  FastLED.setMaxRefreshRate(0); // Disable FastLED's blocking 2.5ms delay.
-
-  // Inner Cyclotron LEDs (Inner Panel + Cyclotron + Cavity).
-  FastLED.addLeds<NEOPIXEL, CYCLOTRON_LED_PIN>(cyclotron_leds, INNER_CYCLOTRON_LED_PANEL_MAX + INNER_CYCLOTRON_CAKE_LED_MAX + INNER_CYCLOTRON_CAVITY_LED_MAX).setCorrection(TypicalLEDStrip);
 
 #ifdef ESP32
   // Reserved for future expansion.
@@ -256,12 +292,12 @@ void setup() {
   // Configure the year mode, though this will be modified
   // as based on the user's stored preferences in EEPROM.
   if(switch_mode.getState() == LOW) {
-    SYSTEM_YEAR = SYSTEM_1984;
+    gpstarPack.setSystemTheme(SYSTEM_1984);
   }
   else {
-    SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+    gpstarPack.setSystemTheme(SYSTEM_AFTERLIFE);
   }
-  SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+  SYSTEM_THEME_TEMP = gpstarPack.getSystemTheme();
 
   // Load any saved settings stored in the EEPROM memory of the Proton Pack.
   if(b_eeprom) {
@@ -293,14 +329,14 @@ void setup() {
   // Reset cyclotron ramps.
   resetRampSpeeds();
 
+  // Perform initial pack reset.
+  packOffReset();
+
   // Start some timers
   ms_fast_led.start(i_fast_led_delay);
   ms_check_music.start(i_music_check_delay);
   ms_attenuator_check.start(i_attenuator_disconnect_delay);
   ms_cyclotron_switch_plate_leds.start(i_cyclotron_switch_plate_leds_delay);
-
-  // Perform initial pack reset.
-  packOffReset();
 
   // Perform power-on sequence if demo light mode is not enabled per user preferences.
   if(!b_demo_light_mode) {
@@ -309,11 +345,12 @@ void setup() {
     ms_delay_post.start(0);
   }
   else {
-    if(SYSTEM_MODE == MODE_SUPER_HERO) {
+    if(gpstarPack.getSystemMode() == MODE_SUPER_HERO) {
       // Auto start the pack if it is in startup (demo) light mode.
       PACK_ACTION_STATE = ACTION_ACTIVATE;
     }
 
+    ms_wand_check.start(i_wand_disconnect_delay / 2);
     b_pack_post_finish = true;
   }
 
@@ -338,241 +375,222 @@ void updateLEDs() {
 
 // Loop logic dedicated to this device which handles all of the standard operations.
 void mainLoop() {
-  if(b_pack_post_finish) {
-    checkMusic();
-    checkSwitches();
-    checkRotaryEncoder();
-    checkMenuVibration();
+  checkMusic();
+  checkSwitches();
+  checkRotaryEncoder();
+  checkMenuVibration();
 
-    // Check current voltage/amperage draw using available methods if enabled.
-    if(b_use_power_meter) {
-      // Only check if power meter if present and self-test has completed.
-      checkPowerMeter();
-    }
+  // Check current voltage/amperage draw using available methods if enabled.
+  if(b_use_power_meter) {
+    // Only check if power meter if present and self-test has completed.
+    checkPowerMeter();
+  }
 
-    switch(PACK_STATE) {
-      case MODE_OFF:
-        // Turn on the status indicator LED.
-        digitalWriteFast(PACK_STATUS_LED_PIN, HIGH);
+  switch(PACK_STATE) {
+    case MODE_OFF:
+      // Turn on the status indicator LED.
+      digitalWriteFast(PACK_STATUS_LED_PIN, HIGH);
 
-        if(vibrationSwitchedCount >= 5) {
-          // Vibration switch was just toggled 5 times with ribbon cable off, so reset the pack wifi password.
-          resetWifiCommand();
-          vibrationSwitchedCount = 0;
-        }
+      if(vibrationSwitchedCount >= 5) {
+        // Vibration switch was just toggled 5 times with ribbon cable off, so reset the pack wifi password.
+        resetWifiCommand();
+        vibrationSwitchedCount = 0;
+      }
 
-        if(PACK_ACTION_STATE == ACTION_IDLE && ms_delay_post.justFinished()) {
-          // Brass Pack shutdown steam effect.
-          playEffect(PROGMEM_READU16(sfx_smoke[random(5)]));
-        }
+      if(PACK_ACTION_STATE == ACTION_IDLE && ms_delay_post.justFinished()) {
+        // Brass Pack shutdown steam effect.
+        playEffect(PROGMEM_READU16(sfx_smoke[random(5)]));
+      }
 
-        if(b_pack_on) {
-          b_ramp_up = false;
-          b_ramp_up_start = false;
-          b_inner_ramp_up = false;
-          b_fade_out = true;
-
-          resetRampDown();
-
-          b_pack_shutting_down = true;
-          ms_fadeout.start(0);
-          b_pack_on = false;
-
-          // Tell the wand the pack is off, so shut down the wand if it happens to still be on.
-          packSerialSend(P_OFF);
-          attenuatorSerialSend(A_PACK_OFF, b_pack_shutting_down ? 1 : 0);
-        }
-
-        if(b_ramp_down && !b_overheating && !b_pack_alarm) {
-          if(b_spectral_lights_on) {
-            // If we enter the LED EEPROM menu while the pack is ramping off, stop it right away.
-            packOffReset();
-            spectralLightsOn();
-          }
-          else {
-            cyclotronControl();
-            cyclotronSwitchLEDLoop();
-            powercellLoop();
-          }
-        }
-        else {
-          if(!b_spectral_lights_on) {
-            if(ms_fadeout.justFinished()) {
-              if(fadeOutCyclotron()) {
-                ms_fadeout.start(i_fadeout_duration);
-              }
-              else {
-                ms_fadeout.stop();
-                b_fade_out = false;
-              }
-            }
-
-            if(!b_reset_start_led && !ms_fadeout.isRunning()) {
-              packOffReset();
-            }
-          }
-        }
-      break;
-
-      case MODE_ON:
-        // Turn off the status indicator LED.
-        digitalWriteFast(PACK_STATUS_LED_PIN, LOW);
-
+      if(b_ramp_down && !b_overheating && !b_pack_alarm) {
         if(b_spectral_lights_on) {
-          spectralLightsOff();
-        }
-
-        if(b_pack_shutting_down) {
-          b_pack_shutting_down = false;
-        }
-
-        if(!b_pack_on) {
-          ms_fadeout.stop();
-          b_fade_out = false;
-          b_pack_on = true;
-
-          // Tell the wand the pack is on.
-          packSerialSend(P_ON);
-          attenuatorSerialSend(A_PACK_ON);
-        }
-
-        if(b_ramp_down && !ms_mash_lockout.isRunning()) {
-          b_ramp_down = false;
-          b_ramp_down_start = false;
-          b_inner_ramp_down = false;
-
-          resetRampUp();
-        }
-
-        if(ribbonCableAttached() && !b_overheating) {
-          if(b_pack_alarm) {
-            if(SYSTEM_YEAR == SYSTEM_1984 || SYSTEM_YEAR == SYSTEM_1989) {
-              // Reset the LEDs before resetting the alarm flag.
-              if(!usingSlimeCyclotron()) {
-                resetCyclotronState();
-              }
-
-              ms_cyclotron.start(0);
-            }
-            else {
-              ms_cyclotron.start(i_outer_current_ramp_speed);
-            }
-
-            ms_cyclotron_ring.start(i_inner_current_ramp_speed);
-
-            ventLight(false);
-            ventLightLEDW(false);
-
-            b_pack_alarm = false;
-
-            resetRampUp();
-
-            stopEffect(S_PACK_RECOVERY);
-            playEffect(S_PACK_RECOVERY);
-
-            packStartup(false); // Start the pack using an abbreviated startup sequence.
-          }
-        }
-
-        // Play a little bit of smoke and N-Filter vent lights while firing and other misc sound effects.
-        if(b_wand_firing) {
-          // Mix some impact sound effects.
-          mixExtraFiringEffects();
-
-          if(ms_smoke_on.justFinished()) {
-            ms_smoke_on.stop();
-            ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[i_wand_power_level - 1]));
-            b_vent_sounds = true;
-          }
-
-          if(ms_smoke_timer.justFinished()) {
-            if(!ms_smoke_on.isRunning()) {
-              ms_smoke_on.start(PROGMEM_READU16(i_smoke_on_time[i_wand_power_level - 1]));
-            }
-          }
-
-          if(ms_smoke_on.isRunning()) {
-            // Turn on some smoke and play some vent sounds if smoke is enabled.
-            if(b_smoke_enabled) {
-              // Turn on some smoke.
-              smokeNFilter(true);
-
-              // Play some sounds with the smoke and vent lighting.
-              if(b_vent_sounds) {
-                playVentSounds();
-
-                b_vent_sounds = false;
-              }
-
-              fanNFilter(true);
-            }
-
-            // We are strobing the N-Filter jewel.
-            if(ms_vent_light_off.justFinished()) {
-              ms_vent_light_off.stop();
-              ms_vent_light_on.start(i_vent_light_delay);
-
-              ventLight(true);
-            }
-            else if(ms_vent_light_on.justFinished()) {
-              ms_vent_light_on.stop();
-              ms_vent_light_off.start(i_vent_light_delay);
-
-              ventLight(false);
-            }
-
-            // The LED-W will not strobe during this venting.
-            ventLightLEDW(true);
-          }
-          else {
-            smokeNFilter(false);
-            ventLight(false);
-            ventLightLEDW(false);
-            fanNFilter(false);
-          }
-        }
-
-        if(b_venting) {
-          packVenting();
-        }
-
-        cyclotronControl(); // Set timers for the cyclotron.
-
-        if(b_wand_mash_lockout && ms_mash_lockout.isRunning()) {
-          if((ms_mash_lockout.delay() / 1.5) > ms_mash_lockout.remaining()) {
-            // Force incorrect Powercell LED to switch it off temporarily.
-            i_powercell_led = i_powercell_leds + 1;
-          }
-        }
-
-        cyclotronSwitchLEDLoop(); // Update the cyclotron.
-
-        if(b_overheating && b_overheat_lights_off) {
-          powercellRampDown();
+          // If we enter the LED EEPROM menu while the pack is ramping off, stop it right away.
+          packOffReset();
+          spectralLightsOn();
         }
         else {
+          cyclotronControl();
+          cyclotronSwitchLEDLoop();
           powercellLoop();
         }
-      break;
-    }
+      }
+      else {
+        if(!b_spectral_lights_on) {
+          if(ms_fadeout.justFinished()) {
+            if(fadeOutCyclotron()) {
+              ms_fadeout.start(i_fadeout_duration);
+            }
+            else {
+              ms_fadeout.stop();
+              b_fade_out = false;
+            }
+          }
 
-    switch(PACK_ACTION_STATE) {
-      case ACTION_IDLE:
-      default:
-        // Do nothing.
-      break;
+          if(!b_reset_start_led && !ms_fadeout.isRunning()) {
+            packOffReset();
+          }
+        }
+      }
+    break;
 
-      case ACTION_OFF:
-        packShutdown();
-      break;
+    case MODE_ON:
+      // Turn off the status indicator LED.
+      digitalWriteFast(PACK_STATUS_LED_PIN, LOW);
 
-      case ACTION_ACTIVATE:
-        packStartup(true); // Start the pack using the full-length startup sequence.
-      break;
-    }
+      if(b_spectral_lights_on) {
+        spectralLightsOff();
+      }
+
+      if(b_pack_shutting_down) {
+        b_pack_shutting_down = false;
+      }
+
+      if(b_ramp_down && !ms_mash_lockout.isRunning()) {
+        b_ramp_down = false;
+        b_ramp_down_start = false;
+        b_inner_ramp_down = false;
+
+        resetRampUp();
+      }
+
+      if(ribbonCableAttached() && !b_overheating) {
+        if(b_pack_alarm) {
+          if(gpstarPack.isTheme80s()) {
+            // Reset the LEDs before resetting the alarm flag.
+            if(!usingSlimeCyclotron(gpstarPack.getStreamMode())) {
+              resetCyclotronState();
+            }
+
+            ms_cyclotron.start(0);
+          }
+          else {
+            ms_cyclotron.start(i_outer_current_ramp_speed);
+          }
+
+          ms_cyclotron_ring.start(i_inner_current_ramp_speed);
+
+          ventLight(false);
+          ventLightLEDW(false);
+
+          b_pack_alarm = false;
+
+          resetRampUp();
+
+          stopEffect(S_PACK_RECOVERY);
+          playEffect(S_PACK_RECOVERY);
+
+          packStartup(false); // Start the pack using an abbreviated startup sequence.
+        }
+      }
+
+      // Play a little bit of smoke and N-Filter vent lights while firing and other misc sound effects.
+      if(b_wand_firing) {
+        // Mix some impact sound effects.
+        mixExtraFiringEffects();
+
+        if(ms_smoke_on.justFinished()) {
+          ms_smoke_on.stop();
+          ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[(uint8_t)gpstarPack.getPowerLevel() - 1]));
+          b_vent_sounds_playing = false;
+        }
+
+        if(ms_smoke_timer.justFinished()) {
+          if(!ms_smoke_on.isRunning()) {
+            ms_smoke_on.start(PROGMEM_READU16(i_smoke_on_time[(uint8_t)gpstarPack.getPowerLevel() - 1]));
+          }
+        }
+
+        if(ms_smoke_on.isRunning()) {
+          // Turn on some smoke and play some vent sounds if smoke is enabled.
+          if(b_smoke_enabled) {
+            // Turn on some smoke.
+            smokeNFilter(true);
+
+            // Play some sounds with the smoke and vent lighting.
+            if(!b_vent_sounds_playing) {
+              playVentSounds();
+
+              b_vent_sounds_playing = true;
+            }
+
+            fanNFilter(true);
+          }
+
+          // We are strobing the N-Filter jewel.
+          if(ms_vent_light_off.justFinished()) {
+            ms_vent_light_off.stop();
+            ms_vent_light_on.start(i_vent_light_delay);
+
+            ventLight(true);
+          }
+          else if(ms_vent_light_on.justFinished()) {
+            ms_vent_light_on.stop();
+            ms_vent_light_off.start(i_vent_light_delay);
+
+            ventLight(false);
+          }
+
+          // The LED-W will not strobe during this venting.
+          ventLightLEDW(true);
+        }
+        else {
+          smokeNFilter(false);
+          ventLight(false);
+          ventLightLEDW(false);
+          fanNFilter(false);
+        }
+      }
+
+      if(b_venting) {
+        packVenting();
+      }
+
+      cyclotronControl(); // Set timers for the cyclotron.
+
+      if(ms_mash_lockout.justFinished()) {
+        restartFromWandMash();
+      }
+      else if(b_wand_mash_lockout && ms_mash_lockout.isRunning()) {
+        if((ms_mash_lockout.delay() / 1.5) > ms_mash_lockout.remaining()) {
+          // Force incorrect Powercell LED to switch it off temporarily.
+          i_powercell_led = i_powercell_num_leds + 1;
+        }
+      }
+
+      if(ms_delay_post.justFinished()) {
+        // This controls the idle SFX fadeout.
+        fadeoutIdleSounds();
+      }
+
+      cyclotronSwitchLEDLoop(); // Update the cyclotron.
+
+      if(b_overheating && b_overheat_lights_off) {
+        powercellRampDown();
+      }
+      else {
+        powercellLoop();
+      }
+    break;
   }
-  else {
-    systemPOST();
+
+  switch(PACK_ACTION_STATE) {
+    case ACTION_IDLE:
+    default:
+      // Do nothing.
+    break;
+
+    case ACTION_OFF:
+      packShutdown();
+    break;
+
+    case ACTION_ACTIVATE:
+      packStartup(true); // Start the pack using the full-length startup sequence.
+
+      if(b_first_boot) {
+        // Used in demo light mode to determine first boot.
+        b_first_boot = false;
+      }
+    break;
   }
 }
 
@@ -596,11 +614,19 @@ void loop() {
   // Check if any new serial commands were received.
   checkAttenuator();
 
-  // Handle any actions after POST event.
-  mainLoop();
+  if(b_pack_post_finish) {
+    if(!b_demo_light_mode || !b_first_boot || (b_demo_light_mode && b_wand_connected) || (b_demo_light_mode && !b_wand_connected && !b_wand_syncing && ms_wand_check.remaining() < 1)) {
+      // Handle any actions after POST event.
+      mainLoop();
 
-  // Update the LEDs.
-  updateLEDs();
+      // Update the LEDs.
+      updateLEDs();
+    }
+  }
+  else {
+    // Run the POST sequence.
+    systemPOST();
+  }
 #ifdef ESP32
   }
   // The ESP32 uses a dual-core CPU with the loop() executing in Core0 by default.
@@ -615,7 +641,7 @@ void loop() {
   readTemperature();
 
   // Take action with Wifi based on user preference and presence of the Attenuator.
-  switch(WIFI_MODE) {
+  switch(WIFI_USER_MODE) {
     case WIFI_DISABLED:
       shutdownWireless(); // Keep the WiFi off (function will only take action if WiFi is still on).
     break;

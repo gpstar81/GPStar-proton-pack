@@ -1,6 +1,6 @@
 /**
  *   GPStar Single-Shot Blaster
- *   Copyright (C) 2024-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2024-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                    & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -62,12 +62,12 @@ uint8_t executeDelayed(DelayedCallback callback, uint16_t i_delay_ms, bool b_rep
       delayed_executions[i].b_active = true;
       delayed_executions[i].b_repeating = b_repeat;
       delayed_executions[i].ms_timer.start(i_delay_ms);
-      
+
       // Return array index + 1 (so 0 can indicate failure)
       return i + 1;
     }
   }
-  
+
   // No available slots
   return 0;
 }
@@ -82,16 +82,16 @@ bool stopDelayedExecution(uint8_t i_timer_index) {
   if(i_timer_index == 0 || i_timer_index > MAX_DELAYED_EXECUTIONS) {
     return false; // Invalid index
   }
-  
+
   // Convert back to array index (subtract 1)
   uint8_t i_array_index = i_timer_index - 1;
-  
+
   if(delayed_executions[i_array_index].b_active) {
     delayed_executions[i_array_index].b_active = false;
     delayed_executions[i_array_index].ms_timer.stop();
     return true;
   }
-  
+
   return false; // Timer not active
 }
 
@@ -116,11 +116,11 @@ void checkDelayedExecutions() {
       if(delayed_executions[i].callback != nullptr) {
         delayed_executions[i].callback();
       }
-      
+
       // If this is a repeating timer, restart it; otherwise deactivate
       if(delayed_executions[i].b_repeating) {
         delayed_executions[i].ms_timer.start(delayed_executions[i].i_interval_ms);
-      } 
+      }
       else {
         delayed_executions[i].b_active = false;
       }

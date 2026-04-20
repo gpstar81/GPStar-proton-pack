@@ -1,6 +1,6 @@
 /**
  *   GPStar BeltGizmo - Ghostbusters Props, Mods, and Kits.
- *   Copyright (C) 2024-2025 Dustin Grau <dustin.grau@gmail.com>
+ *   Copyright (C) 2024-2026 Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,16 +18,6 @@
  */
 
 #pragma once
-
-// Writes a debug message to the serial console or sends to the WebSocket.
-void sendDebug(const String message) {
-  #if defined(DEBUG_SEND_TO_CONSOLE)
-    debugln(message); // Print to serial console.
-  #endif
-  #if defined(DEBUG_SEND_TO_WEBSOCKET)
-    ws.textAll(message); // Send a copy to the WebSocket.
-  #endif
-}
 
 // Clear any prior information from the WebSocket client.
 void resetWebSocketData() {
@@ -69,58 +59,97 @@ void printPartitions() {
 
 void ledsOff() {
   // Change all possible addressable LEDs to black.
-  fill_solid(device_leds, DEVICE_NUM_LEDS, CRGB::Black);
+  fill_solid(device_leds, DEVICE_MAX_LEDS, CRGB::Black);
 }
 
 // Helper: compute fixed-point scaled position (Q16) from 16-bit phase.
 // Outputs:
-//  - index: integer LED index (0..DEVICE_NUM_LEDS-1)
+//  - index: integer LED index (0..i_num_leds-1)
 //  - frac:  fractional 0..255 part used for weighting adjacent LEDs
 static inline void calculateScaledPos(uint16_t i_phase, uint8_t &index, uint8_t &frac) {
-  uint32_t scaledPos = (uint32_t)i_phase * (uint32_t)DEVICE_NUM_LEDS; // Q16
+  uint32_t scaledPos = (uint32_t)i_phase * (uint32_t)i_num_leds; // Q16
   index = (uint8_t)(scaledPos >> 16);               // integer LED index
   frac  = (uint8_t)((scaledPos >> 8) & 0xFF);       // fractional 0..255
 }
 
-// Animates the LEDs in a wave-like pattern
+// Function to update the current colour based on stream mode.
+void updateStreamColor() {
+  switch(gpstarSystem.getStreamMode()) {
+    case PROTON:
+      i_stream_colour = C_RED;
+    break;
+    case SLIME:
+      i_stream_colour = C_GREEN;
+    break;
+    case STASIS:
+      i_stream_colour = C_BLUE;
+    break;
+    case MESON:
+      i_stream_colour = C_ORANGE;
+    break;
+    case SPECTRAL:
+      i_stream_colour = C_RAINBOW;
+    break;
+    case HOLIDAY_HALLOWEEN:
+      i_stream_colour = C_ORANGEPURPLE;
+    break;
+    case HOLIDAY_CHRISTMAS:
+      i_stream_colour = C_REDGREEN;
+    break;
+    case SELFTEST:
+      // Initialize timer on first entry to self-test mode
+      if(!ms_selftest_cycle.isRunning()) {
+        ms_selftest_cycle.start(i_selftest_interval);
+        i_selftest_colour = 0; // Reset to first colour
+      }
+
+      // Cycle through all available colours every 2 seconds during self-test
+      if(ms_selftest_cycle.justFinished()) {
+        sendDebug(String(F("Self-Test: Switching to Color #")) + String(i_selftest_colour));
+
+        // Set current colour based on count of colours available (red, green, blue).
+        switch(i_selftest_colour % i_colour_count) {
+          case 0: i_stream_colour = C_WHITE; break;
+          case 1: i_stream_colour = C_RED; break;
+          case 2: i_stream_colour = C_GREEN; break;
+          case 3: i_stream_colour = C_BLUE; break;
+        }
+
+        // Advance to next colour for the next cycle
+        i_selftest_colour = (i_selftest_colour + 1) % i_colour_count;
+
+        // Restart timer for next cycle.
+        ms_selftest_cycle.restart();
+      }
+    break;
+    default:
+      i_stream_colour = C_WHITE;
+    break;
+  }
+}
+
+// Animate the LEDs in a wave-like pattern using a single colour.
 void animateLights() {
   static uint16_t i_led_phase = 0; // 16-bit phase accumulator (high byte = 0..255 visible phase)
-  uint8_t i_color;
 
   if(!ms_anim_change.justFinished()) return; // nothing to do this frame
 
   ledsOff(); // Clear LEDs before updating animation.
 
-  // Determine the color once per animation sequence as based on the current stream mode.
-  switch(STREAM_MODE) {
-    case PROTON:
-      i_color = C_RED;
-    break;
-    case SLIME:
-      i_color = C_GREEN;
-    break;
-    case STASIS:
-      i_color = C_BLUE;
-    break;
-    case MESON:
-      i_color = C_ORANGE;
-    break;
-    case SPECTRAL:
-      i_color = C_RAINBOW;
-    break;
-    case HOLIDAY_HALLOWEEN:
-      i_color = C_ORANGEPURPLE;
-    break;
-    case HOLIDAY_CHRISTMAS:
-      i_color = C_REDGREEN;
-    break;
+  // Compute a full-bright CRGB once and scale per-LED with nscale8_video.
+  CRGB baseColor;
+  switch(LED_COLOR_TYPE) {
+    case LED_GBR:
     default:
-      i_color = C_WHITE;
+      baseColor = getHueAsGBR(PRIMARY_LED, i_stream_colour, 255);
+    break;
+    case LED_RGB:
+      baseColor = getHueAsRGB(PRIMARY_LED, i_stream_colour, 255);
+    break;
+    case LED_GRB:
+      baseColor = getHueAsGRB(PRIMARY_LED, i_stream_colour, 255);
     break;
   }
-
-  // Compute a full-bright CRGB once and scale per-LED with nscale8_video.
-  CRGB baseColor = b_use_gbr ? getHueAsGBR(PRIMARY_LED, i_color, 255) : getHueAsRGB(PRIMARY_LED, i_color, 255);
 
   // Compute fixed-point position and split between two LEDs for smooth sub-pixel motion.
   uint8_t i_index, i_frac;
@@ -130,12 +159,12 @@ void animateLights() {
   uint8_t i_weightA = 255 - i_frac; // Weight for i_index
   uint8_t i_weightB = i_frac;       // Weight for i_index + 1
 
-  // Apply weighted colors (nscale8_video expects 0..255)
+  // Apply weighted colours (nscale8_video expects 0..255)
   CRGB cA = baseColor; cA.nscale8_video(i_weightA);
   device_leds[i_index] = cA;
 
   uint8_t i_indexB = i_index + 1;
-  if(i_indexB >= DEVICE_NUM_LEDS) {
+  if(i_indexB >= i_num_leds) {
     i_indexB = 0;
   }
   CRGB cB = baseColor; cB.nscale8_video(i_weightB);
@@ -143,7 +172,7 @@ void animateLights() {
 
   // Slight blur to soften stepping (tune i_blurAmount)
   const uint8_t i_blur_amount = 32;
-  blur1d(device_leds, DEVICE_NUM_LEDS, i_blur_amount);
+  blur1d(device_leds, i_num_leds, i_blur_amount);
 
   // IMPORTANT: advance the 16-bit phase so the visible (high) byte moves by i_animation_step.
   // Shift left 8 so visible phase increments by i_animation_step each frame.
@@ -155,7 +184,7 @@ void animateLights() {
 
   if(b_firing) {
     // Speed up animation when firing, based on power level.
-    ms_anim_change.start(i_animation_duration / ((wsData.wandPower + 1) * 2));
+    ms_anim_change.start(int(i_animation_duration / ((wsData.wandPower + 1) * 2)));
   } else {
     // Otherwise return to normal speed at idle.
     ms_anim_change.start(i_animation_duration);

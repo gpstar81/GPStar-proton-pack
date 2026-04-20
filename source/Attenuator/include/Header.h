@@ -1,6 +1,6 @@
 /**
  *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -35,8 +35,6 @@ CRGB device_leds[DEVICE_NUM_LEDS];
  * Therefore, the order of this list may change depending on user preference.
  * This feature will only be available for the ESP32-based controller.
  */
-bool b_invert_leds = false; // Denotes whether the order should be reversed.
-bool b_grb_leds = false; // Denotes whether to use GRB ordering for LEDs.
 uint8_t i_device_led[DEVICE_NUM_LEDS] = {0, 1, 2}; // Default Order
 
 /*
@@ -68,10 +66,10 @@ enum DISPLAY_TYPES DISPLAY_TYPE = STATUS_GRAPHIC;
  * Manage the colour and blink pattern for the top LED.
  */
 millisDelay ms_top_blink; // Allows the top LED to blink for a menu state.
-const uint16_t i_top_blink_delay = 800; // Duration for blink pattern.
+const uint16_t i_top_blink_delay = 800; // Duration (ms) for blink pattern.
 uint8_t i_top_led_colour; // Remember the last colour for the top LED.
 uint8_t i_top_led_brightness = 128; // Max brightness for this LED.
-bool b_top_led_off = false; // Denotes when top LED is mid-blink.
+bool b_top_led_alt = false; // Denotes when top LED is in transition.
 
 /*
  * Pins for user feedback (audio/physical)
@@ -79,11 +77,11 @@ bool b_top_led_off = false; // Denotes when top LED is mid-blink.
  * Buzzer Frequencies:
  * buzzOn(440); // A4
  * buzzOn(494); // B4
- * buzzOn(523); // C4
- * buzzOn(587); // D4
- * buzzOn(659); // E4
- * buzzOn(698); // F4
- * buzzOn(784); // G4
+ * buzzOn(523); // C5
+ * buzzOn(587); // D5
+ * buzzOn(659); // E5
+ * buzzOn(698); // F5
+ * buzzOn(784); // G5
  */
 #define BUZZER_PIN 18
 #define VIBRATION_PIN 19
@@ -135,6 +133,7 @@ bool b_cyclotron_lid_on = true;
 /*
  * Barmeter 28 segment bargraph mapping: allows accessing elements sequentially (0-27)
  * If the pattern appears inverted from what is expected, flip by using the following:
+ * TODO: Make this toggleable from the web UI rather than requiring a buildtime constant
  */
 //#define GPSTAR_INVERT_BARGRAPH
 #ifdef GPSTAR_INVERT_BARGRAPH
@@ -144,31 +143,8 @@ bool b_cyclotron_lid_on = true;
 #endif
 
 /*
- * System Mode
+ * Wand Firing Settings
  */
-enum SYSTEM_MODES { MODE_SUPER_HERO, MODE_ORIGINAL };
-enum SYSTEM_MODES SYSTEM_MODE = MODE_SUPER_HERO;
-enum RED_SWITCH_MODES { SWITCH_ON, SWITCH_OFF };
-enum RED_SWITCH_MODES RED_SWITCH_MODE = SWITCH_OFF;
-
-/*
- * Year Theme
- */
-enum SYSTEM_YEARS { SYSTEM_EMPTY, SYSTEM_TOGGLE_SWITCH, SYSTEM_1984, SYSTEM_1989, SYSTEM_AFTERLIFE, SYSTEM_FROZEN_EMPIRE };
-enum SYSTEM_YEARS SYSTEM_YEAR = SYSTEM_AFTERLIFE;
-
-/*
- * Wand Firing Modes + Settings
- */
-enum BARREL_STATES { BARREL_RETRACTED, BARREL_EXTENDED };
-enum BARREL_STATES BARREL_STATE;
-enum POWER_LEVELS { LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5 };
-enum POWER_LEVELS POWER_LEVEL = LEVEL_5;
-enum POWER_LEVELS POWER_LEVEL_PREV = LEVEL_5;
-enum STREAM_MODES { UNSET_STREAM, PROTON, STASIS, SLIME, MESON, SPECTRAL, HOLIDAY_HALLOWEEN, HOLIDAY_CHRISTMAS, SPECTRAL_CUSTOM, SETTINGS };
-enum STREAM_MODES STREAM_MODE = PROTON;
-enum STREAM_MODE_FLAGS : uint8_t { FLAG_NONE = 0, FLAG_VG = 1, FLAG_SPECTRAL = 2, FLAG_SPECTRAL_CUSTOM = 4, FLAG_HOLIDAY_HALLOWEEN = 8, FLAG_HOLIDAY_CHRISTMAS = 16 };
-uint8_t STREAM_MODE_FLAG = FLAG_VG; // By default, only enable the three VG modes.
 millisDelay ms_streamchange; // Debounce for change of stream via dial.
 uint16_t i_stream_change_delay = 500; // Delay between stream mode changes.
 
@@ -326,6 +302,9 @@ bool b_master_muted = false;
 bool b_playing_music = false;
 bool b_music_paused = false;
 bool b_repeat_track = false;
+bool b_shuffle_tracks = false;
+bool b_microsd_corrupt = false;
+bool b_microsd_outdated = false;
 String s_track_listing = "";
 
 /*
@@ -338,10 +317,13 @@ bool b_wand_connected = false;
 bool b_wand_on = false;
 bool b_pack_alarm = false;
 bool b_wand_firing = false;
+bool b_wand_firing_cts = false;
+bool b_wand_mash_lockout = false;
 bool b_overheating = false;
 bool b_smoke_enabled = false;
 bool b_vibration_switch_on = false;
-bool b_clockwise = false;
+bool b_ribbon_cable_attached = true;
+bool b_clockwise = true;
 
 // Flags relating to the synchronization process.
 millisDelay ms_packsync;

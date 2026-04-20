@@ -1,6 +1,6 @@
 /**
  *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -388,7 +388,7 @@ enum sound_fx {
   S_PACK_PRE_VENT,
   S_PACK_OVERHEAT_HOT,
   S_PACK_BEEPS_OVERHEAT,
-  S_SMASH_ERROR_LOOP,
+  S_MASH_ERROR_LOOP,
   S_SMASH_ERROR_RESTART,
   S_AFTERLIFE_WAND_RAMP_1_ALT,
   S_AFTERLIFE_WAND_IDLE_1_ALT,
@@ -465,10 +465,15 @@ enum sound_fx {
   S_VOICE_NEUTRONA_WAND_VOLUME_ADJUSTMENT,
   S_VOICE_PROTON_PACK_VOLUME_ADJUSTMENT,
   S_VOICE_QUICK_BOOTUP_ENABLED,
-  S_VOICE_QUICK_BOOTUP_DISABLED
+  S_VOICE_QUICK_BOOTUP_DISABLED,
+  S_FROZEN_EMPIRE_BRASS_IDLE,
+  S_FROZEN_EMPIRE_BOOT_EFFECT_LOOP,
+  S_VOICE_VENT_LIGHT_COLOURS_ENABLED,
+  S_VOICE_VENT_LIGHT_COLOURS_DISABLED,
+  S_FROZEN_EMPIRE_BRASS_FIRE_TAIL
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const uint16_t i_last_effects_track = S_VOICE_QUICK_BOOTUP_DISABLED;
+const uint16_t i_last_effects_track = S_FROZEN_EMPIRE_BRASS_FIRE_TAIL;

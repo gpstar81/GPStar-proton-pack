@@ -12,8 +12,8 @@
 **/*.log
 *.bootloader.*
 *.partitions.*
+/extras/rag
 /source/*/log
 /source/*/logs
 site/
-/extras/rag
-source/Attenuator/assets/test.html*
+**/test.html*

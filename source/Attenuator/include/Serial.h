@@ -1,6 +1,6 @@
 /**
  *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -28,6 +28,9 @@
 HardwareSerial PackSerial(2); // Associate PackSerial with UART2
 SerialTransfer packComs;
 
+// Forward declarations
+void sendDebug(const String& message); // from main.cpp
+
 // Declare external reference to WirelessManager pointer (allocated in main.cpp after NVS init)
 extern WirelessManager* wirelessMgr;
 
@@ -47,7 +50,7 @@ void attenuatorSerialSend(uint8_t i_command, uint16_t i_value = 0) {
 
   #if defined(DEBUG_SERIAL_COMMS)
     // Can only debug communications when using the ESP32.
-    debugln("Send Command: " + String(i_command));
+    sendDebug(String(F("Send Command: ")) + String(i_command));
   #endif
 
   sendCmd.s = A_COM_START;
@@ -65,7 +68,7 @@ void attenuatorSerialSendData(uint8_t i_message) {
 
   #if defined(DEBUG_SERIAL_COMMS)
     // Can only debug communications when using the ESP32.
-    debugln("Send Data: " + String(i_message));
+    sendDebug(String(F("Send Data: ")) + String(i_message));
   #endif
 
   sendData.s = A_COM_START;
@@ -78,7 +81,7 @@ void attenuatorSerialSendData(uint8_t i_message) {
   switch(i_message) {
     case A_SAVE_PREFERENCES_PACK:
       #if defined(DEBUG_SERIAL_COMMS)
-        debugln("Saving Pack Preferences");
+        sendDebug(F("Saving Pack Preferences"));
       #endif
 
       i_send_size = packComs.txObj(packConfig);
@@ -87,7 +90,7 @@ void attenuatorSerialSendData(uint8_t i_message) {
 
     case A_SAVE_PREFERENCES_WAND:
       #if defined(DEBUG_SERIAL_COMMS)
-        debugln("Saving Wand Preferences");
+        sendDebug(F("Saving Wand Preferences"));
       #endif
 
       i_send_size = packComs.txObj(wandConfig);
@@ -96,7 +99,7 @@ void attenuatorSerialSendData(uint8_t i_message) {
 
     case A_SAVE_PREFERENCES_SMOKE:
       #if defined(DEBUG_SERIAL_COMMS)
-        debugln("Saving Smoke Preferences");
+        sendDebug(F("Saving Smoke Preferences"));
       #endif
 
       i_send_size = packComs.txObj(smokeConfig);
@@ -119,7 +122,7 @@ bool checkPack() {
     uint8_t i_packet_id = packComs.currentPacketID();
     #if defined(DEBUG_SERIAL_COMMS)
       // Advanced debugging message, only enable if absolutely needed!
-      // debugln("PacketID: " + String(i_packet_id));
+      // sendDebug(String(F("PacketID: ")) + String(i_packet_id));
     #endif
 
     if(i_packet_id > 0) {
@@ -134,7 +137,7 @@ bool checkPack() {
           packComs.rxObj(recvCmd);
           if(recvCmd.c > 0 && recvCmd.s == P_COM_START && recvCmd.e == P_COM_END) {
             #if defined(DEBUG_SERIAL_COMMS)
-              debugln("Recv. Command: " + String(recvCmd.c));
+              sendDebug(String(F("Recv. Command: ")) + String(recvCmd.c));
             #endif
             return handleCommand(recvCmd.c, recvCmd.d1);
           }
@@ -152,7 +155,7 @@ bool checkPack() {
           packComs.rxObj(recvData);
           if(recvData.m > 0 && recvData.s == P_COM_START && recvData.e == P_COM_END) {
             #if defined(DEBUG_SERIAL_COMMS)
-              debugln("Recv. Message: " + String(recvData.m));
+              sendDebug(String(F("Recv. Message: ")) + String(recvData.m));
             #endif
 
             switch(recvData.m) {
@@ -163,20 +166,7 @@ bool checkPack() {
                   i_volume_music_percentage = recvData.d[2];
                 }
                 catch (...) {
-                  debugln("Error during volume sync");
-                }
-
-                return true; // Indicates a status change.
-              break;
-
-              case A_SPECTRAL_CUSTOM_MODE:
-                STREAM_MODE = SPECTRAL_CUSTOM;
-
-                if(recvData.d[0] > 0) {
-                  i_spectral_custom_colour = recvData.d[0];
-                }
-                if(recvData.d[1] > 0) {
-                  i_spectral_custom_saturation = recvData.d[1];
+                  sendDebug(F("Error during volume sync"));
                 }
 
                 return true; // Indicates a status change.
@@ -201,7 +191,9 @@ bool checkPack() {
           }
 
           // Only applies to ESP32 for the web UI.
-          debugln("Pack Preferences Received");
+          #if defined(DEBUG_SERIAL_COMMS)
+            sendDebug(F("Pack Preferences Received"));
+          #endif
 
           b_received_prefs_pack = true;
           packComs.rxObj(packConfig);
@@ -214,7 +206,9 @@ bool checkPack() {
           }
 
           // Only applies to ESP32 for the web UI.
-          debugln("Wand Preferences Received");
+          #if defined(DEBUG_SERIAL_COMMS)
+            sendDebug(F("Wand Preferences Received"));
+          #endif
 
           b_received_prefs_wand = true;
           packComs.rxObj(wandConfig);
@@ -226,7 +220,10 @@ bool checkPack() {
             return false;
           }
 
-          debugln("Smoke Preferences Received");
+          // Only applies to ESP32 for the web UI.
+          #if defined(DEBUG_SERIAL_COMMS)
+            sendDebug(F("Smoke Preferences Received"));
+          #endif
 
           b_received_prefs_smoke = true;
           packComs.rxObj(smokeConfig);
@@ -234,91 +231,32 @@ bool checkPack() {
 
         case PACKET_SYNC:
           // Used to sync the Attenuator to the pack.
-          debugln("Pack Sync Packet Received");
+          #if defined(DEBUG_SERIAL_COMMS)
+            sendDebug(F("Pack Sync Packet Received"));
+          #endif
+
+          // Check if the received packet size matches the expected struct size
+          uint16_t expectedSize = sizeof(attenuatorSyncData);
+          uint16_t receivedSize = packComs.bytesRead;
+          bool fullPacketReceived = (receivedSize == expectedSize);
 
           packComs.rxObj(attenuatorSyncData);
 
-          // Sync all required variables.
-          switch(attenuatorSyncData.systemYear) {
-            case 1:
-              SYSTEM_YEAR = SYSTEM_1984;
-            break;
-            case 2:
-              SYSTEM_YEAR = SYSTEM_1989;
-            break;
-            case 3:
-              SYSTEM_YEAR = SYSTEM_AFTERLIFE;
-            default:
-            break;
-            case 4:
-              SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
-            break;
-          }
+          // Import sync data into DeviceState using centralized method
+          gpstarSystem.importData(attenuatorSyncData);
 
-          switch(attenuatorSyncData.streamMode) {
-            case 1:
-            default:
-              STREAM_MODE = PROTON;
-            break;
-            case 2:
-              STREAM_MODE = STASIS;
-            break;
-            case 3:
-              STREAM_MODE = SLIME;
-            break;
-            case 4:
-              STREAM_MODE = MESON;
-            break;
-            case 5:
-              STREAM_MODE = SPECTRAL;
-            break;
-            case 6:
-              STREAM_MODE = HOLIDAY_HALLOWEEN;
-            break;
-            case 7:
-              STREAM_MODE = HOLIDAY_CHRISTMAS;
-            break;
-            case 8:
-              STREAM_MODE = SPECTRAL_CUSTOM;
-            break;
-          }
-
-          POWER_LEVEL_PREV = POWER_LEVEL;
-          switch(attenuatorSyncData.powerLevel) {
-            case 1:
-            default:
-              POWER_LEVEL = LEVEL_1;
-            break;
-            case 2:
-              POWER_LEVEL = LEVEL_2;
-            break;
-            case 3:
-              POWER_LEVEL = LEVEL_3;
-            break;
-            case 4:
-              POWER_LEVEL = LEVEL_4;
-            break;
-            case 5:
-              POWER_LEVEL = LEVEL_5;
-            break;
-          }
-
-          // Common actions to all hardware.
-          b_pack_on = attenuatorSyncData.packOn == 1;
-          b_wand_firing = attenuatorSyncData.wandFiring == 1;
-          b_overheating = attenuatorSyncData.overheatingNow == 1;
-          STREAM_MODE_FLAG = attenuatorSyncData.streamFlags;
+          // Set non-DeviceState variables (Attenuator-specific state)
+          b_pack_on = attenuatorSyncData.packOn;
+          b_wand_firing = attenuatorSyncData.wandFiring;
+          b_overheating = attenuatorSyncData.overheatingNow;
           i_cyclotron_multiplier = attenuatorSyncData.speedMultiplier;
           i_spectral_custom_colour = attenuatorSyncData.spectralColour;
           i_spectral_custom_saturation = attenuatorSyncData.spectralSaturation;
 
           // Specific to the ESP32 and Web UI
-          SYSTEM_MODE = attenuatorSyncData.systemMode == 1 ? MODE_SUPER_HERO : MODE_ORIGINAL;
-          RED_SWITCH_MODE = attenuatorSyncData.ionArmSwitch == 2 ? SWITCH_ON : SWITCH_OFF;
-          BARREL_STATE = attenuatorSyncData.barrelExtended == 1 ? BARREL_EXTENDED : BARREL_RETRACTED;
-          b_wand_connected = attenuatorSyncData.wandPresent == 1;
-          b_cyclotron_lid_on = attenuatorSyncData.cyclotronLidState == 1;
-          f_batt_volts = (float) attenuatorSyncData.packVoltage / 100;
+          b_wand_connected = attenuatorSyncData.wandPresent;
+          b_cyclotron_lid_on = attenuatorSyncData.cyclotronLidState;
+          f_batt_volts = (attenuatorSyncData.packVoltage > 0) ? ((float)attenuatorSyncData.packVoltage / 100.0) : 0.0;
           i_pack_audio_version = attenuatorSyncData.packAudioVersion;
           i_wand_audio_version = attenuatorSyncData.wandAudioVersion;
           i_volume_master_percentage = attenuatorSyncData.masterVolume;
@@ -326,10 +264,22 @@ bool checkPack() {
           i_volume_music_percentage = attenuatorSyncData.musicVolume;
           i_current_music_track = attenuatorSyncData.currentTrack;
           i_music_track_count = attenuatorSyncData.musicCount;
-          b_repeat_track = attenuatorSyncData.trackLooped == 2;
-          b_playing_music = attenuatorSyncData.musicPlaying == 1;
-          b_music_paused = attenuatorSyncData.musicPaused == 1;
-          b_master_muted = attenuatorSyncData.masterMuted == 2;
+          b_repeat_track = attenuatorSyncData.trackLooped;
+          b_shuffle_tracks = attenuatorSyncData.shuffleTracks;
+          b_playing_music = attenuatorSyncData.musicPlaying;
+          b_music_paused = attenuatorSyncData.musicPaused;
+          b_master_muted = attenuatorSyncData.masterMuted;
+
+          // Only trust audioCorrupt/audioOutdated flags if the full packet was received
+          // Older firmware sends a smaller struct, so these fields would contain garbage
+          if (fullPacketReceived) {
+            b_microsd_corrupt = attenuatorSyncData.audioCorrupt;
+            b_microsd_outdated = attenuatorSyncData.audioOutdated;
+          } else {
+            // Ignore these flags from older firmware to prevent false positives
+            b_microsd_corrupt = false;
+            b_microsd_outdated = false;
+          }
 
           if(i_music_track_count > 0) {
             i_music_track_min = i_music_track_offset; // First music track possible (eg. 500)
@@ -361,14 +311,14 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_SYNC_START:
-      debugln("Sync Start");
+      sendDebug(F("Sync Start"));
 
       // Indicates whether we are talking to a GPStar Pack II.
       b_esp32_pack = (i_value == 1);
     break;
 
     case A_SYNC_END:
-      debugln("Sync End");
+      sendDebug(F("Sync End"));
 
       b_wait_for_pack = false;
       b_state_changed = true;
@@ -383,25 +333,37 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_WAND_CONNECTED:
-      debugln("Wand Connected");
+      sendDebug(F("Wand Connected"));
+
+      #if defined(DEBUG_SERIAL_COMMS)
+      if (!b_wand_connected) {
+        sendDebug(F("Wand Connected")); // Indicate recently (re-)connected.
+      }
+      #endif
 
       b_wand_connected = true;
-      b_received_prefs_wand = false;
       b_state_changed = true;
 
-      attenuatorSerialSend(A_REQUEST_PREFERENCES_WAND); // Request current wand prefs.
+      if (!b_received_prefs_wand) {
+        attenuatorSerialSend(A_REQUEST_PREFERENCES_WAND); // Request current wand prefs.
+      }
     break;
 
     case A_WAND_DISCONNECTED:
-      debugln("Wand Disconnected");
+      #if defined(DEBUG_SERIAL_COMMS)
+      if (b_wand_connected) {
+        sendDebug(F("Wand Disconnected")); // Indicate recently disconnected.
+      }
+      #endif
 
       b_wand_connected = false;
-      b_received_prefs_wand = false;
       b_state_changed = true;
+
+      b_received_prefs_wand = false; // Clear flag to force request on reconnect.
     break;
 
     case A_PACK_ON:
-      debugln("Pack On");
+      sendDebug(F("Pack On"));
 
       // Pack is on (directly).
       b_pack_on = true;
@@ -412,7 +374,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_WAND_ON:
-      debugln("Wand On");
+      sendDebug(F("Wand On"));
 
       // Pack is on (via wand).
       b_wand_on = true;
@@ -422,7 +384,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_PACK_OFF:
-      debugln("Pack Off");
+      sendDebug(F("Pack Off"));
 
       // Pack is off (directly or via the wand).
       b_pack_on = false;
@@ -437,7 +399,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_WAND_OFF:
-      debugln("Wand Off");
+      sendDebug(F("Wand Off"));
 
       // Pack is off (directly or via the wand).
       b_wand_on = false;
@@ -451,32 +413,37 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_TOGGLE_SMOKE:
-      debugln("Received smoke value: " + String(i_value));
+      sendDebug(String(F("Received smoke value: ")) + String(i_value));
       b_smoke_enabled = i_value == 2;
     break;
 
     case A_TOGGLE_VIBRATION:
-      debugln("Received vibration value: " + String(i_value));
+      sendDebug(String(F("Received vibration value: ")) + String(i_value));
       b_vibration_switch_on = i_value == 2;
     break;
 
     case A_CYCLOTRON_DIRECTION_TOGGLE:
-      debugln("Received cyclotron direction value: " + String(i_value));
+      sendDebug(String(F("Received cyclotron direction value: ")) + String(i_value));
       b_clockwise = i_value == 2;
     break;
 
     case A_TOGGLE_MUTE:
-      debugln("Received mute value: " + String(i_value));
+      sendDebug(String(F("Received mute value: ")) + String(i_value));
       b_master_muted = i_value == 2;
     break;
 
     case A_MUSIC_TRACK_LOOP_TOGGLE:
-      debugln("Received loop value: " + String(i_value));
+      sendDebug(String(F("Received loop value: ")) + String(i_value));
       b_repeat_track = i_value == 2;
     break;
 
+    case A_MUSIC_TRACK_SHUFFLE_TOGGLE:
+      sendDebug(String(F("Received shuffle value: ")) + String(i_value));
+      b_shuffle_tracks = i_value == 2;
+    break;
+
     case A_MUSIC_IS_PLAYING:
-      debugln("Music Playing: " + String(i_value));
+      sendDebug(String(F("Music Playing: ")) + String(i_value));
 
       b_playing_music = true;
       b_music_paused = false;
@@ -489,7 +456,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_MUSIC_IS_NOT_PLAYING:
-      debugln("Music Stopped: " + String(i_value));
+      sendDebug(String(F("Music Stopped: ")) + String(i_value));
 
       b_playing_music = false;
       b_music_paused = false;
@@ -503,7 +470,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
 
     case A_MUSIC_IS_PAUSED:
       if(!b_music_paused) {
-        debugln("Music Paused");
+        sendDebug(F("Music Paused"));
 
         b_music_paused = true;
         b_state_changed = true;
@@ -512,7 +479,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
 
     case A_MUSIC_IS_NOT_PAUSED:
       if(b_music_paused) {
-        debugln("Music Resumed");
+        sendDebug(F("Music Resumed"));
 
         b_music_paused = false;
         b_state_changed = true;
@@ -520,13 +487,13 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_MUSIC_TRACK_COUNT_SYNC:
-      debugln("Music Track Sync: " + String(i_value));
+      sendDebug(String(F("Music Track Sync: ")) + String(i_value));
 
       if(i_value > 0) {
         i_music_track_count = i_value;
       }
 
-      debugln("Track Count: " + String(i_music_track_count));
+      sendDebug(String(F("Track Count: ")) + String(i_music_track_count));
 
       if(i_music_track_count > 0) {
         i_music_track_min = i_music_track_offset; // First music track possible (eg. 500)
@@ -535,177 +502,130 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_MODE_SUPER_HERO:
-      if(SYSTEM_MODE != MODE_SUPER_HERO) {
-        debugln("Super Hero Sequence");
-
-        SYSTEM_MODE = MODE_SUPER_HERO;
-        b_state_changed = true;
+      if(gpstarSystem.getSystemMode() != MODE_SUPER_HERO) {
+        sendDebug(F("Super Hero Sequence"));
+        b_state_changed = gpstarSystem.setSystemMode(MODE_SUPER_HERO);
       }
     break;
 
     case A_MODE_ORIGINAL:
-      if(SYSTEM_MODE != MODE_ORIGINAL) {
-        debugln("Original Sequence");
-
-        SYSTEM_MODE = MODE_ORIGINAL;
-        b_state_changed = true;
+      if(gpstarSystem.getSystemMode() != MODE_ORIGINAL) {
+        sendDebug(F("Original Sequence"));
+        b_state_changed = gpstarSystem.setSystemMode(MODE_ORIGINAL);
       }
     break;
 
     case A_ION_ARM_SWITCH_ON:
       // The proton pack red switch is on and has power (cyclotron not powered up yet).
-      if(RED_SWITCH_MODE != SWITCH_ON) {
-        debugln("Red Switch On");
+      if(gpstarSystem.getIonArmSwitch() != RED_SWITCH_ON) {
+        sendDebug(F("Red Switch On"));
 
-        RED_SWITCH_MODE = SWITCH_ON;
-        b_state_changed = true;
+        // Performs toggle only when not already on.
+        b_state_changed = gpstarSystem.setIonArmSwitch(RED_SWITCH_ON);
       }
     break;
 
     case A_ION_ARM_SWITCH_OFF:
       // The proton pack red switch is off. This will cause a total system shutdown.
-      if(RED_SWITCH_MODE != SWITCH_OFF) {
-        debugln("Red Switch Off");
+      if(gpstarSystem.getIonArmSwitch() != RED_SWITCH_OFF) {
+        sendDebug(F("Red Switch Off"));
 
-        RED_SWITCH_MODE = SWITCH_OFF;
-        b_state_changed = true;
+        // Performs toggle only when not already off.
+        b_state_changed = gpstarSystem.setIonArmSwitch(RED_SWITCH_OFF);
       }
     break;
 
     case A_YEAR_1984:
-      if(SYSTEM_YEAR != SYSTEM_1984) {
-        debugln("Mode 1984");
+      if(gpstarSystem.getSystemTheme() != SYSTEM_1984) {
+        sendDebug(F("Mode 1984"));
 
-        SYSTEM_YEAR = SYSTEM_1984;
+        gpstarSystem.setSystemTheme(SYSTEM_1984);
         b_state_changed = true;
       }
     break;
 
     case A_YEAR_1989:
-      if(SYSTEM_YEAR != SYSTEM_1989) {
-        debugln("Mode 1989");
+      if(gpstarSystem.getSystemTheme() != SYSTEM_1989) {
+        sendDebug(F("Mode 1989"));
 
-        SYSTEM_YEAR = SYSTEM_1989;
+        gpstarSystem.setSystemTheme(SYSTEM_1989);
         b_state_changed = true;
       }
     break;
 
     case A_YEAR_AFTERLIFE:
-      if(SYSTEM_YEAR != SYSTEM_AFTERLIFE) {
-        debugln("Mode 2021");
+      if(gpstarSystem.getSystemTheme() != SYSTEM_AFTERLIFE) {
+        sendDebug(F("Mode 2021"));
 
-        SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+        gpstarSystem.setSystemTheme(SYSTEM_AFTERLIFE);
         b_state_changed = true;
       }
     break;
 
     case A_YEAR_FROZEN_EMPIRE:
-      if(SYSTEM_YEAR != SYSTEM_FROZEN_EMPIRE) {
-        debugln("Mode 2024");
+      if(gpstarSystem.getSystemTheme() != SYSTEM_FROZEN_EMPIRE) {
+        sendDebug(F("Mode 2024"));
 
-        SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+        gpstarSystem.setSystemTheme(SYSTEM_FROZEN_EMPIRE);
         b_state_changed = true;
       }
     break;
 
-    case A_PROTON_MODE:
-      debugln("Proton");
+    case A_SET_STREAM_MODE:
+      sendDebug(String(F("Pack changed to ")) + String(i_value));
 
-      STREAM_MODE = PROTON;
+      gpstarSystem.setStreamMode((STREAM_MODES)i_value);
       b_state_changed = true;
     break;
 
-    case A_STASIS_MODE:
-      debugln("Stasis");
+    case A_SET_FIRING_MODE:
+      // Set the variable for firing mode (for web UI).
+      switch(i_value) {
+        case FLAG_VG_MODE:
+        default:
+          gpstarSystem.setFiringModeVG();
+        break;
 
-      STREAM_MODE = STASIS;
-      b_state_changed = true;
-    break;
+        case FLAG_CTS_MODE:
+          gpstarSystem.setFiringModeCTS();
+        break;
 
-    case A_SLIME_MODE:
-      debugln("Slime");
-
-      STREAM_MODE = SLIME;
-      b_state_changed = true;
-    break;
-
-    case A_MESON_MODE:
-      debugln("Meson");
-
-      STREAM_MODE = MESON;
-      b_state_changed = true;
-    break;
-
-    case A_SPECTRAL_MODE:
-      debugln("Spectral");
-
-      STREAM_MODE = SPECTRAL;
-      b_state_changed = true;
-    break;
-
-    case A_HALLOWEEN_MODE:
-      debugln("Holiday: Halloween");
-
-      STREAM_MODE = HOLIDAY_HALLOWEEN;
-      b_state_changed = true;
-    break;
-
-    case A_CHRISTMAS_MODE:
-      debugln("Holiday: Christmas");
-
-      STREAM_MODE = HOLIDAY_CHRISTMAS;
-      b_state_changed = true;
-    break;
-
-    case A_SETTINGS_MODE:
-      debugln("Settings");
-
-      STREAM_MODE = SETTINGS;
-      b_state_changed = true;
+        case FLAG_CTS_MIX_MODE:
+          gpstarSystem.setFiringModeCTSMix();
+        break;
+      }
     break;
 
     case A_POWER_LEVEL_1:
-      debugln("Power Level 1");
-
-      POWER_LEVEL_PREV = POWER_LEVEL;
-      POWER_LEVEL = LEVEL_1;
-      b_state_changed = true;
+      sendDebug(F("Power Level 1"));
+      b_state_changed = gpstarSystem.setPowerLevel(LEVEL_1);
     break;
 
     case A_POWER_LEVEL_2:
-      debugln("Power Level 2");
-
-      POWER_LEVEL_PREV = POWER_LEVEL;
-      POWER_LEVEL = LEVEL_2;
-      b_state_changed = true;
+      sendDebug(F("Power Level 2"));
+      b_state_changed = gpstarSystem.setPowerLevel(LEVEL_2);
     break;
 
     case A_POWER_LEVEL_3:
-      debugln("Power Level 3");
-
-      POWER_LEVEL_PREV = POWER_LEVEL;
-      POWER_LEVEL = LEVEL_3;
-      b_state_changed = true;
+      sendDebug(F("Power Level 3"));
+      b_state_changed = gpstarSystem.setPowerLevel(LEVEL_3);
     break;
 
     case A_POWER_LEVEL_4:
-      debugln("Power Level 4");
-
-      POWER_LEVEL_PREV = POWER_LEVEL;
-      POWER_LEVEL = LEVEL_4;
-      b_state_changed = true;
+      sendDebug(F("Power Level 4"));
+      b_state_changed = gpstarSystem.setPowerLevel(LEVEL_4);
     break;
 
     case A_POWER_LEVEL_5:
-      debugln("Power Level 5");
-
-      POWER_LEVEL_PREV = POWER_LEVEL;
-      POWER_LEVEL = LEVEL_5;
-      b_state_changed = true;
+      sendDebug(F("Power Level 5"));
+      b_state_changed = gpstarSystem.setPowerLevel(LEVEL_5);
     break;
 
     case A_ALARM_ON:
-      debugln("Alarm On");
+      sendDebug(F("Alarm On"));
+
+      // Set ribbon cable status.
+      b_ribbon_cable_attached = i_value == 1;
 
       // Alarm is on.
       b_wand_firing = false;
@@ -721,7 +641,10 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_ALARM_OFF:
-      debugln("Alarm Off");
+      sendDebug(F("Alarm Off"));
+
+      // Set ribbon cable status.
+      b_ribbon_cable_attached = i_value == 1;
 
       // Alarm is off.
       b_pack_alarm = false;
@@ -736,7 +659,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_VENTING:
-      debugln("Quick Venting");
+      sendDebug(F("Quick Venting"));
 
       // Pack is performing quick vent; reset bargraph.
       i_cyclotron_multiplier = 1;
@@ -749,7 +672,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_VENTING_FINISHED:
-      debugln("Quick Vent Complete");
+      sendDebug(F("Quick Vent Complete"));
 
       // Quick vent process completed.
       b_overheating = false;
@@ -757,7 +680,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_OVERHEATING:
-      debugln("Overheating");
+      sendDebug(F("Overheating"));
 
       // Pack is overheating.
       b_overheating = true;
@@ -769,7 +692,7 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_OVERHEATING_FINISHED:
-      debugln("Vented");
+      sendDebug(F("Vented"));
 
       // Venting process completed.
       b_overheating = false;
@@ -782,21 +705,52 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       BARGRAPH_PATTERN = BG_POWER_RAMP;
     break;
 
+    case A_SYSTEM_LOCKOUT:
+      sendDebug(F("Button Mash Lockout"));
+
+      // Button mash lockout has been triggered.
+      b_wand_mash_lockout = true;
+      b_state_changed = true;
+
+      if(b_pack_on) {
+        bargraphFull();
+        BARGRAPH_PATTERN = BG_RAMP_DOWN;
+
+        ms_blink_leds.start(i_blink_leds);
+      }
+    break;
+
+    case A_CANCEL_LOCKOUT:
+      sendDebug(F("Mash Lockout Cancelled"));
+
+      // Button mash lockout has been cancelled.
+      b_wand_mash_lockout = false;
+      b_state_changed = true;
+
+      if(b_pack_on) {
+        ms_blink_leds.stop();
+
+        bargraphClear();
+        BARGRAPH_PATTERN = BG_POWER_RAMP;
+      }
+    break;
+
     case A_FIRING:
-      debugln("Firing");
+      sendDebug(F("Firing"));
 
       b_wand_firing = true;
       b_state_changed = true;
-      ms_blink_leds.start(i_blink_leds / i_cyclotron_multiplier);
+      ms_blink_leds.start(int(i_blink_leds / i_cyclotron_multiplier));
 
       bargraphClear();
       BARGRAPH_PATTERN = BG_OUTER_INNER;
     break;
 
     case A_FIRING_STOPPED:
-      debugln("Idle");
+      sendDebug(F("Idle"));
 
       b_wand_firing = false;
+      b_wand_firing_cts = false;
       b_state_changed = true;
       ms_blink_leds.stop();
 
@@ -816,31 +770,49 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
       }
     break;
 
+    case A_FIRING_CTS:
+      sendDebug(F("Firing CTS"));
+
+      if(b_wand_firing) {
+        b_wand_firing_cts = true;
+        b_state_changed = true;
+      }
+    break;
+
+    case A_FIRING_CTS_STOPPED:
+      sendDebug(F("Stopped CTS"));
+
+      if(b_wand_firing || b_wand_firing_cts) {
+        b_wand_firing_cts = false;
+        b_state_changed = true;
+      }
+    break;
+
     case A_CYCLOTRON_LID_ON:
-      debugln("Cyclotron Lid On...");
+      sendDebug(F("Cyclotron Lid On..."));
 
       b_cyclotron_lid_on = true;
       b_state_changed = true;
     break;
 
     case A_CYCLOTRON_LID_OFF:
-      debugln("Cyclotron Lid Off...");
+      sendDebug(F("Cyclotron Lid Off..."));
 
       b_cyclotron_lid_on = false;
       b_state_changed = true;
     break;
 
     case A_CYCLOTRON_INCREASE_SPEED:
-      debugln("Cyclotron Speed Increasing...");
+      sendDebug(F("Cyclotron Speed Increasing..."));
 
       i_cyclotron_multiplier++;
       b_state_changed = true;
 
-      debugln(String(i_cyclotron_multiplier));
+      sendDebug(String(i_cyclotron_multiplier));
     break;
 
     case A_CYCLOTRON_NORMAL_SPEED:
-      debugln("Cyclotron Speed Reset");
+      sendDebug(F("Cyclotron Speed Reset"));
 
       i_cyclotron_multiplier = 1;
       b_state_changed = true;
@@ -858,48 +830,44 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case A_BARREL_EXTENDED:
-      if(BARREL_STATE != BARREL_EXTENDED) {
-        debugln("Wand Barrel Extended");
-
-        BARREL_STATE = BARREL_EXTENDED;
-        b_state_changed = true;
+      if(gpstarSystem.getBarrelState() != BARREL_EXTENDED) {
+        sendDebug(F("Wand Barrel Extended"));
+        b_state_changed = gpstarSystem.setBarrelState(BARREL_EXTENDED);
       }
     break;
 
     case A_BARREL_RETRACTED:
-      if(BARREL_STATE != BARREL_RETRACTED) {
-        debugln("Wand Barrel Retracted");
-
-        BARREL_STATE = BARREL_RETRACTED;
-        b_state_changed = true;
+      if(gpstarSystem.getBarrelState() != BARREL_RETRACTED) {
+        sendDebug(F("Wand Barrel Retracted"));
+        b_state_changed = gpstarSystem.setBarrelState(BARREL_RETRACTED);
       }
     break;
 
     case A_STREAM_FLAGS:
-      debugln("Received new Stream Mode flags");
+      sendDebug(F("Received new Stream Mode Flags"));
 
-      STREAM_MODE_FLAG = (uint8_t)i_value;
+      gpstarSystem.setStreamModeOpts((uint8_t)i_value);
     break;
 
     case A_BATTERY_VOLTAGE_PACK:
       #if defined(DEBUG_SERIAL_COMMS)
-        // This will be called a lot, so we put it behind the debug option.
-        debugln("Pack Voltage (x100): " + String(i_value));
+        // This will be called a lot, so comment in only when needed.
+        //sendDebug(String(F("Pack Voltage (x100): ")) + String(i_value));
       #endif
 
       // Convert to a value X.NN based on expected 5VDC maximum.
-      f_batt_volts = (float) i_value / 100;
+      f_batt_volts = (i_value > 0) ? ((float)i_value / 100.0) : 0.0;
       b_state_changed = true;
     break;
 
     case A_TEMPERATURE_PACK:
       #if defined(DEBUG_SERIAL_COMMS)
-        // This could be called often, so we put it behind the debug option.
-        debugln("Pack Temperature (x100): " + String(i_value));
+        // This will be called a lot, so comment in only when needed.
+        //sendDebug(String(F("Pack Temperature (x100): ")) + String(i_value));
       #endif
 
       // Convert back to float with 2 decimal places
-      f_temperature_c = (float) i_value / 100; // First convert to Celsius
+      f_temperature_c = (float)i_value / 100.0; // First convert to Celsius
       f_temperature_f = (f_temperature_c * 1.8) + 32; // Convert Celsius to Fahrenheit
       b_state_changed = true;
     break;
@@ -907,17 +875,17 @@ bool handleCommand(uint8_t i_command, uint16_t i_value) {
     case A_WAND_POWER_AMPS:
       #if defined(DEBUG_SERIAL_COMMS)
         // This will be called a lot, so we put it behind the debug option.
-        debugln("Wand Current (x100): " + String(i_value));
+        sendDebug(String(F("Wand Current (x100): ")) + String(i_value));
       #endif
 
       // Convert to a value X.NN based on expected 1Amp maximum.
-      f_wand_amps = (float) i_value / 100;
+      f_wand_amps = (float)i_value / 100.0;
       b_state_changed = true;
     break;
 
     case A_WAND_AUDIO_VERSION:
       i_wand_audio_version = i_value;
-      debugln("Wand Audio Version: " + String(i_value));
+      sendDebug(String(F("Wand Audio Version: ")) + String(i_value));
     break;
 
     default:

@@ -1,6 +1,6 @@
 /**
  *   GPStar Single-Shot Blaster
- *   Copyright (C) 2024-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2024-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                    & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -87,7 +87,7 @@ void settingsMenuCheck() {
           // Intensify: Enable/Disable Music Track Looping.
           if(b_playing_music && switch_intensify.pushed()) {
             toggleMusicLoop();
-            debugln(F("Toggle Music Loop"));
+            sendDebug(F("Toggle Music Loop"));
           }
 
           // Grip: Exits the menu system.
@@ -114,32 +114,33 @@ void settingsMenuCheck() {
             if(encoder.STATE == ENCODER_CW) {
               // Increase the master system volume.
               increaseVolume();
-              debug(F("Menu, System Vol+ "));
-              debugln(i_volume_master);
+              sendDebug(String(F("Menu, System Vol+ ")) + String(i_volume_master));
             }
             else if(encoder.STATE == ENCODER_CCW) {
               // Decrease the master system volume.
               decreaseVolume();
-              debug(F("Menu, System Vol- "));
-              debugln(i_volume_master);
+              sendDebug(String(F("Menu, System Vol- ")) + String(i_volume_master));
             }
           }
         break;
 
         case OPTION_3:
+          // Intensify: Enable/Disable shuffle play.
+          if(switch_intensify.pushed()) {
+            toggleMusicShuffle();
+            sendDebug(F("Toggle Music Shuffle"));
+          }
           // Grip + Dial = Effects Volume
-          if(switch_grip.on()) {
+          else if(switch_grip.on()) {
             if(encoder.STATE == ENCODER_CW) {
               // Increase the effects volume.
               increaseVolumeEffects();
-              debug(F("Menu, Effects Vol+ "));
-              debugln(i_volume_effects);
+              sendDebug(String(F("Menu, Effects Vol+ ")) + String(i_volume_effects));
             }
             else if(encoder.STATE == ENCODER_CCW) {
               // Decrease the effects volume.
               decreaseVolumeEffects();
-              debug(F("Menu, Effects Vol- "));
-              debugln(i_volume_effects);
+              sendDebug(String(F("Menu, Effects Vol- ")) + String(i_volume_effects));
             }
           }
         break;
@@ -148,14 +149,12 @@ void settingsMenuCheck() {
           // Intensify: Previous Track
           if(b_playing_music && switch_intensify.pushed()) {
             musicPrevTrack();
-            debug(F("Prev Track: #"));
-            debugln(i_current_music_track);
+            sendDebug(String(F("Prev Track: #")) + String(i_current_music_track));
           }
           // Grip: Next Track
           else if(b_playing_music && switch_grip.pushed()) {
             musicNextTrack();
-            debug(F("Next Track: #"));
-            debugln(i_current_music_track);
+            sendDebug(String(F("Next Track: #")) + String(i_current_music_track));
           }
         break;
 
@@ -164,11 +163,11 @@ void settingsMenuCheck() {
           if(switch_intensify.pushed()) {
             if(!b_playing_music) {
               playMusic();
-              debugln(F("Play Music"));
+              sendDebug(F("Play Music"));
             }
             else {
               stopMusic();
-              debugln(F("Stop Music"));
+              sendDebug(F("Stop Music"));
             }
           }
           // Grip + Dial = Music Volume
@@ -176,14 +175,12 @@ void settingsMenuCheck() {
             if(encoder.STATE == ENCODER_CW) {
               // Increase the music volume.
               increaseVolumeMusic();
-              debug(F("Menu, Music Vol+ "));
-              debugln(i_volume_music);
+              sendDebug(String(F("Menu, Music Vol+ ")) + String(i_volume_music));
             }
             else if(encoder.STATE == ENCODER_CCW) {
               // Decrease the music volume.
               decreaseVolumeMusic();
-              debug(F("Menu, Music Vol- "));
-              debugln(i_volume_music);
+              sendDebug(String(F("Menu, Music Vol- ")) + String(i_volume_music));
             }
           }
         break;
@@ -325,7 +322,7 @@ void settingsMenuCheck() {
               break;
               case VIBRATION_FIRING_ONLY:
               default:
-                blasterConfig.deviceVibration = VIBRATION_NONE;
+                blasterConfig.deviceVibration = VIBRATION_NEVER;
 
                 stopEffect(S_VOICE_VIBRATION_FIRING_ENABLED);
                 stopEffect(S_VOICE_VIBRATION_ENABLED);
@@ -333,7 +330,7 @@ void settingsMenuCheck() {
 
                 playEffect(S_VOICE_VIBRATION_DISABLED);
               break;
-              case VIBRATION_NONE:
+              case VIBRATION_NEVER:
                 blasterConfig.deviceVibration = VIBRATION_ALWAYS;
 
                 stopEffect(S_VOICE_VIBRATION_FIRING_ENABLED);
@@ -373,7 +370,7 @@ void checkDeviceAction() {
       // Determine if the special grip button has been pressed (eg. firing, menu operation);
       gripButtonCheck();
 
-      // When device is currently off but gets activated while idle, this is when we fully activate the device.
+      // When device is currently off but gets activated while idle, this is when we activate the device.
       if(switch_activate.on() && DEVICE_ACTION_STATUS == ACTION_IDLE) {
         // Activate the device if previously idle.
         DEVICE_ACTION_STATUS = ACTION_ACTIVATE;
@@ -464,13 +461,14 @@ void checkDeviceAction() {
     break;
 
     case ACTION_FIRING:
+      // NOTE: This action state is entirely unused!
+      /*
       if(ms_single_blast.justFinished()) {
         // Reset the barrel before starting a new pulse.
         barrelLightsOff();
 
-        switch(POWER_LEVEL) {
+        switch(gpstarBlaster.getPowerLevel()) {
           case LEVEL_1:
-          default:
             ms_single_blast.start(i_single_blast_delay_level_1);
           break;
           case LEVEL_2:
@@ -483,22 +481,12 @@ void checkDeviceAction() {
             ms_single_blast.start(i_single_blast_delay_level_4);
           break;
           case LEVEL_5:
+          default:
             ms_single_blast.start(i_single_blast_delay_level_5);
           break;
         }
       }
-
-      if(!b_firing) {
-        b_firing = true;
-        modeFireStart();
-      }
-
-      modeFiring();
-
-      // Stop firing if any of the main switches are turned off.
-      if(!switch_vent.on() || !switch_device.on()) {
-        modeFireStop();
-      }
+      */
     break;
 
     case ACTION_ERROR:
@@ -509,11 +497,6 @@ void checkDeviceAction() {
       // Respond to button actions based on menu level/option.
       settingsMenuCheck();
     break;
-  }
-
-  if(b_firing && DEVICE_ACTION_STATUS != ACTION_FIRING) {
-    // User is firing but we've switched into an action that is not firing.
-    modeFireStop();
   }
 }
 
@@ -553,30 +536,42 @@ void checkEncoderAction() {
 
   switch(DEVICE_STATUS) {
     case MODE_OFF:
-      if(b_playing_music && DEVICE_ACTION_STATUS != ACTION_SETTINGS) {
-        // If playing music while off, and NOT in the settings menu, change the music volume only.
-        if(encoder.STATE == ENCODER_CW) {
-            // Increase the music volume.
-            increaseVolumeMusic();
-            debug(F("Device Off, Music Vol+ "));
-            debugln(i_volume_music);
-        }
-        else if(encoder.STATE == ENCODER_CCW) {
-            // Decrease the music volume.
-            decreaseVolumeMusic();
-            debug(F("Device Off, Music Vol- "));
-            debugln(i_volume_music);
-        }
-      }
-
       switch(DEVICE_ACTION_STATUS) {
-        case ACTION_IDLE:
-        case ACTION_OFF:
         case ACTION_ACTIVATE:
         case ACTION_FIRING:
         case ACTION_ERROR:
         default:
           // No-Op.
+        break;
+
+        case ACTION_IDLE:
+        case ACTION_OFF:
+          if(b_playing_music) {
+            // If playing music while off, and NOT in the settings menu, change the music volume only.
+            if(encoder.STATE == ENCODER_CW) {
+              // Increase the music volume.
+              increaseVolumeMusic();
+              sendDebug(String(F("Device Off, Music Vol+ ")) + String(i_volume_music));
+            }
+            else if(encoder.STATE == ENCODER_CCW) {
+              // Decrease the music volume.
+              decreaseVolumeMusic();
+              sendDebug(String(F("Device Off, Music Vol- ")) + String(i_volume_music));
+            }
+          }
+          else {
+            // If not playing music while off and NOT in the settings menu, change the system volume.
+            if(encoder.STATE == ENCODER_CW) {
+              // Increase the overall system volume.
+              increaseVolume();
+              sendDebug(String(F("Device Off, System Vol+ ")) + String(i_volume_master));
+            }
+            else if(encoder.STATE == ENCODER_CCW) {
+              // Decrease the overall system volume.
+              decreaseVolume();
+              sendDebug(String(F("Device Off, System Vol- ")) + String(i_volume_master));
+            }
+          }
         break;
 
         case ACTION_SETTINGS:
@@ -594,14 +589,12 @@ void checkEncoderAction() {
       if(encoder.STATE == ENCODER_CW) {
         // Increase the overall system volume.
         increaseVolume();
-        debug(F("Error, System Vol+ "));
-        debugln(i_volume_master);
+        sendDebug(String(F("Error, System Vol+ ")) + String(i_volume_master));
       }
       else if(encoder.STATE == ENCODER_CCW) {
         // Decrease the overall system volume.
         decreaseVolume();
-        debug(F("Error, System Vol- "));
-        debugln(i_volume_master);
+        sendDebug(String(F("Error, System Vol- ")) + String(i_volume_master));
       }
     break; // MODE_ERROR
 
@@ -613,35 +606,34 @@ void checkEncoderAction() {
 
       // Cater to actions while the device is on and idle
       if(DEVICE_ACTION_STATUS == ACTION_IDLE) {
-        // Toggle switches are all on, which means power level can be changed.
-        if(switch_activate.on() && switch_device.on() && switch_vent.on()) {
-          if(encoder.STATE == ENCODER_CW) {
-            if(increasePowerLevel()) {
-              soundIdleLoopStop();
-              soundIdleLoop(false);
+        if(switch_activate.on()) {
+          // Toggle switches are all on, which means power level can be changed.
+          if(switch_device.on() && switch_vent.on()) {
+            if(encoder.STATE == ENCODER_CW) {
+              if(increasePowerLevel()) {
+                soundIdleLoopStop();
+                soundIdleLoop(false);
+              }
+            }
+            else if(encoder.STATE == ENCODER_CCW) {
+              if(decreasePowerLevel()) {
+                soundIdleLoopStop();
+                soundIdleLoop(false);
+              }
             }
           }
-          else if(encoder.STATE == ENCODER_CCW) {
-            if(decreasePowerLevel()) {
-              soundIdleLoopStop();
-              soundIdleLoop(false);
+          // Intensify button is pressed while activated, but the device/vent toggles are both off.
+          else if(switch_intensify.on() && !switch_vent.on() && !switch_device.on()) {
+            if(encoder.STATE == ENCODER_CW) {
+              // Increase the master system volume.
+              increaseVolume();
+              sendDebug(String(F("Device On, System Vol+ ")) + String(i_volume_master));
             }
-          }
-        }
-
-        // Intensify button is pressed while activated, but the device/vent toggles are both off.
-        if(switch_intensify.on() && switch_activate.on() && !switch_vent.on() && !switch_device.on()) {
-          if(encoder.STATE == ENCODER_CW) {
-            // Increase the master system volume.
-            increaseVolume();
-            debug(F("Device On, System Vol+ "));
-            debugln(i_volume_master);
-          }
-          else if(encoder.STATE == ENCODER_CCW) {
-            // Decrease the master system volume.
-            decreaseVolume();
-            debug(F("Device On, System Vol- "));
-            debugln(i_volume_master);
+            else if(encoder.STATE == ENCODER_CCW) {
+              // Decrease the master system volume.
+              decreaseVolume();
+              sendDebug(String(F("Device On, System Vol- ")) + String(i_volume_master));
+            }
           }
         }
       }

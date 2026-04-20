@@ -1,6 +1,6 @@
 /**
  *   GPStar Attenuator - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -172,7 +172,7 @@ void bargraphUpdate(uint8_t i_delay_divisor) {
      BARGRAPH_PATTERN == BG_POWER_UP) {
     // Use the current power level to set some global variables, such as the simulated maximum elements.
     // This will determine whether to ramp up or down, and must be called prior to the switch statement below.
-    bargraphPowerCheck(POWER_LEVEL);
+    bargraphPowerCheck(gpstarSystem.getPowerLevel());
   }
 
   // Set the current delay by dividing the base delay by some value (Min: 2).
