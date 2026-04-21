@@ -21,13 +21,13 @@ SD Cards with capacities of **32GB OR LESS** can be formatted normally in the Wi
 
 ## SD Cards with capacities larger than 32GB
 
-For Windows users these will need to be formatted a different way. We recommend the free tool Fat32Format by Tom Thornhill. It can be found in the [extras](/extras/) folder of this repository or in the direct download link below
+For Windows users these will need to be formatted a different way. We recommend the free tool Fat32Format by Tom Thornhill. It can be found at the direct download links below:
 
 (Web Site)
 [Fat 32 Format GUI version](http://ridgecrop.co.uk/index.htm?guiformat.htm)
 
 (Direct Download link)
-[guiformat.exe](/extras/sound/guiformat.exe?raw=true)
+[guiformat.exe](https://cdn.shopify.com/s/files/1/0772/0517/6651/files/guiformat.exe?v=1776715172)
 
 ![fat32formatter](images/fat32.jpg)
 

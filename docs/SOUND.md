@@ -43,8 +43,7 @@ Use the FTDI to USB programming cable that came with the first generation GPStar
 
 ### GPStar Audio Firmware Flasher
 
-- [Windows (x64 only)](/extras/sound/GPStar%20Audio/gpstarAudioFirmwareFlasher.exe?raw=true)
-- [MacOS Intel](/extras/sound/GPStar%20Audio/GPStar-Audio-Firmware-Flasher-Mac.dmg?raw=true) (Must enable Rosetta for Apple Silicon CPUs)
+The latest version of the Windows and Mac OSX GPStar Audio firmware flasher can be downloaded from the [GPStar Support & Downloads page](https://gpstartechnologies.com/pages/support-downloads).
 
 ![UART GPStar Audio Connection](images/uart_gpstar_audio.jpg)
 

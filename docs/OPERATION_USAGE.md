@@ -290,8 +290,8 @@ The [supplemental operation guide for the Neutrona Wand EEPROM menu system](OPER
 ### PDF Operational Guides
 
 (Direct Download links)
-[GPStar I Operational Guide (PDF)](/extras/GPStar%20I%20Operational%20Guide.pdf?raw=true)
-[GPStar II Operational Guide (PDF)](/extras/GPStar%20II%20Operational%20Guide.pdf?raw=true)
+[GPStar I Operational Guide (PDF)](https://cdn.shopify.com/s/files/1/0772/0517/6651/files/GPStar_Proton_Pack_and_Neutrona_Wand_Operation_Guide.pdf?v=1737932105)
+[GPStar II Operational Guide (PDF)](https://cdn.shopify.com/s/files/1/0772/0517/6651/files/GPStar_II_Operation_Guide.pdf?v=1759181277)
 
 <div class="page-break"></div>
 

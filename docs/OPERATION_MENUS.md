@@ -98,7 +98,6 @@ To access Menu Level 3, use the `Top Dial` on the top of the wand to move down a
 | 2️⃣ | -Reserved- |  |  |
 | 1️⃣ | WiFi&nbsp;Password&nbsp;Reset | `(Long Press)` Reset the Wand WiFi password to default | `(Long Press)` Reset the Pack WiFi password to default |
 
-
 ### Menu Exit
 
 To exit the menu system, use the `Top Dial` to navigate back to `Menu Level 1, Option 5` (Slo-blo and Vent LED's are no longer illuminated) and press the `Barrel Wing Button`. A voice callout will be heard when transitioning between the top and sub menu levels.

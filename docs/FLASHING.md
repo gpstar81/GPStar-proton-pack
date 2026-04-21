@@ -1,8 +1,8 @@
 # Software Flashing Guide
 
-Each supported device in the GPStar system (Proton Pack, Neutrona Wand, Attenuator, Single-shot Blaster, Belt Gizmo, Stream Effects) are separate devices and must be updated individually when software updates are available. The following guide focuses on the core system: the Proton Pack and Neutrona Wand. For updating the [Attenuator (aka. Wireless Adapter)](ATTENUATOR_FLASHING.md) or the [Single-Shot Blaster](SINGLESHOT.md), please see their respective guides.
+Each supported device in the GPStar system (Proton Pack, Neutrona Wand, Attenuator, Single-Shot Blaster, Belt Gizmo, Stream Effects, Proton Stream Target Trainer) are separate devices and must be updated individually when software updates are available. The following guide focuses on the core system: the Proton Pack and Neutrona Wand. For updating the [Attenuator (aka. Wireless Adapter)](ATTENUATOR_FLASHING.md), [Proton Stream Target Trainer](PSTT.md), [Belt Gizmo](BELT_GIZMO.md), or [Stream Effects](STREAM_EFFECTS.md) please see their respective guides. For the Single-Shot Blaster, follow the same instructions as below for the Neutrona Wand but use the Single Shot firmware file instead.
 
-> Note that the GPStar Audio may also require updates to firmware, though this will be rare. See the [SOUND](SOUND.md) guide for more information. As of version 6.1 of the software all devices with a web UI will accurately report the firmware version of the GPStar Audio device it controls. For the Attenuator and Proton Pack both will reflect the Proton Pack's audio device. Compare the reported version number to the latest firmware version to know if an update is necessary.
+> Note that the GPStar Audio may occasionally also require updates to firmware, though this will be rare. See the [SOUND](SOUND.md) guide for more information. As of version 6.1.0 of the software all devices with a web UI will accurately report the firmware version of the GPStar Audio device it controls. For the Attenuator and Proton Pack both will reflect the Proton Pack's audio device. Compare the reported version number to the latest firmware version to know if an update is necessary.
 
 Please mind the following regardless of model or version of hardware in use:
 
@@ -14,22 +14,22 @@ Please mind the following regardless of model or version of hardware in use:
 
 Please refer to the table below for a list of devices and their supported software release.
 
-| Controller Device | v1.x | v2.x | v3.x | v4.x | v5.x | v6.0 | v6.1+ |
-|-------------------|------|------|------|------|------|------|-------|
+| Controller Device | v1.x | v2.x | v3.x | v4.x | v5.x | v6.0 | v6.1 | v6.2 |
+|-------------------|------|------|------|------|------|------|------|------|
 | <span class="logo-icon-tiny"></span> GPStar Proton Pack | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
-| <span class="logo-icon-tiny"></span> GPStar Neutrona Wand | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| <span class="logo-icon-tiny"></span> GPStar Neutrona Wand | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
 | <span class="logo-icon-tiny"></span> GPStar Single-shot Blaster | &mdash; | &mdash; | &mdash; | &mdash; | Yes | Yes | Yes |
-| <span class="logo-icon-tiny"></span> GPStar Proton Pack II | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | Yes |
-| <span class="logo-icon-tiny"></span> GPStar Neutrona Wand II | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | Yes |
-| <span class="logo-icon-tiny"></span> GPStar Single-shot Blaster II | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | Yes |
-| <sup>d1</sup> DIY Arduino Mega Proton Pack | Yes | Yes <sup>3</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> |
-| <sup>d1</sup> DIY Arduino Mega Neutrona Wand | Yes | Yes <sup>2</sup> | Yes <sup>2</sup> | Yes <sup>2</sup> | Yes <sup>2</sup> | Yes <sup>2</sup> | Yes <sup>2</sup> |
-| <sup>s1</sup> Attenuator (Arduino Nano) | Yes | Yes | Yes | Yes | Yes | No <sup>4</sup> | No <sup>4</sup> |
-| <sup>s1</sup> Attenuator (ESP32) | &mdash; | &mdash; | Yes | Yes | Yes | Yes | Yes |
-| <sup>s1</sup> Wireless Adapter (ESP32)  | &mdash; | &mdash; | Yes | Yes | Yes | Yes | Yes<sup>5</sup> |
-| Belt Gizmo | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | Yes | Yes |
-| Stream Effects | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | Yes | Yes |
-| GPStar PSTT | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | Yes<sup>6</sup> |
+| <span class="logo-icon-tiny"></span> GPStar Proton Pack II | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | Yes | Yes |
+| <span class="logo-icon-tiny"></span> GPStar Neutrona Wand II | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | Yes | Yes |
+| <span class="logo-icon-tiny"></span> GPStar Single-shot Blaster II | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | Yes | Yes |
+| <sup>d1</sup> DIY Arduino Mega Proton Pack | Yes | Yes <sup>3</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> | Yes <sup>3</sup> |
+| <sup>d1</sup> DIY Arduino Mega Neutrona Wand | Yes | Yes <sup>2</sup> | Yes <sup>2</sup> | Yes <sup>2</sup> | Yes <sup>2</sup> | Yes <sup>2</sup> | Yes <sup>2</sup> | Yes <sup>3</sup> |
+| <sup>s1</sup> Attenuator (Arduino Nano) | Yes | Yes | Yes | Yes | Yes | No <sup>4</sup> | No <sup>4</sup> | No <sup>4</sup> |
+| <sup>s1</sup> Attenuator (ESP32) | &mdash; | &mdash; | Yes | Yes | Yes | Yes | Yes | Yes |
+| <sup>s1</sup> Wireless Adapter (ESP32)  | &mdash; | &mdash; | Yes | Yes | Yes | Yes | Yes<sup>5</sup> | Yes<sup>5</sup> |
+| Belt Gizmo | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | Yes | Yes | Yes |
+| Stream Effects | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | Yes | Yes | Yes |
+| GPStar PSTT | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | Yes<sup>6</sup> | Yes |
 
 <sup>d1</sup> These are now considered as "legacy" devices and have distinct end-of-life notes in later versions (see additional superscript notations).
 
@@ -41,23 +41,23 @@ Please refer to the table below for a list of devices and their supported softwa
 
 <sup>4</sup> Support for the Arduino Nano as an Attenuator controller ended as of the v6.0.0 release. That device must be replaced with an ESP-WROOM-32 module to support the later software releases.
 
-<sup>5</sup> Use of an ESP32 as Wireless Adapter is still supported for GPStar I users, but is no longer necessary for GPStar II kits as they can provide built-in WiFi capability.
+<sup>5</sup> Use of an ESP32 as Wireless Adapter is still supported for GPStar I users, but is no longer necessary for GPStar II kits as they provide built-in WiFi capability.
 
-<sup>6</sup> Introduced in the v6.1.1 release and requires the latest software to be installed on a GPStar II Neutrona Wand or GPStar II Single-Shot Blaster.
+<sup>6</sup> Introduced during the v6.1.1 beta; requires the 6.1.1 beta software to be installed on a GPStar II Neutrona Wand or GPStar II Single-Shot Blaster in addition to the PSTT.
 
 ## 📝 GPStar II Flashing
 The GPStar Proton Pack II and GPStar Neutrona Wand II can be updated wirelessly using a WiFi connection and web browser to reach the firmware update screen. Before you begin, you must enable WiFi on all devices as the WiFi on the GPStar Neutrona Wand II is disabled for power saving measures when it is connected to a GPStar Proton Pack II. Similarly, if you have a Attenuator connected, the GPStar Proton Pack II will turn off its WiFi for power saving.
 
 You can manually turn on or turn off the WiFi for each device via one of the following ways:
 
-1. From the [Wand Operation Menu](OPERATION_MENUS.md) via Menu Level 3 which is only available when using a GPStar II Neutrona Wand.
-1. From the highest level device (either Attenuator or GPStar II Proton Pack) via the Settings page. Example: From the Attenuator you can turn on WiFi for the pack or wand by using the toggle at the bottom of the Pack Settings or Wand Settings page and only saving the change (no need to save to EEPROM).
+1. From the [Neutrona Wand Operation Menu](OPERATION_MENUS.md) via Menu Level 3 which is only available when using a GPStar II Neutrona Wand.
+1. From the highest level device (either Attenuator if equipped, or GPStar II Proton Pack) via the Settings page(s) accessed through the web UI. Example: From the Attenuator you can turn on WiFi for the pack or wand by using the toggle at the bottom of the Pack Settings or Wand Settings pages and only saving the change (no need to save to EEPROM).
 
 For best results it is advised that you update the directly-connected devices in the following order:
 
 1. GPStar II Neutrona Wand
 1. GPStar II Proton Pack
-1. Attenuator (if connected)
+1. Attenuator (if applicable)
 
 For a complete view of the process please see the following flowchart:
 
@@ -97,7 +97,7 @@ Once the WiFi has been enabled for all devices you will connect individually to 
 
 ### Connecting to GPStar II Controllers via USB
 
-Under normal circumstances you should only ever have to update the GPStar II boards over-the-air via the web UI as above. As a backup, the GPStar II Proton Pack and Neutrona Wand have a built-in USB-C connector that can be used to connect any computer to the board for manually flashing firmware. Connect a USB-C cable to the device from your computer, then use the GPStar ESP32 Firmware Flasher to update the firmware. See [GPStar II & ESP32 USB Flashing](#gpstar-ii-usb-flashing) below.
+Under normal circumstances you should only ever have to update the GPStar II boards over-the-air via the web UI as above. As a backup, the GPStar II Proton Pack and Neutrona Wand have a built-in USB-C connector that can be used to connect a computer to the board for manually flashing firmware. Connect a USB-C cable to the device from your computer, then use the GPStar ESP32 Firmware Flasher to update the firmware. See [GPStar II & ESP32 USB Flashing](#gpstar-ii-usb-flashing) below.
 
 ## 📝 GPStar I Flashing
 
@@ -105,25 +105,21 @@ These devices do not offer over-the-air updates and **MUST** be updated by using
 
 ### Flashing Updates
 
-After connecting your GPStar Proton Pack or Neutrona Wand board to your computer with the included FTDI to USB programming cable, download the GPStar firmware flasher from the [extras](/extras/) folder and run the program.
+After connecting your GPStar Proton Pack or Neutrona Wand board to your computer with the included FTDI to USB programming cable, download the GPStar firmware flasher from the [GPStar Support & Downloads page](https://gpstartechnologies.com/pages/support-downloads) and run the program.
 
 **As of the v6.1.1 release, new versions of the flasher utilities are available and are encouraged to be used instead of any older copies.** These provide more integity/size checks for selected files, ensuring you have selected a true binary file.
 
 ### GPStar I Pack/Wand Firmware Flasher
 
-- [Windows (x86/x64)](/extras/gpstarFirmwareFlasher.exe?raw=true)
-- [MacOS Intel/M1](/extras/GPStar-Firmware-Flasher-Mac.dmg?raw=true)
+**You can find the latest stable versions of the Firmware and Flashing software at:**
 
-The latest pre-compiled firmware binaries can be found in the binaries folder of this repository.<br>
-[Binaries Folder](/binaries/)
+[https://gpstartechnologies.com/pages/support-downloads](https://gpstartechnologies.com/pages/support-downloads)
+
+The latest pre-compiled firmware binaries can be found in [the binaries folder of this repository](/binaries/).<br>
 
 When downloading the binaries via GitHub, click on the file to open its webpage then click on the **`Download raw file`** button in the upper-right of the page.
 
 ![GPStar firmware flasher](images/flashDownload.png)
-
-**You can also find the latest stable versions of the Firmware and Flashing software at:**
-
-[https://gpstartechnologies.com/pages/support-downloads](https://gpstartechnologies.com/pages/support-downloads)
 
 **IMPORTANT: It is REQUIRED to have both the Proton Pack and Neutrona Wand on the same version of their respective firmware. It is also recommended that this be the latest available firmware.**
 
@@ -168,8 +164,6 @@ Use the included FTDI to USB programming cable that comes with the GPStar kits o
 ## GPStar II USB Flashing
 
 ### GPStar ESP32 Firmware Flasher
-
-- [Windows](/extras/gpstarESP32FirmwareFlasher.exe?raw=true)
 
 **You can always find the latest stable versions of the Firmware and Flashing software at:**
 

@@ -43,7 +43,7 @@ The following is a diagram of the **ESP32 pins** from left and right, when orien
 
 As shown above you will only need 4 connections using the pair of JST-XH connectors connecting the **5V-OUT** and **RX1/TX1**<sup>1</sup> sockets to the ESP32 device. Since the pre-wired connections may only have a red/black color pattern the diagram below has been intentionally designed with this in mind, though the table above should be consulted for connections if your device does not work as expected.
 
-<sup>1</sup> This is on GPStar I Proton Pack boards. On GPStar II Proton Pack boards the data pins are labeled "Attenuator RX2/TX2".
+<sup>1</sup> This is on GPStar I Proton Pack boards. On GPStar II Proton Pack boards the data pins are labelled "Attenuator RX2/TX2".
 
 **IMPORTANT:** Please check all LABELS for proper connections, regardless of wire color. Some early parts/kits may have shipped with JST connectors which swap the order of the red/black wires. Additionally, you meed to use a VIN pin for the 5V+ power supply (not a 5V pin if available), while all GND connections are shared and position does not matter.
 

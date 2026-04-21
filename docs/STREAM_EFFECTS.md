@@ -51,13 +51,15 @@ This is a very simple connection scheme. We simply need to power the LEDs from t
 
 ## Firmware Flashing
 
+### ESP32: Initial Update (via USB)
+
 **Option 1: Using GPStar ESP32 Firmware Uploader**
 
-This uses a purpose-built flash tool just like the tools for the Proton Pack, Neutrona Wand, Single-Shot Blaster and GPStar Audio. Thanks to its ease of use, this is our recommended method for performing the first-time USB upload process. First, download either the Windows or Mac OSX flash tool from the [extras](/extras/) folder. If you are on Linux, try Option 2 below instead.
+This uses a purpose-built flash tool just like the tools for the Proton Pack, Neutrona Wand, Single-Shot Blaster and GPStar Audio. Thanks to its ease of use, this is our recommended method for performing the first-time USB upload process. Download the ESP32 firmware flasher tool which is labelled for use with the GPStar II and Attenuator devices, available via the **Support & Downloads** page on the GPStar website.
 
-**Windows:** [GPStar ESP32 Firmware Flasher](/extras/gpstarESP32FirmwareFlasher.exe?raw=true)
+[GPStar II / GPStar Attenuator Firmware Flasher](https://gpstartechnologies.com/pages/support-downloads)
 
-**MacOS Intel/M1:** [GPStar ESP32 Firmware Flasher (Mac OSX)](/extras/GPStar-ESP32-Flasher.dmg?raw=true)
+> For Linux users, you will need to use one of the alternative options described below.
 
 1. Plug your device into a USB port on your computer.
 2. Locate the following files from the `/binaries/stream` directory.

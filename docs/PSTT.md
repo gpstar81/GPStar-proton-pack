@@ -17,20 +17,120 @@ The Proton Stream Target Trainer is a dedicated aiming and calibration platform 
 
 ## Assembly
 
-Assembly instructions for the Proton Stream Target Trainer can be found in PDF format [here](/extras/GPStar%20PSTT%20Assembly%20Instructions.pdf?raw=true).
+Assembly instructions for the Proton Stream Target Trainer can be found in PDF format [here](https://cdn.shopify.com/s/files/1/0772/0517/6651/files/GPStar_PSTT_Assembly_Instructions.pdf?v=1774010957).
+
+## Firmware Flashing
+
+### Standard Updates (via WiFi)
+
+1. Power on the PSTT.
+1. Open the WiFi preferences on your computer/device and look for the SSID which matches **"GPStar_PSTT"**.
+    * If this is your first connection to this access point, use the default password **555-2368**.
+1. Navigate directly to the URL: [http://gpstar_pstt.local/update](http://gpstar_pstt.local/update) or [http://192.168.2.2/update](http://192.168.2.2/update).
+1. Use the "Select File" button and select the [PSTT.bin](/binaries/pstt/PSTT.bin?raw=true) file from the `/binaries/pstt` directory.
+1. The upload will begin immediately. Once at 100% the device will reboot automatically.
+
+![](images/WebUI-Update1.jpg)
+
+![](images/WebUI-Update2.jpg)
+
+![](images/WebUI-Update3.jpg)
+
+**Note:** If the upload fails, this is not uncommon. Simply attempt the upload again using the OTA updater.
+
+### Diagnostic Updates (via USB-C)
+
+**Option 1: Using GPStar ESP32 Firmware Uploader**
+
+This uses a purpose-built flash tool just like the tools for the Proton Pack, Neutrona Wand, Single-Shot Blaster and GPStar Audio. Thanks to its ease of use, this is our recommended method for performing the first-time USB upload process. For Windows users, download the ESP32 firmware flasher tool which is labelled for use with the GPStar II and Attenuator devices, available via the **Support & Downloads** page on the GPStar website.
+
+[GPStar II / GPStar Attenuator Firmware Flasher](https://gpstartechnologies.com/pages/support-downloads)
+
+> For Linux or macOS users, you will need to use one of the alternative options described below.
+
+1. Plug your device into a USB port on your computer.
+2. If not already downloaded from the Support & Downloads page above, locate the following files from the `/binaries/pstt` directory.
+
+    * [extras/PSTT-Bootloader.bin](/binaries/pstt/extras/PSTT-Bootloader.bin?raw=true) = This is the standard bootloader for the PSTT.
+    * [PSTT.bin](/binaries/pstt/PSTT.bin?raw=true) = This is the custom firmware for the PSTT.
+
+3. Open the GPStar ESP32 Firmware Flasher and browse to the files specified in step 2 above for each of the requested file locations (see below screenshot).
+
+![](images/flash-pstt-firmware.png)
+
+4. The program should automatically detect the correct COM port and baud rate (see above screenshot). If it did not, use the drop-down menus to select the correct one for your PC.
+
+5. Click the Upload button to flash the new firmware to your PSTT. Be patient, this process can take between 15 seconds and several minutes depending on the selected baud rate.
+
+6. Once the flash has completed successfully, your PSTT should now be broadcasting a WiFi network.
+
+**Option 2: Via Web Uploader**
+
+This uses a 3rd-party website to upload using the Web Serial protocol which is only available on the Google Chrome, Microsoft Edge, and Opera desktop web browsers. Mobile browsers are NOT supported, and you will be prompted with a message if your web browser is not valid for use.
+
+1. Plug your device into a USB port on your computer and go to [http://espwebtool.ghostbusters.engineering](http://espwebtool.ghostbusters.engineering) (which [redirects to https://esp.huhn.me](https://esp.huhn.me)).
+
+1. Locate the following files from the `/binaries/pstt` directory.
+
+    * [extras/PSTT-Bootloader.bin](/binaries/pstt/extras/PSTT-Bootloader.bin?raw=true) = This is the standard bootloader for the PSTT.
+    * [extras/PSTT-Partitions.bin](/binaries/pstt/extras/PSTT-Partitions.bin?raw=true) = This specifies the partition scheme for the flash memory.
+    * [extras/boot_app0.bin](/binaries/pstt/extras/boot_app0.bin?raw=true) = This is the software for selecting the available/next OTA partition.
+    * [PSTT.bin](/binaries/pstt/PSTT.bin?raw=true) = This is the custom firmware for the PSTT.
+
+1. Click on the **CONNECT** button and select your USB serial device from the list of options and click on "Connect".
+
+1. Once connected, select the files (noted above) for the following address spaces:
+
+    * `0x1000` &rarr; [PSTT-Bootloader.bin](/binaries/pstt/extras/PSTT-Bootloader.bin?raw=true)
+    * `0x8000` &rarr; [PSTT-Partitions.bin](/binaries/pstt/extras/PSTT-Partitions.bin?raw=true)
+    * `0xE000` &rarr; [boot_app0.bin](/binaries/pstt/extras/boot_app0.bin?raw=true)
+    * `0x10000` &rarr; [PSTT.bin](/binaries/pstt/PSTT.bin?raw=true)
+
+1. Click on the **PROGRAM** button to begin flashing. View the "Output" window to view progress of the flashing operation.
+
+1. Once the device has completely flashed (100%) unplug the USB cable and remove any remaining power source from the device. Restore power to reboot the device and confirm operation.
+
+View [a quick video](images/ESP_Firmware_Update.mp4) of what this process should look like. Your list of USB devices may differ, and it may require selecting a different device if you cannot immediately determine which connected device is your ESP32.
+
+**Option 3: Via Command-Line**
+
+You will need to utilize a command-line tool to upload the firmware to your device from your local computer. Note this is *not recommended* unless you are using a platform other than Windows or Mac OSX, such as Linux.
+
+1. Install the latest Python 3.x utility based on your operating system:
+
+    -  Windows: Download the installer from [Python](https://www.python.org/downloads/windows/). When installing you may be prompted to "Add Python to PATH", and it is recommended to accept that option.
+    -  Linux: Execute `sudo apt update && sudo apt install -y python3 python3-pip`
+    -  MacOS: Execute `brew install python` using Homebrew ([instructions here](https://brew.sh/))
+
+1. From a terminal (command line) prompt run the following which will install the `pip` tool along with the `esptool` utility:
+
+    ```
+    python3 -m ensurepip
+    python3 -m pip install --upgrade pip setuptools esptool
+    ```
+
+1. Confirm that python was installed successfully by running the commands `python --version` and `python3 --version`. Use the command that reports a 3.x version (`python` or `python3`) for all following steps. We will assume `python3` is available.
+
+1. Navigate to the `binaries/stream` directory within the extracted GPStar-proton-pack software release:
+
+    `cd <extracted_location>/binaries/pstt`
+
+1. Run the following command to flash the bootloader and firmware:
+
+    ```
+    python3 -m esptool --port-filter vid=0x303A --chip esp32 --baud 921600 write-flash --flash-mode dio --flash-size detect --flash-freq 40m 0x1000 extras/PSTT-Bootloader.bin 0x8000 extras/PSTT-Partitions.bin 0xe000 extras/boot_app0.bin 0x10000 PSTT.bin
+    ```
 
 ## Operating The System
 
-A PDF version of this operation guide can be found [here](/extras/GPStar%20PSTT%20Operation%20Guide.pdf?raw=true).
+A PDF version of this operation guide can be found [here](https://cdn.shopify.com/s/files/1/0772/0517/6651/files/GPStar_PSTT_Operation_Guide.pdf?v=1774399839).
 
 ### Power
-Connect a 5V power source to the USB-C connector on the back of the Proton Stream Target Trainer to
-power the system. 
+Connect a 5V power source to the USB-C connector on the back of the Proton Stream Target Trainer to power the system. 
 
 ![](images/PSTT12.png)
 
-When the system has power, the servo motor will move the target arm to the upright position and the LED
-indicators will turn green.
+When the system has power, the servo motor will move the target arm to the upright position and the LED indicators will turn green.
 
 Pressing the button on the back cover will lower the target. Holding the button will raise it.
 
@@ -38,8 +138,7 @@ Pressing the button on the back cover will lower the target. Holding the button 
 
 ### LED Indicators
 
-There are two diﬀerent LED indicators on the Proton Stream Target Trainer. When the target arm is in the
-down position, both the top indicator and front indicator will be solid red. When the target arm is in the upright position, both will be green.
+There are two different LED indicators on the Proton Stream Target Trainer. When the target arm is in the down position, both the top indicator and front indicator will be solid red. When the target arm is in the upright position, both will be green.
 
 While firing at the target, when a successful hit has been registered, the top indicator will switch to blue. 
 
@@ -49,13 +148,9 @@ The front indicator will start flashing while the target is taking damage and th
 
 ## WiFi Connectivity
 
-To connect to the GPStar Proton Stream Target Trainer over WiFi, a private WiFi network (access point) will
-appear as GPStar_PSTT and this will be secured with a default password of 555-2368. 
+To connect to the GPStar Proton Stream Target Trainer over WiFi, a private WiFi network (access point) will appear as GPStar_PSTT and this will be secured with a default password of `555-2368`.
 
-Once connected, your computer/phone/tablet will be assigned an IP address starting from 192.168.2.100
-with a subnet of 255.255.255.0. Please remember that if you intended to have multiple devices connect
-via this private WiFi network, you will be assigned a unique IP address for each client device (ex: phone,
-tablet or computer). 
+Once connected, your computer/phone/tablet will be assigned an IP address starting from 192.168.2.100 with a subnet of 255.255.255.0. Please remember that if you intended to have multiple devices connect via this private WiFi network, you will be assigned a unique IP address for each client device (ex: phone, tablet or computer).
 
 A web based user interface is available at http://gpstar_pstt.local or http://192.168.2.2 to view the state of your Proton Stream Target Trainer, in which you will be able to manage specific actions.
 
@@ -168,3 +263,7 @@ option on a rooted device, you will not be able to reach the web UI from the hot
 - For iOS devices oﬀering a cellular hotspot, please make sure that the Maximise Compatibility option
 is enabled. This will ensure your device oﬀers a 2.4GHz radio and will be seen by the GPStar Proton
 Stream Target Trainer.
+
+## Software Development Requirements
+
+The development platform of choice for this device is [VSCode with PlatformIO](VSCODE.md). Please follow the linked guide for installing the core software and plugins required.

@@ -154,7 +154,7 @@ Remember that a ground loop isolator is not required for this device as this is 
 
 **Startup Blinking Patterns:**
 
-- 1x (long) - 1 long blink upon startup indicates that the SD card is no good or the formatting was bad. Re-format fully using your OS or the provided [guiformat.exe](/extras/sound/guiformat.exe?raw=true) utility in [extras](/extras/) (for Windows only). Name brand microSD cards are highly recommended, with SanDisk having been proven the most reliable so far.
+- 1x (long) - 1 long blink upon startup indicates that the SD card is no good or the formatting was bad. Re-format fully using your OS or the provided [guiformat.exe](https://cdn.shopify.com/s/files/1/0772/0517/6651/files/guiformat.exe?v=1776715172) utility (for Windows only). Name brand microSD cards are highly recommended, with SanDisk having been proven the most reliable so far.
 - 3x (quick) - 3 quick blinks in succession is the normal pattern at initial power-up to indicate the device has initialized without issues.
 
 **Post Startup Blinking Patterns**
@@ -175,7 +175,7 @@ Remember that a ground loop isolator is not required for this device as this is 
 
 1. Please remove any metadata contained in the music wav files you add, as it can cause issues loading the file for playback.
 
-[Manual for the WAV Trigger (PDF)](/extras/sound/WAV%20Trigger/WT_UserGuide_20230602.pdf?raw=true)
+[Manual for the WAV Trigger (PDF)](https://www.robertsonics.com/s/WT_UserGuide_20230602.pdf)
 
 ## Troubleshooting: WiFi Connectivity
 If you are having trouble connecting to any GPStar wireless device with the Google Chrome browser, newer versions have enabled new security settings for Local Network Access. You may be prompted by your Chrome browser granting permission to connect to the device. You will want to allow this. If you clicked on Block and did or did not receive this permission request, you can disable Local Netwok Access Checks in the advanced settings for Chrome.

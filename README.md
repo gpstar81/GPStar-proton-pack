@@ -36,7 +36,7 @@ This program is free software: you can redistribute it and/or modify it under th
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+You should have received [a copy of the GNU General Public License along with this program](LICENSE). If not, see <https://www.gnu.org/licenses/>.
 
 In addition to the software, all project design files (including STL and other manufacturing formats) are provided in this repository under the same open-source terms. These files are made freely available here so they can be accessed, used, modified, and redistributed in accordance with the GNU General Public License. The latest and authoritative versions are always maintained in this repository.
 
@@ -49,6 +49,7 @@ This project is made possible by Ghostbusters community makers and volunteers sp
 * Dustin Grau (aka. "JustinDustin") - Prototyping and Testing, Documentation, 3D Modelling, Software Support.
 * Angie Rutto (aka. "Frutto Technology") - Maker and purveyor of fine add-on products, UK Distribution.
 * Nomake Wan - Software Support, Feature Development, and Product Testing.
+* David Callari - Social Media Manager
 
 ### Special Thanks
 

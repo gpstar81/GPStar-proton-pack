@@ -112,7 +112,7 @@ When connecting to the pack, the following wiring scheme was used with the recom
     3 - TX2 (White) to Pack RX1<sup>2</sup>
     4 - RX2 (Yellow) to Pack TX1<sup>2</sup>
 
-<sup>2</sup> This is on GPStar I Proton Pack boards. On GPStar II Proton Pack boards the data pins are labeled "Attenuator RX2/TX2".
+<sup>2</sup> This is on GPStar I Proton Pack boards. On GPStar II Proton Pack boards the data pins are labelled "Attenuator RX2/TX2".
 
 It is advised to add a 330uF capacitor to the VIN+GND pins to help regulate power which will be shared with the controller, bargraph, and addressable LEDs.
 

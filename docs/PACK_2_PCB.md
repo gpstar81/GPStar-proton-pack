@@ -84,10 +84,10 @@ These connections are reserved for special purposes with optional accessories.
 | FN-1 | \-/+ | Fan for N-Filter smoke (D33). FN-1 provides 5V during N-Filter smoke effects. During the overheat sequence, it is timed to go off at the same time as the N-Filter light. You can connect a 5V fan to this pin if desired or to trigger a relay.<br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 1.5amps from this connector.` |
 | SM-2 | \-/+ | Smoke effects for the Booster Tube (D35). SM-2 provides 5V during Booster Tube smoke effects. You can connect a 5V pump to this pin to power it, or use it to trigger a relay for off the shelf smoke solutions.<br><br>`Do not draw more than 1.5amps from this connector.` |
 | FN-2 | \-/+ | Fan for the Booster Tube smoke (D50). FN-2 provides 5V during Booster Tube smoke effects. You can connect a 5V fan to this pin if desired or use it to trigger a relay.<br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 1.5amps from this connector.` |
-| NEO-C | D13/VCC/GND | Connection for the optional RGB LED cyclotron switch panel and RGB LED ring for the Inner Cyclotron "Cake".<br><br>`Connector type: JST-XH`|
+| NEO-C | D13/VCC/GND | Connection for the optional RGB LED cyclotron switch panel and RGB LED ring for the Inner Cyclotron "Cake".<br><br>`Connector type: JST-XH` |
 | EXP-1 | D41/5V/GND | Reserved for possible future expansion<br><br>`Connector type: JST-XH` |
 | EXP-2 | D42/5V/GND | Reserved for possible future expansion<br><br>`Connector type: JST-XH` |
 | LED-W | D46/GND | Connection for a standalone white LED in the N-Filter. D46 provides 5V and has a 100Ω resistor connected to it.<br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 40mA from this connector.` |
 | 5V-OUT | +/\- | Power for additional accessories. Commonly used to power an ESP32 wireless board or Attenuator.<br><br>`Connector type: JST-XH`<br><br>`Do not draw more than 1.5amps from this connector.` |
-| EXPANSION | SCL/SDA | Expansion serial port for future devices using the I2C bus.<br><br>`Connector type: JST-XH`|
+| EXPANSION | SCL/SDA | Expansion serial port for future devices using the I2C bus.<br><br>`Connector type: JST-XH` |
 | ATTENUATOR | RX2/TX2 | Expansion serial port. Used to connect to an Attenuator device.<br><br>`Connector type: JST-XH` |

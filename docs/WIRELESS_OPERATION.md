@@ -1,4 +1,4 @@
-# Attenuator Wireless Operation
+# Attenuator/GPStar I WiFi Module Wireless Operation
 
 All devices within the GPStar ecosystem capable of operation over WiFi utilize a built-in web server which offers an API-first design for communications. This guide specifically covers the interactions as will be available to the Attenuator or legacy Wireless Adapter.
 

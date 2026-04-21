@@ -4,7 +4,7 @@ The first thing to take care of is updating the firmware on the WAV Trigger boar
 
 The WAV Trigger software updater and instructions [can be found on the Robertsonics website](https://www.robertsonics.com/wav-trigger). To update the firmware, an [FTDI Basic (5V version)](https://www.sparkfun.com/products/9716) from Sparkfun should be used to interface with the WAV Trigger. You may also use any USB-to-serial adapter, so long as it is a TTL-level device, not RS- 232. **Plugging RS-232 level signals into the WAV Trigger serial interface will damage the WAV Trigger!**
 
-[WAV Trigger Firmware v1.40](/extras/sound/WAV%20Trigger/WAVTrig_20231001_v140.hex?raw=true) - Custom firmware for GPStar equipment, not available via manufacturer's website.
+[WAV Trigger Firmware v1.40](https://cdn.shopify.com/s/files/1/0772/0517/6651/files/WAVTrig_20231001_v140.hex?v=1776647879) - Custom firmware for GPStar equipment, not available via manufacturer's website.
 
 [WAV Trigger Flasher Utility v2.00 Windows Executable (zip)](https://www.robertsonics.com/s/WTFlasher_20230108_v200.zip)
 
