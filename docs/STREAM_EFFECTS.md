@@ -49,10 +49,6 @@ The following is a diagram of the **ESP32-Mini pins** from left and right, when 
 
 This is a very simple connection scheme. We simply need to power the LEDs from the VCC and any GND ports on the chip, and connect the signal line to the IO4 pin with a 270 ohm resistor inline. This device can be powered by any USB battery bank via a Micro USB cable.
 
-## Assembly
-
-The STL file `stl/stream_effects_enclosure.stl` can be used to enclose the ESP32 while leaving the USB port accessible.
-
 ## Firmware Flashing
 
 **Option 1: Using GPStar ESP32 Firmware Uploader**

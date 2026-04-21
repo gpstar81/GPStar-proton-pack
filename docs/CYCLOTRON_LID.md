@@ -65,7 +65,7 @@ Reassemble the Cyclotron Lid using low-profile machine screws. The new LEDs shou
 
 ### 40-LED Neopixel Ring (Deprecated)
 
-This approach simply adds the lights atop the old circuit board and LEDs between the outer and inner layers of the Cyclotron Lid. Print the [Cyclotron Ring Diffuser](/stl/Proton%20Pack/Hasbro/Cyclotron/Cyclotron_Lid_Ring_Diffuser.stl?raw=true) to help orient the ring and keep it positioned behind each lens. The pixel opposite the soldered connections should be number 1 and should be made the dead center of the top-right lens. See below for an illustration of this orientation and use of the diffuser ring.
+This approach simply adds the lights atop the old circuit board and LEDs between the outer and inner layers of the Cyclotron Lid. A part called the Cyclotron Ring Diffuser was used to help orient the ring and keep it positioned behind each lens. The pixel opposite the soldered connections should be number 1 and should be made the dead center of the top-right lens. See below for an illustration of this orientation and use of the diffuser ring.
 
 ![](images/CyclotronLidRing.jpg)
 

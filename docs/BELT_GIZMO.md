@@ -97,8 +97,6 @@ The LEDs chosen for this project are the same which may be used with the Proton 
 
 ![](images/gizmo_back.jpg)
 
-The STL file `stl/misc/belt_gizmo_back.stl` is available in this project as a holder for the electronics and is highly recommended to keep things clean and compact. This _should_ work with most Belt Gizmo designs, though it was created specifically for the MRKIOU (Q) design linked above.
-
 > Not shown in this and later photos is the power cut-off switch which is placed between the battery booster and ESP32 chip to allow the device to charge without running.
 
 ![](images/gizmo_tubes.jpg)

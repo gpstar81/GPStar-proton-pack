@@ -98,7 +98,7 @@ The placement of your speakers is up to you. Though it is possible to mount a 3"
 
 Shown below is an example of how a pair of stereo speakers may be mounted inside of the pack. The upper speaker is located where the original speaker was mounted, while the lower speaker occupies the space where the vibration motor casing was secured into the pack. Note the WAV Trigger and amplifier as shown here are mounted in the space normally occupied by the D-cell battery compartment, primarily so the volume control for the amplifier can be accessed from the service door when the pack is reassembled. That portion of the motherboard would need to be partially or fully removed if you wish to use this space as shown.
 
-Optional Part Shown: [3D Model for Pack - Upper Speaker Mount](/stl/Proton%20Pack/Hasbro/Speaker%20Mounts/V1/Speaker_Mount.stl?raw=true)
+Optional Part Shown: 3D Model for Pack - Upper Speaker Mount
 
 ![Pack Audio Example](images/Audio-Pack.jpg)
 
