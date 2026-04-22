@@ -19,20 +19,21 @@
  */
 
 /**
+ * AI DISCLAIMER
  * This code was co-authored through both ChatGPT and GitHub Copilot.
+ *
  * All efforts were made to ensure correctness and clarity throughout
  * and follow standard practices for performing calculations for the
  * necessary offsets. Any similarities to existing projects should be
  * considered coincidental unless otherwise noted.
- */
-
-/**
+ *
  * Jacobi Eigendecomposition for 3x3 symmetric matrices
  * Algorithm based on: Classic iterative method for symmetric eigenvalue problems
  * Standard references:
  *   - Golub & Van Loan, "Matrix Computations" (4th ed.), Section 8.5.3
  *   - Press et al., "Numerical Recipes in C" (3rd ed.), Section 11.1
- *   - Wikipedia: "Jacobi eigenvalue algorithm"
+ *   - Wikipedia: https://en.wikipedia.org/wiki/Jacobi_eigenvalue_algorithm
+ *   - Wikipedia: https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors
  * Implementation uses largest off-diagonal pivot selection with Givens rotations.
  * This is a well-established numerical method in the public domain.
  */
@@ -316,6 +317,8 @@ uint16_t MagCalibration::getVisPoints(const double*& outX, const double*& outY, 
  * 
  * Standard references:
  *   - Freescale AN4246: "Calibrating an eCompass" - Section 4.1
+ *   - Wikipedia: https://en.wikipedia.org/wiki/Compass#Magnetic_compass
+ *   - Wikipedia: https://en.wikipedia.org/wiki/Magnetometer#Calibration
  *   - Adafruit sensor calibration tutorials
  *   - Common practice in embedded magnetometer calibration
  * 
@@ -479,6 +482,12 @@ CalibrationData MagCalibration::calculateDiagonalFallback() const {
  * Ax² + By² + Cz² + Dxy + Exz + Fyz + Gx + Hy + Iz + J = 0
  * 
  * This approach is standard in magnetometer calibration and documented in:
+ * 
+ * Wikipedia references:
+ *   - https://en.wikipedia.org/wiki/Least_squares
+ *   - https://en.wikipedia.org/wiki/Ellipsoid
+ *   - https://en.wikipedia.org/wiki/Quadric
+ *   - https://en.wikipedia.org/wiki/Normal_equation
  * 
  * Industry references:
  *   - Freescale AN4246: "Calibrating an eCompass in the Presence of Hard and Soft-Iron Interference"
@@ -701,6 +710,8 @@ CalibrationData MagCalibration::computeCalibration() const {
  *   - Golub & Van Loan, "Matrix Computations" (4th ed.), Algorithm 8.5.2
  *   - Press et al., "Numerical Recipes in C" (3rd ed.), Section 11.1
  *   - Carl Gustav Jacob Jacobi (original method, 1846)
+ *   - Wikipedia: https://en.wikipedia.org/wiki/Jacobi_eigenvalue_algorithm
+ *   - Wikipedia: https://en.wikipedia.org/wiki/Givens_rotation
  * 
  * Note: This is a standard textbook algorithm, not a novel implementation.
  */
@@ -805,6 +816,8 @@ void MagCalibration::jacobiEigen3(float A[3][3], float V[3][3], float w[3]) cons
  * Standard references:
  *   - Golub & Van Loan, "Matrix Computations" (4th ed.), Algorithm 3.4.1
  *   - Press et al., "Numerical Recipes in C" (3rd ed.), Section 2.1
+ *   - Wikipedia: https://en.wikipedia.org/wiki/Gaussian_elimination
+ *   - Wikipedia: https://en.wikipedia.org/wiki/Pivot_element
  *   - Any undergraduate numerical analysis textbook
  * 
  * Note: This is a classical algorithm with no copyright restrictions.
@@ -885,7 +898,10 @@ bool MagCalibration::solveLinearSystem(int n, double A[], double b[], float x[])
  * 
  * Standard references:
  *   - Strang, "Linear Algebra and Its Applications" (4th ed.), Section 5.3
- *   - Wikipedia: "Invertible matrix" - Analytic solution section
+ *   - Wikipedia: https://en.wikipedia.org/wiki/Invertible_matrix
+ *   - Wikipedia: https://en.wikipedia.org/wiki/Minor_(linear_algebra)
+ *   - Wikipedia: https://en.wikipedia.org/wiki/Determinant
+ *   - Wikipedia: https://en.wikipedia.org/wiki/Adjugate_matrix
  *   - Any linear algebra textbook
  * 
  * Note: This is a mathematical formula in the public domain.

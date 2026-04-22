@@ -26,6 +26,94 @@
  */
 
 /**
+ * STANDARD TECHNIQUES & ALGORITHMS DOCUMENTATION:
+ * This implementation uses well-established aerospace, robotics, and signal processing
+ * methods that are standard practice in IMU (Inertial Measurement Unit) applications.
+ * 
+ * 1. NED Frame (North-East-Down Convention):
+ *    Standard aerospace coordinate system for attitude and heading representation.
+ *    +X = North (Forward), +Y = East (Right), +Z = Down (toward Earth's center)
+ *    This is the industry standard for flight control, navigation, and AHRS systems.
+ *    References:
+ *      - Wikipedia: https://en.wikipedia.org/wiki/Axes_conventions#Ground_reference_frames:_ENU_and_NED
+ *      - Wikipedia: https://en.wikipedia.org/wiki/Local_tangent_plane_coordinates
+ *      - Common practice in aerospace engineering and robotics
+ *      - Used by autopilot systems (PX4, ArduPilot, etc.)
+ * 
+ * 2. AHRS (Attitude and Heading Reference System) - Sensor Fusion:
+ *    Standard technique for combining accelerometer, gyroscope, and magnetometer data
+ *    to determine device orientation (roll, pitch, yaw) in 3D space.
+ *    References:
+ *      - Wikipedia: https://en.wikipedia.org/wiki/Attitude_and_heading_reference_system
+ *      - Wikipedia: https://en.wikipedia.org/wiki/Sensor_fusion
+ *      - Common practice in aviation, drones, robotics, and motion tracking
+ *      - Industry standard for orientation estimation
+ * 
+ * 3. Mahony Filter for AHRS:
+ *    Complementary filter algorithm for sensor fusion using quaternions.
+ *    Developed by Robert Mahony et al. (2008) for attitude estimation.
+ *    References:
+ *      - Mahony et al. (2008): "Nonlinear Complementary Filters on SO(3)"
+ *      - Wikipedia: https://en.wikipedia.org/wiki/Complementary_filter
+ *      - Adafruit_AHRS library implementation (open source)
+ *      - Standard alternative to Kalman filters for embedded systems
+ * 
+ * 4. Quaternion Representation:
+ *    Standard mathematical representation for 3D rotations using 4 components (w,x,y,z).
+ *    Avoids gimbal lock and is computationally efficient for orientation tracking.
+ *    References:
+ *      - Wikipedia: https://en.wikipedia.org/wiki/Quaternion
+ *      - Wikipedia: https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
+ *      - Standard in computer graphics, robotics, and aerospace
+ *      - Used in all modern IMU applications
+ * 
+ * 5. Euler Angles (Roll, Pitch, Yaw):
+ *    Standard representation of 3D orientation using three sequential rotations.
+ *    Roll (X-axis), Pitch (Y-axis), Yaw (Z-axis) in aerospace convention.
+ *    References:
+ *      - Wikipedia: https://en.wikipedia.org/wiki/Euler_angles
+ *      - Wikipedia: https://en.wikipedia.org/wiki/Aircraft_principal_axes
+ *      - Standard in aerospace engineering and human-readable orientation
+ * 
+ * 6. Exponential Moving Average (EMA) for Signal Filtering:
+ *    Standard digital filter for smoothing noisy sensor data.
+ *    Formula: filtered = α * new_value + (1-α) * previous_filtered
+ *    References:
+ *      - Wikipedia: https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average
+ *      - Wikipedia: https://en.wikipedia.org/wiki/Exponential_smoothing
+ *      - Standard practice in real-time signal processing
+ * 
+ * 7. Gyroscope Zero-Rate Offset Calibration:
+ *    Standard technique for removing gyroscope bias by averaging readings at rest.
+ *    Essential for accurate angular velocity measurements in IMU applications.
+ *    References:
+ *      - Wikipedia: https://en.wikipedia.org/wiki/Gyroscope#MEMS_gyroscopes
+ *      - Common practice in all IMU applications
+ *      - Documented in MEMS sensor datasheets (ST, InvenSense, Bosch)
+ * 
+ * 8. Coordinate System Transformations:
+ *    Standard linear algebra operations for mapping sensor data between different
+ *    coordinate frames based on physical installation orientation.
+ *    References:
+ *      - Wikipedia: https://en.wikipedia.org/wiki/Rotation_matrix
+ *      - Wikipedia: https://en.wikipedia.org/wiki/Change_of_basis
+ *      - Standard practice in robotics and computer graphics
+ * 
+ * 9. Euclidean Norm (Magnitude) Calculations:
+ *    Standard mathematical formula for calculating vector magnitude.
+ *    G-force = √(ax² + ay² + az²) / g
+ *    Angular velocity = √(wx² + wy² + wz²)
+ *    References:
+ *      - Wikipedia: https://en.wikipedia.org/wiki/Euclidean_norm
+ *      - Wikipedia: https://en.wikipedia.org/wiki/Norm_(mathematics)
+ *      - Basic linear algebra operation
+ * 
+ * TLDR: All techniques implemented here are standard industry practices with
+ * no copyright restrictions. They are fundamental methods used in aerospace,
+ * robotics, and embedded systems engineering worldwide.
+ */
+
+/**
  * The mockup below represents the installation of the sensors and their registration mark for purposes of orientation.
  * In both orientations the USB-C port is at the top of the device and the terminal blocks are represented on the side as
  * appropriate for the orientation. For both views the Y axis runs top to bottom, with the Y+ direction being bottom/South.
@@ -139,6 +227,11 @@ enum INSTALL_ORIENTATIONS INSTALL_ORIENTATION = COMPONENTS_NOT_ORIENTED; // Defa
  * Tuning:
  *   - Increase FILTER_ALPHA if you want the sensor data to react faster to changes.
  *   - Decrease FILTER_ALPHA if you want to suppress noise and jitter more.
+ * 
+ * References:
+ *   - Wikipedia: https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average
+ *   - Wikipedia: https://en.wikipedia.org/wiki/Exponential_smoothing
+ *   - Standard practice in real-time digital signal processing
  */
 const float FILTER_ALPHA = 0.4f;
 
@@ -1019,10 +1112,14 @@ bool detectShakeEvent() {
 /**
  * Function: calculateAngularVelocity
  * Purpose: Calculates the magnitude of the angular velocity vector (deg/s) from a MotionData struct.
+ * Method: Uses Euclidean norm (L2 norm) to compute vector magnitude: ||v|| = √(x² + y² + z²)
  * Inputs:
  *   - const MotionData& data: Reference to the MotionData object.
  * Outputs:
  *   - float: Calculated angular velocity (unit: deg/s)
+ * References:
+ *   - Wikipedia: https://en.wikipedia.org/wiki/Euclidean_norm
+ *   - Wikipedia: https://en.wikipedia.org/wiki/Norm_(mathematics)
  */
 float calculateAngularVelocity(const MotionData& data) {
   return sqrt(
@@ -1035,10 +1132,15 @@ float calculateAngularVelocity(const MotionData& data) {
 /**
  * Function: calculateGForce
  * Purpose: Calculates the magnitude of the acceleration vector (g-force) from a MotionData struct.
+ * Method: Uses Euclidean norm (L2 norm) and converts from m/s² to g-force units.
  * Inputs:
  *   - const MotionData& data: Reference to the MotionData object.
  * Outputs:
  *   - float: Calculated g-force (unit: g)
+ * References:
+ *   - Wikipedia: https://en.wikipedia.org/wiki/Euclidean_norm
+ *   - Wikipedia: https://en.wikipedia.org/wiki/G-force
+ *   - Wikipedia: https://en.wikipedia.org/wiki/Standard_gravity
  */
 float calculateGForce(const MotionData& data) {
   // Use the Euclidean norm for the acceleration vector and convert to g.
