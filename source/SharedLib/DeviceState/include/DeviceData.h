@@ -168,6 +168,9 @@ struct __attribute__((packed)) AttenuatorSyncData {
   bool ionArmSwitch = false; // Limited to a binary state for this purpose.
   bool cyclotronLidState = false;
   bool packOn = false;
+  bool smokeOn = false;
+  bool vibrationOn = false;
+  bool cyclotronClockwise = false;
   POWER_LEVELS powerLevel = LEVEL_5;
   bool wandPresent = false;
   bool barrelExtended = false;

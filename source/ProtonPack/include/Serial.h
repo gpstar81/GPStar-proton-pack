@@ -963,10 +963,12 @@ void doAttenuatorSync() {
   // Export DeviceState data to sync struct using centralized method
   gpstarPack.exportData(attenuatorSyncData);
 
-  // Tell the Attenuator about the wand status (not part of DeviceState).
+  // Tell the Attenuator about the pack and wand status (not part of DeviceState).
   attenuatorSyncData.wandPresent = b_wand_connected ? true : false;
   attenuatorSyncData.wandFiring = b_wand_firing ? true : false;
   attenuatorSyncData.packOn = (PACK_STATE != MODE_OFF);
+  attenuatorSyncData.smokeOn = b_smoke_enabled;
+  attenuatorSyncData.vibrationOn = b_vibration_switch_on;
   attenuatorSyncData.packVoltage = (uint8_t)(f_batt_volts * 100); // Multiply by 100 to send as an integer (e.g., 4.34V = 434)
   attenuatorSyncData.powerLevel = gpstarPack.getPowerLevel();
 
@@ -976,6 +978,7 @@ void doAttenuatorSync() {
 
   // Cyclotron status.
   attenuatorSyncData.cyclotronLidState = b_cyclotron_lid_on;
+  attenuatorSyncData.cyclotronClockwise = b_clockwise;
   attenuatorSyncData.speedMultiplier = i_cyclotron_multiplier;
   attenuatorSyncData.overheatingNow = b_overheating;
 
