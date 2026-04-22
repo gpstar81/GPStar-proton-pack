@@ -1,6 +1,7 @@
 /**
  *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -22,6 +23,9 @@
 #include <AsyncJson.h>
 #include <ESPAsyncWebServer.h>
 #include <ElegantOTA.h>
+
+// Extern declaration for global infrared handler
+extern InfraredManager* irManager;
 
 // Declare the external binary data markers for embedded files.
 // common.js
@@ -60,6 +64,9 @@ extern const uint8_t _binary_assets_password_html_gz_end[];
 // wand.html
 extern const uint8_t _binary_assets_wand_html_gz_start[];
 extern const uint8_t _binary_assets_wand_html_gz_end[];
+// swaggerui.html
+extern const uint8_t _binary_assets_swaggerui_html_gz_start[];
+extern const uint8_t _binary_assets_swaggerui_html_gz_end[];
 
 // Define standard ports and URI endpoints.
 const uint16_t WS_PORT = 80; // Web Server (+WebSocket) port
@@ -86,9 +93,9 @@ millisDelay ms_cleanup;
 const uint16_t i_websocketCleanup = 5000;
 
 // Forward function declarations.
-void setupRouting();
-void getSpecialPreferences();
-void toggleStandaloneMode(bool);
+void getSpecialPreferences(); // From PreferencesESP.h
+void toggleStandaloneMode(bool); // From System.h
+void registerWebRoutes(); // From Webrouting.h
 
 /*
  * Text Helper Functions - Converts ENUM values to consistent, user-friendly text
@@ -104,132 +111,6 @@ float roundFloat(float value) {
 float roundDouble(double value) {
   // Shifts the decimal point, rounds, then shifts back.
   return (float)round(value * 1000.0) / 1000.0;
-}
-
-String getMode() {
-  switch(SYSTEM_MODE) {
-    case MODE_SUPER_HERO:
-      return "Super Hero";
-    break;
-    case MODE_ORIGINAL:
-      return "Original";
-    break;
-    default:
-      return "Unknown";
-    break;
-  }
-}
-
-String getTheme() {
-  switch(SYSTEM_YEAR) {
-    case SYSTEM_1984:
-      return "1984";
-    break;
-    case SYSTEM_1989:
-      return "1989";
-    break;
-    case SYSTEM_AFTERLIFE:
-      return "Afterlife";
-    break;
-    case SYSTEM_FROZEN_EMPIRE:
-      return "Frozen Empire";
-    break;
-    default:
-      return "Unknown";
-    break;
-  }
-}
-
-String getRedSwitch() {
-  if(SYSTEM_MODE == MODE_ORIGINAL) {
-    // Switch state only matters for mode "Original".
-    switch(RED_SWITCH_MODE) {
-      case SWITCH_ON:
-        return "Ready";
-      break;
-      case SWITCH_OFF:
-        return "Standby";
-      break;
-      default:
-        return "Unknown";
-      break;
-    }
-  }
-  else {
-    // Otherwise, just "Ready".
-    return "Ready";
-  }
-}
-
-String getSafety() {
-  switch(BARREL_STATE) {
-    case BARREL_RETRACTED:
-      return "Safety On";
-    break;
-    case BARREL_EXTENDED:
-      return "Safety Off";
-    break;
-    default:
-      return "Unknown";
-    break;
-  }
-}
-
-String getWandMode() {
-  switch(STREAM_MODE) {
-    case PROTON:
-    default:
-      return "Proton Stream";
-    break;
-    case SLIME:
-      // Plasm Distribution System
-      return "Plasm System";
-    break;
-    case STASIS:
-      // Dark Matter Generator
-      return "Dark Matter Gen.";
-    break;
-    case MESON:
-      // Composite Particle System
-      return "Particle System";
-    break;
-    case SPECTRAL:
-      return "Spectral Stream";
-    break;
-    case HOLIDAY_HALLOWEEN:
-      return "Halloween";
-    break;
-    case HOLIDAY_CHRISTMAS:
-      return "Christmas";
-    break;
-    case SPECTRAL_CUSTOM:
-      return "Custom Stream";
-    break;
-    case SETTINGS:
-      return "Settings";
-    break;
-  }
-}
-
-String getPower() {
-  switch(POWER_LEVEL) {
-    case LEVEL_1:
-      return "1";
-    break;
-    case LEVEL_2:
-      return "2";
-    break;
-    case LEVEL_3:
-      return "3";
-    break;
-    case LEVEL_4:
-      return "4";
-    break;
-    case LEVEL_5:
-    default:
-      return "5";
-    break;
-  }
 }
 
 String getSensorState() {
@@ -270,10 +151,19 @@ String getDeviceConfig() {
   }
   jsonBody["buildDate"] = build_date;
   jsonBody["audioVersion"] = i_audio_version;
+  jsonBody["audioCorrupt"] = b_microsd_corrupt;
+  jsonBody["audioOutdated"] = b_microsd_outdated;
   jsonBody["wifiName"] = wirelessMgr->getLocalNetworkName();
   jsonBody["wifiNameExt"] = wirelessMgr->getExtWifiNetworkName();
-  jsonBody["extAddr"] = wirelessMgr->getExtWifiAddress().toString();
-  jsonBody["extMask"] = wirelessMgr->getExtWifiSubnet().toString();
+
+  // Refresh external WiFi info when/if connected and get the values.
+  if(wirelessMgr->getExtWifiNetworkInfo()) {
+    jsonBody["extAddr"] = wirelessMgr->getExtWifiAddress().toString();
+    jsonBody["extMask"] = wirelessMgr->getExtWifiSubnet().toString();
+  } else {
+    jsonBody["extAddr"] = "";
+    jsonBody["extMask"] = "";
+  }
 
   jsonBody["hardIron1"] = magCalData.mag_hardiron[0];
   jsonBody["hardIron2"] = magCalData.mag_hardiron[1];
@@ -366,6 +256,8 @@ String getDeviceConfig() {
   // Report the current standalone mode setting.
   jsonBody["useStandalone"] = b_wand_standalone;
 
+  jsonBody["irWhileFiring"] = b_ir_while_firing;
+
   // Serialize JSON object to string.
   serializeJson(jsonBody, equipSettings);
   return equipSettings;
@@ -376,40 +268,63 @@ String getWandConfig() {
   String equipSettings;
   JsonDocument jsonBody;
 
-  // Provide a flag to indicate prefs are directly available.
-  jsonBody["prefsAvailable"] = true; // Always true for the immediate device.
+  try {
+    // Provide a flag to indicate prefs are directly available.
+    jsonBody["prefsAvailable"] = true; // Always true for the immediate device.
 
-  // Return current powered state for pack and wand.
-  jsonBody["wandPowered"] = (WAND_STATUS == MODE_ON);
-  jsonBody["wandConnected"] = (WAND_CONN_STATE == PACK_CONNECTED);
-  jsonBody["gpstarAudio"] = (i_audio_version > 1);
+    // Use the device-reported values so we can fine-tune the UI options.
+    jsonBody["esp32Wand"] = wandConfig.isESP32;
+    jsonBody["isWiFiEnabled"] = wandConfig.isWiFiEnabled;
+    jsonBody["resetWifiPassword"] = false;
+    jsonBody["gpstarAudio"] = (i_audio_version > 1);
 
-  // Neutrona Wand LED Options
-  jsonBody["ledWandCount"] = wandConfig.ledWandCount; // [0=5 (Stock), 1=48 (Frutto), 2=50 (GPStar), 3=2 (Tip)]
-  jsonBody["ledWandHue"] = wandConfig.ledWandHue; // Spectral custom colour/hue 2-254
-  jsonBody["ledWandSat"] = wandConfig.ledWandSat; // Spectral custom saturation 2-254
-  jsonBody["spectralModesEnabled"] = wandConfig.spectralModesEnabled; // true|false
+    // Return current powered state for pack and wand.
+    jsonBody["packPowered"] = (b_pack_on || b_pack_shutting_down);
+    jsonBody["wandPowered"] = (WAND_STATUS == MODE_ON);
+    jsonBody["wandConnected"] = (WAND_CONN_STATE == PACK_CONNECTED);
 
-  // Neutrona Wand Runtime Options
-  jsonBody["overheatEnabled"] = wandConfig.overheatEnabled; // true|false
-  jsonBody["defaultFiringMode"] = wandConfig.defaultFiringMode; // [1=VG,2=CTS,3=CTS_MIX]
-  jsonBody["wandVibration"] = wandConfig.wandVibration; // [1=ALWAYS,2=FIRING,3=NEVER,4=TOGGLE]
-  jsonBody["barrelSwitchPolarity"] = wandConfig.barrelSwitchPolarity; // [1=DEFAULT,2=INVERTED,3=DISABLED]
-  jsonBody["wandSoundsToPack"] = wandConfig.wandSoundsToPack; // true|false
-  jsonBody["quickVenting"] = wandConfig.quickVenting; // true|false (Super-Hero Mode Only)
-  jsonBody["rgbVentEnabled"] = wandConfig.rgbVentEnabled; // true|false
-  jsonBody["autoVentLight"] = wandConfig.autoVentLight; // true|false
-  jsonBody["gpstarAudioLed"] = wandConfig.gpstarAudioLed; // true|false
-  jsonBody["wandBeepLoop"] = wandConfig.wandBeepLoop; // true|false (Afterlife/Frozen Empire Only)
-  jsonBody["wandBootError"] = wandConfig.wandBootError; // true|false (Super-Hero Mode Only)
-  jsonBody["defaultYearModeWand"] = wandConfig.defaultYearModeWand; // [1=TOGGLE,2=1984,3=1989,4=2021,5=2024]
-  jsonBody["defaultYearModeCTS"] = wandConfig.defaultYearModeCTS; // [1=TOGGLE,2=1984,4=2021]
-  jsonBody["defaultWandVolume"] = wandConfig.defaultWandVolume; // 5-100
-  jsonBody["numBargraphSegments"] = wandConfig.numBargraphSegments; // [28=28-segment,30=30-segment]
-  jsonBody["invertWandBargraph"] = wandConfig.invertWandBargraph; // true|false
-  jsonBody["bargraphOverheatBlink"] = wandConfig.bargraphOverheatBlink; // true|false
-  jsonBody["bargraphIdleAnimation"] = wandConfig.bargraphIdleAnimation; // [1=SYSTEM,2=SH,3=MO]
-  jsonBody["bargraphFireAnimation"] = wandConfig.bargraphFireAnimation; // [1=SYSTEM,2=SH,3=MO]
+    // Neutrona Wand LED Options
+    jsonBody["ledWandCount"] = wandConfig.ledWandCount; // [0=5 (Stock), 1=48 (Frutto), 2=50 (GPStar), 3=2 (Tip)]
+    jsonBody["ledWandHue"] = wandConfig.ledWandHue; // Spectral custom colour/hue 2-254
+    jsonBody["ledWandSat"] = wandConfig.ledWandSat; // Spectral custom saturation 2-254
+
+    // Unpack stream mode options into individual checkbox values
+    jsonBody["stasisStream"] = (wandConfig.streamFlags & FLAG_STASIS) != 0;
+    jsonBody["slimeStream"] = (wandConfig.streamFlags & FLAG_SLIME) != 0;
+    jsonBody["mesonStream"] = (wandConfig.streamFlags & FLAG_MESON) != 0;
+    jsonBody["spectralStream"] = (wandConfig.streamFlags & FLAG_SPECTRAL) != 0;
+    jsonBody["spectralCustomStream"] = (wandConfig.streamFlags & FLAG_SPECTRAL_CUSTOM) != 0;
+    jsonBody["halloweenStream"] = (wandConfig.streamFlags & FLAG_HOLIDAY_HALLOWEEN) != 0;
+    jsonBody["christmasStream"] = (wandConfig.streamFlags & FLAG_HOLIDAY_CHRISTMAS) != 0;
+
+    // Neutrona Wand Runtime Options
+    jsonBody["systemMode"] = gpstarWand.getModeName(); // "Super Hero" or "Original"
+    jsonBody["systemTheme"] = gpstarWand.getThemeName(); // 1984, 1989 (GB2), 2021 (AL), 2024 (FE)
+    jsonBody["currentStreamMode"] = gpstarWand.getStreamModeName(); // String for current firing mode
+    jsonBody["overheatEnabled"] = wandConfig.overheatEnabled; // true|false
+    jsonBody["defaultStreamMode"] = wandConfig.defaultStreamMode; // [0=PROTON,STASIS=1,SLIME=2,MESON=3,SPECTRAL=4,HALLOWEEN=5,CHRISTMAS=6,HOLIDAYCUSTOM=7,CUSTOM=8]
+    jsonBody["defaultFiringMode"] = wandConfig.defaultFiringMode; // [0=VG,1=CTS,3=CTS_MIX]
+    jsonBody["wandVibration"] = wandConfig.wandVibration; // [1=ALWAYS,2=FIRING,3=NEVER,4=TOGGLE]
+    jsonBody["barrelSwitchPolarity"] = wandConfig.barrelSwitchPolarity; // [1=DEFAULT,2=INVERTED,3=DISABLED]
+    jsonBody["wandSoundsToPack"] = wandConfig.wandSoundsToPack; // true|false
+    jsonBody["quickVenting"] = wandConfig.quickVenting; // true|false (Super-Hero Mode Only)
+    jsonBody["rgbVentEnabled"] = wandConfig.rgbVentEnabled; // true|false
+    jsonBody["rgbVentColours"] = wandConfig.rgbVentColours; // true|false
+    jsonBody["autoVentLight"] = wandConfig.autoVentLight; // true|false
+    jsonBody["gpstarAudioLed"] = wandConfig.gpstarAudioLed; // true|false
+    jsonBody["wandBeepLoop"] = wandConfig.wandBeepLoop; // true|false (Afterlife/Frozen Empire Only)
+    jsonBody["wandBootError"] = wandConfig.wandBootError; // true|false (Super-Hero Mode Only)
+    jsonBody["defaultYearModeWand"] = wandConfig.defaultYearModeWand; // [1=TOGGLE,2=1984,3=1989,4=2021,5=2024]
+    jsonBody["defaultYearModeCTS"] = wandConfig.defaultYearModeCTS; // [1=TOGGLE,2=1984,4=2021]
+    jsonBody["defaultWandVolume"] = wandConfig.defaultWandVolume; // 5-100
+    jsonBody["numBargraphSegments"] = wandConfig.numBargraphSegments; // [28=28-segment,30=30-segment]
+    jsonBody["invertWandBargraph"] = wandConfig.invertWandBargraph; // true|false
+    jsonBody["bargraphOverheatBlink"] = wandConfig.bargraphOverheatBlink; // true|false
+    jsonBody["bargraphIdleAnimation"] = wandConfig.bargraphIdleAnimation; // [1=SYSTEM,2=SH,3=MO]
+    jsonBody["bargraphFireAnimation"] = wandConfig.bargraphFireAnimation; // [1=SYSTEM,2=SH,3=MO]
+  }
+  catch (...) {
+  }
 
   // Serialize JSON object to string.
   serializeJson(jsonBody, equipSettings);
@@ -429,28 +344,40 @@ String getEquipmentStatus() {
     i_music_track_max = i_music_track_start + i_music_track_count - 1; // 500 + N - 1 to be inclusive of the offset value.
   }
 
-  jsonBody["standalone"] = (b_wand_standalone ? true : false);
-  jsonBody["mode"] = getMode();
-  jsonBody["modeID"] = (SYSTEM_MODE == MODE_SUPER_HERO) ? 1 : 0;
-  jsonBody["theme"] = getTheme();
-  jsonBody["themeID"] = SYSTEM_YEAR;
-  jsonBody["switch"] = getRedSwitch();
-  jsonBody["power"] = getPower();
-  jsonBody["safety"] = getSafety();
-  jsonBody["wandPower"] = (WAND_STATUS == MODE_ON ? "Powered" : "Idle");
-  jsonBody["wandMode"] = getWandMode();
-  jsonBody["firing"] = (b_firing ? "Firing" : "Idle");
-  jsonBody["musicPlaying"] = b_playing_music;
-  jsonBody["musicPaused"] = b_music_paused;
-  jsonBody["musicCurrent"] = i_current_music_track;
-  jsonBody["musicStart"] = i_music_track_min;
-  jsonBody["musicEnd"] = i_music_track_max;
-  jsonBody["volMaster"] = i_volume_master_percentage;
-  jsonBody["volEffects"] = i_volume_effects_percentage;
-  jsonBody["volMusic"] = i_volume_music_percentage;
-  jsonBody["sensors"] = getSensorState();
-  jsonBody["apClients"] = i_ap_client_count;
-  jsonBody["wsClients"] = i_ws_client_count;
+  try {
+    jsonBody["standalone"] = b_wand_standalone;
+    jsonBody["mode"] = gpstarWand.getModeName();
+    jsonBody["modeID"] = gpstarWand.getSystemMode();
+    jsonBody["theme"] = gpstarWand.getThemeName(getSystemYearMode());
+    jsonBody["themeID"] = getSystemYearMode();
+    jsonBody["switch"] = gpstarWand.getIonArmSwitchState();
+    jsonBody["pack"] = (b_pack_on ? "Powered" : "Idle");
+    jsonBody["power"] = gpstarWand.getPowerLevelName();
+    jsonBody["safety"] = gpstarWand.getBarrelStateName();
+    jsonBody["wandPower"] = (WAND_STATUS == MODE_ON ? "Powered" : "Idle");
+    jsonBody["wandMode"] = gpstarWand.getStreamModeName();
+    jsonBody["firing"] = (b_firing ? "Firing" : "Idle");
+    jsonBody["crossedStreams"] = (b_firing && b_firing_cross_streams);
+    jsonBody["lockout"] = b_wand_mash_lockout;
+    jsonBody["cable"] = (b_ribbon_cable_attached ? "Connected" : "Disconnected");
+    jsonBody["cyclotronLid"] = b_pack_cyclotron_lid_on;
+    jsonBody["temperature"] = (WAND_ACTION_STATUS == ACTION_OVERHEATING ? "Venting" : "Normal");
+    jsonBody["musicPlaying"] = b_playing_music;
+    jsonBody["musicPaused"] = b_music_paused;
+    jsonBody["musicLooping"] = b_repeat_track;
+    jsonBody["musicShuffled"] = b_shuffle_tracks;
+    jsonBody["musicCurrent"] = i_current_music_track;
+    jsonBody["musicStart"] = i_music_track_min;
+    jsonBody["musicEnd"] = i_music_track_max;
+    jsonBody["volMaster"] = i_volume_master_percentage;
+    jsonBody["volEffects"] = i_volume_effects_percentage;
+    jsonBody["volMusic"] = i_volume_music_percentage;
+    jsonBody["sensors"] = getSensorState();
+    jsonBody["apClients"] = i_ap_client_count;
+    jsonBody["wsClients"] = i_ws_client_count;
+  }
+  catch (...) {
+  }
 
   // Serialize JSON object to string.
   serializeJson(jsonBody, equipStatus);
@@ -459,50 +386,29 @@ String getEquipmentStatus() {
 
 String getWifiSettings() {
   // Prepare a JSON object with information stored in preferences (or a blank default).
-  String wifiNetwork;
+  String wifiSettings;
   JsonDocument jsonBody;
 
-  // Create Preferences object to handle non-volatile storage (NVS).
-  Preferences preferences;
+  // Modern ArduinoJson: assign nested object for "active"
+  JsonObject active = jsonBody["active"].to<JsonObject>();
+  wirelessMgr->getExtWifiNetworkAsJson(active);
 
-  // Accesses namespace in read-only mode.
-  if(preferences.begin("network", true)) {
-    jsonBody["enabled"] = preferences.getBool("enabled", false);
-    jsonBody["network"] = preferences.getString("ssid");
-    jsonBody["password"] = preferences.getString("password");
+  // Modern ArduinoJson: assign nested array for "saved"
+  JsonArray saved = jsonBody["saved"].to<JsonArray>();
+  String savedNetworks = wirelessMgr->getPreferredNetworks();
 
-    jsonBody["address"] = preferences.getString("address");
-    if(jsonBody["address"].as<String>() == "") {
-      jsonBody["address"] = wirelessMgr->getExtWifiAddress().toString();
-    }
-
-    jsonBody["subnet"] = preferences.getString("subnet");
-    if(jsonBody["subnet"].as<String>() == "") {
-      jsonBody["subnet"] = wirelessMgr->getExtWifiSubnet().toString();
-    }
-
-    jsonBody["gateway"] = preferences.getString("gateway");
-    if(jsonBody["gateway"].as<String>() == "") {
-      jsonBody["gateway"] = wirelessMgr->getExtWifiGateway().toString();
-    }
-
-    preferences.end();
-  }
-  else {
-    if(preferences.begin("network", false)) {
-      preferences.putBool("enabled", false);
-      preferences.putString("ssid", "");
-      preferences.putString("password", "");
-      preferences.putString("address", "");
-      preferences.putString("subnet", "");
-      preferences.putString("gateway", "");
-      preferences.end();
+  // Parse the saved networks JSON string into a temporary document
+  JsonDocument tmpDoc;
+  DeserializationError err = deserializeJson(tmpDoc, savedNetworks);
+  if(!err && tmpDoc.is<JsonArray>()) {
+    for(JsonVariant v : tmpDoc.as<JsonArray>()) {
+      saved.add(v);
     }
   }
 
   // Serialize JSON object to string.
-  serializeJson(jsonBody, wifiNetwork);
-  return wifiNetwork;
+  serializeJson(jsonBody, wifiSettings);
+  return wifiSettings;
 }
 
 String getGyroCalJSON() {
@@ -620,7 +526,7 @@ String getMagCalJSON(bool b_update_points = false) {
   return calibrationData;
 }
 
-String getTelemetry() {
+String getTelemetryJSON() {
   // Prepare a JSON object with magnetometer and gyroscope/acceleration data.
   String telemetryData;
   JsonDocument jsonTelemetry;
@@ -731,20 +637,15 @@ void onOTAEnd(bool success) {
   }
 }
 
-// Return a small JSON object with a "status" property: {"status":"<value>"}
-// This returns the provided status string verbatim (no escaping or modification).
-String returnJsonStatus(const String &status = String("success")) {
-  String s_out;
-  s_out.reserve(status.length() + 16); // Reserve space to avoid multiple allocations.
-  s_out = "{\"status\":\"";
-  s_out += status; // Append status value.
-  s_out += "\"}";
-  return s_out;
-}
-
 void startWebServer() {
-  // Configures URI routing with function handlers.
-  setupRouting();
+  // Register all routes and handlers for the web server.
+  registerWebRoutes();
+
+  // Set the MDNS name (get it from your wireless manager)
+  setDeviceMdnsName(wirelessMgr->getMdnsName());
+
+  // Configures all URI endpoints using registered routes.
+  setupRouting(httpServer);
 
   // Get preferences for the web UI.
   getSpecialPreferences();
@@ -850,6 +751,11 @@ void restartWireless() {
   }
 }
 
+// Send a debug event to connected clients via Server-Sent Events (SSE).
+void sendDebugEvent(const char* message) {
+  events.send(message, "debug", millis());
+}
+
 void sendGyroCalData() {
   if(b_httpd_started && SENSOR_READ_TARGET == GYRO_CALIBRATION) {
     // Gather the latest countdown timer data, serialize it to a JSON string,
@@ -873,7 +779,7 @@ void sendTelemetryData() {
     // Gather the latest filtered motion data, serialize it to a JSON string,
     // and send it to all connected EventSource (SSE) clients as a "telemetry"
     // event name (using the current ms time as a unique event identifier).
-    events.send(getTelemetry().c_str(), "telemetry", millis());
+    events.send(getTelemetryJSON().c_str(), "telemetry", millis());
   }
 }
 
@@ -881,131 +787,127 @@ void sendTelemetryData() {
  * Standard Page Handlers - Delivers the main web pages and common content
  */
 
-// Function: embeddedFileSize
-// Purpose:  Compute the size (in bytes) of an embedded binary asset using
-//           the linker-provided start/end markers generated for each asset.
-// Inputs:
-//   - start: pointer to the first byte (e.g. _binary_assets_<file>_start)
-//   - end:   pointer to the one-past-last byte (e.g. _binary_assets_<file>_end)
-// Outputs:
-//   - size_t: number of bytes in the embedded asset (0 on invalid pointers or if end <= start)
-inline size_t embeddedFileSize(const uint8_t* start, const uint8_t* end) {
-  if (start == nullptr || end == nullptr) return 0;
-  if (end <= start) return 0;
-  return (size_t)(end - start);
-}
-
 void handleRoot(AsyncWebServerRequest *request) {
   // Used for the root page (/ = index.html) from the web server.
-  debugln("Sending -> Index HTML");
+  debugln(F("Sending -> Index HTML"));
   size_t i_file_len = embeddedFileSize(_binary_assets_index_html_gz_start, _binary_assets_index_html_gz_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", _binary_assets_index_html_gz_start, i_file_len);
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_HTML, _binary_assets_index_html_gz_start, i_file_len);
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  response->addHeader(HEADER_CONTENT_ENCODING, ENCODING_GZIP); // Tell the client this is gzipped content.
   request->send(response); // Serve page content.
 }
 
 void handleRootJS(AsyncWebServerRequest *request) {
   // Used for the root page (/ = index.js) from the web server.
-  debugln("Sending -> Index JavaScript");
+  debugln(F("Sending -> Index JavaScript"));
   size_t i_file_len = embeddedFileSize(_binary_assets_index_js_gz_start, _binary_assets_index_js_gz_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", _binary_assets_index_js_gz_start, i_file_len);
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_JAVASCRIPT, _binary_assets_index_js_gz_start, i_file_len);
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  response->addHeader(HEADER_CONTENT_ENCODING, ENCODING_GZIP); // Tell the client this is gzipped content.
   request->send(response); // Serve page content.
 }
 
 void handleCommonJS(AsyncWebServerRequest *request) {
   // Used for all pages (common.js) from the web server.
-  debugln("Sending -> Common JavaScript");
+  debugln(F("Sending -> Common JavaScript"));
   size_t i_file_len = embeddedFileSize(_binary_assets_common_js_gz_start, _binary_assets_common_js_gz_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", _binary_assets_common_js_gz_start, i_file_len);
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_JAVASCRIPT, _binary_assets_common_js_gz_start, i_file_len);
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  response->addHeader(HEADER_CONTENT_ENCODING, ENCODING_GZIP); // Tell the client this is gzipped content.
   request->send(response); // Serve page content.
 }
 
 void handleStylesheet(AsyncWebServerRequest *request) {
   // Used for the common stylesheet of the web server.
-  debugln("Sending -> Main StyleSheet");
+  debugln(F("Sending -> Main StyleSheet"));
   size_t i_file_len = embeddedFileSize(_binary_assets_style_css_gz_start, _binary_assets_style_css_gz_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/css", _binary_assets_style_css_gz_start, i_file_len);
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_CSS, _binary_assets_style_css_gz_start, i_file_len);
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  response->addHeader(HEADER_CONTENT_ENCODING, ENCODING_GZIP); // Tell the client this is gzipped content.
   request->send(response); // Serve page content.
 }
 
 void handleFavIco(AsyncWebServerRequest *request) {
   // Used for the favicon of the web server.
-  debugln("Sending -> Favicon");
+  debugln(F("Sending -> Favicon"));
   size_t i_file_len = embeddedFileSize(_binary_assets_favicon_ico_gz_start, _binary_assets_favicon_ico_gz_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "image/x-icon", _binary_assets_favicon_ico_gz_start, i_file_len);
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_ICON, _binary_assets_favicon_ico_gz_start, i_file_len);
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  response->addHeader(HEADER_CONTENT_ENCODING, ENCODING_GZIP); // Tell the client this is gzipped content.
   request->send(response); // Serve gzipped .ico file.
 }
 
 void handleFavSvg(AsyncWebServerRequest *request) {
   // Used for the favicon of the web server.
-  debugln("Sending -> Favicon");
+  debugln(F("Sending -> Favicon"));
   size_t i_file_len = embeddedFileSize(_binary_assets_favicon_svg_gz_start, _binary_assets_favicon_svg_gz_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", _binary_assets_favicon_svg_gz_start, i_file_len);
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_SVG, _binary_assets_favicon_svg_gz_start, i_file_len);
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  response->addHeader(HEADER_CONTENT_ENCODING, ENCODING_GZIP); // Tell the client this is gzipped content.
   request->send(response); // Serve gzipped .svg file.
 }
 
 void handleGeometry(AsyncWebServerRequest *request) {
   // Used for the model geometry (assets/geometry.stl.gz) from the web server.
-  debugln("Sending -> STL Geometry");
+  debugln(F("Sending -> STL Geometry"));
 
   // Calculate file size from the embedded binary data and serve the file to the requesting client.
-  size_t file_len = embeddedFileSize(_binary_assets_geometry_stl_gz_start, _binary_assets_geometry_stl_gz_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "model/stl", _binary_assets_geometry_stl_gz_start, file_len);
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
+  size_t i_file_len = embeddedFileSize(_binary_assets_geometry_stl_gz_start, _binary_assets_geometry_stl_gz_end);
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_STL, _binary_assets_geometry_stl_gz_start, i_file_len);
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  response->addHeader(HEADER_CONTENT_ENCODING, ENCODING_GZIP); // Tell the client this is gzipped content.
   request->send(response);
 }
 
 void handleThreeJS(AsyncWebServerRequest *request) {
   // Used for the root page (/three.min.js) from the web server.
-  debugln("Sending -> Three.js Library");
+  debugln(F("Sending -> Three.js Library"));
 
   // Calculate file size from the embedded binary data and serve the file to the requesting client.
-  size_t file_len = embeddedFileSize(_binary_assets_three_min_js_gz_start, _binary_assets_three_min_js_gz_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", _binary_assets_three_min_js_gz_start, file_len);
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
+  size_t i_file_len = embeddedFileSize(_binary_assets_three_min_js_gz_start, _binary_assets_three_min_js_gz_end);
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_JAVASCRIPT, _binary_assets_three_min_js_gz_start, i_file_len);
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  response->addHeader(HEADER_CONTENT_ENCODING, ENCODING_GZIP); // Tell the client this is gzipped content.
   request->send(response);
 }
 
 void handleNetwork(AsyncWebServerRequest *request) {
   // Used for the network page from the web server.
-  debugln("Sending -> Network HTML");
+  debugln(F("Sending -> Network HTML"));
   size_t i_file_len = embeddedFileSize(_binary_assets_network_html_gz_start, _binary_assets_network_html_gz_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", _binary_assets_network_html_gz_start, i_file_len);
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_HTML, _binary_assets_network_html_gz_start, i_file_len);
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  response->addHeader(HEADER_CONTENT_ENCODING, ENCODING_GZIP); // Tell the client this is gzipped content.
   request->send(response); // Serve page content.
 }
 
 void handlePassword(AsyncWebServerRequest *request) {
   // Used for the password page from the web server.
-  debugln("Sending -> Password HTML");
+  debugln(F("Sending -> Password HTML"));
   size_t i_file_len = embeddedFileSize(_binary_assets_password_html_gz_start, _binary_assets_password_html_gz_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", _binary_assets_password_html_gz_start, i_file_len);
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_HTML, _binary_assets_password_html_gz_start, i_file_len);
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  response->addHeader(HEADER_CONTENT_ENCODING, ENCODING_GZIP); // Tell the client this is gzipped content.
   request->send(response); // Serve page content.
 }
 
 void handleDeviceSettings(AsyncWebServerRequest *request) {
   // Used for the device page from the web server.
-  debugln("Sending -> Device Settings HTML");
+  debugln(F("Sending -> Device Settings HTML"));
   size_t i_file_len = embeddedFileSize(_binary_assets_device_html_gz_start, _binary_assets_device_html_gz_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", _binary_assets_device_html_gz_start, i_file_len);
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_HTML, _binary_assets_device_html_gz_start, i_file_len);
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  response->addHeader(HEADER_CONTENT_ENCODING, ENCODING_GZIP); // Tell the client this is gzipped content.
+  request->send(response); // Serve page content.
+}
+
+void handleSwagger(AsyncWebServerRequest *request) {
+  // Used for the SwaggerUI page (/ = swaggerui.html) from the web server.
+  debugln(F("Sending -> SwaggerUI HTML"));
+  size_t i_file_len = embeddedFileSize(_binary_assets_swaggerui_html_gz_start, _binary_assets_swaggerui_html_gz_end);
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_HTML, _binary_assets_swaggerui_html_gz_start, i_file_len);
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  response->addHeader(HEADER_CONTENT_ENCODING, ENCODING_GZIP); // Tell the client this is gzipped content.
   request->send(response); // Serve page content.
 }
 
@@ -1015,38 +917,45 @@ void handleDeviceSettings(AsyncWebServerRequest *request) {
 
 void handleWandSettings(AsyncWebServerRequest *request) {
   // Used for the settings page from the web server.
-  debugln("Sending -> Wand Settings HTML");
+  debugln(F("Sending -> Wand Settings HTML"));
   size_t i_file_len = embeddedFileSize(_binary_assets_wand_html_gz_start, _binary_assets_wand_html_gz_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", _binary_assets_wand_html_gz_start, i_file_len);
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_HTML, _binary_assets_wand_html_gz_start, i_file_len);
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  response->addHeader(HEADER_CONTENT_ENCODING, ENCODING_GZIP); // Tell the client this is gzipped content.
   request->send(response); // Serve page content.
 }
 
 void handleGetDeviceConfig(AsyncWebServerRequest *request) {
   // Return current device settings as a stringified JSON object.
-  request->send(200, "application/json", getDeviceConfig());
-  sendMagCalData(false); // Send calibration data if enabled.
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_JSON, getDeviceConfig());
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  request->send(response);
 }
 
 void handleGetWandConfig(AsyncWebServerRequest *request) {
   // Return current wand settings as a stringified JSON object.
   getWandPrefsObject(); // Call common function (also used by Pack/Attenuator)
-  request->send(200, "application/json", getWandConfig());
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_JSON, getWandConfig());
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  request->send(response);
 }
 
 void handleGetStatus(AsyncWebServerRequest *request) {
   // Return current system status as a stringified JSON object.
-  request->send(200, "application/json", getEquipmentStatus());
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_JSON, getEquipmentStatus());
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  request->send(response);
 }
 
 void handleGetWifi(AsyncWebServerRequest *request) {
   // Return current system status as a stringified JSON object.
-  request->send(200, "application/json", getWifiSettings());
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_JSON, getWifiSettings());
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  request->send(response);
 }
 
 void handleGetSSIDs(AsyncWebServerRequest *request) {
-  // Prepare a JSON object with an array of WiFi networks nearby.
+  // Prepare a JSON object with an array of in-range 2.4 GHz WiFi networks.
   String wifiNetworks;
   String ssidList[40];
   JsonDocument jsonBody;
@@ -1062,12 +971,44 @@ void handleGetSSIDs(AsyncWebServerRequest *request) {
 
   // Serialize JSON object to string.
   serializeJson(jsonBody, wifiNetworks);
-  request->send(200, "application/json", wifiNetworks);
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_JSON, wifiNetworks);
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  request->send(response);
+}
+
+// Handles DELETE /wifi/network/{index} to remove a saved WiFi network by index.
+void handleDeleteNetwork(AsyncWebServerRequest *request) {
+  int networkIndex = -1;
+  String s_path = request->url();
+  if(s_path.length() > 0) {
+    int lastSlash = s_path.lastIndexOf('/');
+    if(lastSlash >= 0 && lastSlash < s_path.length() - 1) {
+      String segment = s_path.substring(lastSlash + 1);
+      if(segment.length() == 0) {
+        request->send(HTTP_STATUS_400, MIME_JSON, returnJsonStatus("Missing network index."));
+        return;
+      }
+      networkIndex = segment.toInt();
+    }
+  }
+
+  int count = wirelessMgr->getPreferredNetworkCount();
+  if(networkIndex < 0 || networkIndex >= count) {
+    request->send(HTTP_STATUS_400, MIME_JSON, returnJsonStatus("Invalid network index."));
+    return;
+  }
+
+  bool removed = wirelessMgr->removePreferredNetwork((uint8_t)networkIndex);
+  if(removed) {
+    request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus("Saved network successfully removed."));
+  } else {
+    request->send(HTTP_STATUS_404, MIME_JSON, returnJsonStatus("Network not found or could not be removed."));
+  }
 }
 
 void handleRestart(AsyncWebServerRequest *request) {
   // Performs a restart of the device.
-  request->send(204, "application/json", returnJsonStatus());
+  request->send(HTTP_STATUS_204, MIME_JSON, returnJsonStatus());
   delay(1000);
   ESP.restart();
 }
@@ -1076,23 +1017,8 @@ void handleRestart(AsyncWebServerRequest *request) {
  * Action Handlers - Perform specific actions via web requests
  */
 
-void toggleDeviceMute() {
-  if(i_volume_master == i_volume_abs_min) {
-    i_volume_master = i_volume_revert;
-  }
-  else {
-    i_volume_revert = i_volume_master;
-
-    // Set the master volume to minimum.
-    i_volume_master = i_volume_abs_min;
-  }
-
-  // Update the master volume.
-  updateMasterVolume();
-}
-
 void handleToggleMute(AsyncWebServerRequest *request) {
-  debugln("Web: Toggle Mute");
+  debugln(F("Web: Toggle Mute"));
 
   String s_path = request->url();
   if(s_path.length() > 0) {
@@ -1100,80 +1026,115 @@ void handleToggleMute(AsyncWebServerRequest *request) {
     if(lastSlash >= 0 && lastSlash < s_path.length() - 1) {
       String segment = s_path.substring(lastSlash + 1);
       if(segment == "mute") {
-        toggleDeviceMute();
+        toggleMute(2);
         notifyWSClients();
-        request->send(200, "application/json", returnJsonStatus());
+        request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
         return;
       }
       else if(segment == "unmute") {
-        toggleDeviceMute();
+        toggleMute(1);
         notifyWSClients();
-        request->send(200, "application/json", returnJsonStatus());
+        request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
         return;
       }
     }
   }
 
-  debugln("Invalid Action");
-  request->send(400, "application/json", returnJsonStatus("Invalid Action")); // 400 Bad Request
+  debugln(F("Invalid Action"));
+  request->send(HTTP_STATUS_400, MIME_JSON, returnJsonStatus("Invalid Action")); // 400 Bad Request
 }
 
 void handleMasterVolumeUp(AsyncWebServerRequest *request) {
-  debugln("Web: Master Volume Up");
+  debugln(F("Web: Master Volume Up"));
   increaseVolume();
-  request->send(200, "application/json", returnJsonStatus());
+  request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
   notifyWSClients();
 }
 
 void handleMasterVolumeDown(AsyncWebServerRequest *request) {
-  debugln("Web: Master Volume Down");
+  debugln(F("Web: Master Volume Down"));
   decreaseVolume();
-  request->send(200, "application/json", returnJsonStatus());
+  request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
   notifyWSClients();
 }
 
+void handleMasterVolumeSet(AsyncWebServerRequest *request) {
+  debugln(F("Web: Master Volume Set"));
+
+  String s_path = request->url();
+  if(s_path.length() > 0) {
+    int lastSlash = s_path.lastIndexOf('/');
+    if(lastSlash >= 0 && lastSlash < s_path.length() - 1) {
+      String segment = s_path.substring(lastSlash + 1);
+
+      // Check if segment is a valid number (0 is valid, or toInt() returns non-zero)
+      if(segment == "0" || segment.toInt() != 0) {
+        uint8_t volume = abs(segment.toInt());
+
+        // Validate and constrain to 0-100 range
+        if(volume <= 100) {
+          // Set volume directly to the specified level
+          if(setMasterVolumePercentage(volume)) {
+            request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
+            notifyWSClients();
+            return;
+          }
+          else {
+            debugln(F("Failed to set volume"));
+            request->send(HTTP_STATUS_500, MIME_JSON, returnJsonStatus("Failed to set volume"));
+            return;
+          }
+        }
+      }
+    }
+  }
+
+  debugln(F("Invalid Volume Level"));
+  request->send(HTTP_STATUS_400, MIME_JSON, returnJsonStatus("Invalid Volume Level (0-100)"));
+}
+
 void handleEffectsVolumeUp(AsyncWebServerRequest *request) {
-  debugln("Web: Effects Volume Up");
+  debugln(F("Web: Effects Volume Up"));
   increaseVolumeEffects();
-  request->send(200, "application/json", returnJsonStatus());
+  request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
   notifyWSClients();
 }
 
 void handleEffectsVolumeDown(AsyncWebServerRequest *request) {
-  debugln("Web: Effects Volume Down");
+  debugln(F("Web: Effects Volume Down"));
   decreaseVolumeEffects();
-  request->send(200, "application/json", returnJsonStatus());
+  request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
   notifyWSClients();
 }
 
 void handleMusicVolumeUp(AsyncWebServerRequest *request) {
-  debugln("Web: Music Volume Up");
+  debugln(F("Web: Music Volume Up"));
   increaseVolumeMusic();
-  request->send(200, "application/json", returnJsonStatus());
+  request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
   notifyWSClients();
 }
 
 void handleMusicVolumeDown(AsyncWebServerRequest *request) {
-  debugln("Web: Music Volume Down");
+  debugln(F("Web: Music Volume Down"));
   decreaseVolumeMusic();
-  request->send(200, "application/json", returnJsonStatus());
+  request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
   notifyWSClients();
 }
 
 void handleMusicStartStop(AsyncWebServerRequest *request) {
-  debugln("Web: Music Start/Stop");
+  debugln(F("Web: Music Start/Stop"));
   if(!b_playing_music && !b_music_paused) {
     playMusic();
   }
   else {
     stopMusic();
   }
-  request->send(200, "application/json", returnJsonStatus());
+  request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
   notifyWSClients();
 }
 
 void handleMusicPauseResume(AsyncWebServerRequest *request) {
-  debugln("Web: Music Pause/Resume");
+  debugln(F("Web: Music Pause/Resume"));
   if(b_playing_music) {
     if(b_music_paused) {
       resumeMusic();
@@ -1185,49 +1146,76 @@ void handleMusicPauseResume(AsyncWebServerRequest *request) {
   else {
     playMusic();
   }
-  request->send(200, "application/json", returnJsonStatus());
+  request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
   notifyWSClients();
 }
 
 void handleNextMusicTrack(AsyncWebServerRequest *request) {
-  debugln("Web: Next Music Track");
+  debugln(F("Web: Next Music Track"));
   musicNextTrack();
-  request->send(200, "application/json", returnJsonStatus());
+  request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
   notifyWSClients();
 }
 
 void handlePrevMusicTrack(AsyncWebServerRequest *request) {
-  debugln("Web: Prev Music Track");
+  debugln(F("Web: Prev Music Track"));
   musicPrevTrack();
-  request->send(200, "application/json", returnJsonStatus());
+  request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
   notifyWSClients();
 }
 
 void handleLoopMusicTrack(AsyncWebServerRequest *request) {
-  debugln("Web: Toggle Music Track Loop");
+  debugln(F("Web: Toggle Music Track Loop"));
 
   String s_path = request->url();
   if(s_path.length() > 0) {
     int lastSlash = s_path.lastIndexOf('/');
     if(lastSlash >= 0 && lastSlash < s_path.length() - 1) {
       String segment = s_path.substring(lastSlash + 1);
-      if(segment == "single") {
-        toggleMusicLoop();
+      if(segment == "one") {
+        toggleMusicLoop(2);
         notifyWSClients();
-        request->send(200, "application/json", returnJsonStatus());
+        request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
         return;
       }
       else if(segment == "all") {
-        toggleMusicLoop();
+        toggleMusicLoop(1);
         notifyWSClients();
-        request->send(200, "application/json", returnJsonStatus());
+        request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
         return;
       }
     }
   }
 
-  debugln("Invalid Looping Option");
-  request->send(400, "application/json", "Invalid Looping Option"); // 400 Bad Request
+  debugln(F("Invalid Looping Option"));
+  request->send(HTTP_STATUS_400, MIME_JSON, "Invalid Looping Option"); // 400 Bad Request
+}
+
+void handleShuffleMusicTracks(AsyncWebServerRequest *request) {
+  debugln(F("Web: Toggle Music Track Shuffling"));
+
+  String s_path = request->url();
+  if(s_path.length() > 0) {
+    int lastSlash = s_path.lastIndexOf('/');
+    if(lastSlash >= 0 && lastSlash < s_path.length() - 1) {
+      String segment = s_path.substring(lastSlash + 1);
+      if(segment == "on") {
+        toggleMusicShuffle(2);
+        notifyWSClients();
+        request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
+        return;
+      }
+      else if(segment == "off") {
+        toggleMusicShuffle(1);
+        notifyWSClients();
+        request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
+        return;
+      }
+    }
+  }
+
+  debugln(F("Invalid Shuffle Option"));
+  request->send(HTTP_STATUS_400, MIME_JSON, "Invalid Shuffle Option"); // 400 Bad Request
 }
 
 void handleSelectMusicTrack(AsyncWebServerRequest *request) {
@@ -1242,34 +1230,40 @@ void handleSelectMusicTrack(AsyncWebServerRequest *request) {
     uint16_t i_music_track = c_music_track.toInt();
     debugln("Web: Selected Music Track: " + String(i_music_track));
     playMusic(); // Start playing music.
-    request->send(200, "application/json", returnJsonStatus());
+    request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
   }
   else {
     // Tell the user why the requested action failed.
-    request->send(200, "application/json", returnJsonStatus("Invalid track number requested"));
+    request->send(HTTP_STATUS_400, MIME_JSON, returnJsonStatus("Invalid track number requested")); // 400 Bad Request
   }
 
   notifyWSClients();
 }
 
 void handleSaveWandEEPROM(AsyncWebServerRequest *request) {
-  debugln("Web: Save Wand EEPROM");
+  debugln(F("Web: Save Wand EEPROM"));
   executeCommand(P_SAVE_EEPROM_WAND);
-  request->send(200, "application/json", returnJsonStatus());
+  request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
+}
+
+void handleResetWandEEPROM(AsyncWebServerRequest *request) {
+  debugln(F("Web: Reset Wand EEPROM"));
+  executeCommand(P_RESET_EEPROM_WAND);
+  request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
 }
 
 void handleResetSensors(AsyncWebServerRequest *request) {
   // Re-center by resetting all current telemetry data for motion sensors.
   // This allows all motion data to be zeroed out and begin a new average.
   resetAllMotionData(true); // Clear and re-calibrate (quick).
-  request->send(200, "application/json", returnJsonStatus());
+  request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
   notifyWSClients();
 }
 
 void handleCalibrateGyroSensor(AsyncWebServerRequest *request) {
   // Turn on calibration mode for the gyroscope sensor.
   beginGyroCalibration(30); // Run calibration for 30 seconds.
-  request->send(200, "application/json", returnJsonStatus());
+  request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
   notifyWSClients();
 }
 
@@ -1278,7 +1272,7 @@ void handleMagCalEnabled(AsyncWebServerRequest *request) {
   resetAllMotionData(false); // Clear but don't re-calibrate.
   SENSOR_READ_TARGET = MAG_CALIBRATION; // Enables collection of magnetometer data.
   magCal.beginCalibration(); // Start collection of samples, clears counters.
-  request->send(200, "application/json", returnJsonStatus());
+  request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
   notifyWSClients();
 }
 
@@ -1303,20 +1297,157 @@ void handleMagCalDisabled(AsyncWebServerRequest *request) {
   SENSOR_READ_TARGET = OFFSETS; // Switch to offsets mode for brief collection.
   resetAllMotionData(true); // Reset and re-calibrate with fresh offsets.
 
-  request->send(200, "application/json", returnJsonStatus());
+  request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
   notifyWSClients();
 }
 
 void handleInfraredSignal(AsyncWebServerRequest *request) {
   String c_signal_type = "";
+  JsonDocument jsonResponse;
 
   if(request->hasParam("type")) {
-    // Get the parameter "track" if it exists (will be a String).
+    // Get the parameter "type" if it exists (will be a String).
     c_signal_type = request->getParam("type")->value();
-    sendInfraredCommand(c_signal_type);
+
+    // Convert string to IR command type enum
+    IR_COMMAND_TYPE commandType;
+    if(InfraredManager::stringToCommandType(c_signal_type, commandType)) {
+      jsonResponse = irManager->sendCommand(commandType);
+      jsonResponse["deviceName"] = wirelessMgr->getLocalNetworkName();
+    }
+    else {
+      // Invalid command type
+      jsonResponse["status"] = "failure";
+      jsonResponse["error"] = "Invalid command type: " + c_signal_type;
+    }
+  }
+  else {
+    // No type parameter provided
+    jsonResponse["status"] = "failure";
+    jsonResponse["error"] = "Missing 'type' parameter";
   }
 
-  request->send(200, "application/json", returnJsonStatus());
+  // Serialize and send the response
+  String responseString;
+  serializeJson(jsonResponse, responseString);
+  request->send(HTTP_STATUS_200, MIME_JSON, responseString);
+}
+
+void handlePowerLevelSet(AsyncWebServerRequest *request) {
+  debugln(F("Web: Power Level Set"));
+
+  String s_path = request->url();
+  if(s_path.length() > 0) {
+    int lastSlash = s_path.lastIndexOf('/');
+    if(lastSlash >= 0 && lastSlash < s_path.length() - 1) {
+      String segment = s_path.substring(lastSlash + 1);
+
+      // Check if segment is a valid number (toInt() returns non-zero)
+      if(segment.toInt() != 0) {
+        uint8_t pLevel = abs(segment.toInt());
+
+        // Validate and constrain to 1-5 range
+        if(pLevel >= MIN_POWER_LEVEL && pLevel <= MAX_POWER_LEVEL) {
+          // Set power level to the one specified.
+          switch(pLevel) {
+            case LEVEL_1:
+              if(gpstarWand.getPowerLevel() == LEVEL_1) {
+                // Tell the user why the requested action failed.
+                request->send(HTTP_STATUS_400, MIME_JSON, returnJsonStatus("Already in PL1")); // 400 Bad Request
+              }
+              else if(WAND_ACTION_STATUS != ACTION_FIRING || (WAND_ACTION_STATUS == ACTION_FIRING && gpstarWand.getPowerLevel() != LEVEL_5)) {
+                debugln(F("Web: Power Level 1"));
+                gpstarWand.setPowerLevel(LEVEL_1);
+                updatePackPowerLevel();
+                request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
+                notifyWSClients();
+              }
+              else {
+                // Tell the user why the requested action failed.
+                request->send(HTTP_STATUS_400, MIME_JSON, returnJsonStatus("Unable to switch from PL5 while firing")); // 400 Bad Request
+              }
+            break;
+            case LEVEL_2:
+              if(gpstarWand.getPowerLevel() == LEVEL_2) {
+                // Tell the user why the requested action failed.
+                request->send(HTTP_STATUS_400, MIME_JSON, returnJsonStatus("Already in PL2")); // 400 Bad Request
+              }
+              else if(WAND_ACTION_STATUS != ACTION_FIRING || (WAND_ACTION_STATUS == ACTION_FIRING && gpstarWand.getPowerLevel() != LEVEL_5)) {
+                debugln(F("Web: Power Level 2"));
+                gpstarWand.setPowerLevel(LEVEL_2);
+                updatePackPowerLevel();
+                request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
+                notifyWSClients();
+              }
+              else {
+                // Tell the user why the requested action failed.
+                request->send(HTTP_STATUS_400, MIME_JSON, returnJsonStatus("Unable to switch from PL5 while firing")); // 400 Bad Request
+              }
+            break;
+            case LEVEL_3:
+              if(gpstarWand.getPowerLevel() == LEVEL_3) {
+                // Tell the user why the requested action failed.
+                request->send(HTTP_STATUS_400, MIME_JSON, returnJsonStatus("Already in PL3")); // 400 Bad Request
+              }
+              else if(WAND_ACTION_STATUS != ACTION_FIRING || (WAND_ACTION_STATUS == ACTION_FIRING && gpstarWand.getPowerLevel() != LEVEL_5)) {
+                debugln(F("Web: Power Level 3"));
+                gpstarWand.setPowerLevel(LEVEL_3);
+                updatePackPowerLevel();
+                request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
+                notifyWSClients();
+              }
+              else {
+                // Tell the user why the requested action failed.
+                request->send(HTTP_STATUS_400, MIME_JSON, returnJsonStatus("Unable to switch from PL5 while firing")); // 400 Bad Request
+              }
+            break;
+            case LEVEL_4:
+              if(gpstarWand.getPowerLevel() == LEVEL_4) {
+                // Tell the user why the requested action failed.
+                request->send(HTTP_STATUS_400, MIME_JSON, returnJsonStatus("Already in PL4")); // 400 Bad Request
+              }
+              else if(WAND_ACTION_STATUS != ACTION_FIRING || (WAND_ACTION_STATUS == ACTION_FIRING && gpstarWand.getPowerLevel() != LEVEL_5)) {
+                debugln(F("Web: Power Level 4"));
+                gpstarWand.setPowerLevel(LEVEL_4);
+                updatePackPowerLevel();
+                request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
+                notifyWSClients();
+              }
+              else {
+                // Tell the user why the requested action failed.
+                request->send(HTTP_STATUS_400, MIME_JSON, returnJsonStatus("Unable to switch from PL5 while firing")); // 400 Bad Request
+              }
+            break;
+            case LEVEL_5:
+              if(gpstarWand.getPowerLevel() == LEVEL_5) {
+                // Tell the user why the requested action failed.
+                request->send(HTTP_STATUS_400, MIME_JSON, returnJsonStatus("Already in PL5")); // 400 Bad Request
+              }
+              else if(WAND_ACTION_STATUS != ACTION_FIRING) {
+                debugln(F("Web: Power Level 5"));
+                gpstarWand.setPowerLevel(LEVEL_5);
+                updatePackPowerLevel();
+                request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
+                notifyWSClients();
+              }
+              else {
+                // Tell the user why the requested action failed.
+                request->send(HTTP_STATUS_400, MIME_JSON, returnJsonStatus("Unable to switch to PL5 while firing")); // 400 Bad Request
+              }
+            break;
+            default:
+              // We can't be here, so do nothing.
+            break;
+          }
+
+          return;
+        }
+      }
+    }
+  }
+
+  debugln(F("Invalid Power Level"));
+  request->send(HTTP_STATUS_400, MIME_JSON, returnJsonStatus("Invalid Power Level (1-5)"));
 }
 
 /**
@@ -1328,12 +1459,10 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
   JsonDocument jsonBody;
   if(json.is<JsonObject>()) {
     jsonBody = json.as<JsonObject>();
-  }
-  else {
+  } else {
     debugln(F("Body was not a JSON object"));
   }
 
-  String result;
   try {
     // First check if a new private WiFi network name has been chosen.
     String newSSID = jsonBody["wifiName"].as<String>();
@@ -1360,74 +1489,79 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
       }
       else {
         // Immediately return an error if the network name was invalid.
-        request->send(200, "application/json", returnJsonStatus("Error: Network name must be between 8 and 32 characters in length."));
+        request->send(HTTP_STATUS_400, MIME_JSON, returnJsonStatus("Error: Network name must be between 8 and 32 characters in length.")); // 400 Bad Request
       }
     }
 
-    uint8_t i_orientation = jsonBody["orientation"].as<unsigned short>();
+    // Orientation Option - Check that it meets the expected type before attempting to change the value.
     bool b_orientation_changed = false;
     INSTALL_ORIENTATIONS PREVIOUS_ORIENTATION = INSTALL_ORIENTATION;
-    switch(i_orientation) {
-      case 1:
-        INSTALL_ORIENTATION = COMPONENTS_UP_USB_FRONT;
-      break;
-      case 2:
-        INSTALL_ORIENTATION = COMPONENTS_UP_USB_REAR;
-      break;
-      case 3:
-        INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_FRONT;
-      break;
-      case 4:
-        INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_REAR;
-      break;
-      case 5:
-        INSTALL_ORIENTATION = COMPONENTS_LEFT_USB_FRONT;
-      break;
-      case 6:
-        INSTALL_ORIENTATION = COMPONENTS_LEFT_USB_REAR;
-      break;
-      case 7:
-        INSTALL_ORIENTATION = COMPONENTS_RIGHT_USB_FRONT;
-      break;
-      case 8:
-        INSTALL_ORIENTATION = COMPONENTS_RIGHT_USB_REAR;
-      break;
-      case 9:
-        INSTALL_ORIENTATION = COMPONENTS_FACTORY_DEFAULT;
-      break;
-      default:
-        // Do not change orientation if an invalid value was provided.
-      break;
-    }
+    if(jsonBody["orientation"].is<unsigned char>()) {
+      switch(jsonBody["orientation"].as<unsigned char>()) {
+        case 1:
+          INSTALL_ORIENTATION = COMPONENTS_UP_USB_FRONT;
+        break;
+        case 2:
+          INSTALL_ORIENTATION = COMPONENTS_UP_USB_REAR;
+        break;
+        case 3:
+          INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_FRONT;
+        break;
+        case 4:
+          INSTALL_ORIENTATION = COMPONENTS_DOWN_USB_REAR;
+        break;
+        case 5:
+          INSTALL_ORIENTATION = COMPONENTS_LEFT_USB_FRONT;
+        break;
+        case 6:
+          INSTALL_ORIENTATION = COMPONENTS_LEFT_USB_REAR;
+        break;
+        case 7:
+          INSTALL_ORIENTATION = COMPONENTS_RIGHT_USB_FRONT;
+        break;
+        case 8:
+          INSTALL_ORIENTATION = COMPONENTS_RIGHT_USB_REAR;
+        break;
+        case 9:
+          INSTALL_ORIENTATION = COMPONENTS_FACTORY_DEFAULT;
+        break;
+        default:
+          // Do not change orientation if an invalid value was provided.
+        break;
+      }
 
-    if(INSTALL_ORIENTATION != PREVIOUS_ORIENTATION) {
-      // Reset the magnetic calibration values to defaults on orientation change.
-      magCalData = magCal.getDefaultCalibration();
-      b_orientation_changed = true;
-    } else {
-      // Set the current magnetic calibration values when orientation is unchanged.
-      magCalData.mag_hardiron[0] = jsonBody["hardIron1"].as<float>();
-      magCalData.mag_hardiron[1] = jsonBody["hardIron2"].as<float>();
-      magCalData.mag_hardiron[2] = jsonBody["hardIron3"].as<float>();
-      magCalData.mag_softiron[0] = jsonBody["softIron1"].as<float>();
-      magCalData.mag_softiron[1] = jsonBody["softIron2"].as<float>();
-      magCalData.mag_softiron[2] = jsonBody["softIron3"].as<float>();
-      magCalData.mag_softiron[3] = jsonBody["softIron4"].as<float>();
-      magCalData.mag_softiron[4] = jsonBody["softIron5"].as<float>();
-      magCalData.mag_softiron[5] = jsonBody["softIron6"].as<float>();
-      magCalData.mag_softiron[6] = jsonBody["softIron7"].as<float>();
-      magCalData.mag_softiron[7] = jsonBody["softIron8"].as<float>();
-      magCalData.mag_softiron[8] = jsonBody["softIron9"].as<float>();
-      magCalData.mag_field = jsonBody["magField"].as<float>();
+      if(INSTALL_ORIENTATION != PREVIOUS_ORIENTATION) {
+        // Reset the magnetic calibration values to defaults on orientation change.
+        magCalData = magCal.getDefaultCalibration();
+        b_orientation_changed = true;
+      } else {
+        // Set the current magnetic calibration values when orientation is unchanged.
+        magCalData.mag_hardiron[0] = jsonBody["hardIron1"].as<float>();
+        magCalData.mag_hardiron[1] = jsonBody["hardIron2"].as<float>();
+        magCalData.mag_hardiron[2] = jsonBody["hardIron3"].as<float>();
+        magCalData.mag_softiron[0] = jsonBody["softIron1"].as<float>();
+        magCalData.mag_softiron[1] = jsonBody["softIron2"].as<float>();
+        magCalData.mag_softiron[2] = jsonBody["softIron3"].as<float>();
+        magCalData.mag_softiron[3] = jsonBody["softIron4"].as<float>();
+        magCalData.mag_softiron[4] = jsonBody["softIron5"].as<float>();
+        magCalData.mag_softiron[5] = jsonBody["softIron6"].as<float>();
+        magCalData.mag_softiron[6] = jsonBody["softIron7"].as<float>();
+        magCalData.mag_softiron[7] = jsonBody["softIron8"].as<float>();
+        magCalData.mag_softiron[8] = jsonBody["softIron9"].as<float>();
+        magCalData.mag_field = jsonBody["magField"].as<float>();
+      }
     }
 
     // Check for Standalone Mode mode switch.
-    bool b_standalone_toggled = jsonBody["useStandalone"].as<bool>();
+    bool b_standalone_toggled = jsonBody["useStandalone"].as<bool>() | false;
     bool b_restart_required = (!b_standalone_toggled && b_wand_standalone);
     if(b_standalone_toggled && !b_wand_standalone) {
       // Switch to Standalone Mode.
       toggleStandaloneMode(true);
     }
+
+    // Set our IR while firing flag appropriately.
+    b_ir_while_firing = jsonBody["irWhileFiring"].as<bool>() | false;
 
     // Get the track listing from the text field.
     String songList = jsonBody["songList"].as<String>();
@@ -1441,9 +1575,12 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
       // Store the standalone mode setting to preferences.
       preferences.putBool("standalone", b_standalone_toggled);
 
+      // Store the IR while firing setting to preferences.
+      preferences.putBool("ir_while_firing", b_ir_while_firing);
+
       // Store the orientation value to preferences if changed.
       if(INSTALL_ORIENTATION != PREVIOUS_ORIENTATION) {
-        preferences.putShort("orientation", i_orientation);
+        preferences.putUChar("orientation", INSTALL_ORIENTATION);
       }
 
       // Store the magnetic calibration struct (object) to preferences.
@@ -1492,20 +1629,18 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
     }
 
     if(b_list_err) {
-      request->send(200, "application/json", returnJsonStatus("Settings updated, but song list exceeds the 2,000 bytes maximum and was not saved."));
-    }
-    else if(b_ssid_changed) {
-      request->send(201, "application/json", returnJsonStatus("Settings updated, restart required. Please use the new network name to connect to your device."));
-    }
-    else if(b_restart_required) {
-      request->send(201, "application/json", returnJsonStatus("Settings updated, restart required to disable Standalone Mode."));
+      request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus("Settings updated, but song list exceeds the 2,000 bytes maximum and was not saved."));
+    } else if(b_ssid_changed) {
+      request->send(HTTP_STATUS_201, MIME_JSON, returnJsonStatus("Settings updated, restart required. Please use the new network name to connect to your device."));
+    } else if(b_restart_required) {
+      request->send(HTTP_STATUS_201, MIME_JSON, returnJsonStatus("Settings updated, restart required to disable Standalone Mode."));
     }
     else {
-      request->send(200, "application/json", returnJsonStatus("Settings updated."));
+      request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus("Settings updated."));
     }
   }
   catch (...) {
-    request->send(200, "application/json", returnJsonStatus("An error was encountered while saving settings."));
+    request->send(HTTP_STATUS_500, MIME_JSON, returnJsonStatus("An error was encountered while saving settings.")); // 500 Server Error
   }
 }); // handleSaveDeviceConfig
 
@@ -1514,49 +1649,74 @@ AsyncCallbackJsonWebHandler *handleSaveWandConfig = new AsyncCallbackJsonWebHand
   JsonDocument jsonBody;
   if(json.is<JsonObject>()) {
     jsonBody = json.as<JsonObject>();
-  }
-  else {
-    debugln("Body was not a JSON object");
+  } else {
+    debugln(F("Body was not a JSON object"));
+    request->send(HTTP_STATUS_500, MIME_JSON, returnJsonStatus("Body was not a JSON object.")); // 500 Server Error
+    return;
   }
 
-  String result;
   if(WAND_STATUS == MODE_OFF) {
     try {
+      // Numeric fields - LED options
       wandConfig.ledWandCount = jsonBody["ledWandCount"].as<uint8_t>();
       wandConfig.ledWandHue = jsonBody["ledWandHue"].as<uint8_t>();
       wandConfig.ledWandSat = jsonBody["ledWandSat"].as<uint8_t>();
-      wandConfig.rgbVentEnabled = jsonBody["rgbVentEnabled"].as<uint8_t>();
-      wandConfig.gpstarAudioLed = jsonBody["gpstarAudioLed"].as<uint8_t>();
-      wandConfig.spectralModesEnabled = jsonBody["spectralModesEnabled"].as<uint8_t>();
-      wandConfig.overheatEnabled = jsonBody["overheatEnabled"].as<uint8_t>();
-      wandConfig.defaultFiringMode = jsonBody["defaultFiringMode"].as<uint8_t>();
-      wandConfig.wandVibration = jsonBody["wandVibration"].as<uint8_t>();
-      wandConfig.barrelSwitchPolarity = jsonBody["barrelSwitchPolarity"].as<uint8_t>();
-      wandConfig.wandSoundsToPack = jsonBody["wandSoundsToPack"].as<uint8_t>();
-      wandConfig.quickVenting = jsonBody["quickVenting"].as<uint8_t>();
-      wandConfig.autoVentLight = jsonBody["autoVentLight"].as<uint8_t>();
-      wandConfig.wandBeepLoop = jsonBody["wandBeepLoop"].as<uint8_t>();
-      wandConfig.wandBootError = jsonBody["wandBootError"].as<uint8_t>();
-      wandConfig.defaultYearModeWand = jsonBody["defaultYearModeWand"].as<uint8_t>();
+
+      // Boolean fields - LED toggles
+      updateJsonBool(wandConfig.rgbVentEnabled, jsonBody, "rgbVentEnabled");
+      updateJsonBool(wandConfig.rgbVentColours, jsonBody, "rgbVentColours");
+      updateJsonBool(wandConfig.autoVentLight, jsonBody, "autoVentLight");
+
+      // Stream mode toggles - Update in the config object for the moment, and save back to the device's state object later.
+      // Note that PROTON mode can neither be set nor unset (always enabled).
+      (jsonBody["stasisStream"].as<bool>() || gpstarWand.inStreamMode(STASIS)) ? (wandConfig.streamFlags |= FLAG_STASIS) : (wandConfig.streamFlags &= ~FLAG_STASIS);
+      (jsonBody["slimeStream"].as<bool>() || gpstarWand.inStreamMode(SLIME)) ? (wandConfig.streamFlags |= FLAG_SLIME) : (wandConfig.streamFlags &= ~FLAG_SLIME);
+      (jsonBody["mesonStream"].as<bool>() || gpstarWand.inStreamMode(MESON)) ? (wandConfig.streamFlags |= FLAG_MESON) : (wandConfig.streamFlags &= ~FLAG_MESON);
+      (jsonBody["spectralStream"].as<bool>() || gpstarWand.inStreamMode(SPECTRAL)) ? (wandConfig.streamFlags |= FLAG_SPECTRAL) : (wandConfig.streamFlags &= ~FLAG_SPECTRAL);
+      (jsonBody["spectralCustomStream"].as<bool>() || gpstarWand.inStreamMode(SPECTRAL_CUSTOM)) ? (wandConfig.streamFlags |= FLAG_SPECTRAL_CUSTOM) : (wandConfig.streamFlags &= ~FLAG_SPECTRAL_CUSTOM);
+      (jsonBody["halloweenStream"].as<bool>() || gpstarWand.inStreamMode(HOLIDAY_HALLOWEEN)) ? (wandConfig.streamFlags |= FLAG_HOLIDAY_HALLOWEEN) : (wandConfig.streamFlags &= ~FLAG_HOLIDAY_HALLOWEEN);
+      (jsonBody["christmasStream"].as<bool>() || gpstarWand.inStreamMode(HOLIDAY_CHRISTMAS)) ? (wandConfig.streamFlags |= FLAG_HOLIDAY_CHRISTMAS) : (wandConfig.streamFlags &= ~FLAG_HOLIDAY_CHRISTMAS);
+
+      // Numeric fields - General wand options
+      wandConfig.defaultYearModeWand = (SYSTEM_THEMES)jsonBody["defaultYearModeWand"].as<uint8_t>();
       wandConfig.defaultYearModeCTS = jsonBody["defaultYearModeCTS"].as<uint8_t>();
+      wandConfig.defaultStreamMode = jsonBody["defaultStreamMode"].as<uint8_t>();
+      wandConfig.defaultFiringMode = jsonBody["defaultFiringMode"].as<uint8_t>();
+      wandConfig.wandVibration = (VIBRATION_MODES)jsonBody["wandVibration"].as<uint8_t>();
+      wandConfig.barrelSwitchPolarity = jsonBody["barrelSwitchPolarity"].as<uint8_t>();
       wandConfig.defaultWandVolume = jsonBody["defaultWandVolume"].as<uint8_t>();
+
+      // Boolean fields - General wand toggles
+      updateJsonBool(wandConfig.overheatEnabled, jsonBody, "overheatEnabled");
+      updateJsonBool(wandConfig.wandSoundsToPack, jsonBody, "wandSoundsToPack");
+      updateJsonBool(wandConfig.quickVenting, jsonBody, "quickVenting");
+      updateJsonBool(wandConfig.wandBeepLoop, jsonBody, "wandBeepLoop");
+      updateJsonBool(wandConfig.wandBootError, jsonBody, "wandBootError");
+      updateJsonBool(wandConfig.gpstarAudioLed, jsonBody, "gpstarAudioLed");
+
+      // Numeric fields - Bargraph options
       wandConfig.numBargraphSegments = jsonBody["numBargraphSegments"].as<uint8_t>();
-      wandConfig.invertWandBargraph = jsonBody["invertWandBargraph"].as<uint8_t>();
-      wandConfig.bargraphOverheatBlink = jsonBody["bargraphOverheatBlink"].as<uint8_t>();
       wandConfig.bargraphIdleAnimation = jsonBody["bargraphIdleAnimation"].as<uint8_t>();
       wandConfig.bargraphFireAnimation = jsonBody["bargraphFireAnimation"].as<uint8_t>();
-      wandConfig.wifiState = 2; // Set to 2 to prevent the wand from altering its current WiFi setting.
+
+      // Boolean fields - Bargraph toggles
+      updateJsonBool(wandConfig.invertWandBargraph, jsonBody, "invertWandBargraph");
+      updateJsonBool(wandConfig.bargraphOverheatBlink, jsonBody, "bargraphOverheatBlink");
+
+      // GPStar II WiFi Toggles
+      updateJsonBool(wandConfig.isWiFiEnabled, jsonBody, "isWiFiEnabled");
+      updateJsonBool(wandConfig.resetWifiPassword, jsonBody, "resetWifiPassword");
 
       handleWandPrefsUpdate(); // Have the wand pass the new settings.
-      request->send(200, "application/json", returnJsonStatus("Settings updated, please test before saving to EEPROM."));
+      request->send(HTTP_STATUS_201, MIME_JSON, returnJsonStatus("Settings updated, please test before saving to EEPROM."));
     }
     catch (...) {
-      request->send(200, "application/json", returnJsonStatus("An error was encountered while saving settings."));
+      request->send(HTTP_STATUS_500, MIME_JSON, returnJsonStatus("An error was encountered while saving settings.")); // 500 Server Error
     }
   }
   else {
     // Tell the user why the requested action failed.
-    request->send(200, "application/json", returnJsonStatus("Wand is running, save action cancelled"));
+    request->send(HTTP_STATUS_409, MIME_JSON, returnJsonStatus("Wand is running, save action cancelled")); // 409 Conflict
   }
 }); // handleSaveWandConfig
 
@@ -1565,12 +1725,10 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
   JsonDocument jsonBody;
   if(json.is<JsonObject>()) {
     jsonBody = json.as<JsonObject>();
-  }
-  else {
-    debugln("Body was not a JSON object");
+  } else {
+    debugln(F("Body was not a JSON object"));
   }
 
-  String result;
   if(jsonBody["password"].is<const char*>()) {
     String newPasswd = jsonBody["password"].as<String>();
 
@@ -1589,16 +1747,16 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
         preferences.end();
       }
 
-      request->send(201, "application/json", returnJsonStatus("Password updated, restart required. Please enter your new WiFi password when prompted by your device."));
+      request->send(HTTP_STATUS_201, MIME_JSON, returnJsonStatus("Password updated, restart required. Please enter your new WiFi password when prompted by your device."));
     }
     else {
       // Password must be at least 8 characters in length.
-      request->send(200, "application/json", returnJsonStatus("Password must be a minimum of 8 characters to meet WPA2 requirements."));
+      request->send(HTTP_STATUS_417, MIME_JSON, returnJsonStatus("Password must be a minimum of 8 characters to meet WPA2 requirements.")); // 417 Expectation Failed
     }
   }
   else {
-    debugln("No password in JSON body");
-    request->send(200, "application/json", returnJsonStatus("Unable to update password."));
+    debugln(F("No password in JSON body"));
+    request->send(HTTP_STATUS_500, MIME_JSON, returnJsonStatus("Unable to update password.")); // 500 Server Error
   }
 }); // passwordChangeHandler
 
@@ -1607,83 +1765,105 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
   JsonDocument jsonBody;
   if(json.is<JsonObject>()) {
     jsonBody = json.as<JsonObject>();
-  }
-  else {
-    debugln("Body was not a JSON object");
+  } else {
+    debugln(F("Body was not a JSON object"));
   }
 
-  String result;
-  if(jsonBody["network"].is<const char*>() && jsonBody["password"].is<const char*>()) {
+  // Check for 'active' property (object) and use it if present, else use top-level
+  JsonObject activeObj;
+  if(jsonBody["active"].is<JsonObject>()) {
+    activeObj = jsonBody["active"].as<JsonObject>();
+  } else {
+    debugln(F("No 'active' object in JSON body"));
+    request->send(HTTP_STATUS_204, MIME_JSON, returnJsonStatus("Unable to find expected network information in JSON body.")); // 204 No Content
+    return;
+  }
+
+  if(activeObj["ssid"].is<const char*>() && activeObj["password"].is<const char*>()) {
     bool b_errors = false; // Assume false until otherwise indicated.
-    bool b_enabled = jsonBody["enabled"].as<bool>();
-    String wifiNetwork = jsonBody["network"].as<String>();
-    String wifiPasswd = jsonBody["password"].as<String>();
-    String localAddr = jsonBody["address"].as<String>();
-    String subnetMask = jsonBody["subnet"].as<String>();
-    String gatewayIP = jsonBody["gateway"].as<String>();
+    bool b_enabled = wirelessMgr->isExtWifiEnabled(); // Default to the current state.
+    updateJsonBool(b_enabled, activeObj, "enabled"); // Update var from JSON if present.
+    String wifiNetwork = activeObj["ssid"].as<String>();
+    String wifiPasswd = activeObj["password"].as<String>();
 
-    // Create Preferences object to handle non-volatile storage (NVS).
-    Preferences preferences;
+    // Handle staticIP logic: if false, blank the fields; if true, use provided string values if present
+    bool b_static_ip = false;
+    String localAddr = "";
+    String subnetMask = "";
+    String gatewayIP = "";
 
-    // Accesses namespace in read/write mode.
-    if(preferences.begin("network", false)) {
-      // Store the state of toggle switches regardless.
-      preferences.putBool("enabled", b_enabled);
+    if(activeObj["staticIP"].is<bool>()) {
+      b_static_ip = activeObj["staticIP"].as<bool>();
+    }
 
+    if(b_static_ip) {
+      if(activeObj["address"].is<const char*>()) {
+        localAddr = activeObj["address"].as<String>();
+      }
+      if(activeObj["subnet"].is<const char*>()) {
+        subnetMask = activeObj["subnet"].as<String>();
+      }
+      if(activeObj["gateway"].is<const char*>()) {
+        gatewayIP = activeObj["gateway"].as<String>();
+      }
+    }
+
+    if(!b_enabled) {
+      // If disabled, update the stored preference immediately.
+      wirelessMgr->disableExtWiFi();
+    } else {
+      // Check validity of provided values.
       if(wifiNetwork.length() >= 2 && wifiPasswd.length() >= 8) {
         // Clear old network IP info if SSID or password have been changed.
-        String old_ssid = preferences.getString("ssid", "");
-        String old_passwd = preferences.getString("password", "");
+        String old_ssid = wirelessMgr->getExtWifiNetworkName();
+        String old_passwd = wirelessMgr->getExtWifiPassword();
         if(old_ssid == "" || old_ssid != wifiNetwork || old_passwd == "" || old_passwd != wifiPasswd) {
-          preferences.putString("address", "");
-          preferences.putString("subnet", "");
-          preferences.putString("gateway", "");
+          localAddr = "";
+          subnetMask = "";
+          gatewayIP = "";
         }
 
-        // Store the critical values to enable/disable the external WiFi.
-        preferences.putString("ssid", wifiNetwork);
-        preferences.putString("password", wifiPasswd);
+        // Continue saving static IP info only if network values are 7 characters or more (eg. N.N.N.N)
+        bool b_valid_ip = true;
+        if(!(localAddr.length() >= 7 && localAddr != wirelessMgr->getExtWifiAddress().toString())) {
+          b_valid_ip = false;
+        }
+        if(!(subnetMask.length() >= 7 && subnetMask != wirelessMgr->getExtWifiSubnet().toString())) {
+          b_valid_ip = false;
+        }
+        if(!(gatewayIP.length() >= 7 && gatewayIP != wirelessMgr->getExtWifiGateway().toString())) {
+          b_valid_ip = false;
+        }
 
-        // Continue saving only if network values are 7 characters or more (eg. N.N.N.N)
-        bool b_static_ip = true;
-        if(localAddr.length() >= 7 && localAddr != wirelessMgr->getExtWifiAddress().toString()) {
-          preferences.putString("address", localAddr);
+        if(!b_valid_ip) {
+          // If any of the above values were invalid, clear all three fields.
+          localAddr = "";
+          subnetMask = "";
+          gatewayIP = "";
+        }
+
+        // Save and apply the new values as the current external network.
+        if(wirelessMgr->savePreferredNetwork(wifiNetwork, wifiPasswd, b_static_ip, localAddr, subnetMask, gatewayIP)) {
+          int8_t idx = wirelessMgr->getPreferredNetworkIndex(wifiNetwork);
+          if(idx >= 0) {
+            if(!wirelessMgr->applyPreferredNetwork((uint8_t)idx)) {
+              request->send(HTTP_STATUS_500, MIME_JSON, returnJsonStatus("Unable to apply settings for the current network."));
+              return;
+            }
+          }
+          else {
+            request->send(HTTP_STATUS_500, MIME_JSON, returnJsonStatus("Unable to locate the preferred network information."));
+            return;
+          }
         }
         else {
-          b_static_ip = false;
-        }
-        if(subnetMask.length() >= 7 && subnetMask != wirelessMgr->getExtWifiSubnet().toString()) {
-          preferences.putString("subnet", subnetMask);
-        }
-        else {
-          b_static_ip = false;
-        }
-        if(gatewayIP.length() >= 7 && gatewayIP != wirelessMgr->getExtWifiGateway().toString()) {
-          preferences.putString("gateway", gatewayIP);
-        }
-        else {
-          b_static_ip = false;
-        }
-        if(!b_static_ip) {
-          // If any of the above values were invalid, blank all three.
-          preferences.putString("address", "");
-          preferences.putString("subnet", "");
-          preferences.putString("gateway", "");
+          request->send(HTTP_STATUS_500, MIME_JSON, returnJsonStatus("Unable to save preferred network, check total saved networks (must be 5 or less)."));
+          return;
         }
       }
       else {
-        // Reset all values to defaults.
-        preferences.putString("ssid", "");
-        preferences.putString("password", "");
-        preferences.putString("address", "");
-        preferences.putString("subnet", "");
-        preferences.putString("gateway", "");
+        b_errors = true; // General error for invalid SSID or password length.
       }
-
-      preferences.end();
-    }
-    else {
-      b_errors = true;
     }
 
     if(!b_errors) {
@@ -1709,74 +1889,14 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
         s_reason = "Settings updated, and external WiFi has been disconnected.";
       }
 
-      request->send(200, "application/json", returnJsonStatus(s_reason));
+      request->send(HTTP_STATUS_201, MIME_JSON, returnJsonStatus(s_reason));
     }
     else {
-      request->send(200, "application/json", returnJsonStatus("Errors encountered while processing request data. Please re-check submitted values and try again."));
+      request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus("Errors encountered while processing data. Please re-check submitted values and try again."));
     }
   }
   else {
-    debugln("No password in JSON body");
-    request->send(200, "application/json", returnJsonStatus("Unable to update password."));
+    debugln(F("No password in JSON body"));
+    request->send(HTTP_STATUS_204, MIME_JSON, returnJsonStatus("Unable to update password.")); // 204 No Content
   }
 }); // wifiChangeHandler
-
-void handleNotFound(AsyncWebServerRequest *request) {
-  // Returned for any invalid URL requested.
-  debugln("Web page not found");
-  request->send(404, "text/plain", "Not Found");
-}
-
-// Define all known URI endpoints for the web server.
-// Declare this last as it uses all of the above functions.
-void setupRouting() {
-  // Static Pages
-  httpServer.on("/", HTTP_GET, handleRoot);
-  httpServer.on("/common.js", HTTP_GET, handleCommonJS);
-  httpServer.on("/favicon.ico", HTTP_GET, handleFavIco);
-  httpServer.on("/favicon.svg", HTTP_GET, handleFavSvg);
-  httpServer.on("/style.css", HTTP_GET, handleStylesheet);
-  httpServer.on("/index.js", HTTP_GET, handleRootJS);
-  httpServer.on("/network", HTTP_GET, handleNetwork);
-  httpServer.on("/password", HTTP_GET, handlePassword);
-  httpServer.on("/settings/device", HTTP_GET, handleDeviceSettings);
-  httpServer.on("/settings/wand", HTTP_GET, handleWandSettings);
-  httpServer.on("/geometry.stl", HTTP_GET, handleGeometry);
-  httpServer.on("/three.js", HTTP_GET, handleThreeJS);
-  httpServer.onNotFound(handleNotFound);
-
-  // Get/Set Handlers
-  httpServer.on("/config/device", HTTP_GET, handleGetDeviceConfig);
-  httpServer.on("/config/wand", HTTP_GET, handleGetWandConfig);
-  httpServer.on("/eeprom/wand", HTTP_PUT, handleSaveWandEEPROM);
-  httpServer.on("/status", HTTP_GET, handleGetStatus);
-  httpServer.on("/restart", HTTP_DELETE, handleRestart);
-  httpServer.on("/volume/mute", HTTP_PUT, handleToggleMute);
-  httpServer.on("/volume/unmute", HTTP_PUT, handleToggleMute);
-  httpServer.on("/volume/master/up", HTTP_PUT, handleMasterVolumeUp);
-  httpServer.on("/volume/master/down", HTTP_PUT, handleMasterVolumeDown);
-  httpServer.on("/volume/effects/up", HTTP_PUT, handleEffectsVolumeUp);
-  httpServer.on("/volume/effects/down", HTTP_PUT, handleEffectsVolumeDown);
-  httpServer.on("/volume/music/up", HTTP_PUT, handleMusicVolumeUp);
-  httpServer.on("/volume/music/down", HTTP_PUT, handleMusicVolumeDown);
-  httpServer.on("/music/startstop", HTTP_PUT, handleMusicStartStop);
-  httpServer.on("/music/pauseresume", HTTP_PUT, handleMusicPauseResume);
-  httpServer.on("/music/next", HTTP_PUT, handleNextMusicTrack);
-  httpServer.on("/music/select", HTTP_PUT, handleSelectMusicTrack);
-  httpServer.on("/music/prev", HTTP_PUT, handlePrevMusicTrack);
-  httpServer.on("/music/loop/all", HTTP_PUT, handleLoopMusicTrack);
-  httpServer.on("/music/loop/single", HTTP_PUT, handleLoopMusicTrack);
-  httpServer.on("/wifi/settings", HTTP_GET, handleGetWifi);
-  httpServer.on("/wifi/networks", HTTP_GET, handleGetSSIDs);
-  httpServer.on("/sensors/recenter", HTTP_PUT, handleResetSensors);
-  httpServer.on("/sensors/calibrate/gyro", HTTP_PUT, handleCalibrateGyroSensor);
-  httpServer.on("/sensors/calibrate/enable", HTTP_PUT, handleMagCalEnabled);
-  httpServer.on("/sensors/calibrate/disable", HTTP_PUT, handleMagCalDisabled);
-  httpServer.on("/infrared/signal", HTTP_PUT, handleInfraredSignal);
-
-  // Body Handlers
-  httpServer.addHandler(handleSaveDeviceConfig); // /config/device/save
-  httpServer.addHandler(handleSaveWandConfig); // /config/wand/save
-  httpServer.addHandler(passwordChangeHandler); // /password/update
-  httpServer.addHandler(wifiChangeHandler); // /wifi/update
-}

@@ -63,11 +63,6 @@ const uint16_t i_blower_start_delay = 1500; // Time to delay start of the blower
 const uint16_t i_top_leds_delay = 60; // Delay for top LEDs (100ms).
 
 /*
- * Global flag to enable/disable smoke.
- */
-bool b_smoke_enabled = true;
-
-/*
  * UI Status Display Type
  */
 enum DISPLAY_TYPES : uint8_t {
@@ -89,8 +84,47 @@ enum DOOR_STATES DOOR_STATE;
 enum DOOR_STATES LAST_DOOR_STATE;
 
 /*
+ * Current State Of The Trap
+ */
+enum TRAP_STATES: uint8_t {
+  TRAP_IDLE = 0,
+  TRAP_CAPTURING_START = 1, // Pre-capture state. Doors open, do not look into the trap.
+  TRAP_CAPTURING = 2, // Capturing state.
+  TRAP_CAPTURING_END = 3, // Post capture state.
+  TRAP_NO_CARTRIDGE = 4,
+  TRAP_SERVICE = 5
+};
+enum TRAP_STATES TRAP_STATE;
+
+/**
+ * WebSocketData - Holds all relevant fields received from the WebSocket JSON payload.
+ */
+struct WebSocketData {
+  String mode = "";
+  String theme = "";
+  String switchState = "";
+  String pack = "";
+  String safety = "";
+  uint8_t wandPower = 5; // Default to max power.
+  String wandMode = "";
+  String firing = "";
+  bool ctsActive = false; // Default to not crossing streams.
+  String cable = "";
+  String cyclotron = "";
+  bool cyclotronLid = true; // Default to lid on.
+  String temperature = "";
+};
+WebSocketData wsData; // Instance of WebSocketData struct.
+
+/*
+ * Special States
+ */
+bool b_firing = false;
+
+/*
  * Smoke Control
  */
+bool b_smoke_enabled = true;
 bool b_smoke_opened_enabled = false;
 bool b_smoke_closed_enabled = false;
 uint16_t i_smoke_opened_duration = 2000;

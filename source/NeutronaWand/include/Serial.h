@@ -1,6 +1,6 @@
 /**
  *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,8 +20,10 @@
 #pragma once
 
 // Forward function declarations.
+#ifdef ESP32
 void restartWireless(); // From Webhandler.h
 void shutdownWireless(); // From Webhandler.h
+#endif
 void toggleStandaloneMode(bool); // From System.h
 
 /*
@@ -61,13 +63,13 @@ void getWandPrefsObject() {
 
   // Return an indication of whether the device is an ESP32 or not.
 #ifdef ESP32
-  wandConfig.isESP32 = 1;
-  wandConfig.wifiState = (WIFI_MODE == WIFI_ENABLED); // Set current Wifi state.
-  wandConfig.resetWifiPassword = 0; // Always set to 0 to prevent repeated resets.
+  wandConfig.isESP32 = true;
+  wandConfig.isWiFiEnabled = wirelessMgr->isWifiActive(); // Set true if Wifi is physically enabled.
+  wandConfig.resetWifiPassword = false; // Always set to false to prevent repeated resets.
 #else
-  wandConfig.isESP32 = 0;
-  wandConfig.wifiState = 0;
-  wandConfig.resetWifiPassword = 0;
+  wandConfig.isESP32 = false;
+  wandConfig.isWiFiEnabled = false;
+  wandConfig.resetWifiPassword = false;
 #endif
 
   // Boolean types will simply translate as 1/0, ENUMs should be converted.
@@ -93,46 +95,35 @@ void getWandPrefsObject() {
   wandConfig.ledWandHue = i_spectral_wand_custom_colour;
   wandConfig.ledWandSat = i_spectral_wand_custom_saturation;
   wandConfig.defaultWandVolume = i_eeprom_volume_master_percentage;
-  wandConfig.spectralModesEnabled = b_spectral_mode_enabled ? 1 : 0;
-  wandConfig.overheatEnabled = b_overheat_enabled ? 1 : 0;
-
-  switch(FIRING_MODE) {
-    case VG_MODE:
-    default:
-      wandConfig.defaultFiringMode = 1;
-    break;
-    case CTS_MODE:
-      wandConfig.defaultFiringMode = 2;
-    break;
-    case CTS_MIX_MODE:
-      wandConfig.defaultFiringMode = 3;
-    break;
-  }
-
-  wandConfig.wandSoundsToPack = b_extra_pack_sounds ? 1 : 0;
-  wandConfig.quickVenting = b_quick_vent ? 1 : 0;
-  wandConfig.rgbVentEnabled = b_rgb_vent_light ? 1 : 0;
-  wandConfig.autoVentLight = b_vent_light_control ? 1 : 0;
-  wandConfig.wandBeepLoop = b_beep_loop ? 1 : 0;
-  wandConfig.wandBootError = b_wand_boot_errors ? 1 : 0;
-  wandConfig.gpstarAudioLed = b_gpstar_audio_led_enabled ? 1 : 0;
+  wandConfig.overheatEnabled = b_overheat_enabled;
+  wandConfig.streamFlags = gpstarWand.getStreamModeOpts();
+  wandConfig.defaultStreamMode = (uint8_t)DEFAULT_STREAM_MODE;
+  wandConfig.defaultFiringMode = (uint8_t)gpstarWand.getFiringMode();
+  wandConfig.wandSoundsToPack = b_extra_pack_sounds;
+  wandConfig.quickVenting = b_quick_vent;
+  wandConfig.rgbVentEnabled = b_rgb_vent_light;
+  wandConfig.rgbVentColours = b_vent_light_stream_colours;
+  wandConfig.autoVentLight = b_vent_light_control;
+  wandConfig.wandBeepLoop = b_beep_loop;
+  wandConfig.wandBootError = b_wand_boot_errors;
+  wandConfig.gpstarAudioLed = b_gpstar_audio_led_enabled;
 
   switch(WAND_YEAR_MODE) {
     case YEAR_DEFAULT:
     default:
-      wandConfig.defaultYearModeWand = 1;
+      wandConfig.defaultYearModeWand = SYSTEM_TOGGLE_SWITCH;
     break;
     case YEAR_1984:
-      wandConfig.defaultYearModeWand = 2;
+      wandConfig.defaultYearModeWand = SYSTEM_1984;
     break;
     case YEAR_1989:
-      wandConfig.defaultYearModeWand = 3;
+      wandConfig.defaultYearModeWand = SYSTEM_1989;
     break;
     case YEAR_AFTERLIFE:
-      wandConfig.defaultYearModeWand = 4;
+      wandConfig.defaultYearModeWand = SYSTEM_AFTERLIFE;
     break;
     case YEAR_FROZEN_EMPIRE:
-      wandConfig.defaultYearModeWand = 5;
+      wandConfig.defaultYearModeWand = SYSTEM_FROZEN_EMPIRE;
     break;
   }
 
@@ -164,24 +155,12 @@ void getWandPrefsObject() {
     break;
   }
 
-  switch(VIBRATION_MODE_EEPROM) {
-    case VIBRATION_ALWAYS:
-      wandConfig.wandVibration = 1;
-    break;
-    case VIBRATION_FIRING_ONLY:
-      wandConfig.wandVibration = 2;
-    break;
-    case VIBRATION_NONE:
-      wandConfig.wandVibration = 3;
-    break;
-    case VIBRATION_DEFAULT:
-    default:
-      wandConfig.wandVibration = 4;
-    break;
+  if(VIBRATION_MODE_EEPROM > 0){
+    wandConfig.wandVibration = VIBRATION_MODE_EEPROM;
   }
 
-  wandConfig.invertWandBargraph = b_bargraph_invert ? 1 : 0;
-  wandConfig.bargraphOverheatBlink = b_overheat_bargraph_blink ? 1 : 0;
+  wandConfig.invertWandBargraph = b_bargraph_invert;
+  wandConfig.bargraphOverheatBlink = b_overheat_bargraph_blink;
 
   switch(BARGRAPH_TYPE_EEPROM) {
     case SEGMENTS_28:
@@ -254,8 +233,7 @@ void wandSerialSend(uint8_t i_command, uint16_t i_value) {
     return;
   }
 
-  // debug(F("Command to Pack: "));
-  // debugln(i_command);
+  // sendDebug(String(F("Command to Pack: ")) + String(i_command));
 
   sendCmd.s = W_COM_START;
   sendCmd.c = i_command;
@@ -292,8 +270,7 @@ void wandSerialSendData(uint8_t i_message) {
     return;
   }
 
-  debug(F("Data to Pack: "));
-  debugln(i_message);
+  sendDebug(String(F("Data to Pack: ")) + String(i_message));
 
   sendData.s = W_COM_START;
   sendData.m = i_message;
@@ -311,11 +288,11 @@ void wandSerialSendData(uint8_t i_message) {
 
     case W_SEND_PREFERENCES_SMOKE:
       // Determines whether overheating is enabled for a power level.
-      smokeConfig.overheatLevel5 = b_overheat_level_5 ? 1 : 0;
-      smokeConfig.overheatLevel4 = b_overheat_level_4 ? 1 : 0;
-      smokeConfig.overheatLevel3 = b_overheat_level_3 ? 1 : 0;
-      smokeConfig.overheatLevel2 = b_overheat_level_2 ? 1 : 0;
-      smokeConfig.overheatLevel1 = b_overheat_level_1 ? 1 : 0;
+      smokeConfig.overheatLevel5 = b_overheat_level_5;
+      smokeConfig.overheatLevel4 = b_overheat_level_4;
+      smokeConfig.overheatLevel3 = b_overheat_level_3;
+      smokeConfig.overheatLevel2 = b_overheat_level_2;
+      smokeConfig.overheatLevel1 = b_overheat_level_1;
 
       // Time (seconds) before an overheat event takes place by level.
       smokeConfig.overheatDelay5 = (uint8_t)(i_ms_overheat_initiate_level_5 / 1000);
@@ -341,45 +318,8 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value);
 void handleWandPrefsUpdate() {
   sendDebug(F("Saving Wand Preferences"));
 
-#ifdef ESP32
-  switch(wandConfig.wifiState) {
-    case 0:
-      if(WIFI_MODE != WIFI_DISABLED) {
-        // Disable WiFi if it is not already disabled.
-        WIFI_MODE = WIFI_DISABLED;
-        playEffect(S_VOICE_WAND_WIFI_DISABLED);
-        shutdownWireless();
-      }
-    break;
-    case 1:
-      // Unconditionally turn on WiFi.
-      WIFI_MODE = WIFI_ENABLED;
-      playEffect(S_VOICE_WAND_WIFI_ENABLED);
-      restartWireless();
-    break;
-    default:
-      // Do nothing.
-    break;
-  }
-
-  switch(wandConfig.resetWifiPassword) {
-    case 0:
-    default:
-      // Do nothing.
-    break;
-    case 1:
-      // Reset the Wifi password to the system default.
-      wirelessMgr->resetWifiPassword();
-
-      // Immediately reset the config object to prevent repeat calls.
-      wandConfig.resetWifiPassword = 0;
-    break;
-  }
-#endif
-
   switch(wandConfig.ledWandCount) {
     case 0:
-    default:
       WAND_BARREL_LED_COUNT = LEDS_5;
       i_num_barrel_leds = 5; // Stock count for Haslab equipment.
     break;
@@ -390,6 +330,7 @@ void handleWandPrefsUpdate() {
     break;
 
     case 2:
+    default:
       WAND_BARREL_LED_COUNT = LEDS_50;
       i_num_barrel_leds = 48; // Total count is 50, with 2 for the tip.
     break;
@@ -400,59 +341,120 @@ void handleWandPrefsUpdate() {
     break;
   }
 
-  b_overheat_enabled = (wandConfig.overheatEnabled == 1);
+  b_overheat_enabled = wandConfig.overheatEnabled;
   i_spectral_wand_custom_colour = wandConfig.ledWandHue;
   i_spectral_wand_custom_saturation = wandConfig.ledWandSat;
-  b_spectral_mode_enabled = (wandConfig.spectralModesEnabled == 1);
-  b_spectral_custom_mode_enabled = b_spectral_mode_enabled;
-  b_holiday_modes_enabled = b_spectral_mode_enabled;
+
+  // Set the updated stream mode flags.
+  gpstarWand.setStreamModeOpts(wandConfig.streamFlags);
+
+  // Make sure we have the correct flag enabled for the currently active stream mode.
+  switch(gpstarWand.getStreamMode()) {
+    case PROTON:
+    default:
+      // Do nothing.
+    break;
+    case STASIS:
+      gpstarWand.enableStasisStream();
+    break;
+    case SLIME:
+      gpstarWand.enableSlimeStream();
+    break;
+    case MESON:
+      gpstarWand.enableMesonStream();
+    break;
+    case SPECTRAL:
+      gpstarWand.enableSpectralStream();
+    break;
+    case SPECTRAL_CUSTOM:
+      gpstarWand.enableSpectralCustomStream();
+    break;
+    case HOLIDAY_HALLOWEEN:
+      gpstarWand.enableHalloweenStream();
+    break;
+    case HOLIDAY_CHRISTMAS:
+      gpstarWand.enableChristmasStream();
+    break;
+  }
+
+  // Set the default stream mode.
+  DEFAULT_STREAM_MODE = (STREAM_MODES)wandConfig.defaultStreamMode;
+
+  // Make sure we have the correct flag enabled for default stream mode.
+  switch(DEFAULT_STREAM_MODE) {
+    case PROTON:
+    default:
+      // Do nothing.
+    break;
+    case STASIS:
+      gpstarWand.enableStasisStream();
+    break;
+    case SLIME:
+      gpstarWand.enableSlimeStream();
+    break;
+    case MESON:
+      gpstarWand.enableMesonStream();
+    break;
+    case SPECTRAL:
+      gpstarWand.enableSpectralStream();
+    break;
+    case SPECTRAL_CUSTOM:
+      gpstarWand.enableSpectralCustomStream();
+    break;
+    case HOLIDAY_HALLOWEEN:
+      gpstarWand.enableHalloweenStream();
+    break;
+    case HOLIDAY_CHRISTMAS:
+      gpstarWand.enableChristmasStream();
+    break;
+  }
 
   switch(wandConfig.defaultFiringMode) {
-    case 1:
+    case 0:
     default:
-      // Default: Video Game
-      FIRING_MODE = VG_MODE;
-      setVGMode();
+      // First set into VG mode with default stream flags.
+      gpstarWand.setFiringModeVG();
+      wandSerialSend(W_SET_FIRING_MODE, FLAG_VG_MODE); // Tell the pack about the change.
     break;
 
-    case 2:
+    case 1:
       // Cross the Streams (CTS)
-      FIRING_MODE = CTS_MODE;
+      gpstarWand.setFiringModeCTS();
+      wandSerialSend(W_SET_FIRING_MODE, FLAG_CTS_MODE); // Tell the pack about the change.
 
-      // Force into Proton mode.
-      STREAM_MODE = PROTON;
-      wandSerialSend(W_PROTON_MODE);
+      if(gpstarWand.setStreamMode(PROTON)) {
+        streamModeCheck();
+      }
     break;
 
     case 3:
       // CTS Mix
-      FIRING_MODE = CTS_MIX_MODE;
+      gpstarWand.setFiringModeCTSMix();
+      wandSerialSend(W_SET_FIRING_MODE, FLAG_CTS_MIX_MODE); // Tell the pack about the change.
 
-      // Force into Proton mode.
-      STREAM_MODE = PROTON;
-      wandSerialSend(W_PROTON_MODE);
+      if(gpstarWand.setStreamMode(PROTON)) {
+        streamModeCheck();
+      }
     break;
   }
-
-  LAST_FIRING_MODE = FIRING_MODE;
 
   switch(wandConfig.barrelSwitchPolarity) {
     case 1:
     default:
       // Reset the barrel state to prevent repeated sounds.
-      BARREL_STATE = BARREL_UNKNOWN;
+      gpstarWand.setBarrelState(BARREL_UNKNOWN);
       BARREL_SWITCH_POLARITY = SWITCH_DEFAULT;
     break;
 
     case 2:
       // Reset the barrel state to prevent repeated sounds.
-      BARREL_STATE = BARREL_UNKNOWN;
+      gpstarWand.setBarrelState(BARREL_UNKNOWN);
       BARREL_SWITCH_POLARITY = SWITCH_INVERTED;
     break;
 
     case 3:
       // Reset the barrel state to prevent repeated sounds.
-      BARREL_STATE = BARREL_UNKNOWN;
+      gpstarWand.setBarrelState(BARREL_UNKNOWN);
       BARREL_SWITCH_POLARITY = SWITCH_DISABLED;
     break;
   }
@@ -461,36 +463,37 @@ void handleWandPrefsUpdate() {
     case 1:
       b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
       VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
-      VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+      gpstarWand.setVibrationMode(VIBRATION_MODE_EEPROM);
     break;
 
     case 2:
       b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
       VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
-      VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+      gpstarWand.setVibrationMode(VIBRATION_MODE_EEPROM);
     break;
 
     case 3:
-      VIBRATION_MODE_EEPROM = VIBRATION_NONE;
-      VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+      VIBRATION_MODE_EEPROM = VIBRATION_NEVER;
+      gpstarWand.setVibrationMode(VIBRATION_MODE_EEPROM);
     break;
 
     case 4:
     default:
       VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
-      VIBRATION_MODE = VIBRATION_FIRING_ONLY;
+      gpstarWand.setVibrationMode(VIBRATION_FIRING_ONLY);
     break;
   }
 
-  b_extra_pack_sounds = (wandConfig.wandSoundsToPack == 1);
-  b_quick_vent = (wandConfig.quickVenting == 1);
+  b_extra_pack_sounds = wandConfig.wandSoundsToPack;
+  b_quick_vent = wandConfig.quickVenting;
   #ifndef ESP32
-  b_rgb_vent_light = (wandConfig.rgbVentEnabled == 1);
+  b_rgb_vent_light = wandConfig.rgbVentEnabled;
   #endif
-  b_vent_light_control = (wandConfig.autoVentLight == 1);
-  b_beep_loop = (wandConfig.wandBeepLoop == 1);
-  b_wand_boot_errors = (wandConfig.wandBootError == 1);
-  b_gpstar_audio_led_enabled = (wandConfig.gpstarAudioLed == 1);
+  b_vent_light_stream_colours = wandConfig.rgbVentColours;
+  b_vent_light_control = wandConfig.autoVentLight;
+  b_beep_loop = wandConfig.wandBeepLoop;
+  b_wand_boot_errors = wandConfig.wandBootError;
+  b_gpstar_audio_led_enabled = wandConfig.gpstarAudioLed;
 
   switch(wandConfig.defaultYearModeWand) {
     case 1:
@@ -524,8 +527,8 @@ void handleWandPrefsUpdate() {
     break;
   }
 
-  b_bargraph_invert = (wandConfig.invertWandBargraph == 1);
-  b_overheat_bargraph_blink = (wandConfig.bargraphOverheatBlink == 1);
+  b_bargraph_invert = wandConfig.invertWandBargraph;
+  b_overheat_bargraph_blink = wandConfig.bargraphOverheatBlink;
 
   switch(wandConfig.numBargraphSegments) {
     case 28:
@@ -582,11 +585,39 @@ void handleWandPrefsUpdate() {
   setAudioLED(b_gpstar_audio_led_enabled);
   bargraphYearModeUpdate();
   updateOverheatLevels();
-  updateStreamFlags();
   resetWhiteLEDBlinkRate();
 
   // Inform the pack of our current stream flags.
-  wandSerialSend(W_STREAM_FLAGS, STREAM_MODE_FLAG);
+  wandSerialSend(W_STREAM_FLAGS, gpstarWand.getStreamModeOpts());
+
+#ifdef ESP32
+  if(wandConfig.resetWifiPassword) {
+    // Reset the Wifi password to the system default.
+    wirelessMgr->resetWifiPassword();
+
+    // Immediately reset the config object to prevent repeat calls.
+    wandConfig.resetWifiPassword = false;
+  }
+
+  if(wandConfig.isWiFiEnabled) {
+    // Flag indicates WiFi should be enabled, whether by default or user choice.
+    if(WIFI_USER_MODE != WIFI_ENABLED && !wirelessMgr->isWifiActive()) {
+      // If the WiFi user-mode is default or disabled, and WiFi is not already active,
+      // then explicitly enable WiFi as the new user mode and restart the service.
+      WIFI_USER_MODE = WIFI_ENABLED;
+      playEffect(S_VOICE_WAND_WIFI_ENABLED);
+      restartWireless();
+    }
+  } else {
+    // Flag indicates WiFi should be disabled.
+    if(WIFI_USER_MODE != WIFI_DISABLED) {
+      // Whether WiFi is active or not, set the user mode to disabled.
+      WIFI_USER_MODE = WIFI_DISABLED;
+      playEffect(S_VOICE_WAND_WIFI_DISABLED);
+      shutdownWireless();
+    }
+  }
+#endif
 }
 
 // Pack communication to the wand.
@@ -598,8 +629,7 @@ void checkPack() {
 
   if(packComs.available() > 0) {
     uint8_t i_packet_id = packComs.currentPacketID();
-    // debug(F("PacketID: "));
-    // debugln(i_packet_id);
+    // sendDebug(String(F("PacketID: ")) + String(i_packet_id));
 
     if(i_packet_id > 0) {
       // Determine the type of packet which was sent by the Pack.
@@ -607,8 +637,7 @@ void checkPack() {
         case PACKET_COMMAND:
           packComs.rxObj(recvCmd);
           if(recvCmd.c > 0 && recvCmd.s == P_COM_START && recvCmd.e == P_COM_END) {
-            debug(F("Recv. Command: "));
-            debugln(recvCmd.c);
+            sendDebug(String(F("Recv. Command: ")) + String(recvCmd.c));
             if(handlePackCommand(recvCmd.c, recvCmd.d1)) {
               // Begin timer for future keepalive handshakes from the wand.
               ms_handshake.start(i_heartbeat_delay);
@@ -620,9 +649,14 @@ void checkPack() {
               // Indicate that a pack is now connected.
               WAND_CONN_STATE = PACK_CONNECTED;
 
+              // Set the first boot variable to 10 to make sure this doesn't run twice.
+              i_boot_connection_count = 10;
+
               // Disable the built-in wifi as the pack now handles it.
               #ifdef ESP32
-              WIFI_MODE = WIFI_DISABLED;
+              if(WIFI_USER_MODE == WIFI_DEFAULT) {
+                WIFI_USER_MODE = WIFI_DISABLED; // Disable WiFi as the Pack handles it.
+              }
               #endif
             }
           }
@@ -638,8 +672,7 @@ void checkPack() {
         case PACKET_DATA:
           packComs.rxObj(recvData);
           if(recvData.m > 0 && recvData.s == P_COM_START && recvData.e == P_COM_END) {
-            debug(F("Recv. Message: "));
-            debugln(recvData.m);
+            sendDebug(String(F("Recv. Message: ")) + String(recvData.m));
 
             switch(recvData.m) {
               default:
@@ -651,7 +684,7 @@ void checkPack() {
 
         case PACKET_WAND:
           packComs.rxObj(wandConfig);
-          debugln(F("Recv. Wand Config"));
+          sendDebug(F("Recv. Wand Config"));
 
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!
@@ -660,15 +693,15 @@ void checkPack() {
 
         case PACKET_SMOKE:
           packComs.rxObj(smokeConfig);
-          debugln(F("Recv. Smoke Config"));
+          sendDebug(F("Recv. Smoke Config"));
 
           // Writes new preferences back to runtime variables.
           // This action does not save changes to the EEPROM!
-          b_overheat_level_5 = (smokeConfig.overheatLevel5 == 1);
-          b_overheat_level_4 = (smokeConfig.overheatLevel4 == 1);
-          b_overheat_level_3 = (smokeConfig.overheatLevel3 == 1);
-          b_overheat_level_2 = (smokeConfig.overheatLevel2 == 1);
-          b_overheat_level_1 = (smokeConfig.overheatLevel1 == 1);
+          b_overheat_level_5 = smokeConfig.overheatLevel5;
+          b_overheat_level_4 = smokeConfig.overheatLevel4;
+          b_overheat_level_3 = smokeConfig.overheatLevel3;
+          b_overheat_level_2 = smokeConfig.overheatLevel2;
+          b_overheat_level_1 = smokeConfig.overheatLevel1;
 
           // Values are sent as seconds, must convert to milliseconds.
           i_ms_overheat_initiate_level_5 = smokeConfig.overheatDelay5 * 1000;
@@ -683,154 +716,60 @@ void checkPack() {
 
         case PACKET_SYNC:
           packComs.rxObj(wandSyncData);
-          debugln(F("Recv. Sync Payload"));
+          sendDebug(F("Recv. Sync Payload"));
 
-          // Write the received data to runtime variables.
-          // This will not save to the EEPROM!
-          switch(wandSyncData.systemMode) {
-            case 1:
-            default:
-              SYSTEM_MODE = MODE_SUPER_HERO;
-            break;
-            case 2:
-              SYSTEM_MODE = MODE_ORIGINAL;
-            break;
+          // Set whether the Proton Pack is currently on or off.
+          if(wandSyncData.packOn) {
+            // Pack is on.
+            b_pack_on = true;
           }
+          else {
+            // Pack is off.
+            if(b_pack_on) {
+              // Turn wand off.
+              if(WAND_STATUS != MODE_OFF) {
+                if(WAND_STATUS == MODE_ERROR) {
+                  b_wand_mash_lockout = false;
+                  wandOff();
+                }
+                else {
+                  b_wand_mash_lockout = false;
+                  WAND_ACTION_STATUS = ACTION_OFF;
+                }
+              }
+            }
+
+            b_pack_on = false;
+          }
+
+          // Import sync data into DeviceState using centralized method
+          gpstarWand.importData(wandSyncData);
 
           vgModeCheck(); // Re-check VG/CTS mode.
 
           // Set whether the switch under the ion arm is on or off.
-          changeIonArmSwitchState(wandSyncData.ionArmSwitch == 2);
+          changeIonArmSwitchState(wandSyncData.ionArmSwitch);
 
-          // Update the System Year setting.
-          switch(wandSyncData.systemYear) {
-            case 1:
-              SYSTEM_YEAR = SYSTEM_1984;
-            break;
-            case 2:
-              SYSTEM_YEAR = SYSTEM_1989;
-            break;
-            case 3:
-            default:
-              SYSTEM_YEAR = SYSTEM_AFTERLIFE;
-            break;
-            case 4:
-              SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
-            break;
-          }
-
-          // Reset the bargraph now that we have our SYSTEM_MODE and SYSTEM_YEAR set.
+          // Reset the bargraph now that we have our gpstarWand.systemMode and gpstarWand.systemTheme set.
           bargraphYearModeUpdate();
 
           // Reset the white LED blink rate in case we changed wand year.
           resetWhiteLEDBlinkRate();
 
-          // Set whether the Proton Pack is currently on or off.
-          switch(wandSyncData.packOn) {
-            case 1:
-            default:
-              // Pack is off.
-              if(b_pack_on) {
-                // Turn wand off.
-                if(WAND_STATUS != MODE_OFF) {
-                  if(WAND_STATUS == MODE_ERROR) {
-                    b_wand_mash_error = false;
-                    wandOff();
-                  }
-                  else {
-                    b_wand_mash_error = false;
-                    WAND_ACTION_STATUS = ACTION_OFF;
-                  }
-                }
-              }
-
-              b_pack_on = false;
-            break;
-            case 2:
-              // Pack is on.
-              b_pack_on = true;
-            break;
-          }
-
-          // Set our starting power level.
-          i_power_level = wandSyncData.powerLevel;
-          i_power_level_prev = i_power_level;
-
-          // Set the appropriate flags for power level.
-          switch(i_power_level) {
-            case 1:
-              POWER_LEVEL = LEVEL_1;
-            break;
-            case 2:
-              POWER_LEVEL = LEVEL_2;
-            break;
-            case 3:
-              POWER_LEVEL = LEVEL_3;
-            break;
-            case 4:
-              POWER_LEVEL = LEVEL_4;
-            break;
-            case 5:
-            default:
-              POWER_LEVEL = LEVEL_5;
-            break;
-          }
-
-          // Set our firing mode.
-          switch(wandSyncData.streamMode) {
-            case 1:
-            default:
-              STREAM_MODE = PROTON;
-            break;
-            case 2:
-              STREAM_MODE = SLIME;
-              setVGMode();
-            break;
-            case 3:
-              STREAM_MODE = STASIS;
-              setVGMode();
-            break;
-            case 4:
-              STREAM_MODE = MESON;
-
-              if(AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
-                // Tell GPStar Audio we need short audio mode.
-                audio.gpstarShortTrackOverload(false);
-              }
-
-              setVGMode();
-            break;
-            case 5:
-              STREAM_MODE = SPECTRAL;
-              setVGMode();
-            break;
-            case 6:
-              STREAM_MODE = HOLIDAY_HALLOWEEN;
-              setVGMode();
-            break;
-            case 7:
-              STREAM_MODE = HOLIDAY_CHRISTMAS;
-              setVGMode();
-            break;
-            case 8:
-              STREAM_MODE = SPECTRAL_CUSTOM;
-              setVGMode();
-            break;
-          }
-
-          // Reset our stream flags just in case something changed.
-          updateStreamFlags();
-
           // Set up master vibration switch if not configured to override it.
           if(VIBRATION_MODE_EEPROM == VIBRATION_DEFAULT) {
-            b_vibration_switch_on = wandSyncData.vibrationEnabled == 2;
+            b_vibration_switch_on = wandSyncData.vibrationToggle;
           }
 
           // Update cyclotron lid status.
-          b_pack_cyclotron_lid_on = wandSyncData.cyclotronLidState == 2;
+          b_pack_cyclotron_lid_on = wandSyncData.cyclotronLidState;
+
+          // Update pack board audio revision.
+          i_pack_audio_version = wandSyncData.packAudioVersion;
 
           // Update music status.
-          b_repeat_track = wandSyncData.repeatMusicTrack == 2;
+          b_repeat_track = wandSyncData.repeatMusicTrack;
+          b_shuffle_tracks = wandSyncData.shuffleMusicTracks;
           switch(wandSyncData.musicStatus) {
             case 1:
             default:
@@ -862,19 +801,13 @@ void checkPack() {
           i_volume_effects = i_volume_abs_min - (i_volume_abs_min * i_volume_effects_percentage / 100);
           updateEffectsVolume();
 
-          switch(wandSyncData.masterMuted) {
-            case 1:
-            default:
-              // Do nothing; we already have our volumes set correctly.
-            break;
-            case 2:
-              // Remember the current master volume level.
-              i_volume_revert = i_volume_master;
+          if(wandSyncData.masterMuted) {
+            // Remember the current master volume level.
+            i_volume_revert = i_volume_master;
 
-              // The pack is telling us to be silent.
-              i_volume_master = i_volume_abs_min;
-              updateMasterVolume();
-            break;
+            // The pack is telling us to be silent.
+            i_volume_master = i_volume_abs_min;
+            updateMasterVolume();
           }
         break;
       }
@@ -900,10 +833,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case P_SYNC_START:
-      debugln(F("Pack Sync Start"));
-
-      stopEffect(S_WAND_SYNC);
-      playEffect(S_WAND_SYNC);
+      sendDebug(F("Pack Sync Start"));
 
       if(i_value == 1) {
         // Pack is currently performing a POST sequence, so set that variable to delay our control loop.
@@ -915,7 +845,7 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case P_SYNC_END:
-      debugln(F("Pack Sync End"));
+      sendDebug(F("Pack Sync End"));
 
       // Acknowledgement that the wand is now synchronized.
       wandSerialSend(W_SYNCHRONIZED);
@@ -924,10 +854,31 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       wandSerialSend(W_WAND_AUDIO_VERSION, i_audio_version);
 
       // Inform the pack of our current stream flags.
-      wandSerialSend(W_STREAM_FLAGS, STREAM_MODE_FLAG);
+      wandSerialSend(W_STREAM_FLAGS, gpstarWand.getStreamModeOpts());
+
+      // If pack is off, switch to our default stream mode before proceeding.
+      if(!b_pack_on) {
+        gpstarWand.setStreamMode(DEFAULT_STREAM_MODE);
+        streamModeCheck();
+      }
+
+      // Need to re-check for VG mode adjustments
+      if(!gpstarWand.inStreamMode(PROTON)) {
+        gpstarWand.setFiringModeVG();
+      }
+      else {
+        if(gpstarWand.isFiringModeCTS()) {
+          // If we are in CTS or CTS Mix, make sure the pack knows.
+          wandSerialSend(W_SET_FIRING_MODE, gpstarWand.isFiringModeCTSMix() ? FLAG_CTS_MIX_MODE : FLAG_CTS_MODE); // Tell the pack about the change.
+        }
+        else {
+          // Make sure the pack knows we are in VG mode.
+          wandSerialSend(W_SET_FIRING_MODE, FLAG_VG_MODE);
+        }
+      }
 
       // Tell the pack the status of the Neutrona Wand barrel.
-      if(BARREL_STATE != BARREL_UNKNOWN) {
+      if(gpstarWand.getBarrelState() != BARREL_UNKNOWN) {
         if(switchBarrel()) {
           wandSerialSend(W_BARREL_EXTENDED);
         }
@@ -943,9 +894,31 @@ bool handlePackCommand(uint8_t i_command, uint16_t i_value) {
       return true;
     break;
 
+    case P_SYSTEM_LOCKOUT:
+      // Pack just said we need to start lockout if applicable.
+      if(!b_wand_mash_lockout) {
+        // Setting i_bmash_count to the max value will trigger the lockout.
+        i_bmash_count = i_bmash_max;
+      }
+    break;
+
+    case P_CANCEL_LOCKOUT:
+      // Pack just said we need to cancel the lockout if applicable.
+      if(b_wand_mash_lockout) {
+        // Stopping the timer will trigger the restart sequence.
+        ms_bmash.stop();
+      }
+    break;
+
     case P_POST_FINISH:
       // Pack has completed the Power On Self Test sequence.
       b_pack_post_finish = true;
+    break;
+
+    case P_REQUEST_BEEP_SYNC:
+      // Pack is requesting we re-sync our beep loop, if applicable.
+      b_beeping = false;
+      ms_reset_sound_beep.start(0);
     break;
 
     case P_SEND_PREFERENCES_WAND:

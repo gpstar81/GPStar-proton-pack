@@ -1,6 +1,6 @@
 /**
  *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                         & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -85,7 +85,7 @@ function getDevicePrefs() {
   // This is updated once per page load as it is not subject to frequent changes.
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function () {
-    if (this.readyState == 4 && this.status == 200) {
+    if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
       var jObj = JSON.parse(this.responseText);
       if (jObj) {
         if (jObj.songList && jObj.songList != "") {
@@ -95,11 +95,11 @@ function getDevicePrefs() {
 
         // Device Info
         setHtml("buildDate", "Build: " + (jObj.buildDate || ""));
-        setHtml("wifiName", jObj.wifiName || "");
-        if (((jObj.wifiNameExt || "") != "" && (jObj.extAddr || "") != "") || (jObj.extMask || "") != "") {
+        setHtml("wifiName", "Private Network: " + jObj.wifiName || "");
+        if ((jObj.wifiNameExt || "") != "" && (jObj.extAddr || "") != "" && (jObj.extMask || "") != "") {
           setHtml("extWifi", (jObj.wifiNameExt || "") + ": " + jObj.extAddr + " / " + jObj.extMask);
         }
-        switch (jObj.audioVersion || 0) {
+        switch (jObj.audioVersion ?? 0) {
           case 0:
             setHtml("audioInfo", "No Audio Detected");
             break;
@@ -113,7 +113,18 @@ function getDevicePrefs() {
             setHtml("audioInfo", "GPStar Audio v" + (jObj.audioVersion || ""));
             break;
         }
+
+        // microSD Warnings
+        if (Boolean(jObj.audioCorrupt)) {
+          alert("Corruption has been detected on the microSD card. Please reformat the card as FAT32 and reload audio files.");
+        } else if (Boolean(jObj.audioOutdated)) {
+          // The file count on the microSD card does not match firmware; alert the user.
+          alert("Contents of microSD card do not match current firmware. Please make sure to update your microSD cards after updating firmware.");
+        }
       }
+    } else if (this.readyState == 4) {
+      // Handle error responses
+      handleStatus(this.responseText);
     }
   };
   xhttp.open("GET", "/config/device", true);
@@ -234,6 +245,7 @@ function updateEquipment(jObj) {
       enableEl("btnMusicPauseResume");
       enableEl("btnMusicNext");
       enableEl("toggleLoop");
+      enableEl("toggleShuffle");
     } else {
       disableEl("btnVolMusicUp");
       disableEl("btnVolMusicDown");
@@ -244,19 +256,20 @@ function updateEquipment(jObj) {
       disableEl("btnMusicPauseResume");
       disableEl("btnMusicNext");
       disableEl("toggleLoop");
+      disableEl("toggleShuffle");
     }
 
     // Volume Information
-    setHtml("masterVolume", (jObj.volMaster || 0) + "%");
-    if ((jObj.volMaster || 0) == 0) {
+    setHtml("masterVolume", (jObj.volMaster ?? 0) + "%");
+    if ((jObj.volMaster ?? 0) == 0) {
       setHtml("masterVolume", "Min");
     }
-    setHtml("effectsVolume", (jObj.volEffects || 0) + "%");
-    if ((jObj.volEffects || 0) == 0) {
+    setHtml("effectsVolume", (jObj.volEffects ?? 0) + "%");
+    if ((jObj.volEffects ?? 0) == 0) {
       setHtml("effectsVolume", "Min");
     }
-    setHtml("musicVolume", (jObj.volMusic || 0) + "%");
-    if ((jObj.volMusic || 0) == 0) {
+    setHtml("musicVolume", (jObj.volMusic ?? 0) + "%");
+    if ((jObj.volMusic ?? 0) == 0) {
       setHtml("musicVolume", "Min");
     }
     setToggle("toggleMute", jObj.volMuted);
@@ -273,6 +286,7 @@ function updateEquipment(jObj) {
       setHtml("playbackStatus", "No Music Playing");
     }
     setToggle("toggleLoop", jObj.musicLooping);
+    setToggle("toggleShuffle", jObj.musicShuffled);
 
     // Update special UI elements based on sensor information.
     setButtonStates(jObj.sensors || "");
@@ -280,13 +294,13 @@ function updateEquipment(jObj) {
     // Update the current track info.
     musicTrackStart = jObj.musicStart || 0;
     musicTrackMax = jObj.musicEnd || 0;
-    if (musicTrackCurrent != (jObj.musicCurrent || 0)) {
+    if (musicTrackCurrent != (jObj.musicCurrent ?? 0)) {
       musicTrackCurrent = jObj.musicCurrent || 0;
       updateTrackListing();
     }
 
     // Connected Wifi Clients - Private AP vs. WebSocket
-    setHtml("clientInfo", "AP Clients: " + (jObj.apClients || 0) + " / WebSocket Clients: " + (jObj.wsClients || 0));
+    setHtml("clientInfo", "AP Clients: " + (jObj.apClients ?? 0) + " / WebSocket Clients: " + (jObj.wsClients ?? 0));
   }
 }
 
@@ -371,7 +385,7 @@ class Telemetry3DView {
           frustumSize / 2, // Top
           -frustumSize / 2, // Bottom
           0.1, // Near clipping plane
-          farPlane // Far clipping plane
+          farPlane, // Far clipping plane
         );
 
         // Position camera and look at the center of the scene
@@ -605,7 +619,7 @@ if (!!window.EventSource) {
     function (e) {
       console.log("Server-Side Events connected");
     },
-    false
+    false,
   );
 
   source.addEventListener(
@@ -615,7 +629,16 @@ if (!!window.EventSource) {
         console.log("Server-Side Events disconnected");
       }
     },
-    false
+    false,
+  );
+
+  source.addEventListener(
+    "debug",
+    function (e) {
+      if (e.data === undefined) return;
+      console.log("Debug: ", e.data);
+    },
+    false,
   );
 
   source.addEventListener(
@@ -629,10 +652,10 @@ if (!!window.EventSource) {
       } catch (e) {}
 
       // Update the calibration time remaining.
-      timeRemaining = parseFloat(calData.t || 0).toFixed(2);
+      timeRemaining = parseFloat(calData.t ?? 0).toFixed(2);
       getEl("gyroCounter").innerHTML = timeRemaining + "s remaining";
     },
-    false
+    false,
   );
 
   source.addEventListener(
@@ -646,7 +669,7 @@ if (!!window.EventSource) {
       } catch (e) {}
 
       // Update the calibration coverage percentage.
-      lastCoverage = parseFloat(calData.c || 0);
+      lastCoverage = parseFloat(calData.c ?? 0);
       if (lastCoverage > 0) {
         setHtml("coverage", formatFloat(lastCoverage) + "%");
       }
@@ -658,9 +681,9 @@ if (!!window.EventSource) {
 
       // Display the last added sample for reference.
       if (calData.v && (calData.v || []).length == 3) {
-        setHtml("magX", formatFloat(calData.v[0] || 0) + "&micro;T");
-        setHtml("magY", formatFloat(calData.v[1] || 0) + "&micro;T");
-        setHtml("magZ", formatFloat(calData.v[2] || 0) + "&micro;T");
+        setHtml("magX", formatFloat(calData.v[0] ?? 0) + "&micro;T");
+        setHtml("magY", formatFloat(calData.v[1] ?? 0) + "&micro;T");
+        setHtml("magZ", formatFloat(calData.v[2] ?? 0) + "&micro;T");
       }
 
       // Process enhanced bin distribution data for coverage analysis
@@ -677,7 +700,7 @@ if (!!window.EventSource) {
         calibration3D.setPoints(calData.p);
       }
     },
-    false
+    false,
   );
 
   source.addEventListener(
@@ -689,21 +712,21 @@ if (!!window.EventSource) {
       } catch (e) {}
 
       // Update the HTML elements with the telemetry data
-      setHtml("gyroX", formatFloat(obj.gX || 0) + "&deg;/s");
-      setHtml("gyroY", formatFloat(obj.gY || 0) + "&deg;/s");
-      setHtml("gyroZ", formatFloat(obj.gZ || 0) + "&deg;/s");
-      setHtml("accelX", formatFloat(obj.aX || 0) + "m/s<sup>2</sup>");
-      setHtml("accelY", formatFloat(obj.aY || 0) + "m/s<sup>2</sup>");
-      setHtml("accelZ", formatFloat(obj.aZ || 0) + "m/s<sup>2</sup>");
-      setHtml("roll", formatFloat(obj.roll || 0) + "&deg;");
-      setHtml("pitch", formatFloat(obj.pitch || 0) + "&deg;");
-      setHtml("yaw", formatFloat(obj.yaw || 0) + "&deg;");
-      setHtml("gForce", formatFloat(obj.gForce || 0) + "");
-      setHtml("angVel", formatFloat(obj.angVel || 0) + "&deg;/s");
+      setHtml("gyroX", formatFloat(obj.gX ?? 0) + "&deg;/s");
+      setHtml("gyroY", formatFloat(obj.gY ?? 0) + "&deg;/s");
+      setHtml("gyroZ", formatFloat(obj.gZ ?? 0) + "&deg;/s");
+      setHtml("accelX", formatFloat(obj.aX ?? 0) + "m/s<sup>2</sup>");
+      setHtml("accelY", formatFloat(obj.aY ?? 0) + "m/s<sup>2</sup>");
+      setHtml("accelZ", formatFloat(obj.aZ ?? 0) + "m/s<sup>2</sup>");
+      setHtml("roll", formatFloat(obj.roll ?? 0) + "&deg;");
+      setHtml("pitch", formatFloat(obj.pitch ?? 0) + "&deg;");
+      setHtml("yaw", formatFloat(obj.yaw ?? 0) + "&deg;");
+      setHtml("gForce", formatFloat(obj.gForce ?? 0) + "");
+      setHtml("angVel", formatFloat(obj.angVel ?? 0) + "&deg;/s");
       setHtml("shaken", "&nbsp;&nbsp;&nbsp;" + (obj.shaken ? "&oplus;" : "&mdash;"));
-      setHtml("magX", formatFloat(obj.mX || 0) + "&micro;T");
-      setHtml("magY", formatFloat(obj.mY || 0) + "&micro;T");
-      setHtml("magZ", formatFloat(obj.mZ || 0) + "&micro;T");
+      setHtml("magX", formatFloat(obj.mX ?? 0) + "&micro;T");
+      setHtml("magY", formatFloat(obj.mY ?? 0) + "&micro;T");
+      setHtml("magZ", formatFloat(obj.mZ ?? 0) + "&micro;T");
 
       // Proceed with updating the rendered scene if all objects are present.
       if (telemetry3D && telemetry3D.mesh) {
@@ -715,9 +738,9 @@ if (!!window.EventSource) {
         telemetry3D.setQuaternion(-obj.qY, -obj.qZ, obj.qX, obj.qW);
 
         // Convert roll, pitch, and yaw from degrees to radians for Three.js
-        var rollRads = ((obj.roll || 0) * Math.PI) / 180;
-        var pitchRads = ((obj.pitch || 0) * Math.PI) / 180;
-        var yawRads = ((obj.yaw || 0) * Math.PI) / 180;
+        var rollRads = ((obj.roll ?? 0) * Math.PI) / 180;
+        var pitchRads = ((obj.pitch ?? 0) * Math.PI) / 180;
+        var yawRads = ((obj.yaw ?? 0) * Math.PI) / 180;
 
         // Move camera behind the object based on yaw
         const radius = 200; // Distance from object, adjust as needed
@@ -731,7 +754,7 @@ if (!!window.EventSource) {
         }
       }
     },
-    false
+    false,
   );
 }
 
@@ -943,7 +966,7 @@ function updateDistributionStats(elevationBins, azimuthBins) {
   // Count filled elevation bins (bins with sample count > 0)
   var filledElevationBins = 0;
   for (var i = 0; i < elevationBins.length; i++) {
-    if ((elevationBins[i] || 0) > 0) {
+    if ((elevationBins[i] ?? 0) > 0) {
       filledElevationBins++;
     }
   }
@@ -951,7 +974,7 @@ function updateDistributionStats(elevationBins, azimuthBins) {
   // Count filled azimuth bins (bins with sample count > 0)
   var filledAzimuthBins = 0;
   for (var i = 0; i < azimuthBins.length; i++) {
-    if ((azimuthBins[i] || 0) > 0) {
+    if ((azimuthBins[i] ?? 0) > 0) {
       filledAzimuthBins++;
     }
   }
@@ -1005,7 +1028,7 @@ function updateUserFeedback(elevationBins, azimuthBins, overallCoverage) {
 
     // Check low elevation coverage (pointing down)
     for (var i = 0; i < elevationBinRange; i++) {
-      if ((elevationBins[i] || 0) > 0) {
+      if ((elevationBins[i] ?? 0) > 0) {
         lowElevationCovered = true;
         break;
       }
@@ -1013,7 +1036,7 @@ function updateUserFeedback(elevationBins, azimuthBins, overallCoverage) {
 
     // Check high elevation coverage (pointing up)
     for (var i = elevationBins.length - elevationBinRange; i < elevationBins.length; i++) {
-      if ((elevationBins[i] || 0) > 0) {
+      if ((elevationBins[i] ?? 0) > 0) {
         highElevationCovered = true;
         break;
       }

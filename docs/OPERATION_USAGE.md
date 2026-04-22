@@ -1,6 +1,11 @@
 ![](images/gpstar_logo_bg.png)
 
-<center><h2><img src="../images/gpstar_logo.png" width="30"/> GPStar Proton Pack &amp; Neutrona Wand Operation Manual</h2></center>
+<center>
+  <h2>
+    <span class="logo-icon-tiny"></span>
+    GPStar Proton Pack &amp; Neutrona Wand Operation Manual
+  </h2>
+</center>
 
 ![](images/OperationNeutrona1.jpg)
 <sup>Neutrona Wand renders courtesy of Luis Peña</sup>
@@ -21,28 +26,39 @@
 - The Proton Pack can run without a wand, though it can only be activated via the switch under the Ion Arm.
 - Vibration switch in the Cyclotron switch plate enables or disables the vibration motors for both the Proton Pack and Neutrona Wand.
 - Theme toggle in the Cyclotron switch plate changes the Proton Pack and Neutrona Wand modes between 1984, 1989, Afterlife, and Frozen Empire.
-- The Proton Pack vibrates only while firing. This can be changed to vibrate at all times or entirely disabled. Vibration can be enabled or disabled by the vibration toggle switch in the Proton Pack. Vibration settings can be toggled via the Neutrona Wand menu system or the Neutrona Wand EEPROM Configuration Menu.
-- The Neutrona Wand vibrates only while firing. This can be changed to vibrate at all times or entirely disabled. Vibration can enabled or disabled by the vibration toggle switch in the Proton Pack. Vibration settings can be toggled via the Neutrona Wand menu system or the Neutrona Wand EEPROM Configuration Menu.
-	- A standalone Neutrona Wand will have vibration disabled by default to save power. Vibration can be re-enabled via the Neutrona Wand EEPROM Configuration Menu.
+- The Proton Pack vibrates only while firing. This can be changed to vibrate at all times or entirely disabled. Vibration can be enabled or disabled by the vibration toggle switch in the Proton Pack. Vibration settings can be toggled via the [Neutrona Wand menu system](OPERATION_MENUS.md) or the [Neutrona Wand EEPROM Configuration Menu](OPERATION_EEPROM.md).
+- The Neutrona Wand vibrates only while firing. This can be changed to vibrate at all times or entirely disabled. Vibration can enabled or disabled by the vibration toggle switch in the Proton Pack. Vibration settings can be toggled via the [Neutrona Wand menu system](OPERATION_MENUS.md) or the [Neutrona Wand EEPROM Configuration Menu](OPERATION_EEPROM.md).
+    - A standalone Neutrona Wand will have vibration disabled by default to save power. Vibration can be re-enabled via the [Neutrona Wand EEPROM Configuration Menu](OPERATION_EEPROM.md).
 - Single (centered) LED per Cyclotron lens for 1984/1989 modes by default.
-	- This can be toggled back to 3 LEDs per Cyclotron lens via the Neturona Wand menu system.
+    - This can be toggled back to 3 LEDs per Cyclotron lens via the Neturona Wand menu system.
 - The Power Cell, Cyclotron and other lighting on the Proton Pack can have the brightness independently adjusted.
-- 1989 and Frozen Empire sound effect modes are available; they can be accessed from the Neutrona Wand menus or set with the Neutrona Wand EEPROM Configuration Menu.
+- 1989 and Frozen Empire sound effect modes are available; they can be accessed from the [Neutrona Wand menu system](OPERATION_MENUS.md) or set with the [Neutrona Wand EEPROM Configuration Menu](OPERATION_EEPROM.md).
 - Super Hero and Mode Original system operation modes.
 - Menu system with the ability to customise various settings for both your Proton Pack and Neutrona Wand.
 - Up to 5 different power levels as indicated on the Neutrona Wand bargraph.
-	- The Neutrona Wand can be configured within the menu system to adjust the overheat settings. When not set to overheat, you can fire continuously.
-	- The Proton Pack can also be configured within the Neutrona Wand menu system to adjust the duration of smoke effects (for each power level), which smoke effects are activated (for each power level), use of overheating smoke effects (for each power level), or whether smoke is enabled or disabled entirely (for each power level).
-	Default settings: The Neutrona Wand will fire forever on power levels level 1 through 4 and overheat on power level 5.
-- The Proton Pack will emit smoke effects during longer firing (Default setting: enabled). This can be configured from the Neutrona Wand menu system.
+    - The Neutrona Wand can be configured within the menu system to adjust the overheat settings. When not set to overheat, you can fire continuously.
+    - The Proton Pack can also be configured within the [Neutrona Wand EEPROM Configuration Menu](OPERATION_EEPROM.md) to adjust the duration of smoke effects (for each power level), which smoke effects are activated (for each power level), use of overheating smoke effects (for each power level), or whether smoke is enabled or disabled entirely (for each power level).
+    Default settings: The Neutrona Wand will fire forever on power levels level 1 through 4 and overheat on power level 5.
+- The Proton Pack will emit smoke effects during longer firing (Default setting: enabled). This can be configured from the [Neutrona Wand EEPROM Configuration Menu](OPERATION_EEPROM.md).
 
-### System Power Readiness Indicator
+### System Power-On Self Test
 
 - When battery power is first applied on the Proton Pack, the lights will flicker and a sound will play to indicate that the system now has power and is ready for use.
 
 ### System Power Inactivity Indicator
 
-- The LED at the front of the Neutrona Wand body next to the Clippard valve will start to blink after 1 minute of inactivity while the Neutrona Wand and Proton Pack are powered down to indicate the system is still receiving power from the battery.
+- The LED at the front of the Neutrona Wand body next to the Clippard valve will start to blink after 1 minute of inactivity while the Neutrona Wand and Proton Pack are powered down and no music is playing to indicate the system is still receiving power from the battery.
+
+### GPStar II Neutrona Wand WiFi Toggle
+
+As a backup means of enabling the WiFi on the Neutrona Wand (which is disabled when connected to a pack) perform the following steps:
+
+1. Turn off all toggle switches on the Neutrona Wand.
+1. Hold down the `Intensify` button.
+1. Press and hold the `Barrel Wing Button` at the end of the wand.
+    - You should hear a voice prompt confirm that WiFi is being enabled.
+
+This action will toggle the Neutrona Wand's WiFi on for GPStar II boards for tasks such as updating firmware.
 
 <div class="page-break"></div>
 
@@ -50,16 +66,16 @@
 
 - Support for changing Cyclotron direction and to enable/disable smoke effects.
 - Support for smoke effects with dedicated fans for the Booster Tube and N-Filter.
-	- See the [Smoke Effects](SMOKE.md) addendum for more information.
+    - See the [Smoke Effects](SMOKE.md) addendum for more information.
 - Support for motorised inner cyclotron cake or outer cyclotron lighting.
-	- See the [Inner Cyclotron](CYCLOTRON_INNER.md) for more information.
+    - See the [Inner Cyclotron](CYCLOTRON_INNER.md) for more information.
 - Additional Lights available for the Cyclotron panel, internal "cake" Cyclotron, and Power Cell.
-	- Automatically switches to internal "cake" Cyclotron, if implemented (optional).
-	- This supports a 35-LED RGB ring light (by default) to be installed in the "cake". Other size LED rings or LED setups are supported in the configuration settings.
+    - Automatically switches to internal "cake" Cyclotron, if implemented (optional).
+    - This supports a 35-LED RGB ring light (by default) to be installed in the "cake". Other size LED rings or LED setups are supported in the configuration settings.
 - Video game colours supported if using RGB-supported LEDs for the Cyclotron Lid, internal "cake" Cyclotron and Power Cell.
 - Support for the Attenuator add-on device. See the [Attenuator](ATTENUATOR.md) addendum for more information.
 - Support for additional lights such as the wand hat lights and wand barrel end LED strobe.
-	- When adding the Hat1 light a New Barrel Wing Button can also be added.
+    - When adding the Hat1 light a New Barrel Wing Button can also be added.
 - Serial connection and power for a 28-segment or 30-segment bargraph support (to replace the stock 5-LED bargraph).
 
 ![](images/OperationNeutrona7.jpg)
@@ -76,18 +92,18 @@
 - There are 5 wand power levels in Super Hero mode and 4 in Mode Original.
    - &starf; New for 6.0.2+ - The default power level is now 5 (previously 1) for full power when in Super Hero Mode. This more closely matches moments from the movies such as the Sedgewick Hotel (from the 1984 film) and Afterlife ("switch me on") scenes.
 - For lower power levels, the proton stream is more red. On higher power levels, the stream will appear more yellow.
-	- Note that it is the other way around for 1989 mode to be more faithful to how proton streams appeared in that film.
+    - Note that it is the other way around for 1989 mode to be more faithful to how proton streams appeared in that film.
 - When Video Game Mode is active and the Neutrona Wand is **ON** and the top toggle switch is **DOWN**, rotating the `Top Dial` will switch between weapon modes. For a description of these modes please see the Video Game Mode section. 📝 `Super Hero mode only`
-- The `Top Dial` is also used to navigate the menu systems (see "Neutrona Wand Menu System" section).
+- The `Top Dial` is also used to navigate the menu systems (see [Neutrona Wand menu system](OPERATION_MENUS.md)).
 
 ### Quick Audio Volume Adjustment
 
 - **System Volume**
- 	- While the Neutrona Wand is **OFF** and no music is playing, turn the `Top Dial` to quickly adjust the Proton Pack volume.
- 	- While the Neutrona Wand is **OFF**, hold the `Intensify` button while turning the `Top Dial` to quickly adjust the Neutrona Wand volume.
+     - While the Neutrona Wand is **OFF** and no music is playing, turn the `Top Dial` to quickly adjust the Proton Pack volume.
+     - While the Neutrona Wand is **OFF**, hold the `Intensify` button while turning the `Top Dial` to quickly adjust the Neutrona Wand volume.
 
 - **Music**
-	- While the Neutrona Wand is **OFF** and music is playing, turn the `Top Dial` to quickly adjust the music volume.
+    - While the Neutrona Wand is **OFF** and music is playing, turn the `Top Dial` to quickly adjust the music volume.
 
 Refer to the [Loading The Audio Files](AUDIO_FILES.md) for more information on loading additional music tracks.
 
@@ -108,26 +124,26 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 #### Activate Toggle
 
 - The `Activate` toggle on the gun box turns on both the Proton Pack and Neutrona Wand.
-	- The switch under the Proton Pack's Ion Arm does not need to be engaged for this to work.
+    - The switch under the Proton Pack's Ion Arm does not need to be engaged for this to work.
 - The green lever near the gunbox acts as a safety and must be pulled to extend the barrel before firing. This can be disabled by setting the barrel safety switch polarity to "disabled".
 - While firing, the default bargraph animations slide/split the bargraph in half and scroll up and down simultaneously.
-	- **Button Mash Lockout:** If you press the firing button(s) too rapidly the system will malfunction and lock you out for a period of time proportional to the current power level. When in the Frozen Empire theme the pack will "freeze over" with an ice crackling effect, then break free to restart after a few seconds. This mimics the scene between Phoebe and Garraka when she used her modified "Brass Pack".
+    - **Button Mash Lockout:** If you press the firing button(s) too rapidly the system will malfunction and lock you out for a period of time proportional to the current power level. When in the Frozen Empire theme the pack will "freeze over" with an ice crackling effect, then break free to restart after a few seconds. This mimics the scene between Phoebe and Garraka when she used her modified "Brass Pack".
 
 #### Right-Hand Toggle Switch Behaviour
 
 ![](images/OperationNeutrona3.jpg)
 
 - Right-hand toggles (Bottom and Top) affect the vent light, Clippard light, and additional sound effects.
-	- The Neutrona Wand **will not fire** unless both of these switches are **UP**.
-	- **Hot Shutdown**: &starf; New for 6.0.2+ - You can turn the Neutrona Wand off without turning off the Proton Pack by leaving the bottom-right switch **UP** when flipping the `Activate` switch **DOWN**. To shut down both the wand and pack, flip the `Activate` switch **UP** then flip the bottom toggle **DOWN** before flipping the `Activate` switch **DOWN**.
-	- **Boot-Up Errors**: If you attempt to boot up your Neutrona Wand while the top toggle switch is **UP**, the Neutrona Wand will boot into an error mode. Flip the top toggle switch **DOWN** and restart your Neutrona Wand to boot normally. This feature can be enabled or disabled in the Neutrona Wand EEPROM Configuration Menu.
-	- **Quick Vent**: If the Neutrona Wand is **ON** and the Top toggle switch is **DOWN**, pressing `Intensify` will perform a quick vent. Holding down `Intensify` will perform a full overheat sequence. **This is the default behaviour**, though this feature can be disabled in the Neutrona Wand EEPROM Configuration Menu.
+    - The Neutrona Wand **will not fire** unless both of these switches are **UP**.
+    - **Hot Shutdown**: &starf; New for 6.0.2+ - You can turn the Neutrona Wand off without turning off the Proton Pack by leaving the bottom-right switch **UP** when flipping the `Activate` switch **DOWN**. To shut down both the wand and pack, flip the `Activate` switch **UP** then flip the bottom toggle **DOWN** before flipping the `Activate` switch **DOWN**.
+    - **Boot-Up Errors**: When enabled, if you attempt to boot up your Neutrona Wand while the top toggle switch is **UP**, the Neutrona Wand will boot into an error mode. Flip the top toggle switch **DOWN** and restart your Neutrona Wand to boot normally. This feature can be enabled or disabled in the Neutrona Wand EEPROM Configuration Menu.
+    - **Quick Vent**: If the Neutrona Wand is **ON** and the Top toggle switch is **DOWN**, pressing `Intensify` will perform a quick vent. Holding down `Intensify` will perform a full overheat sequence. **This is the default behaviour**, though this feature can be disabled in the Neutrona Wand EEPROM Configuration Menu.
 - While in 1984 or 1989 theme mode:
-	- Bottom toggle switch turns on the vent light and plays the wand power up sound.
-	- Top toggle switch turns on the Clippard light and plays a single beep sound.
+    - Bottom toggle switch turns on the vent light and plays the wand power up sound.
+    - Top toggle switch turns on the Clippard light and plays a single beep sound.
 - While in Afterlife or Frozen Empire theme mode:
-	- Bottom toggle switch turns on the vent light and the wand plays a ramp up sound.
- 	- Top toggle switch turns on the Clippard light and plays looping beeping sounds.
+    - Bottom toggle switch turns on the vent light and the wand plays a ramp up sound.
+     - Top toggle switch turns on the Clippard light and plays looping beeping sounds.
 
 <div class="page-break"></div>
 
@@ -137,9 +153,9 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 
 - There are 4 power levels in Mode Original. When the Neutrona Wand is in standby mode (see toggle switch behaviours below), the bargraph settles on the first level.
 - The switch under the Ion Arm on the Proton Pack must be switched **ON**. This gives power to the entire system. The slo-blo light on the Neutrona Wand will turn solid red to indicate power to the system.
-	- If you are using a standalone Neutrona Wand without a Proton Pack, double-clicking the `Intensify` button while the Neutrona Wand is turned off will imitate flipping the switch under the Ion Arm.
+    - If you are using a standalone Neutrona Wand without a Proton Pack, double-clicking the `Intensify` button while the Neutrona Wand is turned off will imitate flipping the switch under the Ion Arm.
 - While firing, the default bargraph animations slide the bargraph up and down small increments to indicate the instability and power of the proton stream.
-	- **Button Mash Lockout:** If you press the firing button(s) too rapidly the system will malfunction and lock you out for a period of time proportional to the current power level.
+    - **Button Mash Lockout:** If you press the firing button(s) too rapidly the system will malfunction and lock you out for a period of time proportional to the current power level.
 
 #### Right-Hand Toggle Switch Behaviours
 
@@ -151,7 +167,7 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 #### Activate Toggle
 
 - `Activate` toggle on the gun box turns on the cyclotron of the Proton Pack. To activate the cyclotron, both right hand toggle switches on the Neutrona Wand must be **UP**.
-	- The Cyclotron will not turn on unless both toggle switches on the Neutrona Wand are **UP** and the Ion Arm switch on the Pack is in the **ON** position.
+    - The Cyclotron will not turn on unless both toggle switches on the Neutrona Wand are **UP** and the Ion Arm switch on the Pack is in the **ON** position.
 - The green lever near the gunbox acts as a safety and must be pulled to extend the barrel before firing. This can be disabled by setting the barrel safety switch polarity to "disabled".
 
 <div class="page-break"></div>
@@ -165,26 +181,29 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 ![](images/OperationNeutrona8.jpg)
 
 - While the Neutrona Wand is **ON** and the top toggle switch is **DOWN**, rotating the `Top Dial` will select from the following weapon modes (listed in counter-clockwise order):
-	1. [Proton Stream (Default)](https://ghostbusters.fandom.com/wiki/Proton_Pack/Realistic_Version)
-	1. [Dark Matter Generator](https://ghostbusters.fandom.com/wiki/Dark_Matter_Generator_(realistic_version))
-	1. [Plasm Distribution System](https://ghostbusters.fandom.com/wiki/Plasm_Distribution_System_(realistic_version))
-	1. [Composite Particle System](https://ghostbusters.fandom.com/wiki/Composite_Particle_System_(realistic_version))
-	1. <sup>1</sup> `Spectral (Rainbow)`
-	1. <sup>2</sup> `Spectral (Holiday)`
-	1. <sup>3</sup> `Spectral (Custom)`
+    1. [Proton Stream (Default)](https://ghostbusters.fandom.com/wiki/Proton_Pack/Realistic_Version)
+    1. [Dark Matter Generator](https://ghostbusters.fandom.com/wiki/Dark_Matter_Generator_(realistic_version))
+    1. [Plasm Distribution System](https://ghostbusters.fandom.com/wiki/Plasm_Distribution_System_(realistic_version))
+    1. [Composite Particle System](https://ghostbusters.fandom.com/wiki/Composite_Particle_System_(realistic_version))
+    1. <sup>1</sup> `Spectral (Rainbow)`
+    1. <sup>2</sup> `Spectral (Halloween)`
+  1. <sup>3</sup> `Spectral (Christmas)`
+    1. <sup>4</sup> `Spectral (Custom)`
 
 <sup>1</sup> Spectral Mode (Rainbow) is a Proton Stream which gives a RAINBOW effect. If your Proton Pack has RGB LEDs, they will change to match.
 
-<sup>2</sup> Spectral (Holiday) is a Proton Stream which gives an ORANGE/PURPLE effect. You can press the Barrel Wing Button while ready to fire in this mode to switch to a RED/GREEN effect. If your Proton Pack has RGB LEDs, it will match these colours.
+<sup>2</sup> Spectral (Halloween) is a Proton Stream which gives an ORANGE/PURPLE effect. If your Proton Pack has RGB LEDs, it will match these colours.
 
-<sup>3</sup> Spectral (Custom) is a Proton Stream with a user-defined colour mode. You can independently adjust the Neutrona Wand Barrel, Power Cell, Cyclotron and Inner Cyclotron colours directly from the EEPROM LED Menu system. The default colours are purple.
+<sup>3</sup> Spectral (Christmas) is a Proton Stream which gives a RED/GREEN effect. If your Proton Pack has RGB LEDs, it will match these colours.
+
+<sup>4</sup> Spectral (Custom) is a Proton Stream with a user-defined colour mode. You can independently adjust the Neutrona Wand Barrel, Power Cell, Cyclotron and Inner Cyclotron colours directly from the EEPROM LED Menu system. The default colours are purple.
 
 📝 **Note:** Spectral modes are disabled by default but can be enabled from the EEPROM Menu or flashed directly to the Neutrona Wand board. They take advantage of RGB coloured LED add-ons if installed.
 
 #### Proton Stream
 
 - Holding down `Intensify` will throw your normal Proton Stream.
-	- Pressing the `Barrel Wing Button` while you are already throwing a Proton Stream will initiate "Cross the Streams".
+    - Pressing the `Barrel Wing Button` while you are already throwing a Proton Stream will initiate "Cross the Streams".
 - Pressing the `Barrel Wing Button` will fire a Boson Dart.
 
 #### Dark Matter Generator
@@ -201,7 +220,7 @@ There are two modes available which replicate movie or prop-accurate behaviors o
 
 - Pressing `Intensify` will fire the Meson Collider.
 - Pressing the `Barrel Wing Button` will fire an Overload Pulse. Holding down the `Barrel Wing Button` allows for rapid-fire.
-	- The firing rate is dependent on the Neutrona Wand's current power level.
+    - The firing rate is dependent on the Neutrona Wand's current power level.
 
 ### Proton Stream Effects
 
@@ -252,23 +271,27 @@ As a nod to accuracy where possible, the proton streams are based on those obser
 - The `Barrel Wing Button` at the end of the wand acts as a alternate firing button. When Cross The Streams is enabled, Video Game Modes are disabled and you will only have the Proton Stream on both `Intensify` and the `Barrel Wing Button`.
 - The overheat features can only be triggered when holding the `Barrel Wing Button` when Cross The Streams mode is enabled.
 - Pressing both the `Intensify` and `Barrel Wing Button` at the same time enables the "Cross the Streams" (CTS) audio and visual effects. Releasing either of the firing buttons will continue these effects as long as one is still held, and will end once both buttons are released.
-	- With Cross The Streams Mix, you need to hold both the `Intensify` and `Barrel Wing Button` at the same time to remain in Cross The Streams. Releasing one of the firing buttons will revert to the normal Proton Stream for that button.
+    - With Cross The Streams Mix, you need to hold both the `Intensify` and `Barrel Wing Button` at the same time to remain in Cross The Streams. Releasing one of the firing buttons will revert to the normal Proton Stream for that button.
 
-Cross The Streams (CTS) is the default firing mode for Mode Original. Cross The Streams (CTS) or Cross The Streams Mix (CTS Mix) modes can be selected from the Neutrona Wand Menu System.
+Cross The Streams (CTS) is the default firing mode for Mode Original. Cross The Streams (CTS) or Cross The Streams Mix (CTS Mix) modes can be selected from the [Neutrona Wand menu system](OPERATION_MENUS.md) or [Neutrona Wand EEPROM Configuration Menu](OPERATION_EEPROM.md).
 
 <div class="page-break"></div>
 
 ## Additional Resources
 
-### EEPROM Menu Guide
+### Neutrona Wand Operation Menu Guide
 
-Please view the [supplemental operation guide for EEPROM menus](OPERATION_EEPROM.md) which can be used to alter hardware configurations and to set user preferences which will persist across battery power-down events.
+The [supplemental operation guide for the Neutrona Wand menu system](OPERATION_MENUS.md) details the basic operating menu used for adjusting volume and music playback, among other runtime tasks.
+
+### Neutrona Wand EEPROM Menu Guide
+
+The [supplemental operation guide for the Neutrona Wand EEPROM menu system](OPERATION_EEPROM.md) details the special menus used to alter hardware configurations and set user preferences which will persist across battery power-down events.
 
 ### PDF Operational Guides
 
 (Direct Download links)
-[GPStar I Operational Guide [pdf]](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/gpstar-Operational-Guide.pdf?raw=1)
-[GPStar II Operational Guide [pdf]](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/GPStar-II-Operation-Guide.pdf?raw=1)
+[GPStar I Operational Guide (PDF)](https://cdn.shopify.com/s/files/1/0772/0517/6651/files/GPStar_Proton_Pack_and_Neutrona_Wand_Operation_Guide.pdf?v=1737932105)
+[GPStar II Operational Guide (PDF)](https://cdn.shopify.com/s/files/1/0772/0517/6651/files/GPStar_II_Operation_Guide.pdf?v=1759181277)
 
 <div class="page-break"></div>
 

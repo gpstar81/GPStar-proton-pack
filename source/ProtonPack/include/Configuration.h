@@ -1,6 +1,6 @@
 /**
  *   GPStar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,10 +20,7 @@
 #pragma once
 
 #ifdef ESP32
-/*
- * Used to reflect the last build date for the binary.
- */
-String build_date = "V6_20251114095221";
+  #include "BuildInfo.h"
 
 /*
  * Control debug messages for various actions during normal operation.
@@ -32,11 +29,12 @@ String build_date = "V6_20251114095221";
  * debugging, while the websocket will help with confirming operations
  * while using the device (post-setup for wireless).
  *
- * For console output, must first set DEBUG 1 in main.cpp to enable debug macros.
+ * For console output, must first set GPSTAR_DEBUG 1 in main.cpp to enable debug macros.
  */
-//#define DEBUG_WIRELESS_SETUP   // Output debugs related to the WiFi/network setup.
-//#define DEBUG_SEND_TO_CONSOLE  // Send any general messages to the serial (USB) console.
-//#define DEBUG_SEND_TO_WEBSOCKET  // Send any messages to connected WebSocket clients.
+//#define DEBUG_WIRELESS_SETUP    // Output debugs related to the WiFi/network setup.
+//#define DEBUG_SEND_TO_CONSOLE   // Send any general messages to the serial (USB) console.
+//#define DEBUG_SEND_TO_WEBSOCKET // Send any messages to connected WebSocket clients.
+//#define DEBUG_SEND_TO_EVENTS    // Send any messages to the server-side events stream.
 
 /*
  * Force the use of default SSID and password for wireless capabilities.
@@ -45,6 +43,11 @@ String build_date = "V6_20251114095221";
  * the software which has this line commented out.
  */
 //#define RESET_AP_SETTINGS
+
+/*
+ * Enable Visual Feedback Effects (UI Animations)
+ */
+bool b_enable_ui_animations = true; // Enable/disable UI animation effects
 #endif
 
 /*
@@ -55,15 +58,15 @@ String build_date = "V6_20251114095221";
 /*
  * Cyclotron Lid LEDs.
  * For the stock HasLab LEDs, there are 12 LEDs in the cyclotron lid.
- * Use uint8_t i_cyclotron_leds = 12.
+ * Use uint8_t i_cyclotron_num_leds = 12.
  *
- * For a 40 LED NeoPixel ring, if you align your ring so that the first LED is the middle, then use uint8_t i_cyclotron_leds = 40.
+ * For a 40 LED NeoPixel ring, if you align your ring so that the first LED is the middle, then use uint8_t i_cyclotron_num_leds = 40.
  * Adjust as necessary depending on how you align your NeoPixel ring.
  * You can use any LED setup with up to 40 LEDs. If you change them out to individual NeoPixels or NeoPixel Rings, adjust your settings accordingly.
  *
  * Any settings saved in the EEPROM menu will overwrite these settings.
  */
-uint8_t i_cyclotron_leds = 36;
+uint8_t i_cyclotron_num_leds = 36;
 
 /*
  * Cyclotron Lid LED delays.
@@ -111,7 +114,7 @@ const uint8_t i_1984_cyclotron_40_leds_ccw[4] PROGMEM = { 0, 28, 18, 10 };
  * Set to true to have your Cyclotron spin clockwise. (default)
  * This can be controlled by an optional switch on pin 29 and also from the Neutrona Wand sub menu system.
  * Set to false to be counter clockwise.
- * This can be overridden by whatever value is stored in the EEPROM.
+ * This can be overridden by whatever value is stored in the EEPROM as long as b_eeprom is set to true.
  */
 bool b_clockwise = true;
 
@@ -138,6 +141,15 @@ bool b_cyclotron_single_led = true;
 bool b_cyclotron_simulate_ring = true;
 
 /*
+ * Cyclotron Lid Status Override
+ * When set to true, the pack will ignore the cyclotron lid switch and treat the lid as always attached.
+ * This keeps the outer cyclotron lights on even when the physical lid is removed.
+ * Useful for testing or special pack configurations. Default is false (normal operation).
+ * This setting will be overridden by the EEPROM settings.
+ */
+bool b_disable_lid_detection = false;
+
+/*
  * Cyclotron Video Game Colour Toggle
  * If you are using Cyclotron Lid LEDs and Inner Cyclotron LEDs with RGB support, such as the GPStar or Frutto Technology Cyclotron LEDs or NeoPixel Rings etc.
  * You can toggle if you want it to change colours to match the Video Game Modes or stay the default red at all times.
@@ -159,10 +171,10 @@ const bool b_cyclotron_haslab_chsv_colour_change = false;
  * Power Cell LEDs
  * The number of Power Cell LEDs. Stock HasLab has 13.
  * If you are installing a GPStar or Frutto Power Cell which has 15 LEDs, then change this to 15.
- * Note that you may need to adjust the i_powercell_delay_1984 and i_powercell_delay_2021 to a lower number to increase the Power Cell update speed.
+ * Note that you need to adjust the i_powercell_delay_1984 and i_powercell_delay_2021 to a lower number to increase the Power Cell update speed.
  * Any settings saved in the EEPROM menu will overwrite these settings.
  */
-uint8_t i_powercell_leds = 15;
+uint8_t i_powercell_num_leds = 15;
 
 /*
  * Power Cell LED delay in milliseconds.
@@ -172,9 +184,9 @@ uint8_t i_powercell_leds = 15;
  * Any settings saved in the EEPROM menu will overwrite these settings.
  */
 #define POWERCELL_DELAY_1984_13_LED 46 // 1984/1989 delay for HasLab 13-LED Power Cell.
-#define POWERCELL_DELAY_2021_13_LED 40 // Afterlife/Frozen Empire delay for HasLab 13-LED Power Cell.
+#define POWERCELL_DELAY_2021_13_LED 45 // Afterlife/Frozen Empire delay for HasLab 13-LED Power Cell.
 #define POWERCELL_DELAY_1984_15_LED 40 // 1984/1989 delay for GPStar or Frutto 15-LED Power Cell.
-#define POWERCELL_DELAY_2021_15_LED 34 // Afterlife/Frozen Empire delay for GPStar or Frutto 15-LED Power Cell.
+#define POWERCELL_DELAY_2021_15_LED 39 // Afterlife/Frozen Empire delay for GPStar or Frutto 15-LED Power Cell.
 uint8_t i_powercell_delay_1984 = POWERCELL_DELAY_1984_15_LED;
 uint8_t i_powercell_delay_2021 = POWERCELL_DELAY_2021_15_LED;
 
@@ -288,7 +300,7 @@ uint8_t i_cyclotron_panel_brightness = 100;
  * 0 = quietest
  * 100 = loudest
  */
-const uint8_t STARTUP_VOLUME = 100;
+const uint8_t STARTUP_VOLUME = 50;
 
 /*
  * You can set the default music volume for your pack here.
@@ -365,6 +377,13 @@ bool b_wand_long_startup = false;
 bool b_stream_effects = true;
 
 /*
+ * When set to false, the "brass pack" startup will only play once.
+ * When set to true, the "brass pack" startup will play in an endless loop.
+ * This can be overridden by whatever value is stored in the EEPROM as long as b_eeprom is set to true.
+ */
+bool b_brass_startup_loop = false;
+
+/*
  * If you want the optional N-Filter NeoPixel jewel to strobe during overheat venting.
  * If false, the light will stay solid during overheat venting.
  * This does not affect the LED-W optional light nor does it affect the jewel during sustained fire venting which always strobes.
@@ -390,7 +409,7 @@ bool b_overheat_sync_to_fan = false;
 /*
  * Enable or disable overall smoke settings.
  * This can be toggled with a switch on PIN 37. This can also be controlled from the Neutrona Wand sub menu system.
- * This can be overridden by whatever value is stored in the EEPROM.
+ * This can be overridden by whatever value is stored in the EEPROM as long as b_eeprom is set to true.
  */
 bool b_smoke_enabled = true;
 
@@ -480,6 +499,11 @@ uint16_t i_ms_overheating_length_5 = 6000; // Time in milliseconds (6 seconds) f
  * Set to false to disable the Proton Pack Ribbon Alarm switch.
  */
 bool b_use_ribbon_cable = true;
+
+/*
+ * Set to true to make it so that Proton Pack idle sounds fade out after 30 seconds rather than playing in a loop.
+ */
+bool b_fadeout_idle_sounds = false;
 
 /*
  * Set to use an optional power meter device on the i2c bus.

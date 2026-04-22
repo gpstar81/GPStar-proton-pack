@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="UTF-8" />
@@ -24,9 +24,9 @@
       <div class="setting">
         <b>Enable Vibration:</b>
         <select id="deviceVibration" name="deviceVibration" style="width: 170px">
-          <option value="1">Never</option>
+          <option value="1">Always</option>
           <option value="2">When Firing</option>
-          <option value="4">Always</option>
+          <option selected value="3">Never</option>
         </select>
       </div>
       <div class="setting">
@@ -54,7 +54,7 @@
       <div class="setting">
         <b>Master Volume % at Startup:</b>
         <br />
-        <input type="range" id="defaultSystemVolume" name="defaultSystemVolume" min="5" max="100" value="100" step="5" oninput="masterVolOut.value=defaultSystemVolume.value" />
+        <input type="range" id="defaultSystemVolume" name="defaultSystemVolume" min="5" max="100" value="100" step="5" oninput="masterVolOut.value = defaultSystemVolume.value" />
         <output class="labelSlider" id="masterVolOut" for="defaultSystemVolume"></output>
       </div>
       <div class="setting" id="gpstarAudioLedToggle">
@@ -86,7 +86,7 @@
       <hr />
       <a href="/">&laquo; Back</a>
       &nbsp;&nbsp;
-      <button type="button" class="green" style="width: 120px" onclick="saveSettings()" id="btnSave">Update&nbsp;Settings</button>
+      <button type="button" class="green" onclick="saveSettings()" id="btnSave">Update&nbsp;Settings</button>
       <br />
       <br />
     </div>
@@ -130,7 +130,7 @@
       function getSettings() {
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
-          if (this.readyState == 4 && this.status == 200) {
+          if (this.readyState == 4) {
             var settings = JSON.parse(this.responseText);
             if (settings) {
               if (!settings.prefsAvailable) {
@@ -142,7 +142,7 @@
               if (settings.blasterPowered) {
                 disableControls();
                 alert(
-                  "Blaster is currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings."
+                  "Blaster is currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings.",
                 );
                 return;
               }
@@ -160,7 +160,7 @@
               setValue("defaultSystemVolume", settings.defaultSystemVolume || 100);
               setHtml("masterVolOut", getValue("defaultSystemVolume"));
               setToggle("deviceBootErrorBeep", settings.deviceBootErrorBeep);
-              setValue("deviceVibration", settings.deviceVibration || 2);
+              setValue("deviceVibration", settings.deviceVibration || 3);
               setToggle("gpstarAudioLed", settings.gpstarAudioLed);
               setToggle("invertBlasterBargraph", settings.invertBlasterBargraph);
             }
@@ -177,7 +177,7 @@
           ventLightAutoIntensity: getToggle("ventLightAutoIntensity"),
           defaultSystemVolume: getInt("defaultSystemVolume") || 100,
           deviceBootErrorBeep: getToggle("deviceBootErrorBeep"),
-          deviceVibration: getInt("deviceVibration") || 2,
+          deviceVibration: getInt("deviceVibration") || 3,
           gpstarAudioLed: getToggle("gpstarAudioLed"),
           invertBlasterBargraph: getToggle("invertBlasterBargraph"),
         };
@@ -186,10 +186,11 @@
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
           if (this.readyState == 4) {
-            if (this.status == 200) {
+            if (this.status == 200 || this.status == 201) {
               handleStatus(this.responseText);
-              setTimeout(getSettings, 400); // Get latest settings.
+              setTimeout(getSettings, 100); // Get latest settings.
             } else {
+              // Handle non-success responses
               handleStatus(this.responseText);
             }
           }
@@ -202,7 +203,7 @@
       function saveEEPROM() {
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
-          if (this.readyState == 4 && this.status == 200) {
+          if (this.readyState == 4) {
             handleStatus(this.responseText);
           }
         };

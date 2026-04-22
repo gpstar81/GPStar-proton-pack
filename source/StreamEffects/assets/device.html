@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="UTF-8" />
@@ -16,7 +16,7 @@
         Change system configuration options using the available toggles and selectors. Use this screen to customize the private network used by the built-in WiFi network.
         <br />
         You may also use
-        <b>http://[PRIVATE_NETWORK].local</b>
+        <b>http://[CUSTOM_NAME].local</b>
         to access this device via your browser. Use the "Update Settings" button to save values to the Attenuator/Wireless controller.
       </p>
       <br />
@@ -35,9 +35,17 @@
         />
       </div>
       <div class="setting">
+        <b>LED Color Type:</b>
+        <select id="ledType" name="ledType">
+          <option value="1">RGB</option>
+          <option value="2">GRB</option>
+          <option selected value="3">GBR</option>
+        </select>
+      </div>
+      <div class="setting">
         <b>Stream LED Count:</b>
         <br />
-        <input type="range" id="numLeds" name="numLeds" min="50" max="500" value="250" step="1" oninput="numLedsOut.value=numLeds.value" />
+        <input type="range" id="numLeds" name="numLeds" min="50" max="500" value="250" step="1" oninput="numLedsOut.value = numLeds.value" />
         <output class="labelSlider" id="numLedsOut" for="numLeds"></output>
       </div>
     </div>
@@ -47,7 +55,7 @@
       <hr />
       <a href="/">&laquo; Back</a>
       &nbsp;&nbsp;
-      <button type="button" class="green" style="width: 120px" onclick="saveSettings()">Update&nbsp;Settings</button>
+      <button type="button" class="green" onclick="saveSettings()">Update&nbsp;Settings</button>
       <br />
       <br />
     </div>
@@ -64,14 +72,18 @@
       function getSettings() {
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
-          if (this.readyState == 4 && this.status == 200) {
+          if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
             var settings = JSON.parse(this.responseText);
             if (settings) {
               // Update fields with the current values, or supply an expected default as necessary.
               setValue("wifiName", settings.wifiName || "");
+              setValue("ledType", settings.ledType || 3); // Default: GBR
               setValue("numLeds", settings.numLeds || 250); // Default to 250 LEDs.
-              setHtml("numLedsOut", getValue("numLeds"));
+              setHtml("numLedsOut", getValue("numLeds")); // Update number display.
             }
+          } else if (this.readyState == 4) {
+            // Handle error responses
+            handleStatus(this.responseText);
           }
         };
         xhttp.open("GET", "/config/device", true);
@@ -101,22 +113,24 @@
         var settings = {
           wifiName: wifiName,
           numLeds: getInt("numLeds") || 250,
+          ledType: getInt("ledType") || 3,
         };
         var body = JSON.stringify(settings);
 
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
           if (this.readyState == 4) {
-            if (this.status == 200) {
-              handleStatus(this.responseText);
-            }
-
-            if (this.status == 201) {
+            if (this.status == 200 || this.status == 201) {
               handleStatus(this.responseText);
 
-              if (confirm("Restart device now?")) {
-                doRestart();
+              if (this.status == 201) {
+                if (confirm("Restart device now?")) {
+                  doRestart();
+                }
               }
+            } else {
+              // Handle non-success responses
+              handleStatus(this.responseText);
             }
           }
         };
@@ -128,7 +142,7 @@
       function doRestart() {
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
-          if (this.readyState == 4 && this.status == 204) {
+          if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
             // Reload the page after 2 seconds.
             setTimeout(function () {
               window.location.reload();

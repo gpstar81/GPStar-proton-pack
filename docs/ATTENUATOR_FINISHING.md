@@ -2,7 +2,7 @@
 
 ## Assembly Guide
 
-See the [installation guide](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/Attenuator-Install-Guide.pdf?raw=1) located in the [extras](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/) folder for details on how to install the electronics into your Attenuator shell. Alternatively, watch this [Attenuator Kit Finishing video from February 2024](https://www.youtube.com/watch?v=vBww_2N0M-k) which covers the electronics, finishing, and fitment of your components:
+See the [installation guide (pdf)](https://cdn.shopify.com/s/files/1/0772/0517/6651/files/Attenuator-Install-Guide.pdf?v=1718727200) for details on how to install the electronics into your Attenuator shell. Alternatively, watch this [Attenuator Kit Finishing video from February 2024](https://www.youtube.com/watch?v=vBww_2N0M-k) which covers the electronics, finishing, and fitment of your components:
 
 [![Attenuator Kit Finishing](https://img.youtube.com/vi/vBww_2N0M-k/maxresdefault.jpg)](https://www.youtube.com/watch?v=vBww_2N0M-k)
 

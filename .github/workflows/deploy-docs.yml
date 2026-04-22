@@ -1,9 +1,14 @@
 name: Deploy MkDocs Documentation
+
+# Trigger this workflow only when building the main branch
 on:
   push:
-    branches: [main]  # Only rebuild for the latest live code and docs
+    branches: [main]
+
+# Needed to push to gh-pages
 permissions:
-  contents: write  # Needed to push to gh-pages
+  contents: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest

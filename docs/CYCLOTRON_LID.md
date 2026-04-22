@@ -1,18 +1,39 @@
-# Cyclotron Lid Lights (Optional)
+# Cyclotron Lid Lights
 
-These are *OPTIONAL* add-on additions for use within the Proton Pack.
 
 ## Overview
 
-The stock lights in the HasLab pack only supplies 12 addressable LEDs which are red-only. If you wish to be able to change the colours of these lights you will need to replace them with an addressable LED ring, [GPStar Cyclotron LEDs](https://gpstartechnologies.com/products/gpstar-cyclotron) or those made by Frutto Technology such as the [20-LED (4x 5-LED)](https://fruttotechnology.com/ols/products/cyclotron-5-leds-kit) or [36-LED (4x 9-LED)](https://fruttotechnology.com/ols/products/cyclotron-5-leds-kit-cyc-5-lds-kit1) option.
+The stock lights in the Hasbro Proton Pack only supplies 12 addressable LEDs which are red-only. If you wish to be able to change the colours of these lights you will need to replace them with an addressable LED ring, [GPStar Cyclotron LEDs](https://gpstartechnologies.com/products/gpstar-cyclotron) or those made by Frutto Technology such as the [20-LED (4x 5-LED)](https://fruttotechnology.com/ols/products/cyclotron-5-leds-kit) or [36-LED (4x 9-LED)](https://fruttotechnology.com/ols/products/cyclotron-5-leds-kit-cyc-5-lds-kit1) option.
 
 Regardless of solution you will need to split apart the Cyclotron Lid which is secured at 6 locations around the lid. Gently prying under the plastic near the N-Filter on the inside of the lid will be the first screw posts cold-welded to the lid. A firm but slow twist should break the bond and begin to separate the halves. To re-secure, the best option is to drill through the center of each obvious cold weld on the inner lid and use small screws to attach the halves back together.
 
-## Haslab Proton Pack Hookup Guide
+Available from GPStar Technologies is the [GPStar Cyclotron Bypass II](https://gpstartechnologies.com/products/gpstar-cyclotron-bypass-ii), which is a drop in replacement pogo pin kit for the Hasbro Proton Pack.
+![](images/GPStar-Cyclotron-Bypass-II.jpg)
+
+## Hasbro Proton Pack Hookup Guide
+### Using Hasbro Pogo Pin Hardware
+When connecting directly to the Hasbro pogo pin hardware and using terminal blocks on the GPStar Cyclotron LEDs.
 ![](images/GPStar-Cyclotron-Hookup.jpg)
 
-## DIY and Spirit Packs Hookup Guide
+### GPStar Cyclotron Bypass II
+When using the GPStar Cyclotron Bypass II pogo pin hardware and JST-PH connectors on the GPStar Cyclotron LEDs.
+![](images/GPStar-Cyclotron-Hookup-V2.jpg)
+
+## Mack's Factory, Spirit, Halloween Costumes, 3D Printed and DIY Proton Packs Hookup Guide
+### GPStar Cyclotron Bypass
 ![](images/GPStar-Cyclotron-Bypass-Hookup.jpg)
+### GPStar Cyclotron Bypass III
+![](images/GPStar-Cyclotron-Bypass-III-Hookup.jpg)
+
+## GPStar Cyclotron LED Mounting Hardware
+[GPStar Cyclotron LED Mounting Hardware Install Video](https://www.youtube.com/watch?v=2jM1Zpk4QLs) (YouTube)
+[![GPStar Cyclotron LED Mounting Hardware Install Video](https://img.youtube.com/vi/2jM1Zpk4QLs/maxresdefault.jpg)](https://www.youtube.com/watch?v=2jM1Zpk4QLs)
+
+## GPStar Cyclotron Bypass II
+The GPStar Cyclotron Bypass II is a pogo pin replacement kit for the Hasbro Proton Pack. Installation is done by simply removing the existing Hasbro pogo pin hardware and replace it with the [GPStar Cyclotron Bypass II](https://gpstartechnologies.com/products/gpstar-cyclotron-bypass-ii). Use clear silicone / hot glue to secure the new hardware.
+![](images/GPStar-Cyclotron-Bypass-II-2.jpg)
+![](images/GPStar-Cyclotron-Bypass-II-Pack.jpg)
+![](images/GPStar-Cyclotron-Bypass-II-Lid.jpg)
 
 ## Installation Guide Video
 
@@ -20,8 +41,6 @@ Regardless of solution you will need to split apart the Cyclotron Lid which is s
 [![GPStar Proton Pack & Neutrona Wand Cyclotron Lights Installation Video](https://img.youtube.com/vi/A5eP50iO5qc/maxresdefault.jpg)](https://www.youtube.com/watch?v=A5eP50iO5qc)
 
 The stock LEDs can be removed by prying out the diffuser lenses, then snipping the 3 black plastic welds used to hold the PCBs in place. Whether pre-soldered or not, the new LEDs should be oriented similar to the arcing pattern used by the stock LEDs. Hot glue can be used to keep these in place until the diffusers are put back in place.
-
-**Note: Installation is the same for the 5-LED or 9-LED replacement kits from Frutto Technology.**
 
 ![](images/Frutto_Cyc1.jpg)
 
@@ -46,7 +65,7 @@ Reassemble the Cyclotron Lid using low-profile machine screws. The new LEDs shou
 
 ### 40-LED Neopixel Ring (Deprecated)
 
-This approach simply adds the lights atop the old circuit board and LEDs between the outer and inner layers of the Cyclotron Lid. Print the [Cyclotron Ring Diffuser](https://github.com/gpstar81/GPStar-proton-pack/blob/main/stl/pack/Cyclotron_Ring_Diffuser.stl?raw=1) to help orient the ring and keep it positioned behind each lens. The pixel opposite the soldered connections should be number 1 and should be made the dead center of the top-right lens. See below for an illustration of this orientation and use of the diffuser ring.
+This approach simply adds the lights atop the old circuit board and LEDs between the outer and inner layers of the Cyclotron Lid. A part called the Cyclotron Ring Diffuser was used to help orient the ring and keep it positioned behind each lens. The pixel opposite the soldered connections should be number 1 and should be made the dead center of the top-right lens. See below for an illustration of this orientation and use of the diffuser ring.
 
 ![](images/CyclotronLidRing.jpg)
 

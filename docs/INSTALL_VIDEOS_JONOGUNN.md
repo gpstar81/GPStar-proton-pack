@@ -12,3 +12,12 @@ These videos have been created by community members to help you better install y
 
 [Updated: GPStar Supreme Kit Wand Install Video](https://www.youtube.com/watch?v=UJ13jtM9dpk) (May 30, 2025)
 [![Updated: GPStar Supreme Kit Wand Install Video](https://img.youtube.com/vi/UJ13jtM9dpk/maxresdefault.jpg)](https://www.youtube.com/watch?v=UJ13jtM9dpk)
+
+[New: GPStar Attenuator Kit Proton Pack Install Video](https://www.youtube.com/watch?v=30zKvZxF6_E) (Nov. 27, 2025)
+[![Updated: GPStar Supreme Kit Wand Install Video](https://img.youtube.com/vi/30zKvZxF6_E/maxresdefault.jpg)](https://www.youtube.com/watch?v=30zKvZxF6_E)
+
+[New: GPSTAR 2 Spirit/3D Print/ALL DIY Proton Pack Extreme Kit Install Guide Video](https://www.youtube.com/watch?v=KlyDZiV0XW8) (Nov. 27, 2025)
+[![Updated: GPStar Supreme Kit Wand Install Video](https://img.youtube.com/vi/KlyDZiV0XW8/maxresdefault.jpg)](https://www.youtube.com/watch?v=KlyDZiV0XW8)
+
+[New: GPSTAR 2 Hasbro Wand Extreme Kit Install Guide Video](https://www.youtube.com/watch?v=FiNoUKGOUCs) (Nov. 27, 2025)
+[![Updated: GPStar Supreme Kit Wand Install Video](https://img.youtube.com/vi/FiNoUKGOUCs/maxresdefault.jpg)](https://www.youtube.com/watch?v=FiNoUKGOUCs)

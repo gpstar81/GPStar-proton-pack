@@ -1,6 +1,6 @@
 /**
  *   GPStar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -79,8 +79,9 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
   // Toggle indicates use of Video Game colours, which is based on the firing mode.
   // Otherwise a default colour will be used based on the device itself.
   if(b_toggle) {
-    switch(i_firing_mode) {
+    switch(i_firing_mode != SETTINGS ? i_firing_mode : gpstarPack.getPreviousStreamMode()) {
       case PROTON:
+      default:
         switch(i_device) {
           case POWERCELL:
             return C_MID_BLUE;
@@ -126,7 +127,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
       case SLIME:
         switch(i_device) {
           case POWERCELL:
-            if(SYSTEM_YEAR == SYSTEM_1989) {
+            if(gpstarPack.getSystemTheme() == SYSTEM_1989) {
               return C_PINK;
             }
             else {
@@ -139,7 +140,7 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
           case CYCLOTRON_PANEL:
           case VENT_LIGHT:
           default:
-            if(SYSTEM_YEAR == SYSTEM_1989) {
+            if(gpstarPack.getSystemTheme() == SYSTEM_1989) {
               return C_PINK;
             }
             else {
@@ -235,10 +236,6 @@ uint8_t getDeviceColour(uint8_t i_device, uint8_t i_firing_mode, bool b_toggle) 
           break;
         }
       break;
-
-      default:
-        return C_MID_BLUE;
-      break;
     }
   }
   else {
@@ -296,7 +293,7 @@ CHSV getHue(uint8_t i_device, uint8_t i_colour, uint8_t i_brightness = 255, uint
 
   switch(i_device) {
     case CYCLOTRON_OUTER:
-      if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+      if(gpstarPack.isThemeModern()) {
         i_cycle = 10;
       }
     break;

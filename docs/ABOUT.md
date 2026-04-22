@@ -9,15 +9,16 @@ This project is made possible by Ghostbusters community makers and volunteers sp
 * Dustin Grau (aka. "JustinDustin") - Prototyping and Testing, Documentation, 3D Modelling, Software Support
 * Angie Rutto (aka. "Frutto Technology") - Maker and purveyor of fine add-on products, UK Distribution
 * Nomake Wan - Software Support, Testing, and Feature Development
+* David Callari - Social Media Manager
 
 ## Special Community Thanks
 
 * Emre Sahare (GBFans: One Time)
-	* For the original prop mode "Mode Original" operation deciphering.
+    * For the original prop mode "Mode Original" operation deciphering.
 * Alexander Hibbs (@BeaulieuDesigns87)
-	* For his SVG equipment schematic as used in the WiFi web UI.
+    * For his SVG equipment schematics as used in the WiFi web UI.
 
-Thank you to our supporters on [GBFans.com](https://www.gbfans.com/forum) and the [GPStar Facebook group](https://www.facebook.com/groups/gpstartechnologies).
+And a special thank you to all our supporters on [GBFans.com](https://www.gbfans.com/forum) and the [GPStar Facebook group](https://www.facebook.com/groups/gpstartechnologies).
 
 ## Attributions
 

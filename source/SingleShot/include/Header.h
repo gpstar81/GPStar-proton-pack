@@ -1,6 +1,6 @@
 /**
  *   GPStar Single-Shot Blaster
- *   Copyright (C) 2024-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2024-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                    & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -54,7 +54,7 @@
 #define BARREL_LED_COUNT 7 // GPStar 7-LED Jewel
 CRGB system_leds[CYCLOTRON_LED_COUNT + BARREL_LED_COUNT];
 const uint8_t i_barrel_led = 6; // This will be the index of the light (#7), not the count
-const uint8_t i_num_barrel_leds = CYCLOTRON_LED_COUNT; // This will be the number of barrel LEDs
+const uint8_t i_num_barrel_leds = BARREL_LED_COUNT; // This will be the number of barrel LEDs
 const uint8_t i_num_cyclotron_leds = CYCLOTRON_LED_COUNT; // This will be the number of cyclotron LEDs
 const uint8_t i_cyclotron_led_start = i_num_barrel_leds; // The first element (index) for the cyclotron.
 
@@ -102,22 +102,6 @@ enum DEVICE_STATE DEVICE_STATUS;
  */
 enum DEVICE_ACTION_STATE { ACTION_IDLE, ACTION_OFF, ACTION_ACTIVATE, ACTION_FIRING, ACTION_ERROR, ACTION_SETTINGS };
 enum DEVICE_ACTION_STATE DEVICE_ACTION_STATUS;
-
-/*
- * Device Stream Modes + Settings
- * Stream = Type of particle stream to be thrown by the device
- */
-enum STREAM_MODES { PROTON };
-enum STREAM_MODES STREAM_MODE;
-enum POWER_LEVELS {
-  LEVEL_1 = 1,
-  LEVEL_2 = 2,
-  LEVEL_3 = 3,
-  LEVEL_4 = 4,
-  LEVEL_5 = 5
-};
-enum POWER_LEVELS POWER_LEVEL = LEVEL_5;
-enum POWER_LEVELS POWER_LEVEL_PREV = POWER_LEVEL;
 
 struct StandaloneLED {
   uint8_t Pin; // Pin Assignment
@@ -270,7 +254,7 @@ struct Encoder {
 #else
   #define VIBRATION_PIN 11 // Pin for the vibration motor.
 #endif
-const uint8_t i_vibration_level_min = 15; // Minimum vibration level is 6%.
+const uint8_t i_vibration_level_min = 30; // Minimum vibration level is 11.7%.
 uint8_t i_vibration_level_current = 0; // Set the current value to 0 (off) on first start.
 millisDelay ms_menu_vibration; // Timer to do non-blocking confirmation buzzing in the vibration menu.
 
@@ -299,25 +283,22 @@ Switch switch_grip(GRIP_SWITCH_PIN); // Hand-grip button to be the primary fire 
 
 /*
  * Control for the primary blast sound effects.
+ * Note that these are currently unused.
  */
+/*
 millisDelay ms_single_blast;
 const uint16_t i_single_blast_delay_level_5 = 240;
 const uint16_t i_single_blast_delay_level_4 = 260;
 const uint16_t i_single_blast_delay_level_3 = 280;
 const uint16_t i_single_blast_delay_level_2 = 300;
 const uint16_t i_single_blast_delay_level_1 = 320;
+*/
 
 /*
  * Idling timers
  */
 millisDelay ms_white_light;
-const uint16_t i_top_blink_interval = 146; // Blinking interval (ms)
-
-/*
- * For blinking the slo-blo light when the cyclotron is not on.
- */
-millisDelay ms_slo_blo_blink;
-const uint16_t i_slo_blo_blink_delay = 500;
+const uint16_t i_top_blink_interval = 333; // Blinking interval (ms)
 
 /*
  * Timers for the optional hat lights.
@@ -335,6 +316,7 @@ const uint16_t i_bargraph_beep_delay = 1600;
 millisDelay ms_firing_pulse;
 millisDelay ms_semi_automatic_check; // Timer used to set the rate of fire for the semi-automatic firing modes.
 millisDelay ms_semi_automatic_firing; // Timer used to handle firing effect duration for the semi-automatic firing modes.
+const uint16_t i_semi_automatic_duration = 350; // Single shot firing effect duration.
 const uint16_t i_single_shot_rate = 2000; // Single shot firing rate, locking out actions after each blast.
 const uint8_t i_firing_pulse = 40; // Used to drive semi-automatic firing stream effect timers.
 const uint8_t i_pulse_step_max = 12; // Total number of steps per pulse animation.
@@ -377,12 +359,7 @@ millisDelay ms_settings_blink;
 /*
  * Misc device settings and flags.
  */
-bool b_firing = false; // Check for general firing state.
-bool b_firing_intensify = false; // Check for Intensify button activity.
-bool b_firing_alt = false; // Check for grip button firing activity.
 bool b_firing_semi_automatic = false; // Check for semi-automatic firing modes.
-bool b_sound_firing_intensify_trigger = false;
-bool b_sound_firing_alt_trigger = false;
 bool b_device_boot_error_on = false;
 
 /*
@@ -391,19 +368,6 @@ bool b_device_boot_error_on = false;
 millisDelay ms_power_indicator;
 const uint32_t i_ms_power_indicator = 60000; // 1 minute -> 60000 milliseconds
 const uint16_t i_ms_power_indicator_blink = 500;
-
-/**
- * Infrared (IR) signal for the Ghost Trap or other devices (GPStar II Only).
- */
-#ifdef ESP32
-  #define CARRIER_KHZ 38 // Defines the standard IR carrier frequency in kHz.
-
-  // Defines an IR command as captured from the PKE device at full power.
-  const uint16_t ir_GhostInTrap[] = {
-    1770, 1200, 600, 600, 600, 600, 580, 1200, 600, 600,
-    580, 1200, 600, 1200, 580, 600, 580, 1200, 600
-  };
-#endif
 
 /*
  * Function prototypes.

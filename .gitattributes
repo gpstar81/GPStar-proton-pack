@@ -1,1 +1,24 @@
+# Auto-detect text files and ensure LF line endings in the repository
+* text=auto
+# Windows batch scripts must use CRLF
+*.bat text eol=crlf
+# *nix batch scripts must use LF
 *.sh text eol=lf
+# Intel HEX should always be treated as CRLF
+*.hex text eol=crlf
+# Source files are always declared as text
+*.c text
+*.cpp text
+*.h text
+*.hpp text
+# Binary files should not be modified by Git
+*.png binary
+*.jpg binary
+*.gif binary
+*.mp4 binary
+*.webm binary
+*.wav binary
+*.pdf binary
+*.exe binary
+*.dmg binary
+*.bin binary

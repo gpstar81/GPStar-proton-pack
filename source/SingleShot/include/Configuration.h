@@ -1,6 +1,6 @@
 /**
  *   GPStar Single-Shot Blaster
- *   Copyright (C) 2024-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2024-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                    & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -21,10 +21,7 @@
 #pragma once
 
 #ifdef ESP32
-/*
- * Used to reflect the last build date for the binary.
- */
-String build_date = "V6_20251114095221";
+  #include "BuildInfo.h"
 
 /*
  * Control debug messages for various actions during normal operation.
@@ -33,10 +30,11 @@ String build_date = "V6_20251114095221";
  * debugging, while the websocket will help with confirming operations
  * while using the device (post-setup for wireless).
  */
-//#define DEBUG_WIRELESS_SETUP     // Output debugs related to the WiFi/network setup.
-//#define DEBUG_SEND_TO_CONSOLE    // Send any general messages to the serial (USB) console.
-//#define DEBUG_SEND_TO_WEBSOCKET  // Send any messages to connected WebSocket clients.
-//#define DEBUG_TELEMETRY_DATA     // Output debugs related to the motion sensors.
+//#define DEBUG_WIRELESS_SETUP    // Output debugs related to the WiFi/network setup.
+//#define DEBUG_SEND_TO_CONSOLE   // Send any general messages to the serial (USB) console.
+//#define DEBUG_SEND_TO_WEBSOCKET // Send any messages to connected WebSocket clients.
+//#define DEBUG_SEND_TO_EVENTS    // Send any messages to the server-side events stream.
+//#define DEBUG_TELEMETRY_DATA    // Output debugs related to the motion sensors.
 
 /*
  * Force the use of default SSID and password for wireless capabilities.
@@ -141,22 +139,12 @@ bool b_power_on_indicator = true;
 const bool b_eeprom = true;
 
 /*
- * Vibration modes for the device.
- */
-enum VIBRATION_MODES : uint8_t {
-  VIBRATION_EMPTY = 0,
-  VIBRATION_NONE = 1,
-  VIBRATION_FIRING_ONLY = 2,
-  VIBRATION_ALWAYS = 4  
-};
-
-/*
  * Data structure object for device customizations which are saved into NVS/EEPROM.
  * WARNING: Do not reorder fields without changing field names or types, as this
  * would cause size validation to pass but load data into incorrect fields.
  */
 struct __attribute__((packed)) UserDeviceConfig {
-  bool deviceBootErrorBeep = true; // Enables the error beeps when the device is started with the top right switch on.
+  bool deviceBootErrorBeep = false; // Enables the error beeps when the device is started with the top right switch on.
   bool invertBlasterBargraph = false; // When set to true, the bargraph will invert all animation sequences.
   bool ventLightAutoIntensity = true; // Enables special brightness controls during idle and firing modes.
   bool ventLightRGB = b_rgb_vent_light; // Enables the addressable RGB vent/top light board.

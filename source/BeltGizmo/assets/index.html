@@ -71,11 +71,18 @@
           <span class="infoState" id="firing">&mdash;</span>
         </p>
         <br />
+        <hr />
         <p>
           <span class="infoLabel">Ext. WiFi Status:</span>
           <span class="infoState" id="wifiStatus">&mdash;</span>
         </p>
-        <br />
+        <p>
+          <span class="infoLabel">WebSocket Status:</span>
+          <span class="infoState" id="wsStatus">&mdash;</span>
+        </p>
+        <p>
+          <span class="infoState" id="wsMessage"></span>
+        </p>
       </div>
     </div>
 
@@ -113,10 +120,17 @@
         <br />
         <br />
         <a href="javascript:doRestart()">Restart/Resync</a>
+        <br />
+        <br />
+        <a href="https://gpstar81.github.io/GPStar-proton-pack/" target="_blank">Official Documentation</a>
+        <br />
+        <br />
+        <a href="/swaggerui" target="_blank">Web API Listing</a>
       </div>
+
       <div class="footer">
         <span id="buildDate"></span>
-        &mdash;
+        <br />
         <span id="wifiName"></span>
         <br />
         <span id="clientInfo"></span>

@@ -1,6 +1,6 @@
 /**
  *   GPStar Single-Shot Blaster
- *   Copyright (C) 2024-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2024-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                    & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -111,7 +111,7 @@ void getSpecialPreferences() {
 
     // Restore the magnetometer calibration data from preferences.
     if(preferences.isKey("orientation")) {
-      switch(preferences.getShort("orientation", 0)) {
+      switch(preferences.getUChar("orientation", 0)) {
         case 0:
         default:
           INSTALL_ORIENTATION = COMPONENTS_NOT_ORIENTED;
@@ -174,7 +174,7 @@ void getSpecialPreferences() {
     // If namespace is not initialized, open in read/write mode and set defaults.
     if(preferences.begin("device", false)) {
       preferences.putString("track_list", "");
-      preferences.putShort("orientation", 3); // COMPONENTS_DOWN_USB_FRONT
+      preferences.putUChar("orientation", 3); // COMPONENTS_DOWN_USB_FRONT
       preferences.putBytes("mag_cal", &magCalData, sizeof(magCalData));
       preferences.end();
     }

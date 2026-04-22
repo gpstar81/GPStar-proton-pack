@@ -1,6 +1,6 @@
 /**
  *   GPStar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -83,6 +83,7 @@ struct objLEDEEPROM {
  */
 struct objConfigEEPROM {
   uint8_t stream_effects;
+  uint8_t brass_startup_loop;
   uint8_t cyclotron_direction;
   uint8_t center_led_fade; // Used for the 1984/1989 themes.
   uint8_t simulate_ring; // Used for the Afterlife/Frozen Empire themes.
@@ -107,6 +108,8 @@ struct objConfigEEPROM {
   uint8_t smoke_continuous_level_1;
   uint8_t pack_vibration; // Sets the vibration mode for the pack (multi-option).
   uint8_t use_ribbon_cable; // Enable/disable the ribbon cable alarm (useful for DIY packs).
+  uint8_t disable_lid_detection; // Enable/disable cyclotron lid detection (useful for DIY packs).
+  uint8_t fadeout_idle_sounds; // Enable/disable fading out of idle SFX after booting.
 };
 
 /*
@@ -124,9 +127,9 @@ void readEEPROM() {
     EEPROM.get(i_eepromAddress, obj_led_eeprom);
 
     if(obj_led_eeprom.powercell_count == HASLAB_POWERCELL_LED_COUNT || obj_led_eeprom.powercell_count == MAX_POWERCELL_LED_COUNT) {
-      i_powercell_leds = obj_led_eeprom.powercell_count;
+      i_powercell_num_leds = obj_led_eeprom.powercell_count;
 
-      switch(i_powercell_leds) {
+      switch(i_powercell_num_leds) {
         case MAX_POWERCELL_LED_COUNT:
           // 15 Power Cell LEDs.
           i_powercell_delay_1984 = POWERCELL_DELAY_1984_15_LED;
@@ -143,18 +146,18 @@ void readEEPROM() {
     }
     else if(b_power_meter_available) {
       // If no EEPROM default set and using a stock wand, assume stock LEDs instead.
-      i_powercell_leds = HASLAB_POWERCELL_LED_COUNT;
+      i_powercell_num_leds = HASLAB_POWERCELL_LED_COUNT;
       i_powercell_delay_1984 = POWERCELL_DELAY_1984_13_LED;
       i_powercell_delay_2021 = POWERCELL_DELAY_2021_13_LED;
     }
 
     if(obj_led_eeprom.cyclotron_count == HASLAB_CYCLOTRON_LED_COUNT || obj_led_eeprom.cyclotron_count == FRUTTO_CYCLOTRON_LED_COUNT ||
       obj_led_eeprom.cyclotron_count == MAX_CYCLOTRON_LED_COUNT || obj_led_eeprom.cyclotron_count == OUTER_CYCLOTRON_LED_MAX) {
-      i_cyclotron_leds = obj_led_eeprom.cyclotron_count;
+      i_cyclotron_num_leds = obj_led_eeprom.cyclotron_count;
     }
     else if(b_power_meter_available) {
       // If no EEPROM default set and using a stock wand, assume stock LEDs instead.
-      i_cyclotron_leds = HASLAB_CYCLOTRON_LED_COUNT;
+      i_cyclotron_num_leds = HASLAB_CYCLOTRON_LED_COUNT;
     }
 
     if(obj_led_eeprom.inner_cyclotron_count == 12 || obj_led_eeprom.inner_cyclotron_count == 23 || obj_led_eeprom.inner_cyclotron_count == 24 ||
@@ -183,12 +186,12 @@ void readEEPROM() {
         break;
 
         case 35:
+        default:
           i_1984_inner_delay = INNER_CYCLOTRON_DELAY_1984_35_LED;
           i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_35_LED;
         break;
 
         case 36:
-        default:
           i_1984_inner_delay = INNER_CYCLOTRON_DELAY_1984_36_LED;
           i_2021_inner_delay = INNER_CYCLOTRON_DELAY_2021_36_LED;
         break;
@@ -220,39 +223,19 @@ void readEEPROM() {
     }
 
     if(obj_led_eeprom.powercell_inverted > 0 && obj_led_eeprom.powercell_inverted < 3) {
-      if(obj_led_eeprom.powercell_inverted > 1) {
-        b_powercell_invert = true;
-      }
-      else {
-        b_powercell_invert = false;
-      }
+      b_powercell_invert = (obj_led_eeprom.powercell_inverted > 1);
     }
 
     if(obj_led_eeprom.cyclotron_single_center_led > 0 && obj_led_eeprom.cyclotron_single_center_led < 3) {
-      if(obj_led_eeprom.cyclotron_single_center_led > 1) {
-        b_cyclotron_single_led = true;
-      }
-      else {
-        b_cyclotron_single_led = false;
-      }
+      b_cyclotron_single_led = (obj_led_eeprom.cyclotron_single_center_led > 1);
     }
 
     if(obj_led_eeprom.vg_powercell > 0 && obj_led_eeprom.vg_powercell < 3) {
-      if(obj_led_eeprom.vg_powercell > 1) {
-        b_powercell_colour_toggle = true;
-      }
-      else {
-        b_powercell_colour_toggle = false;
-      }
+      b_powercell_colour_toggle = (obj_led_eeprom.vg_powercell > 1);
     }
 
     if(obj_led_eeprom.vg_cyclotron > 0 && obj_led_eeprom.vg_cyclotron < 3) {
-      if(obj_led_eeprom.vg_cyclotron > 1) {
-        b_cyclotron_colour_toggle = true;
-      }
-      else {
-        b_cyclotron_colour_toggle = false;
-      }
+      b_cyclotron_colour_toggle = (obj_led_eeprom.vg_cyclotron > 1);
     }
 
     if(obj_led_eeprom.inner_cyclotron_led_panel > 0 && obj_led_eeprom.inner_cyclotron_led_panel < 5) {
@@ -276,12 +259,7 @@ void readEEPROM() {
     }
 
     if(obj_led_eeprom.grb_inner_cyclotron > 0 && obj_led_eeprom.grb_inner_cyclotron < 5) {
-      if(obj_led_eeprom.grb_inner_cyclotron > 1) {
-        CAKE_LED_TYPE = GRB_LED;
-      }
-      else {
-        CAKE_LED_TYPE = RGB_LED;
-      }
+      CAKE_LED_TYPE = (obj_led_eeprom.grb_inner_cyclotron > 1 ? GRB_LED : RGB_LED);
     }
 
     if(obj_led_eeprom.powercell_spectral_custom > 0 && obj_led_eeprom.powercell_spectral_custom != 255) {
@@ -325,13 +303,7 @@ void readEEPROM() {
     }
 
     if(obj_led_eeprom.gpstar_audio_led > 0 && obj_led_eeprom.gpstar_audio_led < 3) {
-      if(obj_led_eeprom.gpstar_audio_led > 1) {
-        b_gpstar_audio_led_enabled = true;
-      }
-      else {
-        b_gpstar_audio_led_enabled = false;
-      }
-
+      b_gpstar_audio_led_enabled = (obj_led_eeprom.gpstar_audio_led > 1);
       setAudioLED(b_gpstar_audio_led_enabled);
     }
 
@@ -347,144 +319,93 @@ void readEEPROM() {
     EEPROM.get(i_eepromConfigAddress, obj_config_eeprom);
 
     if(obj_config_eeprom.stream_effects > 0 && obj_config_eeprom.stream_effects < 3) {
-      if(obj_config_eeprom.stream_effects > 1) {
-        b_stream_effects = true;
-      }
-      else {
-        b_stream_effects = false;
-      }
+      b_stream_effects = (obj_config_eeprom.stream_effects > 1);
+    }
+
+    if(obj_config_eeprom.brass_startup_loop > 0 && obj_config_eeprom.brass_startup_loop < 3) {
+      b_brass_startup_loop = (obj_config_eeprom.brass_startup_loop > 1);
     }
 
     if(obj_config_eeprom.cyclotron_direction > 0 && obj_config_eeprom.cyclotron_direction < 3) {
-      if(obj_config_eeprom.cyclotron_direction > 1) {
-        b_clockwise = true;
-      }
-      else {
-        b_clockwise = false;
-      }
+      b_clockwise = (obj_config_eeprom.cyclotron_direction > 1);
     }
 
     if(obj_config_eeprom.center_led_fade > 0 && obj_config_eeprom.center_led_fade < 3) {
-      if(obj_config_eeprom.center_led_fade > 1) {
-        b_fade_cyclotron_led = true;
-        i_1984_delay = CYCLOTRON_DELAY_TVG;
-      }
-      else {
-        b_fade_cyclotron_led = false;
-        i_1984_delay = CYCLOTRON_DELAY_1984;
-      }
+      b_fade_cyclotron_led = (obj_config_eeprom.center_led_fade > 1);
+      i_1984_delay = b_fade_cyclotron_led ? CYCLOTRON_DELAY_TVG : CYCLOTRON_DELAY_1984;
     }
 
     if(obj_config_eeprom.simulate_ring > 0 && obj_config_eeprom.simulate_ring < 3) {
-      if(obj_config_eeprom.simulate_ring > 1) {
-        b_cyclotron_simulate_ring = true;
-      }
-      else {
-        b_cyclotron_simulate_ring = false;
-      }
+      b_cyclotron_simulate_ring = (obj_config_eeprom.simulate_ring > 1);
     }
 
     if(obj_config_eeprom.smoke_setting > 0 && obj_config_eeprom.smoke_setting < 3) {
-      if(obj_config_eeprom.smoke_setting > 1) {
-        b_smoke_enabled = true;
-      }
-      else {
-        b_smoke_enabled = false;
-      }
+      b_smoke_enabled = (obj_config_eeprom.smoke_setting > 1);
     }
 
     if(obj_config_eeprom.overheat_strobe > 0 && obj_config_eeprom.overheat_strobe < 3) {
-      if(obj_config_eeprom.overheat_strobe > 1) {
-        b_overheat_strobe = true;
-      }
-      else {
-        b_overheat_strobe = false;
-      }
+      b_overheat_strobe = (obj_config_eeprom.overheat_strobe > 1);
     }
 
     if(obj_config_eeprom.overheat_lights_off > 0 && obj_config_eeprom.overheat_lights_off < 3) {
-      if(obj_config_eeprom.overheat_lights_off > 1) {
-        b_overheat_lights_off = true;
-      }
-      else {
-        b_overheat_lights_off = false;
-      }
+      b_overheat_lights_off = (obj_config_eeprom.overheat_lights_off > 1);
     }
 
     if(obj_config_eeprom.overheat_sync_to_fan > 0 && obj_config_eeprom.overheat_sync_to_fan < 3) {
-      if(obj_config_eeprom.overheat_sync_to_fan > 1) {
-        b_overheat_sync_to_fan = true;
-      }
-      else {
-        b_overheat_sync_to_fan = false;
-      }
+      b_overheat_sync_to_fan = (obj_config_eeprom.overheat_sync_to_fan > 1);
     }
 
     if(obj_config_eeprom.year_mode > 1 && obj_config_eeprom.year_mode < 6) {
       // 1 = toggle switch, 2 = 1984, 3 = 1989, 4 = Afterlife, 5 = Frozen Empire.
       switch(obj_config_eeprom.year_mode) {
         case 2:
-          SYSTEM_YEAR = SYSTEM_1984;
+          gpstarPack.setSystemTheme(SYSTEM_1984);
         break;
 
         case 3:
-          SYSTEM_YEAR = SYSTEM_1989;
+          gpstarPack.setSystemTheme(SYSTEM_1989);
         break;
 
         case 4:
         default:
-          SYSTEM_YEAR = SYSTEM_AFTERLIFE;
+          gpstarPack.setSystemTheme(SYSTEM_AFTERLIFE);
         break;
 
         case 5:
-          SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
+          gpstarPack.setSystemTheme(SYSTEM_FROZEN_EMPIRE);
         break;
       }
 
       // Update additional variables once the system year is set from the stored EEPROM preferences.
-      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-      SYSTEM_EEPROM_YEAR = SYSTEM_YEAR;
+      SYSTEM_THEME_TEMP = gpstarPack.getSystemTheme();
+      SYSTEM_THEME_EEPROM = gpstarPack.getSystemTheme();
 
       // Set the switch override to true, so the toggle switch in the Proton Pack does not override the year settings during the bootup process.
       b_switch_mode_override = true;
     }
 
     if(obj_config_eeprom.system_mode > 0 && obj_config_eeprom.system_mode < 3) {
-      if(obj_config_eeprom.system_mode > 1) {
-        SYSTEM_MODE = MODE_ORIGINAL;
-      }
-      else {
-        SYSTEM_MODE = MODE_SUPER_HERO;
-      }
+      gpstarPack.setSystemMode(obj_config_eeprom.system_mode > 1 ? MODE_ORIGINAL : MODE_SUPER_HERO); // Only use Mode Original when value is 2.
     }
 
     if(obj_config_eeprom.demo_light_mode > 0 && obj_config_eeprom.demo_light_mode < 3) {
-      if(obj_config_eeprom.demo_light_mode > 1) {
-        b_demo_light_mode = true;
-      }
-      else {
-        b_demo_light_mode = false;
-      }
+      b_demo_light_mode = (obj_config_eeprom.demo_light_mode > 1);
     }
 
     if(obj_config_eeprom.wand_quick_bootup > 0 && obj_config_eeprom.wand_quick_bootup < 3) {
-      if(obj_config_eeprom.wand_quick_bootup > 1) {
-        // If quick bootup from wand is true, long startup must be false.
-        b_wand_long_startup = false;
-      }
-      else {
-        // If quick bootup from wand is false, long startup must be true.
-        b_wand_long_startup = true;
-      }
+      b_wand_long_startup = (obj_config_eeprom.wand_quick_bootup < 2); // Check is inverted because wand quick bootup meant not long startup.
     }
 
     if(obj_config_eeprom.use_ribbon_cable > 0 && obj_config_eeprom.use_ribbon_cable < 3) {
-      if(obj_config_eeprom.use_ribbon_cable > 1) {
-        b_use_ribbon_cable = true;
-      }
-      else {
-        b_use_ribbon_cable = false;
-      }
+      b_use_ribbon_cable = (obj_config_eeprom.use_ribbon_cable > 1);
+    }
+
+    if(obj_config_eeprom.disable_lid_detection > 0 && obj_config_eeprom.disable_lid_detection < 3) {
+      b_disable_lid_detection = (obj_config_eeprom.disable_lid_detection > 1);
+    }
+
+    if(obj_config_eeprom.fadeout_idle_sounds > 0 && obj_config_eeprom.fadeout_idle_sounds < 3) {
+      b_fadeout_idle_sounds = (obj_config_eeprom.fadeout_idle_sounds > 1);
     }
 
     if(obj_config_eeprom.default_system_volume > 0 && obj_config_eeprom.default_system_volume < 102) {
@@ -516,55 +437,30 @@ void readEEPROM() {
     }
 
     if(obj_config_eeprom.smoke_continuous_level_5 > 0 && obj_config_eeprom.smoke_continuous_level_5 < 3) {
-      if(obj_config_eeprom.smoke_continuous_level_5 > 1) {
-        b_smoke_continuous_level_5 = true;
-      }
-      else {
-        b_smoke_continuous_level_5 = false;
-      }
+      b_smoke_continuous_level_5 = (obj_config_eeprom.smoke_continuous_level_5 > 1);
     }
 
     if(obj_config_eeprom.smoke_continuous_level_4 > 0 && obj_config_eeprom.smoke_continuous_level_4 < 3) {
-      if(obj_config_eeprom.smoke_continuous_level_4 > 1) {
-        b_smoke_continuous_level_4 = true;
-      }
-      else {
-        b_smoke_continuous_level_4 = false;
-      }
+      b_smoke_continuous_level_4 = (obj_config_eeprom.smoke_continuous_level_4 > 1);
     }
 
     if(obj_config_eeprom.smoke_continuous_level_3 > 0 && obj_config_eeprom.smoke_continuous_level_3 < 3) {
-      if(obj_config_eeprom.smoke_continuous_level_3 > 1) {
-        b_smoke_continuous_level_3 = true;
-      }
-      else {
-        b_smoke_continuous_level_3 = false;
-      }
+      b_smoke_continuous_level_3 = (obj_config_eeprom.smoke_continuous_level_3 > 1);
     }
 
     if(obj_config_eeprom.smoke_continuous_level_2 > 0 && obj_config_eeprom.smoke_continuous_level_2 < 3) {
-      if(obj_config_eeprom.smoke_continuous_level_2 > 1) {
-        b_smoke_continuous_level_2 = true;
-      }
-      else {
-        b_smoke_continuous_level_2 = false;
-      }
+      b_smoke_continuous_level_2 = (obj_config_eeprom.smoke_continuous_level_2 > 1);
     }
 
     if(obj_config_eeprom.smoke_continuous_level_1 > 0 && obj_config_eeprom.smoke_continuous_level_1 < 3) {
-      if(obj_config_eeprom.smoke_continuous_level_1 > 1) {
-        b_smoke_continuous_level_1 = true;
-      }
-      else {
-        b_smoke_continuous_level_1 = false;
-      }
+      b_smoke_continuous_level_1 = (obj_config_eeprom.smoke_continuous_level_1 > 1);
     }
 
     if(obj_config_eeprom.pack_vibration > 0 && obj_config_eeprom.pack_vibration < 6) {
       switch(obj_config_eeprom.pack_vibration) {
         case 5:
           VIBRATION_MODE_EEPROM = CYCLOTRON_MOTOR;
-          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+          gpstarPack.setVibrationMode(VIBRATION_MODE_EEPROM);
         break;
 
         case 4:
@@ -574,20 +470,20 @@ void readEEPROM() {
         break;
 
         case 3:
-          VIBRATION_MODE_EEPROM = VIBRATION_NONE;
-          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+          VIBRATION_MODE_EEPROM = VIBRATION_NEVER;
+          gpstarPack.setVibrationMode(VIBRATION_MODE_EEPROM);
         break;
 
         case 2:
           b_vibration_switch_on = true; // Override the vibration toggle switch.
           VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
-          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+          gpstarPack.setVibrationMode(VIBRATION_MODE_EEPROM);
         break;
 
         case 1:
           b_vibration_switch_on = true; // Override the vibration toggle switch.
           VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
-          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+          gpstarPack.setVibrationMode(VIBRATION_MODE_EEPROM);
         break;
       }
     }
@@ -661,7 +557,7 @@ void saveLEDEEPROM() {
   // Cyclotron 1/3-LED setting for 84/89 modes.
   uint8_t i_cyclotron_single_center_led = b_cyclotron_single_led ? 2 : 1;
 
-  // Power Cell and Cyclotron VG color flags.
+  // Power Cell and Cyclotron VG colour flags.
   uint8_t i_vg_powercell = b_powercell_colour_toggle ? 2 : 1;
   uint8_t i_vg_cyclotron = b_cyclotron_colour_toggle ? 2 : 1;
 
@@ -670,8 +566,8 @@ void saveLEDEEPROM() {
 
   // Write the data to the EEPROM if any of the values have changed.
   objLEDEEPROM obj_led_eeprom = {
-    i_powercell_leds,
-    i_cyclotron_leds,
+    i_powercell_num_leds,
+    i_cyclotron_num_leds,
     i_inner_cyclotron_cake_num_leds,
     i_grb_cyclotron_cake,
     i_spectral_powercell_custom_colour,
@@ -718,6 +614,7 @@ void saveConfigEEPROM() {
 
   // 1 = false, 2 = true.
   uint8_t i_proton_stream_effects = b_stream_effects ? 2 : 1;
+  uint8_t i_brass_startup_loop = b_brass_startup_loop ? 2 : 1;
   uint8_t i_cyclotron_direction = b_clockwise ? 2 : 1; // 1 = counter-clockwise, 2 = clockwise.
   uint8_t i_center_led_fade = b_fade_cyclotron_led ? 2 : 1;
   uint8_t i_simulate_ring = b_cyclotron_simulate_ring ? 2 : 1;
@@ -726,12 +623,14 @@ void saveConfigEEPROM() {
   uint8_t i_overheat_strobe = b_overheat_strobe ? 2 : 1;
   uint8_t i_overheat_lights_off = b_overheat_lights_off ? 2 : 1;
   uint8_t i_overheat_sync_to_fan = b_overheat_sync_to_fan ? 2 : 1;
-  uint8_t i_year_mode_eeprom = SYSTEM_EEPROM_YEAR;
-  uint8_t i_system_mode = (SYSTEM_MODE == MODE_ORIGINAL) ? 2 : 1; // 1 = super hero, 2 = original.
+  uint8_t i_year_mode_eeprom = (uint8_t)SYSTEM_THEME_EEPROM;
+  uint8_t i_system_mode = (uint8_t)gpstarPack.getSystemMode(); // 0 = Default, 1 = Super Hero, 2 = Original.
 
   uint8_t i_demo_light_mode = b_demo_light_mode ? 2 : 1;
   uint8_t i_wand_quick_bootup = !b_wand_long_startup ? 2 : 1;
   uint8_t i_use_ribbon_cable = b_use_ribbon_cable ? 2 : 1;
+  uint8_t i_disable_lid_detection = b_disable_lid_detection ? 2 : 1;
+  uint8_t i_fadeout_idle_sounds = b_fadeout_idle_sounds ? 2 : 1;
   uint8_t i_default_system_volume = 101; // <- i_eeprom_volume_master_percentage + 1
   uint8_t i_overheat_smoke_duration_level_5 = i_ms_overheating_length_5 / 1000;
   uint8_t i_overheat_smoke_duration_level_4 = i_ms_overheating_length_4 / 1000;
@@ -761,7 +660,7 @@ void saveConfigEEPROM() {
       i_pack_vibration = 2;
     break;
 
-    case VIBRATION_NONE:
+    case VIBRATION_NEVER:
       i_pack_vibration = 3;
     break;
 
@@ -779,6 +678,7 @@ void saveConfigEEPROM() {
 
   objConfigEEPROM obj_config_eeprom = {
     i_proton_stream_effects,
+    i_brass_startup_loop,
     i_cyclotron_direction,
     i_center_led_fade,
     i_simulate_ring,
@@ -802,7 +702,9 @@ void saveConfigEEPROM() {
     i_smoke_continuous_level_2,
     i_smoke_continuous_level_1,
     i_pack_vibration,
-    i_use_ribbon_cable
+    i_use_ribbon_cable,
+    i_disable_lid_detection,
+    i_fadeout_idle_sounds
   };
 
   // Save and update our object in the EEPROM.

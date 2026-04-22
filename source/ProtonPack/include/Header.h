@@ -1,6 +1,6 @@
 /**
  *   GPStar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -174,13 +174,13 @@ const uint8_t i_max_inner_cyclotron_leds = INNER_CYCLOTRON_LED_PANEL_MAX + INNER
  * Updated count of all the LEDs plus the N-Filter jewel.
  * This gets updated by the system if the wand changes the led count in the EEPROM menu system.
  */
-uint8_t i_pack_num_leds = i_powercell_leds + i_cyclotron_leds + i_nfilter_jewel_leds;
+uint8_t i_pack_num_leds = i_powercell_num_leds + i_cyclotron_num_leds + i_nfilter_jewel_leds;
 
 /*
  * Which LED the N-Filter jewel LEDs start.
  * This gets updated by the system if the wand changes the LED count in the EEPROM menu system.
  */
-uint8_t i_vent_light_start = i_powercell_leds + i_cyclotron_leds;
+uint8_t i_vent_light_start = i_powercell_num_leds + i_cyclotron_num_leds;
 
 /*
  * Proton Pack Power Cell and Cyclotron lid LED pin.
@@ -240,12 +240,14 @@ enum PACK_ACTION_STATES PACK_ACTION_STATE;
  * Cyclotron lid LEDs control and lid detection.
  */
 uint8_t i_1984_counter = 0; // Counter to keep track of which of the four LEDs we are working with in 1984/1989 mode.
-uint8_t i_2021_delay = CYCLOTRON_DELAY_2021_12_LED; // The cyclotron delay in 2021 mode. This is reset by the system during bootup based on settings in Configuration.h
-uint8_t i_cyclotron_led_start = i_powercell_leds; // First LED in the Cyclotron.
+uint8_t i_2021_delay = CYCLOTRON_DELAY_2021_36_LED; // The cyclotron delay in 2021 mode. This is reset by the system during bootup based on settings in Configuration.h
+uint8_t i_cyclotron_led_start = i_powercell_num_leds; // First LED in the Cyclotron.
 uint8_t i_led_cyclotron = i_cyclotron_led_start; // Current Cyclotron LED that we are lighting up.
+const uint8_t i_fadeout_duration = 50;
 const uint16_t i_2021_ramp_delay = 300;
 const uint16_t i_2021_ramp_length = 6000;
 const uint16_t i_1984_ramp_length = 3000;
+const uint16_t i_brass_ramp_down_length = 8800;
 const uint16_t i_2021_ramp_down_length = 10500;
 const uint16_t i_1984_ramp_down_length = 2500;
 const uint16_t i_1989_ramp_down_length = 100;
@@ -255,17 +257,19 @@ bool b_ramp_up = true;
 bool b_ramp_up_start = true;
 bool b_ramp_down_start = false;
 bool b_ramp_down = false;
+bool b_fade_out = false;
 bool b_reset_start_led = true;
 bool b_1984_led_start = true;
 millisDelay ms_cyclotron;
 millisDelay ms_cyclotron_slime_effect;
+millisDelay ms_fadeout;
 rampUnsignedInt r_outer_cyclotron_ramp;
-bool b_cyclotron_led_fading_in[OUTER_CYCLOTRON_LED_MAX] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
+bool b_cyclotron_led_fading_in[OUTER_CYCLOTRON_LED_MAX] = {false};
 ramp r_cyclotron_led_fade_out[OUTER_CYCLOTRON_LED_MAX] = {};
 ramp r_cyclotron_led_fade_in[OUTER_CYCLOTRON_LED_MAX] = {};
-uint8_t i_cyclotron_led_value[OUTER_CYCLOTRON_LED_MAX] = {};
+uint8_t i_cyclotron_led_value[OUTER_CYCLOTRON_LED_MAX] = {0};
 uint8_t i_cyclotron_fake_ring_counter = 0; // Counter used by the ring simulation code to count how many times we have processed the "0" value in the matrix.
-bool b_cyclotron_lid_on = true;
+bool b_cyclotron_lid_on = true; // Tracks actual state of cyclotron lid (on = covered/attached).
 bool b_brass_pack_sound_loop = false;
 
 // For the Afterlife and Frozen Empire Cyclotron matrix pattern, map a location on a circle of 40 positions to a target LED (where 0 is the top-right lens).
@@ -278,8 +282,8 @@ const uint8_t i_cyclotron_40led_matrix[OUTER_CYCLOTRON_LED_MAX] PROGMEM = { 1, 2
 /*
  * Inner Cyclotron LED Panel
  * Disabled = GPStar or Frutto Technology LED panel will be disabled; non-Addressable LEDs will continue working [ATMega only]
- * RGB Static = Use the GPStar or Frutto Technology LED panel, but colors remain consistent for all stream modes
- * RGB Dynamic = Use the GPStar or Frutto Technology LED panel, allowing colors to change based on stream modes [Default]
+ * RGB Static = Use the GPStar or Frutto Technology LED panel, but colours remain consistent for all stream modes
+ * RGB Dynamic = Use the GPStar or Frutto Technology LED panel, allowing colours to change based on stream modes [Default]
  * When enabled, this becomes the first in the chain from the Inner Cyclotron JST-XH connector from the Proton Pack.
  */
 enum INNER_CYC_PANEL_MODES { PANEL_DISABLED, PANEL_RGB_STATIC, PANEL_RGB_DYNAMIC };
@@ -295,6 +299,7 @@ int8_t i_led_cyclotron_ring = 0; // Current LED for the inner cyclotron ring.
 int8_t i_led_cyclotron_cavity = 0; // Current LED for the cyclotron cavity.
 bool b_inner_ramp_up = true; // Gotta start up before you can wind down.
 bool b_inner_ramp_down = false; // Opposite of the ramp_up value, naturally.
+bool b_fading_out_frozen = false; // Used in Frozen Empire to flag that we should be fading out.
 uint16_t i_inner_current_ramp_speed = i_inner_ramp_delay; // Begin by defaulting to the inner ramp delay (this will be adjusted by the cyclotron multiplier at runtime).
 uint8_t i_inner_cyclotron_panel_num_leds = INNER_CYCLOTRON_LED_PANEL_MAX; // Addressable RGB LEDs on the optional inner cyclotron LED switch plate panel PCB, not the individual LEDs.
 const uint8_t i_ic_panel_start = 0; // Will always be 0 no matter what configuration is in use.
@@ -321,6 +326,7 @@ millisDelay ms_cyclotron_switch_plate_leds; // Timer to control the 2 switch sta
  */
 const uint16_t i_alarm_delay = 500;
 bool b_pack_alarm = false;
+bool b_manual_cable_alarm = false;
 millisDelay ms_alarm;
 
 /*
@@ -341,14 +347,12 @@ ezButton switch_smoke(SMOKE_TOGGLE_PIN); // Switch to enable smoke effects. Not 
  *
  * Vibration default is based on the toggle switch position. These are references for the EEPROM menu. Empty is a zero value, not used in the EEPROM.
  */
-enum VIBRATION_MODES { VIBRATION_EMPTY, VIBRATION_ALWAYS, VIBRATION_FIRING_ONLY, VIBRATION_NONE, VIBRATION_DEFAULT, CYCLOTRON_MOTOR };
 enum VIBRATION_MODES VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
-enum VIBRATION_MODES VIBRATION_MODE = VIBRATION_FIRING_ONLY;
-uint8_t i_vibration_level = 0;
-uint8_t i_vibration_level_prev = 0;
-const uint8_t i_vibration_idle_level_2021 = 60; // Afterlife/Frozen Empire idle level is 23.5%.
-const uint8_t i_vibration_idle_level_1984 = 35; // 1984/1989 idle level is 13.7%.
-const uint8_t i_vibration_level_min = 15; // Minimum vibration level is 6%.
+const uint8_t i_vibration_idle_level_2021 = 64; // Afterlife/Frozen Empire idle level is 25%.
+const uint8_t i_vibration_idle_level_1984 = 38; // 1984/1989 idle level is 15%.
+const uint8_t i_vibration_level_min = 30; // Minimum vibration level is 11.7%.
+uint8_t i_vibration_level = i_vibration_level_min;
+uint8_t i_vibration_level_prev = i_vibration_level_min;
 millisDelay ms_menu_vibration; // Timer to do non-blocking confirmation buzzing in the vibration menu.
 
 /*
@@ -381,34 +385,15 @@ const uint16_t i_overheat_delay_max = 60000; // The max length a overheat can be
 millisDelay ms_vent_light_on;
 millisDelay ms_vent_light_off;
 const uint8_t i_vent_light_delay = 50;
-bool b_vent_sounds; // A flag for playing smoke and vent sounds.
+bool b_vent_sounds_playing = false; // A flag for playing smoke and vent sounds.
 bool b_vent_light_on = false; // To know if the light is on or off.
 
 /*
- * Wand Firing Modes + Settings
+ * Wand Stream Settings
  */
-enum BARREL_STATES { BARREL_UNKNOWN, BARREL_RETRACTED, BARREL_EXTENDED };
-enum BARREL_STATES BARREL_STATE = BARREL_UNKNOWN;;
-enum POWER_LEVELS { LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5 };
-enum POWER_LEVELS POWER_LEVEL = LEVEL_5; // Default power level is 5.
-enum STREAM_MODES { UNSET_STREAM, PROTON, STASIS, SLIME, MESON, SPECTRAL, HOLIDAY_HALLOWEEN, HOLIDAY_CHRISTMAS, SPECTRAL_CUSTOM, SETTINGS };
-enum STREAM_MODES STREAM_MODE = PROTON; // Default stream mode is Proton.
-enum STREAM_MODE_FLAGS : uint8_t { FLAG_NONE = 0, FLAG_VG = 1, FLAG_SPECTRAL = 2, FLAG_SPECTRAL_CUSTOM = 4, FLAG_HOLIDAY_HALLOWEEN = 8, FLAG_HOLIDAY_CHRISTMAS = 16 };
-uint8_t STREAM_MODE_FLAG = FLAG_VG | FLAG_SPECTRAL | FLAG_SPECTRAL_CUSTOM | FLAG_HOLIDAY_HALLOWEEN | FLAG_HOLIDAY_CHRISTMAS; // By default, enable all modes.
-enum RED_SWITCH_MODES { SWITCH_ON, SWITCH_OFF };
-enum RED_SWITCH_MODES RED_SWITCH_MODE = SWITCH_OFF; // Default to ion arm switch off until we set otherwise.
 bool b_settings = false; // Used to keep track of being in the wand settings menu.
 millisDelay ms_streamchange; // Debounce for change of stream via dial.
 uint16_t i_stream_change_delay = 500; // Delay between stream mode changes.
-
-/*
- * System modes.
- * Super Hero: A idealised system based on the close up of the Super Hero Proton Pack and Neutrona Wand in the 1984 Rooftop closeup scene and what is shown in Afterlife. (Different toggle switch sequences for turning on the pack and wand)
- * Original: Based on the original operational manual during production of GB1. (Wand toggle switches must be on before the cyclotron can turn on from the Wand only.)
- * Super Hero will be the default system mode.
- */
-enum SYSTEM_MODES { MODE_SUPER_HERO, MODE_ORIGINAL };
-enum SYSTEM_MODES SYSTEM_MODE = MODE_SUPER_HERO;
 
 /*
  * Cross The Streams Status
@@ -428,8 +413,6 @@ bool b_wand_connected = false;
 bool b_wand_syncing = false;
 bool b_wand_on = false;
 bool b_wand_mash_lockout = false;
-const uint8_t i_wand_power_level_max = 5; // Max power level of the wand.
-uint8_t i_wand_power_level = 5; // Power level of the wand.
 millisDelay ms_wand_check; // Timer used to determine whether the wand has been disconnected.
 millisDelay ms_mash_lockout; // Timer for tracking the expected button-mash lockout on the wand.
 const uint16_t i_wand_disconnect_delay = 8000; // Time until the pack considers a wand as disconnected.
@@ -452,6 +435,15 @@ uint16_t i_last_firing_effect_mix = 0;
 millisDelay ms_idle_fire_fade; // Used for fading the Afterlife idling sound with firing, and determining whether to use "full" or "quick" bootup sequences.
 
 /*
+ * Control for the Meson Shock Blast sound effects.
+*/
+const uint16_t i_meson_blast_delay_level_5 = 125;
+const uint16_t i_meson_blast_delay_level_4 = 185;
+const uint16_t i_meson_blast_delay_level_3 = 215;
+const uint16_t i_meson_blast_delay_level_2 = 245;
+const uint16_t i_meson_blast_delay_level_1 = 275;
+
+/*
  * Rotary encoder for volume control
  */
 millisDelay ms_rotary_encoder; // Timer for slowing the rotary encoder spin.
@@ -460,13 +452,13 @@ static uint8_t prev_next_code = 0;
 static uint16_t store = 0;
 
 /*
- * Proton Pack Bootup Post Animations
+ * Proton Pack Bootup POST Animations
  */
 bool b_pack_post_finish = false;
 uint8_t i_post_powercell_up = 0;
 uint8_t i_post_powercell_down = 0;
 uint8_t i_post_fade = 255;
-millisDelay ms_delay_post; // Also used for Brass Pack shutdown steam effect.
+millisDelay ms_delay_post; // Also used for Brass Pack shutdown steam effect and SFX fadeout.
 millisDelay ms_delay_post_2; // Also used by GPStar Lite to check for overheating.
 millisDelay ms_delay_post_3; // Also used by GPStar Lite to debounce wand startup.
 
@@ -494,26 +486,22 @@ enum device {
 };
 
 /*
- * The year the Proton Pack operates in.
- * SYSTEM_EMPTY is just a empty place holder. We need this as we write this data to the EEPROM.
+ * System preference ENUM holders.
+ * Stores temporary or last-saved theme (year) the Proton Pack operates in.
  */
-enum SYSTEM_YEARS { SYSTEM_EMPTY, SYSTEM_TOGGLE_SWITCH, SYSTEM_1984, SYSTEM_1989, SYSTEM_AFTERLIFE, SYSTEM_FROZEN_EMPIRE };
-enum SYSTEM_YEARS SYSTEM_YEAR = SYSTEM_AFTERLIFE;
-enum SYSTEM_YEARS SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
-enum SYSTEM_YEARS SYSTEM_EEPROM_YEAR = SYSTEM_TOGGLE_SWITCH;
+enum SYSTEM_THEMES SYSTEM_THEME_TEMP = gpstarPack.getSystemTheme();
+enum SYSTEM_THEMES SYSTEM_THEME_EEPROM = SYSTEM_TOGGLE_SWITCH;
 
 /*
  * Misc.
  */
 bool b_switch_mode_override = false; // Year mode override flag controlled by the Neutrona Wand. This resets when you flip the mode year toggle switch on the pack.
-bool b_pack_on = false;
 bool b_pack_shutting_down = false;
 bool b_spectral_lights_on = false;
-bool b_fade_out = false;
+bool b_first_boot = true;
 uint16_t i_wand_audio_version = 0;
 const uint16_t i_gbfe_brass_shutdown_delay = 8796;
-const uint8_t i_fadeout_duration = 50;
-millisDelay ms_fadeout;
+const uint16_t i_idle_fadeout_time = 30000;
 
 /*
  * UI Status Display Type
@@ -557,8 +545,8 @@ void powercellDraw(uint8_t i_start = 0);
  *   Set to WIFI_DISABLED to force WiFi off regardless of Attenuator presence.
  */
 #ifdef ESP32
-  enum WIFI_MODES { WIFI_DEFAULT, WIFI_ENABLED, WIFI_DISABLED };
-  enum WIFI_MODES WIFI_MODE = WIFI_DEFAULT;
+  enum WIFI_USER_MODES { WIFI_DEFAULT, WIFI_ENABLED, WIFI_DISABLED };
+  enum WIFI_USER_MODES WIFI_USER_MODE = WIFI_DEFAULT;
   bool b_initial_wifi_setup_finished = false; // Used to offset demo light mode startup by 1 loop.
 #endif
 

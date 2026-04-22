@@ -1,0 +1,106 @@
+/* Equipment Labels and Overlays */
+.equipment {
+  display: flex;
+}
+
+.health-column {
+  width: 16%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 10px 10px 5px;
+  border-right: 1px solid rgba(0, 160, 0, 0.5);
+}
+
+.health-bar-container {
+  width: 40px;
+  height: 80%;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(0, 160, 0, 0.8);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.health-bar {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to top, #00ff00 0%, #88ff00 50%, #00ff00 100%);
+  transition:
+    height 0.3s ease,
+    background 0.3s ease;
+}
+
+.health-bar.amber {
+  background: linear-gradient(to top, #ffbf00 0%, #ffd700 50%, #ffbf00 100%);
+}
+
+.health-bar.orange {
+  background: linear-gradient(to top, #ff8c00 0%, #ffa500 50%, #ff8c00 100%);
+}
+
+.health-bar.red {
+  background: linear-gradient(to top, #ff0000 0%, #ff4444 50%, #ff0000 100%);
+}
+
+.health-text {
+  margin-top: 10px;
+  font-size: 14px;
+  font-family: "Courier New", Courier, monospace;
+  color: rgba(0, 160, 0, 1);
+  font-weight: bold;
+}
+
+.data-column {
+  width: 84%;
+  display: flex;
+  flex-direction: column;
+}
+
+.data-console {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 10px;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.hit-entry {
+  margin-bottom: 8px;
+  padding: 6px;
+  border-left: 3px solid rgba(0, 160, 0, 0.6);
+  background-color: rgba(0, 80, 0, 0.2);
+  animation: fadeIn 0.3s ease;
+}
+
+.hit-entry.damage {
+  border-left-color: rgba(255, 140, 0, 0.8);
+  background-color: rgba(128, 70, 0, 0.2);
+}
+
+.hit-entry.defeated {
+  border-left-color: rgba(255, 0, 0, 0.8);
+  background-color: rgba(128, 0, 0, 0.2);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#dataConsole {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}

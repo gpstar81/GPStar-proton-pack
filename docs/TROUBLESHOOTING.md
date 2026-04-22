@@ -9,8 +9,8 @@ If you are experiencing issues during the installation process there are a few w
 Before continuing, be certain whether the following items have been reviewed:
 
 - Check he operation switch on your audio controller:
-	- GPStar Audio should be set to BOOT.
-	- WAV Trigger should be set to RUN.
+    - GPStar Audio should be set to BOOT.
+    - WAV Trigger should be set to RUN.
 - Check that the microSD card is fully seated (pushed) into its socket.
 - Check the JST connector on the PCB controller is fully seated into its socket.
 - Verify the connections are intact and solid for GND, 5Vin, Rx, and Tx in all parts of the hose connectors.
@@ -91,7 +91,7 @@ If you wish to use the Neutrona Wand without a Proton Pack you can install a 2.0
 
 ![](images/GPStar-Wand-Standalone.jpg)
 
-The GPStar II Neutrona Wand board can also be toggled to use Standalone Mode directly from the Special Device Settings page in the web UI. For more information see the [GPStar II Wireless Operation Guide](WIRELESS_GPSTAR_II.md#special-device-settings-1).
+The GPStar II Neutrona Wand board can also be toggled to use Standalone Mode directly from the Special Device Settings page in the web UI. For more information see the [GPStar II Wireless Operation Guide](WIRELESS_GPSTAR_II.md#special-neutrona-wand-device-settings).
 
 ## Troubleshooting: Audio
 
@@ -99,6 +99,20 @@ The GPStar II Neutrona Wand board can also be toggled to use Standalone Mode dir
 
 When adding extra music to your system, many audio software tend to add metadata information into the file. This will prevent the file from playing. As simple as importing the file into Audacity and re-exporting will solve the issue, or you can use any other software to remove the Meta Data information.
 Depending on which audio board or amplifier you are using in your system, following the troubleshooting guides below.
+
+---
+
+### Music Playback Issues
+
+If you are unable to play music or tracks don't respond as expected, do the following:
+
+* Reformat the microSD card using a FULL formatting as FAT32.
+* Copy ALL sound files as provided for the version of the software you are using.
+* DO NOT load any additional music files, substitute sound files, or any other changes beyond what was shipped as part of the firmware release.
+* Re-insert the microSD card and restart your system from the battery.
+* Make sure that you can play the default music track (#500).
+
+Only after confirming that the default, stock music file can be played should you attempt to load additional music files onto the microSD card.
 
 ---
 
@@ -140,7 +154,7 @@ Remember that a ground loop isolator is not required for this device as this is 
 
 **Startup Blinking Patterns:**
 
-- 1x (long) - 1 long blink upon startup indicates that the SD card is no good or the formatting was bad. Re-format fully using your OS or the provided [guiformat.exe](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/sound/guiformat.exe?raw=1) utility in [extras](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/) (for Windows only). Name brand microSD cards are highly recommended, with SanDisk having been proven the most reliable so far.
+- 1x (long) - 1 long blink upon startup indicates that the SD card is no good or the formatting was bad. Re-format fully using your OS or the provided [guiformat.exe](https://cdn.shopify.com/s/files/1/0772/0517/6651/files/guiformat.exe?v=1776715172) utility (for Windows only). Name brand microSD cards are highly recommended, with SanDisk having been proven the most reliable so far.
 - 3x (quick) - 3 quick blinks in succession is the normal pattern at initial power-up to indicate the device has initialized without issues.
 
 **Post Startup Blinking Patterns**
@@ -161,4 +175,15 @@ Remember that a ground loop isolator is not required for this device as this is 
 
 1. Please remove any metadata contained in the music wav files you add, as it can cause issues loading the file for playback.
 
-[Manual for the WAV Trigger [pdf]](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/sound/WavTrigger/WT_UserGuide_20230602.pdf?raw=1)
+[Manual for the WAV Trigger (PDF)](https://www.robertsonics.com/s/WT_UserGuide_20230602.pdf)
+
+## Troubleshooting: WiFi Connectivity
+If you are having trouble connecting to any GPStar wireless device with the Google Chrome browser, newer versions have enabled new security settings for Local Network Access. You may be prompted by your Chrome browser granting permission to connect to the device. You will want to allow this. If you clicked on Block and did or did not receive this permission request, you can disable Local Netwok Access Checks in the advanced settings for Chrome.
+
+[https://developer.chrome.com/blog/local-network-access
+](https://developer.chrome.com/blog/local-network-access)
+
+[Local Network Access Checks](chrome://flags/#local-network-access-check)
+
+![](images/chrome_lna.png)
+![](images/chrome_lna_menu.png)

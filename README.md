@@ -18,11 +18,17 @@ Just see for yourself what this kit can do, and you'll be ready to believe us!
 
 ## Official Documentation
 
-Please note that the documentation has moved and now exists in a new website hosted directly on Github. You can now find the official documentation in HTML format at [https://gpstar81.github.io/GPStar-proton-pack/](https://gpstar81.github.io/GPStar-proton-pack/)
+All product documentation has been integrated directly into Github Docs in HTML format at [https://gpstar81.github.io/GPStar-proton-pack/](https://gpstar81.github.io/GPStar-proton-pack/) and is kept up to date with the very latest public (non-beta) release.
 
 ### Viewing MD Files
 
 Throughout this repository you may find files which end in the `.md` extension. Viewing via the GitHub browser should automatically display these files with basic formatting, though to view these MarkDown (MD) files with full formatting including color-coding, you can use a program such as [MarkdownPad](http://markdownpad.com/) (Windows) or [MacDown](https://macdown.uranusjr.com/) (MacOS). The contents of the `/docs/` folder is the source of the official documentation linked above.
+
+## Official Support Channels
+
+Please refer to the [Support & Downloads](https://gpstartechnologies.com/pages/support-downloads) page of the official GPStar Technologies website for the latest released binaries and all related utilities.
+
+For live support, please join the [GPStar Technologies Facebook Group](https://www.facebook.com/groups/gpstartechnologies) for development team and community-driven assistance.
 
 ## Licensing
 
@@ -30,7 +36,9 @@ This program is free software: you can redistribute it and/or modify it under th
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+You should have received [a copy of the GNU General Public License along with this program](LICENSE). If not, see <https://www.gnu.org/licenses/>.
+
+In addition to the software, all project design files (including STL and other manufacturing formats) are provided in this repository under the same open-source terms. These files are made freely available here so they can be accessed, used, modified, and redistributed in accordance with the GNU General Public License. The latest and authoritative versions are always maintained in this repository.
 
 ## Acknowledgements
 
@@ -38,9 +46,10 @@ This project is made possible by Ghostbusters community makers and volunteers sp
 
 * Michael Rajotte (aka. "GPStar Technologies") - Director of Operations, Software Architect, Product Designer, PCB Design, 3D Modelling, EU & Worldwide Distribution
 * Jonathan Gunn (aka. "Jonogunn") - Video Instruction Guides, Install Testing.
-* Dustin Grau (aka. "JustinDustin") - Prototyping and Testing, Documentation, 3D Modelling, Software Support
-* Angie Rutto (aka. "Frutto Technology") - Maker and purveyor of fine add-on products, UK Distribution
-* Nomake Wan - Software Support and Feature Development
+* Dustin Grau (aka. "JustinDustin") - Prototyping and Testing, Documentation, 3D Modelling, Software Support.
+* Angie Rutto (aka. "Frutto Technology") - Maker and purveyor of fine add-on products, UK Distribution.
+* Nomake Wan - Software Support, Feature Development, and Product Testing.
+* David Callari - Social Media Manager
 
 ### Special Thanks
 

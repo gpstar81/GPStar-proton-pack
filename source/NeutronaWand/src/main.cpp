@@ -1,6 +1,6 @@
 /**
  *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -29,10 +29,11 @@
 #include <Arduino.h>
 
 // Set to 1 to enable built-in debug messages via Serial device output.
-#define DEBUG 0
+// Use with DEBUG_SEND_TO_CONSOLE and other DEBUG_'s in Configuration.h
+#define GPSTAR_DEBUG 0
 
 // Debug macros
-#if DEBUG == 1
+#if GPSTAR_DEBUG == 1
   #define debug(...) Serial.print(__VA_ARGS__)
   #define debugf(...) Serial.printf(__VA_ARGS__)
   #define debugln(...) Serial.println(__VA_ARGS__)
@@ -47,49 +48,56 @@
 #define PROGMEM_READU16(x) pgm_read_word_near(&(x))
 #define PROGMEM_READU8(x) pgm_read_byte_near(&(x))
 
-#ifdef ESP32
-  // Disables static receiver code like receive timer ISR handler and static IRReceiver and irparams data.
-  // Saves 450 bytes program memory and 269 bytes RAM if receiving functions are not required.
-  #define DISABLE_CODE_FOR_RECEIVER
-
-  // Disable carrier PWM generation in software and use (restricted) hardware PWM.
-  // This is the default for ESP32 and by defining here avoids a compiler warning.
-  #define SEND_PWM_BY_TIMER
-
-  // Do not use a feedback LED for the IR signal.
-  #define NO_LED_FEEDBACK_CODE
-#endif
-
 // 3rd-Party Libraries
 #include <CRC32.h>
 #include <digitalWriteFast.h>
 #include <millisDelay.h>
 #include <FastLED.h>
 #include <avdweb_Switch.h>
+#include <Ramp.h>
 #include <ht16k33.h>
 #include <SerialTransfer.h>
 #include <Wire.h>
 #ifdef ESP32
   #include <HardwareSerial.h>
-  #include <IRremote.hpp>
 #else
   #include <EEPROM.h>
 #endif
 
 // Forward declaration for use in all includes.
-void sendDebug(const String message);
+void sendDebug(const String& message);
 
 // Shared Libraries
+#include <DeviceState.h>
 #include <Communication.h>
 #ifdef ESP32
   #include <MagCalibration.h>
   MagCalibration magCal;
 
   #include <WirelessManager.h>
+  #include <WebRouter.h>
+
   // Define the WirelessManager pointer globally (initialized to nullptr).
   // This matches the extern declaration in Wireless.h
   WirelessManager* wirelessMgr = nullptr;
+
+  // Include the InfraredManager class and define a global pointer for it.
+  #define IR_LED_PIN 17
+  #define GPSTAR_IR_TX_ONLY
+  #include <InfraredManager.hpp>
+
+  // Define the InfraredManager pointer globally (initialized to nullptr).
+  // This matches the extern declaration in InfraredManager.h
+  InfraredManager* irManager = nullptr;
 #endif
+
+// Global instance of DeviceState class for the Neutrona Wand.
+DeviceState gpstarWand;
+
+// References to global instances of all preference/sync structs.
+extern WandPrefs wandConfig;
+extern SmokePrefs smokeConfig;
+extern WandSyncData wandSyncData;
 
 // Local Files
 #include "Configuration.h"
@@ -110,10 +118,11 @@ void sendDebug(const String message);
 #ifdef ESP32
   #include "Wireless.h"
   #include "Webhandler.h"
+  #include "Webrouting.h"
 #endif
 
-// Writes a debug message to the serial console or sends to the WebSocket.
-void sendDebug(const String message) {
+// Writes a debug message to the serial console or sends to the WebSocket or Events stream.
+void sendDebug(const String& message) {
   #if defined(DEBUG_SEND_TO_CONSOLE)
     debugln(message); // Print to serial console.
   #endif
@@ -122,9 +131,28 @@ void sendDebug(const String message) {
       ws.textAll(message); // Send a copy to the WebSocket.
     }
   #endif
+  #if defined(DEBUG_SEND_TO_EVENTS) and defined(ESP32)
+    sendDebugEvent(message.c_str()); // Send message to the events stream.
+  #endif
 }
 
 void setup() {
+#ifdef ESP32
+  // Force RMT driver exclusively (requires FastLED 3.10.4 at a minimum, not yet released).
+  // This avoids issues with WiFi/networking on ESP32 when using the default bit-banging method.
+  //FastLED.setExclusiveDriver("RMT");
+#endif
+
+  // Barrel LEDs - NOTE: These are GRB not RGB so note that all CRGB objects will have R/G swapped.
+  FastLED.addLeds<NEOPIXEL, BARREL_LED_PIN>(barrel_leds, BARREL_LEDS_MAX).setCorrection(TypicalLEDStrip);
+  FastLED.setMaxRefreshRate(0); // Disable FastLED's blocking 2.5ms delay.
+
+  // RGB Vent Light.
+  FastLED.addLeds<NEOPIXEL, TOP_LED_PIN>(vent_leds, VENT_LEDS_MAX).setCorrection(TypicalLEDStrip);
+
+  // Update all addressable LEDs to prevent stale LED states.
+  FastLED.show();
+
 #ifdef ESP32
   // Reduce CPU frequency to 160 MHz to save ~33% power compared to 240 MHz.
   // Alternatively set CPU to 80 MHz to save ~50% power compared to 240 MHz.
@@ -134,7 +162,7 @@ void setup() {
   // This is required in order to make sure the board boots successfully.
   Serial.begin(115200);
 
-#if DEBUG == 1
+#if GPSTAR_DEBUG == 1
   // When debugging is enabled, wait for Serial to be ready (max 3 seconds).
   unsigned long startMillis = millis();
   while (!Serial && millis() - startMillis < 3000) {
@@ -145,9 +173,6 @@ void setup() {
   Serial.println(F("Serial is Ready")); // Should appear after Serial is ready.
 #endif
 
-  // Serial0 (UART0) is enabled by default; end() sets GPIO43 & GPIO44 to GPIO.
-  Serial0.end();
-
   /* This loop changes GPIO39~GPIO42 to Function 1, which is GPIO.
    * PIN_FUNC_SELECT sets the IOMUX function register appropriately.
    * IO_MUX_GPIO0_REG is the register for GPIO0, which we then seek from.
@@ -157,12 +182,23 @@ void setup() {
     PIN_FUNC_SELECT(IO_MUX_GPIO0_REG + (gpio_pin * 4), PIN_FUNC_GPIO);
   }
 
+  // Set the drive capability of the SLO-BLO pin to 40mA.
+  gpio_set_drive_capability((gpio_num_t)SLO_BLO_LED_PIN, GPIO_DRIVE_CAP_3);
+
+  // Get all special device preferences from NVS which may be needed for sensors.
+  getSpecialPreferences();
+
   // Assign PackSerial to pins 21/14 for the Proton Pack communications.
   PackSerial.begin(9600, SERIAL_8N1, PACK_RX_PIN, PACK_TX_PIN);
 
   // Define the WirelessManager object only after NVS/Preferences are initialized.
   if(wirelessMgr == nullptr) {
-    wirelessMgr = new WirelessManager("Wand2", "192.168.1.6");
+    wirelessMgr = new WirelessManager(WirelessDeviceType::NEUTRONA_WAND, "192.168.1.6");
+
+    // Initialize the Infrared handler with the device type and ID.
+    if(irManager == nullptr) {
+      irManager = new InfraredManager(IR_DEVICE_NEUTRONA_WAND, wirelessMgr->getDeviceID());
+    }
 
     #if defined(RESET_AP_SETTINGS)
       // Reset the WiFi password to the expected default on every startup.
@@ -183,6 +219,7 @@ void setup() {
 
 #ifdef ESP32
   // Use of the register is not needed by ESP32, as it uses a different method for PWM.
+  ledcAttachChannel(VIBRATION_PIN, 155, 8, 5); // Uses 155 Hz frequency, 8-bit resolution, channel 5
 #else
   // Change PWM frequency for the vibration motor, we do not want it high pitched.
   // For ATmega2560, we set the PWM frequency for pin 11 (TCCR5B) to 122.55 Hz.
@@ -190,27 +227,19 @@ void setup() {
   pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
 #endif
 
-  // Barrel LEDs - NOTE: These are GRB not RGB so note that all CRGB objects will have R/G swapped.
-  FastLED.addLeds<NEOPIXEL, BARREL_LED_PIN>(barrel_leds, BARREL_LEDS_MAX).setCorrection(TypicalLEDStrip);
-  FastLED.setMaxRefreshRate(0); // Disable FastLED's blocking 2.5ms delay.
-
-  // RGB Vent Light.
-  FastLED.addLeds<NEOPIXEL, TOP_LED_PIN>(vent_leds, VENT_LEDS_MAX).setCorrection(TypicalLEDStrip);
-  for(uint8_t i = 0; i < VENT_LEDS_MAX; i++) {
-    // Initialize all vent_leds to white initially.
-    vent_leds[i] = getHueAsRGB(C_WHITE);
-  }
   ms_vent_light.start(i_vent_light_update_interval); // Setup a timer for updating the vent light.
 
   // Setup default system settings.
-  setVGMode();
+  gpstarWand.setFiringModeVG();
+  gpstarWand.removeAllSpectralStreams();
+
   if(b_wand_standalone) {
-    VIBRATION_MODE = VIBRATION_NONE;
+    gpstarWand.setVibrationMode(VIBRATION_NEVER);
   }
   else {
-    VIBRATION_MODE = VIBRATION_FIRING_ONLY;
+    gpstarWand.setVibrationMode(VIBRATION_FIRING_ONLY);
   }
-  
+
   switch_vent.setPushedCallback(&ventSwitched);
   switch_wand.setPushedCallback(&wandSwitched);
 
@@ -219,9 +248,6 @@ void setup() {
   pinModeFast(ROTARY_ENCODER_B, INPUT_PULLUP);
 
 #ifdef ESP32
-  // Get all special device preferences from NVS which may be needed for sensors.
-  getSpecialPreferences();
-
   // ESP32-S3 requires manually specifying SDA and SCL pins first.
   // This is the i2c bus to be used solely for the bargraph.
   Wire.begin(I2C_SDA, I2C_SCL, 400000UL);
@@ -231,7 +257,7 @@ void setup() {
   uint8_t i_retries = 0;
   while(i_retries < 250) {
     if(!initializeSensors()) {
-      debugln("Failed to find sensors, retrying");
+      debugln(F("Failed to find sensors, retrying"));
       i_retries++;
       delay(10);
     }
@@ -282,17 +308,9 @@ void setup() {
   pinModeFast(TOP_HAT_LED_PIN, OUTPUT); // Hat light at top of the wand body (gun box).
   pinModeFast(BARREL_TIP_LED_PIN, OUTPUT); // LED at the tip of the wand barrel.
 
-#ifdef ESP32
-  pinModeFast(IR_LED_PIN, OUTPUT); // Set IR LED pin as output.
-  digitalWriteFast(IR_LED_PIN, LOW); // Ensure IR LED is off at startup.
-  IrSender.begin(IR_LED_PIN); // Initialize the IR sender on the specified pin.
-#else
+#ifndef ESP32
   pinMode(VENT_LED_PIN, OUTPUT); // Vent light could be either Digital or PWM based on user setting, so use default functions.
   pinMode(TOP_LED_PIN, OUTPUT); // Blinking top light could be either addressable or non-addressable based on user setting, so use default functions.
-#endif
-
-#ifdef ESP32
-  ms_infrared_timer.start(0); // Setup the infrared timer.
 #endif
 
   // Status indicator LED on the v1.4 GPStar Neutrona Wand Board.
@@ -305,8 +323,9 @@ void setup() {
 
   ms_reset_sound_beep.start(0);
 
-  // We bootup the wand in the classic proton mode.
-  STREAM_MODE = PROTON;
+  // By default, only enable the VG streams (will update using prefs later).
+  // This will also force the System Mode to MODE_SUPER_HERO.
+  gpstarWand.enableVGStreams();
 
   // Select a random GB1/GB2 white LED blink rate for this session.
   i_classic_blink_index = random(0,5);
@@ -326,16 +345,13 @@ void setup() {
   // Start the button mash check timer.
   ms_bmash.start(0);
 
-  // Sanity check to make sure that a firing mode was set as default.
-  if(FIRING_MODE != CTS_MODE && FIRING_MODE != CTS_MIX_MODE) {
-    setVGMode();
+  // If neither CTS mode nor CTS Mix mode is enabled, ensure we're in VG mode.
+  if(!(gpstarWand.isFiringModeCTS() || gpstarWand.isFiringModeCTSMix())) {
+    gpstarWand.setFiringModeVG();
   }
 
   // Check if we should be in video game mode or not.
   vgModeCheck();
-
-  // Update our STREAM_MODE_FLAG variable for reporting upstream.
-  updateStreamFlags();
 
   // Setup the bargraph.
   bargraphYearModeUpdate();
@@ -373,8 +389,14 @@ void setup() {
 void mainLoop() {
   // Get the current state of any input devices (toggles, buttons, and switches).
   switchLoops();
-  checkSwitches();
-  checkRotaryEncoder();
+
+  if(!b_wand_mash_lockout) {
+    // If we aren't locked out due to the button mash, check for switch-related actions.
+    checkSwitches();
+    checkRotaryEncoder();
+  }
+
+  // Handle one-off vibrations such as those in menus.
   checkMenuVibration();
 
   if(WAND_ACTION_STATUS != ACTION_FIRING) {
@@ -382,18 +404,16 @@ void mainLoop() {
       // Clear counter until user begins firing (post any lock-out period).
       i_bmash_count = 0;
 
-      if(b_wand_mash_error) {
+      if(b_wand_mash_lockout) {
         // Return the wand to a normal firing state after lock-out from button mashing.
         WAND_STATUS = MODE_ON;
         WAND_ACTION_STATUS = ACTION_IDLE;
 
         postActivation();
 
-        b_wand_mash_error = false;
+        b_wand_mash_lockout = false;
 
-        stopEffect(S_WAND_STASIS_IDLE_LOOP);
-        stopEffect(S_SMASH_ERROR_LOOP);
-        playEffect(S_SMASH_ERROR_RESTART);
+        stopMashErrorSounds();
 
         wandSerialSend(W_MASH_ERROR_RESTART);
 
@@ -405,12 +425,12 @@ void mainLoop() {
   switch(WAND_STATUS) {
     case MODE_OFF:
       if(WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU) {
-        if(WAND_ACTION_STATUS != ACTION_SETTINGS && b_wand_standalone && SYSTEM_MODE == MODE_ORIGINAL && switch_intensify.doubleClick()) {
+        if(WAND_ACTION_STATUS != ACTION_SETTINGS && b_wand_standalone && gpstarWand.getSystemMode() == MODE_ORIGINAL && switch_intensify.doubleClick()) {
           // This allows a standalone wand to "flip the ion arm switch" when in MODE_ORIGINAL by double-clicking the Intensify switch while the wand is turned off
-          changeIonArmSwitchState(RED_SWITCH_MODE == SWITCH_OFF);
+          changeIonArmSwitchState(gpstarWand.getIonArmSwitch() == RED_SWITCH_OFF);
         }
 
-        if(switch_mode.pushed() || b_pack_alarm) {
+        if((switch_mode.pushed() && !switch_intensify.on()) || b_pack_alarm) {
           if(WAND_ACTION_STATUS != ACTION_SETTINGS && !b_pack_alarm) {
             playEffect(S_CLICK);
 
@@ -427,7 +447,7 @@ void mainLoop() {
             wandLightsOffMenuSystem();
 
             // Tell the pack we are in settings mode.
-            wandSerialSend(W_SETTINGS_MODE);
+            wandSerialSend(W_SET_STREAM_MODE, (uint8_t)SETTINGS);
           }
           else {
             // Only exit the settings menu when on menu #5 in the top menu or the pack ribbon cable alarm is active.
@@ -461,7 +481,8 @@ void mainLoop() {
         ventSwitchedCount = 0;
       }
 
-      if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU && (!b_pack_on || b_wand_standalone) && switch_intensify.on() && wandSwitchedCount >= 5) {
+      if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU
+        && ((!b_pack_on && !b_pack_shutting_down) || b_wand_standalone) && switch_intensify.on() && wandSwitchedCount >= 5) {
         stopEffect(S_BEEPS_BARGRAPH);
         playEffect(S_BEEPS_BARGRAPH);
 
@@ -490,7 +511,7 @@ void mainLoop() {
       }
 
       if(WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_LED_EEPROM_MENU && WAND_ACTION_STATUS != ACTION_CONFIG_EEPROM_MENU
-        && (!b_pack_on || b_wand_standalone) && switch_intensify.on() && ventSwitchedCount >= 5) {
+        && ((!b_pack_on && !b_pack_shutting_down) || b_wand_standalone) && switch_intensify.on() && ventSwitchedCount >= 5) {
         stopEffect(S_BEEPS_BARGRAPH);
         playEffect(S_BEEPS_BARGRAPH);
 
@@ -523,7 +544,7 @@ void mainLoop() {
       if(ms_error_blink.justFinished()) {
         ms_error_blink.start(i_error_blink_delay);
 
-        if(!b_wand_mash_error) {
+        if(!b_wand_mash_lockout) {
           if(b_extra_pack_sounds) {
             wandSerialSend(W_WAND_BEEP_SOUNDS);
           }
@@ -534,7 +555,7 @@ void mainLoop() {
       }
 
       if(ms_warning_blink.justFinished()) {
-        if(!b_wand_mash_error) {
+        if(!b_wand_mash_lockout) {
 
           if(b_extra_pack_sounds) {
             wandSerialSend(W_WAND_BEEP_BARGRAPH);
@@ -548,7 +569,7 @@ void mainLoop() {
 
       settingsBlinkingLights();
 
-      if(b_wand_mash_error) {
+      if(b_wand_mash_lockout) {
         wandBarrelHeatUp();
       }
     break;
@@ -559,31 +580,20 @@ void mainLoop() {
         if(ms_error_blink.justFinished()) {
           ms_error_blink.start(i_error_blink_delay);
         }
-
-        // This is going to cause the bargraph to ramp down.
-        if(ms_bargraph.justFinished()) {
-          bargraphRampUp();
-        }
       }
       else {
-        // Ramp the bargraph up then ramp down back to the default power level setting on a fresh start.
-        if(ms_bargraph.justFinished()) {
-          bargraphRampUp();
-        }
-        else if(!ms_bargraph.isRunning() && WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
+        if(!ms_bargraph.isRunning() && WAND_ACTION_STATUS != ACTION_FIRING && WAND_ACTION_STATUS != ACTION_SETTINGS && WAND_ACTION_STATUS != ACTION_OVERHEATING) {
           // Bargraph idling loop.
           bargraphPowerCheck();
         }
 
-        if(getNeutronaWandYearMode() == SYSTEM_AFTERLIFE || getNeutronaWandYearMode() == SYSTEM_FROZEN_EMPIRE) {
-          if(ms_gun_loop_1.justFinished() && !switch_vent.on()) {
-            if(b_extra_pack_sounds) {
-              wandSerialSend(W_AFTERLIFE_GUN_LOOP_1);
-            }
+        if(ms_gun_ramp_1.justFinished() && !switch_vent.on()) {
+          if(b_extra_pack_sounds) {
+            wandSerialSend(W_AFTERLIFE_GUN_LOOP_1);
+          }
 
-            if(AUDIO_DEVICE != A_GPSTAR_AUDIO_ADV) {
-              playEffect(S_AFTERLIFE_WAND_IDLE_1, true);
-            }
+          if(AUDIO_DEVICE != A_GPSTAR_AUDIO_ADV) {
+            playEffect(S_AFTERLIFE_WAND_IDLE_1, true);
           }
         }
       }
@@ -593,6 +603,11 @@ void mainLoop() {
         vent_leds[1] ? ventTopLightControl(false) : ventTopLightControl(true);
 
         ms_white_light.repeat();
+      }
+
+      // This is going to cause the bargraph to ramp down.
+      if(ms_bargraph.justFinished()) {
+        bargraphRamp();
       }
 
       wandBarrelHeatUp();
@@ -624,39 +639,14 @@ void mainLoop() {
   if(ms_firing_lights_end.justFinished()) {
     fireStreamEnd(getHueColour(C_BLACK, WAND_BARREL_LED_COUNT));
   }
+
+  if(ms_semi_automatic_firing.justFinished()) {
+    // Do nothing; this just resets the timer.
+  }
 }
 
 // The main loop of the program which manages all system operations which must occur on every loop.
 void loop() {
-#ifdef ESP32
-  // The ESP32 uses a dual-core CPU with the loop() executing in Core0 by default.
-  // Using vTaskDelay even without core-pinning will allow other tasks to run on Core1.
-  // Features such as networking, WiFi, and OTA updates can benefit from this brief delay.
-  vTaskDelay(pdMS_TO_TICKS(1)); // Translate 1 ms to ticks for delay.
-
-  // Run checks on web-related tasks.
-  webLoops();
-
-  // Check the motion sensors if they are available and the timer has completed.
-  if(b_mag_found && b_imu_found) {
-    checkMotionSensors();
-  }
-
-  // Take action with Wifi based on user preference.
-  switch(WIFI_MODE) {
-    case WIFI_ENABLED:
-    default:
-      // Begin by setting up WiFi as a prerequisite to all else.
-      restartWireless();
-    break;
-
-    case WIFI_DISABLED:
-      // Do not start WiFi or the web server.
-      shutdownWireless();
-    break;
-  }
-#endif
-
   switch(WAND_CONN_STATE) {
     case PACK_DISCONNECTED:
       // While waiting for a proton pack, issue a request for synchronization.
@@ -666,6 +656,11 @@ void loop() {
         ms_packsync.start(i_sync_initial_delay); // Prepare for the next sync attempt.
         vent_leds[1] ? ventTopLightControl(false) : ventTopLightControl(true); // Blink the top LED.
         digitalWriteFast(WAND_STATUS_LED_PIN, (digitalReadFast(WAND_STATUS_LED_PIN) == LOW) ? HIGH : LOW); // Blink the onboard LED on the Neutrona Wand board.
+
+        if(i_boot_connection_count < 10) {
+          // Used to delay starting the WiFi radio on first boot.
+          i_boot_connection_count++;
+        }
       }
 
       checkPack(); // Check for any response from the pack while still waiting.
@@ -718,4 +713,51 @@ void loop() {
 
     ms_fast_led.start(i_fast_led_delay);
   }
+
+#ifdef ESP32
+  // The ESP32 uses a dual-core CPU with the loop() executing in Core0 by default.
+  // Using vTaskDelay even without core-pinning will allow other tasks to run on Core1.
+  // Features such as networking, WiFi, and OTA updates can benefit from this brief delay.
+  vTaskDelay(pdMS_TO_TICKS(1)); // Translate 1 ms to ticks for delay.
+
+  // Run checks on web-related tasks.
+  webLoops();
+
+  // Check the motion sensors if they are available and the timer has completed.
+  if(b_mag_found && b_imu_found) {
+    checkMotionSensors();
+  }
+
+  // Check if the emergency WiFi toggle has been tripped.
+  if(WIFI_USER_MODE != WIFI_ENABLED && !switch_activate.on() && !switch_vent.on() && !switch_wand.on() && switch_intensify.on() && switch_mode.longPress()) {
+    WIFI_USER_MODE = WIFI_ENABLED;
+    playEffect(S_VOICE_WAND_WIFI_ENABLED);
+  }
+
+  // Take action with Wifi based on user preference.
+  switch(WIFI_USER_MODE) {
+    case WIFI_ENABLED:
+      // Begin by setting up WiFi as a prerequisite to all else.
+      restartWireless();
+    break;
+
+    case WIFI_DISABLED:
+      // Do not start WiFi or the web server.
+      shutdownWireless();
+    break;
+
+    case WIFI_DEFAULT:
+    default:
+      // Take action based solely on the presence of the Pack (Connected = WiFi Off, Disconnected = WiFi On).
+      if(WAND_CONN_STATE == PACK_CONNECTED || WAND_CONN_STATE == PACK_DISCONNECTED && i_boot_connection_count < 10) {
+        // Turn off WiFi and the web server if the Pack is connected.
+        shutdownWireless();
+      }
+      else if(!b_httpd_started) {
+        // Begin by setting up WiFi as a prerequisite to all else.
+        restartWireless();
+      }
+    break;
+  }
+#endif
 }

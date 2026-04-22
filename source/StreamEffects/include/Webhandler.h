@@ -1,6 +1,6 @@
 /**
  *   GPStar Stream Effects - Ghostbusters Props, Mods, and Kits.
- *   Copyright (C) 2024-2025 Dustin Grau <dustin.grau@gmail.com>
+ *   Copyright (C) 2024-2026 Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -52,22 +52,26 @@ extern const uint8_t _binary_assets_network_html_gz_end[];
 // password.html
 extern const uint8_t _binary_assets_password_html_gz_start[];
 extern const uint8_t _binary_assets_password_html_gz_end[];
+// swaggerui.html
+extern const uint8_t _binary_assets_swaggerui_html_gz_start[];
+extern const uint8_t _binary_assets_swaggerui_html_gz_end[];
 
 // Define standard ports and URI endpoints.
 const uint16_t WS_PORT = 80; // Web Server (+WebSocket) port
 const char WS_URI[] = "/ws"; // WebSocket endpoint URI
 bool b_httpd_started = false; // Denotes the web server has been started.
 
-/**
- * Define a WebSocket client connection and related variables.
- * This should be a standard GPStar Proton Pack wireless device at 192.168.1.2,
- * which means our local network needs to differ and so this device will be
- * available at 192.168.2.2 by default on the private (local) network.
- */
-WebSocketsClient wsClient;
-const char WS_HOST[] = "192.168.1.2";  // WebSocket server IP
-bool b_socket_ready = false;           // WS client socket ready
-uint16_t i_websocket_retry_wait = 500; // Delay for WS retry
+// Keep track of the state of the remote WebSocket connection.
+uint16_t i_websocket_retry_wait = 500; // Delay for WS retry attempts (ms).
+enum SOCKET_STATUS { DISCONNECTED, CONNECTING, CONNECTED };
+struct WebSocketState {
+  WebSocketsClient client; // Client instance for the remote WebSocket server.
+  SOCKET_STATUS status = DISCONNECTED; // Initialized as DISCONNECTED.
+  unsigned long lastAttempt = 0; // Time of last connection attempt.
+  char clientHost[16] = ""; // IP of current/connected WebSocket host.
+  String lastMessage = ""; // Last status of the WebSocket connection.
+};
+WebSocketState wsRemote;
 
 // Define an asynchronous web server at TCP port 80.
 AsyncWebServer httpServer(WS_PORT);
@@ -86,43 +90,12 @@ millisDelay ms_cleanup;
 const uint16_t i_websocketCleanup = 5000;
 
 // Forward function declarations.
-void setupRouting();
-void notifyWSClients();
+void checkWebSocketClient();
 void ledsOff();
-
-/*
- * API Helper Functions
- */
-
-// Function to update the current palette based on stream mode.
-void updateStreamPalette() {
-  switch(STREAM_MODE) {
-    case PROTON:
-      cp_StreamPalette = paletteProton;
-    break;
-    case SLIME:
-      cp_StreamPalette = paletteSlime;
-    break;
-    case STASIS:
-      cp_StreamPalette = paletteStasis;
-    break;
-    case MESON:
-      cp_StreamPalette = paletteMeson;
-    break;
-    case SPECTRAL:
-      cp_StreamPalette = paletteSpectral;
-    break;
-    case HOLIDAY_HALLOWEEN:
-      cp_StreamPalette = paletteHalloween;
-    break;
-    case HOLIDAY_CHRISTMAS:
-      cp_StreamPalette = paletteChristmas;
-    break;
-    default:
-      cp_StreamPalette = paletteWhite;
-    break;
-  }
-}
+void notifyWSClients();
+void updateStreamPalette();
+void sendDebug(const String& message);
+void registerWebRoutes(); // From Webrouting.h
 
 /**
  * JSON Body Helpers - Creates stringified JSON representations of device configurations
@@ -137,8 +110,17 @@ String getDeviceConfig() {
   jsonBody["buildDate"] = build_date;
   jsonBody["wifiName"] = wirelessMgr->getLocalNetworkName();
   jsonBody["wifiNameExt"] = wirelessMgr->getExtWifiNetworkName();
-  jsonBody["extAddr"] = wirelessMgr->getExtWifiAddress().toString();
-  jsonBody["extMask"] = wirelessMgr->getExtWifiSubnet().toString();
+  jsonBody["numLeds"] = i_num_leds; // User-selected count of LEDs.
+  jsonBody["ledType"] = LED_COLOR_TYPE; // [1=RGB,2=GRB,3=GBR]
+
+  // Refresh external WiFi info when/if connected and get the values.
+  if(wirelessMgr->getExtWifiNetworkInfo()) {
+    jsonBody["extAddr"] = wirelessMgr->getExtWifiAddress().toString();
+    jsonBody["extMask"] = wirelessMgr->getExtWifiSubnet().toString();
+  } else {
+    jsonBody["extAddr"] = "";
+    jsonBody["extMask"] = "";
+  }
 
   // Serialize JSON object to string.
   serializeJson(jsonBody, equipSettings);
@@ -150,6 +132,7 @@ String getEquipmentStatus() {
   String equipStatus;
   JsonDocument jsonBody;
 
+  // Provide current values for the remote device (as available).
   jsonBody["mode"] = wsData.mode;
   jsonBody["theme"] = wsData.theme;
   jsonBody["switch"] = wsData.switchState;
@@ -158,14 +141,32 @@ String getEquipmentStatus() {
   jsonBody["power"] = wsData.wandPower;
   jsonBody["wandMode"] = wsData.wandMode;
   jsonBody["firing"] = wsData.firing;
+  jsonBody["crossedStreams"] = wsData.ctsActive;
   jsonBody["cable"] = wsData.cable;
   jsonBody["cyclotron"] = wsData.cyclotron;
+  jsonBody["cyclotronLid"] = wsData.cyclotronLid;
   jsonBody["temperature"] = wsData.temperature;
   jsonBody["apClients"] = i_ap_client_count;
   jsonBody["wsClients"] = i_ws_client_count;
+
+  // Provide status on the external WiFi connection.
   jsonBody["extWifiEnabled"] = wirelessMgr->isExtWifiEnabled();
   jsonBody["extWifiPaused"] = b_ext_wifi_paused;
   jsonBody["extWifiStarted"] = b_ext_wifi_started;
+
+  // Report on the current state of the remote WebSocket connection.
+  switch(wsRemote.status) {
+    case DISCONNECTED:
+      jsonBody["extWebSocketState"] = "Disconnected";
+    break;
+    case CONNECTING:
+      jsonBody["extWebSocketState"] = "Connecting...";
+    break;
+    case CONNECTED:
+      jsonBody["extWebSocketState"] = "Connected";
+    break;
+  }
+  jsonBody["extWebSocketMessage"] = wsRemote.lastMessage;
 
   // Serialize JSON object to string.
   serializeJson(jsonBody, equipStatus);
@@ -174,50 +175,29 @@ String getEquipmentStatus() {
 
 String getWifiSettings() {
   // Prepare a JSON object with information stored in preferences (or a blank default).
-  String wifiNetwork;
+  String wifiSettings;
   JsonDocument jsonBody;
 
-  // Create Preferences object to handle non-volatile storage (NVS).
-  Preferences preferences;
+  // Modern ArduinoJson: assign nested object for "active"
+  JsonObject active = jsonBody["active"].to<JsonObject>();
+  wirelessMgr->getExtWifiNetworkAsJson(active);
 
-  // Accesses namespace in read-only mode.
-  if(preferences.begin("network", true)) {
-    jsonBody["enabled"] = preferences.getBool("enabled", false);
-    jsonBody["network"] = preferences.getString("ssid");
-    jsonBody["password"] = preferences.getString("password");
+  // Modern ArduinoJson: assign nested array for "saved"
+  JsonArray saved = jsonBody["saved"].to<JsonArray>();
+  String savedNetworks = wirelessMgr->getPreferredNetworks();
 
-    jsonBody["address"] = preferences.getString("address");
-    if(jsonBody["address"].as<String>() == "") {
-      jsonBody["address"] = wirelessMgr->getExtWifiAddress().toString();
-    }
-
-    jsonBody["subnet"] = preferences.getString("subnet");
-    if(jsonBody["subnet"].as<String>() == "") {
-      jsonBody["subnet"] = wirelessMgr->getExtWifiSubnet().toString();
-    }
-
-    jsonBody["gateway"] = preferences.getString("gateway");
-    if(jsonBody["gateway"].as<String>() == "") {
-      jsonBody["gateway"] = wirelessMgr->getExtWifiGateway().toString();
-    }
-
-    preferences.end();
-  }
-  else {
-    if(preferences.begin("network", false)) {
-      preferences.putBool("enabled", false);
-      preferences.putString("ssid", "");
-      preferences.putString("password", "");
-      preferences.putString("address", "");
-      preferences.putString("subnet", "");
-      preferences.putString("gateway", "");
-      preferences.end();
+  // Parse the saved networks JSON string into a temporary document
+  JsonDocument tmpDoc;
+  DeserializationError err = deserializeJson(tmpDoc, savedNetworks);
+  if(!err && tmpDoc.is<JsonArray>()) {
+    for(JsonVariant v : tmpDoc.as<JsonArray>()) {
+      saved.add(v);
     }
   }
 
   // Serialize JSON object to string.
-  serializeJson(jsonBody, wifiNetwork);
-  return wifiNetwork;
+  serializeJson(jsonBody, wifiSettings);
+  return wifiSettings;
 }
 
 /*
@@ -295,20 +275,15 @@ void onOTAEnd(bool success) {
   }
 }
 
-// Return a small JSON object with a "status" property: {"status":"<value>"}
-// This returns the provided status string verbatim (no escaping or modification).
-String returnJsonStatus(const String &status = String("success")) {
-  String s_out;
-  s_out.reserve(status.length() + 16); // Reserve space to avoid multiple allocations.
-  s_out = "{\"status\":\"";
-  s_out += status; // Append status value.
-  s_out += "\"}";
-  return s_out;
-}
-
 void startWebServer() {
-  // Configures URI routing with function handlers.
-  setupRouting();
+  // Register all routes and handlers for the web server.
+  registerWebRoutes();
+
+  // Set the MDNS name (get it from your wireless manager)
+  setDeviceMdnsName(wirelessMgr->getMdnsName());
+
+  // Configures all URI endpoints using registered routes.
+  setupRouting(httpServer);
 
   // Configure the WebSocket endpoint.
   ws.onEvent(onWebSocketEventHandler);
@@ -366,21 +341,46 @@ void webLoops() {
 void webSocketClientEvent(WStype_t type, uint8_t * payload, size_t length) {
   switch(type) {
     case WStype_DISCONNECTED:
-      debugln("Client WebSocket Disconnected!");
-      b_socket_ready = false;
-      wsClient.disconnect();
-      delay(200); // Short delay before reconnecting.
-      wsClient.begin(WS_HOST, WS_PORT, WS_URI);
-      wsClient.setReconnectInterval(i_websocket_retry_wait);
+      switch(wsRemote.status) {
+        case CONNECTING:
+          // Connection attempt failed, try next host
+          wsRemote.lastMessage = String("Connection failed to ") + String(wsRemote.clientHost) + String(", trying next host");
+          debugln(wsRemote.lastMessage);
+          wsRemote.status = DISCONNECTED;
+          notifyWSClients(); // Update local WebSocket clients
+        break;
+
+        case CONNECTED:
+          // If previously connected, we lost connection and must try to reconnect.
+          wsRemote.lastMessage = String("Connection to ") + String(wsRemote.clientHost) + String(" was lost, attempting to reconnect");
+          debugln(wsRemote.lastMessage);
+          if(wsRemote.client.isConnected()) {
+            wsRemote.client.disconnect();
+          }
+          wsRemote.status = DISCONNECTED;
+          notifyWSClients(); // Update local WebSocket clients
+        break;
+
+        case DISCONNECTED:
+        default:
+          // Nothing to report if already DISCONNECTED or has an unknown status.
+        break;
+      }
     break;
 
     case WStype_CONNECTED:
-      debugf("WebSocket Connected to url: %s\n", payload);
-      b_socket_ready = true;
-      wsClient.sendTXT("Hello from Stream Effects");
+      wsRemote.status = CONNECTED; // Ensure we set a connected status.
+      wsRemote.lastMessage = String("Successfully connected to ") + String(wsRemote.clientHost);
+      debugln(wsRemote.lastMessage);
+      wsRemote.client.sendTXT("Hello from Belt Gizmo");
+      notifyWSClients(); // Update local WebSocket clients
     break;
+
     case WStype_ERROR:
-      debugf("WebSocket Error: %s\n", payload);
+      // Log the error but don't change status - let the library handle it
+      wsRemote.lastMessage = String("Error from ") + String(wsRemote.clientHost) + String(": ") + String((char*)payload);
+      debugln(wsRemote.lastMessage);
+      notifyWSClients(); // Update local WebSocket clients
     break;
 
     case WStype_TEXT:
@@ -399,11 +399,13 @@ void webSocketClientEvent(WStype_t type, uint8_t * payload, size_t length) {
         wsData.switchState = jsonBody["switch"].as<String>();
         wsData.pack = jsonBody["pack"].as<String>();
         wsData.safety = jsonBody["safety"].as<String>();
-        wsData.wandPower = jsonBody["power"].as<unsigned short>(); // Only integer value.
+        wsData.wandPower = jsonBody["power"].as<unsigned char>(); // Only integer value.
         wsData.wandMode = jsonBody["wandMode"].as<String>();
         wsData.firing = jsonBody["firing"].as<String>();
+        wsData.ctsActive = jsonBody["crossedStreams"].as<bool>();
         wsData.cable = jsonBody["cable"].as<String>();
         wsData.cyclotron = jsonBody["cyclotron"].as<String>();
+        wsData.cyclotronLid = jsonBody["cyclotronLid"].as<bool>();
         wsData.temperature = jsonBody["temperature"].as<String>();
 
         // Output some data to the serial console when needed.
@@ -418,160 +420,200 @@ void webSocketClientEvent(WStype_t type, uint8_t * payload, size_t length) {
         }
 
         // Skip further mode changes if in self-test mode.
-        if(b_testing) {
+        if(gpstarSystem.inStreamMode(SELFTEST)) {
           return;
         }
 
+        // Always keep up with the current theme.
+        gpstarSystem.setSystemTheme((SYSTEM_THEMES)jsonBody["themeID"].as<uint8_t>());
+
         // Always keep up with the current stream mode.
-        if(wsData.wandMode == "Proton Stream") {
-          STREAM_MODE = PROTON;
-        }
-        else if(wsData.wandMode == "Plasm System") {
-          STREAM_MODE = SLIME;
+        if(wsData.wandMode == "Plasm System") {
+          gpstarSystem.setStreamMode(SLIME);
         }
         else if(wsData.wandMode == "Dark Matter Gen.") {
-          STREAM_MODE = STASIS;
+          gpstarSystem.setStreamMode(STASIS);
         }
         else if(wsData.wandMode == "Particle System") {
-          STREAM_MODE = MESON;
+          gpstarSystem.setStreamMode(MESON);
         }
         else if(wsData.wandMode == "Spectral Stream") {
-          STREAM_MODE = SPECTRAL;
+          gpstarSystem.setStreamMode(SPECTRAL);
         }
         else if(wsData.wandMode == "Halloween") {
-          STREAM_MODE = HOLIDAY_HALLOWEEN;
+          gpstarSystem.setStreamMode(HOLIDAY_HALLOWEEN);
         }
         else if(wsData.wandMode == "Christmas") {
-          STREAM_MODE = HOLIDAY_CHRISTMAS;
+          gpstarSystem.setStreamMode(HOLIDAY_CHRISTMAS);
+        }
+        else if(wsData.wandMode == "Custom Stream") {
+          gpstarSystem.setStreamMode(SPECTRAL_CUSTOM);
         }
         else if(wsData.wandMode == "Settings") {
-          STREAM_MODE = SETTINGS;
+          gpstarSystem.setStreamMode(SETTINGS);
         }
         else {
-          STREAM_MODE = SPECTRAL_CUSTOM; // Custom Stream
+          gpstarSystem.setStreamMode(PROTON);
         }
 
-        updateStreamPalette(); // Set stream color palette
+        updateStreamPalette(); // Set stream colour palette
         notifyWSClients(); // Update local WebSocket clients
       }
     break;
   }
 }
 
-// Function to setup WebSocket connection.
-void setupWebSocketClient() {
-  debugln(F("Initializing WebSocket Client Connection..."));
-  wsClient.begin(WS_HOST, WS_PORT, WS_URI);
-  wsClient.setReconnectInterval(i_websocket_retry_wait);
-  wsClient.onEvent(webSocketClientEvent);
-  b_socket_ready = true;
+// Function to check on the WebSocket connection, called by the WiFiManagementTask.
+void checkWebSocketClient() {
+  // Skip checks if already connected to the WebSocket server.
+  if(wsRemote.status == CONNECTED) {
+    return;
+  }
+
+  // Check if we've been trying to connect for too long and need to timeout (>2 seconds).
+  if(wsRemote.status == CONNECTING && (millis() - wsRemote.lastAttempt > 2000)) {
+    wsRemote.lastMessage = String("Connection attempt timed out, trying host discovery again...");
+    debugln(wsRemote.lastMessage);
+    wsRemote.status = DISCONNECTED; // Set to DISCONNECTED to trigger another attempt.
+    notifyWSClients();
+  }
+
+  // Attempt to discover the WebSocket server via mDNS which will resolve the hostname to an IP address.
+  if(wirelessMgr->discoverWebSocketServer()) {
+    // Use the first valid discovered device IP address.
+    IPAddress hostIP = wirelessMgr->getFirstDiscoveredDevice();
+    if(wirelessMgr->IsValidIP(hostIP)) {
+      // Copy IP string into char[16] (eg. "192.168.1.N") with space for a null terminator.
+      strncpy(wsRemote.clientHost, hostIP.toString().c_str(), sizeof(wsRemote.clientHost) - 1);
+      wsRemote.clientHost[sizeof(wsRemote.clientHost) - 1] = '\0'; // Ensure null termination
+      wsRemote.lastMessage = String("Discovered WebSocket connection via ") + String(wsRemote.clientHost) + String("...");
+      debugln(wsRemote.lastMessage);
+
+      // Update status and last attempt time before attempting connection.
+      wsRemote.status = CONNECTING;
+      wsRemote.lastAttempt = millis();
+
+      // Set up the event handler for the new client connection attempt.
+      wsRemote.client.onEvent(webSocketClientEvent);
+
+      // Begin connection attempt in a non-blocking manner (let the event handler manage status).
+      wsRemote.client.begin(wsRemote.clientHost, WS_PORT, WS_URI);
+      wsRemote.client.setReconnectInterval(i_websocket_retry_wait);
+      notifyWSClients();
+    } else {
+      // Should not get here but just in case...
+      wsRemote.lastMessage = String("Unable to obtain a valid WebSocket server, retrying...");
+      debugln(wsRemote.lastMessage);
+    }
+  } else {
+    // Report the discovery failure and prepare to retry.
+    wsRemote.lastMessage = String("WebSocket server discovery failed, retrying...");
+    debugln(wsRemote.lastMessage);
+    notifyWSClients();
+  }
 }
 
 /**
  * Standard Page Handlers - Delivers the main web pages and common content
  */
 
-// Function: embeddedFileSize
-// Purpose:  Compute the size (in bytes) of an embedded binary asset using
-//           the linker-provided start/end markers generated for each asset.
-// Inputs:
-//   - start: pointer to the first byte (e.g. _binary_assets_<file>_start)
-//   - end:   pointer to the one-past-last byte (e.g. _binary_assets_<file>_end)
-// Outputs:
-//   - size_t: number of bytes in the embedded asset (0 on invalid pointers or if end <= start)
-inline size_t embeddedFileSize(const uint8_t* start, const uint8_t* end) {
-  if (start == nullptr || end == nullptr) return 0;
-  if (end <= start) return 0;
-  return (size_t)(end - start);
-}
-
 void handleRoot(AsyncWebServerRequest *request) {
   // Used for the root page (/ = index.html) from the web server.
-  debugln("Sending -> Index HTML");
+  debugln(F("Sending -> Index HTML"));
   size_t i_file_len = embeddedFileSize(_binary_assets_index_html_gz_start, _binary_assets_index_html_gz_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", _binary_assets_index_html_gz_start, i_file_len);
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_HTML, _binary_assets_index_html_gz_start, i_file_len);
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  response->addHeader(HEADER_CONTENT_ENCODING, ENCODING_GZIP); // Tell the client this is gzipped content.
   request->send(response); // Serve page content.
 }
 
 void handleRootJS(AsyncWebServerRequest *request) {
   // Used for the root page (/ = index.js) from the web server.
-  debugln("Sending -> Index JavaScript");
+  debugln(F("Sending -> Index JavaScript"));
   size_t i_file_len = embeddedFileSize(_binary_assets_index_js_gz_start, _binary_assets_index_js_gz_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", _binary_assets_index_js_gz_start, i_file_len);
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_JAVASCRIPT, _binary_assets_index_js_gz_start, i_file_len);
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  response->addHeader(HEADER_CONTENT_ENCODING, ENCODING_GZIP); // Tell the client this is gzipped content.
   request->send(response); // Serve page content.
 }
 
 void handleCommonJS(AsyncWebServerRequest *request) {
   // Used for all pages (common.js) from the web server.
-  debugln("Sending -> Common JavaScript");
+  debugln(F("Sending -> Common JavaScript"));
   size_t i_file_len = embeddedFileSize(_binary_assets_common_js_gz_start, _binary_assets_common_js_gz_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "application/javascript; charset=UTF-8", _binary_assets_common_js_gz_start, i_file_len);
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_JAVASCRIPT, _binary_assets_common_js_gz_start, i_file_len);
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  response->addHeader(HEADER_CONTENT_ENCODING, ENCODING_GZIP); // Tell the client this is gzipped content.
   request->send(response); // Serve page content.
 }
 
 void handleStylesheet(AsyncWebServerRequest *request) {
   // Used for the common stylesheet of the web server.
-  debugln("Sending -> Main StyleSheet");
+  debugln(F("Sending -> Main StyleSheet"));
   size_t i_file_len = embeddedFileSize(_binary_assets_style_css_gz_start, _binary_assets_style_css_gz_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/css", _binary_assets_style_css_gz_start, i_file_len);
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_CSS, _binary_assets_style_css_gz_start, i_file_len);
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  response->addHeader(HEADER_CONTENT_ENCODING, ENCODING_GZIP); // Tell the client this is gzipped content.
   request->send(response); // Serve page content.
 }
 
 void handleFavIco(AsyncWebServerRequest *request) {
   // Used for the favicon of the web server.
-  debugln("Sending -> Favicon");
+  debugln(F("Sending -> Favicon"));
   size_t i_file_len = embeddedFileSize(_binary_assets_favicon_ico_gz_start, _binary_assets_favicon_ico_gz_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "image/x-icon", _binary_assets_favicon_ico_gz_start, i_file_len);
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_ICON, _binary_assets_favicon_ico_gz_start, i_file_len);
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  response->addHeader(HEADER_CONTENT_ENCODING, ENCODING_GZIP); // Tell the client this is gzipped content.
   request->send(response); // Serve gzipped .ico file.
 }
 
 void handleFavSvg(AsyncWebServerRequest *request) {
   // Used for the favicon of the web server.
-  debugln("Sending -> Favicon");
+  debugln(F("Sending -> Favicon"));
   size_t i_file_len = embeddedFileSize(_binary_assets_favicon_svg_gz_start, _binary_assets_favicon_svg_gz_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "image/svg+xml", _binary_assets_favicon_svg_gz_start, i_file_len);
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_SVG, _binary_assets_favicon_svg_gz_start, i_file_len);
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  response->addHeader(HEADER_CONTENT_ENCODING, ENCODING_GZIP); // Tell the client this is gzipped content.
   request->send(response); // Serve gzipped .svg file.
 }
 
 void handleNetwork(AsyncWebServerRequest *request) {
   // Used for the network page from the web server.
-  debugln("Sending -> Network HTML");
+  debugln(F("Sending -> Network HTML"));
   size_t i_file_len = embeddedFileSize(_binary_assets_network_html_gz_start, _binary_assets_network_html_gz_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", _binary_assets_network_html_gz_start, i_file_len);
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_HTML, _binary_assets_network_html_gz_start, i_file_len);
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  response->addHeader(HEADER_CONTENT_ENCODING, ENCODING_GZIP); // Tell the client this is gzipped content.
   request->send(response); // Serve page content.
 }
 
 void handlePassword(AsyncWebServerRequest *request) {
   // Used for the password page from the web server.
-  debugln("Sending -> Password HTML");
+  debugln(F("Sending -> Password HTML"));
   size_t i_file_len = embeddedFileSize(_binary_assets_password_html_gz_start, _binary_assets_password_html_gz_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", _binary_assets_password_html_gz_start, i_file_len);
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_HTML, _binary_assets_password_html_gz_start, i_file_len);
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  response->addHeader(HEADER_CONTENT_ENCODING, ENCODING_GZIP); // Tell the client this is gzipped content.
   request->send(response); // Serve page content.
 }
 
 void handleDeviceSettings(AsyncWebServerRequest *request) {
   // Used for the device page from the web server.
-  debugln("Sending -> Device Settings HTML");
+  debugln(F("Sending -> Device Settings HTML"));
   size_t i_file_len = embeddedFileSize(_binary_assets_device_html_gz_start, _binary_assets_device_html_gz_end);
-  AsyncWebServerResponse *response = request->beginResponse(200, "text/html", _binary_assets_device_html_gz_start, i_file_len);
-  response->addHeader("Cache-Control", "no-cache, must-revalidate");
-  response->addHeader("Content-Encoding", "gzip"); // Tell the client this is gzipped content.
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_HTML, _binary_assets_device_html_gz_start, i_file_len);
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  response->addHeader(HEADER_CONTENT_ENCODING, ENCODING_GZIP); // Tell the client this is gzipped content.
+  request->send(response); // Serve page content.
+}
+
+void handleSwagger(AsyncWebServerRequest *request) {
+  // Used for the SwaggerUI page (/ = swaggerui.html) from the web server.
+  debugln(F("Sending -> SwaggerUI HTML"));
+  size_t i_file_len = embeddedFileSize(_binary_assets_swaggerui_html_gz_start, _binary_assets_swaggerui_html_gz_end);
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_HTML, _binary_assets_swaggerui_html_gz_start, i_file_len);
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  response->addHeader(HEADER_CONTENT_ENCODING, ENCODING_GZIP); // Tell the client this is gzipped content.
   request->send(response); // Serve page content.
 }
 
@@ -581,21 +623,27 @@ void handleDeviceSettings(AsyncWebServerRequest *request) {
 
 void handleGetDeviceConfig(AsyncWebServerRequest *request) {
   // Return current device settings as a stringified JSON object.
-  request->send(200, "application/json", getDeviceConfig());
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_JSON, getDeviceConfig());
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  request->send(response);
 }
 
 void handleGetStatus(AsyncWebServerRequest *request) {
   // Return current system status as a stringified JSON object.
-  request->send(200, "application/json", getEquipmentStatus());
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_JSON, getEquipmentStatus());
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  request->send(response);
 }
 
 void handleGetWifi(AsyncWebServerRequest *request) {
   // Return current system status as a stringified JSON object.
-  request->send(200, "application/json", getWifiSettings());
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_JSON, getWifiSettings());
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  request->send(response);
 }
 
 void handleGetSSIDs(AsyncWebServerRequest *request) {
-  // Prepare a JSON object with an array of WiFi networks nearby.
+  // Prepare a JSON object with an array of in-range 2.4 GHz WiFi networks.
   String wifiNetworks;
   String ssidList[40];
   JsonDocument jsonBody;
@@ -611,12 +659,44 @@ void handleGetSSIDs(AsyncWebServerRequest *request) {
 
   // Serialize JSON object to string.
   serializeJson(jsonBody, wifiNetworks);
-  request->send(200, "application/json", wifiNetworks);
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_JSON, wifiNetworks);
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  request->send(response);
+}
+
+// Handles DELETE /wifi/network/{index} to remove a saved WiFi network by index.
+void handleDeleteNetwork(AsyncWebServerRequest *request) {
+  int networkIndex = -1;
+  String s_path = request->url();
+  if(s_path.length() > 0) {
+    int lastSlash = s_path.lastIndexOf('/');
+    if(lastSlash >= 0 && lastSlash < s_path.length() - 1) {
+      String segment = s_path.substring(lastSlash + 1);
+      if(segment.length() == 0) {
+        request->send(HTTP_STATUS_400, MIME_JSON, returnJsonStatus("Missing network index."));
+        return;
+      }
+      networkIndex = segment.toInt();
+    }
+  }
+
+  int count = wirelessMgr->getPreferredNetworkCount();
+  if(networkIndex < 0 || networkIndex >= count) {
+    request->send(HTTP_STATUS_400, MIME_JSON, returnJsonStatus("Invalid network index."));
+    return;
+  }
+
+  bool removed = wirelessMgr->removePreferredNetwork((uint8_t)networkIndex);
+  if(removed) {
+    request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus("Saved network successfully removed."));
+  } else {
+    request->send(HTTP_STATUS_404, MIME_JSON, returnJsonStatus("Network not found or could not be removed."));
+  }
 }
 
 void handleRestart(AsyncWebServerRequest *request) {
   // Performs a restart of the device.
-  request->send(204, "application/json", returnJsonStatus());
+  request->send(HTTP_STATUS_204, MIME_JSON, returnJsonStatus());
   delay(1000);
   ESP.restart();
 }
@@ -637,33 +717,49 @@ void handleRestartWiFi(AsyncWebServerRequest *request) {
 
   b_ext_wifi_started = startExternalWifi(); // Restart and set global flag.
   if(b_ext_wifi_started) {
-    request->send(200, "application/json", returnJsonStatus("WiFi connection restarted successfully."));
+    request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus("WiFi connection restarted successfully."));
   }
   else {
-      request->send(200, "application/json", returnJsonStatus("WiFi connection was not successful."));
+      request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus("WiFi connection was not successful."));
   }
 }
 
 void handleEnableSelfTest(AsyncWebServerRequest *request) {
-  debugln("Web: Self Test Enabled");
-  if(STREAM_MODE != SELFTEST) {
-    STREAM_MODE_PREV = STREAM_MODE; // Save current mode.
-    STREAM_MODE = SELFTEST; // Switch to self-test mode.
-    updateStreamPalette(); // Update stream colors.
-    b_testing = true; // Enable testing flag.
+  // Check for optional power query parameter to control animation speed.
+  // This allows power for self-tests to be changed even after starting.
+  if(request->hasParam("power")) {
+    String s_power_param = request->getParam("power")->value();
+    int i_requested_power = s_power_param.toInt();
+
+    // Validate power level is within acceptable range (1-5).
+    if(i_requested_power >= 1 && i_requested_power <= 5) {
+      wsData.wandPower = (uint8_t)i_requested_power;
+    }
   }
-  request->send(200, "application/json", returnJsonStatus());
+
+  if(!gpstarSystem.inStreamMode(SELFTEST)) {
+    debugln(F("Web: Self Test Enabled"));
+    gpstarSystem.setStreamMode(SELFTEST); // Switch to self-test mode.
+    ms_selftest_cycle.start(i_selftest_interval); // Start the self-test cycling timer.
+    cp_StreamPalette = paletteWhite; // Use white palette for self-test start.
+    i_selftest_palette = 0; // Reset palette index.
+    updateStreamPalette(); // Update stream colours.
+  }
+  request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
 }
 
 void handleDisableSelfTest(AsyncWebServerRequest *request) {
-  debugln("Web: Self Test Disabled");
-  if(STREAM_MODE == SELFTEST) {
-    STREAM_MODE = STREAM_MODE_PREV; // Restore previous mode.
-    updateStreamPalette(); // Update stream colors.
-    b_testing = false; // Disable testing flag.
+  if(gpstarSystem.inStreamMode(SELFTEST)) {
+    debugln(F("Web: Self Test Disabled"));
+    gpstarSystem.setStreamMode(gpstarSystem.getPreviousStreamMode()); // Restore previous mode.
+    ms_selftest_cycle.stop(); // Stop the self-test cycling timer.
+    i_selftest_palette = 0; // Reset palette index.
+    wsData.wandPower = 5; // Reset to maximum power.
+    updateStreamPalette(); // Reset stream palette.
     ledsOff(); // Turn off all LEDs.
   }
-  request->send(200, "application/json", returnJsonStatus());
+
+  request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus());
 }
 
 /**
@@ -675,12 +771,10 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
   JsonDocument jsonBody;
   if(json.is<JsonObject>()) {
     jsonBody = json.as<JsonObject>();
-  }
-  else {
+  } else {
     debugln(F("Body was not a JSON object"));
   }
 
-  String result;
   try {
     // First check if a new private WiFi network name has been chosen.
     String newSSID = jsonBody["wifiName"].as<String>();
@@ -707,30 +801,36 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
       }
       else {
         // Immediately return an error if the network name was invalid.
-        request->send(200, "application/json", returnJsonStatus("Error: Network name must be between 8 and 32 characters in length."));
+        request->send(HTTP_STATUS_400, MIME_JSON, returnJsonStatus("Error: Network name must be between 8 and 32 characters in length.")); // 400 Bad Request
       }
     }
 
-    // General Options - Returned as unsigned integers
+    // User-defined count of addressable LEDs.
     if(jsonBody["numLeds"].is<unsigned short>()) {
-      deviceNumLeds = jsonBody["numLeds"].as<unsigned short>();
-
-      // Accesses namespace in read/write mode.
-      if(preferences.begin("device", false)) {
-        preferences.putShort("numLeds", deviceNumLeds);
-        preferences.end();
-      }
+      i_num_leds = jsonBody["numLeds"].as<unsigned short>();
     }
 
-    if(b_ssid_changed){
-      request->send(201, "application/json", returnJsonStatus("Settings updated, restart required. Please use the new network name to connect to your device."));
+    // Override the current LED colour order.
+    if(jsonBody["ledType"].is<uint8_t>()) {
+      LED_COLOR_TYPE = (LED_COLOR_TYPES)jsonBody["ledType"].as<uint8_t>(); // [1=RGB,2=GRB,3=GBR]
+    }
+
+    // Accesses namespace in read/write mode.
+    if(preferences.begin("device", false)) {
+      preferences.putUShort("numLeds", i_num_leds);
+      preferences.putUChar("ledType", (uint8_t)LED_COLOR_TYPE);
+      preferences.end();
+    }
+
+    if(b_ssid_changed) {
+      request->send(HTTP_STATUS_201, MIME_JSON, returnJsonStatus("Settings updated, restart required. Please use the new network name to connect to your device."));
     }
     else {
-      request->send(200, "application/json", returnJsonStatus("Settings updated."));
+      request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus("Settings updated."));
     }
   }
   catch (...) {
-    request->send(200, "application/json", returnJsonStatus("An error was encountered while saving settings."));
+    request->send(HTTP_STATUS_500, MIME_JSON, returnJsonStatus("An error was encountered while saving settings.")); // 500 Server Error
   }
 }); // handleSaveDeviceConfig
 
@@ -739,12 +839,10 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
   JsonDocument jsonBody;
   if(json.is<JsonObject>()) {
     jsonBody = json.as<JsonObject>();
-  }
-  else {
-    debugln("Body was not a JSON object");
+  } else {
+    debugln(F("Body was not a JSON object"));
   }
 
-  String result;
   if(jsonBody["password"].is<const char*>()) {
     String newPasswd = jsonBody["password"].as<String>();
 
@@ -763,16 +861,16 @@ AsyncCallbackJsonWebHandler *passwordChangeHandler = new AsyncCallbackJsonWebHan
         preferences.end();
       }
 
-      request->send(201, "application/json", returnJsonStatus("Password updated, restart required. Please enter your new WiFi password when prompted by your device."));
+      request->send(HTTP_STATUS_201, MIME_JSON, returnJsonStatus("Password updated, restart required. Please enter your new WiFi password when prompted by your device."));
     }
     else {
       // Password must be at least 8 characters in length.
-      request->send(200, "application/json", returnJsonStatus("Password must be a minimum of 8 characters to meet WPA2 requirements."));
+      request->send(HTTP_STATUS_417, MIME_JSON, returnJsonStatus("Password must be a minimum of 8 characters to meet WPA2 requirements.")); // 417 Expectation Failed
     }
   }
   else {
-    debugln("No password in JSON body");
-    request->send(200, "application/json", returnJsonStatus("Unable to update password."));
+    debugln(F("No password in JSON body"));
+    request->send(HTTP_STATUS_500, MIME_JSON, returnJsonStatus("Unable to update password.")); // 500 Server Error
   }
 }); // passwordChangeHandler
 
@@ -781,83 +879,105 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
   JsonDocument jsonBody;
   if(json.is<JsonObject>()) {
     jsonBody = json.as<JsonObject>();
-  }
-  else {
-    debugln("Body was not a JSON object");
+  } else {
+    debugln(F("Body was not a JSON object"));
   }
 
-  String result;
-  if(jsonBody["network"].is<const char*>() && jsonBody["password"].is<const char*>()) {
+  // Check for 'active' property (object) and use it if present, else use top-level
+  JsonObject activeObj;
+  if(jsonBody["active"].is<JsonObject>()) {
+    activeObj = jsonBody["active"].as<JsonObject>();
+  } else {
+    debugln(F("No 'active' object in JSON body"));
+    request->send(HTTP_STATUS_204, MIME_JSON, returnJsonStatus("Unable to find expected network information in JSON body.")); // 204 No Content
+    return;
+  }
+
+  if(activeObj["ssid"].is<const char*>() && activeObj["password"].is<const char*>()) {
     bool b_errors = false; // Assume false until otherwise indicated.
-    bool b_enabled = jsonBody["enabled"].as<bool>();
-    String wifiNetwork = jsonBody["network"].as<String>();
-    String wifiPasswd = jsonBody["password"].as<String>();
-    String localAddr = jsonBody["address"].as<String>();
-    String subnetMask = jsonBody["subnet"].as<String>();
-    String gatewayIP = jsonBody["gateway"].as<String>();
+    bool b_enabled = wirelessMgr->isExtWifiEnabled(); // Default to the current state.
+    updateJsonBool(b_enabled, activeObj, "enabled"); // Update var from JSON if present.
+    String wifiNetwork = activeObj["ssid"].as<String>();
+    String wifiPasswd = activeObj["password"].as<String>();
 
-    // Create Preferences object to handle non-volatile storage (NVS).
-    Preferences preferences;
+    // Handle staticIP logic: if false, blank the fields; if true, use provided string values if present
+    bool b_static_ip = false;
+    String localAddr = "";
+    String subnetMask = "";
+    String gatewayIP = "";
 
-    // Accesses namespace in read/write mode.
-    if(preferences.begin("network", false)) {
-      // Store the state of toggle switches regardless.
-      preferences.putBool("enabled", b_enabled);
+    if(activeObj["staticIP"].is<bool>()) {
+      b_static_ip = activeObj["staticIP"].as<bool>();
+    }
 
+    if(b_static_ip) {
+      if(activeObj["address"].is<const char*>()) {
+        localAddr = activeObj["address"].as<String>();
+      }
+      if(activeObj["subnet"].is<const char*>()) {
+        subnetMask = activeObj["subnet"].as<String>();
+      }
+      if(activeObj["gateway"].is<const char*>()) {
+        gatewayIP = activeObj["gateway"].as<String>();
+      }
+    }
+
+    if(!b_enabled) {
+      // If disabled, update the stored preference immediately.
+      wirelessMgr->disableExtWiFi();
+    } else {
+      // Check validity of provided values.
       if(wifiNetwork.length() >= 2 && wifiPasswd.length() >= 8) {
         // Clear old network IP info if SSID or password have been changed.
-        String old_ssid = preferences.getString("ssid", "");
-        String old_passwd = preferences.getString("password", "");
+        String old_ssid = wirelessMgr->getExtWifiNetworkName();
+        String old_passwd = wirelessMgr->getExtWifiPassword();
         if(old_ssid == "" || old_ssid != wifiNetwork || old_passwd == "" || old_passwd != wifiPasswd) {
-          preferences.putString("address", "");
-          preferences.putString("subnet", "");
-          preferences.putString("gateway", "");
+          localAddr = "";
+          subnetMask = "";
+          gatewayIP = "";
         }
 
-        // Store the critical values to enable/disable the external WiFi.
-        preferences.putString("ssid", wifiNetwork);
-        preferences.putString("password", wifiPasswd);
+        // Continue saving static IP info only if network values are 7 characters or more (eg. N.N.N.N)
+        bool b_valid_ip = true;
+        if(!(localAddr.length() >= 7 && localAddr != wirelessMgr->getExtWifiAddress().toString())) {
+          b_valid_ip = false;
+        }
+        if(!(subnetMask.length() >= 7 && subnetMask != wirelessMgr->getExtWifiSubnet().toString())) {
+          b_valid_ip = false;
+        }
+        if(!(gatewayIP.length() >= 7 && gatewayIP != wirelessMgr->getExtWifiGateway().toString())) {
+          b_valid_ip = false;
+        }
 
-        // Continue saving only if network values are 7 characters or more (eg. N.N.N.N)
-        bool b_static_ip = true;
-        if(localAddr.length() >= 7 && localAddr != wirelessMgr->getExtWifiAddress().toString()) {
-          preferences.putString("address", localAddr);
+        if(!b_valid_ip) {
+          // If any of the above values were invalid, clear all three fields.
+          localAddr = "";
+          subnetMask = "";
+          gatewayIP = "";
+        }
+
+        // Save and apply the new values as the current external network.
+        if(wirelessMgr->savePreferredNetwork(wifiNetwork, wifiPasswd, b_static_ip, localAddr, subnetMask, gatewayIP)) {
+          int8_t idx = wirelessMgr->getPreferredNetworkIndex(wifiNetwork);
+          if(idx >= 0) {
+            if(!wirelessMgr->applyPreferredNetwork((uint8_t)idx)) {
+              request->send(HTTP_STATUS_500, MIME_JSON, returnJsonStatus("Unable to apply settings for the current network."));
+              return;
+            }
+          }
+          else {
+            request->send(HTTP_STATUS_500, MIME_JSON, returnJsonStatus("Unable to locate the preferred network information."));
+            return;
+          }
         }
         else {
-          b_static_ip = false;
-        }
-        if(subnetMask.length() >= 7 && subnetMask != wirelessMgr->getExtWifiSubnet().toString()) {
-          preferences.putString("subnet", subnetMask);
-        }
-        else {
-          b_static_ip = false;
-        }
-        if(gatewayIP.length() >= 7 && gatewayIP != wirelessMgr->getExtWifiGateway().toString()) {
-          preferences.putString("gateway", gatewayIP);
-        }
-        else {
-          b_static_ip = false;
-        }
-        if(!b_static_ip) {
-          // If any of the above values were invalid, blank all three.
-          preferences.putString("address", "");
-          preferences.putString("subnet", "");
-          preferences.putString("gateway", "");
+          request->send(HTTP_STATUS_500, MIME_JSON, returnJsonStatus("Unable to save preferred network, check total saved networks (must be 5 or less)."));
+          return;
         }
       }
       else {
-        // Reset all values to defaults.
-        preferences.putString("ssid", "");
-        preferences.putString("password", "");
-        preferences.putString("address", "");
-        preferences.putString("subnet", "");
-        preferences.putString("gateway", "");
+        b_errors = true; // General error for invalid SSID or password length.
       }
-
-      preferences.end();
-    }
-    else {
-      b_errors = true;
     }
 
     if(!b_errors) {
@@ -883,51 +1003,14 @@ AsyncCallbackJsonWebHandler *wifiChangeHandler = new AsyncCallbackJsonWebHandler
         s_reason = "Settings updated, and external WiFi has been disconnected.";
       }
 
-      request->send(200, "application/json", returnJsonStatus(s_reason));
+      request->send(HTTP_STATUS_201, MIME_JSON, returnJsonStatus(s_reason));
     }
     else {
-      request->send(200, "application/json", returnJsonStatus("Errors encountered while processing request data. Please re-check submitted values and try again."));
+      request->send(HTTP_STATUS_200, MIME_JSON, returnJsonStatus("Errors encountered while processing data. Please re-check submitted values and try again."));
     }
   }
   else {
-    debugln("No password in JSON body");
-    request->send(200, "application/json", returnJsonStatus("Unable to update password."));
+    debugln(F("No password in JSON body"));
+    request->send(HTTP_STATUS_204, MIME_JSON, returnJsonStatus("Unable to update password.")); // 204 No Content
   }
 }); // wifiChangeHandler
-
-void handleNotFound(AsyncWebServerRequest *request) {
-  // Returned for any invalid URL requested.
-  debugln("Web page not found");
-  request->send(404, "text/plain", "Not Found");
-}
-
-// Define all known URI endpoints for the web server.
-// Declare this last as it uses all of the above functions.
-void setupRouting() {
-  // Static Pages
-  httpServer.on("/", HTTP_GET, handleRoot);
-  httpServer.on("/common.js", HTTP_GET, handleCommonJS);
-  httpServer.on("/favicon.ico", HTTP_GET, handleFavIco);
-  httpServer.on("/favicon.svg", HTTP_GET, handleFavSvg);
-  httpServer.on("/style.css", HTTP_GET, handleStylesheet);
-  httpServer.on("/index.js", HTTP_GET, handleRootJS);
-  httpServer.on("/network", HTTP_GET, handleNetwork);
-  httpServer.on("/password", HTTP_GET, handlePassword);
-  httpServer.on("/settings/device", HTTP_GET, handleDeviceSettings);
-  httpServer.onNotFound(handleNotFound);
-
-  // Get/Set Handlers
-  httpServer.on("/config/device", HTTP_GET, handleGetDeviceConfig);
-  httpServer.on("/status", HTTP_GET, handleGetStatus);
-  httpServer.on("/restart", HTTP_DELETE, handleRestart);
-  httpServer.on("/wifi/restart", HTTP_GET, handleRestartWiFi);
-  httpServer.on("/wifi/settings", HTTP_GET, handleGetWifi);
-  httpServer.on("/wifi/networks", HTTP_GET, handleGetSSIDs);
-  httpServer.on("/selftest/enable", HTTP_PUT, handleEnableSelfTest);
-  httpServer.on("/selftest/disable", HTTP_PUT, handleDisableSelfTest);
-
-  // Body Handlers
-  httpServer.addHandler(handleSaveDeviceConfig); // /config/device/save
-  httpServer.addHandler(passwordChangeHandler); // /password/update
-  httpServer.addHandler(wifiChangeHandler); // /wifi/update
-}

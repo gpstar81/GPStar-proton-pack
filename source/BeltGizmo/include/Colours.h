@@ -1,6 +1,6 @@
 /**
  *   GPStar BeltGizmo - Ghostbusters Props, Mods, and Kits.
- *   Copyright (C) 2024-2025 Dustin Grau <dustin.grau@gmail.com>
+ *   Copyright (C) 2024-2026 Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by

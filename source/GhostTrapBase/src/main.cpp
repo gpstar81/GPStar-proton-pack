@@ -24,10 +24,10 @@
 
 // Set to 1 to enable built-in debug messages via Serial device output.
 // Use with DEBUG_SEND_TO_CONSOLE and other DEBUG_'s in Configuration.h
-#define DEBUG 0
+#define GPSTAR_DEBUG 0
 
 // Debug macros
-#if DEBUG == 1
+#if GPSTAR_DEBUG == 1
   #define debug(...) Serial.print(__VA_ARGS__)
   #define debugf(...) Serial.printf(__VA_ARGS__)
   #define debugln(...) Serial.println(__VA_ARGS__)
@@ -45,20 +45,37 @@
 // 3rd-Party Libraries
 #include <millisDelay.h>
 #include <ezButton.h>
+#include <SerialTransfer.h>
 #include <esp_system.h>
 #include <nvs_flash.h>
 
-// Serial comms definitions (move to Serial.h?)
-#define TX_PIN 44 // Pin to transmit serial data to trap cartridge
-#define RX_PIN 43 // Pin to receive serial data from trap cartridge
-#define CartridgeComs Serial0
+// Serial comms definitions (move to Serial.h)
+#define TX_PIN 43 // Pin to transmit serial data to trap cartridge
+#define RX_PIN 44 // Pin to receive serial data from trap cartridge
+HardwareSerial CartridgeSerial(0); // Associate AttenuatorSerial with UART0
+SerialTransfer cartridgeComs;
 
-// Forward declaration for use in all includes.
-void sendDebug(const String message);
+// Writes a debug message to the serial console or sends to the WebSocket or Events stream.
+void sendDebug(const String& message) {
+  #if defined(DEBUG_SEND_TO_CONSOLE)
+    debugln(message); // Print to serial console.
+  #endif
+  #if defined(DEBUG_SEND_TO_WEBSOCKET)
+    ws.textAll(message); // Send a copy to the WebSocket.
+  #endif
+  #if defined(DEBUG_SEND_TO_EVENTS) and defined(ESP32)
+    sendDebugEvent(message.c_str()); // Send message to the events stream.
+  #endif
+}
 
 // Shared Libraries
+#include <DeviceState.h>
 #include <Communication.h>
 #include <WirelessManager.h>
+#include <WebRouter.h>
+
+// Global instance of DeviceState class for the Ghost Trap.
+DeviceState gpstarTrap;
 
 // Local Files
 #include "Configuration.h"
@@ -67,6 +84,7 @@ void sendDebug(const String message);
 #include "Audio.h"
 #include "Wireless.h"
 #include "Webhandler.h"
+#include "Webrouting.h"
 #include "System.h"
 
 // Define the WirelessManager pointer globally (initialized to nullptr).
@@ -89,7 +107,7 @@ volatile uint32_t idleTimeCore1 = 0;
 #if defined(DEBUG_PERFORMANCE)
 void idleTaskCore0(void * parameter) {
   while(true) {
-    idleTimeCore0++;
+    idleTimeCore0 = idleTimeCore0 + 1;
     vTaskDelay(1);
   }
 }
@@ -99,7 +117,7 @@ void idleTaskCore0(void * parameter) {
 #if defined(DEBUG_PERFORMANCE)
 void idleTaskCore1(void * parameter) {
   while(true) {
-    idleTimeCore1++;
+    idleTimeCore1 = idleTimeCore1 + 1;
     vTaskDelay(1);
   }
 }
@@ -170,7 +188,7 @@ void PreferencesTask(void *parameter) {
    */
   Preferences preferences;
   if(preferences.begin("device", true)) {
-    switch(preferences.getShort("display_type", 0)) {
+    switch(preferences.getUChar("display_type", STATUS_GRAPHIC)) {
       case 0:
         DISPLAY_TYPE = STATUS_TEXT;
       break;
@@ -178,7 +196,6 @@ void PreferencesTask(void *parameter) {
         DISPLAY_TYPE = STATUS_GRAPHIC;
       break;
       case 2:
-      default:
         DISPLAY_TYPE = STATUS_BOTH;
       break;
     }
@@ -186,19 +203,19 @@ void PreferencesTask(void *parameter) {
     // Preferences for smoke (enabled, duration) on doors opened/closed.
     b_smoke_opened_enabled = preferences.getBool("smoke_opened", false);
     b_smoke_closed_enabled = preferences.getBool("smoke_closed", false);
-    i_smoke_opened_duration = preferences.getShort("smoke_op_dur", 2000);
-    i_smoke_closed_duration = preferences.getShort("smoke_cl_dur", 3000);
+    i_smoke_opened_duration = preferences.getUShort("smoke_op_dur", 2000);
+    i_smoke_closed_duration = preferences.getUShort("smoke_cl_dur", 3000);
 
     preferences.end();
   }
   else {
     // If namespace is not initialized, open in read/write mode and set defaults.
     if(preferences.begin("device", false)) {
-      preferences.putShort("display_type", DISPLAY_TYPE);
+      preferences.putUChar("display_type", DISPLAY_TYPE);
       preferences.putBool("smoke_opened", b_smoke_opened_enabled);
       preferences.putBool("smoke_closed", b_smoke_closed_enabled);
-      preferences.putShort("smoke_op_dur", i_smoke_opened_duration);
-      preferences.putShort("smoke_cl_dur", i_smoke_closed_duration);
+      preferences.putUShort("smoke_op_dur", i_smoke_opened_duration);
+      preferences.putUShort("smoke_cl_dur", i_smoke_closed_duration);
       preferences.end();
     }
   }
@@ -226,6 +243,7 @@ void UserInputTask(void *parameter) {
       Serial.println(uxTaskGetStackHighWaterMark(NULL));
     #endif
 
+    checkPedal(); // Check the state of the foot pedal or trap triggers.
     checkDoors(); // Check for door state (open/close).
 
     // Trigger an update to the user that the doors have changed state.
@@ -275,7 +293,7 @@ void WiFiSetupTask(void *parameter) {
 
   // Define the WirelessManager object only after NVS/Preferences are initialized.
   if(wirelessMgr == nullptr) {
-    wirelessMgr = new WirelessManager("Trap", "192.168.1.10");
+    wirelessMgr = new WirelessManager(WirelessDeviceType::GHOST_TRAP, "192.168.1.10");
 
     #if defined(RESET_AP_SETTINGS)
       // Reset the WiFi password to the expected default on every startup.
@@ -307,19 +325,23 @@ void WiFiSetupTask(void *parameter) {
 }
 
 void setup() {
-  Serial.begin(115200); // Serial monitor via USB connection.
-  delay(1000); // Provide a delay to allow serial output.
-
-  Serial0.end();
-  CartridgeComs.begin(9600, SERIAL_8N1, RX_PIN, TX_PIN);
-
   // Provide an opportunity to set the CPU Frequency MHz: 80, 160, 240 [Default = 240]
   // Lower frequency means less power consumption, but slower performance (obviously).
   setCpuFrequencyMhz(160);
+
+  Serial.begin(115200); // Serial monitor via USB connection.
+  delay(1000); // Provide a delay to allow serial output.
+
   #if defined(DEBUG_SEND_TO_CONSOLE)
     debug(F("CPU Freq (MHz): "));
     debugln(getCpuFrequencyMhz());
   #endif
+
+  CartridgeSerial.begin(9600, SERIAL_8N1, RX_PIN, TX_PIN);
+  cartridgeComs.begin(CartridgeSerial, false);
+
+  // Setup the audio device for this controller.
+  setupAudioDevice();
 
   // Get initial switch/button states.
   switchLoops();
@@ -330,6 +352,9 @@ void setup() {
   // Set up for reading the switches to determine door state.
   DOOR_STATE = DOORS_UNKNOWN; // Default until we first read the pins.
   LAST_DOOR_STATE = DOOR_STATE; // Keep setting in sync until read.
+
+  // Set the trap state.
+  TRAP_STATE = TRAP_IDLE;
 
   /**
    * By default the WiFi will run on core0, while the standard loop() runs on core1.

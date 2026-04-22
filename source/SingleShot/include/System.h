@@ -1,6 +1,6 @@
 /**
  *   GPStar Single-Shot Blaster
- *   Copyright (C) 2024-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2024-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                    & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -20,34 +20,20 @@
 
 #pragma once
 
+// Forward declarations
+#ifdef ESP32
+extern class InfraredManager* irManager;
+#endif
+
 // Forward function declarations
 void checkEncoderAction();
 void setPowerOnReminder(bool);
 void ventTopLightControl(bool);
 void ventLightControl(uint8_t);
 
-void allLightsOff() {
-  bargraph.off();
-
-  // Turn off all non-addressable LEDs.
-  led_Status.turnOff(); // Turn off the Neutrona Wand board status LED.
-  led_Clippard.turnOff(); // Turn off the front left LED under the Clippard valve.
-  led_Hat1.turnOff(); // Turn off hat light 1 (not used, but just make sure).
-  led_Hat2.turnOff(); // Turn off hat light 2.
-  led_SloBlo.turnOff();
-  led_Tip.turnOff(); // Not used normally, but make sure it's off.
-  ventLightControl(0);
-  ventTopLightControl(false);
-
-  // Clear all addressable LEDs by filling the array with black.
-  fill_solid(system_leds, CYCLOTRON_LED_COUNT + BARREL_LED_COUNT, CRGB::Black);
-
-  if(!b_playing_music) {
-    // If music is not playing, arm the power-on reminder LED system.
-    setPowerOnReminder(true);
-  }
-}
-
+/**
+ * Device Helper Functions
+ */
 void allMenuLightsOff() {
   // Make sure some of the device lights are off, specifically for the Menu systems.
   // LEDs are in the order by which they indicate the menu levels above level 1.
@@ -71,6 +57,31 @@ void barrelLightsOff() {
 
   // Turn off the device barrel tip LED.
   led_Tip.turnOff();
+}
+
+void allLightsOff() {
+  bargraph.off();
+
+  // Turn off the barrel LEDs and timers.
+  barrelLightsOff();
+
+  // Turn off all non-addressable LEDs.
+  led_Status.turnOff(); // Turn off the Neutrona Wand board status LED.
+  led_Clippard.turnOff(); // Turn off the front left LED under the Clippard valve.
+  led_Hat1.turnOff(); // Turn off hat light 1 (not used, but just make sure).
+  led_Hat2.turnOff(); // Turn off hat light 2.
+  led_SloBlo.turnOff();
+  led_Tip.turnOff(); // Not used normally, but make sure it's off.
+  ventLightControl(0);
+  ventTopLightControl(false);
+
+  // Clear all addressable LEDs by filling the array with black.
+  fill_solid(system_leds, CYCLOTRON_LED_COUNT + BARREL_LED_COUNT, CRGB::Black);
+
+  if(!b_playing_music) {
+    // If music is not playing, arm the power-on reminder LED system.
+    setPowerOnReminder(true);
+  }
 }
 
 void vibrationOff() {
@@ -100,9 +111,8 @@ void switchLoops() {
 }
 
 void soundIdleLoop(bool fadeIn) {
-  switch(POWER_LEVEL) {
+  switch(gpstarBlaster.getPowerLevel()) {
     case LEVEL_1:
-    default:
       playEffect(S_IDLE_LOOP, true, i_volume_effects, fadeIn, 5000);
     break;
     case LEVEL_2:
@@ -115,15 +125,15 @@ void soundIdleLoop(bool fadeIn) {
       playEffect(S_IDLE_LOOP, true, i_volume_effects, fadeIn, 5000);
     break;
     case LEVEL_5:
+    default:
       playEffect(S_IDLE_LOOP, true, i_volume_effects, fadeIn, 5000);
     break;
   }
 }
 
 void soundIdleLoopStop() {
-  switch(POWER_LEVEL) {
+  switch(gpstarBlaster.getPowerLevel()) {
     case LEVEL_1:
-    default:
       stopEffect(S_IDLE_LOOP);
     break;
     case LEVEL_2:
@@ -136,6 +146,7 @@ void soundIdleLoopStop() {
       stopEffect(S_IDLE_LOOP);
     break;
     case LEVEL_5:
+    default:
       stopEffect(S_IDLE_LOOP);
     break;
   }
@@ -219,24 +230,21 @@ void systemPOST() {
 bool increasePowerLevel() {
   bool b_changed = true;
 
-  switch(POWER_LEVEL) {
+  switch(gpstarBlaster.getPowerLevel()) {
     case LEVEL_1:
-      POWER_LEVEL_PREV = POWER_LEVEL;
-      POWER_LEVEL = LEVEL_2;
+      gpstarBlaster.setPowerLevel(LEVEL_2);
     break;
     case LEVEL_2:
-      POWER_LEVEL_PREV = POWER_LEVEL;
-      POWER_LEVEL = LEVEL_3;
+      gpstarBlaster.setPowerLevel(LEVEL_3);
     break;
     case LEVEL_3:
-      POWER_LEVEL_PREV = POWER_LEVEL;
-      POWER_LEVEL = LEVEL_4;
+      gpstarBlaster.setPowerLevel(LEVEL_4);
     break;
     case LEVEL_4:
-      POWER_LEVEL_PREV = POWER_LEVEL;
-      POWER_LEVEL = LEVEL_5;
+      gpstarBlaster.setPowerLevel(LEVEL_5);
     break;
     case LEVEL_5:
+    default:
       // No change, at highest level.
       b_changed = false;
     break;
@@ -253,26 +261,23 @@ bool increasePowerLevel() {
 bool decreasePowerLevel() {
   bool b_changed = true;
 
-  switch(POWER_LEVEL) {
+  switch(gpstarBlaster.getPowerLevel()) {
     case LEVEL_1:
       // No change, at lowest level.
       b_changed = false;
     break;
     case LEVEL_2:
-      POWER_LEVEL_PREV = POWER_LEVEL;
-      POWER_LEVEL = LEVEL_1;
+      gpstarBlaster.setPowerLevel(LEVEL_1);
     break;
     case LEVEL_3:
-      POWER_LEVEL_PREV = POWER_LEVEL;
-      POWER_LEVEL = LEVEL_2;
+      gpstarBlaster.setPowerLevel(LEVEL_2);
     break;
     case LEVEL_4:
-      POWER_LEVEL_PREV = POWER_LEVEL;
-      POWER_LEVEL = LEVEL_3;
+      gpstarBlaster.setPowerLevel(LEVEL_3);
     break;
     case LEVEL_5:
-      POWER_LEVEL_PREV = POWER_LEVEL;
-      POWER_LEVEL = LEVEL_4;
+    default:
+      gpstarBlaster.setPowerLevel(LEVEL_4);
     break;
   }
 
@@ -523,9 +528,8 @@ void checkCyclotron() {
       ms_cyclotron.start(getCyclotronDelay());
     }
 
-    switch(POWER_LEVEL) {
+    switch(gpstarBlaster.getPowerLevel()) {
       case LEVEL_1:
-      default:
         updateCyclotron(C_RED);
       break;
       case LEVEL_2:
@@ -538,6 +542,7 @@ void checkCyclotron() {
         updateCyclotron(C_RED4);
       break;
       case LEVEL_5:
+      default:
         updateCyclotron(C_RED5);
       break;
     }
@@ -632,6 +637,11 @@ void firePulseEffect() {
     // Clear the bargraph and return to ramping.
     bargraph.clear();
     bargraph.PATTERN = BG_POWER_RAMP;
+
+  #ifdef ESP32
+    // Trigger infrared after firing pulse ends; will only send as a Proton stream.
+    irManager->sendCommand(IR_CMD_FIRING, IR_STREAM_PROTON, gpstarBlaster.getPowerLevel(), IR_CMD_BLAST);
+  #endif
   }
 }
 
@@ -641,68 +651,12 @@ void checkGeneralTimers() {
     firePulseEffect(); // Single shot animation.
   }
 
-  // Update the timer for the slo-blo blink.
-  if(ms_slo_blo_blink.justFinished()) {
-    ms_slo_blo_blink.start(i_slo_blo_blink_delay);
+  if(ms_semi_automatic_firing.justFinished()) {
+    // Do nothing; this just resets the timer.
   }
 
   // Check for any delayed execution callbacks that need to run.
   checkDelayedExecutions();
-}
-
-void modeFireStart() {
-  //modeFireStartSounds();
-
-  // Just in case a semi-auto was fired before we started firing a stream, stop its timer.
-  ms_semi_automatic_firing.stop();
-
-  // Turn on hat light 1.
-  led_Hat1.turnOn();
-
-  barrelLightsOff();
-}
-
-void modeFireStopSounds() {
-  // Reset some sound triggers.
-  b_sound_firing_intensify_trigger = false;
-  b_sound_firing_alt_trigger = false;
-
-  ms_single_blast.stop();
-}
-
-void modeFireStop() {
-  DEVICE_ACTION_STATUS = ACTION_IDLE;
-
-  b_firing = false;
-  b_firing_intensify = false;
-  b_firing_alt = false;
-
-  led_Hat2.turnOn(); // Make sure we turn on hat light 2 in case it's off as well.
-
-  led_Tip.turnOff();
-
-  ms_warning_blink.stop();
-
-  modeFireStopSounds();
-}
-
-void modeFiring() {
-  // Sound trigger flags.
-  if(b_firing_intensify && !b_sound_firing_intensify_trigger) {
-    b_sound_firing_intensify_trigger = true;
-  }
-
-  if(!b_firing_intensify && b_sound_firing_intensify_trigger) {
-    b_sound_firing_intensify_trigger = false;
-  }
-
-  if(b_firing_alt && !b_sound_firing_alt_trigger) {
-    b_sound_firing_alt_trigger = true;
-  }
-
-  if(!b_firing_alt && b_sound_firing_alt_trigger) {
-    b_sound_firing_alt_trigger = false;
-  }
 }
 
 void ventTopLightControl(bool b_on) {
@@ -769,17 +723,30 @@ void ventLightControl(uint8_t i_intensity) {
 // Determine the light status on the device and any beeps.
 void deviceLightControlCheck() {
   // Vent light and first stage of the safety system.
+  if(switch_vent.switched()) {
+    if(switch_vent.on()) {
+      // Start idle loop sound (runs continuously).
+      stopEffect(S_BOOTUP);
+      stopEffect(S_BOOTUP_SHORT);
+      playEffect(S_BOOTUP);
+      soundIdleLoop(true);
+    }
+    else {
+      // Stop the idle loop audio.
+      soundIdleLoopStop();
+    }
+  }
+
   if(switch_vent.on()) {
     if(blasterConfig.ventLightAutoIntensity) {
       // Vent light on, brightness dependent on mode.
-      if(DEVICE_ACTION_STATUS == ACTION_FIRING || (ms_semi_automatic_firing.isRunning() && !ms_semi_automatic_firing.justFinished())) {
+      if(DEVICE_ACTION_STATUS == ACTION_FIRING || ms_semi_automatic_firing.isRunning()) {
         ventLightControl(255);
       }
       else {
         // Adjust brightness based on the power level.
-        switch(POWER_LEVEL) {
+        switch(gpstarBlaster.getPowerLevel()) {
           case LEVEL_1:
-          default:
             ventLightControl(i_vent_led_power_1);
           break;
           case LEVEL_2:
@@ -792,6 +759,7 @@ void deviceLightControlCheck() {
             ventLightControl(i_vent_led_power_4);
           break;
           case LEVEL_5:
+          default:
             ventLightControl(i_vent_led_power_5);
           break;
         }
@@ -801,9 +769,26 @@ void deviceLightControlCheck() {
       ventLightControl(255);
     }
   }
-  else if(!switch_vent.on()) {
+  else {
     // Vent light off.
     ventLightControl(0);
+  }
+
+  // Clippard light and final stage of the safety system.
+  if(switch_device.switched()) {
+    if(switch_device.on()) {
+      // Turn on the Clippard LED.
+      led_Clippard.turnOn();
+
+      // Play a beep if vent light is on already to indicate ready to fire.
+      if(switch_vent.on()) {
+        stopEffect(S_BEEPS);
+        playEffect(S_BEEPS);
+      }
+    }
+    else {
+      led_Clippard.turnOff();
+    }
   }
 }
 
@@ -815,6 +800,7 @@ void deviceOff() {
   }
 
   stopEffect(S_BOOTUP);
+  stopEffect(S_BOOTUP_SHORT);
 
   if(DEVICE_ACTION_STATUS == ACTION_ERROR && !b_device_boot_error_on) {
     // We are exiting Device Boot Error, so change device state back to off/idle.
@@ -837,10 +823,8 @@ void deviceOff() {
 
   vibrationOff();
 
-  // Stop firing if the device is turned off.
-  if(b_firing) {
-    modeFireStop();
-  }
+  // Make sure we reset our semi-automatic firing flag.
+  b_firing_semi_automatic = false;
 
   // Turn off some timers.
   ms_cyclotron.stop();
@@ -884,20 +868,7 @@ void modePulseStart() {
   playEffect(S_FIRE_BLAST, false, i_volume_effects, false, 0, false);
 
   ms_firing_pulse.start(i_firing_pulse);
-  ms_semi_automatic_firing.start(350);
-}
-
-// Use an attached infrared LED to send a command. Only available if using the Wand II (ESP32).
-void sendInfraredCommand(const String sType) {
-#ifdef ESP32
-  if(sType.equals("ghostintrap")) {
-    // Send the standard Ghost Trap (PKE) IR signal.
-    IrSender.sendRaw(ir_GhostInTrap, sizeof(ir_GhostInTrap) / sizeof(ir_GhostInTrap[0]), CARRIER_KHZ);
-  }
-  else {
-    debugln(F("Unknown IR Command"));
-  }
-#endif
+  ms_semi_automatic_firing.start(i_semi_automatic_duration);
 }
 
 // Check if we should fire, or if the device was turned off.
@@ -912,11 +883,10 @@ void fireControlCheck() {
 
     // Otherwise the Activate switch is up, so check if in a firing state.
     if(switch_device.on() && switch_vent.on()) {
-      if(switch_grip.on()) {
-        b_firing_alt = true;
-
-        switch(STREAM_MODE) {
+      if(switch_grip.on() || switch_intensify.on()) {
+        switch(gpstarBlaster.getStreamMode()) {
           case PROTON:
+          default:
             // Handle Primary Blast fire start here.
             if(!b_firing_semi_automatic && ms_semi_automatic_check.remaining() < 1) {
               // Start rate-of-fire timer.
@@ -927,39 +897,23 @@ void fireControlCheck() {
               b_firing_semi_automatic = true;
             }
           break;
-
-          default:
-            // Do nothing.
-          break;
         }
       }
-
-      if(!switch_intensify.on()) {
-        switch(STREAM_MODE) {
+      else {
+        switch(gpstarBlaster.getStreamMode()) {
           case PROTON:
           default:
-            if(b_firing && b_firing_intensify) {
-              if(!b_firing_alt) {
-                DEVICE_ACTION_STATUS = ACTION_IDLE;
-              }
-
-              b_firing_intensify = false;
-            }
-          break;
-        }
-      }
-
-      if(!switch_grip.on()) {
-        switch(STREAM_MODE) {
-          case PROTON:
             // Handle resetting semi-auto bool here.
             b_firing_semi_automatic = false;
           break;
-
-          default:
-            // Do nothing.
-          break;
         }
+      }
+    }
+    else if(switch_device.on() || switch_vent.on()) {
+      // If only one switch is on, play a warning sound if user tries to fire.
+      if(switch_grip.pushed() || switch_intensify.pushed()) {
+        stopEffect(S_VENT_DRY);
+        playEffect(S_VENT_DRY);
       }
     }
   }
@@ -987,9 +941,6 @@ void postActivation() {
     // Turn on slo-blo light.
     led_SloBlo.turnOn();
 
-    // Turn on the Clippard LED.
-    led_Clippard.turnOn();
-
     // Top white light.
     ms_white_light.start(i_top_blink_interval);
     ventTopLightControl(true);
@@ -998,12 +949,18 @@ void postActivation() {
     ms_warning_blink.stop();
     ms_error_blink.stop();
 
-    // Play bootup sound (runs only once).
-    stopEffect(S_BOOTUP);
-    playEffect(S_BOOTUP);
-
-    // Start idle loop sound (runs continuously).
-    soundIdleLoop(true);
+    if(switch_vent.on()) {
+      // If vent switch is already on, start the idle and play the bootup sound.
+      stopEffect(S_BOOTUP);
+      stopEffect(S_BOOTUP_SHORT);
+      playEffect(S_BOOTUP);
+      soundIdleLoop(true);
+    }
+    else {
+      // If vent switch is off, only play the short bootup sound.
+      stopEffect(S_BOOTUP_SHORT);
+      playEffect(S_BOOTUP_SHORT);
+    }
   }
 }
 
@@ -1027,7 +984,7 @@ void modeActivate() {
 }
 
 void vibrationDevice(uint8_t i_level) {
-  if(blasterConfig.deviceVibration != VIBRATION_NONE && i_level > 0) {
+  if(blasterConfig.deviceVibration != VIBRATION_NEVER && i_level > 0) {
     // Vibrate the device during firing only when enabled.
     if(blasterConfig.deviceVibration == VIBRATION_FIRING_ONLY) {
       if(ms_semi_automatic_firing.isRunning()) {
@@ -1038,11 +995,6 @@ void vibrationDevice(uint8_t i_level) {
       }
       else {
         vibrationOff();
-
-        #ifdef ESP32
-          // Trigger infrared after firing pulse ends.
-          sendInfraredCommand("ghostintrap");
-        #endif
       }
     }
     else {
@@ -1067,25 +1019,21 @@ void vibrationDevice(uint8_t i_level) {
 }
 
 void vibrationSetting() {
-  switch(POWER_LEVEL) {
+  switch(gpstarBlaster.getPowerLevel()) {
     case LEVEL_1:
-    default:
       vibrationDevice(i_vibration_level_min);
     break;
-
     case LEVEL_2:
       vibrationDevice(i_vibration_level_min + 5);
     break;
-
     case LEVEL_3:
       vibrationDevice(i_vibration_level_min + 10);
     break;
-
     case LEVEL_4:
       vibrationDevice(i_vibration_level_min + 12);
     break;
-
     case LEVEL_5:
+    default:
       vibrationDevice(i_vibration_level_min + 25);
     break;
   }
@@ -1093,8 +1041,7 @@ void vibrationSetting() {
 
 // Enter the device menu system.
 void deviceEnterMenu() {
-  debug(F("deviceEnterMenu|"));
-  debugln(DEVICE_ACTION_STATUS);
+  sendDebug(String(F("deviceEnterMenu|")) + String(DEVICE_ACTION_STATUS));
 
   // Enter a menu at level 1, at option #5
   DEVICE_MENU_LEVEL = MENU_LEVEL_1;
@@ -1102,16 +1049,22 @@ void deviceEnterMenu() {
 
   playEffect(S_CLICK);
 
-  allLightsOff();
-  allMenuLightsOff();
+  if(DEVICE_STATUS == MODE_OFF) {
+    // If device is off, make sure we have all lights off.
+    allLightsOff();
+    allMenuLightsOff();
+  }
+  else {
+    // Otherwise, just reset the bargraph.
+    bargraph.off();
+  }
 
   bargraph.showBars(MENU_OPTION_LEVEL);
 }
 
 // Exit the device menu system while the device is off.
 void deviceExitMenu() {
-  debug(F("deviceExitMenu|"));
-  debugln(DEVICE_ACTION_STATUS);
+  sendDebug(String(F("deviceExitMenu|")) + String(DEVICE_ACTION_STATUS));
 
   // Reset the menu level/option to default
   DEVICE_MENU_LEVEL = MENU_LEVEL_1;
@@ -1122,6 +1075,7 @@ void deviceExitMenu() {
     saveConfigEEPROM();
     stopEffect(S_VOICE_EEPROM_SAVE);
     playEffect(S_VOICE_EEPROM_SAVE);
+    allLightsOff();
   }
 
   stopEffect(S_CLICK);
@@ -1129,11 +1083,9 @@ void deviceExitMenu() {
 
   DEVICE_ACTION_STATUS = ACTION_IDLE;
 
-  allLightsOff();
-
-  if(DEVICE_STATUS == MODE_ON && bargraph.STATE == BG_OFF) {
+  if(DEVICE_STATUS == MODE_ON) {
+    bargraph.off();
     bargraph.reset(); // Enable bargraph for use (resets variables and turns it on).
     bargraph.PATTERN = BG_POWER_RAMP; // Bargraph idling loop.
-    led_SloBlo.turnOn(); // Turn on SLO-BLO if device is on.
   }
 }

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="UTF-8" />
@@ -22,10 +22,28 @@
     <h1>General Options</h1>
     <div class="block left">
       <div class="setting">
+        <b>
+          &nbsp;&nbsp;&nbsp;Current System Mode:
+          <span id="systemMode">...</span>
+        </b>
+      </div>
+      <div class="setting">
+        <b>
+          &nbsp;Current System Theme:
+          <span id="systemTheme">...</span>
+        </b>
+      </div>
+      <div class="setting">
+        <b>
+          &nbsp;&nbsp;&nbsp;Current Stream Mode:
+          <span id="currentStreamMode">...</span>
+        </b>
+      </div>
+      <div class="setting">
         <b>&nbsp;Stream/Firing Mode:</b>
-        <select id="defaultFiringMode" name="defaultFiringMode" style="width: 170px">
-          <option value="1">Video Game</option>
-          <option value="2">CTS</option>
+        <select id="defaultFiringMode" name="defaultFiringMode" style="width: 170px" onchange="updateStreamModeToggles()">
+          <option value="0">Video Game</option>
+          <option value="1">CTS</option>
           <option value="3">CTS Mix</option>
         </select>
       </div>
@@ -48,7 +66,7 @@
         </select>
       </div>
       <div class="setting">
-        <b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Use Vibration:</b>
+        <b>&nbsp;Use Wand Vibration:</b>
         <select id="wandVibration" name="wandVibration" style="width: 170px">
           <option value="4">Via Toggle</option>
           <option value="3">Never</option>
@@ -67,6 +85,15 @@
       <!-- Toggle for rgbVentEnabled not available for GPStar Neutrona Wand II -->
       <div class="setting">
         <label class="toggle-switchy" data-label="left">
+          <input id="rgbVentColours" name="rgbVentColours" type="checkbox" />
+          <span class="toggle">
+            <span class="switch"></span>
+          </span>
+          <span class="label">Vent Light Stream Colours:</span>
+        </label>
+      </div>
+      <div class="setting">
+        <label class="toggle-switchy" data-label="left">
           <input id="autoVentLight" name="autoVentLight" type="checkbox" />
           <span class="toggle">
             <span class="switch"></span>
@@ -76,20 +103,11 @@
       </div>
       <div class="setting">
         <label class="toggle-switchy" data-label="left">
-          <input id="spectralModesEnabled" name="spectralModesEnabled" type="checkbox" />
-          <span class="toggle">
-            <span class="switch"></span>
-          </span>
-          <span class="label">Spectral Modes:</span>
-        </label>
-      </div>
-      <div class="setting">
-        <label class="toggle-switchy" data-label="left">
           <input id="overheatEnabled" name="overheatEnabled" type="checkbox" />
           <span class="toggle">
             <span class="switch"></span>
           </span>
-          <span class="label">Overheating:</span>
+          <span class="label">Enable Overheating:</span>
         </label>
       </div>
       <div class="setting">
@@ -98,7 +116,7 @@
           <span class="toggle">
             <span class="switch"></span>
           </span>
-          <span class="label">Quick Venting:</span>
+          <span class="label">Enable Quick Venting:</span>
         </label>
       </div>
       <div class="setting">
@@ -107,7 +125,91 @@
           <span class="toggle">
             <span class="switch"></span>
           </span>
-          <span class="label">Boot Errors:</span>
+          <span class="label">Enable Boot Errors:</span>
+        </label>
+      </div>
+    </div>
+
+    <h1>Stream Modes</h1>
+    <div class="block left">
+      <small>
+        <b>Note:</b>
+        Stream Modes are only available when using "Super Hero" system mode and "Video Game" firing mode.
+      </small>
+      <div class="setting">
+        <b>&nbsp;&nbsp;&nbsp;&nbsp;Default Stream:</b>
+        <select id="defaultStreamMode" name="defaultStreamMode" style="width: 170px">
+          <option value="0">Proton Stream</option>
+          <option value="1">Dark Matter Gen.</option>
+          <option value="2">Plasm System</option>
+          <option value="3">Particle System</option>
+          <option value="4">Spectral Stream</option>
+          <option value="5">Halloween</option>
+          <option value="6">Christmas</option>
+          <option value="7">Custom Stream</option>
+        </select>
+      </div>
+      <div class="setting">
+        <label class="toggle-switchy" data-label="left">
+          <input id="stasisStream" name="stasisStream" type="checkbox" />
+          <span class="toggle">
+            <span class="switch"></span>
+          </span>
+          <span class="label">VG Stasis Stream:</span>
+        </label>
+      </div>
+      <div class="setting">
+        <label class="toggle-switchy" data-label="left">
+          <input id="slimeStream" name="slimeStream" type="checkbox" />
+          <span class="toggle">
+            <span class="switch"></span>
+          </span>
+          <span class="label">VG Slime Stream:</span>
+        </label>
+      </div>
+      <div class="setting">
+        <label class="toggle-switchy" data-label="left">
+          <input id="mesonStream" name="mesonStream" type="checkbox" />
+          <span class="toggle">
+            <span class="switch"></span>
+          </span>
+          <span class="label">VG Meson Stream:</span>
+        </label>
+      </div>
+      <div class="setting">
+        <label class="toggle-switchy" data-label="left">
+          <input id="spectralStream" name="spectralStream" type="checkbox" />
+          <span class="toggle">
+            <span class="switch"></span>
+          </span>
+          <span class="label">Spectral Stream:</span>
+        </label>
+      </div>
+      <div class="setting">
+        <label class="toggle-switchy" data-label="left">
+          <input id="spectralCustomStream" name="spectralCustomStream" type="checkbox" />
+          <span class="toggle">
+            <span class="switch"></span>
+          </span>
+          <span class="label">Spectral Custom Stream:</span>
+        </label>
+      </div>
+      <div class="setting">
+        <label class="toggle-switchy" data-label="left">
+          <input id="halloweenStream" name="halloweenStream" type="checkbox" />
+          <span class="toggle">
+            <span class="switch"></span>
+          </span>
+          <span class="label">Halloween Stream:</span>
+        </label>
+      </div>
+      <div class="setting">
+        <label class="toggle-switchy" data-label="left">
+          <input id="christmasStream" name="christmasStream" type="checkbox" />
+          <span class="toggle">
+            <span class="switch"></span>
+          </span>
+          <span class="label">Christmas Stream:</span>
         </label>
       </div>
     </div>
@@ -115,9 +217,9 @@
     <h1>Audio Options</h1>
     <div class="block left">
       <div class="setting">
-        <b>Master Volume % at Startup:</b>
+        <b>Wand Master Volume % at Startup:</b>
         <br />
-        <input type="range" id="defaultWandVolume" name="defaultWandVolume" min="5" max="100" value="100" step="5" oninput="masterVolOut.value=defaultWandVolume.value" />
+        <input type="range" id="defaultWandVolume" name="defaultWandVolume" min="5" max="100" value="100" step="5" oninput="masterVolOut.value = defaultWandVolume.value" />
         <output class="labelSlider" id="masterVolOut" for="defaultWandVolume"></output>
       </div>
       <div class="setting">
@@ -201,7 +303,7 @@
         <select id="ledWandCount" name="ledWandCount">
           <option value="0">5 - Stock</option>
           <option value="1">48 - Frutto</option>
-          <option value="2">50 - GPStar</option>
+          <option selected value="2">50 - GPStar</option>
           <option value="3">2 - Tip</option>
         </select>
       </div>
@@ -248,7 +350,7 @@
         </p>
         <div class="setting">
           <label class="toggle-switchy" data-text="yesno" data-label="left">
-            <input id="wifiState" name="wifiState" type="checkbox" />
+            <input id="isWiFiEnabled" name="isWiFiEnabled" type="checkbox" />
             <span class="toggle">
               <span class="switch"></span>
             </span>
@@ -272,7 +374,9 @@
       <hr />
       <a href="/">&laquo; Back</a>
       &nbsp;&nbsp;
-      <button type="button" class="green" style="width: 120px" onclick="saveSettings()" id="btnSave">Update&nbsp;Settings</button>
+      <button type="button" class="green" onclick="saveSettings()" id="btnSave">Update&nbsp;Settings</button>
+      &nbsp;&nbsp;&nbsp;
+      <button type="button" class="red" onclick="resetEEPROM()" id="btnReset">Reset&nbsp;EEPROM</button>
       <br />
       <br />
     </div>
@@ -294,13 +398,22 @@
         disableEl("ledWandCount");
         disableEl("ledWandHue");
         disableEl("ledWandSat");
-        disableEl("spectralModesEnabled");
+        disableEl("rgbVentEnabled");
+        disableEl("defaultStreamMode");
+        disableEl("stasisStream");
+        disableEl("slimeStream");
+        disableEl("mesonStream");
+        disableEl("spectralStream");
+        disableEl("spectralCustomStream");
+        disableEl("halloweenStream");
+        disableEl("christmasStream");
         disableEl("overheatEnabled");
         disableEl("defaultFiringMode");
         disableEl("wandVibration");
         disableEl("barrelSwitchPolarity");
         disableEl("wandSoundsToPack");
         disableEl("quickVenting");
+        disableEl("rgbVentColours");
         disableEl("autoVentLight");
         disableEl("wandBeepLoop");
         disableEl("wandBootError");
@@ -314,7 +427,7 @@
         disableEl("bargraphIdleAnimation");
         disableEl("bargraphFireAnimation");
         hideEl("gpstarAudioLedToggle");
-        disableEl("wifiState");
+        disableEl("isWiFiEnabled");
         disableEl("resetWifiPassword");
         hideEl("gpstar2");
       }
@@ -332,10 +445,40 @@
         getEl(colourPreviewID).style.backgroundColor = "hsl(" + parseInt(hueValue, 10) + ", " + parseInt(satValue, 10) + "%, " + lightness + "%)";
       }
 
+      function updateStreamModeToggles() {
+        // Check if Stream Modes should be enabled based on current settings.
+        // Must be in "Super Hero" system mode and using Video Game firing mode.
+        var systemMode = getEl("systemMode") ? getEl("systemMode").innerHTML : "";
+        var defaultFiringMode = getInt("defaultFiringMode");
+        var streamModesEnabled = systemMode === "Super Hero" && defaultFiringMode === 0;
+
+        if (!streamModesEnabled) {
+          // Disable all stream mode toggles if conditions are not met.
+          disableEl("defaultStreamMode");
+          disableEl("stasisStream");
+          disableEl("slimeStream");
+          disableEl("mesonStream");
+          disableEl("spectralStream");
+          disableEl("spectralCustomStream");
+          disableEl("halloweenStream");
+          disableEl("christmasStream");
+        } else {
+          // Enable all stream mode toggles if conditions are met.
+          enableEl("defaultStreamMode");
+          enableEl("stasisStream");
+          enableEl("slimeStream");
+          enableEl("mesonStream");
+          enableEl("spectralStream");
+          enableEl("spectralCustomStream");
+          enableEl("halloweenStream");
+          enableEl("christmasStream");
+        }
+      }
+
       function getSettings() {
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
-          if (this.readyState == 4 && this.status == 200) {
+          if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
             var settings = JSON.parse(this.responseText);
             if (settings) {
               if (!settings.wandConnected || !settings.prefsAvailable) {
@@ -347,7 +490,7 @@
               if (settings.packPowered || settings.wandPowered) {
                 disableControls();
                 alert(
-                  "Pack and/or Wand are currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings."
+                  "Pack and/or Wand are currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings.",
                 );
                 return;
               }
@@ -355,8 +498,8 @@
               if (settings.esp32Wand) {
                 // Enable all WiFi controls.
                 showEl("gpstar2");
-                setToggle("wifiState", settings.wifiState);
-                enableEl("wifiState");
+                setToggle("isWiFiEnabled", settings.isWiFiEnabled);
+                enableEl("isWiFiEnabled");
                 enableEl("resetWifiPassword");
               } else {
                 // Hide any GPStar II options when not available.
@@ -386,33 +529,53 @@
                *  254 = Red
                */
 
-              setValue("ledWandCount", settings.ledWandCount || 0); // Haslab: 0 (5 LED)
+              setValue("ledWandCount", settings.ledWandCount ?? 2); // GPStar: 2 (50 LED)
               setValue("ledWandHue", convertRange(settings.ledWandHue || 254, [1, 254], [0, 360])); // Default: Red
               setValue("ledWandSat", convertRange(settings.ledWandSat || 254, [1, 254], [0, 100])); // Full Saturation
-              setToggle("spectralModesEnabled", settings.spectralModesEnabled);
+              setToggle("rgbVentEnabled", settings.rgbVentEnabled);
+              setValue("defaultStreamMode", settings.defaultStreamMode);
+              setToggle("stasisStream", settings.stasisStream);
+              setToggle("slimeStream", settings.slimeStream);
+              setToggle("mesonStream", settings.mesonStream);
+              setToggle("spectralStream", settings.spectralStream);
+              setToggle("spectralCustomStream", settings.spectralCustomStream);
+              setToggle("halloweenStream", settings.halloweenStream);
+              setToggle("christmasStream", settings.christmasStream);
               setToggle("overheatEnabled", settings.overheatEnabled);
-              setValue("defaultFiringMode", settings.defaultFiringMode || 1);
+              setValue("defaultFiringMode", settings.defaultFiringMode ?? 0);
               setValue("wandVibration", settings.wandVibration || 4);
-              setValue("barrelSwitchPolarity", settings.barrelSwitchPolarity || 1);
+              setValue("barrelSwitchPolarity", settings.barrelSwitchPolarity ?? 1);
               setToggle("wandSoundsToPack", settings.wandSoundsToPack);
               setToggle("quickVenting", settings.quickVenting);
+              setToggle("rgbVentColours", settings.rgbVentColours);
               setToggle("autoVentLight", settings.autoVentLight);
               setToggle("wandBeepLoop", settings.wandBeepLoop);
               setToggle("wandBootError", settings.wandBootError);
               setToggle("gpstarAudioLed", settings.gpstarAudioLed);
-              setValue("defaultYearModeWand", settings.defaultYearModeWand || 1);
-              setValue("defaultYearModeCTS", settings.defaultYearModeCTS || 1);
+              setValue("defaultYearModeWand", settings.defaultYearModeWand ?? 1);
+              setValue("defaultYearModeCTS", settings.defaultYearModeCTS ?? 1);
               setValue("defaultWandVolume", settings.defaultWandVolume || 100);
               setHtml("masterVolOut", getValue("defaultWandVolume"));
               setValue("numBargraphSegments", settings.numBargraphSegments || 28);
               setToggle("invertWandBargraph", settings.invertWandBargraph);
               setToggle("bargraphOverheatBlink", settings.bargraphOverheatBlink);
-              setValue("bargraphIdleAnimation", settings.bargraphIdleAnimation || 1);
-              setValue("bargraphFireAnimation", settings.bargraphFireAnimation || 1);
+              setValue("bargraphIdleAnimation", settings.bargraphIdleAnimation ?? 1);
+              setValue("bargraphFireAnimation", settings.bargraphFireAnimation ?? 1);
 
               // Update colour preview and value display for hue/saturation sliders.
               updateColour("wandColourPreview", "wandHueOut", "wandSatOut", getEl("ledWandHue").value, getEl("ledWandSat").value);
+
+              // Display the current system mode and theme for benefit of the user.
+              setHtml("systemMode", settings.systemMode || "...");
+              setHtml("systemTheme", settings.systemTheme || "...");
+              setHtml("currentStreamMode", settings.currentStreamMode || "...");
+
+              // Apply guards for Stream Mode availability based on system mode and firing mode.
+              updateStreamModeToggles();
             }
+          } else if (this.readyState == 4) {
+            // Handle error responses
+            handleStatus(this.responseText);
           }
         };
         xhttp.open("GET", "/config/wand", true);
@@ -423,30 +586,38 @@
         // Saves current settings to wand, updating runtime variables and making changes immediately effective.
         // This does NOT save to the EEPROM automatically as the user is encouraged to test prior to that action.
         var settings = {
-          ledWandCount: getInt("ledWandCount") || 0,
+          ledWandCount: getInt("ledWandCount") ?? 2,
           ledWandHue: convertRange(getInt("ledWandHue"), [0, 360], [1, 254]) || 254,
           ledWandSat: convertRange(getInt("ledWandSat"), [0, 100], [1, 254]) || 254,
-          rgbVentEnabled: 1, // ESP32-S3 must have rgbVentEnabled true
-          spectralModesEnabled: getToggle("spectralModesEnabled"),
+          rgbVentEnabled: getToggle("rgbVentEnabled"),
+          defaultStreamMode: getInt("defaultStreamMode") ?? 0,
+          stasisStream: getToggle("stasisStream") || getInt("defaultStreamMode") === 1 || getInt("currentStreamMode") === "Dark Matter Gen.",
+          slimeStream: getToggle("slimeStream") || getInt("defaultStreamMode") === 2 || getInt("currentStreamMode") === "Plasm System",
+          mesonStream: getToggle("mesonStream") || getInt("defaultStreamMode") === 3 || getInt("currentStreamMode") === "Particle System",
+          spectralStream: getToggle("spectralStream") || getInt("defaultStreamMode") === 4 || getInt("currentStreamMode") === "Spectral Stream",
+          spectralCustomStream: getToggle("spectralCustomStream") || getInt("defaultStreamMode") === 7 || getInt("currentStreamMode") === "Custom Stream",
+          halloweenStream: getToggle("halloweenStream") || getInt("defaultStreamMode") === 5 || getInt("currentStreamMode") === "Halloween",
+          christmasStream: getToggle("christmasStream") || getInt("defaultStreamMode") === 6 || getInt("currentStreamMode") === "Christmas",
           overheatEnabled: getToggle("overheatEnabled"),
-          defaultFiringMode: getInt("defaultFiringMode") || 1,
+          defaultFiringMode: getInt("defaultFiringMode") ?? 0,
           wandVibration: getInt("wandVibration") || 4,
-          barrelSwitchPolarity: getInt("barrelSwitchPolarity") || 1,
+          barrelSwitchPolarity: getInt("barrelSwitchPolarity") ?? 1,
           wandSoundsToPack: getToggle("wandSoundsToPack"),
           quickVenting: getToggle("quickVenting"),
+          rgbVentColours: getToggle("rgbVentColours"),
           autoVentLight: getToggle("autoVentLight"),
           wandBeepLoop: getToggle("wandBeepLoop"),
           wandBootError: getToggle("wandBootError"),
           gpstarAudioLed: getToggle("gpstarAudioLed"),
-          defaultYearModeWand: getInt("defaultYearModeWand") || 1,
-          defaultYearModeCTS: getInt("defaultYearModeCTS") || 1,
+          defaultYearModeWand: getInt("defaultYearModeWand") ?? 1,
+          defaultYearModeCTS: getInt("defaultYearModeCTS") ?? 1,
           defaultWandVolume: getInt("defaultWandVolume") || 100,
           numBargraphSegments: getInt("numBargraphSegments") || 28,
           invertWandBargraph: getToggle("invertWandBargraph"),
           bargraphOverheatBlink: getToggle("bargraphOverheatBlink"),
-          bargraphIdleAnimation: getInt("bargraphIdleAnimation") || 1,
-          bargraphFireAnimation: getInt("bargraphFireAnimation") || 1,
-          wifiState: getToggle("wifiState"),
+          bargraphIdleAnimation: getInt("bargraphIdleAnimation") ?? 1,
+          bargraphFireAnimation: getInt("bargraphFireAnimation") ?? 1,
+          isWiFiEnabled: getToggle("isWiFiEnabled"),
           resetWifiPassword: getToggle("resetWifiPassword"),
         };
         var body = JSON.stringify(settings);
@@ -454,7 +625,7 @@
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
           if (this.readyState == 4) {
-            if (this.status == 200) {
+            if (this.status == 200 || this.status == 201) {
               handleStatus(this.responseText);
               setTimeout(getSettings, 400); // Get latest settings.
 
@@ -462,6 +633,7 @@
                 saveEEPROM(); // Perform action only if the user answers OK to the confirmation.
               }
             } else {
+              // Handle non-success responses
               handleStatus(this.responseText);
             }
           }
@@ -474,12 +646,25 @@
       function saveEEPROM() {
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
-          if (this.readyState == 4 && this.status == 200) {
+          if (this.readyState == 4) {
             handleStatus(this.responseText);
           }
         };
         xhttp.open("PUT", "/eeprom/wand", true);
         xhttp.send();
+      }
+
+      function resetEEPROM() {
+        if (confirm("Are you sure you wish to reset all EEPROM settings to their defaults?")) {
+          var xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function () {
+            if (this.readyState == 4) {
+              handleStatus(this.responseText);
+            }
+          };
+          xhttp.open("DELETE", "/eeprom/wand", true);
+          xhttp.send();
+        }
       }
     </script>
   </body>

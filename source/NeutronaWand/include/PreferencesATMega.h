@@ -1,6 +1,6 @@
 /**
  *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -60,6 +60,7 @@ struct objLEDEEPROM {
   uint8_t num_barrel_leds;
   uint8_t num_bargraph_leds;
   uint8_t rgb_vent_light;
+  uint8_t vent_light_stream_colours;
   uint8_t gpstar_audio_led;
 };
 
@@ -69,11 +70,11 @@ struct objLEDEEPROM {
 struct objConfigEEPROM {
   uint8_t cross_the_streams;
   uint8_t cross_the_streams_mix;
+  uint8_t stream_mode_opts;
+  uint8_t default_stream_mode;
   uint8_t overheating;
   uint8_t extra_proton_sounds;
   uint8_t neutrona_wand_sounds;
-  uint8_t spectral_mode;
-  uint8_t holiday_mode; // This will be deprecated in 6.x as part of a new menu refactoring.
   uint8_t quick_vent;
   uint8_t wand_boot_errors;
   uint8_t invert_bargraph;
@@ -113,82 +114,55 @@ void readEEPROM() {
     objConfigEEPROM obj_config_eeprom;
     EEPROM.get(i_eepromAddress, obj_config_eeprom);
 
+    // Default for firing mode will be VG, unless a CTS mode is enabled.
     if(obj_config_eeprom.cross_the_streams == 2) {
-      FIRING_MODE = CTS_MODE; // At least the CTS mode is enabled.
+      gpstarWand.setFiringModeCTS(); // At least the CTS mode is enabled.
 
       if(obj_config_eeprom.cross_the_streams_mix == 2) {
-        FIRING_MODE = CTS_MIX_MODE; // Upgrade to the CTS Mix mode.
+        gpstarWand.setFiringModeCTSMix(); // Upgrade to the CTS Mix mode.
       }
+    }
 
-      // Remember this as the last firing mode as well.
-      LAST_FIRING_MODE = FIRING_MODE;
+    // Load stream mode opts directly (bit-packed flags) for VG mode.
+    if(obj_config_eeprom.stream_mode_opts > 0 && obj_config_eeprom.stream_mode_opts < 129) {
+      // Remember to subtract 1 to get the correct flags.
+      gpstarWand.setStreamModeOpts(obj_config_eeprom.stream_mode_opts - 1);
+    }
+
+    if(obj_config_eeprom.default_stream_mode > 0 && obj_config_eeprom.default_stream_mode < 9) {
+      DEFAULT_STREAM_MODE = (STREAM_MODES)obj_config_eeprom.default_stream_mode;
+      gpstarWand.setStreamMode(DEFAULT_STREAM_MODE);
+
+      if(gpstarWand.inStreamMode(MESON)) {
+        if(AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
+          // Tell GPStar Audio we need short audio mode.
+          audio.gpstarShortTrackOverload(false);
+        }
+      }
     }
 
     if(obj_config_eeprom.overheating > 0 && obj_config_eeprom.overheating < 3) {
-      if(obj_config_eeprom.overheating > 1) {
-        b_overheat_enabled = true;
-      }
-      else {
-        b_overheat_enabled = false;
-      }
+      b_overheat_enabled = (obj_config_eeprom.overheating > 1);
     }
 
     if(obj_config_eeprom.extra_proton_sounds > 0 && obj_config_eeprom.extra_proton_sounds < 3) {
-      if(obj_config_eeprom.extra_proton_sounds > 1) {
-        b_stream_effects = true;
-      }
-      else {
-        b_stream_effects = false;
-      }
+      b_stream_effects = (obj_config_eeprom.extra_proton_sounds > 1);
     }
 
     if(obj_config_eeprom.neutrona_wand_sounds > 0 && obj_config_eeprom.neutrona_wand_sounds < 3) {
-      if(obj_config_eeprom.neutrona_wand_sounds > 1) {
-        b_extra_pack_sounds = true;
-      }
-      else {
-        b_extra_pack_sounds = false;
-      }
-    }
-
-    if(obj_config_eeprom.spectral_mode > 0 && obj_config_eeprom.spectral_mode < 3) {
-      if(obj_config_eeprom.spectral_mode > 1) {
-        b_spectral_mode_enabled = true;
-        b_spectral_custom_mode_enabled = true;
-        b_holiday_modes_enabled = true;
-      }
-      else {
-        b_spectral_mode_enabled = false;
-        b_spectral_custom_mode_enabled = false;
-        b_holiday_modes_enabled = false;
-      }
+      b_extra_pack_sounds = (obj_config_eeprom.neutrona_wand_sounds > 1);
     }
 
     if(obj_config_eeprom.quick_vent > 0 && obj_config_eeprom.quick_vent < 3) {
-      if(obj_config_eeprom.quick_vent > 1) {
-        b_quick_vent = true;
-      }
-      else {
-        b_quick_vent = false;
-      }
+      b_quick_vent = (obj_config_eeprom.quick_vent > 1);
     }
 
     if(obj_config_eeprom.wand_boot_errors > 0 && obj_config_eeprom.wand_boot_errors < 3) {
-      if(obj_config_eeprom.wand_boot_errors > 1) {
-        b_wand_boot_errors = true;
-      }
-      else {
-        b_wand_boot_errors = false;
-      }
+      b_wand_boot_errors = (obj_config_eeprom.wand_boot_errors > 1);
     }
 
     if(obj_config_eeprom.invert_bargraph > 0 && obj_config_eeprom.invert_bargraph < 3) {
-      if(obj_config_eeprom.invert_bargraph > 1) {
-        b_bargraph_invert = true;
-      }
-      else {
-        b_bargraph_invert = false;
-      }
+      b_bargraph_invert = (obj_config_eeprom.invert_bargraph > 1);
     }
 
     if(obj_config_eeprom.bargraph_mode > 0 && obj_config_eeprom.bargraph_mode < 4) {
@@ -230,12 +204,7 @@ void readEEPROM() {
     }
 
     if(obj_config_eeprom.bargraph_overheat_blinking > 0 && obj_config_eeprom.bargraph_overheat_blinking < 3) {
-      if(obj_config_eeprom.bargraph_overheat_blinking > 1) {
-        b_overheat_bargraph_blink = true;
-      }
-      else {
-        b_overheat_bargraph_blink = false;
-      }
+      b_overheat_bargraph_blink = (obj_config_eeprom.bargraph_overheat_blinking > 1);
     }
 
     if(obj_config_eeprom.neutrona_wand_year_mode > 0 && obj_config_eeprom.neutrona_wand_year_mode < 6) {
@@ -275,21 +244,11 @@ void readEEPROM() {
     }
 
     if(obj_config_eeprom.system_mode > 0 && obj_config_eeprom.system_mode < 3 && b_wand_standalone) {
-      if(obj_config_eeprom.system_mode > 1) {
-        SYSTEM_MODE = MODE_ORIGINAL;
-      }
-      else {
-        SYSTEM_MODE = MODE_SUPER_HERO;
-      }
+      gpstarWand.setSystemMode(obj_config_eeprom.system_mode > 1 ? MODE_ORIGINAL : MODE_SUPER_HERO);
     }
 
     if(obj_config_eeprom.beep_loop > 0 && obj_config_eeprom.beep_loop < 3) {
-      if(obj_config_eeprom.beep_loop > 1) {
-        b_beep_loop = true;
-      }
-      else {
-        b_beep_loop = false;
-      }
+      b_beep_loop = (obj_config_eeprom.beep_loop > 1);
     }
 
     if(obj_config_eeprom.default_wand_volume > 0 && obj_config_eeprom.default_wand_volume < 102) {
@@ -331,48 +290,23 @@ void readEEPROM() {
     }
 
     if(obj_config_eeprom.overheat_level_5 > 0 && obj_config_eeprom.overheat_level_5 < 3) {
-      if(obj_config_eeprom.overheat_level_5 > 1) {
-        b_overheat_level_5 = true;
-      }
-      else {
-        b_overheat_level_5 = false;
-      }
+      b_overheat_level_5 = (obj_config_eeprom.overheat_level_5 > 1);
     }
 
     if(obj_config_eeprom.overheat_level_4 > 0 && obj_config_eeprom.overheat_level_4 < 3) {
-      if(obj_config_eeprom.overheat_level_4 > 1) {
-        b_overheat_level_4 = true;
-      }
-      else {
-        b_overheat_level_4 = false;
-      }
+      b_overheat_level_4 = (obj_config_eeprom.overheat_level_4 > 1);
     }
 
     if(obj_config_eeprom.overheat_level_3 > 0 && obj_config_eeprom.overheat_level_3 < 3) {
-      if(obj_config_eeprom.overheat_level_3 > 1) {
-        b_overheat_level_3 = true;
-      }
-      else {
-        b_overheat_level_3 = false;
-      }
+      b_overheat_level_3 = (obj_config_eeprom.overheat_level_3 > 1);
     }
 
     if(obj_config_eeprom.overheat_level_2 > 0 && obj_config_eeprom.overheat_level_2 < 3) {
-      if(obj_config_eeprom.overheat_level_2 > 1) {
-        b_overheat_level_2 = true;
-      }
-      else {
-        b_overheat_level_2 = false;
-      }
+      b_overheat_level_2 = (obj_config_eeprom.overheat_level_2 > 1);
     }
 
     if(obj_config_eeprom.overheat_level_1 > 0 && obj_config_eeprom.overheat_level_1 < 3) {
-      if(obj_config_eeprom.overheat_level_1 > 1) {
-        b_overheat_level_1 = true;
-      }
-      else {
-        b_overheat_level_1 = false;
-      }
+      b_overheat_level_1 = (obj_config_eeprom.overheat_level_1 > 1);
     }
 
     if(obj_config_eeprom.barrel_switch_polarity > 0 && obj_config_eeprom.barrel_switch_polarity < 4) {
@@ -399,28 +333,28 @@ void readEEPROM() {
           // Do nothing. Readings are taken from the vibration toggle switch from the Proton pack or configuration setting in stand alone mode.
           VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
           if(b_wand_standalone) {
-            VIBRATION_MODE = VIBRATION_NONE;
+            gpstarWand.setVibrationMode(VIBRATION_NEVER);
           }
           else {
-            VIBRATION_MODE = VIBRATION_FIRING_ONLY;
+            gpstarWand.setVibrationMode(VIBRATION_FIRING_ONLY);
           }
         break;
 
         case 3:
-          VIBRATION_MODE_EEPROM = VIBRATION_NONE;
-          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+          VIBRATION_MODE_EEPROM = VIBRATION_NEVER;
+          gpstarWand.setVibrationMode(VIBRATION_MODE_EEPROM);
         break;
 
         case 2:
           b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
           VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
-          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+          gpstarWand.setVibrationMode(VIBRATION_MODE_EEPROM);
         break;
 
         case 1:
           b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
           VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
-          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+          gpstarWand.setVibrationMode(VIBRATION_MODE_EEPROM);
         break;
       }
     }
@@ -446,12 +380,7 @@ void readEEPROM() {
     }
 
     if(obj_led_eeprom.vent_light_auto_intensity > 0 && obj_led_eeprom.vent_light_auto_intensity < 3) {
-      if(obj_led_eeprom.vent_light_auto_intensity > 1) {
-        b_vent_light_control = true;
-      }
-      else {
-        b_vent_light_control = false;
-      }
+      b_vent_light_control = (obj_led_eeprom.vent_light_auto_intensity > 1);
     }
 
     if(obj_led_eeprom.num_barrel_leds == LEDS_2 || obj_led_eeprom.num_barrel_leds == LEDS_5 ||
@@ -460,7 +389,6 @@ void readEEPROM() {
 
       switch(i_num_barrel_leds) {
         case 5:
-        default:
           WAND_BARREL_LED_COUNT = LEDS_5;
         break;
 
@@ -473,6 +401,7 @@ void readEEPROM() {
         break;
 
         case 50:
+        default:
           WAND_BARREL_LED_COUNT = LEDS_50;
           i_num_barrel_leds = 48; // Need to reset it to 48. 2 are for the tip.
         break;
@@ -480,12 +409,7 @@ void readEEPROM() {
     }
 
     if(obj_led_eeprom.num_bargraph_leds == SEGMENTS_28 || obj_led_eeprom.num_bargraph_leds == SEGMENTS_30) {
-      if(obj_led_eeprom.num_bargraph_leds < 30) {
-        BARGRAPH_TYPE_EEPROM = SEGMENTS_28;
-      }
-      else {
-        BARGRAPH_TYPE_EEPROM = SEGMENTS_30;
-      }
+      BARGRAPH_TYPE_EEPROM = (obj_led_eeprom.num_bargraph_leds < 30 ? SEGMENTS_28 : SEGMENTS_30);
 
       // Only override the bargraph LED count if we are not using a stock bargraph.
       if(BARGRAPH_TYPE == SEGMENTS_28 || BARGRAPH_TYPE == SEGMENTS_30) {
@@ -494,22 +418,15 @@ void readEEPROM() {
     }
 
     if(obj_led_eeprom.rgb_vent_light > 0 && obj_led_eeprom.rgb_vent_light < 3) {
-      if(obj_led_eeprom.rgb_vent_light > 1) {
-        b_rgb_vent_light = true;
-      }
-      else {
-        b_rgb_vent_light = false;
-      }
+      b_rgb_vent_light = (obj_led_eeprom.rgb_vent_light > 1);
+    }
+
+    if(obj_led_eeprom.vent_light_stream_colours > 0 && obj_led_eeprom.vent_light_stream_colours < 3) {
+      b_vent_light_stream_colours = (obj_led_eeprom.vent_light_stream_colours > 1);
     }
 
     if(obj_led_eeprom.gpstar_audio_led > 0 && obj_led_eeprom.gpstar_audio_led < 3) {
-      if(obj_led_eeprom.gpstar_audio_led > 1) {
-        b_gpstar_audio_led_enabled = true;
-      }
-      else {
-        b_gpstar_audio_led_enabled = false;
-      }
-
+      b_gpstar_audio_led_enabled = (obj_led_eeprom.gpstar_audio_led > 1);
       setAudioLED(b_gpstar_audio_led_enabled);
     }
   }
@@ -540,6 +457,7 @@ void saveLEDEEPROM() {
   uint8_t i_barrel_led_count = WAND_BARREL_LED_COUNT; // 5 = Hasbro, 50 = GPStar Neutrona Barrel, 2 = GPStar Barrel LED Mini, 48 = Frutto.
   uint8_t i_bargraph_led_count = BARGRAPH_TYPE_EEPROM; // 28 segment, 30 segment.
   uint8_t i_vent_light_auto_intensity = b_vent_light_control ? 2 : 1; // 1 = Vent Light auto intensity disabled, 2 = Vent Light auto intensity enabled
+  uint8_t i_vent_light_stream_colours = b_vent_light_stream_colours ? 2 : 1; // 1 = Vent Light stream colours disabled, 2 = Vent Light stream colours enabled
   uint8_t i_rgb_vent_light = b_rgb_vent_light ? 2 : 1; // 1 = RGB Vent Light disabled, 2 = RGB Vent Light enabled
   uint8_t i_gpstar_audio_led = b_gpstar_audio_led_enabled ? 2 : 1; // 1 = GPStar Audio LED disabled, 2 = GPStar Audio LED enabled
 
@@ -551,6 +469,7 @@ void saveLEDEEPROM() {
     i_barrel_led_count,
     i_bargraph_led_count,
     i_rgb_vent_light,
+    i_vent_light_stream_colours,
     i_gpstar_audio_led
   };
 
@@ -574,12 +493,13 @@ void saveConfigEEPROM() {
   uint8_t i_eeprom_volume_master_percentage = 100 * (MINIMUM_VOLUME - i_volume_master_eeprom) / MINIMUM_VOLUME;
 
   // 1 = false, 2 = true.
-  uint8_t i_cross_the_streams = (FIRING_MODE == CTS_MODE || FIRING_MODE == CTS_MIX_MODE) ? 2 : 1;
-  uint8_t i_cross_the_streams_mix = (FIRING_MODE == CTS_MIX_MODE) ? 2 : 1;
+  uint8_t i_cross_the_streams = (gpstarWand.isFiringModeCTS() || gpstarWand.isFiringModeCTSMix()) ? 2 : 1;
+  uint8_t i_cross_the_streams_mix = (gpstarWand.isFiringModeCTSMix()) ? 2 : 1;
+  uint8_t i_stream_mode_opts = gpstarWand.getStreamModeOpts() + 1; // Have to add 1 to distinguish set and unset values
+  uint8_t i_default_stream_mode = (uint8_t)DEFAULT_STREAM_MODE;
   uint8_t i_overheating = b_overheat_enabled ? 2 : 1;
   uint8_t i_extra_proton_sounds = b_stream_effects ? 2 : 1;
   uint8_t i_neutrona_wand_sounds = b_extra_pack_sounds ? 2 : 1;
-  uint8_t i_spectral = b_spectral_mode_enabled ? 2 : 1;
   uint8_t i_quick_vent = b_quick_vent ? 2 : 1;
   uint8_t i_wand_boot_errors = b_wand_boot_errors ? 2 : 1;
   uint8_t i_invert_bargraph = b_bargraph_invert ? 2 : 1;
@@ -588,7 +508,7 @@ void saveConfigEEPROM() {
   uint8_t i_bargraph_overheat_blinking = b_overheat_bargraph_blink ? 2 : 1;
   uint8_t i_neutrona_wand_year_mode = 1; // 1 = default, 2 = 1984, 3 = 1989, 4 = Afterlife, 5 = Frozen Empire.
   uint8_t i_cts_mode = 1; // 1 = default, 2 = 1984, 3 = 1989, 4 = Afterlife, 5 = Frozen Empire.
-  uint8_t i_system_mode = (SYSTEM_MODE == MODE_ORIGINAL) ? 2 : 1; // 1 = super hero, 2 = original.
+  uint8_t i_system_mode = (gpstarWand.getSystemMode() == MODE_ORIGINAL) ? 2 : 1; // 1 = super hero, 2 = original.
   uint8_t i_beep_loop = b_beep_loop ? 2 : 1;
   uint8_t i_default_wand_volume = 101; // <- i_eeprom_volume_master_percentage + 1
   uint8_t i_overheat_start_timer_level_5 = i_ms_overheat_initiate_level_5 / 1000;
@@ -644,24 +564,24 @@ void saveConfigEEPROM() {
 
   switch(WAND_YEAR_MODE) {
     case YEAR_FROZEN_EMPIRE:
-      i_neutrona_wand_year_mode = 5;
+      i_neutrona_wand_year_mode = SYSTEM_FROZEN_EMPIRE;
     break;
 
     case YEAR_AFTERLIFE:
-      i_neutrona_wand_year_mode = 4;
+      i_neutrona_wand_year_mode = SYSTEM_AFTERLIFE;
     break;
 
     case YEAR_1989:
-      i_neutrona_wand_year_mode = 3;
+      i_neutrona_wand_year_mode = SYSTEM_1989;
     break;
 
     case YEAR_1984:
-      i_neutrona_wand_year_mode = 2;
+      i_neutrona_wand_year_mode = SYSTEM_1984;
     break;
 
     case YEAR_DEFAULT:
     default:
-      i_neutrona_wand_year_mode = 1;
+      i_neutrona_wand_year_mode = SYSTEM_TOGGLE_SWITCH;
     break;
   }
 
@@ -707,7 +627,7 @@ void saveConfigEEPROM() {
       i_wand_vibration = 2;
     break;
 
-    case VIBRATION_NONE:
+    case VIBRATION_NEVER:
       i_wand_vibration = 3;
     break;
 
@@ -721,11 +641,11 @@ void saveConfigEEPROM() {
   objConfigEEPROM obj_config_eeprom = {
     i_cross_the_streams,
     i_cross_the_streams_mix,
+    i_stream_mode_opts,
+    i_default_stream_mode,
     i_overheating,
     i_extra_proton_sounds,
     i_neutrona_wand_sounds,
-    i_spectral,
-    0,
     i_quick_vent,
     i_wand_boot_errors,
     i_invert_bargraph,

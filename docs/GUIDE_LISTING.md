@@ -8,22 +8,22 @@ These are the most important guides which will get you familiar with the major c
 
 For a comparison of the original GPStar and GPStar II controllers please see [this comparison guide](https://gpstartechnologies.com/blogs/gpstar-blog/gpstar-ii-vs-gpstar) on the main GPStar website.
 
+1. [Pack I PCB Controller](PACK_PCB.md)
+
+1. [Wand I PCB Controller](WAND_PCB.md)
+
 1. [Pack II Controller](PACK_2_PCB.md)
 
 1. [Wand II Controller](WAND_2_PCB.md)
 
-1. [Pack PCB Controller](PACK_PCB.md)
-
-1. [Wand PCB Controller](WAND_PCB.md)
-
-1. [GPStar Audio Controller](GPSTAR_AUDIO_PCB.md)
+1. [Audio Controllers](SOUND.md)
 
 1. [Pack-Wand Hose](HOSE.md)
 
 1. [Troubleshooting](TROUBLESHOOTING.md)
 
 A full installation guide is available as a PDF here:
-[GPStar Proton Pack Kit Installation Manual](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/gpstar-Haslab-Proton-Pack-Kit-Installation-Manual-V4.pdf?raw=1)
+[GPStar Proton Pack Kit Installation Manual (PDF)](https://cdn.shopify.com/s/files/1/0772/0517/6651/files/V4_gpstar_Haslab_Proton_Pack_Kit_Installation_Instructions.pdf?v=1736357627)
 
 ## Video Tutorials
 
@@ -52,7 +52,7 @@ This section is presented in a way to offer a more complete view of what compone
 | **Component**          | **Option w/ Guide** |
 |------------------------|---------------------------------------------|
 | Power Source<sup>R</sup>    | [TalentCell 3000mAh or 6000mAh](POWER.md) |
-| Controller<sup>R</sup>      | [GPStar Pack Controller](PACK_PCB.md) or [Arduino 2560](DIY_PACK.md) |
+| Controller<sup>R</sup>      | [GPStar Pack Controller](PACK_PCB.md) or [GPStar II Pack Controller](PACK_2_PCB.md) |
 | Software<sup>R</sup>        | [Flashing the Latest Firmware](FLASHING.md) |
 | Audio Board<sup>R</sup>     | [GPStar Audio](GPSTAR_AUDIO_PCB.md) or [Robertsonics WAV Trigger](WAVTRIGGER.md) |
 | Speakers/Amp<sup>R</sup>    | [Audio Output Guide](SOUND.md) |
@@ -60,7 +60,7 @@ This section is presented in a way to offer a more complete view of what compone
 | Cyclotron Lid<sup>O</sup>   | [12/20/36-LED options](CYCLOTRON_LID.md) |
 | Inner Cyclotron<sup>O</sup> | [Cake and Panel Lights](CYCLOTRON_INNER.md)
 | N-Filter<sup>O</sup>        | [7-LED Vent Light](NFILTER.md) |
-| Power Cell<sup>O</sup>       | [13 and 15-LED options](POWERCELL.md) |
+| Power Cell<sup>O</sup>      | [13 and 15-LED options](POWERCELL.md) |
 | Smoke Effects<sup>O</sup>   | [Various Solutions Supported](SMOKE.md) |
 | Cyclotron Bypass<sup>R* & O</sup> | [Bypass board for non Haslab Proton Packs](CYCLOTRON_BYPASS.md) |
 
@@ -69,14 +69,14 @@ This section is presented in a way to offer a more complete view of what compone
 | **Component**   | **Option w/ Guide** |
 |-----------------|---------------------------------------------|
 | Wired<sup>R</sup>    | [Pack-Wand Hose Connections](HOSE.md)|
-| Wireless<sup>O</sup> | [Pack Attenuator](ATTENUATOR.md) or [Wireless Adapter](WIRELESS.md) |
+| Wireless<sup>O</sup> | [Pack Attenuator](ATTENUATOR.md), [Wireless Adapter](WIRELESS.md), or [GPStar II Wireless](WIRELESS_GPSTAR_II.md) |
 
 **Neutrona Wand**
 
 | **Component**        | **Option w/ Guide** |
 |----------------------|---------------------------------------------|
 | Power Source<sup>R</sup>  | Dedicated Wand Power Source (Guide TBD) |
-| Controller<sup>R</sup>    | [GPStar Wand Controller](WAND_PCB.md) |
+| Controller<sup>R</sup>    | [GPStar Wand Controller](WAND_PCB.md) or [GPStar II Wand Controller](WAND_2_PCB.md) |
 | Software<sup>R</sup>      | [Flashing the Latest Firmware](FLASHING.md) |
 | Audio Board<sup>R</sup>   | [GPStar Audio](GPSTAR_AUDIO_PCB.md) or [Robertsonics WAV Trigger](WAVTRIGGER.md) |
 | Speakers<sup>R</sup>      | [Audio Output Guide](SOUND.md) |
@@ -92,10 +92,19 @@ Are you troubled by installation problems? Do you experience feelings of dread o
 
 | **Task**         | **Guide** |
 |------------------|---------------------------------------------|
-| Initial Assembly | [Installation Videos](INSTALL_VIDEOS_JONOGUNN.md) & [Installation Guide (PDF)](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/gpstar-Haslab-Proton-Pack-Kit-Installation-Manual-V4.pdf?raw=1) |
+| Initial Assembly | [Installation Videos](INSTALL_VIDEOS_JONOGUNN.md) & [Installation Guide (PDF)](https://cdn.shopify.com/s/files/1/0772/0517/6651/files/V4_gpstar_Haslab_Proton_Pack_Kit_Installation_Instructions.pdf?v=1736357627) |
 | System Operation | [Equipment Operation Manual](OPERATION_USAGE.md) |
 | Configuration    | [EEPROM LED/Config Menus](OPERATION_EEPROM.md) |
+| IMU Calibration  | [GPStar II Wand Calibration](WAND_CALIBRATION.md) |
 | I Need Help!     | [Troubleshooting](TROUBLESHOOTING.md) and [Frequently Asked Questions](FAQ.md) |
+
+**Do-It-Yourself Hardware Support**
+
+| **Task**          | **Guide** |
+|-------------------|---------------------------------------------|
+| DIY Guide Index   | [DIY Legacy Guides](DIY_LEGACY.md) |
+| Bill of Materials | [BOM](DIY_BOM.md) |
+| Flashing Software | [DIY Flashing](DIY_FLASHING.md) |
 
 **Software Development (Advanced Topics)**
 
@@ -106,6 +115,7 @@ Here be dragons. This section is for VERY ADVANCED users only.
 | Compile Software | [VSCode + PlatformIO](VSCODE.md)
 | Modify Software  | [Advanced Software Configuration](ADVCONFIG.md) |
 | Upload Software  | [Pack/Wand Flashing](COMPILING_FLASHING.md) or [AttenuatorFlashing](ATTENUATOR_FLASHING.md) |
+| ESP32-S3 eFuses  | [ESP32-S3 eFuse Setup](EFUSE.md) |
 
 **Special/Standalone Devices**
 
@@ -116,3 +126,4 @@ From the Paranormal Research division, we bring you the latest in integrated acc
 | Single-Shot Blaster | [Build and Operation Guide](SINGLESHOT.md) |
 | Belt Gizmo | [Build and Operation Guide](BELT_GIZMO.md) |
 | Stream Effects | [Build and Operation Guide](STREAM_EFFECTS.md) |
+| Proton Stream Target Trainer | [Operation Guide](PSTT.md) |

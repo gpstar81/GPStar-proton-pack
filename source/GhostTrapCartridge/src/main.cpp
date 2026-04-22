@@ -31,11 +31,12 @@
 #define PROGMEM_READU16(x) pgm_read_word_near(&(x))
 #define PROGMEM_READU8(x) pgm_read_byte_near(&(x))
 
-// Set to 1 to enable built-in debug messages
-#define DEBUG 1
+// Set to 1 to enable built-in debug messages via Serial device output.
+// Use with DEBUG_SEND_TO_CONSOLE and other DEBUG_'s in Configuration.h
+#define GPSTAR_DEBUG 0
 
 // Debug macros
-#if DEBUG == 1
+#if GPSTAR_DEBUG == 1
 #define debug(x) Serial.print(x)
 #define debugln(x) Serial.println(x)
 #else

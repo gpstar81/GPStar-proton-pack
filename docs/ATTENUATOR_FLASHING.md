@@ -47,19 +47,19 @@ If you encounter any issues while attempting to access your ESP32 device via a U
 
 **Option 1: Using GPStar ESP32 Firmware Uploader**
 
-This uses a purpose-built flash tool just like the tools for the Proton Pack, Neutrona Wand, Single-Shot Blaster and GPStar Audio. Thanks to its ease of use, this is our recommended method for performing the first-time USB upload process. First, download either the Windows or Mac OSX flash tool from the [extras](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/) folder. If you are on Linux, try Option 2 below instead.
+This uses a purpose-built flash tool just like the tools for the Proton Pack, Neutrona Wand, Single-Shot Blaster and GPStar Audio. Thanks to its ease of use, this is our recommended method for performing the first-time USB upload process. Download the ESP32 firmware flasher tool which is labelled for use with the GPStar II and Attenuator devices, available via the **Support & Downloads** page on the GPStar website.
 
-**Windows:** [GPStar ESP32 Firmware Flasher](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/gpstarESP32FirmwareFlasher.exe?raw=1)
+[GPStar II / GPStar Attenuator Firmware Flasher](https://gpstartechnologies.com/pages/support-downloads)
 
-**MacOS Intel/M1:** [GPStar ESP32 Firmware Flasher (Mac OSX)](https://github.com/gpstar81/GPStar-proton-pack/blob/main/extras/GPStar-ESP32-Flasher.dmg?raw=1)
+> For Linux users, you will need to use one of the alternative options described below.
 
 1. Plug your device into a USB port on your computer.
 2. Locate the following files from the `/binaries/attenuator` directory.
 
-	* [extras/Attenuator-Bootloader.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/extras/Attenuator-Bootloader.bin?raw=1) = This is the standard bootloader for the ESP32 itself.
-	* [extras/Attenuator-Partitions.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/extras/Attenuator-Partitions.bin?raw=1) = This specifies the partition scheme for the flash memory.
-	* [extras/boot_app0.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/extras/boot_app0.bin?raw=1) = This is the software for selecting the available/next OTA partition.
-	* [Attenuator.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/Attenuator.bin?raw=1) = This is the custom firmware for the GPStar kit.
+    * [extras/Attenuator-Bootloader.bin](/binaries/attenuator/extras/Attenuator-Bootloader.bin?raw=true) = This is the standard bootloader for the ESP32 itself.
+    * [extras/Attenuator-Partitions.bin](/binaries/attenuator/extras/Attenuator-Partitions.bin?raw=true) = This specifies the partition scheme for the flash memory. Not necessary if using the Windows flash tool.
+    * [extras/boot_app0.bin](/binaries/attenuator/extras/boot_app0.bin?raw=true) = This is the software for selecting the available/next OTA partition. Not necessary if using the Windows flash tool.
+    * [Attenuator.bin](/binaries/attenuator/Attenuator.bin?raw=true) = This is the custom firmware for the GPStar kit.
 
 3. Open the GPStar ESP32 Firmware Flasher and browse to the files specified in step 2 above for each of the four requested file locations (see below screenshot).
 
@@ -79,19 +79,19 @@ This uses a 3rd-party website to upload using the Web Serial protocol which is o
 
 1. Locate the following files from the `/binaries/attenuator` directory.
 
-	* [extras/Attenuator-Bootloader.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/extras/Attenuator-Bootloader.bin?raw=1) = This is the standard bootloader for the ESP32 itself.
-	* [extras/Attenuator-Partitions.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/extras/Attenuator-Partitions.bin?raw=1) = This specifies the partition scheme for the flash memory.
-	* [extras/boot_app0.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/extras/boot_app0.bin?raw=1) = This is the software for selecting the available/next OTA partition.
-	* [Attenuator.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/Attenuator.bin?raw=1) = This is the custom firmware for the GPStar kit.
+    * [extras/Attenuator-Bootloader.bin](/binaries/attenuator/extras/Attenuator-Bootloader.bin?raw=true) = This is the standard bootloader for the ESP32 itself.
+    * [extras/Attenuator-Partitions.bin](/binaries/attenuator/extras/Attenuator-Partitions.bin?raw=true) = This specifies the partition scheme for the flash memory.
+    * [extras/boot_app0.bin](/binaries/attenuator/extras/boot_app0.bin?raw=true) = This is the software for selecting the available/next OTA partition.
+    * [Attenuator.bin](/binaries/attenuator/Attenuator.bin?raw=true) = This is the custom firmware for the GPStar kit.
 
 1. Click on the **CONNECT** button and select your USB serial device from the list of options and click on "Connect".
 
 1. Once connected, select the files (noted above) for the following address spaces:
 
-	* `0x1000` &rarr; [Attenuator-Bootloader.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/extras/Attenuator-Bootloader.bin?raw=1)
-	* `0x8000` &rarr; [Attenuator-Partitions.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/extras/Attenuator-Partitions.bin?raw=1)
-	* `0xE000` &rarr; [boot_app0.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/extras/boot_app0.bin?raw=1)
-	* `0x10000` &rarr; [Attenuator.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/Attenuator.bin?raw=1)
+    * `0x1000` &rarr; [Attenuator-Bootloader.bin](/binaries/attenuator/extras/Attenuator-Bootloader.bin?raw=true)
+    * `0x8000` &rarr; [Attenuator-Partitions.bin](/binaries/attenuator/extras/Attenuator-Partitions.bin?raw=true)
+    * `0xE000` &rarr; [boot_app0.bin](/binaries/attenuator/extras/boot_app0.bin?raw=true)
+    * `0x10000` &rarr; [Attenuator.bin](/binaries/attenuator/Attenuator.bin?raw=true)
 
 1. Click on the **PROGRAM** button to begin flashing. View the "Output" window to view progress of the flashing operation.
 
@@ -105,28 +105,28 @@ You will need to utilize a command-line tool to upload the firmware to your devi
 
 1. Install the latest Python 3.x utility based on your operating system:
 
-	- Windows: Download the installer from [Python](https://www.python.org/downloads/windows/). When installing you may be prompted to "Add Python to PATH", and it is recommended to accept that option.
-	- Linux: Execute `sudo apt update && sudo apt install -y python3 python3-pip`
-	- MacOS: Execute `brew install python` using Homebrew ([instructions here](https://brew.sh/))
+    - Windows: Download the installer from [Python](https://www.python.org/downloads/windows/). When installing you may be prompted to "Add Python to PATH", and it is recommended to accept that option.
+    - Linux: Execute `sudo apt update && sudo apt install -y python3 python3-pip`
+    - MacOS: Execute `brew install python` using Homebrew ([instructions here](https://brew.sh/))
 
 1. From a terminal (command line) prompt run the following which will install the `pip` tool along with the `esptool` utility:
 
-	```
-	python3 -m ensurepip
-	python3 -m pip install --upgrade pip setuptools esptool
-	```
+    ```
+    python3 -m ensurepip
+    python3 -m pip install --upgrade pip setuptools esptool
+    ```
 
 1. Confirm that python was installed successfully by running the commands `python --version` and `python3 --version`. Use the command that reports a 3.x version (`python` or `python3`) for all following steps. We will assume `python3` is available.
 
 1. Navigate to the `binaries/attenuator` directory within the extracted GPStar-proton-pack software release:
 
-	`cd <extracted_location>/binaries/attenuator`
+    `cd <extracted_location>/binaries/attenuator`
 
 1. Run the following command to flash the bootloader and firmware:
 
-	```
-	python3 -m esptool --port-filter vid=0x303A --chip esp32 --baud 921600 write-flash --flash-mode dio --flash-size detect --flash-freq 40m 0x1000 extras/Attenuator-Bootloader.bin 0x8000 extras/Attenuator-Partitions.bin 0xe000 extras/boot_app0.bin 0x10000 Attenuator.bin
-	```
+    ```
+    python3 -m esptool --port-filter vid=0x303A --chip esp32 --baud 921600 write-flash --flash-mode dio --flash-size detect --flash-freq 40m 0x1000 extras/Attenuator-Bootloader.bin 0x8000 extras/Attenuator-Partitions.bin 0xe000 extras/boot_app0.bin 0x10000 Attenuator.bin
+    ```
 
 📝 **NOTE:** If your device still cannot be found automatically you may need to view the **"[USB Troubleshooting](#usb-troubleshooting)"** section at the bottom of this guide.
 
@@ -136,9 +136,9 @@ This applies to all updates you will perform AFTER the first-time upload of the 
 
 1. Power up your Proton Pack and ESP32 device (whether standalone or as part of the Attenuator hardware).
 1. Open the WiFi preferences on your computer/device and look for the SSID which matches **"GPStar_Attenuator"** or begins **"ProtonPack_"**.
-	* If this is your first connection to this access point, use the default password **"555-2368"**.
+    * If this is your first connection to this access point, use the default password **"555-2368"**.
 1. Navigate directly to the URL: [http://192.168.1.2/update](http://192.168.1.2/update)
-1. Use the "Select File" button and select the [Attenuator.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/Attenuator.bin?raw=1) file from the `/binaries/attenuator` directory.
+1. Use the "Select File" button and select the [Attenuator.bin](/binaries/attenuator/Attenuator.bin?raw=true) file from the `/binaries/attenuator` directory.
 1. The upload will begin immediately. Once at 100% the device will reboot.
 1. Navigate to [http://192.168.1.2](http://192.168.1.2) or `http://GPStar_Attenuator.local` or `http://protonpack_####.local` to confirm that the device is able to communicate with the Proton Pack PCB.
 
@@ -170,7 +170,7 @@ The following is only applicable to users on firmware PRIOR to the v5.2.2 releas
 
 If you have forgotten the password to the private WiFi network, you will need to load a special firmware to allow you to access the device and reset the password. Though if you have opted to connect your device to a preferred WiFi network using the built-in WiFi settings, simply return to your device's IP address on that network and change the password for the private WiFi network as desired.
 
-In the case where you do not have access to your device via an external WiFi network, you will need to follow a special process using a USB cable and a utility for your OS of choice. This will follow the same process as the "First-Time Upload" instructions posted above, though you will instead load the [Attenuator-Reset.bin](https://github.com/gpstar81/GPStar-proton-pack/blob/main/binaries/attenuator/Attenuator-Reset.bin?raw=1) file from the `/binaries/attenuator` directory.
+In the case where you do not have access to your device via an external WiFi network, you will need to follow a special process using a USB cable and a utility for your OS of choice. This will follow the same process as the "First-Time Upload" instructions posted above, though you will instead load the [Attenuator-Reset.bin](/binaries/attenuator/Attenuator-Reset.bin?raw=true) file from the `/binaries/attenuator` directory.
 
 Once flashed, this will allow you to get back into the web UI at [http://192.168.1.2](http://192.168.1.2) or `http://protonpack_####.local` using the default password ("555-2368") and change to your choice of password. **Once changed, you will need to re-flash the device using the standard firmware--otherwise, the device will always use the default WiFi password while this firmware is loaded**! The new password will be used automatically to secure the WiFi access point once the regular firmware is in use.
 
@@ -214,7 +214,7 @@ Without disconnecting the device from your computer, and using the **same** brow
 
 **Solution 4:** Run this command, then log out and back in for the changes to take effect:
 
-	`sudo usermod -aG dialout $USER`
+    `sudo usermod -aG dialout $USER`
 
 📝 **Tip:** If you have successfully flashed your ESP32 device and do not see the available WiFi access point, try plugging your USB cable directly into the Talentcell battery or try another USB port on your computer. In rare cases the USB port and/or cable cannot supply enough voltage to run the ESP32's WiFi radio.
 

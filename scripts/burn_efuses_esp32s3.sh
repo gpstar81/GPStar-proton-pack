@@ -1,9 +1,11 @@
 #!/bin/bash
-# burn_efuses_esp32s3.sh
+#
+# Utility: burn_efuses_esp32s3.sh
 # Purpose: Batch-burn required eFuses for ESP32-S3-WROOM to enable GPIO39-44 usage.
 #
 # ---
-# Installation instructions for espefuse.py:
+#
+# Prerequisite: espefuse.py
 #
 # 1. If you do not have pip for Python 3:
 #    On macOS:
@@ -25,6 +27,7 @@
 #
 # 4. Test espefuse.py:
 #      espefuse.py --help
+#
 # ---
 #
 # Usage:

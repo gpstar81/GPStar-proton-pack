@@ -61,7 +61,7 @@ I use black electrical tape to secure the 3/4 splitless wire loom to the Neutrik
 
 Provided in the wand STL folder is a printable connector which threads into the handle of the Hasbro Neutrona Wand. With this connector, you can shave down the square corners of the 4 pin Neutrik NL4MP-ST connector so it is round, and it can slide into the 3D printable connector. I then screw the 3D printable connector into the wand handle and make a mark on the bottom side of it. I remove the connector and make a hole in it. I then use a M3x5 hex socket screw (or which ever set screw you want to use) to secure the Neutrik NL4MP-ST connector into the Neutrona Wand handle.
 
-**READ BELOW IF USING A MODIFIED NAC3FX-W with a NL4FC.**
+**USING A MODIFIED NAC3FX-W with a NL4FC.**
 
 If you are using the NAC3FX-W with the NL4FC internals, you will need to slightly modify it. In the photo below, the 3-pin NAC3FX-W internal piece is on the left. On the right is the NL4FC 4-pin internal piece that needs to be modified to work correctly inside the NAC3FX-W shell. You have to grind off some of the indicated plastic on the NL4FC internal piece on the right. Compared to the NAC3FX-W on the left, the tab sits too high, which blocks it from going all the way into the NAC3FX-W shell. A small plastic tab needs to be removed. If you are using the NL4FC shell and not the NAC3FX-W, then you can ignore this.
 
@@ -73,6 +73,13 @@ If you are using the NAC3FX-W with the NL4FC internals, you will need to slightl
 ![Hose](images/Hose10.jpg)
 ![Hose](images/Hose7.jpg)
 ![Hose](images/Hose8.jpg)
+
+**USING A MODIFIED NAC3FX-W with a NL4FXX-W-S.**
+
+If you are using the NAC3FX-W with the NL4FXX-W-S internals, no changes are required and the NL4FXX-W-S will slide into the NAC3FX-W without modifications Line up the big tab on the NL4FXX-W-S with the internal track in the NAC3FX-W, push it until it stops, then turn it counter-clockwise a small bit then push it further in all the way.
+
+![Hose](images/Hose11.jpg)
+![Hose](images/Hose12.jpg)
 
 ## Quick Tip
 

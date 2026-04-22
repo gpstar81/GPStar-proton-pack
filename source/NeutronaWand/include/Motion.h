@@ -1,6 +1,6 @@
 /**
  *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -355,7 +355,7 @@ bool initializeSensors() {
   gyroscope = imuSensor.getGyroSensor();
   magnetometer = &magSensor;
 
-  #if DEBUG == 1
+  #if GPSTAR_DEBUG == 1 && defined(DEBUG_SEND_TO_CONSOLE)
     // Print information about the sensors.
     accelerometer->printSensorDetails();
     gyroscope->printSensorDetails();
@@ -589,7 +589,7 @@ MagConfigInfo readMagConfig() {
  * Purpose: Configures the motion sensors.
  */
 void configureSensors() {
-  Serial.println(F("Configuring motion sensors..."));
+  debugln(F("Configuring motion sensors..."));
 #ifdef MOTION_SENSORS
   if(b_mag_found && b_imu_found) {
     /**
@@ -1148,86 +1148,86 @@ void checkMotionSensors() {
     else if(ms_sensor_report_delay.justFinished()) {
       // Print the filtered sensor data to the debug console.
     #if defined(DEBUG_TELEMETRY_DATA)
-      debug("\t\tOff Accel X: ");
+      debug(F("\t\tOff Accel X: "));
       debug(formatSignedFloat(calibratedOffsets.accelX));
-      debug(" \tY: ");
+      debug(F(" \tY: "));
       debug(formatSignedFloat(calibratedOffsets.accelY));
-      debug(" \tZ: ");
+      debug(F(" \tZ: "));
       debug(formatSignedFloat(calibratedOffsets.accelZ));
-      debugln(" m/s^2 ");
+      debugln(F(" m/s^2 "));
 
-      debug("\t\tRaw Accel X: ");
+      debug(F("\t\tRaw Accel X: "));
       debug(formatSignedFloat(motionData.accelX));
-      debug(" \tY: ");
+      debug(F(" \tY: "));
       debug(formatSignedFloat(motionData.accelY));
-      debug(" \tZ: ");
+      debug(F(" \tZ: "));
       debug(formatSignedFloat(motionData.accelZ));
-      debugln(" m/s^2 ");
+      debugln(F(" m/s^2 "));
 
-      debug("\t\tAvg Accel X: ");
+      debug(F("\t\tAvg Accel X: "));
       debug(formatSignedFloat(filteredMotionData.accelX));
-      debug(" \tY: ");
+      debug(F(" \tY: "));
       debug(formatSignedFloat(filteredMotionData.accelY));
-      debug(" \tZ: ");
+      debug(F(" \tZ: "));
       debug(formatSignedFloat(filteredMotionData.accelZ));
-      debugln(" m/s^2 ");
+      debugln(F(" m/s^2 "));
       debugln();
 
-      debug("\t\tRaw G-Force: ");
+      debug(F("\t\tRaw G-Force: "));
       debug(motionData.gForce);
-      debugln("g ");
-      debug("\t\tAvg G-Force: ");
+      debugln(F("g "));
+      debug(F("\t\tAvg G-Force: "));
       debug(filteredMotionData.gForce);
-      debugln("g ");
+      debugln(F("g "));
       debugln();
 
-      debug("\t\tOff Gyro  X: ");
+      debug(F("\t\tOff Gyro  X: "));
       debug(formatSignedFloat(calibratedOffsets.gyroX));
-      debug(" \tY: ");
+      debug(F(" \tY: "));
       debug(formatSignedFloat(calibratedOffsets.gyroY));
-      debug(" \tZ: ");
+      debug(F(" \tZ: "));
       debug(formatSignedFloat(calibratedOffsets.gyroZ));
-      debugln(" deg/s ");
+      debugln(F(" deg/s "));
 
-      debug("\t\tRaw Gyro  X: ");
+      debug(F("\t\tRaw Gyro  X: "));
       debug(formatSignedFloat(motionData.gyroX));
-      debug(" \tY: ");
+      debug(F(" \tY: "));
       debug(formatSignedFloat(motionData.gyroY));
-      debug(" \tZ: ");
+      debug(F(" \tZ: "));
       debug(formatSignedFloat(motionData.gyroZ));
-      debugln(" deg/s ");
+      debugln(F(" deg/s "));
 
-      debug("\t\tAvg Gyro  X: ");
+      debug(F("\t\tAvg Gyro  X: "));
       debug(formatSignedFloat(filteredMotionData.gyroX));
-      debug(" \tY: ");
+      debug(F(" \tY: "));
       debug(formatSignedFloat(filteredMotionData.gyroY));
-      debug(" \tZ: ");
+      debug(F(" \tZ: "));
       debug(formatSignedFloat(filteredMotionData.gyroZ));
-      debugln(" deg/s ");
+      debugln(F(" deg/s "));
       debugln();
 
-      debug("\t\tRaw Mag   X: ");
+      debug(F("\t\tRaw Mag   X: "));
       debug(formatSignedFloat(motionData.magX));
-      debug(" \tY: ");
+      debug(F(" \tY: "));
       debug(formatSignedFloat(motionData.magY));
-      debug(" \tZ: ");
+      debug(F(" \tZ: "));
       debug(formatSignedFloat(motionData.magZ));
-      debugln(" uTesla ");
+      debugln(F(" uTesla "));
 
-      debug("\t\tAvg Mag   X: ");
+      debug(F("\t\tAvg Mag   X: "));
       debug(formatSignedFloat(filteredMotionData.magX));
-      debug(" \tY: ");
+      debug(F(" \tY: "));
       debug(formatSignedFloat(filteredMotionData.magY));
-      debug(" \tZ: ");
+      debug(F(" \tZ: "));
       debug(formatSignedFloat(filteredMotionData.magZ));
-      debugln(" uTesla ");
+      debugln(F(" uTesla "));
       debugln();
 
-      debug("\t\tRoll (x): ");
+      debug(F("\t\tRoll (x): "));
       debug(formatSignedFloat(spatialData.roll));
-      debug("\tPitch (Y): ");
+      debug(F("\tPitch (Y): "));
       debug(formatSignedFloat(spatialData.pitch));
-      debug("\tYaw (Z): ");
+      debug(F("\tYaw (Z): "));
       debug(formatSignedFloat(spatialData.yaw));
       debugln();
       debugln();

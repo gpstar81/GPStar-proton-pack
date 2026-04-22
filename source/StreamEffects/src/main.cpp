@@ -1,6 +1,6 @@
 /**
  *   GPStar Stream Effects - Ghostbusters Props, Mods, and Kits.
- *   Copyright (C) 2024-2025 Dustin Grau <dustin.grau@gmail.com>
+ *   Copyright (C) 2024-2026 Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -26,10 +26,10 @@
 
 // Set to 1 to enable built-in debug messages via Serial device output.
 // Use with DEBUG_SEND_TO_CONSOLE and other DEBUG_'s in Configuration.h
-#define DEBUG 0
+#define GPSTAR_DEBUG 0
 
 // Debug macros
-#if DEBUG == 1
+#if GPSTAR_DEBUG == 1
   #define debug(...) Serial.print(__VA_ARGS__)
   #define debugf(...) Serial.printf(__VA_ARGS__)
   #define debugln(...) Serial.println(__VA_ARGS__)
@@ -51,7 +51,12 @@
 #include <nvs_flash.h>
 
 // Shared Libraries
+#include <DeviceState.h>
 #include <WirelessManager.h>
+#include <WebRouter.h>
+
+// Global instance of DeviceState class for the overall system.
+DeviceState gpstarSystem;
 
 // Local Files
 #include "Configuration.h"
@@ -59,7 +64,20 @@
 #include "Colours.h"
 #include "Wireless.h"
 #include "Webhandler.h"
+#include "Webrouting.h"
 #include "System.h"
+
+// Writes a debug message to the serial console or sends to the WebSocket.
+void sendDebug(const String& message) {
+  #if defined(DEBUG_SEND_TO_CONSOLE)
+    debugln(message); // Print to serial console.
+  #endif
+  #if defined(DEBUG_SEND_TO_WEBSOCKET)
+    if(b_httpd_started) {
+      ws.textAll(message); // Send a copy to the WebSocket.
+    }
+  #endif
+}
 
 // Define the WirelessManager pointer globally (initialized to nullptr).
 // This matches the extern declaration in Wireless.h
@@ -80,7 +98,7 @@ volatile uint32_t idleTimeCore1 = 0;
 #if defined(DEBUG_PERFORMANCE)
 void idleTaskCore0(void * parameter) {
   while(true) {
-    idleTimeCore0++;
+    idleTimeCore0 = idleTimeCore0 + 1;
     vTaskDelay(1);
   }
 }
@@ -90,7 +108,7 @@ void idleTaskCore0(void * parameter) {
 #if defined(DEBUG_PERFORMANCE)
 void idleTaskCore1(void * parameter) {
   while(true) {
-    idleTimeCore1++;
+    idleTimeCore1 = idleTimeCore1 + 1;
     vTaskDelay(1);
   }
 }
@@ -109,15 +127,28 @@ void AnimationTask(void *parameter) {
     #endif
 
     // Update light animation based on websocket data (or self-test mode).
-    if(b_firing || b_testing) {
+    if(b_firing || gpstarSystem.inStreamMode(SELFTEST)) {
+      updateStreamPalette();
       animateLights();
     }
     else {
+      // Not firing and not testing, update LED[0] to indicate status.
       if(b_ext_wifi_started) {
         ledsOff();
       }
       else {
-        device_leds[0] = getHueAsRGB(PRIMARY_LED, C_PURPLE, 255);
+        switch(LED_COLOR_TYPE) {
+          case LED_RGB:
+          default:
+            device_leds[0] = getHueAsRGB(PRIMARY_LED, C_PURPLE, 255);
+          break;
+          case LED_GRB:
+            device_leds[0] = getHueAsGRB(PRIMARY_LED, C_PURPLE, 255);
+          break;
+          case LED_GBR:
+            device_leds[0] = getHueAsGBR(PRIMARY_LED, C_PURPLE, 255);
+          break;
+        }
       }
     }
 
@@ -209,10 +240,9 @@ void WiFiManagementTask(void *parameter) {
         ms_apclient.start(i_apClientCount);
       }
 
-      if(WiFi.status() == WL_CONNECTED && b_ext_wifi_started && !b_socket_ready) {
-        debugln(F("WiFi Connected, Socket Not Configured"));
-        b_ext_wifi_paused = false; // Resume retries when needed.
-        setupWebSocketClient(); // Restore the WebSocket connection.
+      if(WiFi.status() == WL_CONNECTED && b_ext_wifi_started) {
+        b_ext_wifi_paused = false; // Resume WiFi retries when needed.
+        checkWebSocketClient(); // Always check the WebSocket client.
       }
     }
 
@@ -223,8 +253,10 @@ void WiFiManagementTask(void *parameter) {
 
       // Try to start the external WiFi.
       if(!b_ext_wifi_started && !b_ext_wifi_paused) {
-        resetWebSocketData(); // Clear previous information sent from the pack.
-        notifyWSClients(); // Notify clients of the change of data.
+        if(!gpstarSystem.inStreamMode(SELFTEST)) {
+          resetWebSocketData(); // Clear previous information sent from the pack.
+        }
+        notifyWSClients(); // Notify clients of this device of a change of data.
         b_ext_wifi_started = startExternalWifi();
       }
     }
@@ -243,7 +275,7 @@ void WiFiSetupTask(void *parameter) {
 
   // Define the WirelessManager object only after NVS/Preferences are initialized.
   if(wirelessMgr == nullptr) {
-    wirelessMgr = new WirelessManager("StreamEffects", "192.168.2.2");
+    wirelessMgr = new WirelessManager(WirelessDeviceType::STREAM_EFFECTS, "192.168.2.2");
 
     #if defined(RESET_AP_SETTINGS)
       // Reset the WiFi password to the expected default on every startup.
@@ -253,14 +285,36 @@ void WiFiSetupTask(void *parameter) {
   }
 
   // Set a visual indicator that WiFi is being configured.
-  device_leds[0] = getHueAsRGB(PRIMARY_LED, C_RED, 255);
+  switch(LED_COLOR_TYPE) {
+    case LED_RGB:
+    default:
+      device_leds[0] = getHueAsRGB(PRIMARY_LED, C_RED, 255);
+    break;
+    case LED_GRB:
+      device_leds[0] = getHueAsGRB(PRIMARY_LED, C_RED, 255);
+    break;
+    case LED_GBR:
+      device_leds[0] = getHueAsGBR(PRIMARY_LED, C_RED, 255);
+    break;
+  }
   FastLED.show();
 
   // Begin by setting up WiFi as a prerequisite to all else.
   if(startWiFi()) {
     if(b_local_ap_started) {
       // Indicate we've established the private network.
-      device_leds[0] = getHueAsRGB(PRIMARY_LED, C_BLUE, 255);
+      switch(LED_COLOR_TYPE) {
+        case LED_RGB:
+        default:
+          device_leds[0] = getHueAsRGB(PRIMARY_LED, C_BLUE, 255);
+        break;
+        case LED_GRB:
+          device_leds[0] = getHueAsGRB(PRIMARY_LED, C_BLUE, 255);
+        break;
+        case LED_GBR:
+          device_leds[0] = getHueAsGBR(PRIMARY_LED, C_BLUE, 255);
+        break;
+      }
       FastLED.show();
     }
 
@@ -291,8 +345,25 @@ void WiFiSetupTask(void *parameter) {
 }
 
 void setup() {
+  // Device RGB LEDs for use when needed.
+  FastLED.addLeds<NEOPIXEL, DEVICE_LED_PIN>(device_leds, DEVICE_MAX_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.setMaxRefreshRate(0); // Disable FastLED's blocking 2.5ms delay.
+  FastLED.setBrightness(255); // Use a highest brightness for visibility.
+
+  // Update all addressable LEDs to prevent stale LED states.
+  FastLED.show();
+
   Serial.begin(115200); // Serial monitor via USB connection.
-  delay(1000); // Provide a delay to allow serial output.
+
+#if GPSTAR_DEBUG == 1
+  // When debugging is enabled, wait for Serial to be ready (max 3 seconds).
+  unsigned long startMillis = millis();
+  while (!Serial && millis() - startMillis < 3000) {
+    delay(10);
+  }
+  Serial.flush(); // Ensure buffer is clear.
+  Serial.println(F("Serial is Ready")); // Should appear after Serial is ready.
+#endif
 
   // Provide an opportunity to set the CPU Frequency MHz: 80, 160, 240 [Default = 240]
   // Lower frequency means less power consumption, but slower performance (obviously).
@@ -304,16 +375,8 @@ void setup() {
 
   btStop(); // Disable Bluetooth which is not needed for this hardware.
 
-  // Boot into proton mode at level 5 by default.
-  STREAM_MODE = PROTON;
-  POWER_LEVEL = LEVEL_5;
-
-  // Device RGB LEDs for use when needed.
-  FastLED.addLeds<NEOPIXEL, DEVICE_LED_PIN>(device_leds, DEVICE_MAX_LEDS).setCorrection(TypicalLEDStrip);
-  FastLED.setMaxRefreshRate(0); // Disable FastLED's blocking 2.5ms delay.
-  ms_anim_change.start(i_animation_time); // Default animation time.
-
-  // Set palette by stream mode.
+  // Make sure all LEDs are off and set the default palette for stream mode.
+  ledsOff();
   updateStreamPalette();
 
   // Change all possible addressable LEDs to black by default.
@@ -326,68 +389,16 @@ void setup() {
   bool b_namespace_opened = preferences.begin("device", true);
   if(b_namespace_opened) {
     if(preferences.isKey("numLeds")) {
-      deviceNumLeds = preferences.getShort("numLeds");
+      i_num_leds = preferences.getUShort("numLeds", 250);
+    }
+    if(preferences.isKey("ledType")) {
+      LED_COLOR_TYPE = (LED_COLOR_TYPES)preferences.getUChar("ledType", (uint8_t)LED_RGB);
     }
     preferences.end();
   }
 
-  // Initialize palettes with custom color gradients
-  paletteProton = CRGBPalette16(
-    CRGB::Red, CRGB::Red, CRGB::Maroon, CRGB::Maroon,
-    CRGB::Orange, CRGB::Red, CRGB::Red, CRGB::Black,
-    CRGB::Red, CRGB::Red, CRGB::Maroon, CRGB::Maroon,
-    CRGB::Orange, CRGB::Red, CRGB::Red, CRGB::Black
-  );
-
-  paletteSlime = CRGBPalette16(
-    CRGB::Green, CRGB::Green, CRGB::Green, CRGB::Green,
-    CRGB::LimeGreen, CRGB::LimeGreen, CRGB::Black, CRGB::Black,
-    CRGB::Green, CRGB::Green, CRGB::Green, CRGB::Green,
-    CRGB::LimeGreen, CRGB::LimeGreen, CRGB::Black, CRGB::Black
-  );
-
-  paletteStasis = CRGBPalette16(
-    CRGB::Blue, CRGB::Blue, CRGB::Blue, CRGB::Blue,
-    CRGB::Indigo, CRGB::Indigo, CRGB::Black, CRGB::Black,
-    CRGB::Blue, CRGB::Blue, CRGB::Blue, CRGB::Blue,
-    CRGB::Indigo, CRGB::Indigo, CRGB::Black, CRGB::Black
-  );
-
-  paletteMeson = CRGBPalette16(
-    CRGB::Yellow, CRGB::Yellow, CRGB::Orange, CRGB::Orange,
-    CRGB::Black, CRGB::Black, CRGB::Black, CRGB::Black,
-    CRGB::Yellow, CRGB::Yellow, CRGB::Orange, CRGB::Orange,
-    CRGB::Black, CRGB::Black, CRGB::Black, CRGB::Black
-  );
-
-  paletteSpectral = CRGBPalette16(
-    CRGB::Red, CRGB::Orange, CRGB::Yellow, CRGB::Green, CRGB::Blue, CRGB::Indigo, CRGB::Violet, CRGB::Black,
-    CRGB::Red, CRGB::Orange, CRGB::Yellow, CRGB::Green, CRGB::Blue, CRGB::Indigo, CRGB::Violet, CRGB::Black
-  );
-
-  paletteHalloween = CRGBPalette16(
-    CRGB::Orange, CRGB::Orange, CRGB::Orange, CRGB::Orange,
-    CRGB::Black, CRGB::Black, CRGB::Black, CRGB::Black,
-    CRGB::Purple, CRGB::Purple, CRGB::Purple, CRGB::Purple,
-    CRGB::Black, CRGB::Black, CRGB::Black, CRGB::Black
-  );
-
-  paletteChristmas = CRGBPalette16(
-    CRGB::Red, CRGB::Red, CRGB::Red, CRGB::Red,
-    CRGB::Black, CRGB::Black, CRGB::Black, CRGB::Black,
-    CRGB::Green, CRGB::Green, CRGB::Green, CRGB::Green,
-    CRGB::Black, CRGB::Black, CRGB::Black, CRGB::Black
-  );
-
-  paletteWhite = CRGBPalette16(
-    CRGB::GhostWhite, CRGB::GhostWhite, CRGB::Gainsboro, CRGB::Gainsboro,
-    CRGB::Black, CRGB::Black, CRGB::Black, CRGB::Black,
-    CRGB::GhostWhite, CRGB::GhostWhite, CRGB::Gainsboro, CRGB::Gainsboro,
-    CRGB::Black, CRGB::Black, CRGB::Black, CRGB::Black
-  );
-
-  // Delay before configuring and running tasks.
-  delay(200);
+  initializePalettes(); // Set all colour patterns by stream type.
+  delay(200); // Delay before configuring and running tasks.
 
   /**
    * By default the WiFi will run on core0, while the standard loop() runs on core1.
@@ -505,11 +516,12 @@ void loop() {
   debugln(F("=================================================="));
   printCPULoad();      // Print CPU load
   printMemoryStats();  // Print memory usage
-  delay(3000);         // Wait 5 seconds before printing again
+  delay(3000);         // Wait 3 seconds before printing again
   #endif
 
-  // Exception: Run the WebSocket client loop if connected to WiFi.
-  if(b_ext_wifi_started && b_socket_ready) {
-    wsClient.loop();
+  // Exception: Run the WebSocket client loop if connected to WiFi
+  // and the WebSocket client is either CONNECTING or CONNECTED.
+  if(b_ext_wifi_started && (wsRemote.status == CONNECTING || wsRemote.status == CONNECTED)) {
+    wsRemote.client.loop();
   }
 }

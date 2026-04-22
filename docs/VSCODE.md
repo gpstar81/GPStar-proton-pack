@@ -14,18 +14,20 @@ Once PIO is available you can get to the Platforms and Libraries tabs to begin a
 1. Select the PlatformIO tab on the left-hand panel
 1. Go to **PIO Home > Platforms**
 1. Install the following for hardware support:
-	- **Atmel megaAVR** for ATMega 2560
-	- **Espressif 32** for ESP32
+    - **Atmel megaAVR** for ATMega 2560
+    - **Espressif 32** for ESP32
+
+## Workspaces
+
+A multi-project workspace is included within the Github repository as `GPStar-proton-pack.code-workspace`. Double click on the file to launch VSCode with the workspace in context.
 
 ## Libraries
 
-Before installing a library you'll need a project in context. Alternatively, once a project is configured with libraries they will be downloaded automatically and kept up to date per an associated **platformio.ini** file.
+Every project is configured with with a **platformio.ini** file which determines which external libraries are necessary for that project, down to the architecture level. This is necessary as ESP32 projects may rely on libraries which are either different from what ATMega requires, or the associated project has more components that needs to be utilized. It should not be necessary to explicitly download nor install libraries manually.
 
-1. Go to **PIO Home > Libraries**
-1. Search for the library you need to install
-1. Select the project for which the library is needed
+## Environments
 
-Once associated with a project, all libraries will be downloaded by PlatformIO upon opening the project.
+Each project may consist of 1 or more environments. These may be in the form of architecture-specific environments (eg. ATMega 2560 vs. ESP32) or test vs. development. Pay attention to the PlatformIO Project Environment selection at the bottom of the VSCode UI to see which project and environment is currently in context for builds and uploads.
 
 ## Command Line Tools
 
@@ -47,4 +49,25 @@ Each project's `platformio.ini` file specifies the upload speed and a default up
 
 ## Code Assistance
 
-This project is enabled for use with Github CoPilot for development assistance. The file `.github/copilot-instructions.md` serves as a template to the AI assistant to set standards for coding and fulfill assumptions about the project.
+The file `.github/copilot-instructions.md` defines project-specific guidelines for Copilot, such as coding standards, conventions, and assumptions about how the project is structured. Copilot uses this file to better align its suggestions with each project’s expectations.
+
+## Project-Aware Context (Optional)
+
+In addition to standard Copilot behavior, this project includes an optional local Model Context Protocol (MCP) server configuration which allows Copilot to reference the project’s own documentation and source code when generating suggestions.
+
+This works by:
+
+- Breaking project files into small sections (aka. "chunks").
+- Converting those sections into a searchable format (vector index).
+- Allowing Copilot to query this local index for relevant information while you are coding.
+
+This service runs locally and does not modify Copilot itself, it simply provides additional context when Copilot asks for it.
+
+### Running the Local Context Server
+
+To start the local context server, you will need Python and the following dependencies:
+
+`pip install sentence-transformers numpy faiss-cpu`
+
+Open the Extensions panel and look for the "MCP Servers - Installed" section at the bottom, which should list the `gpstar-rag` entry. Click on the gear icon and select the `Start Server` option from the context menu.
+Once running, the server listens for requests from GitHub Copilot and returns relevant snippets from the project to improve suggestion quality. An output panel should open to show the status of the server as it starts. If you see an information line which reads "Discovered 1 tools" then the server has correctly started and is available for use by the chat agent.

@@ -1,6 +1,6 @@
 /**
  *   GPStar Neutrona Wand - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ millisDelay ms_otacheck;
 const uint16_t i_otaCheck = 100;
 
 // Convert an IP address string to an IPAddress object.
-IPAddress convertToIP(const String ipAddressString) {
+IPAddress convertToIP(const String& ipAddressString) {
   uint16_t quads[4]; // Array to store 4 quads for the IP.
   uint8_t quadStartIndex = 0;
   int8_t quadEndIndex = 0;
@@ -82,10 +82,10 @@ bool startAccesPoint() {
   #endif
 
   // Start the WiFi radio as an Access Point using the SSID and password (as WPA2).
-  // Additionally, sets radio to channel 1, don't hide SSID, and max 4 connections.
+  // Additionally, sets radio to channel 1, don't hide SSID, and max 6 connections.
   // Note that the WiFi protocols available for use are 802.11 b/g/n over 2.4GHz.
   bool b_success = false;
-  b_success = WiFi.softAP(wirelessMgr->getLocalNetworkName().c_str(), wirelessMgr->getLocalPassword().c_str(), 1, false, 4);
+  b_success = WiFi.softAP(wirelessMgr->getLocalNetworkName().c_str(), wirelessMgr->getLocalPassword().c_str(), 1, false, 6);
 
   #if defined(DEBUG_WIRELESS_SETUP)
     debugln(b_success ? "AP Ready" : "AP Failed");
@@ -167,9 +167,9 @@ bool startExternalWifi() {
         if(wirelessMgr->HasValidExtIP()) {
           #if defined(DEBUG_WIRELESS_SETUP)
             debug(F("Using Stored IP: "));
-            debug(String(wirelessMgr->getExtWifiAddress()));
+            debug(wirelessMgr->getExtWifiAddress().toString());
             debug(F(" / "));
-            debugln(String(wirelessMgr->getExtWifiSubnet()));
+            debugln(wirelessMgr->getExtWifiSubnet().toString());
           #endif
 
           if(!wirelessMgr->IsValidIP(wirelessMgr->getExtWifiGateway())) {
@@ -258,7 +258,7 @@ bool startWiFi() {
     // Suppress unused variable warning.
     (void)b_mdns_started;
   #endif
-  delay(200);
+  delay(100);
 
   return b_local_ap_started; // At least return whether the soft AP started successfully.
 }

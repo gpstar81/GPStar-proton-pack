@@ -1,7 +1,7 @@
 /**
  *   Communications - Serial communication packet definitions for GPStar devices.
  *   Provides common objects and enums for serial data exchange.
- *   Copyright (C) 2023-2025 Michael Rajotte, Dustin Grau, Nomake Wan
+ *   Copyright (C) 2023-2026 Michael Rajotte, Dustin Grau, Nomake Wan
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -64,169 +64,6 @@ struct __attribute__((packed)) MessagePacket {
   uint8_t e;
 };
 
-// Preferences for the Proton Pack device.
-struct __attribute__((packed)) PackPrefs {
-  uint8_t isESP32;
-  uint8_t defaultSystemModePack;
-  uint8_t defaultYearThemePack;
-  uint8_t currentYearThemePack;
-  uint8_t defaultPackVolume;
-  uint8_t packVibration;
-  uint8_t ribbonCableAlarm;
-  uint8_t wandQuickBootup;
-  uint8_t cyclotronDirection;
-  uint8_t demoLightMode;
-  uint8_t protonStreamEffects;
-  uint8_t overheatStrobeNF;
-  uint8_t overheatSyncToFan;
-  uint8_t overheatLightsOff;
-  uint8_t ledCycLidCount;
-  uint8_t ledCycLidHue;
-  uint8_t ledCycLidSat;
-  uint8_t ledCycLidLum;
-  uint8_t ledCycLidCenter;
-  uint8_t ledCycLidFade;
-  uint8_t ledCycLidSimRing;
-  uint8_t ledCycInnerPanel;
-  uint8_t ledCycPanLum;
-  uint8_t ledCycCakeCount;
-  uint8_t ledCycCakeHue;
-  uint8_t ledCycCakeSat;
-  uint8_t ledCycCakeLum;
-  uint8_t ledCycCakeGRB;
-  uint8_t ledCycCavCount;
-  uint8_t ledCycCavType;
-  uint8_t ledVGCyclotron;
-  uint8_t ledPowercellCount;
-  uint8_t ledInvertPowercell;
-  uint8_t ledPowercellHue;
-  uint8_t ledPowercellSat;
-  uint8_t ledPowercellLum;
-  uint8_t ledVGPowercell;
-  uint8_t gpstarAudioLed;
-  uint8_t wifiState;
-  uint8_t resetWifiPassword;
-} packConfig;
-
-// Output a compiler message if the final struct exceeds a specific size needed for SerialTransfer.
-static_assert(sizeof(packConfig) < 85, "WARNING: PackConfig has grown too large (>84 bytes)");
-
-// Preferences for the Neutrona Wand device.
-struct __attribute__((packed)) WandPrefs {
-  uint8_t isESP32;
-  uint8_t ledWandCount;
-  uint8_t ledWandHue;
-  uint8_t ledWandSat;
-  uint8_t rgbVentEnabled;
-  uint8_t spectralModesEnabled;
-  uint8_t overheatEnabled;
-  uint8_t defaultFiringMode;
-  uint8_t wandVibration;
-  uint8_t barrelSwitchPolarity;
-  uint8_t wandSoundsToPack;
-  uint8_t quickVenting;
-  uint8_t autoVentLight;
-  uint8_t wandBeepLoop;
-  uint8_t wandBootError;
-  uint8_t defaultYearModeWand;
-  uint8_t defaultYearModeCTS;
-  uint8_t defaultWandVolume;
-  uint8_t numBargraphSegments;
-  uint8_t invertWandBargraph;
-  uint8_t bargraphOverheatBlink;
-  uint8_t bargraphIdleAnimation;
-  uint8_t bargraphFireAnimation;
-  uint8_t gpstarAudioLed;
-  uint8_t wifiState;
-  uint8_t resetWifiPassword;
-} wandConfig;
-
-// Output a compiler message if the final struct exceeds a specific size needed for SerialTransfer.
-static_assert(sizeof(wandConfig) < 35, "WARNING: WandPrefs has grown too large (>34 bytes)");
-
-// Preferences for smoke/overheat behavior.
-struct __attribute__((packed)) SmokePrefs {
-  // Pack
-  uint8_t smokeEnabled;
-  uint8_t overheatContinuous5;
-  uint8_t overheatContinuous4;
-  uint8_t overheatContinuous3;
-  uint8_t overheatContinuous2;
-  uint8_t overheatContinuous1;
-  uint8_t overheatDuration5;
-  uint8_t overheatDuration4;
-  uint8_t overheatDuration3;
-  uint8_t overheatDuration2;
-  uint8_t overheatDuration1;
-  // Wand
-  uint8_t overheatLevel5;
-  uint8_t overheatLevel4;
-  uint8_t overheatLevel3;
-  uint8_t overheatLevel2;
-  uint8_t overheatLevel1;
-  uint8_t overheatDelay5;
-  uint8_t overheatDelay4;
-  uint8_t overheatDelay3;
-  uint8_t overheatDelay2;
-  uint8_t overheatDelay1;
-} smokeConfig;
-
-// Output a compiler message if the final struct exceeds a specific size needed for SerialTransfer.
-static_assert(sizeof(smokeConfig) < 35, "WARNING: SmokePrefs has grown too large (>34 bytes)");
-
-// Data for synchronizing the Neutrona Wand.
-struct __attribute__((packed)) WandSyncData {
-  uint8_t systemMode;
-  uint8_t ionArmSwitch;
-  uint8_t cyclotronLidState;
-  uint8_t systemYear;
-  uint8_t packOn;
-  uint8_t powerLevel;
-  uint8_t streamMode;
-  uint8_t vibrationEnabled;
-  uint8_t effectsVolume;
-  uint8_t masterMuted;
-  uint8_t musicStatus;
-  uint8_t repeatMusicTrack;
-} wandSyncData;
-
-// Output a compiler message if the final struct exceeds a specific size needed for SerialTransfer.
-static_assert(sizeof(wandSyncData) < 35, "WARNING: WandSyncData has grown too large (>34 bytes)");
-
-// Data for synchronizing the Attenuator.
-struct __attribute__((packed)) AttenuatorSyncData {
-  uint8_t systemMode;
-  uint8_t ionArmSwitch;
-  uint8_t cyclotronLidState;
-  uint8_t systemYear;
-  uint8_t packOn;
-  uint8_t powerLevel;
-  uint8_t streamMode;
-  uint8_t streamFlags;
-  uint8_t wandPresent;
-  uint8_t barrelExtended;
-  uint8_t wandFiring;
-  uint8_t overheatingNow;
-  uint8_t speedMultiplier;
-  uint8_t spectralColour;
-  uint8_t spectralSaturation;
-  uint8_t masterMuted;
-  uint8_t masterVolume;
-  uint8_t effectsVolume;
-  uint8_t musicVolume;
-  uint8_t musicPlaying;
-  uint8_t musicPaused;
-  uint8_t trackLooped;
-  uint16_t currentTrack;
-  uint16_t musicCount;
-  uint16_t packAudioVersion;
-  uint16_t wandAudioVersion;
-  uint16_t packVoltage;
-} attenuatorSyncData;
-
-// Output a compiler message if the final struct exceeds a specific size needed for SerialTransfer.
-static_assert(sizeof(attenuatorSyncData) < 85, "WARNING: AttenuatorSyncData has grown too large (>84 bytes)");
-
 /*
  * These enum definitions must be kept in sync across the devices they communicate with, using the same dataype and ordering.
  * Enum values are internally considered integer values and here they are being given a distinct underlying datatype of uint8_t.
@@ -245,7 +82,7 @@ enum DEVICE_ID : uint8_t {
 
 // Specifically for actions called from the Proton Pack.
 enum PACK_MESSAGE : uint8_t {
-  P_NULL,
+  P_NULL, // 0
   P_HANDSHAKE,
   P_SYNC_START,
   P_SYNC_DATA,
@@ -255,7 +92,7 @@ enum PACK_MESSAGE : uint8_t {
   P_ALARM_ON,
   P_ALARM_OFF,
   P_VIBRATION_ENABLED,
-  P_VIBRATION_DISABLED,
+  P_VIBRATION_DISABLED, // 10
   P_YEAR_1984,
   P_YEAR_1989,
   P_YEAR_AFTERLIFE,
@@ -265,7 +102,7 @@ enum PACK_MESSAGE : uint8_t {
   P_PACK_VIBRATION_ENABLED,
   P_PACK_VIBRATION_DISABLED,
   P_PACK_VIBRATION_FIRING_ENABLED,
-  P_PACK_VIBRATION_DEFAULT,
+  P_PACK_VIBRATION_DEFAULT, // 20
   P_PACK_MOTORIZED_CYCLOTRON_ENABLED,
   P_VIDEO_GAME_MODE_COLOURS_ENABLED,
   P_VIDEO_GAME_MODE_POWER_CELL_ENABLED,
@@ -275,7 +112,7 @@ enum PACK_MESSAGE : uint8_t {
   P_MODE_AFTERLIFE,
   P_MODE_1989,
   P_MODE_1984,
-  P_SET_STREAM_MODE,
+  P_SET_STREAM_MODE, // 30
   P_SMOKE_DISABLED,
   P_SMOKE_ENABLED,
   P_CYCLOTRON_COUNTER_CLOCKWISE,
@@ -284,7 +121,8 @@ enum PACK_MESSAGE : uint8_t {
   P_CYCLOTRON_THREE_LED,
   P_MUSIC_STATUS,
   P_MUSIC_LOOP_STATUS,
-  P_MASTER_AUDIO_STATUS,
+  P_MUSIC_SHUFFLE_STATUS,
+  P_MASTER_AUDIO_STATUS, // 40
   P_POWERCELL_DIMMING,
   P_CYCLOTRON_DIMMING,
   P_INNER_CYCLOTRON_DIMMING,
@@ -294,7 +132,7 @@ enum PACK_MESSAGE : uint8_t {
   P_PROTON_STREAM_IMPACT_DISABLED,
   P_RGB_INNER_CYCLOTRON_LEDS,
   P_GRB_INNER_CYCLOTRON_LEDS,
-  P_CYCLOTRON_LEDS_40,
+  P_CYCLOTRON_LEDS_40, // 50
   P_CYCLOTRON_LEDS_36,
   P_CYCLOTRON_LEDS_20,
   P_CYCLOTRON_LEDS_12,
@@ -304,7 +142,7 @@ enum PACK_MESSAGE : uint8_t {
   P_INNER_CYCLOTRON_LEDS_24,
   P_INNER_CYCLOTRON_LEDS_26,
   P_INNER_CYCLOTRON_LEDS_35,
-  P_INNER_CYCLOTRON_LEDS_36,
+  P_INNER_CYCLOTRON_LEDS_36, // 60
   P_INNER_CYCLOTRON_LEDS_12,
   P_CYCLOTRON_FADING_DISABLED,
   P_CYCLOTRON_FADING_ENABLED,
@@ -314,7 +152,7 @@ enum PACK_MESSAGE : uint8_t {
   P_OVERHEAT_STROBE_ENABLED,
   P_OVERHEAT_STROBE_DISABLED,
   P_OVERHEAT_LIGHTS_OFF_ENABLED,
-  P_OVERHEAT_LIGHTS_OFF_DISABLED,
+  P_OVERHEAT_LIGHTS_OFF_DISABLED, // 70
   P_OVERHEAT_SYNC_FAN_DISABLED,
   P_OVERHEAT_SYNC_FAN_ENABLED,
   P_YEAR_MODE_DEFAULT,
@@ -324,7 +162,8 @@ enum PACK_MESSAGE : uint8_t {
   P_ION_ARM_SWITCH_OFF,
   P_CYCLOTRON_LID_ON,
   P_CYCLOTRON_LID_OFF,
-  P_MANUAL_OVERHEAT,
+  P_MANUAL_OVERHEAT, // 80
+  P_MANUAL_QUICK_VENT,
   P_OVERHEATING_FINISHED,
   P_VENTING_FINISHED,
   P_DEMO_LIGHT_MODE_ENABLED,
@@ -333,7 +172,7 @@ enum PACK_MESSAGE : uint8_t {
   P_CONTINUOUS_SMOKE_4_ENABLED,
   P_CONTINUOUS_SMOKE_3_ENABLED,
   P_CONTINUOUS_SMOKE_2_ENABLED,
-  P_CONTINUOUS_SMOKE_1_ENABLED,
+  P_CONTINUOUS_SMOKE_1_ENABLED, // 90
   P_CONTINUOUS_SMOKE_5_DISABLED,
   P_CONTINUOUS_SMOKE_4_DISABLED,
   P_CONTINUOUS_SMOKE_3_DISABLED,
@@ -343,20 +182,24 @@ enum PACK_MESSAGE : uint8_t {
   P_SOUND_MODE_ORIGINAL,
   P_SEND_PREFERENCES_WAND,
   P_SEND_PREFERENCES_SMOKE,
-  P_SAVE_PREFERENCES_WAND,
+  P_SAVE_PREFERENCES_WAND, // 100
   P_SAVE_PREFERENCES_SMOKE,
   P_SAVE_EEPROM_WAND,
+  P_RESET_EEPROM_WAND,
   P_INNER_CYCLOTRON_PANEL_DISABLED,
   P_INNER_CYCLOTRON_PANEL_STATIC,
   P_INNER_CYCLOTRON_PANEL_DYNAMIC,
   P_POWERCELL_NOT_INVERTED,
   P_POWERCELL_INVERTED,
   P_PACK_GPSTAR_AUDIO_LED_DISABLED,
-  P_PACK_GPSTAR_AUDIO_LED_ENABLED,
+  P_PACK_GPSTAR_AUDIO_LED_ENABLED, // 110
+  P_REQUEST_BEEP_SYNC,
   P_QUICK_BOOTUP_ENABLED,
   P_QUICK_BOOTUP_DISABLED,
   P_TURN_WAND_ON,
   P_POST_FINISH,
+  P_SYSTEM_LOCKOUT,
+  P_CANCEL_LOCKOUT,
   P_NO_OP
 };
 
@@ -365,7 +208,7 @@ static_assert(P_NO_OP < 255, "WARNING: PACK_MESSAGE has grown too large for uint
 
 // Specifically for actions called from the Neutrona Wand.
 enum WAND_MESSAGE : uint8_t {
-  W_NULL,
+  W_NULL, // 0
   W_HANDSHAKE,
   W_SYNC_NOW,
   W_SYNCHRONIZED,
@@ -375,15 +218,7 @@ enum WAND_MESSAGE : uint8_t {
   W_FIRING_STOPPED,
   W_BUTTON_MASHING,
   W_STREAM_FLAGS,
-  W_PROTON_MODE,
-  W_SLIME_MODE,
-  W_STASIS_MODE,
-  W_MESON_MODE,
-  W_SPECTRAL_MODE,
-  W_HALLOWEEN_MODE,
-  W_CHRISTMAS_MODE,
-  W_SPECTRAL_CUSTOM_MODE,
-  W_SETTINGS_MODE,
+  W_SET_STREAM_MODE, // 10
   W_OVERHEATING,
   W_VENTING,
   W_CYCLOTRON_NORMAL_SPEED,
@@ -393,7 +228,7 @@ enum WAND_MESSAGE : uint8_t {
   W_POWER_LEVEL_2,
   W_POWER_LEVEL_3,
   W_POWER_LEVEL_4,
-  W_POWER_LEVEL_5,
+  W_POWER_LEVEL_5, // 20
   W_FIRING_INTENSIFY_MIX,
   W_FIRING_INTENSIFY_STOPPED_MIX,
   W_FIRING_ALT_MIX,
@@ -403,7 +238,7 @@ enum WAND_MESSAGE : uint8_t {
   W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX_1984,
   W_FIRING_CROSSING_THE_STREAMS_2021,
   W_FIRING_CROSSING_THE_STREAMS_MIX_2021,
-  W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX_2021,
+  W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX_2021, // 30
   W_TOGGLE_MUTE,
   W_YEAR_MODES_CYCLE,
   W_VIDEO_GAME_MODE_COLOUR_TOGGLE,
@@ -413,7 +248,7 @@ enum WAND_MESSAGE : uint8_t {
   W_VIBRATION_ENABLED,
   W_VIBRATION_FIRING_ENABLED,
   W_VIBRATION_DEFAULT,
-  W_VIBRATION_CYCLE_TOGGLE,
+  W_VIBRATION_CYCLE_TOGGLE, // 40
   W_VIBRATION_CYCLE_TOGGLE_EEPROM,
   W_SMOKE_TOGGLE,
   W_VIDEO_GAME_MODE,
@@ -422,7 +257,8 @@ enum WAND_MESSAGE : uint8_t {
   W_OVERHEATING_DISABLED,
   W_OVERHEATING_ENABLED,
   W_MUSIC_TRACK_LOOP_TOGGLE,
-  W_VOLUME_SOUND_EFFECTS_INCREASE,
+  W_MUSIC_TRACK_SHUFFLE_TOGGLE,
+  W_VOLUME_SOUND_EFFECTS_INCREASE, // 50
   W_VOLUME_SOUND_EFFECTS_DECREASE,
   W_VOLUME_MUSIC_INCREASE,
   W_VOLUME_MUSIC_DECREASE,
@@ -432,7 +268,7 @@ enum WAND_MESSAGE : uint8_t {
   W_MENU_LEVEL_1,
   W_MENU_LEVEL_2,
   W_MENU_LEVEL_3,
-  W_MENU_LEVEL_4,
+  W_MENU_LEVEL_4, // 60
   W_MENU_LEVEL_5,
   W_DIMMING_TOGGLE,
   W_DIMMING_INCREASE,
@@ -442,7 +278,7 @@ enum WAND_MESSAGE : uint8_t {
   W_SAVE_LED_EEPROM_SETTINGS,
   W_TOGGLE_CYCLOTRON_LEDS,
   W_TOGGLE_POWERCELL_LEDS,
-  W_TOGGLE_INNER_CYCLOTRON_LEDS,
+  W_TOGGLE_INNER_CYCLOTRON_LEDS, // 70
   W_TOGGLE_RGB_INNER_CYCLOTRON_LEDS,
   W_EEPROM_LED_MENU,
   W_EEPROM_CONFIG_MENU,
@@ -452,7 +288,7 @@ enum WAND_MESSAGE : uint8_t {
   W_AFTERLIFE_GUN_RAMP_1,
   W_AFTERLIFE_GUN_RAMP_2,
   W_AFTERLIFE_RAMP_LOOP_2_STOP,
-  W_AFTERLIFE_GUN_LOOP_1,
+  W_AFTERLIFE_GUN_LOOP_1, // 80
   W_AFTERLIFE_GUN_LOOP_2,
   W_AFTERLIFE_GUN_RAMP_DOWN_2,
   W_AFTERLIFE_GUN_RAMP_DOWN_1,
@@ -462,7 +298,7 @@ enum WAND_MESSAGE : uint8_t {
   W_VOICE_NEUTRONA_WAND_SOUNDS_DISABLED,
   W_CYCLOTRON_SIMULATE_RING_TOGGLE,
   W_SPECTRAL_MODES_ENABLED,
-  W_SPECTRAL_MODES_DISABLED,
+  W_SPECTRAL_MODES_DISABLED, // 90
   W_SPECTRAL_INNER_CYCLOTRON_CUSTOM_DECREASE,
   W_SPECTRAL_CYCLOTRON_CUSTOM_DECREASE,
   W_SPECTRAL_POWERCELL_CUSTOM_DECREASE,
@@ -472,7 +308,7 @@ enum WAND_MESSAGE : uint8_t {
   W_SPECTRAL_LIGHTS_ON,
   W_SPECTRAL_LIGHTS_OFF,
   W_QUICK_VENT_ENABLED,
-  W_QUICK_VENT_DISABLED,
+  W_QUICK_VENT_DISABLED, // 100
   W_BOOTUP_ERRORS_ENABLED,
   W_BOOTUP_ERRORS_DISABLED,
   W_BARREL_LEDS_2,
@@ -482,7 +318,7 @@ enum WAND_MESSAGE : uint8_t {
   W_BARGRAPH_INVERTED,
   W_BARGRAPH_NOT_INVERTED,
   W_OVERHEAT_STROBE_TOGGLE,
-  W_OVERHEAT_LIGHTS_OFF_TOGGLE,
+  W_OVERHEAT_LIGHTS_OFF_TOGGLE, // 110
   W_OVERHEAT_SYNC_TO_FAN_TOGGLE,
   W_YEAR_MODES_CYCLE_EEPROM,
   W_BARREL_EXTENDED,
@@ -492,7 +328,7 @@ enum WAND_MESSAGE : uint8_t {
   W_OVERHEAT_INCREASE_LEVEL_1,
   W_OVERHEAT_INCREASE_LEVEL_2,
   W_OVERHEAT_INCREASE_LEVEL_3,
-  W_OVERHEAT_INCREASE_LEVEL_4,
+  W_OVERHEAT_INCREASE_LEVEL_4, // 120
   W_OVERHEAT_INCREASE_LEVEL_5,
   W_OVERHEAT_DECREASE_LEVEL_1,
   W_OVERHEAT_DECREASE_LEVEL_2,
@@ -502,7 +338,7 @@ enum WAND_MESSAGE : uint8_t {
   W_BARGRAPH_OVERHEAT_BLINK_ENABLED,
   W_BARGRAPH_OVERHEAT_BLINK_DISABLED,
   W_MODE_BEEP_LOOP_ENABLED,
-  W_MODE_BEEP_LOOP_DISABLED,
+  W_MODE_BEEP_LOOP_DISABLED, // 130
   W_DEFAULT_BARGRAPH,
   W_MODE_ORIGINAL_BARGRAPH,
   W_SUPER_HERO_BARGRAPH,
@@ -512,7 +348,7 @@ enum WAND_MESSAGE : uint8_t {
   W_NEUTRONA_WAND_1984_MODE,
   W_NEUTRONA_WAND_1989_MODE,
   W_NEUTRONA_WAND_AFTERLIFE_MODE,
-  W_NEUTRONA_WAND_FROZEN_EMPIRE_MODE,
+  W_NEUTRONA_WAND_FROZEN_EMPIRE_MODE, // 140
   W_NEUTRONA_WAND_DEFAULT_MODE,
   W_DEMO_LIGHT_MODE_TOGGLE,
   W_CTS_DEFAULT,
@@ -522,7 +358,7 @@ enum WAND_MESSAGE : uint8_t {
   W_OVERHEAT_LEVEL_5_ENABLED,
   W_OVERHEAT_LEVEL_4_ENABLED,
   W_OVERHEAT_LEVEL_3_ENABLED,
-  W_OVERHEAT_LEVEL_2_ENABLED,
+  W_OVERHEAT_LEVEL_2_ENABLED, // 150
   W_OVERHEAT_LEVEL_1_ENABLED,
   W_OVERHEAT_LEVEL_5_DISABLED,
   W_OVERHEAT_LEVEL_4_DISABLED,
@@ -532,7 +368,7 @@ enum WAND_MESSAGE : uint8_t {
   W_CONTINUOUS_SMOKE_TOGGLE_5,
   W_CONTINUOUS_SMOKE_TOGGLE_4,
   W_CONTINUOUS_SMOKE_TOGGLE_3,
-  W_CONTINUOUS_SMOKE_TOGGLE_2,
+  W_CONTINUOUS_SMOKE_TOGGLE_2, // 160
   W_CONTINUOUS_SMOKE_TOGGLE_1,
   W_VOLUME_DECREASE_EEPROM,
   W_VOLUME_INCREASE_EEPROM,
@@ -542,7 +378,7 @@ enum WAND_MESSAGE : uint8_t {
   W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_2,
   W_SOUND_OVERHEAT_SMOKE_DURATION_LEVEL_1,
   W_SOUND_OVERHEAT_START_TIMER_LEVEL_5,
-  W_SOUND_OVERHEAT_START_TIMER_LEVEL_4,
+  W_SOUND_OVERHEAT_START_TIMER_LEVEL_4, // 170
   W_SOUND_OVERHEAT_START_TIMER_LEVEL_3,
   W_SOUND_OVERHEAT_START_TIMER_LEVEL_2,
   W_SOUND_OVERHEAT_START_TIMER_LEVEL_1,
@@ -552,7 +388,7 @@ enum WAND_MESSAGE : uint8_t {
   W_GB1_WAND_BARREL_EXTEND,
   W_AFTERLIFE_WAND_BARREL_EXTEND,
   W_WAND_BARREL_RETRACT,
-  W_WAND_BOOTUP_SOUND,
+  W_WAND_BOOTUP_SOUND, // 180
   W_WAND_BOOTUP_SHORT_SOUND,
   W_WAND_SHUTDOWN_SOUND,
   W_WAND_MASH_ERROR_SOUND,
@@ -562,7 +398,7 @@ enum WAND_MESSAGE : uint8_t {
   W_MODE_ORIGINAL_HEATUP,
   W_MODE_ORIGINAL_HEATDOWN_STOP,
   W_MODE_ORIGINAL_HEATDOWN,
-  W_BEEPS_ALT,
+  W_BEEPS_ALT, // 190
   W_WAND_BEEP_STOP,
   W_WAND_BEEP_STOP_LOOP,
   W_WAND_BEEP_START,
@@ -572,7 +408,7 @@ enum WAND_MESSAGE : uint8_t {
   W_BOSON_DART_SOUND,
   W_SHOCK_BLAST_SOUND,
   W_SLIME_TETHER_SOUND,
-  W_MESON_COLLIDER_SOUND,
+  W_MESON_COLLIDER_SOUND, // 200
   W_MESON_FIRE_PULSE,
   W_TOGGLE_INNER_CYCLOTRON_PANEL,
   W_WAND_BOOTUP_1989,
@@ -582,7 +418,7 @@ enum WAND_MESSAGE : uint8_t {
   W_RESET_WIFI_PASSWORD,
   W_WAND_WIFI_RESET,
   W_WAND_WIFI_DISABLED,
-  W_WAND_WIFI_ENABLED,
+  W_WAND_WIFI_ENABLED, // 210
   W_BARREL_ERROR_SOUND,
   W_BARREL_SWITCH_DEFAULT,
   W_BARREL_SWITCH_INVERTED,
@@ -592,7 +428,7 @@ enum WAND_MESSAGE : uint8_t {
   W_RGB_VENT_DISABLED,
   W_RGB_VENT_ENABLED,
   W_AUTO_VENT_INTENSITY_DISABLED,
-  W_AUTO_VENT_INTENSITY_ENABLED,
+  W_AUTO_VENT_INTENSITY_ENABLED, // 220
   W_GPSTAR_AUDIO_LED_TOGGLE,
   W_WAND_GPSTAR_AUDIO_LED_DISABLED,
   W_WAND_GPSTAR_AUDIO_LED_ENABLED,
@@ -600,6 +436,9 @@ enum WAND_MESSAGE : uint8_t {
   W_QUICK_BOOTUP_TOGGLE,
   W_IMPACT_SOUND,
   W_COM_SOUND_NUMBER,
+  W_SET_FIRING_MODE,
+  W_VENT_LIGHT_COLOURS_DISABLED,
+  W_VENT_LIGHT_COLOURS_ENABLED, // 230
   W_NO_OP
 };
 
@@ -608,7 +447,7 @@ static_assert(W_NO_OP < 255, "WARNING: WAND_MESSAGE has grown too large for uint
 
 // Primarily for Attenuator communications but may become a more unified API list.
 enum API_MESSAGE : uint8_t {
-  A_NULL,
+  A_NULL, // 0
   A_HANDSHAKE,
   A_SYNC_START,
   A_SYNC_DATA,
@@ -617,24 +456,18 @@ enum API_MESSAGE : uint8_t {
   A_WAND_OFF,
   A_FIRING,
   A_FIRING_STOPPED,
+  A_FIRING_CTS,
+  A_FIRING_CTS_STOPPED, // 10
   A_SYSTEM_LOCKOUT,
   A_CANCEL_LOCKOUT,
   A_STREAM_FLAGS,
-  A_PROTON_MODE,
-  A_STASIS_MODE,
-  A_SLIME_MODE,
-  A_MESON_MODE,
-  A_SPECTRAL_MODE,
-  A_HALLOWEEN_MODE,
-  A_CHRISTMAS_MODE,
-  A_SPECTRAL_CUSTOM_MODE,
-  A_SETTINGS_MODE,
+  A_SET_STREAM_MODE,
   A_VENTING,
   A_VENTING_FINISHED,
   A_OVERHEATING,
   A_OVERHEATING_FINISHED,
   A_WARNING_CANCELLED,
-  A_CYCLOTRON_LID_ON,
+  A_CYCLOTRON_LID_ON, // 20
   A_CYCLOTRON_LID_OFF,
   A_CYCLOTRON_NORMAL_SPEED,
   A_CYCLOTRON_INCREASE_SPEED,
@@ -644,7 +477,8 @@ enum API_MESSAGE : uint8_t {
   A_POWER_LEVEL_3,
   A_POWER_LEVEL_4,
   A_POWER_LEVEL_5,
-  A_MUSIC_TRACK_LOOP_TOGGLE,
+  A_MUSIC_TRACK_LOOP_TOGGLE, // 30
+  A_MUSIC_TRACK_SHUFFLE_TOGGLE,
   A_VOLUME_SOUND_EFFECTS_INCREASE,
   A_VOLUME_SOUND_EFFECTS_DECREASE,
   A_VOLUME_MUSIC_INCREASE,
@@ -653,6 +487,7 @@ enum API_MESSAGE : uint8_t {
   A_MUSIC_PREV_TRACK,
   A_VOLUME_DECREASE,
   A_VOLUME_INCREASE,
+  A_VOLUME_SET, // 40
   A_VOLUME_SYNC,
   A_SAVE_EEPROM_SETTINGS_PACK,
   A_SAVE_EEPROM_SETTINGS_WAND,
@@ -662,7 +497,7 @@ enum API_MESSAGE : uint8_t {
   A_YEAR_1984,
   A_ALARM_ON,
   A_ALARM_OFF,
-  A_PACK_ON,
+  A_PACK_ON, // 50
   A_PACK_OFF,
   A_TURN_PACK_ON,
   A_TURN_PACK_OFF,
@@ -672,16 +507,17 @@ enum API_MESSAGE : uint8_t {
   A_TOGGLE_SMOKE,
   A_TOGGLE_VIBRATION,
   A_BARREL_EXTENDED,
-  A_BARREL_RETRACTED,
+  A_BARREL_RETRACTED, // 60
   A_MODE_SUPER_HERO,
   A_MODE_ORIGINAL,
   A_ION_ARM_SWITCH_ON,
   A_ION_ARM_SWITCH_OFF,
   A_MANUAL_OVERHEAT,
+  A_MANUAL_QUICK_VENT,
   A_MUSIC_TRACK_COUNT_SYNC,
   A_MUSIC_PAUSE_RESUME,
   A_MUSIC_IS_PLAYING,
-  A_MUSIC_IS_NOT_PLAYING,
+  A_MUSIC_IS_NOT_PLAYING, // 70
   A_MUSIC_IS_PAUSED,
   A_MUSIC_IS_NOT_PAUSED,
   A_MUSIC_PLAY_TRACK,
@@ -691,7 +527,7 @@ enum API_MESSAGE : uint8_t {
   A_WAND_CONNECTED,
   A_WAND_DISCONNECTED,
   A_WAND_AUDIO_VERSION,
-  A_RESET_WIFI_PASSWORD,
+  A_RESET_WIFI_PASSWORD, // 80
   A_REQUEST_PREFERENCES_PACK,
   A_REQUEST_PREFERENCES_WAND,
   A_REQUEST_PREFERENCES_SMOKE,
@@ -701,6 +537,9 @@ enum API_MESSAGE : uint8_t {
   A_SAVE_PREFERENCES_PACK,
   A_SAVE_PREFERENCES_WAND,
   A_SAVE_PREFERENCES_SMOKE,
+  A_RESET_EEPROM_SETTINGS_PACK, // 90
+  A_RESET_EEPROM_SETTINGS_WAND,
+  A_SET_FIRING_MODE,
   A_NO_OP
 };
 

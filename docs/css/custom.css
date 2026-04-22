@@ -30,3 +30,11 @@ table td {
   width: 20px;
   height: 20px;
 }
+
+/* Style images with alt="Menu-Display" to have text wrap around */
+img[alt="Menu-Display"] {
+  float: left;
+  margin: 0 25px 10px 0;
+  height: auto;
+  clear: left;
+}

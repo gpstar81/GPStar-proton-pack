@@ -23,8 +23,8 @@ For modders who are comfortable with building their own smoke solution we recomm
 The following may be necessary to connect your smoke generator to the Proton Pack, if not provided as part of a maker's kit.
 
 - One of the following:
-	- [GPStar Relay](https://gpstartechnologies.com/) - Now shipped with most kits
-	- [5V Relay Module with Optocoupler](https://a.co/d/h0b5SN5) - Must support a HIGH signal to turn the relay on!
+    - [GPStar Relay](https://gpstartechnologies.com/) - Now shipped with most kits
+    - [5V Relay Module with Optocoupler](https://a.co/d/h0b5SN5) - Must support a HIGH signal to turn the relay on!
 - [6mm OD / 4mm ID Silicone Tubing](https://a.co/d/7qeekAG) - For routing smoke from the vape coil
 
 ### Disclaimers
@@ -145,9 +145,9 @@ Note: For this component a fan is not necessary as the smoke will rise through u
 
 The following 3D models are provided for those able to print components for their pack. These are designed to fit perfectly within the Hasbro equipment and provide a familiar look to the end solution for getting smoke out of your pack.
 
-- [N-Filter Blower Mount](https://github.com/gpstar81/GPStar-proton-pack/blob/main/stl/pack/Haslab/N-Filter Smoke/N-Filter Blower.stl?raw=1) - Holds the 50mm blower in an upright position
-- [N-Filter Filter Cone](https://github.com/gpstar81/GPStar-proton-pack/blob/main/stl/pack/Haslab/N-Filter Smoke/N-Filter Cone.stl?raw=1) - Replaces the stock cone and allows smoke and air to exit
-- [N-Filter Template](https://github.com/gpstar81/GPStar-proton-pack/blob/main/stl/pack/Haslab/N-Filter Smoke/N-Filter Template.stl?raw=1) - Used to mark where to cut into the pack for smoke tubing and blower air hole
+- N-Filter Blower Mount - Holds the 50mm blower in an upright position
+- N-Filter Filter Cone - Replaces the stock cone and allows smoke and air to exit
+- N-Filter Template - Used to mark where to cut into the pack for smoke tubing and blower air hole
 
 ![](images/NFilterTemplate.jpg)
 

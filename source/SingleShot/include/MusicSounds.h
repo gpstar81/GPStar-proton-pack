@@ -1,6 +1,6 @@
 /**
  *   GPStar Single-Shot Blaster
- *   Copyright (C) 2024-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2024-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                    & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -60,10 +60,13 @@ enum sound_fx {
   S_VOICE_BARGRAPH_NORMAL,
   S_VOICE_VIBRATION_ENABLED,
   S_VOICE_VIBRATION_DISABLED,
-  S_VOICE_VIBRATION_FIRING_ENABLED
+  S_VOICE_VIBRATION_FIRING_ENABLED,
+  S_VENT_DRY,
+  S_BOOTUP_SHORT,
+  S_BEEP_8
 };
 
 /*
  * Need to keep track which is the last sound effect, so we can iterate over the effects to adjust the volume gain on them.
  */
-const uint16_t i_last_effects_track = S_VOICE_VIBRATION_FIRING_ENABLED;
+const uint16_t i_last_effects_track = S_BEEP_8;

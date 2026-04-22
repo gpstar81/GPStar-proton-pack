@@ -14,9 +14,9 @@ The EEPOM LED Menu can be used to configure different LED setups for your Proton
 
 To access the EEPROM LED Menu System, hold down the `Intensify Button` and toggle the right hand `Top Toggle` button 5 times (up and down). You will then hear a beep noise and your bargraph will light up to indicate you are in the EEPROM LED Menu System. The Neutrona Wand barrel and all the Proton Pack LEDs will light up to the default Spectral Custom colours when you enter the EEPROM LED Menu. Use the `Top Dial` on the top of the Neutrona Wand to navigate the menu system and options. When you reach a different menu level, the Slo-Blo LED and other lights on the Neutrona Wand will illuminate to indicate these menu levels, along with audio cues from the system.
 
-	Menu Level 1 -> No additional wand lights will be illuminated
-	Menu Level 2 -> Slo-Blo illuminated
-	Menu Level 3 -> Slo-Blo and vent light illuminated
+    Menu Level 1 -> No additional wand lights will be illuminated
+    Menu Level 2 -> Slo-Blo illuminated
+    Menu Level 3 -> Slo-Blo and vent light illuminated
 
 📝 **Note:** EEPROM menus can only be reached while both the Neutrona Wand and Proton Pack are powered down.
 
@@ -42,7 +42,7 @@ To access the EEPROM LED Menu System, hold down the `Intensify Button` and toggl
 | 4️⃣ | Bargraph&nbsp;Segment&nbsp;Count&nbsp;Toggle&nbsp;/ RGB&nbsp;Vent&nbsp;Light&nbsp;Toggle | Toggle between 28 segments or 30 segments for the optional bargraph.<sup>1</sup> | Enable/Disable the optional addressable RGB LED vent/top light board.<br/>**Not toggleable on GPStar II wands** |
 | 3️⃣ | Power&nbsp;Cell&nbsp;Invert&nbsp;/ Auto&nbsp;Vent&nbsp;Light&nbsp;Intensity&nbsp;Toggle | Change the direction of the Power Cell animation. | Toggle whether the vent light on the Neutrona Wand will change brightness depending on power level and firing state or stay full brightness always. |
 | 2️⃣ | Inner&nbsp;Cyclotron&nbsp;LED&nbsp;Panel&nbsp;Toggle&nbsp;/ VG&nbsp;Colour&nbsp;Mode&nbsp;Toggles | Toggle the optional Inner Cyclotron LED Panel between disabled (individual LEDs on GPStar I), static colours (for prop-accurate coloured cliplite covers), and dynamic colours (for the LED panel with clear cliplite covers). | Cycle through VG colour modes.<sup>2</sup> |
-| 1️⃣ | Inner&nbsp;Cyclotron&nbsp;GRB&nbsp;Toggle | Toggle the Inner Cyclotron between RGB or GRB LEDs. | `unused` |
+| 1️⃣ | Inner&nbsp;Cyclotron&nbsp;GRB&nbsp;Toggle/ Vent&nbsp;Light&nbsp;Stream&nbsp;Colour&nbsp;Toggle | Toggle the Inner Cyclotron between RGB or GRB LEDs. | Toggle whether the addressable RGB LED vent/top light (if installed) will display colours for the currently-active stream or remain white. |
 
 <sup>1</sup> This setting will only take effect if you have an optional bargraph plugged into the i2c data port when the wand is first started.
 
@@ -73,11 +73,11 @@ To access the EEPROM Configuration Menu, hold down the `Intensify Button` and to
 
 To access the EEPROM Configuration menus, use the `Top Dial` on the top of the wand. When you reach a different menu level, the Slo-Blo LED and other lights on the Neutrona Wand will illuminate to indicate these menu levels, along with audio cues from the system.
 
-	Menu Level 1 -> No additional wand lights will be illuminated
-	Menu Level 2 -> Slo-Blo illuminated
-	Menu Level 3 -> Slo-Blo and vent light illuminated
-	Menu Level 4 -> Slo-Blo, vent light, and top gun box light illuminated
-	Menu Level 5 -> Slo-Blo; vent light, top gun box light, and front gun box light illuminated
+    Menu Level 1 -> No additional wand lights will be illuminated
+    Menu Level 2 -> Slo-Blo illuminated
+    Menu Level 3 -> Slo-Blo and vent light illuminated
+    Menu Level 4 -> Slo-Blo, vent light, and top gun box light illuminated
+    Menu Level 5 -> Slo-Blo; vent light, top gun box light, and front gun box light illuminated
 
 📝 **Note:** EEPROM menus can only be reached while both the Neutrona Wand and Proton Pack are powered down.
 

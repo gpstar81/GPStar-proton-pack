@@ -1,0 +1,30 @@
+{
+  "networks": [
+    {
+      "ssid": "HomeNetwork-2.5G",
+      "rssi": -45,
+      "encryption": 3,
+      "channel": 6
+    },
+    {
+      "ssid": "OfficeWiFi",
+      "rssi": -67,
+      "encryption": 3,
+      "channel": 11
+    },
+    {
+      "ssid": "GPStar-Testing",
+      "rssi": -52,
+      "encryption": 3,
+      "channel": 1
+    },
+    {
+      "ssid": "PublicHotspot",
+      "rssi": -80,
+      "encryption": 0,
+      "channel": 6
+    }
+  ],
+  "count": 4,
+  "scanning": false
+}

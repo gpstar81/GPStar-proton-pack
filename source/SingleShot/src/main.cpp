@@ -1,6 +1,6 @@
 /**
  *   GPStar Single-Shot Blaster
- *   Copyright (C) 2024-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2024-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                    & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -34,10 +34,11 @@
 #include <TaskScheduler.h>
 
 // Set to 1 to enable built-in debug messages via Serial device output.
-#define DEBUG 0
+// Use with DEBUG_SEND_TO_CONSOLE and other DEBUG_'s in Configuration.h
+#define GPSTAR_DEBUG 0
 
 // Debug macros
-#if DEBUG == 1
+#if GPSTAR_DEBUG == 1
   #define debug(...) Serial.print(__VA_ARGS__)
   #define debugf(...) Serial.printf(__VA_ARGS__)
   #define debugln(...) Serial.println(__VA_ARGS__)
@@ -52,19 +53,6 @@
 #define PROGMEM_READU16(x) pgm_read_word_near(&(x))
 #define PROGMEM_READU8(x) pgm_read_byte_near(&(x))
 
-#ifdef ESP32
-  // Disables static receiver code like receive timer ISR handler and static IRReceiver and irparams data.
-  // Saves 450 bytes program memory and 269 bytes RAM if receiving functions are not required.
-  #define DISABLE_CODE_FOR_RECEIVER
-
-  // Disable carrier PWM generation in software and use (restricted) hardware PWM.
-  // This is the default for ESP32 and by defining here avoids a compiler warning.
-  #define SEND_PWM_BY_TIMER
-
-  // Do not use a feedback LED for the IR signal.
-  #define NO_LED_FEEDBACK_CODE
-#endif
-
 // 3rd-Party Libraries
 #include <CRC32.h>
 #include <millisDelay.h>
@@ -74,13 +62,12 @@
 #include <Wire.h>
 #ifdef ESP32
   #include <HardwareSerial.h>
-  #include <IRremote.hpp>
 #else
   #include <EEPROM.h>
 #endif
 
 // Forward declaration for use in all includes.
-void sendDebug(const String message);
+void sendDebug(const String& message);
 
 // Forward declaration of scheduler task callback(s).
 void animateTaskCallback();
@@ -94,15 +81,30 @@ void wifiSetupTaskCallback();
 Scheduler schedule;
 
 // Shared Libraries
+#include <DeviceState.h>
 #ifdef ESP32
   #include <MagCalibration.h>
   MagCalibration magCal;
 
   #include <WirelessManager.h>
+  #include <WebRouter.h>
+
   // Define the WirelessManager pointer globally (initialized to nullptr).
   // This matches the extern declaration in Wireless.h
   WirelessManager* wirelessMgr = nullptr;
+
+  // Include the InfraredManager class and define a global pointer for it.
+  #define IR_LED_PIN 17
+  #define GPSTAR_IR_TX_ONLY
+  #include <InfraredManager.hpp>
+
+  // Define the InfraredManager pointer globally (initialized to nullptr).
+  // This matches the extern declaration in InfraredManager.h
+  InfraredManager* irManager = nullptr;
 #endif
+
+// Global instance of DeviceState class for the Single-Shot Blaster.
+DeviceState gpstarBlaster;
 
 // Local Files
 #include "Configuration.h"
@@ -124,10 +126,11 @@ Scheduler schedule;
 #ifdef ESP32
   #include "Wireless.h"
   #include "Webhandler.h"
+  #include "Webrouting.h"
 #endif
 
-// Writes a debug message to the serial console or sends to the WebSocket.
-void sendDebug(const String message) {
+// Writes a debug message to the serial console or sends to the WebSocket or Events stream.
+void sendDebug(const String& message) {
   #if defined(DEBUG_SEND_TO_CONSOLE)
     debugln(message); // Print to serial console.
   #endif
@@ -135,6 +138,9 @@ void sendDebug(const String message) {
     if(b_httpd_started) {
       ws.textAll(message); // Send a copy to the WebSocket.
     }
+  #endif
+  #if defined(DEBUG_SEND_TO_EVENTS) and defined(ESP32)
+    sendDebugEvent(message.c_str()); // Send message to the events stream.
   #endif
 }
 
@@ -159,6 +165,16 @@ Task inputsTask(14, TASK_FOREVER, &inputTaskCallback);
 #endif
 
 void setup() {
+  // System LEDs - Consists of the chain of cyclotron and barrel LEDs
+  FastLED.addLeds<NEOPIXEL, SYSTEM_LED_PIN>(system_leds, CYCLOTRON_LED_COUNT + BARREL_LED_COUNT).setCorrection(TypicalLEDStrip);
+  FastLED.setMaxRefreshRate(0); // Disable FastLED's blocking 2.5ms delay.
+
+  // RGB Vent Light.
+  FastLED.addLeds<NEOPIXEL, TOP_LED_PIN>(vent_leds, VENT_LEDS_MAX).setCorrection(TypicalLEDStrip);
+
+  // Update all addressable LEDs to prevent stale LED states.
+  FastLED.show();
+
 #ifdef ESP32
   // Reduce CPU frequency to 160 MHz to save ~33% power compared to 240 MHz.
   // Alternatively set CPU to 80 MHz to save ~50% power compared to 240 MHz.
@@ -168,7 +184,7 @@ void setup() {
   // This is required in order to make sure the board boots successfully.
   Serial.begin(115200);
 
-#if DEBUG == 1
+#if GPSTAR_DEBUG == 1
   // When debugging is enabled, wait for Serial to be ready (max 3 seconds).
   unsigned long startMillis = millis();
   while (!Serial && millis() - startMillis < 3000) {
@@ -179,9 +195,6 @@ void setup() {
   Serial.println(F("Serial is Ready")); // Should appear after Serial is ready.
 #endif
 
-  // Serial0 (UART0) is enabled by default; end() sets GPIO43 & GPIO44 to GPIO.
-  Serial0.end();
-
   /* This loop changes GPIO39~GPIO42 to Function 1, which is GPIO.
    * PIN_FUNC_SELECT sets the IOMUX function register appropriately.
    * IO_MUX_GPIO0_REG is the register for GPIO0, which we then seek from.
@@ -191,9 +204,17 @@ void setup() {
     PIN_FUNC_SELECT(IO_MUX_GPIO0_REG + (gpio_pin * 4), PIN_FUNC_GPIO);
   }
 
+  // Get all special device preferences from NVS which may be needed for sensors.
+  getSpecialPreferences();
+
   // Define the WirelessManager object only after NVS/Preferences are initialized.
   if(wirelessMgr == nullptr) {
-    wirelessMgr = new WirelessManager("Blaster", "192.168.1.8");
+    wirelessMgr = new WirelessManager(WirelessDeviceType::SINGLESHOT, "192.168.1.8");
+
+    // Initialize the Infrared handler with the device type and ID.
+    if(irManager == nullptr) {
+      irManager = new InfraredManager(IR_DEVICE_SINGLE_SHOT, wirelessMgr->getDeviceID());
+    }
 
     #if defined(RESET_AP_SETTINGS)
       // Reset the WiFi password to the expected default on every startup.
@@ -210,6 +231,7 @@ void setup() {
 
 #ifdef ESP32
   // Use of the register is not needed by ESP32, as it uses a different method for PWM.
+  ledcAttachChannel(VIBRATION_PIN, 230, 8, 5); // Uses 230 Hz frequency, 8-bit resolution, channel 5
 #else
   // Change PWM frequency for the vibration motor, we do not want it high pitched.
   // For ATmega2560, we set the PWM frequency for pin 11 (TCCR5B) to 122.55 Hz.
@@ -217,24 +239,10 @@ void setup() {
   pinMode(VIBRATION_PIN, OUTPUT); // Vibration motor is PWM, so fallback to default pinMode just to be safe.
 #endif
 
-  // System LEDs - Consists of the chain of cyclotron and barrel LEDs
-  FastLED.addLeds<NEOPIXEL, SYSTEM_LED_PIN>(system_leds, CYCLOTRON_LED_COUNT + BARREL_LED_COUNT).setCorrection(TypicalLEDStrip);
-  FastLED.setMaxRefreshRate(0); // Disable FastLED's blocking 2.5ms delay.
-
-  // RGB Vent Light.
-  FastLED.addLeds<NEOPIXEL, TOP_LED_PIN>(vent_leds, VENT_LEDS_MAX).setCorrection(TypicalLEDStrip);
-  for(uint8_t i = 0; i < VENT_LEDS_MAX; i++) {
-    // Initialize all vent_leds to white initially.
-    vent_leds[i] = getHueAsRGB(C_WHITE);
-  }
-
   // Rotary encoder on the top of the device.
   encoder.initialize();
 
 #ifdef ESP32
-  // Get all special device preferences from NVS which may be needed for sensors.
-  getSpecialPreferences();
-
   // ESP32-S3 requires manually specifying SDA and SCL pins first.
   // This is the i2c bus to be used solely for the bargraph.
   Wire.begin(I2C_SDA, I2C_SCL, 400000UL);
@@ -244,7 +252,7 @@ void setup() {
   uint8_t i_retries = 0;
   while(i_retries < 250) {
     if(!initializeSensors()) {
-      debugln("Failed to find sensors, retrying");
+      debugln(F("Failed to find sensors, retrying"));
       i_retries++;
       delay(10);
     }
@@ -288,9 +296,6 @@ void setup() {
   DEVICE_STATUS = MODE_OFF;
   DEVICE_ACTION_STATUS = ACTION_IDLE;
 
-  // We bootup the device in the classic proton mode.
-  STREAM_MODE = PROTON;
-
   // Load any saved settings stored in the EEPROM memory of the GPStar Single-Shot Blaster.
   if(b_eeprom) {
     readEEPROM();
@@ -299,9 +304,6 @@ void setup() {
   // Reset the master volume. Important to keep this as we startup the system at the lowest volume.
   // Then the EEPROM reads any settings if required, then we reset the volume.
   updateMasterVolume(true);
-
-  // Start up some timers for MODE_ORIGINAL.
-  ms_slo_blo_blink.start(i_slo_blo_blink_delay);
 
   // Starts music track completion check timer.
   ms_check_music.start(i_music_check_delay);
@@ -335,7 +337,7 @@ void animateTaskCallback() {
   // Update bargraph with latest state and pattern changes.
   if(ms_firing_pulse.isRunning()) {
     // Increase the speed for updates while this timer is still running.
-    bargraphUpdate(POWER_LEVEL - 1);
+    bargraphUpdate(gpstarBlaster.getPowerLevel() - 1);
   }
   else {
     // Otherwise run with the standard timing.
@@ -393,7 +395,7 @@ void motionTaskCallback() {
 // Task callback for WiFi setup (single-run).
 void wifiSetupTaskCallback() {
   debugln(F("Starting WiFi setup task..."));
-  
+
   // Begin by setting up WiFi as a prerequisite to all else.
   if(startWiFi()) {
     // Start the local web server.
@@ -403,7 +405,7 @@ void wifiSetupTaskCallback() {
   else {
     debugln(F("Failed to start WiFi"));
   }
-  
+
   // Disable this task after it runs once.
   wifiSetupTask.disable();
 }

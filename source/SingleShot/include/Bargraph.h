@@ -1,6 +1,6 @@
 /**
  *   GPStar Single-Shot Blaster
- *   Copyright (C) 2024-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2024-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                    & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -250,7 +250,7 @@ void bargraphPowerCheck() {
   // Account for uneven division by using the remainder as the base for level 1.
   uint8_t i_bargraph_base = (Bargraph::Elements % Bargraph::MaxLevels);
   // Remember, the passed level will be 0-based so we must add 1 for calculations.
-  bargraph.simulate = i_bargraph_base + (Bargraph::MaxLevels * (uint8_t)(POWER_LEVEL));
+  bargraph.simulate = i_bargraph_base + (Bargraph::MaxLevels * (uint8_t)(gpstarBlaster.getPowerLevel()));
 }
 
 // Performs update on bargraph elements based given a pattern.

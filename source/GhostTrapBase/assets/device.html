@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="UTF-8" />
@@ -16,7 +16,7 @@
         Change system configuration options using the available toggles and selectors. Use this screen to customize the private network used by the built-in WiFi network.
         <br />
         You may also use
-        <b>http://[PRIVATE_NETWORK].local</b>
+        <b>http://[CUSTOM_NAME].local</b>
         to access this device via your browser. Use the "Update Settings" button to save values to the device controller.
       </p>
       <br />
@@ -38,7 +38,7 @@
         <b>Status Display:</b>
         <select id="displayType" name="displayType">
           <option value="0">Text</option>
-          <option value="1">Graphical</option>
+          <option selected value="1">Graphical</option>
           <option value="2">Both</option>
         </select>
       </div>
@@ -58,7 +58,7 @@
       <div class="setting">
         <b>Duration when Opened (Seconds):</b>
         <br />
-        <input type="range" id="openedSmokeDuration" name="openedSmokeDuration" min="1" max="10" value="1" step="1" oninput="durationOpenedOut.value=openedSmokeDuration.value" />
+        <input type="range" id="openedSmokeDuration" name="openedSmokeDuration" min="1" max="10" value="1" step="1" oninput="durationOpenedOut.value = openedSmokeDuration.value" />
         <output class="labelSlider" id="durationOpenedOut" for="openedSmokeDuration"></output>
       </div>
       <div class="setting">
@@ -73,7 +73,7 @@
       <div class="setting">
         <b>Duration when Closed (Seconds):</b>
         <br />
-        <input type="range" id="closedSmokeDuration" name="closedSmokeDuration" min="1" max="10" value="1" step="1" oninput="durationClosedOut.value=closedSmokeDuration.value" />
+        <input type="range" id="closedSmokeDuration" name="closedSmokeDuration" min="1" max="10" value="1" step="1" oninput="durationClosedOut.value = closedSmokeDuration.value" />
         <output class="labelSlider" id="durationClosedOut" for="closedSmokeDuration"></output>
       </div>
     </div>
@@ -83,7 +83,7 @@
       <hr />
       <a href="/">&laquo; Back</a>
       &nbsp;&nbsp;
-      <button type="button" class="green" style="width: 120px" onclick="saveSettings()">Update&nbsp;Settings</button>
+      <button type="button" class="green" onclick="saveSettings()">Update&nbsp;Settings</button>
       <br />
       <br />
     </div>
@@ -100,23 +100,26 @@
       function getSettings() {
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
-          if (this.readyState == 4 && this.status == 200) {
+          if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
             var settings = JSON.parse(this.responseText);
             if (settings) {
               // Update fields with the current values, or supply an expected default as necessary.
               setValue("wifiName", settings.wifiName || "");
-              setValue("displayType", settings.displayType || 0); // Default: 0 [Text]
+              setValue("displayType", settings.displayType ?? 1); // Default: 1 [Graphical]
 
               // Smoke settings for doors opening.
               setToggle("openedSmokeEnabled", settings.openedSmokeEnabled);
-              setValue("openedSmokeDuration", settings.openedSmokeDuration || 1);
+              setValue("openedSmokeDuration", settings.openedSmokeDuration ?? 1);
               setHtml("durationOpenedOut", getText("openedSmokeDuration"));
 
               // Smoke settings for doors closing.
               setToggle("closedSmokeEnabled", settings.closedSmokeEnabled);
-              setValue("closedSmokeDuration", settings.closedSmokeDuration || 1);
+              setValue("closedSmokeDuration", settings.closedSmokeDuration ?? 1);
               setHtml("durationClosedOut", getText("closedSmokeDuration"));
             }
+          } else if (this.readyState == 4) {
+            // Handle error responses
+            handleStatus(this.responseText);
           }
         };
         xhttp.open("GET", "/config/device", true);
@@ -145,27 +148,28 @@
         // Saves current settings to attenuator, updating runtime variables and making changes immediately effective.
         var settings = {
           wifiName: wifiName,
-          displayType: getInt("displayType"),
+          displayType: getInt("displayType") ?? 1,
           openedSmokeEnabled: getToggle("openedSmokeEnabled"),
           closedSmokeEnabled: getToggle("closedSmokeEnabled"),
-          openedSmokeDuration: getInt("openedSmokeDuration") || 1,
-          closedSmokeDuration: getInt("closedSmokeDuration") || 1,
+          openedSmokeDuration: getInt("openedSmokeDuration") ?? 1,
+          closedSmokeDuration: getInt("closedSmokeDuration") ?? 1,
         };
         var body = JSON.stringify(settings);
 
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
           if (this.readyState == 4) {
-            if (this.status == 200) {
-              handleStatus(this.responseText);
-            }
-
-            if (this.status == 201) {
+            if (this.status == 200 || this.status == 201) {
               handleStatus(this.responseText);
 
-              if (confirm("Restart device now?")) {
-                doRestart();
+              if (this.status == 201) {
+                if (confirm("Restart device now?")) {
+                  doRestart();
+                }
               }
+            } else {
+              // Handle non-success responses
+              handleStatus(this.responseText);
             }
           }
         };
@@ -177,7 +181,7 @@
       function doRestart() {
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
-          if (this.readyState == 4 && this.status == 204) {
+          if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
             // Reload the page after 2 seconds.
             setTimeout(function () {
               window.location.reload();

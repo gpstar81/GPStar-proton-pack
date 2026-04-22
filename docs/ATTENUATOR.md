@@ -4,7 +4,7 @@ A special port labelled "RX1/TX1" (or "Attenuator" on later PCBs) exists as an e
 
 This is an OPTIONAL component which consists of an ESP32 microcontroller and a collection of LEDs, switches, and rotary dial to allow you to perform actions single-handed from the front of your Proton Pack when worn. *Please note that the original [Attenuator DIY guide](ATTENUATOR_DIY.md) used an Arduino Nano which is no longer capable of providing the storage space required by the full range of features supported and that hardware has been deprecated in favor of the ESP32 platform.*
 
-This guide will explain the purpose of the Pack Attenuator with its physical controls, though if you wish to only add WiFi capability to the original GPStar Pack PCB please view the [Wireless Adapter guide](WIRELESS.md).
+This guide will explain the purpose of the Pack Attenuator with its physical controls, though if you wish to only add WiFi capability to the original GPStar I Proton Pack please see the [Wireless Adapter guide](WIRELESS.md).
 
 ## Overview
 
@@ -46,7 +46,7 @@ Please see the [ATTENUATOR_FLASHING](ATTENUATOR_FLASHING.md) guide for details o
 
 ### Physical Operation
 
-While not attached to a compatible Proton Pack (read: standalone mode) the device will simply provide some lights and effects. The left toggle switch will turn on the bargraph animations while the right toggle switch will turn on the LEDs.
+While not attached to a compatible Proton Pack (read: standalone mode) the device will simply provide some lights and effects.
 
 Ideally, the device is intended be connected to the GPStar Proton Pack Controller which will allow it to provide all extended functionality. Under normal use the main dial will allow adjusting the overall volume, starting/stopping music tracks, navigating to the next track, and adjusting the effects volume.
 
@@ -54,21 +54,26 @@ Ideally, the device is intended be connected to the GPStar Proton Pack Controlle
 
 ### Standard Controls
 
-* Left Toggle: Turns the pack on or off, similar to use of the switch under the Ion Arm
-* Right Toggle: &starf; Changed for 6.1+, Enters the stream selection mode (via dial) when active 
+* Left (Outer) Toggle: Turns the pack on or off, similar to use of the switch under the Ion Arm
+* Right (Inner) Toggle: &starf; Changed for 6.1+, Enters the stream selection mode when allowed<sup>1</sup>
+  * Stream Select - &starf; New for 6.1+, Indicated by a fast blink of the top LED alternating as white
+     * Main Dial - Short Press: Force a quick vent action
+     * Main Dial - Long Press: Perform a manual Overheat event (full vent)
+     * Main Dial - Turn Counter-Clockwise to select next stream<sup>2</sup>, Clockwise for previous
 * Main Dial - Long Press: Alternates between two modes of operation
   * Mode 1 (Default) - Indicated by a high buzzer tone
      * Main Dial - Short Press: Starts or stops the current music track
      * Main Dial - Double Press: Mutes or unmutes all pack/wand audio
      * Main Dial - Turn CW/CCW: Adjusts the overall volume for pack/wand
-  * Mode 2 - Indicated by a low buzzer tone
+  * Mode 2 - Indicated by a low buzzer tone, top LED blinks in an alternating pattern as yellow
      * Main Dial - Short Press: Advances to the next music track
      * Main Dial - Double Press: Move to the previous music track
      * Main Dial - Turn CW/CCW: Adjusts the effects volume for pack/wand
-  * Stream Select - Enabled or disabled by use of the right toggle &starf; New for 6.1+
-     * Main Dial - Counter-Clockwise to select next stream, Clockwise for previous
+* Main Dial - During an overheat warning, the device will emit sounds and vibrations in addition to lighting effects as the pack cyclotron reaches a "critical" state. At this time the pack operator can turn the main dial in either direction to "attenuate" the pack and cancel the current warning. If the warning time is allowed to expire the the pack will enter the venting sequence.
 
-Note that during an overheat warning, the device will emit sounds and vibrations in addition to lighting effects as the pack reaches a critical state. At this time the pack operator can turn the primary dial either direction to "attenuate" the pack and cancel the current warning. If the warning time is allowed to expire the the pack will enter the venting sequence.
+<sup>1</sup> The stream selection mode can only be entered when the pack is powered on, not shutting down, the wand is not firing, and the system is not in an overheat or alarm state.
+
+<sup>2</sup> In order to access all stream options you must have enabled the Video Game modes for the Proton Pack. Additionally you must have Spectral Modes enabled to get access to the holiday and custom modes.
 
 ### Lockout Mode (Main Dial)
 

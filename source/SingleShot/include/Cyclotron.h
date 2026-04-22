@@ -1,6 +1,6 @@
 /**
  *   GPStar Single-Shot Blaster
- *   Copyright (C) 2024-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2024-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *                    & Dustin Grau <dustin.grau@gmail.com>
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@
  * Alternates between a pair of LEDs in the jewel, fading in by some number of steps per update of the timer.
  */
 millisDelay ms_cyclotron;
-const uint8_t i_cyclotron_leds[i_num_cyclotron_leds] = {0, 1, 2, 3, 4, 5, 6}; // Note: 7 is the dead center of the jewel
+//const uint8_t i_cyclotron_leds[i_num_cyclotron_leds] = {0, 1, 2, 3, 4, 5, 6}; // Note: 7 is the dead center of the jewel
 const uint8_t i_cyclotron_max_steps = 12; // Set a reusable constant for the maximum number of steps to cycle through
 // Sequence: 1, 4, 2, 5, 3, 6, 4, 1, 5, 2, 6, 3
 const uint8_t i_cyclotron_pair[i_cyclotron_max_steps][2] = {
@@ -50,7 +50,7 @@ const uint8_t i_cyclotron_max_brightness = 255; // Maximum brightness for each L
 uint16_t i_dynamic_cyclotron_delay; // Calculated cyclotron spin delay based on power level.
 
 uint16_t getCyclotronDelay() {
-  return (uint16_t) (i_base_cyclotron_delay - (POWER_LEVEL * (i_base_cyclotron_delay - i_min_cyclotron_delay) / 4));
+  return (uint16_t) (i_base_cyclotron_delay - (gpstarBlaster.getPowerLevel() * (i_base_cyclotron_delay - i_min_cyclotron_delay) / 4));
 }
 
 // Manage lights in pairs to move in a predefined sequence, fading each light in and out.
@@ -82,7 +82,7 @@ void updateCyclotron(uint8_t i_colour) {
       }
     }
 
-    // Toggle between the LEDs in the i_cyclotron_pair using the given color.
+    // Toggle between the LEDs in the i_cyclotron_pair using the given colour.
     if(sb_toggle) {
       system_leds[i_cyclotron_led_start + i_cyclotron_pair[si_pairing][0]] = getHueAsRGB(i_colour).nscale8(si_brightness_in);  // Fade in LED 1 in the pair
       system_leds[i_cyclotron_led_start + i_cyclotron_pair[si_pairing][1]] = getHueAsRGB(i_colour).nscale8(si_brightness_out); // Fade out LED 2 in the pair

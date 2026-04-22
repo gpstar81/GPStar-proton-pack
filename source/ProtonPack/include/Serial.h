@@ -1,6 +1,6 @@
 /**
  *   GPStar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2023-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2023-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,8 +20,10 @@
 #pragma once
 
 // Forward function declarations.
+#ifdef ESP32
 void restartWireless(); // From Webhandler.h
 void shutdownWireless(); // From Webhandler.h
+#endif
 
 /*
  * Neutrona Wand & Attenuator communication.
@@ -40,8 +42,8 @@ void shutdownWireless(); // From Webhandler.h
   #define WAND_RX_PIN 11
 #endif
 // ESP32 allows defining custom objects, so create ones for UART0 and UART1.
-HardwareSerial WandSerial(0); // Associate WandSerial with UART0
-HardwareSerial AttenuatorSerial(1); // Associate AttenuatorSerial with UART1
+HardwareSerial AttenuatorSerial(0); // Associate AttenuatorSerial with UART0
+HardwareSerial WandSerial(1); // Associate WandSerial with UART1
 #else
 // ATMEGA 2560 has hardcoded serial UART objects, so use aliases instead.
 #define AttenuatorSerial Serial1
@@ -71,10 +73,10 @@ void toggleYearModes() {
   playEffect(S_BEEPS_BARGRAPH);
 
   // Cycles through year modes: 1984 -> 1989 -> Afterlife -> Frozen Empire
-  switch(SYSTEM_YEAR_TEMP) {
+  switch(SYSTEM_THEME_TEMP) {
     case SYSTEM_1984:
       // 1984 -> 1989
-      SYSTEM_YEAR_TEMP = SYSTEM_1989;
+      SYSTEM_THEME_TEMP = SYSTEM_1989;
 
       stopEffect(S_VOICE_FROZEN_EMPIRE);
       stopEffect(S_VOICE_AFTERLIFE);
@@ -89,7 +91,7 @@ void toggleYearModes() {
 
     case SYSTEM_1989:
       // 1989 -> Afterlife
-      SYSTEM_YEAR_TEMP = SYSTEM_AFTERLIFE;
+      SYSTEM_THEME_TEMP = SYSTEM_AFTERLIFE;
 
       stopEffect(S_VOICE_FROZEN_EMPIRE);
       stopEffect(S_VOICE_AFTERLIFE);
@@ -105,7 +107,7 @@ void toggleYearModes() {
     case SYSTEM_AFTERLIFE:
     default:
       // Afterlife -> Frozen Empire
-      SYSTEM_YEAR_TEMP = SYSTEM_FROZEN_EMPIRE;
+      SYSTEM_THEME_TEMP = SYSTEM_FROZEN_EMPIRE;
 
       stopEffect(S_VOICE_FROZEN_EMPIRE);
       stopEffect(S_VOICE_AFTERLIFE);
@@ -120,7 +122,7 @@ void toggleYearModes() {
 
     case SYSTEM_FROZEN_EMPIRE:
       // Frozen Empire -> 1984
-      SYSTEM_YEAR_TEMP = SYSTEM_1984;
+      SYSTEM_THEME_TEMP = SYSTEM_1984;
 
       stopEffect(S_VOICE_FROZEN_EMPIRE);
       stopEffect(S_VOICE_AFTERLIFE);
@@ -134,7 +136,7 @@ void toggleYearModes() {
     break;
   }
 
-  if(!b_pack_shutting_down && !b_pack_on && !b_spectral_lights_on) {
+  if(!b_pack_shutting_down && PACK_STATE != MODE_ON && !b_spectral_lights_on) {
     // Reset the pack variables to match the new year mode.
     packOffReset();
   }
@@ -152,58 +154,46 @@ void getPackPrefsObject() {
 
   // Return an indication of whether the device is an ESP32 or not.
 #ifdef ESP32
-  packConfig.isESP32 = 1;
-  packConfig.wifiState = (WIFI_MODE == WIFI_ENABLED); // Set current Wifi state.
-  packConfig.resetWifiPassword = 0; // Always set to 0 to prevent repeated resets.
+  packConfig.isESP32 = true;
+  packConfig.isWiFiEnabled = wirelessMgr->isWifiActive(); // Set true if Wifi is physically enabled.
+  packConfig.resetWifiPassword = false; // Always set to false to prevent repeated resets.
 #else
-  packConfig.isESP32 = 0;
-  packConfig.wifiState = 0;
-  packConfig.resetWifiPassword = 0;
+  packConfig.isESP32 = false;
+  packConfig.isWiFiEnabled = false;
+  packConfig.resetWifiPassword = false;
 #endif
 
   // General Settings
-  packConfig.defaultSystemModePack = SYSTEM_MODE;
-  packConfig.defaultYearThemePack = SYSTEM_EEPROM_YEAR;
-  packConfig.currentYearThemePack = SYSTEM_YEAR;
+  packConfig.defaultSystemModePack = gpstarPack.getSystemMode();
+  packConfig.defaultYearThemePack = SYSTEM_THEME_EEPROM;
+  packConfig.currentYearThemePack = gpstarPack.getSystemTheme();
   packConfig.defaultPackVolume = i_eeprom_volume_master_percentage;
-  packConfig.protonStreamEffects = b_stream_effects ? 1 : 0;
-  packConfig.overheatStrobeNF = b_overheat_strobe ? 1 : 0;
-  packConfig.overheatLightsOff = b_overheat_lights_off ? 1 : 0;
-  packConfig.overheatSyncToFan = b_overheat_sync_to_fan ? 1 : 0;
-  packConfig.demoLightMode = b_demo_light_mode ? 1 : 0;
-  packConfig.ribbonCableAlarm = b_use_ribbon_cable ? 1 : 0;
-  packConfig.wandQuickBootup = !b_wand_long_startup ? 1 : 0;
-  packConfig.gpstarAudioLed = b_gpstar_audio_led_enabled ? 1 : 0;
+  packConfig.fadeoutIdleSounds = b_fadeout_idle_sounds;
+  packConfig.protonStreamEffects = b_stream_effects;
+  packConfig.brassStartupLoop = b_brass_startup_loop;
+  packConfig.overheatStrobeNF = b_overheat_strobe;
+  packConfig.overheatLightsOff = b_overheat_lights_off;
+  packConfig.overheatSyncToFan = b_overheat_sync_to_fan;
+  packConfig.demoLightMode = b_demo_light_mode;
+  packConfig.ribbonCableAlarm = b_use_ribbon_cable;
+  packConfig.wandQuickBootup = !b_wand_long_startup;
+  packConfig.gpstarAudioLed = b_gpstar_audio_led_enabled;
 
-  switch(VIBRATION_MODE_EEPROM) {
-    case VIBRATION_ALWAYS:
-      packConfig.packVibration = 1;
-    break;
-    case VIBRATION_FIRING_ONLY:
-      packConfig.packVibration = 2;
-    break;
-    case VIBRATION_NONE:
-      packConfig.packVibration = 3;
-    break;
-    case VIBRATION_DEFAULT:
-    default:
-      packConfig.packVibration = 4;
-    break;
-    case CYCLOTRON_MOTOR:
-      packConfig.packVibration = 5;
-    break;
+  if(VIBRATION_MODE_EEPROM > 0) {
+    packConfig.packVibration = VIBRATION_MODE_EEPROM;
   }
 
   // Cyclotron Lid
-  packConfig.ledCycLidCount = i_cyclotron_leds;
+  packConfig.ledCycLidCount = i_cyclotron_num_leds;
   packConfig.ledCycLidHue = i_spectral_cyclotron_custom_colour;
   packConfig.ledCycLidSat = i_spectral_cyclotron_custom_saturation;
   packConfig.ledCycLidLum = i_cyclotron_brightness;
-  packConfig.cyclotronDirection = b_clockwise ? 1 : 0;
-  packConfig.ledCycLidCenter = b_cyclotron_single_led ? 1 : 0;
-  packConfig.ledCycLidFade = b_fade_cyclotron_led ? 1 : 0;
-  packConfig.ledVGCyclotron = b_cyclotron_colour_toggle ? 1 : 0;
-  packConfig.ledCycLidSimRing = b_cyclotron_simulate_ring ? 1 : 0;
+  packConfig.cyclotronDirection = b_clockwise;
+  packConfig.ledCycLidCenter = b_cyclotron_single_led;
+  packConfig.ledCycLidFade = b_fade_cyclotron_led;
+  packConfig.ledVGCyclotron = b_cyclotron_colour_toggle;
+  packConfig.ledCycLidSimRing = b_cyclotron_simulate_ring;
+  packConfig.disableLidDetection = b_disable_lid_detection;
 
   // Inner Cyclotron
   packConfig.ledCycPanLum = i_cyclotron_panel_brightness;
@@ -247,12 +237,12 @@ void getPackPrefsObject() {
   }
 
   // Power Cell
-  packConfig.ledPowercellCount = i_powercell_leds;
-  packConfig.ledInvertPowercell = b_powercell_invert ? 1 : 0;
+  packConfig.ledPowercellCount = i_powercell_num_leds;
+  packConfig.ledInvertPowercell = b_powercell_invert;
   packConfig.ledPowercellHue = i_spectral_powercell_custom_colour;
   packConfig.ledPowercellSat = i_spectral_powercell_custom_saturation;
   packConfig.ledPowercellLum = i_powercell_brightness;
-  packConfig.ledVGPowercell = b_powercell_colour_toggle ? 1 : 0;
+  packConfig.ledVGPowercell = b_powercell_colour_toggle;
 }
 
 // Common helper function to populate the smokeConfig object with global variables.
@@ -260,11 +250,11 @@ void getSmokePrefsObject() {
   sendDebug(F("Getting Smoke Preferences"));
 
   // Determines whether smoke effects while firing is enabled by power level.
-  smokeConfig.overheatContinuous5 = b_smoke_continuous_level_5 ? 1 : 0; // true|false
-  smokeConfig.overheatContinuous4 = b_smoke_continuous_level_4 ? 1 : 0; // true|false
-  smokeConfig.overheatContinuous3 = b_smoke_continuous_level_3 ? 1 : 0; // true|false
-  smokeConfig.overheatContinuous2 = b_smoke_continuous_level_2 ? 1 : 0; // true|false
-  smokeConfig.overheatContinuous1 = b_smoke_continuous_level_1 ? 1 : 0; // true|false
+  smokeConfig.overheatContinuous5 = b_smoke_continuous_level_5; // true|false
+  smokeConfig.overheatContinuous4 = b_smoke_continuous_level_4; // true|false
+  smokeConfig.overheatContinuous3 = b_smoke_continuous_level_3; // true|false
+  smokeConfig.overheatContinuous2 = b_smoke_continuous_level_2; // true|false
+  smokeConfig.overheatContinuous1 = b_smoke_continuous_level_1; // true|false
 
   // Duration (in seconds) an overheat event persists once activated.
   smokeConfig.overheatDuration5 = i_ms_overheating_length_5 / 1000; // 2-60 Seconds
@@ -274,7 +264,7 @@ void getSmokePrefsObject() {
   smokeConfig.overheatDuration1 = i_ms_overheating_length_1 / 1000; // 2-60 Seconds
 
   // Enable or disable smoke effects overall.
-  smokeConfig.smokeEnabled = b_smoke_enabled ? 1 : 0;
+  smokeConfig.smokeEnabled = b_smoke_enabled;
 
   if(!b_wand_connected) {
     // Provide some default values when a wand is not attached.
@@ -315,12 +305,85 @@ bool isExcludedCommand(uint8_t i_command) {
  * Serial API Communication Handlers
  */
 
+// Check if the wand is still connected.
+void wandDisconnectCheck() {
+  // A wand was previously considered to be connected.
+  if(b_wand_connected) {
+    if(ms_wand_check.justFinished()) {
+      // Timer just ran out, so we must assume the wand was disconnected.
+      if(b_diagnostic) {
+        // While in diagnostic mode, play a sound to indicate the wand is disconnected.
+        playEffect(S_VENT_BEEP);
+      }
+
+      b_wand_connected = false; // Cause the next handshake to trigger a sync.
+      b_wand_syncing = false; // If there is no wand we cannot be syncing with one.
+      b_wand_on = false; // No wand means the device is no longer powered on.
+
+      // Tell the Attenuator the wand was disconnected.
+      attenuatorSerialSend(A_WAND_DISCONNECTED);
+
+      if(b_wand_firing) {
+        // Reset the pack to a non-firing state.
+        wandStoppedFiring();
+        cyclotronSpeedRevert();
+      }
+
+      if(b_wand_mash_lockout) {
+        restartFromWandMash();
+      }
+
+      wandExtraSoundsStop();
+      wandExtraSoundsBeepLoopStop(false);
+
+      // Turn off overheating if the wand gets disconnected.
+      if(b_overheating) {
+        packOverheatingFinished();
+      }
+
+      if(b_spectral_lights_on) {
+        spectralLightsOff();
+      }
+
+      // Reset our stream mode options since we no longer have a wand.
+      gpstarPack.setFiringModeVG();
+      gpstarPack.clearStreamFlags();
+      gpstarPack.enableVGStreams();
+      gpstarPack.enableAllSpectralStreams();
+    }
+    else {
+      if(ms_wand_check.remaining() < (ms_wand_check.delay() / 5) && !b_wand_syncing) {
+        // If we haven't received a handshake from the wand in over 6.5 seconds, force a handshake with the wand.
+        // This is because the wand is supposed to handshake every 3.25 seconds and we haven't heard back in two pings.
+        // This should be a last-resort check to make sure it's available and responding.
+        b_wand_syncing = true;
+        packSerialSend(P_HANDSHAKE);
+      }
+    }
+  }
+}
+
+// Check if the Attenuator is still connected.
+void attenuatorHandShake() {
+  if(b_attenuator_connected) {
+    if(ms_attenuator_check.justFinished()) {
+      // Attenuator has abandoned us.
+      b_attenuator_syncing = false;
+      b_attenuator_connected = false;
+    }
+    else if(ms_attenuator_check.remaining() < (ms_attenuator_check.delay() / 2) && !b_attenuator_syncing) {
+      // Haven't heard from the Attenuator recently; let's check in.
+      b_attenuator_syncing = true;
+      attenuatorSerialSend(A_HANDSHAKE);
+    }
+  }
+}
+
 // Outgoing commands to the Attenuator
 void attenuatorSerialSend(uint8_t i_command, uint16_t i_value) {
   uint16_t i_send_size = 0;
 
-  // debug(F("Command to Attenuator: "));
-  // debugln(i_command);
+  // sendDebug(String(F("Command to Attenuator: ")) + String(i_command));
 
   sendCmdA.s = P_COM_START;
   sendCmdA.c = i_command;
@@ -346,8 +409,7 @@ void attenuatorSerialSend(uint8_t i_command) {
 void attenuatorSendData(uint8_t i_message) {
   uint16_t i_send_size = 0;
 
-  // debug(F("Data to Attenuator: "))
-  // debugln(i_message);
+  // sendDebug(String(F("Data to Attenuator: ")) + String(i_message))
 
   sendDataA.s = P_COM_START;
   sendDataA.m = i_message;
@@ -365,7 +427,6 @@ void attenuatorSendData(uint8_t i_message) {
 
   // Provide additional data with certain messages.
   switch(i_message) {
-    case A_SPECTRAL_CUSTOM_MODE:
     case A_SPECTRAL_COLOUR_DATA:
       sendDataA.d[0] = i_spectral_cyclotron_custom_colour;
       sendDataA.d[1] = i_spectral_cyclotron_custom_saturation;
@@ -417,8 +478,7 @@ void attenuatorSendData(uint8_t i_message) {
 void packSerialSend(uint8_t i_command, uint16_t i_value) {
   uint16_t i_send_size = 0;
 
-  debug(F("Command to Wand: "));
-  debugln(i_command);
+  sendDebug(String(F("Command to Wand: ")) + String(i_command));
 
   sendCmdW.s = P_COM_START;
   sendCmdW.c = i_command;
@@ -437,8 +497,7 @@ void packSerialSend(uint8_t i_command) {
 void packSerialSendData(uint8_t i_message) {
   uint16_t i_send_size = 0;
 
-  // debug(F("Data to Wand: "));
-  // debugln(i_message);
+  // sendDebug(String(F("Data to Wand: ")) + String(i_message));
 
   sendDataW.s = P_COM_START;
   sendDataW.m = i_message;
@@ -477,59 +536,24 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value);
 void handlePackPrefsUpdate() {
   sendDebug(F("Saving Pack Preferences"));
 
-#ifdef ESP32
-  switch(packConfig.wifiState) {
-    case 0:
-      if(WIFI_MODE != WIFI_DISABLED) {
-        // Disable WiFi if it is not already disabled.
-        WIFI_MODE = WIFI_DISABLED;
-        playEffect(S_VOICE_PACK_WIFI_DISABLED);
-        shutdownWireless();
-      }
-    break;
-    case 1:
-      // Unconditionally turn on WiFi.
-      WIFI_MODE = WIFI_ENABLED;
-      playEffect(S_VOICE_PACK_WIFI_ENABLED);
-      restartWireless();
-    break;
-    default:
-      // Do nothing.
-    break;
-  }
-
-  switch(packConfig.resetWifiPassword) {
-    case 0:
-    default:
-      // Do nothing.
-    break;
-    case 1:
-      // Reset the Wifi password to the system default.
-      wirelessMgr->resetWifiPassword();
-
-      // Immediately reset the config object to prevent repeat calls.
-      packConfig.resetWifiPassword = 0;
-    break;
-  }
-#endif
-
   switch(packConfig.defaultSystemModePack) {
-    case 0:
+    case 1:
     default:
-      SYSTEM_MODE = MODE_SUPER_HERO;
+      gpstarPack.setSystemMode(MODE_SUPER_HERO);
       packSerialSend(P_MODE_SUPER_HERO);
       attenuatorSerialSend(A_MODE_SUPER_HERO);
     break;
 
-    case 1:
-      SYSTEM_MODE = MODE_ORIGINAL;
+    case 2:
+      gpstarPack.setSystemMode(MODE_ORIGINAL);
       packSerialSend(P_MODE_ORIGINAL);
       attenuatorSerialSend(A_MODE_ORIGINAL);
 
-      if(!b_wand_connected && STREAM_MODE != PROTON) {
+      if(!b_wand_connected && !gpstarPack.inStreamMode(PROTON)) {
         // If no wand is connected we need to make sure we're in Proton Stream.
-        STREAM_MODE = PROTON;
-        attenuatorSerialSend(A_PROTON_MODE);
+        if(gpstarPack.setStreamMode(PROTON)) {
+          attenuatorSerialSend(A_SET_STREAM_MODE, gpstarPack.getStreamModeByte());
+        }
       }
     break;
   }
@@ -538,47 +562,48 @@ void handlePackPrefsUpdate() {
     case 1:
     default:
       // Will allow the pack to boot up to whatever state the mode switch is in.
-      SYSTEM_EEPROM_YEAR = SYSTEM_TOGGLE_SWITCH;
+      SYSTEM_THEME_EEPROM = SYSTEM_TOGGLE_SWITCH;
     break;
     case 2:
-      SYSTEM_EEPROM_YEAR = SYSTEM_1984;
+      SYSTEM_THEME_EEPROM = SYSTEM_1984;
     break;
     case 3:
-      SYSTEM_EEPROM_YEAR = SYSTEM_1989;
+      SYSTEM_THEME_EEPROM = SYSTEM_1989;
     break;
     case 4:
-      SYSTEM_EEPROM_YEAR = SYSTEM_AFTERLIFE;
+      SYSTEM_THEME_EEPROM = SYSTEM_AFTERLIFE;
     break;
     case 5:
-      SYSTEM_EEPROM_YEAR = SYSTEM_FROZEN_EMPIRE;
+      SYSTEM_THEME_EEPROM = SYSTEM_FROZEN_EMPIRE;
     break;
   }
 
   switch(packConfig.currentYearThemePack) {
     case 2:
-      SYSTEM_YEAR = SYSTEM_1984;
-      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+      gpstarPack.setSystemTheme(SYSTEM_1984);
+      SYSTEM_THEME_TEMP = gpstarPack.getSystemTheme();
       b_switch_mode_override = true; // Explicit mode set, override mode toggle.
       packSerialSend(P_YEAR_1984);
       attenuatorSerialSend(A_YEAR_1984);
     break;
     case 3:
-      SYSTEM_YEAR = SYSTEM_1989;
-      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+      gpstarPack.setSystemTheme(SYSTEM_1989);
+      SYSTEM_THEME_TEMP = gpstarPack.getSystemTheme();
       b_switch_mode_override = true; // Explicit mode set, override mode toggle.
       packSerialSend(P_YEAR_1989);
       attenuatorSerialSend(A_YEAR_1989);
     break;
     case 4:
-      SYSTEM_YEAR = SYSTEM_AFTERLIFE;
-      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+    default:
+      gpstarPack.setSystemTheme(SYSTEM_AFTERLIFE);
+      SYSTEM_THEME_TEMP = gpstarPack.getSystemTheme();
       b_switch_mode_override = true; // Explicit mode set, override mode toggle.
       packSerialSend(P_YEAR_AFTERLIFE);
       attenuatorSerialSend(A_YEAR_AFTERLIFE);
     break;
     case 5:
-      SYSTEM_YEAR = SYSTEM_FROZEN_EMPIRE;
-      SYSTEM_YEAR_TEMP = SYSTEM_YEAR;
+      gpstarPack.setSystemTheme(SYSTEM_FROZEN_EMPIRE);
+      SYSTEM_THEME_TEMP = gpstarPack.getSystemTheme();
       b_switch_mode_override = true; // Explicit mode set, override mode toggle.
       packSerialSend(P_YEAR_FROZEN_EMPIRE);
       attenuatorSerialSend(A_YEAR_FROZEN_EMPIRE);
@@ -589,24 +614,24 @@ void handlePackPrefsUpdate() {
     case 1:
       b_vibration_switch_on = true; // Override the vibration toggle switch.
       VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
-      VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+      gpstarPack.setVibrationMode(VIBRATION_MODE_EEPROM);
     break;
 
     case 2:
       b_vibration_switch_on = true; // Override the vibration toggle switch.
       VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
-      VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+      gpstarPack.setVibrationMode(VIBRATION_MODE_EEPROM);
     break;
 
     case 3:
-      VIBRATION_MODE_EEPROM = VIBRATION_NONE;
-      VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+      VIBRATION_MODE_EEPROM = VIBRATION_NEVER;
+      gpstarPack.setVibrationMode(VIBRATION_MODE_EEPROM);
     break;
 
     case 4:
     default:
       VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
-      VIBRATION_MODE = VIBRATION_FIRING_ONLY;
+      gpstarPack.setVibrationMode(VIBRATION_FIRING_ONLY);
 
       // Reset the vibration switch state.
       if(switch_vibration.getState() == LOW) {
@@ -619,7 +644,7 @@ void handlePackPrefsUpdate() {
 
     case 5:
       VIBRATION_MODE_EEPROM = CYCLOTRON_MOTOR;
-      VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+      gpstarPack.setVibrationMode(VIBRATION_MODE_EEPROM);
       pinMode(VIBRATION_PIN, OUTPUT); // Need to explicitly switch to GPIO from LEDC on ESP32.
 
       // Reset the vibration switch state.
@@ -634,35 +659,37 @@ void handlePackPrefsUpdate() {
 
   sendDebug(F("Updating general variables..."));
   i_volume_master_eeprom = (MINIMUM_VOLUME + i_volume_min_adj) - ((MINIMUM_VOLUME + i_volume_min_adj) * packConfig.defaultPackVolume / 100);
-  b_stream_effects = (packConfig.protonStreamEffects == 1); // Implement the stream impact sounds while firing.
-  b_overheat_strobe = (packConfig.overheatStrobeNF == 1);
-  b_overheat_lights_off = (packConfig.overheatLightsOff == 1);
-  b_overheat_sync_to_fan = (packConfig.overheatSyncToFan == 1); // Sync the smoke and fan operation during overheat.
-  b_demo_light_mode = (packConfig.demoLightMode == 1); // Turn on the pack immediately after startup (aka. demo mode).
-  b_use_ribbon_cable = (packConfig.ribbonCableAlarm == 1); // Respond to the ribbon cable connection/disconnection state.
-  b_wand_long_startup = !(packConfig.wandQuickBootup == 1); // Negate this setting to match the name/purpose of the variable.
+  b_fadeout_idle_sounds = packConfig.fadeoutIdleSounds; // Choose whether to fade the idle sounds out or have them play permanently.
+  b_stream_effects = packConfig.protonStreamEffects; // Implement the stream impact sounds while firing.
+  b_brass_startup_loop = packConfig.brassStartupLoop; // Choose whether brass pack startup will loop or play once.
+  b_overheat_strobe = packConfig.overheatStrobeNF; // Choose whether N-Filter LED will strobe or not when overheating.
+  b_overheat_lights_off = packConfig.overheatLightsOff; // Choose whether Proton Pack lights will go out or stay on when overheating.
+  b_overheat_sync_to_fan = packConfig.overheatSyncToFan; // Sync the smoke and fan operation during overheat.
+  b_demo_light_mode = packConfig.demoLightMode; // Turn on the pack immediately after startup (aka. demo mode).
+  b_use_ribbon_cable = packConfig.ribbonCableAlarm; // Respond to the ribbon cable connection/disconnection state.
+  b_wand_long_startup = !packConfig.wandQuickBootup; // Negate this setting to match the name/purpose of the variable.
 
   // Cyclotron Lid
   switch(packConfig.ledCycLidCount) {
     // For a 40 LED Neopixel ring.
     case 40:
-      i_cyclotron_leds = OUTER_CYCLOTRON_LED_MAX;
+      i_cyclotron_num_leds = OUTER_CYCLOTRON_LED_MAX;
     break;
 
     // For GPStar Cyclotron (36) LEDs.
     case 36:
-      i_cyclotron_leds = MAX_CYCLOTRON_LED_COUNT;
+      i_cyclotron_num_leds = MAX_CYCLOTRON_LED_COUNT;
     break;
 
     // For Frutto Technology Cyclotron (20) LEDs.
     case 20:
-      i_cyclotron_leds = FRUTTO_CYCLOTRON_LED_COUNT;
+      i_cyclotron_num_leds = FRUTTO_CYCLOTRON_LED_COUNT;
     break;
 
     // Default HasLab (12) LEDs.
     case 12:
     default:
-      i_cyclotron_leds = HASLAB_CYCLOTRON_LED_COUNT;
+      i_cyclotron_num_leds = HASLAB_CYCLOTRON_LED_COUNT;
     break;
   }
 
@@ -670,11 +697,12 @@ void handlePackPrefsUpdate() {
   i_spectral_cyclotron_custom_colour = packConfig.ledCycLidHue;
   i_spectral_cyclotron_custom_saturation = packConfig.ledCycLidSat;
   i_cyclotron_brightness = packConfig.ledCycLidLum;
-  b_clockwise = (packConfig.cyclotronDirection == 1);
-  b_cyclotron_single_led = (packConfig.ledCycLidCenter == 1);
-  b_fade_cyclotron_led = (packConfig.ledCycLidFade == 1);
-  b_cyclotron_colour_toggle = (packConfig.ledVGCyclotron == 1);
-  b_cyclotron_simulate_ring = (packConfig.ledCycLidSimRing == 1);
+  b_clockwise = packConfig.cyclotronDirection;
+  b_cyclotron_single_led = packConfig.ledCycLidCenter;
+  b_fade_cyclotron_led = packConfig.ledCycLidFade;
+  b_cyclotron_colour_toggle = packConfig.ledVGCyclotron;
+  b_cyclotron_simulate_ring = packConfig.ledCycLidSimRing;
+  b_disable_lid_detection = packConfig.disableLidDetection;
 
   if(b_fade_cyclotron_led) {
     i_1984_delay = CYCLOTRON_DELAY_TVG;
@@ -727,15 +755,15 @@ void handlePackPrefsUpdate() {
 
   // Power Cell
   sendDebug(F("Updating power cell variables..."));
-  i_powercell_leds = packConfig.ledPowercellCount;
-  b_powercell_invert = (packConfig.ledInvertPowercell == 1);
+  i_powercell_num_leds = packConfig.ledPowercellCount;
+  b_powercell_invert = packConfig.ledInvertPowercell;
   i_spectral_powercell_custom_colour = packConfig.ledPowercellHue;
   i_spectral_powercell_custom_saturation = packConfig.ledPowercellSat;
   i_powercell_brightness = packConfig.ledPowercellLum;
-  b_powercell_colour_toggle = (packConfig.ledVGPowercell == 1);
+  b_powercell_colour_toggle = packConfig.ledVGPowercell;
 
   // GPStar Audio LED Status
-  b_gpstar_audio_led_enabled = (packConfig.gpstarAudioLed == 1);
+  b_gpstar_audio_led_enabled = packConfig.gpstarAudioLed;
 
   // Offer some feedback to the user
   stopEffect(S_BEEP_VARIATION);
@@ -749,6 +777,36 @@ void handlePackPrefsUpdate() {
   resetCyclotronLEDs(); // Update delays based on LED count
   resetRampSpeeds(); // Update delays based on LED count
   packOffReset(); // Make sure we reset any and all LEDs.
+
+#ifdef ESP32
+  if(packConfig.resetWifiPassword) {
+    // Reset the Wifi password to the system default.
+    wirelessMgr->resetWifiPassword();
+
+    // Immediately reset the config object to prevent repeat calls.
+    packConfig.resetWifiPassword = false;
+  }
+
+  if(packConfig.isWiFiEnabled) {
+    // Flag indicates WiFi should be enabled, whether by default or user choice.
+    if(WIFI_USER_MODE != WIFI_ENABLED && !wirelessMgr->isWifiActive()) {
+      // If the WiFi user-mode is default or disabled, and WiFi is not already active,
+      // then explicitly enable WiFi as the new user mode and restart the service.
+      WIFI_USER_MODE = WIFI_ENABLED;
+      playEffect(S_VOICE_PACK_WIFI_ENABLED);
+      restartWireless();
+    }
+  } else {
+    // Flag indicates WiFi should be disabled.
+    if(WIFI_USER_MODE != WIFI_DISABLED) {
+      // Whether WiFi is active or not, set the user mode to disabled.
+      WIFI_USER_MODE = WIFI_DISABLED;
+      playEffect(S_VOICE_PACK_WIFI_DISABLED);
+      shutdownWireless();
+    }
+  }
+#endif
+
   sendDebug(F("Completed update of pack settings"));
 }
 
@@ -774,12 +832,12 @@ void handleSmokePrefsUpdate() {
   i_ms_overheating_length_2 = smokeConfig.overheatDuration2 * 1000;
   i_ms_overheating_length_1 = smokeConfig.overheatDuration1 * 1000;
 
-  b_smoke_continuous_level_5 = (smokeConfig.overheatContinuous5 == 1);
-  b_smoke_continuous_level_4 = (smokeConfig.overheatContinuous4 == 1);
-  b_smoke_continuous_level_3 = (smokeConfig.overheatContinuous3 == 1);
-  b_smoke_continuous_level_2 = (smokeConfig.overheatContinuous2 == 1);
-  b_smoke_continuous_level_1 = (smokeConfig.overheatContinuous1 == 1);
-  b_smoke_enabled = (smokeConfig.smokeEnabled == 1);
+  b_smoke_continuous_level_5 = smokeConfig.overheatContinuous5;
+  b_smoke_continuous_level_4 = smokeConfig.overheatContinuous4;
+  b_smoke_continuous_level_3 = smokeConfig.overheatContinuous3;
+  b_smoke_continuous_level_2 = smokeConfig.overheatContinuous2;
+  b_smoke_continuous_level_1 = smokeConfig.overheatContinuous1;
+  b_smoke_enabled = smokeConfig.smokeEnabled;
   updateContinuousSmoke(); // Set other variables as necessary
 
   // This will pass values from the smokeConfig object
@@ -794,8 +852,7 @@ void handleSmokePrefsUpdate() {
 void checkAttenuator() {
   if(attenuatorComs.available() > 0) {
     uint8_t i_packet_id = attenuatorComs.currentPacketID();
-    // debug(F("Serial PacketID: "));
-    // debugln(i_packet_id);
+    // sendDebug(String(F("Serial PacketID: ")) + String(i_packet_id));
 
     if(i_packet_id > 0) {
       if(ms_attenuator_check.isRunning() && b_attenuator_connected) {
@@ -808,8 +865,7 @@ void checkAttenuator() {
         case PACKET_COMMAND:
           attenuatorComs.rxObj(recvCmdA);
           if(recvCmdA.c > 0 && recvCmdA.s == A_COM_START && recvCmdA.e == A_COM_END) {
-            debug(F("Recv. Attenuator Command: "));
-            debugln(recvCmdA.c);
+            sendDebug(String(F("Recv. Attenuator Command: ")) + String(recvCmdA.c));
 
             if(!b_attenuator_connected) {
               // Can't proceed if the Attenuator isn't connected; prevents phantom actions from occurring.
@@ -832,8 +888,7 @@ void checkAttenuator() {
 
           attenuatorComs.rxObj(recvDataA);
           if(recvDataA.m > 0 && recvDataA.s == A_COM_START && recvDataA.e == A_COM_END) {
-            debug(F("Recv. Attenuator Message: "));
-            debugln(recvDataA.m);
+            sendDebug(String(F("Recv. Attenuator Message: ")) + String(recvDataA.m));
             // No handlers at this time.
           }
         break;
@@ -905,89 +960,35 @@ void doAttenuatorSync() {
     attenuatorSerialSend(A_SYNC_START);
   #endif
 
-  // Tell the Attenuator about the wand status.
-  attenuatorSyncData.wandPresent = b_wand_connected ? 1 : 0;
-  attenuatorSyncData.barrelExtended = (BARREL_STATE == BARREL_EXTENDED) ? 1 : 0;
-  attenuatorSyncData.wandFiring = b_wand_firing ? 1 : 0;
-  attenuatorSyncData.streamFlags = STREAM_MODE_FLAG;
+  // Export DeviceState data to sync struct using centralized method
+  gpstarPack.exportData(attenuatorSyncData);
 
-  switch(SYSTEM_YEAR) {
-    case SYSTEM_1984:
-      attenuatorSyncData.systemYear = 1;
-    break;
-    case SYSTEM_1989:
-      attenuatorSyncData.systemYear = 2;
-    break;
-    case SYSTEM_AFTERLIFE:
-    default:
-      attenuatorSyncData.systemYear = 3;
-    break;
-    case SYSTEM_FROZEN_EMPIRE:
-      attenuatorSyncData.systemYear = 4;
-    break;
-  }
-
-  // Pack status.
-  attenuatorSyncData.packOn = (PACK_STATE != MODE_OFF) ? 1 : 0;
-  attenuatorSyncData.systemMode = (SYSTEM_MODE == MODE_ORIGINAL) ? 2 : 1;
-  attenuatorSyncData.ionArmSwitch = (RED_SWITCH_MODE == SWITCH_ON) ? 2 : 1;
-  attenuatorSyncData.powerLevel = i_wand_power_level;
-  attenuatorSyncData.packVoltage = packReading.BusVoltage;
-
-  // Synchronise the firing modes.
-  switch(STREAM_MODE) {
-    case PROTON:
-    default:
-      attenuatorSyncData.streamMode = 1;
-    break;
-
-    case STASIS:
-      attenuatorSyncData.streamMode = 2;
-    break;
-
-    case SLIME:
-      attenuatorSyncData.streamMode = 3;
-    break;
-
-    case MESON:
-      attenuatorSyncData.streamMode = 4;
-    break;
-
-    case SPECTRAL:
-      attenuatorSyncData.streamMode = 5;
-    break;
-
-    case HOLIDAY_HALLOWEEN:
-      attenuatorSyncData.streamMode = 6;
-    break;
-
-    case HOLIDAY_CHRISTMAS:
-      attenuatorSyncData.streamMode = 7;
-    break;
-
-    case SPECTRAL_CUSTOM:
-      attenuatorSyncData.streamMode = 8;
-    break;
-  }
+  // Tell the Attenuator about the wand status (not part of DeviceState).
+  attenuatorSyncData.wandPresent = b_wand_connected ? true : false;
+  attenuatorSyncData.wandFiring = b_wand_firing ? true : false;
+  attenuatorSyncData.packOn = (PACK_STATE != MODE_OFF);
+  attenuatorSyncData.packVoltage = (uint8_t)(f_batt_volts * 100); // Multiply by 100 to send as an integer (e.g., 4.34V = 434)
+  attenuatorSyncData.powerLevel = gpstarPack.getPowerLevel();
 
   // Current spectral custom colour for outer cyclotron.
   attenuatorSyncData.spectralColour = i_spectral_cyclotron_custom_colour;
   attenuatorSyncData.spectralSaturation = i_spectral_cyclotron_custom_saturation;
 
   // Cyclotron status.
-  attenuatorSyncData.cyclotronLidState = b_cyclotron_lid_on ? 1 : 0;
+  attenuatorSyncData.cyclotronLidState = b_cyclotron_lid_on;
   attenuatorSyncData.speedMultiplier = i_cyclotron_multiplier;
-  attenuatorSyncData.overheatingNow = b_overheating ? 1 : 0;
+  attenuatorSyncData.overheatingNow = b_overheating;
 
   // This sends over the music status and the current music track.
   attenuatorSyncData.packAudioVersion = i_audio_version;
   attenuatorSyncData.wandAudioVersion = i_wand_audio_version;
-  attenuatorSyncData.musicPlaying = b_playing_music ? 1 : 0;
-  attenuatorSyncData.musicPaused = b_music_paused ? 1 : 0;
-  attenuatorSyncData.trackLooped = b_repeat_track ? 2 : 1;
+  attenuatorSyncData.musicPlaying = b_playing_music;
+  attenuatorSyncData.musicPaused = b_music_paused;
+  attenuatorSyncData.trackLooped = b_repeat_track;
+  attenuatorSyncData.shuffleTracks = b_shuffle_tracks;
   attenuatorSyncData.currentTrack = i_current_music_track;
   attenuatorSyncData.musicCount = i_music_track_count;
-  attenuatorSyncData.masterMuted = (i_volume_master == i_volume_abs_min) ? 2 : 1;
+  attenuatorSyncData.masterMuted = (i_volume_master == i_volume_abs_min);
   attenuatorSyncData.masterVolume = i_volume_master_percentage;
   attenuatorSyncData.effectsVolume = i_volume_effects_percentage;
   attenuatorSyncData.musicVolume = i_volume_music_percentage;
@@ -996,7 +997,7 @@ void doAttenuatorSync() {
 
   // Send the ribbon cable alarm status if the ribbon cable is detached.
   if(b_pack_alarm && !ribbonCableAttached()) {
-    attenuatorSerialSend(A_ALARM_ON);
+    attenuatorSerialSend(A_ALARM_ON, ribbonCableAttached() ? 1 : 0);
   }
 
   attenuatorSerialSend(A_SYNC_END);
@@ -1007,8 +1008,7 @@ void doAttenuatorSync() {
 void checkWand() {
   if(wandComs.available() > 0) {
     uint8_t i_packet_id = wandComs.currentPacketID();
-    // debug(F("Wand PacketID: "));
-    // debugln(i_packet_id);
+    // sendDebug(String(F("Wand PacketID: ")) + String(i_packet_id));
 
     if(i_packet_id > 0) {
       if(ms_wand_check.isRunning() && b_wand_connected) {
@@ -1021,8 +1021,7 @@ void checkWand() {
         case PACKET_COMMAND:
           wandComs.rxObj(recvCmdW);
           if(recvCmdW.c > 0 && recvCmdW.s == W_COM_START && recvCmdW.e == W_COM_END) {
-            debug(F("Recv. Wand Command: "));
-            debugln(recvCmdW.c);
+            sendDebug(String(F("Recv. Wand Command: ")) + String(recvCmdW.c));
             handleWandCommand(recvCmdW.c, recvCmdW.d1);
           }
         break;
@@ -1035,8 +1034,7 @@ void checkWand() {
 
           wandComs.rxObj(recvDataW);
           if(recvDataW.m > 0 && recvDataW.s == W_COM_START && recvDataW.e == W_COM_END) {
-            debug(F("Recv. Wand Data: "));
-            debugln(recvDataW.m);
+            sendDebug(String(F("Recv. Wand Data: ")) + String(recvDataW.m));
             // No handlers at this time.
           }
         break;
@@ -1052,7 +1050,7 @@ void checkWand() {
 
           // Update the flag for our local wifi if applicable.
           #ifdef ESP32
-          if(WIFI_MODE == WIFI_ENABLED || (WIFI_MODE == WIFI_DEFAULT && !b_attenuator_connected && !b_attenuator_syncing)) {
+          if(WIFI_USER_MODE == WIFI_ENABLED || (WIFI_USER_MODE == WIFI_DEFAULT && !b_attenuator_connected && !b_attenuator_syncing)) {
             b_received_prefs_wand = true;
           }
           #endif
@@ -1092,13 +1090,15 @@ void doWandSync() {
     playEffect(S_BEEPS);
   }
 
-  // Wand sync sound effect.
-  stopEffect(S_WAND_SYNC);
-  playEffect(S_WAND_SYNC);
-
   // Begin the synchronization process which tells the wand the pack got the handshake.
   sendDebug(F("Wand Sync Start"));
   packSerialSend(P_SYNC_START, b_pack_post_finish ? 2 : 1);
+
+  // Wand sync sound effect if not in demo light mode.
+  if(!b_demo_light_mode) {
+    stopEffect(S_WAND_SYNC);
+    playEffect(S_WAND_SYNC);
+  }
 
   // Attaching a new wand means we need to stop any prior overheat as the wand initiates this action.
   if(b_overheating) {
@@ -1106,7 +1106,7 @@ void doWandSync() {
   }
 
   // Attaching a new wand means we must forcefully exit the EEPROM LED Menu if we are still in it.
-  if(b_spectral_lights_on && !b_pack_on && !b_pack_shutting_down) {
+  if(b_spectral_lights_on && PACK_STATE != MODE_ON && !b_pack_shutting_down) {
     spectralLightsOff();
     //saveLEDEEPROM(); // Save any settings that were in progress before wand was hot-swapped.
   }
@@ -1114,47 +1114,17 @@ void doWandSync() {
   // Attaching a new wand means we must also exit the EEPROM Config Menu if we are still in it.
   //saveConfigEEPROM(); // Save any settings that were in progress before wand was hot-swapped.
 
-  // Make sure this is called before the P_YEAR is sent over to the Neutrona Wand.
-  switch(SYSTEM_MODE) {
-    case MODE_ORIGINAL:
-      wandSyncData.systemMode = 2; // MODE_ORIGINAL.
+  // Export DeviceState data to sync struct using centralized method
+  gpstarPack.exportData(wandSyncData);
 
-      if(switch_power.getState() == LOW) {
-        wandSyncData.ionArmSwitch = 2; // ion arm switch on.
-      }
-      else {
-        wandSyncData.ionArmSwitch = 1; // Ion arm switch off.
-      }
-    break;
+  // Set fields not managed by DeviceState (pack-specific state)
+  wandSyncData.ionArmSwitch = (switch_power.getState() == LOW);
+  wandSyncData.cyclotronLidState = b_cyclotron_lid_on;
+  wandSyncData.packOn = (PACK_STATE != MODE_OFF);
+  wandSyncData.powerLevel = gpstarPack.getPowerLevel();
 
-    case MODE_SUPER_HERO:
-    default:
-      wandSyncData.systemMode = 1; // MODE_SUPER_HERO.
-
-      // This is only applicable to the Mode Original, so default to off.
-      wandSyncData.ionArmSwitch = 1; // Ion arm switch off.
-    break;
-  }
-
-  // Make sure to send this after the system (operation) mode is sent.
-  switch(SYSTEM_YEAR) {
-    case SYSTEM_1984:
-      wandSyncData.systemYear = 1; // 1984.
-    break;
-    case SYSTEM_1989:
-      wandSyncData.systemYear = 2; // 1989.
-    break;
-    case SYSTEM_AFTERLIFE:
-    default:
-      wandSyncData.systemYear = 3; // Afterlife.
-    break;
-    case SYSTEM_FROZEN_EMPIRE:
-      wandSyncData.systemYear = 4; // Frozen Empire.
-    break;
-  }
-
-  // Send the state of the cyclotron lid.
-  wandSyncData.cyclotronLidState = b_cyclotron_lid_on ? 2 : 1;
+  // Tell the wand what audio board we are currently using.
+  wandSyncData.packAudioVersion = i_audio_version;
 
   // Tell the wand if the currently playing music is paused, if playing.
   if(b_playing_music) {
@@ -1165,54 +1135,15 @@ void doWandSync() {
   }
 
   // Denote the current looping preference for the current track; used by the menu system.
-  wandSyncData.repeatMusicTrack = b_repeat_track ? 2 : 1; // 1 = No repeat, 2 = Repeat.
+  wandSyncData.repeatMusicTrack = b_repeat_track;
 
-  // Vibration enabled or disabled from the Proton Pack toggle switch.
-  wandSyncData.vibrationEnabled = b_vibration_switch_on ? 2 : 1; // 1 = Vibration off, 2 = Vibration on.
+  // Denote the current shuffle preference for music; used by the menu system.
+  wandSyncData.shuffleMusicTracks = b_shuffle_tracks;
 
-  // Pack power status.
-  wandSyncData.packOn = PACK_STATE != MODE_OFF ? 2 : 1; // 1 = Pack off, 2 = Pack on.
+  // Whether vibration is enabled or disabled from the Proton Pack toggle switch.
+  wandSyncData.vibrationToggle = b_vibration_switch_on;
 
-  // Reset the wand power levels.
-  wandSyncData.powerLevel = i_wand_power_level;
-
-  // Synchronise the firing mode.
-  switch(STREAM_MODE) {
-    case PROTON:
-    default:
-      wandSyncData.streamMode = 1; // 1 = Proton Mode.
-    break;
-
-    case STASIS:
-      wandSyncData.streamMode = 2; // 2 = Stasis Mode.
-    break;
-
-    case SLIME:
-      wandSyncData.streamMode = 3; // 3 = Slime Mode.
-    break;
-
-    case MESON:
-      wandSyncData.streamMode = 4; // 4 = Meson Mode.
-    break;
-
-    case SPECTRAL:
-      wandSyncData.streamMode = 5; // 5 = Spectral Mode
-    break;
-
-    case HOLIDAY_HALLOWEEN:
-      wandSyncData.streamMode = 6; // 6 = Halloween
-    break;
-
-    case HOLIDAY_CHRISTMAS:
-      wandSyncData.streamMode = 7; // 7 = Christmas
-    break;
-
-    case SPECTRAL_CUSTOM:
-      wandSyncData.streamMode = 8; // 8 = Spectral Custom Mode.
-    break;
-  }
-
-  if(!b_pack_on) {
+  if(PACK_STATE != MODE_ON) {
     // Set this flag to false to force a full reset of the pack if a new wand is connected.
     b_reset_start_led = false;
   }
@@ -1221,14 +1152,14 @@ void doWandSync() {
   wandSyncData.effectsVolume = i_volume_effects_percentage;
 
     // Telling the wand to be silent if required.
-  wandSyncData.masterMuted = (i_volume_master == i_volume_abs_min) ? 2 : 1;
+  wandSyncData.masterMuted = (i_volume_master == i_volume_abs_min);
 
   // Send the completed synchronization packet.
   packSerialSendData(P_SYNC_DATA);
 
   // Send the ribbon cable alarm status if the ribbon cable is detached.
   if(b_pack_alarm && !ribbonCableAttached()) {
-    packSerialSend(P_ALARM_ON);
+    packSerialSend(P_ALARM_ON, ribbonCableAttached() ? 1 : 0);
   }
 
   // Tell the wand that we've reached the end of settings to be sync'd.
@@ -1256,11 +1187,17 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_HANDSHAKE:
-      b_wand_syncing = false; // No longer attempting to force a sync w/ wand.
-      b_wand_connected = true; // If we're receiving handshake instead of SYNC_NOW we must be connected
+      if(!b_wand_connected) {
+        // If we think we were not connected, force a resync.
+        doWandSync();
+      }
+      else {
+        b_wand_syncing = false; // No longer attempting to force a sync w/ wand.
+        b_wand_connected = true; // If we're receiving handshake instead of SYNC_NOW we must be connected
 
-      // Tell the Attenuator the wand is still connected.
-      attenuatorSerialSend(A_WAND_CONNECTED);
+        // Tell the Attenuator the wand is still connected.
+        attenuatorSerialSend(A_WAND_CONNECTED);
+      }
 
       if(b_diagnostic) {
         // While in diagnostic mode, play a sound to indicate the wand is connected.
@@ -1307,16 +1244,19 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Turn the pack off.
       if(PACK_STATE != MODE_OFF && i_value == 1) {
         PACK_ACTION_STATE = ACTION_OFF;
-        attenuatorSerialSend(A_PACK_OFF);
       }
 
       attenuatorSerialSend(A_WAND_OFF);
       attenuatorSerialSend(A_OVERHEATING_FINISHED);
+
+      if(b_wand_mash_lockout && !ms_mash_lockout.isRunning()) {
+        restartFromWandMash();
+      }
     break;
 
     case W_BARREL_EXTENDED:
       // Remember the last state sent from the wand (for re-sync with the Attenuator).
-      BARREL_STATE = BARREL_EXTENDED;
+      gpstarPack.setBarrelState(BARREL_EXTENDED);
 
       // Tell the Attenuator that the Neutrona Wand barrel is extended.
       attenuatorSerialSend(A_BARREL_EXTENDED);
@@ -1324,18 +1264,18 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_BARREL_RETRACTED:
       // Remember the last state sent from the wand (for re-sync with the Attenuator).
-      BARREL_STATE = BARREL_RETRACTED;
+      gpstarPack.setBarrelState(BARREL_RETRACTED);
 
       // Tell the Attenuator that the Neutrona Wand barrel is retracted.
       attenuatorSerialSend(A_BARREL_RETRACTED);
     break;
 
     case W_STREAM_FLAGS:
-      // Update our STREAM_MODE_FLAG variable with the new one from the wand.
-      STREAM_MODE_FLAG = (uint8_t)i_value;
+      // Update our stream mode options with the new one from the wand.
+      gpstarPack.setStreamModeOpts((uint8_t)i_value);
 
       // Tell the Attenuator that the Neutrona Wand has updated its stream flags.
-      attenuatorSerialSend(A_STREAM_FLAGS, STREAM_MODE_FLAG);
+      attenuatorSerialSend(A_STREAM_FLAGS, gpstarPack.getStreamModeOpts());
     break;
 
     case W_BARGRAPH_OVERHEAT_BLINK_ENABLED:
@@ -1501,21 +1441,143 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       wandExtraSoundsStop();
 
       if(AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
-        playTransitionEffect(S_AFTERLIFE_WAND_RAMP_1, S_AFTERLIFE_WAND_IDLE_1, true, 5, i_volume_effects - i_wand_idle_level);
+        if(gpstarPack.inStreamMode(SLIME)) {
+          playTransitionEffect(S_AFTERLIFE_WAND_RAMP_1, S_AFTERLIFE_WAND_IDLE_1, true, 5, i_volume_effects - i_slime_idle_level);
+        }
+        else if(b_brass_pack_sound_loop) {
+          playTransitionEffect(S_AFTERLIFE_WAND_RAMP_1, S_AFTERLIFE_WAND_IDLE_1, true, 5, i_volume_effects - i_brass_idle_level);
+        }
+        else {
+          playTransitionEffect(S_AFTERLIFE_WAND_RAMP_1, S_AFTERLIFE_WAND_IDLE_1, true, 5, i_volume_effects - i_wand_idle_level);
+        }
+
+        if(b_fadeout_idle_sounds) {
+          // Restart the idle sounds if the timer is not already running.
+          if(!ms_delay_post.isRunning()) {
+            switch(gpstarPack.getSystemTheme()) {
+              default:
+                // We should not be here, so do nothing.
+              break;
+              case SYSTEM_AFTERLIFE:
+                stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
+
+                if(gpstarPack.inStreamMode(SLIME)) {
+                  playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects - i_slime_idle_level);
+                }
+                else {
+                  playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true);
+                }
+              break;
+              case SYSTEM_FROZEN_EMPIRE:
+                stopEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP);
+
+                if(gpstarPack.inStreamMode(SLIME)) {
+                  playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects - i_slime_idle_level);
+                }
+                else {
+                  playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true);
+                }
+
+                if(b_brass_pack_sound_loop) {
+                  if(b_brass_startup_loop) {
+                    stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT_LOOP);
+                    playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT_LOOP, true);
+                  }
+                  else {
+                    stopEffect(S_FROZEN_EMPIRE_BRASS_IDLE);
+                    playEffect(S_FROZEN_EMPIRE_BRASS_IDLE, true);
+                  }
+                }
+              break;
+            }
+          }
+
+          // Make sure we reset the fadeout counter to account for the new idle sounds.
+          ms_delay_post.start(i_idle_fadeout_time);
+        }
       }
       else {
-        stopEffect(S_AFTERLIFE_WAND_RAMP_1);
-        playEffect(S_AFTERLIFE_WAND_RAMP_1, false, i_volume_effects - i_wand_idle_level);
+        if(gpstarPack.inStreamMode(SLIME)) {
+          playEffect(S_AFTERLIFE_WAND_RAMP_1, false, i_volume_effects - i_slime_idle_level);
+        }
+        else if(b_brass_pack_sound_loop) {
+          playEffect(S_AFTERLIFE_WAND_RAMP_1, false, i_volume_effects - i_brass_idle_level);
+        }
+        else {
+          playEffect(S_AFTERLIFE_WAND_RAMP_1, false, i_volume_effects - i_wand_idle_level);
+        }
       }
     break;
 
     case W_AFTERLIFE_GUN_RAMP_2:
       if(AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
-        playTransitionEffect(S_AFTERLIFE_WAND_RAMP_2, S_AFTERLIFE_WAND_IDLE_2, true, 5, i_volume_effects - i_wand_idle_level);
+        if(gpstarPack.inStreamMode(SLIME)) {
+          playTransitionEffect(S_AFTERLIFE_WAND_RAMP_2, S_AFTERLIFE_WAND_IDLE_2, true, 5, i_volume_effects - i_slime_idle_level);
+        }
+        else if(b_brass_pack_sound_loop) {
+          playTransitionEffect(S_AFTERLIFE_WAND_RAMP_2, S_AFTERLIFE_WAND_IDLE_2, true, 5, i_volume_effects - i_brass_idle_level);
+        }
+        else {
+          playTransitionEffect(S_AFTERLIFE_WAND_RAMP_2, S_AFTERLIFE_WAND_IDLE_2, true, 5, i_volume_effects - i_wand_idle_level);
+        }
+
+        if(b_fadeout_idle_sounds) {
+          // Restart the idle sounds if the timer is not already running.
+          if(!ms_delay_post.isRunning()) {
+            switch(gpstarPack.getSystemTheme()) {
+              default:
+                // We should not be here, so do nothing.
+              break;
+              case SYSTEM_AFTERLIFE:
+                stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
+
+                if(gpstarPack.inStreamMode(SLIME)) {
+                  playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects - i_slime_idle_level);
+                }
+                else {
+                  playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true);
+                }
+              break;
+              case SYSTEM_FROZEN_EMPIRE:
+                stopEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP);
+
+                if(gpstarPack.inStreamMode(SLIME)) {
+                  playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects - i_slime_idle_level);
+                }
+                else {
+                  playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true);
+                }
+
+                if(b_brass_pack_sound_loop) {
+                  if(b_brass_startup_loop) {
+                    stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT_LOOP);
+                    playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT_LOOP, true);
+                  }
+                  else {
+                    stopEffect(S_FROZEN_EMPIRE_BRASS_IDLE);
+                    playEffect(S_FROZEN_EMPIRE_BRASS_IDLE, true);
+                  }
+                }
+              break;
+            }
+          }
+
+          // Make sure we reset the fadeout counter to account for the new idle sounds.
+          ms_delay_post.start(i_idle_fadeout_time);
+        }
       }
       else {
         stopEffect(S_AFTERLIFE_WAND_RAMP_2);
-        playEffect(S_AFTERLIFE_WAND_RAMP_2, false, i_volume_effects - i_wand_idle_level);
+
+        if(gpstarPack.inStreamMode(SLIME)) {
+          playEffect(S_AFTERLIFE_WAND_RAMP_2, false, i_volume_effects - i_slime_idle_level);
+        }
+        else if(b_brass_pack_sound_loop) {
+          playEffect(S_AFTERLIFE_WAND_RAMP_2, false, i_volume_effects - i_brass_idle_level);
+        }
+        else {
+          playEffect(S_AFTERLIFE_WAND_RAMP_2, false, i_volume_effects - i_wand_idle_level);
+        }
       }
 
       stopEffect(S_AFTERLIFE_WAND_RAMP_1);
@@ -1527,11 +1589,72 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_AFTERLIFE_GUN_RAMP_2_FADE_IN:
       if(AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
-        playTransitionEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, S_AFTERLIFE_WAND_IDLE_2, true, 5, i_volume_effects - i_wand_idle_level);
+        if(gpstarPack.inStreamMode(SLIME)) {
+          playTransitionEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, S_AFTERLIFE_WAND_IDLE_2, true, 5, i_volume_effects - i_slime_idle_level);
+        }
+        else if(b_brass_pack_sound_loop) {
+          playTransitionEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, S_AFTERLIFE_WAND_IDLE_2, true, 5, i_volume_effects - i_brass_idle_level);
+        }
+        else {
+          playTransitionEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, S_AFTERLIFE_WAND_IDLE_2, true, 5, i_volume_effects - i_wand_idle_level);
+        }
+
+        if(b_fadeout_idle_sounds) {
+          // Restart the idle sounds if the timer is not already running.
+          if(!ms_delay_post.isRunning()) {
+            switch(gpstarPack.getSystemTheme()) {
+              default:
+                // We should not be here, so do nothing.
+              break;
+              case SYSTEM_AFTERLIFE:
+                stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
+
+                if(gpstarPack.inStreamMode(SLIME)) {
+                  playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects - i_slime_idle_level);
+                }
+                else {
+                  playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true);
+                }
+              break;
+              case SYSTEM_FROZEN_EMPIRE:
+                stopEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP);
+
+                if(gpstarPack.inStreamMode(SLIME)) {
+                  playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects - i_slime_idle_level);
+                }
+                else {
+                  playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true);
+                }
+
+                if(b_brass_pack_sound_loop) {
+                  if(b_brass_startup_loop) {
+                    stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT_LOOP);
+                    playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT_LOOP, true);
+                  }
+                  else {
+                    stopEffect(S_FROZEN_EMPIRE_BRASS_IDLE);
+                    playEffect(S_FROZEN_EMPIRE_BRASS_IDLE, true);
+                  }
+                }
+              break;
+            }
+          }
+
+          // Make sure we reset the fadeout counter to account for the new idle sounds.
+          ms_delay_post.start(i_idle_fadeout_time);
+        }
       }
       else {
         stopEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN);
-        playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, false, i_volume_effects - i_wand_idle_level);
+        if(gpstarPack.inStreamMode(SLIME)) {
+          playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, false, i_volume_effects - i_slime_idle_level);
+        }
+        else if(b_brass_pack_sound_loop) {
+          playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, false, i_volume_effects - i_brass_idle_level);
+        }
+        else {
+          playEffect(S_AFTERLIFE_WAND_RAMP_2_FADE_IN, false, i_volume_effects - i_wand_idle_level);
+        }
       }
 
       stopEffect(S_AFTERLIFE_WAND_RAMP_1);
@@ -1544,35 +1667,221 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_AFTERLIFE_GUN_LOOP_1:
       if(AUDIO_DEVICE != A_GPSTAR_AUDIO_ADV) {
         stopEffect(S_AFTERLIFE_WAND_IDLE_1);
-        playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects - i_wand_idle_level);
+
+        if(gpstarPack.inStreamMode(SLIME)) {
+          playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects - i_slime_idle_level);
+        }
+        else if(b_brass_pack_sound_loop) {
+          playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects - i_brass_idle_level);
+        }
+        else {
+          playEffect(S_AFTERLIFE_WAND_IDLE_1, true, i_volume_effects - i_wand_idle_level);
+        }
+
+        if(b_fadeout_idle_sounds) {
+          // Restart the idle sounds if the timer is not already running.
+          if(!ms_delay_post.isRunning()) {
+            switch(gpstarPack.getSystemTheme()) {
+              default:
+                // We should not be here, so do nothing.
+              break;
+              case SYSTEM_AFTERLIFE:
+                stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
+
+                if(gpstarPack.inStreamMode(SLIME)) {
+                  playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects - i_slime_idle_level);
+                }
+                else {
+                  playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true);
+                }
+              break;
+              case SYSTEM_FROZEN_EMPIRE:
+                stopEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP);
+
+                if(gpstarPack.inStreamMode(SLIME)) {
+                  playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects - i_slime_idle_level);
+                }
+                else {
+                  playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true);
+                }
+
+                if(b_brass_pack_sound_loop) {
+                  if(b_brass_startup_loop) {
+                    stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT_LOOP);
+                    playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT_LOOP, true);
+                  }
+                  else {
+                    stopEffect(S_FROZEN_EMPIRE_BRASS_IDLE);
+                    playEffect(S_FROZEN_EMPIRE_BRASS_IDLE, true);
+                  }
+                }
+              break;
+            }
+          }
+
+          // Make sure we reset the fadeout counter to account for the new idle sounds.
+          ms_delay_post.start(i_idle_fadeout_time);
+        }
       }
     break;
 
     case W_AFTERLIFE_GUN_LOOP_2:
       if(AUDIO_DEVICE != A_GPSTAR_AUDIO_ADV) {
         stopEffect(S_AFTERLIFE_WAND_IDLE_2);
-        playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects - i_wand_idle_level);
+        if(gpstarPack.inStreamMode(SLIME)) {
+          playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects - i_slime_idle_level);
+        }
+        else if(b_brass_pack_sound_loop) {
+          playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects - i_brass_idle_level);
+        }
+        else {
+          playEffect(S_AFTERLIFE_WAND_IDLE_2, true, i_volume_effects - i_wand_idle_level);
+        }
+
+        if(b_fadeout_idle_sounds) {
+          // Restart the idle sounds if the timer is not already running.
+          if(!ms_delay_post.isRunning()) {
+            switch(gpstarPack.getSystemTheme()) {
+              default:
+                // We should not be here, so do nothing.
+              break;
+              case SYSTEM_AFTERLIFE:
+                stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
+
+                if(gpstarPack.inStreamMode(SLIME)) {
+                  playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects - i_slime_idle_level);
+                }
+                else {
+                  playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true);
+                }
+              break;
+              case SYSTEM_FROZEN_EMPIRE:
+                stopEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP);
+
+                if(gpstarPack.inStreamMode(SLIME)) {
+                  playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects - i_slime_idle_level);
+                }
+                else {
+                  playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true);
+                }
+
+                if(b_brass_pack_sound_loop) {
+                  if(b_brass_startup_loop) {
+                    stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT_LOOP);
+                    playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT_LOOP, true);
+                  }
+                  else {
+                    stopEffect(S_FROZEN_EMPIRE_BRASS_IDLE);
+                    playEffect(S_FROZEN_EMPIRE_BRASS_IDLE, true);
+                  }
+                }
+              break;
+            }
+          }
+
+          // Make sure we reset the fadeout counter to account for the new idle sounds.
+          ms_delay_post.start(i_idle_fadeout_time);
+        }
       }
     break;
 
     case W_AFTERLIFE_GUN_RAMP_DOWN_2:
       if(AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
-        playTransitionEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, S_AFTERLIFE_WAND_IDLE_1, true, 5, i_volume_effects - i_wand_idle_level);
+        if(gpstarPack.inStreamMode(SLIME)) {
+          playTransitionEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, S_AFTERLIFE_WAND_IDLE_1, true, 5, i_volume_effects - i_slime_idle_level);
+        }
+        else if(b_brass_pack_sound_loop) {
+          playTransitionEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, S_AFTERLIFE_WAND_IDLE_1, true, 5, i_volume_effects - i_brass_idle_level);
+        }
+        else {
+          playTransitionEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, S_AFTERLIFE_WAND_IDLE_1, true, 5, i_volume_effects - i_wand_idle_level);
+        }
+
+        if(b_fadeout_idle_sounds) {
+          // Restart the idle sounds if the timer is not already running.
+          if(!ms_delay_post.isRunning()) {
+            switch(gpstarPack.getSystemTheme()) {
+              default:
+                // We should not be here, so do nothing.
+              break;
+              case SYSTEM_AFTERLIFE:
+                stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
+
+                if(gpstarPack.inStreamMode(SLIME)) {
+                  playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects - i_slime_idle_level);
+                }
+                else {
+                  playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true);
+                }
+              break;
+              case SYSTEM_FROZEN_EMPIRE:
+                stopEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP);
+
+                if(gpstarPack.inStreamMode(SLIME)) {
+                  playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects - i_slime_idle_level);
+                }
+                else {
+                  playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true);
+                }
+
+                if(b_brass_pack_sound_loop) {
+                  if(b_brass_startup_loop) {
+                    stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT_LOOP);
+                    playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT_LOOP, true);
+                  }
+                  else {
+                    stopEffect(S_FROZEN_EMPIRE_BRASS_IDLE);
+                    playEffect(S_FROZEN_EMPIRE_BRASS_IDLE, true);
+                  }
+                }
+              break;
+            }
+          }
+
+          // Make sure we reset the fadeout counter to account for the new idle sounds.
+          ms_delay_post.start(i_idle_fadeout_time);
+        }
       }
       else {
         stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2);
-        playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, false, i_volume_effects - i_wand_idle_level);
+
+        if(gpstarPack.inStreamMode(SLIME)) {
+          playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, false, i_volume_effects - i_slime_idle_level);
+        }
+        else if(b_brass_pack_sound_loop) {
+          playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, false, i_volume_effects - i_brass_idle_level);
+        }
+        else {
+          playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2, false, i_volume_effects - i_wand_idle_level);
+        }
       }
     break;
 
     case W_AFTERLIFE_GUN_RAMP_DOWN_2_FADE_OUT:
       stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT);
-      playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects - i_wand_idle_level);
+
+      if(gpstarPack.inStreamMode(SLIME)) {
+        playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects - i_slime_idle_level);
+      }
+      else if(b_brass_pack_sound_loop) {
+        playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects - i_brass_idle_level);
+      }
+      else {
+        playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_2_FADE_OUT, false, i_volume_effects - i_wand_idle_level);
+      }
     break;
 
     case W_AFTERLIFE_GUN_RAMP_DOWN_1:
       stopEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1);
-      playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - i_wand_idle_level);
+      if(gpstarPack.inStreamMode(SLIME)) {
+        playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - i_slime_idle_level);
+      }
+      else if(b_brass_pack_sound_loop) {
+        playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - i_brass_idle_level);
+      }
+      else {
+        playEffect(S_AFTERLIFE_WAND_RAMP_DOWN_1, false, i_volume_effects - i_wand_idle_level);
+      }
     break;
 
     case W_EXTRA_WAND_SOUNDS_STOP:
@@ -1587,7 +1896,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         playEffect(S_BOSON_DART_FIRE, false, i_volume_effects, false, 0, false);
       }
 
-      if(VIBRATION_MODE == VIBRATION_FIRING_ONLY && b_vibration_switch_on) {
+      if(gpstarPack.getVibrationMode() == VIBRATION_FIRING_ONLY && b_vibration_switch_on) {
         ms_menu_vibration.start(350); // If vibrate while firing is enabled and vibration switch is on, vibrate the pack.
       }
     break;
@@ -1595,7 +1904,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_SHOCK_BLAST_SOUND:
       playEffect(S_SHOCK_BLAST_FIRE, false, i_volume_effects, false, 0, false);
 
-      if(VIBRATION_MODE == VIBRATION_FIRING_ONLY && b_vibration_switch_on) {
+      if(gpstarPack.getVibrationMode() == VIBRATION_FIRING_ONLY && b_vibration_switch_on) {
         ms_menu_vibration.start(300); // If vibrate while firing is enabled and vibration switch is on, vibrate the pack.
       }
     break;
@@ -1607,13 +1916,16 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_MESON_COLLIDER_SOUND:
       playEffect(S_MESON_COLLIDER_FIRE, false, i_volume_effects, false, 0, false);
 
-      if(VIBRATION_MODE == VIBRATION_FIRING_ONLY && b_vibration_switch_on) {
+      if(gpstarPack.getVibrationMode() == VIBRATION_FIRING_ONLY && b_vibration_switch_on) {
         ms_menu_vibration.start(200); // If vibrate while firing is enabled and vibration switch is on, vibrate the pack.
       }
     break;
 
     case W_MESON_FIRE_PULSE:
-      playEffect(S_MESON_FIRE_PULSE, false, i_volume_effects, false, 0, false);
+      if(i_audio_version < 109) {
+        // Only play this independently if our audio board is outdated.
+        playEffect(S_MESON_FIRE_PULSE, false, i_volume_effects, false, 0, false);
+      }
     break;
 
     case W_FIRING:
@@ -1654,14 +1966,14 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_MASH_ERROR_LOOP:
       // Begins a looping audio track while the wand is locked out.
       // Note: Command is only sent when extra pack sounds are used.
-      switch(SYSTEM_YEAR) {
+      switch(gpstarPack.getSystemTheme()) {
         case SYSTEM_FROZEN_EMPIRE:
           // No-op for this theme, as this is handled in startWandMashLockout
         break;
         default:
           // Plays the alarm loop as heard on the wand.
           stopMashErrorSounds();
-          playEffect(S_SMASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
+          playEffect(S_MASH_ERROR_LOOP, true, i_volume_effects, true, 2500);
         break;
       }
     break;
@@ -1671,45 +1983,136 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       restartFromWandMash();
     break;
 
-    case W_PROTON_MODE:
-      if((AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) && STREAM_MODE == MESON) {
-        // Tell GPStar Audio we no longer need short audio.
-        audio.gpstarShortTrackOverload(true);
+    case W_SET_STREAM_MODE:
+      if(!gpstarPack.setStreamMode((STREAM_MODES)i_value)){ return; }
+
+      attenuatorSerialSend(A_SET_STREAM_MODE, gpstarPack.getStreamModeByte());
+
+      if(gpstarPack.inStreamMode(MESON) && i_audio_version < 109) {
+        useShortTrackOverload(true);
+      }
+      else if(gpstarPack.switchedFromStream(MESON) && i_audio_version < 109) {
+        useShortTrackOverload(false);
       }
 
-      // Returning from Slime mode, so we need to reset the Cyclotron again.
-      if(usingSlimeCyclotron()) {
-        resetCyclotronState();
-        clearCyclotronFades();
-
-        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
-          adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
-          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 100);
-        }
+      if(gpstarPack.inStreamMode(SETTINGS)) {
+        playEffect(S_CLICK);
+        b_settings = true;
+        return;
       }
-
-      if(PACK_STATE == MODE_ON && STREAM_MODE != PROTON) {
-        stopEffect(S_PACK_SLIME_TANK_LOOP);
-        stopEffect(S_STASIS_IDLE_LOOP);
-        stopEffect(S_MESON_IDLE_LOOP);
-
-        playEffect(S_FIRE_START_SPARK);
-      }
-
-      // Proton mode.
-      STREAM_MODE = PROTON;
-
-      if(b_settings) {
+      else if(b_settings) {
         playEffect(S_CLICK);
         b_settings = false;
       }
 
+      // Reset cyclotron state and idle loop volume if switching out of Slime.
+      stopCyclotronSlimeEffects(gpstarPack.getPreviousStreamMode());
+
+      stopEffect(S_PACK_SLIME_TANK_LOOP);
+      stopEffect(S_STASIS_IDLE_LOOP);
+      stopEffect(S_MESON_IDLE_LOOP);
+
+      if(PACK_STATE == MODE_ON) {
+        if(b_fadeout_idle_sounds) {
+          // We have to restart the pack idle just in case.
+          switch(gpstarPack.getSystemTheme()) {
+            case SYSTEM_1984:
+              stopEffect(S_GB1_1984_PACK_LOOP);
+              playEffect(S_GB1_1984_PACK_LOOP, true);
+            break;
+            case SYSTEM_1989:
+              stopEffect(S_GB2_PACK_LOOP);
+              playEffect(S_GB2_PACK_LOOP, true);
+            break;
+            case SYSTEM_AFTERLIFE:
+            default:
+              stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
+
+              if(gpstarPack.inStreamMode(SLIME)) {
+                playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects - i_slime_idle_level);
+              }
+              else {
+                playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true);
+              }
+
+              packSerialSend(P_REQUEST_BEEP_SYNC);
+            break;
+            case SYSTEM_FROZEN_EMPIRE:
+              stopEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP);
+
+              if(gpstarPack.inStreamMode(SLIME)) {
+                playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects - i_slime_idle_level);
+              }
+              else {
+                playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true);
+              }
+
+              if(b_brass_pack_sound_loop) {
+                if(b_brass_startup_loop) {
+                  stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT_LOOP);
+                  playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT_LOOP, true);
+                }
+                else {
+                  stopEffect(S_FROZEN_EMPIRE_BRASS_IDLE);
+                  playEffect(S_FROZEN_EMPIRE_BRASS_IDLE, true);
+                }
+              }
+              packSerialSend(P_REQUEST_BEEP_SYNC);
+            break;
+          }
+
+          ms_delay_post.start(i_idle_fadeout_time);
+        }
+
+        switch(gpstarPack.getStreamMode()) {
+          case PROTON:
+            playEffect(S_FIRE_START_SPARK);
+          break;
+          case STASIS:
+            playEffect(S_STASIS_OPEN);
+            playEffect(S_STASIS_IDLE_LOOP, true, i_volume_effects, true, 2000);
+          break;
+          case SLIME:
+            playEffect(S_PACK_SLIME_OPEN);
+            playEffect(S_PACK_SLIME_TANK_LOOP, true, i_volume_effects, true, 700);
+          break;
+          case MESON:
+            playEffect(S_MESON_OPEN);
+            playEffect(S_MESON_IDLE_LOOP, true, i_volume_effects, true, 1250);
+          break;
+          case SPECTRAL:
+            playEffect(S_FIRE_START_SPARK);
+          break;
+          case HOLIDAY_HALLOWEEN:
+            playEffect(S_HALLOWEEN_MODE_VOICE);
+          break;
+          case HOLIDAY_CHRISTMAS:
+            playEffect(S_CHRISTMAS_MODE_VOICE);
+          break;
+          case SPECTRAL_CUSTOM:
+            playEffect(S_FIRE_START_SPARK);
+          break;
+          default:
+            // For all other modes, do nothing.
+          break;
+        }
+
+        // Trigger an update to long-running sound volume.
+        updateEffectsVolume();
+      }
+
       if(b_cyclotron_colour_toggle) {
+        if(gpstarPack.inStreamMode(SLIME)) {
+          // Reset the Cyclotron states.
+          resetCyclotronState();
+          clearCyclotronFades();
+        }
+
         // Reset the Cyclotron LED colours.
         cyclotronColourReset();
       }
 
-      if(b_powercell_colour_toggle && b_pack_on) {
+      if(b_powercell_colour_toggle && PACK_STATE == MODE_ON) {
         // Reset the Power Cell colours if the Power Cell is running.
         b_powercell_updating = true;
         powercellDraw();
@@ -1717,380 +2120,40 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       // Update the Inner Cyclotron LEDs if required.
       cyclotronSwitchLEDUpdate();
-
-      attenuatorSerialSend(A_PROTON_MODE);
     break;
 
-    case W_SLIME_MODE:
-      if((AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) && STREAM_MODE == MESON) {
-        // Tell GPStar Audio we no longer need short audio.
-        audio.gpstarShortTrackOverload(true);
+    case W_SET_FIRING_MODE:
+      // Set the variable for firing mode (for web UI).
+      switch(i_value) {
+        case FLAG_VG_MODE:
+        default:
+          gpstarPack.setFiringModeVG();
+        break;
+
+        case FLAG_CTS_MODE:
+          gpstarPack.setFiringModeCTS();
+        break;
+
+        case FLAG_CTS_MIX_MODE:
+          gpstarPack.setFiringModeCTSMix();
+        break;
       }
 
-      if(PACK_STATE == MODE_ON && STREAM_MODE != SLIME) {
-        stopEffect(S_PACK_SLIME_TANK_LOOP);
-        stopEffect(S_STASIS_IDLE_LOOP);
-        stopEffect(S_MESON_IDLE_LOOP);
-
-        playEffect(S_PACK_SLIME_OPEN);
-        playEffect(S_PACK_SLIME_TANK_LOOP, true, i_volume_effects, true, 700);
-
-        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
-          adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects - 30, true, 100);
-          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects - 40, true, 100);
-        }
-      }
-
-      // Slime mode.
-      STREAM_MODE = SLIME;
-
-      if(b_settings) {
-        playEffect(S_CLICK);
-        b_settings = false;
-      }
-
-      if(b_cyclotron_colour_toggle) {
-        // Reset the Cyclotron states.
-        resetCyclotronState();
-        clearCyclotronFades();
-
-        // Reset the Cyclotron LED colours.
-        cyclotronColourReset();
-      }
-
-      if(b_powercell_colour_toggle && b_pack_on) {
-        // Reset the Power Cell colours if the Power Cell is running.
-        b_powercell_updating = true;
-        powercellDraw();
-      }
-
-      // Update the Inner Cyclotron LEDs if required.
-      cyclotronSwitchLEDUpdate();
-
-      attenuatorSerialSend(A_SLIME_MODE);
-    break;
-
-    case W_STASIS_MODE:
-      if((AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) && STREAM_MODE == MESON) {
-        // Tell GPStar Audio we no longer need short audio.
-        audio.gpstarShortTrackOverload(true);
-      }
-
-      // Returning from Slime mode, so we need to reset the Cyclotron again.
-      if(usingSlimeCyclotron()) {
-        resetCyclotronState();
-        clearCyclotronFades();
-
-        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
-          adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
-          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 100);
-        }
-      }
-
-      if(PACK_STATE == MODE_ON && STREAM_MODE != STASIS) {
-        stopEffect(S_PACK_SLIME_TANK_LOOP);
-        stopEffect(S_STASIS_IDLE_LOOP);
-        stopEffect(S_MESON_IDLE_LOOP);
-
-        playEffect(S_STASIS_OPEN);
-        playEffect(S_STASIS_IDLE_LOOP, true, i_volume_effects, true, 2000);
-      }
-
-      // Stasis mode.
-      STREAM_MODE = STASIS;
-
-      if(b_settings) {
-        playEffect(S_CLICK);
-        b_settings = false;
-      }
-
-      if(b_cyclotron_colour_toggle) {
-        // Reset the Cyclotron LED colours.
-        cyclotronColourReset();
-      }
-
-      if(b_powercell_colour_toggle && b_pack_on) {
-        // Reset the Power Cell colours if the Power Cell is running.
-        b_powercell_updating = true;
-        powercellDraw();
-      }
-
-      // Update the Inner Cyclotron LEDs if required.
-      cyclotronSwitchLEDUpdate();
-
-      attenuatorSerialSend(A_STASIS_MODE);
-    break;
-
-    case W_MESON_MODE:
-      // Returning from Slime mode, so we need to reset the Cyclotron again.
-      if(usingSlimeCyclotron()) {
-        resetCyclotronState();
-        clearCyclotronFades();
-
-        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
-          adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
-          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 100);
-        }
-      }
-
-      if(PACK_STATE == MODE_ON && STREAM_MODE != MESON) {
-        stopEffect(S_PACK_SLIME_TANK_LOOP);
-        stopEffect(S_STASIS_IDLE_LOOP);
-        stopEffect(S_MESON_IDLE_LOOP);
-
-        playEffect(S_MESON_OPEN);
-        playEffect(S_MESON_IDLE_LOOP, true, i_volume_effects, true, 1250);
-      }
-
-      // Meson mode.
-      STREAM_MODE = MESON;
-
-      if(b_settings) {
-        playEffect(S_CLICK);
-        b_settings = false;
-      }
-
-      if(AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) {
-        // Tell GPStar Audio we need short audio mode.
-        audio.gpstarShortTrackOverload(false);
-      }
-
-      if(b_cyclotron_colour_toggle) {
-        // Reset the Cyclotron LED colours.
-        cyclotronColourReset();
-      }
-
-      if(b_powercell_colour_toggle && b_pack_on) {
-        // Reset the Power Cell colours if the Power Cell is running.
-        b_powercell_updating = true;
-        powercellDraw();
-      }
-
-      // Update the Inner Cyclotron LEDs if required.
-      cyclotronSwitchLEDUpdate();
-
-      attenuatorSerialSend(A_MESON_MODE);
-    break;
-
-    case W_SPECTRAL_MODE:
-      if((AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) && STREAM_MODE == MESON) {
-        // Tell GPStar Audio we no longer need short audio.
-        audio.gpstarShortTrackOverload(true);
-      }
-
-      // Returning from Slime mode, so we need to reset the Cyclotron again.
-      if(usingSlimeCyclotron()) {
-        resetCyclotronState();
-        clearCyclotronFades();
-
-        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
-          adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
-          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 100);
-        }
-      }
-
-      if(PACK_STATE == MODE_ON && STREAM_MODE != SPECTRAL) {
-        stopEffect(S_PACK_SLIME_TANK_LOOP);
-        stopEffect(S_STASIS_IDLE_LOOP);
-        stopEffect(S_MESON_IDLE_LOOP);
-
-        playEffect(S_FIRE_START_SPARK);
-      }
-
-      // Spectral mode.
-      STREAM_MODE = SPECTRAL;
-
-      if(b_settings) {
-        playEffect(S_CLICK);
-        b_settings = false;
-      }
-
-      if(b_cyclotron_colour_toggle) {
-        // Reset the Cyclotron LED colours.
-        cyclotronColourReset();
-      }
-
-      if(b_powercell_colour_toggle && b_pack_on) {
-        // Reset the Power Cell colours if the Power Cell is running.
-        b_powercell_updating = true;
-        powercellDraw();
-      }
-
-      // Update the Inner Cyclotron LEDs if required.
-      cyclotronSwitchLEDUpdate();
-
-      attenuatorSerialSend(A_SPECTRAL_MODE);
-    break;
-
-    case W_HALLOWEEN_MODE:
-      if((AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) && STREAM_MODE == MESON) {
-        // Tell GPStar Audio we no longer need short audio.
-        audio.gpstarShortTrackOverload(true);
-      }
-
-      // Returning from Slime mode, so we need to reset the Cyclotron again.
-      if(usingSlimeCyclotron()) {
-        resetCyclotronState();
-        clearCyclotronFades();
-
-        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
-          adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
-          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 100);
-        }
-      }
-
-      if(PACK_STATE == MODE_ON && (STREAM_MODE != HOLIDAY_HALLOWEEN || STREAM_MODE != HOLIDAY_CHRISTMAS)) {
-        stopEffect(S_PACK_SLIME_TANK_LOOP);
-        stopEffect(S_STASIS_IDLE_LOOP);
-        stopEffect(S_MESON_IDLE_LOOP);
-
-        playEffect(S_HALLOWEEN_MODE_VOICE);
-      }
-
-      // Set appropriate holiday mode.
-      STREAM_MODE = HOLIDAY_HALLOWEEN;
-
-      if(b_settings) {
-        playEffect(S_CLICK);
-        b_settings = false;
-      }
-
-      if(b_cyclotron_colour_toggle) {
-        // Reset the Cyclotron LED colours.
-        cyclotronColourReset();
-      }
-
-      if(b_powercell_colour_toggle && b_pack_on) {
-        // Reset the Power Cell colours if the Power Cell is running.
-        b_powercell_updating = true;
-        powercellDraw();
-      }
-
-      // Update the Inner Cyclotron LEDs if required.
-      cyclotronSwitchLEDUpdate();
-
-      attenuatorSerialSend(A_HALLOWEEN_MODE);
-    break;
-
-    case W_CHRISTMAS_MODE:
-      if((AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) && STREAM_MODE == MESON) {
-        // Tell GPStar Audio we no longer need short audio.
-        audio.gpstarShortTrackOverload(true);
-      }
-
-      // Returning from Slime mode, so we need to reset the Cyclotron again.
-      if(usingSlimeCyclotron()) {
-        resetCyclotronState();
-        clearCyclotronFades();
-
-        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
-          adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
-          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 100);
-        }
-      }
-
-      if(PACK_STATE == MODE_ON && (STREAM_MODE != HOLIDAY_HALLOWEEN || STREAM_MODE != HOLIDAY_CHRISTMAS)) {
-        stopEffect(S_PACK_SLIME_TANK_LOOP);
-        stopEffect(S_STASIS_IDLE_LOOP);
-        stopEffect(S_MESON_IDLE_LOOP);
-
-        playEffect(S_CHRISTMAS_MODE_VOICE);
-      }
-
-      // Set appropriate holiday mode.
-      STREAM_MODE = HOLIDAY_CHRISTMAS;
-
-      if(b_settings) {
-        playEffect(S_CLICK);
-        b_settings = false;
-      }
-
-      if(b_cyclotron_colour_toggle) {
-        // Reset the Cyclotron LED colours.
-        cyclotronColourReset();
-      }
-
-      if(b_powercell_colour_toggle && b_pack_on) {
-        // Reset the Power Cell colours if the Power Cell is running.
-        b_powercell_updating = true;
-        powercellDraw();
-      }
-
-      // Update the Inner Cyclotron LEDs if required.
-      cyclotronSwitchLEDUpdate();
-
-      attenuatorSerialSend(A_CHRISTMAS_MODE);
-    break;
-
-    case W_SPECTRAL_CUSTOM_MODE:
-      if((AUDIO_DEVICE == A_GPSTAR_AUDIO || AUDIO_DEVICE == A_GPSTAR_AUDIO_ADV) && STREAM_MODE == MESON) {
-        // Tell GPStar Audio we no longer need short audio.
-        audio.gpstarShortTrackOverload(true);
-      }
-
-      // Returning from Slime mode, so we need to reset the Cyclotron again.
-      if(usingSlimeCyclotron()) {
-        resetCyclotronState();
-        clearCyclotronFades();
-
-        if((SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE)) {
-          adjustGainEffect(S_AFTERLIFE_PACK_STARTUP, i_volume_effects, true, 100);
-          adjustGainEffect(S_AFTERLIFE_PACK_IDLE_LOOP, i_volume_effects, true, 100);
-        }
-      }
-
-      if(PACK_STATE == MODE_ON && STREAM_MODE != SPECTRAL_CUSTOM) {
-        stopEffect(S_PACK_SLIME_TANK_LOOP);
-        stopEffect(S_STASIS_IDLE_LOOP);
-        stopEffect(S_MESON_IDLE_LOOP);
-
-        playEffect(S_FIRE_START_SPARK);
-      }
-
-      // Custom spectral mode.
-      STREAM_MODE = SPECTRAL_CUSTOM;
-
-      if(b_settings) {
-        playEffect(S_CLICK);
-        b_settings = false;
-      }
-
-      if(b_cyclotron_colour_toggle) {
-        // Reset the Cyclotron LED colours.
-        cyclotronColourReset();
-      }
-
-      if(b_powercell_colour_toggle && b_pack_on) {
-        // Reset the Power Cell colours if the Power Cell is running.
-        b_powercell_updating = true;
-        powercellDraw();
-      }
-
-      // Update the Inner Cyclotron LEDs if required.
-      cyclotronSwitchLEDUpdate();
-
-      attenuatorSendData(A_SPECTRAL_CUSTOM_MODE);
-    break;
-
-    case W_SETTINGS_MODE:
-      // Settings mode
-      playEffect(S_CLICK);
-      b_settings = true;
-
-      attenuatorSerialSend(A_SETTINGS_MODE);
+      // Inform the Attenuator of the change.
+      attenuatorSerialSend(A_SET_FIRING_MODE, i_value);
     break;
 
     case W_TOGGLE_PACK_WIFI:
     #ifdef ESP32
       // Toggle the Proton Pack WiFi.
-      if(WIFI_MODE == WIFI_DEFAULT || WIFI_MODE == WIFI_ENABLED) {
-        WIFI_MODE = WIFI_DISABLED;
+      if(WIFI_USER_MODE == WIFI_DEFAULT || WIFI_USER_MODE == WIFI_ENABLED) {
+        WIFI_USER_MODE = WIFI_DISABLED;
         stopEffect(S_VOICE_PACK_WIFI_DISABLED);
         stopEffect(S_VOICE_PACK_WIFI_ENABLED);
         playEffect(S_VOICE_PACK_WIFI_DISABLED);
       }
       else {
-        WIFI_MODE = WIFI_ENABLED;
+        WIFI_USER_MODE = WIFI_ENABLED;
         stopEffect(S_VOICE_PACK_WIFI_DISABLED);
         stopEffect(S_VOICE_PACK_WIFI_ENABLED);
         playEffect(S_VOICE_PACK_WIFI_ENABLED);
@@ -2104,7 +2167,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       wirelessMgr->resetWifiPassword();
 
       // Turn off the WiFi until the user decides to manually enable and reconnect.
-      WIFI_MODE = WIFI_DISABLED;
+      WIFI_USER_MODE = WIFI_DISABLED;
 
       // Give some audio feedback as to what just happened.
       stopEffect(S_VOICE_PACK_WIFI_RESET);
@@ -2230,15 +2293,15 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_BEEP_START:
       // Play overheat alert beeps before we overheat.
-      switch(SYSTEM_YEAR) {
+      switch(gpstarPack.getSystemTheme()) {
         case SYSTEM_AFTERLIFE:
         case SYSTEM_FROZEN_EMPIRE:
+        default:
           playEffect(S_PACK_BEEPS_OVERHEAT, true);
         break;
 
         case SYSTEM_1984:
         case SYSTEM_1989:
-        default:
           playEffect(S_BEEP_8, true);
         break;
       }
@@ -2246,77 +2309,97 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_POWER_LEVEL_1:
       // Wand power level 1
-      i_wand_power_level = 1;
+      gpstarPack.setPowerLevel(LEVEL_1);
 
       // Reset the smoke timer and cyclotron speed timer if the wand is firing.
       if(b_wand_firing) {
         if(ms_smoke_timer.isRunning()) {
-          ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[i_wand_power_level - 1]));
+          ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[(uint8_t)gpstarPack.getPowerLevel() - 1]));
+        }
+
+        if(gpstarPack.inStreamMode(MESON)) {
+          // Make sure to update the Meson pulse timing.
+          rapidEffectDelay(S_MESON_FIRE_PULSE, i_meson_blast_delay_level_1);
         }
       }
 
-      POWER_LEVEL = LEVEL_1;
       attenuatorSerialSend(A_POWER_LEVEL_1);
     break;
 
     case W_POWER_LEVEL_2:
       // Wand power level 2
-      i_wand_power_level = 2;
+      gpstarPack.setPowerLevel(LEVEL_2);
 
       // Reset the smoke timer and cyclotron speed timer if the wand is firing.
       if(b_wand_firing) {
         if(ms_smoke_timer.isRunning()) {
-          ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[i_wand_power_level - 1]));
+          ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[(uint8_t)gpstarPack.getPowerLevel() - 1]));
+        }
+
+        if(gpstarPack.inStreamMode(MESON)) {
+          // Make sure to update the Meson pulse timing.
+          rapidEffectDelay(S_MESON_FIRE_PULSE, i_meson_blast_delay_level_2);
         }
       }
 
-      POWER_LEVEL = LEVEL_2;
       attenuatorSerialSend(A_POWER_LEVEL_2);
     break;
 
     case W_POWER_LEVEL_3:
       // Wand power level 3
-      i_wand_power_level = 3;
+      gpstarPack.setPowerLevel(LEVEL_3);
 
       // Reset the smoke timer and cyclotron speed timer if the wand is firing.
       if(b_wand_firing) {
         if(ms_smoke_timer.isRunning()) {
-          ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[i_wand_power_level - 1]));
+          ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[(uint8_t)gpstarPack.getPowerLevel() - 1]));
+        }
+
+        if(gpstarPack.inStreamMode(MESON)) {
+          // Make sure to update the Meson pulse timing.
+          rapidEffectDelay(S_MESON_FIRE_PULSE, i_meson_blast_delay_level_3);
         }
       }
 
-      POWER_LEVEL = LEVEL_3;
       attenuatorSerialSend(A_POWER_LEVEL_3);
     break;
 
     case W_POWER_LEVEL_4:
       // Wand power level 4
-      i_wand_power_level = 4;
+      gpstarPack.setPowerLevel(LEVEL_4);
 
       // Reset the smoke timer and cyclotron speed timer if the wand is firing.
       if(b_wand_firing) {
         if(ms_smoke_timer.isRunning()) {
-          ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[i_wand_power_level - 1]));
+          ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[(uint8_t)gpstarPack.getPowerLevel() - 1]));
+        }
+
+        if(gpstarPack.inStreamMode(MESON)) {
+          // Make sure to update the Meson pulse timing.
+          rapidEffectDelay(S_MESON_FIRE_PULSE, i_meson_blast_delay_level_4);
         }
       }
 
-      POWER_LEVEL = LEVEL_4;
       attenuatorSerialSend(A_POWER_LEVEL_4);
     break;
 
     case W_POWER_LEVEL_5:
       // Wand power level 5
-      i_wand_power_level = 5;
+      gpstarPack.setPowerLevel(LEVEL_5);
 
       // Reset the smoke timer and cyclotron speed timer if the wand is firing.
       // Note that since the wand cannot enter or exit Power Level 5 while firing, this should never be necessary.
       if(b_wand_firing) {
         if(ms_smoke_timer.isRunning()) {
-          ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[i_wand_power_level - 1]));
+          ms_smoke_timer.start(PROGMEM_READU16(i_smoke_timer[(uint8_t)gpstarPack.getPowerLevel() - 1]));
+        }
+
+        if(gpstarPack.inStreamMode(MESON)) {
+          // Make sure to update the Meson pulse timing.
+          rapidEffectDelay(S_MESON_FIRE_PULSE, i_meson_blast_delay_level_5);
         }
       }
 
-      POWER_LEVEL = LEVEL_5;
       attenuatorSerialSend(A_POWER_LEVEL_5);
     break;
 
@@ -2365,11 +2448,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       b_firing_intensify = true;
 
       if(b_wand_firing && !b_sound_firing_intensify_trigger) {
-        if(SYSTEM_YEAR == SYSTEM_1984) {
-          playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+        if(gpstarPack.getSystemTheme() == SYSTEM_1984) {
+          playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true);
         }
         else {
-          playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+          playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
         }
         b_sound_firing_intensify_trigger = true;
       }
@@ -2378,7 +2461,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_FIRING_INTENSIFY_STOPPED_MIX:
       // Wand no longer firing in intensify mode; drop back to alt fire mix.
       if(b_firing_intensify) {
-        if(SYSTEM_YEAR == SYSTEM_1984) {
+        if(gpstarPack.getSystemTheme() == SYSTEM_1984) {
           stopEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP);
         }
         else {
@@ -2397,23 +2480,23 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       if(b_wand_firing && !b_sound_firing_alt_trigger) {
         b_sound_firing_alt_trigger = true;
 
-        if(i_wand_power_level != i_wand_power_level_max) {
-          if(SYSTEM_YEAR == SYSTEM_1989) {
+        if(gpstarPack.getPowerLevel() != MAX_POWER_LEVEL) {
+          if(gpstarPack.getSystemTheme() == SYSTEM_1989) {
             stopEffect(S_GB2_FIRE_LOOP);
           }
           else {
             stopEffect(S_GB1_1984_FIRE_LOOP_GUN);
           }
 
-          if(SYSTEM_YEAR == SYSTEM_1984) {
-            playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+          if(gpstarPack.getSystemTheme() == SYSTEM_1984) {
+            playEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP, true);
           }
           else {
-            playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true, i_volume_effects, false, 0, false);
+            playEffect(S_GB1_FIRE_HIGH_POWER_LOOP, true);
           }
         }
 
-        playEffect(S_FIRING_LOOP_GB1, true, i_volume_effects, false, 0, false);
+        playEffect(S_FIRING_LOOP_GB1, true);
       }
     break;
 
@@ -2423,25 +2506,25 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         stopEffect(S_FIRING_LOOP_GB1);
 
         // Since Intensify is still held, turn back on its firing loop sounds.
-        switch(i_wand_power_level) {
-          case 1 ... 4:
-          default:
-            if(SYSTEM_YEAR == SYSTEM_1984) {
+        switch(gpstarPack.getPowerLevel()) {
+          case LEVEL_1 ... LEVEL_4:
+            if(gpstarPack.getSystemTheme() == SYSTEM_1984) {
               stopEffect(S_GB1_1984_FIRE_HIGH_POWER_LOOP);
             }
             else {
               stopEffect(S_GB1_FIRE_HIGH_POWER_LOOP);
             }
 
-            if(SYSTEM_YEAR == SYSTEM_1989) {
-              playEffect(S_GB2_FIRE_LOOP, true, i_volume_effects, false, 0, false);
+            if(gpstarPack.getSystemTheme() == SYSTEM_1989) {
+              playEffect(S_GB2_FIRE_LOOP, true);
             }
             else {
-              playEffect(S_GB1_1984_FIRE_LOOP_PACK, true, i_volume_effects, false, 0, false);
+              playEffect(S_GB1_1984_FIRE_LOOP_PACK, true);
             }
           break;
 
-          case 5:
+          case LEVEL_5:
+          default:
             // Do nothing.
           break;
         }
@@ -2462,6 +2545,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         stopEffect(S_CROSS_STREAMS_START);
       }
       playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
+      attenuatorSerialSend(A_FIRING_CTS);
     break;
 
     case W_FIRING_CROSSING_THE_STREAMS_2021:
@@ -2471,11 +2555,10 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Stop the impact sound timer.
       ms_firing_sound_mix.stop();
 
-      if(AUDIO_DEVICE == A_WAV_TRIGGER) {
-        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-      }
+      stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
 
       playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects, false, 0, false);
+      attenuatorSerialSend(A_FIRING_CTS);
     break;
 
     case W_FIRING_CROSSING_THE_STREAMS_MIX_1984:
@@ -2491,6 +2574,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       playEffect(S_CROSS_STREAMS_START, false, i_volume_effects, false, 0, false);
+      attenuatorSerialSend(A_FIRING_CTS);
     break;
 
     case W_FIRING_CROSSING_THE_STREAMS_MIX_2021:
@@ -2500,12 +2584,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       // Stop the impact sound timer.
       ms_firing_sound_mix.stop();
 
-      if(AUDIO_DEVICE == A_WAV_TRIGGER) {
-        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
-        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-      }
+      stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
+      stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
 
       playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START, false, i_volume_effects, false, 0, false);
+      attenuatorSerialSend(A_FIRING_CTS);
     break;
 
     case W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX_1984:
@@ -2523,6 +2606,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       }
 
       playEffect(S_CROSS_STREAMS_END, false, i_volume_effects, false, 0, false);
+      attenuatorSerialSend(A_FIRING_CTS_STOPPED);
     break;
 
     case W_FIRING_CROSSING_THE_STREAMS_STOPPED_MIX_2021:
@@ -2534,12 +2618,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         ms_firing_sound_mix.start(random(7,15) * 1000);
       }
 
-      if(AUDIO_DEVICE == A_WAV_TRIGGER) {
-        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
-        stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
-      }
+      stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_START);
+      stopEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END);
 
       playEffect(S_AFTERLIFE_CROSS_THE_STREAMS_END, false, i_volume_effects, false, 0, false);
+      attenuatorSerialSend(A_FIRING_CTS_STOPPED);
     break;
 
     case W_YEAR_MODES_CYCLE:
@@ -2663,9 +2746,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
       playEffect(S_BEEPS_ALT);
 
-      switch(VIBRATION_MODE) {
+      switch(gpstarPack.getVibrationMode()) {
         case VIBRATION_ALWAYS:
-          VIBRATION_MODE = VIBRATION_FIRING_ONLY;
+          gpstarPack.setVibrationMode(VIBRATION_FIRING_ONLY);
           b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
 
           // Proton Pack vibration while firing enabled.
@@ -2683,7 +2766,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
         case VIBRATION_FIRING_ONLY:
         default:
-          VIBRATION_MODE = VIBRATION_NONE;
+          gpstarPack.setVibrationMode(VIBRATION_NEVER);
 
           // Proton Pack vibration disabled.
           stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
@@ -2696,8 +2779,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           packSerialSend(P_PACK_VIBRATION_DISABLED);
         break;
 
-        case VIBRATION_NONE:
-          VIBRATION_MODE = CYCLOTRON_MOTOR;
+        case VIBRATION_NEVER:
+          gpstarPack.setVibrationMode(CYCLOTRON_MOTOR);
 
           // Reset the vibration switch state.
           if(switch_vibration.getState() == LOW) {
@@ -2719,7 +2802,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
 
         case CYCLOTRON_MOTOR:
-          VIBRATION_MODE = VIBRATION_ALWAYS;
+          gpstarPack.setVibrationMode(VIBRATION_ALWAYS);
           b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
 
           // Proton Pack vibration enabled.
@@ -2746,7 +2829,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         case VIBRATION_DEFAULT:
         default:
           VIBRATION_MODE_EEPROM = VIBRATION_ALWAYS;
-          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+          gpstarPack.setVibrationMode(VIBRATION_MODE_EEPROM);
           b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
 
           // Proton Pack vibration enabled.
@@ -2764,7 +2847,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
         case VIBRATION_ALWAYS:
           VIBRATION_MODE_EEPROM = VIBRATION_FIRING_ONLY;
-          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+          gpstarPack.setVibrationMode(VIBRATION_MODE_EEPROM);
           b_vibration_switch_on = true; // Override the Proton Pack vibration toggle switch.
 
           // Proton Pack vibration firing enabled.
@@ -2781,8 +2864,8 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
           ms_menu_vibration.start(250); // Confirmation buzz for 250ms.
         break;
         case VIBRATION_FIRING_ONLY:
-          VIBRATION_MODE_EEPROM = VIBRATION_NONE;
-          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+          VIBRATION_MODE_EEPROM = VIBRATION_NEVER;
+          gpstarPack.setVibrationMode(VIBRATION_MODE_EEPROM);
 
           // Proton Pack vibration disabled.
           stopEffect(S_VOICE_PROTON_PACK_VIBRATION_FIRING_ENABLED);
@@ -2795,9 +2878,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
           packSerialSend(P_PACK_VIBRATION_DISABLED);
         break;
-        case VIBRATION_NONE:
+        case VIBRATION_NEVER:
           VIBRATION_MODE_EEPROM = CYCLOTRON_MOTOR;
-          VIBRATION_MODE = VIBRATION_MODE_EEPROM;
+          gpstarPack.setVibrationMode(VIBRATION_MODE_EEPROM);
           pinMode(VIBRATION_PIN, OUTPUT); // Need to explicitly switch to GPIO from LEDC on ESP32.
 
           // Reset the vibration switch state.
@@ -2821,7 +2904,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         break;
         case CYCLOTRON_MOTOR:
           VIBRATION_MODE_EEPROM = VIBRATION_DEFAULT;
-          VIBRATION_MODE = VIBRATION_FIRING_ONLY;
+          gpstarPack.setVibrationMode(VIBRATION_FIRING_ONLY);
 
           // Reset the vibration switch state.
           if(switch_vibration.getState() == LOW) {
@@ -3102,26 +3185,18 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       packSerialSend(P_MUSIC_LOOP_STATUS, b_repeat_track ? 2 : 1);
     break;
 
+    case W_MUSIC_TRACK_SHUFFLE_TOGGLE:
+      toggleMusicShuffle();
+      attenuatorSerialSend(A_MUSIC_TRACK_SHUFFLE_TOGGLE, b_shuffle_tracks ? 2 : 1);
+      packSerialSend(P_MUSIC_SHUFFLE_STATUS, b_shuffle_tracks ? 2 : 1);
+    break;
+
     case W_TOGGLE_MUTE:
-      if(i_volume_master == i_volume_abs_min) {
-        i_volume_master = i_volume_revert;
+      toggleMute();
 
-        // Notify serial devices we are unmuted.
-        attenuatorSerialSend(A_TOGGLE_MUTE, 1);
-        packSerialSend(P_MASTER_AUDIO_STATUS, 1);
-      }
-      else {
-        i_volume_revert = i_volume_master;
-
-        // Set the master volume to minimum.
-        i_volume_master = i_volume_abs_min;
-
-        // Notify serial devices we are muted.
-        attenuatorSerialSend(A_TOGGLE_MUTE, 2);
-        packSerialSend(P_MASTER_AUDIO_STATUS, 2);
-      }
-
-      updateMasterVolume();
+      // Notify serial devices of our mute status.
+      attenuatorSerialSend(A_TOGGLE_MUTE, i_volume_master == i_volume_abs_min ? 2 : 1);
+      packSerialSend(P_MASTER_AUDIO_STATUS, i_volume_master == i_volume_abs_min ? 2 : 1);
     break;
 
     case W_VOLUME_DECREASE:
@@ -3306,9 +3381,9 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     break;
 
     case W_MODE_TOGGLE:
-      switch(SYSTEM_MODE) {
+      switch(gpstarPack.getSystemMode()) {
         case MODE_ORIGINAL:
-          SYSTEM_MODE = MODE_SUPER_HERO;
+          gpstarPack.setSystemMode(MODE_SUPER_HERO);
 
           stopEffect(S_VOICE_MODE_SUPER_HERO);
           stopEffect(S_VOICE_MODE_ORIGINAL);
@@ -3321,7 +3396,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
         case MODE_SUPER_HERO:
         default:
-          SYSTEM_MODE = MODE_ORIGINAL;
+          gpstarPack.setSystemMode(MODE_ORIGINAL);
 
           stopEffect(S_VOICE_MODE_ORIGINAL);
           stopEffect(S_VOICE_MODE_SUPER_HERO);
@@ -3832,11 +3907,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_POWERCELL_15);
       stopEffect(S_VOICE_POWERCELL_13);
 
-      switch(i_powercell_leds) {
+      switch(i_powercell_num_leds) {
         case HASLAB_POWERCELL_LED_COUNT:
         default:
           // Switch to 15 Power Cell LEDs.
-          i_powercell_leds = MAX_POWERCELL_LED_COUNT;
+          i_powercell_num_leds = MAX_POWERCELL_LED_COUNT;
           i_powercell_delay_1984 = POWERCELL_DELAY_1984_15_LED;
           i_powercell_delay_2021 = POWERCELL_DELAY_2021_15_LED;
 
@@ -3846,7 +3921,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
         case MAX_POWERCELL_LED_COUNT:
           // Switch to 13 Power Cell LEDs.
-          i_powercell_leds = HASLAB_POWERCELL_LED_COUNT;
+          i_powercell_num_leds = HASLAB_POWERCELL_LED_COUNT;
           i_powercell_delay_1984 = POWERCELL_DELAY_1984_13_LED;
           i_powercell_delay_2021 = POWERCELL_DELAY_2021_13_LED;
 
@@ -3869,10 +3944,10 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       stopEffect(S_VOICE_CYCLOTRON_20);
       stopEffect(S_VOICE_CYCLOTRON_12);
 
-      switch(i_cyclotron_leds) {
+      switch(i_cyclotron_num_leds) {
         case OUTER_CYCLOTRON_LED_MAX:
           // Switch to 36 LEDs. GPStar.
-          i_cyclotron_leds = MAX_CYCLOTRON_LED_COUNT;
+          i_cyclotron_num_leds = MAX_CYCLOTRON_LED_COUNT;
 
           resetCyclotronState();
 
@@ -3883,7 +3958,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         case MAX_CYCLOTRON_LED_COUNT:
         default:
           // Switch to 20 LEDs. Frutto Technology.
-          i_cyclotron_leds = FRUTTO_CYCLOTRON_LED_COUNT;
+          i_cyclotron_num_leds = FRUTTO_CYCLOTRON_LED_COUNT;
 
           resetCyclotronState();
 
@@ -3893,7 +3968,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
         case FRUTTO_CYCLOTRON_LED_COUNT:
           // Switch to 12 LEDs. Default HasLab.
-          i_cyclotron_leds = HASLAB_CYCLOTRON_LED_COUNT;
+          i_cyclotron_num_leds = HASLAB_CYCLOTRON_LED_COUNT;
 
           resetCyclotronState();
 
@@ -3903,7 +3978,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
         case HASLAB_CYCLOTRON_LED_COUNT:
           // Switch to 40 LEDs.
-          i_cyclotron_leds = OUTER_CYCLOTRON_LED_MAX;
+          i_cyclotron_num_leds = OUTER_CYCLOTRON_LED_MAX;
 
           resetCyclotronState();
 
@@ -4271,6 +4346,20 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
       playEffect(S_VOICE_VENT_LIGHT_INTENSITY_ENABLED);
     break;
 
+    case W_VENT_LIGHT_COLOURS_DISABLED:
+      stopEffect(S_VOICE_VENT_LIGHT_COLOURS_ENABLED);
+      stopEffect(S_VOICE_VENT_LIGHT_COLOURS_DISABLED);
+
+      playEffect(S_VOICE_VENT_LIGHT_COLOURS_DISABLED);
+    break;
+
+    case W_VENT_LIGHT_COLOURS_ENABLED:
+      stopEffect(S_VOICE_VENT_LIGHT_COLOURS_ENABLED);
+      stopEffect(S_VOICE_VENT_LIGHT_COLOURS_DISABLED);
+
+      playEffect(S_VOICE_VENT_LIGHT_COLOURS_ENABLED);
+    break;
+
     case W_BARGRAPH_28_SEGMENTS:
       stopEffect(S_VOICE_BARGRAPH_28_SEGMENTS);
       stopEffect(S_VOICE_BARGRAPH_30_SEGMENTS);
@@ -4462,7 +4551,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
     case W_YEAR_MODES_CYCLE_EEPROM:
       if(b_switch_mode_override) {
-        if(SYSTEM_YEAR_TEMP == SYSTEM_FROZEN_EMPIRE) {
+        if(SYSTEM_THEME_TEMP == SYSTEM_FROZEN_EMPIRE) {
           // Disable the year mode override flag so the toggle switch takes effect.
           b_switch_mode_override = false;
 
@@ -4478,7 +4567,7 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
 
           packSerialSend(P_YEAR_MODE_DEFAULT);
 
-          SYSTEM_EEPROM_YEAR = SYSTEM_TOGGLE_SWITCH;
+          SYSTEM_THEME_EEPROM = SYSTEM_TOGGLE_SWITCH;
         }
         else {
           toggleYearModes();
@@ -4489,28 +4578,28 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
         b_switch_mode_override = true;
 
         // Have to set this to Frozen Empire so 1984 will be triggered.
-        SYSTEM_YEAR_TEMP = SYSTEM_FROZEN_EMPIRE;
+        SYSTEM_THEME_TEMP = SYSTEM_FROZEN_EMPIRE;
 
         toggleYearModes();
       }
 
       if(b_switch_mode_override) {
-        switch(SYSTEM_YEAR_TEMP) {
+        switch(SYSTEM_THEME_TEMP) {
           case SYSTEM_1984:
-            SYSTEM_EEPROM_YEAR = SYSTEM_1984;
+            SYSTEM_THEME_EEPROM = SYSTEM_1984;
           break;
 
           case SYSTEM_1989:
-            SYSTEM_EEPROM_YEAR = SYSTEM_1989;
+            SYSTEM_THEME_EEPROM = SYSTEM_1989;
           break;
 
           case SYSTEM_AFTERLIFE:
           default:
-            SYSTEM_EEPROM_YEAR = SYSTEM_AFTERLIFE;
+            SYSTEM_THEME_EEPROM = SYSTEM_AFTERLIFE;
           break;
 
           case SYSTEM_FROZEN_EMPIRE:
-            SYSTEM_EEPROM_YEAR = SYSTEM_FROZEN_EMPIRE;
+            SYSTEM_THEME_EEPROM = SYSTEM_FROZEN_EMPIRE;
           break;
         }
       }
@@ -4634,9 +4723,11 @@ void handleWandCommand(uint8_t i_command, uint16_t i_value) {
     case W_COM_SOUND_NUMBER:
       if(i_value > 0 && i_value < i_music_track_start) {
         // The Neutrona Wand is telling us to play a sound effect only (S_1 through S_60).
-        stopEffect(i_value + 1);
+        if(i_value + 1 <= S_60) {
+          stopEffect(i_value + 1);
+        }
 
-        if(i_value - 1 > 0) {
+        if(i_value - 1 >= S_1) {
           stopEffect(i_value - 1);
         }
 

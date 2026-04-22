@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="UTF-8" />
@@ -24,8 +24,8 @@
       <div class="setting">
         <b>Operation Mode:</b>
         <select id="defaultSystemModePack" name="defaultSystemModePack" style="width: 180px">
-          <option value="0">Super Hero</option>
-          <option value="1">Mode Original</option>
+          <option value="1">Super Hero</option>
+          <option value="2">Mode Original</option>
         </select>
       </div>
       <div class="setting">
@@ -43,7 +43,7 @@
         <select id="currentYearThemePack" name="currentYearThemePack" style="width: 180px">
           <option value="2">1984</option>
           <option value="3">1989</option>
-          <option value="4">Afterlife</option>
+          <option selected value="4">Afterlife</option>
           <option value="5">Frozen Empire</option>
         </select>
       </div>
@@ -53,7 +53,7 @@
           <option value="1">Always</option>
           <option value="2">When Firing</option>
           <option value="3">Never</option>
-          <option value="4">Via Toggle</option>
+          <option selected value="4">Via Toggle</option>
           <option value="5">Motorized Cyclotron</option>
         </select>
       </div>
@@ -90,7 +90,7 @@
           <span class="toggle">
             <span class="switch"></span>
           </span>
-          <span class="label">Respond to Ribbon Cable Alarm:</span>
+          <span class="label">Use Ribbon Cable Alarm:</span>
         </label>
       </div>
       <div class="setting">
@@ -116,10 +116,19 @@
     <h1>Audio Options</h1>
     <div class="block left">
       <div class="setting">
-        <b>Master Volume % at Startup:</b>
+        <b>Pack Master Volume % at Startup:</b>
         <br />
-        <input type="range" id="defaultPackVolume" name="defaultPackVolume" min="5" max="100" value="100" step="5" oninput="masterVolOut.value=defaultPackVolume.value" />
+        <input type="range" id="defaultPackVolume" name="defaultPackVolume" min="5" max="100" value="100" step="5" oninput="masterVolOut.value = defaultPackVolume.value" />
         <output class="labelSlider" id="masterVolOut" for="defaultPackVolume"></output>
+      </div>
+      <div class="setting">
+        <label class="toggle-switchy" data-text="yesno" data-label="left">
+          <input id="fadeoutIdleSounds" name="fadeoutIdleSounds" type="checkbox" />
+          <span class="toggle">
+            <span class="switch"></span>
+          </span>
+          <span class="label">Fade Out Idle Loop Sounds:</span>
+        </label>
       </div>
       <div class="setting">
         <label class="toggle-switchy" data-label="left">
@@ -128,6 +137,15 @@
             <span class="switch"></span>
           </span>
           <span class="label">Proton Stream Impact Effects:</span>
+        </label>
+      </div>
+      <div class="setting">
+        <label class="toggle-switchy" data-label="left">
+          <input id="brassStartupLoop" name="brassStartupLoop" type="checkbox" />
+          <span class="toggle">
+            <span class="switch"></span>
+          </span>
+          <span class="label">Brass Pack Startup Loop:</span>
         </label>
       </div>
       <div class="setting" id="gpstarAudioLedToggle">
@@ -148,7 +166,7 @@
         <select id="ledCycLidCount" name="ledCycLidCount" style="width: 200px">
           <option value="12">12 - Stock</option>
           <option value="20">20 - Frutto (4x5)</option>
-          <option value="36">36 - GPStar (4x9)</option>
+          <option selected value="36">36 - GPStar (4x9)</option>
           <option value="40">40 - RGB Ring</option>
         </select>
       </div>
@@ -187,7 +205,7 @@
       <div class="setting">
         <b>Brightness %:</b>
         <br />
-        <input type="range" id="ledCycLidLum" name="ledCycLidLum" min="20" max="100" value="100" step="5" oninput="cycLumOut.value=ledCycLidLum.value" />
+        <input type="range" id="ledCycLidLum" name="ledCycLidLum" min="20" max="100" value="100" step="5" oninput="cycLumOut.value = ledCycLidLum.value" />
         <output class="labelSlider" id="cycLumOut" for="ledCycLidLum"></output>
       </div>
       <div class="setting">
@@ -202,8 +220,8 @@
       <div class="setting">
         <b>&nbsp;&nbsp;&nbsp;Center LEDs:</b>
         <select id="ledCycLidCenter" name="ledCycLidCenter">
-          <option value="0">3 LED</option>
           <option value="1">1 LED</option>
+          <option value="0">3 LED</option>
         </select>
       </div>
       <div class="setting">
@@ -233,29 +251,38 @@
           <span class="label">Video Game Colours:</span>
         </label>
       </div>
+      <div class="setting">
+        <label class="toggle-switchy" data-label="left">
+          <input id="disableLidDetection" name="disableLidDetection" type="checkbox" />
+          <span class="toggle">
+            <span class="switch"></span>
+          </span>
+          <span class="label">Disable Lid Detection:</span>
+        </label>
+      </div>
     </div>
 
     <h1>Inner Cyclotron</h1>
     <div class="block left">
       <div class="setting">
-        <b>Inner Panel (RGB LEDs):</b>
+        <b>Inner Panel RGB LEDs:</b>
         <select id="ledCycInnerPanel" name="ledCycInnerPanel" style="width: 180px">
           <option value="1">Disabled</option>
           <option value="2">Static Colours</option>
-          <option value="3">Dynamic Colours</option>
+          <option selected value="3">Dynamic Colours</option>
         </select>
       </div>
       <div class="setting">
         <b>Panel Brightness %:</b>
         <br />
-        <input type="range" id="ledCycPanLum" name="ledCycPanLum" min="20" max="100" value="100" step="5" oninput="panLumOut.value=ledCycPanLum.value" />
+        <input type="range" id="ledCycPanLum" name="ledCycPanLum" min="20" max="100" value="100" step="5" oninput="panLumOut.value = ledCycPanLum.value" />
         <output class="labelSlider" id="panLumOut" for="ledCycPanLum"></output>
       </div>
       <div class="setting">
         <b>Ring LED Count:</b>
         <select id="ledCycCakeCount" name="ledCycCakeCount">
           <option value="36">36 - GPStar</option>
-          <option value="35">35</option>
+          <option selected value="35">35</option>
           <option value="26">26</option>
           <option value="24">24</option>
           <option value="23">23</option>
@@ -306,13 +333,13 @@
       <div class="setting">
         <b>Brightness %:</b>
         <br />
-        <input type="range" id="ledCycCakeLum" name="ledCycCakeLum" min="20" max="100" value="100" step="5" oninput="cakeLumOut.value=ledCycCakeLum.value" />
+        <input type="range" id="ledCycCakeLum" name="ledCycCakeLum" min="20" max="100" value="100" step="5" oninput="cakeLumOut.value = ledCycCakeLum.value" />
         <output class="labelSlider" id="cakeLumOut" for="ledCycCakeLum"></output>
       </div>
       <div class="setting">
         <b>Cyclotron Cavity Lights:</b>
         <br />
-        <input type="range" id="ledCycCavCount" name="ledCycCavCount" min="0" max="20" value="0" step="2" oninput="ledCycCavCountOut.value=ledCycCavCount.value" />
+        <input type="range" id="ledCycCavCount" name="ledCycCavCount" min="0" max="20" value="0" step="2" oninput="ledCycCavCountOut.value = ledCycCavCount.value" />
         <output class="labelSlider" id="ledCycCavCountOut" for="ledCycCavCount"></output>
       </div>
       <div class="setting">
@@ -320,7 +347,7 @@
         <select id="ledCycCavType" name="ledCycCavType">
           <option value="1">RGB</option>
           <option value="2">GRB</option>
-          <option value="3">GBR</option>
+          <option selected value="3">GBR</option>
         </select>
       </div>
     </div>
@@ -331,7 +358,7 @@
         <b>LED Count:</b>
         <select id="ledPowercellCount" name="ledPowercellCount">
           <option value="13">13 - Stock</option>
-          <option value="15">15 - GPStar</option>
+          <option selected value="15">15 - GPStar</option>
         </select>
       </div>
       <div class="setting">
@@ -369,7 +396,7 @@
       <div class="setting">
         <b>Brightness %:</b>
         <br />
-        <input type="range" id="ledPowercellLum" name="ledPowercellLum" min="20" max="100" value="100" step="5" oninput="pcLumOut.value=ledPowercellLum.value" />
+        <input type="range" id="ledPowercellLum" name="ledPowercellLum" min="20" max="100" value="100" step="5" oninput="pcLumOut.value = ledPowercellLum.value" />
         <output class="labelSlider" id="pcLumOut" for="ledPowercellLum"></output>
       </div>
       <div class="setting">
@@ -401,7 +428,7 @@
         </p>
         <div class="setting">
           <label class="toggle-switchy" data-text="yesno" data-label="left">
-            <input id="wifiState" name="wifiState" type="checkbox" />
+            <input id="isWiFiEnabled" name="isWiFiEnabled" type="checkbox" />
             <span class="toggle">
               <span class="switch"></span>
             </span>
@@ -425,7 +452,9 @@
       <hr />
       <a href="/">&laquo; Back</a>
       &nbsp;&nbsp;
-      <button type="button" class="green" style="width: 120px" onclick="saveSettings()" id="btnSave">Update&nbsp;Settings</button>
+      <button type="button" class="green" onclick="saveSettings()" id="btnSave">Update&nbsp;Settings</button>
+      &nbsp;&nbsp;&nbsp;
+      <button type="button" class="red" onclick="resetEEPROM()" id="btnReset">Reset&nbsp;EEPROM</button>
       <br />
       <br />
     </div>
@@ -452,7 +481,9 @@
         disableEl("overheatLightsOff");
         disableEl("overheatStrobeNF");
         disableEl("overheatSyncToFan");
+        disableEl("fadeoutIdleSounds");
         disableEl("protonStreamEffects");
+        disableEl("brassStartupLoop");
         disableEl("ribbonCableAlarm");
         disableEl("wandQuickBootup");
         disableEl("demoLightMode");
@@ -482,7 +513,7 @@
         disableEl("ledInvertPowercell");
         disableEl("ledVGPowercell");
         disableEl("gpstarAudioLedToggle");
-        disableEl("wifiState");
+        disableEl("isWiFiEnabled");
         disableEl("resetWifiPassword");
         hideEl("gpstar2");
       }
@@ -503,7 +534,7 @@
       function getSettings() {
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
-          if (this.readyState == 4 && this.status == 200) {
+          if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
             var settings = JSON.parse(this.responseText);
             if (settings) {
               if (!settings.prefsAvailable) {
@@ -515,7 +546,7 @@
               if (settings.packPowered || settings.wandPowered) {
                 disableControls();
                 alert(
-                  "Pack and/or Wand are currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings."
+                  "Pack and/or Wand are currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings.",
                 );
                 return;
               }
@@ -523,13 +554,13 @@
               if (settings.esp32Pack) {
                 // Show any GPStar II options when hardware available.
                 showEl("gpstar2");
-                setToggle("wifiState", settings.wifiState);
-                enableEl("wifiState");
+                setToggle("isWiFiEnabled", settings.isWiFiEnabled);
+                enableEl("isWiFiEnabled");
                 enableEl("resetWifiPassword");
               } else {
                 // Hide all GPStar II options when not available.
                 hideEl("gpstar2");
-                disableEl("wifiState");
+                disableEl("isWiFiEnabled");
                 disableEl("resetWifiPassword");
               }
 
@@ -556,13 +587,15 @@
                */
 
               // Update fields with the current values, or supply an expected default as necessary.
-              setValue("defaultSystemModePack", settings.defaultSystemModePack || 0);
-              setValue("defaultYearThemePack", settings.defaultYearThemePack || 1); // Value cannot be 0.
+              setValue("defaultSystemModePack", settings.defaultSystemModePack ?? 1); // Value cannot be 0.
+              setValue("defaultYearThemePack", settings.defaultYearThemePack ?? 1); // Value cannot be 0.
               setValue("currentYearThemePack", settings.currentYearThemePack || 4); // Value cannot be 0.
               setValue("defaultPackVolume", settings.defaultPackVolume || 100); // Default to full volume.
               setHtml("masterVolOut", getValue("defaultPackVolume"));
               setValue("packVibration", settings.packVibration || 4);
+              setToggle("fadeoutIdleSounds", settings.fadeoutIdleSounds);
               setToggle("protonStreamEffects", settings.protonStreamEffects);
+              setToggle("brassStartupLoop", settings.brassStartupLoop);
               setToggle("ribbonCableAlarm", settings.ribbonCableAlarm);
               setToggle("wandQuickBootup", settings.wandQuickBootup);
               setToggle("overheatStrobeNF", settings.overheatStrobeNF);
@@ -577,10 +610,11 @@
               setValue("ledCycLidLum", settings.ledCycLidLum || 100); // Full Brightness
               setHtml("cycLumOut", getValue("ledCycLidLum"));
               setToggle("cyclotronDirection", settings.cyclotronDirection);
-              setValue("ledCycLidCenter", settings.ledCycLidCenter || 0);
+              setValue("ledCycLidCenter", settings.ledCycLidCenter ?? 1);
               setToggle("ledCycLidFade", settings.ledCycLidFade);
               setToggle("ledVGCyclotron", settings.ledVGCyclotron);
               setToggle("ledCycLidSimRing", settings.ledCycLidSimRing);
+              setToggle("disableLidDetection", settings.disableLidDetection);
 
               setValue("ledCycCakeCount", settings.ledCycCakeCount || 35); // Default: 35
               setValue("ledCycCakeHue", convertRange(settings.ledCycCakeHue || 254, [1, 254], [0, 360])); // Default: Red
@@ -591,9 +625,9 @@
               setValue("ledCycPanLum", settings.ledCycPanLum || 100); // Full Brightness
               setHtml("panLumOut", getValue("ledCycPanLum"));
               setToggle("ledCycCakeGRB", settings.ledCycCakeGRB);
-              setValue("ledCycCavCount", settings.ledCycCavCount || 0); // Default: 0
+              setValue("ledCycCavCount", settings.ledCycCavCount ?? 0); // Default: 0
               setHtml("ledCycCavCountOut", getValue("ledCycCavCount"));
-              setValue("ledCycCavType", settings.ledCycCavType || 1); // Default: RGB
+              setValue("ledCycCavType", settings.ledCycCavType ?? 3); // Default: GBR
 
               setValue("ledPowercellCount", settings.ledPowercellCount || 15); // GPStar: 15
               setToggle("ledInvertPowercell", settings.ledInvertPowercell);
@@ -608,6 +642,9 @@
               updateColour("cakeColourPreview", "cakeHueOut", "cakeSatOut", getValue("ledCycCakeHue"), getValue("ledCycCakeSat"));
               updateColour("pcColourPreview", "pcHueOut", "pcSatOut", getValue("ledPowercellHue"), getValue("ledPowercellSat"));
             }
+          } else if (this.readyState == 4) {
+            // Handle error responses
+            handleStatus(this.responseText);
           }
         };
         xhttp.open("GET", "/config/pack", true);
@@ -618,12 +655,14 @@
         // Saves current settings to pack, updating runtime variables and making changes immediately effective.
         // This does NOT save to the EEPROM automatically as the user is encouraged to test prior to that action.
         var settings = {
-          defaultSystemModePack: getInt("defaultSystemModePack"),
-          defaultYearThemePack: getInt("defaultYearThemePack") || 1,
+          defaultSystemModePack: getInt("defaultSystemModePack") ?? 1,
+          defaultYearThemePack: getInt("defaultYearThemePack") ?? 1,
           currentYearThemePack: getInt("currentYearThemePack") || 4,
           defaultPackVolume: getInt("defaultPackVolume") || 100,
           packVibration: getInt("packVibration") || 4,
+          fadeoutIdleSounds: getToggle("fadeoutIdleSounds"),
           protonStreamEffects: getToggle("protonStreamEffects"),
+          brassStartupLoop: getToggle("brassStartupLoop"),
           ribbonCableAlarm: getToggle("ribbonCableAlarm"),
           wandQuickBootup: getToggle("wandQuickBootup"),
           overheatStrobeNF: getToggle("overheatStrobeNF"),
@@ -637,10 +676,11 @@
           ledCycLidSat: convertRange(getInt("ledCycLidSat"), [0, 100], [1, 254]) || 254,
           ledCycLidLum: getInt("ledCycLidLum") || 100,
           cyclotronDirection: getToggle("cyclotronDirection"),
-          ledCycLidCenter: getInt("ledCycLidCenter"),
+          ledCycLidCenter: getInt("ledCycLidCenter") ?? 1,
           ledCycLidFade: getToggle("ledCycLidFade"),
           ledVGCyclotron: getToggle("ledVGCyclotron"),
           ledCycLidSimRing: getToggle("ledCycLidSimRing"),
+          disableLidDetection: getToggle("disableLidDetection"),
 
           ledCycCakeCount: getInt("ledCycCakeCount") || 35,
           ledCycCakeHue: convertRange(getInt("ledCycCakeHue"), [0, 360], [1, 254]) || 254,
@@ -649,8 +689,8 @@
           ledCycInnerPanel: getInt("ledCycInnerPanel") || 3,
           ledCycPanLum: getInt("ledCycPanLum") || 100,
           ledCycCakeGRB: getToggle("ledCycCakeGRB"),
-          ledCycCavCount: getInt("ledCycCavCount"),
-          ledCycCavType: getInt("ledCycCavType") || 1,
+          ledCycCavCount: getInt("ledCycCavCount") ?? 0,
+          ledCycCavType: getInt("ledCycCavType") ?? 3,
 
           ledPowercellCount: getInt("ledPowercellCount") || 13,
           ledInvertPowercell: getToggle("ledInvertPowercell"),
@@ -659,7 +699,7 @@
           ledPowercellLum: getInt("ledPowercellLum") || 100,
           ledVGPowercell: getToggle("ledVGPowercell"),
 
-          wifiState: getToggle("wifiState"),
+          isWiFiEnabled: getToggle("isWiFiEnabled"),
           resetWifiPassword: getToggle("resetWifiPassword"),
         };
         var body = JSON.stringify(settings);
@@ -667,7 +707,7 @@
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
           if (this.readyState == 4) {
-            if (this.status == 200) {
+            if (this.status == 200 || this.status == 201) {
               handleStatus(this.responseText);
               setTimeout(getSettings, 400); // Get latest settings.
 
@@ -675,6 +715,7 @@
                 saveEEPROM(); // Perform action only if the user answers OK to the confirmation.
               }
             } else {
+              // Handle non-success responses
               handleStatus(this.responseText);
             }
           }
@@ -687,12 +728,25 @@
       function saveEEPROM() {
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
-          if (this.readyState == 4 && this.status == 200) {
+          if (this.readyState == 4) {
             handleStatus(this.responseText);
           }
         };
         xhttp.open("PUT", "/eeprom/pack", true);
         xhttp.send();
+      }
+
+      function resetEEPROM() {
+        if (confirm("Are you sure you wish to reset all EEPROM settings to their defaults?")) {
+          var xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function () {
+            if (this.readyState == 4) {
+              handleStatus(this.responseText);
+            }
+          };
+          xhttp.open("DELETE", "/eeprom/pack", true);
+          xhttp.send();
+        }
       }
     </script>
   </body>

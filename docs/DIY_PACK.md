@@ -54,9 +54,9 @@ This chart lists only the components in the stock pack which will be reused, whi
 You may choose one of two routes for implementing the new Proton Pack controller:
 
 1. A minimal approach which only focuses on reusing the stock connections and hardware (switches, LEDs, motor).
-	- It is possible to forego replacing the microcontroller in the Hasbro wand and simply use a stock wand. This approach will provide power to the wand but no interactivity between the wand and the pack.
+    - It is possible to forego replacing the microcontroller in the Hasbro wand and simply use a stock wand. This approach will provide power to the wand but no interactivity between the wand and the pack.
 1. Using all stock hardware as above, but with room for additional features, each of which is considered optional.
-	- This will provide full interaction with the new controller for the Neutrona Wand.
+    - This will provide full interaction with the new controller for the Neutrona Wand.
 
 **Prototyping and Connections**
 
@@ -151,27 +151,27 @@ When you see a letter or code in a cells above, it references where component ne
 
 - **Letters should be connected together by a length of wire.**
 
-	- These are jumper wires to provide power or ground connections to a specific row of connections on the board. They do not indicate a specific space to make the connection. Each letter should have a (+) or (-) designation to help identify it as +5V or Ground.
+    - These are jumper wires to provide power or ground connections to a specific row of connections on the board. They do not indicate a specific space to make the connection. Each letter should have a (+) or (-) designation to help identify it as +5V or Ground.
 
-		- Example #1: You see "Z+" in space "+1" (Column "+", Row 1) on the breadboard and again on "B1" (Column "B", Row 1). You need to connect a wire to these 2 points. In this case, the result is positive power on the "+" rail being delivered into all of row 1 for any connections in columns A through E.
+        - Example #1: You see "Z+" in space "+1" (Column "+", Row 1) on the breadboard and again on "B1" (Column "B", Row 1). You need to connect a wire to these 2 points. In this case, the result is positive power on the "+" rail being delivered into all of row 1 for any connections in columns A through E.
 
-		- Example #2: In space "-1" you have a connection "Y-" and you need to run a wire from "-1" to "F1" on the right side of the breadboard. This will deliver ground from the "-" rail to columns F through J on row 1.
+        - Example #2: In space "-1" you have a connection "Y-" and you need to run a wire from "-1" to "F1" on the right side of the breadboard. This will deliver ground from the "-" rail to columns F through J on row 1.
 
 - **Components will be connected in multiple adjacent spaces.**
 
-	- Components will span rows or across the mid-gap in the board to allow one or more connections at each end. Note the arrows which will indicate the orientation (vertical or horizontal) for these items and which spaces they will span. Connections to the board will only be noted in designated spots.
+    - Components will span rows or across the mid-gap in the board to allow one or more connections at each end. Note the arrows which will indicate the orientation (vertical or horizontal) for these items and which spaces they will span. Connections to the board will only be noted in designated spots.
 
-		- Example #1: In E8 is one end of a 470ohm resistor. You need to put the other end of this resistor onto F8 on the board. Resistors do not have polarity and so either end can be placed into either of the marked spaces.
+        - Example #1: In E8 is one end of a 470ohm resistor. You need to put the other end of this resistor onto F8 on the board. Resistors do not have polarity and so either end can be placed into either of the marked spaces.
 
-		- Example #2: In H16 is one end of a 1N4001 diode. You need to then put the STRIPED end of the diode to H13 on the board as indicated with the (s). Diodes have a polarity which affects the flow of current, so pay close attention to these markings.
+        - Example #2: In H16 is one end of a 1N4001 diode. You need to then put the STRIPED end of the diode to H13 on the board as indicated with the (s). Diodes have a polarity which affects the flow of current, so pay close attention to these markings.
 
-		- Example #3: In C29 is one end of a 330ohm resistor, and the other end runs vertically to C26. This is indicated by the ↕ which shows the direction of the component. The symbol ↔ here is used to show an item is oriented horizontally.
+        - Example #3: In C29 is one end of a 330ohm resistor, and the other end runs vertically to C26. This is indicated by the ↕ which shows the direction of the component. The symbol ↔ here is used to show an item is oriented horizontally.
 
 - **Spaces leading with "PIN" indicates an Arduino connection.**
 
-	- A length of wire (to be determined by the placement of the final switch, LED, or other component) must be soldered to the board at the designated spot and connected to the Arduino Mega at the noted pin.
+    - A length of wire (to be determined by the placement of the final switch, LED, or other component) must be soldered to the board at the designated spot and connected to the Arduino Mega at the noted pin.
 
-		- Example #1: G8 says PIN 53. You need to run a wire from this point to PIN 53 to the Arduino Mega. (See chart below protoboard photo.)
+        - Example #1: G8 says PIN 53. You need to run a wire from this point to PIN 53 to the Arduino Mega. (See chart below protoboard photo.)
 
 ## Additional Connections to the Arduino MEGA
 

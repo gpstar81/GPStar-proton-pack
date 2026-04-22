@@ -21,16 +21,6 @@
 
 #pragma once
 
-// Writes a debug message to the serial console or sends to the WebSocket.
-void sendDebug(const String message) {
-  #if defined(DEBUG_SEND_TO_CONSOLE)
-    debugln(message); // Print to serial console.
-  #endif
-  #if defined(DEBUG_SEND_TO_WEBSOCKET)
-    ws.textAll(message); // Send a copy to the WebSocket.
-  #endif
-}
-
 // Obtain a list of partitions for this device.
 void printPartitions() {
   const esp_partition_t *partition;
@@ -57,7 +47,7 @@ void printPartitions() {
 /*
  * Determine the current state of any LEDs before next FastLED refresh.
  */
-void updateLEDs() {  // Static variable to use for choice of LED color.
+void updateLEDs() {  // Static variable to use for choice of LED colour.
   if(ms_light.isRunning()) {
     if(ms_top_leds.justFinished()) {
       ms_top_leds.repeat(); // Restart the delay
@@ -147,4 +137,18 @@ void startSmoke(uint16_t i_duration) {
       ms_smoke.start(i_duration); // Only run smoke for as long as the system will allow.
     }
   }
+}
+
+/*
+ * Reset the trap.
+*/
+void trapReset() {
+
+}
+
+/*
+ * Check the state of the foot pedal or trap triggers.
+*/
+void checkPedal() {
+
 }

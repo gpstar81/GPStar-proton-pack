@@ -1,6 +1,6 @@
 /**
  *   GPStar Proton Pack - Ghostbusters Proton Pack & Neutrona Wand.
- *   Copyright (C) 2024-2025 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
+ *   Copyright (C) 2024-2026 Michael Rajotte <michael.rajotte@gpstartechnologies.com>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -54,7 +54,7 @@ float f_wand_amps = 0.0; // Stores the current amperage reading from the wand.
 struct PowerMeter {
   float ShuntVoltage = 0; // mV - Millivolts read to calculate the amperage draw across the shunt resistor
   float ShuntCurrent = 0; // A - The current (amperage) reading via the shunt resistor
-  float BusVoltage = 0;   // mV - Voltage reading from the measured device
+  float BusVoltage = 0;   // V - Voltage reading from the measured device
   float BattVoltage = 0;  // V - Reference voltage from device power source
   float BusPower = 0;     // W - Calculation of power based on the bus mV*A values
   float AmpHours = 0;     // Ah - An estimation of power consumed over regular intervals
@@ -95,9 +95,7 @@ void powerMeterInit() {
 
   uint8_t i_monitor_status = monitor.begin();
 
-  debugln(F(" "));
-  debug(F("Power Meter Result: "));
-  debugln(i_monitor_status);
+  sendDebug(String(F("Power Meter Result: ")) + String(i_monitor_status));
 
   if(i_monitor_status == 0) {
     // Result of 0 indicates no problems from device detection.
@@ -127,7 +125,7 @@ void doWandPowerReading() {
   f_accumulator = 0.0;
 
   // Only uncomment this debug if absolutely needed!
-  //debugln(F("Reading Power Meter"));
+  //sendDebug(F("Reading Power Meter"));
 
   // Reads the latest values from the monitor.
   wandReading.ShuntVoltage = monitor.shuntVoltage();
@@ -205,7 +203,7 @@ void updateWandPowerState() {
   // Handle packside overheat sequence.
   if(b_wand_overheated) {
     if(ms_delay_post_2.justFinished()) {
-      if(SYSTEM_YEAR == SYSTEM_AFTERLIFE || SYSTEM_YEAR == SYSTEM_FROZEN_EMPIRE) {
+      if(gpstarPack.isThemeModern()) {
         // Stop alarm sound.
         stopEffect(S_PACK_BEEPS_OVERHEAT);
       }
@@ -227,15 +225,15 @@ void updateWandPowerState() {
   // Handle wand overheating sequence. Hasbro wand locks into overheating at 15 seconds of sustained fire.
   if(ms_delay_post_2.justFinished() && !b_wand_overheated) {
     // We're locked into the overheating sequence. Start playing the overheat sound.
-    switch(SYSTEM_YEAR) {
+    switch(gpstarPack.getSystemTheme()) {
       case SYSTEM_AFTERLIFE:
       case SYSTEM_FROZEN_EMPIRE:
+      default:
         playEffect(S_PACK_BEEPS_OVERHEAT, true);
       break;
 
       case SYSTEM_1984:
       case SYSTEM_1989:
-      default:
         playEffect(S_BEEP_8);
       break;
     }
@@ -286,7 +284,7 @@ void updateWandPowerState() {
 
         // Fake a full-power proton stream setting to the Attenuator
         attenuatorSerialSend(A_POWER_LEVEL_5);
-        attenuatorSerialSend(A_PROTON_MODE);
+        attenuatorSerialSend(A_SET_STREAM_MODE, (uint8_t)PROTON);
 
         // Tell the Attenuator the pack is powered on
         attenuatorSerialSend(A_PACK_ON);
@@ -317,7 +315,6 @@ void updateWandPowerState() {
         // Turn the pack off.
         if(PACK_STATE != MODE_OFF) {
           PACK_ACTION_STATE = ACTION_OFF;
-          attenuatorSerialSend(A_PACK_OFF);
         }
       }
 
@@ -360,16 +357,14 @@ void updateWandPowerState() {
 
         if((f_diff_average > 0.0285 && f_diff_average < 0.045) || (f_range > 0.26 && b_positive_rate)) {
           // With this big a jump, we must have started firing.
-          if(SYSTEM_YEAR == SYSTEM_1989 && i_wand_power_level != 4) {
+          if(gpstarPack.getSystemTheme() == SYSTEM_1989 && gpstarPack.getPowerLevel() != LEVEL_4) {
             // In GB2 mode, switch to PL4 for unique GB2 firing sound.
-            i_wand_power_level = 4;
-            POWER_LEVEL = LEVEL_4;
+            gpstarPack.setPowerLevel(LEVEL_4);
             attenuatorSerialSend(A_POWER_LEVEL_4);
           }
-          else if(SYSTEM_YEAR != SYSTEM_1989 && i_wand_power_level != 5) {
+          else if(gpstarPack.getSystemTheme() != SYSTEM_1989 && gpstarPack.getPowerLevel() != MAX_POWER_LEVEL) {
             // Make sure we are back in PL5 otherwise.
-            i_wand_power_level = 5;
-            POWER_LEVEL = LEVEL_5;
+            gpstarPack.setPowerLevel(LEVEL_5);
             attenuatorSerialSend(A_POWER_LEVEL_5);
           }
           f_idle_value = f_sliding_window[0];
@@ -394,9 +389,9 @@ void updateWandPowerState() {
 
 // Send latest voltage value to the Attenuator, if connected.
 void updatePackPowerState() {
-  // Data is sent as uint16_t so this is already multiplied by 100 to get 2 decimal precision.
   f_batt_volts = packReading.BusVoltage;
-  attenuatorSerialSend(A_BATTERY_VOLTAGE_PACK, f_batt_volts);
+  // Data is sent as uint16_t so this is multiplied by 100 to get 2 decimal precision.
+  attenuatorSerialSend(A_BATTERY_VOLTAGE_PACK, (uint16_t)(f_batt_volts * 100));
 }
 
 // Displays the latest gathered power meter values (for debugging only!).
@@ -454,7 +449,6 @@ void checkPowerMeter() {
         b_pack_started_by_meter = false;
         PACK_ACTION_STATE = ACTION_OFF;
         attenuatorSerialSend(A_WAND_OFF);
-        attenuatorSerialSend(A_PACK_OFF);
         attenuatorSerialSend(A_POWER_LEVEL_5);
         attenuatorSerialSend(A_WAND_POWER_AMPS, 0);
       }
