@@ -3028,9 +3028,11 @@ void wandVentStateCheck() {
       soundIdleStart();
 
       if(switch_wand.on()) {
-        if(!b_beeping && !b_firing && !isBrassPack()) {
-          // Beep loop.
-          soundBeepLoop();
+        if(!b_firing && !isBrassPack()) {
+          if(!b_beeping) {
+            // Beep loop.
+            soundBeepLoop();
+          }
         }
         else {
           soundBeepLoopStop();

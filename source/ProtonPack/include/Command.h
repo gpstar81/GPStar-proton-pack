@@ -353,10 +353,10 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
       packSerialSend(P_SET_STREAM_MODE, gpstarPack.getStreamModeByte());
 
       // Meson requires a more rapid-fire triggering of sound effects.
-      if(gpstarPack.inStreamMode(MESON)) {
+      if(gpstarPack.inStreamMode(MESON) && i_audio_version < 109) {
         useShortTrackOverload(true);
       }
-      else if(gpstarPack.switchedFromStream(MESON)) {
+      else if(gpstarPack.switchedFromStream(MESON) && i_audio_version < 109) {
         useShortTrackOverload(false);
       }
 
@@ -414,18 +414,9 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
                 playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true);
               }
 
-              if(b_brass_pack_sound_loop) {
-                if(b_brass_startup_loop) {
-                  stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT_LOOP);
-                  playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT_LOOP, true);
-                }
-                else {
-                  stopEffect(S_FROZEN_EMPIRE_BRASS_IDLE);
-                  playEffect(S_FROZEN_EMPIRE_BRASS_IDLE, true);
-                }
+              if(!isBrassPack()) {
+                packSerialSend(P_REQUEST_BEEP_SYNC);
               }
-
-              packSerialSend(P_REQUEST_BEEP_SYNC);
             break;
           }
 
