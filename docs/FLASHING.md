@@ -18,7 +18,7 @@ Please refer to the table below for a list of devices and their supported softwa
 |-------------------|------|------|------|------|------|------|------|------|
 | <span class="logo-icon-tiny"></span> GPStar Proton Pack | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
 | <span class="logo-icon-tiny"></span> GPStar Neutrona Wand | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
-| <span class="logo-icon-tiny"></span> GPStar Single-shot Blaster | &mdash; | &mdash; | &mdash; | &mdash; | Yes | Yes | Yes |
+| <span class="logo-icon-tiny"></span> GPStar Single-shot Blaster | &mdash; | &mdash; | &mdash; | &mdash; | Yes | Yes | Yes | Yes |
 | <span class="logo-icon-tiny"></span> GPStar Proton Pack II | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | Yes | Yes |
 | <span class="logo-icon-tiny"></span> GPStar Neutrona Wand II | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | Yes | Yes |
 | <span class="logo-icon-tiny"></span> GPStar Single-shot Blaster II | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | &mdash; | Yes | Yes |
