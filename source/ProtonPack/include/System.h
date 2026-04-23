@@ -102,6 +102,10 @@ void resetRampDown() {
   b_inner_ramp_down = true;
 }
 
+bool isBrassPack() {
+  return (gpstarPack.getSystemTheme() == SYSTEM_FROZEN_EMPIRE && !b_cyclotron_lid_on && (gpstarPack.inStreamMode(PROTON) || gpstarPack.inStreamMode(SPECTRAL_CUSTOM)));
+}
+
 void vibrationOff() {
   ms_menu_vibration.stop();
   i_vibration_level_prev = i_vibration_level_min;
@@ -357,8 +361,6 @@ void wandExtraSoundsStop() {
 }
 
 void fadeoutIdleSounds() {
-  wandExtraSoundsBeepLoopStop(true);
-
   switch(gpstarPack.getSystemTheme()) {
     case SYSTEM_1984:
       fadeoutEffect(S_GB1_1984_PACK_LOOP, 5000);
@@ -372,9 +374,10 @@ void fadeoutIdleSounds() {
       fadeoutEffect(S_AFTERLIFE_WAND_IDLE_1, 5000);
       fadeoutEffect(S_AFTERLIFE_WAND_IDLE_2, 5000);
       fadeoutEffect(S_POWERCELL, 5000);
+      wandExtraSoundsBeepLoopStop(true);
     break;
     case SYSTEM_FROZEN_EMPIRE:
-      if(b_brass_pack_sound_loop) {
+      if(isBrassPack()) {
         if(b_brass_startup_loop) {
           fadeoutEffect(S_FROZEN_EMPIRE_BOOT_EFFECT_LOOP, 5000);
         }
@@ -387,6 +390,7 @@ void fadeoutIdleSounds() {
       fadeoutEffect(S_AFTERLIFE_WAND_IDLE_1, 5000);
       fadeoutEffect(S_AFTERLIFE_WAND_IDLE_2, 5000);
       fadeoutEffect(S_POWERCELL, 5000);
+      wandExtraSoundsBeepLoopStop(true);
     break;
   }
 
@@ -400,10 +404,10 @@ void fadeoutIdleSounds() {
       // Do nothing.
     break;
     case SLIME:
-      fadeoutEffect(S_STASIS_IDLE_LOOP, 5000);
+      fadeoutEffect(S_PACK_SLIME_TANK_LOOP, 5000);
     break;
     case STASIS:
-      fadeoutEffect(S_SLIME_LOOP, 5000);
+      fadeoutEffect(S_STASIS_IDLE_LOOP, 5000);
     break;
     case MESON:
       fadeoutEffect(S_MESON_IDLE_LOOP, 5000);
@@ -538,7 +542,7 @@ void innerCyclotronCavityUpdate(uint16_t iRampDelay) {
   // Determine the colour for the LEDs when the cavity lights are enabled. This produces the "sparking"
   // effect as seen in GB:FE only for the Proton stream, but is also active for other select modes.
   // Currently this assumes a string of lights are wrapped around the cake from bottom to top.
-  if(gpstarPack.inStreamMode(HOLIDAY_CHRISTMAS) || (gpstarPack.getSystemTheme() == SYSTEM_FROZEN_EMPIRE && gpstarPack.inStreamMode(PROTON))) {
+  if(gpstarPack.inStreamMode(HOLIDAY_CHRISTMAS) || isBrassPack()) {
     if(i_led_cyclotron_cavity < i_midpoint) {
       i_colour_scheme = C_YELLOW; // Always keep the lower half of LEDs yellow.
     }
@@ -677,9 +681,10 @@ void innerCyclotronRingUpdate(uint16_t iRampDelay) {
     uint8_t i_brightness = getBrightness(i_cyclotron_inner_brightness);
     uint8_t i_colour_scheme = getDeviceColour(CYCLOTRON_INNER, gpstarPack.getStreamMode(), b_cyclotron_colour_toggle);
 
-    if(gpstarPack.getSystemTheme() == SYSTEM_FROZEN_EMPIRE && gpstarPack.inStreamMode(PROTON)) {
+    if(isBrassPack() && gpstarPack.inStreamMode(PROTON)) {
       // As a "sparking" effect is predominant in GB:FE during the Proton stream,
       // the inner LED colour/brightness is altered for this mode.
+      // We do not alter Spectral Custom as this is set by the user instead.
       i_brightness = getBrightness(i_cyclotron_inner_brightness / 2);
       i_colour_scheme = C_ORANGE;
     }
@@ -1018,9 +1023,7 @@ void packStartup(bool fullStartup) {
     break;
 
     case SYSTEM_FROZEN_EMPIRE:
-      b_brass_pack_sound_loop = !b_cyclotron_lid_on && (gpstarPack.inStreamMode(PROTON) || gpstarPack.inStreamMode(SPECTRAL_CUSTOM));
-
-      if(b_brass_pack_sound_loop) {
+      if(isBrassPack()) {
         playEffect(S_BOOTUP);
         playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects, true, 500);
         if(b_brass_startup_loop) {
@@ -1031,6 +1034,7 @@ void packStartup(bool fullStartup) {
           playEffect(S_FROZEN_EMPIRE_BRASS_IDLE, true, i_volume_effects, true, 2300);
         }
 
+        b_brass_pack_sound_loop = true;
         ms_idle_fire_fade.start(0);
       }
       else {
@@ -1564,7 +1568,7 @@ void setYearModeByToggle() {
 
 // LEDs for the 1984/2021 and vibration switches.
 void cyclotronSwitchPlateLEDs() {
-  bool b_brass_pack_effect_active = b_brass_pack_sound_loop || (gpstarPack.getSystemTheme() == SYSTEM_FROZEN_EMPIRE && (b_ramp_down || b_pack_alarm || b_wand_mash_lockout) && (gpstarPack.inStreamMode(PROTON) || gpstarPack.inStreamMode(SPECTRAL_CUSTOM)));
+  bool b_brass_pack_effect_active = b_brass_pack_sound_loop || (isBrassPack() && (b_ramp_down || b_pack_alarm || b_wand_mash_lockout));
 
   if(!b_cyclotron_lid_on && !b_brass_pack_effect_active) {
     uint8_t i_brightness = getBrightness(i_cyclotron_panel_brightness);
@@ -1826,19 +1830,23 @@ void checkSwitches() {
       b_clockwise = false;
 
       playEffect(S_BEEPS_ALT);
-      playEffect(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
+      if(PACK_STATE != MODE_ON) {
+        playEffect(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
 
-      // Tell wand to play Cyclotron counter clockwise voice.
-      packSerialSend(P_CYCLOTRON_COUNTER_CLOCKWISE);
+        // Tell wand to play Cyclotron counter clockwise voice.
+        packSerialSend(P_CYCLOTRON_COUNTER_CLOCKWISE);
+      }
     }
     else {
       b_clockwise = true;
 
       playEffect(S_BEEPS);
-      playEffect(S_VOICE_CYCLOTRON_CLOCKWISE);
+      if(PACK_STATE != MODE_ON) {
+        playEffect(S_VOICE_CYCLOTRON_CLOCKWISE);
 
-      // Tell wand to play Cyclotron clockwise voice.
-      packSerialSend(P_CYCLOTRON_CLOCKWISE);
+        // Tell wand to play Cyclotron clockwise voice.
+        packSerialSend(P_CYCLOTRON_CLOCKWISE);
+      }
     }
   }
 
@@ -1852,23 +1860,27 @@ void checkSwitches() {
       smokeNFilter(false);
 
       stopEffect(S_VENT_DRY);
-
       playEffect(S_VENT_DRY);
-      playEffect(S_VOICE_SMOKE_DISABLED);
 
-      // Tell wand to play smoke disabled voice.
-      packSerialSend(P_SMOKE_DISABLED);
+      if(PACK_STATE != MODE_ON) {
+        playEffect(S_VOICE_SMOKE_DISABLED);
+
+        // Tell wand to play smoke disabled voice.
+        packSerialSend(P_SMOKE_DISABLED);
+      }
     }
     else {
       b_smoke_enabled = true;
 
       stopEffect(S_VENT_SMOKE);
-
       playEffect(S_VENT_SMOKE);
-      playEffect(S_VOICE_SMOKE_ENABLED);
 
-      // Tell wand to play smoke enabled voice.
-      packSerialSend(P_SMOKE_ENABLED);
+      if(PACK_STATE != MODE_ON) {
+        playEffect(S_VOICE_SMOKE_ENABLED);
+
+        // Tell wand to play smoke enabled voice.
+        packSerialSend(P_SMOKE_ENABLED);
+      }
     }
   }
 #endif
@@ -2253,7 +2265,7 @@ void cyclotronSwitchLEDLoop() {
   if(ms_cyclotron_switch_led.justFinished()) {
     if(!b_cyclotron_lid_on) {
       // Frozen Empire brass pack sound is handled here.
-      if(gpstarPack.getSystemTheme() == SYSTEM_FROZEN_EMPIRE && (gpstarPack.inStreamMode(PROTON) || gpstarPack.inStreamMode(SPECTRAL_CUSTOM)) && !b_pack_alarm && !b_overheating && !b_ramp_down && !b_wand_mash_lockout) {
+      if(isBrassPack() && !b_pack_alarm && !b_overheating && !b_ramp_down && !b_wand_mash_lockout) {
         if(!b_brass_pack_sound_loop) {
           if(b_brass_startup_loop) {
             playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT_LOOP, true, i_volume_effects, true, 2000);
@@ -2265,30 +2277,22 @@ void cyclotronSwitchLEDLoop() {
 
           wandExtraSoundsBeepLoopStop(false);
           b_brass_pack_sound_loop = true;
-          updateEffectsVolume();
 
           if(b_fadeout_idle_sounds) {
+            // Restart the idle timer if we enter brass pack mode.
             ms_delay_post.start(i_idle_fadeout_time);
           }
         }
       }
       else if(b_brass_pack_sound_loop) {
-        if(b_fadeout_idle_sounds) {
-          // Restart the normal idle sounds if the lid is put back on.
-          stopEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP);
-          playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true);
-          ms_delay_post.start(i_idle_fadeout_time);
-        }
-
+        // If we were switched out of Proton or Spectral Custom, stop the brass pack sounds.
         stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
         stopEffect(S_FROZEN_EMPIRE_BRASS_IDLE);
         stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT_LOOP);
         b_brass_pack_sound_loop = false;
-        updateEffectsVolume();
-        packSerialSend(P_REQUEST_BEEP_SYNC);
       }
 
-      if(b_brass_pack_sound_loop || (gpstarPack.getSystemTheme() == SYSTEM_FROZEN_EMPIRE && (b_ramp_down || b_pack_alarm || b_wand_mash_lockout) && (gpstarPack.inStreamMode(PROTON) || gpstarPack.inStreamMode(SPECTRAL_CUSTOM)))) {
+      if(b_brass_pack_sound_loop || (isBrassPack() && (b_ramp_down || b_pack_alarm || b_wand_mash_lockout))) {
         // Per user request, turn off the switch panel LEDs if brass pack is running.
         cyclotronSwitchLEDOff();
       }
@@ -2320,10 +2324,19 @@ void cyclotronSwitchLEDLoop() {
 
       // Stop the brass pack sound if it is playing.
       if(b_brass_pack_sound_loop) {
+        if(b_fadeout_idle_sounds && !b_pack_alarm && !b_overheating && !b_ramp_down && !b_wand_mash_lockout) {
+          // Restart the normal idle sounds if the lid is put back on.
+          stopEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP);
+          playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true);
+          ms_delay_post.start(i_idle_fadeout_time);
+        }
+
         stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT);
         stopEffect(S_FROZEN_EMPIRE_BRASS_IDLE);
         stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT_LOOP);
         b_brass_pack_sound_loop = false;
+        updateEffectsVolume();
+        packSerialSend(P_REQUEST_BEEP_SYNC);
       }
     }
 
@@ -2426,7 +2439,7 @@ void powercellLoop() {
       i_powercell_led = 0;
     }
     else {
-      if(((gpstarPack.getSystemTheme() == SYSTEM_FROZEN_EMPIRE && b_cyclotron_lid_on && !b_wand_mash_lockout) || gpstarPack.getSystemTheme() == SYSTEM_AFTERLIFE) && !b_ramp_up && !b_ramp_down && !b_wand_firing && !b_pack_alarm && !b_overheating) {
+      if(((gpstarPack.getSystemTheme() == SYSTEM_FROZEN_EMPIRE && !isBrassPack() && !b_wand_mash_lockout) || gpstarPack.getSystemTheme() == SYSTEM_AFTERLIFE) && !b_ramp_up && !b_ramp_down && !b_wand_firing && !b_pack_alarm && !b_overheating) {
         if(!b_powercell_sound_loop && i_powercell_led == 0) {
           playEffect(S_POWERCELL, true, i_volume_effects - i_wand_idle_level, true, 1400);
           b_powercell_sound_loop = true;
@@ -2444,7 +2457,7 @@ void powercellLoop() {
       }
     }
 
-    if((b_overheating || b_ramp_down || b_ramp_up || b_pack_alarm || (gpstarPack.getSystemTheme() == SYSTEM_FROZEN_EMPIRE && (!b_cyclotron_lid_on || b_wand_mash_lockout))) && b_powercell_sound_loop) {
+    if((b_overheating || b_ramp_down || b_ramp_up || b_pack_alarm || (gpstarPack.getSystemTheme() == SYSTEM_FROZEN_EMPIRE && b_wand_mash_lockout) || isBrassPack()) && b_powercell_sound_loop) {
       stopEffectLoop(S_POWERCELL); // Turn off looping which stops the track.
       b_powercell_sound_loop = false;
     }
@@ -4904,6 +4917,57 @@ void wandStoppedFiring() {
 
   // Stop overheat beeps.
   stopOverheatBeepWarnings();
+
+  if(b_fadeout_idle_sounds) {
+    // Restart the idle sounds if the timer is not already running.
+    if(!ms_delay_post.isRunning()) {
+      switch(gpstarPack.getSystemTheme()) {
+        case SYSTEM_1984:
+          stopEffect(S_GB1_1984_PACK_LOOP);
+          playEffect(S_GB1_1984_PACK_LOOP, true);
+        break;
+        case SYSTEM_1989:
+          stopEffect(S_GB2_PACK_LOOP);
+          playEffect(S_GB2_PACK_LOOP, true);
+        break;
+        case SYSTEM_AFTERLIFE:
+        default:
+          stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
+
+          if(gpstarPack.inStreamMode(SLIME)) {
+            playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects - i_slime_idle_level);
+          }
+          else {
+            playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true);
+          }
+        break;
+        case SYSTEM_FROZEN_EMPIRE:
+          stopEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP);
+
+          if(gpstarPack.inStreamMode(SLIME)) {
+            playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects - i_slime_idle_level);
+          }
+          else {
+            playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true);
+          }
+
+          if(b_brass_pack_sound_loop) {
+            if(b_brass_startup_loop) {
+              stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT_LOOP);
+              playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT_LOOP, true);
+            }
+            else {
+              stopEffect(S_FROZEN_EMPIRE_BRASS_IDLE);
+              playEffect(S_FROZEN_EMPIRE_BRASS_IDLE, true);
+            }
+          }
+        break;
+      }
+    }
+
+    // Make sure we reset the fadeout counter to account for the new idle sounds.
+    ms_delay_post.start(i_idle_fadeout_time);
+  }
 }
 
 void checkMenuVibration() {
@@ -5000,6 +5064,30 @@ void restartFromWandMash() {
 
     if(PACK_STATE == MODE_ON) {
       switch(gpstarPack.getSystemTheme()) {
+        case SYSTEM_1984:
+          stopEffect(S_GB1_1984_BOOT_UP);
+          playEffect(S_GB1_1984_BOOT_UP);
+
+          if(b_fadeout_idle_sounds && !ms_delay_post.isRunning()) {
+            stopEffect(S_GB1_1984_PACK_LOOP);
+            playEffect(S_GB1_1984_PACK_LOOP, true, i_volume_effects, true, 3800);
+          }
+
+          // Make sure we reset the fadeout counter to account for the new idle sounds.
+          ms_delay_post.start(i_idle_fadeout_time);
+        break;
+        case SYSTEM_1989:
+          stopEffect(S_GB2_PACK_START);
+          playEffect(S_GB2_PACK_START);
+
+          if(b_fadeout_idle_sounds && !ms_delay_post.isRunning()) {
+            stopEffect(S_GB2_PACK_LOOP);
+            playEffect(S_GB2_PACK_LOOP, true, i_volume_effects, true, 3800);
+          }
+
+          // Make sure we reset the fadeout counter to account for the new idle sounds.
+          ms_delay_post.start(i_idle_fadeout_time);
+        break;
         case SYSTEM_FROZEN_EMPIRE:
           // Play pack restart sound depending on lid on/off.
           playEffect(S_PACK_RECOVERY);
