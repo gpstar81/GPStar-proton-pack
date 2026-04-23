@@ -181,6 +181,29 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
       else {
         b_smoke_enabled = !b_smoke_enabled;
       }
+
+      // Provide audible feedback
+      stopEffect(S_VOICE_SMOKE_DISABLED);
+      stopEffect(S_VOICE_SMOKE_ENABLED);
+      if(b_smoke_enabled) {
+        stopEffect(S_VENT_SMOKE);
+        playEffect(S_VENT_SMOKE);
+        if(PACK_STATE != MODE_ON) {
+          // Only play voice clips when off.
+          playEffect(S_VOICE_SMOKE_ENABLED);
+          packSerialSend(P_SMOKE_ENABLED);
+        }
+      }
+      else {
+        stopEffect(S_VENT_DRY);
+        playEffect(S_VENT_DRY);
+        if(PACK_STATE != MODE_ON) {
+          // Only play voice clips when off.
+          playEffect(S_VOICE_SMOKE_DISABLED);
+          packSerialSend(P_SMOKE_DISABLED);
+        }
+      }
+
       attenuatorSerialSend(A_TOGGLE_SMOKE, b_smoke_enabled ? 2 : 1);
     break;
 
@@ -191,6 +214,19 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
       else {
         b_vibration_switch_on = !b_vibration_switch_on;
       }
+
+      // Provide audible feedback
+      stopEffect(S_VOICE_VIBRATION_ENABLED);
+      stopEffect(S_VOICE_VIBRATION_DISABLED);
+      if(b_vibration_switch_on) {
+        playEffect(S_VOICE_VIBRATION_ENABLED);
+        packSerialSend(P_VIBRATION_ENABLED);
+      }
+      else {
+        playEffect(S_VOICE_VIBRATION_DISABLED);
+        packSerialSend(P_VIBRATION_DISABLED);
+      }
+
       attenuatorSerialSend(A_TOGGLE_VIBRATION, b_vibration_switch_on ? 2 : 1);
     break;
 
@@ -201,6 +237,29 @@ void executeCommand(uint8_t i_command, uint16_t i_value = 0) {
       else {
         b_clockwise = !b_clockwise;
       }
+
+      // Provide audible feedback
+      stopEffect(S_BEEPS);
+      stopEffect(S_BEEPS_ALT);
+      stopEffect(S_VOICE_CYCLOTRON_CLOCKWISE);
+      stopEffect(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
+      if(b_clockwise) {
+        playEffect(S_BEEPS);
+        if(PACK_STATE != MODE_ON) {
+          // Only play voice clips when off.
+          playEffect(S_VOICE_CYCLOTRON_CLOCKWISE);
+          packSerialSend(P_CYCLOTRON_CLOCKWISE);
+        }
+      }
+      else {
+        playEffect(S_BEEPS_ALT);
+        if(PACK_STATE != MODE_ON) {
+          // Only play voice clips when off.
+          playEffect(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
+          packSerialSend(P_CYCLOTRON_COUNTER_CLOCKWISE);
+        }
+      }
+
       attenuatorSerialSend(A_CYCLOTRON_DIRECTION_TOGGLE, b_clockwise ? 2 : 1);
     break;
 

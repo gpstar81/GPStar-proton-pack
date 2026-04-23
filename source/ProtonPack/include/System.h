@@ -1830,19 +1830,23 @@ void checkSwitches() {
       b_clockwise = false;
 
       playEffect(S_BEEPS_ALT);
-      playEffect(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
+      if(PACK_STATE != MODE_ON) {
+        playEffect(S_VOICE_CYCLOTRON_COUNTER_CLOCKWISE);
 
-      // Tell wand to play Cyclotron counter clockwise voice.
-      packSerialSend(P_CYCLOTRON_COUNTER_CLOCKWISE);
+        // Tell wand to play Cyclotron counter clockwise voice.
+        packSerialSend(P_CYCLOTRON_COUNTER_CLOCKWISE);
+      }
     }
     else {
       b_clockwise = true;
 
       playEffect(S_BEEPS);
-      playEffect(S_VOICE_CYCLOTRON_CLOCKWISE);
+      if(PACK_STATE != MODE_ON) {
+        playEffect(S_VOICE_CYCLOTRON_CLOCKWISE);
 
-      // Tell wand to play Cyclotron clockwise voice.
-      packSerialSend(P_CYCLOTRON_CLOCKWISE);
+        // Tell wand to play Cyclotron clockwise voice.
+        packSerialSend(P_CYCLOTRON_CLOCKWISE);
+      }
     }
   }
 
@@ -1856,23 +1860,27 @@ void checkSwitches() {
       smokeNFilter(false);
 
       stopEffect(S_VENT_DRY);
-
       playEffect(S_VENT_DRY);
-      playEffect(S_VOICE_SMOKE_DISABLED);
 
-      // Tell wand to play smoke disabled voice.
-      packSerialSend(P_SMOKE_DISABLED);
+      if(PACK_STATE != MODE_ON) {
+        playEffect(S_VOICE_SMOKE_DISABLED);
+
+        // Tell wand to play smoke disabled voice.
+        packSerialSend(P_SMOKE_DISABLED);
+      }
     }
     else {
       b_smoke_enabled = true;
 
       stopEffect(S_VENT_SMOKE);
-
       playEffect(S_VENT_SMOKE);
-      playEffect(S_VOICE_SMOKE_ENABLED);
 
-      // Tell wand to play smoke enabled voice.
-      packSerialSend(P_SMOKE_ENABLED);
+      if(PACK_STATE != MODE_ON) {
+        playEffect(S_VOICE_SMOKE_ENABLED);
+
+        // Tell wand to play smoke enabled voice.
+        packSerialSend(P_SMOKE_ENABLED);
+      }
     }
   }
 #endif
