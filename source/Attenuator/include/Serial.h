@@ -256,6 +256,9 @@ bool checkPack() {
           // Specific to the ESP32 and Web UI
           b_wand_connected = attenuatorSyncData.wandPresent;
           b_cyclotron_lid_on = attenuatorSyncData.cyclotronLidState;
+          b_clockwise = attenuatorSyncData.cyclotronClockwise;
+          b_smoke_enabled = attenuatorSyncData.smokeOn;
+          b_vibration_switch_on = attenuatorSyncData.vibrationOn;
           f_batt_volts = (attenuatorSyncData.packVoltage > 0) ? ((float)attenuatorSyncData.packVoltage / 100.0) : 0.0;
           i_pack_audio_version = attenuatorSyncData.packAudioVersion;
           i_wand_audio_version = attenuatorSyncData.wandAudioVersion;

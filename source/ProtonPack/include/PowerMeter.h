@@ -545,7 +545,11 @@ void updateWandPowerState() {
 void updatePackPowerState() {
   f_batt_volts = packReading.BusVoltage;
   // Data is sent as uint16_t so this is multiplied by 100 to get 2 decimal precision.
+#ifdef ESP32
   attenuatorSerialSend(A_BATTERY_VOLTAGE_PACK, (uint16_t)(f_batt_volts * 100));
+#else
+  attenuatorSerialSend(A_BATTERY_VOLTAGE_PACK, (uint16_t)(f_batt_volts));
+#endif
 }
 
 // Displays the latest gathered power meter values (for debugging only!).
