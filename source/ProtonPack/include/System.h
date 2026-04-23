@@ -2269,7 +2269,6 @@ void cyclotronSwitchLEDLoop() {
 
           wandExtraSoundsBeepLoopStop(false);
           b_brass_pack_sound_loop = true;
-          updateEffectsVolume();
 
           if(b_fadeout_idle_sounds) {
             ms_delay_post.start(i_idle_fadeout_time);
@@ -2282,8 +2281,6 @@ void cyclotronSwitchLEDLoop() {
         stopEffect(S_FROZEN_EMPIRE_BRASS_IDLE);
         stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT_LOOP);
         b_brass_pack_sound_loop = false;
-        updateEffectsVolume();
-        packSerialSend(P_REQUEST_BEEP_SYNC);
       }
 
       if(b_brass_pack_sound_loop || (isBrassPack() && (b_ramp_down || b_pack_alarm || b_wand_mash_lockout))) {
