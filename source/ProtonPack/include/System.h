@@ -2271,6 +2271,7 @@ void cyclotronSwitchLEDLoop() {
           b_brass_pack_sound_loop = true;
 
           if(b_fadeout_idle_sounds) {
+            // Restart the idle timer if we enter brass pack mode.
             ms_delay_post.start(i_idle_fadeout_time);
           }
         }
@@ -4908,6 +4909,57 @@ void wandStoppedFiring() {
 
   // Stop overheat beeps.
   stopOverheatBeepWarnings();
+
+  if(b_fadeout_idle_sounds) {
+    // Restart the idle sounds if the timer is not already running.
+    if(!ms_delay_post.isRunning()) {
+      switch(gpstarPack.getSystemTheme()) {
+        case SYSTEM_1984:
+          stopEffect(S_GB1_1984_PACK_LOOP);
+          playEffect(S_GB1_1984_PACK_LOOP, true);
+        break;
+        case SYSTEM_1989:
+          stopEffect(S_GB2_PACK_LOOP);
+          playEffect(S_GB2_PACK_LOOP, true);
+        break;
+        case SYSTEM_AFTERLIFE:
+        default:
+          stopEffect(S_AFTERLIFE_PACK_IDLE_LOOP);
+
+          if(gpstarPack.inStreamMode(SLIME)) {
+            playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true, i_volume_effects - i_slime_idle_level);
+          }
+          else {
+            playEffect(S_AFTERLIFE_PACK_IDLE_LOOP, true);
+          }
+        break;
+        case SYSTEM_FROZEN_EMPIRE:
+          stopEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP);
+
+          if(gpstarPack.inStreamMode(SLIME)) {
+            playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true, i_volume_effects - i_slime_idle_level);
+          }
+          else {
+            playEffect(S_FROZEN_EMPIRE_PACK_IDLE_LOOP, true);
+          }
+
+          if(b_brass_pack_sound_loop) {
+            if(b_brass_startup_loop) {
+              stopEffect(S_FROZEN_EMPIRE_BOOT_EFFECT_LOOP);
+              playEffect(S_FROZEN_EMPIRE_BOOT_EFFECT_LOOP, true);
+            }
+            else {
+              stopEffect(S_FROZEN_EMPIRE_BRASS_IDLE);
+              playEffect(S_FROZEN_EMPIRE_BRASS_IDLE, true);
+            }
+          }
+        break;
+      }
+    }
+
+    // Make sure we reset the fadeout counter to account for the new idle sounds.
+    ms_delay_post.start(i_idle_fadeout_time);
+  }
 }
 
 void checkMenuVibration() {
@@ -5004,6 +5056,30 @@ void restartFromWandMash() {
 
     if(PACK_STATE == MODE_ON) {
       switch(gpstarPack.getSystemTheme()) {
+        case SYSTEM_1984:
+          stopEffect(S_GB1_1984_BOOT_UP);
+          playEffect(S_GB1_1984_BOOT_UP);
+
+          if(b_fadeout_idle_sounds && !ms_delay_post.isRunning()) {
+            stopEffect(S_GB1_1984_PACK_LOOP);
+            playEffect(S_GB1_1984_PACK_LOOP, true, i_volume_effects, true, 3800);
+          }
+
+          // Make sure we reset the fadeout counter to account for the new idle sounds.
+          ms_delay_post.start(i_idle_fadeout_time);
+        break;
+        case SYSTEM_1989:
+          stopEffect(S_GB2_PACK_START);
+          playEffect(S_GB2_PACK_START);
+
+          if(b_fadeout_idle_sounds && !ms_delay_post.isRunning()) {
+            stopEffect(S_GB2_PACK_LOOP);
+            playEffect(S_GB2_PACK_LOOP, true, i_volume_effects, true, 3800);
+          }
+
+          // Make sure we reset the fadeout counter to account for the new idle sounds.
+          ms_delay_post.start(i_idle_fadeout_time);
+        break;
         case SYSTEM_FROZEN_EMPIRE:
           // Play pack restart sound depending on lid on/off.
           playEffect(S_PACK_RECOVERY);
