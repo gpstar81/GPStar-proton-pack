@@ -3238,7 +3238,7 @@ void wandOff() {
     }
 
     // Turn off any barrel spark effects.
-    if(b_wand_mash_lockout || b_pack_alarm) {
+    if(b_wand_mash_lockout || b_pack_alarm || ms_wand_heatup_fade.isRunning()) {
       barrelLightsOff();
     }
 
