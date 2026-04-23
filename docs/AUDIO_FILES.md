@@ -39,7 +39,7 @@ For Windows users these will need to be formatted a different way. We recommend 
 
 ### Sound Effects
 
-Load [all sound files from the "pack-wand" subdirectory of the "sounds" folder](/sounds/) onto both SD cards. The file names must be identical and match between the SD cards so that all effects are synchronized and played by both Proton Pack and Neutrona Wand at the same time. Most effects are played on both the pack and wand while firing, with some minor adjustments to volume or fading to provide the most effective impact.
+Load [all sound files from the "Proton Pack & Neutrona Wand Sound Effects" archive on our Support & Downloads Page](https://gpstartechnologies.com/pages/support-downloads) onto both SD cards. The file names must be identical and match between the SD cards so that all effects are synchronized and played by both Proton Pack and Neutrona Wand at the same time. Most effects are played on both the pack and wand while firing, with some minor adjustments to volume or fading to provide the most effective impact.
 
 Sound effects are prefixed with numbers 001-499 while music files will be prefixed as 500 and above. `DO NOT LEAVE GAPS IN PREFIXES WHEN NUMBERING FILES!` The only exception is between the last sound effect and first music track.
 

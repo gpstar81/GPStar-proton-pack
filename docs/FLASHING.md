@@ -7,7 +7,7 @@ Each supported device in the GPStar system (Proton Pack, Neutrona Wand, Attenuat
 Please mind the following regardless of model or version of hardware in use:
 
 1. The same software version should be uploaded for **ALL** interconnected devices (read: Pack, Wand, and optional Attenuator), even if the release changelog does not advertise modifications for a specific device. This ensures proper serial communication between these components.
-1. When you are flashing updates to your devices, make sure that **BOTH** your Proton Pack and Neutrona Wand Micro SD Cards have all the latest sound effects from this repository as found in the [sounds](/sounds/) directory.
+1. When you are flashing updates to your devices, make sure that **BOTH** your Proton Pack and Neutrona Wand Micro SD Cards have all the latest sound effects from this repository as found on our [Support & Downloads](https://gpstartechnologies.com/pages/support-downloads) page.
 1. Accessories such as the Stream Effects and Belt Gizmo should also be updated to remain in sync with any changes to WebSocket functionality which may have been implemented for the Attenuator/Pack and Wand.
 
 ## Supported Devices
