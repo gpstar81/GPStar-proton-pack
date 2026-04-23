@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Batteries - GPStar Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Batteries";
+        var mkdocs_page_input_path = "BATTERIES.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="..">
+          <img src="../images/gpstar_logo_white.png" class="logo" alt="Logo"/>
+        </a>
+        <div class="version">
+          6.x
+        </div><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ABOUT/">About</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../GUIDE_LISTING/">Introduction</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">GPStar I</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_PCB/">Proton Pack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_PCB/">Neutrona Wand</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">GPStar II</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_2_PCB/">Proton Pack II</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_2_PCB/">Neutrona Wand II</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PSTT/">Proton Stream Target Trainer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WIRELESS_GPSTAR_II/">GPStar II Wireless</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_CALIBRATION/">Motion Sensor Calibration</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../GPSTAR_AUDIO_PCB/">GPStar Audio</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Additional Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Proton Pack</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_LID/">Cyclotron Lid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_INNER/">Inner Cyclotron</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_BYPASS/">Cyclotron Bypass</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NFILTER/">N-Filter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../POWERCELL/">Power Cell</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Neutrona Wand</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../BARGRAPH/">Bargraph</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../HATS/">Hatlights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../VENTLIGHT/">Vent Lights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NEUTRONA_ENCODER/">Neutrona Encoder</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Pack Attenuator</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../ATTENUATOR/">Attenuator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../WIRELESS/">WiFi Adapter</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Special Guides</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" >Power</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../POWER/">Requirements</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Batteries</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#available-voltages">Available Voltages</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#using-multiple-power-sources">Using Multiple Power Sources</a>
+    </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SOUND/">Sound Output</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../HOSE/">Pack-Wand Hose</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SMOKE/">Smoke Kits</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WEB_API_REFERENCE/">Web API Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../VSCODE/">Code Development</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DIY_LEGACY/">Legacy DIY</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operation Manuals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_USAGE/">General Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_MENUS/">Runtime Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_EEPROM/">EEPROM Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WIRELESS_OPERATION/">Attenuator WiFi Operation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Install Videos</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_JONOGUNN/">Jonogunn</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_NORCALGB/">Nor-Cal GB</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Maintenance</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../FLASHING/">Flashing Pack/Wand Firmware</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ATTENUATOR_FLASHING/">Flashing Attenuator/WiFi</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../AUDIO_FILES/">Audio Files</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">From the Engineer Corps</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../SINGLESHOT/">Single-Shot Blaster</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../BELT_GIZMO/">Belt Gizmo</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../STREAM_EFFECTS/">Stream Effects</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Help</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TROUBLESHOOTING/">Troubleshooting</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">General FAQ</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ_GPStar2/">GPStar II FAQ</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">GPStar Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Special Guides</li>
+          <li class="breadcrumb-item">Power</li>
+      <li class="breadcrumb-item active">Batteries</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="battery-recommendations">Battery Recommendations</h1>
+<p>To adequately run your full Proton Pack + Neutrona Wand and any accessories you're going to need a suitable power source. As these kits have evolved to handle more accessories and features so have the requirements for battery recommendations.</p>
+<h2 id="available-voltages">Available Voltages</h2>
+<p>The go-to maker of rechargeable lithium-ion batteries in a customer-friendly package is TalentCell. They offer a range of options from solely 12V to a combination of 24V/12V models, with some offering built-in USB (5V) output. With the introduction of the <a href="https://gpstartechnologies.com/products/gpstar-amplifier-ii">GPStar Amplifier II</a> and <a href="https://gpstartechnologies.com/products/gpstar-power-hub-ii">Power Hub II</a> devices your Proton Pack can be adapted to run on a 24V input voltage!</p>
+<p>The following table list various models which have been used and tested, or deemed suitable for use. Please see the footnotes as necessary to learn of any special caveats when using certain models. The column "Normalized Capacity" is a measure in watt-hours of potential battery capacity taking the internal battery cell voltage and available amp-hour ratings into consideration (V * A = W). This provides an apples-to-apples comparison for battery power across both single-voltage and dual-voltage models, as for the latter models power can come from either the raw 24V or regulated 12V outputs and does not directly translate total amp-hours to actual runtime.</p>
+<table>
+<thead>
+<tr>
+<th>Model ID</th>
+<th>Model<br/>Voltage</th>
+<th>Approx.<br/>Weight</th>
+<th>Normalized<br/>Capacity (Wh)</th>
+<th>24V</th>
+<th>12V</th>
+<th>24V</th>
+<th>12V</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://talentcell.com/lithium-ion-battery/12v/yb1203000.html">YB1203000</a></td>
+<td>12V</td>
+<td>190g</td>
+<td>33.30 Wh</td>
+<td>&mdash;</td>
+<td>~11.1V<sup>3</sup></td>
+<td>&mdash;</td>
+<td>3A</td>
+</tr>
+<tr>
+<td><a href="https://talentcell.com/lithium-ion-battery/12v/yb1203000-usb.html">YB1203000-USB</a> <sup>1</sup></td>
+<td>12V</td>
+<td>190g</td>
+<td>33.30 Wh</td>
+<td>&mdash;</td>
+<td>~11.1V<sup>3</sup></td>
+<td>&mdash;</td>
+<td>3A</td>
+</tr>
+<tr>
+<td><a href="https://talentcell.com/lithium-ion-battery/12v/yb1206000.html">YB1206000</a></td>
+<td>12V</td>
+<td>370g</td>
+<td>66.60 Wh</td>
+<td>&mdash;</td>
+<td>~11.1V<sup>3</sup></td>
+<td>&mdash;</td>
+<td>3A</td>
+</tr>
+<tr>
+<td><a href="https://talentcell.com/lithium-ion-battery/12v/yb1206000-usb.html">YB1206000-USB</a> <sup>1</sup></td>
+<td>12V</td>
+<td>380g</td>
+<td>66.60 Wh</td>
+<td>&mdash;</td>
+<td>~11.1V<sup>3</sup></td>
+<td>&mdash;</td>
+<td>3A</td>
+</tr>
+<tr>
+<td><a href="https://talentcell.com/lithium-ion-battery/12v/pb120b1.html">PB120B1</a></td>
+<td>12V</td>
+<td>730g</td>
+<td>142.08 Wh</td>
+<td>&mdash;</td>
+<td>~11.1V<sup>3</sup></td>
+<td>&mdash;</td>
+<td>6A</td>
+</tr>
+<tr>
+<td><a href="https://talentcell.com/lithium-ion-battery/12v/pb120b2.html">PB120B2</a></td>
+<td>12V</td>
+<td>730g</td>
+<td>142.08 Wh</td>
+<td>&mdash;</td>
+<td>~11.1V<sup>3</sup></td>
+<td>&mdash;</td>
+<td>6A</td>
+</tr>
+<tr>
+<td><a href="https://talentcell.com/lithium-ion-battery/24v/pb240a1.html">PB240A1</a> <sup>2</sup></td>
+<td>24V</td>
+<td>500g</td>
+<td>82.88 Wh</td>
+<td>~25.9V<sup>3</sup></td>
+<td>12V</td>
+<td>3A</td>
+<td>2.0A</td>
+</tr>
+<tr>
+<td><a href="https://talentcell.com/lithium-ion-battery/24v/pb240b1.html">PB240B1</a></td>
+<td>24V</td>
+<td>500g</td>
+<td>129.50 Wh</td>
+<td>~25.9V<sup>3</sup></td>
+<td>12V</td>
+<td>5A</td>
+<td>2.5A</td>
+</tr>
+<tr>
+<td><a href="https://talentcell.com/lithium-ion-battery/24v/pb240b2.html">PB240B2</a></td>
+<td>24V</td>
+<td>500g</td>
+<td>156.00 Wh</td>
+<td>~25.9V<sup>3</sup></td>
+<td>12V</td>
+<td>5A</td>
+<td>2.5A</td>
+</tr>
+</tbody>
+</table>
+<p><sup>1</sup> Use of a USB port for powering any GPStar electronics is <strong>STRONGLY NOT RECOMMENDED</strong>. All systems should be driven by the 24V or 12V barrel jacks as appropriate for the GPStar Amplifier installed.</p>
+<p><sup>2</sup> This 24V model is usable but not fully recommended as it can only supply up to 3A of power for the 24V port, and only 2A for the 12V port. This has been determined to not provide enough headroom to run the GPStar Amplifier II at full volume, especially when paired with larger or 4-ohm speakers which are intended to maximize the amplifier output.</p>
+<p><sup>3</sup> Per the manufacturer's stated specs, the internal cells are comprised of common 18650 batteries arranged in series (for voltage) and in parallel groups (for amperage). Therefore, the exact "raw" voltage of the battery is based on 3.7V cells and may result in a nominal voltage slightly under or over the stated battery rating. Please know that the <a href="https://gpstartechnologies.com/products/gpstar-amplifier">GPStar Amplifier</a> and <a href="https://gpstartechnologies.com/products/gpstar-amplifier-ii">GPStar Amplifier II</a> devices can accept a range of input voltage without issue, while providing a constant and regulated 5V output.</p>
+<h2 id="using-multiple-power-sources">Using Multiple Power Sources</h2>
+<p>For those who wish to make use of smoke effects, the need for multiple batteries has become more apparent and recommended. Every addition and upgrade to your pack and wand comes at a cost of power, and as of 2024 the number of LEDs in use may require up to 1.2A just for the base system functionality. While most DIY and community smoke kits may require 1.5-2.5A each, which easily pushes the lowest stated limit (2.5-3A) of a single 12V TalentCell battery output.</p>
+<p>Please follow our diagrams in the <a href="../SMOKE/">Smoke Guide</a> for more information about how to make use of multiple batteries. With the addition of the <a href="https://gpstartechnologies.com/products/gpstar-power-hub">GPStar Power Hub</a> or <a href="https://gpstartechnologies.com/products/gpstar-power-hub-ii">GPStar Power Hub II</a> this is much easier as you can use a single device with a standalone battery to operate up to 2 smoke kits simultaneously. Per our recommendations, smoke kits can and should be triggered by use of a relay which also makes this scenario possible, as it provides isolation between the power source to the primary electronics from the high-draw heating elements used in most smoke kits.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../POWER/" class="btn btn-neutral float-left" title="Requirements"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../SOUND/" class="btn btn-neutral float-right" title="Sound Output">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>GPStar Technologies</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../POWER/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../SOUND/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

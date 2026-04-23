@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Single-Shot Blaster - GPStar Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Single-Shot Blaster";
+        var mkdocs_page_input_path = "SINGLESHOT.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="..">
+          <img src="../images/gpstar_logo_white.png" class="logo" alt="Logo"/>
+        </a>
+        <div class="version">
+          6.x
+        </div><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ABOUT/">About</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../GUIDE_LISTING/">Introduction</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">GPStar I</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_PCB/">Proton Pack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_PCB/">Neutrona Wand</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">GPStar II</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_2_PCB/">Proton Pack II</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_2_PCB/">Neutrona Wand II</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PSTT/">Proton Stream Target Trainer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WIRELESS_GPSTAR_II/">GPStar II Wireless</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_CALIBRATION/">Motion Sensor Calibration</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../GPSTAR_AUDIO_PCB/">GPStar Audio</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Additional Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Proton Pack</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_LID/">Cyclotron Lid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_INNER/">Inner Cyclotron</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_BYPASS/">Cyclotron Bypass</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NFILTER/">N-Filter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../POWERCELL/">Power Cell</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Neutrona Wand</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../BARGRAPH/">Bargraph</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../HATS/">Hatlights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../VENTLIGHT/">Vent Lights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NEUTRONA_ENCODER/">Neutrona Encoder</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Pack Attenuator</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../ATTENUATOR/">Attenuator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../WIRELESS/">WiFi Adapter</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Special Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Power</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../POWER/">Requirements</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../BATTERIES/">Batteries</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SOUND/">Sound Output</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../HOSE/">Pack-Wand Hose</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SMOKE/">Smoke Kits</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WEB_API_REFERENCE/">Web API Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../VSCODE/">Code Development</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DIY_LEGACY/">Legacy DIY</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operation Manuals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_USAGE/">General Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_MENUS/">Runtime Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_EEPROM/">EEPROM Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WIRELESS_OPERATION/">Attenuator WiFi Operation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Install Videos</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_JONOGUNN/">Jonogunn</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_NORCALGB/">Nor-Cal GB</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Maintenance</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../FLASHING/">Flashing Pack/Wand Firmware</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ATTENUATOR_FLASHING/">Flashing Attenuator/WiFi</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../AUDIO_FILES/">Audio Files</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">From the Engineer Corps</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Single-Shot Blaster</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#whats-this">What's This?</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#external-shell">External Shell</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#bill-of-materials">Bill of Materials</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pcb-connection-details">PCB Connection Details</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#common-socket-connections-jst-ph">Common Socket Connections (JST-PH)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#wire-connectors-terminal-blocks">Wire Connectors (Terminal Blocks)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#special-connectors">Special Connectors</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#battery-power">Battery Power</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#power-switch-optional-but-recommended">Power Switch (Optional, but Recommended)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#boosted-output">Boosted Output</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#operation-guide">Operation Guide</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#system-power-inactivity-indicator">System Power Inactivity Indicator</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#top-dial-behavior">Top Dial Behavior</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#quick-audio-volume-adjustment">Quick Audio Volume Adjustment</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#activate-toggle">Activate Toggle</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#left-hand-toggle-switch-behaviour">Left-Hand Toggle Switch Behaviour</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#firing-proton-pulse">Firing Proton Pulse</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#entering-the-menu-system">Entering The Menu System</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#navigation">Navigation</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#action-levels">Action Levels</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#menu-level-1">Menu Level 1</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#menu-level-2">Menu Level 2</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#firmware-updates">Firmware Updates</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#software-development-requirements">Software Development Requirements</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../BELT_GIZMO/">Belt Gizmo</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../STREAM_EFFECTS/">Stream Effects</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Help</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TROUBLESHOOTING/">Troubleshooting</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">General FAQ</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ_GPStar2/">GPStar II FAQ</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">GPStar Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">From the Engineer Corps</li>
+      <li class="breadcrumb-item active">Single-Shot Blaster</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="single-shot-blaster">Single-Shot Blaster</h1>
+<h2 id="whats-this">What's This?</h2>
+<p>aka. Wrist Thrower, Compact Arm Thrower, Frozen Empire Arm Gauntlet</p>
+<p>It may go by many names, though we know it as the arm-mounted Neutrona Wand as seen in Frozen Empire. For purposes of this guide we'll use the official name straight from the source when <a href="https://www.youtube.com/watch?v=2YypkmcPjQ8">Adam Savage met the propmaster for a look at the device</a>. This guide covers the use of components as typically used for a standard Neutrona Wand, repurposed to bring life to this device.</p>
+<h2 id="external-shell">External Shell</h2>
+<p>There is no shortage of resources for the device shell itself, as it has been modeled and remixed by several members of the Ghostbusters community. Below are some of the found sources offering either the 3D files or pre-printed parts. If you know of another resource for either please let us know and we'll update this list.</p>
+<ul>
+<li><a href="https://github.com/EctoLabs/wrist-thrower">3D Files by EctoLabs</a></li>
+<li><a href="https://rightcoastprops.com/products/frozen-empire-arm-mounted-neutrona-gauntlet-stl-digital-download">3D Files by Right Coast Creative (Craig Rivest, aka. @scoleri_brothers)</a></li>
+<li><a href="https://www.etsy.com/listing/1700904381/ghostbusters-frozen-empire-compact-arm">Ghostbusters Frozen Empire Compact Arm Thrower by ShapeforgeProps</a></li>
+</ul>
+<h2 id="bill-of-materials">Bill of Materials</h2>
+<p>The following list of parts will allow you to assemble the electronics and internal components to run the device. For a complete list of additional cosmetic parts and advice on assembly of the external components please see the incredibly detailed <a href="https://www.gbfans.com/forum/viewtopic.php?t=51824">Build Guide on GBFans</a> by EctoLabs.</p>
+<p>Electronic components are available as a single kit purchase as the
+<a href="https://gpstartechnologies.com/products/gpstar-ii-single-shot-kit">GPStar II Single Shot Kit</a>. The kit will provide the following components, with exception of a battery:</p>
+<ul>
+<li>GPStar Neutrona Wand II</li>
+<li>GPStar Audio</li>
+<li>GPStar Power Boost USB-C</li>
+<li>GPStar Jewel (x2)</li>
+<li>GPStar Neutrona Wand Encoder</li>
+<li>GPStar RGB Vent Light</li>
+<li>28 Segment Bargraph</li>
+<li>Visaton K36WP Speaker (2 watts / 8ohm)</li>
+<li>3 Toggle Switches</li>
+<li>Intensify Toggle Button</li>
+<li>PBS-33B Yellow Toggle Button pre-crimped with JST-PH housing</li>
+<li>Various pre-wired LED lighting</li>
+<li>Small slide switch to enable/disable power.</li>
+</ul>
+<p>Due to shipping limitations of lithim-ion batteries you must provide the necessary power source by purchasing in your locale. Battery power must be at least 2500mAh (2.5Ah) to provide sufficient power to the GPStar Power Boost USB-C, which both provides regulated power and offers a way to directly recharge the battery. This device will draw around 0.8A at full volume.</p>
+<p>Options for a suitable 3.7V LiPo or Li-Ion Battery (minimum 2500mAh):</p>
+<ul>
+<li><a href="https://a.co/d/gQlJsY0">https://a.co/d/gQlJsY0</a></li>
+<li><a href="https://a.co/d/gML6MVC">https://a.co/d/gML6MVC</a></li>
+</ul>
+<h2 id="pcb-connection-details">PCB Connection Details</h2>
+<p>Connections for the device should be made according to the tables below.</p>
+<ul>
+<li>Ordering aligns with PCB labels or when viewed left-to-right with the connector keyhole at the bottom right.</li>
+<li>Pins denoted A#/D# correspond to the internal code and connection to the controller chip.</li>
+<li>Ground may be designated as "GND" or simply "-".</li>
+<li>Either the GPStar I Neutrona Wand or GPStar II Neutrona Wand controller</li>
+</ul>
+<h3 id="common-socket-connections-jst-ph">Common Socket Connections (JST-PH)</h3>
+<table>
+<thead>
+<tr>
+<th>Label</th>
+<th>Pins</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5V-IN</td>
+<td>+/-</td>
+<td>2-pin JST-PH for power from GPStar Power Boost USB-C<br/><strong>This MUST be a regulated 5V source!</strong></td>
+</tr>
+<tr>
+<td>Q2</td>
+<td>VCC/D10/GND</td>
+<td>3-pin JST-PH connection for all addressable LEDs<sup>3</sup></td>
+</tr>
+<tr>
+<td>SW45/SW4</td>
+<td>GND/D2/GND/D3</td>
+<td>4-pin JST-PH connection for the Intensify button and Activate toggle</td>
+</tr>
+<tr>
+<td>SW6</td>
+<td>GND/A6</td>
+<td>2-pin JST-PH connection for the hand-grip mode/fire switch</td>
+</tr>
+</tbody>
+</table>
+<p><sup>3</sup> The 3-pin connector for the LEDs will connect to a pair of 7-LED "jewel" boards as built by GPStar Technologies. These will be installed and addressed by the controller in the order of the barrel first, followed by the cyclotron.</p>
+<h3 id="wire-connectors-terminal-blocks">Wire Connectors (Terminal Blocks)</h3>
+<p><img alt="" src="../images/SingleShotPCB-Mk1.png" /></p>
+<p>For GPStar Neutrona Wand I</p>
+<table>
+<thead>
+<tr>
+<th>Label/Pin</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>D8</td>
+<td>Slo-Blo VCC</td>
+</tr>
+<tr>
+<td>GND</td>
+<td>Slo-Blo GND</td>
+</tr>
+<tr>
+<td>D4</td>
+<td>Lower-right Toggle (wire order does not matter)</td>
+</tr>
+<tr>
+<td>GND</td>
+<td>Lower-right Toggle (wire order does not matter)</td>
+</tr>
+<tr>
+<td>A0</td>
+<td>Upper-right Toggle (wire order does not matter)</td>
+</tr>
+<tr>
+<td>GND</td>
+<td>Upper-right Toggle (wire order does not matter)</td>
+</tr>
+<tr>
+<td>D9</td>
+<td>Clippard LED (Top Left) VCC</td>
+</tr>
+<tr>
+<td>GND</td>
+<td>Clippard LED (Top Left) GND</td>
+</tr>
+<tr>
+<td>R+</td>
+<td>Rumble (vibration) motor VCC</td>
+</tr>
+<tr>
+<td>R-</td>
+<td>Rumble (vibration) motor GND</td>
+</tr>
+<tr>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>VCC</td>
+<td>Power (+) for rotary encoder</td>
+</tr>
+<tr>
+<td>D12</td>
+<td>Blinking top right LED / RGB vent light data</td>
+</tr>
+<tr>
+<td>D13</td>
+<td>White vent light LED</td>
+</tr>
+<tr>
+<td>VL+</td>
+<td>VCC for top/vent lights</td>
+</tr>
+<tr>
+<td>D7</td>
+<td>Rotary encoder B (DT)</td>
+</tr>
+<tr>
+<td>D6</td>
+<td>Rotary encoder A (CLK)</td>
+</tr>
+<tr>
+<td>ROT-</td>
+<td>Ground for rotary encoder</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="" src="../images/SingleShotPCB-Mk2.png" /></p>
+<p>For GPStar Neutrona Wand II</p>
+<table>
+<thead>
+<tr>
+<th>Label/Pin</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>D8</td>
+<td>Slo-Blo VCC</td>
+</tr>
+<tr>
+<td>GND</td>
+<td>Slo-Blo GND</td>
+</tr>
+<tr>
+<td>D4</td>
+<td>Lower-right Toggle (wire order does not matter)</td>
+</tr>
+<tr>
+<td>GND</td>
+<td>Lower-right Toggle (wire order does not matter)</td>
+</tr>
+<tr>
+<td>A0</td>
+<td>Upper-right Toggle (wire order does not matter)</td>
+</tr>
+<tr>
+<td>GND</td>
+<td>Upper-right Toggle (wire order does not matter)</td>
+</tr>
+<tr>
+<td>5V+</td>
+<td>Clippard LED (Top Left) VCC</td>
+</tr>
+<tr>
+<td>D9</td>
+<td>Clippard LED (Top Left) GND</td>
+</tr>
+<tr>
+<td>R+</td>
+<td>Rumble (vibration) motor VCC</td>
+</tr>
+<tr>
+<td>R-</td>
+<td>Rumble (vibration) motor GND</td>
+</tr>
+<tr>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>GND</td>
+<td>Ground for RGB Top/Vent Light</td>
+</tr>
+<tr>
+<td>D12</td>
+<td>Data for RGB Top/Vent Light</td>
+</tr>
+<tr>
+<td>D7</td>
+<td>Rotary encoder B (DT)</td>
+</tr>
+<tr>
+<td>D6</td>
+<td>Rotary encoder A (CLK)</td>
+</tr>
+<tr>
+<td>ROT-</td>
+<td>Ground for rotary encoder</td>
+</tr>
+</tbody>
+</table>
+<h3 id="special-connectors">Special Connectors</h3>
+<table>
+<thead>
+<tr>
+<th>Label</th>
+<th>Pins</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HAT2</td>
+<td>GND/D23</td>
+<td>Connection for the wand box hat LED.<br><br>The left (top in the photo) pin is GND, the right (bottom in the photo) pin is D23 provides 5V and has a 150Ω resistor connected to it.<br><br><code>Connector type: JST-PH</code><br><br><code>Do not draw more than 40mA from this connector.</code></td>
+</tr>
+<tr>
+<td>SCL/SDA</td>
+<td>SCL/SDA</td>
+<td>Reserved for the <a href="../BARGRAPH/">28-segment or 30-segment bargraph</a> using I2C.<br><br><code>Connector type: JST-PH</code></td>
+</tr>
+<tr>
+<td>5V-OUT</td>
+<td>+/-</td>
+<td>Power for the bargraph.<br><br><code>Connector type: JST-PH</code></td>
+</tr>
+<tr>
+<td>AUDIO BOARD</td>
+<td>GND/NC/VCC/TX/RX/NC</td>
+<td>Communication and Power for the wands's GPStar Audio or WAV Trigger.<br><br><code>Connector type: JST-PH</code></td>
+</tr>
+<tr>
+<td>ICSP</td>
+<td>DO NOT USE!</td>
+<td>Programming header for bootloader updates (reserved, for GPStar I only).<br><br><code>Connector type: Header pins</code></td>
+</tr>
+<tr>
+<td>UART</td>
+<td>See Below</td>
+<td>Programming header for software updates (optional, for GPStar I only).<br><br><code>Connector type: Header pins</code></td>
+</tr>
+</tbody>
+</table>
+<p>For connecting the UART pins on the GPStar I controller, use a suitable FTDI chip such as the same <strong>FTDI Basic 5V</strong> used for programming the GPStar Audio or WAV Trigger. Pins on the PCB should align with with the standard wire order for FTDI-to-USB cables which use a single Dupont 6-pin connector. Observe these common colors and notes to ensure proper orientation:</p>
+<ul>
+<li>The ground pin will typically be a black wire, while VCC will typically be red.</li>
+<li>The DTR pin on the PCB will connect to a wire labelled either DTR or RTS.</li>
+<li>Any wire labelled CTS will be connected to the 2nd pin labelled GND on the PCB.</li>
+<li>Be careful to not reverse the connector!</li>
+</ul>
+<p><img alt="UART Connection" src="../images/uart_wand.jpg" /></p>
+<h2 id="battery-power">Battery Power</h2>
+<p>Per the bill of materials above, use of a 2500mAh or higher battery is crucial for supplying enough power for a full day of use. This <strong>MUST be a Lithium battery</strong> (either LiPo or Li-Ion) with a 3.7V output. The charging circuit is intended for use with Lithium batteries only. <strong>Again, Lithium!</strong></p>
+<p>Both the GPStar Power Boost device for boosting and charging your battery offer 2 pairs of pins which are of importance here:</p>
+<p><img alt="" src="../images/PowerBoost.jpg" /></p>
+<h3 id="power-switch-optional-but-recommended">Power Switch (Optional, but Recommended)</h3>
+<p>Adding a switch to the GPStar Power Boost device will allow you to fully turn off the device without draining the rechargeable battery. By default the device is always on and converting the 3.7V source to 5V for the electronics.</p>
+<p><strong>EN</strong> - This is the 'enable' pin. To turn off the booster, connect this pin to ground. The switch can be as small as you like, it is just a signal. When the chip is disabled the output is completely disconnected from the input.</p>
+<p><strong>GND</strong> - This is the shared ground connection which may be used with the 'EN' pin.</p>
+<h3 id="boosted-output">Boosted Output</h3>
+<p><strong>5V OUT</strong> - This is the boosted output. The pin closest to the USB-C port is the (+) while the further pin is (-).</p>
+<h2 id="operation-guide">Operation Guide</h2>
+<h3 id="system-power-inactivity-indicator">System Power Inactivity Indicator</h3>
+<ul>
+<li>The LED at the front of the Single Shot Blaster body next to the Clippard valve will start to blink after 1 minute of inactivity while the Blaster is powered down and no music is playing to indicate the system is still receiving power from the battery.</li>
+</ul>
+<h3 id="top-dial-behavior">Top Dial Behavior</h3>
+<ul>
+<li>The primary purpose of the <code>Top Dial</code> on the top of the gun box is to change the power level of the blaster, affecting the firing rate of the Proton Pulse (indicated by increasing or decreasing the bargraph lights).</li>
+<li>Rotate clockwise to raise power, and counter-clockwise to lower power.</li>
+<li>The <code>Top Dial</code> is also used to navigate the menu system (see "Entering The Menu System" section below).</li>
+</ul>
+<h3 id="quick-audio-volume-adjustment">Quick Audio Volume Adjustment</h3>
+<ul>
+<li>
+<p><strong>System Volume</strong></p>
+<ul>
+<li>While the Single Shot Blaster is <strong>OFF</strong> and no music is playing, turn the <code>Top Dial</code> to quickly adjust the master volume.</li>
+<li>While the <code>Activate</code> switch is <strong>UP</strong> and the left-hand switches are <strong>DOWN</strong>, hold the <code>Intensify</code> button while turning the <code>Top Dial</code> to quickly adjust the master volume.</li>
+<li>While the <code>Activate</code> switch is <strong>UP</strong> and the boot error sequence is playing, turn the <code>Top Dial</code> to quickly adjust the master volume.</li>
+</ul>
+</li>
+<li>
+<p><strong>Music</strong></p>
+<ul>
+<li>While the Single Shot Blaster is <strong>OFF</strong> and music is playing, turn the <code>Top Dial</code> to quickly adjust the music volume.</li>
+</ul>
+</li>
+</ul>
+<p>Refer to the <a href="../AUDIO_FILES/">Loading The Audio Files</a> for more information on loading additional music tracks.</p>
+<h3 id="activate-toggle">Activate Toggle</h3>
+<ul>
+<li>The <code>Activate</code> toggle on the gun box activates the Single Shot Blaster, activating the bargraph, SLO-BLO, hat light, top blinking light, and singletron.</li>
+</ul>
+<h3 id="left-hand-toggle-switch-behaviour">Left-Hand Toggle Switch Behaviour</h3>
+<ul>
+<li>Left-hand toggles (Bottom and Top) affect the vent light, Clippard light, and additional sound effects.<ul>
+<li>The Neutrona Wand <strong>will not fire</strong> unless both of these switches are <strong>UP</strong>.</li>
+<li><strong>Boot-Up Errors</strong>: When enabled, if you attempt to boot up your Single Shot Blaster while the top toggle switch is <strong>UP</strong>, the blaster will boot into an error mode. Flip the top toggle switch <strong>DOWN</strong> and restart your blaster to boot normally. This feature can be enabled or disabled using the menu system.</li>
+<li>Bottom toggle switch turns on the vent light and plays the idle sound.</li>
+<li>Top toggle switch turns on the Clippard light and plays a single beep sound.</li>
+</ul>
+</li>
+</ul>
+<h4 id="firing-proton-pulse">Firing Proton Pulse</h4>
+<ul>
+<li>Pressing either the <code>Intensify</code> button on the gun box or the <code>Grip Button</code> at the end of the blaster while all switches are <strong>UP</strong> will fire a Proton Pulse.</li>
+<li>Holding down either the <code>Intensify</code> button or the <code>Grip Button</code> will continually fire a Proton Pulse with a fire rate based on the current power level.</li>
+</ul>
+<h3 id="entering-the-menu-system">Entering The Menu System</h3>
+<p>To enter the settings menu, press the grip button while the two left switches are in the <strong>DOWN</strong> position.</p>
+<div class="page-break"></div>
+
+<h3 id="navigation">Navigation</h3>
+<p>Use the <code>Top Dial</code> on the top of the blaster to navigate up and down through the menu system.</p>
+<p>When you are in the settings menu system the bargraph's 5 LEDs begin flashing (or 5 distinct segments when using the 28-segment or 30-segment bargraph). All other functions of the blaster (such as firing) are temporarily disabled while in the menu system. There are 5 different menu options, which are indicated by bargraph LED segments 1 through 5 (from bottom to top) with option 5 being the default upon entering this mode. For example in navigation, when 1 LED (or bargraph segment) is flashing/displayed that means you are on <code>Option 1</code>.</p>
+<h3 id="action-levels">Action Levels</h3>
+<p>Changes are made by pressing either the <code>Intensify</code> button on the gun box or the <code>Grip Button</code> at the end of the blaster.</p>
+<div class="page-break"></div>
+
+<h4 id="menu-level-1">Menu Level 1</h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Option</th>
+<th>Purpose</th>
+<th>Intensify Button</th>
+<th>Grip Button</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">5️⃣</td>
+<td>Music&nbsp;Track&nbsp;Looping</td>
+<td>Enable/Disable looping of current track<sup>1</sup></td>
+<td>Exit the menu system<sup>2</sup></td>
+</tr>
+<tr>
+<td style="text-align: center;">4️⃣</td>
+<td>Master&nbsp;Volume&nbsp;Controls</td>
+<td>Mute the Single Shot Blaster or revert back to the previous volume</td>
+<td><code>(Grip Button + Top Dial)</code> Increases/Decreases Master Volume</td>
+</tr>
+<tr>
+<td style="text-align: center;">3️⃣</td>
+<td>Shuffle&nbsp;Music&nbsp;Tracks / SFX&nbsp;Volume</td>
+<td>Enable/Disable shuffle play of music tracks<sup>3</sup></td>
+<td><code>(Grip Button + Top Dial)</code> Increases/Decreases SFX Volume</td>
+</tr>
+<tr>
+<td style="text-align: center;">2️⃣</td>
+<td>Switch&nbsp;Music&nbsp;Track</td>
+<td>Cycle backwards in music queue</td>
+<td>Cycle forward in music queue</td>
+</tr>
+<tr>
+<td style="text-align: center;">1️⃣</td>
+<td>Music&nbsp;Controls</td>
+<td>Start/stop music playback</td>
+<td><code>(Grip Button + Top Dial)</code> Increases/Decreases Music Volume</td>
+</tr>
+</tbody>
+</table>
+<p><sup>1</sup> Note that LED/segment #5 will stay solid when the single-track loop is enabled while in the top menu system; it will blink on/off when looping is disabled.</p>
+<p><sup>2</sup> When you navigate back to <code>Option 5</code> and press the <code>Grip Button</code>, the blaster will return to idle (if menu was entered while blaster was on) or save all settings to EEPROM (if menu was entered while blaster was off). Note that music will continue to play (and advance/loop) even when the blaster is turned off.</p>
+<p><sup>3</sup> Note that LED/segment #3 will stay solid when shuffle play is enabled while in Menu Level 2; it will blink on/off when shuffle play is disabled.</p>
+<div class="page-break"></div>
+
+<h4 id="menu-level-2">Menu Level 2</h4>
+<p>📝 <strong>Note:</strong> The Single Shot Blaster Menu Level 2 can only be reached while the Single Shot Blaster is turned <strong>OFF</strong>.</p>
+<p>To access Menu Level 2, use the <code>Top Dial</code> on the top of the blaster to move down and past <code>Option 1</code> on Menu Level 1. When you reach the the next menu level, an audio cue will play and the <strong>Slo-Blo LED</strong> will light up to indicate this menu state.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Option</th>
+<th>Purpose</th>
+<th>Intensify Button</th>
+<th>Grip Button</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">5️⃣</td>
+<td>Vent&nbsp;Light&nbsp;Toggles</td>
+<td>Toggle whether the vent light on the Single Shot Blaster will change brightness depending on power</td>
+<td>Enable/Disable the optional addressable RGB LED vent/top light</td>
+</tr>
+<tr>
+<td style="text-align: center;">4️⃣</td>
+<td>Boot&nbsp;Errors / Invert&nbsp;Bargraph</td>
+<td>Enable/Disable boot-up error if switches are flipped in the wrong order</td>
+<td>Toggle bargraph animation direction</td>
+</tr>
+<tr>
+<td style="text-align: center;">3️⃣</td>
+<td>Vibration&nbsp;Settings / GPStar&nbsp;Audio&nbsp;LED&nbsp;Control</td>
+<td>Enable/Disable the status LED on GPStar Audio (if equipped)</td>
+<td>Cycle through Single Shot Blaster vibration options</td>
+</tr>
+<tr>
+<td style="text-align: center;">2️⃣</td>
+<td><code>unused</code></td>
+<td><code>unused</code></td>
+<td><code>unused</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">1️⃣</td>
+<td><code>unused</code></td>
+<td><code>unused</code></td>
+<td><code>unused</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="firmware-updates">Firmware Updates</h2>
+<p>Please follow the standard <a href="../FLASHING/">FLASHING guide</a> using the <code>binaries/blaster/SingleShot.hex</code> firmware file for GPStar I or <code>binaries/blaster/SingleShotII.bin</code> for GPStar II.</p>
+<h2 id="software-development-requirements">Software Development Requirements</h2>
+<p>As of the v5.4.0 release the development platform of choice for this device has been migrated from Arduino IDE to the <a href="../VSCODE/">VSCode with PlatformIO</a>. Please follow the linked guide for installing the core software and plugins required. All libraries required by the project will be downloaded automatically.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../AUDIO_FILES/" class="btn btn-neutral float-left" title="Audio Files"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../BELT_GIZMO/" class="btn btn-neutral float-right" title="Belt Gizmo">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>GPStar Technologies</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../AUDIO_FILES/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../BELT_GIZMO/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
