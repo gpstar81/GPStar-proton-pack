@@ -13,15 +13,18 @@
   "radLensIdle": 1,
   "displayType": 1,
   "useAnimation": true,
-  "trackListing": ["Track 1", "Track 2", "Track 3", "Ghostbusters Theme"],
+  "songList": "Track 1\nTrack 2\nTrack 3\nGhostbusters Theme",
   "buildDate": "2026-04-02",
   "audioVersion": 3,
   "audioCorrupt": false,
   "audioOutdated": false,
-  "streamModes": ["Proton", "Stasis", "Slime", "Meson", "Spectral"],
-  "wifiName": "GPStar Attenuator",
+  "wifiName": "GPStar_Device",
   "wifiNameExt": "MyHomeNetwork",
-  "extWifiConnected": true,
-  "extWifiIP": "192.168.1.100",
-  "extWifiRSSI": -42
+  "streamModes": [
+    {"value": 0, "label": "Proton Stream"},
+    {"value": 1, "label": "Stasis Stream"},
+    {"value": 2, "label": "Slime Tether"},
+    {"value": 3, "label": "Meson Collider"},
+    {"value": 4, "label": "Spectral Stream"}
+  ]
 }

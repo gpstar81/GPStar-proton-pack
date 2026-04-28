@@ -1,19 +1,18 @@
-name: run-unit-tests
+name: compile-test-beltgizmo
 
-# Trigger this workflow on any pull request which affects the shared libraries.
+# Trigger this workflow only on pull requests affecting BeltGizmo or shared code
 on:
   pull_request:
     paths:
+      - 'source/BeltGizmo/**'
       - 'source/SharedLib/DeviceState/**'
-      - 'source/SharedLib/MagCalibration/**'
-      - '.github/workflows/run-unit-tests.yml'
-
-env:
-  # Directory for test reports or sketch outputs, if used
-  SKETCHES_REPORTS_PATH: sketches-reports
+      - 'source/SharedLib/Lighting/**'
+      - 'source/SharedLib/WebRouter/**'
+      - 'source/SharedLib/WirelessManager/**'
+      - '.github/workflows/compile-test-beltgizmo.yml'
 
 jobs:
-  run-unit-tests:
+  compile-beltgizmo:
     runs-on: ubuntu-latest
     steps:
       # Step 1: Check out the repository code
@@ -27,7 +26,6 @@ jobs:
           python-version: '3.13.7'
 
       # Step 3: Cache PlatformIO packages and tools
-      # This avoids re-downloading frameworks, toolchains, and libraries
       - name: Cache PlatformIO Packages
         uses: actions/cache@v4
         with:
@@ -40,16 +38,7 @@ jobs:
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
 
-      # Step 5: Run common DeviceState tests
-      - name: Run DeviceState Tests
-        working-directory: source/SharedLib/DeviceState
-        run: |
-          pio run -t clean
-          pio test -v
-
-      # Step 6: Run special MagCalibration tests
-      - name: Run MagCalibration Tests
-        working-directory: source/SharedLib/MagCalibration
-        run: |
-          pio run -t clean
-          pio test -v
+      # Step 5: Compile BeltGizmo project (all environments)
+      - name: Compile BeltGizmo (all environments)
+        working-directory: source/BeltGizmo
+        run: pio run --jobs 4

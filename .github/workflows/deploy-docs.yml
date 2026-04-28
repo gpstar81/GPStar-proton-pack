@@ -3,7 +3,8 @@ name: Deploy MkDocs Documentation
 # Trigger this workflow only when building the main branch
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 # Needed to push to gh-pages
 permissions:

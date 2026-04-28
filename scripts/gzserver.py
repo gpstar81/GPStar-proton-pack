@@ -76,7 +76,10 @@ NOTES:
     - Proper MIME types are automatically detected
     - URL routing matches ESP32 firmware behavior for local testing
     - Press Ctrl+C to stop the server
-    - If the server doesn't stop, use: ./killserver.sh or lsof -ti:8080 | xargs kill -9
+    - If the server doesn't stop or port is in use:
+        pkill -f gzserver.py                    # Kill by script name
+        lsof -nP -iTCP:8080 -sTCP:LISTEN        # Find process on port 8080
+        kill -9 $(lsof -ti:8080)                # Kill process using port 8080
 
 """
 
@@ -109,7 +112,7 @@ DATA_ENDPOINTS = {
     '/openapi.json',
     '/wifi/settings',
     '/wifi/networks',
-    '/wifi/restart',
+    '/wifi/status',
 }
 
 # Action endpoints - PUT/DELETE requests that perform actions (return success JSON)
@@ -175,10 +178,13 @@ ACTION_ENDPOINTS = {
     ('/volume/unmute', 'PUT'),
     ('/volume/master/up', 'PUT'),
     ('/volume/master/down', 'PUT'),
+    ('/volume/master/set/*', 'PUT'),
     ('/volume/effects/up', 'PUT'),
     ('/volume/effects/down', 'PUT'),
     ('/volume/music/up', 'PUT'),
     ('/volume/music/down', 'PUT'),
+    # Wand control (NeutronaWand)
+    ('/power/set/*', 'PUT'),
     # Music control
     ('/music/startstop', 'PUT'),
     ('/music/pauseresume', 'PUT'),
@@ -189,6 +195,8 @@ ACTION_ENDPOINTS = {
     ('/music/loop/one', 'PUT'),
     ('/music/shuffle/on', 'PUT'),
     ('/music/shuffle/off', 'PUT'),
+    # WiFi control
+    ('/wifi/network/*', 'DELETE'),
 }
 
 # Body handler endpoints - POST requests that accept JSON bodies
@@ -586,8 +594,12 @@ if __name__ == '__main__':
     except OSError as e:
         if e.errno == 48 or 'Address already in use' in str(e):
             print(f"Error: Port {port} is already in use.")
-            print(f"Try a different port: python3 gzserver.py --dir {directory} --port <port>")
-            print(f"Or kill the existing server: lsof -ti:{port} | xargs kill -9")
+            print(f"")
+            print(f"Try these commands to find and kill the process:")
+            print(f"  1. Find process:     lsof -nP -iTCP:{port} -sTCP:LISTEN")
+            print(f"  2. Kill by port:     kill -9 $(lsof -ti:{port})")
+            print(f"  3. Kill by name:     pkill -f gzserver.py")
+            print(f"  4. Try another port: python3 gzserver.py --dir {directory} --port 9000")
         else:
             print(f"Error starting server: {e}")
         sys.exit(1)

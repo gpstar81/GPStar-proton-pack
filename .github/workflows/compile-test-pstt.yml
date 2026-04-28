@@ -1,0 +1,44 @@
+name: compile-test-pstt
+
+# Trigger this workflow only on pull requests affecting PSTT or shared code
+on:
+  pull_request:
+    paths:
+      - 'source/PSTT/**'
+      - 'source/SharedLib/InfraredManager/**'
+      - 'source/SharedLib/Lighting/**'
+      - 'source/SharedLib/WebRouter/**'
+      - 'source/SharedLib/WirelessManager/**'
+      - '.github/workflows/compile-test-pstt.yml'
+
+jobs:
+  compile-pstt:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Check out the repository code
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      # Step 2: Set up a Python environment (required by PlatformIO)
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13.7'
+
+      # Step 3: Cache PlatformIO packages and tools
+      - name: Cache PlatformIO Packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-${{ runner.os }}-${{ hashFiles('**/platformio.ini') }}
+          restore-keys: |
+            pio-${{ runner.os }}-
+
+      # Step 4: Install PlatformIO Core
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+
+      # Step 5: Compile PSTT project (all environments)
+      - name: Compile PSTT (all environments)
+        working-directory: source/PSTT
+        run: pio run --jobs 4
