@@ -37,6 +37,28 @@
       </div>
     </div>
 
+    <h1>General Options</h1>
+    <div class="block left">
+      <div class="setting">
+        <label class="toggle-switchy" data-text="yesno" data-label="left">
+          <input id="useStandalone" name="useStandalone" type="checkbox" />
+          <span class="toggle">
+            <span class="switch"></span>
+          </span>
+          <span class="label">Use in Standalone Mode:</span>
+        </label>
+      </div>
+      <div class="setting">
+        <label class="toggle-switchy" data-text="yesno" data-label="left">
+          <input id="resetWifiPassword" name="resetWifiPassword" type="checkbox" />
+          <span class="toggle">
+            <span class="switch"></span>
+          </span>
+          <span class="label">Reset WiFi Password:</span>
+        </label>
+      </div>
+    </div>
+
     <h1>LED Options</h1>
     <div class="block left">
       <div class="setting">
@@ -224,6 +246,7 @@
             if (settings) {
               // Update fields with the current values, or supply an expected default as necessary.
               setValue("wifiName", settings.wifiName || "");
+              setToggle("resetWifiPassword", settings.resetWifiPassword);
               setToggle("invertRotation", settings.invertRotation);
               setToggle("invertLeftToggle", settings.invertLeftToggle);
               setToggle("invertRightToggle", settings.invertRightToggle);
@@ -238,6 +261,7 @@
               setValue("radLensIdle", settings.radLensIdle ?? 0); // Default: 0 [Amber Pulse]
               setValue("displayType", settings.displayType ?? 1); // Default: 1 [Graphical]
               setToggle("useAnimation", settings.useAnimation);
+              setToggle("useStandalone", settings.useStandalone);
               setValue("songList", settings.songList || "");
               updateByteCount();
             }
@@ -278,6 +302,7 @@
         // Saves current settings to attenuator, updating runtime variables and making changes immediately effective.
         var settings = {
           wifiName: wifiName,
+          resetWifiPassword: getToggle("resetWifiPassword"),
           invertRotation: getToggle("invertRotation"),
           invertLeftToggle: getToggle("invertLeftToggle"),
           invertRightToggle: getToggle("invertRightToggle"),
@@ -292,6 +317,7 @@
           radLensIdle: getInt("radLensIdle") ?? 0,
           displayType: getInt("displayType") ?? 1,
           useAnimation: getToggle("useAnimation"),
+          useStandalone: getToggle("useStandalone"),
           songList: getText("songList"),
         };
         var body = JSON.stringify(settings);

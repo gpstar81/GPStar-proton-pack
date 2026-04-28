@@ -141,6 +141,7 @@ String getDeviceConfig() {
   JsonDocument jsonBody;
 
   // Provide current values for the device.
+  jsonBody["resetWifiPassword"] = false;
   jsonBody["invertRotation"] = encoder.isRotationInverted();
   jsonBody["invertLeftToggle"] = b_left_toggle_inverted;
   jsonBody["invertRightToggle"] = b_right_toggle_inverted;
@@ -155,6 +156,7 @@ String getDeviceConfig() {
   jsonBody["radLensIdle"] = RAD_LENS_IDLE;
   jsonBody["displayType"] = DISPLAY_TYPE;
   jsonBody["useAnimation"] = b_enable_ui_animations;
+  jsonBody["useStandalone"] = (!b_wait_for_pack && !ms_packsync.isRunning());
   if(s_track_listing != "" && s_track_listing != "null") {
     jsonBody["songList"] = s_track_listing;
   }
@@ -1494,10 +1496,16 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
     }
 
     // General Options - Returned as unsigned integers
+    if(jsonBody["resetWifiPassword"].is<bool>()) {
+      // Reset the WiFi password if set by the user.
+      if(jsonBody["resetWifiPassword"].as<bool>()) {
+        wirelessMgr->resetWifiPassword();
+      }
+    }
+
     if(jsonBody["invertRotation"].is<bool>()) {
       // Inverts the rotation of the dial as viewed by the user.
-      bool b_invert_dial = jsonBody["invertRotation"].as<bool>();
-      encoder.setRotationInverted(b_invert_dial);
+      encoder.setRotationInverted(jsonBody["invertRotation"].as<bool>());
     }
 
     if(jsonBody["invertLeftToggle"].is<bool>()) {
@@ -1583,6 +1591,24 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
       b_enable_ui_animations = jsonBody["useAnimation"].as<bool>();
     }
 
+    bool b_standalone_mode = false;
+    if(jsonBody["useStandalone"].is<bool>()) {
+      // Enable/disable standalone mode.
+      b_standalone_mode = jsonBody["useStandalone"].as<bool>();
+
+      if(!b_standalone_mode && !ms_packsync.isRunning()) {
+        // Need to disable standalone mode.
+        b_wait_for_pack = true;
+        ms_packsync.start(0);
+      }
+      else if(b_standalone_mode) {
+        // Need to enable standalone mode.
+        b_wait_for_pack = false;
+        ms_packsync.stop();
+        gpstarSystem.setPowerLevel(LEVEL_5);
+      }
+    }
+
     // Get the track listing from the text field.
     String songList = jsonBody["songList"].as<String>();
     bool b_list_err = false;
@@ -1606,6 +1632,7 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
       preferences.putUChar("radiation_idle", RAD_LENS_IDLE);
       preferences.putUChar("display_type", DISPLAY_TYPE);
       preferences.putBool("use_animations", b_enable_ui_animations);
+      preferences.putBool("standalone", b_standalone_mode);
 
       // Store the song list to preferences.
       if(songList.length() <= 2000) {
