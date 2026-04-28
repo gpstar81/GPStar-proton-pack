@@ -82,6 +82,11 @@ bool b_microsd_outdated = false; // Sets whether the microSD card sound effect c
 bool b_microsd_corrupt = false; // Sets whether the microSD card appears to be corrupt.
 String s_track_listing = ""; // Utilized only for the web UI to display the music track listing.
 
+#ifndef VERSION_STRING_LEN
+// Necessary for newer GPStar Audio library.
+#define VERSION_STRING_LEN 21
+#endif
+
 /*
  * Music Control/Checking
  */
