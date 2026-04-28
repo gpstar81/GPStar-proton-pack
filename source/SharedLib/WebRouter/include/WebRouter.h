@@ -26,8 +26,13 @@
 #include <AsyncJson.h>
 #include <ESPAsyncWebServer.h>
 
-// Store MDNS name for OpenAPI spec generation
+// Store MDNS name and IP addresses for OpenAPI spec generation
 String deviceMdnsName = "";
+String deviceIpAddress = "";
+String externalIpAddress = "";
+
+// Function pointer to get current external IP dynamically
+String (*getExternalIpCallback)() = nullptr;
 
 /**
  * Set the device MDNS name for OpenAPI specification
@@ -35,6 +40,22 @@ String deviceMdnsName = "";
  */
 void setDeviceMdnsName(const String& mdnsName) {
   deviceMdnsName = mdnsName;
+}
+
+/**
+ * Set the device IP address for OpenAPI specification (local AP IP)
+ * Call this after network connection and before setupRouting()
+ */
+void setDeviceIpAddress(const String& ipAddress) {
+  deviceIpAddress = ipAddress;
+}
+
+/**
+ * Set callback function to dynamically retrieve external IP address
+ * This allows the OpenAPI spec to reflect current WiFi state
+ */
+void setExternalIpCallback(String (*callback)()) {
+  getExternalIpCallback = callback;
 }
 
 /**
@@ -348,9 +369,30 @@ String generateOpenAPISpec() {
 
   // Servers
   JsonArray servers = jsonBody["servers"].to<JsonArray>();
-  JsonObject server = servers.add<JsonObject>();
-  server[JSON_PROPERTY_URL] = String(F("http://")) + deviceMdnsName;
-  server[JSON_PROPERTY_DESCRIPTION] = F("Local device server");
+  
+  // Add MDNS server entry, if available
+  if(deviceMdnsName.length() > 0) {
+    JsonObject mdnsServer = servers.add<JsonObject>();
+    mdnsServer[JSON_PROPERTY_URL] = String(F("http://")) + deviceMdnsName;
+    mdnsServer[JSON_PROPERTY_DESCRIPTION] = F("Local device server (mDNS)");
+  }
+  
+  // Add local IP address server entry, if available
+  if(deviceIpAddress.length() > 0) {
+    JsonObject ipServer = servers.add<JsonObject>();
+    ipServer[JSON_PROPERTY_URL] = String(F("http://")) + deviceIpAddress;
+    ipServer[JSON_PROPERTY_DESCRIPTION] = F("Local device server (Local IP)");
+  }
+
+  // Add external IP address server entry using callback (skip if 0.0.0.0 or not set)
+  if(getExternalIpCallback != nullptr) {
+    String currentExternalIp = getExternalIpCallback();
+    if(currentExternalIp.length() > 0 && !currentExternalIp.equals("0.0.0.0")) {
+      JsonObject ipServer = servers.add<JsonObject>();
+      ipServer[JSON_PROPERTY_URL] = String(F("http://")) + currentExternalIp;
+      ipServer[JSON_PROPERTY_DESCRIPTION] = F("Local device server (WiFi IP)");
+    }
+  }
 
   // Paths object
   JsonObject paths = jsonBody["paths"].to<JsonObject>();

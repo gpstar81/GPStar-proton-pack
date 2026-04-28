@@ -544,6 +544,14 @@ void startWebServer() {
 
   // Set the MDNS name (get it from your wireless manager)
   setDeviceMdnsName(wirelessMgr->getMdnsName());
+  
+  // Set the private IP address for OpenAPI spec (set unique per device)
+  setDeviceIpAddress(wirelessMgr->getLocalAddress().toString());
+  
+  // Set callback to dynamically retrieve external IP for OpenAPI spec
+  setExternalIpCallback([]() -> String {
+    return wirelessMgr->getExtWifiAddress().toString();
+  });
 
   // Configures all URI endpoints using registered routes.
   setupRouting(httpServer);

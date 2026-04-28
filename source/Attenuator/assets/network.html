@@ -447,7 +447,7 @@
             getSettings(); // Refresh the current network settings.
           } else if (this.readyState == 4) {
             // Handle error responses
-            handleStatus(this.responseText);
+            handleStatus(this.responseText || "An unknown error occurred. Please try again.");
           }
         };
         xhttp.open("PUT", "/wifi/update", true);

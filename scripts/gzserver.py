@@ -109,7 +109,6 @@ DATA_ENDPOINTS = {
     '/config/wand',
     '/config/blaster',
     '/status',
-    '/openapi.json',
     '/wifi/settings',
     '/wifi/networks',
     '/wifi/status',
@@ -296,7 +295,7 @@ class GzipHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 with open(local_mock_file, 'r') as f:
                     return json.load(f)
             except Exception as e:
-                print(f"⚠️  Error loading mock data from {local_mock_file}: {e}")
+                print(f"Error loading mock data from {local_mock_file}: {e}")
         
         # Fall back to centralized mock directory
         central_mock_file = os.path.join(MOCK_DIR, filename)
@@ -305,7 +304,7 @@ class GzipHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 with open(central_mock_file, 'r') as f:
                     return json.load(f)
             except Exception as e:
-                print(f"⚠️  Error loading mock data from {central_mock_file}: {e}")
+                print(f"Error loading mock data from {central_mock_file}: {e}")
         
         return {}
 
@@ -313,13 +312,13 @@ class GzipHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         """Handle DATA_ENDPOINT requests - return JSON (mock or empty)"""
         mock = self.load_mock(endpoint)
         self.send_json_response(mock)
-        print(f"✓ DATA {self.path} → {len(mock)} fields")
+        print(f"DATA {self.path} → {len(mock)} fields")
 
     def handle_action_endpoint(self, endpoint):
         """Handle ACTION_ENDPOINT requests - return success JSON"""
         response = {"success": True, "endpoint": endpoint}
         self.send_json_response(response)
-        print(f"✓ ACTION {self.command} {self.path} → success")
+        print(f"ACTION {self.command} {self.path} → success")
 
     def handle_body_handler(self, endpoint):
         """Handle BODY_HANDLER POST requests - accept JSON body, return success"""
@@ -331,11 +330,11 @@ class GzipHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 body_data = self.rfile.read(content_length)
                 body = json.loads(body_data.decode('utf-8'))
             except Exception as e:
-                print(f"⚠️  Error parsing body: {e}")
+                print(f"Error parsing body: {e}")
         
         response = {"success": True, "received": len(body)}
         self.send_json_response(response)
-        print(f"✓ POST {self.path} → {len(body)} fields received")
+        print(f"POST {self.path} → {len(body)} fields received")
 
     def matches_wildcard_pattern(self, path, pattern):
         """Check if path matches a wildcard pattern like /volume/master/set/*"""
@@ -352,6 +351,21 @@ class GzipHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         # Parse the URL path (without query params)
         url_path = self.path.split('?')[0]
+        
+        # Special case: serve openapi.json from mock directory
+        if url_path == '/openapi.json':
+            openapi_path = os.path.join(MOCK_DIR, 'openapi.json')
+            if os.path.exists(openapi_path):
+                try:
+                    with open(openapi_path, 'r') as f:
+                        data = json.load(f)
+                    self.send_json_response(data)
+                    print(f"Served openapi.json from {MOCK_DIR}")
+                    return
+                except Exception as e:
+                    print(f"Error loading openapi.json: {e}")
+                    self.send_error(500, f"Error reading openapi.json: {e}")
+                    return
         
         # Check if this is a data endpoint
         if url_path in DATA_ENDPOINTS:
@@ -389,7 +403,7 @@ class GzipHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(content)
 
-                print(f"✓ Served {os.path.basename(gz_path)} for {self.path}")
+                print(f"Served {os.path.basename(gz_path)} for {self.path}")
 
             except Exception as e:
                 print(f"✗ Error serving {gz_path}: {e}")
@@ -415,7 +429,7 @@ class GzipHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                     self.end_headers()
                     self.wfile.write(content)
                     
-                    print(f"✓ Served {os.path.basename(original_gz)} for {self.path}")
+                    print(f"Served {os.path.basename(original_gz)} for {self.path}")
                 except Exception as e:
                     print(f"✗ Error serving {original_gz}: {e}")
                     self.send_error(500, f"Error reading file: {e}")
