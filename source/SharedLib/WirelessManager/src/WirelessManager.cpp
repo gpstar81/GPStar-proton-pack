@@ -59,10 +59,14 @@ WirelessManager::WirelessManager(WirelessDeviceType deviceType, const String& de
     localPassword(AP_DEFAULT_PASSWORD),                       // Sets default local AP password
     localAddress(convertToIP(deviceAddress)),                 // Converts and sets device IP address
     localSubnet(convertToIP("255.255.255.0")),                // Sets default subnet mask
-    localGateway(convertToIP("0.0.0.0")),                     // Sets default gateway
-    extWifiEnabled(false)                                     // External WiFi disabled by default
+    localGateway(convertToIP("0.0.0.0")),                     // Gateway 0.0.0.0 keeps iOS cellular active
+    extWifiEnabled(false),                                    // External WiFi disabled by default
+    dnsServerActive(false)                                    // DNS server not started yet
 {
   // Run the true constructor after member variables are initialized above.
+  // Keep gateway at 0.0.0.0 - this signals "no internet route via WiFi"
+  // iOS sees this and keeps cellular active (works for laptops too).
+  // Android benefits from DNS hijacking + 204 responses to keep cellular active.
   localDhcpStart = IPAddress(localAddress[0], localAddress[1], localAddress[2], 100);
   localDeviceName = getDeviceTypeName(); // Set the default device name based on type enum.
   loadWirelessPreferences(); // Loads custom credentials and other values from Preferences if set by user.
@@ -103,6 +107,52 @@ bool WirelessManager::startMdnsService() {
   }
 
   return false;
+}
+
+/**
+ * Function: startDnsService
+ * Purpose: Starts the DNS server for captive portal detection.
+ *          Hijacks ALL DNS queries and redirects them to the device's IP address,
+ *          forcing connectivity checks to reach HTTP handlers instead of timing out.
+ * Inputs: None.
+ * Outputs:
+ *   - bool: True if DNS server started successfully, false otherwise.
+ * Side Effects: Sets dnsServerActive flag.
+ */
+bool WirelessManager::startDnsService() {
+  if(!dnsServerActive) {
+    // Start DNS server on port 53, redirecting all queries (*) to the device's IP
+    // DISABLED TEMPORARILY - Provided for easier testing when needed.
+    // dnsServerActive = dnsServer.start(DNS_PORT, "*", localAddress);
+  }
+  return dnsServerActive;
+}
+
+/**
+ * Function: processDnsRequests
+ * Purpose: Processes pending DNS requests. Must be called frequently in the main loop.
+ * Inputs: None.
+ * Outputs: None.
+ * Side Effects: Responds to DNS queries with device IP address.
+ */
+void WirelessManager::processDnsRequests() {
+  if(dnsServerActive) {
+    dnsServer.processNextRequest();
+  }
+}
+
+/**
+ * Function: stopDnsService
+ * Purpose: Stops the DNS server.
+ * Inputs: None.
+ * Outputs: None.
+ * Side Effects: Clears dnsServerActive flag.
+ */
+void WirelessManager::stopDnsService() {
+  if(dnsServerActive) {
+    dnsServer.stop();
+    dnsServerActive = false;
+  }
 }
 
 /**
@@ -162,6 +212,49 @@ uint16_t WirelessManager::getDeviceID() {
 bool WirelessManager::isWifiActive() const {
   wifi_mode_t mode = WiFi.getMode();
   return (mode == WIFI_MODE_AP || mode == WIFI_MODE_APSTA) || (isExtWifiEnabled() && WiFi.status() == WL_CONNECTED);
+}
+
+/**
+ * Function: getNetworkStatus
+ * Purpose: Returns current network configuration and statistics as JSON object.
+ * Inputs:
+ *   - obj: JsonObject reference to populate with network status data
+ * Outputs: None (populates the provided JsonObject)
+ * Side Effects: None.
+ */
+void WirelessManager::getNetworkStatus(JsonObject& obj) const {
+  // WiFi Mode
+  wifi_mode_t mode = WiFi.getMode();
+  if(mode == WIFI_MODE_AP) obj["wifiMode"] = "AP";
+  else if(mode == WIFI_MODE_STA) obj["wifiMode"] = "STA";
+  else if(mode == WIFI_MODE_APSTA) obj["wifiMode"] = "AP+STA";
+  else obj["wifiMode"] = "OFF";
+
+  // Local AP Info
+  JsonObject localAP = obj["localAP"].to<JsonObject>();
+  localAP["ssid"] = localNetworkName;
+  localAP["address"] = localAddress.toString();
+  localAP["subnet"] = localSubnet.toString();
+  localAP["gateway"] = localGateway.toString();
+  localAP["dhcpStart"] = localDhcpStart.toString();
+  localAP["mdnsName"] = getMdnsName();
+
+  // DNS Server Info
+  JsonObject dns = obj["dns"].to<JsonObject>();
+  dns["active"] = dnsServerActive;
+
+  // External WiFi Info
+  JsonObject extWifi = obj["extWifi"].to<JsonObject>();
+  extWifi["enabled"] = extWifiEnabled;
+  if(extWifiEnabled) {
+    extWifi["ssid"] = extWifiNetworkName;
+    extWifi["connected"] = (WiFi.status() == WL_CONNECTED);
+    if(WiFi.status() == WL_CONNECTED) {
+      extWifi["address"] = extWifiAddress.toString();
+      extWifi["subnet"] = extWifiSubnet.toString();
+      extWifi["gateway"] = extWifiGateway.toString();
+    }
+  }
 }
 
 /**

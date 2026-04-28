@@ -28,33 +28,34 @@
           <span class="label">Use External WiFi Network:</span>
         </label>
       </div>
-      <b>Select an available 2.4GHz Network:</b>
-      <br />
-      <br />
-      <select id="availNetworks"></select>
-      <button type="button" class="orange" onclick="getNetworks()" id="refreshNetworks">Refresh</button>
-      <br />
+      <div class="setting">
+        <b>Select an available 2.4GHz Network:</b>
+        <br />
+        <select id="availNetworks"></select>
+        <button type="button" class="orange" onclick="getNetworks()" id="refreshNetworks">Refresh</button>
+      </div>
       <br />
       Or...
       <br />
-      <br />
-      <b>Select a previously-used Network:</b>
-      <br />
-      <select id="savedNetworks"></select>
-      <button type="button" class="red" onclick="deleteNetwork()" id="deleteNetwork">Delete</button>
+      <div class="setting">
+        <b>Select a previously-used Network:</b>
+        <br />
+        <select id="savedNetworks"></select>
+        <button type="button" class="red" onclick="deleteNetwork()" id="deleteNetwork">Delete</button>
+      </div>
       <br />
       <br />
       <br />
       <b>Current Network Settings:</b>
       <br />
-      <br />
-      &nbsp;&nbsp;&nbsp;
-      <b>WiFi Network:</b>
-      <input type="text" id="ssid" size="60" maxlength="32" placeholder="External SSID" title="Only letters, numbers, hyphens, and underscores are allowed, up to 32 characters." />
-      <br />
-      &nbsp;
-      <b>WiFi Password:</b>
-      <input type="text" id="password" size="60" maxlength="63" placeholder="External Password" />
+      <div class="setting">
+        <b>WiFi Network:</b>
+        <input type="text" id="ssid" size="60" maxlength="32" placeholder="External SSID" title="Only letters, numbers, hyphens, and underscores are allowed, up to 32 characters." />
+      </div>
+      <div class="setting">
+        <b>WiFi Password:</b>
+        <input type="text" id="password" size="60" maxlength="63" placeholder="External Password" />
+      </div>
       <br />
       <br />
       <b>Advanced Settings:</b>
@@ -70,38 +71,40 @@
           <span class="label">Use Static IP Address</span>
         </label>
       </div>
-      &nbsp;&nbsp;&nbsp;&nbsp;
-      <b>IP Address:</b>
-      <input type="text" id="address" size="20" maxlength="15" disabled />
-      <br />
-      &nbsp;
-      <b>Subnet Mask:</b>
-      <input type="text" id="subnet" size="20" maxlength="15" disabled />
-      <br />
-      &nbsp;&nbsp;&nbsp;
-      <b>Gateway IP:</b>
-      <input type="text" id="gateway" size="20" maxlength="15" disabled />
+      <div class="setting">
+        <b>IP Address:</b>
+        <input type="text" id="address" size="20" maxlength="15" disabled />
+      </div>
+      <div class="setting">
+        <b>Subnet Mask:</b>
+        <input type="text" id="subnet" size="20" maxlength="15" disabled />
+      </div>
+      <div class="setting">
+        <b>Gateway IP:</b>
+        <input type="text" id="gateway" size="20" maxlength="15" disabled />
+      </div>
     </div>
 
     <div class="block">
       <hr />
-      <a href="/">&laquo; Back</a>
-      &nbsp;&nbsp;&nbsp;
-      <button type="button" class="green" onclick="saveSettings()" id="saveNetwork">Save</button>
-      <br />
-      <br />
+      <div class="button-group">
+        <a href="/">&laquo; Back</a>
+        <button type="button" class="green" onclick="saveSettings()" id="saveNetwork">Save</button>
+      </div>
     </div>
 
     <script type="application/javascript" src="/common.js"></script>
     <script type="application/javascript">
       window.addEventListener("load", onLoad);
-
       function onLoad(event) {
         // Wait for page to fully load.
         setTimeout(function () {
           getNetworks();
           getSettings();
         }, 50);
+
+        // Initialize contextual help system
+        initializeHelp("network");
       }
 
       // Ensure the select element reflects the current network input value.

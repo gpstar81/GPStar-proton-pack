@@ -30,7 +30,7 @@ bool b_ext_wifi_started = false; // Denotes external WiFi was joined.
 
 // Create timer for checking connections.
 millisDelay ms_apclient;
-const uint16_t i_apClientCount = 200;
+const uint16_t i_apClientDelay = 200;
 
 // Track the number of connected WiFi (AP) clients.
 uint8_t i_ap_client_count = 0;
@@ -105,6 +105,8 @@ bool startAccesPoint() {
     delay(300); // Wait briefly before configuring network.
 
     // Set networking IP info and report WiFi properties to console.
+    // Note: The DHCP server automatically advertises the AP's IP (192.168.1.2) as the DNS server to clients.
+    // This is required for captive portal detection - clients will use our DNS server which hijacks all queries.
     WiFi.softAPConfig(wirelessMgr->getLocalAddress(), wirelessMgr->getLocalGateway(), wirelessMgr->getLocalSubnet(), wirelessMgr->getLocalDhcpStart());
     WiFi.softAPsetHostname(wirelessMgr->getLocalNetworkName().c_str()); // Hostname is the same as SSID.
     WiFi.softAPbandwidth(WIFI_BW_HT20); // Use 20MHz for range/compatibility.
@@ -262,6 +264,25 @@ bool startWiFi() {
     (void)b_mdns_started;
   #endif
   delay(100);
+
+  // Start DNS server for captive portal detection via WirelessManager.
+  // This hijacks ALL DNS queries and redirects them to the device's IP address,
+  // forcing connectivity checks to reach our HTTP handlers instead of timing out.
+  if(b_local_ap_started) {
+    bool b_dns_started = wirelessMgr->startDnsService();
+    #if defined(DEBUG_WIRELESS_SETUP)
+      if(b_dns_started) {
+        debug(F("DNS Server Started: All domains resolve to "));
+        debugln(wirelessMgr->getLocalAddress());
+      }
+      else {
+        debugln(F("Error Starting DNS Server!"));
+      }
+    #else
+      // Suppress unused variable warning.
+      (void)b_dns_started;
+    #endif
+  }
 
   return b_local_ap_started; // At least return whether the soft AP started successfully.
 }

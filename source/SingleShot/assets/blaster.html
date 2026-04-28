@@ -82,41 +82,51 @@
     </div>
 
     <div class="block">
-      <a href="#top">Top</a>
+      <div class="action-bar">
+        <div class="action-links">
+          <a href="javascript:void(0)" onclick="exportSettings()">[Export]</a>
+          <a href="javascript:void(0)" onclick="importSettings()">[Import]</a>
+        </div>
+        <a href="#top" class="top-link">Top</a>
+      </div>
       <hr />
-      <a href="/">&laquo; Back</a>
-      &nbsp;&nbsp;
-      <button type="button" class="green" onclick="saveSettings()" id="btnSave">Update&nbsp;Settings</button>
-      <br />
-      <br />
+      <div class="button-group">
+        <a href="/">&laquo; Back</a>
+        <button type="button" class="green" onclick="saveSettings()" id="btnSave">Update&nbsp;Settings</button>
+      </div>
     </div>
 
     <script type="application/javascript" src="/common.js"></script>
     <script type="application/javascript">
-      window.addEventListener("load", onLoad);
+      // Cache the raw settings from the server for export
+      var cachedSettings = null;
 
+      window.addEventListener("load", onLoad);
       function onLoad(event) {
         // Wait 0.1s for serial communications between devices.
         setTimeout(getSettings, 100);
 
         // Disable the save button until we obtain settings.
         disableEl("btnSave");
-      }
 
-      function disableControls() {
-        // Disables all controls.
-        disableEl("ventLightAutoIntensity");
-        disableEl("defaultSystemVolume");
-        disableEl("deviceBootErrorBeep");
-        disableEl("deviceVibration");
-        disableEl("gpstarAudioLed");
-        disableEl("invertBlasterBargraph");
-        hideEl("gpstarAudioLedToggle");
+        // Initialize contextual help system
+        initializeHelp("wand");
       }
 
       // Converts a value from one range to another: eg. convertRange(160, [2,254], [0,360])
       function convertRange(value, r1, r2) {
         return Math.round(((value - r1[0]) * (r2[1] - r2[0])) / (r1[1] - r1[0]) + r2[0]);
+      }
+
+      function populateFormFields(settings) {
+        // Populates all form fields from settings object (used by both server load and import)
+        setToggle("ventLightAutoIntensity", settings.ventLightAutoIntensity);
+        setValue("defaultSystemVolume", settings.defaultSystemVolume || 100);
+        setHtml("masterVolOut", getValue("defaultSystemVolume"));
+        setToggle("deviceBootErrorBeep", settings.deviceBootErrorBeep);
+        setValue("deviceVibration", settings.deviceVibration || 3);
+        setToggle("gpstarAudioLed", settings.gpstarAudioLed);
+        setToggle("invertBlasterBargraph", settings.invertBlasterBargraph);
       }
 
       function updateColour(colourPreviewID, hueLabelID, satLabelID, hueValue, satValue) {
@@ -133,14 +143,19 @@
           if (this.readyState == 4) {
             var settings = JSON.parse(this.responseText);
             if (settings) {
+              // Cache the raw settings for export
+              cachedSettings = settings;
+
               if (!settings.prefsAvailable) {
                 disableControls();
+                hideEl("gpstarAudioLedToggle");
                 alert("Preferences could not be downloaded. Please refresh the page to try again.");
                 return;
               }
 
               if (settings.blasterPowered) {
                 disableControls();
+                hideEl("gpstarAudioLedToggle");
                 alert(
                   "Blaster is currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings.",
                 );
@@ -156,13 +171,8 @@
               // Valid settings were received and both the pack and blaster are off, so allow updating settings.
               enableEl("btnSave");
 
-              setToggle("ventLightAutoIntensity", settings.ventLightAutoIntensity);
-              setValue("defaultSystemVolume", settings.defaultSystemVolume || 100);
-              setHtml("masterVolOut", getValue("defaultSystemVolume"));
-              setToggle("deviceBootErrorBeep", settings.deviceBootErrorBeep);
-              setValue("deviceVibration", settings.deviceVibration || 3);
-              setToggle("gpstarAudioLed", settings.gpstarAudioLed);
-              setToggle("invertBlasterBargraph", settings.invertBlasterBargraph);
+              // Populate all form fields with settings from server
+              populateFormFields(settings);
             }
           }
         };
@@ -209,6 +219,55 @@
         };
         xhttp.open("PUT", "/eeprom/blaster", true);
         xhttp.send();
+      }
+
+      function exportSettings() {
+        // Export the cached settings from the server (no conversion needed)
+        if (!cachedSettings) {
+          alert('No settings available to export. Please wait for settings to load.');
+          return;
+        }
+
+        // Create JSON file and trigger download
+        var timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+        var filename = 'blaster-settings-' + timestamp + '.json';
+        var dataStr = JSON.stringify(cachedSettings, null, 2);
+        var dataBlob = new Blob([dataStr], { type: 'application/json' });
+        var url = URL.createObjectURL(dataBlob);
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        alert('Settings exported to ' + filename);
+      }
+
+      function importSettings() {
+        // Create file input element
+        var input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'application/json,.json';
+        input.onchange = function (e) {
+          var file = e.target.files[0];
+          if (file) {
+            var reader = new FileReader();
+            reader.onload = function (event) {
+              try {
+                var settings = JSON.parse(event.target.result);
+                // Use the same population logic as server load
+                populateFormFields(settings);
+                alert('Settings imported successfully! Review the values and click "Update Settings" to apply them.');
+              } catch (error) {
+                alert('Error parsing JSON file: ' + error.message);
+              }
+            };
+            reader.readAsText(file);
+          }
+        };
+        input.click();
       }
     </script>
   </body>
