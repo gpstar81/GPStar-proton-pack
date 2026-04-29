@@ -82,6 +82,12 @@ Lockout mode is a special option for only the main dial to prevent accidental ch
 1) Press down on the main dial and **immediately** change the Right Toggle to the opposite position. If on, switch off, or vice-versa.
 1) Continue to hold down the main dial for another second. If vibration feedback is enabled you will feel a long buzz to indicate when the lockout mode is either enabled or disabled (there will be no buzzer sound like there is during a menu level change).
 
+### WiFi Password Reset
+
+If the Attenuator is connected to a GPStar Proton Pack and you have forgotten your WiFi password, toggle the vibration switch in the Proton Pack 5 times while the Proton Pack is off to reset your password.
+
+If you have a DIY Proton Pack install with no vibration toggle switch or the Attenuator is in standalone mode and you need to reset the WiFi password, hold down the main dial while turning on the battery power.
+
 ## Buzzer/Vibration Feedback
 
 As part of the user experience, some actions initiated on the device or as a result of using your Proton Pack will trigger haptic feedback via a piezo buzzer and a vibration motor.

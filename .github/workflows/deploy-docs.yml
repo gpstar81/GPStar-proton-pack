@@ -3,7 +3,8 @@ name: Deploy MkDocs Documentation
 # Trigger this workflow only when building the main branch
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 # Needed to push to gh-pages
 permissions:
@@ -19,7 +20,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.x'
+          python-version: '3.13.x'
 
       - name: Install MkDocs and Material theme, add Mermaid2 and Minify plugins
         run: |

@@ -231,7 +231,7 @@ void PreferencesTask(void *parameter) {
   Preferences preferences;
   if(preferences.begin("device", true)) {
     // Return stored values if available, otherwise use a default value.
-    bool b_invert_dial = preferences.getBool("invert_dial", false);
+    encoder.setRotationInverted(preferences.getBool("invert_dial", false));
     b_left_toggle_inverted = preferences.getBool("invert_left_toggle", false);
     b_right_toggle_inverted = preferences.getBool("invert_right_toggle, false");
     b_invert_leds = preferences.getBool("invert_led", false);
@@ -243,13 +243,7 @@ void PreferencesTask(void *parameter) {
     b_overheat_feedback = preferences.getBool("use_overheat", true);
     b_firing_feedback = preferences.getBool("fire_feedback", false);
     b_enable_ui_animations = preferences.getBool("use_animations", true);
-
-    if(b_invert_dial) {
-      encoder.setRotationInverted(true);
-    }
-    else {
-      encoder.setRotationInverted(false);
-    }
+    b_wait_for_pack = !preferences.getBool("standalone", false); // Inverted logic; standalone means not waiting for pack
 
     switch(preferences.getUChar("radiation_idle", 0)) {
       case 0:
@@ -296,6 +290,7 @@ void PreferencesTask(void *parameter) {
       preferences.putUChar("radiation_idle", RAD_LENS_IDLE);
       preferences.putUChar("display_type", DISPLAY_TYPE);
       preferences.putBool("use_animations", b_enable_ui_animations);
+      preferences.putBool("standalone", false); // Set to false explicitly
       preferences.putString("track_list", "");
       preferences.end();
     }
@@ -445,7 +440,7 @@ void WiFiSetupTask(void *parameter) {
 
     // Begin timer for remote client events.
     ms_cleanup.start(i_websocketCleanup);
-    ms_apclient.start(i_apClientCount);
+    ms_apclient.start(i_apClientDelay);
     ms_otacheck.start(i_otaCheck);
   }
 
@@ -500,15 +495,6 @@ void setup() {
 
   btStop(); // Disable Bluetooth which is not needed for this hardware.
 
-  if(!b_wait_for_pack) {
-    // If not waiting for the pack set power level to 5.
-    gpstarSystem.setPowerLevel(LEVEL_5);
-  }
-  else {
-    // When waiting for the pack set power level to 1.
-    gpstarSystem.setPowerLevel(LEVEL_1);
-  }
-
   // Debounce the toggle switches and encoder pushbutton.
   switch_left.setDebounceTime(switch_debounce_time);
   switch_right.setDebounceTime(switch_debounce_time);
@@ -537,11 +523,6 @@ void setup() {
 
   // Delay before configuring and running tasks.
   delay(200);
-
-  // Initialize a critical timer for serial comms.
-  if(b_wait_for_pack) {
-    ms_packsync.start(0);
-  }
 
   /**
    * By default the WiFi will run on core0, while the standard loop() runs on core1.
@@ -586,6 +567,18 @@ void setup() {
   xTaskCreatePinnedToCore(idleTaskCore0, "Idle Task Core 0", 1000, NULL, 1, NULL, 0);
   xTaskCreatePinnedToCore(idleTaskCore1, "Idle Task Core 1", 1000, NULL, 1, NULL, 1);
   #endif
+
+  if(!b_wait_for_pack) {
+    // If not waiting for the pack set power level to 5.
+    gpstarSystem.setPowerLevel(LEVEL_5);
+  }
+  else {
+    // When waiting for the pack set power level to 1.
+    gpstarSystem.setPowerLevel(LEVEL_1);
+
+    // Initialize a critical timer for serial comms.
+    ms_packsync.start(0);
+  }
 }
 
 // Helper function to format bytes with a comma separator

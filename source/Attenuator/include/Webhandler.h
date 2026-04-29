@@ -67,6 +67,9 @@ extern const uint8_t _binary_assets_smoke_html_gz_end[];
 // swaggerui.html
 extern const uint8_t _binary_assets_swaggerui_html_gz_start[];
 extern const uint8_t _binary_assets_swaggerui_html_gz_end[];
+// help.json
+extern const uint8_t _binary_assets_help_json_gz_start[];
+extern const uint8_t _binary_assets_help_json_gz_end[];
 
 // Define standard ports and URI endpoints.
 const uint16_t WS_PORT = 80; // Web Server (+WebSocket) port
@@ -84,6 +87,9 @@ AsyncEventSource events("/events");
 
 // Track the number of connected WebSocket clients.
 uint8_t i_ws_client_count = 0;
+
+// Track captive portal HTTP endpoint requests.
+uint32_t captivePortalRequests = 0;
 
 // Track time to refresh progress for OTA updates.
 unsigned long i_progress_millis = 0;
@@ -135,6 +141,7 @@ String getDeviceConfig() {
   JsonDocument jsonBody;
 
   // Provide current values for the device.
+  jsonBody["resetWifiPassword"] = false;
   jsonBody["invertRotation"] = encoder.isRotationInverted();
   jsonBody["invertLeftToggle"] = b_left_toggle_inverted;
   jsonBody["invertRightToggle"] = b_right_toggle_inverted;
@@ -149,6 +156,7 @@ String getDeviceConfig() {
   jsonBody["radLensIdle"] = RAD_LENS_IDLE;
   jsonBody["displayType"] = DISPLAY_TYPE;
   jsonBody["useAnimation"] = b_enable_ui_animations;
+  jsonBody["useStandalone"] = (!b_wait_for_pack && !ms_packsync.isRunning());
   if(s_track_listing != "" && s_track_listing != "null") {
     jsonBody["songList"] = s_track_listing;
   }
@@ -169,18 +177,6 @@ String getDeviceConfig() {
       streamMode["value"] = gpstarSystem.getStreamModeValue(mode);
       streamMode["label"] = gpstarSystem.getStreamModeName(mode);
     }
-  }
-
-  jsonBody["wifiName"] = wirelessMgr->getLocalNetworkName();
-  jsonBody["wifiNameExt"] = wirelessMgr->getExtWifiNetworkName();
-
-  // Refresh external WiFi info when/if connected and get the values.
-  if(wirelessMgr->getExtWifiNetworkInfo()) {
-    jsonBody["extAddr"] = wirelessMgr->getExtWifiAddress().toString();
-    jsonBody["extMask"] = wirelessMgr->getExtWifiSubnet().toString();
-  } else {
-    jsonBody["extAddr"] = "";
-    jsonBody["extMask"] = "";
   }
 
   // Serialize JSON object to string.
@@ -434,8 +430,6 @@ String getEquipmentStatus() {
     jsonBody["packTempC"] = roundFloat(f_temperature_c);
     jsonBody["packTempF"] = roundFloat(f_temperature_f);
     jsonBody["wandAmps"] = roundFloat(f_wand_amps);
-    jsonBody["apClients"] = i_ap_client_count;
-    jsonBody["wsClients"] = i_ws_client_count;
     jsonBody["canChangeStream"] = canChangeStreamMode();
   }
 
@@ -553,6 +547,14 @@ void startWebServer() {
   // Set the MDNS name (get it from your wireless manager)
   setDeviceMdnsName(wirelessMgr->getMdnsName());
 
+  // Set the private IP address for OpenAPI spec (set unique per device)
+  setDeviceIpAddress(wirelessMgr->getLocalAddress().toString());
+
+  // Set callback to dynamically retrieve external IP for OpenAPI spec
+  setExternalIpCallback([]() -> String {
+    return wirelessMgr->getExtWifiAddress().toString();
+  });
+
   // Configures all URI endpoints using registered routes.
   setupRouting(httpServer);
 
@@ -590,6 +592,10 @@ void startWebServer() {
 // Perform management if the AP and web server are started.
 void webLoops() {
   if(b_local_ap_started && b_httpd_started) {
+    // Process DNS requests for captive portal detection via WirelessManager.
+    // This must be called frequently to handle incoming DNS queries.
+    wirelessMgr->handleDNS();
+
     if(ms_cleanup.remaining() < 1) {
       // Clean up oldest WebSocket connections.
       ws.cleanupClients();
@@ -603,7 +609,7 @@ void webLoops() {
       i_ap_client_count = WiFi.softAPgetStationNum();
 
       // Restart timer for next count.
-      ms_apclient.start(i_apClientCount);
+      ms_apclient.start(i_apClientDelay);
     }
 
     if(ms_otacheck.remaining() < 1) {
@@ -690,6 +696,16 @@ void handleEquipSvg(AsyncWebServerRequest *request) {
   debugln(F("Sending -> Equipment SVG"));
   size_t i_file_len = embeddedFileSize(_binary_assets_equipment_svg_gz_start, _binary_assets_equipment_svg_gz_end);
   AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_SVG, _binary_assets_equipment_svg_gz_start, i_file_len);
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  response->addHeader(HEADER_CONTENT_ENCODING, ENCODING_GZIP); // Tell the client this is gzipped content.
+  request->send(response);
+}
+
+void handleContextHelp(AsyncWebServerRequest *request) {
+  // Serves the contextual help JSON file for web UI field descriptions.
+  debugln(F("Sending -> Help JSON"));
+  size_t i_file_len = embeddedFileSize(_binary_assets_help_json_gz_start, _binary_assets_help_json_gz_end);
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_JSON, _binary_assets_help_json_gz_start, i_file_len);
   response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
   response->addHeader(HEADER_CONTENT_ENCODING, ENCODING_GZIP); // Tell the client this is gzipped content.
   request->send(response);
@@ -846,6 +862,27 @@ void handleGetSSIDs(AsyncWebServerRequest *request) {
   request->send(response);
 }
 
+void handleGetNetworkStatus(AsyncWebServerRequest *request) {
+  // Return network status and statistics including DNS request count and connected clients.
+  String statusJson;
+  JsonDocument jsonBody;
+  JsonObject statusObj = jsonBody.to<JsonObject>();
+
+  // Populate with current network configuration and statistics.
+  wirelessMgr->getNetworkStatus(statusObj);
+
+  // Add device-specific client connection counts.
+  statusObj["apClients"] = i_ap_client_count;  // WiFi AP clients
+  statusObj["wsClients"] = i_ws_client_count;  // WebSocket clients
+  statusObj["captivePortalRequests"] = captivePortalRequests;  // HTTP captive portal endpoint hits
+
+  // Serialize JSON object to string.
+  serializeJson(jsonBody, statusJson);
+  AsyncWebServerResponse *response = request->beginResponse(HTTP_STATUS_200, MIME_JSON, statusJson);
+  response->addHeader(HEADER_CACHE_CONTROL, CACHE_NO_CACHE);
+  request->send(response);
+}
+
 // Handles DELETE /wifi/network/{index} to remove a saved WiFi network by index.
 void handleDeleteNetwork(AsyncWebServerRequest *request) {
   int networkIndex = -1;
@@ -881,6 +918,41 @@ void handleRestart(AsyncWebServerRequest *request) {
   request->send(HTTP_STATUS_204, MIME_JSON, returnJsonStatus());
   delay(1000);
   ESP.restart();
+}
+
+/**
+ * Connectivity Check Handler
+ * Purpose: Intercept OS connectivity checks to signal this is a captive portal without internet.
+ * This prevents mobile devices (especially Android) from thinking they have internet access,
+ * allowing them to fall back to cellular data for actual internet while staying connected to
+ * the device's WiFi for local configuration.
+ */
+void handleConnectivityCheck(AsyncWebServerRequest *request) {
+  // Handle OS-specific connectivity checks.
+  // Return exact responses that tell the OS "internet works, dismiss captive portal".
+  captivePortalRequests++;
+
+  String path = request->url();
+
+  // Android expects 204 No Content for /generate_204 and /gen_204
+  if (path.indexOf("/generate_204") >= 0 || path.indexOf("/gen_204") >= 0) {
+    debugln(F("Sending -> 204 No Content (Android connectivity check)"));
+    request->send(204);
+    return;
+  }
+
+  // iOS expects 200 with EXACT HTML format that Apple's server returns
+  // This signals "captive portal authenticated, dismiss the view"
+  if (path.indexOf("hotspot-detect") >= 0 || path.indexOf("success.html") >= 0) {
+    debugln(F("Sending -> Apple Success HTML (iOS connectivity check)"));
+    request->send(HTTP_STATUS_200, MIME_HTML,
+      F("<HTML><HEAD><TITLE>Success</TITLE></HEAD><BODY>Success</BODY></HTML>"));
+    return;
+  }
+
+  // Windows and other endpoints - return Microsoft's expected format
+  debugln(F("Sending -> Microsoft Success (Generic connectivity check)"));
+  request->send(HTTP_STATUS_200, MIME_PLAIN, F("Microsoft Connect Test"));
 }
 
 /**
@@ -1424,10 +1496,16 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
     }
 
     // General Options - Returned as unsigned integers
+    if(jsonBody["resetWifiPassword"].is<bool>()) {
+      // Reset the WiFi password if set by the user.
+      if(jsonBody["resetWifiPassword"].as<bool>()) {
+        wirelessMgr->resetWifiPassword();
+      }
+    }
+
     if(jsonBody["invertRotation"].is<bool>()) {
       // Inverts the rotation of the dial as viewed by the user.
-      bool b_invert_dial = jsonBody["invertRotation"].as<bool>();
-      encoder.setRotationInverted(b_invert_dial);
+      encoder.setRotationInverted(jsonBody["invertRotation"].as<bool>());
     }
 
     if(jsonBody["invertLeftToggle"].is<bool>()) {
@@ -1513,6 +1591,24 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
       b_enable_ui_animations = jsonBody["useAnimation"].as<bool>();
     }
 
+    bool b_standalone_mode = false;
+    if(jsonBody["useStandalone"].is<bool>()) {
+      // Enable/disable standalone mode.
+      b_standalone_mode = jsonBody["useStandalone"].as<bool>();
+
+      if(!b_standalone_mode && !ms_packsync.isRunning()) {
+        // Need to disable standalone mode.
+        b_wait_for_pack = true;
+        ms_packsync.start(0);
+      }
+      else if(b_standalone_mode) {
+        // Need to enable standalone mode.
+        b_wait_for_pack = false;
+        ms_packsync.stop();
+        gpstarSystem.setPowerLevel(LEVEL_5);
+      }
+    }
+
     // Get the track listing from the text field.
     String songList = jsonBody["songList"].as<String>();
     bool b_list_err = false;
@@ -1536,6 +1632,7 @@ AsyncCallbackJsonWebHandler *handleSaveDeviceConfig = new AsyncCallbackJsonWebHa
       preferences.putUChar("radiation_idle", RAD_LENS_IDLE);
       preferences.putUChar("display_type", DISPLAY_TYPE);
       preferences.putBool("use_animations", b_enable_ui_animations);
+      preferences.putBool("standalone", b_standalone_mode);
 
       // Store the song list to preferences.
       if(songList.length() <= 2000) {

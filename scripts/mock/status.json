@@ -36,7 +36,6 @@
   "packTempC": 22.5,
   "packTempF": 72.5,
   "wandAmps": 0.0,
-  "apClients": 1,
-  "wsClients": 0,
+  "lockout": false,
   "canChangeStream": true
 }

@@ -25,7 +25,9 @@
 
 #include <WiFi.h>
 #include <WiFiAP.h>
+#include <WiFiUdp.h>
 #include <ESPmDNS.h>
+#include <DNSServer.h>
 #include <IPAddress.h>
 #include <Preferences.h>
 #include <ArduinoJson.h>
@@ -95,8 +97,14 @@ class WirelessManager {
     // Start the local MDNS responder service using the AP name
     bool startMdnsService();
 
+    // Process DNS requests (must be called frequently in main loop)
+    void handleDNS();
+
     // Check if WiFi is active (either external connection or local AP started)
     bool isWifiActive() const;
+
+    // Get network status and statistics as JSON object
+    void getNetworkStatus(JsonObject& obj) const;
 
     // Set the internal flag to disable external WiFi connections
     void disableExtWiFi();
@@ -182,9 +190,19 @@ class WirelessManager {
     static constexpr uint8_t MAX_ATTEMPTS = 3;
     static constexpr char AP_DEFAULT_PREFIX[] = "GPStar_";
     static constexpr char AP_DEFAULT_PASSWORD[] = "555-2368";
+    static constexpr uint16_t DNS_PORT = 53; // Standard DNS port
 
     // Preferred Networks Configuration
     static constexpr uint8_t MAX_PREFERRED_NETWORKS = 10;
+
+    // DNS Responder Service
+    WiFiUDP dnsUDP;
+    bool dnsResponderActive;
+    bool startDnsResponder();
+
+    // DNS packet buffer (DNS packets are typically < 512 bytes for UDP)
+    static constexpr size_t DNS_PACKET_BUFFER_SIZE = 512;
+    uint8_t packetBuffer[DNS_PACKET_BUFFER_SIZE];
 
     // Local AP Configuration
     WirelessDeviceType localDeviceType;

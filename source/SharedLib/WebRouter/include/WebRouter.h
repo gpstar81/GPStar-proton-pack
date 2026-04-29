@@ -26,8 +26,13 @@
 #include <AsyncJson.h>
 #include <ESPAsyncWebServer.h>
 
-// Store MDNS name for OpenAPI spec generation
+// Store MDNS name and IP addresses for OpenAPI spec generation
 String deviceMdnsName = "";
+String deviceIpAddress = "";
+String externalIpAddress = "";
+
+// Function pointer to get current external IP dynamically
+String (*getExternalIpCallback)() = nullptr;
 
 /**
  * Set the device MDNS name for OpenAPI specification
@@ -35,6 +40,22 @@ String deviceMdnsName = "";
  */
 void setDeviceMdnsName(const String& mdnsName) {
   deviceMdnsName = mdnsName;
+}
+
+/**
+ * Set the device IP address for OpenAPI specification (local AP IP)
+ * Call this after network connection and before setupRouting()
+ */
+void setDeviceIpAddress(const String& ipAddress) {
+  deviceIpAddress = ipAddress;
+}
+
+/**
+ * Set callback function to dynamically retrieve external IP address
+ * This allows the OpenAPI spec to reflect current WiFi state
+ */
+void setExternalIpCallback(String (*callback)()) {
+  getExternalIpCallback = callback;
 }
 
 /**
@@ -123,6 +144,7 @@ const char* TAG_VOLUME_CONTROL = "Volume Control";
 const char* TAG_MUSIC_CONTROL = "Music Control";
 const char* TAG_WIFI = "WiFi";
 const char* TAG_DOCUMENTATION = "Documentation";
+const char* TAG_PORTAL = "Captive Portal";
 
 /*
  * Common Response Descriptions - Reusable strings for API responses
@@ -143,6 +165,7 @@ const char* RESP_WIFI_SETTINGS = "WiFi settings object";
 const char* RESP_NETWORK_ARRAY = "Array of network SSIDs";
 const char* RESP_OPENAPI_SPEC = "OpenAPI 3.x JSON specification";
 const char* RESP_NO_CONTENT_RESTART = "No content (device restarting)";
+const char* RESP_CONNECTIVITY_CHECK = "Device connectivity check";
 
 /*
  * JSON Property Names - Common property keys used in OpenAPI specification
@@ -346,9 +369,30 @@ String generateOpenAPISpec() {
 
   // Servers
   JsonArray servers = jsonBody["servers"].to<JsonArray>();
-  JsonObject server = servers.add<JsonObject>();
-  server[JSON_PROPERTY_URL] = String(F("http://")) + deviceMdnsName;
-  server[JSON_PROPERTY_DESCRIPTION] = F("Local device server");
+  
+  // Add MDNS server entry, if available
+  if(deviceMdnsName.length() > 0) {
+    JsonObject mdnsServer = servers.add<JsonObject>();
+    mdnsServer[JSON_PROPERTY_URL] = String(F("http://")) + deviceMdnsName;
+    mdnsServer[JSON_PROPERTY_DESCRIPTION] = F("Local device server (mDNS)");
+  }
+  
+  // Add local IP address server entry, if available
+  if(deviceIpAddress.length() > 0) {
+    JsonObject ipServer = servers.add<JsonObject>();
+    ipServer[JSON_PROPERTY_URL] = String(F("http://")) + deviceIpAddress;
+    ipServer[JSON_PROPERTY_DESCRIPTION] = F("Local device server (Local IP)");
+  }
+
+  // Add external IP address server entry using callback (skip if 0.0.0.0 or not set)
+  if(getExternalIpCallback != nullptr) {
+    String currentExternalIp = getExternalIpCallback();
+    if(currentExternalIp.length() > 0 && !currentExternalIp.equals("0.0.0.0")) {
+      JsonObject ipServer = servers.add<JsonObject>();
+      ipServer[JSON_PROPERTY_URL] = String(F("http://")) + currentExternalIp;
+      ipServer[JSON_PROPERTY_DESCRIPTION] = F("Local device server (WiFi IP)");
+    }
+  }
 
   // Paths object
   JsonObject paths = jsonBody["paths"].to<JsonObject>();
@@ -357,8 +401,8 @@ String generateOpenAPISpec() {
   for(size_t i = 0; apiRoutes[i].handler != nullptr; i++) {
     const RouteDefinition& route = apiRoutes[i];
 
-    // Skip static asset routes for cleaner API documentation
-    if(route.tag == TAG_ASSETS || route.tag == TAG_PAGES) {
+    // Skip static asset routes and captive portal endpoints for cleaner API documentation
+    if(route.tag == TAG_ASSETS || route.tag == TAG_PAGES || route.tag == TAG_PORTAL) {
       continue;
     }
 
@@ -503,9 +547,9 @@ String generateOpenAPISpec() {
   // Collect used tags from all routes
   std::set<String> usedTags;
 
-  // Scan regular routes while skipping HTML pages and assets (images, CSS, JS)
+  // Scan regular routes while skipping HTML pages, assets (images, CSS, JS), and captive portal endpoints
   for(size_t i = 0; apiRoutes[i].handler != nullptr; i++) {
-    if(apiRoutes[i].tag != TAG_ASSETS && apiRoutes[i].tag != TAG_PAGES) {
+    if(apiRoutes[i].tag != TAG_ASSETS && apiRoutes[i].tag != TAG_PAGES && apiRoutes[i].tag != TAG_PORTAL) {
       usedTags.insert(String(apiRoutes[i].tag));
     }
   }

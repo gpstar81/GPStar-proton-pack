@@ -5752,16 +5752,17 @@ void systemPOST() {
 
 void resetWifiCommand() {
   bool b_reset_success = false;
+  // If not ESP32, send a message to the wireless module to have it reset its password.
+  if(b_attenuator_connected) {
+    attenuatorSerialSend(A_RESET_WIFI_PASSWORD);
+    b_reset_success = true;
+  }
   #ifdef ESP32
-    // If GPStar Pack II, reset our own Wifi password.
+  else {
+    // If GPStar Pack II and no Attenuator connected, reset our own Wifi password.
     wirelessMgr->resetWifiPassword();
     b_reset_success = true;
-  #else
-    // If not ESP32, send a message to the wireless module to have it reset its password.
-    if(b_attenuator_connected) {
-      attenuatorSerialSend(A_RESET_WIFI_PASSWORD);
-      b_reset_success = true;
-    }
+  }
   #endif
 
   // Play voice confirmation if successful.
