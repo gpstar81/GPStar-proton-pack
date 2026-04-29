@@ -25,6 +25,7 @@
 
 #include <WiFi.h>
 #include <WiFiAP.h>
+#include <WiFiUdp.h>
 #include <ESPmDNS.h>
 #include <DNSServer.h>
 #include <IPAddress.h>
@@ -96,15 +97,8 @@ class WirelessManager {
     // Start the local MDNS responder service using the AP name
     bool startMdnsService();
 
-    // Start the DNS server for captive portal detection (hijacks all DNS queries)
-    // Should be called after the SoftAP is started
-    bool startDnsService();
-
     // Process DNS requests (must be called frequently in main loop)
-    void processDnsRequests();
-
-    // Stop the DNS server
-    void stopDnsService();
+    void handleDNS();
 
     // Check if WiFi is active (either external connection or local AP started)
     bool isWifiActive() const;
@@ -201,9 +195,14 @@ class WirelessManager {
     // Preferred Networks Configuration
     static constexpr uint8_t MAX_PREFERRED_NETWORKS = 10;
 
-    // DNS Server for captive portal detection
-    DNSServer dnsServer;
-    bool dnsServerActive;
+    // DNS Responder Service
+    WiFiUDP dnsUDP;
+    bool dnsResponderActive;
+    bool startDnsResponder();
+
+    // DNS packet buffer (DNS packets are typically < 512 bytes for UDP)
+    static constexpr size_t DNS_PACKET_BUFFER_SIZE = 512;
+    uint8_t packetBuffer[DNS_PACKET_BUFFER_SIZE];
 
     // Local AP Configuration
     WirelessDeviceType localDeviceType;

@@ -61,7 +61,7 @@ WirelessManager::WirelessManager(WirelessDeviceType deviceType, const String& de
     localSubnet(convertToIP("255.255.255.0")),                // Sets default subnet mask
     localGateway(convertToIP("0.0.0.0")),                     // Gateway 0.0.0.0 keeps iOS cellular active
     extWifiEnabled(false),                                    // External WiFi disabled by default
-    dnsServerActive(false)                                    // DNS server not started yet
+    dnsResponderActive(false)                                    // DNS server not started yet
 {
   // Run the true constructor after member variables are initialized above.
   // Keep gateway at 0.0.0.0 - this signals "no internet route via WiFi"
@@ -74,13 +74,17 @@ WirelessManager::WirelessManager(WirelessDeviceType deviceType, const String& de
 
 /**
  * Function: startMdnsService
- * Purpose: Starts the local MDNS responder service using the AP name.
+ * Purpose: Starts the local MDNS responder service using the AP name and DNS responder.
  * Inputs: None.
  * Outputs:
  *   - bool: True if MDNS service started successfully, false otherwise.
+ * Side Effects: Also starts the DNS responder service for captive portal avoidance.
  */
 bool WirelessManager::startMdnsService() {
   String networkName = getLocalNetworkName();
+
+  // Start DNS responder to prevent captive portal detection and keep cellular active
+  startDnsResponder();
 
   if(MDNS.begin(networkName.c_str())) {
     delay(100); // Small delay to ensure mDNS is fully initialized.
@@ -110,48 +114,70 @@ bool WirelessManager::startMdnsService() {
 }
 
 /**
- * Function: startDnsService
- * Purpose: Starts the DNS server for captive portal detection.
- *          Hijacks ALL DNS queries and redirects them to the device's IP address,
- *          forcing connectivity checks to reach HTTP handlers instead of timing out.
+ * Function: startDnsResponder
+ * Purpose: Starts a custom DNS response server to return a SERVFAIL response to clients.
+ *          Clients of the softAP will be given the local device IP as the primary DNS server
+ *          as part of their DHCP lease, but this DNS server has no route to the internet and
+ *          will always fail. We don't want clients to keep retrying to resolve names so we
+ *          must respond quickly with a failure notice. Intended to keep the device's WiFi
+ *          network active but mark it as unusable for internet access.
  * Inputs: None.
  * Outputs:
  *   - bool: True if DNS server started successfully, false otherwise.
- * Side Effects: Sets dnsServerActive flag.
+ * Side Effects: Sets dnsResponderActive flag.
  */
-bool WirelessManager::startDnsService() {
-  if(!dnsServerActive) {
-    // Start DNS server on port 53, redirecting all queries (*) to the device's IP
-    // DISABLED TEMPORARILY - Provided for easier testing when needed.
-    // dnsServerActive = dnsServer.start(DNS_PORT, "*", localAddress);
+bool WirelessManager::startDnsResponder() {
+  if(!dnsResponderActive) {
+    // Start a UDP responder for DNS server on port 53.
+    dnsResponderActive = dnsUDP.begin(53);
   }
-  return dnsServerActive;
+  return dnsResponderActive;
 }
 
 /**
- * Function: processDnsRequests
+ * Function: handleDNS
  * Purpose: Processes pending DNS requests. Must be called frequently in the main loop.
  * Inputs: None.
  * Outputs: None.
- * Side Effects: Responds to DNS queries with device IP address.
+ * Side Effects: Responds to DNS queries with a fast failure notice (SERVFAIL).
  */
-void WirelessManager::processDnsRequests() {
-  if(dnsServerActive) {
-    dnsServer.processNextRequest();
-  }
-}
+void WirelessManager::handleDNS() {
+  if(dnsResponderActive) {
+    int packetSize = dnsUDP.parsePacket();
+    if (packetSize <= 0) return;
+    if (packetSize > sizeof(packetBuffer)) return;
 
-/**
- * Function: stopDnsService
- * Purpose: Stops the DNS server.
- * Inputs: None.
- * Outputs: None.
- * Side Effects: Clears dnsServerActive flag.
- */
-void WirelessManager::stopDnsService() {
-  if(dnsServerActive) {
-    dnsServer.stop();
-    dnsServerActive = false;
+    dnsUDP.read(packetBuffer, packetSize);
+
+    // DNS header is first 12 bytes
+    // [0..1] Transaction ID = preserve from request (required)
+    // [2] Flags: QR|Opcode|AA|TC|RD
+    // [3] Flags: RA|Z|RCODE
+    // [4..5] Questions count
+    // [6..7] Answer RRs count
+    // [8..9] Authority RRs count
+    // [10..11] Additional RRs count
+
+    // Build minimal failure response to discourage client from using this DNS:
+    // QR=1 (response), RD=0 (no recursion desired), RA=0 (no recursion available)
+    // RCODE=2 (SERVFAIL) - fast failure to stop client from retrying this server
+    packetBuffer[2] = 0x80;  // QR=1 (response), all other flags=0
+    packetBuffer[3] = 0x02;  // RCODE=2 (SERVFAIL), RA=0
+
+    // Zero all counts (questions, answers, authority, additional)
+    packetBuffer[4]  = 0x00;
+    packetBuffer[5]  = 0x00;
+    packetBuffer[6]  = 0x00;
+    packetBuffer[7]  = 0x00;
+    packetBuffer[8]  = 0x00;
+    packetBuffer[9]  = 0x00;
+    packetBuffer[10] = 0x00;
+    packetBuffer[11] = 0x00;
+
+    // Send only the 12-byte header for SERVFAIL (no need to echo question section)
+    dnsUDP.beginPacket(dnsUDP.remoteIP(), dnsUDP.remotePort());
+    dnsUDP.write(packetBuffer, 12);
+    dnsUDP.endPacket();
   }
 }
 
@@ -241,7 +267,7 @@ void WirelessManager::getNetworkStatus(JsonObject& obj) const {
 
   // DNS Server Info
   JsonObject dns = obj["dns"].to<JsonObject>();
-  dns["active"] = dnsServerActive;
+  dns["active"] = dnsResponderActive;
 
   // External WiFi Info
   JsonObject extWifi = obj["extWifi"].to<JsonObject>();

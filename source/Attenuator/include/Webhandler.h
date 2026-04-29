@@ -546,10 +546,10 @@ void startWebServer() {
 
   // Set the MDNS name (get it from your wireless manager)
   setDeviceMdnsName(wirelessMgr->getMdnsName());
-  
+
   // Set the private IP address for OpenAPI spec (set unique per device)
   setDeviceIpAddress(wirelessMgr->getLocalAddress().toString());
-  
+
   // Set callback to dynamically retrieve external IP for OpenAPI spec
   setExternalIpCallback([]() -> String {
     return wirelessMgr->getExtWifiAddress().toString();
@@ -594,7 +594,7 @@ void webLoops() {
   if(b_local_ap_started && b_httpd_started) {
     // Process DNS requests for captive portal detection via WirelessManager.
     // This must be called frequently to handle incoming DNS queries.
-    wirelessMgr->processDnsRequests();
+    wirelessMgr->handleDNS();
 
     if(ms_cleanup.remaining() < 1) {
       // Clean up oldest WebSocket connections.
@@ -933,23 +933,23 @@ void handleConnectivityCheck(AsyncWebServerRequest *request) {
   captivePortalRequests++;
 
   String path = request->url();
-  
+
   // Android expects 204 No Content for /generate_204 and /gen_204
   if (path.indexOf("/generate_204") >= 0 || path.indexOf("/gen_204") >= 0) {
     debugln(F("Sending -> 204 No Content (Android connectivity check)"));
     request->send(204);
     return;
   }
-  
+
   // iOS expects 200 with EXACT HTML format that Apple's server returns
   // This signals "captive portal authenticated, dismiss the view"
   if (path.indexOf("hotspot-detect") >= 0 || path.indexOf("success.html") >= 0) {
     debugln(F("Sending -> Apple Success HTML (iOS connectivity check)"));
-    request->send(HTTP_STATUS_200, MIME_HTML, 
+    request->send(HTTP_STATUS_200, MIME_HTML,
       F("<HTML><HEAD><TITLE>Success</TITLE></HEAD><BODY>Success</BODY></HTML>"));
     return;
   }
-  
+
   // Windows and other endpoints - return Microsoft's expected format
   debugln(F("Sending -> Microsoft Success (Generic connectivity check)"));
   request->send(HTTP_STATUS_200, MIME_PLAIN, F("Microsoft Connect Test"));

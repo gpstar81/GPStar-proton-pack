@@ -71,7 +71,7 @@ IPAddress convertToIP(const String& ipAddressString) {
  * WiFi Management Functions
  */
 
-bool startAccesPoint() {
+bool startAccessPoint() {
   #if defined(DEBUG_WIRELESS_SETUP)
     debugln();
     debugln(F("Starting Private WiFi Configuration"));
@@ -241,14 +241,15 @@ bool startWiFi() {
   // Start the built-in access point (softAP) with the preferred credentials.
   // This should ALWAYS be available for direct connections to the device.
   if(!b_local_ap_started) {
-    b_local_ap_started = startAccesPoint();
+    b_local_ap_started = startAccessPoint();
   }
 
   // Set the mDNS hostname to "<ssid>.local" just like the private AP name.
+  // Note: This also starts the DNS responder automatically for captive portal avoidance.
   bool b_mdns_started = wirelessMgr->startMdnsService();
   #if defined(DEBUG_WIRELESS_SETUP)
     if(b_mdns_started) {
-      debug(F("mDNS Responder Started: "));
+      debug(F("mDNS & DNS Responders Started: "));
       debugln(wirelessMgr->getMdnsName());
     }
     else {
@@ -259,25 +260,6 @@ bool startWiFi() {
     (void)b_mdns_started;
   #endif
   delay(100);
-
-  // Start DNS server for captive portal detection via WirelessManager.
-  // This hijacks ALL DNS queries and redirects them to the device's IP address,
-  // forcing connectivity checks to reach our HTTP handlers instead of timing out.
-  if(b_local_ap_started) {
-    bool b_dns_started = wirelessMgr->startDnsService();
-    #if defined(DEBUG_WIRELESS_SETUP)
-      if(b_dns_started) {
-        debug(F("DNS Server Started: All domains resolve to "));
-        debugln(wirelessMgr->getLocalAddress());
-      }
-      else {
-        debugln(F("Error Starting DNS Server!"));
-      }
-    #else
-      // Suppress unused variable warning.
-      (void)b_dns_started;
-    #endif
-  }
 
   return b_local_ap_started; // At least return whether the soft AP started successfully.
 }
