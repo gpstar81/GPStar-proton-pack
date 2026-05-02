@@ -90,6 +90,9 @@ AsyncEventSource events("/events");
 // Track the number of connected WebSocket clients.
 uint8_t i_ws_client_count = 0;
 
+// Track captive portal HTTP endpoint requests.
+uint32_t captivePortalRequests = 0;
+
 // Track time to refresh progress for OTA updates.
 unsigned long i_progress_millis = 0;
 
@@ -283,6 +286,14 @@ void startWebServer() {
 
   // Set the MDNS name (get it from your wireless manager)
   setDeviceMdnsName(wirelessMgr->getMdnsName());
+  
+  // Set the private IP address for OpenAPI spec (set unique per device)
+  setDeviceIpAddress(wirelessMgr->getLocalAddress().toString());
+  
+  // Set callback to dynamically retrieve external IP for OpenAPI spec
+  setExternalIpCallback([]() -> String {
+    return wirelessMgr->getExtWifiAddress().toString();
+  });
 
   // Configures all URI endpoints using registered routes.
   setupRouting(httpServer);
@@ -334,7 +345,7 @@ void webLoops() {
       i_ap_client_count = WiFi.softAPgetStationNum();
 
       // Restart timer for next count.
-      ms_apclient.start(i_apClientCount);
+      ms_apclient.start(i_apClientDelay);
     }
 
     if(ms_otacheck.remaining() < 1) {
@@ -488,6 +499,34 @@ void checkWebSocketClient() {
 // Send a debug event to connected clients via Server-Sent Events (SSE).
 void sendDebugEvent(const char* message) {
   events.send(message, "debug", millis());
+}
+
+void handleConnectivityCheck(AsyncWebServerRequest *request) {
+  // Handle OS-specific connectivity checks.
+  // Return exact responses that tell the OS "internet works, dismiss captive portal".
+  captivePortalRequests++;
+
+  String path = request->url();
+  
+  // Android expects 204 No Content for /generate_204 and /gen_204
+  if (path.indexOf("/generate_204") >= 0 || path.indexOf("/gen_204") >= 0) {
+    debugln(F("Sending -> 204 No Content (Android connectivity check)"));
+    request->send(204);
+    return;
+  }
+  
+  // iOS expects 200 with EXACT HTML format that Apple's server returns
+  // This signals "captive portal authenticated, dismiss the view"
+  if (path.indexOf("hotspot-detect") >= 0 || path.indexOf("success.html") >= 0) {
+    debugln(F("Sending -> Apple Success HTML (iOS connectivity check)"));
+    request->send(HTTP_STATUS_200, MIME_HTML, 
+      F("<HTML><HEAD><TITLE>Success</TITLE></HEAD><BODY>Success</BODY></HTML>"));
+    return;
+  }
+  
+  // Windows and other endpoints - return Microsoft's expected format
+  debugln(F("Sending -> Microsoft Success (Generic connectivity check)"));
+  request->send(HTTP_STATUS_200, MIME_PLAIN, F("Microsoft Connect Test"));
 }
 
 /**

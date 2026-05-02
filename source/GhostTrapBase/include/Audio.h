@@ -103,6 +103,11 @@ void fadeoutEffect(uint16_t i_track_id, uint16_t i_fade_time = 50);
 void updateMasterVolume(bool startup = false);
 bool setMasterVolumePercentage(uint8_t percentage);
 
+#ifndef VERSION_STRING_LEN
+// Necessary for newer GPStar Audio library.
+#define VERSION_STRING_LEN 21
+#endif
+
 /*
  * Audio playback functions.
  */

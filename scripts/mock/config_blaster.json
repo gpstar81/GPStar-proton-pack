@@ -1,0 +1,11 @@
+{
+  "prefsAvailable": true,
+  "blasterPowered": false,
+  "gpstarAudio": true,
+  "ventLightAutoIntensity": true,
+  "defaultSystemVolume": 75,
+  "deviceBootErrorBeep": false,
+  "deviceVibration": 1,
+  "gpstarAudioLed": true,
+  "invertBlasterBargraph": false
+}

@@ -213,7 +213,7 @@ void WiFiManagementTask(void *parameter) {
         i_ap_client_count = WiFi.softAPgetStationNum();
 
         // Restart timer for next count.
-        ms_apclient.start(i_apClientCount);
+        ms_apclient.start(i_apClientDelay);
       }
 
       if(WiFi.status() == WL_CONNECTED && b_ext_wifi_started) {
@@ -299,7 +299,7 @@ void WiFiSetupTask(void *parameter) {
 
     // Begin timer for remote client events.
     ms_cleanup.start(i_websocketCleanup);
-    ms_apclient.start(i_apClientCount);
+    ms_apclient.start(i_apClientDelay);
     ms_otacheck.start(i_otaCheck);
   }
 

@@ -24,10 +24,12 @@
 #   - http://localhost:8080/settings/wand → wand.html
 #   - http://localhost:8080/wand          → wand.html.gz
 #   - etc.
-## ADVANCED USAGE:
+#
+# ADVANCED USAGE:
 #   To use a custom port (e.g., 9000):
 #       python3 ../../scripts/gzserver.py --dir "$SCRIPT_DIR" --port 9000
-## NOTE: This script uses the common gzserver.py from the scripts/ folder.
+#
+# NOTE: This script uses the common gzserver.py from the scripts/ folder.
 #
 
 # Get the directory where this script lives (the assets folder)

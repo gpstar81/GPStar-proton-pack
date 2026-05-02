@@ -82,6 +82,7 @@
           <option value="3">Disabled</option>
         </select>
       </div>
+      <!-- Toggle for rgbVentEnabled used only for GPStar Neutrona Wand I -->
       <div class="setting" id="rgbVentToggle">
         <label class="toggle-switchy" data-label="left">
           <input id="rgbVentEnabled" name="rgbVentEnabled" type="checkbox" />
@@ -378,72 +379,90 @@
     </div>
 
     <div class="block">
-      <a href="#top">Top</a>
+      <div class="action-bar">
+        <div class="action-links">
+          <a href="javascript:void(0)" onclick="exportSettings()">[Export]</a>
+          <a href="javascript:void(0)" onclick="importSettings()">[Import]</a>
+        </div>
+        <a href="#top" class="top-link">Top</a>
+      </div>
       <hr />
-      <a href="/">&laquo; Back</a>
-      &nbsp;&nbsp;
-      <button type="button" class="green" onclick="saveSettings()" id="btnSave">Update&nbsp;Settings</button>
-      &nbsp;&nbsp;&nbsp;
-      <button type="button" class="red" onclick="resetEEPROM()" id="btnReset">Reset&nbsp;EEPROM</button>
-      <br />
-      <br />
+      <div class="button-group">
+        <a href="/">&laquo; Back</a>
+        <button type="button" class="green" onclick="saveSettings()" id="btnSave">Update&nbsp;Settings</button>
+        <button type="button" class="red" onclick="resetEEPROM()" id="btnReset">Reset&nbsp;EEPROM</button>
+      </div>
     </div>
 
     <script type="application/javascript" src="/common.js"></script>
     <script type="application/javascript">
-      window.addEventListener("load", onLoad);
+      // Cache the raw settings from the server for export
+      var cachedSettings = null;
 
+      window.addEventListener("load", onLoad);
       function onLoad(event) {
         // Wait 0.4s for serial communications between devices.
         setTimeout(getSettings, 400);
 
         // Disable the save button until we obtain settings.
         disableEl("btnSave");
-      }
 
-      function disableControls() {
-        // Disables all controls.
-        disableEl("ledWandCount");
-        disableEl("ledWandHue");
-        disableEl("ledWandSat");
-        disableEl("rgbVentEnabled");
-        disableEl("defaultStreamMode");
-        disableEl("stasisStream");
-        disableEl("slimeStream");
-        disableEl("mesonStream");
-        disableEl("spectralStream");
-        disableEl("spectralCustomStream");
-        disableEl("halloweenStream");
-        disableEl("christmasStream");
-        disableEl("overheatEnabled");
-        disableEl("defaultFiringMode");
-        disableEl("wandVibration");
-        disableEl("barrelSwitchPolarity");
-        disableEl("wandSoundsToPack");
-        disableEl("quickVenting");
-        disableEl("rgbVentColours");
-        disableEl("autoVentLight");
-        disableEl("wandBeepLoop");
-        disableEl("wandBootError");
-        disableEl("gpstarAudioLed");
-        disableEl("defaultYearModeWand");
-        disableEl("defaultYearModeCTS");
-        disableEl("defaultWandVolume");
-        disableEl("numBargraphSegments");
-        disableEl("invertWandBargraph");
-        disableEl("bargraphOverheatBlink");
-        disableEl("bargraphIdleAnimation");
-        disableEl("bargraphFireAnimation");
-        hideEl("gpstarAudioLedToggle");
-        disableEl("isWiFiEnabled");
-        disableEl("resetWifiPassword");
-        hideEl("gpstar2");
-        disableEl("btnReset");
+        // Initialize contextual help system
+        initializeHelp("wand");
       }
 
       // Converts a value from one range to another: eg. convertRange(160, [2,254], [0,360])
       function convertRange(value, r1, r2) {
         return Math.round(((value - r1[0]) * (r2[1] - r2[0])) / (r1[1] - r1[0]) + r2[0]);
+      }
+
+      function populateFormFields(settings) {
+        // Populates all form fields from settings object (used by both server load and import)
+        setValue("ledWandCount", settings.ledWandCount ?? 2);
+        setValue("ledWandHue", convertRange(settings.ledWandHue || 254, [1, 254], [0, 360]));
+        setValue("ledWandSat", convertRange(settings.ledWandSat || 254, [1, 254], [0, 100]));
+        setToggle("rgbVentEnabled", settings.rgbVentEnabled);
+        setValue("defaultStreamMode", settings.defaultStreamMode ?? 0);
+        setToggle("stasisStream", settings.stasisStream);
+        setToggle("slimeStream", settings.slimeStream);
+        setToggle("mesonStream", settings.mesonStream);
+        setToggle("spectralStream", settings.spectralStream);
+        setToggle("spectralCustomStream", settings.spectralCustomStream);
+        setToggle("halloweenStream", settings.halloweenStream);
+        setToggle("christmasStream", settings.christmasStream);
+        setToggle("overheatEnabled", settings.overheatEnabled);
+        setValue("defaultFiringMode", settings.defaultFiringMode ?? 0);
+        setValue("wandVibration", settings.wandVibration || 4);
+        setValue("barrelSwitchPolarity", settings.barrelSwitchPolarity ?? 1);
+        setToggle("wandSoundsToPack", settings.wandSoundsToPack);
+        setToggle("quickVenting", settings.quickVenting);
+        setToggle("rgbVentColours", settings.rgbVentColours);
+        setToggle("autoVentLight", settings.autoVentLight);
+        setToggle("wandBeepLoop", settings.wandBeepLoop);
+        setToggle("wandBootError", settings.wandBootError);
+        setToggle("gpstarAudioLed", settings.gpstarAudioLed);
+        setValue("defaultYearModeWand", settings.defaultYearModeWand ?? 1);
+        setValue("defaultYearModeCTS", settings.defaultYearModeCTS ?? 1);
+        setValue("defaultWandVolume", settings.defaultWandVolume || 100);
+        setHtml("masterVolOut", getValue("defaultWandVolume"));
+        setValue("numBargraphSegments", settings.numBargraphSegments || 28);
+        setToggle("invertWandBargraph", settings.invertWandBargraph);
+        setToggle("bargraphOverheatBlink", settings.bargraphOverheatBlink);
+        setValue("bargraphIdleAnimation", settings.bargraphIdleAnimation ?? 1);
+        setValue("bargraphFireAnimation", settings.bargraphFireAnimation ?? 1);
+        setToggle("isWiFiEnabled", settings.isWiFiEnabled);
+        setToggle("resetWifiPassword", settings.resetWifiPassword);
+
+        // Update colour preview and value display for hue/saturation sliders.
+        updateColour("wandColourPreview", "wandHueOut", "wandSatOut", getEl("ledWandHue").value, getEl("ledWandSat").value);
+
+        // Display the current system mode and theme for benefit of the user.
+        if (settings.systemMode) setHtml("systemMode", settings.systemMode);
+        if (settings.systemTheme) setHtml("systemTheme", settings.systemTheme);
+        if (settings.currentStreamMode) setHtml("currentStreamMode", settings.currentStreamMode);
+
+        // Apply guards for Stream Mode availability based on system mode and firing mode.
+        updateStreamModeToggles();
       }
 
       function updateColour(colourPreviewID, hueLabelID, satLabelID, hueValue, satValue) {
@@ -490,14 +509,21 @@
           if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
             var settings = JSON.parse(this.responseText);
             if (settings) {
+              // Cache the raw settings for export
+              cachedSettings = settings;
+
               if (!settings.wandConnected || !settings.prefsAvailable) {
                 disableControls();
+                hideEl("gpstarAudioLedToggle");
+                hideEl("gpstar2");
                 alert("Preferences could not be downloaded. Please confirm a GPStar Neutrona Wand is connected, then refresh the page to try again.");
                 return;
               }
 
               if (settings.packPowered || settings.wandPowered) {
                 disableControls();
+                hideEl("gpstarAudioLedToggle");
+                hideEl("gpstar2");
                 alert(
                   "Pack and/or Wand are currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings.",
                 );
@@ -542,49 +568,8 @@
                *  254 = Red
                */
 
-              setValue("ledWandCount", settings.ledWandCount ?? 2); // GPStar: 2 (50 LED)
-              setValue("ledWandHue", convertRange(settings.ledWandHue || 254, [1, 254], [0, 360])); // Default: Red
-              setValue("ledWandSat", convertRange(settings.ledWandSat || 254, [1, 254], [0, 100])); // Full Saturation
-              setToggle("rgbVentEnabled", settings.rgbVentEnabled);
-              setValue("defaultStreamMode", settings.defaultStreamMode);
-              setToggle("stasisStream", settings.stasisStream);
-              setToggle("slimeStream", settings.slimeStream);
-              setToggle("mesonStream", settings.mesonStream);
-              setToggle("spectralStream", settings.spectralStream);
-              setToggle("spectralCustomStream", settings.spectralCustomStream);
-              setToggle("halloweenStream", settings.halloweenStream);
-              setToggle("christmasStream", settings.christmasStream);
-              setToggle("overheatEnabled", settings.overheatEnabled);
-              setValue("defaultFiringMode", settings.defaultFiringMode ?? 0);
-              setValue("wandVibration", settings.wandVibration || 4);
-              setValue("barrelSwitchPolarity", settings.barrelSwitchPolarity ?? 1);
-              setToggle("wandSoundsToPack", settings.wandSoundsToPack);
-              setToggle("quickVenting", settings.quickVenting);
-              setToggle("rgbVentColours", settings.rgbVentColours);
-              setToggle("autoVentLight", settings.autoVentLight);
-              setToggle("wandBeepLoop", settings.wandBeepLoop);
-              setToggle("wandBootError", settings.wandBootError);
-              setToggle("gpstarAudioLed", settings.gpstarAudioLed);
-              setValue("defaultYearModeWand", settings.defaultYearModeWand ?? 1);
-              setValue("defaultYearModeCTS", settings.defaultYearModeCTS ?? 1);
-              setValue("defaultWandVolume", settings.defaultWandVolume || 100);
-              setHtml("masterVolOut", getValue("defaultWandVolume"));
-              setValue("numBargraphSegments", settings.numBargraphSegments || 28);
-              setToggle("invertWandBargraph", settings.invertWandBargraph);
-              setToggle("bargraphOverheatBlink", settings.bargraphOverheatBlink);
-              setValue("bargraphIdleAnimation", settings.bargraphIdleAnimation ?? 1);
-              setValue("bargraphFireAnimation", settings.bargraphFireAnimation ?? 1);
-
-              // Update colour preview and value display for hue/saturation sliders.
-              updateColour("wandColourPreview", "wandHueOut", "wandSatOut", getEl("ledWandHue").value, getEl("ledWandSat").value);
-
-              // Display the current system mode and theme for benefit of the user.
-              setHtml("systemMode", settings.systemMode || "...");
-              setHtml("systemTheme", settings.systemTheme || "...");
-              setHtml("currentStreamMode", settings.currentStreamMode || "...");
-
-              // Apply guards for Stream Mode availability based on system mode and firing mode.
-              updateStreamModeToggles();
+              // Populate all form fields with settings from server
+              populateFormFields(settings);
             }
           } else if (this.readyState == 4) {
             // Handle error responses
@@ -678,6 +663,55 @@
           xhttp.open("DELETE", "/eeprom/wand", true);
           xhttp.send();
         }
+      }
+
+      function exportSettings() {
+        // Export the cached settings from the server (no conversion needed)
+        if (!cachedSettings) {
+          alert('No settings available to export. Please wait for settings to load.');
+          return;
+        }
+
+        // Create JSON file and trigger download
+        var timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+        var filename = 'wand-settings-' + timestamp + '.json';
+        var dataStr = JSON.stringify(cachedSettings, null, 2);
+        var dataBlob = new Blob([dataStr], { type: 'application/json' });
+        var url = URL.createObjectURL(dataBlob);
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        alert('Settings exported to ' + filename);
+      }
+
+      function importSettings() {
+        // Create file input element
+        var input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'application/json,.json';
+        input.onchange = function (e) {
+          var file = e.target.files[0];
+          if (file) {
+            var reader = new FileReader();
+            reader.onload = function (event) {
+              try {
+                var settings = JSON.parse(event.target.result);
+                // Use the same population logic as server load
+                populateFormFields(settings);
+                alert('Settings imported successfully! Review the values and click "Update Settings" to apply them.');
+              } catch (error) {
+                alert('Error parsing JSON file: ' + error.message);
+              }
+            };
+            reader.readAsText(file);
+          }
+        };
+        input.click();
       }
     </script>
   </body>

@@ -76,7 +76,10 @@ NOTES:
     - Proper MIME types are automatically detected
     - URL routing matches ESP32 firmware behavior for local testing
     - Press Ctrl+C to stop the server
-    - If the server doesn't stop, use: ./killserver.sh or lsof -ti:8080 | xargs kill -9
+    - If the server doesn't stop or port is in use:
+        pkill -f gzserver.py                    # Kill by script name
+        lsof -nP -iTCP:8080 -sTCP:LISTEN        # Find process on port 8080
+        kill -9 $(lsof -ti:8080)                # Kill process using port 8080
 
 """
 
@@ -106,10 +109,9 @@ DATA_ENDPOINTS = {
     '/config/wand',
     '/config/blaster',
     '/status',
-    '/openapi.json',
     '/wifi/settings',
     '/wifi/networks',
-    '/wifi/restart',
+    '/wifi/status',
 }
 
 # Action endpoints - PUT/DELETE requests that perform actions (return success JSON)
@@ -175,10 +177,13 @@ ACTION_ENDPOINTS = {
     ('/volume/unmute', 'PUT'),
     ('/volume/master/up', 'PUT'),
     ('/volume/master/down', 'PUT'),
+    ('/volume/master/set/*', 'PUT'),
     ('/volume/effects/up', 'PUT'),
     ('/volume/effects/down', 'PUT'),
     ('/volume/music/up', 'PUT'),
     ('/volume/music/down', 'PUT'),
+    # Wand control (NeutronaWand)
+    ('/power/set/*', 'PUT'),
     # Music control
     ('/music/startstop', 'PUT'),
     ('/music/pauseresume', 'PUT'),
@@ -189,6 +194,8 @@ ACTION_ENDPOINTS = {
     ('/music/loop/one', 'PUT'),
     ('/music/shuffle/on', 'PUT'),
     ('/music/shuffle/off', 'PUT'),
+    # WiFi control
+    ('/wifi/network/*', 'DELETE'),
 }
 
 # Body handler endpoints - POST requests that accept JSON bodies
@@ -288,7 +295,7 @@ class GzipHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 with open(local_mock_file, 'r') as f:
                     return json.load(f)
             except Exception as e:
-                print(f"⚠️  Error loading mock data from {local_mock_file}: {e}")
+                print(f"Error loading mock data from {local_mock_file}: {e}")
         
         # Fall back to centralized mock directory
         central_mock_file = os.path.join(MOCK_DIR, filename)
@@ -297,7 +304,7 @@ class GzipHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 with open(central_mock_file, 'r') as f:
                     return json.load(f)
             except Exception as e:
-                print(f"⚠️  Error loading mock data from {central_mock_file}: {e}")
+                print(f"Error loading mock data from {central_mock_file}: {e}")
         
         return {}
 
@@ -305,13 +312,13 @@ class GzipHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         """Handle DATA_ENDPOINT requests - return JSON (mock or empty)"""
         mock = self.load_mock(endpoint)
         self.send_json_response(mock)
-        print(f"✓ DATA {self.path} → {len(mock)} fields")
+        print(f"DATA {self.path} → {len(mock)} fields")
 
     def handle_action_endpoint(self, endpoint):
         """Handle ACTION_ENDPOINT requests - return success JSON"""
         response = {"success": True, "endpoint": endpoint}
         self.send_json_response(response)
-        print(f"✓ ACTION {self.command} {self.path} → success")
+        print(f"ACTION {self.command} {self.path} → success")
 
     def handle_body_handler(self, endpoint):
         """Handle BODY_HANDLER POST requests - accept JSON body, return success"""
@@ -323,11 +330,11 @@ class GzipHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 body_data = self.rfile.read(content_length)
                 body = json.loads(body_data.decode('utf-8'))
             except Exception as e:
-                print(f"⚠️  Error parsing body: {e}")
+                print(f"Error parsing body: {e}")
         
         response = {"success": True, "received": len(body)}
         self.send_json_response(response)
-        print(f"✓ POST {self.path} → {len(body)} fields received")
+        print(f"POST {self.path} → {len(body)} fields received")
 
     def matches_wildcard_pattern(self, path, pattern):
         """Check if path matches a wildcard pattern like /volume/master/set/*"""
@@ -344,6 +351,21 @@ class GzipHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         # Parse the URL path (without query params)
         url_path = self.path.split('?')[0]
+        
+        # Special case: serve openapi.json from mock directory
+        if url_path == '/openapi.json':
+            openapi_path = os.path.join(MOCK_DIR, 'openapi.json')
+            if os.path.exists(openapi_path):
+                try:
+                    with open(openapi_path, 'r') as f:
+                        data = json.load(f)
+                    self.send_json_response(data)
+                    print(f"Served openapi.json from {MOCK_DIR}")
+                    return
+                except Exception as e:
+                    print(f"Error loading openapi.json: {e}")
+                    self.send_error(500, f"Error reading openapi.json: {e}")
+                    return
         
         # Check if this is a data endpoint
         if url_path in DATA_ENDPOINTS:
@@ -381,7 +403,7 @@ class GzipHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(content)
 
-                print(f"✓ Served {os.path.basename(gz_path)} for {self.path}")
+                print(f"Served {os.path.basename(gz_path)} for {self.path}")
 
             except Exception as e:
                 print(f"✗ Error serving {gz_path}: {e}")
@@ -407,7 +429,7 @@ class GzipHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
                     self.end_headers()
                     self.wfile.write(content)
                     
-                    print(f"✓ Served {os.path.basename(original_gz)} for {self.path}")
+                    print(f"Served {os.path.basename(original_gz)} for {self.path}")
                 except Exception as e:
                     print(f"✗ Error serving {original_gz}: {e}")
                     self.send_error(500, f"Error reading file: {e}")
@@ -586,8 +608,12 @@ if __name__ == '__main__':
     except OSError as e:
         if e.errno == 48 or 'Address already in use' in str(e):
             print(f"Error: Port {port} is already in use.")
-            print(f"Try a different port: python3 gzserver.py --dir {directory} --port <port>")
-            print(f"Or kill the existing server: lsof -ti:{port} | xargs kill -9")
+            print(f"")
+            print(f"Try these commands to find and kill the process:")
+            print(f"  1. Find process:     lsof -nP -iTCP:{port} -sTCP:LISTEN")
+            print(f"  2. Kill by port:     kill -9 $(lsof -ti:{port})")
+            print(f"  3. Kill by name:     pkill -f gzserver.py")
+            print(f"  4. Try another port: python3 gzserver.py --dir {directory} --port 9000")
         else:
             print(f"Error starting server: {e}")
         sys.exit(1)

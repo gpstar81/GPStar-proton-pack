@@ -1,7 +1,10 @@
 name: spell-check
+
+# Trigger this workflow on any push or pull request
 on:
   - push
   - pull_request
+
 jobs:
   spellcheck:
     runs-on: ubuntu-latest

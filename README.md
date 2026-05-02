@@ -40,6 +40,10 @@ You should have received [a copy of the GNU General Public License along with th
 
 In addition to the software, all project design files (including STL and other manufacturing formats) are provided in this repository under the same open-source terms. These files are made freely available here so they can be accessed, used, modified, and redistributed in accordance with the GNU General Public License. The latest and authoritative versions are always maintained in this repository.
 
+### Third-Party Components
+
+This project incorporates various third-party libraries and components, each with their own licenses (MIT, BSD, LGPL, Apache 2.0) that are compatible with the GPLv3. For complete attribution, copyright notices, and license terms of all third-party dependencies, please see [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md).
+
 ## Acknowledgements
 
 This project is made possible by Ghostbusters community makers and volunteers spanning 4 countries over 2 continents.

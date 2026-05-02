@@ -309,7 +309,7 @@ void WiFiSetupTask(void *parameter) {
 
     // Begin timer for remote client events.
     ms_cleanup.start(i_websocketCleanup);
-    ms_apclient.start(i_apClientCount);
+    ms_apclient.start(i_apClientDelay);
     ms_otacheck.start(i_otaCheck);
   }
 

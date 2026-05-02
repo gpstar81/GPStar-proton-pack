@@ -135,4 +135,18 @@ void registerWebRoutes() {
   // OpenAPI Documentation
   addSimpleRoute("/swaggerui", HTTP_GET, handleSwagger, "Swagger UI", "Serves the Swagger UI page for API documentation", TAG_PAGES, RESP_HTML_PAGE);
   addSimpleRoute("/openapi.json", HTTP_GET, handleOpenAPISpec, "OpenAPI specification", "Returns the OpenAPI 3.x specification for this API", TAG_DOCUMENTATION, RESP_OPENAPI_SPEC);
+
+  // Captive Portal / Connectivity Check Endpoints
+  // DNS hijacking redirects OS connectivity checks to the device.
+  // By returning proper HTTP responses (204 for Android, Success HTML for iOS),
+  // we signal "captive portal authenticated" which allows cellular to stay active.
+  // Gateway 0.0.0.0 ensures iOS keeps cellular active (no internet route via WiFi).
+  addSimpleRoute("/success.txt", HTTP_GET, handleConnectivityCheck, "Android connectivity test", "Captive portal detection endpoint", TAG_PORTAL, RESP_CONNECTIVITY_CHECK);
+  addSimpleRoute("/generate_204", HTTP_GET, handleConnectivityCheck, "Android connectivity check", "Captive portal detection endpoint", TAG_PORTAL, RESP_CONNECTIVITY_CHECK);
+  addSimpleRoute("/gen_204", HTTP_GET, handleConnectivityCheck, "Google connectivity check", "Captive portal detection endpoint", TAG_PORTAL, RESP_CONNECTIVITY_CHECK);
+  addSimpleRoute("/ncsi.txt", HTTP_GET, handleConnectivityCheck, "Windows connectivity check", "Captive portal detection endpoint", TAG_PORTAL, RESP_CONNECTIVITY_CHECK);
+  addSimpleRoute("/hotspot-detect.html", HTTP_GET, handleConnectivityCheck, "iOS captive portal check", "Captive portal detection endpoint", TAG_PORTAL, RESP_CONNECTIVITY_CHECK);
+  addSimpleRoute("/library/test/success.html", HTTP_GET, handleConnectivityCheck, "iOS connectivity check", "Captive portal detection endpoint", TAG_PORTAL, RESP_CONNECTIVITY_CHECK);
+  addSimpleRoute("/connecttest.txt", HTTP_GET, handleConnectivityCheck, "Windows connectivity test", "Captive portal detection endpoint", TAG_PORTAL, RESP_CONNECTIVITY_CHECK);
+  addSimpleRoute("/redirect", HTTP_GET, handleConnectivityCheck, "Windows redirect check", "Captive portal detection endpoint", TAG_PORTAL, RESP_CONNECTIVITY_CHECK);
 }

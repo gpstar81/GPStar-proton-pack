@@ -17,6 +17,76 @@
  *
  */
 
+/**
+ * STANDARD TECHNIQUES & ALGORITHMS DOCUMENTATION:
+ * This implementation uses well-established electrical engineering and signal processing
+ * methods that are standard practice in embedded systems and power monitoring applications.
+ * 
+ * 1. INA219 Current Sensing via Shunt Resistor:
+ *    Standard method for measuring current by reading voltage drop across a precision
+ *    low-resistance shunt resistor using Ohm's Law (I = V/R).
+ *    References:
+ *      - Texas Instruments INA219 Datasheet: "Bi-Directional Current/Power Monitor"
+ *      - Wikipedia: https://en.wikipedia.org/wiki/Shunt_(electrical)
+ *      - Wikipedia: https://en.wikipedia.org/wiki/Ohm%27s_law
+ *      - Any electrical engineering textbook on current measurement
+ *      - Common practice in battery monitoring, motor control, and power supplies
+ * 
+ * 2. Exponential Moving Average (EMA) for Signal Smoothing:
+ *    Standard digital filter technique to reduce noise in sensor readings.
+ *    Formula: EMA_new = α * raw_value + (1-α) * EMA_old
+ *    References:
+ *      - Wikipedia: https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average
+ *      - Wikipedia: https://en.wikipedia.org/wiki/Exponential_smoothing
+ *      - Smith, "Digital Signal Processing" - Chapter on recursive filters
+ *      - Standard practice in sensor data filtering and smoothing
+ * 
+ * 3. Sliding Window Averaging and State Detection:
+ *    Common technique for detecting transitions and changes in time-series data.
+ *    Uses a fixed-size buffer (FIFO) to maintain recent values for analysis.
+ *    References:
+ *      - Wikipedia: https://en.wikipedia.org/wiki/Moving_average
+ *      - Wikipedia: https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics)
+ *      - Any DSP textbook covering moving-window analysis
+ *      - Common practice in embedded state machines and event detection
+ *      - Standard debouncing and change-detection technique
+ * 
+ * 4. ATMega2560 Bandgap Voltage Reference Reading:
+ *    Standard method for measuring supply voltage (Vcc) using internal 1.1V reference.
+ *    Uses the ADC to measure the known bandgap voltage, then calculates Vcc.
+ *    Formula: Vcc = (1.1V * 1023) / ADC_reading
+ *    References:
+ *      - Atmel ATMega2560 Datasheet: Section on ADC and internal voltage reference
+ *      - Wikipedia: https://en.wikipedia.org/wiki/Bandgap_voltage_reference
+ *      - Wikipedia: https://en.wikipedia.org/wiki/Analog-to-digital_converter
+ *      - AVR application notes on battery voltage monitoring
+ *      - Common practice in battery-powered AVR applications
+ * 
+ * 5. Amp-Hour (Ah) Calculation:
+ *    Standard method for tracking battery capacity consumption over time.
+ *    Formula: Ah_consumed += (current_A * time_hours)
+ *    References:
+ *      - Battery University: "How to measure capacity"
+ *      - Wikipedia: https://en.wikipedia.org/wiki/Coulomb_counting
+ *      - Wikipedia: https://en.wikipedia.org/wiki/Ampere_hour
+ *      - Common practice in battery management systems (BMS)
+ *      - Standard coulomb counting technique
+ * 
+ * 6. Power Calculations:
+ *    Standard electrical formulas:
+ *      - P(W) = V(V) * I(A)  - Power in watts
+ *      - V_total = V_bus + V_shunt - Total voltage including shunt drop
+ *    References:
+ *      - Wikipedia: https://en.wikipedia.org/wiki/Electric_power
+ *      - Wikipedia: https://en.wikipedia.org/wiki/Ohm%27s_law
+ *      - Ohm's Law and basic electrical engineering principles
+ *      - Any introductory electronics textbook
+ * 
+ * TLDR: All techniques implemented here are standard industry practices with
+ * no copyright restrictions. They are fundamental methods taught in electrical
+ * engineering and embedded systems courses worldwide.
+ */
+
 #pragma once
 
 /**
@@ -133,6 +203,21 @@ void doWandPowerReading() {
   wandReading.BusVoltage = monitor.busVoltage();
   wandReading.BusPower = monitor.busPower();
 
+  /**
+   * Exponential Moving Average (EMA) for Signal Smoothing
+   * 
+   * Standard digital filtering technique to reduce noise in power readings.
+   * Formula: EMA = α * new_value + (1-α) * previous_EMA
+   * where α (f_ema_alpha = 0.2) is the smoothing factor.
+   * 
+   * Lower α values provide more smoothing but slower response to changes.
+   * This is a fundamental recursive filter used throughout embedded systems.
+   * 
+   * References:
+   *   - Wikipedia: "Moving average" - Exponential section
+   *   - Standard DSP textbooks on recursive filters
+   *   - Common practice in sensor data processing
+   */
   // Update the smoothed current (A) values using the latest reading using an exponential moving average.
   wandReading.BattVoltage = wandReading.BusVoltage + wandReading.ShuntVoltage; // Total Volts
   wandReading.RawPower = wandReading.BattVoltage * wandReading.ShuntCurrent; // P(W) = V*A
@@ -141,6 +226,25 @@ void doWandPowerReading() {
   // Add the latest EMA'd reading to the end of the window.
   f_sliding_window[19] = wandReading.AvgPower;
 
+  /**
+   * Amp-Hour (Ah) Calculation - Standard Battery Capacity Tracking
+   * 
+   * Calculates energy consumed by integrating current over time (coulomb counting).
+   * Formula: Ah = Σ(current_A * time_hours)
+   * 
+   * Implementation:
+   *   - Measures time interval in milliseconds
+   *   - Multiplies by current draw in amperes
+   *   - Converts to hours by dividing by 3,600,000 (1000ms * 60s * 60m)
+   * 
+   * This is the standard method used in battery management systems (BMS) and
+   * fuel gauge ICs to track remaining battery capacity.
+   * 
+   * References:
+   *   - Battery University: "How to measure state-of-charge"
+   *   - Texas Instruments: "Impedance Track™ Battery Fuel Gauge" application notes
+   *   - Common practice in all battery-powered devices
+   */
   // Use time and current (A) values to calculate amp-hours consumed.
   unsigned long i_new_time = millis();
   wandReading.ReadTick = i_new_time - wandReading.LastRead;
@@ -151,6 +255,30 @@ void doWandPowerReading() {
   monitor.recalibrate();
   monitor.reconfig();
 }
+
+/**
+ * ATMega2560 Bandgap Voltage Reference Technique
+ * 
+ * Standard method for measuring supply voltage (Vcc) without external components.
+ * Uses the microcontroller's internal 1.1V bandgap reference as a known voltage.
+ * 
+ * How it works:
+ *   1. Configure ADC to measure the internal 1.1V bandgap reference
+ *   2. Use Vcc as the ADC reference voltage
+ *   3. Calculate Vcc using: Vcc = (1.1V * 1023) / ADC_reading
+ * 
+ * This technique is documented in:
+ *   - Atmel ATMega2560 Datasheet: Section 24 (ADC) and Section 8.2.2.3 (Bandgap Voltage Reference)
+ *   - AVR Application Note AVR120: "Characterization and Calibration of the ADC"
+ *   - AVR Application Note AVR182: "Zero Cross Detector"
+ *   - Arduino forum and community: "Secret Arduino Voltmeter"
+ * 
+ * This is a well-known technique used in battery-powered AVR projects to monitor
+ * battery voltage without requiring a voltage divider or external voltage reference.
+ * 
+ * Note: Each chip's bandgap voltage varies slightly (typ. 1.1V ±10%), so calibration
+ * is recommended for accurate readings (INTERNAL_REFERENCE_VOLTAGE constant).
+ */
 
 /**
  * Function: doPackVoltageReading
@@ -186,6 +314,32 @@ void doPackPowerReading() {
   // Obtain bandgap voltage from the microcontroller.
   doPackVoltageReading();
 }
+
+/**
+ * Sliding Window State Detection
+ * 
+ * This function uses sliding window analysis to detect state changes in power consumption.
+ * A sliding window is a common signal processing technique where a fixed-size buffer (FIFO)
+ * maintains the most recent N samples for analysis.
+ * 
+ * Techniques used:
+ *   - Differential analysis: Comparing consecutive values to detect rate of change
+ *   - Threshold detection: Using calibrated thresholds to identify specific states
+ *   - Multi-parameter windowing: Different window sizes for different detection tasks
+ *     * 3-parameter window for power on/off detection
+ *     * 11-parameter window for firing start detection
+ *     * 20-parameter window for overall state averaging
+ * 
+ * This approach is standard in:
+ *   - Embedded state machines and event detection
+ *   - Signal processing for edge/transition detection
+ *   - Debouncing and noise rejection in sensor systems
+ * 
+ * References:
+ *   - Any DSP textbook covering finite moving windows
+ *   - Common practice in embedded systems programming
+ *   - Standard technique for time-series analysis
+ */
 
 // Take actions based on current power state, specifically when there is no GPStar Neutrona Wand connected.
 void updateWandPowerState() {

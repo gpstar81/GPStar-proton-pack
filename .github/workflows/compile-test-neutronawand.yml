@@ -1,0 +1,47 @@
+name: compile-test-neutronawand
+
+# Trigger this workflow only on pull requests affecting NeutronaWand or shared code
+on:
+  pull_request:
+    paths:
+      - 'source/NeutronaWand/**'
+      - 'source/SharedLib/Communication/**'
+      - 'source/SharedLib/DeviceState/**'
+      - 'source/SharedLib/InfraredManager/**'
+      - 'source/SharedLib/Lighting/**'
+      - 'source/SharedLib/MagCalibration/**'
+      - 'source/SharedLib/WebRouter/**'
+      - 'source/SharedLib/WirelessManager/**'
+      - '.github/workflows/compile-test-neutronawand.yml'
+
+jobs:
+  compile-neutrona-wand:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Check out the repository code
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      # Step 2: Set up a Python environment (required by PlatformIO)
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13.x'
+
+      # Step 3: Cache PlatformIO packages and tools
+      - name: Cache PlatformIO Packages
+        uses: actions/cache@v5
+        with:
+          path: ~/.platformio
+          key: pio-${{ runner.os }}-${{ hashFiles('**/platformio.ini') }}
+          restore-keys: |
+            pio-${{ runner.os }}-
+
+      # Step 4: Install PlatformIO Core
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+
+      # Step 5: Compile NeutronaWand project (all environments)
+      - name: Compile NeutronaWand (all environments)
+        working-directory: source/NeutronaWand
+        run: pio run --jobs 4

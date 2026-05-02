@@ -448,80 +448,102 @@
     </div>
 
     <div class="block">
-      <a href="#top">Top</a>
+      <div class="action-bar">
+        <div class="action-links">
+          <a href="javascript:void(0)" onclick="exportSettings()">[Export]</a>
+          <a href="javascript:void(0)" onclick="importSettings()">[Import]</a>
+        </div>
+        <a href="#top" class="top-link">Top</a>
+      </div>
       <hr />
-      <a href="/">&laquo; Back</a>
-      &nbsp;&nbsp;
-      <button type="button" class="green" onclick="saveSettings()" id="btnSave">Update&nbsp;Settings</button>
-      &nbsp;&nbsp;&nbsp;
-      <button type="button" class="red" onclick="resetEEPROM()" id="btnReset">Reset&nbsp;EEPROM</button>
-      <br />
-      <br />
+      <div class="button-group">
+        <a href="/">&laquo; Back</a>
+        <button type="button" class="green" onclick="saveSettings()" id="btnSave">Update&nbsp;Settings</button>
+        <button type="button" class="red" onclick="resetEEPROM()" id="btnReset">Reset&nbsp;EEPROM</button>
+      </div>
     </div>
 
     <script type="application/javascript" src="/common.js"></script>
     <script type="application/javascript">
-      window.addEventListener("load", onLoad);
+      // Cache the raw settings from the server for export
+      var cachedSettings = null;
 
+      window.addEventListener("load", onLoad);
       function onLoad(event) {
         // Wait 0.4s for serial communications between devices.
         setTimeout(getSettings, 400);
 
         // Disable the save button until we obtain settings.
         disableEl("btnSave");
-      }
 
-      function disableControls() {
-        // Disables all controls.
-        disableEl("defaultSystemModePack");
-        disableEl("defaultYearThemePack");
-        disableEl("currentYearThemePack");
-        disableEl("packVibration");
-        disableEl("defaultPackVolume");
-        disableEl("overheatLightsOff");
-        disableEl("overheatStrobeNF");
-        disableEl("overheatSyncToFan");
-        disableEl("fadeoutIdleSounds");
-        disableEl("protonStreamEffects");
-        disableEl("brassStartupLoop");
-        disableEl("ribbonCableAlarm");
-        disableEl("wandQuickBootup");
-        disableEl("demoLightMode");
-        disableEl("gpstarAudioLed");
-        disableEl("ledCycLidCount");
-        disableEl("ledCycLidHue");
-        disableEl("ledCycLidSat");
-        disableEl("ledCycLidLum");
-        disableEl("cyclotronDirection");
-        disableEl("ledCycLidCenter");
-        disableEl("ledCycLidFade");
-        disableEl("ledCycLidSimRing");
-        disableEl("ledVGCyclotron");
-        disableEl("ledCycInnerPanel");
-        disableEl("ledCycPanLum");
-        disableEl("ledCycCakeCount");
-        disableEl("ledCycCakeGRB");
-        disableEl("ledCycCakeHue");
-        disableEl("ledCycCakeSat");
-        disableEl("ledCycCakeLum");
-        disableEl("ledCycCavCount");
-        disableEl("ledCycCavType");
-        disableEl("ledPowercellCount");
-        disableEl("ledPowercellHue");
-        disableEl("ledPowercellSat");
-        disableEl("ledPowercellLum");
-        disableEl("ledInvertPowercell");
-        disableEl("ledVGPowercell");
-        disableEl("gpstarAudioLedToggle");
-        disableEl("isWiFiEnabled");
-        disableEl("resetWifiPassword");
-        hideEl("gpstar2");
-        disableEl("btnReset");
+        // Initialize contextual help system
+        initializeHelp("pack");
       }
 
       // Converts a value from one range to another: eg. convertRange(160, [2,254], [0,360])
       function convertRange(value, r1, r2) {
         return Math.round(((value - r1[0]) * (r2[1] - r2[0])) / (r1[1] - r1[0]) + r2[0]);
+      }
+
+      function populateFormFields(settings) {
+        // Populates all form fields from settings object (used by both server load and import)
+        setValue("defaultSystemModePack", settings.defaultSystemModePack ?? 1);
+        setValue("defaultYearThemePack", settings.defaultYearThemePack ?? 1);
+        setValue("currentYearThemePack", settings.currentYearThemePack || 4);
+        setValue("defaultPackVolume", settings.defaultPackVolume || 100);
+        setHtml("masterVolOut", getValue("defaultPackVolume"));
+        setValue("packVibration", settings.packVibration || 4);
+        setToggle("fadeoutIdleSounds", settings.fadeoutIdleSounds);
+        setToggle("protonStreamEffects", settings.protonStreamEffects);
+        setToggle("brassStartupLoop", settings.brassStartupLoop);
+        setToggle("ribbonCableAlarm", settings.ribbonCableAlarm);
+        setToggle("wandQuickBootup", settings.wandQuickBootup);
+        setToggle("overheatStrobeNF", settings.overheatStrobeNF);
+        setToggle("overheatLightsOff", settings.overheatLightsOff);
+        setToggle("overheatSyncToFan", settings.overheatSyncToFan);
+        setToggle("demoLightMode", settings.demoLightMode);
+        setToggle("gpstarAudioLed", settings.gpstarAudioLed);
+
+        setValue("ledCycLidCount", settings.ledCycLidCount || 36);
+        setValue("ledCycLidHue", convertRange(settings.ledCycLidHue || 254, [1, 254], [0, 360]));
+        setValue("ledCycLidSat", convertRange(settings.ledCycLidSat || 254, [1, 254], [0, 100]));
+        setValue("ledCycLidLum", settings.ledCycLidLum || 100);
+        setHtml("cycLumOut", getValue("ledCycLidLum"));
+        setToggle("cyclotronDirection", settings.cyclotronDirection);
+        setValue("ledCycLidCenter", settings.ledCycLidCenter ?? 1);
+        setToggle("ledCycLidFade", settings.ledCycLidFade);
+        setToggle("ledVGCyclotron", settings.ledVGCyclotron);
+        setToggle("ledCycLidSimRing", settings.ledCycLidSimRing);
+        setToggle("disableLidDetection", settings.disableLidDetection);
+
+        setValue("ledCycCakeCount", settings.ledCycCakeCount || 35);
+        setValue("ledCycCakeHue", convertRange(settings.ledCycCakeHue || 254, [1, 254], [0, 360]));
+        setValue("ledCycCakeSat", convertRange(settings.ledCycCakeSat || 254, [1, 254], [0, 100]));
+        setValue("ledCycCakeLum", settings.ledCycCakeLum || 100);
+        setHtml("cakeLumOut", getValue("ledCycCakeLum"));
+        setValue("ledCycInnerPanel", settings.ledCycInnerPanel || 3);
+        setValue("ledCycPanLum", settings.ledCycPanLum || 100);
+        setHtml("panLumOut", getValue("ledCycPanLum"));
+        setToggle("ledCycCakeGRB", settings.ledCycCakeGRB);
+        setValue("ledCycCavCount", settings.ledCycCavCount ?? 0);
+        setHtml("ledCycCavCountOut", getValue("ledCycCavCount"));
+        setValue("ledCycCavType", settings.ledCycCavType ?? 3);
+
+        setValue("ledPowercellCount", settings.ledPowercellCount || 15);
+        setToggle("ledInvertPowercell", settings.ledInvertPowercell);
+        setValue("ledPowercellHue", convertRange(settings.ledPowercellHue || 160, [1, 254], [0, 360]));
+        setValue("ledPowercellSat", convertRange(settings.ledPowercellSat || 254, [1, 254], [0, 100]));
+        setValue("ledPowercellLum", settings.ledPowercellLum || 100);
+        setHtml("pcLumOut", getValue("ledPowercellLum"));
+        setToggle("ledVGPowercell", settings.ledVGPowercell);
+
+        setToggle("isWiFiEnabled", settings.isWiFiEnabled);
+        setToggle("resetWifiPassword", settings.resetWifiPassword);
+
+        // Update colour preview and value display for hue/saturation sliders.
+        updateColour("cycColourPreview", "cycHueOut", "cycSatOut", getValue("ledCycLidHue"), getValue("ledCycLidSat"));
+        updateColour("cakeColourPreview", "cakeHueOut", "cakeSatOut", getValue("ledCycCakeHue"), getValue("ledCycCakeSat"));
+        updateColour("pcColourPreview", "pcHueOut", "pcSatOut", getValue("ledPowercellHue"), getValue("ledPowercellSat"));
       }
 
       function updateColour(colourPreviewID, hueLabelID, satLabelID, hueValue, satValue) {
@@ -538,14 +560,19 @@
           if (this.readyState == 4 && this.status >= 200 && this.status < 300) {
             var settings = JSON.parse(this.responseText);
             if (settings) {
+              // Cache the raw settings for export
+              cachedSettings = settings;
+
               if (!settings.prefsAvailable) {
                 disableControls();
+                hideEl("gpstar2");
                 alert("An unexpected error occurred and preferences could not be downloaded. Please refresh the page to try again.");
                 return;
               }
 
               if (settings.packPowered || settings.wandPowered) {
                 disableControls();
+                hideEl("gpstar2");
                 alert(
                   "Pack and/or Wand are currently running. Changes to settings will not be allowed. Turn off devices via toggle switches and reload the page to obtain the latest settings.",
                 );
@@ -587,61 +614,8 @@
                *  254 = Red
                */
 
-              // Update fields with the current values, or supply an expected default as necessary.
-              setValue("defaultSystemModePack", settings.defaultSystemModePack ?? 1); // Value cannot be 0.
-              setValue("defaultYearThemePack", settings.defaultYearThemePack ?? 1); // Value cannot be 0.
-              setValue("currentYearThemePack", settings.currentYearThemePack || 4); // Value cannot be 0.
-              setValue("defaultPackVolume", settings.defaultPackVolume || 100); // Default to full volume.
-              setHtml("masterVolOut", getValue("defaultPackVolume"));
-              setValue("packVibration", settings.packVibration || 4);
-              setToggle("fadeoutIdleSounds", settings.fadeoutIdleSounds);
-              setToggle("protonStreamEffects", settings.protonStreamEffects);
-              setToggle("brassStartupLoop", settings.brassStartupLoop);
-              setToggle("ribbonCableAlarm", settings.ribbonCableAlarm);
-              setToggle("wandQuickBootup", settings.wandQuickBootup);
-              setToggle("overheatStrobeNF", settings.overheatStrobeNF);
-              setToggle("overheatLightsOff", settings.overheatLightsOff);
-              setToggle("overheatSyncToFan", settings.overheatSyncToFan);
-              setToggle("demoLightMode", settings.demoLightMode);
-              setToggle("gpstarAudioLed", settings.gpstarAudioLed);
-
-              setValue("ledCycLidCount", settings.ledCycLidCount || 36); // GPStar: 36
-              setValue("ledCycLidHue", convertRange(settings.ledCycLidHue || 254, [1, 254], [0, 360])); // Default: Red
-              setValue("ledCycLidSat", convertRange(settings.ledCycLidSat || 254, [1, 254], [0, 100])); // Full Saturation
-              setValue("ledCycLidLum", settings.ledCycLidLum || 100); // Full Brightness
-              setHtml("cycLumOut", getValue("ledCycLidLum"));
-              setToggle("cyclotronDirection", settings.cyclotronDirection);
-              setValue("ledCycLidCenter", settings.ledCycLidCenter ?? 1);
-              setToggle("ledCycLidFade", settings.ledCycLidFade);
-              setToggle("ledVGCyclotron", settings.ledVGCyclotron);
-              setToggle("ledCycLidSimRing", settings.ledCycLidSimRing);
-              setToggle("disableLidDetection", settings.disableLidDetection);
-
-              setValue("ledCycCakeCount", settings.ledCycCakeCount || 35); // Default: 35
-              setValue("ledCycCakeHue", convertRange(settings.ledCycCakeHue || 254, [1, 254], [0, 360])); // Default: Red
-              setValue("ledCycCakeSat", convertRange(settings.ledCycCakeSat || 254, [1, 254], [0, 100])); // Full Saturation
-              setValue("ledCycCakeLum", settings.ledCycCakeLum || 100); // Full Brightness
-              setHtml("cakeLumOut", getValue("ledCycCakeLum"));
-              setValue("ledCycInnerPanel", settings.ledCycInnerPanel || 3); // Default: Dynamic
-              setValue("ledCycPanLum", settings.ledCycPanLum || 100); // Full Brightness
-              setHtml("panLumOut", getValue("ledCycPanLum"));
-              setToggle("ledCycCakeGRB", settings.ledCycCakeGRB);
-              setValue("ledCycCavCount", settings.ledCycCavCount ?? 0); // Default: 0
-              setHtml("ledCycCavCountOut", getValue("ledCycCavCount"));
-              setValue("ledCycCavType", settings.ledCycCavType ?? 3); // Default: GBR
-
-              setValue("ledPowercellCount", settings.ledPowercellCount || 15); // GPStar: 15
-              setToggle("ledInvertPowercell", settings.ledInvertPowercell);
-              setValue("ledPowercellHue", convertRange(settings.ledPowercellHue || 160, [1, 254], [0, 360])); // Default: Blue
-              setValue("ledPowercellSat", convertRange(settings.ledPowercellSat || 254, [1, 254], [0, 100])); // Full Saturation
-              setValue("ledPowercellLum", settings.ledPowercellLum || 100); // Full Brightness
-              setHtml("pcLumOut", getValue("ledPowercellLum"));
-              setToggle("ledVGPowercell", settings.ledVGPowercell);
-
-              // Update colour preview and value display for hue/saturation sliders.
-              updateColour("cycColourPreview", "cycHueOut", "cycSatOut", getValue("ledCycLidHue"), getValue("ledCycLidSat"));
-              updateColour("cakeColourPreview", "cakeHueOut", "cakeSatOut", getValue("ledCycCakeHue"), getValue("ledCycCakeSat"));
-              updateColour("pcColourPreview", "pcHueOut", "pcSatOut", getValue("ledPowercellHue"), getValue("ledPowercellSat"));
+              // Populate all form fields with settings from server
+              populateFormFields(settings);
             }
           } else if (this.readyState == 4) {
             // Handle error responses
@@ -748,6 +722,55 @@
           xhttp.open("DELETE", "/eeprom/pack", true);
           xhttp.send();
         }
+      }
+
+      function exportSettings() {
+        // Export the cached settings from the server (no conversion needed)
+        if (!cachedSettings) {
+          alert('No settings available to export. Please wait for settings to load.');
+          return;
+        }
+
+        // Create JSON file and trigger download
+        var timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+        var filename = 'pack-settings-' + timestamp + '.json';
+        var dataStr = JSON.stringify(cachedSettings, null, 2);
+        var dataBlob = new Blob([dataStr], { type: 'application/json' });
+        var url = URL.createObjectURL(dataBlob);
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        alert('Settings exported to ' + filename);
+      }
+
+      function importSettings() {
+        // Create file input element
+        var input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'application/json,.json';
+        input.onchange = function (e) {
+          var file = e.target.files[0];
+          if (file) {
+            var reader = new FileReader();
+            reader.onload = function (event) {
+              try {
+                var settings = JSON.parse(event.target.result);
+                // Use the same population logic as server load
+                populateFormFields(settings);
+                alert('Settings imported successfully! Review the values and click "Update Settings" to apply them.');
+              } catch (error) {
+                alert('Error parsing JSON file: ' + error.message);
+              }
+            };
+            reader.readAsText(file);
+          }
+        };
+        input.click();
       }
     </script>
   </body>

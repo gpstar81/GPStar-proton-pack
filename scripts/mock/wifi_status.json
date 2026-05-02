@@ -1,0 +1,25 @@
+{
+  "wifiMode": "AP+STA",
+  "localAP": {
+    "ssid": "GPStar_Attenuator",
+    "address": "192.168.4.1",
+    "subnet": "255.255.255.0",
+    "gateway": "0.0.0.0",
+    "dhcpStart": "192.168.4.2",
+    "mdnsName": "GPStar_Attenuator.local"
+  },
+  "dns": {
+    "active": true
+  },
+  "extWifi": {
+    "enabled": true,
+    "ssid": "MyHomeNetwork",
+    "connected": true,
+    "address": "192.168.1.100",
+    "subnet": "255.255.255.0",
+    "gateway": "192.168.1.1"
+  },
+  "apClients": 1,
+  "wsClients": 0,
+  "captivePortalRequests": 5
+}

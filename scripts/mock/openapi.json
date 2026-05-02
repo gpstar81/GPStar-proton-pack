@@ -1,0 +1,1551 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "GPStar Device API",
+    "description": "RESTful API for controlling this GPStar device",
+    "version": "6.2.x",
+    "contact": {
+      "name": "GPStar Technologies",
+      "url": "https://www.gpstartechnologies.com"
+    }
+  },
+  "externalDocs": {
+    "description": "GPStar Documentation Home",
+    "url": "https://gpstar81.github.io/GPStar-proton-pack/"
+  },
+  "servers": [
+    {
+      "url": "http://GPStar_Attenuator.local",
+      "description": "Local device server (mDNS)"
+    }, 
+    {
+      "url": "http://192.168.1.2",
+      "description": "Local device server (Local IP)"
+    },
+    {
+      "url": "http://192.168.0.200",
+      "description": "Local device server (WiFi IP)"
+    }
+  ],
+  "paths": {
+    "/config/device": {
+      "get": {
+        "summary": "Get device config",
+        "description": "Returns current device configuration as JSON",
+        "tags": [
+          "Configuration"
+        ],
+        "responses": {
+          "200": {
+            "description": "Configuration object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/config/pack": {
+      "get": {
+        "summary": "Get pack config",
+        "description": "Returns current pack configuration as JSON",
+        "tags": [
+          "Configuration"
+        ],
+        "responses": {
+          "200": {
+            "description": "Configuration object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/config/smoke": {
+      "get": {
+        "summary": "Get smoke config",
+        "description": "Returns current smoke configuration as JSON",
+        "tags": [
+          "Configuration"
+        ],
+        "responses": {
+          "200": {
+            "description": "Configuration object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/config/wand": {
+      "get": {
+        "summary": "Get wand config",
+        "description": "Returns current wand configuration as JSON",
+        "tags": [
+          "Configuration"
+        ],
+        "responses": {
+          "200": {
+            "description": "Configuration object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/eeprom/all": {
+      "put": {
+        "summary": "Save pack/wand to EEPROM",
+        "description": "Saves settings to EEPROM for pack and wand",
+        "tags": [
+          "EEPROM"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/eeprom/pack": {
+      "delete": {
+        "summary": "Reset pack to factory defaults",
+        "description": "Resets pack settings to factory defaults",
+        "tags": [
+          "EEPROM"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/eeprom/wand": {
+      "delete": {
+        "summary": "Reset wand to factory defaults",
+        "description": "Resets wand settings to factory defaults",
+        "tags": [
+          "EEPROM"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/status": {
+      "get": {
+        "summary": "Get system status as JSON",
+        "description": "Returns current system status including mode, theme, and connected device info",
+        "tags": [
+          "System"
+        ],
+        "responses": {
+          "200": {
+            "description": "System status object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/restart": {
+      "delete": {
+        "summary": "Restart device",
+        "description": "Performs a restart of the device",
+        "tags": [
+          "System"
+        ],
+        "responses": {
+          "200": {
+            "description": "No content (device restarting)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pack/on": {
+      "put": {
+        "summary": "Turn pack on",
+        "description": "Powers on the proton pack",
+        "tags": [
+          "Device Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pack/off": {
+      "put": {
+        "summary": "Turn pack off",
+        "description": "Powers off the proton pack",
+        "tags": [
+          "Device Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pack/attenuate": {
+      "put": {
+        "summary": "Attenuate pack",
+        "description": "Cancels overheat warning on pack",
+        "tags": [
+          "Device Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pack/vent": {
+      "put": {
+        "summary": "Manual vent",
+        "description": "Triggers manual vent sequence",
+        "tags": [
+          "Device Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pack/cable/on": {
+      "put": {
+        "summary": "Ribbon cable on",
+        "description": "Cancels ribbon cable alarm",
+        "tags": [
+          "Device Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pack/cable/off": {
+      "put": {
+        "summary": "Ribbon cable off",
+        "description": "Activates ribbon cable alarm",
+        "tags": [
+          "Device Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pack/lockout": {
+      "put": {
+        "summary": "Button mash lockout",
+        "description": "Triggers manual button mash lockout",
+        "tags": [
+          "Device Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pack/restart": {
+      "put": {
+        "summary": "Cancel lockout",
+        "description": "Cancels button mash lockout",
+        "tags": [
+          "Device Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pack/cyclotron/clockwise": {
+      "put": {
+        "summary": "Cyclotron clockwise",
+        "description": "Sets cyclotron rotation to clockwise",
+        "tags": [
+          "Device Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pack/cyclotron/counterclockwise": {
+      "put": {
+        "summary": "Cyclotron counterclockwise",
+        "description": "Sets cyclotron rotation to counterclockwise",
+        "tags": [
+          "Device Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pack/smoke/on": {
+      "put": {
+        "summary": "Smoke on",
+        "description": "Enables smoke effects",
+        "tags": [
+          "Device Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pack/smoke/off": {
+      "put": {
+        "summary": "Smoke off",
+        "description": "Disables smoke effects",
+        "tags": [
+          "Device Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pack/vibration/on": {
+      "put": {
+        "summary": "Vibration on",
+        "description": "Enables vibration feedback",
+        "tags": [
+          "Device Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pack/vibration/off": {
+      "put": {
+        "summary": "Vibration off",
+        "description": "Disables vibration feedback",
+        "tags": [
+          "Device Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pack/stream/proton": {
+      "put": {
+        "summary": "Proton stream",
+        "description": "Changes stream mode to standard Proton [default]",
+        "tags": [
+          "Stream Modes"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pack/stream/stasis": {
+      "put": {
+        "summary": "Stasis stream",
+        "description": "Changes stream mode to Dark Matter Generator (Stasis)",
+        "tags": [
+          "Stream Modes"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pack/stream/slime": {
+      "put": {
+        "summary": "Slime stream",
+        "description": "Changes stream mode to Plasm Distribution System (Slime)",
+        "tags": [
+          "Stream Modes"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pack/stream/meson": {
+      "put": {
+        "summary": "Meson stream",
+        "description": "Changes stream mode to Composite Particle System (Meson)",
+        "tags": [
+          "Stream Modes"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pack/stream/spectral": {
+      "put": {
+        "summary": "Spectral stream",
+        "description": "Changes stream mode to Spectral (Rainbow)",
+        "tags": [
+          "Stream Modes"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pack/stream/holiday/halloween": {
+      "put": {
+        "summary": "Halloween stream",
+        "description": "Changes stream mode to Holiday: Halloween",
+        "tags": [
+          "Stream Modes"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pack/stream/holiday/christmas": {
+      "put": {
+        "summary": "Christmas stream",
+        "description": "Changes stream mode to Holiday: Christmas",
+        "tags": [
+          "Stream Modes"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pack/stream/spectral/custom": {
+      "put": {
+        "summary": "Custom spectral stream",
+        "description": "Changes stream mode to Spectral Custom",
+        "tags": [
+          "Stream Modes"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pack/theme/1984": {
+      "put": {
+        "summary": "Ghostbusters (1984) Theme",
+        "description": "Changes system theme to 1984",
+        "tags": [
+          "Themes"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pack/theme/1989": {
+      "put": {
+        "summary": "Ghostbusters II (1989) Theme",
+        "description": "Changes system theme to 1989 (Ghostbusters II)",
+        "tags": [
+          "Themes"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pack/theme/2021": {
+      "put": {
+        "summary": "Ghostbusters: Afterlife (2021) Theme",
+        "description": "Changes system theme to 2021 (Afterlife)",
+        "tags": [
+          "Themes"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pack/theme/2024": {
+      "put": {
+        "summary": "Ghostbusters: Frozen Empire (2024) Theme",
+        "description": "Changes system theme to 2024 (Frozen Empire)",
+        "tags": [
+          "Themes"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/volume/mute": {
+      "put": {
+        "summary": "Mute audio",
+        "description": "Mutes all audio output",
+        "tags": [
+          "Volume Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/volume/unmute": {
+      "put": {
+        "summary": "Unmute audio",
+        "description": "Unmutes all audio output",
+        "tags": [
+          "Volume Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/volume/master/up": {
+      "put": {
+        "summary": "Master volume up",
+        "description": "Increases master volume level",
+        "tags": [
+          "Volume Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/volume/master/down": {
+      "put": {
+        "summary": "Master volume down",
+        "description": "Decreases master volume level",
+        "tags": [
+          "Volume Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/volume/master/set/{percentage}": {
+      "put": {
+        "summary": "Set master volume",
+        "description": "Sets master volume level to a specific value (0-100)",
+        "tags": [
+          "Volume Control"
+        ],
+        "parameters": [
+          {
+            "name": "percentage",
+            "in": "path",
+            "description": "Percentage of the master volume to set (0-100)",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/volume/effects/up": {
+      "put": {
+        "summary": "Effects volume up",
+        "description": "Increases sound effects volume",
+        "tags": [
+          "Volume Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/volume/effects/down": {
+      "put": {
+        "summary": "Effects volume down",
+        "description": "Decreases sound effects volume",
+        "tags": [
+          "Volume Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/volume/music/up": {
+      "put": {
+        "summary": "Music volume up",
+        "description": "Increases music volume",
+        "tags": [
+          "Volume Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/volume/music/down": {
+      "put": {
+        "summary": "Music volume down",
+        "description": "Decreases music volume",
+        "tags": [
+          "Volume Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/music/startstop": {
+      "put": {
+        "summary": "Start/stop music",
+        "description": "Toggles music playback on/off",
+        "tags": [
+          "Music Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/music/pauseresume": {
+      "put": {
+        "summary": "Pause/resume music",
+        "description": "Toggles music pause state",
+        "tags": [
+          "Music Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/music/next": {
+      "put": {
+        "summary": "Next track",
+        "description": "Skips to next music track",
+        "tags": [
+          "Music Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/music/select": {
+      "put": {
+        "summary": "Select track",
+        "description": "Selects specific music track by number (query param: track [int])",
+        "tags": [
+          "Music Control"
+        ],
+        "parameters": [
+          {
+            "name": "track",
+            "in": "query",
+            "description": "Track number to select (1-based index)",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 500
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/music/prev": {
+      "put": {
+        "summary": "Previous track",
+        "description": "Returns to previous music track",
+        "tags": [
+          "Music Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/music/loop/all": {
+      "put": {
+        "summary": "Loop all tracks",
+        "description": "Sets music to loop all tracks",
+        "tags": [
+          "Music Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/music/loop/one": {
+      "put": {
+        "summary": "Loop one track",
+        "description": "Sets music to loop current track",
+        "tags": [
+          "Music Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/music/shuffle/on": {
+      "put": {
+        "summary": "Shuffle on",
+        "description": "Enables track shuffle mode",
+        "tags": [
+          "Music Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/music/shuffle/off": {
+      "put": {
+        "summary": "Shuffle off",
+        "description": "Disables track shuffle mode",
+        "tags": [
+          "Music Control"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/wifi/settings": {
+      "get": {
+        "summary": "Get WiFi settings",
+        "description": "Returns current WiFi configuration",
+        "tags": [
+          "WiFi"
+        ],
+        "responses": {
+          "200": {
+            "description": "WiFi settings object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/wifi/status": {
+      "get": {
+        "summary": "Get network status",
+        "description": "Returns network status including AP info, statistics, and connection details",
+        "tags": [
+          "WiFi"
+        ],
+        "responses": {
+          "200": {
+            "description": "JSON object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/wifi/networks": {
+      "get": {
+        "summary": "Get available networks",
+        "description": "Returns list of nearby 2.4 GHz WiFi networks",
+        "tags": [
+          "WiFi"
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of network SSIDs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/wifi/network/{index}": {
+      "delete": {
+        "summary": "Delete saved network",
+        "description": "Deletes a saved WiFi network by index",
+        "tags": [
+          "WiFi"
+        ],
+        "parameters": [
+          {
+            "name": "index",
+            "in": "path",
+            "description": "Index of the saved network to delete (0-based)",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/openapi.json": {
+      "get": {
+        "summary": "OpenAPI specification",
+        "description": "Returns the OpenAPI 3.x specification for this API",
+        "tags": [
+          "Documentation"
+        ],
+        "responses": {
+          "200": {
+            "description": "OpenAPI 3.x JSON specification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/config/device/save": {
+      "post": {
+        "summary": "Save device configuration",
+        "description": "Saves device settings including WiFi name, LED options, buzzer/vibration settings, and music track list",
+        "tags": [
+          "Configuration"
+        ],
+        "requestBody": {
+          "description": "JSON object containing device configuration fields for WiFi name and other localized preferences.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Settings saved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/config/pack/save": {
+      "post": {
+        "summary": "Save pack configuration",
+        "description": "Saves Proton Pack settings including LED configurations and effects toggles",
+        "tags": [
+          "Configuration"
+        ],
+        "requestBody": {
+          "description": "JSON object containing pack configuration fields",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Settings updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/config/wand/save": {
+      "post": {
+        "summary": "Save wand configuration",
+        "description": "Saves Neutrona Wand settings including LED configurations and effects toggles",
+        "tags": [
+          "Configuration"
+        ],
+        "requestBody": {
+          "description": "JSON object containing wand configuration fields",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Settings updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/config/smoke/save": {
+      "post": {
+        "summary": "Save smoke configuration",
+        "description": "Saves smoke effect settings including overheat durations, continuous smoke settings, and per-level configurations",
+        "tags": [
+          "Configuration"
+        ],
+        "requestBody": {
+          "description": "JSON object containing smoke configuration fields",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Settings updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/password/update": {
+      "post": {
+        "summary": "Update WiFi password",
+        "description": "Updates the WiFi access point password (minimum 8 characters for WPA2)",
+        "tags": [
+          "WiFi"
+        ],
+        "requestBody": {
+          "description": "JSON object with 'password' field",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Settings updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/wifi/update": {
+      "post": {
+        "summary": "Update WiFi network settings",
+        "description": "Updates the active WiFi network configuration including SSID, password, and optional static IP settings",
+        "tags": [
+          "WiFi"
+        ],
+        "requestBody": {
+          "description": "JSON object with 'active' network and saved networks array",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Settings updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Configuration",
+      "description": "Device Configuration/Preferences"
+    },
+    {
+      "name": "EEPROM",
+      "description": "EEPROM Save Operations"
+    },
+    {
+      "name": "System",
+      "description": "System Status and Control"
+    },
+    {
+      "name": "Device Control",
+      "description": "Device Control/Operations"
+    },
+    {
+      "name": "Themes",
+      "description": "System Theme Selection"
+    },
+    {
+      "name": "Stream Modes",
+      "description": "Stream Mode Selection"
+    },
+    {
+      "name": "Volume Control",
+      "description": "Audio Volume Control"
+    },
+    {
+      "name": "Music Control",
+      "description": "Music Playback Control"
+    },
+    {
+      "name": "WiFi",
+      "description": "WiFi Network Management"
+    },
+    {
+      "name": "Documentation",
+      "description": "API Documentation"
+    }
+  ]
+}

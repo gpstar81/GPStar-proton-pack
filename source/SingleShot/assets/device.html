@@ -21,14 +21,15 @@
       </p>
       <br />
     </div>
+
     <h1>General Options</h1>
     <div class="block left">
       <div class="setting">
-        <b>Private Network:</b>
+        <b>Custom Name:</b>
         <input
           type="text"
           id="wifiName"
-          size="60"
+          size="40"
           maxlength="32"
           placeholder="Custom SSID"
           title="Only letters, numbers, hyphens, and underscores are allowed, up to 32 characters."
@@ -79,8 +80,11 @@
         <br />
         <input type="text" id="magField" size="9" maxlength="8" placeholder="0" />
       </div>
+    </div>
+
+    <h1>Music Track Listing</h1>
+    <div class="block left">
       <div class="setting">
-        <b>Song List:</b>
         <span id="byteCount"></span>
         <br />
         <textarea
@@ -93,6 +97,10 @@
           placeholder="Add a list of track names, 1 per line, up to 2000 Bytes in total"
         ></textarea>
       </div>
+    </div>
+
+    <h1>Magnetometer Debugging</h1>
+    <div class="block left">
       <div class="setting">
         <b>Magnetometer Config:</b>
         <div id="magnetometerConfig"></div>
@@ -115,22 +123,23 @@
     </div>
 
     <div class="block">
-      <a href="#top">Top</a>
+      <a href="#top" class="top-link">Top</a>
       <hr />
-      <a href="/">&laquo; Back</a>
-      &nbsp;&nbsp;
-      <button type="button" class="green" onclick="saveSettings()">Update&nbsp;Settings</button>
-      <br />
-      <br />
+      <div class="button-group">
+        <a href="/">&laquo; Back</a>
+        <button type="button" class="green" onclick="saveSettings()">Update&nbsp;Settings</button>
+      </div>
     </div>
 
     <script type="application/javascript" src="/common.js"></script>
     <script type="application/javascript">
       window.addEventListener("load", onLoad);
-
       function onLoad(event) {
         // Wait 0.1s for page to fully load.
         setTimeout(getSettings, 100);
+
+        // Initialize contextual help system
+        initializeHelp("device");
       }
 
       function updateByteCount() {

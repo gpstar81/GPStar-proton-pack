@@ -203,25 +203,26 @@
     </div>
 
     <div class="block">
-      <a href="#top">Top</a>
+      <a href="#top" class="top-link">Top</a>
       <hr />
-      <a href="/">&laquo; Back</a>
-      &nbsp;&nbsp;
-      <button type="button" class="green" onclick="saveSettings()" id="btnSave">Update&nbsp;Settings</button>
-      <br />
-      <br />
+      <div class="button-group">
+        <a href="/">&laquo; Back</a>
+        <button type="button" class="green" onclick="saveSettings()" id="btnSave">Update&nbsp;Settings</button>
+      </div>
     </div>
 
     <script type="application/javascript" src="/common.js"></script>
     <script type="application/javascript">
       window.addEventListener("load", onLoad);
-
       function onLoad(event) {
         // Wait 0.5s for serial communications between devices.
         setTimeout(getSettings, 500);
 
         // Disable the save button until we obtain settings.
         disableEl("btnSave");
+
+        // Initialize contextual help system
+        initializeHelp("smoke");
       }
 
       function disableControls() {

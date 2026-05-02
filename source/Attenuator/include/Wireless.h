@@ -30,7 +30,7 @@ bool b_ext_wifi_started = false; // Denotes external WiFi was joined.
 
 // Create timer for checking connections.
 millisDelay ms_apclient;
-const uint16_t i_apClientCount = 200;
+const uint16_t i_apClientDelay = 200;
 
 // Track the number of connected WiFi (AP) clients.
 uint8_t i_ap_client_count = 0;
@@ -72,7 +72,7 @@ IPAddress convertToIP(const String& ipAddressString) {
  * WiFi Management Functions
  */
 
-bool startAccesPoint() {
+bool startAccessPoint() {
   #if defined(DEBUG_WIRELESS_SETUP)
     debugln();
     debugln(F("Starting Private WiFi Configuration"));
@@ -105,6 +105,8 @@ bool startAccesPoint() {
     delay(300); // Wait briefly before configuring network.
 
     // Set networking IP info and report WiFi properties to console.
+    // Note: The DHCP server automatically advertises the AP's IP (192.168.1.2) as the DNS server to clients.
+    // This is required for captive portal detection - clients will use our DNS server which hijacks all queries.
     WiFi.softAPConfig(wirelessMgr->getLocalAddress(), wirelessMgr->getLocalGateway(), wirelessMgr->getLocalSubnet(), wirelessMgr->getLocalDhcpStart());
     WiFi.softAPsetHostname(wirelessMgr->getLocalNetworkName().c_str()); // Hostname is the same as SSID.
     WiFi.softAPbandwidth(WIFI_BW_HT20); // Use 20MHz for range/compatibility.
@@ -244,14 +246,15 @@ bool startWiFi() {
   // Start the built-in access point (softAP) with the preferred credentials.
   // This should ALWAYS be available for direct connections to the device.
   if(!b_local_ap_started) {
-    b_local_ap_started = startAccesPoint();
+    b_local_ap_started = startAccessPoint();
   }
 
   // Set the mDNS hostname to "<ssid>.local" just like the private AP name.
+  // Note: This also starts the DNS responder automatically for captive portal avoidance.
   bool b_mdns_started = wirelessMgr->startMdnsService();
   #if defined(DEBUG_WIRELESS_SETUP)
     if(b_mdns_started) {
-      debug(F("mDNS Responder Started: "));
+      debug(F("mDNS & DNS Responders Started: "));
       debugln(wirelessMgr->getMdnsName());
     }
     else {

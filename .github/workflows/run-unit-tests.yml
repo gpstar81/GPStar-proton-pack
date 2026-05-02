@@ -1,9 +1,12 @@
 name: run-unit-tests
 
-# Trigger this workflow on any push or pull request
+# Trigger this workflow on any pull request which affects the shared libraries.
 on:
-  - push
-  - pull_request
+  pull_request:
+    paths:
+      - 'source/SharedLib/DeviceState/**'
+      - 'source/SharedLib/MagCalibration/**'
+      - '.github/workflows/run-unit-tests.yml'
 
 env:
   # Directory for test reports or sketch outputs, if used
@@ -21,12 +24,12 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.13.7'
+          python-version: '3.13.x'
 
       # Step 3: Cache PlatformIO packages and tools
       # This avoids re-downloading frameworks, toolchains, and libraries
       - name: Cache PlatformIO Packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.platformio
           key: pio-${{ runner.os }}-${{ hashFiles('**/platformio.ini') }}
