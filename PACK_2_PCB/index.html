@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Proton Pack II - GPStar Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Proton Pack II";
+        var mkdocs_page_input_path = "PACK_2_PCB.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="..">
+          <img src="../images/gpstar_logo_white.png" class="logo" alt="Logo"/>
+        </a>
+        <div class="version">
+          6.x
+        </div><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ABOUT/">About</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../GUIDE_LISTING/">Introduction</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">GPStar I</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_PCB/">Proton Pack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_PCB/">Neutrona Wand</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">GPStar II</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Proton Pack II</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#stock-connectors">Stock Connectors</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#special-connectors">Special Connectors</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#optional-connectors">Optional Connectors</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_2_PCB/">Neutrona Wand II</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PSTT/">Proton Stream Target Trainer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WIRELESS_GPSTAR_II/">GPStar II Wireless</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_CALIBRATION/">Motion Sensor Calibration</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../GPSTAR_AUDIO_PCB/">GPStar Audio</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Additional Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Proton Pack</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_LID/">Cyclotron Lid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_INNER/">Inner Cyclotron</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_BYPASS/">Cyclotron Bypass</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NFILTER/">N-Filter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../POWERCELL/">Power Cell</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Neutrona Wand</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../BARGRAPH/">Bargraph</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../HATS/">Hatlights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../VENTLIGHT/">Vent Lights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NEUTRONA_ENCODER/">Neutrona Encoder</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Pack Attenuator</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../ATTENUATOR/">Attenuator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../WIRELESS/">WiFi Adapter</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Special Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Power</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../POWER/">Requirements</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../BATTERIES/">Batteries</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SOUND/">Sound Output</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../HOSE/">Pack-Wand Hose</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SMOKE/">Smoke Kits</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WEB_API_REFERENCE/">Web API Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../VSCODE/">Code Development</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DIY_LEGACY/">Legacy DIY</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operation Manuals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_USAGE/">General Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_MENUS/">Runtime Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_EEPROM/">EEPROM Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WIRELESS_OPERATION/">Attenuator WiFi Operation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Install Videos</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_JONOGUNN/">Jonogunn</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_NORCALGB/">Nor-Cal GB</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Maintenance</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../FLASHING/">Flashing Pack/Wand Firmware</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ATTENUATOR_FLASHING/">Flashing Attenuator/WiFi</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../AUDIO_FILES/">Audio Files</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">From the Engineer Corps</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../SINGLESHOT/">Single-Shot Blaster</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../BELT_GIZMO/">Belt Gizmo</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../STREAM_EFFECTS/">Stream Effects</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Help</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TROUBLESHOOTING/">Troubleshooting</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">General FAQ</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ_GPStar2/">GPStar II FAQ</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">GPStar Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">GPStar II</li>
+      <li class="breadcrumb-item active">Proton Pack II</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1><span class="logo-icon"></span> GPStar Pack II PCB Hookup</h1>
+
+<p>&starf; For a comparison of the original GPStar and GPStar II controllers please see <a href="https://gpstartechnologies.com/blogs/gpstar-blog/gpstar-ii-vs-gpstar">this comparison guide</a> on the main GPStar website.</p>
+<p>Welcome to the second generation of GPStar Proton Pack controllers, intended for users who wish to fully replace the stock lighting of their Haslab Proton Pack or are building a DIY pack. This device improves on several core feature changes based on real-world use and customer requests.</p>
+<p><strong>Significant Features/Changes:</strong></p>
+<ul>
+<li>Processor change to ESP32-S3 SoC instead of ATMega2560, offering dual CPU cores operating at a faster clock speed.</li>
+<li>Temperature sensor for environmental responses or monitoring.</li>
+<li>Dedicated sockets for optional components and future expansion.</li>
+<li>Integrates a WiFi radio for direct web-enabled controls and firmware updates.<ul>
+<li>Compatibility with an Attenuator device is still fully supported. When connected to an Attenuator which offers WiFi capability, the Proton Pack II PCB will automatically disable its internal WiFi radio to conserve power.</li>
+<li>If you set a custom WiFi password and forget it the password can be reset from the <a href="../OPERATION_MENUS/#menu-level-3">Neutrona Wand operation menu</a>, or by removing the ribbon cable and toggling the vibration on/off switch 5 times while the Proton Pack is not running.</li>
+</ul>
+</li>
+</ul>
+<p><strong>Other Hardware Changes:</strong></p>
+<ul>
+<li>Programming pins were replaced with a USB-C connector for direct connectivity to your computer for firmware updates.</li>
+<li>Integrates a power detection unit directly onboard, eliminating a separate sensor for "GPStar Lite" kits.</li>
+<li>The cyclotron switch panel which used individual LEDs is no longer compatible with this controller, and must be upgraded to the RGB LED panel if you wish to keep that device illuminated.</li>
+<li>The cyclotron direction switch has been removed in favor of more specialized connectors.</li>
+<li>This can be controlled via the Neutrona Wand menu or WiFi web interface.</li>
+</ul>
+<p><strong>IMPORTANT: The GPStar Pack II controller is NOT backwards compatible with the original GPStar Wand controller! DO NOT attempt to mix and match wands as you can potentially damage your devices.</strong></p>
+<p><img alt="Product View" src="../images/GPStarPackII.jpg" /></p>
+<p>This guide is part of the kit approach to providing a minimally-invasive upgrade to the stock HasLab controllers. For the Proton Pack all stock connections can be made using the available JST-XH connectors on all existing wiring. The diagram below details the standard HasLab connections, supporting either a "Lite" configuration with a stock Neutrona Wand or a fully-converted wand with GPStar Wand II controller.</p>
+<p>If using a stock Neutrona Wand you will need to use the supplied 5V output on the LITE connection. This will provide the power meter readings from user interaction.</p>
+<p><img alt="Standard PCB Connections" src="../images/Pack2PCB-Lite.png" /></p>
+<p>If using a GPStar modified Neutrona Wand you will need to use the labelled NEUTRONA WAND connections for serial data and power.</p>
+<p><img alt="Standard PCB Connections" src="../images/Pack2PCB-Wand.png" /></p>
+<h2 id="proton-pack-connection-details">Proton Pack - Connection Details</h2>
+<p>Connections for the pack should be made according to the tables below.</p>
+<ul>
+<li>Ordering aligns with PCB labels or when viewed left-to-right with the connector keyhole at the bottom.</li>
+<li>Pins denoted D# correspond to the internal code and connection to the controller chip.</li>
+<li>Ground may be designated as "GND" or simply "-".</li>
+</ul>
+<p><img alt="" src="../images/Pack2PCB-Labels.png" /></p>
+<h3 id="stock-connectors">Stock Connectors</h3>
+<p>These are connections which should match 1:1 on the original Haslab Proton Pack if upgrading from that product.</p>
+<table>
+<thead>
+<tr>
+<th>Label</th>
+<th>Pins</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POWER<br>5V-IN</td>
+<td>+/-</td>
+<td>Power from GPStar amplifier or power hub. <strong>This MUST be a regulated 5V source!</strong></td>
+</tr>
+<tr>
+<td>Volume</td>
+<td>D3/GND/D2</td>
+<td>Rotary encoder connection for pack volume adjusted via crank generator knob.</td>
+</tr>
+<tr>
+<td>SW1</td>
+<td>D31/GND</td>
+<td>Stock connection for main switch under the Ion Arm.</td>
+</tr>
+<tr>
+<td>SW3/SW4</td>
+<td>GND/D27/D25/GND</td>
+<td>Stock connection for Cyclotron panel toggles:<br><br>SW3 (2 pins on left side) = Year Mode Toggle.<br>SW4 (2 pins on right side) = Vibration toggle.</td>
+</tr>
+<tr>
+<td>SW6 (ALARM)</td>
+<td>GND/D23</td>
+<td>Stock connection for ribbon cable disconnection alarm (wire order does not matter).</td>
+</tr>
+<tr>
+<td>M1</td>
+<td>VCC/GND</td>
+<td>Stock connection for pack vibration motor (D45) or cyclotron motor<sup>1</sup>.</td>
+</tr>
+<tr>
+<td>Power Cell</td>
+<td>VCC/D53/GND/PCCYC</td>
+<td>Stock connection for Power Cell LEDs (continues to Cyclotron Lid).</td>
+</tr>
+<tr>
+<td>Cyclotron</td>
+<td>D43/GND/PCCYC/VCC</td>
+<td>Stock connection Cyclotron lens LEDs (continues from Power Cell), includes lid sensor.</td>
+</tr>
+</tbody>
+</table>
+<p><sup>1</sup> For more information on the motorised cyclotron modification see <a href="../CYCLOTRON_INNER/">Inner Cyclotron</a>.</p>
+<h3 id="special-connectors">Special Connectors</h3>
+<p>These are connections which are unique to the GPStar equipment or have a special purpose.</p>
+<table>
+<thead>
+<tr>
+<th>Label</th>
+<th>Pins</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AUDIO BOARD</td>
+<td>GND/NC/VCC/TX/RX/NC</td>
+<td>Communication and Power for the pack's GPStar Audio or WAV Trigger.<br><br><code>Connector type: JST-PH</code></td>
+</tr>
+<tr>
+<td>NEUTRONA WAND 5V-OUT</td>
+<td>+/-</td>
+<td>Power to the Neutrona Wand. If using the GPStar Amplifier it is encouraged that you use one of the 5V connections on that device to directly power the Neutrona Wand instead of using this connection.<br><br><code>Connector type: JST-XH</code></td>
+</tr>
+<tr>
+<td>NEUTRONA WAND (Serial)</td>
+<td>RX1/TX1</td>
+<td>Serial communication to the Neutrona Wand. <strong>IMPORTANT: The GPStar Pack II controller is NOT backwards compatible with the original GPStar Wand controller! DO NOT attempt to mix and match wands as you can potentially damage your devices.</strong><br><br><code>Connector type: JST-XH</code></td>
+</tr>
+<tr>
+<td>LITE</td>
+<td>INA219</td>
+<td>Built-in power sensor for "Lite" kits using a stock wand</td>
+</tr>
+<tr>
+<td>USB-C</td>
+<td>Socket</td>
+<td>This controller now comes with a standard USB-C socket for programming, though it is now possible to update using over-the-air (OTA) process via the WiFi and web interface</td>
+</tr>
+</tbody>
+</table>
+<h3 id="optional-connectors">Optional Connectors</h3>
+<p>These connections are reserved for special purposes with optional accessories.</p>
+<table>
+<thead>
+<tr>
+<th>Label</th>
+<th>Pins</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SM-1</td>
+<td>-/+</td>
+<td>Smoke effects for the N-Filter (D39). SM-1 provides 5V during N-Filter smoke effects. You can connect a 5V pump to this pin to power it, or use it to trigger a relay for off the shelf smoke solutions.<br><br><code>Connector type: JST-XH</code><br><br><code>Do not draw more than 1.5amps from this connector.</code></td>
+</tr>
+<tr>
+<td>FN-1</td>
+<td>-/+</td>
+<td>Fan for N-Filter smoke (D33). FN-1 provides 5V during N-Filter smoke effects. During the overheat sequence, it is timed to go off at the same time as the N-Filter light. You can connect a 5V fan to this pin if desired or to trigger a relay.<br><br><code>Connector type: JST-XH</code><br><br><code>Do not draw more than 1.5amps from this connector.</code></td>
+</tr>
+<tr>
+<td>SM-2</td>
+<td>-/+</td>
+<td>Smoke effects for the Booster Tube (D35). SM-2 provides 5V during Booster Tube smoke effects. You can connect a 5V pump to this pin to power it, or use it to trigger a relay for off the shelf smoke solutions.<br><br><code>Do not draw more than 1.5amps from this connector.</code></td>
+</tr>
+<tr>
+<td>FN-2</td>
+<td>-/+</td>
+<td>Fan for the Booster Tube smoke (D50). FN-2 provides 5V during Booster Tube smoke effects. You can connect a 5V fan to this pin if desired or use it to trigger a relay.<br><br><code>Connector type: JST-XH</code><br><br><code>Do not draw more than 1.5amps from this connector.</code></td>
+</tr>
+<tr>
+<td>NEO-C</td>
+<td>D13/VCC/GND</td>
+<td>Connection for the optional RGB LED cyclotron switch panel and RGB LED ring for the Inner Cyclotron "Cake".<br><br><code>Connector type: JST-XH</code></td>
+</tr>
+<tr>
+<td>EXP-1</td>
+<td>D41/5V/GND</td>
+<td>Reserved for possible future expansion<br><br><code>Connector type: JST-XH</code></td>
+</tr>
+<tr>
+<td>EXP-2</td>
+<td>D42/5V/GND</td>
+<td>Reserved for possible future expansion<br><br><code>Connector type: JST-XH</code></td>
+</tr>
+<tr>
+<td>LED-W</td>
+<td>D46/GND</td>
+<td>Connection for a standalone white LED in the N-Filter. D46 provides 5V and has a 100Ω resistor connected to it.<br><br><code>Connector type: JST-XH</code><br><br><code>Do not draw more than 40mA from this connector.</code></td>
+</tr>
+<tr>
+<td>5V-OUT</td>
+<td>+/-</td>
+<td>Power for additional accessories. Commonly used to power an ESP32 wireless board or Attenuator.<br><br><code>Connector type: JST-XH</code><br><br><code>Do not draw more than 1.5amps from this connector.</code></td>
+</tr>
+<tr>
+<td>EXPANSION</td>
+<td>SCL/SDA</td>
+<td>Expansion serial port for future devices using the I2C bus.<br><br><code>Connector type: JST-XH</code></td>
+</tr>
+<tr>
+<td>ATTENUATOR</td>
+<td>RX2/TX2</td>
+<td>Expansion serial port. Used to connect to an Attenuator device.<br><br><code>Connector type: JST-XH</code></td>
+</tr>
+</tbody>
+</table>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../WAND_PCB/" class="btn btn-neutral float-left" title="Neutrona Wand"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../WAND_2_PCB/" class="btn btn-neutral float-right" title="Neutrona Wand II">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>GPStar Technologies</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../WAND_PCB/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../WAND_2_PCB/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

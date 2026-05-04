@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Motion Sensor Calibration - GPStar Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Motion Sensor Calibration";
+        var mkdocs_page_input_path = "WAND_CALIBRATION.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="..">
+          <img src="../images/gpstar_logo_white.png" class="logo" alt="Logo"/>
+        </a>
+        <div class="version">
+          6.x
+        </div><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ABOUT/">About</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../GUIDE_LISTING/">Introduction</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">GPStar I</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_PCB/">Proton Pack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_PCB/">Neutrona Wand</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">GPStar II</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_2_PCB/">Proton Pack II</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_2_PCB/">Neutrona Wand II</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PSTT/">Proton Stream Target Trainer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WIRELESS_GPSTAR_II/">GPStar II Wireless</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Motion Sensor Calibration</a>
+    <ul class="current">
+    </ul>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../GPSTAR_AUDIO_PCB/">GPStar Audio</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Additional Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Proton Pack</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_LID/">Cyclotron Lid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_INNER/">Inner Cyclotron</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_BYPASS/">Cyclotron Bypass</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NFILTER/">N-Filter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../POWERCELL/">Power Cell</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Neutrona Wand</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../BARGRAPH/">Bargraph</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../HATS/">Hatlights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../VENTLIGHT/">Vent Lights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NEUTRONA_ENCODER/">Neutrona Encoder</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Pack Attenuator</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../ATTENUATOR/">Attenuator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../WIRELESS/">WiFi Adapter</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Special Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Power</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../POWER/">Requirements</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../BATTERIES/">Batteries</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SOUND/">Sound Output</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../HOSE/">Pack-Wand Hose</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SMOKE/">Smoke Kits</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WEB_API_REFERENCE/">Web API Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../VSCODE/">Code Development</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DIY_LEGACY/">Legacy DIY</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operation Manuals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_USAGE/">General Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_MENUS/">Runtime Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_EEPROM/">EEPROM Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WIRELESS_OPERATION/">Attenuator WiFi Operation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Install Videos</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_JONOGUNN/">Jonogunn</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_NORCALGB/">Nor-Cal GB</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Maintenance</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../FLASHING/">Flashing Pack/Wand Firmware</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ATTENUATOR_FLASHING/">Flashing Attenuator/WiFi</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../AUDIO_FILES/">Audio Files</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">From the Engineer Corps</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../SINGLESHOT/">Single-Shot Blaster</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../BELT_GIZMO/">Belt Gizmo</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../STREAM_EFFECTS/">Stream Effects</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Help</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TROUBLESHOOTING/">Troubleshooting</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">General FAQ</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ_GPStar2/">GPStar II FAQ</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">GPStar Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">GPStar II</li>
+      <li class="breadcrumb-item active">Motion Sensor Calibration</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1><span class="logo-icon"></span> GPStar Neutrona Wand II Calibration</h1>
+
+<p>The GPStar Neturona Wand II is equipped with a gyroscope/accelerometer (IMU) and magnetometer. These sensors can be finely calibrated to provide more accurate data after it is fully installed into your GPStar Neutrona Wand II (or GPStar Single Shot Blaster II), taking into account nearby magnetic sources such as a speaker.</p>
+<p>To begin, connect to the WiFi on the GPStar Neutrona Wand II, enabling first via the <a href="../OPERATION_MENUS/">Operational Menu</a> <code>Level 3 -&gt; Option 5 -&gt; Intensify</code>.</p>
+<h2 id="calibration-options">Calibration Options</h2>
+<p>Once connected to the Neutrona Wand via WiFi and accessing the web UI, click on the Calibration Menu icon at the top (a circle with a center dot). You will have a choice of calibrating either the gyroscope or magnetometer. Full instructions can be seen by clicking/touching the collapsed header which will expand a larger section of text explaining the process.</p>
+<p><img alt="" src="../images/CalibrationDisabled.png" /></p>
+<h2 id="before-you-begin">Before You Begin</h2>
+<p>Click on the Settings tab at the top of the UI and go to the "Special Device Settings" page. Available in this section is the <strong>Controller Installation Orientation</strong> selection. This sets the intended installation of the sensors which is crucial for identifying the X, Y, and Z axes for spatial orientation. For example, on Hasbro Neutrona Wands, it will be "Components Down, USB Front". For a Mack's Factory Neutrona Wand, it will be in a different orientation such as "Components Left, USB Front". Please note that changing the orientation will reset the magnetic offset values and re-calibration will be required.</p>
+<p><strong>This option MUST be correctly selected and saved BEFORE starting any calibration processes!</strong></p>
+<p><img alt="" src="../images/WebUI-Wand-Menu-Settings1.jpg" /></p>
+<h2 id="gyroscope-calibration">Gyroscope Calibration</h2>
+<p>Calibration of the gyroscope is very much a hands-off approach and quite simple. The device should be laid flat on a solid surface, rightside-up, and as level as possible. Press the <code>Gyro Calibration</code> button to begin the process which will run for 30 seconds. A countdown timer will report the time remaining and an audible beep will be heard from the device each second as it counts down. Once completed, all data will be automatically stored into the device's memory for immediate use when you pick it up.</p>
+<p><img alt="" src="../images/GyroCalibration.png" /></p>
+<h2 id="magnetic-calibration">Magnetic Calibration</h2>
+<p>Calibration of the magnetometer is much more hands-on as it requires you to move the device in the air in multiple directions to fully capture magnetic readings for the X, Y, and Z axes.</p>
+<h3 id="starting-magnetic-calibration">Starting Magnetic Calibration</h3>
+<p>Press the <code>Start Calibration</code> button. The system will now will ask you to rotate your Neutrona Wand relatively slowly in all directions. A visual calibration monitor will appear on screen to show your progress. Rotate your Neutrona Wand slowly to fill it with dots until the Coverage Density is as close as possible to 100%, though anything over 60% will give sufficient results and will be the threshold used when confirming the end of calibration.</p>
+<p><img alt="" src="../images/MagCalibration1.png" /></p>
+<p><strong>TIP:</strong> Point the Neutrona Wand down, and slowly raise it up in an arc. Turn slightly and then arc back to full down. Repeat this process until you have done a 360. If possible, twist your arm while holding the device or trace figure-eights in the air as you move to more quickly increase the coverage density.</p>
+<h3 id="stopping-magnetic-calibration">Stopping Magnetic Calibration</h3>
+<p>When you are satisfied with the results or the coverage value no longer changes, click on the <code>Stop Calibration</code> button. You will be prompted to confirm that you wish to end collection of data and save the newly calibrated settings into the system memory.</p>
+<p><img alt="" src="../images/MagCalibration2.png" /></p>
+<p><strong>Note:</strong> You must have at least 60% coverage in order for the calibration data to be effective! If you exit the calibration process before reaching 60% you will be given a confirmation to either continue collecting data or stop the process. If below the threshold of 60% no calibration values will be calculated or stored and the system will revert to default values.</p>
+<h3 id="verifying-magnetic-calibration">Verifying Magnetic Calibration</h3>
+<p>On the "Special Device Settings" page as shown at the top of this page, you should see magnetic offset information which displays "Hard Iron" (geo-magnetic corrections) and "Soft Iron" (nearby magnetic interference). These values will reflect the customised magnetic profile explicitly for <strong>your</strong> Neutrona Wand. It is not advised to modify these values by hand, though they remain available for special debugging purposes only.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../WIRELESS_GPSTAR_II/" class="btn btn-neutral float-left" title="GPStar II Wireless"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../GPSTAR_AUDIO_PCB/" class="btn btn-neutral float-right" title="GPStar Audio">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>GPStar Technologies</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../WIRELESS_GPSTAR_II/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../GPSTAR_AUDIO_PCB/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

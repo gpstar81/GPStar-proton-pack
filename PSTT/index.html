@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Proton Stream Target Trainer - GPStar Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Proton Stream Target Trainer";
+        var mkdocs_page_input_path = "PSTT.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="..">
+          <img src="../images/gpstar_logo_white.png" class="logo" alt="Logo"/>
+        </a>
+        <div class="version">
+          6.x
+        </div><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ABOUT/">About</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../GUIDE_LISTING/">Introduction</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">GPStar I</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_PCB/">Proton Pack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_PCB/">Neutrona Wand</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">GPStar II</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_2_PCB/">Proton Pack II</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_2_PCB/">Neutrona Wand II</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Proton Stream Target Trainer</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#assembly">Assembly</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#firmware-flashing">Firmware Flashing</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#standard-updates-via-wifi">Standard Updates (via WiFi)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#diagnostic-updates-via-usb-c">Diagnostic Updates (via USB-C)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#operating-the-system">Operating The System</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#power">Power</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#led-indicators">LED Indicators</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#wifi-connectivity">WiFi Connectivity</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#status">Status</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#lower-target">Lower Target</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#raise-target">Raise Target</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#preferences-administration">Preferences / Administration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#special-device-settings">Special Device Settings</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#target-health-settings">Target Health Settings</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#health-regeneration-settings">Health Regeneration Settings</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#wand-damage">Wand Damage</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#wifi-settings">WiFi Settings</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#wifi-password-reset">WiFi Password Reset</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#increasing-wifi-performance">Increasing WiFi Performance</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#software-development-requirements">Software Development Requirements</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WIRELESS_GPSTAR_II/">GPStar II Wireless</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_CALIBRATION/">Motion Sensor Calibration</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../GPSTAR_AUDIO_PCB/">GPStar Audio</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Additional Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Proton Pack</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_LID/">Cyclotron Lid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_INNER/">Inner Cyclotron</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_BYPASS/">Cyclotron Bypass</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NFILTER/">N-Filter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../POWERCELL/">Power Cell</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Neutrona Wand</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../BARGRAPH/">Bargraph</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../HATS/">Hatlights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../VENTLIGHT/">Vent Lights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NEUTRONA_ENCODER/">Neutrona Encoder</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Pack Attenuator</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../ATTENUATOR/">Attenuator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../WIRELESS/">WiFi Adapter</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Special Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Power</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../POWER/">Requirements</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../BATTERIES/">Batteries</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SOUND/">Sound Output</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../HOSE/">Pack-Wand Hose</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SMOKE/">Smoke Kits</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WEB_API_REFERENCE/">Web API Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../VSCODE/">Code Development</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DIY_LEGACY/">Legacy DIY</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operation Manuals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_USAGE/">General Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_MENUS/">Runtime Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_EEPROM/">EEPROM Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WIRELESS_OPERATION/">Attenuator WiFi Operation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Install Videos</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_JONOGUNN/">Jonogunn</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_NORCALGB/">Nor-Cal GB</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Maintenance</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../FLASHING/">Flashing Pack/Wand Firmware</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ATTENUATOR_FLASHING/">Flashing Attenuator/WiFi</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../AUDIO_FILES/">Audio Files</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">From the Engineer Corps</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../SINGLESHOT/">Single-Shot Blaster</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../BELT_GIZMO/">Belt Gizmo</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../STREAM_EFFECTS/">Stream Effects</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Help</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TROUBLESHOOTING/">Troubleshooting</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">General FAQ</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ_GPStar2/">GPStar II FAQ</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">GPStar Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">GPStar II</li>
+      <li class="breadcrumb-item active">Proton Stream Target Trainer</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <center>
+  <h2>
+    <span class="logo-icon-tiny"></span>
+    GPStar Proton Stream Target Trainer Operational Guide  </h2>
+</center>
+
+<p><img alt="" src="../images/PSTT1.png" /></p>
+<div class="page-break"></div>
+
+<h1 id="information">Information</h1>
+<div class="page-break"></div>
+
+<p>The Proton Stream Target Trainer is a dedicated aiming and calibration platform designed for use with your Proton Pack system in controlled training environments. Featuring an integrated spectral target module—styled as a Class V apparition—the unit provides a clear visual reference for stream alignment and tracking drills. Its sensor array registers proton stream contact in real time, allowing operators to refine accuracy, maintain beam stability, and correct drift during sustained engagement.</p>
+<h2 id="assembly">Assembly</h2>
+<p>Assembly instructions for the Proton Stream Target Trainer can be found in PDF format <a href="https://cdn.shopify.com/s/files/1/0772/0517/6651/files/GPStar_PSTT_Assembly_Instructions.pdf?v=1774010957">here</a>.</p>
+<h2 id="firmware-flashing">Firmware Flashing</h2>
+<h3 id="standard-updates-via-wifi">Standard Updates (via WiFi)</h3>
+<ol>
+<li>Power on the PSTT.</li>
+<li>Open the WiFi preferences on your computer/device and look for the SSID which matches <strong>"GPStar_PSTT"</strong>.<ul>
+<li>If this is your first connection to this access point, use the default password <strong>555-2368</strong>.</li>
+</ul>
+</li>
+<li>Navigate directly to the URL: <a href="http://gpstar_pstt.local/update">http://gpstar_pstt.local/update</a> or <a href="http://192.168.2.2/update">http://192.168.2.2/update</a>.</li>
+<li>Use the "Select File" button and select the <a href="/binaries/pstt/PSTT.bin?raw=true">PSTT.bin</a> file from the <code>/binaries/pstt</code> directory.</li>
+<li>The upload will begin immediately. Once at 100% the device will reboot automatically.</li>
+</ol>
+<p><img alt="" src="../images/WebUI-Update1.jpg" /></p>
+<p><img alt="" src="../images/WebUI-Update2.jpg" /></p>
+<p><img alt="" src="../images/WebUI-Update3.jpg" /></p>
+<p><strong>Note:</strong> If the upload fails, this is not uncommon. Simply attempt the upload again using the OTA updater.</p>
+<h3 id="diagnostic-updates-via-usb-c">Diagnostic Updates (via USB-C)</h3>
+<p><strong>Option 1: Using GPStar ESP32 Firmware Uploader</strong></p>
+<p>This uses a purpose-built flash tool just like the tools for the Proton Pack, Neutrona Wand, Single-Shot Blaster and GPStar Audio. Thanks to its ease of use, this is our recommended method for performing the first-time USB upload process. For Windows users, download the ESP32 firmware flasher tool which is labelled for use with the GPStar II and Attenuator devices, available via the <strong>Support &amp; Downloads</strong> page on the GPStar website.</p>
+<p><a href="https://gpstartechnologies.com/pages/support-downloads">GPStar II / GPStar Attenuator Firmware Flasher</a></p>
+<blockquote>
+<p>For Linux or macOS users, you will need to use one of the alternative options described below.</p>
+</blockquote>
+<ol>
+<li>Plug your device into a USB port on your computer.</li>
+<li>
+<p>If not already downloaded from the Support &amp; Downloads page above, locate the following files from the <code>/binaries/pstt</code> directory.</p>
+<ul>
+<li><a href="/binaries/pstt/extras/PSTT-Bootloader.bin?raw=true">extras/PSTT-Bootloader.bin</a> = This is the standard bootloader for the PSTT.</li>
+<li><a href="/binaries/pstt/PSTT.bin?raw=true">PSTT.bin</a> = This is the custom firmware for the PSTT.</li>
+</ul>
+</li>
+<li>
+<p>Open the GPStar ESP32 Firmware Flasher and browse to the files specified in step 2 above for each of the requested file locations (see below screenshot).</p>
+</li>
+</ol>
+<p><img alt="" src="../images/flash-pstt-firmware.png" /></p>
+<ol>
+<li>
+<p>The program should automatically detect the correct COM port and baud rate (see above screenshot). If it did not, use the drop-down menus to select the correct one for your PC.</p>
+</li>
+<li>
+<p>Click the Upload button to flash the new firmware to your PSTT. Be patient, this process can take between 15 seconds and several minutes depending on the selected baud rate.</p>
+</li>
+<li>
+<p>Once the flash has completed successfully, your PSTT should now be broadcasting a WiFi network.</p>
+</li>
+</ol>
+<p><strong>Option 2: Via Web Uploader</strong></p>
+<p>This uses a 3rd-party website to upload using the Web Serial protocol which is only available on the Google Chrome, Microsoft Edge, and Opera desktop web browsers. Mobile browsers are NOT supported, and you will be prompted with a message if your web browser is not valid for use.</p>
+<ol>
+<li>
+<p>Plug your device into a USB port on your computer and go to <a href="http://espwebtool.ghostbusters.engineering">http://espwebtool.ghostbusters.engineering</a> (which <a href="https://esp.huhn.me">redirects to https://esp.huhn.me</a>).</p>
+</li>
+<li>
+<p>Locate the following files from the <code>/binaries/pstt</code> directory.</p>
+<ul>
+<li><a href="/binaries/pstt/extras/PSTT-Bootloader.bin?raw=true">extras/PSTT-Bootloader.bin</a> = This is the standard bootloader for the PSTT.</li>
+<li><a href="/binaries/pstt/extras/PSTT-Partitions.bin?raw=true">extras/PSTT-Partitions.bin</a> = This specifies the partition scheme for the flash memory.</li>
+<li><a href="/binaries/pstt/extras/boot_app0.bin?raw=true">extras/boot_app0.bin</a> = This is the software for selecting the available/next OTA partition.</li>
+<li><a href="/binaries/pstt/PSTT.bin?raw=true">PSTT.bin</a> = This is the custom firmware for the PSTT.</li>
+</ul>
+</li>
+<li>
+<p>Click on the <strong>CONNECT</strong> button and select your USB serial device from the list of options and click on "Connect".</p>
+</li>
+<li>
+<p>Once connected, select the files (noted above) for the following address spaces:</p>
+<ul>
+<li><code>0x1000</code> &rarr; <a href="/binaries/pstt/extras/PSTT-Bootloader.bin?raw=true">PSTT-Bootloader.bin</a></li>
+<li><code>0x8000</code> &rarr; <a href="/binaries/pstt/extras/PSTT-Partitions.bin?raw=true">PSTT-Partitions.bin</a></li>
+<li><code>0xE000</code> &rarr; <a href="/binaries/pstt/extras/boot_app0.bin?raw=true">boot_app0.bin</a></li>
+<li><code>0x10000</code> &rarr; <a href="/binaries/pstt/PSTT.bin?raw=true">PSTT.bin</a></li>
+</ul>
+</li>
+<li>
+<p>Click on the <strong>PROGRAM</strong> button to begin flashing. View the "Output" window to view progress of the flashing operation.</p>
+</li>
+<li>
+<p>Once the device has completely flashed (100%) unplug the USB cable and remove any remaining power source from the device. Restore power to reboot the device and confirm operation.</p>
+</li>
+</ol>
+<p>View <a href="../images/ESP_Firmware_Update.mp4">a quick video</a> of what this process should look like. Your list of USB devices may differ, and it may require selecting a different device if you cannot immediately determine which connected device is your ESP32.</p>
+<p><strong>Option 3: Via Command-Line</strong></p>
+<p>You will need to utilize a command-line tool to upload the firmware to your device from your local computer. Note this is <em>not recommended</em> unless you are using a platform other than Windows or Mac OSX, such as Linux.</p>
+<ol>
+<li>
+<p>Install the latest Python 3.x utility based on your operating system:</p>
+<ul>
+<li>Windows: Download the installer from <a href="https://www.python.org/downloads/windows/">Python</a>. When installing you may be prompted to "Add Python to PATH", and it is recommended to accept that option.</li>
+<li>Linux: Execute <code>sudo apt update &amp;&amp; sudo apt install -y python3 python3-pip</code></li>
+<li>MacOS: Execute <code>brew install python</code> using Homebrew (<a href="https://brew.sh/">instructions here</a>)</li>
+</ul>
+</li>
+<li>
+<p>From a terminal (command line) prompt run the following which will install the <code>pip</code> tool along with the <code>esptool</code> utility:</p>
+<p><code>python3 -m ensurepip
+python3 -m pip install --upgrade pip setuptools esptool</code></p>
+</li>
+<li>
+<p>Confirm that python was installed successfully by running the commands <code>python --version</code> and <code>python3 --version</code>. Use the command that reports a 3.x version (<code>python</code> or <code>python3</code>) for all following steps. We will assume <code>python3</code> is available.</p>
+</li>
+<li>
+<p>Navigate to the <code>binaries/stream</code> directory within the extracted GPStar-proton-pack software release:</p>
+<p><code>cd &lt;extracted_location&gt;/binaries/pstt</code></p>
+</li>
+<li>
+<p>Run the following command to flash the bootloader and firmware:</p>
+<p><code>python3 -m esptool --port-filter vid=0x303A --chip esp32 --baud 921600 write-flash --flash-mode dio --flash-size detect --flash-freq 40m 0x1000 extras/PSTT-Bootloader.bin 0x8000 extras/PSTT-Partitions.bin 0xe000 extras/boot_app0.bin 0x10000 PSTT.bin</code></p>
+</li>
+</ol>
+<h2 id="operating-the-system">Operating The System</h2>
+<p>A PDF version of this operation guide can be found <a href="https://cdn.shopify.com/s/files/1/0772/0517/6651/files/GPStar_PSTT_Operation_Guide.pdf?v=1774399839">here</a>.</p>
+<h3 id="power">Power</h3>
+<p>Connect a 5V power source to the USB-C connector on the back of the Proton Stream Target Trainer to power the system. </p>
+<p><img alt="" src="../images/PSTT12.png" /></p>
+<p>When the system has power, the servo motor will move the target arm to the upright position and the LED indicators will turn green.</p>
+<p>Pressing the button on the back cover will lower the target. Holding the button will raise it.</p>
+<p><img alt="" src="../images/PSTT2.png" /></p>
+<h3 id="led-indicators">LED Indicators</h3>
+<p>There are two different LED indicators on the Proton Stream Target Trainer. When the target arm is in the down position, both the top indicator and front indicator will be solid red. When the target arm is in the upright position, both will be green.</p>
+<p>While firing at the target, when a successful hit has been registered, the top indicator will switch to blue. </p>
+<p>The front indicator will start flashing while the target is taking damage and then turn solid red  when the target has been defeated.</p>
+<p><img alt="" src="../images/PSTT3.png" /></p>
+<h2 id="wifi-connectivity">WiFi Connectivity</h2>
+<p>To connect to the GPStar Proton Stream Target Trainer over WiFi, a private WiFi network (access point) will appear as GPStar_PSTT and this will be secured with a default password of <code>555-2368</code>.</p>
+<p>Once connected, your computer/phone/tablet will be assigned an IP address starting from 192.168.2.100 with a subnet of 255.255.255.0. Please remember that if you intended to have multiple devices connect via this private WiFi network, you will be assigned a unique IP address for each client device (ex: phone, tablet or computer).</p>
+<p>A web based user interface is available at http://gpstar_pstt.local or http://192.168.2.2 to view the state of your Proton Stream Target Trainer, in which you will be able to manage specific actions.</p>
+<h3 id="status">Status</h3>
+<p>The equipment status will reflect the current
+state of your Proton Stream Target Trainer. It
+will update in real time while you are
+interacting with the target.</p>
+<ul>
+<li>On the left, a vertical bar displays the
+current health of the target.</li>
+<li>The main view shows the current status of
+the target.</li>
+<li>It will display information such as how
+much damage it just took, what type of
+stream hit the target, when the target is
+knocked over, etc.</li>
+</ul>
+<p><img alt="" src="../images/PSTT4.png" /></p>
+<h3 id="lower-target">Lower Target</h3>
+<p>When the lower target button is red, clicking
+on it will lower the target.</p>
+<p><img alt="" src="../images/PSTT5.png" /></p>
+<h3 id="raise-target">Raise Target</h3>
+<p>When the raise target button is green,
+clicking on it will raise the target.</p>
+<p><img alt="" src="../images/PSTT6.png" /></p>
+<h3 id="preferences-administration">Preferences / Administration</h3>
+<p>The preferences and administration provide a interface for managing options. The settings are divided into several sections.</p>
+<ul>
+<li>Special Device Settings: Changing various settings of the Proton Stream Target Trainer.</li>
+<li>Update Firmware: Allows you to update the firmware using over the air updates.</li>
+<li>Secure Device WiFi: You can change the default password for the devices WiFi network.</li>
+<li>Change WiFi Settings: This provides an optional means of joining an existing, external WiFi network for access of your device.</li>
+<li>Restart / Re-sync: You can remote restate the software by performing a reboot of the device.</li>
+</ul>
+<p>At the bottom of the screen is a timestamp representing the build date of the firmware, the current firmware version of your GPStar Audio if connected and the name of the private WiFi network oﬀered by the current device. If connected to an external WiFi network, the current IP address and subnet mask will also be displayed.</p>
+<p><img alt="" src="../images/PSTT7.png" /></p>
+<h3 id="special-device-settings">Special Device Settings</h3>
+<p>You can change the name of the WiFi network under General Options.</p>
+<p><img alt="" src="../images/PSTT8.png" /></p>
+<h3 id="target-health-settings">Target Health Settings</h3>
+<p>These are settings related specifically to the health and strength of your ghost target. You can set the
+Maximum Health, Low Health Threshold and Critical Health Threshold of the target.</p>
+<p><img alt="" src="../images/PSTT9.png" /></p>
+<h3 id="health-regeneration-settings">Health Regeneration Settings</h3>
+<p>The ghost target will automatically regenerate it’s health when it is not taking damage from your proton
+stream. Here you can adjust how much health is regenerated at each cycle and also adjust the cycle delay between each health regeneration in milliseconds.</p>
+<p><img alt="" src="../images/PSTT10.png" /></p>
+<h3 id="wand-damage">Wand Damage</h3>
+<p>The amount of damage the target takes per hit can be adjusted per power level of the Proton Stream.</p>
+<p><img alt="" src="../images/PSTT11.png" /></p>
+<h3 id="wifi-settings">WiFi Settings</h3>
+<p>It is possible to have your device join an existing WiFi network which may provide a more stable network
+connection.</p>
+<ul>
+<li>Enable the external WiFi option and supply the
+preferred WiFi network name (SSID) and WPA2
+password for access.</li>
+<li>Optionally you may specify an IP Address, subnet
+mask and gateway IP if you wish to use static
+values. Otherwise the device will obtain these
+values automatically from your chosen network via
+DHCP.</li>
+<li>Save the changes. This will cause the device to reboot and attempt to connect to the network up to 3 tries.</li>
+<li>Return to the “Change WiFi Settings” section to
+observe the IP address information. If the connection
+was successful, an IP address, subnet mask and
+gateway IP will be shown.</li>
+<li>While connected to the same WiFi network on your
+phone / computer / tablet, use the IP address shown to connect to your device’s web interface. </li>
+</ul>
+<p>Use of an unsecured WiFi network is not supported or
+supported.</p>
+<p><img alt="" src="../images/WebUI-WiFi.jpg" /></p>
+<h2 id="wifi-password-reset">WiFi Password Reset</h2>
+<p>If you have forgotten the password to your GPStar Proton Stream Target Trainer WiFi network, you can
+reset it by holding the button the top cover while the system is powering up.</p>
+<p>Once reset, the default password will be 555-2368</p>
+<p><img alt="" src="../images/PSTT14.png" /></p>
+<h2 id="increasing-wifi-performance">Increasing WiFi Performance</h2>
+<p>When using the WiFi in a crowded environment, such as a convention, the signal may become overwhelmed by competing RF devices. When possible, you can configure the Proton Stream Target Trainer to connect to a stronger more stable wireless network as a client rather than relying on the built-in access point. This may improve the range and performance.</p>
+<ul>
+<li>For Android devices oﬀering a cellular hotspot, these devices may utilise a feature called Client
+Isolation Mode. This will prevent hotspot clients from seeing each other. Unless you can disable this
+option on a rooted device, you will not be able to reach the web UI from the hotspot network.</li>
+<li>For iOS devices oﬀering a cellular hotspot, please make sure that the Maximise Compatibility option
+is enabled. This will ensure your device oﬀers a 2.4GHz radio and will be seen by the GPStar Proton
+Stream Target Trainer.</li>
+</ul>
+<h2 id="software-development-requirements">Software Development Requirements</h2>
+<p>The development platform of choice for this device is <a href="../VSCODE/">VSCode with PlatformIO</a>. Please follow the linked guide for installing the core software and plugins required.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../WAND_2_PCB/" class="btn btn-neutral float-left" title="Neutrona Wand II"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../WIRELESS_GPSTAR_II/" class="btn btn-neutral float-right" title="GPStar II Wireless">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>GPStar Technologies</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../WAND_2_PCB/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../WIRELESS_GPSTAR_II/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

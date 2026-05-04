@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Belt Gizmo - GPStar Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Belt Gizmo";
+        var mkdocs_page_input_path = "BELT_GIZMO.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="..">
+          <img src="../images/gpstar_logo_white.png" class="logo" alt="Logo"/>
+        </a>
+        <div class="version">
+          6.x
+        </div><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ABOUT/">About</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../GUIDE_LISTING/">Introduction</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">GPStar I</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_PCB/">Proton Pack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_PCB/">Neutrona Wand</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">GPStar II</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_2_PCB/">Proton Pack II</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_2_PCB/">Neutrona Wand II</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PSTT/">Proton Stream Target Trainer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WIRELESS_GPSTAR_II/">GPStar II Wireless</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_CALIBRATION/">Motion Sensor Calibration</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../GPSTAR_AUDIO_PCB/">GPStar Audio</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Additional Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Proton Pack</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_LID/">Cyclotron Lid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_INNER/">Inner Cyclotron</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_BYPASS/">Cyclotron Bypass</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NFILTER/">N-Filter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../POWERCELL/">Power Cell</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Neutrona Wand</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../BARGRAPH/">Bargraph</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../HATS/">Hatlights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../VENTLIGHT/">Vent Lights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NEUTRONA_ENCODER/">Neutrona Encoder</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Pack Attenuator</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../ATTENUATOR/">Attenuator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../WIRELESS/">WiFi Adapter</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Special Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Power</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../POWER/">Requirements</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../BATTERIES/">Batteries</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SOUND/">Sound Output</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../HOSE/">Pack-Wand Hose</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SMOKE/">Smoke Kits</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WEB_API_REFERENCE/">Web API Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../VSCODE/">Code Development</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DIY_LEGACY/">Legacy DIY</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operation Manuals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_USAGE/">General Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_MENUS/">Runtime Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_EEPROM/">EEPROM Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WIRELESS_OPERATION/">Attenuator WiFi Operation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Install Videos</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_JONOGUNN/">Jonogunn</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_NORCALGB/">Nor-Cal GB</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Maintenance</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../FLASHING/">Flashing Pack/Wand Firmware</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ATTENUATOR_FLASHING/">Flashing Attenuator/WiFi</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../AUDIO_FILES/">Audio Files</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">From the Engineer Corps</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../SINGLESHOT/">Single-Shot Blaster</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Belt Gizmo</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#external-shell">External Shell</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#bill-of-materials">Bill of Materials</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#esp32-pin-connections">ESP32 - Pin Connections</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#power-pin-connections">Power - Pin Connections</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#circuit-diagram">Circuit Diagram</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#assembly">Assembly</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#firmware-flashing">Firmware Flashing</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#esp32-standard-updates-via-wifi">ESP32: Standard Updates (via WiFi)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#operation">Operation</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#system-linking">System Linking</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#self-test-mode">Self-Test Mode</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#usb-troubleshooting">USB Troubleshooting</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#software-development-requirements">Software Development Requirements</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../STREAM_EFFECTS/">Stream Effects</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Help</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TROUBLESHOOTING/">Troubleshooting</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">General FAQ</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ_GPStar2/">GPStar II FAQ</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">GPStar Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">From the Engineer Corps</li>
+      <li class="breadcrumb-item active">Belt Gizmo</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="belt-gizmo">Belt Gizmo</h1>
+<p>While the original "gizmo" was never given an on-screen purpose it has endured as a standard piece of kit for any uniform. This guide shows how to an interactive light show to any such device produced by the community, with some light modifications.</p>
+<p>This depends on the presence of an Attenuator or WiFi Adapter in order to provide a wireless integration with your equipment.</p>
+<p>Watch this demonstration of the Belt Gizmo and Stream Effects devices:</p>
+<video src="../videos/effects_demo.webm" controls width="480">
+  Your browser does not support the video tag.
+</video>
+
+<h2 id="external-shell">External Shell</h2>
+<p>Many printable 3D models of this device exist among the community and you may pick any that you prefer as your base. Or if you have an existing Belt Gizmo you may be able to modify it to incorporate the new electronics.</p>
+<ul>
+<li><a href="https://makerworld.com/en/models/1481024-ghostbusters-belt-gizmo-customisable-readout#profileId-1546412">Belt Gizmo by Dave W</a></li>
+<li><a href="https://cults3d.com/en/3d-model/gadget/ghostbusters-belt-gizmo?srsltid=AfmBOoodHZSokoh6WtUnP8dFB2FAfHBY5bJPWOEOunehdjz8OXQWtP-q">Belt Gizmo by MRKIOU</a></li>
+<li><a href="https://www.tinkercad.com/things/hXboxGGXGLa-belt-gizmo-back?sharecode=ha-4RQ-0age-2QNgxU-ZpJ5jofNhaNWqsaZMZCeECbs">Belt Gizmo Back by Dustin Grau</a></li>
+</ul>
+<h2 id="bill-of-materials">Bill of Materials</h2>
+<p>Assembly of this device WILL require SOLDERING skills and is considered a DIY approach at this time. The exact list of parts below were chosen for their availability from common sources and/or available support across the Internet.</p>
+<ul>
+<li><a href="https://a.co/d/ia74QSm">Addressable 5V WS2812B Fairy String Lights</a></li>
+<li><a href="https://a.co/d/0TzJcFc">Waveshare ESP32-S3-Zero Mini Dev Board</a></li>
+<li><a href="https://a.co/d/9K8KTmT">USB-C 5V Boost Converter and Lithium Battery Charger</a></li>
+<li><a href="https://a.co/d/cKEqCLi">2500mAh 3.7V Lithium Polymer Battery Pack</a></li>
+<li><a href="https://a.co/d/08XEYrL">SPDT 2-Position Micro Slide Switch</a></li>
+<li><a href="https://a.co/d/7ySDNmg">SPST Momentary Push Button Switch</a></li>
+<li><a href="https://a.co/d/8uN87y4">28AWG Stranded Silicone Hookup Wire</a></li>
+<li><a href="https://a.co/d/j5Otzhq">270 ohm Resisitor</a></li>
+</ul>
+<h2 id="esp32-pin-connections">ESP32 - Pin Connections</h2>
+<p><img alt="" src="../images/ESP32-S3-Zero.jpg" /></p>
+<p>The following is a diagram of the <strong>ESP32-S3-Zero pins</strong> from left and right, when oriented with the USB connection facing up (north) like the pinout diagram above-top. We only need a single</p>
+<pre><code>!! IMPORTANT !!
+This diagram is based on the dev module recommended in the links above.
+If your device differs there will likely be position or label changes.
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Connection</th>
+<th>ESP32 (L)</th>
+<th></th>
+<th>ESP32 (R)</th>
+<th>Connection</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td><strong>USB</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>to 5V-OUT +</td>
+<td>5V</td>
+<td></td>
+<td>TX</td>
+<td></td>
+</tr>
+<tr>
+<td>to 5V-OUT -</td>
+<td>GND</td>
+<td></td>
+<td>RX</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>3V3(OUT)</td>
+<td></td>
+<td>GP13</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>GP1</td>
+<td></td>
+<td>GP12</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>GP2</td>
+<td></td>
+<td>GP11</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>GP2</td>
+<td></td>
+<td>GP10</td>
+<td></td>
+</tr>
+<tr>
+<td>to LEDs</td>
+<td>GP4</td>
+<td></td>
+<td>GP9</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>GP5</td>
+<td></td>
+<td>GP8</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>GP6</td>
+<td></td>
+<td>GP7</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="power-pin-connections">Power - Pin Connections</h2>
+<p>We need to both power the device but also allow for the battery pack to be charged without removing it from the Belt Gizmo every time. This approach uses a slide switch to cut power to the ESP32 and allows for faster charging without simultaneously draining the battery. We also make use of the Key switch to turn the power on or off. A single press will turn on the boost chip while two quick presses will turn it off.</p>
+<p>For the battery you have 2 options: use a JST socket to connect your battery or cut off the existing plug. The latter may be quicker if you are comfortable with re-soldering a new battery in the future should the current one no longer hold a charge.</p>
+<blockquote>
+<p>CAUTION: Carefully cut off the plug from the LiPo battery pack, cutting each wire <strong>1 AT TIME</strong> to avoid a short-circuit.</p>
+</blockquote>
+<p>You will connect battery leads to the through-hole connections opposite the battery: positive (red) to + and negative (black) to - as expected.</p>
+<p>From the 5V through-hole ports you are best to solder a single wire to each due to the diameter of the holes. Use red for the + connection and - for negative, using 2-3" of wire for each. We will use these as a pigtail connection to connect our devices which need 5V power:</p>
+<ul>
+<li>5V + Connects to LED positive and ESP32 5V via SPDT Slide Switch</li>
+<li>5V - Connects to LED negative and ESP32 GND</li>
+</ul>
+<p>The hole labelled K connects to one side of the SPST Momentary Switch, the other side to the 5V - wire used above.</p>
+<blockquote>
+<p>Note: You will <strong>not</strong> need the USB2 connector supplied with this device.</p>
+</blockquote>
+<p><img alt="" src="../images/USB_Boost_Charge.jpg" /></p>
+<h2 id="circuit-diagram">Circuit Diagram</h2>
+<p>The following circuit diagram should bring all of the components together.</p>
+<ul>
+<li>The momentary pushbutton (single-press) will enable the boost circuit to provide 5V from the 3.7V LiPo battery. </li>
+<li>The slide switch will provide power to the ESP32 and LEDs when switched on.</li>
+<li>The ESP32 will provide the data to the addressable LEDs for the animation.</li>
+</ul>
+<p><img alt="" src="../images/gizmo_circuit.jpg" /></p>
+<blockquote>
+<ul>
+<li>To charge the device, move the slide switch to the opposite position to turn off power flow to the ESP32 and LEDs.</li>
+<li>To turn off the device use a quick double-press of the momentary pushbutton to turn off the battery booster.</li>
+</ul>
+</blockquote>
+<h2 id="assembly">Assembly</h2>
+<p><img alt="" src="../images/gizmo_front.jpg" /></p>
+<p>The LEDs chosen for this project are the same which may be used with the Proton Pack when adding the sparking effect to your inner cyclotron cake. Essentially this used a spare segment of 8 addressable LEDs which fit within the available nixie tubes and the E block. Note that the 270 ohm resistor will be used on the data line which connects to pin GP4 of the ESP32.</p>
+<blockquote>
+<p>Note: Some prop designs may utilize 7 or 9 nixie tubes plus the E stop (up to 10 total LEDs), which may be configured on the device preferences web page via WiFi connection to the device.</p>
+</blockquote>
+<p><img alt="" src="../images/gizmo_back.jpg" /></p>
+<blockquote>
+<p>Not shown in this and later photos is the power cut-off switch which is placed between the battery booster and ESP32 chip to allow the device to charge without running.</p>
+</blockquote>
+<p><img alt="" src="../images/gizmo_tubes.jpg" /></p>
+<p>The excess wiring for each LED can be carefully folded over and secured behind each light in the nixie tubes. The sequence of lights begins with the E block and moves left from there.</p>
+<p><img alt="" src="../images/gizmo_wires.jpg" /></p>
+<p>Lengths of the silicone wiring can be used to provide more visual interest to the base of each nixie tube and terminate on the backside of the gizmo itself. You can see the ends of the wires secured with hot glue in the next photo.</p>
+<p><img alt="" src="../images/gizmo_assembled.jpg" /></p>
+<p>Not shown here is the mini slide switch which severs power to the ESP32 so that the device can be charged without simultaneously discharging.</p>
+<h2 id="firmware-flashing">Firmware Flashing</h2>
+<p><strong>Option 1: Using GPStar ESP32 Firmware Uploader</strong></p>
+<p>This uses a purpose-built flash tool just like the tools for the Proton Pack, Neutrona Wand, Single-Shot Blaster and GPStar Audio. Thanks to its ease of use, this is our recommended method for performing the first-time USB upload process. For Windows users, download the ESP32 firmware flasher tool which is labelled for use with the GPStar II and Attenuator devices, available via the <strong>Support &amp; Downloads</strong> page on the GPStar website.</p>
+<p><a href="https://gpstartechnologies.com/pages/support-downloads">GPStar II / GPStar Attenuator Firmware Flasher</a></p>
+<blockquote>
+<p>For Linux or macOS users, you will need to use one of the alternative options described below.</p>
+</blockquote>
+<ol>
+<li>Plug your device into a USB port on your computer.</li>
+<li>
+<p>Locate the following files from the <code>/binaries/gizmo</code> directory.</p>
+<ul>
+<li><a href="/binaries/gizmo/extras/BeltGizmo-Bootloader.bin?raw=true">extras/BeltGizmo-Bootloader.bin</a> = This is the standard bootloader for the ESP32 itself.</li>
+<li><a href="/binaries/gizmo/BeltGizmo.bin?raw=true">BeltGizmo.bin</a> = This is the custom firmware for the GPStar kit.</li>
+</ul>
+</li>
+<li>
+<p>Open the GPStar ESP32 Firmware Flasher and browse to the files specified in step 2 above for both of the requested file locations (see below screenshot).</p>
+</li>
+</ol>
+<p><img alt="" src="../images/flash-gizmo-firmware.png" /></p>
+<ol>
+<li>
+<p>The program should automatically detect the correct COM port and baud rate (see above screenshot). If it did not, use the drop-down menus to select the correct one for your PC.</p>
+</li>
+<li>
+<p>Click the Upload button to flash the new firmware to your ESP32. Be patient, this process can take between 15 seconds and several minutes depending on the selected baud rate.</p>
+</li>
+<li>
+<p>Once the flash has completed successfully, your ESP32 should now be broadcasting a WiFi network. If the flash failed, please see Solution 2 in the <strong>"<a href="#usb-troubleshooting">USB Troubleshooting</a>"</strong> section at the bottom of this guide to manually switch the ESP32 into bootloader mode. You may also try lowering the baud rate to 115200 (if available), though note this will increase the time it takes to flash the firmware.</p>
+</li>
+</ol>
+<p><strong>Option 2: Via Web Uploader</strong></p>
+<p>This uses a 3rd-party website to upload using the Web Serial protocol which is only available on the Google Chrome, Microsoft Edge, and Opera desktop web browsers. Mobile browsers are NOT supported, and you will be prompted with a message if your web browser is not valid for use.</p>
+<ol>
+<li>
+<p>Plug your device into a USB port on your computer and go to <a href="http://espwebtool.ghostbusters.engineering">http://espwebtool.ghostbusters.engineering</a> (which <a href="https://esp.huhn.me">redirects to https://esp.huhn.me</a>).</p>
+</li>
+<li>
+<p>Locate the following files from the <code>/binaries/gizmo</code> directory.</p>
+<ul>
+<li><a href="/binaries/gizmo/extras/BeltGizmo-Bootloader.bin?raw=true">extras/BeltGizmo-Bootloader.bin</a> = This is the standard bootloader for the ESP32 itself.</li>
+<li><a href="/binaries/gizmo/extras/BeltGizmo-Partitions.bin?raw=true">extras/BeltGizmo-Partitions.bin</a> = This specifies the partition scheme for the flash memory.</li>
+<li><a href="/binaries/gizmo/extras/boot_app0.bin?raw=true">extras/boot_app0.bin</a> = This is the software for selecting the available/next OTA partition.</li>
+<li><a href="/binaries/gizmo/BeltGizmo.bin?raw=true">BeltGizmo.bin</a> = This is the custom firmware for the GPStar kit.</li>
+</ul>
+</li>
+<li>
+<p>Click on the <strong>CONNECT</strong> button and select your USB serial device from the list of options and click on "Connect".</p>
+</li>
+<li>
+<p>Once connected, select the files (noted above) for the following address spaces:</p>
+<ul>
+<li><code>0x0000</code> &rarr; <a href="/binaries/gizmo/extras/BeltGizmo-Bootloader.bin?raw=true">BeltGizmo-Bootloader.bin</a></li>
+<li><code>0x8000</code> &rarr; <a href="/binaries/gizmo/extras/BeltGizmo-Partitions.bin?raw=true">BeltGizmo-Partitions.bin</a></li>
+<li><code>0xE000</code> &rarr; <a href="/binaries/gizmo/extras/boot_app0.bin?raw=true">boot_app0.bin</a></li>
+<li><code>0x10000</code> &rarr; <a href="/binaries/gizmo/BeltGizmo.bin?raw=true">BeltGizmo.bin</a></li>
+</ul>
+</li>
+<li>
+<p>Click on the <strong>PROGRAM</strong> button to begin flashing. View the "Output" window to view progress of the flashing operation.</p>
+</li>
+<li>
+<p>Once the device has completely flashed (100%) unplug the USB cable and remove any remaining power source from the device. Restore power to reboot the device and confirm operation.</p>
+</li>
+</ol>
+<p>View <a href="../images/ESP_Firmware_Update.mp4">a quick video</a> of what this process should look like. Your list of USB devices may differ, and it may require selecting a different device if you cannot immediately determine which connected device is your ESP32.</p>
+<p><strong>Option 3: Via Command-Line</strong></p>
+<p>You will need to utilize a command-line tool to upload the firmware to your device from your local computer. Note this is <em>not recommended</em> unless you are using a platform other than Windows or Mac OSX, such as Linux.</p>
+<ol>
+<li>
+<p>Install the latest Python 3.x utility based on your operating system:</p>
+<ul>
+<li>Windows: Download the installer from <a href="https://www.python.org/downloads/windows/">Python</a>. When installing you may be prompted to "Add Python to PATH", and it is recommended to accept that option.</li>
+<li>Linux: Execute <code>sudo apt update &amp;&amp; sudo apt install -y python3 python3-pip</code></li>
+<li>MacOS: Execute <code>brew install python</code> using Homebrew (<a href="https://brew.sh/">instructions here</a>)</li>
+</ul>
+</li>
+<li>
+<p>From a terminal (command line) prompt run the following which will install the <code>pip</code> tool along with the <code>esptool</code> utility:</p>
+<p><code>python3 -m ensurepip
+python3 -m pip install --upgrade pip setuptools esptool</code></p>
+</li>
+<li>
+<p>Confirm that python was installed successfully by running the commands <code>python --version</code> and <code>python3 --version</code>. Use the command that reports a 3.x version (<code>python</code> or <code>python3</code>) for all following steps. We will assume <code>python3</code> is available.</p>
+</li>
+<li>
+<p>Navigate to the <code>binaries/gizmo</code> directory within the extracted GPStar-proton-pack software release:</p>
+<p><code>cd &lt;extracted_location&gt;/binaries/gizmo</code></p>
+</li>
+<li>
+<p>Run the following command to flash the bootloader and firmware:</p>
+<p><code>python3 -m esptool --port-filter vid=0x303A --chip esp32s3 --baud 921600 write-flash --flash-mode dio --flash-size detect --flash-freq 80m 0x0 extras/BeltGizmo-Bootloader.bin 0x8000 extras/BeltGizmo-Partitions.bin 0xe000 extras/boot_app0.bin 0x10000 BeltGizmo.bin</code></p>
+</li>
+</ol>
+<p>📝 <strong>NOTE:</strong> If your device still cannot be found automatically you may need to view the <strong>"<a href="#usb-troubleshooting">USB Troubleshooting</a>"</strong> section at the bottom of this guide.</p>
+<h3 id="esp32-standard-updates-via-wifi">ESP32: Standard Updates (via WiFi)</h3>
+<p>This applies to all updates you will perform AFTER the first-time upload of the firmware for the device, when the private WiFi network for the Proton Pack is available via the custom firmware.</p>
+<ol>
+<li>Power on the Belt Gizmo.</li>
+<li>Open the WiFi preferences on your computer/device and look for the SSID which matches <strong>"GPStar_BeltGizmo"</strong> or begins <strong>"ProtonPack_"</strong>.<ul>
+<li>If this is your first connection to this access point, use the default password <strong>"555-2368"</strong>.</li>
+</ul>
+</li>
+<li>Navigate directly to the URL: <a href="http://192.168.1.2/update">http://192.168.1.2/update</a></li>
+<li>Use the "Select File" button and select the <a href="/binaries/gizmo/BeltGizmo.bin?raw=true">BeltGizmo.bin</a> file from the <code>/binaries/gizmo</code> directory.</li>
+<li>The upload will begin immediately. Once at 100% the device will reboot.</li>
+<li>Navigate to <a href="http://192.168.1.2">http://192.168.1.2</a> or <code>http://BeltGizmo_####.local</code> to confirm that the device is able to communicate with the Proton Pack PCB.</li>
+</ol>
+<p><img alt="" src="../images/WebUI-Update1.jpg" /></p>
+<p><img alt="" src="../images/WebUI-Update2.jpg" /></p>
+<p><img alt="" src="../images/WebUI-Update3.jpg" /></p>
+<p><strong>Note:</strong> If the upload fails, this is not uncommon. Simply attempt the upload again using the OTA updater.</p>
+<h2 id="operation">Operation</h2>
+<p>Look for a WiFi network of "BeltGizmo_0000" or similar and connect using the password <code>555-2368</code>. Open a web browser to the same name as the network name, for instance <code>http://BeltGizmo_0000.local</code>.</p>
+<p><strong>Security Notice</strong></p>
+<p>This device uses a default password of <code>555-2368</code> and should be changed immediately. You also have the option of changing the SSID broadcast if desired.</p>
+<h3 id="system-linking">System Linking</h3>
+<p>You will need to pair this device's external WiFi to to your Proton Pack + Neutrona Wand system via the Attenuator (WiFI adapter) or GPStar II Proton Pack controller. Without this link you will not get information from your pack+wand to change colors, power, or firing state.</p>
+<h3 id="self-test-mode">Self-Test Mode</h3>
+<p>A special self-test mode exists on the 2nd tab of the web UI. Turn this on to cycle through color tests, which allows you to check the proper LED color order which can be changed via the device preferences page. The self-test sequence for this device is White &raquo; Red &raquo; Green &raquo; Blue (repeat).</p>
+<h2 id="usb-troubleshooting">USB Troubleshooting</h2>
+<p>Before beginning any actions when using a USB cable, be sure to use a high-quality USB cable which supports data transfer. Some cheap cables may only support charging (not data), or not fully support the power requirements of the device.</p>
+<p><strong>Problem 1:</strong> Your ESP32 controller does not appear as a serial device in your operating system (COM# for Windows, /dev/cu.usb* for macOS/Linux).</p>
+<p><strong>Solution 1:</strong> It may be necessary to install a driver for the <strong>"ESP32-S3 USB-CDC JTAG Interface"</strong> onto your computer. A driver for Windows is available <a href="https://github.com/espressif/esp-win-usb-drivers/releases/tag/ESP-PROG_v1.0.0.0">via GitHub</a>.</p>
+<p><strong>Problem 2:</strong> The ESP32 device can be detected when using the <a href="https://esp.huhn.me/">ESPWebTool website</a> but can't connect. Alternatively, you get a notice that the device must be reset.</p>
+<p><strong>Solution 2:</strong> You must put the device into bootloader mode. To help with this, use the <a href="https://serial.huhn.me/">SerialTerminal website</a> to connect to your device first:</p>
+<ol>
+<li>Hold down BOOT button and EN button.</li>
+<li>Plug ESP32 into computer</li>
+<li>While holding EN, release the BOOT button.</li>
+<li>Once you hear the connection sound from your computer, release the BOOT button.</li>
+</ol>
+<p>You should see a message similar to the following which indicates the device is ready to flash:</p>
+<pre><code>rst:0x1 (POWERON_RESET),boot:0x3 (DOWNLOAD_BOOT(UART0/UART1/SDIO_REI_REO_V2))
+waiting for download
+</code></pre>
+<p>Without disconnecting the device from your computer, and using the <strong>same</strong> browser tab, return to the ESPWebTool website](https://esp.huhn.me/) and complete the flashing process as described earlier in this guide as "Option 2".</p>
+<p><strong>Note:</strong> If you get garbage on the screen when using the serial terminal, use the gear icon at the top right to make sure the baud rate is set to 115200.</p>
+<p><strong>Problem 3:</strong> The process described in Solution 2 did not work, help!</p>
+<p><strong>Solution 3:</strong> Try using Option 1 instead. For users not on Windows or Mac OSX, use Option 3 to run <code>esptool</code> manually.</p>
+<p><strong>Problem 4:</strong> For Linux users, if you get a "Permission denied" error when running <code>esptool</code> you may need to add your user to the dialout group.</p>
+<p><strong>Solution 4:</strong> Run this command, then log out and back in for the changes to take effect:</p>
+<pre><code>`sudo usermod -aG dialout $USER`
+</code></pre>
+<p>📝 <strong>Tip:</strong> If you have successfully flashed your ESP32 device and do not see the available WiFi access point, try plugging your USB cable directly into the Talentcell battery or try another USB port on your computer. In rare cases the USB port and/or cable cannot supply enough voltage to run the ESP32's WiFi radio.</p>
+<p>📝 <strong>Tip:</strong> To identify the USB device requires different methods based on the operating system used:</p>
+<ul>
+<li>For <strong>Linux</strong> use the <code>lsusb</code> utility (or <code>lsusb -v</code>) to list attached USB devices.</li>
+<li>For <strong>MacOS</strong> run <code>ls /dev/{tty,cu}.*</code> to list available USB devices.</li>
+<li>For <strong>Windows</strong>, use the "Device Manager" and look at the <strong>"Ports (COM &amp; LPT)"</strong> section.</li>
+</ul>
+<p>These guides from Espressif may be of some help as a reference:</p>
+<ul>
+<li><a href="https://docs.espressif.com/projects/esptool/en/latest/esp32s3/installation.html">Espressif - esptool Installation</a></li>
+<li><a href="https://docs.espressif.com/projects/esptool/en/latest/esp32s3/esptool/flashing-firmware.html">Espressif - Flashing Firmware</a></li>
+<li><a href="https://docs.espressif.com/projects/esptool/en/latest/esp32s3/advanced-topics/boot-mode-selection.html">Espressif - Boot Mode Selection</a></li>
+</ul>
+<hr />
+<h2 id="software-development-requirements">Software Development Requirements</h2>
+<p>As of the v6.0.0 release the development platform of choice for this device has been migrated from Arduino IDE to the <a href="../VSCODE/">VSCode with PlatformIO</a>. Please follow the linked guide for installing the core software and plugins required.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../SINGLESHOT/" class="btn btn-neutral float-left" title="Single-Shot Blaster"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../STREAM_EFFECTS/" class="btn btn-neutral float-right" title="Stream Effects">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>GPStar Technologies</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../SINGLESHOT/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../STREAM_EFFECTS/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Web API Reference - GPStar Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Web API Reference";
+        var mkdocs_page_input_path = "WEB_API_REFERENCE.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="..">
+          <img src="../images/gpstar_logo_white.png" class="logo" alt="Logo"/>
+        </a>
+        <div class="version">
+          6.x
+        </div><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ABOUT/">About</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../GUIDE_LISTING/">Introduction</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">GPStar I</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_PCB/">Proton Pack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_PCB/">Neutrona Wand</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">GPStar II</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_2_PCB/">Proton Pack II</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_2_PCB/">Neutrona Wand II</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PSTT/">Proton Stream Target Trainer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WIRELESS_GPSTAR_II/">GPStar II Wireless</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_CALIBRATION/">Motion Sensor Calibration</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../GPSTAR_AUDIO_PCB/">GPStar Audio</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Additional Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Proton Pack</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_LID/">Cyclotron Lid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_INNER/">Inner Cyclotron</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_BYPASS/">Cyclotron Bypass</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NFILTER/">N-Filter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../POWERCELL/">Power Cell</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Neutrona Wand</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../BARGRAPH/">Bargraph</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../HATS/">Hatlights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../VENTLIGHT/">Vent Lights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NEUTRONA_ENCODER/">Neutrona Encoder</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Pack Attenuator</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../ATTENUATOR/">Attenuator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../WIRELESS/">WiFi Adapter</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Special Guides</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >Power</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../POWER/">Requirements</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../BATTERIES/">Batteries</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SOUND/">Sound Output</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../HOSE/">Pack-Wand Hose</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SMOKE/">Smoke Kits</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Web API Reference</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#openapi">OpenAPI</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#push-events">Push Events</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#web-sockets">Web Sockets</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#server-sent-events">Server-Sent Events</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../VSCODE/">Code Development</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DIY_LEGACY/">Legacy DIY</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operation Manuals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_USAGE/">General Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_MENUS/">Runtime Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_EEPROM/">EEPROM Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WIRELESS_OPERATION/">Attenuator WiFi Operation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Install Videos</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_JONOGUNN/">Jonogunn</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_NORCALGB/">Nor-Cal GB</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Maintenance</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../FLASHING/">Flashing Pack/Wand Firmware</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ATTENUATOR_FLASHING/">Flashing Attenuator/WiFi</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../AUDIO_FILES/">Audio Files</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">From the Engineer Corps</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../SINGLESHOT/">Single-Shot Blaster</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../BELT_GIZMO/">Belt Gizmo</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../STREAM_EFFECTS/">Stream Effects</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Help</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TROUBLESHOOTING/">Troubleshooting</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">General FAQ</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ_GPStar2/">GPStar II FAQ</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">GPStar Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Special Guides</li>
+      <li class="breadcrumb-item active">Web API Reference</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="web-based-api-reference">Web-Based API Reference</h1>
+<p>All web-enabled devices expose behavior which can be managed via RESTful API endpoints. These are available via the Attenuator (either as a kit or WiFi adapter) and all GPStar II devices. This provides an API-first design which can either use the built-in web pages with the device, or you may create your own UI.</p>
+<h2 id="openapi">OpenAPI</h2>
+<p>As of the v6.1.1 release, all devices will now directly self-report their available API's in a standard format called <a href="https://swagger.io/specification/">OpenAPI</a> which is widely understood by many services across the internet, meaning the data can be integrated easily with a large variety of services and tools, if desired. The specification for the APIs is produced using the OpenAPI 3.x specification and can be obtained directly via <code>GET /openapi.json</code></p>
+<p>A new HTML page has also been added to every device which can display the API's, along with a description of their purpose, and a means to directly run the API from your web browser. To access this special page you will need to navigate to this location for your device: <code>GET /swaggerui</code></p>
+<p><strong>Note:</strong> This page uses a CDN to download the necessary SwaggerUI stylesheets and JavaScript libraries from the internet, meaning it may be necessary to switch between the private WiFi of the device and a network interface that allows access to the internet at least to download the contents. Ideally this is best done using a computer which may have both a wired and WiFi interface, so that you can connect wirelessly to your device while handling internet downloads via the wired interface.</p>
+<h2 id="push-events">Push Events</h2>
+<p>By convention, all of the API endpoints work on a "pull" basis--you only get data when you request it, not as it happens. So in order to get data in a timely manner we have 2 options: either create a "polling" mechanism to grab data on a regular cadence, or push the data direct to clients. In the case of the former this can be extremely wasteful in terms of resource utilization, especially for such small devices as the microcontrollers in use. However, since we use a special web server which is specifically designed for asynchronous communication we can utilize 2 standard web-based features: Web Sockets and Server-Sent Events.</p>
+<h3 id="web-sockets">Web Sockets</h3>
+<p>Our built-in web server allows us to offer a special URI endpoint <code>/ws</code> to support <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API">WebSockets</a>. This is much more efficient as it 1) only sends data as the system changes states, and 2) is meant to report only the information necessary for interactions. Basically, instead of calling <code>/status</code> repeatedly and hoping you pick up a recent change (for example, due to user input like firing the wand) we can notify all connected clients in real-time when updates occur.</p>
+<p>All devices support the WebSocket output, which primarily reports the current device status and is updated after specific system actions occur. Note that while this data will always be in the form of a JSON object, some events may send a plain string, so always check the contents of the text data carefully before usage to ensure you are working with the expected data format. The main benefit of using WebSockets is that this data stream is bi-directional! So while a device can immediately notify clients when something happens, clients could potentially communicate over the same socket they're already connected to. Currently this is limited to only keeping a heartbeat from clients to know they're still attached, but could be expanded in the future.</p>
+<h3 id="server-sent-events">Server-Sent Events</h3>
+<p>The other type of push communications is <a href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events">Server-Sent Events</a> which is similar to WebSockets but is strictly one-way traffic from the server to the client. This is meant for high-speed updates and doesn't care if the data was received or not (because the client can't really respond to say otherwise).</p>
+<p>For the GPStar II Neutrona Wand and GPStar II Single-shot Blaster the web server makes use of server-sent events for a responsive, read-only transmission of data. This is primarily used for sending telemetry data for the 3D spatial display or providing information related to calibration operations.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../SMOKE/" class="btn btn-neutral float-left" title="Smoke Kits"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../VSCODE/" class="btn btn-neutral float-right" title="Code Development">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>GPStar Technologies</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../SMOKE/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../VSCODE/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

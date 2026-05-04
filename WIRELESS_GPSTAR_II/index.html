@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>GPStar II Wireless - GPStar Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../css/custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "GPStar II Wireless";
+        var mkdocs_page_input_path = "WIRELESS_GPSTAR_II.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="..">
+          <img src="../images/gpstar_logo_white.png" class="logo" alt="Logo"/>
+        </a>
+        <div class="version">
+          6.x
+        </div><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ABOUT/">About</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../GUIDE_LISTING/">Introduction</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">GPStar I</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_PCB/">Proton Pack</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_PCB/">Neutrona Wand</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">GPStar II</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../PACK_2_PCB/">Proton Pack II</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_2_PCB/">Neutrona Wand II</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../PSTT/">Proton Stream Target Trainer</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">GPStar II Wireless</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#proton-pack">Proton Pack</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#tab-1-equipment-status">Tab 1: Equipment Status</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#tab-2-audio-controls">Tab 2: Audio Controls</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#tab-3-pack-controls">Tab 3: Pack Controls</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#tab-4-preferences-administration">Tab 4: Preferences / Administration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#special-proton-pack-device-settings">Special Proton Pack Device Settings</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#proton-pack-settings">Proton Pack Settings</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#neutrona-wand-settings">Neutrona Wand Settings</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#overheatsmoke-settings">Overheat/Smoke Settings</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#external-wifi-settings">External WiFi Settings</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#neutrona-wand">Neutrona Wand</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#tab-1-neutrona-wand-status">Tab 1: Neutrona Wand Status</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#tab-2-audio-controls_1">Tab 2: Audio Controls</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#tab-3-sensor-calibration">Tab 3: Sensor Calibration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#tab-4-preferences-administration_1">Tab 4: Preferences / Administration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#special-neutrona-wand-device-settings">Special Neutrona Wand Device Settings</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#neutrona-wand-settings_1">Neutrona Wand Settings</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#wifi-password-reset">WiFi Password Reset</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#increasing-wifi-performance">Increasing WiFi Performance</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WAND_CALIBRATION/">Motion Sensor Calibration</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../GPSTAR_AUDIO_PCB/">GPStar Audio</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Additional Components</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Proton Pack</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_LID/">Cyclotron Lid</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_INNER/">Inner Cyclotron</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../CYCLOTRON_BYPASS/">Cyclotron Bypass</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NFILTER/">N-Filter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../POWERCELL/">Power Cell</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Neutrona Wand</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../BARGRAPH/">Bargraph</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../HATS/">Hatlights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../VENTLIGHT/">Vent Lights</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../NEUTRONA_ENCODER/">Neutrona Encoder</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Pack Attenuator</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../ATTENUATOR/">Attenuator</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../WIRELESS/">WiFi Adapter</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Special Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Power</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../POWER/">Requirements</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../BATTERIES/">Batteries</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SOUND/">Sound Output</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../HOSE/">Pack-Wand Hose</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../SMOKE/">Smoke Kits</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WEB_API_REFERENCE/">Web API Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../VSCODE/">Code Development</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../DIY_LEGACY/">Legacy DIY</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Operation Manuals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_USAGE/">General Usage</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_MENUS/">Runtime Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../OPERATION_EEPROM/">EEPROM Menus</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../WIRELESS_OPERATION/">Attenuator WiFi Operation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Install Videos</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_JONOGUNN/">Jonogunn</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../INSTALL_VIDEOS_NORCALGB/">Nor-Cal GB</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Maintenance</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../FLASHING/">Flashing Pack/Wand Firmware</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ATTENUATOR_FLASHING/">Flashing Attenuator/WiFi</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../AUDIO_FILES/">Audio Files</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">From the Engineer Corps</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../SINGLESHOT/">Single-Shot Blaster</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../BELT_GIZMO/">Belt Gizmo</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../STREAM_EFFECTS/">Stream Effects</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Help</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TROUBLESHOOTING/">Troubleshooting</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ/">General FAQ</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../FAQ_GPStar2/">GPStar II FAQ</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">GPStar Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">GPStar II</li>
+      <li class="breadcrumb-item active">GPStar II Wireless</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="gpstar-ii-wireless-operation">GPStar II Wireless Operation</h1>
+<p>All devices within the GPStar ecosystem capable of operation over WiFi utilize a built-in web server which offers an API-first design for communications. This guide will cover the web interface available that is built into the GPStar Proton Pack II and GPStar Neutrona Wand II. As of the v6.1 firmware release all devices are now unified in naming and consistent with their private networking settings.</p>
+<table>
+<thead>
+<tr>
+<th>Device Type</th>
+<th>Default SSID</th>
+<th>Default Password</th>
+<th>IP Address</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Attenuator</td>
+<td>GPStar_Attenuator</td>
+<td>555-2368</td>
+<td><a href="http://192.168.1.2">192.168.1.2</a></td>
+</tr>
+<tr>
+<td>Proton Pack</td>
+<td>GPStar_Pack2</td>
+<td>555-2368</td>
+<td><a href="http://192.168.1.4">192.168.1.4</a></td>
+</tr>
+<tr>
+<td>Neutrona Wand</td>
+<td>GPStar_Wand2</td>
+<td>555-2368</td>
+<td><a href="http://192.168.1.6">192.168.1.6</a></td>
+</tr>
+</tbody>
+</table>
+<p>Automatic enabling or disabling of WiFi will take place in the following order:</p>
+<ol>
+<li><strong>Attenuator &gt; Pack</strong><ul>
+<li>When present, an Attenuator device will act as primary WiFi interface and the GPStar Proton Pack II will automatically disable its WiFi radio to conserve power.</li>
+<li>WiFi access can be restored to the pack via the wand action menu (Level 3, Option 5, Barrel Wing Button), or via the Proton Pack Settings page on the web UI.</li>
+</ul>
+</li>
+<li><strong>Pack &gt; Wand</strong><ul>
+<li>When these devices are connected the GPStar Proton Pack II will serve as the primary WiFi interface and the GPStar Neutrona Wand II will automatically disable its WiFi radio to conserve power.</li>
+<li>WiFi access can be restored to the wand via the wand action menu (Level 3, Option 5, Intensify), or via the Neutrona Wand Settings page on the web UI.</li>
+<li>WiFi access can also be restored to the wand by holding down Intensify then holding down the Barrel Wing Button while all other wand switches are turned off.</li>
+</ul>
+</li>
+<li><strong>Wand</strong><ul>
+<li>For a standalone GPStar Neutrona Wand II or when not connected to a GPStar Proton Pack II, the WiFi will be enabled automatically.</li>
+</ul>
+</li>
+</ol>
+<h2 id="proton-pack">Proton Pack</h2>
+<p>If you have a Attenuator connected, the GPStar Proton Pack II will turn off its WiFi for power saving. You can manually turn on or turn off the WiFi for it from the <a href="../OPERATION_MENUS/">OPERATION_MENUS</a></p>
+<p>To connect to the GPStar Proton Pack II over WiFi, a private WiFi network (access point) which will appear as <strong>"GPStar_Pack2"</strong>, and this will be secured with a default password of <strong>555-2368</strong>.</p>
+<p>Once connected, your computer/phone/tablet should be assigned an IP address starting from <strong>"192.168.1.100"</strong> with a subnet of <strong>"255.255.255.0"</strong>. Please remember that if you intend to have multiple devices connect via this private WiFi network you will be assigned a unique IP address for each client device (eg. phone, tablet, or computer).</p>
+<p>A web-based user interface is available at <a href="http://gpstar_pack2.local">http://gpstar_pack2.local</a> or <a href="http://192.168.1.4">http://192.168.1.4</a> to view the state of your Proton Pack and Neutrona Wand, and to manage specific actions. The available sections are described below.</p>
+<h4 id="tab-1-equipment-status">Tab 1: Equipment Status</h4>
+<p><img alt="Menu-Display" src="../images/WebUI-Main1.jpg" /></p>
+<p>The equipment status will reflect the current state of your Proton Pack and Neutrona Wand and will update in real-time as you interact with those devices. This information is available as either a text-based or graphical display, or both if you prefer (set via Preferences).</p>
+<p>When using the graphical display, most components of the Proton pack and Neutrona Wand are represented by colour-coded overlays on the component will may be affected by runtime actions:</p>
+<ul>
+<li>The top of the display will indicate the mode (Standard = Mode Original, Upgraded = Super Hero) along with the year theme (V1.9.8x or V2.0.2x).</li>
+<li>When the Ion Arm switch is engaged for Mode Original, the overlay for the Ion Arm will be green to indicate a ready state. When in Super Hero mode this overlay will be green when the Proton Pack is powered on.</li>
+<li>When the Proton Pack is powered on:<ul>
+<li>The Power Cell, Booster Tube, and Cyclotron overlays will be green as their default state.</li>
+<li>When the Cyclotron is in a normal state the overlay will be green. It will change to yellow then red as it goes through the pre-warning and overheat states. During venting the overlay will be blue to indicate the recovery period.</li>
+<li>The color state of the Booster Tube is linked to the "Output" text value which is the voltage measured at the Proton Pack PCB (in volts, but displayed as Gev). During high power draw events such as smoke generation the voltage can drop briefly, and will be reflected as a red overlay when that value is below 4.2V</li>
+</ul>
+</li>
+<li>When the Neutrona Wand is powered on, the overlay above the Activate/Intensify portion of the gun box will indicate if the barrel is retracted (red) or extended (green).</li>
+<li>The current power level for the Neutrona Wand will be indicated by the "L-#" beside the barrel.</li>
+<li>The type of firing mode will be displayed below the Neutrona Wand and will be color coded via the barrel. Color intensity increases with the power level.<ul>
+<li>Proton Stream: Red (includes Spectral modes)</li>
+<li>Plasm System: Green (incl. for 1989 theme)</li>
+<li>Dark Matter Gen.: Blue</li>
+<li>Particle System: Orange</li>
+<li>Settings: Gray</li>
+</ul>
+</li>
+<li>When using the power-detection feature with a stock Haslab Neutrona Wand the default stream will be Proton with a power level of 5. Instead of the stream type being displayed, there will be a wattage value displayed as Gigawatts (GW).</li>
+<li>If the Ribbon Cable is removed, a warning icon will appear over that component to indicate an alarm state.</li>
+<li>When the Cyclotron lid is removed a radiation exposure warning will be displayed at the bottom of the CRT display.</li>
+</ul>
+<p><strong>Note:</strong> When using the text-based display, if you see a "&mdash;" (dash) beside the labels it can indicate a potential communication issue. Simply refresh the page and/or check your WiFi connection to the device.</p>
+<p>Special thanks and credit to fellow cosplayer <a href="https://www.etsy.com/shop/BeaulieuDesigns87">Alexander Hibbs (@BeaulieuDesigns87)</a> from the <a href="https://www.facebook.com/SCGhostbusters/">South Carolina Ghostbusters</a>, who created the amazingly detailed Proton Pack and Neutrona Wand technical illustration, available as a <a href="https://www.etsy.com/listing/1406461576/proton-pack-blueprint-matte-poster">printed poster</a> or <a href="https://www.etsy.com/listing/1411559802/proton-pack-blueprint-digital-download">digital image</a>. He has graciously provided a version of his design to make the new graphical interface.</p>
+<div style="clear:both"></div>
+
+<h4 id="tab-2-audio-controls">Tab 2: Audio Controls</h4>
+<p><img alt="Menu-Display" src="../images/WebUI-Main2-ii.jpg" /></p>
+<p>This section allows full control of the system (overall) volume, effects volume, and music volume along with the ability to mute/unmute all devices. The current volume levels will be shown and updated in real-time whether adjusted via the web UI, the pack, or the wand.</p>
+<p>For playback of music you can use the improved navigation controls:</p>
+<table>
+<thead>
+<tr>
+<th>Indicator</th>
+<th>Track Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&#9664;&#9664;</td>
+<td>Previous</td>
+</tr>
+<tr>
+<td>&#9634;&nbsp;&#9654;</td>
+<td>Start/Stop</td>
+</tr>
+<tr>
+<td>&#9646;&#9646;&nbsp;&#9654;</td>
+<td>Pause/Resume</td>
+</tr>
+<tr>
+<td>&#9654;&#9654;</td>
+<td>Next/Skip</td>
+</tr>
+</tbody>
+</table>
+<div style="clear:both"></div>
+
+<p><img alt="Menu-Display" src="../images/WebUI-SongSelect.jpg" /></p>
+<p>You may also jump directly to a specific track for playback via the selection field (switching immediately if already playing, otherwise that track will be started via the Start/Stop button).</p>
+<p>By default, only the track numbers are known to the audio device as all music tracks must begin at value "500" per the naming convention used by the GPStar controller software. However it is possible to add a track listing to the device's memory so that user-friendly song names can be displayed. See the Special Device Settings Section described below for more information.</p>
+<div style="clear:both"></div>
+
+<h4 id="tab-3-pack-controls">Tab 3: Pack Controls</h4>
+<p>Controls will be made available on a per-action or per-state basis.</p>
+<p><img alt="Menu-Display" src="../images/WebUI-Main2-pack.jpg" /></p>
+<p>Shown here, the pack and wand are both in an Idle state while in the "Super Hero" operation mode which allows the pack to be turned on/off remotely. The options to remotely vent or to "Attenuate" are only enabled when the devices are in a specific state.</p>
+<ul>
+<li><strong>Vent:</strong> This can only be triggered remotely when in the "Super Hero" mode and while the Pack State is "Powered".</li>
+<li><strong>Attenuate:</strong> When firing, the Cyclotron State must be either "Warning" or "Critical" to enable this button.</li>
+<li><strong>Smoke:</strong> Enable or disable smoke effects.</li>
+<li><strong>Vibration:</strong> Enable or disable Proton Pack vibration.</li>
+<li><strong>Cyclotron Rotation Direction:</strong> Set your cyclotron rotation from clockwise or counter clockwise.</li>
+<li><strong>Theme:</strong> Set the theme mode of your Proton Pack between: 1984, 1989, Afterlife or Frozen Empire.</li>
+<li><strong>Stream:</strong> Change the stream type as you would using the top-dial directly on the Neutrona Wand.</li>
+</ul>
+<div style="clear:both"></div>
+
+<h4 id="tab-4-preferences-administration">Tab 4: Preferences / Administration</h4>
+<p><img alt="Menu-Display" src="../images/WebUI-Main4-pack.jpg" /></p>
+<p>These provide a web interface for managing options which are accessed via the LED or Config EEPROM menus. The settings are divided into 4 sections: Special Device Settings, Proton Pack, Neutrona Wand, and Overheat/Smoke. The features available via these sections will be covered in-depth later in this document.</p>
+<p>These links allow you to change or control aspects of the available devices in lieu of the EEPROM menu.</p>
+<ul>
+<li><strong>Update Firmware:</strong> Allows you to update the firmware using Over-the-Air updates. See the <a href="../FLASHING/">FLASHING</a> guide for details</li>
+<li><strong>Secure Device WiFi:</strong> Allows changing of the default password for the private WiFi network</li>
+<li><strong>Change WiFi Settings:</strong> Provides an optional means of joining an existing, external WiFi network for access of your device</li>
+<li><strong>Restart/Resync:</strong> Allows a remote restart of the software by performing a reboot ONLY of the device</li>
+</ul>
+<p>At the bottom of the screen is a timestamp representing the date of the software build for the firmware, the current GPStar Audio Firmware version, along with the name of the private WiFi network offered by the current device. If connected to an external WiFi network the current IP address and subnet mask will be displayed.</p>
+<div style="clear:both"></div>
+
+<h3 id="special-proton-pack-device-settings">Special Proton Pack Device Settings</h3>
+<p><img alt="Menu-Display" src="../images/gpstar-ii-special-device-settings.jpg" /></p>
+<p>The special device settings allows you to change the graphical user interface, change the private network name and adding track names to music.</p>
+<div style="clear:both"></div>
+
+<h3 id="proton-pack-settings">Proton Pack Settings</h3>
+<p><img alt="Menu-Display" src="../images/WebUI-Pack.jpg" /></p>
+<p>Set options related specifically to the Proton Pack. Options such as the color/saturation sliders will only take effect if you have installed upgrades to the RGB Power Cell and Cyclotron lid light kits. Similarly, the Video Game mode option will have no effect on the stock Haslab LEDs.</p>
+<p><strong>Reminder:</strong> The ability to update settings or save to EEPROM will be disabled so long as the pack and wand are running. Turn off all physical toggles to set these devices to an idle state before adjusting settings. Refresh the page to get the latest values for preferences.</p>
+<p>📝 <strong>Note:</strong> When changing options such as the count of LEDs in use for a device, or some options such as the Operation Mode, a full power-cycle of the equipment is required after saving to EEPROM.</p>
+<div style="clear:both"></div>
+
+<h3 id="neutrona-wand-settings">Neutrona Wand Settings</h3>
+<p><img alt="Menu-Display" src="../images/WebUI-Wand.jpg" /></p>
+<p>Set options related specifically to the Neutrona Wand. These can be accessed from the GPStar Proton Pack II, or by connecting to the GPStar Neutrona Wand II directly over WiFi.</p>
+<p><strong>Reminder:</strong> The ability to update settings or save to EEPROM will be disabled so long as the pack and wand are running. Turn off all physical toggles to set these devices to an idle state before adjusting settings. Refresh the page to get the latest values for preferences.</p>
+<p>📝 <strong>Note:</strong> When changing options such as the count of LEDs in use for a device, a full power-cycle of the equipment is required after saving to EEPROM.</p>
+<div style="clear:both"></div>
+
+<h3 id="overheatsmoke-settings">Overheat/Smoke Settings</h3>
+<p><img alt="Menu-Display" src="../images/WebUI-Smoke.jpg" /></p>
+<p>Adjust overall smoke effects (toggle on/off) and adjust per-level effects. Naturally, these options will have no effect on operation without a smoke kit installed.</p>
+<p><strong>Reminder:</strong> The ability to update settings or save to EEPROM will be disabled so long as the pack and wand are running. Turn off all physical toggles to set these devices to an idle state before adjusting settings. Refresh the page to get the latest values for preferences.</p>
+<div style="clear:both"></div>
+
+<h3 id="external-wifi-settings">External WiFi Settings</h3>
+<p><img alt="Menu-Display" src="../images/WebUI-WiFi.jpg" /></p>
+<p>It is possible to have your device join an existing WiFi network which may provide a more stable network connection.</p>
+<ol>
+<li>Access the "Change WiFi Settings" page to make the necessary device modifications.</li>
+<li>Enable the external WiFi options and supply the preferred WiFi network name (SSID) and WPA2 password for access.<ul>
+<li>Optionally, you may specify an IP address, subnet mask, and gateway IP if you wish to use static values. Otherwise, the device will obtain these values automatically from your chosen network via DHCP.</li>
+</ul>
+</li>
+<li>Save the changes, which will cause the device to reboot and attempt to connect to the network (up to 3 tries).</li>
+<li>Return to the "Change WiFi Settings" section to observe the IP address information. If the connection was successful, an IP address, subnet mask, and gateway IP will be shown.</li>
+<li>While connected to the same WiFi network on your computer/phone/tablet, use the IP address shown to connect to your device's web interface.</li>
+</ol>
+<p>Use of an unsecured WiFi network is not supported and not recommended.</p>
+<div style="clear:both"></div>
+
+<h2 id="neutrona-wand">Neutrona Wand</h2>
+<p>The WiFi on the GPStar Neutrona Wand II is disabled for power saving measures when it is connected to a GPStar Proton Pack II. You can manually turn on or turn off the WiFi for the GPStar Neutrona Wand II from the <a href="../OPERATION_MENUS/">OPERATION_MENUS</a></p>
+<p>When a GPStar Neutrona II is connected to a GPStar Proton Pack II, all the Neutrona Wand settings can be accessed from the GPStar Proton Pack II. </p>
+<p>To connect to the GPStar Neutrona Wand II over WiFi, a private WiFi network (access point) which will appear as <strong>"GPStar_Wand2"</strong>, and this will be secured with a default password of <strong>"555-2368"</strong>.</p>
+<p>Once connected, your computer/phone/tablet should be assigned an IP address starting from <strong>"192.168.1.100"</strong> with a subnet of <strong>"255.255.255.0"</strong>. Please remember that if you intend to have multiple devices connect via this private WiFi network you will be assigned a unique IP address for each client device (eg. phone, tablet, or computer).</p>
+<p>A web-based user interface is available at <a href="http://gpstar_wand2.local">http://gpstar_wand2.local</a> or <a href="http://192.168.1.6">http://192.168.1.6</a> to view the state of your Neutrona Wand, and to manage specific actions. The available sections are described below.</p>
+<h4 id="tab-1-neutrona-wand-status">Tab 1: Neutrona Wand Status</h4>
+<p><img alt="Menu-Display" src="../images/WebUI-Wand-Menu.jpg" /></p>
+<p>The Neutrona Wand status screen will display the real time rotational coordinates and other sensor data in real time. Moving your Neutrona Wand up, down, and or rotating will automatically update visually on screen. Two buttons at the bottom of the screen allow you to re-centre the 3D representation of your Neutrona Wand and also to trigger a Infrared Signal if you have a GPStar Infrared sensor attached to your Neutrona Wand.</p>
+<div style="clear:both"></div>
+
+<h4 id="tab-2-audio-controls_1">Tab 2: Audio Controls</h4>
+<p>The same as seen in the Audio Controls in the Proton Pack settings above.</p>
+<h4 id="tab-3-sensor-calibration">Tab 3: Sensor Calibration</h4>
+<p>![Menu-Display](images/CalibrationDisabled.png"/&gt;</p>
+<p>The GPStar Neturona Wand II is equipped with a gyroscope and magnetometer. The sensors can be even more finely calibrated to provide more accurate data after it is fully installed into your Neutrona Wand, taking into account nearby magnetic sources such as a speaker.</p>
+<p>You can begin a sensor calibration by pressing the Enable Calibration button. You will then start relatively slowly rotating your Neutrona Wand in all directions. A visual calibration monitor will appear on screen to show your progress. Rotate the Neutrona Wand to fill in the dots until the coverage is as close as possible to 100%. </p>
+<p><strong>TIP: Point the Neutrona Wand down, and slowly raise it up in an arc. Turn slightly and then arc back to full down. Repeat this process until you have done a 360.</strong></p>
+<p>Press the Disable Calibration button when you are finished to save the newly calibrated settings into the system memory.</p>
+<p><strong>Note:</strong> You must have at least 60% coverage in order for the calibration data to be effective! If you exit the calibration process before reaching 60% you will be given a confirmation to either continue collecting data or stop the process and no calibration values will be calculated.</p>
+<p>See the <a href="../WAND_CALIBRATION/">WAND_CALIBRATION</a> for more details.</p>
+<div style="clear:both"></div>
+
+<h4 id="tab-4-preferences-administration_1">Tab 4: Preferences / Administration</h4>
+<p><img alt="Menu-Display" src="../images/WebUI-Wand-Menu-Tab4.jpg" /></p>
+<p>These provide a web interface for managing options which are accessed via the LED or Config EEPROM menus. The settings are divided into 4 sections: Special Device Settings, Neutrona Wand Settings.</p>
+<p>These links allow you to change or control aspects of the available devices in lieu of the EEPROM menu.</p>
+<ul>
+<li><strong>Update Firmware</strong> - Allows you to update the firmware using Over-the-Air updates. See the <a href="../FLASHING/">FLASHING</a> guide for details</li>
+<li><strong>Secure Device WiFi</strong>- Allows changing of the default password for the private WiFi network</li>
+<li><strong>Change WiFi Settings</strong> - Provides an optional means of joining an existing, external WiFi network for access of your device</li>
+<li><strong>Restart/Resync</strong> - Allows a remote restart of the software by performing a reboot ONLY of the device</li>
+</ul>
+<p>At the bottom of the screen is a timestamp representing the date of the software build for the firmware, the current GPStar Audio Firmware version, along with the name of the private WiFi network offered by the current device. If connected to an external WiFi network the current IP address and subnet mask will be displayed.</p>
+<div style="clear:both"></div>
+
+<h3 id="special-neutrona-wand-device-settings">Special Neutrona Wand Device Settings</h3>
+<p><img alt="Menu-Display" src="../images/WebUI-Wand-Menu-Settings1.jpg" /></p>
+<p>In the Special Device Settings for the Neutrona Wand, you can customize the name of the private wireless network when WiFi is enabled for the device.</p>
+<p>The purpose of the Controller Installation Orientation Menu option is to establish the correct X, Y, and Z directions for the sensors relative to how the GPStar Neutrona Wand II board is installed inside your Neutrona Wand body. For example, on Hasbro Neutrona Wands it will be "Components Down, USB Front"; for a Mack's Factory Neutrona Wand, it will be in a different orientation such as the "Components Right, USB front".</p>
+<p>The magnetic offset information it editable but not recommended to do so unless you understand the purpose. The display of "Hard Iron" (magnetic corrections) and "Soft Iron" (nearby metallic interference) can be used to verify that calibration of the device produced unique values to your Neutrona Wand device. These will be applied automatically to sensor readings to ensure consistent and stable behavior.</p>
+<div style="clear:both"></div>
+
+<p><img alt="Menu-Display" src="../images/WebUI-Wand-Menu-Settings2.jpg" /></p>
+<p>A toggle to enable or disable Standalone Mode for the Neutrona Wand is available, which makes testing of features more user-friendly during installation. When enabled, no communication will occur with the Proton Pack even if properly attached. <strong>Be sure to disable this option for normal use or you will find that the Neutrona Wand will not control the Proton Pack as expected!</strong></p>
+<p>A toggle to enable or disable using the IR transmitter while firing streams is available. When enabled, the IR transmitter will transmit stream data for use with the PSTT or Ghost Trap. By default this is disabled to improve responsiveness when not using interactive devices.</p>
+<p>Lastly, you can configure the music track names for the GPStar Neutrona Wand II in stand-alone mode <strong>Using it without a GPStar Proton Pack II</strong>.</p>
+<p><strong>Note:</strong> Diagnostic information related to the magnetometer is shown for troubleshooting purposes. This can be disregarded for normal use.</p>
+<div style="clear:both"></div>
+
+<h3 id="neutrona-wand-settings_1">Neutrona Wand Settings</h3>
+<p>The same as seen in the Neutrona Wand settings accessed from the Proton Pack above.</p>
+<h2 id="wifi-password-reset">WiFi Password Reset</h2>
+<p>If you have forgotten the password to your GPStar Proton Pack II or GPStar Neutrona Wand II private WiFi network, you can reset the password via the action menu level 3 in the Neutrona Wand.</p>
+<p>See the <a href="../OPERATION_MENUS/">OPERATION_MENUS</a> for more details.</p>
+<p>Once reset, the default password will be <strong>555-2368</strong></p>
+<h2 id="increasing-wifi-performance">Increasing WiFi Performance</h2>
+<p>It should be clearly stated that the WiFi built into these boards are a low-power device. When used in a crowded (read: convention) environment the signal may become overwhelmed by competing RF devices. When possible, configure the device to connect to a stronger, stable wireless network as a client rather than relying on the built-in access point as this may improve the range and performance of the web-based interface.</p>
+<ul>
+<li>For <strong>Android</strong> devices offering a cellular hotspot, these devices may utilize a feature called "Client Isolation Mode" which will prevent hotspot clients from seeing each other. Unless you can disable this option (via a rooted device) you will not be able to reach the web UI via the hotspot network.</li>
+<li>For <strong>iOS</strong> devices offering a cellular hotspot, please make sure that the "Maximize Compatibility" option is enabled. This will ensure your device offers the 2.4GHz radio and will be seen by the GPStar Proton Pack II or GPStar Neutrona Wand II.</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../PSTT/" class="btn btn-neutral float-left" title="Proton Stream Target Trainer"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../WAND_CALIBRATION/" class="btn btn-neutral float-right" title="Motion Sensor Calibration">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>GPStar Technologies</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../PSTT/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../WAND_CALIBRATION/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
