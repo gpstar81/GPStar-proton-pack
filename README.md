@@ -1,5 +1,7 @@
 <h1><img src='docs/images/gpstar_logo.png' width=50 align="left"/>GPStar Proton Pack and Neutrona Wand</h1>
 
+# Project moved to [GPStarTechnologies](https://github.com/GPStarTechnologies) organization at [https://github.com/GPStarTechnologies/GPStar-Core-Source](https://github.com/GPStarTechnologies/GPStar-Core-Source)
+
 ## Summary
 
 A fully integrated Proton Pack and Neutrona Wand, packed with features and add-ons. Compatible with the HasLab Plasma Series Proton Pack and Neutrona Wand, Mack's Proton Pack and Wand, and more!
